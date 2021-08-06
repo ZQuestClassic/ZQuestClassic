@@ -1475,7 +1475,7 @@ int jwin_numedit_short_proc(int msg,DIALOG *d,int c)
 {
 	if ( (atoi((char*)d->dp)) > 65535 )
 	{
-		strcpy((char*)d->dp,"255\0");
+		strcpy((char*)d->dp,"65535\0");
 		return jwin_numedit_proc(msg,d,c);
 	}
 	else if ( (atoi((char*)d->dp)) < 0 ) 

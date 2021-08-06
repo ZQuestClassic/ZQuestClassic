@@ -15,14 +15,19 @@
 #define DEVLEVEL 0
 #define COLLECT_SCRIPT_ITEM_ZERO -32767
 
-//DEVLEVEL 1: Ignore passwd
-//DEVLEVEL 2: +More verbose logging. 
+//DEVLEVEL 1 = extra debug tools
+//DEVLEVEL 2 = force enable cheats
+//DEVLEVEL 3 ?? (Seems to do nothing special)
+//DEVLEVEL 4 = ignore quest passwords
 
 #if DEVLEVEL > 0
 #define DEVLOGGING	dev_logging
 #define DEVDEBUG	dev_debug
+#define DEVTIMESTAMP dev_timestmp
 #else
-#define DEVLOGGING	false
+#define DEVLOGGING	 false
+#define DEVDEBUG	 false
+#define DEVTIMESTAMP false
 #endif
 
 //Conditional Debugging Compilation
@@ -221,7 +226,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          7
 #define V_MISC             12
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           16
+#define V_COMBOS           19
 #define V_CSETS            4
 #define V_MAPS            22
 #define V_DMAPS            15
@@ -232,7 +237,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        21
-#define V_GUYS            42
+#define V_GUYS            43
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        18 //skipped 13->15 for 2.53.1
@@ -2896,7 +2901,8 @@ struct newcombo
 		//long triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
 		//Thus, a weapon level affects all triggers for that combo type. 
     //384 bits total per object
-    byte attribytes[4];
+    byte attribytes[8];
+    short attrishorts[8];
     word script;
     long initd[2];
     //refinfo scriptData; //no, better to have 176 refinfos*layers, than one per combo. 

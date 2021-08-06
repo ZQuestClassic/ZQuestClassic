@@ -4511,6 +4511,11 @@ int onShowLayerW()
     show_walkflags=!show_walkflags;
     return D_O_K;
 }
+int onShowLayerE()
+{
+    show_effectflags=!show_effectflags;
+    return D_O_K;
+}
 int onShowFFScripts()
 {
     show_ff_scripts=!show_ff_scripts;
@@ -8569,6 +8574,7 @@ static MENU show_menu[] =
     { (char *)"Walkability\tW",		  onShowLayerW,                 NULL,                      0, NULL },
     { (char *)"Current FFC Scripts\tF",	  onShowFFScripts,              NULL,                      0, NULL },
     { (char *)"Hitboxes\tC",				  onShowHitboxes,               NULL,                      0, NULL },
+    { (char *)"Effects\tE",		  onShowLayerE,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                     NULL,                      0, NULL }
 };
 
@@ -8611,6 +8617,7 @@ static MENU dev_menu[] =
 {
 	{ (char *)"&Force Error Log",           devLogging,              NULL,             D_SELECTED, NULL },
 	{ (char *)"&Extra Debug Log",           devDebug,                NULL,             D_SELECTED, NULL },
+	{ (char *)"&Timestamp Log",             devTimestmp,             NULL,             D_SELECTED, NULL },
 	#if DEVLEVEL > 1
 	{ (char *)"",                           NULL,                    NULL,             0,          NULL },
 	{ (char *)"Set &Cheat",                 setCheat,                NULL,             0,          NULL },
@@ -8627,6 +8634,12 @@ int devDebug()
 {
 	dev_debug = !dev_debug;
 	dev_menu[1].flags = dev_debug ? D_SELECTED : 0;
+	return D_O_K;
+}
+int devTimestmp()
+{
+	dev_timestmp = !dev_timestmp;
+	dev_menu[2].flags = dev_timestmp ? D_SELECTED : 0;
 	return D_O_K;
 }
 #if DEVLEVEL > 1
@@ -9735,7 +9748,7 @@ void System()
     
     game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
 	#if DEVLEVEL > 1
-	dev_menu[3].flags = Playing ? 0 : D_DISABLED;
+	dev_menu[4].flags = Playing ? 0 : D_DISABLED;
 	#endif
     game_menu[3].flags =
         misc_menu[5].flags = Playing ? 0 : D_DISABLED;
@@ -9856,6 +9869,7 @@ void System()
             show_menu[12].flags = show_walkflags ? D_SELECTED : 0;
             show_menu[13].flags = show_ff_scripts ? D_SELECTED : 0;
             show_menu[14].flags = show_hitboxes ? D_SELECTED : 0;
+	    show_menu[15].flags = show_effectflags ? D_SELECTED : 0;
         }
         
         settings_menu[11].flags = heart_beep ? D_SELECTED : 0;

@@ -113,6 +113,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #if DEVLEVEL > 0
 bool dev_logging = true;
 bool dev_debug = true;
+bool dev_timestmp = true;
 #endif
 
 ZCMUSIC *zcmusic = NULL;
@@ -392,7 +393,7 @@ bool palette_user_tinted = false;
 
 bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true, show_layer_4=true, show_layer_5=true, show_layer_6=true,
 //oveheard combos     //pushblocks
-     show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false;
+     show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
 
 
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false;
@@ -1894,7 +1895,7 @@ int init_game()
     wavy=quakeclk=0;
     show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
     show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
-    cheat_superman=do_cheat_light=do_cheat_goto=show_walkflags=show_ff_scripts=show_hitboxes=false;
+    cheat_superman=do_cheat_light=do_cheat_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
     //al_trace("Clearing old RenderTarget\n");
     if ( zscriptDrawingRenderTarget ) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1); //clear the last set Rendertarget between games
     //zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();

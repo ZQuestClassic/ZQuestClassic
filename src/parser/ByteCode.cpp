@@ -444,6 +444,9 @@ string ZScript::VarToString(long ID)
 	case COMBOSD:
 		return "COMBOSD";
 		
+	case COMBOED:
+		return "COMBOED";
+		
 	case COMBOIDM:
 		return "COMBOIDM";
 		
@@ -1422,6 +1425,7 @@ string ZScript::VarToString(long ID)
 	case MAPDATACOMBOTD: return "MAPDATACOMBOTD";
 	case MAPDATACOMBOID: return "MAPDATACOMBOID";
 	case MAPDATACOMBOSD: return "MAPDATACOMBOSD";
+	case MAPDATACOMBOED: return "MAPDATACOMBOED";
 	
 	
 	
@@ -1596,6 +1600,7 @@ string ZScript::VarToString(long ID)
 	case COMBODTILE: return "COMBODTILE";
 	case COMBODFLIP: return "COMBODFLIP";
 	case COMBODWALK: return "COMBODWALK";
+	case COMBODEFFECT: return "COMBODEFFECT";
 	case COMBODTYPE: return "COMBODTYPE";
 	case COMBODCSET: return "COMBODCSET";
 	case COMBODFOO: return "COMBODFOO";

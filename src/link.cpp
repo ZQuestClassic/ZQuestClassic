@@ -424,6 +424,7 @@ void LinkClass::resetflags(bool all)
 		hoverflags = 0;
     }
     damageovertimeclk = -1;
+    newconveyorclk = 0;
     hopclk=0;
     hopdir=-1;
     attackclk=0;
@@ -1136,6 +1137,7 @@ void LinkClass::init()
     onpassivedmg=false;
     dir = up;
     damageovertimeclk = -1;
+    newconveyorclk = 0;
     shiftdir = -1;
     holddir = -1;
     landswim = 0;
@@ -3023,7 +3025,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
         {
             int it = -1;
 		
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1])/10000L : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 		
@@ -3330,7 +3332,7 @@ void LinkClass::check_slash_block(int bx, int by)
         {
 		int it = -1;
 		//zprint("reached iscuttableitem, with cid: %d\n", cid);
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 		{
 			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
@@ -3775,7 +3777,7 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
         {
             int it = -1;
 		
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 		
@@ -4100,7 +4102,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         {
 		int it = -1;
 		//zprint("reached iscuttableitem, with cid: %d\n", cid);
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 		{
 			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
@@ -4783,7 +4785,7 @@ void LinkClass::check_slash_block(weapon *w)
         {
 		int it = -1;
 		//zprint("reached iscuttableitem, with cid: %d\n", cid);
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].attributes[1] : 12, bx, by);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 		{
 			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
@@ -6393,10 +6395,10 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	
 	{
 		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[0] = cmb.attributes[0] * -1;
+				hp_mod[0] = cmb.attributes[0] / -10000L;
 			else 
 				hp_mod[0]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6405,10 +6407,10 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	}
 	{
 		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[1] = cmb.attributes[0] * -1;
+				hp_mod[1] = cmb.attributes[0] / -10000L;
 			else 
 				hp_mod[1]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6417,10 +6419,10 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	}
 	{
 		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[2] = cmb.attributes[0] * -1;
+				hp_mod[2] = cmb.attributes[0] / -10000L;
 			else 
 				hp_mod[2]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6429,10 +6431,10 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	}
 	{
 		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[3] = cmb.attributes[0] * -1;
+				hp_mod[3] = cmb.attributes[0] / -10000L;
 			else 
 				hp_mod[3]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6447,10 +6449,10 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
-			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
-			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
-			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<3);}
+			if (!_effectflag(dx1,dy1,1, layer) || (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i])))) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
+			if (!_effectflag(dx1,dy2,1, layer) || (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i])))) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
+			if (!_effectflag(dx2,dy1,1, layer) || (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i])))) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
+			if (!_effectflag(dx2,dy2,1, layer) || (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i])))) {hp_mod[3] = 0; hasKB &= ~(1<<3);}
 		}
 	}
 	
@@ -6469,10 +6471,10 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	
 	{
 		newcombo& cmb = combobuf[MAPFFCOMBO(dx1,dy1)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[0] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+				hp_mod[0] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
 			else
 				hp_mod[0]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6481,10 +6483,10 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	}
 	{
 		newcombo& cmb = combobuf[MAPFFCOMBO(dx1,dy2)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[1] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+				hp_mod[1] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
 			else
 				hp_mod[1]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6493,10 +6495,10 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	}
 	{
 		newcombo& cmb = combobuf[MAPFFCOMBO(dx2,dy1)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[2] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+				hp_mod[2] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
 			else
 				hp_mod[2]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6505,10 +6507,10 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	}
 	{
 		newcombo& cmb = combobuf[MAPFFCOMBO(dx2,dy2)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount )
+		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[3] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0];
+				hp_mod[3] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
 			else
 				hp_mod[3]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6913,9 +6915,9 @@ bool LinkClass::animate(int)
 						if (damageovertimeclk == 0)
 						{
 							int curhp = game->get_life();
-							if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]), 0, game->get_maxlife())); //Affected by rings
-							else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1], 0, game->get_maxlife()));
-							if (combobuf[watercheck].attributes[2] && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]);
+							if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
+							else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1]/10000L, 0, game->get_maxlife()));
+							if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
 							if (game->get_life() < curhp && combobuf[watercheck].usrflags&cflag7)
 							{
 								hclk = 48;
@@ -6953,9 +6955,9 @@ bool LinkClass::animate(int)
 					if (damageovertimeclk == 0)
 					{
 						int curhp = game->get_life();
-						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]), 0, game->get_maxlife())); //Affected by rings
-						else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1], 0, game->get_maxlife()));
-						if (combobuf[watercheck].attributes[2] && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]);
+						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
+						else game->set_life(vbound(game->get_life()+(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife()));
+						if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
 					}
 					if (combobuf[watercheck].attribytes[1] > 0)
 					{
@@ -7638,7 +7640,7 @@ bool LinkClass::animate(int)
 		{
 			action=none; FFCore.setLinkAction(none);
 			int water = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
-			int damage = combobuf[water].attributes[0];
+			int damage = combobuf[water].attributes[0]/10000L;
 			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (HP_PER_HEART/4);
 			if (combobuf[water].type != cWATER) damage = 4;
 			game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
@@ -7800,9 +7802,9 @@ bool LinkClass::animate(int)
 					if (damageovertimeclk == 0)
 					{
 						int curhp = game->get_life();
-						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]), 0, game->get_maxlife())); //Affected by rings
-						else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1], 0, game->get_maxlife()));
-						if (combobuf[watercheck].attributes[2] && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]);
+						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
+						else game->set_life(vbound(game->get_life()+(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife()));
+						if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
 						if (game->get_life() < curhp && combobuf[watercheck].usrflags&cflag7)
 						{
 							hclk = 48;
@@ -13948,8 +13950,9 @@ void LinkClass::move(int d2, int forceRate)
 		return;
 	}
 	
-    bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
-                     (isSideViewLink() && (on_sideview_solid(x,y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
+    bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1) && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
+                     (isSideViewLink() && (on_sideview_solid(x,y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1));
+		     //!DIMITODO: add QR for slow combos under link
 	for (int i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
@@ -15353,19 +15356,20 @@ void LinkClass::checklockblock()
         break;
     }
     
-    bool found=false;
+    bool found1=false;
+    bool found2=false;
     int foundlayer = -1;
     int cid = 0;
     // Layer 0 is overridden by Locked Doors
-    if((combobuf[MAPCOMBO(bx,by)].type==cLOCKBLOCK && !islockeddoor(bx,by,dLOCKED)))
+    if((combobuf[MAPCOMBO(bx,by)].type==cLOCKBLOCK && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dLOCKED)))
     {
-	found=true;
+	found1=true;
 	cid = MAPCOMBO(bx,by);
 	foundlayer = 0;
     }
-    else if (combobuf[MAPCOMBO(bx2,by)].type==cLOCKBLOCK && !islockeddoor(bx2,by,dLOCKED))
+    else if (combobuf[MAPCOMBO(bx2,by)].type==cLOCKBLOCK && _effectflag(bx2,by,1, -1) && !islockeddoor(bx2,by,dLOCKED))
     {
-        found=true;
+        found2=true;
 	cid = MAPCOMBO(bx2,by);
 	foundlayer = 0;
     }
@@ -15374,14 +15378,14 @@ void LinkClass::checklockblock()
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = false;
-			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found = false;
+			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found1 = false;
+			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found2 = false;
 		}
 	}
     
    
     // Layers
-    if(!found)
+    if(!(found1 || found2))
     {
 	cid = 0;
 	foundlayer = -1;
@@ -15395,18 +15399,18 @@ void LinkClass::checklockblock()
 			if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
 		} 
 	    }
-            if(combobuf[MAPCOMBO2(i,bx,by)].type==cLOCKBLOCK)
+            if(combobuf[MAPCOMBO2(i,bx,by)].type==cLOCKBLOCK && _effectflag(bx,by,1, i))
 	    {
-                found=true;
+                found1=true;
 		foundlayer = i;
 		cid = MAPCOMBO2(i,bx,by);
 		//zprint("Found layer: %d \n", i);
                 break;
             }
 		    
-	    else if(combobuf[MAPCOMBO2(i,bx2,by)].type==cLOCKBLOCK)
+	    else if(combobuf[MAPCOMBO2(i,bx2,by)].type==cLOCKBLOCK && _effectflag(bx2,by,1, i))
             {
-                found=true;
+                found2=true;
 		foundlayer = i;
 		cid = MAPCOMBO2(i,bx,by);
 		//zprint("Found layer: %d \n", i);
@@ -15415,7 +15419,7 @@ void LinkClass::checklockblock()
         }
     }
     
-    if(!found || pushing<8)
+    if(!(found1 || found2) || pushing<8)
     {
         return;
     }
@@ -15425,7 +15429,7 @@ void LinkClass::checklockblock()
     int requireditem = combobuf[cid].usrflags&cflag1 ? combobuf[cid].attribytes[0] : 0;
     int itemonly = combobuf[cid].usrflags&cflag2;
     int thecounter = combobuf[cid].attribytes[1];
-    int ctr_amount = combobuf[cid].attributes[0];
+    int ctr_amount = combobuf[cid].attributes[0]/10000L;
     if( requireditem && game->item[requireditem]) 
     {
 	    if ((combobuf[cid].usrflags&cflag5)) 
@@ -15516,8 +15520,8 @@ void LinkClass::checkbosslockblock()
     
     bool found=false;
     
-    if((combobuf[MAPCOMBO(bx,by)].type==cBOSSLOCKBLOCK && !islockeddoor(bx,by,dBOSS))||
-            (combobuf[MAPCOMBO(bx2,by)].type==cBOSSLOCKBLOCK && !islockeddoor(bx,by,dBOSS)))
+    if((combobuf[MAPCOMBO(bx,by)].type==cBOSSLOCKBLOCK && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dBOSS))||
+            (combobuf[MAPCOMBO(bx2,by)].type==cBOSSLOCKBLOCK && _effectflag(bx2,by,1, -1) && !islockeddoor(bx,by,dBOSS)))
     {
         found=true;
     }
@@ -15543,8 +15547,8 @@ void LinkClass::checkbosslockblock()
 			if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
 		} 
 	    }
-            if((combobuf[MAPCOMBO2(i,bx,by)].type==cBOSSLOCKBLOCK)||
-                    (combobuf[MAPCOMBO2(i,bx2,by)].type==cBOSSLOCKBLOCK))
+            if((combobuf[MAPCOMBO2(i,bx,by)].type==cBOSSLOCKBLOCK && _effectflag(bx,by,1, i))||
+                    (combobuf[MAPCOMBO2(i,bx2,by)].type==cBOSSLOCKBLOCK && _effectflag(bx2,by,1, i)))
             {
                 found=true;
                 break;
@@ -15614,8 +15618,8 @@ void LinkClass::checkchest(int type)
     bool found=false;
     bool itemflag=false;
     
-    if((combobuf[MAPCOMBO(bx,by)].type==type)||
-            (combobuf[MAPCOMBO(bx2,by)].type==type))
+    if((combobuf[MAPCOMBO(bx,by)].type==type && _effectflag(bx,by,1, -1))||
+            (combobuf[MAPCOMBO(bx2,by)].type==type && _effectflag(bx2,by,1, -1)))
     {
         found=true;
     }
@@ -15640,8 +15644,8 @@ void LinkClass::checkchest(int type)
 			if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
 		}    
             }
-            if((combobuf[MAPCOMBO2(i,bx,by)].type==type)||
-                    (combobuf[MAPCOMBO2(i,bx2,by)].type==type))
+            if((combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))||
+                    (combobuf[MAPCOMBO2(i,bx2,by)].type==type && _effectflag(bx2,by,1, i)))
             {
                 found=true;
                 break;
@@ -16387,30 +16391,31 @@ void LinkClass::fairycircle(int type)
 
 int touchcombo(int x,int y)
 {
-    for (int i = 0; i <= 1; ++i)
-{
-	if(tmpscr2[i].valid!=0)
+	for (int i = 0; i <= 1; ++i)
 	{
-		if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return 0;
+		if(tmpscr2[i].valid!=0)
+		{
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return 0;
+		}
 	}
-}
-    switch(combobuf[MAPCOMBO(x,y)].type)
-    {
-    case cBSGRAVE:
-    case cGRAVE:
-        if(MAPFLAG(x,y)||MAPCOMBOFLAG(x,y))
-        {
-            break;
-        }
+	if (!_effectflag(x,y,1, -1)) return 0;
+	switch(combobuf[MAPCOMBO(x,y)].type)
+	{
+		case cBSGRAVE:
+		case cGRAVE:
+			if(MAPFLAG(x,y)||MAPCOMBOFLAG(x,y)) //!DIMITODO: all flags break graves, not just push flags
+			{
+				break;
+			}
         
-        // fall through
-    case cARMOS:
-    {
-        return combobuf[MAPCOMBO(x,y)].type;
-    }
-    }
+		// fall through
+		case cARMOS:
+		{
+			return combobuf[MAPCOMBO(x,y)].type;
+		}
+	}
     
-    return 0;
+	return 0;
 }
 
 static int COMBOX(int pos) { return ((pos)%16*16); }
@@ -17740,7 +17745,7 @@ void LinkClass::checkspecial2(int *ls)
 		{
 			wpdir = rand()&3;
 		}
-		int damg = combobuf[MAPCOMBO(tx+8,ty+8)].attributes[0];
+		int damg = combobuf[MAPCOMBO(tx+8,ty+8)].attributes[0]/10000L;
 		switch(wpn)
 		{
 			//eweapons
@@ -21606,6 +21611,9 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 		do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
 		do_walkflags(framebuf, newscr, tx, ty,2);
 		
+		do_effectflags(framebuf, oldscr, tx2, ty2,3); //show effectflags if the cheat is on
+		do_effectflags(framebuf, newscr, tx, ty,2);
+		
 		if(get_bit(quest_rules, qr_FFCSCROLL))
 		{
 			do_layer(framebuf, -3, oldscr, tx2, ty2, 3, true); //ffcs
@@ -24684,28 +24692,45 @@ void LinkClass::check_conveyor()
     
     WalkflagInfo info;
     int xoff,yoff;
-    int deltax=0, deltay=0;
-    
-    if(conveyclk<=0)
+    zfix deltax(0), deltay(0);
+    int cmb = MAPCOMBO(x+7,y+(bigHitbox?8:12));
+    ++newconveyorclk;
+    if (newconveyorclk < 0) newconveyorclk = 0;
+    if((combobuf[cmb].usrflags&cflag2) || (!(combobuf[cmb].usrflags&cflag2) && conveyclk<=0)) //!DIMITODO: let player be on multiple conveyors at once
     {
         is_on_conveyor=false;
         int ctype;
-        ctype=(combobuf[MAPCOMBO(x+7,y+(bigHitbox?8:12))].type);
+        ctype=(combobuf[cmb].type);
 	for (int i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && !_walkflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) ctype = cNONE;
+			if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && !_walkflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) return;
 		}
 	}
+	if (!_effectflag(x+7,y+(bigHitbox?8:12),1, -1)) return;
+	if((combobuf[cmb].usrflags&cflag2) && (newconveyorclk % zc_max(combobuf[cmb].attribytes[0], 1))) return;
+	
         deltax=combo_class_buf[ctype].conveyor_x_speed;
         deltay=combo_class_buf[ctype].conveyor_y_speed;
+	
+	if (combobuf[cmb].usrflags&cflag2)
+	{
+		deltax = zslongToFix(combobuf[cmb].attributes[0]);
+		deltay = zslongToFix(combobuf[cmb].attributes[1]);
+	}
         
         if((deltax==0&&deltay==0)&&(isSideViewLink() && on_sideview_solid(x,y)))
         {
-            ctype=(combobuf[MAPCOMBO(x+8,y+16)].type);
-            deltax=combo_class_buf[ctype].conveyor_x_speed;
-            deltay=combo_class_buf[ctype].conveyor_y_speed;
+		cmb = MAPCOMBO(x+8,y+16);
+		ctype=(combobuf[cmb].type);
+		deltax=combo_class_buf[ctype].conveyor_x_speed;
+		deltay=combo_class_buf[ctype].conveyor_y_speed;
+		if (combobuf[cmb].usrflags&cflag2)
+		{
+			deltax = zslongToFix(combobuf[cmb].attributes[0]);
+			deltay = zslongToFix(combobuf[cmb].attributes[1]);
+		}
         }
         
         if(deltax!=0||deltay!=0)
@@ -24720,13 +24745,13 @@ void LinkClass::check_conveyor()
             
             if(!info.isUnwalkable())
             {
-                int step=0;
+                zfix step(0);
                 
                 if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<(abs(deltay)*(isSideViewLink()?2:1)))
                     {
-                        yoff=((int)y-step)&7;
+                        yoff=int(y-step)&7;
                         
                         if(!yoff) break;
                         
@@ -24739,7 +24764,7 @@ void LinkClass::check_conveyor()
                 }
                 
                 y=y-step;
-                hs_starty-=step;
+                hs_starty-=step.getInt();
                 
                 for(int j=0; j<chainlinks.Count(); j++)
                 {
@@ -24765,13 +24790,13 @@ void LinkClass::check_conveyor()
             
             if(!info.isUnwalkable())
             {
-                int step=0;
+                zfix step(0);
                 
                 if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<abs(deltay))
                     {
-                        yoff=((int)y+step)&7;
+                        yoff=int(y+step)&7;
                         
                         if(!yoff) break;
                         
@@ -24784,7 +24809,7 @@ void LinkClass::check_conveyor()
                 }
                 
                 y=y+step;
-                hs_starty+=step;
+                hs_starty+=step.getInt();
                 
                 for(int j=0; j<chainlinks.Count(); j++)
                 {
@@ -24811,13 +24836,13 @@ void LinkClass::check_conveyor()
             
             if(!info.isUnwalkable())
             {
-                int step=0;
+                zfix step(0);
                 
                 if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<abs(deltax))
                     {
-                        xoff=((int)x-step)&7;
+                        xoff=int(x-step)&7;
                         
                         if(!xoff) break;
                         
@@ -24830,7 +24855,7 @@ void LinkClass::check_conveyor()
                 }
                 
                 x=x-step;
-                hs_startx-=step;
+                hs_startx-=step.getInt();
                 
                 for(int j=0; j<chainlinks.Count(); j++)
                 {
@@ -24856,13 +24881,13 @@ void LinkClass::check_conveyor()
             
             if(!info.isUnwalkable())
             {
-                int step=0;
+                zfix step(0);
                 
                 if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
                 {
                     while(step<abs(deltax))
                     {
-                        xoff=((int)x+step)&7;
+                        xoff=int(x+step)&7;
                         
                         if(!xoff) break;
                         
@@ -24875,7 +24900,7 @@ void LinkClass::check_conveyor()
                 }
                 
                 x=x+step;
-                hs_startx+=step;
+                hs_startx+=step.getInt();
                 
                 for(int j=0; j<chainlinks.Count(); j++)
                 {

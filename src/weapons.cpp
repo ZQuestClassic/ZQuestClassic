@@ -1045,7 +1045,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	int cid = MAPCOMBO(bx,by);
 	int flag = MAPFLAG(bx,by);
 	int flag2 = MAPCOMBOFLAG(bx,by);
-	int ft = c[cid].attributes[3];
+	int ft = c[cid].attributes[3] / 10000L;
 	//if (!ft) return;
 	//zprint("ft: %d\n", ft);
 	int scombo=COMBOPOS(bx,by);
@@ -1061,13 +1061,13 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	//zprint("Generic combo\n ");
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	//zprint("swordbeam\n");
-	//zprint("sfx is: %d\n", c[cid].attributes[2]);
+	//zprint("sfx is: %d\n", c[cid].attributes[2] / 10000L);
 	//zprint("scombo is: %d\n", scombo);
 	if ( !(get_bit(w->wscreengrid,(((bx>>4) + by)))) || (c[cid].usrflags&cflag5) ) 
 	{
 		if ((c[cid].usrflags&cflag1)) 
 		{
-			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0]);
+			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0] / 10000L);
 			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 1 ) )
 				decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo),dBUSHLEAVES, 0, 0));
 			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 2 ) )
@@ -1088,7 +1088,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			else it = select_dropitem(c[cid].attribytes[1]); 
 			
 		}
-		//zprint("dropset: %d\n", c[cid].attributes[1]);
+		//zprint("dropset: %d\n", c[cid].attributes[1] / 10000L);
 		//zprint("drops enabled: %s\n", (c[cid].usrflags&cflag2) ? "true":"false");
 		//zprint("it: %d\n", it);
 		if( it != -1 )
@@ -1977,14 +1977,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 	case wScript10:
 	case wIce:
     {
-	    #if DEVLEVEL > 0
-		if(DEVDEBUG) Z_scripterrlog("LW_SCRIPT o_tile is: %d\n",o_tile);
-	    #endif
 	if(parentitem >-1)
 	{
-		#if DEVLEVEL > 0
-		if(DEVDEBUG) Z_scripterrlog("LW_SCRIPT parent item is: %d\n",parentitem);
-		#endif 
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
@@ -3930,9 +3924,6 @@ void weapon::runscript(int index)
 	    case wScript9:
 	    case wScript10:
 	    {
-		#if DEVLEVEL > 0
-		if(DEVDEBUG) Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
-		#endif
 		    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());	
 		/*
                 if ( doscript && weaponscript > 0 ) 
@@ -9908,9 +9899,6 @@ offscreenCheck:
         {
             clk2=256;
             int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
-		#if DEVLEVEL > 0
-		if(DEVDEBUG) Z_scripterrlog("weapons.cpp, line %d\n", 7314);
-                #endif
 	    if(clipped)
             {
                 dead=deadval;

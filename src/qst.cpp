@@ -14366,7 +14366,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					case eeFAIRY: case eeGUY: case eeNONE: case eeZORA:
 					case eeAQUA: case eeDIG: case eeGHOMA: case eeGANON:
 					case eePATRA: case eeGLEEOK: case eeMOLD: case eeMANHAN:
-						tempguy.moveflags = FLAG_CAN_PITWALK|FLAG_CAN_WATERWALK;
+						tempguy.moveflags = FLAG_CAN_PITWALK;
 						break;
 					//No gravity, but falls in pits
 					case eeLEV:
@@ -14381,7 +14381,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 						break;
 					//Gravity, floats over pits
 					case eeWIZZ: case eeWALLM: case eeGHINI:
-						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITWALK | FLAG_CAN_WATERWALK;
+						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITWALK;
 						break;
 					//Gravity and falls in pits
 					case eeWALK: case eeOTHER:
@@ -14392,6 +14392,23 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05:
 					case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
 						if (tempguy.misc9!=e9tPOLSVOICE&&tempguy.misc9!=e9tVIRE) tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
+				}
+			}
+			if(guyversion < 43)
+			{
+				switch(tempguy.family)
+				{
+					//No gravity; floats over pits
+					case eeTEK: case eePEAHAT: case eeROCK: case eeTRAP:
+					case eePROJECTILE: case eeSPINTILE: case eeKEESE: case eeFIRE:
+					//Special (bosses, etc)
+					case eeFAIRY: case eeGUY: case eeNONE: case eeZORA:
+					case eeAQUA: case eeDIG: case eeGHOMA: case eeGANON:
+					case eePATRA: case eeGLEEOK: case eeMOLD: case eeMANHAN:
+					case eeWIZZ: case eeWALLM: case eeGHINI:
+					//Gravity, floats over pits
+						tempguy.moveflags |= FLAG_CAN_WATERWALK;
+						break;
 				}
 			}
 			
@@ -16314,461 +16331,502 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
-    reset_combo_animations();
-    reset_combo_animations2();
-    
-    init_combo_classes();
-    
-    // combos
-    word combos_used=0;
-    int dummy;
-    byte padding;
-    newcombo temp_combo;
-    word section_version=0;
-    word section_cversion=0;
-    
-    if(keepdata==true)
-    {
-        memset(combobuf+start_combo,0,sizeof(newcombo)*max_combos);
-    }
-    
-    if(version > 0x192)
-    {
-        //section version info
-        if(!p_igetw(&section_version,f,true))
-        {
-            return qe_invalid;
-        }
-	
-	FFCore.quest_format[vCombos] = section_version;
-        
-        //al_trace("Combos version %d\n", section_version);
-        if(!p_igetw(&section_cversion,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //section size
-        if(!p_igetl(&dummy,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(version < 0x174)
-    {
-        combos_used=1024;
-    }
-    else if(version < 0x191)
-    {
-        combos_used=2048;
-    }
-    else
-    {
-        if(!p_igetw(&combos_used,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    //finally...  section data
-    for(int i=0; i<combos_used; i++)
-    {
-        memset(&temp_combo,0,sizeof(temp_combo));
-        
-	if ( section_version >= 11 )
+	//these are here to bypass compiler warnings about unused arguments
+	Header=Header;
+
+	reset_combo_animations();
+	reset_combo_animations2();
+
+	init_combo_classes();
+
+	// combos
+	word combos_used=0;
+	int dummy;
+	byte padding;
+	newcombo temp_combo;
+	word section_version=0;
+	word section_cversion=0;
+
+	if(keepdata==true)
 	{
-		if(!p_igetl(&temp_combo.tile,f,true))
+		memset(combobuf+start_combo,0,sizeof(newcombo)*max_combos);
+	}
+
+	if(version > 0x192)
+	{
+		//section version info
+		if(!p_igetw(&section_version,f,true))
 		{
-		    return qe_invalid;
+			return qe_invalid;
 		}
+		
+		FFCore.quest_format[vCombos] = section_version;
+		
+		//al_trace("Combos version %d\n", section_version);
+		if(!p_igetw(&section_cversion,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//section size
+		if(!p_igetl(&dummy,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+
+	if(version < 0x174)
+	{
+		combos_used=1024;
+	}
+	else if(version < 0x191)
+	{
+		combos_used=2048;
 	}
 	else
 	{
-		if(!p_igetw(&temp_combo.tile,f,true))
-		{
-		    return qe_invalid;
-		}
-	}
-        if(!p_getc(&temp_combo.flip,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_combo.walk,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_combo.type,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_combo.csets,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(version < 0x193)
-        {
-            if(!p_getc(&padding,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&padding,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(version < 0x192)
-            {
-                if(version == 0x191)
-                {
-                    for(int tmpcounter=0; tmpcounter<16; tmpcounter++)
-                    {
-                        if(!p_getc(&padding,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                    }
-                }
-                
-                if(keepdata==true)
-                {
-                    memcpy(&combobuf[i], &temp_combo, sizeof(temp_combo));
-                }
-                
-                continue;
-            }
-        }
-        
-        if(!p_getc(&temp_combo.frames,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_combo.speed,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&temp_combo.nextcombo,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_combo.nextcset,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //Base flag
-        if(section_version>=3)
-        {
-            if(!p_getc(&temp_combo.flag,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(section_version>=4)
-        {
-            if(!p_getc(&temp_combo.skipanim,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_combo.nexttimer,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(section_version>=5)
-        {
-            if(!p_getc(&temp_combo.skipanimy,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(section_version>=6)
-        {
-            if(!p_getc(&temp_combo.animflags,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(section_version == 6)
-                temp_combo.animflags = temp_combo.animflags ? AF_FRESH : 0;
-        }
-        
-	if(section_version>=8) //combo Attributes[4] and userflags.
-	{
-		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
-		{
-		    if(!p_igetl(&temp_combo.attributes[q],f,true))
-		    {
-			return qe_invalid;
-		    }
-		}
-		if(!p_igetl(&temp_combo.usrflags,f,true))
+		if(!p_igetw(&combos_used,f,true))
 		{
 			return qe_invalid;
 		}
 	}
-	if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
+
+	//finally...  section data
+	for(int i=0; i<combos_used; i++)
 	{
-		for ( int q = 0; q < 2; q++ )
-		{
-		    if(!p_igetl(&temp_combo.triggerflags[q],f,true))
-		    {
-			return qe_invalid;
-		    }
-		}
-		if(!p_igetl(&temp_combo.triggerlevel,f,true))
-		{
-			return qe_invalid;
-		}
-	}
-	if(section_version>=10) //combo trigger flags
-	{
-	    for ( int q = 0; q < 3; q++ )
-		{
-		    if(!p_igetl(&temp_combo.triggerflags[q],f,true))
-		    {
-			return qe_invalid;
-		    }
-		}
-		if(!p_igetl(&temp_combo.triggerlevel,f,true))
-		{
-			return qe_invalid;
-		}
-	}
-	if(section_version>=12) //combo label
-	{
-	    for ( int q = 0; q < 11; q++ )
-		{
-		    if(!p_getc(&temp_combo.label[q],f,true))
-		    {
-			return qe_invalid;
-		    }
-		}
-	}
-	if(section_version<12) //combo label
-	{
-	    for ( int q = 0; q < 11; q++ )
-		{
-		    temp_combo.label[q] = 0;
-		}
-	}
-	//al_trace("Read combo label\n");
-	if(section_version>=13) //attribytes[4]
-	{
-		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
-		{
-		    if(!p_getc(&temp_combo.attribytes[q],f,true))
-		    {
-			return qe_invalid;
-		    }
-		}
+		memset(&temp_combo,0,sizeof(temp_combo));
 		
-	}
-	//al_trace("Read combo attribytes\n");
-	if( section_version < 13 )
-	{ 
-		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		if ( section_version >= 11 )
 		{
-		    temp_combo.attribytes[q] = 0;
-		}
-		
-	}
-	//combo scripts
-	if(section_version>=14) 
-	{
-		if(!p_igetw(&temp_combo.script,f,true)) return qe_invalid;
-		for ( int q = 0; q < 2; q++ )
-		{
-		    if(!p_igetl(&temp_combo.initd[q],f,true))
-		    {
-			return qe_invalid;
-		    }
-		}
-		
-	}
-	if(section_version<14)
-	{ 
-		temp_combo.script = 0;
-		for ( int q = 0; q < 2; q++ )
-		{
-		    temp_combo.initd[q] = 0;
-		}
-	}
-	//al_trace("Read combo script data\n");
-	if(section_version>=15)
-	{
-		if(!p_igetl(&temp_combo.o_tile,f,true)) return qe_invalid;
-		if(!p_getc(&temp_combo.cur_frame,f,true)) return qe_invalid;
-		if(!p_getc(&temp_combo.aclk,f,true)) return qe_invalid;
-	}
-	else
-	{
-		temp_combo.o_tile = temp_combo.tile;
-		temp_combo.cur_frame = 0;
-		temp_combo.aclk = 0;
-	}
-        if(version < 0x193)
-        {
-            for(int q=0; q<11; q++)
-            {
-                if(!p_getc(&dummy,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        
-        //Goriya tiles were flipped around in 2.11 build 7. Compensate for the flip here. -DD
-        if((version < 0x211)||((version == 0x211)&&(build<7)))
-        {
-            if(!get_bit(quest_rules,qr_NEWENEMYTILES))
-            {
-                switch(temp_combo.tile)
-                {
-                case 130:
-                    temp_combo.tile = 132;
-                    break;
-                    
-                case 131:
-                    temp_combo.tile = 133;
-                    break;
-                    
-                case 132:
-                    temp_combo.tile = 130;
-                    break;
-                    
-                case 133:
-                    temp_combo.tile = 131;
-                    break;
-                }
-            }
-        }
-        
-        if(keepdata==true && i>=start_combo)
-        {
-            memcpy(&combobuf[i], &temp_combo, sizeof(temp_combo));
-        }
-    }
-    
-    if(keepdata==true)
-    {
-        if((version < 0x192)|| ((version == 0x192)&&(build<185)))
-        {
-            for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
-            {
-                if(combobuf[tmpcounter].type==cHOOKSHOTONLY)
-                {
-                    combobuf[tmpcounter].type=cLADDERHOOKSHOT;
-                }
-            }
-        }
-        
-        //June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
-        if(version == 0x210 && !is_zquest())
-        {
-            for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
-                if(combobuf[tmpcounter].type == cLADDERONLY)
-                    combobuf[tmpcounter].type = cLADDERHOOKSHOT;
-        }
-        
-        if(section_version<7)
-        {
-            for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
-            {
-                switch(combobuf[tmpcounter].type)
-                {
-                case cSLASH:
-                    combobuf[tmpcounter].type=cSLASHTOUCHY;
-                    break;
-                    
-                case cSLASHITEM:
-                    combobuf[tmpcounter].type=cSLASHITEMTOUCHY;
-                    break;
-                    
-                case cBUSH:
-                    combobuf[tmpcounter].type=cBUSHTOUCHY;
-                    break;
-                    
-                case cFLOWERS:
-                    combobuf[tmpcounter].type=cFLOWERSTOUCHY;
-                    break;
-                    
-                case cTALLGRASS:
-                    combobuf[tmpcounter].type=cTALLGRASSTOUCHY;
-                    break;
-                    
-                case cSLASHNEXT:
-                    combobuf[tmpcounter].type=cSLASHNEXTTOUCHY;
-                    break;
-                    
-                case cSLASHNEXTITEM:
-                    combobuf[tmpcounter].type=cSLASHNEXTITEMTOUCHY;
-                    break;
-                    
-                case cBUSHNEXT:
-                    combobuf[tmpcounter].type=cBUSHNEXTTOUCHY;
-                    break;
-                }
-            }
-        }
-	if (section_version < 16)
-	{
-		for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
-		{
-			if (combobuf[tmpcounter].type == cWATER)
+			if(!p_igetl(&temp_combo.tile,f,true))
 			{
-				combobuf[tmpcounter].attributes[0] = 4;
+				return qe_invalid;
 			}
 		}
+		else
+		{
+			if(!p_igetw(&temp_combo.tile,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		if(!p_getc(&temp_combo.flip,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_combo.walk,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_combo.type,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_combo.csets,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(version < 0x193)
+		{
+			if(!p_getc(&padding,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&padding,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(version < 0x192)
+			{
+				if(version == 0x191)
+				{
+					for(int tmpcounter=0; tmpcounter<16; tmpcounter++)
+					{
+						if(!p_getc(&padding,f,true))
+						{
+							return qe_invalid;
+						}
+					}
+				}
+				
+				if(keepdata==true)
+				{
+					memcpy(&combobuf[i], &temp_combo, sizeof(temp_combo));
+				}
+				
+				continue;
+			}
+		}
+		
+		if(!p_getc(&temp_combo.frames,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_combo.speed,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&temp_combo.nextcombo,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_combo.nextcset,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//Base flag
+		if(section_version>=3)
+		{
+			if(!p_getc(&temp_combo.flag,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(section_version>=4)
+		{
+			if(!p_getc(&temp_combo.skipanim,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_combo.nexttimer,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(section_version>=5)
+		{
+			if(!p_getc(&temp_combo.skipanimy,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(section_version>=6)
+		{
+			if(!p_getc(&temp_combo.animflags,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(section_version == 6)
+				temp_combo.animflags = temp_combo.animflags ? AF_FRESH : 0;
+		}
+		
+		if(section_version>=8) //combo Attributes[4] and userflags.
+		{
+			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			{
+				if(!p_igetl(&temp_combo.attributes[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			if(!p_igetl(&temp_combo.usrflags,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
+		{
+			for ( int q = 0; q < 2; q++ )
+			{
+				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			if(!p_igetl(&temp_combo.triggerlevel,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		if(section_version>=10) //combo trigger flags
+		{
+			for ( int q = 0; q < 3; q++ )
+			{
+				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			if(!p_igetl(&temp_combo.triggerlevel,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		if(section_version>=12) //combo label
+		{
+			for ( int q = 0; q < 11; q++ )
+			{
+				if(!p_getc(&temp_combo.label[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+		}
+		if(section_version<12) //combo label
+		{
+			for ( int q = 0; q < 11; q++ )
+			{
+				temp_combo.label[q] = 0;
+			}
+		}
+		//al_trace("Read combo label\n");
+		if(section_version>=13) //attribytes[4]
+		{
+			for ( int q = 0; q < 4; q++ ) //Bad Zoria, don't mix constants with hardcodes
+			{
+				if(!p_getc(&temp_combo.attribytes[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			
+		}
+		//al_trace("Read combo attribytes\n");
+		if( section_version < 13 )
+		{ 
+			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			{
+				temp_combo.attribytes[q] = 0;
+			}
+			
+		}
+		//combo scripts
+		if(section_version>=14) 
+		{
+			if(!p_igetw(&temp_combo.script,f,true)) return qe_invalid;
+			for ( int q = 0; q < 2; q++ )
+			{
+				if(!p_igetl(&temp_combo.initd[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			
+		}
+		if(section_version<14)
+		{ 
+			temp_combo.script = 0;
+			for ( int q = 0; q < 2; q++ )
+			{
+				temp_combo.initd[q] = 0;
+			}
+		}
+		//al_trace("Read combo script data\n");
+		if(section_version>=15)
+		{
+			if(!p_igetl(&temp_combo.o_tile,f,true)) return qe_invalid;
+			if(!p_getc(&temp_combo.cur_frame,f,true)) return qe_invalid;
+			if(!p_getc(&temp_combo.aclk,f,true)) return qe_invalid;
+		}
+		else
+		{
+			temp_combo.o_tile = temp_combo.tile;
+			temp_combo.cur_frame = 0;
+			temp_combo.aclk = 0;
+		}
+		if(section_version>=17) //attribytes[4]
+		{
+			for ( int q = 4; q < 8; q++ ) //bump up attribytes...
+			{
+				if(!p_getc(&temp_combo.attribytes[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			for ( int q = 0; q < 8; q++ ) //...and add attrishorts
+			{
+				if(!p_igetw(&temp_combo.attrishorts[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			
+		}
+		else
+		{
+			for ( int q = 4; q < 8; q++ ) //bump up attribytes...
+			{
+				temp_combo.attribytes[q] = 0;
+			}
+			for ( int q = 0; q < 8; q++ ) //...and add attrishorts
+			{
+				temp_combo.attrishorts[q] = 0;
+			}
+		}
+		if(section_version<18) //upper bits for .walk
+		{
+			temp_combo.walk |= 0xF0; //All on by default for old quests -E
+		}
+		if(section_version < 19)
+		{
+			for(int q = 0; q < 4; ++q)
+			{
+				temp_combo.attributes[q] *= 10000L;
+			}
+		}
+		
+		if(version < 0x193)
+		{
+			for(int q=0; q<11; q++)
+			{
+				if(!p_getc(&dummy,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		//Goriya tiles were flipped around in 2.11 build 7. Compensate for the flip here. -DD
+		if((version < 0x211)||((version == 0x211)&&(build<7)))
+		{
+			if(!get_bit(quest_rules,qr_NEWENEMYTILES))
+			{
+				switch(temp_combo.tile)
+				{
+				case 130:
+					temp_combo.tile = 132;
+					break;
+					
+				case 131:
+					temp_combo.tile = 133;
+					break;
+					
+				case 132:
+					temp_combo.tile = 130;
+					break;
+					
+				case 133:
+					temp_combo.tile = 131;
+					break;
+				}
+			}
+		}
+		
+		if(keepdata==true && i>=start_combo)
+		{
+			memcpy(&combobuf[i], &temp_combo, sizeof(temp_combo));
+		}
 	}
-        
-    }
-    
-    //Now for the new combo alias reset
-    if(section_version<2 && keepdata)
-    {
-        for(int j=0; j<MAXCOMBOALIASES; j++)
-        {
-            combo_aliases[j].width = 0;
-            combo_aliases[j].height = 0;
-            combo_aliases[j].layermask = 0;
-            
-            if(combo_aliases[j].combos != NULL)
-            {
-                delete[] combo_aliases[j].combos;
-            }
-            
-            if(combo_aliases[j].csets != NULL)
-            {
-                delete[] combo_aliases[j].csets;
-            }
-            
-            combo_aliases[j].combos = new word[1];
-            combo_aliases[j].csets = new byte[1];
-            combo_aliases[j].combos[0] = 0;
-            combo_aliases[j].csets[0] = 0;
-        }
-    }
-    
-    
-    setup_combo_animations();
-    setup_combo_animations2();
-    return 0;
+
+	if(keepdata==true)
+	{
+		if((version < 0x192)|| ((version == 0x192)&&(build<185)))
+		{
+			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			{
+				if(combobuf[tmpcounter].type==cHOOKSHOTONLY)
+				{
+					combobuf[tmpcounter].type=cLADDERHOOKSHOT;
+				}
+			}
+		}
+		
+		//June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
+		if(version == 0x210 && !is_zquest())
+		{
+			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+				if(combobuf[tmpcounter].type == cLADDERONLY)
+					combobuf[tmpcounter].type = cLADDERHOOKSHOT;
+		}
+		
+		if(section_version<7)
+		{
+			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			{
+				switch(combobuf[tmpcounter].type)
+				{
+				case cSLASH:
+					combobuf[tmpcounter].type=cSLASHTOUCHY;
+					break;
+					
+				case cSLASHITEM:
+					combobuf[tmpcounter].type=cSLASHITEMTOUCHY;
+					break;
+					
+				case cBUSH:
+					combobuf[tmpcounter].type=cBUSHTOUCHY;
+					break;
+					
+				case cFLOWERS:
+					combobuf[tmpcounter].type=cFLOWERSTOUCHY;
+					break;
+					
+				case cTALLGRASS:
+					combobuf[tmpcounter].type=cTALLGRASSTOUCHY;
+					break;
+					
+				case cSLASHNEXT:
+					combobuf[tmpcounter].type=cSLASHNEXTTOUCHY;
+					break;
+					
+				case cSLASHNEXTITEM:
+					combobuf[tmpcounter].type=cSLASHNEXTITEMTOUCHY;
+					break;
+					
+				case cBUSHNEXT:
+					combobuf[tmpcounter].type=cBUSHNEXTTOUCHY;
+					break;
+				}
+			}
+		}
+		if (section_version < 16)
+		{
+			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			{
+				if (combobuf[tmpcounter].type == cWATER)
+				{
+					combobuf[tmpcounter].attributes[0] = 40000L;
+				}
+			}
+		}
+		
+	}
+
+	//Now for the new combo alias reset
+	if(section_version<2 && keepdata)
+	{
+		for(int j=0; j<MAXCOMBOALIASES; j++)
+		{
+			combo_aliases[j].width = 0;
+			combo_aliases[j].height = 0;
+			combo_aliases[j].layermask = 0;
+			
+			if(combo_aliases[j].combos != NULL)
+			{
+				delete[] combo_aliases[j].combos;
+			}
+			
+			if(combo_aliases[j].csets != NULL)
+			{
+				delete[] combo_aliases[j].csets;
+			}
+			
+			combo_aliases[j].combos = new word[1];
+			combo_aliases[j].csets = new byte[1];
+			combo_aliases[j].combos[0] = 0;
+			combo_aliases[j].csets[0] = 0;
+		}
+	}
+
+
+	setup_combo_animations();
+	setup_combo_animations2();
+	return 0;
 }
 
 int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build, bool keepdata)

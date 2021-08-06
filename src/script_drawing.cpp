@@ -1438,7 +1438,13 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         return;
     }
-    
+    int cmb = (sdci[4]/10000);
+	if((unsigned)cmb >= MAXCOMBOS)
+	{
+		Z_scripterrlog("DrawCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
+		return;
+	}
+	
     int xscale=sdci[8]/10000;
     int yscale=sdci[9]/10000;
     int rx = sdci[10]/10000; //these work now
@@ -1451,10 +1457,10 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int x1=sdci[2]/10000;
     int y1=sdci[3]/10000;
     
-    const newcombo & c = combobuf[(sdci[4]/10000)];
+    const newcombo & c = combobuf[cmb];
     int tiletodraw = combo_tile(c, x1, y1);
     int flip = ((sdci[14]/10000) & 3) ^ c.flip;
-    int skiprows=combobuf[(sdci[4]/10000)].skipanimy;
+    int skiprows=c.skipanimy;
     
     
     //don't scale if it's not safe to do so
@@ -1596,14 +1602,20 @@ void do_drawcombocloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	{
 		return;
 	}
+    int cmb = (sdci[4]/10000);
+	if((unsigned)cmb >= MAXCOMBOS)
+	{
+		Z_scripterrlog("DrawComboCloaked() cannot draw combo '%d', as it is out of bounds.\n", cmb);
+		return;
+	}
 	
 	int x1=sdci[2]/10000;
 	int y1=sdci[3]/10000;
 	
-	const newcombo & c = combobuf[(sdci[4]/10000)];
+	const newcombo & c = combobuf[cmb];
 	int tiletodraw = combo_tile(c, x1, y1);
 	int flip = ((sdci[7]/10000) & 3) ^ c.flip;
-	int skiprows=combobuf[(sdci[4]/10000)].skipanimy;
+	int skiprows=c.skipanimy;
 	
 	TileHelper::OverTileCloaked(bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, flip, skiprows);
 }
@@ -1664,8 +1676,13 @@ void do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int opacity = sdci[6] / 10000;
     int x1 = sdci[2] / 10000;
     int y1 = sdci[3] / 10000;
-    int index = sdci[4]/10000;
     
+    int cmb = (sdci[4]/10000);
+	if((unsigned)cmb >= MAXCOMBOS)
+	{
+		Z_scripterrlog("FastCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
+		return;
+	}
     //if( index >= MAXCOMBOS ) return; //bleh.
 	/*
     const newcombo & c = combobuf[index];
@@ -1679,55 +1696,58 @@ void do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if(opacity < 128)
 	{
 		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
-		overcomboblocktranslucent(bmp, xoffset+x1, yoffset+y1, sdci[4]/10000, sdci[5]/10000, 1, 1, 128);
+		overcomboblocktranslucent(bmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1, 128);
 
 	}
 	else
 	{
 		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
-		overcomboblock(bmp, xoffset+x1, yoffset+y1, sdci[4]/10000, sdci[5]/10000, 1, 1);
+		overcomboblock(bmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1);
 	}
 }
 
 void do_fastcombosr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
-    /* layer, x, y, combo, cset, opacity */
-    
-    //sdci[1]=layer
-    //sdci[2]=array {x,y,combo,cset,opacity}
-    
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
-    
-    if(!v_ptr)
-    {
-        al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
-        return;
-    }
-    
-    std::vector<long> &v = *v_ptr;
-    
-    if(v.empty())
-        return;
-        //Z_scripterrlog("PutPixels reached line %d\n", 983);
-    
-    long* pos = &v[0];
-    int sz = v.size();
+	/* layer, x, y, combo, cset, opacity */
 	
-    for ( int q = 0; q < sz; q+=5 )
-    {
-	    
-	    if(v.at(q+4) < 128)
+	//sdci[1]=layer
+	//sdci[2]=array {x,y,combo,cset,opacity}
+	
+	std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+	
+	if(!v_ptr)
 	{
-		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
-		overcomboblocktranslucent(bmp, xoffset+v.at(q), yoffset+v.at(q+1), v.at(q+2), v.at(q+3), 1, 1, 128);
+		al_trace("Screen->FastCombos: Vector pointer is null! Internal error. \n");
+		return;
+	}
+	
+	std::vector<long> &v = *v_ptr;
+	
+	if(v.empty())
+		return;
+	
+	long* pos = &v[0];
+	int sz = v.size();
+	
+	for ( int q = 0; q < sz; q+=5 )
+	{
+		if((unsigned)(v.at(q+2)) >= MAXCOMBOS)
+		{
+			Z_scripterrlog("FastCombos() cannot draw combo '%d', as it is out of bounds.\n", v.at(q+2));
+			continue;
+		}
+		if(v.at(q+4) < 128)
+		{
+			//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
+			overcomboblocktranslucent(bmp, xoffset+v.at(q), yoffset+v.at(q+1), v.at(q+2), v.at(q+3), 1, 1, 128);
 
+		}
+		else
+		{
+			//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
+			overcomboblock(bmp, xoffset+v.at(q), yoffset+v.at(q+1), v.at(q+2), v.at(q+3), 1, 1);
+		}
 	}
-	else
-	{
-		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
-		overcomboblock(bmp, xoffset+v.at(q), yoffset+v.at(q+1), v.at(q+2), v.at(q+3), 1, 1);
-	}
-    }
 }
 
 
@@ -2547,14 +2567,14 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 				//	//draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, 0);
 			
 			
-				//}
+				// }
 				//else { 
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					//rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					//
 			
-				//}
+				// }
 			}
 			else
 				masked_stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
@@ -2566,11 +2586,11 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 				//if ( rot == 4096 ) { //translucent
 				//	stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 				//	draw_trans_sprite(bmp, subBmp, dx, dy);
-				//}
+				// }
 				//else {
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-				//}
+				// }
 			}
 			else
 				stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
@@ -2589,11 +2609,11 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					//masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 				//	draw_trans_sprite(bmp, subBmp, dx, dy);
-				//}
+				// }
 			//else {
 				masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 				rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));  
-			//}
+			// }
 		}
 		else
 			masked_blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
@@ -2605,11 +2625,11 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 				//if ( rot == 4096 ) { //translucent
 				//	blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);   
 				//	draw_trans_sprite(bmp, subBmp, dx, dy);
-				//}
+				// }
 				//else {
 					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-				//}
+				// }
 			}
 			else
 				blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
@@ -4885,6 +4905,12 @@ void bmp_do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
     if ( refbmp == NULL ) return;
+	int cmb = (sdci[4]/10000);
+	if((unsigned)cmb >= MAXCOMBOS)
+	{
+		Z_scripterrlog("DrawCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
+		return;
+	}
     
     int xscale=sdci[8]/10000;
     int yscale=sdci[9]/10000;
@@ -4898,10 +4924,10 @@ void bmp_do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int x1=sdci[2]/10000;
     int y1=sdci[3]/10000;
     
-    const newcombo & c = combobuf[(sdci[4]/10000)];
+    const newcombo & c = combobuf[cmb];
     int tiletodraw = combo_tile(c, x1, y1);
     int flip = ((sdci[14]/10000) & 3) ^ c.flip;
-    int skiprows=combobuf[(sdci[4]/10000)].skipanimy;
+    int skiprows=c.skipanimy;
     
     
     //don't scale if it's not safe to do so
@@ -5056,16 +5082,22 @@ void bmp_do_drawcombocloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
+	int cmb = (sdci[4]/10000);
+	if((unsigned)cmb >= MAXCOMBOS)
+	{
+		Z_scripterrlog("DrawComboCloaked() cannot draw combo '%d', as it is out of bounds.\n", cmb);
+		return;
+	}
 	
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	int x1=sdci[2]/10000;
 	int y1=sdci[3]/10000;
 	
-	const newcombo & c = combobuf[(sdci[4]/10000)];
+	const newcombo & c = combobuf[cmb];
 	int tiletodraw = combo_tile(c, x1, y1);
 	int flip = ((sdci[7]/10000) & 3) ^ c.flip;
-	int skiprows=combobuf[(sdci[4]/10000)].skipanimy;
+	int skiprows=c.skipanimy;
 	
 	TileHelper::OverTileCloaked(refbmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, flip, skiprows);
 }
@@ -5109,6 +5141,12 @@ void bmp_do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
+	int cmb = (sdci[4]/10000);
+	if((unsigned)cmb >= MAXCOMBOS)
+	{
+		Z_scripterrlog("FastCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
+		return;
+	}
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
@@ -5125,13 +5163,13 @@ void bmp_do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if(opacity < 128)
 	{
 		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
-		overcomboblocktranslucent(refbmp, xoffset+x1, yoffset+y1, sdci[4]/10000, sdci[5]/10000, 1, 1, 128);
+		overcomboblocktranslucent(refbmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1, 128);
 
 	}
 	else
 	{
 		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
-		overcomboblock(refbmp, xoffset+x1, yoffset+y1, sdci[4]/10000, sdci[5]/10000, 1, 1);
+		overcomboblock(refbmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1);
 	}
 }
 

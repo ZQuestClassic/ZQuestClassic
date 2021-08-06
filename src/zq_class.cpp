@@ -9297,7 +9297,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 			new_return(24);
 	        }
 	    }
-	    for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+	    for ( int q = 0; q < 4; q++ ) //attribytes were sized 4 in this version, I bumped them up.
 	    {
 		if(!p_putc(combobuf[i].attribytes[q],f))
 		{
@@ -9327,6 +9327,20 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 		{
 			new_return(30);
 		}
+	    for ( int q = 4; q < 8; q++ ) //I bumped up attribytes -Dimi
+	    {
+		if(!p_putc(combobuf[i].attribytes[q],f))
+		{
+			new_return(31);
+		}
+	    }
+	    for ( int q = 0; q < 8; q++ ) //I also added attrishorts -Dimi
+	    {
+		if(!p_iputw(combobuf[i].attrishorts[q],f))
+		{
+			new_return(32);
+		}
+	    }
 	    
 		    
         }

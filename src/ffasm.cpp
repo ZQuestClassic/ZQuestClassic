@@ -2177,9 +2177,9 @@ script_variable variable_list[]=
 	{ "DIRECTORYSIZE", DIRECTORYSIZE, 0, 0 },
 	{ "LONGDISTANCE", LONGDISTANCE, 0, 0 },
 	{ "LONGDISTANCESCALE", LONGDISTANCESCALE, 0, 0 },
-	{ "PADDINGR5", PADDINGR5, 0, 0 },
-	{ "PADDINGR6", PADDINGR6, 0, 0 },
-	{ "PADDINGR7", PADDINGR7, 0, 0 },
+	{ "COMBOED",           COMBOED,              0,             0 },
+	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
+	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
 	{ "PADDINGR8", PADDINGR8, 0, 0 },
 	{ "PADDINGR9", PADDINGR9, 0, 0 },
 	
@@ -2231,6 +2231,58 @@ long ffparse(char *string)
 	if(negcheck<0)
 		ret-=atoi(ptr);
 	else ret+=atoi(ptr);
+	
+	if(tempstring1) //may be safer
+		zc_free(tempstring1);
+	return ret;
+}
+long ffparse2(char *string) //bounds result safely between -214748.3648 and +214748.3647
+{
+	//return int(atof(string)*10000);
+	
+	//this function below isn't working too well yet
+	//clean_numeric_string(string);
+	
+	//if no decimal point, ascii to int conversion
+	char *ptr=strchr(string, '.');
+	
+	if(!ptr)
+	{
+		return vbound(atoi(string),-214748,214748)*10000;
+	}
+	
+	long ret=0;
+	char *tempstring1;
+	tempstring1=(char *)zc_malloc(strlen(string)+5);
+	sprintf(tempstring1, string);
+	
+	for(int i=0; i<4; ++i)
+	{
+		tempstring1[strlen(string)+i]='0';
+	}
+	
+	ptr=strchr(tempstring1, '.');
+	*ptr=0;
+	ret=vbound(atoi(tempstring1),-214748,214748)*10000;
+	
+	++ptr;
+	char *ptr2=ptr;
+	ptr2+=4;
+	*ptr2=0;
+	
+	int decval = atoi(ptr);
+	if(ret<0)
+	{
+		if(ret == -2147480000)
+			decval = vbound(decval, 0, 3648);
+		ret-=decval;
+	}
+	else
+	{
+		if(ret == 2147480000)
+			decval = vbound(decval, 0, 3647);
+		ret+=decval;
+	}
 	
 	if(tempstring1) //may be safer
 		zc_free(tempstring1);

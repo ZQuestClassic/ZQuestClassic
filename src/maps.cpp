@@ -326,8 +326,8 @@ int COMBOTYPE(int x,int y)
     
 	if(y&8) b<<=1;
 	newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
-	if (cmb.type == cWATER && (cmb.usrflags&cflag4) && (cmb.walk&b)) return cSHALLOWWATER;
-	if (cmb.type == cWATER && (cmb.usrflags&cflag3) && (cmb.walk&b)) return cNONE;
+	if (cmb.type == cWATER && (cmb.usrflags&cflag4) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cSHALLOWWATER;
+	if (cmb.type == cWATER && (cmb.usrflags&cflag3) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cNONE;
 	return cmb.type;
 }
 
@@ -1069,7 +1069,7 @@ int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secr
 					}
 					if (get_bit(quest_rules, qr_NO_SOLID_SWIM))
 					{
-						if (cmb.type != cBRIDGE && (cmb.walk&(1<<b)))
+						if (cmb.type != cBRIDGE && (cmb.walk&(1<<b)) && !((cmb.usrflags&cflag4) && ShallowCheck) )
 						{
 							bridgedetected = true;
 						}						
@@ -1099,6 +1099,7 @@ int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secr
 						}
 					}
 					int checkcombo = MAPCOMBO3(map, screen, layer, tx2, ty2, secrets);
+					if (!(combobuf[checkcombo].walk&(1<<(b+4)))) return 0;
 					if (iswater_type(combobuf[checkcombo].type)||(ShallowCheck && (combobuf[checkcombo].type == cSHALLOWWATER || (iswater_type(combobuf[checkcombo].type) && (combobuf[checkcombo].walk&(1<<b)) && (combobuf[checkcombo].usrflags&cflag4))))) 
 					{
 						if (i == 0) return checkcombo;
@@ -1112,16 +1113,17 @@ int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secr
 	}
 	else
 	{
+		int b = 0;
+		if(x&8) b+=2;
+		if(y&8) b+=1;
 		if (get_bit(quest_rules, qr_NO_SOLID_SWIM))
 		{
-			int b = 0;
-			if(x&8) b+=2;
-			if(y&8) b+=1;
 			if (combobuf[combo].walk&(1<<b))
 			{
 				return 0;
 			}						
 		}
+		if (!(combobuf[combo].walk&(1<<(b+4)))) return 0;
 		return (((iswater_type(combobuf[combo].type) || (ShallowCheck && combobuf[combo].type == cSHALLOWWATER)) && !DRIEDLAKE)?combo:0); //These used to return booleans; returning the combo id of the water combo it caught is essential for Rob's proposed water changes.
 	}
 }
@@ -3246,135 +3248,170 @@ void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen
 // Called by do_walkflags
 void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int lyr)
 {
-    newcombo c = combobuf[cmbdat];
-    
-    if (c.type == cBRIDGE) return;
-    
-    int xx = x-xofs;
-    int yy = y+playing_field_offset-yofs;
-    
-    int bridgedetected = 0;
-    
-    for(int i=0; i<4; i++)
-    {
-        int tx=((i&2)<<2)+xx;
-        int ty=((i&1)<<3)+yy;
-	int tx2=((i&2)<<2)+x;
-        int ty2=((i&1)<<3)+y;
-	for (int m = lyr-1; m <= 1; m++)
-	{
-		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
-		{
-			bridgedetected |= (1<<i);
-		}
-        }
-	if ((bridgedetected & (1<<i))) 
-	{
-		if (i >= 3) break;
-		else continue;
-	}
-	bool doladdercheck = true;
-        //if ( iswaterex(cmbdat, currmap, currscr, lyr, tx2, ty2, true, false, false)!=0 )
-	if (iswater_type(c.type) && !DRIEDLAKE) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
-	{
-		if (get_bit(quest_rules,  qr_NO_SOLID_SWIM)) doladdercheck = false;
-		if((lyr==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && lyr == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && lyr == 2)) && get_bit(quest_rules, qr_DROWN))
-			rectfill(dest,tx,ty,tx+7,ty+7,makecol(85,85,255));
-		else rectfill(dest,tx,ty,tx+7,ty+7,makecol(0,0,255));
-	}
+	newcombo const &c = combobuf[cmbdat];
 	
-        if(c.walk&(1<<i) && !(iswater_type(c.type) && DRIEDLAKE))  // Check for dried lake (watertype && not water)
-        {
-            if(c.type==cLADDERHOOKSHOT && isstepable(cmbdat) && ishookshottable(xx,yy))
-            {
-                for(int k=0; k<8; k+=2)
-                    for(int j=0; j<8; j+=2)
-                        rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,((k+j)/2)%2 ? makecol(165,105,8) : makecol(170,170,170));
-            }
-            else
-            {
-                int color = makecol(255,85,85);
-                
-                if(isstepable(cmbdat)&& (!doladdercheck))
-                    color=makecol(165,105,8);
-                else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(xx,yy))
-                    color=makecol(170,170,170);
-                    
-                rectfill(dest,tx,ty,tx+7,ty+7,color);
-            }
-        }
-    }
-    
-    // Draw damage combos
-    bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,xx,yy)].type].modify_hp_amount
-               || combo_class_buf[combobuf[MAPCOMBO2(0,xx,yy)].type].modify_hp_amount
-               || combo_class_buf[combobuf[MAPCOMBO2(1,xx,yy)].type].modify_hp_amount;
-               
-    if(dmg)
-    {
-	int color = makecol(255,255,0);
-	if (bridgedetected <= 0)
+	if (c.type == cBRIDGE) return;
+	
+	int xx = x-xofs;
+	int yy = y+playing_field_offset-yofs;
+	
+	int bridgedetected = 0;
+	
+	for(int i=0; i<4; i++)
 	{
-		for(int k=0; k<16; k+=2)
-		    for(int j=0; j<16; j+=2)
-			if(((k+j)/2)%2)
-			    rectfill(dest,x+k,y+j,x+k+1,y+j+1,color);
-	}
-	else
-	{
-		for(int i=0; i<4; i++)
+		int tx=((i&2)<<2)+xx;
+		int ty=((i&1)<<3)+yy;
+		int tx2=((i&2)<<2)+x;
+		int ty2=((i&1)<<3)+y;
+		for (int m = lyr-1; m <= 1; m++)
 		{
-			if (!(bridgedetected & (1<<i)))
+			if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
 			{
-				int tx=((i&2)<<2)+x;
-				int ty=((i&1)<<3)+y;
+				bridgedetected |= (1<<i);
+			}
+		}
+		if ((bridgedetected & (1<<i))) 
+		{
+			if (i >= 3) break;
+			else continue;
+		}
+		bool doladdercheck = true;
+		//if ( iswaterex(cmbdat, currmap, currscr, lyr, tx2, ty2, true, false, false)!=0 )
+		if (iswater_type(c.type) && !DRIEDLAKE) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
+		{
+			if (get_bit(quest_rules,  qr_NO_SOLID_SWIM)) doladdercheck = false;
+			if((lyr==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && lyr == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && lyr == 2)) && get_bit(quest_rules, qr_DROWN))
+				rectfill(dest,tx,ty,tx+7,ty+7,makecol(85,85,255));
+			else rectfill(dest,tx,ty,tx+7,ty+7,makecol(0,0,255));
+		}
+		
+		if(c.walk&(1<<i) && !(iswater_type(c.type) && DRIEDLAKE))  // Check for dried lake (watertype && not water)
+		{
+			if(c.type==cLADDERHOOKSHOT && isstepable(cmbdat) && ishookshottable(xx,yy))
+			{
 				for(int k=0; k<8; k+=2)
-				    for(int j=0; j<8; j+=2)
-					if((k+j)%4 < 2)
-					    rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,color);
+					for(int j=0; j<8; j+=2)
+						rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,((k+j)/2)%2 ? makecol(165,105,8) : makecol(170,170,170));
+			}
+			else
+			{
+				int color = makecol(255,85,85);
+				
+				if(isstepable(cmbdat)&& (!doladdercheck))
+					color=makecol(165,105,8);
+				else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(xx,yy))
+					color=makecol(170,170,170);
+					
+				rectfill(dest,tx,ty,tx+7,ty+7,color);
 			}
 		}
 	}
-    }
+	
+	// Draw damage combos
+	bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,xx,yy)].type].modify_hp_amount
+	   || combo_class_buf[combobuf[MAPCOMBO2(0,xx,yy)].type].modify_hp_amount
+	   || combo_class_buf[combobuf[MAPCOMBO2(1,xx,yy)].type].modify_hp_amount;
+			   
+	if(dmg)
+	{
+		int color = makecol(255,255,0);
+		if (bridgedetected <= 0)
+		{
+			for(int k=0; k<16; k+=2)
+				for(int j=0; j<16; j+=2)
+				if(((k+j)/2)%2)
+					rectfill(dest,x+k,y+j,x+k+1,y+j+1,color);
+		}
+		else
+		{
+			for(int i=0; i<4; i++)
+			{
+				if (!(bridgedetected & (1<<i)))
+				{
+					int tx=((i&2)<<2)+x;
+					int ty=((i&1)<<3)+y;
+					for(int k=0; k<8; k+=2)
+						for(int j=0; j<8; j+=2)
+							if((k+j)%4 < 2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,color);
+				}
+			}
+		}
+	}
+}
+
+void put_effectflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int lyr)
+{
+	newcombo const &c = combobuf[cmbdat];
+	
+	int xx = x-xofs;
+	int yy = y+playing_field_offset-yofs;
+	
+	for(int i=0; i<4; i++)
+	{
+		int tx=((i&2)<<2)+xx;
+		int ty=((i&1)<<3)+yy;
+		int tx2=((i&2)<<2)+x;
+		int ty2=((i&1)<<3)+y;
+	
+	
+		if(((c.walk>>4)&(1<<i)) && c.type != cNONE)
+		{
+				int color = vc(10);
+					
+				rectfill(dest,tx,ty,tx+7,ty+7,color);
+		}
+	}
+}
+
+// Effectflags L4 cheat
+void do_effectflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen)
+{
+	if(show_effectflags)
+	{
+		for(int i=0; i<176; i++)
+		{
+			put_effectflags(dest,((i&15)<<4),(i&0xF0),x,y,layer->data[i], 0);
+		}
+	}
 }
 
 // Walkflags L4 cheat
 void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen)
 {
-    if(show_walkflags)
-    {
-        for(int i=0; i<176; i++)
-        {
-            put_walkflags(dest,((i&15)<<4),(i&0xF0),x,y,layer->data[i], 0);
-        }
-        
-        int layermap;
-        
-        for(int k=0; k<2; k++)
-        {
-            layermap=layer->layermap[k%2];
-            
-            if(layermap>0)
-            {
-                if(tempscreen==2)
-                {
-                    for(int i=0; i<176; i++)
-                    {
-                        put_walkflags(temp_buf,((i&15)<<4),(i&0xF0),x,y,tmpscr2[k].data[i], k%2+1);
-                        put_walkflags(scrollbuf,((i&15)<<4),(i&0xF0),x,y,tmpscr2[k].data[i], k%2+1);
-                    }
-                }
-                else
-                {
-                    for(int i=0; i<176; i++)
-                    {
-                        put_walkflags(temp_buf,((i&15)<<4),(i&0xF0),x,y,tmpscr3[k].data[i], k%2+1);
-                        put_walkflags(scrollbuf,((i&15)<<4),(i&0xF0),x,y,tmpscr3[k].data[i], k%2+1);
-                    }
-                }
-            }
-        }
-    }
+	if(show_walkflags)
+	{
+		for(int i=0; i<176; i++)
+		{
+			put_walkflags(dest,((i&15)<<4),(i&0xF0),x,y,layer->data[i], 0);
+		}
+		
+		int layermap;
+		
+		for(int k=0; k<2; k++)
+		{
+			layermap=layer->layermap[k%2];
+			
+			if(layermap>0)
+			{
+				if(tempscreen==2)
+				{
+					for(int i=0; i<176; i++)
+					{
+						put_walkflags(temp_buf,((i&15)<<4),(i&0xF0),x,y,tmpscr2[k].data[i], k%2+1);
+						put_walkflags(scrollbuf,((i&15)<<4),(i&0xF0),x,y,tmpscr2[k].data[i], k%2+1);
+					}
+				}
+				else
+				{
+					for(int i=0; i<176; i++)
+					{
+						put_walkflags(temp_buf,((i&15)<<4),(i&0xF0),x,y,tmpscr3[k].data[i], k%2+1);
+						put_walkflags(scrollbuf,((i&15)<<4),(i&0xF0),x,y,tmpscr3[k].data[i], k%2+1);
+					}
+				}
+			}
+		}
+	}
 }
 
 void draw_screen(mapscr* this_screen, bool showlink)
@@ -3384,874 +3421,877 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		FFCore.doScriptMenuDraws();
 		return;
 	}
-    //The Plan:
+	//The Plan:
 	//0: Set sideview gravity from dmaps. -Z
-    //1. Draw some layers onto scrollbuf with clipping
-    //2. Blit scrollbuf onto framebuf
-    //3. Draw some sprites onto framebuf
-    //4. Blit framebuf onto temp_buf
-    //5. Draw some layers onto temp_buf and scrollbuf
-    //6. Blit temp_buf onto framebuf with clipping
-    //6b. Draw the subscreen onto temp_buf, without clipping
-    //7. Draw some flying sprites onto framebuf
-    //8. Blit frame_buf onto temp_buf
-    //9. Draw some layers onto temp_buf
-    //10. Blit temp_buf onto framebuf with clipping
-    //11. Draw some text on framebuf and scrollbuf
-    //12. Draw the subscreen onto framebuf, without clipping
-    clear_bitmap(framebuf);
-    set_clip_rect(framebuf,0,0,256,224);
-    
-    clear_bitmap(temp_buf);
-    set_clip_state(temp_buf,1);
-    set_clip_rect(temp_buf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-    
-    int cmby2=0;
-    int pcounter;
-    
-    //0: Sideview Grvity from DMaps.
-    
-    /* DON'T MODIFY THE SCREEN DIRECTLY!
+	//1. Draw some layers onto scrollbuf with clipping
+	//2. Blit scrollbuf onto framebuf
+	//3. Draw some sprites onto framebuf
+	//4. Blit framebuf onto temp_buf
+	//5. Draw some layers onto temp_buf and scrollbuf
+	//6. Blit temp_buf onto framebuf with clipping
+	//6b. Draw the subscreen onto temp_buf, without clipping
+	//7. Draw some flying sprites onto framebuf
+	//8. Blit frame_buf onto temp_buf
+	//9. Draw some layers onto temp_buf
+	//10. Blit temp_buf onto framebuf with clipping
+	//11. Draw some text on framebuf and scrollbuf
+	//12. Draw the subscreen onto framebuf, without clipping
+	clear_bitmap(framebuf);
+	set_clip_rect(framebuf,0,0,256,224);
+	
+	clear_bitmap(temp_buf);
+	set_clip_state(temp_buf,1);
+	set_clip_rect(temp_buf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+	
+	int cmby2=0;
+	int pcounter;
+	
+	//0: Sideview Grvity from DMaps.
+	
+	/* DON'T MODIFY THE SCREEN DIRECTLY!
 	if ( DMaps[currdmap].sideview != 0 ) 
-    {
+	{
 		this_screen->flags7 |= fSIDEVIEW;
-    }*/
-    //1. Draw some layers onto temp_buf
-    clear_bitmap(scrollbuf);
-    
-    if(this_screen->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
-    {
-        do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true);
-        
-        for(pcounter=0; pcounter<particles.Count(); pcounter++)
-        {
-            if(((particle*)particles.spr(pcounter))->layer==1)
-            {
-                particles.spr(pcounter)->draw(scrollbuf);
-            }
-        }
-    }
-    
-    if(this_screen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG)
-    {
-        do_layer(scrollbuf,2, this_screen, 0, 0, 2, false, true);
-        
-        for(pcounter=0; pcounter<particles.Count(); pcounter++)
-        {
-            if(((particle*)particles.spr(pcounter))->layer==2)
-            {
-                particles.spr(pcounter)->draw(scrollbuf);
-            }
-        }
-    }
-    
-    putscr(scrollbuf,0,playing_field_offset,this_screen);
-    
-    // Lens hints, then primitives, then particles.
-    if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_bit(quest_rules, qr_OLDLENSORDER))
-    {
-        draw_lens_under(scrollbuf, false);
-    }
-    
-    if(show_layer_0)
-        do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
-        
-    for(pcounter=0; pcounter<particles.Count(); pcounter++)
-    {
-        if(((particle*)particles.spr(pcounter))->layer==-3)
-        {
-            particles.spr(pcounter)->draw(scrollbuf);
-        }
-    }
-    
-    set_clip_rect(scrollbuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-    
-    if(!(get_bit(quest_rules,qr_LAYER12UNDERCAVE)))
-    {
-        if(showlink &&
-                ((Link.getAction()==climbcovertop)||(Link.getAction()==climbcoverbottom)))
-        {
-            if(Link.getAction()==climbcovertop)
-            {
-                cmby2=16;
-            }
-            else if(Link.getAction()==climbcoverbottom)
-            {
-                cmby2=-16;
-            }
-            
-            decorations.draw2(scrollbuf,true);
-            Link.draw(scrollbuf);
-            decorations.draw(scrollbuf,true);
-            int ccx = (int)(Link.getClimbCoverX());
-            int ccy = (int)(Link.getClimbCoverY());
-            
-            overcombo(scrollbuf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
-            putcombo(scrollbuf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
-            
-            if(int(Link.getX())&15)
-            {
-                overcombo(scrollbuf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
-                putcombo(scrollbuf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
-            }
-        }
-    }
-    
-    do_layer(scrollbuf,0, this_screen, 0, 0, 2, false, true); // LAYER 1
-    
-    for(pcounter=0; pcounter<particles.Count(); pcounter++)
-    {
-        if(((particle*)particles.spr(pcounter))->layer==0)
-        {
-            particles.spr(pcounter)->draw(scrollbuf);
-        }
-    }
-    
-    do_layer(scrollbuf,-3, this_screen, 0, 0, 2); // freeform combos!
-    
-    if(!(this_screen->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
-    {
-        do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true); // LAYER 2
-        
-        for(pcounter=0; pcounter<particles.Count(); pcounter++)
-        {
-            if(((particle*)particles.spr(pcounter))->layer==1)
-            {
-                particles.spr(pcounter)->draw(scrollbuf);
-            }
-        }
-    }
-    
-    if(get_bit(quest_rules,qr_LAYER12UNDERCAVE))
-    {
-        if(showlink &&
-                ((Link.getAction()==climbcovertop)||(Link.getAction()==climbcoverbottom)))
-        {
-            if(Link.getAction()==climbcovertop)
-            {
-                cmby2=16;
-            }
-            else if(Link.getAction()==climbcoverbottom)
-            {
-                cmby2=-16;
-            }
-            
-            decorations.draw2(scrollbuf,true);
-            Link.draw(scrollbuf);
-            decorations.draw(scrollbuf,true);
-            int ccx = (int)(Link.getClimbCoverX());
-            int ccy = (int)(Link.getClimbCoverY());
-            
-            overcombo(scrollbuf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
-            putcombo(scrollbuf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
-            
-            if(int(Link.getX())&15)
-            {
-                overcombo(scrollbuf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
-                putcombo(scrollbuf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
-            }
-        }
-    }
-    
-    do_layer(scrollbuf,-2, this_screen, 0, 0, 2); // push blocks!
-    
-    //Show walkflags cheat
-    do_walkflags(temp_buf,this_screen,0,0,2);
-    do_walkflags(scrollbuf,this_screen,0,0,2);
-    
-    putscrdoors(scrollbuf,0,playing_field_offset,this_screen);
-    
-    // Lens hints, doors etc.
-    if(lensclk || (get_debug() && zc_getkey(KEY_L)))
-    {
-        if(get_bit(quest_rules, qr_OLDLENSORDER))
-        {
-            draw_lens_under(scrollbuf, false);
-        }
-        
-        draw_lens_under(scrollbuf, true);
-    }
-    
-    //2. Blit those layers onto framebuf
-    
-    
-    set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-    masked_blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
-    
-    
-    //3. Draw some sprites onto framebuf
-    set_clip_rect(framebuf,0,0,256,224);
-    
-    if(!(pricesdisplaybuf->clip))
-    {
-        masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
-    }
-    
-    if(showlink && ((Link.getAction()!=climbcovertop)&&(Link.getAction()!=climbcoverbottom)))
-    {
-        Link.draw_under(framebuf);
-        
-        if(Link.isSwimming())
-        {
-            decorations.draw2(framebuf,true);
-            Link.draw(framebuf);
-            decorations.draw(framebuf,true);
-        }
-    }
-    
-    if(drawguys)
-    {
-        if(get_bit(quest_rules,qr_NOFLICKER) || (frame&1))
-        {
-            for(int i=0; i<Ewpns.Count(); i++)
-            {
-                if(((weapon *)Ewpns.spr(i))->behind)
-                    Ewpns.spr(i)->draw(framebuf);
-            }
-	    
-	    for(int i=0; i<Lwpns.Count(); i++)
-            {
-                if(((weapon *)Lwpns.spr(i))->behind)
-                    Lwpns.spr(i)->draw(framebuf);
-            }
-            
-            if(get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
-            {
-                guys.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0,true);
-            }
-            
-            guys.draw(framebuf,true);
-            chainlinks.draw(framebuf,true);
-            //Lwpns.draw(framebuf,true);
-            
-            for(int i=0; i<Ewpns.Count(); i++)
-            {
-                if(!((weapon *)Ewpns.spr(i))->behind)
-                    Ewpns.spr(i)->draw(framebuf);
-            }
-	    
-	    for(int i=0; i<Lwpns.Count(); i++)
-            {
-                if(!((weapon *)Lwpns.spr(i))->behind)
-                    Lwpns.spr(i)->draw(framebuf);
-            }
-	    
-            
-            items.draw(framebuf,true);
-        }
-        else
-        {
-            for(int i=0; i<Ewpns.Count(); i++)
-            {
-                if(((weapon *)Ewpns.spr(i))->behind)
-                    Ewpns.spr(i)->draw(framebuf);
-            }
-	    
-	    for(int i=0; i<Lwpns.Count(); i++)
-            {
-                if(((weapon *)Lwpns.spr(i))->behind)
-                    Lwpns.spr(i)->draw(framebuf);
-            }
-            
-            if(get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
-            {
-                guys.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0,true);
-            }
-            
-            items.draw(framebuf,false);
-            chainlinks.draw(framebuf,false);
-            //Lwpns.draw(framebuf,false);
-            guys.draw(framebuf,false);
-            
-            for(int i=0; i<Ewpns.Count(); i++)
-            {
-                if(!((weapon *)Ewpns.spr(i))->behind)
-                {
-                    Ewpns.spr(i)->draw(framebuf);
-                }
-            }
-	    
-	    for(int i=0; i<Lwpns.Count(); i++)
-            {
-                if(!((weapon *)Lwpns.spr(i))->behind)
-                {
-                    Lwpns.spr(i)->draw(framebuf);
-                }
-            }
-        }
-        
-        guys.draw2(framebuf,true);
-    }
-    
-    if(showlink && ((Link.getAction()!=climbcovertop)&& (Link.getAction()!=climbcoverbottom)))
-    {
-        mblock2.draw(framebuf);
-        
-        if(!Link.isSwimming())
-        {
-            if(Link.getZ()>0 &&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
-            {
-                Link.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
-            }
-            
-            decorations.draw2(framebuf,true);
-            Link.draw(framebuf);
-            decorations.draw(framebuf,true);
-        }
-    }
-    
-    for(int i=0; i<guys.Count(); i++)
-    {
-        if(((enemy*)guys.spr(i))->family == eeWALK)
-        {
-            if(((eStalfos*)guys.spr(i))->haslink)
-            {
-                guys.spr(i)->draw(framebuf);
-            }
-        }
-        
-        if(((enemy*)guys.spr(i))->family == eeWALLM)
-        {
-            if(((eWallM*)guys.spr(i))->haslink)
-            {
-                guys.spr(i)->draw(framebuf);
-            }
-        }
-        
-        if(guys.spr(i)->z > Link.getZ())
-        {
-            //Jumping enemies in front of Link.
-            guys.spr(i)->draw(framebuf);
-        }
-    }
-    
-    //4. Blit framebuf onto temp_buf
-    
-    //you have to do this, because do_layer calls overcombo, which doesn't respect the clipping rectangle, which messes up the triforce curtain. -DD
-    blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
-    
-    //5. Draw some layers onto temp_buf and scrollbuf
-    
-    if(!(this_screen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG))
-    {
-        do_layer(temp_buf,2, this_screen, 0, 0, 2, false, true);
-        do_layer(scrollbuf, 2, this_screen, 0, 0, 2);
-        
-        for(pcounter=0; pcounter<particles.Count(); pcounter++)
-        {
-            if(((particle*)particles.spr(pcounter))->layer==2)
-            {
-                particles.spr(pcounter)->draw(temp_buf);
-            }
-        }
-    }
-    
-    do_layer(temp_buf,3, this_screen, 0, 0, 2, false, true);
-    do_layer(scrollbuf, 3, this_screen, 0, 0, 2);
-    //do_primitives(temp_buf, 3, this_screen, 0,playing_field_offset);//don't uncomment me
-    
-    for(pcounter=0; pcounter<particles.Count(); pcounter++)
-    {
-        if(((particle*)particles.spr(pcounter))->layer==3)
-        {
-            particles.spr(pcounter)->draw(temp_buf);
-        }
-    }
-    
-    do_layer(temp_buf,-1, this_screen, 0, 0, 2);
-    do_layer(scrollbuf,-1, this_screen, 0, 0, 2);
-    
-    for(pcounter=0; pcounter<particles.Count(); pcounter++)
-    {
-        if(((particle*)particles.spr(pcounter))->layer==-1)
-        {
-            particles.spr(pcounter)->draw(temp_buf);
-        }
-    }
-    
-    //6. Blit temp_buf onto framebuf with clipping
-    
-    set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-    blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
-    
-    //6b. Draw the subscreen, without clipping
-    if(!get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
-    {
-        set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-        put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
-    }
-    
-    
-    //7. Draw some flying sprites onto framebuf
-    set_clip_rect(framebuf,0,0,256,224);
-    
-    //Jumping Link and jumping enemies are drawn on this layer.
-    if(Link.getZ() > (zfix)zinit.jump_link_layer_threshold)
-    {
-        decorations.draw2(framebuf,false);
-        Link.draw(framebuf);
-        chainlinks.draw(framebuf,true);
-        
-        for(int i=0; i<Lwpns.Count(); i++)
-        {
-            if(Lwpns.spr(i)->z > (zfix)zinit.jump_link_layer_threshold)
-            {
-                Lwpns.spr(i)->draw(framebuf);
-            }
-        }
-        
-        decorations.draw(framebuf,false);
-    }
-    
-    if(!get_bit(quest_rules,qr_ENEMIESZAXIS)) for(int i=0; i<guys.Count(); i++)
-        {
-            if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > (zfix)zinit.jump_link_layer_threshold)
-            {
-                guys.spr(i)->draw(framebuf);
-            }
-        }
-    else
-    {
-        for(int i=0; i<guys.Count(); i++)
-        {
-            if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > 0)
-            {
-                guys.spr(i)->draw(framebuf);
-            }
-        }
-    }
-    
-    // Draw the Moving Fairy above layer 3
-    for(int i=0; i<items.Count(); i++)
-        if(itemsbuf[items.spr(i)->id].family == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
-            items.spr(i)->draw(framebuf);
-            
-    //8. Blit framebuf onto temp_buf
-    
-    masked_blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
-    
-    //9. Draw some layers onto temp_buf and scrollbuf
-    
-    set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-    
-    do_layer(temp_buf,4, this_screen, 0, 0, 2, false, true);
-    do_layer(scrollbuf, 4, this_screen, 0, 0, 2);
-    
-    for(pcounter=0; pcounter<particles.Count(); pcounter++)
-    {
-        if(((particle*)particles.spr(pcounter))->layer==4)
-        {
-            particles.spr(pcounter)->draw(temp_buf);
-        }
-    }
-    
-    do_layer(temp_buf,-4, this_screen, 0, 0, 2); // overhead freeform combos!
-    do_layer(scrollbuf, -4, this_screen, 0, 0, 2);
-    
-    do_layer(temp_buf,5, this_screen, 0, 0, 2, false, true);
-    do_layer(scrollbuf, 5, this_screen, 0, 0, 2);
-    
-    for(pcounter=0; pcounter<particles.Count(); pcounter++)
-    {
-        if(((particle*)particles.spr(pcounter))->layer==5)
-        {
-            particles.spr(pcounter)->draw(temp_buf);
-        }
-    }
-    
-    //10. Blit temp_buf onto framebuf with clipping
-    
-    set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-    blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
-    
-    
-    //11. Draw some text on framebuf
-    
-    set_clip_rect(framebuf,0,0,256,224);
-    set_clip_rect(scrollbuf,0,0,256,224);
-    
-    if(!(msg_bg_display_buf->clip))
-    {
+	}*/
+	//1. Draw some layers onto temp_buf
+	clear_bitmap(scrollbuf);
+	
+	if(this_screen->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
+	{
+		do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true);
+		
+		for(pcounter=0; pcounter<particles.Count(); pcounter++)
+		{
+			if(((particle*)particles.spr(pcounter))->layer==1)
+			{
+				particles.spr(pcounter)->draw(scrollbuf);
+			}
+		}
+	}
+	
+	if(this_screen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG)
+	{
+		do_layer(scrollbuf,2, this_screen, 0, 0, 2, false, true);
+		
+		for(pcounter=0; pcounter<particles.Count(); pcounter++)
+		{
+			if(((particle*)particles.spr(pcounter))->layer==2)
+			{
+				particles.spr(pcounter)->draw(scrollbuf);
+			}
+		}
+	}
+	
+	putscr(scrollbuf,0,playing_field_offset,this_screen);
+	
+	// Lens hints, then primitives, then particles.
+	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_bit(quest_rules, qr_OLDLENSORDER))
+	{
+		draw_lens_under(scrollbuf, false);
+	}
+	
+	if(show_layer_0)
+		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
+		
+	for(pcounter=0; pcounter<particles.Count(); pcounter++)
+	{
+		if(((particle*)particles.spr(pcounter))->layer==-3)
+		{
+			particles.spr(pcounter)->draw(scrollbuf);
+		}
+	}
+	
+	set_clip_rect(scrollbuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+	
+	if(!(get_bit(quest_rules,qr_LAYER12UNDERCAVE)))
+	{
+		if(showlink &&
+				((Link.getAction()==climbcovertop)||(Link.getAction()==climbcoverbottom)))
+		{
+			if(Link.getAction()==climbcovertop)
+			{
+				cmby2=16;
+			}
+			else if(Link.getAction()==climbcoverbottom)
+			{
+				cmby2=-16;
+			}
+			
+			decorations.draw2(scrollbuf,true);
+			Link.draw(scrollbuf);
+			decorations.draw(scrollbuf,true);
+			int ccx = (int)(Link.getClimbCoverX());
+			int ccy = (int)(Link.getClimbCoverY());
+			
+			overcombo(scrollbuf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
+			putcombo(scrollbuf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
+			
+			if(int(Link.getX())&15)
+			{
+				overcombo(scrollbuf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
+				putcombo(scrollbuf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
+			}
+		}
+	}
+	
+	do_layer(scrollbuf,0, this_screen, 0, 0, 2, false, true); // LAYER 1
+	
+	for(pcounter=0; pcounter<particles.Count(); pcounter++)
+	{
+		if(((particle*)particles.spr(pcounter))->layer==0)
+		{
+			particles.spr(pcounter)->draw(scrollbuf);
+		}
+	}
+	
+	do_layer(scrollbuf,-3, this_screen, 0, 0, 2); // freeform combos!
+	
+	if(!(this_screen->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
+	{
+		do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true); // LAYER 2
+		
+		for(pcounter=0; pcounter<particles.Count(); pcounter++)
+		{
+			if(((particle*)particles.spr(pcounter))->layer==1)
+			{
+				particles.spr(pcounter)->draw(scrollbuf);
+			}
+		}
+	}
+	
+	if(get_bit(quest_rules,qr_LAYER12UNDERCAVE))
+	{
+		if(showlink &&
+				((Link.getAction()==climbcovertop)||(Link.getAction()==climbcoverbottom)))
+		{
+			if(Link.getAction()==climbcovertop)
+			{
+				cmby2=16;
+			}
+			else if(Link.getAction()==climbcoverbottom)
+			{
+				cmby2=-16;
+			}
+			
+			decorations.draw2(scrollbuf,true);
+			Link.draw(scrollbuf);
+			decorations.draw(scrollbuf,true);
+			int ccx = (int)(Link.getClimbCoverX());
+			int ccy = (int)(Link.getClimbCoverY());
+			
+			overcombo(scrollbuf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
+			putcombo(scrollbuf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
+			
+			if(int(Link.getX())&15)
+			{
+				overcombo(scrollbuf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
+				putcombo(scrollbuf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
+			}
+		}
+	}
+	
+	do_layer(scrollbuf,-2, this_screen, 0, 0, 2); // push blocks!
+	
+	//Show walkflags cheat
+	do_walkflags(temp_buf,this_screen,0,0,2);
+	do_walkflags(scrollbuf,this_screen,0,0,2);
+	
+	do_effectflags(temp_buf,this_screen,0,0,2);
+	do_effectflags(scrollbuf,this_screen,0,0,2);
+	
+	putscrdoors(scrollbuf,0,playing_field_offset,this_screen);
+	
+	// Lens hints, doors etc.
+	if(lensclk || (get_debug() && zc_getkey(KEY_L)))
+	{
+		if(get_bit(quest_rules, qr_OLDLENSORDER))
+		{
+			draw_lens_under(scrollbuf, false);
+		}
+		
+		draw_lens_under(scrollbuf, true);
+	}
+	
+	//2. Blit those layers onto framebuf
+	
+	
+	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+	masked_blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
+	
+	
+	//3. Draw some sprites onto framebuf
+	set_clip_rect(framebuf,0,0,256,224);
+	
+	if(!(pricesdisplaybuf->clip))
+	{
+		masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
+	}
+	
+	if(showlink && ((Link.getAction()!=climbcovertop)&&(Link.getAction()!=climbcoverbottom)))
+	{
+		Link.draw_under(framebuf);
+		
+		if(Link.isSwimming())
+		{
+			decorations.draw2(framebuf,true);
+			Link.draw(framebuf);
+			decorations.draw(framebuf,true);
+		}
+	}
+	
+	if(drawguys)
+	{
+		if(get_bit(quest_rules,qr_NOFLICKER) || (frame&1))
+		{
+			for(int i=0; i<Ewpns.Count(); i++)
+			{
+				if(((weapon *)Ewpns.spr(i))->behind)
+					Ewpns.spr(i)->draw(framebuf);
+			}
+		
+		for(int i=0; i<Lwpns.Count(); i++)
+			{
+				if(((weapon *)Lwpns.spr(i))->behind)
+					Lwpns.spr(i)->draw(framebuf);
+			}
+			
+			if(get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
+			{
+				guys.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0,true);
+			}
+			
+			guys.draw(framebuf,true);
+			chainlinks.draw(framebuf,true);
+			//Lwpns.draw(framebuf,true);
+			
+			for(int i=0; i<Ewpns.Count(); i++)
+			{
+				if(!((weapon *)Ewpns.spr(i))->behind)
+					Ewpns.spr(i)->draw(framebuf);
+			}
+		
+		for(int i=0; i<Lwpns.Count(); i++)
+			{
+				if(!((weapon *)Lwpns.spr(i))->behind)
+					Lwpns.spr(i)->draw(framebuf);
+			}
+		
+			
+			items.draw(framebuf,true);
+		}
+		else
+		{
+			for(int i=0; i<Ewpns.Count(); i++)
+			{
+				if(((weapon *)Ewpns.spr(i))->behind)
+					Ewpns.spr(i)->draw(framebuf);
+			}
+		
+		for(int i=0; i<Lwpns.Count(); i++)
+			{
+				if(((weapon *)Lwpns.spr(i))->behind)
+					Lwpns.spr(i)->draw(framebuf);
+			}
+			
+			if(get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
+			{
+				guys.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0,true);
+			}
+			
+			items.draw(framebuf,false);
+			chainlinks.draw(framebuf,false);
+			//Lwpns.draw(framebuf,false);
+			guys.draw(framebuf,false);
+			
+			for(int i=0; i<Ewpns.Count(); i++)
+			{
+				if(!((weapon *)Ewpns.spr(i))->behind)
+				{
+					Ewpns.spr(i)->draw(framebuf);
+				}
+			}
+		
+		for(int i=0; i<Lwpns.Count(); i++)
+			{
+				if(!((weapon *)Lwpns.spr(i))->behind)
+				{
+					Lwpns.spr(i)->draw(framebuf);
+				}
+			}
+		}
+		
+		guys.draw2(framebuf,true);
+	}
+	
+	if(showlink && ((Link.getAction()!=climbcovertop)&& (Link.getAction()!=climbcoverbottom)))
+	{
+		mblock2.draw(framebuf);
+		
+		if(!Link.isSwimming())
+		{
+			if(Link.getZ()>0 &&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
+			{
+				Link.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
+			}
+			
+			decorations.draw2(framebuf,true);
+			Link.draw(framebuf);
+			decorations.draw(framebuf,true);
+		}
+	}
+	
+	for(int i=0; i<guys.Count(); i++)
+	{
+		if(((enemy*)guys.spr(i))->family == eeWALK)
+		{
+			if(((eStalfos*)guys.spr(i))->haslink)
+			{
+				guys.spr(i)->draw(framebuf);
+			}
+		}
+		
+		if(((enemy*)guys.spr(i))->family == eeWALLM)
+		{
+			if(((eWallM*)guys.spr(i))->haslink)
+			{
+				guys.spr(i)->draw(framebuf);
+			}
+		}
+		
+		if(guys.spr(i)->z > Link.getZ())
+		{
+			//Jumping enemies in front of Link.
+			guys.spr(i)->draw(framebuf);
+		}
+	}
+	
+	//4. Blit framebuf onto temp_buf
+	
+	//you have to do this, because do_layer calls overcombo, which doesn't respect the clipping rectangle, which messes up the triforce curtain. -DD
+	blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
+	
+	//5. Draw some layers onto temp_buf and scrollbuf
+	
+	if(!(this_screen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG))
+	{
+		do_layer(temp_buf,2, this_screen, 0, 0, 2, false, true);
+		do_layer(scrollbuf, 2, this_screen, 0, 0, 2);
+		
+		for(pcounter=0; pcounter<particles.Count(); pcounter++)
+		{
+			if(((particle*)particles.spr(pcounter))->layer==2)
+			{
+				particles.spr(pcounter)->draw(temp_buf);
+			}
+		}
+	}
+	
+	do_layer(temp_buf,3, this_screen, 0, 0, 2, false, true);
+	do_layer(scrollbuf, 3, this_screen, 0, 0, 2);
+	//do_primitives(temp_buf, 3, this_screen, 0,playing_field_offset);//don't uncomment me
+	
+	for(pcounter=0; pcounter<particles.Count(); pcounter++)
+	{
+		if(((particle*)particles.spr(pcounter))->layer==3)
+		{
+			particles.spr(pcounter)->draw(temp_buf);
+		}
+	}
+	
+	do_layer(temp_buf,-1, this_screen, 0, 0, 2);
+	do_layer(scrollbuf,-1, this_screen, 0, 0, 2);
+	
+	for(pcounter=0; pcounter<particles.Count(); pcounter++)
+	{
+		if(((particle*)particles.spr(pcounter))->layer==-1)
+		{
+			particles.spr(pcounter)->draw(temp_buf);
+		}
+	}
+	
+	//6. Blit temp_buf onto framebuf with clipping
+	
+	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+	blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
+	
+	//6b. Draw the subscreen, without clipping
+	if(!get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+	{
+		set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+	}
+	
+	
+	//7. Draw some flying sprites onto framebuf
+	set_clip_rect(framebuf,0,0,256,224);
+	
+	//Jumping Link and jumping enemies are drawn on this layer.
+	if(Link.getZ() > (zfix)zinit.jump_link_layer_threshold)
+	{
+		decorations.draw2(framebuf,false);
+		Link.draw(framebuf);
+		chainlinks.draw(framebuf,true);
+		
+		for(int i=0; i<Lwpns.Count(); i++)
+		{
+			if(Lwpns.spr(i)->z > (zfix)zinit.jump_link_layer_threshold)
+			{
+				Lwpns.spr(i)->draw(framebuf);
+			}
+		}
+		
+		decorations.draw(framebuf,false);
+	}
+	
+	if(!get_bit(quest_rules,qr_ENEMIESZAXIS)) for(int i=0; i<guys.Count(); i++)
+		{
+			if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > (zfix)zinit.jump_link_layer_threshold)
+			{
+				guys.spr(i)->draw(framebuf);
+			}
+		}
+	else
+	{
+		for(int i=0; i<guys.Count(); i++)
+		{
+			if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > 0)
+			{
+				guys.spr(i)->draw(framebuf);
+			}
+		}
+	}
+	
+	// Draw the Moving Fairy above layer 3
+	for(int i=0; i<items.Count(); i++)
+		if(itemsbuf[items.spr(i)->id].family == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
+			items.spr(i)->draw(framebuf);
+			
+	//8. Blit framebuf onto temp_buf
+	
+	masked_blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
+	
+	//9. Draw some layers onto temp_buf and scrollbuf
+	
+	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+	
+	do_layer(temp_buf,4, this_screen, 0, 0, 2, false, true);
+	do_layer(scrollbuf, 4, this_screen, 0, 0, 2);
+	
+	for(pcounter=0; pcounter<particles.Count(); pcounter++)
+	{
+		if(((particle*)particles.spr(pcounter))->layer==4)
+		{
+			particles.spr(pcounter)->draw(temp_buf);
+		}
+	}
+	
+	do_layer(temp_buf,-4, this_screen, 0, 0, 2); // overhead freeform combos!
+	do_layer(scrollbuf, -4, this_screen, 0, 0, 2);
+	
+	do_layer(temp_buf,5, this_screen, 0, 0, 2, false, true);
+	do_layer(scrollbuf, 5, this_screen, 0, 0, 2);
+	
+	for(pcounter=0; pcounter<particles.Count(); pcounter++)
+	{
+		if(((particle*)particles.spr(pcounter))->layer==5)
+		{
+			particles.spr(pcounter)->draw(temp_buf);
+		}
+	}
+	
+	//10. Blit temp_buf onto framebuf with clipping
+	
+	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+	blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
+	
+	
+	//11. Draw some text on framebuf
+	
+	set_clip_rect(framebuf,0,0,256,224);
+	set_clip_rect(scrollbuf,0,0,256,224);
+	
+	if(!(msg_bg_display_buf->clip))
+	{
 		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
 		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
-    }
-    
-    if(!(msg_portrait_display_buf->clip))
-    {
+	}
+	
+	if(!(msg_portrait_display_buf->clip))
+	{
 		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
 		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
-    }
-    
-    if(!(msg_txt_display_buf->clip))
-    {
+	}
+	
+	if(!(msg_txt_display_buf->clip))
+	{
 		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
 		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
-    }
-    
-    //12. Draw the subscreen, without clipping
-    
-    if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
-    {
-        put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
-        
-        // Draw primitives over subscren
-        do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
-    }
-    
-    set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
+	}
+	
+	//12. Draw the subscreen, without clipping
+	
+	if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+	{
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+		
+		// Draw primitives over subscren
+		do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
+	}
+	
+	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
 }
 
 void put_door(BITMAP *dest,int t,int pos,int side,int type,bool redraw,bool even_walls)
 {
-    int d=tmpscr[t].door_combo_set;
-    
-    switch(type)
-    {
-    case dt_wall:
-    case dt_walk:
-        if(!even_walls)
-            break;
-            
-    case dt_pass:
-        if(!get_bit(quest_rules, qr_REPLACEOPENDOORS) && !even_walls)
-            break;
-            
-    case dt_lock:
-    case dt_shut:
-    case dt_boss:
-    case dt_olck:
-    case dt_osht:
-    case dt_obos:
-    case dt_bomb:
-        switch(side)
-        {
-        case up:
-            tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_u[type][0];
-            tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_u[type][0];
-            tmpscr[t].sflag[pos]  = 0;
-            tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_u[type][1];
-            tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_u[type][1];
-            tmpscr[t].sflag[pos+1]  = 0;
-            tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_u[type][2];
-            tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_u[type][2];
-            tmpscr[t].sflag[pos+16]  = 0;
-            tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_u[type][3];
-            tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_u[type][3];
-            tmpscr[t].sflag[pos+16+1]  = 0;
-            
-            if(redraw)
-            {
-                putcombo(dest,(pos&15)<<4,pos&0xF0,
-                         DoorComboSets[d].doorcombo_u[type][0],
-                         DoorComboSets[d].doorcset_u[type][0]);
-                putcombo(dest,((pos&15)<<4)+16,pos&0xF0,
-                         DoorComboSets[d].doorcombo_u[type][1],
-                         DoorComboSets[d].doorcset_u[type][1]);
-            }
-            
-            break;
-            
-        case down:
-            tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_d[type][0];
-            tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_d[type][0];
-            tmpscr[t].sflag[pos]  = 0;
-            tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_d[type][1];
-            tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_d[type][1];
-            tmpscr[t].sflag[pos+1]  = 0;
-            tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_d[type][2];
-            tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_d[type][2];
-            tmpscr[t].sflag[pos+16]  = 0;
-            tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_d[type][3];
-            tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_d[type][3];
-            tmpscr[t].sflag[pos+16+1]  = 0;
-            
-            if(redraw)
-            {
-                putcombo(dest,(pos&15)<<4,(pos&0xF0)+16,
-                         DoorComboSets[d].doorcombo_d[type][2],
-                         DoorComboSets[d].doorcset_d[type][2]);
-                putcombo(dest,((pos&15)<<4)+16,(pos&0xF0)+16,
-                         DoorComboSets[d].doorcombo_d[type][3],
-                         DoorComboSets[d].doorcset_d[type][3]);
-            }
-            
-            break;
-            
-        case left:
-            tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_l[type][0];
-            tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_l[type][0];
-            tmpscr[t].sflag[pos]  = 0;
-            tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_l[type][1];
-            tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_l[type][1];
-            tmpscr[t].sflag[pos+1]  = 0;
-            tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_l[type][2];
-            tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_l[type][2];
-            tmpscr[t].sflag[pos+16]  = 0;
-            tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_l[type][3];
-            tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_l[type][3];
-            tmpscr[t].sflag[pos+16+1]  = 0;
-            tmpscr[t].data[pos+32]   = DoorComboSets[d].doorcombo_l[type][4];
-            tmpscr[t].cset[pos+32]   = DoorComboSets[d].doorcset_l[type][4];
-            tmpscr[t].sflag[pos+32]  = 0;
-            tmpscr[t].data[pos+32+1]   = DoorComboSets[d].doorcombo_l[type][5];
-            tmpscr[t].cset[pos+32+1]   = DoorComboSets[d].doorcset_l[type][5];
-            tmpscr[t].sflag[pos+32+1]  = 0;
-            
-            if(redraw)
-            {
-                putcombo(dest,(pos&15)<<4,pos&0xF0,
-                         DoorComboSets[d].doorcombo_l[type][0],
-                         DoorComboSets[d].doorcset_l[type][0]);
-                putcombo(dest,(pos&15)<<4,(pos&0xF0)+16,
-                         DoorComboSets[d].doorcombo_l[type][2],
-                         DoorComboSets[d].doorcset_l[type][2]);
-                putcombo(dest,(pos&15)<<4,(pos&0xF0)+32,
-                         DoorComboSets[d].doorcombo_l[type][4],
-                         DoorComboSets[d].doorcset_l[type][4]);
-            }
-            
-            break;
-            
-        case right:
-            tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_r[type][0];
-            tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_r[type][0];
-            tmpscr[t].sflag[pos]  = 0;
-            tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_r[type][1];
-            tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_r[type][1];
-            tmpscr[t].sflag[pos+1]  = 0;
-            tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_r[type][2];
-            tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_r[type][2];
-            tmpscr[t].sflag[pos+16]  = 0;
-            tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_r[type][3];
-            tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_r[type][3];
-            tmpscr[t].sflag[pos+16+1]  = 0;
-            tmpscr[t].data[pos+32]   = DoorComboSets[d].doorcombo_r[type][4];
-            tmpscr[t].cset[pos+32]   = DoorComboSets[d].doorcset_r[type][4];
-            tmpscr[t].sflag[pos+32]  = 0;
-            tmpscr[t].data[pos+32+1]   = DoorComboSets[d].doorcombo_r[type][5];
-            tmpscr[t].cset[pos+32+1]   = DoorComboSets[d].doorcset_r[type][5];
-            tmpscr[t].sflag[pos+32+1]  = 0;
-            
-            if(redraw)
-            {
-                putcombo(dest,(pos&15)<<4,pos&0xF0,
-                         DoorComboSets[d].doorcombo_r[type][0],
-                         DoorComboSets[d].doorcset_r[type][0]);
-                putcombo(dest,(pos&15)<<4,(pos&0xF0)+16,
-                         DoorComboSets[d].doorcombo_r[type][2],
-                         DoorComboSets[d].doorcset_r[type][2]);
-                putcombo(dest,(pos&15)<<4,(pos&0xF0)+32,
-                         DoorComboSets[d].doorcombo_r[type][4],
-                         DoorComboSets[d].doorcset_r[type][4]);
-            }
-            
-            break;
-        }
-        
-        break;
-        
-    default:
-        break;
-    }
+	int d=tmpscr[t].door_combo_set;
+	
+	switch(type)
+	{
+	case dt_wall:
+	case dt_walk:
+		if(!even_walls)
+			break;
+			
+	case dt_pass:
+		if(!get_bit(quest_rules, qr_REPLACEOPENDOORS) && !even_walls)
+			break;
+			
+	case dt_lock:
+	case dt_shut:
+	case dt_boss:
+	case dt_olck:
+	case dt_osht:
+	case dt_obos:
+	case dt_bomb:
+		switch(side)
+		{
+		case up:
+			tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_u[type][0];
+			tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_u[type][0];
+			tmpscr[t].sflag[pos]  = 0;
+			tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_u[type][1];
+			tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_u[type][1];
+			tmpscr[t].sflag[pos+1]  = 0;
+			tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_u[type][2];
+			tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_u[type][2];
+			tmpscr[t].sflag[pos+16]  = 0;
+			tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_u[type][3];
+			tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_u[type][3];
+			tmpscr[t].sflag[pos+16+1]  = 0;
+			
+			if(redraw)
+			{
+				putcombo(dest,(pos&15)<<4,pos&0xF0,
+						 DoorComboSets[d].doorcombo_u[type][0],
+						 DoorComboSets[d].doorcset_u[type][0]);
+				putcombo(dest,((pos&15)<<4)+16,pos&0xF0,
+						 DoorComboSets[d].doorcombo_u[type][1],
+						 DoorComboSets[d].doorcset_u[type][1]);
+			}
+			
+			break;
+			
+		case down:
+			tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_d[type][0];
+			tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_d[type][0];
+			tmpscr[t].sflag[pos]  = 0;
+			tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_d[type][1];
+			tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_d[type][1];
+			tmpscr[t].sflag[pos+1]  = 0;
+			tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_d[type][2];
+			tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_d[type][2];
+			tmpscr[t].sflag[pos+16]  = 0;
+			tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_d[type][3];
+			tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_d[type][3];
+			tmpscr[t].sflag[pos+16+1]  = 0;
+			
+			if(redraw)
+			{
+				putcombo(dest,(pos&15)<<4,(pos&0xF0)+16,
+						 DoorComboSets[d].doorcombo_d[type][2],
+						 DoorComboSets[d].doorcset_d[type][2]);
+				putcombo(dest,((pos&15)<<4)+16,(pos&0xF0)+16,
+						 DoorComboSets[d].doorcombo_d[type][3],
+						 DoorComboSets[d].doorcset_d[type][3]);
+			}
+			
+			break;
+			
+		case left:
+			tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_l[type][0];
+			tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_l[type][0];
+			tmpscr[t].sflag[pos]  = 0;
+			tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_l[type][1];
+			tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_l[type][1];
+			tmpscr[t].sflag[pos+1]  = 0;
+			tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_l[type][2];
+			tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_l[type][2];
+			tmpscr[t].sflag[pos+16]  = 0;
+			tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_l[type][3];
+			tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_l[type][3];
+			tmpscr[t].sflag[pos+16+1]  = 0;
+			tmpscr[t].data[pos+32]   = DoorComboSets[d].doorcombo_l[type][4];
+			tmpscr[t].cset[pos+32]   = DoorComboSets[d].doorcset_l[type][4];
+			tmpscr[t].sflag[pos+32]  = 0;
+			tmpscr[t].data[pos+32+1]   = DoorComboSets[d].doorcombo_l[type][5];
+			tmpscr[t].cset[pos+32+1]   = DoorComboSets[d].doorcset_l[type][5];
+			tmpscr[t].sflag[pos+32+1]  = 0;
+			
+			if(redraw)
+			{
+				putcombo(dest,(pos&15)<<4,pos&0xF0,
+						 DoorComboSets[d].doorcombo_l[type][0],
+						 DoorComboSets[d].doorcset_l[type][0]);
+				putcombo(dest,(pos&15)<<4,(pos&0xF0)+16,
+						 DoorComboSets[d].doorcombo_l[type][2],
+						 DoorComboSets[d].doorcset_l[type][2]);
+				putcombo(dest,(pos&15)<<4,(pos&0xF0)+32,
+						 DoorComboSets[d].doorcombo_l[type][4],
+						 DoorComboSets[d].doorcset_l[type][4]);
+			}
+			
+			break;
+			
+		case right:
+			tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_r[type][0];
+			tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_r[type][0];
+			tmpscr[t].sflag[pos]  = 0;
+			tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_r[type][1];
+			tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_r[type][1];
+			tmpscr[t].sflag[pos+1]  = 0;
+			tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_r[type][2];
+			tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_r[type][2];
+			tmpscr[t].sflag[pos+16]  = 0;
+			tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_r[type][3];
+			tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_r[type][3];
+			tmpscr[t].sflag[pos+16+1]  = 0;
+			tmpscr[t].data[pos+32]   = DoorComboSets[d].doorcombo_r[type][4];
+			tmpscr[t].cset[pos+32]   = DoorComboSets[d].doorcset_r[type][4];
+			tmpscr[t].sflag[pos+32]  = 0;
+			tmpscr[t].data[pos+32+1]   = DoorComboSets[d].doorcombo_r[type][5];
+			tmpscr[t].cset[pos+32+1]   = DoorComboSets[d].doorcset_r[type][5];
+			tmpscr[t].sflag[pos+32+1]  = 0;
+			
+			if(redraw)
+			{
+				putcombo(dest,(pos&15)<<4,pos&0xF0,
+						 DoorComboSets[d].doorcombo_r[type][0],
+						 DoorComboSets[d].doorcset_r[type][0]);
+				putcombo(dest,(pos&15)<<4,(pos&0xF0)+16,
+						 DoorComboSets[d].doorcombo_r[type][2],
+						 DoorComboSets[d].doorcset_r[type][2]);
+				putcombo(dest,(pos&15)<<4,(pos&0xF0)+32,
+						 DoorComboSets[d].doorcombo_r[type][4],
+						 DoorComboSets[d].doorcset_r[type][4]);
+			}
+			
+			break;
+		}
+		
+		break;
+		
+	default:
+		break;
+	}
 }
 
 void over_door(BITMAP *dest,int t, int pos,int side, int xoff, int yoff)
 {
-    int d=tmpscr[t].door_combo_set;
-    int x=(pos&15)<<4;
-    int y=(pos&0xF0);
-    
-    switch(side)
-    {
-    case up:
-        overcombo2(dest,x+xoff,y+yoff,
-                   DoorComboSets[d].bombdoorcombo_u[0],
-                   DoorComboSets[d].bombdoorcset_u[0]);
-        overcombo2(dest,x+16+xoff,y+yoff,
-                   DoorComboSets[d].bombdoorcombo_u[1],
-                   DoorComboSets[d].bombdoorcset_u[1]);
-        break;
-        
-    case down:
-        overcombo2(dest,x+xoff,y+yoff,
-                   DoorComboSets[d].bombdoorcombo_d[0],
-                   DoorComboSets[d].bombdoorcset_d[0]);
-        overcombo2(dest,x+16+xoff,y+yoff,
-                   DoorComboSets[d].bombdoorcombo_d[1],
-                   DoorComboSets[d].bombdoorcset_d[1]);
-        break;
-        
-    case left:
-        overcombo2(dest,x+xoff,y+yoff,
-                   DoorComboSets[d].bombdoorcombo_l[0],
-                   DoorComboSets[d].bombdoorcset_l[0]);
-        overcombo2(dest,x+xoff,y+yoff+16,
-                   DoorComboSets[d].bombdoorcombo_l[1],
-                   DoorComboSets[d].bombdoorcset_l[1]);
-        overcombo2(dest,x+xoff,y+yoff+16,
-                   DoorComboSets[d].bombdoorcombo_l[2],
-                   DoorComboSets[d].bombdoorcset_l[2]);
-        break;
-        
-    case right:
-        overcombo2(dest,x+xoff,y+yoff,
-                   DoorComboSets[d].bombdoorcombo_r[0],
-                   DoorComboSets[d].bombdoorcset_r[0]);
-        overcombo2(dest,x+xoff,y+yoff+16,
-                   DoorComboSets[d].bombdoorcombo_r[1],
-                   DoorComboSets[d].bombdoorcset_r[1]);
-        overcombo2(dest,x+xoff,y+yoff+16,
-                   DoorComboSets[d].bombdoorcombo_r[2],
-                   DoorComboSets[d].bombdoorcset_r[2]);
-        break;
-    }
+	int d=tmpscr[t].door_combo_set;
+	int x=(pos&15)<<4;
+	int y=(pos&0xF0);
+	
+	switch(side)
+	{
+	case up:
+		overcombo2(dest,x+xoff,y+yoff,
+				   DoorComboSets[d].bombdoorcombo_u[0],
+				   DoorComboSets[d].bombdoorcset_u[0]);
+		overcombo2(dest,x+16+xoff,y+yoff,
+				   DoorComboSets[d].bombdoorcombo_u[1],
+				   DoorComboSets[d].bombdoorcset_u[1]);
+		break;
+		
+	case down:
+		overcombo2(dest,x+xoff,y+yoff,
+				   DoorComboSets[d].bombdoorcombo_d[0],
+				   DoorComboSets[d].bombdoorcset_d[0]);
+		overcombo2(dest,x+16+xoff,y+yoff,
+				   DoorComboSets[d].bombdoorcombo_d[1],
+				   DoorComboSets[d].bombdoorcset_d[1]);
+		break;
+		
+	case left:
+		overcombo2(dest,x+xoff,y+yoff,
+				   DoorComboSets[d].bombdoorcombo_l[0],
+				   DoorComboSets[d].bombdoorcset_l[0]);
+		overcombo2(dest,x+xoff,y+yoff+16,
+				   DoorComboSets[d].bombdoorcombo_l[1],
+				   DoorComboSets[d].bombdoorcset_l[1]);
+		overcombo2(dest,x+xoff,y+yoff+16,
+				   DoorComboSets[d].bombdoorcombo_l[2],
+				   DoorComboSets[d].bombdoorcset_l[2]);
+		break;
+		
+	case right:
+		overcombo2(dest,x+xoff,y+yoff,
+				   DoorComboSets[d].bombdoorcombo_r[0],
+				   DoorComboSets[d].bombdoorcset_r[0]);
+		overcombo2(dest,x+xoff,y+yoff+16,
+				   DoorComboSets[d].bombdoorcombo_r[1],
+				   DoorComboSets[d].bombdoorcset_r[1]);
+		overcombo2(dest,x+xoff,y+yoff+16,
+				   DoorComboSets[d].bombdoorcombo_r[2],
+				   DoorComboSets[d].bombdoorcset_r[2]);
+		break;
+	}
 }
 
 void putdoor(BITMAP *dest,int t,int side,int door,bool redraw,bool even_walls)
 {
-    /*
-      #define dWALL           0  //  000    0
-      #define dBOMB           6  //  011    0
-      #define              8  //  100    0
-      enum {dt_pass=0, dt_lock, dt_shut, dt_boss, dt_olck, dt_osht, dt_obos, dt_wall, dt_bomb, dt_walk, dt_max};
-      */
-    
-    if(!even_walls&&(door==dWALL||door==dWALK))
-    {
-        return;
-    }
-    
-    int doortype;
-    
-    switch(door)
-    {
-    case dWALL:
-        doortype=dt_wall;
-        break;
-        
-    case dWALK:
-        doortype=dt_walk;
-        break;
-        
-    case dOPEN:
-        doortype=dt_pass;
-        break;
-        
-    case dLOCKED:
-        doortype=dt_lock;
-        break;
-        
-    case dUNLOCKED:
-        doortype=dt_olck;
-        break;
-        
-    case dSHUTTER:
-        if(screenscrolling && ((LinkDir()^1)==side))
-        {
-            doortype=dt_osht;
-            opendoors=-4;
-            break;
-        }
-        
-        //fallthrough
-    case d1WAYSHUTTER:
-        doortype=dt_shut;
-        break;
-        
-    case dOPENSHUTTER:
-        doortype=dt_osht;
-        break;
-        
-    case dBOSS:
-        doortype=dt_boss;
-        break;
-        
-    case dOPENBOSS:
-        doortype=dt_obos;
-        break;
-        
-    case dBOMBED:
-        doortype=dt_bomb;
-        break;
-        
-    default:
-        return;
-    }
-    
-    switch(side)
-    {
-    case up:
-        switch(door)
-        {
-        case dBOMBED:
-            if(redraw)
-            {
-                over_door(dest,t,39,side,0,0);
-            }
-            
-        default:
-            put_door(dest,t,7,side,doortype,redraw, even_walls);
-            break;
-        }
-        
-        break;
-        
-    case down:
-        switch(door)
-        {
-        case dBOMBED:
-            if(redraw)
-            {
-                over_door(dest,t,135,side,0,0);
-            }
-            
-        default:
-            put_door(dest,t,151,side,doortype,redraw, even_walls);
-            break;
-        }
-        
-        break;
-        
-    case left:
-        switch(door)
-        {
-        case dBOMBED:
-            if(redraw)
-            {
-                over_door(dest,t,66,side,0,0);
-            }
-            
-        default:
-            put_door(dest,t,64,side,doortype,redraw, even_walls);
-            break;
-        }
-        
-        break;
-        
-    case right:
-        switch(door)
-        {
-        case dBOMBED:
-            if(redraw)
-            {
-                over_door(dest,t,77,side,0,0);
-            }
-            
-        default:
-            put_door(dest,t,78,side,doortype,redraw, even_walls);
-            break;
-        }
-        
-        break;
-    }
+	/*
+	  #define dWALL		   0  //  000	0
+	  #define dBOMB		   6  //  011	0
+	  #define			  8  //  100	0
+	  enum {dt_pass=0, dt_lock, dt_shut, dt_boss, dt_olck, dt_osht, dt_obos, dt_wall, dt_bomb, dt_walk, dt_max};
+	  */
+	
+	if(!even_walls&&(door==dWALL||door==dWALK))
+	{
+		return;
+	}
+	
+	int doortype;
+	
+	switch(door)
+	{
+	case dWALL:
+		doortype=dt_wall;
+		break;
+		
+	case dWALK:
+		doortype=dt_walk;
+		break;
+		
+	case dOPEN:
+		doortype=dt_pass;
+		break;
+		
+	case dLOCKED:
+		doortype=dt_lock;
+		break;
+		
+	case dUNLOCKED:
+		doortype=dt_olck;
+		break;
+		
+	case dSHUTTER:
+		if(screenscrolling && ((LinkDir()^1)==side))
+		{
+			doortype=dt_osht;
+			opendoors=-4;
+			break;
+		}
+		
+		//fallthrough
+	case d1WAYSHUTTER:
+		doortype=dt_shut;
+		break;
+		
+	case dOPENSHUTTER:
+		doortype=dt_osht;
+		break;
+		
+	case dBOSS:
+		doortype=dt_boss;
+		break;
+		
+	case dOPENBOSS:
+		doortype=dt_obos;
+		break;
+		
+	case dBOMBED:
+		doortype=dt_bomb;
+		break;
+		
+	default:
+		return;
+	}
+	
+	switch(side)
+	{
+	case up:
+		switch(door)
+		{
+		case dBOMBED:
+			if(redraw)
+			{
+				over_door(dest,t,39,side,0,0);
+			}
+			
+		default:
+			put_door(dest,t,7,side,doortype,redraw, even_walls);
+			break;
+		}
+		
+		break;
+		
+	case down:
+		switch(door)
+		{
+		case dBOMBED:
+			if(redraw)
+			{
+				over_door(dest,t,135,side,0,0);
+			}
+			
+		default:
+			put_door(dest,t,151,side,doortype,redraw, even_walls);
+			break;
+		}
+		
+		break;
+		
+	case left:
+		switch(door)
+		{
+		case dBOMBED:
+			if(redraw)
+			{
+				over_door(dest,t,66,side,0,0);
+			}
+			
+		default:
+			put_door(dest,t,64,side,doortype,redraw, even_walls);
+			break;
+		}
+		
+		break;
+		
+	case right:
+		switch(door)
+		{
+		case dBOMBED:
+			if(redraw)
+			{
+				over_door(dest,t,77,side,0,0);
+			}
+			
+		default:
+			put_door(dest,t,78,side,doortype,redraw, even_walls);
+			break;
+		}
+		
+		break;
+	}
 }
 
 void putcombo_not_zero(BITMAP *dest, int x, int y, int combo, int cset)
 {
-    if(combo!=0)
-    {
-        putcombo(dest,x, y, combo, cset);
-    }
+	if(combo!=0)
+	{
+		putcombo(dest,x, y, combo, cset);
+	}
 }
 
 void overcombo_not_zero(BITMAP *dest, int x, int y, int combo, int cset)
@@ -4374,121 +4414,121 @@ void showbombeddoor(BITMAP *dest, int side)
 
 void openshutters()
 {
-    for(int i=0; i<4; i++)
-        if(tmpscr->door[i]==dSHUTTER)
-        {
-            putdoor(scrollbuf,0,i,dOPENSHUTTER);
-            tmpscr->door[i]=dOPENSHUTTER;
-        }
-        
-    sfx(WAV_DOOR,128);
+	for(int i=0; i<4; i++)
+		if(tmpscr->door[i]==dSHUTTER)
+		{
+			putdoor(scrollbuf,0,i,dOPENSHUTTER);
+			tmpscr->door[i]=dOPENSHUTTER;
+		}
+		
+	sfx(WAV_DOOR,128);
 }
 
 void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 {
 	
-    
-    //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
-    for(word x=0; x<animated_combos; x++)
-    {
-        if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
-        {
+	
+	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
+	for(word x=0; x<animated_combos; x++)
+	{
+		if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
+		{
 			combobuf[animated_combo_table4[x][0]].aclk = 0;
-        }
-    }
-    
-    for(word x=0; x<animated_combos2; x++)
-    {
-        if(combobuf[animated_combo_table24[x][0]].nextcombo!=0)
-        {
+		}
+	}
+	
+	for(word x=0; x<animated_combos2; x++)
+	{
+		if(combobuf[animated_combo_table24[x][0]].nextcombo!=0)
+		{
 			combobuf[animated_combo_table24[x][0]].aclk = 0;
-        }
-    }
-    
-    reset_combo_animations2();
-    
-    
-    mapscr ffscr = tmpscr[tmp];
-    tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
-    
-    
-    const int _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
-    tmpscr[tmp].data = TheMaps[currmap*MAPSCRS+scr].data;
-    tmpscr[tmp].sflag = TheMaps[currmap*MAPSCRS+scr].sflag;
-    tmpscr[tmp].cset = TheMaps[currmap*MAPSCRS+scr].cset;
-    
-    //screen / screendata script
-    FFCore.clear_screen_stack();
-    screenScriptData.Clear();
-    FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
-    FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
-    //reset combo script doscripts
-    //Init combo scripts
-    FFCore.init_combo_doscript();
-    if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
-    {
-	    tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
-	    al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
-	    //if ( !tmpscr[tmp].screendatascriptInitialised )
-	    //{
-		    for ( int q = 0; q < 8; q++ )
-		    {
+		}
+	}
+	
+	reset_combo_animations2();
+	
+	
+	mapscr ffscr = tmpscr[tmp];
+	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
+	
+	
+	const int _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
+	tmpscr[tmp].data = TheMaps[currmap*MAPSCRS+scr].data;
+	tmpscr[tmp].sflag = TheMaps[currmap*MAPSCRS+scr].sflag;
+	tmpscr[tmp].cset = TheMaps[currmap*MAPSCRS+scr].cset;
+	
+	//screen / screendata script
+	FFCore.clear_screen_stack();
+	screenScriptData.Clear();
+	FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
+	FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
+	//reset combo script doscripts
+	//Init combo scripts
+	FFCore.init_combo_doscript();
+	if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
+	{
+		tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
+		al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
+		//if ( !tmpscr[tmp].screendatascriptInitialised )
+		//{
+			for ( int q = 0; q < 8; q++ )
+			{
 			tmpscr[tmp].screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
-		    }
-	    //}
+			}
+		//}
 	tmpscr[tmp].screendatascriptInitialised = 0;
 	tmpscr[tmp].doscript = 1;
-    }
-    else
-    {
+	}
+	else
+	{
 	tmpscr[tmp].script = 0;
 	tmpscr[tmp].screendatascriptInitialised = 0;
 	tmpscr[tmp].doscript = 0;
-    }
-    
-    
-    tmpscr[tmp].data.resize(_mapsSize, 0);
-    tmpscr[tmp].sflag.resize(_mapsSize, 0);
-    tmpscr[tmp].cset.resize(_mapsSize, 0);
-    
-    if(overlay)
-    {
-        for(int c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
-        {
-            if(tmpscr[tmp].data[c]==0)
-            {
-                tmpscr[tmp].data[c]=ffscr.data[c];
-                tmpscr[tmp].sflag[c]=ffscr.sflag[c];
-                tmpscr[tmp].cset[c]=ffscr.cset[c];
-            }
-        }
-        
-        for(int i=0; i<6; i++)
-        {
-            if(ffscr.layermap[i]>0 && tmpscr[tmp].layermap[i]>0)
-            {
-                int lm = (tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i];
-                int fm = (ffscr.layermap[i]-1)*MAPSCRS+ffscr.layerscreen[i];
-                
-                if(!TheMaps[lm].data.empty() && !TheMaps[fm].data.empty())
-                {
-                    for(int c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
-                    {
-                        if(TheMaps[lm].data[c]==0)
-                        {
-                            TheMaps[lm].data[c] = TheMaps[fm].data[c];
-                            TheMaps[lm].sflag[c] = TheMaps[fm].sflag[c];
-                            TheMaps[lm].cset[c] = TheMaps[fm].cset[c];
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    if(tmp==0)
-    {
-        // Before loading new FFCs, deallocate the arrays used by those that aren't carrying over
+	}
+	
+	
+	tmpscr[tmp].data.resize(_mapsSize, 0);
+	tmpscr[tmp].sflag.resize(_mapsSize, 0);
+	tmpscr[tmp].cset.resize(_mapsSize, 0);
+	
+	if(overlay)
+	{
+		for(int c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
+		{
+			if(tmpscr[tmp].data[c]==0)
+			{
+				tmpscr[tmp].data[c]=ffscr.data[c];
+				tmpscr[tmp].sflag[c]=ffscr.sflag[c];
+				tmpscr[tmp].cset[c]=ffscr.cset[c];
+			}
+		}
+		
+		for(int i=0; i<6; i++)
+		{
+			if(ffscr.layermap[i]>0 && tmpscr[tmp].layermap[i]>0)
+			{
+				int lm = (tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i];
+				int fm = (ffscr.layermap[i]-1)*MAPSCRS+ffscr.layerscreen[i];
+				
+				if(!TheMaps[lm].data.empty() && !TheMaps[fm].data.empty())
+				{
+					for(int c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
+					{
+						if(TheMaps[lm].data[c]==0)
+						{
+							TheMaps[lm].data[c] = TheMaps[fm].data[c];
+							TheMaps[lm].sflag[c] = TheMaps[fm].sflag[c];
+							TheMaps[lm].cset[c] = TheMaps[fm].cset[c];
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	if(tmp==0)
+	{
+		// Before loading new FFCs, deallocate the arrays used by those that aren't carrying over
 	
 	for(int ffid = 0; ffid < 32; ++ffid)
 	{
@@ -4496,879 +4536,1026 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 		FFCore.deallocateAllArrays(SCRIPT_FFC, ffid, false); //false means this does not require 'qr_ALWAYS_DEALLOCATE_ARRAYS' to be checked. -V
 	}
 	FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
-        
-        for(int i = 0; i < 32; i++)
-        {
-            // If these aren't reset, changers may not work right
-            ffposx[i]=-1000;
-            ffposy[i]=-1000;
-            ffprvx[i]=-10000000;
-            ffprvy[i]=-10000000;
-            
-            if((ffscr.ffflags[i]&ffCARRYOVER) && !(ffscr.flags5&fNOFFCARRYOVER))
-            {
-                tmpscr[tmp].ffdata[i] = ffscr.ffdata[i];
-                tmpscr[tmp].ffx[i] = ffscr.ffx[i];
-                tmpscr[tmp].ffy[i] = ffscr.ffy[i];
-                tmpscr[tmp].ffxdelta[i] = ffscr.ffxdelta[i];
-                tmpscr[tmp].ffydelta[i] = ffscr.ffydelta[i];
-                tmpscr[tmp].ffxdelta2[i] = ffscr.ffxdelta2[i];
-                tmpscr[tmp].ffydelta2[i] = ffscr.ffydelta2[i];
-                tmpscr[tmp].fflink[i] = ffscr.fflink[i];
-                tmpscr[tmp].ffdelay[i] = ffscr.ffdelay[i];
-                tmpscr[tmp].ffcset[i] = ffscr.ffcset[i];
-                tmpscr[tmp].ffwidth[i] = ffscr.ffwidth[i];
-                tmpscr[tmp].ffheight[i] = ffscr.ffheight[i];
-                tmpscr[tmp].ffflags[i] = ffscr.ffflags[i];
-                tmpscr[tmp].ffscript[i] = ffscr.ffscript[i];
-                
-                for(int j=0; j<2; ++j)
-                {
-                    tmpscr[tmp].inita[i][j] = ffscr.inita[i][j];
-                }
-                
-                for(int j=0; j<8; ++j)
-                {
-                    tmpscr[tmp].initd[i][j] = ffscr.initd[i][j];
-                }
-                
-                if(!(ffscr.ffflags[i]&ffSCRIPTRESET))
-                {
-                    tmpscr[tmp].ffscript[i] = ffscr.ffscript[i]; // Restart script if it has halted.
-                    tmpscr[tmp].initialized[i] = ffscr.initialized[i];
-                }
-                else
-                {
-                    tmpscr[tmp].initialized[i] = false;
-                    
-                    ffcScriptData[i].pc = 0;
-                    ffcScriptData[i].sp = 0;
-                    ffcScriptData[i].ffcref = 0;
-                }
-            }
-            else
-            {
-                memset(ffmisc[i], 0, 16 * sizeof(long));
-                ffcScriptData[i].Clear();
-                clear_ffc_stack(i);
-            }
-        }
-    }
-    
-    
-    if(tmp==0)
-    {
-        for(int i=0; i<6; i++)
-        {
-            mapscr layerscr = tmpscr2[i];
-            
-            // Don't delete the old tmpscr2's data yet!
-            if(tmpscr[tmp].layermap[i]>0 && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth)
-                    && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
-            {
-                // const int _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
-                
-                tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
-                
-                tmpscr2[i].data.resize(_mapsSize, 0);
-                tmpscr2[i].sflag.resize(_mapsSize, 0);
-                tmpscr2[i].cset.resize(_mapsSize, 0);
-                
-                if(overlay)
-                {
-                    for(int y=0; y<ZCMaps[currmap].tileHeight; ++y)
-                    {
-                        for(int x=0; x<ZCMaps[currmap].tileWidth; ++x)
-                        {
-                            int c=y*ZCMaps[currmap].tileWidth+x;
-                            
-                            if(tmpscr2[i].data[c]==0)
-                            {
-                                tmpscr2[i].data[c]=layerscr.data[c];
-                                tmpscr2[i].sflag[c]=layerscr.sflag[c];
-                                tmpscr2[i].cset[c]=layerscr.cset[c];
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                (tmpscr2+i)->zero_memory();
-            }
-        }
-    }
-    
-    if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
-    {
-        if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)               // if special stuff done before
-        {
-            hiddenstair(tmp,false);
-            hidden_entrance(tmp,false,false,-3);
-        }
-    }
-    
-    
-    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)              // if special stuff done before
-    {
-        remove_lockblocks(tmp);
-    }
-    
-    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSLOCKBLOCK)          // if special stuff done before
-    {
-        remove_bosslockblocks(tmp);
-    }
-    
-    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mCHEST)              // if special stuff done before
-    {
-        remove_chests(tmp);
-    }
-    
-    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKEDCHEST)              // if special stuff done before
-    {
-        remove_lockedchests(tmp);
-    }
-    
-    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSCHEST)              // if special stuff done before
-    {
-        remove_bosschests(tmp);
-    }
-    
-    // check doors
-    if(isdungeon(destdmap,scr))
-    {
-        for(int i=0; i<4; i++)
-        {
-            int door=tmpscr[tmp].door[i];
-            bool putit=true;
-            
-            switch(door)
-            {
-            case d1WAYSHUTTER:
-            case dSHUTTER:
-                if((ldir^1)==i)
-                {
-                    tmpscr[tmp].door[i]=dOPENSHUTTER;
-                    //          putit=false;
-                }
-                
-                opendoors = -4;
-                break;
-                
-            case dLOCKED:
-                if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
-                {
-                    tmpscr[tmp].door[i]=dUNLOCKED;
-                    //          putit=false;
-                }
-                
-                break;
-                
-            case dBOSS:
-                if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
-                {
-                    tmpscr[tmp].door[i]=dOPENBOSS;
-                    //          putit=false;
-                }
-                
-                break;
-                
-            case dBOMB:
-                if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
-                {
-                    tmpscr[tmp].door[i]=dBOMBED;
-                }
-                
-                break;
-            }
-            
-            if(putit)
-            {
-                putdoor(scrollbuf,tmp,i,tmpscr[tmp].door[i],false);
-            }
-            
-            if(door==dSHUTTER||door==d1WAYSHUTTER)
-            {
-                tmpscr[tmp].door[i]=door;
-            }
-        }
-    }
-    
-    
-    for(int j=-1; j<6; ++j)  // j == -1 denotes the current screen
-    {
-        if(j<0 || ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
-        {
-            mapscr *layerscreen= (j<0 ? &tmpscr[tmp] : !tmpscr2[j].data.empty() ? &tmpscr2[j] :
-                                  &TheMaps[(tmpscr[tmp].layermap[j]-1)*MAPSCRS]+tmpscr[tmp].layerscreen[j]);
-                                  
-            for(int i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
-            {
-                int c=layerscreen->data[i];
-                int cs=layerscreen->cset[i];
-                
-                // New screen flag: Cycle Combos At Screen Init
-                if(combobuf[c].nextcombo != 0 && (tmpscr[tmp].flags3 & fCYCLEONINIT) && (j<0 || get_bit(quest_rules,qr_CMBCYCLELAYERS)))
-                {
-                    int r = 0;
-                    
-                    while(combobuf[c].nextcombo != 0 && r++ < 10)
-                    {
-                        layerscreen->data[i] = combobuf[c].nextcombo;
-                        layerscreen->cset[i] = combobuf[c].nextcset;
-                        c=layerscreen->data[i];
-                        cs=layerscreen->cset[i];
-                    }
-                }
-            }
-        }
-    }
+		
+		for(int i = 0; i < 32; i++)
+		{
+			// If these aren't reset, changers may not work right
+			ffposx[i]=-1000;
+			ffposy[i]=-1000;
+			ffprvx[i]=-10000000;
+			ffprvy[i]=-10000000;
+			
+			if((ffscr.ffflags[i]&ffCARRYOVER) && !(ffscr.flags5&fNOFFCARRYOVER))
+			{
+				tmpscr[tmp].ffdata[i] = ffscr.ffdata[i];
+				tmpscr[tmp].ffx[i] = ffscr.ffx[i];
+				tmpscr[tmp].ffy[i] = ffscr.ffy[i];
+				tmpscr[tmp].ffxdelta[i] = ffscr.ffxdelta[i];
+				tmpscr[tmp].ffydelta[i] = ffscr.ffydelta[i];
+				tmpscr[tmp].ffxdelta2[i] = ffscr.ffxdelta2[i];
+				tmpscr[tmp].ffydelta2[i] = ffscr.ffydelta2[i];
+				tmpscr[tmp].fflink[i] = ffscr.fflink[i];
+				tmpscr[tmp].ffdelay[i] = ffscr.ffdelay[i];
+				tmpscr[tmp].ffcset[i] = ffscr.ffcset[i];
+				tmpscr[tmp].ffwidth[i] = ffscr.ffwidth[i];
+				tmpscr[tmp].ffheight[i] = ffscr.ffheight[i];
+				tmpscr[tmp].ffflags[i] = ffscr.ffflags[i];
+				tmpscr[tmp].ffscript[i] = ffscr.ffscript[i];
+				
+				for(int j=0; j<2; ++j)
+				{
+					tmpscr[tmp].inita[i][j] = ffscr.inita[i][j];
+				}
+				
+				for(int j=0; j<8; ++j)
+				{
+					tmpscr[tmp].initd[i][j] = ffscr.initd[i][j];
+				}
+				
+				if(!(ffscr.ffflags[i]&ffSCRIPTRESET))
+				{
+					tmpscr[tmp].ffscript[i] = ffscr.ffscript[i]; // Restart script if it has halted.
+					tmpscr[tmp].initialized[i] = ffscr.initialized[i];
+				}
+				else
+				{
+					tmpscr[tmp].initialized[i] = false;
+					
+					ffcScriptData[i].pc = 0;
+					ffcScriptData[i].sp = 0;
+					ffcScriptData[i].ffcref = 0;
+				}
+			}
+			else
+			{
+				memset(ffmisc[i], 0, 16 * sizeof(long));
+				ffcScriptData[i].Clear();
+				clear_ffc_stack(i);
+			}
+		}
+	}
+	
+	
+	if(tmp==0)
+	{
+		for(int i=0; i<6; i++)
+		{
+			mapscr layerscr = tmpscr2[i];
+			
+			// Don't delete the old tmpscr2's data yet!
+			if(tmpscr[tmp].layermap[i]>0 && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth)
+					&& (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+			{
+				// const int _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
+				
+				tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
+				
+				tmpscr2[i].data.resize(_mapsSize, 0);
+				tmpscr2[i].sflag.resize(_mapsSize, 0);
+				tmpscr2[i].cset.resize(_mapsSize, 0);
+				
+				if(overlay)
+				{
+					for(int y=0; y<ZCMaps[currmap].tileHeight; ++y)
+					{
+						for(int x=0; x<ZCMaps[currmap].tileWidth; ++x)
+						{
+							int c=y*ZCMaps[currmap].tileWidth+x;
+							
+							if(tmpscr2[i].data[c]==0)
+							{
+								tmpscr2[i].data[c]=layerscr.data[c];
+								tmpscr2[i].sflag[c]=layerscr.sflag[c];
+								tmpscr2[i].cset[c]=layerscr.cset[c];
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				(tmpscr2+i)->zero_memory();
+			}
+		}
+	}
+	
+	if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
+	{
+		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
+		{
+			hiddenstair(tmp,false);
+			hidden_entrance(tmp,false,false,-3);
+		}
+	}
+	
+	
+	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
+	{
+		remove_lockblocks(tmp);
+	}
+	
+	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSLOCKBLOCK)		  // if special stuff done before
+	{
+		remove_bosslockblocks(tmp);
+	}
+	
+	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mCHEST)			  // if special stuff done before
+	{
+		remove_chests(tmp);
+	}
+	
+	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKEDCHEST)			  // if special stuff done before
+	{
+		remove_lockedchests(tmp);
+	}
+	
+	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSCHEST)			  // if special stuff done before
+	{
+		remove_bosschests(tmp);
+	}
+	
+	// check doors
+	if(isdungeon(destdmap,scr))
+	{
+		for(int i=0; i<4; i++)
+		{
+			int door=tmpscr[tmp].door[i];
+			bool putit=true;
+			
+			switch(door)
+			{
+			case d1WAYSHUTTER:
+			case dSHUTTER:
+				if((ldir^1)==i)
+				{
+					tmpscr[tmp].door[i]=dOPENSHUTTER;
+					//		  putit=false;
+				}
+				
+				opendoors = -4;
+				break;
+				
+			case dLOCKED:
+				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
+				{
+					tmpscr[tmp].door[i]=dUNLOCKED;
+					//		  putit=false;
+				}
+				
+				break;
+				
+			case dBOSS:
+				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
+				{
+					tmpscr[tmp].door[i]=dOPENBOSS;
+					//		  putit=false;
+				}
+				
+				break;
+				
+			case dBOMB:
+				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
+				{
+					tmpscr[tmp].door[i]=dBOMBED;
+				}
+				
+				break;
+			}
+			
+			if(putit)
+			{
+				putdoor(scrollbuf,tmp,i,tmpscr[tmp].door[i],false);
+			}
+			
+			if(door==dSHUTTER||door==d1WAYSHUTTER)
+			{
+				tmpscr[tmp].door[i]=door;
+			}
+		}
+	}
+	
+	
+	for(int j=-1; j<6; ++j)  // j == -1 denotes the current screen
+	{
+		if(j<0 || ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
+		{
+			mapscr *layerscreen= (j<0 ? &tmpscr[tmp] : !tmpscr2[j].data.empty() ? &tmpscr2[j] :
+								  &TheMaps[(tmpscr[tmp].layermap[j]-1)*MAPSCRS]+tmpscr[tmp].layerscreen[j]);
+								  
+			for(int i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
+			{
+				int c=layerscreen->data[i];
+				int cs=layerscreen->cset[i];
+				
+				// New screen flag: Cycle Combos At Screen Init
+				if(combobuf[c].nextcombo != 0 && (tmpscr[tmp].flags3 & fCYCLEONINIT) && (j<0 || get_bit(quest_rules,qr_CMBCYCLELAYERS)))
+				{
+					int r = 0;
+					
+					while(combobuf[c].nextcombo != 0 && r++ < 10)
+					{
+						layerscreen->data[i] = combobuf[c].nextcombo;
+						layerscreen->cset[i] = combobuf[c].nextcset;
+						c=layerscreen->data[i];
+						cs=layerscreen->cset[i];
+					}
+				}
+			}
+		}
+	}
 }
 
 // Screen is being viewed by the Overworld Map viewer.
 void loadscr2(int tmp,int scr,int)
 {
-    for(word x=0; x<animated_combos; x++)
-    {
-        if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
-        {
+	for(word x=0; x<animated_combos; x++)
+	{
+		if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
+		{
 			combobuf[animated_combo_table4[x][0]].aclk=0;
-        }
-    }
-    
-    const int _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
-    
-    tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
-    
-    tmpscr[tmp].data.resize(_mapsSize, 0);
-    tmpscr[tmp].sflag.resize(_mapsSize, 0);
-    tmpscr[tmp].cset.resize(_mapsSize, 0);
-    
-    if(tmp==0)
-    {
-        for(int i=0; i<6; i++)
-        {
-            if(tmpscr[tmp].layermap[i]>0)
-            {
-            
-                if((ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
-                {
-                    tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
-                    
-                    tmpscr2[i].data.resize(_mapsSize, 0);
-                    tmpscr2[i].sflag.resize(_mapsSize, 0);
-                    tmpscr2[i].cset.resize(_mapsSize, 0);
-                }
-                else
-                {
-                    (tmpscr2+i)->zero_memory();
-                }
-            }
-            else
-            {
-                (tmpscr2+i)->zero_memory();
-            }
-        }
-    }
-    
-    if(canPermSecret(-1,scr))
-    {
-        if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)               // if special stuff done before
-        {
-            hiddenstair(tmp,false);
-            hidden_entrance(tmp,false,false,-3);
-        }
-    }
-    
-    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)              // if special stuff done before
-    {
-        remove_lockblocks(tmp);
-    }
-    
-    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSLOCKBLOCK)          // if special stuff done before
-    {
-        remove_bosslockblocks(tmp);
-    }
-    
-    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mCHEST)              // if special stuff done before
-    {
-        remove_chests(tmp);
-    }
-    
-    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKEDCHEST)              // if special stuff done before
-    {
-        remove_lockedchests(tmp);
-    }
-    
-    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSCHEST)              // if special stuff done before
-    {
-        remove_bosschests(tmp);
-    }
-    
-    // check doors
-    if(isdungeon(scr))
-    {
-        for(int i=0; i<4; i++)
-        {
-            int door=tmpscr[tmp].door[i];
-            bool putit=true;
-            
-            switch(door)
-            {
-            case d1WAYSHUTTER:
-            case dSHUTTER:
-                /*
-                        if((ldir^1)==i)
-                        {
-                          tmpscr[tmp].door[i]=dOPENSHUTTER;
-                          //          putit=false;
-                        }
-                */
-                break;
-                
-            case dLOCKED:
-                if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
-                {
-                    tmpscr[tmp].door[i]=dUNLOCKED;
-                    //          putit=false;
-                }
-                
-                break;
-                
-            case dBOSS:
-                if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
-                {
-                    tmpscr[tmp].door[i]=dOPENBOSS;
-                    //          putit=false;
-                }
-                
-                break;
-                
-            case dBOMB:
-                if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
-                {
-                    tmpscr[tmp].door[i]=dBOMBED;
-                }
-                
-                break;
-            }
-            
-            if(putit)
-            {
-                putdoor(scrollbuf,tmp,i,tmpscr[tmp].door[i],false);
-            }
-            
-            if(door==dSHUTTER||door==d1WAYSHUTTER)
-            {
-                tmpscr[tmp].door[i]=door;
-            }
-        }
-    }
-    
-    for(int j=-1; j<6; ++j)  // j == -1 denotes the current screen
-    {
-        if(j<0 || ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
-        {
-            mapscr *layerscreen= (j<0 ? &tmpscr[tmp]
-                                  : &(TheMaps[(tmpscr[tmp].layermap[j]-1)*MAPSCRS+tmpscr[tmp].layerscreen[j]]));
-                                  
-            for(int i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
-            {
-                int c=layerscreen->data[i];
-                int cs=layerscreen->cset[i];
-                
-                // New screen flag: Cycle Combos At Screen Init
-                if((tmpscr[tmp].flags3 & fCYCLEONINIT) && (j<0 || get_bit(quest_rules,qr_CMBCYCLELAYERS)))
-                {
-                    int r = 0;
-                    
-                    while(combobuf[c].nextcombo != 0 && r++ < 10)
-                    {
-                        layerscreen->data[i] = combobuf[c].nextcombo;
-                        layerscreen->cset[i] = combobuf[c].nextcset;
-                        c=layerscreen->data[i];
-                        cs=layerscreen->cset[i];
-                    }
-                }
-            }
-        }
-    }
-    
+		}
+	}
+	
+	const int _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
+	
+	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
+	
+	tmpscr[tmp].data.resize(_mapsSize, 0);
+	tmpscr[tmp].sflag.resize(_mapsSize, 0);
+	tmpscr[tmp].cset.resize(_mapsSize, 0);
+	
+	if(tmp==0)
+	{
+		for(int i=0; i<6; i++)
+		{
+			if(tmpscr[tmp].layermap[i]>0)
+			{
+			
+				if((ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+				{
+					tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
+					
+					tmpscr2[i].data.resize(_mapsSize, 0);
+					tmpscr2[i].sflag.resize(_mapsSize, 0);
+					tmpscr2[i].cset.resize(_mapsSize, 0);
+				}
+				else
+				{
+					(tmpscr2+i)->zero_memory();
+				}
+			}
+			else
+			{
+				(tmpscr2+i)->zero_memory();
+			}
+		}
+	}
+	
+	if(canPermSecret(-1,scr))
+	{
+		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
+		{
+			hiddenstair(tmp,false);
+			hidden_entrance(tmp,false,false,-3);
+		}
+	}
+	
+	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
+	{
+		remove_lockblocks(tmp);
+	}
+	
+	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSLOCKBLOCK)		  // if special stuff done before
+	{
+		remove_bosslockblocks(tmp);
+	}
+	
+	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mCHEST)			  // if special stuff done before
+	{
+		remove_chests(tmp);
+	}
+	
+	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKEDCHEST)			  // if special stuff done before
+	{
+		remove_lockedchests(tmp);
+	}
+	
+	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSCHEST)			  // if special stuff done before
+	{
+		remove_bosschests(tmp);
+	}
+	
+	// check doors
+	if(isdungeon(scr))
+	{
+		for(int i=0; i<4; i++)
+		{
+			int door=tmpscr[tmp].door[i];
+			bool putit=true;
+			
+			switch(door)
+			{
+			case d1WAYSHUTTER:
+			case dSHUTTER:
+				/*
+						if((ldir^1)==i)
+						{
+						  tmpscr[tmp].door[i]=dOPENSHUTTER;
+						  //		  putit=false;
+						}
+				*/
+				break;
+				
+			case dLOCKED:
+				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
+				{
+					tmpscr[tmp].door[i]=dUNLOCKED;
+					//		  putit=false;
+				}
+				
+				break;
+				
+			case dBOSS:
+				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
+				{
+					tmpscr[tmp].door[i]=dOPENBOSS;
+					//		  putit=false;
+				}
+				
+				break;
+				
+			case dBOMB:
+				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
+				{
+					tmpscr[tmp].door[i]=dBOMBED;
+				}
+				
+				break;
+			}
+			
+			if(putit)
+			{
+				putdoor(scrollbuf,tmp,i,tmpscr[tmp].door[i],false);
+			}
+			
+			if(door==dSHUTTER||door==d1WAYSHUTTER)
+			{
+				tmpscr[tmp].door[i]=door;
+			}
+		}
+	}
+	
+	for(int j=-1; j<6; ++j)  // j == -1 denotes the current screen
+	{
+		if(j<0 || ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
+		{
+			mapscr *layerscreen= (j<0 ? &tmpscr[tmp]
+								  : &(TheMaps[(tmpscr[tmp].layermap[j]-1)*MAPSCRS+tmpscr[tmp].layerscreen[j]]));
+								  
+			for(int i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
+			{
+				int c=layerscreen->data[i];
+				int cs=layerscreen->cset[i];
+				
+				// New screen flag: Cycle Combos At Screen Init
+				if((tmpscr[tmp].flags3 & fCYCLEONINIT) && (j<0 || get_bit(quest_rules,qr_CMBCYCLELAYERS)))
+				{
+					int r = 0;
+					
+					while(combobuf[c].nextcombo != 0 && r++ < 10)
+					{
+						layerscreen->data[i] = combobuf[c].nextcombo;
+						layerscreen->cset[i] = combobuf[c].nextcset;
+						c=layerscreen->data[i];
+						cs=layerscreen->cset[i];
+					}
+				}
+			}
+		}
+	}
+	
 }
 
 void putscr(BITMAP* dest,int x,int y, mapscr* scrn)
 {
-    if(scrn->valid==0||!show_layer_0||scrn->hidelayers & 1)
-    {
-        rectfill(dest,x,y,x+255,y+175,0);
-        return;
-    }
+	if(scrn->valid==0||!show_layer_0||scrn->hidelayers & 1)
+	{
+		rectfill(dest,x,y,x+255,y+175,0);
+		return;
+	}
 	
 	if(scrn->flags7&fLAYER2BG||scrn->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER2BG || DMaps[currdmap].flags&dmfLAYER3BG)
 	{
 		for(int i=0; i<176; ++i)
 		{
-            overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
+			overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
 		}
 	}
 	else
 	{
 		for(int i=0; i<176; ++i)
 		{
-            putcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
-        }
-    }
+			putcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
+		}
+	}
 }
 
 void putscrdoors(BITMAP *dest,int x,int y, mapscr* scrn)
 {
-    if(scrn->valid==0||!show_layer_0)
-    {
-        return;
-    }
-    
-    if(scrn->door[0]==dBOMBED)
-    {
-        over_door(dest,0,39,up,x,y);
-    }
-    
-    if(scrn->door[1]==dBOMBED)
-    {
-        over_door(dest,0,135,down,x,y);
-    }
-    
-    if(scrn->door[2]==dBOMBED)
-    {
-        over_door(dest,0,66,left,x,y);
-    }
-    
-    if(scrn->door[3]==dBOMBED)
-    {
-        over_door(dest,0,77,right,x,y);
-    }
+	if(scrn->valid==0||!show_layer_0)
+	{
+		return;
+	}
+	
+	if(scrn->door[0]==dBOMBED)
+	{
+		over_door(dest,0,39,up,x,y);
+	}
+	
+	if(scrn->door[1]==dBOMBED)
+	{
+		over_door(dest,0,135,down,x,y);
+	}
+	
+	if(scrn->door[2]==dBOMBED)
+	{
+		over_door(dest,0,66,left,x,y);
+	}
+	
+	if(scrn->door[3]==dBOMBED)
+	{
+		over_door(dest,0,77,right,x,y);
+	}
 }
 
 bool _walkflag(int x,int y,int cnt)
 {
-    //  walkflagx=x; walkflagy=y;
-    if(get_bit(quest_rules,qr_LTTPWALK))
-    {
-        if(x<0||y<0) return false;
-        
-        if(x>255) return false;
-        
-        if(x>247&&cnt==2) return false;
-        
-        if(y>175) return false;
-    }
-    else
-    {
-        if(x<0||y<0) return false;
-        
-        if(x>248) return false;
-        
-        if(x>240&&cnt==2) return false;
-        
-        if(y>168) return false;
-    }
-    
-    mapscr *s1, *s2;
-    s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:tmpscr;
-    s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:tmpscr;
-    //  s2=TheMaps+((*tmpscr).layermap[1]-1)MAPSCRS+((*tmpscr).layerscreen[1]);
-    
-    int bx=(x>>4)+(y&0xF0);
-    newcombo c = combobuf[tmpscr->data[bx]];
-    newcombo c1 = combobuf[s1->data[bx]];
-    newcombo c2 = combobuf[s2->data[bx]];
-    bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-                   (iswater_type(c2.type))) && DRIEDLAKE);
-    int b=1;
-    
-    if(x&8) b<<=2;
-    
-    if(y&8) b<<=1;
-    
-    int cwalkflag = c.walk;
-    if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
-    if (((*tmpscr).layermap[0]-1)>=0)
-    {
-	    if (c1.type == cBRIDGE || (iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
-	    else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag = 0;
-	    else cwalkflag |= c1.walk;
-    }
-    if (((*tmpscr).layermap[1]-1)>=0)
-    {
-	    if (c2.type == cBRIDGE || (iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
-	    else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag = 0;
-	    else cwalkflag |= c2.walk;
-    }
-    
-    if((cwalkflag&b) && !dried)
-        return true;
-        
-    if(cnt==1) return false;
-    
-    ++bx;
-    
-    if(!(x&8))
-        b<<=2;
-    else
-    {
-        c  = combobuf[tmpscr->data[bx]];
-        c1 = combobuf[s1->data[bx]];
-        c2 = combobuf[s2->data[bx]];
-        dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-                  (iswater_type(c2.type))) && DRIEDLAKE);
-        b=1;
-        
-        if(y&8) b<<=1;
-    }
-    cwalkflag = c.walk;
-    if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
-    if (((*tmpscr).layermap[0]-1)>=0)
-    {
-	    if (c1.type == cBRIDGE || (iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
-	    else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag = 0;
-	    else cwalkflag |= c1.walk;
-    }
-    if (((*tmpscr).layermap[1]-1)>=0)
-    {
-	    if (c2.type == cBRIDGE || (iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
-	    else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag = 0;
-	    else cwalkflag |= c2.walk;
-    }
-    return (cwalkflag&b) ? !dried : false;
+	//  walkflagx=x; walkflagy=y;
+	if(get_bit(quest_rules,qr_LTTPWALK))
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>255) return false;
+		
+		if(x>247&&cnt==2) return false;
+		
+		if(y>175) return false;
+	}
+	else
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>248) return false;
+		
+		if(x>240&&cnt==2) return false;
+		
+		if(y>168) return false;
+	}
+	
+	mapscr *s1, *s2;
+	s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:tmpscr;
+	s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:tmpscr;
+	//  s2=TheMaps+((*tmpscr).layermap[1]-1)MAPSCRS+((*tmpscr).layerscreen[1]);
+	
+	int bx=(x>>4)+(y&0xF0);
+	newcombo c = combobuf[tmpscr->data[bx]];
+	newcombo c1 = combobuf[s1->data[bx]];
+	newcombo c2 = combobuf[s2->data[bx]];
+	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+				   (iswater_type(c2.type))) && DRIEDLAKE);
+	int b=1;
+	
+	if(x&8) b<<=2;
+	
+	if(y&8) b<<=1;
+	
+	int cwalkflag = c.walk;
+	if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	if (((*tmpscr).layermap[0]-1)>=0)
+	{
+		if (c1.type == cBRIDGE || (iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)) && ((c1.walk>>4)&b))) cwalkflag = 0;
+		else cwalkflag |= c1.walk;
+	}
+	if (((*tmpscr).layermap[1]-1)>=0)
+	{
+		if (c2.type == cBRIDGE || (iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
+		else cwalkflag |= c2.walk;
+	}
+	
+	if((cwalkflag&b) && !dried)
+		return true;
+		
+	if(cnt==1) return false;
+	
+	++bx;
+	
+	if(!(x&8))
+		b<<=2;
+	else
+	{
+		c  = combobuf[tmpscr->data[bx]];
+		c1 = combobuf[s1->data[bx]];
+		c2 = combobuf[s2->data[bx]];
+		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+				  (iswater_type(c2.type))) && DRIEDLAKE);
+		b=1;
+		
+		if(y&8) b<<=1;
+	}
+	cwalkflag = c.walk;
+	if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	if (((*tmpscr).layermap[0]-1)>=0)
+	{
+		if (c1.type == cBRIDGE || (iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4))) && ((c1.walk>>4)&b)) cwalkflag = 0;
+		else cwalkflag |= c1.walk;
+	}
+	if (((*tmpscr).layermap[1]-1)>=0)
+	{
+		if (c2.type == cBRIDGE || (iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
+		else cwalkflag |= c2.walk;
+	}
+	return (cwalkflag&b) ? !dried : false;
+}
+
+bool _effectflag(int x,int y,int cnt, int layer)
+{
+	//  walkflagx=x; walkflagy=y;
+	if(get_bit(quest_rules,qr_LTTPWALK))
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>255) return false;
+		
+		if(x>247&&cnt==2) return false;
+		
+		if(y>175) return false;
+	}
+	else
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>248) return false;
+		
+		if(x>240&&cnt==2) return false;
+		
+		if(y>168) return false;
+	}
+	
+	mapscr *s1, *s2;
+	s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:tmpscr;
+	s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:tmpscr;
+	//  s2=TheMaps+((*tmpscr).layermap[1]-1)MAPSCRS+((*tmpscr).layerscreen[1]);
+	
+	if (layer == 0 && (((*tmpscr).layermap[0]-1)<0)) return false;
+	if (layer == 1 && (((*tmpscr).layermap[1]-1)<0)) return false;
+	
+	int bx=(x>>4)+(y&0xF0);
+	newcombo c = combobuf[tmpscr->data[bx]];
+	newcombo c1 = combobuf[s1->data[bx]];
+	newcombo c2 = combobuf[s2->data[bx]];
+	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+				   (iswater_type(c2.type))) && DRIEDLAKE);
+	int b=1;
+	
+	if(x&8) b<<=2;
+	
+	if(y&8) b<<=1;
+	
+	int cwalkflag = (c.walk>>4);
+	if (layer == 1) cwalkflag = (c1.walk>>4);
+	if (layer == 2) cwalkflag = (c2.walk>>4);
+	//if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	if (((*tmpscr).layermap[0]-1)>=0 && layer < 0)
+	{
+		if (c1.type == cBRIDGE) cwalkflag &= (c1.walk>>4);
+	}
+	if (((*tmpscr).layermap[1]-1)>=0 && layer < 1)
+	{
+		if (c2.type == cBRIDGE) cwalkflag &= (c2.walk>>4);
+	}
+	
+	if((cwalkflag&b) && !dried)
+		return true;
+		
+	if(cnt==1) return false;
+	
+	++bx;
+	
+	if(!(x&8))
+		b<<=2;
+	else
+	{
+		c  = combobuf[tmpscr->data[bx]];
+		c1 = combobuf[s1->data[bx]];
+		c2 = combobuf[s2->data[bx]];
+		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+				  (iswater_type(c2.type))) && DRIEDLAKE);
+		b=1;
+		
+		if(y&8) b<<=1;
+	}
+	cwalkflag = (c.walk>>4);
+	if (layer == 0) cwalkflag = (c1.walk>>4);
+	if (layer == 1) cwalkflag = (c2.walk>>4);
+	//if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	if (((*tmpscr).layermap[0]-1)>=0 && layer < 0)
+	{
+		if (c1.type == cBRIDGE) cwalkflag &= (c1.walk>>4);
+	}
+	if (((*tmpscr).layermap[1]-1)>=0 && layer < 1)
+	{
+		if (c2.type == cBRIDGE) cwalkflag &= (c2.walk>>4);
+	}
+	return (cwalkflag&b) ? !dried : false;
 }
 
 //used by mapdata->isSolid(x,y) in ZScript:
 bool _walkflag(int x,int y,int cnt, mapscr* m)
 {
-    //  walkflagx=x; walkflagy=y;
-    if(get_bit(quest_rules,qr_LTTPWALK))
-    {
-        if(x<0||y<0) return false;
-        
-        if(x>255) return false;
-        
-        if(x>247&&cnt==2) return false;
-        
-        if(y>175) return false;
-    }
-    else
-    {
-        if(x<0||y<0) return false;
-        
-        if(x>248) return false;
-        
-        if(x>240&&cnt==2) return false;
-        
-        if(y>168) return false;
-    }
-    
-    mapscr *s1, *s2;
-    
-    if ( m->layermap[0] > 0 )
-    {
-	    s1 = &TheMaps[(m->layermap[0]*MAPSCRS + m->layerscreen[0])];
-    }
-    else s1 = m;
-    
-    if ( m->layermap[1] > 0 )
-    {
-	    s2 = &TheMaps[(m->layermap[1]*MAPSCRS + m->layerscreen[1])];
-    }
-    else s2 = m;
-    
-    int bx=(x>>4)+(y&0xF0);
-    newcombo c = combobuf[m->data[bx]];
-    newcombo c1 = combobuf[s1->data[bx]];
-    newcombo c2 = combobuf[s2->data[bx]];
-    bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-                   (iswater_type(c2.type))) && DRIEDLAKE);
-    int b=1;
-    
-    if(x&8) b<<=2;
-    
-    if(y&8) b<<=1;
-    
-    int cwalkflag = c.walk;
-    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
-    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
-    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
-    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
-    
-    if((cwalkflag&b) && !dried)
-        return true;
-        
-    if(cnt==1) return false;
-    
-    ++bx;
-    
-    if(!(x&8))
-        b<<=2;
-    else
-    {
-        c  = combobuf[m->data[bx]];
-        c1 = combobuf[s1->data[bx]];
-        c2 = combobuf[s2->data[bx]];
-        dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-                  (iswater_type(c2.type))) && DRIEDLAKE);
-        b=1;
-        
-        if(y&8) b<<=1;
-    }
-    
-    cwalkflag = c.walk;
-    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
-    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
-    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
-    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
-    return (cwalkflag&b) ? !dried : false;
+	//  walkflagx=x; walkflagy=y;
+	if(get_bit(quest_rules,qr_LTTPWALK))
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>255) return false;
+		
+		if(x>247&&cnt==2) return false;
+		
+		if(y>175) return false;
+	}
+	else
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>248) return false;
+		
+		if(x>240&&cnt==2) return false;
+		
+		if(y>168) return false;
+	}
+	
+	mapscr *s1, *s2;
+	
+	if ( m->layermap[0] > 0 )
+	{
+		s1 = &TheMaps[(m->layermap[0]*MAPSCRS + m->layerscreen[0])];
+	}
+	else s1 = m;
+	
+	if ( m->layermap[1] > 0 )
+	{
+		s2 = &TheMaps[(m->layermap[1]*MAPSCRS + m->layerscreen[1])];
+	}
+	else s2 = m;
+	
+	int bx=(x>>4)+(y&0xF0);
+	newcombo c = combobuf[m->data[bx]];
+	newcombo c1 = combobuf[s1->data[bx]];
+	newcombo c2 = combobuf[s2->data[bx]];
+	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+				   (iswater_type(c2.type))) && DRIEDLAKE);
+	int b=1;
+	
+	if(x&8) b<<=2;
+	
+	if(y&8) b<<=1;
+	
+	int cwalkflag = c.walk;
+	if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+	else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
+	if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+	else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+	
+	if((cwalkflag&b) && !dried)
+		return true;
+		
+	if(cnt==1) return false;
+	
+	++bx;
+	
+	if(!(x&8))
+		b<<=2;
+	else
+	{
+		c  = combobuf[m->data[bx]];
+		c1 = combobuf[s1->data[bx]];
+		c2 = combobuf[s2->data[bx]];
+		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+				  (iswater_type(c2.type))) && DRIEDLAKE);
+		b=1;
+		
+		if(y&8) b<<=1;
+	}
+	
+	cwalkflag = c.walk;
+	if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+	else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
+	if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+	else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+	return (cwalkflag&b) ? !dried : false;
 }
 
 bool _walkflag(int x,int y,int cnt, mapscr* m, mapscr* s1, mapscr* s2)
 {
-    //  walkflagx=x; walkflagy=y;
-    if(get_bit(quest_rules,qr_LTTPWALK))
-    {
-        if(x<0||y<0) return false;
-        
-        if(x>255) return false;
-        
-        if(x>247&&cnt==2) return false;
-        
-        if(y>175) return false;
-    }
-    else
-    {
-        if(x<0||y<0) return false;
-        
-        if(x>248) return false;
-        
-        if(x>240&&cnt==2) return false;
-        
-        if(y>168) return false;
-    }
-    
-    if(!s1) s1 = m;
+	//  walkflagx=x; walkflagy=y;
+	if(get_bit(quest_rules,qr_LTTPWALK))
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>255) return false;
+		
+		if(x>247&&cnt==2) return false;
+		
+		if(y>175) return false;
+	}
+	else
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>248) return false;
+		
+		if(x>240&&cnt==2) return false;
+		
+		if(y>168) return false;
+	}
+	
+	if(!s1) s1 = m;
 	if(!s2) s2 = m;
-    
-    int bx=(x>>4)+(y&0xF0);
-    newcombo c = combobuf[m->data[bx]];
-    newcombo c1 = combobuf[s1->data[bx]];
-    newcombo c2 = combobuf[s2->data[bx]];
-    bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-                   (iswater_type(c2.type))) && DRIEDLAKE);
-    int b=1;
-    
-    if(x&8) b<<=2;
-    
-    if(y&8) b<<=1;
-    
-    int cwalkflag = c.walk;
-    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
-    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
-    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
-    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
-    
-    if((cwalkflag&b) && !dried)
-        return true;
-        
-    if(cnt==1) return false;
-    
-    ++bx;
-    
-    if(!(x&8))
-        b<<=2;
-    else
-    {
-        c  = combobuf[m->data[bx]];
-        c1 = combobuf[s1->data[bx]];
-        c2 = combobuf[s2->data[bx]];
-        dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-                  (iswater_type(c2.type))) && DRIEDLAKE);
-        b=1;
-        
-        if(y&8) b<<=1;
-    }
-    
-    cwalkflag = c.walk;
-    if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
-    else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
-    if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
-    else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
-    return (cwalkflag&b) ? !dried : false;
+	
+	int bx=(x>>4)+(y&0xF0);
+	newcombo c = combobuf[m->data[bx]];
+	newcombo c1 = combobuf[s1->data[bx]];
+	newcombo c2 = combobuf[s2->data[bx]];
+	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+				   (iswater_type(c2.type))) && DRIEDLAKE);
+	int b=1;
+	
+	if(x&8) b<<=2;
+	
+	if(y&8) b<<=1;
+	
+	int cwalkflag = c.walk;
+	if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+	else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
+	if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+	else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+	
+	if((cwalkflag&b) && !dried)
+		return true;
+		
+	if(cnt==1) return false;
+	
+	++bx;
+	
+	if(!(x&8))
+		b<<=2;
+	else
+	{
+		c  = combobuf[m->data[bx]];
+		c1 = combobuf[s1->data[bx]];
+		c2 = combobuf[s2->data[bx]];
+		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+				  (iswater_type(c2.type))) && DRIEDLAKE);
+		b=1;
+		
+		if(y&8) b<<=1;
+	}
+	
+	cwalkflag = c.walk;
+	if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+	else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
+	if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+	else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
+	return (cwalkflag&b) ? !dried : false;
 }
 
 //Only check the given mapscr*, not it's layer 1&2
 bool _walkflag_layer(int x,int y,int cnt, mapscr* m)
 {
-    //  walkflagx=x; walkflagy=y;
-    if(get_bit(quest_rules,qr_LTTPWALK))
-    {
-        if(x<0||y<0) return false;
-        
-        if(x>255) return false;
-        
-        if(x>247&&cnt==2) return false;
-        
-        if(y>175) return false;
-    }
-    else
-    {
-        if(x<0||y<0) return false;
-        
-        if(x>248) return false;
-        
-        if(x>240&&cnt==2) return false;
-        
-        if(y>168) return false;
-    }
+	//  walkflagx=x; walkflagy=y;
+	if(get_bit(quest_rules,qr_LTTPWALK))
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>255) return false;
+		
+		if(x>247&&cnt==2) return false;
+		
+		if(y>175) return false;
+	}
+	else
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>248) return false;
+		
+		if(x>240&&cnt==2) return false;
+		
+		if(y>168) return false;
+	}
 	if(!m) return true;
-    
-    int bx=(x>>4)+(y&0xF0);
-    newcombo c = combobuf[m->data[bx]];
-    bool dried = ((iswater_type(c.type)) && DRIEDLAKE);
-    int b=1;
-    
-    if(x&8) b<<=2;
-    
-    if(y&8) b<<=1;
-    
-    if((c.walk&b) && !dried)
-        return true;
-        
-    if(cnt==1) return false;
-    
-    ++bx;
-    
-    if(!(x&8))
-        b<<=2;
-    else
-    {
-        c  = combobuf[m->data[bx]];
-        dried = ((iswater_type(c.type)) && DRIEDLAKE);
-        b=1;
-        
-        if(y&8) b<<=1;
-    }
-    
-    return (c.walk&b) ? !dried : false;
+	
+	int bx=(x>>4)+(y&0xF0);
+	newcombo c = combobuf[m->data[bx]];
+	bool dried = ((iswater_type(c.type)) && DRIEDLAKE);
+	int b=1;
+	
+	if(x&8) b<<=2;
+	
+	if(y&8) b<<=1;
+	
+	if((c.walk&b) && !dried)
+		return true;
+		
+	if(cnt==1) return false;
+	
+	++bx;
+	
+	if(!(x&8))
+		b<<=2;
+	else
+	{
+		c  = combobuf[m->data[bx]];
+		dried = ((iswater_type(c.type)) && DRIEDLAKE);
+		b=1;
+		
+		if(y&8) b<<=1;
+	}
+	
+	return (c.walk&b) ? !dried : false;
+}
+
+bool _effectflag_layer(int x,int y,int cnt, mapscr* m)
+{
+	//  walkflagx=x; walkflagy=y;
+	if(get_bit(quest_rules,qr_LTTPWALK))
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>255) return false;
+		
+		if(x>247&&cnt==2) return false;
+		
+		if(y>175) return false;
+	}
+	else
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>248) return false;
+		
+		if(x>240&&cnt==2) return false;
+		
+		if(y>168) return false;
+	}
+	if(!m) return true;
+	
+	int bx=(x>>4)+(y&0xF0);
+	newcombo c = combobuf[m->data[bx]];
+	bool dried = ((iswater_type(c.type)) && DRIEDLAKE);
+	int b=1;
+	
+	if(x&8) b<<=2;
+	
+	if(y&8) b<<=1;
+	
+	if(((c.walk>>4)&b) && !dried)
+		return true;
+		
+	if(cnt==1) return false;
+	
+	++bx;
+	
+	if(!(x&8))
+		b<<=2;
+	else
+	{
+		c  = combobuf[m->data[bx]];
+		dried = ((iswater_type(c.type)) && DRIEDLAKE);
+		b=1;
+		
+		if(y&8) b<<=1;
+	}
+	
+	return ((c.walk>>4)&b) ? !dried : false;
 }
 
 bool water_walkflag(int x,int y,int cnt)
 {
-    if(get_bit(quest_rules,qr_LTTPWALK))
-    {
-        if(x<0||y<0) return false;
-        
-        if(x>255) return false;
-        
-        if(x>247&&cnt==2) return false;
-        
-        if(y>175) return false;
-    }
-    else
-    {
-        if(x<0||y<0) return false;
-        
-        if(x>248) return false;
-        
-        if(x>240&&cnt==2) return false;
-        
-        if(y>168) return false;
-    }
-    
-    mapscr *s1, *s2;
-    /*
-      s1=(((*tmpscr).layermap[0]-1)>=0)?
-      (TheMaps+((*tmpscr).layermap[0]-1)*MAPSCRS+((*tmpscr).layerscreen[0])):
-      tmpscr;
-      s2=(((*tmpscr).layermap[1]-1)>=0)?
-      (TheMaps+((*tmpscr).layermap[1]-1)*MAPSCRS+((*tmpscr).layerscreen[1])):
-      tmpscr;
-      */
-    s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:tmpscr;
-    s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:tmpscr;
-    
-    int bx=(x>>4)+(y&0xF0);
-    newcombo c = combobuf[tmpscr->data[bx]];
-    newcombo c1 = combobuf[s1->data[bx]];
-    newcombo c2 = combobuf[s2->data[bx]];
-    int b=1;
-    
-    if(x&8) b<<=2;
-    
-    if(y&8) b<<=1;
-    
-    if((c.walk&b) && !iswater_type(c.type))
-        return true;
-        
-    if((c1.walk&b) && !iswater_type(c1.type))
-        return true;
-        
-    if((c2.walk&b) && !iswater_type(c2.type))
-        return true;
-        
-    if(cnt==1) return false;
-    
-    if(x&8)
-        b<<=2;
-    else
-    {
-        c = combobuf[tmpscr->data[++bx]];
-        c1 = combobuf[s1->data[bx]];
-        c2 = combobuf[s2->data[bx]];
-        b=1;
-        
-        if(y&8) b<<=1;
-    }
-    
-    return (c.walk&b) ? !iswater_type(c.type) :
-           (c1.walk&b) ? !iswater_type(c1.type) :
-           (c2.walk&b) ? !iswater_type(c2.type) :false;
+	if(get_bit(quest_rules,qr_LTTPWALK))
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>255) return false;
+		
+		if(x>247&&cnt==2) return false;
+		
+		if(y>175) return false;
+	}
+	else
+	{
+		if(x<0||y<0) return false;
+		
+		if(x>248) return false;
+		
+		if(x>240&&cnt==2) return false;
+		
+		if(y>168) return false;
+	}
+	
+	mapscr *s1, *s2;
+	/*
+	  s1=(((*tmpscr).layermap[0]-1)>=0)?
+	  (TheMaps+((*tmpscr).layermap[0]-1)*MAPSCRS+((*tmpscr).layerscreen[0])):
+	  tmpscr;
+	  s2=(((*tmpscr).layermap[1]-1)>=0)?
+	  (TheMaps+((*tmpscr).layermap[1]-1)*MAPSCRS+((*tmpscr).layerscreen[1])):
+	  tmpscr;
+	  */
+	s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:tmpscr;
+	s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:tmpscr;
+	
+	int bx=(x>>4)+(y&0xF0);
+	newcombo c = combobuf[tmpscr->data[bx]];
+	newcombo c1 = combobuf[s1->data[bx]];
+	newcombo c2 = combobuf[s2->data[bx]];
+	int b=1;
+	
+	if(x&8) b<<=2;
+	
+	if(y&8) b<<=1;
+	
+	if((c.walk&b) && !iswater_type(c.type))
+		return true;
+		
+	if((c1.walk&b) && !iswater_type(c1.type))
+		return true;
+		
+	if((c2.walk&b) && !iswater_type(c2.type))
+		return true;
+		
+	if(cnt==1) return false;
+	
+	if(x&8)
+		b<<=2;
+	else
+	{
+		c = combobuf[tmpscr->data[++bx]];
+		c1 = combobuf[s1->data[bx]];
+		c2 = combobuf[s2->data[bx]];
+		b=1;
+		
+		if(y&8) b<<=1;
+	}
+	
+	return (c.walk&b) ? !iswater_type(c.type) :
+		   (c1.walk&b) ? !iswater_type(c1.type) :
+		   (c2.walk&b) ? !iswater_type(c2.type) :false;
 }
 
 bool hit_walkflag(int x,int y,int cnt)
 {
-    if(dlevel)
-        if(x<32 || y<40 || (x+(cnt-1)*8)>=224 || y>=144)
-            return true;
-            
-    if(blockpath && y<((get_bit(quest_rules,qr_LTTPCOLLISION))?80:88))
-        return true;
-        
-    if(x<16 || y<16 || (x+(cnt-1)*8)>=240 || y>=160)
-        return true;
-        
-    //  for(int i=0; i<4; i++)
-    if(mblock2.clk && mblock2.hit(x,y,0,cnt*8,1,16))
-        return true;
-        
-    return _walkflag(x,y,cnt);
+	if(dlevel)
+		if(x<32 || y<40 || (x+(cnt-1)*8)>=224 || y>=144)
+			return true;
+			
+	if(blockpath && y<((get_bit(quest_rules,qr_LTTPCOLLISION))?80:88))
+		return true;
+		
+	if(x<16 || y<16 || (x+(cnt-1)*8)>=240 || y>=160)
+		return true;
+		
+	//  for(int i=0; i<4; i++)
+	if(mblock2.clk && mblock2.hit(x,y,0,cnt*8,1,16))
+		return true;
+		
+	return _walkflag(x,y,cnt);
 }
 
 void map_bkgsfx(bool on)
 {
-    if(on)
-    {
-        cont_sfx(tmpscr->oceansfx);
-        
-        if(tmpscr->bosssfx && !(game->lvlitems[dlevel]&liBOSS))
-            cont_sfx(tmpscr->bosssfx);
-    }
-    else
-    {
-        adjust_sfx(tmpscr->oceansfx,128,false);
-        adjust_sfx(tmpscr->bosssfx,128,false);
-        
-        for(int i=0; i<guys.Count(); i++)
-        {
-            if(((enemy*)guys.spr(i))->bgsfx)
-                stop_sfx(((enemy*)guys.spr(i))->bgsfx);
-        }
-    }
+	if(on)
+	{
+		cont_sfx(tmpscr->oceansfx);
+		
+		if(tmpscr->bosssfx && !(game->lvlitems[dlevel]&liBOSS))
+			cont_sfx(tmpscr->bosssfx);
+	}
+	else
+	{
+		adjust_sfx(tmpscr->oceansfx,128,false);
+		adjust_sfx(tmpscr->bosssfx,128,false);
+		
+		for(int i=0; i<guys.Count(); i++)
+		{
+			if(((enemy*)guys.spr(i))->bgsfx)
+				stop_sfx(((enemy*)guys.spr(i))->bgsfx);
+		}
+	}
 }
 
 /****  View Map  ****/

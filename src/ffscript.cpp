@@ -7167,6 +7167,17 @@ long get_register(const long arg)
 				ret = (combobuf[tmpscr->data[pos]].walk & 0xF) * 10000;
 		}
 		break;
+			
+		case COMBOED:
+		{
+			int pos = ri->d[rINDEX] / 10000;
+			
+			if(BC::checkComboPos(pos, "Screen->ComboE[]") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((combobuf[tmpscr->data[pos]].walk & 0xF0)>>4) * 10000;
+		}
+		break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Game->GetComboX
@@ -9029,6 +9040,31 @@ long get_register(const long arg)
 			}
 			break;
 		}
+			
+		case MAPDATACOMBOED:
+		{
+			if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				//int ffindex = ri->d[rINDEX]/10000;
+				//int d = ri->d[rINDEX2]/10000;
+				//int v = (value/10000);
+				int pos = ri->d[rINDEX] / 10000;
+				if(BC::checkComboPos(pos, "mapdata->ComboE[pos]") != SH::_NoError)
+				{
+					ret = -10000;
+				}
+				else
+				{
+					ret = ((combobuf[m->data[pos]].walk & 0xF0)>>4) * 10000;
+				}	
+			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboE[]", ri->mapsref);
+				ret = -10000;
+			}
+			break;
+		}
 		
 		case MAPDATASCREENSTATED:
 		{
@@ -9965,7 +10001,32 @@ long get_register(const long arg)
 		case COMBODACLK:		GET_COMBO_VAR_BYTE(aclk, "AClk"); break;				//char
 		case COMBODASPEED:		GET_COMBO_VAR_BYTE(speed, "ASpeed"); break;					//char
 		case COMBODFLIP:		GET_COMBO_VAR_BYTE(flip, "Flip"); break;					//char
-		case COMBODWALK:		GET_COMBO_VAR_BYTE(walk, "Walk"); break;					//char
+		case COMBODWALK:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Walk");
+				ret = -10000;
+			}
+			else
+			{
+				ret = ((combobuf[ri->combosref].walk&0x0F) *10000);
+			}
+			break;
+		}
+		case COMBODEFFECT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Effect");
+				ret = -10000;
+			}
+			else
+			{
+				ret = (((combobuf[ri->combosref].walk&0xF0)>>4) *10000);
+			}
+			break;
+		}
 		case COMBODTYPE:		GET_COMBO_VAR_BYTE(type, "Type"); break;					//char
 		case COMBODCSET:		GET_COMBO_VAR_BYTE(csets, "CSet"); break;					//C
 		case COMBODFOO:			GET_COMBO_VAR_DWORD(foo, "Foo"); break;						//W
@@ -9979,7 +10040,25 @@ long get_register(const long arg)
 		case COMBODAKIMANIMY:		GET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;				//C
 		case COMBODANIMFLAGS:		GET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;				//C
 		case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;				//C , 6 INDICES
-		case COMBODATTRIBUTES: 		GET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRIBUTES:
+		{
+			int indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Attributes[]");
+				ret = -10000;
+			}
+			else if ( indx < 0 || indx > 4 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "Attributes[]");
+				ret = -10000;
+			}
+			else
+			{
+				ret = (combobuf[ri->combosref].attributes[indx]);
+			}
+		}
+		break;
 		//case COMBODATAINITD: 		GET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODATAINITD:
 		{
@@ -14923,16 +15002,39 @@ void set_register(const long arg, const long value)
     {
         int pos = (ri->d[rINDEX])/10000;
         int val = (value/10000); //iflag
-	if ( ((unsigned) pos) > 175 )
-	{
-		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboS[]\n", pos);
-	}
-	else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
-	{
-		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboS[]\n", val);
-	}
+		if ( ((unsigned) pos) > 175 )
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboS[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
+		{
+			Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboS[]\n", val);
+		}
         else
-            combobuf[tmpscr->data[pos]].walk=(val)&15;
+		{
+			combobuf[tmpscr->data[pos]].walk &= ~0x0F;
+            combobuf[tmpscr->data[pos]].walk |= (val)&0x0F;
+		}
+    }
+    break;
+    
+    case COMBOED:
+    {
+        int pos = (ri->d[rINDEX])/10000;
+        int val = (value/10000); //iflag
+		if ( ((unsigned) pos) > 175 )
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboE[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
+		{
+			Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboE[]\n", val);
+		}
+        else
+		{
+			combobuf[tmpscr->data[pos]].walk &= ~0xF0;
+            combobuf[tmpscr->data[pos]].walk |= ((val)&0x0F)<<4;
+		}
     }
     break;
 		
@@ -15193,8 +15295,8 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid MapScreen ID (%d) passed to GetSolid", scr);
 				break;
 			}
-
-			combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;	    
+			combobuf[TheMaps[scr].data[pos]].walk &= ~0x0F;
+			combobuf[TheMaps[scr].data[pos]].walk |= (value/10000)&15;	    
 		}
 		break;
 		
@@ -16968,11 +17070,42 @@ void set_register(const long arg, const long value)
 				}
 				
 				else
-					combobuf[m->data[pos]].walk=(val)&15;
+				{
+					combobuf[m->data[pos]].walk &= ~0x0F;
+					combobuf[m->data[pos]].walk |= (val)&0x0F;
+				}
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboI[]");
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboS[]");
+			}
+		}
+		break;
+		
+		case MAPDATACOMBOED:
+		{
+			int pos = (ri->d[rINDEX])/10000;
+			int val = (value/10000); //solidity
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				if ( ((unsigned) pos) > 175 )
+				{
+					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboE[]\n", pos);
+				}
+				else if ( ((unsigned) val) >= 16 )
+				{
+					Z_scripterrlog("Invalid Solidity %d used to write to mapdata->ComboE[]\n", val);
+				}
+				
+				else
+				{
+					combobuf[m->data[pos]].walk &= ~0xF0;
+					combobuf[m->data[pos]].walk |= ((val)&0x0F)<<4;
+				}
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboE[]");
 			}
 		}
 		break;
@@ -17815,7 +17948,32 @@ void set_register(const long arg, const long value)
 		case COMBODATASCRIPT:	SET_COMBO_VAR_DWORD(script, "Script"); break;						//word
 		case COMBODASPEED:	SET_COMBO_VAR_BYTE(speed, "ASpeed"); break;						//char
 		case COMBODFLIP:	SET_COMBO_VAR_BYTE(flip, "Flip"); break;						//char
-		case COMBODWALK:	SET_COMBO_VAR_BYTE(walk, "Walk"); break;						//char
+		case COMBODWALK:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Walk");
+			}
+			else
+			{
+				combobuf[ri->combosref].walk &= ~0x0F;
+				combobuf[ri->combosref].walk |= (value / 10000)&0x0F;
+			}
+			break;
+		}
+		case COMBODEFFECT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Effect");
+			}
+			else
+			{
+				combobuf[ri->combosref].walk &= ~0xF0;
+				combobuf[ri->combosref].walk |= ((value / 10000)&0x0F)<<4;
+			}
+			break;
+		}
 		case COMBODTYPE:	SET_COMBO_VAR_BYTE(type, "Type"); break;						//char
 		case COMBODCSET:	SET_COMBO_VAR_BYTE(csets, "CSet"); break;						//C
 		case COMBODFOO:		SET_COMBO_VAR_DWORD(foo, "Foo"); break;							//W
@@ -17828,7 +17986,22 @@ void set_register(const long arg, const long value)
 		case COMBODAKIMANIMY:	SET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;					//C
 		case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;					//C
 		case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;					//C , 6 INDICES
-		case COMBODATTRIBUTES: 	SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRIBUTES:
+		{
+			int indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "Attributes[]");
+			}
+			else if ( indx < 0 || indx > 4 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "Attributes[]");
+			}
+			else
+			{
+				combobuf[ri->combosref].attributes[indx] = value;
+			}
+		}break;
 		//case COMBODATAINITD: 	SET_COMBO_VAR_INDEX(initd,	"InitD[]", 2); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODATAINITD:
 		{
@@ -35419,9 +35592,9 @@ script_variable ZASMVars[]=
 	{ "DIRECTORYSIZE", DIRECTORYSIZE, 0, 0 },
 	{ "LONGDISTANCE", LONGDISTANCE, 0, 0 },
 	{ "LONGDISTANCESCALE", LONGDISTANCESCALE, 0, 0 },
-	{ "PADDINGR5", PADDINGR5, 0, 0 },
-	{ "PADDINGR6", PADDINGR6, 0, 0 },
-	{ "PADDINGR7", PADDINGR7, 0, 0 },
+	{ "COMBOED",           COMBOED,              0,             0 },
+	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
+	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
 	{ "PADDINGR8", PADDINGR8, 0, 0 },
 	{ "PADDINGR9", PADDINGR9, 0, 0 },
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
@@ -36039,6 +36212,33 @@ void FFScript::do_tracenl()
 
 void FFScript::TraceScriptIDs(bool zasm_console)
 {
+	if(DEVTIMESTAMP)
+	{
+		if(!zasm_debugger && zasm_console) return;
+		#ifdef _WIN32
+		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
+		#endif
+		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
+		
+		char buf[256] = {0};
+		//Calculate timestamp
+		struct tm * tm_struct;
+		time_t sysRTC;
+		time (&sysRTC);
+		tm_struct = localtime (&sysRTC);
+		
+		sprintf(buf, "[%d:%d:%d] ", tm_struct->tm_hour, tm_struct->tm_min, tm_struct->tm_sec);
+		//
+		
+		al_trace(buf);
+		#ifdef _WIN32
+		if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),buf); }
+		#else //Unix
+			std::cout << "Z_scripterrlog Test\n" << std::endl;
+			printf(buf);
+		#endif
+	}
 	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLOGGING )
 	{
 		if(!zasm_debugger && zasm_console) return;

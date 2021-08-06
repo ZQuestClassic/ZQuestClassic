@@ -5352,7 +5352,7 @@ void EditGameMiscArray()
 		ret = zc_popup_dialog(gamemiscarray_dlg,65);
 		for ( int q = 0; q < 32; q++ )
 		{
-			misc.questmisc[q] = vbound(ffparse(miscvalue[q]),-2147483647, 2147483647);
+			misc.questmisc[q] = ffparse2(miscvalue[q]);
 			strcpy(misc.questmisc_strings[q], miscvalue_labels[q]);
 		}
 		
@@ -6444,8 +6444,8 @@ void refresh(int flags)
         curscr=Map.getCurrScr();
         Map.setCurrScr(curscr);                                 // to update palette
         clear_to_color(mapscreenbmp,vc(0));
+        rebuild_trans_table();
         Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1);
-        
         if(showedges)
         {
             if(Map.getCurrScr()<128)
@@ -6845,11 +6845,12 @@ void refresh(int flags)
             {
                 char tbuf[10];
                 sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
-                draw_text_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,vc(1),vc(14),(btn==current_mappage?2:0),true);
+                draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
             }
             
             draw_text_button(menu1,combolist_window.x-64,0,64,16,dm_names[draw_mode],vc(1),vc(14),0,true);
         }
+	rebuild_trans_table();
     }
     
 	if(flags&rSCRMAP)
@@ -10199,13 +10200,15 @@ void domouse()
                 
                 if(isinRect(x,y,mapscreen_x+(btn*16*2*mapscreensize),mapscreen_y+((showedges?13:11)*16*mapscreensize),mapscreen_x+(btn*16*2*mapscreensize)+map_page_bar[btn].w,mapscreen_y+((showedges?13:11)*16*mapscreensize)+map_page_bar[btn].h))
                 {
-                    if(do_text_button(map_page_bar[btn].x,map_page_bar[btn].y,map_page_bar[btn].w,map_page_bar[btn].h,tbuf,vc(1),vc(14),true))
+                    if(draw_layer_button_reset(map_page_bar[btn].x,map_page_bar[btn].y,map_page_bar[btn].w,map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0)))
                     {
+			draw_layer_button(screen, map_page_bar[btn].x,map_page_bar[btn].y,map_page_bar[btn].w,map_page_bar[btn].h,tbuf,D_SELECTED);
                         map_page[current_mappage].map=Map.getCurrMap();
                         map_page[current_mappage].screen=Map.getCurrScr();
                         current_mappage=btn;
                         Map.setCurrMap(map_page[current_mappage].map);
                         Map.setCurrScr(map_page[current_mappage].screen);
+			rebuild_trans_table(); //Woo
                     }
                 }
             }
@@ -13756,7 +13759,7 @@ void EditScreenScript()
 			theMap->preloadscript = 0;
 		
 		for(int j=0; j<8; j++)
-			theMap->screeninitd[j] = vbound(ffparse(initd[j]),-2147483647, 2147483647);
+			theMap->screeninitd[j] = ffparse2(initd[j]);
 		
 	}
 	while(ret==22);//press OK
@@ -14795,6 +14798,8 @@ int onScreenPalette()
         Map.setcolor(screen_pal_dlg[2].d1);
         refresh(rALL);
     }
+    
+    rebuild_trans_table();
     
     return D_O_K;
 }
@@ -16789,9 +16794,9 @@ void editdmap(int index)
 	
 	for ( int q = 0; q < 8; q++ )
 	{
-		DMaps[index].initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);
-		DMaps[index].sub_initD[q] = vbound(ffparse(subinitdvals[q]),-2147483647, 2147483647);
-		DMaps[index].onmap_initD[q] = vbound(ffparse(onmapinitdvals[q]),-2147483647, 2147483647);
+		DMaps[index].initD[q] = ffparse2(initdvals[q]);
+		DMaps[index].sub_initD[q] = ffparse2(subinitdvals[q]);
+		DMaps[index].onmap_initD[q] = ffparse2(onmapinitdvals[q]);
 		////initd_labels
 		sprintf(DMaps[index].initD_label[q],"%s",initd_labels[q]);
 		sprintf(DMaps[index].sub_initD_label[q],"%s",sub_initd_labels[q]);
@@ -28948,14 +28953,14 @@ int onEditFFCombo(int ffcombo)
         Map.CurrScr()->ffwidth[ffcombo] = (cw-1)+((tw-1)<<6);
         Map.CurrScr()->ffheight[ffcombo] = (ch-1)+((th-1)<<6);
         
-        Map.CurrScr()->initd[ffcombo][0] = vbound(ffparse(dastring[0]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][1] = vbound(ffparse(dastring[1]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][2] = vbound(ffparse(dastring[2]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][3] = vbound(ffparse(dastring[3]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][4] = vbound(ffparse(dastring[4]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][5] = vbound(ffparse(dastring[5]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][6] = vbound(ffparse(dastring[6]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][7] = vbound(ffparse(dastring[7]),-2147483647, 2147483647);
+        Map.CurrScr()->initd[ffcombo][0] = ffparse2(dastring[0]);
+        Map.CurrScr()->initd[ffcombo][1] = ffparse2(dastring[1]);
+        Map.CurrScr()->initd[ffcombo][2] = ffparse2(dastring[2]);
+        Map.CurrScr()->initd[ffcombo][3] = ffparse2(dastring[3]);
+        Map.CurrScr()->initd[ffcombo][4] = ffparse2(dastring[4]);
+        Map.CurrScr()->initd[ffcombo][5] = ffparse2(dastring[5]);
+        Map.CurrScr()->initd[ffcombo][6] = ffparse2(dastring[6]);
+        Map.CurrScr()->initd[ffcombo][7] = ffparse2(dastring[7]);
         
         Map.CurrScr()->inita[ffcombo][0] = vbound(atoi(dastring[8])*10000,0,320000);
         Map.CurrScr()->inita[ffcombo][1] = vbound(atoi(dastring[9])*10000,0,320000);
