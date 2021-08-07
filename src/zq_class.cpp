@@ -2762,6 +2762,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         }
     }
     
+	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
         for(int i=0; i<176; i++)
@@ -2777,7 +2778,40 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             }
         }
     }
-    
+    //Overhead L1/2
+	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	{
+		for(int k = 0; k < 2; ++k)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				layermap=layer->layermap[k]-1;
+				
+				if(layermap>-1 && layermap<map_count)
+				{
+					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+					mapscr const& tmp = prv_mode?prvlayers[k]:TheMaps[layerscreen];
+					if(layer->layeropacity[k]==255)
+					{
+						for(int i=0; i<176; i++)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,tmp.data[i],tmp.cset[i]);
+						}
+					}
+					else
+					{
+						for(int i=0; i<176; i++)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
+						}
+					}
+				}
+			}
+		}
+	}
+	
     for(int k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
@@ -3114,6 +3148,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
+	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
         for(int i=c; i<(c&0xF0)+16; i++)
@@ -3130,6 +3165,40 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
+    //Overhead L1/2
+	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	{
+		for(int k = 0; k < 2; ++k)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				layermap=layer->layermap[k]-1;
+				
+				if(layermap>-1 && layermap<map_count)
+				{
+					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+					mapscr const& tmp = TheMaps[layerscreen];
+					if(layer->layeropacity[k]==255)
+					{
+						for(int i=c; i<(c&0xF0)+16; i++)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombo(dest,((i&15)<<4)+x,y,tmp.data[i],tmp.cset[i]);
+						}
+					}
+					else
+					{
+						for(int i=c; i<(c&0xF0)+16; i++)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombotranslucent(dest,((i&15)<<4)+x,y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
+						}
+					}
+				}
+			}
+		}
+	}
+	
     for(int k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
@@ -3412,6 +3481,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
+	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
         for(int i=c; i<176; i+=16)
@@ -3427,6 +3497,40 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
+    //Overhead L1/2
+	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	{
+		for(int k = 0; k < 2; ++k)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				layermap=layer->layermap[k]-1;
+				
+				if(layermap>-1 && layermap<map_count)
+				{
+					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+					mapscr const& tmp = TheMaps[layerscreen];
+					if(layer->layeropacity[k]==255)
+					{
+						for(int i=c; i<176; i+=16)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombo(dest,x,(i&0xF0)+y,tmp.data[i],tmp.cset[i]);
+						}
+					}
+					else
+					{
+						for(int i=c; i<176; i+=16)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombotranslucent(dest,x,(i&0xF0)+y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
+						}
+					}
+				}
+			}
+		}
+	}
+	
     
     for(int k=4; k<6; k++)
     {
@@ -3634,6 +3738,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
+	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
         int ct1=layer->data[c];
@@ -3645,6 +3750,35 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             overcombo(dest,x,y,layer->data[c],layer->cset[c]);
         }
     }
+    //Overhead L1/2
+	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	{
+		for(int k = 0; k < 2; ++k)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				layermap=layer->layermap[k]-1;
+				
+				if(layermap>-1 && layermap<map_count)
+				{
+					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+					mapscr const& tmp = TheMaps[layerscreen];
+					int i = c;
+					if(layer->layeropacity[k]==255)
+					{
+						if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+							overcombo(dest,x,y,tmp.data[i],tmp.cset[i]);
+					}
+					else
+					{
+						if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+							overcombotranslucent(dest,x,y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
+					}
+				}
+			}
+		}
+	}
+	
     
     for(int k=4; k<6; k++)
     {

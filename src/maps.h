@@ -80,6 +80,7 @@ bool isTouchyType(int type);
 bool isCuttableType(int type);
 bool isCuttableItemType(int type);
 bool isstepable(int combo);                                 //can use ladder on it
+bool isHSGrabbable(newcombo const& cmb);
 bool ishookshottable(int bx, int by);
 bool ishookshottable(int map, int screen, int bx, int by);
 bool hiddenstair(int tmp, bool redraw);                      // tmp = index of tmpscr[]

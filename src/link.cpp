@@ -8995,7 +8995,7 @@ bool LinkClass::startwpn(int itemid)
         {
             if(dir==up)
             {
-                if((combobuf[MAPCOMBO2(i,x,y-7)].type==cHSGRAB)||
+                if(isHSGrabbable(combobuf[MAPCOMBO2(i,x,y-7)])||
                         (_walkflag(x+2,y+4,1) && !ishookshottable(x.getInt(),int(y+4))))
                 {
                     use_hookshot=false;
@@ -9003,21 +9003,21 @@ bool LinkClass::startwpn(int itemid)
             }
             else if(dir==down)
             {
-                if((combobuf[MAPCOMBO2(i,x+12,y+23)].type==cHSGRAB))
+                if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+12,y+23)]))
                 {
                     use_hookshot=false;
                 }
             }
             else if(dir==left)
             {
-                if((combobuf[MAPCOMBO2(i,x-7,y+12)].type==cHSGRAB))
+                if(isHSGrabbable(combobuf[MAPCOMBO2(i,x-7,y+12)]))
                 {
                     use_hookshot=false;
                 }
             }
             else if(dir==right)
             {
-                if((combobuf[MAPCOMBO2(i,x+23,y+12)].type==cHSGRAB))
+                if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+23,y+12)]))
                 {
                     use_hookshot=false;
                 }
@@ -9025,28 +9025,28 @@ bool LinkClass::startwpn(int itemid)
 	    //Diagonal Hookshot (6)
 	    else if(dir==r_down)
             {
-                if((combobuf[MAPCOMBO2(i,x+9,y+13)].type==cHSGRAB))
+                if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+9,y+13)]))
                 {
                     use_hookshot=false;
                 }
             }
 	    else if(dir==l_down)
             {
-                if((combobuf[MAPCOMBO2(i,x+6,y+13)].type==cHSGRAB))
+                if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+6,y+13)]))
                 {
                     use_hookshot=false;
                 }
             }
 	    else if(dir==r_up)
             {
-                if((combobuf[MAPCOMBO2(i,x+9,y+13)].type==cHSGRAB))
+                if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+9,y+13)]))
                 {
                     use_hookshot=false;
                 }
             }
 	    else if(dir==l_up)
             {
-                if((combobuf[MAPCOMBO2(i,x+6,y+13)].type==cHSGRAB))
+                if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+6,y+13)]))
                 {
                     use_hookshot=false;
                 }

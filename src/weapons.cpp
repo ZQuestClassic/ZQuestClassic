@@ -5748,13 +5748,13 @@ bool weapon::animate(int index)
             //Look for grab combos based on direction.
             if(dir==up)
             {
-                if((combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB))
+                if(isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]))
                 {
                     hooked=true;
                 }
                 
                 if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || (combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
                     
                 if(!hooked && _walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7))
                 {
@@ -5764,13 +5764,13 @@ bool weapon::animate(int index)
             
             if(dir==down)
             {
-                if((combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB))
+                if(isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]))
                 {
                     hooked=true;
                 }
                 
                 if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || (combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
                     
                 if(!hooked && _walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12))
                 {
@@ -5782,18 +5782,18 @@ bool weapon::animate(int index)
             {
                 if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
                 {
-                    if(combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB)
+                    if(isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]))
                     {
                         hooked=true;
                     }
                 }
-                else if(combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)
+                else if(isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)]))
                 {
                     hooked=true;
                 }
                 
                 if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB);
+                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]);
                     
                 if(!hooked && _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13))
                 {
@@ -5805,18 +5805,18 @@ bool weapon::animate(int index)
             {
                 if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
                 {
-                    if(combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB)
+                    if(isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]))
                     {
                         hooked=true;
                     }
                 }
-                else if((combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB))
+                else if(isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)]))
                 {
                     hooked=true;
                 }
                 
                 if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB);
+                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]);
                     
                 if(!hooked && _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13))
                 {
@@ -5830,23 +5830,23 @@ bool weapon::animate(int index)
 		{
 			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
 			{	//right						//down
-				if( (combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+				if( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
 				{
 					hooked=true;
 				}
 			}
 
 					//right						//down
-			else if( ( (combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
 			{
 				hooked=true;
 			}
 
 			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
 			{
-				hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB ) || 
+				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]) || 
 				//down
-				(combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+				isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
 			}
                     
 			//right
@@ -5863,7 +5863,7 @@ bool weapon::animate(int index)
 		{
 			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
 			{	//left						//down
-				if( (combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+				if( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
 				{
 					hooked=true;
 				}
@@ -5871,7 +5871,7 @@ bool weapon::animate(int index)
 			
 
 					//left						//down
-			else if( ( (combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
 			{
 				hooked=true;
 			}
@@ -5879,9 +5879,9 @@ bool weapon::animate(int index)
 			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
 			{
 							//left
-				hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB) || 
+				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]) || 
 					//down
-				(combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+				isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
 			}
 			//left
 			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
@@ -5897,23 +5897,23 @@ bool weapon::animate(int index)
 		{
 		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
 			{	//right						//up
-			    if( (combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			    if( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
 				{
 					hooked=true;
 				}
 			}
 
 					//right						//up
-			else if( ( (combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
 			{
 				hooked=true;
 			}
 
 			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
 			{
-				hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB ) || 
+				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]) || 
 				//up
-				(combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+				isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
 			}
 			//right
 			if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
@@ -5927,23 +5927,23 @@ bool weapon::animate(int index)
 		{
 		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
 			{	//left						//up
-				if( (combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+				if( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
 				{
 					hooked=true;
 				}
 			}
 
 					//left						//up
-			else if( ( (combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
 			{
 				hooked=true;
 			}
 
 			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//left
 			{
-				hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB) || 
+				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]) || 
 				//up
-				(combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+				isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
 			}
 							//left
 			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
@@ -8562,13 +8562,13 @@ bool weapon::animateandrunscript(int ii)
             
             if(dir==up)
             {
-                if((combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB))
+                if(isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]))
                 {
                     hooked=true;
                 }
                 
                 if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || (combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
                     
                 if(!hooked && _walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7))
                 {
@@ -8578,13 +8578,13 @@ bool weapon::animateandrunscript(int ii)
             
             if(dir==down)
             {
-                if((combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB))
+                if(isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]))
                 {
                     hooked=true;
                 }
                 
                 if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || (combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
                     
                 if(!hooked && _walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12))
                 {
@@ -8596,18 +8596,18 @@ bool weapon::animateandrunscript(int ii)
             {
                 if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
                 {
-                    if(combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB)
+                    if(isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]))
                     {
                         hooked=true;
                     }
                 }
-                else if(combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)
+                else if(isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)]))
                 {
                     hooked=true;
                 }
                 
                 if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB);
+                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]);
                     
                 if(!hooked && _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13))
                 {
@@ -8619,18 +8619,18 @@ bool weapon::animateandrunscript(int ii)
             {
                 if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
                 {
-                    if(combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB)
+                    if(isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]))
                     {
                         hooked=true;
                     }
                 }
-                else if((combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB))
+                else if(isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)]))
                 {
                     hooked=true;
                 }
                 
                 if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB);
+                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]);
                     
                 if(!hooked && _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13))
                 {
@@ -8643,23 +8643,23 @@ bool weapon::animateandrunscript(int ii)
 		{
 			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
 			{	//right						//down
-				if( (combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+				if( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
 				{
 					hooked=true;
 				}
 			}
 
 					//right						//down
-			else if( ( (combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
 			{
 				hooked=true;
 			}
 
 			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
 			{
-				hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB ) || 
+				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]) || 
 				//down
-				(combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+				isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
 			}
                     
 			//right
@@ -8676,7 +8676,7 @@ bool weapon::animateandrunscript(int ii)
 		{
 			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
 			{	//left						//down
-				if( (combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+				if( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
 				{
 					hooked=true;
 				}
@@ -8684,7 +8684,7 @@ bool weapon::animateandrunscript(int ii)
 			
 
 					//left						//down
-			else if( ( (combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
 			{
 				hooked=true;
 			}
@@ -8692,9 +8692,9 @@ bool weapon::animateandrunscript(int ii)
 			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
 			{
 							//left
-				hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB) || 
+				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]) || 
 					//down
-				(combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+				isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
 			}
 			//left
 			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
@@ -8710,23 +8710,23 @@ bool weapon::animateandrunscript(int ii)
 		{
 		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
 			{	//right						//up
-			    if( (combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			    if( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
 				{
 					hooked=true;
 				}
 			}
 
 					//right						//up
-			else if( ( (combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
 			{
 				hooked=true;
 			}
 
 			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
 			{
-				hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB ) || 
+				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]) || 
 				//up
-				(combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+				isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
 			}
 			//right
 			if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
@@ -8740,23 +8740,23 @@ bool weapon::animateandrunscript(int ii)
 		{
 		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
 			{	//left						//up
-				if( (combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+				if( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
 				{
 					hooked=true;
 				}
 			}
 
 					//left						//up
-			else if( ( (combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
 			{
 				hooked=true;
 			}
 
 			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//left
 			{
-				hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB) || 
+				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]) || 
 				//up
-				(combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+				isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
 			}
 							//left
 			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||

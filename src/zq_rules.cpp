@@ -131,81 +131,88 @@ static int comborules2_list[] =
     22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,-1 
 };
 
+static int comborules3_list[] =
+{
+    38,-1 
+};
+
 static TABPANEL comborules_tabs[] =
 {
     // (text)
     { (char *)" 1 ",     D_SELECTED, comborules1_list, 0, NULL },
     { (char *)" 2 ",     0,          comborules2_list, 0, NULL },
+    { (char *)" 3 ",     0,          comborules3_list, 0, NULL },
     { NULL,              0,          NULL,            0, NULL }
 };
 
 static DIALOG comborules_dlg[] =
 {
-    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Combos", NULL, NULL },
-    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) comborules_tabs, NULL, (void *)comborules_dlg },
-    // 3
-    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
-    // rules
-    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Link Drowns in Walkable Water", NULL, NULL },
-    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Smart Screen Scrolling", NULL, NULL },
-    { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Can't Push Blocks Onto Unwalkable Combos", NULL, NULL },
-    { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Push Blocks Don't Move When Bumped", NULL, NULL },
-    // 10
+	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Combos", NULL, NULL },
+	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) comborules_tabs, NULL, (void *)comborules_dlg },
+	// 3
+	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+	
+	// rules
+	{ jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Link Drowns in Walkable Water", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Smart Screen Scrolling", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Can't Push Blocks Onto Unwalkable Combos", NULL, NULL },
+	{ jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Push Blocks Don't Move When Bumped", NULL, NULL },
+	// 10
 	{ jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Burn Flags Are Triggered Instantly", NULL, NULL },
-    { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams", NULL, NULL },
-    { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirrors Reflect Scripted Whirlwinds", NULL, NULL },
-    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combo Cycling On Layers", NULL, NULL },
-    { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Full Priority Damage Combos", NULL, NULL },
-    // 15
+	{ jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams", NULL, NULL },
+	{ jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirrors Reflect Scripted Whirlwinds", NULL, NULL },
+	{ jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combo Cycling On Layers", NULL, NULL },
+	{ jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Full Priority Damage Combos", NULL, NULL },
+	// 15
 	{ jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Warps Ignore Arrival X/Y Position When Setting Continue Screen", NULL, NULL },
-    { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Warp Return Points Only", NULL, NULL },
-    { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scrolling Warps Don't Set The Continue Point", NULL, NULL },
-    { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old-Style Warp Detection (NES Movement Only)", NULL, NULL },
-    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Damage Combos Work On Layers 1 And 2", NULL, NULL },
-    // 20
+	{ jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Warp Return Points Only", NULL, NULL },
+	{ jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scrolling Warps Don't Set The Continue Point", NULL, NULL },
+	{ jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old-Style Warp Detection (NES Movement Only)", NULL, NULL },
+	{ jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Damage Combos Work On Layers 1 And 2", NULL, NULL },
+	// 20
 	{ jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hookshot Grab Combos Work On Layers 1 And 2", NULL, NULL },
-    // { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Changing DMaps Doesn't Set The Continue Point", NULL, NULL },
-    // { d_dummy_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Mirror and Weapon Interaction", NULL, NULL },
-    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Face Up on Sideview Ladders", NULL, NULL },
-    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Press 'Down' to Fall Through Sideview Platforms", NULL, NULL },
-    { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Press 'Down+Jump' to Fall Through Sideview Platforms", NULL, NULL },
-    // 25
-    { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Falling Through Sideview Platforms Respects 'Drunk' Inputs", NULL, NULL },
-    { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Pressing Down Will Not Grab Sideview Ladders", NULL, NULL },
-    { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Custom Combos Work on Layers 1 and 2", NULL, NULL },
-    { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slash Combos Work on Layers 1 and 2", NULL, NULL },
-    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Combo Animation", NULL, NULL },
-    // 30
-    { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Water Collision", NULL, NULL },
-    { jwin_check_proc,      10, 33+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Water Hopping", NULL, NULL },
-    { jwin_check_proc,      10, 33+110,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Can't Swim in Solid Water", NULL, NULL },
-    { jwin_check_proc,      10, 33+120,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Water works on Layer 1", NULL, NULL },
-    { jwin_check_proc,      10, 33+130,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Water works on Layer 2", NULL, NULL },
-    // 35
-    { jwin_check_proc,      10, 33+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Shallow Water Detection", NULL, NULL },
-    { jwin_check_proc,      10, 33+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fixed Smart Scrolling", NULL, NULL },
-    { jwin_check_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Block Triggers Are Perm For Non-Heavy Blocks", NULL, NULL },
-    
-    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+	{ jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Mirror and Weapon Interaction", NULL, NULL },
+	//tab2 - 22
+	{ jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Face Up on Sideview Ladders", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Press 'Down' to Fall Through Sideview Platforms", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Press 'Down+Jump' to Fall Through Sideview Platforms", NULL, NULL },
+	// 25
+	{ jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Falling Through Sideview Platforms Respects 'Drunk' Inputs", NULL, NULL },
+	{ jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Pressing Down Will Not Grab Sideview Ladders", NULL, NULL },
+	{ jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Custom Combos Work on Layers 1 and 2", NULL, NULL },
+	{ jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slash Combos Work on Layers 1 and 2", NULL, NULL },
+	{ jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Combo Animation", NULL, NULL },
+	// 30
+	{ jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Water Collision", NULL, NULL },
+	{ jwin_check_proc,      10, 33+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Water Hopping", NULL, NULL },
+	{ jwin_check_proc,      10, 33+110,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Can't Swim in Solid Water", NULL, NULL },
+	{ jwin_check_proc,      10, 33+120,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Water works on Layer 1", NULL, NULL },
+	{ jwin_check_proc,      10, 33+130,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Water works on Layer 2", NULL, NULL },
+	// 35
+	{ jwin_check_proc,      10, 33+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Shallow Water Detection", NULL, NULL },
+	{ jwin_check_proc,      10, 33+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fixed Smart Scrolling", NULL, NULL },
+	{ jwin_check_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Block Triggers Are Perm For Non-Heavy Blocks", NULL, NULL },
+	//tab3 - 38
+	{ jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Overhead Combos work on Layers 1 and 2", NULL, NULL },
+	
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 static int comborules[] =
 {
-    qr_DROWN, qr_SMARTSCREENSCROLL, qr_SOLIDBLK, qr_HESITANTPUSHBLOCKS, qr_INSTABURNFLAGS,
-    qr_SWORDMIRROR, qr_WHIRLWINDMIRROR, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI,
-    qr_WARPSIGNOREARRIVALPOINT, qr_NOARRIVALPOINT, qr_NOSCROLLCONTINUE, qr_OLDSTYLEWARP,
-    qr_DMGCOMBOLAYERFIX, qr_HOOKSHOTLAYERFIX, qr_OLDMIRRORCOMBOS, qr_SIDEVIEWLADDER_FACEUP,
+	qr_DROWN, qr_SMARTSCREENSCROLL, qr_SOLIDBLK, qr_HESITANTPUSHBLOCKS, qr_INSTABURNFLAGS,
+	qr_SWORDMIRROR, qr_WHIRLWINDMIRROR, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI,
+	qr_WARPSIGNOREARRIVALPOINT, qr_NOARRIVALPOINT, qr_NOSCROLLCONTINUE, qr_OLDSTYLEWARP,
+	qr_DMGCOMBOLAYERFIX, qr_HOOKSHOTLAYERFIX, qr_OLDMIRRORCOMBOS, qr_SIDEVIEWLADDER_FACEUP,
 	qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS, qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,
 	qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, qr_CUSTOMCOMBOSLAYERS1AND2,
 	qr_BUSHESONLAYERS1AND2, qr_NEW_COMBO_ANIMATION, qr_SMARTER_WATER, qr_NO_HOPPING, qr_NO_SOLID_SWIM, 
 	qr_WATER_ON_LAYER_1, qr_WATER_ON_LAYER_2, qr_SHALLOW_SENSITIVE, qr_SMARTER_SMART_SCROLL,
-	qr_NONHEAVY_BLOCKTRIGGER_PERM,
+	qr_NONHEAVY_BLOCKTRIGGER_PERM,qr_OVERHEAD_COMBOS_L1_L2,
 	
 	-1
 };

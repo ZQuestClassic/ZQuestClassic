@@ -1238,6 +1238,52 @@ bool isstepable(int combo)                                  //can use ladder on 
 	return false;
 }
 
+bool isHSGrabbable(newcombo const& cmb)
+{
+	switch(cmb.type)
+	{
+		case cHSGRAB:
+			return true;
+		case cPUSH_WAIT:
+		case cPUSH_HEAVY:
+		case cPUSH_HW:
+		case cL_STATUE:
+		case cR_STATUE:
+		case cPUSH_HEAVY2:
+		case cPUSH_HW2:
+		case cPOUND:
+		case cC_STATUE:
+		case cMIRROR:
+		case cMIRRORSLASH:
+		case cMIRRORBACKSLASH:
+		case cMAGICPRISM:
+		case cMAGICPRISM4:
+		case cMAGICSPONGE:
+		case cEYEBALL_A:
+		case cEYEBALL_B:
+		case cEYEBALL_4:
+		case cBUSH:
+		case cFLOWERS:
+		case cLOCKBLOCK:
+		case cLOCKBLOCK2:
+		case cBOSSLOCKBLOCK:
+		case cBOSSLOCKBLOCK2:
+		case cCHEST:
+		case cCHEST2:
+		case cLOCKEDCHEST:
+		case cLOCKEDCHEST2:
+		case cBOSSCHEST:
+		case cBOSSCHEST2:
+		case cBUSHNEXT:
+		case cBUSHTOUCHY:
+		case cFLOWERSTOUCHY:
+		case cBUSHNEXTTOUCHY:
+			return (cmb.usrflags&cflag16)?true:false;
+		default:
+			return false;
+	}
+}
+
 bool ishookshottable(int bx, int by)
 {
     if(!_walkflag(bx,by,1))
@@ -2716,12 +2762,60 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
     case -1:                                                //over combo
         for(int i=0; i<176; i++)
         {
-//        if (combobuf[layer->data[i]].type==cOLD_OVERHEAD)
             if(combo_class_buf[combobuf[layer->data[i]].type].overhead)
             {
                 overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
             }
         }
+		if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+		{
+			for(int lyr = 0; lyr <= 1; ++lyr)
+			if(TransLayers || layer->layeropacity[lyr]==255)
+			{
+				if(layer->layermap[lyr]>0)
+				{
+					mapscr const& tmp = (tempscreen==2?tmpscr2[lyr]:tmpscr3[lyr]);
+					if(scrolling)
+					{
+						if(layer->layeropacity[lyr]==255)
+						{
+							for(int i=0; i<176; i++)
+							{
+								if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
+						}
+						else
+						{
+							for(int i=0; i<176; i++)
+							{
+								if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[lyr]);
+							}
+						}
+					}
+					else
+					{
+						if(layer->layeropacity[lyr]==255)
+						{
+							for(int i=0; i<176; i++)
+							{
+								if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
+						}
+						else
+						{
+							for(int i=0; i<176; i++)
+							{
+								if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[lyr]);
+							}
+						}
+					}
+				}
+			}
+		}
         
         break;
         
@@ -2736,78 +2830,39 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
         {
             if(layer->layermap[type]>0)
             {
+				mapscr const& tmp = (tempscreen==2?tmpscr2[type]:tmpscr3[type]);
                 if(scrolling)
                 {
                     if(layer->layeropacity[type]==255)
                     {
-                        if(tempscreen==2)
-                        {
-                            for(int i=0; i<176; i++)
-                            {
-                                overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                            }
-                        }
-                        else
-                        {
-                            for(int i=0; i<176; i++)
-                            {
-                                overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                            }
-                        }
+						for(int i=0; i<176; i++)
+						{
+							overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+						}
                     }
                     else
                     {
-                        if(tempscreen==2)
-                        {
-                            for(int i=0; i<176; i++)
-                            {
-                                overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
-                            }
-                        }
-                        else
-                        {
-                            for(int i=0; i<176; i++)
-                            {
-                                overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
-                            }
-                        }
+						for(int i=0; i<176; i++)
+						{
+							overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+						}
                     }
                 }
                 else
                 {
                     if(layer->layeropacity[type]==255)
                     {
-                        if(tempscreen==2)
-                        {
-                            for(int i=0; i<176; i++)
-                            {
-                                overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                            }
-                        }
-                        else
-                        {
-                            for(int i=0; i<176; i++)
-                            {
-                                overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                            }
-                        }
+						for(int i=0; i<176; i++)
+						{
+							overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+						}
                     }
                     else
                     {
-                        if(tempscreen==2)
-                        {
-                            for(int i=0; i<176; i++)
-                            {
-                                overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
-                            }
-                        }
-                        else
-                        {
-                            for(int i=0; i<176; i++)
-                            {
-                                overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
-                            }
-                        }
+						for(int i=0; i<176; i++)
+						{
+							overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+						}
                     }
                 }
             }
@@ -2820,80 +2875,41 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
         {
             if(layer->layermap[type]>0)
             {
+				mapscr const& tmp = (tempscreen==2?tmpscr2[type]:tmpscr3[type]);
                 if(scrolling)
                 {
                     if(layer->layeropacity[type]==255)
                     {
                         if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                         else
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                     }
                     else
                     {
                         if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                         else
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+							}
                         }
                     }
                 }
@@ -2903,74 +2919,34 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
                     {
                         if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                         else
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                     }
                     else
                     {
                         if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                         else
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+							}
                         }
                     }
                 }
@@ -2984,80 +2960,41 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
         {
             if(layer->layermap[type]>0)
             {
+				mapscr const& tmp = (tempscreen==2?tmpscr2[type]:tmpscr3[type]);
                 if(scrolling)
                 {
                     if(layer->layeropacity[type]==255)
                     {
                         if( (layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) && !(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                         else
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                     }
                     else
                     {
                         if( (layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) && !(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                         else
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+							}
                         }
                     }
                 }
@@ -3067,74 +3004,34 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
                     {
                         if((layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) &&!(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                         else
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                     }
                     else
                     {
                         if((layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) &&!(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
                         }
                         else
                         {
-                            if(tempscreen==2)
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
-                                }
-                            }
-                            else
-                            {
-                                for(int i=0; i<176; i++)
-                                {
-                                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
-                                }
-                            }
+							for(int i=0; i<176; i++)
+							{
+								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+							}
                         }
                     }
                 }
