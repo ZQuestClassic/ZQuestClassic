@@ -141,6 +141,8 @@ void RecursiveVisitor::caseBlock(ASTBlock& host, void* param)
 
 void RecursiveVisitor::caseStmtIf(ASTStmtIf& host, void* param)
 {
+	if(host.isDecl())
+		visit(host.declaration.get(), param);
 	visit(host.condition.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.thenStatement.get(), param);

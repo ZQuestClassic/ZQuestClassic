@@ -185,7 +185,22 @@ void SemanticAnalyzer::caseBlock(ASTBlock& host, void*)
 
 void SemanticAnalyzer::caseStmtIf(ASTStmtIf& host, void*)
 {
+	// Switch to block scope.
+	if(!host.getScope())
+	{
+		host.setScope(scope->makeChild());
+	}
+	Scope* oldscope = scope;
+	scope = host.getScope();
+
+	if(host.isDecl() && !host.condition.get())
+		host.condition = new ASTExprIdentifier(host.declaration->name, host.location);
+		
+	// Recurse.
     RecursiveVisitor::caseStmtIf(host);
+	
+	// Restore scope.
+	scope = oldscope;
     if (breakRecursion(host)) return;
 
 	checkCast(*host.condition->getReadType(scope, this), DataType::UNTYPED, &host);
@@ -194,9 +209,6 @@ void SemanticAnalyzer::caseStmtIf(ASTStmtIf& host, void*)
 void SemanticAnalyzer::caseStmtIfElse(ASTStmtIfElse& host, void*)
 {
     RecursiveVisitor::caseStmtIfElse(host);
-    if (breakRecursion(host)) return;
-
-	checkCast(*host.condition->getReadType(scope, this), DataType::UNTYPED, &host);
 }
 
 void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void* param)

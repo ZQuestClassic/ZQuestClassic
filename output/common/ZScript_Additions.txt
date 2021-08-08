@@ -1105,6 +1105,29 @@ cases where you are not using the base function in an assign.
 	In this example, the code block would never run, because x == 6. 
 	This is the opposite of 'if', and supports 'else unless' and 'else'
 	blocks following the unless statement.
+
+//////////////////////////////////
+// Declarations in Conditionals //
+//////////////////////////////////
+
+	If statements can now have a single variable declared (must be initialized) inside their conditional check.
+	The variable will be accessible during the 'then' block (not the 'else' block, if present). The initial value
+		of the variable is read as the condition.
+
+	Example: 
+		if(npc n = GetClosestNPC(32))
+		{
+			DoSomething(n->X, n->Y);
+		}
+		else
+		{
+			DoSomethingElse(); //no enemies in range
+		}
+	
+	(For this example, assume that 'GetClosestNPC()' returns 'NULL' if no enemy is found)
+	In this example, if the GetClosestNPC() function finds an enemy (i.e. does not return NULL), then
+		the 'then' block will run, doing something with the enemy's position.
+	If no enemy is found (the function returned NULL), then the else block will run instead.
 	
 	
 ////////////

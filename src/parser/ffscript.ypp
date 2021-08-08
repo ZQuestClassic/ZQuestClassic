@@ -73,7 +73,7 @@ extern YYLTYPE noloc;
 }
 
 %glr-parser
-%expect 5
+%expect 4
 %error-verbose
 %start Init
 %parse-param {boost::movelib::unique_ptr<ZScript::ASTFile>& root}
@@ -223,6 +223,10 @@ extern YYLTYPE noloc;
 %token NUMBER
 %token LONGNUMBER
 %token SCRIPTSTRUCT
+
+ // Precedence setting
+%precedence RPAREN
+%precedence ELSE
 
 %%
 
@@ -604,6 +608,19 @@ Data_Element_Array_List :
 			delete name;}
 	;
 
+Single_Data_req_assign :
+	DataType Identifier ASSIGN Expression {
+		ASTDataType* type = (ASTDataType*)$1;
+		ASTString* name = (ASTString*)$2;
+		ASTDataDecl* element = new ASTDataDecl(@$);
+		element->name = name->getValue();
+		ASTExpr* initializer = (ASTExpr*)$4;
+		element->setInitializer(initializer);
+		element->baseType = type;
+		element->location = @$;
+		$$ = element;}
+	;
+
 Data_Element_Array_Element :
 	LBRACKET Data_Element_Array_Element_Size_List RBRACKET {
 		ASTDataDeclExtraArray* extraArray = (ASTDataDeclExtraArray*)$2;
@@ -971,14 +988,23 @@ Statement_If :
 	;
 	
 If_Body :
-	LPAREN Expression RPAREN Block_Statement {
+	LPAREN Single_Data_req_assign RPAREN Block_Statement {
+		ASTDataDecl* decl = (ASTDataDecl*)$2;
+		ASTBlock* stmt = (ASTBlock*)$4;
+		$$ = new ASTStmtIf(decl, stmt, @$);}
+	| LPAREN Single_Data_req_assign RPAREN Block_Statement ELSE Block_Statement {
+		ASTDataDecl* decl = (ASTDataDecl*)$2;
+		ASTBlock* thenStatement = (ASTBlock*)$4;
+		ASTBlock* elseStatement = (ASTBlock*)$6;
+		$$ = new ASTStmtIfElse(decl, thenStatement, elseStatement, @$);}
+	| LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* cond = (ASTExpr*)$2;
-		ASTStmt* stmt = (ASTStmt*)$4;
+		ASTBlock* stmt = (ASTBlock*)$4;
 		$$ = new ASTStmtIf(cond, stmt, @$);}
 	| LPAREN Expression RPAREN Block_Statement ELSE Block_Statement {
 		ASTExpr* test = (ASTExpr*)$2;
-		ASTStmt* thenStatement = (ASTStmt*)$4;
-		ASTStmt* elseStatement = (ASTStmt*)$6;
+		ASTBlock* thenStatement = (ASTBlock*)$4;
+		ASTBlock* elseStatement = (ASTBlock*)$6;
 		$$ = new ASTStmtIfElse(test, thenStatement, elseStatement, @$);}
 	;
 

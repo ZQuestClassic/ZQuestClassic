@@ -487,9 +487,16 @@ void ASTBlock::execute(ASTVisitor& visitor, void* param)
 // ASTStmtIf
 
 ASTStmtIf::ASTStmtIf(ASTExpr* condition,
-					 ASTStmt* thenStatement,
+					 ASTBlock* thenStatement,
 					 LocationData const& location)
-	: ASTStmt(location), condition(condition), thenStatement(thenStatement), inverted(false)
+	: ASTStmt(location), condition(condition), declaration(NULL), thenStatement(thenStatement), inverted(false), _isDecl(false),
+		scope(NULL)
+{}
+ASTStmtIf::ASTStmtIf(ASTDataDecl* declaration,
+					 ASTBlock* thenStatement,
+					 LocationData const& location)
+	: ASTStmt(location), condition(NULL), declaration(declaration), thenStatement(thenStatement), inverted(false), _isDecl(true),
+		scope(NULL)
 {}
 
 void ASTStmtIf::execute(ASTVisitor& visitor, void* param)
@@ -500,9 +507,15 @@ void ASTStmtIf::execute(ASTVisitor& visitor, void* param)
 // ASTStmtIfElse
     
 ASTStmtIfElse::ASTStmtIfElse(
-		ASTExpr* condition, ASTStmt* thenStatement,
-		ASTStmt* elseStatement, LocationData const& location)
+		ASTExpr* condition, ASTBlock* thenStatement,
+		ASTBlock* elseStatement, LocationData const& location)
 	: ASTStmtIf(condition, thenStatement, location),
+	  elseStatement(elseStatement)
+{}
+ASTStmtIfElse::ASTStmtIfElse(
+		ASTDataDecl* declaration, ASTBlock* thenStatement,
+		ASTBlock* elseStatement, LocationData const& location)
+	: ASTStmtIf(declaration, thenStatement, location),
 	  elseStatement(elseStatement)
 {}
 
