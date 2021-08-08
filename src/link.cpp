@@ -8265,7 +8265,7 @@ void LinkClass::deselectbombs(int super)
     else if (getItemFamily(itemsbuf,Ywpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
     {
         int temp = selectWpn_new(SEL_VERIFY_LEFT, game->ywpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, game->awpn);
-        Xwpn = Bweapon(temp);
+        Ywpn = Bweapon(temp);
         directItemY = directItem;
         game->ywpn = temp;
     }
@@ -9237,27 +9237,41 @@ bool LinkClass::startwpn(int itemid)
         ret = false;
     }
     
-    if(itemsbuf[itemid].flags & ITEM_DOWNGRADE)
-    {
-        game->set_item(itemid,false);
-        
-        // Maybe Item Override has allowed the same item in both slots?
-        if(Bwpn == itemid)
-        {
-            Bwpn = 0;
-	    game->forced_bwpn = -1;
-            verifyBWpn();
-        }
-        
-        if(Awpn == itemid)
-        {
-            Awpn = 0;
-	    game->forced_awpn = -1;
-            verifyAWpn();
-        }
-    }
-    
-    return ret;
+	if(itemsbuf[itemid].flags & ITEM_DOWNGRADE)
+	{
+		game->set_item(itemid,false);
+		
+		// Maybe Item Override has allowed the same item in both slots?
+		if(Bwpn == itemid)
+		{
+			Bwpn = 0;
+			game->forced_bwpn = -1;
+			verifyBWpn();
+		}
+		
+		if(Awpn == itemid)
+		{
+			Awpn = 0;
+			game->forced_awpn = -1;
+			verifyAWpn();
+		}
+		
+		if(Xwpn == itemid)
+		{
+			Xwpn = 0;
+			game->forced_xwpn = -1;
+			verifyXWpn();
+		}
+		
+		if(Ywpn == itemid)
+		{
+			Ywpn = 0;
+			game->forced_ywpn = -1;
+			verifyYWpn();
+		}
+	}
+
+	return ret;
 }
 
 
@@ -22419,10 +22433,28 @@ void selectNextAWpn(int type)
 
 void selectNextBWpn(int type)
 {
-    int ret = selectWpn_new(type, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-    Bwpn = Bweapon(ret);
-    directItemB = directItem;
-    game->bwpn = ret;
+	int ret = selectWpn_new(type, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+	Bwpn = Bweapon(ret);
+	directItemB = directItem;
+	game->bwpn = ret;
+}
+
+void selectNextXWpn(int type)
+{
+	if(!get_bit(quest_rules,qr_SET_XBUTTON_ITEMS)) return;
+	int ret = selectWpn_new(type, game->xwpn, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+	Xwpn = Bweapon(ret);
+	directItemX = directItem;
+	game->xwpn = ret;
+}
+
+void selectNextYWpn(int type)
+{
+	if(!get_bit(quest_rules,qr_SET_YBUTTON_ITEMS)) return;
+	int ret = selectWpn_new(type, game->ywpn, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1);
+	Ywpn = Bweapon(ret);
+	directItemY = directItem;
+	game->ywpn = ret;
 }
 
 void verifyAWpn()
