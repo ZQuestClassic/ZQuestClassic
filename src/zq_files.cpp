@@ -727,31 +727,7 @@ int PickRuleset()
 			}
 			case rulesetZ3: // Zelda 3-esque
 			{
-				set_bit(quest_rules, qr_DROWN, 1);
-				//Make water drownable
-				for(int i=0; i < MAXCOMBOS; ++i)
-				{
-					if(combo_class_buf[combobuf[i].type].water!=0)
-					{
-						combobuf[i].walk = 0;
-					}
-				}
-				set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
-				set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
-				set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
-				set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
-				set_bit(quest_rules, qr_MSGFREEZE, 1);
-				//set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
-				set_bit(quest_rules, qr_ENABLEMAGIC, 1);
-				set_bit(quest_rules, qr_NOWANDMELEE, 1);
-				set_bit(quest_rules, qr_TRUEARROWS, 1);
-				set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
-				set_bit(quest_rules, qr_TRANSSHADOWS, 1);
-				set_bit(quest_rules, qr_SHADOWS, 1);
-				set_bit(quest_rules, qr_LTTPWALK, 1);
-				set_bit(quest_rules, qr_MORESOUNDS, 1);
-				set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
-				//From BSZ
+				//{From BSZ
 				set_bit(quest_rules, qr_TIME, 1);
 				set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
 				set_bit(quest_rules, qr_NEWENEMYTILES, 1);
@@ -765,33 +741,18 @@ int PickRuleset()
 				set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
 				set_bit(quest_rules, qr_EXPANDEDLTM, 1);
 				set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
-				break;
-			}
-			case rulesetModern: // Modern-style
-			{
-				//Modern
-				set_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR, 1);
-				set_bit(quest_rules, qr_DUNGEON_DMAPS_PERM_SECRETS, 1);
-				set_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS, 1);
-				set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTRE, 1);
-				set_bit(quest_rules, qr_SPRITEXY_IS_FLOAT, 1);
-				set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
-				set_bit(quest_rules, qr_ITEMSHADOWS, 1);
-				set_bit(quest_rules, qr_WEAPONSHADOWS, 1);
-				set_bit(quest_rules, qr_NEW_HERO_MOVEMENT, 1);
-				//set_bit(quest_rules, qr_STEP_IS_FLOAT, 1); //Step is broken in A72, needs to be fixed before we can use this. 
-				set_bit(quest_rules, qr_HOLDITEMANIMATION, 1);
-				set_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK, 1);
-				//from Z3
+				//}
+				//{Z3
 				//Make water drownable
 				set_bit(quest_rules, qr_DROWN, 1);
-				for(int i=0; i < MAXCOMBOS; ++i)
-				{
-					if(combo_class_buf[combobuf[i].type].water!=0)
+				if(jwin_alert("Water Conversion","Convert all water to non-solid?", NULL, NULL, "&Yes", "&No", 'y', 'n',lfont) == 1)
+					for(int i=0; i < MAXCOMBOS; ++i)
 					{
-						combobuf[i].walk = 0;
+						if(combo_class_buf[combobuf[i].type].water!=0)
+						{
+							combobuf[i].walk &= ~0x0F; //Non-solid
+						}
 					}
-				}
 				set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
 				set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
 				set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
@@ -807,7 +768,12 @@ int PickRuleset()
 				set_bit(quest_rules, qr_LTTPWALK, 1);
 				set_bit(quest_rules, qr_MORESOUNDS, 1);
 				set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
-				//from BSZ
+				//}
+				break;
+			}
+			case rulesetModern: // Modern-style
+			{
+				//{from BSZ
 				set_bit(quest_rules, qr_TIME, 1);
 				set_bit(quest_rules, qr_NOBOMBPALFLASH, 1);
 				set_bit(quest_rules, qr_NEWENEMYTILES, 1);
@@ -820,11 +786,58 @@ int PickRuleset()
 				set_bit(quest_rules, qr_INSTABURNFLAGS, 1);
 				set_bit(quest_rules, qr_FADE, 1); // Interpolated fading
 				set_bit(quest_rules, qr_EXPANDEDLTM, 1);
+				set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);
+				//}
+				//{from Z3
+				//Make water drownable
+				set_bit(quest_rules, qr_DROWN, 1);
+				if(jwin_alert("Water Conversion","Convert all water to non-solid?", NULL, NULL, "&Yes", "&No", 'y', 'n',lfont) == 1)
+					for(int i=0; i < MAXCOMBOS; ++i)
+					{
+						if(combo_class_buf[combobuf[i].type].water!=0)
+						{
+							combobuf[i].walk &= ~0x0F; //Non-solid
+						}
+					}
+				set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
+				set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
+				set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
+				set_bit(quest_rules, qr_MSGDISAPPEAR, 1);
+				set_bit(quest_rules, qr_MSGFREEZE, 1);
+				//set_bit(quest_rules, qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
+				set_bit(quest_rules, qr_ENABLEMAGIC, 1);
+				set_bit(quest_rules, qr_NOWANDMELEE, 1);
+				set_bit(quest_rules, qr_TRUEARROWS, 1);
+				set_bit(quest_rules, qr_Z3BRANG_HSHOT, 1);
+				set_bit(quest_rules, qr_TRANSSHADOWS, 1);
+				set_bit(quest_rules, qr_SHADOWS, 1);
+				set_bit(quest_rules, qr_LTTPWALK, 1);
+				set_bit(quest_rules, qr_MORESOUNDS, 1);
+				set_bit(quest_rules, qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
+				//}
+				//{Modern
+				set_bit(quest_rules, qr_OLDSPRITEDRAWS, 0);
+				set_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR, 1);
+				set_bit(quest_rules, qr_DUNGEON_DMAPS_PERM_SECRETS, 1);
+				set_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS, 1);
+				set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTRE, 1);
+				set_bit(quest_rules, qr_SPRITEXY_IS_FLOAT, 1);
+				set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
+				set_bit(quest_rules, qr_ITEMSHADOWS, 1);
+				set_bit(quest_rules, qr_WEAPONSHADOWS, 1);
+				set_bit(quest_rules, qr_NEW_HERO_MOVEMENT, 1);
+				//set_bit(quest_rules, qr_STEP_IS_FLOAT, 1); //Step is broken in A72, needs to be fixed before we can use this. 
+				set_bit(quest_rules, qr_HOLDITEMANIMATION, 1);
+				set_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK, 1);
 				set_bit(quest_rules, qr_NO_HOPPING, 1);
 				set_bit(quest_rules, qr_NO_SOLID_SWIM, 1);
 				set_bit(quest_rules, qr_WATER_ON_LAYER_1, 1);
 				set_bit(quest_rules, qr_WATER_ON_LAYER_2, 1);
 				set_bit(quest_rules, qr_SHALLOW_SENSITIVE, 1);
+				set_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM, 1);
+				set_bit(quest_rules, qr_CORRECTED_EW_BRANG_ANIM, 1);
+				set_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2, 1);
+				//}
 				break;
 			}
 		}
