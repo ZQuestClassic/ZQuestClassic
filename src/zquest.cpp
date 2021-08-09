@@ -9509,6 +9509,12 @@ int draw_block_3_2()
     return D_O_K;
 }
 
+int draw_block_3_3()
+{
+    draw_block(mousecomboposition,3,3);
+    return D_O_K;
+}
+
 int draw_block_4_2()
 {
     draw_block(mousecomboposition,4,2);
@@ -9528,6 +9534,7 @@ static MENU draw_block_menu[] =
     { (char *)"2x2",                     draw_block_2_2,  NULL,    0, NULL },
     { (char *)"2x3",                     draw_block_2_3,  NULL,    0, NULL },
     { (char *)"3x2",                     draw_block_3_2,  NULL,    0, NULL },
+    { (char *)"3x3",                     draw_block_3_3,  NULL,    0, NULL },
     { (char *)"4x2",                     draw_block_4_2,  NULL,    0, NULL },
     { (char *)"4x4",                     draw_block_4_4,  NULL,    0, NULL },
     { NULL,                              NULL,            NULL,    0, NULL }
