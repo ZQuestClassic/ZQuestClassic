@@ -307,6 +307,7 @@ public:
     void checkbosslockblock();
     void checklockblock();
     void checkswordtap();
+    void oldcheckchest(int type);
     void checkchest(int type);
     void checktouchblk();
     void checklocked();

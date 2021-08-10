@@ -17257,9 +17257,11 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{ //65
 		cCHEST,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+		  "Can't use from top","Can't use from bottom","Can't use from left","Can't use from right",
+		  NULL,NULL,NULL,"Hook-Grabbable"},
 		{ NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,"Button",NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
@@ -17271,9 +17273,11 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cLOCKEDCHEST,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+		  "Can't use from top","Can't use from bottom","Can't use from left","Can't use from right",
+		  NULL,NULL,NULL,"Hook-Grabbable"},
 		{ NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,"Button",NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
@@ -17285,9 +17289,11 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cBOSSCHEST,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+		  "Can't use from top","Can't use from bottom","Can't use from left","Can't use from right",
+		  NULL,NULL,NULL,"Hook-Grabbable"},
 		{ NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,"Button",NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //70
