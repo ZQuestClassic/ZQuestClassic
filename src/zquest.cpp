@@ -13369,7 +13369,7 @@ static int edit_scrdata1[] = // Flags 1
 {
     //6,8,10,11,12,15,18,19,21,22,24,37,57,59,60,-1
     118,45,46,57,  119,21,58,22,24,54,55,8, //Ordered as they are on the dialog
-    120,6,43,47,50,  121,37,42,12,135,23,  122,18,56,  -1
+    120,6,43,47,50,  121,37,42,12,135,23,  -1
 };
 
 static int edit_scrdata3[] = // Flags 2
@@ -13401,10 +13401,16 @@ static int edit_scrdata6[] = // Timed Warp
     26, 27, 28,29,30,40,117,-1
 };
 
+static int edit_scrdata7[] = // Screen flags 3
+{
+    122,18,56,-1
+};
+
 static TABPANEL scrdata_tabs[] =
 {
     { (char *)"S.Flags 1", D_SELECTED, edit_scrdata1, 0, NULL },
     { (char *)"S.Flags 2", 0,          edit_scrdata3, 0, NULL },
+    { (char *)"S.Flags 3", 0,          edit_scrdata7, 0, NULL },
     { (char *)"E.Flags",   0,          edit_scrdata5, 0, NULL },
     { (char *)"S.Data 1",  0,          edit_scrdata2, 0, NULL },
     { (char *)"S.Data 2",  0,          edit_scrdata4, 0, NULL },
@@ -13493,7 +13499,7 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,      15,   178,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Traps Ignore Walkability", NULL, NULL },
     { jwin_check_proc,      165,  158,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enemies->Secret", NULL, NULL },
     //18
-    { jwin_check_proc,      165, 188,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Hold Up Item", NULL, NULL },
+    { jwin_check_proc,      15,   78,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Hold Up Item", NULL, NULL },
     //S.Flags 2
     { jwin_check_proc,      15,   88,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Cycle Combos On Screen Init", NULL, NULL },
     //E. Flags //20
@@ -13559,7 +13565,7 @@ static DIALOG scrdata_dlg[] =
     //54
     { jwin_check_proc,      15,  168,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Layer 3 Is Background", NULL, NULL },
     { jwin_check_proc,      15,  158,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Layer 2 Is Background", NULL, NULL },
-    { jwin_check_proc,      165,  198,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Item Falls From Ceiling", NULL, NULL },
+    { jwin_check_proc,      15,   88,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Item Falls From Ceiling", NULL, NULL },
     { jwin_check_proc,      15,    98,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Sideview Gravity", NULL, NULL },
     { jwin_check_proc,      15,   128,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No Link Marker in Minimap", NULL, NULL },
     //S. Flags 2
@@ -13636,7 +13642,7 @@ static DIALOG scrdata_dlg[] =
     { jwin_text_proc,       15,  108,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "View", NULL, NULL },
     { jwin_text_proc,      165,   68,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Secrets", NULL, NULL },
     { jwin_text_proc,      165,  118,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Warp", NULL, NULL },
-    { jwin_text_proc,      165,  178,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Items", NULL, NULL },
+    { jwin_text_proc,       15,   68,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Items", NULL, NULL },
     { jwin_text_proc,       15,   68,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Combos", NULL, NULL },
     { jwin_text_proc,       15,  118,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Save", NULL, NULL },
     { jwin_text_proc,       15,  168,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "FFC", NULL, NULL },
@@ -13648,11 +13654,12 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,     165,  158,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "General Use 3 (Scripts)", NULL, NULL },
     { jwin_check_proc,     165,  168,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "General Use 4 (Scripts)", NULL, NULL },
     { jwin_check_proc,     165,  178,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "General Use 5 (Scripts)", NULL, NULL },
-    
+    //133
     { jwin_text_proc,       17,  160,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Lens Effect:", NULL, NULL },
     { jwin_droplist_proc,   17,  168,     133,   16,          0,            0,             0,  0,  0,  0, (void *) & lenseffect_list, NULL, NULL },
-    
+    //135
     { jwin_check_proc,     165,  158,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "Maze Overrides Side Warps", NULL, NULL },
+    { jwin_check_proc,      15,   98,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Secrets->Item", NULL, NULL },
     { NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
 };
 
@@ -13926,6 +13933,8 @@ int onScrData()
     scrdata_dlg[131].flags = (f&8) ? D_SELECTED : 0;
     scrdata_dlg[132].flags = (f&16) ? D_SELECTED : 0;
     scrdata_dlg[135].flags = (f&32) ? D_SELECTED : 0;
+    f = Map.CurrScr()->flags9;
+    scrdata_dlg[136].flags = (f&1) ? D_SELECTED : 0;
     
     word g = Map.CurrScr()->noreset;
     scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
@@ -14045,6 +14054,10 @@ int onScrData()
         f |= scrdata_dlg[132].flags & D_SELECTED ? 16:0;
         f |= scrdata_dlg[135].flags & D_SELECTED ? 32:0;
         Map.CurrScr()->flags8 = f;
+	
+	f=0;
+        f |= scrdata_dlg[136].flags & D_SELECTED ? 1:0;
+        Map.CurrScr()->flags9 = f;
         
         g=0;
         g |= scrdata_dlg[74].flags & D_SELECTED ? mSECRET:0;

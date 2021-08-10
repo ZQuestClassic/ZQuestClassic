@@ -1619,7 +1619,7 @@ void FFScript::set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 		case MSF_SIDEVIEW: 
 			if ( state )
 				m->flags7 |= 8;
-			else m->flags6 &= ~8;
+			else m->flags7 &= ~8;
 			break;
 		
 		// View

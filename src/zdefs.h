@@ -534,6 +534,9 @@ extern bool fake_pack_writing;
 #define fGENERALSCRIPT5 	16 //'S.Flags2' General Use 5 (Scripts)
 #define fMAZEvSIDEWARP 		32 //'S.Flags1' Maze overrides side warps
 
+//flags9
+#define fSECRETITEM 		1 //'S.Flags3' Secrets->Item
+
 //lens layer effects
 #define llNORMAL        0
 #define llLENSHIDES     8
