@@ -527,15 +527,15 @@ extern bool fake_pack_writing;
 
 //flags8
 // 1 - 16 are General Purpose (Scripts)
-#define fGENERALSCRIPT1 	1 //'S.Flags2' General Use 1 (Scripts)
-#define fGENERALSCRIPT2 	2 //'S.Flags2' General Use 2 (Scripts)
-#define fGENERALSCRIPT3 	4 //'S.Flags2' General Use 3 (Scripts)
-#define fGENERALSCRIPT4 	8 //'S.Flags2' General Use 4 (Scripts)
-#define fGENERALSCRIPT5 	16 //'S.Flags2' General Use 5 (Scripts)
-#define fMAZEvSIDEWARP 		32 //'S.Flags1' Maze overrides side warps
+#define fGENERALSCRIPT1 	0x01 //'S.Flags2' General Use 1 (Scripts)
+#define fGENERALSCRIPT2 	0x02 //'S.Flags2' General Use 2 (Scripts)
+#define fGENERALSCRIPT3 	0x04 //'S.Flags2' General Use 3 (Scripts)
+#define fGENERALSCRIPT4 	0x08 //'S.Flags2' General Use 4 (Scripts)
+#define fGENERALSCRIPT5 	0x10 //'S.Flags2' General Use 5 (Scripts)
+#define fMAZEvSIDEWARP 		0x20 //'S.Flags1' Maze overrides side warps
+#define fSECRETITEM 		0x40 //'S.Flags3' Secrets->Item
 
 //flags9
-#define fSECRETITEM 		1 //'S.Flags3' Secrets->Item
 
 //lens layer effects
 #define llNORMAL        0

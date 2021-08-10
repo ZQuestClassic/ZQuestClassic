@@ -19581,7 +19581,9 @@ void loaditem()
 		
 		if(!getmapflag(mITEM) && (tmpscr->hasitem != 0))
 		{
-			if(tmpscr->flags&fITEM)
+			if(tmpscr->flags8&fSECRETITEM)
+				hasitem=8;
+			else if(tmpscr->flags&fITEM)
 				hasitem=1;
 			else if(tmpscr->enemyflags&efCARRYITEM)
 				hasitem=4; // Will be set to 2 by roaming_item
@@ -20471,7 +20473,7 @@ placed_enemy:
 				}
 			}
 			
-			if(!foundCarrier && (hasitem)>1)
+			if(!foundCarrier && hasitem&(4|2))
 			{
 				int index = guys.idFirst(tmpscr->enemy[i],0xFFF);
 				
@@ -21666,7 +21668,7 @@ int more_carried_items()
 // messy code to do the enemy-carrying-the-item thing
 void roaming_item()
 {
-	if(hasitem<2 || !loaded_enemies)
+	if(!(hasitem&(4|2)) || !loaded_enemies)
 		return;
 	
 	// All enemies already dead upon entering a room?

@@ -14,6 +14,9 @@
 
 #define DRIEDLAKE ((tmpscr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
 #define COMBOPOS(x,y) (((y)&0xF0)+((x)>>4))
+
+extern bool triggered_screen_secrets;
+
 void debugging_box(int x1, int y1, int x2, int y2);
 void clear_dmap(word i);
 void clear_dmaps();

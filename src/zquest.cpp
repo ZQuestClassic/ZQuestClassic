@@ -13933,8 +13933,7 @@ int onScrData()
     scrdata_dlg[131].flags = (f&8) ? D_SELECTED : 0;
     scrdata_dlg[132].flags = (f&16) ? D_SELECTED : 0;
     scrdata_dlg[135].flags = (f&32) ? D_SELECTED : 0;
-    f = Map.CurrScr()->flags9;
-    scrdata_dlg[136].flags = (f&1) ? D_SELECTED : 0;
+    scrdata_dlg[136].flags = (f&fSECRETITEM) ? D_SELECTED : 0;
     
     word g = Map.CurrScr()->noreset;
     scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
@@ -14045,20 +14044,20 @@ int onScrData()
         f |= scrdata_dlg[59].flags & D_SELECTED ? 64:0;
         f |= scrdata_dlg[60].flags & D_SELECTED ? 128:0;
         Map.CurrScr()->flags7 = f;
-        
-        f=0;
-        f |= scrdata_dlg[128].flags & D_SELECTED ? 1:0;
-        f |= scrdata_dlg[129].flags & D_SELECTED ? 2:0;
-        f |= scrdata_dlg[130].flags & D_SELECTED ? 4:0;
-        f |= scrdata_dlg[131].flags & D_SELECTED ? 8:0;
-        f |= scrdata_dlg[132].flags & D_SELECTED ? 16:0;
-        f |= scrdata_dlg[135].flags & D_SELECTED ? 32:0;
-        Map.CurrScr()->flags8 = f;
-	
-	f=0;
-        f |= scrdata_dlg[136].flags & D_SELECTED ? 1:0;
-        Map.CurrScr()->flags9 = f;
-        
+		
+		f=0;
+		f |= scrdata_dlg[128].flags & D_SELECTED ? 1:0;
+		f |= scrdata_dlg[129].flags & D_SELECTED ? 2:0;
+		f |= scrdata_dlg[130].flags & D_SELECTED ? 4:0;
+		f |= scrdata_dlg[131].flags & D_SELECTED ? 8:0;
+		f |= scrdata_dlg[132].flags & D_SELECTED ? 16:0;
+		f |= scrdata_dlg[135].flags & D_SELECTED ? 32:0;
+		f |= scrdata_dlg[136].flags & D_SELECTED ? fSECRETITEM:0;
+		Map.CurrScr()->flags8 = f;
+
+		f=0;
+		Map.CurrScr()->flags9 = f;
+		
         g=0;
         g |= scrdata_dlg[74].flags & D_SELECTED ? mSECRET:0;
         g |= scrdata_dlg[75].flags & D_SELECTED ? mITEM:0;
