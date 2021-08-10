@@ -16918,7 +16918,7 @@ void LinkClass::checkspecial()
         }
         
         // item
-        if(hasitem)
+        if(hasitem&(4|2|1))
         {
             int Item=tmpscr->item;
             

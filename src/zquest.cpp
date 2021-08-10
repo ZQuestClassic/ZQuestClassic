@@ -13403,7 +13403,7 @@ static int edit_scrdata6[] = // Timed Warp
 
 static int edit_scrdata7[] = // Screen flags 3
 {
-    122,18,56,-1
+    122,18,56,136,-1
 };
 
 static TABPANEL scrdata_tabs[] =
