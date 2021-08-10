@@ -2180,7 +2180,7 @@ script_variable variable_list[]=
 	{ "COMBOED",           COMBOED,              0,             0 },
 	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
 	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
-	{ "PADDINGR8", PADDINGR8, 0, 0 },
+	{ "SCREENSECRETSTRIGGERED", SCREENSECRETSTRIGGERED, 0, 0 },
 	{ "PADDINGR9", PADDINGR9, 0, 0 },
 	
 	{ "NPCFRAME", NPCFRAME, 0, 0 },

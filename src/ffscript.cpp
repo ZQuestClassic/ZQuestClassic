@@ -7732,6 +7732,12 @@ long get_register(const long arg)
 			//GET_SCREENDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
 		}
 
+		case SCREENSECRETSTRIGGERED:
+		{
+			ret = triggered_screen_secrets ? 10000L : 0L;
+			break;
+		}
+
 		case SDD:
 		{
 			int di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
@@ -35595,7 +35601,7 @@ script_variable ZASMVars[]=
 	{ "COMBOED",           COMBOED,              0,             0 },
 	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
 	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
-	{ "PADDINGR8", PADDINGR8, 0, 0 },
+	{ "SCREENSECRETSTRIGGERED", SCREENSECRETSTRIGGERED, 0, 0 },
 	{ "PADDINGR9", PADDINGR9, 0, 0 },
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
