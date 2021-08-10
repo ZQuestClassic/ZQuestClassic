@@ -2641,27 +2641,33 @@ bool LinkClass::checkstab()
 			}
 		}
 	
-    if(((parentitem==-1&&get_bit(quest_rules,qr_NOITEMMELEE))||parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
-    {
-        for(int j=0; j<items.Count(); j++)
-        {
+	if(((parentitem==-1&&get_bit(quest_rules,qr_NOITEMMELEE))||parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
+	{
+		for(int j=0; j<items.Count(); j++)
+		{
 			item* ptr = (item*)items.spr(j); 
-            if(ptr->pickup & ipTIMER)
-            {
-                if(ptr->clk2 >= 32 && !ptr->fallclk && !ptr->drownclk)
-                {
-                    if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8,z,wxsz,wysz,1))
-                            || (attack==wHammer && ptr->hit(x,y-8,z,wxsz,wysz,1)))
-                    {
-                        int pickup = ptr->pickup;
-                        
-                        if(pickup&ipONETIME) // set mITEM for one-time-only items
-                            setmapflag(mITEM);
-                        else if(pickup&ipONETIME2) // set mBELOW flag for other one-time-only items
-                            setmapflag();
-                            
-                        if(itemsbuf[ptr->id].collect_script)
-                        {
+			if(ptr->pickup & ipTIMER)
+			{
+				if(ptr->clk2 >= 32 && !ptr->fallclk && !ptr->drownclk)
+				{
+					if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8,z,wxsz,wysz,1))
+							|| (attack==wHammer && ptr->hit(x,y-8,z,wxsz,wysz,1)))
+					{
+						int pickup = ptr->pickup;
+						
+						if(pickup&ipONETIME) // set mITEM for one-time-only items
+							setmapflag(mITEM);
+						else if(pickup&ipONETIME2) // set mBELOW flag for other one-time-only items
+							setmapflag();
+				
+					if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
+					{
+						if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
+						hidden_entrance(0, true, false, -5);
+					}
+						//!DIMI
+						if(itemsbuf[ptr->id].collect_script)
+						{
 				//clear item script stack. 
 				//ri = &(itemScriptData[ptr->id]);
 				//ri->Clear();
@@ -2691,10 +2697,10 @@ bool LinkClass::checkstab()
 	
 				//runningItemScripts[ptr->id] = 0;
 				
-                        }
+						}
 			
 			//Passive item scripts on colelction
-                        if(itemsbuf[ptr->id].script && ( (itemsbuf[ptr->id].flags&ITEM_FLAG16) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
+						if(itemsbuf[ptr->id].script && ( (itemsbuf[ptr->id].flags&ITEM_FLAG16) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
 			{
 				ri = &(itemScriptData[ptr->id]);
 				for ( int q = 0; q < 1024; q++ ) item_stack[ptr->id][q] = 0xFFFF;
@@ -2707,52 +2713,52 @@ bool LinkClass::checkstab()
 							
 			}
 			
-                        getitem(ptr->id);
-                        items.del(j);
-                        
-                        for(int i=0; i<Lwpns.Count(); i++)
-                        {
-                            weapon *w2 = (weapon*)Lwpns.spr(i);
-                            
-                            if(w2->dragging==j)
-                            {
-                                w2->dragging=-1;
-                            }
-                            else if(w2->dragging>j)
-                            {
-                                w2->dragging-=1;
-                            }
-                        }
-                        
-                        --j;
-                    }
-                }
-            }
-        }
-    }
-    
+						getitem(ptr->id);
+						items.del(j);
+						
+						for(int i=0; i<Lwpns.Count(); i++)
+						{
+							weapon *w2 = (weapon*)Lwpns.spr(i);
+							
+							if(w2->dragging==j)
+							{
+								w2->dragging=-1;
+							}
+							else if(w2->dragging>j)
+							{
+								w2->dragging-=1;
+							}
+						}
+						
+						--j;
+					}
+				}
+			}
+		}
+	}
+	
 	if(attack==wCByrna)return false;
 	
-    if(attack==wSword)
-    {
-        if(attackclk == 6)
-        {
-            for(int q=0; q<176; q++)
-            {
-                set_bit(screengrid,q,0);
-                set_bit(screengrid_layer[0],q,0);
-                set_bit(screengrid_layer[1],q,0);
-		    
-            }
-            
-            for(int q=0; q<32; q++)
-                set_bit(ffcgrid, q, 0);
-        }
-        
-        if(dir==up && ((x.getInt()&15)==0))
-        {
-            check_slash_block(wx,wy);
-            check_slash_block(wx,wy+8);
+	if(attack==wSword)
+	{
+		if(attackclk == 6)
+		{
+			for(int q=0; q<176; q++)
+			{
+				set_bit(screengrid,q,0);
+				set_bit(screengrid_layer[0],q,0);
+				set_bit(screengrid_layer[1],q,0);
+			
+			}
+			
+			for(int q=0; q<32; q++)
+				set_bit(ffcgrid, q, 0);
+		}
+		
+		if(dir==up && ((x.getInt()&15)==0))
+		{
+			check_slash_block(wx,wy);
+			check_slash_block(wx,wy+8);
 		
 		//layers
 		check_slash_block_layer(wx,wy,1);
@@ -2764,196 +2770,196 @@ bool LinkClass::checkstab()
 		check_slash_block_layer(wx,wy+8,2);
 		check_slash_block_layer(wx,wy,2);
 		check_slash_block_layer(wx,wy+8,2);
-	    
 		
 		
-        }
-        else if(dir==up && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
-        {
-            check_slash_block(wx,wy);
-            check_slash_block(wx,wy+8);
-            check_slash_block(wx+8,wy);
-            check_slash_block(wx+8,wy+8);
-	    ///layer 1
-	    check_slash_block_layer(wx,wy,1);
-            check_slash_block_layer(wx,wy+8,1);
-            check_slash_block_layer(wx+8,wy,1);
-            check_slash_block_layer(wx+8,wy+8,1);
-	    ///layer 2
-	    check_slash_block_layer(wx,wy,2);
-            check_slash_block_layer(wx,wy+8,2);
-            check_slash_block_layer(wx+8,wy,2);
-            check_slash_block_layer(wx+8,wy+8,2);
-        }
-        
-        if(dir==down && ((x.getInt()&15)==0))
-        {
-            check_slash_block(wx,wy+wysz-8);
-            check_slash_block(wx,wy+wysz);
 		
-	    //layer 1
-	    check_slash_block_layer(wx,wy+wysz-8,1);
-            check_slash_block_layer(wx,wy+wysz,1);
-	    //layer 2
-	    check_slash_block_layer(wx,wy+wysz-8,2);
-            check_slash_block_layer(wx,wy+wysz,2);
-        }
-        else if(dir==down && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
-        {
-            check_slash_block(wx,wy+wysz-8);
-            check_slash_block(wx,wy+wysz);
-            check_slash_block(wx+8,wy+wysz-8);
-            check_slash_block(wx+8,wy+wysz);
+		}
+		else if(dir==up && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
+		{
+			check_slash_block(wx,wy);
+			check_slash_block(wx,wy+8);
+			check_slash_block(wx+8,wy);
+			check_slash_block(wx+8,wy+8);
+		///layer 1
+		check_slash_block_layer(wx,wy,1);
+			check_slash_block_layer(wx,wy+8,1);
+			check_slash_block_layer(wx+8,wy,1);
+			check_slash_block_layer(wx+8,wy+8,1);
+		///layer 2
+		check_slash_block_layer(wx,wy,2);
+			check_slash_block_layer(wx,wy+8,2);
+			check_slash_block_layer(wx+8,wy,2);
+			check_slash_block_layer(wx+8,wy+8,2);
+		}
+		
+		if(dir==down && ((x.getInt()&15)==0))
+		{
+			check_slash_block(wx,wy+wysz-8);
+			check_slash_block(wx,wy+wysz);
+		
 		//layer 1
 		check_slash_block_layer(wx,wy+wysz-8,1);
-            check_slash_block_layer(wx,wy+wysz,1);
-            check_slash_block_layer(wx+8,wy+wysz-8,1);
-            check_slash_block_layer(wx+8,wy+wysz,1);
+			check_slash_block_layer(wx,wy+wysz,1);
 		//layer 2
 		check_slash_block_layer(wx,wy+wysz-8,2);
-            check_slash_block_layer(wx,wy+wysz,2);
-            check_slash_block_layer(wx+8,wy+wysz-8,2);
-            check_slash_block_layer(wx+8,wy+wysz,2);
-        }
-        
-        if(dir==left)
-        {
-            check_slash_block(wx,wy+8);
-            check_slash_block(wx+8,wy+8);
+			check_slash_block_layer(wx,wy+wysz,2);
+		}
+		else if(dir==down && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
+		{
+			check_slash_block(wx,wy+wysz-8);
+			check_slash_block(wx,wy+wysz);
+			check_slash_block(wx+8,wy+wysz-8);
+			check_slash_block(wx+8,wy+wysz);
+		//layer 1
+		check_slash_block_layer(wx,wy+wysz-8,1);
+			check_slash_block_layer(wx,wy+wysz,1);
+			check_slash_block_layer(wx+8,wy+wysz-8,1);
+			check_slash_block_layer(wx+8,wy+wysz,1);
+		//layer 2
+		check_slash_block_layer(wx,wy+wysz-8,2);
+			check_slash_block_layer(wx,wy+wysz,2);
+			check_slash_block_layer(wx+8,wy+wysz-8,2);
+			check_slash_block_layer(wx+8,wy+wysz,2);
+		}
+		
+		if(dir==left)
+		{
+			check_slash_block(wx,wy+8);
+			check_slash_block(wx+8,wy+8);
 		//layer 1
 		check_slash_block_layer(wx,wy+8,1);
-            check_slash_block_layer(wx+8,wy+8,1);
+			check_slash_block_layer(wx+8,wy+8,1);
 		//layer 2
 		check_slash_block_layer(wx,wy+8,2);
-            check_slash_block_layer(wx+8,wy+8,2);
-        }
-        
-        if(dir==right)
-        {
-            check_slash_block(wx+wxsz,wy+8);
-            check_slash_block(wx+wxsz-8,wy+8);
+			check_slash_block_layer(wx+8,wy+8,2);
+		}
+		
+		if(dir==right)
+		{
+			check_slash_block(wx+wxsz,wy+8);
+			check_slash_block(wx+wxsz-8,wy+8);
 		//layer 1
 		check_slash_block_layer(wx+wxsz,wy+8,1);
-            check_slash_block_layer(wx+wxsz-8,wy+8,1);
+			check_slash_block_layer(wx+wxsz-8,wy+8,1);
 		//layer 2
 		check_slash_block_layer(wx+wxsz,wy+8,2);
-            check_slash_block_layer(wx+wxsz-8,wy+8,2);
-        }
-    }
-    else if(attack==wWand)
-    {
-        if(attackclk == 5)
-        {
-            for(int q=0; q<176; q++)
-            {
-                set_bit(screengrid,q,0);
-                set_bit(screengrid_layer[0],q,0);
-                set_bit(screengrid_layer[1],q,0);
-            }
-            
-            for(int q=0; q<32; q++)
-                set_bit(ffcgrid,q, 0);
-        }
-        
-        // cutable blocks
-        if(dir==up && (x.getInt()&15)==0)
-        {
-            check_wand_block(wx,wy);
-            check_wand_block(wx,wy+8);
-        }
-        else if(dir==up && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
-        {
-            check_wand_block(wx,wy);
-            check_wand_block(wx,wy+8);
-            check_wand_block(wx+8,wy);
-            check_wand_block(wx+8,wy+8);
-        }
-        
-        if(dir==down && (x.getInt()&15)==0)
-        {
-            check_wand_block(wx,wy+wysz-8);
-            check_wand_block(wx,wy+wysz);
-        }
-        else if(dir==down && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
-        {
-            check_wand_block(wx,wy+wysz-8);
-            check_wand_block(wx,wy+wysz);
-            check_wand_block(wx+8,wy+wysz-8);
-            check_wand_block(wx+8,wy+wysz);
-        }
-        
-        if(dir==left)
-        {
-            check_wand_block(wx,y+8);
-            check_wand_block(wx+8,y+8);
-        }
-        
-        if(dir==right)
-        {
-            check_wand_block(wx+wxsz,y+8);
-            check_wand_block(wx+wxsz-8,y+8);
-        }
-    }
-    else if((attack==wHammer) && ((attackclk==15) || ( spins==1 && attackclk >=15 ))) //quake hammer should be spins == 1
-    //else if((attack==wHammer) && (attackclk==15))
-    //reverting this, because it breaks multiple-hit pegs
-    //else if((attack==wHammer) && (attackclk>=15)) //>= instead of == for time it takes to charge up hammer with quake scrolls.
-    {
-        // poundable blocks
-        for(int q=0; q<176; q++)
-        {
-            set_bit(screengrid,q,0);
-                set_bit(screengrid_layer[0],q,0);
-                set_bit(screengrid_layer[1],q,0);
-        }
-        
-        for(int q=0; q<32; q++)
-            set_bit(ffcgrid, q, 0);
-            
-        if(dir==up && (x.getInt()&15)==0)
-        {
-            check_pound_block(wx,wy);
-            check_pound_block(wx,wy+8);
-        }
-        else if(dir==up && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
-        {
-            check_pound_block(wx,wy);
-            check_pound_block(wx,wy+8);
-            check_pound_block(wx+8,wy);
-            check_pound_block(wx+8,wy+8);
-        }
-        
-        if(dir==down && (x.getInt()&15)==0)
-        {
-            check_pound_block(wx,wy+wysz-8);
-            check_pound_block(wx,wy+wysz);
-        }
-        else if(dir==down && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
-        {
-            check_pound_block(wx,wy+wysz-8);
-            check_pound_block(wx,wy+wysz);
-            check_pound_block(wx+8,wy+wysz-8);
-            check_pound_block(wx+8,wy+wysz);
-        }
-        
-        if(dir==left)
-        {
-            check_pound_block(wx,y+8);
-            check_pound_block(wx+8,y+8);
-        }
-        
-        if(dir==right)
-        {
-            check_pound_block(wx+wxsz,y+8);
-            check_pound_block(wx+wxsz-8,y+8);
-        }
-    }
-    else
-    {
+			check_slash_block_layer(wx+wxsz-8,wy+8,2);
+		}
+	}
+	else if(attack==wWand)
+	{
+		if(attackclk == 5)
+		{
+			for(int q=0; q<176; q++)
+			{
+				set_bit(screengrid,q,0);
+				set_bit(screengrid_layer[0],q,0);
+				set_bit(screengrid_layer[1],q,0);
+			}
+			
+			for(int q=0; q<32; q++)
+				set_bit(ffcgrid,q, 0);
+		}
+		
+		// cutable blocks
+		if(dir==up && (x.getInt()&15)==0)
+		{
+			check_wand_block(wx,wy);
+			check_wand_block(wx,wy+8);
+		}
+		else if(dir==up && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
+		{
+			check_wand_block(wx,wy);
+			check_wand_block(wx,wy+8);
+			check_wand_block(wx+8,wy);
+			check_wand_block(wx+8,wy+8);
+		}
+		
+		if(dir==down && (x.getInt()&15)==0)
+		{
+			check_wand_block(wx,wy+wysz-8);
+			check_wand_block(wx,wy+wysz);
+		}
+		else if(dir==down && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
+		{
+			check_wand_block(wx,wy+wysz-8);
+			check_wand_block(wx,wy+wysz);
+			check_wand_block(wx+8,wy+wysz-8);
+			check_wand_block(wx+8,wy+wysz);
+		}
+		
+		if(dir==left)
+		{
+			check_wand_block(wx,y+8);
+			check_wand_block(wx+8,y+8);
+		}
+		
+		if(dir==right)
+		{
+			check_wand_block(wx+wxsz,y+8);
+			check_wand_block(wx+wxsz-8,y+8);
+		}
+	}
+	else if((attack==wHammer) && ((attackclk==15) || ( spins==1 && attackclk >=15 ))) //quake hammer should be spins == 1
+	//else if((attack==wHammer) && (attackclk==15))
+	//reverting this, because it breaks multiple-hit pegs
+	//else if((attack==wHammer) && (attackclk>=15)) //>= instead of == for time it takes to charge up hammer with quake scrolls.
+	{
+		// poundable blocks
+		for(int q=0; q<176; q++)
+		{
+			set_bit(screengrid,q,0);
+				set_bit(screengrid_layer[0],q,0);
+				set_bit(screengrid_layer[1],q,0);
+		}
+		
+		for(int q=0; q<32; q++)
+			set_bit(ffcgrid, q, 0);
+			
+		if(dir==up && (x.getInt()&15)==0)
+		{
+			check_pound_block(wx,wy);
+			check_pound_block(wx,wy+8);
+		}
+		else if(dir==up && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
+		{
+			check_pound_block(wx,wy);
+			check_pound_block(wx,wy+8);
+			check_pound_block(wx+8,wy);
+			check_pound_block(wx+8,wy+8);
+		}
+		
+		if(dir==down && (x.getInt()&15)==0)
+		{
+			check_pound_block(wx,wy+wysz-8);
+			check_pound_block(wx,wy+wysz);
+		}
+		else if(dir==down && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
+		{
+			check_pound_block(wx,wy+wysz-8);
+			check_pound_block(wx,wy+wysz);
+			check_pound_block(wx+8,wy+wysz-8);
+			check_pound_block(wx+8,wy+wysz);
+		}
+		
+		if(dir==left)
+		{
+			check_pound_block(wx,y+8);
+			check_pound_block(wx+8,y+8);
+		}
+		
+		if(dir==right)
+		{
+			check_pound_block(wx+wxsz,y+8);
+			check_pound_block(wx+wxsz-8,y+8);
+		}
+	}
+	else
+	{
 	return false;
-    }
-    
-    return true;
+	}
+	
+	return true;
 }
 
 void LinkClass::check_slash_block_layer(int bx, int by, int layer)
@@ -3018,7 +3024,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
             }
 	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -3325,7 +3331,7 @@ void LinkClass::check_slash_block(int bx, int by)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -3770,7 +3776,7 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
             }
 	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -4095,7 +4101,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
         }
 	else if(isCuttableItemType(type))
@@ -4580,7 +4586,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
         }
         
@@ -4778,7 +4784,7 @@ void LinkClass::check_slash_block(weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
         }
         else if(isCuttableItemType(type))
@@ -5227,7 +5233,7 @@ void LinkClass::check_pound_block(int bx, int by)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
         }
         
@@ -5452,7 +5458,7 @@ void LinkClass::check_pound_block(weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
-            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
         }
         
@@ -15729,7 +15735,7 @@ void LinkClass::checkchest(int type)
     
     if(itemflag && !getmapflag())
     {
-        items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+        items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
     }
 }
 
@@ -16932,8 +16938,8 @@ void LinkClass::checkspecial()
                 items.add(new item((zfix)tmpscr->itemx,
                                    (tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
                                    (tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (zfix)170 : (zfix)0,
-                                   Item,ipONETIME+ipBIGRANGE+((itemsbuf[Item].family==itype_triforcepiece ||
-                                           (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
+                                   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
+                                           (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
             }
             
             hasitem &= ~ (4|2|1);
@@ -17002,8 +17008,8 @@ void LinkClass::checkspecial()
 			items.add(new item((zfix)tmpscr->itemx,
 							   (tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
 							   (tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (zfix)170 : (zfix)0,
-							   Item,ipONETIME+ipBIGRANGE+((itemsbuf[Item].family==itype_triforcepiece ||
-									   (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
+							   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
+									   (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		
 		hasitem &= ~8;
@@ -18004,7 +18010,7 @@ void LinkClass::checkspecial2(int *ls)
 			if(isDiving() && !getmapflag())
 			{
 				additem(x, y, tmpscr->catchall,
-						ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
+						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 				sfx(tmpscr->secretsfx);
 			}
 			
@@ -18038,7 +18044,7 @@ void LinkClass::checkspecial2(int *ls)
 			if(isDiving() && !getmapflag())
 			{
 				additem(x, y, tmpscr->catchall,
-						ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
+						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 				sfx(tmpscr->secretsfx);
 			}
 			
@@ -18072,7 +18078,7 @@ void LinkClass::checkspecial2(int *ls)
 			if(isDiving() && !getmapflag())
 			{
 				additem(x, y, tmpscr->catchall,
-						ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
+						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 				sfx(tmpscr->secretsfx);
 			}
 			
@@ -23300,6 +23306,12 @@ void LinkClass::checkitems(int index)
     }
     else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
         setmapflag();
+	
+    if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
+    {
+	if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
+	hidden_entrance(0, true, false, -5);
+    }
         
     if(itemsbuf[id2].collect_script)
     {

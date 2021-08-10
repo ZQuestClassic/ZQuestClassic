@@ -9885,7 +9885,7 @@ void enemy::removearmos(int ax,int ay)
 	{
 		if(!getmapflag())
 		{
-			additem(ax,ay,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0));
+			additem(ax,ay,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 			sfx(tmpscr->secretsfx);
 		}
 	}
@@ -19591,8 +19591,8 @@ void loaditem()
 				items.add(new item((zfix)tmpscr->itemx,
 								   (tmpscr->flags7&fITEMFALLS && isSideViewGravity()) ? (zfix)-170 : (zfix)tmpscr->itemy+(get_bit(quest_rules, qr_NOITEMOFFSET)?0:1),
 								   (tmpscr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
-								   Item,ipONETIME+ipBIGRANGE+((itemsbuf[Item].family==itype_triforcepiece ||
-										   (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
+								   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
+										   (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 	}
 	else if(!(DMaps[currdmap].flags&dmfCAVES))
@@ -19606,7 +19606,7 @@ void loaditem()
 				items.add(new item((zfix)tmpscr->itemx,
 								   (tmpscr->flags7&fITEMFALLS && isSideViewGravity()) ? (zfix)-170 : (zfix)tmpscr->itemy+(get_bit(quest_rules, qr_NOITEMOFFSET)?0:1),
 								   (tmpscr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
-								   Item,ipONETIME2|ipBIGRANGE|ipHOLDUP,0));
+								   Item,ipONETIME2|ipBIGRANGE|ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 	}
 }
@@ -20552,7 +20552,7 @@ void setupscreen()
 	switch(tmpscr[t].room)
 	{
 	case rSP_ITEM:                                          // special item
-		additem(120,89,tmpscr[t].catchall,ipONETIME2+ipHOLDUP+ipCHECK);
+		additem(120,89,tmpscr[t].catchall,ipONETIME2+ipHOLDUP+ipCHECK | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 		break;
 		
 	case rINFO:                                             // pay for info

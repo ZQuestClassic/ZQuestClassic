@@ -1106,8 +1106,8 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				(zfix)ComboY(scombo),
 				//(tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (zfix)170 : (zfix)0,
 				(zfix)0,
-				tmpscr->item,ipONETIME+ipBIGRANGE+((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
-				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
+				tmpscr->item,ipONETIME|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
+				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
 		if ( c[cid].usrflags&cflag7 )

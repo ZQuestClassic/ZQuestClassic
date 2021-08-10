@@ -1567,6 +1567,7 @@ int findtrigger(int scombo, bool ff)
 // -2: triggered by Enemies->Secret
 // -3: triggered by Secrets screen state
 // -4: Screen->TriggerSecrets()
+// -5: triggered by Items->Secret
 void hidden_entrance(int tmp,bool refresh, bool high16only,int single) //Perhaps better known as 'Trigger Secrets'
 {
 	//There are no calls to 'hidden_entrance' in the code where tmp != 0

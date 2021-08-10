@@ -534,8 +534,10 @@ extern bool fake_pack_writing;
 #define fGENERALSCRIPT5 	0x10 //'S.Flags2' General Use 5 (Scripts)
 #define fMAZEvSIDEWARP 		0x20 //'S.Flags1' Maze overrides side warps
 #define fSECRETITEM 		0x40 //'S.Flags3' Secrets->Item
+#define fITEMSECRET 		0x80 //'S.Flags3' Item->Secret
 
 //flags9
+#define fITEMSECRETPERM 	0x01 //'S.Flags3' Item->Secret is Permanent
 
 //lens layer effects
 #define llNORMAL        0
@@ -568,6 +570,7 @@ extern bool fake_pack_writing;
 #define ipTIMER         256                                 // Disappears after a while
 #define ipBIGTRI        512                                 // Large collision rectangle (used for large triforce)
 #define ipNODRAW        1024                                // Don't draw this (for underwater items)
+#define ipSECRETS       4096                                // Trigger Secrets when picked up
 
 
 

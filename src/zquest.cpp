@@ -13403,7 +13403,7 @@ static int edit_scrdata6[] = // Timed Warp
 
 static int edit_scrdata7[] = // Screen flags 3
 {
-    122,18,56,136,-1
+    122,18,56,136,137,138,-1
 };
 
 static TABPANEL scrdata_tabs[] =
@@ -13659,7 +13659,9 @@ static DIALOG scrdata_dlg[] =
     { jwin_droplist_proc,   17,  168,     133,   16,          0,            0,             0,  0,  0,  0, (void *) & lenseffect_list, NULL, NULL },
     //135
     { jwin_check_proc,     165,  158,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "Maze Overrides Side Warps", NULL, NULL },
-    { jwin_check_proc,      15,   98,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Secrets->Item", NULL, NULL },
+    { jwin_check_proc,      15,   98,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "Secrets->Item", NULL, NULL },
+    { jwin_check_proc,      15,  108,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item->Secrets", NULL, NULL },
+    { jwin_check_proc,      15,  118,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item->Secret is permanent", NULL, NULL },
     { NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
 };
 
@@ -13788,262 +13790,265 @@ int onScreenScript()
 
 int onScrData()
 {
-    restore_mouse();
-    char timedstring[6];
-// char nmapstring[4];
-// char nscrstring[3];
-    char csensstring[2];
-    char tics_secs_str[80];
-    sprintf(tics_secs_str, "=0.00 seconds");
-    char zora_str[85];
-    char ctraps_str[85];
-    char mtraps_str[85];
-    char fallrocks_str[85];
-    char statues_str[94];
-    
-    sprintf(zora_str, "Zora");
-    sprintf(ctraps_str, "Corner Traps");
-    sprintf(mtraps_str, "Middle Traps");
-    sprintf(fallrocks_str, "Falling Rocks");
-    sprintf(statues_str, "Statues Shoot Fireballs");
-    
-    {
-        bool foundzora = false;
-        bool foundctraps = false;
-        bool foundmtraps = false;
-        bool foundfallrocks = false;
-        bool foundstatues = false;
-        
-        for(int i=0; i<eMAXGUYS && !(foundzora && foundctraps && foundmtraps && foundfallrocks && foundstatues); i++)
-        {
-            if(!foundzora && guysbuf[i].flags2 & eneflag_zora)
-            {
-                sprintf(zora_str, "Zora (1 x %s)", guy_string[i]);
-                foundzora = true;
-            }
-            
-            if(!foundctraps && guysbuf[i].flags2 & eneflag_trap)
-            {
-                sprintf(ctraps_str, "Corner Traps (4 x %s)", guy_string[i]);
-                foundctraps = true;
-            }
-            
-            if(!foundmtraps && guysbuf[i].flags2 & eneflag_trp2)
-            {
-                sprintf(mtraps_str, "Middle Traps (2 x %s)", guy_string[i]);
-                foundmtraps = true;
-            }
-            
-            if(!foundfallrocks && guysbuf[i].flags2 & eneflag_rock)
-            {
-                sprintf(fallrocks_str, "Falling Rocks (3 x %s)", guy_string[i]);
-                foundfallrocks = true;
-            }
-            
-            if(!foundstatues && guysbuf[i].flags2 & eneflag_fire)
-            {
-                sprintf(statues_str, "Shooting Statues (%s per combo)", guy_string[i]);
-                foundstatues = true;
-            }
-        }
-    }
-    scrdata_dlg[107].dp= zora_str;
-    scrdata_dlg[108].dp= ctraps_str;
-    scrdata_dlg[109].dp= mtraps_str;
-    scrdata_dlg[110].dp= fallrocks_str;
-    scrdata_dlg[111].dp= statues_str;
-    
-    scrdata_dlg[0].dp2=lfont;
-    sprintf(timedstring,"%d",Map.CurrScr()->timedwarptics);
-//  sprintf(nmapstring,"%d",(int)Map.CurrScr()->nextmap);
-// sprintf(nscrstring,"%x",(int)Map.CurrScr()->nextscr);
-    sprintf(csensstring,"%d",(int)Map.CurrScr()->csensitive);
-    
-    byte f = Map.CurrScr()->flags;
-    
-    for(int i=0; i<8; i++)
-    {
-        scrdata_dlg[i+6].flags = (f&1) ? D_SELECTED : 0;
-        f>>=1;
-    }
-    
-    f = Map.CurrScr()->flags2 >> 4;
-    
-    for(int i=0; i<4; i++)
-    {
-        scrdata_dlg[i+14].flags = (f&1) ? D_SELECTED : 0;
-        f>>=1;
-    }
-    
-    f = Map.CurrScr()->flags3;
-    
-    for(int i=0; i<8; i++)
-    {
-        scrdata_dlg[i+18].flags = (f&1) ? D_SELECTED : 0;
-        f>>=1;
-    }
-    
-    f = Map.CurrScr()->flags4;
-    scrdata_dlg[26].flags = (f&4) ? D_SELECTED : 0;
-    scrdata_dlg[27].flags = (f&8) ? D_SELECTED : 0;
-    scrdata_dlg[29].dp=timedstring;
-    scrdata_dlg[30].dp=tics_secs_str;
-// scrdata_dlg[34].dp=nmapstring;
-    scrdata_dlg[34].d1 = (Map.CurrScr()->nextmap);
-// scrdata_dlg[35].dp=nscrstring;
-    scrdata_dlg[35].d1 = (Map.CurrScr()->nextscr);
-    scrdata_dlg[96].dp=csensstring;
-    scrdata_dlg[100].d1= (int)Map.CurrScr()->oceansfx;
-    scrdata_dlg[102].d1= (int)Map.CurrScr()->bosssfx;
-    scrdata_dlg[104].d1= (int)Map.CurrScr()->secretsfx;
-    scrdata_dlg[106].d1= (int)Map.CurrScr()->holdupsfx;
-    scrdata_dlg[36].flags = (f&16) ? D_SELECTED : 0;
-    //scrdata_dlg[37].flags = (f&32) ? D_SELECTED : 0;
-    scrdata_dlg[38].flags = (f&64) ? D_SELECTED : 0;
-    scrdata_dlg[39].flags = (f&128) ? D_SELECTED : 0;
-    f = Map.CurrScr()->flags5;
-    scrdata_dlg[40].flags = (f&1) ? D_SELECTED : 0;
-    scrdata_dlg[41].flags = (f&2) ? D_SELECTED : 0;
-    scrdata_dlg[37].flags = (f&4) ? D_SELECTED : 0;
-    scrdata_dlg[42].flags = (f&8) ? D_SELECTED : 0;
-    scrdata_dlg[43].flags = (f&16) ? D_SELECTED : 0;
-    scrdata_dlg[44].flags = (f&64) ? D_SELECTED : 0;
-    scrdata_dlg[53].flags = (f&128) ? D_SELECTED : 0;
-    f = Map.CurrScr()->flags6;
-    scrdata_dlg[45].flags = (f&1) ? D_SELECTED : 0;
-    scrdata_dlg[46].flags = (f&2) ? D_SELECTED : 0;
-    scrdata_dlg[47].flags = (f&4) ? D_SELECTED : 0;
-    scrdata_dlg[48].flags = (f&8) ? D_SELECTED : 0;
-    scrdata_dlg[49].flags = (f&16) ? D_SELECTED : 0;
-    scrdata_dlg[50].flags = (f&32) ? D_SELECTED : 0;
-    scrdata_dlg[51].flags = (f&64) ? D_SELECTED : 0;
-    scrdata_dlg[52].flags = (f&128) ? D_SELECTED : 0;
-    f = Map.CurrScr()->flags7;
-    scrdata_dlg[54].flags = (f&1) ? D_SELECTED : 0;
-    scrdata_dlg[55].flags = (f&2) ? D_SELECTED : 0;
-    scrdata_dlg[56].flags = (f&4) ? D_SELECTED : 0;
-    scrdata_dlg[57].flags = (f&8) ? D_SELECTED : 0;
-    scrdata_dlg[58].flags = (f&16) ? D_SELECTED : 0;
-    scrdata_dlg[59].flags = (f&64) ? D_SELECTED : 0;
-    scrdata_dlg[60].flags = (f&128) ? D_SELECTED : 0;
-    f = Map.CurrScr()->flags8;
-    scrdata_dlg[128].flags = (f&1) ? D_SELECTED : 0;
-    scrdata_dlg[129].flags = (f&2) ? D_SELECTED : 0;
-    scrdata_dlg[130].flags = (f&4) ? D_SELECTED : 0;
-    scrdata_dlg[131].flags = (f&8) ? D_SELECTED : 0;
-    scrdata_dlg[132].flags = (f&16) ? D_SELECTED : 0;
-    scrdata_dlg[135].flags = (f&32) ? D_SELECTED : 0;
-    scrdata_dlg[136].flags = (f&fSECRETITEM) ? D_SELECTED : 0;
-    
-    word g = Map.CurrScr()->noreset;
-    scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
-    scrdata_dlg[75].flags = (g&mITEM) ? D_SELECTED : 0;
-    scrdata_dlg[76].flags = (g&mBELOW) ? D_SELECTED : 0;
-    scrdata_dlg[77].flags = (g&mLOCKBLOCK) ? D_SELECTED : 0;
-    scrdata_dlg[78].flags = (g&mBOSSLOCKBLOCK) ? D_SELECTED : 0;
-    scrdata_dlg[79].flags = (g&mCHEST) ? D_SELECTED : 0;
-    scrdata_dlg[80].flags = (g&mLOCKEDCHEST) ? D_SELECTED : 0;
-    scrdata_dlg[81].flags = (g&mBOSSCHEST) ? D_SELECTED : 0;
-    scrdata_dlg[82].flags = (g&mDOOR_DOWN) ? D_SELECTED : 0;
-    scrdata_dlg[83].flags = (g&mDOOR_LEFT) ? D_SELECTED : 0;
-    scrdata_dlg[84].flags = (g&mDOOR_RIGHT) ? D_SELECTED : 0;
-    scrdata_dlg[98].flags = (g&mDOOR_UP) ? D_SELECTED : 0;
-    g = Map.CurrScr()->nocarry;
-    scrdata_dlg[85].flags = (g&mSECRET) ? D_SELECTED : 0;
-    scrdata_dlg[86].flags = (g&mITEM) ? D_SELECTED : 0;
-    scrdata_dlg[87].flags = (g&mBELOW) ? D_SELECTED : 0;
-    scrdata_dlg[88].flags = (g&mLOCKBLOCK) ? D_SELECTED : 0;
-    scrdata_dlg[89].flags = (g&mBOSSLOCKBLOCK) ? D_SELECTED : 0;
-    scrdata_dlg[90].flags = (g&mCHEST) ? D_SELECTED : 0;
-    scrdata_dlg[91].flags = (g&mLOCKEDCHEST) ? D_SELECTED : 0;
-    scrdata_dlg[92].flags = (g&mBOSSCHEST) ? D_SELECTED : 0;
-    
-    scrdata_dlg[94].d1 = (Map.CurrScr()->screen_midi>=0)?(Map.CurrScr()->screen_midi+1):(-(Map.CurrScr()->screen_midi+1));
-    scrdata_dlg[134].d1 = Map.CurrScr()->lens_layer==llNORMAL?0:(Map.CurrScr()->lens_layer&llLENSSHOWS?6:0)+(Map.CurrScr()->lens_layer&7)+1;
-    
-    byte h=Map.CurrScr()->enemyflags;
-    
-    for(int i=0; i<8; i++)
-    {
-        scrdata_dlg[i+107].flags = (h&1)?D_SELECTED:0;
-        h>>=1;
-    }
-    
-    if(is_large)
-        large_dialog(scrdata_dlg);
-        
-    if(zc_popup_dialog(scrdata_dlg,-1)==2)
-    {
-        f=0;
-        
-        for(int i=7; i>=0; i--)
-        {
-            f<<=1;
-            f |= scrdata_dlg[i+6].flags & D_SELECTED ? 1:0;
-        }
-        
-        Map.CurrScr()->flags = f;
-        
-        f=0;
-        
-        for(int i=3; i>=0; i--)
-        {
-            f<<=1;
-            f |= scrdata_dlg[i+14].flags & D_SELECTED ? 1:0;
-        }
-        
-        Map.CurrScr()->flags2 &= 0x0F;
-        Map.CurrScr()->flags2 |= f<<4;
-        
-        f=0;
-        
-        for(int i=7; i>=0; i--)
-        {
-            f<<=1;
-            f |= scrdata_dlg[i+18].flags & D_SELECTED ? 1:0;
-        }
-        
-        Map.CurrScr()->flags3 = f;
-        
-        f=0;
-        f |= scrdata_dlg[26].flags & D_SELECTED ? 4:0;
-        f |= scrdata_dlg[27].flags & D_SELECTED ? 8:0;
-        f |= scrdata_dlg[36].flags & D_SELECTED ? 16:0;
-        //f |= scrdata_dlg[37].flags & D_SELECTED ? 32:0;
-        f |= scrdata_dlg[38].flags & D_SELECTED ? 64:0;
-        f |= scrdata_dlg[39].flags & D_SELECTED ? 128:0;
-        Map.CurrScr()->flags4 = f;
-        
-        f=0;
-        f |= scrdata_dlg[40].flags & D_SELECTED ? 1:0;
-        f |= scrdata_dlg[41].flags & D_SELECTED ? 2:0;
-        f |= scrdata_dlg[37].flags & D_SELECTED ? 4:0;
-        f |= scrdata_dlg[42].flags & D_SELECTED ? 8:0;
-        f |= scrdata_dlg[43].flags & D_SELECTED ? 16:0;
-        f |= scrdata_dlg[44].flags & D_SELECTED ? 64:0;
-        f |= scrdata_dlg[53].flags & D_SELECTED ? 128:0;
-        Map.CurrScr()->flags5 = f;
-        
-        f=0;
-        f |= scrdata_dlg[45].flags & D_SELECTED ? 1:0;
-        f |= scrdata_dlg[46].flags & D_SELECTED ? 2:0;
-        f |= scrdata_dlg[47].flags & D_SELECTED ? 4:0;
-        f |= scrdata_dlg[48].flags & D_SELECTED ? 8:0;
-        f |= scrdata_dlg[49].flags & D_SELECTED ? 16:0;
-        f |= scrdata_dlg[50].flags & D_SELECTED ? 32:0;
-        f |= scrdata_dlg[51].flags & D_SELECTED ? 64:0;
-        f |= scrdata_dlg[52].flags & D_SELECTED ? 128:0;
-        Map.CurrScr()->flags6 = f;
-        
-        f=0;
-        f |= scrdata_dlg[54].flags & D_SELECTED ? 1:0;
-        f |= scrdata_dlg[55].flags & D_SELECTED ? 2:0;
-        f |= scrdata_dlg[56].flags & D_SELECTED ? 4:0;
-        f |= scrdata_dlg[57].flags & D_SELECTED ? 8:0;
-        f |= scrdata_dlg[58].flags & D_SELECTED ? 16:0;
-        f |= scrdata_dlg[59].flags & D_SELECTED ? 64:0;
-        f |= scrdata_dlg[60].flags & D_SELECTED ? 128:0;
-        Map.CurrScr()->flags7 = f;
+	restore_mouse();
+	char timedstring[6];
+	// char nmapstring[4];
+	// char nscrstring[3];
+	char csensstring[2];
+	char tics_secs_str[80];
+	sprintf(tics_secs_str, "=0.00 seconds");
+	char zora_str[85];
+	char ctraps_str[85];
+	char mtraps_str[85];
+	char fallrocks_str[85];
+	char statues_str[94];
+	
+	sprintf(zora_str, "Zora");
+	sprintf(ctraps_str, "Corner Traps");
+	sprintf(mtraps_str, "Middle Traps");
+	sprintf(fallrocks_str, "Falling Rocks");
+	sprintf(statues_str, "Statues Shoot Fireballs");
+	
+	{
+		bool foundzora = false;
+		bool foundctraps = false;
+		bool foundmtraps = false;
+		bool foundfallrocks = false;
+		bool foundstatues = false;
+		
+		for(int i=0; i<eMAXGUYS && !(foundzora && foundctraps && foundmtraps && foundfallrocks && foundstatues); i++)
+		{
+			if(!foundzora && guysbuf[i].flags2 & eneflag_zora)
+			{
+				sprintf(zora_str, "Zora (1 x %s)", guy_string[i]);
+				foundzora = true;
+			}
+			
+			if(!foundctraps && guysbuf[i].flags2 & eneflag_trap)
+			{
+				sprintf(ctraps_str, "Corner Traps (4 x %s)", guy_string[i]);
+				foundctraps = true;
+			}
+			
+			if(!foundmtraps && guysbuf[i].flags2 & eneflag_trp2)
+			{
+				sprintf(mtraps_str, "Middle Traps (2 x %s)", guy_string[i]);
+				foundmtraps = true;
+			}
+			
+			if(!foundfallrocks && guysbuf[i].flags2 & eneflag_rock)
+			{
+				sprintf(fallrocks_str, "Falling Rocks (3 x %s)", guy_string[i]);
+				foundfallrocks = true;
+			}
+			
+			if(!foundstatues && guysbuf[i].flags2 & eneflag_fire)
+			{
+				sprintf(statues_str, "Shooting Statues (%s per combo)", guy_string[i]);
+				foundstatues = true;
+			}
+		}
+	}
+	scrdata_dlg[107].dp= zora_str;
+	scrdata_dlg[108].dp= ctraps_str;
+	scrdata_dlg[109].dp= mtraps_str;
+	scrdata_dlg[110].dp= fallrocks_str;
+	scrdata_dlg[111].dp= statues_str;
+	
+	scrdata_dlg[0].dp2=lfont;
+	sprintf(timedstring,"%d",Map.CurrScr()->timedwarptics);
+	//  sprintf(nmapstring,"%d",(int)Map.CurrScr()->nextmap);
+	// sprintf(nscrstring,"%x",(int)Map.CurrScr()->nextscr);
+	sprintf(csensstring,"%d",(int)Map.CurrScr()->csensitive);
+	
+	byte f = Map.CurrScr()->flags;
+	
+	for(int i=0; i<8; i++)
+	{
+		scrdata_dlg[i+6].flags = (f&1) ? D_SELECTED : 0;
+		f>>=1;
+	}
+	
+	f = Map.CurrScr()->flags2 >> 4;
+	
+	for(int i=0; i<4; i++)
+	{
+		scrdata_dlg[i+14].flags = (f&1) ? D_SELECTED : 0;
+		f>>=1;
+	}
+	
+	f = Map.CurrScr()->flags3;
+	
+	for(int i=0; i<8; i++)
+	{
+		scrdata_dlg[i+18].flags = (f&1) ? D_SELECTED : 0;
+		f>>=1;
+	}
+	
+	f = Map.CurrScr()->flags4;
+	scrdata_dlg[26].flags = (f&4) ? D_SELECTED : 0;
+	scrdata_dlg[27].flags = (f&8) ? D_SELECTED : 0;
+	scrdata_dlg[29].dp=timedstring;
+	scrdata_dlg[30].dp=tics_secs_str;
+	// scrdata_dlg[34].dp=nmapstring;
+	scrdata_dlg[34].d1 = (Map.CurrScr()->nextmap);
+	// scrdata_dlg[35].dp=nscrstring;
+	scrdata_dlg[35].d1 = (Map.CurrScr()->nextscr);
+	scrdata_dlg[96].dp=csensstring;
+	scrdata_dlg[100].d1= (int)Map.CurrScr()->oceansfx;
+	scrdata_dlg[102].d1= (int)Map.CurrScr()->bosssfx;
+	scrdata_dlg[104].d1= (int)Map.CurrScr()->secretsfx;
+	scrdata_dlg[106].d1= (int)Map.CurrScr()->holdupsfx;
+	scrdata_dlg[36].flags = (f&16) ? D_SELECTED : 0;
+	//scrdata_dlg[37].flags = (f&32) ? D_SELECTED : 0;
+	scrdata_dlg[38].flags = (f&64) ? D_SELECTED : 0;
+	scrdata_dlg[39].flags = (f&128) ? D_SELECTED : 0;
+	f = Map.CurrScr()->flags5;
+	scrdata_dlg[40].flags = (f&1) ? D_SELECTED : 0;
+	scrdata_dlg[41].flags = (f&2) ? D_SELECTED : 0;
+	scrdata_dlg[37].flags = (f&4) ? D_SELECTED : 0;
+	scrdata_dlg[42].flags = (f&8) ? D_SELECTED : 0;
+	scrdata_dlg[43].flags = (f&16) ? D_SELECTED : 0;
+	scrdata_dlg[44].flags = (f&64) ? D_SELECTED : 0;
+	scrdata_dlg[53].flags = (f&128) ? D_SELECTED : 0;
+	f = Map.CurrScr()->flags6;
+	scrdata_dlg[45].flags = (f&1) ? D_SELECTED : 0;
+	scrdata_dlg[46].flags = (f&2) ? D_SELECTED : 0;
+	scrdata_dlg[47].flags = (f&4) ? D_SELECTED : 0;
+	scrdata_dlg[48].flags = (f&8) ? D_SELECTED : 0;
+	scrdata_dlg[49].flags = (f&16) ? D_SELECTED : 0;
+	scrdata_dlg[50].flags = (f&32) ? D_SELECTED : 0;
+	scrdata_dlg[51].flags = (f&64) ? D_SELECTED : 0;
+	scrdata_dlg[52].flags = (f&128) ? D_SELECTED : 0;
+	f = Map.CurrScr()->flags7;
+	scrdata_dlg[54].flags = (f&1) ? D_SELECTED : 0;
+	scrdata_dlg[55].flags = (f&2) ? D_SELECTED : 0;
+	scrdata_dlg[56].flags = (f&4) ? D_SELECTED : 0;
+	scrdata_dlg[57].flags = (f&8) ? D_SELECTED : 0;
+	scrdata_dlg[58].flags = (f&16) ? D_SELECTED : 0;
+	scrdata_dlg[59].flags = (f&64) ? D_SELECTED : 0;
+	scrdata_dlg[60].flags = (f&128) ? D_SELECTED : 0;
+	f = Map.CurrScr()->flags8;
+	scrdata_dlg[128].flags = (f&1) ? D_SELECTED : 0;
+	scrdata_dlg[129].flags = (f&2) ? D_SELECTED : 0;
+	scrdata_dlg[130].flags = (f&4) ? D_SELECTED : 0;
+	scrdata_dlg[131].flags = (f&8) ? D_SELECTED : 0;
+	scrdata_dlg[132].flags = (f&16) ? D_SELECTED : 0;
+	scrdata_dlg[135].flags = (f&32) ? D_SELECTED : 0;
+	scrdata_dlg[136].flags = (f&fSECRETITEM) ? D_SELECTED : 0;
+	scrdata_dlg[137].flags = (f&fITEMSECRET) ? D_SELECTED : 0;
+	f = Map.CurrScr()->flags9;
+	scrdata_dlg[138].flags = (f&fITEMSECRETPERM) ? D_SELECTED : 0;
+	
+	word g = Map.CurrScr()->noreset;
+	scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
+	scrdata_dlg[75].flags = (g&mITEM) ? D_SELECTED : 0;
+	scrdata_dlg[76].flags = (g&mBELOW) ? D_SELECTED : 0;
+	scrdata_dlg[77].flags = (g&mLOCKBLOCK) ? D_SELECTED : 0;
+	scrdata_dlg[78].flags = (g&mBOSSLOCKBLOCK) ? D_SELECTED : 0;
+	scrdata_dlg[79].flags = (g&mCHEST) ? D_SELECTED : 0;
+	scrdata_dlg[80].flags = (g&mLOCKEDCHEST) ? D_SELECTED : 0;
+	scrdata_dlg[81].flags = (g&mBOSSCHEST) ? D_SELECTED : 0;
+	scrdata_dlg[82].flags = (g&mDOOR_DOWN) ? D_SELECTED : 0;
+	scrdata_dlg[83].flags = (g&mDOOR_LEFT) ? D_SELECTED : 0;
+	scrdata_dlg[84].flags = (g&mDOOR_RIGHT) ? D_SELECTED : 0;
+	scrdata_dlg[98].flags = (g&mDOOR_UP) ? D_SELECTED : 0;
+	g = Map.CurrScr()->nocarry;
+	scrdata_dlg[85].flags = (g&mSECRET) ? D_SELECTED : 0;
+	scrdata_dlg[86].flags = (g&mITEM) ? D_SELECTED : 0;
+	scrdata_dlg[87].flags = (g&mBELOW) ? D_SELECTED : 0;
+	scrdata_dlg[88].flags = (g&mLOCKBLOCK) ? D_SELECTED : 0;
+	scrdata_dlg[89].flags = (g&mBOSSLOCKBLOCK) ? D_SELECTED : 0;
+	scrdata_dlg[90].flags = (g&mCHEST) ? D_SELECTED : 0;
+	scrdata_dlg[91].flags = (g&mLOCKEDCHEST) ? D_SELECTED : 0;
+	scrdata_dlg[92].flags = (g&mBOSSCHEST) ? D_SELECTED : 0;
+	
+	scrdata_dlg[94].d1 = (Map.CurrScr()->screen_midi>=0)?(Map.CurrScr()->screen_midi+1):(-(Map.CurrScr()->screen_midi+1));
+	scrdata_dlg[134].d1 = Map.CurrScr()->lens_layer==llNORMAL?0:(Map.CurrScr()->lens_layer&llLENSSHOWS?6:0)+(Map.CurrScr()->lens_layer&7)+1;
+	
+	byte h=Map.CurrScr()->enemyflags;
+	
+	for(int i=0; i<8; i++)
+	{
+		scrdata_dlg[i+107].flags = (h&1)?D_SELECTED:0;
+		h>>=1;
+	}
+	
+	if(is_large)
+		large_dialog(scrdata_dlg);
+		
+	if(zc_popup_dialog(scrdata_dlg,-1)==2)
+	{
+		f=0;
+		
+		for(int i=7; i>=0; i--)
+		{
+			f<<=1;
+			f |= scrdata_dlg[i+6].flags & D_SELECTED ? 1:0;
+		}
+		
+		Map.CurrScr()->flags = f;
+		
+		f=0;
+		
+		for(int i=3; i>=0; i--)
+		{
+			f<<=1;
+			f |= scrdata_dlg[i+14].flags & D_SELECTED ? 1:0;
+		}
+		
+		Map.CurrScr()->flags2 &= 0x0F;
+		Map.CurrScr()->flags2 |= f<<4;
+		
+		f=0;
+		
+		for(int i=7; i>=0; i--)
+		{
+			f<<=1;
+			f |= scrdata_dlg[i+18].flags & D_SELECTED ? 1:0;
+		}
+		
+		Map.CurrScr()->flags3 = f;
+		
+		f=0;
+		f |= scrdata_dlg[26].flags & D_SELECTED ? 4:0;
+		f |= scrdata_dlg[27].flags & D_SELECTED ? 8:0;
+		f |= scrdata_dlg[36].flags & D_SELECTED ? 16:0;
+		//f |= scrdata_dlg[37].flags & D_SELECTED ? 32:0;
+		f |= scrdata_dlg[38].flags & D_SELECTED ? 64:0;
+		f |= scrdata_dlg[39].flags & D_SELECTED ? 128:0;
+		Map.CurrScr()->flags4 = f;
+		
+		f=0;
+		f |= scrdata_dlg[40].flags & D_SELECTED ? 1:0;
+		f |= scrdata_dlg[41].flags & D_SELECTED ? 2:0;
+		f |= scrdata_dlg[37].flags & D_SELECTED ? 4:0;
+		f |= scrdata_dlg[42].flags & D_SELECTED ? 8:0;
+		f |= scrdata_dlg[43].flags & D_SELECTED ? 16:0;
+		f |= scrdata_dlg[44].flags & D_SELECTED ? 64:0;
+		f |= scrdata_dlg[53].flags & D_SELECTED ? 128:0;
+		Map.CurrScr()->flags5 = f;
+		
+		f=0;
+		f |= scrdata_dlg[45].flags & D_SELECTED ? 1:0;
+		f |= scrdata_dlg[46].flags & D_SELECTED ? 2:0;
+		f |= scrdata_dlg[47].flags & D_SELECTED ? 4:0;
+		f |= scrdata_dlg[48].flags & D_SELECTED ? 8:0;
+		f |= scrdata_dlg[49].flags & D_SELECTED ? 16:0;
+		f |= scrdata_dlg[50].flags & D_SELECTED ? 32:0;
+		f |= scrdata_dlg[51].flags & D_SELECTED ? 64:0;
+		f |= scrdata_dlg[52].flags & D_SELECTED ? 128:0;
+		Map.CurrScr()->flags6 = f;
+		
+		f=0;
+		f |= scrdata_dlg[54].flags & D_SELECTED ? 1:0;
+		f |= scrdata_dlg[55].flags & D_SELECTED ? 2:0;
+		f |= scrdata_dlg[56].flags & D_SELECTED ? 4:0;
+		f |= scrdata_dlg[57].flags & D_SELECTED ? 8:0;
+		f |= scrdata_dlg[58].flags & D_SELECTED ? 16:0;
+		f |= scrdata_dlg[59].flags & D_SELECTED ? 64:0;
+		f |= scrdata_dlg[60].flags & D_SELECTED ? 128:0;
+		Map.CurrScr()->flags7 = f;
 		
 		f=0;
 		f |= scrdata_dlg[128].flags & D_SELECTED ? 1:0;
@@ -14053,64 +14058,66 @@ int onScrData()
 		f |= scrdata_dlg[132].flags & D_SELECTED ? 16:0;
 		f |= scrdata_dlg[135].flags & D_SELECTED ? 32:0;
 		f |= scrdata_dlg[136].flags & D_SELECTED ? fSECRETITEM:0;
+		f |= scrdata_dlg[137].flags & D_SELECTED ? fITEMSECRET:0;
 		Map.CurrScr()->flags8 = f;
 
 		f=0;
+		f |= scrdata_dlg[138].flags & D_SELECTED ? fITEMSECRETPERM:0;
 		Map.CurrScr()->flags9 = f;
 		
-        g=0;
-        g |= scrdata_dlg[74].flags & D_SELECTED ? mSECRET:0;
-        g |= scrdata_dlg[75].flags & D_SELECTED ? mITEM:0;
-        g |= scrdata_dlg[76].flags & D_SELECTED ? mBELOW:0;
-        g |= scrdata_dlg[77].flags & D_SELECTED ? mLOCKBLOCK:0;
-        g |= scrdata_dlg[78].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
-        g |= scrdata_dlg[79].flags & D_SELECTED ? mCHEST:0;
-        g |= scrdata_dlg[80].flags & D_SELECTED ? mLOCKEDCHEST:0;
-        g |= scrdata_dlg[81].flags & D_SELECTED ? mBOSSCHEST:0;
-        g |= scrdata_dlg[82].flags & D_SELECTED ? mDOOR_DOWN:0;
-        g |= scrdata_dlg[83].flags & D_SELECTED ? mDOOR_LEFT:0;
-        g |= scrdata_dlg[84].flags & D_SELECTED ? mDOOR_RIGHT:0;
-        g |= scrdata_dlg[98].flags & D_SELECTED ? mDOOR_UP:0;
-        Map.CurrScr()->noreset = g;
-        
-        g=0;
-        g |= scrdata_dlg[85].flags & D_SELECTED ? mSECRET:0;
-        g |= scrdata_dlg[86].flags & D_SELECTED ? mITEM:0;
-        g |= scrdata_dlg[87].flags & D_SELECTED ? mBELOW:0;
-        g |= scrdata_dlg[88].flags & D_SELECTED ? mLOCKBLOCK:0;
-        g |= scrdata_dlg[89].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
-        g |= scrdata_dlg[90].flags & D_SELECTED ? mCHEST:0;
-        g |= scrdata_dlg[91].flags & D_SELECTED ? mLOCKEDCHEST:0;
-        g |= scrdata_dlg[92].flags & D_SELECTED ? mBOSSCHEST:0;
-        Map.CurrScr()->nocarry = g;
-        
-        Map.CurrScr()->screen_midi = (scrdata_dlg[94].d1>1)?(scrdata_dlg[94].d1-1):(-(scrdata_dlg[94].d1+1));
-        Map.CurrScr()->lens_layer = scrdata_dlg[134].d1==0?0:(scrdata_dlg[134].d1>=7?(llLENSSHOWS|(scrdata_dlg[134].d1-7)):(llLENSHIDES|(scrdata_dlg[134].d1-1)));
-        Map.CurrScr()->nextmap = scrdata_dlg[34].d1;
-        Map.CurrScr()->nextscr = scrdata_dlg[35].d1;
-        
-        refresh(rMAP+rSCRMAP+rMENU);
-        Map.CurrScr()->timedwarptics=atoi(timedstring);
-        Map.CurrScr()->csensitive=(atoi(csensstring)<=8?zc_max(1,atoi(csensstring)):Map.CurrScr()->csensitive);
-        Map.CurrScr()->oceansfx=scrdata_dlg[100].d1;
-        Map.CurrScr()->bosssfx=scrdata_dlg[102].d1;
-        Map.CurrScr()->secretsfx=scrdata_dlg[104].d1;
-        Map.CurrScr()->holdupsfx=scrdata_dlg[106].d1;
-        
-        h=0;
-        
-        for(int i=7; i>=0; i--)
-        {
-            h<<=1;
-            h |= scrdata_dlg[107+i].flags & D_SELECTED ? 1:0;
-        }
-        
-        Map.CurrScr()->enemyflags=h;
-        
-        saved=false;
-    }
-    
-    return D_O_K;
+		g=0;
+		g |= scrdata_dlg[74].flags & D_SELECTED ? mSECRET:0;
+		g |= scrdata_dlg[75].flags & D_SELECTED ? mITEM:0;
+		g |= scrdata_dlg[76].flags & D_SELECTED ? mBELOW:0;
+		g |= scrdata_dlg[77].flags & D_SELECTED ? mLOCKBLOCK:0;
+		g |= scrdata_dlg[78].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
+		g |= scrdata_dlg[79].flags & D_SELECTED ? mCHEST:0;
+		g |= scrdata_dlg[80].flags & D_SELECTED ? mLOCKEDCHEST:0;
+		g |= scrdata_dlg[81].flags & D_SELECTED ? mBOSSCHEST:0;
+		g |= scrdata_dlg[82].flags & D_SELECTED ? mDOOR_DOWN:0;
+		g |= scrdata_dlg[83].flags & D_SELECTED ? mDOOR_LEFT:0;
+		g |= scrdata_dlg[84].flags & D_SELECTED ? mDOOR_RIGHT:0;
+		g |= scrdata_dlg[98].flags & D_SELECTED ? mDOOR_UP:0;
+		Map.CurrScr()->noreset = g;
+		
+		g=0;
+		g |= scrdata_dlg[85].flags & D_SELECTED ? mSECRET:0;
+		g |= scrdata_dlg[86].flags & D_SELECTED ? mITEM:0;
+		g |= scrdata_dlg[87].flags & D_SELECTED ? mBELOW:0;
+		g |= scrdata_dlg[88].flags & D_SELECTED ? mLOCKBLOCK:0;
+		g |= scrdata_dlg[89].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
+		g |= scrdata_dlg[90].flags & D_SELECTED ? mCHEST:0;
+		g |= scrdata_dlg[91].flags & D_SELECTED ? mLOCKEDCHEST:0;
+		g |= scrdata_dlg[92].flags & D_SELECTED ? mBOSSCHEST:0;
+		Map.CurrScr()->nocarry = g;
+		
+		Map.CurrScr()->screen_midi = (scrdata_dlg[94].d1>1)?(scrdata_dlg[94].d1-1):(-(scrdata_dlg[94].d1+1));
+		Map.CurrScr()->lens_layer = scrdata_dlg[134].d1==0?0:(scrdata_dlg[134].d1>=7?(llLENSSHOWS|(scrdata_dlg[134].d1-7)):(llLENSHIDES|(scrdata_dlg[134].d1-1)));
+		Map.CurrScr()->nextmap = scrdata_dlg[34].d1;
+		Map.CurrScr()->nextscr = scrdata_dlg[35].d1;
+		
+		refresh(rMAP+rSCRMAP+rMENU);
+		Map.CurrScr()->timedwarptics=atoi(timedstring);
+		Map.CurrScr()->csensitive=(atoi(csensstring)<=8?zc_max(1,atoi(csensstring)):Map.CurrScr()->csensitive);
+		Map.CurrScr()->oceansfx=scrdata_dlg[100].d1;
+		Map.CurrScr()->bosssfx=scrdata_dlg[102].d1;
+		Map.CurrScr()->secretsfx=scrdata_dlg[104].d1;
+		Map.CurrScr()->holdupsfx=scrdata_dlg[106].d1;
+		
+		h=0;
+		
+		for(int i=7; i>=0; i--)
+		{
+			h<<=1;
+			h |= scrdata_dlg[107+i].flags & D_SELECTED ? 1:0;
+		}
+		
+		Map.CurrScr()->enemyflags=h;
+		
+		saved=false;
+	}
+	
+	return D_O_K;
 }
 
 const char *nslist(int index, int *list_size)
