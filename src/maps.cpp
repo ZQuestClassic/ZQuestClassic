@@ -66,6 +66,7 @@ extern movingblock mblock2;                                 //mblock[4]?
 extern zinitdata zinit;
 extern LinkClass Link;
 int current_ffcombo=-1;
+bool triggered_screen_secrets=false;
 
 short ffposx[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
                    -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000
@@ -1574,6 +1575,8 @@ void hidden_entrance(int tmp,bool refresh, bool high16only,int single) //Perhaps
 			   single==-2? " by the 'Enemies->Secret' screen flag":
 			   single==-3? " by the 'Secrets' screen state" :
 			   single==-4? " by a script":"");
+	if(single < 0)
+		triggered_screen_secrets = true;
 	hidden_entrance2(tmpscr + tmp, tmpscr2, high16only, single);
 }
 void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int single) //Perhaps better known as 'Trigger Secrets'
@@ -4323,7 +4326,8 @@ void openshutters()
 
 void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 {
-	
+	if(!tmp)
+		triggered_screen_secrets = false; //Reset var
 	
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	for(word x=0; x<animated_combos; x++)

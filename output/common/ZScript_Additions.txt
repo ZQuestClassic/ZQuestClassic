@@ -3569,6 +3569,9 @@ int Script;
 untyped InitD[8];
  * The eight D args used by the screendata script for the current screen.
 
+bool SecretsTriggered();
+ * Returns true if the secrets for this screen have been triggered (temp or perm)
+
 int ComboE[176];
  * The effect area bits of each of the 176 combos used on the screen.
 

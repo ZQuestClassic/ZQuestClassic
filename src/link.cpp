@@ -16918,7 +16918,7 @@ void LinkClass::checkspecial()
         }
         
         // item
-        if(hasitem)
+        if(hasitem&(4|2|1))
         {
             int Item=tmpscr->item;
             
@@ -16936,7 +16936,7 @@ void LinkClass::checkspecial()
                                            (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
             }
             
-            hasitem=0;
+            hasitem &= ~ (4|2|1);
         }
         
         // clear enemies and open secret
@@ -16992,6 +16992,22 @@ void LinkClass::checkspecial()
     {
         remove_bosschests((currscr>=128)?1:0);
     }
+	
+	if((hasitem&8) && triggered_screen_secrets)
+	{
+		int Item=tmpscr->item;
+		
+		if(!getmapflag(mITEM) && (tmpscr->hasitem != 0))
+		{
+			items.add(new item((zfix)tmpscr->itemx,
+							   (tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
+							   (tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (zfix)170 : (zfix)0,
+							   Item,ipONETIME+ipBIGRANGE+((itemsbuf[Item].family==itype_triforcepiece ||
+									   (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
+		}
+		
+		hasitem &= ~8;
+	}
 }
 
 void LinkClass::checkspecial2(int *ls)
