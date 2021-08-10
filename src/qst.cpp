@@ -3159,6 +3159,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		if(get_bit(quest_rules,qr_SET_XBUTTON_ITEMS))
 			set_bit(quest_rules,qr_SET_YBUTTON_ITEMS,1);
 	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 59) )
+	{
+		set_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0,1);
+	}
 	
     if ( tempheader.zelda_version < 0x254 )
     {
@@ -16796,7 +16800,12 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 				}
 			}
 		}
-		
+		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+		{
+			combobuf[0].walk = 0xF0;
+			combobuf[0].type = 0;
+			combobuf[0].flag = 0;
+		}
 	}
 
 	//Now for the new combo alias reset

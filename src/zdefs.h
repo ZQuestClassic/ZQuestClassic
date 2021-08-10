@@ -115,7 +115,7 @@
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
-#define VERSION_BUILD       58                             //build number of this version
+#define VERSION_BUILD       59                             //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
 //#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 37"                    //version of the program as presented in text
 //#define IS_BETA             -39                       //is this a beta? (1: beta, -1: alpha)
@@ -983,7 +983,7 @@ enum
 	qr_WATER_ON_LAYER_1, qr_WATER_ON_LAYER_2, qr_SHALLOW_SENSITIVE, qr_SMARTER_SMART_SCROLL,
 	//29
 	qr_INSTANT_CONTINUE, qr_NONHEAVY_BLOCKTRIGGER_PERM, qr_SET_YBUTTON_ITEMS, qr_CORRECTED_EW_BRANG_ANIM,
-	qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER, qr_OVERHEAD_COMBOS_L1_L2,
+	qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER, qr_OVERHEAD_COMBOS_L1_L2, qr_ALLOW_EDITING_COMBO_0,
 	//ZScript Parser //room for 20 of these
 	//80
 	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
@@ -2916,6 +2916,45 @@ struct newcombo
 		o_tile = newtile;
 		tile = newtile;
 	}
+	
+	void clear()
+	{
+		tile = 0;
+		flip = 0;
+		walk = 0xF0;
+		type = 0;
+		csets = 0;
+		foo = 0;
+		frames = 0;
+		speed = 0;
+		nextcombo = 0;
+		nextcset = 0;
+		flag = 0;
+		skipanim = 0;
+		skipanimy = 0;
+		nexttimer = 0;
+		animflags = 0;
+		for(int q = 0; q < 6; ++q)
+			expansion[q] = 0;
+		for(int q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+			attributes[q] = 0;
+		usrflags = 0;
+		for(int q = 0; q < 3; ++q)
+			triggerflags[q] = 0;
+		triggerlevel = 0;
+		for(int q = 0; q < 11; ++q)
+			label[q] = 0;
+		for(int q = 0; q < 8; ++q)
+			attribytes[0] = 0;
+		for(int q = 0; q < 8; ++q)
+			attrishorts[0] = 0;
+		script = 0;
+		for(int q = 0; q < 2; ++q)
+			initd[q] = 0;
+		o_tile = 0;
+		cur_frame = 0;
+		aclk = 0;
+	}
 };
 
 #define AF_FRESH 1
@@ -4719,6 +4758,7 @@ extern void removeFromItemCache(int itemid);
 
 #define until(n) while(!(n))
 #define unless(n) if(!(n))
+#define SETFLAG(v, fl, b)	if(b) v |= fl; else v &= ~fl;
 
 enum //Mapscr hardcodes for temp mapscrs
 {

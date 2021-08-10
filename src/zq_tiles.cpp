@@ -19403,6 +19403,13 @@ bool edit_combo(int c,bool freshen,int cs)
 	reset_combo_animations2();
 	
 	curr_combo = combobuf[c];
+	bool disableEdit = !get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0) && c == 0;
+	if(disableEdit)
+	{
+		curr_combo.walk = 0xF0;
+		curr_combo.type = 0;
+		curr_combo.flag = 0;
+	}
 	
 	char cset_str[8];
 	char frm[8];
@@ -19441,7 +19448,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	
 	int thescript = 0;
 	
-	char combonumstr[25];
+	char combonumstr[48];
 	
 	combo_dlg[13].d1 = -1;
 	combo_dlg[13].fg = cs;
@@ -19453,7 +19460,9 @@ bool edit_combo(int c,bool freshen,int cs)
 		csets |= 0xF0;
 	}
 	
-	sprintf(combonumstr,"Combo %d", c);
+	if(disableEdit)
+		sprintf(combonumstr, "Combo %d - No editing solidity/type", c);
+	else sprintf(combonumstr,"Combo %d", c);
 	sprintf(cset_str,"%d",csets);
 	//int temptile = curr_combo.tile;
 	//int temptile2 = NEWMAXTILES - temptile;
@@ -19515,12 +19524,15 @@ bool edit_combo(int c,bool freshen,int cs)
 	for(int i=0; i<4; i++)
 	{
 		combo_dlg[i+17].flags = curr_combo.walk&(1<<i) ? D_SELECTED : 0;
+		SETFLAG(combo_dlg[i+17].flags, D_DISABLED, disableEdit);
 	}
-	
+	SETFLAG(combo_dlg[142].flags, D_DISABLED, disableEdit); //Text for solidity
 	for(int i=0; i<4; i++)
 	{
 		combo_dlg[i+137].flags = curr_combo.walk&(1<<(i+4)) ? D_SELECTED : 0;
+		SETFLAG(combo_dlg[i+137].flags, D_DISABLED, disableEdit);
 	}
+	SETFLAG(combo_dlg[141].flags, D_DISABLED, disableEdit); //Text for effect
 	
 	for(int i=0; i<4; i++)
 	{
@@ -19618,6 +19630,9 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[34].d1 = curr_combo.nextcombo;
 	combo_dlg[34].fg = curr_combo.nextcset;
 	combo_dlg[36].d1 = curr_combo.flag;
+	SETFLAG(combo_dlg[35].flags, D_DISABLED, disableEdit); //Text
+	SETFLAG(combo_dlg[36].flags, D_DISABLED, disableEdit); //Dropdown
+	SETFLAG(combo_dlg[45].flags, D_DISABLED, disableEdit); //? button
 	combo_dlg[39].dp = skip;
 	combo_dlg[41].dp = skipy;
 	
@@ -19755,6 +19770,9 @@ bool edit_combo(int c,bool freshen,int cs)
 	
 	combo_dlg[27].d1 = index; //*
 	combo_dlg[27].dp = (void *) &combotype_list; //*
+	SETFLAG(combo_dlg[26].flags, D_DISABLED, disableEdit); //Text
+	SETFLAG(combo_dlg[27].flags, D_DISABLED, disableEdit); //Dropdown
+	SETFLAG(combo_dlg[46].flags, D_DISABLED, disableEdit); //? button
 	//  combo_dlg[1].fg = cs;
 	edit_combo_cset = cs;
 	

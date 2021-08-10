@@ -19077,6 +19077,8 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
     
     case MSG_CLICK:
     {
+		if(d->flags & D_DISABLED)
+			return D_O_K;
         if(d->d1==1)
         {
             if(!(d->flags&D_SELECTED))
