@@ -10533,7 +10533,7 @@ void LinkClass::pitfall()
 			newcombo* cmb = fallCombo ? &combobuf[fallCombo] : NULL;
 			if(cmb)
 			{
-				dmg = cmb->attributes[0];
+				dmg = cmb->attributes[0]/10000L;
 				dmg_perc = cmb->usrflags&cflag3;
 				warp = cmb->usrflags&cflag1;
 			}
