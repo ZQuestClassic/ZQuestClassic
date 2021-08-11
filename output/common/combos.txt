@@ -352,7 +352,7 @@ Custom (Script) 1 to 20
 
 
     ____                                      ______                __              
-   / __ \____ _____ ___  ____ _____ ____     / ____/___  ____ ___  / /_  ____  _____
+   / __ \____  ____ ___  ____  ____  ___     / ____/___  ____ ___  / /_  ____  _____
   / / / / __ `/ __ `__ \/ __ `/ __ `/ _ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
  / /_/ / /_/ / / / / / / /_/ / /_/ /  __/  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
 /_____/\__,_/_/ /_/ /_/\__,_/\__, /\___/   \____/\____/_/ /_/ /_/_.___/\____/____/  
@@ -832,5 +832,33 @@ Pitfall Combos
 	Flags
 		"Can't use from [dir]"
 			If enabled, prevents opening from the given side of the combo.
+			
+   _____ _                ______                __              
+  / ___/(_)___  ____     / ____/___  ____ ___  / /_  ____  _____
+  \__ \/ / __ `/ __ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+ ___/ / / /_/ / / / /  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+/____/_/\__, /_/ /_/   \____/\____/_/ /_/ /_/_.___/\____/____/ 
+       /____/        
+	
+	Attributes
+		String
+			This represents what message to be displayed.
+			Values:
+				1 to 65535: Displays the numbered string
+				-1: Displays the screen's string
+				-2: Displays the string with the number matching the screen's Catch All value
+				-10 to -17: Displays the string stored in "Screen->D[0 to 7]"
+				Any other value will cause the combo to fail (no message displayed)
+	Attribytes
+		Button
+			If set to a valid button constant which is not a directional button:
+				Sign will be read when selected button is pressed in front of it
+				A = 4, B = 5, START = 6, L = 7, R = 8,
+				MAP = 9, EX1 = 10, EX2 = 11, EX3 = 12, EX4 = 13
+			Else:
+				Sign will be read when walked into
+	Flags
+		"Can't use from [dir]"
+			If enabled, prevents reading from the given side of the combo.
 
-To-do: Chests
+

@@ -6994,6 +6994,7 @@ bool LinkClass::animate(int)
 			checkchest(cLOCKEDCHEST);
 			checkchest(cBOSSCHEST);
 		}
+	checksigns();
 	
 	if(isStanding())
 	{
@@ -15931,6 +15932,157 @@ void LinkClass::checkchest(int type)
 	{
 		items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
 	}
+}
+
+void LinkClass::checksigns()
+{
+    if(toogam || z>0) return;
+	if(msg_active || (msg_onscreen && get_bit(quest_rules, qr_MSGDISAPPEAR)))
+		return; //Don't overwrite a message waiting to be dismissed
+	zfix bx, by;
+	zfix bx2, by2;
+	zfix fx(-1), fy(-1);
+	switch(dir)
+	{
+		case up:
+			by = y + (bigHitbox ? -2 : 6);
+			by2 = by;
+			bx = x + 4;
+			bx2 = bx + 8;
+			break;
+		case down:
+			by = y + 17;
+			by2 = by;
+			bx = x + 4;
+			bx2 = bx + 8;
+			break;
+		case left:
+			by = y + (bigHitbox ? 0 : 8);
+			by2 = y + 8;
+			bx = x - 2;
+			bx2 = x - 2;
+			break;
+		case right:
+			by = y + (bigHitbox ? 0 : 8);
+			by2 = y + 8;
+			bx = x + 17;
+			bx2 = x + 17;
+			break;
+	}
+	
+	int found = -1;
+	
+	if(combobuf[MAPCOMBO(bx,by)].type==cSIGNPOST && _effectflag(bx,by,1, -1))
+	{
+		found = MAPCOMBO(bx,by);
+		fx = bx; fy = by;
+		for (int i = 0; i <= 1; ++i)
+		{
+			if(tmpscr2[i].valid!=0)
+			{
+				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+			}
+		}
+	}
+	if(combobuf[MAPCOMBO(bx2,by2)].type==cSIGNPOST && _effectflag(bx2,by2,1, -1))
+	{
+		found = MAPCOMBO(bx2,by2);
+		fx = bx2; fy = by2;
+		for (int i = 0; i <= 1; ++i)
+		{
+			if(tmpscr2[i].valid!=0)
+			{
+				if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+			}
+		}
+	}
+	
+	if(found<0)
+	{
+		for(int i=0; i<2; i++)
+		{
+			if(combobuf[MAPCOMBO2(i,bx,by)].type==cSIGNPOST && _effectflag(bx,by,1, i))
+			{
+				found = MAPCOMBO2(i,bx,by);
+				fx = bx; fy = by;
+				if (i == 0 && tmpscr2[1].valid!=0)
+				{
+					if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+				}
+			}
+			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==cSIGNPOST && _effectflag(bx2,by2,1, i))
+			{
+				found = MAPCOMBO2(i,bx2,by2);
+				fx = bx2; fy = by2;
+				if (i == 0 && tmpscr2[1].valid!=0)
+				{
+					if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+				}
+			}
+			if(found>-1) break;
+		}
+	}
+	
+	if(found<0) return;
+	newcombo const& cmb = combobuf[found];
+	switch(dir)
+	{
+		case up:
+			if(cmb.usrflags&cflag10)
+				return;
+			break;
+		case down:
+			if(cmb.usrflags&cflag9)
+				return;
+			break;
+		case left:
+			if(cmb.usrflags&cflag12)
+				return;
+			break;
+		case right:
+			if(cmb.usrflags&cflag11)
+				return;
+			break;
+	}
+	int btn = cmb.attribytes[2];
+	switch(btn) //Check for valid button
+	{
+		//Directions all indicate to use the 'pushing' state
+		case btnUp: case btnDown: case btnLeft: case btnRight:
+		case btnAxisUp: case btnAxisDown: case btnAxisLeft: case btnAxisRight:
+			btn = 0;
+			break;
+		default:
+			if(btn > btnAxisRight) //too big
+				btn = 0; //Default to pushing state
+			break;
+	}
+	
+	if(btn)
+	{
+		if(!getInput(btn, true, true))
+			return; //Button not pressed
+	}
+	else if(pushing < 8 || pushing%8) return; //Not pushing against sign enough
+	
+	int str = cmb.attributes[0]/10000L;
+	switch(str)
+	{
+		case -1: //Special case: Use Screen String
+			str = tmpscr->str;
+			break;
+		case -2: //Special case: Use Screen Catchall
+			str = tmpscr->catchall;
+			break;
+		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
+			int di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+			str = game->screen_d[di][abs(str)-10] / 10000L;
+			break;
+	}
+	if(unsigned(str) >= MAXMSGS)
+		str = 0;
+	if(str)
+		donewmsg(str);
 }
 
 void LinkClass::checklocked()

@@ -1279,6 +1279,7 @@ bool isHSGrabbable(newcombo const& cmb)
 		case cBUSHTOUCHY:
 		case cFLOWERSTOUCHY:
 		case cBUSHNEXTTOUCHY:
+		case cSIGNPOST:
 			return (cmb.usrflags&cflag16)?true:false;
 		default:
 			return false;
