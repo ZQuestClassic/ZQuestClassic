@@ -353,7 +353,6 @@ item::item(zfix X,zfix Y,zfix Z,int i,int p,int c, bool isDummy) : sprite()
 			break;
 	}
 	
-	
 	if(itemsbuf[id].misc&1)
 		flash=true;
 		
