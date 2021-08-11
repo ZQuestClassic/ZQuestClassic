@@ -15864,23 +15864,11 @@ void LinkClass::checkchest(int type)
 				return;
 			break;
 	}
-	int btn = cmb.attribytes[2];
-	switch(btn) //Check for valid button
-	{
-		//Directions all indicate to use the 'pushing' state
-		case btnUp: case btnDown: case btnLeft: case btnRight:
-		case btnAxisUp: case btnAxisDown: case btnAxisLeft: case btnAxisRight:
-			btn = 0;
-			break;
-		default:
-			if(btn > btnAxisRight) //too big
-				btn = 0; //Default to pushing state
-			break;
-	}
+	int intbtn = cmb.attribytes[2];
 	
-	if(btn)
+	if(intbtn) //
 	{
-		if(!getInput(btn, true, true))
+		if(!getIntBtnInput(intbtn, true, true))
 			return; //Button not pressed
 	}
 	else if(pushing < 8) return; //Not pushing against chest enough
@@ -16050,23 +16038,11 @@ void LinkClass::checksigns()
 				return;
 			break;
 	}
-	int btn = cmb.attribytes[2];
-	switch(btn) //Check for valid button
-	{
-		//Directions all indicate to use the 'pushing' state
-		case btnUp: case btnDown: case btnLeft: case btnRight:
-		case btnAxisUp: case btnAxisDown: case btnAxisLeft: case btnAxisRight:
-			btn = 0;
-			break;
-		default:
-			if(btn > btnAxisRight) //too big
-				btn = 0; //Default to pushing state
-			break;
-	}
+	int intbtn = cmb.attribytes[2];
 	
-	if(btn)
+	if(intbtn) //
 	{
-		if(!getInput(btn, true, true))
+		if(!getIntBtnInput(intbtn, true, true))
 			return; //Button not pressed
 	}
 	else if(pushing < 8 || pushing%8) return; //Not pushing against sign enough

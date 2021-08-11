@@ -4066,6 +4066,15 @@ enum controls //Args for 'getInput()'
 	btnM, btnF12, btnF11, btnF5, btnQ, btnI
 };
 
+#define INT_BTN_A   0x01
+#define INT_BTN_B   0x02
+#define INT_BTN_L   0x04
+#define INT_BTN_R   0x08
+#define INT_BTN_EX1 0x10
+#define INT_BTN_EX2 0x20
+#define INT_BTN_EX3 0x40
+#define INT_BTN_EX4 0x80
+
 ///////////////
 /// MODULES ///
 ///////////////

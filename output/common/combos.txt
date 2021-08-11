@@ -1,8 +1,8 @@
 /*************************************
 *     Combo Editor - Attributes      *
 *         Flags and Triggers         *
-*           2.55 Alpha 80            *
-*      Rev.8, 18th August, 2020      *
+*           2.55 Alpha 95            *
+*      Rev.9, 11th August, 2021      *
 *************************************/
 
 1. COMBO TYPES
@@ -823,12 +823,17 @@ Pitfall Combos
 	
 	Attribytes
 		Button
-			If set to a valid button constant which is not a directional button:
-				Chest will open when selected button is pressed in front of it
-				A = 4, B = 5, START = 6, L = 7, R = 8,
-				MAP = 9, EX1 = 10, EX2 = 11, EX3 = 12, EX4 = 13
-			Else:
-				Chest will open when walked into
+			A bitwise value representing what buttons to use
+			  A = 1
+			  B = 2
+			  L = 4
+			  R = 8
+			  Ex1 = 16
+			  Ex2 = 32
+			  Ex3 = 64
+			  Ex4 = 128
+			To use multiple buttons, add their values together.
+			If the value '0' is used, the chest will be opened when you walk into it.
 	Flags
 		"Can't use from [dir]"
 			If enabled, prevents opening from the given side of the combo.
@@ -851,12 +856,17 @@ Pitfall Combos
 				Any other value will cause the combo to fail (no message displayed)
 	Attribytes
 		Button
-			If set to a valid button constant which is not a directional button:
-				Sign will be read when selected button is pressed in front of it
-				A = 4, B = 5, START = 6, L = 7, R = 8,
-				MAP = 9, EX1 = 10, EX2 = 11, EX3 = 12, EX4 = 13
-			Else:
-				Sign will be read when walked into
+			A bitwise value representing what buttons to use
+			  A = 1
+			  B = 2
+			  L = 4
+			  R = 8
+			  Ex1 = 16
+			  Ex2 = 32
+			  Ex3 = 64
+			  Ex4 = 128
+			To use multiple buttons, add their values together.
+			If the value '0' is used, the sign will be read when you walk into it.
 	Flags
 		"Can't use from [dir]"
 			If enabled, prevents reading from the given side of the combo.

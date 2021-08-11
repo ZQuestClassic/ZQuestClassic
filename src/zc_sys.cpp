@@ -10808,6 +10808,20 @@ bool getInput(int btn, bool press, bool drunk, bool ignoreDisable)
 	if(drunk && drunkstate) ret = !ret;
 	return ret;
 }
+
+bool getIntBtnInput(byte intbtn, bool press, bool drunk, bool ignoreDisable)
+{
+	bool ret = false;
+	if(intbtn & INT_BTN_A) ret |= getInput(btnA, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_B) ret |= getInput(btnB, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_L) ret |= getInput(btnL, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_R) ret |= getInput(btnR, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_EX1) ret |= getInput(btnEx1, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_EX2) ret |= getInput(btnEx2, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_EX3) ret |= getInput(btnEx3, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_EX4) ret |= getInput(btnEx4, press, drunk, ignoreDisable);
+	return ret; //No early return, to make sure all button presses are eaten that should be! -Em
+}
 bool Up()
 {
     return getInput(btnUp);
