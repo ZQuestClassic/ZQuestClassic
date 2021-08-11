@@ -231,7 +231,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            22
 #define V_DMAPS            15
 #define V_DOORS            1
-#define V_ITEMS           46
+#define V_ITEMS           48
 #define V_WEAPONS          7
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -534,8 +534,12 @@ extern bool fake_pack_writing;
 #define fGENERALSCRIPT5 	0x10 //'S.Flags2' General Use 5 (Scripts)
 #define fMAZEvSIDEWARP 		0x20 //'S.Flags1' Maze overrides side warps
 #define fSECRETITEM 		0x40 //'S.Flags3' Secrets->Item
+#define fITEMSECRET 		0x80 //'S.Flags3' Item->Secret
 
 //flags9
+#define fITEMSECRETPERM 	0x01 //'S.Flags3' Item->Secret is Permanent
+#define fITEMRETURN	 	0x02 //'S.Flags3' Item always returns
+#define fBELOWRETURN	 	0x04 //'S.Flags3' Special Item always returns
 
 //lens layer effects
 #define llNORMAL        0
@@ -568,6 +572,7 @@ extern bool fake_pack_writing;
 #define ipTIMER         256                                 // Disappears after a while
 #define ipBIGTRI        512                                 // Large collision rectangle (used for large triforce)
 #define ipNODRAW        1024                                // Don't draw this (for underwater items)
+#define ipSECRETS       4096                                // Trigger Secrets when picked up
 
 
 
@@ -1812,7 +1817,7 @@ struct itemdata
     int hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs; //item
     int weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
     int tilew, tileh, weap_tilew, weap_tileh; //New for 2.54
-    int pickup; 
+    long pickup; byte pickupflag;
     
 #define itemdataPSTRING_ALWAYS		0x00000001
 #define itemdataPSTRING_IP_HOLDUP	0x00000002

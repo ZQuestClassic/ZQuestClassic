@@ -9883,9 +9883,9 @@ void enemy::removearmos(int ax,int ay)
 	
 	if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
 	{
-		if(!getmapflag())
+		if(!getmapflag() || (tmpscr->flags9&fBELOWRETURN))
 		{
-			additem(ax,ay,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0));
+			additem(ax,ay,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 			sfx(tmpscr->secretsfx);
 		}
 	}
@@ -15322,7 +15322,7 @@ eGanon::eGanon(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	hzsz=16; //can't be jumped.
 	clk2=70;
 	misc=-1;
-	mainguy=!getmapflag();
+	mainguy=(!getmapflag() || (tmpscr->flags9&fBELOWRETURN));
 }
 
 bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this version of GANON!! -Z
@@ -15411,7 +15411,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
 		{
 			misc=5;
 			
-			if(getmapflag())
+			if(getmapflag() && !(tmpscr->flags9&fBELOWRETURN))
 			{
 				game->lvlitems[dlevel]|=liBOSS;
 				//play_DmapMusic();
@@ -19502,7 +19502,7 @@ void loadguys()
 			addfires();
 			
 		if(currscr>=128)
-			if(getmapflag())
+			if(getmapflag() && !(tmpscr->flags9&fBELOWRETURN))
 				Guy=0;
 				
 		switch(tmpscr->room)
@@ -19518,7 +19518,7 @@ void loadguys()
 		case rTAKEONE:
 		case rREPAIR:
 		case rRP_HC:
-			if(getmapflag())
+			if(getmapflag() && !(tmpscr->flags9&fBELOWRETURN))
 				Guy=0;
 				
 			break;
@@ -19579,7 +19579,7 @@ void loaditem()
 	{
 		Item=tmpscr->item;
 		
-		if(!getmapflag(mITEM) && (tmpscr->hasitem != 0))
+		if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
 		{
 			if(tmpscr->flags8&fSECRETITEM)
 				hasitem=8;
@@ -19591,13 +19591,13 @@ void loaditem()
 				items.add(new item((zfix)tmpscr->itemx,
 								   (tmpscr->flags7&fITEMFALLS && isSideViewGravity()) ? (zfix)-170 : (zfix)tmpscr->itemy+(get_bit(quest_rules, qr_NOITEMOFFSET)?0:1),
 								   (tmpscr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
-								   Item,ipONETIME+ipBIGRANGE+((itemsbuf[Item].family==itype_triforcepiece ||
-										   (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
+								   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
+										   (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 	}
 	else if(!(DMaps[currdmap].flags&dmfCAVES))
 	{
-		if(!getmapflag() && tmpscr[1].room==rSP_ITEM
+		if((!getmapflag() || (tmpscr[1].flags9&fBELOWRETURN)) && tmpscr[1].room==rSP_ITEM
 				&& (currscr==128 || !get_bit(quest_rules,qr_ITEMSINPASSAGEWAYS)))
 		{
 			Item=tmpscr[1].catchall;
@@ -19606,7 +19606,7 @@ void loaditem()
 				items.add(new item((zfix)tmpscr->itemx,
 								   (tmpscr->flags7&fITEMFALLS && isSideViewGravity()) ? (zfix)-170 : (zfix)tmpscr->itemy+(get_bit(quest_rules, qr_NOITEMOFFSET)?0:1),
 								   (tmpscr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
-								   Item,ipONETIME2|ipBIGRANGE|ipHOLDUP,0));
+								   Item,ipONETIME2|ipBIGRANGE|ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 	}
 }
@@ -20552,7 +20552,7 @@ void setupscreen()
 	switch(tmpscr[t].room)
 	{
 	case rSP_ITEM:                                          // special item
-		additem(120,89,tmpscr[t].catchall,ipONETIME2+ipHOLDUP+ipCHECK);
+		additem(120,89,tmpscr[t].catchall,ipONETIME2+ipHOLDUP+ipCHECK | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 		break;
 		
 	case rINFO:                                             // pay for info
@@ -21713,7 +21713,7 @@ void roaming_item()
 		
 		hasitem &= ~4;
 		
-		if(!getmapflag(mITEM) && (tmpscr->hasitem != 0))
+		if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
 		{
 			additem(0,0,Item,ipENEMY+ipONETIME+ipBIGRANGE
 					+ (((tmpscr->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
