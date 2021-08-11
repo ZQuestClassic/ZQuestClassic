@@ -115,7 +115,7 @@
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
-#define VERSION_BUILD       59                             //build number of this version
+#define VERSION_BUILD       60                             //V_BUILD build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
 //#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 37"                    //version of the program as presented in text
 //#define IS_BETA             -39                       //is this a beta? (1: beta, -1: alpha)
@@ -766,7 +766,7 @@ enum
 	//160
 	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC, cPITFALL, cSTEPSFX,
 	//165
-	cBRIDGE,
+	cBRIDGE, cSIGNPOST,
     cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -808,16 +808,16 @@ enum
     //181
     cFREEZEFFCONLY, //freezes only scripts
     //182
-    cSYS183, cSYS184, cSYS185, cSYS186, cSYS187, cSYS188, cSYS189, cSYS190,
-    cSYS191, cSYS192, cSYS193, cSYS194, cSYS195, cSYS196, cSYS197, cSYS198, cSYS199, cSYS200, 
-    cSYS201, cSYS202, cSYS203, cSYS204, cSYS205, cSYS206, cSYS207, cSYS208, cSYS209, cSYS210,
-    cSYS211, cSYS212, cSYS213, cSYS214, cSYS215, cSYS216, cSYS217, cSYS218, cSYS219, cSYS220,
-    cSYS221, cSYS222, cSYS223, cSYS224, cSYS225, cSYS226, cSYS227, cSYS228, cSYS229, cSYS230, 
-    cSYS231, cSYS232, cSYS233, cSYS234, cSYS235, cSYS236, cSYS237, cSYS238, cSYS239, cSYS240, 
-    cSYS241, cSYS242, cSYS243, cSYS244, cSYS245, cSYS246, cSYS247, cSYS248, cSYS249, cSYS250,
-    cSYS251, cSYS252, cSYS253, cSYS254,
+    // cSYS183, cSYS184, cSYS185, cSYS186, cSYS187, cSYS188, cSYS189, cSYS190,
+    // cSYS191, cSYS192, cSYS193, cSYS194, cSYS195, cSYS196, cSYS197, cSYS198, cSYS199, cSYS200, 
+    // cSYS201, cSYS202, cSYS203, cSYS204, cSYS205, cSYS206, cSYS207, cSYS208, cSYS209, cSYS210,
+    // cSYS211, cSYS212, cSYS213, cSYS214, cSYS215, cSYS216, cSYS217, cSYS218, cSYS219, cSYS220,
+    // cSYS221, cSYS222, cSYS223, cSYS224, cSYS225, cSYS226, cSYS227, cSYS228, cSYS229, cSYS230, 
+    // cSYS231, cSYS232, cSYS233, cSYS234, cSYS235, cSYS236, cSYS237, cSYS238, cSYS239, cSYS240, 
+    // cSYS241, cSYS242, cSYS243, cSYS244, cSYS245, cSYS246, cSYS247, cSYS248, cSYS249, cSYS250,
+    // cSYS251, cSYS252, cSYS253, cSYS254,
     //Should be 255
-    cEXPANDED, //Set to this, and then select an expansion[0] type for the 'oombo editor'.
+    cEXPANDED=255, //Set to this, and then select an expansion[0] type for the 'oombo editor'.
     
     //2.54, these would need filepack changes. Needs V_COMBOS.
     cMAX250 //Old max, to make filepack handling easier. 
@@ -991,7 +991,9 @@ enum
 	qr_WATER_ON_LAYER_1, qr_WATER_ON_LAYER_2, qr_SHALLOW_SENSITIVE, qr_SMARTER_SMART_SCROLL,
 	//29
 	qr_INSTANT_CONTINUE, qr_NONHEAVY_BLOCKTRIGGER_PERM, qr_SET_YBUTTON_ITEMS, qr_CORRECTED_EW_BRANG_ANIM,
-	qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER, qr_OVERHEAD_COMBOS_L1_L2, qr_ALLOW_EDITING_COMBO_0,
+	qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER, qr_OVERHEAD_COMBOS_L1_L2, qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION,
+	//30
+	
 	//ZScript Parser //room for 20 of these
 	//80
 	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation

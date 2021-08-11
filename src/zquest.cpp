@@ -36607,22 +36607,34 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT6", "cSCRIPT7", "cSCRIPT8", "cSCRIPT9", "cSCRIPT10",
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
-		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE"
+		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE", "cSIGNPOST"
 		    
+		};
+		
+		const char default_ctype_strings[cMAX][255] = 
+		{
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "", "", "", "", "", "", "", "",
+			"", "", "Generic", "Pitfall", "Step->Effects", "Bridge", "Signpost"
 		};
 		
 		for ( int q = 0; q < cMAX; q++ )
 		{
-			strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],""));
-			//al_trace("Combo ID %d TYPE is: %s\n", q, moduledata.combo_type_names[q]);
-			if ( q == cTRIGGERGENERIC && ( moduledata.combo_type_names[q][0] == -1 || moduledata.combo_type_names[q][0] == '-' || moduledata.combo_type_names[q][0] == 0 ))
-			{
-				strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],"Generic"));
-			}
-			if ( q == cSTEPSFX && ( moduledata.combo_type_names[q][0] == -1 || moduledata.combo_type_names[q][0] == '-' || moduledata.combo_type_names[q][0] == 0 ))
-			{
-				strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],"Step->Effects"));
-			}
+			strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],default_ctype_strings[q]));
 		}
 		
 		//map flags

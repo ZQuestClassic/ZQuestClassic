@@ -49,15 +49,20 @@ These additional combo types support extra features:
 	Step Types
 		Step->Next, and Step->Secret combo types now allow setting a sound
 		effect to play when the Hero steps on them.
+	
+	Chest types
+		Chest, Locked Chest, and Boss Locked Chest now allow a 'button' to be assigned.
+		This only works if the 'Old Chest Collision' QR is disabled.
 
 2. TRIGGER WEAPONS
 	Combos now have a set of flags with which you can set weapons that trigger
 	their new properties. 
 
 3. ATTRIBUTES
-	Combos now have two sets of numeric attributes, on two tabs in the Combo Editor.
-	The values on Attributes Tab 1 are restricted to a range of 0 to 255, and the 
-	values on Attributes Tab 2 are restricted to a range of -214748.3648 to 214748.3647.
+	Combos now have three sets of numeric attributes, on three tabs in the Combo Editor.
+	The values on Attribytes Tab are restricted to a range of 0 to 255,
+	The values on Attrishorts Tab are restricted to a range of -32768 to 32767,
+	and the values on Attributes Tab are restricted to a range of -214748.3648 to 214748.3647.
 	
 4. FLAGS
 	Combos now have flags that affect their function, and interact with the values set
@@ -347,7 +352,7 @@ Custom (Script) 1 to 20
 
 
     ____                                      ______                __              
-   / __ \____ _____ ___  ____ _____ ____     / ____/___  ____ ___  / /_  ____  _____
+   / __ \____  ____ ___  ____  ____  ___     / ____/___  ____ ___  / /_  ____  _____
   / / / / __ `/ __ `__ \/ __ `/ __ `/ _ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
  / /_/ / /_/ / / / / / / /_/ / /_/ /  __/  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
 /_____/\__,_/_/ /_/ /_/\__,_/\__, /\___/   \____/\____/_/ /_/ /_/_.___/\____/____/  
@@ -810,5 +815,50 @@ Pitfall Combos
 		No Pull
 			If enabled, the pit pulling you towards it effect is entirely disabled. 
 			The player will fall when their hitbox is fully over the pit. 
-		
-To-do: Chests
+   ________              __     ______                __    
+  / ____/ /_  ___  _____/ /_   / ____/___  ____ ___  / /_  ____  _____
+ / /   / __ \/ _ \/ ___/ __/  / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+/ /___/ / / /  __(__  ) /_   / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+\____/_/ /_/\___/____/\__/   \____/\____/_/ /_/ /_/_.___/\____/____/  
+	
+	Attribytes
+		Button
+			If set to a valid button constant which is not a directional button:
+				Chest will open when selected button is pressed in front of it
+				A = 4, B = 5, START = 6, L = 7, R = 8,
+				MAP = 9, EX1 = 10, EX2 = 11, EX3 = 12, EX4 = 13
+			Else:
+				Chest will open when walked into
+	Flags
+		"Can't use from [dir]"
+			If enabled, prevents opening from the given side of the combo.
+			
+   _____ _                ______                __              
+  / ___/(_)___  ____     / ____/___  ____ ___  / /_  ____  _____
+  \__ \/ / __ `/ __ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+ ___/ / / /_/ / / / /  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+/____/_/\__, /_/ /_/   \____/\____/_/ /_/ /_/_.___/\____/____/ 
+       /____/        
+	
+	Attributes
+		String
+			This represents what message to be displayed.
+			Values:
+				1 to 65535: Displays the numbered string
+				-1: Displays the screen's string
+				-2: Displays the string with the number matching the screen's Catch All value
+				-10 to -17: Displays the string stored in "Screen->D[0 to 7]"
+				Any other value will cause the combo to fail (no message displayed)
+	Attribytes
+		Button
+			If set to a valid button constant which is not a directional button:
+				Sign will be read when selected button is pressed in front of it
+				A = 4, B = 5, START = 6, L = 7, R = 8,
+				MAP = 9, EX1 = 10, EX2 = 11, EX3 = 12, EX4 = 13
+			Else:
+				Sign will be read when walked into
+	Flags
+		"Can't use from [dir]"
+			If enabled, prevents reading from the given side of the combo.
+
+
