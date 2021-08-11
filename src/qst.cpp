@@ -3163,6 +3163,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0,1);
 	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 60) )
+	{
+		set_bit(quest_rules,qr_OLD_CHEST_COLLISION,1);
+	}
 	
     if ( tempheader.zelda_version < 0x254 )
     {

@@ -307,7 +307,9 @@ public:
     void checkbosslockblock();
     void checklockblock();
     void checkswordtap();
+    void oldcheckchest(int type);
     void checkchest(int type);
+    void checksigns();
     void checktouchblk();
     void checklocked();
     void deselectbombs(int super); // switch Link's weapon if his current weapon (bombs) was depleted.

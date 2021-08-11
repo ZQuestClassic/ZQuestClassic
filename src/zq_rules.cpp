@@ -817,7 +817,7 @@ static int compatrules2_list[] =
 
 static int compatrules3_list[] =
 {
-	36, 37, 38, 39, -1
+	36, 37, 38, 39, 40, -1
 };
 
 static TABPANEL compatrules_tabs[] =
@@ -839,7 +839,7 @@ static int compatrules[] =
    qr_OLD_ENEMY_KNOCKBACK_COLLISION, qr_WEAPONSMOVEOFFSCREEN, qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
    qr_SHORTDGNWALK,qr_OLD_STRING_EDITOR_MARGINS,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT,
    qr_BROKEN_OVERWORLD_MINIMAP, qr_BROKEN_RING_POWER, qr_NO_OVERWORLD_MAP_CHARTING, qr_DUNGEONS_USE_CLASSIC_CHARTING,
-   qr_ALLOW_EDITING_COMBO_0,
+   qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION,
 	-1 
 };
 
@@ -898,6 +898,8 @@ static DIALOG compatrules_dlg[] =
 	{ jwin_check_proc,      10, 13+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Overworld DMaps Do Not Chart Progress", NULL, NULL },
 	{ jwin_check_proc,      10, 13+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Dungeon DMaps Use Classic Charting", NULL, NULL },
 	{ jwin_check_proc,      10, 13+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Allow Editing Combo 0", NULL, NULL },
+	// 40
+	{ jwin_check_proc,      10, 13+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Chest Collision", NULL, NULL },
 
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }

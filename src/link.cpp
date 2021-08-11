@@ -6987,6 +6987,15 @@ bool LinkClass::animate(int)
 		}
 	}
 	
+	if(action!=inwind && action!=drowning && action!=lavadrowning)
+		if(!get_bit(quest_rules,qr_OLD_CHEST_COLLISION))
+		{
+			checkchest(cCHEST);
+			checkchest(cLOCKEDCHEST);
+			checkchest(cBOSSCHEST);
+		}
+	checksigns();
+	
 	if(isStanding())
 	{
 		if(extra_jump_count > 0)
@@ -7893,9 +7902,12 @@ bool LinkClass::animate(int)
 		checklocked(); //This has issues if Link's action is WALKING, in 8-way moveent. 
 		checklockblock();
 		checkbosslockblock();
-		checkchest(cCHEST);
-		checkchest(cLOCKEDCHEST);
-		checkchest(cBOSSCHEST);
+		if(get_bit(quest_rules,qr_OLD_CHEST_COLLISION))
+		{
+			oldcheckchest(cCHEST);
+			oldcheckchest(cLOCKEDCHEST);
+			oldcheckchest(cBOSSCHEST);
+		}
 		checkpushblock();
 		checkswordtap();
 		
@@ -15603,41 +15615,41 @@ void LinkClass::checkbosslockblock()
     sfx(WAV_DOOR);
 }
 
-void LinkClass::checkchest(int type)
+void LinkClass::oldcheckchest(int type)
 {
-    // chests aren't affected by tmpscr->flags2&fAIRCOMBOS
-    if(toogam || z>0) return;
-    
-    int bx = x.getInt()&0xF0;
-    int bx2 = int(x+8)&0xF0;
-    int by = y.getInt()&0xF0;
-    
-    switch(dir)
-    {
-    case up:
-        if(isSideViewLink()) return;
-        
-        if(!((int)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
-        
-        break;
-        
-    case left:
-    case right:
-        if(isSideViewLink()) break;
-        
-    case down:
-        return;
-    }
-    
-    bool found=false;
-    bool itemflag=false;
-    
-    if((combobuf[MAPCOMBO(bx,by)].type==type && _effectflag(bx,by,1, -1))||
-            (combobuf[MAPCOMBO(bx2,by)].type==type && _effectflag(bx2,by,1, -1)))
-    {
-        found=true;
-    }
-    for (int i = 0; i <= 1; ++i)
+	// chests aren't affected by tmpscr->flags2&fAIRCOMBOS
+	if(toogam || z>0) return;
+	if(pushing<8) return;
+	int bx = x.getInt()&0xF0;
+	int bx2 = int(x+8)&0xF0;
+	int by = y.getInt()&0xF0;
+	
+	switch(dir)
+	{
+		case up:
+			if(isSideViewLink()) return;
+			
+			if(!((int)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
+			
+			break;
+			
+		case left:
+		case right:
+			if(isSideViewLink()) break;
+			
+		case down:
+			return;
+	}
+	
+	bool found=false;
+	bool itemflag=false;
+	
+	if((combobuf[MAPCOMBO(bx,by)].type==type && _effectflag(bx,by,1, -1))||
+			(combobuf[MAPCOMBO(bx2,by)].type==type && _effectflag(bx2,by,1, -1)))
+	{
+		found=true;
+	}
+	for (int i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
@@ -15645,92 +15657,432 @@ void LinkClass::checkchest(int type)
 			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found = false;
 		}
 	}
-    
-    if(!found)
-    {
-        for(int i=0; i<2; i++)
-        {
-	    if (i == 0)
-	    {
-		if(tmpscr2[1].valid!=0)
-		{
-			if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
-			if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
-		}    
-            }
-            if((combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))||
-                    (combobuf[MAPCOMBO2(i,bx2,by)].type==type && _effectflag(bx2,by,1, i)))
-            {
-                found=true;
-                break;
-            }
-        }
-    }
-    
-    if(!found || pushing<8)
-    {
-        return;
-    }
-    
-    switch(type)
-    {
-    case cLOCKEDCHEST:
-        if(!usekey()) return;
-        
-        setmapflag(mLOCKEDCHEST);
-        break;
-        
-    case cCHEST:
-        setmapflag(mCHEST);
-        break;
-        
-    case cBOSSCHEST:
-        if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
-        // Run Boss Key Script
-	int key_item = 0; //current_item_id(itype_bosskey); //not possible
-	for ( int q = 0; q < MAXITEMS; ++q )
+	
+	if(!found)
 	{
-		if ( itemsbuf[q].family == itype_bosskey )
+		for(int i=0; i<2; i++)
 		{
-			key_item = q; break;
+			if (i == 0)
+			{
+				if(tmpscr2[1].valid!=0)
+				{
+					if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
+					if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
+				}    
+			}
+			if((combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))||
+					(combobuf[MAPCOMBO2(i,bx2,by)].type==type && _effectflag(bx2,by,1, i)))
+			{
+				found=true;
+				break;
+			}
 		}
 	}
-	if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+	
+	if(!found)
 	{
-		ri = &(itemScriptData[key_item]);
-		for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-		ri->Clear();
-		item_doscript[key_item] = 1;
-		itemscriptInitialised[key_item] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
-		FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+		return;
 	}
-        setmapflag(mBOSSCHEST);
-        break;
-    }
-    
-    itemflag |= MAPCOMBOFLAG(bx,by)==mfARMOS_ITEM;
-    itemflag |= MAPCOMBOFLAG(bx2,by)==mfARMOS_ITEM;
-    itemflag |= MAPFLAG(bx,by)==mfARMOS_ITEM;
-    itemflag |= MAPFLAG(bx2,by)==mfARMOS_ITEM;
-    itemflag |= MAPCOMBOFLAG(bx,by)==mfARMOS_ITEM;
-    itemflag |= MAPCOMBOFLAG(bx2,by)==mfARMOS_ITEM;
-    
-    if(!itemflag)
-    {
-        for(int i=0; i<2; i++)
-        {
-            itemflag |= MAPFLAG2(i,bx,by)==mfARMOS_ITEM;
-            itemflag |= MAPFLAG2(i,bx2,by)==mfARMOS_ITEM;
-            itemflag |= MAPCOMBOFLAG2(i,bx,by)==mfARMOS_ITEM;
-            itemflag |= MAPCOMBOFLAG2(i,bx2,by)==mfARMOS_ITEM;
-        }
-    }
-    
-    if(itemflag && !getmapflag())
-    {
-        items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
-    }
+	
+	switch(type)
+	{
+		case cLOCKEDCHEST:
+			if(!usekey()) return;
+			
+			setmapflag(mLOCKEDCHEST);
+			break;
+			
+		case cCHEST:
+			setmapflag(mCHEST);
+			break;
+			
+		case cBOSSCHEST:
+			if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
+			// Run Boss Key Script
+			int key_item = 0; //current_item_id(itype_bosskey); //not possible
+			for ( int q = 0; q < MAXITEMS; ++q )
+			{
+				if ( itemsbuf[q].family == itype_bosskey )
+				{
+					key_item = q; break;
+				}
+			}
+			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+			{
+				ri = &(itemScriptData[key_item]);
+				for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+				ri->Clear();
+				item_doscript[key_item] = 1;
+				itemscriptInitialised[key_item] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+			}
+			setmapflag(mBOSSCHEST);
+			break;
+	}
+	
+	itemflag |= MAPCOMBOFLAG(bx,by)==mfARMOS_ITEM;
+	itemflag |= MAPCOMBOFLAG(bx2,by)==mfARMOS_ITEM;
+	itemflag |= MAPFLAG(bx,by)==mfARMOS_ITEM;
+	itemflag |= MAPFLAG(bx2,by)==mfARMOS_ITEM;
+	itemflag |= MAPCOMBOFLAG(bx,by)==mfARMOS_ITEM;
+	itemflag |= MAPCOMBOFLAG(bx2,by)==mfARMOS_ITEM;
+	
+	if(!itemflag)
+	{
+		for(int i=0; i<2; i++)
+		{
+			itemflag |= MAPFLAG2(i,bx,by)==mfARMOS_ITEM;
+			itemflag |= MAPFLAG2(i,bx2,by)==mfARMOS_ITEM;
+			itemflag |= MAPCOMBOFLAG2(i,bx,by)==mfARMOS_ITEM;
+			itemflag |= MAPCOMBOFLAG2(i,bx2,by)==mfARMOS_ITEM;
+		}
+	}
+	
+	if(itemflag && !getmapflag())
+	{
+		items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+	}
+}
+
+void LinkClass::checkchest(int type)
+{
+	if(get_bit(quest_rules,qr_OLD_CHEST_COLLISION))
+	{
+		oldcheckchest(type);
+		return;
+	}
+    if(toogam || z>0) return;
+	zfix bx, by;
+	zfix bx2, by2;
+	zfix fx(-1), fy(-1);
+	switch(dir)
+	{
+		case up:
+			by = y + (bigHitbox ? -2 : 6);
+			by2 = by;
+			bx = x + 4;
+			bx2 = bx + 8;
+			break;
+		case down:
+			by = y + 17;
+			by2 = by;
+			bx = x + 4;
+			bx2 = bx + 8;
+			break;
+		case left:
+			by = y + (bigHitbox ? 0 : 8);
+			by2 = y + 8;
+			bx = x - 2;
+			bx2 = x - 2;
+			break;
+		case right:
+			by = y + (bigHitbox ? 0 : 8);
+			by2 = y + 8;
+			bx = x + 17;
+			bx2 = x + 17;
+			break;
+	}
+	
+	int found = -1;
+	
+	if(combobuf[MAPCOMBO(bx,by)].type==type && _effectflag(bx,by,1, -1))
+	{
+		found = MAPCOMBO(bx,by);
+		fx = bx; fy = by;
+		for (int i = 0; i <= 1; ++i)
+		{
+			if(tmpscr2[i].valid!=0)
+			{
+				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+			}
+		}
+	}
+	if(combobuf[MAPCOMBO(bx2,by2)].type==type && _effectflag(bx2,by2,1, -1))
+	{
+		found = MAPCOMBO(bx2,by2);
+		fx = bx2; fy = by2;
+		for (int i = 0; i <= 1; ++i)
+		{
+			if(tmpscr2[i].valid!=0)
+			{
+				if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+			}
+		}
+	}
+	
+	if(found<0)
+	{
+		for(int i=0; i<2; i++)
+		{
+			if(combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))
+			{
+				found = MAPCOMBO2(i,bx,by);
+				fx = bx; fy = by;
+				if (i == 0 && tmpscr2[1].valid!=0)
+				{
+					if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+				}
+			}
+			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==type && _effectflag(bx2,by2,1, i))
+			{
+				found = MAPCOMBO2(i,bx2,by2);
+				fx = bx2; fy = by2;
+				if (i == 0 && tmpscr2[1].valid!=0)
+				{
+					if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+				}
+			}
+			if(found>-1) break;
+		}
+	}
+	
+	if(found<0) return;
+	newcombo const& cmb = combobuf[found];
+	switch(dir)
+	{
+		case up:
+			if(cmb.usrflags&cflag10)
+				return;
+			break;
+		case down:
+			if(cmb.usrflags&cflag9)
+				return;
+			break;
+		case left:
+			if(cmb.usrflags&cflag12)
+				return;
+			break;
+		case right:
+			if(cmb.usrflags&cflag11)
+				return;
+			break;
+	}
+	int btn = cmb.attribytes[2];
+	switch(btn) //Check for valid button
+	{
+		//Directions all indicate to use the 'pushing' state
+		case btnUp: case btnDown: case btnLeft: case btnRight:
+		case btnAxisUp: case btnAxisDown: case btnAxisLeft: case btnAxisRight:
+			btn = 0;
+			break;
+		default:
+			if(btn > btnAxisRight) //too big
+				btn = 0; //Default to pushing state
+			break;
+	}
+	
+	if(btn)
+	{
+		if(!getInput(btn, true, true))
+			return; //Button not pressed
+	}
+	else if(pushing < 8) return; //Not pushing against chest enough
+	
+	//!TODO Add attributes from lockblocks to locked/boss locked chests
+	switch(type)
+	{
+		case cLOCKEDCHEST:
+			if(!usekey()) return;
+			
+			setmapflag(mLOCKEDCHEST);
+			break;
+			
+		case cCHEST:
+			setmapflag(mCHEST);
+			break;
+			
+		case cBOSSCHEST:
+			if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
+			// Run Boss Key Script
+			int key_item = 0; //current_item_id(itype_bosskey); //not possible
+			for ( int q = 0; q < MAXITEMS; ++q )
+			{
+				if ( itemsbuf[q].family == itype_bosskey )
+				{
+					key_item = q; break;
+				}
+			}
+			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+			{
+				ri = &(itemScriptData[key_item]);
+				for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+				ri->Clear();
+				item_doscript[key_item] = 1;
+				itemscriptInitialised[key_item] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+			}
+			setmapflag(mBOSSCHEST);
+			break;
+	}
+	
+	bool itemflag = MAPCOMBOFLAG(fx,fy)==mfARMOS_ITEM;
+	itemflag |= MAPFLAG(fx,fy)==mfARMOS_ITEM;
+	if(!itemflag)
+	{
+		for(int i=0; i<2; i++)
+		{
+			itemflag |= MAPFLAG2(i,fx,fy)==mfARMOS_ITEM;
+			itemflag |= MAPCOMBOFLAG2(i,fx,fy)==mfARMOS_ITEM;
+		}
+	}
+	
+	if(itemflag && !getmapflag())
+	{
+		items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+	}
+}
+
+void LinkClass::checksigns()
+{
+    if(toogam || z>0) return;
+	if(msg_active || (msg_onscreen && get_bit(quest_rules, qr_MSGDISAPPEAR)))
+		return; //Don't overwrite a message waiting to be dismissed
+	zfix bx, by;
+	zfix bx2, by2;
+	zfix fx(-1), fy(-1);
+	switch(dir)
+	{
+		case up:
+			by = y + (bigHitbox ? -2 : 6);
+			by2 = by;
+			bx = x + 4;
+			bx2 = bx + 8;
+			break;
+		case down:
+			by = y + 17;
+			by2 = by;
+			bx = x + 4;
+			bx2 = bx + 8;
+			break;
+		case left:
+			by = y + (bigHitbox ? 0 : 8);
+			by2 = y + 8;
+			bx = x - 2;
+			bx2 = x - 2;
+			break;
+		case right:
+			by = y + (bigHitbox ? 0 : 8);
+			by2 = y + 8;
+			bx = x + 17;
+			bx2 = x + 17;
+			break;
+	}
+	
+	int found = -1;
+	
+	if(combobuf[MAPCOMBO(bx,by)].type==cSIGNPOST && _effectflag(bx,by,1, -1))
+	{
+		found = MAPCOMBO(bx,by);
+		fx = bx; fy = by;
+		for (int i = 0; i <= 1; ++i)
+		{
+			if(tmpscr2[i].valid!=0)
+			{
+				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+			}
+		}
+	}
+	if(combobuf[MAPCOMBO(bx2,by2)].type==cSIGNPOST && _effectflag(bx2,by2,1, -1))
+	{
+		found = MAPCOMBO(bx2,by2);
+		fx = bx2; fy = by2;
+		for (int i = 0; i <= 1; ++i)
+		{
+			if(tmpscr2[i].valid!=0)
+			{
+				if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+			}
+		}
+	}
+	
+	if(found<0)
+	{
+		for(int i=0; i<2; i++)
+		{
+			if(combobuf[MAPCOMBO2(i,bx,by)].type==cSIGNPOST && _effectflag(bx,by,1, i))
+			{
+				found = MAPCOMBO2(i,bx,by);
+				fx = bx; fy = by;
+				if (i == 0 && tmpscr2[1].valid!=0)
+				{
+					if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+				}
+			}
+			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==cSIGNPOST && _effectflag(bx2,by2,1, i))
+			{
+				found = MAPCOMBO2(i,bx2,by2);
+				fx = bx2; fy = by2;
+				if (i == 0 && tmpscr2[1].valid!=0)
+				{
+					if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+				}
+			}
+			if(found>-1) break;
+		}
+	}
+	
+	if(found<0) return;
+	newcombo const& cmb = combobuf[found];
+	switch(dir)
+	{
+		case up:
+			if(cmb.usrflags&cflag10)
+				return;
+			break;
+		case down:
+			if(cmb.usrflags&cflag9)
+				return;
+			break;
+		case left:
+			if(cmb.usrflags&cflag12)
+				return;
+			break;
+		case right:
+			if(cmb.usrflags&cflag11)
+				return;
+			break;
+	}
+	int btn = cmb.attribytes[2];
+	switch(btn) //Check for valid button
+	{
+		//Directions all indicate to use the 'pushing' state
+		case btnUp: case btnDown: case btnLeft: case btnRight:
+		case btnAxisUp: case btnAxisDown: case btnAxisLeft: case btnAxisRight:
+			btn = 0;
+			break;
+		default:
+			if(btn > btnAxisRight) //too big
+				btn = 0; //Default to pushing state
+			break;
+	}
+	
+	if(btn)
+	{
+		if(!getInput(btn, true, true))
+			return; //Button not pressed
+	}
+	else if(pushing < 8 || pushing%8) return; //Not pushing against sign enough
+	
+	int str = cmb.attributes[0]/10000L;
+	switch(str)
+	{
+		case -1: //Special case: Use Screen String
+			str = tmpscr->str;
+			break;
+		case -2: //Special case: Use Screen Catchall
+			str = tmpscr->catchall;
+			break;
+		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
+			int di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+			str = game->screen_d[di][abs(str)-10] / 10000L;
+			break;
+	}
+	if(unsigned(str) >= MAXMSGS)
+		str = 0;
+	if(str)
+		donewmsg(str);
 }
 
 void LinkClass::checklocked()
