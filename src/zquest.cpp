@@ -13403,7 +13403,7 @@ static int edit_scrdata6[] = // Timed Warp
 
 static int edit_scrdata7[] = // Screen flags 3
 {
-    122,18,56,136,137,138,-1
+    122,18,56,136,137,138,139,140,-1
 };
 
 static TABPANEL scrdata_tabs[] =
@@ -13662,6 +13662,8 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,      15,   98,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "Secrets->Item", NULL, NULL },
     { jwin_check_proc,      15,  108,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item->Secrets", NULL, NULL },
     { jwin_check_proc,      15,  118,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item->Secret is permanent", NULL, NULL },
+    { jwin_check_proc,      15,  128,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item always returns", NULL, NULL },
+    { jwin_check_proc,      15,  138,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Special Item always returns", NULL, NULL },
     { NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
 };
 
@@ -13939,6 +13941,8 @@ int onScrData()
 	scrdata_dlg[137].flags = (f&fITEMSECRET) ? D_SELECTED : 0;
 	f = Map.CurrScr()->flags9;
 	scrdata_dlg[138].flags = (f&fITEMSECRETPERM) ? D_SELECTED : 0;
+	scrdata_dlg[139].flags = (f&fITEMRETURN) ? D_SELECTED : 0;
+	scrdata_dlg[140].flags = (f&fBELOWRETURN) ? D_SELECTED : 0;
 	
 	word g = Map.CurrScr()->noreset;
 	scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
@@ -14063,6 +14067,8 @@ int onScrData()
 
 		f=0;
 		f |= scrdata_dlg[138].flags & D_SELECTED ? fITEMSECRETPERM:0;
+		f |= scrdata_dlg[139].flags & D_SELECTED ? fITEMRETURN:0;
+		f |= scrdata_dlg[140].flags & D_SELECTED ? fBELOWRETURN:0;
 		Map.CurrScr()->flags9 = f;
 		
 		g=0;

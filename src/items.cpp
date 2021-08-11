@@ -334,7 +334,25 @@ item::item(zfix X,zfix Y,zfix Z,int i,int p,int c, bool isDummy) : sprite()
 	moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
 	for ( int q = 0; q < 8; q++ ) initD[q] = itemsbuf[id].initiald[q];
 	
-	if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itemsbuf[id].pickup;
+	//if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itemsbuf[id].pickup;
+	switch (itemsbuf[id].pickupflag) 
+	{
+		case 1:
+			pickup = itemsbuf[id].pickup;
+			break;
+		case 2:
+			pickup |= itemsbuf[id].pickup;
+			break;
+		case 3:
+			pickup &= ~itemsbuf[id].pickup;
+			break;
+		case 4:
+			pickup &= itemsbuf[id].pickup;
+			break;
+		default:
+			break;
+	}
+	
 	
 	if(itemsbuf[id].misc&1)
 		flash=true;

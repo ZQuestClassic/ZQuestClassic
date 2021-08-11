@@ -3022,7 +3022,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
                 FFCore.tempScreens[layer]->cset[i] = tmpscr->undercset;
                 FFCore.tempScreens[layer]->sflag[i] = 0;
             }
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -3329,7 +3329,7 @@ void LinkClass::check_slash_block(int bx, int by)
     {
         if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -3774,7 +3774,7 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
                 FFCore.tempScreens[layer]->cset[i] = tmpscr->undercset;
                 FFCore.tempScreens[layer]->sflag[i] = 0;
             }
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -4099,7 +4099,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
     {
         if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(w->wscreengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -4584,7 +4584,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
             
         set_bit(w->wscreengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -4782,7 +4782,7 @@ void LinkClass::check_slash_block(weapon *w)
     {
         if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -5231,7 +5231,7 @@ void LinkClass::check_pound_block(int bx, int by)
             
         set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -5456,7 +5456,7 @@ void LinkClass::check_pound_block(weapon *w)
             
         set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -8956,7 +8956,7 @@ bool LinkClass::startwpn(int itemid)
         paymagiccost(itemid);
         sfx(itemsbuf[itemid].usesound,pan(wx));
         
-        if(tmpscr->room==rGRUMBLE && !getmapflag())
+        if(tmpscr->room==rGRUMBLE && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)wx,(zfix)wy,(zfix)0,iBait,ipDUMMY+ipFADE,0));
             fadeclk=66;
@@ -15733,7 +15733,7 @@ void LinkClass::checkchest(int type)
         }
     }
     
-    if(itemflag && !getmapflag())
+    if(itemflag && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
     {
         items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
     }
@@ -16930,7 +16930,7 @@ void LinkClass::checkspecial()
             
             //if(getmapflag())
             //  Item=0;
-            if(!getmapflag(mITEM) && (tmpscr->hasitem != 0))
+            if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
             {
                 if(hasitem==1)
                     sfx(WAV_CLEARED);
@@ -17003,7 +17003,7 @@ void LinkClass::checkspecial()
 	{
 		int Item=tmpscr->item;
 		
-		if(!getmapflag(mITEM) && (tmpscr->hasitem != 0))
+		if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
 		{
 			items.add(new item((zfix)tmpscr->itemx,
 							   (tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
@@ -18007,7 +18007,7 @@ void LinkClass::checkspecial2(int *ls)
 		switch(flag)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && !getmapflag())
+			if(isDiving() && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, tmpscr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -18041,7 +18041,7 @@ void LinkClass::checkspecial2(int *ls)
 		switch(flag2)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && !getmapflag())
+			if(isDiving() && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, tmpscr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -18075,7 +18075,7 @@ void LinkClass::checkspecial2(int *ls)
 		switch(flag3)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && !getmapflag())
+			if(isDiving() && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, tmpscr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -24661,7 +24661,7 @@ void LinkClass::ganon_intro()
     action=none; FFCore.setLinkAction(none);
     dir=up;
     
-    if(!getmapflag() && (tunes[MAXMIDIS-1].data))
+    if((!getmapflag() || (tmpscr->flags9&fBELOWRETURN)) && (tunes[MAXMIDIS-1].data))
         jukebox(MAXMIDIS-1);
     else
         playLevelMusic();

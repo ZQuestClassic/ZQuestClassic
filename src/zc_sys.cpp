@@ -3491,7 +3491,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfARMOS_ITEM:
                 case mfDIVE_ITEM:
-                    if(!getmapflag() && !(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG3))
+                    if((!getmapflag() || (tmpscr->flags9&fBELOWRETURN)) && !(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG3))
 		    {
                         putitem2(dest,x,y,tmpscr->catchall, lens_hint_item[tmpscr->catchall][0], lens_hint_item[tmpscr->catchall][1], 0);
 		    }

@@ -6514,8 +6514,13 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                             return qe_invalid;
                         }
 		}
-		
-		
+		if ( s_version >= 48 )  //! pickup flags
+		{
+			if(!p_getc(&(tempitem.pickupflag),f,keepdata))
+			{
+				return qe_invalid;
+			}
+		}
         }
         else
         {
@@ -8822,6 +8827,10 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 			for ( int q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
 			tempitem.sprite_script = 0;
+		}
+		if ( s_version < 47 ) //InitD Labels and Sprite Script Data
+		{
+			tempitem.pickupflag = 0;
 		}
 		
 		if(tempitem.fam_type==0)  // Always do this

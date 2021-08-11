@@ -8468,6 +8468,10 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(90);
 		} 
+		if(!p_putc(itemsbuf[i].pickupflag,f))
+		{
+			new_return(91);
+		} 
 		
 	    
         }
