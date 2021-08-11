@@ -1794,66 +1794,126 @@ const int SF_MISC			= 9;
 //! These DMap Flag values do not return the expected results when compared via TraeS()ing what is anticipated!
 
 //Screen Flag Roomtype
-const int SFR_INTERIOR = 0; //0x0000 ?
-const int SFR_DUNGEON = 1; //0x0001
-const int SFR_SIDEVIEW = 2; //0x0002
+enum
+{
+	SFR_INTERIOR, //0x0000 ?
+	SFR_DUNGEON, //0x0001
+	SFR_SIDEVIEW, //0x0002
+	
+	SFR_LAST
+};
 
 //Screen Flag View
-const int SFV_INVISLINK = 0; //0x0001;
-const int SFV_NOLINKMARKER = 1;// 0x0002;
-const int SFV_NOSUBSCREEN = 2;// 0x0004;
-const int SFV_NOOFFSET = 3; // 0x0008; //'...but don't offset'
-const int SFV_LAYER2BG = 4; // 0x0010; //Layer 2 is Background
-const int SFV_LAYER3BG = 5; //0x0020;
-const int SFV_DARKROOM = 6; //0x0040; 
+enum
+{
+	SFV_INVISLINK, //0x0001;
+	SFV_NOLINKMARKER,// 0x0002;
+	SFV_NOSUBSCREEN,// 0x0004;
+	SFV_NOOFFSET, // 0x0008; //'...but don't offset'
+	SFV_LAYER2BG, // 0x0010; //Layer 2 is Background
+	SFV_LAYER3BG, //0x0020;
+	SFV_DARKROOM, //0x0040; 
+	
+	SFV_LAST
+};
 
 //Screen Flag Secrets
-const int SFS_BLOCKSHUT = 0; //0x0001; //Block->Shutters
-const int SFS_TEMPSECRETS = 1; //0x0002; //Secrets are temporary.
-const int SFS_TRIGPERM = 2; //0x0004; //All Triggers->Perm Secret
-const int SFS_ALLTRIGFLAGS = 3; //0x0008; //All triggers->16-31
+enum
+{
+	SFS_BLOCKSHUT, //0x0001; //Block->Shutters
+	SFS_TEMPSECRETS, //0x0002; //Secrets are temporary.
+	SFS_TRIGPERM, //0x0004; //All Triggers->Perm Secret
+	SFS_ALLTRIGFLAGS, //0x0008; //All triggers->16-31
+	
+	SFS_LAST
+};
 
 //Screen Flag Warp
-const int SFW_AUTODIRECT = 0; //  0x0001; //Auto Warps are Direct
-const int SFW_SENDSIRECT = 1; //0x0002; //Sensitive Warps are direct.
-const int SFW_MAZEPATHS = 2; //0x0004; //Use maze Path
-const int SFW_MAZEOVERRIDE = 3; //0x0008; //maze Overrides Sidewarps
-const int SFW_SPRITECARRY = 4; //0x0010; //Sprites carry over. 
+enum
+{
+	SFW_AUTODIRECT, //  0x0001; //Auto Warps are Direct
+	SFW_SENDSIRECT, //0x0002; //Sensitive Warps are direct.
+	SFW_MAZEPATHS, //0x0004; //Use maze Path
+	SFW_MAZEOVERRIDE, //0x0008; //maze Overrides Sidewarps
+	SFW_SPRITECARRY, //0x0010; //Sprites carry over. 
+	
+	SFW_LAST
+};
 
 
 //Screen Flag Items
-const int SFI_HOLDUP = 0; //0x0001; //Hold up item.
-const int SFI_FALLS = 1; //0x0002; //Falls from ceiling
+enum 
+{
+	SFI_HOLDUP, //0x0001; //Hold up item.
+	SFI_FALLS, //0x0002; //Falls from ceiling
+	SFI_SECRETSITEM, //0x0004; //Secret reveals item
+	SFI_ITEMSECRET, //0x0008; //Item triggers secrets
+	SFI_ITEMSECRETPERM, //0x0010; //Item triggering secrets is permanent
+	SFI_ITEMRETURNS, //0x0020; //Regular item always returns
+	SFI_SPECIALITEMRETURNS, //0x0040; //Special item always returns
+	
+	SFI_LAST
+};
 
 //Screen Flag Combos
-const int SFC_MIDAIR = 0;// 0x0001; //Combos affect midair Link
-const int SFC_CYCLEINIT = 1; //0x0002; //Cycle combos on screen init.
-const int SFC_IGNOREBOOTS = 2; //0x0004; //Damage combos ignore boots. 
-const int SFC_TOGGLERINGS = 3; //0x0008; //Toggle 'Rings Affect Combos'
+enum
+{
+	SFC_MIDAIR,// 0x0001; //Combos affect midair Link
+	SFC_CYCLEINIT, //0x0002; //Cycle combos on screen init.
+	SFC_IGNOREBOOTS, //0x0004; //Damage combos ignore boots. 
+	SFC_TOGGLERINGS, //0x0008; //Toggle 'Rings Affect Combos'
+	
+	SFC_LAST
+};
 
 //Screen Flag Save
-const int SFSV_SAVECONTHERE = 0; //0x0001; //Save Point->ontinue here.
-const int SFSV_SAVEONENTRY = 1; //0x0002; //Save game on entry.
-const int SFSV_CONTHERE = 2; // 0x0004; //Comtinue here.
-const int SFSV_NOCONTINUEWARP = 3; //0x0008; //No continue Here after warp. 
+enum
+{
+	SFSV_SAVECONTHERE, //0x0001; //Save Point->ontinue here.
+	SFSV_SAVEONENTRY, //0x0002; //Save game on entry.
+	SFSV_CONTHERE, // 0x0004; //Comtinue here.
+	SFSV_NOCONTINUEWARP, //0x0008; //No continue Here after warp. 
+	
+	SFSV_LAST
+};
 
 //Screen Flags FFC
-const int SFF_WRAP = 0;  //  0x0001; //Freeform Combos Wrap Around
-const int SFF_NOCARRYOVER = 1; //0x0002; //No FFC carry over. 
+enum
+{
+	SFF_WRAP,  //  0x0001; //Freeform Combos Wrap Around
+	SFF_NOCARRYOVER, //0x0002; //No FFC carry over. 
+	
+	SFF_LAST
+};
 
 //Screen Flags Whistle
-const int SFW_STAIRS = 0; //0x0001; //Whistle->Stairs
-const int SFW_PALCHANGE = 1; //0x0002; //Whistle->Palette Change
-const int SFW_DRYLAKE = 2; //0x0004; //Whistle->Dry lake
+enum
+{
+	SFWH_STAIRS = 0, //0x0001; //Whistle->Stairs
+	SFWH_PALCHANGE, //0x0002; //Whistle->Palette Change
+	SFWH_DRYLAKE, //0x0004; //Whistle->Dry lake
+	
+	SFWH_LAST
+};
 
-//Misc. Screen flags. OR (|) these together to use (Read-Only).
-const int SFM_ALLOW_LADDER	= 0; //0x0001; //Toggle 'Allow Ladder'
-const int SFM_NO_DIVING		= 1; //0x0002; //Toggle 'No Diving' 
-const int SFM_SCRIPT1		= 2; //0x0004; //General use 1 (Scripts)
-const int SFM_SCRIPT2		= 3; //0x0008; //General use 2 (Scripts)
-const int SFM_SCRIPT3		= 4; //0x0010; //General use 3 (Scripts)
-const int SFM_SCRIPT4		= 5; //0x0020; //General use 4 (Scripts)
-const int SFM_SCRIPT5		= 6; //0x0040; //General use 5 (Scripts)
+//Old constants, use the ones above.
+const int SFW_STAIRS = SFWH_STAIRS; //0x0001; //Whistle->Stairs
+const int SFW_PALCHANGE = SFWH_PALCHANGE; //0x0002; //Whistle->Palette Change
+const int SFW_DRYLAKE = SFWH_DRYLAKE; //0x0004; //Whistle->Dry lake
+
+//Misc. Screen flags. Bitshift 1 by the constant and OR to use.
+enum
+{
+	SFM_ALLOW_LADDER,   //0x0001; //Toggle 'Allow Ladder'
+	SFM_NO_DIVING,      //0x0002; //Toggle 'No Diving' 
+	SFM_SCRIPT1,        //0x0004; //General use 1 (Scripts)
+	SFM_SCRIPT2,        //0x0008; //General use 2 (Scripts)
+	SFM_SCRIPT3,        //0x0010; //General use 3 (Scripts)
+	SFM_SCRIPT4,        //0x0020; //General use 4 (Scripts)
+	SFM_SCRIPT5,        //0x0040; //General use 5 (Scripts)
+
+	SFM_LAST
+};
 
 //Screen Enemy Flag categories, handled in the same way as the SF_ constants.
 //Use in Screen->EFlags
@@ -1862,24 +1922,39 @@ const int SEF_LIST1				= 1; //left-hand list
 const int SEF_LIST2				= 2; //right-hand list
 
 //Screen Enemy Flags: Spawn
-const int SEFSP_ZORA				= 0; //0x0001
-const int SEFSP_CORNERTRAP			= 1; //0x0002
-const int SEFSP_MIDDLETRAP			= 2; //0x0004
-const int SEFSP_ROCK				= 3; //0x0008
-const int SEFSP_SHOOTER				= 4; //0x0010
+enum
+{
+	SEFSP_ZORA, //0x0001
+	SEFSP_CORNERTRAP, //0x0002
+	SEFSP_MIDDLETRAP, //0x0004
+	SEFSP_ROCK, //0x0008
+	SEFSP_SHOOTER, //0x0010
+	
+	SEFSP_LAST
+};
 
 //Screen Enemy Flags: List1
-const int SEFL1_RINGLEADER			= 0; //0x0001
-const int SEFL1_CARRYITEM			= 1; //0x0002
-const int SEFL1_INVIS				= 2; //0x0004
-const int SEFL1_BOSS				= 3; //0x0008
-const int SEFL1_TRAPS_IGNORE_SOLID	= 4; //0x0010
+enum
+{
+	SEFL1_RINGLEADER, //0x0001
+	SEFL1_CARRYITEM, //0x0002
+	SEFL1_INVIS, //0x0004
+	SEFL1_BOSS, //0x0008
+	SEFL1_TRAPS_IGNORE_SOLID, //0x0010
+	
+	SEFL1_LAST
+};
 
 //Screen Enemy Flags: List2
-const int SEFL2_ALWAYSRET			= 0; //0x0001
-const int SEFL2_ENEMIES_ITEM		= 1; //0x0002
-const int SEFL2_ENEMEIS_SECRET		= 2; //0x0004
-const int SEFL2_ENEMIES_SECRET_PERM	= 3; //0x0008
+enum
+{
+	SEFL2_ALWAYSRET, //0x0001
+	SEFL2_ENEMIES_ITEM, //0x0002
+	SEFL2_ENEMEIS_SECRET, //0x0004
+	SEFL2_ENEMIES_SECRET_PERM, //0x0008
+	
+	SEFL2_LAST
+};
 
 //Room types (Screen => Room Type)
 //Use with Screen->RoomType

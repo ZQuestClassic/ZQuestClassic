@@ -2273,7 +2273,7 @@ long get_screenflags(mapscr *m, int flagset)
 		break;
 		
 	case 4: // Item
-		f = ornextflag(m->flags3&1)  | ornextflag(m->flags7&4);
+		f = ornextflag(m->flags3&1)  | ornextflag(m->flags7&4)  | ornextflag(m->flags8&0x40)  | ornextflag(m->flags8&0x80)  | ornextflag(m->flags9&0x01)  | ornextflag(m->flags9&0x02)  | ornextflag(m->flags9&0x04);
 		break;
 		
 	case 5: // Combo
