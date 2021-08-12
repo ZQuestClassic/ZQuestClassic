@@ -2232,6 +2232,9 @@ const int CF_SCRIPT_SPAWN_NPC 	= 159; // Spawn NPC (Scripted)",
 const int CF_SCRIPT_SWITCHHOOK 	= 160; // SwitchHook Spot (Scripted)",
 const int CF_SIDEVIEW_LADDER 	= 161; // Sideview Ladder
 const int CF_SIDEVIEW_PLATFORM 	= 162; // Sideview Platform
+const int CF_NO_ENEMIES_SPAWN = 163; //No Enemies Spawn
+const int CF_ALL_ENEMIES_SPAWN = 164; //All Enemies Spawn
+const int CF_SECRETS_NEXT = 165; //Secrets->Next
 
 //chests  to 16, unlocked, locked, boss; small, big. Probably better as combo types?
 
@@ -2632,7 +2635,8 @@ const int SECCMB_HOOKSHOT	= 40;
 const int SECCMB_WAND		= 41;
 const int SECCMB_HAMMER		= 42;
 const int SECCMB_STRIKE		= 43;
-//44 to 127 unused. 
+const int SECCMB_SECRETSNEXT	= 44; //Only ->SecretFlags[] has a value for this index
+//45 to 127 unused. 
 
 //Audio->
 //Audio->Volume[]

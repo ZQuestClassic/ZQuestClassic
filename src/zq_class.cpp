@@ -1365,104 +1365,108 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
     }
 }
 
-
+void put_flag(BITMAP* dest, int x, int y, int flag)
+{
+	rectfill(dest,x,y,x+15,y+15,vc(flag&15));
+	textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(flag&15)),-1,"%d",flag);
+}
 void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag)
 {
 
-    newcombo c = combobuf[cmbdat];
-    
-    if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
-    {
-        //    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
-        //    text_mode(-1);
-        //    textprintf_ex(dest,sfont,x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
-        if(sflag)
-        {
-            rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
-            textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(sflag&15)),-1,"%d",sflag);
-        }
-        
-        if(combobuf[cmbdat].flag)
-        {
-            rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
-            textprintf_ex(dest,z3smallfont,x+1,y+9,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
-        }
-    }
-    
-    if(flags&cCSET)
-    {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
-        //    text_mode(inv?vc(15):vc(0));
-        textprintf_ex(dest,z3smallfont,x+9,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",cset);
-    }
-    else if(flags&cCTYPE)
-    {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
-        //    text_mode(inv?vc(15):vc(0));
-        textprintf_ex(dest,z3smallfont,x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
-    }
+	newcombo const& c = combobuf[cmbdat];
+	
+	if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
+	{
+		//    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
+		//    text_mode(-1);
+		//    textprintf_ex(dest,sfont,x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
+		if(sflag)
+		{
+			rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
+			textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(sflag&15)),-1,"%d",sflag);
+		}
+		
+		if(c.flag)
+		{
+			rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
+			textprintf_ex(dest,z3smallfont,x+1,y+9,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
+		}
+	}
+	
+	if(flags&cCSET)
+	{
+		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+		//    text_mode(inv?vc(15):vc(0));
+		textprintf_ex(dest,z3smallfont,x+9,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",cset);
+	}
+	else if(flags&cCTYPE)
+	{
+		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+		//    text_mode(inv?vc(15):vc(0));
+		textprintf_ex(dest,z3smallfont,x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
+	}
 }
 
 void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag)
 {
 
-    newcombo c = combobuf[cmbdat];
-    
-    if(c.tile==0)
-    {
-        rectfill(dest,x,y,x+15,y+15,0);
-        rectfill(dest,x+3,y+3,x+12,y+12,vc(4));
-        return;
-    }
-    
-    putcombo(dest,x,y,cmbdat,cset);
-    
-    /* moved to put_walkflags
-      for(int i=0; i<4; i++) {
-    
-      int tx=((i&2)<<2)+x;
-      int ty=((i&1)<<3)+y;
-      if((flags&cWALK) && (c.walk&(1<<i)))
-      rectfill(dest,tx,ty,tx+7,ty+7,vc(12));
-      }
-      */
-    
-    //  if((flags&cFLAGS)&&(cmbdat&0xF800))
-    if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
-    {
-        //    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
-        //    text_mode(-1);
-        //    textprintf_ex(dest,sfont,x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
-        if(sflag)
-        {
-            rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
-            textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(sflag&15)),-1,"%d",sflag);
-        }
-        
-        if(combobuf[cmbdat].flag)
-        {
-            rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
-            textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
-        }
-    }
-    
-    if(flags&cWALK)
-    {
-        put_walkflags(dest,x,y,cmbdat,0);
-    }
-    
-    if(flags&cCSET)
-    {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
-        //    text_mode(inv?vc(15):vc(0));
-        textprintf_ex(dest,z3smallfont,x+9,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",cset);
-    }
-    else if(flags&cCTYPE)
-    {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
-        //    text_mode(inv?vc(15):vc(0));
-        textprintf_ex(dest,z3smallfont,x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
-    }
+	newcombo c = combobuf[cmbdat];
+	
+	if(c.tile==0)
+	{
+		rectfill(dest,x,y,x+15,y+15,0);
+		rectfill(dest,x+3,y+3,x+12,y+12,vc(4));
+		return;
+	}
+	
+	putcombo(dest,x,y,cmbdat,cset);
+	
+	/* moved to put_walkflags
+	  for(int i=0; i<4; i++) {
+	
+	  int tx=((i&2)<<2)+x;
+	  int ty=((i&1)<<3)+y;
+	  if((flags&cWALK) && (c.walk&(1<<i)))
+	  rectfill(dest,tx,ty,tx+7,ty+7,vc(12));
+	  }
+	  */
+	
+	//  if((flags&cFLAGS)&&(cmbdat&0xF800))
+	if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
+	{
+		//    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
+		//    text_mode(-1);
+		//    textprintf_ex(dest,sfont,x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
+		if(sflag)
+		{
+			rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
+			textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(sflag&15)),-1,"%d",sflag);
+		}
+		
+		if(combobuf[cmbdat].flag)
+		{
+			rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
+			textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
+		}
+	}
+	
+	if(flags&cWALK)
+	{
+		put_walkflags(dest,x,y,cmbdat,0);
+	}
+	
+	if(flags&cCSET)
+	{
+		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+		//    text_mode(inv?vc(15):vc(0));
+		textprintf_ex(dest,z3smallfont,x+9,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",cset);
+	}
+	else if(flags&cCTYPE)
+	{
+		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+		//    text_mode(inv?vc(15):vc(0));
+		textprintf_ex(dest,z3smallfont,x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
+	}
 }
 
 

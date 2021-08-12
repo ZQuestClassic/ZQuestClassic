@@ -1725,6 +1725,10 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int single) //Perhap
 				case mfSTRIKE:
 					ft=sSTRIKE;
 					break;
+				
+				case mfSECRETSNEXT:
+					ft=sSECNEXT;
+					break;
 					
 				default:
 					putit = false;
@@ -1738,8 +1742,15 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int single) //Perhap
 						ft=msflag;
 						
 					screen_combo_modify_preroutine(s,i);
-					s->data[i] = s->secretcombo[ft];
-					s->cset[i] = s->secretcset[ft];
+					if(ft==sSECNEXT)
+					{
+						s->data[i]++;
+					}
+					else
+					{
+						s->data[i] = s->secretcombo[ft];
+						s->cset[i] = s->secretcset[ft];
+					}
 					newflag = s->secretflag[ft];
 					screen_combo_modify_postroutine(s,i);
 				}

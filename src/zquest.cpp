@@ -11881,7 +11881,7 @@ int d_scombo_proc(int msg,DIALOG *d,int c)
         int cs=d->fg;
         int f=d->d2;
         
-        if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+        if(d->bg==1 || (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
         {
             while(gui_mouse_b())
             {
@@ -11959,7 +11959,11 @@ int d_scombo_proc(int msg,DIALOG *d,int c)
         {
             clear_bitmap(buf);
             
-            if(d->d1)
+			if(d->bg) //flags only
+			{
+				put_flag(buf,0,0,d->d2);
+			}
+            else if(d->d1)
             {
                 putcombo(buf,0,0,d->d1,d->fg);
                 
@@ -12068,7 +12072,7 @@ static int secret_sword_list[] =
 static int secret_misc_list[] =
 {
     // dialog control number
-    26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, -1
+    26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, -1
 };
 
 static TABPANEL secret_tabs[] =
@@ -12127,8 +12131,8 @@ static DIALOG secret_dlg[] =
     {  jwin_text_proc,           12,    141,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Hammer",               NULL,   NULL                },
     {  jwin_text_proc,           12,    163,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Any Weapon",           NULL,   NULL                },
     //32
-    {  jwin_ctext_proc,         211,     53,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Flags 16-31",          NULL,   NULL                },
-    {  d_dummy_proc,              0,      0,      0,      0,    0,          0,          0,       0,          FR_DEEP,     0, (void *) "Secret Combo 02",      NULL,   NULL                },
+    {  jwin_ctext_proc,         235,     53,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Flags 16-31",          NULL,   NULL                },
+    {  jwin_text_proc,           87,     53,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Secrets->Next (Flag only)",           NULL,   NULL                },
     {  d_dummy_proc,              0,      0,      0,      0,    0,          0,          0,       0,          FR_DEEP,     0, (void *) "Secret Combo 03",      NULL,   NULL                },
     {  d_dummy_proc,              0,      0,      0,      0,    0,          0,          0,       0,          FR_DEEP,     0, (void *) "Secret Combo 04",      NULL,   NULL                },
     {  d_dummy_proc,              0,      0,      0,      0,    0,          0,          0,       0,          FR_DEEP,     0, (void *) "Secret Combo 05",      NULL,   NULL                },
@@ -12172,29 +12176,29 @@ static DIALOG secret_dlg[] =
     {  jwin_frame_proc,         256,     91,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
     {  jwin_frame_proc,         256,    113,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
     //70 (misc)
-    {  jwin_frame_proc,         108,     47,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         108,     69,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         108,     91,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         108,    113,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         108,    135,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         108,    157,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    //76
-    {  jwin_frame_proc,         168,     69,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         190,     69,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         212,     69,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         234,     69,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         168,     91,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         190,     91,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         212,     91,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         234,     91,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         168,    113,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         190,    113,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         212,    113,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         234,    113,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         168,    135,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         190,    135,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         212,    135,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
-    {  jwin_frame_proc,         234,    135,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,          63,     47,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,          63,     69,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,          63,     91,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,          63,    113,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,          63,    135,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,          63,    157,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    //76 (16-32)
+    {  jwin_frame_proc,         192,     69,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         214,     69,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         236,     69,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         258,     69,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         192,     91,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         214,     91,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         236,     91,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         258,     91,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         192,    113,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         214,    113,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         236,    113,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         258,    113,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         192,    135,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         214,    135,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         236,    135,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+    {  jwin_frame_proc,         258,    135,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
     
     //92 (burn)
     {  d_scombo_proc,           110,     49,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
@@ -12225,30 +12229,33 @@ static DIALOG secret_dlg[] =
     {  d_scombo_proc,           258,     93,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
     {  d_scombo_proc,           258,    115,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
     //114 (misc)
-    {  d_scombo_proc,           110,     49,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           110,     71,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           110,     93,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           110,    115,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           110,    137,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           110,    159,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    //120
-    {  d_scombo_proc,           170,     71,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           192,     71,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           214,     71,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           236,     71,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           170,     93,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           192,     93,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           214,     93,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           236,     93,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           170,    115,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           192,    115,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           214,    115,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           236,    115,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           170,    137,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           192,    137,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           214,    137,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    {  d_scombo_proc,           236,    137,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
-    //136
+    {  d_scombo_proc,            65,     49,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,            65,     71,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,            65,     93,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,            65,    115,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,            65,    137,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,            65,    159,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    //120 (16-32)
+    {  d_scombo_proc,           194,     71,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           216,     71,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           238,     71,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           260,     71,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           194,     93,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           216,     93,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           238,     93,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           260,     93,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           194,    115,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           216,    115,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           238,    115,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           260,    115,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           194,    137,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           216,    137,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           238,    137,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    {  d_scombo_proc,           260,    137,     16,     16,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    //136 Secrets->Next
+    {  jwin_frame_proc,         158,     47,     20,     20,    0,          0,          0,       0,          FR_DEEP,     0,  NULL,                            NULL,   NULL                },
+	{  d_scombo_proc,           160,     49,     16,     16,    0,          1,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
+    //138
     {  d_keyboard_proc,           0,      0,      0,      0,    0,          0,          0,       0,          KEY_F1,      0, (void *) onHelp,                 NULL,   NULL                },
     {  d_keyboard_proc,           0,      0,      0,      0,    0,          0,          'f',     0,          0,           0, (void *) onSecretF,              NULL,   NULL                },
     {  d_timer_proc,              0,      0,      0,      0,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                },
@@ -12362,14 +12369,20 @@ int onSecretCombo()
         secret_dlg[120+i].fg = s->secretcset[sSECRET01+i];
         secret_dlg[120+i].d2 = s->secretflag[sSECRET01+i];
     }
+	
+	//Sec->Next doesn't have a combo/cset value associated
+	secret_dlg[137].d1 = 0;
+	secret_dlg[137].fg = 0;
+	secret_dlg[137].d2 = s->secretflag[sSECNEXT];
     
     if(is_large)
     {
         large_dialog(secret_dlg,1.75);
         
-        for(int i=48; i<92; i++)
+		for(int q = 0; secret_dlg[q].proc != NULL; ++q)
         {
-            secret_dlg[i].w = secret_dlg[i].h = 36;
+			if(secret_dlg[q].proc == jwin_frame_proc)
+				secret_dlg[q].w = secret_dlg[q].h = 36;
         }
     }
     
@@ -12456,6 +12469,7 @@ int onSecretCombo()
             s->secretcset[sSECRET01+i] = secret_dlg[120+i].fg;
             s->secretflag[sSECRET01+i] = secret_dlg[120+i].d2;
         }
+		s->secretflag[sSECNEXT] = secret_dlg[137].d2;
         
     }
     
@@ -36651,7 +36665,7 @@ bool ZModule::init(bool d) //bool default
 			"mfSCRIPT13","mfSCRIPT14","mfSCRIPT15","mfSCRIPT16","mfSCRIPT17","mfSCRIPT18","mfSCRIPT19","mfSCRIPT20","mfPITHOLE","mfPITFALLFLOOR","mfLAVA","mfICE","mfICEDAMAGE","mfDAMAGE1","mfDAMAGE2","mfDAMAGE4",
 			"mfDAMAGE8","mfDAMAGE16","mfDAMAGE32","mfFREEZEALL","mfFREZEALLANSFFCS","mfFREEZEFFCSOLY","mfSCRITPTW1TRIG","mfSCRITPTW2TRIG","mfSCRITPTW3TRIG","mfSCRITPTW4TRIG","mfSCRITPTW5TRIG","mfSCRITPTW6TRIG","mfSCRITPTW7TRIG","mfSCRITPTW8TRIG","mfSCRITPTW9TRIG","mfSCRITPTW10TRIG",
 			"mfTROWEL","mfTROWELNEXT","mfTROWELSPECIALITEM","mfSLASHPOT","mfLIFTPOT","mfLIFTORSLASH","mfLIFTROCK","mfLIFTROCKHEAVY","mfDROPITEM","mfSPECIALITEM","mfDROPKEY","mfDROPLKEY","mfDROPCOMPASS","mfDROPMAP","mfDROPBOSSKEY","mfSPAWNNPC",
-			"mfSWITCHHOOK","mfSIDEVIEWLADDER","mfSIDEVIEWPLATFORM","mfNOENEMYSPAWN","mdENEMYALL","mf165","mf166","mf167","mf168","mf169","mf170","mf171","mf172","mf173","mf174","mf175",
+			"mfSWITCHHOOK","mfSIDEVIEWLADDER","mfSIDEVIEWPLATFORM","mfNOENEMYSPAWN","mfENEMYALL","mfSECRETSNEXT","mf166","mf167","mf168","mf169","mf170","mf171","mf172","mf173","mf174","mf175",
 			"mf176","mf177","mf178","mf179","mf180","mf181","mf182","mf183","mf184","mf185","mf186","mf187","mf188","mf189","mf190","mf191",
 			"mf192","mf193","mf194","mf195","mf196","mf197","mf198","mf199","mf200","mf201","mf202","mf203","mf204","mf205","mf206","mf207",
 			"mf208","mf209","mf210","mf211","mf212","mf213","mf214","mf215","mf216","mf217","mf218","mf219","mf220","mf221","mf222","mf223",
@@ -36680,7 +36694,7 @@ bool ZModule::init(bool d) //bool default
 		    "136 Trigger LW_SCRIPT3 (Unimplemented)",    "137 Trigger LW_SCRIPT4 (Unimplemented)",    "138 Trigger LW_SCRIPT5 (Unimplemented)",    "139 Trigger LW_SCRIPT6 (Unimplemented)",    "140 Trigger LW_SCRIPT7 (Unimplemented)",    "141 Trigger LW_SCRIPT8 (Unimplemented)",    "142 Trigger LW_SCRIPT9 (Unimplemented)",    "143 Trigger LW_SCRIPT10 (Unimplemented)",
 		    "144 Dig Spot (Scripted)",    "145 Dig Spot, Next (Scripted)",    "146 Dig Spot, Special Item (Scripted)",    "147 Pot, Slashable (Scripted)",    "148 Pot, Liftable (Scripted)",    "149 Pot, Slash or Lift (Scripted)",    "150 Rock, Lift Normal (Scripted)",    "151 Rock, Lift Heavy (Scripted)",
 		    "152 Dropset Item (Scripted)",    "153 Special Item (Scripted)",    "154 Drop Key (Scripted)",    "155 Drop level-Specific Key (Scripted)",    "156 Drop Compass (Scripted)",    "157 Drop Map (Scripted)",    "158 Drop Bosskey (Scripted)",    "159 Spawn NPC (Scripted)",
-		    "160 SwitchHook Spot (Scripted)",    "161 Sideview Ladder",    "162 Sideview Platform","163 Spawn No Enemies","164 Spawn All Enemies","165 mf165","166 mf166","167 mf167","168 mf168","169 mf169",    "170 mf170","171 mf171","172 mf172","173 mf173","174 mf174","175 mf175","176 mf176","177 mf177","178 mf178","179 mf179",
+		    "160 SwitchHook Spot (Scripted)",    "161 Sideview Ladder",    "162 Sideview Platform","163 Spawn No Enemies","164 Spawn All Enemies","165 Secrets->Next","166 mf166","167 mf167","168 mf168","169 mf169",    "170 mf170","171 mf171","172 mf172","173 mf173","174 mf174","175 mf175","176 mf176","177 mf177","178 mf178","179 mf179",
 		    "180 mf180","181 mf181","182 mf182","183 mf183","184 mf184","185 mf185","186 mf186","187 mf187","188 mf188","189 mf189",    "190 mf190","191 mf191","192 mf192","193 mf193","194 mf194","195 mf195","196 mf196","197 mf197","198 mf198","199 mf199",
 		    "200 mf200","201 mf201","202 mf202","203 mf203","204 mf204","205 mf205","206 mf206","207 mf207","208 mf208","209 mf209",    "210 mf210","211 mf211","212 mf212","213 mf213","214 mf214","215 mf215","216 mf216","217 mf217","218 mf218","219 mf219",
 		    "220 mf220","221 mf221","222 mf222","223 mf223","224 mf224","225 mf225","226 mf226","227 mf227","228 mf228","229 mf229",    "230 mf230","231 mf231","232 mf232","233 mf233","234 mf234","235 mf235","236 mf236","237 mf237","238 mf238","239 mf239",

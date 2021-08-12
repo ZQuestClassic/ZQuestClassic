@@ -20345,7 +20345,7 @@ void loadenemies()
 				int cflag = MAPFLAG(sx, sy);
 				int cflag_i = MAPCOMBOFLAG(sx, sy);
 				
-				if(((cflag==mdENEMYALL)||(cflag_i==mdENEMYALL)) && (!placed))
+				if(((cflag==mfENEMYALL)||(cflag_i==mfENEMYALL)) && (!placed))
 				{
 					if(!ok2add(tmpscr->enemy[i]))
 						++loadcnt;
