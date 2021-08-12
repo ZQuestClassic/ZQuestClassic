@@ -18116,6 +18116,21 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,NULL,"Button",NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
+	{
+		cCSWITCH,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Combo Change","CSet Change",NULL,NULL},
+		{ "State Num",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		cCSWITCHBLOCK,
+		{ "Change L0","Change L1","Change L2","Change L3","Change L4","Change L5","Change L6",NULL,
+		  NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Combo Change","CSet Change",NULL,NULL},
+		{ "State Num",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
 	{ //arbitrary values ahead
 		257, //script combos with the 'engine' flag enabled
 		// { "Enable", "Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},

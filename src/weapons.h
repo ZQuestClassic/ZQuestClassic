@@ -55,7 +55,7 @@ public:
     bool behind;
 	byte linkedItem;
 	byte wscreengrid[22];
-	byte wscreengrid_layer[2][22];
+	byte wscreengrid_layer[6][22];
 
 	//!Dimentio: More variables? That suuuuuure won't break anything. Nope.
     int count1; 

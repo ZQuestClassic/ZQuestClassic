@@ -25073,241 +25073,241 @@ void LinkClass::reset_ladder()
 
 void LinkClass::check_conveyor()
 {
-    if(action==casting||action==drowning||action==lavadrowning||inlikelike||pull_link||(z>0 && !(tmpscr->flags2&fAIRCOMBOS)))
-    {
-        return;
-    }
-    
-    WalkflagInfo info;
-    int xoff,yoff;
-    zfix deltax(0), deltay(0);
-    int cmb = MAPCOMBO(x+7,y+(bigHitbox?8:12));
-    ++newconveyorclk;
-    if (newconveyorclk < 0) newconveyorclk = 0;
-    if((combobuf[cmb].usrflags&cflag2) || (!(combobuf[cmb].usrflags&cflag2) && conveyclk<=0)) //!DIMITODO: let player be on multiple conveyors at once
-    {
-        is_on_conveyor=false;
-        int ctype;
-        ctype=(combobuf[cmb].type);
-	for (int i = 0; i <= 1; ++i)
+	if(action==casting||action==drowning||action==lavadrowning||inlikelike||pull_link||(z>0 && !(tmpscr->flags2&fAIRCOMBOS)))
 	{
-		if(tmpscr2[i].valid!=0)
-		{
-			if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && !_walkflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) return;
-		}
+		return;
 	}
-	if (!_effectflag(x+7,y+(bigHitbox?8:12),1, -1)) return;
-	if((combobuf[cmb].usrflags&cflag2) && (newconveyorclk % zc_max(combobuf[cmb].attribytes[0], 1))) return;
 	
-        deltax=combo_class_buf[ctype].conveyor_x_speed;
-        deltay=combo_class_buf[ctype].conveyor_y_speed;
-	
-	if (combobuf[cmb].usrflags&cflag2)
+	WalkflagInfo info;
+	int xoff,yoff;
+	zfix deltax(0), deltay(0);
+	int cmb = MAPCOMBO(x+7,y+(bigHitbox?8:12));
+	++newconveyorclk;
+	if (newconveyorclk < 0) newconveyorclk = 0;
+	if((combobuf[cmb].usrflags&cflag2) || (!(combobuf[cmb].usrflags&cflag2) && conveyclk<=0)) //!DIMITODO: let player be on multiple conveyors at once
 	{
-		deltax = zslongToFix(combobuf[cmb].attributes[0]);
-		deltay = zslongToFix(combobuf[cmb].attributes[1]);
-	}
-        
-        if((deltax==0&&deltay==0)&&(isSideViewLink() && on_sideview_solid(x,y)))
-        {
-		cmb = MAPCOMBO(x+8,y+16);
+		is_on_conveyor=false;
+		int ctype;
 		ctype=(combobuf[cmb].type);
+		for (int i = 0; i <= 1; ++i)
+		{
+			if(tmpscr2[i].valid!=0)
+			{
+				if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && !_walkflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) return;
+			}
+		}
+		if (!_effectflag(x+7,y+(bigHitbox?8:12),1, -1)) return;
+		if((combobuf[cmb].usrflags&cflag2) && (newconveyorclk % zc_max(combobuf[cmb].attribytes[0], 1))) return;
+		
 		deltax=combo_class_buf[ctype].conveyor_x_speed;
 		deltay=combo_class_buf[ctype].conveyor_y_speed;
-		if (combobuf[cmb].usrflags&cflag2)
+	
+		if ((deltax!=0 || deltay!=0) && combobuf[cmb].usrflags&cflag2)
 		{
 			deltax = zslongToFix(combobuf[cmb].attributes[0]);
 			deltay = zslongToFix(combobuf[cmb].attributes[1]);
 		}
-        }
-        
-        if(deltax!=0||deltay!=0)
-        {
-            is_on_conveyor=true;
-        }
-        
-        if(deltay<0)
-        {
-            info = walkflag(x,y+8-(bigHitbox*8)-2,2,up);
-            execute(info);
-            
-            if(!info.isUnwalkable())
-            {
-                zfix step(0);
-                
-                if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
-                {
-                    while(step<(abs(deltay)*(isSideViewLink()?2:1)))
-                    {
-                        yoff=int(y-step)&7;
-                        
-                        if(!yoff) break;
-                        
-                        step++;
-                    }
-                }
-                else
-                {
-                    step=abs(deltay);
-                }
-                
-                y=y-step;
-                hs_starty-=step.getInt();
-                
-                for(int j=0; j<chainlinks.Count(); j++)
-                {
-                    chainlinks.spr(j)->y-=step;
-                }
-                
-                if(Lwpns.idFirst(wHookshot)>-1)
-                {
-                    Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
-                }
-                
-                if(Lwpns.idFirst(wHSHandle)>-1)
-                {
-                    Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=step;
-                }
-            }
-            else checkdamagecombos(x,y+8-(bigHitbox ? 8 : 0)-2);
-        }
-        else if(deltay>0)
-        {
-            info = walkflag(x,y+15+2,2,down);
-            execute(info);
-            
-            if(!info.isUnwalkable())
-            {
-                zfix step(0);
-                
-                if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
-                {
-                    while(step<abs(deltay))
-                    {
-                        yoff=int(y+step)&7;
-                        
-                        if(!yoff) break;
-                        
-                        step++;
-                    }
-                }
-                else
-                {
-                    step=abs(deltay);
-                }
-                
-                y=y+step;
-                hs_starty+=step.getInt();
-                
-                for(int j=0; j<chainlinks.Count(); j++)
-                {
-                    chainlinks.spr(j)->y+=step;
-                }
-                
-                if(Lwpns.idFirst(wHookshot)>-1)
-                {
-                    Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
-                }
-                
-                if(Lwpns.idFirst(wHSHandle)>-1)
-                {
-                    Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=step;
-                }
-            }
-            else checkdamagecombos(x,y+15);
-        }
-        
-        if(deltax<0)
-        {
-            info = walkflag(x-int(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
-            execute(info);
-            
-            if(!info.isUnwalkable())
-            {
-                zfix step(0);
-                
-                if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
-                {
-                    while(step<abs(deltax))
-                    {
-                        xoff=int(x-step)&7;
-                        
-                        if(!xoff) break;
-                        
-                        step++;
-                    }
-                }
-                else
-                {
-                    step=abs(deltax);
-                }
-                
-                x=x-step;
-                hs_startx-=step.getInt();
-                
-                for(int j=0; j<chainlinks.Count(); j++)
-                {
-                    chainlinks.spr(j)->x-=step;
-                }
-                
-                if(Lwpns.idFirst(wHookshot)>-1)
-                {
-                    Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
-                }
-                
-                if(Lwpns.idFirst(wHSHandle)>-1)
-                {
-                    Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
-                }
-            }
-            else checkdamagecombos(x-int(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0));
-        }
-        else if(deltax>0)
-        {
-            info = walkflag(x+15+2,y+8-(bigHitbox ? 8 : 0),1,right);
-            execute(info);
-            
-            if(!info.isUnwalkable())
-            {
-                zfix step(0);
-                
-                if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
-                {
-                    while(step<abs(deltax))
-                    {
-                        xoff=int(x+step)&7;
-                        
-                        if(!xoff) break;
-                        
-                        step++;
-                    }
-                }
-                else
-                {
-                    step=abs(deltax);
-                }
-                
-                x=x+step;
-                hs_startx+=step.getInt();
-                
-                for(int j=0; j<chainlinks.Count(); j++)
-                {
-                    chainlinks.spr(j)->x+=step;
-                }
-                
-                if(Lwpns.idFirst(wHookshot)>-1)
-                {
-                    Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
-                }
-                
-                if(Lwpns.idFirst(wHSHandle)>-1)
-                {
-                    Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=step;
-                }
-            }
-            else checkdamagecombos(x+15+2,y+8-(bigHitbox ? 8 : 0));
-        }
-    }
+		
+		if((deltax==0&&deltay==0)&&(isSideViewLink() && on_sideview_solid(x,y)))
+		{
+			cmb = MAPCOMBO(x+8,y+16);
+			ctype=(combobuf[cmb].type);
+			deltax=combo_class_buf[ctype].conveyor_x_speed;
+			deltay=combo_class_buf[ctype].conveyor_y_speed;
+			if (combobuf[cmb].usrflags&cflag2)
+			{
+				deltax = zslongToFix(combobuf[cmb].attributes[0]);
+				deltay = zslongToFix(combobuf[cmb].attributes[1]);
+			}
+		}
+		
+		if(deltax!=0||deltay!=0)
+		{
+			is_on_conveyor=true;
+		}
+		
+		if(deltay<0)
+		{
+			info = walkflag(x,y+8-(bigHitbox*8)-2,2,up);
+			execute(info);
+			
+			if(!info.isUnwalkable())
+			{
+				zfix step(0);
+				
+				if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
+				{
+					while(step<(abs(deltay)*(isSideViewLink()?2:1)))
+					{
+						yoff=int(y-step)&7;
+						
+						if(!yoff) break;
+						
+						step++;
+					}
+				}
+				else
+				{
+					step=abs(deltay);
+				}
+				
+				y=y-step;
+				hs_starty-=step.getInt();
+				
+				for(int j=0; j<chainlinks.Count(); j++)
+				{
+					chainlinks.spr(j)->y-=step;
+				}
+				
+				if(Lwpns.idFirst(wHookshot)>-1)
+				{
+					Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
+				}
+				
+				if(Lwpns.idFirst(wHSHandle)>-1)
+				{
+					Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=step;
+				}
+			}
+			else checkdamagecombos(x,y+8-(bigHitbox ? 8 : 0)-2);
+		}
+		else if(deltay>0)
+		{
+			info = walkflag(x,y+15+2,2,down);
+			execute(info);
+			
+			if(!info.isUnwalkable())
+			{
+				zfix step(0);
+				
+				if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
+				{
+					while(step<abs(deltay))
+					{
+						yoff=int(y+step)&7;
+						
+						if(!yoff) break;
+						
+						step++;
+					}
+				}
+				else
+				{
+					step=abs(deltay);
+				}
+				
+				y=y+step;
+				hs_starty+=step.getInt();
+				
+				for(int j=0; j<chainlinks.Count(); j++)
+				{
+					chainlinks.spr(j)->y+=step;
+				}
+				
+				if(Lwpns.idFirst(wHookshot)>-1)
+				{
+					Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
+				}
+				
+				if(Lwpns.idFirst(wHSHandle)>-1)
+				{
+					Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=step;
+				}
+			}
+			else checkdamagecombos(x,y+15);
+		}
+		
+		if(deltax<0)
+		{
+			info = walkflag(x-int(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
+			execute(info);
+			
+			if(!info.isUnwalkable())
+			{
+				zfix step(0);
+				
+				if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
+				{
+					while(step<abs(deltax))
+					{
+						xoff=int(x-step)&7;
+						
+						if(!xoff) break;
+						
+						step++;
+					}
+				}
+				else
+				{
+					step=abs(deltax);
+				}
+				
+				x=x-step;
+				hs_startx-=step.getInt();
+				
+				for(int j=0; j<chainlinks.Count(); j++)
+				{
+					chainlinks.spr(j)->x-=step;
+				}
+				
+				if(Lwpns.idFirst(wHookshot)>-1)
+				{
+					Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
+				}
+				
+				if(Lwpns.idFirst(wHSHandle)>-1)
+				{
+					Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
+				}
+			}
+			else checkdamagecombos(x-int(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0));
+		}
+		else if(deltax>0)
+		{
+			info = walkflag(x+15+2,y+8-(bigHitbox ? 8 : 0),1,right);
+			execute(info);
+			
+			if(!info.isUnwalkable())
+			{
+				zfix step(0);
+				
+				if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
+				{
+					while(step<abs(deltax))
+					{
+						xoff=int(x+step)&7;
+						
+						if(!xoff) break;
+						
+						step++;
+					}
+				}
+				else
+				{
+					step=abs(deltax);
+				}
+				
+				x=x+step;
+				hs_startx+=step.getInt();
+				
+				for(int j=0; j<chainlinks.Count(); j++)
+				{
+					chainlinks.spr(j)->x+=step;
+				}
+				
+				if(Lwpns.idFirst(wHookshot)>-1)
+				{
+					Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
+				}
+				
+				if(Lwpns.idFirst(wHSHandle)>-1)
+				{
+					Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=step;
+				}
+			}
+			else checkdamagecombos(x+15+2,y+8-(bigHitbox ? 8 : 0));
+		}
+	}
 }
 
 void LinkClass::setNayrusLoveShieldClk(int newclk)

@@ -1063,7 +1063,8 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	//zprint("swordbeam\n");
 	//zprint("sfx is: %d\n", c[cid].attributes[2] / 10000L);
 	//zprint("scombo is: %d\n", scombo);
-	if ( !(get_bit(w->wscreengrid,(((bx>>4) + by)))) || (c[cid].usrflags&cflag5) ) 
+	byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
+	if ( !(get_bit(grid,(((bx>>4) + by)))) || (c[cid].usrflags&cflag5) ) 
 	{
 		if ((c[cid].usrflags&cflag1)) 
 		{
@@ -1189,182 +1190,45 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		//zprint("continuous\n");
 		
 	}
-	set_bit(w->wscreengrid,(((bx>>4) + by)),1);
+	set_bit(grid,(((bx>>4) + by)),1);
 	
 	if ( c[cid].usrflags&cflag8 ) w->dead = 1;
 }
 
+static void do_cswitch_combo(newcombo const& cmb, int layer, int cpos)
+{
+	mapscr* scr = (layer ? &tmpscr2[layer] : tmpscr);
+	byte pair = cmb.attribytes[0];
+	if(pair > 31) return;
+	game->lvlswitches[dlevel] ^= (1 << pair);
+	toggle_switches(1<<pair);
+}
+
 static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c, int layer = 0/*, int comboid, int flag*/)
 {
+    //find out which combo row/column the coordinates are in
+    bx=vbound(bx, 0, 255) & 0xF0;
+    by=vbound(by, 0, 175) & 0xF0;
 	if(screenIsScrolling()) return;
-	//zprint("Layer: %d\n", layer);
-	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	int cid = ( layer ) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
-	//zprint("cid: %d\n", cid);
+	if(!MatchComboTrigger(w, c, cid)) return;
+	newcombo const& cmb = c[cid];
+	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	int flag = ( layer ) ? MAPFLAGL(layer, bx,by) : MAPFLAG(bx,by);
-	//zprint("flag: %d\n", flag);
 	int flag2 = ( layer ) ? MAPCOMBOFLAGL(layer,bx,by): MAPCOMBOFLAG(bx,by);
-	//zprint("flag2: %d\n", layer);
-	int ft = c[cid].attribytes[3];
-	//if (!ft) return;
-	//zprint("ft: %d\n", ft);
+	int ft = cmb.attribytes[3];
 	int scombo=COMBOPOS(bx,by);
 	bool single16 = false;
-	
-	///MAPCOMBO2(layer,x,y)
-	if ( c[cid].type >= cSCRIPT1 && c[cid].type <= cTRIGGERGENERIC )
+	if ( cmb.type >= cSCRIPT1 && cmb.type <= cTRIGGERGENERIC )
 	{
-		//zprint("Weapon touched generic combo trigger. \n");
-		//zprint("wid is: %d\n", wid);
-		//zprint("cid is: %d\n", cid);
-		//zprint("ft is: %d\n", ft);
-		//zprint("tmpscr->secretcombo[ft]: %d\n", tmpscr->secretcombo[ft]);
-		//zprint("tmpscr->secretcset[ft]: %d\n", tmpscr->secretcset[ft]);
-		//zprint("tmpscr->secretflag[ft]: %d\n", tmpscr->secretflag[ft]);
-		//zprint("matched is: %s\n", ( (c[cid].triggerflags[0]&combotriggerSWORD) ) ? "true" : "false");
-		if ( wid == wSword && ( c[cid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[cid].triggerlevel ) )   
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}		
-		else if ( wid == wBeam && ( c[cid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wBrang && ( c[cid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wBomb && ( c[cid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[cid].triggerlevel ) ) 
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wSBomb && ( c[cid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wLitBomb && ( c[cid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[cid].triggerlevel ) )   
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wLitSBomb && ( c[cid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wArrow && ( c[cid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wFire && ( c[cid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wWhistle && ( c[cid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wBait && ( c[cid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wWand && ( c[cid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[cid].triggerlevel ) ) 
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wMagic && ( c[cid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wWind && ( c[cid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[cid].triggerlevel ) )   
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wRefMagic && ( c[cid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[cid].triggerlevel ) )   
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wRefFireball && ( c[cid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wRefRock && ( c[cid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wHammer && ( c[cid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[cid].triggerlevel ) )   
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		
-		    //ZScript liter support ends here. 
-		
-		else if ( wid == wHookshot && ( c[cid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[cid].triggerlevel ) ) 
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wFSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wSSparkle && ( c[cid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[cid].triggerlevel ) )   
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wCByrna && ( c[cid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[cid].triggerlevel ) )   
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wRefBeam && ( c[cid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wStomp && ( c[cid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[cid].triggerlevel ) ) 
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		    
-		    //item trigger flags page 2
-		
-		else if ( wid == wScript1 && ( c[cid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wScript2 && ( c[cid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[cid].triggerlevel ) ) 
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wScript3 && ( c[cid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[cid].triggerlevel ) )   
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wScript4 && ( c[cid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wScript5 && ( c[cid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wScript6 && ( c[cid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wScript7 && ( c[cid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wScript8 && ( c[cid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[cid].triggerlevel ) )   
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wScript9 && ( c[cid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		else if ( wid == wScript10 && ( c[cid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[cid].triggerlevel ) )  
-		{
-			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
-		}
-		
+		do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+	}
+	else if( cmb.type == cCSWITCH )
+	{
+		byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
+		if (get_bit(grid,(((bx>>4) + by)))) return;
+		set_bit(grid,(((bx>>4) + by)),1);
+		do_cswitch_combo(cmb, layer, COMBOPOS(bx,by));
 	}
 }
 
@@ -10467,11 +10331,6 @@ void weapon::findcombotriggers()
 				MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf, ly);
 				MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf, ly);
 			}
-			
-			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
-			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
-			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
-			MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf);
 		}
 		for (int ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
 		{
@@ -10480,10 +10339,6 @@ void weapon::findcombotriggers()
 			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf, ly);
 			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf, ly);
 		}
-		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
-		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
-		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
-		MatchComboTrigger(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf);
 		
 	}
 	for(int dy = 0; dy < hysz; dy += 16)
@@ -10495,10 +10350,6 @@ void weapon::findcombotriggers()
 			MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf, ly);
 			MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf, ly);
 		}
-		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
-		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
-		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
-		MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf);
 		
 	}
 	for (int ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
@@ -10508,11 +10359,6 @@ void weapon::findcombotriggers()
 		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf, ly);
 		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf, ly);
 	}
-	
-	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
-	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
-	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
-	MatchComboTrigger(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf);
 }
 
 int weapon::run_script(int mode)

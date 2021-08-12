@@ -1959,6 +1959,17 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			savedata[i].forced_xwpn = -1;
 			savedata[i].forced_ywpn = -1;
 		}
+		
+		if(section_version >= 19)
+		{
+			for(int j=0; j<MAXLEVELS; ++j)
+			{
+				if(!p_igetl(&(savedata[i].lvlswitches[j]),f,true))
+				{
+					return 62;
+				}
+			}
+		}
 	}
 	
 	
@@ -2461,6 +2472,10 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 		if(!p_putc(savedata[i].ywpn, f))
 		{
 			return 59;
+		}
+		if(!pfwrite(savedata[i].lvlswitches,MAXLEVELS*sizeof(long),f))
+		{
+			return 60;
 		}
 	}
 	
