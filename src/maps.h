@@ -141,8 +141,8 @@ bool _effectflag_layer(int x,int y,int cnt, mapscr* m);
 bool water_walkflag(int x,int y,int cnt);
 bool hit_walkflag(int x,int y,int cnt);
 void map_bkgsfx(bool on);
-void toggle_switches(dword flags);
-void toggle_switches(dword flags, mapscr* m, mapscr* t);
+void toggle_switches(dword flags, bool entry);
+void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t);
 
 //extern FONT *lfont;
 /****  View Map  ****/

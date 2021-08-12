@@ -18118,14 +18118,15 @@ static ComboAttributesInfo comboattrinfo[]=
 	},
 	{
 		cCSWITCH,
-		{ "Kill Wpn",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Kill Wpn",NULL,NULL,NULL,NULL,NULL,NULL,"Skip Cycle on Screen Entry",
+		  NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ "Combo Change","CSet Change",NULL,NULL},
 		{ "State Num","SFX",NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCSWITCHBLOCK,
-		{ "Change L0","Change L1","Change L2","Change L3","Change L4","Change L5","Change L6",NULL,
+		{ "Change L0","Change L1","Change L2","Change L3","Change L4","Change L5","Change L6","Skip Cycle on Screen Entry",
 		  NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ "Combo Change","CSet Change",NULL,NULL},
 		{ "State Num",NULL,NULL,NULL,NULL,NULL,NULL,NULL},

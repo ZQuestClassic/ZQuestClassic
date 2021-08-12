@@ -891,6 +891,11 @@ Crystal Switches / Switch Combos
 	Flags
 		Kill Wpn
 			Kill the LWeapon that triggered this combo
+		Skip Cycle on Screen Entry
+			If the combo that would be shifted to via 'Combo Change' has combo cycling, and this is enabled,
+				the combo cycling will occur instantly (continuously until it hits a combo without cycling).
+			This is meant to allow 'rising/falling' animations, without having them replay every time you
+				re-enter a room.
 	Attributes
 		Combo Change
 			How much to change the combo by after being hit (ex. 1 = Next, -1 = Previous)
@@ -911,4 +916,8 @@ Switch Block Combos
 	Flags
 		Change L#:
 			The combo in the same position on layer # will also be shifted based on 'Combo Change'/'CSet Change'
-
+		Skip Cycle on Screen Entry
+			If the combo that would be shifted to via 'Combo Change' has combo cycling, and this is enabled,
+				the combo cycling will occur instantly (continuously until it hits a combo without cycling).
+			This is meant to allow 'rising/falling' animations, without having them replay every time you
+				re-enter a room.

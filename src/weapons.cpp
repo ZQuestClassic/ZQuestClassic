@@ -1214,7 +1214,7 @@ static void do_cswitch_combo(weapon* w, newcombo const& cmb, int layer, int cpos
 	byte pair = cmb.attribytes[0];
 	if(pair > 31) return;
 	game->lvlswitches[dlevel] ^= (1 << pair);
-	toggle_switches(1<<pair);
+	toggle_switches(1<<pair, false);
 	if(cmb.usrflags&cflag1) killgenwpn(w); //Kill weapon
 	if(cmb.attribytes[1]) sfx(cmb.attribytes[1]);
 }

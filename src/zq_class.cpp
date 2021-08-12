@@ -4905,12 +4905,14 @@ void zmap::update_combo_cycling()
         if(restartanim[i])
         {
             combobuf[i].tile = combobuf[i].o_tile;
+			combobuf[i].cur_frame=0;
             combobuf[i].aclk = 0;
         }
         
         if(restartanim2[i])
         {
             combobuf[i].tile = combobuf[i].o_tile;
+			combobuf[i].cur_frame=0;
             combobuf[i].aclk = 0;
         }
     }
