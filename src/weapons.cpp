@@ -1033,6 +1033,19 @@ static int COMBOAT(int x, int y)
 }
 
 
+static void killgenwpn(weapon* w)
+{
+	switch(w->id)
+	{
+		case wSword:
+		case wHammer:
+			return;
+		default:
+			w->dead = 1;
+			break;
+	}
+}
+
 #define ComboX(pos) ((pos)%16*16)
 #define ComboY(pos) ((pos)&0xF0)
 #define minSECRET_TYPE 0
@@ -1192,16 +1205,18 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	}
 	set_bit(grid,(((bx>>4) + by)),1);
 	
-	if ( c[cid].usrflags&cflag8 ) w->dead = 1;
+	if ( c[cid].usrflags&cflag8 ) killgenwpn(w);
 }
 
-static void do_cswitch_combo(newcombo const& cmb, int layer, int cpos)
+static void do_cswitch_combo(weapon* w, newcombo const& cmb, int layer, int cpos)
 {
 	mapscr* scr = (layer ? &tmpscr2[layer] : tmpscr);
 	byte pair = cmb.attribytes[0];
 	if(pair > 31) return;
 	game->lvlswitches[dlevel] ^= (1 << pair);
 	toggle_switches(1<<pair);
+	if(cmb.usrflags&cflag1) killgenwpn(w); //Kill weapon
+	if(cmb.attribytes[1]) sfx(cmb.attribytes[1]);
 }
 
 static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c, int layer = 0/*, int comboid, int flag*/)
@@ -1228,7 +1243,7 @@ static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c, int layer
 		byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
 		if (get_bit(grid,(((bx>>4) + by)))) return;
 		set_bit(grid,(((bx>>4) + by)),1);
-		do_cswitch_combo(cmb, layer, COMBOPOS(bx,by));
+		do_cswitch_combo(w, cmb, layer, COMBOPOS(bx,by));
 	}
 }
 
