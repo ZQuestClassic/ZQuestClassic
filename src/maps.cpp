@@ -803,7 +803,8 @@ void update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+			if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c=newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -826,7 +827,8 @@ void update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c=newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -843,7 +845,8 @@ void update_combo_cycling()
             
         screen_combo_modify_preroutine(tmpscr,i);
         tmpscr->data[i]=newdata[i];
-        tmpscr->cset[i]=newcset[i];
+		if(newcset[i]>-1)
+			tmpscr->cset[i]=newcset[i];
         screen_combo_modify_postroutine(tmpscr,i);
         
         newdata[i]=-1;
@@ -863,7 +866,8 @@ void update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c=newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -886,7 +890,8 @@ void update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c=newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -902,7 +907,8 @@ void update_combo_cycling()
             continue;
             
         tmpscr->ffdata[i]=newdata[i];
-        tmpscr->ffcset[i]=newcset[i];
+        if(newcset[i]>-1)
+			tmpscr->ffcset[i]=newcset[i];
         
         newdata[i]=-1;
         newcset[i]=-1;
@@ -927,7 +933,8 @@ void update_combo_cycling()
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata[i]=combobuf[x].nextcombo;
-                    newcset[i]=combobuf[x].nextcset;
+                    if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+						newcset[i]=combobuf[x].nextcset;
                     int c=newdata[i];
                     
                     if(combobuf[c].animflags & AF_CYCLE)
@@ -950,7 +957,9 @@ void update_combo_cycling()
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata2[i]=combobuf[x].nextcombo;
-                    newcset2[i]=combobuf[x].nextcset;
+					if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+						newcset2[i]=combobuf[x].nextcset;
+					else newcset2[i]=(tmpscr2+j)->cset[i];
                     int c=newdata2[i];
                     int cs=newcset2[i];
                     
@@ -973,7 +982,8 @@ void update_combo_cycling()
                 {
                     screen_combo_modify_preroutine(tmpscr2+j,i);
                     (tmpscr2+j)->data[i]=newdata[i];
-                    (tmpscr2+j)->cset[i]=newcset[i];
+                    if(newcset[i]>-1)
+						(tmpscr2+j)->cset[i]=newcset[i];
                     screen_combo_modify_postroutine(tmpscr2+j,i);
                     
                     newdata[i]=-1;
@@ -983,7 +993,8 @@ void update_combo_cycling()
                 if(newdata2[i]!=-1)
                 {
                     (tmpscr2+j)->data[i]=newdata2[i];
-                    (tmpscr2+j)->cset[i]=newcset2[i];
+                    if(newcset2[i]>-1)
+						(tmpscr2+j)->cset[i]=newcset2[i];
                     newdata2[i]=-1;
                     newcset2[i]=-1;
                 }
@@ -4676,7 +4687,8 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 					while(combobuf[c].nextcombo != 0 && r++ < 10)
 					{
 						layerscreen->data[i] = combobuf[c].nextcombo;
-						layerscreen->cset[i] = combobuf[c].nextcset;
+						if(!(combobuf[c].animflags & AF_CYCLENOCSET))
+							layerscreen->cset[i] = combobuf[c].nextcset;
 						c=layerscreen->data[i];
 						cs=layerscreen->cset[i];
 					}
@@ -4846,7 +4858,8 @@ void loadscr2(int tmp,int scr,int)
 					while(combobuf[c].nextcombo != 0 && r++ < 10)
 					{
 						layerscreen->data[i] = combobuf[c].nextcombo;
-						layerscreen->cset[i] = combobuf[c].nextcset;
+						if(!(combobuf[c].animflags & AF_CYCLENOCSET))
+							layerscreen->cset[i] = combobuf[c].nextcset;
 						c=layerscreen->data[i];
 						cs=layerscreen->cset[i];
 					}
@@ -5511,7 +5524,8 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 						while(tmp->nextcombo && (oldData.find(tmp->nextcombo) == oldData.end()))
 						{
 							scr->data[pos] = tmp->nextcombo;
-							scr->cset[pos] = tmp->nextcset;
+							if(!(tmp->animflags & AF_CYCLENOCSET))
+								scr->cset[pos] = tmp->nextcset;
 							oldData.insert(tmp->nextcombo);
 							tmp = &combobuf[tmp->nextcombo];
 						}
@@ -5547,7 +5561,8 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 							while(tmp->nextcombo && (oldData2.find(tmp->nextcombo) == oldData2.end()))
 							{
 								scr_2->data[pos] = tmp->nextcombo;
-								scr_2->cset[pos] = tmp->nextcset;
+								if(!(tmp->animflags & AF_CYCLENOCSET))
+									scr_2->cset[pos] = tmp->nextcset;
 								oldData2.insert(tmp->nextcombo);
 								tmp = &combobuf[tmp->nextcombo];
 							}

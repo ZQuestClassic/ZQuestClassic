@@ -2969,8 +2969,9 @@ struct newcombo
 	}
 };
 
-#define AF_FRESH 1
-#define	AF_CYCLE 2
+#define AF_FRESH          0x01
+#define AF_CYCLE          0x02
+#define AF_CYCLENOCSET    0x04
 
 struct tiletype
 {

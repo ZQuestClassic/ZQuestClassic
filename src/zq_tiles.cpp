@@ -15070,7 +15070,7 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
     if(tile2==tile)
     {
         int nextcombo=combobuf[tile].nextcombo;
-        int nextcset=combobuf[tile].nextcset;
+        int nextcset=(combobuf[tile].animflags & AF_CYCLENOCSET) ? cs : combobuf[tile].nextcset;
         jwin_draw_frame(screen2,(136*mul)-2,(216*mul)+yofs-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
         
         if(nextcombo>0)
@@ -15616,12 +15616,14 @@ static DIALOG advpaste_dlg[] =
     { jwin_check_proc,		 10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Animation", NULL, NULL },
     { jwin_check_proc,		 10,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Type", NULL, NULL },
     { jwin_check_proc,		 10,	   80,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Inherent Flag", NULL, NULL },
-    { jwin_check_proc,		 10,	   90,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attributes", NULL, NULL },
-    { jwin_check_proc,		 10,	  100,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attribytes", NULL, NULL },
-    { jwin_check_proc,		 10,	  110,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Flags", NULL, NULL },
-    { jwin_check_proc,		 10,	  120,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Label", NULL, NULL },
-    { jwin_check_proc,		110,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Triggered By", NULL, NULL },
-    { jwin_check_proc,		110,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Script", NULL, NULL },
+    { jwin_check_proc,		 10,	   90,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attribytes", NULL, NULL },
+    { jwin_check_proc,		 10,	  100,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attrishorts", NULL, NULL },
+    { jwin_check_proc,		 10,	  110,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attributes", NULL, NULL },
+    { jwin_check_proc,		 10,	  120,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Flags", NULL, NULL },
+    { jwin_check_proc,		110,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Label", NULL, NULL },
+    { jwin_check_proc,		110,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Triggered By", NULL, NULL },
+    { jwin_check_proc,		110,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Script", NULL, NULL },
+    { jwin_check_proc,		110,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Effect", NULL, NULL },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -15658,7 +15660,7 @@ int advpaste(int tile, int tile2, int copy)
         
         if(advpaste_dlg[5].flags & D_SELECTED)   // walk
         {
-            combobuf[i].walk=combo.walk;
+            combobuf[i].walk=(combobuf[i].walk&0xF0) | (combo.walk&0x0F);
         }
         
         if(advpaste_dlg[6].flags & D_SELECTED)   // anim
@@ -15670,6 +15672,7 @@ int advpaste(int tile, int tile2, int copy)
             combobuf[i].skipanim=combo.skipanim;
             combobuf[i].nexttimer=combo.nexttimer;
             combobuf[i].skipanimy=combo.skipanimy;
+            combobuf[i].animflags=combo.animflags;
         }
         
         if(advpaste_dlg[7].flags & D_SELECTED)   // type
@@ -15682,41 +15685,52 @@ int advpaste(int tile, int tile2, int copy)
             combobuf[i].flag=combo.flag;
         }
         
-        if(advpaste_dlg[9].flags & D_SELECTED)   // attributes
+        if(advpaste_dlg[9].flags & D_SELECTED)   // attribytes
+        {
+			for(int q = 0; q < 8; ++q)
+				combobuf[i].attribytes[q] = combo.attribytes[q];
+        }
+        
+        if(advpaste_dlg[10].flags & D_SELECTED)   // attribytes
+        {
+			for(int q = 0; q < 8; ++q)
+				combobuf[i].attrishorts[q] = combo.attrishorts[q];
+        }
+		
+        if(advpaste_dlg[11].flags & D_SELECTED)   // attributes
         {
 			for(int q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 				combobuf[i].attributes[q] = combo.attributes[q];
         }
         
-        if(advpaste_dlg[10].flags & D_SELECTED)   // attribytes
-        {
-			for(int q = 0; q < 4; ++q)
-				combobuf[i].attribytes[q] = combo.attribytes[q];
-        }
-        
-        if(advpaste_dlg[11].flags & D_SELECTED)   // flags
+        if(advpaste_dlg[12].flags & D_SELECTED)   // flags
         {
             combobuf[i].usrflags = combo.usrflags;
         }
         
-        if(advpaste_dlg[12].flags & D_SELECTED)   // label
+        if(advpaste_dlg[13].flags & D_SELECTED)   // label
         {
 			for(int q = 0; q < 11; ++q)
 				combobuf[i].label[q] = combo.label[q];
         }
         
-        if(advpaste_dlg[13].flags & D_SELECTED)   // triggered by
+        if(advpaste_dlg[14].flags & D_SELECTED)   // triggered by
         {
 			for(int q = 0; q < 3; ++q)
 				combobuf[i].triggerflags[q] = combo.triggerflags[q];
 			combobuf[i].triggerlevel = combo.triggerlevel;
         }
         
-        if(advpaste_dlg[14].flags & D_SELECTED)   // script
+        if(advpaste_dlg[15].flags & D_SELECTED)   // script
         {
             combobuf[i].script = combo.script;
 			for(int q = 0; q < 2; ++q)
 				combobuf[i].initd[q] = combo.initd[q];
+        }
+        
+        if(advpaste_dlg[16].flags & D_SELECTED)   // effect
+        {
+            combobuf[i].walk=(combobuf[i].walk&0x0F) | (combo.walk&0xF0);
         }
     }
     
@@ -16666,9 +16680,15 @@ static int combo_data_list[] =
 	7,8,9,10,11,12,13,
 	14,
 	15,16,17,18,19,20,21,22,23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
-	37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+	37, 38, 39, 40, 41, 43, 45, 46,
 	136, 137, 138, 139, 140,
 	141,142,143,144,
+	-1
+};
+
+static int combo_aflags_list[] =
+{
+	42,44,173,174,175,
 	-1
 };
 
@@ -16758,6 +16778,7 @@ static TABPANEL combo_tabs_data[] =
 {
     // (text)
     { (char *)"Data",       D_SELECTED,                    combo_data_list,         0, NULL },
+    { (char *)"AFlags",              0,                   combo_aflags_list,         0, NULL },
     { (char *)"Attribytes",          0,              combo_attribytes_list,           0, NULL },
     { (char *)"Attrishorts",         0,             combo_attrishorts_list,           0, NULL },
     { (char *)"Attributes",          0,              combo_attributes_list,           0, NULL },
@@ -18298,7 +18319,7 @@ static DIALOG combo_dlg[] =
     { jwin_text_proc,       194,  102+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Cycle", NULL, NULL },
     // 33
     { d_comboframe_proc,   190,  79+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_combo_proc,    192,  81+17,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_combo_proc,    192,  81+17,   16,   16,   0,       0,      0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       60,   144+17,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Flag:", NULL, NULL },
     { jwin_droplist_proc,   89,   140+17,  180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &flag_list, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'n',     0,          0,             0, (void *) click_d_combo_proc, NULL, NULL },
@@ -18306,9 +18327,9 @@ static DIALOG combo_dlg[] =
     { jwin_numedit_proc,   152,  86+17,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       122,   108+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.SkipY:", NULL, NULL },
     { jwin_numedit_proc,   152,  104+17,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,       60,   160+17,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Refresh Animation on Room Entry", NULL, NULL },
+    { jwin_check_proc,       46,     30+16+3+17,     80,      9,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Refresh Animation on Room Entry", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_check_proc,       60,   169+17,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Restart Animation when Cycled To", NULL, NULL },
+    { jwin_check_proc,       46,     45+16+3+17,     80,      9,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Restart Animation when Cycled To", NULL, NULL },
     // 45
     { jwin_button_proc,     271,  125+17,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
     { jwin_button_proc,     271,  143+17,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
@@ -18492,6 +18513,9 @@ static DIALOG combo_dlg[] =
 	{ jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
 	//173
+    { jwin_check_proc,       46,     60+16+3+17,     80,      9,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Cycle Ignores CSet", NULL, (void*)get_tick_sel },
+	{ jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -19013,7 +19037,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[30].dp = frm;
 	combo_dlg[31].dp = spd;
 	combo_dlg[34].d1 = curr_combo.nextcombo;
-	combo_dlg[34].fg = curr_combo.nextcset;
+	combo_dlg[34].fg = (curr_combo.animflags & AF_CYCLENOCSET) ? edit_combo_cset : curr_combo.nextcset;
 	combo_dlg[36].d1 = curr_combo.flag;
 	SETFLAG(combo_dlg[35].flags, D_DISABLED, disableEdit); //Text
 	SETFLAG(combo_dlg[36].flags, D_DISABLED, disableEdit); //Dropdown
@@ -19023,6 +19047,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	
 	combo_dlg[42].flags = (curr_combo.animflags & AF_FRESH) ? D_SELECTED : 0;
 	combo_dlg[44].flags = (curr_combo.animflags & AF_CYCLE) ? D_SELECTED : 0;
+	combo_dlg[173].flags = (curr_combo.animflags & AF_CYCLENOCSET) ? D_SELECTED : 0;
 	
 	
 	//Attributes[]
@@ -19535,7 +19560,6 @@ bool edit_combo(int c,bool freshen,int cs)
 		curr_combo.type = bict[combo_dlg[27].d1].i;
 		//setComboLabels(bict[combo_dlg[25].d1].i);
 		curr_combo.nextcombo = combo_dlg[34].d1;
-		curr_combo.nextcset = combo_dlg[34].fg;
 		curr_combo.flag = combo_dlg[36].d1;
 		
 		//Attributes[]
@@ -19594,6 +19618,19 @@ bool edit_combo(int c,bool freshen,int cs)
 		curr_combo.animflags = 0;
 		curr_combo.animflags |= (combo_dlg[42].flags & D_SELECTED) ? AF_FRESH : 0;
 		curr_combo.animflags |= (combo_dlg[44].flags & D_SELECTED) ? AF_CYCLE : 0;
+		curr_combo.animflags |= (combo_dlg[173].flags & D_SELECTED) ? AF_CYCLENOCSET : 0;
+		if(ret==173)
+		{
+			if(!(curr_combo.animflags & AF_CYCLENOCSET)) //just disabled
+				combo_dlg[34].fg = curr_combo.nextcset;
+		}
+		if(curr_combo.animflags & AF_CYCLENOCSET)
+		{
+			if(ret==34) //If a new nextcombo was set, write the nextcset before wiping back to default
+				curr_combo.nextcset = combo_dlg[34].fg;
+			combo_dlg[34].fg = edit_combo_cset;
+		}
+		else curr_combo.nextcset = combo_dlg[34].fg;
 		
 		if(combo_dlg[49].flags & D_SELECTED) 
 		{
@@ -19745,6 +19782,7 @@ bool edit_combo(int c,bool freshen,int cs)
 			ctype_help(bict[combo_dlg[27].d1].i);
 		else if(ret==46)
 			cflag_help(combo_dlg[36].d1);
+
 		
 		
 		
@@ -19752,8 +19790,8 @@ bool edit_combo(int c,bool freshen,int cs)
 	//}
 	
 		
-	} while ( ret != 0 && ret != 4 && ret != 5 && ret!=47 && ret != 48 && ret!=88 && ret!=89 && ret!=102 && ret!=103 && ret!=123 && ret !=122 && ret !=131 && ret !=130 && ret !=135 && ret !=134 && ret !=169 && ret !=170 && ret !=171 && ret !=172); //127 cancel, 128 OK
-	if ( ret==4 || ret==47 || ret==88 || ret==102 || ret == 122 || ret == 130 || ret == 134 || ret == 169 || ret == 171  ) //save it
+	} while ( ret != 0 && !(combo_dlg[ret].proc == jwin_button_proc && !(strcmp((char*)combo_dlg[ret].dp,"OK") && strcmp((char*)combo_dlg[ret].dp,"Cancel"))));//ret != 4 && ret != 5 && ret!=47 && ret != 48 && ret!=88 && ret!=89 && ret!=102 && ret!=103 && ret!=123 && ret !=122 && ret !=131 && ret !=130 && ret !=135 && ret !=134 && ret !=169 && ret !=170 && ret !=171 && ret !=172 && ret !=174 && ret !=175);
+	if ( combo_dlg[ret].proc == jwin_button_proc && !strcmp((char*)combo_dlg[ret].dp,"OK") )//ret==4 || ret==47 || ret==88 || ret==102 || ret == 122 || ret == 130 || ret == 134 || ret == 169 || ret == 171 || ret == 174 ) //save it
 	{
 		curr_combo.script = bidcomboscripts[combo_dlg[129].d1].second + 1; 
 		combobuf[c] = curr_combo;
@@ -19906,6 +19944,7 @@ int d_combo_proc(int msg,DIALOG *d,int c)
             break;
         }
         
+		int ret = (d->flags & D_EXIT) ? D_CLOSE : D_O_K;
         int combo2;
         int cs;
         
@@ -19924,7 +19963,7 @@ int d_combo_proc(int msg,DIALOG *d,int c)
                 if(d->d1<0) d->d1=MAXCOMBOS-1;
             }
             
-            return D_REDRAW;
+            return ret|D_REDRAW;
         }
         else if(key[KEY_RSHIFT])
         {
@@ -19941,7 +19980,7 @@ int d_combo_proc(int msg,DIALOG *d,int c)
                 if(d->fg<0) d->fg=11;
             }
             
-            return D_REDRAW;
+            return ret|D_REDRAW;
         }
         else if(key[KEY_ALT])
         {
@@ -19951,18 +19990,18 @@ int d_combo_proc(int msg,DIALOG *d,int c)
                 d->fg = CSet;
             }
             
-            return D_REDRAW;
+            return ret|D_REDRAW;
         }
         else if(gui_mouse_b()&2||nextcombo_fake_click==2)  //right mouse button
         {
             if(d->d1==0&&d->fg==0&&!(gui_mouse_b()&1))
             {
-                return D_O_K;
+                return ret;
             }
             
             d->d1=0;
             d->fg=0;
-            return D_REDRAW;
+            return ret|D_REDRAW;
         }
         else if(gui_mouse_b()&1||nextcombo_fake_click==1)  //left mouse button
         {
@@ -19975,11 +20014,11 @@ int d_combo_proc(int msg,DIALOG *d,int c)
                 d->fg=cs;
             }
             
-            return D_REDRAW;
+            return ret|D_REDRAW;
         }
         else
         {
-            return D_REDRAWME;
+            return ret|D_REDRAWME;
         }
     }
     

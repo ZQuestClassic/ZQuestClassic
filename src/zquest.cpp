@@ -5957,7 +5957,7 @@ void drawpanel(int pnl)
 {
     mapscr *scr=Map.CurrScr();
     int NextCombo=combobuf[Combo].nextcombo;
-    int NextCSet=combobuf[Combo].nextcset;
+    int NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
     
     if(prv_mode)
     {
@@ -7170,7 +7170,7 @@ void refresh(int flags)
             
             // Cycle
             int NextCombo=combobuf[Combo].nextcombo;
-            int NextCSet=combobuf[Combo].nextcset;
+            int NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
             jwin_draw_frame(menu1,combo_preview.x+int(combo_preview.w*1.5)-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
             
             if(NextCombo>0 && draw_mode != dm_alias)
