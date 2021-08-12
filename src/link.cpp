@@ -98,6 +98,7 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 #define CANFORCEFACEUP	(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
 #define NO_GRIDLOCK		(get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK))
+#define SWITCHBLOCK_STATE (on_switchblock_top?zfix(-1):z)
 
 static inline bool platform_fallthrough()
 {
@@ -1209,6 +1210,7 @@ void LinkClass::init()
 	misc_internal_link_flags = 0;
 	last_cane_of_byrna_item_id = -1;
 	on_sideview_ladder = false;
+	on_switchblock_top = false;
 	extra_jump_count = 0;
 	hoverflags = 0;
     
@@ -7028,7 +7030,7 @@ bool LinkClass::animate(int)
 		//Unless using old collision, run this check BEFORE moving Hero, to prevent clipping into the ceiling.
 		if(!get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON))
 		{
-			if((_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1)
+			if((_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1,SWITCHBLOCK_STATE) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1,SWITCHBLOCK_STATE)
 				|| ((y+(fall/100)<=0) &&
 				// Extra checks if Smart Screen Scrolling is enabled
 				 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
@@ -7104,7 +7106,7 @@ bool LinkClass::animate(int)
 			// Bump head if: hit a solid combo from beneath, or hit a solid combo in the screen above this one.
 			if(get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON))
 			{
-				if((_walkflag(x+4,y-(bigHitbox?9:1),0)
+				if((_walkflag(x+4,y-(bigHitbox?9:1),0,SWITCHBLOCK_STATE)
 					|| (y<=(bigHitbox?9:1) &&
 					// Extra checks if Smart Screen Scrolling is enabled
 					 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
@@ -7122,7 +7124,7 @@ bool LinkClass::animate(int)
 			}
 			else
 			{
-				if((_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?-1:7),1) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?-1:7),1)
+				if((_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?-1:7),1,SWITCHBLOCK_STATE) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?-1:7),1,SWITCHBLOCK_STATE)
 					|| ((y<=0) &&
 					// Extra checks if Smart Screen Scrolling is enabled
 					 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
@@ -7537,7 +7539,27 @@ bool LinkClass::animate(int)
 	
 	}
 	
-	
+	on_switchblock_top = false;
+	if(!isSideViewLink())
+	{
+		int tx = x.getInt()+8,
+		    ty = y.getInt()+(bigHitbox?8:12);
+		for(int q = 0; q < 3; ++q)
+		{
+			if(q && !tmpscr2[q-1].valid) continue;
+			newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
+			if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
+			int b = 1;
+			if(tx&8) b <<= 2;
+			if(ty&8) b <<= 1;
+			b |= (b<<4); //check equivalent effect flag too
+			if((cmb.walk&b)==b) //solid and effecting
+			{
+				on_switchblock_top = true;
+				break;
+			}
+		}
+	}
 	ClearhitLinkUIDs(); //clear them before we advance. 
 	checkhit();
 	
@@ -7791,10 +7813,10 @@ bool LinkClass::animate(int)
 		if(frame&1)
 			linkstep();
 		
-		if (_walkflag(x+7,y+(bigHitbox?6:11),1)
-                || _walkflag(x+7,y+(bigHitbox?9:12),1)
-		|| _walkflag(x+8,y+(bigHitbox?6:11),1)
-                || _walkflag(x+8,y+(bigHitbox?9:12),1)) isthissolid = true;
+		if (_walkflag(x+7,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE)
+                || _walkflag(x+7,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)
+		|| _walkflag(x+8,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE)
+                || _walkflag(x+8,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)) isthissolid = true;
 		if (get_bit(quest_rules, qr_NO_HOPPING) && !isthissolid) //Since hopping won't be set with this on, something needs to kick Link out of water...
 		{
 			if(!iswaterex(MAPCOMBO(x.getInt()+4,y.getInt()+9), currmap, currscr, -1, x.getInt()+4,y.getInt()+9, true, false)||!iswaterex(MAPCOMBO(x.getInt()+4,y.getInt()+15), currmap, currscr, -1, x.getInt()+4,y.getInt()+15, true, false)
@@ -8406,7 +8428,7 @@ bool LinkClass::startwpn(int itemid)
 				setOnSideviewLadder(false);
 				
 				// Reset the ladder, unless on an unwalkable combo
-				if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0)))
+				if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0,SWITCHBLOCK_STATE)))
 					reset_ladder();
 					
 				sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
@@ -9014,7 +9036,7 @@ bool LinkClass::startwpn(int itemid)
             if(dir==up)
             {
                 if(isHSGrabbable(combobuf[MAPCOMBO2(i,x,y-7)])||
-                        (_walkflag(x+2,y+4,1) && !ishookshottable(x.getInt(),int(y+4))))
+                        (_walkflag(x+2,y+4,1,SWITCHBLOCK_STATE) && !ishookshottable(x.getInt(),int(y+4))))
                 {
                     use_hookshot=false;
                 }
@@ -11553,18 +11575,18 @@ void LinkClass::movelink()
 						{
 							x = x.getInt();
 							y = y.getInt();
-							if(!_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
-									!_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
-									_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+							if(!_walkflag(x,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+									!_walkflag(x+8, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+									_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
 									sprite::move((zfix)-1,(zfix)0);
 							}
 							else
 							{
-								if(_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
-										!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
-										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+								if(_walkflag(x,   y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+										!_walkflag(x+7, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 								{
 									if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
 										sprite::move((zfix)1,(zfix)0);
@@ -11775,16 +11797,16 @@ void LinkClass::movelink()
 						{
 							x = x.getInt();
 							y = y.getInt();
-							if(!_walkflag(x,   y+15+1,1)&&
-									!_walkflag(x+8, y+15+1,1)&&
-									_walkflag(x+15,y+15+1,1))
+							if(!_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x+8, y+15+1,1,SWITCHBLOCK_STATE)&&
+									_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
 									sprite::move((zfix)-1,(zfix)0);
 							}
-							else if(_walkflag(x,   y+15+1,1)&&
-									!_walkflag(x+7, y+15+1,1)&&
-									!_walkflag(x+15,y+15+1,1))
+							else if(_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x+7, y+15+1,1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
 									sprite::move((zfix)1,(zfix)0);
@@ -11987,16 +12009,16 @@ void LinkClass::movelink()
 							int v1=bigHitbox?0:8;
 							int v2=bigHitbox?8:12;
 							
-							if(!_walkflag(x-1,y+v1,1)&&
-									!_walkflag(x-1,y+v2,1)&&
-									_walkflag(x-1,y+15,1))
+							if(!_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
+									_walkflag(x-1,y+15,1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
 									sprite::move((zfix)0,(zfix)-1);
 							}
-							else if(_walkflag(x-1,y+v1,  1)&&
-									!_walkflag(x-1,y+v2-1,1)&&
-									!_walkflag(x-1,y+15,  1))
+							else if(_walkflag(x-1,y+v1,  1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x-1,y+v2-1,1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x-1,y+15,  1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
 									sprite::move((zfix)0,(zfix)1);
@@ -12203,16 +12225,16 @@ void LinkClass::movelink()
 							int v1=bigHitbox?0:8;
 							int v2=bigHitbox?8:12;
 								   
-							if(!_walkflag(x+16,y+v1,1)&&
-								   !_walkflag(x+16,y+v2,1)&&
-								   _walkflag(x+16,y+15,1))
+							if(!_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
+								   !_walkflag(x+16,y+v2,1,SWITCHBLOCK_STATE)&&
+								   _walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
 									sprite::move((zfix)0,(zfix)-1);
 							}
-							else if(_walkflag(x+16,y+v1,1)&&
-									   !_walkflag(x+16,y+v2-1,1)&&
-									   !_walkflag(x+16,y+15,1))
+							else if(_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
+									   !_walkflag(x+16,y+v2-1,1,SWITCHBLOCK_STATE)&&
+									   !_walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
 									sprite::move((zfix)0,(zfix)1);
@@ -12372,18 +12394,18 @@ void LinkClass::movelink()
 					{
 						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
 						{
-							if(!_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
-									!_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
-									_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+							if(!_walkflag(x,   y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+									!_walkflag(x+8, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+									_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
 									sprite::move((zfix)-1,(zfix)0);
 							}
 							else
 							{
-								if(_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
-										!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
-										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+								if(_walkflag(x,   y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+										!_walkflag(x+7, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 								{
 									if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
 										sprite::move((zfix)1,(zfix)0);
@@ -12541,16 +12563,16 @@ void LinkClass::movelink()
 					{
 						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
 						{
-							if(!_walkflag(x,   y+15+1,1)&&
-									!_walkflag(x+8, y+15+1,1)&&
-									_walkflag(x+15,y+15+1,1))
+							if(!_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x+8, y+15+1,1,SWITCHBLOCK_STATE)&&
+									_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
 									sprite::move((zfix)-1,(zfix)0);
 							}
-							else if(_walkflag(x,   y+15+1,1)&&
-									!_walkflag(x+7, y+15+1,1)&&
-									!_walkflag(x+15,y+15+1,1))
+							else if(_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x+7, y+15+1,1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
 									sprite::move((zfix)1,(zfix)0);
@@ -12708,16 +12730,16 @@ void LinkClass::movelink()
 							int v1=bigHitbox?0:8;
 							int v2=bigHitbox?8:12;
 							
-							if(!_walkflag(x-1,y+v1,1)&&
-									!_walkflag(x-1,y+v2,1)&&
-									_walkflag(x-1,y+15,1))
+							if(!_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
+									_walkflag(x-1,y+15,1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
 									sprite::move((zfix)0,(zfix)-1);
 							}
-							else if(_walkflag(x-1,y+v1,  1)&&
-									!_walkflag(x-1,y+v2-1,1)&&
-									!_walkflag(x-1,y+15,  1))
+							else if(_walkflag(x-1,y+v1,  1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x-1,y+v2-1,1,SWITCHBLOCK_STATE)&&
+									!_walkflag(x-1,y+15,  1,SWITCHBLOCK_STATE))
 							{
 								if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
 									sprite::move((zfix)0,(zfix)1);
@@ -13086,7 +13108,7 @@ void LinkClass::movelink()
 					{
 						info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
 						
-						if(_walkflag(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step, 1) &&
+						if(_walkflag(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step, 1,SWITCHBLOCK_STATE) &&
 								!(iswaterex(MAPCOMBO(temp_x, temp_y+(bigHitbox?0:8)-temp_step), currmap, currscr, -1, temp_x, temp_y+(bigHitbox?0:8)-temp_step, true, false) &&
 								  iswaterex(MAPCOMBO(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step), currmap, currscr, -1, temp_x+15, temp_y+(bigHitbox?0:8)-temp_step, true, false)))
 							info.setUnwalkable(true);
@@ -13135,16 +13157,16 @@ void LinkClass::movelink()
 					{
 						x = x.getInt();
 						y = y.getInt();
-						if(!_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
-								!_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
-								_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+						if(!_walkflag(x,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+								!_walkflag(x+8, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+								_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
 								sprite::move((zfix)-1,(zfix)0);
 						}
-						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
-								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
-								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
 								sprite::move((zfix)1,(zfix)0);
@@ -13216,7 +13238,7 @@ void LinkClass::movelink()
 					{
 						info=walkflag(temp_x,temp_y+15+temp_step,2,down);
 						
-						if(_walkflag(temp_x+15, temp_y+15+temp_step, 1) &&
+						if(_walkflag(temp_x+15, temp_y+15+temp_step, 1,SWITCHBLOCK_STATE) &&
 								!(iswaterex(MAPCOMBO(temp_x, temp_y+15+temp_step), currmap, currscr, -1, temp_x, temp_y+15+temp_step, true, false) &&
 								  iswaterex(MAPCOMBO(temp_x+15, temp_y+15+temp_step), currmap, currscr, -1, temp_x+15, temp_y+15+temp_step, true, false)))
 							info.setUnwalkable(true);
@@ -13265,16 +13287,16 @@ void LinkClass::movelink()
 					{
 						x = x.getInt();
 						y = y.getInt();
-						if(!_walkflag(x,   y+15+1,1)&&
-								!_walkflag(x+8, y+15+1,1)&&
-								_walkflag(x+15,y+15+1,1))
+						if(!_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x+8, y+15+1,1,SWITCHBLOCK_STATE)&&
+								_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
 								sprite::move((zfix)-1,(zfix)0);
 						}
-						else if(_walkflag(x,   y+15+1,1)&&
-								!_walkflag(x+7, y+15+1,1)&&
-								!_walkflag(x+15,y+15+1,1))
+						else if(_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x+7, y+15+1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
 								sprite::move((zfix)1,(zfix)0);
@@ -13392,16 +13414,16 @@ LEFTRIGHT_NEWMOVE:
 						int v1=bigHitbox?0:8;
 						int v2=bigHitbox?8:12;
 						
-						if(!_walkflag(x-1,y+v1,1)&&
-								!_walkflag(x-1,y+v2,1)&&
-								_walkflag(x-1,y+15,1))
+						if(!_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
+								_walkflag(x-1,y+15,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
 								sprite::move((zfix)0,(zfix)-1);
 						}
-						else if(_walkflag(x-1,y+v1,1)&&
-								!_walkflag(x-1,y+v2-1,1)&&
-								!_walkflag(x-1,y+15,  1))
+						else if(_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x-1,y+v2-1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x-1,y+15,  1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
 								sprite::move((zfix)0,(zfix)1);
@@ -13509,16 +13531,16 @@ LEFTRIGHT_NEWMOVE:
 						int v1=bigHitbox?0:8;
 						int v2=bigHitbox?8:12;
 							   
-						if(!_walkflag(x+16,y+v1,1)&&
-							   !_walkflag(x+16,y+v2,1)&&
-							   _walkflag(x+16,y+15,1))
+						if(!_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
+							   !_walkflag(x+16,y+v2,1,SWITCHBLOCK_STATE)&&
+							   _walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
 								sprite::move((zfix)0,(zfix)-1);
 						}
-						else if(_walkflag(x+16,y+v1,1)&&
-								   !_walkflag(x+16,y+v2-1,1)&&
-								   !_walkflag(x+16,y+15,1))
+						else if(_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
+								   !_walkflag(x+16,y+v2-1,1,SWITCHBLOCK_STATE)&&
+								   !_walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
 								sprite::move((zfix)0,(zfix)1);
@@ -13609,7 +13631,7 @@ LEFTRIGHT_NEWMOVE:
 				{
 					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]),2,up);
 					
-					if(_walkflag(x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]), 1) &&
+					if(_walkflag(x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]), 1,SWITCHBLOCK_STATE) &&
 							!(iswaterex(MAPCOMBO(x, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7])) &&
 							  iswaterex(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]))))
 						info.setUnwalkable(true);
@@ -13635,16 +13657,16 @@ LEFTRIGHT_NEWMOVE:
 				{
 					if(NO_GRIDLOCK)
 					{
-						if(!_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
-								!_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
-								_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+						if(!_walkflag(x,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+								!_walkflag(x+8, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+								_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
 								sprite::move((zfix)-1,(zfix)0);
 						}
-						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1) &&
-								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
-								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
+						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
 								sprite::move((zfix)1,(zfix)0);
@@ -13714,7 +13736,7 @@ LEFTRIGHT_NEWMOVE:
 				{
 					info=walkflag(x,y+15+int(lsteps[y.getInt()&7]),2,down);
 					
-					if(_walkflag(x+15, y+15+int(lsteps[y.getInt()&7]), 1) &&
+					if(_walkflag(x+15, y+15+int(lsteps[y.getInt()&7]), 1,SWITCHBLOCK_STATE) &&
 							!(iswaterex(MAPCOMBO(x, y+15+int(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+15+int(lsteps[y.getInt()&7])) &&
 							  iswaterex(MAPCOMBO(x+15, y+15+int(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+15+int(lsteps[y.getInt()&7]))))
 						info.setUnwalkable(true);
@@ -13740,16 +13762,16 @@ LEFTRIGHT_NEWMOVE:
 				{
 					if(NO_GRIDLOCK)
 					{
-						if(!_walkflag(x,   y+15+1,1)&&
-								!_walkflag(x+8, y+15+1,1)&&
-								_walkflag(x+15,y+15+1,1))
+						if(!_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x+8, y+15+1,1,SWITCHBLOCK_STATE)&&
+								_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
 								sprite::move((zfix)-1,(zfix)0);
 						}
-						else if(_walkflag(x,   y+15+1,1)&&
-								!_walkflag(x+7, y+15+1,1)&&
-								!_walkflag(x+15,y+15+1,1))
+						else if(_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x+7, y+15+1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
 								sprite::move((zfix)1,(zfix)0);
@@ -13840,16 +13862,16 @@ LEFTRIGHT_OLDMOVE:
 						int v1=bigHitbox?0:8;
 						int v2=bigHitbox?8:12;
 						
-						if(!_walkflag(x-1,y+v1,1)&&
-								!_walkflag(x-1,y+v2,1)&&
-								_walkflag(x-1,y+15,1))
+						if(!_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
+								_walkflag(x-1,y+15,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
 								sprite::move((zfix)0,(zfix)-1);
 						}
-						else if(_walkflag(x-1,y+v1,  1)&&
-								!_walkflag(x-1,y+v2-1,1)&&
-								!_walkflag(x-1,y+15,  1))
+						else if(_walkflag(x-1,y+v1,  1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x-1,y+v2-1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x-1,y+15,  1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
 								sprite::move((zfix)0,(zfix)1);
@@ -13932,16 +13954,16 @@ LEFTRIGHT_OLDMOVE:
 						int v1=bigHitbox?0:8;
 						int v2=bigHitbox?8:12;
 							   
-						if(!_walkflag(x+16,y+v1,1)&&
-							   !_walkflag(x+16,y+v2,1)&&
-							   _walkflag(x+16,y+15,1))
+						if(!_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
+							   !_walkflag(x+16,y+v2,1,SWITCHBLOCK_STATE)&&
+							   _walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
 								sprite::move((zfix)0,(zfix)-1);
 						}
-						else if(_walkflag(x+16,y+v1,1)&&
-								   !_walkflag(x+16,y+v2-1,1)&&
-								   !_walkflag(x+16,y+15,1))
+						else if(_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
+								   !_walkflag(x+16,y+v2-1,1,SWITCHBLOCK_STATE)&&
+								   !_walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 						{
 							if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
 								sprite::move((zfix)0,(zfix)1);
@@ -14505,14 +14527,14 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         return ret;
     }
     
-    if(isdungeon() && currscr<128 && wy<(bigHitbox?32:40) && (((diagonalMovement||NO_GRIDLOCK)?(x<=112||x>=128):x!=120) || _walkflag(120,24,2))
+    if(isdungeon() && currscr<128 && wy<(bigHitbox?32:40) && (((diagonalMovement||NO_GRIDLOCK)?(x<=112||x>=128):x!=120) || _walkflag(120,24,2,SWITCHBLOCK_STATE))
             && !get_bit(quest_rules,qr_FREEFORM))
     {
         ret.setUnwalkable(true);
         return ret;
     }
     
-    bool wf = _walkflag(wx,wy,cnt);
+    bool wf = _walkflag(wx,wy,cnt,SWITCHBLOCK_STATE);
     
     if(isdungeon() && currscr<128 && !get_bit(quest_rules,qr_FREEFORM))
     {
@@ -14529,10 +14551,10 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         if(!wf)
         {
 	    bool isthissolid = false;
-		if (_walkflag(x+7,y+(bigHitbox?6:11),1)
-                || _walkflag(x+7,y+(bigHitbox?9:12),1)
-		|| _walkflag(x+8,y+(bigHitbox?6:11),1)
-                || _walkflag(x+8,y+(bigHitbox?9:12),1)) isthissolid = true;
+		if (_walkflag(x+7,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE)
+                || _walkflag(x+7,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)
+		|| _walkflag(x+8,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE)
+                || _walkflag(x+8,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)) isthissolid = true;
 		//This checks if Link is currently swimming in solid water (cause even if the QR "No Hopping" is enabled, he should still hop out of solid water) - Dimi
 		
 		
@@ -14569,8 +14591,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     {
                         if(!iswaterex(MAPCOMBO(x-1,y+(bigHitbox?6:11)), currmap, currscr, -1, x-1,y+(bigHitbox?6:11)) &&
                            !iswaterex(MAPCOMBO(x-1,y+(bigHitbox?9:12)), currmap, currscr, -1, x-1,y+(bigHitbox?9:12)) &&
-                           !_walkflag(x-1,y+(bigHitbox?6:11),1) &&
-                           !_walkflag(x-1,y+(bigHitbox?9:12),1))
+                           !_walkflag(x-1,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE) &&
+                           !_walkflag(x-1,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE))
                         {
                             ret.setHopDir(d2);
                             ret.setIlswim(true);
@@ -14581,8 +14603,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     {
                         if(!iswaterex(MAPCOMBO(x+16,y+(bigHitbox?6:11)), currmap, currscr, -1, x+16,y+(bigHitbox?6:11)) &&
                            !iswaterex(MAPCOMBO(x+16,y+(bigHitbox?9:12)), currmap, currscr, -1, x+16,y+(bigHitbox?9:12)) &&
-                           !_walkflag(x+16,y+(bigHitbox?6:11),1) &&
-                           !_walkflag(x+16,y+(bigHitbox?9:12),1))
+                           !_walkflag(x+16,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE) &&
+                           !_walkflag(x+16,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE))
                         {
                             ret.setHopDir(d2);
                             ret.setIlswim(true);
@@ -14593,8 +14615,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     {
                         if(!iswaterex(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+7,y+(bigHitbox?0:8)-1) &&
                            !iswaterex(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1) &&
-                           !_walkflag(x+7,y+(bigHitbox?0:8)-1,1) &&
-                           !_walkflag(x+8,y+(bigHitbox?0:8)-1,1))
+                           !_walkflag(x+7,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+                           !_walkflag(x+8,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
                         {
                             ret.setHopDir(d2);
                             ret.setIlswim(true);
@@ -14605,8 +14627,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     {
                         if(!iswaterex(MAPCOMBO(x+7,y+16), currmap, currscr, -1, x+7,y+16) &&
                            !iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16) &&
-                           !_walkflag(x+7,y+16,1) &&
-                           !_walkflag(x+8,y+16,1))
+                           !_walkflag(x+7,y+16,1,SWITCHBLOCK_STATE) &&
+                           !_walkflag(x+8,y+16,1,SWITCHBLOCK_STATE))
                         {
                             ret.setHopDir(d2);
                             ret.setIlswim(true);
@@ -14647,8 +14669,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
     }
     else if(ladderx+laddery)                                  // ladder is being used
     {
-        int lx = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1)) ? wx : x;
-        int ly = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1)) ? wy : y;
+        int lx = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? wx : x;
+        int ly = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? wy : y;
         
         if((diagonalMovement||NO_GRIDLOCK))
         {
@@ -14711,8 +14733,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                 case up:
                     if(y.getInt()<=laddery)
                     {
-                        ret.setUnwalkable(_walkflag(ladderx,laddery-8,1) ||
-                                          _walkflag(ladderx+8,laddery-8,1));
+                        ret.setUnwalkable(_walkflag(ladderx,laddery-8,1,SWITCHBLOCK_STATE) ||
+                                          _walkflag(ladderx+8,laddery-8,1,SWITCHBLOCK_STATE));
                         return ret;
                         
                     }
@@ -14737,11 +14759,11 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                 
                 if(d2<=down)
                 {
-                    ret.setUnwalkable(_walkflag(ladderx,wy,1) || _walkflag(ladderx+8,wy,1));
+                    ret.setUnwalkable(_walkflag(ladderx,wy,1,SWITCHBLOCK_STATE) || _walkflag(ladderx+8,wy,1,SWITCHBLOCK_STATE));
                     return ret;
                 }
                 
-                ret.setUnwalkable(_walkflag((wx&0xF0),wy,1) || _walkflag((wx&0xF0)+8,wy,1));
+                ret.setUnwalkable(_walkflag((wx&0xF0),wy,1,SWITCHBLOCK_STATE) || _walkflag((wx&0xF0)+8,wy,1,SWITCHBLOCK_STATE));
                 return ret;
             }
             
@@ -14762,8 +14784,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
     else if(wf || isSideViewLink() || get_bit(quest_rules, qr_DROWN))
     {
         // see if it's a good spot for the ladder or for swimming
-        bool unwalkablex  = _walkflag(wx,wy,1); //will be used later for the ladder -DD
-        bool unwalkablex8 = _walkflag(x+8,wy,1);
+        bool unwalkablex  = _walkflag(wx,wy,1,SWITCHBLOCK_STATE); //will be used later for the ladder -DD
+        bool unwalkablex8 = _walkflag(x+8,wy,1,SWITCHBLOCK_STATE);
         
         if(get_bit(quest_rules, qr_DROWN))
         {
@@ -14835,8 +14857,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             {
                 if(isSideViewLink())
                 {
-                    wtrx  = !_walkflag(wx, wy+8, 1) && !_walkflag(wx, wy, 1) && dir!=down;
-                    wtrx8 = !_walkflag(wx+8, wy+8, 1) && !_walkflag(wx+8, wy, 1) && dir!=down;
+                    wtrx  = !_walkflag(wx, wy+8, 1,SWITCHBLOCK_STATE) && !_walkflag(wx, wy, 1,SWITCHBLOCK_STATE) && dir!=down;
+                    wtrx8 = !_walkflag(wx+8, wy+8, 1,SWITCHBLOCK_STATE) && !_walkflag(wx+8, wy, 1,SWITCHBLOCK_STATE) && dir!=down;
                 }
                 // * walk on half-water using the ladder instead of using flippers.
                 // * otherwise, walk on ladder(+hookshot) combos.
@@ -14949,8 +14971,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             }
             else
             {
-                bool flgx  = _walkflag(wx,wy,1) && !wtrx; // Solid, and not steppable
-                bool flgx8 = _walkflag(x+8,wy,1) && !wtrx8; // Solid, and not steppable
+                bool flgx  = _walkflag(wx,wy,1,SWITCHBLOCK_STATE) && !wtrx; // Solid, and not steppable
+                bool flgx8 = _walkflag(x+8,wy,1,SWITCHBLOCK_STATE) && !wtrx8; // Solid, and not steppable
                 
                 if((d2>=left && wtrx)
                         // Deploy the ladder vertically even if Link is only half on water.
@@ -15090,7 +15112,7 @@ void LinkClass::checkpushblock()
         t = combobuf[i==0 ? MAPCOMBO(bx,by) : MAPCOMBO2(i-1,bx,by)].type;
         
         // Solid damage combos use pushing>0, hence the code is here.
-        if(combo_class_buf[t].modify_hp_amount && _walkflag(bx,by,1) && pushing>0 && hclk<1 && action!=casting && !get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS))
+        if(combo_class_buf[t].modify_hp_amount && _walkflag(bx,by,1,SWITCHBLOCK_STATE) && pushing>0 && hclk<1 && action!=casting && !get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS))
         {
             // Bite Link
             checkdamagecombos(bx+8-(tmpscr->csensitive),
@@ -15167,22 +15189,22 @@ void LinkClass::checkpushblock()
         switch(dir)
         {
         case up:
-            if(_walkflag(bx,by-8,2)&&!(MAPFLAG(bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx,by-8)==mfBLOCKHOLE))    doit=false;
+            if(_walkflag(bx,by-8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG(bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx,by-8)==mfBLOCKHOLE))    doit=false;
             
             break;
             
         case down:
-            if(_walkflag(bx,by+24,2)&&!(MAPFLAG(bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG(bx,by+24)==mfBLOCKHOLE))   doit=false;
+            if(_walkflag(bx,by+24,2,SWITCHBLOCK_STATE)&&!(MAPFLAG(bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG(bx,by+24)==mfBLOCKHOLE))   doit=false;
             
             break;
             
         case left:
-            if(_walkflag(bx-16,by+8,2)&&!(MAPFLAG(bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx-16,by+8)==mfBLOCKHOLE)) doit=false;
+            if(_walkflag(bx-16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG(bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx-16,by+8)==mfBLOCKHOLE)) doit=false;
             
             break;
             
         case right:
-            if(_walkflag(bx+16,by+8,2)&&!(MAPFLAG(bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx+16,by+8)==mfBLOCKHOLE)) doit=false;
+            if(_walkflag(bx+16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG(bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx+16,by+8)==mfBLOCKHOLE)) doit=false;
             
             break;
         }
@@ -16644,7 +16666,7 @@ void LinkClass::checkswordtap()
         break;
     }
     
-    if(!_walkflag(bx,by,0)) return;
+    if(!_walkflag(bx,by,0,SWITCHBLOCK_STATE)) return;
     
     attackclk=SWORDTAPFRAME;
     pushing=-8; //16 frames between taps
@@ -19400,7 +19422,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	
 	int checkwater = iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
         
-        if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].attribytes[0] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))
+        if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].attribytes[0] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))
         {
             hopclk=0xFF;
             attackclk = charging = spins = 0;
@@ -19561,7 +19583,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		
 		markBmap(dir^1);
 		
-		if(iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && _walkflag(x,y+8,0) && current_item(itype_flippers))
+		if(iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && _walkflag(x,y+8,0,SWITCHBLOCK_STATE) && current_item(itype_flippers))
 		{
 		    hopclk=0xFF;
 		    attackclk = charging = spins = 0;
@@ -19691,7 +19713,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
     int checkwater = iswaterex(MAPCOMBO(x,y+(bigHitbox?8:12)), currmap, currscr, -1, x,y+(bigHitbox?8:12));
     // But keep him swimming if he ought to be!
     // Unless the water is too high levelled, in which case... well, he'll drown on transition probably anyways. -Dimi
-    if(action!=rafting && checkwater && (_walkflag(x,y+(bigHitbox?8:12),0) || get_bit(quest_rules,qr_DROWN))
+    if(action!=rafting && checkwater && (_walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) || get_bit(quest_rules,qr_DROWN))
             //&& (current_item(itype_flippers) >= combobuf[checkwater].attribytes[0]) 
 	    && (action!=inwind))
     {
@@ -22360,13 +22382,13 @@ bool LinkClass::sideviewhammerpound()
         return (COMBOTYPE(x+wx,y+wy)!=cSHALLOWWATER && !iswaterex(MAPCOMBO(x+wx,y+wy), currmap, currscr, -1, x+wx,y+wy));
     }
     
-    if(_walkflag(x+wx,y+wy,0)) return true;
+    if(_walkflag(x+wx,y+wy,0,SWITCHBLOCK_STATE)) return true;
     
     if(dir==left || dir==right)
     {
         wx+=16;
         
-        if(_walkflag(x+wx,y+wy,0)) return true;
+        if(_walkflag(x+wx,y+wy,0,SWITCHBLOCK_STATE)) return true;
     }
     
     return false;

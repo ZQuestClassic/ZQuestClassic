@@ -18148,7 +18148,7 @@ static ComboAttributesInfo comboattrinfo[]=
 	{
 		cCSWITCHBLOCK,
 		{ "Change L0","Change L1","Change L2","Change L3","Change L4","Change L5","Change L6","Skip Cycle on Screen Entry",
-		  NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		  "Allow walk-on-top",NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
 		{ "Combo Change","CSet Change",NULL,NULL},
 		{ "State Num",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
@@ -18222,6 +18222,14 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ NULL,"Custom Speed",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ "X Speed","Y Speed",NULL,NULL},
 		{ "Rate",NULL, NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		266, //Switch Blocks (Allow walk-on-top on)
+		{ "Change L0","Change L1","Change L2","Change L3","Change L4","Change L5","Change L6","Skip Cycle on Screen Entry",
+		  "Allow walk-on-top",NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ "Combo Change","CSet Change","Z-value",NULL},
+		{ "State Num",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
@@ -19322,6 +19330,14 @@ bool edit_combo(int c,bool freshen,int cs)
 				{
 					setComboLabels(bict[combo_dlg[27].d1].i);
 				}
+				break;
+			}
+			case cCSWITCHBLOCK:
+			{
+				if(combo_dlg[106].flags & D_SELECTED)
+					setComboLabels(266);
+				else
+					setComboLabels(bict[combo_dlg[27].d1].i);
 				break;
 			}
 			default: setComboLabels(bict[combo_dlg[27].d1].i); break;

@@ -1295,6 +1295,7 @@ bool isHSGrabbable(newcombo const& cmb)
 		case cFLOWERSTOUCHY:
 		case cBUSHNEXTTOUCHY:
 		case cSIGNPOST:
+		case cCSWITCHBLOCK:
 			return (cmb.usrflags&cflag16)?true:false;
 		default:
 			return false;
@@ -4921,8 +4922,15 @@ void putscrdoors(BITMAP *dest,int x,int y, mapscr* scrn)
 		over_door(dest,0,77,right,x,y);
 	}
 }
-
+static inline bool onSwitch(newcombo const& cmb, zfix const& switchblockstate)
+{
+	return switchblockstate!=0 && (switchblockstate < 0 || (cmb.attributes[2] && zslongToFix(cmb.attributes[2])<switchblockstate));
+}
 bool _walkflag(int x,int y,int cnt)
+{
+	return _walkflag(x,y,cnt,zfix(0));
+}
+bool _walkflag(int x,int y,int cnt,zfix switchblockstate)
 {
 	//  walkflagx=x; walkflagy=y;
 	if(get_bit(quest_rules,qr_LTTPWALK))
@@ -4964,16 +4972,19 @@ bool _walkflag(int x,int y,int cnt)
 	if(y&8) b<<=1;
 	
 	int cwalkflag = c.walk;
-	if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
+	else if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (((*tmpscr).layermap[0]-1)>=0)
 	{
-		if (c1.type == cBRIDGE || (iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
+		else if (c1.type == cBRIDGE || (iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
 		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)) && ((c1.walk>>4)&b))) cwalkflag = 0;
 		else cwalkflag |= c1.walk;
 	}
 	if (((*tmpscr).layermap[1]-1)>=0)
 	{
-		if (c2.type == cBRIDGE || (iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
+		else if (c2.type == cBRIDGE || (iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
 		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c2.walk;
 	}
@@ -4999,16 +5010,19 @@ bool _walkflag(int x,int y,int cnt)
 		if(y&8) b<<=1;
 	}
 	cwalkflag = c.walk;
-	if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
+	else if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (((*tmpscr).layermap[0]-1)>=0)
 	{
-		if (c1.type == cBRIDGE || (iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
+		else if (c1.type == cBRIDGE || (iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
 		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4))) && ((c1.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c1.walk;
 	}
 	if (((*tmpscr).layermap[1]-1)>=0)
 	{
-		if (c2.type == cBRIDGE || (iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
+		else if (c2.type == cBRIDGE || (iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
 		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c2.walk;
 	}

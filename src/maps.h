@@ -133,6 +133,7 @@ void loadscr(int tmp,int destdmap,int scr,int ldir,bool overlay);
 void putscr(BITMAP* dest,int x,int y,mapscr* screen);
 void putscrdoors(BITMAP *dest,int x,int y,mapscr* screen);
 bool _walkflag(int x,int y,int cnt);
+bool _walkflag(int x,int y,int cnt,zfix switchblockstate);
 bool _effectflag(int x,int y,int cnt, int layer = -1);
 bool _walkflag(int x,int y,int cnt, mapscr* m);
 bool _walkflag(int x,int y,int cnt, mapscr* m, mapscr* s1, mapscr* s2);
