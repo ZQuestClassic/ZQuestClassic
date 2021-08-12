@@ -3114,18 +3114,41 @@ void ScreenCopy(int destmap, int destscr, int srcmap, int srcscr)
 //Flags are numbered starting from 0
 int ScreenEFlag(int category, int flag) 
 {
-	int catsizes[] = {5,5,4}; //this is what the editor shows. 
+	int catsizes[] = {SEFSP_LAST,SEFL1_LAST,SEFL2_LAST}; //this is what the editor shows. 
 	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
 	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
 	if(flag < 0 || flag >= catsizes[category]) return -1;
 	return Screen->EFlags[category]&(1<<flag);
 }
 
+//Returns 1 if Screen Enemy Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
+//Flags are numbered starting from 0
+int ScreenEFlag(int m, int scr, int category, int flag) 
+{
+	mapdata md = Game->LoadMapData(m,scr); 
+	int catsizes[] = {SEFSP_LAST,SEFL1_LAST,SEFL2_LAST}; //this is what the editor shows. 
+	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
+	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return md->EFlags[category]&(1<<flag);
+}
+
+//Returns 1 if Screen Enemy Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
+//Flags are numbered starting from 0
+int ScreenEFlag(mapdata md, int category, int flag) 
+{
+	int catsizes[] = {SEFSP_LAST,SEFL1_LAST,SEFL2_LAST}; //this is what the editor shows. 
+	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
+	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return md->EFlags[category]&(1<<flag);
+}
+
 //Returns 1 if Screen Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
 //Flags are numbered starting from 0
 int ScreenFlag(int category, int flag) 
 {
-	int catsizes[] = {3,7,4,5,2,4,4,2,3,7}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
+	int catsizes[] = {SFR_LAST,SFV_LAST,SFS_LAST,SFW_LAST,SFI_LAST,SFC_LAST,SFSV_LAST,SFF_LAST,SFWH_LAST,SFM_LAST}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
 	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
 	if(flag < 0 || flag >= catsizes[category]) return -1;
 	return Screen->Flags[category]&(1<<flag);
@@ -3136,7 +3159,7 @@ int ScreenFlag(int category, int flag)
 int ScreenFlag(int m, int scr, int category, int flag) 
 {
 	mapdata md = Game->LoadMapData(m,scr); 
-	int catsizes[] = {3,7,4,5,2,4,4,2,3,7}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
+	int catsizes[] = {SFR_LAST,SFV_LAST,SFS_LAST,SFW_LAST,SFI_LAST,SFC_LAST,SFSV_LAST,SFF_LAST,SFWH_LAST,SFM_LAST}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
 	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
 	if(flag < 0 || flag >= catsizes[category]) return -1;
 	return md->Flags[category]&(1<<flag);
@@ -3146,7 +3169,7 @@ int ScreenFlag(int m, int scr, int category, int flag)
 //Flags are numbered starting from 0
 int ScreenFlag(mapdata m, int category, int flag) 
 {
-	int catsizes[] = {3,7,4,5,2,4,4,2,3,7}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
+	int catsizes[] = {SFR_LAST,SFV_LAST,SFS_LAST,SFW_LAST,SFI_LAST,SFC_LAST,SFSV_LAST,SFF_LAST,SFWH_LAST,SFM_LAST}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
 	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
 	if(flag < 0 || flag >= catsizes[category]) return -1;
 	return m->Flags[category]&(1<<flag);
