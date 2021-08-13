@@ -4924,13 +4924,13 @@ void putscrdoors(BITMAP *dest,int x,int y, mapscr* scrn)
 }
 static inline bool onSwitch(newcombo const& cmb, zfix const& switchblockstate)
 {
-	return switchblockstate!=0 && (switchblockstate < 0 || (cmb.attributes[2] && zslongToFix(cmb.attributes[2])<switchblockstate));
+	return switchblockstate!=0 && (switchblockstate < 0 || (cmb.attributes[2]>0 && zslongToFix(cmb.attributes[2])<=switchblockstate));
 }
 bool _walkflag(int x,int y,int cnt)
 {
 	return _walkflag(x,y,cnt,zfix(0));
 }
-bool _walkflag(int x,int y,int cnt,zfix switchblockstate)
+bool _walkflag(int x,int y,int cnt,zfix const& switchblockstate)
 {
 	//  walkflagx=x; walkflagy=y;
 	if(get_bit(quest_rules,qr_LTTPWALK))

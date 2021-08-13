@@ -274,7 +274,7 @@ public:
 	long misc_internal_link_flags;// Flags to hold data temporarily for misc handling
 	int last_cane_of_byrna_item_id;
 	bool on_sideview_ladder;
-	bool on_switchblock_top;
+	zfix switchblock_z;
 	byte hoverflags;
 	long extra_jump_count;
     // Methods below here.
