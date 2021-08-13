@@ -50,6 +50,7 @@ void gamedata::Clear()
     _timevalid=false;
     std::fill(lvlitems, lvlitems+MAXLEVELS, 0);
     std::fill(lvlkeys, lvlkeys+MAXLEVELS, 0);
+    std::fill(lvlswitches, lvlswitches+MAXLEVELS, 0);
     _continue_scrn=0;
     _continue_dmap=0;
     std::fill(_generic, _generic+256, 0);
@@ -112,6 +113,7 @@ void gamedata::Copy(const gamedata& g)
     {
         lvlitems[i] = g.lvlitems[i];
         lvlkeys[i] = g.lvlkeys[i];
+        lvlswitches[i] = g.lvlswitches[i];
     }
     
     _continue_scrn = g._continue_scrn;

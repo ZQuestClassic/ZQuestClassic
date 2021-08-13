@@ -133,6 +133,7 @@ void loadscr(int tmp,int destdmap,int scr,int ldir,bool overlay);
 void putscr(BITMAP* dest,int x,int y,mapscr* screen);
 void putscrdoors(BITMAP *dest,int x,int y,mapscr* screen);
 bool _walkflag(int x,int y,int cnt);
+bool _walkflag(int x,int y,int cnt,zfix const& switchblockstate);
 bool _effectflag(int x,int y,int cnt, int layer = -1);
 bool _walkflag(int x,int y,int cnt, mapscr* m);
 bool _walkflag(int x,int y,int cnt, mapscr* m, mapscr* s1, mapscr* s2);
@@ -141,6 +142,8 @@ bool _effectflag_layer(int x,int y,int cnt, mapscr* m);
 bool water_walkflag(int x,int y,int cnt);
 bool hit_walkflag(int x,int y,int cnt);
 void map_bkgsfx(bool on);
+void toggle_switches(dword flags, bool entry);
+void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t);
 
 //extern FONT *lfont;
 /****  View Map  ****/

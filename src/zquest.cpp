@@ -5957,7 +5957,7 @@ void drawpanel(int pnl)
 {
     mapscr *scr=Map.CurrScr();
     int NextCombo=combobuf[Combo].nextcombo;
-    int NextCSet=combobuf[Combo].nextcset;
+    int NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
     
     if(prv_mode)
     {
@@ -7170,7 +7170,7 @@ void refresh(int flags)
             
             // Cycle
             int NextCombo=combobuf[Combo].nextcombo;
-            int NextCSet=combobuf[Combo].nextcset;
+            int NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
             jwin_draw_frame(menu1,combo_preview.x+int(combo_preview.w*1.5)-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
             
             if(NextCombo>0 && draw_mode != dm_alias)
@@ -36621,8 +36621,8 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT6", "cSCRIPT7", "cSCRIPT8", "cSCRIPT9", "cSCRIPT10",
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
-		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE", "cSIGNPOST"
-		    
+		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE", "cSIGNPOST",
+		    "cCSWITCH", "cCSWITCHBLOCK"
 		};
 		
 		const char default_ctype_strings[cMAX][255] = 
@@ -36643,7 +36643,8 @@ bool ZModule::init(bool d) //bool default
 			"", "", "", "", "", "", "", "", "", "",
 			"", "", "", "", "", "", "", "", "", "",
 			"", "", "", "", "", "", "", "", "", "",
-			"", "", "Generic", "Pitfall", "Step->Effects", "Bridge", "Signpost"
+			"", "", "Generic", "Pitfall", "Step->Effects", "Bridge", "Signpost",
+			"Switch", "Switch Block"
 		};
 		
 		for ( int q = 0; q < cMAX; q++ )

@@ -2,7 +2,7 @@
 *     Combo Editor - Attributes      *
 *         Flags and Triggers         *
 *           2.55 Alpha 95            *
-*      Rev.9, 11th August, 2021      *
+*         13th August, 2021          *
 *************************************/
 
 1. COMBO TYPES
@@ -820,7 +820,8 @@ Pitfall Combos
  / /   / __ \/ _ \/ ___/ __/  / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
 / /___/ / / /  __(__  ) /_   / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
 \____/_/ /_/\___/____/\__/   \____/\____/_/ /_/ /_/_.___/\____/____/  
-	
+
+Chest Combos
 	Attribytes
 		Button
 			A bitwise value representing what buttons to use
@@ -844,7 +845,8 @@ Pitfall Combos
  ___/ / / /_/ / / / /  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
 /____/_/\__, /_/ /_/   \____/\____/_/ /_/ /_/_.___/\____/____/ 
        /____/        
-	
+
+Sign Combos
 	Attributes
 		String
 			This represents what message to be displayed.
@@ -870,5 +872,65 @@ Pitfall Combos
 	Flags
 		"Can't use from [dir]"
 			If enabled, prevents reading from the given side of the combo.
+
+
+   ______                 __        __    _____           _ __       __
+  / ____/______  __ _____/ /_ ___  / /   / ___/__  __  _ (_/ /______/ /_
+ / /   / ___/ / /  / ___/ __/ __ `/ /    \__ \/ / / / / / / __/ ___/ __ \
+/ /___/ /  / /_/  (__  ) /_/ /_/ / /    ___/ / /_/ /_/ / / /_/ /__/ / / /
+\____/_/  /____, /____/\__/\__,_/_/    /____/____,____/_/\__/\___/_/ /_/
+           ___/ /
+          /____/
+
+Crystal Switches / Switch Combos
+	Attribytes
+		State Num
+			A value (0-31) representing what switch state to toggle with this switch
+		SFX
+			The SFX to play when this combo is triggered (0 for none)
+	Flags
+		Kill Wpn
+			Kill the LWeapon that triggered this combo
+		Skip Cycle on Screen Entry
+			If the combo that would be shifted to via 'Combo Change' has combo cycling, and this is enabled,
+				the combo cycling will occur instantly (continuously until it hits a combo without cycling).
+			This is meant to allow 'rising/falling' animations, without having them replay every time you
+				re-enter a room.
+	Attributes
+		Combo Change
+			How much to change the combo by after being hit (ex. 1 = Next, -1 = Previous)
+		CSet Change
+			How much to change the CSet by after being hit (ex. 1 = Next, -1 = Previous)
+			Wraps the same way that CSet2 does
+			
+Switch Block Combos
+	Attribytes
+		State Num
+			A value (0-31) representing what switch state to toggle with this switch
+	Attributes
+		Combo Change
+			How much to change the combo by after being hit (ex. 1 = Next, -1 = Previous)
+		CSet Change
+			How much to change the CSet by after being hit (ex. 1 = Next, -1 = Previous)
+			Wraps the same way that CSet2 does
+		Z-Value
+			If the "Allow walk-on-top" flag is enabled, and this value is >0, then:
+				If the player's Z is > the value, they treat the combo as walkable
+		Step Height
+			If the "Allow walk-on-top" flag is enabled, this value is a 'leeway' to reach the Z-Value
+	Flags
+		Change L#:
+			The combo in the same position on layer # will also be shifted based on 'Combo Change'/'CSet Change'
+		Skip Cycle on Screen Entry
+			If the combo that would be shifted to via 'Combo Change' has combo cycling, and this is enabled,
+				the combo cycling will occur instantly (continuously until it hits a combo without cycling).
+			This is meant to allow 'rising/falling' animations, without having them replay every time you
+				re-enter a room.
+		Allow walk-on-top
+			If enabled, when the Player is stuck inside the combo, the Player treats all combos
+				of this type with this flag enabled as walkable (walking atop them)
+		-8px DrawYOffset
+			If enabled, when the Player stands atop the block (solid area), the player's DrawYOffset is decremented by 8.
+				When the Player leaves the block, the DrawYOffset is incremented back by 8.
 
 

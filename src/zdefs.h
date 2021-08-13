@@ -240,7 +240,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            43
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        18 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        19 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
 #define V_LINKSPRITES      8
 #define V_SUBSCREEN        6
@@ -415,6 +415,7 @@ extern bool fake_pack_writing;
 #define COMBOS_PER_PAGE  256
 #define COMBO_PAGES      255
 #define MAXCOMBOS        COMBO_PAGES*COMBOS_PER_PAGE
+#define BOUND_COMBO(c)	vbound(c, 0, MAXCOMBOS)
 #define MAXSUBSCREENITEMS	256
 #define MAXCUSTOMSUBSCREENS 128
 #define MAXFFCS			 32
@@ -767,7 +768,7 @@ enum
 	//160
 	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC, cPITFALL, cSTEPSFX,
 	//165
-	cBRIDGE, cSIGNPOST,
+	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK,
     cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -2968,8 +2969,9 @@ struct newcombo
 	}
 };
 
-#define AF_FRESH 1
-#define	AF_CYCLE 2
+#define AF_FRESH          0x01
+#define AF_CYCLE          0x02
+#define AF_CYCLENOCSET    0x04
 
 struct tiletype
 {
@@ -3777,6 +3779,7 @@ struct gamedata
     byte  _timevalid;
     byte  lvlitems[MAXLEVELS];
     byte  lvlkeys[MAXLEVELS];
+	dword lvlswitches[MAXLEVELS];
     //byte  _HCpieces;
     byte  _continue_scrn;
     word  _continue_dmap;

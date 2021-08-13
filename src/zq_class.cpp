@@ -4743,7 +4743,8 @@ void zmap::update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+			if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -4764,7 +4765,8 @@ void zmap::update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -4797,7 +4799,8 @@ void zmap::update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -4818,7 +4821,8 @@ void zmap::update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -4858,7 +4862,8 @@ void zmap::update_combo_cycling()
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata[i]=combobuf[x].nextcombo;
-                    newcset[i]=combobuf[x].nextcset;
+                    if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+						newcset[i]=combobuf[x].nextcset;
                     int c = newdata[i];
                     
                     if(combobuf[c].animflags & AF_CYCLE)
@@ -4879,7 +4884,8 @@ void zmap::update_combo_cycling()
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata[i]=combobuf[x].nextcombo;
-                    newcset[i]=combobuf[x].nextcset;
+                    if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+						newcset[i]=combobuf[x].nextcset;
                     int c = newdata[i];
                     
                     if(combobuf[c].animflags & AF_CYCLE)
@@ -4905,12 +4911,14 @@ void zmap::update_combo_cycling()
         if(restartanim[i])
         {
             combobuf[i].tile = combobuf[i].o_tile;
+			combobuf[i].cur_frame=0;
             combobuf[i].aclk = 0;
         }
         
         if(restartanim2[i])
         {
             combobuf[i].tile = combobuf[i].o_tile;
+			combobuf[i].cur_frame=0;
             combobuf[i].aclk = 0;
         }
     }
