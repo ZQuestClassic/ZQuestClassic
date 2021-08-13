@@ -2024,7 +2024,7 @@ attack:
 					return;
 				}
 			}
-		else if(action==lavadrowning)
+			else if(action==lavadrowning)
 			{
 					linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.linkanimationstyle);
 					if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
@@ -2032,11 +2032,11 @@ attack:
 			else if(action==swimming || action==swimhit || hopclk==0xFF)
 			{
 				if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
-			{
-			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
-			}
-			else
-			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+				{
+					linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+				}
+				else
+					linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
 				
 				if(lstep>=6)
 				{
@@ -2053,14 +2053,14 @@ attack:
 				if(isDiving())
 				{
 					if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
-			{
-			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
-			}
-			else
-			{
-			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-			}
-			if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+					{
+						linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+					}
+					else
+					{
+						linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+					}
+					if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
 				}
 			}
 			else if(charging > 0 && attack != wHammer)
@@ -2130,7 +2130,7 @@ attack:
 					return;
 				}
 			}
-		else if(action==lavadrowning)
+			else if(action==lavadrowning)
 			{
 					linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.linkanimationstyle);
 					if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
@@ -2138,25 +2138,25 @@ attack:
 			else if(action==swimming || action==swimhit || hopclk==0xFF)
 			{
 				if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
-			{
-			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
-			}
-			else
-			{
-			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-			}
-		if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				{
+					linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+				}
+				else
+				{
+					linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+				}
+				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				
 				if(isDiving())
 				{
 					if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
-			{
-			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
-			}
-			else
-			{
-			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-			}
+					{
+						linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+					}
+					else
+					{
+						linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+					}
 					if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 			}
@@ -2213,7 +2213,7 @@ attack:
 					return;
 				}
 			}
-		else if(action == lavadrowning)
+			else if(action == lavadrowning)
 			{
 					linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.linkanimationstyle);
 					if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
@@ -2221,33 +2221,33 @@ attack:
 			else if(action == swimming || action==swimhit || hopclk==0xFF)
 			{
 				if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
-			{
-			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
-			}
-			else
-			{
-			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-			}
-		if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				{
+					linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+				}
+				else
+				{
+					linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+				}
+				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				
 				if(isDiving())
 				{
 					if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
-			{
-			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
-			}
-			else
-			{
-			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-			} 
-			if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					{
+						linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+					}
+					else
+					{
+						linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+					} 
+					if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 			}
 			else if(charging > 0 && attack != wHammer)
 			{
 				linktile(&tile, &flip, &extend, ls_charge, dir, zinit.linkanimationstyle);
 				if ( script_link_sprite <= 0 ) tile+=(extend==2?2:1);
-//          int l=link_count/link_animation_speed;
+				//int l=link_count/link_animation_speed;
 				int l=(link_count/link_animation_speed)&15;
 				//int l=((p[lt_clock]/link_animation_speed)&15);
 				l-=((l>3)?1:0)+((l>12)?1:0);

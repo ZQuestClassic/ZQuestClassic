@@ -18228,7 +18228,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		266, //Switch Blocks (Allow walk-on-top on)
 		{ "Change L0","Change L1","Change L2","Change L3","Change L4","Change L5","Change L6","Skip Cycle on Screen Entry",
 		  "Allow walk-on-top",NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
-		{ "Combo Change","CSet Change","Z-value",NULL},
+		{ "Combo Change","CSet Change","Z-value","Step Height"},
 		{ "State Num",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},

@@ -4924,7 +4924,7 @@ void putscrdoors(BITMAP *dest,int x,int y, mapscr* scrn)
 }
 static inline bool onSwitch(newcombo const& cmb, zfix const& switchblockstate)
 {
-	return switchblockstate!=0 && (switchblockstate < 0 || (cmb.attributes[2]>0 && zslongToFix(cmb.attributes[2])<=switchblockstate));
+	return (switchblockstate < 0 || (cmb.attributes[2]>0 && (zslongToFix(cmb.attributes[2]) - zslongToFix(zc_max(cmb.attributes[3], 0))) <=switchblockstate));
 }
 bool _walkflag(int x,int y,int cnt)
 {
