@@ -7568,7 +7568,7 @@ bool LinkClass::animate(int)
 	}
 	
 	zfix oldswitchblock_z = switchblock_z;
-	switchblock_z = 0;
+	if(z==0) switchblock_z = 0;
 	if(!isSideViewLink())
 	{
 		int tx = x.getInt()+8,
@@ -7584,8 +7584,8 @@ bool LinkClass::animate(int)
 			b |= (b<<4); //check equivalent effect flag too
 			if((cmb.walk&b)==b) //solid and effecting
 			{
-				if(cmb.attributes[2]>0)
-					switchblock_z = zslongToFix(cmb.attributes[2]);
+				if(cmb.attributes[2]>0 && switchblock_z>=0)
+					switchblock_z = zc_max(switchblock_z,zslongToFix(cmb.attributes[2]));
 				else switchblock_z = -1;
 				break;
 			}
