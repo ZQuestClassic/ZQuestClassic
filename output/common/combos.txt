@@ -2,7 +2,7 @@
 *     Combo Editor - Attributes      *
 *         Flags and Triggers         *
 *           2.55 Alpha 95            *
-*         12th August, 2021          *
+*         13th August, 2021          *
 *************************************/
 
 1. COMBO TYPES
@@ -916,6 +916,8 @@ Switch Block Combos
 		Z-Value
 			If the "Allow walk-on-top" flag is enabled, and this value is >0, then:
 				If the player's Z is > the value, they treat the combo as walkable
+		Step Height
+			If the "Allow walk-on-top" flag is enabled, this value is a 'leeway' to reach the Z-Value
 	Flags
 		Change L#:
 			The combo in the same position on layer # will also be shifted based on 'Combo Change'/'CSet Change'
@@ -927,3 +929,8 @@ Switch Block Combos
 		Allow walk-on-top
 			If enabled, when the Player is stuck inside the combo, the Player treats all combos
 				of this type with this flag enabled as walkable (walking atop them)
+		-8px DrawYOffset
+			If enabled, when the Player stands atop the block (solid area), the player's DrawYOffset is decremented by 8.
+				When the Player leaves the block, the DrawYOffset is incremented back by 8.
+
+

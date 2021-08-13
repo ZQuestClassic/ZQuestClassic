@@ -275,6 +275,7 @@ public:
 	int last_cane_of_byrna_item_id;
 	bool on_sideview_ladder;
 	zfix switchblock_z;
+	bool switchblock_offset;
 	byte hoverflags;
 	long extra_jump_count;
     // Methods below here.
