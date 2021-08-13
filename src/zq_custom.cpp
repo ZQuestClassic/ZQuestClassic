@@ -7934,7 +7934,7 @@ void edit_enemydata(int index)
         }
     }
     //252 == 	OK button, 253 == Cancel Button
-    while(ret != 256 && ret != 257 && ret != 0);
+    while(ret != 252 && ret != 253 && ret != 0);
     
 }
 
