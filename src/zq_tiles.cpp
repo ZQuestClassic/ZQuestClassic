@@ -16741,7 +16741,7 @@ static int combo_trigger_list[] =
 static int combo_trigger_list2[] =
 {
     // dialog control number
-	92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, // 88, 89, // 102, 103,
+	92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 176, 177,// 88, 89, // 102, 103,
      -1
 };
 
@@ -18097,10 +18097,10 @@ static ComboAttributesInfo comboattrinfo[]=
 		cTRIGGERGENERIC,
 		// { "Enable", "Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
 		
-		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","Room Item","Secrets","Kill Wpn",
-			NULL,"Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy",NULL,NULL},
+		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","Room Item","Singular Secret","Kill Wpn",
+			NULL,"Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy", NULL,NULL},
 		{ NULL,NULL,NULL,NULL},
-		{ "Sprite", "Dropset", "Sound", "Secret Type",NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", "Sound", "Singular Secret",NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
@@ -18524,6 +18524,9 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,       46,     60+16+3+17,     80,      9,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Cycle Ignores CSet", NULL, (void*)get_tick_sel },
 	{ jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+   //176
+   { jwin_check_proc,        46,     105+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always Triggered",                      NULL,   NULL                  },
+   { jwin_check_proc,        154,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Triggers Secrets",                      NULL,   NULL                  },
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -19016,6 +19019,8 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[99].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT08 ? D_SELECTED : 0;
 	combo_dlg[100].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT09 ? D_SELECTED : 0;
 	combo_dlg[101].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT10 ? D_SELECTED : 0;
+	combo_dlg[176].flags = curr_combo.triggerflags[1]&combotriggerAUTOMATIC ? D_SELECTED : 0;
+	combo_dlg[177].flags = curr_combo.triggerflags[1]&combotriggerSECRETS ? D_SELECTED : 0;
 	//three bits remain that are usable (zscript limits)
 	
 	//85
@@ -19172,6 +19177,8 @@ bool edit_combo(int c,bool freshen,int cs)
 	if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
 	if(combo_dlg[100].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
 	if(combo_dlg[101].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
+	if(combo_dlg[176].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x8000; } else { curr_combo.triggerflags[1] &= ~0x8000; }
+	if(combo_dlg[177].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10000; } else { curr_combo.triggerflags[1] &= ~0x10000; }
 	
 	
 	int index=0;
@@ -19539,6 +19546,8 @@ bool edit_combo(int c,bool freshen,int cs)
 		if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
 		if(combo_dlg[100].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
 		if(combo_dlg[101].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
+		if(combo_dlg[176].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x8000; } else { curr_combo.triggerflags[1] &= ~0x8000; }
+		if(combo_dlg[177].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10000; } else { curr_combo.triggerflags[1] &= ~0x10000; }
 		
 		
 		//if(combo_dlg[113].d1 > 255)

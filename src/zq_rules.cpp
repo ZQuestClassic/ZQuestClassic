@@ -134,7 +134,7 @@ static int comborules2_list[] =
 
 static int comborules3_list[] =
 {
-    38,-1 
+    38,39,40,-1 
 };
 
 static TABPANEL comborules_tabs[] =
@@ -199,6 +199,8 @@ static DIALOG comborules_dlg[] =
 	{ jwin_check_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Block Triggers Are Perm For Non-Heavy Blocks", NULL, NULL },
 	//tab3 - 38
 	{ jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Overhead Combos work on Layers 1 and 2", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Auto Combos work on Layer 1", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Auto Combos work on Layer 2", NULL, NULL },
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -213,7 +215,7 @@ static int comborules[] =
 	qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, qr_CUSTOMCOMBOSLAYERS1AND2,
 	qr_BUSHESONLAYERS1AND2, qr_NEW_COMBO_ANIMATION, qr_SMARTER_WATER, qr_NO_HOPPING, qr_NO_SOLID_SWIM, 
 	qr_WATER_ON_LAYER_1, qr_WATER_ON_LAYER_2, qr_SHALLOW_SENSITIVE, qr_SMARTER_SMART_SCROLL,
-	qr_NONHEAVY_BLOCKTRIGGER_PERM,qr_OVERHEAD_COMBOS_L1_L2,
+	qr_NONHEAVY_BLOCKTRIGGER_PERM,qr_OVERHEAD_COMBOS_L1_L2, qr_AUTOCOMBO_LAYER_1, qr_AUTOCOMBO_LAYER_2,
 	
 	-1
 };

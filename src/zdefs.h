@@ -115,7 +115,7 @@
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
-#define VERSION_BUILD       60                             //V_BUILD build number of this version
+#define VERSION_BUILD       61                             //V_BUILD build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
 //#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 37"                    //version of the program as presented in text
 //#define IS_BETA             -39                       //is this a beta? (1: beta, -1: alpha)
@@ -995,6 +995,7 @@ enum
 	qr_INSTANT_CONTINUE, qr_NONHEAVY_BLOCKTRIGGER_PERM, qr_SET_YBUTTON_ITEMS, qr_CORRECTED_EW_BRANG_ANIM,
 	qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER, qr_OVERHEAD_COMBOS_L1_L2, qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION,
 	//30
+	qr_AUTOCOMBO_LAYER_1, qr_AUTOCOMBO_LAYER_2,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -1238,6 +1239,8 @@ enum
 #define combotriggerSCRIPT08	0x1000
 #define combotriggerSCRIPT09	0x2000
 #define combotriggerSCRIPT10	0x4000
+#define combotriggerAUTOMATIC	0x8000
+#define combotriggerSECRETS	0x10000
 
 // weapon types in game engine
 enum
@@ -2844,8 +2847,8 @@ without needing the user to have bit precision. -Z
 #define ctrigSCRIPT8		0x1000
 #define ctrigSCRIPT9		0x2000
 #define ctrigSCRIPT10		0x4000
-#define ctrigUNUSED_2_16 	0x8000
-#define ctrigUNUSED_2_17	0x10000
+#define ctrigAUTOMATIC 	 	0x8000
+#define ctrigSECRETS		0x10000
 #define ctrigUNUSED_2_18	0x20000
 //triggerflags[2], only 18 bits are available to ZScript
 #define ctrigUNUSED_3_01	0x01
