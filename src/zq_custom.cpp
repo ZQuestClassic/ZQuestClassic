@@ -163,7 +163,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
             {
                 d[i].w *= 2;
             }
-            else if(d[i].proc == jwin_button_proc)
+            else if(d[i].proc == jwin_button_proc || d[i].proc == jwin_swapbtn_proc)
                 d[i].w = int(d[i].w*1.5);
             else d[i].w = int(float(d[i].w)*RESIZE_AMT);
             
@@ -195,7 +195,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
             {
                 d[i].h *= 2;
             }
-            else if(d[i].proc == jwin_button_proc)
+            else if(d[i].proc == jwin_button_proc || d[i].proc == jwin_swapbtn_proc)
                 d[i].h = int(d[i].h*1.5);
             else d[i].h = int(float(d[i].h)*RESIZE_AMT);
             

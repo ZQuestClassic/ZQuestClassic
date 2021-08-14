@@ -36,6 +36,8 @@
 #include "zsys.h"
 #include <stdio.h>
 #include "mem_debug.h"
+#include "util.h"
+using namespace util;
 
 //#ifndef _MSC_VER
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
@@ -55,6 +57,19 @@ int abc_patternmatch = 1;
 
 char abc_keypresses[1024] = {0};
 void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
+
+/* these are provided for external use */
+int jwin_colors[jcMAX] =
+{
+    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
+    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
+};
+
+int scheme[jcMAX] =
+{
+    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
+    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
+};
 
 /* ... Included in jwin.h ...
 
@@ -89,19 +104,6 @@ int get_selected_tab(TABPANEL* panel)
 	}
 	return -1;
 }
-
-/* these are provided for external use */
-int jwin_colors[jcMAX] =
-{
-    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
-    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
-};
-
-int scheme[jcMAX] =
-{
-    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
-    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
-};
 
 /*  jwin_set_colors:
  *   Loads a set of colors in 0xRRGGBB or 256-color-indexed format
@@ -1533,6 +1535,178 @@ int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c)
 	}
             
     return jwin_numedit_proc(msg,d,c);
+}
+
+// Special numedit procs
+
+static enum {typeDEC, typeHEX, typeMAX};
+int jwin_swapbtn_proc(int msg, DIALOG* d, int c)
+{
+	static char* swp[typeMAX] = {"D", "H"};
+	if(msg==MSG_START)
+	{
+		d->dp = swp[d->d1&0xF];
+	}
+	//d1 is (0xF0 = old val, 0x0F = new val)
+	//d2 is max val
+	if(d->d2 < 2) return D_O_K; //Not setup yet, or bad value
+	DIALOG* relproc = (DIALOG*)d->dp3;
+	int ret = jwin_button_proc(msg, d, c);
+	if(d->flags & D_SELECTED) //On selection
+	{
+		d->d1 = ((d->d1&0x0F)<<4) | (((d->d1&0x0F)+1)%d->d2);
+		d->dp = swp[d->d1&0xF];
+		if(relproc)
+		{
+			object_message(relproc, MSG_DRAW, 0);
+		}
+		d->flags &= ~D_SELECTED;
+		object_message(d, MSG_DRAW, 0);
+	}
+	return ret;
+}
+int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
+{
+	DIALOG* swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_byte_proc(msg, d, c);
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		swapbtn->d2 = 2; //Max states
+		swapbtn->dp3 = (void*)d;
+		if(swapbtn->d1)
+		{
+			swapbtn->d1 &= 0xF; //Set upper bits to 0;
+		}
+	}
+	int ret = D_O_K;
+	int ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	long v = 0;
+	switch(otype)
+	{
+		case typeDEC:
+			v = atoi(str);
+			break;
+		case typeHEX:
+			v = xtoi(str);
+			break;
+	}
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		//unsigned//v = -v;
+		c &= ~255;
+	}
+	byte b;
+	if ( v > 255 )
+		b=255;
+	else if ( v < 0 )
+		b=0;
+	else b = (byte)v;
+	if(unsigned(v) != b || otype != ntype)
+	{
+		switch(ntype)
+		{
+			case typeDEC:
+				sprintf(str, "%d\0", b);
+				break;
+			case typeHEX:
+				sprintf(str, "%X\0", b);
+				break;
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	d->fg = b; //Store numeric data
+	switch(ntype)
+	{
+		case typeDEC:
+			d->d1 = 3; //3 digits max
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeHEX:
+			d->d1 = 2; //2 digits max
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
+{
+	DIALOG* swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_sshort_proc(msg, d, c);
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		swapbtn->d2 = 2; //Max states
+		swapbtn->dp3 = (void*)d;
+		if(swapbtn->d1)
+		{
+			swapbtn->d1 &= 0xF; //Set upper bits to 0;
+		}
+	}
+	int ret = D_O_K;
+	int ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	long v = 0;
+	switch(otype)
+	{
+		case typeDEC:
+			v = atoi(str);
+			break;
+		case typeHEX:
+			v = xtoi(str);
+			break;
+	}
+	bool didneg = false;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		didneg = true;
+		v = -v;
+		c &= ~255;
+	}
+	short b;
+	if ( v > 32767 )
+		b=32767;
+	else if ( v < -32768 )
+		b=-32768;
+	else b = (short)v;
+	if(v != b || otype != ntype || didneg)
+	{
+		switch(ntype)
+		{
+			case typeDEC:
+				sprintf(str, "%d\0", b);
+				break;
+			case typeHEX:
+				if(b<0)
+					sprintf(str, "-%X\0", -b);
+				else sprintf(str, "%X\0", b);
+				break;
+		}
+		d->d2 = strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	d->fg = b; //Store numeric data
+	switch(ntype)
+	{
+		case typeDEC:
+			d->d1 = 6; //6 digits max (incl '-')
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeHEX:
+			d->d1 = 5; //5 digits max (incl '-')
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
 }
 
 /*  _calc_scroll_bar:

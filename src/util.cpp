@@ -200,6 +200,29 @@ namespace util
 #endif
 	}
 	
+	int xtoi(char *hexstr)
+	{
+		int val=0;
+		bool neg = false;
+		if(*hexstr == '-')
+		{
+			neg = true;
+			++hexstr;
+		}
+		while(isxdigit(*hexstr))
+		{
+			val<<=4;
+			
+			if(*hexstr<='9')
+				val += *hexstr-'0';
+			else val+= ((*hexstr)|0x20)-'a'+10;
+			
+			++hexstr;
+		}
+		
+		return neg ? -val : val;
+	}
+	
 	int zc_chmod(const char* path, mode_t mode)
 	{
 #ifdef _WIN32
