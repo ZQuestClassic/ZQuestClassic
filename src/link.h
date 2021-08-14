@@ -51,7 +51,7 @@ enum actiontype
     // Fake actiontypes: used by ZScripts
     ischarging, isspinning, isdiving, gameover, hookshotout, stunned, ispushing,
 	// New 2.55 ActionTypes
-	falling, lavadrowning
+	falling, lavadrowning, sideswimming, sideswimhit
 };
 
 typedef struct tilesequence
@@ -236,6 +236,7 @@ public:
     link_is_stunned, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
     sdir; // scrolling direction
     int hopdir;  // direction to hop out of water (diagonal movement only)
+    bool sideswimdir; //for forcing link to face left or right in sideview
     int holddir;
     int landswim; // incremental time spent swimming against land
     bool ilswim; // is land swimming?

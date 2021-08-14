@@ -9744,6 +9744,7 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					drowning_lavaspr[q][p] = divespr[q][p];
 				}
 			}
+			memset(sideswimspr, 0, sizeof(sideswimspr));
 		}
     }
     
@@ -10558,6 +10559,25 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					medallionsprs[q][spr_extend] = (int)extend;
 				}
 			}
+			if (v_linksprites > 8)
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					sideswimspr[q][spr_tile] = (int)tile;
+					sideswimspr[q][spr_flip] = (int)flip;
+					sideswimspr[q][spr_extend] = (int)extend;
+				}
+			}
 		}
 		else if(keepdata)
 		{
@@ -10593,6 +10613,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					drowning_lavaspr[q][p] = divespr[q][p];
 				}
 			}
+			memset(sideswimspr, 0, sizeof(sideswimspr));
 		}
         if (v_linksprites > 7)
         {

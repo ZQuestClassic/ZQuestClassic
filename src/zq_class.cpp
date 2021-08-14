@@ -11258,6 +11258,15 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)medallionsprs[q][spr_extend],f))
 				new_return(15);
 		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(sideswimspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)sideswimspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)sideswimspr[q][spr_extend],f))
+				new_return(15);
+		}
         for (int q = 0; q < wMax; q++) // Link defense values
         {
             if (!p_putc(link_defence[q], f))

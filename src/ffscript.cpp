@@ -22032,6 +22032,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		{
 			//zprint("FFCore.warp_link reached line: %d \n", 15936);
 			bool wasswimming = (Link.getAction()==swimming);
+			bool wassideswim = (Link.getAction()==sideswimming);
 			int olddiveclk = Link.diveclk;
 			if ( !(warpFlags&warpFlagDONTCLEARSPRITES) )
 			{
@@ -22045,6 +22046,11 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			{
 				Link.setAction(swimming); FFCore.setLinkAction(swimming);
 				Link.diveclk = olddiveclk;
+			}
+			if(wassideswim)
+			{
+				Link.setAction(sideswimming); FFCore.setLinkAction(sideswimming);
+				Link.diveclk = 0;
 			}
 			//zprint("FFCore.warp_link reached line: %d \n", 15948);
 			switch(warpEffect)
@@ -22128,7 +22134,8 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			{
 				Link.hopclk=0xFF;
 				Link.attackclk = Link.charging = Link.spins = 0;
-				Link.setAction(swimming); FFCore.setLinkAction(swimming);
+				if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) {Link.setAction(sideswimming); FFCore.setLinkAction(sideswimming);}
+				else {Link.setAction(swimming); FFCore.setLinkAction(swimming);}
 			}
 			else
 			{
@@ -22372,7 +22379,8 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			&& (current_item(itype_flippers)) && (Link.getAction()!=inwind))
 	{
 		Link.hopclk=0xFF;
-		Link.setAction(swimming); FFCore.setLinkAction(swimming);
+		if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) {Link.setAction(sideswimming); FFCore.setLinkAction(sideswimming);}
+		else {Link.setAction(swimming); FFCore.setLinkAction(swimming);}
 	}
 		
 	newscr_clk=frame;
@@ -40283,6 +40291,7 @@ int FFScript::getLinkOTile(long index1, long index2)
 			case LSprdivespr: the_ret = divespr[dir][0];
 			case LSprdrownspr: the_ret = drowningspr[dir][0];
 			case LSprlavadrownspr: the_ret = drowning_lavaspr[dir][0];
+			case LSprsideswimspr: the_ret = sideswimspr[dir][0];
 			case LSprpoundspr: the_ret = poundspr[dir][0];
 			case LSprjumpspr: the_ret = jumpspr[dir][0];
 			case LSprchargespr: the_ret = chargespr[dir][0];

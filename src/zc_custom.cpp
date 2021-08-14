@@ -53,6 +53,7 @@ int stunnedspr[4][3];                                //dir,                     
 int stunned_waterspr[4][3];                          //dir,                           tile/flip/extend
 int drowningspr[4][3];                               //dir,                           tile/flip/extend
 int drowning_lavaspr[4][3];                          //dir,                           tile/flip/extend
+int sideswimspr[4][3];                               //dir,                           tile/flip/extend
 int fallingspr[4][3];                                //dir,                           tile/flip/extend
 int shockedspr[4][3];                                //dir,                           tile/flip/extend
 int shocked_waterspr[4][3];                          //dir,                           tile/flip/extend
@@ -134,6 +135,10 @@ void linktile(int *tile, int *flip, int *extend, int state, int dir, int style)
         
     case ls_waterhold2:
         *extend=holdspr[spr_waterhold][spr_hold2][spr_extend];
+        break;
+	
+    case ls_sideswim:
+        *extend=sideswimspr[dir][spr_extend];
         break;
         
     default:
@@ -250,6 +255,12 @@ void setlinktile(int tile, int flip, int extend, int state, int dir)
         holdspr[spr_waterhold][spr_hold2][spr_flip] = flip;
         holdspr[spr_waterhold][spr_hold2][spr_extend] = extend;
         break;
+	
+    case ls_sideswim:
+        sideswimspr[dir][spr_tile] = tile;
+        sideswimspr[dir][spr_flip] = flip;
+        sideswimspr[dir][spr_extend] = extend;
+        break;
         
     default:
         break;
@@ -330,6 +341,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 	    case ls_waterhold2:
 		*tile=holdspr[spr_waterhold][spr_hold2][spr_tile];
 		break;
+
+	    case ls_sideswim:
+		*tile=sideswimspr[dir][spr_tile];
+		break;
 		
 	    default:
 		*tile=0;
@@ -407,6 +422,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 		
 	    case ls_waterhold2:
 		*flip=holdspr[spr_waterhold][spr_hold2][spr_flip];
+		break;
+		
+	    case ls_sideswim:
+		*flip=sideswimspr[dir][spr_flip];
 		break;
 		
 	    default:
