@@ -16967,6 +16967,7 @@ void LinkClass::checktouchblk()
             if((getAction() != hopping || isSideViewLink()))
             {
                 guygrid[di]=61; //Note: not 60.
+		//zprint2("oof: %d\n", di);
                 int id2=0; 
                 int cid = MAPCOMBO(tx,ty);
 		int cpos = COMBOPOS(tx,ty);
@@ -16991,10 +16992,25 @@ void LinkClass::checktouchblk()
 				///then do the same going left
 				
 				int searching = 1;
+				int armosxsz = 1;
+				int armosysz = 1;
+				switch(guysbuf[id2].family)
+				{
+					case eeGHOMA:
+						armosxsz = 3;
+						break;
+					case eeAQUA: //jesus christ I'm not considering the logistics of manhandlas and gleeoks
+					case eeDIG:
+						armosxsz = 2;
+						armosysz = 2;
+						break;
+					default:
+						break;
+				}
+				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
+				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
 				
-					
-				
-				if ( ( guysbuf[id2].txsz > 1 ) || ( guysbuf[id2].tysz > 1 ) )
+				if ( ( armosxsz > 1 ) || ( armosysz > 1 ) )
 				{
 					switch(dir)
 					{
@@ -17101,6 +17117,23 @@ void LinkClass::checktouchblk()
 				}
 				//if ( guysbuf[id2].txsz > 1 ) xpos -= guysbuf[id2].txsz*16;
 				//if ( guysbuf[id2].tysz > 1 ) ypos -= guysbuf[id2].tysz*16;
+				int xpos2 = tx+xpos;
+				int ypos2 = ty+ypos;
+				int id3 = COMBOPOS(xpos2, ypos2);
+				for (int n = 0; n < armosysz && id3 < 176; n++)
+				{
+					
+					for (int m = 0; m < armosxsz && id3 < 176; m++) 
+					{
+						guygrid[id3+m]=61;
+						//zprint2("oof: %d\n", id3+m);
+					}
+					id3+=16;
+				}
+				if (guysbuf[id2].family == eeGHOMA) 
+				{
+					if ( ( combobuf[(tmpscr->data[cpos-chx+1])].type == cARMOS ) ) xpos += 16;
+				}
 				addenemy(tx+xpos,ty+1+ypos,id2,0);
 				((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
 				((enemy*)guys.spr(guys.Count()-1))->fading=fade_flicker;

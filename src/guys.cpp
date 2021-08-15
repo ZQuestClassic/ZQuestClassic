@@ -14527,6 +14527,17 @@ eGohma::eGohma(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)  // enemy((zfix
 	else { x = X; y = Y; }
 	
 	Clk=Clk;
+	if(flags & guy_fadeflicker)
+	{
+		clk=0;
+		superman = 1;
+		fading=fade_flicker;
+		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
+	}
+	else if(flags & guy_fadeinstant)
+	{
+		clk=0;
+	}
 	hxofs=-16;
 	hxsz=48;
 	clk4=0;
@@ -14560,10 +14571,29 @@ bool eGohma::animate(int index)
 	if(dying)
 		return Dead(index);
 		
+	if(fading)
+	{
+		if(++clk4 > 60)
+		{
+			clk4=0;
+			superman=0;
+			fading=0;
+			clk=0;
+			
+		}
+		else return enemy::animate(index);
+	}
+		
 	if(clk==0)
 	{
+		removearmos(zc_max(x-16, 0),y);
+		did_armos = false;
 		removearmos(x,y);
+		did_armos = false;
+		removearmos(zc_min(x+16, 255),y);
 	}
+	
+	if(clk<0) return enemy::animate(index);
 	
 	// Movement clk must be separate from animation clk because of the Clock item
 	if(!watch)

@@ -7072,7 +7072,7 @@ void setEnemyLabels(int family)
         enedata_dlg[100].flags |= D_DISABLED;
         enedata_dlg[101].flags |= D_DISABLED;
         enedata_dlg[102].flags |= D_DISABLED;
-        enedata_dlg[186].flags |= D_DISABLED;
+        //enedata_dlg[186].flags |= D_DISABLED;
     }
     else
     {
@@ -7081,7 +7081,7 @@ void setEnemyLabels(int family)
         enedata_dlg[100].flags &= ~D_DISABLED;
         enedata_dlg[101].flags &= ~D_DISABLED;
         enedata_dlg[102].flags &= ~D_DISABLED;
-        enedata_dlg[186].flags &= ~D_DISABLED;
+        //enedata_dlg[186].flags &= ~D_DISABLED;
     }
 }
 
