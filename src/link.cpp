@@ -22671,7 +22671,7 @@ int Bweapon(int pos)
         case itype_bomb:
             if((game->get_bombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
+                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitBomb))) ||
                     current_item_power(itype_bombbag))
             {
                 select=true;
@@ -22706,7 +22706,7 @@ int Bweapon(int pos)
             
             if((game->get_sbombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
+                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitSBomb))) ||
                     (current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
             {
                 select=true;
