@@ -5377,7 +5377,13 @@ int enemy::takehit(weapon *w)
 			// Bombs
 		case wSBomb:
 		case wBomb:
-			goto hitclock;
+			if (!get_bit(quest_rules,qr_TRUEFIXEDBOMBSHIELD)) goto hitclock;
+			else if (!get_bit(quest_rules,qr_BOMBSPIERCESHIELD)) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				return 0;
+			}
+			else break;
 			
 			// Weapons which ignore shields
 		case wWhistle:
