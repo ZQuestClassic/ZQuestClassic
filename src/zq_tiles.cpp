@@ -13656,7 +13656,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs<15) ? cs+1:0;
+                    cs = (cs<11) ? cs+1:0;
                     
                 redraw=true;
                 break;
@@ -13716,7 +13716,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs>0)  ? cs-1:15;
+                    cs = (cs>0)  ? cs-1:11;
                     
                 redraw=true;
                 break;
@@ -18875,11 +18875,6 @@ bool edit_combo(int c,bool freshen,int cs)
 	
 	char csets = curr_combo.csets & 15;
 	
-	if(csets&8) //if csets>8, then it's a negative.
-	{
-		csets |= 0xF0;
-	}
-	
 	if(disableEdit)
 		sprintf(combonumstr, "Combo %d - No editing solidity/type", c);
 	else sprintf(combonumstr,"Combo %d", c);
@@ -19555,7 +19550,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		//	al_trace("too big\n");
 		//}
 		
-		curr_combo.csets = vbound(atoi(cset_str),-15,15) & 15; //Bound this to a size of csets, so that it does not wrap!
+		curr_combo.csets = ((vbound(atoi(cset_str),-11,11) % 12) + 12) % 12; //Bound this to a size of csets, so that it does not wrap!
 		
 		for(int i=0; i<4; i++)
 		{
@@ -21713,7 +21708,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs<15) ? cs+1:0;
+                    cs = (cs<11) ? cs+1:0;
                     
                 redraw=true;
                 break;
@@ -21773,7 +21768,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs>0)  ? cs-1:15;
+                    cs = (cs>0)  ? cs-1:11;
                     
                 redraw=true;
                 break;

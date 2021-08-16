@@ -1668,11 +1668,9 @@ void putcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opacit
         int csets[4];
         int cofs = c.csets&15;
         
-        if(cofs&8)
-            cofs |= ~int(0xF);
             
         for(int i=0; i<4; ++i)
-            csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+            csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
             
         putblocktranslucent8(dest,drawtile<<2,x,y,csets,c.flip,15,opacity);
     }
@@ -1707,11 +1705,10 @@ void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset,
                 int csets[4];
                 int cofs = c.csets&15;
                 
-                if(cofs&8)
-                    cofs |= ~int(0xF);
+              
                     
                 for(int i=0; i<4; ++i)
-                    csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+                    csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
                     
                 overblocktranslucent8(dest,tiletodraw<<2,x+16*woff,y+16*hoff,csets,c.flip,15,opacity);
             }
@@ -2525,7 +2522,7 @@ void putcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
         
         for(int i=0; i<4; ++i)
         {
-            csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+            csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
         }
         
         putblock8(dest,drawtile<<2,x,y,csets,c.flip,15);
@@ -2550,7 +2547,7 @@ void oldputcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
         
         for(int i=0; i<4; ++i)
         {
-            csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+            csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
         }
         
         oldputblock8(dest,drawtile<<2,x,y,csets,c.flip,15);
@@ -2587,11 +2584,9 @@ void overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int
                 int csets[4];
                 int cofs = c.csets&15;
                 
-                if(cofs&8)
-                    cofs |= ~int(0xF);
                     
                 for(int i=0; i<4; ++i)
-                    csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+                    csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
                     
                 overblock8(dest,tiletodraw<<2,x+16*woff,y+16*hoff,csets,c.flip,15);
             }
