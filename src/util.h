@@ -26,10 +26,15 @@ namespace util
 	void regulate_path(std::string& buf);
 	bool create_path(const char* path);
 	char* zc_itoa(int value, char* str, int base = 10);
+	int zc_xtoi(const char *hexstr);
+	long ffparse2(const char *string);
+	long ffparseX(const char *string);
 	int xtoi(char *hexstr);
 	int zc_chmod(const char* path, mode_t mode);
 	bool checkPath(const char* path, const bool is_dir);
 	void safe_al_trace(const char* str);
+	int vbound(int x,int low,int high);
+	float vbound(float x,float low,float high);
 }
 
 #endif

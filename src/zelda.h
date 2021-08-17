@@ -27,6 +27,7 @@
 #include "zsys.h"
 #include "script_drawing.h"
 #include "zfix.h"
+#include "util.h"
 
 int isFullScreen();
 int onFullscreen();
@@ -255,7 +256,7 @@ INLINE void sfx(int index)
 }
 INLINE void sfx(int index,int pan)
 {
-    sfx(index,vbound(pan, 0, 255) ,false);
+    sfx(index,util::vbound(pan, 0, 255) ,false);
 }
 
 bool isSideViewGravity(int t = 0);

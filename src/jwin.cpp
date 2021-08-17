@@ -1539,7 +1539,7 @@ int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c)
 
 // Special numedit procs
 
-static enum {typeDEC, typeHEX, typeMAX};
+static enum {typeDEC, typeHEX, typeLDEC, typeLHEX, typeMAX};
 int jwin_swapbtn_proc(int msg, DIALOG* d, int c)
 {
 	static char* swp[typeMAX] = {"D", "H"};
@@ -1590,7 +1590,7 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 			v = atoi(str);
 			break;
 		case typeHEX:
-			v = xtoi(str);
+			v = zc_xtoi(str);
 			break;
 	}
 	if(msg==MSG_CHAR && ((c&255)=='-'))
@@ -1626,6 +1626,8 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 			break;
 		case typeHEX:
 			d->d1 = 2; //2 digits max
+			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
 			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
 	}
@@ -1659,7 +1661,7 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 			v = atoi(str);
 			break;
 		case typeHEX:
-			v = xtoi(str);
+			v = zc_xtoi(str);
 			break;
 	}
 	bool didneg = false;
@@ -1700,6 +1702,201 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 			break;
 		case typeHEX:
 			d->d1 = 5; //5 digits max (incl '-')
+			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
+{
+	DIALOG* swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_sshort_proc(msg, d, c);
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		swapbtn->d2 = 2; //Max states
+		swapbtn->dp3 = (void*)d;
+		if(swapbtn->d1)
+		{
+			swapbtn->d1 &= 0xF; //Set upper bits to 0;
+		}
+	}
+	int ret = D_O_K;
+	int ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	long long v = 0;
+	bool update = false;
+	switch(otype)
+	{
+		case typeDEC:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = atoi(tempstr);
+				v *= 10000;
+				v += atoi(ptr);
+			}
+			else
+			{
+				v = atoi(str);
+				v *= 10000;
+			}
+			break;
+		case typeHEX:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = zc_xtoi(tempstr);
+				v *= 10000;
+				v += atoi(ptr);
+			}
+			else
+			{
+				v = zc_xtoi(str);
+				v *= 10000;
+			}
+			break;
+		case typeLDEC:
+			v = atoi(str);
+			break;
+		case typeLHEX:
+			v = zc_xtoi(str);
+			break;
+	}
+	bool didneg = false;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		didneg = true;
+		v = -v;
+		c &= ~255;
+	}
+	long b;
+	if ( v > 2147483647 )
+		b=2147483647;
+	else if ( v < INT_MIN )
+		b=INT_MIN;
+	else b = (long)v;
+	if(v != b || otype != ntype || didneg || update)
+	{
+		switch(ntype)
+		{
+			case typeDEC:
+				sprintf(str, "%d.%04d", b/10000L, abs(b%10000L));
+				break;
+			case typeHEX:
+				sprintf(str, "%X.%04d", b/10000L, abs(b%10000L));
+				break;
+			case typeLDEC:
+				sprintf(str, "%ld\0", b);
+				break;
+			case typeLHEX:
+				if(b<0)
+					sprintf(str, "-%lX\0", -b);
+				else sprintf(str, "%lX\0", b);
+				break;
+		}
+		d->d2 = strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	d->fg = b; //Store numeric data
+	if(msg==MSG_CHAR && ((c&255)=='.'))
+	{
+		if(ntype >= typeLDEC) //No '.' in long modes
+			c&=~255;
+		else
+		{
+			for(int q = 0; str[q]; ++q)
+			{
+				if(str[q] == '.') //Only one '.'
+				{
+					c&=~255;
+					break;
+				}
+			}
+		}
+	}
+	switch(ntype)
+	{
+		case typeDEC:
+			d->d1 = 12; //12 digits max (incl '-', '.')
+			if(msg==MSG_CHAR && (c&255))
+			{
+				int p = 0;
+				for(int q = 0; str[q]; ++q)
+				{
+					if(str[q]=='.')
+					{
+						if(d->d2 <= q)
+							break; //typing before the '.'
+						++p;
+					}
+					else if(p) ++p;
+				}
+				if(p>=5) //too many chars after '.'
+					c&=~255;
+			}
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeHEX:
+			d->d1 = 11; //11 digits max (incl '-', '.')
+			if(msg==MSG_CHAR)
+			{
+				if(!((c&255)=='.'||isxdigit(c&255)))
+					c&=~255;
+				else if(isxdigit(c&255) && !isdigit(c&255))
+					for(int q = 0; q < d->d2 && str[q]; ++q)
+					{
+						if(str[q] == '.') //No hex digits to the right of the '.'
+						{
+							c&=~255;
+							break;
+						}
+					}
+				if(c&255)
+				{
+					int p = 0;
+					for(int q = 0; str[q]; ++q)
+					{
+						if(str[q]=='.')
+						{
+							if(d->d2 <= q)
+								break; //typing before the '.'
+							++p;
+						}
+						else if(p) ++p;
+					}
+					if(p>=5) //too many chars after '.'
+						c&=~255;
+				}
+				if(isalpha(c&255)) //always capitalize
+					c = (c&~255) | (toupper(c&255));
+			}
+			ret |= jwin_edit_proc(msg, d, c);
+			break;
+		case typeLDEC:
+			d->d1 = 11; //11 digits max (incl '-')
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeLHEX:
+			d->d1 = 9; //9 digits max (incl '-')
+			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
 			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
 	}

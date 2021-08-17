@@ -32915,29 +32915,6 @@ void FFScript::do_xlen(const bool v)
 	//set_register(sarg1, (xlen(str.c_str()) * 10000));
 }
 
-//xtoi, conv hex string to integer
-int FFScript::xtoi(char *hexstring)
-{
-	int	i = 0;
-	signed char isneg = 1;
-	if ((*hexstring == '-')) {isneg = -1; ++hexstring;}
-	
-	if ((*hexstring == '0') && (*(hexstring+1) == 'x'))
-		  hexstring += 2;// + (isneg?1:0);
-	while (*hexstring)
-	{
-		char c = toupper(*hexstring++);
-		if ((c < '0') || (c > 'F') || ((c > '9') && (c < 'A')))
-			break;
-		c -= '0';
-		if (c > 9)
-			c -= 7;
-		i = (i << 4) + c;
-	}
-	//zprint2("FFCore.xtoi result is %d\n", i);
-	return i * (isneg);
-}
-
 void FFScript::do_xtoi(const bool v)
 {
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
@@ -32945,17 +32922,16 @@ void FFScript::do_xtoi(const bool v)
 	FFCore.getString(arrayptr, str);
 	//zprint2("xtoi array pointer is: %d\n", arrayptr);
 	//zprint2("xtoi string is %s\n", str.c_str());
-	double val = FFCore.xtoi(const_cast<char*>(str.c_str()));
+	double val = zc_xtoi(const_cast<char*>(str.c_str()));
 	//zprint2("xtoi val is %f\n", val);
 	set_register(sarg1, (long)(val) * 10000);
 }
 void FFScript::do_xtoi2() 
 {
-	//Not implemented, xtoi not found
 	long arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	//set_register(sarg1, (xtoi(strA.c_str()) * 10000));
+	set_register(sarg1, (zc_xtoi(strA.c_str()) * 10000));
 }
 
 // Calculates log2 of number.  

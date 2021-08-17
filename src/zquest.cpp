@@ -3503,7 +3503,7 @@ int gethexnumber(const char *prompt,int initialval)
     }
     
     if(ret==3)
-        return xtoi(buf);
+        return zc_xtoi(buf);
         
     return initialval;
 }
@@ -16775,8 +16775,8 @@ void editdmap(int index)
             }
         }
         
-        DMaps[index].compass = xtoi(compassstr);
-        DMaps[index].cont = vbound(xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
+        DMaps[index].compass = zc_xtoi(compassstr);
+        DMaps[index].cont = vbound(zc_xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
         DMaps[index].color = editdmap_dlg[65].d1;
         DMaps[index].active_subscreen=editdmap_dlg[75].d1;
         DMaps[index].passive_subscreen=editdmap_dlg[77].d1;
@@ -19914,16 +19914,16 @@ int onTileWarp()
     if(ret==14 || ret==15)
     {
         saved=false;
-        Map.CurrScr()->tilewarpscr[0] = xtoi(buf);
+        Map.CurrScr()->tilewarpscr[0] = zc_xtoi(buf);
         Map.CurrScr()->tilewarptype[0] = warp_dlg[7].d1;
         Map.CurrScr()->tilewarpdmap[0] = warp_dlg[8].d1;
-        Map.CurrScr()->tilewarpscr[1] = xtoi(buf2);
+        Map.CurrScr()->tilewarpscr[1] = zc_xtoi(buf2);
         Map.CurrScr()->tilewarptype[1] = warp_dlg[22].d1;
         Map.CurrScr()->tilewarpdmap[1] = warp_dlg[23].d1;
-        Map.CurrScr()->tilewarpscr[2] = xtoi(buf3);
+        Map.CurrScr()->tilewarpscr[2] = zc_xtoi(buf3);
         Map.CurrScr()->tilewarptype[2] = warp_dlg[34].d1;
         Map.CurrScr()->tilewarpdmap[2] = warp_dlg[35].d1;
-        Map.CurrScr()->tilewarpscr[3] = xtoi(buf4);
+        Map.CurrScr()->tilewarpscr[3] = zc_xtoi(buf4);
         Map.CurrScr()->tilewarptype[3] = warp_dlg[46].d1;
         Map.CurrScr()->tilewarpdmap[3] = warp_dlg[47].d1;
         
@@ -20162,16 +20162,16 @@ int onSideWarp()
     if(ret==14 || ret==15)
     {
         saved=false;
-        Map.CurrScr()->sidewarpscr[0] = xtoi(buf);
+        Map.CurrScr()->sidewarpscr[0] = zc_xtoi(buf);
         Map.CurrScr()->sidewarptype[0] = warp_dlg[7].d1;
         Map.CurrScr()->sidewarpdmap[0] = warp_dlg[8].d1;
-        Map.CurrScr()->sidewarpscr[1] = xtoi(buf2);
+        Map.CurrScr()->sidewarpscr[1] = zc_xtoi(buf2);
         Map.CurrScr()->sidewarptype[1] = warp_dlg[22].d1;
         Map.CurrScr()->sidewarpdmap[1] = warp_dlg[23].d1;
-        Map.CurrScr()->sidewarpscr[2] = xtoi(buf3);
+        Map.CurrScr()->sidewarpscr[2] = zc_xtoi(buf3);
         Map.CurrScr()->sidewarptype[2] = warp_dlg[34].d1;
         Map.CurrScr()->sidewarpdmap[2] = warp_dlg[35].d1;
-        Map.CurrScr()->sidewarpscr[3] = xtoi(buf4);
+        Map.CurrScr()->sidewarpscr[3] = zc_xtoi(buf4);
         Map.CurrScr()->sidewarptype[3] = warp_dlg[46].d1;
         Map.CurrScr()->sidewarpdmap[3] = warp_dlg[47].d1;
         
@@ -21018,7 +21018,7 @@ void EditWarpRingScr(int ring,int index)
     {
         saved=false;
         misc.warp[ring].dmap[index] = warpring_warp_dlg[8].d1;
-        misc.warp[ring].scr[index] = xtoi(buf);
+        misc.warp[ring].scr[index] = zc_xtoi(buf);
     }
     
     if(ret==15)
@@ -29898,11 +29898,11 @@ int onMiscColors()
         
         for(int i=0; i<16; i++)
         {
-            *si = xtoi(buf[i]);
+            *si = zc_xtoi(buf[i]);
             ++si;
         }
         
-        misc.colors.msgtext = xtoi(buf[16]);
+        misc.colors.msgtext = zc_xtoi(buf[16]);
     }
     
     return D_O_K;
@@ -30179,9 +30179,9 @@ int edit_layers(mapscr* tempscr)
                 tempscr->layermap[x]=0;
             }
             
-            tempscr->layerscreen[x]=xtoi(buf[x][1]);
+            tempscr->layerscreen[x]=zc_xtoi(buf[x][1]);
             
-            if(xtoi(buf[x][1])>=MAPSCRS)
+            if(zc_xtoi(buf[x][1])>=MAPSCRS)
             {
                 tempscr->layerscreen[x]=0;
             }

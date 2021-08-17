@@ -127,6 +127,7 @@ int jwin_numedit_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. num
 int jwin_swapbtn_proc(int msg,DIALOG *d,int c); //Button to swap numedit styles
 int jwin_numedit_swap_byte_proc(int msg,DIALOG *d,int c); //Bound to unsigned byte, dec and hex modes
 int jwin_numedit_swap_sshort_proc(int msg,DIALOG *d,int c); //Bound to signed short, dec and hex modes
+int jwin_numedit_swap_zsint_proc(int msg,DIALOG *d,int c); //Bound to signed int, dec and hex modes, 4 dec places, long modes
 //
 int jwin_list_proc(int msg, DIALOG *d, int c);
 int jwin_textbox_proc(int msg, DIALOG *d, int c);

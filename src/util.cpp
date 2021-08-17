@@ -200,7 +200,7 @@ namespace util
 #endif
 	}
 	
-	int xtoi(char *hexstr)
+	int zc_xtoi(const char *hexstr)
 	{
 		int val=0;
 		bool neg = false;
@@ -221,6 +221,95 @@ namespace util
 		}
 		
 		return neg ? -val : val;
+	}
+	
+	long ffparse2(const char *string) //bounds result safely between -214748.3648 and +214748.3647
+	{
+		char tempstring1[32] = {0};
+		sprintf(tempstring1, string);
+		
+		char *ptr=strchr(tempstring1, '.');
+		if(!ptr)
+		{
+			return vbound(atoi(tempstring1),-214748,214748)*10000;
+		}
+		
+		long ret=0;
+		
+		for(int i=0; i<4; ++i)
+		{
+			tempstring1[strlen(string)+i]='0';
+		}
+		
+		ptr=strchr(tempstring1, '.');
+		*ptr=0;
+		ret=vbound(atoi(tempstring1),-214748,214748)*10000;
+		
+		++ptr;
+		char *ptr2=ptr;
+		ptr2+=4;
+		*ptr2=0;
+		
+		int decval = atoi(ptr);
+		if(ret<0)
+		{
+			if(ret == -2147480000)
+				decval = vbound(decval, 0, 3648);
+			ret-=decval;
+		}
+		else
+		{
+			if(ret == 2147480000)
+				decval = vbound(decval, 0, 3647);
+			ret+=decval;
+		}
+		
+		return ret;
+	}
+	long ffparseX(const char *string) //hex before '.', bounds result safely between -214748.3648 and +214748.3647
+	{
+		char tempstring1[32] = {0};
+		sprintf(tempstring1, string);
+		
+		char *ptr=strchr(tempstring1, '.');
+		if(!ptr)
+		{
+			return vbound(zc_xtoi(tempstring1),-214748,214748)*10000;
+		}
+		
+		long ret=0;
+
+		sprintf(tempstring1, string);
+		
+		for(int i=0; i<4; ++i)
+		{
+			tempstring1[strlen(string)+i]='0';
+		}
+		
+		ptr=strchr(tempstring1, '.');
+		*ptr=0;
+		ret=vbound(zc_xtoi(tempstring1),-214748,214748)*10000;
+		
+		++ptr;
+		char *ptr2=ptr;
+		ptr2+=4;
+		*ptr2=0;
+		
+		int decval = atoi(ptr);
+		if(ret<0)
+		{
+			if(ret == -2147480000)
+				decval = vbound(decval, 0, 3648);
+			ret-=decval;
+		}
+		else
+		{
+			if(ret == 2147480000)
+				decval = vbound(decval, 0, 3647);
+			ret+=decval;
+		}
+		
+		return ret;
 	}
 	
 	int zc_chmod(const char* path, mode_t mode)
@@ -267,6 +356,26 @@ namespace util
 				al_trace(str+q);
 			}
 		}
+	}
+
+	int vbound(int x,int low,int high)
+	{
+		assert(low <= high);
+		
+		if(x<low) return low;
+		
+		if(x>high) return high;
+		
+		return x;
+	}
+
+	float vbound(float x,float low,float high)
+	{
+		if(x<low) return low;
+		
+		if(x>high) return high;
+		
+		return x;
 	}
 }
 

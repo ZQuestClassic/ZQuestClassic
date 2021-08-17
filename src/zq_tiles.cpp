@@ -16720,6 +16720,7 @@ static int combo_attributes_list[] =
     47,48,
 	57,58,59,60,61,62,63,64,104,105,
 	171, 172,
+	192, 193, 194, 195,
 	-1
 };
 
@@ -18359,16 +18360,16 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,        46,     135+16+3+17,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
     //57
     { jwin_text_proc,           8+22+16,       30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    30-4+16+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    30-4+16+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //59
     { jwin_text_proc,           8+22+16,       45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    45-4+16+4+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    45-4+16+4+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //61
     { jwin_text_proc,           8+22+16,       60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    60-4+16+4+10+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    60-4+16+4+10+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //63
     { jwin_text_proc,           8+22+16,       75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    75-4+16+4+14+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    75-4+16+4+14+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //65 Triggered By Weapon Types
     { jwin_check_proc,        8+22+16,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
     { jwin_check_proc,        8+22+16,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Beam",                      NULL,   NULL                  },
@@ -18546,6 +18547,11 @@ static DIALOG combo_dlg[] =
 	//190
 	{ jwin_swapbtn_proc,    268,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
 	{ jwin_swapbtn_proc,    268,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    150,    77,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    150,    96,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    150,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//195
+	{ jwin_swapbtn_proc,    150,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
 	
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -19086,6 +19092,11 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[60].dp = attrib1;
 	combo_dlg[62].dp = attrib2;
 	combo_dlg[64].dp = attrib3;
+	//Bind swapbtns to editprocs
+	combo_dlg[58].dp3 = &combo_dlg[192];
+	combo_dlg[60].dp3 = &combo_dlg[193];
+	combo_dlg[62].dp3 = &combo_dlg[194];
+	combo_dlg[64].dp3 = &combo_dlg[195];
 	
 	//122, 124 initD
 	
@@ -19580,10 +19591,10 @@ bool edit_combo(int c,bool freshen,int cs)
 		curr_combo.flag = combo_dlg[36].d1;
 		
 		//Attributes[]
-		curr_combo.attributes[0] = ffparse2(attrib0);
-		curr_combo.attributes[1] = ffparse2(attrib1);
-		curr_combo.attributes[2] = ffparse2(attrib2);
-		curr_combo.attributes[3] = ffparse2(attrib3);
+		curr_combo.attributes[0] = combo_dlg[58].fg;
+		curr_combo.attributes[1] = combo_dlg[60].fg;
+		curr_combo.attributes[2] = combo_dlg[62].fg;
+		curr_combo.attributes[3] = combo_dlg[64].fg;
 		
 		//Attribytes[]
 		curr_combo.attribytes[0] = combo_dlg[115].fg;

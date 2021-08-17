@@ -6694,7 +6694,7 @@ int onGoTo()
     if(zc_popup_dialog(goto_dlg,4)==1)
     {
         cheat_goto_dmap=goto_dlg[4].d2;
-        cheat_goto_screen=zc_min(xtoi(cheat_goto_screen_str),0x7F);
+        cheat_goto_screen=zc_min(zc_xtoi(cheat_goto_screen_str),0x7F);
         do_cheat_goto=true;
     };
     
