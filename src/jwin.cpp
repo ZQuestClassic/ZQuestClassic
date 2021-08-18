@@ -1745,7 +1745,9 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
 				v = atoi(tempstr);
 				v *= 10000;
-				v += atoi(ptr);
+				if(v<0)
+					v -= atoi(ptr);
+				else v += atoi(ptr);
 			}
 			else
 			{
@@ -1764,7 +1766,9 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
 				v = zc_xtoi(tempstr);
 				v *= 10000;
-				v += atoi(ptr);
+				if(v<0)
+					v -= atoi(ptr);
+				else v += atoi(ptr);
 			}
 			else
 			{
@@ -1779,28 +1783,30 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 			v = zc_xtoi(str);
 			break;
 	}
-	bool didneg = false;
-	if(msg==MSG_CHAR && ((c&255)=='-'))
-	{
-		didneg = true;
-		v = -v;
-		c &= ~255;
-	}
 	long b;
 	if ( v > 2147483647 )
 		b=2147483647;
 	else if ( v < INT_MIN )
 		b=INT_MIN;
 	else b = (long)v;
-	if(v != b || otype != ntype || didneg || update)
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		if(b==INT_MIN)
+			++b;
+		b = -b;
+		c &= ~255;
+	}
+	if(v != b || otype != ntype || update)
 	{
 		switch(ntype)
 		{
 			case typeDEC:
-				sprintf(str, "%d.%04d", b/10000L, abs(b%10000L));
+				sprintf(str, "%d.%04d\0", b/10000L, abs(b%10000L));
 				break;
 			case typeHEX:
-				sprintf(str, "%X.%04d", b/10000L, abs(b%10000L));
+				if(b<0)
+					sprintf(str, "-%X.%04d\0", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%X.%04d\0", b/10000L, abs(b%10000L));
 				break;
 			case typeLDEC:
 				sprintf(str, "%ld\0", b);
