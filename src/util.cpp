@@ -200,6 +200,49 @@ namespace util
 #endif
 	}
 	
+	long long zc_atoi64(const char *str)
+	{
+		long long val=0;
+		bool neg = false;
+		if(*str == '-')
+		{
+			neg = true;
+			++str;
+		}
+		while(isdigit(*str))
+		{
+			val*=10;
+			
+			val += *str-'0';
+			
+			++str;
+		}
+		
+		return neg ? -val : val;
+	}
+	long long zc_xtoi64(const char *hexstr)
+	{
+		long long val=0;
+		bool neg = false;
+		if(*hexstr == '-')
+		{
+			neg = true;
+			++hexstr;
+		}
+		while(isxdigit(*hexstr))
+		{
+			val<<=4;
+			
+			if(*hexstr<='9')
+				val += *hexstr-'0';
+			else val+= ((*hexstr)|0x20)-'a'+10;
+			
+			++hexstr;
+		}
+		
+		return neg ? -val : val;
+	}
+	
 	int zc_xtoi(const char *hexstr)
 	{
 		int val=0;

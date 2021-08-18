@@ -1542,14 +1542,14 @@ int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c)
 static enum {typeDEC, typeHEX, typeLDEC, typeLHEX, typeMAX};
 int jwin_swapbtn_proc(int msg, DIALOG* d, int c)
 {
-	static char* swp[typeMAX] = {"D", "H"};
+	static char* swp[typeMAX] = {"D", "H", "LD", "LH"};
 	if(msg==MSG_START)
 	{
 		d->dp = swp[d->d1&0xF];
 	}
 	//d1 is (0xF0 = old val, 0x0F = new val)
 	//d2 is max val
-	if(d->d2 < 2) return D_O_K; //Not setup yet, or bad value
+	if(d->d2 < 2 || d->d2 > typeMAX) return D_O_K; //Not setup yet, or bad value
 	DIALOG* relproc = (DIALOG*)d->dp3;
 	int ret = jwin_button_proc(msg, d, c);
 	if(d->flags & D_SELECTED) //On selection
@@ -1718,7 +1718,7 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_sshort_proc(msg, d, c);
 	if(msg==MSG_START) //Setup the swapbtn
 	{
-		swapbtn->d2 = 2; //Max states
+		swapbtn->d2 = 4; //Max states
 		swapbtn->dp3 = (void*)d;
 		if(swapbtn->d1)
 		{
@@ -1777,10 +1777,10 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 			}
 			break;
 		case typeLDEC:
-			v = atoi(str);
+			v = zc_atoi64(str);
 			break;
 		case typeLHEX:
-			v = zc_xtoi(str);
+			v = zc_xtoi64(str);
 			break;
 	}
 	long b;
