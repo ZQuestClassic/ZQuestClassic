@@ -45,6 +45,10 @@ include_directories(./include/almp3)
 include_directories(./include/gme)
 include_directories(./src)
 
+if(MSVC)
+  include_directories(./src/msvcCompat)
+endif()
+
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp
 	src/zcmusicd.cpp
