@@ -16134,6 +16134,7 @@ static int editdmap_script_active[] =
 	130,131,132,133,134,135,136,137,//InitD Labels
 	138,139,140,141,142,143,144,145,//InitD Values
 	146,147, //TextProc & Dropdown
+	187,188,189,190,191,192,193,194,//Swapbtns
 	-1
 };
 
@@ -16143,6 +16144,7 @@ static int editdmap_script_subsc[] =
 	148,149,150,151,152,153,154,155,//InitD Labels
 	156,157,158,159,160,161,162,163,//InitD Values
 	164,165,166,167, //TextProcs & Dropdowns
+	195,196,197,198,199,200,201,202,//Swapbtns
 	-1
 };
 
@@ -16152,6 +16154,7 @@ static int editdmap_script_onmap[] =
 	169,170,171,172,173,174,175,176,//InitD Labels
 	177,178,179,180,181,182,183,184,//InitD Values
 	185,186, //TextProcs & Dropdowns
+	203,204,205,206,207,208,209,210,//Swapbtns
 	-1
 };
 
@@ -16255,8 +16258,8 @@ static DIALOG editdmap_dlg[] =
     {  jwin_text_proc,               10,     29,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Name: ",                                     NULL,                 NULL                  },
     {  jwin_edit_proc,               40,     25,    168,     16,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          20,             0,  NULL,                                                  NULL,                 NULL                  },
     //5
-    {  jwin_tab_proc,                 6,     45,    300,    179,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
-    {  jwin_tab_proc,                10,     62,    292,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmapmap_tabs,                             NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                 6,     45,    310,    179,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                 8,     62,    306,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmapmap_tabs,                             NULL, (void *)editdmap_dlg  },
     {  jwin_ctext_proc,              67,     87,      0,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Minimap",                                    NULL,                 NULL                  },
     {  jwin_frame_proc,              31,     95,     84,     52,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_DEEP,       0,  NULL,                                                  NULL,                 NULL                  },
     {  d_maptile_proc,               33,     97,     80,     48,    0,                      0,                       0,    0,           0,             0,  NULL, (void*)0,             NULL                  },
@@ -16282,7 +16285,7 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,              274,     65,     26,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           3,             0,  NULL,                                                  NULL,                 NULL                  },
     {  jwin_text_proc,              28,    150,     70,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Setting this tile disables",                                NULL,                 NULL                  },
     {  jwin_text_proc,              28,    158,     70,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "the classic NES minimap.",                                NULL,                 NULL                  },
-    {  jwin_tab_proc,                10,     62,    292,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_script_tabs,                             NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                8,     62,    306,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_script_tabs,                             NULL, (void *)editdmap_dlg  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     //30
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
@@ -16427,17 +16430,17 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     
     //138
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //146
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     //148
     {  jwin_edit_proc,         6+10-4-2,     10+29+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10-4-2,     10+47+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
@@ -16448,20 +16451,20 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     //156
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //164
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Active Subscreen Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Active Subscreen Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     //166
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+28+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Passive Subscreen Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+28+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+28+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Passive Subscreen Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+28+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     
     //168
     {  jwin_check_proc,              12,    175,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Use Enemy List for Cellar Enemies",      NULL,                 NULL                  },
@@ -16476,18 +16479,45 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     //177
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //186
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "OnMap Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
-	
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //185
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "OnMap Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+	//187 (for 138+)
+	{ jwin_swapbtn_proc,  158,      79,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,      97,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     115,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     133,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     151,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     169,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     187,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     205,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    //195 (for 156+)
+	{ jwin_swapbtn_proc,  158,      79,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,      97,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     115,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     133,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     151,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     169,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     187,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     205,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    //203 (for 177+)
+	{ jwin_swapbtn_proc,  158,      79,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,      97,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     115,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     133,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     151,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     169,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     187,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     205,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
@@ -16555,13 +16585,15 @@ void editdmap(int index)
     
 	for ( int q = 0; q < 8; q++ )
 	{
-		sprintf(initdvals[q],"%.4f",DMaps[index].initD[q]/10000.0);
-		sprintf(subinitdvals[q],"%.4f",DMaps[index].sub_initD[q]/10000.0);
-		sprintf(onmapinitdvals[q],"%.4f",DMaps[index].onmap_initD[q]/10000.0);
-	 
 		editdmap_dlg[138+q].dp = initdvals[q];
 		editdmap_dlg[156+q].dp = subinitdvals[q];
 		editdmap_dlg[177+q].dp = onmapinitdvals[q];
+		editdmap_dlg[138+q].fg = DMaps[index].initD[q];
+		editdmap_dlg[156+q].fg = DMaps[index].sub_initD[q];
+		editdmap_dlg[177+q].fg = DMaps[index].onmap_initD[q];
+		editdmap_dlg[138+q].dp3 = &(editdmap_dlg[187+q]);
+		editdmap_dlg[156+q].dp3 = &(editdmap_dlg[195+q]);
+		editdmap_dlg[177+q].dp3 = &(editdmap_dlg[203+q]);
 	}
 	
     editdmap_dlg[0].dp=dmapnumstr;
@@ -16830,9 +16862,9 @@ void editdmap(int index)
 	
 	for ( int q = 0; q < 8; q++ )
 	{
-		DMaps[index].initD[q] = ffparse2(initdvals[q]);
-		DMaps[index].sub_initD[q] = ffparse2(subinitdvals[q]);
-		DMaps[index].onmap_initD[q] = ffparse2(onmapinitdvals[q]);
+		DMaps[index].initD[q] = editdmap_dlg[138+q].fg;
+		DMaps[index].sub_initD[q] = editdmap_dlg[156+q].fg;
+		DMaps[index].onmap_initD[q] = editdmap_dlg[177+q].fg;
 		////initd_labels
 		sprintf(DMaps[index].initD_label[q],"%s",initd_labels[q]);
 		sprintf(DMaps[index].sub_initD_label[q],"%s",sub_initd_labels[q]);
