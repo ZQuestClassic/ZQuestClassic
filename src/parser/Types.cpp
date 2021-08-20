@@ -214,8 +214,8 @@ DataTypeClass DataType::DIRECTORY(ZCLASSID_DIRECTORY, "Directory", &CDIRECTORY);
 
 int DataType::compare(DataType const& rhs) const
 {
-	type_info const& lhsType = typeid(*this);
-	type_info const& rhsType = typeid(rhs);
+	std::type_info const& lhsType = typeid(*this);
+	std::type_info const& rhsType = typeid(rhs);
 	if (lhsType.before(rhsType)) return -1;
 	if (rhsType.before(lhsType)) return 1;
 	return selfCompare(rhs);

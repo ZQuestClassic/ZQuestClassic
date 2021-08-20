@@ -27,9 +27,15 @@
 #undef new
 #endif // new
 
-#include <boost/optional.hpp>
+#if (__cplusplus < 201703L)
+    #include <boost/optional.hpp>
+#else
+    #include <optional>
+    using std::nullopt_t, std::nullopt;
+#endif
 #include <boost/type_traits.hpp>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdarg>
 #include <set>
@@ -38,6 +44,11 @@
 #include <vector>
 
 #include "zc_malloc.h"
+
+namespace ZScript
+{
+    class DataTypeCustom;
+}
 
 ////////////////////////////////////////////////////////////////
 // Strings
@@ -229,6 +240,31 @@ public:
 private:
 	boost::optional<T> data_;
 };
+#else
+template<typename T>
+class optional : public std::optional<T>, public SafeBool<optional<T> > {
+public:
+    typedef T value_type;
+
+	// Construct empty optional. 
+	optional() : std::optional<T>() {}
+	optional(nullopt_t) : std::optional<T>(nullopt) {}
+	// Construct with value.
+	optional(const T& value) : std::optional<T>(value) {}
+	// Construct with value (eliminate double optional).
+	optional(const optional& rhs) : std::optional<T>(rhs) {}
+	
+	bool safe_bool() const { return this->has_value(); }
+
+    /*
+    optional(std::optional<T> base) : std::optional<T>(base) {}
+    optional(std::nullopt_t n) : std::optional<T>(n) {}
+	optional(const T& value) : std::optional<T>(value) {}
+	optional(T& value) : std::optional<T>(value) {}
+	template<typename U>
+	optional(const U& value) : std::optional<T>(reinterpret_cast<U>(value)) {}
+	*/
+};
 #endif // (__cplusplus < 201703L)
 
 
@@ -320,9 +356,9 @@ namespace detail {
 		static optional<Element> _(Map const& map, Key const& key)
 		{
 			typename Map::const_iterator it = map.find(key);
-			if (it == map.end()) return nullopt;
+			if (it == map.end()) return optional<Element>(nullopt);
 			Element const& element = it->second;
-			return element;
+			return optional<Element>(element);
 		}
 	};
 
