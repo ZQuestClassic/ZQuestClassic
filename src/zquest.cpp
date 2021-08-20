@@ -13724,15 +13724,15 @@ static DIALOG screenscript_dlg[] =
     { jwin_text_proc,           10,    42+140+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[7]:",                      NULL,   NULL                  },
     
     //13
-     { jwin_edit_proc,     60,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-     { jwin_edit_proc,     60,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     60,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     60,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     60,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+     { jwin_numedit_swap_zsint_proc,     60,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+     { jwin_numedit_swap_zsint_proc,     60,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
     //18
-    { jwin_edit_proc,     60,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     60,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     60,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
     //21
     { jwin_text_proc,          112+10+20+34+1-4,    42+2,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                            NULL,   NULL                  },
     //22
@@ -13740,8 +13740,17 @@ static DIALOG screenscript_dlg[] =
    
     { jwin_button_proc,       70,    202,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
     { jwin_button_proc,      170,    202,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
-    
+    //25
     { jwin_check_proc,          112+10+20+34-4,    42+30,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Run On Screen Init",   NULL,   NULL                  },
+	{ jwin_swapbtn_proc,  148,      42,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,   42+20,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,   42+40,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,   42+60,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    //30
+	{ jwin_swapbtn_proc,  148,   42+80,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,  42+100,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,  42+120,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,  42+140,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
     
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -13770,10 +13779,9 @@ void EditScreenScript()
 	
 	for ( int q = 0; q < 8; q++ )
 	{
-	    
-		sprintf(initd[q],"%.4f",theMap->screeninitd[q]/10000.0);
-	 
 		screenscript_dlg[13+q].dp = initd[q];
+		screenscript_dlg[13+q].fg = theMap->screeninitd[q];
+		screenscript_dlg[13+q].dp3 = &(screenscript_dlg[26+q]);
 	}
 	int ret;
 	if(is_large)
@@ -13791,7 +13799,7 @@ void EditScreenScript()
 			theMap->preloadscript = 0;
 		
 		for(int j=0; j<8; j++)
-			theMap->screeninitd[j] = ffparse2(initd[j]);
+			theMap->screeninitd[j] = screenscript_dlg[13+j].fg;
 		
 	}
 	while(ret==22);//press OK
