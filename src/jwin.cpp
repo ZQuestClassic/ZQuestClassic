@@ -1573,10 +1573,6 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 	{
 		swapbtn->d2 = 2; //Max states
 		swapbtn->dp3 = (void*)d;
-		if(swapbtn->d1)
-		{
-			swapbtn->d1 &= 0xF; //Set upper bits to 0;
-		}
 	}
 	int ret = D_O_K;
 	int ntype = swapbtn->d1&0xF,
@@ -1584,7 +1580,9 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 	
 	char* str = (char*)d->dp;
 	long v = 0;
-	switch(otype)
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
 	{
 		case typeDEC:
 			v = atoi(str);
@@ -1593,18 +1591,18 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 			v = zc_xtoi(str);
 			break;
 	}
-	if(msg==MSG_CHAR && ((c&255)=='-'))
-	{
-		//unsigned//v = -v;
-		c &= ~255;
-	}
 	byte b;
 	if ( v > 255 )
 		b=255;
 	else if ( v < 0 )
 		b=0;
 	else b = (byte)v;
-	if(unsigned(v) != b || otype != ntype)
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		//unsigned//b = -b;
+		c &= ~255;
+	}
+	if(unsigned(v) != b || otype != ntype || msg == MSG_START)
 	{
 		switch(ntype)
 		{
@@ -1644,10 +1642,6 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 	{
 		swapbtn->d2 = 2; //Max states
 		swapbtn->dp3 = (void*)d;
-		if(swapbtn->d1)
-		{
-			swapbtn->d1 &= 0xF; //Set upper bits to 0;
-		}
 	}
 	int ret = D_O_K;
 	int ntype = swapbtn->d1&0xF,
@@ -1655,7 +1649,9 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 	
 	char* str = (char*)d->dp;
 	long v = 0;
-	switch(otype)
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
 	{
 		case typeDEC:
 			v = atoi(str);
@@ -1664,20 +1660,18 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 			v = zc_xtoi(str);
 			break;
 	}
-	bool didneg = false;
-	if(msg==MSG_CHAR && ((c&255)=='-'))
-	{
-		didneg = true;
-		v = -v;
-		c &= ~255;
-	}
 	short b;
 	if ( v > 32767 )
 		b=32767;
 	else if ( v < -32768 )
 		b=-32768;
 	else b = (short)v;
-	if(v != b || otype != ntype || didneg)
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		b = -b;
+		c &= ~255;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
 	{
 		switch(ntype)
 		{
@@ -1720,10 +1714,6 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 	{
 		swapbtn->d2 = 4; //Max states
 		swapbtn->dp3 = (void*)d;
-		if(swapbtn->d1)
-		{
-			swapbtn->d1 &= 0xF; //Set upper bits to 0;
-		}
 	}
 	int ret = D_O_K;
 	int ntype = swapbtn->d1&0xF,
@@ -1731,8 +1721,9 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 	
 	char* str = (char*)d->dp;
 	long long v = 0;
-	bool update = false;
-	switch(otype)
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
 	{
 		case typeDEC:
 			if(char *ptr = strchr(str, '.'))
@@ -1796,7 +1787,7 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 		b = -b;
 		c &= ~255;
 	}
-	if(v != b || otype != ntype || update)
+	if(v != b || otype != ntype || msg == MSG_START)
 	{
 		switch(ntype)
 		{
