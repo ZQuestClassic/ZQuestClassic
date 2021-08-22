@@ -27,8 +27,9 @@ std::string_view TextField::getText()
 
 void TextField::setText(std::string_view newText)
 {
-    // Would it be better to set an appropriate length?
-    assert(buffer);
+    // This probably could be handled with less allocating and copying...
+    if(maxLength==0 && newText.size()>0)
+        setMaxLength(newText.size());
     newText.copy(buffer.get(), maxLength);
 }
 
