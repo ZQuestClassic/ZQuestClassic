@@ -514,6 +514,7 @@ const int CB_MAX	= 18;
 const int IC_AMULET             = 11;
 const int IC_ARROW              = 2;
 const int IC_ARROWAMMO          = 40;
+const int IC_ATKRING            = 267;
 const int IC_BAIT               = 5;
 const int IC_BOMB               = 27;
 const int IC_BOMBAMMO           = 47;

@@ -2605,20 +2605,27 @@ bool LinkClass::checkstab()
 				// to damaging hits in the following frames.
 				
 				int whimsyid = current_item_id(itype_whimsicalring);
-				int whimsypower = 0;
 				
+				long dmg = weaponattackpower();
 				if(whimsyid>-1)
 				{
-					whimsypower = rand()%zc_max(itemsbuf[current_item_id(itype_whimsicalring)].misc1,1) ?
-								  0 : current_item_power(itype_whimsicalring);
+					if(!(rand()%zc_max(itemsbuf[whimsyid].misc1,1)))
+						dmg += current_item_power(itype_whimsicalring);
+					else whimsyid = -1;
+				}
+				int atkringid = current_item_id(itype_atkring);
+				if(atkringid>-1)
+				{
+					dmg *= itemsbuf[atkringid].misc2; //Multiplier
+					dmg += itemsbuf[atkringid].misc1; //Additive
 				}
 				
-				int h = hit_enemy(i,attack,(weaponattackpower() + whimsypower)*DAMAGE_MULTIPLIER,wx,wy,dir,directWpn);
-			enemy *e = (enemy*)guys.spr(i);
-			if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
-			//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
+				int h = hit_enemy(i,attack,dmg*DAMAGE_MULTIPLIER,wx,wy,dir,directWpn);
+				enemy *e = (enemy*)guys.spr(i);
+				if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
+				//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
 				
-				if(h<0 && whimsypower)
+				if(h<0 && whimsyid>-1)
 				{
 					sfx(itemsbuf[whimsyid].usesound);
 				}

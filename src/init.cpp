@@ -1551,127 +1551,127 @@ int biic_cnt=-1;
 
 void build_biic_list()
 {
-    int start=biic_cnt=0;
-    std::map<std::string, int> fams;
-    std::set<std::string> famnames;
-    
+	int start=biic_cnt=0;
+	std::map<std::string, int> fams;
+	std::set<std::string> famnames;
+	
 	
 	
 
-    for(int i=start; i<itype_last; i++)
-    {
-        //std::string name = std::string(itype_names[i]);
-        std::string name = std::string(moduledata.item_editor_type_names[i]);
-	    
-	    
-        
-        while(famnames.find(name) != famnames.end())
-        {
-            name += ' '; 
-        }
-        
-        fams[name] = i;
-        famnames.insert(name);
-	
-    }
-    
-    /*
-    sprintf these in series. 
-    itype_names[itype_scripted_001] = "User-Scripted 001";
-	    itype_names[itype_scripted_002] = "User-Scripted 002";
-	    itype_names[itype_scripted_003] = "User-Scripted 003";
-	    itype_names[itype_scripted_004] = "User-Scripted 004";
-	    itype_names[itype_scripted_005] = "User-Scripted 005";
-	    itype_names[itype_scripted_006] = "User-Scripted 006";
-	    itype_names[itype_scripted_007] = "User-Scripted 007";
-	    itype_names[itype_scripted_008] = "User-Scripted 008";
-	    itype_names[itype_scripted_009] = "User-Scripted 009";
-	    itype_names[itype_scripted_010] = "User-Scripted 010";
-    
-    */
-    
-    for(int i=itype_last; i<itype_max; i++)
-    {
-	/*
-	char *name = new char[10];
-	    
-	if ( i == 256 ) sprintf(name, "Script 01");
-	    else if ( i == 257 ) sprintf(name, "Script 02");
-	     else if ( i == 258 ) sprintf(name, "Script 03");
-	     else if ( i == 259 ) sprintf(name, "Script 04");
-	     else if ( i == 260 ) sprintf(name, "Script 05");
-	     else if ( i == 261 ) sprintf(name, "Script 06");
-	     else if ( i == 262 ) sprintf(name, "Script 07");
-	     else if ( i == 263 ) sprintf(name, "Script 08");
-	     else if ( i == 264 ) sprintf(name, "Script 09");
-	     else if ( i == 265 ) sprintf(name, "Script 10");
-	     else if ( i == 266 ) sprintf(name, "Ice Rod");
-        else 
+	for(int i=start; i<itype_last; i++)
 	{
-	    sprintf(name, "zz%03d", i);
-	}
-        std::string sname(name);
-        while(famnames.find(sname) != famnames.end())
-        {
-            sname += ' ';
-        }
-        
-        fams[sname] = i;
-        famnames.insert(sname);
-        delete[] name;
-	*/
-	//expanded names
-	if (moduledata.item_editor_type_names[i][0] != NULL ) //std::string name = std::string(moduledata.item_editor_type_names[i]);
-	{
-	    
+		//std::string name = std::string(itype_names[i]);
 		std::string name = std::string(moduledata.item_editor_type_names[i]);
+		
+		
+		
 		while(famnames.find(name) != famnames.end())
 		{
-		    name += ' '; 
+			name += ' '; 
+		}
+		
+		fams[name] = i;
+		famnames.insert(name);
+	
+	}
+	
+	/*
+	sprintf these in series. 
+	itype_names[itype_scripted_001] = "User-Scripted 001";
+		itype_names[itype_scripted_002] = "User-Scripted 002";
+		itype_names[itype_scripted_003] = "User-Scripted 003";
+		itype_names[itype_scripted_004] = "User-Scripted 004";
+		itype_names[itype_scripted_005] = "User-Scripted 005";
+		itype_names[itype_scripted_006] = "User-Scripted 006";
+		itype_names[itype_scripted_007] = "User-Scripted 007";
+		itype_names[itype_scripted_008] = "User-Scripted 008";
+		itype_names[itype_scripted_009] = "User-Scripted 009";
+		itype_names[itype_scripted_010] = "User-Scripted 010";
+	
+	*/
+	
+	for(int i=itype_last; i<itype_max; i++)
+	{
+		/*
+		char *name = new char[10];
+			
+		if ( i == 256 ) sprintf(name, "Script 01");
+			else if ( i == 257 ) sprintf(name, "Script 02");
+			 else if ( i == 258 ) sprintf(name, "Script 03");
+			 else if ( i == 259 ) sprintf(name, "Script 04");
+			 else if ( i == 260 ) sprintf(name, "Script 05");
+			 else if ( i == 261 ) sprintf(name, "Script 06");
+			 else if ( i == 262 ) sprintf(name, "Script 07");
+			 else if ( i == 263 ) sprintf(name, "Script 08");
+			 else if ( i == 264 ) sprintf(name, "Script 09");
+			 else if ( i == 265 ) sprintf(name, "Script 10");
+			 else if ( i == 266 ) sprintf(name, "Ice Rod");
+			else 
+		{
+			sprintf(name, "zz%03d", i);
+		}
+			std::string sname(name);
+			while(famnames.find(sname) != famnames.end())
+			{
+				sname += ' ';
+			}
+			
+			fams[sname] = i;
+			famnames.insert(sname);
+			delete[] name;
+		*/
+		//expanded names
+		if (moduledata.item_editor_type_names[i][0] != NULL ) //std::string name = std::string(moduledata.item_editor_type_names[i]);
+		{
+			
+			std::string name = std::string(moduledata.item_editor_type_names[i]);
+			while(famnames.find(name) != famnames.end())
+			{
+				name += ' '; 
+			}
+			
+			fams[name] = i;
+			famnames.insert(name);
+		}
+		else 
+		{
+			char *name = new char[10];
+			sprintf(name, "zz%03d", i);
+			std::string sname(name);
+			while(famnames.find(sname) != famnames.end())
+			{
+				sname += ' ';
+			}
+			
+			fams[sname] = i;
+			famnames.insert(sname);
+			delete[] name;
+		}
+	}
+	/*
+	//Set up new/special weapons for 2.54 and above. 
+	for(int i=itype_script1; i<itype_templast; i++)
+	{
+		std::string name = std::string(itype_new_names[i-itype_script1]);
+		
+		
+		
+		while(famnames.find(name) != famnames.end())
+		{
+			name += ' ';
 		}
 		
 		fams[name] = i;
 		famnames.insert(name);
 	}
-	else 
+	*/
+	for(std::set<std::string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
 	{
-		char *name = new char[10];
-		sprintf(name, "zz%03d", i);
-		std::string sname(name);
-		while(famnames.find(sname) != famnames.end())
-		{
-		    sname += ' ';
-		}
-		
-		fams[sname] = i;
-		famnames.insert(sname);
-		delete[] name;
+		biic[biic_cnt].s = new char[(*it).length() + 1];
+		strcpy(biic[biic_cnt].s, it->c_str()); //The user could do this, with an editor panel, to rename them, but saving the user strings would be an ordeal. -Z
+		biic[biic_cnt].i = fams[*it];
+		++biic_cnt;
 	}
-    }
-    /*
-    //Set up new/special weapons for 2.54 and above. 
-    for(int i=itype_script1; i<itype_templast; i++)
-    {
-        std::string name = std::string(itype_new_names[i-itype_script1]);
-	    
-	    
-        
-        while(famnames.find(name) != famnames.end())
-        {
-            name += ' ';
-        }
-        
-        fams[name] = i;
-        famnames.insert(name);
-    }
-    */
-    for(std::set<std::string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
-    {
-        biic[biic_cnt].s = new char[(*it).length() + 1];
-        strcpy(biic[biic_cnt].s, it->c_str()); //The user could do this, with an editor panel, to rename them, but saving the user strings would be an ordeal. -Z
-        biic[biic_cnt].i = fams[*it];
-        ++biic_cnt;
-    }
 }
 
 void deallocate_biic_list()
