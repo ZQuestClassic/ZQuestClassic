@@ -45,7 +45,7 @@ void Widget::arrange(int contX, int contY, int contW, int contH)
     auto hExcess=contW-width;
     x=contX+hExcess*hAlign;
     auto vExcess=contH-height;
-    y=contY+vExcess/2;
+    y=contY+vExcess*vAlign;
 }
 
 }
