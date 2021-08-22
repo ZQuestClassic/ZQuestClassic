@@ -42,6 +42,7 @@ void setZScriptVersion(int) { } //bleh...
 #include <loadpng.h>
 #include <jpgalleg.h>
 
+#include "dialog/cheatCodes.h"
 #include "dialog/setPassword.h"
 
 #include "gui.h"
@@ -22153,52 +22154,22 @@ int onHeader()
     return D_O_K;
 }
 
-
-static ZCHEATS tmpcheats;
-
-
-static DIALOG cheats_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,      32,   44,   256,  142,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Cheat Codes", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    // 2
-    { jwin_button_proc,     90,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,       0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    // 5
-    { jwin_check_proc,      104,  72,   0,    9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enable Cheats", NULL, NULL },
-    { jwin_text_proc,       40,   72,   0,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Lvl  Code", NULL, NULL },
-    { jwin_text_proc,       48,   90,   8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "1", NULL, NULL },
-    { jwin_text_proc,       48,   108,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "2", NULL, NULL },
-    { jwin_text_proc,       48,   126,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "3", NULL, NULL },
-    { jwin_text_proc,       48,   144,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "4", NULL, NULL },
-    // 11
-    { jwin_edit_proc,       61,   86,   210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[0], NULL, NULL },
-    { jwin_edit_proc,       61,   104,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[1], NULL, NULL },
-    { jwin_edit_proc,       61,   122,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[2], NULL, NULL },
-    { jwin_edit_proc,       61,   140,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[3], NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 int onCheats()
 {
-    cheats_dlg[0].dp2=lfont;
-    tmpcheats = zcheats;
-    cheats_dlg[5].flags = zcheats.flags ? D_SELECTED : 0;
+    std::string_view currentCodes[4]={
+        zcheats.codes[0], zcheats.codes[1], zcheats.codes[2], zcheats.codes[3]
+    };
 
-    if(is_large)
-        large_dialog(cheats_dlg);
-
-    int ret = zc_popup_dialog(cheats_dlg, 3);
-
-    if(ret == 2)
-    {
-        saved = false;
-        zcheats = tmpcheats;
-        zcheats.flags = (cheats_dlg[5].flags & D_SELECTED) ? 1 : 0;
-    }
-
+    CheatCodesDialog(zcheats.flags, currentCodes,
+        [](bool enabled, std::string_view newCodes[4]) {
+            saved=false;
+            zcheats.flags=enabled ? 1 : 0;
+            newCodes[0].copy(zcheats.codes[0], 41);
+            newCodes[1].copy(zcheats.codes[1], 41);
+            newCodes[2].copy(zcheats.codes[2], 41);
+            newCodes[3].copy(zcheats.codes[3], 41);
+        }
+    ).show();
     return D_O_K;
 }
 
@@ -33768,7 +33739,6 @@ void center_zquest_dialogs()
 {
     jwin_center_dialog(assignscript_dlg);
     jwin_center_dialog(autolayer_dlg);
-    jwin_center_dialog(cheats_dlg);
     jwin_center_dialog(clist_dlg);
     jwin_center_dialog(cpage_dlg);
     center_zq_cset_dialogs();

@@ -32,6 +32,7 @@ src/gui/widget.cpp
 src/gui/window.cpp
 
 src/dialog/setPassword.cpp
+src/dialog/cheatCodes.cpp
 
 ## End of ZQuest GUI module
 )

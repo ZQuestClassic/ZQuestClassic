@@ -123,7 +123,7 @@ extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
 extern FONT *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
        *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont
-       
+
        //#ifdef MOREFONTS_VERSION
 	   ,
 	   //New fonts for 2.54+
@@ -1079,7 +1079,6 @@ int onEnemies();
 int d_showedit_proc(int msg,DIALOG *d,int c);
 int onHeader();
 
-//static ZCHEATS tmpcheats;
 int PickRuleset();
 int onCheats();
 int RulesPage_1();
@@ -1265,4 +1264,3 @@ extern int midi_strict;
 #define mOTHER3         32768                                 // overwrite this value, use for expansion
 #endif
 /* end */
-
