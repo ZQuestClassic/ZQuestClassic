@@ -584,7 +584,6 @@ void do_strlen(const bool v);
 void do_arraycpy(const bool a, const bool b);
 void AlloffLimited(int flagset);
 void do_xlen(const bool v);
-int xtoi(char *hexstring);
 double ln(double temp);
 double Log2( double n );
 int numDigits(long number);

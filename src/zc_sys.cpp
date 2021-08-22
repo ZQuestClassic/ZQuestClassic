@@ -6676,24 +6676,6 @@ static DIALOG goto_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int xtoi(char *hexstr)
-{
-    int val=0;
-    
-    while(isxdigit(*hexstr))
-    {
-        val<<=4;
-        
-        if(*hexstr<='9')
-            val += *hexstr-'0';
-        else val+= ((*hexstr)|0x20)-'a'+10;
-        
-        ++hexstr;
-    }
-    
-    return val;
-}
-
 int onGoTo()
 {
     bool music = false;
@@ -6712,7 +6694,7 @@ int onGoTo()
     if(zc_popup_dialog(goto_dlg,4)==1)
     {
         cheat_goto_dmap=goto_dlg[4].d2;
-        cheat_goto_screen=zc_min(xtoi(cheat_goto_screen_str),0x7F);
+        cheat_goto_screen=zc_min(zc_xtoi(cheat_goto_screen_str),0x7F);
         do_cheat_goto=true;
     };
     

@@ -17,6 +17,9 @@
 #include "zelda.h"
 #include "items.h"
 #include "pal.h"
+#include "util.h"
+
+using namespace util;
 
 extern int dlevel;
 extern void flushItemCache();

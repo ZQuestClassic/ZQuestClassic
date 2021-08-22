@@ -17,7 +17,9 @@
 #include <allegro/internal/aintern.h>
 #include <string>
 #include <sstream>
+#include "util.h"
 
+using namespace util;
 using std::string;
 using std::istringstream;
 using std::getline;
@@ -231,26 +233,6 @@ void chop_path(char *path)
     
     if(f<p)
         path[p-f]=0;
-}
-
-int vbound(int x,int low,int high)
-{
-    assert(low <= high);
-    
-    if(x<low) return low;
-    
-    if(x>high) return high;
-    
-    return x;
-}
-
-float vbound(float x,float low,float high)
-{
-    if(x<low) return low;
-    
-    if(x>high) return high;
-    
-    return x;
 }
 
 int used_switch(int argc,char *argv[],const char *s)

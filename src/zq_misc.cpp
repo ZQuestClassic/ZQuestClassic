@@ -1325,7 +1325,6 @@ int onIcons();
 int onInit();
 int onLayers();
 int onScreenPalette();
-int xtoi(char *hexstr);
 
 int onColors_Main();
 int onColors_Levels();
