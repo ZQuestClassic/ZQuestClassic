@@ -1597,7 +1597,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
 
 int onColors_Main()
 {
-    int l9 = EditColors("Main Palette",0,pdFULL,mainpal_csets);
+    int l9 = EditColors("Main Palette",0,pdFULL-3,mainpal_csets);
     
     // copy main to level 0
     int di = CSET(poLEVEL)*3;

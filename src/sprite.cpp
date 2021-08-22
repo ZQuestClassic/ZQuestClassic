@@ -3392,5 +3392,6 @@ void movingblock::draw(BITMAP *dest)
     }
 }
 
+
 /*** end of sprite.cc ***/
 

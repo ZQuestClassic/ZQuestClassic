@@ -13655,7 +13655,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs<15) ? cs+1:0;
+                    cs = (cs<11) ? cs+1:0;
                     
                 redraw=true;
                 break;
@@ -13715,7 +13715,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs>0)  ? cs-1:15;
+                    cs = (cs>0)  ? cs-1:11;
                     
                 redraw=true;
                 break;
@@ -16743,7 +16743,7 @@ static int combo_trigger_list[] =
 static int combo_trigger_list2[] =
 {
     // dialog control number
-	92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, // 88, 89, // 102, 103,
+	92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 176, 177,// 88, 89, // 102, 103,
      -1
 };
 
@@ -18100,10 +18100,10 @@ static ComboAttributesInfo comboattrinfo[]=
 		cTRIGGERGENERIC,
 		// { "Enable", "Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
 		
-		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","Room Item","Secrets","Kill Wpn",
-			NULL,"Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy",NULL,NULL},
+		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","Room Item","Singular Secret","Kill Wpn",
+			NULL,"Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy", NULL,NULL},
 		{ NULL,NULL,NULL,NULL},
-		{ "Sprite", "Dropset", "Sound", "Secret Type",NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", "Sound", "Singular Secret",NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
@@ -18554,7 +18554,10 @@ static DIALOG combo_dlg[] =
 	{ jwin_swapbtn_proc,    148,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
 	{ jwin_swapbtn_proc,    130,    49,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
 	{ jwin_swapbtn_proc,    130,    70,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	
+	//198
+	{ jwin_check_proc,        46,     105+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always Triggered",                      NULL,   NULL                  },
+	{ jwin_check_proc,        154,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Triggers Secrets",                      NULL,   NULL                  },
+	//200
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -18880,11 +18883,6 @@ bool edit_combo(int c,bool freshen,int cs)
 	
 	char csets = curr_combo.csets & 15;
 	
-	if(csets&8) //if csets>8, then it's a negative.
-	{
-		csets |= 0xF0;
-	}
-	
 	if(disableEdit)
 		sprintf(combonumstr, "Combo %d - No editing solidity/type", c);
 	else sprintf(combonumstr,"Combo %d", c);
@@ -19000,6 +18998,8 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[99].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT08 ? D_SELECTED : 0;
 	combo_dlg[100].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT09 ? D_SELECTED : 0;
 	combo_dlg[101].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT10 ? D_SELECTED : 0;
+	combo_dlg[198].flags = curr_combo.triggerflags[1]&combotriggerAUTOMATIC ? D_SELECTED : 0;
+	combo_dlg[199].flags = curr_combo.triggerflags[1]&combotriggerSECRETS ? D_SELECTED : 0;
 	//three bits remain that are usable (zscript limits)
 	
 	//85
@@ -19175,6 +19175,8 @@ bool edit_combo(int c,bool freshen,int cs)
 	SETFLAG(curr_combo.triggerflags[1], 0x1000, combo_dlg[99].flags & D_SELECTED);
 	SETFLAG(curr_combo.triggerflags[1], 0x2000, combo_dlg[100].flags & D_SELECTED);
 	SETFLAG(curr_combo.triggerflags[1], 0x4000, combo_dlg[101].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x8000, combo_dlg[198].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x10000, combo_dlg[199].flags & D_SELECTED);
 	
 	
 	int index=0;
@@ -19542,6 +19544,8 @@ bool edit_combo(int c,bool freshen,int cs)
 		SETFLAG(curr_combo.triggerflags[1], 0x1000, combo_dlg[99].flags & D_SELECTED);
 		SETFLAG(curr_combo.triggerflags[1], 0x2000, combo_dlg[100].flags & D_SELECTED);
 		SETFLAG(curr_combo.triggerflags[1], 0x4000, combo_dlg[101].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x8000, combo_dlg[198].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x10000, combo_dlg[199].flags & D_SELECTED);
 		
 		
 		//if(combo_dlg[113].d1 > 255)
@@ -19549,7 +19553,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		//	al_trace("too big\n");
 		// }
 		
-		curr_combo.csets = vbound(atoi(cset_str),-15,15) & 15; //Bound this to a size of csets, so that it does not wrap!
+		curr_combo.csets = ((vbound(atoi(cset_str),-11,11) % 12) + 12) % 12; //Bound this to a size of csets, so that it does not wrap!
 		
 		for(int i=0; i<4; i++)
 		{
@@ -21687,7 +21691,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs<15) ? cs+1:0;
+                    cs = (cs<11) ? cs+1:0;
                     
                 redraw=true;
                 break;
@@ -21747,7 +21751,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs>0)  ? cs-1:15;
+                    cs = (cs>0)  ? cs-1:11;
                     
                 redraw=true;
                 break;

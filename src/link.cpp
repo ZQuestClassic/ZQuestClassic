@@ -8015,54 +8015,88 @@ bool LinkClass::animate(int)
 	}
 	
 	bool awarp = false;
-	
+	//!DIMI: Global Combo Effects (AUTO STUFF)
 	for(int i=0; i<176; i++)
 	{
-	
-		int ind=0;
-		
-		if(!awarp)
+		for(int layer=0; layer<=2; layer++)
 		{
-			if(combobuf[tmpscr->data[i]].type==cAWARPA)
-			{
-				awarp=true;
-				ind=0;
-			}
-			else if(combobuf[tmpscr->data[i]].type==cAWARPB)
-			{
-				awarp=true;
-				ind=1;
-			}
-			else if(combobuf[tmpscr->data[i]].type==cAWARPC)
-			{
-				awarp=true;
-				ind=2;
-			}
-			else if(combobuf[tmpscr->data[i]].type==cAWARPD)
-			{
-				awarp=true;
-				ind=3;
-			}
-			else if(combobuf[tmpscr->data[i]].type==cAWARPR)
-			{
-				awarp=true;
-				ind=rand()%4;
-			}
+			if (layer == 1 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_1)) continue;
+			if (layer == 2 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_2)) continue;
+			int ind=0;
 			
-			if(awarp)
+			if(!awarp) //Putting stuff in here so it doesn't activate after an autowarp happens.
 			{
-				if(tmpscr->flags5&fDIRECTAWARP)
+				//AUTOMATIC TRIGGER CODE
+				int cid = ( layer ) ? MAPCOMBOL(layer,MAPCOMBOX(i),MAPCOMBOY(i)) : MAPCOMBO(MAPCOMBOX(i),MAPCOMBOY(i));
+				newcombo const& cmb = combobuf[cid];
+				if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 				{
-					didpit=true;
-					pitx=x;
-					pity=y;
+					int flag = ( layer ) ? MAPFLAGL(layer, MAPCOMBOX(i),MAPCOMBOY(i)) : MAPFLAG(MAPCOMBOX(i),MAPCOMBOY(i));
+					int flag2 = ( layer ) ? MAPCOMBOFLAGL(layer,MAPCOMBOX(i),MAPCOMBOY(i)): MAPCOMBOFLAG(MAPCOMBOX(i),MAPCOMBOY(i));
+					int ft = cmb.attribytes[3];
+					int scombo=COMBOPOS(MAPCOMBOX(i),MAPCOMBOY(i));
+					bool single16 = false;
+					if ( cmb.type >= cSCRIPT1 && cmb.type <= cTRIGGERGENERIC )
+					{
+						do_generic_combo2(MAPCOMBOX(i),MAPCOMBOY(i), cid, flag, flag2, ft, scombo, single16, layer);
+					}
+					else if( cmb.type == cCSWITCH )
+					{
+						//byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
+						//if (get_bit(grid,(((bx>>4) + by)))) return;
+						//set_bit(grid,(((bx>>4) + by)),1);
+						do_cswitch_combo2(cmb, layer, COMBOPOS(MAPCOMBOX(i),MAPCOMBOY(i)));
+					}
+					if (cmb.triggerflags[1]&combotriggerSECRETS)
+					{
+						//byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
+						//if (get_bit(grid,(((bx>>4) + by)))) return;
+						//set_bit(grid,(((bx>>4) + by)),1);
+						hidden_entrance(0, true, false, -6);
+					}
 				}
 				
-				sdir = dir;
-				dowarp(1,ind);
+				//AUTO WARP CODE
+				if(cmb.type==cAWARPA)
+				{
+					awarp=true;
+					ind=0;
+				}
+				else if(cmb.type==cAWARPB)
+				{
+					awarp=true;
+					ind=1;
+				}
+				else if(cmb.type==cAWARPC)
+				{
+					awarp=true;
+					ind=2;
+				}
+				else if(cmb.type==cAWARPD)
+				{
+					awarp=true;
+					ind=3;
+				}
+				else if(cmb.type==cAWARPR)
+				{
+					awarp=true;
+					ind=rand()%4;
+				}
+				
+				if(awarp)
+				{
+					if(tmpscr->flags5&fDIRECTAWARP)
+					{
+						didpit=true;
+						pitx=x;
+						pity=y;
+					}
+					
+					sdir = dir;
+					dowarp(1,ind);
+				}
 			}
 		}
-		
 	}
 	
 	awarp=false;
@@ -16933,6 +16967,7 @@ void LinkClass::checktouchblk()
             if((getAction() != hopping || isSideViewLink()))
             {
                 guygrid[di]=61; //Note: not 60.
+		//zprint2("oof: %d\n", di);
                 int id2=0; 
                 int cid = MAPCOMBO(tx,ty);
 		int cpos = COMBOPOS(tx,ty);
@@ -16957,10 +16992,25 @@ void LinkClass::checktouchblk()
 				///then do the same going left
 				
 				int searching = 1;
+				int armosxsz = 1;
+				int armosysz = 1;
+				switch(guysbuf[id2].family)
+				{
+					case eeGHOMA:
+						armosxsz = 3;
+						break;
+					case eeAQUA: //jesus christ I'm not considering the logistics of manhandlas and gleeoks
+					case eeDIG:
+						armosxsz = 2;
+						armosysz = 2;
+						break;
+					default:
+						break;
+				}
+				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
+				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
 				
-					
-				
-				if ( ( guysbuf[id2].txsz > 1 ) || ( guysbuf[id2].tysz > 1 ) )
+				if ( ( armosxsz > 1 ) || ( armosysz > 1 ) )
 				{
 					switch(dir)
 					{
@@ -17067,6 +17117,23 @@ void LinkClass::checktouchblk()
 				}
 				//if ( guysbuf[id2].txsz > 1 ) xpos -= guysbuf[id2].txsz*16;
 				//if ( guysbuf[id2].tysz > 1 ) ypos -= guysbuf[id2].tysz*16;
+				int xpos2 = tx+xpos;
+				int ypos2 = ty+ypos;
+				int id3 = COMBOPOS(xpos2, ypos2);
+				for (int n = 0; n < armosysz && id3 < 176; n++)
+				{
+					
+					for (int m = 0; m < armosxsz && id3 < 176; m++) 
+					{
+						guygrid[id3+m]=61;
+						//zprint2("oof: %d\n", id3+m);
+					}
+					id3+=16;
+				}
+				if (guysbuf[id2].family == eeGHOMA) 
+				{
+					if ( ( combobuf[(tmpscr->data[cpos-chx+1])].type == cARMOS ) ) xpos += 16;
+				}
 				addenemy(tx+xpos,ty+1+ypos,id2,0);
 				((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
 				((enemy*)guys.spr(guys.Count()-1))->fading=fade_flicker;
@@ -22604,7 +22671,7 @@ int Bweapon(int pos)
         case itype_bomb:
             if((game->get_bombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
+                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitBomb))) ||
                     current_item_power(itype_bombbag))
             {
                 select=true;
@@ -22639,7 +22706,7 @@ int Bweapon(int pos)
             
             if((game->get_sbombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
+                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitSBomb))) ||
                     (current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
             {
                 select=true;

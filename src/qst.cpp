@@ -14430,6 +14430,13 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 						break;
 				}
 			}
+			if (guyversion < 44)
+			{
+				if ( tempguy.family == eeGHOMA )
+				{
+					tempguy.flags |= guy_fadeinstant;
+				}
+			}
 			
             if(keepdata)
             {

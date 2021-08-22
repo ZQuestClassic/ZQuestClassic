@@ -3136,32 +3136,82 @@ int stripspaces(char *source, char *target, int stop)
     return (end-begin+1);
 }
 
-// The conditions on which a subcreen item should be displayed.
-bool displaysubscreenitem(int itemtype, int d)
+bool findWeaponWithParent(int id, int type)
 {
-    if(game==NULL)  //ZQuest
-        return true;
-    if (get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) return true;
-        
-    if((itemtype == itype_bomb &&
-            !(game->get_bombs()
-              // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-              || (itemsbuf[current_item_id(itype_bomb)].misc1==0 && Lwpns.idCount(wLitBomb)>0)
-              || current_item_power(itype_bombbag)))
-            || (itemtype == itype_sbomb &&
-                !(game->get_sbombs()
-                  || (itemsbuf[current_item_id(itype_sbomb)].misc1==0 && Lwpns.idCount(wLitSBomb)>0)
-                  || (current_item_power(itype_bombbag)
-                      && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
-        return false;
-        
-    if(itemtype!=itype_bowandarrow ||
-            d!=itype_arrow ||
-            ((get_bit(quest_rules,qr_TRUEARROWS)&&game->get_arrows()) ||
-             (!get_bit(quest_rules,qr_TRUEARROWS)&&game->get_rupies())))
-        return true;
-        
-    return false;
+	for (int q = Lwpns.Count()-1; q >= 0; --q)
+	{
+		weapon *ew = (weapon*)(Lwpns.spr(q));
+		if (ew->id != type || ew->parentitem != id) continue;
+		return true;
+	}
+	return false;
+}
+
+int countWeaponWithParent(int id, int type)
+{
+	int count = 0;
+	for (int q = Lwpns.Count()-1; q >= 0; --q)
+	{
+		weapon *ew = (weapon*)(Lwpns.spr(q));
+		if (ew->id != type || ew->parentitem != id) continue;
+		++count;
+	}
+	return count;
+}
+
+// The conditions on which a subcreen item should be displayed.
+bool displaysubscreenitem(int itemtype, int d, int id)
+{
+	if(game==NULL)  //ZQuest
+		return true;
+	if (get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) return true;
+	//Okay, so the problem is that remote bombs are getting flagged with misc1 50, because
+	//current item id is referring to your highest levelled item instead of the actual item.
+	//Solution here is to have code for override items.
+	if (id < 0)
+	{
+		if((itemtype == itype_bomb &&
+				!(game->get_bombs()
+				  // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+				  || (itemsbuf[current_item_id(itype_bomb)].misc1==0 && Lwpns.idCount(wLitBomb)>0)
+				  || current_item_power(itype_bombbag)))
+				|| (itemtype == itype_sbomb &&
+					!(game->get_sbombs()
+					  || (itemsbuf[current_item_id(itype_sbomb)].misc1==0 && Lwpns.idCount(wLitSBomb)>0)
+					  || (current_item_power(itype_bombbag)
+						  && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
+			return false;
+			
+		if(itemtype!=itype_bowandarrow ||
+				d!=itype_arrow ||
+				((get_bit(quest_rules,qr_TRUEARROWS)&&game->get_arrows()) ||
+				 (!get_bit(quest_rules,qr_TRUEARROWS)&&game->get_rupies())))
+			return true;
+			
+		return false;
+	}
+	else
+	{
+		if((itemtype == itype_bomb &&
+				!(game->get_bombs()
+				  // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+				  || (itemsbuf[id].misc1==0 && findWeaponWithParent(id, wLitBomb))
+				  || current_item_power(itype_bombbag)))
+				|| (itemtype == itype_sbomb &&
+					!(game->get_sbombs()
+					  || (itemsbuf[id].misc1==0 && findWeaponWithParent(id, wLitSBomb))
+					  || (current_item_power(itype_bombbag)
+						  && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
+			return false;
+			
+		if(itemtype!=itype_bowandarrow ||
+				d!=itype_arrow ||
+				((get_bit(quest_rules,qr_TRUEARROWS)&&game->get_arrows()) ||
+				 (!get_bit(quest_rules,qr_TRUEARROWS)&&game->get_rupies())))
+			return true;
+			
+		return false;
+	}
 }
 
 void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
@@ -3192,7 +3242,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
                 Sitems.spr(i)->y = y;
                 Sitems.spr(i)->yofs=0;
                 
-                if(displaysubscreenitem(itemtype, d))
+                if(displaysubscreenitem(itemtype, d, -1))
                 {
                     Sitems.spr(i)->drawzcboss(dest);
                 }
@@ -3209,7 +3259,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
    // if((itemtype & 0x8000) && game->item[itemtype])
     if((itemtype & 0x8000) && 
     (has_item(itemsbuf[itemtype&0xFFF].family,itemsbuf[itemtype&0xFFF].fam_type))
-            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0))
+            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
     {
         if(overridecheck == 0xFFFF)
         {

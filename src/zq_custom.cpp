@@ -8965,39 +8965,39 @@ void elist_rclick_func(int index, int x, int y)
 	}
 	else if(ret==2) // save
 	{
-	if(!getname("Save NPC(.znpc)", "znpc", NULL,datapath,false))
-				return;
-	int iid = bie[index].i; //the item id is not the sajme as the editor index
-	//the editor index is the position in the current LIST. -Z
-	
-	//al_trace("Saving item index: %d\n",index);
-	//al_trace("Saving item id: %d\n",iid);
-	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-	if(!f) return;
-	/*if (!writeoneitem(f,iid))
-	{
-		al_trace("Could not write to .znpc packfile %s\n", temppath);
-	}
-	*/
-	writeonenpc(f,iid);
-	pack_fclose(f);
-	 
+		if(!getname("Save NPC(.znpc)", "znpc", NULL,datapath,false))
+			return;
+		int iid = bie[index].i; //the item id is not the sajme as the editor index
+		//the editor index is the position in the current LIST. -Z
+		
+		//al_trace("Saving item index: %d\n",index);
+		//al_trace("Saving item id: %d\n",iid);
+		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+		if(!f) return;
+		/*if (!writeoneitem(f,iid))
+		{
+			al_trace("Could not write to .znpc packfile %s\n", temppath);
+		}
+		*/
+		writeonenpc(f,iid);
+		pack_fclose(f);
+		
 		
 	}
 	else if(ret==3) // load
 	{
-	if(!getname("Load NPC(.znpc)", "znpc", NULL,datapath,false))
-				return;
-	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-	if(!f) return;
-	
-	if (!readonenpc(f,index))
-	{
-		al_trace("Could not read from .znpc packfile %s\n", temppath);
-		jwin_alert("ZNPC File: Error","Could not load the specified npc.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-	}
-	
-	pack_fclose(f);
+		if(!getname("Load NPC(.znpc)", "znpc", NULL,datapath,false))
+			return;
+		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+		if(!f) return;
+		
+		if (!readonenpc(f,index))
+		{
+			al_trace("Could not read from .znpc packfile %s\n", temppath);
+			jwin_alert("ZNPC File: Error","Could not load the specified npc.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		
+		pack_fclose(f);
 		//itemsbuf[bie[index].i]=itemsbuf[copiedItem];
 		elist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
 		saved=false;

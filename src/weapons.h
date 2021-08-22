@@ -57,7 +57,7 @@ public:
 	byte wscreengrid[22];
 	byte wscreengrid_layer[6][22];
 
-	//!Dimentio: More variables? That suuuuuure won't break anything. Nope.
+	//!DIMI: More variables? That suuuuuure won't break anything. Nope.
     int count1; 
     int count2;
     int count3;
@@ -133,8 +133,11 @@ public:
 	virtual int run_script(int mode);
 };
 
+void do_cswitch_combo2(newcombo const& cmb, int layer, int cpos);
+void do_generic_combo2(int bx, int by, int cid, int flag, int flag2, int ft, int scombo, bool single16, int layer);
 void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &aclk, int &aframe,
                int parentid);
+	       
 #endif
 /*** end of sprite.cc ***/
 

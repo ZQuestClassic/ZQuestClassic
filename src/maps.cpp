@@ -1585,6 +1585,7 @@ int findtrigger(int scombo, bool ff)
 // -3: triggered by Secrets screen state
 // -4: Screen->TriggerSecrets()
 // -5: triggered by Items->Secret
+// -5: triggered by Generic Combo
 void hidden_entrance(int tmp,bool refresh, bool high16only,int single) //Perhaps better known as 'Trigger Secrets'
 {
 	//There are no calls to 'hidden_entrance' in the code where tmp != 0
@@ -1592,7 +1593,10 @@ void hidden_entrance(int tmp,bool refresh, bool high16only,int single) //Perhaps
 			   single>-1? "Restricted ":"",
 			   single==-2? " by the 'Enemies->Secret' screen flag":
 			   single==-3? " by the 'Secrets' screen state" :
-			   single==-4? " by a script":"");
+			   single==-4? " by a script":
+			   single==-5? " by Items->Secret":
+			   single==-6? " by Generic Combo":
+			   "");
 	if(single < 0)
 		triggered_screen_secrets = true;
 	hidden_entrance2(tmpscr + tmp, tmpscr2, high16only, single);
