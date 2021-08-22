@@ -13,6 +13,7 @@
 
 #include "zdefs.h"
 #include <stdio.h>
+#include <string_view>
 
 #define COMBOPOS(x,y) (((y)&0xF0)+((x)>>4))
 #define COMBOX(pos) ((pos)%16*16)
@@ -34,7 +35,7 @@ class zmap
     int currscr,copyscr;
     int copyffc;
     int scrpos[MAXMAPS2+1];
-    
+
     mapscr copymapscr;
     mapscr undomap[MAPSCRS+6];
     mapscr prvscr; //NEW
@@ -44,7 +45,7 @@ class zmap
     bool can_undo,can_paste,can_undo_map,can_paste_map,screen_copy;
     // A screen which uses the current screen as a layer
     int layer_target_map, layer_target_scr, layer_target_multiple;
-    
+
 public:
 
     zmap();
@@ -212,7 +213,7 @@ void delete_mapscr(mapscr *dest);
 
 bool setMapCount2(int c);
 int init_quest(const char *templatefile);
-void set_questpwd(const char *pwd, bool use_keyfile);
+void set_questpwd(std::string_view pwd, bool use_keyfile);
 int quest_access(const char *filename, zquestheader *hdr, bool compressed);
 bool write_midi(MIDI *m,PACKFILE *f);
 int load_quest(const char *filename, bool compressed, bool encrypted);

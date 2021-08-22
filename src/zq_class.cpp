@@ -53,7 +53,7 @@ extern FFScript FFCore;
 
 extern ZModule zcm;
 extern zcmodule moduledata;
-extern unsigned char ViewLayer3BG, ViewLayer2BG; 
+extern unsigned char ViewLayer3BG, ViewLayer2BG;
 
 
 using std::string;
@@ -110,7 +110,7 @@ zmap::zmap()
     prv_advance=0;
     prv_freeze=0;
     copyffc=-1;
-    
+
     screens=NULL;
     prv_time=0;
     prv_scr=0;
@@ -125,7 +125,7 @@ zmap::zmap()
     can_undo_map=false;
     can_paste_map=false;
     screen_copy=false;
-    
+
 }
 zmap::~zmap()
 {
@@ -172,7 +172,7 @@ bool zmap::isDungeon(int scr)
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -180,7 +180,7 @@ bool zmap::clearall(bool validate)
 {
     Color=0;
     char tbuf[10];
-    
+
     if((header.templatepath[0]!=0)&&validate)
     {
         if(!valid_zqt(header.templatepath))
@@ -189,14 +189,14 @@ bool zmap::clearall(bool validate)
             return false;
         }
     }
-    
+
     for(int i=0; i<map_count; i++)
     {
         setCurrMap(i);
         sprintf(tbuf, "%d", i);
         clearmap(true);
     }
-    
+
     setCurrMap(0);
     return true;
 }
@@ -208,120 +208,120 @@ bool zmap::reset_templates(bool validate)
     {
         return false;
     }
-    
+
     char *deletefilename;
     deletefilename=(char *)zc_malloc(1);
     deletefilename[0]=0;
-    
+
     //int ret;
     word version, build, dummy, sversion=0;
     //long section_size;
     word temp_map_count;
     mapscr temp_mapscr;
     PACKFILE *f=NULL;
-    
+
 //  setPackfilePassword(datapwd);
     f=open_quest_template(&header, deletefilename, validate);
     get_version_and_build(f, &version, &build);
-    
+
     if(!find_section(f, ID_MAPS))
     {
 //	  setPackfilePassword(NULL);
         return false;
     }
-    
+
     //section version info
     if(!p_igetw(&sversion,f,true))
     {
         return false;
     }
-    
+
     if(!p_igetw(&dummy,f,true))
     {
         return false;
     }
-    
+
     //section size
     if(!p_igetl(&dummy,f,true))
     {
         return false;
     }
-    
+
     //finally...  section data
     if(!p_igetw(&temp_map_count,f,true))
     {
         return false;
     }
-    
+
     zcmap temp_map;
-    
+
     if(version>12)
     {
         if(!p_getc(&(temp_map.tileWidth),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_getc(&(temp_map.tileHeight),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.subaWidth),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.subaHeight),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.subpWidth),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.subpHeight),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.scrResWidth),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.scrResHeight),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.viewWidth),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.viewHeight),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.viewX),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.viewY),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_getc(&(temp_map.subaTrans),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_getc(&(temp_map.subpTrans),f,true))
         {
             return qe_invalid;
@@ -344,87 +344,87 @@ bool zmap::reset_templates(bool validate)
         temp_map.subpHeight = 56;
         temp_map.subpTrans = false;
     }
-    
+
     for(int i=0; i<MAPSCRSNORMAL; ++i)
     {
         readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
     }
-    
+
     readmapscreen(f, &header, &TheMaps[128], &temp_map, sversion);
     readmapscreen(f, &header, &TheMaps[129], &temp_map, sversion);
-    
+
     for(int i=0; i<(MAPSCRS-(MAPSCRSNORMAL+2)); ++i)
     {
         readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
     }
-    
+
     if(version>12)
     {
         if(!p_getc(&(temp_map.tileWidth),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_getc(&(temp_map.tileHeight),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.subaWidth),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.subaHeight),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.subpWidth),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.subpHeight),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.scrResWidth),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.scrResHeight),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.viewWidth),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.viewHeight),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.viewX),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_igetw(&(temp_map.viewY),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_getc(&(temp_map.subaTrans),f,true))
         {
             return qe_invalid;
         }
-        
+
         if(!p_getc(&(temp_map.subpTrans),f,true))
         {
             return qe_invalid;
@@ -447,22 +447,22 @@ bool zmap::reset_templates(bool validate)
         temp_map.subpHeight = 56;
         temp_map.subpTrans = false;
     }
-    
+
     for(int i=0; i<MAPSCRSNORMAL; ++i)
     {
         readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
     }
-    
+
     readmapscreen(f, &header, &TheMaps[MAPSCRS+128], &temp_map, sversion);
     readmapscreen(f, &header, &TheMaps[MAPSCRS+129], &temp_map, sversion);
-    
+
     pack_fclose(f);
-    
+
     if(deletefilename[0]==0)
     {
         delete_file(deletefilename);
     }
-    
+
 //  setPackfilePassword(NULL);
 
     return true;
@@ -491,14 +491,14 @@ bool zmap::clearmap(bool newquest)
     if(currmap<map_count)
     {
         clearzcmap(currmap);
-        
+
         for(int i=0; i<MAPSCRS-(newquest?0:TEMPLATES); i++)
         {
             clearscr(i);
         }
-        
+
         setCurrScr(0);
-        
+
         if(newquest)
         {
             if(!reset_templates(false))
@@ -507,7 +507,7 @@ bool zmap::clearmap(bool newquest)
             }
         }
     }
-    
+
     return true;
 }
 
@@ -531,26 +531,26 @@ void zmap::set_prvscr(int map, int scr)
 {
 
     prvscr=TheMaps[(map*MAPSCRS)+scr];
-    
+
     const int _mapsSize = ZCMaps[map].tileWidth*ZCMaps[map].tileHeight;
-    
+
     prvscr.data.resize(_mapsSize, 0);
     prvscr.sflag.resize(_mapsSize, 0);
     prvscr.cset.resize(_mapsSize, 0);
-    
+
     for(int i=0; i<6; i++)
     {
         if(prvscr.layermap[i]>0)
         {
-        
+
             if((ZCMaps[prvscr.layermap[i]-1].tileWidth==ZCMaps[map].tileWidth) && (ZCMaps[prvscr.layermap[i]-1].tileHeight==ZCMaps[map].tileHeight))
             {
                 prvlayers[i]=TheMaps[(prvscr.layermap[i]-1)*MAPSCRS+prvscr.layerscreen[i]];
-                
+
                 prvlayers[i].data.resize(_mapsSize, 0);
                 prvlayers[i].sflag.resize(_mapsSize, 0);
                 prvlayers[i].cset.resize(_mapsSize, 0);
-                
+
             }
             else
             {
@@ -558,7 +558,7 @@ void zmap::set_prvscr(int map, int scr)
             }
         }
     }
-    
+
     prv_map=map;
     prv_scr=scr;
 }
@@ -576,15 +576,15 @@ void zmap::setCurrMap(int index)
     scrpos[currmap]=currscr;
     currmap=bound(index,0,map_count);
     screens=&TheMaps[currmap*MAPSCRS];
-    
+
     currscr=scrpos[currmap];
     loadlvlpal(getcolor());
-    
+
     if(currmap!=oldmap)
     {
         can_undo=false;
     }
-    
+
     reset_combo_animations2();
 }
 
@@ -595,35 +595,35 @@ int  zmap::getCurrScr()
 void zmap::setCurrScr(int scr)
 {
     if(scr==currscr) return;
-    
+
     int oldscr=currscr;
     int oldcolor=getcolor();
-    
+
     if(!(screens[currscr].valid&mVALID))
     {
         oldcolor=-1;
     }
-    
+
     currscr=bound(scr,0,MAPSCRS-1);
     int newcolor=getcolor();
     loadlvlpal(newcolor);
-    
+
     //setcolor(newcolor);
     if(!(screens[currscr].valid&mVALID))
     {
         newcolor=-1;
     }
-    
+
     if(newcolor!=oldcolor)
     {
         rebuild_trans_table();
     }
-    
+
     if(currscr!=oldscr)
     {
         can_undo=false;
     }
-    
+
     reset_combo_animations2();
     setlayertarget();
 }
@@ -632,14 +632,14 @@ void zmap::setlayertarget()
 {
     layer_target_map = 0;
     layer_target_multiple = 0;
-    
+
     for(int m=0; m<getMapCount(); ++m)
     {
         for(int s=0; s<MAPSCRS; ++s)
         {
             int i=(m*MAPSCRS+s);
             mapscr *ts=&TheMaps[i];
-            
+
             // Search through each layer
             for(int w=0; w<6; ++w)
             {
@@ -650,7 +650,7 @@ void zmap::setlayertarget()
                         layer_target_multiple += 1;
                         continue;
                     }
-                    
+
                     layer_target_map = m+1;
                     layer_target_scr = s;
                 }
@@ -664,7 +664,7 @@ void zmap::setcolor(int c)
     if(screens[currscr].valid&mVALID)
     {
         screens[currscr].color = c;
-        
+
         if(Color!=c)
         {
             Color = c;
@@ -679,14 +679,14 @@ int zmap::getcolor()
     {
         return prvscr.color;
     }
-    
+
     return screens[currscr].color;
 }
 
 void zmap::resetflags()
 {
     byte *di=&(screens[currscr].valid);
-    
+
     for(int i=1; i<48; i++)
     {
         *(di+i)=0;
@@ -741,26 +741,26 @@ void zmap::Template(int floorcombo, int floorcset, int scr)
 {
     if(scr==TEMPLATE)
         return;
-        
+
     if(!(screens[scr].valid&mVALID))
         screens[scr].color=Color;
-        
+
     screens[scr].valid|=mVALID;
-    
+
     for(int i=0; i<32; i++)
     {
         screens[scr].data[i]=screens[TEMPLATE].data[i];
         screens[scr].cset[i]=screens[TEMPLATE].cset[i];
         screens[scr].sflag[i]=screens[TEMPLATE].sflag[i];
     }
-    
+
     for(int i=144; i<176; i++)
     {
         screens[scr].data[i]=screens[TEMPLATE].data[i];
         screens[scr].cset[i]=screens[TEMPLATE].cset[i];
         screens[scr].sflag[i]=screens[TEMPLATE].sflag[i];
     }
-    
+
     for(int y=2; y<=9; y++)
     {
         int j=y<<4;
@@ -779,11 +779,11 @@ void zmap::Template(int floorcombo, int floorcset, int scr)
         ++j;
         screens[scr].data[j]=screens[TEMPLATE].data[j];
         screens[scr].cset[j]=screens[TEMPLATE].cset[j];
-        
+
         screens[scr].sflag[j]=screens[TEMPLATE].sflag[j];
         ++j;
     }
-    
+
     if(floorcombo!=-1)
     {
         for(int y=2; y<9; y++)
@@ -794,7 +794,7 @@ void zmap::Template(int floorcombo, int floorcset, int scr)
                 screens[scr].cset[i] = floorcset;
             }
     }
-    
+
     for(int i=0; i<4; i++)
         putdoor(scr,i,screens[scr].door[i]);
 }
@@ -819,17 +819,17 @@ void zmap::putdoor2(int side,int door)
 void zmap::clearscr(int scr)
 {
     screens[scr].zero_memory();
-    
+
     for(int i=0; i<6; i++)
         screens[scr].layeropacity[i]=255;
-        
+
     screens[scr].valid=mVERSION;
     screens[scr].screen_midi=-1;
     screens[scr].csensitive=1;
     screens[scr].bosssfx=screens[scr].oceansfx=0;
     screens[scr].secretsfx=27; // WAV_SECRET
     screens[scr].holdupsfx=20; // WAV_HOLDUP
-    
+
     for(int i=0; i<32; i++)
     {
         screens[scr].ffwidth[i]=15;
@@ -842,34 +842,34 @@ const char *loaderror[] =
 
     "OK","File not found","Incomplete data",
     "Invalid version","Invalid file"
-    
+
 };
 
 int zmap::load(const char *path)
 {
     // int size=file_size(path);
-    
+
     PACKFILE *f=pack_fopen_password(path,F_READ, "");
-    
+
     if(!f)
         return 1;
-        
-        
+
+
     short version;
     byte build;
-    
+
     //get the version
     if(!p_igetw(&version,f,true))
     {
         goto file_error;
     }
-    
+
     //get the build
     if(!p_getc(&build,f,true))
     {
         goto file_error;
     }
-    
+
     zcmap temp_map;
     temp_map.scrResWidth = 256;
     temp_map.scrResHeight = 224;
@@ -885,62 +885,62 @@ int zmap::load(const char *path)
     temp_map.subpWidth = 256;
     temp_map.subpHeight = 56;
     temp_map.subpTrans = false;
-    
+
     for(int i=0; i<MAPSCRS; i++)
     {
         mapscr tmpimportscr;
-        
+
         if(readmapscreen(f,&header,&tmpimportscr,&temp_map,version)==qe_invalid)
 	{
 		al_trace("failed zmap::load\n");
             goto file_error;
 	}
         bool copied = false;
-        
+
         switch(ImportMapBias)
         {
         case 0:
             *(screens+i) = tmpimportscr;
             copied = true;
             break;
-            
+
         case 1:
             if(!(screens[i].valid&mVALID))
             {
                 *(screens+i) = tmpimportscr;
                 copied = true;
             }
-            
+
             break;
-            
+
         case 2:
             if(tmpimportscr.valid&mVALID)
             {
                 *(screens+i) = tmpimportscr;
                 copied = true;
             }
-            
+
             break;
         }
-        
+
         if(!copied)
         {
         }
     }
-    
-    
+
+
     pack_fclose(f);
-    
+
     if(!(screens[0].valid&mVERSION))
     {
         jwin_alert("Confirm Clear All","Clear all?",NULL,NULL,"O&K",NULL,'k',0,lfont);
         clearmap(false);
         return 3;
     }
-    
+
     setCurrScr(0);
     return 0;
-    
+
 file_error:
     pack_fclose(f);
     clearmap(false);
@@ -950,25 +950,25 @@ file_error:
 int zmap::save(const char *path)
 {
     PACKFILE *f=pack_fopen_password(path,F_WRITE, "");
-    
+
     if(!f)
         return 1;
-        
+
     short version=ZELDA_VERSION;
     byte  build=VERSION_BUILD;
-    
+
     if(!p_iputw(version,f))
     {
         pack_fclose(f);
         return 3;
     }
-    
+
     if(!p_putc(build,f))
     {
         pack_fclose(f);
         return 3;
     }
-    
+
     for(int i=0; i<MAPSCRS; i++)
     {
         if(writemapscreen(f,this->getCurrMap(),i) == qe_invalid)
@@ -977,7 +977,7 @@ int zmap::save(const char *path)
             return 2;
         }
     }
-    
+
     pack_fclose(f);
     return 0;
 }
@@ -987,22 +987,22 @@ bool zmap::ishookshottable(int bx, int by, int i)
 {
     // Hookshots can be blocked by solid combos on all 3 ground layers.
     newcombo c = combobuf[MAPCOMBO(bx,by)];
-    
+
     if(c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
     {
         return false;
     }
-    
+
     for(int k=0; k<2; k++)
     {
         c = combobuf[MAPCOMBO2(k+1,bx,by)];
-        
+
         if(c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
         {
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -1010,22 +1010,22 @@ bool zmap::ishookshottable(int map, int screen, int bx, int by, int i)
 {
 	// Hookshots can be blocked by solid combos on all 3 ground layers.
 	newcombo c = combobuf[MAPCOMBO3(map, screen, -1, bx,by)];
-	
+
 	if(c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
 	{
 		return false;
 	}
-	
+
 	for(int k=0; k<2; k++)
 	{
 		c = combobuf[MAPCOMBO3(map, screen, k+1,bx,by)];
-		
+
 		if(c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
 		{
 			return false;
 		}
 	}
-	
+
 	return true;
 }
 
@@ -1048,7 +1048,7 @@ int zmap::warpindex(int combo)
     case cDIVEWARP:
     case cSWARPA:
         return 0;
-        
+
     case cCAVEB:
     case cPITB:
     case cSTAIRB:
@@ -1057,7 +1057,7 @@ int zmap::warpindex(int combo)
     case cDIVEWARPB:
     case cSWARPB:
         return 1;
-        
+
     case cCAVEC:
     case cPITC:
     case cSTAIRC:
@@ -1066,7 +1066,7 @@ int zmap::warpindex(int combo)
     case cDIVEWARPC:
     case cSWARPC:
         return 2;
-        
+
     case cCAVED:
     case cPITD:
     case cSTAIRD:
@@ -1075,28 +1075,28 @@ int zmap::warpindex(int combo)
     case cDIVEWARPD:
     case cSWARPD:
         return 3;
-        
+
     case cPITR:
     case cSTAIRR:
     case cSWARPR:
         return 4;
     }
-    
+
     return -1;
-    
+
 }
 
 void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
 {
     int cx = COMBOX(pos);
     int cy = COMBOY(pos);
-    
+
     newcombo c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
-    
+
     if (c.type == cBRIDGE) return;
-    
+
     int bridgedetected = 0;
-    
+
     for(int i=0; i<4; i++)
     {
         int tx=((i&2)<<2)+x;
@@ -1105,7 +1105,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
         int ty2=((i&1)<<3)+cy;
         for (int m = layer; m <= 1; m++)
 	{
-		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
+		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i)))
 		{
 			bridgedetected |= (1<<i);
 		}
@@ -1117,7 +1117,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
 	}
         if(!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
             rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
-            
+
         if(c.walk&(1<<i) && !(combo_class_buf[c.type].water!=0 && ((c.usrflags&cflag3) || (c.usrflags&cflag4))))
         {
             if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO(cx,cy)) && ishookshottable(cx,cy,i))
@@ -1129,17 +1129,17 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
             else
             {
                 int color = vc(12);
-                
+
                 if(isstepable(MAPCOMBO(cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || (combo_class_buf[combobuf[MAPCOMBO(cx,cy)].type].water==0 && combo_class_buf[c.type].water==0)))
                     color=vc(6);
                 else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(cx,cy,i))
                     color=vc(7);
-                    
+
                 rectfill(dest,tx,ty,tx+7,ty+7,color);
             }
         }
     }
-    
+
     bridgedetected = 0;
      for(int i=0; i<4; i++)
     {
@@ -1147,20 +1147,20 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
         int ty2=((i&1)<<3)+cy;
 	for (int m = 0; m <= 1; m++)
 	{
-		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
+		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i)))
 		{
 			bridgedetected |= (1<<i);
 		}
         }
     }
-    
+
     // Draw damage combos
     bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,cx,cy)].type].modify_hp_amount
                || combo_class_buf[combobuf[MAPCOMBO2(0,cx,cy)].type].modify_hp_amount
                || combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount;
-	       
+
 	if (combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount) bridgedetected = 0;
-               
+
     if(dmg)
     {
 	if (bridgedetected <= 0)
@@ -1192,14 +1192,14 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
 {
     int cx = COMBOX(pos);
     int cy = COMBOY(pos);
-    
+
     if (screen < 0) return;
     if (map < 0) return;
-    
+
     newcombo const& c = combobuf[MAPCOMBO3(map, screen, layer, pos)];
-    
+
     if (c.type == cBRIDGE) return;
-    
+
     int bridgedetected = 0;
     for(int i=0; i<4; i++)
     {
@@ -1210,7 +1210,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
         for (int m = layer; m <= 1; m++)
 	{
 		newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
-		if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
+		if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i)))
 		{
 			bridgedetected |= (1<<i);
 		}
@@ -1221,7 +1221,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
 	}
         if((layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
             rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
-            
+
         if(c.walk&(1<<i))
         {
             if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO3(map, screen, layer, cx,cy)) && ishookshottable(map, screen, cx,cy,i) && layer < 0)
@@ -1233,17 +1233,17 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
             else
             {
                 int color = vc(12);
-                
+
                 if(isstepable(MAPCOMBO3(map, screen, -1, cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1, cx,cy)].type].water==0))
                     color=vc(6);
                 else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(map, screen, cx,cy,i))
                     color=vc(7);
-                    
+
                 rectfill(dest,tx,ty,tx+7,ty+7,color);
             }
         }
     }
-    
+
     bridgedetected = 0;
      for(int i=0; i<4; i++)
     {
@@ -1252,20 +1252,20 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
 	for (int m = 0; m <= 1; m++)
 	{
 		newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
-		if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
+		if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i)))
 		{
 			bridgedetected |= (1<<i);
 		}
         }
     }
-    
+
     // Draw damage combos
     bool dmg = combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1,cx,cy)].type].modify_hp_amount
                || combo_class_buf[combobuf[MAPCOMBO3(map, screen, 0,cx,cy)].type].modify_hp_amount
                || combo_class_buf[combobuf[MAPCOMBO3(map, screen, 1,cx,cy)].type].modify_hp_amount;
-	       
+
 	if (combo_class_buf[combobuf[MAPCOMBO3(map, screen, 1,cx,cy)].type].modify_hp_amount) bridgedetected = 0;
-               
+
     if(dmg)
     {
 	if (bridgedetected <= 0)
@@ -1296,19 +1296,19 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
 void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
 {
     newcombo c = combobuf[cmbdat];
-    
+
     if (c.type == cBRIDGE) return;
-    
+
     for(int i=0; i<4; i++)
     {
         int tx=((i&2)<<2)+x;
         int ty=((i&1)<<3)+y;
-        
+
 	bool bridgedetected = false;
 	/*
 	for (int m = -1; m <= 1; m++)
 	{
-		if (combobuf[Map.MAPCOMBO2(m,tx,ty)].type == cBRIDGE && !(combobuf[Map.MAPCOMBO2(m,tx,ty)].walk&(1<<i))) 
+		if (combobuf[Map.MAPCOMBO2(m,tx,ty)].type == cBRIDGE && !(combobuf[Map.MAPCOMBO2(m,tx,ty)].walk&(1<<i)))
 		{
 			bridgedetected = true;
 		}
@@ -1320,7 +1320,7 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
 	}
         if(combo_class_buf[c.type].water!=0)
 	{
-		
+
 		if ((layer==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 2)) && get_bit(quest_rules, qr_DROWN))
 		{
 			rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
@@ -1331,9 +1331,9 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
 			rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
 			//al_trace("water, no drown\n");
 		}
-	
+
 	}
-            
+
         if(c.walk&(1<<i))
         {
             if(c.type==cLADDERHOOKSHOT)
@@ -1345,16 +1345,16 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
             else
             {
                 int color = vc(12);
-                
+
                 if(c.type==cLADDERONLY)
                     color=vc(6);
                 else if(c.type==cHOOKSHOTONLY)
                     color=vc(7);
-                    
+
                 rectfill(dest,tx,ty,tx+7,ty+7,color);
             }
         }
-        
+
         // Draw damage combos
         if(combo_class_buf[c.type].modify_hp_amount != 0)
         {
@@ -1374,7 +1374,7 @@ void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
 {
 
 	newcombo const& c = combobuf[cmbdat];
-	
+
 	if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
 	{
 		//    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
@@ -1385,14 +1385,14 @@ void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
 			rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
 			textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(sflag&15)),-1,"%d",sflag);
 		}
-		
+
 		if(c.flag)
 		{
 			rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
 			textprintf_ex(dest,z3smallfont,x+1,y+9,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
 		}
 	}
-	
+
 	if(flags&cCSET)
 	{
 		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
@@ -1411,26 +1411,26 @@ void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
 {
 
 	newcombo c = combobuf[cmbdat];
-	
+
 	if(c.tile==0)
 	{
 		rectfill(dest,x,y,x+15,y+15,0);
 		rectfill(dest,x+3,y+3,x+12,y+12,vc(4));
 		return;
 	}
-	
+
 	putcombo(dest,x,y,cmbdat,cset);
-	
+
 	/* moved to put_walkflags
 	  for(int i=0; i<4; i++) {
-	
+
 	  int tx=((i&2)<<2)+x;
 	  int ty=((i&1)<<3)+y;
 	  if((flags&cWALK) && (c.walk&(1<<i)))
 	  rectfill(dest,tx,ty,tx+7,ty+7,vc(12));
 	  }
 	  */
-	
+
 	//  if((flags&cFLAGS)&&(cmbdat&0xF800))
 	if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
 	{
@@ -1442,19 +1442,19 @@ void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
 			rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
 			textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(sflag&15)),-1,"%d",sflag);
 		}
-		
+
 		if(combobuf[cmbdat].flag)
 		{
 			rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
 			textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
 		}
 	}
-	
+
 	if(flags&cWALK)
 	{
 		put_walkflags(dest,x,y,cmbdat,0);
 	}
-	
+
 	if(flags&cCSET)
 	{
 		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
@@ -1473,26 +1473,26 @@ void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
 void copy_mapscr(mapscr *dest, const mapscr *src)
 {
     // oops, my bad. ..nvrmnd. XD
-    
+
     dest->valid=src->valid;
     dest->guy=src->guy;
     dest->str=src->str;
     dest->room=src->room;
     dest->item=src->item;
     dest->hasitem=src->hasitem;
-    
+
     for(int i=0; i<4; i++)
         dest->tilewarptype[i]=src->tilewarptype[i];
-        
+
     dest->tilewarpoverlayflags=src->tilewarpoverlayflags;
     dest->door_combo_set=src->door_combo_set;
-    
+
     for(int i=0; i<4; i++)
     {
         dest->warpreturnx[i]=src->warpreturnx[i];
         dest->warpreturny[i]=src->warpreturny[i];
     }
-    
+
     dest->warpreturnc=src->warpreturnc;
     dest->stairx=src->stairx;
     dest->stairy=src->stairy;
@@ -1500,39 +1500,39 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->itemy=src->itemy;
     dest->color=src->color;
     dest->enemyflags=src->enemyflags;
-    
+
     for(int i=0; i<4; i++)
         dest->door[i]=src->door[i];
-        
+
     for(int i=0; i<4; i++)
     {
         dest->tilewarpdmap[i]=src->tilewarpdmap[i];
         dest->tilewarpscr[i]=src->tilewarpscr[i];
     }
-    
+
     dest->exitdir=src->exitdir;
-    
+
     for(int i=0; i<10; i++)
         dest->enemy[i]=src->enemy[i];
-        
+
     dest->pattern=src->pattern;
-    
+
     for(int i=0; i<4; i++)
         dest->sidewarptype[i]=src->sidewarptype[i];
-        
+
     dest->sidewarpoverlayflags=src->sidewarpoverlayflags;
     dest->warparrivalx=src->warparrivalx;
     dest->warparrivaly=src->warparrivaly;
-    
+
     for(int i=0; i<4; i++)
         dest->path[i]=src->path[i];
-        
+
     for(int i=0; i<4; i++)
     {
         dest->sidewarpscr[i]=src->sidewarpscr[i];
         dest->sidewarpdmap[i]=src->sidewarpdmap[i];
     }
-    
+
     dest->sidewarpindex=src->sidewarpindex;
     dest->undercombo=src->undercombo;
     dest->undercset=src->undercset;
@@ -1550,25 +1550,25 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->csensitive=src->csensitive;
     dest->noreset=src->noreset;
     dest->nocarry=src->nocarry;
-    
+
     for(int i=0; i<6; i++)
     {
         dest->layermap[i]=src->layermap[i];
         dest->layerscreen[i]=src->layerscreen[i];
         dest->layeropacity[i]=src->layeropacity[i];
     }
-    
+
     dest->timedwarptics=src->timedwarptics;
     dest->nextmap=src->nextmap;
     dest->nextscr=src->nextscr;
-    
+
     for(int i=0; i<128; i++)
     {
         dest->secretcombo[i]=src->secretcombo[i];
         dest->secretcset[i]=src->secretcset[i];
         dest->secretflag[i]=src->secretflag[i];
     }
-    
+
     dest->data=src->data;
     dest->sflag=src->sflag;
     dest->cset=src->cset;
@@ -1577,7 +1577,7 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->scrWidth=src->scrWidth;
     dest->scrHeight=src->scrHeight;
     dest->numff=src->numff;
-    
+
     for(int i=0; i<32; i++)
     {
         for(int j=0; j<8; j++)
@@ -1585,13 +1585,13 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
             //dest->d[i][j]=src->d[i][j];
             dest->initd[i][j]=src->initd[i][j];
         }
-        
+
         for(int j=0; j<2; j++)
         {
             //dest->a[i][j]=src->a[i][j];
             dest->inita[i][j]=src->inita[i][j];
         }
-        
+
         dest->ffdata[i]=src->ffdata[i];
         dest->ffcset[i]=src->ffcset[i];
         dest->ffdelay[i]=src->ffdelay[i];
@@ -1617,7 +1617,7 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
         dest->ewpnref[i]=src->ewpnref[i];
         dest->guyref[i]=src->guyref[i];*/
     }
-    
+
     /*for(int i=0; i<256; i++)
       dest->map_stack[i]=src->map_stack[i];
     for(int i=0; i<8; i++)
@@ -1648,11 +1648,11 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     for ( int q = 0; q < 10; q++ ) dest->new_items[q]=src->new_items[q];
     for ( int q = 0; q < 10; q++ ) dest->new_item_x[q]=src->new_item_x[q];
     for ( int q = 0; q < 10; q++ ) dest->new_item_y[q]=src->new_item_y[q];
-    
+
     dest->script=src->script;
-    
+
     for ( int q = 0; q < 8; q++ ) dest->screeninitd[q]=src->screeninitd[q];
-    
+
     dest->screen_waitdraw=src->screen_waitdraw;
     dest->preloadscript=src->preloadscript;
     dest->ffcswaitdraw=src->ffcswaitdraw;
@@ -1666,7 +1666,7 @@ void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,boo
 {
     int x=0,y=0;
     mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
-    
+
     switch(side)
     {
     case up:
@@ -1674,14 +1674,14 @@ void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,boo
         x=((pos&15)<<4)+xofs;
         y=(ignorepos?0:(pos&0xF0))+yofs;
         break;
-        
+
     case left:
     case right:
         x=(ignorepos?0:((pos&15)<<4))+xofs;
         y=(pos&0xF0)+yofs;
         break;
     }
-    
+
     switch(type)
     {
     case dt_lock:
@@ -1700,7 +1700,7 @@ void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,boo
             put_combo(dest,x+16,y+16,DoorComboSets[doorscreen->door_combo_set].doorcombo_u[type][3],
                       DoorComboSets[doorscreen->door_combo_set].doorcset_u[type][3],0,0);
             break;
-            
+
         case down:
             put_combo(dest,x,y,DoorComboSets[doorscreen->door_combo_set].doorcombo_d[type][0],
                       DoorComboSets[doorscreen->door_combo_set].doorcset_d[type][0],0,0);
@@ -1711,7 +1711,7 @@ void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,boo
             put_combo(dest,x+16,y+16,DoorComboSets[doorscreen->door_combo_set].doorcombo_d[type][3],
                       DoorComboSets[doorscreen->door_combo_set].doorcset_d[type][3],0,0);
             break;
-            
+
         case left:
             put_combo(dest,x,y,DoorComboSets[doorscreen->door_combo_set].doorcombo_l[type][0],
                       DoorComboSets[doorscreen->door_combo_set].doorcset_l[type][0],0,0);
@@ -1719,10 +1719,10 @@ void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,boo
                       DoorComboSets[doorscreen->door_combo_set].doorcset_l[type][2],0,0);
             put_combo(dest,x,y+32,DoorComboSets[doorscreen->door_combo_set].doorcombo_l[type][4],
                       DoorComboSets[doorscreen->door_combo_set].doorcset_l[type][4],0,0);
-                      
+
             if(x+16 >= dest->w)
                 break;
-                
+
             put_combo(dest,x+16,y,DoorComboSets[doorscreen->door_combo_set].doorcombo_l[type][1],
                       DoorComboSets[doorscreen->door_combo_set].doorcset_l[type][1],0,0);
             put_combo(dest,x+16,y+16,DoorComboSets[doorscreen->door_combo_set].doorcombo_l[type][3],
@@ -1730,19 +1730,19 @@ void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,boo
             put_combo(dest,x+16,y+32,DoorComboSets[doorscreen->door_combo_set].doorcombo_l[type][5],
                       DoorComboSets[doorscreen->door_combo_set].doorcset_l[type][5],0,0);
             break;
-            
+
         case right:
-        
+
             put_combo(dest,x+16,y,DoorComboSets[doorscreen->door_combo_set].doorcombo_r[type][1],
                       DoorComboSets[doorscreen->door_combo_set].doorcset_r[type][1],0,0);
             put_combo(dest,x+16,y+16,DoorComboSets[doorscreen->door_combo_set].doorcombo_r[type][3],
                       DoorComboSets[doorscreen->door_combo_set].doorcset_r[type][3],0,0);
             put_combo(dest,x+16,y+32,DoorComboSets[doorscreen->door_combo_set].doorcombo_r[type][5],
                       DoorComboSets[doorscreen->door_combo_set].doorcset_r[type][5],0,0);
-                      
+
             if(x+16 <= 0)
                 break;
-                
+
             put_combo(dest,x,y,DoorComboSets[doorscreen->door_combo_set].doorcombo_r[type][0],
                       DoorComboSets[doorscreen->door_combo_set].doorcset_r[type][0],0,0);
             put_combo(dest,x,y+16,DoorComboSets[doorscreen->door_combo_set].doorcombo_r[type][2],
@@ -1751,9 +1751,9 @@ void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,boo
                       DoorComboSets[doorscreen->door_combo_set].doorcset_r[type][4],0,0);
             break;
         }
-        
+
         break;
-        
+
     case dt_pass:
     case dt_wall:
     case dt_walk:
@@ -1767,8 +1767,8 @@ void zmap::over_door(BITMAP *dest,int pos,int side,int xofs,int yofs,bool, int s
     int x=((pos&15)<<4)+xofs;
     int y=(pos&0xF0)+yofs;
     mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
-    
-    
+
+
     switch(side)
     {
     case up:
@@ -1778,17 +1778,17 @@ void zmap::over_door(BITMAP *dest,int pos,int side,int xofs,int yofs,bool, int s
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_u[0],
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcset_u[0]);
         }
-        
+
         if(DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_u[1]!=0)
         {
             overcombo(dest,x+16,y,
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_u[1],
-                      
+
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcset_u[1]);
         }
-        
+
         break;
-        
+
     case down:
         if(DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_d[0]!=0)
         {
@@ -1796,16 +1796,16 @@ void zmap::over_door(BITMAP *dest,int pos,int side,int xofs,int yofs,bool, int s
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_d[0],
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcset_d[0]);
         }
-        
+
         if(DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_d[1]!=0)
         {
             overcombo(dest,x+16,y,
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_d[1],
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcset_d[1]);
         }
-        
+
         break;
-        
+
     case left:
         if(DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_l[0]!=0)
         {
@@ -1813,23 +1813,23 @@ void zmap::over_door(BITMAP *dest,int pos,int side,int xofs,int yofs,bool, int s
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_l[0],
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcset_l[0]);
         }
-        
+
         if(DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_l[1]!=0)
         {
             overcombo(dest,x,y+16,
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_l[1],
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcset_l[1]);
         }
-        
+
         if(DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_l[2]!=0)
         {
             overcombo(dest,x,y+32,
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_l[2],
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcset_l[2]);
         }
-        
+
         break;
-        
+
     case right:
         if(DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_r[0]!=0)
         {
@@ -1837,22 +1837,22 @@ void zmap::over_door(BITMAP *dest,int pos,int side,int xofs,int yofs,bool, int s
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_r[0],
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcset_r[0]);
         }
-        
+
         if(DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_r[1]!=0)
         {
             overcombo(dest,x,y+16,
-            
+
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_r[1],
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcset_r[1]);
         }
-        
+
         if(DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_r[2]!=0)
         {
             overcombo(dest,x,y+32,
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcombo_r[2],
                       DoorComboSets[doorscreen->door_combo_set].bombdoorcset_r[2]);
         }
-        
+
         break;
     }
 }
@@ -1865,9 +1865,9 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
     combocheck2 = combobuf[0];
     combocheck1.walk = 0;
     combocheck2.walk = 0;
-    
+
     int layermap, layerscreen;
-    
+
     switch(dir)
     {
     case up:
@@ -1875,22 +1875,22 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             return false;
         }
-        
+
         if(scr<16)                                            //top row of screens
         {
             return false;
-            
+
         }
-        
+
         //check main screen
         cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
         cmbcheck2 = vbound(AbsoluteScr(map, scr-16)->data[i+160], 0, MAXCOMBOS-1);
         if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
         if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
-        
+
         //check layer 1
         layermap=AbsoluteScr(map, scr)->layermap[0]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
@@ -1898,9 +1898,9 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
             if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
 	    else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
-        
+
         layermap=AbsoluteScr(map, scr-16)->layermap[0]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr-16)->layerscreen[0];
@@ -1908,21 +1908,21 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
             if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
 	    else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
-        
+
         //check layer 2
         layermap=AbsoluteScr(map, scr)->layermap[1]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
-            
+
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
             if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
 	    else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
-        
+
         layermap=AbsoluteScr(map, scr-16)->layermap[1]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr-16)->layerscreen[1];
@@ -1930,230 +1930,230 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
             if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
 	    else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
-        
+
         if(((combocheck1.walk&5)*2)!=(combocheck2.walk&10))
         {
             return true;
         }
-        
+
         break;
-        
+
     case down:
         if(i<160)                                             //not bottom row of combos
         {
             return false;
         }
-        
+
         if(scr>111)                                           //bottom row of screens
         {
             return false;
         }
-        
+
         //check main screen
         cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
         cmbcheck2 = vbound(AbsoluteScr(map, scr+16)->data[i-160], 0, MAXCOMBOS-1);
         if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
         if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
-        
-        
+
+
         //check layer 1
         layermap=AbsoluteScr(map, scr)->layermap[0]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
 		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
-        
+
         layermap=AbsoluteScr(map, scr+16)->layermap[0]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr+16)->layerscreen[0];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
 		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
-        
+
         //check layer 2
         layermap=AbsoluteScr(map, scr)->layermap[1]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
 		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
-        
+
         layermap=AbsoluteScr(map, scr+16)->layermap[1]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr+16)->layerscreen[1];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
 		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
-        
+
         if((combocheck1.walk&10)!=((combocheck2.walk&5)*2))
         {
             return true;
         }
-        
+
         break;
-        
+
     case left:
         if((i&0xF)!=0)                                        //not left column of combos
         {
             return false;
         }
-        
+
         if((scr&0xF)==0)                                      //left column of screens
         {
             return false;
         }
-        
+
         //check main screen
         cmbcheck1 = AbsoluteScr(map, scr)->data[i];
         cmbcheck2 = AbsoluteScr(map, scr-1)->data[i+15];
         if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
         if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
-        
+
         //check layer 1
         layermap=AbsoluteScr(map, scr)->layermap[0]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
 		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
-        
+
         layermap=AbsoluteScr(map, scr-1)->layermap[0]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr-1)->layerscreen[0];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
 		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
-        
+
         //check layer 2
         layermap=AbsoluteScr(map, scr)->layermap[1]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
 		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
-        
+
         layermap=AbsoluteScr(map, scr-1)->layermap[1]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr-1)->layerscreen[1];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
 		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
-        
+
         if(((combocheck1.walk&3)*4)!=(combocheck2.walk&12))
         {
             return true;
         }
-        
+
         break;
-        
+
     case right:
-    
+
         if((i&0xF)!=15)                                       //not right column of combos
         {
             return false;
         }
-        
+
         if((scr&0xF)==15)                                     //right column of screens
         {
             return false;
         }
-        
+
         //check main screen
         cmbcheck1 = AbsoluteScr(map, scr)->data[i];
         cmbcheck2 = AbsoluteScr(map, scr+1)->data[i-15];
         if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
         if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
-        
+
         //check layer 1
         layermap=AbsoluteScr(map, scr)->layermap[0]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
 		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
-        
+
         layermap=AbsoluteScr(map, scr+1)->layermap[0]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr+1)->layerscreen[0];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
 		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
-        
+
         //check layer 2
         layermap=AbsoluteScr(map, scr)->layermap[1]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
 		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
-        
+
         layermap=AbsoluteScr(map, scr+1)->layermap[1]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=AbsoluteScr(map, scr+1)->layerscreen[1];
-            
+
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
 		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
-        
+
         if((combocheck1.walk&12)!=((combocheck2.walk&3)*4))
         {
             return true;
         }
-        
+
         break;
     }
-    
+
     return false;
 }
 
 void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
 {
     int checkcombo;
-    
+
     if(alignment_arrow_timer>31)
     {
         if(scr<0)
         {
             scr=currscr;
         }
-        
+
         if((scr<128))                                           //do the misalignment arrows
         {
             for(checkcombo=1; checkcombo<15; checkcombo++)        //check the top row (except the corners)
@@ -2163,7 +2163,7 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
                     masked_blit(arrow_bmp[0],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 }
             }
-            
+
             for(checkcombo=161; checkcombo<175; checkcombo++)     //check the top row (except the corners)
             {
                 if(misaligned(currmap, scr, checkcombo, down))
@@ -2171,7 +2171,7 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
                     masked_blit(arrow_bmp[1],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 }
             }
-            
+
             for(checkcombo=16; checkcombo<160; checkcombo+=16)    //check the left side (except the corners)
             {
                 if(misaligned(currmap, scr, checkcombo, left))
@@ -2179,7 +2179,7 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
                     masked_blit(arrow_bmp[2],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 }
             }
-            
+
             for(checkcombo=31; checkcombo<175; checkcombo+=16)    //check the right side (except the corners)
             {
                 if(misaligned(currmap, scr, checkcombo, right))
@@ -2187,101 +2187,101 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
                     masked_blit(arrow_bmp[3],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 }
             }
-            
+
             int tempalign;
-            
+
             //check top left corner
             checkcombo=0;
             tempalign=0;
             tempalign+=(misaligned(currmap, scr, checkcombo, up))?1:0;
             tempalign+=(misaligned(currmap, scr, checkcombo, left))?2:0;
-            
+
             switch(tempalign)
             {
             case 0:
                 break;
-                
+
             case 1:                                             //up
                 masked_blit(arrow_bmp[0],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
-                
+
             case 2:                                             //left
                 masked_blit(arrow_bmp[2],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
-                
+
             case 3:                                             //up-left
                 masked_blit(arrow_bmp[4],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
             }
-            
+
             //check top right corner
             checkcombo=15;
             tempalign=0;
             tempalign+=(misaligned(currmap, scr, checkcombo, up))?1:0;
             tempalign+=(misaligned(currmap, scr, checkcombo, right))?2:0;
-            
+
             switch(tempalign)
             {
             case 0:
                 break;
-                
+
             case 1:                                             //up
                 masked_blit(arrow_bmp[0],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
-                
+
             case 2:                                             //right
                 masked_blit(arrow_bmp[3],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
-                
+
             case 3:                                             //up-right
                 masked_blit(arrow_bmp[5],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
             }
-            
+
             //check bottom left corner
             checkcombo=160;
             tempalign=0;
             tempalign+=(misaligned(currmap, scr, checkcombo, down))?1:0;
             tempalign+=(misaligned(currmap, scr, checkcombo, left))?2:0;
-            
+
             switch(tempalign)
             {
             case 0:
                 break;
-                
+
             case 1:                                             //down
                 masked_blit(arrow_bmp[1],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
-                
+
             case 2:                                             //left
                 masked_blit(arrow_bmp[2],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
-                
+
             case 3:                                             //down-left
                 masked_blit(arrow_bmp[6],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
             }
-            
+
             //check bottom right corner
-            
+
             checkcombo=175;
             tempalign=0;
             tempalign+=(misaligned(currmap, scr, checkcombo, down))?1:0;
             tempalign+=(misaligned(currmap, scr, checkcombo, right))?2:0;
-            
+
             switch(tempalign)
             {
             case 0:
                 break;
-                
+
             case 1:                                             //down
                 masked_blit(arrow_bmp[1],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
-                
+
             case 2:                                             //right
                 masked_blit(arrow_bmp[3],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
-                
+
             case 3:                                             //down-right
                 masked_blit(arrow_bmp[7],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
@@ -2296,28 +2296,28 @@ int zmap::MAPCOMBO3(int map, int screen, int layer, int x,int y)
 }
 
 int zmap::MAPCOMBO3(int map, int screen, int layer, int pos)
-{ 
+{
 	if (map < 0 || screen < 0) return 0;
-	
+
 	if(pos>175 || pos < 0)
 		return 0;
-		
+
 	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
-	
+
 	if(m->data.empty()) return 0;
-    
+
 	if(m->valid==0) return 0;
-	
+
 	int mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
-	
+
 	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
-	
+
 	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? m : &TheMaps[mapid]);
-	
+
 	if(scr->data.empty()) return 0;
-    
+
 	if(scr->valid==0) return 0;
-		
+
 	return scr->data[pos];						// entire combo code
 }
 
@@ -2325,15 +2325,15 @@ int zmap::MAPCOMBO3(int map, int screen, int layer, int pos)
 int zmap::MAPCOMBO2(int lyr,int x,int y, int map, int scr)
 {
     if(lyr<=-1) return MAPCOMBO(x,y,map,scr);
-    
+
     if(map<0)
         map=currmap;
-        
+
     if(scr<0)
         scr=currscr;
-        
+
     mapscr *screen1;
-    
+
     if(prv_mode)
     {
         screen1=get_prvscr();
@@ -2342,24 +2342,24 @@ int zmap::MAPCOMBO2(int lyr,int x,int y, int map, int scr)
     {
         screen1=AbsoluteScr(currmap,currscr);
     }
-    
+
     int layermap;
     layermap=screen1->layermap[lyr]-1;
-    
+
     if(layermap<0 || layermap >= map_count) return 0;
-    
+
     mapscr *layer;
-    
+
     if(prv_mode)
         layer = &prvlayers[lyr];
     else
         layer = AbsoluteScr(layermap,screen1->layerscreen[lyr]);
-        
+
     int combo = COMBOPOS(x,y);
-    
+
     if(combo>175 || combo < 0)
         return 0;
-        
+
     return layer->data[combo];
 }
 
@@ -2367,12 +2367,12 @@ int zmap::MAPCOMBO(int x,int y, int map, int scr) //map=-1,scr=-1
 {
     if(map<0)
         map=currmap;
-        
+
     if(scr<0)
         scr=currscr;
-        
+
     mapscr *screen1;
-    
+
     if(prv_mode)
     {
         screen1=get_prvscr();
@@ -2381,29 +2381,29 @@ int zmap::MAPCOMBO(int x,int y, int map, int scr) //map=-1,scr=-1
     {
         screen1=AbsoluteScr(currmap,currscr);
     }
-    
+
     x = vbound(x, 0, 16*16);
     y = vbound(y, 0, 11*16);
     int combo = COMBOPOS(x,y);
-    
+
     if(combo>175 || combo < 0)
         return 0;
-        
+
     return screen1->data[combo];
 }
 
 void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 {
     int antiflags=(flags&~cFLAGS)&~cWALK;
-    
+
     if(map<0)
         map=currmap;
-        
+
     if(scr<0)
         scr=currscr;
-        
+
     mapscr *layer;
-    
+
     if(prv_mode)
     {
         layer=get_prvscr();
@@ -2412,35 +2412,35 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     {
         layer=AbsoluteScr(map,scr);
     }
-    
+
     int layermap, layerscreen;
     layermap=layer->layermap[CurrentLayer-1]-1;
-    
+
     if(layermap<0)
     {
         CurrentLayer=0;
     }
-    
+
     if(!(layer->valid&mVALID))
     {
         //  rectfill(dest,x,y,x+255,y+175,dvc(0+1));
         rectfill(dest,x,y,x+255,y+175,vc(1));
-        
+
         if(ShowMisalignments)
         {
             check_alignments(dest,x,y,scr);
         }
-        
+
         return;
     }
-    
+
     if(LayerMaskInt[0]==0)
     {
         rectfill(dest,x,y,x+255,y+175,0);
     }
-	
+
     resize_mouse_pos=true;
-    
+
     for(int k=1; k<3; k++)
     {
         if(k==1&& (layer->flags7&fLAYER2BG||ViewLayer2BG))
@@ -2448,11 +2448,11 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             if(LayerMaskInt[k+1]!=0)
             {
                 layermap=layer->layermap[k]-1;
-                
+
                 if(layermap>-1 && layermap<map_count)
                 {
                     layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                    
+
                     if(layer->layeropacity[k]==255)
                     {
                         for(int i=0; i<176; i++)
@@ -2470,17 +2470,17 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                 }
             }
         }
-        
+
         if(k==2&&(layer->flags7&fLAYER3BG||ViewLayer3BG))
         {
             if(LayerMaskInt[k+1]!=0)
             {
                 layermap=layer->layermap[k]-1;
-                
+
                 if(layermap>-1 && layermap<map_count)
                 {
                     layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                    
+
                     if(layer->layeropacity[k]==255)
                     {
                         for(int i=0; i<176; i++)
@@ -2503,7 +2503,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             }
         }
     }
-    
+
     if(LayerMaskInt[0]!=0)
     {
         for(int i=0; i<176; i++)
@@ -2511,27 +2511,27 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             word cmbdat = layer->data[i];
             byte cmbcset = layer->cset[i];
             int cmbflag = layer->sflag[i];
-            
+
             if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG||ViewLayer2BG||ViewLayer3BG)
                 overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset);
             else put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,antiflags,cmbflag);
         }
     }
-    
+
     // int cs=2;
-    
+
     for(int k=0; k<2; k++)
     {
         if(k==1&& (layer->flags7&fLAYER2BG||ViewLayer2BG)) continue;
-        
+
         if(LayerMaskInt[k+1]!=0)
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 if(layer->layeropacity[k]==255)
                 {
                     for(int i=0; i<176; i++)
@@ -2548,7 +2548,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                 }
             }
         }
-        
+
         if(k==0)
         {
             for(int i=31; i>=0; i--)
@@ -2561,7 +2561,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                         {
                             int tx=(layer->ffx[i]/10000)+x;
                             int ty=(layer->ffy[i]/10000)+y;
-                            
+
                             if(layer->ffflags[i]&ffTRANS)
                             {
                                 overcomboblocktranslucent(dest, tx, ty, layer->ffdata[i], layer->ffcset[i],1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6),128);
@@ -2578,9 +2578,9 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             }
         }
     }
-    
+
     int doortype[4];
-    
+
     for(int i=0; i<4; i++)
     {
         switch(layer->door[i])
@@ -2588,31 +2588,31 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         case dOPEN:
             doortype[i]=dt_pass;
             break;
-            
+
         case dLOCKED:
             doortype[i]=dt_lock;
             break;
-            
+
         case d1WAYSHUTTER:
         case dSHUTTER:
             doortype[i]=dt_shut;
             break;
-            
+
         case dBOSS:
             doortype[i]=dt_boss;
             break;
-            
+
         case dBOMB:
             doortype[i]=dt_bomb;
             break;
         }
     }
-    
+
     switch(layer->door[up])
     {
     case dBOMB:
         over_door(dest,39,up,x,y,false, scr);
-        
+
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -2620,7 +2620,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     case dBOSS:
         put_door(dest,7,up,doortype[up],x,y,false,scr);
         break;
-        
+
     case dWALK:
         if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
         {
@@ -2629,21 +2629,21 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                       DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[0]);
         }
         else
-        
+
         {
             put_combo(dest,((23&15)<<4)+8+x,(23&0xF0)+y,
                       DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[0],
                       DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[0],0,0);
         }
-        
+
         break;
     }
-    
+
     switch(layer->door[down])
     {
     case dBOMB:
         over_door(dest,135,down,x,y,false,scr);
-        
+
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -2651,7 +2651,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     case dBOSS:
         put_door(dest,151,down,doortype[down],x,y,false,scr);
         break;
-        
+
     case dWALK:
         if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
         {
@@ -2665,15 +2665,15 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                       DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[1],
                       DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[1],0,0);
         }
-        
+
         break;
     }
-    
+
     switch(layer->door[left])
     {
     case dBOMB:
         over_door(dest,66,left,x,y,false,scr);
-        
+
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -2681,7 +2681,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     case dBOSS:
         put_door(dest,64,left,doortype[left],x,y,false,scr);
         break;
-        
+
     case dWALK:
         if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
         {
@@ -2695,16 +2695,16 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                       DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[2],
                       DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[2],0,0);
         }
-        
+
         break;
     }
-    
+
     switch(layer->door[right])
     {
-    
+
     case dBOMB:
         over_door(dest,77,right,x,y,false,scr);
-        
+
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -2712,7 +2712,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     case dBOSS:
         put_door(dest,78,right,doortype[right],x,y,false,scr);
         break;
-        
+
     case dWALK:
         if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
         {
@@ -2726,28 +2726,28 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                       DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[3],
                       DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[3],0,0);
         }
-        
+
         break;
     }
-    
+
     if((layer->hasitem != 0) && !(flags&cNOITEM))
     {
         frame=0;
         putitem2(dest,layer->itemx+x,layer->itemy+y+1-(get_bit(quest_rules, qr_NOITEMOFFSET)),layer->item,lens_hint_item[layer->item][0],lens_hint_item[layer->item][1], 0);
     }
-    
+
     for(int k=2; k<4; k++)
     {
         if(k==2&&(layer->flags7&fLAYER3BG||ViewLayer3BG)) continue;
-        
+
         if(LayerMaskInt[k+1]!=0)
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 if(layer->layeropacity[k]==255)
                 {
                     for(int i=0; i<176; i++)
@@ -2765,7 +2765,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             }
         }
     }
-    
+
 	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
@@ -2774,7 +2774,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             int ct1=layer->data[i];
             //     int ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
             int ct3=combobuf[ct1].type;
-            
+
 //      if (ct3==cOLD_OVERHEAD)
             if(combo_class_buf[ct3].overhead)
             {
@@ -2790,7 +2790,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 			if(LayerMaskInt[k+1]!=0)
 			{
 				layermap=layer->layermap[k]-1;
-				
+
 				if(layermap>-1 && layermap<map_count)
 				{
 					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
@@ -2815,17 +2815,17 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 			}
 		}
 	}
-	
+
     for(int k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 if(layer->layeropacity[k]==255)
                 {
                     for(int i=0; i<176; i++)
@@ -2842,7 +2842,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                 }
             }
         }
-        
+
         if(k==4)
         {
             for(int i=31; i>=0; i--)
@@ -2856,7 +2856,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                             //overcombo(framebuf,(int)layer->ffx[i],(int)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
                             int tx=(layer->ffx[i]/10000)+x;
                             int ty=(layer->ffy[i]/10000)+y;
-                            
+
                             if(layer->ffflags[i]&ffTRANS)
                             {
                                 //overtiletranslucent16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
@@ -2872,7 +2872,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                 }
             }
         }
-        
+
         if(k==5)
         {
             for(int i=31; i>=0; i--)
@@ -2887,7 +2887,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             }
         }
     }
-    
+
     if(flags&cWALK)
     {
         if(LayerMaskInt[0]!=0)
@@ -2898,17 +2898,17 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 		put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1);
             }
         }
-        
+
         for(int k=0; k<2; k++)
         {
             if(LayerMaskInt[k+1]!=0)
             {
                 layermap=layer->layermap[k]-1;
-                
+
                 if(layermap>-1 && layermap<map_count)
                 {
                     layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                    
+
                     for(int i=0; i<176; i++)
                     {
                         put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k);
@@ -2917,7 +2917,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             }
         }
     }
-    
+
     if(flags&cFLAGS)
     {
         if(LayerMaskInt[CurrentLayer]!=0)
@@ -2937,7 +2937,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     else
                     {
                         int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
-                        
+
                         if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                         {
                             put_flags(dest,((i&15)<<4)+x,(i&0xF0)+y,
@@ -2950,10 +2950,10 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             }
         }
     }
-    
-    
+
+
     int dark = layer->flags&cDARK;
-    
+
     if(dark && !(flags&cNODARK))
     {
         for(int j=0; j<80; j++)
@@ -2967,55 +2967,55 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             }
         }
     }
-    
+
     if(ShowMisalignments)
     {
         check_alignments(dest,x,y,scr);
     }
-    
+
     resize_mouse_pos=false;
-    
+
 }
 
 void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 {
     if(map<0)
         map=currmap;
-        
+
     if(scr<0)
         scr=currscr;
-        
+
     mapscr* layer=AbsoluteScr(map,scr);
     int layermap=0, layerscreen=0;
-    
+
     if(!(layer->valid&mVALID))
     {
         //  rectfill(dest,x,y,x+255,y+15,dvc(0+1));
         rectfill(dest,x,y,x+255,y+15,vc(1));
         return;
     }
-    
+
     int dark = layer->flags&4;
-    
+
     resize_mouse_pos=true;
-    
+
     if(LayerMaskInt[0]==0)
     {
         rectfill(dest,x,y,x+255,y+15,0);
     }
-    
+
     // int cs=2;
-    
+
     for(int k=1; k<3; k++)
     {
         if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
-                
+
                 for(int i=c; i<(c&0xF0)+16; i++)
                 {
                     if(layer->layeropacity[k]<255)
@@ -3030,7 +3030,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-	
+
 	if(LayerMaskInt[0]!=0)
     {
         for(int i=c; i<(c&0xF0)+16; i++)
@@ -3043,17 +3043,17 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 			else put_combo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
         }
     }
-    
+
     for(int k=0; k<2; k++)
     {
         if(LayerMaskInt[k+1]!=0 && !(k==1 && layer->flags7&fLAYER2BG))
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 for(int i=c; i<(c&0xF0)+16; i++)
                 {
                     if(layer->layeropacity[k]<255)
@@ -3068,9 +3068,9 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
     int doortype[4];
-    
+
     for(int i=0; i<4; i++)
     {
         switch(layer->door[i])
@@ -3078,26 +3078,26 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         case dOPEN:
             doortype[i]=dt_pass;
             break;
-            
+
         case dLOCKED:
             doortype[i]=dt_lock;
             break;
-            
+
         case d1WAYSHUTTER:
         case dSHUTTER:
             doortype[i]=dt_shut;
             break;
-            
+
         case dBOSS:
             doortype[i]=dt_boss;
             break;
-            
+
         case dBOMB:
             doortype[i]=dt_bomb;
             break;
         }
     }
-    
+
     if(c<16)
     {
         switch(layer->door[up])
@@ -3126,17 +3126,17 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             break;
         }
     }
-    
+
     for(int k=2; k<4; k++)
     {
         if(LayerMaskInt[k+1]!=0 && !(k==2 && layer->flags7&fLAYER3BG))
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 for(int i=c; i<(c&0xF0)+16; i++)
                 {
                     if(layer->layeropacity[k]<255)
@@ -3151,7 +3151,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
 	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
@@ -3160,7 +3160,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             int ct1=layer->data[i];
             //     int ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
             int ct3=combobuf[ct1].type;
-            
+
 //      if (ct3==cOLD_OVERHEAD)
             if(combo_class_buf[ct3].overhead)
             {
@@ -3168,7 +3168,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
     //Overhead L1/2
 	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 	{
@@ -3177,7 +3177,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 			if(LayerMaskInt[k+1]!=0)
 			{
 				layermap=layer->layermap[k]-1;
-				
+
 				if(layermap>-1 && layermap<map_count)
 				{
 					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
@@ -3202,17 +3202,17 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 			}
 		}
 	}
-	
+
     for(int k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 for(int i=c; i<(c&0xF0)+16; i++)
                 {
                     if(layer->layeropacity[k]<255)
@@ -3227,7 +3227,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
     if(flags&cWALK)
     {
         if(LayerMaskInt[0]!=0)
@@ -3237,11 +3237,11 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 put_walkflags_layered_external(dest,((i&15)<<4)+x,y,i, -1, map,scr);
             }
         }
-        
+
         for(int k=0; k<2; k++)
         {
             if(LayerMaskInt[k+1]!=0)
-            { 
+            {
                 for(int i=c; i<(c&0xF0)+16; i++)
                 {
 			put_walkflags_layered_external(dest,((i&15)<<4)+x,y,i, k, map,scr);
@@ -3249,7 +3249,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
     if(flags&cFLAGS)
     {
         if(LayerMaskInt[CurrentLayer]!=0)
@@ -3263,7 +3263,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 else
                 {
                     int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
-                    
+
                     if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                     {
                         if(i < (int)TheMaps[_lscr].data.size())
@@ -3281,7 +3281,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 }
             }
         }
-        
+
         /*
           if (LayerMaskInt[0]!=0) {
           for(int i=c; i<(c&0xF0)+16; i++) {
@@ -3290,7 +3290,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
           }
           */
     }
-    
+
     if(ShowMisalignments)
     {
         if(c<16)
@@ -3302,51 +3302,51 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             check_alignments(dest,x,y-160,scr);
         }
     }
-    
+
     resize_mouse_pos=false;
-    
+
 }
 
 void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 {
     if(map<0)
         map=currmap;
-        
+
     if(scr<0)
         scr=currscr;
-        
+
     mapscr* layer=AbsoluteScr(map,scr);
     int layermap=0, layerscreen=0;
-    
+
     if(!(layer->valid&mVALID))
     {
         //  rectfill(dest,x,y,x+15,y+175,dvc(0+1));
         rectfill(dest,x,y,x+15,y+175,vc(1));
         return;
     }
-    
+
     int dark = layer->flags&4;
-    
+
     resize_mouse_pos=true;
-    
-    
+
+
     if(LayerMaskInt[0]==0)
     {
         rectfill(dest,x,y,x+15,y+175,0);
     }
-    
+
     // int cs=2;
-    
+
     for(int k=1; k<3; k++)
     {
         if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
-                
+
                 for(int i=c; i<176; i+=16)
                 {
                     if(layer->layeropacity[k]<255)
@@ -3361,7 +3361,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
     if(LayerMaskInt[0]!=0)
     {
         for(int i=c; i<176; i+=16)
@@ -3374,17 +3374,17 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             else put_combo(dest,x,(i&0xF0)+y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
         }
     }
-    
+
     for(int k=0; k<2; k++)
     {
         if(LayerMaskInt[k+1]!=0 && !(k==1 && layer->flags7&fLAYER2BG))
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 for(int i=c; i<176; i+=16)
                 {
                     if(layer->layeropacity[k]<255)
@@ -3399,9 +3399,9 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
     int doortype[4];
-    
+
     for(int i=0; i<4; i++)
     {
         switch(layer->door[i])
@@ -3409,31 +3409,31 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         case dOPEN:
             doortype[i]=dt_pass;
             break;
-            
+
         case dLOCKED:
             doortype[i]=dt_lock;
             break;
-            
+
         case d1WAYSHUTTER:
         case dSHUTTER:
             doortype[i]=dt_shut;
             break;
-            
+
         case dBOSS:
             doortype[i]=dt_boss;
             break;
-            
+
         case dBOMB:
             doortype[i]=dt_bomb;
             break;
         }
     }
-    
+
     if((c&0x0F)==0)
     {
         switch(layer->door[left])
         {
-        
+
         case dBOMB:
         case dOPEN:
         case dLOCKED:
@@ -3459,17 +3459,17 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             break;
         }
     }
-    
+
     for(int k=2; k<4; k++)
     {
         if(LayerMaskInt[k+1]!=0 && !(k==2 && layer->flags7&fLAYER3BG))
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 for(int i=c; i<176; i+=16)
                 {
                     if(layer->layeropacity[k]<255)
@@ -3484,7 +3484,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
 	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
@@ -3493,7 +3493,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             int ct1=layer->data[i];
             //     int ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
             int ct3=combobuf[ct1].type;
-            
+
 //      if (ct3==cOLD_OVERHEAD)
             if(combo_class_buf[ct3].overhead)
             {
@@ -3509,7 +3509,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 			if(LayerMaskInt[k+1]!=0)
 			{
 				layermap=layer->layermap[k]-1;
-				
+
 				if(layermap>-1 && layermap<map_count)
 				{
 					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
@@ -3534,25 +3534,25 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 			}
 		}
 	}
-	
-    
+
+
     for(int k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 for(int i=c; i<176; i+=16)
                 {
                     if(layer->layeropacity[k]<255)
                     {
                         overcombotranslucent(dest,x,(i&0xF0)+y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
                     }
-                    
+
                     else
                     {
                         overcombo(dest,x,(i&0xF0)+y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
@@ -3561,7 +3561,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
     if(flags&cWALK)
     {
         if(LayerMaskInt[0]!=0)
@@ -3571,7 +3571,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 put_walkflags_layered_external(dest,x,y+(i&0xF0),i, -1, map,scr);
             }
         }
-        
+
         for(int k=0; k<2; k++)
         {
             if(LayerMaskInt[k+1]!=0)
@@ -3584,7 +3584,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
     if(flags&cFLAGS)
     {
         if(LayerMaskInt[CurrentLayer]!=0)
@@ -3598,7 +3598,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 else
                 {
                     int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
-                    
+
                     if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                     {
                         put_flags(dest,/*((i&15)<<4)+*/x,(i&0xF0)+y,
@@ -3609,7 +3609,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 }
             }
         }
-        
+
         /*
           if (LayerMaskInt[0]!=0) {
           for(int i=c; i<176; i+=16) {
@@ -3618,7 +3618,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
           }
           */
     }
-    
+
     if(ShowMisalignments)
     {
         if((c&0x0F)==0)
@@ -3630,7 +3630,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             check_alignments(dest,x-240,y,scr);
         }
     }
-    
+
     resize_mouse_pos=false;
 }
 
@@ -3638,39 +3638,39 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 {
     if(map<0)
         map=currmap;
-        
+
     if(scr<0)
         scr=currscr;
-        
+
     mapscr* layer=AbsoluteScr(map,scr);
     int layermap=0, layerscreen=0;
-    
+
     if(!(layer->valid&mVALID))
     {
         //  rectfill(dest,x,y,x+15,y+15,dvc(0+1));
         rectfill(dest,x,y,x+15,y+15,vc(1));
         return;
     }
-    
+
     int dark = layer->flags&4;
-    
+
     resize_mouse_pos=true;
-    
+
     if(LayerMaskInt[0]!=0)
     {
         rectfill(dest,x,y,x+15,y+15,0);
     }
-    
+
     for(int k=1; k<3; k++)
     {
         if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
-                
+
                 for(int i=c; i<176; i+=16)
                 {
                     if(layer->layeropacity[k]<255)
@@ -3685,7 +3685,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
     // int cs=2;
     if(LayerMaskInt[0]!=0)
     {
@@ -3696,18 +3696,18 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 			overcombo(dest,x,y,cmbdat,cmbcset);
 		else put_combo(dest,x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
     }
-    
-    
+
+
     for(int k=0; k<2; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 if(layer->layeropacity[k]<255)
                 {
                     overcombotranslucent(dest,x,y,TheMaps[layerscreen].data[c],TheMaps[layerscreen].cset[c],layer->layeropacity[k]);
@@ -3719,17 +3719,17 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-	
+
     for(int k=2; k<4; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 if(layer->layeropacity[k]<255)
                 {
                     overcombotranslucent(dest,x,y,TheMaps[layerscreen].data[c],TheMaps[layerscreen].cset[c],layer->layeropacity[k]);
@@ -3741,13 +3741,13 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
 	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
         int ct1=layer->data[c];
         int ct3=combobuf[ct1].type;
-        
+
 //    if (ct3==cOLD_OVERHEAD)
         if(combo_class_buf[ct3].overhead)
         {
@@ -3762,7 +3762,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 			if(LayerMaskInt[k+1]!=0)
 			{
 				layermap=layer->layermap[k]-1;
-				
+
 				if(layermap>-1 && layermap<map_count)
 				{
 					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
@@ -3782,18 +3782,18 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 			}
 		}
 	}
-	
-    
+
+
     for(int k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
+
                 if(layer->layeropacity[k]<255)
                 {
                     overcombotranslucent(dest,x,y,TheMaps[layerscreen].data[c],TheMaps[layerscreen].cset[c],layer->layeropacity[k]);
@@ -3805,14 +3805,14 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
     if(flags&cWALK)
     {
         if(LayerMaskInt[0]!=0)
         {
             put_walkflags_layered_external(dest,x,y,c,-1, map,scr);
         }
-        
+
         for(int k=0; k<2; k++)
         {
             if(LayerMaskInt[k+1]!=0)
@@ -3822,7 +3822,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
-    
+
     if(flags&cFLAGS)
     {
         if(LayerMaskInt[CurrentLayer]!=0)
@@ -3836,7 +3836,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 else
                 {
                     int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
-                    
+
                     if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                     {
                         put_flags(dest,/*((i&15)<<4)+*/x,/*(i&0xF0)+*/y,
@@ -3847,14 +3847,14 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 }
             }
         }
-        
+
         /*
           if (LayerMaskInt[0]!=0) {
           put_flags(dest,x,y,layer->data[c],layer->cset[c],flags|dark,layer->sflag[c]);
           }
           */
     }
-    
+
     if(ShowMisalignments)
     {
         switch(c)
@@ -3862,23 +3862,23 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         case 0:
             check_alignments(dest,x,y,scr);
             break;
-            
+
         case 15:
             check_alignments(dest,x-240,y,scr);
             break;
-            
+
         case 160:
             check_alignments(dest,x,y-160,scr);
             break;
-            
+
         case 175:
             check_alignments(dest,x-240,y-160,scr);
             break;
         }
     }
-    
+
     resize_mouse_pos=false;
-    
+
 }
 
 void zmap::drawstaticblock(BITMAP* dest,int x,int y)
@@ -3997,9 +3997,9 @@ void zmap::scroll(int dir)
             {
                 setCurrScr(currscr-16);
             }
-            
+
             break;
-            
+
         case down:
             if((key[KEY_LCONTROL] || key[KEY_RCONTROL]) && Map.CurrScr()->flags2&wfDOWN)
             {
@@ -4009,9 +4009,9 @@ void zmap::scroll(int dir)
             {
                 setCurrScr(currscr+16);
             }
-            
+
             break;
-            
+
         case left:
             if((key[KEY_LCONTROL] || key[KEY_RCONTROL]) && Map.CurrScr()->flags2&wfLEFT)
             {
@@ -4021,9 +4021,9 @@ void zmap::scroll(int dir)
             {
                 setCurrScr(currscr-1);
             }
-            
+
             break;
-            
+
         case right:
             if((key[KEY_LCONTROL] || key[KEY_RCONTROL]) && Map.CurrScr()->flags2&wfRIGHT)
             {
@@ -4033,7 +4033,7 @@ void zmap::scroll(int dir)
             {
                 setCurrScr(currscr+1);
             }
-            
+
             break;
         }
     }
@@ -4052,7 +4052,7 @@ void zmap::putdoor(int scr,int side,int door)
     screens[scr].door[side]=door;
     word *di = &screens[scr].data.front();
     byte *di2 = &screens[scr].cset.front();
-    
+
     switch(side)
     {
     case up:
@@ -4070,7 +4070,7 @@ void zmap::putdoor(int scr,int side,int door)
             di[24]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_u[dt_wall][3];
             di2[24]  = DoorComboSets[screens[scr].door_combo_set].doorcset_u[dt_wall][3];
             break;
-            
+
         default:
             di[7]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_u[dt_pass][0];
             di2[7]  = DoorComboSets[screens[scr].door_combo_set].doorcset_u[dt_pass][0];
@@ -4082,9 +4082,9 @@ void zmap::putdoor(int scr,int side,int door)
             di2[24]  = DoorComboSets[screens[scr].door_combo_set].doorcset_u[dt_pass][3];
             break;
         }
-        
+
         break;
-        
+
     case down:
         switch(door)
         {
@@ -4100,7 +4100,7 @@ void zmap::putdoor(int scr,int side,int door)
             di[168]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_d[dt_wall][3];
             di2[168]  = DoorComboSets[screens[scr].door_combo_set].doorcset_d[dt_wall][3];
             break;
-            
+
         default:
             di[151]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_d[dt_pass][0];
             di2[151]  = DoorComboSets[screens[scr].door_combo_set].doorcset_d[dt_pass][0];
@@ -4112,9 +4112,9 @@ void zmap::putdoor(int scr,int side,int door)
             di2[168]  = DoorComboSets[screens[scr].door_combo_set].doorcset_d[dt_pass][3];
             break;
         }
-        
+
         break;
-        
+
     case left:
         switch(door)
         {
@@ -4134,7 +4134,7 @@ void zmap::putdoor(int scr,int side,int door)
             di[97]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_wall][5];
             di2[97]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_wall][5];
             break;
-            
+
         default:
             di[64]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_pass][0];
             di2[64]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_pass][0];
@@ -4150,9 +4150,9 @@ void zmap::putdoor(int scr,int side,int door)
             di2[97]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_pass][5];
             break;
         }
-        
+
         break;
-        
+
     case right:
         switch(door)
         {
@@ -4172,7 +4172,7 @@ void zmap::putdoor(int scr,int side,int door)
             di[111]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_wall][5];
             di2[111]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_wall][5];
             break;
-            
+
         default:
             di[78]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_pass][0];
             di2[78]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_pass][0];
@@ -4188,7 +4188,7 @@ void zmap::putdoor(int scr,int side,int door)
             di2[111]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_pass][5];
             break;
         }
-        
+
         break;
     }
 }
@@ -4198,24 +4198,24 @@ void zmap::Ugo()
     mapscr *layer;
     int layermap, layerscreen;
     layer=AbsoluteScr(currmap,currscr);
-    
+
     for(int x=0; x<MAPSCRS; x++)
     {
         copy_mapscr(&undomap[x], &screens[x]);
     }
-    
+
     for(int k=0; k<6; ++k)
     {
         undomap[MAPSCRS+k].zero_memory();
         layermap=layer->layermap[k]-1;
-        
+
         if(layermap>-1 && layermap<map_count)
         {
             layerscreen=layer->layerscreen[k];
             copy_mapscr(&undomap[MAPSCRS+k], AbsoluteScr(layermap,layerscreen));
         }
     }
-    
+
     can_undo=true;
 }
 
@@ -4224,18 +4224,18 @@ void zmap::Uhuilai()
     mapscr *layer;
     int layermap, layerscreen;
     layer=AbsoluteScr(currmap,currscr);
-    
+
     if(can_undo)
     {
         for(int x=0; x<MAPSCRS; x++)
         {
             zc_swap(screens[x],undomap[x]);
         }
-        
+
         for(int k=0; k<6; ++k)
         {
             layermap=layer->layermap[k]-1;
-            
+
             if(layermap>-1 && layermap<map_count)
             {
                 layerscreen=layer->layerscreen[k];
@@ -4277,50 +4277,50 @@ void zmap::Paste()
     {
         Ugo();
         int oldcolor=getcolor();
-        
+
         if(!(screens[currscr].valid&mVALID))
         {
             screens[currscr].valid |= mVALID;
             screens[currscr].color = copymapscr.color;
         }
-        
+
         for(int i=0; i<4; i++)
         {
             putdoor(currscr,i,0);
         }
-        
+
         screens[currscr].door_combo_set = copymapscr.door_combo_set;
-        
+
         for(int i=0; i<4; i++)
         {
             screens[currscr].door[i]=copymapscr.door[i];
         }
-        
+
         for(int i=0; i<176; i++)
         {
             screens[currscr].data[i] = copymapscr.data[i];
             screens[currscr].cset[i] = copymapscr.cset[i];
             screens[currscr].sflag[i] = copymapscr.sflag[i];
         }
-        
+
         for(int i=0; i<4; i++)
         {
             putdoor2(currscr,i,screens[currscr].door[i]);
         }
-        
+
         int newcolor=getcolor();
         loadlvlpal(newcolor);
-        
+
         if(!(screens[currscr].valid&mVALID))
         {
             newcolor=-1;
         }
-        
+
         if(newcolor!=oldcolor)
         {
             rebuild_trans_table();
         }
-        
+
         saved=false;
     }
 }
@@ -4341,14 +4341,14 @@ void zmap::PasteSecretCombos()
     if(can_paste)
     {
         Ugo();
-        
+
         for(int i=0; i<128; i++)
         {
             screens[currscr].secretcombo[i] = copymapscr.secretcombo[i];
             screens[currscr].secretcset[i] = copymapscr.secretcset[i];
             screens[currscr].secretflag[i] = copymapscr.secretflag[i];
         }
-        
+
         saved=false;
     }
 }
@@ -4359,7 +4359,7 @@ void zmap::PasteFFCombos()
     {
         Ugo();
         screens[currscr].numff = copymapscr.numff;
-        
+
         for(int i=0; i<32; i++)
         {
             screens[currscr].ffdata[i] = copymapscr.ffdata[i];
@@ -4378,14 +4378,14 @@ void zmap::PasteFFCombos()
             screens[currscr].ffheight[i] = copymapscr.ffheight[i];
             screens[currscr].ffflags[i] = copymapscr.ffflags[i];
             screens[currscr].ffscript[i] = copymapscr.ffscript[i];
-            
+
             for(int j=0; j<8; j++)
                 screens[currscr].initd[i][j] = copymapscr.initd[i][j];
-                
+
             for(int j=0; j<2; j++)
                 screens[currscr].inita[i][j] = copymapscr.inita[i][j];
         }
-        
+
         saved=false;
     }
 }
@@ -4394,7 +4394,7 @@ void zmap::PasteOneFFC(int i) //i - destination ffc slot
 {
     if(copyffc < 0)  // Sanity check
         return;
-        
+
     Ugo();
     screens[currscr].ffdata[i] = copymapscr.ffdata[copyffc];
     screens[currscr].ffcset[i] = copymapscr.ffcset[copyffc];
@@ -4411,13 +4411,13 @@ void zmap::PasteOneFFC(int i) //i - destination ffc slot
     screens[currscr].ffheight[i] = copymapscr.ffheight[copyffc];
     screens[currscr].ffflags[i] = copymapscr.ffflags[copyffc];
     screens[currscr].ffscript[i] = copymapscr.ffscript[copyffc];
-    
+
     for(int j=0; j<8; j++)
         screens[currscr].initd[i][j] = copymapscr.initd[copyffc][j];
-        
+
     for(int j=0; j<2; j++)
         screens[currscr].inita[i][j] = copymapscr.inita[copyffc][j];
-        
+
     screens[currscr].numff|=(1<<i);
     //copyffc = -1;
     saved=false;
@@ -4429,7 +4429,7 @@ void zmap::PasteWarps()
     {
         Ugo();
         screens[currscr].sidewarpindex = copymapscr.sidewarpindex;
-        
+
         for(int i=0; i<4; i++)
         {
             screens[currscr].tilewarptype[i] = copymapscr.tilewarptype[i];
@@ -4443,7 +4443,7 @@ void zmap::PasteWarps()
             screens[currscr].sidewarpoverlayflags = copymapscr.sidewarpoverlayflags;
             screens[currscr].tilewarpoverlayflags = copymapscr.tilewarpoverlayflags;
         }
-        
+
         saved=false;
     }
 }
@@ -4500,13 +4500,13 @@ void zmap::PasteWarpLocations()
         screens[currscr].warpreturnc = copymapscr.warpreturnc;
         screens[currscr].warparrivalx = copymapscr.warparrivalx;
         screens[currscr].warparrivaly = copymapscr.warparrivaly;
-        
+
         for(int i=0; i<4; i++)
         {
             screens[currscr].warpreturnx[i] = copymapscr.warpreturnx[i];
             screens[currscr].warpreturny[i] = copymapscr.warpreturny[i];
         }
-        
+
         saved=false;
     }
 }
@@ -4516,10 +4516,10 @@ void zmap::PasteDoors()
     if(can_paste)
     {
         Ugo();
-        
+
         for(int i=0; i<4; i++)
             screens[currscr].door[i] = copymapscr.door[i];
-            
+
         screens[currscr].door_combo_set = copymapscr.door_combo_set;
         saved=false;
     }
@@ -4530,14 +4530,14 @@ void zmap::PasteLayers()
     if(can_paste)
     {
         Ugo();
-        
+
         for(int i=0; i<6; i++)
         {
             screens[currscr].layermap[i] = copymapscr.layermap[i];
             screens[currscr].layerscreen[i] = copymapscr.layerscreen[i];
             screens[currscr].layeropacity[i] = copymapscr.layeropacity[i];
         }
-        
+
         saved=false;
     }
 }
@@ -4573,17 +4573,17 @@ void zmap::PastePalette()
         screens[currscr].color = copymapscr.color;
         int newcolor=getcolor();
         loadlvlpal(newcolor);
-        
+
         if(!(screens[currscr].valid&mVALID))
         {
             newcolor=-1;
         }
-        
+
         if(newcolor!=oldcolor)
         {
             rebuild_trans_table();
         }
-        
+
         saved=false;
     }
 }
@@ -4598,17 +4598,17 @@ void zmap::PasteAll()
         //screens[currscr]=copymapscr;
         int newcolor=getcolor();
         loadlvlpal(newcolor);
-        
+
         if(!(screens[currscr].valid&mVALID))
         {
             newcolor=-1;
         }
-        
+
         if(newcolor!=oldcolor)
         {
             rebuild_trans_table();
         }
-        
+
         saved=false;
     }
 }
@@ -4620,7 +4620,7 @@ void zmap::PasteToAll()
     {
         Ugo();
         int oldcolor=getcolor();
-        
+
         for(int x=0; x<128; x++)
         {
             if(!(screens[x].valid&mVALID))
@@ -4628,33 +4628,33 @@ void zmap::PasteToAll()
                 screens[x].valid |= mVALID;
                 screens[x].color = copymapscr.color;
             }
-            
+
             for(int i=0; i<176; i++)
             {
                 screens[x].data[i] = copymapscr.data[i];
                 screens[x].cset[i] = copymapscr.cset[i];
                 screens[x].sflag[i] = copymapscr.sflag[i];
             }
-            
+
             if(isDungeon(x))
                 for(int i=0; i<4; i++)
                     putdoor(currscr,i,screens[x].door[i]);
-                    
+
         }
-        
+
         int newcolor=getcolor();
         loadlvlpal(newcolor);
-        
+
         if(!(screens[currscr].valid&mVALID))
         {
             newcolor=-1;
         }
-        
+
         if(newcolor!=oldcolor)
         {
             rebuild_trans_table();
         }
-        
+
         saved=false;
     }
 }
@@ -4665,26 +4665,26 @@ void zmap::PasteAllToAll()
     {
         Ugo();
         int oldcolor=getcolor();
-        
+
         for(int x=0; x<128; x++)
         {
             copy_mapscr(&screens[x], &copymapscr);
             //screens[x]=copymapscr;
         }
-        
+
         int newcolor=getcolor();
         loadlvlpal(newcolor);
-        
+
         if(!(screens[currscr].valid&mVALID))
         {
             newcolor=-1;
         }
-        
+
         if(newcolor!=oldcolor)
         {
             rebuild_trans_table();
         }
-        
+
         saved=false;
     }
 }
@@ -4719,24 +4719,24 @@ void zmap::update_combo_cycling()
     {
         return;
     }
-    
+
     int x,y;
     int newdata[176];
     int newcset[176];
     bool restartanim[MAXCOMBOS];
     bool restartanim2[MAXCOMBOS];
-    
+
     memset(restartanim, 0, MAXCOMBOS);
     memset(restartanim2, 0, MAXCOMBOS);
-    
+
     for(int i=0; i<176; i++)
     {
         newdata[i]=-1;
         newcset[i]=-1;
-        
+
         x=prvscr.data[i];
         //y=animated_combo_table[x][0];
-        
+
         //time to restart
         if((combobuf[x].aclk>=combobuf[x].speed) &&
                 (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
@@ -4746,19 +4746,19 @@ void zmap::update_combo_cycling()
 			if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
-            
+
             if(combobuf[c].animflags & AF_CYCLE)
             {
                 restartanim[c]=true;
             }
         }
     }
-    
+
     for(int i=0; i<176; i++)
     {
         x=prvscr.data[i];
         //y=animated_combo_table2[x][0];
-        
+
         //time to restart
         if((combobuf[x].aclk>=combobuf[x].speed) &&
                 (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
@@ -4768,31 +4768,31 @@ void zmap::update_combo_cycling()
             if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
-            
+
             if(combobuf[c].animflags & AF_CYCLE)
             {
                 restartanim2[c]=true;
             }
         }
     }
-    
+
     for(int i=0; i<176; i++)
     {
         if(newdata[i]==-1)
             continue;
-            
+
         prvscr.data[i]=newdata[i];
         prvscr.cset[i]=newcset[i];
     }
-    
+
     for(int i=0; i<32; i++)
     {
         newdata[i]=-1;
         newcset[i]=-1;
-        
+
         x=prvscr.ffdata[i];
         //y=animated_combo_table[x][0];
-        
+
         //time to restart
         if((combobuf[x].aclk>=combobuf[x].speed) &&
                 (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
@@ -4802,19 +4802,19 @@ void zmap::update_combo_cycling()
             if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
-            
+
             if(combobuf[c].animflags & AF_CYCLE)
             {
                 restartanim[c]=true;
             }
         }
     }
-    
+
     for(int i=0; i<32; i++)
     {
         x=prvscr.ffdata[i];
         //y=animated_combo_table2[x][0];
-        
+
         //time to restart
         if((combobuf[x].aclk>=combobuf[x].speed) &&
                 (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
@@ -4824,38 +4824,38 @@ void zmap::update_combo_cycling()
             if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
-            
+
             if(combobuf[c].animflags & AF_CYCLE)
             {
                 restartanim2[c]=true;
             }
         }
     }
-    
+
     for(int i=0; i<32; i++)
     {
         if(newdata[i]==-1)
             continue;
-            
+
         prvscr.ffdata[i]=newdata[i];
         prvscr.ffcset[i]=newcset[i];
     }
-    
+
     if(get_bit(quest_rules,qr_CMBCYCLELAYERS))
     {
         for(int j=0; j<6; j++)
         {
             if(prvlayers[j].data.empty())
                 continue;
-                
+
             for(int i=0;	i<176; i++)
             {
                 newdata[i]=-1;
                 newcset[i]=-1;
-                
+
                 x=(prvlayers[j]).data[i];
                 //y=animated_combo_table[x][0];
-                
+
                 //time to restart
                 if((combobuf[x].aclk>=combobuf[x].speed) &&
                         (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1)	&&
@@ -4865,19 +4865,19 @@ void zmap::update_combo_cycling()
                     if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 						newcset[i]=combobuf[x].nextcset;
                     int c = newdata[i];
-                    
+
                     if(combobuf[c].animflags & AF_CYCLE)
                     {
                         restartanim[c]=true;
                     }
                 }
             }
-            
+
             for(int i=0; i<176; i++)
             {
                 x=(prvlayers[j]).data[i];
                 //y=animated_combo_table2[x][0];
-                
+
                 //time to restart
                 if((combobuf[x].aclk>=combobuf[x].speed) &&
                         (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
@@ -4887,25 +4887,25 @@ void zmap::update_combo_cycling()
                     if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 						newcset[i]=combobuf[x].nextcset;
                     int c = newdata[i];
-                    
+
                     if(combobuf[c].animflags & AF_CYCLE)
                     {
                         restartanim2[c]=true;
                     }
                 }
             }
-            
+
             for(int i=0; i<176; i++)
             {
                 if(newdata[i]==-1)
                     continue;
-                    
+
                 prvlayers[j].data[i]=newdata[i];
                 prvlayers[j].cset[i]=newcset[i];
             }
         }
     }
-    
+
     for(int i=0; i<MAXCOMBOS; i++)
     {
         if(restartanim[i])
@@ -4914,7 +4914,7 @@ void zmap::update_combo_cycling()
 			combobuf[i].cur_frame=0;
             combobuf[i].aclk = 0;
         }
-        
+
         if(restartanim2[i])
         {
             combobuf[i].tile = combobuf[i].o_tile;
@@ -4922,7 +4922,7 @@ void zmap::update_combo_cycling()
             combobuf[i].aclk = 0;
         }
     }
-    
+
     return;
 }
 
@@ -4932,12 +4932,12 @@ void zmap::update_freeform_combos()
     {
         return;
     }
-    
+
     for(int i=0; i<32; i++)
     {
         if(!(prvscr.ffflags[i]&ffCHANGER) && prvscr.ffdata[i]!=0 && !(prvscr.ffflags[i]&ffSTATIONARY))
         {
-        
+
             for(int j=0; j<32; j++)
             {
                 if(i!=j)
@@ -4956,49 +4956,49 @@ void zmap::update_freeform_combos()
                                     prvscr.ffdata[i] = prvscr.ffdata[j];
                                     prvscr.ffcset[i] = prvscr.ffcset[j];
                                 }
-                                
+
                                 if(prvscr.ffflags[j]&ffCHANGENEXT)
                                     prvscr.ffdata[i]++;
-                                    
+
                                 if(prvscr.ffflags[j]&ffCHANGEPREV)
                                     prvscr.ffdata[i]--;
-                                    
+
                                 prvscr.ffdelay[i]=prvscr.ffdelay[j];
                                 prvscr.ffx[i]=prvscr.ffx[j];
                                 prvscr.ffy[i]=prvscr.ffy[j];
-                                
+
                                 prvscr.ffxdelta[i]=prvscr.ffxdelta[j];
                                 prvscr.ffydelta[i]=prvscr.ffydelta[j];
                                 prvscr.ffxdelta2[i]=prvscr.ffxdelta2[j];
                                 prvscr.ffydelta2[i]=prvscr.ffydelta2[j];
-                                
+
                                 prvscr.fflink[i]=prvscr.fflink[j];
                                 prvscr.ffwidth[i]=prvscr.ffwidth[j];
                                 prvscr.ffheight[i]=prvscr.ffheight[j];
-                                
+
                                 if(prvscr.ffflags[i]&ffCARRYOVER)
                                     prvscr.ffflags[i]=prvscr.ffflags[j]&ffCARRYOVER;
                                 else prvscr.ffflags[i]=prvscr.ffflags[j];
-                                
+
                                 prvscr.ffflags[i]&=~ffCHANGER;
                                 ffposx[i]=(short)(prvscr.ffx[j]/10000);
                                 ffposy[i]=(short)(prvscr.ffy[j]/10000);
-                                
+
                                 if(combobuf[prvscr.ffdata[j]].flag>15 && combobuf[prvscr.ffdata[j]].flag<32)
                                 {
                                     prvscr.ffdata[j]=prvscr.secretcombo[combobuf[prvscr.ffdata[j]].flag-16+4];
                                 }
-                                
+
                                 if((prvscr.ffflags[j]&ffSWAPNEXT)||(prvscr.ffflags[j]&ffSWAPPREV))
                                 {
                                     int k=0;
-                                    
+
                                     if(prvscr.ffflags[j]&ffSWAPNEXT)
                                         k=j<31?j+1:0;
-                                        
+
                                     if(prvscr.ffflags[j]&ffSWAPPREV)
                                         k=j>0?j-1:31;
-                                        
+
                                     zc_swap(prvscr.ffxdelta[j],prvscr.ffxdelta[k]);
                                     zc_swap(prvscr.ffydelta[j],prvscr.ffydelta[k]);
                                     zc_swap(prvscr.ffxdelta2[j],prvscr.ffxdelta2[k]);
@@ -5013,7 +5013,7 @@ void zmap::update_freeform_combos()
                     }
                 }
             }
-            
+
             if(prvscr.fflink[i] ? !prvscr.ffdelay[prvscr.fflink[i]] : !prvscr.ffdelay[i])
             {
                 if(prvscr.fflink[i]&&(prvscr.fflink[i]-1)!=i)
@@ -5031,13 +5031,13 @@ void zmap::update_freeform_combos()
                     prvscr.ffy[i]+=prvscr.ffydelta[i];
                     prvscr.ffxdelta[i]+=prvscr.ffxdelta2[i];
                     prvscr.ffydelta[i]+=prvscr.ffydelta2[i];
-                    
+
                     if(prvscr.ffxdelta[i]>1280000) prvscr.ffxdelta[i]=1280000;
-                    
+
                     if(prvscr.ffxdelta[i]<-1280000) prvscr.ffxdelta[i]=-1280000;
-                    
+
                     if(prvscr.ffydelta[i]>1280000) prvscr.ffydelta[i]=1280000;
-                    
+
                     if(prvscr.ffydelta[i]<-1280000) prvscr.ffydelta[i]=-1280000;
                 }
             }
@@ -5046,7 +5046,7 @@ void zmap::update_freeform_combos()
                 if(!prvscr.fflink[i] || (prvscr.fflink[i]-1)==i)
                     prvscr.ffdelay[i]--;
             }
-            
+
             if(prvscr.ffx[i]<-320000)
             {
                 if(prvscr.flags6&fWRAPAROUNDFF)
@@ -5060,7 +5060,7 @@ void zmap::update_freeform_combos()
                     prvscr.ffflags[i]&=~ffCARRYOVER;
                 }
             }
-            
+
             if(prvscr.ffy[i]<-320000)
             {
                 if(prvscr.flags6&fWRAPAROUNDFF)
@@ -5074,7 +5074,7 @@ void zmap::update_freeform_combos()
                     prvscr.ffflags[i]&=~ffCARRYOVER;
                 }
             }
-            
+
             if(prvscr.ffx[i]>=2880000)
             {
                 if(prvscr.flags6&fWRAPAROUNDFF)
@@ -5088,7 +5088,7 @@ void zmap::update_freeform_combos()
                     prvscr.ffflags[i]&=~ffCARRYOVER;
                 }
             }
-            
+
             if(prvscr.ffy[i]>=2080000)
             {
                 if(prvscr.flags6&fWRAPAROUNDFF)
@@ -5102,7 +5102,7 @@ void zmap::update_freeform_combos()
                     prvscr.ffflags[i]&=~ffCARRYOVER;
                 }
             }
-            
+
         }
     }
 }
@@ -5111,16 +5111,16 @@ void zmap::dowarp(int type, int index)
 {
     if(type==0)
     {
-    
+
         int dmap=screens[currscr].tilewarpdmap[index];
         int scr=screens[currscr].tilewarpscr[index];
-        
+
         switch(screens[currscr].tilewarptype[index])
         {
         case wtCAVE:
         case wtNOWARP:
             break;
-            
+
         default:
             setCurrMap(DMaps[dmap].map);
             setCurrScr(scr+DMaps[dmap].xoff);
@@ -5131,13 +5131,13 @@ void zmap::dowarp(int type, int index)
     {
         int dmap=screens[currscr].sidewarpdmap[index];
         int scr=screens[currscr].sidewarpscr[index];
-        
+
         switch(screens[currscr].sidewarptype[index])
         {
         case wtCAVE:
         case wtNOWARP:
             break;
-            
+
         default:
             setCurrMap(DMaps[dmap].map);
             setCurrScr(scr+DMaps[dmap].xoff);
@@ -5152,16 +5152,16 @@ void zmap::prv_dowarp(int type, int index)
 {
     if(type==0)
     {
-    
+
         int dmap=prvscr.tilewarpdmap[index];
         int scr=prvscr.tilewarpscr[index];
-        
+
         switch(prvscr.tilewarptype[index])
         {
         case wtCAVE:
         case wtNOWARP:
             break;
-            
+
         default:
             //setCurrMap(DMaps[dmap].map);
             //setCurrScr(scr+DMaps[dmap].xoff);
@@ -5176,13 +5176,13 @@ void zmap::prv_dowarp(int type, int index)
     {
         int dmap=prvscr.sidewarpdmap[index];
         int scr=prvscr.sidewarpscr[index];
-        
+
         switch(prvscr.sidewarptype[index])
         {
         case wtCAVE:
         case wtNOWARP:
             break;
-            
+
         default:
             //setCurrMap(DMaps[dmap].map);
             //setCurrScr(scr+DMaps[dmap].xoff);
@@ -5193,12 +5193,12 @@ void zmap::prv_dowarp(int type, int index)
             break;
         }
     }
-    
+
     if(prv_twon)
     {
         prv_time=get_prvscr()->timedwarptics;
     }
-    
+
     //also reset FFC information (so that changers will work correctly) -DD
     memset(ffposx,0xFF,sizeof(short)*32);
     memset(ffposy,0xFF,sizeof(short)*32);
@@ -5221,18 +5221,18 @@ void zmap::dowarp2(int ring,int index)
 bool save_msgstrs(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     if(writestrings(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXMSGS)==0)
     {
         pack_fclose(f);
         return true;
     }
-    
+
     pack_fclose(f);
     return false;
 }
@@ -5240,18 +5240,18 @@ bool save_msgstrs(const char *path)
 bool save_msgstrs_text(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     if(writestrings_text(f)==0)
     {
         pack_fclose(f);
         return true;
     }
-    
+
     pack_fclose(f);
     return false;
 }
@@ -5260,20 +5260,20 @@ bool load_msgstrs(const char *path, int startstring)
 {
     //these are here to bypass compiler warnings about unused arguments
     startstring=startstring;
-    
+
     dword section_id;
     PACKFILE *f = pack_fopen_password(path,F_READ, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     if(!p_mgetl(&section_id,f,true))
     {
         return false;
     }
-    
+
     if(section_id==ID_STRINGS)
     {
         if(readstrings(f, &header, true)==0)
@@ -5287,7 +5287,7 @@ bool load_msgstrs(const char *path, int startstring)
             return false;
         }
     }
-    
+
     pack_fclose(f);
     return false;
 }
@@ -5295,18 +5295,18 @@ bool load_msgstrs(const char *path, int startstring)
 bool save_pals(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     if(writecolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL)==0)
     {
         pack_fclose(f);
         return true;
     }
-    
+
     pack_fclose(f);
     return false;
 }
@@ -5315,17 +5315,17 @@ bool load_pals(const char *path, int startcset)
 {
     dword section_id;
     PACKFILE *f = pack_fopen_password(path,F_READ, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     if(!p_mgetl(&section_id,f,true))
     {
         return false;
     }
-    
+
     if(section_id==ID_CSETS)
     {
         //if(readcolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, startcset, newerpdTOTAL-startcset, true)==0)
@@ -5341,25 +5341,25 @@ bool load_pals(const char *path, int startcset)
             return false;
         }
     }
-    
+
     return false;
 }
 
 bool save_dmaps(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     if(writedmaps(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXDMAPS)==0)
     {
         pack_fclose(f);
         return true;
     }
-    
+
     pack_fclose(f);
     return false;
 }
@@ -5368,17 +5368,17 @@ bool load_dmaps(const char *path, int startdmap)
 {
     dword section_id;
     PACKFILE *f = pack_fopen_password(path,F_READ, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     if(!p_mgetl(&section_id,f,true))
     {
         return false;
     }
-    
+
     if(section_id==ID_DMAPS)
     {
         //if(readdmaps(f, NULL, ZELDA_VERSION, VERSION_BUILD, startdmap, MAXDMAPS-startdmap, true)==0)
@@ -5393,27 +5393,27 @@ bool load_dmaps(const char *path, int startdmap)
             return false;
         }
     }
-    
+
     return false;
 }
 bool save_combos(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     reset_combo_animations();
     reset_combo_animations2();
-    
+
     if(writecombos(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS)==0)
     {
         pack_fclose(f);
         return true;
     }
-    
+
     pack_fclose(f);
     return false;
 }
@@ -5422,17 +5422,17 @@ bool load_combos(const char *path, int startcombo)
 {
     dword section_id;
     PACKFILE *f = pack_fopen_password(path,F_READ, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     if(!p_mgetl(&section_id,f,true))
     {
         return false;
     }
-    
+
     if(section_id==ID_COMBOS)
     {
         //if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, startcombo, MAXCOMBOS-startcombo, true)==0)
@@ -5448,26 +5448,26 @@ bool load_combos(const char *path, int startcombo)
             return false;
         }
     }
-    
+
     return false;
 }
 
 bool save_tiles(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     //  reset_combo_animations();
     if(writetiles(f, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES)==0)
     {
         pack_fclose(f);
         return true;
     }
-    
+
     pack_fclose(f);
     return false;
 }
@@ -5476,17 +5476,17 @@ bool load_tiles(const char *path, int starttile)
 {
     dword section_id;
     PACKFILE *f = pack_fopen_password(path,F_READ, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     if(!p_mgetl(&section_id,f,true))
     {
         return false;
     }
-    
+
     if(section_id==ID_TILES)
     {
         //if(readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, starttile, NEWMAXTILES-starttile, false, true)==0)
@@ -5502,7 +5502,7 @@ bool load_tiles(const char *path, int starttile)
             return false;
         }
     }
-    
+
     return false;
 }
 
@@ -5510,12 +5510,12 @@ int writeguys(PACKFILE *f, zquestheader *Header);
 bool save_guys(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     /*
     int id = ID_GUYS;
     if(!p_mputl(id,f))
@@ -5523,17 +5523,17 @@ bool save_guys(const char *path)
       return false;
     }
     */
-    
+
     zquestheader h;
     h.zelda_version = 0x250;
     h.build = 21;
-    
+
     if(writeguys(f, &h)==0)
     {
         pack_fclose(f);
         return true;
     }
-    
+
     pack_fclose(f);
     return false;
 }
@@ -5542,22 +5542,22 @@ bool load_guys(const char *path)
 {
     dword section_id;
     PACKFILE *f = pack_fopen_password(path,F_READ, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     zquestheader h;
     h.zelda_version = 0x250;
     h.build = 21;
-    
+
     if(section_id==ID_GUYS)
     {
         if(readguys(f, &h, true)==0)
@@ -5566,7 +5566,7 @@ bool load_guys(const char *path)
             return true;
         }
     }
-    
+
     pack_fclose(f);
     return false;
 }
@@ -5576,22 +5576,22 @@ bool load_guys(const char *path)
 bool save_combo_alias(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     zquestheader h;
     h.zelda_version = 0x250;
     h.build = 21;
-    
+
     if(writecomboaliases(f, 0, 0)==0)
     {
         pack_fclose(f);
         return true;
     }
-    
+
     pack_fclose(f);
     return false;
 }
@@ -5600,22 +5600,22 @@ bool load_combo_alias(const char *path)
 {
     dword section_id;
     PACKFILE *f = pack_fopen_password(path,F_READ, "");
-    
+
     if(!f)
     {
         return false;
     }
-    
+
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     zquestheader h;
     h.zelda_version = 0x250;
     h.build = 21;
-    
+
     if(section_id==ID_COMBOALIASES)
     {
         if(readcomboaliases(f, &h, 0, 0, true)==0)
@@ -5624,7 +5624,7 @@ bool load_combo_alias(const char *path)
             return true;
         }
     }
-    
+
     pack_fclose(f);
     return false;
 }
@@ -5636,40 +5636,40 @@ bool load_zgp(const char *path)
     dword section_cversion;
 //  setPackfilePassword(NULL);
     PACKFILE *f=pack_fopen_password(path,F_READ,"");
-    
+
     if(!f)
         return false;
-        
+
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(section_id!=ID_GRAPHICSPACK)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //section version info
     if(!p_igetw(&section_version,f,true))
     {
         return 2;
     }
-    
+
     if(!p_igetw(&section_cversion,f,true))
     {
         return 3;
     }
-    
+
     //tiles
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(section_id==ID_TILES)
     {
         if(readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)!=0)
@@ -5684,14 +5684,14 @@ bool load_zgp(const char *path)
         pack_fclose(f);
         return false;
     }
-    
+
     //combos
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(section_id==ID_COMBOS)
     {
         if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS, true)!=0)
@@ -5706,14 +5706,14 @@ bool load_zgp(const char *path)
         pack_fclose(f);
         return false;
     }
-    
+
     //palettes
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(section_id==ID_CSETS)
     {
         if(readcolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL, true)!=0)
@@ -5727,14 +5727,14 @@ bool load_zgp(const char *path)
         pack_fclose(f);
         return false;
     }
-    
+
     //items
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(section_id==ID_ITEMS)
     {
         if(readitems(f, ZELDA_VERSION, VERSION_BUILD, false, true)!=0)
@@ -5748,14 +5748,14 @@ bool load_zgp(const char *path)
         pack_fclose(f);
         return false;
     }
-    
+
     //weapons
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(section_id==ID_WEAPONS)
     {
         if(readweapons(f, &header, true)!=0)
@@ -5769,17 +5769,17 @@ bool load_zgp(const char *path)
         pack_fclose(f);
         return false;
     }
-    
+
     //read the triforce pieces info and make sure it worked
     //really do this?
-    
+
     //read the game icons info and make sure it worked
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(section_id==ID_ICONS)
     {
         if(readgameicons(f, &header, &misc, true)!=0)
@@ -5793,14 +5793,14 @@ bool load_zgp(const char *path)
         pack_fclose(f);
         return false;
     }
-    
+
     //read the misc colors info and map styles info and make sure it worked
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(section_id==ID_COLORS)
     {
         if(readmisccolors(f, &header, &misc, true)!=0)
@@ -5814,14 +5814,14 @@ bool load_zgp(const char *path)
         pack_fclose(f);
         return false;
     }
-    
+
     //read the door combo sets and make sure it worked
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(section_id==ID_DOORS)
     {
         if(readdoorcombosets(f, &header, true)!=0)
@@ -5835,10 +5835,10 @@ bool load_zgp(const char *path)
         pack_fclose(f);
         return false;
     }
-    
+
     //read the template screens and make sure it worked
     //really do this?
-    
+
     //yay!  it worked!  close the file and say everything was ok.
     loadlvlpal(Color);
     setup_combo_animations();
@@ -5853,96 +5853,96 @@ bool save_zgp(const char *path)
 //  return false;
     reset_combo_animations();
     reset_combo_animations2();
-    
+
     //open the file
     PACKFILE *f=pack_fopen_password(path,F_WRITE, "");
-    
+
     if(!f)
         return false;
-        
+
     dword section_id=ID_GRAPHICSPACK;
     dword section_version=V_GRAPHICSPACK;
     dword section_cversion=CV_GRAPHICSPACK;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         return 1;
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         return 2;
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         return 3;
     }
-    
+
     //tiles
     if(writetiles(f, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES)!=0)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //combos
     if(writecombos(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS)!=0)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //palettes
     if(writecolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL)!=0)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //items
     if(writeitems(f, &header)!=0)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //weapons
     if(writeweapons(f, &header)!=0)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //write the triforce pieces info and make sure it worked
     //really do this?
-    
+
     //write the game icons info and make sure it worked
     if(writegameicons(f, &header, &misc)!=0)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //write the misc colors info and map styles info and make sure it worked
     if(writemisccolors(f, &header, &misc)!=0)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //write the door combo sets and make sure it worked
     if(writedoorcombosets(f, &header)!=0)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //write the template screens and make sure it worked
     //really do this?
-    
+
     pack_fclose(f);
     return true;
 }
@@ -5954,7 +5954,7 @@ bool save_subscreen(const char *path, bool *cancel)
     reset_combo_animations();
     reset_combo_animations2();
     *cancel = false;
-    
+
     int ret;
     sslist_dlg[0].dp2=lfont;
     char *oldtitlestr=(char*)sslist_dlg[0].dp;
@@ -5978,50 +5978,50 @@ bool save_subscreen(const char *path, bool *cancel)
     sslist_dlg[4].proc = jwin_button_proc;
     sslist_dlg[5].dp=donestr;
     show_new_ss=true;
-    
+
     if(ret==0||ret==5)
     {
         *cancel=true;
         return true;
     }
-    
+
     //open the file
     PACKFILE *f=pack_fopen_password(path,F_WRITE, "");
-    
+
     if(!f)
         return false;
-        
+
     dword section_id=ID_SUBSCREEN;
     dword section_version=V_SUBSCREEN;
     dword section_cversion=CV_SUBSCREEN;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //subscreens
     if(write_one_subscreen(f,&header,sslist_dlg[2].d1)!=0)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     pack_fclose(f);
     return true;
 }
@@ -6049,55 +6049,55 @@ bool load_subscreen(const char *path)
     sslist_dlg[3].dp=(void *)editstr;
     sslist_dlg[4].proc = jwin_button_proc;
     sslist_dlg[5].dp=(void *)donestr;
-    
+
     if(ret==0||ret==5)
     {
         return true;
     }
-    
+
     //open the file
     PACKFILE *f=pack_fopen_password(path,F_READ, "");
-    
+
     if(!f)
         return false;
-        
+
     dword section_id;
     dword section_version;
     dword section_cversion;
-    
+
     //section id
     if(!p_mgetl(&section_id,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(section_id!=ID_SUBSCREEN)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //section version info
     if(!p_igetw(&section_version,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     if(!p_igetw(&section_cversion,f,true))
     {
         pack_fclose(f);
         return false;
     }
-    
+
     //subscreens
     if(read_one_subscreen(f,&header,true,sslist_dlg[2].d1,section_version,section_cversion)!=0)
     {
         pack_fclose(f);
         return false;
     }
-    
+
     pack_fclose(f);
     return true;
 }
@@ -6106,10 +6106,10 @@ bool setMapCount2(int c)
 {
     int oldmapcount=map_count;
     int currmap=Map.getCurrMap();
-    
+
     bound(c,1,MAXMAPS2);
     map_count=c;
-    
+
     try
     {
         TheMaps.resize(c*MAPSCRS);
@@ -6119,14 +6119,14 @@ bool setMapCount2(int c)
         jwin_alert("Error","Failed to change map count.",NULL,NULL,"O&K",NULL,'k',0,lfont);
         return false;
     }
-    
+
     if(map_count>oldmapcount)
     {
         for(int mc=oldmapcount; mc<map_count; mc++)
         {
             Map.setCurrMap(mc);
             Map.clearzcmap(mc);
-            
+
             for(int ms=0; ms<MAPSCRS; ms++)
             {
                 Map.clearscr(ms);
@@ -6137,7 +6137,7 @@ bool setMapCount2(int c)
     {
         if(!layers_valid(Map.CurrScr()))
             fix_layers(Map.CurrScr(), false);
-            
+
         for(int i=0; i<MAXDMAPS; i++)
         {
             if(DMaps[i].map>=map_count)
@@ -6146,9 +6146,9 @@ bool setMapCount2(int c)
             }
         }
     }
-    
+
     Map.setCurrMap(bound(currmap,0,c-1));
-    
+
     return true;
 }
 
@@ -6168,28 +6168,28 @@ int init_quest(const char *templatefile)
     set_window_title(buf);
     zinit.last_map = 0;
     zinit.last_screen = 0;
-    
+
     if(bmap != NULL)
     {
         destroy_bitmap(bmap);
         bmap=NULL;
     }
-    
+
     return 0;
 }
 
-void set_questpwd(const char *pwd, bool use_keyfile)
+void set_questpwd(std::string_view pwd, bool use_keyfile)
 {
     //these are here to bypass compiler warnings about unused arguments
     use_keyfile=use_keyfile;
-    
+
     memset(header.password,0,256);
-    strcpy(header.password,pwd);
+    strcpy(header.password,pwd.data());
     header.dirty_password=true;
-    
+
     cvs_MD5Context ctx;
     cvs_MD5Init(&ctx);
-    cvs_MD5Update(&ctx, (const unsigned char*)pwd, (unsigned)strlen(pwd));
+    cvs_MD5Update(&ctx, (const unsigned char*)pwd.data(), pwd.size());
     cvs_MD5Final(header.pwd_hash, &ctx);
 }
 
@@ -6199,11 +6199,11 @@ bool is_null_pwd_hash(unsigned char *pwd_hash)
     cvs_MD5Context ctx;
     unsigned char md5sum[16];
     char pwd[2]="";
-    
+
     cvs_MD5Init(&ctx);
     cvs_MD5Update(&ctx, (const unsigned char*)pwd, (unsigned)strlen(pwd));
     cvs_MD5Final(md5sum, &ctx);
-    
+
     return (memcmp(md5sum,pwd_hash,16)==0);
 }
 
@@ -6233,23 +6233,23 @@ int reverse_string(char* str)
     {
         return -1; //no string
     }
-    
+
     int l=(int)strlen(str)-1; //get the string length
-    
+
     if(1==l)
     {
         return 1;
     }
-    
+
     char c;
-    
+
     for(int x=0; x < l; x++,l--)
     {
         c = str[x];
         str[x] = str[l];
         str[l] = c;
     }
-    
+
     return 0;
 }
 
@@ -6258,35 +6258,35 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
 {
     //Protection against compiling a release version with password protection off.
     static bool passguard = false;
-    
+
 #if ( !(defined _DEBUG) || (defined _RELEASE || defined NDEBUG || defined _NDEBUG) )
 #define MUST_HAVE_PASSWORD
     passguard = true;
 #endif
-    
+
 #if ( !(defined MUST_HAVE_PASSWORD) || defined _NPASS )
 #if (defined _MSC_VER || defined _NPASS)
     assert(!passguard);
     return 1;
 #endif
 #endif
-    
-    
+
+
     char hash_string[33];
-    
+
     if(!compressed)
     {
         return 1;
     }
-    
+
     if((get_debug() && (!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))) || is_null_pwd_hash(hdr->pwd_hash))
     {
         return 1;
     }
-    
+
     char pwd[256];
     char prompt[256]="";
-    
+
     char keyfilename[2048];
     replace_extension(keyfilename, filename, "key", 2047);
     bool gotfromkey=false;
@@ -6296,9 +6296,9 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
     char cheatfilename[2048];
     replace_extension(cheatfilename, filename, "zcheat", 2047);
     bool gotfromcheatfile=false;
-    
-    
-    
+
+
+
     if(exists(keyfilename))
     {
         char password[256];
@@ -6306,7 +6306,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
         char msg[80];
         memset(msg,0,80);
         pfread(msg, 80, fp,true);
-        
+
         if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
         {
             short ver = 0;
@@ -6315,7 +6315,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
             p_igetw(&ver,fp,true);
             p_getc(&bld,fp,true);
             memset(password,0,256);
-            
+
             if((ver > 0x211)||((ver == 0x211)&&(bld>1)))
             {
                 pwd_len=256;
@@ -6324,16 +6324,16 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
             {
                 pwd_len=30;
             }
-            
+
             pfread(password, pwd_len, fp,true);
             gotfromkey=check_questpwd(hdr, password);
             memset(password,0,256);
             memset(pwd,0,256);
         }
-        
+
         pack_fclose(fp);
     }
-    
+
     if(exists(pwdfilename))
     {
         char password[256];
@@ -6341,7 +6341,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
         char msg[80];
         memset(msg,0,80);
         pfread(msg, 80, fp,true);
-        
+
         if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
         {
             short ver = 0;
@@ -6350,7 +6350,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
             p_igetw(&ver,fp,true);
             p_getc(&bld,fp,true);
             memset(password,0,256);
-            
+
             if((ver > 0x211)||((ver == 0x211)&&(bld>1)))
             {
                 pwd_len=256;
@@ -6359,80 +6359,80 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
             {
                 pwd_len=30;
             }
-            
+
             pfread(password, pwd_len, fp,true);
             gotfrompwdfile=check_questpwd(hdr, password);
             memset(password,0,256);
             memset(pwd,0,256);
         }
-        
+
         pack_fclose(fp);
     }
-    
+
     if(gotfromkey)
     {
         return true;
     }
-    
+
     if(gotfrompwdfile)
     {
         return true;
     }
-    
+
     pwd_dlg[0].dp2=lfont;
     pwd_dlg[2].dp=get_filename(filename);
     cvs_MD5Context ctx;
     unsigned char md5sum[16];
     char response[33];
-    
+
     memcpy(md5sum, hdr->pwd_hash, 16);
-    
+
     for(int i=0; i<300; ++i)
     {
         for(int j=0; j<16; ++j)
         {
             sprintf(response+j*2, "%02x", md5sum[j]);
         }
-        
+
         if(i&1)
         {
             reverse_string(response);
         }
-        
+
         if(i==149)
         {
             strcpy(hash_string, response);
         }
-        
+
         cvs_MD5Init(&ctx);
         cvs_MD5Update(&ctx, (const unsigned char*)response, (unsigned)strlen(response));
         cvs_MD5Final(md5sum, &ctx);
     }
-    
+
     pwd_dlg[4].dp=hash_string;
-    
+
     if(get_debug() && (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
     {
         sprintf(prompt,"%s",response);
     }
-    
+
     pwd_dlg[6].dp=prompt;
-    
+
     if(is_large)
         large_dialog(pwd_dlg);
-        
+
     int cancel = zc_popup_dialog(pwd_dlg,6);
-    
+
     if(cancel == 8)
         return 2;
-        
+
     bool ret=check_questpwd(hdr, prompt);
-    
+
     if(!ret)
     {
         ret=(strcmp(response,prompt)==0);
     }
-    
+
     memset(pwd,0,256);
     return ret ? 1 : 0;
 }
@@ -6444,7 +6444,7 @@ int load_quest(const char *filename, bool compressed, bool encrypted)
 //  if(encrypted)
 //	  setPackfilePassword(datapwd);
     byte skip_flags[4];
-    
+
     for(int i=0; i<4; ++i)
     {
         skip_flags[i]=0;
@@ -6461,11 +6461,11 @@ int load_quest(const char *filename, bool compressed, bool encrypted)
     else
     {
         int accessret = quest_access(filename, &header, compressed);
-        
+
         if(accessret != 1)
         {
             init_quest(NULL);
-            
+
             if(accessret == 0)
                 ret=qe_pwd;
             else
@@ -6476,13 +6476,13 @@ int load_quest(const char *filename, bool compressed, bool encrypted)
             Map.setCurrMap(vbound(Map.getCurrMap(),0,map_count-1));
             refresh(rALL);
             refresh_pal();
-            
+
             if(bmap != NULL)
             {
                 destroy_bitmap(bmap);
                 bmap=NULL;
             }
-            
+
             sprintf(buf,"ZQuest - [%s]", get_filename(filename));
 //      if (compressed)
             {
@@ -6490,27 +6490,27 @@ int load_quest(const char *filename, bool compressed, bool encrypted)
             }
         }
     }
-    
+
     return ret;
 }
 
 bool write_midi(MIDI *m,PACKFILE *f)
 {
     int c;
-    
+
     if(!p_mputw(m->divisions,f)) return false;
-    
+
     for(c=0; c<MIDI_TRACKS; c++)
     {
         if(!p_mputl(m->track[c].len,f)) return false;
-        
+
         if(m->track[c].len > 0)
         {
             if(!pfwrite(m->track[c].data,m->track[c].len,f))
                 return false;
         }
     }
-    
+
     return true;
 }
 
@@ -6518,37 +6518,37 @@ bool write_music(int format, MIDI* m, PACKFILE *f)
 {
     // format - data format (midi, nsf, ...)
     // m - pointer to data.
-    
+
     int c;
-    
+
     switch(format)
     {
     case MFORMAT_MIDI:
-    
+
         if(!p_mputw(m->divisions,f)) return false;
-        
+
         for(c=0; c<MIDI_TRACKS; c++)
         {
             if(!p_mputl(m->track[c].len,f)) return false;
-            
+
             if(m->track[c].len > 0)
             {
                 if(!pfwrite(m->track[c].data,m->track[c].len,f))
                     return false;
             }
         }
-        
+
         break;
-        
+
     case MFORMAT_NSF:
-    
+
         break;
-        
+
     default:
         return false;
         break;
     }
-    
+
     return true;
 }
 
@@ -6558,111 +6558,111 @@ int writeheader(PACKFILE *f, zquestheader *Header)
     dword section_version=V_HEADER;
     dword section_cversion=CV_HEADER;
     dword section_size=0;
-    
+
     //file header string
     if(!pfwrite(Header->id_str,sizeof(Header->id_str),f))
     {
         new_return(1);
     }
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(2);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(3);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(4);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(5);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!p_iputw(Header->zelda_version,f))
         {
             new_return(6);
         }
-        
+
         if(!p_putc(Header->build,f))
         {
             new_return(7);
         }
-        
+
         if(!pfwrite(Header->pwd_hash,sizeof(Header->pwd_hash),f))
         {
             new_return(8);
         }
-        
+
         if(!p_iputw(Header->internal,f))
         {
             new_return(10);
         }
-        
+
         if(!p_putc(Header->quest_number,f))
         {
             new_return(11);
         }
-        
+
         if(!pfwrite(Header->version,sizeof(Header->version),f))
         {
             new_return(12);
         }
-        
+
         if(!pfwrite(Header->minver,sizeof(Header->minver),f))
         {
             new_return(13);
         }
-        
+
         if(!pfwrite(Header->title,sizeof(Header->title),f))
         {
             new_return(14);
         }
-        
+
         if(!pfwrite(Header->author,sizeof(Header->author),f))
         {
             new_return(15);
         }
-        
+
         if(!p_putc(Header->use_keyfile,f))
         {
             new_return(16);
         }
-        
+
         if(!pfwrite(Header->data_flags,sizeof(Header->data_flags),f))
         {
             new_return(17);
         }
-        
+
         if(!pfwrite(Header->templatepath,sizeof(Header->templatepath),f))
         {
             new_return(19);
         }
-        
-        if(!p_putc(0,f)) //why are we doing this? 
+
+        if(!p_putc(0,f)) //why are we doing this?
 		//this is for map count, it seems. -Z
         {
             new_return(20);
         }
-	
+
 	//v4
-	
+
 	if(!p_iputl(V_ZC_FIRST,f))
 	{
 	    new_return(21);
@@ -6715,50 +6715,50 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	{
 	    new_return(33);
 	}
-	
-	
-	
+
+
+
 	char tempsig[256];
 	memset(tempsig, 0, 256);
 	strcpy(tempsig, DEV_SIGNOFF);
-	
+
 	if(!pfwrite(&tempsig,256,f))
         {
             new_return(34);
         }
-	
+
 	char tempcompilersig[256];
 	memset(tempcompilersig, 0, 256);
 	strcpy(tempcompilersig, COMPILER_NAME);
-	
+
 	if(!pfwrite(&tempcompilersig,256,f))
         {
             new_return(35);
         }
-	
+
 	char tempcompilerversion[256];
-	memset(tempcompilerversion, 0, 256); 
+	memset(tempcompilerversion, 0, 256);
 	#ifdef _MSC_VER
 		zc_itoa(_MSC_VER,tempcompilerversion,10);
 	#else
 		strcpy(tempcompilerversion, COMPILER_VERSION);
 	#endif
-	
-	
+
+
 	if(!pfwrite(&tempcompilerversion,256,f))
         {
             new_return(36);
         }
-	
+
 	char tempproductname[1024];
 	memset(tempproductname, 0, 1024);
 	strcpy(tempproductname, PROJECT_NAME);
-	
+
 	if(!pfwrite(&tempproductname,1024,f))
         {
             new_return(37);
         }
-	
+
 	if(!p_putc(V_ZC_COMPILERSIG,f))
 	{
 	    new_return(38);
@@ -6774,21 +6774,21 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 		    new_return(39);
 		}
 	#endif
-	
-	
+
+
 
 	#ifdef _MSC_VER
-	if(!p_iputl((_MSC_VER % 100),f)) 
+	if(!p_iputl((_MSC_VER % 100),f))
 	{
 	    new_return(41);
 	}
 	#else
-	if(!p_iputl(COMPILER_V_SECOND,f)) 
+	if(!p_iputl(COMPILER_V_SECOND,f))
 	{
 	    new_return(41);
 	}
 	#endif
-	
+
 	#ifdef _MSC_VER
 		# if _MSC_VER >= 1400
 		if(!p_iputl((_MSC_FULL_VER % 100000),f))
@@ -6801,13 +6801,13 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 		    new_return(40);
 		}
 		#endif
-	#else	
+	#else
 	if(!p_iputl(COMPILER_V_THIRD,f))
 	{
 		    new_return(40);
 	}
 	#endif
-	
+
 	#ifdef _MSC_VER
 	if(!p_iputl((_MSC_BUILD),f))
 	{
@@ -6823,20 +6823,20 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	{
 	    new_return(43);
 	}
-	
+
 	char tempmodulename[1024];
 	memset(tempmodulename, 0, 1024);
 	strcpy(tempmodulename, moduledata.module_name);
-	
+
 	if(!pfwrite(&tempmodulename,1024,f))
         {
             new_return(44);
         }
-	
+
 	char tempdate[256];
 	memset(tempdate, 0, 256);
 	strcpy(tempdate, __DATE__);
-	
+
 	if(!pfwrite(&tempdate,256,f))
         {
             new_return(45);
@@ -6844,13 +6844,13 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	char temptime[256];
 	memset(temptime, 0, 256);
 	strcpy(temptime, __TIME__);
-	
+
 	if(!pfwrite(&temptime,256,f))
         {
             new_return(46);
         }
-	
-	
+
+
 	char temptimezone[6];
 	memset(temptimezone, 0, 6);
 	strcpy(temptimezone, __TIMEZONE__);
@@ -6858,20 +6858,20 @@ int writeheader(PACKFILE *f, zquestheader *Header)
         {
             new_return(47);
         }
-	
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writeheader()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -6879,60 +6879,60 @@ int writerules(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_RULES;
     dword section_version=V_RULES;
     dword section_cversion=CV_RULES;
     dword section_size=0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!pfwrite(quest_rules,QUESTRULES_NEW_SIZE,f))
         {
             new_return(5);
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writerules()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -6941,47 +6941,47 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_DOORS;
     dword section_version=V_DOORS;
     dword section_cversion=CV_DOORS;
     dword section_size=0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!p_iputw(door_combo_set_count,f))
         {
             new_return(5);
         }
-        
+
         for(int i=0; i<door_combo_set_count; i++)
         {
             //name
@@ -6989,7 +6989,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             {
                 new_return(6);
             }
-            
+
             //up door
             for(int j=0; j<9; j++)
             {
@@ -7001,7 +7001,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     }
                 }
             }
-            
+
             for(int j=0; j<9; j++)
             {
                 for(int k=0; k<4; k++)
@@ -7012,7 +7012,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     }
                 }
             }
-            
+
             //down door
             for(int j=0; j<9; j++)
             {
@@ -7024,7 +7024,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     }
                 }
             }
-            
+
             for(int j=0; j<9; j++)
             {
                 for(int k=0; k<4; k++)
@@ -7035,21 +7035,21 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     }
                 }
             }
-            
-            
+
+
             //left door
             for(int j=0; j<9; j++)
             {
                 for(int k=0; k<6; k++)
                 {
                     if(!p_iputw(DoorComboSets[i].doorcombo_l[j][k],f))
-                    
+
                     {
                         new_return(11);
                     }
                 }
             }
-            
+
             for(int j=0; j<9; j++)
             {
                 for(int k=0; k<6; k++)
@@ -7060,7 +7060,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     }
                 }
             }
-            
+
             //right door
             for(int j=0; j<9; j++)
             {
@@ -7072,7 +7072,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     }
                 }
             }
-            
+
             for(int j=0; j<9; j++)
             {
                 for(int k=0; k<6; k++)
@@ -7083,8 +7083,8 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     }
                 }
             }
-            
-            
+
+
             //up bomb rubble
             for(int j=0; j<2; j++)
             {
@@ -7093,7 +7093,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     new_return(15);
                 }
             }
-            
+
             for(int j=0; j<2; j++)
             {
                 if(!p_putc(DoorComboSets[i].bombdoorcset_u[j],f))
@@ -7101,7 +7101,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     new_return(16);
                 }
             }
-            
+
             //down bomb rubble
             for(int j=0; j<2; j++)
             {
@@ -7110,7 +7110,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     new_return(17);
                 }
             }
-            
+
             for(int j=0; j<2; j++)
             {
                 if(!p_putc(DoorComboSets[i].bombdoorcset_d[j],f))
@@ -7118,7 +7118,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     new_return(18);
                 }
             }
-            
+
             //left bomb rubble
             for(int j=0; j<3; j++)
             {
@@ -7127,7 +7127,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     new_return(19);
                 }
             }
-            
+
             for(int j=0; j<3; j++)
             {
                 if(!p_putc(DoorComboSets[i].bombdoorcset_l[j],f))
@@ -7135,7 +7135,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     new_return(20);
                 }
             }
-            
+
             //right bomb rubble
             for(int j=0; j<3; j++)
             {
@@ -7144,7 +7144,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     new_return(21);
                 }
             }
-            
+
             for(int j=0; j<3; j++)
             {
                 if(!p_putc(DoorComboSets[i].bombdoorcset_r[j],f))
@@ -7152,7 +7152,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     new_return(22);
                 }
             }
-            
+
             //walkthrough stuff
             for(int j=0; j<4; j++)
             {
@@ -7161,7 +7161,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     new_return(23);
                 }
             }
-            
+
             for(int j=0; j<4; j++)
             {
                 if(!p_putc(DoorComboSets[i].walkthroughcset[j],f))
@@ -7169,7 +7169,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                     new_return(24);
                 }
             }
-            
+
             //flags
             for(int j=0; j<2; j++)
             {
@@ -7179,20 +7179,20 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                 }
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writedoorcombosets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -7201,94 +7201,94 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
     //these are here to bypass compiler warnings about unused arguments
     version=version;
     build=build;
-    
+
     word dmap_count=count_dmaps();
     dword section_id=ID_DMAPS;
     dword section_version=V_DMAPS;
     dword section_cversion=CV_DMAPS;
     dword section_size=0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         dmap_count=zc_min(dmap_count, max_dmaps);
         dmap_count=zc_min(dmap_count, MAXDMAPS-start_dmap);
-        
+
         //finally...  section data
         if(!p_iputw(dmap_count,f))
         {
             new_return(5);
         }
-        
-        
+
+
         for(int i=start_dmap; i<start_dmap+dmap_count; i++)
         {
             if(!p_putc(DMaps[i].map,f))
             {
                 new_return(6);
             }
-            
+
             if(!p_iputw(DMaps[i].level,f))
             {
                 new_return(7);
             }
-            
+
             if(!p_putc(DMaps[i].xoff,f))
             {
                 new_return(8);
             }
-            
+
             if(!p_putc(DMaps[i].compass,f))
             {
                 new_return(9);
             }
-            
+
             if(!p_iputw(DMaps[i].color,f))
             {
                 new_return(10);
             }
-            
+
             if(!p_putc(DMaps[i].midi,f))
             {
                 new_return(11);
             }
-            
+
             if(!p_putc(DMaps[i].cont,f))
             {
                 new_return(12);
             }
-            
+
             if(!p_putc(DMaps[i].type,f))
             {
                 new_return(13);
             }
-            
+
             for(int j=0; j<8; j++)
             {
                 if(!p_putc(DMaps[i].grid[j],f))
@@ -7296,86 +7296,86 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                     new_return(14);
                 }
             }
-            
+
             //16
             if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
             {
                 new_return(15);
             }
-            
+
             if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
             {
                 new_return(16);
             }
-            
+
             if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
             {
                 new_return(17);
             }
-            
+
             if(!p_iputl(DMaps[i].minimap_1_tile,f))
             {
                 new_return(18);
             }
-            
+
             if(!p_putc(DMaps[i].minimap_1_cset,f))
             {
                 new_return(19);
             }
-            
+
             if(!p_iputl(DMaps[i].minimap_2_tile,f))
             {
                 new_return(20);
             }
-            
+
             if(!p_putc(DMaps[i].minimap_2_cset,f))
             {
                 new_return(21);
             }
-            
+
             if(!p_iputl(DMaps[i].largemap_1_tile,f))
             {
                 new_return(22);
             }
-            
+
             if(!p_putc(DMaps[i].largemap_1_cset,f))
             {
                 new_return(23);
             }
-            
+
             if(!p_iputl(DMaps[i].largemap_2_tile,f))
             {
                 new_return(24);
             }
-            
+
             if(!p_putc(DMaps[i].largemap_2_cset,f))
             {
                 new_return(25);
             }
-            
+
             if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
             {
                 new_return(26);
             }
-            
+
             if(!p_putc(DMaps[i].tmusictrack,f))
             {
                 new_return(25);
             }
-            
+
             if(!p_putc(DMaps[i].active_subscreen,f))
             {
                 new_return(26);
             }
-            
+
             if(!p_putc(DMaps[i].passive_subscreen,f))
             {
                 new_return(27);
             }
-            
+
             byte disabled[32];
             memset(disabled,0,32);
-            
+
             for(int j=0; j<MAXITEMS; j++)
             {
                 if(DMaps[i].disableditems[j])
@@ -7383,12 +7383,12 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                     disabled[j/8] |= (1 << (j%8));
                 }
             }
-            
+
             if(!pfwrite(disabled,32,f))
             {
                 new_return(28);
             }
-            
+
             if(!p_iputl(DMaps[i].flags,f))
             {
                 new_return(29);
@@ -7407,7 +7407,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
 	        {
 			new_return(32);
 		}
-		    
+
 	    }
 	    for ( int q = 0; q < 8; q++ )
 	    {
@@ -7466,20 +7466,20 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
 				}
 			}
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writedmaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -7487,202 +7487,202 @@ int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_COLORS;
     dword section_version=V_COLORS;
     dword section_cversion=CV_COLORS;
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
-    
+
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         if(!p_putc(Misc->colors.text,f))
         {
             new_return(5);
         }
-        
+
         if(!p_putc(Misc->colors.caption,f))
         {
             new_return(6);
         }
-        
+
         if(!p_putc(Misc->colors.overw_bg,f))
         {
             new_return(7);
         }
-        
+
         if(!p_putc(Misc->colors.dngn_bg,f))
         {
             new_return(8);
         }
-        
+
         if(!p_putc(Misc->colors.dngn_fg,f))
         {
             new_return(9);
         }
-        
+
         if(!p_putc(Misc->colors.cave_fg,f))
         {
             new_return(10);
         }
-        
+
         if(!p_putc(Misc->colors.bs_dk,f))
         {
             new_return(11);
         }
-        
+
         if(!p_putc(Misc->colors.bs_goal,f))
         {
             new_return(12);
         }
-        
+
         if(!p_putc(Misc->colors.compass_lt,f))
         {
             new_return(13);
         }
-        
+
         if(!p_putc(Misc->colors.compass_dk,f))
         {
             new_return(14);
         }
-        
+
         if(!p_putc(Misc->colors.subscr_bg,f))
         {
             new_return(15);
         }
-        
+
         if(!p_putc(Misc->colors.triframe_color,f))
         {
             new_return(16);
         }
-        
+
         if(!p_putc(Misc->colors.link_dot,f))
         {
             new_return(17);
         }
-        
+
         if(!p_putc(Misc->colors.bmap_bg,f))
         {
             new_return(18);
         }
-        
+
         if(!p_putc(Misc->colors.bmap_fg,f))
         {
             new_return(19);
         }
-        
+
         if(!p_putc(Misc->colors.triforce_cset,f))
         {
             new_return(20);
         }
-        
+
         if(!p_putc(Misc->colors.triframe_cset,f))
         {
             new_return(21);
         }
-        
+
         if(!p_putc(Misc->colors.overworld_map_cset,f))
         {
             new_return(22);
         }
-        
+
         if(!p_putc(Misc->colors.dungeon_map_cset,f))
         {
             new_return(23);
         }
-        
+
         if(!p_putc(Misc->colors.blueframe_cset,f))
         {
             new_return(24);
         }
-        
+
         if(!p_iputw(Misc->colors.triforce_tile,f))
         {
             new_return(25);
         }
-        
+
         if(!p_iputw(Misc->colors.triframe_tile,f))
         {
             new_return(26);
         }
-        
+
         if(!p_iputw(Misc->colors.overworld_map_tile,f))
         {
             new_return(27);
         }
-        
+
         if(!p_iputw(Misc->colors.dungeon_map_tile,f))
         {
             new_return(28);
         }
-        
+
         if(!p_iputw(Misc->colors.blueframe_tile,f))
         {
             new_return(29);
         }
-        
+
         if(!p_iputw(Misc->colors.HCpieces_tile,f))
         {
             new_return(30);
         }
-        
+
         if(!p_putc(Misc->colors.HCpieces_cset,f))
         {
             new_return(31);
         }
-        
+
         if(!p_putc(Misc->colors.subscr_shadow,f))
         {
             new_return(32);
         }
-        
+
         if(!p_putc(Misc->colors.msgtext,f))
         {
             new_return(33);
         }
-	
+
         if(!p_iputl(Misc->colors.new_triforce_tile,f))
         {
             new_return(34);
         }
-        
+
         if(!p_iputl(Misc->colors.new_triframe_tile,f))
         {
             new_return(35);
         }
-        
+
         if(!p_iputl(Misc->colors.new_overworld_map_tile,f))
         {
             new_return(36);
         }
-        
+
         if(!p_iputl(Misc->colors.new_dungeon_map_tile,f))
         {
             new_return(37);
@@ -7697,7 +7697,7 @@ int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		{
 		    new_return(38);
 		}
-		
+
 	}
 	//Otherwise, if the quest was made in 2.50 or later, then is data is copied by the quest loader
 	//into the new var `new_blueframe_tile`, so we just write that out. -Z (13th March, 2019 )
@@ -7712,21 +7712,21 @@ int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         {
             new_return(39);
         }
-        
-        
+
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writemisccolors()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -7734,41 +7734,41 @@ int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_ICONS;
     dword section_version=V_ICONS;
     dword section_cversion=CV_ICONS;
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         for(int i=0; i<4; i++)
         {
             if(!p_iputl(Misc->icons[i],f))
@@ -7776,20 +7776,20 @@ int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                 new_return(5);
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writegameicons()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -7797,7 +7797,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_MISC;
     dword section_version=V_MISC;
     dword section_cversion=CV_MISC;
@@ -7806,50 +7806,50 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
     word warprings=count_warprings(Misc);
     word triforces=8;
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
-    
+
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //shops
         if(!p_iputw(shops,f))
         {
             new_return(5);
         }
-        
+
         for(int i=0; i<shops; i++)
         {
             if(!pfwrite(Misc->shop[i].name,sizeof(Misc->shop[i].name),f))
             {
                 new_return(6);
             }
-            
+
             for(int j=0; j<3; j++)
             {
                 if(!p_putc(Misc->shop[i].item[j],f))
@@ -7857,7 +7857,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                     new_return(7);
                 }
             }
-            
+
             for(int j=0; j<3; j++)
             {
                 if(!p_iputw(Misc->shop[i].price[j],f))
@@ -7865,7 +7865,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                     new_return(8);
                 }
             }
-            
+
             for(int j=0; j<3; j++)
             {
                 if(!p_putc(Misc->shop[i].hasitem[j],f))
@@ -7873,22 +7873,22 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                     new_return(9);
                 }
             }
-	    
+
         }
-        
+
         //infos
         if(!p_iputw(infos,f))
         {
             new_return(10);
         }
-        
+
         for(int i=0; i<infos; i++)
         {
             if(!pfwrite(Misc->info[i].name,sizeof(Misc->info[i].name),f))
             {
                 new_return(11);
             }
-            
+
             for(int j=0; j<3; j++)
             {
                 if(!p_iputw(Misc->info[i].str[j],f))
@@ -7896,7 +7896,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                     new_return(12);
                 }
             }
-            
+
             for(int j=0; j<3; j++)
             {
                 if(!p_iputw(Misc->info[i].price[j],f))
@@ -7905,13 +7905,13 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                 }
             }
         }
-        
+
         //warp rings
         if(!p_iputw(warprings,f))
         {
             new_return(14);
         }
-        
+
         for(int i=0; i<warprings; i++)
         {
             for(int j=0; j<9; j++)
@@ -7921,7 +7921,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                     new_return(15);
                 }
             }
-            
+
             for(int j=0; j<9; j++)
             {
                 if(!p_putc(Misc->warp[i].scr[j],f))
@@ -7929,13 +7929,13 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                     new_return(16);
                 }
             }
-            
+
             if(!p_putc(Misc->warp[i].size,f))
             {
                 new_return(17);
             }
         }
-        
+
         //triforce pieces
         for(int i=0; i<triforces; i++)
         {
@@ -7944,13 +7944,13 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                 new_return(18);
             }
         }
-        
+
         //end string
         if(!p_iputw(Misc->endstring,f))
         {
             new_return(19);
         }
-	
+
 	//V_MISC >= 8
 	for(int i=0; i<shops; i++)
 	{
@@ -7963,12 +7963,12 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
             }
         }
 	//V_MISC >= 9
-	for ( int q = 0; q < 32; q++ ) 
+	for ( int q = 0; q < 32; q++ )
 	{
 		if(!p_iputl(Misc->questmisc[q],f))
                     new_return(21);
 	}
-	for ( int q = 0; q < 32; q++ ) 
+	for ( int q = 0; q < 32; q++ )
 	{
 		for ( int j = 0; j < 128; j++ )
 		if(!p_putc(Misc->questmisc_strings[q][j],f))
@@ -7977,27 +7977,27 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	//V_MISC >= 11
 	if(!p_iputl(Misc->zscript_last_compiled_version,f))
                      new_return(23);
-		
+
 		//V_MISC >= 12
 		for(int q = 0; q < sprMAX; ++q)
 		{
 			if(!p_putc(Misc->sprites[q],f))
 				new_return(24);
 		}
-		
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writemisc()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -8005,48 +8005,48 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_ITEMS;
     dword section_version=V_ITEMS;
     dword section_cversion=CV_ITEMS;
     //  dword section_size=0;
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!p_iputw(iMax,f))
         {
             new_return(5);
         }
-        
+
         for(int i=0; i<iMax; i++)
         {
             if(!pfwrite(item_string[i], 64, f))
@@ -8054,99 +8054,99 @@ int writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(5);
             }
         }
-        
+
         for(int i=0; i<iMax; i++)
         {
             if(!p_iputl(itemsbuf[i].tile,f))
             {
                 new_return(6);
             }
-            
+
             if(!p_putc(itemsbuf[i].misc,f))
             {
                 new_return(7);
             }
-            
+
             if(!p_putc(itemsbuf[i].csets,f))
             {
                 new_return(8);
             }
-            
+
             if(!p_putc(itemsbuf[i].frames,f))
             {
                 new_return(9);
             }
-            
+
             if(!p_putc(itemsbuf[i].speed,f))
             {
                 new_return(10);
             }
-            
+
             if(!p_putc(itemsbuf[i].delay,f))
             {
                 new_return(11);
             }
-            
+
             if(!p_iputl(itemsbuf[i].ltm,f))
             {
                 new_return(12);
             }
-            
+
             if(!p_iputl(itemsbuf[i].family,f))
             {
                 new_return(13);
             }
-            
+
             if(!p_putc(itemsbuf[i].fam_type,f))
             {
                 new_return(14);
             }
-            
+
             if(!p_iputl(itemsbuf[i].power,f))
             {
                 new_return(14);
             }
-            
+
             if(!p_iputl(itemsbuf[i].flags,f))
             {
                 new_return(15);
             }
-            
+
             if(!p_iputw(itemsbuf[i].script,f))
             {
                 new_return(16);
             }
-            
+
             if(!p_putc(itemsbuf[i].count,f))
             {
                 new_return(17);
             }
-            
+
             if(!p_iputw(itemsbuf[i].amount,f))
             {
                 new_return(18);
             }
-            
+
             if(!p_iputw(itemsbuf[i].collect_script,f))
             {
                 new_return(19);
             }
-            
+
             if(!p_iputw(itemsbuf[i].setmax,f))
             {
                 new_return(21);
             }
-            
+
             if(!p_iputw(itemsbuf[i].max,f))
             {
                 new_return(22);
             }
-            
+
             if(!p_putc(itemsbuf[i].playsound,f))
             {
                 new_return(23);
             }
-            
+
             for(int j=0; j<8; j++)
             {
                 if(!p_iputl(itemsbuf[i].initiald[j],f))
@@ -8154,7 +8154,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
                     new_return(24);
                 }
             }
-            
+
             for(int j=0; j<2; j++)
             {
                 if(!p_putc(itemsbuf[i].initiala[j],f))
@@ -8162,125 +8162,125 @@ int writeitems(PACKFILE *f, zquestheader *Header)
                     new_return(25);
                 }
             }
-            
+
             if(!p_putc(itemsbuf[i].wpn,f))
             {
                 new_return(26);
             }
-            
+
             if(!p_putc(itemsbuf[i].wpn2,f))
             {
                 new_return(27);
             }
-            
+
             if(!p_putc(itemsbuf[i].wpn3,f))
             {
                 new_return(28);
             }
-            
+
             if(!p_putc(itemsbuf[i].wpn4,f))
             {
                 new_return(29);
             }
-            
+
             if(!p_putc(itemsbuf[i].wpn5,f))
             {
                 new_return(30);
             }
-            
+
             if(!p_putc(itemsbuf[i].wpn6,f))
             {
                 new_return(31);
             }
-            
+
             if(!p_putc(itemsbuf[i].wpn7,f))
             {
                 new_return(32);
             }
-            
+
             if(!p_putc(itemsbuf[i].wpn8,f))
             {
                 new_return(33);
             }
-            
+
             if(!p_putc(itemsbuf[i].wpn9,f))
             {
                 new_return(34);
             }
-            
+
             if(!p_putc(itemsbuf[i].wpn10,f))
             {
                 new_return(35);
             }
-            
+
             if(!p_putc(itemsbuf[i].pickup_hearts,f))
             {
                 new_return(36);
             }
-            
+
             if(!p_iputl(itemsbuf[i].misc1,f))
             {
                 new_return(37);
             }
-            
+
             if(!p_iputl(itemsbuf[i].misc2,f))
             {
                 new_return(38);
             }
-            
+
             if(!p_putc(itemsbuf[i].magic,f))
             {
                 new_return(39);
             }
-            
+
             if(!p_iputl(itemsbuf[i].misc3,f))
             {
                 new_return(40);
             }
-            
+
             if(!p_iputl(itemsbuf[i].misc4,f))
             {
                 new_return(41);
             }
-            
+
             if(!p_iputl(itemsbuf[i].misc5,f))
             {
                 new_return(42);
             }
-            
+
             if(!p_iputl(itemsbuf[i].misc6,f))
             {
                 new_return(43);
             }
-            
+
             if(!p_iputl(itemsbuf[i].misc7,f))
             {
                 new_return(44);
             }
-            
+
             if(!p_iputl(itemsbuf[i].misc8,f))
             {
                 new_return(45);
             }
-            
+
             if(!p_iputl(itemsbuf[i].misc9,f))
             {
                 new_return(46);
             }
-            
+
             if(!p_iputl(itemsbuf[i].misc10,f))
             {
                 new_return(47);
             }
-            
+
             if(!p_putc(itemsbuf[i].usesound,f))
             {
                 new_return(48);
             }
-	    
+
 	    //New itemdata vars -Z
 	    //! version 27
-	    
+
 	    if(!p_putc(itemsbuf[i].useweapon,f))
             {
                 new_return(49);
@@ -8433,12 +8433,12 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		{
 		    new_return(83);
 		}
-		
+
 		if(!p_putc(itemsbuf[i].cost_counter,f))
 		{
 		    new_return(84);
 		}
-		
+
 		//InitD[] labels
 		for ( int q = 0; q < 8; q++ )
 		{
@@ -8447,60 +8447,60 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
 				{
 					new_return(85);
-				} 
+				}
 			}
 			for ( int w = 0; w < 65; w++ )
 			{
 				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
 				{
 					new_return(86);
-				} 
+				}
 			}
 			for ( int w = 0; w < 65; w++ )
 			{
 				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
 				{
 					new_return(87);
-				} 
+				}
 			}
 			if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
 			{
 				new_return(88);
-			} 
+			}
 		}
 		for ( int q = 0; q < 2; q++ )
 		{
 			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
 			{
 				new_return(89);
-			} 
-			
+			}
+
 		}
 		if(!p_iputw(itemsbuf[i].sprite_script,f))
 		{
 			new_return(90);
-		} 
+		}
 		if(!p_putc(itemsbuf[i].pickupflag,f))
 		{
 			new_return(91);
-		} 
-		
-	    
+		}
+
+
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writeitems()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -8508,47 +8508,47 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_WEAPONS;
     dword section_version=V_WEAPONS;
     dword section_cversion=CV_WEAPONS;
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!p_iputw(wMAX,f))
         {
             new_return(5);
         }
-        
+
         for(int i=0; i<wMAX; i++)
         {
             if(!pfwrite((char *)weapon_string[i], 64, f))
@@ -8556,63 +8556,63 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
                 new_return(5);
             }
         }
-        
+
         for(int i=0; i<wMAX; i++)
         {
             if(!p_iputw(wpnsbuf[i].tile,f))
             {
                 new_return(6);
             }
-            
+
             if(!p_putc(wpnsbuf[i].misc,f))
             {
                 new_return(7);
             }
-            
+
             if(!p_putc(wpnsbuf[i].csets,f))
             {
                 new_return(8);
             }
-            
+
             if(!p_putc(wpnsbuf[i].frames,f))
             {
                 new_return(9);
             }
-            
+
             if(!p_putc(wpnsbuf[i].speed,f))
             {
                 new_return(10);
             }
-            
+
             if(!p_putc(wpnsbuf[i].type,f))
             {
                 new_return(11);
             }
-	    
+
 	    if(!p_iputw(wpnsbuf[i].script,f))
             {
                 new_return(12);
             }
-	    
+
 	    if(!p_iputl(wpnsbuf[i].newtile,f))
             {
                 new_return(12);
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writeweapons()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -8622,41 +8622,41 @@ int writemapscreen(PACKFILE *f, int i, int j)
     {
         return qe_invalid;
     }
-    
+
     mapscr& screen=TheMaps.at(i*MAPSCRS+j);
-    
+
     if(!p_putc(screen.valid,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.guy,f))
     {
         return qe_invalid;
     }
-    
+
     {
         if(!p_iputw(screen.str,f))
         {
             return qe_invalid;
         }
     }
-    
+
     if(!p_putc(screen.room,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.item,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.hasitem, f))
     {
         return qe_invalid;
     }
-    
+
     for(int k=0; k<4; k++)
     {
         if(!p_putc(screen.tilewarptype[k],f))
@@ -8664,12 +8664,12 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     if(!p_iputw(screen.door_combo_set,f))
     {
         return qe_invalid;
     }
-    
+
     for(int k=0; k<4; k++)
     {
         if(!p_putc(screen.warpreturnx[k],f))
@@ -8677,7 +8677,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<4; k++)
     {
         if(!p_putc(screen.warpreturny[k],f))
@@ -8685,42 +8685,42 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     if(!p_iputw(screen.warpreturnc,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.stairx,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.stairy,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.itemx,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.itemy,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_iputw(screen.color,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.enemyflags,f))
     {
         return qe_invalid;
     }
-    
+
     for(int k=0; k<4; k++)
     {
         if(!p_putc(screen.door[k],f))
@@ -8728,7 +8728,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<4; k++)
     {
         if(!p_iputw(screen.tilewarpdmap[k],f))
@@ -8736,7 +8736,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<4; k++)
     {
         if(!p_putc(screen.tilewarpscr[k],f))
@@ -8744,17 +8744,17 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     if(!p_putc(screen.tilewarpoverlayflags,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.exitdir,f))
     {
         return qe_invalid;
     }
-    
+
     for(int k=0; k<10; k++)
     {
         {
@@ -8764,12 +8764,12 @@ int writemapscreen(PACKFILE *f, int i, int j)
             }
         }
     }
-    
+
     if(!p_putc(screen.pattern,f))
     {
         return qe_invalid;
     }
-    
+
     for(int k=0; k<4; k++)
     {
         if(!p_putc(screen.sidewarptype[k],f))
@@ -8777,22 +8777,22 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     if(!p_putc(screen.sidewarpoverlayflags,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.warparrivalx,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.warparrivaly,f))
     {
         return qe_invalid;
     }
-    
+
     for(int k=0; k<4; k++)
     {
         if(!p_putc(screen.path[k],f))
@@ -8800,7 +8800,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<4; k++)
     {
         if(!p_putc(screen.sidewarpscr[k],f))
@@ -8808,7 +8808,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<4; k++)
     {
         if(!p_iputw(screen.sidewarpdmap[k],f))
@@ -8816,112 +8816,112 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     if(!p_putc(screen.sidewarpindex,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_iputw(screen.undercombo,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.undercset,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_iputw(screen.catchall,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.flags,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.flags2,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.flags3,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.flags4,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.flags5,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_iputw(screen.noreset,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_iputw(screen.nocarry,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.flags6,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.flags7,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.flags8,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.flags9,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.flags10,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.csensitive,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.oceansfx,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.bosssfx,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.secretsfx,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.holdupsfx,f))
     {
         return qe_invalid;
     }
-    
+
     for(int k=0; k<6; k++)
     {
         if(!p_putc(screen.layermap[k],f))
@@ -8929,7 +8929,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<6; k++)
     {
         if(!p_putc(screen.layerscreen[k],f))
@@ -8937,7 +8937,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<6; k++)
     {
         if(!p_putc(screen.layeropacity[k],f))
@@ -8945,22 +8945,22 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     if(!p_iputw(screen.timedwarptics,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.nextmap,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.nextscr,f))
     {
         return qe_invalid;
     }
-    
+
     for(int k=0; k<128; k++)
     {
         if(!p_iputw(screen.secretcombo[k],f))
@@ -8968,7 +8968,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<128; k++)
     {
         if(!p_putc(screen.secretcset[k],f))
@@ -8976,7 +8976,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<128; k++)
     {
         if(!p_putc(screen.secretflag[k],f))
@@ -8984,7 +8984,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
     {
         try
@@ -8999,7 +8999,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
     {
         try
@@ -9014,7 +9014,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
     {
         try
@@ -9029,22 +9029,22 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
         }
     }
-    
+
     if(!p_iputw(screen.screen_midi,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_putc(screen.lens_layer,f))
     {
         return qe_invalid;
     }
-    
+
     if(!p_iputl(screen.numff,f))
     {
         return qe_invalid;
     }
-    
+
     for(int k=0; k<32; k++)
     {
         if((screen.numff>>k)&1)
@@ -9053,163 +9053,163 @@ int writemapscreen(PACKFILE *f, int i, int j)
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(screen.ffcset[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputw(screen.ffdelay[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.ffx[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.ffy[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.ffxdelta[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.ffydelta[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.ffxdelta2[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.ffydelta2[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(screen.fflink[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(screen.ffwidth[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(screen.ffheight[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.ffflags[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputw(screen.ffscript[k],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.initd[k][0],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.initd[k][1],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.initd[k][2],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.initd[k][3],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.initd[k][4],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.initd[k][5],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.initd[k][6],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(screen.initd[k][7],f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(screen.inita[k][0]/10000,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(screen.inita[k][1]/10000,f))
             {
                 return qe_invalid;
             }
         }
     }
-    
-    for ( int q = 0; q < 10; q++ ) 
+
+    for ( int q = 0; q < 10; q++ )
     {
 	if(!p_iputl(screen.npcstrings[q],f))
 	{
 		return qe_invalid;
-	} 
+	}
     }
-    for ( int q = 0; q < 10; q++ ) 
+    for ( int q = 0; q < 10; q++ )
     {
 	if(!p_iputw(screen.new_items[q],f))
 	{
 		return qe_invalid;
-	} 
+	}
     }
-    for ( int q = 0; q < 10; q++ ) 
+    for ( int q = 0; q < 10; q++ )
     {
 	if(!p_iputw(screen.new_item_x[q],f))
 	{
 		return qe_invalid;
-	} 
+	}
     }
-    for ( int q = 0; q < 10; q++ ) 
+    for ( int q = 0; q < 10; q++ )
     {
 	if(!p_iputw(screen.new_item_y[q],f))
 	{
 		return qe_invalid;
-	} 
+	}
     }
     if(!p_iputw(screen.script,f))
     {
 		return qe_invalid;
-    } 
+    }
     for ( int q = 0; q < 8; q++ )
     {
 	if(!p_iputl(screen.screeninitd[q],f))
 	{
 		return qe_invalid;
-	} 
-	    
+	}
+
     }
     if(!p_putc(screen.preloadscript,f))
     {
@@ -9232,61 +9232,61 @@ int writemaps(PACKFILE *f, zquestheader *)
     dword section_version=V_MAPS;
     dword section_cversion=CV_MAPS;
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!p_iputw(map_count,f))
         {
             new_return(5);
         }
-        
+
         for(int i=0; i<map_count && i<MAXMAPS2; i++)
         {
             for(int j=0; j<MAPSCRS; j++)
                 writemapscreen(f,i,j);
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writemaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -9295,7 +9295,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
     //these are here to bypass compiler warnings about unused arguments
     version=version;
     build=build;
-    
+
     word combos_used;
     dword section_id=ID_COMBOS;
     dword section_version=V_COMBOS;
@@ -9305,118 +9305,118 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
     combos_used = zc_min(combos_used, max_combos);
     combos_used = zc_min(combos_used, MAXCOMBOS);
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         combos_used=count_combos()-start_combo;
         combos_used=zc_min(combos_used, max_combos);
         combos_used=zc_min(combos_used, MAXCOMBOS);
-        
+
         if(!p_iputw(combos_used,f))
         {
             new_return(5);
         }
-        
+
         for(int i=start_combo; i<start_combo+combos_used; i++)
         {
             if(!p_iputl(combobuf[i].tile,f))
             {
                 new_return(6);
             }
-            
+
             if(!p_putc(combobuf[i].flip,f))
             {
                 new_return(7);
             }
-            
+
             if(!p_putc(combobuf[i].walk,f))
             {
                 new_return(8);
             }
-            
+
             if(!p_putc(combobuf[i].type,f))
             {
                 new_return(9);
             }
-            
+
             if(!p_putc(combobuf[i].csets,f))
             {
                 new_return(10);
             }
-            
+
             if(!p_putc(combobuf[i].frames,f))
             {
                 new_return(11);
             }
-            
+
             if(!p_putc(combobuf[i].speed,f))
             {
                 new_return(12);
             }
-            
+
             if(!p_iputw(combobuf[i].nextcombo,f))
             {
                 new_return(13);
             }
-            
+
             if(!p_putc(combobuf[i].nextcset,f))
             {
                 new_return(14);
             }
-            
+
             if(!p_putc(combobuf[i].flag,f))
             {
                 new_return(15);
             }
-            
+
             if(!p_putc(combobuf[i].skipanim,f))
             {
                 new_return(16);
             }
-            
+
             if(!p_iputw(combobuf[i].nexttimer,f))
             {
                 new_return(17);
             }
-            
+
             if(!p_putc(combobuf[i].skipanimy,f))
             {
                 new_return(18);
             }
-            
+
             if(!p_putc(combobuf[i].animflags,f))
             {
                 new_return(19);
             }
-	    
+
 	    for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 	    {
 		if(!p_iputl(combobuf[i].attributes[q],f))
@@ -9427,20 +9427,20 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 	    if(!p_iputl(combobuf[i].usrflags,f))
 	    {
 			new_return(21);
-	    }	 
-	    for ( int q = 0; q < 3; q++ ) 
+	    }
+	    for ( int q = 0; q < 3; q++ )
 	    {
 	        if(!p_iputl(combobuf[i].triggerflags[q],f))
 	        {
 			new_return(22);
 	        }
 	    }
-	   
+
 	    if(!p_iputl(combobuf[i].triggerlevel,f))
 	    {
 			new_return(23);
-	    }	
-	    for ( int q = 0; q < 11; q++ ) 
+	    }
+	    for ( int q = 0; q < 11; q++ )
 	    {
 	        if(!p_putc(combobuf[i].label[q],f))
 	        {
@@ -9491,23 +9491,23 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 			new_return(32);
 		}
 	    }
-	    
-		    
+
+
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writecombos()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -9516,41 +9516,41 @@ int writecomboaliases(PACKFILE *f, word version, word build)
     //these are here to bypass compiler warnings about unused arguments
     version=version;
     build=build;
-    
+
     dword section_id=ID_COMBOALIASES;
     dword section_version=V_COMBOALIASES;
     dword section_cversion=CV_COMBOALIASES;
     dword section_size=0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         for(int j=0; j<MAXCOMBOALIASES; j++)
         {
@@ -9558,29 +9558,29 @@ int writecomboaliases(PACKFILE *f, word version, word build)
             {
                 new_return(5);
             }
-            
+
             if(!p_putc(combo_aliases[j].cset,f))
             {
                 new_return(6);
             }
-            
+
             int count = ((combo_aliases[j].width+1)*(combo_aliases[j].height+1))*(comboa_lmasktotal(combo_aliases[j].layermask)+1);
-            
+
             if(!p_putc(combo_aliases[j].width,f))
             {
                 new_return(7);
             }
-            
+
             if(!p_putc(combo_aliases[j].height,f))
             {
                 new_return(8);
             }
-            
+
             if(!p_putc(combo_aliases[j].layermask,f))
             {
                 new_return(9);
             }
-            
+
             for(int k=0; k<count; k++)
             {
                 if(!p_iputw(combo_aliases[j].combos[k],f))
@@ -9588,7 +9588,7 @@ int writecomboaliases(PACKFILE *f, word version, word build)
                     new_return(10);
                 }
             }
-            
+
             for(int k=0; k<count; k++)
             {
                 if(!p_putc(combo_aliases[j].csets[k],f))
@@ -9597,21 +9597,21 @@ int writecomboaliases(PACKFILE *f, word version, word build)
                 }
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
-    
+
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writecomboaliases()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -9622,60 +9622,60 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
     build=build;
     start_cset=start_cset;
     max_csets=max_csets;
-    
+
     dword section_id=ID_CSETS;
     dword section_version=V_CSETS;
     dword section_cversion=CV_CSETS;
     int palcycles = count_palcycles(Misc);
 // int palcyccount = count_palcycles(Misc);
     dword section_size = 0;
-    
+
     //section id
-    
+
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!pfwrite(colordata,newerpsTOTAL,f))
         {
             new_return(5);
         }
-        
+
         if(!pfwrite(palnames,MAXLEVELS*PALNAMESIZE,f))
         {
             new_return(6);
         }
-        
+
         if(!p_iputw(palcycles,f))
         {
             new_return(15);
         }
-        
+
         for(int i=0; i<palcycles; i++)
         {
             for(int j=0; j<3; j++)
@@ -9685,7 +9685,7 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
                     new_return(16);
                 }
             }
-            
+
             for(int j=0; j<3; j++)
             {
                 if(!p_putc(Misc->cycles[i][j].count,f))
@@ -9693,7 +9693,7 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
                     new_return(17);
                 }
             }
-            
+
             for(int j=0; j<3; j++)
             {
                 if(!p_putc(Misc->cycles[i][j].speed,f))
@@ -9702,20 +9702,20 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
                 }
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writecolordata()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -9726,114 +9726,114 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
     build=build;
     start_msgstr=start_msgstr;
     max_msgstrs=max_msgstrs;
-    
+
     dword section_id=ID_STRINGS;
     dword section_version=V_STRINGS;
     dword section_cversion=CV_STRINGS;
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!p_iputw(msg_count,f))
         {
             return qe_invalid;
         }
-        
+
         for(int i=0; i<msg_count; i++)
         {
             if(!pfwrite(MsgStrings[i].s,sizeof(MsgStrings[i].s),f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputw(MsgStrings[i].nextstring,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputl(MsgStrings[i].tile,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(MsgStrings[i].cset,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(MsgStrings[i].trans?1:0,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(MsgStrings[i].font,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputw(MsgStrings[i].x,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputw(MsgStrings[i].y,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputw(MsgStrings[i].w,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputw(MsgStrings[i].h,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(MsgStrings[i].hspace,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(MsgStrings[i].vspace,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_putc(MsgStrings[i].stringflags,f))
             {
                 return qe_invalid;
             }
-			
+
 			for(int q = 0; q < 4; ++q)
 			{
 				if(!p_putc(MsgStrings[i].margins[q],f))
@@ -9841,68 +9841,68 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
 					return qe_invalid;
 				}
 			}
-			
+
 			if(!p_iputl(MsgStrings[i].portrait_tile,f))
 			{
 				return qe_invalid;
 			}
-			
+
 			if(!p_putc(MsgStrings[i].portrait_cset,f))
 			{
 				return qe_invalid;
 			}
-			
+
 			if(!p_putc(MsgStrings[i].portrait_x,f))
 			{
 				return qe_invalid;
 			}
-			
+
 			if(!p_putc(MsgStrings[i].portrait_y,f))
 			{
 				return qe_invalid;
 			}
-			
+
 			if(!p_putc(MsgStrings[i].portrait_tw,f))
 			{
 				return qe_invalid;
 			}
-			
+
 			if(!p_putc(MsgStrings[i].portrait_th,f))
 			{
 				return qe_invalid;
 			}
-            
+
             if(!p_putc(MsgStrings[i].sfx,f))
             {
                 return qe_invalid;
             }
-            
+
             if(!p_iputw(MsgStrings[i].listpos,f))
             {
                 return qe_invalid;
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writestrings()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
 int writestrings_text(PACKFILE *f)
 {
     std::map<int, int> msglistcache;
-    
+
     for(int index = 1; index<msg_count; index++)
     {
         for(int i=1; i<msg_count; i++)
@@ -9914,45 +9914,45 @@ int writestrings_text(PACKFILE *f)
             }
         }
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         char ebuf[32];
-        
+
         sprintf(ebuf,"Total strings: %d\n", msg_count-1);
-        
+
         if(!pfwrite(&ebuf,(long)strlen(ebuf),f))
         {
             return qe_invalid;
         }
-        
+
         for(int i=1; i<msg_count; i++)
         {
             int str = msglistcache[i-1];
-            
+
             if(!str)
                 continue;
-                
+
             if(MsgStrings[str].nextstring != 0)
                 sprintf(ebuf,"\n\n___%d(->%d)___\n", str,MsgStrings[str].nextstring);
             else
                 sprintf(ebuf,"\n\n___%d___\n", str);
-                
+
             if(!pfwrite(&ebuf,(long)strlen(ebuf),f))
             {
                 return qe_invalid;
             }
-            
+
             encode_msg_str(str);
-            
+
             if(!pfwrite(&msgbuf,(int)strlen(msgbuf),f))
             {
                 return qe_invalid;
             }
         }
     }
-    
+
     new_return(0);
 }
 
@@ -9962,7 +9962,7 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
     //these are here to bypass compiler warnings about unused arguments
     version=version;
     build=build;
-    
+
     int tiles_used;
     dword section_id=ID_TILES;
     dword section_version=V_TILES;
@@ -9971,48 +9971,48 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
     tiles_used = count_tiles(newtilebuf)-start_tile;
     tiles_used = zc_min(tiles_used, max_tiles);
     tiles_used = zc_min(tiles_used, NEWMAXTILES);
-	al_trace("writetiles counted %dtiles used.\n",tiles_used); 
+	al_trace("writetiles counted %dtiles used.\n",tiles_used);
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         tiles_used=count_tiles(newtilebuf)-start_tile;
         tiles_used=zc_min(tiles_used, max_tiles);
         tiles_used=zc_min(tiles_used, NEWMAXTILES);
-        
+
         if(!p_iputl(tiles_used,f))
         {
             new_return(5);
         }
-        
+
         for(int i=0; i<tiles_used; ++i)
         //for(int i=0; i<NEWMAXTILES; ++i)
         {
@@ -10020,7 +10020,7 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
             {
                 new_return(6);
             }
-            
+
             if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
             {
                 new_return(7);
@@ -10030,27 +10030,27 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
             {
                 new_return(6);
             }
-            
+
             if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
             {
                 new_return(7);
             }
 	    */
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writetiles()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -10079,42 +10079,42 @@ int writemidis(PACKFILE *f)
     dword section_version=V_MIDIS;
     dword section_cversion=CV_MIDIS;
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!pfwrite(midi_flags,sizeof(midi_flags),f))
         {
             new_return(5);
         }
-        
+
         for(int i=0; i<MAXCUSTOMMIDIS; i++)
         {
             if(get_bit(midi_flags,i))
@@ -10123,69 +10123,69 @@ int writemidis(PACKFILE *f)
                 {
                     new_return(6);
                 }
-                
+
                 if(!p_iputl(customtunes[i].start,f))
                 {
                     new_return(7);
                 }
-                
+
                 if(!p_iputl(customtunes[i].loop_start,f))
                 {
                     new_return(8);
                 }
-                
+
                 if(!p_iputl(customtunes[i].loop_end,f))
                 {
                     new_return(9);
                 }
-                
+
                 if(!p_iputw(customtunes[i].loop,f))
                 {
                     new_return(10);
                 }
-                
+
                 if(!p_iputw(customtunes[i].volume,f))
                 {
                     new_return(11);
                 }
-                
+
                 if(!pfwrite(&customtunes[i].flags, sizeof(customtunes[i].flags),f))
                 {
                     new_return(12);
                 }
-                
+
                 if(!pfwrite(&customtunes[i].format, sizeof(customtunes[i].format),f))
                 {
                     new_return(13);
                 }
-                
+
                 switch(customtunes[i].format)
                 {
                 case MFORMAT_MIDI:
                     if(!write_midi((MIDI*) customtunes[i].data,f)) new_return(14);
-                    
+
                     break;
-                    
+
                 default:
                     new_return(15);
                     break;
                 }
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writemidis()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -10195,68 +10195,68 @@ int writecheats(PACKFILE *f, zquestheader *Header)
     dword section_version=V_CHEATS;
     dword section_cversion=CV_CHEATS;
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!p_putc(Header->data_flags[ZQ_CHEATS2],f))
         {
             new_return(5);
         }
-        
+
         if(Header->data_flags[ZQ_CHEATS2])
         {
             if(!p_iputl(zcheats.flags,f))
             {
                 new_return(6);
             }
-            
+
             if(!pfwrite(&zcheats.codes, sizeof(zcheats.codes), f))
             {
                 new_return(7);
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writecheats()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -10264,41 +10264,41 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_GUYS;
     dword section_version=V_GUYS;
     dword section_cversion=CV_GUYS;
     dword section_size=0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         for(int i=0; i<MAXGUYS; i++)
         {
@@ -10307,209 +10307,209 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 new_return(5);
             }
         }
-        
+
         for(int i=0; i<MAXGUYS; i++)
         {
             if(!p_iputl(guysbuf[i].flags,f))
             {
                 new_return(6);
             }
-            
+
             if(!p_iputl(guysbuf[i].flags2,f))
             {
                 new_return(7);
             }
-            
+
             if(!p_iputl(guysbuf[i].tile,f))
             {
                 new_return(8);
             }
-            
+
             if(!p_putc(guysbuf[i].width,f))
             {
                 new_return(9);
             }
-            
+
             if(!p_putc(guysbuf[i].height,f))
             {
                 new_return(10);
             }
-            
+
             if(!p_iputl(guysbuf[i].s_tile,f))
             {
                 new_return(11);
             }
-            
+
             if(!p_putc(guysbuf[i].s_width,f))
             {
                 new_return(12);
             }
-            
+
             if(!p_putc(guysbuf[i].s_height,f))
             {
                 new_return(13);
             }
-            
+
             if(!p_iputl(guysbuf[i].e_tile,f))
             {
                 new_return(14);
             }
-            
+
             if(!p_putc(guysbuf[i].e_width,f))
             {
                 new_return(15);
             }
-            
+
             if(!p_putc(guysbuf[i].e_height,f))
             {
                 new_return(16);
             }
-            
+
             if(!p_iputw(guysbuf[i].hp,f))
             {
                 new_return(17);
             }
-            
+
             if(!p_iputw(guysbuf[i].family,f))
             {
                 new_return(18);
             }
-            
+
             if(!p_iputw(guysbuf[i].cset,f))
             {
                 new_return(19);
             }
-            
+
             if(!p_iputw(guysbuf[i].anim,f))
             {
                 new_return(20);
             }
-            
+
             if(!p_iputw(guysbuf[i].e_anim,f))
             {
                 new_return(21);
             }
-            
+
             if(!p_iputw(guysbuf[i].frate,f))
             {
                 new_return(22);
             }
-            
+
             if(!p_iputw(guysbuf[i].e_frate,f))
             {
                 new_return(23);
             }
-            
+
             if(!p_iputw(guysbuf[i].dp,f))
             {
                 new_return(24);
             }
-            
+
             if(!p_iputw(guysbuf[i].wdp,f))
             {
                 new_return(25);
             }
-            
+
             if(!p_iputw(guysbuf[i].weapon,f))
             {
                 new_return(26);
             }
-            
+
             if(!p_iputw(guysbuf[i].rate,f))
             {
                 new_return(27);
             }
-            
+
             if(!p_iputw(guysbuf[i].hrate,f))
             {
                 new_return(28);
             }
-            
+
             if(!p_iputw(guysbuf[i].step,f))
             {
                 new_return(29);
             }
-            
+
             if(!p_iputw(guysbuf[i].homing,f))
             {
                 new_return(30);
             }
-            
+
             if(!p_iputw(guysbuf[i].grumble,f))
             {
                 new_return(31);
             }
-            
+
             if(!p_iputw(guysbuf[i].item_set,f))
             {
                 new_return(32);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc1,f))
             {
                 new_return(33);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc2,f))
             {
                 new_return(34);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc3,f))
             {
                 new_return(35);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc4,f))
             {
                 new_return(36);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc5,f))
             {
                 new_return(37);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc6,f))
             {
                 new_return(38);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc7,f))
             {
                 new_return(39);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc8,f))
             {
                 new_return(40);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc9,f))
             {
                 new_return(41);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc10,f))
             {
                 new_return(42);
             }
-            
+
             if(!p_iputw(guysbuf[i].bgsfx,f))
             {
                 new_return(43);
             }
-            
+
             if(!p_iputw(guysbuf[i].bosspal,f))
             {
                 new_return(44);
             }
-            
+
             if(!p_iputw(guysbuf[i].extend,f))
             {
                 new_return(45);
             }
-            
+
             for(int j=0; j < edefLAST; j++)
             {
                 if(!p_putc(guysbuf[i].defense[j],f))
@@ -10517,35 +10517,35 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                     new_return(46);
                 }
             }
-            
+
 	    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x250 || (( FFCore.getQuestHeaderInfo(vZelda) == 0x250 ) && FFCore.getQuestHeaderInfo(vBuild) < 32 ) )
 	    {
 	    //If no user-set hit sound was in place, and the quest was made in a version before 2.53.0 Gamma 2:
-		if ( guysbuf[i].hitsfx == 0 ) guysbuf[i].hitsfx = WAV_EHIT; //Fix quests using the wrong hit sound when loading this. 
-		//Force SFX_HIT here. 
-	    
+		if ( guysbuf[i].hitsfx == 0 ) guysbuf[i].hitsfx = WAV_EHIT; //Fix quests using the wrong hit sound when loading this.
+		//Force SFX_HIT here.
+
             }
-	    
+
             if(!p_putc(guysbuf[i].hitsfx,f))
             {
                 new_return(47);
             }
-            
+
             if(!p_putc(guysbuf[i].deadsfx,f))
             {
                 new_return(48);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc11,f))
             {
                 new_return(49);
             }
-            
+
             if(!p_iputl(guysbuf[i].misc12,f))
             {
                 new_return(50);
             }
-	    
+
 	    //New 2.6 defences
 	    for(int j=edefLAST; j < edefLAST255; j++)
             {
@@ -10554,7 +10554,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                     new_return(51);
                 }
             }
-	    
+
 	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
 	    if(!p_iputl(guysbuf[i].txsz,f))
             {
@@ -10576,7 +10576,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             {
                 new_return(56);
             }
-	    // These are not fixed types, but ints, so they are safe to use here. 
+	    // These are not fixed types, but ints, so they are safe to use here.
 	    if(!p_iputl(guysbuf[i].hxofs,f))
             {
                 new_return(57);
@@ -10617,8 +10617,8 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             {
                 new_return(66);
             }
-	    
-	    for ( int q = 0; q < 10; q++ ) 
+
+	    for ( int q = 0; q < 10; q++ )
 	    {
 		if(!p_iputw(guysbuf[i].frozenmisc[q],f))
 		{
@@ -10747,7 +10747,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             {
                 new_return(94);
             }
-	    
+
 	    //Enemy Editor InitD[] labels
 	    for ( int q = 0; q < 8; q++ )
 	    {
@@ -10756,14 +10756,14 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 				if(!p_putc(guysbuf[i].initD_label[q][w],f))
 				{
 					new_return(95);
-				} 
+				}
 			}
 			for ( int w = 0; w < 65; w++ )
 			{
 				if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
 				{
 					new_return(96);
-				} 
+				}
 			}
 	    }
 	    if(!p_iputw(guysbuf[i].weaponscript,f))
@@ -10781,20 +10781,20 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			if(!p_putc(guysbuf[i].moveflags,f))
 				new_return(99);
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writeguys()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -10802,41 +10802,41 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_LINKSPRITES;
     dword section_version=V_LINKSPRITES;
     dword section_cversion=CV_LINKSPRITES;
     dword section_size=0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         for(int i=0; i<4; i++)
         {
@@ -10844,141 +10844,141 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
             {
                 new_return(5);
             }
-            
+
             if(!p_putc((byte)walkspr[i][spr_flip],f))
             {
                 new_return(5);
             }
-            
+
             if(!p_putc((byte)walkspr[i][spr_extend],f))
             {
                 new_return(5);
             }
         }
-        
+
         for(int i=0; i<4; i++)
         {
             if(!p_iputl(stabspr[i][spr_tile],f))
             {
                 new_return(6);
             }
-            
+
             if(!p_putc((byte)stabspr[i][spr_flip],f))
             {
                 new_return(6);
             }
-            
+
             if(!p_putc((byte)stabspr[i][spr_extend],f))
             {
                 new_return(6);
             }
         }
-        
+
         for(int i=0; i<4; i++)
         {
             if(!p_iputl(slashspr[i][spr_tile],f))
             {
                 new_return(7);
             }
-            
+
             if(!p_putc((byte)slashspr[i][spr_flip],f))
             {
                 new_return(7);
             }
-            
+
             if(!p_putc((byte)slashspr[i][spr_extend],f))
             {
                 new_return(7);
             }
         }
-        
+
         for(int i=0; i<4; i++)
         {
             if(!p_iputl(floatspr[i][spr_tile],f))
             {
                 new_return(8);
             }
-            
+
             if(!p_putc((byte)floatspr[i][spr_flip],f))
             {
                 new_return(8);
             }
-            
+
             if(!p_putc((byte)floatspr[i][spr_extend],f))
             {
                 new_return(8);
             }
         }
-        
+
         for(int i=0; i<4; i++)
         {
             if(!p_iputl(swimspr[i][spr_tile],f))
             {
                 new_return(8);
             }
-            
+
             if(!p_putc((byte)swimspr[i][spr_flip],f))
             {
                 new_return(8);
             }
-            
+
             if(!p_putc((byte)swimspr[i][spr_extend],f))
             {
                 new_return(8);
             }
         }
-        
+
         for(int i=0; i<4; i++)
         {
             if(!p_iputl(divespr[i][spr_tile],f))
             {
                 new_return(9);
             }
-            
+
             if(!p_putc((byte)divespr[i][spr_flip],f))
             {
                 new_return(9);
             }
-            
+
             if(!p_putc((byte)divespr[i][spr_extend],f))
             {
                 new_return(9);
             }
         }
-        
+
         for(int i=0; i<4; i++)
         {
             if(!p_iputl(poundspr[i][spr_tile],f))
             {
                 new_return(10);
             }
-            
+
             if(!p_putc((byte)poundspr[i][spr_flip],f))
             {
                 new_return(10);
             }
-            
+
             if(!p_putc((byte)poundspr[i][spr_extend],f))
             {
                 new_return(10);
             }
         }
-        
+
         if(!p_iputl(castingspr[spr_tile],f))
         {
             new_return(11);
         }
-        
+
         if(!p_putc((byte)castingspr[spr_flip],f))
         {
             new_return(11);
         }
-        
+
         if(!p_putc((byte)castingspr[spr_extend],f))
         {
             new_return(11);
         }
-        
+
         for(int i=0; i<2; i++)
         {
             for(int j=0; j<spr_holdmax; j++)
@@ -10987,60 +10987,60 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(12);
                 }
-                
+
                 if(!p_putc((byte)holdspr[i][j][spr_flip],f))
                 {
                     new_return(12);
                 }
-                
+
                 if(!p_putc((byte)holdspr[i][j][spr_extend],f))
                 {
                     new_return(12);
                 }
             }
         }
-        
+
         for(int i=0; i<4; i++)
         {
             if(!p_iputl(jumpspr[i][spr_tile],f))
             {
                 new_return(13);
             }
-            
+
             if(!p_putc((byte)jumpspr[i][spr_flip],f))
             {
                 new_return(13);
             }
-            
+
             if(!p_putc((byte)jumpspr[i][spr_extend],f))
             {
                 new_return(13);
             }
         }
-        
+
         for(int i=0; i<4; i++)
         {
             if(!p_iputl(chargespr[i][spr_tile],f))
             {
                 new_return(13);
             }
-            
+
             if(!p_putc((byte)chargespr[i][spr_flip],f))
             {
                 new_return(13);
             }
-            
+
             if(!p_putc((byte)chargespr[i][spr_extend],f))
             {
                 new_return(13);
             }
         }
-        
+
         if(!p_putc((byte)zinit.link_swim_speed,f))
         {
             new_return(14);
         }
-		
+
 		//{ V_LINKSPRITES >= 7
 		for(int q = 0; q < 4; ++q)
 		{
@@ -11264,22 +11264,22 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
                 new_return(15);
         }
 		//}
-		
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     //More data will come here
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writelinksprites()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -11289,60 +11289,60 @@ int writesubscreens(PACKFILE *f, zquestheader *Header)
     dword section_version=V_SUBSCREEN;
     dword section_cversion=CV_SUBSCREEN;
     dword section_size=0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         for(int i=0; i<MAXCUSTOMSUBSCREENS; i++)
         {
             int ret = write_one_subscreen(f, Header, i);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writesubscreens()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -11350,156 +11350,156 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     int numsub = 0;
-    
+
     if(!pfwrite(custom_subscreen[i].name, 64,f))
     {
         new_return(28);
     }
-    
+
     if(!p_putc(custom_subscreen[i].ss_type,f))
     {
         new_return(29);
     }
-    
+
     for(int k=0; (k<MAXSUBSCREENITEMS&&(custom_subscreen[i].objects[k].type != ssoNULL)); k++)
     {
         numsub++;
     }
-    
+
     if(!p_iputw(numsub,f))
     {
         new_return(4);
     }
-    
+
     for(int j=0; (j<MAXSUBSCREENITEMS&&j<numsub); j++)
     {
         if(!p_putc(custom_subscreen[i].objects[j].type, f))
         {
             new_return(5);
         }
-        
+
         if(!p_putc(custom_subscreen[i].objects[j].pos, f))
         {
             new_return(6);
         }
-        
+
         if(!p_iputw(custom_subscreen[i].objects[j].x, f))
         {
             new_return(7);
         }
-        
+
         if(!p_iputw(custom_subscreen[i].objects[j].y, f))
         {
             new_return(8);
         }
-        
+
         if(!p_iputw(custom_subscreen[i].objects[j].w, f))
         {
             new_return(9);
         }
-        
+
         if(!p_iputw(custom_subscreen[i].objects[j].h, f))
         {
             new_return(10);
         }
-        
+
         if(!p_putc(custom_subscreen[i].objects[j].colortype1, f))
         {
             new_return(11);
         }
-        
+
         if(!p_iputw(custom_subscreen[i].objects[j].color1, f))
         {
             new_return(12);
         }
-        
+
         if(!p_putc(custom_subscreen[i].objects[j].colortype2, f))
         {
             new_return(13);
         }
-        
+
         if(!p_iputw(custom_subscreen[i].objects[j].color2, f))
         {
             new_return(14);
         }
-        
+
         if(!p_putc(custom_subscreen[i].objects[j].colortype3, f))
         {
             new_return(15);
         }
-        
+
         if(!p_iputw(custom_subscreen[i].objects[j].color3, f))
         {
             new_return(16);
         }
-        
+
         if(!p_iputl(custom_subscreen[i].objects[j].d1, f))
         {
             new_return(17);
         }
-        
+
         if(!p_iputl(custom_subscreen[i].objects[j].d2, f))
         {
             new_return(18);
         }
-        
+
         if(!p_iputl(custom_subscreen[i].objects[j].d3, f))
         {
             new_return(19);
         }
-        
+
         if(!p_iputl(custom_subscreen[i].objects[j].d4, f))
         {
             new_return(20);
         }
-        
+
         if(!p_iputl(custom_subscreen[i].objects[j].d5, f))
         {
             new_return(21);
         }
-        
+
         if(!p_iputl(custom_subscreen[i].objects[j].d6, f))
         {
             new_return(22);
         }
-        
+
         if(!p_iputl(custom_subscreen[i].objects[j].d7, f))
         {
             new_return(23);
         }
-        
+
         if(!p_iputl(custom_subscreen[i].objects[j].d8, f))
         {
             new_return(24);
         }
-        
+
         if(!p_iputl(custom_subscreen[i].objects[j].d9, f))
         {
             new_return(25);
         }
-        
+
         if(!p_iputl(custom_subscreen[i].objects[j].d10, f))
         {
             new_return(26);
         }
-        
+
         if(!p_putc(custom_subscreen[i].objects[j].speed, f))
         {
             new_return(27);
         }
-        
+
         if(!p_putc(custom_subscreen[i].objects[j].delay, f))
         {
             new_return(28);
         }
-        
+
         if(!p_iputw(custom_subscreen[i].objects[j].frame, f))
         {
             new_return(29);
         }
-        
+
         switch(custom_subscreen[i].objects[j].type)
         {
         case ssoTEXT:
@@ -11514,7 +11514,7 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
                     {
                         new_return(27);
                     }
-                    
+
                     if(!pfwrite(custom_subscreen[i].objects[j].dp1, (long)strlen((char*)custom_subscreen[i].objects[j].dp1)+1,f))
                     {
                         new_return(28);
@@ -11535,9 +11535,9 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
                     new_return(27);
                 }
             }
-            
+
             break;
-            
+
         default:
             if(!p_putc(0, f))
             {
@@ -11545,7 +11545,7 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
             }
         }
     }
-    
+
     new_return(0);
 }
 
@@ -11572,156 +11572,156 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	dword zasmmeta_version = METADATA_V;
     byte numscripts        = 0;
     numscripts = numscripts; //to avoid unused variables warnings
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     if(!p_iputw(zasmmeta_version,f))
     {
         new_return(4);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(5);
         }
-        
+
         writesize=0;
-        
+
         for(int i=0; i<NUMSCRIPTFFC; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-        
+
         for(int i=0; i<NUMSCRIPTITEM; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-        
+
         for(int i=0; i<NUMSCRIPTGUYS; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-        
+
         for(int i=0; i<NUMSCRIPTWEAPONS; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-        
+
         for(int i=0; i<NUMSCRIPTSCREEN; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-        
+
         for(int i=0; i<NUMSCRIPTGLOBAL; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-        
+
         for(int i=0; i<NUMSCRIPTLINK; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &linkscripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-	
+
         for(int i=0; i<NUMSCRIPTWEAPONS; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-	
+
 	for(int i=0; i<NUMSCRIPTWEAPONS; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &ewpnscripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-        
+
 	for(int i=0; i<NUMSCRIPTSDMAP; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &dmapscripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-	
+
 	for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &itemspritescripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
@@ -11732,25 +11732,25 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         {
             int ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
             fake_pack_writing=(writecycle==0);
-            
+
             if(ret!=0)
             {
                 new_return(ret);
             }
         }
-        
+
         if(!p_iputl((long)zScript.size(), f))
         {
             new_return(2001);
         }
-        
+
         if(!pfwrite((void *)zScript.c_str(), (long)zScript.size(), f))
         {
             new_return(2002);
         }
-        
+
         word numffcbindings=0;
-        
+
         for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11758,12 +11758,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 numffcbindings++;
             }
         }
-        
+
         if(!p_iputw(numffcbindings, f))
         {
             new_return(2003);
         }
-        
+
         for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11772,21 +11772,21 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(2004);
                 }
-                
+
                 if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2005);
                 }
-                
+
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2006);
                 }
             }
         }
-        
+
         word numglobalbindings=0;
-        
+
         for(std::map<int, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11794,12 +11794,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 numglobalbindings++;
             }
         }
-        
+
         if(!p_iputw(numglobalbindings, f))
         {
             new_return(2007);
         }
-        
+
         for(std::map<int, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11808,21 +11808,21 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(2008);
                 }
-                
+
                 if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2009);
                 }
-                
+
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2010);
                 }
             }
         }
-        
+
         word numitembindings=0;
-        
+
         for(std::map<int, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11830,12 +11830,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 numitembindings++;
             }
         }
-        
+
         if(!p_iputw(numitembindings, f))
         {
             new_return(2011);
         }
-        
+
         for(std::map<int, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11844,23 +11844,23 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(2012);
                 }
-                
+
                 if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2013);
                 }
-                
+
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2014);
                 }
             }
         }
-        
+
         //new script types
         //npc scripts
         word numnpcbindings=0;
-        
+
         for(std::map<int, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11868,12 +11868,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 numnpcbindings++;
             }
         }
-        
+
         if(!p_iputw(numnpcbindings, f))
         {
             new_return(2015);
         }
-        
+
         for(std::map<int, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11882,23 +11882,23 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(2016);
                 }
-                
+
                 if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2017);
                 }
-                
+
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2018);
                 }
             }
         }
-        
+
         //lweapon
-	
+
 	word numlwpnbindings=0;
-        
+
         for(std::map<int, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11906,12 +11906,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 numlwpnbindings++;
             }
         }
-        
+
         if(!p_iputw(numlwpnbindings, f))
         {
             new_return(2019);
         }
-        
+
         for(std::map<int, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11920,26 +11920,26 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(2020);
                 }
-                
+
                 if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2021);
                 }
-                
+
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2022);
                 }
             }
         }
-	
+
 	//////
-	
+
 	//eweapon
-	
-	
+
+
         word numewpnbindings=0;
-        
+
         for(std::map<int, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11947,12 +11947,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 numewpnbindings++;
             }
         }
-        
+
         if(!p_iputw(numewpnbindings, f))
         {
             new_return(2023);
         }
-        
+
         for(std::map<int, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11961,22 +11961,22 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(2024);
                 }
-                
+
                 if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2025);
                 }
-                
+
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2026);
                 }
             }
         }
-	
+
 	//link scripts
 	word numlinkbindings=0;
-        
+
         for(std::map<int, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11984,12 +11984,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 numlinkbindings++;
             }
         }
-        
+
         if(!p_iputw(numlinkbindings, f))
         {
             new_return(2027);
         }
-        
+
         for(std::map<int, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -11998,22 +11998,22 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(2028);
                 }
-                
+
                 if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2029);
                 }
-                
+
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2030);
                 }
             }
         }
-	
+
 	//dmap scripts
 	word numdmapbindings=0;
-        
+
         for(std::map<int, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -12021,12 +12021,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 numdmapbindings++;
             }
         }
-        
+
         if(!p_iputw(numdmapbindings, f))
         {
             new_return(2031);
         }
-        
+
         for(std::map<int, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -12035,22 +12035,22 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(2032);
                 }
-                
+
                 if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2033);
                 }
-                
+
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2034);
                 }
             }
         }
-	
+
 	//screen scripts
 	word numscreenbindings=0;
-        
+
         for(std::map<int, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -12058,12 +12058,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 numscreenbindings++;
             }
         }
-        
+
         if(!p_iputw(numscreenbindings, f))
         {
             new_return(2035);
         }
-        
+
         for(std::map<int, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -12072,12 +12072,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(2036);
                 }
-                
+
                 if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2037);
                 }
-                
+
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2038);
@@ -12086,7 +12086,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         }
         //item sprite scripts
 	word numitemspritebindings=0;
-        
+
         for(std::map<int, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -12094,12 +12094,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 numitemspritebindings++;
             }
         }
-        
+
         if(!p_iputw(numitemspritebindings, f))
         {
             new_return(2039);
         }
-        
+
         for(std::map<int, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -12108,23 +12108,23 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(2040);
                 }
-                
+
                 if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2041);
                 }
-                
+
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2042);
                 }
             }
         }
-	
+
 	//combo scripts
 	al_trace("About to write combo script pt 2.\n");
 	word numcombobindings=0;
-        
+
         for(std::map<int, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
         {
             if(it->second.scriptname != "")
@@ -12146,34 +12146,34 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 {
                     new_return(2044);
                 }
-                
+
                 if(!p_iputl((long)it->second.scriptname.size(), f))
                 {
                     new_return(2045);
                 }
-                
+
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
                 {
                     new_return(2046);
                 }
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
-        
-    
+
+
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writeffscript()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
     //return 0;  //this is just here to stomp the compiler from whining.
     //the irony is that it causes an "unreachable code" warning.
@@ -12184,9 +12184,9 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     i=i;
-    
+
     int num_commands;
-    
+
     for(int j=0;; j++)
     {
         if((*script)->zasm[j].command==0xFFFF)
@@ -12195,33 +12195,33 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
             break;
         }
     }
-    
+
     if(!p_iputl(num_commands,f))
     {
         new_return(6);
     }
-	
+
 	//Metadata
 	if(!p_iputw((*script)->meta.zasm_v,f))
 	{
 		new_return(7);
 	}
-	
+
 	if(!p_iputw((*script)->meta.meta_v,f))
 	{
 		new_return(8);
 	}
-	
+
 	if(!p_iputw((*script)->meta.ffscript_v,f))
 	{
 		new_return(9);
 	}
-	
+
 	if(!p_putc((*script)->meta.script_type,f))
 	{
 		new_return(10);
 	}
-	
+
 	for(int q = 0; q < 8; ++q)
 	{
 		for(int c = 0; c < 33; ++c)
@@ -12232,7 +12232,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 			}
 		}
 	}
-	
+
 	for(int q = 0; q < 8; ++q)
 	{
 		if(!p_putc((*script)->meta.run_types[q],f))
@@ -12240,32 +12240,32 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 			new_return(12);
 		}
 	}
-	
+
 	if(!p_putc((*script)->meta.flags,f))
 	{
 		new_return(13);
 	}
-	
+
 	if(!p_iputw((*script)->meta.compiler_v1,f))
 	{
 		new_return(14);
 	}
-	
+
 	if(!p_iputw((*script)->meta.compiler_v2,f))
 	{
 		new_return(15);
 	}
-	
+
 	if(!p_iputw((*script)->meta.compiler_v3,f))
 	{
 		new_return(16);
 	}
-	
+
 	if(!p_iputw((*script)->meta.compiler_v4,f))
 	{
 		new_return(17);
 	}
-	
+
 	for(int c = 0; c < 33; ++c)
 	{
 		if(!p_putc((*script)->meta.script_name[c],f))
@@ -12273,7 +12273,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 			new_return(18);
 		}
 	}
-	
+
 	for(int c = 0; c < 33; ++c)
 	{
 		if(!p_putc((*script)->meta.author[c],f))
@@ -12281,15 +12281,15 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 			new_return(19);
 		}
 	}
-	
+
     for(int j=0; j<num_commands; j++)
     {
-        
+
         if(!p_iputw((*script)->zasm[j].command,f))
         {
             new_return(20);
         }
-        
+
         if((*script)->zasm[j].command==0xFFFF)
         {
             break;
@@ -12301,14 +12301,14 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
             {
                 new_return(21);
             }
-            
+
             if(!p_iputl((*script)->zasm[j].arg2,f))
             {
                 new_return(22);
             }
         }
     }
-    
+
     new_return(0);
 }
 
@@ -12319,41 +12319,41 @@ int writesfx(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_SFX;
     dword section_version=V_SFX;
     dword section_cversion=CV_SFX;
     dword section_size=0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         for(int i=0; i<WAV_COUNT>>3; i++)
         {
             if(!p_putc(customsfxflag[i],f))
@@ -12361,66 +12361,66 @@ int writesfx(PACKFILE *f, zquestheader *Header)
                 new_return(5);
             }
         }
-        
+
         for(int i=1; i<WAV_COUNT; i++)
         {
             if(get_bit(customsfxflag, i-1) == 0)
                 continue;
-                
+
             if(!pfwrite(sfx_string[i], 36, f))
             {
                 new_return(5);
             }
         }
-        
+
         for(int i=1; i<WAV_COUNT; i++)
         {
             if(get_bit(customsfxflag, i-1) == 0)
                 continue;
-                
+
             if(!p_iputl(customsfxdata[i].bits,f))
             {
                 new_return(5);
             }
-            
+
             if(!p_iputl(customsfxdata[i].stereo,f))
             {
                 new_return(6);
             }
-            
+
             if(!p_iputl(customsfxdata[i].freq,f))
             {
                 new_return(7);
             }
-            
+
             if(!p_iputl(customsfxdata[i].priority,f))
             {
                 new_return(8);
             }
-            
+
             if(!p_iputl(customsfxdata[i].len,f))
             {
                 new_return(9);
             }
-            
+
             if(!p_iputl(customsfxdata[i].loop_start,f))
             {
                 new_return(10);
             }
-            
+
             if(!p_iputl(customsfxdata[i].loop_end,f))
             {
                 new_return(11);
             }
-            
+
             if(!p_iputl(customsfxdata[i].param,f))
             {
                 new_return(12);
             }
-            
+
             //de-endianfy the data
             int wordstowrite = (customsfxdata[i].bits==8?1:2)*(customsfxdata[i].stereo==0?1:2)*customsfxdata[i].len/sizeof(word);
-            
+
             for(int j=0; j<wordstowrite; j++)
             {
                 if(!p_iputw(((word *)customsfxdata[i].data)[j],f))
@@ -12429,20 +12429,20 @@ int writesfx(PACKFILE *f, zquestheader *Header)
                 }
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writesfx()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -12450,45 +12450,45 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_INITDATA;
     dword section_version=V_INITDATA;
     dword section_cversion=CV_INITDATA;
     dword section_size = 0;
-    
+
     zinit.last_map=Map.getCurrMap();
     zinit.last_screen=Map.getCurrScr();
     zinit.usecustomsfx=1;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         //write the new items
         for(int i=0; i<MAXITEMS; i++)
@@ -12498,63 +12498,63 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
                 new_return(5);
             }
         }
-        
+
         //bomb counter RANDOMLY in the middle of items :-/
         if(!p_putc(zinit.bombs,f))
         {
             new_return(23);
         }
-        
+
         if(!p_putc(zinit.super_bombs,f))
         {
             new_return(24);
         }
-        
+
         if(!p_putc(zinit.hc,f))
         {
             new_return(25);
         }
-        
+
         if(!p_iputw(zinit.start_heart,f))
         {
             new_return(26);
         }
-        
+
         if(!p_iputw(zinit.cont_heart,f))
         {
             new_return(27);
         }
-        
+
         if(!p_putc(zinit.hcp,f))
         {
             new_return(28);
         }
-        
+
         if(!p_putc(zinit.hcp_per_hc,f))
         {
             new_return(29);
         }
-        
+
         if(!p_putc(zinit.max_bombs,f))
         {
             new_return(30);
         }
-        
+
         if(!p_putc(zinit.keys,f))
         {
             new_return(31);
         }
-        
+
         if(!p_iputw(zinit.rupies,f))
         {
             new_return(32);
         }
-        
+
         if(!p_putc(zinit.triforce,f))
         {
             new_return(33);
         }
-        
+
         for(int i=0; i<64; i++)
         {
             if(!p_putc(zinit.map[i],f))
@@ -12562,7 +12562,7 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
                 new_return(34);
             }
         }
-        
+
         for(int i=0; i<64; i++)
         {
             if(!p_putc(zinit.compass[i],f))
@@ -12570,7 +12570,7 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
                 new_return(35);
             }
         }
-        
+
         for(int i=0; i<64; i++)
         {
             if(!p_putc(zinit.boss_key[i],f))
@@ -12578,7 +12578,7 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
                 new_return(36);
             }
         }
-        
+
         for(int i=0; i<16; i++)
         {
             if(!p_putc(zinit.misc[i],f))
@@ -12586,67 +12586,67 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
                 new_return(37);
             }
         }
-        
+
         if(!p_putc(zinit.last_map,f))
         {
             new_return(38);
         }
-        
+
         if(!p_putc(zinit.last_screen,f))
         {
             new_return(39);
         }
-        
+
         if(!p_iputw(zinit.max_magic,f))
         {
             new_return(40);
         }
-        
+
         if(!p_iputw(zinit.magic,f))
         {
             new_return(41);
         }
-        
+
         if(!p_putc(zinit.bomb_ratio,f))
         {
             new_return(41);
         }
-        
+
         if(!p_putc(zinit.msg_more_x,f))
         {
             new_return(42);
         }
-        
+
         if(!p_putc(zinit.msg_more_y,f))
         {
             new_return(43);
         }
-        
+
         if(!p_putc(zinit.subscreen,f))
         {
             new_return(44);
         }
-        
+
         if(!p_iputw(zinit.start_dmap,f))
         {
             new_return(45);
         }
-        
+
         if(!p_putc(zinit.linkanimationstyle,f))
         {
             new_return(46);
         }
-        
+
         if(!p_putc(zinit.arrows,f))
         {
             new_return(47);
         }
-        
+
         if(!p_putc(zinit.max_arrows,f))
         {
             new_return(48);
         }
-        
+
         for(int i=0; i<MAXLEVELS; i++)
         {
             if(!p_putc(zinit.level_keys[i],f))
@@ -12654,97 +12654,97 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
                 new_return(49);
             }
         }
-        
+
         if(!p_iputw(zinit.ss_grid_x,f))
         {
             new_return(50);
         }
-        
+
         if(!p_iputw(zinit.ss_grid_y,f))
         {
             new_return(51);
         }
-        
+
         if(!p_iputw(zinit.ss_grid_xofs,f))
         {
             new_return(52);
         }
-        
+
         if(!p_iputw(zinit.ss_grid_yofs,f))
         {
             new_return(53);
         }
-        
+
         if(!p_iputw(zinit.ss_grid_color,f))
         {
             new_return(54);
         }
-        
+
         if(!p_iputw(zinit.ss_bbox_1_color,f))
         {
             new_return(55);
         }
-        
+
         if(!p_iputw(zinit.ss_bbox_2_color,f))
         {
             new_return(56);
         }
-        
+
         if(!p_iputw(zinit.ss_flags,f))
         {
             new_return(57);
         }
-        
+
         if(!p_putc(zinit.subscreen_style,f))
         {
             new_return(58);
         }
-        
+
         if(!p_putc(zinit.usecustomsfx,f))
         {
             new_return(59);
         }
-        
+
         if(!p_iputw(zinit.max_rupees,f))
         {
             new_return(60);
         }
-        
+
         if(!p_iputw(zinit.max_keys,f))
         {
             new_return(61);
         }
-        
+
         if(!p_putc(zinit.gravity,f))
         {
             new_return(62);
         }
-        
+
         if(!p_iputw(zinit.terminalv,f))
         {
             new_return(63);
         }
-        
+
         if(!p_putc(zinit.msg_speed,f))
         {
             new_return(64);
         }
-        
+
         if(!p_putc(zinit.transition_type,f))
         {
             new_return(65);
         }
-        
+
         if(!p_putc(zinit.jump_link_layer_threshold,f))
         {
             new_return(66);
         }
-        
+
         if(!p_putc(zinit.msg_more_is_offset,f))
         {
             new_return(67);
         }
-	
+
 	if(!p_iputw(zinit.nBombs,f))
         {
             new_return(68);
@@ -12777,20 +12777,20 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
         {
             new_return(74);
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writeinitdata()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -12798,56 +12798,56 @@ int writeitemdropsets(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
-    
+
     dword section_id=ID_ITEMDROPSETS;
     dword section_version=V_ITEMDROPSETS;
     dword section_cversion=CV_ITEMDROPSETS;
     //  dword section_size=0;
     dword section_size = 0;
     word num_item_drop_sets=count_item_drop_sets();
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!p_iputw(num_item_drop_sets,f))
         {
             new_return(5);
         }
-        
+
         for(int i=0; i<num_item_drop_sets; i++)
         {
             if(!pfwrite(item_drop_sets[i].name, sizeof(item_drop_sets[i].name), f))
             {
                 new_return(6);
             }
-            
+
             for(int j=0; j<10; ++j)
             {
                 if(!p_iputw(item_drop_sets[i].item[j],f))
@@ -12855,7 +12855,7 @@ int writeitemdropsets(PACKFILE *f, zquestheader *Header)
                     new_return(7);
                 }
             }
-            
+
             for(int j=0; j<11; ++j)
             {
                 if(!p_iputw(item_drop_sets[i].chance[j],f))
@@ -12864,20 +12864,20 @@ int writeitemdropsets(PACKFILE *f, zquestheader *Header)
                 }
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writeitemdropsets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -12887,42 +12887,42 @@ int writefavorites(PACKFILE *f, zquestheader*)
     dword section_version=V_FAVORITES;
     dword section_cversion=CV_FAVORITES;
     dword section_size = 0;
-    
+
     //section id
     if(!p_mputl(section_id,f))
     {
         new_return(1);
     }
-    
+
     //section version info
     if(!p_iputw(section_version,f))
     {
         new_return(2);
     }
-    
+
     if(!p_iputw(section_cversion,f))
     {
         new_return(3);
     }
-    
+
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
-        
+
         //section size
         if(!p_iputl(section_size,f))
         {
             new_return(4);
         }
-        
+
         writesize=0;
-        
+
         //finally...  section data
         if(!p_iputw(MAXFAVORITECOMBOS,f)) // This'll probably never change, huh?
         {
             new_return(5);
         }
-        
+
         for(int i=0; i<MAXFAVORITECOMBOS; i++)
         {
             if(!p_iputl(favorite_combos[i],f))
@@ -12930,12 +12930,12 @@ int writefavorites(PACKFILE *f, zquestheader*)
                 new_return(6);
             }
         }
-        
+
         if(!p_iputw(MAXFAVORITECOMBOALIASES,f))
         {
             new_return(7);
         }
-        
+
         for(int i=0; i<MAXFAVORITECOMBOALIASES; i++)
         {
             if(!p_iputl(favorite_comboaliases[i],f))
@@ -12943,20 +12943,20 @@ int writefavorites(PACKFILE *f, zquestheader*)
                 new_return(8);
             }
         }
-        
+
         if(writecycle==0)
         {
             section_size=writesize;
         }
     }
-    
+
     if(writesize!=int(section_size) && save_warn)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writeitemdropsets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
-    
+
     new_return(0);
 }
 
@@ -12972,286 +12972,286 @@ int save_unencoded_quest(const char *filename, bool compressed)
     header.data_flags[ZQ_TILES] = true;
     header.data_flags[ZQ_CHEATS2] = 1;
     header.build=VERSION_BUILD;
-    
+
     for(int i=0; i<MAXCUSTOMMIDIS; i++)
     {
         set_bit(midi_flags,i,int(customtunes[i].data!=NULL));
     }
-    
+
     char keyfilename[2048];
     // word combos_used;
     // word tiles_used;
     replace_extension(keyfilename, filepath, "key", 2047);
-    
-    
-    
+
+
+
     box_start(1, "Saving Quest", lfont, font, true);
     box_out("Saving Quest...");
     box_eol();
     box_eol();
-    
+
     PACKFILE *f = pack_fopen_password(filename,compressed?F_WRITE_PACKED:F_WRITE, compressed ? datapwd : "");
-    
+
     if(!f)
     {
         fake_pack_writing = false;
         return 1;
     }
-    
+
     box_out("Writing Header...");
-    
+
     if(writeheader(f,&header)!=0)
     {
         new_return(2);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Rules...");
-    
+
     if(writerules(f,&header)!=0)
     {
         new_return(3);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Strings...");
-    
+
     if(writestrings(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXMSGS)!=0)
     {
         new_return(4);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Doors...");
-    
+
     if(writedoorcombosets(f,&header)!=0)
     {
         new_return(5);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing DMaps...");
-    
+
     if(writedmaps(f,header.zelda_version,header.build,0,MAXDMAPS)!=0)
     {
         new_return(6);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Misc. Data...");
-    
+
     if(writemisc(f,&header,&misc)!=0)
     {
         new_return(7);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Misc. Colors...");
-    
+
     if(writemisccolors(f,&header,&misc)!=0)
     {
         new_return(8);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Game Icons...");
-    
+
     if(writegameicons(f,&header,&misc)!=0)
     {
         new_return(9);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Items...");
-    
+
     if(writeitems(f,&header)!=0)
     {
         new_return(10);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Weapons...");
-    
+
     if(writeweapons(f,&header)!=0)
     {
         new_return(11);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Maps...");
-    
+
     if(writemaps(f,&header)!=0)
     {
         new_return(12);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Combos...");
-    
+
     if(writecombos(f,header.zelda_version,header.build,0,MAXCOMBOS)!=0)
     {
         new_return(13);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Combo Aliases...");
-    
+
     if(writecomboaliases(f,header.zelda_version,header.build)!=0)
     {
         new_return(14);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Color Data...");
-    
+
     if(writecolordata(f,&misc,header.zelda_version,header.build,0,newerpdTOTAL)!=0)
     {
         new_return(15);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Tiles...");
-    
+
     if(writetiles(f,header.zelda_version,header.build,0,NEWMAXTILES)!=0)
     {
         new_return(16);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing MIDIs...");
-    
+
     if(writemidis(f)!=0)
     {
         new_return(17);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Cheat Codes...");
-    
+
     if(writecheats(f,&header)!=0)
     {
         new_return(18);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Init. Data...");
-    
+
     if(writeinitdata(f,&header)!=0)
     {
         new_return(19);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Custom Guy Data...");
-    
+
     if(writeguys(f,&header)!=0)
     {
         new_return(20);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Custom Link Sprite Data...");
-    
+
     if(writelinksprites(f,&header)!=0)
     {
         new_return(21);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Custom Subscreen Data...");
-    
+
     if(writesubscreens(f,&header)!=0)
     {
         new_return(22);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing FF Script Data...");
-    
+
     if(writeffscript(f,&header)!=0)
     {
         new_return(23);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing SFX Data...");
-    
+
     if(writesfx(f,&header)!=0)
     {
         new_return(24);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Item Drop Sets...");
-    
+
     if(writeitemdropsets(f, &header)!=0)
     {
         new_return(25);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     box_out("Writing Favorite Combos...");
-    
+
     if(writefavorites(f, &header)!=0)
     {
         new_return(26);
     }
-    
+
     box_out("okay.");
     box_eol();
-    
+
     pack_fclose(f);
-    
+
     replace_extension(keyfilename, get_filename(filepath), "key", 2047);
-   
+
     if(header.use_keyfile&&header.dirty_password)
     {
         PACKFILE *fp = pack_fopen_password(keyfilename, F_WRITE, "");
@@ -13279,8 +13279,8 @@ int save_unencoded_quest(const char *filename, bool compressed)
         pfwrite(header.password, 256, fp2);
         pack_fclose(fp2);
 	al_trace("Wrote ZQuest Editor Password File, filename: %s\n",keyfilename);
-        
-	
+
+
 	replace_extension(keyfilename, get_filename(filepath), "zcheat", 2047); //lower-level, zq-only key
 	PACKFILE *fp3 = pack_fopen_password(keyfilename, F_WRITE, "");
         memset(msg,0,80);
@@ -13294,7 +13294,7 @@ int save_unencoded_quest(const char *filename, bool compressed)
 	long temp_pw[256];
 	for ( int q = 0; q < 256; ++q ) temp_pw[q] = header.password[q];
 	int hash = 0;
-	for ( int q = 0; q < 256 && temp_pw[q] != NULL; ++q ) hash += temp_pw[q]; //silly hash -Z 
+	for ( int q = 0; q < 256 && temp_pw[q] != NULL; ++q ) hash += temp_pw[q]; //silly hash -Z
 	for ( int q = 0; q < 256; ++q ) temp_pw[q] *= hash;
 	*/
 	char hashmap = 'Z';
@@ -13305,31 +13305,31 @@ int save_unencoded_quest(const char *filename, bool compressed)
 	hashmap += 'T';
 	char temp_pw[32];
 	memset(temp_pw,0,32);
-	for ( int q = 0; q < 32; ++q ) 
+	for ( int q = 0; q < 32; ++q )
 	{
 		temp_pw[q] = header.password[q];
 		temp_pw[q] += hashmap;
 	}
-	
+
 	//al_trace("hashed password is: %s\n", header.password);
 	//al_trace("un-hashed password is: %s\n", temp_pw);
-	
+
 	//reverse
-		
+
 		//char reversehashpw[32];
 		//memset(reversehashpw,0,32);
-		//for ( int q = 0; q < 30; q++ ) 
+		//for ( int q = 0; q < 30; q++ )
 		//{
 		//	reversehashpw[q] = temp_pw[q] - hashmap;
 		//}
-		
+
 		//al_trace("reverse-hashed password is: %s\n", reversehashpw);
-	
+
         pfwrite(temp_pw, 32, fp3); //the pw would be visible as plain ascii, so, this is useless without encoding it
 	pack_fclose(fp3);
 	al_trace("Wrote ZC Player Cheats, filename: %s\n",keyfilename);
     }
-    
+
     new_return(0);
 }
 
@@ -13339,7 +13339,7 @@ int save_quest(const char *filename, bool timed_save)
     bool compress=!(timed_save&&UncompressedAutoSaves);
     char ext1[5];
     ext1[0]=0;
-    
+
     if(timed_save)
     {
         sprintf(ext1, "qt");
@@ -13348,32 +13348,32 @@ int save_quest(const char *filename, bool timed_save)
     {
         sprintf(ext1, "qb");
     }
-    
+
     if(retention)
     {
         char backupname[2048];
         char backupname2[2048];
         char ext[5];
-        
+
         for(int i=retention-1; i>0; --i)
         {
             sprintf(ext, "%s%d", ext1, i-1);
             replace_extension(backupname, filepath, ext, 2047);
-            
+
             if(exists(backupname))
             {
                 sprintf(ext, "%s%d", ext1, i);
                 replace_extension(backupname2, filepath, ext, 2047);
-                
+
                 if(exists(backupname2))
                 {
                     remove(backupname2);
                 }
-                
+
                 rename(backupname, backupname2);
             }
         }
-        
+
         //don't do this if we're not saving to the same name -DD
         if(!timed_save && !strcmp(filepath, filename))
         {
@@ -13382,10 +13382,10 @@ int save_quest(const char *filename, bool timed_save)
             rename(filepath, backupname);
         }
     }
-    
+
     char *tmpfilename;
     char tempfilestr[32]; // This is stupid...
-    
+
     if(compress)
     {
         temp_name(tempfilestr);
@@ -13395,29 +13395,29 @@ int save_quest(const char *filename, bool timed_save)
     {
         tmpfilename=(char *)filename;
     }
-    
+
     int ret;
     ret  = save_unencoded_quest(tmpfilename, compress);
-    
+
     if(compress)
     {
         if(ret == 0)
         {
             box_out("Encrypting...");
             ret = encode_file_007(tmpfilename, filename,((INTERNAL_VERSION + rand()) & 0xffff) + 0x413F0000, ENC_STR, ENC_METHOD_MAX-1);
-            
+
             if(ret)
             {
                 ret += 100;
             }
-            
+
             box_out("okay.");
             box_eol();
         }
-        
+
         delete_file(tmpfilename);
     }
-    
+
     return ret;
 }
 
@@ -13431,146 +13431,146 @@ void zmap::prv_secrets(bool high16only)
     mapscr *s = &prvscr;
     mapscr *t = prvlayers;
     int ft=0;
-    
+
     for(int i=0; i<176; i++)
     {
         bool putit;
-        
+
         if(!high16only)
         {
             for(int j=-1; j<6; j++)
             {
                 int newflag = -1;
-                
+
                 for(int iter=0; iter<2; ++iter)
                 {
                     putit=true;
-                    
+
                     if(t[j].data.empty())
                         continue;
-                        
+
                     int checkflag=combobuf[t[j].data[i]].flag;
-                    
+
                     if(iter==1)
                     {
                         checkflag=t[j].sflag[i];
                     }
-                    
+
                     switch(checkflag)
                     {
                     case mfBCANDLE:
                         ft=sBCANDLE;
                         break;
-                        
+
                     case mfRCANDLE:
                         ft=sRCANDLE;
                         break;
-                        
+
                     case mfWANDFIRE:
                         ft=sWANDFIRE;
                         break;
-                        
+
                     case mfDINSFIRE:
                         ft=sDINSFIRE;
                         break;
-                        
+
                     case mfARROW:
                         ft=sARROW;
                         break;
-                        
+
                     case mfSARROW:
                         ft=sSARROW;
                         break;
-                        
+
                     case mfGARROW:
                         ft=sGARROW;
                         break;
-                        
+
                     case mfSBOMB:
                         ft=sSBOMB;
                         break;
-                        
+
                     case mfBOMB:
                         ft=sBOMB;
                         break;
-                        
+
                     case mfBRANG:
                         ft=sBRANG;
                         break;
-                        
+
                     case mfMBRANG:
                         ft=sMBRANG;
                         break;
-                        
+
                     case mfFBRANG:
                         ft=sFBRANG;
                         break;
-                        
+
                     case mfWANDMAGIC:
                         ft=sWANDMAGIC;
                         break;
-                        
+
                     case mfREFMAGIC:
                         ft=sREFMAGIC;
                         break;
-                        
+
                     case mfREFFIREBALL:
                         ft=sREFFIREBALL;
                         break;
-                        
+
                     case mfSWORD:
                         ft=sSWORD;
                         break;
-                        
+
                     case mfWSWORD:
                         ft=sWSWORD;
                         break;
-                        
+
                     case mfMSWORD:
                         ft=sMSWORD;
                         break;
-                        
+
                     case mfXSWORD:
                         ft=sXSWORD;
                         break;
-                        
+
                     case mfSWORDBEAM:
                         ft=sSWORDBEAM;
                         break;
-                        
+
                     case mfWSWORDBEAM:
                         ft=sWSWORDBEAM;
                         break;
-                        
+
                     case mfMSWORDBEAM:
                         ft=sMSWORDBEAM;
                         break;
-                        
+
                     case mfXSWORDBEAM:
                         ft=sXSWORDBEAM;
                         break;
-                        
+
                     case mfHOOKSHOT:
                         ft=sHOOKSHOT;
                         break;
-                        
+
                     case mfWAND:
                         ft=sWAND;
                         break;
-                        
+
                     case mfHAMMER:
                         ft=sHAMMER;
                         break;
-                        
+
                     case mfSTRIKE:
                         ft=sSTRIKE;
                         break;
-                        
+
                     default:
                         putit = false;
                         break;
                     }
-                    
+
                     if(putit)
                     {
                         if(j==-1)
@@ -13587,27 +13587,27 @@ void zmap::prv_secrets(bool high16only)
                         }
                     }
                 }
-                
+
                 if(newflag >-1)
                 {
                     ((j==-1) ? s->sflag[i] : t[j].sflag[i]) = newflag;
                 }
             }
         }
-        
+
         //if(true)
         //{
         int newflag = -1;
-        
+
         for(int iter=0; iter<2; ++iter)
         {
             int checkflag=combobuf[s->data[i]].flag;
-            
+
             if(iter==1)
             {
                 checkflag=s->sflag[i];
             }
-            
+
             if((checkflag > 15)&&(checkflag < 32))
             {
                 s->data[i] = s->secretcombo[(checkflag)-16+4];
@@ -13616,24 +13616,24 @@ void zmap::prv_secrets(bool high16only)
                 //        putit = true;
             }
         }
-        
+
         if(newflag >-1) s->sflag[i] = newflag;
-        
+
         for(int j=0; j<6; j++)
         {
             if(t[j].data.empty()||t[j].cset.empty()) continue;
-            
+
             int newflag2 = -1;
-            
+
             for(int iter=0; iter<2; ++iter)
             {
                 int checkflag=combobuf[t[j].data[i]].flag;
-                
+
                 if(iter==1)
                 {
                     checkflag=t[j].sflag[i];
                 }
-                
+
                 if((checkflag > 15)&&(checkflag < 32))
                 {
                     t[j].data[i] = t[j].secretcombo[(checkflag)-16+4];
@@ -13642,150 +13642,150 @@ void zmap::prv_secrets(bool high16only)
                     //          putit = true;
                 }
             }
-            
+
             if(newflag2 >-1) t[j].sflag[i] = newflag2;
         }
-        
+
         //} //if(true)
-        
+
         /*
           if(putit && refresh)
           putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
           */
     }
-    
+
     //FFCs
     for(int i=0; i<32; i++)
     {
         bool putit;
-        
+
         if(!high16only)
         {
             for(int iter=0; iter<1; ++iter)
             {
                 putit=true;
                 int checkflag=combobuf[s->ffdata[i]].flag;
-                
+
                 if(iter==1)
                 {
                     checkflag=s->sflag[i];
                 }
-                
+
                 switch(checkflag)
                 {
                 case mfBCANDLE:
                     ft=sBCANDLE;
                     break;
-                    
+
                 case mfRCANDLE:
                     ft=sRCANDLE;
                     break;
-                    
+
                 case mfWANDFIRE:
                     ft=sWANDFIRE;
                     break;
-                    
+
                 case mfDINSFIRE:
                     ft=sDINSFIRE;
                     break;
-                    
+
                 case mfARROW:
                     ft=sARROW;
                     break;
-                    
+
                 case mfSARROW:
                     ft=sSARROW;
                     break;
-                    
+
                 case mfGARROW:
                     ft=sGARROW;
                     break;
-                    
+
                 case mfSBOMB:
                     ft=sSBOMB;
                     break;
-                    
+
                 case mfBOMB:
                     ft=sBOMB;
                     break;
-                    
+
                 case mfBRANG:
                     ft=sBRANG;
                     break;
-                    
+
                 case mfMBRANG:
                     ft=sMBRANG;
                     break;
-                    
+
                 case mfFBRANG:
                     ft=sFBRANG;
                     break;
-                    
+
                 case mfWANDMAGIC:
                     ft=sWANDMAGIC;
                     break;
-                    
+
                 case mfREFMAGIC:
                     ft=sREFMAGIC;
                     break;
-                    
+
                 case mfREFFIREBALL:
                     ft=sREFFIREBALL;
                     break;
-                    
+
                 case mfSWORD:
                     ft=sSWORD;
                     break;
-                    
+
                 case mfWSWORD:
                     ft=sWSWORD;
                     break;
-                    
+
                 case mfMSWORD:
                     ft=sMSWORD;
                     break;
-                    
+
                 case mfXSWORD:
                     ft=sXSWORD;
                     break;
-                    
+
                 case mfSWORDBEAM:
                     ft=sSWORDBEAM;
                     break;
-                    
+
                 case mfWSWORDBEAM:
                     ft=sWSWORDBEAM;
                     break;
-                    
+
                 case mfMSWORDBEAM:
                     ft=sMSWORDBEAM;
                     break;
-                    
+
                 case mfXSWORDBEAM:
                     ft=sXSWORDBEAM;
                     break;
-                    
+
                 case mfHOOKSHOT:
                     ft=sHOOKSHOT;
                     break;
-                    
+
                 case mfWAND:
                     ft=sWAND;
                     break;
-                    
+
                 case mfHAMMER:
                     ft=sHAMMER;
                     break;
-                    
+
                 case mfSTRIKE:
                     ft=sSTRIKE;
                     break;
-                    
+
                 default:
                     putit = false;
                     break;
                 }
-                
+
                 if(putit)
                 {
                     s->ffdata[i] = s->secretcombo[ft];
@@ -13793,18 +13793,18 @@ void zmap::prv_secrets(bool high16only)
                 }
             }
         }
-        
+
         if(!(s->flags2&fCLEARSECRET) || high16only || s->flags4&fENEMYSCRTPERM)
         {
             for(int iter=0; iter<1; ++iter)
             {
                 int checkflag=combobuf[s->ffdata[i]].flag;
-                
+
                 if(iter==1)
                 {
                     // FFCs can't have flags! Yet...
                 }
-                
+
                 if((checkflag > 15)&&(checkflag < 32))
                 {
                     s->ffdata[i] = s->secretcombo[checkflag-16+4];
