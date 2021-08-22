@@ -22161,7 +22161,7 @@ int onCheats()
     };
 
     CheatCodesDialog(zcheats.flags, currentCodes,
-        [](bool enabled, std::string_view newCodes[4]) {
+        [&](bool enabled, std::string_view newCodes[4]) {
             saved=false;
             zcheats.flags=enabled ? 1 : 0;
             newCodes[0].copy(zcheats.codes[0], 41);
