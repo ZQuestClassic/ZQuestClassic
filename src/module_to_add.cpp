@@ -16,7 +16,7 @@ static void list_save(int save_num, int ypos)
         game->set_life(saves[save_num].get_maxlife());
         wpnsbuf[iwQuarterHearts].newtile = 4;
         //boogie!
-        lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(HP_PER_HEART))?8:0),0,0);
+        lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(game->get_hp_per_heart()))?8:0),0,0);
         textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
         
         if(saves[save_num].get_quest())

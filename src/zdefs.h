@@ -185,9 +185,9 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define PI 3.14159265358979323846
 #endif
 
-#define HP_PER_HEART          16 //We should make this a global quest setting.
-#define DAMAGE_MULTIPLIER     2 //We should make this a global quest setting.
-//same for magic.
+//#define HP_PER_HEART          16 //We should make this a global quest setting.
+//#define MAGICPERBLOCK         32
+//#define DAMAGE_MULTIPLIER     2 //We should make this a global quest setting.
 
 #define ZC_ID(a,b,c,d)  (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
@@ -236,7 +236,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        21
+#define V_INITDATA        22
 #define V_GUYS            44
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -425,7 +425,6 @@ extern bool fake_pack_writing;
 #define MAXFAVORITECOMBOS 100
 #define MAXFAVORITECOMBOALIASES 100
 
-#define MAGICPERBLOCK   32
 #define PALNAMESIZE     17
 // mapscr "valid" byte
 #define mVALID          0x01
@@ -3752,6 +3751,14 @@ enum {i_bombbag1=1, i_bombbag2, i_bombbag3, i_bombbag4, imax_bombbag};
 
 //enum {i_clock=1, imax_clock};
 
+enum generic_ind
+{
+	genHCP, genMDRAINRATE, genCANSLASH, genWLEVEL,
+	genHCP_PER_HC, genCONTHP, genCONTHP_IS_PERC, genHP_PER_HEART,
+	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
+	genLAST,
+	genMAX = 256
+};
 struct gamedata
 {
     //private:
@@ -3793,8 +3800,7 @@ struct gamedata
     short _dmagic;*/
     //byte  _magicdrainrate;
     //byte  _canslash;                                           //Link slashes instead of stabs.
-    byte _generic[256];	// Generic gamedata. 0 - Heart pieces, 1- magicdrainrate, 2-canslash, 3-wlevel,
-    // 4- HC Pieces per container  5- Continue hearts  6- Continue percent (1=yes)
+    byte _generic[256];	// Generic gamedata. See enum above this struct for indexes.
     //byte  padding[2];
     //636
     byte  visited[MAXDMAPS];
@@ -3933,6 +3939,18 @@ struct gamedata
     
     bool get_cont_percent();
     void set_cont_percent(bool ispercent);
+	
+	byte get_hp_per_heart();
+	void set_hp_per_heart(byte val);
+	
+	byte get_mp_per_block();
+	void set_mp_per_block(byte val);
+	
+	byte get_hero_dmgmult();
+	void set_hero_dmgmult(byte val);
+	
+	byte get_ene_dmgmult();
+	void set_ene_dmgmult(byte val);
     
     byte get_continue_scrn();
     void set_continue_scrn(byte s);
@@ -4047,6 +4065,7 @@ struct zinitdata
     byte link_swim_speed;
     
     word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep, subscrSpeed;
+	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
 };
 
 struct zcmap

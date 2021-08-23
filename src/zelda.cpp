@@ -1634,13 +1634,13 @@ void add_grenade(int wx, int wy, int wz, int size, int parentid)
 {
     if(size)
     {
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wSBomb,0,16*DAMAGE_MULTIPLIER,LinkDir(),
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wSBomb,0,16*game->get_hero_dmgmult(),LinkDir(),
                              -1, parentid));
         Lwpns.spr(Lwpns.Count()-1)->id=wSBomb;
     }
     else
     {
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBomb,0,4*DAMAGE_MULTIPLIER,LinkDir(),
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBomb,0,4*game->get_hero_dmgmult(),LinkDir(),
                              -1, parentid));
         Lwpns.spr(Lwpns.Count()-1)->id=wBomb;
     }
@@ -2390,20 +2390,20 @@ int init_game()
     
     if(firstplay)
     {
-        game->set_life(zinit.start_heart*HP_PER_HEART);
+        game->set_life(zinit.start_heart*game->get_hp_per_heart());
     }
     else
     {
         if(game->get_cont_percent())
         {
-            if(game->get_maxlife()%HP_PER_HEART==0)
-                game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/HP_PER_HEART)*HP_PER_HEART);
+            if(game->get_maxlife()%game->get_hp_per_heart()==0)
+                game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
             else
                 game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
         }
         else
         {
-            game->set_life(game->get_cont_hearts()*HP_PER_HEART);
+            game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
         }
     }
     
@@ -2677,19 +2677,19 @@ int cont_game()
     //if(get_bit(zinit.misc,idM_CONTPERCENT))
     if(game->get_cont_percent())
     {
-        if(game->get_maxlife()%HP_PER_HEART==0)
-            game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/HP_PER_HEART)*HP_PER_HEART);
+        if(game->get_maxlife()%game->get_hp_per_heart()==0)
+            game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
         else
             game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
     }
     else
     {
-        game->set_life(game->get_cont_hearts()*HP_PER_HEART);
+        game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
     }
         
     /*
       else
-      game->life=3*HP_PER_HEART;
+      game->life=3*game->get_hp_per_heart();
       */
     
     //  for(int i=0; i<128; i++)
@@ -2970,8 +2970,8 @@ void do_magic_casting()
             for(int flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
 		    //din't fire level fix to go here
-                //Lwpns.add(new weapon((zfix)LinkX(),(zfix)LinkY(),(zfix)LinkZ(),wFire,3,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
-                Lwpns.add(new weapon((zfix)LinkX(),(zfix)LinkY(),(zfix)LinkZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
+                //Lwpns.add(new weapon((zfix)LinkX(),(zfix)LinkY(),(zfix)LinkZ(),wFire,3,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
+                Lwpns.add(new weapon((zfix)LinkX(),(zfix)LinkY(),(zfix)LinkZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
                                      isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID(), false, 0, 0, 0, itemsbuf[magicitem].family));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
                 w->step=(itemsbuf[magicitem].misc2/100.0);
@@ -3364,7 +3364,7 @@ void do_dcounters()
             
             if(game->get_dcounter(i)>0)
             {
-                int drain = (i==4 ? MAGICPERBLOCK/4 : 1);
+                int drain = (i==4 ? game->get_mp_per_block()/4 : 1);
                 drain = zc_min(game->get_dcounter(i),drain);
                 
                 if(game->get_counter(i) < game->get_maxcounter(i))

@@ -804,6 +804,48 @@ void gamedata::set_cont_percent(bool ispercent)
 {
     set_generic(ispercent ? 1 : 0, 6);
 }
+
+
+byte gamedata::get_hp_per_heart()
+{
+	byte b = get_generic(genHP_PER_HEART);
+	return b ? b : 16;
+}
+void gamedata::set_hp_per_heart(byte val)
+{
+	set_generic(val, genHP_PER_HEART);
+}
+
+byte gamedata::get_mp_per_block()
+{
+	byte b = get_generic(genMP_PER_BLOCK);
+	return b ? b : 32;
+}
+void gamedata::set_mp_per_block(byte val)
+{
+	set_generic(val, genMP_PER_BLOCK);
+}
+
+byte gamedata::get_hero_dmgmult()
+{
+	byte b = get_generic(genHERO_DMG_MULT);
+	return b ? b : 1;
+}
+void gamedata::set_hero_dmgmult(byte val)
+{
+	set_generic(val, genHERO_DMG_MULT);
+}
+
+byte gamedata::get_ene_dmgmult()
+{
+	byte b = get_generic(genENE_DMG_MULT);
+	return b ? b : 1;
+}
+void gamedata::set_ene_dmgmult(byte val)
+{
+	set_generic(val, genENE_DMG_MULT);
+}
+
 void gamedata::set_item(int id, bool value)
 {
     set_item_no_flush(id, value);

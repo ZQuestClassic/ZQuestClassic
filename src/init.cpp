@@ -700,6 +700,7 @@ static int init_const_list[] =
 {
     1700, 1701, 1702, 1703, 1704, 1705, 1706, 
 	3264, 3265, 3266, 3267,
+	3268, 3269, 3270, 3271, 3272, 3273, 3274, 3275,
 	-1
 };
 
@@ -877,7 +878,7 @@ char *walkstylelist(int index, int *list_size)
 }
 
 
-DIALOG init_dlg[3269]; /* 	This array is used instead of a const static dialogue array. 
+DIALOG init_dlg[3277]; /* 	This array is used instead of a const static dialogue array. 
 				PopulateInitDialog() fills its elements and generates the init dialoigue.
 				The size of this array must be equal to the number of calls to initPopulate in 
 					PopulateInitDialog() + 1.
@@ -1263,7 +1264,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_check_proc,           12,    189,     17,      9,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) "Slash",                                      NULL,   NULL);
     
     initPopulate(i, jwin_frame_proc,          172-24,    122,     98+18,     50,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_text_proc,           176-24,    119,    113,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Magic (" stringize(MAGICPERBLOCK) " per block) ",   NULL,   NULL);
+    initPopulate(i, jwin_text_proc,           176-24,    119,    113,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Magic ",   NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          191-10,    129,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          232-10,    129,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
     initPopulate(i, jwin_edit_proc,           180-10-5,    139,     34,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
@@ -1504,16 +1505,36 @@ void PopulateInitDialog()
     initPopulate(i, jwin_edit_proc,           101,    117,     29,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
     
     //3264
-    initPopulate(i, jwin_text_proc,            12,     72+21,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Hero Step:",                                   NULL,   NULL);
+    initPopulate(i, jwin_text_proc,            12,     92,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Hero Step:",                                   NULL,   NULL);
     //3265
-    initPopulate(i, jwin_edit_proc,            162,     68+19,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,            162,     88,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
      
     //3266
-    initPopulate(i, jwin_text_proc,            12,     72+41,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Subscreen Fall Multiplier:",                                   NULL,   NULL);
+    initPopulate(i, jwin_text_proc,            12,     112,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Subscreen Fall Multiplier:",                                   NULL,   NULL);
     //3267
-    initPopulate(i, jwin_edit_proc,            162,     68+39,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
-     
-    // 3268 -- Termination
+    initPopulate(i, jwin_edit_proc,            162,     108,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    //3268
+    initPopulate(i, jwin_text_proc,            12,     132,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "HP Per Heart:",                                   NULL,   NULL);
+    //3269
+    initPopulate(i, jwin_numedit_byte_proc,            162,     128,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    //3270
+    initPopulate(i, jwin_text_proc,            12,     152,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "MP Per Block:",                                   NULL,   NULL);
+    //3271
+    initPopulate(i, jwin_numedit_byte_proc,            162,     148,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    //3272
+    initPopulate(i, jwin_text_proc,            12,     172,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Player Damage Multiplier:",                                   NULL,   NULL);
+    //3273
+    initPopulate(i, jwin_numedit_byte_proc,            162,     168,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    //3274
+    initPopulate(i, jwin_text_proc,            12,     192,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Enemy Damage Multiplier:",                                   NULL,   NULL);
+    //3275
+    initPopulate(i, jwin_numedit_byte_proc,            162,     188,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    // 3276 -- Termination
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     
     /*
@@ -1773,6 +1794,10 @@ int doInit(zinitdata *local_zinit)
     char maxarrowstring[6];
     char herostepstr[6];
     char subscrspeedstr[6];
+	char hpperheartstr[8];
+	char mpperblockstr[8];
+	char dmgmultstr[8];
+	char dmgmultstr2[8];
     sprintf(bombstring, "%d", local_zinit->nBombs);
     sprintf(maxbombstring, "%d", local_zinit->nBombmax);
     sprintf(sbombstring, "%d", local_zinit->nSbombs);
@@ -1781,6 +1806,10 @@ int doInit(zinitdata *local_zinit)
     sprintf(maxarrowstring, "%d", local_zinit->nArrowmax);
     sprintf(herostepstr, "%d", local_zinit->heroStep);
     sprintf(subscrspeedstr, "%d", local_zinit->subscrSpeed);
+    sprintf(hpperheartstr, "%d", local_zinit->hp_per_heart);
+    sprintf(mpperblockstr, "%d", local_zinit->magic_per_block);
+    sprintf(dmgmultstr, "%d", local_zinit->hero_damage_multiplier);
+    sprintf(dmgmultstr2, "%d", local_zinit->ene_damage_multiplier);
     
     
     //This is the format for storing values into Init Data. -Z
@@ -1878,6 +1907,10 @@ int doInit(zinitdata *local_zinit)
     //Hero->Step
     init_dlg[3265].dp=herostepstr;
     init_dlg[3267].dp=subscrspeedstr;
+    init_dlg[3269].dp=hpperheartstr;
+    init_dlg[3271].dp=mpperblockstr;
+    init_dlg[3273].dp=dmgmultstr;
+    init_dlg[3275].dp=dmgmultstr2;
     if(is_large)
     {
         large_dialog(init_dlg);
@@ -1970,6 +2003,10 @@ int doInit(zinitdata *local_zinit)
         local_zinit->jump_link_layer_threshold = vbound(atoi(thresholdstring),0,255);
         local_zinit->heroStep = vbound(atoi(herostepstr),0,9999);
         local_zinit->subscrSpeed = vbound(atoi(subscrspeedstr),1,85);
+		local_zinit->hp_per_heart = vbound(atoi(hpperheartstr),1,255);
+		local_zinit->magic_per_block = vbound(atoi(mpperblockstr),1,255);
+		local_zinit->hero_damage_multiplier = vbound(atoi(dmgmultstr),1,255);
+		local_zinit->ene_damage_multiplier = vbound(atoi(dmgmultstr2),1,255);
         onInitOK();
     }
     
@@ -2082,7 +2119,7 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
 
 void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 {
-    game2->set_maxlife(zinit2->hc*HP_PER_HEART);
+    game2->set_maxlife(zinit2->hc*zinit2->hp_per_heart);
     game2->set_maxbombs(zinit2->nBombmax);
     game2->set_maxcounter(zinit2->nBombmax/zc_max(1,zinit2->bomb_ratio), 6);
     game2->set_maxmagic(zinit2->max_magic);
@@ -2126,6 +2163,10 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     game2->set_hcp_per_hc(zinit2->hcp_per_hc);
     game2->set_cont_hearts(zinit2->cont_heart);
     game2->set_cont_percent(get_bit(zinit2->misc, idM_CONTPERCENT) != 0);
+	game2->set_hp_per_heart(zinit2->hp_per_heart);
+	game2->set_mp_per_block(zinit2->magic_per_block);
+	game2->set_hero_dmgmult(zinit2->hero_damage_multiplier);
+	game2->set_ene_dmgmult(zinit2->ene_damage_multiplier);
     
     for(int i=0; i<MAXLEVELS; i++)
     {

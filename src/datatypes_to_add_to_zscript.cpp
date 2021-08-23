@@ -460,6 +460,18 @@ struct gamedata
 	bool get_cont_percent();
 	void set_cont_percent(bool ispercent);
 	
+	byte get_hp_per_heart();
+	void set_hp_per_heart(byte val);
+	
+	byte get_mp_per_block();
+	void set_mp_per_block(byte val);
+	
+	byte get_hero_dmgmult();
+	void set_hero_dmgmult(byte val);
+	
+	byte get_ene_dmgmult();
+	void set_ene_dmgmult(byte val);
+	
 	byte get_continue_scrn();
 	void set_continue_scrn(byte s);
 	void change_continue_scrn(short s);

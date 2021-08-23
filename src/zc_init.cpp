@@ -79,7 +79,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->gravity=zinit.gravity;
     zinit2->terminalv=zinit.terminalv;
     zinit2->jump_link_layer_threshold=zinit.jump_link_layer_threshold;
-    zinit2->hc = gdata->get_maxlife()/HP_PER_HEART;
+    zinit2->hc = gdata->get_maxlife()/gdata->get_hp_per_heart();
     zinit2->bombs = gdata->get_bombs();
     zinit2->nBombs = gdata->get_bombs();
     zinit2->keys = gdata->get_keys();
@@ -124,7 +124,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->max_rupees = gdata->get_maxcounter(1);
     zinit2->max_keys = gdata->get_maxcounter(5);
     
-    zinit2->start_heart = gdata->get_life()/HP_PER_HEART;
+    zinit2->start_heart = gdata->get_life()/gdata->get_hp_per_heart();
     zinit2->cont_heart = gdata->get_cont_hearts();
     zinit2->hcp_per_hc = gdata->get_hcp_per_hc();
     set_bit(zinit2->misc,idM_CONTPERCENT,gdata->get_cont_percent() ? 1 : 0);
