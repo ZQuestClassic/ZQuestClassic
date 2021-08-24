@@ -94,7 +94,16 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->nArrows = gdata->get_arrows();
     zinit2->nArrowmax = gdata->get_maxarrows();
 	
+	zinit2->hp_per_heart = gdata->get_hp_per_heart();
+	zinit2->magic_per_block = gdata->get_mp_per_block();
+	zinit2->hero_damage_multiplier = gdata->get_hero_dmgmult();
+	zinit2->ene_damage_multiplier = gdata->get_ene_dmgmult();
 	
+	for(int q = 0; q < 25; ++q)
+	{
+		zinit2->scrcnt[q] = gdata->get_counter(q+7);
+		zinit2->scrmaxcnt[q] = gdata->get_maxcounter(q+7);
+	}
 	
 	
     

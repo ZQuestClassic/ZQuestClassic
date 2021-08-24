@@ -236,7 +236,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        22
+#define V_INITDATA        23
 #define V_GUYS            44
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -4066,6 +4066,7 @@ struct zinitdata
     
     word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep, subscrSpeed;
 	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
+	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em 
 };
 
 struct zcmap

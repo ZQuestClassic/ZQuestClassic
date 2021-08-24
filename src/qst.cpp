@@ -19004,6 +19004,32 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		temp_zinit.ene_damage_multiplier = 4; //(HP_PER_HEART/4), previously hardcoded
 	}
 	
+	if(s_version > 22)
+	{
+		for(int q = 0; q < 25; ++q)
+		{
+			if(!p_igetw(&temp_zinit.scrcnt[q],f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		for(int q = 0; q < 25; ++q)
+		{
+			if(!p_igetw(&temp_zinit.scrmaxcnt[q],f,true))
+			{
+				return qe_invalid;
+			}
+		}
+	}
+	else
+	{
+		for(int q = 0; q < 25; ++q)
+		{
+			temp_zinit.scrcnt[q] = 0;
+			temp_zinit.scrmaxcnt[q] = 0;
+		}
+	}
+	
 	if(keepdata==true)
 	{
 		memcpy(&zinit, &temp_zinit, sizeof(zinitdata));
