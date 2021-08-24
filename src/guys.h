@@ -226,8 +226,6 @@ public:
 	void FireBreath(bool seeklink);
 	// Shoot weapons
 	void FireWeapon();
-	// place the enemy in line with Link (red wizzrobes)
-	void place_on_axis(bool floater, bool solid_ok);
 	void update_enemy_frame();
 	void n_frame_n_dir(int frames, int dir, int f4);
 	void tiledir_small(int ndir, bool fourdir);
@@ -594,13 +592,22 @@ private:
 
     AnimState animState;
 
-    /* Sets position to a random location on the screen.
-     * Returns true if it's okay to teleport there.
+    /* Tries to teleport the wizzrobe according to its settings
+     * and the version. Returns true if the teleport was successful.
      */
     bool tryTeleport();
 
+    /* Sets position to a random location on the screen.
+     * Returns true if it's okay to teleport there.
+     */
+    bool teleportRandomly();
+
+    /* Teleport to a tile aligned with Link. This one never fails. */
+    void teleportAligned(bool solid_ok);
+
     /* Turns the Wizzrobe to face Link. */
     void faceLink();
+
 };
 
 class eWizzrobeFloating : public enemy

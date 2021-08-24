@@ -7995,60 +7995,6 @@ bool enemy::LinkInRange(int range)
 	return abs(lx-int(x))<=range && abs(ly-int(y))<=range;
 }
 
-// place the enemy in line with Link (red wizzrobes)
-void enemy::place_on_axis(bool floater, bool solid_ok)
-{
-	int lx=zc_min(zc_max(int(Link.getX())&0xF0,32),208);
-	int ly=zc_min(zc_max(int(Link.getY())&0xF0,32),128);
-	int pos2=rand()%23;
-	int tried=0;
-	bool last_resort,placed=false;
-
-
-	do
-	{
-		if(pos2<14)
-		{
-			x=(pos2<<4)+16;
-			y=ly;
-		}
-		else
-		{
-			x=lx;
-			y=((pos2-14)<<4)+16;
-		}
-
-		// Don't commit to a last resort if position is out of bounds.
-		last_resort= !(x<32 || y<32 || x>=224 || y>=144);
-
-		if(abs(lx-int(x))>16 || abs(ly-int(y))>16)
-		{
-			// Red Wizzrobes should be able to appear on water, but not other
-			// solid combos; however, they could appear on solid combos in 2.10,
-			// and some quests depend on that.
-			if((solid_ok || !m_walkflag(x,y,floater ? spw_water : spw_door, dir))
-					&& !flyerblocked(x,y,floater ? spw_floater : spw_door))
-				placed=true;
-		}
-
-		if(!placed && tried>=22 && last_resort)
-		{
-			placed=true;
-		}
-
-		++tried;
-		pos2=(pos2+3)%23;
-	}
-	while(!placed);
-
-	if(y==ly)
-		dir=(x<lx)?right:left;
-	else
-		dir=(y<ly)?down:up;
-
-	clk2=tried;
-}
-
 void enemy::n_frame_n_dir(int frames, int ndir, int f4)
 {
 	int t = o_tile;
@@ -13533,39 +13479,10 @@ bool eWizzrobeTeleporting::animate(int index)
     switch(clk)
     {
     case 0: // Teleport and start appearing
-        if(dmisc2==0)
-        {
-            // Wizzrobe Misc4 controls whether wizzrobes can teleport
-            // on top of solid combos, but should not appear on dungeon walls.
-            // 1.84, and probably 1.90 wizzrobes should NEVER appear
-            // in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by
-            // Chris Miller).
-            if(FFCore.getQuestHeaderInfo(vZelda)<=0x190)
-                place_on_axis(true, false);
-            else if((FFCore.getQuestHeaderInfo(vZelda)==0x210 || FFCore.getQuestHeaderInfo(vZelda)==0x192)
-            && id==eWWIZ
-            && FFCore.emulation[emu210WINDROBES])
-            {
-                //2.10 Windrobe
-                //randomise location and face Link
-                if(!tryTeleport())
-                    // Couldn't find anywhere to spawn? Just die.
-                    return true;
-
-                faceLink();
-            }
-            else
-                place_on_axis(true, dmisc4!=0);
-        }
-        else
-        {
-            int t=0;
-            if(!tryTeleport())
-                return true;
-
-            faceLink();
-        }
-
+        if(!tryTeleport())
+            // Couldn't find anywhere to appear? Just die.
+            return true;
+        faceLink();
         fading=fade_flicker;
         hxofs=0;
         break;
@@ -13609,6 +13526,38 @@ bool eWizzrobeTeleporting::animate(int index)
 
 bool eWizzrobeTeleporting::tryTeleport()
 {
+    if(dmisc2==0) // Single shot
+    {
+        // Wizzrobe Misc4 controls whether wizzrobes can teleport
+        // on top of solid combos, but should not appear on dungeon walls.
+        // 1.84, and probably 1.90 wizzrobes should NEVER appear
+        // in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by
+        // Chris Miller).
+        if(FFCore.getQuestHeaderInfo(vZelda)<=0x190)
+        {
+            teleportAligned(false);
+            return true;
+        }
+        else if(id==eWWIZ
+        && (FFCore.getQuestHeaderInfo(vZelda)==0x210 || FFCore.getQuestHeaderInfo(vZelda)==0x192)
+        && FFCore.emulation[emu210WINDROBES])
+        {
+            //2.10 Windrobe
+            //randomise location and face Link
+            return teleportRandomly();
+        }
+        else
+        {
+            teleportAligned(dmisc4!=0);
+            return true;
+        }
+    }
+    else
+        return teleportRandomly();
+}
+
+bool eWizzrobeTeleporting::teleportRandomly()
+{
     for(int i=0; i<160; i++)
     {
         if(isdungeon())
@@ -13628,6 +13577,55 @@ bool eWizzrobeTeleporting::tryTeleport()
     }
 
     return false;
+}
+
+void eWizzrobeTeleporting::teleportAligned(bool solidOK)
+{
+	int lx=vbound(((int)Link.getX())&0xF0, 32, 208);
+    int ly=vbound(((int)Link.getY())&0xF0, 32, 128);
+    int checkPos=rand()%23;
+	bool placed=false;
+
+    // Each of the tiles aligned with Link and not at the edge of the screen
+    // are checked - that's 9 vertically and 14 horizontally. 23 positions,
+    // with one duplicated. Cycle through them and take the first one that's
+    // far enough from Link and the wizzrobe can stand on.
+    int numTries;
+    for(numTries=0; true; numTries++)
+	{
+		if(checkPos<14)
+		{
+			x=(checkPos<<4)+16;
+			y=ly;
+		}
+		else
+		{
+			x=lx;
+			y=((checkPos-14)<<4)+16;
+		}
+
+        // If the position's at least a tile away from Link and the wizzrobe
+        // can stand there, take it.
+		if(abs(lx-x)>16 || abs(ly-y)>16)
+		{
+			// Red Wizzrobes should be able to appear on water, but not other
+			// solid combos; however, they could appear on solid combos in 2.10,
+			// and some quests depend on that.
+			if((solidOK || !m_walkflag(x, y,  spw_water, dir))
+			&& !flyerblocked(x, y, spw_floater))
+                break;
+		}
+
+        // Too many tries? Give up and take the first one that's not
+        // at the edge of the screen.
+		if(numTries>=22 && !(x<32 || y<32 || x>=224 || y>=144))
+            break;
+
+		checkPos=(checkPos+3)%23;
+	}
+
+    // XXX Unused?
+	clk2=numTries;
 }
 
 void eWizzrobeTeleporting::faceLink()
