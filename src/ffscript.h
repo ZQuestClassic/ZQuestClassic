@@ -785,8 +785,8 @@ int numscriptdraws;
 long FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
 long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
 
-char includePaths[MAX_INCLUDE_PATHS][512];
-char includePathString[(MAX_INCLUDE_PATHS+1)*512];
+std::vector<std::string> includePaths;
+char includePathString[MAX_INCLUDE_PATH_CHARS];
 char scriptRunString[21];
 int warpex[wexLast];
 int StdArray[256];

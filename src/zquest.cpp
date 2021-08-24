@@ -1076,7 +1076,7 @@ std::vector<string> asscreenscripts;
 std::vector<string> asitemspritescripts;
 std::vector<string> ascomboscripts;
 
-char ZQincludePaths[MAX_INCLUDE_PATHS][512];
+std::vector<string> *ZQincludePaths;
 
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
@@ -25571,92 +25571,57 @@ const char *zcompiler_guardlist(int index, int *list_size)
 
 static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
 
-
-const char *zcompiler_num_include_paths(int index, int *list_size)
-{
-    if(index >= 0)
-    {
-        bound(index,0,MAX_INCLUDE_PATHS);
-        
-	switch(index)
-        {
-            
-	case 0:
-	    return "0";
-        case 1:
-            return "1";
-	case 2:
-            return "2";
-	case 3:
-            return "3";
-	case 4:
-            return "4";
-	case 5:
-            return "5";
-        }
-	
-    }
-    
-    *list_size = MAX_INCLUDE_PATHS+1;
-    return NULL;
-}
-
-static ListData zcompiler_number_include_paths_list(zcompiler_num_include_paths, &pfont);
-
-
-
-
-char tempincludepath[(MAX_INCLUDE_PATHS+1)*512];
+char tempincludepath[MAX_INCLUDE_PATH_CHARS];
 char temprunstring[21];
 
 static DIALOG zscript_parser_dlg[] =
 {
-    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
-    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    // { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
-    { jwin_tab_proc,            4,     23,    252,    182,    vc(0),      vc(15),      0,    0,          0,    0, (void *) compiler_options_tabs,     NULL, (void *)zscript_parser_dlg },
-    // 3
-    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
-    // rules //6
-    { jwin_check_proc,      10, 32+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
-    { jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
-    { jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
-    { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Value of Boolean 'true' is 0.0001", NULL, NULL },
-    //10
-    { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          512,            0,       tempincludepath, NULL, NULL },
-    { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          512,            0,       tempincludepath, NULL, NULL },
+	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
+	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+	// { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+	{ jwin_tab_proc,            4,     23,    252,    182,    vc(0),      vc(15),      0,    0,          0,    0, (void *) compiler_options_tabs,     NULL, (void *)zscript_parser_dlg },
+	// 3
+	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+	
+	// rules //6
+	{ jwin_check_proc,      10, 32+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
+	{ jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
+	{ jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
+	{ jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Value of Boolean 'true' is 0.0001", NULL, NULL },
+	//10
+	{ d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0, MAX_INCLUDE_PATH_CHARS,            0,       tempincludepath, NULL, NULL },
+	{ jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          0,            0,       tempincludepath, NULL, NULL },
    
-    { jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+	{ jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": On Error",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     10,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+	{ jwin_droplist_proc,     10,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
 		(void *) &zcompiler_halt_list,						 NULL,   NULL 				   },
-    { jwin_text_proc,           86,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+	{ jwin_text_proc,           86,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": Header Guard",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     10,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+	{ jwin_droplist_proc,     10,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
 		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
-    { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+	{ jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "Include Paths:",                  NULL,   NULL                  },
-    //17
-    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True MAX_INT sizing", NULL, NULL },
-   
-    { jwin_text_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+	//17
+	{ jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True MAX_INT sizing", NULL, NULL },
+	
+	{ d_dummy_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": Max Include Paths",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
-		(void *) &zcompiler_number_include_paths_list,						 NULL,   NULL 				   },
-    
-    //20 run function
-    { jwin_edit_proc,    16,  102-11,   50,  16,   vc(11),  vc(1),  0,       0,          64,            0,       temprunstring, NULL, NULL },
-    { jwin_text_proc,           68,     102-8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+	{ d_dummy_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		NULL,						 NULL,   NULL 				   },
+	
+	//20 run function
+	{ jwin_edit_proc,    16,  102-11,   50,  16,   vc(11),  vc(1),  0,       0,          64,            0,       temprunstring, NULL, NULL },
+	{ jwin_text_proc,           68,     102-8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "void run()' label:",                  NULL,   NULL                  },
-    { d_dummy_proc,      10, 32+60+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Inline all possible functions", NULL, NULL },
-    { jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Binary Operations use true 32-bit Int", NULL, NULL },
-    { jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Switch/case of strings is case-insensitive", NULL, NULL },
-    
-    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+	{ d_dummy_proc,      10, 32+60+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Inline all possible functions", NULL, NULL },
+	{ jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Binary Operations use true 32-bit Int", NULL, NULL },
+	{ jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Switch/case of strings is case-insensitive", NULL, NULL },
+	
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 
@@ -25681,72 +25646,71 @@ static int zscripparsertrules[] =
 	qr_PARSER_FORCE_INLINE,
 	qr_PARSER_BINARY_32BIT,
 	qr_PARSER_STRINGSWITCH_INSENSITIVE,
-    -1
+	-1
 };
 
 int onZScriptCompilerSettings()
 {
-    if(is_large)
-        large_dialog(zscript_parser_dlg);
-        
-    zscript_parser_dlg[0].dp2=lfont;
-    
-    zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
-    zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
-    zscript_parser_dlg[19].d1 = get_config_int("Compiler","number_of_include_paths",5);
-    
-    //memset(tempincludepath,0,sizeof(tempincludepath));
-    strcpy(tempincludepath,FFCore.includePathString);
-    //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
-    zscript_parser_dlg[10].dp = tempincludepath;
-    
-    //run label
-    strcpy(temprunstring,FFCore.scriptRunString);
-    //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
-    zscript_parser_dlg[20].dp = temprunstring;
+	if(is_large)
+		large_dialog(zscript_parser_dlg);
+		
+	zscript_parser_dlg[0].dp2=lfont;
+	
+	zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
+	zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
+	
+	//memset(tempincludepath,0,sizeof(tempincludepath));
+	strcpy(tempincludepath,FFCore.includePathString);
+	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
+	zscript_parser_dlg[10].dp = tempincludepath;
+	
+	//run label
+	strcpy(temprunstring,FFCore.scriptRunString);
+	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
+	zscript_parser_dlg[20].dp = temprunstring;
    
-    for(int i=0; zscripparsertrules[i]!=-1; i++)
-    {
-	    //This loop ignores trying to set bits in quest_rules, if the option is on the global settings tab.
-	    //These settings are stored in zquest.cfg, not in the quest file. -ZoriaRPG (3rd April, 2019 )
-	    for ( int q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
-	    {
+	for(int i=0; zscripparsertrules[i]!=-1; i++)
+	{
+		//This loop ignores trying to set bits in quest_rules, if the option is on the global settings tab.
+		//These settings are stored in zquest.cfg, not in the quest file. -ZoriaRPG (3rd April, 2019 )
+		for ( int q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
+		{
 		if ( compiler_tab_list_global[q] == i ) continue;
-		    
-	    }
-        zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
-    }
-    
+			
+		}
+		zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
+	}
+	
  
-    
-    int ret = zc_popup_dialog(zscript_parser_dlg,4);
-    
-    if(ret==4)
-    {
-        saved=false;
-        
-        for(int i=0; zscripparsertrules[i]!=-1; i++)
-        {
-            set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
-        }
-	al_trace("Current include path string: %s\n", tempincludepath);
-	memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
-	strcpy(FFCore.includePathString,tempincludepath);
-	//set_config_string("Compiler","include_path",FFCore.includePathString);
-	set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
-	set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
-	set_config_int("Compiler","number_of_include_paths",zscript_parser_dlg[19].d1);
-	memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
-	strcpy(FFCore.scriptRunString,temprunstring);
-	al_trace("Run string set to: %s\n",FFCore.scriptRunString);
-	save_config_file();
-	FFCore.updateIncludePaths();
-        memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
 	
+	int ret = zc_popup_dialog(zscript_parser_dlg,4);
 	
-    }
-    
-    return D_O_K;
+	if(ret==4)
+	{
+		saved=false;
+		
+		for(int i=0; zscripparsertrules[i]!=-1; i++)
+		{
+			set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
+		}
+		al_trace("Current include path string: ");
+		safe_al_trace(tempincludepath);
+		al_trace("\n");
+		memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
+		strcpy(FFCore.includePathString,tempincludepath);
+		set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
+		set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
+		strcpy(FFCore.scriptRunString,temprunstring);
+		al_trace("Run string set to: %s\n",FFCore.scriptRunString);
+		save_config_file();
+		FFCore.updateIncludePaths();
+		ZQincludePaths = &FFCore.includePaths;
+		
+		
+	}
+	
+	return D_O_K;
 }
 
 //editbox_data zscript_edit_data;
@@ -33273,7 +33237,8 @@ int main(int argc,char **argv)
     time(&auto_save_time_start);
     
     FFCore.init();
-	memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
+	ZQincludePaths = &FFCore.includePaths;
+	
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
 	
 	
@@ -34487,7 +34452,14 @@ int save_config_file()
     chop_path(tmusicpath2);
     
 	set_config_string("ZCMODULE","current_module",moduledata.module_name);
-	set_config_string("Compiler","include_path",FFCore.includePathString);
+	//
+	FILE* f = fopen("includepaths.txt", "w");
+	if(f)
+	{
+		fwrite(FFCore.includePathString,1,strlen(FFCore.includePathString),f);
+		fclose(f);
+	}
+	//
 	set_config_string("Compiler","run_string",FFCore.scriptRunString);
 	//set_config_int("Compiler","Compile_Success_Tune",compile_tune); //Can't save here until we assign this in a dialogue. Otherwise, quitting will write it 0.
 	
@@ -35279,18 +35251,21 @@ void FFScript::init()
 
 void FFScript::updateIncludePaths()
 {
-	memset(includePaths,0,sizeof(includePaths));
-	int pos = 0; int dest = 0; int pathnumber = 0;
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	includePaths.clear();
+	int pos = 0; int pathnumber = 0;
+	for ( int q = 0; includePathString[pos]; ++q )
 	{
-		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		int dest = 0;
+		char buf[2048] = {0};
+		while(includePathString[pos] != ';' && includePathString[pos])
 		{
-			includePaths[q][dest] = includePathString[pos];
-			pos++;
-			dest++;
+			buf[dest] = includePathString[pos];
+			++pos;
+			++dest;
 		}
 		++pos;
-		dest = 0;
+		std::string str(buf);
+		includePaths.push_back(str);
 	}
 }
 
@@ -35298,31 +35273,41 @@ void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
 	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
-	al_trace("Run is set to: %s \n",includePathString);
+	al_trace("Run is set to: %s \n",scriptRunString);
 }
 
 void FFScript::initIncludePaths()
 {
-	memset(includePaths,0,sizeof(includePaths));
 	memset(includePathString,0,sizeof(includePathString));
-	strcpy(includePathString,get_config_string("Compiler","include_path","include/"));
-	includePathString[((MAX_INCLUDE_PATHS+1)*512)-1] = '\0';
-	al_trace("Full path string is: %s\n",includePathString);
-	int pos = 0; int dest = 0; int pathnumber = 0;
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	FILE* f = fopen("includepaths.txt", "r");
+	if(f)
 	{
-		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		int pos = 0;
+		int c;
+		do
 		{
-			includePaths[q][dest] = includePathString[pos];
-			pos++;
-			dest++;
+			c = fgetc(f);
+			if(c!=EOF) 
+				includePathString[pos++] = c;
 		}
-		++pos;
-		dest = 0;
+		while(c!=EOF && pos<MAX_INCLUDE_PATH_CHARS);
+		if(pos<MAX_INCLUDE_PATH_CHARS)
+			includePathString[pos] = '\0';
+		includePathString[MAX_INCLUDE_PATH_CHARS-1] = '\0';
+		fclose(f);
 	}
+	else strcpy(includePathString, "include/;headers/;scripts/;");
+	al_trace("Full path string is: ");
+	safe_al_trace(includePathString);
+	al_trace("\n");
+	updateIncludePaths();
 
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
-		al_trace("Include path %d: %s\n",q,includePaths[q]);
+	for ( int q = 0; q < includePaths.size(); ++q )
+	{
+		al_trace("Include path %d: ",q);
+		safe_al_trace(includePaths.at(q).c_str());
+		al_trace("\n");
+	}
 }
 
 void FFScript::setFFRules()
