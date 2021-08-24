@@ -1323,13 +1323,59 @@ eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eWizzrobeTeleporting::eWizzrobeTeleporting(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	charging(charging),
-	firing(firing),
-	fclk(fclk)
+	animState(AnimState::normal)
+{
+
+	//arrays
+
+	//stack(other.stack),			//int
+	//scriptData(other.scriptData)			//int
+	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+
+	scriptData = other.scriptData;
+	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
+	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
+
+	for(int i=0; i<edefLAST255; i++)
+		defense[i]=other.defense[i];
+	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
+
+	if(new_script_uid)
+	{
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs.
+	}
+	if(clear_parent_script_UID)
+	{
+		parent_script_UID = 0;
+	}
+	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
+	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
+
+	for ( int q = 0; q < 8; q++ )
+	{
+		initD[q] = other.initD[q];
+		weap_initiald[q] = other.weap_initiald[q];
+	}
+	for ( int q = 0; q < 2; q++ )
+	{
+		initA[q] = other.initA[q];
+		weap_initiala[q] = other.weap_initiala[q];
+	}
+}
+
+eWizzrobeFloating::eWizzrobeFloating(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+	 //Struct Element			Type		Purpose
+	//sprite(other),
+	enemy(other),
+    action(*((Action*)&misc)),
+    actionTimer(clk3),
+    shotTimer(0)
 {
 
 	//arrays
@@ -3918,7 +3964,11 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 
 				case eeWIZZ:
 				{
-				enemy *e = new eWizzrobe(x,y,new_id,clk);
+                enemy *e;
+                if(guysbuf[id&0xFFF].misc1==0)
+                    e = new eWizzrobeTeleporting(x,y,new_id,clk);
+                else
+                    e = new eWizzrobeFloating(x,y,new_id,clk);
 				guys.add(e);
 				}
 				break;
@@ -7879,7 +7929,7 @@ void enemy::floater_walk(int newrate,int newclk,zfix s)
 
 // Checks if enemy is lined up with Link. If so, returns direction Link is
 // at as compared to enemy. Returns -1 if not lined up. Range is inclusive.
-int enemy::lined_up(int range, bool dir8)
+int enemy::lined_up(int range, bool dir8) const
 {
 	int lx = Link.getX();
 	int ly = Link.getY();
@@ -13414,402 +13464,396 @@ void eKeese::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-eWizzrobe::eWizzrobe(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+
+
+eWizzrobeTeleporting::eWizzrobeTeleporting(zfix X,zfix Y,int Id,int Clk):
+    enemy(X, Y, Id, Clk),
+    animState(AnimState::normal)
 {
-//  switch(d->misc1)
-	switch(dmisc1)
-	{
-	case 0:
-		hxofs=1000;
-		fading=fade_invisible;
-		// Set clk to just before the 'reappear' threshold
-		clk=zc_min(clk+(146+zc_max(0,dmisc5))+14,(146+zc_max(0,dmisc5))-1);
-		break;
+    hxofs=1000;
+    fading=fade_invisible;
+    // Set clk to just before the 'reappear' threshold
+    clk=zc_min(
+        clk+(146+zc_max(0, dmisc5))+14,
+        (146+zc_max(0, dmisc5))-1);
+    animState=AnimState::normal;
+    frate=1200+146; //1200 = 20 seconds
 
-	default:
-		dir=(loadside==right)?right:left;
-		misc=-3;
-		break;
-	}
+    SIZEflags=d->SIZEflags;
+    if(SIZEflags&guyflagOVERRIDE_TILE_WIDTH && txsz>0 )
+    {
+        txsz = txsz;
+        if(txsz>1)
+            extend = 3;
+    }
 
-	//netst+2880;
-	charging=false;
-	firing=false;
-	fclk=0;
-	if(!dmisc1) frate=1200+146; //1200 = 20 seconds
-	SIZEflags = d->SIZEflags;
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1.
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
-   // al_trace("Enemy txsz:%i\n", txsz);
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
-	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
-	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
-//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
-	if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = d->xofs;
-	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 )
-	{
-		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
-	}
+    if(SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && tysz>0)
+    {
+        tysz=d->tysz;
+        if(tysz>1)
+            extend = 3;
+    }
+    if(SIZEflags&guyflagOVERRIDE_HIT_WIDTH && hxsz>=0)
+        hxsz=d->hxsz;
+    if(SIZEflags&guyflagOVERRIDE_HIT_HEIGHT && hysz>=0)
+        hysz=d->hysz;
+    if(SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT && hzsz>=0)
+        hzsz=d->hzsz;
+    if(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET)
+        hxofs = d->hxofs;
+    if(SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET)
+        hyofs = d->hyofs;
+    if(SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET)
+        xofs = d->xofs;
+    if(SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET)
+    {
+        yofs=d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
+        yofs+=56 ; //this offset fixes yofs not plaing properly. -Z
+    }
 
-	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
+    if(SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET)
+        zofs=d->zofs;
 }
 
-bool eWizzrobe::animate(int index)
+bool eWizzrobeTeleporting::animate(int index)
 {
-	if(fallclk||drownclk) return enemy::animate(index);
-	if(dying)
-	{
-		return Dead(index);
-	}
+    if(fallclk || drownclk)
+        return enemy::animate(index);
+    if(dying)
+        return Dead(index);
+    if(clk==0)
+        removearmos(x,y);
 
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
+    if(watch)
+    {
+        fading=0;
+        hxofs=0;
+    }
 
-	if(dmisc1) // Floating
-	{
-		wizzrobe_attack();
-	}
-	else // Teleporting
-	{
-		if(watch)
-		{
-			fading=0;
-			hxofs=0;
-		}
-		else switch(clk)
-			{
-			case 0:
-				if(!dmisc2)
-				{
-			// Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
-			// but should not appear on dungeon walls.
-					if ( FFCore.getQuestHeaderInfo(vZelda) <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
-					else if ( (FFCore.getQuestHeaderInfo(vZelda) == 0x210 || FFCore.getQuestHeaderInfo(vZelda) == 0x192 ) && id == eWWIZ && FFCore.emulation[emu210WINDROBES] )
-			{
-				//2.10 Windrobe
-				//randomise location and face Link
-			int t=0;
-			bool placed=false;
+    switch(clk)
+    {
+    case 0: // Teleport and start appearing
+        if(dmisc2==0)
+        {
+            // Wizzrobe Misc4 controls whether wizzrobes can teleport
+            // on top of solid combos, but should not appear on dungeon walls.
+            // 1.84, and probably 1.90 wizzrobes should NEVER appear
+            // in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by
+            // Chris Miller).
+            if(FFCore.getQuestHeaderInfo(vZelda)<=0x190)
+                place_on_axis(true, false);
+            else if((FFCore.getQuestHeaderInfo(vZelda)==0x210 || FFCore.getQuestHeaderInfo(vZelda)==0x192)
+            && id==eWWIZ
+            && FFCore.emulation[emu210WINDROBES])
+            {
+                //2.10 Windrobe
+                //randomise location and face Link
+                if(!tryTeleport())
+                    // Couldn't find anywhere to spawn? Just die.
+                    return true;
 
-			while(!placed && t<160)
-			{
-				if(isdungeon())
-				{
-					x=((rand()%12)+2)*16;
-					y=((rand()%7)+2)*16;
-				}
-				else
-				{
-					x=((rand()%14)+1)*16;
-					y=((rand()%9)+1)*16;
-				}
+                faceLink();
+            }
+            else
+                place_on_axis(true, dmisc4!=0);
+        }
+        else
+        {
+            int t=0;
+            if(!tryTeleport())
+                return true;
 
-				if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
-				{
-					placed=true;
-				}
+            faceLink();
+        }
 
-				++t;
-			}
+        fading=fade_flicker;
+        hxofs=0;
+        break;
 
-			if(abs(x-Link.getX())<abs(y-Link.getY()))
-			{
-				if(y<Link.getY())
-				{
-					dir=down;
-				}
-				else
-				{
-					dir=up;
-				}
-			}
-			else
-			{
-				if(x<Link.getX())
-				{
-					dir=right;
-				}
-				else
-				{
-					dir=left;
-				}
-			}
+    case 64: // Stop flickering, switch to charging animation
+        fading=0;
+        animState=AnimState::charging;
+        break;
 
-			if(!placed)                                       // can't place him, he's gone
-				return true;
+    case 73: // Switch to firing animation frame, but don't fire quite yet
+        animState=AnimState::firing;
+        break;
 
+    case 83: // NOW fire
+        eWpn.fire();
+        break;
 
-			//wizzrobe_attack(); //COmplaint about 2.10 Windrobes not behaving as they did in 2.10. Let's try it this way. -Z
-			//wizzrobe_attack_for_real(); //doing this makes them fire twice. The rest is correct.
-			}
-			else place_on_axis(true, dmisc4!=0);
-				}
-				else
-				{
-					int t=0;
-					bool placed=false;
+    case 119: // Back to charging animation
+        animState=AnimState::charging;
+        break;
 
-					while(!placed && t<160)
-					{
-						if(isdungeon())
-						{
-							x=((rand()%12)+2)*16;
-							y=((rand()%7)+2)*16;
-						}
-						else
-						{
-							x=((rand()%14)+1)*16;
-							y=((rand()%9)+1)*16;
-						}
+    case 128: // Start flickering
+        fading=fade_flicker;
+        animState=AnimState::normal;
+        break;
 
-						if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
-						{
-							placed=true;
-						}
+    case 146: // Disappear
+        fading=fade_invisible;
+        hxofs=1000;
+        [[fallthrough]]
 
-						++t;
-					}
+    default: // And stay gone until clk rolls over
+        if(clk>=(146+zc_max(0, dmisc5)))
+            clk=-1;
 
-					if(abs(x-Link.getX())<abs(y-Link.getY()))
-					{
-						if(y<Link.getY())
-						{
-							dir=down;
-						}
-						else
-						{
-							dir=up;
-						}
-					}
-					else
-					{
-						if(x<Link.getX())
-						{
-							dir=right;
-						}
-						else
-						{
-							dir=left;
-						}
-					}
+        break;
+    }
 
-					if(!placed)                                       // can't place him, he's gone
-						return true;
-				}
-
-				fading=fade_flicker;
-				hxofs=0;
-				break;
-
-			case 64:
-				fading=0;
-				charging=true;
-				break;
-
-			case 73:
-				charging=false;
-				firing=40;
-				break;
-
-			case 83:
-				eWpn.fire();
-				break;
-
-			case 119:
-				firing=false;
-				charging=true;
-				break;
-
-			case 128:
-				fading=fade_flicker;
-				charging=false;
-				break;
-
-			case 146:
-				fading=fade_invisible;
-				hxofs=1000;
-
-				//Fall through
-			default:
-				if(clk>=(146+zc_max(0,dmisc5)))
-					clk=-1;
-
-				break;
-			}
-	}
-
-	return enemy::animate(index);
+    return enemy::animate(index);
 }
 
-void eWizzrobe::wizzrobe_attack()
+bool eWizzrobeTeleporting::tryTeleport()
 {
-	if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
-		return;
+    for(int i=0; i<160; i++)
+    {
+        if(isdungeon())
+        {
+            x=((rand()%12)+2)*16;
+            y=((rand()%7)+2)*16;
+        }
+        else
+        {
+            x=((rand()%14)+1)*16;
+            y=((rand()%9)+1)*16;
+        }
 
-	if(clk3<=0 || ((clk3&31)==0 && !canmove(dir,(zfix)1,spw_door,false) && !misc))
-	{
-		fix_coords();
+        if(!m_walkflag(x, y, spw_door, dir)
+        && ((abs(x-Link.getX())>=32) || (abs(y-Link.getY())>=32)))
+            return true;
+    }
 
-		switch(misc)
-		{
-		case 1:                                               //walking
-			if(!m_walkflag(x,y,spw_door, dir))
-				misc=0;
-			else
-			{
-				clk3=16;
-
-				if(!canmove(dir,(zfix)1,spw_wizzrobe,false))
-				{
-					wizzrobe_newdir(0);
-				}
-			}
-
-			break;
-
-		case 2:                                               //phasing
-		{
-			int jx=x;
-			int jy=y;
-			int jdir=-1;
-
-			switch(rand()&7)
-			{
-			case 0:
-				jx-=32;
-				jy-=32;
-				jdir=15;
-				break;
-
-			case 1:
-				jx+=32;
-				jy-=32;
-				jdir=9;
-				break;
-
-			case 2:
-				jx+=32;
-				jy+=32;
-				jdir=11;
-				break;
-
-			case 3:
-				jx-=32;
-				jy+=32;
-				jdir=13;
-				break;
-			}
-
-			if(jdir>0 && jx>=32 && jx<=208 && jy>=32 && jy<=128)
-			{
-				misc=3;
-				clk3=32;
-				dir=jdir;
-				break;
-			}
-		}
-
-		case 3:
-			dir&=3;
-			misc=0;
-
-		case 0:
-			wizzrobe_newdir(64);
-
-		default:
-			if(!canmove(dir,(zfix)1,spw_door,false))
-			{
-				if(canmove(dir,(zfix)15,spw_wizzrobe,false))
-				{
-					misc=1;
-					clk3=16;
-				}
-				else
-				{
-					wizzrobe_newdir(64);
-					misc=0;
-					clk3=32;
-				}
-			}
-			else
-			{
-				clk3=32;
-			}
-
-			break;
-		}
-
-		if(misc<0)
-			++misc;
-	}
-
-	--clk3;
-
-	switch(misc)
-	{
-	case 1:
-	case 3:
-		step=1;
-		break;
-
-	case 2:
-		step=0;
-		break;
-
-	default:
-		step=0.5;
-		break;
-
-	}
-
-	move(step);
-
-//  if(d->misc1 && misc<=0 && clk3==28)
-	if(dmisc1 && misc<=0 && clk3==28)
-	{
-		if(dmisc2 != 1)
-		{
-			if(lined_up(8,false) == dir)
-			{
-//        addEwpn(x,y,z,wpn,0,wdp,dir,getUID());
-//        sfx(WAV_WAND,pan(int(x)));
-				eWpn.fire();
-				fclk=30;
-			}
-		}
-		else
-		{
-			if((rand()%500)>=400)
-			{
-				eWpn.fire();
-				fclk=30;
-			}
-		}
-	}
-
-	if(misc==0 && (rand()&127)==0)
-		misc=2;
-
-	if(misc==2 && clk3==4)
-		fix_coords();
-
-	if(!(charging||firing))                               //should never be charging or firing for these wizzrobes
-	{
-		if(fclk>0)
-		{
-			--fclk;
-		}
-	}
-
+    return false;
 }
 
-void eWizzrobe::wizzrobe_newdir(int homing)
+void eWizzrobeTeleporting::faceLink()
+{
+    if(abs(x-Link.getX())<abs(y-Link.getY()))
+    {
+        if(y<Link.getY())
+            dir=down;
+        else
+            dir=up;
+    }
+    else
+    {
+        if(x<Link.getX())
+            dir=right;
+        else
+            dir=left;
+    }
+}
+
+void eWizzrobeTeleporting::draw(BITMAP *dest)
+{
+    switch(animState)
+    {
+    case AnimState::normal:
+        dummy_bool[1]=false;
+        dummy_bool[2]=false;
+        break;
+
+    case AnimState::charging:
+        dummy_bool[1]=true;
+        dummy_bool[2]=false;
+        break;
+
+    case AnimState::firing:
+        dummy_bool[1]=false;
+        dummy_bool[2]=true;
+        break;
+    }
+    update_enemy_frame();
+    // XXX Does not setting dummy_bool back to its previous values right here
+    // cause any problems? If so, it's not immediately obvious.
+	enemy::draw(dest);
+}
+
+
+
+
+eWizzrobeFloating::eWizzrobeFloating(zfix X,zfix Y,int Id,int Clk):
+    enemy(X, Y, Id, Clk),
+    action(*((Action*)&misc)),
+    actionTimer(clk3),
+    shotTimer(0)
+{
+    dir=(loadside==right)?right:left;
+    action=Action::init;
+
+    SIZEflags=d->SIZEflags;
+    if(SIZEflags&guyflagOVERRIDE_TILE_WIDTH && txsz>0 )
+    {
+        txsz = txsz;
+        if(txsz>1)
+            extend = 3;
+    }
+
+    if(SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && tysz>0)
+    {
+        tysz=d->tysz;
+        if(tysz>1)
+            extend = 3;
+    }
+    if(SIZEflags&guyflagOVERRIDE_HIT_WIDTH && hxsz>=0)
+        hxsz=d->hxsz;
+    if(SIZEflags&guyflagOVERRIDE_HIT_HEIGHT && hysz>=0)
+        hysz=d->hysz;
+    if(SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT && hzsz>=0)
+        hzsz=d->hzsz;
+    if(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET)
+        hxofs = d->hxofs;
+    if(SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET)
+        hyofs = d->hyofs;
+    if(SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET)
+        xofs = d->xofs;
+    if(SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET)
+    {
+        yofs=d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
+        yofs+=56 ; //this offset fixes yofs not plaing properly. -Z
+    }
+
+    if(SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET)
+        zofs=d->zofs;
+}
+
+bool eWizzrobeFloating::animate(int index)
+{
+    if(fallclk || drownclk)
+        return enemy::animate(index);
+    if(dying)
+        return Dead(index);
+    if(clk==0)
+        removearmos(x,y);
+    if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
+        return enemy::animate(index);
+
+    // When the timer's run out or it can't keep going,
+    // it's time to try a different action.
+    if(actionTimer<=0
+    || ((actionTimer&31)==0 && !canmove(dir, 1_x, spw_door, false) && action==Action::walking))
+    {
+        fix_coords();
+
+        switch(action)
+        {
+        case Action::phasing:
+            // Just moved a full tile. If the new position is walkable,
+            // switch to walking. Otherwise, turn if needed, move
+            // another tile, then check again.
+            if(!m_walkflag(x, y, spw_door, dir))
+                action=Action::walking;
+            else
+            {
+                if(!canmove(dir, 1_x, spw_wizzrobe, false))
+                    turn(0);
+                actionTimer=16;
+            }
+            break;
+
+        case Action::pausing:
+            if(maybeJump())
+                break;
+            [[fallthrough]]
+
+        case Action::jumping:
+            // Either stopped walking or finished jumping.
+            // Adjust direction in case it's diagonal.
+            // Then... start walking?
+            dir&=3;
+            action=Action::walking;
+            [[fallthrough]]
+
+        case Action::walking:
+            // Can't go any further, timer ran out, or just started walking.
+            // In any case, pick a direction and get moving.
+            turn(64);
+            [[fallthrough]]
+
+        default: // Initialize
+            if(!canmove(dir, 1_x, spw_door, false))
+            {
+                // Can't walk. Phase if possible, turn if not.
+                if(canmove(dir, 15_x, spw_wizzrobe, false))
+                {
+                    action=Action::phasing;
+                    actionTimer=16;
+                }
+                else
+                {
+                    turn(64);
+                    action=Action::walking;
+                    actionTimer=32;
+                }
+            }
+            else
+                actionTimer=32;
+
+            break;
+        }
+
+        // Does this need to be kept? If it really does anything,
+        // it's hard to tell.
+        if(misc<0)  // misc==action, so init -> init2 -> init3 -> walking.
+            misc++; // It should never be negative after that.
+    }
+
+    actionTimer--;
+
+    // It could just call move directly here, but scripts
+    // can observe the step change.
+    switch(action)
+    {
+    case Action::phasing:
+    case Action::jumping:
+        step=1_x;
+        break;
+
+    case Action::pausing:
+        step=0_x;
+        break;
+
+    default:
+        step=0.5_x;
+        break;
+    }
+
+    move(step);
+
+    if(readyToFire())
+    {
+        eWpn.fire();
+        shotTimer=30;
+    }
+    if(shotTimer>0)
+        shotTimer--;
+
+    if(action==Action::walking && (rand()&127)==0)
+        action=Action::pausing;
+
+    if(action==Action::pausing && actionTimer==4)
+        fix_coords();
+
+    return enemy::animate(index);
+}
+
+bool eWizzrobeFloating::readyToFire() const
+{
+    if(action==Action::walking && actionTimer==28)
+    {
+        if(dmisc2!=1) // Not 8 shots
+            return lined_up(8, false)==dir;
+        else
+            return rand()%500>=400;
+    }
+    return false;
+}
+
+void eWizzrobeFloating::turn(int homing)
 {
 	// Wizzrobes shouldn't move to the edge of the screen;
 	// if they're already there, they should move toward the center
@@ -13822,26 +13866,77 @@ void eWizzrobe::wizzrobe_newdir(int homing)
 	else if(y>=144)
 		dir=up;
 	else
-		newdir(4,homing,spw_wizzrobe);
+		newdir(4, homing, spw_wizzrobe);
 }
 
-void eWizzrobe::draw(BITMAP *dest)
+bool eWizzrobeFloating::maybeJump()
 {
-//  if(d->misc1 && (misc==1 || misc==3) && (clk3&1) && hp>0 && !watch && !stunclk)                          // phasing
-	if(dmisc1 && (misc==1 || misc==3) && (clk3&1) && hp>0 && !watch && !stunclk && !frozenclock)                          // phasing
-		return;
+    int jx=x;
+    int jy=y;
+    int jdir=-1;
 
-	int tempint=dummy_int[1];
-	bool tempbool1=dummy_bool[1];
-	bool tempbool2=dummy_bool[2];
-	dummy_int[1]=fclk;
-	dummy_bool[1]=charging;
-	dummy_bool[2]=firing;
-	update_enemy_frame();
-	dummy_int[1]=tempint;
-	dummy_bool[1]=tempbool1;
-	dummy_bool[2]=tempbool2;
-	enemy::draw(dest);
+    switch(rand()&7)
+    {
+    case 0:
+        if(canJumpTo(x-32, y-32))
+        {
+            // dir>7 is needed instead of l_up, etc. because the next direction
+            // after the jump is decided by dir&3.
+            dir=15;
+            action=Action::jumping;
+            actionTimer=32;
+            return true;
+        }
+        break;
+
+    case 1:
+        if(canJumpTo(x+32, y-32))
+        {
+            dir=9;
+            action=Action::jumping;
+            actionTimer=32;
+            return true;
+        }
+        break;
+
+    case 2:
+        if(canJumpTo(x+32, y+32))
+        {
+            dir=11;
+            action=Action::jumping;
+            actionTimer=32;
+            return true;
+        }
+        break;
+
+    case 3:
+        if(canJumpTo(x-32, y+32))
+        {
+            dir=13;
+            action=Action::jumping;
+            actionTimer=32;
+            return true;
+        }
+        break;
+    }
+
+    return false;
+}
+
+void eWizzrobeFloating::draw(BITMAP *dest)
+{
+    if(action==Action::jumping || action==Action::phasing)
+    {
+        // Might be invisible due to flickering
+        if(actionTimer&1 && hp>0 && !watch && !stunclk && !frozenclock)
+            return;
+    }
+
+    dummy_int[1]=shotTimer;
+    update_enemy_frame();
+    // XXX Does not setting dummy_int back to its previous value right here
+    // cause any problems? If so, it's not immediately obvious.
+    enemy::draw(dest);
 }
 
 /*********************************/
@@ -18313,7 +18408,10 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 		break;
 
 	case eeWIZZ:
-		e = new eWizzrobe((zfix)x,(zfix)y,id,clk);
+        if(guysbuf[id&0xFFF].misc1==0)
+            e = new eWizzrobeTeleporting((zfix)x,(zfix)y,id,clk);
+        else
+            e = new eWizzrobeFloating((zfix)x,(zfix)y,id,clk);
 		break;
 
 	case eePROJECTILE:
@@ -18759,7 +18857,10 @@ int addenemy(int x,int y,int z,int id,int clk)
 		break;
 
 	case eeWIZZ:
-		e = new eWizzrobe((zfix)x,(zfix)y,id,clk);
+        if(guysbuf[id&0xFFF].misc1==0)
+            e = new eWizzrobeTeleporting((zfix)x,(zfix)y,id,clk);
+        else
+            e = new eWizzrobeFloating((zfix)x,(zfix)y,id,clk);
 		break;
 
 	case eePROJECTILE:

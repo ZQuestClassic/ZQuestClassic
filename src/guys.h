@@ -219,7 +219,7 @@ public:
 	void floater_walk(int rate,int newclk,zfix s);
 	// Checks if enemy is lined up with Link. If so, returns direction Link is
 	// at as compared to enemy. Returns -1 if not lined up. Range is inclusive.
-	int lined_up(int range, bool dir8);
+	int lined_up(int range, bool dir8) const;
 	// returns true if Link is within 'range' pixels of the enemy
 	bool LinkInRange(int range);
 	// Breathe fire
@@ -581,19 +581,66 @@ public:
 	virtual void draw(BITMAP *dest);
 };
 
-class eWizzrobe : public enemy
+class eWizzrobeTeleporting : public enemy
 {
 public:
-	bool charging;
-	bool firing;
-	int fclk;
-	eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eWizzrobe(zfix X,zfix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
-	void wizzrobe_attack();
-	void wizzrobe_attack_for_real();
-	void wizzrobe_newdir(int homing);
-	virtual void draw(BITMAP *dest);
+	eWizzrobeTeleporting(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
+	eWizzrobeTeleporting(zfix X,zfix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
+	virtual bool animate(int index) override;
+    virtual void draw(BITMAP *dest) override;
+
+private:
+    enum class AnimState: char { normal, charging, firing };
+
+    AnimState animState;
+
+    /* Sets position to a random location on the screen.
+     * Returns true if it's okay to teleport there.
+     */
+    bool tryTeleport();
+
+    /* Turns the Wizzrobe to face Link. */
+    void faceLink();
+};
+
+class eWizzrobeFloating : public enemy
+{
+public:
+	eWizzrobeFloating(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
+	eWizzrobeFloating(zfix X, zfix Y, int Id, int Clk);
+	virtual bool animate(int index) override;
+	virtual void draw(BITMAP *dest) override;
+
+private:
+    enum class Action: int
+    {
+        init=-3, init2, init3, // TODO Not this
+        walking=0, phasing, pausing, jumping, initialize
+    };
+
+    // These are bound to the old clk3 and misc because
+    // who knows what else uses them
+    Action& action;
+    int& actionTimer;
+    int shotTimer;
+
+    /* Returns true if the wizzrobe is in position to fire. */
+    bool readyToFire() const;
+
+    /* Turns the wizzrobe to face a new direction. */
+    void turn(int homing);
+
+    /* May start a diagonal "jump" phase. Decides at random whether to try
+     * and fails if the destination would be out of range. Returns true
+     * if a jump was started.
+     */
+    bool maybeJump();
+
+    /* Returns true if the wizzrobe can jump to this position. */
+    inline bool canJumpTo(zfix x, zfix y) const
+    {
+        return x>=32_x && x<=208_x && y>=32_x && y<=128_x;
+    }
 };
 
 /*********************************/
