@@ -16,7 +16,7 @@ public:
 
 private:
     enum class AttackType: char {
-        none, wizzrobe, fireWizzrobe
+        none, aquamentus, wizzrobe, fireWizzrobe
     };
 
     enemy& owner;
@@ -26,6 +26,8 @@ private:
     Sound sfx;
 
     void init(guydata& data);
+
+    // This is probably named incorrectly...
     weapon& fireDirectional(zfix x, zfix y, zfix z, int dir) const;
 };
 

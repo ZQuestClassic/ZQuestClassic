@@ -5,6 +5,38 @@
 #include "weapons.h"
 #include "zdefs.h"
 
+static int defaultSound(int wpn)
+{
+	switch(wpn)
+	{
+	case ewFireTrail:
+	case ewFlame:
+	case ewFlame2Trail:
+	case ewFlame2:
+		return WAV_FIRE;
+
+	case ewWind:
+	case ewMagic:
+		return WAV_WAND;
+
+	case ewIce:
+		return WAV_ZN1ICE;
+
+	case ewRock:
+		if(get_bit(quest_rules, qr_MORESOUNDS))
+            return WAV_ZN1ROCK;
+        break;
+
+	case ewFireball2:
+	case ewFireball:
+		if(get_bit(quest_rules, qr_MORESOUNDS))
+            return WAV_ZN1FIREBALL;
+        break;
+	}
+
+	return -1;
+}
+
 EnemyProjectileWeapon::EnemyProjectileWeapon(enemy& owner, guydata& data):
     owner(owner),
     attackType(AttackType::none),
@@ -60,6 +92,12 @@ void EnemyProjectileWeapon::init(guydata& data)
 
     switch(data.family)
     {
+    case eeAQUA:
+        attackType=AttackType::aquamentus;
+        type=2;
+        sfx=defaultSound(data.weapon);
+        break;
+
     case eeWIZZ:
         if(data.misc2==0)
         {
@@ -86,6 +124,14 @@ void EnemyProjectileWeapon::fire(zfix xOffset, zfix yOffset) const
 
     switch(attackType)
     {
+    case AttackType::aquamentus:
+        // Aquamentus shots drift in the specified direction.
+        fireDirectional(x, y, owner.z, up);
+        fireDirectional(x, y, owner.z, 8);
+        fireDirectional(x, y, owner.z, down);
+        sfx.play(x);
+        break;
+
     case AttackType::wizzrobe:
         fireDirectional(x, y, owner.z, owner.dir);
         sfx.play(x);

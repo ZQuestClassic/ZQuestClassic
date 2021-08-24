@@ -11,6 +11,9 @@ EnemyWeapon::Type getType(guydata& data)
 
     switch(data.family)
     {
+    case eeAQUA:
+        return EnemyWeapon::Type::projectile;
+
     case eeWIZZ:
         if(data.misc2<2)
             return EnemyWeapon::Type::projectile;
