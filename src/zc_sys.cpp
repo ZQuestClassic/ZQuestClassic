@@ -4702,15 +4702,14 @@ void syskeys()
     
     if(get_debug() || cheat>=2)
     {
-	if( CheatModifierKeys() )
-	{
+		if( CheatModifierKeys() )
+		{
 			if(rI())
 			{
-			    setClock(!getClock());
-			    cheat_superman=getClock();
+				setClock(!getClock());
+				cheat_superman=getClock();
 			}
-		
-	}
+		}
     }
     
     if(get_debug() || cheat>=4)
@@ -7877,8 +7876,9 @@ int onRefillMagic()
 }
 int onClock()
 {
-    setClock(!getClock());
-    return D_O_K;
+	setClock(!getClock());
+	cheat_superman=getClock();
+	return D_O_K;
 }
 
 int onQstPath()
