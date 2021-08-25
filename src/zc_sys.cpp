@@ -6958,6 +6958,7 @@ int onRefillMagic()
 int onClock()
 {
     setClock(!getClock());
+	cheat_superman=getClock();
     return D_O_K;
 }
 
