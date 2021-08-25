@@ -37,6 +37,52 @@ static int defaultSound(int wpn)
 	return -1;
 }
 
+static int fireWizzrobeDefaultSound(int wpn)
+{
+    switch(wpn)
+    {
+        case ewFireball:
+        case ewFireball2:
+        case ewArrow:
+            return 40;
+
+        case ewBrang:
+            return 4;
+
+        case ewSword:
+            return 20;
+
+        case ewRock:
+            return 51;
+
+        case ewMagic:
+            return 32;
+
+        case ewBomb:
+        case ewSBomb:
+            return 3;
+
+        case ewLitBomb:
+        case ewLitSBomb:
+            return 21;
+
+        case ewFireTrail:
+        case ewFlame:
+        case ewFlame2:
+        case ewFlame2Trail:
+            return 13;
+
+        case ewWind:
+            return 32;
+
+        case ewIce:
+            return 44;
+
+        default:
+            return WAV_FIRE;
+    }
+}
+
 EnemyProjectileWeapon::EnemyProjectileWeapon(enemy& owner, guydata& data):
     owner(owner),
     attackType(AttackType::none),
@@ -65,31 +111,6 @@ void EnemyProjectileWeapon::init(guydata& data)
         return;
     }
 
-    // Get the default sound for the weapon - might be changed later
-    switch(data.weapon)
-    {
-        // XXX These were taken from the fire wizzrobe attack.
-        // They mey not be right in general - at least the default.
-        case ewFireball: sfx=40; break;
-        case ewArrow: sfx=40; break;
-        case ewBrang: sfx=4; break;
-        case ewSword: sfx=20; break;
-        case ewRock: sfx=51; break;
-        case ewMagic: sfx=32; break;
-        case ewBomb: sfx=3; break;
-        case ewSBomb: sfx=3; break;
-        case ewLitBomb: sfx=21; break;
-        case ewLitSBomb: sfx=21; break;
-        case ewFireTrail: sfx=13; break;
-        case ewFlame: sfx=13; break;
-        case ewWind: sfx=32; break;
-        case ewFlame2: sfx=13; break;
-        case ewFlame2Trail: sfx=13; break;
-        case ewIce: sfx=44; break;
-        case ewFireball2: sfx=40; break;
-        default: sfx=WAV_FIRE;  break;
-    }
-
     switch(data.family)
     {
     case eeAQUA:
@@ -109,6 +130,8 @@ void EnemyProjectileWeapon::init(guydata& data)
             attackType=AttackType::fireWizzrobe;
             if(FFCore.emulation[emu8WAYSHOTSFX])
                 sfx=WAV_FIRE;
+            else
+                sfx=fireWizzrobeDefaultSound(data.weapon);
         }
         break;
 
