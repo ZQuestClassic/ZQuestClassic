@@ -26212,9 +26212,9 @@ int onCompileScript()
 			}
 			else
 			{
+				compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
 				if ( compile_error_sample > 0 )
 				{
-					compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
 					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
 					//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 					if(sfxdat)
