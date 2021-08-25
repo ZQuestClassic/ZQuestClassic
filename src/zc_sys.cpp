@@ -704,11 +704,15 @@ void show_saving(BITMAP *target)
 void load_mouse()
 {
 	system_pal();
+	scare_mouse();
+	set_mouse_sprite(NULL);
 	int sz = vbound(int(16*(is_large ? get_config_float("zeldadx","cursor_scale_large",1) : get_config_float("zeldadx","cursor_scale_small",1))),16,80);
 	for(int j = 0; j < 4; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
 		BITMAP* subbmp = create_bitmap_ex(8,16,16);
+		if(zcmouse[j])
+			destroy_bitmap(zcmouse[j]);
 		zcmouse[j] = create_bitmap_ex(8,sz,sz);
 		clear_bitmap(zcmouse[j]);
 		clear_bitmap(tmpbmp);
@@ -744,6 +748,8 @@ void load_mouse()
 		destroy_bitmap(tmpbmp);
 		destroy_bitmap(subbmp);
 	}
+	set_mouse_sprite(zcmouse[0]);
+	unscare_mouse();
 	game_pal();
 }
 
@@ -757,7 +763,8 @@ bool game_vid_mode(int mode,int wait)
     
     scrx = (resx-320)>>1;
     scry = (resy-240)>>1;
-    
+    for(int q = 0; q < 4; ++q)
+		zcmouse[q] = NULL;
 	load_mouse();
     set_mouse_sprite(zcmouse[0]);
     

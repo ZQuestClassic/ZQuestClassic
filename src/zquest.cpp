@@ -3637,6 +3637,11 @@ static int options_3_list[] =
     // dialog control number
     31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, -1
 };
+static int options_4_list[] =
+{
+	57, 58, 59, 60,
+	-1
+};
 
 static TABPANEL options_tabs[] =
 {
@@ -3644,6 +3649,7 @@ static TABPANEL options_tabs[] =
     { (char *)" 1 ",       D_SELECTED,   options_1_list,  0, NULL },
     { (char *)" 2 ",       0,            options_2_list,  0, NULL },
     { (char *)" 3 ",       0,            options_3_list,  0, NULL },
+    { (char *)" 4 ",       0,            options_4_list,  0, NULL },
     { NULL,                0,            NULL, 0, NULL }
 };
 
@@ -3728,17 +3734,42 @@ static DIALOG options_dlg[] =
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     // 55
 	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    
     { d_timer_proc,             0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
+    
+	{ jwin_text_proc,          12,     48,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Cursor Scale (Large Mode):",                                      NULL,   NULL                },
+    { jwin_edit_proc,         121,     44,     36,     16,    0,          0,           0,    0,          8,    0,  NULL,                                                                   NULL,   NULL                },
+    { jwin_text_proc,          12,     66,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Cursor Scale (Small Mode):",                                       NULL,   NULL                },
+    // 60
+	{ jwin_edit_proc,         121,     62,     36,     16,    0,          0,           0,    0,          8,    0,  NULL,                                                                   NULL,   NULL                },
     { NULL,                     0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                }
 };
 
 int onOptions()
 {
     int OldAutoSaveInterval=AutoSaveInterval;
-    char kbdelay[80], kbrate[80];
+    char kbdelay[80], kbrate[80], cur_large[16]={0}, cur_small[16]={0};
     sprintf(kbdelay, "%d", KeyboardRepeatDelay);
     sprintf(kbrate, "%d", KeyboardRepeatRate);
+	sprintf(cur_large, "%f", get_config_float("zquest","cursor_scale_large",1.5));
+	sprintf(cur_small, "%f", get_config_float("zquest","cursor_scale_small",1.0));
+	for(int q = 15; q >= 0; --q) //trim trailing 0s
+	{
+		if(cur_large[q] && cur_large[q] != '0')
+		{
+			if(cur_large[q] == '.') cur_large[q] = 0;
+			break;
+		}
+		cur_large[q] = 0;
+	}
+	for(int q = 15; q >= 0; --q) //trim trailing 0s
+	{
+		if(cur_small[q] && cur_small[q] != '0')
+		{
+			if(cur_small[q] == '.') cur_small[q] = 0;
+			break;
+		}
+		cur_small[q] = 0;
+	}
     options_dlg[0].dp2=lfont;
     reset_combo_animations();
     reset_combo_animations2();
@@ -3769,6 +3800,8 @@ int onOptions()
     options_dlg[45].dp = kbrate;
     options_dlg[50].flags = abc_patternmatch ? D_SELECTED : 0;
     options_dlg[51].flags = NoScreenPreview ? D_SELECTED : 0;
+    options_dlg[58].dp = cur_large;
+    options_dlg[60].dp = cur_small;
     
     if(is_large)
         large_dialog(options_dlg);
@@ -3801,7 +3834,11 @@ int onOptions()
         KeyboardRepeatRate         = atoi(kbrate);
 		abc_patternmatch           = options_dlg[50].flags & D_SELECTED ? 1 : 0;
 		NoScreenPreview            = options_dlg[51].flags & D_SELECTED ? 1 : 0;
-        
+		set_config_float("zquest","cursor_scale_large",atof(cur_large));
+		set_config_float("zquest","cursor_scale_small",atof(cur_small));
+		
+		load_mice(); //Reload cursor scale
+		
         set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
     }
     
@@ -33061,7 +33098,14 @@ int main(int argc,char **argv)
     
     zScript = std::string();
     strcpy(zScriptBytes, "0 Bytes in Buffer");
-    
+    for(int i=0; i<MOUSE_BMP_MAX; i++)
+	{
+		for(int j=0; j<4; j++)
+		{
+			mouse_bmp[i][j] = NULL;
+			mouse_bmp_1x[i][j] = NULL;
+		}
+	}
     load_mice();
     gui_mouse_focus=0;
     set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);

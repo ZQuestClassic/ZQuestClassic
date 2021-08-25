@@ -135,11 +135,15 @@ int cursorColor(int col)
 
 void load_mice()
 {
-	int sz = vbound(int(16*(is_large ? get_config_float("zquest","cursor_scale_large",1) : get_config_float("zquest","cursor_scale_small",1))),16,80);
+	scare_mouse();
+	set_mouse_sprite(NULL);
+	int sz = vbound(int(16*(is_large ? get_config_float("zquest","cursor_scale_large",1.5) : get_config_float("zquest","cursor_scale_small",1))),16,80);
 	for(int i=0; i<MOUSE_BMP_MAX; i++)
 	{
 		for(int j=0; j<4; j++)
 		{
+			if(mouse_bmp[i][j]) destroy_bitmap(mouse_bmp[i][j]);
+			if(mouse_bmp_1x[i][j]) destroy_bitmap(mouse_bmp_1x[i][j]);
 			mouse_bmp[i][j] = create_bitmap_ex(8,sz,sz);
 			mouse_bmp_1x[i][j] = create_bitmap_ex(8,16,16);
 			BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
@@ -163,6 +167,8 @@ void load_mice()
 			destroy_bitmap(subbmp);
 		}
 	}
+	restore_mouse();
+	unscare_mouse();
 }
 
 void load_icons()
