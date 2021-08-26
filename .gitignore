@@ -31,7 +31,8 @@
 *.hex
 
 # Generated buidl directories
-[Dd]ebug/
+/[Dd]ebug/
+/*.dir/
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
@@ -80,6 +81,8 @@ CMakeFiles/
 *.vsp
 *.vspx
 *.sap
+*.vcproj
+*.sln
 
 # Emacs files
 .dir-locals.el
@@ -96,6 +99,7 @@ makefile.inc
 /allegro/Makefile
 /allegro/cmake_install.cmake
 CmakeCache.*
+cmake_install.cmake
 
 # Bison
 /src/parser/y.output
