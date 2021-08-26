@@ -11029,7 +11029,7 @@ void set_register(const long arg, const long value)
 		case LINKDIR:
 		{
 			//Link->setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
-			if(Link.getAction() == attacking) Link.dir = (value/10000);
+			if(Link.getAction() == attacking || Link.getAction() == sideswimattacking) Link.dir = (value/10000);
 			else Link.setDir(value/10000);
 			
 			break;
@@ -40292,6 +40292,9 @@ int FFScript::getLinkOTile(long index1, long index2)
 			case LSprdrownspr: the_ret = drowningspr[dir][0];
 			case LSprlavadrownspr: the_ret = drowning_lavaspr[dir][0];
 			case LSprsideswimspr: the_ret = sideswimspr[dir][0];
+			case LSprsideswimslashspr: the_ret = sideswimslashspr[dir][0];
+			case LSprsideswimstabspr: the_ret = sideswimstabspr[dir][0];
+			case LSprsideswimpoundspr: the_ret = sideswimpoundspr[dir][0];
 			case LSprpoundspr: the_ret = poundspr[dir][0];
 			case LSprjumpspr: the_ret = jumpspr[dir][0];
 			case LSprchargespr: the_ret = chargespr[dir][0];

@@ -878,7 +878,7 @@ void LinkClass::Catch()
 {
     if(!inwallm && (action==none || action==walking))
     {
-        action=attacking; FFCore.setLinkAction(attacking);
+        SetAttack();
         attackclk=0;
         attack=wCatching;
     }
@@ -922,7 +922,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
 {
     if(new_action==dying || new_action==won || new_action==scrolling ||
        new_action==inwind || new_action==ischarging ||
-       new_action==hopping || new_action==sideswimming)
+       new_action==hopping || new_action==sideswimming || new_action == sideswimattacking) //!DIMITODO: allow setting sideswimming stuff
         return; // Can't use these actions.
     
 	if(new_action==rafting)
@@ -985,7 +985,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
 		hopdir = -1;
 	}
 	
-    if(new_action != attacking)
+    if(new_action != attacking && new_action != sideswimattacking)
     {
         attackclk=0;
         
@@ -1073,6 +1073,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         break;
         
     case attacking:
+    case sideswimattacking:
         attack=none;
         break;
         
@@ -1098,7 +1099,7 @@ bool LinkClass::isDiving()
 }
 bool LinkClass::isSwimming()
 {
-    return ((action==swimming)||(action==sideswimming)||(action==swimhit)||
+    return ((action==swimming)||(action==sideswimming)||IsSideSwim()||
             (action==waterhold1)||(action==waterhold2)||
             (hopclk==0xFF));
 }
@@ -1699,7 +1700,7 @@ void LinkClass::draw(BITMAP* dest)
 	
 attack:
 
-	if(attackclk || action==attacking)
+	if(attackclk || (action==attacking||action==sideswimattacking))
 	{
 		/* Spaghetti code constants!
 		* - Link.attack contains a weapon type...
@@ -1767,16 +1768,16 @@ attack:
 		{
 			if(!invisible)
 			{
-				linktile(&tile, &flip, &extend, ls_stab, dir, zinit.linkanimationstyle);
+				linktile(&tile, &flip, &extend, (action==sideswimattacking)?ls_sideswimstab:ls_stab, dir, zinit.linkanimationstyle);
 				
 				if((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7))
 				{
-					linktile(&tile, &flip, &extend, ls_slash, dir, zinit.linkanimationstyle);
+					linktile(&tile, &flip, &extend, (action==sideswimattacking)?ls_sideswimslash:ls_slash, dir, zinit.linkanimationstyle);
 				}
 				
 				if((attack==wHammer) && (attackclk<13))
 				{
-					linktile(&tile, &flip, &extend, ls_pound, dir, zinit.linkanimationstyle);
+					linktile(&tile, &flip, &extend, (action==sideswimattacking)?ls_sideswimpound:ls_pound, dir, zinit.linkanimationstyle);
 				}
 				
 				if(useltm)
@@ -2443,7 +2444,7 @@ void LinkClass::masked_draw(BITMAP* dest)
 // the main weapon checking is in the global function check_collisions()
 bool LinkClass::checkstab()
 {
-    if(action!=attacking || (attack!=wSword && attack!=wWand && attack!=wHammer && attack!=wCByrna && attack!=wFire)
+    if(action!=attacking && action!=sideswimattacking || (attack!=wSword && attack!=wWand && attack!=wHammer && attack!=wCByrna && attack!=wFire)
             || (attackclk<=4))
         return false;
         
@@ -5789,7 +5790,7 @@ int LinkClass::EwpnHit()
                 return i;
             }
             
-            if(!hitshield || action==attacking || action==swimming || action == sideswimming || charging > 0 || spins > 0 || hopclk==0xFF)
+            if(!hitshield || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || charging > 0 || spins > 0 || hopclk==0xFF)
             {
                 return i;
             }
@@ -5990,7 +5991,7 @@ int LinkClass::LwpnHit()                                    //only here to check
                 return -1;
             }
             
-            if(!hitshield || action==attacking || action==swimming || action == sideswimming || hopclk==0xFF)
+            if(!hitshield || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || hopclk==0xFF)
                 return i;
                 
             if(itemid<0 || !checkmagiccost(itemid)) return i;
@@ -6040,8 +6041,7 @@ void LinkClass::checkhit()
         
     if(hclk<39 && (action==swimhit || action == sideswimhit))
     {
-	if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) {action=sideswimming; FFCore.setLinkAction(sideswimming);}
-        else {action=swimming; FFCore.setLinkAction(swimming);}
+	SetSwim();
     }
         
     if(hclk>=40 && action==gothit)
@@ -6118,7 +6118,7 @@ void LinkClass::checkhit()
                 
                 if (action != rafting && action != freeze)
                 {
-			if (action == sideswimming)
+			if (action == sideswimming || action == sideswimattacking)
 			{
 				action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
 			}
@@ -6272,7 +6272,7 @@ killweapon:
                 
                 if (action != rafting && action != freeze)
                 {
-			if (action == sideswimming)
+			if (action == sideswimming || action == sideswimattacking)
 			{
 				action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
 			}
@@ -6350,7 +6350,7 @@ killweapon:
         hitdir = Lwpns.spr(hit2)->hitdir(x,y,16,16,dir);
         ((weapon*)Lwpns.spr(hit2))->onhit(false);
         
-        if (action == sideswimming)
+        if (action == sideswimming || action == sideswimattacking)
 	{
 		action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
 	}
@@ -6394,7 +6394,7 @@ killweapon:
         hitdir = Ewpns.spr(hit2)->hitdir(x,y,16,16,dir);
         ((weapon*)Ewpns.spr(hit2))->onhit(false);
         
-	if (action == sideswimming)
+	if (action == sideswimming || action == sideswimattacking)
 	{
 		action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
 	}
@@ -6623,7 +6623,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 			
 			if (action != rafting && action != freeze)
 			{
-				if (action == sideswimming)
+				if (action == sideswimming || action == sideswimattacking)
 				{
 					action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
 				}
@@ -6700,7 +6700,7 @@ void LinkClass::hitlink(int hit2)
     }
     
     hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
-    if (action == sideswimming)
+    if (action == sideswimming || action == sideswimattacking)
     {
 	   action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
     }
@@ -6956,7 +6956,7 @@ bool LinkClass::animate(int)
 	}
 	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
 	{
-		if (z == 0 && action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action != sideswimming && action != sideswimhit)
+		if (z == 0 && action != swimming && action != isdiving && action != drowning && action!=lavadrowning && !IsSideSwim())
 		{
 			if (iswaterex(FFORCOMBO(x+11,y+15), currmap, currscr, -1, x+11,y+15, false, false, true, true)
 			&& iswaterex(FFORCOMBO(x+4,y+15), currmap, currscr, -1, x+4,y+15, false, false, true, true)
@@ -7099,8 +7099,8 @@ bool LinkClass::animate(int)
 				}
 			}
 		}
-		// Fall, unless on a ladder, sideview ladder, rafting, using the hookshot, drowning or cheating.
-		if(!(toogam && Up()) && !drownclk && action!=rafting && !pull_link && !((ladderx || laddery) && fall>0) && !getOnSideviewLadder())
+		// Fall, unless on a ladder, sideview ladder, rafting, using the hookshot, drowning, sideswimming or cheating.
+		if(!(toogam && Up()) && !drownclk && action!=rafting && !IsSideSwim() && !pull_link && !((ladderx || laddery) && fall>0) && !getOnSideviewLadder())
 		{
 			int ydiff = fall/(spins && fall<0 ? 200:100);
 			//zprint2("ydif is: %d\n", ydiff);
@@ -7229,7 +7229,7 @@ bool LinkClass::animate(int)
 				if(itemsbuf[itemid].wpn)
 					decorations.add(new dHover(x, y, dHOVER, 0));
 			}
-			else if(!ladderx && !laddery && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit)
+			else if(!ladderx && !laddery && !getOnSideviewLadder() && !IsSideSwim())
 			{
 				fall += zinit.gravity;
 				
@@ -7607,6 +7607,8 @@ bool LinkClass::animate(int)
 		for(int q = 0; q < 3; ++q)
 		{
 			if(q && !tmpscr2[q-1].valid) continue;
+			int pos = COMBOPOS(tx,ty);
+			if(unsigned(pos) > 176) break;
 			newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
 			if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
 			int b = 1;
@@ -7784,8 +7786,6 @@ bool LinkClass::animate(int)
 		pitfall();
 		break;
 	}
-	case sideswimhit:
-	case swimhit:
 	case freeze:
 	case scrolling:
 		break;
@@ -7826,7 +7826,7 @@ bool LinkClass::animate(int)
 			if(get_bit(quest_rules, qr_HOLDNOSTOPMUSIC) == 0  && (specialcave < GUYCAVE))
 				playLevelMusic();
 				
-			action=swimming; FFCore.setLinkAction(swimming);
+			SetSwim();
 		}
 		else
 			freeze_guys=true;
@@ -7890,10 +7890,12 @@ bool LinkClass::animate(int)
 	}
 	break;
 	
-	case sideswimhit:
 	case sideswimming:
+	case sideswimattacking:
+	case sideswimhit:
+	case swimhit:
 	case swimming:
-		
+	{	
 		if(DRIEDLAKE)
 		{
 			action=none; FFCore.setLinkAction(none);
@@ -7901,7 +7903,9 @@ bool LinkClass::animate(int)
 			break;
 		}
 		
-		if(frame&1)
+		bool shouldbreak = (action == sideswimhit || action == swimhit); //!DIMITODO: "Can walk while hurt" compat needs to be added here.
+		
+		if((frame&1) && !shouldbreak)
 			linkstep();
 		
 		if (_walkflag(x+7,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE)
@@ -7919,7 +7923,8 @@ bool LinkClass::animate(int)
 				hopdir=-1;
 			}
 		}
-		if (action == swimming || action == sideswimming || action == sideswimhit)
+		if (shouldbreak) break;
+		if (action == swimming || action == sideswimming || action == sideswimattacking)
 		{
 			int watercheck = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			if (combobuf[watercheck].usrflags&cflag2)
@@ -7954,7 +7959,7 @@ bool LinkClass::animate(int)
 		}
 			
 		// fall through
-		
+	}	
 	default:
 		movelink();										   // call the main movement routine
 	}
@@ -9717,7 +9722,7 @@ bool LinkClass::can_attack()
 {
 	int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
     if(action==hopping || action==swimming || action==freeze || link_is_stunned > 0 ||
-            (action==attacking && ((attack!=wSword && attack!=wWand) || !(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)) && charging!=0) || spins>0)
+            ((action==attacking||action==sideswimattacking) && ((attack!=wSword && attack!=wWand) || !(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)) && charging!=0) || spins>0)
     {
         return false;
     }
@@ -9879,7 +9884,7 @@ void LinkClass::do_hopping()
         
         if((!(x.getInt()&7) && !(y.getInt()&7)) || (diagonalMovement||NO_GRIDLOCK))
         {
-            action=swimming; FFCore.setLinkAction(swimming);
+            SetSwim();
             hopclk = 0;
             charging = attackclk = 0;
             tapping = false;
@@ -10043,7 +10048,7 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0xFF;
                         diveclk=0;
-                        action=swimming; FFCore.setLinkAction(swimming);
+                        SetSwim();
                     }
                 }
                 
@@ -10067,7 +10072,7 @@ void LinkClass::do_hopping()
                         hopclk=0xFF;
                         diveclk=0;
                         reset_swordcharge();
-                        action=swimming; FFCore.setLinkAction(swimming);
+                        SetSwim();
                     }
                 }
                 
@@ -10090,7 +10095,7 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0xFF;
                         diveclk=0;
-                        action=swimming; FFCore.setLinkAction(swimming);
+                        SetSwim();
                     }
                 }
                 
@@ -10114,7 +10119,7 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0xFF;
                         diveclk=0;
-                        action=swimming; FFCore.setLinkAction(swimming);
+                        SetSwim();
                     }
                 }
             }
@@ -10132,7 +10137,7 @@ void LinkClass::do_hopping()
                 {
                     // hopped in
                     attackclk = charging = spins = 0;
-                    action=swimming; FFCore.setLinkAction(swimming);
+                    SetSwim();
                 }
             }
             else
@@ -10749,6 +10754,7 @@ void LinkClass::movelink()
 	int flippers_id = current_item_id(itype_flippers);
 	if(diveclk>0)
 	{
+		if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) diveclk = 0;
 		--diveclk;
 		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && DrunkrAbtn()) //Cancellable Diving -V
 		{
@@ -10782,7 +10788,7 @@ void LinkClass::movelink()
 	//&0xFFF removes the "bow & arrows" bitmask
 	//The Quick Sword is allowed to interrupt attacks.
 	int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
-	if((!attackclk && action!=attacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)))
+	if((!attackclk && action!=attacking && action != sideswimattacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)))
 	{
 		if(DrunkrBbtn())
 		{
@@ -10812,7 +10818,7 @@ void LinkClass::movelink()
 		if(directWpn > 255) directWpn = 0;
 		
 		// The Quick Sword only allows repeated sword or wand swings.
-		if(action==attacking && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
+		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
 			btnwpn=-1;
 	}
 	
@@ -10828,7 +10834,7 @@ void LinkClass::movelink()
 				paymagiccost(attackid,true);
 				misc_internal_link_flags |= LF_PAID_SWORD_COST;
 			}
-			action=attacking; FFCore.setLinkAction(attacking);
+			SetAttack();
 			attack=wSword;
 			
 			attackclk=0;
@@ -10856,7 +10862,7 @@ void LinkClass::movelink()
 		did_scripta=false;
 	}
 	
-	if(action!=swimming && !getOnSideviewLadder())
+	if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && !getOnSideviewLadder())
 	{
 		if(DrunkUp() && canSideviewLadder())
 		{
@@ -10922,30 +10928,30 @@ void LinkClass::movelink()
 					paymagiccost(attackid,true);
 					misc_internal_link_flags |= LF_PAID_WAND_COST;
 				}
-				action=attacking; FFCore.setLinkAction(attacking);
+				SetAttack();
 				attack=wWand;
 				attackclk=0;
 			}
 		}
-		else if((btnwpn==itype_hammer)&&!(action==attacking && attack==wHammer)
+		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)) && checkmagiccost(dowpn))
 		{
 			paymagiccost(dowpn);
 			paidmagic = true;
-			action=attacking; FFCore.setLinkAction(attacking);
+			SetAttack();
 			attack=wHammer;
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_hammer);
 			attackclk=0;
 		}
-		else if((btnwpn==itype_candle)&&!(action==attacking && attack==wFire)
+		else if((btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
 		{
-			action=attacking; FFCore.setLinkAction(attacking);
+			SetAttack();
 			attack=wFire;
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_candle);
 			attackclk=0;
 		}
-		else if((btnwpn==itype_cbyrna)&&!(action==attacking && attack==wCByrna)
+		else if((btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
@@ -10955,7 +10961,7 @@ void LinkClass::movelink()
 					paymagiccost(attackid,true);
 					misc_internal_link_flags |= LF_PAID_CBYRNA_COST;
 				}
-				action=attacking; FFCore.setLinkAction(attacking);
+				SetAttack();
 				attack=wCByrna;
 				attackclk=0;
 			}
@@ -10972,7 +10978,7 @@ void LinkClass::movelink()
 				}
 				else
 				{
-					action=attacking; FFCore.setLinkAction(attacking);
+					SetAttack();
 					attackclk=0;
 					attack=none;
 					
@@ -11018,7 +11024,7 @@ void LinkClass::movelink()
 		did_scriptb=false;
 	}
 	
-	if(attackclk || action==attacking)
+	if(attackclk || action==attacking || action==sideswimattacking)
 	{
 		
 		if((attackclk==0) && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
@@ -11056,7 +11062,7 @@ void LinkClass::movelink()
 			}
 		}
 		
-		if(attacked && (charging==0 && spins<=5) && jumping<1)
+		if(attacked && (charging==0 && spins<=5) && jumping<1 && action!=sideswimattacking)
 		{
 			return;
 		}
@@ -11111,8 +11117,8 @@ void LinkClass::movelink()
 	{
 		if(!DrunkUp() && !DrunkDown() && !DrunkLeft() && !DrunkRight() && !autostep)
 		{
-			action=(attackclk>0 ? attacking : none);
-			FFCore.setLinkAction(action);
+			if(attackclk>0) SetAttack();
+			else {action = none; FFCore.setLinkAction(none);}
 			link_count=-1;
 			return;
 		}
@@ -11462,7 +11468,7 @@ void LinkClass::movelink()
 	
 	} // endif (action==walking)
 	
-	if((action!=swimming)&&(action!=sideswimming)&&(action !=sideswimhit)&&(action!=casting)&&(action!=drowning)&&(action!=lavadrowning) && charging==0 && spins==0 && jumping<1)
+	if((action!=swimming)&&(action!=sideswimming)&&(action !=sideswimhit)&&(action !=sideswimattacking)&&(action!=casting)&&(action!=drowning)&&(action!=lavadrowning) && charging==0 && spins==0 && jumping<1)
 	{
 		action=none; FFCore.setLinkAction(none);
 	}
@@ -11538,7 +11544,7 @@ void LinkClass::movelink()
 					}
 					
 					//walkable if Ladder can be placed or is already placed vertically
-					if(isSideViewLink() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit)
+					if(isSideViewLink() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -11760,7 +11766,7 @@ void LinkClass::movelink()
 					}
 					
 					//bool walkable;
-					if(isSideViewLink() && !toogam && !getOnSideviewLadder())
+					if(isSideViewLink() && !toogam && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -12008,7 +12014,7 @@ void LinkClass::movelink()
 					
 					int s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder()))
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -12224,7 +12230,7 @@ void LinkClass::movelink()
 					
 					int s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder()))
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -12414,7 +12420,7 @@ void LinkClass::movelink()
 					}
 					
 					//walkable if Ladder can be placed or is already placed vertically
-					if(isSideViewLink() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder())
+					if(isSideViewLink() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -12582,7 +12588,7 @@ void LinkClass::movelink()
 					}
 					
 					//bool walkable;
-					if(isSideViewLink() && !toogam && !getOnSideviewLadder())
+					if(isSideViewLink() && !toogam && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -12797,7 +12803,7 @@ void LinkClass::movelink()
 					
 					int s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder()))
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -12964,7 +12970,7 @@ void LinkClass::movelink()
 					
 					int s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder()))
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -13084,7 +13090,7 @@ void LinkClass::movelink()
 			if(wtrx&&wtrx8&&wtry&&wtry8 && !DRIEDLAKE)
 			{
 				//action=swimming;
-				if(action !=none && action != swimming)
+				if(action !=none && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 				{
 					hopclk = 0xFF;
 				}
@@ -13196,7 +13202,7 @@ void LinkClass::movelink()
 		
 		if(DrunkUp())
 		{
-			if(xoff && !is_on_conveyor && action != swimming && jumping<1)
+			if(xoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
 			{
 				if(dir!=up && dir!=down)
 				{
@@ -13229,7 +13235,7 @@ void LinkClass::movelink()
 			{
 				do
 				{
-					if(action==swimming)
+					if(action==swimming || action == sideswimattacking || action == sideswimming || action == sideswimhit || action == swimhit)
 					{
 						info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
 						
@@ -13308,7 +13314,7 @@ void LinkClass::movelink()
 						dir=up;
 					}
 					
-					if(action!=swimming)
+					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						linkstep();
 					}
@@ -13326,7 +13332,7 @@ void LinkClass::movelink()
 		
 		if(DrunkDown())
 		{
-			if(xoff && !is_on_conveyor && action != swimming && jumping<1)
+			if(xoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
 			{
 				if(dir!=up && dir!=down)
 				{
@@ -13359,7 +13365,7 @@ void LinkClass::movelink()
 			{
 				do
 				{
-					if(action==swimming)
+					if(action==swimming || action == sideswimattacking || action == sideswimming || action == sideswimhit || action == swimhit)
 					{
 						info=walkflag(temp_x,temp_y+15+temp_step,2,down);
 						
@@ -13438,7 +13444,7 @@ void LinkClass::movelink()
 						dir=down;
 					}
 					
-					if(action!=swimming)
+					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						linkstep();
 					}
@@ -13462,7 +13468,7 @@ LEFTRIGHT_NEWMOVE:
 		
 		if(DrunkLeft())
 		{
-			if(yoff && !is_on_conveyor && action != swimming && jumping<1)
+			if(yoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
 			{
 				if(dir!=left && dir!=right)
 				{
@@ -13565,7 +13571,7 @@ LEFTRIGHT_NEWMOVE:
 						dir=left;
 					}
 					
-					if(action!=swimming)
+					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						linkstep();
 					}
@@ -13579,7 +13585,7 @@ LEFTRIGHT_NEWMOVE:
 		
 		if(DrunkRight())
 		{
-			if(yoff && !is_on_conveyor && action != swimming && jumping<1)
+			if(yoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
 			{
 				if(dir!=left && dir!=right)
 				{
@@ -13682,7 +13688,7 @@ LEFTRIGHT_NEWMOVE:
 						dir=right;
 					}
 					
-					if(action!=swimming)
+					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						linkstep();
 					}
@@ -13721,7 +13727,7 @@ LEFTRIGHT_NEWMOVE:
 		
 		if(DrunkUp())
 		{
-			if(xoff && !is_on_conveyor && action != swimming && jumping<1)
+			if(xoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
 			{
 				if(dir!=up && dir!=down)
 				{
@@ -13752,7 +13758,7 @@ LEFTRIGHT_NEWMOVE:
 			}
 			else
 			{
-				if(action==swimming)
+				if(action==swimming || action == sideswimattacking || action == sideswimming || action == sideswimhit || action == swimhit)
 				{
 					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]),2,up);
 					
@@ -13808,7 +13814,7 @@ LEFTRIGHT_NEWMOVE:
 						dir=up;
 					}
 					
-					if(action!=swimming)
+					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						linkstep();
 					}
@@ -13826,7 +13832,7 @@ LEFTRIGHT_NEWMOVE:
 		
 		if(DrunkDown())
 		{
-			if(xoff && !is_on_conveyor && action != swimming && jumping<1)
+			if(xoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
 			{
 				if(dir!=up && dir!=down)
 				{
@@ -13857,7 +13863,7 @@ LEFTRIGHT_NEWMOVE:
 			}
 			else
 			{
-				if(action==swimming)
+				if(action==swimming || action == sideswimattacking || action == sideswimming || action == sideswimhit || action == swimhit)
 				{
 					info=walkflag(x,y+15+int(lsteps[y.getInt()&7]),2,down);
 					
@@ -13913,7 +13919,7 @@ LEFTRIGHT_NEWMOVE:
 						dir=down;
 					}
 					
-					if(action!=swimming)
+					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						linkstep();
 					}
@@ -13935,7 +13941,7 @@ LEFTRIGHT_OLDMOVE:
 		
 		if(DrunkLeft())
 		{
-			if(yoff && !is_on_conveyor && action != swimming && jumping<1)
+			if(yoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
 			{
 				if(dir!=left && dir!=right)
 				{
@@ -14013,7 +14019,7 @@ LEFTRIGHT_OLDMOVE:
 						dir=left;
 					}
 					
-					if(action!=swimming)
+					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						linkstep();
 					}
@@ -14027,7 +14033,7 @@ LEFTRIGHT_OLDMOVE:
 		
 		if(DrunkRight())
 		{
-			if(yoff && !is_on_conveyor && action != swimming && jumping<1)
+			if(yoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
 			{
 				if(dir!=left && dir!=right)
 				{
@@ -14105,7 +14111,7 @@ LEFTRIGHT_OLDMOVE:
 						dir=right;
 					}
 					
-					if(action!=swimming)
+					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						linkstep();
 					}
@@ -14303,7 +14309,7 @@ void LinkClass::move(int d2, int forceRate)
 				dy = 0;
 		}
 	}
-	if(action != swimming)
+	if(action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 	{
 		linkstep();
 		
@@ -14577,12 +14583,12 @@ void LinkClass::moveOld(int d2)
             switch(d2)
             {
             case up:
-                if(!isSideViewLink() || (ladderx && laddery && ladderdir==up) || getOnSideviewLadder() || action == sideswimming || action == sideswimhit) dy-=ystep;
+                if(!isSideViewLink() || (ladderx && laddery && ladderdir==up) || getOnSideviewLadder() || action == sideswimming || action == sideswimhit || action == sideswimattacking) dy-=ystep;
                 
                 break;
                 
             case down:
-                if(!isSideViewLink() || (ladderx && laddery && ladderdir==up) || getOnSideviewLadder() || action == sideswimming || action == sideswimhit) dy+=ystep;
+                if(!isSideViewLink() || (ladderx && laddery && ladderdir==up) || getOnSideviewLadder() || action == sideswimming || action == sideswimhit || action == sideswimattacking) dy+=ystep;
                 
                 break;
                 
@@ -14602,7 +14608,7 @@ void LinkClass::moveOld(int d2)
         dir=d2;
     }
     
-    if(action != swimming)
+    if(action != swimming && !IsSideSwim())
     {
         linkstep();
         
@@ -18171,7 +18177,7 @@ void LinkClass::checkspecial2(int *ls)
 		else if (!isSwimming())
 		{
 			attackclk = charging = spins = 0;
-			action=swimming; FFCore.setLinkAction(swimming);
+			SetSwim();
 			landswim=0;
 			return;
 		}
@@ -19480,7 +19486,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
             
             if(wasswimming)
             {
-                Link.setAction(swimming); FFCore.setLinkAction(swimming);
+                Link.SetSwim();
                 diveclk = olddiveclk;
             }
             
@@ -19551,7 +19557,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
         {
             hopclk=0xFF;
             attackclk = charging = spins = 0;
-            action=swimming; FFCore.setLinkAction(swimming);
+            SetSwim();
         }
         else
 	{
@@ -19643,7 +19649,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		    
 		    if(wasswimming)
 		    {
-			Link.setAction(swimming); FFCore.setLinkAction(swimming);
+			Link.SetSwim();
 			diveclk = olddiveclk;
 		    }
 		    
@@ -19712,8 +19718,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		{
 		    hopclk=0xFF;
 		    attackclk = charging = spins = 0;
-		    action=swimming;
-		    FFCore.setLinkAction(swimming);
+		    SetSwim();
 		}
 		else
 		{
@@ -19843,7 +19848,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	    && (action!=inwind))
     {
         hopclk=0xFF;
-        action=swimming; FFCore.setLinkAction(swimming);
+        SetSwim();
     }
     
     newscr_clk=frame;
@@ -20605,7 +20610,7 @@ void LinkClass::stepout() // Step out of item cellars and passageways
 
 bool LinkClass::nextcombo_wf(int d2)
 {
-    if(toogam || action!=swimming || hopclk==0)
+    if(toogam || (action!=swimming && !IsSideSwim() && action != swimhit) || hopclk==0) //!DIMITODO: ...does swimming just let you ignore smart scrolling entirely!?
         return false;
         
     // assumes Link is about to scroll screens
@@ -21840,9 +21845,9 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 		}
 		else if(iswaterex(ahead, currmap, currscr, -1, lookaheadx,lookaheady) && (current_item(itype_flippers)))
 		{
-			if(lastaction==swimming)
+			if(lastaction==swimming || lastaction == sideswimming || lastaction == sideswimattacking || lastaction == sideswimhit || lastaction == swimhit)
 			{
-				action=swimming; FFCore.setLinkAction(swimming);
+				SetSwim();
 				hopclk = 0xFF;
 				nowinwater = true;
 			}
@@ -22251,7 +22256,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 	
 	if(nowinwater)
 	{
-		action=swimming; FFCore.setLinkAction(swimming);
+		SetSwim();
 		hopclk = 0xFF;
 	}
 	
@@ -22324,7 +22329,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 		action=none; FFCore.setLinkAction(none);
 	}
 		
-	if(action != attacking)
+	if(action != attacking && action != sideswimattacking)
 	{
 		charging = 0;
 		tapping = false;
@@ -23839,7 +23844,7 @@ void LinkClass::checkitems(int index)
         attackclk=0;
         reset_swordcharge();
         
-        if(action!=swimming)
+        if(action!=swimming && !IsSideSwim())
             reset_hookshot();
             
         if(msg_onscreen)
@@ -25647,6 +25652,23 @@ void LinkClass::explode(int type)
                     }
                 }
 	}
+}
+
+void LinkClass::SetSwim()
+{
+	if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) {action=sideswimming; FFCore.setLinkAction(sideswimming);}
+        else {action=swimming; FFCore.setLinkAction(swimming);}
+}
+
+void LinkClass::SetAttack()
+{
+	if (IsSideSwim()) {action=sideswimattacking; FFCore.setLinkAction(sideswimattacking);}
+        else {action=attacking; FFCore.setLinkAction(attacking);}
+}
+
+bool LinkClass::IsSideSwim()
+{
+	return (action==sideswimming || action==sideswimhit || action == sideswimattacking);
 }
 
 //int LinkClass::getTileModifier() { return item_tile_mod(shieldModify); }

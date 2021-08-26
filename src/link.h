@@ -51,7 +51,7 @@ enum actiontype
     // Fake actiontypes: used by ZScripts
     ischarging, isspinning, isdiving, gameover, hookshotout, stunned, ispushing,
 	// New 2.55 ActionTypes
-	falling, lavadrowning, sideswimming, sideswimhit
+	falling, lavadrowning, sideswimming, sideswimhit, sideswimattacking
 };
 
 typedef struct tilesequence
@@ -264,6 +264,10 @@ public:
     void check_pound_block(weapon *w);
     void check_wand_block(weapon *w);
     void check_slash_block_layer(int bx, int by, int layer);
+    
+    void SetSwim();
+    void SetAttack();
+    bool IsSideSwim();
     
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
     int hurtsfx; //Link's Hurt SOund

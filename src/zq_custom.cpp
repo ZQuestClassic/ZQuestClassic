@@ -9222,6 +9222,75 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 }
                 
                 break;
+		
+	    case ls_sideswimslash:
+                if(p[lt_clock]<6)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswimslash, d->d1, zinit.linkanimationstyle);
+                }
+                else if(p[lt_clock]<12)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+                }
+                else if(p[lt_clock]<13)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                }
+                else
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                    p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+                    
+                    if(p[lt_clock]>=16)
+                    {
+                        p[lt_clock]=-1;
+                    }
+                };
+                
+                break;
+                
+            case ls_sideswimstab:
+                if(p[lt_clock]<12)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+                }
+                else if(p[lt_clock]<13)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                }
+                else
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                    p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+                    
+                    if(p[lt_clock]>=16)
+                    {
+                        p[lt_clock]=-1;
+                    }
+                };
+                
+                break;
+                
+            case ls_sideswimpound:
+                if(p[lt_clock]<12)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswimpound, d->d1, zinit.linkanimationstyle);
+                }
+                else if(p[lt_clock]<30)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+                }
+                else
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                    
+                    if(p[lt_clock]>=31)
+                    {
+                        p[lt_clock]=-1;
+                    }
+                };
+                
+                break;
                 
             case ls_jump:
                 if(p[lt_clock]>=24)
@@ -9468,6 +9537,75 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 
                 break;
                 
+	    case ls_sideswimslash:
+                if(p[lt_clock]<6)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswimslash, d->d1, zinit.linkanimationstyle);
+                }
+                else if(p[lt_clock]<12)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+                }
+                else if(p[lt_clock]<13)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                }
+                else
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                    p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+                    
+                    if(p[lt_clock]>=16)
+                    {
+                        p[lt_clock]=-1;
+                    }
+                };
+                
+                break;
+                
+            case ls_sideswimstab:
+                if(p[lt_clock]<12)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+                }
+                else if(p[lt_clock]<13)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                }
+                else
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                    p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+                    
+                    if(p[lt_clock]>=16)
+                    {
+                        p[lt_clock]=-1;
+                    }
+                };
+                
+                break;
+                
+            case ls_sideswimpound:
+                if(p[lt_clock]<12)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswimpound, d->d1, zinit.linkanimationstyle);
+                }
+                else if(p[lt_clock]<30)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+                }
+                else
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                    
+                    if(p[lt_clock]>=31)
+                    {
+                        p[lt_clock]=-1;
+                    }
+                };
+                
+                break;
+	
             case ls_jump:
                 if(p[lt_clock]>=24)
                 {
@@ -9714,7 +9852,60 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 }
                 
                 break;
+             
+	     case ls_sideswimstab:
+                if(p[lt_clock]>35)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+                    p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
+                    
+                    if(p[lt_clock]>=47)
+                    {
+                        p[lt_clock]=-1;
+                    }
+                }
+                else
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                }
                 
+                break;
+                
+	    case ls_sideswimslash:
+                if(p[lt_clock]>23)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimslash, d->d1, zinit.linkanimationstyle);
+                    p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
+                    
+                    if(p[lt_clock]>=47)
+                    {
+                        p[lt_clock]=-1;
+                    }
+                }
+                else
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                }
+                
+                break;
+	    case ls_sideswimpound:
+                if(p[lt_clock]>35)
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimpound, d->d1, zinit.linkanimationstyle);
+                    p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
+                    
+                    if(p[lt_clock]>=47)
+                    {
+                        p[lt_clock]=-1;
+                    }
+                }
+                else
+                {
+                    linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                }
+                
+                break;
+            
             case ls_jump:
                 if(p[lt_clock]>=24)
                 {
@@ -10111,12 +10302,6 @@ static int linktile_lava_drown_list[] =
     113, 114, 115, 116, 117, 118, 119, 120, -1
 };
 
-static int linktile_water_sideswim_list[] =
-{
-    // dialog control number
-    195, 196, 197, 198, 199, 200, 201, 202, -1
-};
-
 static TABPANEL linktile_water_tabs[] =
 {
     // (text)
@@ -10126,7 +10311,40 @@ static TABPANEL linktile_water_tabs[] =
     { (char *)"Drown",      0,           linktile_water_drown_list, 0, NULL },
     { (char *)"Hold",       0,           linktile_water_hold_list, 0, NULL },
     { (char *)"Lava Drown", 0,           linktile_lava_drown_list, 0, NULL },
+    { NULL,                 0,           NULL,                     0, NULL }
+};
+
+static int linktile_water_sideswim_list[] =
+{
+    // dialog control number
+    196, 197, 198, 199, 200, 201, 202, 203, -1
+};
+
+static int linktile_water_sideswim_slash_list[] =
+{
+    // dialog control number
+    204, 205, 206, 207, 208, 209, 210, 211, -1
+};
+
+static int linktile_water_sideswim_stab_list[] =
+{
+    // dialog control number
+    212, 213, 214, 215, 216, 217, 218, 219, -1
+};
+
+static int linktile_water_sideswim_pound_list[] =
+{
+    // dialog control number
+    220, 221, 222, 223, 224, 225, 226, 227, -1
+};
+
+static TABPANEL linktile_sideview_tabs[] =
+{
+    // (text)
     { (char *)"Sideview Swim",       0,           linktile_water_sideswim_list, 0, NULL },
+    { (char *)"Side-Swim Slash",       0,           linktile_water_sideswim_slash_list, 0, NULL },
+    { (char *)"Side-Swim Stab",       0,           linktile_water_sideswim_stab_list, 0, NULL },
+    { (char *)"Side-Swim Pound",       0,           linktile_water_sideswim_pound_list, 0, NULL },
     { NULL,                 0,           NULL,                     0, NULL }
 };
 
@@ -10177,6 +10395,12 @@ static int linktile_water_list[] =
     10, -1
 };
 
+static int linktile_sideview_list[] =
+{
+    // dialog control number
+    195, -1
+};
+
 static int linktile_defense_list[] =
 {
     // dialog control number
@@ -10192,8 +10416,9 @@ static int linktile_option_list[] =
 static TABPANEL linktile_tabs[] =
 {
     // (text)
-{ (char *)"Sprites (Land)",       D_SELECTED,   linktile_land_list, 0, NULL },
+    { (char *)"Sprites (Land)",       D_SELECTED,   linktile_land_list, 0, NULL },
     { (char *)"Sprites (Liquid)",      0,            linktile_water_list, 0, NULL },
+    { (char *)"Sprites (Sideview)",      0,            linktile_sideview_list, 0, NULL },
     { (char *)"Defenses",             0,            linktile_defense_list, 0, NULL},
     { (char *)"Options",              0,            linktile_option_list, 0, NULL  }, 
     { NULL,                 0,            NULL,                0, NULL }
@@ -10500,16 +10725,48 @@ static DIALOG linktile_dlg[] =
     { jwin_check_proc,                      9,    90,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Diagonal Movement",    NULL,   NULL },
     { jwin_text_proc,                       9,    54,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Swim Speed:",          NULL,   NULL },
     { jwin_droplist_proc,                  89,    50,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void*)&swimspeed_list,        NULL,   NULL },
-    // 195 - sideswim sprite titles
+    // 195 - sideview tab
+    {  jwin_tab_proc,                        7,     33,    305,    183,    0,                      0,                       0,    0,          0,          0, (void *) linktile_sideview_tabs,    NULL, (void *)linktile_dlg   },
+    // 196 - sideswim sprite titles
     {  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
     {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
     {  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
     {  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
-    // 199 - sideswim sprites
+    // 200 - sideswim sprites
     {  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_sideswim,         NULL,                            NULL,   NULL                   },
     {  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_sideswim,         NULL,                            NULL,   NULL                   },
     {  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sideswim,         NULL,                            NULL,   NULL                   },
     {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_sideswim,         NULL,                            NULL,   NULL                   },
+    // 204 - sideswim slash sprite titles
+    {  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
+    // 208 - sideswim slash sprites
+    {  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_sideswimslash,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_sideswimslash,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sideswimslash,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_sideswimslash,         NULL,                            NULL,   NULL                   },
+    // 212 - sideswim stab sprite titles
+    {  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
+    // 216 - sideswim stab sprites
+    {  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_sideswimstab,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_sideswimstab,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sideswimstab,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_sideswimstab,         NULL,                            NULL,   NULL                   },
+    // 220 - sideswim pound sprite titles
+    {  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
+    // 224 - sideswim pound sprites
+    {  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_sideswimpound,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_sideswimpound,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sideswimpound,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_sideswimpound,         NULL,                            NULL,   NULL                   },
     {  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }    
 
 };
@@ -10552,6 +10809,9 @@ int onCustomLink()
 	int oldFallSpr[4][3];
 	int oldLavaDrownSpr[4][3];
 	int oldSideSwimSpr[4][3];
+	int oldSideSwimSlashSpr[4][3];
+	int oldSideSwimStabSpr[4][3];
+	int oldSideSwimPoundSpr[4][3];
     memcpy(oldWalkSpr, walkspr, 4*3*sizeof(int));
     memcpy(oldStabSpr, stabspr, 4*3*sizeof(int));
     memcpy(oldSlashSpr, slashspr, 4*3*sizeof(int));
@@ -10567,6 +10827,9 @@ int onCustomLink()
     memcpy(oldFallSpr, fallingspr, 4*3*sizeof(int));
     memcpy(oldLavaDrownSpr, drowning_lavaspr, 4*3*sizeof(int));
     memcpy(oldSideSwimSpr, sideswimspr, 4*3*sizeof(int));
+    memcpy(oldSideSwimSlashSpr, sideswimslashspr, 4*3*sizeof(int));
+    memcpy(oldSideSwimStabSpr, sideswimstabspr, 4*3*sizeof(int));
+    memcpy(oldSideSwimPoundSpr, sideswimpoundspr, 4*3*sizeof(int));
     
     //Populate Link defenses
     for (int i = 0; i < wMax - wEnemyWeapons - 1; i++)
@@ -10653,7 +10916,10 @@ int onCustomLink()
             memcpy(drowningspr, oldDrownSpr, 4 * 3 * sizeof(int));
             memcpy(fallingspr, oldFallSpr, 4 * 3 * sizeof(int));
 	    memcpy(drowning_lavaspr, oldLavaDrownSpr, 4 * 3 * sizeof(int));
-	    memcpy(sideswimspr, oldLavaDrownSpr, 4 * 3 * sizeof(int));
+	    memcpy(sideswimspr, oldSideSwimSpr, 4 * 3 * sizeof(int));
+	    memcpy(sideswimslashspr, oldSideSwimSlashSpr, 4 * 3 * sizeof(int));
+	    memcpy(sideswimstabspr, oldSideSwimStabSpr, 4 * 3 * sizeof(int));
+	    memcpy(sideswimpoundspr, oldSideSwimPoundSpr, 4 * 3 * sizeof(int));
         }
     } while (ret == 168);
     

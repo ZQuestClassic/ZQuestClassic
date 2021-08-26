@@ -663,7 +663,7 @@ bool dRipples::animate(int index)
 	clk++;
 	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
 	{
-		if (LinkZ() == 0 && LinkAction() != swimming && LinkAction() != sideswimming && LinkAction() != isdiving && LinkAction() != drowning)
+		if (LinkZ() == 0 && LinkAction() != swimming && LinkAction() != sideswimming && LinkAction() != sideswimhit && LinkAction() != sideswimattacking && LinkAction() != isdiving && LinkAction() != drowning)
 		{
 			/*
 			return !((FFORCOMBOTYPE(LinkX()+11,LinkY()+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+11,LinkY()+15)))

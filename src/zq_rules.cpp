@@ -202,7 +202,7 @@ static DIALOG comborules_dlg[] =
 	{ jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Auto Combos work on Layer 1", NULL, NULL },
 	{ jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Auto Combos work on Layer 2", NULL, NULL },
 	{ jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sideview Swimming", NULL, NULL },
-	{ jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Link faces Left/Right while Sideview Swimming", NULL, NULL },
+	{ jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Link faces Left/Right while Sideview Swimming", NULL, NULL },
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
