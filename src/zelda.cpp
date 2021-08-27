@@ -5568,7 +5568,7 @@ int main(int argc, char* argv[])
 #endif
 	
 	// AG logo
-	if(!(fast_start||get_config_int("zeldadx","skiplogo",1)))
+	if(!(fast_start||get_config_int("zeldadx","skip_logo",1)))
 	{
 		set_volume(240,-1);
 		aglogo(tmp_scr, scrollbuf, resx, resy);
