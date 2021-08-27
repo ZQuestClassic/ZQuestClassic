@@ -1207,18 +1207,6 @@ bool GetItemPickup(item i, int pickup)
 //Layer 0 is the screen itself.
 int GetLayerComboC(int layer, int pos) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboC";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboC";
-		TraceError(err,layer);
-		return -1;
-	}
 	if (!layer) //layer 0
 	{
 		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -1229,16 +1217,7 @@ int GetLayerComboC(int layer, int pos)
 	}
 	else
 	{
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			return Game->GetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by GetLayerComboC for the current screen are not properly configured.\n";
-			printf(err, layer);
-			return -1;
-		}
+		return Game->GetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 	}
 }
 
@@ -1247,18 +1226,6 @@ int GetLayerComboC(int layer, int pos)
 //Layer 0 is the screen itself.
 int GetLayerComboD(int layer, int pos) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboD";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboD";
-		TraceError(err,layer);
-		return -1;
-	}
 	if (!layer) //layer 0
 	{
 		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -1269,16 +1236,7 @@ int GetLayerComboD(int layer, int pos)
 	}
 	else
 	{
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by GetLayerComboD for the current screen are not properly configured.\n";
-			printf(err, layer);
-			return -1;
-		}
+		return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 	}
 	
 }
@@ -1288,18 +1246,6 @@ int GetLayerComboD(int layer, int pos)
 //Layer 0 is the screen itself.
 int GetLayerComboF(int layer, int pos) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboF";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboF";
-		TraceError(err,layer);
-		return -1;
-	}
 	if (!layer) //layer 0
 	{
 		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -1310,36 +1256,14 @@ int GetLayerComboF(int layer, int pos)
 	}
 	else
 	{
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by GetLayerComboF for the current screen are not properly configured.\n";
-			printf(err, layer);
-			return -1;
-		}
+		return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 	}
-	
 }
 
 //A shorthand way to get a combo on the current layer.
 //Layer 0 is the screen itself.
 int GetLayerComboI(int layer, int pos) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboI";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboI";
-		TraceError(err,layer);
-		return -1;
-	}
 	if (!layer) //layer 0
 	{
 		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -1350,16 +1274,7 @@ int GetLayerComboI(int layer, int pos)
 	}
 	else
 	{
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			return Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by GetLayerComboI for the current screen are not properly configured.\n";
-			printf(err, layer);
-			return -1;
-		}
+		return Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 	}
 	
 }
@@ -1369,19 +1284,6 @@ int GetLayerComboI(int layer, int pos)
 //Layer 0 is the screen itself.
 int GetLayerComboS(int layer, int pos) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboS";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{	
-		int err[]="Invalid layer passed to GetLayerComboS";
-		TraceError(err,layer);
-		return -1;
-	}
-	
 	if (!layer) //layer 0
 	{
 		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -1392,16 +1294,7 @@ int GetLayerComboS(int layer, int pos)
 	}
 	else
 	{
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by GetLayerComboS for the current screen are not properly configured.\n";
-			printf(err, layer);
-			return -1;
-		}
+		return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 	}
 	
 }
@@ -1411,19 +1304,6 @@ int GetLayerComboS(int layer, int pos)
 //Layer 0 is the screen itself.
 int GetLayerComboT(int layer, int pos) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboT";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboT";
-		TraceError(err,layer);
-		return -1;
-	}
-	
 	if (!layer) //layer 0
 	{
 		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -1434,19 +1314,8 @@ int GetLayerComboT(int layer, int pos)
 	}
 	else
 	{
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by GetLayerComboT for the current screen are not properly configured.\n";
-			printf(err, layer);
-			return -1;
-		}
+		return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 	}
-	
-
 }
 
 //Returns true if Link has the level item 'itm' from level 'level'
@@ -2479,18 +2348,6 @@ void SetItemPickup(item i, int pickup, bool state)
 //Layer 0 is the screen itself.
 void SetLayerComboC(int layer, int pos, int combo) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboC";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboC";
-		TraceError(err,layer);
-		return;
-	}
 	if (!layer) //layer 0
 	{
 		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -2506,17 +2363,7 @@ void SetLayerComboC(int layer, int pos, int combo)
 	}
 	else
 	{
-		
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by SetLayerComboC for the current screen are not properly configured.\n";
-			printf(err, layer);
-		}
-		
+		Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
 	}
 }
 
@@ -2525,18 +2372,6 @@ void SetLayerComboC(int layer, int pos, int combo)
 //Layer 0 is the screen itself.
 void SetLayerComboD(int layer, int pos, int combo) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboD";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboD";
-		TraceError(err,layer);
-		return;
-	}
 	if (!layer) //layer 0
 	{
 		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -2552,17 +2387,7 @@ void SetLayerComboD(int layer, int pos, int combo)
 	}
 	else
 	{
-		
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by SetLayerComboD for the current screen are not properly configured.\n";
-			printf(err, layer);
-		}
-		
+		Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
 	}
 }
 
@@ -2571,18 +2396,6 @@ void SetLayerComboD(int layer, int pos, int combo)
 //Layer 0 is the screen itself.
 void SetLayerComboF(int layer, int pos, int combo) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboF";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboF";
-		TraceError(err,layer);
-		return;
-	}
 	if (!layer) //layer 0
 	{
 		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -2598,17 +2411,7 @@ void SetLayerComboF(int layer, int pos, int combo)
 	}
 	else
 	{
-		
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by SetLayerComboF for the current screen are not properly configured.\n";
-			printf(err, layer);
-		}
-		
+		Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
 	}
 }
 
@@ -2616,18 +2419,6 @@ void SetLayerComboF(int layer, int pos, int combo)
 //Layer 0 is the screen itself.
 void SetLayerComboI(int layer, int pos, int combo) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboI";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboI";
-		TraceError(err,layer);
-		return;
-	}
 	if (!layer) //layer 0
 	{
 		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -2643,17 +2434,7 @@ void SetLayerComboI(int layer, int pos, int combo)
 	}
 	else
 	{
-		
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by SetLayerComboI for the current screen are not properly configured.\n";
-			printf(err, layer);
-		}
-		
+		Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
 	}
 }
 
@@ -2662,19 +2443,6 @@ void SetLayerComboI(int layer, int pos, int combo)
 //Layer 0 is the screen itself.
 void SetLayerComboS(int layer, int pos, int combo) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboS";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboS";
-		TraceError(err,layer);
-		return;
-	}
-	
 	if (!layer) //layer 0
 	{
 		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -2690,17 +2458,7 @@ void SetLayerComboS(int layer, int pos, int combo)
 	}
 	else
 	{
-		
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by SetLayerCombS for the current screen are not properly configured.\n";
-			printf(err, layer);
-		}
-		
+		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
 	}
 }
 
@@ -2709,19 +2467,6 @@ void SetLayerComboS(int layer, int pos, int combo)
 //Layer 0 is the screen itself.
 void SetLayerComboT(int layer, int pos, int combo) 
 {
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboT";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboT";
-		TraceError(err,layer);
-		return;
-	}
-	
 	if (!layer) //layer 0
 	{
 		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
@@ -2737,17 +2482,7 @@ void SetLayerComboT(int layer, int pos, int combo)
 	}
 	else
 	{
-		
-		if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
-		{
-			Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-		}
-		else
-		{
-			int err[]="The layer (%d) used by SetLayerComboT for the current screen are not properly configured.\n";
-			printf(err, layer);
-		}
-		
+		Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
 	}
 }
 
