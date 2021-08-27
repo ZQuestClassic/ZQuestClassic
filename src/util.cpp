@@ -400,25 +400,5 @@ namespace util
 			}
 		}
 	}
-
-	int vbound(int x,int low,int high)
-	{
-		assert(low <= high);
-		
-		if(x<low) return low;
-		
-		if(x>high) return high;
-		
-		return x;
-	}
-
-	float vbound(float x,float low,float high)
-	{
-		if(x<low) return low;
-		
-		if(x>high) return high;
-		
-		return x;
-	}
 }
 

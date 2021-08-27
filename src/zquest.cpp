@@ -3834,8 +3834,8 @@ int onOptions()
         KeyboardRepeatRate         = atoi(kbrate);
 		abc_patternmatch           = options_dlg[50].flags & D_SELECTED ? 1 : 0;
 		NoScreenPreview            = options_dlg[51].flags & D_SELECTED ? 1 : 0;
-		set_config_float("zquest","cursor_scale_large",atof(cur_large));
-		set_config_float("zquest","cursor_scale_small",atof(cur_small));
+		set_config_float("zquest","cursor_scale_large",vbound(atof(cur_large),1.0,5.0));
+		set_config_float("zquest","cursor_scale_small",vbound(atof(cur_small),1.0,5.0));
 		
 		load_mice(); //Reload cursor scale
 		

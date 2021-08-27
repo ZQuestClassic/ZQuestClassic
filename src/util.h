@@ -35,9 +35,9 @@ namespace util
 	int zc_chmod(const char* path, mode_t mode);
 	bool checkPath(const char* path, const bool is_dir);
 	void safe_al_trace(const char* str);
-	int vbound(int x,int low,int high);
-	float vbound(float x,float low,float high);
 }
+
+#define vbound(x,low,high) (x<low?low:(x>high?high:x))
 
 #endif
 
