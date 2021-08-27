@@ -3717,7 +3717,7 @@ int main(int argc, char* argv[])
         slot_arg2=1;
     }
     
-    int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || get_config_int("zeldadx","skiplogo",0) || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
+    int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
     skip_title = used_switch(argc, argv, "-notitle") > 0;
     int save_arg = used_switch(argc,argv,"-savefile");
     
@@ -4188,7 +4188,7 @@ int main(int argc, char* argv[])
 #endif
     
     // AG logo
-    if(!fast_start)
+    if(!(fast_start||get_config_int("zeldadx","skip_logo",1)))
     {
         set_volume(240,-1);
         aglogo(tmp_scr, scrollbuf, resx, resy);
