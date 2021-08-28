@@ -155,6 +155,8 @@ int jwin_do_menu(MENU *menu, int x, int y);
 
 int jwin_alert3(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3, FONT *title_font);
 int jwin_alert(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int c1, int c2, FONT *title_font);
+int jwin_auto_alert3(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3, FONT *title_font);
+int jwin_auto_alert(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, int c1, int c2, FONT *title_font);
 
 /* event handler that closes a dialog */
 int close_dlg();

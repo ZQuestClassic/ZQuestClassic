@@ -4525,6 +4525,253 @@ int jwin_alert(const char *title, const char *s1, const char *s2, const char *s3
     return ret;
 }
 
+int d_autotext_proc(int msg, DIALOG *d, int c)
+{
+	ASSERT(d);
+	ASSERT(d->dp);
+	#define AUTOBUF_SIZE 8092
+	static char auto_buf[AUTOBUF_SIZE] = {0};
+	static int auto_inds[50] = {0};
+	
+	
+	FONT *oldfont = font;
+	
+	if (d->dp2)
+		font = (FONT*)d->dp2;
+	switch(msg)
+	{
+		case MSG_START:
+		{
+			memset(auto_buf, 0, AUTOBUF_SIZE);
+			memset(auto_inds, 0, 50);
+			char* str = (char*)d->dp;
+			int len = strlen(str);
+			int pos = 0, curstrpos = 0, linecount = 1, lastWS = -1;
+			BITMAP* dummy = create_bitmap_ex(8,8,8);
+			for(int q = 0; q < len; ++q)
+			{
+				switch(str[q])
+				{
+					case ' ': case '\t':
+						lastWS = pos;
+						break;
+					case '\n': //Forced newline
+						auto_inds[linecount++] = ++pos;
+						curstrpos = pos;
+						lastWS = -1;
+						continue; //skip rest of for loop, go to next char
+				}
+				auto_buf[pos++] = str[q];
+				if(gui_textout_ex(dummy,auto_buf+curstrpos,0,0,0,0,0) >= d->w) //too long, wrap to lower line
+				{
+					if(lastWS<0)
+					{
+						auto_buf[pos-1] = 0;
+						auto_inds[linecount++] = pos;
+						curstrpos = pos;
+						auto_buf[pos++] = str[q];
+					}
+					else
+					{
+						auto_buf[lastWS] = 0;
+						auto_inds[linecount++] = lastWS+1;
+						curstrpos = lastWS+1;
+						if(gui_textout_ex(dummy,auto_buf+curstrpos,0,0,0,0,0) >= d->w) //STILL too long?
+						{
+							auto_buf[pos-1] = 0;
+							auto_inds[linecount++] = pos;
+							curstrpos = pos;
+							auto_buf[pos++] = str[q];
+						}
+						lastWS = -1;
+					}
+				}
+			}
+			destroy_bitmap(dummy);
+			d->d2 = linecount;
+			d->h = ((text_height(font) + d->d1) * linecount) - d->d1;
+		}
+		break;
+		
+		case MSG_DRAW:
+		{
+			int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+			int linecount = d->d2;
+			
+			int yinc = text_height(font)+d->d1;
+			int y = d->y;
+			for(int q = 0; q < linecount; ++q)
+			{
+				gui_textout_ex(gui_get_screen(), auto_buf+auto_inds[q], d->x, y, fg, d->bg, true);
+				y += yinc;
+			}
+		}
+		break;
+	}
+	font = oldfont;
+	return D_O_K;
+}
+
+static DIALOG alert2_dialog[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)   (dp2)  (dp3) */
+    { jwin_win_proc,     0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { d_autotext_proc,   0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
+    { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
+    { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
+    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
+};
+
+#define A2_S1  1
+#define A2_B1  2
+#define A2_B2  3
+#define A2_B3  4
+
+/* jwin_auto_alert3:
+  *  Displays a simple alert box, containing one line of text, auto-split
+  *  across lines using 'lenlim' and 'vspace,
+  *  and with either one, two, or three buttons. The text for these buttons
+  *  is passed in b1, b2, and b3 (NULL for buttons which are not used), and
+  *  the keyboard shortcuts in c1 and c2. Returns 1, 2, or 3 depending on
+  *  which button was selected.
+  */
+int jwin_auto_alert3(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3, FONT *title_font)
+{
+	gui_get_screen();
+    int maxlen = 0;
+    int len1, len2, len3;
+    int avg_w = text_length(font, " ");
+    int avg_h = text_height(font)+is_large;
+    int buttons = 0;
+    int yofs = (title ? 22 : 0);
+    int b[3];
+    int c;
+    
+#define SORT_OUT_AUTOBUTTON(x) { \
+          if (b##x)          \
+          {                  \
+            alert2_dialog[A2_B##x].flags &= ~D_HIDDEN; \
+            alert2_dialog[A2_B##x].key = c##x; \
+            alert2_dialog[A2_B##x].dp =  (void *)b##x; \
+            len##x = gui_strlen(b##x); \
+            b[buttons++] = A2_B##x; \
+          }                  \
+          else               \
+          {                  \
+            alert2_dialog[A2_B##x].flags |= D_HIDDEN; \
+            len##x = 0;      \
+          }                  \
+        }
+    
+    if(title_font)
+    {
+        alert2_dialog[0].dp2=title_font;
+    }
+    
+    alert2_dialog[A2_S1].dp = alert2_dialog[A2_B1].dp = alert2_dialog[A2_B2].dp = (void*)"";
+                                
+    if(s1)
+    {
+        alert2_dialog[A2_S1].dp = (void *)s1;
+        maxlen = lenlim;
+    }
+    
+    SORT_OUT_AUTOBUTTON(1);
+    SORT_OUT_AUTOBUTTON(2);
+    SORT_OUT_AUTOBUTTON(3);
+    
+    len1 = MAX(len1, MAX(len2, len3)) + avg_w*3;
+    
+    if(len1*buttons > maxlen)
+        maxlen = len1*buttons;
+        
+    maxlen += avg_w*4;
+    maxlen=zc_max(text_length(title_font?title_font:font,title)+29,maxlen);
+    
+    alert2_dialog[A2_S1].x = alert2_dialog[0].x + maxlen/2;
+    alert2_dialog[A2_S1].y = alert2_dialog[0].y + avg_h + yofs;
+    alert2_dialog[A2_S1].w = lenlim;
+    alert2_dialog[A2_S1].d1 = vspace;
+    
+    if(is_large)
+    {
+        large_dialog(alert2_dialog);
+        alert2_dialog[0].d1 = 0;
+    }
+	object_message(&alert2_dialog[A2_S1], MSG_START, 0); //calculate height
+	
+    if(is_large)
+    {
+		alert2_dialog[A2_S1].x = alert2_dialog[0].x + maxlen/2;
+		alert2_dialog[A2_S1].y = alert2_dialog[0].y + avg_h + yofs;
+		alert2_dialog[A2_S1].w = lenlim;
+		alert2_dialog[A2_S1].d1 = vspace;
+	}
+    alert2_dialog[A2_B1].w = alert2_dialog[A2_B2].w = alert2_dialog[A2_B3].w = len1;
+    
+    alert2_dialog[A2_B1].x = alert2_dialog[A2_B2].x = alert2_dialog[A2_B3].x =
+                               alert2_dialog[0].x + maxlen/2 - len1/2;
+                               
+    if(buttons == 3)
+    {
+        alert2_dialog[b[0]].x = alert2_dialog[0].x + maxlen/2 - len1*3/2 - avg_w;
+        alert2_dialog[b[2]].x = alert2_dialog[0].x + maxlen/2 + len1/2 + avg_w;
+    }
+    else if(buttons == 2)
+    {
+        alert2_dialog[b[0]].x = alert2_dialog[0].x + maxlen/2 - len1 - avg_w;
+        alert2_dialog[b[1]].x = alert2_dialog[0].x + maxlen/2 + avg_w;
+    }
+	
+    alert2_dialog[0].w = maxlen;
+    alert2_dialog[0].h = avg_h*4 + yofs + alert2_dialog[A2_S1].h + 13;
+    alert2_dialog[A2_B1].y = alert2_dialog[A2_B2].y = alert2_dialog[A2_B3].y =
+                               alert2_dialog[0].y + avg_h*2 + yofs + alert2_dialog[A2_S1].h;
+                               
+    alert2_dialog[A2_B1].h = alert2_dialog[A2_B2].h = alert2_dialog[A2_B3].h = avg_h+13;
+    
+    alert2_dialog[0].dp = (void *)title;
+    alert2_dialog[0].flags = (title) ? D_EXIT : 0;
+    
+    jwin_center_dialog(alert2_dialog);
+    set_dialog_color(alert2_dialog, scheme[jcTEXTFG], scheme[jcBOX]);
+    
+    clear_keybuf();
+    
+    do
+    {
+    }
+    while(gui_mouse_b());
+    
+    if(is_large)
+    {
+        large_dialog(alert2_dialog);
+        alert2_dialog[0].d1 = 0;
+    }
+    
+    c = popup_zqdialog(alert2_dialog, A2_B1);
+    
+    if(c == A2_B1)
+        return 1;
+    else if(c == A2_B2)
+        return 2;
+    else
+        return 3;
+}
+
+int jwin_auto_alert(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, int c1, int c2, FONT *title_font)
+{
+    int ret;
+    
+    ret = jwin_auto_alert3(title, s1, lenlim, vspace, b1, b2, NULL, c1, c2, 0, title_font);
+    
+    if(ret > 2)
+        ret = 2;
+        
+    return ret;
+}
+
 /*****************************************/
 /***********  drop list proc  ************/
 /*****************************************/
