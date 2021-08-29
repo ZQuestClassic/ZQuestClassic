@@ -12985,6 +12985,7 @@ bool eWizzrobeTeleporting::animate(int index)
     {
         fading=0;
         hxofs=0;
+        return enemy::animate(index);
     }
 
     switch(clk)
