@@ -13271,15 +13271,14 @@ bool eWizzrobeFloating::animate(int index)
             [[fallthrough]]
 
         case Action::jumping:
-            // Either stopped walking or finished jumping.
-            // Adjust direction in case it's diagonal.
-            // Then... start walking?
+            // Either stopped while walking or just finished jumping.
+            // Adjust direction in case it's diagonal, then start walking.
             dir&=3;
             action=Action::walking;
             [[fallthrough]]
 
         case Action::walking:
-            // Can't go any further, timer ran out, or just started walking.
+            // Can't go any farther, timer ran out, or just started walking.
             // In any case, pick a direction and get moving.
             turn(64);
             [[fallthrough]]
@@ -13306,10 +13305,12 @@ bool eWizzrobeFloating::animate(int index)
             break;
         }
 
-        // Does this need to be kept? If it really does anything,
-        // it's hard to tell.
-        if(misc<0)  // misc==action, so init -> init2 -> init3 -> walking.
-            misc++; // It should never be negative after that.
+        // Does this need to be kept? Seems like it shouldn't actually
+        // do anything, right?
+        // misc==action, so init -> init2 -> init3 -> walking.
+        // It should never be negative after that.
+        if(misc<0)
+            misc++;
     }
 
     actionTimer--;
