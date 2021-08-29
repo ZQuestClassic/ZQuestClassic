@@ -11850,45 +11850,26 @@ void questminrev_help()
 
 void ctype_help(int id)
 {
-    if(id < 0 || id >= cMAX) return;  // Sanity check
-    
-    if(id==0)
-    {
-        jwin_alert("Help","Select a Type, then click","this button to find out what it does.",NULL,"O&K",NULL,'k',0,lfont);
-    }
-    else if(id >= cCVUP && id <= cCVRIGHT)
-    {
-        char buf1[80];
-        sprintf(buf1,"be moved %sward at 1/4 of his normal walking",id==cCVUP ? "up" : id==cCVDOWN ? "down" : id==cCVLEFT ? "left" : "right");
-        jwin_alert(combo_class_buf[id].name,"While Link is standing on top of this, he will",buf1,"speed, until he collides with a solid combo.","O&K",NULL,'k',0,lfont);
-    }
-    else if((id >= cDAMAGE1 && id <= cDAMAGE4) || (id >= cDAMAGE5 && id <= cDAMAGE7))
-    {
-        char buf1[80];
-        int lvl = (id < cDAMAGE5 ? (id - cDAMAGE1 + 1) : (id - cDAMAGE5 + 1));
-        sprintf(buf1,"that protect against Damage Combo Level %d,",lvl);
-        char buf2[80];
-        int d = -combo_class_buf[id].modify_hp_amount/8;
-        
-        if(d==1)
-            sprintf(buf2,"he is damaged for 1/2 of a heart.");
-        else
-            sprintf(buf2,"he is damaged for %d heart%s.", d/2, d == 2 ? "" : "s");
-            
-        jwin_alert(combo_class_buf[id].name,"If Link touches this combo without Boots",buf1,buf2, "O&K",NULL,'k',0,lfont);
-    }
-    else if(id >= cSLASHTOUCHY && id <= cBUSHNEXTTOUCHY)
-    {
-        char buf1[80];
-        sprintf(buf1,"Identical to %s, but if slashing this combo",combotype_help_string[id*3]);
-        jwin_alert(combo_class_buf[id].name,buf1,"changes it to another slash-affected combo,","then that combo will also change.","O&K",NULL,'k',0,lfont);
-    }
-    else if(( id >= cSCRIPT1 && id <= cSCRIPT5) || ( id >= cSCRIPT6 && id <= cSCRIPT20 ) )
-    {
-        jwin_alert(combo_class_buf[id].name,"This type has no built-in effect, but can be","given special significance with ZASM or ZScript.",NULL,"O&K",NULL,'k',0,lfont);
-    }
-    else
-        jwin_alert(combo_class_buf[id].name,combotype_help_string[id*3],combotype_help_string[1+(id*3)],combotype_help_string[2+(id*3)],"O&K",NULL,'k',0,lfont);
+	if(id < 0 || id >= cMAX) return;  // Sanity check
+	
+	if((id >= cDAMAGE1 && id <= cDAMAGE4) || (id >= cDAMAGE5 && id <= cDAMAGE7))
+	{
+		char buf[512];
+		int lvl = (id < cDAMAGE5 ? (id - cDAMAGE1 + 1) : (id - cDAMAGE5 + 1));
+		int d = -combo_class_buf[id].modify_hp_amount/8;
+		char buf2[80];
+		if(d==1)
+			sprintf(buf2,"1/2 of a heart.");
+		else
+			sprintf(buf2,"%d heart%s.", d/2, d == 2 ? "" : "s");
+		sprintf(buf,"If the Player touches this combo without Boots that protect against Damage Combo Level %d, he is damaged for %s.",lvl,buf2);
+		
+		jwin_auto_alert(combo_class_buf[id].name,buf,256,2, "O&K",NULL,'k',0,lfont);
+	}
+	else
+	{
+		jwin_auto_alert(combo_class_buf[id].name,combotype_help_string[id],256,2,"O&K",NULL,'k',0,lfont);
+	}
 }
 
 void cflag_help(int id)
