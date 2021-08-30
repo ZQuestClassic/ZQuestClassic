@@ -23593,7 +23593,6 @@ void takeitem(int id)
             
             game->change_HCpieces(-1);
         }
-        
         break;
         
     case itype_map:
@@ -23610,8 +23609,14 @@ void takeitem(int id)
         
     case itype_lkey:
         if(game->lvlkeys[dlevel]) game->lvlkeys[dlevel]--;
-        
         break;
+		
+	case itype_ring:
+		if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
+		{
+			ringcolor(false);
+		}
+		break;
     }
 }
 
