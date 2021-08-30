@@ -20933,21 +20933,21 @@ bool parsemsgcode()
 	}
 	case MSGC_TAKEITEM:
 	{
-	int itemID = grab_next_argument();
-	if ( item_doscript[itemID] )
-	{
-		item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
-	}
+		int itemID = grab_next_argument();
+		if ( item_doscript[itemID] )
+		{
+			item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
+		}
 		takeitem(itemID);
-	if ( game->forced_bwpn == itemID ) 
-	{
-		game->forced_bwpn = -1;
-	} //not else if! -Z
-	if ( game->forced_awpn == itemID ) 
-	{
-		game->forced_awpn = -1;
-	}
-	verifyBothWeapons();
+		if ( game->forced_bwpn == itemID ) 
+		{
+			game->forced_bwpn = -1;
+		} //not else if! -Z
+		if ( game->forced_awpn == itemID ) 
+		{
+			game->forced_awpn = -1;
+		}
+		verifyBothWeapons();
 		return true;
 	}
 		
