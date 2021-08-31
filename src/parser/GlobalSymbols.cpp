@@ -463,32 +463,17 @@ void setVariable(int refVar, Function* function, int var)
 
 void setBoolVariable(int refVar, Function* function, int var)
 {
-	//Functions passed here take 5 opcodes, +popref, +ret; therefore should NOT be inlined -V
-	//function->setFlag(FUNCFLAG_INLINE);
+	function->setFlag(FUNCFLAG_INLINE);
 	int label = function->getLabel();
 	vector<Opcode *> code;
 	//pop off the value to set to
 	code.push_back(new OPopRegister(new VarArgument(EXP1)));
 	LABELBACK(label);
 	//renormalize true to 1
-	int donerenorm = ScriptParser::getUniqueLabelID();
-	code.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-	code.push_back(new OGotoTrueImmediate(new LabelArgument(donerenorm)));
-	code.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
+	code.push_back(new OCastBoolI(new VarArgument(EXP1)));
 	
-	//pop object pointer
-	if (refVar == NUL)
-	{
-		function->internal_flags |= IFUNCFLAG_SKIPPOINTER;
-		code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
-		LABELBACK(donerenorm);
-	}
-	else
-	{
-		code.push_back(new OPopRegister(new VarArgument(refVar)));
-		LABELBACK(donerenorm);
-		code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
-	}
+	POPREF();
+	code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
 	RETURN();
 	function->giveCode(code);
 }
