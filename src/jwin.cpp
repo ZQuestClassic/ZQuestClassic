@@ -36,6 +36,8 @@
 #include "zsys.h"
 #include <stdio.h>
 #include "mem_debug.h"
+#include "util.h"
+using namespace util;
 
 //#ifndef _MSC_VER
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
@@ -55,6 +57,19 @@ int abc_patternmatch = 1;
 
 char abc_keypresses[1024] = {0};
 void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
+
+/* these are provided for external use */
+int jwin_colors[jcMAX] =
+{
+    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
+    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
+};
+
+int scheme[jcMAX] =
+{
+    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
+    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
+};
 
 /* ... Included in jwin.h ...
 
@@ -89,19 +104,6 @@ int get_selected_tab(TABPANEL* panel)
 	}
 	return -1;
 }
-
-/* these are provided for external use */
-int jwin_colors[jcMAX] =
-{
-    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
-    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
-};
-
-int scheme[jcMAX] =
-{
-    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
-    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
-};
 
 /*  jwin_set_colors:
  *   Loads a set of colors in 0xRRGGBB or 256-color-indexed format
@@ -1533,6 +1535,372 @@ int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c)
 	}
             
     return jwin_numedit_proc(msg,d,c);
+}
+
+// Special numedit procs
+
+static enum {typeDEC, typeHEX, typeLDEC, typeLHEX, typeMAX};
+int jwin_swapbtn_proc(int msg, DIALOG* d, int c)
+{
+	static char* swp[typeMAX] = {"D", "H", "LD", "LH"};
+	if(msg==MSG_START)
+	{
+		d->dp = swp[d->d1&0xF];
+	}
+	//d1 is (0xF0 = old val, 0x0F = new val)
+	//d2 is max val
+	if(d->d2 < 2 || d->d2 > typeMAX) return D_O_K; //Not setup yet, or bad value
+	DIALOG* relproc = (DIALOG*)d->dp3;
+	int ret = jwin_button_proc(msg, d, c);
+	if(d->flags & D_SELECTED) //On selection
+	{
+		d->d1 = ((d->d1&0x0F)<<4) | (((d->d1&0x0F)+1)%d->d2);
+		d->dp = swp[d->d1&0xF];
+		if(relproc)
+		{
+			object_message(relproc, MSG_DRAW, 0);
+		}
+		d->flags &= ~D_SELECTED;
+		object_message(d, MSG_DRAW, 0);
+	}
+	return ret;
+}
+int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
+{
+	DIALOG* swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_byte_proc(msg, d, c);
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		swapbtn->d2 = 2; //Max states
+		swapbtn->dp3 = (void*)d;
+	}
+	int ret = D_O_K;
+	int ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	long v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case typeDEC:
+			v = atoi(str);
+			break;
+		case typeHEX:
+			v = zc_xtoi(str);
+			break;
+	}
+	byte b;
+	if ( v > 255 )
+		b=255;
+	else if ( v < 0 )
+		b=0;
+	else b = (byte)v;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		//unsigned//b = -b;
+		c &= ~255;
+	}
+	if(unsigned(v) != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case typeDEC:
+				sprintf(str, "%d\0", b);
+				break;
+			case typeHEX:
+				sprintf(str, "%X\0", b);
+				break;
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	d->fg = b; //Store numeric data
+	switch(ntype)
+	{
+		case typeDEC:
+			d->d1 = 3; //3 digits max
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeHEX:
+			d->d1 = 2; //2 digits max
+			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
+{
+	DIALOG* swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_sshort_proc(msg, d, c);
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		swapbtn->d2 = 2; //Max states
+		swapbtn->dp3 = (void*)d;
+	}
+	int ret = D_O_K;
+	int ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	long v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case typeDEC:
+			v = atoi(str);
+			break;
+		case typeHEX:
+			v = zc_xtoi(str);
+			break;
+	}
+	short b;
+	if ( v > 32767 )
+		b=32767;
+	else if ( v < -32768 )
+		b=-32768;
+	else b = (short)v;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		b = -b;
+		c &= ~255;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case typeDEC:
+				sprintf(str, "%d\0", b);
+				break;
+			case typeHEX:
+				if(b<0)
+					sprintf(str, "-%X\0", -b);
+				else sprintf(str, "%X\0", b);
+				break;
+		}
+		d->d2 = strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	d->fg = b; //Store numeric data
+	switch(ntype)
+	{
+		case typeDEC:
+			d->d1 = 6; //6 digits max (incl '-')
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeHEX:
+			d->d1 = 5; //5 digits max (incl '-')
+			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
+{
+	DIALOG* swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_sshort_proc(msg, d, c);
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		swapbtn->d2 = 4; //Max states
+		swapbtn->dp3 = (void*)d;
+	}
+	int ret = D_O_K;
+	int ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	long long v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case typeDEC:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = atoi(tempstr);
+				v *= 10000;
+				if(v<0)
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = atoi(str);
+				v *= 10000;
+			}
+			break;
+		case typeHEX:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = zc_xtoi(tempstr);
+				v *= 10000;
+				if(v<0)
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = zc_xtoi(str);
+				v *= 10000;
+			}
+			break;
+		case typeLDEC:
+			v = zc_atoi64(str);
+			break;
+		case typeLHEX:
+			v = zc_xtoi64(str);
+			break;
+	}
+	long b;
+	if ( v > 2147483647 )
+		b=2147483647;
+	else if ( v < INT_MIN )
+		b=INT_MIN;
+	else b = (long)v;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		if(b==INT_MIN)
+			++b;
+		b = -b;
+		c &= ~255;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case typeDEC:
+				sprintf(str, "%d.%04d\0", b/10000L, abs(b%10000L));
+				break;
+			case typeHEX:
+				if(b<0)
+					sprintf(str, "-%X.%04d\0", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%X.%04d\0", b/10000L, abs(b%10000L));
+				break;
+			case typeLDEC:
+				sprintf(str, "%ld\0", b);
+				break;
+			case typeLHEX:
+				if(b<0)
+					sprintf(str, "-%lX\0", -b);
+				else sprintf(str, "%lX\0", b);
+				break;
+		}
+		d->d2 = strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	d->fg = b; //Store numeric data
+	if(msg==MSG_CHAR && ((c&255)=='.'))
+	{
+		if(ntype >= typeLDEC) //No '.' in long modes
+			c&=~255;
+		else
+		{
+			for(int q = 0; str[q]; ++q)
+			{
+				if(str[q] == '.') //Only one '.'
+				{
+					c&=~255;
+					break;
+				}
+			}
+		}
+	}
+	switch(ntype)
+	{
+		case typeDEC:
+			d->d1 = 12; //12 digits max (incl '-', '.')
+			if(msg==MSG_CHAR && (c&255))
+			{
+				int p = 0;
+				for(int q = 0; str[q]; ++q)
+				{
+					if(str[q]=='.')
+					{
+						if(d->d2 <= q)
+							break; //typing before the '.'
+						++p;
+					}
+					else if(p) ++p;
+				}
+				if(p>=5) //too many chars after '.'
+					c&=~255;
+			}
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeHEX:
+			d->d1 = 11; //11 digits max (incl '-', '.')
+			if(msg==MSG_CHAR)
+			{
+				if(!((c&255)=='.'||isxdigit(c&255)))
+					c&=~255;
+				else if(isxdigit(c&255) && !isdigit(c&255))
+					for(int q = 0; q < d->d2 && str[q]; ++q)
+					{
+						if(str[q] == '.') //No hex digits to the right of the '.'
+						{
+							c&=~255;
+							break;
+						}
+					}
+				if(c&255)
+				{
+					int p = 0;
+					for(int q = 0; str[q]; ++q)
+					{
+						if(str[q]=='.')
+						{
+							if(d->d2 <= q)
+								break; //typing before the '.'
+							++p;
+						}
+						else if(p) ++p;
+					}
+					if(p>=5) //too many chars after '.'
+						c&=~255;
+				}
+				if(isalpha(c&255)) //always capitalize
+					c = (c&~255) | (toupper(c&255));
+			}
+			ret |= jwin_edit_proc(msg, d, c);
+			break;
+		case typeLDEC:
+			d->d1 = 11; //11 digits max (incl '-')
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeLHEX:
+			d->d1 = 9; //9 digits max (incl '-')
+			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
 }
 
 /*  _calc_scroll_bar:
@@ -4150,6 +4518,253 @@ int jwin_alert(const char *title, const char *s1, const char *s2, const char *s3
     int ret;
     
     ret = jwin_alert3(title, s1, s2, s3, b1, b2, NULL, c1, c2, 0, title_font);
+    
+    if(ret > 2)
+        ret = 2;
+        
+    return ret;
+}
+
+int d_autotext_proc(int msg, DIALOG *d, int c)
+{
+	ASSERT(d);
+	ASSERT(d->dp);
+	#define AUTOBUF_SIZE 8092
+	static char auto_buf[AUTOBUF_SIZE] = {0};
+	static int auto_inds[50] = {0};
+	
+	
+	FONT *oldfont = font;
+	
+	if (d->dp2)
+		font = (FONT*)d->dp2;
+	switch(msg)
+	{
+		case MSG_START:
+		{
+			memset(auto_buf, 0, AUTOBUF_SIZE);
+			memset(auto_inds, 0, 50);
+			char* str = (char*)d->dp;
+			int len = strlen(str);
+			int pos = 0, curstrpos = 0, linecount = 1, lastWS = -1;
+			BITMAP* dummy = create_bitmap_ex(8,8,8);
+			for(int q = 0; q < len; ++q)
+			{
+				switch(str[q])
+				{
+					case ' ': case '\t':
+						lastWS = pos;
+						break;
+					case '\n': //Forced newline
+						auto_inds[linecount++] = ++pos;
+						curstrpos = pos;
+						lastWS = -1;
+						continue; //skip rest of for loop, go to next char
+				}
+				auto_buf[pos++] = str[q];
+				if(gui_textout_ex(dummy,auto_buf+curstrpos,0,0,0,0,0) >= d->w) //too long, wrap to lower line
+				{
+					if(lastWS<0)
+					{
+						auto_buf[pos-1] = 0;
+						auto_inds[linecount++] = pos;
+						curstrpos = pos;
+						auto_buf[pos++] = str[q];
+					}
+					else
+					{
+						auto_buf[lastWS] = 0;
+						auto_inds[linecount++] = lastWS+1;
+						curstrpos = lastWS+1;
+						if(gui_textout_ex(dummy,auto_buf+curstrpos,0,0,0,0,0) >= d->w) //STILL too long?
+						{
+							auto_buf[pos-1] = 0;
+							auto_inds[linecount++] = pos;
+							curstrpos = pos;
+							auto_buf[pos++] = str[q];
+						}
+						lastWS = -1;
+					}
+				}
+			}
+			destroy_bitmap(dummy);
+			d->d2 = linecount;
+			d->h = ((text_height(font) + d->d1) * linecount) - d->d1;
+		}
+		break;
+		
+		case MSG_DRAW:
+		{
+			int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+			int linecount = d->d2;
+			
+			int yinc = text_height(font)+d->d1;
+			int y = d->y;
+			for(int q = 0; q < linecount; ++q)
+			{
+				gui_textout_ex(gui_get_screen(), auto_buf+auto_inds[q], d->x, y, fg, d->bg, true);
+				y += yinc;
+			}
+		}
+		break;
+	}
+	font = oldfont;
+	return D_O_K;
+}
+
+static DIALOG alert2_dialog[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)   (dp2)  (dp3) */
+    { jwin_win_proc,     0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { d_autotext_proc,   0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
+    { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
+    { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
+    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
+};
+
+#define A2_S1  1
+#define A2_B1  2
+#define A2_B2  3
+#define A2_B3  4
+
+/* jwin_auto_alert3:
+  *  Displays a simple alert box, containing one line of text, auto-split
+  *  across lines using 'lenlim' and 'vspace,
+  *  and with either one, two, or three buttons. The text for these buttons
+  *  is passed in b1, b2, and b3 (NULL for buttons which are not used), and
+  *  the keyboard shortcuts in c1 and c2. Returns 1, 2, or 3 depending on
+  *  which button was selected.
+  */
+int jwin_auto_alert3(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3, FONT *title_font)
+{
+	gui_get_screen();
+    int maxlen = 0;
+    int len1, len2, len3;
+    int avg_w = text_length(font, " ");
+    int avg_h = text_height(font)+is_large;
+    int buttons = 0;
+    int yofs = (title ? 22 : 0);
+    int b[3];
+    int c;
+    
+#define SORT_OUT_AUTOBUTTON(x) { \
+          if (b##x)          \
+          {                  \
+            alert2_dialog[A2_B##x].flags &= ~D_HIDDEN; \
+            alert2_dialog[A2_B##x].key = c##x; \
+            alert2_dialog[A2_B##x].dp =  (void *)b##x; \
+            len##x = gui_strlen(b##x); \
+            b[buttons++] = A2_B##x; \
+          }                  \
+          else               \
+          {                  \
+            alert2_dialog[A2_B##x].flags |= D_HIDDEN; \
+            len##x = 0;      \
+          }                  \
+        }
+    
+    if(title_font)
+    {
+        alert2_dialog[0].dp2=title_font;
+    }
+    
+    alert2_dialog[A2_S1].dp = alert2_dialog[A2_B1].dp = alert2_dialog[A2_B2].dp = (void*)"";
+                                
+    if(s1)
+    {
+        alert2_dialog[A2_S1].dp = (void *)s1;
+        maxlen = lenlim;
+    }
+    
+    SORT_OUT_AUTOBUTTON(1);
+    SORT_OUT_AUTOBUTTON(2);
+    SORT_OUT_AUTOBUTTON(3);
+    
+    len1 = MAX(len1, MAX(len2, len3)) + avg_w*3;
+    
+    if(len1*buttons > maxlen)
+        maxlen = len1*buttons;
+        
+    maxlen += avg_w*4;
+    maxlen=zc_max(text_length(title_font?title_font:font,title)+29,maxlen);
+    
+    alert2_dialog[A2_S1].x = alert2_dialog[0].x + maxlen/2;
+    alert2_dialog[A2_S1].y = alert2_dialog[0].y + avg_h + yofs;
+    alert2_dialog[A2_S1].w = lenlim;
+    alert2_dialog[A2_S1].d1 = vspace;
+    
+    if(is_large)
+    {
+        large_dialog(alert2_dialog);
+        alert2_dialog[0].d1 = 0;
+    }
+	object_message(&alert2_dialog[A2_S1], MSG_START, 0); //calculate height
+	
+    if(is_large)
+    {
+		alert2_dialog[A2_S1].x = alert2_dialog[0].x + maxlen/2;
+		alert2_dialog[A2_S1].y = alert2_dialog[0].y + avg_h + yofs;
+		alert2_dialog[A2_S1].w = lenlim;
+		alert2_dialog[A2_S1].d1 = vspace;
+	}
+    alert2_dialog[A2_B1].w = alert2_dialog[A2_B2].w = alert2_dialog[A2_B3].w = len1;
+    
+    alert2_dialog[A2_B1].x = alert2_dialog[A2_B2].x = alert2_dialog[A2_B3].x =
+                               alert2_dialog[0].x + maxlen/2 - len1/2;
+                               
+    if(buttons == 3)
+    {
+        alert2_dialog[b[0]].x = alert2_dialog[0].x + maxlen/2 - len1*3/2 - avg_w;
+        alert2_dialog[b[2]].x = alert2_dialog[0].x + maxlen/2 + len1/2 + avg_w;
+    }
+    else if(buttons == 2)
+    {
+        alert2_dialog[b[0]].x = alert2_dialog[0].x + maxlen/2 - len1 - avg_w;
+        alert2_dialog[b[1]].x = alert2_dialog[0].x + maxlen/2 + avg_w;
+    }
+	
+    alert2_dialog[0].w = maxlen;
+    alert2_dialog[0].h = avg_h*4 + yofs + alert2_dialog[A2_S1].h + 13;
+    alert2_dialog[A2_B1].y = alert2_dialog[A2_B2].y = alert2_dialog[A2_B3].y =
+                               alert2_dialog[0].y + avg_h*2 + yofs + alert2_dialog[A2_S1].h;
+                               
+    alert2_dialog[A2_B1].h = alert2_dialog[A2_B2].h = alert2_dialog[A2_B3].h = avg_h+13;
+    
+    alert2_dialog[0].dp = (void *)title;
+    alert2_dialog[0].flags = (title) ? D_EXIT : 0;
+    
+    jwin_center_dialog(alert2_dialog);
+    set_dialog_color(alert2_dialog, scheme[jcTEXTFG], scheme[jcBOX]);
+    
+    clear_keybuf();
+    
+    do
+    {
+    }
+    while(gui_mouse_b());
+    
+    if(is_large)
+    {
+        large_dialog(alert2_dialog);
+        alert2_dialog[0].d1 = 0;
+    }
+    
+    c = popup_zqdialog(alert2_dialog, A2_B1);
+    
+    if(c == A2_B1)
+        return 1;
+    else if(c == A2_B2)
+        return 2;
+    else
+        return 3;
+}
+
+int jwin_auto_alert(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, int c1, int c2, FONT *title_font)
+{
+    int ret;
+    
+    ret = jwin_auto_alert3(title, s1, lenlim, vspace, b1, b2, NULL, c1, c2, 0, title_font);
     
     if(ret > 2)
         ret = 2;

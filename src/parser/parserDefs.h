@@ -24,7 +24,7 @@ using namespace util;
 #define OPTTYPE_QR                  0
 #define OPTTYPE_CONFIG              1
 
-#define MAX_INCLUDE_PATHS           5
+#define MAX_INCLUDE_PATH_CHARS      65535
 
 #define REGISTRATION_REC_LIMIT		50
 

@@ -118,8 +118,55 @@ static int init_items_list[] =
 {
     // dialog control number
     65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 
-	100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 
+	100, 101, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 
 	128, 129, 130, 131, 132, 133, 134, 135, 136, 1692, 1693, 1698, 1699, -1
+};
+
+static int init_scrcnt_tb_list[] =
+{
+	102, -1
+};
+
+static int init_scrcnt_list[] =
+{
+	// dialog control number
+	3276,3277,3278,3279,
+	3280,3281,3282,3283,
+	3284,3285,3286,3287,
+	3288,3289,3290,3291,
+	3292,3293,3294,3295,
+	
+	3296,3297,3298,3299,
+	3300,3301,3302,3303,
+	3304,3305,3306,3307,
+	3308,3309,3310,3311,
+	3312,3313,3314,3315,
+	
+	3316,3317,3318,3319,
+	3320,3321,3322,3323,
+	3324,3325,3326,3327,
+	3328,3329,3330,3331,
+	3332,3333,3334,3335,
+	
+	3336,3337,3338,3339,
+	3340,3341,3342,3343,
+	3344,3345,3346,3347,
+	3348,3349,3350,3351,
+	3352,3353,3354,3355,
+	
+	-1
+};
+
+static int init_scrcnt2_list[] =
+{
+	// dialog control number
+	3356,3357,3358,3359,
+	3360,3361,3362,3363,
+	3364,3365,3366,3367,
+	3368,3369,3370,3371,
+	3372,3373,3374,3375,
+	
+	-1
 };
 
 static int init_dmap_items_list[] =
@@ -700,6 +747,7 @@ static int init_const_list[] =
 {
     1700, 1701, 1702, 1703, 1704, 1705, 1706, 
 	3264, 3265, 3266, 3267,
+	3268, 3269, 3270, 3271, 3272, 3273, 3274, 3275,
 	-1
 };
 
@@ -810,10 +858,19 @@ TABPANEL init_tabs[] =
     // (text)
     { (char *)"Equipment",       D_SELECTED,   init_equipment_list,          0, NULL },
     { (char *)"Items",           0,            init_items_list,              0, NULL },
+    { (char *)"Script Counters", 0,            init_scrcnt_tb_list,          0, NULL },
     { (char *)"Level Items",     0,            init_dmap_items_list,         0, NULL },
     { (char *)"Misc",            0,            init_misc_list,               0, NULL },
     { (char *)"Variables",       0,            init_const_list,              0, NULL },
     { NULL,                      0,            0,                            0, NULL }
+};
+
+TABPANEL init_scrcnt_tabs[] =
+{
+    // (text)
+    { (char *)"1",               D_SELECTED,   init_scrcnt_list,          0, NULL },
+    { (char *)"2",               0,            init_scrcnt2_list,         0, NULL },
+    { NULL,                      0,            0,                         0, NULL }
 };
 
 //int startdmapxy[6] = {188-68,131-93,188-68,111-93,188-68,120-93};
@@ -876,8 +933,8 @@ char *walkstylelist(int index, int *list_size)
     return NULL;
 }
 
-
-DIALOG init_dlg[3269]; /* 	This array is used instead of a const static dialogue array. 
+#define INIT_DLG_SZ 3377
+DIALOG init_dlg[INIT_DLG_SZ]; /* 	This array is used instead of a const static dialogue array. 
 				PopulateInitDialog() fills its elements and generates the init dialoigue.
 				The size of this array must be equal to the number of calls to initPopulate in 
 					PopulateInitDialog() + 1.
@@ -916,10 +973,10 @@ void PopulateInitDialog()
     initPopulate(i, jwin_button_proc,         187,    209,     61,     21,    vc(14),                 vc(1),                  27,    D_EXIT,         0,             0, (void *) "Cancel",                                     NULL,   NULL);
     initPopulate(i, jwin_button_proc,          47,    209,     61,     21,    vc(14),                 vc(1),                  13,    D_EXIT,         0,             0, (void *) "OK",                                         NULL,   NULL);
     initPopulate(i, d_keyboard_proc,            0,      0,      0,      0,    0,                      0,                       0,    0,              KEY_F1,        0, (void *) onHelp,                                       NULL,   NULL);
-    initPopulate(i, jwin_tab_proc,              6,     25,    284,    178,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) init_tabs,                                    NULL, (void *)init_dlg);
+    initPopulate(i, jwin_tab_proc,              6,     16,    284,    191,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) init_tabs,                                    NULL, (void *)init_dlg);
     //5
-    initPopulate(i, d_dummy_proc,              11,     47,    117,    152,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_frame_proc,          130,     47,    154,    152,    vc(0),                  vc(11),                  0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
+	initPopulate(i, jwin_initlist_proc,        11,     47,    117,    152,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_frame_proc,          130,     47,    154,    152,    vc(0),                  vc(11),                  0,    0,              FR_ETCHED,     0,  NULL,                                                 NULL,   NULL);
     initPopulate(i, jwin_check_proc,          134,     57,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "1",                                          NULL,   NULL);
     initPopulate(i, jwin_check_proc,          134,     67,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "2",                                          NULL,   NULL);
     initPopulate(i, jwin_check_proc,          134,     77,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "3",                                          NULL,   NULL);
@@ -1026,7 +1083,7 @@ void PopulateInitDialog()
     // 100
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_tab_proc,              8,     33,    280,    172,    vc(14),                 vc(1),                   0,    0,              0,             0, (void *) init_scrcnt_tabs,                             NULL, (void *)init_dlg);
     initPopulate(i, jwin_frame_proc,           13,     50,     86,    118,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,            17,     47,    113,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Bombs ",                                    NULL,   NULL);
     initPopulate(i, jwin_frame_proc,           17,     60,     78,     37,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
@@ -1263,7 +1320,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_check_proc,           12,    189,     17,      9,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) "Slash",                                      NULL,   NULL);
     
     initPopulate(i, jwin_frame_proc,          172-24,    122,     98+18,     50,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_text_proc,           176-24,    119,    113,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Magic (" stringize(MAGICPERBLOCK) " per block) ",   NULL,   NULL);
+    initPopulate(i, jwin_text_proc,           176-24,    119,    113,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Magic ",   NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          191-10,    129,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          232-10,    129,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
     initPopulate(i, jwin_edit_proc,           180-10-5,    139,     34,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
@@ -1504,21 +1561,55 @@ void PopulateInitDialog()
     initPopulate(i, jwin_edit_proc,           101,    117,     29,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
     
     //3264
-    initPopulate(i, jwin_text_proc,            12,     72+21,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Hero Step:",                                   NULL,   NULL);
+    initPopulate(i, jwin_text_proc,            12,     92,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Hero Step:",                                   NULL,   NULL);
     //3265
-    initPopulate(i, jwin_edit_proc,            162,     68+19,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,            162,     88,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
      
     //3266
-    initPopulate(i, jwin_text_proc,            12,     72+41,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Subscreen Fall Multiplier:",                                   NULL,   NULL);
+    initPopulate(i, jwin_text_proc,            12,     112,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Subscreen Fall Multiplier:",                                   NULL,   NULL);
     //3267
-    initPopulate(i, jwin_edit_proc,            162,     68+39,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
-     //3268
-    initPopulate(i, jwin_text_proc,            12,     68+59,    128,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Water Gravity:",                                   NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,            52,     72+61,     96,     16,    vc(12),                 vc(1),                   0,    0,              9,             0,  NULL,                                                  NULL,   NULL);
-     
-    // 3270 -- Termination
-    initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,            162,     108,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
     
+    //3268
+    initPopulate(i, jwin_text_proc,            12,     132,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "HP Per Heart:",                                   NULL,   NULL);
+    //3269
+    initPopulate(i, jwin_numedit_byte_proc,            162,     128,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    //3270
+    initPopulate(i, jwin_text_proc,            12,     152,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "MP Per Block:",                                   NULL,   NULL);
+    //3271
+    initPopulate(i, jwin_numedit_byte_proc,            162,     148,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    //3272
+    initPopulate(i, jwin_text_proc,            12,     172,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Player Damage Multiplier:",                                   NULL,   NULL);
+    //3273
+    initPopulate(i, jwin_numedit_byte_proc,            162,     168,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    //3274
+    initPopulate(i, jwin_text_proc,            12,     192,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Enemy Damage Multiplier:",                                   NULL,   NULL);
+    //3275
+    initPopulate(i, jwin_numedit_byte_proc,            162,     188,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+	//3276 - 3375
+	for(int q = 0; q < 25; ++q)
+	{
+		int ind = (q%20);
+		int x = 10 + (ind/5)*70;
+		int y = 54 + (ind%5)*30;
+		char* buf = (char*)zc_malloc(12); //Won't be freed, should only be alloc'd once per launch -Em
+		sprintf(buf, " Script %d ", q+1); //1-indexed
+		initPopulate(i, jwin_frame_proc,           x,     y,     68,     28,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
+		initPopulate(i, jwin_text_proc,          x+4,   y-3,      0,      0,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) buf,                                   NULL,   NULL);
+		initPopulate(i, jwin_numedit_short_proc,          x+4,   y+6,     30,     16,    0,                      0,                       0,    0,              6,             0,  NULL,                                                  NULL,   NULL);
+		initPopulate(i, jwin_numedit_short_proc,         x+34,   y+6,     30,     16,    0,                      0,                       0,    0,              6,             0,  NULL,                                                  NULL,   NULL);
+	}
+	
+	initPopulate(i, jwin_text_proc,            12,     68+59,    128,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Water Gravity:",                                   NULL,   NULL);
+	initPopulate(i, jwin_edit_proc,            52,     72+61,     96,     16,    vc(12),                 vc(1),                   0,    0,              9,             0,  NULL,                                                  NULL,   NULL);
+     
+    // 3378 -- Termination
+    initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    ASSERT(INIT_DLG_SZ>=i); //index after termination
     /*
     initPopulate(i, jwin_check_proc,          207,    177,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "26",                                         NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
@@ -1554,127 +1645,127 @@ int biic_cnt=-1;
 
 void build_biic_list()
 {
-    int start=biic_cnt=0;
-    std::map<std::string, int> fams;
-    std::set<std::string> famnames;
-    
+	int start=biic_cnt=0;
+	std::map<std::string, int> fams;
+	std::set<std::string> famnames;
+	
 	
 	
 
-    for(int i=start; i<itype_last; i++)
-    {
-        //std::string name = std::string(itype_names[i]);
-        std::string name = std::string(moduledata.item_editor_type_names[i]);
-	    
-	    
-        
-        while(famnames.find(name) != famnames.end())
-        {
-            name += ' '; 
-        }
-        
-        fams[name] = i;
-        famnames.insert(name);
-	
-    }
-    
-    /*
-    sprintf these in series. 
-    itype_names[itype_scripted_001] = "User-Scripted 001";
-	    itype_names[itype_scripted_002] = "User-Scripted 002";
-	    itype_names[itype_scripted_003] = "User-Scripted 003";
-	    itype_names[itype_scripted_004] = "User-Scripted 004";
-	    itype_names[itype_scripted_005] = "User-Scripted 005";
-	    itype_names[itype_scripted_006] = "User-Scripted 006";
-	    itype_names[itype_scripted_007] = "User-Scripted 007";
-	    itype_names[itype_scripted_008] = "User-Scripted 008";
-	    itype_names[itype_scripted_009] = "User-Scripted 009";
-	    itype_names[itype_scripted_010] = "User-Scripted 010";
-    
-    */
-    
-    for(int i=itype_last; i<itype_max; i++)
-    {
-	/*
-	char *name = new char[10];
-	    
-	if ( i == 256 ) sprintf(name, "Script 01");
-	    else if ( i == 257 ) sprintf(name, "Script 02");
-	     else if ( i == 258 ) sprintf(name, "Script 03");
-	     else if ( i == 259 ) sprintf(name, "Script 04");
-	     else if ( i == 260 ) sprintf(name, "Script 05");
-	     else if ( i == 261 ) sprintf(name, "Script 06");
-	     else if ( i == 262 ) sprintf(name, "Script 07");
-	     else if ( i == 263 ) sprintf(name, "Script 08");
-	     else if ( i == 264 ) sprintf(name, "Script 09");
-	     else if ( i == 265 ) sprintf(name, "Script 10");
-	     else if ( i == 266 ) sprintf(name, "Ice Rod");
-        else 
+	for(int i=start; i<itype_last; i++)
 	{
-	    sprintf(name, "zz%03d", i);
-	}
-        std::string sname(name);
-        while(famnames.find(sname) != famnames.end())
-        {
-            sname += ' ';
-        }
-        
-        fams[sname] = i;
-        famnames.insert(sname);
-        delete[] name;
-	*/
-	//expanded names
-	if (moduledata.item_editor_type_names[i][0] != NULL ) //std::string name = std::string(moduledata.item_editor_type_names[i]);
-	{
-	    
+		//std::string name = std::string(itype_names[i]);
 		std::string name = std::string(moduledata.item_editor_type_names[i]);
+		
+		
+		
 		while(famnames.find(name) != famnames.end())
 		{
-		    name += ' '; 
+			name += ' '; 
+		}
+		
+		fams[name] = i;
+		famnames.insert(name);
+	
+	}
+	
+	/*
+	sprintf these in series. 
+	itype_names[itype_scripted_001] = "User-Scripted 001";
+		itype_names[itype_scripted_002] = "User-Scripted 002";
+		itype_names[itype_scripted_003] = "User-Scripted 003";
+		itype_names[itype_scripted_004] = "User-Scripted 004";
+		itype_names[itype_scripted_005] = "User-Scripted 005";
+		itype_names[itype_scripted_006] = "User-Scripted 006";
+		itype_names[itype_scripted_007] = "User-Scripted 007";
+		itype_names[itype_scripted_008] = "User-Scripted 008";
+		itype_names[itype_scripted_009] = "User-Scripted 009";
+		itype_names[itype_scripted_010] = "User-Scripted 010";
+	
+	*/
+	
+	for(int i=itype_last; i<itype_max; i++)
+	{
+		/*
+		char *name = new char[10];
+			
+		if ( i == 256 ) sprintf(name, "Script 01");
+			else if ( i == 257 ) sprintf(name, "Script 02");
+			 else if ( i == 258 ) sprintf(name, "Script 03");
+			 else if ( i == 259 ) sprintf(name, "Script 04");
+			 else if ( i == 260 ) sprintf(name, "Script 05");
+			 else if ( i == 261 ) sprintf(name, "Script 06");
+			 else if ( i == 262 ) sprintf(name, "Script 07");
+			 else if ( i == 263 ) sprintf(name, "Script 08");
+			 else if ( i == 264 ) sprintf(name, "Script 09");
+			 else if ( i == 265 ) sprintf(name, "Script 10");
+			 else if ( i == 266 ) sprintf(name, "Ice Rod");
+			else 
+		{
+			sprintf(name, "zz%03d", i);
+		}
+			std::string sname(name);
+			while(famnames.find(sname) != famnames.end())
+			{
+				sname += ' ';
+			}
+			
+			fams[sname] = i;
+			famnames.insert(sname);
+			delete[] name;
+		*/
+		//expanded names
+		if (moduledata.item_editor_type_names[i][0] != NULL ) //std::string name = std::string(moduledata.item_editor_type_names[i]);
+		{
+			
+			std::string name = std::string(moduledata.item_editor_type_names[i]);
+			while(famnames.find(name) != famnames.end())
+			{
+				name += ' '; 
+			}
+			
+			fams[name] = i;
+			famnames.insert(name);
+		}
+		else 
+		{
+			char *name = new char[10];
+			sprintf(name, "zz%03d", i);
+			std::string sname(name);
+			while(famnames.find(sname) != famnames.end())
+			{
+				sname += ' ';
+			}
+			
+			fams[sname] = i;
+			famnames.insert(sname);
+			delete[] name;
+		}
+	}
+	/*
+	//Set up new/special weapons for 2.54 and above. 
+	for(int i=itype_script1; i<itype_templast; i++)
+	{
+		std::string name = std::string(itype_new_names[i-itype_script1]);
+		
+		
+		
+		while(famnames.find(name) != famnames.end())
+		{
+			name += ' ';
 		}
 		
 		fams[name] = i;
 		famnames.insert(name);
 	}
-	else 
+	*/
+	for(std::set<std::string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
 	{
-		char *name = new char[10];
-		sprintf(name, "zz%03d", i);
-		std::string sname(name);
-		while(famnames.find(sname) != famnames.end())
-		{
-		    sname += ' ';
-		}
-		
-		fams[sname] = i;
-		famnames.insert(sname);
-		delete[] name;
+		biic[biic_cnt].s = new char[(*it).length() + 1];
+		strcpy(biic[biic_cnt].s, it->c_str()); //The user could do this, with an editor panel, to rename them, but saving the user strings would be an ordeal. -Z
+		biic[biic_cnt].i = fams[*it];
+		++biic_cnt;
 	}
-    }
-    /*
-    //Set up new/special weapons for 2.54 and above. 
-    for(int i=itype_script1; i<itype_templast; i++)
-    {
-        std::string name = std::string(itype_new_names[i-itype_script1]);
-	    
-	    
-        
-        while(famnames.find(name) != famnames.end())
-        {
-            name += ' ';
-        }
-        
-        fams[name] = i;
-        famnames.insert(name);
-    }
-    */
-    for(std::set<std::string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
-    {
-        biic[biic_cnt].s = new char[(*it).length() + 1];
-        strcpy(biic[biic_cnt].s, it->c_str()); //The user could do this, with an editor panel, to rename them, but saving the user strings would be an ordeal. -Z
-        biic[biic_cnt].i = fams[*it];
-        ++biic_cnt;
-    }
 }
 
 void deallocate_biic_list()
@@ -1776,6 +1867,10 @@ int doInit(zinitdata *local_zinit)
     char maxarrowstring[6];
     char herostepstr[6];
     char subscrspeedstr[6];
+	char hpperheartstr[8];
+	char mpperblockstr[8];
+	char dmgmultstr[8];
+	char dmgmultstr2[8];
     sprintf(bombstring, "%d", local_zinit->nBombs);
     sprintf(maxbombstring, "%d", local_zinit->nBombmax);
     sprintf(sbombstring, "%d", local_zinit->nSbombs);
@@ -1784,6 +1879,10 @@ int doInit(zinitdata *local_zinit)
     sprintf(maxarrowstring, "%d", local_zinit->nArrowmax);
     sprintf(herostepstr, "%d", local_zinit->heroStep);
     sprintf(subscrspeedstr, "%d", local_zinit->subscrSpeed);
+    sprintf(hpperheartstr, "%d", local_zinit->hp_per_heart);
+    sprintf(mpperblockstr, "%d", local_zinit->magic_per_block);
+    sprintf(dmgmultstr, "%d", local_zinit->hero_damage_multiplier);
+    sprintf(dmgmultstr2, "%d", local_zinit->ene_damage_multiplier);
     
     
     //This is the format for storing values into Init Data. -Z
@@ -1793,6 +1892,17 @@ int doInit(zinitdata *local_zinit)
     init_dlg[116].dp=maxsbombstring;
     init_dlg[119].dp=arrowstring;
     init_dlg[120].dp=maxarrowstring;
+	
+	char scrcntstr[25][6];
+	char scrmaxcntstr[25][6];
+	for(int q = 0; q < 25; ++q)
+	{
+		sprintf(scrcntstr[q], "%d", local_zinit->scrcnt[q]);
+		sprintf(scrmaxcntstr[q], "%d", local_zinit->scrmaxcnt[q]);//3276 - 3375
+		//frame3276,text3277,edit3278,edit3279
+		init_dlg[3278+(4*q)].dp = scrcntstr[q];
+		init_dlg[3279+(4*q)].dp = scrmaxcntstr[q];
+	}
     // dmap items
     
     char key_list[512][4];
@@ -1884,6 +1994,10 @@ int doInit(zinitdata *local_zinit)
     //Hero->Step
     init_dlg[3265].dp=herostepstr;
     init_dlg[3267].dp=subscrspeedstr;
+    init_dlg[3269].dp=hpperheartstr;
+    init_dlg[3271].dp=mpperblockstr;
+    init_dlg[3273].dp=dmgmultstr;
+    init_dlg[3275].dp=dmgmultstr2;
     if(is_large)
     {
         large_dialog(init_dlg);
@@ -1919,7 +2033,12 @@ int doInit(zinitdata *local_zinit)
         local_zinit->nSBombmax=vbound(atoi(sbombstring),0,0xFFFF);
         local_zinit->nArrows=vbound(atoi(arrowstring),0,0xFFFF);
         local_zinit->nArrowmax=vbound(atoi(maxarrowstring),0,0xFFFF);
-        
+		for(int q = 0; q < 25; ++q)
+		{
+			local_zinit->scrcnt[q]=vbound(atoi(scrcntstr[q]),0,0xFFFF);
+			local_zinit->scrmaxcnt[q]=vbound(atoi(scrmaxcntstr[q]),0,0xFFFF);
+        }
+		
         // dmap items
         for(int i=0; i<256; i++)
         {
@@ -1977,6 +2096,10 @@ int doInit(zinitdata *local_zinit)
         local_zinit->jump_link_layer_threshold = vbound(atoi(thresholdstring),0,255);
         local_zinit->heroStep = vbound(atoi(herostepstr),0,9999);
         local_zinit->subscrSpeed = vbound(atoi(subscrspeedstr),1,85);
+		local_zinit->hp_per_heart = vbound(atoi(hpperheartstr),1,255);
+		local_zinit->magic_per_block = vbound(atoi(mpperblockstr),1,255);
+		local_zinit->hero_damage_multiplier = vbound(atoi(dmgmultstr),1,255);
+		local_zinit->ene_damage_multiplier = vbound(atoi(dmgmultstr2),1,255);
         onInitOK();
     }
     
@@ -2089,7 +2212,7 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
 
 void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 {
-    game2->set_maxlife(zinit2->hc*HP_PER_HEART);
+    game2->set_maxlife(zinit2->hc*zinit2->hp_per_heart);
     game2->set_maxbombs(zinit2->nBombmax);
     game2->set_maxcounter(zinit2->nBombmax/zc_max(1,zinit2->bomb_ratio), 6);
     game2->set_maxmagic(zinit2->max_magic);
@@ -2133,6 +2256,10 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     game2->set_hcp_per_hc(zinit2->hcp_per_hc);
     game2->set_cont_hearts(zinit2->cont_heart);
     game2->set_cont_percent(get_bit(zinit2->misc, idM_CONTPERCENT) != 0);
+	game2->set_hp_per_heart(zinit2->hp_per_heart);
+	game2->set_mp_per_block(zinit2->magic_per_block);
+	game2->set_hero_dmgmult(zinit2->hero_damage_multiplier);
+	game2->set_ene_dmgmult(zinit2->ene_damage_multiplier);
     
     for(int i=0; i<MAXLEVELS; i++)
     {
@@ -2160,6 +2287,11 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     
     game2->set_arrows(zinit2->nArrows);
     
+	for(int q = 0; q < 25; ++q)
+	{
+		game2->set_counter(zinit2->scrcnt[q], q+7);
+		game2->set_maxcounter(zinit2->scrmaxcnt[q], q+7);
+	}
     //flush the cache again (in case bombs became illegal to use by setting bombs to 0)
     flushItemCache();
 }

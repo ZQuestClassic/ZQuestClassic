@@ -257,7 +257,7 @@ static int weapon_eweapon_rules_tab[] =
 
 static int weapon_lweapon_rules_tab[] =
 {
-	9,10,11,
+	9,10,11,13,
     -1
 };
 
@@ -297,6 +297,7 @@ static DIALOG weaponrules_dlg[] =
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Arrows Always Penetrate", NULL, NULL },
     { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Swordbeams Always Penetrate", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Boomerang EWeapons Corrected Animation", NULL, NULL },
+    { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Bombs pierce enemy shields", NULL, NULL },
     // { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -304,7 +305,7 @@ static DIALOG weaponrules_dlg[] =
 static int weaponrules[] =
 {
    qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS, qr_MIRRORS_USE_WEAPON_CENTRE, qr_NO_STUNLOCK,
-	qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE, qr_CORRECTED_EW_BRANG_ANIM,
+	qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE, qr_CORRECTED_EW_BRANG_ANIM,qr_BOMBSPIERCESHIELD,
     -1
 };
 
@@ -615,7 +616,7 @@ static int fixesrules1_list[] =
 
 static int fixesrules2_list[] =
 {
-    22,23,24,25,26,27,28,-1
+    22,23,24,25,26,27,28,29,-1
 };
 
 static TABPANEL fixesrules_tabs[] =
@@ -662,6 +663,7 @@ static DIALOG fixesrules_dlg[] =
     { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Invincible Link Isn't Hurt By Own Fire Weapons", NULL, NULL },
     { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Position Offset Of Screen Items", NULL, NULL },
     { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Ladder Anywhere", NULL, NULL },
+    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Actually fixed Bomb/Darknut interaction", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -672,7 +674,7 @@ static int fixesrules[] =
     qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, qr_PUSHBLOCKCSETFIX,
     qr_TRAPPOSFIX, qr_NOBORDER, qr_OLDPICKUP, qr_SUBSCREENOVERSPRITES,
     qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS,
-    qr_NOFLICKER, qr_FIREPROOFLINK2, qr_NOITEMOFFSET, qr_LADDERANYWHERE,-1
+    qr_NOFLICKER, qr_FIREPROOFLINK2, qr_NOITEMOFFSET, qr_LADDERANYWHERE,qr_TRUEFIXEDBOMBSHIELD,-1
 };
 
 int onFixesRules()

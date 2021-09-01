@@ -3667,9 +3667,12 @@ void draw_screen(mapscr* this_screen, bool showlink)
 				Link.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
 			}
 			
-			decorations.draw2(framebuf,true);
-			Link.draw(framebuf);
-			decorations.draw(framebuf,true);
+			if(Link.getZ() <= (zfix)zinit.jump_link_layer_threshold)
+			{
+				decorations.draw2(framebuf,true);
+				Link.draw(framebuf);
+				decorations.draw(framebuf,true);
+			}
 		}
 	}
 	

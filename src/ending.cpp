@@ -785,12 +785,12 @@ void inc_quest()
 	
 	if ( moduledata.old_quest_serial_flow || game->get_quest() >= 5 )
 	{
-		if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
+		if(game->get_quest()==2 && game->get_maxlife()>=game->get_hp_per_heart()*16)
 			quest = zc_min(4,moduledata.max_quest_files);// 4;
 		else
 			quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);
 		
-		if(game->get_quest()==3 && game->get_maxlife()>=HP_PER_HEART*16)
+		if(game->get_quest()==3 && game->get_maxlife()>=game->get_hp_per_heart()*16)
 			quest = zc_min(4,moduledata.max_quest_files);// 4;
 		
 		
@@ -813,8 +813,8 @@ void inc_quest()
 	game->set_name(name);
 	game->set_quest(quest);
 	game->set_deaths(deaths);
-	game->set_maxlife(3*HP_PER_HEART);
-	game->set_life(3*HP_PER_HEART);
+	game->set_maxlife(3*game->get_hp_per_heart());
+	game->set_life(3*game->get_hp_per_heart());
 	game->set_maxbombs(8);
 	game->set_hasplayed(true);
 	//now bound to modules

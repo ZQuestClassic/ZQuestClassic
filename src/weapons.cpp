@@ -10013,7 +10013,7 @@ offscreenCheck:
 		if(((id==wMagic && current_item(itype_book) &&
 			(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
-		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
+		    Lwpns.add(new weapon(x,y,z,wFire,2,1*game->get_hero_dmgmult(),0,current_item_id(itype_book),-1));
 		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
 		    {
 			sfx(WAV_FIRE,pan(x));
@@ -10027,7 +10027,7 @@ offscreenCheck:
 		if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
 			(itemsbuf[linkedItem].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
-		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,linkedItem,-1));
+		    Lwpns.add(new weapon(x,y,z,wFire,2,1*game->get_hero_dmgmult(),0,linkedItem,-1));
 		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
 		    {
 			sfx(WAV_FIRE,pan(x));
