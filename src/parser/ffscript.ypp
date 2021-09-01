@@ -14,7 +14,7 @@
 #include <string>
 #include <sstream>
 #include "ASTVisitors.h"
-#include "CompileOption.h"	
+#include "CompileOption.h"
 #include "../zsyssimple.h"
 
 using std::string;
@@ -231,7 +231,7 @@ extern YYLTYPE noloc;
 %%
 
 ////////////////////////////////////////////////////////////////
-	
+
 Init : Global_List {$$ = $1;};
 
 ////////////////////////////////////////////////////////////////
@@ -382,7 +382,7 @@ Namespace_Statement :
 		declaration->compileErrorCatches.push_back(errorId);
 		$$ = declaration;}
 	;
-	
+
 // Using
 
 Using :
@@ -390,7 +390,7 @@ Using :
 		ASTExprIdentifier* idlist = (ASTExprIdentifier*)$3;
 		$$ = new ASTUsingDecl(idlist, @$);
 	};
-	
+
 AlwaysUsing :
 	ALWAYS USING NAMESPACE Scoperes_Identifier_List {
 		ASTExprIdentifier* idlist = (ASTExprIdentifier*)$4;
@@ -497,7 +497,7 @@ StandardDataTypedef : TYPEDEF DataType IDENTIFIER {
 	$$ = new ASTDataTypeDef(type, name->getValue(), @1);
 	delete name;}
 	;
-	
+
 EnumDataTypedef : ENUM IDENTIFIER LBRACE Enum_Block RBRACE {
 	ASTDataEnum* en = (ASTDataEnum*)$4;
 	ASTString* identifier = (ASTString*)$2;
@@ -749,7 +749,7 @@ Function_Parameters_Element :
 		data->location = @$;
 		$$ = data;}
 	;
-	
+
 ////////////////////////////////////////////////////////////////
 // Script Declaration
 
@@ -776,7 +776,7 @@ Annotated_Script :
 		$$ = script;}
 	;
 
-Script : 
+Script :
 	Script_Type SCRIPT IDENTIFIER Script_Block {
 		ASTScriptType* type = (ASTScriptType*)$1;
 		ASTString* name = (ASTString*)$3;
@@ -786,7 +786,7 @@ Script :
 		script->location = @$;
 		$$ = script;
 		delete name;}
-	
+
 	| SCRIPTSTRUCT IDENTIFIER Script_Block {
 		ASTScriptType* type = new ASTScriptType(ScriptType::untyped, @$);
 		ASTString* name = (ASTString*)$2;
@@ -866,7 +866,7 @@ Script_Block_Element :
 		declaration->compileErrorCatches.push_back(errorId);
 		$$ = declaration;}
 	;
-	
+
 Annotation_List :
 	Annotation_List COMMA Annotation {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
@@ -986,7 +986,7 @@ Statement_If :
 		$$ = stmt;
 	}
 	;
-	
+
 If_Body :
 	LPAREN Single_Data_req_assign RPAREN Block_Statement {
 		ASTDataDecl* decl = (ASTDataDecl*)$2;
@@ -1031,7 +1031,7 @@ Statement_Switch_Body :
 		sw->cases.push_back(cases);
 		$$ = sw;}
 	;
-	
+
 Statement_Switch_Cases :
 	Statement_Switch_Cases CASE Expression_Constant COLON {
 		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
@@ -1104,7 +1104,7 @@ Statement_While :
 		stmt->invert();
 		$$ = stmt;}
 	;
-	
+
 Statement_Do :
 	DO Block_Statement WHILE LPAREN Expression RPAREN {
 		ASTStmt* body = (ASTStmt *)$2;
@@ -1131,7 +1131,7 @@ Statement_Return :
 		$$ = new ASTStmtReturnVal(value, @$);}
 	| RETURN {$$ = new ASTStmtReturn(@$);}
 	;
-	
+
 Statement_CompileError :
 	EXPECTERROR LPAREN Expression_Constant RPAREN Statement_NoSemicolon {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
@@ -1142,7 +1142,7 @@ Statement_CompileError :
 
 DataEnum:
 	ENUM LBRACE Enum_Block RBRACE {$$ = $3;};
-	
+
 Enum_Block:
 	Enum_Block COMMA Data_Element {
 			ASTDataEnum* list = (ASTDataEnum*)$1;
@@ -1189,7 +1189,7 @@ Enum_Block:
 		element->setInitializer(value);
 		en->add(element);
 		$$ = en;}*/
-	
+
 ////////////////////////////////////////////////////////////////
 // Expression Helpers
 
@@ -1199,12 +1199,12 @@ Identifier_List :
 	| idlist_dot {$$ = $1;}
 	| Ambigious_Iden_List {$$ = $1;}
 	;
-	
+
 Scoperes_Identifier_List:
 	idlist_scopres {$$ = $1;}
 	| Ambigious_Iden_List {$$ = $1;}
 	;
-	
+
 /*Dot_Identifier_List:
 	idlist_dot {$$ = $1;}
 	| Ambigious_Iden_List {$$ = $1}
@@ -1244,7 +1244,7 @@ Mixed_Identifier_List:
 		$$ = identifier;
 		delete name;}
 	;
-	
+
 idlist_scopres:
 	idlist_scopres SCOPERES Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
@@ -1267,7 +1267,7 @@ idlist_scopres:
 		identifier->noUsing = true;
 		$$ = identifier;}
 	;
-	
+
 idlist_dot:
 	idlist_dot DOT Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
@@ -1286,7 +1286,7 @@ idlist_dot:
 		$$ = identifier;
 		delete name;}
 	;
-	
+
 Ambigious_Iden_List:
 	Identifier {
 		ASTString* name = (ASTString*)$1;
@@ -1464,7 +1464,7 @@ Expr_15 : Expr_14 {$$ = $1;}
 	// Logical Or
 	| Expr_15 OR Expr_14 {BINARY(ASTExprOr, $$, $1, $3, @$)}
 	;
-	
+
 Expr_16 : Expr_15 {$$ = $1;}
 	//Ternary
 	| Expr_15 QMARK Expr_16 COLON Expr_16
@@ -1672,7 +1672,7 @@ namespace ZScript
 		{
 			box_out("Can't open input file");
 			box_eol();
-			return NULL;
+			return boost::movelib::unique_ptr<ASTFile>(NULL);
 		}
 		curfilename = filename;
 
@@ -1682,7 +1682,7 @@ namespace ZScript
 			result.reset();
 		}
 		fclose(yyin);
-		
+
 		return boost::movelib::unique_ptr<ASTFile>(result.release());
 	}
 };
