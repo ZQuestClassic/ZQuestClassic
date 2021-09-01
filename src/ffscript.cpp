@@ -6868,7 +6868,7 @@ long get_register(const long arg)
 				switch(indx)
 				{
 					case 0: //Gravity Strength
-						ret = zinit.gravity * 100;
+						ret = zinit.gravity2 * 10000;
 						break;
 					case 1: //Terminal Velocity
 						ret = zinit.terminalv * 100;
@@ -14744,7 +14744,7 @@ void set_register(const long arg, const long value)
 				switch(indx)
 				{
 					case 0: //Gravity Strength
-						zinit.gravity = value / 100;
+						zinit.gravity2 = value / 10000;
 						break;
 					case 1: //Terminal Velocity
 						zinit.terminalv = value / 100;
@@ -28913,7 +28913,7 @@ void FFScript::setFFRules()
 	}
 	active_subscreen_scrollspeed_adjustment = 0;
 	//zinit.terminalv
-	FF_gravity = zinit.gravity;
+	FF_gravity = zinit.gravity2;
 	FF_terminalv = zinit.terminalv;
 	FF_msg_speed = zinit.msg_speed;
 	FF_transition_type = zinit.transition_type; // Can't edit, yet.
@@ -40295,6 +40295,7 @@ int FFScript::getLinkOTile(long index1, long index2)
 			case LSprsideswimslashspr: the_ret = sideswimslashspr[dir][0];
 			case LSprsideswimstabspr: the_ret = sideswimstabspr[dir][0];
 			case LSprsideswimpoundspr: the_ret = sideswimpoundspr[dir][0];
+			case LSprsideswimchargespr: the_ret = sideswimchargespr[dir][0];
 			case LSprpoundspr: the_ret = poundspr[dir][0];
 			case LSprjumpspr: the_ret = jumpspr[dir][0];
 			case LSprchargespr: the_ret = chargespr[dir][0];

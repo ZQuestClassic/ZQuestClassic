@@ -77,6 +77,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinitdata *zinit2 = new zinitdata;
     //populate it
     zinit2->gravity=zinit.gravity;
+    zinit2->gravity2=zinit.gravity2;
     zinit2->terminalv=zinit.terminalv;
     zinit2->jump_link_layer_threshold=zinit.jump_link_layer_threshold;
     zinit2->hc = gdata->get_maxlife()/HP_PER_HEART;

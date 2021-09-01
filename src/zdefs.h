@@ -236,7 +236,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        21
+#define V_INITDATA        22
 #define V_GUYS            43
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -4037,7 +4037,8 @@ struct zinitdata
     byte subscreen_style;
     byte usecustomsfx;
     word max_rupees, max_keys;
-    byte gravity;
+    byte gravity; //Deprecated!
+    int gravity2; //Bumping this up to an int.
     word terminalv;
     byte msg_speed;
     byte transition_type; // Can't edit, yet.
@@ -4045,6 +4046,7 @@ struct zinitdata
     byte link_swim_speed;
     
     word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep, subscrSpeed;
+    int swimgravity;
 };
 
 struct zcmap

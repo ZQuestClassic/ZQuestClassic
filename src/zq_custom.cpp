@@ -9202,7 +9202,8 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 break;
 		
 	    case ls_sideswim:
-                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+	    case ls_sideswimcharge:
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.linkanimationstyle);
                 
                 if(p[lt_clock]>=6)
                 {
@@ -9527,7 +9528,8 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 break;
 		
 	    case ls_sideswim:
-                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+	    case ls_sideswimcharge:
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.linkanimationstyle);
                 p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
                 
                 if(p[lt_clock]>=27)
@@ -9814,7 +9816,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
             {
             case ls_charge:
             case ls_walk:
-                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+                linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.linkanimationstyle);
                 
                 if(p[lt_clock]>=(64*(link_animation_speed)))
                 {
@@ -9834,6 +9836,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
                 break;
 		
 	     case ls_sideswim:
+	     case ls_sideswimcharge:
                 linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.linkanimationstyle);
                 
                 if(p[lt_clock]>=(64*(link_animation_speed)))
@@ -10338,6 +10341,12 @@ static int linktile_water_sideswim_pound_list[] =
     220, 221, 222, 223, 224, 225, 226, 227, -1
 };
 
+static int linktile_water_sideswim_charge_list[] =
+{
+    // dialog control number
+    228, 229, 230, 231, 232, 233, 234, 235, -1
+};
+
 static TABPANEL linktile_sideview_tabs[] =
 {
     // (text)
@@ -10345,6 +10354,7 @@ static TABPANEL linktile_sideview_tabs[] =
     { (char *)"Side-Swim Slash",       0,           linktile_water_sideswim_slash_list, 0, NULL },
     { (char *)"Side-Swim Stab",       0,           linktile_water_sideswim_stab_list, 0, NULL },
     { (char *)"Side-Swim Pound",       0,           linktile_water_sideswim_pound_list, 0, NULL },
+    { (char *)"Side-Swim Charge",       0,           linktile_water_sideswim_charge_list, 0, NULL },
     { NULL,                 0,           NULL,                     0, NULL }
 };
 
@@ -10767,6 +10777,16 @@ static DIALOG linktile_dlg[] =
     {  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_sideswimpound,         NULL,                            NULL,   NULL                   },
     {  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sideswimpound,         NULL,                            NULL,   NULL                   },
     {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_sideswimpound,         NULL,                            NULL,   NULL                   },
+    // 228 - sideswim charge sprite titles
+    {  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
+    // 232 - sideswim charge sprites
+    {  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_sideswimcharge,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_sideswimcharge,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sideswimcharge,         NULL,                            NULL,   NULL                   },
+    {  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_sideswimcharge,         NULL,                            NULL,   NULL                   },
     {  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }    
 
 };
@@ -10812,6 +10832,7 @@ int onCustomLink()
 	int oldSideSwimSlashSpr[4][3];
 	int oldSideSwimStabSpr[4][3];
 	int oldSideSwimPoundSpr[4][3];
+	int oldSideSwimChargeSpr[4][3];
     memcpy(oldWalkSpr, walkspr, 4*3*sizeof(int));
     memcpy(oldStabSpr, stabspr, 4*3*sizeof(int));
     memcpy(oldSlashSpr, slashspr, 4*3*sizeof(int));
@@ -10830,6 +10851,7 @@ int onCustomLink()
     memcpy(oldSideSwimSlashSpr, sideswimslashspr, 4*3*sizeof(int));
     memcpy(oldSideSwimStabSpr, sideswimstabspr, 4*3*sizeof(int));
     memcpy(oldSideSwimPoundSpr, sideswimpoundspr, 4*3*sizeof(int));
+    memcpy(oldSideSwimChargeSpr, sideswimchargespr, 4*3*sizeof(int));
     
     //Populate Link defenses
     for (int i = 0; i < wMax - wEnemyWeapons - 1; i++)
@@ -10920,6 +10942,7 @@ int onCustomLink()
 	    memcpy(sideswimslashspr, oldSideSwimSlashSpr, 4 * 3 * sizeof(int));
 	    memcpy(sideswimstabspr, oldSideSwimStabSpr, 4 * 3 * sizeof(int));
 	    memcpy(sideswimpoundspr, oldSideSwimPoundSpr, 4 * 3 * sizeof(int));
+	    memcpy(sideswimchargespr, oldSideSwimChargeSpr, 4 * 3 * sizeof(int));
         }
     } while (ret == 168);
     

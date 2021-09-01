@@ -11294,6 +11294,15 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)sideswimpoundspr[q][spr_extend],f))
 				new_return(17);
 		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(sideswimchargespr[q][spr_tile],f))
+				new_return(18);
+			if(!p_putc((byte)sideswimchargespr[q][spr_flip],f))
+				new_return(18);
+			if(!p_putc((byte)sideswimchargespr[q][spr_extend],f))
+				new_return(18);
+		}
 		
         for (int q = 0; q < wMax; q++) // Link defense values
         {
@@ -12813,6 +12822,14 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 	if(!p_iputw(zinit.subscrSpeed,f))
         {
             new_return(74);
+        }
+	if(!p_iputl(zinit.gravity2,f))
+        {
+            new_return(75);
+        }
+	if(!p_iputl(zinit.swimgravity,f))
+        {
+            new_return(76);
         }
         
         if(writecycle==0)

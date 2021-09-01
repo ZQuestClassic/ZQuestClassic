@@ -9748,6 +9748,7 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 			memset(sideswimslashspr, 0, sizeof(sideswimslashspr));
 			memset(sideswimstabspr, 0, sizeof(sideswimstabspr));
 			memset(sideswimpoundspr, 0, sizeof(sideswimpoundspr));
+			memset(sideswimchargespr, 0, sizeof(sideswimchargespr));
 		}
     }
     
@@ -10640,6 +10641,27 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					}
 				}
 			}
+			if (v_linksprites > 9)
+			{
+				for(int q = 0; q < 4; ++q)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&flip,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&extend,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						sideswimchargespr[q][spr_tile] = (int)tile;
+						sideswimchargespr[q][spr_flip] = (int)flip;
+						sideswimchargespr[q][spr_extend] = (int)extend;
+					}
+				}
+			}
 		}
 		else if(keepdata)
 		{
@@ -10679,6 +10701,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 			memset(sideswimslashspr, 0, sizeof(sideswimslashspr));
 			memset(sideswimstabspr, 0, sizeof(sideswimstabspr));
 			memset(sideswimpoundspr, 0, sizeof(sideswimpoundspr));
+			memset(sideswimchargespr, 0, sizeof(sideswimchargespr));
 		}
         if (v_linksprites > 7)
         {
@@ -17856,6 +17879,8 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
     temp_zinit.ss_bbox_2_color=7;
     temp_zinit.ss_flags=0;
     temp_zinit.gravity=16;
+    temp_zinit.swimgravity=800;
+    temp_zinit.gravity2=1600;
     temp_zinit.terminalv=320;
     temp_zinit.msg_speed=5;
     temp_zinit.transition_type=0;
@@ -18824,6 +18849,22 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	else
 	{	
 		temp_zinit.subscrSpeed = 1; //3 pixels per frame
+	}
+	if ( s_version >= 22 ) //New gravity variables
+        {
+            if(!p_igetl(&temp_zinit.gravity2,f,true))
+            {
+                return qe_invalid;
+            }
+	    if(!p_igetl(&temp_zinit.swimgravity,f,true))
+            {
+                return qe_invalid;
+            }
+	}
+	else
+	{
+		temp_zinit.gravity2 = temp_zinit.gravity * 100;
+		temp_zinit.swimgravity = temp_zinit.gravity * 50;
 	}
         //old only
         if((Header->zelda_version == 0x192)&&(Header->build<174))

@@ -1280,10 +1280,10 @@ void PopulateInitDialog()
     initPopulate(i, d_bombratioedit_proc,      25,    149,     21,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
     // 1700
     initPopulate(i, jwin_text_proc,            12,     51,    128,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Gravity:",                                   NULL,   NULL);
-    initPopulate(i, jwin_text_proc,            89,     51,    144,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Terminal Velocity:",                         NULL,   NULL);
+    initPopulate(i, jwin_text_proc,            153,     51,    144,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Terminal Velocity:",                         NULL,   NULL);
     initPopulate(i, jwin_text_proc,            12,     72,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Jumping Sprite Layer Threshold:",            NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,            52,     47,     32,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,           172,     47,     32,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,            52,     47,     96,     16,    vc(12),                 vc(1),                   0,    0,              9,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,           220,     47,     32,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_edit_proc,           162,     68,     26,     16,    vc(12),                 vc(1),                   0,    0,              2,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_tab_proc,             18,     69,    260,    128,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) init_dmap_items_300s_tabs,                    NULL, (void *)init_dlg);
@@ -1512,8 +1512,11 @@ void PopulateInitDialog()
     initPopulate(i, jwin_text_proc,            12,     72+41,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Subscreen Fall Multiplier:",                                   NULL,   NULL);
     //3267
     initPopulate(i, jwin_edit_proc,            162,     68+39,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+     //3268
+    initPopulate(i, jwin_text_proc,            12,     68+59,    128,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Water Gravity:",                                   NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,            52,     72+61,     96,     16,    vc(12),                 vc(1),                   0,    0,              9,             0,  NULL,                                                  NULL,   NULL);
      
-    // 3268 -- Termination
+    // 3270 -- Termination
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     
     /*
@@ -1826,7 +1829,8 @@ int doInit(zinitdata *local_zinit)
     char maxrupeestring[6];
     char maxkeystring[6];
     char bombratiostring[5];
-    char gravitystring[5];
+    char gravitystring[10];
+    char swimgravitystring[10];
     char terminalvstring[8];
     char thresholdstring[8];
     
@@ -1841,7 +1845,9 @@ int doInit(zinitdata *local_zinit)
     sprintf(magicstring, "%d", local_zinit->magic);
     sprintf(maxmagicstring, "%d", local_zinit->max_magic);
     sprintf(bombratiostring, "%d", local_zinit->bomb_ratio);
-    sprintf(gravitystring, "%.2f", local_zinit->gravity/100.0);
+    sprintf(gravitystring, "%d.%02d\0", local_zinit->gravity2/10000L, abs((local_zinit->gravity2/100)%100L));
+    sprintf(swimgravitystring, "%d.%02d\0", local_zinit->swimgravity/10000L, abs((local_zinit->swimgravity/100)%100L));
+    sprintf(swimgravitystring, "%.4f", local_zinit->swimgravity/10000.0);
     sprintf(terminalvstring, "%.2f", local_zinit->terminalv/100.0);
     sprintf(thresholdstring, "%d", local_zinit->jump_link_layer_threshold);
     
@@ -1965,7 +1971,8 @@ int doInit(zinitdata *local_zinit)
         local_zinit->max_rupees = vbound(atoi(maxrupeestring), 0, 0xFFFF);
         local_zinit->max_keys = vbound(atoi(maxkeystring), 0, 0xFFFF);
         local_zinit->bomb_ratio = vbound(atoi(bombratiostring),0,255);
-        local_zinit->gravity = vbound(int(strtod(gravitystring, NULL)*100),1,255);
+        local_zinit->gravity = vbound(int(strtod(gravitystring, NULL)*10000),1,255);
+        local_zinit->gravity2 = vbound(int(strtod(gravitystring, NULL)*10000),-2147483648,2147483647);
         local_zinit->terminalv = vbound(int(strtod(terminalvstring, NULL)*100), 1, 9999);
         local_zinit->jump_link_layer_threshold = vbound(atoi(thresholdstring),0,255);
         local_zinit->heroStep = vbound(atoi(herostepstr),0,9999);

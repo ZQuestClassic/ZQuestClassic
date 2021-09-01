@@ -73,7 +73,9 @@ enum linkspritetype
 	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
 	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
 	LSprchargespr, LSprcastingspr, LSprholdspr1, LSprholdspr2,
-	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlavadrownspr, LSprsideswimspr, LSprsideswimslashspr, LSprsideswimstabspr, LSprsideswimpoundspr, LSprlast
+	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlavadrownspr, 
+	LSprsideswimspr, LSprsideswimslashspr, LSprsideswimstabspr, 
+	LSprsideswimpoundspr, LSprsideswimchargespr, LSprlast
 };
 
 enum zasmBreak
@@ -806,7 +808,7 @@ long FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and si
 short passive_subscreen_offsets[2];
 byte active_subscreen_scrollspeed_adjustment;
 
-byte FF_gravity;
+int FF_gravity;
 word FF_terminalv;
 byte FF_msg_speed;
 byte FF_transition_type; // Can't edit, yet.

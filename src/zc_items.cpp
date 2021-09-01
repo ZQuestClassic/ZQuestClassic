@@ -75,7 +75,7 @@ void item_fall(zfix& x, zfix& y, zfix& fall)
 			
 		if(fall <= (int)zinit.terminalv)
 		{
-			fall += zinit.gravity;
+			fall += (zinit.gravity2 / 100);
 		}
 	}
 }

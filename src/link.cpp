@@ -1988,7 +1988,7 @@ attack:
 		// Keep this consistent with checkspecial2, line 7800-ish...
 		bool inwater = iswaterex(MAPCOMBO(x+4,y+9), currmap, currscr, -1, x+4, y+9, true, false)  && iswaterex(MAPCOMBO(x+4,y+15), currmap, currscr, -1, x+4, y+15, true, false) &&  iswaterex(MAPCOMBO(x+11,y+9), currmap, currscr, -1, x+11, y+9, true, false) && iswaterex(MAPCOMBO(x+11,y+15), currmap, currscr, -1, x+11, y+15, true, false);
 		
-		int jumping2 = int(jumping*(zinit.gravity/16.0));
+		int jumping2 = int(jumping*((zinit.gravity2 / 100)/16.0));
 		
 		//if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
 		switch(zinit.linkanimationstyle)
@@ -2065,7 +2065,7 @@ attack:
 			}
 			else if(charging > 0 && attack != wHammer)
 			{
-				linktile(&tile, &flip, &extend, ls_charge, dir, zinit.linkanimationstyle);
+				linktile(&tile, &flip, &extend, (action==sideswimattacking)?ls_sideswimcharge:ls_charge, dir, zinit.linkanimationstyle);
 				
 				if(lstep>=6)
 				{
@@ -2167,7 +2167,7 @@ attack:
 			}
 			else if(charging > 0 && attack != wHammer)
 			{
-				linktile(&tile, &flip, &extend, ls_charge, dir, zinit.linkanimationstyle);
+				linktile(&tile, &flip, &extend, (action==sideswimattacking)?ls_sideswimcharge:ls_charge, dir, zinit.linkanimationstyle);
 				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 			}
 			else if((z>0 || isSideViewLink()) && jumping2>0 && jumping2<24 && game->get_life()>0)
@@ -2255,7 +2255,7 @@ attack:
 			}
 			else if(charging > 0 && attack != wHammer)
 			{
-				linktile(&tile, &flip, &extend, ls_charge, dir, zinit.linkanimationstyle);
+				linktile(&tile, &flip, &extend, (action==sideswimattacking)?ls_sideswimcharge:ls_charge, dir, zinit.linkanimationstyle);
 				if ( script_link_sprite <= 0 ) tile+=(extend==2?2:1);
 				//int l=link_count/link_animation_speed;
 				int l=(link_count/link_animation_speed)&15;
@@ -7146,7 +7146,7 @@ bool LinkClass::animate(int)
 			stop_item_sfx(itype_hoverboots);
 			hoverclk = -hoverclk;
 			reset_ladder();
-			fall = zinit.gravity;
+			fall = (zinit.gravity2 / 100);
 		}
 		// Continue falling.
 		
@@ -7203,11 +7203,11 @@ bool LinkClass::animate(int)
 				
 				if(!hoverclk && !ladderx && !laddery)
 				{
-					fall += zinit.gravity;
+					fall += (zinit.gravity2 / 100);
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
-			else if(fall+int(zinit.gravity) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
+			else if(fall+int((zinit.gravity2 / 100)) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
 			{
 				int itemid = current_item_id(itype_hoverboots);
 				if(hoverclk < 0)
@@ -7231,7 +7231,7 @@ bool LinkClass::animate(int)
 			}
 			else if(!ladderx && !laddery && !getOnSideviewLadder() && !IsSideSwim())
 			{
-				fall += zinit.gravity;
+				fall += (zinit.gravity2 / 100);
 				
 			}
 		}
@@ -7320,11 +7320,11 @@ bool LinkClass::animate(int)
 				
 				if(!hoverclk)
 				{
-					fall += zinit.gravity;
+					fall += (zinit.gravity2 / 100);
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
-			else if(fall+(int)zinit.gravity > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
+			else if(fall+(int)(zinit.gravity2 / 100) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
 			{
 				if(hoverclk < 0)
 					hoverclk = -hoverclk;
@@ -7343,7 +7343,7 @@ bool LinkClass::animate(int)
 				}
 				decorations.add(new dHover(x, y, dHOVER, 0));
 			}
-			else fall += zinit.gravity;
+			else fall += (zinit.gravity2 / 100);
 		}
 	}
 	

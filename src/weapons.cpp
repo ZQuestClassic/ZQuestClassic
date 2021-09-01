@@ -4399,7 +4399,7 @@ bool weapon::animate(int index)
 			
 			if(fall <= (int)zinit.terminalv)
 			{
-			    fall += zinit.gravity;
+			    fall += (zinit.gravity2 / 100);
 			}
 		    }
 		    else
@@ -4422,7 +4422,7 @@ bool weapon::animate(int index)
 		    }
 		    else if(fall <= (int)zinit.terminalv)
 		    {
-				fall += zinit.gravity;
+				fall += (zinit.gravity2 / 100);
 		    }
 		}
 	}
@@ -7525,7 +7525,7 @@ bool weapon::animateandrunscript(int ii)
                 
                 if(fall <= (int)zinit.terminalv)
                 {
-                    fall += zinit.gravity;
+                    fall += (zinit.gravity2 / 100);
                 }
             }
             else
@@ -7548,7 +7548,7 @@ bool weapon::animateandrunscript(int ii)
             }
             else if(fall <= (int)zinit.terminalv)
             {
-                fall += zinit.gravity;
+                fall += (zinit.gravity2 / 100);
             }
         }
     }

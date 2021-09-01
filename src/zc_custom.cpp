@@ -57,6 +57,7 @@ int sideswimspr[4][3];                               //dir,                     
 int sideswimslashspr[4][3];                               //dir,                           tile/flip/extend
 int sideswimstabspr[4][3];                               //dir,                           tile/flip/extend
 int sideswimpoundspr[4][3];                               //dir,                           tile/flip/extend
+int sideswimchargespr[4][3];                               //dir,                           tile/flip/extend
 int fallingspr[4][3];                                //dir,                           tile/flip/extend
 int shockedspr[4][3];                                //dir,                           tile/flip/extend
 int shocked_waterspr[4][3];                          //dir,                           tile/flip/extend
@@ -154,6 +155,10 @@ void linktile(int *tile, int *flip, int *extend, int state, int dir, int style)
 		
 	case ls_sideswimpound:
 		*extend=sideswimpoundspr[dir][spr_extend];
+		break;
+	
+	case ls_sideswimcharge:
+		*extend=sideswimchargespr[dir][spr_extend];
 		break;
 		
 	default:
@@ -295,6 +300,12 @@ void setlinktile(int tile, int flip, int extend, int state, int dir)
 		sideswimpoundspr[dir][spr_extend] = extend;
 		break;
 		
+	case ls_sideswimcharge:
+		sideswimchargespr[dir][spr_tile] = tile;
+		sideswimchargespr[dir][spr_flip] = flip;
+		sideswimchargespr[dir][spr_extend] = extend;
+		break;
+		
 	default:
 		break;
 	}
@@ -391,6 +402,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 		*tile=sideswimpoundspr[dir][spr_tile];
 		break;
 		
+		case ls_sideswimcharge:
+		*tile=sideswimchargespr[dir][spr_tile];
+		break;
+		
 		default:
 		*tile=0;
 		break;
@@ -483,6 +498,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 		
 		case ls_sideswimpound:
 		*flip=sideswimpoundspr[dir][spr_flip];
+		break;
+		
+		case ls_sideswimcharge:
+		*flip=sideswimchargespr[dir][spr_flip];
 		break;
 		
 		default:
