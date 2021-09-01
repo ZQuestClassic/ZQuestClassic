@@ -118,6 +118,8 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
     // as big as it wants to be.
     size_t numRows, numCols;
 
+    Widget::arrange(contX, contY, contW, contH);
+
     if(gridType==Type::rows)
     {
         numRows=(children.size()+size-1)/size; // +size-1 to round up
@@ -129,10 +131,10 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
         numCols=(children.size()+size-1)/size;
     }
 
-    int y=contY;
+    int cy=y;
     for(size_t row=0; row<numRows; row++)
     {
-        int x=contX;
+        int cx=x;
         int height=rowHeights[row];
         for(size_t col=0; col<numCols; col++)
         {
@@ -143,13 +145,11 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
                 break;
 
             int width=colWidths[col];
-            children[index]->arrange(x, y, width, height);
-            x+=width;
+            children[index]->arrange(cx, cy, width, height);
+            cx+=width;
         }
-        y+=height;
+        cy+=height;
     }
-
-    Widget::arrange(contX, contY, contW, contH);
 }
 
 void Grid::realize(DialogRunner& runner)
