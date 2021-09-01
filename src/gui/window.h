@@ -12,7 +12,7 @@ class Window: public Widget
 {
 public:
     Window();
-    void setTitle(const char* newTitle);
+    void setTitle(std::string newTitle);
     void setContent(std::shared_ptr<Widget> newContent);
     template<typename T>
     void onClose(T m)

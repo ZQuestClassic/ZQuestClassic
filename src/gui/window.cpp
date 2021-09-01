@@ -3,6 +3,7 @@
 #include "../jwin.h"
 #include "../zquest.h"
 #include <algorithm>
+#include <utility>
 
 using std::max, std::shared_ptr;
 
@@ -15,9 +16,9 @@ Window::Window(): content(nullptr)
     vPadding=0;
 }
 
-void Window::setTitle(const char* newTitle)
+void Window::setTitle(std::string newTitle)
 {
-    title=newTitle;
+    title=std::move(newTitle);
 }
 
 void Window::setContent(shared_ptr<Widget> newContent)
