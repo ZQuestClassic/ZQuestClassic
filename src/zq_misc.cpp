@@ -20,6 +20,7 @@
 #include "qst.h"
 #include "zsys.h"
 #include "zq_class.h"
+#include "dialog/info.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -46,75 +47,75 @@ int filetype(const char *path)
 {
     if(path==NULL || strlen(get_filename(path))==0)
         return 0;
-        
+
     char ext[40];
     strcpy(ext,get_extension(path));
     strupr(ext);
-    
+
     for(int i=0; i<ssfmtMAX; ++i)
     {
         if(stricmp(ext,snapshotformat_str[i][1])==0) return ftBMP;
     }
-    
+
     if(stricmp(ext,"til")==0) return ftTIL;
-    
+
     if(stricmp(ext,"zgp")==0) return ftZGP;
-    
+
     if(stricmp(ext,"qsu")==0) return ftQSU;
-    
+
     if(stricmp(ext,"zqt")==0) return ftZQT;
-    
+
     if(stricmp(ext,"qst")==0) return ftQST;
-    
+
     if(stricmp(ext,"dat")==0) return 0;
-    
+
     if(stricmp(ext,"htm")==0) return 0;
-    
+
     if(stricmp(ext,"html")==0) return 0;
-    
+
     if(stricmp(ext,"txt")==0) return 0;
-    
+
     if(stricmp(ext,"zip")==0) return 0;
-    
+
     return ftBIN;
 }
 
 static const char months[13][13] =
-{ 
+{
 	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
 };
 
 static std::string dayextension(int dy)
-{ 
-	char temp[6]; 
+{
+	char temp[6];
 	switch(dy)
 	{
-		
-		
+
+
 		//st
 		case 1:
 		case 21:
 		case 31:
-			sprintf(temp,"%d%s",dy,"st"); 
+			sprintf(temp,"%d%s",dy,"st");
 			break;
 		//nd
 		case 2:
 		case 22:
-			sprintf(temp,"%d%s",dy,"nd"); 
+			sprintf(temp,"%d%s",dy,"nd");
 			break;
 		//rd
 		case 3:
 		case 23:
-			sprintf(temp,"%d%s",dy,"rd"); 
+			sprintf(temp,"%d%s",dy,"rd");
 			break;
 		//th
 		default:
 			sprintf(temp,"%d%s",dy,"th");
 			break;
 	}
-	
-	return std::string(temp); 
-} 
+
+	return std::string(temp);
+}
 
 int cursorColor(int col)
 {
@@ -215,20 +216,20 @@ int wrap(int x,int low,int high)
 {
     while(x<low)
         x+=high-low+1;
-        
+
     while(x>high)
         x-=high-low+1;
-        
+
     return x;
 }
 
 bool readfile(const char *path,void *buf,int count)
 {
     PACKFILE *f=pack_fopen_password(path,F_READ,"");
-    
+
     if(!f)
         return 0;
-        
+
     bool good=pfread(buf,count,f,true);
     pack_fclose(f);
     return good;
@@ -237,10 +238,10 @@ bool readfile(const char *path,void *buf,int count)
 bool writefile(const char *path,void *buf,int count)
 {
     PACKFILE *f=pack_fopen_password(path,F_WRITE,"");
-    
+
     if(!f)
         return 0;
-        
+
     bool good=pfwrite(buf,count,f);
     pack_fclose(f);
     return good;
@@ -253,18 +254,18 @@ void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
 {
     int x = ((x1+y1) & 1) ? 1 : 0;
     int c;
-    
+
     /* two loops to avoid bank switches */
     for(c=x1; c<=x2; c++)
     {
         putpixel(screen, c, y1, (((c+y1) & 1) == x) ? fg : bg);
     }
-    
+
     for(c=x1; c<=x2; c++)
     {
         putpixel(screen, c, y2, (((c+y2) & 1) == x) ? fg : bg);
     }
-    
+
     for(c=y1+1; c<y2; c++)
     {
         putpixel(screen, x1, c, (((c+x1) & 1) == x) ? fg : bg);
@@ -325,7 +326,7 @@ void cycle_palette();
 void load_cset(RGB *pal,int cset_index,int dataset)
 {
     byte *si = colordata + CSET(dataset)*3;
-    
+
     for(int i=0; i<16; i++)
     {
         pal[CSET(cset_index)+i] = _RGB(si);
@@ -341,26 +342,26 @@ void set_pal()
 void loadlvlpal(int level)
 {
     Color=level;
-    
+
     // full pal
     for(int i=0; i<192; i++)
         RAMpal[i] = _RGB(colordata+i*3);
-        
+
     // level pal
     byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
-    
+
     for(int i=0; i<16*3; i++)
     {
         RAMpal[CSET(2)+i] = _RGB(si);
         si+=3;
     }
-    
+
     for(int i=0; i<16; i++)
     {
         RAMpal[CSET(9)+i] = _RGB(si);
         si+=3;
     }
-    
+
     reset_pal_cycling();
     set_pal();
 }
@@ -368,13 +369,13 @@ void loadlvlpal(int level)
 void loadfadepal(int dataset)
 {
     byte *si = colordata + CSET(dataset)*3;
-    
+
     for(int i=0; i<16*3; i++)
     {
         RAMpal[CSET(2)+i] = _RGB(si);
         si+=3;
     }
-    
+
     set_pal();
 }
 
@@ -385,7 +386,7 @@ void setup_lcolors()
         RAMpal[lc1(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+2)*3);
         RAMpal[lc2(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+16+1)*3);
     }
-    
+
     set_palette(RAMpal);
 }
 
@@ -965,10 +966,10 @@ const char *flag_help_string[(mfMAX)*3] =
 };
 
 // eMAXGUYS is defined in zdefs.h
-// Strings with a trailing space will not appear in the ZQ editor. 
+// Strings with a trailing space will not appear in the ZQ editor.
 // Remove the trailing space (e.g. "Ghini (L2, Magic) " become "Ghini (L2, Magic)"
 // to make them visible and editable. -Z
-// Add a trailing space to make any invisible (hidden) in the editor. 
+// Add a trailing space to make any invisible (hidden) in the editor.
 // This is what is used by build_bie_list() in zquest.cpp to generate the enemy lists! -Z
 const char *old_guy_string[OLDMAXGUYS] =
 {
@@ -1392,7 +1393,7 @@ int onSpacebar()
         alias_origin=(alias_origin+1)%4;
         return D_O_K;
     }
-    
+
     combo_cols=!combo_cols;
     return D_O_K;
 }
@@ -1400,23 +1401,23 @@ int onSpacebar()
 int onSaveZQuestSettings()
 {
 	if(jwin_alert3(
-			"Save Configuration", 
-			"Are you sure that you wish to save your present configuration settings?", 
+			"Save Configuration",
+			"Are you sure that you wish to save your present configuration settings?",
 			"This will overwrite your prior settings!",
 			NULL,
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		lfont) == 1)	
+		 "&Yes",
+		"&No",
+		NULL,
+		'y',
+		'n',
+		0,
+		lfont) == 1)
 	{
 		save_config_file();
 		return D_O_K;
 	}
-	else return D_O_K;	
-	
+	else return D_O_K;
+
 }
 
 
@@ -1424,31 +1425,31 @@ int onSaveZQuestSettings()
 int onClearQuestFilepath()
 {
 	if(jwin_alert3(
-			"Clear Quest Path", 
-			"Clear the current default filepath?", 
+			"Clear Quest Path",
+			"Clear the current default filepath?",
 			NULL,
 			NULL,
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		lfont) == 1)	
+		 "&Yes",
+		"&No",
+		NULL,
+		'y',
+		'n',
+		0,
+		lfont) == 1)
 	{
 		ZQ_ClearQuestPath();
 		save_config_file();
 		return D_O_K;
 	}
-	else return D_O_K;	
-	
+	else return D_O_K;
+
 }
 
 int onSnapshot()
 {
     char buf[200];
     int num=0;
-    
+
     do
     {
 #ifdef ALLEGRO_MACOSX
@@ -1458,7 +1459,7 @@ int onSnapshot()
 #endif
     }
     while(num<99999 && exists(buf));
-    
+
     blit(screen,screen2,0,0,0,0,zq_screen_w,zq_screen_h);
     PALETTE RAMpal2;
     get_palette(RAMpal2);
@@ -1470,34 +1471,34 @@ int onMapscrSnapshot()
 {
 	int x = showedges?16:0;
 	int y = showedges?16:0;
-	
+
 	PALETTE usepal;
 	get_palette(usepal);
-	
+
 	char buf[200];
 	int num=0;
-	
+
 	do
 	{
 		sprintf(buf, "zquest_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 	}
 	while(num<99999 && exists(buf));
-	
+
 	bool useflags = (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]); //Only use visibility flags (flags, walkability, etc) if CTRL is held
 	int misal = ShowMisalignments; //Store misalignments, so it can be disabled, and restored after.
 	ShowMisalignments = 0;
-	
+
 	BITMAP *panorama = create_bitmap_ex(8,256,176);
 	Map.setCurrScr(Map.getCurrScr());                                 // to update palette
 	clear_to_color(panorama,vc(0));
-	
+
 	Map.draw(panorama, 0, 0, useflags?Flags:0, -1, -1);
-	
+
 	save_bitmap(buf,panorama,usepal);
 	destroy_bitmap(panorama);
-	
+
 	ShowMisalignments = misal; //Restore misalignments.
-	
+
 	return D_O_K;
 }
 
@@ -1513,17 +1514,17 @@ void go()
         blit(screen,menu1,0,0,0,0,zq_screen_w,zq_screen_h);
         unscare_mouse();
         break;
-        
+
     case 1:
         scare_mouse();
         blit(screen,menu3,0,0,0,0,zq_screen_w,zq_screen_h);
         unscare_mouse();
         break;
-        
+
     default:
         return;
     }
-    
+
     ++gocnt;
 }
 
@@ -1536,17 +1537,17 @@ void comeback()
         blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
         unscare_mouse();
         break;
-        
+
     case 2:
         scare_mouse();
         blit(menu3,screen,0,0,0,0,zq_screen_w,zq_screen_h);
         unscare_mouse();
         break;
-        
+
     default:
         return;
     }
-    
+
     --gocnt;
 }
 
@@ -1554,38 +1555,38 @@ int checksave()
 {
     if(saved)
         return 1;
-        
+
     char buf[256+20];
     char *name = get_filename(filepath);
-    
+
     if(name[0]==0)
         sprintf(buf,"Save this quest file?");
     else
         sprintf(buf,"Save changes to %s?",name);
-        
+
     switch(jwin_alert3("ZQuest",buf,NULL,NULL,"&Yes","&No","Cancel",'y','n',27,lfont))
     {
     case 1:
         onSave();
         return 1;
-        
+
     case 2:
         return 1;
     }
-    
+
     return 0;
 }
 
 int onExit()
 {
     restore_mouse();
-    
+
     if(checksave()==0)
         return D_O_K;
-        
+
     if(jwin_alert("ZQuest","Really want to quit?", NULL, NULL, "&Yes", "&No", 'y', 'n', lfont) == 2)
         return D_O_K;
-        
+
     return D_CLOSE;
 }
 
@@ -1594,7 +1595,7 @@ int onAbout()
     char buf1[80]={0};
     char buf2[80]={0};
     char buf3[80]={0};
-    
+
     if(get_debug())
     {
 #if V_ZC_ALPHA
@@ -1612,7 +1613,7 @@ int onAbout()
 #endif
         sprintf(buf2,"ZQuest Editor: %04X",INTERNAL_VERSION);
         sprintf(buf3,"This qst file: %04X",header.internal&0xFFFF);
-        jwin_alert("About ZQuest",buf1,buf2,buf3,"OK", NULL, 13, 27, lfont);
+        InfoDialog("About ZQuest", { buf1, buf2, buf3 }).show();
     }
     else
     {
@@ -1627,7 +1628,7 @@ int onAbout()
 			sprintf(buf3,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 			//break;
 		}
-            
+
 		//case 1:
 		else if ( V_ZC_BETA )
 		{
@@ -1635,14 +1636,14 @@ int onAbout()
 			sprintf(buf3,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 			//break;
 		}
-		
+
 		else if ( V_ZC_GAMMA )
 		{
 			sprintf(buf2,"Gamma %d, Build: %d",V_ZC_GAMMA, VERSION_BUILD);
 			sprintf(buf3,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 			//break;
 		}
-		
+
 		//case 0:
 		else
 		{
@@ -1666,14 +1667,13 @@ int onAbout()
 		    break;
 		}
 		*/
-		
+
         //}
-        
-        
-        
-        jwin_alert("About ZQuest Editor",buf1,buf2,buf3,"OK", NULL, 13, 27, lfont);
+
+
+        InfoDialog("About ZQuest", { buf1, buf2, buf3 }).show();
     }
-    
+
     return D_O_K;
 }
 
@@ -1687,12 +1687,12 @@ int onShowWalkability()
 int onPreviewMode()
 {
     prv_mode=(prv_mode+1)%2;
-    
+
     if(prv_mode)
     {
         Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());
     }
-    
+
     bool tempcb=ComboBrush!=0;
     ComboBrush=0;
     restore_mouse();
@@ -1714,7 +1714,7 @@ int onP()
     {
         Map.set_prvfreeze(((Map.get_prvfreeze()+1)%2));
     }
-    
+
     return D_O_K;
 }
 
@@ -1733,7 +1733,7 @@ int onShowComboInfoCSet()
     {
         Flags |= cCSET;
     }
-    
+
     refresh(rMAP);
     return D_O_K;
 }
@@ -1759,24 +1759,24 @@ int onShowDarkness()
     if(get_bit(quest_rules,qr_FADE))
     {
         int last = CSET(5)-1;
-        
+
         if(get_bit(quest_rules,qr_FADECS5))
             last += 16;
-            
+
         byte *si = colordata + CSET(Color*pdLEVEL+poFADE1)*3;
-        
+
         for(int i=0; i<16; i++)
         {
             int light = si[0]+si[1]+si[2];
             si+=3;
             fade_interpolate(RAMpal,black_palette,RAMpal,light?32:64,CSET(2)+i,CSET(2)+i);
         }
-        
+
         fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
         set_palette(RAMpal);
-        
+
         readkey();
-        
+
         load_cset(RAMpal,5,5);
         loadlvlpal(Color);
     }
@@ -1786,7 +1786,7 @@ int onShowDarkness()
         readkey();
         loadlvlpal(Color);
     }
-    
+
     return D_O_K;
 }
 
@@ -1809,12 +1809,12 @@ void setFlagColor()
 int onIncreaseFlag()
 {
     Flag=(Flag+1);
-    
+
     if(Flag==mfMAX)
     {
         Flag=0;
     }
-    
+
     setFlagColor();
     refresh(rMENU);
     return D_O_K;
@@ -1826,7 +1826,7 @@ int onDecreaseFlag()
     {
         Flag=mfMAX;
     }
-    
+
     Flag=(Flag-1);
     setFlagColor();
     refresh(rMENU);
@@ -1875,7 +1875,3 @@ int d_savemidi_proc(int, DIALOG*, int)
 {
     return D_O_K;
 }
-
-
-
-
