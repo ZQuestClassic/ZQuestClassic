@@ -2,7 +2,7 @@
 #define ZC_GUI_BUILDER_HPP
 
 #include "button.h"
-#include "checkBox.h"
+#include "checkbox.h"
 #include "grid.h"
 #include "label.h"
 #include "textField.h"
@@ -32,7 +32,7 @@ struct WidgetPtrType
 
 // TODO: Just inline these
 std::shared_ptr<Button> makeButton();
-std::shared_ptr<CheckBox> makeCheckBox();
+std::shared_ptr<Checkbox> makeCheckbox();
 std::shared_ptr<Label> makeLabel();
 std::shared_ptr<TextField> makeTextField();
 std::shared_ptr<Window> makeWindow();
@@ -55,14 +55,14 @@ ZCGUI_BUILDER_START(Button)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Button, Button, internal::makeButton)
 
-ZCGUI_BUILDER_START(CheckBox)
+ZCGUI_BUILDER_START(Checkbox)
     ZCGUI_ACCEPT_PROP(checked, setChecked, bool)
     ZCGUI_ACCEPT_PROP(text, setText, std::string)
-    ZCGUI_ACCEPT_PROP(boxPlacement, setBoxPlacement, CheckBox::BoxPlacement)
+    ZCGUI_ACCEPT_PROP(boxPlacement, setBoxPlacement, Checkbox::BoxPlacement)
 
     ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()
-ZCGUI_BUILDER_FUNCTION(CheckBox, CheckBox, internal::makeCheckBox)
+ZCGUI_BUILDER_FUNCTION(Checkbox, Checkbox, internal::makeCheckbox)
 
 ZCGUI_BUILDER_START(Label)
     ZCGUI_ACCEPT_PROP(text, setText, std::string)

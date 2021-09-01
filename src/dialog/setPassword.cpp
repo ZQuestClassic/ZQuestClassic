@@ -20,7 +20,7 @@ std::shared_ptr<gui::Widget> SetPasswordDialog::view()
                 this->pwField=TextField(
                     maxLength=255,
                     onEnter=Message::ok),
-                this->saveKeyFileCB=CheckBox(
+                this->saveKeyFileCB=Checkbox(
                     text="&Save key file",
                     checked=this->useKeyFile)
             ),

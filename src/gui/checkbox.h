@@ -7,12 +7,12 @@
 namespace gui
 {
 
-class CheckBox: public Widget
+class Checkbox: public Widget
 {
 public:
     enum class BoxPlacement { right, left };
 
-    CheckBox();
+    Checkbox();
     void setText(std::string newText);
     void setBoxPlacement(BoxPlacement bp);
     void setChecked(bool value);

@@ -1,4 +1,4 @@
-#include "checkBox.h"
+#include "checkbox.h"
 #include "dialog.h"
 #include "../jwin.h"
 #include "../zquest.h"
@@ -7,35 +7,35 @@
 namespace gui
 {
 
-CheckBox::CheckBox(): checked(false), text(),
+Checkbox::Checkbox(): checked(false), text(),
     boxPlacement(BoxPlacement::right), alDialog()
 {
     height=text_height(lfont_l);
     width=12;
 }
 
-void CheckBox::setText(std::string newText)
+void Checkbox::setText(std::string newText)
 {
     width=text_length(lfont_l, newText.c_str())+12;
     text=std::move(newText);
 }
 
-void CheckBox::setBoxPlacement(BoxPlacement bp)
+void Checkbox::setBoxPlacement(BoxPlacement bp)
 {
     boxPlacement=bp;
 }
 
-void CheckBox::setChecked(bool value)
+void Checkbox::setChecked(bool value)
 {
     checked=value;
 }
 
-bool CheckBox::getChecked()
+bool Checkbox::getChecked()
 {
     return alDialog ? alDialog->flags&D_SELECTED : checked;
 }
 
-void CheckBox::realize(DialogRunner& runner)
+void Checkbox::realize(DialogRunner& runner)
 {
     runner.push(shared_from_this(), DIALOG {
         jwin_checkfont_proc,

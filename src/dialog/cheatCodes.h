@@ -2,7 +2,7 @@
 #define ZC_DIALOG_CHEATCODES_H
 
 #include <gui/dialog.h>
-#include <gui/checkBox.h>
+#include <gui/checkbox.h>
 #include <gui/textField.h>
 #include <functional>
 #include <string_view>
@@ -22,7 +22,7 @@ public:
 
 private:
     bool enabled;
-    std::shared_ptr<gui::CheckBox> enabledCB;
+    std::shared_ptr<gui::Checkbox> enabledCB;
     std::string_view oldCodes[4];
     std::shared_ptr<gui::TextField> textFields[4];
     std::function<void(bool, std::string_view[4])> setCheatCodes;

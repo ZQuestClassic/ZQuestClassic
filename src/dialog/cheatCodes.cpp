@@ -18,7 +18,7 @@ std::shared_ptr<gui::Widget> CheatCodesDialog::view()
         title="Cheat Codes",
         onClose=Message::cancel,
         Column(
-            this->enabledCB=CheckBox(
+            this->enabledCB=Checkbox(
                 hAlign=0.95,
                 text="Enable Cheats",
                 checked=this->enabled),

@@ -22,7 +22,7 @@ src/zq_rules.cpp
 src/jwin.cpp
 
 src/gui/button.cpp
-src/gui/checkBox.cpp
+src/gui/checkbox.cpp
 src/gui/dialog.cpp
 src/gui/grid.cpp
 src/gui/label.cpp

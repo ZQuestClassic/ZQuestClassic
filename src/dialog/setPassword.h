@@ -2,7 +2,7 @@
 #define ZC_DIALOG_SETPASSWORD_H
 
 #include <gui/dialog.h>
-#include <gui/checkBox.h>
+#include <gui/checkbox.h>
 #include <gui/textField.h>
 #include <functional>
 #include <string_view>
@@ -22,7 +22,7 @@ public:
 
 private:
     bool useKeyFile;
-    std::shared_ptr<gui::CheckBox> saveKeyFileCB;
+    std::shared_ptr<gui::Checkbox> saveKeyFileCB;
     std::shared_ptr<gui::TextField> pwField;
     std::function<void(std::string_view, bool)> setPassword;
 };
