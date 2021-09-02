@@ -3,6 +3,7 @@
 #include "dropDownList.h"
 #include "grid.h"
 #include "label.h"
+#include "switcher.h"
 #include "textField.h"
 #include "window.h"
 #include <memory>
@@ -40,8 +41,10 @@ std::shared_ptr<Window> makeWindow()
 }
 
 
-// This is... counterintuitive.
-// Multiple rows=Rows, one row=Columns.
+// Containers
+
+
+// This is counterintuitive: Multiple rows=Rows, one row=Columns.
 
 std::shared_ptr<Grid> makeColumn()
 {
@@ -61,6 +64,11 @@ std::shared_ptr<Grid> makeRow()
 std::shared_ptr<Grid> makeRows(size_t size)
 {
     return Grid::rows(size);
+}
+
+std::shared_ptr<Switcher> makeSwitcher()
+{
+    return std::make_shared<Switcher>();
 }
 
 }} // namespace gui::internal

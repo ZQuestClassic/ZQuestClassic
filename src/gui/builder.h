@@ -6,6 +6,7 @@
 #include "dropDownList.h"
 #include "grid.h"
 #include "label.h"
+#include "switcher.h"
 #include "textField.h"
 #include "window.h"
 #include <memory>
@@ -38,10 +39,12 @@ std::shared_ptr<DropDownList> makeDropDownList();
 std::shared_ptr<Label> makeLabel();
 std::shared_ptr<TextField> makeTextField();
 std::shared_ptr<Window> makeWindow();
+
 std::shared_ptr<Grid> makeRow();
 std::shared_ptr<Grid> makeRows(size_t size);
 std::shared_ptr<Grid> makeColumn();
 std::shared_ptr<Grid> makeColumns(size_t size);
+std::shared_ptr<Switcher> makeSwitcher();
 
 } // namespace internal
 
@@ -93,6 +96,12 @@ ZCGUI_BUILDER_FUNCTION(Grid, Row, internal::makeRow)
 ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Rows, internal::makeRows, size_t)
 ZCGUI_BUILDER_FUNCTION(Grid, Column, internal::makeColumn)
 ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Columns, internal::makeColumns, size_t)
+
+
+ZCGUI_BUILDER_START(Switcher)
+    ZCGUI_ACCEPT_MULTIPLE_CHILDREN(add)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(Switcher, Switcher, internal::makeSwitcher)
 
 
 ZCGUI_BUILDER_START(TextField)

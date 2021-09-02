@@ -29,6 +29,7 @@ src/gui/grid.cpp
 src/gui/label.cpp
 src/gui/listData.cpp
 src/gui/makers.cpp
+src/gui/switcher.cpp
 src/gui/textField.cpp
 src/gui/widget.cpp
 src/gui/window.cpp
