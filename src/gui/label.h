@@ -2,6 +2,7 @@
 #define ZC_GUI_LABEL_H
 
 #include "widget.h"
+#include "dialog.h"
 #include <string>
 
 namespace gui
@@ -15,6 +16,7 @@ public:
 
 private:
     std::string text;
+    DialogRef alDialog;
 
     void realize(DialogRunner& runner) override;
 };
