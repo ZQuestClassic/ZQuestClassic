@@ -15,7 +15,7 @@ class Dialog
 {
 public:
     virtual ~Dialog() {}
-    
+
     /* Creates and initializes the dialog's window.
      */
     virtual std::shared_ptr<Widget> view()=0;
@@ -38,7 +38,8 @@ class DialogRef
 public:
     DialogRef();
     DIALOG* operator->();
-    operator bool();
+    const DIALOG* operator->() const;
+    operator bool() const;
 
 private:
     DialogRunner* owner;

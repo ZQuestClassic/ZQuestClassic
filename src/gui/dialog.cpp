@@ -46,8 +46,12 @@ DIALOG* DialogRef::operator->()
     return &owner->alDialog[index];
 }
 
+const DIALOG* DialogRef::operator->() const
+{
+    return &owner->alDialog[index];
+}
 
-DialogRef::operator bool()
+DialogRef::operator bool() const
 {
     return owner;
 }
