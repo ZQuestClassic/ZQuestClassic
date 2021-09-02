@@ -3,6 +3,14 @@
 #include <string>
 
 InfoDialog::InfoDialog(std::string_view title,
+    const std::initializer_list<const char*>& linesSrc)
+: windowTitle(title)
+{
+    for(auto& line: linesSrc)
+        lines.emplace_back(line);
+}
+
+InfoDialog::InfoDialog(std::string_view title,
     std::vector<std::string_view> lines)
 : windowTitle(title)
 , lines(lines)

@@ -4,6 +4,7 @@
 #include <gui/dialog.h>
 #include <gui/checkbox.h>
 #include <gui/textField.h>
+#include <initializer_list>
 #include <string_view>
 #include <vector>
 
@@ -13,6 +14,8 @@ class InfoDialog: public gui::Dialog<int>
 public:
     using Message=int;
 
+    InfoDialog(std::string_view title,
+        const std::initializer_list<const char*>& lines);
     InfoDialog(std::string_view title, std::vector<std::string_view> lines);
 
     std::shared_ptr<gui::Widget> view() override;
