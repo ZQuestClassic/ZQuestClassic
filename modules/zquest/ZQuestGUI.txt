@@ -24,8 +24,10 @@ src/jwin.cpp
 src/gui/button.cpp
 src/gui/checkbox.cpp
 src/gui/dialog.cpp
+src/gui/dropDownList.cpp
 src/gui/grid.cpp
 src/gui/label.cpp
+src/gui/listData.cpp
 src/gui/makers.cpp
 src/gui/textField.cpp
 src/gui/widget.cpp

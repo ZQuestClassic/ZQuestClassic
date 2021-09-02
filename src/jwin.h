@@ -45,9 +45,22 @@
 
 struct ListData
 {
-    ListData(const char *(*lf)(int, int*), FONT **f) : listFunc(lf), font(f) {}
-    const char *(*listFunc)(int, int *);
+    ListData(const char *(*lf)(int, int*), FONT **f): unownedFunc(lf), font(f), owner(0) {}
+    ListData(const char *(*lf)(int, int*, void*), FONT **f, void* o): ownedFunc(lf), font(f), owner(o) {}
+
+    const char* listFunc(int index, int* size)
+    {
+        if(owner)
+            return ownedFunc(index, size, owner);
+        else
+            return unownedFunc(index, size);
+    }
+
+    const char *(*unownedFunc)(int, int *);
+    const char *(*ownedFunc)(int, int *, void *);
+
     FONT **font;
+    void* owner;
 };
 
 #ifdef __cplusplus
@@ -189,4 +202,3 @@ void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color);
 }
 #endif
 #endif                                                      // _JWIN_H_
-

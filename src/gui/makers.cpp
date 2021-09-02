@@ -1,5 +1,6 @@
 #include "button.h"
 #include "checkbox.h"
+#include "dropDownList.h"
 #include "grid.h"
 #include "label.h"
 #include "textField.h"
@@ -16,6 +17,11 @@ std::shared_ptr<Button> makeButton()
 std::shared_ptr<Checkbox> makeCheckbox()
 {
     return std::make_shared<Checkbox>();
+}
+
+std::shared_ptr<DropDownList> makeDropDownList()
+{
+    return std::make_shared<DropDownList>();
 }
 
 std::shared_ptr<Label> makeLabel()

@@ -3,6 +3,7 @@
 
 #include "button.h"
 #include "checkbox.h"
+#include "dropDownList.h"
 #include "grid.h"
 #include "label.h"
 #include "textField.h"
@@ -33,6 +34,7 @@ struct WidgetPtrType
 // TODO: Just inline these
 std::shared_ptr<Button> makeButton();
 std::shared_ptr<Checkbox> makeCheckbox();
+std::shared_ptr<DropDownList> makeDropDownList();
 std::shared_ptr<Label> makeLabel();
 std::shared_ptr<TextField> makeTextField();
 std::shared_ptr<Window> makeWindow();
@@ -55,6 +57,7 @@ ZCGUI_BUILDER_START(Button)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Button, Button, internal::makeButton)
 
+
 ZCGUI_BUILDER_START(Checkbox)
     ZCGUI_ACCEPT_PROP(checked, setChecked, bool)
     ZCGUI_ACCEPT_PROP(text, setText, std::string)
@@ -64,12 +67,24 @@ ZCGUI_BUILDER_START(Checkbox)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Checkbox, Checkbox, internal::makeCheckbox)
 
+
+ZCGUI_BUILDER_START(DropDownList)
+    ZCGUI_ACCEPT_PROP(data, setListData, const gui::ListData&)
+    ZCGUI_ACCEPT_PROP(selectedValue, setSelectedValue, int)
+    ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, int)
+
+    ZCGUI_SUGGEST_PROP(onClick, onSelectionChanged)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(DropDownList, DropDownList, internal::makeDropDownList)
+
+
 ZCGUI_BUILDER_START(Label)
     ZCGUI_ACCEPT_PROP(text, setText, std::string)
 
     ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Label, Label, internal::makeLabel)
+
 
 ZCGUI_BUILDER_START(Grid)
     ZCGUI_ACCEPT_MULTIPLE_CHILDREN(add)
@@ -79,12 +94,14 @@ ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Rows, internal::makeRows, size_t)
 ZCGUI_BUILDER_FUNCTION(Grid, Column, internal::makeColumn)
 ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Columns, internal::makeColumns, size_t)
 
+
 ZCGUI_BUILDER_START(TextField)
     ZCGUI_ACCEPT_PROP(maxLength, setMaxLength);
     ZCGUI_ACCEPT_PROP(onEnter, onEnter, int)
     ZCGUI_ACCEPT_PROP(text, setText, std::string_view)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TextField, TextField, internal::makeTextField)
+
 
 ZCGUI_BUILDER_START(Window)
     ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
