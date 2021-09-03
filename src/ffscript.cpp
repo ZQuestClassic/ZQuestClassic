@@ -7186,7 +7186,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7210,6 +7210,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboData", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 					
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7228,7 +7229,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7252,6 +7253,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboCSet", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7270,7 +7272,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7294,6 +7296,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboFlag", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
@@ -7311,7 +7314,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7335,6 +7338,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboType", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7353,7 +7357,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7377,6 +7381,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboInherentFlag", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7394,7 +7399,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7418,6 +7423,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboSolid", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -15050,7 +15056,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -15071,7 +15077,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboData", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboData", m);
 				break;
@@ -15113,7 +15119,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
@@ -15133,7 +15139,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboCSet", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboCSet", m);
 				break;
@@ -15155,7 +15161,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
@@ -15175,7 +15181,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboFlag", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboFlag", m);
 				break;
@@ -15197,7 +15203,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
@@ -15218,7 +15224,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboType", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboType", m);
 				break;
@@ -15251,7 +15257,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
@@ -15272,7 +15278,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboInherentFlag", m);
 				break;
@@ -31871,18 +31877,21 @@ void FFScript::do_npc_stopbgsfx()
 
 void FFScript::updateIncludePaths()
 {
-	memset(includePaths,0,sizeof(includePaths));
-	int pos = 0; int dest = 0; int pathnumber = 0;
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	includePaths.clear();
+	int pos = 0; int pathnumber = 0;
+	for ( int q = 0; includePathString[pos]; ++q )
 	{
-		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		int dest = 0;
+		char buf[2048] = {0};
+		while(includePathString[pos] != ';' && includePathString[pos])
 		{
-			includePaths[q][dest] = includePathString[pos];
-			pos++;
-			dest++;
+			buf[dest] = includePathString[pos];
+			++pos;
+			++dest;
 		}
 		++pos;
-		dest = 0;
+		std::string str(buf);
+		includePaths.push_back(str);
 	}
 }
 
@@ -31890,30 +31899,41 @@ void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
 	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
+	al_trace("Run is set to: %s \n",scriptRunString);
 }
 
 void FFScript::initIncludePaths()
 {
-	memset(includePaths,0,sizeof(includePaths));
 	memset(includePathString,0,sizeof(includePathString));
-	strcpy(includePathString,get_config_string("Compiler","include_path","include/"));
-	includePathString[((MAX_INCLUDE_PATHS+1)*512)-1] = '\0';
-	al_trace("Full path string is: %s\n",includePathString);
-	int pos = 0; int dest = 0; int pathnumber = 0;
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	FILE* f = fopen("includepaths.txt", "r");
+	if(f)
 	{
-		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		int pos = 0;
+		int c;
+		do
 		{
-			includePaths[q][dest] = includePathString[pos];
-			pos++;
-			dest++;
+			c = fgetc(f);
+			if(c!=EOF) 
+				includePathString[pos++] = c;
 		}
-		++pos;
-		dest = 0;
+		while(c!=EOF && pos<MAX_INCLUDE_PATH_CHARS);
+		if(pos<MAX_INCLUDE_PATH_CHARS)
+			includePathString[pos] = '\0';
+		includePathString[MAX_INCLUDE_PATH_CHARS-1] = '\0';
+		fclose(f);
 	}
+	else strcpy(includePathString, "include/;headers/;scripts/;");
+	al_trace("Full path string is: ");
+	safe_al_trace(includePathString);
+	al_trace("\n");
+	updateIncludePaths();
 
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
-		al_trace("Include path %d: %s\n",q,includePaths[q]);
+	for ( int q = 0; q < includePaths.size(); ++q )
+	{
+		al_trace("Include path %d: ",q);
+		safe_al_trace(includePaths.at(q).c_str());
+		al_trace("\n");
+	}
 }
 
 void FFScript::do_npcattack()
@@ -32915,29 +32935,6 @@ void FFScript::do_xlen(const bool v)
 	//set_register(sarg1, (xlen(str.c_str()) * 10000));
 }
 
-//xtoi, conv hex string to integer
-int FFScript::xtoi(char *hexstring)
-{
-	int	i = 0;
-	signed char isneg = 1;
-	if ((*hexstring == '-')) {isneg = -1; ++hexstring;}
-	
-	if ((*hexstring == '0') && (*(hexstring+1) == 'x'))
-		  hexstring += 2;// + (isneg?1:0);
-	while (*hexstring)
-	{
-		char c = toupper(*hexstring++);
-		if ((c < '0') || (c > 'F') || ((c > '9') && (c < 'A')))
-			break;
-		c -= '0';
-		if (c > 9)
-			c -= 7;
-		i = (i << 4) + c;
-	}
-	//zprint2("FFCore.xtoi result is %d\n", i);
-	return i * (isneg);
-}
-
 void FFScript::do_xtoi(const bool v)
 {
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
@@ -32945,17 +32942,16 @@ void FFScript::do_xtoi(const bool v)
 	FFCore.getString(arrayptr, str);
 	//zprint2("xtoi array pointer is: %d\n", arrayptr);
 	//zprint2("xtoi string is %s\n", str.c_str());
-	double val = FFCore.xtoi(const_cast<char*>(str.c_str()));
+	double val = zc_xtoi(const_cast<char*>(str.c_str()));
 	//zprint2("xtoi val is %f\n", val);
 	set_register(sarg1, (long)(val) * 10000);
 }
 void FFScript::do_xtoi2() 
 {
-	//Not implemented, xtoi not found
 	long arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	//set_register(sarg1, (xtoi(strA.c_str()) * 10000));
+	set_register(sarg1, (zc_xtoi(strA.c_str()) * 10000));
 }
 
 // Calculates log2 of number.  

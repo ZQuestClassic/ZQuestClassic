@@ -4644,22 +4644,22 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 		}
 		
 	case edCHINKL1:
-		if(*power >= 1*DAMAGE_MULTIPLIER) break;
+		if(*power >= 1*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL2:
-		if(*power >= 2*DAMAGE_MULTIPLIER) break;
+		if(*power >= 2*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL4:
-		if(*power >= 4*DAMAGE_MULTIPLIER) break;
+		if(*power >= 4*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL6:
-		if(*power >= 6*DAMAGE_MULTIPLIER) break;
+		if(*power >= 6*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL8:
-		if(*power >= 8*DAMAGE_MULTIPLIER) break;
+		if(*power >= 8*game->get_hero_dmgmult()) break;
 	
 	case edCHINKL10:
-		if(*power >= 10*DAMAGE_MULTIPLIER) break;
+		if(*power >= 10*game->get_hero_dmgmult()) break;
 		
 	case edCHINK:
 		//al_trace("defendNew() is at: %s\n", "returning edCHINK");
@@ -4905,19 +4905,19 @@ bool enemy::candamage(int power, int edef)
 		
 	case edIGNOREL1:
 	case edCHINKL1:
-		return power >= 1*DAMAGE_MULTIPLIER;
+		return power >= 1*game->get_hero_dmgmult();
 		
 	case edCHINKL2:
-		return power >= 2*DAMAGE_MULTIPLIER;
+		return power >= 2*game->get_hero_dmgmult();
 		
 	case edCHINKL4:
-		return power >= 4*DAMAGE_MULTIPLIER;
+		return power >= 4*game->get_hero_dmgmult();
 		
 	case edCHINKL6:
-		return power >= 6*DAMAGE_MULTIPLIER;
+		return power >= 6*game->get_hero_dmgmult();
 		
 	case edCHINKL8:
-		return power >= 8*DAMAGE_MULTIPLIER;
+		return power >= 8*game->get_hero_dmgmult();
 	}
 	
 	return true;
@@ -4972,21 +4972,21 @@ int enemy::defend(int wpnId, int *power, int edef)
 		return 1;
 		
 	case edCHINKL1:
-		if(*power >= 1*DAMAGE_MULTIPLIER) break;
+		if(*power >= 1*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL2:
-		if(*power >= 2*DAMAGE_MULTIPLIER) break;
+		if(*power >= 2*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL4:
-		if(*power >= 4*DAMAGE_MULTIPLIER) break;
+		if(*power >= 4*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL6:
-		if(*power >= 6*DAMAGE_MULTIPLIER) break;
+		if(*power >= 6*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL8:
-		if(*power >= 8*DAMAGE_MULTIPLIER) break;
+		if(*power >= 8*game->get_hero_dmgmult()) break;
 	case edCHINKL10:
-	if(*power >= 10*DAMAGE_MULTIPLIER) break;
+	if(*power >= 10*game->get_hero_dmgmult()) break;
 		
 	
 	case edTRIGGERSECRETS:
@@ -5377,7 +5377,13 @@ int enemy::takehit(weapon *w)
 			// Bombs
 		case wSBomb:
 		case wBomb:
-			goto hitclock;
+			if (!get_bit(quest_rules,qr_TRUEFIXEDBOMBSHIELD)) goto hitclock;
+			else if (!get_bit(quest_rules,qr_BOMBSPIERCESHIELD)) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				return 0;
+			}
+			else break;
 			
 			// Weapons which ignore shields
 		case wWhistle:
@@ -5485,7 +5491,7 @@ int enemy::takehit(weapon *w)
 		}
 		
 		wpnId = wSword;
-		power = DAMAGE_MULTIPLIER>>1;
+		power = game->get_hero_dmgmult()>>1;
 		goto fsparkle;
 		break;
 		
@@ -5503,7 +5509,7 @@ int enemy::takehit(weapon *w)
 			
 			if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))
 			{
-				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))*DAMAGE_MULTIPLIER;
+				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))*game->get_hero_dmgmult();
 				goto hitclock;
 			}
 			
@@ -5511,7 +5517,7 @@ int enemy::takehit(weapon *w)
 		}
 		
 		if(!power)
-			hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_brang))*DAMAGE_MULTIPLIER;
+			hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_brang))*game->get_hero_dmgmult();
 		else
 			hp-=power;
 			
@@ -5531,14 +5537,14 @@ int enemy::takehit(weapon *w)
 			
 			if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))
 			{
-				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))*DAMAGE_MULTIPLIER;
+				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))*game->get_hero_dmgmult();
 				goto hitclock;
 			}
 			
 			break;
 		}
 		
-		if(!power) hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_hookshot))*DAMAGE_MULTIPLIER;
+		if(!power) hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_hookshot))*game->get_hero_dmgmult();
 		else
 			hp-=power;
 			
@@ -5559,7 +5565,7 @@ int enemy::takehit(weapon *w)
 				|| (family==eeWALK && dmisc9==e9tPOLSVOICE) || (family==eeWALK && flags&(inv_back|inv_front|inv_left|inv_right))))
 			return 0;
 			
-		power = DAMAGE_MULTIPLIER;
+		power = game->get_hero_dmgmult();
 		//fallthrough
 	}
 	
@@ -15203,7 +15209,7 @@ int eGanon::takehit(weapon *w)
 				loadpalset(csBOSS,pSprite(spBROWN));
 				misc=2;
 				Stunclk=284;
-				hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
+				hp=guysbuf[id&0xFFF].hp;                              //16*game->get_hero_dmgmult();
 			}
 			
 			sfx(WAV_EHIT,pan(int(x)));
@@ -15226,7 +15232,7 @@ int eGanon::takehit(weapon *w)
 				loadpalset(csBOSS,pSprite(spBROWN));
 				misc=2;
 				Stunclk=284;
-				hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
+				hp=guysbuf[id&0xFFF].hp;                              //16*game->get_hero_dmgmult();
 			}
 			
 			sfx(WAV_EHIT,pan(int(x)));
@@ -15496,7 +15502,7 @@ int eGanon::takehit(weapon *w)
 			loadpalset(csBOSS,pSprite(spBROWN));
 			misc=2;
 			Stunclk=284;
-			hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
+			hp=guysbuf[id&0xFFF].hp;                              //16*game->get_hero_dmgmult();
 		}
 		
 		sfx(WAV_EHIT,pan(int(x)));
@@ -16817,8 +16823,8 @@ eGleeok::eGleeok(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk) //enemy((zfix
 	clk3=clk;                                                 // live head count
 	clk=0;
 	clk2=60;                                                  // fire ball clock
-	//    hp=(guysbuf[eGLEEOK2+(misc-2)].misc2)*(misc-1)*DAMAGE_MULTIPLIER+guysbuf[eGLEEOK2+(misc-2)].hp;
-	hp=(guysbuf[id&0xFFF].misc2)*(misc-1)*DAMAGE_MULTIPLIER+guysbuf[id&0xFFF].hp;
+	//    hp=(guysbuf[eGLEEOK2+(misc-2)].misc2)*(misc-1)*game->get_hero_dmgmult()+guysbuf[eGLEEOK2+(misc-2)].hp;
+	hp=(guysbuf[id&0xFFF].misc2)*(misc-1)*game->get_hero_dmgmult()+guysbuf[id&0xFFF].hp;
 	dir = down;
 	hxofs=4;
 	hxsz=8;
@@ -16927,10 +16933,10 @@ bool eGleeok::animate(int index)
 		head->hp = 1000;
 	}
 	
-	if(hp<=(guysbuf[id&0xFFF].misc2)*(clk3-1)*DAMAGE_MULTIPLIER)
+	if(hp<=(guysbuf[id&0xFFF].misc2)*(clk3-1)*game->get_hero_dmgmult())
 	{
 		((enemy*)guys.spr(index+clk3))->misc = -1;              // give signal to fly off
-		hp=(guysbuf[id&0xFFF].misc2)*(--clk3)*DAMAGE_MULTIPLIER;
+		hp=(guysbuf[id&0xFFF].misc2)*(--clk3)*game->get_hero_dmgmult();
 	}
 	
 	if(!dmisc3)
@@ -17550,7 +17556,7 @@ bool ePatra::animate(int index)
 		{
 			if(!adjusted)
 			{
-				((enemy*)guys.spr(i))->hp=12*DAMAGE_MULTIPLIER;
+				((enemy*)guys.spr(i))->hp=12*game->get_hero_dmgmult();
 				
 				if(get_bit(quest_rules,qr_NEWENEMYTILES))
 				{
@@ -20927,21 +20933,21 @@ bool parsemsgcode()
 	}
 	case MSGC_TAKEITEM:
 	{
-	int itemID = grab_next_argument();
-	if ( item_doscript[itemID] )
-	{
-		item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
-	}
+		int itemID = grab_next_argument();
+		if ( item_doscript[itemID] )
+		{
+			item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
+		}
 		takeitem(itemID);
-	if ( game->forced_bwpn == itemID ) 
-	{
-		game->forced_bwpn = -1;
-	} //not else if! -Z
-	if ( game->forced_awpn == itemID ) 
-	{
-		game->forced_awpn = -1;
-	}
-	verifyBothWeapons();
+		if ( game->forced_bwpn == itemID ) 
+		{
+			game->forced_bwpn = -1;
+		} //not else if! -Z
+		if ( game->forced_awpn == itemID ) 
+		{
+			game->forced_awpn = -1;
+		}
+		verifyBothWeapons();
 		return true;
 	}
 		

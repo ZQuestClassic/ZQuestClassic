@@ -27,6 +27,7 @@
 #include "zsys.h"
 #include "script_drawing.h"
 #include "zfix.h"
+#include "util.h"
 
 int isFullScreen();
 int onFullscreen();

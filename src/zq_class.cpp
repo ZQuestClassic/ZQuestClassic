@@ -12777,6 +12777,36 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
         {
             new_return(74);
         }
+		if(!p_putc(zinit.hp_per_heart,f))
+		{
+			new_return(75);
+		}
+		if(!p_putc(zinit.magic_per_block,f))
+		{
+			new_return(76);
+		}
+		if(!p_putc(zinit.hero_damage_multiplier,f))
+		{
+			new_return(77);
+		}
+		if(!p_putc(zinit.ene_damage_multiplier,f))
+		{
+			new_return(78);
+		}
+		for(int q = 0; q < 25; ++q)
+		{
+			if(!p_iputw(zinit.scrcnt[q],f))
+			{
+				new_return(79);
+			}
+		}
+		for(int q = 0; q < 25; ++q)
+		{
+			if(!p_iputw(zinit.scrmaxcnt[q],f))
+			{
+				new_return(80);
+			}
+		}
         
         if(writecycle==0)
         {

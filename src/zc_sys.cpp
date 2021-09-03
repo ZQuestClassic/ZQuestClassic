@@ -704,11 +704,15 @@ void show_saving(BITMAP *target)
 void load_mouse()
 {
 	system_pal();
+	scare_mouse();
+	set_mouse_sprite(NULL);
 	int sz = vbound(int(16*(is_large ? get_config_float("zeldadx","cursor_scale_large",1) : get_config_float("zeldadx","cursor_scale_small",1))),16,80);
 	for(int j = 0; j < 4; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
 		BITMAP* subbmp = create_bitmap_ex(8,16,16);
+		if(zcmouse[j])
+			destroy_bitmap(zcmouse[j]);
 		zcmouse[j] = create_bitmap_ex(8,sz,sz);
 		clear_bitmap(zcmouse[j]);
 		clear_bitmap(tmpbmp);
@@ -744,6 +748,8 @@ void load_mouse()
 		destroy_bitmap(tmpbmp);
 		destroy_bitmap(subbmp);
 	}
+	set_mouse_sprite(zcmouse[0]);
+	unscare_mouse();
 	game_pal();
 }
 
@@ -757,7 +763,8 @@ bool game_vid_mode(int mode,int wait)
     
     scrx = (resx-320)>>1;
     scry = (resy-240)>>1;
-    
+    for(int q = 0; q < 4; ++q)
+		zcmouse[q] = NULL;
 	load_mouse();
     set_mouse_sprite(zcmouse[0]);
     
@@ -1978,7 +1985,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
         return (game->get_keys()>0);
         
     case itype_magiccontainer:
-        return (game->get_maxmagic()>=MAGICPERBLOCK);
+        return (game->get_maxmagic()>=game->get_mp_per_block());
         
     case itype_triforcepiece:                               //it: -2=any, -1=current level, other=that level
     {
@@ -2152,7 +2159,7 @@ int current_item(int item_type, bool checkenabled)           //item currently be
         return game->lvlkeys[get_dlevel()];
         
     case itype_magiccontainer:
-        return game->get_maxmagic()/MAGICPERBLOCK;
+        return game->get_maxmagic()/game->get_mp_per_block();
         
     case itype_triforcepiece:
     {
@@ -4695,15 +4702,14 @@ void syskeys()
     
     if(get_debug() || cheat>=2)
     {
-	if( CheatModifierKeys() )
-	{
+		if( CheatModifierKeys() )
+		{
 			if(rI())
 			{
-			    setClock(!getClock());
-			    cheat_superman=getClock();
+				setClock(!getClock());
+				cheat_superman=getClock();
 			}
-		
-	}
+		}
     }
     
     if(get_debug() || cheat>=4)
@@ -4827,11 +4833,11 @@ void syskeys()
             //magic containers
             if(zc_getkey(KEY_LSHIFT) || zc_getkey(KEY_RSHIFT))
             {
-                game->set_maxmagic(zc_min(game->get_maxmagic()+MAGICPERBLOCK,MAGICPERBLOCK*8));
+                game->set_maxmagic(zc_min(game->get_maxmagic()+game->get_mp_per_block(),game->get_mp_per_block()*8));
             }
             else
             {
-                game->set_maxlife(zc_min(game->get_maxlife()+HP_PER_HEART,HP_PER_HEART*24));
+                game->set_maxlife(zc_min(game->get_maxlife()+game->get_hp_per_heart(),game->get_hp_per_heart()*24));
             }
         }
         else
@@ -4855,13 +4861,13 @@ void syskeys()
             //magic containers
             if(zc_getkey(KEY_LSHIFT) || zc_getkey(KEY_RSHIFT))
             {
-                game->set_maxmagic(zc_max(game->get_maxmagic()-MAGICPERBLOCK,0));
+                game->set_maxmagic(zc_max(game->get_maxmagic()-game->get_mp_per_block(),0));
                 game->set_magic(zc_min(game->get_maxmagic(), game->get_magic()));
                 //heart containers
             }
             else
             {
-                game->set_maxlife(zc_max(game->get_maxlife()-HP_PER_HEART,HP_PER_HEART));
+                game->set_maxlife(zc_max(game->get_maxlife()-game->get_hp_per_heart(),game->get_hp_per_heart()));
                 game->set_life(zc_min(game->get_maxlife(), game->get_life()));
             }
         }
@@ -6676,24 +6682,6 @@ static DIALOG goto_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int xtoi(char *hexstr)
-{
-    int val=0;
-    
-    while(isxdigit(*hexstr))
-    {
-        val<<=4;
-        
-        if(*hexstr<='9')
-            val += *hexstr-'0';
-        else val+= ((*hexstr)|0x20)-'a'+10;
-        
-        ++hexstr;
-    }
-    
-    return val;
-}
-
 int onGoTo()
 {
     bool music = false;
@@ -6712,7 +6700,7 @@ int onGoTo()
     if(zc_popup_dialog(goto_dlg,4)==1)
     {
         cheat_goto_dmap=goto_dlg[4].d2;
-        cheat_goto_screen=zc_min(xtoi(cheat_goto_screen_str),0x7F);
+        cheat_goto_screen=zc_min(zc_xtoi(cheat_goto_screen_str),0x7F);
         do_cheat_goto=true;
     };
     
@@ -7851,15 +7839,15 @@ int onLife()
 
 int onHeartC()
 {
-    game->set_maxlife(vbound(getnumber("Heart Containers",game->get_maxlife()/HP_PER_HEART),1,4095) * HP_PER_HEART);
-    game->set_life(vbound(getnumber("Life",game->get_life()/HP_PER_HEART),1,game->get_maxlife()/HP_PER_HEART)*HP_PER_HEART);
+    game->set_maxlife(vbound(getnumber("Heart Containers",game->get_maxlife()/game->get_hp_per_heart()),1,4095) * game->get_hp_per_heart());
+    game->set_life(vbound(getnumber("Life",game->get_life()/game->get_hp_per_heart()),1,game->get_maxlife()/game->get_hp_per_heart())*game->get_hp_per_heart());
     return D_O_K;
 }
 
 int onMagicC()
 {
-    game->set_maxmagic(vbound(getnumber("Magic Containers",game->get_maxmagic()/MAGICPERBLOCK),0,2047) * MAGICPERBLOCK);
-    game->set_magic(vbound(getnumber("Magic",game->get_magic()/MAGICPERBLOCK),0,game->get_maxmagic()/MAGICPERBLOCK)*MAGICPERBLOCK);
+    game->set_maxmagic(vbound(getnumber("Magic Containers",game->get_maxmagic()/game->get_mp_per_block()),0,2047) * game->get_mp_per_block());
+    game->set_magic(vbound(getnumber("Magic",game->get_magic()/game->get_mp_per_block()),0,game->get_maxmagic()/game->get_mp_per_block())*game->get_mp_per_block());
     return D_O_K;
 }
 
@@ -7888,8 +7876,9 @@ int onRefillMagic()
 }
 int onClock()
 {
-    setClock(!getClock());
-    return D_O_K;
+	setClock(!getClock());
+	cheat_superman=getClock();
+	return D_O_K;
 }
 
 int onQstPath()

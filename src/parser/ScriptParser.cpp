@@ -24,7 +24,7 @@
 using boost::movelib::unique_ptr;
 using namespace ZScript;
 
-extern char ZQincludePaths[MAX_INCLUDE_PATHS][512];
+extern std::vector<string> *ZQincludePaths;
 //#define PARSER_DEBUG
 
 ScriptsData* compile(string const& filename);
@@ -149,25 +149,22 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int reclimit)
 			if(importfound != 0)
 				importname = importname.substr(importfound); //Remove leading `/` and `\`
 			//Convert the include string to a proper import path
-			for ( int q = 0; q < MAX_INCLUDE_PATHS && !fname; ++q ) //Loop through all include paths, or until valid file is found
+			for ( int q = 0; q < ZQincludePaths->size() && !fname; ++q ) //Loop through all include paths, or until valid file is found
 			{
-				if( ZQincludePaths[q][0] != '\0' )
+				includePath = ZQincludePaths->at(q);
+				//Add a `/` to the end of the include path, if it is missing
+				int lastnot = includePath.find_last_not_of("/\\");
+				int last = includePath.find_last_of("/\\");
+				if(lastnot != string::npos)
 				{
-					includePath = &*ZQincludePaths[q];
-					//Add a `/` to the end of the include path, if it is missing
-					int lastnot = includePath.find_last_not_of("/\\");
-					int last = includePath.find_last_of("/\\");
-					if(lastnot != string::npos)
-					{
-						if(last == string::npos || last < lastnot)
-							includePath += "/";
-					}
-					includePath = prepareFilename(includePath + importname);
-					FILE* f = fopen(includePath.c_str(), "r");
-					if(!f) continue;
-					fclose(f);
-					fname = &includePath;
+					if(last == string::npos || last < lastnot)
+						includePath += "/";
 				}
+				includePath = prepareFilename(includePath + importname);
+				FILE* f = fopen(includePath.c_str(), "r");
+				if(!f) continue;
+				fclose(f);
+				fname = &includePath;
 			}
 		}
 	}
