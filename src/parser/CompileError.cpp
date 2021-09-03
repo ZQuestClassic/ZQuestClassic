@@ -296,6 +296,7 @@ CompileError::CompileError(CompileError::Impl* pimpl) : pimpl_(pimpl) {}
 
 void ZScript::box_out_err(CompileError const& error)
 {
+	printf("%s\n", error.toString().c_str());
 	box_out_nl(error.toString().c_str());
 	box_eol();
 }

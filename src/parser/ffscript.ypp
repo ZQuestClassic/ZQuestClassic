@@ -1648,6 +1648,7 @@ void yymsg(string const& message, int row, int col)
 	if (yyleng)
 	    out << " '" << yytext << "'";
 	out << "]";
+	printf("%s\n", out.str().c_str());
 	box_out(out.str().c_str());
     box_eol();
 }
