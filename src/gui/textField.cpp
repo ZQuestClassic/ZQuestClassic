@@ -31,6 +31,7 @@ void TextField::setText(std::string_view newText)
     if(maxLength==0 && newText.size()>0)
         setMaxLength(newText.size());
     newText.copy(buffer.get(), maxLength);
+    buffer[std::min(maxLength-1, newText.size())]='\0';
 }
 
 void TextField::setMaxLength(size_t newMax)
