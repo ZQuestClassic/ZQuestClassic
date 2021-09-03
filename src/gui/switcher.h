@@ -24,6 +24,9 @@ public:
     // Makes the widget with the given index visible, hiding all others.
     void show(size_t index);
 
+    // Returns the index of the currently visible widget.
+    size_t getVisible() const;
+
     // Returns the widget at the given index, cast to the specified type.
     template<typename T>
     std::shared_ptr<T> get(size_t index)

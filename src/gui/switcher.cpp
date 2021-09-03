@@ -28,6 +28,11 @@ void Switcher::show(size_t index)
     visible=index;
 }
 
+size_t Switcher::getVisible() const
+{
+    return visible;
+}
+
 void Switcher::calculateSize()
 {
     int maxW=0, maxH=0;
