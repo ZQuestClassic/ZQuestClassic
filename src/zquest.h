@@ -795,11 +795,6 @@ void build_biw_list();
 const char *weaponlist(int index, int *list_size);
 int select_weapon(const char *prompt,int weapon);
 
-void build_bir_list();
-const char *roomlist(int index, int *list_size);
-int select_room(const char *prompt,int room);
-
-
 //char *doors_string[8]={"wall","passage","locked","shutter","bombable","walk thru","1-way shutter","boss"};
 const char *doorslist(int index, int *list_size);
 void edit_door(int side);
