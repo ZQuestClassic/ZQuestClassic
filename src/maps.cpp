@@ -49,7 +49,7 @@ extern FFScript FFCore;
 
 //MSVC does not provide a log2 funcion in <cmath>
 // adjust version number as needed. MSVC 2015 (1900) does *not* need these functions
-#if _MSC_VER < 1900
+#if defined _MSC_VER && _MSC_VER < 1900
 double log2(double n)
 {
     return log(n) / log(2.0);
@@ -633,9 +633,10 @@ void setmapflag(int mi2, int flag)
     sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
     
     game->maps[mi2] |= flag;
+    float temp=log2((float)flag);
     Z_eventlog("%s's State was set: %s\n",
                mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
-               flag>0 ? screenstate_string[(int)log2((float)flag)] : "<Unknown>");
+               flag>0 ? screenstate_string[(int)temp] : "<Unknown>");
                
     if(flag==mSECRET||flag==mITEM||flag==mBELOW||flag==mLOCKBLOCK||
             flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
@@ -691,9 +692,10 @@ void unsetmapflag(int mi2, int flag, bool anyflag)
     char buf[20];
     sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
     
+    float temp=log2((float)flag);
     Z_eventlog("%s's State was unset: %s\n",
                mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
-               flag>0 ? screenstate_string[(int)log2((float)flag)] : "<Unknown>");
+               flag>0 ? screenstate_string[(int)temp] : "<Unknown>");
                
     if(flag==mSECRET||flag==mITEM||flag==mBELOW||flag==mLOCKBLOCK||
             flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)

@@ -58,54 +58,54 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	if (!root.get())
 	{
 		box_out_err(CompileError::CantOpenSource(NULL));
-		return NULL;
+		return boost::movelib::unique_ptr<ScriptsData>(NULL);
 	}
-    
+
 	box_out("Pass 2: Preprocessing");
 	box_eol();
-    
+
 	if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
-		return NULL;
-    
+		return boost::movelib::unique_ptr<ScriptsData>(NULL);
+
 	SimpleCompileErrorHandler handler;
 	Program program(*root, &handler);
 	if (handler.hasError())
-		return NULL;
-	
+		return boost::movelib::unique_ptr<ScriptsData>(NULL);
+
 	box_out("Pass 3: Registration");
 	box_eol();
 
 	RegistrationVisitor regVisitor(program);
-	if(regVisitor.hasFailed()) return NULL;
-	
+	if(regVisitor.hasFailed()) return boost::movelib::unique_ptr<ScriptsData>(NULL);
+
 	box_out("Pass 4: Analyzing Code");
 	box_eol();
-	
+
 	SemanticAnalyzer semanticAnalyzer(program);
 	if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
-		return NULL;
-    
+		return boost::movelib::unique_ptr<ScriptsData>(NULL);
+
 	FunctionData fd(program);
 	if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
 	{
 		box_out_err(CompileError::TooManyGlobal(NULL));
-		return NULL;
+		return boost::movelib::unique_ptr<ScriptsData>(NULL);
 	}
-    
+
 	box_out("Pass 5: Generating object code");
 	box_eol();
-    
+
 	unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
 	if (!id.get())
-		return NULL;
-    
+		return boost::movelib::unique_ptr<ScriptsData>(NULL);
+
 	box_out("Pass 6: Assembling");
 	box_eol();
 
 	ScriptParser::assemble(id.get());
 
 	unique_ptr<ScriptsData> result(new ScriptsData(program));
-    
+
 	box_out("Success!");
 	box_eol();
 
@@ -192,31 +192,31 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int reclimit)
 
 	// Save the AST in the import declaration.
 	importDecl.giveTree(imported.release());
-	
+
 	// Recurse on imports.
 	if (!preprocess(importDecl.getTree(), reclimit - 1))
 		return false;
-	
+
 	return true;
 }
 
 bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 {
 	assert(root);
-	
+
 	if (reclimit == 0)
 	{
 		box_out_err(CompileError::ImportRecursion(NULL, recursionLimit));
 		return false;
 	}
-        
+
 	// Repeat parsing process for each of import files
 	for (vector<ASTImportDecl*>::iterator it = root->imports.begin();
 	     it != root->imports.end(); ++it)
 	{
 		if(!preprocess_one(**it, reclimit)) return false;
 	}
-    
+
 	return true;
 }
 
@@ -229,11 +229,11 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 
 	// Z_message("yes");
 	bool failure = false;
-    
+
 	//we now have labels for the functions and ids for the global variables.
 	//we can now generate the code to intialize the globals
 	unique_ptr<IntermediateData> rval(new IntermediateData(fdata));
-    
+
 	// Push 0s for init stack space.
 	/* Why? The stack should already be init'd to all 0, anyway?
 	rval->globalsInit.push_back(
@@ -243,29 +243,29 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	for (int i = 0; i < globalStackSize; ++i)
 		rval->globalsInit.push_back(
 				new OPushRegister(new VarArgument(EXP1)));*/
-    
+
 	// Generate variable init code.
 	for (vector<Datum*>::iterator it = globalVariables.begin();
 	     it != globalVariables.end(); ++it)
 	{
 		Datum& variable = **it;
 		AST& node = *variable.getNode();
-        
+
 		OpcodeContext oc(typeStore);
-        
+
 		BuildOpcodes bo(scope);
 		node.execute(bo, &oc);
 		if (bo.hasError()) failure = true;
 		appendElements(rval->globalsInit, oc.initCode);
 		appendElements(rval->globalsInit, bo.getResult());
 	}
-    
+
 	// Pop off everything.
 	/* See above; why push this in the first place?
 	for (int i = 0; i < globalStackSize; ++i)
 		rval->globalsInit.push_back(
 				new OPopRegister(new VarArgument(EXP2)));*/
-        
+
 	//globals have been initialized, now we repeat for the functions
 	vector<Function*> funs = program.getUserFunctions();
 	for (vector<Function*>::iterator it = funs.begin();
@@ -284,11 +284,11 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			scriptname = functionScript->getName();
 		}
 		scope = function.internalScope;
-        
+
 		vector<Opcode *> funccode;
-        
+
 		int stackSize = getStackSize(function);
-        
+
 		// Start of the function.
 		unique_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
 		                                  new LiteralArgument(0)));
@@ -299,28 +299,28 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		if (isRun)
 		{
 			ScriptType type = program.getScript(scriptname)->getType();
-			
+
 			if (type == ScriptType::ffc )
 			{
 				funccode.push_back(
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(REFFFC)));
-				
-				
+
+
 			}
 			else if (type == ScriptType::item )
 			{
 				funccode.push_back(
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(REFITEMCLASS)));
-				
+
 			}
 			else if (type == ScriptType::npc )
 			{
 				funccode.push_back(
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(REFNPC)));
-				
+
 			}
 			else if (type == ScriptType::lweapon )
 			{
@@ -333,14 +333,14 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				funccode.push_back(
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(REFEWPN)));
-				
+
 			}
 			else if (type == ScriptType::dmapdata )
 			{
 				funccode.push_back(
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(REFDMAPDATA)));
-			
+
 			}
 			else if (type == ScriptType::itemsprite)
 			{
@@ -366,18 +366,18 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				funccode.push_back(
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(link?)));
-				
+
 			}
 			else if (type == ScriptType::screen )
 			{
 				funccode.push_back(
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(tempscr?)));
-				
+
 			}
 				*/
-				
-		
+
+
 			/*
 			if (type == ScriptType::ffc)
 				funccode.push_back(
@@ -390,34 +390,34 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			*/
 			funccode.push_back(new OPushRegister(new VarArgument(EXP2)));
 		}
-        
+
 		// Push 0s for the local variables.
 		for (int i = stackSize - getParameterCount(function); i > 0; --i)
 			funccode.push_back(new OPushRegister(new VarArgument(EXP1)));
-        
+
 		// Set up the stack frame register
 		funccode.push_back(new OSetRegister(new VarArgument(SFRAME),
 		                                    new VarArgument(SP)));
 		OpcodeContext oc(typeStore);
 		BuildOpcodes bo(scope);
 		node.execute(bo, &oc);
-        
+
 		if (bo.hasError()) failure = true;
-            
+
 		appendElements(funccode, bo.getResult());
-        
+
 		// Add appendix code.
 		unique_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
 												  new LiteralArgument(0)));
 		next->setLabel(bo.getReturnLabelID());
 		funccode.push_back(next.release());
-        
+
 		// Pop off everything.
 		for (int i = 0; i < stackSize; ++i)
 		{
 			funccode.push_back(new OPopRegister(new VarArgument(EXP2)));
 		}
-        
+
 		//if it's a main script, quit.
 		if (isRun)
 		{
@@ -435,16 +435,16 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			//and return
 			funccode.push_back(new OReturn());
 		}
-        
+
 		function.giveCode(funccode);
 	}
-    
+
 	if (failure)
 	{
 		rval.reset();
 		return unique_ptr<IntermediateData>(rval.release());;
 	}
-    
+
 	//Z_message("yes");
 	return unique_ptr<IntermediateData>(rval.release());
 }
@@ -459,12 +459,12 @@ static vector<Opcode*> blankScript()
 void ScriptParser::assemble(IntermediateData *id)
 {
 	Program& program = id->program;
-	
+
 	map<Script*, vector<Opcode*> > scriptCode;
 	vector<Opcode*> ginit = id->globalsInit;
-    
+
 	// Do the global inits
-    
+
 	// If there's a global script called "Init", append it to ~Init:
 	Script* userInit = program.getScript("Init");
 	if (userInit && userInit->getType() == ScriptType::global
@@ -473,10 +473,10 @@ void ScriptParser::assemble(IntermediateData *id)
 		int label = *getLabel(*userInit);
 		ginit.push_back(new OGotoImmediate(new LabelArgument(label)));
 	}
-    
+
 	Script* init = program.getScript("~Init");
 	init->code = assembleOne(program, ginit, 0);
-    
+
 	for (vector<Script*>::const_iterator it = program.scripts.begin();
 	     it != program.scripts.end(); ++it)
 	{
@@ -500,14 +500,14 @@ vector<Opcode*> ScriptParser::assembleOne(
 		Program& program, vector<Opcode*> runCode, int numparams)
 {
 	vector<Opcode *> rval;
-    
+
 	// Push on the params to the run.
 	int i;
 	for (i = 0; i < numparams && i < 9; ++i)
 		rval.push_back(new OPushRegister(new VarArgument(i)));
 	for (; i < numparams; ++i)
 		rval.push_back(new OPushRegister(new VarArgument(EXP1)));
-    
+
 	// Generate a map of labels to functions.
 	vector<Function*> allFunctions = getFunctions(program);
 	map<int, Function*> functionsByLabel;
@@ -517,7 +517,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 		Function& function = **it;
 		functionsByLabel[function.getLabel()] = &function;
 	}
-    
+
 	// Grab all labels directly jumped to.
 	std::set<int> usedLabels;
 	for (vector<Opcode*>::iterator it = runCode.begin();
@@ -527,7 +527,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 		(*it)->execute(temp, NULL);
 	}
 	std::set<int> unprocessedLabels(usedLabels);
-    
+
 	// Grab labels used by each function until we run out of functions.
 	while (!unprocessedLabels.empty())
 	{
@@ -548,12 +548,12 @@ vector<Opcode*> ScriptParser::assembleOne(
 
 		unprocessedLabels.erase(label);
 	}
-    
+
 	// Make the rval
 	for (vector<Opcode*>::iterator it = runCode.begin();
 	     it != runCode.end(); ++it)
 		rval.push_back((*it)->makeClone());
-    
+
 	for (std::set<int>::iterator it = usedLabels.begin();
 	     it != usedLabels.end(); ++it)
 	{
@@ -561,17 +561,17 @@ vector<Opcode*> ScriptParser::assembleOne(
 		Function* function =
 			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
 		if (!function) continue;
-        
+
 		vector<Opcode*> functionCode = function->getCode();
 		for (vector<Opcode*>::iterator it = functionCode.begin();
 		     it != functionCode.end(); ++it)
 			rval.push_back((*it)->makeClone());
 	}
-    
+
 	// Set the label line numbers.
 	map<int, int> linenos;
 	int lineno = 1;
-    
+
 	for (vector<Opcode*>::iterator it = rval.begin();
 	     it != rval.end(); ++it)
 	{
@@ -579,7 +579,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 			linenos[(*it)->getLabel()] = lineno;
 		lineno++;
 	}
-    
+
 	// Now fill in those labels
 	for (vector<Opcode*>::iterator it = rval.begin();
 	     it != rval.end(); ++it)
@@ -587,7 +587,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 		SetLabels temp;
 		(*it)->execute(temp, &linenos);
 	}
-    
+
 	return rval;
 }
 
@@ -600,25 +600,25 @@ std::pair<long,bool> ScriptParser::parseLong(std::pair<string, string> parts, Sc
 	std::pair<long, bool> rval;
 	rval.second=true;
 	bool intOneLarger = *lookupOption(*scope, CompileOption::OPT_TRUE_INT_SIZE) != 0;
-    
+
 	if(parts.first.data()[0]=='-')
 	{
 		negative=true;
 		parts.first = parts.first.substr(1);
 	}
-    
+
 	if(parts.second.size() > 4)
 	{
 		rval.second = false;
 		parts.second = parts.second.substr(0,4);
 	}
-    
+
 	if(parts.first.size() > 6)
 	{
 		rval.second = false;
 		parts.first = parts.first.substr(0,6);
 	}
-    
+
 	int firstpart = atoi(parts.first.c_str());
 	if(intOneLarger) //MAX_INT should be 214748, but if that is the value, there should be no float component. -V
 	{
@@ -633,21 +633,21 @@ std::pair<long,bool> ScriptParser::parseLong(std::pair<string, string> parts, Sc
 		firstpart = 214747;
 		rval.second = false;
 	}
-    
+
 	long intval = ((long)(firstpart))*10000;
 	//add fractional part; tricky!
 	int fpart = 0;
-    
-	
+
+
 	while(parts.second.length() < 4)
 		parts.second += "0";
-		
+
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		fpart *= 10;
 		fpart += parts.second[i] - '0';
 	}
-	
+
 	/*for(unsigned int i=0; i<4; i++)
 	  {
 	  fpart*=10;
@@ -656,14 +656,14 @@ std::pair<long,bool> ScriptParser::parseLong(std::pair<string, string> parts, Sc
 	  tmp[1] = 0;
 	  fpart += atoi(tmp);
 	  }*/
-	  
+
 	if(intOneLarger && firstpart == 214748 && (negative ? fpart > 3648 : fpart > 3647))
 	{
 		fpart = negative ? 3648 : 3647;
 		rval.second = false;
 	}
-	
-	
+
+
 	rval.first = intval + fpart;
 	if(negative)
 		rval.first = -rval.first;
@@ -695,7 +695,7 @@ ScriptsData::ScriptsData(Program& program)
 				it != run->paramNames.end(); ++it)
 			{
 				char* dest = meta.run_idens[ind++];
-				strcpy(dest, (**it).c_str());	
+				strcpy(dest, (**it).c_str());
 			}
 			ind = 0;
 			for(vector<DataType const*>::const_iterator it = run->paramTypes.begin();
@@ -705,7 +705,7 @@ ScriptsData::ScriptsData(Program& program)
 				meta.run_types[ind++] = id ? *id : ZVARTYPEID_VOID;
 			}
 		}
-		
+
 		script.code = vector<Opcode*>();
 		scriptTypes[name] = script.getType();
 	}

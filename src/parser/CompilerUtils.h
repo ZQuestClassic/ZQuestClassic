@@ -27,9 +27,15 @@
 #undef new
 #endif // new
 
-#include <boost/optional.hpp>
+#if (__cplusplus < 201703L)
+    #include <boost/optional.hpp>
+#else
+    #include <optional>
+    using std::nullopt_t, std::nullopt;
+#endif
 #include <boost/type_traits.hpp>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdarg>
 #include <set>
@@ -38,6 +44,11 @@
 #include <vector>
 
 #include "zc_malloc.h"
+
+namespace ZScript
+{
+    class DataTypeCustom;
+}
 
 ////////////////////////////////////////////////////////////////
 // Strings
@@ -65,7 +76,7 @@ class XTableHelper
 {
 	public:
 	std::string formatStr(std::string const* format, ...);
-	
+
 	private:
 };
 
@@ -113,17 +124,17 @@ public:
 };
 
 // Disable ==.
-template <typename T, typename U> 
+template <typename T, typename U>
 bool operator==(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
 	lhs.this_type_does_not_support_comparisons(); // compile error
 	return false;
 }
 
 // Disable !=
-template <typename T, typename U> 
+template <typename T, typename U>
 bool operator!=(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
     lhs.this_type_does_not_support_comparisons(); // compile error
-    return false;	
+    return false;
 }
 
 
@@ -143,7 +154,7 @@ class optional : public SafeBool<optional<T> >
 public:
 	typedef T value_type;
 
-	// Construct empty optional. 
+	// Construct empty optional.
 	optional() : data_() {}
 	optional(nullopt_t) : data_(nullopt) {}
 	// Construct with value.
@@ -177,7 +188,7 @@ public:
 		assert(data_.has_value());
 		return &data_.value();
 	}
-	T* operator->() 
+	T* operator->()
 	{
 		assert(data_.has_value());
 		return &data_.value();
@@ -211,7 +222,7 @@ public:
 	{
 		return data_.value_or(v);
 	}
-	
+
 	template <typename U>
 	T value_or(U& v)
 	{
@@ -221,13 +232,29 @@ public:
 	// Destroys the value if present.
 	void reset()
 	{
-		data_.reset(); 
+		data_.reset();
 	}
 
 	bool safe_bool() const { return data_.has_value(); }
 
 private:
 	boost::optional<T> data_;
+};
+#else
+template<typename T>
+class optional : public std::optional<T>, public SafeBool<optional<T> > {
+public:
+    typedef T value_type;
+
+	// Construct empty optional.
+	optional() : std::optional<T>() {}
+	optional(nullopt_t) : std::optional<T>(nullopt) {}
+	// Construct with value.
+	optional(const T& value) : std::optional<T>(value) {}
+	// Construct with value (eliminate double optional).
+	optional(const optional& rhs) : std::optional<T>(rhs) {}
+
+	bool safe_bool() const { return this->has_value(); }
 };
 #endif // (__cplusplus < 201703L)
 
@@ -320,9 +347,9 @@ namespace detail {
 		static optional<Element> _(Map const& map, Key const& key)
 		{
 			typename Map::const_iterator it = map.find(key);
-			if (it == map.end()) return nullopt;
+			if (it == map.end()) return optional<Element>(nullopt);
 			Element const& element = it->second;
-			return element;
+			return optional<Element>(element);
 		}
 	};
 
