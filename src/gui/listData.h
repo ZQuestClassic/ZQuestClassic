@@ -37,36 +37,6 @@ std::string indexPlusOneItemText(size_t index, const BasicData& data);
 class ListData
 {
 public:
-    /*
-    template<typename T, typename U>
-    ListData(std::function<std::string(size_t, const T&)> toText,
-        std::function<int(size_t, const T&)> toValue,
-        const U&& listSource)
-    {
-        size_t index=0; // U may not have operator[] or at() or whatever
-        for(const auto& li: listSource)
-        {
-            listEntries.emplace_back(toText(index, li));
-            values.push_back(toValue(index, li));
-            index++;
-        }
-    }
-
-    template<typename T>
-    constexpr ListData(std::function<std::string(size_t, const T&)> format,
-        std::function<int(size_t, const T&)> toValue,
-        const std::initializer_list<T>& listSource)
-    {
-        size_t index=0;
-        for(const auto& li: listSource)
-        {
-            listEntries.emplace_back(format(index, li));
-            values.push_back(toValue(index, li));
-            index++;
-        }
-    }
-    */
-
     ListData(ListData&& other)=default;
 
     ListData(size_t numItems, std::function<std::string(size_t)> getString,
