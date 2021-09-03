@@ -43,6 +43,7 @@ void setZScriptVersion(int) { } //bleh...
 #include <jpgalleg.h>
 
 #include "dialog/cheatCodes.h"
+#include "dialog/room.h"
 #include "dialog/setPassword.h"
 
 #include "gui.h"
@@ -1867,15 +1868,6 @@ static MENU view_menu[] =
 
 int onSelectFFCombo();
 
-static MENU room_menu[] =
-{
-  { (char *)"&Guy\tG",                    onGuy,                     NULL,                     0,            NULL   },
-    { (char *)"&Message String\tS",         onString,                  NULL,                     0,            NULL   },
-    { (char *)"&Room Type\tR",              onRType,                   NULL,                     0,            NULL   },
-    { (char *)"Catch &All\tA",              onCatchall,                NULL,                     0,   	       NULL   }, //Allow setting a generic catch-a;;. or clearing it mamnually.
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
 static MENU data_menu[] =
 {
     { (char *)"&Screen Data\tF9",           onScrData,                 NULL,                     0,            NULL   },
@@ -1888,7 +1880,7 @@ static MENU data_menu[] =
     { (char *)"&Doors\tF6",                 onDoors,                   NULL,                     0,            NULL   },
     { (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Room Data",                   NULL,                      room_menu,                0,            NULL   },
+    { (char *)"&Room Data",                 onRoom,                    NULL,                     0,            NULL   },
 
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
@@ -2289,6 +2281,23 @@ void onKeySlash()
 	}
 }
 
+void onAKey()
+{
+    if(prv_mode)
+        Map.set_prvadvance(1);
+}
+
+void onRKey()
+{
+    if(prv_mode)
+    {
+        Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
+        Map.set_prvcmb(0);
+    }
+    else
+        onRoom();
+}
+
 void onSKey()
 {
 	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
@@ -2304,7 +2313,11 @@ void onSKey()
 				onSave();
 		}
 	}
-	else onString();
+	else if(prv_mode)
+    {
+        Map.prv_secrets(false);
+        refresh(rALL);
+    }
 }
 
 /* Notice: If you insert or remove entries from dialogs[], you will need
@@ -2347,13 +2360,11 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F11,        0, (void *) onSideWarp, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,        0, (void *) onLayers, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ESC,        0, (void *) onExit, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_A,          0, (void *) onCatchall, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_B,          0, (void *) onResetTransparency, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_C,          0, (void *) onCopy, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_D,          0, (void *) onToggleDarkness, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_E,          0, (void *) onEnemies, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F,          0, (void *) onShowFlags, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_G,          0, (void *) onGuy, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_H,          0, (void *) onH, NULL, NULL },      //Flip
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_I,          0, (void *) onItem, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_J,          0, (void *) onJ, NULL, NULL },      //This does nothing
@@ -2364,7 +2375,7 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_O,          0, (void *) onDrawingMode, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_P,          0, (void *) onGotoPage, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Q,          0, (void *) onShowComboInfoCSet, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_R,          0, (void *) onRType, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_R,          0, (void *) onRKey, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_S,          0, (void *) onSKey, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_T,          0, (void *) onTiles, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_U,          0, (void *) onUndo, NULL, NULL },
@@ -14657,75 +14668,21 @@ int onItem()
     return D_O_K;
 }
 
-int onRType()
-{
-    if(prv_mode)
-    {
-        Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
-        Map.set_prvcmb(0);
-        return D_O_K;
-    }
-
-    restore_mouse();
-    build_bir_list();
-    int ret=select_room("Select Room Type",Map.CurrScr()->room);
-
-    if(ret>=0)
-    {
-        saved=false;
-        Map.CurrScr()->room=ret;
-    }
-
-    int c=Map.CurrScr()->catchall;
-
-    switch(Map.CurrScr()->room)
-    {
-    case rSP_ITEM:
-        Map.CurrScr()->catchall=bound(c,0,ITEMCNT-1);
-        break;
-        // etc...
-    }
-
-    refresh(rMENU);
-
-    return D_O_K;
-}
-
-int onGuy()
+int onRoom()
 {
     restore_mouse();
-    build_big_list(true);
-    int ret=select_guy("Select Guy",Map.CurrScr()->guy);
-
-    if(ret>=0)
-    {
-        saved=false;
-        Map.CurrScr()->guy=ret;
-    }
-
+    auto* scr=Map.CurrScr();
+    RoomDialog(scr->room, scr->catchall, scr->guy, scr->str,
+        [&saved, scr](int r, int a, int g, int m)
+        {
+            scr->room=r;
+            scr->guy=g;
+            scr->str=m;
+            scr->catchall=a;
+            saved=false;
+        }
+    ).show();
     refresh(rMAP+rMENU);
-    return D_O_K;
-}
-
-int onString()
-{
-    if(prv_mode)
-    {
-        Map.prv_secrets(false);
-        refresh(rALL);
-        return D_O_K;
-    }
-
-    restore_mouse();
-    int ret=select_data("Select Message String",MsgStrings[Map.CurrScr()->str].listpos,msgslist,lfont);
-
-    if(ret>=0)
-    {
-        saved=false;
-        Map.CurrScr()->str=msglistcache[ret];
-    }
-
-    refresh(rMENU);
     return D_O_K;
 }
 
@@ -14737,79 +14694,6 @@ int onEndString()
     {
         saved=false;
         misc.endstring=msglistcache[ret];
-    }
-
-    refresh(rMENU);
-    return D_O_K;
-}
-
-int onCatchall()
-{
-    if(prv_mode)
-    {
-        Map.set_prvadvance(1);
-        return D_O_K;
-    }
-
-    if(room_menu[3].flags==D_DISABLED)
-    {
-        return D_O_K;
-    }
-
-    restore_mouse();
-    int ret=-1;
-    int rtype=Map.CurrScr()->room;
-
-    switch(rtype)
-    {
-    case rSP_ITEM:
-        int exit_status;
-        build_bii_list(false);
-
-        do
-        {
-            ret=select_item("Select Special Item",Map.CurrScr()->catchall,false,exit_status);
-
-            if(exit_status == 5 && ret >= 0)
-            {
-                build_biw_list();
-                edit_itemdata(ret);
-            }
-            else exit_status = -1;
-        }
-        while(exit_status == 5);
-
-        break;
-
-    case rINFO:
-        info_list_size = 256;
-        ret = select_data("Select Info Type",Map.CurrScr()->catchall,infolist,"OK","Cancel",lfont);
-        break;
-
-    case rTAKEONE:
-        shop_list_size = 256;
-        ret = select_data("Select \"Take One Item\" Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
-        break;
-
-    case rP_SHOP:
-    case rSHOP:
-        shop_list_size = 256;
-        ret = select_data("Select Shop Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
-        break;
-
-    default:
-        char buf[80]="Enter ";
-        strcat(buf,catchall_string[rtype]);
-        ret=getnumber(buf,Map.CurrScr()->catchall);
-        break;
-    }
-
-    if(ret>=0)
-    {
-        if(ret != Map.CurrScr()->catchall)
-            saved=false;
-
-        Map.CurrScr()->catchall=ret;
     }
 
     refresh(rMENU);
@@ -33172,19 +33056,6 @@ int main(int argc,char **argv)
             alignment_arrow_timer=0;
         }
 
-        if(strcmp(catchall_string[Map.CurrScr()->room]," "))
-        {
-            static char ca_menu_str[40];
-            sprintf(ca_menu_str,"%s\tA",catchall_string[Map.CurrScr()->room]);
-            room_menu[3].text=ca_menu_str;
-            room_menu[3].flags=commands[cmdCatchall].flags=0;
-        }
-        else
-        {
-            room_menu[3].text=(char *)"Catch All\tA";
-            room_menu[3].flags=commands[cmdCatchall].flags=D_DISABLED;
-        }
-
 	/* Notice: Adjust and Update these values if you hae modified any of the following, where
 		your modifications hae inserted or removed ANY entries.
 		dialogs[]
@@ -33976,11 +33847,11 @@ void dopreview()
                     break;
 
                 case KEY_R:
-                    onRType();
+                    onRKey();
                     break;
 
                 case KEY_S:
-                    onString();
+                    onSKey();
                     break;
 
                     /*
@@ -33994,7 +33865,7 @@ void dopreview()
                     break;
 
                 case KEY_A:
-                    onCatchall();
+                    onAKey();
                     break;
 
                 case KEY_P:
@@ -34577,7 +34448,7 @@ command_pair commands[cmdMAX]=
 {
     { "(None)",                             0, NULL                                                    },
     { "About",                              0, (intF) onAbout                                          },
-    { "Catch All",                          0, (intF) onCatchall                                       },
+    { " Catch All",                         0, NULL                                                    },
     { "Change track",                       0, (intF) changeTrack                                      },
     { "Cheats",                             0, (intF) onCheats                                         },
     { "Color Set Fix",                      0, (intF) onCSetFix                                        },
@@ -34617,7 +34488,7 @@ command_pair commands[cmdMAX]=
     { "Toggle Fullscreen",                  0, (intF) onFullScreen                                     },
     { "Game icons",                         0, (intF) onIcons                                          },
     { "Goto Map",                           0, (intF) onGotoMap                                        },
-    { "Guy",                                0, (intF) onGuy                                            },
+    { " Guy",                               0,  NULL                                                   },
     { "Paste Guy/String",                   0, (intF) onPasteGuy                                       },
     { "Header",                             0, (intF) onHeader                                         },
     { "Help",                               0, (intF) onHelp                                           },
@@ -34651,7 +34522,7 @@ command_pair commands[cmdMAX]=
     { "Default Map Styles",                 0, (intF) onDefault_MapStyles                              },
     { "Map Styles",                         0, (intF) onMapStyles                                      },
     { "Master Subscreen Type",              0, (intF) onSubscreen                                      },
-    { "Message String",                     0, (intF) onString                                         },
+    { " Message String",                    0, NULL                                                    },
     { "MIDIs",                              0, (intF) onMidis                                          },
     { "Misc Colors",                        0, (intF) onMiscColors                                     },
     { "New",                                0, (intF) do_NewQuest                                      },
@@ -34671,7 +34542,7 @@ command_pair commands[cmdMAX]=
     { "Apply Template to All",              0, (intF) onReTemplate                                     },
     { "Relational Mode",                    0, (intF) onDrawingModeRelational                          },
     { "Revert",                             0, (intF) onRevert                                         },
-    { "Room Type",                          0, (intF) onRType                                          },
+    { "Room Data",                          0, (intF) onRoom                                           },
     { "Paste Room Type Data",               0, (intF) onPasteRoom                                      },
     { "Rules - Animation",                  0, (intF) onAnimationRules                                 },
     { "Save",                               0, (intF) onSave                                           },
