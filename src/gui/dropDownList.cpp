@@ -23,6 +23,11 @@ void DropDownList::setSelectedValue(int value)
 {
     selectedValue=value;
     selectedIndex=-1;
+    if(alDialog)
+    {
+        setIndex();
+        alDialog->d1=selectedIndex;
+    }
 }
 
 void DropDownList::setSelectedIndex(int index)
@@ -39,6 +44,27 @@ int DropDownList::getSelectedValue() const
     }
     else
         return selectedValue;
+}
+
+void DropDownList::setIndex()
+{
+    // Find a valid selection. We'll take the first thing with a matching
+    // value. If nothing matches exactly, take the one that's closest to
+    // but not greater than the selected value. If everything's greater,
+    // just go with index 0.
+    selectedIndex=0;
+    int bestSoFar=listData->value(0);
+    for(auto i=0; i<listData->size(); i++)
+    {
+        int value=listData->value(i);
+        if(value==selectedValue)
+        {
+            selectedIndex=i;
+            return;
+        }
+        else if(value>bestSoFar && value<selectedValue)
+            selectedIndex=i;
+    }
 }
 
 const char* DropDownList::jwinListWrapperFunc(int index, int* size, void* owner)
@@ -62,25 +88,7 @@ void DropDownList::realize(DialogRunner& runner)
     assert(listData);
     assert(listData->size()>0);
     if(selectedIndex<0)
-    {
-        // Find a valid selection. We'll take the first thing with a matching
-        // value. If nothing matches exactly, take the one that's closest to
-        // but not greater than the selected value. If everything's greater,
-        // just go with index 0.
-        selectedIndex=0;
-        int bestSoFar=listData->value(0);
-        for(auto i=0; i<listData->size(); i++)
-        {
-            int value=listData->value(i);
-            if(value==selectedValue)
-            {
-                selectedIndex=i;
-                break;
-            }
-            else if(value>bestSoFar && value<selectedValue)
-                selectedIndex=i;
-        }
-    }
+        setIndex();
 
     runner.push(shared_from_this(), DIALOG {
         jwin_droplist_proc,
