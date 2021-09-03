@@ -100,7 +100,9 @@ gui::ListData getMessageListData()
     return gui::ListData(msg_count,
         [](size_t index)
         {
-            return boost::str(boost::format("%1%") % MsgStrings[index].s);
+            return boost::str(boost::format("%1%: %2%")
+                % index
+                % MsgStrings[index].s);
         },
         [](size_t index)
         {
@@ -283,7 +285,6 @@ std::shared_ptr<gui::Widget> RoomDialog::view()
                 argSwitcher,
                 guyDD=DropDownList(
                     data=guyListData,
-                    onSelectionChanged=Message::selectGuy,
                     selectedValue=guy),
                 messageDD=DropDownList(
                     data=messageListData,
@@ -307,10 +308,6 @@ bool RoomDialog::handleMessage(RoomDialog::Message msg)
         showRoomInfo();
         return false;
 
-    case Message::selectGuy:
-        guy=guyDD->getSelectedValue();
-        return false;
-
     case Message::selectRoom:
         argument=getArgument();
         room=roomDD->getSelectedValue();
@@ -318,7 +315,8 @@ bool RoomDialog::handleMessage(RoomDialog::Message msg)
         return false;
 
     case Message::ok:
-        setRoomVars(room, getArgument(), guyDD->getSelectedValue(), messageDD->getSelectedValue());
+        setRoomVars(room, getArgument(),
+            guyDD->getSelectedValue(), messageDD->getSelectedValue());
         return true;
 
     case Message::cancel:

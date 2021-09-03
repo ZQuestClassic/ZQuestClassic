@@ -8,7 +8,7 @@
 #include <gui/textField.h>
 #include <functional>
 
-enum class RoomDialogMessage { selectRoom, selectGuy, roomInfo, ok, cancel };
+enum class RoomDialogMessage { selectRoom, roomInfo, ok, cancel };
 
 class RoomDialog: public gui::Dialog<RoomDialogMessage>
 {
