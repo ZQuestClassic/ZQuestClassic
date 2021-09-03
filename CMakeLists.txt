@@ -236,9 +236,13 @@ endif()
 # ZScript parser
 #############################################################
 
+if(LINUX)
+	set(ZSCRIPTLIBSEXTRA ${X11_LIBRARIES})
+endif()
+
 if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
 	add_executable(zscript src/parser/ZScript_main.cpp src/util.cpp ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
-	target_link_libraries(zscript ${ALLEGROLIB})
+	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
 endif()
 
 #############################################################

@@ -1,4 +1,4 @@
-#include "parser/zscript.h"
+#include "parser/ZScript.h"
 #include "ffscript.h"
 #include <string>
 
@@ -21,7 +21,7 @@ int used_switch(int argc,char *argv[],const char *s)
     for(int i=1; i<argc; i++)
         if(stricmp(argv[i],s)==0)
             return i;
-            
+
     return 0;
 }
 
@@ -37,7 +37,7 @@ int compile(std::string script_path)
         printf("Error: Cannot open specified file!\n");
         return 1;
     }
-    
+
     char c = fgetc(zscript);
     while(!feof(zscript))
     {
@@ -57,7 +57,7 @@ int compile(std::string script_path)
 
     boost::movelib::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
     unlink("tmp");
-    
+
     return 0;
 }
 
