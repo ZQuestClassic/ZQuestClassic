@@ -25,6 +25,7 @@ private:
 
     void realize(DialogRunner& runner) override;
     int getMessage() override;
+    int onEvent(int event, MessageDispatcher sendMessage) override;
 };
 
 }

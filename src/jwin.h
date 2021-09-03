@@ -76,6 +76,24 @@ extern "C"
 
 #define D_RESIZED		(D_USER<<1)
 
+/* This should be used for all DIALOGs in the new GUI system.
+ * It indicates that there is a Dialog that owns this array
+ * and should be prompted to handle some events.
+ */
+#define D_NEW_GUI (D_USER<<2)
+
+/* Sent to newgui_dialog_proc to tell it to handle an event. */
+#define MSG_NEW_GUI_EVENT MSG_USER
+
+/* Used to indicate the new GUI dialog root. */
+extern char newGuiMarker;
+
+/* All the events that may be handled by a new GUI widget. */
+enum NewGuiEvent
+{
+    ngeCLICK
+};
+
 /* frame styles */
 enum {
     FR_WIN, FR_BOX, FR_INV, FR_DEEP, FR_DARK, FR_ETCHED, FR_MEDDARK

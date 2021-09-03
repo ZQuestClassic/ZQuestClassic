@@ -2,6 +2,7 @@
 #define ZC_GUI_DIALOG_H
 
 #include "widget.h"
+#include "dialogEvent.h"
 #include "dialogRef.h"
 #include "../zc_alleg.h"
 #include "../gui.h"
@@ -21,9 +22,17 @@ public:
      */
     virtual std::shared_ptr<Widget> view()=0;
 
+    virtual bool handleMessage(T msg, EventArg arg)
+    {
+        return handleMessage(msg);
+    }
+
     /* Handles a message. Returns true if the dialog should close.
      */
-    virtual bool handleMessage(T msg)=0;
+    virtual bool handleMessage(T msg)
+    {
+        return handleMessage(msg,  std::monostate());
+    }
 
     void show();
 };
@@ -31,14 +40,22 @@ public:
 class DialogRunner
 {
 public:
+    DialogRunner();
+
     template<typename T>
     void run(Dialog<T>& dlg)
     {
+        sendMessage=[&dlg, this](int message, EventArg arg)
+        {
+            this->done=this->done ||
+                dlg.handleMessage(static_cast<T>(message), arg);
+        };
+
         realize(dlg.view());
-        while(true)
+        while(!done)
         {
             int ret=zc_popup_dialog(alDialog.data(), -1);
-            if(ret<0)
+            if(ret<0 || done)
                 break;
             int msg=widgets[ret]->getMessage();
             assert(msg>=0);
@@ -61,14 +78,17 @@ public:
     DialogRef getAllegroDialog();
 
 private:
+    MessageDispatcher sendMessage;
     std::vector<DIALOG> alDialog;
     std::vector<std::shared_ptr<Widget>> widgets;
+    bool done;
 
     /* Sets up the DIALOG array for a dialog so that it can be run.
      */
     void realize(std::shared_ptr<Widget> root);
 
     friend class DialogRef;
+    friend int dialog_proc(int msg, DIALOG *d, int c);
 };
 
 

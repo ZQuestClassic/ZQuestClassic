@@ -1,6 +1,7 @@
 #include "widget.h"
 #include "../jwin.h"
 #include "../zdefs.h"
+#include <cassert>
 
 namespace gui
 {
@@ -32,6 +33,12 @@ void Widget::setVAlign(float align)
 
 int Widget::getMessage()
 {
+    return -1;
+}
+
+int Widget::onEvent(int, MessageDispatcher)
+{
+    assert(false); // This function should have been overridden
     return -1;
 }
 

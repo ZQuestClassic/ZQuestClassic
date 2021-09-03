@@ -3,7 +3,7 @@
 #include "../jwin.h"
 #include "../zquest.h"
 #include <utility>
-
+#include <iostream>
 namespace gui
 {
 
@@ -25,8 +25,7 @@ void Button::realize(DialogRunner& runner)
         x, y, width, height,
         fgColor, bgColor,
         0, // key
-        D_EXIT, // flags - D_EXIT needed to send messages
-                // (TODO: this will need changed for toggle buttons)
+        D_NEW_GUI, // flags
         0, 0, // d1, d2
         (void*)text.c_str(), (void*)lfont_l, nullptr // dp, dp2, dp3
     });
@@ -35,6 +34,14 @@ void Button::realize(DialogRunner& runner)
 int Button::getMessage()
 {
     return message;
+}
+
+int Button::onEvent(int event, MessageDispatcher sendMessage)
+{
+    assert(event==ngeCLICK);
+    if(message>=0)
+        sendMessage(message, noArg);
+    return -1;
 }
 
 }

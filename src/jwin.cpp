@@ -56,12 +56,33 @@ int abc_patternmatch = 1;
 char abc_keypresses[1024] = {0};
 void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
 
-/* ... Included in jwin.h ...
+// Slightly ugly hack here. To identify the DIALOG representing
+// the dialog root, we'll look for a pointer to this variable.
+// That seems preferable to checking for the proc itself.
+char newGuiMarker;
 
-  enum { jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
-  jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
-  jcMAX };
-  */
+int new_gui_event(DIALOG* d, NewGuiEvent event)
+{
+    for(int i=0; true; d--, i++)
+    {
+        if(d->dp3==&newGuiMarker)
+        {
+            d->d1=i;
+            return d->proc(MSG_NEW_GUI_EVENT, d, event);
+        }
+    }
+}
+
+#define NEW_GUI_EVENT(event)               \
+do                                         \
+{                                          \
+    if(d->flags&D_NEW_GUI)                 \
+    {                                      \
+        int ret=new_gui_event(d-1, event); \
+        if(ret>=0)                         \
+            return ret;                    \
+    }                                      \
+} while(false)
 
 int bound(int x,int low,int high)
 {
@@ -1032,12 +1053,14 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
         while(gui_mouse_b())
         {
             down = mouse_in_rect(d->x, d->y, d->w, d->h);
-
             /* redraw? */
             if(last_draw != down)
             {
                 if(down != selected)
+                {
+                    NEW_GUI_EVENT(ngeCLICK);
                     d->flags |= D_SELECTED;
+                }
                 else
                     d->flags &= ~D_SELECTED;
 

@@ -1,6 +1,7 @@
 #ifndef ZC_GUI_WIDGET_H
 #define ZC_GUI_WIDGET_H
 
+#include "dialogEvent.h"
 #include "../zc_alleg.h"
 #include <memory>
 #include <vector>
@@ -41,6 +42,14 @@ public:
      */
     virtual int getMessage();
 
+    /* This function is called when an event occurs (e.g. a button is clicked
+     * or a list selection is changed). It should send the appropriate message
+     * through the provided function. event is a NewGuiEvent (jwin.h).
+     * If this function returns a D_* value, it will immediately be returned
+     * from the backend proc. If this returns -1, the proc will keep going.
+     */
+    virtual int onEvent(int event, MessageDispatcher sendMessage);
+
     int getTotalWidth() const { return width+hPadding; }
     int getTotalHeight() const { return height+vPadding; }
 
@@ -48,6 +57,9 @@ public:
     int getHeight() const { return height; }
 
 protected:
+    // A more convenient name for events with no arguments.
+    static constexpr EventArg noArg=std::monostate();
+
     int x, y, width, height;
     int fgColor, bgColor;
     int hPadding, vPadding;
