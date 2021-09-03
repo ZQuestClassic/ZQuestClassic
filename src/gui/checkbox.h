@@ -2,7 +2,7 @@
 #define ZC_GUI_CHECKBOX_H
 
 #include "widget.h"
-#include "dialog.h"
+#include "dialogRef.h"
 
 namespace gui
 {

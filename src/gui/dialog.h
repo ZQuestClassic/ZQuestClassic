@@ -2,6 +2,7 @@
 #define ZC_GUI_DIALOG_H
 
 #include "widget.h"
+#include "dialogRef.h"
 #include "../zc_alleg.h"
 #include "../gui.h"
 #include <memory>
@@ -27,29 +28,6 @@ public:
     void show();
 };
 
-class DialogRunner;
-// References an item in the DialogRunner's DIALOG array, which isn't safe
-// to do directly because it might be reallocated as the vector grows.
-// This is used by CheckBox to see if it's been checked.
-// Not really a good way of handling it; this is just a temporary class
-// to get things working.
-class DialogRef
-{
-public:
-    DialogRef();
-    DIALOG* operator->();
-    const DIALOG* operator->() const;
-    operator bool() const;
-
-private:
-    DialogRunner* owner;
-    size_t index;
-
-    DialogRef(DialogRunner* owner, size_t index);
-
-    friend class DialogRunner;
-};
-
 class DialogRunner
 {
 public:
@@ -72,10 +50,13 @@ public:
     /* Add a DIALOG and connect it to its owner.
      * This should always be called as
      * runner.push(shared_from_this(), DIALOG { ... });
+     * Returns a DialogRef that can be used as a reference to the
+     * newly added DIALOG.
      */
-    void push(std::shared_ptr<Widget> owner, DIALOG dlg);
+    DialogRef push(std::shared_ptr<Widget> owner, DIALOG dlg);
 
-    /* Returns an object that acts as a reference to the last DIALOG added.
+    /* Returns a DialogRef that can be used as a reference to the
+     * most recently added DIALOG.
      */
     DialogRef getAllegroDialog();
 
@@ -83,7 +64,7 @@ private:
     std::vector<DIALOG> alDialog;
     std::vector<std::shared_ptr<Widget>> widgets;
 
-    /* Gets the DIALOG array for a dialog so that it can be run.
+    /* Sets up the DIALOG array for a dialog so that it can be run.
      */
     void realize(std::shared_ptr<Widget> root);
 

@@ -2,7 +2,7 @@
 #define ZC_GUI_LABEL_H
 
 #include "widget.h"
-#include "dialog.h"
+#include "dialogRef.h"
 #include <string>
 
 namespace gui

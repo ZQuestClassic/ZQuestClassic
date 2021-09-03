@@ -5,10 +5,11 @@ using std::shared_ptr;
 namespace gui
 {
 
-void DialogRunner::push(shared_ptr<Widget> owner, DIALOG dlg)
+DialogRef DialogRunner::push(shared_ptr<Widget> owner, DIALOG dlg)
 {
     widgets.push_back(owner);
     alDialog.push_back(std::move(dlg));
+    return DialogRef(this, alDialog.size()-1);
 }
 
 void DialogRunner::realize(shared_ptr<Widget> root)
@@ -28,32 +29,7 @@ void DialogRunner::realize(shared_ptr<Widget> root)
 
 DialogRef DialogRunner::getAllegroDialog()
 {
-    size_t index=alDialog.size()-1;
-    return DialogRef(this, index);
-}
-
-
-
-DialogRef::DialogRef(): owner(nullptr)
-{}
-
-DialogRef::DialogRef(DialogRunner* owner, size_t index): owner(owner),
-    index(index)
-{}
-
-DIALOG* DialogRef::operator->()
-{
-    return &owner->alDialog[index];
-}
-
-const DIALOG* DialogRef::operator->() const
-{
-    return &owner->alDialog[index];
-}
-
-DialogRef::operator bool() const
-{
-    return owner;
+    return DialogRef(this, alDialog.size()-1);
 }
 
 }

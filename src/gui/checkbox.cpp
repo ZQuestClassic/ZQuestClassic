@@ -37,7 +37,7 @@ bool Checkbox::getChecked()
 
 void Checkbox::realize(DialogRunner& runner)
 {
-    runner.push(shared_from_this(), DIALOG {
+    alDialog=runner.push(shared_from_this(), DIALOG {
         jwin_checkfont_proc,
         x, y, width, height,
         fgColor, bgColor,
@@ -46,7 +46,6 @@ void Checkbox::realize(DialogRunner& runner)
         static_cast<int>(boxPlacement), 0, // d1, d2,
         (void*)text.c_str(), (void*)lfont_l, nullptr // dp, dp2, dp3
     });
-    alDialog=runner.getAllegroDialog();
 }
 
 }

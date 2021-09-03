@@ -1,4 +1,5 @@
 #include "dropDownList.h"
+#include "dialog.h"
 #include "../jwin.h"
 #include "../zquest.h"
 
@@ -90,7 +91,7 @@ void DropDownList::realize(DialogRunner& runner)
     if(selectedIndex<0)
         setIndex();
 
-    runner.push(shared_from_this(), DIALOG {
+    alDialog=runner.push(shared_from_this(), DIALOG {
         jwin_droplist_proc,
         x, y, width, height,
         fgColor, bgColor,
@@ -99,7 +100,6 @@ void DropDownList::realize(DialogRunner& runner)
         selectedIndex, 0, // d1, d2,
         &jwinListWrapper, nullptr, nullptr // dp, dp2, dp3
     });
-    alDialog=runner.getAllegroDialog();
 }
 
 int DropDownList::getMessage()
