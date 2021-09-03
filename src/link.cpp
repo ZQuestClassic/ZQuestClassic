@@ -7557,47 +7557,50 @@ bool LinkClass::animate(int)
 	{
 		int tx = x.getInt()+8,
 		    ty = y.getInt()+(bigHitbox?8:12);
-		for(int q = 0; q < 3; ++q)
+		if(!(unsigned(ty)>160 || unsigned(tx) > 240))
 		{
-			if(q && !tmpscr2[q-1].valid) continue;
-			newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
-			if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
-			int b = 1;
-			if(tx&8) b <<= 2;
-			if(ty&8) b <<= 1;
-			b |= (b<<4); //check equivalent effect flag too
-			if((cmb.walk&b)==b) //solid and effecting
+			for(int q = 0; q < 3; ++q)
 			{
-				if(z==0)
-				{
-					if(cmb.usrflags&cflag10)
-					{
-						if(!switchblock_offset)
-						{
-							switchblock_offset=true;
-							yofs -= 8;
-						}
-					}
-					else
-					{
-						if(switchblock_offset)
-						{
-							switchblock_offset=false;
-							yofs += 8;
-						}
-					}
-				}
-				if(cmb.attributes[2]>0 && switchblock_z>=0)
+				if(q && !tmpscr2[q-1].valid) continue;
+				newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
+				if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
+				int b = 1;
+				if(tx&8) b <<= 2;
+				if(ty&8) b <<= 1;
+				b |= (b<<4); //check equivalent effect flag too
+				if((cmb.walk&b)==b) //solid and effecting
 				{
 					if(z==0)
-						switchblock_z = zc_max(switchblock_z,zslongToFix(cmb.attributes[2]));
-					else if(SWITCHBLOCK_STATE < zslongToFix(cmb.attributes[2]))
 					{
-						switchblock_z += zslongToFix(cmb.attributes[2])-SWITCHBLOCK_STATE;
+						if(cmb.usrflags&cflag10)
+						{
+							if(!switchblock_offset)
+							{
+								switchblock_offset=true;
+								yofs -= 8;
+							}
+						}
+						else
+						{
+							if(switchblock_offset)
+							{
+								switchblock_offset=false;
+								yofs += 8;
+							}
+						}
 					}
+					if(cmb.attributes[2]>0 && switchblock_z>=0)
+					{
+						if(z==0)
+							switchblock_z = zc_max(switchblock_z,zslongToFix(cmb.attributes[2]));
+						else if(SWITCHBLOCK_STATE < zslongToFix(cmb.attributes[2]))
+						{
+							switchblock_z += zslongToFix(cmb.attributes[2])-SWITCHBLOCK_STATE;
+						}
+					}
+					else switchblock_z = -1;
+					break;
 				}
-				else switchblock_z = -1;
-				break;
 			}
 		}
 	}
