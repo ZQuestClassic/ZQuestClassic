@@ -6,6 +6,8 @@
 #include "../zquest.h"
 #include <boost/format.hpp>
 
+using std::get;
+
 static const gui::ListData guyListData(
     gui::itemText,
     {
@@ -278,16 +280,18 @@ std::shared_ptr<gui::Widget> RoomDialog::view()
                 Label(text="Guy:", hAlign=1.0),
                 Label(text="Message:", hAlign=1.0),
 
-                roomDD=DropDownList(
+                DropDownList(
                     data=roomListData,
                     onSelectionChanged=Message::selectRoom,
                     selectedValue=room),
                 argSwitcher,
-                guyDD=DropDownList(
+                DropDownList(
                     data=guyListData,
+                    onSelectionChanged=Message::selectGuy,
                     selectedValue=guy),
-                messageDD=DropDownList(
+                DropDownList(
                     data=messageListData,
+                    onSelectionChanged=Message::selectMessage,
                     selectedValue=message),
 
                 Button(text="Info", onClick=Message::roomInfo)
@@ -300,23 +304,30 @@ std::shared_ptr<gui::Widget> RoomDialog::view()
     );
 }
 
-bool RoomDialog::handleMessage(RoomDialog::Message msg)
+bool RoomDialog::handleMessage(RoomDialog::Message msg, gui::EventArg eventArg)
 {
     switch(msg)
     {
+    case Message::selectRoom:
+        argument=getArgument();
+        room=get<int>(eventArg);
+        setArgField();
+        return false;
+
+    case Message::selectGuy:
+        guy=get<int>(eventArg);
+        return false;
+
+    case Message::selectMessage:
+        message=get<int>(eventArg);
+        return false;
+
     case Message::roomInfo:
         showRoomInfo();
         return false;
 
-    case Message::selectRoom:
-        argument=getArgument();
-        room=roomDD->getSelectedValue();
-        setArgField();
-        return false;
-
     case Message::ok:
-        setRoomVars(room, getArgument(),
-            guyDD->getSelectedValue(), messageDD->getSelectedValue());
+        setRoomVars(room, getArgument(), guy, message);
         return true;
 
     case Message::cancel:
