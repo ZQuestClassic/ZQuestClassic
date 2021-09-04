@@ -3,7 +3,7 @@
 #include <string>
 
 FFScript FFCore;
-char ZQincludePaths[MAX_INCLUDE_PATHS][512];
+std::vector<std::string> ZQincludePaths;
 byte quest_rules[QUESTRULES_NEW_SIZE];
 
 int get_bit(byte *bitstr,int bit)
@@ -61,6 +61,45 @@ int compile(std::string script_path)
     return 0;
 }
 
+void updateIncludePaths()
+{
+	FILE* f = fopen("includepaths.txt", "r");
+	char includePathString[MAX_INCLUDE_PATH_CHARS] = {0};
+	if(f)
+	{
+		int pos = 0;
+		int c;
+		do
+		{
+			c = fgetc(f);
+			if(c!=EOF) 
+				includePathString[pos++] = c;
+		}
+		while(c!=EOF && pos<MAX_INCLUDE_PATH_CHARS);
+		if(pos<MAX_INCLUDE_PATH_CHARS)
+			includePathString[pos] = '\0';
+		includePathString[MAX_INCLUDE_PATH_CHARS-1] = '\0';
+		fclose(f);
+	}
+	else strcpy(includePathString, "include/;headers/;scripts/;");
+	ZQincludePaths.clear();
+	int pos = 0; int pathnumber = 0;
+	for ( int q = 0; includePathString[pos]; ++q )
+	{
+		int dest = 0;
+		char buf[2048] = {0};
+		while(includePathString[pos] != ';' && includePathString[pos])
+		{
+			buf[dest] = includePathString[pos];
+			++pos;
+			++dest;
+		}
+		++pos;
+		std::string str(buf);
+		ZQincludePaths.push_back(str);
+	}
+}
+
 int main(int argc, char **argv)
 {
     int script_path_index = used_switch(argc, argv, "-input");
@@ -74,7 +113,7 @@ int main(int argc, char **argv)
     set_config_file("zscript.cfg");
     memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
 	strcpy(FFCore.scriptRunString, get_config_string("Compiler","run_string","run"));
-
+	updateIncludePaths();
     // Any errors will be printed to stdout.
     int res = compile(script_path);
     allegro_exit();

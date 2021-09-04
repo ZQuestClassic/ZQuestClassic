@@ -24,7 +24,7 @@
 using boost::movelib::unique_ptr;
 using namespace ZScript;
 
-extern std::vector<string> *ZQincludePaths;
+extern std::vector<string> ZQincludePaths;
 //#define PARSER_DEBUG
 
 ScriptsData* compile(string const& filename);
@@ -149,9 +149,9 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int reclimit)
 			if(importfound != 0)
 				importname = importname.substr(importfound); //Remove leading `/` and `\`
 			//Convert the include string to a proper import path
-			for ( int q = 0; q < ZQincludePaths->size() && !fname; ++q ) //Loop through all include paths, or until valid file is found
+			for ( int q = 0; q < ZQincludePaths.size() && !fname; ++q ) //Loop through all include paths, or until valid file is found
 			{
-				includePath = ZQincludePaths->at(q);
+				includePath = ZQincludePaths.at(q);
 				//Add a `/` to the end of the include path, if it is missing
 				int lastnot = includePath.find_last_not_of("/\\");
 				int last = includePath.find_last_of("/\\");
