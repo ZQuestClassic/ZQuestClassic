@@ -3231,7 +3231,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
-	
+	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
