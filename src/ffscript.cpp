@@ -28282,7 +28282,7 @@ void do_issolid()
 //void FFScript::getNPCData_scriptdefence(){GET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence)};
 
 
-void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,(edefLAST255))};
+void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,int(edefLAST255))};
 
 
 void FFScript::getNPCData_SIZEflags(){GET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags);}
@@ -28440,7 +28440,7 @@ void FFScript::setNPCData_wpnsprite(){SET_NPCDATA_FUNCTION_VAR_INT(wpnsprite,511
 
 
 //void FFScript::setNPCData_scriptdefence(){SET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence);}
-void FFScript::setNPCData_defense(int v){SET_NPCDATA_FUNCTION_VAR_INDEX(defense,v, ZS_INT, (edefLAST255) );}
+void FFScript::setNPCData_defense(int v){SET_NPCDATA_FUNCTION_VAR_INDEX(defense,v, ZS_INT, int(edefLAST255) );}
 void FFScript::setNPCData_SIZEflags(int v){SET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags,v);}
 void FFScript::setNPCData_misc(int val)
 {

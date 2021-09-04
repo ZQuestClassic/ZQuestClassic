@@ -400,5 +400,16 @@ namespace util
 			}
 		}
 	}
+	
+	template<typename T, typename A, typename B>
+	T vbound(T val, A low, B high)
+	{
+		ASSERT(T(low) < T(high));
+		if(val <= T(low))
+			return T(low);
+		if(val >= T(high))
+			return T(high);
+		return val;
+	}
 }
 
