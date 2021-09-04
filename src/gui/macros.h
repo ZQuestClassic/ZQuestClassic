@@ -5,7 +5,7 @@
 #include <utility>
 #include "helper.h"
 
-namespace gui { namespace internal
+namespace gui::internal
 {
 
 // TODO: Can't this be done better?
@@ -16,10 +16,9 @@ inline void allowChild(std::shared_ptr<parent>, std::shared_ptr<child>)
         ZCGUI_STATIC_ASSERT(!(std::is_same<parent, p>::value && std::is_same<child, c>::value), msg)
     #define ZCGUI_REQUIRE_PARENT(p, c, msg) \
         ZCGUI_STATIC_ASSERT((std::is_same<parent, p>::value || !std::is_same<child, c>::value), msg)
-    //ZCGUI_REQUIRE_PARENT(Window, MenuItemImpl, "MenuItems are only allowed in Menus.");
 }
 
-}} // namespace gui::internal
+} // namespace gui::internal
 
 #define ZCGUI_DECLARE_PROPERTY(name)                                                               \
 struct name##Prop                                                                                  \
@@ -226,7 +225,8 @@ inline std::shared_ptr<widgetType> ZCGUI_WIDGET_NAME(functionName)(PropsType&&..
     return ret.resolve();                                                                          \
 }
 
-namespace gui { namespace props {
+namespace gui::props
+{
 
 struct Property {};
 
@@ -256,9 +256,9 @@ ZCGUI_DECLARE_PROPERTY(vPadding)
 #pragma GCC diagnostic pop
 #endif
 
-} // props
+} // namespace gui::props
 
-namespace internal
+namespace gui::internal
 {
 
 // Clang will complain that definitions of tag types aren't available.
@@ -303,7 +303,9 @@ inline void applyArgs(PropsSoFar psf, BuilderType&& builder, PropType&& prop,
 {
     using DecayType=typename std::decay<PropType>::type;
     ZCGUI_STATIC_ASSERT((std::is_base_of<props::Property, DecayType>::value),
-        "Arguments must be widget properties or widgets.");
+        "Arguments must be widget properties or widgets.\n"
+        "This may be a name collision.\n"
+        "Is there something else with the same name in scope?");
     prop.assertUnique(psf);
 
     builder.applyProp(std::forward<PropType>(prop), PropType::tag);
@@ -317,6 +319,6 @@ inline void applyArgs(PropsSoFar psf, BuilderType&& builder, PropType&& prop,
 #pragma clang diagnostic pop
 #endif
 
-}} // namespace gui::internal
+} // namespace gui::internal
 
 #endif
