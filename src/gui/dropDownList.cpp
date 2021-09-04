@@ -2,12 +2,14 @@
 #include "dialog.h"
 #include "../jwin.h"
 #include "../zquest.h"
+#include <cassert>
 
 namespace gui
 {
 
-DropDownList::DropDownList(): jwinListWrapper(jwinListWrapperFunc, &lfont_l, this),
-    listData(nullptr), selectedIndex(0), selectedValue(0), message(0)
+DropDownList::DropDownList():
+    jwinListWrapper(jwinListWrapperFunc, &lfont_l, this),
+    listData(nullptr), selectedIndex(0), selectedValue(0), message(-1)
 {
     width=200;
     height=text_height(lfont_l)+8;
@@ -27,7 +29,7 @@ void DropDownList::setSelectedValue(int value)
     if(alDialog)
     {
         setIndex();
-        alDialog->d1=selectedIndex;
+        alDialog->d1=alDialog->d2=selectedIndex;
     }
 }
 
@@ -72,9 +74,7 @@ const char* DropDownList::jwinListWrapperFunc(int index, int* size, void* owner)
 {
     DropDownList* cb=static_cast<DropDownList*>(owner);
     if(index>=0)
-    {
         return cb->listData->listEntry(index).c_str();
-    }
     else
     {
         *size=cb->listData->size();
@@ -96,15 +96,18 @@ void DropDownList::realize(DialogRunner& runner)
         x, y, width, height,
         fgColor, bgColor,
         0, // key
-        message>=0 ? D_EXIT : 0, // flags
-        selectedIndex, 0, // d1, d2,
+        D_NEW_GUI, // flags
+        selectedIndex, selectedIndex, // d1, d2,
         &jwinListWrapper, nullptr, nullptr // dp, dp2, dp3
     });
 }
 
-int DropDownList::getMessage()
+int DropDownList::onEvent(int event, MessageDispatcher sendMessage)
 {
-    return message;
+    assert(event==ngeCHANGE_SELECTION);
+    if(message>=0)
+        sendMessage(message, listData->value(alDialog->d1));
+    return -1;
 }
 
 }

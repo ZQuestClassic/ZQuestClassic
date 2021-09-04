@@ -31,11 +31,6 @@ void Widget::setVAlign(float align)
     vAlign=align;
 }
 
-int Widget::getMessage()
-{
-    return -1;
-}
-
 int Widget::onEvent(int, MessageDispatcher)
 {
     assert(false); // This function should have been overridden

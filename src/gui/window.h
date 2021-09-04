@@ -27,7 +27,7 @@ private:
 
     void arrange(int contX, int contY, int contW, int contH) override;
     void realize(DialogRunner& runner) override;
-    int getMessage() override;
+    int onEvent(int event, MessageDispatcher sendMessage) override;
 };
 
 }

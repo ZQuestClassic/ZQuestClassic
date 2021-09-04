@@ -770,7 +770,10 @@ int jwin_win_proc(int msg, DIALOG *d, int c)
         if((d->flags & D_EXIT) && mouse_in_rect(d->x+d->w-21, d->y+5, 16, 14))
         {
             if(jwin_do_x_button(screen, d->x+d->w-21, d->y+5))
+            {
+                NEW_GUI_EVENT(ngeCLOSE);
                 return D_CLOSE;
+            }
         }
 
         break;
@@ -1041,6 +1044,7 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
 
         /* or just toggle */
         d->flags ^= D_SELECTED;
+        NEW_GUI_EVENT(ngeCLICK);
         scare_mouse();
         object_message(d, MSG_DRAW, 0);
         unscare_mouse();
@@ -1057,10 +1061,7 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
             if(last_draw != down)
             {
                 if(down != selected)
-                {
-                    NEW_GUI_EVENT(ngeCLICK);
                     d->flags |= D_SELECTED;
-                }
                 else
                     d->flags &= ~D_SELECTED;
 
@@ -1094,6 +1095,7 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
         /* redraw in normal state */
         if(down)
         {
+            NEW_GUI_EVENT(ngeCLICK);
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
@@ -1405,6 +1407,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
         }
         else if((c >> 8) == KEY_ENTER)
         {
+            NEW_GUI_EVENT(ngeENTER);
             if(d->flags & D_EXIT)
             {
                 scare_mouse();
@@ -4297,8 +4300,12 @@ int jwin_droplist_proc(int msg,DIALOG *d,int c)
         unscare_mouse();
     }
 
-    if((d1 != d->d1) && (d->flags&D_EXIT))
-        ret |= D_CLOSE;
+    if(d1 != d->d1)
+    {
+        NEW_GUI_EVENT(ngeCHANGE_SELECTION);
+        if(d->flags&D_EXIT)
+            ret |= D_CLOSE;
+    }
 
     if(msg == MSG_DRAW)
     {
@@ -4363,6 +4370,9 @@ dropit:
 
     while(gui_mouse_b())
         clear_keybuf();
+
+    if(d1!=d->d1)
+        NEW_GUI_EVENT(ngeCHANGE_SELECTION);
 
     return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
 }
@@ -6087,6 +6097,7 @@ int d_jslider_proc(int msg, DIALOG *d, int c)
     return retval;
 }
 
+// This is only used by jwin_check_proc and jwin_radio_proc.
 int d_jwinbutton_proc(int msg, DIALOG *d, int)
 {
     BITMAP *gui_bmp;
@@ -6150,6 +6161,7 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
 
         /* or just toggle */
         d->flags ^= D_SELECTED;
+        NEW_GUI_EVENT(ngeTOGGLE);
         object_message(d, MSG_DRAW, 0);
         break;
 
@@ -6175,6 +6187,7 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
             if(((state1) && (!state2)) || ((state2) && (!state1)))
             {
                 d->flags ^= D_SELECTED;
+                NEW_GUI_EVENT(ngeTOGGLE);
                 state1 = d->flags & D_SELECTED;
                 object_message(d, MSG_DRAW, 0);
             }

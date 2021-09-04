@@ -3,6 +3,7 @@
 #include "../jwin.h"
 #include "../zquest.h"
 #include <algorithm>
+#include <cassert>
 #include <utility>
 
 using std::max, std::shared_ptr;
@@ -10,7 +11,7 @@ using std::max, std::shared_ptr;
 namespace gui
 {
 
-Window::Window(): content(nullptr)
+Window::Window(): content(nullptr), title(""), closeMessage(-1)
 {
     hPadding=0;
     vPadding=0;
@@ -57,7 +58,7 @@ void Window::realize(DialogRunner& runner)
         x, y, width, height,
         fgColor, bgColor,
         0, // key
-        closeMessage ? D_EXIT : 0, // flags,
+        D_NEW_GUI | (closeMessage ? D_EXIT : 0), // flags,
         0, 0, // d1, d2
         (void*)title.c_str(), (void*)lfont_l, nullptr // dp, dp2, dp3
     });
@@ -66,9 +67,12 @@ void Window::realize(DialogRunner& runner)
         content->realize(runner);
 }
 
-int Window::getMessage()
+int Window::onEvent(int event, MessageDispatcher sendMessage)
 {
-    return closeMessage;
+    assert(event==ngeCLOSE);
+    if(closeMessage>=0)
+        sendMessage(closeMessage, noArg);
+    return -1;
 }
 
 }

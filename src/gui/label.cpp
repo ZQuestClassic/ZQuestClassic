@@ -40,7 +40,7 @@ void Label::realize(DialogRunner& runner)
         x, y, width, height,
         fgColor, bgColor,
         0, // key
-        0, // flags
+        D_NEW_GUI, // flags
         0, 0, // d1, d2
         (void*)text.c_str(), (void*)lfont_l, nullptr // dp, dp2, dp3
     });

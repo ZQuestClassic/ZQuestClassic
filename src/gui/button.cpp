@@ -20,7 +20,7 @@ void Button::setText(std::string newText)
 
 void Button::realize(DialogRunner& runner)
 {
-    runner.push(shared_from_this(), DIALOG {
+    alDialog=runner.push(shared_from_this(), DIALOG {
         jwin_button_proc,
         x, y, width, height,
         fgColor, bgColor,
@@ -31,14 +31,11 @@ void Button::realize(DialogRunner& runner)
     });
 }
 
-int Button::getMessage()
-{
-    return message;
-}
-
 int Button::onEvent(int event, MessageDispatcher sendMessage)
 {
     assert(event==ngeCLICK);
+    // jwin_button_proc doesn't seem to allow for a non-toggle button...
+    alDialog->flags&=~D_SELECTED;
     if(message>=0)
         sendMessage(message, noArg);
     return -1;

@@ -18,13 +18,21 @@ public:
     void setChecked(bool value);
     bool getChecked();
 
+    template<typename T>
+    void onToggle(T m)
+    {
+        message=static_cast<int>(m);
+    }
+
 private:
     bool checked;
     std::string text;
     BoxPlacement boxPlacement;
     DialogRef alDialog;
+    int message;
 
     void realize(DialogRunner& runner) override;
+    int onEvent(int event, MessageDispatcher sendMessage) override;
 };
 
 }

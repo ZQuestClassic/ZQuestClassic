@@ -37,7 +37,7 @@ private:
     // If a value was set rather than an index, find an index to select.
     void setIndex();
     void realize(DialogRunner& runner) override;
-    int getMessage() override;
+    int onEvent(int event, MessageDispatcher sendMessage) override;
     static const char* jwinListWrapperFunc(int index, int* size, void* owner);
 };
 

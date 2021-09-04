@@ -2,13 +2,14 @@
 #include "dialog.h"
 #include "../jwin.h"
 #include "../zquest.h"
+#include <cassert>
 #include <utility>
 
 namespace gui
 {
 
 Checkbox::Checkbox(): checked(false), text(),
-    boxPlacement(BoxPlacement::right), alDialog()
+    boxPlacement(BoxPlacement::right), alDialog(), message(-1)
 {
     height=text_height(lfont_l);
     width=12;
@@ -42,10 +43,18 @@ void Checkbox::realize(DialogRunner& runner)
         x, y, width, height,
         fgColor, bgColor,
         0, // key
-        checked ? D_SELECTED : 0, // flags
+        D_NEW_GUI|(checked ? D_SELECTED : 0), // flags
         static_cast<int>(boxPlacement), 0, // d1, d2,
         (void*)text.c_str(), (void*)lfont_l, nullptr // dp, dp2, dp3
     });
+}
+
+int Checkbox::onEvent(int event, MessageDispatcher sendMessage)
+{
+    assert(event==ngeTOGGLE);
+    if(message>=0)
+        sendMessage(message, (alDialog->flags&D_SELECTED)!=0);
+    return -1;
 }
 
 }

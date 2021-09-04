@@ -2,6 +2,7 @@
 #define ZC_GUI_BUTTON_H
 
 #include "widget.h"
+#include "dialogRef.h"
 #include <string>
 
 namespace gui
@@ -21,10 +22,10 @@ public:
 
 private:
     std::string text;
+    DialogRef alDialog;
     int message;
 
     void realize(DialogRunner& runner) override;
-    int getMessage() override;
     int onEvent(int event, MessageDispatcher sendMessage) override;
 };
 

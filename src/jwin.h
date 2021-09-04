@@ -91,7 +91,7 @@ extern char newGuiMarker;
 /* All the events that may be handled by a new GUI widget. */
 enum NewGuiEvent
 {
-    ngeCLICK
+    ngeCLICK, ngeCHANGE_SELECTION, ngeCLOSE, ngeENTER, ngeTOGGLE
 };
 
 /* frame styles */

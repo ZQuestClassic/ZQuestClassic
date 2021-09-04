@@ -52,16 +52,10 @@ public:
         };
 
         realize(dlg.view());
-        while(!done)
-        {
-            int ret=zc_popup_dialog(alDialog.data(), -1);
-            if(ret<0 || done)
-                break;
-            int msg=widgets[ret]->getMessage();
-            assert(msg>=0);
-            if(dlg.handleMessage(static_cast<T>(msg)))
-                break;
-        }
+
+        int ret=0;
+        while(!done && ret>=0)
+            ret=zc_popup_dialog(alDialog.data(), -1);
     }
 
     /* Add a DIALOG and connect it to its owner.
@@ -81,7 +75,7 @@ private:
     MessageDispatcher sendMessage;
     std::vector<DIALOG> alDialog;
     std::vector<std::shared_ptr<Widget>> widgets;
-    bool done;
+    bool redrawPending, done;
 
     /* Sets up the DIALOG array for a dialog so that it can be run.
      */

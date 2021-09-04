@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstring>
 #include <utility>
+#include <cassert>
 
 namespace gui
 {
@@ -64,15 +65,23 @@ void TextField::realize(DialogRunner& runner)
         x, y, width, height,
         fgColor, bgColor,
         0, // key
-        (message>=0) ? D_EXIT : 0, // flags -  D_EXIT needed to send messages
+        D_NEW_GUI, // flags
         static_cast<int>(maxLength), 0, // d1, d2
         (void*)buffer.get(), (void*)lfont_l, nullptr // dp, dp2, dp3
     });
 }
 
-int TextField::getMessage()
+int TextField::onEvent(int event, MessageDispatcher sendMessage)
 {
-    return message;
+    assert(event==ngeENTER);
+    if(message<0)
+        return -1;
+
+    if(maxLength>0)
+        sendMessage(message, std::string_view(buffer.get()));
+    else
+        sendMessage(message, std::string_view(""));
+    return -1;
 }
 
 }

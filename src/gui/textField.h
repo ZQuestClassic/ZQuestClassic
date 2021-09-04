@@ -16,10 +16,13 @@ public:
     /* Returns the current text.
      * The string is owned by the TextField, so don't hold on to it
      * after the dialog is closed.
-     * (That should really be changed...)
      */
     std::string_view getText();
 
+    /* Set the current text. If it's longer than the current maximum length,
+     * only that many characters will be kept. However, if the maximum length
+     * is 0, the maximum length will be set to the length of the text.
+     */
     void setText(std::string_view newText);
 
     /* Set the maximum length of the text, NOT including the null terminator.
@@ -38,7 +41,7 @@ private:
     int message;
 
     void realize(DialogRunner& runner) override;
-    int getMessage() override;
+    int onEvent(int event, MessageDispatcher sendMessage) override;
 };
 
 }

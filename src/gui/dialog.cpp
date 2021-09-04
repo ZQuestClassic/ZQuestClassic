@@ -12,20 +12,28 @@ namespace gui
  */
 int dialog_proc(int msg, DIALOG *d, int c)
 {
+    auto* dr=static_cast<DialogRunner*>(d->dp);
     if(msg==MSG_NEW_GUI_EVENT)
     {
-        auto* dr=static_cast<DialogRunner*>(d->dp);
         int ret=dr->widgets[d->d1]->onEvent(c, dr->sendMessage);
         if(dr->done)
             return D_EXIT;
         else
+        {
+            dr->redrawPending=true;
             return ret;
+        }
+    }
+    else if(msg==MSG_IDLE && dr->redrawPending)
+    {
+        dr->redrawPending=false;
+        return D_REDRAW;
     }
     else
         return D_O_K;
 }
 
-DialogRunner::DialogRunner(): done(false)
+DialogRunner::DialogRunner(): redrawPending(false), done(false)
 {}
 
 DialogRef DialogRunner::push(shared_ptr<Widget> owner, DIALOG dlg)

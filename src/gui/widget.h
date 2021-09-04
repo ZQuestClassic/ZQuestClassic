@@ -37,16 +37,13 @@ public:
     /* Creates DIALOGs for this widget and any children. */
     virtual void realize(DialogRunner& runner)=0;
 
-    /* Returns the message this type sends on an event cast to an int.
-     * The default value when no message is set should be negative.
-     */
-    virtual int getMessage();
-
     /* This function is called when an event occurs (e.g. a button is clicked
      * or a list selection is changed). It should send the appropriate message
      * through the provided function. event is a NewGuiEvent (jwin.h).
      * If this function returns a D_* value, it will immediately be returned
      * from the backend proc. If this returns -1, the proc will keep going.
+     * This should not return D_EXIT. Instead, the dialog's message handler
+     * should return true.
      */
     virtual int onEvent(int event, MessageDispatcher sendMessage);
 
