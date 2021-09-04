@@ -10,7 +10,7 @@
 
 enum class RoomDialogMessage
 {
-    selectRoom, selectGuy, selectMessage, roomInfo, ok, cancel
+    setRoom, setArgument, setGuy, setMessage, roomInfo, ok, cancel
 };
 
 class RoomDialog: public gui::Dialog<RoomDialogMessage>
@@ -33,9 +33,16 @@ private:
     int room, argument, guy, message;
     std::function<void(int, int, int, int)> setRoomVars;
 
+    /* Called when the room is changed to show the appropriate
+    * argument selector and set its value.
+    */
     void setArgField();
-    int getArgument();
-    void showRoomInfo();
+
+    /* Called when the dialog is closed to get the argument
+     * limited to legal values.
+     */
+    int getArgument() const;
+    void showRoomInfo() const;
 };
 
 #endif

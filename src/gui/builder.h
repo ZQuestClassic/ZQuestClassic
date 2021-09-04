@@ -107,7 +107,9 @@ ZCGUI_BUILDER_FUNCTION(Switcher, Switcher, internal::makeSwitcher)
 ZCGUI_BUILDER_START(TextField)
     ZCGUI_ACCEPT_PROP(maxLength, setMaxLength);
     ZCGUI_ACCEPT_PROP(onEnter, onEnter, int)
+    ZCGUI_ACCEPT_PROP(onValueChanged, onValueChanged, int)
     ZCGUI_ACCEPT_PROP(text, setText, std::string_view)
+    ZCGUI_ACCEPT_PROP(type, setType, TextField::Type)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TextField, TextField, internal::makeTextField)
 

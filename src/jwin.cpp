@@ -1392,8 +1392,11 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
         else if((c >> 8) == KEY_DEL)
         {
             if(d->d2 < l)
+            {
                 for(p=d->d2; s[p]; p++)
                     s[p] = s[p+1];
+                NEW_GUI_EVENT(ngeCHANGE_VALUE);
+            }
         }
         else if((c >> 8) == KEY_BACKSPACE)
         {
@@ -1403,6 +1406,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
 
                 for(p=d->d2; s[p]; p++)
                     s[p] = s[p+1];
+                NEW_GUI_EVENT(ngeCHANGE_VALUE);
             }
         }
         else if((c >> 8) == KEY_ENTER)
@@ -1438,6 +1442,8 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
 
                     s[d->d2] = c;
                     d->d2++;
+
+                    NEW_GUI_EVENT(ngeCHANGE_VALUE);
                 }
             }
             else

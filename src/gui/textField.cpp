@@ -4,14 +4,16 @@
 #include "../zdefs.h"
 #include "../zquest.h"
 #include <algorithm>
-#include <cstring>
-#include <utility>
 #include <cassert>
+#include <cstring>
+#include <string>
+#include <utility>
 
 namespace gui
 {
 
-TextField::TextField(): buffer(nullptr), maxLength(0), message(-1)
+TextField::TextField(): buffer(nullptr), type(Type::Text), maxLength(0),
+    onEnterMsg(-1), onValueChangedMsg(-1)
 {
     width=8;
     height=text_height(lfont_l)+8;
@@ -19,11 +21,9 @@ TextField::TextField(): buffer(nullptr), maxLength(0), message(-1)
     bgColor=vc(1);
 }
 
-std::string_view TextField::getText()
+void TextField::setType(Type newType)
 {
-    if(maxLength==0)
-        return "";
-    return buffer.get();
+    type=newType;
 }
 
 void TextField::setText(std::string_view newText)
@@ -33,6 +33,13 @@ void TextField::setText(std::string_view newText)
         setMaxLength(newText.size());
     newText.copy(buffer.get(), maxLength);
     buffer[std::min(maxLength-1, newText.size())]='\0';
+}
+
+std::string_view TextField::getText()
+{
+    if(maxLength==0)
+        return "";
+    return buffer.get();
 }
 
 void TextField::setMaxLength(size_t newMax)
@@ -60,8 +67,25 @@ void TextField::realize(DialogRunner& runner)
 {
     assert(maxLength>0);
 
+    using ProcType=int(*)(int, DIALOG*, int);
+    ProcType proc;
+    switch(type)
+    {
+    case Type::Text:
+        proc=jwin_edit_proc;
+        break;
+
+    case Type::IntDecimal:
+        proc=jwin_numedit_proc;
+        break;
+
+    case Type::IntHex:
+        proc=jwin_hexedit_proc;
+        break;
+    }
+
     runner.push(shared_from_this(), DIALOG {
-        jwin_edit_proc,
+        proc,
         x, y, width, height,
         fgColor, bgColor,
         0, // key
@@ -73,14 +97,53 @@ void TextField::realize(DialogRunner& runner)
 
 int TextField::onEvent(int event, MessageDispatcher sendMessage)
 {
-    assert(event==ngeENTER);
+    int message;
+    switch(event)
+    {
+    case ngeENTER:
+        message=onEnterMsg;
+        break;
+
+    case ngeCHANGE_VALUE:
+        message=onValueChangedMsg;
+        break;
+
+    default:
+        assert(false);
+    }
     if(message<0)
         return -1;
 
     if(maxLength>0)
-        sendMessage(message, std::string_view(buffer.get()));
+    {
+        int value;
+        switch(type)
+        {
+        case Type::Text:
+            sendMessage(message, std::string_view(buffer.get()));
+            break;
+
+        case Type::IntDecimal:
+            try { value=std::stoi(buffer.get(), nullptr, 10); }
+            catch(std::exception) { value=0; }
+            sendMessage(message, value);
+            break;
+
+        case Type::IntHex:
+            try { value=std::stoi(buffer.get(), nullptr, 16); }
+            catch(std::exception) { value=0; }
+            sendMessage(message, value);
+            break;
+        }
+    }
     else
-        sendMessage(message, std::string_view(""));
+    {
+        if(type==Type::Text)
+            sendMessage(message, std::string_view(""));
+        else
+            sendMessage(message, 0);
+    }
+
     return -1;
 }
 

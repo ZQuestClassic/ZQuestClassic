@@ -254,18 +254,23 @@ std::shared_ptr<gui::Widget> RoomDialog::view()
     argLabel=Label(hAlign=1.0);
     argSwitcher=Switcher(
         argTF=TextField(
+            type=gui::TextField::Type::IntDecimal,
             maxLength=6,
             text=std::to_string(argument),
-            hAlign=0.0),
+            hAlign=0.0,
+            onValueChanged=Message::setArgument),
         itemDD=DropDownList(
             data=itemListData,
-            selectedValue=argument),
+            selectedValue=argument,
+        onSelectionChanged=Message::setArgument),
         shopDD=DropDownList(
             data=shopListData,
-            selectedValue=argument),
+            selectedValue=argument,
+        onSelectionChanged=Message::setArgument),
         infoShopDD=DropDownList(
             data=infoShopListData,
-            selectedValue=argument)
+            selectedValue=argument,
+            onSelectionChanged=Message::setArgument)
     );
 
     setArgField();
@@ -282,16 +287,16 @@ std::shared_ptr<gui::Widget> RoomDialog::view()
 
                 DropDownList(
                     data=roomListData,
-                    onSelectionChanged=Message::selectRoom,
+                    onSelectionChanged=Message::setRoom,
                     selectedValue=room),
                 argSwitcher,
                 DropDownList(
                     data=guyListData,
-                    onSelectionChanged=Message::selectGuy,
+                    onSelectionChanged=Message::setGuy,
                     selectedValue=guy),
                 DropDownList(
                     data=messageListData,
-                    onSelectionChanged=Message::selectMessage,
+                    onSelectionChanged=Message::setMessage,
                     selectedValue=message),
 
                 Button(text="Info", onClick=Message::roomInfo)
@@ -308,17 +313,20 @@ bool RoomDialog::handleMessage(RoomDialog::Message msg, gui::EventArg eventArg)
 {
     switch(msg)
     {
-    case Message::selectRoom:
-        argument=getArgument();
+    case Message::setRoom:
         room=get<int>(eventArg);
         setArgField();
         return false;
 
-    case Message::selectGuy:
+    case Message::setArgument:
+        argument=get<int>(eventArg);
+        return false;
+
+    case Message::setGuy:
         guy=get<int>(eventArg);
         return false;
 
-    case Message::selectMessage:
+    case Message::setMessage:
         message=get<int>(eventArg);
         return false;
 
@@ -378,7 +386,7 @@ void RoomDialog::setArgField()
     }
 }
 
-int RoomDialog::getArgument()
+int RoomDialog::getArgument() const
 {
     switch(argSwitcher->getVisible())
     {
@@ -389,12 +397,11 @@ int RoomDialog::getArgument()
     case argInfoShopList:
         return infoShopDD->getSelectedValue();
     default:
-        try { return std::stoi(argTF->getText().data()); }
-        catch(std::exception) { return 0; }
+        return argument>=0 ? argument : -argument;
     }
 }
 
-void RoomDialog::showRoomInfo()
+void RoomDialog::showRoomInfo() const
 {
     const decltype(defaultDesc)* info=nullptr;
     switch(room)

@@ -88,10 +88,13 @@ extern "C"
 /* Used to indicate the new GUI dialog root. */
 extern char newGuiMarker;
 
-/* All the events that may be handled by a new GUI widget. */
+/* All the events that may be handled by a new GUI widget.
+ * These could possibly be pared down a bit, but it doesn't matter much.
+ */
 enum NewGuiEvent
 {
-    ngeCLICK, ngeCHANGE_SELECTION, ngeCLOSE, ngeENTER, ngeTOGGLE
+    ngeCLICK, ngeCHANGE_SELECTION, ngeCHANGE_VALUE, ngeCLOSE, ngeENTER,
+    ngeTOGGLE
 };
 
 /* frame styles */
