@@ -403,7 +403,7 @@ namespace util
 	
 	int vbound(int val, int low, int high)
 	{
-		ASSERT(low < high);
+		ASSERT(low <= high);
 		if(val <= low)
 			return low;
 		if(val >= high)
@@ -413,7 +413,7 @@ namespace util
 	
 	double vbound(double val, double low, double high)
 	{
-		ASSERT(low < high);
+		ASSERT(low <= high);
 		if(val <= low)
 			return low;
 		if(val >= high)
