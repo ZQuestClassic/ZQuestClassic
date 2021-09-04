@@ -71,7 +71,7 @@ namespace // file local
 	enum Id
 	{
 		ID_START = -1,
-#		define X(NAME, DEFAULTQR, TYPE, DEFAULTVAL) \
+#		define X(NAME, TYPE, DEFAULTVAL) \
 		ID_##NAME,
 #		include "CompileOption.xtable"
 #		undef X
@@ -83,9 +83,9 @@ namespace // file local
 	{
 		string name;
 		CompileOptionValue defaultValue;
-		int defaultqr, type;
-		Entry(string name = "", int defaultQR = 0, int type = 0, long defaultValue = 0L)
-			: name(name), defaultValue(defaultValue), type(type), defaultqr(defaultQR) {}
+		int type;
+		Entry(string name = "", int type = 0, long defaultValue = 0L)
+			: name(name), defaultValue(defaultValue), type(type) {}
 	};
 
 	// Table holding option data.
@@ -96,7 +96,7 @@ namespace // file local
 };
 
 // Define static instance for each option.
-#define X(NAME, DEFAULTQR, TYPE, DEFAULTVAL) \
+#define X(NAME, TYPE, DEFAULTVAL) \
 CompileOption CompileOption::OPT_##NAME(ID_##NAME);
 #include "CompileOption.xtable"
 #undef X
@@ -109,8 +109,8 @@ void CompileOption::initialize()
 	if (!initialized)
 	{
 		// Fill entries table from xtable.
-#		define X(NAME, DEFAULTQR, TYPE, DEFAULTVAL) \
-		entries[ID_##NAME] = Entry(#NAME, DEFAULTQR, TYPE, DEFAULTVAL);
+#		define X(NAME, TYPE, DEFAULTVAL) \
+		entries[ID_##NAME] = Entry(#NAME, TYPE, DEFAULTVAL);
 #		include "CompileOption.xtable"
 #		undef X
 
@@ -132,11 +132,6 @@ void CompileOption::updateDefaults()
 	{
 		switch(entries[i].type)
 		{
-			case OPTTYPE_QR:
-				if(entries[i].defaultqr)
-					entries[i].defaultValue = get_bit(quest_rules, entries[i].defaultqr) ? 10000L : 0L;
-				break;
-			
 			case OPTTYPE_CONFIG:
 				if(int temp = get_config_int("Compiler", entries[i].name.c_str(), 0))
 					entries[i].defaultValue = temp * 10000L;

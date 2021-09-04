@@ -25,10 +25,8 @@ int used_switch(int argc,char *argv[],const char *s)
     return 0;
 }
 
-int compile(std::string script_path)
+int setup_tmp(std::string script_path)
 {
-    printf("compiling %s\n", script_path.c_str());
-
     // copy to tmp file
     std::string zScript;
     FILE *zscript = fopen(script_path.c_str(),"r");
@@ -45,7 +43,7 @@ int compile(std::string script_path)
         c = fgetc(zscript);
     }
     fclose(zscript);
-
+	
     FILE *tempfile = fopen("tmp","w");
     if(!tempfile)
     {
@@ -54,7 +52,11 @@ int compile(std::string script_path)
     }
     fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
     fclose(tempfile);
+	return 0;
+}
 
+int compile()
+{
     boost::movelib::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
     unlink("tmp");
     
@@ -103,19 +105,27 @@ void updateIncludePaths()
 int main(int argc, char **argv)
 {
     int script_path_index = used_switch(argc, argv, "-input");
-    if (!script_path_index) {
-        printf("Error: missing required flag: -input\n");
-        return 1;
+    if (script_path_index)
+	{
+		std::string script_path = argv[script_path_index + 1];
+		int ret = setup_tmp(script_path);
+		if(ret) return ret;
     }
-    std::string script_path = argv[script_path_index + 1];
 
     allegro_init();
-    set_config_file("zscript.cfg");
+    set_config_file("zquest.cfg");
     memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
 	strcpy(FFCore.scriptRunString, get_config_string("Compiler","run_string","run"));
 	updateIncludePaths();
     // Any errors will be printed to stdout.
-    int res = compile(script_path);
+	FILE* f = fopen("tmp", "r");
+	if(!f)
+	{
+		printf("No input file found, exiting\n");
+		return 1;
+	}
+	fclose(f);
+    int res = compile();
     allegro_exit();
     return res;
 }

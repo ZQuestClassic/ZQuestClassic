@@ -52,7 +52,7 @@ namespace ZScript
 		static CompileOption Invalid;
 
 		// Declare static instance for each option.
-#		define X(NAME, DEFAULTQR, TYPE, DEFAULTVAL) \
+#		define X(NAME, TYPE, DEFAULTVAL) \
 		static CompileOption OPT_##NAME;
 #		include "CompileOption.xtable"
 #		undef X

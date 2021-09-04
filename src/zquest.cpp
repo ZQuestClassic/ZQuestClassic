@@ -26007,6 +26007,170 @@ void clear_map_states()
 	}
 }
 
+void write_compilesetting_qrs()
+{
+	set_config_int("Compiler", "NO_LOGGING",
+		(get_bit(quest_rules, qr_PARSER_NO_LOGGING) ? 1 : 0));
+	set_config_int("Compiler", "TRUNCATE_DIVISION_BY_LITERAL_BUG",
+		(get_bit(quest_rules, qr_PARSER_250DIVISION) ? 1 : 0));
+	set_config_int("Compiler", "SHORT_CIRCUIT",
+		(get_bit(quest_rules, qr_PARSER_SHORT_CIRCUIT) ? 1 : 0));
+	set_config_int("Compiler", "BOOL_TRUE_RETURN_DECIMAL",
+		(get_bit(quest_rules, qr_PARSER_BOOL_TRUE_DECIMAL) ? 1 : 0));
+	set_config_int("Compiler", "TRUE_INT_SIZE",
+		(get_bit(quest_rules, qr_PARSER_TRUE_INT_SIZE) ? 1 : 0));
+	set_config_int("Compiler", "FORCE_INLINE",
+		(get_bit(quest_rules, qr_PARSER_FORCE_INLINE) ? 1 : 0));
+	set_config_int("Compiler", "BINARY_32BIT",
+		(get_bit(quest_rules, qr_PARSER_BINARY_32BIT) ? 1 : 0));
+	set_config_int("Compiler", "STRING_SWITCH_CASE_INSENSITIVE",
+		(get_bit(quest_rules, qr_PARSER_STRINGSWITCH_INSENSITIVE) ? 1 : 0));
+}
+
+bool do_new_compile()
+{
+	return false; //Not finished yet! //TODO -E
+	
+	if(!system(NULL))
+		return false;
+	
+	write_compilesetting_qrs();
+	box_start(1, "Compile Progress", lfont, sfont,true);
+	clock_t start_compile_time = clock();
+	int ret = system("zscript.exe");
+	clock_t end_compile_time = clock();
+	char buf[256] = {0};
+	box_out(ret ? "Compile Failed!" : "Compile Succeeded!");
+	box_eol();
+	sprintf(buf, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
+	box_out(buf);
+	box_eol();
+	box_end(true);
+	if ( !ret )
+	{
+		compile_tune = get_config_int("Compiler","Compile_Success_Tune",0);
+		switch(compile_tune)
+		{
+			case 1: playTune1(); break;
+			case 2: playTune2(); break;
+			case 3: playTune3(); break;
+			case 4: playTune4(); break;
+			case 5: playTune5(); break;
+			case 6: playTune6(); break;
+			case 7: playTune7(); break;
+			case 8: playTune8(); break;
+			case 9: playTune9(); break;
+			case 10: playTune10(); break;
+			case 11: playTune11(); break;
+			case 12: playTune12(); break;
+			case 13: playTune13(); break;
+			case 14: playTune14(); break;
+			case 15: playTune15(); break;
+			case 16: playTune16(); break;
+			case 17: playTune17(); break;
+			case 18: playTune18(); break;
+			case 19: playTune12(); break;
+			default: 
+			{
+				compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
+				compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+				if ( compile_success_sample > 0 )
+				{
+					if(sfxdat)
+						sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
+					else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
+					voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
+					voice_start(sfx_voice[compile_success_sample]);
+				}
+				break;
+			}
+		}
+	}
+	else
+	{
+		compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
+		if ( compile_error_sample > 0 )
+		{
+			compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+			if(sfxdat)
+				sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
+			else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
+			voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
+			voice_start(sfx_voice[compile_error_sample]);
+		}
+	}
+	
+	
+	box_end(true);
+	if ( compile_success_sample > 0 )
+	{
+		if(sfx_voice[compile_success_sample]!=-1)
+		{
+			deallocate_voice(sfx_voice[compile_success_sample]);
+			sfx_voice[compile_success_sample]=-1;
+		}
+	}
+	if ( compile_error_sample > 0 )
+	{
+		if(sfx_voice[compile_error_sample]!=-1)
+		{
+			deallocate_voice(sfx_voice[compile_error_sample]);
+			sfx_voice[compile_error_sample]=-1;
+		}
+	}
+	
+	refresh(rALL);
+	if ( compile_tune ) stopMusic();
+	
+	if(ret)
+	{
+		jwin_alert("Error","There were compile errors.","Compilation halted.",NULL,"O&K",NULL,'k',0,lfont);
+		return true;
+	}
+	
+	asffcscripts.clear();
+	asffcscripts.push_back("<none>");
+	asglobalscripts.clear();
+	asglobalscripts.push_back("<none>");
+	asitemscripts.clear();
+	asitemscripts.push_back("<none>");
+	asnpcscripts.clear();
+	asnpcscripts.push_back("<none>");
+	aseweaponscripts.clear();
+	aseweaponscripts.push_back("<none>");
+	aslweaponscripts.clear();
+	aslweaponscripts.push_back("<none>");
+	aslinkscripts.clear();
+	aslinkscripts.push_back("<none>");
+	asdmapscripts.clear();
+	asdmapscripts.push_back("<none>");
+	asscreenscripts.clear();
+	asscreenscripts.push_back("<none>");
+	asitemspritescripts.clear();
+	asitemspritescripts.push_back("<none>");
+	ascomboscripts.clear();
+	ascomboscripts.push_back("<none>");
+	clear_map_states();
+	//TODO Setup assign dialog / maps from ZASM files
+	//TODO Have new parser OUTPUT zasm files
+	
+	misc.zscript_last_compiled_version = V_FFSCRIPT;
+	FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
+	al_trace("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
+	
+	assignscript_dlg[0].dp2 = lfont;
+	assignscript_dlg[4].d1 = -1;
+	assignscript_dlg[5].d1 = -1;
+	assignscript_dlg[7].d1 = -1;
+	assignscript_dlg[8].d1 = -1;
+	assignscript_dlg[10].d1 = -1;
+	assignscript_dlg[11].d1 = -1;
+	assignscript_dlg[13].flags = 0;
+	
+	//Do assign dialog here
+	return true;
+}
+
 int onCompileScript()
 {
 	compile_dlg[0].dp2 = lfont;
@@ -26111,6 +26275,7 @@ int onCompileScript()
 		}
 		
 		case 5:
+			/*
 			#ifdef _WIN32
 			memresult = GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof( memCounter ));
 			memuse = memCounter.WorkingSetSize / 1024 / 1024;
@@ -26122,6 +26287,7 @@ int onCompileScript()
 			}	
 			#endif
 			//need elseif for linux here! -Z
+			*/
 			//Compile!
 			FILE *tempfile = fopen("tmp","w");
 			
@@ -26133,6 +26299,12 @@ int onCompileScript()
 			
 			fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
 			fclose(tempfile);
+			
+			//New compiler!
+			if(do_new_compile())
+				return D_O_K;
+			
+			write_compilesetting_qrs();
 			box_start(1, "Compile Progress", lfont, sfont,true);
 			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
 			clock_t start_compile_time = clock();
@@ -26182,7 +26354,7 @@ int onCompileScript()
 						if ( compile_success_sample > 0 )
 						{
 							if(sfxdat)
-							sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
+								sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
 							else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
 							voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
 							voice_start(sfx_voice[compile_success_sample]);
@@ -26199,7 +26371,7 @@ int onCompileScript()
 					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
 					//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 					if(sfxdat)
-					sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
+						sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
 					else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
 					voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
 					//set_volume(255,-1);
@@ -26207,7 +26379,6 @@ int onCompileScript()
 					voice_start(sfx_voice[compile_error_sample]);
 					//sfx(28, 128, false,true);  
 				}
-				
 			}
 			
 			
@@ -26216,19 +26387,19 @@ int onCompileScript()
 			{
 				if(sfx_voice[compile_success_sample]!=-1)
 				{
-				deallocate_voice(sfx_voice[compile_success_sample]);
-				sfx_voice[compile_success_sample]=-1;
+					deallocate_voice(sfx_voice[compile_success_sample]);
+					sfx_voice[compile_success_sample]=-1;
 				}
 			}
 			if ( compile_error_sample > 0 )
 			{
 				if(sfx_voice[compile_error_sample]!=-1)
 				{
-				deallocate_voice(sfx_voice[compile_error_sample]);
-				sfx_voice[compile_error_sample]=-1;
+					deallocate_voice(sfx_voice[compile_error_sample]);
+					sfx_voice[compile_error_sample]=-1;
 				}
 			}
-				refresh(rALL);
+			refresh(rALL);
 			if ( compile_tune ) stopMusic();
 			
 			if(result == NULL)
