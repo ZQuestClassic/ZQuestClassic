@@ -10640,7 +10640,7 @@ void LinkClass::pitfall()
 			if(dmg) //Damage
 			{
 				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
-				game->set_life(vbound(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg),0,game->get_maxlife()));
+				game->set_life(vbound(int(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg)),0,game->get_maxlife()));
 			}
 			if(warp) //Warp
 			{
