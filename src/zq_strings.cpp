@@ -1281,9 +1281,29 @@ char *parse_msg_str(char *s)
 }
 
 //Make sure this is synchronised with parsemsgcode in guys.cpp!
+static int ssc_tile_hei = -1;
+word grab_next_argument(char* s2, int* i)
+{
+	byte val=s2[(*i)++]-1;
+	word ret=val;
+	
+	// If an argument is succeeded by 255, then it's a three-byte argument -
+	// between 254 and 65535 (or whatever the maximum actually is)
+	if((unsigned char)(s2[(*i)]) == 255)
+	{
+		val=s2[(*i)+1];
+		word next=val;
+		ret += 254*next;
+		(*i)+=2;
+	}
+	
+	return ret;
+}
+
 void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 {
 	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
+	ssc_tile_hei = -1;
 	int w = vbound((int)strtol((char*)editmsg_dlg[19].dp, (char **)NULL, 10),0,512);
 	int h = vbound((int)strtol((char*)editmsg_dlg[21].dp, (char **)NULL, 10),0,512);
 	int fonta = editmsg_dlg[18].d1;
@@ -1412,7 +1432,9 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 				   && ((cursor_x > (w-msg_margins[right]) || !(flags & STRINGFLAG_WRAP))
 						? 1 : strcmp(s3," ")!=0))
 				{
-					cursor_y += text_height(workfont) + vspace;
+					int thei = zc_max(ssc_tile_hei, text_height(workfont));
+					ssc_tile_hei = -1;
+					cursor_y += thei + vspace;
 					if(cursor_y >= (h - msg_margins[down])) break;
 					cursor_x=msg_margins[left];
 					//if(space) s3[0]=0;
@@ -1428,7 +1450,9 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 						{
 							if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
 							{
-								cursor_y += text_height(workfont) + vspace;
+								int thei = zc_max(ssc_tile_hei, text_height(workfont));
+								ssc_tile_hei = -1;
+								cursor_y += thei + vspace;
 								if(cursor_y >= (h - msg_margins[down])) done = true;
 								cursor_x=msg_margins[left];
 							}
@@ -1439,19 +1463,19 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 						
 						case MSGC_COLOUR:
 						{
-							int cset = (*(s2+(i++)))-1;
-							msgcolour = CSET(cset)+(*(s2+(i++)))-1;
+							int cset = grab_next_argument(s2, &i);
+							msgcolour = CSET(cset)+grab_next_argument(s2, &i);
 							break;
 						}
 						case MSGC_SHDCOLOR:
 						{
-							int cset = (*(s2+(i++)))-1;
-							shdcolor = CSET(cset)+(*(s2+(i++)))-1;
+							int cset = grab_next_argument(s2, &i);
+							shdcolor = CSET(cset)+grab_next_argument(s2, &i);
 							break;
 						}
 						case MSGC_SHDTYPE:
 						{
-							shdtype = (*(s2+(i++)))-1;
+							shdtype = grab_next_argument(s2, &i);
 							break;
 						}
 						
@@ -1474,7 +1498,9 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 								
 								if(cursor_x+tlength+(hspace*strlen(namestr)) > (w-msg_margins[right]))
 								{
-									cursor_y += text_height(workfont) + vspace;
+									int thei = zc_max(ssc_tile_hei, text_height(workfont));
+									ssc_tile_hei = -1;
+									cursor_y += thei + vspace;
 									if(cursor_y >= (h - msg_margins[down])) break;
 									cursor_x=msg_margins[left];
 								}
@@ -1488,6 +1514,30 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 								cursor_x += workfont->vtable->char_length(workfont, namestr[q]);
 								cursor_x += hspace;
 							}
+							break;
+						}
+						
+						case MSGC_DRAWTILE:
+						{
+							int tl = grab_next_argument(s2, &i);
+							int cs = grab_next_argument(s2, &i);
+							int t_wid = grab_next_argument(s2, &i);
+							int t_hei = grab_next_argument(s2, &i);
+							int fl = grab_next_argument(s2, &i);
+							
+							if(cursor_x+hspace + t_wid > w-msg_margins[right])
+							{
+								int thei = zc_max(ssc_tile_hei, text_height(workfont));
+								ssc_tile_hei = -1;
+								cursor_y += thei + vspace;
+								if(cursor_y >= (h - msg_margins[down])) break;
+								cursor_x=msg_margins[left];
+							}
+							
+							overtileblock16(buf, tl, cursor_x, cursor_y, (int)ceil(t_wid/16.0), (int)ceil(t_hei/16.0), cs, fl);
+							if(t_hei > ssc_tile_hei)
+								ssc_tile_hei = t_hei;
+							cursor_x += hspace + t_wid;
 							break;
 						}
 						
@@ -1753,6 +1803,7 @@ int msg_code_operands(int cc)
 		//portrait tile, x, y, width, height
 		case MSGC_CHANGEPORTRAIT:
 		case MSGC_GOTOIFCREEND:
+		case MSGC_DRAWTILE:
 			return 5;
 		
 		case MSGC_SETSCREEND:

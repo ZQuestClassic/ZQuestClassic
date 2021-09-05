@@ -3095,7 +3095,7 @@ enum { msLINKED };
 #define MSGC_NEWLINE          25    // 0 args
 #define MSGC_SHDCOLOR         26    // 2 args (cset,swatch)
 #define MSGC_SHDTYPE          27    // 1 arg  (type)
-//28
+#define MSGC_DRAWTILE         28    // 5 args (tile, cset, wid, hei, flip)
 //29
 #define MSGC_GOTOIFYN         30    // not implemented
 //31

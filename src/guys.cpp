@@ -20833,6 +20833,7 @@ word grab_next_argument()
 static bool doing_name_insert = false;
 static char namebuf[9] = {0};
 static char* nameptr = NULL;
+static int ssc_tile_hei = -1, ssc_tile_hei_buf = -1;
 bool parsemsgcode()
 {
 	if(msgptr>=MSGSIZE-2) return false;
@@ -20840,7 +20841,10 @@ bool parsemsgcode()
 	{
 		case MSGC_NEWLINE:
 		{
-			cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+			int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+			ssc_tile_hei = ssc_tile_hei_buf;
+			ssc_tile_hei_buf = -1;
+			cursor_y += thei + MsgStrings[msgstr].vspace;
 			cursor_x=(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : msg_margins[left]);
 			return true;
 		}	
@@ -21000,6 +21004,30 @@ bool parsemsgcode()
 			doing_name_insert = true;
 			sprintf(namebuf, "%s", game->get_name());
 			nameptr = namebuf;
+			return true;
+		}
+			
+		case MSGC_DRAWTILE:
+		{
+			int tl = grab_next_argument();
+			int cs = grab_next_argument();
+			int t_wid = grab_next_argument();
+			int t_hei = grab_next_argument();
+			int fl = grab_next_argument();
+			
+			if(cursor_x+MsgStrings[msgstr].hspace + t_wid > msg_w-msg_margins[right])
+			{
+				int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+				ssc_tile_hei = ssc_tile_hei_buf;
+				ssc_tile_hei_buf = -1;
+				cursor_y += thei + MsgStrings[msgstr].vspace;
+				if(cursor_y >= (msg_h - msg_margins[down])) break;
+				cursor_x=msg_margins[left];
+			}
+			
+			overtileblock16(msg_txt_bmp_buf, tl, cursor_x, cursor_y, (int)ceil(t_wid/16.0), (int)ceil(t_hei/16.0), cs, fl);
+			ssc_tile_hei_buf = zc_max(ssc_tile_hei_buf, t_hei);
+			cursor_x += MsgStrings[msgstr].hspace + t_wid;
 			return true;
 		}
 		
@@ -21314,7 +21342,10 @@ void putmsg()
 					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
-						cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+						int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+						ssc_tile_hei = ssc_tile_hei_buf;
+						ssc_tile_hei_buf = -1;
+						cursor_y += thei + MsgStrings[msgstr].vspace;
 						cursor_x=oldmargin ? 0 : msg_margins[left];
 					}
 					
@@ -21336,7 +21367,10 @@ void putmsg()
 					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
-						cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+						int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+						ssc_tile_hei = ssc_tile_hei_buf;
+						ssc_tile_hei_buf = -1;
+						cursor_y += thei + MsgStrings[msgstr].vspace;
 						cursor_x=oldmargin ? 0 : msg_margins[left];
 					}
 					
@@ -21384,7 +21418,10 @@ void putmsg()
 				   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 						? true : strcmp(s3," ")!=0))
 				{
-					cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+					int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+					ssc_tile_hei = ssc_tile_hei_buf;
+					ssc_tile_hei_buf = -1;
+					cursor_y += thei + MsgStrings[msgstr].vspace;
 					cursor_x=oldmargin ? 0 : msg_margins[left];
 				}
 				
@@ -21438,7 +21475,10 @@ breakout:
 			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 					? 1 : strcmp(s3," ")!=0))
 			{
-				cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+				int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+				ssc_tile_hei = ssc_tile_hei_buf;
+				ssc_tile_hei_buf = -1;
+				cursor_y += thei + MsgStrings[msgstr].vspace;
 				cursor_x=oldmargin ? 0 : msg_margins[left];
 			}
 			
@@ -21476,7 +21516,10 @@ reparsesinglechar:
 			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 					? true : strcmp(s3," ")!=0))
 			{
-				cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+				int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+				ssc_tile_hei = ssc_tile_hei_buf;
+				ssc_tile_hei_buf = -1;
+				cursor_y += thei + MsgStrings[msgstr].vspace;
 				cursor_x=oldmargin ? 0 : msg_margins[left];
 				//if(space) s3[0]=0;
 			}
@@ -21521,7 +21564,10 @@ reparsesinglechar:
 			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 					? true : strcmp(s3," ")!=0))
 			{
-				cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+				int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+				ssc_tile_hei = ssc_tile_hei_buf;
+				ssc_tile_hei_buf = -1;
+				cursor_y += thei + MsgStrings[msgstr].vspace;
 				cursor_x=oldmargin ? 0 : msg_margins[left];
 			}
 			
@@ -21562,7 +21608,10 @@ reparsesinglechar:
 					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
-						cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+						int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+						ssc_tile_hei = ssc_tile_hei_buf;
+						ssc_tile_hei_buf = -1;
+						cursor_y += thei + MsgStrings[msgstr].vspace;
 						cursor_x=oldmargin ? 0 : msg_margins[left];
 					}
 					

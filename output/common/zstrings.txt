@@ -30,6 +30,10 @@ If 0, text appears instantaneously. Argument 1 is the speed.
       Recommended to be used with "Text wraps around bounding box" enabled.
       The "Player Name Preview:" field can be used to preview different names in-editor.
 
+\28\tile\cset\width\height\flip - Draws the given tile, in the given cset, at the cursor position.
+                                  Offsets text by 'width'/'height', as though it were a typed character.
+                                  If width/height are >16, a tile *block* will be drawn, based on the value.
+
 \32 through \126 - ASCII Character. Prints a character based on its ASCII code. For example, \91 allows you to display a backslash.
 
 \24\??? - Change the portrait displaying with this message box [UNIMPLEMENTED]
