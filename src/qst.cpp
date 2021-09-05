@@ -3251,8 +3251,8 @@ void init_msgstr(MsgStr *str)
     str->sfx=18;
     str->listpos=0;
     str->x=24;
-    str->w=24*8;
-    str->h=3*8;
+	str->w=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 24*8 : 26*8;
+	str->h=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 3*8 : 5*8;
     str->hspace=0;
     str->vspace=0;
     str->stringflags=0;
@@ -3266,6 +3266,8 @@ void init_msgstr(MsgStr *str)
 	str->portrait_y = 0;
 	str->portrait_tw = 1;
 	str->portrait_th = 1;
+	str->shadow_type = 0;
+	str->shadow_color = 0;
 }
 
 void init_msgstrings(int start, int end)
@@ -3347,31 +3349,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int x=0; x<strings_to_read; x++)
         {
-            memset(&tempMsgString.s, 0, MSGSIZE+1);
-            tempMsgString.nextstring=0;
-            tempMsgString.tile=0;
-            tempMsgString.cset=0;
-            tempMsgString.trans=false;
-            tempMsgString.font=font_zfont;
-            tempMsgString.y=32;
-            tempMsgString.sfx=WAV_MSG;
-            tempMsgString.listpos=x;
-            tempMsgString.x=24;
-            tempMsgString.w=25*8;
-            tempMsgString.h=4*8;
-            tempMsgString.hspace=0;
-            tempMsgString.vspace=0;
-            tempMsgString.stringflags=0;
-			tempMsgString.margins[up] = 8;
-			tempMsgString.margins[down] = 0;
-			tempMsgString.margins[left] = 8;
-			tempMsgString.margins[right] = 0;
-			tempMsgString.portrait_tile = 0;
-			tempMsgString.portrait_cset = 0;
-			tempMsgString.portrait_x = 0;
-			tempMsgString.portrait_y = 0;
-			tempMsgString.portrait_tw = 1;
-			tempMsgString.portrait_th = 1;
+			init_msgstr(&tempMsgString);
             
             if(!pfread(&tempMsgString.s,73,f,true))
             {
@@ -3476,30 +3454,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int i=0; i<temp_msg_count; i++)
         {
-            tempMsgString.nextstring=0;
-            tempMsgString.tile=0;
-            tempMsgString.cset=0;
-            tempMsgString.trans=false;
-            tempMsgString.font=font_zfont;
-            tempMsgString.y=32;
-            tempMsgString.sfx=WAV_MSG;
-            tempMsgString.listpos=i;
-            tempMsgString.x=24;
-            tempMsgString.w=24*8;
-            tempMsgString.h=3*8;
-            tempMsgString.hspace=0;
-            tempMsgString.vspace=0;
-            tempMsgString.stringflags=0;
-			tempMsgString.margins[up] = 8;
-			tempMsgString.margins[down] = 0;
-			tempMsgString.margins[left] = 8;
-			tempMsgString.margins[right] = 0;
-			tempMsgString.portrait_tile = 0;
-			tempMsgString.portrait_cset = 0;
-			tempMsgString.portrait_x = 0;
-			tempMsgString.portrait_y = 0;
-			tempMsgString.portrait_tw = 1;
-			tempMsgString.portrait_th = 1;
+			init_msgstr(&tempMsgString);
             
             if(!pfread(&tempMsgString.s,string_length,f,true))
             {
@@ -3654,6 +3609,19 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 					}
 				}
                 
+				if(s_version >= 8)
+				{
+					if(!p_getc(&tempMsgString.shadow_type,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempMsgString.shadow_color,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				
                 if(!p_getc(&tempMsgString.sfx,f,true))
                 {
                     return qe_invalid;

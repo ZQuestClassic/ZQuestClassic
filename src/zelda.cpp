@@ -328,7 +328,7 @@ word     msgclk = 0, msgstr = 0, enqueued_str = 0,
          msgorig=0;
 byte msg_margins[4] = {0};
 int prt_tile=0;
-byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0;
+byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0, msg_shdtype=0, msg_shdcol=0;
 bool msg_onscreen = false, msg_active = false, msgspace = false;
 BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL;
 FONT	 *msgfont;
@@ -356,7 +356,7 @@ int sfxdat=1;
 BITMAP *hw_screen;
 int zqwin_scale = 0;
 
-int jwin_pal[jcMAX] = {0};
+extern int jwin_pal[jcMAX];
 int gui_colorset=0;
 int fullscreen = 0;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
@@ -1042,8 +1042,9 @@ void donewmsg(int str)
 	prt_y=MsgStrings[msgstr].portrait_y;
 	prt_tw=MsgStrings[msgstr].portrait_tw;
 	prt_th=MsgStrings[msgstr].portrait_th;
+	msg_shdtype=MsgStrings[msgstr].shadow_type;
+	msg_shdcol=MsgStrings[msgstr].shadow_color;
     
-    //transparency needs to occur here. -Z
     msg_bg(MsgStrings[msgstr]);
     msg_prt();
     

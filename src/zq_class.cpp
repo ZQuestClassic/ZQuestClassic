@@ -9871,6 +9871,16 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
 			{
 				return qe_invalid;
 			}
+			
+			if(!p_putc(MsgStrings[i].shadow_type,f))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_putc(MsgStrings[i].shadow_color,f))
+			{
+				return qe_invalid;
+			}
             
             if(!p_putc(MsgStrings[i].sfx,f))
             {

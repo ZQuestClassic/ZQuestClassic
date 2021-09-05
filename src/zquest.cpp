@@ -1368,7 +1368,7 @@ int SnapshotFormat = 0;
 
 int memrequested = 0;
 byte Color = 0;
-int jwin_pal[jcMAX] = {0};
+extern int jwin_pal[jcMAX];
 int gui_colorset=0;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
