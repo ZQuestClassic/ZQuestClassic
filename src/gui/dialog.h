@@ -1,14 +1,9 @@
 #ifndef ZC_GUI_DIALOG_H
 #define ZC_GUI_DIALOG_H
 
-#include "widget.h"
-#include "dialogMessage.h"
-#include "dialogRef.h"
 #include "showDialog.h"
-#include "../zc_alleg.h"
-#include "../gui.h"
+#include "widget.h"
 #include <memory>
-#include <vector>
 
 namespace gui
 {

@@ -3,6 +3,9 @@
 
 #include "dialog.h"
 #include "dialogMessage.h"
+#include "dialogRef.h"
+#include "widget.h"
+#include <memory>
 
 namespace gui
 {
@@ -58,8 +61,7 @@ private:
     std::vector<std::shared_ptr<Widget>> widgets;
     bool redrawPending, done;
 
-    /* Sets up the DIALOG array for a dialog so that it can be run.
-     */
+    /* Sets up the DIALOG array for a dialog so that it can be run. */
     void realize(std::shared_ptr<Widget> root);
 
     void runInner(std::shared_ptr<Widget> root);
