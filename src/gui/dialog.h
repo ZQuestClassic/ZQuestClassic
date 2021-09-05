@@ -2,7 +2,7 @@
 #define ZC_GUI_DIALOG_H
 
 #include "widget.h"
-#include "dialogEvent.h"
+#include "dialogMessage.h"
 #include "dialogRef.h"
 #include "showDialog.h"
 #include "../zc_alleg.h"
@@ -19,8 +19,7 @@ class Dialog
 public:
     virtual ~Dialog() {}
 
-    /* Creates and initializes the dialog's window.
-     */
+    /* Creates and initializes the dialog's window. */
     virtual std::shared_ptr<Widget> view()=0;
 
     void show()
@@ -29,7 +28,7 @@ public:
     }
 
     /* Subclasses must implement one of these two. Don't implement both.
-    bool handleMessage(T msg, EventArg arg)
+    bool handleMessage(T msg, MessageArg arg)
     bool handleMessage(T msg)
     */
 };

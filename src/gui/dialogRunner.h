@@ -2,7 +2,7 @@
 #define ZC_GUI_DIALOGRUNNER_H
 
 #include "dialog.h"
-#include "dialogEvent.h"
+#include "dialogMessage.h"
 
 namespace gui
 {
@@ -15,7 +15,7 @@ public:
     template<typename T>
     void runWithArg(T& dlg)
     {
-        sendMessage=[&dlg, this](int message, EventArg arg)
+        sendMessage=[&dlg, this](int message, MessageArg arg)
         {
             this->done=this->done ||
                 dlg.handleMessage(static_cast<typename T::Message>(message), arg);
@@ -27,7 +27,7 @@ public:
     template<typename T>
     void runWithoutArg(T& dlg)
     {
-        sendMessage=[&dlg, this](int message, EventArg)
+        sendMessage=[&dlg, this](int message, MessageArg)
         {
             this->done=this->done ||
                 dlg.handleMessage(static_cast<typename T::Message>(message));

@@ -309,25 +309,25 @@ std::shared_ptr<gui::Widget> RoomDialog::view()
     );
 }
 
-bool RoomDialog::handleMessage(Message msg, gui::EventArg eventArg)
+bool RoomDialog::handleMessage(Message msg, gui::MessageArg messageArg)
 {
     switch(msg)
     {
     case Message::setRoom:
-        room=get<int>(eventArg);
+        room=get<int>(messageArg);
         setArgField();
         return false;
 
     case Message::setArgument:
-        argument=get<int>(eventArg);
+        argument=get<int>(messageArg);
         return false;
 
     case Message::setGuy:
-        guy=get<int>(eventArg);
+        guy=get<int>(messageArg);
         return false;
 
     case Message::setMessage:
-        message=get<int>(eventArg);
+        message=get<int>(messageArg);
         return false;
 
     case Message::roomInfo:

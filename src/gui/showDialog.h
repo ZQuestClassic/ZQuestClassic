@@ -1,7 +1,7 @@
 #ifndef ZC_GUI_SHOWDIALOG_H
 #define ZC_GUI_SHOWDIALOG_H
 
-#include "dialogEvent.h"
+#include "dialogMessage.h"
 #include "dialogRunner.h"
 #include <type_traits>
 
@@ -13,7 +13,7 @@ namespace gui
 
 template<typename T>
 std::enable_if_t<std::is_invocable_v<
-    decltype(&T::handleMessage), T&, typename T::Message, gui::EventArg>, void>
+    decltype(&T::handleMessage), T&, typename T::Message, gui::MessageArg>, void>
 showDialog(T& dlg)
 {
     auto dr=DialogRunner();

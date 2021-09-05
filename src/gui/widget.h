@@ -1,7 +1,7 @@
 #ifndef ZC_GUI_WIDGET_H
 #define ZC_GUI_WIDGET_H
 
-#include "dialogEvent.h"
+#include "dialogMessage.h"
 #include "../zc_alleg.h"
 #include <memory>
 #include <vector>
@@ -55,7 +55,7 @@ public:
 
 protected:
     // A more convenient name for events with no arguments.
-    static constexpr EventArg noArg=std::monostate();
+    static constexpr MessageArg noArg=std::monostate();
 
     int x, y, width, height;
     int fgColor, bgColor;

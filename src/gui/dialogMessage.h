@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_DIALOGEVENT_H
-#define ZC_GUI_DIALOGEVENT_H
+#ifndef ZC_GUI_DIALOGMESSAGE_H
+#define ZC_GUI_DIALOGMESSAGE_H
 
 #include <functional>
 #include <string_view>
@@ -9,14 +9,14 @@ namespace gui
 {
 
 // Just a simple variant typedef.
-using EventArg=std::variant<
+using MessageArg=std::variant<
     std::monostate,
     bool,
     int,
     std::string_view
 >;
 
-using MessageDispatcher=std::function<void(int, EventArg)>;
+using MessageDispatcher=std::function<void(int, MessageArg)>;
 
 }
 
