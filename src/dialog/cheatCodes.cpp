@@ -20,7 +20,7 @@ std::shared_ptr<gui::Widget> CheatCodesDialog::view()
         Column(
             this->enabledCB=Checkbox(
                 hAlign=0.95,
-                text="Enable Cheats",
+                text="&Enable Cheats",
                 checked=this->enabled),
             Columns<5>(
                 Label(
@@ -55,11 +55,11 @@ std::shared_ptr<gui::Widget> CheatCodesDialog::view()
                 vPadding=10,
                 vAlign=1.0,
                 Button(
-                    text="&OK",
+                    text="OK",
                     onClick=Message::ok,
                     hPadding=30),
                 Button(
-                    text="&Cancel",
+                    text="Cancel",
                     onClick=Message::cancel,
                     hPadding=30)
             )

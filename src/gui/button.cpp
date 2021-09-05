@@ -1,4 +1,5 @@
 #include "button.h"
+#include "common.h"
 #include "dialog.h"
 #include "dialogRunner.h"
 #include "../jwin.h"
@@ -25,7 +26,7 @@ void Button::realize(DialogRunner& runner)
         jwin_button_proc,
         x, y, width, height,
         fgColor, bgColor,
-        0, // key
+        getAccelKey(text),
         D_NEW_GUI, // flags
         0, 0, // d1, d2
         (void*)text.c_str(), (void*)lfont_l, nullptr // dp, dp2, dp3

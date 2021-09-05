@@ -299,11 +299,11 @@ std::shared_ptr<gui::Widget> RoomDialog::view()
                     onSelectionChanged=Message::setMessage,
                     selectedValue=message),
 
-                Button(text="Info", onClick=Message::roomInfo)
+                Button(text="&Info", onClick=Message::roomInfo)
             ),
             Row(
-                Button(text="O&K", onClick=Message::ok),
-                Button(text="&Cancel", onClick=Message::cancel)
+                Button(text="OK", onClick=Message::ok),
+                Button(text="Cancel", onClick=Message::cancel)
             )
         )
     );

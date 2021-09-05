@@ -25,7 +25,7 @@ std::shared_ptr<gui::Widget> InfoDialog::view()
     for(auto& line: lines)
         col->add(Label(text=std::string(line)));
     col->add(Button(
-        text="Close",
+        text="&Close",
         vPadding=20,
         vAlign=1.0,
         onClick=0));

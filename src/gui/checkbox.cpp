@@ -1,4 +1,5 @@
 #include "checkbox.h"
+#include "common.h"
 #include "dialog.h"
 #include "dialogRunner.h"
 #include "../jwin.h"
@@ -12,7 +13,7 @@ namespace gui
 Checkbox::Checkbox(): checked(false), text(),
     boxPlacement(BoxPlacement::right), alDialog(), message(-1)
 {
-    height=text_height(lfont_l);
+    height=text_height(lfont_l)+2;
     width=12;
 }
 
@@ -43,7 +44,7 @@ void Checkbox::realize(DialogRunner& runner)
         jwin_checkfont_proc,
         x, y, width, height,
         fgColor, bgColor,
-        0, // key
+        getAccelKey(text),
         D_NEW_GUI|(checked ? D_SELECTED : 0), // flags
         static_cast<int>(boxPlacement), 0, // d1, d2,
         (void*)text.c_str(), (void*)lfont_l, nullptr // dp, dp2, dp3

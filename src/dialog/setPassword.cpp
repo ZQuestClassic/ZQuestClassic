@@ -28,11 +28,11 @@ std::shared_ptr<gui::Widget> SetPasswordDialog::view()
                 vPadding=10,
                 vAlign=1.0,
                 Button(
-                    text="&OK",
+                    text="OK",
                     onClick=Message::ok,
                     hPadding=30),
                 Button(
-                    text="&Cancel",
+                    text="Cancel",
                     onClick=Message::cancel,
                     hPadding=30)
             )

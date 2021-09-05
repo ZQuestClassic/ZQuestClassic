@@ -17,7 +17,7 @@ public:
 
     std::shared_ptr<gui::Widget> view() override;
     bool handleMessage(Message msg);
-void fish(int x, int y){}
+
 private:
     bool enabled;
     std::shared_ptr<gui::Checkbox> enabledCB;
