@@ -2713,7 +2713,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
 			
 		}
 		if ( tempheader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", tempheader.made_in_module_name);
-		if ( tempheader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s, (ID: %d)\n", tempheader.new_version_devsig, tempheader.developerid);
+		if ( tempheader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s\n", tempheader.new_version_devsig);
 		if ( tempheader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", tempheader.new_version_compilername, tempheader.compilerid);
 		if ( tempheader.new_version_compilerversion[0] ) zprint2("Compiler Version: %s, (%d,%d,%d,%d)\n", tempheader.new_version_compilerversion,tempheader.compilerversionnumber_first,tempheader.compilerversionnumber_second,tempheader.compilerversionnumber_third,tempheader.compilerversionnumber_fourth);
 		if ( tempheader.product_name[0] ) zprint2("Project ID: %s\n", tempheader.product_name);

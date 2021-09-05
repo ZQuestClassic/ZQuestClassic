@@ -6819,7 +6819,7 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	    new_return(42);
 	}
 	#endif
-	if(!p_iputw(V_ZC_DEVSIG,f))
+	if(!p_iputw(0,f)) //was V_ZC_DEVSIG, no longer used
 	{
 	    new_return(43);
 	}
