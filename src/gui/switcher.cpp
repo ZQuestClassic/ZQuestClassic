@@ -1,7 +1,7 @@
 #include "switcher.h"
 #include "dialogRunner.h"
 #include "../zc_alleg.h"
-#include <iostream>
+
 namespace gui
 {
 
@@ -65,7 +65,6 @@ void Switcher::calculateSize()
     height=maxH;
 }
 
-
 void Switcher::arrange(int contX, int contY, int contW, int contH)
 {
     for(auto& child: children)
@@ -85,7 +84,6 @@ void Switcher::realize(DialogRunner& runner)
         children[i].widget->realize(runner);
         int newSize=runner.size();
         children[i].end=newSize-size;
-        std::cout<<"Child "<<i<<" ends at "<<children[i].end<<std::endl;
         if(i!=visible)
             setChildVisible(i, false);
     }
