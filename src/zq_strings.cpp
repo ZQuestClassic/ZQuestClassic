@@ -1706,38 +1706,38 @@ int msg_code_operands(int cc)
 {
 	switch(cc)
 	{
+		case MSGC_WARP:
+			return 6; //dmap, screen, x, y, effect, sound
 		
-	case MSGC_WARP:
-	return 6; //dmap, screen, x, y, effect, sound
-	
-	//portrait tile, x, y, width, height
-	case MSGC_CHANGEPORTRAIT:
-	case MSGC_GOTOIFCREEND:
-	return 5;
-	
-	case MSGC_SETSCREEND:
-	return 4;
+		//portrait tile, x, y, width, height
+		case MSGC_CHANGEPORTRAIT:
+		case MSGC_GOTOIFCREEND:
+			return 5;
+		
+		case MSGC_SETSCREEND:
+			return 4;
 
-	case MSGC_GOTOIFGLOBAL:
-	case MSGC_GOTOIFCTRPC:
-	case MSGC_GOTOIFCTR:
-		return 3;
-		
-	case MSGC_COLOUR:
-	case MSGC_CTRUP:
-	case MSGC_CTRDN:
-	case MSGC_CTRSET:
-	case MSGC_CTRUPPC:
-	case MSGC_CTRDNPC:
-	case MSGC_CTRSETPC:
-	case MSGC_GOTOIF:
-	case MSGC_GOTOIFTRI:
-	case MSGC_GOTOIFTRICOUNT:
-	case MSGC_GOTOIFRAND:
-		return 2;
-		
-	case MSGC_NEWLINE:
-		return 0;
+		case MSGC_GOTOIFGLOBAL:
+		case MSGC_GOTOIFCTRPC:
+		case MSGC_GOTOIFCTR:
+			return 3;
+			
+		case MSGC_COLOUR:
+		case MSGC_SHDCOLOR:
+		case MSGC_CTRUP:
+		case MSGC_CTRDN:
+		case MSGC_CTRSET:
+		case MSGC_CTRUPPC:
+		case MSGC_CTRDNPC:
+		case MSGC_CTRSETPC:
+		case MSGC_GOTOIF:
+		case MSGC_GOTOIFTRI:
+		case MSGC_GOTOIFTRICOUNT:
+		case MSGC_GOTOIFRAND:
+			return 2;
+			
+		case MSGC_NEWLINE:
+			return 0;
 	}
 	
 	return 1;
