@@ -1,5 +1,6 @@
 #include "dropDownList.h"
 #include "dialog.h"
+#include "dialogRunner.h"
 #include "../jwin.h"
 #include "../zquest.h"
 #include <cassert>

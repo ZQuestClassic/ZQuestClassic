@@ -1,5 +1,6 @@
 #include "textField.h"
 #include "dialog.h"
+#include "dialogRunner.h"
 #include "../jwin.h"
 #include "../zdefs.h"
 #include "../zquest.h"

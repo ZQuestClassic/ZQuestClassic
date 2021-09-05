@@ -67,7 +67,7 @@ std::shared_ptr<gui::Widget> CheatCodesDialog::view()
     );
 }
 
-bool CheatCodesDialog::handleMessage(CheatCodesDialog::Message msg)
+bool CheatCodesDialog::handleMessage(Message msg)
 {
     switch(msg)
     {

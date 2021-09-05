@@ -23,8 +23,8 @@ src/jwin.cpp
 
 src/gui/button.cpp
 src/gui/checkbox.cpp
-src/gui/dialog.cpp
 src/gui/dialogRef.cpp
+src/gui/dialogRunner.cpp
 src/gui/dropDownList.cpp
 src/gui/grid.cpp
 src/gui/label.cpp

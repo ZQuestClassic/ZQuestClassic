@@ -7,18 +7,16 @@
 #include <functional>
 #include <string_view>
 
-enum class SetPasswordDialogMessage { ok, cancel };
-
-class SetPasswordDialog: public gui::Dialog<SetPasswordDialogMessage>
+class SetPasswordDialog: public gui::Dialog<SetPasswordDialog>
 {
 public:
-    using Message=SetPasswordDialogMessage;
+    enum class Message { ok, cancel };
 
     SetPasswordDialog(bool useKeyFile,
         std::function<void(std::string_view, bool)> setPassword);
 
     std::shared_ptr<gui::Widget> view() override;
-    bool handleMessage(Message msg) override;
+    bool handleMessage(Message msg);
 
 private:
     bool useKeyFile;

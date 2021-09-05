@@ -1,4 +1,5 @@
 #include "dialog.h"
+#include "dialogRunner.h"
 #include "../jwin.h"
 
 using std::shared_ptr;
@@ -26,6 +27,10 @@ int dialog_proc(int msg, DIALOG *d, int c)
     }
     else if(msg==MSG_IDLE && dr->redrawPending)
     {
+        // In the old system, many things sent messages by closing the dialog,
+        // and the return value from do_zqdialog() became the message.
+        // Some widgets don't have code to indicate that they need redrawn
+        // since the dialog would be closed and reopened in that case.
         dr->redrawPending=false;
         return D_REDRAW;
     }
@@ -67,6 +72,15 @@ void DialogRunner::realize(shared_ptr<Widget> root)
         0, 0, // d1, d2
         nullptr, nullptr, nullptr // dp1, dp2, dp3
     });
+}
+
+void DialogRunner::runInner(std::shared_ptr<Widget> root)
+{
+    realize(root);
+
+    int ret=0;
+    while(!done && ret>=0)
+        ret=zc_popup_dialog(alDialog.data(), -1);
 }
 
 DialogRef DialogRunner::getAllegroDialog()

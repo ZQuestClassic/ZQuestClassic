@@ -40,7 +40,7 @@ std::shared_ptr<gui::Widget> SetPasswordDialog::view()
     );
 }
 
-bool SetPasswordDialog::handleMessage(SetPasswordDialog::Message msg)
+bool SetPasswordDialog::handleMessage(Message msg)
 {
     switch(msg)
     {

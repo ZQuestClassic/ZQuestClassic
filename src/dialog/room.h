@@ -8,21 +8,19 @@
 #include <gui/textField.h>
 #include <functional>
 
-enum class RoomDialogMessage
-{
-    setRoom, setArgument, setGuy, setMessage, roomInfo, ok, cancel
-};
-
-class RoomDialog: public gui::Dialog<RoomDialogMessage>
+class RoomDialog: public gui::Dialog<RoomDialog>
 {
 public:
-    using Message=RoomDialogMessage;
+    enum class Message
+    {
+        setRoom, setArgument, setGuy, setMessage, roomInfo, ok, cancel
+    };
 
     RoomDialog(int room, int argument, int guy, int message,
         std::function<void(int, int, int, int)> setRoomVars);
 
     std::shared_ptr<gui::Widget> view() override;
-    bool handleMessage(Message msg, gui::EventArg) override;
+    bool handleMessage(Message msg, gui::EventArg);
 
 private:
     gui::ListData itemListData, shopListData, infoShopListData, messageListData;

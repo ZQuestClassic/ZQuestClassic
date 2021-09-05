@@ -4,6 +4,7 @@
 #include "widget.h"
 #include "dialogEvent.h"
 #include "dialogRef.h"
+#include "showDialog.h"
 #include "../zc_alleg.h"
 #include "../gui.h"
 #include <memory>
@@ -22,76 +23,16 @@ public:
      */
     virtual std::shared_ptr<Widget> view()=0;
 
-    virtual bool handleMessage(T msg, EventArg arg)
+    void show()
     {
-        return handleMessage(msg);
+        showDialog(*static_cast<T*>(this));
     }
 
-    /* Handles a message. Returns true if the dialog should close.
-     */
-    virtual bool handleMessage(T msg)
-    {
-        return handleMessage(msg,  std::monostate());
-    }
-
-    void show();
+    /* Subclasses must implement one of these two. Don't implement both.
+    bool handleMessage(T msg, EventArg arg)
+    bool handleMessage(T msg)
+    */
 };
-
-class DialogRunner
-{
-public:
-    DialogRunner();
-
-    template<typename T>
-    void run(Dialog<T>& dlg)
-    {
-        sendMessage=[&dlg, this](int message, EventArg arg)
-        {
-            this->done=this->done ||
-                dlg.handleMessage(static_cast<T>(message), arg);
-        };
-
-        realize(dlg.view());
-
-        int ret=0;
-        while(!done && ret>=0)
-            ret=zc_popup_dialog(alDialog.data(), -1);
-    }
-
-    /* Add a DIALOG and connect it to its owner.
-     * This should always be called as
-     * runner.push(shared_from_this(), DIALOG { ... });
-     * Returns a DialogRef that can be used as a reference to the
-     * newly added DIALOG.
-     */
-    DialogRef push(std::shared_ptr<Widget> owner, DIALOG dlg);
-
-    /* Returns a DialogRef that can be used as a reference to the
-     * most recently added DIALOG.
-     */
-    DialogRef getAllegroDialog();
-
-private:
-    MessageDispatcher sendMessage;
-    std::vector<DIALOG> alDialog;
-    std::vector<std::shared_ptr<Widget>> widgets;
-    bool redrawPending, done;
-
-    /* Sets up the DIALOG array for a dialog so that it can be run.
-     */
-    void realize(std::shared_ptr<Widget> root);
-
-    friend class DialogRef;
-    friend int dialog_proc(int msg, DIALOG *d, int c);
-};
-
-
-template<typename T>
-void Dialog<T>::show()
-{
-    auto dr=DialogRunner();
-    dr.run(*this);
-}
 
 }
 

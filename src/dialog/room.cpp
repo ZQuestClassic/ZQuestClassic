@@ -309,7 +309,7 @@ std::shared_ptr<gui::Widget> RoomDialog::view()
     );
 }
 
-bool RoomDialog::handleMessage(RoomDialog::Message msg, gui::EventArg eventArg)
+bool RoomDialog::handleMessage(Message msg, gui::EventArg eventArg)
 {
     switch(msg)
     {
