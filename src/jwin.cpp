@@ -4489,6 +4489,7 @@ int jwin_color_swatch(int msg, DIALOG *d, int c)
 			selcolor_dlg[3].d1 = d->d1;
 			if(is_large)
 				large_dialog(selcolor_dlg);
+			while(gui_mouse_b()); //wait for mouseup
 			int val = popup_zqdialog(selcolor_dlg, 3);
 			if(val == 1 || val == 3)
 			{

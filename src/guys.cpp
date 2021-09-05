@@ -20830,10 +20830,12 @@ word grab_next_argument()
 	return ret;
 }
 
+static bool doing_name_insert = false;
+static char namebuf[9] = {0};
+static char* nameptr = NULL;
 bool parsemsgcode()
 {
 	if(msgptr>=MSGSIZE-2) return false;
-	
 	switch(MsgStrings[msgstr].s[msgptr]-1)
 	{
 		case MSGC_NEWLINE:
@@ -20993,13 +20995,14 @@ bool parsemsgcode()
 			return true;
 		}
 		
-		/*case MSGC_NAME:
-			if (!((cBbtn()&&get_bit(quest_rules,qr_ALLOWMSGBYPASS)) || msgspeed==0))
-				sfx(MsgStrings[msgstr].sfx);
-			textprintf_ex(msg_txt_display_buf,msgfont,((msgpos%24)<<3)+32,((msgpos/24)<<3)+zc_min(MsgStrings[msgstr].y,136)+8,msgcolour,-1,
-			              "%s",game->get_name());
+		case MSGC_NAME:
+		{
+			doing_name_insert = true;
+			sprintf(namebuf, "%s", game->get_name());
+			nameptr = namebuf;
 			return true;
-		*/
+		}
+		
 		case MSGC_GOTOIFRAND:
 		{
 			int odds = (int)(grab_next_argument());
@@ -21296,7 +21299,7 @@ void putmsg()
 		{
 			if(msgspeed && !(cBbtn() && get_bit(quest_rules,qr_ALLOWMSGBYPASS)))
 				goto breakout; // break out if message speed was changed to non-zero
-			else if(!parsemsgcode())
+			else if(!doing_name_insert && !parsemsgcode())
 			{
 				if(cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
 					break;
@@ -21352,7 +21355,51 @@ void putmsg()
 				
 				msgpos++;
 			}
-			
+			if(doing_name_insert)
+			{
+				if(!*nameptr)
+				{
+					doing_name_insert = false;
+					++msgptr;
+					continue; //back to next normal character
+				}
+				if(cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
+					break;
+				
+				char s3[9] = {0};
+				
+				if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
+				{
+					strcpy(s3, nameptr);
+				}
+				else
+				{
+					s3[0] = *nameptr;
+					s3[1] = 0;
+				}
+				
+				tlength = text_length(msgfont, s3) + ((int)strlen(s3)*MsgStrings[msgstr].hspace);
+				
+				if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
+				   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+						? true : strcmp(s3," ")!=0))
+				{
+					cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+					cursor_x=oldmargin ? 0 : msg_margins[left];
+				}
+				
+				sfx(MsgStrings[msgstr].sfx);
+				
+				char buf[2] = {0};
+				sprintf(buf,"%c",*nameptr);
+				
+				textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+				
+				cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
+				cursor_x += MsgStrings[msgstr].hspace;
+				++nameptr;
+				continue; //don't advance the msgptr, as the next char in it was not processed!
+			}
 			++msgptr;
 			
 			if(atend(MsgStrings[msgstr].s+msgptr))
@@ -21415,10 +21462,11 @@ breakout:
 		}
 	}
 	
+reparsesinglechar:
 	// Continue printing the string!
 	if(!atend(MsgStrings[msgstr].s+msgptr) && cursor_y < msg_h-(oldmargin?0:msg_margins[down]))
 	{
-		if(!parsemsgcode())
+		if(!doing_name_insert && !parsemsgcode())
 		{
 			wrapmsgstr(s3);
 			
@@ -21446,56 +21494,100 @@ breakout:
 			cursor_x += MsgStrings[msgstr].hspace;
 			msgpos++;
 		}
-		
-		msgptr++;
-		
-		if(atend(MsgStrings[msgstr].s+msgptr))
+		if(doing_name_insert)
 		{
-			if(MsgStrings[msgstr].nextstring)
+			if(!*nameptr)
 			{
-				if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-				{
-					msgstr=MsgStrings[msgstr].nextstring;
-					msgpos=msgptr=0;
-					msgfont=setmsgfont();
-				}
-			}
-		}
-		
-		if((MsgStrings[msgstr].s[msgptr]==' ') && (MsgStrings[msgstr].s[msgptr+1]==' '))
-			while(MsgStrings[msgstr].s[msgptr]==' ')
-			{
-				tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
-				
-				if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-				   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-						? true : strcmp(s3," ")!=0))
-				{
-					cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
-					cursor_x=oldmargin ? 0 : msg_margins[left];
-				}
-				
-				cursor_x+=tlength;
-				++msgpos;
+				doing_name_insert = false;
 				++msgptr;
-				
-				if(atend(MsgStrings[msgstr].s+msgptr))
+				goto reparsesinglechar; //
+			}
+			
+			char s3[9] = {0};
+			
+			if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
+			{
+				strcpy(s3, nameptr);
+			}
+			else
+			{
+				s3[0] = *nameptr;
+				s3[1] = 0;
+			}
+			
+			tlength = text_length(msgfont, s3) + ((int)strlen(s3)*MsgStrings[msgstr].hspace);
+			
+			if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
+			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+					? true : strcmp(s3," ")!=0))
+			{
+				cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+				cursor_x=oldmargin ? 0 : msg_margins[left];
+			}
+			
+			sfx(MsgStrings[msgstr].sfx);
+			
+			char buf[2] = {0};
+			sprintf(buf,"%c",*nameptr);
+			
+			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+			
+			cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
+			cursor_x += MsgStrings[msgstr].hspace;
+			++nameptr;
+		}
+		else
+		{
+			msgptr++;
+			
+			if(atend(MsgStrings[msgstr].s+msgptr))
+			{
+				if(MsgStrings[msgstr].nextstring)
 				{
-					if(MsgStrings[msgstr].nextstring)
+					if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
 					{
-						if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-						{
-							msgstr=MsgStrings[msgstr].nextstring;
-							msgpos=msgptr=0;
-							msgfont=setmsgfont();
-						}
+						msgstr=MsgStrings[msgstr].nextstring;
+						msgpos=msgptr=0;
+						msgfont=setmsgfont();
 					}
 				}
 			}
+			
+			if((MsgStrings[msgstr].s[msgptr]==' ') && (MsgStrings[msgstr].s[msgptr+1]==' '))
+				while(MsgStrings[msgstr].s[msgptr]==' ')
+				{
+					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
+					
+					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
+					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+							? true : strcmp(s3," ")!=0))
+					{
+						cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+						cursor_x=oldmargin ? 0 : msg_margins[left];
+					}
+					
+					cursor_x+=tlength;
+					++msgpos;
+					++msgptr;
+					
+					if(atend(MsgStrings[msgstr].s+msgptr))
+					{
+						if(MsgStrings[msgstr].nextstring)
+						{
+							if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
+							{
+								msgstr=MsgStrings[msgstr].nextstring;
+								msgpos=msgptr=0;
+								msgfont=setmsgfont();
+							}
+						}
+					}
+				}
+		}
 	}
 	
 	// Done printing the string
-	if((msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s+msgptr)) && !linkedmsgclk)
+	if(!doing_name_insert && (msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s+msgptr)) && !linkedmsgclk)
 	{
 		while(parsemsgcode()) // Finish remaining control codes
 			;

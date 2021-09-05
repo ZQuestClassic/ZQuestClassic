@@ -3089,7 +3089,7 @@ enum { msLINKED };
 #define MSGC_SETSCREEND       19    // 4 args (dmap, screen, reg, value)
 #define MSGC_SFX              20    // 1 arg  (sfx)
 #define MSGC_MIDI             21    // 1 arg  (midi)
-#define MSGC_NAME             22    // not implemented
+#define MSGC_NAME             22    // 0 args
 #define MSGC_GOTOIFCREEND     23    // 5 args (dmap, screen, reg, val, newstring)
 #define MSGC_CHANGEPORTRAIT   24    // not implemented
 #define MSGC_NEWLINE          25    // 0 args
