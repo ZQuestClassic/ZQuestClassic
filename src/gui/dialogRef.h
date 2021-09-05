@@ -10,6 +10,7 @@ namespace gui
 class DialogRunner;
 /* References an item in the DialogRunner's DIALOG array, which isn't safe
  * to do directly because it might be reallocated as the vector grows.
+ * operator[] can also be used to access other DIALOGs in the array.
  */
 class DialogRef
 {
@@ -17,6 +18,8 @@ public:
     DialogRef();
     DIALOG* operator->();
     const DIALOG* operator->() const;
+    DIALOG& operator[](int offset);
+    const DIALOG& operator[](int offset) const;
     operator bool() const;
 
 private:

@@ -88,4 +88,9 @@ DialogRef DialogRunner::getAllegroDialog()
     return DialogRef(this, alDialog.size()-1);
 }
 
+size_t DialogRunner::size() const
+{
+    return alDialog.size();
+}
+
 }

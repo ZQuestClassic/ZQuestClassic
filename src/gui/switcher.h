@@ -3,6 +3,7 @@
 
 #include "widget.h"
 #include "dialog.h"
+#include "dialogRef.h"
 #include <vector>
 
 namespace gui
@@ -31,16 +32,27 @@ public:
     template<typename T>
     std::shared_ptr<T> get(size_t index)
     {
-        auto ret=std::dynamic_pointer_cast<T>(widgets.at(index));
+        auto ret=std::dynamic_pointer_cast<T>(children.at(index).widget);
         assert(ret);
         return ret;
     }
 
 private:
-    std::vector<std::shared_ptr<Widget>> widgets;
-    std::vector<DialogRef> dialogs;
+    /* Used to keep track of where in the array each child's DIALOGs are.
+     * end is the index into alDialog of the last of the child's DIALOGs.
+     */
+    struct ChildInfo
+    {
+        std::shared_ptr<Widget> widget;
+        int end;
+    };
+
+    std::vector<ChildInfo> children;
+    DialogRef alDialog;
     size_t visible;
 
+    /* Sets or unsets D_HIDDEN for each of the child's DIALOGs. */
+    void setChildVisible(size_t index, bool visible);
     void calculateSize() override;
     void arrange(int contX, int contY, int contW, int contH) override;
     void realize(DialogRunner& runner) override;

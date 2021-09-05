@@ -49,6 +49,9 @@ public:
      */
     DialogRef getAllegroDialog();
 
+    /* Returns the current size of the DIALOG array. */
+    size_t size() const;
+
 private:
     MessageDispatcher sendMessage;
     std::vector<DIALOG> alDialog;
