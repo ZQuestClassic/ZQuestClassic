@@ -38,9 +38,26 @@ Zelda Classic requires a modified version of the Allegro 4.2.2 library. Again, p
 
 **5))** The ZScript parser included with ZQuest uses Flex and Bison to auto-generate its source code. You must download and install Flex and Bison to compile ZQuest with ZScript support. If you do not have these tools, compilation will not fail, but CMake will issue a warning and your ZQuest binary will be compiled without the ability to compile ZScripts.
 
-For Windows user, win-flex and win-bison will work fine. Be sure to add the folder containing the binaries (e.g. `win-flex.exe`) to your PATH environment variable.
+For Windows user, win-flex and win-bison will work fine. Be sure to add the folder containing the binaries (e.g. `win-flex.exe`) to your PATH environment variable. You can use this to install with [choco](https://chocolatey.org/install): `choco install winflexbison3`.
 
 CMake will issue a warning if it cannot find Flex or Bison on your system.
+
+**6))**
+
+The compiled binaries **will not run** on their own without support files. These files are not (currently) included in this repository, due to copyright concerns. To run the compiled source, download the latest binary package from the project homepage, and copy the binaries from `build` into a folder also containing all of the data files from the binary package.
+
+<!-- TODO: this could be done in CMake, or at the least via a shell script -->
+* Download [latest release](https://www.zeldaclassic.com/downloads/)
+* Build everything (`cd build && cmake .. && cmake --build .`)
+* Copy contents of `build/Debug` or `build/Release` to the unzipped latest release folder
+* Copy `output/common/ZCConsole.exe` to release folder
+* The downloaded release .exe has builtin .zmod datafiles. the .exe built locally does not, so we must copy over some datafiles
+* * Make `modules` folder in release folder
+* * Copy contents of `output/modules/default` to previous folder (structure should be `modules/default.zmod`, `modules/default/...`)
+* Create a file called `shield_block_flags.txt` in release folder (and give it some content)
+* That should be all!
+
+To debug any issues, open `allegro.log` after opening a binary.
 
 ### Quick-start: Windows with MSVC
 
@@ -58,10 +75,6 @@ make
 ```
 
 Binaries will be created in the `build` folder.
-
-## Running the Compiled Binaries
-
-The compiled binaries **will not run** on their own without support files. These files are not (currently) included in this repository, due to copyright concerns. To run the compiled source, download the latest binary package from the project homepage, and copy the binaries from `build` into a folder also containing all of the data files from the binary package.
 
 ## Contributing to Zelda Classic
 
