@@ -180,21 +180,21 @@ target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 # Romview
 #############################################################
 
-if(MSVC)
-	list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
-elseif(LINUX)
-	list(APPEND ROMVIEWEXTRASOURCES rv_icon.c)
-	set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
-endif()
+# if(MSVC)
+	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
+# elseif(LINUX)
+	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.c)
+	# set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
+# endif()
 
-if(UNITY_BUILD)
-	enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
-	enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
-endif()
+# if(UNITY_BUILD)
+	# enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
+	# enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
+# endif()
 
-add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
+# add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
 
-target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
+# target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
 #############################################################
 # Zelda
