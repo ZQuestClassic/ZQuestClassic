@@ -1,14 +1,14 @@
 #ifndef ZC_GUI_WINDOW_H
 #define ZC_GUI_WINDOW_H
 
-#include "widget.h"
+#include "topLevel.h"
 #include <memory>
 #include <string>
 
 namespace gui
 {
 
-class Window: public Widget
+class Window: public TopLevelWidget
 {
 public:
     Window();

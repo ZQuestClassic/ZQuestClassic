@@ -66,14 +66,19 @@ void Window::realize(DialogRunner& runner)
 
     if(content)
         content->realize(runner);
+
+    realizeKeys(runner);
 }
 
 int Window::onEvent(int event, MessageDispatcher sendMessage)
 {
-    assert(event==ngeCLOSE);
-    if(closeMessage>=0)
+    if(event==ngeCLOSE && closeMessage>=0)
+    {
         sendMessage(closeMessage, noArg);
-    return -1;
+        return -1;
+    }
+
+    return TopLevelWidget::onEvent(event, sendMessage);
 }
 
 }

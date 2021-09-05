@@ -63,6 +63,7 @@ char newGuiMarker;
 
 int new_gui_event(DIALOG* d, NewGuiEvent event)
 {
+    d--;
     for(int i=0; true; d--, i++)
     {
         if(d->dp3==&newGuiMarker)
@@ -78,7 +79,7 @@ do                                         \
 {                                          \
     if(d->flags&D_NEW_GUI)                 \
     {                                      \
-        int ret=new_gui_event(d-1, event); \
+        int ret=new_gui_event(d, event); \
         if(ret>=0)                         \
             return ret;                    \
     }                                      \
