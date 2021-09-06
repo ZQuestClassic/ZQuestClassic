@@ -3,6 +3,7 @@
 
 #include "widget.h"
 #include "key.h"
+#include <initializer_list>
 #include <vector>
 
 struct DIALOG;
@@ -17,14 +18,20 @@ class TopLevelWidget: public Widget
 public:
     virtual ~TopLevelWidget() {}
 
+
     /* Add a keyboard shortcut. */
     template<typename T>
-    inline void onKey(key::Key k, T message)
+    inline void onKey(Key k, T message)
     {
-        shortcuts.emplace_back(Shortcut {
+        shortcuts.emplace_back(KeyboardShortcut {
             k.get(), static_cast<int>(message)
         });
     }
+
+    /* Add a bunch of shortcuts at once. These will be added
+     * to any shortcuts already defined.
+     */
+    void addShortcuts(std::initializer_list<KeyboardShortcut>&& scList);
 
 protected:
     /* Insert keyboard shortcut DIALOGs into the array. This should be called
@@ -34,13 +41,7 @@ protected:
     int onEvent(int event, MessageDispatcher sendMessage) override;
 
 private:
-    struct Shortcut
-    {
-        int key;
-        int message;
-    };
-
-    std::vector<Shortcut> shortcuts;
+    std::vector<KeyboardShortcut> shortcuts;
 
     static int proc(int msg, DIALOG* d, int c);
 };

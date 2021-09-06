@@ -1,23 +1,35 @@
 #ifndef ZC_GUI_KEY_H
 #define ZC_GUI_KEY_H
 
-namespace gui::key
+#include <utility>
+
+namespace gui
 {
 
-/* Just a class to put keys for shortcuts into a convenient form.
- * This is easy to screw up, but it's only expected to be used for
- * one specific purpose. Just make sure TopLevelWidget is
- * handling them correctly.
- */
+struct KeyboardShortcut
+{
+    int key;
+    int message;
+};
+
+/* Just a class to put keys for shortcuts into a convenient form. */
 class Key
 {
 public:
+    struct DummyType {};
+    static constexpr DummyType dummy=DummyType {};
+
     /* This is used when converting 0-9 to a Key or converting an int
      * obtained by casting a Key to int back to a Key.
      * 27 is __allegro_KEY_0.
      */
-    constexpr Key(int v):
-        value((v&0x10000) ? v : ((v+27)<<8))
+    constexpr Key(int value): value((value+27)<<8)
+    {}
+
+    /* This one is used for constants. It just has a second argument
+    * to distinguish it from the one above.
+    */
+    constexpr Key(unsigned short value, DummyType): value(value)
     {}
 
     constexpr Key(const Key& other): value(other.value)
@@ -27,7 +39,8 @@ public:
     inline constexpr Key operator+(Key rhs) const
     {
         // It's actually OR, but writing Ctrl+X is more natural.
-        return Key((int)(value|rhs.value)|0x10000);
+        // Not that it should make any difference with these.
+        return Key(value|rhs.value, dummy);
     }
 
     /* Used for number keys, e.g. Ctrl+9. */
@@ -36,21 +49,15 @@ public:
         return this->operator+(Key(rhs));
     }
 
-    /* Returns the low 16 bits, which is what you want to compare against
-     * Allegro's values. Don't confuse this with the cast to int!
-     */
+    template<typename T>
+    inline constexpr KeyboardShortcut operator=(T t) const
+    {
+        return KeyboardShortcut { value, static_cast<int>(t) };
+    }
+
     inline constexpr unsigned short get() const
     {
         return value;
-    }
-
-    /* Returns the value with a bit set to indicate that the result
-     * has been cast from Key to int. This should be converted back
-     * to a Key before using.
-     */
-    inline constexpr operator int() const
-    {
-        return ((int)value)|0x10000;
     }
 
 private:
@@ -63,13 +70,16 @@ inline constexpr Key operator+(int lhs, Key rhs)
     return rhs+Key(lhs);
 }
 
-#define KEY(num) Key((num<<8)|0x10000)
-#define MOD_KEY(num) Key(num|0x10000)
+
+namespace key
+{
+#define KEY(num) Key(num<<8, Key::dummy)
+#define MOD_KEY(num) Key(num, Key::dummy)
 
 static constexpr Key
     // XXX These are made to compare with Allegro scancodes easily.
     // This is done in topLevel.cpp. Do they work on non-QWERTY keyboards?
-    // These may be revised at some point, too.
+    // They may be revised at some point either way.
     Shift=MOD_KEY(1),
     Ctrl=MOD_KEY(2),
     Alt=MOD_KEY(4),
@@ -101,7 +111,7 @@ static constexpr Key
     Y=KEY(25),
     Z=KEY(26),
 
-    // 0-9 omitted
+    // 0-9 omitted - just use literals or Key(num)
 
     F1=KEY(47),
     F2=KEY(48),
@@ -146,6 +156,7 @@ static constexpr Key
 
 #undef KEY
 #undef MOD_KEY
-}
+
+}} // namespace gui::key
 
 #endif

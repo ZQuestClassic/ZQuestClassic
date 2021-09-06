@@ -5,10 +5,12 @@
 #include "checkbox.h"
 #include "dropDownList.h"
 #include "grid.h"
+#include "key.h"
 #include "label.h"
 #include "switcher.h"
 #include "textField.h"
 #include "window.h"
+#include <initializer_list>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -105,7 +107,7 @@ ZCGUI_BUILDER_FUNCTION(Switcher, Switcher, internal::makeSwitcher)
 
 
 ZCGUI_BUILDER_START(TextField)
-    ZCGUI_ACCEPT_PROP(maxLength, setMaxLength);
+    ZCGUI_ACCEPT_PROP(maxLength, setMaxLength, size_t);
     ZCGUI_ACCEPT_PROP(onEnter, onEnter, int)
     ZCGUI_ACCEPT_PROP(onValueChanged, onValueChanged, int)
     ZCGUI_ACCEPT_PROP(text, setText, std::string_view)
@@ -117,6 +119,8 @@ ZCGUI_BUILDER_FUNCTION(TextField, TextField, internal::makeTextField)
 ZCGUI_BUILDER_START(Window)
     ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
     ZCGUI_ACCEPT_PROP(onClose, onClose, int)
+    ZCGUI_ACCEPT_PROP(shortcuts, addShortcuts,
+        std::initializer_list<KeyboardShortcut>)
     ZCGUI_ACCEPT_ONE_CHILD(setContent)
 
     ZCGUI_SUGGEST_PROP(text, title)

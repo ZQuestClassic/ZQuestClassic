@@ -249,6 +249,7 @@ RoomDialog::RoomDialog(int room, int argument, int guy, int message,
 std::shared_ptr<gui::Widget> RoomDialog::view()
 {
     using namespace gui::builder;
+    using namespace gui::key;
     using namespace gui::props;
 
     argLabel=Label(hAlign=1.0);
@@ -278,6 +279,7 @@ std::shared_ptr<gui::Widget> RoomDialog::view()
     return Window(
         title="Room Type",
         onClose=Message::cancel,
+        shortcuts={ F1=Message::roomInfo },
         Column(
             Columns<4>(
                 Label(text="Room type:", hAlign=1.0),

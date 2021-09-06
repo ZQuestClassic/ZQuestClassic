@@ -3,6 +3,7 @@
 #include "dialogRunner.h"
 #include "../jwin.h"
 #include "../zc_alleg.h"
+#include <utility>
 
 namespace gui
 {
@@ -17,6 +18,19 @@ int TopLevelWidget::proc(int msg, DIALOG* d, int c)
             return new_gui_event(d, (NewGuiEvent)d->d2);
     }
     return D_O_K;
+}
+
+void TopLevelWidget::addShortcuts(
+    std::initializer_list<KeyboardShortcut>&& scList)
+{
+    if(shortcuts.empty())
+        shortcuts=std::move(scList);
+    else
+    {
+        shortcuts.reserve(scList.size());
+        for(auto& sc: scList)
+            shortcuts.push_back(sc);
+    }
 }
 
 void TopLevelWidget::realizeKeys(DialogRunner& runner)
