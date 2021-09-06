@@ -53,7 +53,7 @@ int TopLevelWidget::onEvent(int event, MessageDispatcher sendMessage)
 {
     if(event<0)
     {
-        sendMessage(shortcuts.at(-event-1).message, noArg);
+        sendMessage(shortcuts.at(-event-1).message, MessageArg::none);
         return D_USED_CHAR;
     }
 

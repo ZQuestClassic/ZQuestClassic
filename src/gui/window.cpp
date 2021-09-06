@@ -74,7 +74,7 @@ int Window::onEvent(int event, MessageDispatcher sendMessage)
 {
     if(event==ngeCLOSE && closeMessage>=0)
     {
-        sendMessage(closeMessage, noArg);
+        sendMessage(closeMessage, MessageArg::none);
         return -1;
     }
 

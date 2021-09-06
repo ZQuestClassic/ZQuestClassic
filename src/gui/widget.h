@@ -54,9 +54,6 @@ public:
     int getHeight() const { return height; }
 
 protected:
-    // A more convenient name for events with no arguments.
-    static constexpr MessageArg noArg=std::monostate();
-
     int x, y, width, height;
     int fgColor, bgColor;
     int hPadding, vPadding;

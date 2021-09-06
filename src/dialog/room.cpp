@@ -316,20 +316,20 @@ bool RoomDialog::handleMessage(Message msg, gui::MessageArg messageArg)
     switch(msg)
     {
     case Message::setRoom:
-        room=get<int>(messageArg);
+        room=(int)messageArg;
         setArgField();
         return false;
 
     case Message::setArgument:
-        argument=get<int>(messageArg);
+        argument=(int)messageArg;
         return false;
 
     case Message::setGuy:
-        guy=get<int>(messageArg);
+        guy=(int)messageArg;
         return false;
 
     case Message::setMessage:
-        message=get<int>(messageArg);
+        message=(int)messageArg;
         return false;
 
     case Message::roomInfo:

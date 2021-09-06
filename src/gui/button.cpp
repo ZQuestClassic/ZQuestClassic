@@ -39,7 +39,7 @@ int Button::onEvent(int event, MessageDispatcher sendMessage)
     // jwin_button_proc doesn't seem to allow for a non-toggle button...
     alDialog->flags&=~D_SELECTED;
     if(message>=0)
-        sendMessage(message, noArg);
+        sendMessage(message, MessageArg::none);
     return -1;
 }
 
