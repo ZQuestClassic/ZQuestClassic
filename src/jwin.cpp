@@ -63,7 +63,6 @@ char newGuiMarker;
 
 int new_gui_event(DIALOG* d, NewGuiEvent event)
 {
-    d--;
     for(int i=0; true; d--, i++)
     {
         if(d->dp3==&newGuiMarker)
@@ -73,17 +72,6 @@ int new_gui_event(DIALOG* d, NewGuiEvent event)
         }
     }
 }
-
-#define NEW_GUI_EVENT(event)               \
-do                                         \
-{                                          \
-    if(d->flags&D_NEW_GUI)                 \
-    {                                      \
-        int ret=new_gui_event(d, event); \
-        if(ret>=0)                         \
-            return ret;                    \
-    }                                      \
-} while(false)
 
 int bound(int x,int low,int high)
 {
@@ -772,7 +760,7 @@ int jwin_win_proc(int msg, DIALOG *d, int c)
         {
             if(jwin_do_x_button(screen, d->x+d->w-21, d->y+5))
             {
-                NEW_GUI_EVENT(ngeCLOSE);
+                NEW_GUI_EVENT(d, ngeCLOSE);
                 return D_CLOSE;
             }
         }
@@ -1045,7 +1033,7 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
 
         /* or just toggle */
         d->flags ^= D_SELECTED;
-        NEW_GUI_EVENT(ngeCLICK);
+        NEW_GUI_EVENT(d, ngeCLICK);
         scare_mouse();
         object_message(d, MSG_DRAW, 0);
         unscare_mouse();
@@ -1096,7 +1084,7 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
         /* redraw in normal state */
         if(down)
         {
-            NEW_GUI_EVENT(ngeCLICK);
+            NEW_GUI_EVENT(d, ngeCLICK);
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
@@ -1396,7 +1384,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
             {
                 for(p=d->d2; s[p]; p++)
                     s[p] = s[p+1];
-                NEW_GUI_EVENT(ngeCHANGE_VALUE);
+                NEW_GUI_EVENT(d, ngeCHANGE_VALUE);
             }
         }
         else if((c >> 8) == KEY_BACKSPACE)
@@ -1407,12 +1395,12 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
 
                 for(p=d->d2; s[p]; p++)
                     s[p] = s[p+1];
-                NEW_GUI_EVENT(ngeCHANGE_VALUE);
+                NEW_GUI_EVENT(d, ngeCHANGE_VALUE);
             }
         }
         else if((c >> 8) == KEY_ENTER)
         {
-            NEW_GUI_EVENT(ngeENTER);
+            NEW_GUI_EVENT(d, ngeENTER);
             if(d->flags & D_EXIT)
             {
                 scare_mouse();
@@ -1444,7 +1432,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
                     s[d->d2] = c;
                     d->d2++;
 
-                    NEW_GUI_EVENT(ngeCHANGE_VALUE);
+                    NEW_GUI_EVENT(d, ngeCHANGE_VALUE);
                 }
             }
             else
@@ -4309,7 +4297,7 @@ int jwin_droplist_proc(int msg,DIALOG *d,int c)
 
     if(d1 != d->d1)
     {
-        NEW_GUI_EVENT(ngeCHANGE_SELECTION);
+        NEW_GUI_EVENT(d, ngeCHANGE_SELECTION);
         if(d->flags&D_EXIT)
             ret |= D_CLOSE;
     }
@@ -4379,7 +4367,7 @@ dropit:
         clear_keybuf();
 
     if(d1!=d->d1)
-        NEW_GUI_EVENT(ngeCHANGE_SELECTION);
+        NEW_GUI_EVENT(d, ngeCHANGE_SELECTION);
 
     return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
 }
@@ -6168,7 +6156,7 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
 
         /* or just toggle */
         d->flags ^= D_SELECTED;
-        NEW_GUI_EVENT(ngeTOGGLE);
+        NEW_GUI_EVENT(d, ngeTOGGLE);
         object_message(d, MSG_DRAW, 0);
         break;
 
@@ -6194,7 +6182,7 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
             if(((state1) && (!state2)) || ((state2) && (!state1)))
             {
                 d->flags ^= D_SELECTED;
-                NEW_GUI_EVENT(ngeTOGGLE);
+                NEW_GUI_EVENT(d, ngeTOGGLE);
                 state1 = d->flags & D_SELECTED;
                 object_message(d, MSG_DRAW, 0);
             }

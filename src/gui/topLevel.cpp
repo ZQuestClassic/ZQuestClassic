@@ -15,7 +15,7 @@ int TopLevelWidget::proc(int msg, DIALOG* d, int c)
         unsigned short actual=(key_shifts&0x07)|(c&0xFF00);
         if(actual==d->d1)
             // Abusing the mechanism here slightly...
-            return new_gui_event(d, (NewGuiEvent)d->d2);
+            NEW_GUI_EVENT(d, (NewGuiEvent)d->d2);
     }
     return D_O_K;
 }
@@ -42,7 +42,7 @@ void TopLevelWidget::realizeKeys(DialogRunner& runner)
             0, 0, 0, 0, // x, y, w, h
             0, 0, // fg, bg
             0, // key - Allegro ignores shift, so we're using MSG_XCHAR instead
-            0, // flags
+            D_NEW_GUI, // flags
             shortcuts[i].key, -(i+1), // d1, d2
             this, nullptr, nullptr // dp, dp2, dp3
         });
@@ -52,7 +52,10 @@ void TopLevelWidget::realizeKeys(DialogRunner& runner)
 int TopLevelWidget::onEvent(int event, MessageDispatcher sendMessage)
 {
     if(event<0)
+    {
         sendMessage(shortcuts.at(-event-1).message, noArg);
+        return D_USED_CHAR;
+    }
 
     return -1;
 }

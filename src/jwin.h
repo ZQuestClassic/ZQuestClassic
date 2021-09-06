@@ -97,10 +97,21 @@ enum NewGuiEvent
     ngeTOGGLE
 };
 
-/* Call this to trigger a message in the new GUI system.
- * In jwin.cpp, you can use the macro NEW_GUI_EVENT(event) instead.
+/* Triggers a message in the new GUI system. You should use the macro below
+ * instead of calling this directly.
  */
 int new_gui_event(DIALOG* d, NewGuiEvent event);
+
+#define NEW_GUI_EVENT(dlg, event)            \
+do                                           \
+{                                            \
+    if(dlg->flags&D_NEW_GUI)                 \
+    {                                        \
+        int ret=new_gui_event(dlg-1, event); \
+        if(ret>=0)                           \
+            return ret;                      \
+    }                                        \
+} while(false)
 
 /* frame styles */
 enum {
