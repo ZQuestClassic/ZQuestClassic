@@ -410,14 +410,7 @@ void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, const char *st
     int tx = x + 2;
     int ty = y + (h-height)/2;
     PALETTE temp_pal;
-    /*
-      int i = 0;
-      for( ; i<w; i++)
-      {
-      register int c = mix_color(scheme[jcTITLEL],scheme[jcTITLER],i,w);
-      _allegro_vline(dest,x+i,y,y+h-1,c);
-      }
-      */
+
     get_palette(temp_pal);
     dither_rect(dest, &temp_pal, x, y, x+w-1, y+h-1,
                 makecol15(temp_pal[scheme[jcTITLEL]].r*255/63,
@@ -5100,6 +5093,22 @@ int short_bmp_avg(BITMAP *bmp, int i)
     b/=k;
     return makecol15(r, g, b);
 }
+
+// A consistent RENG (random enough number generator) for dither_rect()
+static unsigned short lfsr;
+
+static inline void lfsrInit()
+{
+    lfsr=1;
+}
+
+static unsigned short lfsrNext()
+{
+    auto bits=(lfsr^(lfsr>>2)^(lfsr>>3)^(lfsr>>5))&1;
+    lfsr=(lfsr>>1)|(bits<<15);
+    return lfsr;
+}
+
 void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
                  int src_color1, int src_color2, unsigned char dest_color1,
                  unsigned char dest_color2)
@@ -5107,7 +5116,7 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
     BITMAP *src_bmp=create_bitmap_ex(15, abs(x2-x1)+1, 1);
     BITMAP *dest_bmp=create_bitmap_ex(8, abs(x2-x1)+1, abs(y2-y1)+1);
     int r, g, b, direction=1;
-    register int c;
+    int c;
     int r1, r2, g1, g2, b1, b2;
     //  int diff[2][x2-x1+3][3];
     int (*diff[2])[3];
@@ -5118,6 +5127,7 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
     int temp;
     int red_rand_strength=0, green_rand_strength=0, blue_rand_strength=0;
 
+    lfsrInit();
     clear_bitmap(dest_bmp);
 
     if(x1>x2)
@@ -5181,9 +5191,9 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
             for(int i=0; i<=x2-x1; ++i)
             {
                 mc=((short *)src_bmp->line[0])[i];
-                mr=bound(getr15(mc)+rand()%(red_rand_strength*2+1)-(red_rand_strength*1),0,255);
-                mg=bound(getg15(mc)+rand()%(green_rand_strength*2+1)-(green_rand_strength*1),0,255);
-                mb=bound(getb15(mc)+rand()%(blue_rand_strength*2+1)-(blue_rand_strength*1),0,255);
+                mr=bound(getr15(mc)+lfsrNext()%(red_rand_strength*2+1)-(red_rand_strength*1),0,255);
+                mg=bound(getg15(mc)+lfsrNext()%(green_rand_strength*2+1)-(green_rand_strength*1),0,255);
+                mb=bound(getb15(mc)+lfsrNext()%(blue_rand_strength*2+1)-(blue_rand_strength*1),0,255);
                 cdiff[0]=bound(mr+
                                diff[0][i][0]+
                                diff[0][i+1][0]+
