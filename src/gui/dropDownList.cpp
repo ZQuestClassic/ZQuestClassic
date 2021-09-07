@@ -16,9 +16,11 @@ DropDownList::DropDownList():
     jwinListWrapper(jwinListWrapperFunc, FONT_PTR, this),
     listData(nullptr), selectedIndex(0), selectedValue(0), message(-1)
 {
-    // TODO: Something better
-    width=sized(150, 200);
-    height=sized(16, 21);
+    setPreferredWidth(20_em);
+    if(is_large) // This has to be exactly right to look good
+        setPreferredHeight(21_px);
+    else
+        setPreferredHeight(16_px);
     fgColor=jwin_pal[jcTEXTFG];
     bgColor=jwin_pal[jcTEXTBG];
 }
@@ -99,7 +101,7 @@ void DropDownList::realize(DialogRunner& runner)
 
     alDialog=runner.push(shared_from_this(), DIALOG {
         jwin_droplist_proc,
-        x, y, width, height,
+        x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         0, // key
         D_NEW_GUI, // flags

@@ -61,8 +61,8 @@ void Switcher::calculateSize()
         if(w>maxH)
             maxH=h;
     }
-    width=maxW;
-    height=maxH;
+    setPreferredWidth(Size::pixels(maxW));
+    setPreferredHeight(Size::pixels(maxH));
 }
 
 void Switcher::arrange(int contX, int contY, int contW, int contH)

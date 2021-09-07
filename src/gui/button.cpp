@@ -14,13 +14,13 @@ namespace gui
 
 Button::Button(): text(), message(-1)
 {
-    height=sized(20, 30);
+    setPreferredHeight(2.5_em);
 }
 
 void Button::setText(std::string newText)
 {
-    int targetWidth=text_length(FONT, newText.c_str())+sized(20, 30);
-    width=std::max(targetWidth, sized(60, 90));
+    Size targetWidth=Size::em(newText.size());
+    setPreferredWidth(std::max(targetWidth, 90_lpx));
     text=std::move(newText);
 }
 
@@ -28,7 +28,7 @@ void Button::realize(DialogRunner& runner)
 {
     alDialog=runner.push(shared_from_this(), DIALOG {
         jwin_button_proc,
-        x, y, width, height,
+        x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         getAccelKey(text),
         D_NEW_GUI, // flags

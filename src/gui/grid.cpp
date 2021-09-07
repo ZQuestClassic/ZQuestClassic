@@ -91,24 +91,26 @@ void Grid::calculateSize()
     // Set the width to the longest row's width or the total column width,
     // whichever is greater.
 
-    width=0;
+    int prefW=0;
     for(auto& cw: colWidths)
-        width+=cw;
+        prefW+=cw;
     for(auto& rw: rowWidths)
     {
-        if(rw>width)
-            width=rw;
+        if(rw>prefW)
+            prefW=rw;
     }
+    setPreferredWidth(Size::pixels(prefW));
 
     // Similar deal for height.
-    height=0;
+    int prefH=0;
     for(auto& rh: rowHeights)
-        height+=rh;
+        prefH+=rh;
     for(auto& ch: colHeights)
     {
-        if(ch>height)
-            height=ch;
+        if(ch>prefH)
+            prefH=ch;
     }
+    setPreferredHeight(Size::pixels(prefH));
 }
 
 

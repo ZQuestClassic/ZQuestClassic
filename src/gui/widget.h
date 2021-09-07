@@ -1,6 +1,7 @@
 #ifndef ZC_GUI_WIDGET_H
 #define ZC_GUI_WIDGET_H
 
+#include "common.h"
 #include "dialogMessage.h"
 #include "../zc_alleg.h"
 #include <memory>
@@ -16,6 +17,16 @@ class Widget: public std::enable_shared_from_this<Widget>
 public:
     Widget();
     virtual ~Widget() {}
+
+    /* Set the widget's width, overriding its preferred size.
+     * This should not be used by widgets.
+     */
+    void overrideWidth(Size newWidth);
+
+    /* Set the widget's height, overriding its preferred size.
+     * This should not be used by widgets.
+     */
+    void overrideHeight(Size newHeight);
 
     void setHPadding(int amount);
     void setVPadding(int amount);
@@ -47,17 +58,38 @@ public:
      */
     virtual int onEvent(int event, MessageDispatcher sendMessage);
 
-    int getTotalWidth() const { return width+hPadding; }
-    int getTotalHeight() const { return height+vPadding; }
-
+    /* Returns the width of the widget. This should only be used by widgets. */
     int getWidth() const { return width; }
+
+    /* Returns the height of the widget. This should only be used by widgets. */
     int getHeight() const { return height; }
 
+    /* Returns the width of the widget plus any padding.
+     * This should only be used by widgets.
+     */
+    int getTotalWidth() const { return width+hPadding; }
+
+    /* Returns the height of the widget plus any padding.
+     * This should only be used by widgets.
+     */
+    int getTotalHeight() const { return height+vPadding; }
+
 protected:
-    int x, y, width, height;
+    int x, y;
     int fgColor, bgColor;
     int hPadding, vPadding;
     float hAlign, vAlign;
+
+    /* Sets the widget's width if it hasn't been overridden. */
+    void setPreferredWidth(Size newWidth);
+
+    /* Sets the widget's width if it hasn't been overridden. */
+    void setPreferredHeight(Size newHeight);
+
+private:
+    enum { f_widthOverridden, f_heightOverridden };
+    int width, height;
+    unsigned char flags;
 };
 
 }

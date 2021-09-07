@@ -3,6 +3,7 @@
 
 #include "button.h"
 #include "checkbox.h"
+#include "common.h"
 #include "dropDownList.h"
 #include "grid.h"
 #include "key.h"
@@ -127,14 +128,17 @@ ZCGUI_BUILDER_START(Window)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Window, Window, internal::makeWindow)
 
-}} // namespace gui::builder
+} // namespace builder
 
-#define ZCGUI_USING_WIDGETS \
-using gui::ZCGUI_WIDGET_NAME(Button);\
-using gui::ZCGUI_WIDGET_NAME(Widget);\
-using gui::ZCGUI_WIDGET_NAME(Window);\
-using gui::ZCGUI_WIDGET_NAME(Label);\
-using gui::ZCGUI_WIDGET_NAME(Column);\
-using gui::ZCGUI_WIDGET_NAME(SerialContainer);
+namespace props
+{
+
+// Handy to have these in scope for setting sizes.
+using ::gui::operator ""_em;
+using ::gui::operator ""_px;
+using ::gui::operator ""_lpx;
+
+}}
+
 
 #endif

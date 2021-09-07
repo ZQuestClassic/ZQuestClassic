@@ -251,6 +251,8 @@ struct widgetType##Builder                                                      
     {                                                                                              \
         ZCGUI_STATIC_ASSERT(b, "This widget cannot have children.");                               \
     }                                                                                              \
+    ZCGUI_ACCEPT_PROP(width, overrideWidth, gui::Size)                                             \
+    ZCGUI_ACCEPT_PROP(height, overrideHeight, gui::Size)                                           \
     ZCGUI_ACCEPT_PROP(hAlign, setHAlign, int)                                                      \
     ZCGUI_ACCEPT_PROP(vAlign, setVAlign, int)                                                      \
     ZCGUI_ACCEPT_PROP(hPadding, setHPadding, int)                                                  \
@@ -294,6 +296,7 @@ ZCGUI_DECLARE_PROPERTY(boxPlacement)
 ZCGUI_DECLARE_PROPERTY(checked)
 ZCGUI_DECLARE_PROPERTY(data)
 ZCGUI_DECLARE_PROPERTY(hAlign)
+ZCGUI_DECLARE_PROPERTY(height)
 ZCGUI_DECLARE_PROPERTY(hPadding)
 ZCGUI_DECLARE_PROPERTY(maxLength)
 ZCGUI_DECLARE_PROPERTY(onClick)
@@ -308,6 +311,7 @@ ZCGUI_DECLARE_PROPERTY(title)
 ZCGUI_DECLARE_PROPERTY(type)
 ZCGUI_DECLARE_PROPERTY(vAlign)
 ZCGUI_DECLARE_PROPERTY(vPadding)
+ZCGUI_DECLARE_PROPERTY(width)
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop

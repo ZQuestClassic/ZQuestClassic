@@ -15,13 +15,14 @@ namespace gui
 Checkbox::Checkbox(): checked(false), text(),
     boxPlacement(BoxPlacement::left), alDialog(), message(-1)
 {
-    height=text_height(FONT)+2;
-    width=sized(9, 13);
+    setPreferredHeight(Size::largePixels(text_height(FONT)+2));
+    setPreferredWidth(Size::largePixels(13));
 }
 
 void Checkbox::setText(std::string newText)
 {
-    width=text_length(FONT, newText.c_str())+sized(9, 13);
+    int textWidth=text_length(FONT, newText.c_str());
+    setPreferredWidth(Size::largePixels(textWidth+13));
     text=std::move(newText);
 }
 
@@ -44,7 +45,7 @@ void Checkbox::realize(DialogRunner& runner)
 {
     alDialog=runner.push(shared_from_this(), DIALOG {
         jwin_checkfont_proc,
-        x, y, width, height,
+        x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         getAccelKey(text),
         D_NEW_GUI|(checked ? D_SELECTED : 0), // flags

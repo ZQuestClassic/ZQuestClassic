@@ -19,8 +19,8 @@ namespace gui
 TextField::TextField(): buffer(nullptr), type(Type::Text), maxLength(0),
     onEnterMsg(-1), onValueChangedMsg(-1)
 {
-    width=8;
-    height=sized(16, 24);
+    setPreferredWidth(1_em);
+    setPreferredHeight(24_lpx);
     fgColor=vc(12);
     bgColor=vc(1);
 }
@@ -64,7 +64,7 @@ void TextField::setMaxLength(size_t newMax)
     buffer=std::move(newBuffer);
     maxLength=newMax;
 
-    width=8+text_length(FONT, "N")*std::min<size_t>(newMax, 32);
+    setPreferredWidth(Size::em(std::min(newMax*0.75, 20.0)));
 }
 
 void TextField::realize(DialogRunner& runner)
@@ -90,7 +90,7 @@ void TextField::realize(DialogRunner& runner)
 
     runner.push(shared_from_this(), DIALOG {
         proc,
-        x, y, width, height,
+        x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         0, // key
         D_NEW_GUI, // flags

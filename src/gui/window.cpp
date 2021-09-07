@@ -37,17 +37,17 @@ void Window::arrange(int contX, int contY, int contW, int contH)
         content->calculateSize();
         if(is_large)
         {
-            width=max(
+            setPreferredWidth(Size::pixels(max(
                 content->getTotalWidth()+8,
-                text_length(lfont, title.c_str())+20);
-                height=content->getTotalHeight()+36;
+                text_length(lfont, title.c_str())+20)));
+            setPreferredHeight(Size::pixels(content->getTotalHeight()+36));
         }
         else
         {
-            width=max(
+            setPreferredWidth(Size::pixels(max(
                 content->getTotalWidth()+12,
-                text_length(lfont, title.c_str())+30);
-            height=content->getTotalHeight()+30;
+                text_length(lfont, title.c_str())+30)));
+            setPreferredHeight(Size::pixels(content->getTotalHeight()+30));
         }
 
         // This will limit the window to the available size.
@@ -55,16 +55,16 @@ void Window::arrange(int contX, int contY, int contW, int contH)
 
         // Then arrange the content with the final size.
         if(is_large)
-            content->arrange(x+6, y+28, width-12, height-36);
+            content->arrange(x+6, y+28, getWidth()-12, getHeight()-36);
         else
-            content->arrange(x+4, y+26, width-8, height-30);
+            content->arrange(x+4, y+26, getWidth()-8, getHeight()-30);
     }
     else
     {
         x=contX;
         y=contY;
-        width=contW;
-        height=contH;
+        setPreferredWidth(Size::pixels(contW));
+        setPreferredHeight(Size::pixels(contH));
     }
 }
 
@@ -72,7 +72,7 @@ void Window::realize(DialogRunner& runner)
 {
     runner.push(shared_from_this(), DIALOG {
         jwin_win_proc,
-        x, y, width, height,
+        x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         0, // key
         D_NEW_GUI | (closeMessage ? D_EXIT : 0), // flags,

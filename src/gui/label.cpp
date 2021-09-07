@@ -13,7 +13,7 @@ namespace gui
 
 Label::Label(): text()
 {
-    height=text_height(FONT);
+    setPreferredHeight(Size::pixels(text_height(FONT)));
 }
 
 void Label::setText(std::string newText)
@@ -25,15 +25,16 @@ void Label::setText(std::string newText)
         oldW=alDialog->w;
     }
 
-    width=text_length(FONT, newText.c_str());
+    int textW=text_length(FONT, newText.c_str());
+    setPreferredWidth(Size::pixels(textW));
     text=std::move(newText);
 
     if(alDialog)
     {
         // TODO This assumes right-alignment! There's only one place
         // this is used currently, and it's right for that.
-        alDialog->x+=(oldW-width);
-        alDialog->w=width;
+        alDialog->x+=(oldW-getWidth());
+        alDialog->w=getWidth();
     }
 }
 
@@ -41,7 +42,7 @@ void Label::realize(DialogRunner& runner)
 {
     alDialog=runner.push(shared_from_this(), DIALOG {
         jwin_text_proc,
-        x, y, width, height,
+        x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         0, // key
         D_NEW_GUI, // flags
