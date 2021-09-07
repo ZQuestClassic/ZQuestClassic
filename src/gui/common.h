@@ -3,6 +3,8 @@
 
 #include <string_view>
 
+extern bool is_large;
+
 namespace gui
 {
 
@@ -10,6 +12,13 @@ namespace gui
  * Returns 0 if no character was found.
  */
 int getAccelKey(const std::string_view text);
+
+
+template<typename T>
+inline T sized(T a, T b)
+{
+    return is_large ? b : a;
+}
 
 }
 

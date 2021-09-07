@@ -1,19 +1,24 @@
 #include "dropDownList.h"
+#include "common.h"
 #include "dialog.h"
 #include "dialogRunner.h"
 #include "../jwin.h"
 #include "../zquest.h"
 #include <cassert>
 
+#define FONT sized(nfont, lfont_l)
+#define FONT_PTR sized(&nfont, &lfont_l)
+
 namespace gui
 {
 
 DropDownList::DropDownList():
-    jwinListWrapper(jwinListWrapperFunc, &lfont_l, this),
+    jwinListWrapper(jwinListWrapperFunc, FONT_PTR, this),
     listData(nullptr), selectedIndex(0), selectedValue(0), message(-1)
 {
-    width=200;
-    height=text_height(lfont_l)+8;
+    // TODO: Something better
+    width=sized(150, 200);
+    height=sized(16, 21);
     fgColor=jwin_pal[jcTEXTFG];
     bgColor=jwin_pal[jcTEXTBG];
 }

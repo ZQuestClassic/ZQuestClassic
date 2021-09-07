@@ -1,4 +1,5 @@
 #include "widget.h"
+#include "common.h"
 #include "../jwin.h"
 #include "../zdefs.h"
 #include <cassert>
@@ -8,7 +9,7 @@ namespace gui
 
 Widget::Widget(): x(0), y(0), width(32), height(32),
     fgColor(vc(14)), bgColor(vc(1)),
-    hPadding(4), vPadding(4), hAlign(0.5), vAlign(0.5)
+    hPadding(sized(2, 3)), vPadding(sized(2, 3)), hAlign(0.5), vAlign(0.5)
 {}
 
 void Widget::setHPadding(int amount)

@@ -1,4 +1,5 @@
 #include "window.h"
+#include "common.h"
 #include "dialog.h"
 #include "dialogRunner.h"
 #include "../jwin.h"
@@ -34,14 +35,29 @@ void Window::arrange(int contX, int contY, int contW, int contH)
     {
         // First, size the window to its content.
         content->calculateSize();
-        width=max(content->getTotalWidth()+12, text_length(lfont_l, title.c_str())+32);
-        height=content->getTotalHeight()+36;
+        if(is_large)
+        {
+            width=max(
+                content->getTotalWidth()+8,
+                text_length(lfont, title.c_str())+20);
+                height=content->getTotalHeight()+36;
+        }
+        else
+        {
+            width=max(
+                content->getTotalWidth()+12,
+                text_length(lfont, title.c_str())+30);
+            height=content->getTotalHeight()+30;
+        }
 
         // This will limit the window to the available size.
         Widget::arrange(contX, contY, contW, contH);
 
         // Then arrange the content with the final size.
-        content->arrange(x+6, y+28, width-12, height-36);
+        if(is_large)
+            content->arrange(x+6, y+28, width-12, height-36);
+        else
+            content->arrange(x+4, y+26, width-8, height-30);
     }
     else
     {
@@ -61,7 +77,7 @@ void Window::realize(DialogRunner& runner)
         0, // key
         D_NEW_GUI | (closeMessage ? D_EXIT : 0), // flags,
         0, 0, // d1, d2
-        (void*)title.c_str(), (void*)lfont_l, nullptr // dp, dp2, dp3
+        (void*)title.c_str(), lfont, nullptr // dp, dp2, dp3
     });
 
     if(content)
@@ -72,9 +88,10 @@ void Window::realize(DialogRunner& runner)
 
 int Window::onEvent(int event, MessageDispatcher sendMessage)
 {
-    if(event==ngeCLOSE && closeMessage>=0)
+    if(event==ngeCLOSE)
     {
-        sendMessage(closeMessage, MessageArg::none);
+        if(closeMessage>=0)
+            sendMessage(closeMessage, MessageArg::none);
         return -1;
     }
 

@@ -7,19 +7,21 @@
 #include <cassert>
 #include <utility>
 
+#define FONT sized(nfont, lfont_l)
+
 namespace gui
 {
 
 Checkbox::Checkbox(): checked(false), text(),
-    boxPlacement(BoxPlacement::right), alDialog(), message(-1)
+    boxPlacement(BoxPlacement::left), alDialog(), message(-1)
 {
-    height=text_height(lfont_l)+2;
-    width=12;
+    height=text_height(FONT)+2;
+    width=sized(9, 13);
 }
 
 void Checkbox::setText(std::string newText)
 {
-    width=text_length(lfont_l, newText.c_str())+12;
+    width=text_length(FONT, newText.c_str())+sized(9, 13);
     text=std::move(newText);
 }
 
@@ -47,7 +49,7 @@ void Checkbox::realize(DialogRunner& runner)
         getAccelKey(text),
         D_NEW_GUI|(checked ? D_SELECTED : 0), // flags
         static_cast<int>(boxPlacement), 0, // d1, d2,
-        (void*)text.c_str(), (void*)lfont_l, nullptr // dp, dp2, dp3
+        (void*)text.c_str(), FONT, nullptr // dp, dp2, dp3
     });
 }
 

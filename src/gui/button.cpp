@@ -4,19 +4,23 @@
 #include "dialogRunner.h"
 #include "../jwin.h"
 #include "../zquest.h"
+#include <algorithm>
 #include <utility>
-#include <iostream>
+
+#define FONT sized(nfont, lfont_l)
+
 namespace gui
 {
 
 Button::Button(): text(), message(-1)
 {
-    height=text_height(lfont_l)+10;
+    height=sized(20, 30);
 }
 
 void Button::setText(std::string newText)
 {
-    width=text_length(lfont_l, newText.c_str())+20;
+    int targetWidth=text_length(FONT, newText.c_str())+sized(20, 30);
+    width=std::max(targetWidth, sized(60, 90));
     text=std::move(newText);
 }
 
@@ -29,7 +33,7 @@ void Button::realize(DialogRunner& runner)
         getAccelKey(text),
         D_NEW_GUI, // flags
         0, 0, // d1, d2
-        (void*)text.c_str(), (void*)lfont_l, nullptr // dp, dp2, dp3
+        (void*)text.c_str(), FONT, nullptr // dp, dp2, dp3
     });
 }
 

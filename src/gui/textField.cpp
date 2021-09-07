@@ -1,4 +1,5 @@
 #include "textField.h"
+#include "common.h"
 #include "dialog.h"
 #include "dialogRunner.h"
 #include "../jwin.h"
@@ -10,6 +11,8 @@
 #include <string>
 #include <utility>
 
+#define FONT sized(nfont, lfont_l)
+
 namespace gui
 {
 
@@ -17,7 +20,7 @@ TextField::TextField(): buffer(nullptr), type(Type::Text), maxLength(0),
     onEnterMsg(-1), onValueChangedMsg(-1)
 {
     width=8;
-    height=text_height(lfont_l)+8;
+    height=sized(16, 24);
     fgColor=vc(12);
     bgColor=vc(1);
 }
@@ -61,7 +64,7 @@ void TextField::setMaxLength(size_t newMax)
     buffer=std::move(newBuffer);
     maxLength=newMax;
 
-    width=8+text_length(lfont_l, "N")*std::min<size_t>(newMax, 32);
+    width=8+text_length(FONT, "N")*std::min<size_t>(newMax, 32);
 }
 
 void TextField::realize(DialogRunner& runner)
@@ -92,7 +95,7 @@ void TextField::realize(DialogRunner& runner)
         0, // key
         D_NEW_GUI, // flags
         static_cast<int>(maxLength), 0, // d1, d2
-        (void*)buffer.get(), (void*)lfont_l, nullptr // dp, dp2, dp3
+        (void*)buffer.get(), FONT, nullptr // dp, dp2, dp3
     });
 }
 
@@ -137,7 +140,7 @@ int TextField::onEvent(int event, MessageDispatcher sendMessage)
             break;
         }
     }
-    else
+    else // maxLength==0 - actually, this isn't possible...
     {
         if(type==Type::Text)
             sendMessage(message, std::string_view(""));

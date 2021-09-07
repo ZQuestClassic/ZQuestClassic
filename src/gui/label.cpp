@@ -1,16 +1,19 @@
 #include "label.h"
+#include "common.h"
 #include "dialog.h"
 #include "dialogRunner.h"
 #include "../jwin.h"
 #include "../zquest.h"
 #include <utility>
 
+#define FONT sized(nfont, lfont_l)
+
 namespace gui
 {
 
 Label::Label(): text()
 {
-    height=text_height(lfont_l);
+    height=text_height(FONT);
 }
 
 void Label::setText(std::string newText)
@@ -22,7 +25,7 @@ void Label::setText(std::string newText)
         oldW=alDialog->w;
     }
 
-    width=text_length(lfont_l, newText.c_str());
+    width=text_length(FONT, newText.c_str());
     text=std::move(newText);
 
     if(alDialog)
@@ -43,7 +46,7 @@ void Label::realize(DialogRunner& runner)
         0, // key
         D_NEW_GUI, // flags
         0, 0, // d1, d2
-        (void*)text.c_str(), (void*)lfont_l, nullptr // dp, dp2, dp3
+        (void*)text.c_str(), FONT, nullptr // dp, dp2, dp3
     });
 }
 

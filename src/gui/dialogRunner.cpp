@@ -1,4 +1,5 @@
 #include "dialog.h"
+#include "common.h"
 #include "dialogRunner.h"
 #include "../gui.h"
 #include "../jwin.h"
@@ -61,7 +62,10 @@ void DialogRunner::realize(shared_ptr<Widget> root)
         this, nullptr, &newGuiMarker // dp, dp2, dp3
     });
 
-    root->arrange(0, 0, 800, 600);
+    if(is_large)
+        root->arrange(0, 0, 800, 600);
+    else
+        root->arrange(0, 0, 320, 240);
     root->realize(*this);
 
     alDialog.push_back({
