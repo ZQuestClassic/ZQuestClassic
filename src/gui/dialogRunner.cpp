@@ -1,6 +1,5 @@
-#include "dialog.h"
-#include "common.h"
 #include "dialogRunner.h"
+#include "common.h"
 #include "../gui.h"
 #include "../jwin.h"
 

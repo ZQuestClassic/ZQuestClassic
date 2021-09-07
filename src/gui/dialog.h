@@ -1,7 +1,7 @@
 #ifndef ZC_GUI_DIALOG_H
 #define ZC_GUI_DIALOG_H
 
-#include "showDialog.h"
+#include "dialogRunner.h"
 #include "widget.h"
 #include <memory>
 
@@ -17,8 +17,9 @@ public:
     /* Creates and initializes the dialog's window. */
     virtual std::shared_ptr<Widget> view()=0;
 
-    void show()
+    inline void show()
     {
+        // Implemented elsewhere to work around type resolution limitations.
         showDialog(*static_cast<T*>(this));
     }
 
