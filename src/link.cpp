@@ -21492,6 +21492,26 @@ int LinkClass::get_scroll_delay(int scrolldir)
 	}
 }
 
+void LinkClass::calc_darkroom_link(int x1, int y1, int x2, int y2)
+{
+	int itemid = current_item_id(itype_lantern);
+	if(itemid < 0) return; //no lantern light circle
+	int hx1 = x.getInt() - x1 + 8;
+	int hy1 = y.getInt() - y1 + 8;
+	int hx2 = x.getInt() - x2 + 8;
+	int hy2 = y.getInt() - y2 + 8;
+	
+	itemdata& lamp = itemsbuf[itemid];
+	
+	switch(lamp.misc1) //Shape
+	{
+		case 0: //Circle
+			circlefill(darkscr_bmp1, hx1, hy1, lamp.misc2, 0);
+			circlefill(darkscr_bmp2, hx2, hy2, lamp.misc2, 0);
+			break;
+	}
+}
+
 void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 {
 	if(action==freeze)
@@ -22164,11 +22184,38 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 			blit_msgstr_fg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
 		}
 			
-		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && ((newscr->flags&fDARK)||(oldscr->flags&fDARK)))
+		{
+			clear_to_color(darkscr_bmp1, vc(0));
+			clear_to_color(darkscr_bmp2, vc(0));
+			calc_darkroom_combos(true);
+			calc_darkroom_link(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
+		}
 		
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
+		{
+			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+			if(newscr->flags&fDARK)
+				masked_blit(darkscr_bmp1, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset, 256, 168);
+			if(oldscr->flags&fDARK)
+				masked_blit(darkscr_bmp2, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset, 256, 168);
+			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		}
+		
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
-			
+		
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6))
+		{
+			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+			if(newscr->flags&fDARK)
+				masked_blit(darkscr_bmp1, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset, 256, 168);
+			if(oldscr->flags&fDARK)
+				masked_blit(darkscr_bmp2, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset, 256, 168);
+			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		}
+		
 		//end drawing
 		advanceframe(true/*,true,false*/);
 		actiontype lastaction = action;

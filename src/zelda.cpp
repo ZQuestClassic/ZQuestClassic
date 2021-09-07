@@ -331,6 +331,7 @@ int prt_tile=0;
 byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0, msg_shdtype=0, msg_shdcol=0;
 bool msg_onscreen = false, msg_active = false, msgspace = false;
 BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL;
+BITMAP   *darkscr_bmp1 = NULL, *darkscr_bmp2 = NULL;
 FONT	 *msgfont;
 word     door_combo_set_count;
 word     introclk  = 0, intropos = 0, dmapmsgclk = 0, linkedmsgclk = 0;
@@ -3497,6 +3498,8 @@ void game_loop()
 	
 	//  walkflagx=0; walkflagy=0;
 	runDrunkRNG();
+	clear_to_color(darkscr_bmp1, vc(0));
+	clear_to_color(darkscr_bmp2, vc(0));
     
     // Three kinds of freezes: freeze, freezemsg, freezeff
     
@@ -4956,6 +4959,8 @@ int main(int argc, char* argv[])
 	pricesdisplaybuf = create_bitmap_ex(8,256, 176);
 	script_menu_buf = create_bitmap_ex(8,256,224);
 	f6_menu_buf = create_bitmap_ex(8,256,224);
+	darkscr_bmp1 = create_bitmap_ex(8, 256, 256);
+	darkscr_bmp2 = create_bitmap_ex(8, 256, 256);
 	
 	if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
 			|| !screen2 || !msg_txt_display_buf || !msg_bg_display_buf || !pricesdisplaybuf
@@ -5896,6 +5901,8 @@ void quit_game()
 	destroy_bitmap(zcmouse[3]);
 	destroy_bitmap(script_menu_buf);
 	destroy_bitmap(f6_menu_buf);
+	destroy_bitmap(darkscr_bmp1);
+	destroy_bitmap(darkscr_bmp2);
     
     al_trace("Subscreens... \n");
     

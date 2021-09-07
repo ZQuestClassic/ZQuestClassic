@@ -365,6 +365,9 @@ extern bool fake_pack_writing;
 
 #define COMBOS_PER_ROW      20
 
+//TODO Turn this into an init data var, and allow editing it per-weapon! -Em
+#define DEFAULT_FIRE_LIGHT_RADIUS 40
+
 //#define MAGICDRAINRATE  2
 
 // quest stuff
@@ -767,7 +770,7 @@ enum
 	//160
 	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC, cPITFALL, cSTEPSFX,
 	//165
-	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK,
+	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK, cLANTERN,
     cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -994,7 +997,8 @@ enum
 	qr_INSTANT_CONTINUE, qr_NONHEAVY_BLOCKTRIGGER_PERM, qr_SET_YBUTTON_ITEMS, qr_CORRECTED_EW_BRANG_ANIM,
 	qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER, qr_OVERHEAD_COMBOS_L1_L2, qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION,
 	//30
-	qr_AUTOCOMBO_LAYER_1, qr_AUTOCOMBO_LAYER_2, qr_TRUEFIXEDBOMBSHIELD, qr_BOMBSPIERCESHIELD, qr_BROKEN_HORIZONTAL_WEAPON_ANIM,
+	qr_AUTOCOMBO_LAYER_1, qr_AUTOCOMBO_LAYER_2, qr_TRUEFIXEDBOMBSHIELD, qr_BOMBSPIERCESHIELD,
+	qr_BROKEN_HORIZONTAL_WEAPON_ANIM, qr_NEW_DARKROOM, qr_NEWDARK_L6,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -3684,6 +3688,7 @@ enum // used for gamedata ITEMS
 	itype_script10,
 	itype_icerod, //ice Rod
 	itype_atkring,
+	itype_lantern,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 

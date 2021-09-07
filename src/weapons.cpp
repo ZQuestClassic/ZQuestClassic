@@ -10369,7 +10369,10 @@ void weapon::draw(BITMAP *dest)
         //if no animation, flip tile
         if(frames==0 && do_animation ) //do_animation is a ZScript setting. -Z
             flip = o_flip & (clk>>2);
-            
+        if(get_bit(quest_rules,qr_NEW_DARKROOM))
+		{
+			circlefill(darkscr_bmp1, x.getInt() + (hxsz/2), y.getInt() + (hysz/2), DEFAULT_FIRE_LIGHT_RADIUS, 0);
+		}
         break;
         
     case ewBrang:

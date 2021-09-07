@@ -18156,6 +18156,14 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ "State Num",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
+	{
+		cLANTERN,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+		  NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ "Radius",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
 	{ //arbitrary values ahead
 		257, //script combos with the 'engine' flag enabled
 		// { "Enable", "Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},

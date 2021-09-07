@@ -36648,7 +36648,7 @@ bool ZModule::init(bool d) //bool default
 			"zz249", "zz250", "zz251", "zz252", "zz253", "zz254", "zz255",
 			"Script 01", "Script 02", "Script 03", "Script 04", "Script 05",
 			"Script 06", "Script 07", "Script 08", "Script 09", "Script 10",
-			"Ice Rod", "Attack Ring"
+			"Ice Rod", "Attack Ring", "Lanterns"
 		};
 						     
 		const char itype_fields[itype_max][255] =
@@ -36748,7 +36748,7 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
 		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE", "cSIGNPOST",
-		    "cCSWITCH", "cCSWITCHBLOCK"
+		    "cCSWITCH", "cCSWITCHBLOCK", "cLANTERN"
 		};
 		
 		const char default_ctype_strings[cMAX][255] = 
@@ -36770,7 +36770,7 @@ bool ZModule::init(bool d) //bool default
 			"", "", "", "", "", "", "", "", "", "",
 			"", "", "", "", "", "", "", "", "", "",
 			"", "", "Generic", "Pitfall", "Step->Effects", "Bridge", "Signpost",
-			"Switch", "Switch Block"
+			"Switch", "Switch Block", "Lantern"
 		};
 		
 		for ( int q = 0; q < cMAX; q++ )

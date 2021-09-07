@@ -712,12 +712,18 @@ static int miscrules2_list[] =
     22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,
 	-1
 };
+static int miscrules3_list[] =
+{
+    38,39,
+	-1
+};
 
 static TABPANEL miscrules_tabs[] =
 {
     // (text)
     { (char *)" 1 ",     D_SELECTED,  miscrules1_list, 0, NULL },
     { (char *)" 2 ",     0,           miscrules2_list, 0, NULL },
+    { (char *)" 3 ",     0,           miscrules3_list, 0, NULL },
     { NULL,              0,           NULL,             0, NULL }
 };
 
@@ -767,7 +773,12 @@ static DIALOG miscrules_dlg[] =
     { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Setting X Button Items", NULL, NULL },
     { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Setting Y Button Items", NULL, NULL },
     { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Continue on Death", NULL, NULL },
-    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+    
+	// rules 3
+    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Dark Rooms", NULL, NULL },
+    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Darkness Draws Under Layer 7", NULL, NULL },
+    
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 static int miscrules[] =
@@ -779,6 +790,7 @@ static int miscrules[] =
 	qr_EPILEPSY, qr_NO_L_R_BUTTON_INVENTORY_SWAP, qr_USE_EX1_EX2_INVENTORYSWAP,
 	qr_NOFASTMODE, qr_DUNGEON_DMAPS_PERM_SECRETS, qr_NO_SCROLL_WHILE_IN_AIR, qr_INSTANT_RESPAWN,
 	qr_GREATER_MAX_TIME,qr_SET_XBUTTON_ITEMS,qr_SET_YBUTTON_ITEMS,qr_INSTANT_CONTINUE,
+	qr_NEW_DARKROOM, qr_NEWDARK_L6,
 	-1
 };
 
