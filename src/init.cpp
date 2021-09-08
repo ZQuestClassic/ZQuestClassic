@@ -118,7 +118,7 @@ static int init_items_list[] =
 {
     // dialog control number
     65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 
-	100, 101, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 
+	100, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 
 	128, 129, 130, 131, 132, 133, 134, 135, 136, 1692, 1693, 1698, 1699, -1
 };
 
@@ -743,12 +743,23 @@ static int init_misc_list[] =
     1655, 1656, 1657, 1658, 1659, 1660, 1661, 1662, 1663, 1664, 1665, 1666, 1667, 1668, 1669, 1670, 1671, 1672, 1673, 1674, 1675, 1676, 1677, 1678, 1679, 1680, 1681, 1682, 1683, 1684, 1685, 1686, 1687, 1688, 1689, 1690, 1691, 1694, 1695, 1696, 1697, -1
 };
 
-static int init_const_list[] =
+static int init_var_list[] =
 {
     1700, 1701, 1702, 1703, 1704, 1705, 1706, 
 	3264, 3265, 3266, 3267,
 	3268, 3269, 3270, 3271, 3272, 3273, 3274, 3275,
 	-1
+};
+
+static int init_var_list2[] =
+{
+	3376, 3377, 3378, 3379, 3380, 3381,
+	-1
+};
+
+static int init_var_tb_list[] =
+{
+	101, -1
 };
 
 
@@ -861,7 +872,7 @@ TABPANEL init_tabs[] =
     { (char *)"Script Counters", 0,            init_scrcnt_tb_list,          0, NULL },
     { (char *)"Level Items",     0,            init_dmap_items_list,         0, NULL },
     { (char *)"Misc",            0,            init_misc_list,               0, NULL },
-    { (char *)"Variables",       0,            init_const_list,              0, NULL },
+    { (char *)"Variables",       0,            init_var_tb_list,             0, NULL },
     { NULL,                      0,            0,                            0, NULL }
 };
 
@@ -871,6 +882,14 @@ TABPANEL init_scrcnt_tabs[] =
     { (char *)"1",               D_SELECTED,   init_scrcnt_list,          0, NULL },
     { (char *)"2",               0,            init_scrcnt2_list,         0, NULL },
     { NULL,                      0,            0,                         0, NULL }
+};
+
+TABPANEL init_var_tabs[] =
+{
+    // (text)
+    { (char *)"1",               D_SELECTED,   init_var_list,          0, NULL },
+    { (char *)"2",               0,            init_var_list2,         0, NULL },
+    { NULL,                      0,            0,                      0, NULL }
 };
 
 //int startdmapxy[6] = {188-68,131-93,188-68,111-93,188-68,120-93};
@@ -933,7 +952,7 @@ char *walkstylelist(int index, int *list_size)
     return NULL;
 }
 
-#define INIT_DLG_SZ 3377
+#define INIT_DLG_SZ 3400
 DIALOG init_dlg[INIT_DLG_SZ]; /* 	This array is used instead of a const static dialogue array. 
 				PopulateInitDialog() fills its elements and generates the init dialoigue.
 				The size of this array must be equal to the number of calls to initPopulate in 
@@ -1082,7 +1101,7 @@ void PopulateInitDialog()
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     // 100
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_tab_proc,              8,     33,    280,    172,    vc(14),                 vc(1),                   0,    0,              0,             0, (void *) init_var_tabs,                                 NULL, (void *)init_dlg);
     initPopulate(i, jwin_tab_proc,              8,     33,    280,    172,    vc(14),                 vc(1),                   0,    0,              0,             0, (void *) init_scrcnt_tabs,                             NULL, (void *)init_dlg);
     initPopulate(i, jwin_frame_proc,           13,     50,     86,    118,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,            17,     47,    113,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Bombs ",                                    NULL,   NULL);
@@ -1336,11 +1355,11 @@ void PopulateInitDialog()
     initPopulate(i, jwin_text_proc,            19,    139,    176,      9,    vc(15),                 vc(11),                  0,    0,              0,             0, (void *) "Super Bomb Ratio",                           NULL,   NULL);
     initPopulate(i, d_bombratioedit_proc,      25,    149,     21,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
     // 1700
-    initPopulate(i, jwin_text_proc,            12,     51,    128,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Gravity:",                                   NULL,   NULL);
-    initPopulate(i, jwin_text_proc,            89,     51,    144,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Terminal Velocity:",                         NULL,   NULL);
+    initPopulate(i, jwin_text_proc,            12,     53,    128,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Gravity:",                                   NULL,   NULL);
+    initPopulate(i, jwin_text_proc,            89,     53,    144,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Terminal Velocity:",                         NULL,   NULL);
     initPopulate(i, jwin_text_proc,            12,     72,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Jumping Sprite Layer Threshold:",            NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,            52,     47,     32,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,           172,     47,     32,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,            52,     50,     32,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,           172,     50,     32,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_edit_proc,           162,     68,     26,     16,    vc(12),                 vc(1),                   0,    0,              2,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_tab_proc,             18,     69,    260,    128,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) init_dmap_items_300s_tabs,                    NULL, (void *)init_dlg);
@@ -1604,14 +1623,29 @@ void PopulateInitDialog()
 		initPopulate(i, jwin_numedit_short_proc,         x+34,   y+6,     30,     16,    0,                      0,                       0,    0,              6,             0,  NULL,                                                  NULL,   NULL);
 	}
 	
-    // 3376 -- Termination
+    //3376
+    initPopulate(i, jwin_text_proc,            12,     53,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Light Dither Type:",                                   NULL,   NULL);
+    //3377
+    initPopulate(i, jwin_numedit_byte_proc,            162,     50,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    //3378
+    initPopulate(i, jwin_text_proc,            12,     73,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Light Dither Percentage:",                                   NULL,   NULL);
+    //3379
+    initPopulate(i, jwin_numedit_byte_proc,            162,     70,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    //3380
+    initPopulate(i, jwin_text_proc,            12,     93,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Light Radius:",                                   NULL,   NULL);
+    //3381
+    initPopulate(i, jwin_numedit_byte_proc,            162,     90,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    // 3380 -- Termination
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
-    ASSERT(INIT_DLG_SZ>=3377); //index after termination
+    ASSERT(INIT_DLG_SZ>=i); //index after termination
     /*
     initPopulate(i, jwin_check_proc,          207,    177,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "26",                                         NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     */
-    }
+}
 
 //Item Class (Itemclass, itemdata family names in ZQuest.)
 const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
@@ -1880,7 +1914,13 @@ int doInit(zinitdata *local_zinit)
     sprintf(mpperblockstr, "%d", local_zinit->magic_per_block);
     sprintf(dmgmultstr, "%d", local_zinit->hero_damage_multiplier);
     sprintf(dmgmultstr2, "%d", local_zinit->ene_damage_multiplier);
-    
+    //
+	char dith_type[4];
+	char dith_perc[4];
+	char light_rad[4];
+	sprintf(dith_type, "%d", local_zinit->dither_type);
+	sprintf(dith_perc, "%d", local_zinit->dither_percent);
+	sprintf(light_rad, "%d", local_zinit->def_lightrad);
     
     //This is the format for storing values into Init Data. -Z
     init_dlg[109].dp=bombstring;
@@ -1992,6 +2032,9 @@ int doInit(zinitdata *local_zinit)
     init_dlg[3271].dp=mpperblockstr;
     init_dlg[3273].dp=dmgmultstr;
     init_dlg[3275].dp=dmgmultstr2;
+    init_dlg[3377].dp=dith_type;
+    init_dlg[3379].dp=dith_perc;
+    init_dlg[3381].dp=light_rad;
     if(is_large)
     {
         large_dialog(init_dlg);
@@ -2093,6 +2136,9 @@ int doInit(zinitdata *local_zinit)
 		local_zinit->magic_per_block = vbound(atoi(mpperblockstr),1,255);
 		local_zinit->hero_damage_multiplier = vbound(atoi(dmgmultstr),1,255);
 		local_zinit->ene_damage_multiplier = vbound(atoi(dmgmultstr2),1,255);
+		local_zinit->dither_type = vbound(atoi(dith_type),0,255);
+		local_zinit->dither_percent = vbound(atoi(dith_perc),0,100);
+		local_zinit->def_lightrad = vbound(atoi(light_rad),0,255);
         onInitOK();
     }
     
@@ -2253,6 +2299,9 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 	game2->set_mp_per_block(zinit2->magic_per_block);
 	game2->set_hero_dmgmult(zinit2->hero_damage_multiplier);
 	game2->set_ene_dmgmult(zinit2->ene_damage_multiplier);
+	game2->set_dither_type(zinit2->dither_type);
+	game2->set_dither_perc(zinit2->dither_percent);
+	game2->set_light_rad(zinit2->def_lightrad);
     
     for(int i=0; i<MAXLEVELS; i++)
     {

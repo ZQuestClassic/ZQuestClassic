@@ -12817,6 +12817,18 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 				new_return(80);
 			}
 		}
+		if(!p_putc(zinit.dither_type,f))
+		{
+			new_return(81);
+		}
+		if(!p_putc(zinit.dither_percent,f))
+		{
+			new_return(82);
+		}
+		if(!p_putc(zinit.def_lightrad,f))
+		{
+			new_return(83);
+		}
         
         if(writecycle==0)
         {

@@ -846,6 +846,33 @@ void gamedata::set_ene_dmgmult(byte val)
 	set_generic(val, genENE_DMG_MULT);
 }
 
+byte gamedata::get_dither_type()
+{
+	return get_generic(genDITH_TYPE);
+}
+void gamedata::set_dither_type(byte val)
+{
+	set_generic(val, genDITH_TYPE);
+}
+
+byte gamedata::get_dither_perc()
+{
+	return zc_min(100, get_generic(genDITH_PERC));
+}
+void gamedata::set_dither_perc(byte val)
+{
+	set_generic(zc_min(100, val), genDITH_PERC);
+}
+
+byte gamedata::get_light_rad()
+{
+	return get_generic(genLIGHT_RAD);
+}
+void gamedata::set_light_rad(byte val)
+{
+	set_generic(val, genLIGHT_RAD);
+}
+
 void gamedata::set_item(int id, bool value)
 {
     set_item_no_flush(id, value);

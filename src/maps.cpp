@@ -35,6 +35,7 @@ using std::set;
 #include "link.h"
 #include "guys.h"
 #include "ffscript.h"
+#include "drawing.h"
 extern word combo_doscript[176];
 extern refInfo screenScriptData;
 extern FFScript FFCore;
@@ -3353,7 +3354,10 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen)
 void doLampCirc(BITMAP* bmp, int pos, newcombo const& cmb)
 {
 	if(cmb.type != cLANTERN) return;
-	circlefill(bmp, MAPCOMBOX(pos)+8, MAPCOMBOY(pos)+8, cmb.attribytes[0], 0);
+	int r1 = cmb.attribytes[0];
+	int dither_rad = r1 - (int)(r1 * (game->get_dither_perc()/(double)100.0));
+	dithercircfill(bmp, MAPCOMBOX(pos)+8, MAPCOMBOY(pos)+8, r1, 0, game->get_dither_type());
+	circlefill(bmp, MAPCOMBOX(pos)+8, MAPCOMBOY(pos)+8, dither_rad, 0);
 }
 
 void calc_darkroom_combos(bool scrolling)

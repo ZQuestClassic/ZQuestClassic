@@ -31,6 +31,7 @@
 #include "mem_debug.h"
 #include "ffscript.h"
 #include "decorations.h"
+#include "drawing.h"
 
 extern LinkClass Link;
 extern zinitdata zinit;
@@ -10371,7 +10372,10 @@ void weapon::draw(BITMAP *dest)
             flip = o_flip & (clk>>2);
         if(get_bit(quest_rules,qr_NEW_DARKROOM))
 		{
-			circlefill(darkscr_bmp1, x.getInt() + (hxsz/2), y.getInt() + (hysz/2), DEFAULT_FIRE_LIGHT_RADIUS, 0);
+			int r1 = game->get_light_rad();
+			int dither_rad = r1 - (int)(r1 * (game->get_dither_perc()/(double)100.0));
+			dithercircfill(darkscr_bmp1, x.getInt() + (hxsz/2), y.getInt() + (hysz/2), r1, 0, game->get_dither_type());
+			circlefill(darkscr_bmp1, x.getInt() + (hxsz/2), y.getInt() + (hysz/2), dither_rad, 0);
 		}
         break;
         
