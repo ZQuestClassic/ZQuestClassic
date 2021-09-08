@@ -5,7 +5,7 @@
 namespace gui
 {
 
-Switcher::Switcher(): visible(0)
+Switcher::Switcher(): visibleChild(0)
 {}
 
 void Switcher::add(std::shared_ptr<Widget> child)
@@ -13,9 +13,9 @@ void Switcher::add(std::shared_ptr<Widget> child)
     children.push_back({ child, 0 });
 }
 
-void Switcher::show(size_t index)
+void Switcher::switchTo(size_t index)
 {
-    if(index==visible)
+    if(index==visibleChild)
         return;
 
     assert(index<children.size());
@@ -23,21 +23,26 @@ void Switcher::show(size_t index)
     // May have been set before being realized
     if(alDialog)
     {
-        setChildVisible(visible, false);
+        setChildVisible(visibleChild, false);
         setChildVisible(index, true);
     }
-    visible=index;
+    visibleChild=index;
 }
 
-size_t Switcher::getVisible() const
+size_t Switcher::getCurrentIndex() const
 {
-    return visible;
+    return visibleChild;
+}
+
+void Switcher::setVisible(bool visible)
+{
+    setChildVisible(visibleChild, visible);
 }
 
 void Switcher::setChildVisible(size_t index, bool visible)
 {
     // XXX This could be problematic if there are multiple things
-    // controlling the DIALOGs visibility...
+    // controlling the DIALOGs' visibility...
     for(int i=index>0 ? children[index-1].end+1 : 1; i<=children[index].end; i++)
     {
         if(visible)
@@ -84,7 +89,7 @@ void Switcher::realize(DialogRunner& runner)
         children[i].widget->realize(runner);
         int newSize=runner.size();
         children[i].end=newSize-size;
-        if(i!=visible)
+        if(i!=visibleChild)
             setChildVisible(i, false);
     }
 }

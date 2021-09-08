@@ -13,6 +13,7 @@ class Button: public Widget
 public:
     Button();
     void setText(std::string newText);
+    void setVisible(bool visible) override;
 
     template<typename T>
     void onClick(T m)

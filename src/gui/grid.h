@@ -16,6 +16,7 @@ public:
     static std::shared_ptr<Grid> rows(size_t itemsPerRow);
     static std::shared_ptr<Grid> columns(size_t itemsPerCol);
     void add(std::shared_ptr<Widget> child);
+    void setVisible(bool visible) override;
 
 private:
     enum class Type { rows, columns };

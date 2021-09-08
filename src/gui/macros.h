@@ -253,6 +253,7 @@ struct widgetType##Builder                                                      
     }                                                                                              \
     ZCGUI_ACCEPT_PROP(width, overrideWidth, gui::Size)                                             \
     ZCGUI_ACCEPT_PROP(height, overrideHeight, gui::Size)                                           \
+    ZCGUI_ACCEPT_PROP(visible, setVisible, bool)                                                   \
     ZCGUI_ACCEPT_PROP(hAlign, setHAlign, int)                                                      \
     ZCGUI_ACCEPT_PROP(vAlign, setVAlign, int)                                                      \
     ZCGUI_ACCEPT_PROP(hPadding, setHPadding, int)                                                  \
@@ -310,6 +311,7 @@ ZCGUI_DECLARE_PROPERTY(text)
 ZCGUI_DECLARE_PROPERTY(title)
 ZCGUI_DECLARE_PROPERTY(type)
 ZCGUI_DECLARE_PROPERTY(vAlign)
+ZCGUI_DECLARE_PROPERTY(visible)
 ZCGUI_DECLARE_PROPERTY(vPadding)
 ZCGUI_DECLARE_PROPERTY(width)
 

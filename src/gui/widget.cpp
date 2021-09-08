@@ -60,6 +60,16 @@ void Widget::setVAlign(float align)
     vAlign=align;
 }
 
+void Widget::setVisible(bool visible)
+{
+    // XXX This approach may not be good enough. A widget might be hidden
+    // for multiple reasons at once. It may be necessary to keep a counter.
+    if(visible)
+        flags&=~f_hidden;
+    else
+        flags|=f_hidden;
+}
+
 int Widget::onEvent(int, MessageDispatcher)
 {
     assert(false); // This function should have been overridden
@@ -77,6 +87,14 @@ void Widget::arrange(int contX, int contY, int contW, int contH)
     x=contX+hExcess*hAlign;
     auto vExcess=contH-height;
     y=contY+vExcess*vAlign;
+}
+
+int Widget::getFlags()
+{
+    int ret=D_NEW_GUI;
+    if(flags&f_hidden)
+        ret|=D_HIDDEN;
+    return ret;
 }
 
 }

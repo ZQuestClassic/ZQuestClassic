@@ -37,6 +37,18 @@ void Label::setText(std::string newText)
     }
 }
 
+void Label::setVisible(bool visible)
+{
+    Widget::setVisible(visible);
+    if(alDialog)
+    {
+        if(visible)
+            alDialog->flags&=~D_HIDDEN;
+        else
+            alDialog->flags|=D_HIDDEN;
+    }
+}
+
 void Label::arrange(int cx, int cy, int cw, int ch)
 {
     // Hang on to these in case the text is changed and
@@ -55,7 +67,7 @@ void Label::realize(DialogRunner& runner)
         x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         0, // key
-        D_NEW_GUI, // flags
+        getFlags(), // flags
         0, 0, // d1, d2
         (void*)text.c_str(), FONT, nullptr // dp, dp2, dp3
     });

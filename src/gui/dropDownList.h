@@ -20,6 +20,8 @@ public:
     void setSelectedValue(int value);
     void setSelectedIndex(int index);
     int getSelectedValue() const;
+    void setVisible(bool visible) override;
+
     template<typename T>
     void onSelectionChanged(T m)
     {

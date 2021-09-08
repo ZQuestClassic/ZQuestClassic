@@ -27,6 +27,12 @@ void Grid::add(shared_ptr<Widget> child)
     children.push_back(child);
 }
 
+void Grid::setVisible(bool visible)
+{
+    for(auto& child: children)
+        child->setVisible(visible);
+}
+
 void Grid::calculateSize()
 {
     // This needs a lot of work, but it'll do for now.

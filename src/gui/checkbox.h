@@ -17,6 +17,7 @@ public:
     void setBoxPlacement(BoxPlacement bp);
     void setChecked(bool value);
     bool getChecked();
+    void setVisible(bool visible) override;
 
     template<typename T>
     void onToggle(T m)

@@ -88,15 +88,27 @@ void TextField::realize(DialogRunner& runner)
         break;
     }
 
-    runner.push(shared_from_this(), DIALOG {
+    alDialog=runner.push(shared_from_this(), DIALOG {
         proc,
         x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         0, // key
-        D_NEW_GUI, // flags
+        getFlags(), // flags
         static_cast<int>(maxLength), 0, // d1, d2
         (void*)buffer.get(), FONT, nullptr // dp, dp2, dp3
     });
+}
+
+void TextField::setVisible(bool visible)
+{
+    Widget::setVisible(visible);
+    if(alDialog)
+    {
+        if(visible)
+            alDialog->flags&=~D_HIDDEN;
+        else
+            alDialog->flags|=D_HIDDEN;
+    }
 }
 
 int TextField::onEvent(int event, MessageDispatcher sendMessage)

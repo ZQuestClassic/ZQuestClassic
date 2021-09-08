@@ -12,9 +12,6 @@ namespace gui
 /* A container that displays any one of multiple widgets. Used to dynamically
  * change the layout, e.g. to switch between a TextField and a DropDownList
  * when some selection is changed.
- *
- * XXX This one needs some work, but it'll require some changes further down.
- * And it may be better just to provide a way to replace a widget directly.
  */
 class Switcher: public Widget
 {
@@ -22,13 +19,15 @@ public:
     Switcher();
     void add(std::shared_ptr<Widget> child);
 
-    // Makes the widget with the given index visible, hiding all others.
-    void show(size_t index);
+    /* Makes the widget with the given index visible, hiding all others. */
+    void switchTo(size_t index);
 
-    // Returns the index of the currently visible widget.
-    size_t getVisible() const;
+    /* Returns the index of the currently visible widget. */
+    size_t getCurrentIndex() const;
 
-    // Returns the widget at the given index, cast to the specified type.
+    void setVisible(bool visible) override;
+
+    /* Returns the widget at the given index, cast to the specified type. */
     template<typename T>
     std::shared_ptr<T> get(size_t index)
     {
@@ -49,7 +48,7 @@ private:
 
     std::vector<ChildInfo> children;
     DialogRef alDialog;
-    size_t visible;
+    size_t visibleChild;
 
     /* Sets or unsets D_HIDDEN for each of the child's DIALOGs. */
     void setChildVisible(size_t index, bool visible);

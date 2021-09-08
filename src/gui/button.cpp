@@ -24,6 +24,18 @@ void Button::setText(std::string newText)
     text=std::move(newText);
 }
 
+void Button::setVisible(bool visible)
+{
+    Widget::setVisible(visible);
+    if(alDialog)
+    {
+        if(visible)
+            alDialog->flags&=~D_HIDDEN;
+        else
+            alDialog->flags|=D_HIDDEN;
+    }
+}
+
 void Button::realize(DialogRunner& runner)
 {
     alDialog=runner.push(shared_from_this(), DIALOG {
@@ -31,7 +43,7 @@ void Button::realize(DialogRunner& runner)
         x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         getAccelKey(text),
-        D_NEW_GUI, // flags
+        getFlags(), // flags
         0, 0, // d1, d2
         (void*)text.c_str(), FONT, nullptr // dp, dp2, dp3
     });

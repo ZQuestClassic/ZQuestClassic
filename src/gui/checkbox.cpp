@@ -41,6 +41,18 @@ bool Checkbox::getChecked()
     return alDialog ? alDialog->flags&D_SELECTED : checked;
 }
 
+void Checkbox::setVisible(bool visible)
+{
+    Widget::setVisible(visible);
+    if(alDialog)
+    {
+        if(visible)
+            alDialog->flags&=~D_HIDDEN;
+        else
+            alDialog->flags|=D_HIDDEN;
+    }
+}
+
 void Checkbox::realize(DialogRunner& runner)
 {
     alDialog=runner.push(shared_from_this(), DIALOG {
@@ -48,7 +60,7 @@ void Checkbox::realize(DialogRunner& runner)
         x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         getAccelKey(text),
-        D_NEW_GUI|(checked ? D_SELECTED : 0), // flags
+        getFlags()|(checked ? D_SELECTED : 0), // flags
         static_cast<int>(boxPlacement), 0, // d1, d2,
         (void*)text.c_str(), FONT, nullptr // dp, dp2, dp3
     });

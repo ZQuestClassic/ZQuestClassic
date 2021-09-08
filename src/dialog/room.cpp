@@ -269,11 +269,11 @@ std::shared_ptr<gui::Widget> RoomDialog::view()
         itemDD=DropDownList(
             data=itemListData,
             selectedValue=argument,
-        onSelectionChanged=Message::setArgument),
+            onSelectionChanged=Message::setArgument),
         shopDD=DropDownList(
             data=shopListData,
             selectedValue=argument,
-        onSelectionChanged=Message::setArgument),
+            onSelectionChanged=Message::setArgument),
         infoShopDD=DropDownList(
             data=infoShopListData,
             selectedValue=argument,
@@ -361,17 +361,17 @@ void RoomDialog::setArgField()
     switch(room)
     {
     case rSP_ITEM:
-        argSwitcher->show(argItemList);
+        argSwitcher->switchTo(argItemList);
         itemDD->setSelectedValue(argument);
         argLabel->setText("Item:");
         break;
     case rINFO:
-        argSwitcher->show(argInfoShopList);
+        argSwitcher->switchTo(argInfoShopList);
         infoShopDD->setSelectedValue(argument);
         argLabel->setText("Shop:");
         break;
     case rMONEY:
-        argSwitcher->show(argTextField);
+        argSwitcher->switchTo(argTextField);
         argTF->setText(std::to_string(argument));
         argLabel->setText("Amount:");
         break;
@@ -379,19 +379,19 @@ void RoomDialog::setArgField()
     case rBOMBS:
     case rSWINDLE:
     case rARROWS:
-        argSwitcher->show(argTextField);
+        argSwitcher->switchTo(argTextField);
         argTF->setText(std::to_string(argument));
         argLabel->setText("Price:");
         break;
     case rP_SHOP:
     case rSHOP:
     case rTAKEONE:
-        argSwitcher->show(argShopList);
+        argSwitcher->switchTo(argShopList);
         shopDD->setSelectedValue(argument);
         argLabel->setText("Shop:");
         break;
     default:
-        argSwitcher->show(argTextField);
+        argSwitcher->switchTo(argTextField);
         argTF->setText(std::to_string(argument));
         argLabel->setText("(Unused):");
         break;
@@ -400,7 +400,7 @@ void RoomDialog::setArgField()
 
 int RoomDialog::getArgument() const
 {
-    switch(argSwitcher->getVisible())
+    switch(argSwitcher->getCurrentIndex())
     {
     case argItemList:
         return itemDD->getSelectedValue();

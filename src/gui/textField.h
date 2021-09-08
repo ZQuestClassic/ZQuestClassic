@@ -2,6 +2,7 @@
 #define ZC_GUI_TEXTFIELD_H
 
 #include "widget.h"
+#include "dialogRef.h"
 #include <memory>
 #include <string_view>
 
@@ -39,6 +40,8 @@ public:
      */
     void setMaxLength(size_t newMax);
 
+    void setVisible(bool visible) override;
+
     /* Sets the message to send when the enter key is pressed. Note that
      * the type of the argument varies depending on the text field's type.
      * If set to Text, the argument will be a std::string_view. If set to
@@ -63,6 +66,7 @@ private:
     std::unique_ptr<char[]> buffer;
     Type type;
     size_t maxLength;
+    DialogRef alDialog;
     int onEnterMsg, onValueChangedMsg;
 
     void realize(DialogRunner& runner) override;

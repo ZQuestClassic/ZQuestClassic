@@ -33,6 +33,8 @@ public:
     void setHAlign(float align);
     void setVAlign(float align);
 
+    virtual void setVisible(bool visible);
+
     /* Set the widget's width and height to their preferred values.
      * This doesn't need to be implemented if they're set already
      * before the dialog is realized.
@@ -86,8 +88,11 @@ protected:
     /* Sets the widget's width if it hasn't been overridden. */
     void setPreferredHeight(Size newHeight);
 
+    /* Returns flags with which the DIALOG should be initialized. */
+    int getFlags();
+
 private:
-    enum { f_widthOverridden, f_heightOverridden };
+    enum { f_widthOverridden, f_heightOverridden, f_hidden };
     int width, height;
     unsigned char flags;
 };

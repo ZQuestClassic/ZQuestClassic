@@ -78,6 +78,18 @@ void DropDownList::setIndex()
     }
 }
 
+void DropDownList::setVisible(bool visible)
+{
+    Widget::setVisible(visible);
+    if(alDialog)
+    {
+        if(visible)
+            alDialog->flags&=~D_HIDDEN;
+        else
+            alDialog->flags|=D_HIDDEN;
+    }
+}
+
 const char* DropDownList::jwinListWrapperFunc(int index, int* size, void* owner)
 {
     DropDownList* cb=static_cast<DropDownList*>(owner);
@@ -104,7 +116,7 @@ void DropDownList::realize(DialogRunner& runner)
         x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         0, // key
-        D_NEW_GUI, // flags
+        getFlags(), // flags
         selectedIndex, selectedIndex, // d1, d2,
         &jwinListWrapper, nullptr, nullptr // dp, dp2, dp3
     });

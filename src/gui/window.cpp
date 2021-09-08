@@ -29,6 +29,18 @@ void Window::setContent(shared_ptr<Widget> newContent)
     content=newContent;
 }
 
+void Window::setVisible(bool visible)
+{
+    Widget::setVisible(visible);
+    if(alDialog)
+    {
+        if(visible)
+            alDialog->flags&=~D_HIDDEN;
+        else
+            alDialog->flags|=D_HIDDEN;
+    }
+}
+
 void Window::arrange(int contX, int contY, int contW, int contH)
 {
     if(content)
@@ -70,12 +82,12 @@ void Window::arrange(int contX, int contY, int contW, int contH)
 
 void Window::realize(DialogRunner& runner)
 {
-    runner.push(shared_from_this(), DIALOG {
+    alDialog=runner.push(shared_from_this(), DIALOG {
         jwin_win_proc,
         x, y, getWidth(), getHeight(),
         fgColor, bgColor,
         0, // key
-        D_NEW_GUI | (closeMessage ? D_EXIT : 0), // flags,
+        getFlags()|(closeMessage>=0 ? D_EXIT : 0), // flags,
         0, 0, // d1, d2
         (void*)title.c_str(), lfont, nullptr // dp, dp2, dp3
     });

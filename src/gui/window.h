@@ -1,6 +1,7 @@
 #ifndef ZC_GUI_WINDOW_H
 #define ZC_GUI_WINDOW_H
 
+#include "dialogRef.h"
 #include "topLevel.h"
 #include <memory>
 #include <string>
@@ -14,6 +15,8 @@ public:
     Window();
     void setTitle(std::string newTitle);
     void setContent(std::shared_ptr<Widget> newContent);
+    void setVisible(bool visible) override;
+
     template<typename T>
     void onClose(T m)
     {
@@ -23,6 +26,7 @@ public:
 private:
     std::shared_ptr<Widget> content;
     std::string title;
+    DialogRef alDialog;
     int closeMessage;
 
     void arrange(int contX, int contY, int contW, int contH) override;

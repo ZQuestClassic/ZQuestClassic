@@ -13,6 +13,7 @@ class Label: public Widget
 public:
     Label();
     void setText(std::string newText);
+    void setVisible(bool visible) override;
 
 private:
     std::string text;
