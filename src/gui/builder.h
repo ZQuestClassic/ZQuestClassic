@@ -86,6 +86,7 @@ ZCGUI_BUILDER_FUNCTION(DropDownList, DropDownList, internal::makeDropDownList)
 
 ZCGUI_BUILDER_START(Label)
     ZCGUI_ACCEPT_PROP(text, setText, std::string)
+        ZCGUI_ACCEPT_PROP(maxLines, setMaxLines, size_t)
 
     ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()
