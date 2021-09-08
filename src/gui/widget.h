@@ -92,7 +92,11 @@ protected:
     int getFlags();
 
 private:
-    enum { f_widthOverridden, f_heightOverridden, f_hidden };
+    enum {
+        f_widthOverridden=  0b00000001,
+        f_heightOverridden= 0b00000010,
+        f_hidden=           0b00000100
+    };
     int width, height;
     unsigned char flags;
 };
