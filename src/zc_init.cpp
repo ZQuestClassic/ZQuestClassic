@@ -99,6 +99,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->hero_damage_multiplier = gdata->get_hero_dmgmult();
 	zinit2->ene_damage_multiplier = gdata->get_ene_dmgmult();
 	zinit2->dither_type = gdata->get_dither_type();
+	zinit2->dither_arg = gdata->get_dither_arg();
 	zinit2->dither_percent = gdata->get_dither_perc();
 	zinit2->def_lightrad = gdata->get_light_rad();
 	

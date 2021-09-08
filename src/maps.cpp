@@ -3356,7 +3356,7 @@ void doLampCirc(BITMAP* bmp, int pos, newcombo const& cmb)
 	if(cmb.type != cLANTERN) return;
 	int r1 = cmb.attribytes[0];
 	int dither_rad = r1 - (int)(r1 * (game->get_dither_perc()/(double)100.0));
-	dithercircfill(bmp, MAPCOMBOX(pos)+8, MAPCOMBOY(pos)+8, r1, 0, game->get_dither_type());
+	dithercircfill(bmp, MAPCOMBOX(pos)+8, MAPCOMBOY(pos)+8, r1, 0, game->get_dither_type(), game->get_dither_arg());
 	circlefill(bmp, MAPCOMBOX(pos)+8, MAPCOMBOY(pos)+8, dither_rad, 0);
 }
 

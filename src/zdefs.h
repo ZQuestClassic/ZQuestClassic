@@ -3772,7 +3772,7 @@ enum generic_ind
 	genHCP, genMDRAINRATE, genCANSLASH, genWLEVEL,
 	genHCP_PER_HC, genCONTHP, genCONTHP_IS_PERC, genHP_PER_HEART,
 	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
-	genDITH_TYPE, genDITH_PERC, genLIGHT_RAD,
+	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,
 	genLAST,
 	genMAX = 256
 };
@@ -3971,6 +3971,9 @@ struct gamedata
 	
 	byte get_dither_type();
 	void set_dither_type(byte val);
+	
+	byte get_dither_arg();
+	void set_dither_arg(byte val);
 
 	byte get_dither_perc();
 	void set_dither_perc(byte val);
@@ -4093,7 +4096,7 @@ struct zinitdata
     word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep, subscrSpeed;
 	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
 	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em 
-	byte dither_type, dither_percent, def_lightrad;
+	byte dither_type, dither_arg, dither_percent, def_lightrad;
 };
 
 struct zcmap

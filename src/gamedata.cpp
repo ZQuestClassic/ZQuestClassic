@@ -855,6 +855,15 @@ void gamedata::set_dither_type(byte val)
 	set_generic(val, genDITH_TYPE);
 }
 
+byte gamedata::get_dither_arg()
+{
+	return get_generic(genDITH_ARG);
+}
+void gamedata::set_dither_arg(byte val)
+{
+	set_generic(val, genDITH_ARG);
+}
+
 byte gamedata::get_dither_perc()
 {
 	return zc_min(100, get_generic(genDITH_PERC));
