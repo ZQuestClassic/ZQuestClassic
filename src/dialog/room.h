@@ -40,7 +40,7 @@ private:
      * limited to legal values.
      */
     int getArgument() const;
-    void showRoomInfo() const;
+    const char* getRoomInfo() const;
 };
 
 #endif

@@ -118,123 +118,92 @@ gui::ListData getMessageListData()
         });
 }
 
-static const auto specialItemDesc={
-    "If a Guy is set, he will offer an item to Link.",
-    "This room type is also used for Item Cellar warps,",
-    "and 'Armos/Chest->Item' and 'Dive For Item' combo flags."
-};
+static const auto specialItemDesc=
+    "If a Guy is set, he will offer an item to Link. "
+    "This room type is also used for Item Cellar warps, "
+    "and 'Armos/Chest->Item' and 'Dive For Item' combo flags.";
 
-static const auto infoDesc={
-    "Pay rupees to make one of three strings appear.",
-    "Strings and prices are set in",
-    "Misc. Data -> Info Types."
-};
+static const auto infoDesc=
+    "Pay rupees to make one of three strings appear. "
+    "Strings and prices are set in Misc. Data -> Info Types.";
 
-static const auto moneyDesc={
-    "If a Guy is set, he will offer rupees to Link."
-};
+static const auto moneyDesc=
+    "If a Guy is set, he will offer rupees to Link.";
 
-static const auto gambleDesc={
-    "The 'Money-Making Game' from The Legend of Zelda.",
-    "Risk losing up to 40 rupees for",
-    "a chance to win up to 50 rupees."
-};
+static const auto gambleDesc=
+    "The 'Money-Making Game' from The Legend of Zelda. "
+    "Risk losing up to 40 rupees for a chance to win up to 50 rupees.";
 
-static const auto repairDesc={
-    "When the Guy's String finishes,",
-    "the player loses a given amount of money."
-};
+static const auto repairDesc=
+    "When the Guy's String finishes, the player loses a given amount of money.";
 
-static const auto potionOrHCDesc={
-    "The Guy offers item 28 and item 30 to Link.",
-    "Taking one makes the other vanish forever."
-};
+static const auto potionOrHCDesc=
+    "The Guy offers item 28 and item 30 to Link. "
+    "Taking one makes the other vanish forever.";
 
-static const auto grumbleDesc={
-    "Until the player uses a Bait item, the Guy and",
-    "his invisible wall won't vanish and shutters won't open.",
-    "The Bait item will be removed from the player's inventory."
-};
+static const auto grumbleDesc=
+    "Until the player uses a Bait item, the Guy and "
+    "his invisible wall won't vanish and shutters won't open. "
+    "The Bait item will be removed from the player's inventory.";
 
-static const auto triforceDesc={
-    "The Guy and his invisible wall won't vanish",
-    "unless Link has Triforces from levels 1-8.",
-    "(Shutters won't open until the Guy vanishes, too.)"
-};
+static const auto triforceDesc=
+    "The Guy and his invisible wall won't vanish "
+    "unless Link has Triforces from levels 1-8. "
+    "(Shutters won't open until the Guy vanishes, too.)";
 
-static const auto potionShopDesc={
-    "Similar to a Shop, but the items and String",
-    "won't appear until Link uses a Letter item.",
-    "(Or, if Link already has a Level 2 Letter item.)"
-};
+static const auto potionShopDesc=
+    "Similar to a Shop, but the items and String "
+    "won't appear until Link uses a Letter item. "
+    "(Or, if Link already has a Level 2 Letter item.)";
 
-static const auto shopDesc={
-    "The Guy offers three items for a fee.",
-    "You can use the Shop as often as you want.",
-    "Items and prices are set in Misc. Data -> Shop Types."
-};
+static const auto shopDesc=
+    "The Guy offers three items for a fee. "
+    "You can use the Shop as often as you want. "
+    "Items and prices are set in Misc. Data -> Shop Types.";
 
-static const auto moreBombsDesc={
-    "The Guy offers to increase Link's Bombs",
-    "and Max. Bombs by 4, for a fee.",
-    "You can only buy it once."
-};
+static const auto moreBombsDesc=
+    "The Guy offers to increase Link's Bombs "
+    "and Max. Bombs by 4, for a fee. You can only buy it once.";
 
-static const auto swindleDesc={
-    "The Guy and his invisible wall won't vanish until",
-    "Link pays the fee or forfeits a Heart Container.",
-    "(Shutters won't open until the Guy vanishes, too.)"
-};
+static const auto swindleDesc=
+    "The Guy and his invisible wall won't vanish until "
+    "Link pays the fee or forfeits a Heart Container. "
+    "(Shutters won't open until the Guy vanishes, too.)";
 
-static const auto tenRupiesDesc={
-    "10 instances of item 0 appear in a",
-    "diamond formation in the center of the screen.",
-    "No Guy or String needs to be set for this."
-};
+static const auto tenRupiesDesc=
+    "10 instances of item 0 appear in a  diamond formation in "
+    "the center of the screen. No Guy or String needs to be set for this.";
 
-static const auto warpDesc={
-    "All 'Stair [A]' type combos send Link to",
-    "a destination in a given Warp Ring, based",
-    "on the combo's X position (<112, >136, or between)."
-};
+static const auto warpDesc=
+    "All 'Stair [A]' type combos send Link to "
+    "a destination in a given Warp Ring, based "
+    "on the combo's X position (<112, >136, or between).";
 
-static const auto ganonDesc={
-    "Link holds up the Triforce, and Ganon appears.",
-    "(Unless the current DMap's Dungeon Boss was beaten.)"
-};
+static const auto ganonDesc=
+    "Link holds up the Triforce, and Ganon appears. "
+    "(Unless the current DMap's Dungeon Boss was beaten.)";
 
-static const auto zeldaDesc={
-    "Four instances of enemy 85 appear",
-    "on the screen in front of the Guy.",
-    "(That's all it does.)"
-};
+static const auto zeldaDesc=
+    "Four instances of enemy 85 appear on the screen in front of the Guy. "
+    "(That's all it does.)";
 
-static const auto magicUpgradeDesc={
-    "When the Guy's String finishes,",
-    "Link gains the 1/2 Magic Usage attribute."
-};
+static const auto magicUpgradeDesc=
+    "When the Guy's String finishes, Link gains the 1/2 Magic Usage attribute.";
 
-static const auto learnSlashDesc={
-    "When the Guy's String finishes,",
-    "Link gains the Slash attribute."
-};
+static const auto learnSlashDesc=
+    "When the Guy's String finishes, Link gains the Slash attribute.";
 
-static const auto moreArrowsDesc={
-    "The Guy offers to increase Link's Arrows",
-    "and Max. Arrows by 10, for a fee.",
-    "You can only buy it once."
-};
+static const auto moreArrowsDesc=
+    "The Guy offers to increase Link's Arrows and Max. Arrows by 10, "
+    "for a fee. You can only buy it once.";
 
-static const auto takeOneDesc={
-    "The Guy offers three items.",
-    "Taking one makes the others vanish forever.",
-    "Item choices are set in Misc. Data -> Shop Types."
-};
+static const auto takeOneDesc=
+    "The Guy offers three items. Taking one makes the others vanish forever. "
+    "Item choices are set in Misc. Data -> Shop Types.";
 
-static const auto defaultDesc={
-    "Select a Room Type, then click",
-    "the \"Info\" button to find out what it does."
-};
+static const auto defaultDesc=
+    "Select a Room Type, then click the \"Info\" button "
+    "to find out what it does.";
 
 // Used as a selector for argSwitcher. Make sure the order matches.
 enum { argTextField, argItemList, argShopList, argInfoShopList };
@@ -343,7 +312,7 @@ bool RoomDialog::handleMessage(Message msg, gui::MessageArg messageArg)
         return false;
 
     case Message::roomInfo:
-        showRoomInfo();
+        InfoDialog("Room Info", getRoomInfo()).show();
         return false;
 
     case Message::ok:
@@ -413,75 +382,30 @@ int RoomDialog::getArgument() const
     }
 }
 
-void RoomDialog::showRoomInfo() const
+const char* RoomDialog::getRoomInfo() const
 {
-    const decltype(defaultDesc)* info=nullptr;
     switch(room)
     {
-    case rSP_ITEM:
-        info=&specialItemDesc;
-        break;
-    case rINFO:
-        info=&infoDesc;
-        break;
-    case rMONEY:
-        info=&moneyDesc;
-        break;
-    case rGAMBLE:
-        info=&gambleDesc;
-        break;
-    case rREPAIR:
-        info=&repairDesc;
-        break;
-    case rRP_HC:
-        info=&potionOrHCDesc;
-        break;
-    case rGRUMBLE:
-        info=&grumbleDesc;
-        break;
-    case rTRIFORCE:
-        info=&triforceDesc;
-        break;
-    case rP_SHOP:
-        info=&potionShopDesc;
-        break;
-    case rSHOP:
-        info=&shopDesc;
-        break;
-    case rBOMBS:
-        info=&moreBombsDesc;
-        break;
-    case rSWINDLE:
-        info=&swindleDesc;
-        break;
-    case r10RUPIES:
-        info=&tenRupiesDesc;
-        break;
-    case rWARP:
-        info=&warpDesc;
-        break;
-    case rGANON:
-        info=&ganonDesc;
-        break;
-    case rZELDA:
-        info=&zeldaDesc;
-        break;
-    case rMUPGRADE:
-        info=&magicUpgradeDesc;
-        break;
-    case rLEARNSLASH:
-        info=&learnSlashDesc;
-        break;
-    case rARROWS:
-        info=&moreArrowsDesc;
-        break;
-    case rTAKEONE:
-        info=&takeOneDesc;
-        break;
-    default:
-        info=&defaultDesc;
-        break;
+        case rSP_ITEM: return specialItemDesc;
+        case rINFO: return infoDesc;
+        case rMONEY: return moneyDesc;
+        case rGAMBLE: return gambleDesc;
+        case rREPAIR: return repairDesc;
+        case rRP_HC: return potionOrHCDesc;
+        case rGRUMBLE: return grumbleDesc;
+        case rTRIFORCE: return triforceDesc;
+        case rP_SHOP: return potionShopDesc;
+        case rSHOP: return shopDesc;
+        case rBOMBS: return moreBombsDesc;
+        case rSWINDLE: return swindleDesc;
+        case r10RUPIES: return tenRupiesDesc;
+        case rWARP: return warpDesc;
+        case rGANON: return ganonDesc;
+        case rZELDA: return zeldaDesc;
+        case rMUPGRADE: return magicUpgradeDesc;
+        case rLEARNSLASH: return learnSlashDesc;
+        case rARROWS: return moreArrowsDesc;
+        case rTAKEONE: return takeOneDesc;
+        default: return defaultDesc;
     }
-
-    InfoDialog("Room Info", *info).show();
 }
