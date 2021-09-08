@@ -98,17 +98,23 @@ gui::ListData getInfoShopListData()
 
 gui::ListData getMessageListData()
 {
-    // TODO: Display strings in order
+    std::vector<size_t> msgMap(msg_count, 0);
+    for(size_t i=0; i<msg_count; i++)
+    {
+        auto& msg=MsgStrings[i];
+        msgMap[msg.listpos]=i;
+    }
+
     return gui::ListData(msg_count,
-        [](size_t index)
+        [&msgMap](size_t index)
         {
             return boost::str(boost::format("%1%: %2%")
-                % index
-                % MsgStrings[index].s);
+                % msgMap[index]
+                % MsgStrings[msgMap[index]].s);
         },
-        [](size_t index)
+        [&msgMap](size_t index)
         {
-            return index;
+            return msgMap[index];
         });
 }
 
