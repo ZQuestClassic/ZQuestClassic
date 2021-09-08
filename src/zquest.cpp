@@ -14483,7 +14483,7 @@ int onRoom()
     restore_mouse();
     auto* scr=Map.CurrScr();
     RoomDialog(scr->room, scr->catchall, scr->guy, scr->str,
-        [&saved, scr](int r, int a, int g, int m)
+        [scr](int r, int a, int g, int m)
         {
             scr->room=r;
             scr->guy=g;

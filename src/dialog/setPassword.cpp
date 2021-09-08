@@ -46,7 +46,7 @@ bool SetPasswordDialog::handleMessage(Message msg)
     {
     case Message::ok:
         setPassword(pwField->getText(), saveKeyFileCB->getChecked());
-        [[fallthrough]]
+        [[fallthrough]];
     case Message::cancel:
     default:
         return true;
