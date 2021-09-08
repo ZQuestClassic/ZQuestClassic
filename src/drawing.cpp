@@ -12,6 +12,7 @@ enum dithType
 	dithRow1, dithRow2, dithRow3,
 	dithCol1, dithCol2, dithCol3,
 	dithDots, dithGrid,
+	dithWave, dithWave2, dithWave3,
 	dithMax
 };
 static inline bool dithercheck(byte type, int x, int y)
@@ -34,10 +35,10 @@ static inline bool dithercheck(byte type, int x, int y)
 			return !(((x%8)==(y%8)) || ((8-(x%8))==(y%8)));
 		case dithDiagULDR:
 			return ((x%4)==(y%4));
-		case dithDiagURDL:
-			return ((3-(x%4))==(y%4));
 		case dithDiagULDR2:
 			return ((x%8)==(y%8));
+		case dithDiagURDL:
+			return ((3-(x%4))==(y%4));
 		case dithDiagURDL2:
 			return ((7-(x%8))==(y%8));
 		case dithRow1:
@@ -56,6 +57,21 @@ static inline bool dithercheck(byte type, int x, int y)
 			return !(x%2 || y%2);
 		case dithGrid:
 			return x%2 || y%2;
+		case dithWave:
+		{
+			double diff = abs(sin((double)((x*x)+(y*y))) - (cos((double)(x*y))));
+			return (diff < 0.057);
+		}
+		case dithWave2:
+		{
+			double diff = abs(sin((double)((x*x)+(y*y))) - (cos((double)(x*y))));
+			return (diff < 0.194);
+		}
+		case dithWave3:
+		{
+			double diff = abs(sin((double)((x*x)+(y*y))) - (cos((double)(x*y))));
+			return (diff < 0.591);
+		}
 		
 		default: return true;
 	}
@@ -69,7 +85,7 @@ static void ditherblit(BITMAP* dest, BITMAP* src, int color, byte dType)
 	{
 		for(int ty = 0; ty < hei; ++ty)
 		{
-			if(dithercheck(dType,tx,ty) && getpixel(src, tx, ty))
+			if(getpixel(src, tx, ty) && dithercheck(dType,tx,ty))
 			{
 				putpixel(dest, tx, ty, color);
 			}
