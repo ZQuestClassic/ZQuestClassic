@@ -11,7 +11,7 @@
 namespace gui
 {
 
-Label::Label(): text()
+Label::Label(): text(), contX(0), contY(0), contW(0), contH(0)
 {
     setPreferredHeight(Size::pixels(text_height(FONT)));
 }
@@ -31,11 +31,21 @@ void Label::setText(std::string newText)
 
     if(alDialog)
     {
-        // TODO This assumes right-alignment! There's only one place
-        // this is used currently, and it's right for that.
-        alDialog->x+=(oldW-getWidth());
+        Widget::arrange(contX, contY, contW, contH);
+        alDialog->x=x;
         alDialog->w=getWidth();
     }
+}
+
+void Label::arrange(int cx, int cy, int cw, int ch)
+{
+    // Hang on to these in case the text is changed and
+    // the label needs repositioned.
+    contX=cx;
+    contY=cy;
+    contW=cw;
+    contH=ch;
+    Widget::arrange(cx, cy, cw, ch);
 }
 
 void Label::realize(DialogRunner& runner)

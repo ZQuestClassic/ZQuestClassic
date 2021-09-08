@@ -17,7 +17,9 @@ public:
 private:
     std::string text;
     DialogRef alDialog;
+    int contX, contY, contW, contH;
 
+    void arrange(int contX, int contY, int contW, int contH) override;
     void realize(DialogRunner& runner) override;
 };
 
