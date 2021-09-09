@@ -22,4 +22,7 @@ enum dithType
 void ditherblit(BITMAP* dest, BITMAP* src, int color, byte dType, byte dArg, int xoffs=0, int yoffs=0);
 void dithercircfill(BITMAP* dest, int x, int y, int rad, int color, byte ditherType, byte ditherArg, int xoffs=0, int yoffs=0);
 
+void lampcone(BITMAP* dest, int sx, int sy, int range, int dir, int color);
+void ditherLampCone(BITMAP* dest, int sx, int sy, int range, int dir, int color, byte ditherType, byte ditherArg, int xoffs=0, int yoffs=0);
+
 #endif

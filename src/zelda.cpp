@@ -4979,10 +4979,10 @@ int main(int argc, char* argv[])
 	pricesdisplaybuf = create_bitmap_ex(8,256, 176);
 	script_menu_buf = create_bitmap_ex(8,256,224);
 	f6_menu_buf = create_bitmap_ex(8,256,224);
-	darkscr_bmp_curscr = create_bitmap_ex(8, 256, 168);
-	darkscr_bmp_curscr_trans = create_bitmap_ex(8, 256, 168);
-	darkscr_bmp_scrollscr = create_bitmap_ex(8, 256, 168);
-	darkscr_bmp_scrollscr_trans = create_bitmap_ex(8, 256, 168);
+	darkscr_bmp_curscr = create_bitmap_ex(8, 256, 176);
+	darkscr_bmp_curscr_trans = create_bitmap_ex(8, 256, 176);
+	darkscr_bmp_scrollscr = create_bitmap_ex(8, 256, 176);
+	darkscr_bmp_scrollscr_trans = create_bitmap_ex(8, 256, 176);
 	
 	if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
 			|| !screen2 || !msg_txt_display_buf || !msg_bg_display_buf || !pricesdisplaybuf
