@@ -27576,14 +27576,30 @@ int onCompileScript()
 	BOOL memresult = false;
 	#endif
 	
-	/*if(try_recovering_missing_scripts!=0)
+	if(try_recovering_missing_scripts!=0)
 	{
 		compile_dlg[9].flags |= D_SELECTED;
 	}
-	else*/
+	else
 	{
 		compile_dlg[9].flags &= ~D_SELECTED;
 	}
+	//Load from File
+	zScript.clear();
+	FILE *zscript = fopen(infile,"r");
+	if(zscript == NULL)
+	{
+		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+
+	char c = fgetc(zscript);
+
+	while(!feof(zscript))
+	{
+		zScript += c;
+		c = fgetc(zscript);
+	}
+	//fclose(zscript);
 	
 	if(is_large)
 		large_dialog(compile_dlg);
@@ -27599,7 +27615,7 @@ int onCompileScript()
 		case 0:
 		case 1:
 			//Cancel
-			return D_O_K;
+			//return -9; //This checks: Z ees thisvauein the syste() call andths can be used for eror codes &c--Z
 			
 		case 2:
 			//Edit
@@ -27683,12 +27699,19 @@ int onCompileScript()
 			#endif
 			//need elseif for linux here! -Z
 			//Compile!
-			FILE *tempfile = fopen("tmp","w");
+			FILE *tempfile = fopen("tmp","w"); 
+			//FILE *tempfile = NULL;
+			//tempfile = fopen("tmp","w"); 
 			
 			if(!tempfile)
 			{
-				jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-				return D_O_K;
+				//al_trace("Could not read input file: %s\n",infile); 
+				//tempfile = fopen("tmp","w"); 
+				//if(!tempfile)
+				//{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					return D_O_K;
+				//}
 			}
 			
 			fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
@@ -27753,9 +27776,9 @@ int onCompileScript()
 			}
 			else
 			{
-				compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
 				if ( compile_error_sample > 0 )
 				{
+					compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
 					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
 					//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 					if(sfxdat)
@@ -27892,6 +27915,8 @@ int onCompileScript()
 			//assign scripts to slots
 			if(do_slots(scripts))
 			{
+				int suc = writeffscripts(outfile);
+				return suc;
 				//Success
 			}
 			else
@@ -27919,6 +27944,7 @@ int onCompileScript()
 			//scripts.clear(); //Doesn't release it back to Windows. 
 			//std::map<string, disassembled_script_data>().swap(scripts); //Doesn't release it back to Windows. 
 			//malloc_trim(); //This is Unix only, and will release heap memory allocation back to the host OS
+			
 			return D_O_K;
 		}
 	}
@@ -33436,6 +33462,199 @@ int main(int argc,char **argv)
     //We need to remove all of the zeldadx refs to the config file for zquest. 
     
     set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
+    int argcount = 0;
+    al_trace("found %d args\n",argc);
+    //input files, iutpout file, options : Reeber to add file valid checks
+    if (used_switch(argc, argv, "-i"))
+    {
+	al_trace("input file arg found\n"); 
+	
+	int infileid=used_switch(argc, argv, "-i");
+
+	if(infileid==argc-1)
+	{
+	    Z_error("-i input file not specifed\n");
+	    exit(0);
+	}
+	else
+	{
+		infile=argv[infileid+1];
+		al_trace("-i input file is %s\n",infile);
+	}
+     }
+     else 
+     {
+	     infile = "TMP";
+	     al_trace("Unspecified input file is %s\n",infile);
+     }
+     if (used_switch(argc, argv, "-o"))
+     {
+	al_trace("output file arg found\n");
+	
+	int outfileid=used_switch(argc, argv, "-o");
+
+	if(outfileid==argc-1)
+	{
+	    Z_error("-o output file not specifed\n");
+	    exit(0);
+	}
+	else 
+	{
+		outfile=argv[outfileid+1];
+		al_trace("-o output file is %s\n",outfile);
+	}
+    }
+    else 
+     {
+	     outfile = "TeZSLa.output";
+	     al_trace("Unspecified input file is %s\n",outfile);
+     }
+    if(used_switch(argc, argv, "-r"))
+    {
+	al_trace("rules file arg found\n");
+	int rulefileid=used_switch(argc, argv, "-r");
+	if(rulefileid==argc-1)
+	{
+	    Z_error("-r rules file not specifed\n");
+	    exit(0);
+	}
+	else 
+	{
+		rulesfile=argv[rulefileid+1];
+		al_trace("-r rules file is %s\n",rulesfile);
+	}
+    }
+    else 
+     {
+	     rulesfile = "TeZSLa.rules";
+	     al_trace("Unspecified input file is %s\n",rulesfile);
+     }
+     read_tezsla_rules(rulesfile);
+    if(used_switch(argc, argv, "-s"))
+    {
+	al_trace("settings file arg found\n");
+	int settingfileid=used_switch(argc, argv, "-s");
+	if(settingfileid==argc-1)
+	{
+	    Z_error("-s settings file not specifed\n");
+	    exit(0);
+	}
+	else 
+	{
+		settingfile=argv[settingfileid+1];
+		al_trace("-s settings file is %s\n",settingfile);
+	}
+    }
+    else 
+     {
+	     settingfile = "TeZSLa.settings";
+	     al_trace("Unspecified input file is %s\n",settingfile);
+     }    
+	//hand settings
+
+    if(used_switch(argc, argv, "-logging"))
+    {
+	int arg=used_switch(argc, argv, "-logging");
+	int val = atoi(argv[arg+1]);
+	al_trace("logging arg %d found\n", val);
+	{
+		compileroptions[ot_NO_LOGGING]=val;
+	}
+    } 
+    if(used_switch(argc, argv, "-division"))
+    {
+	int arg=used_switch(argc, argv, "-division");
+	int val = atoi(argv[arg+1]);
+	al_trace("division arg %d found\n", val);
+	{
+		compileroptions[ot_TRUNCATE_DIVISION_BY_LITERAL_BUG]=val;
+	}
+    }
+    
+    if(used_switch(argc, argv, "-short"))
+    {
+	int arg=used_switch(argc, argv, "-short");
+	int val = atoi(argv[arg+1]);
+	al_trace("short circuit arg %d found\n", val);
+	{
+		compileroptions[ot_SHORT_CIRCUIT]=val;
+	}
+    }
+    
+    if(used_switch(argc, argv, "-truedec"))
+    {
+	int arg=used_switch(argc, argv, "-truedec");
+	int val = atoi(argv[arg+1]);
+	al_trace("true decimal arg %d found\n", val);
+	{
+		compileroptions[ot_BOOL_TRUE_RETURN_DECIMAL]=val;
+	}
+    }
+    
+    if(used_switch(argc, argv, "-hguard"))
+    {
+	int arg=used_switch(argc, argv, "-hguard");
+	int val = atoi(argv[arg+1]);
+	al_trace("header guard arg %d found\n", val);
+	{
+		compileroptions[ot_HEADER_GUARD]=val;
+	}
+    }
+    
+    if(used_switch(argc, argv, "-halt"))
+    {
+	int arg=used_switch(argc, argv, "-halt");
+	int val = atoi(argv[arg+1]);
+	al_trace("error halt arg %d found\n", val);
+	{
+		compileroptions[ot_NO_ERROR_HALT]=val;
+	}
+    }
+    if(used_switch(argc, argv, "-trueint"))
+    {
+	int arg=used_switch(argc, argv, "-trueint");
+	int val = atoi(argv[arg+1]);
+	al_trace("true int arg %d found\n", val);
+	{
+		compileroptions[ot_TRUE_INT_SIZE]=val;
+	}
+    }
+    if(used_switch(argc, argv, "-inline"))
+    {
+	int arg=used_switch(argc, argv, "-inline");
+	int val = atoi(argv[arg+1]);
+	al_trace("inline arg %d found\n", val);
+	{
+		compileroptions[ot_FORCE_INLINE]=val;
+	}
+    }
+    if(used_switch(argc, argv, "-32b"))
+    {
+	int arg=used_switch(argc, argv, "-32b");
+	int val = atoi(argv[arg+1]);
+	al_trace("32b binary arg %d found\n", val);
+	{
+		compileroptions[ot_BINARY_32BIT]=val;
+	}
+    }
+    if(used_switch(argc, argv, "-margin"))
+    {
+	int arg=used_switch(argc, argv, "-margin");
+	float val =uatof(argv[arg+1]);
+	al_trace("Appx/Eq margin arg %f found\n", val);
+	{
+		compileroptions[ot_APPROX_EQUAL_MARGIN]=val;
+	}
+    }
+    if(used_switch(argc, argv, "-caseins"))
+    {
+	int arg=used_switch(argc, argv, "-caseins");
+	float val = uatof(argv[arg+1]);
+	al_trace("String Case Sens arg %f found\n", val);
+	{
+		compileroptions[ot_STRING_SWITCH_CASE_INSENSITIVE]=val;
+	}
+    }
     
     if(used_switch(argc,argv,"-small") || UseSmall==1)
     {
@@ -34639,14 +34858,7 @@ int main(int argc,char **argv)
     
     zScript = std::string();
     strcpy(zScriptBytes, "0 Bytes in Buffer");
-    for(int i=0; i<MOUSE_BMP_MAX; i++)
-	{
-		for(int j=0; j<4; j++)
-		{
-			mouse_bmp[i][j] = NULL;
-			mouse_bmp_1x[i][j] = NULL;
-		}
-	}
+    
     load_mice();
     gui_mouse_focus=0;
     set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
@@ -34822,8 +35034,7 @@ int main(int argc,char **argv)
     time(&auto_save_time_start);
     
     FFCore.init();
-	ZQincludePaths = FFCore.includePaths;
-	
+	memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
 	
 	
@@ -34834,7 +35045,7 @@ int main(int argc,char **argv)
 	}
 	else dialogs[0].dp = (void *) the_menu_large;
         */
-	
+	return onCompileScript();
     while(!quit)
     {
     
