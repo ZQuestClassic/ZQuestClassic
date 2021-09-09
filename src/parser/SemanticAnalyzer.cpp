@@ -939,7 +939,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			return;
 		}
 		vector<DataType const*>& paramTypes = host.readFunction->paramTypes;
@@ -948,7 +949,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			return;
 		}
 	}
@@ -962,7 +964,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			return;
 		}
 		vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
@@ -972,7 +975,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			return;
 		}
 	}

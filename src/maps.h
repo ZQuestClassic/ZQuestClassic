@@ -146,6 +146,9 @@ void map_bkgsfx(bool on);
 void toggle_switches(dword flags, bool entry);
 void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t);
 
+//
+void doDarkroomCircle(int cx, int cy, byte glowRad,BITMAP* dest=NULL);
+
 //extern FONT *lfont;
 /****  View Map  ****/
 extern int mapres;

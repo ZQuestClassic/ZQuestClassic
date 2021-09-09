@@ -4748,6 +4748,12 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		case ITEMGLOWRAD:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->glowRad * 10000;
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//Itemdata Variables
@@ -5829,6 +5835,12 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		case NPCGLOWRAD:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->glowRad * 10000;
+			}
+			break;
 		
 		
 		
@@ -6236,7 +6248,13 @@ long get_register(const long arg)
 			}
 			break;
 		}
-
+		
+		case LWPNGLOWRAD:
+			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
+			{
+				ret = ((weapon*)(s))->glowRad * 10000;
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//EWeapon Variables
@@ -6619,6 +6637,13 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		
+		case EWPNGLOWRAD:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
+			{
+				ret = ((weapon*)(s))->glowRad * 10000;
+			}
+			break;
 		
 		/*
 		case LWEAPONSCRIPTUID:
@@ -12588,6 +12613,12 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		case ITEMGLOWRAD:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->glowRad = vbound(value/10000,0,255);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//Itemdata Variables
@@ -13401,6 +13432,13 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
+		case LWPNGLOWRAD:
+			if(0!=(s=checkLWpn(ri->ewpn,"LightRadius")))
+			{
+				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
@@ -13776,6 +13814,12 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		case EWPNGLOWRAD:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
+			{
+				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//NPC Variables
@@ -14545,6 +14589,12 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		case NPCGLOWRAD:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
+			{
+				GuyH::getNPC()->glowRad = vbound(value/10000,0,255);
+			}
+			break;
 		
 		
 	///----------------------------------------------------------------------------------------------------//
@@ -35604,6 +35654,10 @@ script_variable ZASMVars[]=
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
 	{ "HEROISWARPING",           HEROISWARPING,            0,             0 },
+	{ "ITEMGLOWRAD",           ITEMGLOWRAD,            0,             0 },
+	{ "NPCGLOWRAD",           NPCGLOWRAD,            0,             0 },
+	{ "LWPNGLOWRAD",           LWPNGLOWRAD,            0,             0 },
+	{ "EWPNGLOWRAD",           EWPNGLOWRAD,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

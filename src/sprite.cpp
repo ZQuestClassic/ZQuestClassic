@@ -149,6 +149,7 @@ sprite::sprite()
 	    initA[q] = 0;
 	    weap_inita[q] = 0;
     }
+	glowRad = 0;
 }
 
 sprite::sprite(sprite const & other):
@@ -220,7 +221,8 @@ fallCombo(other.fallCombo),
 old_cset(other.old_cset),
 drownclk(other.drownclk),
 drownCombo(other.drownCombo),
-do_animation(other.do_animation)
+do_animation(other.do_animation),
+glowRad(other.glowRad)
 
 {
     uid = getNextUID();
@@ -345,6 +347,7 @@ sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
         weap_inita[q] = 0;
     }
     memset(stack, 0xFFFF, sizeof(stack));
+	glowRad = 0;
 }
 
 sprite::~sprite()
@@ -1038,6 +1041,8 @@ bool sprite::runKnockback()
 //To quote Jeff Goldblum, 'That is one big pile opf shit!'. -Z (5th April, 2019)
 void sprite::draw(BITMAP* dest)
 {
+	//Handle glowing sprites
+	doDarkroomCircle(x.getInt()+(hxsz/2), y.getInt()+(hysz/2), glowRad);
 	if(!show_sprites)
 	{
 		return;

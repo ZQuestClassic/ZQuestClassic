@@ -37273,3 +37273,6 @@ void zprint2(const char * const format,...)
 	
     }
 }
+
+void doDarkroomCircle(int cx, int cy, byte glowRad,BITMAP* dest){}
+

@@ -21506,12 +21506,8 @@ void LinkClass::calc_darkroom_link(int x1, int y1, int x2, int y2)
 	switch(lamp.misc1) //Shape
 	{
 		case 0: //Circle
-			int r1 = lamp.misc2;
-			int dither_rad = r1 - (int)(r1 * (game->get_dither_perc()/(double)100.0));
-			dithercircfill(darkscr_bmp1, hx1, hy1, r1, 0, game->get_dither_type(), game->get_dither_arg());
-			dithercircfill(darkscr_bmp2, hx2, hy2, r1, 0, game->get_dither_type(), game->get_dither_arg());
-			circlefill(darkscr_bmp1, hx1, hy1, dither_rad, 0);
-			circlefill(darkscr_bmp2, hx2, hy2, dither_rad, 0);
+			doDarkroomCircle(hx1, hy1, lamp.misc2, darkscr_bmp1);
+			doDarkroomCircle(hx2, hy2, lamp.misc2, darkscr_bmp2);
 			break;
 	}
 }

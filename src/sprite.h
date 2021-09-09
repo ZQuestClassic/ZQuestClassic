@@ -135,6 +135,8 @@ public:
 	int drownclk; // Pitfall fall clk
 	int drownCombo; // Pitfall fallen combo
 	bool isspawning;
+	
+	byte glowRad;
     
     sprite();
     sprite(sprite const & other);

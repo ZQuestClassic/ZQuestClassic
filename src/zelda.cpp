@@ -57,6 +57,7 @@
 #include "ffasm.h"
 #include "qst.h"
 #include "util.h"
+#include "drawing.h"
 using namespace util;
 extern FFScript FFCore; //the core script engine.
 extern byte epilepsyFlashReduction;
@@ -4284,6 +4285,15 @@ void refreshTints()
 int getTint(int color)
 {
 	return lastCustomTint[color];
+}
+
+void doDarkroomCircle(int cx, int cy, byte glowRad,BITMAP* dest)
+{
+	if(!glowRad) return;
+	if(!dest) dest = darkscr_bmp1;
+	int ditherRad = glowRad - (int)(glowRad * (game->get_dither_perc()/(double)100.0));
+	dithercircfill(dest, cx, cy, glowRad, 0, game->get_dither_type(), game->get_dither_arg());
+	circlefill(dest, cx, cy, ditherRad, 0);
 }
 /**************************/
 /********** Main **********/
