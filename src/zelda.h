@@ -31,6 +31,7 @@
 
 int isFullScreen();
 int onFullscreen();
+static int jwin_selcolor_proc(int msg, DIALOG *d, int c);
 
 #if DEVLEVEL > 0
 extern bool dev_logging;

@@ -72,7 +72,7 @@ int scheme[jcMAX] =
 };
 
 int jwin_pal[jcMAX] = {0};
-extern PALETTE RAMpal;
+
 
 /* ... Included in jwin.h ...
 
@@ -4353,116 +4353,12 @@ int jwin_menu_proc(int msg, DIALOG *d, int c)
     return ret;
 }
 
-int jwin_selcolor_proc(int msg, DIALOG *d, int c)
-{
-	int ret = D_O_K;
-	int cwid = d->w / 16;
-	int chei = d->h / 12;
-	d->w = cwid * 16;
-	d->h = chei * 12;
-	switch(msg)
-	{
-		case MSG_DRAW:
-		{
-			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
-			for(int c = 0; c < 0xC0; ++c) //to cset 11
-			{
-				int x = (c%16)*cwid, y = (c/16)*chei;
-				rectfill(screen, d->x+x, d->y+y, d->x+x+cwid-1, d->y+y+cwid-1, c);
-				if(c == d->d1)
-				{
-					byte bright = (RAMpal[c].r >= 32) + (RAMpal[c].g >= 32) + (RAMpal[c].b >= 32);
-					byte highlightColor = vc(7); //sysgray
-					if(bright >= 2)
-						highlightColor = vc(0); //sysblack
-					else if(!bright)
-						highlightColor = vc(15);
-					rect(screen, d->x+x+0, d->y+y+0, d->x+x+cwid-1, d->y+y+cwid-1, highlightColor);
-					rect(screen, d->x+x+1, d->y+y+1, d->x+x+cwid-2, d->y+y+cwid-2, highlightColor);
-				}
-			}
-			break;
-		}
-		
-		case MSG_CLICK:
-		{
-			if(mouse_in_rect(d->x, d->y, d->x+d->w-1, d->y+d->h-1))
-			{
-				int col = ((gui_mouse_x() - d->x) / cwid) + 16*((gui_mouse_y() - d->y) / chei);
-
-				// for(int c = 0; c < 0xC0; ++c) //to cset 11
-				// {
-					// int x = (c%16)*cwid, y = (c/16)*chei;
-					// if(mouse_in_rect(d->x+x, d->y+y, d->x+x+cwid-1, d->y+y+cwid-1))
-					// {
-						// col = c;
-						// break;
-					// }
-				// }
-				if(col>-1 && col != d->d1)
-				{
-					d->d1 = col;
-					ret |= D_REDRAWME;
-				}
-				ret |= D_WANTFOCUS;
-			}
-			break;
-		}
-		
-		case MSG_WANTFOCUS:
-		case MSG_LOSTFOCUS:
-		case MSG_KEY:
-			ret = D_WANTFOCUS;
-			break;
-		
-		case MSG_CHAR:
-		{
-			ret = D_USED_CHAR | D_REDRAWME;
-			switch(c>>8)
-			{
-				case KEY_LEFT:
-				{
-					if(d->d1 % 0x10)
-						--d->d1;
-					break;
-				}
-				case KEY_RIGHT:
-				{
-					if(d->d1 % 0x10 != 0x0F)
-						++d->d1;
-					break;
-				}
-				case KEY_UP:
-				{
-					if(d->d1 / 0x10)
-						d->d1 -= 0x10;
-					break;
-				}
-				case KEY_DOWN:
-				{
-					if(d->d1 / 0x10 != 0xC0)
-						d->d1 += 0x10;
-					break;
-				}
-				case KEY_ENTER:
-				{
-					ret = D_CLOSE;
-					break;
-				}
-				default: ret = D_O_K;
-			}
-			break;
-		}
-	}
-	return ret;
-}
-
 static DIALOG selcolor_dlg[] =
 {
 	{ jwin_win_proc,       0,    0,  256,  141,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Select Color",  NULL,  NULL },
 	{ jwin_button_proc,   64,  118,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"OK",  NULL,  NULL },
 	{ jwin_button_proc,  128,  118,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Cancel",  NULL,  NULL },
-	{ jwin_selcolor_proc, 64,   20,   16*8,   12*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
+	//{ jwin_selcolor_proc, 64,   20,   16*8,   12*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
 	
 	{ NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
 };

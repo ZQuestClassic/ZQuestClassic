@@ -67,6 +67,7 @@ extern int CSET_SHFT;
 
 void update_combo_cycling();
 void update_freeform_combos();
+static int jwin_selcolor_proc(int msg, DIALOG *d, int c);
 
 bool layers_valid(mapscr *tempscr);
 void fix_layers(mapscr *tempscr, bool showwarning);
