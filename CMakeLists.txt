@@ -45,10 +45,6 @@ include_directories(./include/almp3)
 include_directories(./include/gme)
 include_directories(./src)
 
-if(MSVC)
-  include_directories(./src/msvcCompat)
-endif()
-
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp
 	src/zcmusicd.cpp
@@ -75,7 +71,15 @@ set(ZQUEST_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScriptNP.txt
 )
 
-foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES})
+set(TEZSLA_MODULES
+	${CMAKE_SOURCE_DIR}/modules/tezsla/TeZSLaCore.txt
+	${CMAKE_SOURCE_DIR}/modules/tezsla/TeZSLaGUI.txt
+	${CMAKE_SOURCE_DIR}/modules/tezsla/TeZSLaMisc.txt
+	${CMAKE_SOURCE_DIR}/modules/tezsla/TeZSLaZScript.txt
+	${CMAKE_SOURCE_DIR}/modules/tezsla/TeZSLaZScriptNP.txt
+)
+
+foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES} ${TEZSLA_MODULES})
 	include(${module})
 	set_source_files_properties(${module} PROPERTIES HEADER_FILE_ONLY true)
 endforeach()
@@ -180,21 +184,21 @@ target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 # Romview
 #############################################################
 
-# if(MSVC)
-	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
-# elseif(LINUX)
-	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.c)
-	# set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
-# endif()
+if(MSVC)
+	list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
+elseif(LINUX)
+	list(APPEND ROMVIEWEXTRASOURCES rv_icon.c)
+	set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
+endif()
 
-# if(UNITY_BUILD)
-	# enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
-	# enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
-# endif()
+if(UNITY_BUILD)
+	enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
+	enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
+endif()
 
-# add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
+add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
 
-# target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
+target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
 #############################################################
 # Zelda
@@ -233,17 +237,23 @@ if(MSVC AND USE_PCH)
 endif()
 
 #############################################################
-# ZScript parser
+# TeZSLA
 #############################################################
 
-if(LINUX)
-	set(ZSCRIPTLIBSEXTRA ${X11_LIBRARIES})
+if(MSVC)
+	list(APPEND TEZSLATEXTRASOURCES tezsla_icon.rc)
+elseif(LINUX)
+	#list(APPEND ZQUESTEXTRASOURCES zq_icon.c src/single_instance_unix.cpp)
+	#set(ZQUESTLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
-if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
-	add_executable(zscript src/parser/ZScript_main.cpp src/util.cpp ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
-	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
+if(UNITY_BUILD)
+	enable_unity_build(TeZSLaCore TEZSLA_CORE_SOURCES)
+	enable_unity_build(TeZSLaGUI TEZSLA_GUI_SOURCES)
+	enable_unity_build(TeZSLaMisc TEZSLA_MISC_SOURCES)
+	enable_unity_build(TeZSLaZScript TEZSLA_ZSCRIPT_SOURCES)
 endif()
+
 
 #############################################################
 # ZQuest
@@ -272,9 +282,11 @@ find_package(Boost 1.74.0)
 if(Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS})
 	add_definitions(-DHAS_BOOST)
-    add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
+	add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
+	add_executable(tezsla ${TEZSLA_CORE_SOURCES} ${TEZSLA_GUI_SOURCES} ${TEZSLA_MISC_SOURCES} ${TEZSLA_ZSCRIPT_SOURCES} ${TEZSLAEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${TEZSLA_MODULES})
 
 	target_link_libraries(zquest zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
+	target_link_libraries(tezsla zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
 	if(MSVC AND USE_PCH)
 		set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
 		target_compile_definitions(zquest PRIVATE ZC_PCH)
@@ -284,5 +296,9 @@ if(Boost_FOUND)
 		target_compile_definitions(zcsound PRIVATE ZCM_DLL)
 		target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
 		target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
-	endif()
+		target_compile_definitions(tezsla PRIVATE ZCM_DLL_IMPORT)
+	#endif()
 endif()
+
+endif()
+

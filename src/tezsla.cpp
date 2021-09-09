@@ -1035,6 +1035,20 @@ FFScript FFCore;
 ZModule zcm;
 zcmodule moduledata;
 
+
+
+enum optiontpyes 
+{
+	ot_NO_LOGGING, ot_TRUNCATE_DIVISION_BY_LITERAL_BUG, ot_SHORT_CIRCUIT, ot_BOOL_TRUE_RETURN_DECIMAL, 
+	ot_HEADER_GUARD, ot_NO_ERROR_HALT, ot_TRUE_INT_SIZE, ot_FORCE_INLINE, ot_BINARY_32BIT, ot_APPROX_EQUAL_MARGIN, 
+	ot_STRING_SWITCH_CASE_INSENSITIVE,
+	ot_LAST
+};
+
+
+float compileroptions[ot_LAST]={(zfix)0};
+	
+
 void do_previewtext();
 bool do_slots(std::map<std::string, disassembled_script_data> &scripts);
 void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, bool fromCompile);
@@ -1076,7 +1090,13 @@ std::vector<string> asscreenscripts;
 std::vector<string> asitemspritescripts;
 std::vector<string> ascomboscripts;
 
-std::vector<string> ZQincludePaths;
+char ZQincludePaths[MAX_INCLUDE_PATHS][512];
+
+char *infile=NULL;
+char *outfile=NULL;
+char *settingfile=NULL;
+char *rulesfile=NULL;
+int compiletime_settings[256] ={0};
 
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
@@ -1242,6 +1262,1478 @@ static const char months[13][13] =
 	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
 };
 
+static bool is_string_commandcomp(int command)
+{
+    command = command;
+    return false;
+}
+
+// Do not encode! PACKFILE *f = pack_fopen_password(filename,compressed?F_WRITE_PACKED:F_WRITE, compressed ? datapwd : "");
+
+static int read_one_ffscript_data(PACKFILE *f, bool keepdata, int , word s_version, word , script_data **script, word zmeta_version)
+{
+
+    //Please also update loadquest() when modifying this method -DD
+    ffscript temp_script;
+    temp_script.ptr=NULL;
+    long num_commands=1000;
+	
+    if(s_version>=2)
+    {
+        if(!p_igetl(&num_commands,f,true))
+        {
+            return qe_invalid;
+        }
+    }
+    
+    if(keepdata)
+    {
+        if((*script) != NULL) //Surely we want to do this regardless of keepdata? //No, we don't -V
+            delete (*script);
+		(*script) = new script_data(num_commands);
+    }
+	if(s_version >= 16)
+	{
+		zasm_meta temp_meta;
+		
+		if(!p_igetw(&(temp_meta.zasm_v),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.meta_v),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.ffscript_v),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&(temp_meta.script_type),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		for(int q = 0; q < 8; ++q)
+		{
+			for(int c = 0; c < 33; ++c)
+			{
+				if(!p_getc(&(temp_meta.run_idens[q][c]),f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		for(int q = 0; q < 8; ++q)
+		{
+			if(!p_getc(&(temp_meta.run_types[q]),f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(!p_getc(&(temp_meta.flags),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v1),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v2),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v3),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&(temp_meta.compiler_v4),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(zmeta_version >= 2)
+		{
+			for(int c = 0; c < 33; ++c)
+			{
+				if(!p_getc(&(temp_meta.script_name[c]),f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			for(int c = 0; c < 33; ++c)
+			{
+				if(!p_getc(&(temp_meta.author[c]),f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		if(keepdata)
+			(*script)->meta = temp_meta;
+	}
+    
+    for(int j=0; j<num_commands; j++)
+    {
+        if(!p_igetw(&(temp_script.command),f,true))
+        {
+            return qe_invalid;
+        }
+        
+        if(temp_script.command == 0xFFFF)
+        {
+            if(keepdata)
+                (*script)->zasm[j].command = 0xFFFF;
+                
+            break;
+        }
+        else
+        {
+            if(is_string_commandcomp(temp_script.command))
+            {
+            }
+            else
+            {
+                if(!p_igetl(&(temp_script.arg1),f,keepdata))
+                {
+                    return qe_invalid;
+                }
+                
+                if(!p_igetl(&(temp_script.arg2),f,keepdata))
+                {
+                    return qe_invalid;
+                }
+            }
+            
+            if(keepdata)
+            {
+                (*script)->zasm[j].command = temp_script.command;
+		    //al_trace("Current FFScript XCommand Being Read: %d\n", (*script)[j].command);
+                (*script)->zasm[j].arg1 = temp_script.arg1;
+                (*script)->zasm[j].arg2 = temp_script.arg2;
+                // I'll comment this out until the whole routine is finished using ptr
+                //if(is_string_command(temp_script.command))
+                //{
+                //( *script)[j].ptr=(char *)zc_malloc(256);
+                //memcpy((*script)[j].ptr, temp_script.ptr, 256);
+                //}
+            }
+        }
+    }
+    
+    return 0;
+}
+
+
+
+
+static int write_one_ffscript_data(PACKFILE *f, int i, script_data **script)
+{
+    //these are here to bypass compiler warnings about unused arguments
+    i=i;
+    
+    int num_commands;
+    
+    for(int j=0;; j++)
+    {
+        if((*script)->zasm[j].command==0xFFFF)
+        {
+            num_commands = j+1;
+            break;
+        }
+    }
+    
+    if(!p_iputl(num_commands,f))
+    {
+        new_return(6);
+    }
+	
+	//Metadata
+	if(!p_iputw((*script)->meta.zasm_v,f))
+	{
+		new_return(7);
+	}
+	
+	if(!p_iputw((*script)->meta.meta_v,f))
+	{
+		new_return(8);
+	}
+	
+	if(!p_iputw((*script)->meta.ffscript_v,f))
+	{
+		new_return(9);
+	}
+	
+	if(!p_putc((*script)->meta.script_type,f))
+	{
+		new_return(10);
+	}
+	
+	for(int q = 0; q < 8; ++q)
+	{
+		for(int c = 0; c < 33; ++c)
+		{
+			if(!p_putc((*script)->meta.run_idens[q][c],f))
+			{
+				new_return(11);
+			}
+		}
+	}
+	
+	for(int q = 0; q < 8; ++q)
+	{
+		if(!p_putc((*script)->meta.run_types[q],f))
+		{
+			new_return(12);
+		}
+	}
+	
+	if(!p_putc((*script)->meta.flags,f))
+	{
+		new_return(13);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v1,f))
+	{
+		new_return(14);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v2,f))
+	{
+		new_return(15);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v3,f))
+	{
+		new_return(16);
+	}
+	
+	if(!p_iputw((*script)->meta.compiler_v4,f))
+	{
+		new_return(17);
+	}
+	
+	for(int c = 0; c < 33; ++c)
+	{
+		if(!p_putc((*script)->meta.script_name[c],f))
+		{
+			new_return(18);
+		}
+	}
+	
+	for(int c = 0; c < 33; ++c)
+	{
+		if(!p_putc((*script)->meta.author[c],f))
+		{
+			new_return(19);
+		}
+	}
+	
+    for(int j=0; j<num_commands; j++)
+    {
+        
+        if(!p_iputw((*script)->zasm[j].command,f))
+        {
+            new_return(20);
+        }
+        
+        if((*script)->zasm[j].command==0xFFFF)
+        {
+            break;
+        }
+        else
+        {
+		//al_trace("Current FFScript XCommand Being Written: %d\n", (*script)->zasm[j].command);
+            if(!p_iputl((*script)->zasm[j].arg1,f))
+            {
+                new_return(21);
+            }
+            
+            if(!p_iputl((*script)->zasm[j].arg2,f))
+            {
+                new_return(22);
+            }
+        }
+    }
+    
+    new_return(0);
+}
+
+
+static int writeffscripts(const char *filename)
+{
+	PACKFILE *f = pack_fopen_password(filename,F_WRITE, "");
+	if (f)
+	{
+		    dword section_id       = ID_FFSCRIPT;
+		    dword section_version  = V_FFSCRIPT;
+		    dword section_cversion = CV_FFSCRIPT;
+		    dword section_size     = 0;
+			dword zasmmeta_version = METADATA_V;
+		    byte numscripts        = 0;
+		    numscripts = numscripts; //to avoid unused variables warnings
+		    int scratch = 0; //padding
+		    for (int q = 0; q < 8; ++q ) p_iputl(scratch,f);
+		    //section id
+		    if(!p_mputl(section_id,f))
+		    {
+			new_return(1);
+		    }
+		    
+		    //section version info
+		    if(!p_iputw(section_version,f))
+		    {
+			new_return(2);
+		    }
+		    
+		    if(!p_iputw(section_cversion,f))
+		    {
+			new_return(3);
+		    }
+		    
+		    if(!p_iputw(zasmmeta_version,f))
+		    {
+			new_return(4);
+		    }
+		    
+		    for(int writecycle=0; writecycle<2; ++writecycle)
+		    {
+			fake_pack_writing=(writecycle==0);
+			
+			//section size
+			if(!p_iputl(section_size,f))
+			{
+			    new_return(5);
+			}
+			
+			writesize=0;
+			
+			for(int i=0; i<NUMSCRIPTFFC; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &ffscripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			
+			for(int i=0; i<NUMSCRIPTITEM; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &itemscripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			
+			for(int i=0; i<NUMSCRIPTGUYS; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &guyscripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			
+			for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &wpnscripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			
+			for(int i=0; i<NUMSCRIPTSCREEN; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &screenscripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			
+			for(int i=0; i<NUMSCRIPTGLOBAL; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &globalscripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			
+			for(int i=0; i<NUMSCRIPTLINK; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &linkscripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			
+			for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &lwpnscripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			
+			for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &ewpnscripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			
+			for(int i=0; i<NUMSCRIPTSDMAP; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &dmapscripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			
+			for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &itemspritescripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			al_trace("About to write combo script pt 1.\n");
+			for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+			{
+			    int ret = write_one_ffscript_data(f, i, &comboscripts[i]);
+			    fake_pack_writing=(writecycle==0);
+			    
+			    if(ret!=0)
+			    {
+				new_return(ret);
+			    }
+			}
+			
+			if(!p_iputl((long)zScript.size(), f))
+			{
+			    new_return(2001);
+			}
+			
+			if(!pfwrite((void *)zScript.c_str(), (long)zScript.size(), f))
+			{
+			    new_return(2002);
+			}
+			
+			word numffcbindings=0;
+			
+			for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				numffcbindings++;
+			    }
+			}
+			
+			if(!p_iputw(numffcbindings, f))
+			{
+			    new_return(2003);
+			}
+			
+			for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				if(!p_iputw(it->first,f))
+				{
+				    new_return(2004);
+				}
+				
+				if(!p_iputl((long)it->second.scriptname.size(), f))
+				{
+				    new_return(2005);
+				}
+				
+				if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+				{
+				    new_return(2006);
+				}
+			    }
+			}
+			
+			word numglobalbindings=0;
+			
+			for(std::map<int, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				numglobalbindings++;
+			    }
+			}
+			
+			if(!p_iputw(numglobalbindings, f))
+			{
+			    new_return(2007);
+			}
+			
+			for(std::map<int, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				if(!p_iputw(it->first,f))
+				{
+				    new_return(2008);
+				}
+				
+				if(!p_iputl((long)it->second.scriptname.size(), f))
+				{
+				    new_return(2009);
+				}
+				
+				if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+				{
+				    new_return(2010);
+				}
+			    }
+			}
+			
+			word numitembindings=0;
+			
+			for(std::map<int, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				numitembindings++;
+			    }
+			}
+			
+			if(!p_iputw(numitembindings, f))
+			{
+			    new_return(2011);
+			}
+			
+			for(std::map<int, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				if(!p_iputw(it->first,f))
+				{
+				    new_return(2012);
+				}
+				
+				if(!p_iputl((long)it->second.scriptname.size(), f))
+				{
+				    new_return(2013);
+				}
+				
+				if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+				{
+				    new_return(2014);
+				}
+			    }
+			}
+			
+			//new script types
+			//npc scripts
+			word numnpcbindings=0;
+			
+			for(std::map<int, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				numnpcbindings++;
+			    }
+			}
+			
+			if(!p_iputw(numnpcbindings, f))
+			{
+			    new_return(2015);
+			}
+			
+			for(std::map<int, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				if(!p_iputw(it->first,f))
+				{
+				    new_return(2016);
+				}
+				
+				if(!p_iputl((long)it->second.scriptname.size(), f))
+				{
+				    new_return(2017);
+				}
+				
+				if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+				{
+				    new_return(2018);
+				}
+			    }
+			}
+			
+			//lweapon
+			
+			word numlwpnbindings=0;
+			
+			for(std::map<int, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				numlwpnbindings++;
+			    }
+			}
+			
+			if(!p_iputw(numlwpnbindings, f))
+			{
+			    new_return(2019);
+			}
+			
+			for(std::map<int, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				if(!p_iputw(it->first,f))
+				{
+				    new_return(2020);
+				}
+				
+				if(!p_iputl((long)it->second.scriptname.size(), f))
+				{
+				    new_return(2021);
+				}
+				
+				if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+				{
+				    new_return(2022);
+				}
+			    }
+			}
+			
+			//////
+			
+			//eweapon
+			
+			
+			word numewpnbindings=0;
+			
+			for(std::map<int, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				numewpnbindings++;
+			    }
+			}
+			
+			if(!p_iputw(numewpnbindings, f))
+			{
+			    new_return(2023);
+			}
+			
+			for(std::map<int, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				if(!p_iputw(it->first,f))
+				{
+				    new_return(2024);
+				}
+				
+				if(!p_iputl((long)it->second.scriptname.size(), f))
+				{
+				    new_return(2025);
+				}
+				
+				if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+				{
+				    new_return(2026);
+				}
+			    }
+			}
+			
+			//link scripts
+			word numlinkbindings=0;
+			
+			for(std::map<int, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				numlinkbindings++;
+			    }
+			}
+			
+			if(!p_iputw(numlinkbindings, f))
+			{
+			    new_return(2027);
+			}
+			
+			for(std::map<int, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				if(!p_iputw(it->first,f))
+				{
+				    new_return(2028);
+				}
+				
+				if(!p_iputl((long)it->second.scriptname.size(), f))
+				{
+				    new_return(2029);
+				}
+				
+				if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+				{
+				    new_return(2030);
+				}
+			    }
+			}
+			
+			//dmap scripts
+			word numdmapbindings=0;
+			
+			for(std::map<int, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				numdmapbindings++;
+			    }
+			}
+			
+			if(!p_iputw(numdmapbindings, f))
+			{
+			    new_return(2031);
+			}
+			
+			for(std::map<int, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				if(!p_iputw(it->first,f))
+				{
+				    new_return(2032);
+				}
+				
+				if(!p_iputl((long)it->second.scriptname.size(), f))
+				{
+				    new_return(2033);
+				}
+				
+				if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+				{
+				    new_return(2034);
+				}
+			    }
+			}
+			
+			//screen scripts
+			word numscreenbindings=0;
+			
+			for(std::map<int, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				numscreenbindings++;
+			    }
+			}
+			
+			if(!p_iputw(numscreenbindings, f))
+			{
+			    new_return(2035);
+			}
+			
+			for(std::map<int, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				if(!p_iputw(it->first,f))
+				{
+				    new_return(2036);
+				}
+				
+				if(!p_iputl((long)it->second.scriptname.size(), f))
+				{
+				    new_return(2037);
+				}
+				
+				if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+				{
+				    new_return(2038);
+				}
+			    }
+			}
+			//item sprite scripts
+			word numitemspritebindings=0;
+			
+			for(std::map<int, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				numitemspritebindings++;
+			    }
+			}
+			
+			if(!p_iputw(numitemspritebindings, f))
+			{
+			    new_return(2039);
+			}
+			
+			for(std::map<int, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				if(!p_iputw(it->first,f))
+				{
+				    new_return(2040);
+				}
+				
+				if(!p_iputl((long)it->second.scriptname.size(), f))
+				{
+				    new_return(2041);
+				}
+				
+				if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+				{
+				    new_return(2042);
+				}
+			    }
+			}
+			
+			//combo scripts
+			al_trace("About to write combo script pt 2.\n");
+			word numcombobindings=0;
+			
+			for(std::map<int, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				numcombobindings++;
+			    }
+			}
+			al_trace("About to write combo script pt 3.\n");
+			if(!p_iputw(numcombobindings, f))
+			{
+			    new_return(2043);
+			}
+			al_trace("About to write combo script pt 4.\n");
+			for(std::map<int, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+			{
+			    if(it->second.scriptname != "")
+			    {
+				if(!p_iputw(it->first,f))
+				{
+				    new_return(2044);
+				}
+				
+				if(!p_iputl((long)it->second.scriptname.size(), f))
+				{
+				    new_return(2045);
+				}
+				
+				if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+				{
+				    new_return(2046);
+				}
+			    }
+			}
+			
+			if(writecycle==0)
+			{
+			    section_size=writesize;
+			}
+		    }
+		    pack_fclose(f);
+	}
+}
+
+
+
+static int readffscripts(const char *filename, bool keepdata=true)
+{
+    PACKFILE *f = pack_fopen_password(filename,F_WRITE, "filename");
+    if (f)
+    {
+		    int dummy;
+		    word s_version=0, s_cversion=0, zmeta_version=0;
+		    byte numscripts=0;
+		    numscripts=numscripts; //to avoid unused variables warnings
+		    int ret;
+		    int scratch[8];
+		    for (int q = 0; q < 8; ++q ) 
+		    {
+			if(!p_igetl(&scratch[q],f,true))
+			{
+			    return qe_invalid;
+			}
+		    }
+		    //section version info
+		    if(!p_igetw(&s_version,f,true))
+		    {
+			return qe_invalid;
+		    }
+		    
+		    FFCore.quest_format[vFFScript] = s_version;
+		    
+		    if(!p_igetw(&s_cversion,f,true))
+		    {
+			return qe_invalid;
+		    }
+			
+			if(s_version >= 18)
+			{
+				if(!p_igetw(&zmeta_version,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		    
+		    //al_trace("Scripts version %d\n", s_version);
+		    //section size
+		    if(!p_igetl(&dummy,f,true))
+		    {
+			return qe_invalid;
+		    }
+		    
+		    //ZScriptVersion::setVersion(s_version); ~this ideally, but there's no ZC/ZQuest defines...
+		    setZScriptVersion(s_version); //Lumped in zelda.cpp and in zquest.cpp as zquest can't link ZScriptVersion
+		    //temp_ffscript_version = s_version;
+		    //miscQdata *the_misc;
+		    if ( FFCore.quest_format[vLastCompile] < 13 ) FFCore.quest_format[vLastCompile] = s_version;
+		    al_trace("Loaded scripts last compiled in ZScript version: %ld\n", (FFCore.quest_format[vLastCompile]));
+		    
+		    //finally...  section data
+		    for(int i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
+		    {
+			ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &ffscripts[i], zmeta_version);
+			
+			if(ret != 0) return qe_invalid;
+		    }
+		    
+		    if(s_version > 1)
+		    {
+			for(int i = 0; i < NUMSCRIPTITEM; i++)
+			{
+			    ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &itemscripts[i], zmeta_version);
+			    
+			    if(ret != 0) return qe_invalid;
+			}
+			
+			for(int i = 0; i < NUMSCRIPTGUYS; i++)
+			{
+			    ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &guyscripts[i], zmeta_version);
+			    
+			    if(ret != 0) return qe_invalid;
+			}
+			
+			for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+			{
+			    ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &wpnscripts[i], zmeta_version);
+			    
+			    if(ret != 0) return qe_invalid;
+			}
+			
+			
+			for(int i = 0; i < NUMSCRIPTSCREEN; i++)
+			{
+			    ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &screenscripts[i], zmeta_version);
+			    
+			    if(ret != 0) return qe_invalid;
+			}
+			
+				if(s_version > 16)
+				{
+					for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
+					{
+						ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+						
+						if(ret != 0) return qe_invalid;
+					}
+				}
+				else if(s_version > 13)
+				{
+					for(int i = 0; i < NUMSCRIPTGLOBAL255OLD; ++i)
+					{
+						ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+						
+						if(ret != 0) return qe_invalid;
+					}
+					
+					if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
+						delete globalscripts[GLOBAL_SCRIPT_ONSAVE];
+						
+					globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
+				}
+				else if(s_version > 4)
+				{
+					for(int i = 0; i < NUMSCRIPTGLOBAL253; ++i)
+					{
+						ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+						
+						if(ret != 0) return qe_invalid;
+					}
+					
+					if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
+						delete globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
+						
+					globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new script_data();
+					
+					if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
+						delete globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
+						
+					globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new script_data();
+					
+					if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
+						delete globalscripts[GLOBAL_SCRIPT_F6];
+						
+					globalscripts[GLOBAL_SCRIPT_F6] = new script_data();
+					
+					if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
+						delete globalscripts[GLOBAL_SCRIPT_ONSAVE];
+						
+					globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
+				}
+				else
+				{
+					for(int i = 0; i < NUMSCRIPTGLOBALOLD; i++)
+					{
+						ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+						
+						if(ret != 0) return qe_invalid;
+					}
+					
+					if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
+						delete globalscripts[GLOBAL_SCRIPT_ONSAVELOAD];
+						
+					globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] = new script_data();
+					
+					if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
+						delete globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
+						
+					globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new script_data();
+					
+					if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
+						delete globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
+						
+					globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new script_data();
+					
+					if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
+						delete globalscripts[GLOBAL_SCRIPT_F6];
+						
+					globalscripts[GLOBAL_SCRIPT_F6] = new script_data();
+					
+					if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
+						delete globalscripts[GLOBAL_SCRIPT_ONSAVE];
+						
+					globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
+				}
+			
+			if(s_version > 10) //expanded the number of Link scripts to 5. 
+			{
+				for(int i = 0; i < NUMSCRIPTLINK; i++)
+				{
+				    ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &linkscripts[i], zmeta_version);
+				    
+				    if(ret != 0) return qe_invalid;
+				}
+			}
+			else
+			{
+				for(int i = 0; i < NUMSCRIPTLINKOLD; i++)
+				{
+				    ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &linkscripts[i], zmeta_version);
+				    
+				    if(ret != 0) return qe_invalid;
+				}
+				if(linkscripts[3] != NULL)
+				delete linkscripts[3];
+				
+				linkscripts[3] = new script_data();
+				
+				if(linkscripts[4] != NULL)
+				delete linkscripts[4];
+				
+				linkscripts[4] = new script_data();
+			}
+			if(s_version > 8 && s_version < 10)
+			{
+			    
+			    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+			    {
+				ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			    }
+			    for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+			    {
+				ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
+			    
+				if(ret != 0) return qe_invalid;
+			    }
+			    
+			}
+			if(s_version >= 10)
+			{
+			    
+			    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+			    {
+				ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &lwpnscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			    }
+			    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+			    {
+				ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			    }
+			    for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+			    {
+				ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
+			    
+				if(ret != 0) return qe_invalid;
+			    }
+			    
+			}
+			if(s_version >=12)
+			{
+				for(int i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
+				{
+					ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &itemspritescripts[i], zmeta_version);
+				
+					if(ret != 0) return qe_invalid;
+				}
+				
+			}
+			if(s_version >=15)
+			{
+				for(int i = 0; i < NUMSCRIPTSCOMBODATA; i++)
+				{
+					ret = read_one_ffscript_data(f,  keepdata, i, s_version, s_cversion, &comboscripts[i], zmeta_version);
+				
+					if(ret != 0) return qe_invalid;
+				}
+				
+			}
+			
+			/*
+			else //Is this trip really necessary?
+			{
+			    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+			    {
+				
+				ewpnscripts[i] = NULL;
+			    }
+			    for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+			    {
+				dmapscripts[i] = NULL;
+			    }
+			}
+			*/
+			
+		    }
+		    
+		    if(s_version > 2)
+		    {
+			long bufsize;
+			p_igetl(&bufsize, f, true);
+			char * buf = new char[bufsize+1];
+			pfread(buf, bufsize, f, true);
+			buf[bufsize]=0;
+			
+			if(keepdata)
+			    zScript = string(buf);
+			    
+			delete[] buf;
+			word numffcbindings;
+			p_igetw(&numffcbindings, f, true);
+			
+			for(int i=0; i<numffcbindings; i++)
+			{
+			    word id;
+			    p_igetw(&id, f, true);
+			    p_igetl(&bufsize, f, true);
+			    buf = new char[bufsize+1];
+			    pfread(buf, bufsize, f, true);
+			    buf[bufsize]=0;
+			    
+			    //fix for buggy older saved quests -DD
+			    if(keepdata && id < NUMSCRIPTFFC-1)
+				ffcmap[id].scriptname = buf;
+				
+			    delete[] buf;
+			}
+			
+			word numglobalbindings;
+			p_igetw(&numglobalbindings, f, true);
+			
+			for(int i=0; i<numglobalbindings; i++)
+			{
+			    word id;
+			    p_igetw(&id, f, true);
+			    p_igetl(&bufsize, f, true);
+			    buf = new char[bufsize+1];
+			    pfread(buf, bufsize, f, true);
+			    buf[bufsize]=0;
+			    
+					// id in principle should be valid, since slot assignment cannot assign a global script to a bogus slot.
+					// However, because of a corruption bug, some 2.50.x quests contain bogus entries in the global bindings table.
+					// Ignore these. -DD
+			    if(keepdata && id >= 0 && id < NUMSCRIPTGLOBAL)
+			    {
+				//Disable old '~Continue's, they'd wreak havoc. Bit messy, apologies ~Joe
+				if(strcmp(buf,"~Continue") == 0)
+				{
+				    globalmap[id].scriptname = "";
+				    
+				    if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
+					globalscripts[GLOBAL_SCRIPT_ONSAVELOAD]->disable();
+				}
+				else
+				{
+				    globalmap[id].scriptname = buf;
+				}
+			    }
+			    
+			    delete[] buf;
+			}
+			
+			if(s_version > 3)
+			{
+			    word numitembindings;
+			    p_igetw(&numitembindings, f, true);
+			    
+			    for(int i=0; i<numitembindings; i++)
+			    {
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTITEM-1)
+				    itemmap[id].scriptname = buf;
+				    
+				delete[] buf;
+			    }
+			}
+				//(v9+)
+			//npc scripts
+			if(s_version > 8)
+			{
+			    word numnpcbindings;
+			    p_igetw(&numnpcbindings, f, true);
+			    
+			    for(int i=0; i<numnpcbindings; i++)
+			    {
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTGUYS-1)
+				    npcmap[id].scriptname = buf;
+				    
+				delete[] buf;
+			    }
+			}
+			//
+			//lweapon
+			if(s_version > 8)
+			{
+			    word numlwpnbindings;
+			    p_igetw(&numlwpnbindings, f, true);
+			    
+			    for(int i=0; i<numlwpnbindings; i++)
+			    {
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTWEAPONS-1)
+				    lwpnmap[id].scriptname = buf;
+				    
+				delete[] buf;
+			    }
+			}
+			//eweapon
+			if(s_version > 8)
+			{
+			    word numewpnbindings;
+			    p_igetw(&numewpnbindings, f, true);
+			    
+			    for(int i=0; i<numewpnbindings; i++)
+			    {
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTWEAPONS-1)
+				    ewpnmap[id].scriptname = buf;
+				    
+				delete[] buf;
+			    }
+			}
+			//link
+			if(s_version > 8)
+			{
+			    word numlinkbindings;
+			    p_igetw(&numlinkbindings, f, true);
+			    
+			    for(int i=0; i<numlinkbindings; i++)
+			    {
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTLINK-1)
+				    linkmap[id].scriptname = buf;
+				    
+				delete[] buf;
+			    }
+			}
+			//dmaps
+			if(s_version > 8)
+			{
+			    word numdmapbindings;
+			    p_igetw(&numdmapbindings, f, true);
+			    
+			    for(int i=0; i<numdmapbindings; i++)
+			    {
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTSDMAP-1)
+				    dmapmap[id].scriptname = buf;
+				    
+				delete[] buf;
+			    }
+			}
+				//screen
+			if(s_version > 8)
+			{
+			    word numscreenbindings;
+			    p_igetw(&numscreenbindings, f, true);
+			    
+			    for(int i=0; i<numscreenbindings; i++)
+			    {
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTSDMAP-1)
+				    screenmap[id].scriptname = buf;
+				    
+				delete[] buf;
+			    }
+			}
+			if(s_version > 11)
+			{
+			    word numspritebindings;
+			    p_igetw(&numspritebindings, f, true);
+			    
+			    for(int i=0; i<numspritebindings; i++)
+			    {
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTSDMAP-1)
+				    itemspritemap[id].scriptname = buf;
+				    
+				delete[] buf;
+			    }
+			}
+			if(s_version >= 15)
+			{
+			    word numcombobindings;
+			    p_igetw(&numcombobindings, f, true);
+			    
+			    for(int i=0; i<numcombobindings; i++)
+			    {
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTSCOMBODATA-1)
+				    comboscriptmap[id].scriptname = buf;
+				    
+				delete[] buf;
+			    }
+			}
+	    }
+	    pack_fclose(f);
+	    return 0;
+	}
+}	
+
+
 static std::string dayextension(int dy)
 { 
 	char temp[6]; 
@@ -1301,67 +2793,6 @@ static int do_OpenQuest()
 	map_page[q].screen = 0;
     }
     return onOpen();
-}
-
-
-void write_tezsla_rules(const char *filename)
-{
-	int scratch = 0;
-	PACKFILE *f = pack_fopen_password(filename,F_WRITE, "");
-	if (f)
-	{
-		p_iputl(V_RULES,f);
-		p_iputl(QUESTRULES_NEW_SIZE,f);
-		
-		for (int q = 0; q < 8; ++q ) p_iputl(scratch,f);
-		for (int q = 0; q < QUESTRULES_NEW_SIZE; ++q ) p_putc(quest_rules[q],f);
-		pack_fclose(f);
-	}
-	
-	
-}
-
-int read_tezsla_rules(const char *filename)
-{
-	int vers = 0;
-	int sz = 0;
-	int padding[8] = {0};
-	unsigned char therules[QUESTRULES_NEW_SIZE];
-	PACKFILE *f = pack_fopen_password(filename,F_READ, "");
-	if (f)
-	{
-		if(!p_igetl(&vers,f,true))
-		{
-			return 1;
-		}
-		if(!p_igetl(&sz,f,true))
-		{
-			return 1;
-		}
-		for (int q = 0; q < 8; ++q ) 
-		{
-			if(!p_igetl(&sz,f,true))
-			{
-				return 2;
-			}
-		}
-		for (int q = 0; q < QUESTRULES_NEW_SIZE; ++q ) 
-		{
-			
-			if(!p_getc(&therules[q],f,true))
-			{
-				return 3;
-			}
-		}
-		for (int q = 0; q < QUESTRULES_NEW_SIZE; ++q ) 
-		{
-			quest_rules[q] = therules[q];
-			return 0;
-		}
-		pack_fclose(f);
-	}
-	return -1;
-	
 }
 
 static int do_NewQuest()
@@ -1429,7 +2860,7 @@ int SnapshotFormat = 0;
 
 int memrequested = 0;
 byte Color = 0;
-extern int jwin_pal[jcMAX];
+int jwin_pal[jcMAX] = {0};
 int gui_colorset=0;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
@@ -1469,6 +2900,66 @@ bool get_debug()
     //return true;
 }
 
+void write_tezsla_rules(const char *filename)
+{
+	int scratch = 0;
+	PACKFILE *f = pack_fopen_password(filename,F_WRITE, "");
+	if (f)
+	{
+		p_iputl(V_RULES,f);
+		p_iputl(QUESTRULES_NEW_SIZE,f);
+		
+		for (int q = 0; q < 8; ++q ) p_iputl(scratch,f);
+		for (int q = 0; q < QUESTRULES_NEW_SIZE; ++q ) p_putc(quest_rules[q],f);
+		pack_fclose(f);
+	}
+	
+	
+}
+
+int read_tezsla_rules(const char *filename)
+{
+	int vers = 0;
+	int sz = 0;
+	int padding[8] = {0};
+	unsigned char therules[QUESTRULES_NEW_SIZE];
+	PACKFILE *f = pack_fopen_password(filename,F_READ, "");
+	if (f)
+	{
+		if(!p_igetl(&vers,f,true))
+		{
+			return 1;
+		}
+		if(!p_igetl(&sz,f,true))
+		{
+			return 1;
+		}
+		for (int q = 0; q < 8; ++q ) 
+		{
+			if(!p_igetl(&sz,f,true))
+			{
+				return 2;
+			}
+		}
+		for (int q = 0; q < QUESTRULES_NEW_SIZE; ++q ) 
+		{
+			
+			if(!p_getc(&therules[q],f,true))
+			{
+				return 3;
+			}
+		}
+		for (int q = 0; q < QUESTRULES_NEW_SIZE; ++q ) 
+		{
+			quest_rules[q] = therules[q];
+			return 0;
+		}
+		pack_fclose(f);
+	}
+	return -1;
+	
+}
+	
 void set_debug(bool d)
 {
     __debug=d;
@@ -2028,28 +3519,12 @@ static MENU media_menu[] =
 
 };
 
-static int onTeZSLa()
-{
-	write_tezsla_rules("TeZSLa.rules");
-	//do
-	//{
-	//	;;
-	//}
-	//while(!fileexists("TeZSLa.rules"));
-	//return system("tezsla.exe");
-	int ret = system("tezsla.exe -i buffer.zs -r tezsla.rules"); //need specific fienaes here which must be provided
-	//buffer file must be dumped and specified ese crash-poo --Z
-	al_trace("TeZSLa Sste Call Returned %d\n", ret);
-	return ret;
-	//return system("tezsla.exe -i buffer.zs -r tezsla.rules"); //need specific fienaes here which must be provided
-	//buffer file must be dumped and specified ese crash-poo --Z
-}
+
 
 //New ZScript Menu for 2.55 Alpha 16
 static MENU zscript_menu[] =
 {
 	{ (char *)"Compile &ZScript...",            onCompileScript,           NULL,                     0,            NULL   },
-	{ (char *)"Launch &TeZSLa...",              onTeZSLa,           NULL,                     0,            NULL   },
 	{ (char *)"&Assign Slots...",               onSlotAssign,              NULL,                     0,            NULL   },
 	//divider	
 	{ (char *)"",                               NULL,                      NULL,                     0,            NULL   },
@@ -3580,7 +5055,7 @@ int gethexnumber(const char *prompt,int initialval)
     }
     
     if(ret==3)
-        return zc_xtoi(buf);
+        return xtoi(buf);
         
     return initialval;
 }
@@ -3714,11 +5189,6 @@ static int options_3_list[] =
     // dialog control number
     31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, -1
 };
-static int options_4_list[] =
-{
-	57, 58, 59, 60,
-	-1
-};
 
 static TABPANEL options_tabs[] =
 {
@@ -3726,7 +5196,6 @@ static TABPANEL options_tabs[] =
     { (char *)" 1 ",       D_SELECTED,   options_1_list,  0, NULL },
     { (char *)" 2 ",       0,            options_2_list,  0, NULL },
     { (char *)" 3 ",       0,            options_3_list,  0, NULL },
-    { (char *)" 4 ",       0,            options_4_list,  0, NULL },
     { NULL,                0,            NULL, 0, NULL }
 };
 
@@ -3811,42 +5280,17 @@ static DIALOG options_dlg[] =
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     // 55
 	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    { d_timer_proc,             0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     
-	{ jwin_text_proc,          12,     48,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Cursor Scale (Large Mode):",                                      NULL,   NULL                },
-    { jwin_edit_proc,         121,     44,     36,     16,    0,          0,           0,    0,          8,    0,  NULL,                                                                   NULL,   NULL                },
-    { jwin_text_proc,          12,     66,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Cursor Scale (Small Mode):",                                       NULL,   NULL                },
-    // 60
-	{ jwin_edit_proc,         121,     62,     36,     16,    0,          0,           0,    0,          8,    0,  NULL,                                                                   NULL,   NULL                },
+    { d_timer_proc,             0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     { NULL,                     0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                }
 };
 
 int onOptions()
 {
     int OldAutoSaveInterval=AutoSaveInterval;
-    char kbdelay[80], kbrate[80], cur_large[16]={0}, cur_small[16]={0};
+    char kbdelay[80], kbrate[80];
     sprintf(kbdelay, "%d", KeyboardRepeatDelay);
     sprintf(kbrate, "%d", KeyboardRepeatRate);
-	sprintf(cur_large, "%f", get_config_float("zquest","cursor_scale_large",1.5));
-	sprintf(cur_small, "%f", get_config_float("zquest","cursor_scale_small",1.0));
-	for(int q = 15; q >= 0; --q) //trim trailing 0s
-	{
-		if(cur_large[q] && cur_large[q] != '0')
-		{
-			if(cur_large[q] == '.') cur_large[q] = 0;
-			break;
-		}
-		cur_large[q] = 0;
-	}
-	for(int q = 15; q >= 0; --q) //trim trailing 0s
-	{
-		if(cur_small[q] && cur_small[q] != '0')
-		{
-			if(cur_small[q] == '.') cur_small[q] = 0;
-			break;
-		}
-		cur_small[q] = 0;
-	}
     options_dlg[0].dp2=lfont;
     reset_combo_animations();
     reset_combo_animations2();
@@ -3877,8 +5321,6 @@ int onOptions()
     options_dlg[45].dp = kbrate;
     options_dlg[50].flags = abc_patternmatch ? D_SELECTED : 0;
     options_dlg[51].flags = NoScreenPreview ? D_SELECTED : 0;
-    options_dlg[58].dp = cur_large;
-    options_dlg[60].dp = cur_small;
     
     if(is_large)
         large_dialog(options_dlg);
@@ -3911,11 +5353,7 @@ int onOptions()
         KeyboardRepeatRate         = atoi(kbrate);
 		abc_patternmatch           = options_dlg[50].flags & D_SELECTED ? 1 : 0;
 		NoScreenPreview            = options_dlg[51].flags & D_SELECTED ? 1 : 0;
-		set_config_float("zquest","cursor_scale_large",vbound(atof(cur_large),1.0,5.0));
-		set_config_float("zquest","cursor_scale_small",vbound(atof(cur_small),1.0,5.0));
-		
-		load_mice(); //Reload cursor scale
-		
+        
         set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
     }
     
@@ -5307,65 +6745,36 @@ static int gamemisc1_list[] =
 {
 	5,6,7,8,
 	9,10,11,12,
-	
-	37,38,39,40,
-	41,42,43,44,
-	
-	71,72,73,74,
-	75,76,77,78,
-	
-	-1
-};
-
-static int gamemisc2_list[] =
-{
 	13,14,15,16,
 	17,18,19,20,
 	
+	37,38,39,40,
+	41,42,43,44,
 	45,46,47,48,
 	49,50,51,52,
-	
-	79,80,81,82,
-	83,84,85,86,
-	
 	-1
 };
 
-static int gamemisc3_list[] =
+// Yep, a whole tab for one rule.
+static int gamemisc2_list[] =
 {
     21,22,23,24,
 	25,26,27,28,
-	
-	53,54,55,56,
-	57,58,59,60,
-	
-	87,88,89,90,
-	91,92,93,94,
-	
-	-1
-};
-
-static int gamemisc4_list[] =
-{
 	29,30,31,32,
 	33,34,35,36,
 	
+	53,54,55,56,
+	57,58,59,60,
 	61,62,63,64,
 	65,66,67,68,
-	
-	95,96,97,98,
-	99,100,101,102,
-	
 	-1
 };
 
 static TABPANEL gamemisc_tabs[] =
 {
     // (text)
-    { (char *)" Misc[0-7] ",     D_SELECTED, gamemisc1_list, 0, NULL },
-    { (char *)" Misc[8-15] ",     0,          gamemisc2_list, 0, NULL },
-    { (char *)" Misc[16-23] ",     0,          gamemisc3_list, 0, NULL },
-    { (char *)" Misc[24-31] ",     0,          gamemisc4_list, 0, NULL },
+    { (char *)" Misc[0]...Misc[15] ",     D_SELECTED, gamemisc1_list, 0, NULL },
+    { (char *)" Misc[16]...Misc[31] ",     0,          gamemisc2_list, 0, NULL },
     { NULL,              0,          NULL,            0, NULL }
 };
 
@@ -5378,129 +6787,92 @@ static DIALOG gamemiscarray_dlg[] =
 	
 	{ jwin_win_proc,       0,   10,  310,  224,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       (void *) "Game->Misc[]", NULL, NULL },
 	{ d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
-	{ jwin_tab_proc,         3,   26,   304,  174,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
+	{ jwin_tab_proc,         5,   26,   300,  174,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
 	{  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
 	{  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
 	
 	//5
-	{ jwin_edit_proc,      8,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//8
-	{ jwin_edit_proc,      8,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42+120,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+120,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//13
-	{ jwin_edit_proc,     8,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//18
-	{ jwin_edit_proc,     8,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//23
-	{ jwin_edit_proc,      8,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      8,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//28
-	{ jwin_edit_proc,      8,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//33
-	{ jwin_edit_proc,     8,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     8,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	//37
-	{ jwin_numedit_swap_zsint_proc,     96,  42,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+20,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//39
-	{ jwin_numedit_swap_zsint_proc,     96,  42+40,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+60,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+80,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+100,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+120,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//44
-	{ jwin_numedit_swap_zsint_proc,     96,  42+140,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+20,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//36
+	{ jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//38
+	{ jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//43
+	{ jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
 	
-	{ jwin_numedit_swap_zsint_proc,     96,  42+40,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+60,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//49
-	{ jwin_numedit_swap_zsint_proc,     96,  42+80,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+100,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+120,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+140,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//54
-	{ jwin_numedit_swap_zsint_proc,     96,  42+20,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+40,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+60,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+80,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+100,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//59
-	{ jwin_numedit_swap_zsint_proc,     96,  42+120,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+140,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+20,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+40,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//64
-	{ jwin_numedit_swap_zsint_proc,     96,  42+60,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+80,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+100,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+120,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_numedit_swap_zsint_proc,     96,  42+140,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//69
+	{ jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//48
+	{ jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//53
+	{ jwin_edit_proc,     101, 42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//58
+	{ jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//63
+	{ jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//68
 	{ jwin_button_proc,       70,    204,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
 	{ jwin_button_proc,      170,    204,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
-	
-	//71
-	{ jwin_swapbtn_proc,    156,    42,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,    62,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,    82,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   102,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   122,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   142,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   162,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   182,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	//79
-	{ jwin_swapbtn_proc,    156,    42,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,    62,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,    82,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   102,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   122,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   142,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   162,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   182,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	//87
-	{ jwin_swapbtn_proc,    156,    42,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,    62,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,    82,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   102,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   122,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   142,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   162,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   182,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	//95
-	{ jwin_swapbtn_proc,    156,    42,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,    62,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,    82,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   102,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   122,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   142,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   162,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    156,   182,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
 	
 	{ NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -5514,9 +6886,8 @@ void EditGameMiscArray()
 	memset(miscvalue_labels, 0, sizeof(miscvalue_labels));
 	for ( int q = 0; q < 32; q++ )
 	{
+		sprintf(miscvalue[q],"%.4f",misc.questmisc[q]/10000.0);
 		gamemiscarray_dlg[37+q].dp = miscvalue[q];
-		gamemiscarray_dlg[37+q].fg = misc.questmisc[q];
-		gamemiscarray_dlg[37+q].dp3 = &(gamemiscarray_dlg[71+q]);
 		
 		strcpy(miscvalue_labels[q], misc.questmisc_strings[q]);
 		if ( miscvalue_labels[q][0] == NULL ) sprintf(miscvalue_labels[q],"Misc[%d]",q);
@@ -5533,8 +6904,7 @@ void EditGameMiscArray()
 		ret = zc_popup_dialog(gamemiscarray_dlg,65);
 		for ( int q = 0; q < 32; q++ )
 		{
-			
-			misc.questmisc[q] = gamemiscarray_dlg[37+q].fg;
+			misc.questmisc[q] = ffparse2(miscvalue[q]);
 			strcpy(misc.questmisc_strings[q], miscvalue_labels[q]);
 		}
 		
@@ -6617,1430 +7987,28 @@ void refresh(int flags)
     
     if(flags&rCLEAR)
         clear_to_color(menu1,vc(0));
-        
-    if(flags&rMAP)
-    {
-        if(!layers_valid(Map.CurrScr()))
-            fix_layers(Map.CurrScr(), true);
-            
-        curscr=Map.getCurrScr();
-        Map.setCurrScr(curscr);                                 // to update palette
-        clear_to_color(mapscreenbmp,vc(0));
-        rebuild_trans_table();
-        Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1);
-        if(showedges)
-        {
-            if(Map.getCurrScr()<128)
-            {
-                //not the first row of screens
-                if(Map.getCurrScr()>15 && !NoScreenPreview)
-                {
-                    Map.drawrow(mapscreenbmp, 16, 0, Flags, 160, -1, Map.getCurrScr()-16);
-                }
-                else
-                {
-                    Map.drawstaticrow(mapscreenbmp, 16, 0);
-                }
-                
-                //not the last row of screens
-                if(Map.getCurrScr()<112 && !NoScreenPreview)
-                {
-                    Map.drawrow(mapscreenbmp, 16, 192, Flags, 0, -1, Map.getCurrScr()+16);
-                }
-                else
-                {
-                    Map.drawstaticrow(mapscreenbmp, 16, 192);
-                }
-                
-                //not the first column of screens
-                if(Map.getCurrScr()&0x0F && !NoScreenPreview)
-                {
-                    Map.drawcolumn(mapscreenbmp, 0, 16, Flags, 15, -1, Map.getCurrScr()-1);
-                }
-                else
-                {
-                    Map.drawstaticcolumn(mapscreenbmp, 0, 16);
-                }
-                
-                //not the last column of screens
-                if((Map.getCurrScr()&0x0F)<15 && !NoScreenPreview)
-                {
-                    Map.drawcolumn(mapscreenbmp, 272, 16, Flags, 0, -1, Map.getCurrScr()+1);
-                }
-                else
-                {
-                    Map.drawstaticcolumn(mapscreenbmp, 272, 16);
-                }
-                
-                //not the first row or first column of screens
-                if((Map.getCurrScr()>15)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
-                {
-                    Map.drawblock(mapscreenbmp, 0, 0, Flags, 175, -1, Map.getCurrScr()-17);
-                }
-                else
-                {
-                    Map.drawstaticblock(mapscreenbmp, 0, 0);
-                }
-                
-                //not the first row or last column of screens
-                if((Map.getCurrScr()>15)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
-                {
-                    Map.drawblock(mapscreenbmp, 272, 0, Flags, 160, -1, Map.getCurrScr()-15);
-                }
-                else
-                {
-                    Map.drawstaticblock(mapscreenbmp, 272, 0);
-                }
-                
-                //not the last row or first column of screens
-                if((Map.getCurrScr()<112)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
-                {
-                    Map.drawblock(mapscreenbmp, 0, 192, Flags, 15, -1, Map.getCurrScr()+15);
-                }
-                else
-                {
-                    Map.drawstaticblock(mapscreenbmp, 0, 192);
-                }
-                
-                //not the last row or last column of screens
-                if((Map.getCurrScr()<112)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
-                {
-                    Map.drawblock(mapscreenbmp, 272, 192, Flags, 0, -1, Map.getCurrScr()+17);
-                }
-                else
-                {
-                    Map.drawstaticblock(mapscreenbmp, 272, 192);
-                }
-            }
-        }
-        
-        if(showxypos_icon)
-        {
-            if(showxypos_color==vc(15))
-                safe_rect(mapscreenbmp,showxypos_x+(showedges?16:0),showxypos_y+(showedges?16:0),showxypos_x+(showedges?16:0)+showxypos_w-1,showxypos_y+(showedges?16:0)+showxypos_h-1,showxypos_color);
-            else
-                rectfill(mapscreenbmp,showxypos_x+(showedges?16:0),showxypos_y+(showedges?16:0),showxypos_x+(showedges?16:0)+showxypos_w-1,showxypos_y+(showedges?16:0)+showxypos_h-1,showxypos_color);
-        }
-        
-        if(showxypos_cursor_icon)
-        {
-            safe_rect(mapscreenbmp,showxypos_cursor_x+(showedges?16:0),showxypos_cursor_y+(showedges?16:0),showxypos_cursor_x+(showedges?16:0)+showxypos_w-1,showxypos_cursor_y+(showedges?16:0)+showxypos_h-1,vc(15));
-        }
-        
-        if(ShowSquares)
-        {
-            if(Map.CurrScr()->stairx || Map.CurrScr()->stairy)
-            {
-                int x1 = Map.CurrScr()->stairx+(showedges?16:0);
-                int y1 = Map.CurrScr()->stairy+(showedges?16:0);
-                safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(14));
-            }
-            
-            if(Map.CurrScr()->warparrivalx || Map.CurrScr()->warparrivaly)
-            {
-                int x1 = Map.CurrScr()->warparrivalx +(showedges?16:0);
-                int y1 = Map.CurrScr()->warparrivaly +(showedges?16:0);
-                safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(10));
-            }
-            
-            for(int i=0; i<4; i++) if(Map.CurrScr()->warpreturnx[i] || Map.CurrScr()->warpreturny[i])
-                {
-                    int x1 = Map.CurrScr()->warpreturnx[i]+(showedges?16:0);
-                    int y1 = Map.CurrScr()->warpreturny[i]+(showedges?16:0);
-                    int clr = vc(9);
-                    
-                    if(FlashWarpSquare==i)
-                    {
-                        if(!FlashWarpClk)
-                            FlashWarpSquare=-1;
-                        else if(!(--FlashWarpClk%3))
-                            clr = vc(15);
-                    }
-                    
-                    safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,clr);
-                }
-                
-            /*
-                  for (int i=0; i<4; i++) for (int j=0; j<9; i++)
-                  {
-                    int x1 = stx[i][j]+(showedges?16:0);
-                    int y1 = sty[i][j]+(showedges?16:0);
-                    rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(15));
-                  }
-            */
-            
-        }
-        
-        if(mapscreensize==1)
-        {
-            blit(mapscreenbmp,menu1,0,0,mapscreen_x,mapscreen_y,mapscreenbmp->w,mapscreenbmp->h);
-        }
-        else
-        {
-            stretch_blit(mapscreenbmp,menu1,0,0,mapscreenbmp->w,mapscreenbmp->h,mapscreen_x,mapscreen_y,int(mapscreensize*mapscreenbmp->w),int(mapscreensize*mapscreenbmp->h));
-        }
-        
-        if(showedges)
-        {
-            //top preview
-            for(int j=0; j<int(16*mapscreensize); j++)
-            {
-                for(int i=0; i<288*mapscreensize; i++)
-                {
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
-                    }
-                }
-            }
-            
-            //bottom preview
-            for(int j=int(192*mapscreensize); j<int(208*mapscreensize); j++)
-            {
-                for(int i=0; i<288*mapscreensize; i++)
-                {
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
-                    }
-                }
-            }
-            
-            //left preview
-            for(int j=int(16*mapscreensize); j<int(192*mapscreensize); j++)
-            {
-                for(int i=0; i<16*mapscreensize; i++)
-                {
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
-                    }
-                }
-                
-            }
-            
-            //right preview
-            for(int j=int(16*mapscreensize); j<int(192*mapscreensize); j++)
-            {
-                for(int i=int(272*mapscreensize); i<int(288*mapscreensize); i++)
-                {
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
-                    }
-                }
-            }
-        }
-        
-        if(!(Flags&cDEBUG))
-        {
-            for(int j=int(168*mapscreensize); j<int(176*mapscreensize); j++)
-            {
-                for(int i=0; i<int(256*mapscreensize); i++)
-                {
-                
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,int(mapscreen_x+(showedges?(16*mapscreensize):0)+i),
-                                 int(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
-                    }
-                }
-            }
-        }
-        
-        if((Map.isDark()) && !(Flags&cNODARK))
-        {
-            for(int j=0; j<80*mapscreensize; j++)
-            {
-                for(int i=0; i<(80*mapscreensize)-j; i++)
-                {
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,int(mapscreen_x+(showedges?(16*mapscreensize):0))+i,
-                                 int(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
-                    }
-                }
-            }
-        }
-        
-        double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
-        double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-        int startxint=mapscreen_x+(showedges?int(16*mapscreensize):0);
-        int startyint=mapscreen_y+(showedges?int(16*mapscreensize):0);
-        bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1));
-        
-        if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect)
-        {
-            arrowcursor = false;
-            int mgridscale=16*mapscreensize;
-            set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-            int mx=(gui_mouse_x()-(showedges?mgridscale:0))/mgridscale*mgridscale;
-            int my=(gui_mouse_y()-16-(showedges?mgridscale:0))/mgridscale*mgridscale;
-            clear_bitmap(brushscreen);
-            int tempbw=BrushWidth;
-            int tempbh=BrushHeight;
-            
-            if(draw_mode==dm_alias)
-            {
-                BrushWidth = combo_aliases[combo_apos].width+1;
-                BrushHeight = combo_aliases[combo_apos].height+1;
-            }
-            
-            if((FloatBrush)&&(draw_mode!=dm_alias))
-            {
-                if(is_large)
-                {
-                    stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0)-(SHADOW_DEPTH*mapscreensize), my+(showedges?mgridscale:0)-(SHADOW_DEPTH*mapscreensize), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                }
-                else
-                {
-                    blit(brushbmp, brushscreen, 0, 0, mx+(showedges?mgridscale:0)-SHADOW_DEPTH, my+(showedges?mgridscale:0)-SHADOW_DEPTH, BrushWidth*mgridscale, BrushHeight*mgridscale);
-                }
-                
-                //shadow
-                for(int i=0; i<SHADOW_DEPTH*mapscreensize; i++)
-                {
-                    for(int j=0; j<BrushHeight*mgridscale; j++)
-                    {
-                        if((((i^j)&1)==1) && (my+j)<12*mgridscale)
-                        {
-                            putpixel(brushscreen,mx+(showedges?mgridscale:0)+i+(BrushWidth*mgridscale)-(SHADOW_DEPTH*mapscreensize),my+(showedges?mgridscale:0)+j,vc(0));
-                        }
-                    }
-                }
-                
-                for(int i=0; i<BrushWidth*mgridscale; i++)
-                {
-                    for(int j=0; j<SHADOW_DEPTH*mapscreensize; j++)
-                    {
-                        if((((i^j)&1)==1) && (mx+i)<16*mgridscale)
-                        {
-                            putpixel(brushscreen,mx+(showedges?mgridscale:0)+i,my+(showedges?mgridscale:0)+j+(BrushHeight*mgridscale)-(SHADOW_DEPTH*mapscreensize),vc(0));
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if(draw_mode!=dm_alias)
-                {
-                    if(is_large)
-                    {
-                        stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0), my+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                    }
-                    else
-                    {
-                        blit(brushbmp, brushscreen, 0, 0, mx+(showedges?mgridscale:0), my+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                    }
-                }
-                else
-                {
-                    combo_alias *combo = &combo_aliases[combo_apos];
-                    
-                    if(is_large)
-                    {
-                        switch(alias_origin)
-                        {
-                        case 0:
-                            stretch_blit(brushbmp, brushscreen, 0,                                                                   0,                                                                     BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0),                                       my+(showedges?mgridscale:0),                                        BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 1:
-                            stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, 0,                                                                     BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0)+(showedges?mgridscale:0), my+(showedges?mgridscale:0),                                        BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 2:
-                            stretch_blit(brushbmp, brushscreen, 0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0),                                       zc_max((my-(combo->height)*mgridscale),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 3:
-                            stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0)+(showedges?mgridscale:0), zc_max((my-(combo->height)*mgridscale),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        switch(alias_origin)
-                        {
-                        case 0:
-                            blit(brushbmp, brushscreen, 0,                                             0,                                               mx+(showedges?mgridscale:0),                               my+(showedges?mgridscale:0),                                BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 1:
-                            blit(brushbmp, brushscreen, (mx<combo->width*16)?((combo->width)*16)-mx:0, 0,                                               zc_max((mx-(combo->width)*16),0)+(showedges?mgridscale:0), my+(showedges?mgridscale:0),                                BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 2:
-                            blit(brushbmp, brushscreen, 0, (my<combo->height*16)?((combo->height)*16)-my:0, mx+(showedges?mgridscale:0),                               zc_max((my-(combo->height)*16),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 3:
-                            blit(brushbmp, brushscreen, (mx<combo->width*16)?((combo->width)*16)-mx:0, (my<combo->height*16)?((combo->height)*16)-my:0, zc_max((mx-(combo->width)*16),0)+(showedges?mgridscale:0), zc_max((my-(combo->height)*16),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            masked_blit(brushscreen, menu1, 0, 0, 0, 16, (16+(showedges?2:0))*mgridscale, (11+(showedges?2:0))*mgridscale);
-            BrushWidth=tempbw;
-            BrushHeight=tempbh;
-        }
-        else
-        {
-            if(!arrowcursor)
-            {
-                set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-                arrowcursor = true;
-            }
-        }
-        
-        if(ShowGrid)
-        {
-            int w=16;
-            int h=11;
-            
-            if(showedges)
-            {
-                w=18;
-                h=13;
-            }
-            
-            for(int x=16; x<w*16; x+=16)
-            {
-                _allegro_vline(menu1, (x*mapscreensize)+mapscreen_x, mapscreen_y, mapscreen_y+(h*16*mapscreensize)-1, vc(GridColor));
-            }
-            
-            for(int y=16; y<h*16; y+=16)
-            {
-                _allegro_hline(menu1, mapscreen_x, (y*mapscreensize)+mapscreen_y, mapscreen_x+(w*16*mapscreensize)-1, vc(GridColor));
-            }
-        }
-        
-        // Map tabs
-        if(is_large)
-        {
-            map_page[current_mappage].map=Map.getCurrMap();
-            map_page[current_mappage].screen=Map.getCurrScr();
-            
-            for(int btn=0; btn<(showedges?9:8); ++btn)
-            {
-                char tbuf[10];
-                sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
-                draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
-            }
-            
-            draw_text_button(menu1,combolist_window.x-64,0,64,16,dm_names[draw_mode],vc(1),vc(14),0,true);
-        }
-	rebuild_trans_table();
-    }
+           
+              
+    //if(flags&rMENU)
+    //{
+    //    drawpanel(is_large?-1:menutype);
+    //    set_clip_rect(menu1,0,0,zq_screen_w-1,zq_screen_h-1);
+    //}
+ 
     
-	if(flags&rSCRMAP)
-	{
-		//  text_mode(vc(0));
-		rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h+(is_large?4:-1),jwin_pal[jcBOX]);
-		// The frame.
-		jwin_draw_minimap_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, (is_large?9:3), FR_DEEP);
-		/*
-		if(is_large)
-			jwin_draw_minimap_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, 8, FR_DEEP);
-		else
-		{
-			jwin_draw_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, FR_DEEP);
-			//Black BG fill
-			rectfill(menu1, minimap.x+2,minimap.y+11,minimap.x+3+48*BMM,minimap.y+12+27*BMM,vc(0));
-		}*/
-        
-		if(Map.getCurrMap()<Map.getMapCount())
-		{
-			for(int i=0; i<MAPSCRS; i++)
-			{
-				if(Map.Scr(i)->valid&mVALID)
-				{
-					if(((Map.Scr(i)->color)&15)>0)
-					{
-						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-								 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-						if(!is_large)
-							putpixel(menu1,(i&15)*3*BMM+1+minimap.x+3,(i/16)*3*BMM+minimap.y+12+1,lc2((Map.Scr(i)->color)&15));
-						else
-							rectfill(menu1,(i&15)*3*BMM+2+minimap.x+4,(i/16)*3*BMM+minimap.y+11+4,(i&15)*3*BMM+2+minimap.x+6,(i/16)*3* BMM+minimap.y+11+6, lc2((Map.Scr(i)->color)&15));
-					}
-					else
-					{
-						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-										 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-										 //(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int)(&(misc.colors.text)));
-					}
-					if(!(is_large || InvalidStatic))
-					{
-						/*Level palettes which display close to black get a white border*/
-						RGB* col = &RAMpal[lc1(Map.Scr(i)->color&15)];
-						RGB* col2 = &RAMpal[lc2(Map.Scr(i)->color&15)];
-						if(col->r <= 10 && col->b <= 10 && col->g <= 10 && (!(((Map.Scr(i)->color)&15)>0) || (col2->r <= 10 && col2->b <= 10 && col2->g <= 10)))
-							safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
-					}
-				}
-				else
-				{
-					if(InvalidStatic)
-					{
-						for(int dy=0; dy<3*BMM; dy++)
-						{
-							for(int dx=0; dx<3*BMM; dx++)
-							{
-								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
-							}
-						}
-					}
-					else
-					{
-						if(is_large)
-						{
-							int offs = 2;
-							draw_x(menu1, (i&15)*3*BMM+minimap.x+3+offs, (i/16)*3*BMM+minimap.y+12+offs, (i&15)*3*BMM+minimap.x+2+(BMM*BMM)-offs, (i/16)*3*BMM+minimap.y+11+(BMM*BMM)-offs, vc(15));
-						}
-						else
-						{
-							rectfill(menu1, (i&15)*3*BMM+minimap.x+3, (i/16)*3*BMM+minimap.y+12,
-									 (i&15)*3*BMM+minimap.x+2+(BMM*BMM), (i/16)*3*BMM+minimap.y+11+(BMM*BMM), vc(0));
-						}
-					}
-				}
-			}
-			
-			int s=Map.getCurrScr();
-			// The white marker rect
-			int cursor_color = 0;
-			switch(MMapCursorStyle)
-			{
-				case 0:
-					cursor_color = vc(15);
-					break;
-				case 1:
-					cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(0) : vc(15);
-					break;
-				case 2:
-					cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(12) : vc(9);
-					break;
-			}
-			if(cursor_color)
-				safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),cursor_color);
-			
-			if(is_large)
-			{
-				int space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
-				textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
-				textprintf_ex(menu1,font,minimap.x+spc_m,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
-				
-				textprintf_disabled(menu1,font,minimap.x+spc_m+space,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
-				textprintf_ex(menu1,font,minimap.x+spc_m+space+spc_s,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X (%d)",s, s);
-			}
-			else
-			{
-				textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
-				textprintf_ex(menu1,font,minimap.x+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
-				
-				textprintf_disabled(menu1,font,minimap.x+36,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
-				textprintf_ex(menu1,font,minimap.x+36+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02X",s);
-			}
-		}
-	}
-    
-    if(flags&rCOMBOS)
-    {
-        if(is_large)
-        {
-            jwin_draw_frame(menu1,combolist_window.x,combolist_window.y,combolist_window.w,combolist_window.h, FR_WIN);
-            rectfill(menu1,combolist_window.x+2,combolist_window.y+2,combolist_window.x+combolist_window.w-3,combolist_window.y+combolist_window.h-3,jwin_pal[jcBOX]);
-            jwin_draw_frame(menu1,combolistscrollers[0].x,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
-            
-            for(int i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[0].x+5-i,combolistscrollers[0].y+4+i, combolistscrollers[0].x+5+i, vc(0));
-            }
-            
-            jwin_draw_frame(menu1,combolistscrollers[0].x+combolistscrollers[0].w,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
-            
-            for(int i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[0].x+combolistscrollers[0].w+5-i,combolistscrollers[0].y+6-i, combolistscrollers[0].x+combolistscrollers[0].w+5+i, vc(0));
-            }
-            
-            jwin_draw_frame(menu1,combolistscrollers[1].x,combolistscrollers[1].y,combolistscrollers[1].w,combolistscrollers[1].h,FR_ETCHED);
-            
-            for(int i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[1].x+5-i,combolistscrollers[1].y+4+i, combolistscrollers[1].x+5+i, vc(0));
-            }
-            
-            jwin_draw_frame(menu1,combolistscrollers[1].x+combolistscrollers[1].w,combolistscrollers[1].y,combolistscrollers[1].w,combolistscrollers[1].h,FR_ETCHED);
-            
-            for(int i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[1].x+combolistscrollers[1].w+5-i,combolistscrollers[1].y+6-i, combolistscrollers[1].x+combolistscrollers[1].w+5+i, vc(0));
-            }
-            
-            jwin_draw_frame(menu1,combolistscrollers[2].x,combolistscrollers[2].y,combolistscrollers[2].w,combolistscrollers[2].h,FR_ETCHED);
-            
-            for(int i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[2].x+5-i,combolistscrollers[2].y+4+i, combolistscrollers[2].x+5+i, vc(0));
-            }
-            
-            jwin_draw_frame(menu1,combolistscrollers[2].x+combolistscrollers[2].w,combolistscrollers[2].y,combolistscrollers[2].w,combolistscrollers[2].h,FR_ETCHED);
-            
-            for(int i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[2].x+combolistscrollers[2].w+5-i,combolistscrollers[2].y+6-i, combolistscrollers[2].x+combolistscrollers[2].w+5+i, vc(0));
-            }
-        }
-        
-        if(draw_mode!=dm_alias)
-        {
-            if(is_large)
-            {
-                jwin_draw_frame(menu1,combolist[0].x-2,combolist[0].y-2,(combolist[0].w<<4)+4,(combolist[0].h<<4)+4,FR_DEEP);
-                jwin_draw_frame(menu1,combolist[1].x-2,combolist[1].y-2,(combolist[1].w<<4)+4,(combolist[1].h<<4)+4,FR_DEEP);
-                jwin_draw_frame(menu1,combolist[2].x-2,combolist[2].y-2,(combolist[2].w<<4)+4,(combolist[2].h<<4)+4,FR_DEEP);
-                
-                if(MouseScroll)
-                {
-                    jwin_draw_frame(menu1,combolist[0].x-2,combolist[0].y-10,(combolist[0].w<<4)+4,6,FR_DEEP);
-                    jwin_draw_frame(menu1,combolist[1].x-2,combolist[1].y-10,(combolist[1].w<<4)+4,6,FR_DEEP);
-                    jwin_draw_frame(menu1,combolist[2].x-2,combolist[2].y-10,(combolist[2].w<<4)+4,6,FR_DEEP);
-                    
-                    rectfill(menu1,combolist[0].x,combolist[0].y-8,combolist[0].x+(combolist[0].w<<4)-1,combolist[0].y-7,jwin_pal[jcBOXFG]);
-                    rectfill(menu1,combolist[1].x,combolist[1].y-8,combolist[1].x+(combolist[1].w<<4)-1,combolist[1].y-7,jwin_pal[jcBOXFG]);
-                    rectfill(menu1,combolist[2].x,combolist[2].y-8,combolist[2].x+(combolist[2].w<<4)-1,combolist[2].y-7,jwin_pal[jcBOXFG]);
-                    
-                    jwin_draw_frame(menu1,combolist[0].x-2,combolist[0].y+(combolist[0].h<<4)+4,(combolist[0].w<<4)+4,6,FR_DEEP);
-                    jwin_draw_frame(menu1,combolist[1].x-2,combolist[1].y+(combolist[1].h<<4)+4,(combolist[1].w<<4)+4,6,FR_DEEP);
-                    jwin_draw_frame(menu1,combolist[2].x-2,combolist[2].y+(combolist[2].h<<4)+4,(combolist[2].w<<4)+4,6,FR_DEEP);
-                    
-                    rectfill(menu1,combolist[0].x,combolist[0].y+(combolist[0].h<<4)+6,combolist[0].x+(combolist[0].w<<4)-1,combolist[0].y+(combolist[0].h<<4)+7,jwin_pal[jcBOXFG]);
-                    rectfill(menu1,combolist[1].x,combolist[1].y+(combolist[1].h<<4)+6,combolist[1].x+(combolist[1].w<<4)-1,combolist[1].y+(combolist[1].h<<4)+7,jwin_pal[jcBOXFG]);
-                    rectfill(menu1,combolist[2].x,combolist[2].y+(combolist[2].h<<4)+6,combolist[2].x+(combolist[2].w<<4)-1,combolist[2].y+(combolist[2].h<<4)+7,jwin_pal[jcBOXFG]);
-                }
-            }
-            
-            int drawmap, drawscr;
-            drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-            drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-            
-            for(int j=0; j<3; ++j)
-            {
-                if(j==0||is_large)
-                {
-                    for(int i=0; i<(combolist[j].w*combolist[j].h); i++)
-                    {
-                        put_combo(menu1,(i%combolist[j].w)*16+combolist[j].x,(i/combolist[j].w)*16+combolist[j].y,i+First[j],CSet,Flags&(cFLAGS|cWALK),0);
-                    }
-                }
-            }
-            
-            int rect_pos=Combo-First[current_combolist];
-            
-            if((rect_pos>=0)&&(rect_pos<(First[current_combolist]+(combolist[current_combolist].w*combolist[current_combolist].h))))
-                safe_rect(menu1, (rect_pos&(combolist[current_combolist].w-1))*16+combolist[current_combolist].x, (rect_pos/combolist[current_combolist].w)*16+combolist[current_combolist].y, ((rect_pos&(combolist[current_combolist].w-1))*16+combolist[current_combolist].x)+15, ((rect_pos/combolist[current_combolist].w)*16+combolist[current_combolist].y)+15, 255);
-        }
-        else
-        {
-            if(is_large)
-            {
-                jwin_draw_frame(menu1,comboaliaslist[0].x-2,comboaliaslist[0].y-2,(comboaliaslist[0].w<<4)+4,(comboaliaslist[0].h<<4)+4,FR_DEEP);
-                jwin_draw_frame(menu1,comboaliaslist[1].x-2,comboaliaslist[1].y-2,(comboaliaslist[1].w<<4)+4,(comboaliaslist[1].h<<4)+4,FR_DEEP);
-                jwin_draw_frame(menu1,comboaliaslist[2].x-2,comboaliaslist[2].y-2,(comboaliaslist[2].w<<4)+4,(comboaliaslist[2].h<<4)+4,FR_DEEP);
-                
-                jwin_draw_frame(menu1,comboalias_preview[0].x-2,comboalias_preview[0].y-2,comboalias_preview[0].w+4,comboalias_preview[0].h+4,FR_DEEP);
-                jwin_draw_frame(menu1,comboalias_preview[1].x-2,comboalias_preview[1].y-2,comboalias_preview[1].w+4,comboalias_preview[1].h+4,FR_DEEP);
-                jwin_draw_frame(menu1,comboalias_preview[2].x-2,comboalias_preview[2].y-2,comboalias_preview[2].w+4,comboalias_preview[2].h+4,FR_DEEP);
-                
-                if(MouseScroll)
-                {
-                    jwin_draw_frame(menu1,comboaliaslist[0].x-2,comboaliaslist[0].y-10,(comboaliaslist[0].w<<4)+4,6,FR_DEEP);
-                    jwin_draw_frame(menu1,comboaliaslist[1].x-2,comboaliaslist[1].y-10,(comboaliaslist[1].w<<4)+4,6,FR_DEEP);
-                    jwin_draw_frame(menu1,comboaliaslist[2].x-2,comboaliaslist[2].y-10,(comboaliaslist[2].w<<4)+4,6,FR_DEEP);
-                    
-                    rectfill(menu1,comboaliaslist[0].x,comboaliaslist[0].y-8,comboaliaslist[0].x+(comboaliaslist[0].w<<4)-1,comboaliaslist[0].y-7,jwin_pal[jcBOXFG]);
-                    rectfill(menu1,comboaliaslist[1].x,comboaliaslist[1].y-8,comboaliaslist[1].x+(comboaliaslist[1].w<<4)-1,comboaliaslist[1].y-7,jwin_pal[jcBOXFG]);
-                    rectfill(menu1,comboaliaslist[2].x,comboaliaslist[2].y-8,comboaliaslist[2].x+(comboaliaslist[2].w<<4)-1,comboaliaslist[2].y-7,jwin_pal[jcBOXFG]);
-                    
-                    jwin_draw_frame(menu1,comboalias_preview[0].x-2,comboalias_preview[0].y+comboalias_preview[0].h+4,comboalias_preview[0].w+4,6,FR_DEEP);
-                    jwin_draw_frame(menu1,comboalias_preview[1].x-2,comboalias_preview[1].y+comboalias_preview[1].h+4,comboalias_preview[1].w+4,6,FR_DEEP);
-                    jwin_draw_frame(menu1,comboalias_preview[2].x-2,comboalias_preview[2].y+comboalias_preview[2].h+4,comboalias_preview[2].w+4,6,FR_DEEP);
-                    
-                    rectfill(menu1,comboalias_preview[0].x,comboalias_preview[0].y+comboalias_preview[0].h+6,comboalias_preview[0].x+comboalias_preview[0].w-1,comboalias_preview[0].y+comboalias_preview[0].h+7,jwin_pal[jcBOXFG]);
-                    rectfill(menu1,comboalias_preview[1].x,comboalias_preview[1].y+comboalias_preview[1].h+6,comboalias_preview[1].x+comboalias_preview[1].w-1,comboalias_preview[1].y+comboalias_preview[1].h+7,jwin_pal[jcBOXFG]);
-                    rectfill(menu1,comboalias_preview[2].x,comboalias_preview[2].y+comboalias_preview[2].h+6,comboalias_preview[2].x+comboalias_preview[2].w-1,comboalias_preview[2].y+comboalias_preview[2].h+7,jwin_pal[jcBOXFG]);
-                }
-            }
-            
-            BITMAP *prv = create_bitmap_ex(8,64,64);
-            clear_bitmap(prv);
-            int scalefactor = 1;
-            
-            for(int j=0; j<3; ++j)
-            {
-                if(j==0||is_large)
-                {
-                    for(int i=0; i<(comboaliaslist[j].w*comboaliaslist[j].h); i++)
-                    {
-                        draw_combo_alias_thumbnail(menu1, &combo_aliases[combo_alistpos[j]+i], (i%comboaliaslist[j].w)*16+comboaliaslist[j].x,(i/comboaliaslist[j].w)*16+comboaliaslist[j].y,1);
-                    }
-                    
-                    if((combo_aliases[combo_apos].width>7)||(combo_aliases[combo_apos].height>7))
-                    {
-                        scalefactor=4;
-                    }
-                    else if((combo_aliases[combo_apos].width>3)||(combo_aliases[combo_apos].height>3))
-                    {
-                        scalefactor=2;
-                    }
-                    
-                    stretch_blit(brushbmp, prv, 0,0,scalefactor*64,zc_min(scalefactor*64,176),0,0,64,scalefactor==4?44:64);
-                    blit(prv,menu1,0,0,comboalias_preview[j].x,comboalias_preview[j].y,comboalias_preview[j].w,comboalias_preview[j].h);
-                }
-                
-                int rect_pos=combo_apos-combo_alistpos[current_comboalist];
-                
-                if((rect_pos>=0)&&(rect_pos<(combo_alistpos[current_comboalist]+(comboaliaslist[current_comboalist].w*comboaliaslist[current_comboalist].h))))
-                    safe_rect(menu1,(rect_pos&(combolist[current_comboalist].w-1))*16+combolist[current_comboalist].x,(rect_pos/combolist[current_comboalist].w)*16+combolist[current_comboalist].y,((rect_pos&(combolist[current_comboalist].w-1))*16+combolist[current_comboalist].x)+15,((rect_pos/combolist[current_comboalist].w)*16+combolist[current_comboalist].y)+15,255);
-            }
-            
-            destroy_bitmap(prv);
-        }
-    }
-    
-    if(flags&rCOMBO)
-    {
-        int drawmap, drawscr;
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        // Combo preview
-        if(is_large)
-        {
-            static BITMAP *combo_preview_bmp=create_bitmap_ex(8,32,32);
-            static BITMAP *cycle_preview_bmp=create_bitmap_ex(8,32,32);
-            // Combo
-            put_combo(combo_preview_bmp,0,0,(draw_mode==dm_alias)?combo_aliases[combo_apos].combos[0]:Combo,(draw_mode==dm_alias)?wrap(combo_aliases[combo_apos].csets[0]+alias_cset_mod, 0, 11):CSet,Flags&(cFLAGS|cWALK),0);
-            jwin_draw_frame(menu1,combo_preview.x-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
-            stretch_blit(combo_preview_bmp, menu1, 0, 0, 16, 16, combo_preview.x, combo_preview.y, combo_preview.w, combo_preview.h);
-            
-            if(draw_mode!=dm_alias)
-            {
-                char buf[17];
-                sprintf(buf,"Combo: %d",Combo);
-                textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-8,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
-                sprintf(buf,"CSet: %d",CSet);
-                int offs = 8;
-                textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-8,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
-                strncpy(buf,combo_class_buf[combobuf[Combo].type].name,16);
-                
-                if(strlen(combo_class_buf[combobuf[Combo].type].name) > 16)
-                {
-                    buf[15]='.';
-                    buf[14]='.';
-                    offs = 5;
-                }
-                
-                buf[16]='\0';
-                //if (combobuf[Combo].type != 0)
-                textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-offs,combo_preview.y+20,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
-            }
-            
-            // Cycle
-            int NextCombo=combobuf[Combo].nextcombo;
-            int NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
-            jwin_draw_frame(menu1,combo_preview.x+int(combo_preview.w*1.5)-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
-            
-            if(NextCombo>0 && draw_mode != dm_alias)
-            {
-                put_combo(cycle_preview_bmp,0,0,NextCombo,NextCSet,Flags&(cFLAGS|cWALK),0);
-                
-                if(Flags&cWALK) put_walkflags(cycle_preview_bmp,0,0,NextCombo,0);
-                
-                if(Flags&cFLAGS) put_flags(cycle_preview_bmp,0,0,NextCombo,0,cFLAGS,0);
-                
-                stretch_blit(cycle_preview_bmp, menu1, 0, 0, 16, 16, combo_preview.x+int(combo_preview.w*1.5), combo_preview.y, combo_preview.w, combo_preview.h);
-            }
-            else
-            {
-                if(InvalidStatic)
-                {
-                    for(int dy=0; dy<32; dy++)
-                    {
-                        for(int dx=0; dx<32; dx++)
-                        {
-                            menu1->line[dy+combo_preview.y][dx+combo_preview.x+int(combo_preview.w*1.5)]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
-                        }
-                    }
-                }
-                else
-                {
-                    rectfill(menu1, combo_preview.x+int(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(0));
-                    safe_rect(menu1, combo_preview.x+int(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
-                    line(menu1, combo_preview.x+int(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
-                    line(menu1, combo_preview.x+int(combo_preview.w*1.5),combo_preview.y+combo_preview.h, combo_preview.x+int(combo_preview.w*2.5),combo_preview.y,vc(15));
-                }
-            }
-            
-            if(draw_mode!=dm_alias)
-            {
-            
-                textprintf_ex(menu1,pfont,combo_preview.x+int(combo_preview.w*2.5)+6,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Cycle: %d",NextCombo);
-                textprintf_ex(menu1,pfont,combo_preview.x+int(combo_preview.w*2.5)+6,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",NextCSet);
-                char buf[17];
-                int offs = 8;
-                strncpy(buf,combo_class_buf[combobuf[NextCombo].type].name,16);
-                
-                if(strlen(combo_class_buf[combobuf[NextCombo].type].name) > 15)
-                {
-                    buf[15]='.';
-                    buf[14]='.';
-                    offs = 5;
-                }
-                
-                buf[16]='\0';
-                textprintf_ex(menu1,pfont,combo_preview.x+int(combo_preview.w*2.5)+6,combo_preview.y+20,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
-            }
-            
-        }
-        else
-        {
-            put_combo(menu1,combo_preview.x,combo_preview.y,(draw_mode==dm_alias)?combo_aliases[combo_apos].combos[0]:Combo,(draw_mode==dm_alias)?wrap(combo_aliases[combo_apos].csets[0]+alias_cset_mod, 0, 11):CSet,Flags&(cFLAGS|cWALK),0);
-        }
-    }
-    
-    if(flags&rMENU)
-    {
-        drawpanel(is_large?-1:menutype);
-        set_clip_rect(menu1,0,0,zq_screen_w-1,zq_screen_h-1);
-    }
-    
-    if(flags&rFAVORITES)
-    {
-        if(is_large)
-        {
-            jwin_draw_frame(menu1,favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
-            rectfill(menu1,favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-3,favorites_window.y+favorites_window.h-3,jwin_pal[jcBOX]);
-            jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w<<4)+4,(favorites_list.h<<4)+4, FR_DEEP);
-            rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w<<4)-1,favorites_list.y+(favorites_list.h<<4)-1,jwin_pal[jcBOXFG]);
-            textprintf_ex(menu1,font,favorites_list.x-2,favorites_list.y-11,jwin_pal[jcBOXFG],-1,"Favorite Combos");
-            
-            if(draw_mode!=dm_alias)
-            {
-                for(int i=0; i<(favorites_list.w*favorites_list.h); i++)
-                {
-                    if(favorite_combos[i]==-1)
-                    {
-                        if(InvalidStatic)
-                        {
-                            for(int dy=0; dy<16; dy++)
-                            {
-                                for(int dx=0; dx<16; dx++)
-                                {
-                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            rectfill(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(0));
-                            safe_rect(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(15));
-                            line(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(15));
-                            line(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y+15, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y, vc(15));
-                        }
-                    }
-                    else
-                    {
-                        put_combo(menu1,(i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y,favorite_combos[i],CSet,Flags&(cFLAGS|cWALK),0);
-                    }
-                }
-            }
-            else
-            {
-                for(int i=0; i<(favorites_list.w*favorites_list.h); i++)
-                {
-                    if(favorite_comboaliases[i]==-1)
-                    {
-                        if(InvalidStatic)
-                        {
-                            for(int dy=0; dy<16; dy++)
-                            {
-                                for(int dx=0; dx<16; dx++)
-                                {
-                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            rectfill(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(0));
-                            safe_rect(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(15));
-                            line(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(15));
-                            line(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y+15, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y, vc(15));
-                        }
-                    }
-                    else
-                    {
-                        draw_combo_alias_thumbnail(menu1, &combo_aliases[favorite_comboaliases[i]], (i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y,1);
-                    }
-                }
-            }
-        }
-    }
-    
-    if(flags&rCOMMANDS)
-    {
-        if(is_large)
-        {
-            jwin_draw_frame(menu1,commands_window.x,commands_window.y,commands_window.w,commands_window.h, FR_WIN);
-            rectfill(menu1,commands_window.x+2,commands_window.y+2,commands_window.x+commands_window.w-3,commands_window.y+commands_window.h-3,jwin_pal[jcBOX]);
-            jwin_draw_frame(menu1,commands_list.x-2,commands_list.y-2,(commands_list.w*command_buttonwidth)+4,(commands_list.h*command_buttonheight)+4, FR_DEEP);
-            rectfill(menu1,commands_list.x,commands_list.y,commands_list.x+(commands_list.w*command_buttonwidth)-1,commands_list.y+(commands_list.h*command_buttonheight)-1,jwin_pal[jcBOXFG]);
-            textprintf_ex(menu1,font,commands_list.x-2,commands_list.y-14,jwin_pal[jcBOXFG],-1,"Favorite Commands");
-            FONT *tfont=font;
-            font=pfont;
-            
-            for(int cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
-            {
-				draw_layer_button(menu1,
-                                 (cmd%commands_list.w)*command_buttonwidth+commands_list.x,
-                                 (cmd/commands_list.w)*command_buttonheight+commands_list.y,
-                                 command_buttonwidth,
-                                 command_buttonheight,
-                                 (favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," "))?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,
-                                 (isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags);
-                /*draw_text_button(menu1,
-                                 (cmd%commands_list.w)*command_buttonwidth+commands_list.x,
-                                 (cmd/commands_list.w)*command_buttonheight+commands_list.y,
-                                 command_buttonwidth,
-                                 command_buttonheight,
-                                 (favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," "))?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,
-                                 vc(1),
-                                 vc(14),
-                                 (isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags,
-                                 true);*///Old button style
-            }
-            
-            font=tfont;
-        }
-    }
-    
+     
     if(is_large) // Layer panels
     {
-        jwin_draw_frame(menu1,layer_panel.x-2,layer_panel.y,layer_panel.w+2,layer_panel.h,FR_DEEP);
-        rectfill(menu1,layer_panel.x+2,layer_panel.y+2,layer_panel.x+layer_panel.w-3,layer_panel.y+layer_panel.h-3,jwin_pal[jcBOX]);
+        //jwin_draw_frame(menu1,layer_panel.x-2,layer_panel.y,layer_panel.w+2,layer_panel.h,FR_DEEP);
+        //rectfill(menu1,layer_panel.x+2,layer_panel.y+2,layer_panel.x+layer_panel.w-3,layer_panel.y+layer_panel.h-3,jwin_pal[jcBOX]);
         
-        bool groundlayers = false;
-        bool overheadlayers = false;
-        bool flyinglayers = false;
-        
-        for(int i=0; i<=6; ++i)
-        {
-            char tbuf[15];
-            
-            if(i>0 && Map.CurrScr()->layermap[i-1])
-            {
-                if(i<3) groundlayers = true;
-                else if(i<5) overheadlayers = true;
-                else if(i<7) flyinglayers = true;
-                
-                sprintf(tbuf, "%s%d (%d:%02X)", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
-            }
-            else
-            {
-                sprintf(tbuf, "%s%d", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i);
-            }
-            
-            int rx = (i * (layerpanel_buttonwidth+23)) + layer_panel.x+6;
-            int ry = layer_panel.y+16;
-            //draw_text_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14), CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0,true);
-            draw_layer_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
-            draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+2,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[i]!=0);
-            
-            // Draw the group divider
-            if(i==3 || i==5)
-            {
-                _allegro_vline(menu1, rx-4, layer_panel.y+3, layer_panel.y+36, jwin_pal[jcLIGHT]);
-                _allegro_vline(menu1, rx-5, layer_panel.y+3, layer_panel.y+36, jwin_pal[jcMEDDARK]);
-            }
-        }
-        
-        if(groundlayers)
-            textprintf_ex(menu1,font,layer_panel.x+60,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Ground (Walkable) Layers");
-        else
-            textprintf_disabled(menu1,font,layer_panel.x+60,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Ground (Walkable) Layers");
-            
-        if(overheadlayers)
-            textprintf_ex(menu1,font,layer_panel.x+268,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Overhead Layers (Ground)");
-        else
-            textprintf_disabled(menu1,font,layer_panel.x+268,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Overhead Layers (Ground)");
-            
-        if(flyinglayers)
-            textprintf_ex(menu1,font,layer_panel.x+434,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Overhead Layers (Flying)");
-        else
-            textprintf_disabled(menu1,font,layer_panel.x+434,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Overhead Layers (Flying)");
-            
-        //font=tfont;
+         
     }
     
-    // } //if(true)
-    if(zq_showpal)
-    {
-        for(int i=0; i<256; i++)
-        {
-            rectfill(menu1,((i&15)<<2)+256,((i>>4)<<2)+176,((i&15)<<2)+259,((i>>4)<<2)+179,i);
-        }
-    }
+     
+    //onExportZASM();
     
-    if(ShowFPS)
-    {
-        textprintf_shadowed_ex(menu1,is_large?lfont:sfont,0,prv_mode?32:16,vc(15),vc(0),-1,"FPS:%-3d",lastfps);
-    }
     
-    if(prv_mode)
-    {
-        textout_shadowed_ex(menu1,sfont,"Preview Mode",0,16,vc(15),vc(0),-1);
-        
-        if(prv_twon)
-        {
-            textprintf_shadowed_ex(menu1,sfont,0,24,vc(15),vc(0),-1,"T Warp=%d tics", Map.get_prvtime());
-        }
-        
-        do_previewtext();
-        
-    }
-    
-    if(ShowFFScripts && !prv_mode)
-    {
-        int ypos = ShowFPS ? 28 : 18;
-        
-        for(int i=0; i< MAXFFCS; i++)
-            if(Map.CurrScr()->ffscript[i] && Map.CurrScr()->ffdata[i])
-            {
-                textout_shadowed_ex(menu1,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.c_str(),2,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
-                ypos+=16;
-            }
-    }
-    
-    // Show Errors & Details
-    //This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Link',
-    //'Save Screen', 'Continue Here' and 'Treat As..' Screen Flags,
-    // the String, every Room Type and Catch All, and all four Tile and Side Warps.
-    if(is_large && !prv_mode && ShowInfo)
-    {
-        int i=0;
-        char buf[2048];
-        
-        // Start with general information
-        if(Map.CurrScr()->flags3&fINVISLINK)
-        {
-            sprintf(buf,"Invisible Link");
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.getLayerTargetMap() > 0)
-        {
-	    Map.setlayertarget(); //Now the text does not carry over when changing maps, but shifting back, it does not **re-appear** until you change screens.
-                //It was also required to set some updates in onDecMap and onIncMap. #
-		//This fixes Screen Info not displaying properly when changing maps. -Z 
-		//Needed to refresh the screen info. -Z ( 26th March, 2019 )
-            int m = Map.getLayerTargetMultiple();
-            sprintf(buf,"Used as a layer by screen %d:%02X",Map.getLayerTargetMap(),Map.getLayerTargetScr());
-            char buf2[16];
-            
-            if(m>0)
-            {
-                sprintf(buf2," and %d other%s",m,m>1?"s":"");
-                strcat(buf,buf2);
-            }
-            
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->nextmap)
-        {
-            sprintf(buf,"Screen State carries over to %d:%02X",Map.CurrScr()->nextmap,Map.CurrScr()->nextscr);
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->timedwarptics)
-        {
-            sprintf(buf,"%s%sTimed Warp: %s",(Map.CurrScr()->flags4&fTIMEDDIRECT)?"Direct ":"",(Map.CurrScr()->flags5&fRANDOMTIMEDWARP)?"Random ":"",ticksstr(Map.CurrScr()->timedwarptics));
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->flags&fMAZE)
-        {
-            sprintf(buf,"Maze Path: %s (Exit %s)",pathstr(Map.CurrScr()->path),dirstr[Map.CurrScr()->exitdir]);
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        bool continuescreen = false, savecombo = false;
-        
-        if(Map.CurrScr()->flags4&fAUTOSAVE)
-        {
-            sprintf(buf,"Automatic Save%s Screen", (Map.CurrScr()->flags6&fCONTINUEHERE) ? "-Continue":"");
-            show_screen_error(buf,i++,vc(15));
-            continuescreen = ((Map.CurrScr()->flags6&fCONTINUEHERE)!=0);
-            savecombo = true;
-        }
-        else if(Map.CurrScr()->flags6&fCONTINUEHERE)
-        {
-            sprintf(buf,"Continue Screen");
-            show_screen_error(buf,i++,vc(15));
-            continuescreen = true;
-        }
-        
-        if(isSideViewGravity())
-        {
-            sprintf(buf,"Sideview Gravity");
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->flags6 & (fCAVEROOM|fDUNGEONROOM))
-        {
-            sprintf(buf,"Treat As %s%s Screen", (Map.CurrScr()->flags6&fCAVEROOM) ? "Interior":"NES Dungeon",
-                    (Map.CurrScr()->flags6 & (fCAVEROOM|fDUNGEONROOM)) == (fCAVEROOM|fDUNGEONROOM) ? " or NES Dungeon":"");
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->oceansfx != 0)
-        {
-            sprintf(buf,"Ambient Sound: %s",sfx_string[Map.CurrScr()->oceansfx]);
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->bosssfx != 0)
-        {
-            sprintf(buf,"Boss Roar Sound: %s",sfx_string[Map.CurrScr()->bosssfx]);
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->str)
-        {
-            strncpy(buf,MsgString(Map.CurrScr()->str, true, false),72);
-            buf[72] = '\0';
-            char shortbuf[72];
-            strip_extra_spaces(buf);
-            shorten_string(shortbuf, buf, lfont_l, 72, 280);
-            sprintf(buf,"String %s",shortbuf);
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if((Map.CurrScr()->flags&fWHISTLE) || (Map.CurrScr()->flags7&fWHISTLEWATER))
-        {
-            sprintf(buf,"Whistle ->%s%s%s",(Map.CurrScr()->flags&fWHISTLE)?" Stairs":"",
-                    (Map.CurrScr()->flags&fWHISTLE && Map.CurrScr()->flags7&fWHISTLEWATER)?", ":"",
-                    (Map.CurrScr()->flags7&fWHISTLEWATER)?"Dry Lake":"");
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        switch(Map.CurrScr()->room)
-        {
-        case rSP_ITEM:
-            sprintf(buf,"Special Item is %s",item_string[Map.CurrScr()->catchall]);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rINFO:
-        {
-            int shop = Map.CurrScr()->catchall;
-            sprintf(buf,"Pay For Info: -%d, -%d, -%d",
-                    misc.info[shop].price[0],misc.info[shop].price[1],misc.info[shop].price[2]);
-            show_screen_error(buf,i++, vc(15));
-        }
-        break;
-        
-        case rMONEY:
-            sprintf(buf,"Secret Money: %d Rupees",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rGAMBLE:
-            show_screen_error("Gamble Room",i++, vc(15));
-            break;
-            
-        case rREPAIR:
-            sprintf(buf,"Door Repair: -%d Rupees",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rRP_HC:
-            sprintf(buf,"Take %s or %s", item_string[iRPotion], item_string[iHeartC]);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rGRUMBLE:
-            show_screen_error("Feed the Goriya",i++, vc(15));
-            break;
-            
-        case rTRIFORCE:
-            show_screen_error("Level 9 Entrance",i++, vc(15));
-            break;
-            
-        case rP_SHOP:
-        case rSHOP:
-        {
-            int shop = Map.CurrScr()->catchall;
-            sprintf(buf,"%sShop: ",
-                    Map.CurrScr()->room==rP_SHOP ? "Potion ":"");
-                    
-            for(int j=0; j<3; j++) if(misc.shop[shop].item[j]>0)  // Print the 3 items and prices
-                {
-                    strcat(buf,item_string[misc.shop[shop].item[j]]);
-                    strcat(buf,":");
-                    char pricebuf[4];
-                    sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
-                    strcat(buf,pricebuf);
-                    
-                    if(j<2 && misc.shop[shop].item[j+1]>0) strcat(buf,", ");
-                }
-                
-            show_screen_error(buf,i++, vc(15));
-        }
-        break;
-        
-        case rTAKEONE:
-        {
-            int shop = Map.CurrScr()->catchall;
-            sprintf(buf,"Take Only One: %s%s%s%s%s",
-                    misc.shop[shop].item[0]<1?"":item_string[misc.shop[shop].item[0]],misc.shop[shop].item[0]>0?", ":"",
-                    misc.shop[shop].item[1]<1?"":item_string[misc.shop[shop].item[1]],(misc.shop[shop].item[1]>0&&misc.shop[shop].item[2]>0)?", ":"",
-                    misc.shop[shop].item[2]<1?"":item_string[misc.shop[shop].item[2]]);
-            show_screen_error(buf,i++, vc(15));
-        }
-        break;
-        
-        case rBOMBS:
-            sprintf(buf,"More Bombs: -%d Rupees",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rARROWS:
-            sprintf(buf,"More Arrows: -%d Rupees",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rSWINDLE:
-            sprintf(buf,"Leave Life or %d Rupees",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case r10RUPIES:
-            show_screen_error("10 Rupees",i++, vc(15));
-            break;
-            
-        case rGANON:
-            show_screen_error("Ganon Room",i++, vc(15));
-            break;
-            
-        case rZELDA:
-            show_screen_error("Zelda Room",i++, vc(15));
-            break;
-            
-        case rMUPGRADE:
-            show_screen_error("1/2 Magic Upgrade",i++, vc(15));
-            break;
-            
-        case rLEARNSLASH:
-            show_screen_error("Learn Slash",i++, vc(15));
-            break;
-            
-        case rWARP:
-            sprintf(buf,"3-Stair Warp: Warp Ring %d",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-        }
-        
-        bool undercombo = false, warpa = false, warpb = false, warpc = false, warpd = false, warpr = false;
-        
-        for(int c=0; c<176+128+1+MAXFFCS; ++c)
-        {
-            // Checks both combos, secret combos, undercombos and FFCs
-//Fixme:
-            int ctype =
-                combobuf[vbound(
-                             (c>=305 ? Map.CurrScr()->ffdata[c-305] :
-                              c>=304 ? Map.CurrScr()->undercombo :
-                              c>=176 ? Map.CurrScr()->secretcombo[c-176] :
-                              Map.CurrScr()->data.empty() ? 0 : // Sanity check: does room combo data exist?
-                              Map.CurrScr()->data[c]
-                             ), 0, MAXCOMBOS-1)].type;
-                             
-            if(!undercombo && integrityBoolUnderCombo(Map.CurrScr(),ctype))
-            {
-                undercombo = true;
-                show_screen_error("Under Combo is combo 0",i++, vc(7));
-            }
-            
-            // Tile Warp types
-            switch(ctype)
-            {
-            case cSAVE:
-            case cSAVE2:
-                if(!savecombo)
-                {
-                    savecombo = true;
-                    
-                    if(integrityBoolSaveCombo(Map.CurrScr(),ctype))
-                        show_screen_error("Save Screen",i++, vc(15));
-                    else
-                        show_screen_error("Save-Continue Screen",i++, vc(15));
-                }
-                
-                break;
-                
-            case cSTAIRR:
-            case cPITR:
-            case cSWARPR:
-                if(!warpr && (Map.CurrScr()->tilewarptype[0]==wtCAVE || Map.CurrScr()->tilewarptype[1]==wtCAVE ||
-                              Map.CurrScr()->tilewarptype[2]==wtCAVE || Map.CurrScr()->tilewarptype[3]==wtCAVE))
-                {
-                    warpr = true;
-                    show_screen_error("Random Tile Warp contains Cave/Item Cellar",i++, vc(7));
-                }
-                
-                break;
-                
-            case cCAVED:
-            case cPITD:
-            case cSTAIRD:
-            case cCAVE2D:
-            case cSWIMWARPD:
-            case cDIVEWARPD:
-            case cSWARPD:
-                if(!warpd)
-                {
-                    warpd = true;
-                    tile_warp_notification(3,buf);
-                    show_screen_error(buf,i++, vc(15));
-                }
-                
-                break;
-                
-            case cCAVEC:
-            case cPITC:
-            case cSTAIRC:
-            case cCAVE2C:
-            case cSWIMWARPC:
-            case cDIVEWARPC:
-            case cSWARPC:
-                if(!warpc)
-                {
-                    warpc = true;
-                    tile_warp_notification(2,buf);
-                    show_screen_error(buf,i++, vc(15));
-                }
-                
-                break;
-                
-            case cCAVEB:
-            case cPITB:
-            case cSTAIRB:
-            case cCAVE2B:
-            case cSWIMWARPB:
-            case cDIVEWARPB:
-            case cSWARPB:
-                if(!warpb)
-                {
-                    warpb = true;
-                    tile_warp_notification(1,buf);
-                    show_screen_error(buf,i++, vc(15));
-                }
-                
-                break;
-                
-            case cCAVE:
-            case cPIT:
-            case cSTAIR:
-            case cCAVE2:
-            case cSWIMWARP:
-            case cDIVEWARP:
-            case cSWARPA:
-                if(!warpa)
-                {
-                    warpa = true;
-                    tile_warp_notification(0,buf);
-                    show_screen_error(buf,i++, vc(15));
-                }
-                
-                break;
-            }
-        }
-        
-        int sidewarpnotify = 0;
-        
-        if(Map.CurrScr()->flags2&wfUP)
-        {
-            side_warp_notification(Map.CurrScr()->sidewarpindex&3,0,buf);
-            show_screen_error(buf,i++, vc(15));
-            sidewarpnotify|=(1<<(Map.CurrScr()->sidewarpindex&3));
-        }
-        
-        if(Map.CurrScr()->flags2&wfDOWN)
-        {
-            side_warp_notification((Map.CurrScr()->sidewarpindex>>2)&3,1,buf);
-            show_screen_error(buf,i++, vc(15));
-            sidewarpnotify|=(1<<((Map.CurrScr()->sidewarpindex>>2)&3));
-        }
-        
-        if(Map.CurrScr()->flags2&wfLEFT)
-        {
-            side_warp_notification((Map.CurrScr()->sidewarpindex>>4)&3,2,buf);
-            show_screen_error(buf,i++, vc(15));
-            sidewarpnotify|=(1<<((Map.CurrScr()->sidewarpindex>>4)&3));
-        }
-        
-        if(Map.CurrScr()->flags2&wfRIGHT)
-        {
-            side_warp_notification((Map.CurrScr()->sidewarpindex>>6)&3,3,buf);
-            show_screen_error(buf,i++, vc(15));
-            sidewarpnotify|=(1<<((Map.CurrScr()->sidewarpindex>>6)&3));
-        }
-        
-        if(!(sidewarpnotify&1) && Map.CurrScr()->timedwarptics)
-        {
-            side_warp_notification(0,4,buf); // Timed Warp
-            show_screen_error(buf,i++, vc(15));
-        }
-        
-        // Now for errors
-        if((Map.CurrScr()->flags4&fSAVEROOM) && !savecombo) show_screen_error("Save Point->Continue Here, but no Save Point combo?",i++, vc(14));
-        
-        if(integrityBoolEnemiesItem(Map.CurrScr())) show_screen_error("Enemies->Item, but no enemies",i++, vc(7));
-        
-        if(integrityBoolEnemiesSecret(Map.CurrScr())) show_screen_error("Enemies->Secret, but no enemies",i++, vc(7));
-        
-        if(integrityBoolStringNoGuy(Map.CurrScr())) show_screen_error("String, but Guy is (none)",i++, vc(14));
-        
-        if(integrityBoolGuyNoString(Map.CurrScr())) show_screen_error("Non-Fairy Guy, but String is (none)",i++, vc(14));
-        
-        if(integrityBoolRoomNoGuy(Map.CurrScr())) show_screen_error("Guy is (none)",i++, vc(14));
-        
-        if(integrityBoolRoomNoString(Map.CurrScr())) show_screen_error("String is (none)",i++, vc(14));
-        
-        if(integrityBoolRoomNoGuyNoString(Map.CurrScr())) show_screen_error("Guy and String are (none)",i++, vc(14));
-    }
-    
-    if(!is_large)
-    {
-        if(draw_mode!=dm_normal)
-        {
-            textout_shadowed_right_ex(menu1,sfont,dm_names[draw_mode],mapscreen_x+((16+(showedges?1:0))*16*mapscreensize)-1,mapscreen_y+((showedges?1:0)*16*mapscreensize),vc(15),vc(0),-1);
-        }
-    }
-    
-    if((tooltip_timer>=tooltip_maxtimer)&&(tooltip_box.x>=0&&tooltip_box.y>=0))
-    {
-        masked_blit(tooltipbmp, menu1, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
-    }
-    
-//  textprintf_ex(menu1,font,16, 200,vc(15),-1,"%d %d %d %d %d",tooltip_timer,tooltip_box.x,tooltip_box.y,tooltip_box.w,tooltip_box.h);
-
     scare_mouse();
     
     if(flags&rCLEAR)
@@ -8049,17 +8017,11 @@ void refresh(int flags)
     }
     else
     {
-        blit(menu1,screen,0,16,0,16,zq_screen_w,zq_screen_h-16);
-        blit(menu1,screen,combolist_window.x-64,0,combolist_window.x-64,0,combolist_window.w+64,16);
-        
-        if(flags&rCOMBO)
-        {
-            blit(menu1,screen,combo_preview.x,combo_preview.y,combo_preview.x,combo_preview.y,combo_preview.w,combo_preview.h);
-        }
+        blit(menu1,screen,0,16,0,16,zq_screen_w,zq_screen_h-16); 
+         
     }
     
     ComboBrushPause=0;
-    
     unscare_mouse();
     SCRFIX();
 }
@@ -8100,7 +8062,7 @@ void select_scr()
         }
         
         do_animations();
-        refresh(rALL);
+        return refresh(rALL);
     }
     
     ComboBrush=tempcb;
@@ -11927,26 +11889,45 @@ void questminrev_help()
 
 void ctype_help(int id)
 {
-	if(id < 0 || id >= cMAX) return;  // Sanity check
-	
-	if((id >= cDAMAGE1 && id <= cDAMAGE4) || (id >= cDAMAGE5 && id <= cDAMAGE7))
-	{
-		char buf[512];
-		int lvl = (id < cDAMAGE5 ? (id - cDAMAGE1 + 1) : (id - cDAMAGE5 + 1));
-		int d = -combo_class_buf[id].modify_hp_amount/8;
-		char buf2[80];
-		if(d==1)
-			sprintf(buf2,"1/2 of a heart.");
-		else
-			sprintf(buf2,"%d heart%s.", d/2, d == 2 ? "" : "s");
-		sprintf(buf,"If the Player touches this combo without Boots that protect against Damage Combo Level %d, he is damaged for %s.",lvl,buf2);
-		
-		jwin_auto_alert(combo_class_buf[id].name,buf,256,2, "O&K",NULL,'k',0,lfont);
-	}
-	else
-	{
-		jwin_auto_alert(combo_class_buf[id].name,combotype_help_string[id],256,2,"O&K",NULL,'k',0,lfont);
-	}
+    if(id < 0 || id >= cMAX) return;  // Sanity check
+    
+    if(id==0)
+    {
+        jwin_alert("Help","Select a Type, then click","this button to find out what it does.",NULL,"O&K",NULL,'k',0,lfont);
+    }
+    else if(id >= cCVUP && id <= cCVRIGHT)
+    {
+        char buf1[80];
+        sprintf(buf1,"be moved %sward at 1/4 of his normal walking",id==cCVUP ? "up" : id==cCVDOWN ? "down" : id==cCVLEFT ? "left" : "right");
+        jwin_alert(combo_class_buf[id].name,"While Link is standing on top of this, he will",buf1,"speed, until he collides with a solid combo.","O&K",NULL,'k',0,lfont);
+    }
+    else if((id >= cDAMAGE1 && id <= cDAMAGE4) || (id >= cDAMAGE5 && id <= cDAMAGE7))
+    {
+        char buf1[80];
+        int lvl = (id < cDAMAGE5 ? (id - cDAMAGE1 + 1) : (id - cDAMAGE5 + 1));
+        sprintf(buf1,"that protect against Damage Combo Level %d,",lvl);
+        char buf2[80];
+        int d = -combo_class_buf[id].modify_hp_amount/8;
+        
+        if(d==1)
+            sprintf(buf2,"he is damaged for 1/2 of a heart.");
+        else
+            sprintf(buf2,"he is damaged for %d heart%s.", d/2, d == 2 ? "" : "s");
+            
+        jwin_alert(combo_class_buf[id].name,"If Link touches this combo without Boots",buf1,buf2, "O&K",NULL,'k',0,lfont);
+    }
+    else if(id >= cSLASHTOUCHY && id <= cBUSHNEXTTOUCHY)
+    {
+        char buf1[80];
+        sprintf(buf1,"Identical to %s, but if slashing this combo",combotype_help_string[id*3]);
+        jwin_alert(combo_class_buf[id].name,buf1,"changes it to another slash-affected combo,","then that combo will also change.","O&K",NULL,'k',0,lfont);
+    }
+    else if(( id >= cSCRIPT1 && id <= cSCRIPT5) || ( id >= cSCRIPT6 && id <= cSCRIPT20 ) )
+    {
+        jwin_alert(combo_class_buf[id].name,"This type has no built-in effect, but can be","given special significance with ZASM or ZScript.",NULL,"O&K",NULL,'k',0,lfont);
+    }
+    else
+        jwin_alert(combo_class_buf[id].name,combotype_help_string[id*3],combotype_help_string[1+(id*3)],combotype_help_string[2+(id*3)],"O&K",NULL,'k',0,lfont);
 }
 
 void cflag_help(int id)
@@ -13887,15 +13868,15 @@ static DIALOG screenscript_dlg[] =
     { jwin_text_proc,           10,    42+140+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[7]:",                      NULL,   NULL                  },
     
     //13
-     { jwin_numedit_swap_zsint_proc,     60,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-     { jwin_numedit_swap_zsint_proc,     60,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,     60,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,     60,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,     60,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+     { jwin_edit_proc,     60,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+     { jwin_edit_proc,     60,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
     //18
-    { jwin_numedit_swap_zsint_proc,     60,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,     60,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,     60,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
     //21
     { jwin_text_proc,          112+10+20+34+1-4,    42+2,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                            NULL,   NULL                  },
     //22
@@ -13903,17 +13884,8 @@ static DIALOG screenscript_dlg[] =
    
     { jwin_button_proc,       70,    202,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
     { jwin_button_proc,      170,    202,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
-    //25
+    
     { jwin_check_proc,          112+10+20+34-4,    42+30,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Run On Screen Init",   NULL,   NULL                  },
-	{ jwin_swapbtn_proc,  148,      42,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,   42+20,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,   42+40,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,   42+60,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    //30
-	{ jwin_swapbtn_proc,  148,   42+80,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,  42+100,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,  42+120,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,  42+140,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
     
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -13942,9 +13914,10 @@ void EditScreenScript()
 	
 	for ( int q = 0; q < 8; q++ )
 	{
+	    
+		sprintf(initd[q],"%.4f",theMap->screeninitd[q]/10000.0);
+	 
 		screenscript_dlg[13+q].dp = initd[q];
-		screenscript_dlg[13+q].fg = theMap->screeninitd[q];
-		screenscript_dlg[13+q].dp3 = &(screenscript_dlg[26+q]);
 	}
 	int ret;
 	if(is_large)
@@ -13962,7 +13935,7 @@ void EditScreenScript()
 			theMap->preloadscript = 0;
 		
 		for(int j=0; j<8; j++)
-			theMap->screeninitd[j] = screenscript_dlg[13+j].fg;
+			theMap->screeninitd[j] = ffparse2(initd[j]);
 		
 	}
 	while(ret==22);//press OK
@@ -15496,6 +15469,24 @@ int d_hexedit_proc(int msg,DIALOG *d,int c)
     return jwin_hexedit_proc(msg,d,c);
 }
 
+int xtoi(char *hexstr)
+{
+    int val=0;
+    
+    while(isxdigit(*hexstr))
+    {
+        val<<=4;
+        
+        if(*hexstr<='9')
+            val += *hexstr-'0';
+        else val+= ((*hexstr)|0x20)-'a'+10;
+        
+        ++hexstr;
+    }
+    
+    return val;
+}
+
 void drawgrid(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div)
 {
     if(div!=-1)
@@ -16297,7 +16288,6 @@ static int editdmap_script_active[] =
 	130,131,132,133,134,135,136,137,//InitD Labels
 	138,139,140,141,142,143,144,145,//InitD Values
 	146,147, //TextProc & Dropdown
-	187,188,189,190,191,192,193,194,//Swapbtns
 	-1
 };
 
@@ -16307,7 +16297,6 @@ static int editdmap_script_subsc[] =
 	148,149,150,151,152,153,154,155,//InitD Labels
 	156,157,158,159,160,161,162,163,//InitD Values
 	164,165,166,167, //TextProcs & Dropdowns
-	195,196,197,198,199,200,201,202,//Swapbtns
 	-1
 };
 
@@ -16317,7 +16306,6 @@ static int editdmap_script_onmap[] =
 	169,170,171,172,173,174,175,176,//InitD Labels
 	177,178,179,180,181,182,183,184,//InitD Values
 	185,186, //TextProcs & Dropdowns
-	203,204,205,206,207,208,209,210,//Swapbtns
 	-1
 };
 
@@ -16421,8 +16409,8 @@ static DIALOG editdmap_dlg[] =
     {  jwin_text_proc,               10,     29,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Name: ",                                     NULL,                 NULL                  },
     {  jwin_edit_proc,               40,     25,    168,     16,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          20,             0,  NULL,                                                  NULL,                 NULL                  },
     //5
-    {  jwin_tab_proc,                 6,     45,    310,    179,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
-    {  jwin_tab_proc,                 8,     62,    306,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmapmap_tabs,                             NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                 6,     45,    300,    179,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                10,     62,    292,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmapmap_tabs,                             NULL, (void *)editdmap_dlg  },
     {  jwin_ctext_proc,              67,     87,      0,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Minimap",                                    NULL,                 NULL                  },
     {  jwin_frame_proc,              31,     95,     84,     52,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_DEEP,       0,  NULL,                                                  NULL,                 NULL                  },
     {  d_maptile_proc,               33,     97,     80,     48,    0,                      0,                       0,    0,           0,             0,  NULL, (void*)0,             NULL                  },
@@ -16448,7 +16436,7 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,              274,     65,     26,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           3,             0,  NULL,                                                  NULL,                 NULL                  },
     {  jwin_text_proc,              28,    150,     70,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Setting this tile disables",                                NULL,                 NULL                  },
     {  jwin_text_proc,              28,    158,     70,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "the classic NES minimap.",                                NULL,                 NULL                  },
-    {  jwin_tab_proc,                8,     62,    306,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_script_tabs,                             NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                10,     62,    292,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_script_tabs,                             NULL, (void *)editdmap_dlg  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     //30
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
@@ -16593,17 +16581,17 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     
     //138
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //146
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     //148
     {  jwin_edit_proc,         6+10-4-2,     10+29+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10-4-2,     10+47+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
@@ -16614,20 +16602,20 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     //156
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //164
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Active Subscreen Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Active Subscreen Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     //166
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+28+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Passive Subscreen Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+28+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+28+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Passive Subscreen Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+28+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     
     //168
     {  jwin_check_proc,              12,    175,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Use Enemy List for Cellar Enemies",      NULL,                 NULL                  },
@@ -16642,45 +16630,18 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     //177
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //185
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "OnMap Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
-	//187 (for 138+)
-	{ jwin_swapbtn_proc,  158,      79,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,      97,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     115,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     133,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     151,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     169,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     187,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     205,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    //195 (for 156+)
-	{ jwin_swapbtn_proc,  158,      79,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,      97,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     115,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     133,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     151,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     169,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     187,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     205,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    //203 (for 177+)
-	{ jwin_swapbtn_proc,  158,      79,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,      97,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     115,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     133,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     151,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     169,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     187,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,  158,     205,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //186
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "OnMap Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+	
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
@@ -16748,15 +16709,13 @@ void editdmap(int index)
     
 	for ( int q = 0; q < 8; q++ )
 	{
+		sprintf(initdvals[q],"%.4f",DMaps[index].initD[q]/10000.0);
+		sprintf(subinitdvals[q],"%.4f",DMaps[index].sub_initD[q]/10000.0);
+		sprintf(onmapinitdvals[q],"%.4f",DMaps[index].onmap_initD[q]/10000.0);
+	 
 		editdmap_dlg[138+q].dp = initdvals[q];
 		editdmap_dlg[156+q].dp = subinitdvals[q];
 		editdmap_dlg[177+q].dp = onmapinitdvals[q];
-		editdmap_dlg[138+q].fg = DMaps[index].initD[q];
-		editdmap_dlg[156+q].fg = DMaps[index].sub_initD[q];
-		editdmap_dlg[177+q].fg = DMaps[index].onmap_initD[q];
-		editdmap_dlg[138+q].dp3 = &(editdmap_dlg[187+q]);
-		editdmap_dlg[156+q].dp3 = &(editdmap_dlg[195+q]);
-		editdmap_dlg[177+q].dp3 = &(editdmap_dlg[203+q]);
 	}
 	
     editdmap_dlg[0].dp=dmapnumstr;
@@ -16978,8 +16937,8 @@ void editdmap(int index)
             }
         }
         
-        DMaps[index].compass = zc_xtoi(compassstr);
-        DMaps[index].cont = vbound(zc_xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
+        DMaps[index].compass = xtoi(compassstr);
+        DMaps[index].cont = vbound(xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
         DMaps[index].color = editdmap_dlg[65].d1;
         DMaps[index].active_subscreen=editdmap_dlg[75].d1;
         DMaps[index].passive_subscreen=editdmap_dlg[77].d1;
@@ -17025,9 +16984,9 @@ void editdmap(int index)
 	
 	for ( int q = 0; q < 8; q++ )
 	{
-		DMaps[index].initD[q] = editdmap_dlg[138+q].fg;
-		DMaps[index].sub_initD[q] = editdmap_dlg[156+q].fg;
-		DMaps[index].onmap_initD[q] = editdmap_dlg[177+q].fg;
+		DMaps[index].initD[q] = ffparse2(initdvals[q]);
+		DMaps[index].sub_initD[q] = ffparse2(subinitdvals[q]);
+		DMaps[index].onmap_initD[q] = ffparse2(onmapinitdvals[q]);
 		////initd_labels
 		sprintf(DMaps[index].initD_label[q],"%s",initd_labels[q]);
 		sprintf(DMaps[index].sub_initD_label[q],"%s",sub_initd_labels[q]);
@@ -20117,16 +20076,16 @@ int onTileWarp()
     if(ret==14 || ret==15)
     {
         saved=false;
-        Map.CurrScr()->tilewarpscr[0] = zc_xtoi(buf);
+        Map.CurrScr()->tilewarpscr[0] = xtoi(buf);
         Map.CurrScr()->tilewarptype[0] = warp_dlg[7].d1;
         Map.CurrScr()->tilewarpdmap[0] = warp_dlg[8].d1;
-        Map.CurrScr()->tilewarpscr[1] = zc_xtoi(buf2);
+        Map.CurrScr()->tilewarpscr[1] = xtoi(buf2);
         Map.CurrScr()->tilewarptype[1] = warp_dlg[22].d1;
         Map.CurrScr()->tilewarpdmap[1] = warp_dlg[23].d1;
-        Map.CurrScr()->tilewarpscr[2] = zc_xtoi(buf3);
+        Map.CurrScr()->tilewarpscr[2] = xtoi(buf3);
         Map.CurrScr()->tilewarptype[2] = warp_dlg[34].d1;
         Map.CurrScr()->tilewarpdmap[2] = warp_dlg[35].d1;
-        Map.CurrScr()->tilewarpscr[3] = zc_xtoi(buf4);
+        Map.CurrScr()->tilewarpscr[3] = xtoi(buf4);
         Map.CurrScr()->tilewarptype[3] = warp_dlg[46].d1;
         Map.CurrScr()->tilewarpdmap[3] = warp_dlg[47].d1;
         
@@ -20365,16 +20324,16 @@ int onSideWarp()
     if(ret==14 || ret==15)
     {
         saved=false;
-        Map.CurrScr()->sidewarpscr[0] = zc_xtoi(buf);
+        Map.CurrScr()->sidewarpscr[0] = xtoi(buf);
         Map.CurrScr()->sidewarptype[0] = warp_dlg[7].d1;
         Map.CurrScr()->sidewarpdmap[0] = warp_dlg[8].d1;
-        Map.CurrScr()->sidewarpscr[1] = zc_xtoi(buf2);
+        Map.CurrScr()->sidewarpscr[1] = xtoi(buf2);
         Map.CurrScr()->sidewarptype[1] = warp_dlg[22].d1;
         Map.CurrScr()->sidewarpdmap[1] = warp_dlg[23].d1;
-        Map.CurrScr()->sidewarpscr[2] = zc_xtoi(buf3);
+        Map.CurrScr()->sidewarpscr[2] = xtoi(buf3);
         Map.CurrScr()->sidewarptype[2] = warp_dlg[34].d1;
         Map.CurrScr()->sidewarpdmap[2] = warp_dlg[35].d1;
-        Map.CurrScr()->sidewarpscr[3] = zc_xtoi(buf4);
+        Map.CurrScr()->sidewarpscr[3] = xtoi(buf4);
         Map.CurrScr()->sidewarptype[3] = warp_dlg[46].d1;
         Map.CurrScr()->sidewarpdmap[3] = warp_dlg[47].d1;
         
@@ -21221,7 +21180,7 @@ void EditWarpRingScr(int ring,int index)
     {
         saved=false;
         misc.warp[ring].dmap[index] = warpring_warp_dlg[8].d1;
-        misc.warp[ring].scr[index] = zc_xtoi(buf);
+        misc.warp[ring].scr[index] = xtoi(buf);
     }
     
     if(ret==15)
@@ -23935,9 +23894,7 @@ static int ffcombo_flag_list[] =
 
 static int ffcombo_arg_list[] =
 {
-    56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,
-	82,83,84,85,86,87,88,89,
-	-1
+    56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,-1
 };
 
 static TABPANEL ffcombo_tabs[] =
@@ -24038,14 +23995,14 @@ static DIALOG ffcombo_dlg[] =
     { jwin_text_proc,       6+10,  137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
     { jwin_text_proc,       6+10,  155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
     //64
-    { jwin_numedit_swap_zsint_proc,      34+10,   25+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,   43+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,   61+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,   79+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,   97+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,  115+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,  133+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,  151+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,   25+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,   43+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,   61+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,   79+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,   97+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,  115+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,  133+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,  151+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //72
     { jwin_text_proc,       112+10,  29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A1:", NULL, NULL },
     { jwin_text_proc,       112+10,  47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A2:", NULL, NULL },
@@ -24059,16 +24016,7 @@ static DIALOG ffcombo_dlg[] =
     { jwin_check_proc,    154+10,  55+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Solid", NULL, NULL },
     { jwin_check_proc,    154+10,  65+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Imprecision", NULL, NULL },
     { jwin_check_proc,    154+10,  75+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Inv. to Lens", NULL, NULL },
-	//82
-	{ jwin_swapbtn_proc,    98,    45,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,    63,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,    81,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,    99,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,   117,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,   135,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,   153,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,   171,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	
+  
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -24863,18 +24811,18 @@ const char *gscriptlist2(int index, int *list_size)
 
 static DIALOG compile_dlg[] =
 {
-	//                      x       y       w       h       fg      bg      key     flags   d1  d2  dp
-	{ jwin_win_proc,        0,      0,      200,    130,    vc(14), vc(1),  0,      D_EXIT,  0,  0, (void *)"Compile ZScript", NULL, NULL },
-	{ jwin_button_proc,     109,    89,     61,     21,     vc(14), vc(1),  27,     D_EXIT,  0,  0, (void *)"Cancel", NULL, NULL },
-	{ jwin_button_proc,     131,    30,     61,     21,     vc(14), vc(1),  'e',    D_EXIT,  0,  0, (void *)"&Edit", NULL, NULL },
-	{ jwin_button_proc,     30,     60,     61,     21,     vc(14), vc(1),  'l',    D_EXIT,  0,  0, (void *)"&Load", NULL, NULL },
-	{ jwin_text_proc,       8,      35,     61,     21,     vc(14), vc(1),  0,           0,  0,  0, (void *)zScriptBytes, NULL, NULL },
-	{ jwin_button_proc,     30,     89,     61,     21,     vc(14), vc(1),  'c',    D_EXIT,  0,  0, (void *)"&Compile!", NULL, NULL },
-	{ jwin_button_proc,     109,    60,     61,     21,     vc(14), vc(1),  'x',    D_EXIT,  0,  0, (void *)"E&xport", NULL, NULL },
-	{ d_timer_proc,         0,      0,      0,      0,      0,      0,      0,           0,  0,  0, NULL, NULL, NULL },
-	{ jwin_text_proc,       8,      25,     61,     21,     vc(14), vc(1),  0,           0,  0,  0, (void *)zLastVer, NULL, NULL },
-	{ jwin_check_proc,      8,      112,    90,     8,      vc(14), vc(1),  0,  D_DISABLED,  0,  0, (void *)"Recover ZASM for scripts missing during compile", NULL, NULL },
-	{ NULL,                 0,      0,      0,      0,      0,      0,      0,           0,  0,  0, NULL, NULL, NULL }
+	//						x		y		w		h		fg		bg		key	flags	d1	d2	dp
+	{ jwin_win_proc,		0,		0,		200,	130,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile ZScript", NULL, NULL },
+	{ jwin_button_proc,		109,	89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,		131,	30,		61,		21,		vc(14),	vc(1),	'e',	D_EXIT,	0,	0,	(void *) "&Edit", NULL, NULL },
+	{ jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'l',	D_EXIT,	0,	0,	(void *) "&Load", NULL, NULL },
+	{ jwin_text_proc,		8,		35,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zScriptBytes, NULL, NULL },
+	{ jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
+	{ jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
+	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+	{ jwin_text_proc,		8,		25,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zLastVer, NULL, NULL },
+	{ jwin_check_proc,      8,  112,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Recover ZASM for scripts missing during compile", NULL, NULL },
+	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,   NULL,  NULL }
 };
 
 static int as_ffc_list[] = { 4, 5, 6, -1};
@@ -25666,57 +25614,92 @@ const char *zcompiler_guardlist(int index, int *list_size)
 
 static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
 
-char tempincludepath[MAX_INCLUDE_PATH_CHARS];
+
+const char *zcompiler_num_include_paths(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,MAX_INCLUDE_PATHS);
+        
+	switch(index)
+        {
+            
+	case 0:
+	    return "0";
+        case 1:
+            return "1";
+	case 2:
+            return "2";
+	case 3:
+            return "3";
+	case 4:
+            return "4";
+	case 5:
+            return "5";
+        }
+	
+    }
+    
+    *list_size = MAX_INCLUDE_PATHS+1;
+    return NULL;
+}
+
+static ListData zcompiler_number_include_paths_list(zcompiler_num_include_paths, &pfont);
+
+
+
+
+char tempincludepath[(MAX_INCLUDE_PATHS+1)*512];
 char temprunstring[21];
 
 static DIALOG zscript_parser_dlg[] =
 {
-	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
-	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-	// { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
-	{ jwin_tab_proc,            4,     23,    252,    182,    vc(0),      vc(15),      0,    0,          0,    0, (void *) compiler_options_tabs,     NULL, (void *)zscript_parser_dlg },
-	// 3
-	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-	
-	// rules //6
-	{ jwin_check_proc,      10, 32+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
-	{ jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
-	{ jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
-	{ jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Value of Boolean 'true' is 0.0001", NULL, NULL },
-	//10
-	{ d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0, MAX_INCLUDE_PATH_CHARS,            0,       tempincludepath, NULL, NULL },
-	{ jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          0,            0,       tempincludepath, NULL, NULL },
+    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    // { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+    { jwin_tab_proc,            4,     23,    252,    182,    vc(0),      vc(15),      0,    0,          0,    0, (void *) compiler_options_tabs,     NULL, (void *)zscript_parser_dlg },
+    // 3
+    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    
+    // rules //6
+    { jwin_check_proc,      10, 32+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
+    { jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
+    { jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
+    { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Value of Boolean 'true' is 0.0001", NULL, NULL },
+    //10
+    { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          512,            0,       tempincludepath, NULL, NULL },
+    { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          512,            0,       tempincludepath, NULL, NULL },
    
-	{ jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+    { jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": On Error",                  NULL,   NULL                  },
-	{ jwin_droplist_proc,     10,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+    { jwin_droplist_proc,     10,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
 		(void *) &zcompiler_halt_list,						 NULL,   NULL 				   },
-	{ jwin_text_proc,           86,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+    { jwin_text_proc,           86,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": Header Guard",                  NULL,   NULL                  },
-	{ jwin_droplist_proc,     10,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+    { jwin_droplist_proc,     10,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
 		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
-	{ jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+    { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "Include Paths:",                  NULL,   NULL                  },
-	//17
-	{ jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True MAX_INT sizing", NULL, NULL },
-	
-	{ d_dummy_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+    //17
+    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True MAX_INT sizing", NULL, NULL },
+   
+    { jwin_text_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": Max Include Paths",                  NULL,   NULL                  },
-	{ d_dummy_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
-		NULL,						 NULL,   NULL 				   },
-	
-	//20 run function
-	{ jwin_edit_proc,    16,  102-11,   50,  16,   vc(11),  vc(1),  0,       0,          64,            0,       temprunstring, NULL, NULL },
-	{ jwin_text_proc,           68,     102-8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+    { jwin_droplist_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_number_include_paths_list,						 NULL,   NULL 				   },
+    
+    //20 run function
+    { jwin_edit_proc,    16,  102-11,   50,  16,   vc(11),  vc(1),  0,       0,          64,            0,       temprunstring, NULL, NULL },
+    { jwin_text_proc,           68,     102-8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "void run()' label:",                  NULL,   NULL                  },
-	{ d_dummy_proc,      10, 32+60+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Inline all possible functions", NULL, NULL },
-	{ jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Binary Operations use true 32-bit Int", NULL, NULL },
-	{ jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Switch/case of strings is case-insensitive", NULL, NULL },
-	
-	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+    { d_dummy_proc,      10, 32+60+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Inline all possible functions", NULL, NULL },
+    { jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Binary Operations use true 32-bit Int", NULL, NULL },
+    { jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Switch/case of strings is case-insensitive", NULL, NULL },
+    
+    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 
@@ -25741,71 +25724,72 @@ static int zscripparsertrules[] =
 	qr_PARSER_FORCE_INLINE,
 	qr_PARSER_BINARY_32BIT,
 	qr_PARSER_STRINGSWITCH_INSENSITIVE,
-	-1
+    -1
 };
 
 int onZScriptCompilerSettings()
 {
-	if(is_large)
-		large_dialog(zscript_parser_dlg);
-		
-	zscript_parser_dlg[0].dp2=lfont;
-	
-	zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
-	zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
-	
-	//memset(tempincludepath,0,sizeof(tempincludepath));
-	strcpy(tempincludepath,FFCore.includePathString);
-	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
-	zscript_parser_dlg[10].dp = tempincludepath;
-	
-	//run label
-	strcpy(temprunstring,FFCore.scriptRunString);
-	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
-	zscript_parser_dlg[20].dp = temprunstring;
+    if(is_large)
+        large_dialog(zscript_parser_dlg);
+        
+    zscript_parser_dlg[0].dp2=lfont;
+    
+    zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
+    zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
+    zscript_parser_dlg[19].d1 = get_config_int("Compiler","number_of_include_paths",5);
+    
+    //memset(tempincludepath,0,sizeof(tempincludepath));
+    strcpy(tempincludepath,FFCore.includePathString);
+    //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
+    zscript_parser_dlg[10].dp = tempincludepath;
+    
+    //run label
+    strcpy(temprunstring,FFCore.scriptRunString);
+    //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
+    zscript_parser_dlg[20].dp = temprunstring;
    
-	for(int i=0; zscripparsertrules[i]!=-1; i++)
-	{
-		//This loop ignores trying to set bits in quest_rules, if the option is on the global settings tab.
-		//These settings are stored in zquest.cfg, not in the quest file. -ZoriaRPG (3rd April, 2019 )
-		for ( int q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
-		{
+    for(int i=0; zscripparsertrules[i]!=-1; i++)
+    {
+	    //This loop ignores trying to set bits in quest_rules, if the option is on the global settings tab.
+	    //These settings are stored in zquest.cfg, not in the quest file. -ZoriaRPG (3rd April, 2019 )
+	    for ( int q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
+	    {
 		if ( compiler_tab_list_global[q] == i ) continue;
-			
-		}
-		zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
-	}
-	
+		    
+	    }
+        zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
+    }
+    
  
+    
+    int ret = zc_popup_dialog(zscript_parser_dlg,4);
+    
+    if(ret==4)
+    {
+        saved=false;
+        
+        for(int i=0; zscripparsertrules[i]!=-1; i++)
+        {
+            set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
+        }
+	al_trace("Current include path string: %s\n", tempincludepath);
+	memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
+	strcpy(FFCore.includePathString,tempincludepath);
+	//set_config_string("Compiler","include_path",FFCore.includePathString);
+	set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
+	set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+	set_config_int("Compiler","number_of_include_paths",zscript_parser_dlg[19].d1);
+	memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
+	strcpy(FFCore.scriptRunString,temprunstring);
+	al_trace("Run string set to: %s\n",FFCore.scriptRunString);
+	save_config_file();
+	FFCore.updateIncludePaths();
+        memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
 	
-	int ret = zc_popup_dialog(zscript_parser_dlg,4);
 	
-	if(ret==4)
-	{
-		saved=false;
-		
-		for(int i=0; zscripparsertrules[i]!=-1; i++)
-		{
-			set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
-		}
-		al_trace("Current include path string: ");
-		safe_al_trace(tempincludepath);
-		al_trace("\n");
-		memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
-		strcpy(FFCore.includePathString,tempincludepath);
-		set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
-		set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
-		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
-		strcpy(FFCore.scriptRunString,temprunstring);
-		al_trace("Run string set to: %s\n",FFCore.scriptRunString);
-		save_config_file();
-		FFCore.updateIncludePaths();
-		ZQincludePaths = FFCore.includePaths;
-		
-		
-	}
-	
-	return D_O_K;
+    }
+    
+    return D_O_K;
 }
 
 //editbox_data zscript_edit_data;
@@ -26093,14 +26077,30 @@ int onCompileScript()
 	BOOL memresult = false;
 	#endif
 	
-	/*if(try_recovering_missing_scripts!=0)
+	if(try_recovering_missing_scripts!=0)
 	{
 		compile_dlg[9].flags |= D_SELECTED;
 	}
-	else*/
+	else
 	{
 		compile_dlg[9].flags &= ~D_SELECTED;
 	}
+	//Load from File
+	zScript.clear();
+	FILE *zscript = fopen(infile,"r");
+	if(zscript == NULL)
+	{
+		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+
+	char c = fgetc(zscript);
+
+	while(!feof(zscript))
+	{
+		zScript += c;
+		c = fgetc(zscript);
+	}
+	//fclose(zscript);
 	
 	if(is_large)
 		large_dialog(compile_dlg);
@@ -26116,7 +26116,7 @@ int onCompileScript()
 		case 0:
 		case 1:
 			//Cancel
-			return D_O_K;
+			//return -9; //This checks: Z ees thisvauein the syste() call andths can be used for eror codes &c--Z
 			
 		case 2:
 			//Edit
@@ -26200,12 +26200,19 @@ int onCompileScript()
 			#endif
 			//need elseif for linux here! -Z
 			//Compile!
-			FILE *tempfile = fopen("tmp","w");
+			FILE *tempfile = fopen("tmp","w"); 
+			//FILE *tempfile = NULL;
+			//tempfile = fopen("tmp","w"); 
 			
 			if(!tempfile)
 			{
-				jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-				return D_O_K;
+				//al_trace("Could not read input file: %s\n",infile); 
+				//tempfile = fopen("tmp","w"); 
+				//if(!tempfile)
+				//{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					return D_O_K;
+				//}
 			}
 			
 			fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
@@ -26270,9 +26277,9 @@ int onCompileScript()
 			}
 			else
 			{
-				compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
 				if ( compile_error_sample > 0 )
 				{
+					compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
 					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
 					//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 					if(sfxdat)
@@ -26409,6 +26416,8 @@ int onCompileScript()
 			//assign scripts to slots
 			if(do_slots(scripts))
 			{
+				int suc = writeffscripts(outfile);
+				return suc;
 				//Success
 			}
 			else
@@ -26436,6 +26445,7 @@ int onCompileScript()
 			//scripts.clear(); //Doesn't release it back to Windows. 
 			//std::map<string, disassembled_script_data>().swap(scripts); //Doesn't release it back to Windows. 
 			//malloc_trim(); //This is Unix only, and will release heap memory allocation back to the host OS
+			
 			return D_O_K;
 		}
 	}
@@ -29042,6 +29052,14 @@ int onEditFFCombo(int ffcombo)
     sprintf(wstring[2],"%d",(Map.CurrScr()->ffwidth[ffcombo]>>6)+1);
     sprintf(wstring[3],"%d",(Map.CurrScr()->ffheight[ffcombo]>>6)+1);
     
+    sprintf(dastring[0],"%.4f",Map.CurrScr()->initd[ffcombo][0]/10000.0);
+    sprintf(dastring[1],"%.4f",Map.CurrScr()->initd[ffcombo][1]/10000.0);
+    sprintf(dastring[2],"%.4f",Map.CurrScr()->initd[ffcombo][2]/10000.0);
+    sprintf(dastring[3],"%.4f",Map.CurrScr()->initd[ffcombo][3]/10000.0);
+    sprintf(dastring[4],"%.4f",Map.CurrScr()->initd[ffcombo][4]/10000.0);
+    sprintf(dastring[5],"%.4f",Map.CurrScr()->initd[ffcombo][5]/10000.0);
+    sprintf(dastring[6],"%.4f",Map.CurrScr()->initd[ffcombo][6]/10000.0);
+    sprintf(dastring[7],"%.4f",Map.CurrScr()->initd[ffcombo][7]/10000.0);
     sprintf(dastring[8],"%ld",Map.CurrScr()->inita[ffcombo][0]/10000);
     sprintf(dastring[9],"%ld",Map.CurrScr()->inita[ffcombo][1]/10000);
     
@@ -29068,13 +29086,14 @@ int onEditFFCombo(int ffcombo)
     ffcombo_dlg[29].dp = wstring[2];
     ffcombo_dlg[30].dp = wstring[3];
     
-	for(int q = 0; q < 8; ++q)
-    {
-		ffcombo_dlg[64+q].dp = dastring[q];
-		ffcombo_dlg[64+q].fg = Map.CurrScr()->initd[ffcombo][q];
-		ffcombo_dlg[64+q].dp3 = &(ffcombo_dlg[82+q]);
-	}
-	//InitA
+    ffcombo_dlg[64].dp = dastring[0];
+    ffcombo_dlg[65].dp = dastring[1];
+    ffcombo_dlg[66].dp = dastring[2];
+    ffcombo_dlg[67].dp = dastring[3];
+    ffcombo_dlg[68].dp = dastring[4];
+    ffcombo_dlg[69].dp = dastring[5];
+    ffcombo_dlg[70].dp = dastring[6];
+    ffcombo_dlg[71].dp = dastring[7];
     ffcombo_dlg[74].dp = dastring[8];
     ffcombo_dlg[75].dp = dastring[9];
     
@@ -29136,12 +29155,12 @@ int onEditFFCombo(int ffcombo)
         Map.CurrScr()->ffdata[ffcombo] = ffcombo_dlg[6].d1;
         Map.CurrScr()->ffcset[ffcombo] = ffcombo_dlg[6].fg;
         Map.CurrScr()->fflink[ffcombo] = ffcombo_dlg[15].d1;
-        Map.CurrScr()->ffx[ffcombo] = vbound(ffparse2(xystring[0]),-320000, 2880000);
-        Map.CurrScr()->ffy[ffcombo] = vbound(ffparse2(xystring[1]),-320000, 2080000);
-        Map.CurrScr()->ffxdelta[ffcombo] = vbound(ffparse2(xystring[2]),-1280000, 1280000);
-        Map.CurrScr()->ffydelta[ffcombo] = vbound(ffparse2(xystring[3]),-1280000, 1280000);
-        Map.CurrScr()->ffxdelta2[ffcombo] = vbound(ffparse2(xystring[4]),-1280000, 1280000);
-        Map.CurrScr()->ffydelta2[ffcombo] = vbound(ffparse2(xystring[5]),-1280000, 1280000);
+        Map.CurrScr()->ffx[ffcombo] = vbound(ffparse(xystring[0]),-320000, 2880000);
+        Map.CurrScr()->ffy[ffcombo] = vbound(ffparse(xystring[1]),-320000, 2080000);
+        Map.CurrScr()->ffxdelta[ffcombo] = vbound(ffparse(xystring[2]),-1280000, 1280000);
+        Map.CurrScr()->ffydelta[ffcombo] = vbound(ffparse(xystring[3]),-1280000, 1280000);
+        Map.CurrScr()->ffxdelta2[ffcombo] = vbound(ffparse(xystring[4]),-1280000, 1280000);
+        Map.CurrScr()->ffydelta2[ffcombo] = vbound(ffparse(xystring[5]),-1280000, 1280000);
         Map.CurrScr()->ffdelay[ffcombo] = atoi(xystring[6])<10000?zc_max(0,atoi(xystring[6])):9999;
         Map.CurrScr()->ffscript[ffcombo] = biffs[ffcombo_dlg[55].d1].second + 1;
         
@@ -29152,11 +29171,15 @@ int onEditFFCombo(int ffcombo)
         Map.CurrScr()->ffwidth[ffcombo] = (cw-1)+((tw-1)<<6);
         Map.CurrScr()->ffheight[ffcombo] = (ch-1)+((th-1)<<6);
         
-		for(int q = 0; q < 8; ++q)
-		{
-			Map.CurrScr()->initd[ffcombo][q] = ffcombo_dlg[64+q].fg;
-        }
-		
+        Map.CurrScr()->initd[ffcombo][0] = ffparse2(dastring[0]);
+        Map.CurrScr()->initd[ffcombo][1] = ffparse2(dastring[1]);
+        Map.CurrScr()->initd[ffcombo][2] = ffparse2(dastring[2]);
+        Map.CurrScr()->initd[ffcombo][3] = ffparse2(dastring[3]);
+        Map.CurrScr()->initd[ffcombo][4] = ffparse2(dastring[4]);
+        Map.CurrScr()->initd[ffcombo][5] = ffparse2(dastring[5]);
+        Map.CurrScr()->initd[ffcombo][6] = ffparse2(dastring[6]);
+        Map.CurrScr()->initd[ffcombo][7] = ffparse2(dastring[7]);
+        
         Map.CurrScr()->inita[ffcombo][0] = vbound(atoi(dastring[8])*10000,0,320000);
         Map.CurrScr()->inita[ffcombo][1] = vbound(atoi(dastring[9])*10000,0,320000);
         
@@ -30063,11 +30086,11 @@ int onMiscColors()
         
         for(int i=0; i<16; i++)
         {
-            *si = zc_xtoi(buf[i]);
+            *si = xtoi(buf[i]);
             ++si;
         }
         
-        misc.colors.msgtext = zc_xtoi(buf[16]);
+        misc.colors.msgtext = xtoi(buf[16]);
     }
     
     return D_O_K;
@@ -30344,9 +30367,9 @@ int edit_layers(mapscr* tempscr)
                 tempscr->layermap[x]=0;
             }
             
-            tempscr->layerscreen[x]=zc_xtoi(buf[x][1]);
+            tempscr->layerscreen[x]=xtoi(buf[x][1]);
             
-            if(zc_xtoi(buf[x][1])>=MAPSCRS)
+            if(xtoi(buf[x][1])>=MAPSCRS)
             {
                 tempscr->layerscreen[x]=0;
             }
@@ -31953,6 +31976,199 @@ int main(int argc,char **argv)
     //We need to remove all of the zeldadx refs to the config file for zquest. 
     
     set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
+    int argcount = 0;
+    al_trace("found %d args\n",argc);
+    //input files, iutpout file, options : Reeber to add file valid checks
+    if (used_switch(argc, argv, "-i"))
+    {
+	al_trace("input file arg found\n"); 
+	
+	int infileid=used_switch(argc, argv, "-i");
+
+	if(infileid==argc-1)
+	{
+	    Z_error("-i input file not specifed\n");
+	    exit(0);
+	}
+	else
+	{
+		infile=argv[infileid+1];
+		al_trace("-i input file is %s\n",infile);
+	}
+     }
+     else 
+     {
+	     infile = "TMP";
+	     al_trace("Unspecified input file is %s\n",infile);
+     }
+     if (used_switch(argc, argv, "-o"))
+     {
+	al_trace("output file arg found\n");
+	
+	int outfileid=used_switch(argc, argv, "-o");
+
+	if(outfileid==argc-1)
+	{
+	    Z_error("-o output file not specifed\n");
+	    exit(0);
+	}
+	else 
+	{
+		outfile=argv[outfileid+1];
+		al_trace("-o output file is %s\n",outfile);
+	}
+    }
+    else 
+     {
+	     outfile = "TeZSLa.output";
+	     al_trace("Unspecified input file is %s\n",outfile);
+     }
+    if(used_switch(argc, argv, "-r"))
+    {
+	al_trace("rules file arg found\n");
+	int rulefileid=used_switch(argc, argv, "-r");
+	if(rulefileid==argc-1)
+	{
+	    Z_error("-r rules file not specifed\n");
+	    exit(0);
+	}
+	else 
+	{
+		rulesfile=argv[rulefileid+1];
+		al_trace("-r rules file is %s\n",rulesfile);
+	}
+    }
+    else 
+     {
+	     rulesfile = "TeZSLa.rules";
+	     al_trace("Unspecified input file is %s\n",rulesfile);
+     }
+     read_tezsla_rules(rulesfile);
+    if(used_switch(argc, argv, "-s"))
+    {
+	al_trace("settings file arg found\n");
+	int settingfileid=used_switch(argc, argv, "-s");
+	if(settingfileid==argc-1)
+	{
+	    Z_error("-s settings file not specifed\n");
+	    exit(0);
+	}
+	else 
+	{
+		settingfile=argv[settingfileid+1];
+		al_trace("-s settings file is %s\n",settingfile);
+	}
+    }
+    else 
+     {
+	     settingfile = "TeZSLa.settings";
+	     al_trace("Unspecified input file is %s\n",settingfile);
+     }    
+	//hand settings
+
+    if(used_switch(argc, argv, "-logging"))
+    {
+	int arg=used_switch(argc, argv, "-logging");
+	int val = atoi(argv[arg+1]);
+	al_trace("logging arg %d found\n", val);
+	{
+		compileroptions[ot_NO_LOGGING]=val;
+	}
+    } 
+    if(used_switch(argc, argv, "-division"))
+    {
+	int arg=used_switch(argc, argv, "-division");
+	int val = atoi(argv[arg+1]);
+	al_trace("division arg %d found\n", val);
+	{
+		compileroptions[ot_TRUNCATE_DIVISION_BY_LITERAL_BUG]=val;
+	}
+    }
+    
+    if(used_switch(argc, argv, "-short"))
+    {
+	int arg=used_switch(argc, argv, "-short");
+	int val = atoi(argv[arg+1]);
+	al_trace("short circuit arg %d found\n", val);
+	{
+		compileroptions[ot_SHORT_CIRCUIT]=val;
+	}
+    }
+    
+    if(used_switch(argc, argv, "-truedec"))
+    {
+	int arg=used_switch(argc, argv, "-truedec");
+	int val = atoi(argv[arg+1]);
+	al_trace("true decimal arg %d found\n", val);
+	{
+		compileroptions[ot_BOOL_TRUE_RETURN_DECIMAL]=val;
+	}
+    }
+    
+    if(used_switch(argc, argv, "-hguard"))
+    {
+	int arg=used_switch(argc, argv, "-hguard");
+	int val = atoi(argv[arg+1]);
+	al_trace("header guard arg %d found\n", val);
+	{
+		compileroptions[ot_HEADER_GUARD]=val;
+	}
+    }
+    
+    if(used_switch(argc, argv, "-halt"))
+    {
+	int arg=used_switch(argc, argv, "-halt");
+	int val = atoi(argv[arg+1]);
+	al_trace("error halt arg %d found\n", val);
+	{
+		compileroptions[ot_NO_ERROR_HALT]=val;
+	}
+    }
+    if(used_switch(argc, argv, "-trueint"))
+    {
+	int arg=used_switch(argc, argv, "-trueint");
+	int val = atoi(argv[arg+1]);
+	al_trace("true int arg %d found\n", val);
+	{
+		compileroptions[ot_TRUE_INT_SIZE]=val;
+	}
+    }
+    if(used_switch(argc, argv, "-inline"))
+    {
+	int arg=used_switch(argc, argv, "-inline");
+	int val = atoi(argv[arg+1]);
+	al_trace("inline arg %d found\n", val);
+	{
+		compileroptions[ot_FORCE_INLINE]=val;
+	}
+    }
+    if(used_switch(argc, argv, "-32b"))
+    {
+	int arg=used_switch(argc, argv, "-32b");
+	int val = atoi(argv[arg+1]);
+	al_trace("32b binary arg %d found\n", val);
+	{
+		compileroptions[ot_BINARY_32BIT]=val;
+	}
+    }
+    if(used_switch(argc, argv, "-margin"))
+    {
+	int arg=used_switch(argc, argv, "-margin");
+	float val =uatof(argv[arg+1]);
+	al_trace("Appx/Eq margin arg %f found\n", val);
+	{
+		compileroptions[ot_APPROX_EQUAL_MARGIN]=val;
+	}
+    }
+    if(used_switch(argc, argv, "-caseins"))
+    {
+	int arg=used_switch(argc, argv, "-caseins");
+	float val = uatof(argv[arg+1]);
+	al_trace("String Case Sens arg %f found\n", val);
+	{
+		compileroptions[ot_STRING_SWITCH_CASE_INSENSITIVE]=val;
+	}
+    }
     
     if(used_switch(argc,argv,"-small") || UseSmall==1)
     {
@@ -33156,14 +33372,7 @@ int main(int argc,char **argv)
     
     zScript = std::string();
     strcpy(zScriptBytes, "0 Bytes in Buffer");
-    for(int i=0; i<MOUSE_BMP_MAX; i++)
-	{
-		for(int j=0; j<4; j++)
-		{
-			mouse_bmp[i][j] = NULL;
-			mouse_bmp_1x[i][j] = NULL;
-		}
-	}
+    
     load_mice();
     gui_mouse_focus=0;
     set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
@@ -33339,8 +33548,7 @@ int main(int argc,char **argv)
     time(&auto_save_time_start);
     
     FFCore.init();
-	ZQincludePaths = FFCore.includePaths;
-	
+	memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
 	
 	
@@ -33351,7 +33559,7 @@ int main(int argc,char **argv)
 	}
 	else dialogs[0].dp = (void *) the_menu_large;
         */
-	
+	return onCompileScript();
     while(!quit)
     {
     
@@ -34554,14 +34762,7 @@ int save_config_file()
     chop_path(tmusicpath2);
     
 	set_config_string("ZCMODULE","current_module",moduledata.module_name);
-	//
-	FILE* f = fopen("includepaths.txt", "w");
-	if(f)
-	{
-		fwrite(FFCore.includePathString,1,strlen(FFCore.includePathString),f);
-		fclose(f);
-	}
-	//
+	set_config_string("Compiler","include_path",FFCore.includePathString);
 	set_config_string("Compiler","run_string",FFCore.scriptRunString);
 	//set_config_int("Compiler","Compile_Success_Tune",compile_tune); //Can't save here until we assign this in a dialogue. Otherwise, quitting will write it 0.
 	
@@ -35353,21 +35554,18 @@ void FFScript::init()
 
 void FFScript::updateIncludePaths()
 {
-	includePaths.clear();
-	int pos = 0; int pathnumber = 0;
-	for ( int q = 0; includePathString[pos]; ++q )
+	memset(includePaths,0,sizeof(includePaths));
+	int pos = 0; int dest = 0; int pathnumber = 0;
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
 	{
-		int dest = 0;
-		char buf[2048] = {0};
-		while(includePathString[pos] != ';' && includePathString[pos])
+		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
 		{
-			buf[dest] = includePathString[pos];
-			++pos;
-			++dest;
+			includePaths[q][dest] = includePathString[pos];
+			pos++;
+			dest++;
 		}
 		++pos;
-		std::string str(buf);
-		includePaths.push_back(str);
+		dest = 0;
 	}
 }
 
@@ -35375,41 +35573,31 @@ void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
 	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
-	al_trace("Run is set to: %s \n",scriptRunString);
+	al_trace("Run is set to: %s \n",includePathString);
 }
 
 void FFScript::initIncludePaths()
 {
+	memset(includePaths,0,sizeof(includePaths));
 	memset(includePathString,0,sizeof(includePathString));
-	FILE* f = fopen("includepaths.txt", "r");
-	if(f)
+	strcpy(includePathString,get_config_string("Compiler","include_path","include/"));
+	includePathString[((MAX_INCLUDE_PATHS+1)*512)-1] = '\0';
+	al_trace("Full path string is: %s\n",includePathString);
+	int pos = 0; int dest = 0; int pathnumber = 0;
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
 	{
-		int pos = 0;
-		int c;
-		do
+		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
 		{
-			c = fgetc(f);
-			if(c!=EOF) 
-				includePathString[pos++] = c;
+			includePaths[q][dest] = includePathString[pos];
+			pos++;
+			dest++;
 		}
-		while(c!=EOF && pos<MAX_INCLUDE_PATH_CHARS);
-		if(pos<MAX_INCLUDE_PATH_CHARS)
-			includePathString[pos] = '\0';
-		includePathString[MAX_INCLUDE_PATH_CHARS-1] = '\0';
-		fclose(f);
+		++pos;
+		dest = 0;
 	}
-	else strcpy(includePathString, "include/;headers/;scripts/;");
-	al_trace("Full path string is: ");
-	safe_al_trace(includePathString);
-	al_trace("\n");
-	updateIncludePaths();
 
-	for ( int q = 0; q < includePaths.size(); ++q )
-	{
-		al_trace("Include path %d: ",q);
-		safe_al_trace(includePaths.at(q).c_str());
-		al_trace("\n");
-	}
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+		al_trace("Include path %d: %s\n",q,includePaths[q]);
 }
 
 void FFScript::setFFRules()
@@ -35858,8 +36046,7 @@ const char *itemclass_help_string_cats[itype_max*3]=
 			"This item class is used to create", "LW_SCRIPT_10 type lweapons with", "properties defined by the Item Editor.",
 			//265 == icerod
 			"This item class is", "reserved for the Ice Rod", "in a future version of ZC",
-			//266 == atkring
-			"The Sword, Wand and Hammer deal more damage.","The multiplier applies before the bonus damage.","",
+			"This item class is", "reserved for future", "versions of ZC",
 			"This item class is", "reserved for future", "versions of ZC",
 			"This item class is", "reserved for future", "versions of ZC",
 			"This item class is", "reserved for future", "versions of ZC",
@@ -36438,7 +36625,7 @@ const char defaultCustomComboAttributes[20][4][17]=
 bool ZModule::init(bool d) //bool default
 {
 	
-	
+
 	memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
 	memset(moduledata.quests, 0, sizeof(moduledata.quests));
 	memset(moduledata.skipnames, 0, sizeof(moduledata.skipnames));
@@ -36701,31 +36888,7 @@ bool ZModule::init(bool d) //bool default
 			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
 			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
 			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
-			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)",
-			"zz089", "zz090", "zz091", "zz092", "zz093", "zz094", "zz095", "zz096",
-			"zz097", "zz098", "zz099", "zz100", "zz101", "zz102", "zz103", "zz104",
-			"zz105", "zz106", "zz107", "zz108", "zz109", "zz110", "zz111", "zz112",
-			"zz113", "zz114", "zz115", "zz116", "zz117", "zz118", "zz119", "zz120",
-			"zz121", "zz122", "zz123", "zz124", "zz125", "zz126", "zz127", "zz128",
-			"zz129", "zz130", "zz131", "zz132", "zz133", "zz134", "zz135", "zz136",
-			"zz137", "zz138", "zz139", "zz140", "zz141", "zz142", "zz143", "zz144",
-			"zz145", "zz146", "zz147", "zz148", "zz149", "zz150", "zz151", "zz152",
-			"zz153", "zz154", "zz155", "zz156", "zz157", "zz158", "zz159", "zz160",
-			"zz161", "zz162", "zz163", "zz164", "zz165", "zz166", "zz167", "zz168",
-			"zz169", "zz170", "zz171", "zz172", "zz173", "zz174", "zz175", "zz176",
-			"zz177", "zz178", "zz179", "zz180", "zz181", "zz182", "zz183", "zz184",
-			"zz185", "zz186", "zz187", "zz188", "zz189", "zz190", "zz191", "zz192",
-			"zz193", "zz194", "zz195", "zz196", "zz197", "zz198", "zz199", "zz200",
-			"zz201", "zz202", "zz203", "zz204", "zz205", "zz206", "zz207", "zz208",
-			"zz209", "zz210", "zz211", "zz212", "zz213", "zz214", "zz215", "zz216",
-			"zz217", "zz218", "zz219", "zz220", "zz221", "zz222", "zz223", "zz224",
-			"zz225", "zz226", "zz227", "zz228", "zz229", "zz230", "zz231", "zz232",
-			"zz233", "zz234", "zz235", "zz236", "zz237", "zz238", "zz239", "zz240",
-			"zz241", "zz242", "zz243", "zz244", "zz245", "zz246", "zz247", "zz248",
-			"zz249", "zz250", "zz251", "zz252", "zz253", "zz254", "zz255",
-			"Script 01", "Script 02", "Script 03", "Script 04", "Script 05",
-			"Script 06", "Script 07", "Script 08", "Script 09", "Script 10",
-			"Ice Rod", "Attack Ring", "Lanterns"
+			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)", "zz089"
 		};
 						     
 		const char itype_fields[itype_max][255] =
@@ -36767,11 +36930,8 @@ bool ZModule::init(bool d) //bool default
 			"ic_202","ic_203","ic_204","ic_205","ic_206","ic_207","ic_208","ic_209","ic_210","ic_211","ic_212","ic_213","ic_214","ic_215","ic_216","ic_217",
 			"ic_218","ic_219","ic_220","ic_221","ic_222","ic_223","ic_224","ic_225","ic_226","ic_227","ic_228","ic_229","ic_230","ic_231","ic_232","ic_233",
 			"ic_234","ic_235","ic_236","ic_237","ic_238","ic_239","ic_240","ic_241","ic_242","ic_243","ic_244","ic_245","ic_246","ic_247","ic_248","ic_249",
-			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255",
-			"ic_script01","ic_script02","ic_script03","ic_script04","ic_script05",
-			"ic_script06","ic_script07","ic_script08","ic_script09","ic_script10",
-			"ic_icerod","ic_atkring",
-			"ic_267","ic_269""ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
+			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255","ic_256","ic_257","ic_258","ic_259","ic_260","ic_261","ic_262","ic_263","ic_264","ic_265",
+			"ic_266","ic_267","ic_267","ic_269""ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
 			"ic_286","ic_287","ic_288","ic_289","ic_290","ic_291","ic_292","ic_293","ic_294","ic_295","ic_296","ic_297","ic_298","ic_299","ic_300","ic_301","ic_302","ic_303","ic_304",
 			"ic_305","ic_306","ic_307","ic_308","ic_309","ic_311","ic_312","ic_313","ic_314","ic_315","ic_316","ic_317","ic_318","ic_319","ic_320","ic_321",
 			"ic_322","ic_323","ic_324","ic_325","ic_326","ic_327","ic_328","ic_329","ic_330","ic_331","ic_332","ic_333","ic_334","ic_335","ic_336","ic_337",
@@ -36825,7 +36985,7 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
 		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE", "cSIGNPOST",
-		    "cCSWITCH", "cCSWITCHBLOCK", "cLANTERN"
+		    "cCSWITCH", "cCSWITCHBLOCK"
 		};
 		
 		const char default_ctype_strings[cMAX][255] = 
@@ -36847,7 +37007,7 @@ bool ZModule::init(bool d) //bool default
 			"", "", "", "", "", "", "", "", "", "",
 			"", "", "", "", "", "", "", "", "", "",
 			"", "", "Generic", "Pitfall", "Step->Effects", "Bridge", "Signpost",
-			"Switch", "Switch Block", "Lantern"
+			"Switch", "Switch Block"
 		};
 		
 		for ( int q = 0; q < cMAX; q++ )
