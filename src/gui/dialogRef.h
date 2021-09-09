@@ -15,20 +15,20 @@ class DialogRunner;
 class DialogRef
 {
 public:
-    DialogRef();
-    DIALOG* operator->();
-    const DIALOG* operator->() const;
-    DIALOG& operator[](int offset);
-    const DIALOG& operator[](int offset) const;
-    operator bool() const;
+	DialogRef();
+	DIALOG* operator->();
+	const DIALOG* operator->() const;
+	DIALOG& operator[](int offset);
+	const DIALOG& operator[](int offset) const;
+	operator bool() const;
 
 private:
-    DialogRunner* owner;
-    size_t index;
+	DialogRunner* owner;
+	size_t index;
 
-    DialogRef(DialogRunner* owner, size_t index);
+	DialogRef(DialogRunner* owner, size_t index);
 
-    friend class DialogRunner;
+	friend class DialogRunner;
 };
 
 }

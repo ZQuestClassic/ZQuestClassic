@@ -10,20 +10,20 @@
 class CheatCodesDialog: public gui::Dialog<CheatCodesDialog>
 {
 public:
-    enum class Message { ok, cancel };
+	enum class Message { ok, cancel };
 
-    CheatCodesDialog(bool enabled, std::string_view oldCodes[4],
-        std::function<void(bool, std::string_view[4])> setCheatCodes);
+	CheatCodesDialog(bool enabled, std::string_view oldCodes[4],
+		std::function<void(bool, std::string_view[4])> setCheatCodes);
 
-    std::shared_ptr<gui::Widget> view() override;
-    bool handleMessage(Message msg);
+	std::shared_ptr<gui::Widget> view() override;
+	bool handleMessage(Message msg);
 
 private:
-    bool enabled;
-    std::shared_ptr<gui::Checkbox> enabledCB;
-    std::string_view oldCodes[4];
-    std::shared_ptr<gui::TextField> textFields[4];
-    std::function<void(bool, std::string_view[4])> setCheatCodes;
+	bool enabled;
+	std::shared_ptr<gui::Checkbox> enabledCB;
+	std::string_view oldCodes[4];
+	std::shared_ptr<gui::TextField> textFields[4];
+	std::function<void(bool, std::string_view[4])> setCheatCodes;
 };
 
 #endif

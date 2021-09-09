@@ -15,61 +15,61 @@ namespace gui
 class DialogRunner
 {
 public:
-    DialogRunner();
+	DialogRunner();
 
-    template<typename T>
-    void runWithArg(T& dlg)
-    {
-        sendMessage=[&dlg, this](int message, MessageArg arg)
-        {
-            this->done=this->done ||
-                dlg.handleMessage(static_cast<typename T::Message>(message), arg);
-        };
+	template<typename T>
+	void runWithArg(T& dlg)
+	{
+		sendMessage=[&dlg, this](int message, MessageArg arg)
+		{
+			this->done=this->done ||
+				dlg.handleMessage(static_cast<typename T::Message>(message), arg);
+		};
 
-        runInner(dlg.view());
-    }
+		runInner(dlg.view());
+	}
 
-    template<typename T>
-    void runWithoutArg(T& dlg)
-    {
-        sendMessage=[&dlg, this](int message, MessageArg)
-        {
-            this->done=this->done ||
-                dlg.handleMessage(static_cast<typename T::Message>(message));
-        };
+	template<typename T>
+	void runWithoutArg(T& dlg)
+	{
+		sendMessage=[&dlg, this](int message, MessageArg)
+		{
+			this->done=this->done ||
+				dlg.handleMessage(static_cast<typename T::Message>(message));
+		};
 
-        runInner(dlg.view());
-    }
+		runInner(dlg.view());
+	}
 
-    /* Add a DIALOG and connect it to its owner.
-     * This should always be called as
-     * runner.push(shared_from_this(), DIALOG { ... });
-     * Returns a DialogRef that can be used as a reference to the
-     * newly added DIALOG.
-     */
-    DialogRef push(std::shared_ptr<Widget> owner, DIALOG dlg);
+	/* Add a DIALOG and connect it to its owner.
+	 * This should always be called as
+	 * runner.push(shared_from_this(), DIALOG { ... });
+	 * Returns a DialogRef that can be used as a reference to the
+	 * newly added DIALOG.
+	 */
+	DialogRef push(std::shared_ptr<Widget> owner, DIALOG dlg);
 
-    /* Returns a DialogRef that can be used as a reference to the
-     * most recently added DIALOG.
-     */
-    DialogRef getAllegroDialog();
+	/* Returns a DialogRef that can be used as a reference to the
+	 * most recently added DIALOG.
+	 */
+	DialogRef getAllegroDialog();
 
-    /* Returns the current size of the DIALOG array. */
-    size_t size() const;
+	/* Returns the current size of the DIALOG array. */
+	size_t size() const;
 
 private:
-    MessageDispatcher sendMessage;
-    std::vector<DIALOG> alDialog;
-    std::vector<std::shared_ptr<Widget>> widgets;
-    bool redrawPending, done;
+	MessageDispatcher sendMessage;
+	std::vector<DIALOG> alDialog;
+	std::vector<std::shared_ptr<Widget>> widgets;
+	bool redrawPending, done;
 
-    /* Sets up the DIALOG array for a dialog so that it can be run. */
-    void realize(std::shared_ptr<Widget> root);
+	/* Sets up the DIALOG array for a dialog so that it can be run. */
+	void realize(std::shared_ptr<Widget> root);
 
-    void runInner(std::shared_ptr<Widget> root);
+	void runInner(std::shared_ptr<Widget> root);
 
-    friend class DialogRef;
-    friend int dialog_proc(int msg, DIALOG *d, int c);
+	friend class DialogRef;
+	friend int dialog_proc(int msg, DIALOG *d, int c);
 };
 
 // Pick either the argument or non-argument version of handleMessage()
@@ -77,24 +77,24 @@ private:
 
 template<typename T>
 std::enable_if_t<
-    std::is_invocable_v<
-        decltype(&T::handleMessage), T&, typename T::Message, gui::MessageArg
-    >, void>
+	std::is_invocable_v<
+		decltype(&T::handleMessage), T&, typename T::Message, gui::MessageArg
+	>, void>
 showDialog(T& dlg)
 {
-    auto dr=DialogRunner();
-    dr.runWithArg(dlg);
+	auto dr=DialogRunner();
+	dr.runWithArg(dlg);
 }
 
 template<typename T>
 std::enable_if_t<
-    std::is_invocable_v<
-        decltype(&T::handleMessage), T&, typename T::Message
-    >, void>
+	std::is_invocable_v<
+		decltype(&T::handleMessage), T&, typename T::Message
+	>, void>
 showDialog(T& dlg)
 {
-    auto dr=DialogRunner();
-    dr.runWithoutArg(dlg);
+	auto dr=DialogRunner();
+	dr.runWithoutArg(dlg);
 }
 
 // This one just exists to produce a more helpful error message if neither
@@ -102,18 +102,18 @@ showDialog(T& dlg)
 // additional errors from ambiguity with the two above.
 template<typename T, bool b=false>
 std::enable_if_t<
-    !std::is_invocable_v<
-        decltype(&T::handleMessage), T&, typename T::Message, gui::MessageArg>
-    && !std::is_invocable_v<
-        decltype(&T::handleMessage), T&, typename T::Message
-    >, void>
+	!std::is_invocable_v<
+		decltype(&T::handleMessage), T&, typename T::Message, gui::MessageArg>
+	&& !std::is_invocable_v<
+		decltype(&T::handleMessage), T&, typename T::Message
+	>, void>
 showDialog(T& dlg)
 {
-    ZCGUI_STATIC_ASSERT(b,
-        "No valid handleMessage() implementation found.\n"
-        "You must implement one of the following:\n"
-        "handleMessage([DialogClass]::Message, gui::EventArg)\n"
-        "handleMessage([DialogClass]::Message)");
+	ZCGUI_STATIC_ASSERT(b,
+		"No valid handleMessage() implementation found.\n"
+		"You must implement one of the following:\n"
+		"handleMessage([DialogClass]::Message, gui::EventArg)\n"
+		"handleMessage([DialogClass]::Message)");
 }
 
 

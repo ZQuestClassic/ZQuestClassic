@@ -2283,19 +2283,19 @@ void onKeySlash()
 
 void onAKey()
 {
-    if(prv_mode)
-        Map.set_prvadvance(1);
+	if(prv_mode)
+		Map.set_prvadvance(1);
 }
 
 void onRKey()
 {
-    if(prv_mode)
-    {
-        Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
-        Map.set_prvcmb(0);
-    }
-    else
-        onRoom();
+	if(prv_mode)
+	{
+		Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
+		Map.set_prvcmb(0);
+	}
+	else
+		onRoom();
 }
 
 void onSKey()
@@ -14480,20 +14480,20 @@ int onItem()
 
 int onRoom()
 {
-    restore_mouse();
-    auto* scr=Map.CurrScr();
-    RoomDialog(scr->room, scr->catchall, scr->guy, scr->str,
-        [scr](int r, int a, int g, int m)
-        {
-            scr->room=r;
-            scr->guy=g;
-            scr->str=m;
-            scr->catchall=a;
-            saved=false;
-        }
-    ).show();
-    refresh(rMAP+rMENU);
-    return D_O_K;
+	restore_mouse();
+	auto* scr=Map.CurrScr();
+	RoomDialog(scr->room, scr->catchall, scr->guy, scr->str,
+		[scr](int r, int a, int g, int m)
+		{
+			scr->room=r;
+			scr->guy=g;
+			scr->str=m;
+			scr->catchall=a;
+			saved=false;
+		}
+	).show();
+	refresh(rMAP+rMENU);
+	return D_O_K;
 }
 
 int onEndString()
@@ -21781,8 +21781,8 @@ int onHeader()
             questrev_help();
         else if(ret==21)
             questminrev_help();
-	else if(ret==16)
-            SetPasswordDialog(header.use_keyfile, set_questpwd).show();
+		else if(ret==16)
+			SetPasswordDialog(header.use_keyfile, set_questpwd).show();
     }
     while(ret == 20 || ret == 21 || ret == 16);
 
@@ -21850,21 +21850,21 @@ int onHeader()
 
 int onCheats()
 {
-    std::string_view currentCodes[4]={
-        zcheats.codes[0], zcheats.codes[1], zcheats.codes[2], zcheats.codes[3]
-    };
+	std::string_view currentCodes[4]={
+		zcheats.codes[0], zcheats.codes[1], zcheats.codes[2], zcheats.codes[3]
+	};
 
-    CheatCodesDialog(zcheats.flags, currentCodes,
-        [&](bool enabled, std::string_view newCodes[4]) {
-            saved=false;
-            zcheats.flags=enabled ? 1 : 0;
-            newCodes[0].copy(zcheats.codes[0], 41);
-            newCodes[1].copy(zcheats.codes[1], 41);
-            newCodes[2].copy(zcheats.codes[2], 41);
-            newCodes[3].copy(zcheats.codes[3], 41);
-        }
-    ).show();
-    return D_O_K;
+	CheatCodesDialog(zcheats.flags, currentCodes,
+		[&](bool enabled, std::string_view newCodes[4]) {
+			saved=false;
+			zcheats.flags=enabled ? 1 : 0;
+			newCodes[0].copy(zcheats.codes[0], 41);
+			newCodes[1].copy(zcheats.codes[1], 41);
+			newCodes[2].copy(zcheats.codes[2], 41);
+			newCodes[3].copy(zcheats.codes[3], 41);
+		}
+	).show();
+	return D_O_K;
 }
 
 const char *subscrtype_str[ssdtMAX+1] = { "Original","New Subscreen","Revision 2","BS Zelda Original","BS Zelda Modified","BS Zelda Enhanced","BS Zelda Complete","Zelda 3","Custom" };

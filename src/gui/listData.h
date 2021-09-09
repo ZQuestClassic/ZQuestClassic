@@ -12,8 +12,8 @@ namespace gui
 
 struct BasicData
 {
-    const char* text;
-    int value;
+	const char* text;
+	int value;
 };
 
 // Just returns the text as a string.
@@ -37,21 +37,21 @@ std::string indexPlusOneItemText(size_t index, const BasicData& data);
 class ListData
 {
 public:
-    ListData(ListData&& other)=default;
+	ListData(ListData&& other)=default;
 
-    ListData(size_t numItems, std::function<std::string(size_t)> getString,
-        std::function<int(size_t)> getValue);
+	ListData(size_t numItems, std::function<std::string(size_t)> getString,
+		std::function<int(size_t)> getValue);
 
-    ListData(std::function<std::string(size_t, const BasicData&)> format,
-        const std::initializer_list<BasicData>& listSource);
+	ListData(std::function<std::string(size_t, const BasicData&)> format,
+		const std::initializer_list<BasicData>& listSource);
 
-    size_t size() const;
-    const std::string& listEntry(size_t index) const;
-    const int value(size_t index) const;
+	size_t size() const;
+	const std::string& listEntry(size_t index) const;
+	const int value(size_t index) const;
 
 private:
-    std::vector<std::string> listEntries;
-    std::vector<int> values;
+	std::vector<std::string> listEntries;
+	std::vector<int> values;
 };
 
 }

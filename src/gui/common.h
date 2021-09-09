@@ -17,72 +17,72 @@ int getAccelKey(const std::string_view text);
 template<typename T>
 inline T sized(T a, T b)
 {
-    return is_large ? b : a;
+	return is_large ? b : a;
 }
 
 /* A simple wrapper to force sizes into units. */
 class Size
 {
 public:
-    static Size em(size_t size);
-    static Size em(double size);
-    static Size pixels(int size);
-    static Size largePixels(int size);
+	static Size em(size_t size);
+	static Size em(double size);
+	static Size pixels(int size);
+	static Size largePixels(int size);
 
-    inline operator int() const
-    {
-        return value;
-    }
+	inline operator int() const
+	{
+		return value;
+	}
 
-    inline Size operator+(const Size& other) const
-    {
-        return Size(value+other.value);
-    }
+	inline Size operator+(const Size& other) const
+	{
+		return Size(value+other.value);
+	}
 
-    inline bool operator<(const Size& other) const
-    {
-        return value<other.value;
-    }
+	inline bool operator<(const Size& other) const
+	{
+		return value<other.value;
+	}
 
-    inline bool operator>(const Size& other) const
-    {
-        return value>other.value;
-    }
+	inline bool operator>(const Size& other) const
+	{
+		return value>other.value;
+	}
 
-    inline bool operator==(const Size& other) const
-    {
-        return value==other.value;
-    }
+	inline bool operator==(const Size& other) const
+	{
+		return value==other.value;
+	}
 
-    inline bool operator!=(const Size& other) const
-    {
-        return value!=other.value;
-    }
+	inline bool operator!=(const Size& other) const
+	{
+		return value!=other.value;
+	}
 
 private:
-    int value;
+	int value;
 
-    Size(int raw);
+	Size(int raw);
 };
 
 inline Size operator ""_em(unsigned long long size)
 {
-    return Size::em((size_t)size);
+	return Size::em((size_t)size);
 }
 
 inline Size operator ""_em(long double size)
 {
-    return Size::em((double)size);
+	return Size::em((double)size);
 }
 
 inline Size operator ""_px(unsigned long long size)
 {
-    return Size::pixels(size);
+	return Size::pixels(size);
 }
 
 inline Size operator ""_lpx(unsigned long long size)
 {
-    return Size::largePixels(size);
+	return Size::largePixels(size);
 }
 
 }

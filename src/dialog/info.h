@@ -12,17 +12,17 @@
 class InfoDialog: public gui::Dialog<InfoDialog>
 {
 public:
-    using Message=int;
+	using Message=int;
 
-    InfoDialog(std::string title, std::string text);
-    InfoDialog(std::string title, std::vector<std::string_view> lines);
+	InfoDialog(std::string title, std::string text);
+	InfoDialog(std::string title, std::vector<std::string_view> lines);
 
-    std::shared_ptr<gui::Widget> view() override;
-    bool handleMessage(Message);
+	std::shared_ptr<gui::Widget> view() override;
+	bool handleMessage(Message);
 
 private:
-    std::string dlgTitle;
-    std::string dlgText;
+	std::string dlgTitle;
+	std::string dlgText;
 };
 
 #endif
