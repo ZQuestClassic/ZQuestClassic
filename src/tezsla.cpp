@@ -42,7 +42,7 @@ void setZScriptVersion(int) { } //bleh...
 #include <loadpng.h>
 #include <jpgalleg.h>
 
-#include "gui.h"
+#include "tesgui.h"
 #include "load_gif.h"
 #include "save_gif.h"
 #include "editbox.h"
@@ -65,7 +65,7 @@ void setZScriptVersion(int) { } //bleh...
 #include "sprite.h"
 #include "items.h"
 #include "fontsdat.h"
-#include "jwinfsel.h"
+#include "tesjwinfsel.h"
 #include "zq_class.h"
 #include "subscr.h"
 #include "zq_subscr.h"
@@ -1204,7 +1204,7 @@ comboclass *combo_class_buf;
 guydata  *guysbuf;
 item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 newcombo curr_combo;
-PALETTE RAMpal;
+//PALETTE RAMpal;
 midi_info Midi_Info;
 bool zq_showpal=false;
 bool combo_cols=true;
