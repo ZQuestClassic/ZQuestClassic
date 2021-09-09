@@ -2309,7 +2309,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 	game2->set_hero_dmgmult(zinit2->hero_damage_multiplier);
 	game2->set_ene_dmgmult(zinit2->ene_damage_multiplier);
 	game2->set_dither_type(zinit2->dither_type);
-	game2->set_dither_type(zinit2->dither_arg);
+	game2->set_dither_arg(zinit2->dither_arg);
 	game2->set_dither_perc(zinit2->dither_percent);
 	game2->set_light_rad(zinit2->def_lightrad);
     
