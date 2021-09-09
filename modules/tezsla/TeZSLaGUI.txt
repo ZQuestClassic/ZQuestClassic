@@ -17,7 +17,7 @@ src/zq_subscr.cpp
 src/zq_strings.cpp
 src/zq_tiles.cpp
 src/zqscale.cpp
-src/zsys.cpp
+src/teszsys.cpp
 src/zq_rules.cpp
 src/jwin.cpp
 

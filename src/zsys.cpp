@@ -19,7 +19,6 @@
 #include <sstream>
 #include "util.h"
 
-using namespace util;
 using std::string;
 using std::istringstream;
 using std::getline;
@@ -94,6 +93,26 @@ char *time_str_short2(dword time)
     return s;
 }
 
+int vbound(int val, int low, int high)
+	{
+		ASSERT(low <= high);
+		if(val <= low)
+			return low;
+		if(val >= high)
+			return high;
+		return val;
+	}
+	
+double vbound(double val, double low, double high)
+{
+	ASSERT(low <= high);
+	if(val <= low)
+		return low;
+	if(val >= high)
+		return high;
+	return val;
+}
+	
 void extract_name(char *path,char *name,int type)
 {
     int l=(int)strlen(path);
@@ -2393,7 +2412,7 @@ char * getCurPackfilePassword()
 // A lot of crashes in ZQuest can be traced to rect(). Hopefully, this will help.
 void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
 {
-    rect(bmp, vbound(x1, 0, bmp->w-1), vbound(y1, 0, bmp->h-1), vbound(x2, 0, bmp->w-1), vbound(y2, 0, bmp->h-1), color);
+    rect(bmp, util::vbound(x1, 0, bmp->w-1), util::vbound(y1, 0, bmp->h-1), util::vbound(x2, 0, bmp->w-1), util::vbound(y2, 0, bmp->h-1), color);
 }
 
 //computes the positive gcd of two integers (using Euclid's algorithm)
