@@ -873,6 +873,15 @@ void gamedata::set_dither_perc(byte val)
 	set_generic(zc_min(100, val), genDITH_PERC);
 }
 
+byte gamedata::get_transdark_perc()
+{
+	return zc_min(100, get_generic(genTDARK_PERC));
+}
+void gamedata::set_transdark_perc(byte val)
+{
+	set_generic(zc_min(100, val), genTDARK_PERC);
+}
+
 byte gamedata::get_light_rad()
 {
 	return get_generic(genLIGHT_RAD);

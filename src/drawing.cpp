@@ -4,24 +4,6 @@
 #include "util.h"
 using namespace util;
 
-enum dithType
-{
-	//Every odd index is the inverted of the index before it, always.
-	//Yeah this could be seen as a bit janky, but it makes the switch-case
-	//simpler, and ensures no inverted version is forgotten. -Em
-	dithChecker, dithCheckerInv,
-	dithCrissCross, dithCrissCrossInv,
-	dithDiagULDR, dithDiagULDRInv,
-	dithDiagURDL, dithDiagURDLInv,
-	dithRow, dithRowInv,
-	dithCol, dithColInv,
-	dithDots, dithDotsInv,
-	dithGrid, dithGridInv,
-	dithStatic, dithStaticInv,
-	dithStatic2, dithStatic2Inv,
-	dithStatic3, dithStatic3Inv,
-	dithMax
-};
 static inline bool dithercheck(byte type, byte arg, int x, int y, int wid=256, int hei=168)
 {
 	bool ret = false,
@@ -92,7 +74,7 @@ static inline bool dithercheck(byte type, byte arg, int x, int y, int wid=256, i
 	return ret^inv;
 }
 
-static void ditherblit(BITMAP* dest, BITMAP* src, int color, byte dType, byte dArg)
+void ditherblit(BITMAP* dest, BITMAP* src, int color, byte dType, byte dArg, int xoffs, int yoffs)
 {
 	int wid = zc_min(dest->w, src->w);
 	int hei = zc_min(dest->h, src->h);
@@ -100,7 +82,7 @@ static void ditherblit(BITMAP* dest, BITMAP* src, int color, byte dType, byte dA
 	{
 		for(int ty = 0; ty < hei; ++ty)
 		{
-			if(getpixel(src, tx, ty) && dithercheck(dType,dArg,tx,ty,wid,hei))
+			if(getpixel(src, tx, ty) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
 			{
 				putpixel(dest, tx, ty, color);
 			}
@@ -108,12 +90,12 @@ static void ditherblit(BITMAP* dest, BITMAP* src, int color, byte dType, byte dA
 	}
 }
 
-void dithercircfill(BITMAP* dest, int x, int y, int rad, int color, int ditherType, int ditherArg)
+void dithercircfill(BITMAP* dest, int x, int y, int rad, int color, byte ditherType, byte ditherArg, int xoffs, int yoffs)
 {
 	BITMAP* tmp = create_bitmap_ex(8, dest->w, dest->h);
-	clear_to_color(tmp, 0);
+	clear_bitmap(tmp);
 	circlefill(tmp, x, y, rad, 1);
-	ditherblit(dest, tmp, color, (byte)ditherType, (byte)ditherArg);
+	ditherblit(dest, tmp, color, ditherType, ditherArg, xoffs, yoffs);
 	destroy_bitmap(tmp);
 }
 

@@ -1601,6 +1601,7 @@ void FFScript::initZScriptItemScripts()
 //           New Mapscreen Flags Tools           //
 ///----------------------------------------------//
 
+/*
 void FFScript::set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 {
 	switch(flagid)
@@ -1746,18 +1747,16 @@ void FFScript::set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 		case MSF_MIDAIR: 
 		{ //FIX ME!
 			//! What the ever love of fuck mate?!
-			/*
-			byte *f2 = &(m->flags2);
-			f2 >>=4;
-			int f = 0;
-			f<<=1;
-			f |= state ? 1:0;
-			m->flags2 &= 0x0F;
-			m->flags2 |= f<<4;
+			// byte *f2 = &(m->flags2);
+			// f2 >>=4;
+			// int f = 0;
+			// f<<=1;
+			// f |= state ? 1:0;
+			// m->flags2 &= 0x0F;
+			// m->flags2 |= f<<4;
 			//if ( state )
 			//	(m->flags2>>4) |= 2;
 			//else (m->flags2>>4) &= ~2;
-			*/
 			break;
 		}
 		case MSF_CYCLEINIT: 
@@ -2169,7 +2168,7 @@ long FFScript::get_mapscreenflag_state(mapscr *m, int flagid)
 		}
 	}
 }
-
+*/
 //ScriptHelper
 class SH
 {
@@ -2259,7 +2258,7 @@ long get_screenflags(mapscr *m, int flagset)
 	case 1: // View
 		f = ornextflag(m->flags3&8)  | ornextflag(m->flags7&16) | ornextflag(m->flags3&16)
 			| ornextflag(m->flags3&64) | ornextflag(m->flags7&2)  | ornextflag(m->flags7&1)
-			| ornextflag(m->flags&4);
+			| ornextflag(m->flags&fDARK) | ornextflag(m->flags9&fDARK_DITHER) | ornextflag(m->flags9&fDARK_TRANS);
 		break;
 		
 	case 2: // Secrets
@@ -13434,7 +13433,7 @@ void set_register(const long arg, const long value)
 		}
 		
 		case LWPNGLOWRAD:
-			if(0!=(s=checkLWpn(ri->ewpn,"LightRadius")))
+			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
 			{
 				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
 			}

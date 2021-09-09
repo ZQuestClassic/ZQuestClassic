@@ -19017,6 +19017,10 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			return qe_invalid;
 		}
+		if(!p_getc(&temp_zinit.transdark_percent,f,true))
+		{
+			return qe_invalid;
+		}
 	}
 	else
 	{
@@ -19024,6 +19028,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		temp_zinit.dither_arg = 0;
 		temp_zinit.dither_percent = 20;
 		temp_zinit.def_lightrad = 24;
+		temp_zinit.transdark_percent = 0;
 	}
 	
 	if(keepdata==true)

@@ -102,6 +102,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->dither_arg = gdata->get_dither_arg();
 	zinit2->dither_percent = gdata->get_dither_perc();
 	zinit2->def_lightrad = gdata->get_light_rad();
+	zinit2->transdark_percent = gdata->get_transdark_perc();
 	
 	for(int q = 0; q < 25; ++q)
 	{

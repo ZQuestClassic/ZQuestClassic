@@ -1822,6 +1822,8 @@ enum
 	SFV_LAYER2BG, // 0x0010; //Layer 2 is Background
 	SFV_LAYER3BG, //0x0020;
 	SFV_DARKROOM, //0x0040; 
+	SFV_DARK_DITHER, //0x0080; 
+	SFV_DARK_TRANS, //0x0100; 
 	
 	SFV_LAST
 };

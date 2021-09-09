@@ -753,7 +753,7 @@ static int init_var_list[] =
 
 static int init_var_list2[] =
 {
-	3376, 3377, 3378, 3379, 3380, 3381, 3382, 3383,
+	3376, 3377, 3378, 3379, 3380, 3381, 3382, 3383, 3384, 3385,
 	-1
 };
 
@@ -1643,7 +1643,12 @@ void PopulateInitDialog()
     //3383
     initPopulate(i, jwin_numedit_byte_proc,            162,     110,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
     
-    // 3384 -- Termination
+    //3384
+    initPopulate(i, jwin_text_proc,            12,     133,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Light Transp. Percentage:",                                   NULL,   NULL);
+    //3385
+    initPopulate(i, jwin_numedit_byte_proc,            162,     130,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    // 3386 -- Termination
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     ASSERT(INIT_DLG_SZ>=i); //index after termination
     /*
@@ -1924,10 +1929,12 @@ int doInit(zinitdata *local_zinit)
 	char dith_arg[4];
 	char dith_perc[4];
 	char light_rad[4];
+	char tdark_perc[4];
 	sprintf(dith_type, "%d", local_zinit->dither_type);
 	sprintf(dith_arg, "%d", local_zinit->dither_arg);
 	sprintf(dith_perc, "%d", local_zinit->dither_percent);
 	sprintf(light_rad, "%d", local_zinit->def_lightrad);
+	sprintf(tdark_perc, "%d", local_zinit->transdark_percent);
     
     //This is the format for storing values into Init Data. -Z
     init_dlg[109].dp=bombstring;
@@ -2043,6 +2050,7 @@ int doInit(zinitdata *local_zinit)
     init_dlg[3379].dp=dith_arg;
     init_dlg[3381].dp=dith_perc;
     init_dlg[3383].dp=light_rad;
+    init_dlg[3385].dp=tdark_perc;
     if(is_large)
     {
         large_dialog(init_dlg);
@@ -2148,6 +2156,7 @@ int doInit(zinitdata *local_zinit)
 		local_zinit->dither_arg = vbound(atoi(dith_arg),0,255);
 		local_zinit->dither_percent = vbound(atoi(dith_perc),0,100);
 		local_zinit->def_lightrad = vbound(atoi(light_rad),0,255);
+		local_zinit->transdark_percent = vbound(atoi(tdark_perc),0,255);
         onInitOK();
     }
     
@@ -2312,6 +2321,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 	game2->set_dither_arg(zinit2->dither_arg);
 	game2->set_dither_perc(zinit2->dither_percent);
 	game2->set_light_rad(zinit2->def_lightrad);
+	game2->set_transdark_perc(zinit2->transdark_percent);
     
     for(int i=0; i<MAXLEVELS; i++)
     {

@@ -13468,7 +13468,7 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), const
 static int edit_scrdata1[] = // Flags 1
 {
     //6,8,10,11,12,15,18,19,21,22,24,37,57,59,60,-1
-    118,45,46,57,  119,21,58,22,24,54,55,8, //Ordered as they are on the dialog
+    118,45,46,57,  119,21,58,22,24,54,55,8,141,142, //Ordered as they are on the dialog
     120,6,43,47,50,  121,37,42,12,135,23,  -1
 };
 
@@ -13763,8 +13763,12 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,      15,  108,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item->Secrets", NULL, NULL },
     { jwin_check_proc,      15,  118,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item->Secret is permanent", NULL, NULL },
     { jwin_check_proc,      15,  128,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item always returns", NULL, NULL },
-    { jwin_check_proc,      15,  138,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Special Item always returns", NULL, NULL },
-    { NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
+    //140
+	{ jwin_check_proc,      15,  138,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Special Item always returns", NULL, NULL },
+    { jwin_check_proc,      15,  188,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Dithered Darkness", NULL, NULL },
+    { jwin_check_proc,      15,  198,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Transparent Darkness", NULL, NULL },
+    
+	{ NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
 };
 
 
@@ -14051,6 +14055,8 @@ int onScrData()
 	scrdata_dlg[138].flags = (f&fITEMSECRETPERM) ? D_SELECTED : 0;
 	scrdata_dlg[139].flags = (f&fITEMRETURN) ? D_SELECTED : 0;
 	scrdata_dlg[140].flags = (f&fBELOWRETURN) ? D_SELECTED : 0;
+	scrdata_dlg[141].flags = (f&fDARK_DITHER) ? D_SELECTED : 0;
+	scrdata_dlg[142].flags = (f&fDARK_TRANS) ? D_SELECTED : 0;
 	
 	word g = Map.CurrScr()->noreset;
 	scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
@@ -14177,6 +14183,8 @@ int onScrData()
 		f |= scrdata_dlg[138].flags & D_SELECTED ? fITEMSECRETPERM:0;
 		f |= scrdata_dlg[139].flags & D_SELECTED ? fITEMRETURN:0;
 		f |= scrdata_dlg[140].flags & D_SELECTED ? fBELOWRETURN:0;
+		f |= scrdata_dlg[141].flags & D_SELECTED ? fDARK_DITHER:0;
+		f |= scrdata_dlg[142].flags & D_SELECTED ? fDARK_TRANS:0;
 		Map.CurrScr()->flags9 = f;
 		
 		g=0;
@@ -37274,5 +37282,5 @@ void zprint2(const char * const format,...)
     }
 }
 
-void doDarkroomCircle(int cx, int cy, byte glowRad,BITMAP* dest){}
+void doDarkroomCircle(int cx, int cy, byte glowRad,BITMAP* dest,BITMAP* transdest){}
 

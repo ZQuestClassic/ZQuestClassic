@@ -543,6 +543,8 @@ extern bool fake_pack_writing;
 #define fITEMSECRETPERM 	0x01 //'S.Flags3' Item->Secret is Permanent
 #define fITEMRETURN	 	0x02 //'S.Flags3' Item always returns
 #define fBELOWRETURN	 	0x04 //'S.Flags3' Special Item always returns
+#define fDARK_DITHER        0x08 //'S.Flags1' ...dithered dark
+#define fDARK_TRANS         0x10 //'S.Flags1' ...transparent dark
 
 //lens layer effects
 #define llNORMAL        0
@@ -3772,7 +3774,7 @@ enum generic_ind
 	genHCP, genMDRAINRATE, genCANSLASH, genWLEVEL,
 	genHCP_PER_HC, genCONTHP, genCONTHP_IS_PERC, genHP_PER_HEART,
 	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
-	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,
+	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,
 	genLAST,
 	genMAX = 256
 };
@@ -3980,6 +3982,9 @@ struct gamedata
 
 	byte get_light_rad();
 	void set_light_rad(byte val);
+	
+	byte get_transdark_perc();
+	void set_transdark_perc(byte val);
     
     byte get_continue_scrn();
     void set_continue_scrn(byte s);
@@ -4096,7 +4101,7 @@ struct zinitdata
     word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep, subscrSpeed;
 	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
 	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em 
-	byte dither_type, dither_arg, dither_percent, def_lightrad;
+	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent;
 };
 
 struct zcmap
