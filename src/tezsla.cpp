@@ -1204,7 +1204,7 @@ comboclass *combo_class_buf;
 guydata  *guysbuf;
 item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 newcombo curr_combo;
-//PALETTE RAMpal;
+PALETTE RAMpal;
 midi_info Midi_Info;
 bool zq_showpal=false;
 bool combo_cols=true;
@@ -5394,8 +5394,8 @@ int onOptions()
         KeyboardRepeatRate         = atoi(kbrate);
 		abc_patternmatch           = options_dlg[50].flags & D_SELECTED ? 1 : 0;
 		NoScreenPreview            = options_dlg[51].flags & D_SELECTED ? 1 : 0;
-		set_config_float("zquest","cursor_scale_large",vbound(atoi(cur_large),1.0,5.0));
-		set_config_float("zquest","cursor_scale_small",vbound(atoi(cur_small),1.0,5.0));
+		set_config_float("zquest","cursor_scale_large",vbound((float)atof(cur_large),1.0,5.0));
+		set_config_float("zquest","cursor_scale_small",vbound((float)atof(cur_small),1.0,5.0));
 		
 		load_mice(); //Reload cursor scale
 		

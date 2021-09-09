@@ -112,6 +112,15 @@ double vbound(double val, double low, double high)
 		return high;
 	return val;
 }
+float vbound(float val, float low, float high)
+{
+	ASSERT(low <= high);
+	if(val <= low)
+		return low;
+	if(val >= high)
+		return high;
+	return val;
+}
 	
 void extract_name(char *path,char *name,int type)
 {
