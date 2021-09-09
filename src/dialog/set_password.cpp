@@ -1,4 +1,4 @@
-#include "setPassword.h"
+#include "set_password.h"
 #include <gui/builder.h>
 
 SetPasswordDialog::SetPasswordDialog(bool useKeyFile,

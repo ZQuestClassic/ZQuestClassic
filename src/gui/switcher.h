@@ -3,7 +3,7 @@
 
 #include "widget.h"
 #include "dialog.h"
-#include "dialogRef.h"
+#include "dialog_ref.h"
 #include <vector>
 
 namespace GUI

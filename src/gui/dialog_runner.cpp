@@ -1,4 +1,4 @@
-#include "dialogRunner.h"
+#include "dialog_runner.h"
 #include "common.h"
 #include "../gui.h"
 #include "../jwin.h"

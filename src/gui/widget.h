@@ -2,7 +2,7 @@
 #define ZC_GUI_WIDGET_H
 
 #include "common.h"
-#include "dialogMessage.h"
+#include "dialog_message.h"
 #include "../zc_alleg.h"
 #include <memory>
 #include <vector>

@@ -1,6 +1,6 @@
-#include "topLevel.h"
+#include "top_level.h"
 #include "dialog.h"
-#include "dialogRunner.h"
+#include "dialog_runner.h"
 #include "../jwin.h"
 #include "../zc_alleg.h"
 #include <utility>

@@ -2,7 +2,7 @@
 #define ZC_GUI_TEXTFIELD_H
 
 #include "widget.h"
-#include "dialogRef.h"
+#include "dialog_ref.h"
 #include <memory>
 #include <string_view>
 

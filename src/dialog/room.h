@@ -2,10 +2,10 @@
 #define ZC_DIALOG_ROOM_H
 
 #include <gui/dialog.h>
-#include <gui/dropDownList.h>
+#include <gui/drop_down_list.h>
 #include <gui/label.h>
 #include <gui/switcher.h>
-#include <gui/textField.h>
+#include <gui/text_field.h>
 #include <functional>
 
 class RoomDialog: public GUI::Dialog<RoomDialog>

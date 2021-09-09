@@ -1,7 +1,7 @@
 #ifndef ZC_GUI_DIALOG_H
 #define ZC_GUI_DIALOG_H
 
-#include "dialogRunner.h"
+#include "dialog_runner.h"
 #include "widget.h"
 #include <memory>
 

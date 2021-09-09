@@ -1,7 +1,7 @@
 #include "label.h"
 #include "common.h"
 #include "dialog.h"
-#include "dialogRunner.h"
+#include "dialog_runner.h"
 #include "../jwin.h"
 #include "../zquest.h"
 #include <utility>

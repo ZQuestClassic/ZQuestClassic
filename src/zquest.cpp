@@ -42,9 +42,9 @@ void setZScriptVersion(int) { } //bleh...
 #include <loadpng.h>
 #include <jpgalleg.h>
 
-#include "dialog/cheatCodes.h"
+#include "dialog/cheat_codes.h"
 #include "dialog/room.h"
-#include "dialog/setPassword.h"
+#include "dialog/set_password.h"
 
 #include "gui.h"
 #include "load_gif.h"

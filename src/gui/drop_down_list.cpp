@@ -1,7 +1,7 @@
-#include "dropDownList.h"
+#include "drop_down_list.h"
 #include "common.h"
 #include "dialog.h"
-#include "dialogRunner.h"
+#include "dialog_runner.h"
 #include "../jwin.h"
 #include "../zquest.h"
 #include <cassert>

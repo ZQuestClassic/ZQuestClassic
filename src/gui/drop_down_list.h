@@ -2,8 +2,8 @@
 #define ZC_GUI_DROPDOWNLIST_H
 
 #include "widget.h"
-#include "dialogRef.h"
-#include "listData.h"
+#include "dialog_ref.h"
+#include "list_data.h"
 #include "../jwin.h"
 #include <vector>
 

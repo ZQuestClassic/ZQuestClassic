@@ -1,4 +1,4 @@
-#include "cheatCodes.h"
+#include "cheat_codes.h"
 #include <gui/builder.h>
 
 CheatCodesDialog::CheatCodesDialog(bool enabled,
