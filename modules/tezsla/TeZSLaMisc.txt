@@ -1,0 +1,22 @@
+## Source list for ZQuest Misc module
+set(TEZSLA_MISC_SOURCES
+
+################################
+# Add or remove files here
+################################
+src/items.cpp
+src/questReport.cpp
+src/ffasm.cpp
+src/tezsla.cpp
+src/gui.cpp
+src/jwinfsel.cpp
+src/tab_ctl.cpp
+src/tiles.cpp
+src/load_gif.cpp
+src/win32.cpp
+src/ffasmexport.cpp
+
+
+## End of ZQuest Misc module
+)
+

@@ -1,0 +1,27 @@
+## Source list for ZQuest GUI module
+set(TEZSLA_GUI_SOURCES
+
+################################
+# Add or remove files here
+################################
+src/zq_class.cpp
+src/zq_cset.cpp
+src/zq_custom.cpp
+src/zq_doors.cpp
+src/zq_files.cpp
+src/zq_init.cpp
+src/zq_items.cpp
+src/zq_misc.cpp
+src/zq_sprite.cpp
+src/zq_subscr.cpp
+src/zq_strings.cpp
+src/zq_tiles.cpp
+src/zqscale.cpp
+src/zsys.cpp
+src/zq_rules.cpp
+src/jwin.cpp
+
+
+## End of ZQuest GUI module
+)
+

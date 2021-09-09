@@ -1,0 +1,11 @@
+## Source list for ZQuest ZScript module, when Flex and Bison are not available
+set(TEZSLA_ZSCRIPT_SOURCES_NOPARSER
+
+################################
+# Add or remove files here
+################################
+src/parser/NoScriptParser.cpp
+
+## End of ZQuest ZScript module
+)
+

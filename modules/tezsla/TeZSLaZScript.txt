@@ -1,0 +1,25 @@
+## Source list for ZQuest ZScript module, when Flex and Bison are available
+set(TEZSLA_ZSCRIPT_SOURCES
+
+################################
+# Add or remove files here
+################################
+src/parser/AST.cpp
+src/parser/ASTVisitors.cpp
+src/parser/BuildVisitors.cpp
+src/parser/ByteCode.cpp
+src/parser/CompilerUtils.cpp
+src/parser/CompileError.cpp
+src/parser/CompileOption.cpp
+src/parser/DataStructs.cpp
+src/parser/GlobalSymbols.cpp
+src/parser/Scope.cpp
+src/parser/ScriptParser.cpp
+src/parser/SemanticAnalyzer.cpp
+src/parser/RegistrationVisitor.cpp
+src/parser/Types.cpp
+src/parser/ZScript.cpp
+
+## End of ZQuest ZScript module
+)
+
