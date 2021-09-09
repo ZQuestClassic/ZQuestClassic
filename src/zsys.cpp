@@ -2412,9 +2412,76 @@ char * getCurPackfilePassword()
 // A lot of crashes in ZQuest can be traced to rect(). Hopefully, this will help.
 void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
 {
-    rect(bmp, util::vbound(x1, 0, bmp->w-1), util::vbound(y1, 0, bmp->h-1), util::vbound(x2, 0, bmp->w-1), util::vbound(y2, 0, bmp->h-1), color);
+    rect(bmp, vbound(x1, 0, bmp->w-1), vbound(y1, 0, bmp->h-1), vbound(x2, 0, bmp->w-1), vbound(y2, 0, bmp->h-1), color);
 }
 
+long long zc_atoi64(const char *str)
+{
+	long long val=0;
+	bool neg = false;
+	if(*str == '-')
+	{
+		neg = true;
+		++str;
+	}
+	while(isdigit(*str))
+	{
+		val*=10;
+		
+		val += *str-'0';
+		
+		++str;
+	}
+	
+	return neg ? -val : val;
+}
+
+long long zc_xtoi64(const char *hexstr)
+{
+	long long val=0;
+	bool neg = false;
+	if(*hexstr == '-')
+	{
+		neg = true;
+		++hexstr;
+	}
+	while(isxdigit(*hexstr))
+	{
+		val<<=4;
+		
+		if(*hexstr<='9')
+			val += *hexstr-'0';
+		else val+= ((*hexstr)|0x20)-'a'+10;
+		
+		++hexstr;
+	}
+	
+	return neg ? -val : val;
+}
+
+int zc_xtoi(const char *hexstr)
+{
+	int val=0;
+	bool neg = false;
+	if(*hexstr == '-')
+	{
+		neg = true;
+		++hexstr;
+	}
+	while(isxdigit(*hexstr))
+	{
+		val<<=4;
+		
+		if(*hexstr<='9')
+			val += *hexstr-'0';
+		else val+= ((*hexstr)|0x20)-'a'+10;
+		
+		++hexstr;
+	}
+	
+	return neg ? -val : val;
+}
+	
 //computes the positive gcd of two integers (using Euclid's algorithm)
 
 int gcd(int a, int b)

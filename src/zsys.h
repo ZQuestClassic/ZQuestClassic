@@ -40,6 +40,9 @@ char *zc_make_relative_filename(char *dest, const char *path, const char *filena
 void chop_path(char *path);
 int  vbound(int x,int low,int high);
 float vbound(float x,float low,float high);
+int zc_xtoi(const char *hexstr);
+long long zc_atoi64(const char *str);
+long long zc_xtoi64(const char *hexstr);
 int  used_switch(int argc,char *argv[],const char *s);
 bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2);
 
