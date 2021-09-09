@@ -6,20 +6,20 @@ SetPasswordDialog::SetPasswordDialog(bool useKeyFile,
 		useKeyFile(useKeyFile), setPassword(setPassword)
 {}
 
-std::shared_ptr<gui::Widget> SetPasswordDialog::view()
+std::shared_ptr<GUI::Widget> SetPasswordDialog::view()
 {
-	using namespace gui::builder;
-	using namespace gui::props;
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
 
 	return Window(
 		title="Set Password",
-		onClose=Message::cancel,
+		onClose=message::CANCEL,
 		Column(
 			Rows<2>(
 				Label(text="Enter new password:"),
 				this->pwField=TextField(
 					maxLength=255,
-					onEnter=Message::ok),
+					onEnter=message::OK),
 				this->saveKeyFileCB=Checkbox(
 					text="&Save key file",
 					checked=this->useKeyFile)
@@ -29,25 +29,25 @@ std::shared_ptr<gui::Widget> SetPasswordDialog::view()
 				vAlign=1.0,
 				Button(
 					text="OK",
-					onClick=Message::ok,
+					onClick=message::OK,
 					hPadding=30),
 				Button(
 					text="Cancel",
-					onClick=Message::cancel,
+					onClick=message::CANCEL,
 					hPadding=30)
 			)
 		)
 	);
 }
 
-bool SetPasswordDialog::handleMessage(Message msg)
+bool SetPasswordDialog::handleMessage(message msg)
 {
 	switch(msg)
 	{
-	case Message::ok:
+	case message::OK:
 		setPassword(pwField->getText(), saveKeyFileCB->getChecked());
 		[[fallthrough]];
-	case Message::cancel:
+	case message::CANCEL:
 	default:
 		return true;
 	}

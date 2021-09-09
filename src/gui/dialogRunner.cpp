@@ -5,7 +5,7 @@
 
 using std::shared_ptr;
 
-namespace gui
+namespace GUI
 {
 
 /* Called from jwin procs when an event occurs.

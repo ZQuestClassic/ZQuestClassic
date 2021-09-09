@@ -10,7 +10,7 @@
 
 using std::max, std::shared_ptr;
 
-namespace gui
+namespace GUI
 {
 
 Window::Window(): content(nullptr), title(""), closeMessage(-1)

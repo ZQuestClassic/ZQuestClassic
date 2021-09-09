@@ -3,13 +3,13 @@
 
 using std::shared_ptr;
 
-namespace gui
+namespace GUI
 {
 
 shared_ptr<Grid> Grid::rows(size_t itemsPerRow)
 {
 	shared_ptr<Grid> g=std::make_shared<Grid>();
-	g->gridType=Type::rows;
+	g->gridType=type::ROWS;
 	g->size=itemsPerRow;
 	return g;
 }
@@ -17,7 +17,7 @@ shared_ptr<Grid> Grid::rows(size_t itemsPerRow)
 shared_ptr<Grid> Grid::columns(size_t itemsPerCol)
 {
 	shared_ptr<Grid> g=std::make_shared<Grid>();
-	g->gridType=Type::columns;
+	g->gridType=type::COLUMNS;
 	g->size=itemsPerCol;
 	return g;
 }
@@ -42,7 +42,7 @@ void Grid::calculateSize()
 	colHeights.clear();
 	size_t numRows, numCols;
 
-	if(gridType==Type::rows)
+	if(gridType==type::ROWS)
 	{
 		numRows=(children.size()+size-1)/size; // +size-1 to round up
 		numCols=size;
@@ -59,7 +59,7 @@ void Grid::calculateSize()
 		int total=0, max=0;
 		for(size_t col=0; col<numCols; col++)
 		{
-			size_t index=gridType==Type::rows ?
+			size_t index=gridType==type::ROWS ?
 				row*size+col :
 				col*size+row;
 			if(index>=children.size())
@@ -80,7 +80,7 @@ void Grid::calculateSize()
 		int total=0, max=0;
 		for(size_t row=0; row<numRows; row++)
 		{
-			size_t index=gridType==Type::rows ?
+			size_t index=gridType==type::ROWS ?
 				row*size+col :
 				col*size+row;
 			if(index>=children.size())
@@ -128,7 +128,7 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 
 	Widget::arrange(contX, contY, contW, contH);
 
-	if(gridType==Type::rows)
+	if(gridType==type::ROWS)
 	{
 		numRows=(children.size()+size-1)/size; // +size-1 to round up
 		numCols=size;
@@ -146,7 +146,7 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 		int height=rowHeights[row];
 		for(size_t col=0; col<numCols; col++)
 		{
-			size_t index=gridType==Type::rows ?
+			size_t index=gridType==type::ROWS ?
 				row*size+col :
 				col*size+row;
 			if(index>=children.size())

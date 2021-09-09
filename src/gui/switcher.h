@@ -6,7 +6,7 @@
 #include "dialogRef.h"
 #include <vector>
 
-namespace gui
+namespace GUI
 {
 
 /* A container that displays any one of multiple widgets. Used to dynamically

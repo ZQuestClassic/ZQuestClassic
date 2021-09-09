@@ -8,27 +8,30 @@
 #include <gui/textField.h>
 #include <functional>
 
-class RoomDialog: public gui::Dialog<RoomDialog>
+class RoomDialog: public GUI::Dialog<RoomDialog>
 {
 public:
-	enum class Message
+	enum class message
 	{
-		setRoom, setArgument, setGuy, setMessage, roomInfo, ok, cancel
+		SET_ROOM, SET_ARGUMENT, SET_GUY, SET_STRING, ROOM_INFO, OK, CANCEL
 	};
 
-	RoomDialog(int room, int argument, int guy, int message,
+	RoomDialog(int room, int argument, int guy, int string,
 		std::function<void(int, int, int, int)> setRoomVars);
 
-	std::shared_ptr<gui::Widget> view() override;
-	bool handleMessage(Message msg, gui::MessageArg);
+	std::shared_ptr<GUI::Widget> view() override;
+	bool handleMessage(message msg, GUI::MessageArg);
 
 private:
-	gui::ListData itemListData, shopListData, infoShopListData, messageListData;
-	std::shared_ptr<gui::DropDownList> shopDD, infoShopDD, itemDD;
-	std::shared_ptr<gui::TextField> argTF;
-	std::shared_ptr<gui::Switcher> argSwitcher;
-	std::shared_ptr<gui::Label> argLabel;
-	int room, argument, guy, message;
+	GUI::ListData itemListData, shopListData, infoShopListData, stringListData;
+	std::shared_ptr<GUI::DropDownList> shopDD, infoShopDD, itemDD;
+	std::shared_ptr<GUI::TextField> argTF;
+	std::shared_ptr<GUI::Switcher> argSwitcher;
+	std::shared_ptr<GUI::Label> argLabel;
+	struct
+	{
+		int type, argument, guy, string;
+	} room;
 	std::function<void(int, int, int, int)> setRoomVars;
 
 	/* Called when the room is changed to show the appropriate

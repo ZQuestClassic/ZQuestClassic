@@ -9,7 +9,7 @@
 
 #define FONT sized(nfont, lfont_l)
 
-namespace gui
+namespace GUI
 {
 
 Button::Button(): text(), message(-1)

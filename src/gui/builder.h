@@ -19,10 +19,10 @@
 // Depends on includes above. Hrm.
 #include "macros.h"
 
-namespace gui
+namespace GUI
 {
 
-namespace internal
+namespace Internal
 {
 
 struct DummyType {};
@@ -49,9 +49,9 @@ std::shared_ptr<Grid> makeColumn();
 std::shared_ptr<Grid> makeColumns(size_t size);
 std::shared_ptr<Switcher> makeSwitcher();
 
-} // namespace internal
+} // namespace Internal
 
-namespace builder
+namespace Builder
 {
 
 ZCGUI_BUILDER_START(Button)
@@ -61,7 +61,7 @@ ZCGUI_BUILDER_START(Button)
 	ZCGUI_SUGGEST_PROP(title, text)
 	ZCGUI_SUGGEST_PROP(onEnter, onClick)
 ZCGUI_BUILDER_END()
-ZCGUI_BUILDER_FUNCTION(Button, Button, internal::makeButton)
+ZCGUI_BUILDER_FUNCTION(Button, Button, Internal::makeButton)
 
 
 ZCGUI_BUILDER_START(Checkbox)
@@ -71,17 +71,17 @@ ZCGUI_BUILDER_START(Checkbox)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()
-ZCGUI_BUILDER_FUNCTION(Checkbox, Checkbox, internal::makeCheckbox)
+ZCGUI_BUILDER_FUNCTION(Checkbox, Checkbox, Internal::makeCheckbox)
 
 
 ZCGUI_BUILDER_START(DropDownList)
-	ZCGUI_ACCEPT_PROP(data, setListData, const gui::ListData&)
+	ZCGUI_ACCEPT_PROP(data, setListData, const GUI::ListData&)
 	ZCGUI_ACCEPT_PROP(selectedValue, setSelectedValue, int)
 	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, int)
 
 	ZCGUI_SUGGEST_PROP(onClick, onSelectionChanged)
 ZCGUI_BUILDER_END()
-ZCGUI_BUILDER_FUNCTION(DropDownList, DropDownList, internal::makeDropDownList)
+ZCGUI_BUILDER_FUNCTION(DropDownList, DropDownList, Internal::makeDropDownList)
 
 
 ZCGUI_BUILDER_START(Label)
@@ -90,22 +90,22 @@ ZCGUI_BUILDER_START(Label)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()
-ZCGUI_BUILDER_FUNCTION(Label, Label, internal::makeLabel)
+ZCGUI_BUILDER_FUNCTION(Label, Label, Internal::makeLabel)
 
 
 ZCGUI_BUILDER_START(Grid)
 	ZCGUI_ACCEPT_MULTIPLE_CHILDREN(add)
 ZCGUI_BUILDER_END()
-ZCGUI_BUILDER_FUNCTION(Grid, Row, internal::makeRow)
-ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Rows, internal::makeRows, size_t)
-ZCGUI_BUILDER_FUNCTION(Grid, Column, internal::makeColumn)
-ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Columns, internal::makeColumns, size_t)
+ZCGUI_BUILDER_FUNCTION(Grid, Row, Internal::makeRow)
+ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Rows, Internal::makeRows, size_t)
+ZCGUI_BUILDER_FUNCTION(Grid, Column, Internal::makeColumn)
+ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Columns, Internal::makeColumns, size_t)
 
 
 ZCGUI_BUILDER_START(Switcher)
 	ZCGUI_ACCEPT_MULTIPLE_CHILDREN(add)
 ZCGUI_BUILDER_END()
-ZCGUI_BUILDER_FUNCTION(Switcher, Switcher, internal::makeSwitcher)
+ZCGUI_BUILDER_FUNCTION(Switcher, Switcher, Internal::makeSwitcher)
 
 
 ZCGUI_BUILDER_START(TextField)
@@ -115,7 +115,7 @@ ZCGUI_BUILDER_START(TextField)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string_view)
 	ZCGUI_ACCEPT_PROP(type, setType, TextField::Type)
 ZCGUI_BUILDER_END()
-ZCGUI_BUILDER_FUNCTION(TextField, TextField, internal::makeTextField)
+ZCGUI_BUILDER_FUNCTION(TextField, TextField, Internal::makeTextField)
 
 
 ZCGUI_BUILDER_START(Window)
@@ -127,17 +127,17 @@ ZCGUI_BUILDER_START(Window)
 
 	ZCGUI_SUGGEST_PROP(text, title)
 ZCGUI_BUILDER_END()
-ZCGUI_BUILDER_FUNCTION(Window, Window, internal::makeWindow)
+ZCGUI_BUILDER_FUNCTION(Window, Window, Internal::makeWindow)
 
 } // namespace builder
 
-namespace props
+namespace Props
 {
 
 // Handy to have these in scope for setting sizes.
-using ::gui::operator ""_em;
-using ::gui::operator ""_px;
-using ::gui::operator ""_lpx;
+using ::GUI::operator ""_em;
+using ::GUI::operator ""_px;
+using ::GUI::operator ""_lpx;
 
 }}
 

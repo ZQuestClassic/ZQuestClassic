@@ -13,10 +13,10 @@
 
 #define FONT sized(nfont, lfont_l)
 
-namespace gui
+namespace GUI
 {
 
-TextField::TextField(): buffer(nullptr), type(Type::Text), maxLength(0),
+TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
 	onEnterMsg(-1), onValueChangedMsg(-1)
 {
 	setPreferredWidth(1_em);
@@ -25,9 +25,9 @@ TextField::TextField(): buffer(nullptr), type(Type::Text), maxLength(0),
 	bgColor=vc(1);
 }
 
-void TextField::setType(Type newType)
+void TextField::setType(type newType)
 {
-	type=newType;
+	tfType=newType;
 }
 
 void TextField::setText(std::string_view newText)
@@ -73,17 +73,17 @@ void TextField::realize(DialogRunner& runner)
 
 	using ProcType=int(*)(int, DIALOG*, int);
 	ProcType proc;
-	switch(type)
+	switch(tfType)
 	{
-	case Type::Text:
+	case type::TEXT:
 		proc=jwin_edit_proc;
 		break;
 
-	case Type::IntDecimal:
+	case type::INT_DECIMAL:
 		proc=jwin_numedit_proc;
 		break;
 
-	case Type::IntHex:
+	case type::INT_HEX:
 		proc=jwin_hexedit_proc;
 		break;
 	}
@@ -133,19 +133,19 @@ int TextField::onEvent(int event, MessageDispatcher sendMessage)
 	if(maxLength>0)
 	{
 		int value;
-		switch(type)
+		switch(tfType)
 		{
-		case Type::Text:
+		case type::TEXT:
 			sendMessage(message, std::string_view(buffer.get()));
 			break;
 
-		case Type::IntDecimal:
+		case type::INT_DECIMAL:
 			try { value=std::stoi(buffer.get(), nullptr, 10); }
 			catch(std::exception) { value=0; }
 			sendMessage(message, value);
 			break;
 
-		case Type::IntHex:
+		case type::INT_HEX:
 			try { value=std::stoi(buffer.get(), nullptr, 16); }
 			catch(std::exception) { value=0; }
 			sendMessage(message, value);
@@ -154,7 +154,7 @@ int TextField::onEvent(int event, MessageDispatcher sendMessage)
 	}
 	else // maxLength==0 - actually, this isn't possible...
 	{
-		if(type==Type::Text)
+		if(tfType==type::TEXT)
 			sendMessage(message, std::string_view(""));
 		else
 			sendMessage(message, 0);

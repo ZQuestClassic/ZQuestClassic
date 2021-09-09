@@ -28,10 +28,10 @@ InfoDialog::InfoDialog(std::string title, std::vector<std::string_view> lines):
 	}
 }
 
-std::shared_ptr<gui::Widget> InfoDialog::view()
+std::shared_ptr<GUI::Widget> InfoDialog::view()
 {
-	using namespace gui::builder;
-	using namespace gui::props;
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
 
 	return Window(
 		title=std::move(dlgTitle),
@@ -51,7 +51,7 @@ std::shared_ptr<gui::Widget> InfoDialog::view()
 	);
 }
 
-bool InfoDialog::handleMessage(Message)
+bool InfoDialog::handleMessage(message)
 {
 	return true;
 }

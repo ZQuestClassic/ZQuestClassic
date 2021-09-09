@@ -4,7 +4,7 @@
 #include <cstddef>
 struct DIALOG;
 
-namespace gui
+namespace GUI
 {
 
 class DialogRunner;

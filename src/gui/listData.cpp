@@ -1,7 +1,7 @@
 #include "listData.h"
 #include <boost/format.hpp>
 
-namespace gui
+namespace GUI
 {
 
 ListData::ListData(size_t numItems,

@@ -3,7 +3,7 @@
 
 #include <utility>
 
-namespace gui
+namespace GUI
 {
 
 struct KeyboardShortcut
@@ -13,40 +13,39 @@ struct KeyboardShortcut
 };
 
 /* Just a class to put keys for shortcuts into a convenient form. */
-class Key
+class ShortcutKey
 {
 public:
 	struct DummyType {};
 	static constexpr DummyType dummy=DummyType {};
 
-	/* This is used when converting 0-9 to a Key or converting an int
-	 * obtained by casting a Key to int back to a Key.
+	/* This is used when converting 0-9 to a ShortcutKey.
 	 * 27 is __allegro_KEY_0.
 	 */
-	constexpr Key(int value): value((value+27)<<8)
+	constexpr ShortcutKey(int value): value((value+27)<<8)
 	{}
 
 	/* This one is used for constants. It just has a second argument
 	* to distinguish it from the one above.
 	*/
-	constexpr Key(unsigned short value, DummyType): value(value)
+	constexpr ShortcutKey(unsigned short value, DummyType): value(value)
 	{}
 
-	constexpr Key(const Key& other): value(other.value)
+	constexpr ShortcutKey(const ShortcutKey& other): value(other.value)
 	{}
 
 	/* Used to combine keys, e.g. Ctrl+F. */
-	inline constexpr Key operator+(Key rhs) const
+	inline constexpr ShortcutKey operator+(ShortcutKey rhs) const
 	{
 		// It's actually OR, but writing Ctrl+X is more natural.
 		// Not that it should make any difference with these.
-		return Key(value|rhs.value, dummy);
+		return ShortcutKey(value|rhs.value, dummy);
 	}
 
 	/* Used for number keys, e.g. Ctrl+9. */
-	inline constexpr Key operator+(int rhs) const
+	inline constexpr ShortcutKey operator+(int rhs) const
 	{
-		return this->operator+(Key(rhs));
+		return this->operator+(ShortcutKey(rhs));
 	}
 
 	template<typename T>
@@ -65,18 +64,18 @@ private:
 };
 
 /* I don't know why you're writing 1+Ctrl instead of Ctrl+1, but it'll work. */
-inline constexpr Key operator+(int lhs, Key rhs)
+inline constexpr ShortcutKey operator+(int lhs, ShortcutKey rhs)
 {
-	return rhs+Key(lhs);
+	return rhs+ShortcutKey(lhs);
 }
 
 
-namespace key
+namespace Key
 {
-#define KEY(num) Key(num<<8, Key::dummy)
-#define MOD_KEY(num) Key(num, Key::dummy)
+#define KEY(num) ShortcutKey(num<<8, ShortcutKey::dummy)
+#define MOD_KEY(num) ShortcutKey(num, ShortcutKey::dummy)
 
-static constexpr Key
+static constexpr ShortcutKey
 	// XXX These are made to compare with Allegro scancodes easily.
 	// This is done in topLevel.cpp. Do they work on non-QWERTY keyboards?
 	// They may be revised at some point either way.
@@ -157,6 +156,6 @@ static constexpr Key
 #undef KEY
 #undef MOD_KEY
 
-}} // namespace gui::key
+}} // namespace GUI::Key
 
 #endif

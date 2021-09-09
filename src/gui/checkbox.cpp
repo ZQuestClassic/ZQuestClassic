@@ -9,11 +9,11 @@
 
 #define FONT sized(nfont, lfont_l)
 
-namespace gui
+namespace GUI
 {
 
 Checkbox::Checkbox(): checked(false), text(),
-	boxPlacement(BoxPlacement::left), alDialog(), message(-1)
+	placement(boxPlacement::LEFT), alDialog(), message(-1)
 {
 	setPreferredHeight(Size::largePixels(text_height(FONT)+2));
 	setPreferredWidth(Size::largePixels(13));
@@ -26,9 +26,9 @@ void Checkbox::setText(std::string newText)
 	text=std::move(newText);
 }
 
-void Checkbox::setBoxPlacement(BoxPlacement bp)
+void Checkbox::setBoxPlacement(boxPlacement newPlacement)
 {
-	boxPlacement=bp;
+	placement=newPlacement;
 }
 
 void Checkbox::setChecked(bool value)
@@ -61,7 +61,7 @@ void Checkbox::realize(DialogRunner& runner)
 		fgColor, bgColor,
 		getAccelKey(text),
 		getFlags()|(checked ? D_SELECTED : 0), // flags
-		static_cast<int>(boxPlacement), 0, // d1, d2,
+		static_cast<int>(placement), 0, // d1, d2,
 		(void*)text.c_str(), FONT, nullptr // dp, dp2, dp3
 	});
 }

@@ -2,7 +2,7 @@
 #include "dialogRunner.h"
 #include "../zc_alleg.h"
 
-namespace gui
+namespace GUI
 {
 
 Switcher::Switcher(): visibleChild(0)

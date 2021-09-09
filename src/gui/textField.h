@@ -6,15 +6,15 @@
 #include <memory>
 #include <string_view>
 
-namespace gui
+namespace GUI
 {
 
 class TextField: public Widget
 {
 public:
-	enum class Type
+	enum class type
 	{
-		Text, IntDecimal, IntHex
+		TEXT, INT_DECIMAL, INT_HEX
 	};
 
 	TextField();
@@ -22,7 +22,7 @@ public:
 	/* Set the text field's input type. This determines how the text
 	 * will be interpreted when a message is sent.
 	 */
-	void setType(Type newType);
+	void setType(type newType);
 
 	/* Set the current text. If it's longer than the current maximum length,
 	 * only that many characters will be kept. However, if the maximum length
@@ -64,7 +64,7 @@ public:
 
 private:
 	std::unique_ptr<char[]> buffer;
-	Type type;
+	type tfType;
 	size_t maxLength;
 	DialogRef alDialog;
 	int onEnterMsg, onValueChangedMsg;

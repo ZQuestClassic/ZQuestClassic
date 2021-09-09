@@ -2,7 +2,7 @@
 #include "../zc_alleg.h"
 #include "../zquest.h"
 
-namespace gui
+namespace GUI
 {
 
 int getAccelKey(const std::string_view text)

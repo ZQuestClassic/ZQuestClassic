@@ -8,7 +8,7 @@
 #include "window.h"
 #include <memory>
 
-namespace gui { namespace internal {
+namespace GUI::Internal {
 
 std::shared_ptr<Button> makeButton()
 {
@@ -71,4 +71,4 @@ std::shared_ptr<Switcher> makeSwitcher()
 	return std::make_shared<Switcher>();
 }
 
-}} // namespace gui::internal
+} // namespace GUI::Internal

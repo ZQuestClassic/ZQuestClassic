@@ -4,17 +4,17 @@
 #include "widget.h"
 #include "dialogRef.h"
 
-namespace gui
+namespace GUI
 {
 
 class Checkbox: public Widget
 {
 public:
-	enum class BoxPlacement { right, left };
+	enum class boxPlacement { RIGHT, LEFT };
 
 	Checkbox();
 	void setText(std::string newText);
-	void setBoxPlacement(BoxPlacement bp);
+	void setBoxPlacement(boxPlacement newPlacement);
 	void setChecked(bool value);
 	bool getChecked();
 	void setVisible(bool visible) override;
@@ -28,7 +28,7 @@ public:
 private:
 	bool checked;
 	std::string text;
-	BoxPlacement boxPlacement;
+	boxPlacement placement;
 	DialogRef alDialog;
 	int message;
 

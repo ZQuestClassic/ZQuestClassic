@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 
-namespace gui
+namespace GUI
 {
 
 class Window: public TopLevelWidget

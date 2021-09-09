@@ -8,7 +8,7 @@
 
 struct DIALOG;
 
-namespace gui
+namespace GUI
 {
 
 class DialogRunner;
@@ -20,7 +20,7 @@ public:
 
 	/* Add a keyboard shortcut. */
 	template<typename T>
-	inline void onKey(Key k, T message)
+	inline void onKey(ShortcutKey k, T message)
 	{
 		shortcuts.emplace_back(KeyboardShortcut {
 			k.get(), static_cast<int>(message)

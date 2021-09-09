@@ -5,7 +5,7 @@
 
 extern bool is_large;
 
-namespace gui
+namespace GUI
 {
 
 /* Finds the first character preceded by & and returns it. && is ignored.

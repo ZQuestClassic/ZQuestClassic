@@ -9,7 +9,7 @@
 #include <memory>
 #include <type_traits>
 
-namespace gui
+namespace GUI
 {
 
 class DialogRunner
@@ -20,10 +20,10 @@ public:
 	template<typename T>
 	void runWithArg(T& dlg)
 	{
-		sendMessage=[&dlg, this](int message, MessageArg arg)
+		sendMessage=[&dlg, this](int msg, MessageArg arg)
 		{
 			this->done=this->done ||
-				dlg.handleMessage(static_cast<typename T::Message>(message), arg);
+				dlg.handleMessage(static_cast<typename T::message>(msg), arg);
 		};
 
 		runInner(dlg.view());
@@ -32,10 +32,10 @@ public:
 	template<typename T>
 	void runWithoutArg(T& dlg)
 	{
-		sendMessage=[&dlg, this](int message, MessageArg)
+		sendMessage=[&dlg, this](int msg, MessageArg)
 		{
 			this->done=this->done ||
-				dlg.handleMessage(static_cast<typename T::Message>(message));
+				dlg.handleMessage(static_cast<typename T::message>(msg));
 		};
 
 		runInner(dlg.view());
@@ -78,7 +78,7 @@ private:
 template<typename T>
 std::enable_if_t<
 	std::is_invocable_v<
-		decltype(&T::handleMessage), T&, typename T::Message, gui::MessageArg
+		decltype(&T::handleMessage), T&, typename T::message, GUI::MessageArg
 	>, void>
 showDialog(T& dlg)
 {
@@ -89,7 +89,7 @@ showDialog(T& dlg)
 template<typename T>
 std::enable_if_t<
 	std::is_invocable_v<
-		decltype(&T::handleMessage), T&, typename T::Message
+		decltype(&T::handleMessage), T&, typename T::message
 	>, void>
 showDialog(T& dlg)
 {
@@ -103,16 +103,16 @@ showDialog(T& dlg)
 template<typename T, bool b=false>
 std::enable_if_t<
 	!std::is_invocable_v<
-		decltype(&T::handleMessage), T&, typename T::Message, gui::MessageArg>
+		decltype(&T::handleMessage), T&, typename T::message, GUI::MessageArg>
 	&& !std::is_invocable_v<
-		decltype(&T::handleMessage), T&, typename T::Message
+		decltype(&T::handleMessage), T&, typename T::message
 	>, void>
 showDialog(T& dlg)
 {
 	ZCGUI_STATIC_ASSERT(b,
 		"No valid handleMessage() implementation found.\n"
 		"You must implement one of the following:\n"
-		"handleMessage([DialogClass]::Message, gui::EventArg)\n"
+		"handleMessage([DialogClass]::Message, GUI::EventArg)\n"
 		"handleMessage([DialogClass]::Message)");
 }
 

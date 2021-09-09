@@ -6,7 +6,7 @@
 #include <utility>
 #include <variant>
 
-namespace gui
+namespace GUI
 {
 
 class MessageArg

@@ -5,7 +5,7 @@
 #include "widget.h"
 #include <memory>
 
-namespace gui
+namespace GUI
 {
 
 template<typename T>

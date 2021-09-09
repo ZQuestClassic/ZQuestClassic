@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-namespace gui
+namespace GUI
 {
 
 class DialogRunner;

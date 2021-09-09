@@ -5,7 +5,7 @@
 #include "../zc_alleg.h"
 #include <utility>
 
-namespace gui
+namespace GUI
 {
 
 int TopLevelWidget::proc(int msg, DIALOG* d, int c)

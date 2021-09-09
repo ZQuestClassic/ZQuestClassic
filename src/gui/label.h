@@ -5,7 +5,7 @@
 #include "dialogRef.h"
 #include <string>
 
-namespace gui
+namespace GUI
 {
 
 class Label: public Widget

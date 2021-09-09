@@ -8,7 +8,7 @@
 
 #define FONT sized(nfont, lfont_l)
 
-namespace gui
+namespace GUI
 {
 
 Label::Label(): text(), maxLines(1), contX(0), contY(0), contW(0), contH(0)

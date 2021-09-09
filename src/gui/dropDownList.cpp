@@ -9,7 +9,7 @@
 #define FONT sized(nfont, lfont_l)
 #define FONT_PTR sized(&nfont, &lfont_l)
 
-namespace gui
+namespace GUI
 {
 
 DropDownList::DropDownList():
@@ -25,7 +25,7 @@ DropDownList::DropDownList():
 	bgColor=jwin_pal[jcTEXTBG];
 }
 
-void DropDownList::setListData(const ::gui::ListData& newListData)
+void DropDownList::setListData(const ::GUI::ListData& newListData)
 {
 	listData=&newListData;
 }

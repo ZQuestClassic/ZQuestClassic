@@ -2,7 +2,7 @@
 #include "dialog.h"
 #include "dialogRunner.h"
 
-namespace gui
+namespace GUI
 {
 
 DialogRef::DialogRef(): owner(nullptr)

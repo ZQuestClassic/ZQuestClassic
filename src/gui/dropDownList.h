@@ -7,7 +7,7 @@
 #include "../jwin.h"
 #include <vector>
 
-namespace gui
+namespace GUI
 {
 
 class DialogRunner;
@@ -16,7 +16,7 @@ class DropDownList: public Widget
 {
 public:
 	DropDownList();
-	void setListData(const ::gui::ListData& newListData);
+	void setListData(const ::GUI::ListData& newListData);
 	void setSelectedValue(int value);
 	void setSelectedIndex(int index);
 	int getSelectedValue() const;
@@ -31,7 +31,7 @@ public:
 private:
 	// A bit ugly because there was already a ListData struct in jwin
 	::ListData jwinListWrapper;
-	const ::gui::ListData* listData;
+	const ::GUI::ListData* listData;
 	int selectedIndex, selectedValue;
 	DialogRef alDialog;
 	int message;

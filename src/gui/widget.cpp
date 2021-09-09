@@ -4,7 +4,7 @@
 #include "../zdefs.h"
 #include <cassert>
 
-namespace gui
+namespace GUI
 {
 
 Widget::Widget():

@@ -9,14 +9,14 @@ CheatCodesDialog::CheatCodesDialog(bool enabled,
 		setCheatCodes(setCheatCodes)
 {}
 
-std::shared_ptr<gui::Widget> CheatCodesDialog::view()
+std::shared_ptr<GUI::Widget> CheatCodesDialog::view()
 {
-	using namespace gui::builder;
-	using namespace gui::props;
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
 
 	return Window(
 		title="Cheat Codes",
-		onClose=Message::cancel,
+		onClose=message::CANCEL,
 		Column(
 			this->enabledCB=Checkbox(
 				hAlign=0.95,
@@ -37,41 +37,41 @@ std::shared_ptr<gui::Widget> CheatCodesDialog::view()
 				this->textFields[0]=TextField(
 					maxLength=40,
 					text=this->oldCodes[0],
-					onEnter=Message::ok),
+					onEnter=message::OK),
 				this->textFields[1]=TextField(
 					maxLength=40,
 					text=this->oldCodes[1],
-					onEnter=Message::ok),
+					onEnter=message::OK),
 				this->textFields[2]=TextField(
 					maxLength=40,
 					text=this->oldCodes[2],
-					onEnter=Message::ok),
+					onEnter=message::OK),
 				this->textFields[3]=TextField(
 					maxLength=40,
 					text=this->oldCodes[3],
-					onEnter=Message::ok)
+					onEnter=message::OK)
 			),
 			Row(
 				vPadding=10,
 				vAlign=1.0,
 				Button(
 					text="OK",
-					onClick=Message::ok,
+					onClick=message::OK,
 					hPadding=30),
 				Button(
 					text="Cancel",
-					onClick=Message::cancel,
+					onClick=message::CANCEL,
 					hPadding=30)
 			)
 		)
 	);
 }
 
-bool CheatCodesDialog::handleMessage(Message msg)
+bool CheatCodesDialog::handleMessage(message msg)
 {
 	switch(msg)
 	{
-	case Message::ok:
+	case message::OK:
 		{
 			std::string_view newCodes[4]={
 				textFields[0]->getText(), textFields[1]->getText(),
@@ -80,7 +80,7 @@ bool CheatCodesDialog::handleMessage(Message msg)
 			setCheatCodes(enabledCB->getChecked(), newCodes);
 		}
 		[[fallthrough]];
-	case Message::cancel:
+	case message::CANCEL:
 	default:
 		return true;
 	}

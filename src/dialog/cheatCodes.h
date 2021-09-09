@@ -7,22 +7,22 @@
 #include <functional>
 #include <string_view>
 
-class CheatCodesDialog: public gui::Dialog<CheatCodesDialog>
+class CheatCodesDialog: public GUI::Dialog<CheatCodesDialog>
 {
 public:
-	enum class Message { ok, cancel };
+	enum class message { OK, CANCEL };
 
 	CheatCodesDialog(bool enabled, std::string_view oldCodes[4],
 		std::function<void(bool, std::string_view[4])> setCheatCodes);
 
-	std::shared_ptr<gui::Widget> view() override;
-	bool handleMessage(Message msg);
+	std::shared_ptr<GUI::Widget> view() override;
+	bool handleMessage(message msg);
 
 private:
 	bool enabled;
-	std::shared_ptr<gui::Checkbox> enabledCB;
+	std::shared_ptr<GUI::Checkbox> enabledCB;
 	std::string_view oldCodes[4];
-	std::shared_ptr<gui::TextField> textFields[4];
+	std::shared_ptr<GUI::TextField> textFields[4];
 	std::function<void(bool, std::string_view[4])> setCheatCodes;
 };
 

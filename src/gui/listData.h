@@ -5,7 +5,7 @@
 #include <string>
 #include <initializer_list>
 
-namespace gui
+namespace GUI
 {
 
 // Type and functions for the most common cases (?)

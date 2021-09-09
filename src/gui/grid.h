@@ -6,23 +6,23 @@
 #include <memory>
 #include <vector>
 
-namespace gui
+namespace GUI
 {
 
 class Grid: public Widget
 {
 public:
-	Grid(): gridType(Type::rows), size(2) {}
+	Grid(): gridType(type::ROWS), size(2) {}
 	static std::shared_ptr<Grid> rows(size_t itemsPerRow);
 	static std::shared_ptr<Grid> columns(size_t itemsPerCol);
 	void add(std::shared_ptr<Widget> child);
 	void setVisible(bool visible) override;
 
 private:
-	enum class Type { rows, columns };
+	enum class type { ROWS, COLUMNS };
 	std::vector<std::shared_ptr<Widget>> children;
 	std::vector<int> rowWidths, colWidths, rowHeights, colHeights;
-	Type gridType;
+	type gridType;
 	size_t size;
 
 	void calculateSize() override;
