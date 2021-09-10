@@ -103,8 +103,8 @@ bool WhateverDialog::handleMessage(message msg, GUI::MessageArg msgArg)
     switch(msg)
     {
     case message::SET_VALUE:
-		// A numeric TextField sends its argument as an int;
-		// this will be implicitly cast.
+        // A numeric TextField sends its argument as an int;
+        // this will be implicitly cast.
         value=msgArg;
         warningLabel->setVisible(value<0);
         return false;
