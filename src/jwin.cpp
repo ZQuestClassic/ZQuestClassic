@@ -4353,51 +4353,9 @@ int jwin_menu_proc(int msg, DIALOG *d, int c)
     return ret;
 }
 
-static DIALOG selcolor_dlg[] =
-{
-	{ jwin_win_proc,       0,    0,  256,  141,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Select Color",  NULL,  NULL },
-	{ jwin_button_proc,   64,  118,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"OK",  NULL,  NULL },
-	{ jwin_button_proc,  128,  118,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Cancel",  NULL,  NULL },
-	//{ jwin_selcolor_proc, 64,   20,   16*8,   12*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
-	
-	{ NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
-};
+
 
 extern FONT* lfont;
-int jwin_color_swatch(int msg, DIALOG *d, int c)
-{
-	int ret = D_O_K;
-	switch(msg)
-	{
-		case MSG_DRAW:
-		{
-			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, (d->flags&D_DISABLED) ? jwin_pal[jcBOX] : d->d1);
-			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
-			break;
-		}
-		
-		case MSG_CLICK:
-		{
-			if(d->flags&D_DISABLED) break;
-			selcolor_dlg[0].dp2 = lfont;
-			selcolor_dlg[3].bg = jwin_pal[jcBOXFG];
-			selcolor_dlg[3].fg = jwin_pal[jcBOX];
-			selcolor_dlg[3].d1 = d->d1;
-			if(is_large)
-				large_dialog(selcolor_dlg);
-			while(gui_mouse_b()); //wait for mouseup
-			int val = popup_zqdialog(selcolor_dlg, 3);
-			if(val == 1 || val == 3)
-			{
-				d->d1 = selcolor_dlg[3].d1;
-				ret = D_REDRAWME;
-			}
-			break;
-		}
-	}
-	return ret;
-}
-
 static DIALOG alert_dialog[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)   (dp2)  (dp3) */
