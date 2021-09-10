@@ -150,6 +150,7 @@ sprite::sprite()
 	    weap_inita[q] = 0;
     }
 	glowRad = 0;
+	glowShape = 0;
 }
 
 sprite::sprite(sprite const & other):
@@ -222,7 +223,8 @@ old_cset(other.old_cset),
 drownclk(other.drownclk),
 drownCombo(other.drownCombo),
 do_animation(other.do_animation),
-glowRad(other.glowRad)
+glowRad(other.glowRad),
+glowShape(other.glowShape)
 
 {
     uid = getNextUID();
@@ -348,6 +350,7 @@ sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
     }
     memset(stack, 0xFFFF, sizeof(stack));
 	glowRad = 0;
+	glowShape = 0;
 }
 
 sprite::~sprite()
@@ -1042,7 +1045,7 @@ bool sprite::runKnockback()
 void sprite::draw(BITMAP* dest)
 {
 	//Handle glowing sprites
-	doDarkroomCircle(x.getInt()+(hxsz/2), y.getInt()+(hysz/2), glowRad);
+	handle_sprlighting();
 	if(!show_sprites)
 	{
 		return;

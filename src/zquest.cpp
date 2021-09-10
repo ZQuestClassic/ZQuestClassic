@@ -37283,4 +37283,5 @@ void zprint2(const char * const format,...)
 }
 
 void doDarkroomCircle(int cx, int cy, byte glowRad,BITMAP* dest,BITMAP* transdest){}
+void doDarkroomCone(int sx, int sy, byte glowRad, int dir, BITMAP* dest,BITMAP* transdest){}
 

@@ -148,6 +148,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t);
 
 //
 void doDarkroomCircle(int cx, int cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL);
+void doDarkroomCone(int sx, int sy, byte glowRad, int dir, BITMAP* dest=NULL,BITMAP* transdest=NULL);
 
 //extern FONT *lfont;
 /****  View Map  ****/

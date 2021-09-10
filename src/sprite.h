@@ -136,12 +136,13 @@ public:
 	int drownCombo; // Pitfall fallen combo
 	bool isspawning;
 	
-	byte glowRad;
+	byte glowRad, glowShape;
     
     sprite();
     sprite(sprite const & other);
     sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs);
     virtual ~sprite();
+	virtual void handle_sprlighting();
     virtual void draw(BITMAP* dest);                        // main layer
     virtual void drawzcboss(BITMAP* dest);                        // main layer
     virtual void old_draw(BITMAP* dest);                        // main layer

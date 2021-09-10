@@ -4247,7 +4247,14 @@ enum ASM_DEFINE
 #define LWPNGLOWRAD 			0x13E5
 #define EWPNGLOWRAD 			0x13E6
 
-#define NUMVARIABLES         	0x13E7
+#define ITEMGLOWSHP 			0x13E7
+#define NPCGLOWSHP 			0x13E8
+#define LWPNGLOWSHP 			0x13E9
+#define EWPNGLOWSHP 			0x13EA
+
+#define ITEMDIR 			0x13EB
+
+#define NUMVARIABLES         	0x13EC
 
 //} End variables
 

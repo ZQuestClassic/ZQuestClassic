@@ -21493,35 +21493,6 @@ int LinkClass::get_scroll_delay(int scrolldir)
 	}
 }
 
-void doDarkroomCone(int sx, int sy, byte glowRad, int dir, BITMAP* dest=NULL,BITMAP* transdest=NULL)
-{
-	if(!glowRad) return;
-	//Default bitmap handling
-	if(!dest) dest = darkscr_bmp_curscr;
-	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
-	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
-	//
-	int ditherDiff = (int)(glowRad * (game->get_dither_perc()/(double)100.0));
-	int transDiff = (int)(glowRad * (game->get_transdark_perc()/(double)100.0));
-	int ditherRad = glowRad + 2*ditherDiff;
-	int transRad = glowRad + 2*transDiff;
-	
-	int xs = 0, ys = 0;
-	switch(dir)
-	{
-		case up: ys=1; break;
-		case down: ys=-1; break;
-		case left: xs=1; break;
-		case right: xs=-1; break;
-	}
-	ditherLampCone(dest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, dir, 0, game->get_dither_type(), game->get_dither_arg());
-	if(glowRad>transRad) transDiff = 0;
-	lampcone(dest, sx+(xs*transDiff), sy+(ys*transDiff), zc_max(glowRad,transRad), dir, 0);
-	
-	ditherLampCone(transdest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, dir, 0, game->get_dither_type(), game->get_dither_arg());
-	lampcone(transdest, sx, sy, glowRad, dir, 0);
-}
-
 void LinkClass::calc_darkroom_link(int x1, int y1, int x2, int y2)
 {
 	int itemid = current_item_id(itype_lantern);

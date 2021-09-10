@@ -1900,6 +1900,13 @@ string ZScript::VarToString(long ID)
 	case LWPNGLOWRAD: return "LWPNGLOWRAD";
 	case EWPNGLOWRAD: return "EWPNGLOWRAD";
 	
+	case ITEMGLOWSHP: return "ITEMGLOWSHP";
+	case NPCGLOWSHP: return "NPCGLOWSHP";
+	case LWPNGLOWSHP: return "LWPNGLOWSHP";
+	case EWPNGLOWSHP: return "EWPNGLOWSHP";
+	
+	case ITEMDIR: return "ITEMDIR";
+	
 	default:
 	{
 		sprintf(temp, "d%d", ID);

@@ -4747,10 +4747,25 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		
 		case ITEMGLOWRAD:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				ret = ((item*)(s))->glowRad * 10000;
+			}
+			break;
+			
+		case ITEMGLOWSHP:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->glowShape * 10000;
+			}
+			break;
+			
+		case ITEMDIR:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->dir * 10000;
 			}
 			break;
 			
@@ -5834,10 +5849,18 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		
 		case NPCGLOWRAD:
 			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->glowRad * 10000;
+			}
+			break;
+			
+		case NPCGLOWSHP:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightShape") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->glowShape * 10000;
 			}
 			break;
 		
@@ -6255,6 +6278,13 @@ long get_register(const long arg)
 			}
 			break;
 			
+		case LWPNGLOWSHP:
+			if(0!=(s=checkLWpn(ri->lwpn,"LightShape")))
+			{
+				ret = ((weapon*)(s))->glowShape * 10000;
+			}
+			break;
+			
 		///----------------------------------------------------------------------------------------------------//
 		//EWeapon Variables
 		case EWPNSCALE:
@@ -6641,6 +6671,13 @@ long get_register(const long arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
 			{
 				ret = ((weapon*)(s))->glowRad * 10000;
+			}
+			break;
+			
+		case EWPNGLOWSHP:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
+			{
+				ret = ((weapon*)(s))->glowShape * 10000;
 			}
 			break;
 		
@@ -12612,10 +12649,25 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
 		case ITEMGLOWRAD:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				((item*)(s))->glowRad = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case ITEMGLOWSHP:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->glowShape = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case ITEMDIR:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->dir=(value/10000);
 			}
 			break;
 			
@@ -13439,6 +13491,13 @@ void set_register(const long arg, const long value)
 			}
 			break;
 			
+		case LWPNGLOWSHP:
+			if(0!=(s=checkLWpn(ri->lwpn,"LightShape")))
+			{
+				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
+			}
+			break;
+			
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
 		case EWPNSCALE:
@@ -13813,10 +13872,17 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
 		case EWPNGLOWRAD:
 			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
 			{
 				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
+			}
+			break;
+		case EWPNGLOWSHP:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
+			{
+				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
@@ -14588,10 +14654,17 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
 		case NPCGLOWRAD:
 			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
 			{
 				GuyH::getNPC()->glowRad = vbound(value/10000,0,255);
+			}
+			break;
+		case NPCGLOWSHP:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightShape") == SH::_NoError)
+			{
+				GuyH::getNPC()->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 		
@@ -35647,7 +35720,7 @@ script_variable ZASMVars[]=
 	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
 	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
 	{ "SCREENSECRETSTRIGGERED", SCREENSECRETSTRIGGERED, 0, 0 },
-	{ "PADDINGR9", PADDINGR9, 0, 0 },
+	{ "ITEMDIR", ITEMDIR, 0, 0 },
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
@@ -35657,6 +35730,10 @@ script_variable ZASMVars[]=
 	{ "NPCGLOWRAD",           NPCGLOWRAD,            0,             0 },
 	{ "LWPNGLOWRAD",           LWPNGLOWRAD,            0,             0 },
 	{ "EWPNGLOWRAD",           EWPNGLOWRAD,            0,             0 },
+	{ "ITEMGLOWSHP",           ITEMGLOWSHP,            0,             0 },
+	{ "NPCGLOWSHP",           NPCGLOWSHP,            0,             0 },
+	{ "LWPNGLOWSHP",           LWPNGLOWSHP,            0,             0 },
+	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
