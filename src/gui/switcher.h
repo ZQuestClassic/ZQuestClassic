@@ -17,13 +17,20 @@ class Switcher: public Widget
 {
 public:
 	Switcher();
-	void add(std::shared_ptr<Widget> child);
+
+	inline void add(std::shared_ptr<Widget> child)
+	{
+		children.push_back({ child, 0 });
+	}
 
 	/* Makes the widget with the given index visible, hiding all others. */
 	void switchTo(size_t index);
 
 	/* Returns the index of the currently visible widget. */
-	size_t getCurrentIndex() const;
+	inline size_t getCurrentIndex() const
+	{
+		return visibleChild;
+	}
 
 	void setVisible(bool visible) override;
 

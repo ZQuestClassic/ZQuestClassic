@@ -15,11 +15,16 @@ public:
 	Grid(): gridType(type::ROWS), size(2) {}
 	static std::shared_ptr<Grid> rows(size_t itemsPerRow);
 	static std::shared_ptr<Grid> columns(size_t itemsPerCol);
-	void add(std::shared_ptr<Widget> child);
 	void setVisible(bool visible) override;
+
+	inline void add(std::shared_ptr<Widget> child)
+	{
+		children.push_back(child);
+	}
 
 private:
 	enum class type { ROWS, COLUMNS };
+
 	std::vector<std::shared_ptr<Widget>> children;
 	std::vector<int> rowWidths, colWidths, rowHeights, colHeights;
 	type gridType;

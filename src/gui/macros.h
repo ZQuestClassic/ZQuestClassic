@@ -30,15 +30,13 @@ struct name##Prop                                                               
     struct Value: ::GUI::Props::Property                                                           \
     {                                                                                              \
         using TagType=name##Prop::TagType;                                                         \
-        static TagType tag;                                                                        \
+        static constexpr TagType tag={};                                                           \
         T&& val;                                                                                   \
                                                                                                    \
-        Value(T&& t):                                                                              \
-            val(std::forward<T>(t))                                                                \
-        {                                                                                          \
-        }                                                                                          \
+        inline constexpr Value(T&& t): val(std::forward<T>(t))                                     \
+        {}                                                                                         \
                                                                                                    \
-        inline T&& get() const                                                                     \
+        inline constexpr T&& get() const                                                           \
         {                                                                                          \
             return std::forward<T>(val);                                                           \
         }                                                                                          \
@@ -60,7 +58,8 @@ struct name##Prop                                                               
         }                                                                                          \
     };                                                                                             \
                                                                                                    \
-    template<typename T> Value<T> operator=(T&& t) const                                           \
+    template<typename T>                                                                           \
+	inline constexpr Value<T> operator=(T&& t) const                                               \
     {                                                                                              \
         return Value<T>(std::forward<T>(t));                                                       \
     }                                                                                              \
@@ -82,15 +81,13 @@ struct name##Prop                                                               
     struct Value: ::GUI::Props::Property                                                           \
     {                                                                                              \
         using TagType=name##Prop::TagType;                                                         \
-        static TagType tag;                                                                        \
+        static constexpr TagType tag={};                                                           \
         T&& val;                                                                                   \
                                                                                                    \
-        Value(T&& t):                                                                              \
-            val(std::forward<T>(t))                                                                \
-        {                                                                                          \
-        }                                                                                          \
+        inline constexpr Value(T&& t): val(std::forward<T>(t))                                     \
+        {}                                                                                         \
                                                                                                    \
-        inline T&& get() const                                                                     \
+        inline constexpr T&& get() const                                                           \
         {                                                                                          \
             return std::forward<T>(val);                                                           \
         }                                                                                          \
@@ -112,7 +109,8 @@ struct name##Prop                                                               
         }                                                                                          \
     };                                                                                             \
                                                                                                    \
-    template<typename T=type> Value<T> operator=(T&& t) const                                      \
+    template<typename T=type>                                                                      \
+	inline constexpr Value<T> operator=(T&& t) const                                               \
     {                                                                                              \
         return Value<T>(std::forward<T>(t));                                                       \
     }                                                                                              \
@@ -128,11 +126,9 @@ struct widgetType##Builder                                                      
                                                                                                    \
     std::shared_ptr<widgetType> ptr;                                                               \
                                                                                                    \
-    widgetType##Builder(std::shared_ptr<widgetType>&& p):                                          \
+    inline widgetType##Builder(std::shared_ptr<widgetType>&& p):                                   \
         ptr(std::move(p))                                                                          \
-    {                                                                                              \
-                                                                                                   \
-    }                                                                                              \
+    {}                                                                                             \
                                                                                                    \
     inline std::shared_ptr<widgetType> resolve() const                                             \
     {                                                                                              \

@@ -22,20 +22,22 @@ public:
 	/* This is used when converting 0-9 to a ShortcutKey.
 	 * 27 is __allegro_KEY_0.
 	 */
-	constexpr ShortcutKey(int value): value((value+27)<<8)
+	constexpr ShortcutKey(int value) noexcept: value((value+27)<<8)
 	{}
 
 	/* This one is used for constants. It just has a second argument
 	* to distinguish it from the one above.
 	*/
-	constexpr ShortcutKey(unsigned short value, DummyType): value(value)
+	inline constexpr ShortcutKey(unsigned short value, DummyType) noexcept:
+		value(value)
 	{}
 
-	constexpr ShortcutKey(const ShortcutKey& other): value(other.value)
+	inline constexpr ShortcutKey(const ShortcutKey& other) noexcept:
+		value(other.value)
 	{}
 
 	/* Used to combine keys, e.g. Ctrl+F. */
-	inline constexpr ShortcutKey operator+(ShortcutKey rhs) const
+	inline constexpr ShortcutKey operator+(ShortcutKey rhs) const noexcept
 	{
 		// It's actually OR, but writing Ctrl+X is more natural.
 		// Not that it should make any difference with these.
@@ -43,18 +45,18 @@ public:
 	}
 
 	/* Used for number keys, e.g. Ctrl+9. */
-	inline constexpr ShortcutKey operator+(int rhs) const
+	inline constexpr ShortcutKey operator+(int rhs) const noexcept
 	{
 		return this->operator+(ShortcutKey(rhs));
 	}
 
 	template<typename T>
-	inline constexpr KeyboardShortcut operator=(T t) const
+	inline constexpr KeyboardShortcut operator=(T t) const noexcept
 	{
 		return KeyboardShortcut { value, static_cast<int>(t) };
 	}
 
-	inline constexpr unsigned short get() const
+	inline constexpr unsigned short get() const noexcept
 	{
 		return value;
 	}

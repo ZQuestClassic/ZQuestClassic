@@ -28,21 +28,6 @@ ListData::ListData(std::function<std::string(size_t, const BasicData&)> format,
 	}
 }
 
-size_t ListData::size() const
-{
-	return listEntries.size();
-}
-
-const std::string& ListData::listEntry(size_t index) const
-{
-	return listEntries.at(index);
-}
-
-const int ListData::value(size_t index) const
-{
-	return values.at(index);
-}
-
 std::string itemText(size_t, const BasicData& data)
 {
 	return boost::str(boost::format("%1%") % data.text);

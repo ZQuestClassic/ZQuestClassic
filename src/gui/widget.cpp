@@ -7,7 +7,7 @@
 namespace GUI
 {
 
-Widget::Widget():
+Widget::Widget() noexcept:
 	x(0), y(0),
 	fgColor(vc(14)), bgColor(vc(1)),
 	hPadding(sized(2, 3)), vPadding(sized(2, 3)),
@@ -16,48 +16,28 @@ Widget::Widget():
 	flags(0)
 {}
 
-void Widget::overrideWidth(Size newWidth)
+void Widget::overrideWidth(Size newWidth) noexcept
 {
 	flags|=f_widthOverridden;
 	width=newWidth;
 }
 
-void Widget::overrideHeight(Size newHeight)
+void Widget::overrideHeight(Size newHeight) noexcept
 {
 	flags|=f_heightOverridden;
 	height=newHeight;
 }
 
-void Widget::setPreferredWidth(Size newWidth)
+void Widget::setPreferredWidth(Size newWidth) noexcept
 {
 	if((flags&f_widthOverridden)==0)
 		width=newWidth;
 }
 
-void Widget::setPreferredHeight(Size newHeight)
+void Widget::setPreferredHeight(Size newHeight) noexcept
 {
 	if((flags&f_heightOverridden)==0)
 		height=newHeight;
-}
-
-void Widget::setHPadding(int amount)
-{
-	hPadding=amount;
-}
-
-void Widget::setVPadding(int amount)
-{
-	vPadding=amount;
-}
-
-void Widget::setHAlign(float align)
-{
-	hAlign=align;
-}
-
-void Widget::setVAlign(float align)
-{
-	vAlign=align;
 }
 
 void Widget::setVisible(bool visible)
@@ -89,7 +69,7 @@ void Widget::arrange(int contX, int contY, int contW, int contH)
 	y=contY+vExcess*vAlign;
 }
 
-int Widget::getFlags()
+int Widget::getFlags() noexcept
 {
 	int ret=D_NEW_GUI;
 	if(flags&f_hidden)

@@ -22,11 +22,13 @@ Window::Window(): content(nullptr), title(""), closeMessage(-1)
 void Window::setTitle(std::string newTitle)
 {
 	title=std::move(newTitle);
+	if(alDialog)
+		alDialog->dp=title.data();
 }
 
-void Window::setContent(shared_ptr<Widget> newContent)
+void Window::setContent(shared_ptr<Widget> newContent) noexcept
 {
-	content=newContent;
+	content=std::move(newContent);
 }
 
 void Window::setVisible(bool visible)
@@ -89,7 +91,7 @@ void Window::realize(DialogRunner& runner)
 		0, // key
 		getFlags()|(closeMessage>=0 ? D_EXIT : 0), // flags,
 		0, 0, // d1, d2
-		(void*)title.c_str(), lfont, nullptr // dp, dp2, dp3
+		title.data(), lfont, nullptr // dp, dp2, dp3
 	});
 
 	if(content)

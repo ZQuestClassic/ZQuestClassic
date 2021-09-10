@@ -15,12 +15,18 @@ class DialogRunner;
 class DialogRef
 {
 public:
+	// All of these functions could reasonably be inlined, but DialogRunner
+	// needs DialogRef defined ahead of it.
+	// They could both go in the same file...
 	DialogRef();
 	DIALOG* operator->();
 	const DIALOG* operator->() const;
 	DIALOG& operator[](int offset);
 	const DIALOG& operator[](int offset) const;
-	operator bool() const;
+	operator bool() const
+	{
+		return owner;
+	}
 
 private:
 	DialogRunner* owner;

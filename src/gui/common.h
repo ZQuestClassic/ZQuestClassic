@@ -26,35 +26,38 @@ class Size
 public:
 	static Size em(size_t size);
 	static Size em(double size);
-	static Size pixels(int size);
 	static Size largePixels(int size);
+	static inline constexpr Size pixels(int size)
+	{
+		return Size(size);
+	}
 
-	inline operator int() const
+	inline constexpr operator int() const
 	{
 		return value;
 	}
 
-	inline Size operator+(const Size& other) const
+	inline constexpr Size operator+(const Size& other) const
 	{
 		return Size(value+other.value);
 	}
 
-	inline bool operator<(const Size& other) const
+	inline constexpr bool operator<(const Size& other) const
 	{
 		return value<other.value;
 	}
 
-	inline bool operator>(const Size& other) const
+	inline constexpr bool operator>(const Size& other) const
 	{
 		return value>other.value;
 	}
 
-	inline bool operator==(const Size& other) const
+	inline constexpr bool operator==(const Size& other) const
 	{
 		return value==other.value;
 	}
 
-	inline bool operator!=(const Size& other) const
+	inline constexpr bool operator!=(const Size& other) const
 	{
 		return value!=other.value;
 	}
@@ -62,7 +65,7 @@ public:
 private:
 	int value;
 
-	Size(int raw);
+	inline constexpr Size(int raw): value(raw) {}
 };
 
 inline Size operator ""_em(unsigned long long size)
@@ -75,7 +78,7 @@ inline Size operator ""_em(long double size)
 	return Size::em((double)size);
 }
 
-inline Size operator ""_px(unsigned long long size)
+inline constexpr Size operator ""_px(unsigned long long size)
 {
 	return Size::pixels(size);
 }

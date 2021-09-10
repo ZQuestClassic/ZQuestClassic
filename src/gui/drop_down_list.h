@@ -16,7 +16,12 @@ class DropDownList: public Widget
 {
 public:
 	DropDownList();
-	void setListData(const ::GUI::ListData& newListData);
+
+	inline void setListData(const ::GUI::ListData& newListData)
+	{
+		listData=&newListData;
+	}
+
 	void setSelectedValue(int value);
 	void setSelectedIndex(int index);
 	int getSelectedValue() const;

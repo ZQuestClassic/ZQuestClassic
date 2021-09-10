@@ -8,11 +8,6 @@ namespace GUI
 Switcher::Switcher(): visibleChild(0)
 {}
 
-void Switcher::add(std::shared_ptr<Widget> child)
-{
-	children.push_back({ child, 0 });
-}
-
 void Switcher::switchTo(size_t index)
 {
 	if(index==visibleChild)
@@ -27,11 +22,6 @@ void Switcher::switchTo(size_t index)
 		setChildVisible(index, true);
 	}
 	visibleChild=index;
-}
-
-size_t Switcher::getCurrentIndex() const
-{
-	return visibleChild;
 }
 
 void Switcher::setVisible(bool visible)

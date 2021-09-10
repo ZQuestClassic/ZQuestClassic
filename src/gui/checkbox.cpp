@@ -34,6 +34,8 @@ void Checkbox::setBoxPlacement(boxPlacement newPlacement)
 void Checkbox::setChecked(bool value)
 {
 	checked=value;
+	if(alDialog)
+		alDialog->flags|=D_SELECTED;
 }
 
 bool Checkbox::getChecked()

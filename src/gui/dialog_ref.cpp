@@ -32,9 +32,4 @@ const DIALOG& DialogRef::operator[](int offset) const
 	return owner->alDialog.at(index+offset);
 }
 
-DialogRef::operator bool() const
-{
-	return owner;
-}
-
 }

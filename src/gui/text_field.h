@@ -22,7 +22,10 @@ public:
 	/* Set the text field's input type. This determines how the text
 	 * will be interpreted when a message is sent.
 	 */
-	void setType(type newType);
+	inline void setType(type newType)
+	{
+		tfType=newType;
+	}
 
 	/* Set the current text. If it's longer than the current maximum length,
 	 * only that many characters will be kept. However, if the maximum length
@@ -34,7 +37,10 @@ public:
 	 * according to the type. The string_view is owned by the TextField,
 	 * so don't hold on to it after the dialog is closed.
 	 */
-	std::string_view getText();
+	inline std::string_view getText()
+	{
+		return maxLength>0 ? buffer.get() : "";
+	}
 
 	/* Set the maximum length of the text, not including the null terminator.
 	 */

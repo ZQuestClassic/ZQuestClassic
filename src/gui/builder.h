@@ -28,26 +28,67 @@ namespace Internal
 struct DummyType {};
 extern DummyType dummy; // Not defined anywhere
 
-template<void(*)(DummyType&), bool b=false>
-struct WidgetPtrType
+// Regular widgets
+
+inline std::shared_ptr<Button> makeButton()
 {
-	ZCGUI_STATIC_ASSERT(b, "Not a widget type");
-	using WidgetType=int;
-};
+	return std::make_shared<Button>();
+}
 
-// TODO: Just inline these
-std::shared_ptr<Button> makeButton();
-std::shared_ptr<Checkbox> makeCheckbox();
-std::shared_ptr<DropDownList> makeDropDownList();
-std::shared_ptr<Label> makeLabel();
-std::shared_ptr<TextField> makeTextField();
-std::shared_ptr<Window> makeWindow();
+inline std::shared_ptr<Checkbox> makeCheckbox()
+{
+	return std::make_shared<Checkbox>();
+}
 
-std::shared_ptr<Grid> makeRow();
-std::shared_ptr<Grid> makeRows(size_t size);
-std::shared_ptr<Grid> makeColumn();
-std::shared_ptr<Grid> makeColumns(size_t size);
-std::shared_ptr<Switcher> makeSwitcher();
+inline std::shared_ptr<DropDownList> makeDropDownList()
+{
+	return std::make_shared<DropDownList>();
+}
+
+inline std::shared_ptr<Label> makeLabel()
+{
+	return std::make_shared<Label>();
+}
+
+inline std::shared_ptr<TextField> makeTextField()
+{
+	return std::make_shared<TextField>();
+}
+
+// Containers
+
+// This is counterintuitive: Multiple rows=rows, one row=columns.
+inline std::shared_ptr<Grid> makeColumn()
+{
+	return Grid::rows(1);
+}
+
+inline std::shared_ptr<Grid> makeColumns(size_t size)
+{
+	return Grid::columns(size);
+}
+
+inline std::shared_ptr<Grid> makeRow()
+{
+	return Grid::columns(1);
+}
+
+inline std::shared_ptr<Grid> makeRows(size_t size)
+{
+	return Grid::rows(size);
+}
+
+inline std::shared_ptr<Switcher> makeSwitcher()
+{
+	return std::make_shared<Switcher>();
+}
+
+// Top-level widgets
+
+inline std::shared_ptr<Window> makeWindow()
+{
+	return std::make_shared<Window>();
+}
 
 } // namespace Internal
 

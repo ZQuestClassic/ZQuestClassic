@@ -25,11 +25,6 @@ TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
 	bgColor=vc(1);
 }
 
-void TextField::setType(type newType)
-{
-	tfType=newType;
-}
-
 void TextField::setText(std::string_view newText)
 {
 	// This probably could be handled with less allocating and copying...
@@ -37,13 +32,6 @@ void TextField::setText(std::string_view newText)
 		setMaxLength(newText.size());
 	newText.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength-1, newText.size())]='\0';
-}
-
-std::string_view TextField::getText()
-{
-	if(maxLength==0)
-		return "";
-	return buffer.get();
 }
 
 void TextField::setMaxLength(size_t newMax)

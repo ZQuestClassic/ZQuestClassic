@@ -15,23 +15,38 @@ class DialogRunner;
 class Widget: public std::enable_shared_from_this<Widget>
 {
 public:
-	Widget();
+	Widget() noexcept;
 	virtual ~Widget() {}
 
 	/* Set the widget's width, overriding its preferred size.
 	 * This should not be used by widgets.
 	 */
-	void overrideWidth(Size newWidth);
+	void overrideWidth(Size newWidth) noexcept;
 
 	/* Set the widget's height, overriding its preferred size.
 	 * This should not be used by widgets.
 	 */
-	void overrideHeight(Size newHeight);
+	void overrideHeight(Size newHeight) noexcept;
 
-	void setHPadding(int amount);
-	void setVPadding(int amount);
-	void setHAlign(float align);
-	void setVAlign(float align);
+	inline void setHPadding(int amount) noexcept
+	{
+		hPadding=amount;
+	}
+
+	inline void setVPadding(int amount) noexcept
+	{
+		vPadding=amount;
+	}
+
+	inline void setHAlign(float align) noexcept
+	{
+		hAlign=align;
+	}
+
+	inline void setVAlign(float align) noexcept
+	{
+		vAlign=align;
+	}
 
 	virtual void setVisible(bool visible);
 
@@ -83,13 +98,15 @@ protected:
 	float hAlign, vAlign;
 
 	/* Sets the widget's width if it hasn't been overridden. */
-	void setPreferredWidth(Size newWidth);
+	void setPreferredWidth(Size newWidth) noexcept;
 
 	/* Sets the widget's width if it hasn't been overridden. */
-	void setPreferredHeight(Size newHeight);
+	void setPreferredHeight(Size newHeight) noexcept;
 
-	/* Returns flags with which the DIALOG should be initialized. */
-	int getFlags();
+	/* Returns a set of flags with which the DIALOG should be initialized.
+	 * The widget should add its own
+	 */
+	int getFlags() noexcept;
 
 private:
 	enum {

@@ -25,11 +25,6 @@ DropDownList::DropDownList():
 	bgColor=jwin_pal[jcTEXTBG];
 }
 
-void DropDownList::setListData(const ::GUI::ListData& newListData)
-{
-	listData=&newListData;
-}
-
 void DropDownList::setSelectedValue(int value)
 {
 	selectedValue=value;
@@ -44,6 +39,8 @@ void DropDownList::setSelectedValue(int value)
 void DropDownList::setSelectedIndex(int index)
 {
 	selectedIndex=index;
+	if(alDialog)
+		alDialog->d1=alDialog->d2=selectedIndex;
 }
 
 int DropDownList::getSelectedValue() const

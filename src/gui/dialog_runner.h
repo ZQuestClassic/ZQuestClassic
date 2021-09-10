@@ -55,7 +55,10 @@ public:
 	DialogRef getAllegroDialog();
 
 	/* Returns the current size of the DIALOG array. */
-	size_t size() const;
+	inline size_t size() const
+	{
+		return alDialog.size();
+	}
 
 private:
 	MessageDispatcher sendMessage;

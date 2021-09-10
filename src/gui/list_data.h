@@ -45,9 +45,20 @@ public:
 	ListData(std::function<std::string(size_t, const BasicData&)> format,
 		const std::initializer_list<BasicData>& listSource);
 
-	size_t size() const;
-	const std::string& listEntry(size_t index) const;
-	const int value(size_t index) const;
+	inline size_t size() const
+	{
+		return listEntries.size();
+	}
+
+	inline const std::string& listEntry(size_t index) const
+	{
+		return listEntries.at(index);
+	}
+
+	inline const int value(size_t index) const
+	{
+		return values.at(index);
+	}
 
 private:
 	std::vector<std::string> listEntries;

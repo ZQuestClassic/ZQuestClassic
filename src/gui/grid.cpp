@@ -22,11 +22,6 @@ shared_ptr<Grid> Grid::columns(size_t itemsPerCol)
 	return g;
 }
 
-void Grid::add(shared_ptr<Widget> child)
-{
-	children.push_back(child);
-}
-
 void Grid::setVisible(bool visible)
 {
 	for(auto& child: children)

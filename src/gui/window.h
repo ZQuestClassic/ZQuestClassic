@@ -14,7 +14,7 @@ class Window: public TopLevelWidget
 public:
 	Window();
 	void setTitle(std::string newTitle);
-	void setContent(std::shared_ptr<Widget> newContent);
+	void setContent(std::shared_ptr<Widget> newContent) noexcept;
 	void setVisible(bool visible) override;
 
 	template<typename T>
