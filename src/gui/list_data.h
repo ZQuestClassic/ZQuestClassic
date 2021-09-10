@@ -1,68 +1,77 @@
 #ifndef ZC_GUI_LISTDATA_H
 #define ZC_GUI_LISTDATA_H
 
+#include "../jwin.h"
 #include <functional>
-#include <string>
 #include <initializer_list>
+#include <string>
+#include <utility>
 
 namespace GUI
 {
 
-// Type and functions for the most common cases (?)
-
-struct BasicData
+struct ListItem
 {
-	const char* text;
+	ListItem(std::string text, int value) noexcept:
+		text(std::move(text)), value(value)
+	{}
+
+	ListItem& operator=(const ListItem& other)=default;
+	ListItem& operator=(ListItem&& other) noexcept=default;
+
+	ListItem(const ListItem& other)=default;
+	ListItem(ListItem&& other) noexcept=default;
+
+	std::string text;
 	int value;
 };
 
-// Just returns the text as a string.
-// { "Hookshot", 15 } => "Hookshot"
-std::string itemText(size_t, const BasicData& data);
-
-// Formats as "index: text".
-// { "Hookshot", 15 } => "15: Hookshot"
-std::string indexItemText(size_t index, const BasicData& data);
-
-// Formats as "(index+1): text".
-// { "Hookshot", 15 } => "16: Hookshot"
-std::string indexPlusOneItemText(size_t index, const BasicData& data);
-
 // Data source for List and DropDownList.
-// Remember to specify gui::ListData to avoid confusion with the ListData
+// Remember to specify GUI::ListData to avoid confusion with the ListData
 // defined in jwin.h.
-// Might be worth renaming this one, actually...
-// TODO: How hard would it be to make the value type a template parameter?
-// Or maybe a std::any?
 class ListData
 {
 public:
+	ListData(const ListData& other)=default;
 	ListData(ListData&& other)=default;
+	ListData(std::initializer_list<ListItem> listItems): listItems(listItems)
+	{}
+
+	ListData(std::vector<ListItem> listItems): listItems(std::move(listItems))
+	{}
 
 	ListData(size_t numItems, std::function<std::string(size_t)> getString,
 		std::function<int(size_t)> getValue);
 
-	ListData(std::function<std::string(size_t, const BasicData&)> format,
-		const std::initializer_list<BasicData>& listSource);
+	ListData& operator=(const ListData& other)=default;
+	ListData& operator=(ListData&& other) noexcept=default;
+
+	/* Returns a jwin ListData object for use in DIALOGs. */
+	inline ::ListData getJWin(FONT** font) const
+	{
+		// Not actually const, but it's never modified.
+		return ::ListData(jwinWrapper, font, const_cast<ListData*>(this));
+	}
 
 	inline size_t size() const
 	{
-		return listEntries.size();
+		return listItems.size();
 	}
 
-	inline const std::string& listEntry(size_t index) const
+	inline const std::string& getText(size_t index) const
 	{
-		return listEntries.at(index);
+		return listItems.at(index).text;
 	}
 
-	inline const int value(size_t index) const
+	inline const int getValue(size_t index) const
 	{
-		return values.at(index);
+		return listItems.at(index).value;
 	}
 
 private:
-	std::vector<std::string> listEntries;
-	std::vector<int> values;
+	std::vector<ListItem> listItems;
+
+	static const char* jwinWrapper(int index, int* size, void* owner);
 };
 
 }

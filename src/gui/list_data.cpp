@@ -8,39 +8,22 @@ ListData::ListData(size_t numItems,
 	std::function<std::string(size_t)> getString,
 	std::function<int(size_t)> getValue)
 {
+	listItems.reserve(numItems);
 	for(auto index=0; index<numItems; index++)
+		listItems.emplace_back(std::move(getString(index)), getValue(index));
+}
+
+const char* ListData::jwinWrapper(int index, int* size, void* owner)
+{
+	ListData* cb=static_cast<ListData*>(owner);
+
+	if(index>=0)
+		return cb->getText(index).c_str();
+	else
 	{
-		listEntries.emplace_back(getString(index));
-		values.push_back(getValue(index));
+		*size=cb->size();
+		return nullptr;
 	}
-}
-
-ListData::ListData(std::function<std::string(size_t, const BasicData&)> format,
-	const std::initializer_list<BasicData>& listSource)
-{
-	// initializer_list doesn't have operator[] or at() or anything
-	size_t index=0;
-	for(const auto& li: listSource)
-	{
-		listEntries.emplace_back(format(index, li));
-		values.push_back(li.value);
-		index++;
-	}
-}
-
-std::string itemText(size_t, const BasicData& data)
-{
-	return boost::str(boost::format("%1%") % data.text);
-}
-
-std::string indexItemText(size_t index, const BasicData& data)
-{
-	return boost::str(boost::format("%1%: %2%") % index % data.text);
-}
-
-std::string indexPlusOneItemText(size_t index, const BasicData& data)
-{
-	return boost::str(boost::format("%1%: %2%") % (index+1) % data.text);
 }
 
 }

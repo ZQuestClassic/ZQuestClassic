@@ -45,10 +45,19 @@
 
 struct ListData
 {
-    ListData(const char *(*lf)(int, int*), FONT **f): unownedFunc(lf), font(f), owner(0) {}
-    ListData(const char *(*lf)(int, int*, void*), FONT **f, void* o): ownedFunc(lf), font(f), owner(o) {}
+    constexpr ListData() noexcept:
+        unownedFunc(nullptr), ownedFunc(nullptr), font(nullptr), owner(nullptr)
+    {}
 
-    const char* listFunc(int index, int* size)
+    ListData(const char *(*lf)(int, int*), FONT **f) noexcept:
+        unownedFunc(lf), ownedFunc(nullptr), font(f), owner(nullptr)
+    {}
+
+    ListData(const char *(*lf)(int, int*, void*), FONT **f, void* o) noexcept:
+        unownedFunc(nullptr), ownedFunc(lf), font(f), owner(o)
+    {}
+
+    const char* listFunc(int index, int* size) const
     {
         if(owner)
             return ownedFunc(index, size, owner);

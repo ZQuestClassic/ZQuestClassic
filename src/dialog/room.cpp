@@ -1,122 +1,50 @@
 #include "room.h"
+#include "common.h"
 #include "info.h"
 #include <gui/builder.h>
-#include "../zdefs.h"
-#include "../zq_misc.h"
-#include "../zquest.h"
 #include <boost/format.hpp>
+#include <utility>
 
-using std::get;
+// Used as a indices into argSwitcher. Make sure the order matches.
+enum { argTEXT_FIELD, argITEM_LIST, argSHOP_LIST, argINFO_LIST };
 
-static const GUI::ListData guyListData(
-	GUI::itemText,
-	{
-		{ "(None)", 0 },
-		{ "Abei", 1 },
-		{ "Ama", 2 },
-		{ "Merchant", 3 },
-		{ "Moblin", 4 },
-		{ "Fire", 5 },
-		{ "Fairy", 6 },
-		{ "Goriya", 7 },
-		{ "Zelda", 8 },
-		{ "Abei 2", 9 },
-		{ "Empty", 10 }
-	}
-);
+static const GUI::ListData guyListData {
+	{ "(None)", 0 },
+	{ "Abei", 1 },
+	{ "Ama", 2 },
+	{ "Merchant", 3 },
+	{ "Moblin", 4 },
+	{ "Fire", 5 },
+	{ "Fairy", 6 },
+	{ "Goriya", 7 },
+	{ "Zelda", 8 },
+	{ "Abei 2", 9 },
+	{ "Empty", 10 }
+};
 
-static const GUI::ListData roomListData(
-	GUI::itemText,
-	{
-		{ "(None)", rNONE },
-		{ "Special Item", rSP_ITEM },
-		{ "Pay for Info", rINFO },
-		{ "Secret Money", rMONEY },
-		{ "Gamble",rGAMBLE },
-		{ "Door Repair", rREPAIR },
-		{ "Red Potion or Heart Container", rRP_HC },
-		{ "Feed the Goriya", rGRUMBLE },
-		{ "Level 9 Entrance", rTRIFORCE },
-		{ "Potion Shop", rP_SHOP },
-		{ "Shop", rSHOP },
-		{ "More Bombs", rBOMBS },
-		{ "Leave Money or Life", rSWINDLE },
-		{ "10 Rupees", r10RUPIES },
-		{ "3-Stair Warp", rWARP },
-		{ "Ganon", rGANON },
-		{ "Zelda", rZELDA },
-		{ "1/2 Magic Upgrade", rMUPGRADE },
-		{ "Learn Slash", rLEARNSLASH },
-		{ "More Arrows", rARROWS },
-		{ "Take One Item", rTAKEONE }
-	}
-);
-
-GUI::ListData getItemListData()
-{
-	return GUI::ListData(ITEMCNT,
-		[](size_t index)
-		{
-			return boost::str(boost::format("%1%")
-				% item_string[index]);
-		},
-		[](size_t index)
-		{
-			return index;
-		});
-}
-
-GUI::ListData getShopListData()
-{
-	return GUI::ListData(256,
-		[](size_t index)
-		{
-			return boost::str(boost::format("%1%:  %2%")
-				% index
-				% misc.shop[index].name);
-		},
-		[](size_t index)
-		{
-			return index;
-		});
-}
-
-GUI::ListData getInfoShopListData()
-{
-	return GUI::ListData(256,
-		[](size_t index)
-		{
-			return boost::str(boost::format("%1%:  %2%")
-				% index
-				% misc.info[index].name);
-		},
-		[](size_t index)
-		{
-			return index;
-		});
-}
-
-GUI::ListData getStringListData()
-{
-	std::vector<size_t> msgMap(msg_count, 0);
-	for(size_t i=0; i<msg_count; i++)
-	{
-		auto& msg=MsgStrings[i];
-		msgMap[msg.listpos]=i;
-	}
-
-	return GUI::ListData(msg_count,
-		[&msgMap](size_t index)
-		{
-			return boost::str(boost::format("%1%: %2%")
-				% msgMap[index]
-				% MsgStrings[msgMap[index]].s);
-		},
-		[&msgMap](size_t index)
-		{
-			return msgMap[index];
-		});
-}
+static const GUI::ListData roomListData {
+	{ "(None)", rNONE },
+	{ "Special Item", rSP_ITEM },
+	{ "Pay for Info", rINFO },
+	{ "Secret Money", rMONEY },
+	{ "Gamble",rGAMBLE },
+	{ "Door Repair", rREPAIR },
+	{ "Red Potion or Heart Container", rRP_HC },
+	{ "Feed the Goriya", rGRUMBLE },
+	{ "Level 9 Entrance", rTRIFORCE },
+	{ "Potion Shop", rP_SHOP },
+	{ "Shop", rSHOP },
+	{ "More Bombs", rBOMBS },
+	{ "Leave Money or Life", rSWINDLE },
+	{ "10 Rupees", r10RUPIES },
+	{ "3-Stair Warp", rWARP },
+	{ "Ganon", rGANON },
+	{ "Zelda", rZELDA },
+	{ "1/2 Magic Upgrade", rMUPGRADE },
+	{ "Learn Slash", rLEARNSLASH },
+	{ "More Arrows", rARROWS },
+	{ "Take One Item", rTAKEONE }
+};
 
 static const auto specialItemDesc=
 	"If a Guy is set, he will offer an item to Link. "
@@ -205,17 +133,14 @@ static const auto defaultDesc=
 	"Select a Room Type, then click the \"Info\" button "
 	"to find out what it does.";
 
-// Used as a selector for argSwitcher. Make sure the order matches.
-enum { argTextField, argItemList, argShopList, argInfoShopList };
-
 RoomDialog::RoomDialog(int room, int argument, int guy, int string,
 	std::function<void(int, int, int, int)> setRoomVars):
-		itemListData(getItemListData()),
-		shopListData(getShopListData()),
-		infoShopListData(getInfoShopListData()),
-		stringListData(getStringListData()),
+		itemListData(std::move(getItemListData(false))),
+		shopListData(std::move(getShopListData())),
+		infoShopListData(std::move(getInfoShopListData())),
+		stringListData(std::move(getStringListData())),
 		room({ room, argument, guy, string }),
-		setRoomVars(setRoomVars)
+		setRoomVars(std::move(setRoomVars))
 {}
 
 std::shared_ptr<GUI::Widget> RoomDialog::view()
@@ -292,20 +217,20 @@ bool RoomDialog::handleMessage(message msg, GUI::MessageArg messageArg)
 	switch(msg)
 	{
 	case message::SET_ROOM:
-		room.type=(int)messageArg;
+		room.type=messageArg;
 		setArgField();
 		return false;
 
 	case message::SET_ARGUMENT:
-		room.argument=(int)messageArg;
+		room.argument=messageArg;
 		return false;
 
 	case message::SET_GUY:
-		room.guy=(int)messageArg;
+		room.guy=messageArg;
 		return false;
 
 	case message::SET_STRING:
-		room.string=(int)messageArg;
+		room.string=messageArg;
 		return false;
 
 	case message::ROOM_INFO:
@@ -327,17 +252,17 @@ void RoomDialog::setArgField()
 	switch(room.type)
 	{
 	case rSP_ITEM:
-		argSwitcher->switchTo(argItemList);
+		argSwitcher->switchTo(argITEM_LIST);
 		itemDD->setSelectedValue(room.argument);
 		argLabel->setText("Item:");
 		break;
 	case rINFO:
-		argSwitcher->switchTo(argInfoShopList);
+		argSwitcher->switchTo(argINFO_LIST);
 		infoShopDD->setSelectedValue(room.argument);
 		argLabel->setText("Shop:");
 		break;
 	case rMONEY:
-		argSwitcher->switchTo(argTextField);
+		argSwitcher->switchTo(argTEXT_FIELD);
 		argTF->setText(std::to_string(room.argument));
 		argLabel->setText("Amount:");
 		break;
@@ -345,19 +270,19 @@ void RoomDialog::setArgField()
 	case rBOMBS:
 	case rSWINDLE:
 	case rARROWS:
-		argSwitcher->switchTo(argTextField);
+		argSwitcher->switchTo(argTEXT_FIELD);
 		argTF->setText(std::to_string(room.argument));
 		argLabel->setText("Price:");
 		break;
 	case rP_SHOP:
 	case rSHOP:
 	case rTAKEONE:
-		argSwitcher->switchTo(argShopList);
+		argSwitcher->switchTo(argSHOP_LIST);
 		shopDD->setSelectedValue(room.argument);
 		argLabel->setText("Shop:");
 		break;
 	default:
-		argSwitcher->switchTo(argTextField);
+		argSwitcher->switchTo(argTEXT_FIELD);
 		argTF->setText(std::to_string(room.argument));
 		argLabel->setText("(Unused):");
 		break;
@@ -368,11 +293,11 @@ int RoomDialog::getArgument() const
 {
 	switch(argSwitcher->getCurrentIndex())
 	{
-	case argItemList:
+	case argITEM_LIST:
 		return itemDD->getSelectedValue();
-	case argShopList:
+	case argSHOP_LIST:
 		return shopDD->getSelectedValue();
-	case argInfoShopList:
+	case argINFO_LIST:
 		return infoShopDD->getSelectedValue();
 	default:
 		return room.argument>=0 ? room.argument : -room.argument;

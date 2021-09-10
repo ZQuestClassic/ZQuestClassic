@@ -17,11 +17,7 @@ class DropDownList: public Widget
 public:
 	DropDownList();
 
-	inline void setListData(const ::GUI::ListData& newListData)
-	{
-		listData=&newListData;
-	}
-
+	void setListData(const ::GUI::ListData& newListData);
 	void setSelectedValue(int value);
 	void setSelectedIndex(int index);
 	int getSelectedValue() const;
@@ -35,7 +31,7 @@ public:
 
 private:
 	// A bit ugly because there was already a ListData struct in jwin
-	::ListData jwinListWrapper;
+	::ListData jwinListData;
 	const ::GUI::ListData* listData;
 	int selectedIndex, selectedValue;
 	DialogRef alDialog;
@@ -45,7 +41,6 @@ private:
 	void setIndex();
 	void realize(DialogRunner& runner) override;
 	int onEvent(int event, MessageDispatcher sendMessage) override;
-	static const char* jwinListWrapperFunc(int index, int* size, void* owner);
 };
 
 }

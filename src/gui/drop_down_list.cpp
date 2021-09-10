@@ -13,7 +13,6 @@ namespace GUI
 {
 
 DropDownList::DropDownList():
-	jwinListWrapper(jwinListWrapperFunc, FONT_PTR, this),
 	listData(nullptr), selectedIndex(0), selectedValue(0), message(-1)
 {
 	setPreferredWidth(20_em);
@@ -23,6 +22,12 @@ DropDownList::DropDownList():
 		setPreferredHeight(16_px);
 	fgColor=jwin_pal[jcTEXTFG];
 	bgColor=jwin_pal[jcTEXTBG];
+}
+
+void DropDownList::setListData(const ::GUI::ListData& newListData)
+{
+	listData=&newListData;
+	jwinListData=newListData.getJWin(FONT_PTR);
 }
 
 void DropDownList::setSelectedValue(int value)
@@ -48,7 +53,7 @@ int DropDownList::getSelectedValue() const
 	if(alDialog)
 	{
 		int index=alDialog->d1;
-		return listData->value(index);
+		return listData->getValue(index);
 	}
 	else
 		return selectedValue;
@@ -61,10 +66,10 @@ void DropDownList::setIndex()
 	// but not greater than the selected value. If everything's greater,
 	// just go with index 0.
 	selectedIndex=0;
-	int bestSoFar=listData->value(0);
+	int bestSoFar=listData->getValue(0);
 	for(auto i=0; i<listData->size(); i++)
 	{
-		int value=listData->value(i);
+		int value=listData->getValue(i);
 		if(value==selectedValue)
 		{
 			selectedIndex=i;
@@ -87,18 +92,6 @@ void DropDownList::setVisible(bool visible)
 	}
 }
 
-const char* DropDownList::jwinListWrapperFunc(int index, int* size, void* owner)
-{
-	DropDownList* cb=static_cast<DropDownList*>(owner);
-	if(index>=0)
-		return cb->listData->listEntry(index).c_str();
-	else
-	{
-		*size=cb->listData->size();
-		return nullptr;
-	}
-}
-
 void DropDownList::realize(DialogRunner& runner)
 {
 	// An empty list might logically be valid, but there's currently
@@ -115,7 +108,7 @@ void DropDownList::realize(DialogRunner& runner)
 		0, // key
 		getFlags(), // flags
 		selectedIndex, selectedIndex, // d1, d2,
-		&jwinListWrapper, nullptr, nullptr // dp, dp2, dp3
+		&jwinListData, nullptr, nullptr // dp, dp2, dp3
 	});
 }
 
@@ -123,7 +116,7 @@ int DropDownList::onEvent(int event, MessageDispatcher sendMessage)
 {
 	assert(event==ngeCHANGE_SELECTION);
 	if(message>=0)
-		sendMessage(message, listData->value(alDialog->d1));
+		sendMessage(message, listData->getValue(alDialog->d1));
 	return -1;
 }
 
