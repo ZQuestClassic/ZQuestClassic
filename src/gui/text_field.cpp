@@ -98,7 +98,7 @@ void TextField::applyVisibility(bool visible)
 	}
 }
 
-int TextField::onEvent(int event, MessageDispatcher sendMessage)
+int TextField::onEvent(int event, MessageDispatcher& sendMessage)
 {
 	int message;
 	switch(event)

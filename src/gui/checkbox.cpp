@@ -67,7 +67,7 @@ void Checkbox::realize(DialogRunner& runner)
 	});
 }
 
-int Checkbox::onEvent(int event, MessageDispatcher sendMessage)
+int Checkbox::onEvent(int event, MessageDispatcher& sendMessage)
 {
 	assert(event==ngeTOGGLE);
 	if(message>=0)

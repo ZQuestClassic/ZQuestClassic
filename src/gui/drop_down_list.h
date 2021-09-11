@@ -40,7 +40,7 @@ private:
 	void setIndex();
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
-	int onEvent(int event, MessageDispatcher sendMessage) override;
+	int onEvent(int event, MessageDispatcher& sendMessage) override;
 };
 
 }

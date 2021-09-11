@@ -101,7 +101,7 @@ void Window::realize(DialogRunner& runner)
 	realizeKeys(runner);
 }
 
-int Window::onEvent(int event, MessageDispatcher sendMessage)
+int Window::onEvent(int event, MessageDispatcher& sendMessage)
 {
 	if(event==ngeCLOSE)
 	{

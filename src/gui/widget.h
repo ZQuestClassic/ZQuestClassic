@@ -84,7 +84,7 @@ public:
 	 * This should not return D_EXIT. Instead, the dialog's message handler
 	 * should return true.
 	 */
-	virtual int onEvent(int event, MessageDispatcher sendMessage);
+	virtual int onEvent(int event, MessageDispatcher& sendMessage);
 
 	/* Returns the width of the widget. This should only be used by widgets. */
 	int getWidth() const { return width; }

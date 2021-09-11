@@ -37,7 +37,7 @@ protected:
 	 * by subclasses after inserting their own and their children's DIALOGs.
 	 */
 	void realizeKeys(DialogRunner& runner);
-	int onEvent(int event, MessageDispatcher sendMessage) override;
+	int onEvent(int event, MessageDispatcher& sendMessage) override;
 
 private:
 	std::vector<KeyboardShortcut> shortcuts;

@@ -49,7 +49,7 @@ void TopLevelWidget::realizeKeys(DialogRunner& runner)
 	}
 }
 
-int TopLevelWidget::onEvent(int event, MessageDispatcher sendMessage)
+int TopLevelWidget::onEvent(int event, MessageDispatcher& sendMessage)
 {
 	if(event<0)
 	{

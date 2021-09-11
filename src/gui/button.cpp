@@ -48,7 +48,7 @@ void Button::realize(DialogRunner& runner)
 	});
 }
 
-int Button::onEvent(int event, MessageDispatcher sendMessage)
+int Button::onEvent(int event, MessageDispatcher& sendMessage)
 {
 	assert(event==ngeCLICK);
 	// jwin_button_proc doesn't seem to allow for a non-toggle button...

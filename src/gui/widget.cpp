@@ -70,7 +70,7 @@ void Widget::setExposed(bool exposed)
 	}
 }
 
-int Widget::onEvent(int, MessageDispatcher)
+int Widget::onEvent(int, MessageDispatcher&)
 {
 	assert(false); // This function should have been overridden
 	return -1;

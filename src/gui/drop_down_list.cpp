@@ -111,7 +111,7 @@ void DropDownList::realize(DialogRunner& runner)
 	});
 }
 
-int DropDownList::onEvent(int event, MessageDispatcher sendMessage)
+int DropDownList::onEvent(int event, MessageDispatcher& sendMessage)
 {
 	assert(event==ngeCHANGE_SELECTION);
 	if(message>=0)
