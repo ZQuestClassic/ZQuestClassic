@@ -56,12 +56,11 @@ int abc_patternmatch = 1;
 char abc_keypresses[1024] = {0};
 void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
 
-// Slightly ugly hack here. To identify the DIALOG representing
-// the dialog root, we'll look for a pointer to this variable.
-// That seems preferable to checking for the proc itself.
+// A pointer to this variable is used to identify the DIALOG belonging to
+// the DialogRunner. It isn't used for anything else.
 char newGuiMarker;
 
-int new_gui_event(DIALOG* d, NewGuiEvent event)
+int new_gui_event(DIALOG* d, newGuiEvent event)
 {
     for(int i=0; true; d--, i++)
     {
@@ -4222,7 +4221,7 @@ static int droplist(DIALOG *d)
 
     if(x+w >= zq_screen_w)
     {
-        x = d->x + d->w - w;
+		x=zq_screen_w-w;
     }
 
     droplist_dlg[1] = *d;

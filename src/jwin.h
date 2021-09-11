@@ -100,7 +100,7 @@ extern char newGuiMarker;
 /* All the events that may be handled by a new GUI widget.
  * These could possibly be pared down a bit, but it doesn't matter much.
  */
-enum NewGuiEvent
+enum newGuiEvent
 {
     ngeCLICK, ngeCHANGE_SELECTION, ngeCHANGE_VALUE, ngeCLOSE, ngeENTER,
     ngeTOGGLE
@@ -109,7 +109,7 @@ enum NewGuiEvent
 /* Triggers a message in the new GUI system. You should use the macro below
  * instead of calling this directly.
  */
-int new_gui_event(DIALOG* d, NewGuiEvent event);
+int new_gui_event(DIALOG* d, newGuiEvent event);
 
 #define NEW_GUI_EVENT(dlg, event)            \
 do                                           \
