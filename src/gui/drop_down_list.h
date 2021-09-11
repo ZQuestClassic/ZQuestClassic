@@ -21,7 +21,6 @@ public:
 	void setSelectedValue(int value);
 	void setSelectedIndex(int index);
 	int getSelectedValue() const;
-	void setVisible(bool visible) override;
 
 	template<typename T>
 	void onSelectionChanged(T m)
@@ -37,8 +36,9 @@ private:
 	DialogRef alDialog;
 	int message;
 
-	// If a value was set rather than an index, find an index to select.
+	/* If a value was set rather than an index, find an index to select. */
 	void setIndex();
+	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
 	int onEvent(int event, MessageDispatcher sendMessage) override;
 };

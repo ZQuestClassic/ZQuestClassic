@@ -48,7 +48,18 @@ public:
 		vAlign=align;
 	}
 
-	virtual void setVisible(bool visible);
+	/* Sets this widget to be visible or invisible. This function should
+	 * be used by dialogs, e.g. for a warning label shown conditionally.
+	 * This simply sets a flag indicating whether the widget is visible.
+	 */
+	void setVisible(bool visible);
+
+	/* Sets this widget to be visible or invisible. This function should
+	 * be called by container widgets, e.g. a tab container hiding its children.
+	 * Calls to setExposed() must be balanced. It is an error if a widget is
+	 * exposed more times than it's unexposed.
+	 */
+	void setExposed(bool exposed);
 
 	/* Set the widget's width and height to their preferred values.
 	 * This doesn't need to be implemented if they're set already
@@ -91,6 +102,12 @@ public:
 	 */
 	int getTotalHeight() const { return height+vPadding; }
 
+	/* Called when the widget actually switches from visible to invisible
+	* or vice-versa. This should set or unset DIALOGs' D_HIDDEN flag.
+	* This is only public so containers can call it on their children.
+	*/
+	virtual void applyVisibility(bool visible)=0;
+
 protected:
 	int x, y;
 	int fgColor, bgColor;
@@ -106,16 +123,25 @@ protected:
 	/* Returns a set of flags with which the DIALOG should be initialized.
 	 * The widget should add its own
 	 */
-	int getFlags() noexcept;
+	int getFlags() const noexcept;
 
 private:
-	enum {
-		f_widthOverridden=  0b00000001,
-		f_heightOverridden= 0b00000010,
-		f_hidden=		   0b00000100
+	enum
+	{
+		f_WIDTH_OVERRIDDEN=  0b0001,
+		f_HEIGHT_OVERRIDDEN= 0b0010,
+		f_INVISIBLE=         0b0100
 	};
+
 	int width, height;
-	unsigned char flags;
+	unsigned char flags: 4;
+
+	/* The number of containers hiding this widget. Shouldn't be too many,
+	 * but there might be, say, a switcher in nested tab containers.
+	 */
+	unsigned char hideCount: 4;
+
+	static constexpr unsigned char MAX_HIDE_COUNT=15;
 };
 
 }

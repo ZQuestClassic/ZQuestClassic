@@ -22,10 +22,10 @@ shared_ptr<Grid> Grid::columns(size_t itemsPerCol)
 	return g;
 }
 
-void Grid::setVisible(bool visible)
+void Grid::applyVisibility(bool visible)
 {
 	for(auto& child: children)
-		child->setVisible(visible);
+		child->applyVisibility(visible);
 }
 
 void Grid::calculateSize()

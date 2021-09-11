@@ -87,9 +87,8 @@ void TextField::realize(DialogRunner& runner)
 	});
 }
 
-void TextField::setVisible(bool visible)
+void TextField::applyVisibility(bool visible)
 {
-	Widget::setVisible(visible);
 	if(alDialog)
 	{
 		if(visible)

@@ -31,9 +31,8 @@ void Window::setContent(shared_ptr<Widget> newContent) noexcept
 	content=std::move(newContent);
 }
 
-void Window::setVisible(bool visible)
+void Window::applyVisibility(bool visible)
 {
-	Widget::setVisible(visible);
 	if(alDialog)
 	{
 		if(visible)
@@ -41,6 +40,8 @@ void Window::setVisible(bool visible)
 		else
 			alDialog->flags|=D_HIDDEN;
 	}
+	if(content)
+		content->applyVisibility(visible);
 }
 
 void Window::arrange(int contX, int contY, int contW, int contH)

@@ -14,7 +14,6 @@ public:
 	Label();
 	void setText(std::string newText);
 	void setMaxLines(size_t newMax);
-	void setVisible(bool visible) override;
 
 private:
 	std::string text;
@@ -22,6 +21,7 @@ private:
 	DialogRef alDialog;
 	int contX, contY, contW, contH;
 
+	void applyVisibility(bool visible) override;
 	void arrange(int contX, int contY, int contW, int contH) override;
 	void realize(DialogRunner& runner) override;
 

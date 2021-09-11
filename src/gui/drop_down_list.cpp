@@ -80,9 +80,8 @@ void DropDownList::setIndex()
 	}
 }
 
-void DropDownList::setVisible(bool visible)
+void DropDownList::applyVisibility(bool visible)
 {
-	Widget::setVisible(visible);
 	if(alDialog)
 	{
 		if(visible)

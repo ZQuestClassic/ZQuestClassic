@@ -24,9 +24,8 @@ void Button::setText(std::string newText)
 	text=std::move(newText);
 }
 
-void Button::setVisible(bool visible)
+void Button::applyVisibility(bool visible)
 {
-	Widget::setVisible(visible);
 	if(alDialog)
 	{
 		if(visible)

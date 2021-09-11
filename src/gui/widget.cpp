@@ -13,41 +13,61 @@ Widget::Widget() noexcept:
 	hPadding(sized(2, 3)), vPadding(sized(2, 3)),
 	hAlign(0.5), vAlign(0.5),
 	width(0), height(0),
-	flags(0)
+	flags(0),
+	hideCount(0)
 {}
 
 void Widget::overrideWidth(Size newWidth) noexcept
 {
-	flags|=f_widthOverridden;
+	flags|=f_WIDTH_OVERRIDDEN;
 	width=newWidth;
 }
 
 void Widget::overrideHeight(Size newHeight) noexcept
 {
-	flags|=f_heightOverridden;
+	flags|=f_HEIGHT_OVERRIDDEN;
 	height=newHeight;
 }
 
 void Widget::setPreferredWidth(Size newWidth) noexcept
 {
-	if((flags&f_widthOverridden)==0)
+	if((flags&f_WIDTH_OVERRIDDEN)==0)
 		width=newWidth;
 }
 
 void Widget::setPreferredHeight(Size newHeight) noexcept
 {
-	if((flags&f_heightOverridden)==0)
+	if((flags&f_HEIGHT_OVERRIDDEN)==0)
 		height=newHeight;
 }
 
 void Widget::setVisible(bool visible)
 {
-	// XXX This approach may not be good enough. A widget might be hidden
-	// for multiple reasons at once. It may be necessary to keep a counter.
-	if(visible)
-		flags&=~f_hidden;
+	bool wasVisible=(flags&f_INVISIBLE)==0;
+	if(wasVisible!=visible)
+	{
+		flags^=f_INVISIBLE;
+		if(hideCount==0)
+			applyVisibility(visible);
+	}
+}
+
+void Widget::setExposed(bool exposed)
+{
+	if(exposed)
+	{
+		assert(hideCount>0);
+		if(hideCount==1 && (flags&f_INVISIBLE)==0)
+			applyVisibility(true);
+		hideCount--;
+	}
 	else
-		flags|=f_hidden;
+	{
+		assert(hideCount<MAX_HIDE_COUNT);
+		if(hideCount==0 && (flags&f_INVISIBLE)==0)
+			applyVisibility(false);
+		hideCount++;
+	}
 }
 
 int Widget::onEvent(int, MessageDispatcher)
@@ -69,10 +89,10 @@ void Widget::arrange(int contX, int contY, int contW, int contH)
 	y=contY+vExcess*vAlign;
 }
 
-int Widget::getFlags() noexcept
+int Widget::getFlags() const noexcept
 {
 	int ret=D_NEW_GUI;
-	if(flags&f_hidden)
+	if(hideCount>0 || (flags&f_INVISIBLE)!=0)
 		ret|=D_HIDDEN;
 	return ret;
 }

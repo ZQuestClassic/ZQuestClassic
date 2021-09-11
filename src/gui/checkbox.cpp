@@ -43,9 +43,8 @@ bool Checkbox::getChecked()
 	return alDialog ? alDialog->flags&D_SELECTED : checked;
 }
 
-void Checkbox::setVisible(bool visible)
+void Checkbox::applyVisibility(bool visible)
 {
-	Widget::setVisible(visible);
 	if(alDialog)
 	{
 		if(visible)

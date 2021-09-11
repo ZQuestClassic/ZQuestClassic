@@ -46,8 +46,6 @@ public:
 	 */
 	void setMaxLength(size_t newMax);
 
-	void setVisible(bool visible) override;
-
 	/* Sets the message to send when the enter key is pressed. Note that
 	 * the type of the argument varies depending on the text field's type.
 	 * If set to Text, the argument will be a std::string_view. If set to
@@ -75,6 +73,7 @@ private:
 	DialogRef alDialog;
 	int onEnterMsg, onValueChangedMsg;
 
+	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
 	int onEvent(int event, MessageDispatcher sendMessage) override;
 };

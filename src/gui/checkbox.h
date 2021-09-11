@@ -17,7 +17,6 @@ public:
 	void setBoxPlacement(boxPlacement newPlacement);
 	void setChecked(bool value);
 	bool getChecked();
-	void setVisible(bool visible) override;
 
 	template<typename T>
 	void onToggle(T m)
@@ -32,6 +31,7 @@ private:
 	DialogRef alDialog;
 	int message;
 
+	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
 	int onEvent(int event, MessageDispatcher sendMessage) override;
 };

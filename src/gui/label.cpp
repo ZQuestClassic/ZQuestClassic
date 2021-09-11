@@ -46,9 +46,8 @@ void Label::setMaxLines(size_t newMax)
 	maxLines=newMax;
 }
 
-void Label::setVisible(bool visible)
+void Label::applyVisibility(bool visible)
 {
-	Widget::setVisible(visible);
 	if(alDialog)
 	{
 		if(visible)

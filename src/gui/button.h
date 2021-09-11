@@ -13,7 +13,6 @@ class Button: public Widget
 public:
 	Button();
 	void setText(std::string newText);
-	void setVisible(bool visible) override;
 
 	template<typename T>
 	void onClick(T m)
@@ -26,6 +25,7 @@ private:
 	DialogRef alDialog;
 	int message;
 
+	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
 	int onEvent(int event, MessageDispatcher sendMessage) override;
 };

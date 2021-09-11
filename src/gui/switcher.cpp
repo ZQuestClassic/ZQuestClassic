@@ -1,6 +1,6 @@
 #include "switcher.h"
-#include "dialog_runner.h"
 #include "../zc_alleg.h"
+#include <utility>
 
 namespace GUI
 {
@@ -15,31 +15,26 @@ void Switcher::switchTo(size_t index)
 
 	assert(index<children.size());
 
-	// May have been set before being realized
-	if(alDialog)
-	{
-		setChildVisible(visibleChild, false);
-		setChildVisible(index, true);
-	}
+	children[visibleChild]->setExposed(false);
+	children[index]->setExposed(true);
 	visibleChild=index;
 }
 
-void Switcher::setVisible(bool visible)
+void Switcher::add(std::shared_ptr<Widget> child)
 {
-	setChildVisible(visibleChild, visible);
+	// If the child being added is the visible one, it shouldn't be hidden.
+	// That's most likely the first child while visibleChild is the default 0.
+	if(children.size()!=visibleChild)
+		child->setExposed(false);
+	children.emplace_back(std::move(child));
 }
 
-void Switcher::setChildVisible(size_t index, bool visible)
+void Switcher::applyVisibility(bool visible)
 {
-	// XXX This could be problematic if there are multiple things
-	// controlling the DIALOGs' visibility...
-	for(int i=index>0 ? children[index-1].end+1 : 1; i<=children[index].end; i++)
-	{
-		if(visible)
-			alDialog[i].flags&=~D_HIDDEN;
-		else
-			alDialog[i].flags|=D_HIDDEN;
-	}
+	// We'll handle invisibility by applying an extra "hide" to each child.
+	// That's easier than keeping precise track of what's visible or not.
+	for(auto& child: children)
+		child->setExposed(visible);
 }
 
 void Switcher::calculateSize()
@@ -48,11 +43,11 @@ void Switcher::calculateSize()
 	int maxW=0, maxH=0;
 	for(auto& child: children)
 	{
-		child.widget->calculateSize();
-		int w=child.widget->getWidth();
+		child->calculateSize();
+		int w=child->getWidth(); // Should this be getTotalWidth()?
 		if(w>maxW)
 			maxW=w;
-		int h=child.widget->getHeight();
+		int h=child->getHeight(); // getTotalHeight()?
 		if(w>maxH)
 			maxH=h;
 	}
@@ -63,25 +58,13 @@ void Switcher::calculateSize()
 void Switcher::arrange(int contX, int contY, int contW, int contH)
 {
 	for(auto& child: children)
-		child.widget->arrange(contX, contY, contW, contH);
+		child->arrange(contX, contY, contW, contH);
 }
 
 void Switcher::realize(DialogRunner& runner)
 {
-	// We'll just assume this isn't the first DIALOG.  The DialogRunner
-	// itself inserts one, so that shouldn't be possible. Anyway, it should
-	// work even if it is the first.
-	alDialog=runner.getAllegroDialog();
-	int size=runner.size();
-
-	for(size_t i=0; i<children.size(); i++)
-	{
-		children[i].widget->realize(runner);
-		int newSize=runner.size();
-		children[i].end=newSize-size;
-		if(i!=visibleChild)
-			setChildVisible(i, false);
-	}
+	for(auto& child: children)
+		child->realize(runner);
 }
 
 }

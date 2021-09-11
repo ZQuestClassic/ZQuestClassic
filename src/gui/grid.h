@@ -15,7 +15,6 @@ public:
 	Grid(): gridType(type::ROWS), size(2) {}
 	static std::shared_ptr<Grid> rows(size_t itemsPerRow);
 	static std::shared_ptr<Grid> columns(size_t itemsPerCol);
-	void setVisible(bool visible) override;
 
 	inline void add(std::shared_ptr<Widget> child)
 	{
@@ -30,6 +29,7 @@ private:
 	type gridType;
 	size_t size;
 
+	void applyVisibility(bool visible) override;
 	void calculateSize() override;
 	void arrange(int contX, int contY, int contW, int contH) override;
 	void realize(DialogRunner& runner) override;

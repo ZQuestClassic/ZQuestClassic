@@ -15,7 +15,6 @@ public:
 	Window();
 	void setTitle(std::string newTitle);
 	void setContent(std::shared_ptr<Widget> newContent) noexcept;
-	void setVisible(bool visible) override;
 
 	template<typename T>
 	void onClose(T m)
@@ -29,6 +28,7 @@ private:
 	DialogRef alDialog;
 	int closeMessage;
 
+	void applyVisibility(bool visible) override;
 	void arrange(int contX, int contY, int contW, int contH) override;
 	void realize(DialogRunner& runner) override;
 	int onEvent(int event, MessageDispatcher sendMessage) override;
