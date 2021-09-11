@@ -8,14 +8,15 @@
 namespace GUI::Internal
 {
 
-// TODO: Can't this be done better?
+// TODO: Can this be done better?
+// It's not actually used yet, anyway...
 template<typename parent, typename child>
 inline void allowChild(std::shared_ptr<parent>, std::shared_ptr<child>)
 {
     #define ZCGUI_DISALLOW_PAIRING(p, c, msg) \
-        ZCGUI_STATIC_ASSERT(!(std::is_same<parent, p>::value && std::is_same<child, c>::value), msg)
+        ZCGUI_STATIC_ASSERT(!(std::is_same_v<parent, p> && std::is_same_v<child, c>), msg)
     #define ZCGUI_REQUIRE_PARENT(p, c, msg) \
-        ZCGUI_STATIC_ASSERT((std::is_same<parent, p>::value || !std::is_same<child, c>::value), msg)
+        ZCGUI_STATIC_ASSERT((std::is_same_v<parent, p> || !std::is_same_v<child, c>), msg)
 }
 
 } // namespace GUI::Internal
@@ -45,7 +46,7 @@ struct name##Prop                                                               
         template<typename PropsSoFar>                                                              \
         void assertUnique(PropsSoFar) const                                                        \
         {                                                                                          \
-            ZCGUI_STATIC_ASSERT((!std::is_base_of<TagType, PropsSoFar>::value),                    \
+            ZCGUI_STATIC_ASSERT((!std::is_base_of_v<TagType, PropsSoFar>),                         \
                 "Property " ZCGUI_PROP_STR(name) " provided more than once.");                     \
         }                                                                                          \
                                                                                                    \
@@ -96,7 +97,7 @@ struct name##Prop                                                               
         template<typename PropsSoFar>                                                              \
         void assertUnique(PropsSoFar) const                                                        \
         {                                                                                          \
-            ZCGUI_STATIC_ASSERT((!std::is_base_of<TagType, PropsSoFar>::value),                    \
+            ZCGUI_STATIC_ASSERT((!std::is_base_of_v<TagType, PropsSoFar>),                         \
                 "Property " ZCGUI_PROP_STR(name) " provided more than once.");                     \
         }                                                                                          \
                                                                                                    \
@@ -124,13 +125,13 @@ struct widgetType##Builder                                                      
 {                                                                                                  \
     struct Dummy;                                                                                  \
                                                                                                    \
-    std::shared_ptr<widgetType> ptr;                                                               \
+    std::shared_ptr<::GUI:: widgetType> ptr;                                                       \
                                                                                                    \
-    inline widgetType##Builder(std::shared_ptr<widgetType>&& p):                                   \
+    inline widgetType##Builder(std::shared_ptr<::GUI:: widgetType>&& p):                           \
         ptr(std::move(p))                                                                          \
     {}                                                                                             \
                                                                                                    \
-    inline std::shared_ptr<widgetType> resolve() const                                             \
+    inline std::shared_ptr<::GUI:: widgetType> resolve() const                                     \
     {                                                                                              \
         return ptr;                                                                                \
     }                                                                                              \
@@ -191,9 +192,9 @@ struct widgetType##Builder                                                      
     template<int counter=1, typename ChildType, typename... MoreChildrenType>                      \
     inline void addChildren(ChildType&&, MoreChildrenType&&... moreChildren)                       \
     {                                                                                              \
-        using DecayType=typename std::decay<ChildType>::type;                                      \
-        constexpr bool isProp=std::is_base_of<::GUI::Props::Property, DecayType>::value;           \
-        constexpr bool isWidget=std::is_convertible<ChildType, std::shared_ptr<Widget>>::value;    \
+        using DecayType=typename std::decay_t<ChildType>;                                          \
+        constexpr bool isProp=std::is_base_of_v<::GUI::Props::Property, DecayType>;                \
+        constexpr bool isWidget=std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;  \
         ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
         ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
         addChildren<counter+1>(std::forward<MoreChildrenType>(moreChildren)...);                   \
@@ -202,9 +203,9 @@ struct widgetType##Builder                                                      
     template<int counter=1, typename ChildType>                                                    \
     inline void addChildren(ChildType&& child)                                                     \
     {                                                                                              \
-        using DecayType=typename std::decay<ChildType>::type;                                      \
-        constexpr bool isProp=std::is_base_of<::GUI::Props::Property, DecayType>::value;           \
-        constexpr bool isWidget=std::is_convertible<ChildType, std::shared_ptr<Widget>>::value;    \
+        using DecayType=typename std::decay_t<ChildType>;                                          \
+        constexpr bool isProp=std::is_base_of_v<::GUI::Props::Property, DecayType>;                \
+        constexpr bool isWidget=std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;  \
         ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
         ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
         ZCGUI_STATIC_ASSERT(counter==1, "This widget cannot have multiple children.");             \
@@ -217,9 +218,9 @@ struct widgetType##Builder                                                      
     template<typename ChildType, typename... MoreChildrenType>                                     \
     inline void addChildren(ChildType&& child, MoreChildrenType&&... moreChildren)                 \
     {                                                                                              \
-        using DecayType=typename std::decay<ChildType>::type;                                      \
-        constexpr bool isProp=std::is_base_of<::GUI::Props::Property, DecayType>::value;           \
-        constexpr bool isWidget=std::is_convertible<ChildType, std::shared_ptr<Widget>>::value;    \
+        using DecayType=typename std::decay_t<ChildType>;                                          \
+        constexpr bool isProp=std::is_base_of_v<::GUI::Props::Property, DecayType>;                \
+        constexpr bool isWidget=std::is_convertible_v<ChildType, std::shared_ptr<::GUI:: Widget>>; \
         ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
         ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
         Internal::allowChild(ptr, child);                                                          \
@@ -230,9 +231,9 @@ struct widgetType##Builder                                                      
     template<typename ChildType>                                                                   \
     inline void addChildren(ChildType&& child)                                                     \
     {                                                                                              \
-        using DecayType=typename std::decay<ChildType>::type;                                      \
-        constexpr bool isProp=std::is_base_of<::GUI::Props::Property, DecayType>::value;           \
-        constexpr bool isWidget=std::is_convertible<ChildType, std::shared_ptr<Widget>>::value;    \
+        using DecayType=typename std::decay_t<ChildType>;                                          \
+        constexpr bool isProp=std::is_base_of_v<::GUI::Props::Property, DecayType>;                \
+        constexpr bool isWidget=std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;  \
         ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
         ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
         Internal::allowChild(ptr, child);                                                          \
@@ -259,7 +260,7 @@ struct widgetType##Builder                                                      
 
 #define ZCGUI_BUILDER_FUNCTION(widgetType, functionName, implCreator)                              \
 template<typename... PropsType>                                                                    \
-inline std::shared_ptr<widgetType> ZCGUI_WIDGET_NAME(functionName)(PropsType&&... props)           \
+inline std::shared_ptr<::GUI:: widgetType> ZCGUI_WIDGET_NAME(functionName)(PropsType&&... props)   \
 {                                                                                                  \
     widgetType##Builder ret(implCreator());                                                        \
     ::GUI::Internal::applyArgs(::GUI::Internal::dummy, ret,                                        \
@@ -270,7 +271,7 @@ inline std::shared_ptr<widgetType> ZCGUI_WIDGET_NAME(functionName)(PropsType&&..
 
 #define ZCGUI_BUILDER_FUNCTION_TEMPLATE(widgetType, functionName, implCreator, templateParamType)  \
 template<templateParamType TemplateParam, typename... PropsType>                                   \
-inline std::shared_ptr<widgetType> ZCGUI_WIDGET_NAME(functionName)(PropsType&&... props)           \
+inline std::shared_ptr<::GUI:: widgetType> ZCGUI_WIDGET_NAME(functionName)(PropsType&&... props)   \
 {                                                                                                  \
     widgetType##Builder ret(implCreator(TemplateParam));                                           \
     ::GUI::Internal::applyArgs(::GUI::Internal::dummy, ret,                                        \
@@ -349,8 +350,8 @@ inline void applyArgs(PropsSoFar, BuilderType&& builder, std::shared_ptr<WidgetT
 template<typename PropsSoFar, typename BuilderType, typename PropType>
 inline void applyArgs(PropsSoFar psf, BuilderType&& builder, PropType&& prop)
 {
-    using DecayType=typename std::decay<PropType>::type;
-    ZCGUI_STATIC_ASSERT((std::is_base_of<Props::Property, DecayType>::value),
+    using DecayType=typename std::decay_t<PropType>;
+    ZCGUI_STATIC_ASSERT((std::is_base_of_v<Props::Property, DecayType>),
         "Arguments must be widget properties or widgets.");
     prop.assertUnique(psf);
 
@@ -361,8 +362,8 @@ template<typename PropsSoFar, typename BuilderType, typename PropType, typename.
 inline void applyArgs(PropsSoFar psf, BuilderType&& builder, PropType&& prop,
     MoreArgsType&&... moreArgs)
 {
-    using DecayType=typename std::decay<PropType>::type;
-    ZCGUI_STATIC_ASSERT((std::is_base_of<Props::Property, DecayType>::value),
+    using DecayType=typename std::decay_t<PropType>;
+    ZCGUI_STATIC_ASSERT((std::is_base_of_v<Props::Property, DecayType>),
         "Arguments must be widget properties or widgets.\n"
         "This may be a name collision.\n"
         "Is there something else with the same name in scope?");

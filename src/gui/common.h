@@ -80,12 +80,12 @@ inline Size operator ""_em(long double size)
 
 inline constexpr Size operator ""_px(unsigned long long size)
 {
-	return Size::pixels(size);
+	return Size::pixels((int)size);
 }
 
 inline Size operator ""_lpx(unsigned long long size)
 {
-	return Size::largePixels(size);
+	return Size::largePixels((int)size);
 }
 
 }
