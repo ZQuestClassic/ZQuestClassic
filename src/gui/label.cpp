@@ -124,7 +124,7 @@ void Label::realize(DialogRunner& runner)
 		0, // key
 		getFlags(), // flags
 		0, 0, // d1, d2
-		(void*)text.c_str(), FONT, nullptr // dp, dp2, dp3
+		text.data(), FONT, nullptr // dp, dp2, dp3
 	});
 }
 

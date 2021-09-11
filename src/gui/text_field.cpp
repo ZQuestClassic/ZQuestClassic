@@ -83,7 +83,7 @@ void TextField::realize(DialogRunner& runner)
 		0, // key
 		getFlags(), // flags
 		static_cast<int>(maxLength), 0, // d1, d2
-		(void*)buffer.get(), FONT, nullptr // dp, dp2, dp3
+		buffer.get(), FONT, nullptr // dp, dp2, dp3
 	});
 }
 
