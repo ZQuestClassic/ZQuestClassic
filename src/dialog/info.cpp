@@ -46,7 +46,8 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 				text="&Close",
 				vPadding=1_em,
 				vAlign=1.0,
-				onClick=0)
+				onClick=0,
+				focused=true)
 		)
 	);
 }

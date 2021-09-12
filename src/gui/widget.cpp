@@ -89,6 +89,15 @@ void Widget::arrange(int contX, int contY, int contW, int contH)
 	y=contY+vExcess*vAlign;
 }
 
+void Widget::setFocused(bool focused) noexcept
+{
+	if(focused)
+		flags|=f_FOCUSED;
+	else
+		// Why even set it? Whatever. Might as well work.
+		flags&=~f_FOCUSED;
+}
+
 int Widget::getFlags() const noexcept
 {
 	int ret=D_NEW_GUI;

@@ -108,6 +108,17 @@ public:
 	*/
 	virtual void applyVisibility(bool visible)=0;
 
+	/* If this is true, this widget should be focused when the dialog opens.
+	 * This does not give the widget focus if the dialog is open already.
+	 */
+	void setFocused(bool focused) noexcept;
+
+	/* Returns true if this widget should have focus initially. */
+	inline bool getFocused() const noexcept
+	{
+		return flags&f_FOCUSED;
+	}
+
 protected:
 	int x, y;
 	int fgColor, bgColor;
@@ -128,9 +139,10 @@ protected:
 private:
 	enum
 	{
-		f_WIDTH_OVERRIDDEN=  0b0001,
-		f_HEIGHT_OVERRIDDEN= 0b0010,
-		f_INVISIBLE=         0b0100
+		f_WIDTH_OVERRIDDEN =  0b0001,
+		f_HEIGHT_OVERRIDDEN = 0b0010,
+		f_INVISIBLE =         0b0100,
+		f_FOCUSED =           0b1000
 	};
 
 	int width, height;

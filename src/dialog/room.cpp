@@ -187,7 +187,8 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 				DropDownList(
 					data=roomListData,
 					onSelectionChanged=message::SET_ROOM,
-					selectedValue=room.type),
+					selectedValue=room.type,
+					focused=true),
 				argSwitcher,
 				DropDownList(
 					data=guyListData,

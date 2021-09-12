@@ -255,6 +255,7 @@ struct widgetType##Builder                                                      
     ZCGUI_ACCEPT_PROP(vAlign, setVAlign, int)                                                      \
     ZCGUI_ACCEPT_PROP(hPadding, setHPadding, int)                                                  \
     ZCGUI_ACCEPT_PROP(vPadding, setVPadding, int)                                                  \
+    ZCGUI_ACCEPT_PROP(focused, setFocused, bool)                                                   \
 };
 
 

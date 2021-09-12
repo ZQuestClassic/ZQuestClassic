@@ -39,13 +39,15 @@ int dialog_proc(int msg, DIALOG *d, int c)
 		return D_O_K;
 }
 
-DialogRunner::DialogRunner(): redrawPending(false), done(false)
+DialogRunner::DialogRunner(): focused(-1), redrawPending(false), done(false)
 {}
 
 DialogRef DialogRunner::push(shared_ptr<Widget> owner, DIALOG dlg)
 {
-	widgets.push_back(owner);
-	alDialog.push_back(std::move(dlg));
+	if(owner->getFocused())
+		focused=alDialog.size();
+	widgets.emplace_back(owner);
+	alDialog.push_back(dlg);
 	return DialogRef(this, alDialog.size()-1);
 }
 
@@ -85,7 +87,7 @@ void DialogRunner::runInner(std::shared_ptr<Widget> root)
 
 	int ret=0;
 	while(!done && ret>=0)
-		ret=zc_popup_dialog(alDialog.data(), -1);
+		ret=zc_popup_dialog(alDialog.data(), focused);
 }
 
 DialogRef DialogRunner::getAllegroDialog()

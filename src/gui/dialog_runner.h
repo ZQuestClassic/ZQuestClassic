@@ -64,6 +64,7 @@ private:
 	MessageDispatcher sendMessage;
 	std::vector<DIALOG> alDialog;
 	std::vector<std::shared_ptr<Widget>> widgets;
+	int focused;
 	bool redrawPending, done;
 
 	/* Sets up the DIALOG array for a dialog so that it can be run. */

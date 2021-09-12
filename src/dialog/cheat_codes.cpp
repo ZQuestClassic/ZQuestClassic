@@ -37,7 +37,8 @@ std::shared_ptr<GUI::Widget> CheatCodesDialog::view()
 				this->textFields[0]=TextField(
 					maxLength=40,
 					text=this->oldCodes[0],
-					onEnter=message::OK),
+					onEnter=message::OK,
+					focused=true),
 				this->textFields[1]=TextField(
 					maxLength=40,
 					text=this->oldCodes[1],
