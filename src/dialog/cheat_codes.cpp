@@ -16,6 +16,7 @@ std::shared_ptr<GUI::Widget> CheatCodesDialog::view()
 
 	return Window(
 		title="Cheat Codes",
+		onEnter=message::OK,
 		onClose=message::CANCEL,
 		Column(
 			this->enabledCB=Checkbox(
@@ -37,20 +38,16 @@ std::shared_ptr<GUI::Widget> CheatCodesDialog::view()
 				this->textFields[0]=TextField(
 					maxLength=40,
 					text=this->oldCodes[0],
-					onEnter=message::OK,
 					focused=true),
 				this->textFields[1]=TextField(
 					maxLength=40,
-					text=this->oldCodes[1],
-					onEnter=message::OK),
+					text=this->oldCodes[1]),
 				this->textFields[2]=TextField(
 					maxLength=40,
-					text=this->oldCodes[2],
-					onEnter=message::OK),
+					text=this->oldCodes[2]),
 				this->textFields[3]=TextField(
 					maxLength=40,
-					text=this->oldCodes[3],
-					onEnter=message::OK)
+					text=this->oldCodes[3])
 			),
 			Row(
 				vPadding=10,

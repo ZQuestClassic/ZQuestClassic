@@ -13,13 +13,13 @@ std::shared_ptr<GUI::Widget> SetPasswordDialog::view()
 
 	return Window(
 		title="Set Password",
+		onEnter=message::OK,
 		onClose=message::CANCEL,
 		Column(
 			Rows<2>(
 				Label(text="Enter new password:"),
 				this->pwField=TextField(
 					maxLength=255,
-					onEnter=message::OK,
 					width=30_em,
 					focused=true),
 				this->saveKeyFileCB=Checkbox(

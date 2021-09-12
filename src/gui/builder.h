@@ -163,6 +163,7 @@ ZCGUI_BUILDER_FUNCTION(TextField, TextField, makeTextField)
 ZCGUI_BUILDER_START(Window)
 	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
 	ZCGUI_ACCEPT_PROP(onClose, onClose, int)
+	ZCGUI_ACCEPT_PROP(onEnter, onEnter, int)
 	ZCGUI_ACCEPT_PROP(shortcuts, addShortcuts,
 		std::initializer_list<KeyboardShortcut>)
 	ZCGUI_ACCEPT_ONE_CHILD(setContent)

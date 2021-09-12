@@ -27,6 +27,17 @@ public:
 		});
 	}
 
+	/* Convenience method to add a shortcut for Enter, since that's
+	 * particularly common.
+	 */
+	template<typename T>
+	inline void onEnter(T message)
+	{
+		shortcuts.emplace_back(KeyboardShortcut {
+			Key::Enter.get(), static_cast<int>(message)
+		});
+	}
+
 	/* Add a bunch of shortcuts at once. These will be added
 	 * to any shortcuts already defined.
 	 */
