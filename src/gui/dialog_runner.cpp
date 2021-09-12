@@ -61,6 +61,7 @@ void DialogRunner::realize(shared_ptr<Widget> root)
 		this, nullptr, &newGuiMarker // dp, dp2, dp3
 	});
 
+	root->calculateSize();
 	if(is_large)
 		root->arrange(0, 0, 800, 600);
 	else

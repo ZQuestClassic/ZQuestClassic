@@ -29,6 +29,7 @@ private:
 	int closeMessage;
 
 	void applyVisibility(bool visible) override;
+	void calculateSize() override;
 	void arrange(int contX, int contY, int contW, int contH) override;
 	void realize(DialogRunner& runner) override;
 	int onEvent(int event, MessageDispatcher& sendMessage) override;

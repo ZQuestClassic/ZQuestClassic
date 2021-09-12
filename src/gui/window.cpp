@@ -44,11 +44,11 @@ void Window::applyVisibility(bool visible)
 		content->applyVisibility(visible);
 }
 
-void Window::arrange(int contX, int contY, int contW, int contH)
+void Window::calculateSize()
 {
 	if(content)
 	{
-		// First, size the window to its content.
+		// Sized to content plus a bit of padding and space for the title bar.
 		content->calculateSize();
 		if(is_large)
 		{
@@ -64,22 +64,27 @@ void Window::arrange(int contX, int contY, int contW, int contH)
 				text_length(lfont, title.c_str())+30)));
 			setPreferredHeight(Size::pixels(content->getTotalHeight()+30));
 		}
+	}
+	else
+	{
+		// No content, so whatever.
+		setPreferredWidth(320_px);
+		setPreferredHeight(240_px);
+	}
+}
 
-		// This will limit the window to the available size.
-		Widget::arrange(contX, contY, contW, contH);
-
+void Window::arrange(int contX, int contY, int contW, int contH)
+{
+	// This will limit the window to the available space.
+	// (But for now, at least, we're assuming it'll fit.)
+	Widget::arrange(contX, contY, contW, contH);
+	if(content)
+	{
 		// Then arrange the content with the final size.
 		if(is_large)
 			content->arrange(x+6, y+28, getWidth()-12, getHeight()-36);
 		else
 			content->arrange(x+4, y+26, getWidth()-8, getHeight()-30);
-	}
-	else
-	{
-		x=contX;
-		y=contY;
-		setPreferredWidth(Size::pixels(contW));
-		setPreferredHeight(Size::pixels(contH));
 	}
 }
 
