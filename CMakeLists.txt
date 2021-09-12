@@ -107,6 +107,11 @@ endif()
 
 # Windows
 
+if(WIN32)
+	# Prevents definition of min and max macros, which conflict with std::min and std::max
+	add_definitions(-DNOMINMAX)
+endif()
+
 if(MSVC)
 	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alleg44-debug.lib>"
 				   "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/alleg44.lib>")
