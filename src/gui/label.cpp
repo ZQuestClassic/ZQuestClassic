@@ -18,13 +18,6 @@ Label::Label(): text(), maxLines(1), contX(0), contY(0), contW(0), contH(0)
 
 void Label::setText(std::string newText)
 {
-	int oldX, oldW;
-	if(alDialog)
-	{
-		oldX=alDialog->x;
-		oldW=alDialog->w;
-	}
-
 	int textW=text_length(FONT, newText.c_str());
 	setPreferredWidth(Size::pixels(textW));
 	text=std::move(newText);
