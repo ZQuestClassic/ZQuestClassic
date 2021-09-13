@@ -7,6 +7,9 @@
 #include <functional>
 #include <string_view>
 
+/* Note: The string_views passed to setCheatCodes will include
+ * null terminators.
+ */
 class CheatCodesDialog: public GUI::Dialog<CheatCodesDialog>
 {
 public:

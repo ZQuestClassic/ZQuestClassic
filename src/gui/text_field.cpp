@@ -34,6 +34,14 @@ void TextField::setText(std::string_view newText)
 	buffer[std::min(maxLength, newText.size())]='\0';
 }
 
+std::string_view TextField::getText()
+{
+	if(maxLength>0)
+		return std::string_view(buffer.get(), maxLength+1);
+	else
+		return std::string_view("", 1);
+}
+
 void TextField::setMaxLength(size_t newMax)
 {
 	assert(newMax>0);

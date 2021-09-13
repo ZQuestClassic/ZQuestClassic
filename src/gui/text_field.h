@@ -33,14 +33,11 @@ public:
 	 */
 	void setText(std::string_view newText);
 
-	/* Returns the current text. This does not interpret the text
-	 * according to the type. The string_view is owned by the TextField,
-	 * so don't hold on to it after the dialog is closed.
+	/* Returns the current text. This does not interpret the text according to
+	 * the type. The string_view will include a null terminator. It's owned by
+	 * the TextField, so don't hold on to it after the dialog is closed.
 	 */
-	inline std::string_view getText()
-	{
-		return maxLength>0 ? buffer.get() : "";
-	}
+	std::string_view getText();
 
 	/* Set the maximum length of the text, not including the null terminator.
 	 */
