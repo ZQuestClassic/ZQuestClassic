@@ -15,7 +15,7 @@ namespace GUI
 Checkbox::Checkbox(): checked(false), text(),
 	placement(boxPlacement::LEFT), alDialog(), message(-1)
 {
-	setPreferredHeight(Size::pixels(text_height(FONT)+2_lpx));
+	setPreferredHeight(Size::pixels(text_height(FONT))+2_lpx);
 	setPreferredWidth(Size::largePixels(13));
 }
 

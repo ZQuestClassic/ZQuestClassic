@@ -8,6 +8,7 @@
 #include "grid.h"
 #include "key.h"
 #include "label.h"
+#include "size.h"
 #include "switcher.h"
 #include "text_field.h"
 #include "window.h"

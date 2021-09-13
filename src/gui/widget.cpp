@@ -21,45 +21,45 @@ Widget::Widget() noexcept:
 void Widget::overrideWidth(Size newWidth) noexcept
 {
 	flags|=f_WIDTH_OVERRIDDEN;
-	width=newWidth;
+	width=newWidth.resolve();
 }
 
 void Widget::overrideHeight(Size newHeight) noexcept
 {
 	flags|=f_HEIGHT_OVERRIDDEN;
-	height=newHeight;
+	height=newHeight.resolve();
 }
 
 void Widget::setPreferredWidth(Size newWidth) noexcept
 {
 	if((flags&f_WIDTH_OVERRIDDEN)==0)
-		width=newWidth;
+		width=newWidth.resolve();
 }
 
 void Widget::setPreferredHeight(Size newHeight) noexcept
 {
 	if((flags&f_HEIGHT_OVERRIDDEN)==0)
-		height=newHeight;
+		height=newHeight.resolve();
 }
 
 void Widget::setHMargins(Size size) noexcept
 {
-	leftMargin=size;
-	rightMargin=size;
+	leftMargin=size.resolve();
+	rightMargin=size.resolve();
 }
 
 void Widget::setVMargins(Size size) noexcept
 {
-	topMargin=size;
-	bottomMargin=size;
+	topMargin=size.resolve();
+	bottomMargin=size.resolve();
 }
 
 void Widget::setMargins(Size size) noexcept
 {
-	leftMargin=size;
-	rightMargin=size;
-	topMargin=size;
-	bottomMargin=size;
+	leftMargin=size.resolve();
+	rightMargin=size.resolve();
+	topMargin=size.resolve();
+	bottomMargin=size.resolve();
 }
 
 void Widget::setVisible(bool visible)

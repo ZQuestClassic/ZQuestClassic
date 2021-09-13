@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "dialog_message.h"
+#include "size.h"
 #include "../zc_alleg.h"
 #include <memory>
 #include <vector>
@@ -30,22 +31,22 @@ public:
 
 	inline void setLeftMargin(Size size) noexcept
 	{
-		leftMargin=size;
+		leftMargin=size.resolve();
 	}
 
 	inline void setRightMargin(Size size) noexcept
 	{
-		rightMargin=size;
+		rightMargin=size.resolve();
 	}
 
 	inline void setTopMargin(Size size) noexcept
 	{
-		topMargin=size;
+		topMargin=size.resolve();
 	}
 
 	inline void setBottomMargin(Size size) noexcept
 	{
-		bottomMargin=size;
+		bottomMargin=size.resolve();
 	}
 
 	/* Set the left and right margins to the same value. */
