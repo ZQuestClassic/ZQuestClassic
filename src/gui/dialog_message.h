@@ -15,24 +15,24 @@ public:
 	/* Use this when a message has no argument. */
 	static constexpr auto none=std::monostate();
 
-	inline constexpr MessageArg(): value(std::monostate())
+	inline constexpr MessageArg() noexcept: value(std::monostate())
 	{}
 
-	inline constexpr MessageArg(const MessageArg& other)=default;
+	inline constexpr MessageArg(const MessageArg& other) noexcept=default;
 
-	inline constexpr MessageArg(MessageArg&& other)=default;
+	inline constexpr MessageArg(MessageArg&& other) noexcept=default;
 
 	// You would think a template constructor would work, but apparently not.
-	inline constexpr MessageArg(std::monostate): value(none)
+	inline constexpr MessageArg(std::monostate) noexcept: value(none)
 	{}
 
-	inline constexpr MessageArg(bool value): value(value)
+	inline constexpr MessageArg(bool value) noexcept: value(value)
 	{}
 
-	inline constexpr MessageArg(int value): value(value)
+	inline constexpr MessageArg(int value) noexcept: value(value)
 	{}
 
-	inline constexpr MessageArg(std::string_view value): value(value)
+	inline constexpr MessageArg(std::string_view value) noexcept: value(value)
 	{}
 
 	/* Returns true if the argument is the specified type. */

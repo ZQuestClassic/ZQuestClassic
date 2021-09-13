@@ -83,8 +83,8 @@ template<typename T>
 std::enable_if_t<
 	std::is_invocable_v<
 		decltype(&T::handleMessage), T&, typename T::message, GUI::MessageArg
-	>, void>
-showDialog(T& dlg)
+	>, void
+> showDialog(T& dlg)
 {
 	auto dr=DialogRunner();
 	dr.runWithArg(dlg);
@@ -94,24 +94,24 @@ template<typename T>
 std::enable_if_t<
 	std::is_invocable_v<
 		decltype(&T::handleMessage), T&, typename T::message
-	>, void>
-showDialog(T& dlg)
+	>, void
+> showDialog(T& dlg)
 {
 	auto dr=DialogRunner();
 	dr.runWithoutArg(dlg);
 }
 
 // This one just exists to produce a more helpful error message if neither
-// version is correctly implemented. The enable_if is just to prevent
-// additional errors from ambiguity with the two above.
+// version is correctly defined. The enable_if is just to prevent additional
+// errors from ambiguity with the two above.
 template<typename T, bool b=false>
 std::enable_if_t<
 	!std::is_invocable_v<
 		decltype(&T::handleMessage), T&, typename T::message, GUI::MessageArg>
 	&& !std::is_invocable_v<
 		decltype(&T::handleMessage), T&, typename T::message
-	>, void>
-showDialog(T& dlg)
+	>, void
+> showDialog(T& dlg)
 {
 	ZCGUI_STATIC_ASSERT(b,
 		"No valid handleMessage() implementation found.\n"

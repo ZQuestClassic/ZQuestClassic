@@ -3,7 +3,6 @@
 #include "info.h"
 #include <gui/builder.h>
 #include <boost/format.hpp>
-#include <utility>
 
 // Used as a indices into argSwitcher. Make sure the order matches.
 enum { argTEXT_FIELD, argITEM_LIST, argSHOP_LIST, argINFO_LIST };
@@ -135,12 +134,12 @@ static const auto defaultDesc=
 
 RoomDialog::RoomDialog(int room, int argument, int guy, int string,
 	std::function<void(int, int, int, int)> setRoomVars):
-		itemListData(std::move(getItemListData(false))),
-		shopListData(std::move(getShopListData())),
-		infoShopListData(std::move(getInfoShopListData())),
-		stringListData(std::move(getStringListData())),
+		itemListData(getItemListData(false)),
+		shopListData(getShopListData()),
+		infoShopListData(getInfoShopListData()),
+		stringListData(getStringListData()),
 		room({ room, argument, guy, string }),
-		setRoomVars(std::move(setRoomVars))
+		setRoomVars(setRoomVars)
 {}
 
 std::shared_ptr<GUI::Widget> RoomDialog::view()

@@ -44,11 +44,12 @@ DialogRunner::DialogRunner(): focused(-1), redrawPending(false), done(false)
 
 DialogRef DialogRunner::push(shared_ptr<Widget> owner, DIALOG dlg)
 {
+	auto pos=alDialog.size();
 	if(owner->getFocused())
-		focused=alDialog.size();
-	widgets.emplace_back(owner);
+		focused=pos;
+	widgets.emplace_back(std::move(owner));
 	alDialog.push_back(dlg);
-	return DialogRef(this, alDialog.size()-1);
+	return DialogRef(this, pos);
 }
 
 void DialogRunner::realize(shared_ptr<Widget> root)

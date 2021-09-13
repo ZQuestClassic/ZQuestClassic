@@ -72,7 +72,8 @@ bool CheatCodesDialog::handleMessage(message msg)
 			};
 			setCheatCodes(enabledCB->getChecked(), newCodes);
 		}
-		[[fallthrough]];
+		return true;
+
 	case message::CANCEL:
 	default:
 		return true;

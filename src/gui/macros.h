@@ -66,7 +66,7 @@ struct name##Prop                                                               
     }                                                                                              \
 };                                                                                                 \
                                                                                                    \
-constexpr name##Prop ZCGUI_PROP_NAME(name);
+static constexpr name##Prop ZCGUI_PROP_NAME(name);
 
 
 // For those irritating times when C++ isn't smart enough to figure out
@@ -117,7 +117,7 @@ struct name##Prop                                                               
     }                                                                                              \
 };                                                                                                 \
                                                                                                    \
-constexpr name##Prop ZCGUI_PROP_NAME(name);
+static constexpr name##Prop ZCGUI_PROP_NAME(name);
 
 
 #define ZCGUI_BUILDER_START(widgetType)                                                            \
@@ -128,7 +128,7 @@ struct widgetType##Builder                                                      
     std::shared_ptr<::GUI:: widgetType> ptr;                                                       \
                                                                                                    \
     inline widgetType##Builder(std::shared_ptr<::GUI:: widgetType>&& p):                           \
-        ptr(std::move(p))                                                                          \
+        ptr(p)                                                                                     \
     {}                                                                                             \
                                                                                                    \
     inline std::shared_ptr<::GUI:: widgetType> resolve() const                                     \

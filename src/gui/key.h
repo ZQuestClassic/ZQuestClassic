@@ -158,6 +158,11 @@ static constexpr ShortcutKey
 #undef KEY
 #undef MOD_KEY
 
+inline constexpr ShortcutKey operator ""_key(unsigned long long num)
+{
+	return ShortcutKey((int)num);
+}
+
 }} // namespace GUI::Key
 
 #endif

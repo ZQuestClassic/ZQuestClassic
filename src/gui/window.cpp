@@ -74,12 +74,10 @@ void Window::calculateSize()
 
 void Window::arrange(int contX, int contY, int contW, int contH)
 {
-	// This will limit the window to the available space.
-	// (But for now, at least, we're assuming it'll fit.)
+	// For now, at least, we're assuming everything will fit...
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
 	{
-		// Then arrange the content with the final size.
 		if(is_large)
 			content->arrange(x+6, y+28, getWidth()-12, getHeight()-30);
 		else

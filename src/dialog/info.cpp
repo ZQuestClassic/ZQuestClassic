@@ -3,13 +3,13 @@
 #include <utility>
 
 InfoDialog::InfoDialog(std::string title, std::string text):
-	dlgTitle(std::move(title)),
-	dlgText(std::move(text))
+	dlgTitle(title),
+	dlgText(text)
 {}
 
 InfoDialog::InfoDialog(std::string title, std::vector<std::string_view> lines):
-	dlgTitle(std::move(title)),
-	dlgText("")
+	dlgTitle(title),
+	dlgText()
 {
 	size_t size=0;
 
