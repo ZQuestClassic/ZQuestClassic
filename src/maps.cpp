@@ -35,6 +35,7 @@ using std::set;
 #include "link.h"
 #include "guys.h"
 #include "ffscript.h"
+#include "drawing.h"
 extern word combo_doscript[176];
 extern refInfo screenScriptData;
 extern FFScript FFCore;
@@ -3353,7 +3354,7 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen)
 void doLampCirc(BITMAP* bmp, int pos, newcombo const& cmb)
 {
 	if(cmb.type != cLANTERN) return;
-	circlefill(bmp, MAPCOMBOX(pos)+8, MAPCOMBOY(pos)+8, cmb.attribytes[0], 0);
+	doDarkroomCircle(MAPCOMBOX(pos)+8, MAPCOMBOY(pos)+8, cmb.attribytes[0], bmp);
 }
 
 void calc_darkroom_combos(bool scrolling)
@@ -3363,7 +3364,7 @@ void calc_darkroom_combos(bool scrolling)
 		newcombo const& cmb = combobuf[tmpscr->data[q]];
 		if(cmb.type == cLANTERN)
 		{
-			doLampCirc(darkscr_bmp1, q, cmb);
+			doLampCirc(darkscr_bmp_curscr, q, cmb);
 		}
 	}
 	for(int lyr = 0; lyr < 6; ++lyr)
@@ -3374,7 +3375,7 @@ void calc_darkroom_combos(bool scrolling)
 			newcombo const& cmb = combobuf[tmpscr2[lyr].data[q]];
 			if(cmb.type == cLANTERN)
 			{
-				doLampCirc(darkscr_bmp1, q, cmb);
+				doLampCirc(darkscr_bmp_curscr, q, cmb);
 			}
 		}
 	}
@@ -3386,7 +3387,7 @@ void calc_darkroom_combos(bool scrolling)
 		newcombo const& cmb = combobuf[tmpscr[1].data[q]];
 		if(cmb.type == cLANTERN)
 		{
-			doLampCirc(darkscr_bmp2, q, cmb);
+			doLampCirc(darkscr_bmp_scrollscr, q, cmb);
 		}
 	}
 	for(int lyr = 0; lyr < 6; ++lyr)
@@ -3397,7 +3398,7 @@ void calc_darkroom_combos(bool scrolling)
 			newcombo const& cmb = combobuf[tmpscr3[lyr].data[q]];
 			if(cmb.type == cLANTERN)
 			{
-				doLampCirc(darkscr_bmp2, q, cmb);
+				doLampCirc(darkscr_bmp_scrollscr, q, cmb);
 			}
 		}
 	}
@@ -3923,14 +3924,28 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	calc_darkroom_combos();
 	Link.calc_darkroom_link();
 	
-	//12. Draw the subscreen, without clipping
+	//Darkroom if under the subscreen
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
 		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
-		masked_blit(darkscr_bmp1, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
+		{
+			ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+		}
+		
+		color_map = &trans_table2;
+		if(this_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
+			draw_trans_sprite(framebuf, darkscr_bmp_curscr, 0, playing_field_offset);
+		else 
+			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+		draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
+		color_map = &trans_table;
+		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 	}	
 
+	//12. Draw the subscreen, without clipping
 	if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 	{
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
@@ -3939,11 +3954,24 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
 	}
 	
-	
+	//Darkroom if above the subscreen
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
 		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
-		masked_blit(darkscr_bmp1, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
+		{
+			ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+		}
+		
+		color_map = &trans_table2;
+		if(this_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
+			draw_trans_sprite(framebuf, darkscr_bmp_curscr, 0, playing_field_offset);
+		else 
+			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+		draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
+		color_map = &trans_table;
+		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 	}
 	
@@ -4437,8 +4465,10 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 {
 	if(!tmp)
 		triggered_screen_secrets = false; //Reset var
-	clear_to_color(darkscr_bmp1, vc(0));
-	clear_to_color(darkscr_bmp2, vc(0));
+	clear_to_color(darkscr_bmp_curscr, vc(0));
+	clear_to_color(darkscr_bmp_curscr_trans, vc(0));
+	clear_to_color(darkscr_bmp_scrollscr, vc(0));
+	clear_to_color(darkscr_bmp_scrollscr_trans, vc(0));
 	int destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 	
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;

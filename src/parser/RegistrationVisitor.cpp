@@ -759,7 +759,8 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			doRegister(host);
 			return;
 		}
@@ -769,7 +770,8 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			doRegister(host);
 			return;
 		}
@@ -784,7 +786,8 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			doRegister(host);
 			return;
 		}
@@ -795,7 +798,8 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			doRegister(host);
 			return;
 		}

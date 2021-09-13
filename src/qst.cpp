@@ -19107,6 +19107,39 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 	}
 	
+	
+	if(s_version > 23)
+	{
+		if(!p_getc(&temp_zinit.dither_type,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_getc(&temp_zinit.dither_arg,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_getc(&temp_zinit.dither_percent,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_getc(&temp_zinit.def_lightrad,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_getc(&temp_zinit.transdark_percent,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.dither_type = 0;
+		temp_zinit.dither_arg = 0;
+		temp_zinit.dither_percent = 20;
+		temp_zinit.def_lightrad = 24;
+		temp_zinit.transdark_percent = 0;
+	}
+	
 	if(keepdata==true)
 	{
 		memcpy(&zinit, &temp_zinit, sizeof(zinitdata));

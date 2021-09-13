@@ -22,6 +22,11 @@ bool BSZ=false;
 int conveyclk=0;
 bool freeze_guys=false;
 
+void sprite::handle_sprlighting()
+{
+	return;
+}
+
 void sprite::check_conveyor()
 {
     return;

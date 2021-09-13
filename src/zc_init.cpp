@@ -99,6 +99,11 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->magic_per_block = gdata->get_mp_per_block();
 	zinit2->hero_damage_multiplier = gdata->get_hero_dmgmult();
 	zinit2->ene_damage_multiplier = gdata->get_ene_dmgmult();
+	zinit2->dither_type = gdata->get_dither_type();
+	zinit2->dither_arg = gdata->get_dither_arg();
+	zinit2->dither_percent = gdata->get_dither_perc();
+	zinit2->def_lightrad = gdata->get_light_rad();
+	zinit2->transdark_percent = gdata->get_transdark_perc();
 	
 	for(int q = 0; q < 25; ++q)
 	{

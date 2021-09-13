@@ -471,6 +471,10 @@ const int GEN_HP_PER_HEART      = 7; //How much HP makes a 'heart'
 const int GEN_MP_PER_BLOCK      = 8; //How much MP makes a 'block'
 const int GEN_HERO_DMG_MULT     = 9; //Damage multiplier for damage by Link
 const int GEN_ENEM_DMG_MULT     = 10; //Damage multiplier for damage by enemies
+const int GEN_DITHER_TYPE       = 11; //Type of dithering used with dark rooms
+const int GEN_DITHER_ARG        = 12; //Dithering argument used with dark rooms
+const int GEN_DITHER_PERCENT    = 13; //Percent of light circles taken up by dithering
+const int GEN_DEFAULT_LIGHT_RAD = 14; //Default light radius initialized to enemies
 
 //Level item flags. Or (|) these together and use with Game->LItems[]
 const int LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
@@ -1818,6 +1822,8 @@ enum
 	SFV_LAYER2BG, // 0x0010; //Layer 2 is Background
 	SFV_LAYER3BG, //0x0020;
 	SFV_DARKROOM, //0x0040; 
+	SFV_DARK_DITHER, //0x0080; 
+	SFV_DARK_TRANS, //0x0100; 
 	
 	SFV_LAST
 };

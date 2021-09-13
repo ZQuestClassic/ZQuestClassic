@@ -12864,13 +12864,33 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 				new_return(80);
 			}
 		}
+		if(!p_putc(zinit.dither_type,f))
+		{
+			new_return(81);
+		}
+		if(!p_putc(zinit.dither_arg,f))
+		{
+			new_return(82);
+		}
+		if(!p_putc(zinit.dither_percent,f))
+		{
+			new_return(83);
+		}
+		if(!p_putc(zinit.def_lightrad,f))
+		{
+			new_return(84);
+		}
+		if(!p_putc(zinit.transdark_percent,f))
+		{
+			new_return(85);
+		}
 	if(!p_iputl(zinit.gravity2,f))
         {
-            new_return(75);
+            new_return(86);
         }
 	if(!p_iputl(zinit.swimgravity,f))
         {
-            new_return(76);
+            new_return(87);
         }
         
         if(writecycle==0)
