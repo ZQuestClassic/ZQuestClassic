@@ -21859,9 +21859,13 @@ int onCheats()
 			saved=false;
 			zcheats.flags=enabled ? 1 : 0;
 			newCodes[0].copy(zcheats.codes[0], 41);
+			zcheats.codes[0][newCodes[0].size()]='\0';
 			newCodes[1].copy(zcheats.codes[1], 41);
+			zcheats.codes[1][newCodes[1].size()]='\0';
 			newCodes[2].copy(zcheats.codes[2], 41);
+			zcheats.codes[2][newCodes[2].size()]='\0';
 			newCodes[3].copy(zcheats.codes[3], 41);
+			zcheats.codes[3][newCodes[3].size()]='\0';
 		}
 	).show();
 	return D_O_K;
