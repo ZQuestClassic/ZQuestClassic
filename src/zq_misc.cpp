@@ -857,7 +857,8 @@ const char *combotype_help_string[cMAX] =
 	"Bridge combos can be used to block combos under them from having an effect.",
 	"Signpost combos can be set to display a string This can be hard-coded, or variable. See combos.txt for details.",
 	"Switch combos, when triggered, toggle a switch state for the current 'level'. See combos.txt for details.",
-	"Switchblock combos change based on switch states toggled by switch combos. See combos.txt for details."
+	"Switchblock combos change based on switch states toggled by switch combos. See combos.txt for details.",
+	"Emits light in a radius in dark rooms (when \"Quest->Options->Other->New Dark Rooms\" is enabled)"
 };
 
 const char *flag_help_string[(mfMAX)*3] =

@@ -367,7 +367,7 @@ void lighting(bool existslight, bool setnaturaldark, int specialstate)
 		existslight=true;
 	}
     bool newstate = !existslight && (setnaturaldark ? ((TheMaps[currmap*MAPSCRS+currscr].flags&fDARK) != 0) : naturaldark);
-    
+    if(get_bit(quest_rules, qr_NEW_DARKROOM)) newstate = false;
     if(darkroom != newstate)
     {
 fade((Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color, false, darkroom);
@@ -383,7 +383,7 @@ void lightingInstant()
 {
 	stayLit=false;
     bool newstate = ((TheMaps[currmap*MAPSCRS+currscr].flags&fDARK) != 0);
-    
+    if(get_bit(quest_rules, qr_NEW_DARKROOM)) newstate = false;
     if(darkroom != newstate)
     {
 int level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;

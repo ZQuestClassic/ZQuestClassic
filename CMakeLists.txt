@@ -45,6 +45,10 @@ include_directories(./include/almp3)
 include_directories(./include/gme)
 include_directories(./src)
 
+if(MSVC)
+  include_directories(./src/msvcCompat)
+endif()
+
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp
 	src/zcmusicd.cpp
@@ -176,21 +180,21 @@ target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 # Romview
 #############################################################
 
-if(MSVC)
-	list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
-elseif(LINUX)
-	list(APPEND ROMVIEWEXTRASOURCES rv_icon.c)
-	set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
-endif()
+# if(MSVC)
+	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
+# elseif(LINUX)
+	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.c)
+	# set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
+# endif()
 
-if(UNITY_BUILD)
-	enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
-	enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
-endif()
+# if(UNITY_BUILD)
+	# enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
+	# enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
+# endif()
 
-add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
+# add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
 
-target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
+# target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
 #############################################################
 # Zelda
@@ -226,6 +230,19 @@ endif()
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
 	target_compile_definitions(zelda PRIVATE ZC_PCH)
+endif()
+
+#############################################################
+# ZScript parser
+#############################################################
+
+if(LINUX)
+	set(ZSCRIPTLIBSEXTRA ${X11_LIBRARIES})
+endif()
+
+if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
+	add_executable(zscript src/parser/ZScript_main.cpp src/util.cpp ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
+	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
 endif()
 
 #############################################################
@@ -269,4 +286,3 @@ if(Boost_FOUND)
 		target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
 	endif()
 endif()
-

@@ -655,7 +655,7 @@ long LongDistance(double x1, double y1, double x2, double y2, int scale);
 void do_distance();
 
 int combo_script_engine(const bool preload);
-int FFScript::combo_script_engine_waitdraw(const bool preload);
+int combo_script_engine_waitdraw(const bool preload);
 
 void do_strstr();
 void do_strcat();

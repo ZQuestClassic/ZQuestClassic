@@ -49,7 +49,7 @@ extern FFScript FFCore;
 
 //MSVC does not provide a log2 funcion in <cmath>
 // adjust version number as needed. MSVC 2015 (1900) does *not* need these functions
-#if _MSC_VER < 1900
+#if defined _MSC_VER && _MSC_VER < 1900
 double log2(double n)
 {
     return log(n) / log(2.0);
@@ -633,9 +633,10 @@ void setmapflag(int mi2, int flag)
     sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
     
     game->maps[mi2] |= flag;
+    float temp=log2((float)flag);
     Z_eventlog("%s's State was set: %s\n",
                mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
-               flag>0 ? screenstate_string[(int)log2((float)flag)] : "<Unknown>");
+               flag>0 ? screenstate_string[(int)temp] : "<Unknown>");
                
     if(flag==mSECRET||flag==mITEM||flag==mBELOW||flag==mLOCKBLOCK||
             flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
@@ -691,9 +692,10 @@ void unsetmapflag(int mi2, int flag, bool anyflag)
     char buf[20];
     sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
     
+    float temp=log2((float)flag);
     Z_eventlog("%s's State was unset: %s\n",
                mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
-               flag>0 ? screenstate_string[(int)log2((float)flag)] : "<Unknown>");
+               flag>0 ? screenstate_string[(int)temp] : "<Unknown>");
                
     if(flag==mSECRET||flag==mITEM||flag==mBELOW||flag==mLOCKBLOCK||
             flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
@@ -1296,6 +1298,7 @@ bool isHSGrabbable(newcombo const& cmb)
 		case cBUSHNEXTTOUCHY:
 		case cSIGNPOST:
 		case cCSWITCHBLOCK:
+		case cLANTERN:
 			return (cmb.usrflags&cflag16)?true:false;
 		default:
 			return false;
@@ -3347,6 +3350,59 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen)
 	}
 }
 
+void doLampCirc(BITMAP* bmp, int pos, newcombo const& cmb)
+{
+	if(cmb.type != cLANTERN) return;
+	circlefill(bmp, MAPCOMBOX(pos)+8, MAPCOMBOY(pos)+8, cmb.attribytes[0], 0);
+}
+
+void calc_darkroom_combos(bool scrolling)
+{
+	for(int q = 0; q < 176; ++q)
+	{
+		newcombo const& cmb = combobuf[tmpscr->data[q]];
+		if(cmb.type == cLANTERN)
+		{
+			doLampCirc(darkscr_bmp1, q, cmb);
+		}
+	}
+	for(int lyr = 0; lyr < 6; ++lyr)
+	{
+		if(!tmpscr->layermap[lyr]) continue; //invalid layer
+		for(int q = 0; q < 176; ++q)
+		{
+			newcombo const& cmb = combobuf[tmpscr2[lyr].data[q]];
+			if(cmb.type == cLANTERN)
+			{
+				doLampCirc(darkscr_bmp1, q, cmb);
+			}
+		}
+	}
+	
+	if(!scrolling) return; //not a scrolling call, don't run code for scrolling screen
+	
+	for(int q = 0; q < 176; ++q)
+	{
+		newcombo const& cmb = combobuf[tmpscr[1].data[q]];
+		if(cmb.type == cLANTERN)
+		{
+			doLampCirc(darkscr_bmp2, q, cmb);
+		}
+	}
+	for(int lyr = 0; lyr < 6; ++lyr)
+	{
+		if(!tmpscr[1].layermap[lyr]) continue; //invalid layer
+		for(int q = 0; q < 176; ++q)
+		{
+			newcombo const& cmb = combobuf[tmpscr3[lyr].data[q]];
+			if(cmb.type == cLANTERN)
+			{
+				doLampCirc(darkscr_bmp2, q, cmb);
+			}
+		}
+	}
+}
+
 void draw_screen(mapscr* this_screen, bool showlink)
 {
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
@@ -3864,14 +3920,31 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
-	//12. Draw the subscreen, without clipping
+	calc_darkroom_combos();
+	Link.calc_darkroom_link();
 	
+	//12. Draw the subscreen, without clipping
+	if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
+	{
+		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+		masked_blit(darkscr_bmp1, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+	}	
+
 	if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 	{
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
 		
 		// Draw primitives over subscren
 		do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
+	}
+	
+	
+	if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
+	{
+		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+		masked_blit(darkscr_bmp1, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 	}
 	
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
@@ -4364,7 +4437,8 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 {
 	if(!tmp)
 		triggered_screen_secrets = false; //Reset var
-	
+	clear_to_color(darkscr_bmp1, vc(0));
+	clear_to_color(darkscr_bmp2, vc(0));
 	int destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 	
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;

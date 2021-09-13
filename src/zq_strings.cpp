@@ -47,10 +47,10 @@ int bistringcat_cnt=-1;
 // Dialogs
 
 static int editmsg_string_list[] =
-{ 2, 3, 4, 5, 8, 17, 18, 29, 32, -1 };
+{ 2, 3, 4, 5, 8, 17, 18, 29, 32, 58, 59, -1 };
 
 static int editmsg_attributes_list[] =
-{ 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27,28, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, -1 };
+{ 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27,28, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, 54, 55, 56, 57, -1 };
 
 static int editmsg_portrait_list[] =
 { 45, 46, 47, 48, 49, 50, 51, 52, 53, -1 };
@@ -98,6 +98,7 @@ DIALOG strlist_dlg[] =
 	{ NULL,                  0,      0,      0,      0,        0,     0,     0,      0,       0,             0,       NULL,  NULL,  NULL }
 };
 
+extern ListData shadowstyle_list;
 DIALOG editmsg_dlg[] =
 {
 
@@ -166,6 +167,14 @@ DIALOG editmsg_dlg[] =
 	{ jwin_edit_proc,      160,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
 	{ jwin_ctext_proc,     136,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Tile Height:", NULL, NULL },
 	{ d_cstile_proc,      60,  104,    16,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+	{ jwin_droplist_proc,    200,   122,   110,     16,  0,                  0,                0,       0,          0,             0, (void *) &shadowstyle_list, NULL, NULL },
+	//55
+	{ jwin_text_proc,        160,   126,   110,     16,  0,                  0,                0,       0,          0,             0, (void *)"Shadow Type:", NULL, NULL },
+	{ jwin_text_proc,        160,   138,   110,     16,  0,                  0,                0,       0,          0,             0, (void *)"Shadow Color:", NULL, NULL },
+	{ jwin_color_swatch,     200,   136,    12,     12,  0,                  0,                0,       0,          0,             0, NULL, NULL, NULL },
+	{ d_msg_edit_proc,      119,   66,   32,  16,    vc(12),  vc(1),  0,       0,          8,             0,       NULL, NULL, NULL },
+	{ jwin_text_proc,        61,   68,   110,     16,  0,                  0,                0,       0,          0,             0, (void *)"Player Name Preview:", NULL, NULL },
+	
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -603,28 +612,8 @@ int onStrings()
 				init_msgstrings(msg_count, msg_strings_size);
 			}
 			
-			for(int i=0; i<MSGSIZE; i++)
-				MsgStrings[msg_count].s[i]='\0';
-				
-			MsgStrings[msg_count].x=24;
-			MsgStrings[msg_count].y=32;
-			MsgStrings[msg_count].w=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 24*8 : 26*8;
-			MsgStrings[msg_count].h=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 3*8 : 5*8;
-			MsgStrings[msg_count].hspace=0;
-			MsgStrings[msg_count].vspace=0;
-			MsgStrings[msg_count].stringflags=0;
-			MsgStrings[msg_count].listpos=msg_count;
-			MsgStrings[msg_count].margins[up] = 8;
-			MsgStrings[msg_count].margins[down] = 0;
-			MsgStrings[msg_count].margins[left] = 8;
-			MsgStrings[msg_count].margins[right] = 0;
-			MsgStrings[msg_count].margins[right] = 0;
-			MsgStrings[msg_count].portrait_tile = 0;
-			MsgStrings[msg_count].portrait_cset = 0;
-			MsgStrings[msg_count].portrait_x = 0;
-			MsgStrings[msg_count].portrait_y = 0;
-			MsgStrings[msg_count].portrait_tw = 1;
-			MsgStrings[msg_count].portrait_th = 1;
+			init_msgstr(&(MsgStrings[msg_count]));
+			MsgStrings[msg_count].listpos = msg_count;
 			strcpy(MsgStrings[msg_count++].s,"<New String>");
 		}
 		
@@ -910,6 +899,7 @@ int onStrings()
 void editmsg(int index, int addAfter)
 {
 	char setitle[80];
+	static char namebuf[9] = "[NAME]";
 	sprintf(setitle, "String Editor (%d)", index);
 	
 	encode_msg_str(index);
@@ -961,6 +951,9 @@ void editmsg(int index, int addAfter)
 	sprintf(prt_ybuf,"%d",MsgStrings[index].portrait_y);
 	sprintf(prt_twbuf,"%d",MsgStrings[index].portrait_tw);
 	sprintf(prt_thbuf,"%d",MsgStrings[index].portrait_th);
+	editmsg_dlg[54].d1 = MsgStrings[index].shadow_type;
+	editmsg_dlg[57].d1 = MsgStrings[index].shadow_color;
+	editmsg_dlg[58].dp = (void*)namebuf;
 	for(int q = 0; q < 4; ++q)
 	{
 		sprintf(msg_margins_bufs[q],"%d",MsgStrings[index].margins[q]);
@@ -1080,6 +1073,8 @@ void editmsg(int index, int addAfter)
 		MsgStrings[index].portrait_y = vbound((int)strtol(prt_ybuf, (char **)NULL, 10),0,255);
 		MsgStrings[index].portrait_tw = vbound((int)strtol(prt_twbuf, (char **)NULL, 10),0,16);
 		MsgStrings[index].portrait_th = vbound((int)strtol(prt_thbuf, (char **)NULL, 10),0,14);
+		MsgStrings[index].shadow_type = editmsg_dlg[54].d1;
+		MsgStrings[index].shadow_color = editmsg_dlg[57].d1;
 		MsgStrings[index].hspace = vbound((int)strtol(msg_hsbuf, (char **)NULL, 10),0,128);
 		MsgStrings[index].vspace = vbound((int)strtol(msg_vsbuf, (char **)NULL, 10),0,128);
 		MsgStrings[index].sfx = (int)strtol(msg_sfxbuf, (char **)NULL, 10);
@@ -1286,9 +1281,29 @@ char *parse_msg_str(char *s)
 }
 
 //Make sure this is synchronised with parsemsgcode in guys.cpp!
+static int ssc_tile_hei = -1;
+word grab_next_argument(char* s2, int* i)
+{
+	byte val=s2[(*i)++]-1;
+	word ret=val;
+	
+	// If an argument is succeeded by 255, then it's a three-byte argument -
+	// between 254 and 65535 (or whatever the maximum actually is)
+	if((unsigned char)(s2[(*i)]) == 255)
+	{
+		val=s2[(*i)+1];
+		word next=val;
+		ret += 254*next;
+		(*i)+=2;
+	}
+	
+	return ret;
+}
+
 void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 {
 	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
+	ssc_tile_hei = -1;
 	int w = vbound((int)strtol((char*)editmsg_dlg[19].dp, (char **)NULL, 10),0,512);
 	int h = vbound((int)strtol((char*)editmsg_dlg[21].dp, (char **)NULL, 10),0,512);
 	int fonta = editmsg_dlg[18].d1;
@@ -1311,6 +1326,8 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 	
 	int i=0;
 	int msgcolour=misc.colors.msgtext;
+	int shdtype=editmsg_dlg[54].d1;
+	int shdcolor=editmsg_dlg[57].d1;
 	
 	FONT *workfont = getfont(fonta);
 	
@@ -1415,7 +1432,9 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 				   && ((cursor_x > (w-msg_margins[right]) || !(flags & STRINGFLAG_WRAP))
 						? 1 : strcmp(s3," ")!=0))
 				{
-					cursor_y += text_height(workfont) + vspace;
+					int thei = zc_max(ssc_tile_hei, text_height(workfont));
+					ssc_tile_hei = -1;
+					cursor_y += thei + vspace;
 					if(cursor_y >= (h - msg_margins[down])) break;
 					cursor_x=msg_margins[left];
 					//if(space) s3[0]=0;
@@ -1427,49 +1446,129 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 				{
 					switch(s3[k]-1)
 					{
-					case MSGC_NEWLINE:
-					{
-						if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
+						case MSGC_NEWLINE:
 						{
-							cursor_y += text_height(workfont) + vspace;
-							if(cursor_y >= (h - msg_margins[down])) done = true;
-							cursor_x=msg_margins[left];
-						}
-						
-						//No i++ here - s3 terminates at newlines.
-						break;
-					}
-					
-					case MSGC_COLOUR:
-					{
-						// Read the CC arguments directly from s2, while skipping over them.
-						// (Yes, i++ and not ++i) -L
-						int cset = (*(s2+(i++)))-1;
-						msgcolour = CSET(cset)+(*(s2+(i++)))-1;
-						break;
-					}
-					
-					default:
-						if(s3[k] >= 32 && s3[k] <= 126)
-						{
-							textprintf_ex(buf,workfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,"%c",s3[k]);
-							cursor_x += workfont->vtable->char_length(workfont, s3[k]);
-							cursor_x += hspace;
-						}
-						else
-						{
-							for(int numops=msg_code_operands(s3[k]-1); numops>0; numops--)
+							if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
 							{
-								i++;
-								
-								if((byte)s2[i]==255)
-									i+=2;
+								int thei = zc_max(ssc_tile_hei, text_height(workfont));
+								ssc_tile_hei = -1;
+								cursor_y += thei + vspace;
+								if(cursor_y >= (h - msg_margins[down])) done = true;
+								cursor_x=msg_margins[left];
 							}
+							
+							//No i++ here - s3 terminates at newlines.
+							break;
 						}
 						
-						break;
+						case MSGC_COLOUR:
+						{
+							int cset = grab_next_argument(s2, &i);
+							msgcolour = CSET(cset)+grab_next_argument(s2, &i);
+							break;
+						}
+						case MSGC_SHDCOLOR:
+						{
+							int cset = grab_next_argument(s2, &i);
+							shdcolor = CSET(cset)+grab_next_argument(s2, &i);
+							break;
+						}
+						case MSGC_SHDTYPE:
+						{
+							shdtype = grab_next_argument(s2, &i);
+							break;
+						}
+						
+						case MSGC_NAME:
+						{
+							char *namestr = (char*)editmsg_dlg[58].dp;
+							char wrapstr[9] = {0};
+							for(int q = 0; namestr[q]; ++q)
+							{
+								if(flags & STRINGFLAG_WRAP)
+								{
+									strcpy(wrapstr, namestr+q);
+								}
+								else
+								{
+									wrapstr[0] = namestr[q];
+								}
+								
+								tlength = text_length(workfont, wrapstr);
+								
+								if(cursor_x+tlength+(hspace*strlen(namestr)) > (w-msg_margins[right]))
+								{
+									int thei = zc_max(ssc_tile_hei, text_height(workfont));
+									ssc_tile_hei = -1;
+									cursor_y += thei + vspace;
+									if(cursor_y >= (h - msg_margins[down])) break;
+									cursor_x=msg_margins[left];
+								}
+								
+								char cbuf[2] = {0};
+								
+								sprintf(cbuf,"%c",namestr[q]);
+								
+								textout_styled_aligned_ex(buf,workfont,cbuf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),shdtype,sstaLEFT,msgcolour,shdcolor,-1);
+								
+								cursor_x += workfont->vtable->char_length(workfont, namestr[q]);
+								cursor_x += hspace;
+							}
+							break;
+						}
+						
+						case MSGC_DRAWTILE:
+						{
+							int tl = grab_next_argument(s2, &i);
+							int cs = grab_next_argument(s2, &i);
+							int t_wid = grab_next_argument(s2, &i);
+							int t_hei = grab_next_argument(s2, &i);
+							int fl = grab_next_argument(s2, &i);
+							
+							if(cursor_x+hspace + t_wid > w-msg_margins[right])
+							{
+								int thei = zc_max(ssc_tile_hei, text_height(workfont));
+								ssc_tile_hei = -1;
+								cursor_y += thei + vspace;
+								if(cursor_y >= (h - msg_margins[down])) break;
+								cursor_x=msg_margins[left];
+							}
+							
+							overtileblock16(buf, tl, cursor_x, cursor_y, (int)ceil(t_wid/16.0), (int)ceil(t_hei/16.0), cs, fl);
+							if(t_hei > ssc_tile_hei)
+								ssc_tile_hei = t_hei;
+							cursor_x += hspace + t_wid;
+							break;
+						}
+						
+						default:
+							if(s3[k] >= 32 && s3[k] <= 126)
+							{
+								//textprintf_ex(buf,workfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,"%c",s3[k]);
+								char cbuf[2] = {0};
+								
+								sprintf(cbuf,"%c",s3[k]);
+								
+								textout_styled_aligned_ex(buf,workfont,cbuf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),shdtype,sstaLEFT,msgcolour,shdcolor,-1);
+								
+								cursor_x += workfont->vtable->char_length(workfont, s3[k]);
+								cursor_x += hspace;
+							}
+							else
+							{
+								for(int numops=msg_code_operands(s3[k]-1); numops>0; numops--)
+								{
+									i++;
+									
+									if((byte)s2[i]==255)
+										i+=2;
+								}
+							}
+							
+							break;
 					}
 				}
+				if(cursor_y >= (h - msg_margins[down])) break;
 			}
 			
 			if(nextstring && MsgStrings[nextstring].stringflags & STRINGFLAG_CONT)
@@ -1698,38 +1797,40 @@ int msg_code_operands(int cc)
 {
 	switch(cc)
 	{
+		case MSGC_WARP:
+			return 6; //dmap, screen, x, y, effect, sound
 		
-	case MSGC_WARP:
-	return 6; //dmap, screen, x, y, effect, sound
-	
-	//portrait tile, x, y, width, height
-	case MSGC_CHANGEPORTRAIT:
-	case MSGC_GOTOIFCREEND:
-	return 5;
-	
-	case MSGC_SETSCREEND:
-	return 4;
+		//portrait tile, x, y, width, height
+		case MSGC_CHANGEPORTRAIT:
+		case MSGC_GOTOIFCREEND:
+		case MSGC_DRAWTILE:
+			return 5;
+		
+		case MSGC_SETSCREEND:
+			return 4;
 
-	case MSGC_GOTOIFGLOBAL:
-	case MSGC_GOTOIFCTRPC:
-	case MSGC_GOTOIFCTR:
-		return 3;
-		
-	case MSGC_COLOUR:
-	case MSGC_CTRUP:
-	case MSGC_CTRDN:
-	case MSGC_CTRSET:
-	case MSGC_CTRUPPC:
-	case MSGC_CTRDNPC:
-	case MSGC_CTRSETPC:
-	case MSGC_GOTOIF:
-	case MSGC_GOTOIFTRI:
-	case MSGC_GOTOIFTRICOUNT:
-	case MSGC_GOTOIFRAND:
-		return 2;
-		
-	case MSGC_NEWLINE:
-		return 0;
+		case MSGC_GOTOIFGLOBAL:
+		case MSGC_GOTOIFCTRPC:
+		case MSGC_GOTOIFCTR:
+			return 3;
+			
+		case MSGC_COLOUR:
+		case MSGC_SHDCOLOR:
+		case MSGC_CTRUP:
+		case MSGC_CTRDN:
+		case MSGC_CTRSET:
+		case MSGC_CTRUPPC:
+		case MSGC_CTRDNPC:
+		case MSGC_CTRSETPC:
+		case MSGC_GOTOIF:
+		case MSGC_GOTOIFTRI:
+		case MSGC_GOTOIFTRICOUNT:
+		case MSGC_GOTOIFRAND:
+			return 2;
+			
+		case MSGC_NEWLINE:
+		case MSGC_NAME:
+			return 0;
 	}
 	
 	return 1;

@@ -2224,6 +2224,47 @@ void oldputtile16(BITMAP* dest,int tile,int x,int y,int cset,int flip) //fixed
     }
 }
 
+void overtileblock16(BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, byte skiprows)
+{
+	if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
+	{
+		byte w2=(tile+w)%TILES_PER_ROW;
+		overtileblock16(_Dest, tile, x, y, w-w2, h, color, flip);
+		overtileblock16(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, color, flip);
+		return;
+	}
+	
+	switch(flip)
+	{
+	case 1:
+		for(int j=0; j<h; j++)
+			for(int k=w-1; k>=0; k--)
+				overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, color, flip);
+				
+		break;
+		
+	case 2:
+		for(int j=h-1; j>=0; j--)
+			for(int k=0; k<w; k++)
+				overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, color, flip);
+				
+		break;
+		
+	case 3:
+		for(int j=h-1; j>=0; j--)
+			for(int k=w-1; k>=0; k--)
+				overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, color, flip);
+				
+		break;
+		
+	default:
+		for(int j=0; j<h; j++)
+			for(int k=0; k<w; k++)
+				overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, color, flip);
+				
+		break;
+	}
+}
 void overtile16(BITMAP* dest,int tile,int x,int y,int cset,int flip) //fixed
 {
     if(x<-15 || y<-15)

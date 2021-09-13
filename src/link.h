@@ -335,7 +335,8 @@ public:
     int get_scroll_step(int scrolldir);
     int get_scroll_delay(int scrolldir);
     void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw);
-    void scrollscr(int dir,int destscr = -1, int destdmap = -1);
+    void calc_darkroom_link(int x1 = 0, int y1 = 0, int x2 = 0, int y2 = 0);
+	void scrollscr(int dir,int destscr = -1, int destdmap = -1);
     int defend(weapon *w);
     
 private:

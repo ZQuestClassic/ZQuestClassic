@@ -837,6 +837,7 @@ int PickRuleset()
 				set_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM, 1);
 				set_bit(quest_rules, qr_CORRECTED_EW_BRANG_ANIM, 1);
 				set_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2, 1);
+				set_bit(quest_rules, qr_NEW_DARKROOM, 1);
 				//}
 				break;
 			}

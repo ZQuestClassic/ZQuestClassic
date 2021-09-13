@@ -1076,7 +1076,7 @@ std::vector<string> asscreenscripts;
 std::vector<string> asitemspritescripts;
 std::vector<string> ascomboscripts;
 
-std::vector<string> *ZQincludePaths;
+std::vector<string> ZQincludePaths;
 
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
@@ -1368,7 +1368,7 @@ int SnapshotFormat = 0;
 
 int memrequested = 0;
 byte Color = 0;
-int jwin_pal[jcMAX] = {0};
+extern int jwin_pal[jcMAX];
 int gui_colorset=0;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
@@ -24786,18 +24786,18 @@ const char *gscriptlist2(int index, int *list_size)
 
 static DIALOG compile_dlg[] =
 {
-	//						x		y		w		h		fg		bg		key	flags	d1	d2	dp
-	{ jwin_win_proc,		0,		0,		200,	130,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile ZScript", NULL, NULL },
-	{ jwin_button_proc,		109,	89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
-	{ jwin_button_proc,		131,	30,		61,		21,		vc(14),	vc(1),	'e',	D_EXIT,	0,	0,	(void *) "&Edit", NULL, NULL },
-	{ jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'l',	D_EXIT,	0,	0,	(void *) "&Load", NULL, NULL },
-	{ jwin_text_proc,		8,		35,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zScriptBytes, NULL, NULL },
-	{ jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
-	{ jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
-	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-	{ jwin_text_proc,		8,		25,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zLastVer, NULL, NULL },
-	{ jwin_check_proc,      8,  112,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Recover ZASM for scripts missing during compile", NULL, NULL },
-	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,   NULL,  NULL }
+	//                      x       y       w       h       fg      bg      key     flags   d1  d2  dp
+	{ jwin_win_proc,        0,      0,      200,    130,    vc(14), vc(1),  0,      D_EXIT,  0,  0, (void *)"Compile ZScript", NULL, NULL },
+	{ jwin_button_proc,     109,    89,     61,     21,     vc(14), vc(1),  27,     D_EXIT,  0,  0, (void *)"Cancel", NULL, NULL },
+	{ jwin_button_proc,     131,    30,     61,     21,     vc(14), vc(1),  'e',    D_EXIT,  0,  0, (void *)"&Edit", NULL, NULL },
+	{ jwin_button_proc,     30,     60,     61,     21,     vc(14), vc(1),  'l',    D_EXIT,  0,  0, (void *)"&Load", NULL, NULL },
+	{ jwin_text_proc,       8,      35,     61,     21,     vc(14), vc(1),  0,           0,  0,  0, (void *)zScriptBytes, NULL, NULL },
+	{ jwin_button_proc,     30,     89,     61,     21,     vc(14), vc(1),  'c',    D_EXIT,  0,  0, (void *)"&Compile!", NULL, NULL },
+	{ jwin_button_proc,     109,    60,     61,     21,     vc(14), vc(1),  'x',    D_EXIT,  0,  0, (void *)"E&xport", NULL, NULL },
+	{ d_timer_proc,         0,      0,      0,      0,      0,      0,      0,           0,  0,  0, NULL, NULL, NULL },
+	{ jwin_text_proc,       8,      25,     61,     21,     vc(14), vc(1),  0,           0,  0,  0, (void *)zLastVer, NULL, NULL },
+	{ jwin_check_proc,      8,      112,    90,     8,      vc(14), vc(1),  0,  D_DISABLED,  0,  0, (void *)"Recover ZASM for scripts missing during compile", NULL, NULL },
+	{ NULL,                 0,      0,      0,      0,      0,      0,      0,           0,  0,  0, NULL, NULL, NULL }
 };
 
 static int as_ffc_list[] = { 4, 5, 6, -1};
@@ -25723,7 +25723,7 @@ int onZScriptCompilerSettings()
 		al_trace("Run string set to: %s\n",FFCore.scriptRunString);
 		save_config_file();
 		FFCore.updateIncludePaths();
-		ZQincludePaths = &FFCore.includePaths;
+		ZQincludePaths = FFCore.includePaths;
 		
 		
 	}
@@ -26016,11 +26016,11 @@ int onCompileScript()
 	BOOL memresult = false;
 	#endif
 	
-	if(try_recovering_missing_scripts!=0)
+	/*if(try_recovering_missing_scripts!=0)
 	{
 		compile_dlg[9].flags |= D_SELECTED;
 	}
-	else
+	else*/
 	{
 		compile_dlg[9].flags &= ~D_SELECTED;
 	}
@@ -33262,7 +33262,7 @@ int main(int argc,char **argv)
     time(&auto_save_time_start);
     
     FFCore.init();
-	ZQincludePaths = &FFCore.includePaths;
+	ZQincludePaths = FFCore.includePaths;
 	
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
 	
@@ -36648,7 +36648,7 @@ bool ZModule::init(bool d) //bool default
 			"zz249", "zz250", "zz251", "zz252", "zz253", "zz254", "zz255",
 			"Script 01", "Script 02", "Script 03", "Script 04", "Script 05",
 			"Script 06", "Script 07", "Script 08", "Script 09", "Script 10",
-			"Ice Rod", "Attack Ring"
+			"Ice Rod", "Attack Ring", "Lanterns"
 		};
 						     
 		const char itype_fields[itype_max][255] =
@@ -36748,7 +36748,7 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
 		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE", "cSIGNPOST",
-		    "cCSWITCH", "cCSWITCHBLOCK"
+		    "cCSWITCH", "cCSWITCHBLOCK", "cLANTERN"
 		};
 		
 		const char default_ctype_strings[cMAX][255] = 
@@ -36770,7 +36770,7 @@ bool ZModule::init(bool d) //bool default
 			"", "", "", "", "", "", "", "", "", "",
 			"", "", "", "", "", "", "", "", "", "",
 			"", "", "Generic", "Pitfall", "Step->Effects", "Bridge", "Signpost",
-			"Switch", "Switch Block"
+			"Switch", "Switch Block", "Lantern"
 		};
 		
 		for ( int q = 0; q < cMAX; q++ )

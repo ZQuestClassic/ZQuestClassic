@@ -1066,7 +1066,7 @@ int sso_raw_data(subscreen_object *tempsso)
 
 static ListData wrapping_list(wrappinglist, &font);
 static ListData alignment_list(alignmentlist, &font);
-static ListData shadowstyle_list(shadowstylelist, &font);
+ListData shadowstyle_list(shadowstylelist, &font);
 static ListData misccolor_list(misccolorlist, &font);
 static ListData spectile_list(spectilelist, &font);
 static ListData ssfont_list(ssfontlist, &font);

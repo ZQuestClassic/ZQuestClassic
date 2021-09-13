@@ -7611,49 +7611,50 @@ bool LinkClass::animate(int)
 	{
 		int tx = x.getInt()+8,
 		    ty = y.getInt()+(bigHitbox?8:12);
-		for(int q = 0; q < 3; ++q)
+		if(!(unsigned(ty)>160 || unsigned(tx) > 240))
 		{
-			if(q && !tmpscr2[q-1].valid) continue;
-			int pos = COMBOPOS(tx,ty);
-			if(unsigned(pos) > 176) break;
-			newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
-			if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
-			int b = 1;
-			if(tx&8) b <<= 2;
-			if(ty&8) b <<= 1;
-			b |= (b<<4); //check equivalent effect flag too
-			if((cmb.walk&b)==b) //solid and effecting
+			for(int q = 0; q < 3; ++q)
 			{
-				if(z==0)
-				{
-					if(cmb.usrflags&cflag10)
-					{
-						if(!switchblock_offset)
-						{
-							switchblock_offset=true;
-							yofs -= 8;
-						}
-					}
-					else
-					{
-						if(switchblock_offset)
-						{
-							switchblock_offset=false;
-							yofs += 8;
-						}
-					}
-				}
-				if(cmb.attributes[2]>0 && switchblock_z>=0)
+				if(q && !tmpscr2[q-1].valid) continue;
+				newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
+				if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
+				int b = 1;
+				if(tx&8) b <<= 2;
+				if(ty&8) b <<= 1;
+				b |= (b<<4); //check equivalent effect flag too
+				if((cmb.walk&b)==b) //solid and effecting
 				{
 					if(z==0)
-						switchblock_z = zc_max(switchblock_z,zslongToFix(cmb.attributes[2]));
-					else if(SWITCHBLOCK_STATE < zslongToFix(cmb.attributes[2]))
 					{
-						switchblock_z += zslongToFix(cmb.attributes[2])-SWITCHBLOCK_STATE;
+						if(cmb.usrflags&cflag10)
+						{
+							if(!switchblock_offset)
+							{
+								switchblock_offset=true;
+								yofs -= 8;
+							}
+						}
+						else
+						{
+							if(switchblock_offset)
+							{
+								switchblock_offset=false;
+								yofs += 8;
+							}
+						}
 					}
+					if(cmb.attributes[2]>0 && switchblock_z>=0)
+					{
+						if(z==0)
+							switchblock_z = zc_max(switchblock_z,zslongToFix(cmb.attributes[2]));
+						else if(SWITCHBLOCK_STATE < zslongToFix(cmb.attributes[2]))
+						{
+							switchblock_z += zslongToFix(cmb.attributes[2])-SWITCHBLOCK_STATE;
+						}
+					}
+					else switchblock_z = -1;
+					break;
 				}
-				else switchblock_z = -1;
-				break;
 			}
 		}
 	}
@@ -10699,7 +10700,7 @@ void LinkClass::pitfall()
 			if(dmg) //Damage
 			{
 				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
-				game->set_life(vbound(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg),0,game->get_maxlife()));
+				game->set_life(vbound(int(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg)),0,game->get_maxlife()));
 			}
 			if(warp) //Warp
 			{
@@ -21551,6 +21552,26 @@ int LinkClass::get_scroll_delay(int scrolldir)
 	}
 }
 
+void LinkClass::calc_darkroom_link(int x1, int y1, int x2, int y2)
+{
+	int itemid = current_item_id(itype_lantern);
+	if(itemid < 0) return; //no lantern light circle
+	int hx1 = x.getInt() - x1 + 8;
+	int hy1 = y.getInt() - y1 + 8;
+	int hx2 = x.getInt() - x2 + 8;
+	int hy2 = y.getInt() - y2 + 8;
+	
+	itemdata& lamp = itemsbuf[itemid];
+	
+	switch(lamp.misc1) //Shape
+	{
+		case 0: //Circle
+			circlefill(darkscr_bmp1, hx1, hy1, lamp.misc2, 0);
+			circlefill(darkscr_bmp2, hx2, hy2, lamp.misc2, 0);
+			break;
+	}
+}
+
 void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 {
 	if(action==freeze)
@@ -22223,11 +22244,38 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 			blit_msgstr_fg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
 		}
 			
-		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && ((newscr->flags&fDARK)||(oldscr->flags&fDARK)))
+		{
+			clear_to_color(darkscr_bmp1, vc(0));
+			clear_to_color(darkscr_bmp2, vc(0));
+			calc_darkroom_combos(true);
+			calc_darkroom_link(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
+		}
 		
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
+		{
+			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+			if(newscr->flags&fDARK)
+				masked_blit(darkscr_bmp1, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset, 256, 168);
+			if(oldscr->flags&fDARK)
+				masked_blit(darkscr_bmp2, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset, 256, 168);
+			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		}
+		
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
-			
+		
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6))
+		{
+			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+			if(newscr->flags&fDARK)
+				masked_blit(darkscr_bmp1, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset, 256, 168);
+			if(oldscr->flags&fDARK)
+				masked_blit(darkscr_bmp2, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset, 256, 168);
+			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		}
+		
 		//end drawing
 		advanceframe(true/*,true,false*/);
 		actiontype lastaction = action;
@@ -24046,7 +24094,7 @@ void LinkClass::checkitems(int index)
 		//show the info string
 		//non-held
 		//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
-			int shop_pstr = ( tmpscr[tmp].room == rSHOP && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
+		int shop_pstr = ( tmpscr[tmp].room == rSHOP && PriceIndex>=0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
 		if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 		{
 			if ( (pstr > 0 && pstr < msg_count) && ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )

@@ -413,7 +413,7 @@ int anim_3_4(int clk, int speed)
 static int seed = 0;
 //#define MASK 0x91B2A2D1
 //static int seed = 7351962;
-static int enc_mask[ENC_METHOD_MAX]= {0x4C358938,0x91B2A2D1,0x4A7C1B87,0xF93941E6,0xFD095E94};
+static int enc_mask[ENC_METHOD_MAX]= {(int)0x4C358938,(int)0x91B2A2D1,(int)0x4A7C1B87,(int)0xF93941E6,(int)0xFD095E94};
 static int pvalue[ENC_METHOD_MAX]= {0x62E9,0x7D14,0x1A82,0x02BB,0xE09C};
 static int qvalue[ENC_METHOD_MAX]= {0x3619,0xA26B,0xF03C,0x7B12,0x4E8F};
 

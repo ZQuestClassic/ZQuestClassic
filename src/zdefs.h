@@ -222,8 +222,8 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 
 //Version number of the different section types
 #define V_HEADER           5
-#define V_RULES           15
-#define V_STRINGS          7
+#define V_RULES           16
+#define V_STRINGS          8
 #define V_MISC             12
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           19
@@ -364,6 +364,9 @@ extern bool fake_pack_writing;
 #define TILEBUF_SIZE        (320*480)                       // 153600 bytes (old unpacked format)
 
 #define COMBOS_PER_ROW      20
+
+//TODO Turn this into an init data var, and allow editing it per-weapon! -Em
+#define DEFAULT_FIRE_LIGHT_RADIUS 40
 
 //#define MAGICDRAINRATE  2
 
@@ -767,7 +770,7 @@ enum
 	//160
 	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC, cPITFALL, cSTEPSFX,
 	//165
-	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK,
+	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK, cLANTERN,
     cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -994,7 +997,8 @@ enum
 	qr_INSTANT_CONTINUE, qr_NONHEAVY_BLOCKTRIGGER_PERM, qr_SET_YBUTTON_ITEMS, qr_CORRECTED_EW_BRANG_ANIM,
 	qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER, qr_OVERHEAD_COMBOS_L1_L2, qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION,
 	//30
-	qr_AUTOCOMBO_LAYER_1, qr_AUTOCOMBO_LAYER_2, qr_TRUEFIXEDBOMBSHIELD, qr_BOMBSPIERCESHIELD, qr_SIDESWIM, qr_SIDESWIMDIR,
+	qr_AUTOCOMBO_LAYER_1, qr_AUTOCOMBO_LAYER_2, qr_TRUEFIXEDBOMBSHIELD, qr_BOMBSPIERCESHIELD,
+	qr_BROKEN_HORIZONTAL_WEAPON_ANIM, qr_NEW_DARKROOM, qr_NEWDARK_L6, qr_SIDESWIM, qr_SIDESWIMDIR,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -3068,32 +3072,39 @@ struct zquestheader
 enum { msLINKED };
 
 /* Note: Printable ASCII begins at 32 and ends at 126, inclusive. */
-#define MSGC_COLOUR	1  // 2 args
-#define MSGC_SPEED	2  // 1 arg
-#define MSGC_GOTOIFGLOBAL 3 // 3 args
-#define MSGC_GOTOIFRAND 4 // 2 args
-#define MSGC_GOTOIF     5  // 2 args
-#define MSGC_GOTOIFCTR  6  // 3 args
-#define MSGC_GOTOIFCTRPC 7  // 3 args
-#define MSGC_GOTOIFTRI  8  // 2 args
-#define MSGC_GOTOIFTRICOUNT  9  // 2 args
-#define MSGC_CTRUP     10 // 2 args
-#define MSGC_CTRDN     11 // 2 args
-#define MSGC_CTRSET    12 // 2 args
-#define MSGC_CTRUPPC     13 // 2 args
-#define MSGC_CTRDNPC     14 // 2 args
-#define MSGC_CTRSETPC    15 // 2 args
-#define MSGC_GIVEITEM    16 // 1 arg
-#define MSGC_TAKEITEM    17 // 1 arg
-#define MSGC_WARP    18 // 6 args (dmap, screen, x, y, effect, sound
-#define MSGC_SETSCREEND    19 // 4 args (dmap, screen, reg, value)
-#define MSGC_SFX	20 // 1 arg
-#define MSGC_MIDI	21 // 1 arg
-#define MSGC_NAME	22 // 0 args, disabled
-#define MSGC_GOTOIFCREEND	23 // 5 args
-#define MSGC_CHANGEPORTRAIT	24 // 5 args, //not implemented
-#define MSGC_NEWLINE	25 // 0 args
-#define MSGC_GOTOIFYN   30 // 0 args, disabled
+#define MSGC_COLOUR            1    // 2 args (cset,swatch)
+#define MSGC_SPEED             2    // 1 arg  (speed)
+#define MSGC_GOTOIFGLOBAL      3    // 3 args (register, val, newtring)
+#define MSGC_GOTOIFRAND        4    // 2 args (factor, newstring)
+#define MSGC_GOTOIF            5    // 2 args (itemid, newstring)
+#define MSGC_GOTOIFCTR         6    // 3 args (counter, val, newstring)
+#define MSGC_GOTOIFCTRPC       7    // 3 args (counter, val, newstring)
+#define MSGC_GOTOIFTRI         8    // 2 args (level, newstring)
+#define MSGC_GOTOIFTRICOUNT    9    // 2 args (tricount, newstring)
+#define MSGC_CTRUP            10    // 2 args (counter, val)
+#define MSGC_CTRDN            11    // 2 args (counter, val)
+#define MSGC_CTRSET           12    // 2 args (counter, val)
+#define MSGC_CTRUPPC          13    // 2 args (counter, val)
+#define MSGC_CTRDNPC          14    // 2 args (counter, val)
+#define MSGC_CTRSETPC         15    // 2 args (counter, val)
+#define MSGC_GIVEITEM         16    // 1 arg  (itemid)
+#define MSGC_TAKEITEM         17    // 1 arg  (itemid)
+#define MSGC_WARP             18    // 6 args (dmap, screen, x, y, effect, sound
+#define MSGC_SETSCREEND       19    // 4 args (dmap, screen, reg, value)
+#define MSGC_SFX              20    // 1 arg  (sfx)
+#define MSGC_MIDI             21    // 1 arg  (midi)
+#define MSGC_NAME             22    // 0 args
+#define MSGC_GOTOIFCREEND     23    // 5 args (dmap, screen, reg, val, newstring)
+#define MSGC_CHANGEPORTRAIT   24    // not implemented
+#define MSGC_NEWLINE          25    // 0 args
+#define MSGC_SHDCOLOR         26    // 2 args (cset,swatch)
+#define MSGC_SHDTYPE          27    // 1 arg  (type)
+#define MSGC_DRAWTILE         28    // 5 args (tile, cset, wid, hei, flip)
+//29
+#define MSGC_GOTOIFYN         30    // not implemented
+//31
+//32-126 are ascii chars, unusable
+//127+
 
 enum
 {
@@ -3207,6 +3218,8 @@ struct MsgStr
 	byte portrait_y;
 	byte portrait_tw;
 	byte portrait_th;
+	byte shadow_type;
+	byte shadow_color;
 	
 	// Copy everything except listpos
 	MsgStr& operator=(MsgStr &other)
@@ -3248,6 +3261,8 @@ struct MsgStr
 		portrait_y=other.portrait_y;
 		portrait_tw=other.portrait_tw;
 		portrait_th=other.portrait_th;
+		shadow_type=other.shadow_type;
+		shadow_color=other.shadow_color;
 	}
 };
 
@@ -3673,6 +3688,7 @@ enum // used for gamedata ITEMS
 	itype_script10,
 	itype_icerod, //ice Rod
 	itype_atkring,
+	itype_lantern,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 
