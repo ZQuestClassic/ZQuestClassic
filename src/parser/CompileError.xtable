@@ -53,7 +53,7 @@ X(	ShiftNotInt,			T,	A,	W,	VOID,	VOID,	"Bitshift by non-integer amount; it has b
 X(	RefVar,				S,	A,	E,	STR,	VOID,	"Variables of type %s are not allowed to be global."					)
 X(	ArrowNotPointer,		T,	A,	E,	VOID,	VOID,	"The left of the -> is not a pointer type (ffc, etc)."					)
 X(	ArrowNoFunc,			T,	A,	E,	STR,	VOID,	"There is no function %s for the pointer on the left side of ->."			)
-X(	ArrowNoVar,			T,	A,	E,	STR,	VOID,	"There is no variable %s for the pointer on the left side of ->."			)
+X(	ArrowNoVar,			T,	A,	E,	STR,	STR,	"There is no variable %s for the pointer (%s) on the left side of ->."			)
 X(	TooManyRun,			S,	A,	E,	STR,	STR,	"Script %s has more than one %s() function."	     	     				)
 X(	IndexNotInt,			T,	D					       	    	     	   							)
 X(	ScriptBadType,			S,	A,	E,	STR,	VOID,	"Script %s is of an illegal type."							)

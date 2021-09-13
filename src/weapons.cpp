@@ -31,6 +31,7 @@
 #include "mem_debug.h"
 #include "ffscript.h"
 #include "decorations.h"
+#include "drawing.h"
 
 extern LinkClass Link;
 extern zinitdata zinit;
@@ -2660,6 +2661,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         else { defaultw = wFIRE; step = 0; }
         
         LOADGFX(defaultw);
+		glowRad = game->get_light_rad(); //Default light radius for fires
         //step = (type<2)?.5:0;
         
         
@@ -10369,10 +10371,6 @@ void weapon::draw(BITMAP *dest)
         //if no animation, flip tile
         if(frames==0 && do_animation ) //do_animation is a ZScript setting. -Z
             flip = o_flip & (clk>>2);
-        if(get_bit(quest_rules,qr_NEW_DARKROOM))
-		{
-			circlefill(darkscr_bmp1, x.getInt() + (hxsz/2), y.getInt() + (hysz/2), DEFAULT_FIRE_LIGHT_RADIUS, 0);
-		}
         break;
         
     case ewBrang:

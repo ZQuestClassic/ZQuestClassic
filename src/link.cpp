@@ -31,6 +31,7 @@
 #include "zc_custom.h"
 #include "title.h"
 #include "ffscript.h"
+#include "drawing.h"
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
@@ -21502,12 +21503,15 @@ void LinkClass::calc_darkroom_link(int x1, int y1, int x2, int y2)
 	int hy2 = y.getInt() - y2 + 8;
 	
 	itemdata& lamp = itemsbuf[itemid];
-	
 	switch(lamp.misc1) //Shape
 	{
 		case 0: //Circle
-			circlefill(darkscr_bmp1, hx1, hy1, lamp.misc2, 0);
-			circlefill(darkscr_bmp2, hx2, hy2, lamp.misc2, 0);
+			doDarkroomCircle(hx1, hy1, lamp.misc2, darkscr_bmp_curscr);
+			doDarkroomCircle(hx2, hy2, lamp.misc2, darkscr_bmp_scrollscr);
+			break;
+		case 1: //Lamp Cone
+			doDarkroomCone(hx1, hy1, lamp.misc2, dir, darkscr_bmp_curscr);
+			doDarkroomCone(hx2, hy2, lamp.misc2, dir, darkscr_bmp_scrollscr);
 			break;
 	}
 }
@@ -22186,8 +22190,10 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 			
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && ((newscr->flags&fDARK)||(oldscr->flags&fDARK)))
 		{
-			clear_to_color(darkscr_bmp1, vc(0));
-			clear_to_color(darkscr_bmp2, vc(0));
+			clear_to_color(darkscr_bmp_curscr, vc(0));
+			clear_to_color(darkscr_bmp_curscr_trans, vc(0));
+			clear_to_color(darkscr_bmp_scrollscr, vc(0));
+			clear_to_color(darkscr_bmp_scrollscr_trans, vc(0));
 			calc_darkroom_combos(true);
 			calc_darkroom_link(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
 		}
@@ -22195,10 +22201,40 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
 		{
 			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
-			if(newscr->flags&fDARK)
-				masked_blit(darkscr_bmp1, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset, 256, 168);
-			if(oldscr->flags&fDARK)
-				masked_blit(darkscr_bmp2, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset, 256, 168);
+			int dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
+			int dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
+			if(newscr->flags & fDARK)
+			{
+				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
+				else 
+					masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
+				color_map = &trans_table;
+			}
+			if(oldscr->flags & fDARK)
+			{
+				if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_scrollscr,darkscr_bmp_scrollscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_scrollscr_trans,darkscr_bmp_scrollscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
+				else 
+					masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
+				color_map = &trans_table;
+			}
 			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 		}
 		
@@ -22209,10 +22245,40 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6))
 		{
 			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
-			if(newscr->flags&fDARK)
-				masked_blit(darkscr_bmp1, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset, 256, 168);
-			if(oldscr->flags&fDARK)
-				masked_blit(darkscr_bmp2, framebuf, 0, 0, FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset, 256, 168);
+			int dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
+			int dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
+			if(newscr->flags & fDARK)
+			{
+				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
+				else 
+					masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 168);
+				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
+				color_map = &trans_table;
+			}
+			if(oldscr->flags & fDARK)
+			{
+				if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_scrollscr,darkscr_bmp_scrollscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_scrollscr_trans,darkscr_bmp_scrollscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
+				else 
+					masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 168);
+				draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
+				color_map = &trans_table;
+			}
 			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 		}
 		

@@ -59,6 +59,20 @@ void sprite::check_conveyor()
 }
 */
 
+void sprite::handle_sprlighting()
+{
+	if(!glowRad) return;
+	switch(glowShape)
+	{
+		case 0:
+			doDarkroomCircle(x.getInt()+(hxsz/2), y.getInt()+(hysz/2), glowRad);
+			break;
+		case 1:
+			doDarkroomCone(x.getInt()+(hxsz/2), y.getInt()+(hysz/2), glowRad, NORMAL_DIR(dir));
+			break;
+	}
+}
+
 void sprite::check_conveyor()
 {
     int deltax=0;

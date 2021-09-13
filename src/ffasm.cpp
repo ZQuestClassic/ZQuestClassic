@@ -2181,13 +2181,22 @@ script_variable variable_list[]=
 	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
 	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
 	{ "SCREENSECRETSTRIGGERED", SCREENSECRETSTRIGGERED, 0, 0 },
-	{ "PADDINGR9", PADDINGR9, 0, 0 },
+	{ "ITEMDIR", ITEMDIR, 0, 0 },
 	
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
 	{ "HEROISWARPING",           HEROISWARPING,            0,             0 },
+	
+	{ "ITEMGLOWRAD",           ITEMGLOWRAD,            0,             0 },
+	{ "NPCGLOWRAD",           NPCGLOWRAD,            0,             0 },
+	{ "LWPNGLOWRAD",           LWPNGLOWRAD,            0,             0 },
+	{ "EWPNGLOWRAD",           EWPNGLOWRAD,            0,             0 },
+	{ "ITEMGLOWSHP",           ITEMGLOWSHP,            0,             0 },
+	{ "NPCGLOWSHP",           NPCGLOWSHP,            0,             0 },
+	{ "LWPNGLOWSHP",           LWPNGLOWSHP,            0,             0 },
+	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
