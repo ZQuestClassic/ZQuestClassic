@@ -248,13 +248,18 @@ struct widgetType##Builder                                                      
     {                                                                                              \
         ZCGUI_STATIC_ASSERT(b, "This widget cannot have children.");                               \
     }                                                                                              \
-    ZCGUI_ACCEPT_PROP(width, overrideWidth, GUI::Size)                                             \
-    ZCGUI_ACCEPT_PROP(height, overrideHeight, GUI::Size)                                           \
+    ZCGUI_ACCEPT_PROP(width, overrideWidth, ::GUI::Size)                                           \
+    ZCGUI_ACCEPT_PROP(height, overrideHeight, ::GUI::Size)                                         \
     ZCGUI_ACCEPT_PROP(visible, setVisible, bool)                                                   \
     ZCGUI_ACCEPT_PROP(hAlign, setHAlign, int)                                                      \
     ZCGUI_ACCEPT_PROP(vAlign, setVAlign, int)                                                      \
-    ZCGUI_ACCEPT_PROP(hPadding, setHPadding, int)                                                  \
-    ZCGUI_ACCEPT_PROP(vPadding, setVPadding, int)                                                  \
+    ZCGUI_ACCEPT_PROP(leftMargin, setLeftMargin, ::GUI::Size)                                      \
+    ZCGUI_ACCEPT_PROP(rightMargin, setRightMargin, ::GUI::Size)                                    \
+    ZCGUI_ACCEPT_PROP(topMargin, setTopMargin, ::GUI::Size)                                        \
+    ZCGUI_ACCEPT_PROP(bottomMargin, setBottomMargin, ::GUI::Size)                                  \
+    ZCGUI_ACCEPT_PROP(hMargins, setHMargins, ::GUI::Size)                                          \
+    ZCGUI_ACCEPT_PROP(vMargins, setVMargins, ::GUI::Size)                                          \
+    ZCGUI_ACCEPT_PROP(margins, setMargins, ::GUI::Size)                                            \
     ZCGUI_ACCEPT_PROP(focused, setFocused, bool)                                                   \
 };
 

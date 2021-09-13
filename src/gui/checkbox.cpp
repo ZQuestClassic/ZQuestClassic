@@ -15,14 +15,14 @@ namespace GUI
 Checkbox::Checkbox(): checked(false), text(),
 	placement(boxPlacement::LEFT), alDialog(), message(-1)
 {
-	setPreferredHeight(Size::largePixels(text_height(FONT)+2));
+	setPreferredHeight(Size::pixels(text_height(FONT)+2_lpx));
 	setPreferredWidth(Size::largePixels(13));
 }
 
 void Checkbox::setText(std::string newText)
 {
 	int textWidth=text_length(FONT, newText.c_str());
-	setPreferredWidth(Size::largePixels(textWidth+13));
+	setPreferredWidth(Size::pixels(textWidth)+13_lpx);
 	text=std::move(newText);
 }
 

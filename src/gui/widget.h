@@ -28,15 +28,34 @@ public:
 	 */
 	void overrideHeight(Size newHeight) noexcept;
 
-	inline void setHPadding(int amount) noexcept
+	inline void setLeftMargin(Size size) noexcept
 	{
-		hPadding=amount;
+		leftMargin=size;
 	}
 
-	inline void setVPadding(int amount) noexcept
+	inline void setRightMargin(Size size) noexcept
 	{
-		vPadding=amount;
+		rightMargin=size;
 	}
+
+	inline void setTopMargin(Size size) noexcept
+	{
+		topMargin=size;
+	}
+
+	inline void setBottomMargin(Size size) noexcept
+	{
+		bottomMargin=size;
+	}
+
+	/* Set the left and right margins to the same value. */
+	void setHMargins(Size size) noexcept;
+
+	/* Set the top and bottom margins to the same value. */
+	void setVMargins(Size size) noexcept;
+
+	/* Set all four margins to the same value. */
+	void setMargins(Size size) noexcept;
 
 	inline void setHAlign(float align) noexcept
 	{
@@ -92,15 +111,15 @@ public:
 	/* Returns the height of the widget. This should only be used by widgets. */
 	int getHeight() const { return height; }
 
-	/* Returns the width of the widget plus any padding.
+	/* Returns the width of the widget plus left and right margins.
 	 * This should only be used by widgets.
 	 */
-	int getTotalWidth() const { return width+hPadding; }
+	int getTotalWidth() const noexcept { return width+leftMargin+rightMargin; }
 
-	/* Returns the height of the widget plus any padding.
+	/* Returns the height of the widget plus top and bottom margins.
 	 * This should only be used by widgets.
 	 */
-	int getTotalHeight() const { return height+vPadding; }
+	int getTotalHeight() const noexcept { return height+topMargin+bottomMargin; }
 
 	/* Called when the widget actually switches from visible to invisible
 	* or vice-versa. This should set or unset DIALOGs' D_HIDDEN flag.
@@ -122,7 +141,7 @@ public:
 protected:
 	int x, y;
 	int fgColor, bgColor;
-	int hPadding, vPadding;
+	unsigned short leftMargin, rightMargin, topMargin, bottomMargin;
 	float hAlign, vAlign;
 
 	/* Sets the widget's width if it hasn't been overridden. */

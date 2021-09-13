@@ -10,7 +10,8 @@ namespace GUI
 Widget::Widget() noexcept:
 	x(0), y(0),
 	fgColor(vc(14)), bgColor(vc(1)),
-	hPadding(sized(2, 3)), vPadding(sized(2, 3)),
+	leftMargin(sized(2, 3)), rightMargin(sized(2, 3)),
+	topMargin(sized(2, 3)), bottomMargin(sized(2, 3)),
 	hAlign(0.5), vAlign(0.5),
 	width(0), height(0),
 	flags(0),
@@ -39,6 +40,26 @@ void Widget::setPreferredHeight(Size newHeight) noexcept
 {
 	if((flags&f_HEIGHT_OVERRIDDEN)==0)
 		height=newHeight;
+}
+
+void Widget::setHMargins(Size size) noexcept
+{
+	leftMargin=size;
+	rightMargin=size;
+}
+
+void Widget::setVMargins(Size size) noexcept
+{
+	topMargin=size;
+	bottomMargin=size;
+}
+
+void Widget::setMargins(Size size) noexcept
+{
+	leftMargin=size;
+	rightMargin=size;
+	topMargin=size;
+	bottomMargin=size;
 }
 
 void Widget::setVisible(bool visible)
@@ -78,6 +99,11 @@ int Widget::onEvent(int, MessageDispatcher&)
 
 void Widget::arrange(int contX, int contY, int contW, int contH)
 {
+	contX+=leftMargin;
+	contW-=leftMargin+rightMargin;
+	contY+=topMargin;
+	contH-=topMargin+bottomMargin;
+
 	if(width>contW)
 		width=contW;
 	if(height>contH)

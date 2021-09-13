@@ -20,23 +20,20 @@ std::shared_ptr<GUI::Widget> SetPasswordDialog::view()
 				Label(text="Enter new password:"),
 				this->pwField=TextField(
 					maxLength=255,
-					width=30_em,
 					focused=true),
 				this->saveKeyFileCB=Checkbox(
 					text="&Save key file",
 					checked=this->useKeyFile)
 			),
 			Row(
-				vPadding=10,
+				topMargin=0.5_em,
 				vAlign=1.0,
 				Button(
 					text="OK",
-					onClick=message::OK,
-					hPadding=30),
+					onClick=message::OK),
 				Button(
 					text="Cancel",
-					onClick=message::CANCEL,
-					hPadding=30)
+					onClick=message::CANCEL)
 			)
 		)
 	);

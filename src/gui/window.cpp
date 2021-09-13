@@ -15,8 +15,7 @@ namespace GUI
 
 Window::Window(): content(nullptr), title(""), closeMessage(-1)
 {
-	hPadding=0;
-	vPadding=0;
+	setMargins(0_px);
 }
 
 void Window::setTitle(std::string newTitle)
@@ -55,14 +54,14 @@ void Window::calculateSize()
 			setPreferredWidth(Size::pixels(max(
 				content->getTotalWidth()+8,
 				text_length(lfont, title.c_str())+20)));
-			setPreferredHeight(Size::pixels(content->getTotalHeight()+36));
+			setPreferredHeight(Size::pixels(content->getTotalHeight()+30));
 		}
 		else
 		{
 			setPreferredWidth(Size::pixels(max(
 				content->getTotalWidth()+12,
 				text_length(lfont, title.c_str())+30)));
-			setPreferredHeight(Size::pixels(content->getTotalHeight()+30));
+			setPreferredHeight(Size::pixels(content->getTotalHeight()+26));
 		}
 	}
 	else
@@ -82,9 +81,9 @@ void Window::arrange(int contX, int contY, int contW, int contH)
 	{
 		// Then arrange the content with the final size.
 		if(is_large)
-			content->arrange(x+6, y+28, getWidth()-12, getHeight()-36);
+			content->arrange(x+6, y+28, getWidth()-12, getHeight()-30);
 		else
-			content->arrange(x+4, y+26, getWidth()-8, getHeight()-30);
+			content->arrange(x+4, y+24, getWidth()-8, getHeight()-26);
 	}
 }
 
