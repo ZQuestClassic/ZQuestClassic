@@ -95,8 +95,8 @@ inline void applyArgs(PropsSoFar psf, BuilderType&& builder, PropType&& prop,
 {
     using DecayType=typename std::decay_t<PropType>;
     ZCGUI_STATIC_ASSERT((std::is_base_of_v<Props::Property, DecayType>),
-        "Arguments must be widget properties or widgets.\n"
-        "This may be a name collision.\n"
+        "Arguments must be widget properties or widgets." ZCGUI_NEWLINE
+        "This may be a name collision." ZCGUI_NEWLINE
         "Is there something else with the same name in scope?");
     prop.assertUnique(psf);
 

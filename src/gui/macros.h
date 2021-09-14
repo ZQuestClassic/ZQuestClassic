@@ -157,7 +157,7 @@ struct widgetType##Builder                                                      
     void apply##propName(...)                                                                      \
     {                                                                                              \
         ZCGUI_STATIC_ASSERT(b,                                                                     \
-            "Invalid type for property '" #propName "'.\n"                                         \
+            "Invalid type for property '" #propName "'." ZCGUI_NEWLINE                             \
             "Type should be " #__VA_ARGS__ " (or convertible).");                                  \
     }                                                                                              \
                                                                                                    \
@@ -183,7 +183,7 @@ struct widgetType##Builder                                                      
     void apply##propName(...)                                                                      \
     {                                                                                              \
         ZCGUI_STATIC_ASSERT(b,                                                                     \
-            "Property '" ZCGUI_PROP_STR(propName) "' is not valid for this widget.\n"              \
+            "Property '" ZCGUI_PROP_STR(propName) "' is not valid for this widget." ZCGUI_NEWLINE  \
             "Did you mean '" ZCGUI_PROP_STR(suggestion)"'?");                                      \
     }                                                                                              \
 
