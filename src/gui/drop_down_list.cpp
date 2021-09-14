@@ -5,6 +5,7 @@
 #include "../jwin.h"
 #include "../zquest.h"
 #include <cassert>
+#include <cmath>
 
 #define FONT sized(nfont, lfont_l)
 #define FONT_PTR sized(&nfont, &lfont_l)
@@ -66,11 +67,10 @@ void DropDownList::setIndex()
 {
 	// Find a valid selection. We'll take the first thing with a matching
 	// value. If nothing matches exactly, take the one that's closest to
-	// but not greater than the selected value. If everything's greater,
-	// just go with index 0.
+	// the selected value.
 	selectedIndex = 0;
-	int bestSoFar = listData->getValue(0);
-	for(auto i = 0; i < listData->size(); ++i)
+	int minDiff = std::abs(selectedValue-listData->getValue(0));
+	for(auto i = 1; i < listData->size(); ++i)
 	{
 		int value = listData->getValue(i);
 		if(value == selectedValue)
@@ -78,8 +78,15 @@ void DropDownList::setIndex()
 			selectedIndex = i;
 			return;
 		}
-		else if(value>bestSoFar && value<selectedValue)
-			selectedIndex = i;
+		else
+		{
+			int diff = std::abs(selectedValue-value);
+			if(diff < minDiff)
+			{
+				selectedIndex = i;
+				minDiff=diff;
+			}
+		}
 	}
 }
 
