@@ -85,10 +85,7 @@ void DialogRunner::realize(shared_ptr<Widget> root)
 void DialogRunner::runInner(std::shared_ptr<Widget> root)
 {
 	realize(root);
-
-	int ret=0;
-	while(!done && ret>=0)
-		ret=zc_popup_dialog(alDialog.data(), focused);
+	new_gui_popup_dialog(alDialog.data(), focused, done);
 }
 
 DialogRef DialogRunner::getAllegroDialog()
