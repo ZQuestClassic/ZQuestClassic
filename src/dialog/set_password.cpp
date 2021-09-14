@@ -28,6 +28,7 @@ std::shared_ptr<GUI::Widget> SetPasswordDialog::view()
 			Row(
 				topMargin=0.5_em,
 				vAlign=1.0,
+				spacing=2_em,
 				Button(
 					text="OK",
 					onClick=message::OK),

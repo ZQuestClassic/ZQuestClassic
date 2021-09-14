@@ -6,21 +6,11 @@ using std::shared_ptr;
 namespace GUI
 {
 
-shared_ptr<Grid> Grid::rows(size_t itemsPerRow)
-{
-	shared_ptr<Grid> g=std::make_shared<Grid>();
-	g->gridType=type::ROWS;
-	g->size=itemsPerRow;
-	return g;
-}
-
-shared_ptr<Grid> Grid::columns(size_t itemsPerCol)
-{
-	shared_ptr<Grid> g=std::make_shared<Grid>();
-	g->gridType=type::COLUMNS;
-	g->size=itemsPerCol;
-	return g;
-}
+Grid::Grid(type growthType, size_t growthLimit):
+	rowSpacing(0), colSpacing(0),
+	growthType(growthType),
+	growthLimit(growthLimit)
+{}
 
 void Grid::applyVisibility(bool visible)
 {
@@ -30,33 +20,36 @@ void Grid::applyVisibility(bool visible)
 
 void Grid::calculateSize()
 {
-	// This needs a lot of work, but it'll do for now.
 	rowWidths.clear();
 	colWidths.clear();
 	rowHeights.clear();
 	colHeights.clear();
-	size_t numRows, numCols;
+	size_t numRows, numCols, totalRowSpacing, totalColSpacing;
 
-	if(gridType==type::ROWS)
+	if(growthType==type::ROWS)
 	{
-		numRows=(children.size()+size-1)/size; // +size-1 to round up
-		numCols=size;
+		// +growthLimit-1 to round up
+		numRows=(children.size()+growthLimit-1)/growthLimit;
+		numCols=growthLimit;
 	}
 	else
 	{
-		numRows=size;
-		numCols=(children.size()+size-1)/size;
+		numRows=growthLimit;
+		numCols=(children.size()+growthLimit-1)/growthLimit;
 	}
+
+	totalRowSpacing=(numRows-1)*rowSpacing;
+	totalColSpacing=(numCols-1)*colSpacing;
 
 	// Get the size of each row
 	for(size_t row=0; row<numRows; row++)
 	{
-		int total=0, max=0;
+		int total=totalColSpacing, max=0;
 		for(size_t col=0; col<numCols; col++)
 		{
-			size_t index=gridType==type::ROWS ?
-				row*size+col :
-				col*size+row;
+			size_t index=growthType==type::ROWS ?
+				row*growthLimit+col :
+				col*growthLimit+row;
 			if(index>=children.size())
 				break;
 
@@ -72,12 +65,12 @@ void Grid::calculateSize()
 	// Get the size of each column
 	for(size_t col=0; col<numCols; col++)
 	{
-		int total=0, max=0;
+		int total=totalRowSpacing, max=0;
 		for(size_t row=0; row<numRows; row++)
 		{
-			size_t index=gridType==type::ROWS ?
-				row*size+col :
-				col*size+row;
+			size_t index=growthType==type::ROWS ?
+				row*growthLimit+col :
+				col*growthLimit+row;
 			if(index>=children.size())
 				break;
 
@@ -91,7 +84,6 @@ void Grid::calculateSize()
 
 	// Set the width to the longest row's width or the total column width,
 	// whichever is greater.
-
 	int prefW=0;
 	for(auto& cw: colWidths)
 		prefW+=cw;
@@ -123,15 +115,16 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 
 	Widget::arrange(contX, contY, contW, contH);
 
-	if(gridType==type::ROWS)
+	if(growthType==type::ROWS)
 	{
-		numRows=(children.size()+size-1)/size; // +size-1 to round up
-		numCols=size;
+		// +growthLimit-1 to round up
+		numRows=(children.size()+growthLimit-1)/growthLimit;
+		numCols=growthLimit;
 	}
 	else
 	{
-		numRows=size;
-		numCols=(children.size()+size-1)/size;
+		numRows=growthLimit;
+		numCols=(children.size()+growthLimit-1)/growthLimit;
 	}
 
 	int cy=y;
@@ -141,17 +134,17 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 		int height=rowHeights[row];
 		for(size_t col=0; col<numCols; col++)
 		{
-			size_t index=gridType==type::ROWS ?
-				row*size+col :
-				col*size+row;
+			size_t index=growthType==type::ROWS ?
+				row*growthLimit+col :
+				col*growthLimit+row;
 			if(index>=children.size())
 				break;
 
 			int width=colWidths[col];
 			children[index]->arrange(cx, cy, width, height);
-			cx+=width;
+			cx+=width+colSpacing;
 		}
-		cy+=height;
+		cy+=height+rowSpacing;
 	}
 }
 

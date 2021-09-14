@@ -129,7 +129,7 @@ ZCGUI_BUILDER_FUNCTION(DropDownList, DropDownList, makeDropDownList)
 
 ZCGUI_BUILDER_START(Label)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
-		ZCGUI_ACCEPT_PROP(maxLines, setMaxLines, size_t)
+	ZCGUI_ACCEPT_PROP(maxLines, setMaxLines, size_t)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()
@@ -137,6 +137,10 @@ ZCGUI_BUILDER_FUNCTION(Label, Label, makeLabel)
 
 
 ZCGUI_BUILDER_START(Grid)
+    ZCGUI_ACCEPT_PROP(columnSpacing, setColumnSpacing, ::GUI::Size)
+    ZCGUI_ACCEPT_PROP(rowSpacing, setRowSpacing, ::GUI::Size)
+    ZCGUI_ACCEPT_PROP(spacing, setSpacing, ::GUI::Size)
+
 	ZCGUI_ACCEPT_MULTIPLE_CHILDREN(add)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Grid, Row, makeRow)

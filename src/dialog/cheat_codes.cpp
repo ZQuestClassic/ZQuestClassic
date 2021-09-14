@@ -49,6 +49,7 @@ std::shared_ptr<GUI::Widget> CheatCodesDialog::view()
 			),
 			Row(
 				vAlign=1.0,
+				spacing=2_em,
 				Button(
 					text="OK",
 					onClick=message::OK),

@@ -210,6 +210,7 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 				)
 			),
 			Row(
+				spacing=2_em,
 				Button(text="OK", onClick=message::OK),
 				Button(text="Cancel", onClick=message::CANCEL)
 			)

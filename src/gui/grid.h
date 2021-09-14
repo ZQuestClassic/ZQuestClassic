@@ -4,6 +4,7 @@
 #include "widget.h"
 #include <functional>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace GUI
@@ -12,22 +13,52 @@ namespace GUI
 class Grid: public Widget
 {
 public:
-	Grid(): gridType(type::ROWS), size(2) {}
-	static std::shared_ptr<Grid> rows(size_t itemsPerRow);
-	static std::shared_ptr<Grid> columns(size_t itemsPerCol);
+	enum class type { ROWS, COLUMNS };
 
+	Grid(type growthType, size_t growthLimit);
+
+	/* Create a new grid that fills left-to-right, then top-to-bottom. */
+	static inline std::shared_ptr<Grid> rows(size_t itemsPerRow)
+	{
+		return std::make_shared<Grid>(type::ROWS, itemsPerRow);
+	}
+
+	/* Create a new grid that fills top-to-bottom, then left-to-right. */
+	inline static std::shared_ptr<Grid> columns(size_t itemsPerCol)
+	{
+		return std::make_shared<Grid>(type::COLUMNS, itemsPerCol);
+	}
+
+	/* Set the space between rows. */
+	inline void setRowSpacing(Size size) noexcept
+	{
+		rowSpacing=size.resolve();
+	}
+
+	/* Set the space between columns. */
+	inline void setColumnSpacing(Size size) noexcept
+	{
+		colSpacing=size.resolve();
+	}
+
+	/* Set the space between rows and columns to the same value. */
+	inline void setSpacing(Size size) noexcept
+	{
+		rowSpacing=colSpacing=size.resolve();
+	}
+
+	/* Add a widget at the next position in the grid. */
 	inline void add(std::shared_ptr<Widget> child)
 	{
-		children.push_back(child);
+		children.push_back(std::move(child));
 	}
 
 private:
-	enum class type { ROWS, COLUMNS };
-
 	std::vector<std::shared_ptr<Widget>> children;
 	std::vector<int> rowWidths, colWidths, rowHeights, colHeights;
-	type gridType;
-	size_t size;
+	unsigned short rowSpacing, colSpacing;
+	type growthType;
+	size_t growthLimit;
 
 	void applyVisibility(bool visible) override;
 	void calculateSize() override;
