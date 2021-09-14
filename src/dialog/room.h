@@ -43,6 +43,8 @@ private:
 	 * limited to legal values.
 	 */
 	int getArgument() const;
+
+	/* Returns a string describing the currently selected room. */
 	const char* getRoomInfo() const;
 };
 

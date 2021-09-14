@@ -12,7 +12,11 @@ class Label: public Widget
 {
 public:
 	Label();
+
+	/* Sets the text to display. */
 	void setText(std::string newText);
+
+	/* Sets the maximum number of lines the text can be split into. */
 	void setMaxLines(size_t newMax);
 
 private:

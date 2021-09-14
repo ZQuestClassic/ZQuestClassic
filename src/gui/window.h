@@ -13,13 +13,17 @@ class Window: public TopLevelWidget
 {
 public:
 	Window();
+
+	/* Sets the window's title. */
 	void setTitle(std::string newTitle);
+
+	/* Sets the widget that will appear in the window. */
 	void setContent(std::shared_ptr<Widget> newContent) noexcept;
 
 	template<typename T>
 	RequireMessage<T> onClose(T m)
 	{
-		closeMessage=static_cast<int>(m);
+		closeMessage = static_cast<int>(m);
 	}
 
 private:

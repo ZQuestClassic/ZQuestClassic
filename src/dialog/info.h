@@ -12,7 +12,7 @@
 class InfoDialog: public GUI::Dialog<InfoDialog>
 {
 public:
-	using message=int;
+	using message = int;
 
 	InfoDialog(std::string title, std::string text);
 	InfoDialog(std::string title, std::vector<std::string_view> lines);

@@ -14481,15 +14481,15 @@ int onItem()
 int onRoom()
 {
 	restore_mouse();
-	auto* scr=Map.CurrScr();
+	auto* scr = Map.CurrScr();
 	RoomDialog(scr->room, scr->catchall, scr->guy, scr->str,
 		[scr](int r, int a, int g, int m)
 		{
-			scr->room=r;
-			scr->guy=g;
-			scr->str=m;
-			scr->catchall=a;
-			saved=false;
+			scr->room = r;
+			scr->guy = g;
+			scr->str = m;
+			scr->catchall = a;
+			saved = false;
 		}
 	).show();
 	refresh(rMAP+rMENU);
@@ -21856,8 +21856,8 @@ int onCheats()
 
 	CheatCodesDialog(zcheats.flags, currentCodes,
 		[&](bool enabled, std::string_view newCodes[4]) {
-			saved=false;
-			zcheats.flags=enabled ? 1 : 0;
+			saved = false;
+			zcheats.flags = enabled ? 1 : 0;
 			newCodes[0].copy(zcheats.codes[0], 41);
 			newCodes[1].copy(zcheats.codes[1], 41);
 			newCodes[2].copy(zcheats.codes[2], 41);

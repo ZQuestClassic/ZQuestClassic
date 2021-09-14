@@ -24,7 +24,7 @@ public:
 	 */
 	inline void setType(type newType)
 	{
-		tfType=newType;
+		tfType = newType;
 	}
 
 	/* Set the current text. If it's longer than the current maximum length,
@@ -51,7 +51,7 @@ public:
 	template<typename T>
 	RequireMessage<T> onEnter(T m)
 	{
-		onEnterMsg=static_cast<int>(m);
+		onEnterMsg = static_cast<int>(m);
 	}
 
 	/* Sets the message to send whenever the text changes. Like onEnter,
@@ -60,7 +60,7 @@ public:
 	template<typename T>
 	RequireMessage<T> onValueChanged(T m)
 	{
-		onValueChangedMsg=static_cast<int>(m);
+		onValueChangedMsg = static_cast<int>(m);
 	}
 
 private:

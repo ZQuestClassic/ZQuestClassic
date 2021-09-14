@@ -10,21 +10,21 @@ Switcher::Switcher(): visibleChild(0)
 
 void Switcher::switchTo(size_t index)
 {
-	if(index==visibleChild)
+	if(index == visibleChild)
 		return;
 
 	assert(index<children.size());
 
 	children[visibleChild]->setExposed(false);
 	children[index]->setExposed(true);
-	visibleChild=index;
+	visibleChild = index;
 }
 
 void Switcher::add(std::shared_ptr<Widget> child)
 {
 	// If the child being added is the visible one, it shouldn't be hidden.
 	// That's most likely the first child while visibleChild is the default 0.
-	if(children.size()!=visibleChild)
+	if(children.size() != visibleChild)
 		child->setExposed(false);
 	children.emplace_back(std::move(child));
 }
@@ -40,16 +40,16 @@ void Switcher::applyVisibility(bool visible)
 void Switcher::calculateSize()
 {
 	// The switcher is as large as its largest child.
-	int maxW=0, maxH=0;
+	int maxW = 0, maxH = 0;
 	for(auto& child: children)
 	{
 		child->calculateSize();
-		int w=child->getWidth(); // Should this be getTotalWidth()?
-		if(w>maxW)
-			maxW=w;
-		int h=child->getHeight(); // getTotalHeight()?
-		if(w>maxH)
-			maxH=h;
+		int w = child->getWidth(); // Should this be getTotalWidth()?
+		if(w > maxW)
+			maxW = w;
+		int h = child->getHeight(); // getTotalHeight()?
+		if(w > maxH)
+			maxH = h;
 	}
 	setPreferredWidth(Size::pixels(maxW));
 	setPreferredHeight(Size::pixels(maxH));

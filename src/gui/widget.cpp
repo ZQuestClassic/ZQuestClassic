@@ -20,55 +20,55 @@ Widget::Widget() noexcept:
 
 void Widget::overrideWidth(Size newWidth) noexcept
 {
-	flags|=f_WIDTH_OVERRIDDEN;
-	width=newWidth.resolve();
+	flags |= f_WIDTH_OVERRIDDEN;
+	width = newWidth.resolve();
 }
 
 void Widget::overrideHeight(Size newHeight) noexcept
 {
-	flags|=f_HEIGHT_OVERRIDDEN;
-	height=newHeight.resolve();
+	flags |= f_HEIGHT_OVERRIDDEN;
+	height = newHeight.resolve();
 }
 
 void Widget::setPreferredWidth(Size newWidth) noexcept
 {
-	if((flags&f_WIDTH_OVERRIDDEN)==0)
-		width=newWidth.resolve();
+	if((flags&f_WIDTH_OVERRIDDEN) == 0)
+		width = newWidth.resolve();
 }
 
 void Widget::setPreferredHeight(Size newHeight) noexcept
 {
-	if((flags&f_HEIGHT_OVERRIDDEN)==0)
-		height=newHeight.resolve();
+	if((flags&f_HEIGHT_OVERRIDDEN) == 0)
+		height = newHeight.resolve();
 }
 
 void Widget::setHMargins(Size size) noexcept
 {
-	leftMargin=size.resolve();
-	rightMargin=size.resolve();
+	leftMargin = size.resolve();
+	rightMargin = size.resolve();
 }
 
 void Widget::setVMargins(Size size) noexcept
 {
-	topMargin=size.resolve();
-	bottomMargin=size.resolve();
+	topMargin = size.resolve();
+	bottomMargin = size.resolve();
 }
 
 void Widget::setMargins(Size size) noexcept
 {
-	leftMargin=size.resolve();
-	rightMargin=size.resolve();
-	topMargin=size.resolve();
-	bottomMargin=size.resolve();
+	leftMargin = size.resolve();
+	rightMargin = size.resolve();
+	topMargin = size.resolve();
+	bottomMargin = size.resolve();
 }
 
 void Widget::setVisible(bool visible)
 {
-	bool wasVisible=(flags&f_INVISIBLE)==0;
-	if(wasVisible!=visible)
+	bool wasVisible = (flags&f_INVISIBLE) == 0;
+	if(wasVisible != visible)
 	{
-		flags^=f_INVISIBLE;
-		if(hideCount==0)
+		flags ^= f_INVISIBLE;
+		if(hideCount == 0)
 			applyVisibility(visible);
 	}
 }
@@ -77,17 +77,17 @@ void Widget::setExposed(bool exposed)
 {
 	if(exposed)
 	{
-		assert(hideCount>0);
-		if(hideCount==1 && (flags&f_INVISIBLE)==0)
+		assert(hideCount > 0);
+		if(hideCount == 1 && (flags&f_INVISIBLE) ==0)
 			applyVisibility(true);
-		hideCount--;
+		--hideCount;
 	}
 	else
 	{
-		assert(hideCount<MAX_HIDE_COUNT);
-		if(hideCount==0 && (flags&f_INVISIBLE)==0)
+		assert(hideCount < MAX_HIDE_COUNT);
+		if(hideCount == 0 && (flags&f_INVISIBLE) == 0)
 			applyVisibility(false);
-		hideCount++;
+		++hideCount;
 	}
 }
 
@@ -99,36 +99,36 @@ int Widget::onEvent(int, MessageDispatcher&)
 
 void Widget::arrange(int contX, int contY, int contW, int contH)
 {
-	contX+=leftMargin;
-	contW-=leftMargin+rightMargin;
-	contY+=topMargin;
-	contH-=topMargin+bottomMargin;
+	contX += leftMargin;
+	contW -= leftMargin+rightMargin;
+	contY += topMargin;
+	contH -= topMargin+bottomMargin;
 
-	if(width>contW)
-		width=contW;
-	if(height>contH)
-		height=contH;
+	if(width > contW)
+		width = contW;
+	if(height > contH)
+		height = contH;
 
-	auto hExcess=contW-width;
-	x=contX+hExcess*hAlign;
-	auto vExcess=contH-height;
-	y=contY+vExcess*vAlign;
+	auto hExcess = contW-width;
+	x = contX+hExcess*hAlign;
+	auto vExcess = contH-height;
+	y = contY+vExcess*vAlign;
 }
 
 void Widget::setFocused(bool focused) noexcept
 {
 	if(focused)
-		flags|=f_FOCUSED;
+		flags |= f_FOCUSED;
 	else
 		// Why even set it? Whatever. Might as well work.
-		flags&=~f_FOCUSED;
+		flags &= ~f_FOCUSED;
 }
 
 int Widget::getFlags() const noexcept
 {
-	int ret=D_NEW_GUI;
-	if(hideCount>0 || (flags&f_INVISIBLE)!=0)
-		ret|=D_HIDDEN;
+	int ret = D_NEW_GUI;
+	if(hideCount > 0 || (flags&f_INVISIBLE) != 0)
+		ret |= D_HIDDEN;
 	return ret;
 }
 

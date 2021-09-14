@@ -62,14 +62,14 @@ char newGuiMarker;
 
 int new_gui_event(DIALOG* d, guiEvent event)
 {
-    for(int i=0; true; d--, i++)
-    {
-        if(d->dp3==&newGuiMarker)
-        {
-            d->d1=i;
-            return d->proc(MSG_GUI_EVENT, d, event);
-        }
-    }
+	for(int i = 0; true; --d, ++i)
+	{
+		if(d->dp3 == &newGuiMarker)
+		{
+			d->d1 = i;
+			return d->proc(MSG_GUI_EVENT, d, event);
+		}
+	}
 }
 
 int bound(int x,int low,int high)

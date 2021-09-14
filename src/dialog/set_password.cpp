@@ -12,29 +12,29 @@ std::shared_ptr<GUI::Widget> SetPasswordDialog::view()
 	using namespace GUI::Props;
 
 	return Window(
-		title="Set Password",
-		onEnter=message::OK,
-		onClose=message::CANCEL,
+		title = "Set Password",
+		onEnter = message::OK,
+		onClose = message::CANCEL,
 		Column(
 			Rows<2>(
-				Label(text="Enter new password:"),
-				this->pwField=TextField(
-					maxLength=255,
-					focused=true),
-				this->saveKeyFileCB=Checkbox(
-					text="&Save key file",
-					checked=this->useKeyFile)
+				Label(text = "Enter new password:"),
+				this->pwField = TextField(
+					maxLength = 255,
+					focused = true),
+				this->saveKeyFileCB = Checkbox(
+					text = "&Save key file",
+					checked = this->useKeyFile)
 			),
 			Row(
-				topMargin=0.5_em,
-				vAlign=1.0,
-				spacing=2_em,
+				topMargin = 0.5_em,
+				vAlign = 1.0,
+				spacing = 2_em,
 				Button(
-					text="OK",
-					onClick=message::OK),
+					text = "OK",
+					onClick = message::OK),
 				Button(
-					text="Cancel",
-					onClick=message::CANCEL)
+					text = "Cancel",
+					onClick = message::CANCEL)
 			)
 		)
 	);

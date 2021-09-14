@@ -132,15 +132,15 @@ enum guiEvent
     geCLICK, geCHANGE_SELECTION, geCHANGE_VALUE, geCLOSE, geENTER, geTOGGLE
 };
 
-#define GUI_EVENT(dlg, event)                \
-do                                           \
-{                                            \
-    if(dlg->flags&D_NEW_GUI)                 \
-    {                                        \
-        int ret=new_gui_event(dlg-1, event); \
-        if(ret>=0)                           \
-            return ret;                      \
-    }                                        \
+#define GUI_EVENT(dlg, event)                  \
+do                                             \
+{                                              \
+    if(dlg->flags&D_NEW_GUI)                   \
+    {                                          \
+        int ret = new_gui_event(dlg-1, event); \
+        if(ret >= 0)                           \
+            return ret;                        \
+    }                                          \
 } while(false)
 
 /* Triggers a message in the new GUI system. You should use the macro below

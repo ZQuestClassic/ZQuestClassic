@@ -32,25 +32,26 @@ public:
 	/* Set the space between rows. */
 	inline void setRowSpacing(Size size) noexcept
 	{
-		rowSpacing=size.resolve();
+		rowSpacing = size.resolve();
 	}
 
 	/* Set the space between columns. */
 	inline void setColumnSpacing(Size size) noexcept
 	{
-		colSpacing=size.resolve();
+		colSpacing = size.resolve();
 	}
 
 	/* Set the space between rows and columns to the same value. */
 	inline void setSpacing(Size size) noexcept
 	{
-		rowSpacing=colSpacing=size.resolve();
+		rowSpacing = size.resolve();
+		colSpacing = size.resolve();
 	}
 
 	/* Add a widget at the next position in the grid. */
 	inline void add(std::shared_ptr<Widget> child)
 	{
-		children.push_back(std::move(child));
+		children.emplace_back(std::move(child));
 	}
 
 private:

@@ -14,25 +14,25 @@ namespace GUI
  */
 int dialog_proc(int msg, DIALOG *d, int c)
 {
-	auto* dr=static_cast<DialogRunner*>(d->dp);
-	if(msg==MSG_GUI_EVENT)
+	auto* dr = static_cast<DialogRunner*>(d->dp);
+	if(msg == MSG_GUI_EVENT)
 	{
-		int ret=dr->widgets[d->d1]->onEvent(c, dr->sendMessage);
+		int ret = dr->widgets[d->d1]->onEvent(c, dr->sendMessage);
 		if(dr->done)
 			return D_EXIT;
 		else
 		{
-			dr->redrawPending=true;
+			dr->redrawPending = true;
 			return ret;
 		}
 	}
-	else if(msg==MSG_IDLE && dr->redrawPending)
+	else if(msg == MSG_IDLE && dr->redrawPending)
 	{
 		// In the old system, many things sent messages by closing the dialog,
 		// and the return value from do_zqdialog() became the message.
 		// Some widgets don't have code to indicate that they need redrawn
 		// since the dialog would be closed and reopened in that case.
-		dr->redrawPending=false;
+		dr->redrawPending = false;
 		return D_REDRAW;
 	}
 	else
@@ -44,9 +44,9 @@ DialogRunner::DialogRunner(): focused(-1), redrawPending(false), done(false)
 
 DialogRef DialogRunner::push(shared_ptr<Widget> owner, DIALOG dlg)
 {
-	auto pos=alDialog.size();
+	auto pos = alDialog.size();
 	if(owner->getFocused())
-		focused=pos;
+		focused = pos;
 	widgets.emplace_back(std::move(owner));
 	alDialog.push_back(dlg);
 	return DialogRef(this, pos);

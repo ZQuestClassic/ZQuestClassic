@@ -12,12 +12,14 @@ class Button: public Widget
 {
 public:
 	Button();
+
+	/* Sets the text to appear on the button. */
 	void setText(std::string newText);
 
 	template<typename T>
 	RequireMessage<T> onClick(T m)
 	{
-		message=static_cast<int>(m);
+		message = static_cast<int>(m);
 	}
 
 private:

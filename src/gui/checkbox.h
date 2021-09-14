@@ -13,15 +13,26 @@ public:
 	enum class boxPlacement { RIGHT, LEFT };
 
 	Checkbox();
+
+	/* Sets the text to appear next to the checkbox. */
 	void setText(std::string newText);
-	void setBoxPlacement(boxPlacement newPlacement);
+
+	/* Sets whether the checkbox is checked or not. */
 	void setChecked(bool value);
+
+	/* Returns true if the checkbox is checked. */
 	bool getChecked();
+
+	/* Sets whether the box is to the left or right of the text. */
+	inline void setBoxPlacement(boxPlacement newPlacement) noexcept
+	{
+		placement = newPlacement;
+	}
 
 	template<typename T>
 	RequireMessage<T> onToggle(T m)
 	{
-		message=static_cast<int>(m);
+		message = static_cast<int>(m);
 	}
 
 private:

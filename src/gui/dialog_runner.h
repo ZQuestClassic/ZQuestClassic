@@ -20,9 +20,9 @@ public:
 	template<typename T>
 	void runWithArg(T& dlg)
 	{
-		sendMessage=[&dlg, this](int msg, MessageArg arg)
+		sendMessage = [&dlg, this](int msg, MessageArg arg)
 		{
-			this->done=this->done ||
+			this->done = this->done ||
 				dlg.handleMessage(static_cast<typename T::message>(msg), arg);
 		};
 
@@ -32,9 +32,9 @@ public:
 	template<typename T>
 	void runWithoutArg(T& dlg)
 	{
-		sendMessage=[&dlg, this](int msg, MessageArg)
+		sendMessage = [&dlg, this](int msg, MessageArg)
 		{
-			this->done=this->done ||
+			this->done = this->done ||
 				dlg.handleMessage(static_cast<typename T::message>(msg));
 		};
 

@@ -20,39 +20,42 @@ DropDownList::DropDownList():
 		setPreferredHeight(21_px);
 	else
 		setPreferredHeight(16_px);
-	fgColor=jwin_pal[jcTEXTFG];
-	bgColor=jwin_pal[jcTEXTBG];
+	fgColor = jwin_pal[jcTEXTFG];
+	bgColor = jwin_pal[jcTEXTBG];
 }
 
 void DropDownList::setListData(const ::GUI::ListData& newListData)
 {
-	listData=&newListData;
-	jwinListData=newListData.getJWin(FONT_PTR);
+	listData = &newListData;
+	jwinListData = newListData.getJWin(FONT_PTR);
 }
 
 void DropDownList::setSelectedValue(int value)
 {
-	selectedValue=value;
-	selectedIndex=-1;
+	selectedValue = value;
+	selectedIndex = -1;
 	if(alDialog)
 	{
 		setIndex();
-		alDialog->d1=alDialog->d2=selectedIndex;
+		alDialog->d1 = alDialog->d2=selectedIndex;
 	}
 }
 
 void DropDownList::setSelectedIndex(int index)
 {
-	selectedIndex=index;
+	selectedIndex = index;
 	if(alDialog)
-		alDialog->d1=alDialog->d2=selectedIndex;
+	{
+		alDialog->d1 = selectedIndex;
+		alDialog->d2 = selectedIndex;
+	}
 }
 
 int DropDownList::getSelectedValue() const
 {
 	if(alDialog)
 	{
-		int index=alDialog->d1;
+		int index = alDialog->d1;
 		return listData->getValue(index);
 	}
 	else
@@ -65,18 +68,18 @@ void DropDownList::setIndex()
 	// value. If nothing matches exactly, take the one that's closest to
 	// but not greater than the selected value. If everything's greater,
 	// just go with index 0.
-	selectedIndex=0;
-	int bestSoFar=listData->getValue(0);
-	for(auto i=0; i<listData->size(); i++)
+	selectedIndex = 0;
+	int bestSoFar = listData->getValue(0);
+	for(auto i = 0; i < listData->size(); ++i)
 	{
-		int value=listData->getValue(i);
-		if(value==selectedValue)
+		int value = listData->getValue(i);
+		if(value == selectedValue)
 		{
-			selectedIndex=i;
+			selectedIndex = i;
 			return;
 		}
 		else if(value>bestSoFar && value<selectedValue)
-			selectedIndex=i;
+			selectedIndex = i;
 	}
 }
 
@@ -85,9 +88,9 @@ void DropDownList::applyVisibility(bool visible)
 	if(alDialog)
 	{
 		if(visible)
-			alDialog->flags&=~D_HIDDEN;
+			alDialog->flags &= ~D_HIDDEN;
 		else
-			alDialog->flags|=D_HIDDEN;
+			alDialog->flags |= D_HIDDEN;
 	}
 }
 
@@ -96,11 +99,11 @@ void DropDownList::realize(DialogRunner& runner)
 	// An empty list might logically be valid, but there's currently
 	// no way to get a value from it.
 	assert(listData);
-	assert(listData->size()>0);
-	if(selectedIndex<0)
+	assert(listData->size() > 0);
+	if(selectedIndex < 0)
 		setIndex();
 
-	alDialog=runner.push(shared_from_this(), DIALOG {
+	alDialog = runner.push(shared_from_this(), DIALOG {
 		jwin_droplist_proc,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
@@ -113,8 +116,8 @@ void DropDownList::realize(DialogRunner& runner)
 
 int DropDownList::onEvent(int event, MessageDispatcher& sendMessage)
 {
-	assert(event==geCHANGE_SELECTION);
-	if(message>=0)
+	assert(event == geCHANGE_SELECTION);
+	if(message >= 0)
 		sendMessage(message, listData->getValue(alDialog->d1));
 	return -1;
 }

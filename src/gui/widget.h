@@ -32,22 +32,22 @@ public:
 
 	inline void setLeftMargin(Size size) noexcept
 	{
-		leftMargin=size.resolve();
+		leftMargin = size.resolve();
 	}
 
 	inline void setRightMargin(Size size) noexcept
 	{
-		rightMargin=size.resolve();
+		rightMargin = size.resolve();
 	}
 
 	inline void setTopMargin(Size size) noexcept
 	{
-		topMargin=size.resolve();
+		topMargin = size.resolve();
 	}
 
 	inline void setBottomMargin(Size size) noexcept
 	{
-		bottomMargin=size.resolve();
+		bottomMargin = size.resolve();
 	}
 
 	/* Set the left and right margins to the same value. */
@@ -61,12 +61,12 @@ public:
 
 	inline void setHAlign(float align) noexcept
 	{
-		hAlign=align;
+		hAlign = align;
 	}
 
 	inline void setVAlign(float align) noexcept
 	{
-		vAlign=align;
+		vAlign = align;
 	}
 
 	/* Sets this widget to be visible or invisible. This function should
@@ -95,7 +95,7 @@ public:
 	virtual void arrange(int contX, int contY, int contW, int contH);
 
 	/* Creates DIALOGs for this widget and any children. */
-	virtual void realize(DialogRunner& runner)=0;
+	virtual void realize(DialogRunner& runner) = 0;
 
 	/* This function is called when an event occurs (e.g. a button is clicked
 	 * or a list selection is changed). It should send the appropriate message
@@ -127,7 +127,7 @@ public:
 	* or vice-versa. This should set or unset DIALOGs' D_HIDDEN flag.
 	* This is only public so containers can call it on their children.
 	*/
-	virtual void applyVisibility(bool visible)=0;
+	virtual void applyVisibility(bool visible) = 0;
 
 	/* If this is true, this widget should be focused when the dialog opens.
 	 * This does not give the widget focus if the dialog is open already.
@@ -145,7 +145,7 @@ protected:
 	 * are properly caught.
 	 */
 	template<typename T>
-	using RequireMessage=std::enable_if_t<
+	using RequireMessage = std::enable_if_t<
 			std::is_enum_v<T> || std::is_integral_v<T>
 		>;
 
@@ -182,7 +182,7 @@ private:
 	 */
 	unsigned char hideCount: 4;
 
-	static constexpr unsigned char MAX_HIDE_COUNT=15;
+	static constexpr unsigned char MAX_HIDE_COUNT = 15;
 };
 
 }

@@ -16,8 +16,8 @@ struct ListItem
 		text(std::move(text)), value(value)
 	{}
 
-	ListItem& operator=(const ListItem& other)=default;
-	ListItem& operator=(ListItem&& other) noexcept=default;
+	ListItem& operator=(const ListItem& other) = default;
+	ListItem& operator=(ListItem&& other) noexcept = default;
 
 	ListItem(const ListItem& other)=default;
 	ListItem(ListItem&& other) noexcept=default;
@@ -29,11 +29,13 @@ struct ListItem
 // Data source for List and DropDownList.
 // Remember to specify GUI::ListData to avoid confusion with the ListData
 // defined in jwin.h.
+// XXX This will probably need to be reworked for lists that change,
+// like in the string editor.
 class ListData
 {
 public:
-	ListData(const ListData& other)=default;
-	ListData(ListData&& other)=default;
+	ListData(const ListData& other) = default;
+	ListData(ListData&& other) = default;
 	ListData(std::initializer_list<ListItem> listItems): listItems(listItems)
 	{}
 
@@ -43,8 +45,8 @@ public:
 	ListData(size_t numItems, std::function<std::string(size_t)> getString,
 		std::function<int(size_t)> getValue);
 
-	ListData& operator=(const ListData& other)=default;
-	ListData& operator=(ListData&& other) noexcept=default;
+	ListData& operator=(const ListData& other) = default;
+	ListData& operator=(ListData&& other) noexcept = default;
 
 	/* Returns a jwin ListData object for use in DIALOGs. */
 	inline ::ListData getJWin(FONT** font) const

@@ -20,14 +20,14 @@ Window::Window(): content(nullptr), title(""), closeMessage(-1)
 
 void Window::setTitle(std::string newTitle)
 {
-	title=std::move(newTitle);
+	title = std::move(newTitle);
 	if(alDialog)
-		alDialog->dp=title.data();
+		alDialog->dp = title.data();
 }
 
 void Window::setContent(shared_ptr<Widget> newContent) noexcept
 {
-	content=std::move(newContent);
+	content = std::move(newContent);
 }
 
 void Window::applyVisibility(bool visible)
@@ -35,9 +35,9 @@ void Window::applyVisibility(bool visible)
 	if(alDialog)
 	{
 		if(visible)
-			alDialog->flags&=~D_HIDDEN;
+			alDialog->flags &= ~D_HIDDEN;
 		else
-			alDialog->flags|=D_HIDDEN;
+			alDialog->flags |= D_HIDDEN;
 	}
 	if(content)
 		content->applyVisibility(visible);
@@ -87,12 +87,12 @@ void Window::arrange(int contX, int contY, int contW, int contH)
 
 void Window::realize(DialogRunner& runner)
 {
-	alDialog=runner.push(shared_from_this(), DIALOG {
+	alDialog = runner.push(shared_from_this(), DIALOG {
 		jwin_win_proc,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
-		getFlags()|(closeMessage>=0 ? D_EXIT : 0), // flags,
+		getFlags()|(closeMessage >= 0 ? D_EXIT : 0), // flags,
 		0, 0, // d1, d2
 		title.data(), lfont, nullptr // dp, dp2, dp3
 	});
@@ -105,9 +105,9 @@ void Window::realize(DialogRunner& runner)
 
 int Window::onEvent(int event, MessageDispatcher& sendMessage)
 {
-	if(event==geCLOSE)
+	if(event == geCLOSE)
 	{
-		if(closeMessage>=0)
+		if(closeMessage >= 0)
 			sendMessage(closeMessage, MessageArg::none);
 		return -1;
 	}

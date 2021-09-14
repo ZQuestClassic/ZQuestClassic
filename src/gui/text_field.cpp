@@ -21,22 +21,22 @@ TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
 {
 	setPreferredWidth(1_em);
 	setPreferredHeight(24_lpx);
-	fgColor=vc(12);
-	bgColor=vc(1);
+	fgColor = vc(12);
+	bgColor = vc(1);
 }
 
 void TextField::setText(std::string_view newText)
 {
 	// This probably could be handled with less allocating and copying...
-	if(maxLength==0 && newText.size()>0)
+	if(maxLength == 0 && newText.size() > 0)
 		setMaxLength(newText.size());
 	newText.copy(buffer.get(), maxLength);
-	buffer[std::min(maxLength, newText.size())]='\0';
+	buffer[std::min(maxLength, newText.size())] = '\0';
 }
 
 std::string_view TextField::getText()
 {
-	if(maxLength>0)
+	if(maxLength > 0)
 		return std::string_view(buffer.get(), maxLength+1);
 	else
 		return std::string_view("", 1);
@@ -44,47 +44,47 @@ std::string_view TextField::getText()
 
 void TextField::setMaxLength(size_t newMax)
 {
-	assert(newMax>0);
-	if(newMax==maxLength)
+	assert(newMax > 0);
+	if(newMax == maxLength)
 		return;
 
-	auto newBuffer=std::make_unique<char[]>(newMax+1);
-	if(maxLength>0)
+	auto newBuffer = std::make_unique<char[]>(newMax+1);
+	if(maxLength > 0)
 	{
 		strncpy(newBuffer.get(), buffer.get(), std::min(maxLength, newMax));
-		newBuffer[newMax-1]='\0';
+		newBuffer[newMax-1] = '\0';
 	}
 	else
-		newBuffer[0]='\0';
+		newBuffer[0] = '\0';
 
-	buffer=std::move(newBuffer);
-	maxLength=newMax;
+	buffer = std::move(newBuffer);
+	maxLength = newMax;
 
 	setPreferredWidth(Size::em(std::min(newMax*0.75, 20.0)));
 }
 
 void TextField::realize(DialogRunner& runner)
 {
-	assert(maxLength>0);
+	assert(maxLength > 0);
 
-	using ProcType=int(*)(int, DIALOG*, int);
+	using ProcType = int(*)(int, DIALOG*, int);
 	ProcType proc;
 	switch(tfType)
 	{
 	case type::TEXT:
-		proc=jwin_edit_proc;
+		proc = jwin_edit_proc;
 		break;
 
 	case type::INT_DECIMAL:
-		proc=jwin_numedit_proc;
+		proc = jwin_numedit_proc;
 		break;
 
 	case type::INT_HEX:
-		proc=jwin_hexedit_proc;
+		proc = jwin_hexedit_proc;
 		break;
 	}
 
-	alDialog=runner.push(shared_from_this(), DIALOG {
+	alDialog = runner.push(shared_from_this(), DIALOG {
 		proc,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
@@ -100,9 +100,9 @@ void TextField::applyVisibility(bool visible)
 	if(alDialog)
 	{
 		if(visible)
-			alDialog->flags&=~D_HIDDEN;
+			alDialog->flags &= ~D_HIDDEN;
 		else
-			alDialog->flags|=D_HIDDEN;
+			alDialog->flags |= D_HIDDEN;
 	}
 }
 
@@ -112,20 +112,20 @@ int TextField::onEvent(int event, MessageDispatcher& sendMessage)
 	switch(event)
 	{
 	case geENTER:
-		message=onEnterMsg;
+		message = onEnterMsg;
 		break;
 
 	case geCHANGE_VALUE:
-		message=onValueChangedMsg;
+		message = onValueChangedMsg;
 		break;
 
 	default:
 		assert(false);
 	}
-	if(message<0)
+	if(message < 0)
 		return -1;
 
-	if(maxLength>0)
+	if(maxLength > 0)
 	{
 		int value;
 		switch(tfType)
@@ -135,21 +135,21 @@ int TextField::onEvent(int event, MessageDispatcher& sendMessage)
 			break;
 
 		case type::INT_DECIMAL:
-			try { value=std::stoi(buffer.get(), nullptr, 10); }
-			catch(std::exception) { value=0; }
+			try { value = std::stoi(buffer.get(), nullptr, 10); }
+			catch(std::exception) { value = 0; }
 			sendMessage(message, value);
 			break;
 
 		case type::INT_HEX:
-			try { value=std::stoi(buffer.get(), nullptr, 16); }
-			catch(std::exception) { value=0; }
+			try { value = std::stoi(buffer.get(), nullptr, 16); }
+			catch(std::exception) { value = 0; }
 			sendMessage(message, value);
 			break;
 		}
 	}
-	else // maxLength==0 - actually, this isn't possible...
+	else // maxLength == 0 - actually, this isn't possible...
 	{
-		if(tfType==type::TEXT)
+		if(tfType == type::TEXT)
 			sendMessage(message, std::string_view(""));
 		else
 			sendMessage(message, 0);

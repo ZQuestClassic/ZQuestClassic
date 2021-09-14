@@ -15,7 +15,7 @@ int getAccelKey(const std::string_view text);
 
 /* Returns a in small mode, b in large mode. */
 template<typename T>
-inline T sized(T a, T b)
+inline T sized(T a, T b) noexcept
 {
 	return is_large ? b : a;
 }

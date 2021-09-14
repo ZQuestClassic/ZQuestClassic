@@ -13,7 +13,7 @@ class MessageArg
 {
 public:
 	/* Use this when a message has no argument. */
-	static constexpr auto none=std::monostate();
+	static constexpr auto none = std::monostate();
 
 	inline constexpr MessageArg() noexcept: value(std::monostate())
 	{}
@@ -66,7 +66,7 @@ private:
 	> value;
 };
 
-using MessageDispatcher=std::function<void(int, MessageArg)>;
+using MessageDispatcher = std::function<void(int, MessageArg)>;
 
 }
 

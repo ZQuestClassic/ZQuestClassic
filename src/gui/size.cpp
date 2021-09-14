@@ -8,7 +8,7 @@ namespace GUI
 
 int Size::emSize()
 {
-	static const int em=text_height(is_large ? lfont_l : nfont);
+	static const int em = text_height(is_large ? lfont_l : nfont);
 	return em;
 }
 

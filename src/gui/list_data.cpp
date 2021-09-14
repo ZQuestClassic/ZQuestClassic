@@ -9,7 +9,7 @@ ListData::ListData(size_t numItems,
 	std::function<int(size_t)> getValue)
 {
 	listItems.reserve(numItems);
-	for(auto index=0; index<numItems; index++)
+	for(auto index = 0; index < numItems; ++index)
 		listItems.emplace_back(std::move(getString(index)), getValue(index));
 }
 
@@ -17,11 +17,11 @@ const char* ListData::jwinWrapper(int index, int* size, void* owner)
 {
 	ListData* cb=static_cast<ListData*>(owner);
 
-	if(index>=0)
+	if(index >= 0)
 		return cb->getText(index).c_str();
 	else
 	{
-		*size=cb->size();
+		*size = cb->size();
 		return nullptr;
 	}
 }

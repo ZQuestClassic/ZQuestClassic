@@ -31,7 +31,7 @@ public:
 	template<typename T>
 	std::shared_ptr<T> get(size_t index)
 	{
-		auto ret=std::dynamic_pointer_cast<T>(children.at(index));
+		auto ret = std::dynamic_pointer_cast<T>(children.at(index));
 		assert(ret);
 		return ret;
 	}

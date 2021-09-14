@@ -81,7 +81,7 @@ inline void applyArgs(PropsSoFar, BuilderType&& builder, std::shared_ptr<WidgetT
 template<typename PropsSoFar, typename BuilderType, typename PropType>
 inline void applyArgs(PropsSoFar psf, BuilderType&& builder, PropType&& prop)
 {
-    using DecayType=typename std::decay_t<PropType>;
+    using DecayType = typename std::decay_t<PropType>;
     ZCGUI_STATIC_ASSERT((std::is_base_of_v<Props::Property, DecayType>),
         "Arguments must be widget properties or widgets.");
     prop.assertUnique(psf);
@@ -93,7 +93,7 @@ template<typename PropsSoFar, typename BuilderType, typename PropType, typename.
 inline void applyArgs(PropsSoFar psf, BuilderType&& builder, PropType&& prop,
     MoreArgsType&&... moreArgs)
 {
-    using DecayType=typename std::decay_t<PropType>;
+    using DecayType = typename std::decay_t<PropType>;
     ZCGUI_STATIC_ASSERT((std::is_base_of_v<Props::Property, DecayType>),
         "Arguments must be widget properties or widgets." ZCGUI_NEWLINE
         "This may be a name collision." ZCGUI_NEWLINE

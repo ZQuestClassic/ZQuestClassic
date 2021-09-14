@@ -30,8 +30,8 @@ struct name##Prop                                                               
     template<typename T>                                                                           \
     struct Value: ::GUI::Props::Property                                                           \
     {                                                                                              \
-        using TagType=name##Prop::TagType;                                                         \
-        static constexpr TagType tag={};                                                           \
+        using TagType = name##Prop::TagType;                                                       \
+        static constexpr TagType tag = {};                                                         \
         T&& val;                                                                                   \
                                                                                                    \
         inline constexpr Value(T&& t): val(std::forward<T>(t))                                     \
@@ -51,7 +51,7 @@ struct name##Prop                                                               
         }                                                                                          \
                                                                                                    \
         /* This is called when used on a widget that doesn't accept  this property. */             \
-        template<bool b=false>                                                                     \
+        template<bool b = false>                                                                   \
         void assertInvalid() const                                                                 \
         {                                                                                          \
             ZCGUI_STATIC_ASSERT(b,                                                                 \
@@ -81,8 +81,8 @@ struct name##Prop                                                               
     template<typename T>                                                                           \
     struct Value: ::GUI::Props::Property                                                           \
     {                                                                                              \
-        using TagType=name##Prop::TagType;                                                         \
-        static constexpr TagType tag={};                                                           \
+        using TagType = name##Prop::TagType;                                                       \
+        static constexpr TagType tag = {};                                                         \
         T&& val;                                                                                   \
                                                                                                    \
         inline constexpr Value(T&& t): val(std::forward<T>(t))                                     \
@@ -102,7 +102,7 @@ struct name##Prop                                                               
         }                                                                                          \
                                                                                                    \
         /* This is called when used on a widget that doesn't accept  this property. */             \
-        template<bool b=false>                                                                     \
+        template<bool b = false>                                                                   \
         void assertInvalid() const                                                                 \
         {                                                                                          \
             ZCGUI_STATIC_ASSERT(b,                                                                 \
@@ -110,7 +110,7 @@ struct name##Prop                                                               
         }                                                                                          \
     };                                                                                             \
                                                                                                    \
-    template<typename T=type>                                                                      \
+    template<typename T = type>                                                                    \
 	inline constexpr Value<T> operator=(T&& t) const                                               \
     {                                                                                              \
         return Value<T>(std::forward<T>(t));                                                       \
@@ -153,7 +153,7 @@ struct widgetType##Builder                                                      
     }                                                                                              \
                                                                                                    \
     /* This one's called if the property is accepted but the type is incorrect. */                 \
-    template<bool b=false>                                                                         \
+    template<bool b = false>                                                                       \
     void apply##propName(...)                                                                      \
     {                                                                                              \
         ZCGUI_STATIC_ASSERT(b,                                                                     \
@@ -179,7 +179,7 @@ struct widgetType##Builder                                                      
     }                                                                                              \
                                                                                                    \
     /* Fails and suggests an alternative. */                                                       \
-    template<bool b=false>                                                                         \
+    template<bool b = false>                                                                       \
     void apply##propName(...)                                                                      \
     {                                                                                              \
         ZCGUI_STATIC_ASSERT(b,                                                                     \
@@ -189,26 +189,28 @@ struct widgetType##Builder                                                      
 
 
 #define ZCGUI_ACCEPT_ONE_CHILD(function)                                                           \
-    template<int counter=1, typename ChildType, typename... MoreChildrenType>                      \
+    template<int counter = 1, typename ChildType, typename... MoreChildrenType>                    \
     inline void addChildren(ChildType&&, MoreChildrenType&&... moreChildren)                       \
     {                                                                                              \
-        using DecayType=typename std::decay_t<ChildType>;                                          \
-        constexpr bool isProp=std::is_base_of_v<::GUI::Props::Property, DecayType>;                \
-        constexpr bool isWidget=std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;  \
+        using DecayType = typename std::decay_t<ChildType>;                                        \
+        constexpr bool isProp = std::is_base_of_v<::GUI::Props::Property, DecayType>;              \
+        constexpr bool isWidget =                                                                  \
+		    std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;                      \
         ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
         ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
         addChildren<counter+1>(std::forward<MoreChildrenType>(moreChildren)...);                   \
     }                                                                                              \
                                                                                                    \
-    template<int counter=1, typename ChildType>                                                    \
+    template<int counter = 1, typename ChildType>                                                  \
     inline void addChildren(ChildType&& child)                                                     \
     {                                                                                              \
-        using DecayType=typename std::decay_t<ChildType>;                                          \
-        constexpr bool isProp=std::is_base_of_v<::GUI::Props::Property, DecayType>;                \
-        constexpr bool isWidget=std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;  \
+        using DecayType = typename std::decay_t<ChildType>;                                        \
+        constexpr bool isProp = std::is_base_of_v<::GUI::Props::Property, DecayType>;              \
+        constexpr bool isWidget =                                                                  \
+		    std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;                      \
         ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
         ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
-        ZCGUI_STATIC_ASSERT(counter==1, "This widget cannot have multiple children.");             \
+        ZCGUI_STATIC_ASSERT(counter == 1, "This widget can only have one child.");                 \
         Internal::allowChild(ptr, child);                                                          \
         ptr->function(child);                                                                      \
     }
@@ -218,9 +220,10 @@ struct widgetType##Builder                                                      
     template<typename ChildType, typename... MoreChildrenType>                                     \
     inline void addChildren(ChildType&& child, MoreChildrenType&&... moreChildren)                 \
     {                                                                                              \
-        using DecayType=typename std::decay_t<ChildType>;                                          \
-        constexpr bool isProp=std::is_base_of_v<::GUI::Props::Property, DecayType>;                \
-        constexpr bool isWidget=std::is_convertible_v<ChildType, std::shared_ptr<::GUI:: Widget>>; \
+        using DecayType = typename std::decay_t<ChildType>;                                        \
+        constexpr bool isProp = std::is_base_of_v<::GUI::Props::Property, DecayType>;              \
+        constexpr bool isWidget =                                                                  \
+		    std::is_convertible_v<ChildType, std::shared_ptr<::GUI:: Widget>>;                     \
         ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
         ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
         Internal::allowChild(ptr, child);                                                          \
@@ -231,9 +234,10 @@ struct widgetType##Builder                                                      
     template<typename ChildType>                                                                   \
     inline void addChildren(ChildType&& child)                                                     \
     {                                                                                              \
-        using DecayType=typename std::decay_t<ChildType>;                                          \
-        constexpr bool isProp=std::is_base_of_v<::GUI::Props::Property, DecayType>;                \
-        constexpr bool isWidget=std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;  \
+        using DecayType = typename std::decay_t<ChildType>;                                        \
+        constexpr bool isProp = std::is_base_of_v<::GUI::Props::Property, DecayType>;              \
+        constexpr bool isWidget =                                                                  \
+		    std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;                      \
         ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
         ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
         Internal::allowChild(ptr, child);                                                          \
@@ -243,7 +247,7 @@ struct widgetType##Builder                                                      
 
 // Accept common properties and reject children by default.
 #define ZCGUI_BUILDER_END()                                                                        \
-    template<bool b=false>                                                                         \
+    template<bool b = false>                                                                       \
     void addChildren(...)                                                                          \
     {                                                                                              \
         ZCGUI_STATIC_ASSERT(b, "This widget cannot have children.");                               \

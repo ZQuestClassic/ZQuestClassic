@@ -43,22 +43,22 @@ public:
 
 	inline constexpr bool operator<(const Size& other) const noexcept
 	{
-		return value<other.value;
+		return value < other.value;
 	}
 
 	inline constexpr bool operator>(const Size& other) const noexcept
 	{
-		return value>other.value;
+		return value > other.value;
 	}
 
 	inline constexpr bool operator==(const Size& other) const noexcept
 	{
-		return value==other.value;
+		return value == other.value;
 	}
 
 	inline constexpr bool operator!=(const Size& other) const noexcept
 	{
-		return value!=other.value;
+		return value != other.value;
 	}
 
 private:
