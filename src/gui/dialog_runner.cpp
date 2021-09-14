@@ -15,7 +15,7 @@ namespace GUI
 int dialog_proc(int msg, DIALOG *d, int c)
 {
 	auto* dr=static_cast<DialogRunner*>(d->dp);
-	if(msg==MSG_NEW_GUI_EVENT)
+	if(msg==MSG_GUI_EVENT)
 	{
 		int ret=dr->widgets[d->d1]->onEvent(c, dr->sendMessage);
 		if(dr->done)

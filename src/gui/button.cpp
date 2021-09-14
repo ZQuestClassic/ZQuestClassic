@@ -50,7 +50,7 @@ void Button::realize(DialogRunner& runner)
 
 int Button::onEvent(int event, MessageDispatcher& sendMessage)
 {
-	assert(event==ngeCLICK);
+	assert(event==geCLICK);
 	// jwin_button_proc doesn't seem to allow for a non-toggle button...
 	alDialog->flags&=~D_SELECTED;
 	if(message>=0)

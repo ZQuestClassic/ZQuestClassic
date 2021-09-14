@@ -113,7 +113,7 @@ void DropDownList::realize(DialogRunner& runner)
 
 int DropDownList::onEvent(int event, MessageDispatcher& sendMessage)
 {
-	assert(event==ngeCHANGE_SELECTION);
+	assert(event==geCHANGE_SELECTION);
 	if(message>=0)
 		sendMessage(message, listData->getValue(alDialog->d1));
 	return -1;

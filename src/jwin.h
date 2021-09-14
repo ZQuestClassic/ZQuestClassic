@@ -92,35 +92,7 @@ extern "C"
 #define D_NEW_GUI (D_USER<<2)
 
 /* Sent to newgui_dialog_proc to tell it to handle an event. */
-#define MSG_NEW_GUI_EVENT MSG_USER
-
-/* Used to indicate the new GUI dialog root. */
-extern char newGuiMarker;
-
-/* All the events that may be handled by a new GUI widget.
- * These could possibly be pared down a bit, but it doesn't matter much.
- */
-enum newGuiEvent
-{
-    ngeCLICK, ngeCHANGE_SELECTION, ngeCHANGE_VALUE, ngeCLOSE, ngeENTER,
-    ngeTOGGLE
-};
-
-/* Triggers a message in the new GUI system. You should use the macro below
- * instead of calling this directly.
- */
-int new_gui_event(DIALOG* d, newGuiEvent event);
-
-#define NEW_GUI_EVENT(dlg, event)            \
-do                                           \
-{                                            \
-    if(dlg->flags&D_NEW_GUI)                 \
-    {                                        \
-        int ret=new_gui_event(dlg-1, event); \
-        if(ret>=0)                           \
-            return ret;                      \
-    }                                        \
-} while(false)
+#define MSG_GUI_EVENT MSG_USER
 
 /* frame styles */
 enum {
@@ -148,6 +120,33 @@ extern int mix_value(int c1,int c2,int pos,int max);
 /* 1.5k lookup table for color matching */
 extern unsigned int col_diff[3*128];
 extern int last_droplist_sel;
+
+/* Used to indicate the new GUI dialog root. */
+extern char newGuiMarker;
+
+/* All the events that may be handled by a new GUI widget.
+ * These could possibly be pared down a bit, but it doesn't matter much.
+ */
+enum guiEvent
+{
+    geCLICK, geCHANGE_SELECTION, geCHANGE_VALUE, geCLOSE, geENTER, geTOGGLE
+};
+
+#define GUI_EVENT(dlg, event)                \
+do                                           \
+{                                            \
+    if(dlg->flags&D_NEW_GUI)                 \
+    {                                        \
+        int ret=new_gui_event(dlg-1, event); \
+        if(ret>=0)                           \
+            return ret;                      \
+    }                                        \
+} while(false)
+
+/* Triggers a message in the new GUI system. You should use the macro below
+ * instead of calling this directly.
+ */
+int new_gui_event(DIALOG* d, guiEvent event);
 
 int get_selected_tab(TABPANEL* panel);
 

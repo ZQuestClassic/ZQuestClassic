@@ -15,7 +15,7 @@ int TopLevelWidget::proc(int msg, DIALOG* d, int c)
 		unsigned short actual=(key_shifts&0x07)|(c&0xFF00);
 		if(actual==d->d1)
 			// Abusing the mechanism here slightly...
-			NEW_GUI_EVENT(d, (newGuiEvent)d->d2);
+			GUI_EVENT(d, (guiEvent)d->d2);
 	}
 	return D_O_K;
 }

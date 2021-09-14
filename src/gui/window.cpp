@@ -105,7 +105,7 @@ void Window::realize(DialogRunner& runner)
 
 int Window::onEvent(int event, MessageDispatcher& sendMessage)
 {
-	if(event==ngeCLOSE)
+	if(event==geCLOSE)
 	{
 		if(closeMessage>=0)
 			sendMessage(closeMessage, MessageArg::none);

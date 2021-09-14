@@ -111,11 +111,11 @@ int TextField::onEvent(int event, MessageDispatcher& sendMessage)
 	int message;
 	switch(event)
 	{
-	case ngeENTER:
+	case geENTER:
 		message=onEnterMsg;
 		break;
 
-	case ngeCHANGE_VALUE:
+	case geCHANGE_VALUE:
 		message=onValueChangedMsg;
 		break;
 

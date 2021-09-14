@@ -69,7 +69,7 @@ void Checkbox::realize(DialogRunner& runner)
 
 int Checkbox::onEvent(int event, MessageDispatcher& sendMessage)
 {
-	assert(event==ngeTOGGLE);
+	assert(event==geTOGGLE);
 	if(message>=0)
 		sendMessage(message, (alDialog->flags&D_SELECTED)!=0);
 	return -1;
