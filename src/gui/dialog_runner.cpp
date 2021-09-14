@@ -88,9 +88,4 @@ void DialogRunner::runInner(std::shared_ptr<Widget> root)
 	new_gui_popup_dialog(alDialog.data(), focused, done);
 }
 
-DialogRef DialogRunner::getAllegroDialog()
-{
-	return DialogRef(this, alDialog.size()-1);
-}
-
 }

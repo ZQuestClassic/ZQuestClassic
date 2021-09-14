@@ -49,11 +49,6 @@ public:
 	 */
 	DialogRef push(std::shared_ptr<Widget> owner, DIALOG dlg);
 
-	/* Returns a DialogRef that can be used as a reference to the
-	 * most recently added DIALOG.
-	 */
-	DialogRef getAllegroDialog();
-
 	/* Returns the current size of the DIALOG array. */
 	inline size_t size() const
 	{
