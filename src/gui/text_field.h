@@ -49,7 +49,7 @@ public:
 	 * IntDecimal or IntHex, it will be an int.
 	 */
 	template<typename T>
-	void onEnter(T m)
+	RequireMessage<T> onEnter(T m)
 	{
 		onEnterMsg=static_cast<int>(m);
 	}
@@ -58,7 +58,7 @@ public:
 	 * the type of the argument varies depending on the text field's type.
 	 */
 	template<typename T>
-	void onValueChanged(T m)
+	RequireMessage<T> onValueChanged(T m)
 	{
 		onValueChangedMsg=static_cast<int>(m);
 	}

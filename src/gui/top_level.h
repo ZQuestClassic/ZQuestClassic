@@ -20,7 +20,7 @@ public:
 
 	/* Add a keyboard shortcut. */
 	template<typename T>
-	inline void onKey(ShortcutKey k, T message)
+	inline RequireMessage<T> onKey(ShortcutKey k, T message)
 	{
 		shortcuts.emplace_back(KeyboardShortcut {
 			k.get(), static_cast<int>(message)
@@ -31,7 +31,7 @@ public:
 	 * particularly common.
 	 */
 	template<typename T>
-	inline void onEnter(T message)
+	inline RequireMessage<T> onEnter(T message)
 	{
 		shortcuts.emplace_back(KeyboardShortcut {
 			Key::Enter.get(), static_cast<int>(message)

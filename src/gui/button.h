@@ -15,7 +15,7 @@ public:
 	void setText(std::string newText);
 
 	template<typename T>
-	void onClick(T m)
+	RequireMessage<T> onClick(T m)
 	{
 		message=static_cast<int>(m);
 	}

@@ -6,6 +6,7 @@
 #include "size.h"
 #include "../zc_alleg.h"
 #include <memory>
+#include <type_traits>
 #include <vector>
 
 namespace GUI
@@ -140,6 +141,14 @@ public:
 	}
 
 protected:
+	/* Use this as the return type of message setters so non-integer types
+	 * are properly caught.
+	 */
+	template<typename T>
+	using RequireMessage=std::enable_if_t<
+			std::is_enum_v<T> || std::is_integral_v<T>
+		>;
+
 	int x, y;
 	int fgColor, bgColor;
 	unsigned short leftMargin, rightMargin, topMargin, bottomMargin;

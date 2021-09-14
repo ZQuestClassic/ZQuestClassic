@@ -17,7 +17,7 @@ public:
 	void setContent(std::shared_ptr<Widget> newContent) noexcept;
 
 	template<typename T>
-	void onClose(T m)
+	RequireMessage<T> onClose(T m)
 	{
 		closeMessage=static_cast<int>(m);
 	}

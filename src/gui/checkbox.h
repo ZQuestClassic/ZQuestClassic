@@ -19,7 +19,7 @@ public:
 	bool getChecked();
 
 	template<typename T>
-	void onToggle(T m)
+	RequireMessage<T> onToggle(T m)
 	{
 		message=static_cast<int>(m);
 	}

@@ -23,7 +23,7 @@ public:
 	int getSelectedValue() const;
 
 	template<typename T>
-	void onSelectionChanged(T m)
+	RequireMessage<T> onSelectionChanged(T m)
 	{
 		message=static_cast<int>(m);
 	}
