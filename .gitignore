@@ -83,6 +83,8 @@ CMakeFiles/
 *.sap
 *.vcproj
 *.sln
+.vs/*
+*.vcxproj*
 
 # Emacs files
 .dir-locals.el

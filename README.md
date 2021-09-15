@@ -36,7 +36,7 @@ Zelda Classic requires a modified version of the Allegro 4.2.2 library. Again, p
 
 **4))** Zelda Classic works **only** when compiled for a 32-bit architecture (but the compiled binaries will run fine on 64-bit operating systems.) This means that to successfully compile ZC, you must set your compiler to generate 32-bit code, and you must **obtain 32-bit versions of all external libraries** (or build them yourself from source). For example, on 64-bit Ubuntu you may need to install the packages g++-multilib, libx11-dev:i386, libxext-dev:i386, libxcursor-dev:i386, libxxf86vm-dev:i386, libxpm-dev:i386, libasound2-dev:i386, and possibly others. If you are getting linker errors, check carefully for messages about binary incompatibility with the external libraries.
 
-**5))** The ZScript parser included with ZQuest uses Flex and Bison to auto-generate its source code. You must download and install Flex and Bison to compile ZQuest with ZScript support. If you do not have these tools, compilation will not fail, but CMake will issue a warning and your ZQuest binary will be compiled without the ability to compile ZScripts.
+**5))** The ZScript parser included with ZQuest uses Flex and Bison to auto-generate its source code. You must download and install Flex and Bison to compile ZQuest with ZScript support. If you do not have these tools, compilation will fail.
 
 For Windows user, win-flex and win-bison will work fine. Be sure to add the folder containing the binaries (e.g. `win-flex.exe`) to your PATH environment variable. You can use this to install with [choco](https://chocolatey.org/install): `choco install winflexbison3`.
 
