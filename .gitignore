@@ -85,6 +85,7 @@ CMakeFiles/
 *.sln
 .vs/*
 *.vcxproj*
+Win32/*
 
 # Emacs files
 .dir-locals.el
