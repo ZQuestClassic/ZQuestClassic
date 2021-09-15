@@ -71,7 +71,6 @@ set(ZQUEST_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestGUI.txt
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestMisc.txt
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScript.txt
-	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScriptNP.txt
 )
 
 foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES})
