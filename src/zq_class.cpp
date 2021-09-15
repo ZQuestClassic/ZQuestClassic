@@ -6178,19 +6178,18 @@ int init_quest(const char *templatefile)
     return 0;
 }
 
-void set_questpwd(std::string_view pwd, bool use_keyfile)
+void set_questpwd(std::string_view pwd, bool)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    use_keyfile=use_keyfile;
+	// string_view actually has some quirks that make it less than ideal here.
+	// It'd probably be best to replace it, but this works for now.
+	memset(header.password, 0, 256);
+	strcpy(header.password, pwd.data());
+	header.dirty_password=true;
 
-    memset(header.password,0,256);
-    strcpy(header.password,pwd.data());
-    header.dirty_password=true;
-
-    cvs_MD5Context ctx;
-    cvs_MD5Init(&ctx);
-    cvs_MD5Update(&ctx, (const unsigned char*)pwd.data(), pwd.size());
-    cvs_MD5Final(header.pwd_hash, &ctx);
+	cvs_MD5Context ctx;
+	cvs_MD5Init(&ctx);
+	cvs_MD5Update(&ctx, (const unsigned char*)header.password, strlen(header.password));
+	cvs_MD5Final(header.pwd_hash, &ctx);
 }
 
 
