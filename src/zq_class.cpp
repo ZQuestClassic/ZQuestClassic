@@ -6178,8 +6178,10 @@ int init_quest(const char *templatefile)
     return 0;
 }
 
-void set_questpwd(std::string_view pwd, bool)
+void set_questpwd(std::string_view pwd, bool use_keyfile)
 {
+	header.use_keyfile=use_keyfile;
+
 	// string_view actually has some quirks that make it less than ideal here.
 	// It'd probably be best to replace it, but this works for now.
 	memset(header.password, 0, 256);
