@@ -147,7 +147,7 @@ bool movingblock::animate(int index)
 	}
 	if(drownclk)
 	{
-		if(drownclk == WATER_DROWN_FRAMES);
+		//if(drownclk == WATER_DROWN_FRAMES)
 			//sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
 			//!TODO: Drown SFX
 		if(!--drownclk)

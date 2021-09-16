@@ -108,11 +108,10 @@ bool item::animate(int)
 		}
 		if(drownclk > 0)
 		{
-			if(drownclk == WATER_DROWN_FRAMES && drownCombo); //sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+			//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 			//!TODO: Drown SFX
 			if(!--drownclk) return true;
 			
-			wpndata spr;
 			if (drownCombo && combobuf[drownCombo].usrflags&cflag1) 
 			{
 				wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];

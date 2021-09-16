@@ -61,6 +61,8 @@ extern YYLTYPE noloc;
 	ASTExpr* right = (ASTExpr*)d3; \
 	klass* rval = new klass(left->clone(), right, a3);	\
 	dd = new ASTExprAssign(left, rval, ad);
+
+#pragma warning( disable : 4065 )
 %}
 
 %code requires {
@@ -758,7 +760,7 @@ Annotated_Script :
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
 		owning_vector<ASTAnnotation>& set = list->set;
 		ASTScript* script = (ASTScript*)$2;
-		for(int q = 0; q < set.size(); ++q)
+		for(size_t q = 0; q < set.size(); ++q)
 		{
 			ASTAnnotation* a = set[q];
 			std::string key = a->first->getValue();

@@ -523,7 +523,7 @@ void EditboxModel::paste()
 	it = cp.it;
 	it++;
 	
-	for(unsigned int i=0; i<toinsert.size(); i++)
+	for(size_t i=0; i<toinsert.size(); i++)
 		it++;
 	
 	markAsDirty(it);

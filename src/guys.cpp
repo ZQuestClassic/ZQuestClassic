@@ -2740,7 +2740,7 @@ bool enemy::do_drowning(int index)
 {
 	if(drownclk > 0)
 	{
-		if(drownclk == WATER_DROWN_FRAMES && drownCombo); //sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
+		//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
 		//!TODO: Drown SFX
 		if(!--drownclk)
 		{
@@ -10771,7 +10771,7 @@ bool eWallM::animate(int index)
 			for(int i=0; i<guys.Count(); i++)
 				if(((enemy*)guys.spr(i))->family==eeWALLM)
 				{
-					register int m=((enemy*)guys.spr(i))->misc;
+					int m=((enemy*)guys.spr(i))->misc;
 					
 					if(m && ((enemy*)guys.spr(i))->clk3==(wall^1))
 					{

@@ -180,10 +180,10 @@ namespace ZScript
 		static Node* clone(Node* node) {return node ? node->clone() : NULL;}
 		// Clone a single node auto pointer.
 		template <class Node>
-		static std::auto_ptr<Node> clone(std::auto_ptr<Node> const& node) {
+		static std::unique_ptr<Node> clone(std::unique_ptr<Node> const& node) {
 			return node.get()
-				? std::auto_ptr<Node>(node->clone())
-				: std::auto_ptr<Node>();}
+				? std::unique_ptr<Node>(node->clone())
+				: std::unique_ptr<Node>();}
 		// Clone a vector of AST nodes.
 		template <class Node>
 		static std::vector<Node*> clone(std::vector<Node*> const& nodes)

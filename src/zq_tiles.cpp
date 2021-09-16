@@ -2770,7 +2770,6 @@ int bestfit_cset_color(int cs, int r, int g, int b)
     for(int i = 0; i < CSET_SIZE; i++)
     {
         byte *rgbByte;
-        RGB rgb;
         
         // This seems to be right...
         if(cs==2 || cs==3 || cs==4)
@@ -2818,7 +2817,6 @@ int bestfit_cset_color_8bit(int r, int g, int b)
     for(int i = 0; i < 192; i++) // 192 colors in CSets 0-11
     {
         byte *rgbByte;
-        RGB rgb;
         
         int cs=i>>4;
         if(cs==2 || cs==3 || cs==4)

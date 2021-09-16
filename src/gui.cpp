@@ -258,5 +258,41 @@ int popup_zqdialog(DIALOG *dialog, int focus_obj)
     return ret;
 }
 
-/*** end of gui.cpp ***/
+/* More or less like the others. This one backs up the screen and restores it
+ * afterward, but uses dialog[1] for the size and position. It also doesn't
+ * return a value.
+ */
+void new_gui_popup_dialog(DIALOG* dialog, int focus_obj, bool& done)
+{
+	ASSERT(dialog);
+	int x=dialog[1].x;
+	int y=dialog[1].y;
+	int w=dialog[1].w;
+	int h=dialog[1].h;
+	BITMAP* backup=create_bitmap_ex(8, w, h);
+	BITMAP* scr=screen;
 
+	if(backup)
+	{
+		scare_mouse_area(x, y, w, h);
+		blit(scr, backup, x, y, 0, 0, w, h);
+		unscare_mouse();
+	}
+	else
+		*allegro_errno=ENOMEM;
+
+	int ret=0;
+	while(!done && ret>=0)
+		// Not quite sure which one of these to use...
+		ret=do_zqdialog(dialog, focus_obj);
+
+	if(backup)
+	{
+		scare_mouse_area(x, y, w, h);
+		blit(backup, scr, 0, 0, x, y, w, h);
+		unscare_mouse();
+		destroy_bitmap(backup);
+	}
+}
+
+/*** end of gui.cpp ***/

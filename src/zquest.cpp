@@ -42,6 +42,10 @@ void setZScriptVersion(int) { } //bleh...
 #include <loadpng.h>
 #include <jpgalleg.h>
 
+#include "dialog/cheat_codes.h"
+#include "dialog/room.h"
+#include "dialog/set_password.h"
+
 #include "gui.h"
 #include "load_gif.h"
 #include "save_gif.h"
@@ -1864,15 +1868,6 @@ static MENU view_menu[] =
 
 int onSelectFFCombo();
 
-static MENU room_menu[] =
-{
-  { (char *)"&Guy\tG",                    onGuy,                     NULL,                     0,            NULL   },
-    { (char *)"&Message String\tS",         onString,                  NULL,                     0,            NULL   },
-    { (char *)"&Room Type\tR",              onRType,                   NULL,                     0,            NULL   },
-    { (char *)"Catch &All\tA",              onCatchall,                NULL,                     0,   	       NULL   }, //Allow setting a generic catch-a;;. or clearing it mamnually.
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
 static MENU data_menu[] =
 {
     { (char *)"&Screen Data\tF9",           onScrData,                 NULL,                     0,            NULL   },
@@ -1885,8 +1880,8 @@ static MENU data_menu[] =
     { (char *)"&Doors\tF6",                 onDoors,                   NULL,                     0,            NULL   },
     { (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Room Data",                   NULL,                      room_menu,                0,            NULL   },
-    
+    { (char *)"&Room Data\tR",              onRoom,                    NULL,                     0,            NULL   },
+
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
     { (char *)"&Enemies\tE",                onEnemies,                 NULL,                     0,            NULL   },
@@ -2286,6 +2281,23 @@ void onKeySlash()
 	}
 }
 
+void onAKey()
+{
+	if(prv_mode)
+		Map.set_prvadvance(1);
+}
+
+void onRKey()
+{
+	if(prv_mode)
+	{
+		Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
+		Map.set_prvcmb(0);
+	}
+	else
+		onRoom();
+}
+
 void onSKey()
 {
 	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
@@ -2301,7 +2313,11 @@ void onSKey()
 				onSave();
 		}
 	}
-	else onString();
+	else if(prv_mode)
+    {
+        Map.prv_secrets(false);
+        refresh(rALL);
+    }
 }
 
 /* Notice: If you insert or remove entries from dialogs[], you will need
@@ -2344,13 +2360,11 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F11,        0, (void *) onSideWarp, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,        0, (void *) onLayers, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ESC,        0, (void *) onExit, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_A,          0, (void *) onCatchall, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_B,          0, (void *) onResetTransparency, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_C,          0, (void *) onCopy, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_D,          0, (void *) onToggleDarkness, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_E,          0, (void *) onEnemies, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F,          0, (void *) onShowFlags, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_G,          0, (void *) onGuy, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_H,          0, (void *) onH, NULL, NULL },      //Flip
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_I,          0, (void *) onItem, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_J,          0, (void *) onJ, NULL, NULL },      //This does nothing
@@ -2361,7 +2375,7 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_O,          0, (void *) onDrawingMode, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_P,          0, (void *) onGotoPage, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Q,          0, (void *) onShowComboInfoCSet, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_R,          0, (void *) onRType, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_R,          0, (void *) onRKey, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_S,          0, (void *) onSKey, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_T,          0, (void *) onTiles, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_U,          0, (void *) onUndo, NULL, NULL },
@@ -12657,19 +12671,6 @@ static DIALOG wlist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static DIALOG rlist_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_abclist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     70,   163,  51,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     190,  163,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     130,  163,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Help", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
 
 /*
   typedef struct item_struct {
@@ -13178,183 +13179,6 @@ int select_weapon(const char *prompt,int weapon)
 }
 
 
-item_struct bir[rMAX];
-int bir_cnt=-1;
-
-void build_bir_list()
-{
-    bir_cnt=0;
-    
-    for(int i=0; i<rMAX; i++)
-    {
-        if(moduledata.roomtype_names[i][0]!='-')
-        {
-            bir[bir_cnt].s = (char *)moduledata.roomtype_names[i];
-            bir[bir_cnt].i = i;
-            ++bir_cnt;
-        }
-    }
-    
-    for(int i=0; i<bir_cnt-1; i++)
-    {
-        for(int j=i+1; j<bir_cnt; j++)
-        {
-            if(stricmp(bir[i].s,bir[j].s)>0)
-            {
-                zc_swap(bir[i],bir[j]);
-            }
-        }
-    }
-}
-
-const char *roomlist(int index, int *list_size)
-{
-    if(index<0)
-    {
-        *list_size = bir_cnt;
-        return NULL;
-    }
-    
-    return bir[index].s;
-}
-
-int select_room(const char *prompt,int room)
-{
-    if(bir_cnt==-1)
-    {
-        build_bir_list();
-    }
-    
-    int index=0;
-    
-    for(int j=0; j<bir_cnt; j++)
-    {
-        if(bir[j].i == room)
-        {
-            index=j;
-        }
-    }
-    
-    rlist_dlg[0].dp=(void *)prompt;
-    rlist_dlg[0].dp2=lfont;
-    rlist_dlg[2].d1=index;
-    ListData room_list(roomlist, &font);
-    rlist_dlg[2].dp=(void *) &room_list;
-    
-    if(is_large)
-        large_dialog(rlist_dlg);
-        
-    int ret;
-    
-    do
-    {
-        ret=zc_popup_dialog(rlist_dlg,2);
-        
-        if(ret==5)
-        {
-            int id = bir[rlist_dlg[2].d1].i;
-            
-            switch(id)
-            {
-            case rSP_ITEM:
-                jwin_alert(roomtype_string[id],"If a Guy is set, he will offer an item to Link.","Also used for Item Cellar warps, and","'Armos/Chest->Item' and 'Dive For Item' combo flags.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rINFO:
-                jwin_alert(roomtype_string[id],"Pay rupees to make one of three strings appear.","Strings and prices are set in","Misc. Data -> Info Types.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rMONEY:
-                jwin_alert(roomtype_string[id],"If a Guy is set, he will offer rupees to Link.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rGAMBLE:
-                jwin_alert(roomtype_string[id],"The 'Money-Making Game' from The Legend of Zelda.","Risk losing up to 40 rupees for a","chance to win up to 50 rupees.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rREPAIR:
-                jwin_alert(roomtype_string[id],"When the Guy's String vanishes,","Link loses a given amount of rupees.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rRP_HC:
-                jwin_alert(roomtype_string[id],"The Guy offers item 28 and item 30 to Link.","Taking one makes the other vanish forever.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rGRUMBLE:
-                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","until Link uses (and thus loses) a Bait item.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rTRIFORCE:
-                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","unless Link has Triforces from levels 1-8.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rP_SHOP:
-                jwin_alert(roomtype_string[id],"Similar to a Shop, but the items and String","won't appear until Link uses a Letter item.","(Or, if Link already has a Level 2 Letter item.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rSHOP:
-                jwin_alert(roomtype_string[id],"The Guy offers three items for a fee.","You can use the Shop as often as you want.","Items and prices are set in Misc. Data -> Shop Types.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rBOMBS:
-                jwin_alert(roomtype_string[id],"The Guy offers to increase Link's Bombs","and Max. Bombs by 4, for a fee.","You can only buy it once.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rSWINDLE:
-                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","until Link pays the fee or forfeits a Heart Container.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case r10RUPIES:
-                jwin_alert(roomtype_string[id],"10 instances of item 0 appear in a","diamond formation in the center of the screen.","No Guy or String needs to be set for this.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rWARP:
-                jwin_alert(roomtype_string[id],"All 'Stair [A]' type combos send Link to","a destination in a given Warp Ring, based","on the combo's X position (<112, >136, or between).","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rGANON:
-                jwin_alert(roomtype_string[id],"Link holds up the Triforce, and Ganon appears.",NULL,"(Unless the current DMap's Dungeon Boss was beaten.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rZELDA:
-                jwin_alert(roomtype_string[id],"Four instances of enemy 85 appear","on the screen in front of the Guy.","(That's all it does.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rMUPGRADE:
-                jwin_alert(roomtype_string[id],"When the Guy's String finishes,","Link gains the 1/2 Magic Usage attribute.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rLEARNSLASH:
-                jwin_alert(roomtype_string[id],"When the Guy's String finishes,","Link gains the Slash attribute.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rARROWS:
-                jwin_alert(roomtype_string[id],"The Guy offers to increase Link's Arrows","and Max. Arrows by 10, for a fee.","You can only buy it once.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rTAKEONE:
-                jwin_alert(roomtype_string[id],"The Guy offers three items.","Taking one makes the others vanish forever.","Item choices are set in Misc. Data -> Shop Types.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            default:
-                jwin_alert("Help","Select a Room Type, then click","Help to find out what it does.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-            }
-        }
-    }
-    while(ret==5);
-    
-    if(ret==0||ret==4)
-    {
-        position_mouse_z(0);
-        return -1;
-    }
-    else
-        index = rlist_dlg[2].d1;
-        
-    position_mouse_z(0);
-    return bir[index].i;
-}
 
 static MENU seldata_rclick_menu[] =
 {
@@ -14751,81 +14575,27 @@ int onItem()
         }
     }
     while(exit_status == 5);
-    
+
     refresh(rMAP+rMENU);
     return D_O_K;
 }
 
-int onRType()
+int onRoom()
 {
-    if(prv_mode)
-    {
-        Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
-        Map.set_prvcmb(0);
-        return D_O_K;
-    }
-    
-    restore_mouse();
-    build_bir_list();
-    int ret=select_room("Select Room Type",Map.CurrScr()->room);
-    
-    if(ret>=0)
-    {
-        saved=false;
-        Map.CurrScr()->room=ret;
-    }
-    
-    int c=Map.CurrScr()->catchall;
-    
-    switch(Map.CurrScr()->room)
-    {
-    case rSP_ITEM:
-        Map.CurrScr()->catchall=bound(c,0,ITEMCNT-1);
-        break;
-        // etc...
-    }
-    
-    refresh(rMENU);
-    
-    return D_O_K;
-}
-
-int onGuy()
-{
-    restore_mouse();
-    build_big_list(true);
-    int ret=select_guy("Select Guy",Map.CurrScr()->guy);
-    
-    if(ret>=0)
-    {
-        saved=false;
-        Map.CurrScr()->guy=ret;
-    }
-    
-    refresh(rMAP+rMENU);
-    return D_O_K;
-}
-
-int onString()
-{
-    if(prv_mode)
-    {
-        Map.prv_secrets(false);
-        refresh(rALL);
-        return D_O_K;
-    }
-    
-    restore_mouse();
-    int ret=select_data("Select Message String",MsgStrings[Map.CurrScr()->str].listpos,msgslist,lfont);
-    
-    if(ret>=0)
-    {
-        saved=false;
-        Map.CurrScr()->str=msglistcache[ret];
-    }
-    
-    refresh(rMENU);
-    return D_O_K;
+	restore_mouse();
+	auto* scr = Map.CurrScr();
+	RoomDialog(scr->room, scr->catchall, scr->guy, scr->str,
+		[scr](int r, int a, int g, int m)
+		{
+			scr->room = r;
+			scr->guy = g;
+			scr->str = m;
+			scr->catchall = a;
+			saved = false;
+		}
+	).show();
+	refresh(rMAP+rMENU);
+	return D_O_K;
 }
 
 int onEndString()
@@ -14837,80 +14607,7 @@ int onEndString()
         saved=false;
         misc.endstring=msglistcache[ret];
     }
-    
-    refresh(rMENU);
-    return D_O_K;
-}
 
-int onCatchall()
-{
-    if(prv_mode)
-    {
-        Map.set_prvadvance(1);
-        return D_O_K;
-    }
-    
-    if(room_menu[3].flags==D_DISABLED)
-    {
-        return D_O_K;
-    }
-    
-    restore_mouse();
-    int ret=-1;
-    int rtype=Map.CurrScr()->room;
-    
-    switch(rtype)
-    {
-    case rSP_ITEM:
-        int exit_status;
-        build_bii_list(false);
-        
-        do
-        {
-            ret=select_item("Select Special Item",Map.CurrScr()->catchall,false,exit_status);
-            
-            if(exit_status == 5 && ret >= 0)
-            {
-                build_biw_list();
-                edit_itemdata(ret);
-            }
-            else exit_status = -1;
-        }
-        while(exit_status == 5);
-        
-        break;
-	
-    case rINFO:
-        info_list_size = 256;
-        ret = select_data("Select Info Type",Map.CurrScr()->catchall,infolist,"OK","Cancel",lfont);
-        break;
-        
-    case rTAKEONE:
-        shop_list_size = 256;
-        ret = select_data("Select \"Take One Item\" Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
-        break;
-        
-    case rP_SHOP:
-    case rSHOP:
-        shop_list_size = 256;
-        ret = select_data("Select Shop Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
-        break;
-        
-    default:
-        char buf[80]="Enter ";
-        strcat(buf,catchall_string[rtype]);
-        ret=getnumber(buf,Map.CurrScr()->catchall);
-        break;
-    }
-    
-    if(ret>=0)
-    {
-        if(ret != Map.CurrScr()->catchall)
-            saved=false;
-            
-        Map.CurrScr()->catchall=ret;
-    }
-    
     refresh(rMENU);
     return D_O_K;
 }
@@ -22092,22 +21789,6 @@ static DIALOG header_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static DIALOG password_dlg[] =
-{
-    /* (dialog proc)        (x)   (y)   (w)   (h)   (fg)                (bg)              (key)    (flags)       (d1)           (d2)     (dp) */
-    { jwin_win_proc,        0,    0,   300,  111-32,  vc(14),             vc(1),            0,       D_EXIT,        0,             0, (void *) "Set Password", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_text_proc,       6,   30,   96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Enter new password:", NULL, NULL },
-    { jwin_edit_proc,       104,  26,   190,   16,  vc(12),             vc(1),            0,       0,             255,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      6,   42,   128+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Save key file", NULL, NULL },
-    { jwin_button_proc,     80,   54,  61,   21,   vc(14),             vc(1),            13,      D_EXIT,        0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,    160,   54,  61,   21,   vc(14),             vc(1),            27,      D_EXIT,        0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,      0,    0,    0,    0,    0,                  0,                0,       0,             KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
-
 int onHeader()
 {
     char zver_str[11],q_num[8],version[10],minver[10];
@@ -22149,17 +21830,10 @@ int onHeader()
     header_dlg[5].dp = q_num;
     header_dlg[7].dp = version;
     header_dlg[9].dp = minver;
-    
-    password_dlg[0].dp2=lfont;
-    char pwd[256];
-    memset(pwd,0,256);
-    password_dlg[3].dp=pwd;
-    password_dlg[4].flags=header.use_keyfile?D_SELECTED:0;
-    
+
     if(is_large)
     {
         large_dialog(header_dlg);
-        large_dialog(password_dlg);
     }
     
     int ret = -1;
@@ -22223,18 +21897,8 @@ int onHeader()
             questrev_help();
         else if(ret==21)
             questminrev_help();
-	else if(ret==16)
-        {
-            ret=zc_popup_dialog(password_dlg,-1);
-            
-            if(ret==5)
-            {
-                header.use_keyfile=password_dlg[4].flags&D_SELECTED?1:0;
-                set_questpwd(pwd,header.use_keyfile!=0);
-            }
-            
-            ret=16;
-        }
+		else if(ret==16)
+			SetPasswordDialog(header.use_keyfile, set_questpwd).show();
     }
     while(ret == 20 || ret == 21 || ret == 16);
     
@@ -22300,53 +21964,23 @@ int onHeader()
     return D_O_K;
 }
 
-
-static ZCHEATS tmpcheats;
-
-
-static DIALOG cheats_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,      32,   44,   256,  142,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Cheat Codes", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    // 2
-    { jwin_button_proc,     90,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,       0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    // 5
-    { jwin_check_proc,      104,  72,   0,    9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enable Cheats", NULL, NULL },
-    { jwin_text_proc,       40,   72,   0,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Lvl  Code", NULL, NULL },
-    { jwin_text_proc,       48,   90,   8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "1", NULL, NULL },
-    { jwin_text_proc,       48,   108,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "2", NULL, NULL },
-    { jwin_text_proc,       48,   126,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "3", NULL, NULL },
-    { jwin_text_proc,       48,   144,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "4", NULL, NULL },
-    // 11
-    { jwin_edit_proc,       61,   86,   210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[0], NULL, NULL },
-    { jwin_edit_proc,       61,   104,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[1], NULL, NULL },
-    { jwin_edit_proc,       61,   122,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[2], NULL, NULL },
-    { jwin_edit_proc,       61,   140,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[3], NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 int onCheats()
 {
-    cheats_dlg[0].dp2=lfont;
-    tmpcheats = zcheats;
-    cheats_dlg[5].flags = zcheats.flags ? D_SELECTED : 0;
-    
-    if(is_large)
-        large_dialog(cheats_dlg);
-        
-    int ret = zc_popup_dialog(cheats_dlg, 3);
-    
-    if(ret == 2)
-    {
-        saved = false;
-        zcheats = tmpcheats;
-        zcheats.flags = (cheats_dlg[5].flags & D_SELECTED) ? 1 : 0;
-    }
-    
-    return D_O_K;
+	std::string_view currentCodes[4]={
+		zcheats.codes[0], zcheats.codes[1], zcheats.codes[2], zcheats.codes[3]
+	};
+
+	CheatCodesDialog(zcheats.flags, currentCodes,
+		[&](bool enabled, std::string_view newCodes[4]) {
+			saved = false;
+			zcheats.flags = enabled ? 1 : 0;
+			newCodes[0].copy(zcheats.codes[0], 41);
+			newCodes[1].copy(zcheats.codes[1], 41);
+			newCodes[2].copy(zcheats.codes[2], 41);
+			newCodes[3].copy(zcheats.codes[3], 41);
+		}
+	).show();
+	return D_O_K;
 }
 
 const char *subscrtype_str[ssdtMAX+1] = { "Original","New Subscreen","Revision 2","BS Zelda Original","BS Zelda Modified","BS Zelda Enhanced","BS Zelda Complete","Zelda 3","Custom" };
@@ -24012,7 +23646,7 @@ char *strip_decimals(char *string)
     memcpy(src,string,len+1);
     memset(src,0,len+1);
     
-    for(unsigned int i=0; string[i]&&i<=strlen(string); i++)
+    for(size_t i=0; string[i]&&i<=strlen(string); i++)
     {
         *tmpsrc=string[i];
         
@@ -24044,7 +23678,7 @@ char *clean_numeric_string(char *string)
     memset(src,0,len+1);
     
     // strip out non-numerical characters
-    for(unsigned int i=0; string[i]&&i<=strlen(string); i++)
+    for(size_t i=0; string[i]&&i<=strlen(string); i++)
     {
         *tmpsrc=string[i];
         
@@ -24066,7 +23700,7 @@ char *clean_numeric_string(char *string)
     memset(src2,0,len+1);
     
     // second purge
-    for(unsigned int i=0; src[i]&&i<=strlen(src); i++)
+    for(size_t i=0; src[i]&&i<=strlen(src); i++)
     {
         *tmpsrc=src[i];
         
@@ -25261,7 +24895,7 @@ int jwin_zmeta_proc(int msg, DIALOG *d, int )
 						oss << ", ";
 					string type_name = ZScript::getTypeName(meta.run_types[q]);
 					lowerstr(type_name); //all lowercase for this output
-					if(oss.str().size() > (indentrun ? 41 : 50))
+					if(oss.str().size() > unsigned(indentrun ? 41 : 50))
 					{
 						memset(buf, 0, sizeof(buf));
 						sprintf(buf, "%s", oss.str().c_str());
@@ -33317,20 +32951,7 @@ int main(int argc,char **argv)
         {
             alignment_arrow_timer=0;
         }
-        
-        if(strcmp(catchall_string[Map.CurrScr()->room]," "))
-        {
-            static char ca_menu_str[40];
-            sprintf(ca_menu_str,"%s\tA",catchall_string[Map.CurrScr()->room]);
-            room_menu[3].text=ca_menu_str;
-            room_menu[3].flags=commands[cmdCatchall].flags=0;
-        }
-        else
-        {
-            room_menu[3].text=(char *)"Catch All\tA";
-            room_menu[3].flags=commands[cmdCatchall].flags=D_DISABLED;
-        }
-        
+
 	/* Notice: Adjust and Update these values if you hae modified any of the following, where
 		your modifications hae inserted or removed ANY entries. 
 		dialogs[]
@@ -33885,7 +33506,6 @@ void center_zquest_dialogs()
 {
     jwin_center_dialog(assignscript_dlg);
     jwin_center_dialog(autolayer_dlg);
-    jwin_center_dialog(cheats_dlg);
     jwin_center_dialog(clist_dlg);
     jwin_center_dialog(cpage_dlg);
     center_zq_cset_dialogs();
@@ -33920,9 +33540,7 @@ void center_zquest_dialogs()
     jwin_center_dialog(options_dlg);
     jwin_center_dialog(orgcomboa_dlg);
     jwin_center_dialog(path_dlg);
-    jwin_center_dialog(password_dlg);
     jwin_center_dialog(pattern_dlg);
-    jwin_center_dialog(rlist_dlg);
     center_zq_rules_dialog();
     jwin_center_dialog(scrdata_dlg);
     jwin_center_dialog(screen_pal_dlg);
@@ -34124,11 +33742,11 @@ void dopreview()
                     break;
                     
                 case KEY_R:
-                    onRType();
+                    onRKey();
                     break;
                     
                 case KEY_S:
-                    onString();
+                    onSKey();
                     break;
                     
                     /*
@@ -34142,7 +33760,7 @@ void dopreview()
                     break;
                     
                 case KEY_A:
-                    onCatchall();
+                    onAKey();
                     break;
                     
                 case KEY_P:
@@ -34732,7 +34350,7 @@ command_pair commands[cmdMAX]=
 {
     { "(None)",                             0, NULL                                                    },
     { "About",                              0, (intF) onAbout                                          },
-    { "Catch All",                          0, (intF) onCatchall                                       },
+    { " Catch All",                         0, NULL                                                    },
     { "Change track",                       0, (intF) changeTrack                                      },
     { "Cheats",                             0, (intF) onCheats                                         },
     { "Color Set Fix",                      0, (intF) onCSetFix                                        },
@@ -34772,7 +34390,7 @@ command_pair commands[cmdMAX]=
     { "Toggle Fullscreen",                  0, (intF) onFullScreen                                     },
     { "Game icons",                         0, (intF) onIcons                                          },
     { "Goto Map",                           0, (intF) onGotoMap                                        },
-    { "Guy",                                0, (intF) onGuy                                            },
+    { " Guy",                               0,  NULL                                                   },
     { "Paste Guy/String",                   0, (intF) onPasteGuy                                       },
     { "Header",                             0, (intF) onHeader                                         },
     { "Help",                               0, (intF) onHelp                                           },
@@ -34806,7 +34424,7 @@ command_pair commands[cmdMAX]=
     { "Default Map Styles",                 0, (intF) onDefault_MapStyles                              },
     { "Map Styles",                         0, (intF) onMapStyles                                      },
     { "Master Subscreen Type",              0, (intF) onSubscreen                                      },
-    { "Message String",                     0, (intF) onString                                         },
+    { " Message String",                    0, NULL                                                    },
     { "MIDIs",                              0, (intF) onMidis                                          },
     { "Misc Colors",                        0, (intF) onMiscColors                                     },
     { "New",                                0, (intF) do_NewQuest                                      },
@@ -34826,7 +34444,7 @@ command_pair commands[cmdMAX]=
     { "Apply Template to All",              0, (intF) onReTemplate                                     },
     { "Relational Mode",                    0, (intF) onDrawingModeRelational                          },
     { "Revert",                             0, (intF) onRevert                                         },
-    { "Room Type",                          0, (intF) onRType                                          },
+    { "Room Data",                          0, (intF) onRoom                                           },
     { "Paste Room Type Data",               0, (intF) onPasteRoom                                      },
     { "Rules - Animation",                  0, (intF) onAnimationRules                                 },
     { "Save",                               0, (intF) onSave                                           },
@@ -35335,7 +34953,7 @@ void FFScript::initIncludePaths()
 	al_trace("\n");
 	updateIncludePaths();
 
-	for ( int q = 0; q < includePaths.size(); ++q )
+	for ( size_t q = 0; q < includePaths.size(); ++q )
 	{
 		al_trace("Include path %d: ",q);
 		safe_al_trace(includePaths.at(q).c_str());
