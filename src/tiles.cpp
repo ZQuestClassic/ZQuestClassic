@@ -1668,11 +1668,9 @@ void putcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opacit
         int csets[4];
         int cofs = c.csets&15;
         
-        if(cofs&8)
-            cofs |= ~int(0xF);
             
         for(int i=0; i<4; ++i)
-            csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+            csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
             
         putblocktranslucent8(dest,drawtile<<2,x,y,csets,c.flip,15,opacity);
     }
@@ -1707,11 +1705,10 @@ void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset,
                 int csets[4];
                 int cofs = c.csets&15;
                 
-                if(cofs&8)
-                    cofs |= ~int(0xF);
+              
                     
                 for(int i=0; i<4; ++i)
-                    csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+                    csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
                     
                 overblocktranslucent8(dest,tiletodraw<<2,x+16*woff,y+16*hoff,csets,c.flip,15,opacity);
             }
@@ -2227,6 +2224,47 @@ void oldputtile16(BITMAP* dest,int tile,int x,int y,int cset,int flip) //fixed
     }
 }
 
+void overtileblock16(BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, byte skiprows)
+{
+	if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
+	{
+		byte w2=(tile+w)%TILES_PER_ROW;
+		overtileblock16(_Dest, tile, x, y, w-w2, h, color, flip);
+		overtileblock16(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, color, flip);
+		return;
+	}
+	
+	switch(flip)
+	{
+	case 1:
+		for(int j=0; j<h; j++)
+			for(int k=w-1; k>=0; k--)
+				overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, color, flip);
+				
+		break;
+		
+	case 2:
+		for(int j=h-1; j>=0; j--)
+			for(int k=0; k<w; k++)
+				overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, color, flip);
+				
+		break;
+		
+	case 3:
+		for(int j=h-1; j>=0; j--)
+			for(int k=w-1; k>=0; k--)
+				overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, color, flip);
+				
+		break;
+		
+	default:
+		for(int j=0; j<h; j++)
+			for(int k=0; k<w; k++)
+				overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, color, flip);
+				
+		break;
+	}
+}
 void overtile16(BITMAP* dest,int tile,int x,int y,int cset,int flip) //fixed
 {
     if(x<-15 || y<-15)
@@ -2525,7 +2563,7 @@ void putcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
         
         for(int i=0; i<4; ++i)
         {
-            csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+            csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
         }
         
         putblock8(dest,drawtile<<2,x,y,csets,c.flip,15);
@@ -2550,7 +2588,7 @@ void oldputcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
         
         for(int i=0; i<4; ++i)
         {
-            csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+            csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
         }
         
         oldputblock8(dest,drawtile<<2,x,y,csets,c.flip,15);
@@ -2587,11 +2625,9 @@ void overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int
                 int csets[4];
                 int cofs = c.csets&15;
                 
-                if(cofs&8)
-                    cofs |= ~int(0xF);
                     
                 for(int i=0; i<4; ++i)
-                    csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+                    csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
                     
                 overblock8(dest,tiletodraw<<2,x+16*woff,y+16*hoff,csets,c.flip,15);
             }

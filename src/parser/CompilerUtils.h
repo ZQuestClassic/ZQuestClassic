@@ -76,7 +76,7 @@ class XTableHelper
 {
 	public:
 	std::string formatStr(std::string const* format, ...);
-	
+
 	private:
 };
 
@@ -124,17 +124,17 @@ public:
 };
 
 // Disable ==.
-template <typename T, typename U> 
+template <typename T, typename U>
 bool operator==(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
 	lhs.this_type_does_not_support_comparisons(); // compile error
 	return false;
 }
 
 // Disable !=
-template <typename T, typename U> 
+template <typename T, typename U>
 bool operator!=(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
     lhs.this_type_does_not_support_comparisons(); // compile error
-    return false;	
+    return false;
 }
 
 
@@ -154,7 +154,7 @@ class optional : public SafeBool<optional<T> >
 public:
 	typedef T value_type;
 
-	// Construct empty optional. 
+	// Construct empty optional.
 	optional() : data_() {}
 	optional(nullopt_t) : data_(nullopt) {}
 	// Construct with value.
@@ -188,7 +188,7 @@ public:
 		assert(data_.has_value());
 		return &data_.value();
 	}
-	T* operator->() 
+	T* operator->()
 	{
 		assert(data_.has_value());
 		return &data_.value();
@@ -222,7 +222,7 @@ public:
 	{
 		return data_.value_or(v);
 	}
-	
+
 	template <typename U>
 	T value_or(U& v)
 	{
@@ -232,7 +232,7 @@ public:
 	// Destroys the value if present.
 	void reset()
 	{
-		data_.reset(); 
+		data_.reset();
 	}
 
 	bool safe_bool() const { return data_.has_value(); }
@@ -246,24 +246,15 @@ class optional : public std::optional<T>, public SafeBool<optional<T> > {
 public:
     typedef T value_type;
 
-	// Construct empty optional. 
+	// Construct empty optional.
 	optional() : std::optional<T>() {}
 	optional(nullopt_t) : std::optional<T>(nullopt) {}
 	// Construct with value.
 	optional(const T& value) : std::optional<T>(value) {}
 	// Construct with value (eliminate double optional).
 	optional(const optional& rhs) : std::optional<T>(rhs) {}
-	
-	bool safe_bool() const { return this->has_value(); }
 
-    /*
-    optional(std::optional<T> base) : std::optional<T>(base) {}
-    optional(std::nullopt_t n) : std::optional<T>(n) {}
-	optional(const T& value) : std::optional<T>(value) {}
-	optional(T& value) : std::optional<T>(value) {}
-	template<typename U>
-	optional(const U& value) : std::optional<T>(reinterpret_cast<U>(value)) {}
-	*/
+	bool safe_bool() const { return this->has_value(); }
 };
 #endif // (__cplusplus < 201703L)
 

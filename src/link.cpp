@@ -31,6 +31,7 @@
 #include "zc_custom.h"
 #include "title.h"
 #include "ffscript.h"
+#include "drawing.h"
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
@@ -2605,20 +2606,27 @@ bool LinkClass::checkstab()
 				// to damaging hits in the following frames.
 				
 				int whimsyid = current_item_id(itype_whimsicalring);
-				int whimsypower = 0;
 				
+				long dmg = weaponattackpower();
 				if(whimsyid>-1)
 				{
-					whimsypower = rand()%zc_max(itemsbuf[current_item_id(itype_whimsicalring)].misc1,1) ?
-								  0 : current_item_power(itype_whimsicalring);
+					if(!(rand()%zc_max(itemsbuf[whimsyid].misc1,1)))
+						dmg += current_item_power(itype_whimsicalring);
+					else whimsyid = -1;
+				}
+				int atkringid = current_item_id(itype_atkring);
+				if(atkringid>-1)
+				{
+					dmg *= itemsbuf[atkringid].misc2; //Multiplier
+					dmg += itemsbuf[atkringid].misc1; //Additive
 				}
 				
-				int h = hit_enemy(i,attack,(weaponattackpower() + whimsypower)*DAMAGE_MULTIPLIER,wx,wy,dir,directWpn);
-			enemy *e = (enemy*)guys.spr(i);
-			if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
-			//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
+				int h = hit_enemy(i,attack,dmg*game->get_hero_dmgmult(),wx,wy,dir,directWpn);
+				enemy *e = (enemy*)guys.spr(i);
+				if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
+				//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
 				
-				if(h<0 && whimsypower)
+				if(h<0 && whimsyid>-1)
 				{
 					sfx(itemsbuf[whimsyid].usesound);
 				}
@@ -5852,7 +5860,7 @@ int LinkClass::EwpnHit()
             
             if(ew->id != oldid)                                     // changed type from ewX to wX
             {
-                //        ew->power*=DAMAGE_MULTIPLIER;
+                //        ew->power*=game->get_hero_dmgmult();
                 Lwpns.add(ew);
                 Ewpns.remove(ew);
 		ew->isLWeapon = true; //Make sure this gets set everywhere!
@@ -6230,7 +6238,7 @@ killweapon:
             {
                 if(NayrusLoveShieldClk<=0)
                 {
-                    int ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *HP_PER_HEART));
+                    int ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart()));
                     game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-ringpow,0)));
                 }
                 
@@ -6615,7 +6623,7 @@ void LinkClass::hitlink(int hit2)
     {
         int itemid = current_item_id(itype_stompboots);
         paymagiccost(itemid);
-        hit_enemy(hit2,wStomp,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,x,y,0,itemid);
+        hit_enemy(hit2,wStomp,itemsbuf[itemid].power*game->get_hero_dmgmult(),x,y,0,itemid);
         
         if(itemsbuf[itemid].flags & ITEM_DOWNGRADE)
             game->set_item(itemid,false);
@@ -7550,47 +7558,50 @@ bool LinkClass::animate(int)
 	{
 		int tx = x.getInt()+8,
 		    ty = y.getInt()+(bigHitbox?8:12);
-		for(int q = 0; q < 3; ++q)
+		if(!(unsigned(ty)>160 || unsigned(tx) > 240))
 		{
-			if(q && !tmpscr2[q-1].valid) continue;
-			newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
-			if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
-			int b = 1;
-			if(tx&8) b <<= 2;
-			if(ty&8) b <<= 1;
-			b |= (b<<4); //check equivalent effect flag too
-			if((cmb.walk&b)==b) //solid and effecting
+			for(int q = 0; q < 3; ++q)
 			{
-				if(z==0)
-				{
-					if(cmb.usrflags&cflag10)
-					{
-						if(!switchblock_offset)
-						{
-							switchblock_offset=true;
-							yofs -= 8;
-						}
-					}
-					else
-					{
-						if(switchblock_offset)
-						{
-							switchblock_offset=false;
-							yofs += 8;
-						}
-					}
-				}
-				if(cmb.attributes[2]>0 && switchblock_z>=0)
+				if(q && !tmpscr2[q-1].valid) continue;
+				newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
+				if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
+				int b = 1;
+				if(tx&8) b <<= 2;
+				if(ty&8) b <<= 1;
+				b |= (b<<4); //check equivalent effect flag too
+				if((cmb.walk&b)==b) //solid and effecting
 				{
 					if(z==0)
-						switchblock_z = zc_max(switchblock_z,zslongToFix(cmb.attributes[2]));
-					else if(SWITCHBLOCK_STATE < zslongToFix(cmb.attributes[2]))
 					{
-						switchblock_z += zslongToFix(cmb.attributes[2])-SWITCHBLOCK_STATE;
+						if(cmb.usrflags&cflag10)
+						{
+							if(!switchblock_offset)
+							{
+								switchblock_offset=true;
+								yofs -= 8;
+							}
+						}
+						else
+						{
+							if(switchblock_offset)
+							{
+								switchblock_offset=false;
+								yofs += 8;
+							}
+						}
 					}
+					if(cmb.attributes[2]>0 && switchblock_z>=0)
+					{
+						if(z==0)
+							switchblock_z = zc_max(switchblock_z,zslongToFix(cmb.attributes[2]));
+						else if(SWITCHBLOCK_STATE < zslongToFix(cmb.attributes[2]))
+						{
+							switchblock_z += zslongToFix(cmb.attributes[2])-SWITCHBLOCK_STATE;
+						}
+					}
+					else switchblock_z = -1;
+					break;
 				}
-				else switchblock_z = -1;
-				break;
 			}
 		}
 	}
@@ -7712,7 +7723,7 @@ bool LinkClass::animate(int)
 			action=none; FFCore.setLinkAction(none);
 			int water = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			int damage = combobuf[water].attributes[0]/10000L;
-			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (HP_PER_HEART/4);
+			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (game->get_hp_per_heart()/4);
 			if (combobuf[water].type != cWATER) damage = 4;
 			game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
 			x=entry_x;
@@ -8227,7 +8238,7 @@ bool LinkClass::animate(int)
 		pushing=false;
 	}
 	
-	if( game->get_life() <= (HP_PER_HEART) && !(game->get_maxlife() <= (HP_PER_HEART)) && (heart_beep_timer > -3))
+	if( game->get_life() <= (game->get_hp_per_heart()) && !(game->get_maxlife() <= (game->get_hp_per_heart())) && (heart_beep_timer > -3))
 	{
 		if(heart_beep)
 		{
@@ -8640,7 +8651,7 @@ bool LinkClass::startwpn(int itemid)
         }
         
         Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitBomb,itemsbuf[itemid].fam_type,
-                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                             itemsbuf[itemid].power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
         sfx(WAV_PLACE,pan(wx));
     }
     break;
@@ -8684,7 +8695,7 @@ bool LinkClass::startwpn(int itemid)
         if(itemsbuf[itemid].misc1>0) // If not remote bombs
             deselectbombs(true);
             
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir, itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*game->get_hero_dmgmult(),dir, itemid,getUID(),false,false,true));
         sfx(WAV_PLACE,pan(wx));
     }
     break;
@@ -8718,7 +8729,7 @@ bool LinkClass::startwpn(int itemid)
 	if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
 	{
 		type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
-		pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
+		pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*game->get_hero_dmgmult();
 	}
 	else
 	{
@@ -8726,7 +8737,7 @@ bool LinkClass::startwpn(int itemid)
 		//Wait, so, why are you using current_item(itype_book) and not itemsbuf[bookid].whatever? 
 		//There is an actual field on the magic book and/or wand for the damage modification!! -Z
 		type = (bookid != -1 && paybook) ? current_item(itype_book) : itemsbuf[itemid].fam_type;
-		pow = ((bookid != -1 && paybook) ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
+		pow = ((bookid != -1 && paybook) ? current_item_power(itype_book) : itemsbuf[itemid].power)*game->get_hero_dmgmult();
 	}
         for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
             if(dir!=(i^1))
@@ -8759,7 +8770,7 @@ bool LinkClass::startwpn(int itemid)
     }
     /*
     //    Fireball Wand
-    Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wRefFireball,0,2*DAMAGE_MULTIPLIER,dir));
+    Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wRefFireball,0,2*game->get_hero_dmgmult(),dir));
     switch (dir)
     {
     case up:
@@ -8803,13 +8814,13 @@ bool LinkClass::startwpn(int itemid)
         
         if(itemsbuf[itemid].flags & ITEM_FLAG2)
         {
-            temppower=DAMAGE_MULTIPLIER*itemsbuf[itemid].power;
+            temppower=game->get_hero_dmgmult()*itemsbuf[itemid].power;
             temppower=temppower*itemsbuf[itemid].misc2;
             temppower=temppower/100;
         }
         else
         {
-            temppower = DAMAGE_MULTIPLIER*itemsbuf[itemid].misc2;
+            temppower = game->get_hero_dmgmult()*itemsbuf[itemid].misc2;
         }
         
         //Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
@@ -8846,7 +8857,7 @@ bool LinkClass::startwpn(int itemid)
         Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wFire,
                              //(itemsbuf[itemid].fam_type > 1), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
                              (itemsbuf[itemid].fam_type), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
-                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                             itemsbuf[itemid].power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
         sfx(itemsbuf[itemid].usesound,pan(wx));
         attack=wFire;
     }
@@ -8860,7 +8871,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript1,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript1,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8875,7 +8886,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript2,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript2,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8890,7 +8901,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript3,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript3,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8905,7 +8916,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript4,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript4,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8920,7 +8931,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript5,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript5,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8935,7 +8946,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript6,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript6,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8950,7 +8961,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript7,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript7,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8965,7 +8976,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript8,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript8,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8980,7 +8991,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript9,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript9,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8995,7 +9006,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript10,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript10,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -9010,7 +9021,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -9042,7 +9053,7 @@ bool LinkClass::startwpn(int itemid)
         
         paymagiccost(itemid);
         
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wArrow,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=(current_item_power(itype_bow)+1)/2;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -9086,7 +9097,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         current_item_power(itype_brang);
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*game->get_hero_dmgmult()),dir,itemid,getUID(),false,false,true));
     }
     break;
     
@@ -9181,9 +9192,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy-4,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx;
                 hs_starty=wy-4;
             }
@@ -9193,9 +9204,9 @@ bool LinkClass::startwpn(int itemid)
                 int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx;
                 hs_starty=wy;
             }
@@ -9204,9 +9215,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx-4;
                 hs_starty=wy;
             }
@@ -9215,9 +9226,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
@@ -9227,9 +9238,9 @@ bool LinkClass::startwpn(int itemid)
                 hookshot_used=true;
 		int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
@@ -9237,9 +9248,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
@@ -9248,9 +9259,9 @@ bool LinkClass::startwpn(int itemid)
                 hookshot_used=true;
 		int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
@@ -9258,9 +9269,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
@@ -9331,8 +9342,8 @@ bool LinkClass::startwpn(int itemid)
 		//zprint("Added byrna weapon %d.\n", i);
 		//the iterator isn passed to 'type'. weapons.cpp converts thisd to
 		//'quantity_iterator' pn construction; and this is used for orbit initial spacing.
-		Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-            //Lwpns.add(new weapon((zfix)wx+cos(2 * PI / (i+1)),(zfix)wy+sin(2 * PI / (i+1)),(zfix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+		Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wCByrna,i,itemsbuf[itemid].power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+            //Lwpns.add(new weapon((zfix)wx+cos(2 * PI / (i+1)),(zfix)wy+sin(2 * PI / (i+1)),(zfix)wz,wCByrna,i,itemsbuf[itemid].power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 		//wx += cos(2 * PI / (itemsbuf[itemid].misc3-i));
 		//wy += sin(2 * PI / (itemsbuf[itemid].misc3-i));
 	}
@@ -9611,16 +9622,16 @@ bool LinkClass::doattack()
         }
         else
         {
-            templife*=HP_PER_HEART;
+            templife*=game->get_hp_per_heart();
         }
         
-        bool normalbeam = (game->get_life()+(get_bit(quest_rules,qr_QUARTERHEART)?((HP_PER_HEART/4)-1):((HP_PER_HEART/2)-1))>=templife);
+        bool normalbeam = (game->get_life()+(get_bit(quest_rules,qr_QUARTERHEART)?((game->get_hp_per_heart()/4)-1):((game->get_hp_per_heart()/2)-1))>=templife);
         int perilid = current_item_id(itype_perilscroll);
-        bool perilbeam = (perilid>=0 && wpnid>=0 && game->get_life()<=itemsbuf[perilid].misc1*HP_PER_HEART
+        bool perilbeam = (perilid>=0 && wpnid>=0 && game->get_life()<=itemsbuf[perilid].misc1*game->get_hp_per_heart()
                           && checkmagiccost(perilid)
                           // Must actually be able to shoot sword beams
                           && ((itemsbuf[wpnid].flags & ITEM_FLAG1)
-                              || itemsbuf[wpnid].misc1 <= game->get_maxlife()/HP_PER_HEART));
+                              || itemsbuf[wpnid].misc1 <= game->get_maxlife()/game->get_hp_per_heart()));
                               
         if(attack==wSword && !tapping)
         {
@@ -10615,7 +10626,7 @@ void LinkClass::pitfall()
 		//Handle falling
 		if(!--fallclk)
 		{
-			int dmg = HP_PER_HEART/4;
+			int dmg = game->get_hp_per_heart()/4;
 			bool dmg_perc = false;
 			bool warp = false;
 			
@@ -10630,7 +10641,7 @@ void LinkClass::pitfall()
 			if(dmg) //Damage
 			{
 				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
-				game->set_life(vbound(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg),0,game->get_maxlife()));
+				game->set_life(vbound(int(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg)),0,game->get_maxlife()));
 			}
 			if(warp) //Warp
 			{
@@ -21482,6 +21493,29 @@ int LinkClass::get_scroll_delay(int scrolldir)
 	}
 }
 
+void LinkClass::calc_darkroom_link(int x1, int y1, int x2, int y2)
+{
+	int itemid = current_item_id(itype_lantern);
+	if(itemid < 0) return; //no lantern light circle
+	int hx1 = x.getInt() - x1 + 8;
+	int hy1 = y.getInt() - y1 + 8;
+	int hx2 = x.getInt() - x2 + 8;
+	int hy2 = y.getInt() - y2 + 8;
+	
+	itemdata& lamp = itemsbuf[itemid];
+	switch(lamp.misc1) //Shape
+	{
+		case 0: //Circle
+			doDarkroomCircle(hx1, hy1, lamp.misc2, darkscr_bmp_curscr);
+			doDarkroomCircle(hx2, hy2, lamp.misc2, darkscr_bmp_scrollscr);
+			break;
+		case 1: //Lamp Cone
+			doDarkroomCone(hx1, hy1, lamp.misc2, dir, darkscr_bmp_curscr);
+			doDarkroomCone(hx2, hy2, lamp.misc2, dir, darkscr_bmp_scrollscr);
+			break;
+	}
+}
+
 void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 {
 	if(action==freeze)
@@ -22154,11 +22188,100 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 			blit_msgstr_fg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
 		}
 			
-		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && ((newscr->flags&fDARK)||(oldscr->flags&fDARK)))
+		{
+			clear_to_color(darkscr_bmp_curscr, vc(0));
+			clear_to_color(darkscr_bmp_curscr_trans, vc(0));
+			clear_to_color(darkscr_bmp_scrollscr, vc(0));
+			clear_to_color(darkscr_bmp_scrollscr_trans, vc(0));
+			calc_darkroom_combos(true);
+			calc_darkroom_link(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
+		}
 		
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
+		{
+			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+			int dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
+			int dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
+			if(newscr->flags & fDARK)
+			{
+				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
+				else 
+					masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
+				color_map = &trans_table;
+			}
+			if(oldscr->flags & fDARK)
+			{
+				if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_scrollscr,darkscr_bmp_scrollscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_scrollscr_trans,darkscr_bmp_scrollscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
+				else 
+					masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
+				color_map = &trans_table;
+			}
+			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		}
+		
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
-			
+		
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6))
+		{
+			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+			int dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
+			int dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
+			if(newscr->flags & fDARK)
+			{
+				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
+				else 
+					masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 168);
+				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
+				color_map = &trans_table;
+			}
+			if(oldscr->flags & fDARK)
+			{
+				if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_scrollscr,darkscr_bmp_scrollscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_scrollscr_trans,darkscr_bmp_scrollscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
+				else 
+					masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 168);
+				draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
+				color_map = &trans_table;
+			}
+			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		}
+		
 		//end drawing
 		advanceframe(true/*,true,false*/);
 		actiontype lastaction = action;
@@ -22358,7 +22481,7 @@ int LinkClass::ringpower(int dmg)
 		/* Now for the Peril Ring */
 		itemid = current_item_id(itype_perilring);
     
-		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
+		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*game->get_hp_per_heart() && checkmagiccost(itemid))
 		{
 			usering = true;
 			paymagiccost(itemid);
@@ -22410,7 +22533,7 @@ int LinkClass::ringpower(int dmg)
 		/* Now for the Peril Ring */
 		itemid = current_item_id(itype_perilring);
 	    
-		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
+		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*game->get_hp_per_heart() && checkmagiccost(itemid))
 		{
 			usering = true;
 			paymagiccost(itemid);
@@ -22502,17 +22625,17 @@ bool LinkClass::sideviewhammerpound()
 // The following are only used for Link damage. Damage is in quarter hearts.
 int enemy_dp(int index)
 {
-    return (((enemy*)guys.spr(index))->dp)*(HP_PER_HEART/4);
+    return (((enemy*)guys.spr(index))->dp)*(game->get_ene_dmgmult());
 }
 
 int ewpn_dp(int index)
 {
-    return (((weapon*)Ewpns.spr(index))->power)*(HP_PER_HEART/4);
+    return (((weapon*)Ewpns.spr(index))->power)*(game->get_ene_dmgmult());
 }
 
 int lwpn_dp(int index)
 {
-    return (((weapon*)Lwpns.spr(index))->power)*(HP_PER_HEART/4);
+    return (((weapon*)Lwpns.spr(index))->power)*(game->get_ene_dmgmult());
 }
 
 bool checkmagiccost(int itemid)
@@ -22671,7 +22794,7 @@ int Bweapon(int pos)
         case itype_bomb:
             if((game->get_bombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
+                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitBomb))) ||
                     current_item_power(itype_bombbag))
             {
                 select=true;
@@ -22706,7 +22829,7 @@ int Bweapon(int pos)
             
             if((game->get_sbombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
+                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitSBomb))) ||
                     (current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
             {
                 select=true;
@@ -23150,7 +23273,7 @@ int selectSword()
 // Used for the 'Pickup Hearts' item pickup condition.
 bool canget(int id)
 {
-    return id>=0 && (game->get_maxlife()>=(itemsbuf[id].pickup_hearts*HP_PER_HEART));
+    return id>=0 && (game->get_maxlife()>=(itemsbuf[id].pickup_hearts*game->get_hp_per_heart()));
 }
 
 void dospecialmoney(int index)
@@ -23320,11 +23443,11 @@ void dospecialmoney(int index)
         }
         else
         {
-            if(game->get_maxlife()<=HP_PER_HEART)
+            if(game->get_maxlife()<=game->get_hp_per_heart())
                 return;
                 
-            game->set_life(zc_max(game->get_life()-HP_PER_HEART,0));
-            game->set_maxlife(zc_max(game->get_maxlife()-HP_PER_HEART,(HP_PER_HEART)));
+            game->set_life(zc_max(game->get_life()-game->get_hp_per_heart(),0));
+            game->set_maxlife(zc_max(game->get_maxlife()-game->get_hp_per_heart(),(game->get_hp_per_heart())));
         }
         
         setmapflag();
@@ -23506,8 +23629,8 @@ void getitem(int id, bool nosound)
         
     case itype_fairy:
     
-        game->set_life(zc_min(game->get_life()+(itemsbuf[id].flags&ITEM_FLAG1 ?(int)(game->get_maxlife()*(itemsbuf[id].misc1/100.0)):((itemsbuf[id].misc1*HP_PER_HEART))),game->get_maxlife()));
-        game->set_magic(zc_min(game->get_magic()+(itemsbuf[id].flags&ITEM_FLAG2 ?(int)(game->get_maxmagic()*(itemsbuf[id].misc2/100.0)):((itemsbuf[id].misc2*MAGICPERBLOCK))),game->get_maxmagic()));
+        game->set_life(zc_min(game->get_life()+(itemsbuf[id].flags&ITEM_FLAG1 ?(int)(game->get_maxlife()*(itemsbuf[id].misc1/100.0)):((itemsbuf[id].misc1*game->get_hp_per_heart()))),game->get_maxlife()));
+        game->set_magic(zc_min(game->get_magic()+(itemsbuf[id].flags&ITEM_FLAG2 ?(int)(game->get_maxmagic()*(itemsbuf[id].misc2/100.0)):((itemsbuf[id].misc2*game->get_mp_per_block()))),game->get_maxmagic()));
         break;
         
     case itype_heartpiece:
@@ -23576,7 +23699,7 @@ void takeitem(int id)
         break;
         
     case itype_heartpiece:
-        if(game->get_maxlife()>HP_PER_HEART)
+        if(game->get_maxlife()>game->get_hp_per_heart())
         {
             if(game->get_HCpieces()==0)
             {
@@ -23586,7 +23709,6 @@ void takeitem(int id)
             
             game->change_HCpieces(-1);
         }
-        
         break;
         
     case itype_map:
@@ -23603,8 +23725,14 @@ void takeitem(int id)
         
     case itype_lkey:
         if(game->lvlkeys[dlevel]) game->lvlkeys[dlevel]--;
-        
         break;
+		
+	case itype_ring:
+		if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
+		{
+			ringcolor(false);
+		}
+		break;
     }
 }
 
@@ -23972,7 +24100,7 @@ void LinkClass::checkitems(int index)
 		//show the info string
 		//non-held
 		//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
-			int shop_pstr = ( tmpscr[tmp].room == rSHOP && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
+		int shop_pstr = ( tmpscr[tmp].room == rSHOP && PriceIndex>=0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
 		if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 		{
 			if ( (pstr > 0 && pstr < msg_count) && ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )
@@ -24092,8 +24220,8 @@ bool LinkClass::refill()
     
     if(refill_why>=0 && itemsbuf[refill_why].family==itype_potion)
     {
-        refill_heart_stop=zc_min(potion_life+(itemsbuf[refill_why].flags & ITEM_FLAG1 ?int(game->get_maxlife()*(itemsbuf[refill_why].misc1 /100.0)):((itemsbuf[refill_why].misc1 *HP_PER_HEART))),game->get_maxlife());
-        refill_magic_stop=zc_min(potion_magic+(itemsbuf[refill_why].flags & ITEM_FLAG2 ?int(game->get_maxmagic()*(itemsbuf[refill_why].misc2 /100.0)):((itemsbuf[refill_why].misc2 *MAGICPERBLOCK))),game->get_maxmagic());
+        refill_heart_stop=zc_min(potion_life+(itemsbuf[refill_why].flags & ITEM_FLAG1 ?int(game->get_maxlife()*(itemsbuf[refill_why].misc1 /100.0)):((itemsbuf[refill_why].misc1 *game->get_hp_per_heart()))),game->get_maxlife());
+        refill_magic_stop=zc_min(potion_magic+(itemsbuf[refill_why].flags & ITEM_FLAG2 ?int(game->get_maxmagic()*(itemsbuf[refill_why].misc2 /100.0)):((itemsbuf[refill_why].misc2 *game->get_mp_per_block()))),game->get_maxmagic());
     }
     
     if(refillclk%speed == 0)
@@ -24102,7 +24230,7 @@ bool LinkClass::refill()
         switch(refill_what)
         {
         case REFILL_LIFE:
-            game->set_life(zc_min(refill_heart_stop, (game->get_life()+HP_PER_HEART/2)));
+            game->set_life(zc_min(refill_heart_stop, (game->get_life()+game->get_hp_per_heart()/2)));
             
             if(game->get_life()>=refill_heart_stop)
             {
@@ -24122,7 +24250,7 @@ bool LinkClass::refill()
             break;
             
         case REFILL_MAGIC:
-            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+MAGICPERBLOCK/4)));
+            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+game->get_mp_per_block()/4)));
             
             if(game->get_magic()>=refill_magic_stop)
             {
@@ -24142,8 +24270,8 @@ bool LinkClass::refill()
             break;
             
         case REFILL_ALL:
-            game->set_life(zc_min(refill_heart_stop, (game->get_life()+HP_PER_HEART/2)));
-            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+MAGICPERBLOCK/4)));
+            game->set_life(zc_min(refill_heart_stop, (game->get_life()+game->get_hp_per_heart()/2)));
+            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+game->get_mp_per_block()/4)));
             
             if((game->get_life()>=refill_heart_stop)&&(game->get_magic()>=refill_magic_stop))
             {

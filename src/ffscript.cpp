@@ -1601,6 +1601,7 @@ void FFScript::initZScriptItemScripts()
 //           New Mapscreen Flags Tools           //
 ///----------------------------------------------//
 
+/*
 void FFScript::set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 {
 	switch(flagid)
@@ -1746,18 +1747,16 @@ void FFScript::set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 		case MSF_MIDAIR: 
 		{ //FIX ME!
 			//! What the ever love of fuck mate?!
-			/*
-			byte *f2 = &(m->flags2);
-			f2 >>=4;
-			int f = 0;
-			f<<=1;
-			f |= state ? 1:0;
-			m->flags2 &= 0x0F;
-			m->flags2 |= f<<4;
+			// byte *f2 = &(m->flags2);
+			// f2 >>=4;
+			// int f = 0;
+			// f<<=1;
+			// f |= state ? 1:0;
+			// m->flags2 &= 0x0F;
+			// m->flags2 |= f<<4;
 			//if ( state )
 			//	(m->flags2>>4) |= 2;
 			//else (m->flags2>>4) &= ~2;
-			*/
 			break;
 		}
 		case MSF_CYCLEINIT: 
@@ -2169,7 +2168,7 @@ long FFScript::get_mapscreenflag_state(mapscr *m, int flagid)
 		}
 	}
 }
-
+*/
 //ScriptHelper
 class SH
 {
@@ -2259,7 +2258,7 @@ long get_screenflags(mapscr *m, int flagset)
 	case 1: // View
 		f = ornextflag(m->flags3&8)  | ornextflag(m->flags7&16) | ornextflag(m->flags3&16)
 			| ornextflag(m->flags3&64) | ornextflag(m->flags7&2)  | ornextflag(m->flags7&1)
-			| ornextflag(m->flags&4);
+			| ornextflag(m->flags&fDARK) | ornextflag(m->flags9&fDARK_DITHER) | ornextflag(m->flags9&fDARK_TRANS);
 		break;
 		
 	case 2: // Secrets
@@ -4748,6 +4747,27 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		
+		case ITEMGLOWRAD:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->glowRad * 10000;
+			}
+			break;
+			
+		case ITEMGLOWSHP:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->glowShape * 10000;
+			}
+			break;
+			
+		case ITEMDIR:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->dir * 10000;
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//Itemdata Variables
@@ -5830,6 +5850,20 @@ long get_register(const long arg)
 			break;
 		}
 		
+		case NPCGLOWRAD:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->glowRad * 10000;
+			}
+			break;
+			
+		case NPCGLOWSHP:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightShape") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->glowShape * 10000;
+			}
+			break;
+		
 		
 		
 		///----------------------------------------------------------------------------------------------------//
@@ -6236,7 +6270,20 @@ long get_register(const long arg)
 			}
 			break;
 		}
-
+		
+		case LWPNGLOWRAD:
+			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
+			{
+				ret = ((weapon*)(s))->glowRad * 10000;
+			}
+			break;
+			
+		case LWPNGLOWSHP:
+			if(0!=(s=checkLWpn(ri->lwpn,"LightShape")))
+			{
+				ret = ((weapon*)(s))->glowShape * 10000;
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//EWeapon Variables
@@ -6619,6 +6666,20 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		
+		case EWPNGLOWRAD:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
+			{
+				ret = ((weapon*)(s))->glowRad * 10000;
+			}
+			break;
+			
+		case EWPNGLOWSHP:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
+			{
+				ret = ((weapon*)(s))->glowShape * 10000;
+			}
+			break;
 		
 		/*
 		case LWEAPONSCRIPTUID:
@@ -7186,7 +7247,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7210,6 +7271,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboData", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 					
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7228,7 +7290,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7252,6 +7314,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboCSet", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7270,7 +7333,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7294,6 +7357,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboFlag", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
@@ -7311,7 +7375,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7335,6 +7399,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboType", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7353,7 +7418,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7377,6 +7442,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboInherentFlag", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7394,7 +7460,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7418,6 +7484,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboSolid", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -12582,6 +12649,27 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
+		case ITEMGLOWRAD:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->glowRad = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case ITEMGLOWSHP:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->glowShape = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case ITEMDIR:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->dir=(value/10000);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//Itemdata Variables
@@ -13395,6 +13483,20 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
+		case LWPNGLOWRAD:
+			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
+			{
+				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case LWPNGLOWSHP:
+			if(0!=(s=checkLWpn(ri->lwpn,"LightShape")))
+			{
+				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
@@ -13770,6 +13872,19 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
+		case EWPNGLOWRAD:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
+			{
+				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
+			}
+			break;
+		case EWPNGLOWSHP:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
+			{
+				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//NPC Variables
@@ -14540,6 +14655,19 @@ void set_register(const long arg, const long value)
 			break;
 		}
 		
+		case NPCGLOWRAD:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
+			{
+				GuyH::getNPC()->glowRad = vbound(value/10000,0,255);
+			}
+			break;
+		case NPCGLOWSHP:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightShape") == SH::_NoError)
+			{
+				GuyH::getNPC()->glowShape = vbound(value/10000,0,255);
+			}
+			break;
+		
 		
 	///----------------------------------------------------------------------------------------------------//
 	//Game Information
@@ -15050,7 +15178,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -15071,7 +15199,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboData", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboData", m);
 				break;
@@ -15113,7 +15241,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
@@ -15133,7 +15261,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboCSet", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboCSet", m);
 				break;
@@ -15155,7 +15283,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
@@ -15175,7 +15303,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboFlag", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboFlag", m);
 				break;
@@ -15197,7 +15325,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
@@ -15218,7 +15346,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboType", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboType", m);
 				break;
@@ -15251,7 +15379,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
@@ -15272,7 +15400,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboInherentFlag", m);
 				break;
@@ -28276,7 +28404,7 @@ void do_issolid()
 //void FFScript::getNPCData_scriptdefence(){GET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence)};
 
 
-void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,(edefLAST255))};
+void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,int(edefLAST255))};
 
 
 void FFScript::getNPCData_SIZEflags(){GET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags);}
@@ -28434,7 +28562,7 @@ void FFScript::setNPCData_wpnsprite(){SET_NPCDATA_FUNCTION_VAR_INT(wpnsprite,511
 
 
 //void FFScript::setNPCData_scriptdefence(){SET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence);}
-void FFScript::setNPCData_defense(int v){SET_NPCDATA_FUNCTION_VAR_INDEX(defense,v, ZS_INT, (edefLAST255) );}
+void FFScript::setNPCData_defense(int v){SET_NPCDATA_FUNCTION_VAR_INDEX(defense,v, ZS_INT, int(edefLAST255) );}
 void FFScript::setNPCData_SIZEflags(int v){SET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags,v);}
 void FFScript::setNPCData_misc(int val)
 {
@@ -31871,18 +31999,21 @@ void FFScript::do_npc_stopbgsfx()
 
 void FFScript::updateIncludePaths()
 {
-	memset(includePaths,0,sizeof(includePaths));
-	int pos = 0; int dest = 0; int pathnumber = 0;
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	includePaths.clear();
+	int pos = 0; int pathnumber = 0;
+	for ( int q = 0; includePathString[pos]; ++q )
 	{
-		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		int dest = 0;
+		char buf[2048] = {0};
+		while(includePathString[pos] != ';' && includePathString[pos])
 		{
-			includePaths[q][dest] = includePathString[pos];
-			pos++;
-			dest++;
+			buf[dest] = includePathString[pos];
+			++pos;
+			++dest;
 		}
 		++pos;
-		dest = 0;
+		std::string str(buf);
+		includePaths.push_back(str);
 	}
 }
 
@@ -31890,30 +32021,41 @@ void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
 	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
+	al_trace("Run is set to: %s \n",scriptRunString);
 }
 
 void FFScript::initIncludePaths()
 {
-	memset(includePaths,0,sizeof(includePaths));
 	memset(includePathString,0,sizeof(includePathString));
-	strcpy(includePathString,get_config_string("Compiler","include_path","include/"));
-	includePathString[((MAX_INCLUDE_PATHS+1)*512)-1] = '\0';
-	al_trace("Full path string is: %s\n",includePathString);
-	int pos = 0; int dest = 0; int pathnumber = 0;
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	FILE* f = fopen("includepaths.txt", "r");
+	if(f)
 	{
-		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		int pos = 0;
+		int c;
+		do
 		{
-			includePaths[q][dest] = includePathString[pos];
-			pos++;
-			dest++;
+			c = fgetc(f);
+			if(c!=EOF) 
+				includePathString[pos++] = c;
 		}
-		++pos;
-		dest = 0;
+		while(c!=EOF && pos<MAX_INCLUDE_PATH_CHARS);
+		if(pos<MAX_INCLUDE_PATH_CHARS)
+			includePathString[pos] = '\0';
+		includePathString[MAX_INCLUDE_PATH_CHARS-1] = '\0';
+		fclose(f);
 	}
+	else strcpy(includePathString, "include/;headers/;scripts/;");
+	al_trace("Full path string is: ");
+	safe_al_trace(includePathString);
+	al_trace("\n");
+	updateIncludePaths();
 
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
-		al_trace("Include path %d: %s\n",q,includePaths[q]);
+	for ( int q = 0; q < includePaths.size(); ++q )
+	{
+		al_trace("Include path %d: ",q);
+		safe_al_trace(includePaths.at(q).c_str());
+		al_trace("\n");
+	}
 }
 
 void FFScript::do_npcattack()
@@ -32915,29 +33057,6 @@ void FFScript::do_xlen(const bool v)
 	//set_register(sarg1, (xlen(str.c_str()) * 10000));
 }
 
-//xtoi, conv hex string to integer
-int FFScript::xtoi(char *hexstring)
-{
-	int	i = 0;
-	signed char isneg = 1;
-	if ((*hexstring == '-')) {isneg = -1; ++hexstring;}
-	
-	if ((*hexstring == '0') && (*(hexstring+1) == 'x'))
-		  hexstring += 2;// + (isneg?1:0);
-	while (*hexstring)
-	{
-		char c = toupper(*hexstring++);
-		if ((c < '0') || (c > 'F') || ((c > '9') && (c < 'A')))
-			break;
-		c -= '0';
-		if (c > 9)
-			c -= 7;
-		i = (i << 4) + c;
-	}
-	//zprint2("FFCore.xtoi result is %d\n", i);
-	return i * (isneg);
-}
-
 void FFScript::do_xtoi(const bool v)
 {
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
@@ -32945,17 +33064,16 @@ void FFScript::do_xtoi(const bool v)
 	FFCore.getString(arrayptr, str);
 	//zprint2("xtoi array pointer is: %d\n", arrayptr);
 	//zprint2("xtoi string is %s\n", str.c_str());
-	double val = FFCore.xtoi(const_cast<char*>(str.c_str()));
+	double val = zc_xtoi(const_cast<char*>(str.c_str()));
 	//zprint2("xtoi val is %f\n", val);
 	set_register(sarg1, (long)(val) * 10000);
 }
 void FFScript::do_xtoi2() 
 {
-	//Not implemented, xtoi not found
 	long arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	//set_register(sarg1, (xtoi(strA.c_str()) * 10000));
+	set_register(sarg1, (zc_xtoi(strA.c_str()) * 10000));
 }
 
 // Calculates log2 of number.  
@@ -35602,12 +35720,20 @@ script_variable ZASMVars[]=
 	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
 	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
 	{ "SCREENSECRETSTRIGGERED", SCREENSECRETSTRIGGERED, 0, 0 },
-	{ "PADDINGR9", PADDINGR9, 0, 0 },
+	{ "ITEMDIR", ITEMDIR, 0, 0 },
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
 	{ "HEROISWARPING",           HEROISWARPING,            0,             0 },
+	{ "ITEMGLOWRAD",           ITEMGLOWRAD,            0,             0 },
+	{ "NPCGLOWRAD",           NPCGLOWRAD,            0,             0 },
+	{ "LWPNGLOWRAD",           LWPNGLOWRAD,            0,             0 },
+	{ "EWPNGLOWRAD",           EWPNGLOWRAD,            0,             0 },
+	{ "ITEMGLOWSHP",           ITEMGLOWSHP,            0,             0 },
+	{ "NPCGLOWSHP",           NPCGLOWSHP,            0,             0 },
+	{ "LWPNGLOWSHP",           LWPNGLOWSHP,            0,             0 },
+	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

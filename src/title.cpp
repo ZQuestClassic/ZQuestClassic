@@ -2132,13 +2132,14 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 			}
 			else
 			{
-				if(!iconbuffer[i].loaded)
+				if(!iconbuffer[i].loaded || get_config_int("zeldadx","reload_game_icons",1))
 				{
 					int ret2 = load_quest(saves+i, false, showmetadata);
 					
 					if(ret2 == qe_OK)
 					{
 						load_game_icon_to_buffer(false,i);
+						load_game_icon(saves+i, true, i);
 					}
 				}
 			}
@@ -2735,15 +2736,15 @@ static void list_save(int save_num, int ypos)
 	{
 		game->set_maxlife(saves[save_num].get_maxlife());
 		game->set_life(saves[save_num].get_maxlife());
-	//wpnsbuf[iwQuarterHearts].newtile = 4;
+		game->set_hp_per_heart(saves[save_num].get_hp_per_heart());
+		
 		wpnsbuf[iwQuarterHearts].newtile = moduledata.select_screen_tiles[sels_heart_tile];
 		//Setting the cset does nothing, because it lifemeter() uses overtile8()
 		//Modules should set the cset manually. 
 		wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];
-	//al_trace("wpnsbuf[iwQuarterHearts].csets: %d\n", wpnsbuf[iwQuarterHearts].csets);
-
-	//boogie!
-		lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(HP_PER_HEART))?8:0),0,0);
+		
+		//boogie!
+		lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(saves[save_num].get_hp_per_heart()))?8:0),0,0);
 		textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
 		
 		if(saves[save_num].get_quest())
@@ -2932,7 +2933,8 @@ static bool register_name()
 	}
 	int NameEntryMode2=NameEntryMode;
 	
-	saves[savecnt].set_maxlife(3*HP_PER_HEART);
+	saves[savecnt].set_maxlife(3*16);
+	saves[savecnt].set_life(3*16);
 	saves[savecnt].set_maxbombs(8);
 	saves[savecnt].set_continue_dmap(0);
 	saves[savecnt].set_continue_scrn(0xFF);
@@ -3335,7 +3337,9 @@ static bool register_name()
 			//messy hack to get this to work, since game is not yet initialized -DD
 			gamedata *oldgame = game;
 			game = saves+s;
-			saves[s].set_maxlife(zinit.hc*HP_PER_HEART);
+			saves[s].set_maxlife(zinit.hc*zinit.hp_per_heart);
+			saves[s].set_life(zinit.hc*zinit.hp_per_heart);
+			saves[s].set_hp_per_heart(zinit.hp_per_heart);
 			//saves[s].items[itype_ring]=0;
 			removeItemsOfFamily(&saves[s], itemsbuf, itype_ring);
 			int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
@@ -3596,7 +3600,9 @@ bool load_custom_game(int file)
 			
 			load_quest(saves+file);
 			
-			saves[file].set_maxlife(zinit.hc*HP_PER_HEART);
+			saves[file].set_maxlife(zinit.hc*zinit.hp_per_heart);
+			saves[file].set_life(zinit.hc*zinit.hp_per_heart);
+			saves[file].set_hp_per_heart(zinit.hp_per_heart);
 			flushItemCache();
 			
 			//messy hack to get this to work properly since game is not initialized -DD
@@ -4619,7 +4625,7 @@ static void list_saves2()
 	  game->set_maxlife( saves[listpos+i].get_maxlife());
 	  game->set_life( saves[listpos+i].get_maxlife());
 	  //boogie!
-	  lifemeter(framebuf,144,i*24+56+((game->get_maxlife()>16*(HP_PER_HEART))?8:0),0,0);
+	  lifemeter(framebuf,144,i*24+56+((game->get_maxlife()>16*(zinit.hp_per_heart))?8:0),0,0);
 	  textout_ex(framebuf,zfont,saves[listpos+i].get_name(),72,i*24+72,1,0);
 
 	  if(saves[listpos+i].get_quest())

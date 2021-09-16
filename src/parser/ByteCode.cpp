@@ -1895,6 +1895,17 @@ string ZScript::VarToString(long ID)
 	case ACTIVESSSPEED: return "ACTIVESSSPEED";
 	case HEROISWARPING: return "HEROISWARPING";
 	
+	case ITEMGLOWRAD: return "ITEMGLOWRAD";
+	case NPCGLOWRAD: return "NPCGLOWRAD";
+	case LWPNGLOWRAD: return "LWPNGLOWRAD";
+	case EWPNGLOWRAD: return "EWPNGLOWRAD";
+	
+	case ITEMGLOWSHP: return "ITEMGLOWSHP";
+	case NPCGLOWSHP: return "NPCGLOWSHP";
+	case LWPNGLOWSHP: return "LWPNGLOWSHP";
+	case EWPNGLOWSHP: return "EWPNGLOWSHP";
+	
+	case ITEMDIR: return "ITEMDIR";
 	
 	default:
 	{

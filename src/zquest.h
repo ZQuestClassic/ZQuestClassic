@@ -892,7 +892,6 @@ int onTriPieces();
 int d_maptile_proc(int msg,DIALOG *d,int c);
 int editdmapmaps(int index);
 int d_hexedit_proc(int msg,DIALOG *d,int c);
-int xtoi(char *hexstr);
 void drawgrid(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div);
 void drawgrid(BITMAP *dest,int x,int y,int w, int h, int tw, int th, int *grid,int fg,int bg,int div);
 void drawgrid_s(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div);

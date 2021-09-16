@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
+set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
@@ -7,7 +7,6 @@ set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-option(WANT_ZSCRIPT "Enable ZScript Compiler" on)
 
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
@@ -72,7 +71,6 @@ set(ZQUEST_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestGUI.txt
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestMisc.txt
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScript.txt
-	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScriptNP.txt
 )
 
 foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES})
@@ -87,7 +85,7 @@ endforeach()
 find_package(BISON QUIET)
 find_package(FLEX QUIET)
 
-if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
+if(${BISON_FOUND} AND ${FLEX_FOUND})
 	if(MSVC)
 		set(FLEXFLAGS "--wincompat")
 	endif()
@@ -95,8 +93,7 @@ if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
 	BISON_TARGET(ZScriptParser ${CMAKE_SOURCE_DIR}/src/parser/ffscript.ypp ${CMAKE_SOURCE_DIR}/src/parser/y.tab.cpp COMPILE_FLAGS -v)
 	add_flex_bison_dependency(ZScriptLexer ZScriptParser)
 else()
-	message(WARNING "Flex and Bison not found. ZQuest will be compiled without the ZScript parser.")
-	set(ZQUEST_ZSCRIPT_SOURCES ${ZQUEST_ZSCRIPT_SOURCES_NOPARSER})
+	message(FATAL_ERROR "Flex and Bison not found. ZQuest cannot be compiled without these.")
 endif()
 
 
@@ -185,21 +182,21 @@ target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 # Romview
 #############################################################
 
-if(MSVC)
-	list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
-elseif(LINUX)
-	list(APPEND ROMVIEWEXTRASOURCES rv_icon.c)
-	set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
-endif()
+# if(MSVC)
+	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
+# elseif(LINUX)
+	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.c)
+	# set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
+# endif()
 
-if(UNITY_BUILD)
-	enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
-	enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
-endif()
+# if(UNITY_BUILD)
+	# enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
+	# enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
+# endif()
 
-add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
+# add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
 
-target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
+# target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
 #############################################################
 # Zelda
@@ -235,6 +232,19 @@ endif()
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
 	target_compile_definitions(zelda PRIVATE ZC_PCH)
+endif()
+
+#############################################################
+# ZScript parser
+#############################################################
+
+if(LINUX)
+	set(ZSCRIPTLIBSEXTRA ${X11_LIBRARIES})
+endif()
+
+if(${BISON_FOUND} AND ${FLEX_FOUND})
+	add_executable(zscript src/parser/ZScript_main.cpp src/util.cpp ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
+	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
 endif()
 
 #############################################################
@@ -278,4 +288,3 @@ if(Boost_FOUND)
 		target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
 	endif()
 endif()
-

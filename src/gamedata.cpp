@@ -17,6 +17,9 @@
 #include "zelda.h"
 #include "items.h"
 #include "pal.h"
+#include "util.h"
+
+using namespace util;
 
 extern int dlevel;
 extern void flushItemCache();
@@ -801,6 +804,93 @@ void gamedata::set_cont_percent(bool ispercent)
 {
     set_generic(ispercent ? 1 : 0, 6);
 }
+
+
+byte gamedata::get_hp_per_heart()
+{
+	byte b = get_generic(genHP_PER_HEART);
+	return b ? b : 16;
+}
+void gamedata::set_hp_per_heart(byte val)
+{
+	set_generic(val, genHP_PER_HEART);
+}
+
+byte gamedata::get_mp_per_block()
+{
+	byte b = get_generic(genMP_PER_BLOCK);
+	return b ? b : 32;
+}
+void gamedata::set_mp_per_block(byte val)
+{
+	set_generic(val, genMP_PER_BLOCK);
+}
+
+byte gamedata::get_hero_dmgmult()
+{
+	byte b = get_generic(genHERO_DMG_MULT);
+	return b ? b : 1;
+}
+void gamedata::set_hero_dmgmult(byte val)
+{
+	set_generic(val, genHERO_DMG_MULT);
+}
+
+byte gamedata::get_ene_dmgmult()
+{
+	byte b = get_generic(genENE_DMG_MULT);
+	return b ? b : 1;
+}
+void gamedata::set_ene_dmgmult(byte val)
+{
+	set_generic(val, genENE_DMG_MULT);
+}
+
+byte gamedata::get_dither_type()
+{
+	return get_generic(genDITH_TYPE);
+}
+void gamedata::set_dither_type(byte val)
+{
+	set_generic(val, genDITH_TYPE);
+}
+
+byte gamedata::get_dither_arg()
+{
+	return get_generic(genDITH_ARG);
+}
+void gamedata::set_dither_arg(byte val)
+{
+	set_generic(val, genDITH_ARG);
+}
+
+byte gamedata::get_dither_perc()
+{
+	return zc_min(100, get_generic(genDITH_PERC));
+}
+void gamedata::set_dither_perc(byte val)
+{
+	set_generic(zc_min(100, val), genDITH_PERC);
+}
+
+byte gamedata::get_transdark_perc()
+{
+	return zc_min(100, get_generic(genTDARK_PERC));
+}
+void gamedata::set_transdark_perc(byte val)
+{
+	set_generic(zc_min(100, val), genTDARK_PERC);
+}
+
+byte gamedata::get_light_rad()
+{
+	return get_generic(genLIGHT_RAD);
+}
+void gamedata::set_light_rad(byte val)
+{
+	set_generic(val, genLIGHT_RAD);
+}
+
 void gamedata::set_item(int id, bool value)
 {
     set_item_no_flush(id, value);

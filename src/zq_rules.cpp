@@ -255,7 +255,7 @@ static int weapon_eweapon_rules_tab[] =
 
 static int weapon_lweapon_rules_tab[] =
 {
-	9,10,11,
+	9,10,11,13,
     -1
 };
 
@@ -295,6 +295,7 @@ static DIALOG weaponrules_dlg[] =
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Arrows Always Penetrate", NULL, NULL },
     { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Swordbeams Always Penetrate", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Boomerang EWeapons Corrected Animation", NULL, NULL },
+    { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Bombs pierce enemy shields", NULL, NULL },
     // { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -302,7 +303,7 @@ static DIALOG weaponrules_dlg[] =
 static int weaponrules[] =
 {
    qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS, qr_MIRRORS_USE_WEAPON_CENTRE, qr_NO_STUNLOCK,
-	qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE, qr_CORRECTED_EW_BRANG_ANIM,
+	qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE, qr_CORRECTED_EW_BRANG_ANIM,qr_BOMBSPIERCESHIELD,
     -1
 };
 
@@ -613,7 +614,7 @@ static int fixesrules1_list[] =
 
 static int fixesrules2_list[] =
 {
-    22,23,24,25,26,27,28,-1
+    22,23,24,25,26,27,28,29,-1
 };
 
 static TABPANEL fixesrules_tabs[] =
@@ -660,6 +661,7 @@ static DIALOG fixesrules_dlg[] =
     { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Invincible Link Isn't Hurt By Own Fire Weapons", NULL, NULL },
     { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Position Offset Of Screen Items", NULL, NULL },
     { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Ladder Anywhere", NULL, NULL },
+    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Actually fixed Bomb/Darknut interaction", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -670,7 +672,7 @@ static int fixesrules[] =
     qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, qr_PUSHBLOCKCSETFIX,
     qr_TRAPPOSFIX, qr_NOBORDER, qr_OLDPICKUP, qr_SUBSCREENOVERSPRITES,
     qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS,
-    qr_NOFLICKER, qr_FIREPROOFLINK2, qr_NOITEMOFFSET, qr_LADDERANYWHERE,-1
+    qr_NOFLICKER, qr_FIREPROOFLINK2, qr_NOITEMOFFSET, qr_LADDERANYWHERE,qr_TRUEFIXEDBOMBSHIELD,-1
 };
 
 int onFixesRules()
@@ -710,12 +712,18 @@ static int miscrules2_list[] =
     22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,
 	-1
 };
+static int miscrules3_list[] =
+{
+    38,39,
+	-1
+};
 
 static TABPANEL miscrules_tabs[] =
 {
     // (text)
     { (char *)" 1 ",     D_SELECTED,  miscrules1_list, 0, NULL },
     { (char *)" 2 ",     0,           miscrules2_list, 0, NULL },
+    { (char *)" 3 ",     0,           miscrules3_list, 0, NULL },
     { NULL,              0,           NULL,             0, NULL }
 };
 
@@ -765,7 +773,12 @@ static DIALOG miscrules_dlg[] =
     { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Setting X Button Items", NULL, NULL },
     { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Setting Y Button Items", NULL, NULL },
     { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Continue on Death", NULL, NULL },
-    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+    
+	// rules 3
+    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Dark Rooms", NULL, NULL },
+    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Darkness Draws Under Layer 7", NULL, NULL },
+    
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 static int miscrules[] =
@@ -777,6 +790,7 @@ static int miscrules[] =
 	qr_EPILEPSY, qr_NO_L_R_BUTTON_INVENTORY_SWAP, qr_USE_EX1_EX2_INVENTORYSWAP,
 	qr_NOFASTMODE, qr_DUNGEON_DMAPS_PERM_SECRETS, qr_NO_SCROLL_WHILE_IN_AIR, qr_INSTANT_RESPAWN,
 	qr_GREATER_MAX_TIME,qr_SET_XBUTTON_ITEMS,qr_SET_YBUTTON_ITEMS,qr_INSTANT_CONTINUE,
+	qr_NEW_DARKROOM, qr_NEWDARK_L6,
 	-1
 };
 
@@ -819,7 +833,7 @@ static int compatrules2_list[] =
 
 static int compatrules3_list[] =
 {
-	36, 37, 38, 39, 40, -1
+	36, 37, 38, 39, 40, 41, -1
 };
 
 static TABPANEL compatrules_tabs[] =
@@ -841,7 +855,7 @@ static int compatrules[] =
    qr_OLD_ENEMY_KNOCKBACK_COLLISION, qr_WEAPONSMOVEOFFSCREEN, qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
    qr_SHORTDGNWALK,qr_OLD_STRING_EDITOR_MARGINS,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT,
    qr_BROKEN_OVERWORLD_MINIMAP, qr_BROKEN_RING_POWER, qr_NO_OVERWORLD_MAP_CHARTING, qr_DUNGEONS_USE_CLASSIC_CHARTING,
-   qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION,
+   qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION, qr_BROKEN_HORIZONTAL_WEAPON_ANIM,
 	-1 
 };
 
@@ -902,6 +916,7 @@ static DIALOG compatrules_dlg[] =
 	{ jwin_check_proc,      10, 13+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Allow Editing Combo 0", NULL, NULL },
 	// 40
 	{ jwin_check_proc,      10, 13+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Chest Collision", NULL, NULL },
+	{ jwin_check_proc,      10, 13+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Broken Horizontal Weapon Animation", NULL, NULL },
 
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }

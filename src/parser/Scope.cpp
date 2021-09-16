@@ -81,7 +81,7 @@ Scope* ZScript::lookupScope(Scope const& scope, string const& name, bool noUsing
 			{
 				if(found && found != child)
 					errorHandler->handleError(CompileError::TooManyVar(&host, name));
-				
+
 				found = child;
 			}
 		}
@@ -923,11 +923,11 @@ Function* BasicScope::addFunction(
 		}
 		else return NULL; //NULL return gives no error if 'node->prototype'
 	}
-	
+
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
 	fun->internalScope = makeFunctionChild(*fun);
-	
+
 	functionsByName_[name].push_back(fun);
 	functionsBySignature_[signature] = fun;
 	return fun;
@@ -939,7 +939,7 @@ void BasicScope::removeFunction(Function* function)
 	FunctionSignature signature(function->name, function->paramTypes);
 	functionsBySignature_.erase(signature); //Erase from signature map
 	//Find in name map, and erase
-	optional<vector<Function*>> foundVector = find<vector<Function*> >(functionsByName_, function->name);
+	optional<vector<Function*> > foundVector = find<vector<Function*> >(functionsByName_, function->name);
 	if(!foundVector) return;
 	vector<Function*>& funcvector = *foundVector;
 	if(funcvector.size() == 1 && funcvector.back() == function)
@@ -962,7 +962,7 @@ void BasicScope::setDefaultOption(CompileOptionSetting value)
 {
 	defaultOption_ = value;
 }
-		
+
 void BasicScope::setOption(CompileOption option, CompileOptionSetting value)
 {
 	assert(option.isValid());
@@ -1393,11 +1393,11 @@ void RootScope::removeFunction(Function* function)
 	BasicScope::removeFunction(function); //Remove from basic scope maps
 	//Make sure it is removed from it's parent file!
 	function->internalScope->getFile()->removeLocalFunction(function);
-	
+
 	FunctionSignature signature(function->name, function->paramTypes);
 	descFunctionsBySignature_.erase(signature); //Erase from signature map
 	//Find in name map, and erase
-	optional<vector<Function*>> foundVector = find<vector<Function*> >(descFunctionsByName_, function->name);
+	optional<vector<Function*> > foundVector = find<vector<Function*> >(descFunctionsByName_, function->name);
 	if(!foundVector) return;
 	vector<Function*>& funcvector = *foundVector;
 	if(funcvector.size() == 1 && funcvector.back() == function)
@@ -1438,18 +1438,18 @@ bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHa
 				errorHandler->handleError(CompileError::HeaderGuardErr(node, node->getFilename()));
 				return false; //Error, halt.
 			}
-			
+
 			case OPT_WARN:
 			{
 				errorHandler->handleError(CompileError::HeaderGuardWarn(node, node->getFilename(), "Skipping"));
 				return false; //Warn, and do not allow import
 			}
-				
+
 			default: //OPT_ON, or any invalid value, if the user sets it as such.
 			{
 				return false; //No message, guard against the duplicate import.
 			}
-				
+
 		}
 	}
 	importsByName_[fname] = node;
@@ -1510,5 +1510,3 @@ InlineScope::InlineScope(Scope* parent, FileScope* parentFile, ASTExprCall* node
 ZClass::ZClass(TypeStore& typeStore, string const& name, int id)
 	: BasicScope(typeStore), name(name), id(id)
 {}
-
-

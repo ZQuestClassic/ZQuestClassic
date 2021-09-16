@@ -88,7 +88,7 @@ ffc script Automatic_Z3_Shop
 					{
 						if ( Game->Counter[CR_RUPEES] >= sd->Price[q] )
 						{
-							if ( Below(shopitems[q]) 
+							if ( Below(shopitems[q]) ) 
 							{
 								if ( DistXY(shopitems[q], 12) )
 								{

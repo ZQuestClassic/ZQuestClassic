@@ -1068,8 +1068,8 @@ void edit_cycles(int level)
         {
             palcycle c;
             c.first = (atoi(buf[i*5])&7)<<4;
-            c.first += xtoi(buf[i*5+1])&15;
-            c.count =  xtoi(buf[i*5+2])&15;
+            c.first += zc_xtoi(buf[i*5+1])&15;
+            c.count =  zc_xtoi(buf[i*5+2])&15;
             c.count += (atoi(buf[i*5+3])&15)<<4;
             c.speed =  atoi(buf[i*5+4]);
             misc.cycles[level][i] = c;
@@ -1597,7 +1597,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
 
 int onColors_Main()
 {
-    int l9 = EditColors("Main Palette",0,pdFULL,mainpal_csets);
+    int l9 = EditColors("Main Palette",0,pdFULL-3,mainpal_csets);
     
     // copy main to level 0
     int di = CSET(poLEVEL)*3;

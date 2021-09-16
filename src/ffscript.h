@@ -584,7 +584,6 @@ void do_strlen(const bool v);
 void do_arraycpy(const bool a, const bool b);
 void AlloffLimited(int flagset);
 void do_xlen(const bool v);
-int xtoi(char *hexstring);
 double ln(double temp);
 double Log2( double n );
 int numDigits(long number);
@@ -786,8 +785,8 @@ int numscriptdraws;
 long FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
 long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
 
-char includePaths[MAX_INCLUDE_PATHS][512];
-char includePathString[(MAX_INCLUDE_PATHS+1)*512];
+std::vector<std::string> includePaths;
+char includePathString[MAX_INCLUDE_PATH_CHARS];
 char scriptRunString[21];
 int warpex[wexLast];
 int StdArray[256];
@@ -4243,7 +4242,19 @@ enum ASM_DEFINE
 #define ACTIVESSSPEED			0x13E1
 #define HEROISWARPING			0x13E2
 
-#define NUMVARIABLES         	0x13E3
+#define ITEMGLOWRAD 			0x13E3
+#define NPCGLOWRAD 			0x13E4
+#define LWPNGLOWRAD 			0x13E5
+#define EWPNGLOWRAD 			0x13E6
+
+#define ITEMGLOWSHP 			0x13E7
+#define NPCGLOWSHP 			0x13E8
+#define LWPNGLOWSHP 			0x13E9
+#define EWPNGLOWSHP 			0x13EA
+
+#define ITEMDIR 			0x13EB
+
+#define NUMVARIABLES         	0x13EC
 
 //} End variables
 

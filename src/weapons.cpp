@@ -31,6 +31,7 @@
 #include "mem_debug.h"
 #include "ffscript.h"
 #include "decorations.h"
+#include "drawing.h"
 
 extern LinkClass Link;
 extern zinitdata zinit;
@@ -2434,6 +2435,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
             update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             hxofs=2;
             hxsz=12;
             yofs = playing_field_offset+(BSZ ? 3 : 1);
@@ -2506,6 +2508,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
             update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             yofs=playing_field_offset + 1;
 	
 	
@@ -2658,6 +2661,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         else { defaultw = wFIRE; step = 0; }
         
         LOADGFX(defaultw);
+		glowRad = game->get_light_rad(); //Default light radius for fires
         //step = (type<2)?.5:0;
         
         
@@ -2860,6 +2864,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
             update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             hxofs=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? itemsbuf[parentitem].weap_hxofs : 2;
 	//2;
             hxsz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
@@ -2964,6 +2969,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case left:
             flip=1; /*tile=o_tile+((frames>1)?frames:1)*/update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             xofs+=2;
             yofs=playing_field_offset+4;
             hxofs=2;
@@ -2972,6 +2978,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
             update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             xofs-=2;
             yofs=playing_field_offset+4;
             hxofs=2;
@@ -2985,6 +2992,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		hysz=12;
 		hxsz=12;
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=0;
 		break;
 	case r_down:
@@ -2995,6 +3003,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		hxsz=12;
 		//update gfx here
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=3;
 		break;
 	case l_down:
@@ -3005,6 +3014,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		hxsz=12;
 		//update gfx here
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=2;
 		break;
 	case r_up:
@@ -3015,6 +3025,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		hxsz=12;
 		//update gfx here
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=1;
 		break;
 	
@@ -3059,6 +3070,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case left:
             flip=1; /*tile=o_tile+((frames>1)?frames:1)*/update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             xofs+=2;
             yofs=playing_field_offset+4;
             hxofs=2;
@@ -3067,6 +3079,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
             update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             xofs-=2;
             yofs=playing_field_offset+4;
             hxofs=2;
@@ -3082,6 +3095,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		hxsz=12;
 		//update gfx here
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=3;
 		break;
 	case l_down:
@@ -3092,6 +3106,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		hxsz=12;
 		//update gfx here
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=2;
 		break;
 	case r_up:
@@ -3102,6 +3117,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		hxsz=12;
 		//update gfx here
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=1;
 		break;
 	case l_up:
@@ -3112,6 +3128,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		hxsz=12;
 		//update gfx here
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=0;
 		break;
         }
@@ -3170,6 +3187,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		xofs-=10;
 		yofs+=7;
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=1;
 		break;
 	case r_down:
@@ -3177,6 +3195,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		xofs-=10;
 		yofs-=7;
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=3;
 		break;
 	case l_up:
@@ -3184,6 +3203,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		xofs+=10;
 		yofs+=7;
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=0;
 		break;
 	case l_down:
@@ -3191,6 +3211,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		xofs+=10;
 		yofs-=7;
 		update_weapon_frame(((frames>1)?frames:0),o_tile);
+		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 		flip=2;
 		break;
         }
@@ -3243,6 +3264,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
             update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             break;
         }
 	}
@@ -3288,6 +3310,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
             update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             break;
         }
         
@@ -3419,6 +3442,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
             update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             yofs=playing_field_offset+1;
             break;
         }
@@ -3469,6 +3493,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
             update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             yofs=playing_field_offset+1;
             break;
         }
@@ -3523,6 +3548,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
             update_weapon_frame(((frames>1)?frames:1),o_tile);
+	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
             yofs=playing_field_offset+1;
             break;
         }
@@ -5694,6 +5720,7 @@ bool weapon::animate(int index)
 			LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 			dir=l_up;
 			update_weapon_frame(((frames>1)?frames:0),o_tile);
+			if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 			flip=0;
 			switch((int)(Link.dir))
 			{
@@ -5715,6 +5742,7 @@ bool weapon::animate(int index)
 			LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 			dir=r_up;
 			update_weapon_frame(((frames>1)?frames:0),o_tile);
+			if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 			flip=1;
 			
 			switch((int)(Link.dir))
@@ -5744,6 +5772,7 @@ bool weapon::animate(int index)
 			LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 			dir=l_down;
 			update_weapon_frame(((frames>1)?frames:0),o_tile);
+			if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 			flip=2;
 			switch((int)(Link.dir))
 			{
@@ -5765,6 +5794,7 @@ bool weapon::animate(int index)
 			LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
 			dir=r_down;
 			update_weapon_frame(((frames>1)?frames:0),o_tile);
+			if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 			flip=3;
 			switch((int)(Link.dir))
 			{
@@ -6127,6 +6157,7 @@ bool weapon::animate(int index)
 				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 				dir=l_up;
 				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 				flip=0;
 				switch((int)(Link.dir))
 				{
@@ -6148,6 +6179,7 @@ bool weapon::animate(int index)
 				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 				dir=r_up;
 				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 				flip=1;
 				
 				switch((int)(Link.dir))
@@ -6178,6 +6210,7 @@ bool weapon::animate(int index)
 				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 				dir=l_down;
 				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 				flip=2;
 				switch((int)(Link.dir))
 				{
@@ -6199,6 +6232,7 @@ bool weapon::animate(int index)
 				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
 				dir=r_down;
 				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 				flip=3;
 				switch((int)(Link.dir))
 				{
@@ -6244,6 +6278,7 @@ bool weapon::animate(int index)
 				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
 				dir=l_up;
 				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 				//flip=0;
 				//switch((int)(Link.dir))
 				//{
@@ -6265,6 +6300,7 @@ bool weapon::animate(int index)
 				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
 				dir=r_up;
 				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 				//flip=1;
 				
 				//switch((int)(Link.dir))
@@ -6295,6 +6331,7 @@ bool weapon::animate(int index)
 				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
 				dir=l_down;
 				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 				//flip=2;
 				//switch((int)(Link.dir))
 				//{
@@ -6316,6 +6353,7 @@ bool weapon::animate(int index)
 				LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
 				dir=r_down;
 				update_weapon_frame(((frames>1)?frames:0),o_tile);
+				if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 				//flip=3;
 				//switch((int)(Link.dir))
 				//{
@@ -10013,7 +10051,7 @@ offscreenCheck:
 		if(((id==wMagic && current_item(itype_book) &&
 			(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
-		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
+		    Lwpns.add(new weapon(x,y,z,wFire,2,1*game->get_hero_dmgmult(),0,current_item_id(itype_book),-1));
 		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
 		    {
 			sfx(WAV_FIRE,pan(x));
@@ -10027,7 +10065,7 @@ offscreenCheck:
 		if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
 			(itemsbuf[linkedItem].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
-		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,linkedItem,-1));
+		    Lwpns.add(new weapon(x,y,z,wFire,2,1*game->get_hero_dmgmult(),0,linkedItem,-1));
 		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
 		    {
 			sfx(WAV_FIRE,pan(x));
@@ -10333,7 +10371,6 @@ void weapon::draw(BITMAP *dest)
         //if no animation, flip tile
         if(frames==0 && do_animation ) //do_animation is a ZScript setting. -Z
             flip = o_flip & (clk>>2);
-            
         break;
         
     case ewBrang:

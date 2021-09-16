@@ -4644,22 +4644,22 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 		}
 		
 	case edCHINKL1:
-		if(*power >= 1*DAMAGE_MULTIPLIER) break;
+		if(*power >= 1*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL2:
-		if(*power >= 2*DAMAGE_MULTIPLIER) break;
+		if(*power >= 2*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL4:
-		if(*power >= 4*DAMAGE_MULTIPLIER) break;
+		if(*power >= 4*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL6:
-		if(*power >= 6*DAMAGE_MULTIPLIER) break;
+		if(*power >= 6*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL8:
-		if(*power >= 8*DAMAGE_MULTIPLIER) break;
+		if(*power >= 8*game->get_hero_dmgmult()) break;
 	
 	case edCHINKL10:
-		if(*power >= 10*DAMAGE_MULTIPLIER) break;
+		if(*power >= 10*game->get_hero_dmgmult()) break;
 		
 	case edCHINK:
 		//al_trace("defendNew() is at: %s\n", "returning edCHINK");
@@ -4905,19 +4905,19 @@ bool enemy::candamage(int power, int edef)
 		
 	case edIGNOREL1:
 	case edCHINKL1:
-		return power >= 1*DAMAGE_MULTIPLIER;
+		return power >= 1*game->get_hero_dmgmult();
 		
 	case edCHINKL2:
-		return power >= 2*DAMAGE_MULTIPLIER;
+		return power >= 2*game->get_hero_dmgmult();
 		
 	case edCHINKL4:
-		return power >= 4*DAMAGE_MULTIPLIER;
+		return power >= 4*game->get_hero_dmgmult();
 		
 	case edCHINKL6:
-		return power >= 6*DAMAGE_MULTIPLIER;
+		return power >= 6*game->get_hero_dmgmult();
 		
 	case edCHINKL8:
-		return power >= 8*DAMAGE_MULTIPLIER;
+		return power >= 8*game->get_hero_dmgmult();
 	}
 	
 	return true;
@@ -4972,21 +4972,21 @@ int enemy::defend(int wpnId, int *power, int edef)
 		return 1;
 		
 	case edCHINKL1:
-		if(*power >= 1*DAMAGE_MULTIPLIER) break;
+		if(*power >= 1*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL2:
-		if(*power >= 2*DAMAGE_MULTIPLIER) break;
+		if(*power >= 2*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL4:
-		if(*power >= 4*DAMAGE_MULTIPLIER) break;
+		if(*power >= 4*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL6:
-		if(*power >= 6*DAMAGE_MULTIPLIER) break;
+		if(*power >= 6*game->get_hero_dmgmult()) break;
 		
 	case edCHINKL8:
-		if(*power >= 8*DAMAGE_MULTIPLIER) break;
+		if(*power >= 8*game->get_hero_dmgmult()) break;
 	case edCHINKL10:
-	if(*power >= 10*DAMAGE_MULTIPLIER) break;
+	if(*power >= 10*game->get_hero_dmgmult()) break;
 		
 	
 	case edTRIGGERSECRETS:
@@ -5377,7 +5377,13 @@ int enemy::takehit(weapon *w)
 			// Bombs
 		case wSBomb:
 		case wBomb:
-			goto hitclock;
+			if (!get_bit(quest_rules,qr_TRUEFIXEDBOMBSHIELD)) goto hitclock;
+			else if (!get_bit(quest_rules,qr_BOMBSPIERCESHIELD)) 
+			{
+				sfx(WAV_CHINK,pan(int(x)));
+				return 0;
+			}
+			else break;
 			
 			// Weapons which ignore shields
 		case wWhistle:
@@ -5485,7 +5491,7 @@ int enemy::takehit(weapon *w)
 		}
 		
 		wpnId = wSword;
-		power = DAMAGE_MULTIPLIER>>1;
+		power = game->get_hero_dmgmult()>>1;
 		goto fsparkle;
 		break;
 		
@@ -5503,7 +5509,7 @@ int enemy::takehit(weapon *w)
 			
 			if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))
 			{
-				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))*DAMAGE_MULTIPLIER;
+				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))*game->get_hero_dmgmult();
 				goto hitclock;
 			}
 			
@@ -5511,7 +5517,7 @@ int enemy::takehit(weapon *w)
 		}
 		
 		if(!power)
-			hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_brang))*DAMAGE_MULTIPLIER;
+			hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_brang))*game->get_hero_dmgmult();
 		else
 			hp-=power;
 			
@@ -5531,14 +5537,14 @@ int enemy::takehit(weapon *w)
 			
 			if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))
 			{
-				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))*DAMAGE_MULTIPLIER;
+				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))*game->get_hero_dmgmult();
 				goto hitclock;
 			}
 			
 			break;
 		}
 		
-		if(!power) hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_hookshot))*DAMAGE_MULTIPLIER;
+		if(!power) hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_hookshot))*game->get_hero_dmgmult();
 		else
 			hp-=power;
 			
@@ -5559,7 +5565,7 @@ int enemy::takehit(weapon *w)
 				|| (family==eeWALK && dmisc9==e9tPOLSVOICE) || (family==eeWALK && flags&(inv_back|inv_front|inv_left|inv_right))))
 			return 0;
 			
-		power = DAMAGE_MULTIPLIER;
+		power = game->get_hero_dmgmult();
 		//fallthrough
 	}
 	
@@ -15203,7 +15209,7 @@ int eGanon::takehit(weapon *w)
 				loadpalset(csBOSS,pSprite(spBROWN));
 				misc=2;
 				Stunclk=284;
-				hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
+				hp=guysbuf[id&0xFFF].hp;                              //16*game->get_hero_dmgmult();
 			}
 			
 			sfx(WAV_EHIT,pan(int(x)));
@@ -15226,7 +15232,7 @@ int eGanon::takehit(weapon *w)
 				loadpalset(csBOSS,pSprite(spBROWN));
 				misc=2;
 				Stunclk=284;
-				hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
+				hp=guysbuf[id&0xFFF].hp;                              //16*game->get_hero_dmgmult();
 			}
 			
 			sfx(WAV_EHIT,pan(int(x)));
@@ -15496,7 +15502,7 @@ int eGanon::takehit(weapon *w)
 			loadpalset(csBOSS,pSprite(spBROWN));
 			misc=2;
 			Stunclk=284;
-			hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
+			hp=guysbuf[id&0xFFF].hp;                              //16*game->get_hero_dmgmult();
 		}
 		
 		sfx(WAV_EHIT,pan(int(x)));
@@ -16817,8 +16823,8 @@ eGleeok::eGleeok(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk) //enemy((zfix
 	clk3=clk;                                                 // live head count
 	clk=0;
 	clk2=60;                                                  // fire ball clock
-	//    hp=(guysbuf[eGLEEOK2+(misc-2)].misc2)*(misc-1)*DAMAGE_MULTIPLIER+guysbuf[eGLEEOK2+(misc-2)].hp;
-	hp=(guysbuf[id&0xFFF].misc2)*(misc-1)*DAMAGE_MULTIPLIER+guysbuf[id&0xFFF].hp;
+	//    hp=(guysbuf[eGLEEOK2+(misc-2)].misc2)*(misc-1)*game->get_hero_dmgmult()+guysbuf[eGLEEOK2+(misc-2)].hp;
+	hp=(guysbuf[id&0xFFF].misc2)*(misc-1)*game->get_hero_dmgmult()+guysbuf[id&0xFFF].hp;
 	dir = down;
 	hxofs=4;
 	hxsz=8;
@@ -16927,10 +16933,10 @@ bool eGleeok::animate(int index)
 		head->hp = 1000;
 	}
 	
-	if(hp<=(guysbuf[id&0xFFF].misc2)*(clk3-1)*DAMAGE_MULTIPLIER)
+	if(hp<=(guysbuf[id&0xFFF].misc2)*(clk3-1)*game->get_hero_dmgmult())
 	{
 		((enemy*)guys.spr(index+clk3))->misc = -1;              // give signal to fly off
-		hp=(guysbuf[id&0xFFF].misc2)*(--clk3)*DAMAGE_MULTIPLIER;
+		hp=(guysbuf[id&0xFFF].misc2)*(--clk3)*game->get_hero_dmgmult();
 	}
 	
 	if(!dmisc3)
@@ -17550,7 +17556,7 @@ bool ePatra::animate(int index)
 		{
 			if(!adjusted)
 			{
-				((enemy*)guys.spr(i))->hp=12*DAMAGE_MULTIPLIER;
+				((enemy*)guys.spr(i))->hp=12*game->get_hero_dmgmult();
 				
 				if(get_bit(quest_rules,qr_NEWENEMYTILES))
 				{
@@ -20824,326 +20830,386 @@ word grab_next_argument()
 	return ret;
 }
 
+static bool doing_name_insert = false;
+static char namebuf[9] = {0};
+static char* nameptr = NULL;
+static int ssc_tile_hei = -1, ssc_tile_hei_buf = -1;
 bool parsemsgcode()
 {
 	if(msgptr>=MSGSIZE-2) return false;
-	
 	switch(MsgStrings[msgstr].s[msgptr]-1)
 	{
-	case MSGC_NEWLINE:
-		cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
-		cursor_x=(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : msg_margins[left]);
-		return true;
-		
-	case MSGC_COLOUR:
-	{
-		int cset = (grab_next_argument());
-		msgcolour = CSET(cset)+(grab_next_argument());
-		return true;
-	}
-	
-	case MSGC_SPEED:
-		msgspeed=grab_next_argument();
-		return true;
-		
-	case MSGC_CTRUP:
-	{
-		int a1 = grab_next_argument();
-		int a2 = grab_next_argument();
-		game->change_counter(a2, a1);
-		return true;
-	}
-	
-	case MSGC_CTRDN:
-	{
-		int a1 = grab_next_argument();
-		int a2 = grab_next_argument();
-		game->change_counter(-a2, a1);
-		return true;
-	}
-	
-	case MSGC_CTRSET:
-	{
-		int a1 = grab_next_argument();
-		int a2 = grab_next_argument();
-		game->set_counter(vbound(a2, 0, game->get_maxcounter(a1)), a1);
-		return true;
-	}
-	
-	case MSGC_CTRUPPC:
-	case MSGC_CTRDNPC:
-	case MSGC_CTRSETPC:
-	{
-		int code = MsgStrings[msgstr].s[msgptr]-1;
-		int counter = grab_next_argument();
-		int amount = grab_next_argument();
-		amount = (int)(vbound(amount*0.01, 0, 1)*game->get_maxcounter(counter));
-		
-		if(code==MSGC_CTRDNPC)
-			amount*=-1;
-			
-		if(code==MSGC_CTRSETPC)
-			game->set_counter(amount, counter);
-		else
-			game->change_counter(amount, counter);
-			
-		return true;
-	}
-	
-	case MSGC_GIVEITEM:
-	{
-	int itemID = grab_next_argument();
-		getitem(itemID, true);
-	if ( !item_doscript[itemID] && (((unsigned)itemID) < 256) )
-	{
-		itemScriptData[itemID].Clear();
-		memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-		if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
-	}
-		return true;
-	}
-		
-	
-	case MSGC_WARP:
-	{
-	int    dmap =  grab_next_argument();
-	int    scrn =  grab_next_argument();
-	int    dx =  grab_next_argument();
-	int    dy =  grab_next_argument();
-	int    wfx =  grab_next_argument();
-	int    sfx =  grab_next_argument();
-	FFCore.warp_link(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, 0, 0);
-	return true;
-	}
-	
-	case MSGC_SETSCREEND:
-	{
-	int dmap =     (grab_next_argument()<<7); //dmap and screen may be transposed here.
-	int screen =     grab_next_argument();
-	int reg =     grab_next_argument();
-	int val =     grab_next_argument();
-	FFCore.set_screen_d(screen + dmap, reg, val);
-	return true;
-	}
-	case MSGC_TAKEITEM:
-	{
-	int itemID = grab_next_argument();
-	if ( item_doscript[itemID] )
-	{
-		item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
-	}
-		takeitem(itemID);
-	if ( game->forced_bwpn == itemID ) 
-	{
-		game->forced_bwpn = -1;
-	} //not else if! -Z
-	if ( game->forced_awpn == itemID ) 
-	{
-		game->forced_awpn = -1;
-	}
-	verifyBothWeapons();
-		return true;
-	}
-		
-	case MSGC_SFX:
-		sfx((int)grab_next_argument(),128);
-		return true;
-		
-	case MSGC_MIDI:
-	{
-		int music = (int)(grab_next_argument());
-		
-		if(music==0)
-			music_stop();
-		else
-			jukebox(music+(ZC_MIDI_COUNT-1));
-			
-		return true;
-	}
-	
-	/*
-		case MSGC_NAME:
-		  if (!((cBbtn()&&get_bit(quest_rules,qr_ALLOWMSGBYPASS)) || msgspeed==0))
-			sfx(MsgStrings[msgstr].sfx);
-		  textprintf_ex(msg_txt_display_buf,msgfont,((msgpos%24)<<3)+32,((msgpos/24)<<3)+zc_min(MsgStrings[msgstr].y,136)+8,msgcolour,-1,
-						"%s",game->get_name());
-		  return true;
-	*/
-	case MSGC_GOTOIFRAND:
-	{
-		int odds = (int)(grab_next_argument());
-		
-		if(!((rand()%(2*odds))/odds))
-			goto switched;
-			
-		(void)grab_next_argument();
-		return true;
-	}
-	
-	case MSGC_GOTOIFGLOBAL:
-	{
-		int arg = (int)grab_next_argument();
-		int d = zc_min(7,arg);
-		int s = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-		arg = (int)grab_next_argument();
-		
-		if(game->screen_d[s][d] >= arg)
-			goto switched;
-			
-		(void)grab_next_argument();
-		return true;
-	}
-	
-	case MSGC_CHANGEPORTRAIT:
-		return true; //not implemented
-	
-	case MSGC_GOTOIFCREEND:
-	{
-	int dmap =     (grab_next_argument()<<7); //dmap and screen may be transposed here.
-	int screen =     grab_next_argument();
-	int reg =     grab_next_argument();
-	int val =     grab_next_argument();
-	int nxtstr = grab_next_argument();
-	if ( FFCore.get_screen_d(screen + dmap, reg) >= val )
-	{
-		goto switched;
-	}
-		(void)grab_next_argument();
-		return true;
-	}
-	
-	case MSGC_GOTOIF:
-	{
-		int it = (int)grab_next_argument();
-		
-		if(it<MAXITEMS && game->item[it])
-			goto switched;
-			
-		(void)grab_next_argument();
-		return true;
-	}
-	
-	case MSGC_GOTOIFCTR:
-		if(game->get_counter(grab_next_argument())>=grab_next_argument())
-			goto switched;
-			
-		(void)grab_next_argument();
-		return true;
-		
-	case MSGC_GOTOIFCTRPC:
-	{
-		int counter = grab_next_argument();
-		int amount = (int)(((grab_next_argument())/100)*game->get_maxcounter(counter));
-		
-		if(game->get_counter(counter)>=amount)
-			goto switched;
-			
-		(void)grab_next_argument();
-		return true;
-	}
-	
-	case MSGC_GOTOIFTRICOUNT:
-		if(TriforceCount() >= (int)(grab_next_argument()))
-			goto switched;
-			
-		(void)grab_next_argument();
-		return true;
-		
-	case MSGC_GOTOIFTRI:
-	{
-		int lev = (int)(grab_next_argument());
-		
-		if(lev<MAXLEVELS && game->lvlitems[lev]&liTRIFORCE)
-			goto switched;
-			
-		(void)grab_next_argument();
-		return true;
-	}
-	
-#if 0
-	
-	case MSGC_GOTOIFYN:
-	{
-		bool done=false;
-		int pos = 0;
-		set_clip_state(msg_txt_display_buf, 0);
-		
-		do // Copied from title.cpp...
+		case MSGC_NEWLINE:
 		{
-			int f=-1;
-			bool done2=false;
-			// TODO: Lower Y value limit
-			textout_ex(msg_txt_display_buf, msgfont,"YES",112,MsgStrings[msgstr].y+36,msgcolour,-1);
-			textout_ex(msg_txt_display_buf, msgfont,"NO",112,MsgStrings[msgstr].y+48,msgcolour,-1);
+			int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+			ssc_tile_hei = ssc_tile_hei_buf;
+			ssc_tile_hei_buf = -1;
+			cursor_y += thei + MsgStrings[msgstr].vspace;
+			cursor_x=(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : msg_margins[left]);
+			return true;
+		}	
+		
+		case MSGC_COLOUR:
+		{
+			int cset = (grab_next_argument());
+			msgcolour = CSET(cset)+(grab_next_argument());
+			return true;
+		}
+		
+		case MSGC_SHDCOLOR:
+		{
+			int cset = (grab_next_argument());
+			msg_shdcol = CSET(cset)+(grab_next_argument());
+			return true;
+		}
+		case MSGC_SHDTYPE:
+		{
+			msg_shdtype = grab_next_argument();
+			return true;
+		}
+		
+		case MSGC_SPEED:
+		{
+			msgspeed=grab_next_argument();
+			return true;
+		}
+		
+		case MSGC_CTRUP:
+		{
+			int a1 = grab_next_argument();
+			int a2 = grab_next_argument();
+			game->change_counter(a2, a1);
+			return true;
+		}
+		
+		case MSGC_CTRDN:
+		{
+			int a1 = grab_next_argument();
+			int a2 = grab_next_argument();
+			game->change_counter(-a2, a1);
+			return true;
+		}
+		
+		case MSGC_CTRSET:
+		{
+			int a1 = grab_next_argument();
+			int a2 = grab_next_argument();
+			game->set_counter(vbound(a2, 0, game->get_maxcounter(a1)), a1);
+			return true;
+		}
+		
+		case MSGC_CTRUPPC:
+		case MSGC_CTRDNPC:
+		case MSGC_CTRSETPC:
+		{
+			int code = MsgStrings[msgstr].s[msgptr]-1;
+			int counter = grab_next_argument();
+			int amount = grab_next_argument();
+			amount = (vbound((int)(amount*0.01), 0, 1)*game->get_maxcounter(counter));
 			
-			do
+			if(code==MSGC_CTRDNPC)
+				amount*=-1;
+				
+			if(code==MSGC_CTRSETPC)
+				game->set_counter(amount, counter);
+			else
+				game->change_counter(amount, counter);
+				
+			return true;
+		}
+		
+		case MSGC_GIVEITEM:
+		{
+			int itemID = grab_next_argument();
+			getitem(itemID, true);
+			if ( !item_doscript[itemID] && (((unsigned)itemID) < 256) )
 			{
-				load_control_state();
+				itemScriptData[itemID].Clear();
+				memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+				if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
+			}
+			return true;
+		}
+			
+		
+		case MSGC_WARP:
+		{
+			int    dmap =  grab_next_argument();
+			int    scrn =  grab_next_argument();
+			int    dx =  grab_next_argument();
+			int    dy =  grab_next_argument();
+			int    wfx =  grab_next_argument();
+			int    sfx =  grab_next_argument();
+			FFCore.warp_link(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, 0, 0);
+			return true;
+		}
+		
+		case MSGC_SETSCREEND:
+		{
+			int dmap =     (grab_next_argument()<<7); //dmap and screen may be transposed here.
+			int screen =     grab_next_argument();
+			int reg =     grab_next_argument();
+			int val =     grab_next_argument();
+			FFCore.set_screen_d(screen + dmap, reg, val);
+			return true;
+		}
+		case MSGC_TAKEITEM:
+		{
+			int itemID = grab_next_argument();
+			if ( item_doscript[itemID] )
+			{
+				item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
+			}
+			takeitem(itemID);
+			if ( game->forced_bwpn == itemID ) 
+			{
+				game->forced_bwpn = -1;
+			} //not else if! -Z
+			if ( game->forced_awpn == itemID ) 
+			{
+				game->forced_awpn = -1;
+			}
+			if ( game->forced_xwpn == itemID ) 
+			{
+				game->forced_xwpn = -1;
+			} //not else if! -Z
+			if ( game->forced_ywpn == itemID ) 
+			{
+				game->forced_ywpn = -1;
+			}
+			verifyBothWeapons();
+			return true;
+		}
+			
+		case MSGC_SFX:
+		{
+			sfx((int)grab_next_argument(),128);
+			return true;
+		}
+		
+		case MSGC_MIDI:
+		{
+			int music = (int)(grab_next_argument());
+			
+			if(music==0)
+				music_stop();
+			else
+				jukebox(music+(ZC_MIDI_COUNT-1));
 				
-				if(f==-1)
-				{
-					if(rUp())
-					{
-						sfx(WAV_CHINK);
-						pos=0;
-					}
-					
-					if(rDown())
-					{
-						sfx(WAV_CHINK);
-						pos=1;
-					}
-					
-					if(rSbtn()) ++f;
-				}
+			return true;
+		}
+		
+		case MSGC_NAME:
+		{
+			doing_name_insert = true;
+			sprintf(namebuf, "%s", game->get_name());
+			nameptr = namebuf;
+			return true;
+		}
+			
+		case MSGC_DRAWTILE:
+		{
+			int tl = grab_next_argument();
+			int cs = grab_next_argument();
+			int t_wid = grab_next_argument();
+			int t_hei = grab_next_argument();
+			int fl = grab_next_argument();
+			
+			if(cursor_x+MsgStrings[msgstr].hspace + t_wid > msg_w-msg_margins[right])
+			{
+				int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+				ssc_tile_hei = ssc_tile_hei_buf;
+				ssc_tile_hei_buf = -1;
+				cursor_y += thei + MsgStrings[msgstr].vspace;
+				if(cursor_y >= (msg_h - msg_margins[down])) break;
+				cursor_x=msg_margins[left];
+			}
+			
+			overtileblock16(msg_txt_bmp_buf, tl, cursor_x, cursor_y, (int)ceil(t_wid/16.0), (int)ceil(t_hei/16.0), cs, fl);
+			ssc_tile_hei_buf = zc_max(ssc_tile_hei_buf, t_hei);
+			cursor_x += MsgStrings[msgstr].hspace + t_wid;
+			return true;
+		}
+		
+		case MSGC_GOTOIFRAND:
+		{
+			int odds = (int)(grab_next_argument());
+			
+			if(!((rand()%(2*odds))/odds))
+				goto switched;
 				
-				if(f>=0)
+			(void)grab_next_argument();
+			return true;
+		}
+		
+		case MSGC_GOTOIFGLOBAL:
+		{
+			int arg = (int)grab_next_argument();
+			int d = zc_min(7,arg);
+			int s = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+			arg = (int)grab_next_argument();
+			
+			if(game->screen_d[s][d] >= arg)
+				goto switched;
+				
+			(void)grab_next_argument();
+			return true;
+		}
+		
+		case MSGC_CHANGEPORTRAIT:
+		{
+			return true; //not implemented
+		}
+		
+		case MSGC_GOTOIFCREEND:
+		{
+			int dmap =     (grab_next_argument()<<7); //dmap and screen may be transposed here.
+			int screen =     grab_next_argument();
+			int reg =     grab_next_argument();
+			int val =     grab_next_argument();
+			int nxtstr = grab_next_argument();
+			if ( FFCore.get_screen_d(screen + dmap, reg) >= val )
+			{
+				goto switched;
+			}
+			(void)grab_next_argument();
+			return true;
+		}
+		
+		case MSGC_GOTOIF:
+		{
+			int it = (int)grab_next_argument();
+			
+			if(it<MAXITEMS && game->item[it])
+				goto switched;
+				
+			(void)grab_next_argument();
+			return true;
+		}
+		
+		case MSGC_GOTOIFCTR:
+		{
+			if(game->get_counter(grab_next_argument())>=grab_next_argument())
+				goto switched;
+				
+			(void)grab_next_argument();
+			return true;
+		}
+		
+		case MSGC_GOTOIFCTRPC:
+		{
+			int counter = grab_next_argument();
+			int amount = (int)(((grab_next_argument())/100)*game->get_maxcounter(counter));
+			
+			if(game->get_counter(counter)>=amount)
+				goto switched;
+				
+			(void)grab_next_argument();
+			return true;
+		}
+		
+		case MSGC_GOTOIFTRICOUNT:
+		{
+			if(TriforceCount() >= (int)(grab_next_argument()))
+				goto switched;
+				
+			(void)grab_next_argument();
+			return true;
+		}
+		
+		case MSGC_GOTOIFTRI:
+		{
+			int lev = (int)(grab_next_argument());
+			
+			if(lev<MAXLEVELS && game->lvlitems[lev]&liTRIFORCE)
+				goto switched;
+				
+			(void)grab_next_argument();
+			return true;
+		}
+		
+		/*case MSGC_GOTOIFYN:
+		{
+			bool done=false;
+			int pos = 0;
+			set_clip_state(msg_txt_display_buf, 0);
+			
+			do // Copied from title.cpp...
+			{
+				int f=-1;
+				bool done2=false;
+				// TODO: Lower Y value limit
+				textout_ex(msg_txt_display_buf, msgfont,"YES",112,MsgStrings[msgstr].y+36,msgcolour,-1);
+				textout_ex(msg_txt_display_buf, msgfont,"NO",112,MsgStrings[msgstr].y+48,msgcolour,-1);
+				
+				do
 				{
-					if(++f == 65)
-						done2=true;
-						
-					if(!(f&3))
+					load_control_state();
+					
+					if(f==-1)
 					{
-						int c = (f&4) ? msgcolour : QMisc.colors.caption;
-						
-						switch(pos)
+						if(rUp())
 						{
-						case 0:
-							textout_ex(msg_txt_display_buf, msgfont,"YES",112,MsgStrings[msgstr].y+36,c,-1);
-							break;
+							sfx(WAV_CHINK);
+							pos=0;
+						}
+						
+						if(rDown())
+						{
+							sfx(WAV_CHINK);
+							pos=1;
+						}
+						
+						if(rSbtn()) ++f;
+					}
+					
+					if(f>=0)
+					{
+						if(++f == 65)
+							done2=true;
 							
-						case 1:
-							textout_ex(msg_txt_display_buf, msgfont,"NO",112,MsgStrings[msgstr].y+48,c,-1);
-							break;
+						if(!(f&3))
+						{
+							int c = (f&4) ? msgcolour : QMisc.colors.caption;
+							
+							switch(pos)
+							{
+							case 0:
+								textout_ex(msg_txt_display_buf, msgfont,"YES",112,MsgStrings[msgstr].y+36,c,-1);
+								break;
+								
+							case 1:
+								textout_ex(msg_txt_display_buf, msgfont,"NO",112,MsgStrings[msgstr].y+48,c,-1);
+								break;
+							}
 						}
 					}
+					
+					rectfill(msg_txt_display_buf,96,MsgStrings[msgstr].y+36,136,MsgStrings[msgstr].y+60,0);
+					overtile8(msg_txt_display_buf,2,96,(pos*16)+MsgStrings[msgstr].y+36,1,0);
+					advanceframe(true);
 				}
+				while(!Quit && !done2);
 				
-				rectfill(msg_txt_display_buf,96,MsgStrings[msgstr].y+36,136,MsgStrings[msgstr].y+60,0);
-				overtile8(msg_txt_display_buf,2,96,(pos*16)+MsgStrings[msgstr].y+36,1,0);
-				advanceframe(true);
+				clear_bitmap(msg_txt_display_buf);
+				done=true;
 			}
-			while(!Quit && !done2);
+			while(!Quit && !done);
 			
-			clear_bitmap(msg_txt_display_buf);
-			done=true;
+			if(pos==0)
+				goto switched;
+				
+			++msgptr;
+			return true;
 		}
-		while(!Quit && !done);
-		
-		if(pos==0)
-			goto switched;
-			
-		++msgptr;
-		return true;
-	}
+		*/
 	
-#endif
 switched:
-	int lev = (int)(grab_next_argument());
-	donewmsg(lev);
-	msgptr--; // To counteract it being incremented after this routine is called.
-	putprices(false);
-	return true;
+		int lev = (int)(grab_next_argument());
+		donewmsg(lev);
+		msgptr--; // To counteract it being incremented after this routine is called.
+		putprices(false);
+		return true;
 	}
 	
 	return false;
@@ -21261,7 +21327,7 @@ void putmsg()
 		{
 			if(msgspeed && !(cBbtn() && get_bit(quest_rules,qr_ALLOWMSGBYPASS)))
 				goto breakout; // break out if message speed was changed to non-zero
-			else if(!parsemsgcode())
+			else if(!doing_name_insert && !parsemsgcode())
 			{
 				if(cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
 					break;
@@ -21276,12 +21342,21 @@ void putmsg()
 					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
-						cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+						int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+						ssc_tile_hei = ssc_tile_hei_buf;
+						ssc_tile_hei_buf = -1;
+						cursor_y += thei + MsgStrings[msgstr].vspace;
 						cursor_x=oldmargin ? 0 : msg_margins[left];
 					}
 					
-					textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,
-								  "%c",MsgStrings[msgstr].s[msgptr]);
+					/*textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,
+								  "%c",MsgStrings[msgstr].s[msgptr]);*/
+					
+					char buf[2] = {0};
+					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
+					
+					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+					
 					cursor_x+=tlength;
 				}
 				else
@@ -21292,20 +21367,76 @@ void putmsg()
 					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
-						cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+						int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+						ssc_tile_hei = ssc_tile_hei_buf;
+						ssc_tile_hei_buf = -1;
+						cursor_y += thei + MsgStrings[msgstr].vspace;
 						cursor_x=oldmargin ? 0 : msg_margins[left];
 					}
 					
 					sfx(MsgStrings[msgstr].sfx);
-					textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,
-								  "%c",MsgStrings[msgstr].s[msgptr]);
+					/*textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,
+								  "%c",MsgStrings[msgstr].s[msgptr]);*/
+					
+					char buf[2] = {0};
+					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
+					
+					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+					
 					cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
 					cursor_x += MsgStrings[msgstr].hspace;
 				}
 				
 				msgpos++;
 			}
-			
+			if(doing_name_insert)
+			{
+				if(!*nameptr)
+				{
+					doing_name_insert = false;
+					++msgptr;
+					continue; //back to next normal character
+				}
+				if(cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
+					break;
+				
+				char s3[9] = {0};
+				
+				if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
+				{
+					strcpy(s3, nameptr);
+				}
+				else
+				{
+					s3[0] = *nameptr;
+					s3[1] = 0;
+				}
+				
+				tlength = text_length(msgfont, s3) + ((int)strlen(s3)*MsgStrings[msgstr].hspace);
+				
+				if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
+				   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+						? true : strcmp(s3," ")!=0))
+				{
+					int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+					ssc_tile_hei = ssc_tile_hei_buf;
+					ssc_tile_hei_buf = -1;
+					cursor_y += thei + MsgStrings[msgstr].vspace;
+					cursor_x=oldmargin ? 0 : msg_margins[left];
+				}
+				
+				sfx(MsgStrings[msgstr].sfx);
+				
+				char buf[2] = {0};
+				sprintf(buf,"%c",*nameptr);
+				
+				textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+				
+				cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
+				cursor_x += MsgStrings[msgstr].hspace;
+				++nameptr;
+				continue; //don't advance the msgptr, as the next char in it was not processed!
+			}
 			++msgptr;
 			
 			if(atend(MsgStrings[msgstr].s+msgptr))
@@ -21344,7 +21475,10 @@ breakout:
 			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 					? 1 : strcmp(s3," ")!=0))
 			{
-				cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+				int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+				ssc_tile_hei = ssc_tile_hei_buf;
+				ssc_tile_hei_buf = -1;
+				cursor_y += thei + MsgStrings[msgstr].vspace;
 				cursor_x=oldmargin ? 0 : msg_margins[left];
 			}
 			
@@ -21368,10 +21502,11 @@ breakout:
 		}
 	}
 	
+reparsesinglechar:
 	// Continue printing the string!
 	if(!atend(MsgStrings[msgstr].s+msgptr) && cursor_y < msg_h-(oldmargin?0:msg_margins[down]))
 	{
-		if(!parsemsgcode())
+		if(!doing_name_insert && !parsemsgcode())
 		{
 			wrapmsgstr(s3);
 			
@@ -21381,68 +21516,127 @@ breakout:
 			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 					? true : strcmp(s3," ")!=0))
 			{
-				cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+				int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+				ssc_tile_hei = ssc_tile_hei_buf;
+				ssc_tile_hei_buf = -1;
+				cursor_y += thei + MsgStrings[msgstr].vspace;
 				cursor_x=oldmargin ? 0 : msg_margins[left];
 				//if(space) s3[0]=0;
 			}
 			
 			sfx(MsgStrings[msgstr].sfx);
-			textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,
-						  "%c",MsgStrings[msgstr].s[msgptr]);
+			/*textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,
+						  "%c",MsgStrings[msgstr].s[msgptr]);*/
+			
+			char buf[2] = {0};
+			sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
+			
+			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+			
 			cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
 			cursor_x += MsgStrings[msgstr].hspace;
 			msgpos++;
 		}
-		
-		msgptr++;
-		
-		if(atend(MsgStrings[msgstr].s+msgptr))
+		if(doing_name_insert)
 		{
-			if(MsgStrings[msgstr].nextstring)
+			if(!*nameptr)
 			{
-				if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-				{
-					msgstr=MsgStrings[msgstr].nextstring;
-					msgpos=msgptr=0;
-					msgfont=setmsgfont();
-				}
-			}
-		}
-		
-		if((MsgStrings[msgstr].s[msgptr]==' ') && (MsgStrings[msgstr].s[msgptr+1]==' '))
-			while(MsgStrings[msgstr].s[msgptr]==' ')
-			{
-				tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
-				
-				if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-				   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-						? true : strcmp(s3," ")!=0))
-				{
-					cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
-					cursor_x=oldmargin ? 0 : msg_margins[left];
-				}
-				
-				cursor_x+=tlength;
-				++msgpos;
+				doing_name_insert = false;
 				++msgptr;
-				
-				if(atend(MsgStrings[msgstr].s+msgptr))
+				goto reparsesinglechar; //
+			}
+			
+			char s3[9] = {0};
+			
+			if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
+			{
+				strcpy(s3, nameptr);
+			}
+			else
+			{
+				s3[0] = *nameptr;
+				s3[1] = 0;
+			}
+			
+			tlength = text_length(msgfont, s3) + ((int)strlen(s3)*MsgStrings[msgstr].hspace);
+			
+			if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
+			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+					? true : strcmp(s3," ")!=0))
+			{
+				int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+				ssc_tile_hei = ssc_tile_hei_buf;
+				ssc_tile_hei_buf = -1;
+				cursor_y += thei + MsgStrings[msgstr].vspace;
+				cursor_x=oldmargin ? 0 : msg_margins[left];
+			}
+			
+			sfx(MsgStrings[msgstr].sfx);
+			
+			char buf[2] = {0};
+			sprintf(buf,"%c",*nameptr);
+			
+			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+			
+			cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
+			cursor_x += MsgStrings[msgstr].hspace;
+			++nameptr;
+		}
+		else
+		{
+			msgptr++;
+			
+			if(atend(MsgStrings[msgstr].s+msgptr))
+			{
+				if(MsgStrings[msgstr].nextstring)
 				{
-					if(MsgStrings[msgstr].nextstring)
+					if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
 					{
-						if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
-						{
-							msgstr=MsgStrings[msgstr].nextstring;
-							msgpos=msgptr=0;
-							msgfont=setmsgfont();
-						}
+						msgstr=MsgStrings[msgstr].nextstring;
+						msgpos=msgptr=0;
+						msgfont=setmsgfont();
 					}
 				}
 			}
+			
+			if((MsgStrings[msgstr].s[msgptr]==' ') && (MsgStrings[msgstr].s[msgptr+1]==' '))
+				while(MsgStrings[msgstr].s[msgptr]==' ')
+				{
+					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
+					
+					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
+					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+							? true : strcmp(s3," ")!=0))
+					{
+						int thei = zc_max(ssc_tile_hei, text_height(msgfont));
+						ssc_tile_hei = ssc_tile_hei_buf;
+						ssc_tile_hei_buf = -1;
+						cursor_y += thei + MsgStrings[msgstr].vspace;
+						cursor_x=oldmargin ? 0 : msg_margins[left];
+					}
+					
+					cursor_x+=tlength;
+					++msgpos;
+					++msgptr;
+					
+					if(atend(MsgStrings[msgstr].s+msgptr))
+					{
+						if(MsgStrings[msgstr].nextstring)
+						{
+							if(MsgStrings[MsgStrings[msgstr].nextstring].stringflags & STRINGFLAG_CONT)
+							{
+								msgstr=MsgStrings[msgstr].nextstring;
+								msgpos=msgptr=0;
+								msgfont=setmsgfont();
+							}
+						}
+					}
+				}
+		}
 	}
 	
 	// Done printing the string
-	if((msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s+msgptr)) && !linkedmsgclk)
+	if(!doing_name_insert && (msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s+msgptr)) && !linkedmsgclk)
 	{
 		while(parsemsgcode()) // Finish remaining control codes
 			;
