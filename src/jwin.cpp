@@ -1555,7 +1555,7 @@ int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c)
 
 // Special numedit procs
 
-static enum {typeDEC, typeHEX, typeLDEC, typeLHEX, typeMAX};
+enum {typeDEC, typeHEX, typeLDEC, typeLHEX, typeMAX};
 int jwin_swapbtn_proc(int msg, DIALOG* d, int c)
 {
 	static char* swp[typeMAX] = {"D", "H", "LD", "LH"};

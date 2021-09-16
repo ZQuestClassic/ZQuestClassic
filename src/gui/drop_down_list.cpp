@@ -70,7 +70,7 @@ void DropDownList::setIndex()
 	// the selected value.
 	selectedIndex = 0;
 	int minDiff = std::abs(selectedValue-listData->getValue(0));
-	for(auto i = 1; i < listData->size(); ++i)
+	for(size_t i = 1; i < listData->size(); ++i)
 	{
 		int value = listData->getValue(i);
 		if(value == selectedValue)

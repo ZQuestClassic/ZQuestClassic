@@ -4720,7 +4720,7 @@ void zmap::update_combo_cycling()
         return;
     }
     
-    int x,y;
+    int x;
     int newdata[176];
     int newcset[176];
     bool restartanim[MAXCOMBOS];
@@ -8995,7 +8995,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range& )
         {
             return qe_invalid;
         }
@@ -9010,7 +9010,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range& )
         {
             return qe_invalid;
         }
@@ -9025,7 +9025,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range& )
         {
             return qe_invalid;
         }

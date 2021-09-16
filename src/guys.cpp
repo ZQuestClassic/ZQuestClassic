@@ -2740,7 +2740,7 @@ bool enemy::do_drowning(int index)
 {
 	if(drownclk > 0)
 	{
-		if(drownclk == WATER_DROWN_FRAMES && drownCombo); //sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
+		//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
 		//!TODO: Drown SFX
 		if(!--drownclk)
 		{

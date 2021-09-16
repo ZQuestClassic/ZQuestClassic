@@ -278,7 +278,7 @@ char *strip_extra_spaces(char *string)
 	memcpy(src,string,len+1);
 	memset(src,0,len+1);
 	
-	for(unsigned int i=0; string[i]&&i<strlen(string); i++)
+	for(size_t i=0; string[i]&&i<strlen(string); i++)
 	{
 		*tmpsrc=string[i];
 		
@@ -1496,7 +1496,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 								
 								tlength = text_length(workfont, wrapstr);
 								
-								if(cursor_x+tlength+(hspace*strlen(namestr)) > (w-msg_margins[right]))
+								if(int(cursor_x+tlength+(hspace*strlen(namestr))) > int(w-msg_margins[right]))
 								{
 									int thei = zc_max(ssc_tile_hei, text_height(workfont));
 									ssc_tile_hei = -1;

@@ -2462,3 +2462,11 @@ void zc_trace_clear()
     ASSERT(trace_file);
 }
 
+void sane_destroy_bitmap(BITMAP **bmp)
+{
+	if(*bmp)
+	{
+		destroy_bitmap(*bmp);
+		*bmp = NULL;
+	}
+}

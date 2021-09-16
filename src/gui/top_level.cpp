@@ -38,7 +38,7 @@ void TopLevelWidget::realizeKeys(DialogRunner& runner)
 	// d2 is the index into shortcuts, which will be used as the event
 	// when onEvent is called. But that could conflict with a guiEvent
 	// handled by a subclass, so we'll make it negative.
-	for(int i = 0; i < shortcuts.size(); ++i)
+	for(size_t i = 0; i < shortcuts.size(); ++i)
 	{
 		runner.push(shared_from_this(), DIALOG {
 			proc,
@@ -46,7 +46,7 @@ void TopLevelWidget::realizeKeys(DialogRunner& runner)
 			0, 0, // fg, bg
 			0, // key - MSG_CHAR ignores shift, so we're using MSG_XCHAR
 			D_NEW_GUI, // flags
-			shortcuts[i].key, -(i+1), // d1, d2
+			shortcuts[i].key, -int(i+1), // d1, d2
 			this, nullptr, nullptr // dp, dp2, dp3
 		});
 	}

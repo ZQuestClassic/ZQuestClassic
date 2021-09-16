@@ -533,7 +533,7 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	if (!logger_name)
 	{	// no name was give , create name based on the current address+time
 		// (you can modify it to use PID , rand() ,...
-		unsigned long now = GetTickCount();
+		unsigned long now = GetTickCount64();
 		logger_name = m_name+ strlen(m_name);
 		sprintf((char*)logger_name,"logger%d_%lu",(int)this,now);
 	}
@@ -1182,7 +1182,7 @@ int FFScript::UpperToLower(std::string *s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( unsigned int q = 0; q < s->size(); ++q )
+	for ( size_t q = 0; q < s->size(); ++q )
 	{
 		//if ( s->at(q) >= 'A' || s->at(q) <= 'Z' )
 		//{
@@ -1200,7 +1200,7 @@ int FFScript::LowerToUpper(std::string *s)
 		Z_scripterrlog("String passed to LowerToUpper() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( unsigned int q = 0; q < s->size(); ++q )
+	for ( size_t q = 0; q < s->size(); ++q )
 	{
 		//if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		//{
@@ -1218,7 +1218,7 @@ int FFScript::ConvertCase(std::string *s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( unsigned int q = 0; q < s->size(); ++q )
+	for ( size_t q = 0; q < s->size(); ++q )
 	{
 		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		{
@@ -27276,10 +27276,10 @@ void FFScript::do_file_writebytes()
 {
 	if(user_file* f = checkFile(ri->fileref, "WriteBytes()", true))
 	{
-		int pos = zc_max(ri->d[rINDEX] / 10000,0);
-		int count = get_register(sarg2) / 10000;
-		if(count == 0) return;
-		if(count == -1 || count > (MAX_ZC_ARRAY_SIZE-pos)) count = MAX_ZC_ARRAY_SIZE-pos;
+		unsigned int pos = zc_max(ri->d[rINDEX] / 10000,0);
+		int arg = get_register(sarg2) / 10000;
+		if(arg == 0) return;
+		unsigned int count = ((arg<0 || unsigned(arg) >(MAX_ZC_ARRAY_SIZE - pos)) ? MAX_ZC_ARRAY_SIZE - pos : unsigned(arg));
 		long arrayptr = get_register(sarg1) / 10000;
 		string output;
 		ZScriptArray& a = getArray(arrayptr);
@@ -27294,7 +27294,7 @@ void FFScript::do_file_writebytes()
 		}
 		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
 		std::vector<unsigned char> data(count);
-		for(int q = 0; q < count; ++q)
+		for(unsigned int q = 0; q < count; ++q)
 		{
 			data[q] = a[q+pos] / 10000;
 		}
@@ -32050,7 +32050,7 @@ void FFScript::initIncludePaths()
 	al_trace("\n");
 	updateIncludePaths();
 
-	for ( int q = 0; q < includePaths.size(); ++q )
+	for ( size_t q = 0; q < includePaths.size(); ++q )
 	{
 		al_trace("Include path %d: ",q);
 		safe_al_trace(includePaths.at(q).c_str());
@@ -32690,7 +32690,7 @@ void FFScript::do_LowerToUpper(const bool v)
 		zprint("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( unsigned int q = 0; q < strA.size(); ++q )
+	for ( size_t q = 0; q < strA.size(); ++q )
 	{
 		strA[q] -= 32 * (strA[q] >= 'a' && strA[q] <= 'z');
 		//if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
@@ -32721,7 +32721,7 @@ void FFScript::do_UpperToLower(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( unsigned int q = 0; q < strA.size(); ++q )
+	for ( size_t q = 0; q < strA.size(); ++q )
 	{
 		strA[q] += 32 * (strA[q] >= 'A' && strA[q] <= 'Z');
 		//if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
@@ -33017,7 +33017,7 @@ void FFScript::do_ConvertCase(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( unsigned int q = 0; q < strA.size(); ++q )
+	for ( size_t q = 0; q < strA.size(); ++q )
 	{
 		if ( strA[q] < 'a' )
 			strA[q] += 32 * (strA[q] >= 'A' && strA[q] <= 'Z');

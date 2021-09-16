@@ -9,7 +9,7 @@ ListData::ListData(size_t numItems,
 	std::function<int(size_t)> getValue)
 {
 	listItems.reserve(numItems);
-	for(auto index = 0; index < numItems; ++index)
+	for(size_t index = 0; index < numItems; ++index)
 		listItems.emplace_back(std::move(getString(index)), getValue(index));
 }
 

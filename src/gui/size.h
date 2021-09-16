@@ -15,19 +15,19 @@ public:
     template<typename T>
     static inline Size em(T t)
     {
-        return Size(t*(T)emSize());
+		return Size(static_cast<int>(t * static_cast<T>(emSize())));
     }
 
     template<typename T>
     static inline Size largePixels(T t) noexcept
     {
-        return Size::sized(t);
+        return Size::sized(static_cast<int>(t));
     }
 
     template<typename T>
 	static inline constexpr Size pixels(T t) noexcept
 	{
-		return Size(t);
+		return Size(static_cast<int>(t));
 	}
 
     /* Returns the size as the actual number of pixels. */

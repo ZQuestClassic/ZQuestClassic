@@ -415,7 +415,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 
 		// Check parameter types.
 		bool parametersMatch = true;
-		for (int i = 0; i < parameterTypes.size(); ++i)
+		for (size_t i = 0; i < parameterTypes.size(); ++i)
 		{
 			if (!parameterTypes[i]->canCastTo(*function.paramTypes[i]))
 			{

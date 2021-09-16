@@ -47,7 +47,7 @@ namespace GUI::Internal
 {
 
 struct DummyType {};
-extern DummyType dummy; // Not defined anywhere
+static constexpr DummyType dummy={};
 
 // Regular widgets
 

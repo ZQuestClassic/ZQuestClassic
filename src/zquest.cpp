@@ -23646,7 +23646,7 @@ char *strip_decimals(char *string)
     memcpy(src,string,len+1);
     memset(src,0,len+1);
     
-    for(unsigned int i=0; string[i]&&i<=strlen(string); i++)
+    for(size_t i=0; string[i]&&i<=strlen(string); i++)
     {
         *tmpsrc=string[i];
         
@@ -23678,7 +23678,7 @@ char *clean_numeric_string(char *string)
     memset(src,0,len+1);
     
     // strip out non-numerical characters
-    for(unsigned int i=0; string[i]&&i<=strlen(string); i++)
+    for(size_t i=0; string[i]&&i<=strlen(string); i++)
     {
         *tmpsrc=string[i];
         
@@ -23700,7 +23700,7 @@ char *clean_numeric_string(char *string)
     memset(src2,0,len+1);
     
     // second purge
-    for(unsigned int i=0; src[i]&&i<=strlen(src); i++)
+    for(size_t i=0; src[i]&&i<=strlen(src); i++)
     {
         *tmpsrc=src[i];
         
@@ -24895,7 +24895,7 @@ int jwin_zmeta_proc(int msg, DIALOG *d, int )
 						oss << ", ";
 					string type_name = ZScript::getTypeName(meta.run_types[q]);
 					lowerstr(type_name); //all lowercase for this output
-					if(oss.str().size() > (indentrun ? 41 : 50))
+					if(oss.str().size() > unsigned(indentrun ? 41 : 50))
 					{
 						memset(buf, 0, sizeof(buf));
 						sprintf(buf, "%s", oss.str().c_str());
@@ -34953,7 +34953,7 @@ void FFScript::initIncludePaths()
 	al_trace("\n");
 	updateIncludePaths();
 
-	for ( int q = 0; q < includePaths.size(); ++q )
+	for ( size_t q = 0; q < includePaths.size(); ++q )
 	{
 		al_trace("Include path %d: ",q);
 		safe_al_trace(includePaths.at(q).c_str());
