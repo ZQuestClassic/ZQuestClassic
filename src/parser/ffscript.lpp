@@ -335,7 +335,7 @@ appx_equal	TOKEN( APPXEQUAL );
 		yytext[yyleng - 1] = 0;
 		qstr << yytext;
 		// Read in the escaped character.
-		register int c = yyinput();
+		int c = yyinput();
 		switch (c)
     {
 			case 'a': ESC_CHAR('\a');

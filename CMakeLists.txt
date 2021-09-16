@@ -5,7 +5,7 @@ project (ZeldaClassic)
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 
-set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(UNIX AND NOT APPLE)
@@ -103,6 +103,11 @@ endif()
 
 
 # Windows
+
+if(WIN32)
+	# Prevents definition of min and max macros, which conflict with std::min and std::max
+	add_definitions(-DNOMINMAX)
+endif()
 
 if(MSVC)
 	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alleg44-debug.lib>"
