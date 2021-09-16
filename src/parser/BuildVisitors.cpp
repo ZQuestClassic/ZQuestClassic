@@ -8,7 +8,11 @@
 #include "ZScript.h"
 
 using namespace ZScript;
-using namespace std;
+using std::map;
+using std::pair;
+using std::string;
+using std::vector;
+using std::list;
 
 /////////////////////////////////////////////////////////////////////////////////
 // BuildOpcodes
@@ -130,76 +134,206 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 {
-	if(optional<long> val = host.condition->getCompileTimeValue(this, scope))
+	if(host.isDecl())
 	{
-		if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
+		if(!host.getScope())
 		{
-			visit(host.thenStatement.get(), param);
-		} //Either true or false, it's constant, so no checks required.
-		return;
+			host.setScope(scope->makeChild());
+		}
+		scope = host.getScope();
+		int startRefCount = arrayRefs.size();
+		
+		if(optional<long> val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
+		{
+			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
+			{
+				literalVisit(host.declaration.get(), param); 
+				visit(host.thenStatement.get(), param);
+				deallocateRefsUntilCount(startRefCount);
+				
+				while ((int)arrayRefs.size() > startRefCount)
+					arrayRefs.pop_back();
+				
+				scope = scope->getParent();
+			} //Either true or false, it's constant, so no checks required.
+			return;
+		}
+		
+		int endif = ScriptParser::getUniqueLabelID();
+		literalVisit(host.declaration.get(), param);
+		
+		//The condition should be reading the value just processed from the initializer
+		visit(host.condition.get(), param);
+		//
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		if(host.isInverted())
+			addOpcode(new OGotoFalseImmediate(new LabelArgument(endif)));
+		else
+			addOpcode(new OGotoTrueImmediate(new LabelArgument(endif)));
+		
+		visit(host.thenStatement.get(), param);
+		//nop
+		Opcode *next = new ONoOp();
+		next->setLabel(endif);
+		addOpcode(next);
+		
+		deallocateRefsUntilCount(startRefCount);
+		
+		while ((int)arrayRefs.size() > startRefCount)
+			arrayRefs.pop_back();
+		
+		scope = scope->getParent();
 	}
-    //run the test
-	int startRefCount = arrayRefs.size(); //Store ref count
-	literalVisit(host.condition.get(), param);
-	//Deallocate string/array literals from within the condition
-	deallocateRefsUntilCount(startRefCount);
-	while ((int)arrayRefs.size() > startRefCount)
-		arrayRefs.pop_back();
-	//Continue
-    int endif = ScriptParser::getUniqueLabelID();
-    addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-	if(host.isInverted())
-		addOpcode(new OGotoFalseImmediate(new LabelArgument(endif)));
 	else
-		addOpcode(new OGotoTrueImmediate(new LabelArgument(endif)));
-    //run the block
-    visit(host.thenStatement.get(), param);
-    //nop
-    Opcode *next = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-    next->setLabel(endif);
-    addOpcode(next);
+	{
+		if(optional<long> val = host.condition->getCompileTimeValue(this, scope))
+		{
+			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
+			{
+				visit(host.thenStatement.get(), param);
+			} //Either true or false, it's constant, so no checks required.
+			return;
+		}
+		//run the test
+		int startRefCount = arrayRefs.size(); //Store ref count
+		literalVisit(host.condition.get(), param);
+		//Deallocate string/array literals from within the condition
+		deallocateRefsUntilCount(startRefCount);
+		while ((int)arrayRefs.size() > startRefCount)
+			arrayRefs.pop_back();
+		//Continue
+		int endif = ScriptParser::getUniqueLabelID();
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		if(host.isInverted())
+			addOpcode(new OGotoFalseImmediate(new LabelArgument(endif)));
+		else
+			addOpcode(new OGotoTrueImmediate(new LabelArgument(endif)));
+		//run the block
+		visit(host.thenStatement.get(), param);
+		//nop
+		Opcode *next = new ONoOp();
+		next->setLabel(endif);
+		addOpcode(next);
+	}
 }
 
 void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 {
-	if(optional<long> val = host.condition->getCompileTimeValue(this, scope))
+	if(host.isDecl())
 	{
-		if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
+		if(!host.getScope())
 		{
-			visit(host.thenStatement.get(), param);
+			host.setScope(scope->makeChild());
 		}
-		else //False, so go straight to the 'else'
+		scope = host.getScope();
+		int startRefCount = arrayRefs.size();
+		
+		if(optional<long> val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
 		{
-			visit(host.elseStatement.get(), param);
+			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
+			{
+				literalVisit(host.declaration.get(), param); 
+				visit(host.thenStatement.get(), param);
+				//Deallocate after then block
+				deallocateRefsUntilCount(startRefCount);
+				
+				while ((int)arrayRefs.size() > startRefCount)
+					arrayRefs.pop_back();
+				
+				scope = scope->getParent();
+			}
+			else //False, so go straight to the 'else'
+			{
+				//Deallocate before else block
+				deallocateRefsUntilCount(startRefCount);
+				
+				while ((int)arrayRefs.size() > startRefCount)
+					arrayRefs.pop_back();
+				
+				scope = scope->getParent();
+				//
+				visit(host.elseStatement.get(), param);
+			}
+			//Either way, ignore the rest and return.
+			return;
 		}
-		//Either way, ignore the rest and return.
-		return;
+		
+		int endif = ScriptParser::getUniqueLabelID();
+		int elseif = ScriptParser::getUniqueLabelID();
+		literalVisit(host.declaration.get(), param);
+		
+		//The condition should be reading the value just processed from the initializer
+		visit(host.condition.get(), param);
+		//
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+		if(host.isInverted())
+			addOpcode(new OGotoFalseImmediate(new LabelArgument(elseif)));
+		else
+			addOpcode(new OGotoTrueImmediate(new LabelArgument(elseif)));
+		
+		visit(host.thenStatement.get(), param);
+		//nop
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		Opcode *next = new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0));
+		next->setLabel(elseif);
+		addOpcode(next);
+		
+		deallocateRefsUntilCount(startRefCount);
+		
+		while ((int)arrayRefs.size() > startRefCount)
+			arrayRefs.pop_back();
+		
+		scope = scope->getParent();
+		
+		addOpcode(new OGotoTrueImmediate(new LabelArgument(endif)));
+		visit(host.elseStatement.get(), param);
+		
+		next = new ONoOp();
+		next->setLabel(endif);
+		addOpcode(next);
 	}
-    //run the test
-	int startRefCount = arrayRefs.size(); //Store ref count
-	literalVisit(host.condition.get(), param);
-	//Deallocate string/array literals from within the condition
-	deallocateRefsUntilCount(startRefCount);
-	while ((int)arrayRefs.size() > startRefCount)
-		arrayRefs.pop_back();
-	//Continue
-    int elseif = ScriptParser::getUniqueLabelID();
-    int endif = ScriptParser::getUniqueLabelID();
-    addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-	if(host.isInverted())
-		addOpcode(new OGotoFalseImmediate(new LabelArgument(elseif)));
 	else
-		addOpcode(new OGotoTrueImmediate(new LabelArgument(elseif)));
-    //run if blocl
-    visit(host.thenStatement.get(), param);
-    addOpcode(new OGotoImmediate(new LabelArgument(endif)));
-    Opcode *next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
-    next->setLabel(elseif);
-    addOpcode(next);
-    visit(host.elseStatement.get(), param);
-    next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
-    next->setLabel(endif);
-    addOpcode(next);
+	{
+		if(optional<long> val = host.condition->getCompileTimeValue(this, scope))
+		{
+			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
+			{
+				visit(host.thenStatement.get(), param);
+			}
+			else //False, so go straight to the 'else'
+			{
+				visit(host.elseStatement.get(), param);
+			}
+			//Either way, ignore the rest and return.
+			return;
+		}
+		//run the test
+		int startRefCount = arrayRefs.size(); //Store ref count
+		literalVisit(host.condition.get(), param);
+		//Deallocate string/array literals from within the condition
+		deallocateRefsUntilCount(startRefCount);
+		while ((int)arrayRefs.size() > startRefCount)
+			arrayRefs.pop_back();
+		//Continue
+		int elseif = ScriptParser::getUniqueLabelID();
+		int endif = ScriptParser::getUniqueLabelID();
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		if(host.isInverted())
+			addOpcode(new OGotoFalseImmediate(new LabelArgument(elseif)));
+		else
+			addOpcode(new OGotoTrueImmediate(new LabelArgument(elseif)));
+		//run if blocl
+		visit(host.thenStatement.get(), param);
+		addOpcode(new OGotoImmediate(new LabelArgument(endif)));
+		Opcode *next = new ONoOp();
+		next->setLabel(elseif);
+		addOpcode(next);
+		visit(host.elseStatement.get(), param);
+		next = new ONoOp();
+		next->setLabel(endif);
+		addOpcode(next);
+	}
 }
 
 void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
@@ -675,6 +809,7 @@ void BuildOpcodes::caseStmtEmpty(ASTStmtEmpty &, void *)
 void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
 	if(host.getFlag(FUNCFLAG_INLINE)) return; //Skip inline func decls, they are handled at call location -V
+	if(host.prototype) return; //Same for prototypes
 	int oldreturnlabelid = returnlabelid;
 	int oldReturnRefCount = returnRefCount;
     returnlabelid = ScriptParser::getUniqueLabelID();
@@ -926,7 +1061,32 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
 	if (host.isDisabled()) return;
     OpcodeContext* c = (OpcodeContext*)param;
-	if(host.binding->getFlag(FUNCFLAG_INLINE)) //Inline function
+	if(host.binding->prototype) //Prototype function
+	{
+		int startRefCount = arrayRefs.size(); //Store ref count
+		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.
+		for (vector<ASTExpr*>::iterator it = host.parameters.begin();
+			it != host.parameters.end(); ++it)
+		{
+			visit(*it, param);
+		}
+		
+		//Set the return to the default value
+		DataType const& retType = *host.binding->returnType;
+		if(retType != DataType::ZVOID)
+		{
+			if (optional<long> val = host.binding->defaultReturn->getCompileTimeValue(NULL, scope))
+			{
+				addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
+			}
+		}
+
+		//Deallocate string/array literals from within the parameters
+		deallocateRefsUntilCount(startRefCount);
+		while ((int)arrayRefs.size() > startRefCount)
+			arrayRefs.pop_back();
+	}
+	else if(host.binding->getFlag(FUNCFLAG_INLINE)) //Inline function
 	{
 		if(host.binding->isInternal())
 		{
@@ -979,7 +1139,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			//Deallocate string/array literals from within the parameters
 			deallocateRefsUntilCount(startRefCount);
 			while ((int)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
+				arrayRefs.pop_back();
 		}
 		else
 		{
@@ -1127,7 +1287,8 @@ void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
 
     visit(host.operand.get(), param);
 	
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.operand.get()->isLong(scope, this))
 		addOpcode(new O32BitNot(new VarArgument(EXP1)));
 	else
 		addOpcode(new ONot(new VarArgument(EXP1)));
@@ -1225,6 +1386,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 		addOpcode(new OGotoTrueImmediate(new LabelArgument(skip)));
 		//Get right
 		visit(host.right.get(), param);
+		addOpcode(new OCastBoolF(new VarArgument(EXP1))); //Don't break boolean ops on negative numbers on the RHS.
 		Opcode* ocode =  new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1));
 		ocode->setLabel(skip);
 		addOpcode(ocode);
@@ -1266,8 +1428,10 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		//Check left, skip if true
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		addOpcode(new OGotoMoreImmediate(new LabelArgument(skip)));
+		//Get rightx
 		//Get right
 		visit(host.right.get(), param);
+		addOpcode(new OCastBoolF(new VarArgument(EXP1))); //Don't break boolean ops on negative numbers on the RHS.
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		//Set output
 		Opcode* ocode = (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)) ? (Opcode*)(new OSetMore(new VarArgument(EXP1))) : (Opcode*)(new OSetMoreI(new VarArgument(EXP1)));
@@ -1284,6 +1448,8 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		visit(host.right.get(), param);
 		//Retrieve left
 		addOpcode(new OPopRegister(new VarArgument(EXP2)));
+		addOpcode(new OCastBoolF(new VarArgument(EXP1)));
+		addOpcode(new OCastBoolF(new VarArgument(EXP2)));
 		addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL))
@@ -1716,7 +1882,9 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.left.get()->isLong(scope, this)
+	   || host.right.get()->isLong(scope, this))
 		addOpcode(new O32BitAndRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 	else
 		addOpcode(new OAndRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1735,7 +1903,9 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.left.get()->isLong(scope, this)
+	   || host.right.get()->isLong(scope, this))
 		addOpcode(new O32BitOrRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 	else
 		addOpcode(new OOrRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1754,7 +1924,9 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.left.get()->isLong(scope, this)
+	   || host.right.get()->isLong(scope, this))
 		addOpcode(new O32BitXorRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 	else
 		addOpcode(new OXorRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1773,7 +1945,8 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.left.get()->isLong(scope, this))
 		addOpcode(new O32BitLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 	else
 		addOpcode(new OLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
@@ -1793,7 +1966,8 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
+	   || host.left.get()->isLong(scope, this))
 		addOpcode(new O32BitRShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 	else
 		addOpcode(new ORShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
@@ -2189,6 +2363,12 @@ void BuildOpcodes::arrayLiteralFree(
 }
 
 void BuildOpcodes::caseOptionValue(ASTOptionValue& host, void*)
+{
+	addOpcode(new OSetImmediate(new VarArgument(EXP1),
+	                            new LiteralArgument(*host.getCompileTimeValue(this, scope))));
+}
+
+void BuildOpcodes::caseIsIncluded(ASTIsIncluded& host, void*)
 {
 	addOpcode(new OSetImmediate(new VarArgument(EXP1),
 	                            new LiteralArgument(*host.getCompileTimeValue(this, scope))));

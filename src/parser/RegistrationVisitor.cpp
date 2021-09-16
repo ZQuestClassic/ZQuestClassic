@@ -11,11 +11,12 @@
 #include "CompileError.h"
 
 #include "../ffscript.h"
+#include <boost/move/unique_ptr.hpp>
 extern FFScript FFCore;
 using std::string;
 using std::vector;
 using namespace ZScript;
-
+using boost::movelib::unique_ptr;
 ////////////////////////////////////////////////////////////////
 // RegistrationVisitor
 
@@ -92,6 +93,8 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	block_regvisit(host, host.imports, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_regvisit(host, host.condimports, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	block_regvisit(host, host.variables, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	block_regvisit(host, host.functions, param);
@@ -101,7 +104,8 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 	block_regvisit(host, host.scripts, param);
 	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.dataTypes)
 		&& registered(host, host.scriptTypes) && registered(host, host.imports) && registered(host, host.variables)
-		&& registered(host, host.functions) && registered(host, host.namespaces) && registered(host, host.scripts))
+		&& registered(host, host.functions) && registered(host, host.namespaces) && registered(host, host.scripts)
+		&& registered(host, host.condimports))
 	{
 		doRegister(host);
 	}
@@ -162,23 +166,29 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
 	//
-	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.types)
-		&& registered(host, host.variables) && registered(host, host.functions))
+	if(!(registered(host, host.options) && registered(host, host.use) && registered(host, host.types)
+		&& registered(host, host.variables) && registered(host, host.functions)))
+	{
+		return;
+	}
+	
+	if(script.getType() == ScriptType::untyped)
 	{
 		doRegister(host);
+		return;
 	}
-	else return;
 	//
-	if(script.getType() == ScriptType::untyped) return;
 	// Check for a valid run function.
 	vector<Function*> possibleRuns =
 		//script.getScope().getLocalFunctions("run");
 		script.getScope().getLocalFunctions(FFCore.scriptRunString);
 	if (possibleRuns.size() == 0)
 	{
-		handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
-		if (breakRecursion(host)) return;
+		return; //Don't register
+		//handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
+		//if (breakRecursion(host)) return;
 	}
+	doRegister(host);
 	if (possibleRuns.size() > 1)
 	{
 		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));
@@ -235,6 +245,24 @@ void RegistrationVisitor::caseImportDecl(ASTImportDecl& host, void* param)
 	}
 }
 
+void RegistrationVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* param)
+{
+	visit(*host.cond, param);
+	if(!registered(*host.cond)) return; //Not registered yet
+	optional<long> val = host.cond->getCompileTimeValue(this, scope);
+	if(val && (*val != 0))
+	{
+		if(!host.preprocessed)
+		{
+			ScriptParser::preprocess_one(*host.import, ScriptParser::recursionLimit);
+			host.preprocessed = true;
+		}
+		visit(*host.import, param);
+		if(!registered(*host.import)) return;
+	}
+	doRegister(host);
+}
+
 void RegistrationVisitor::caseUsing(ASTUsingDecl& host, void* param)
 {
 	//Handle adding scope
@@ -260,13 +288,13 @@ void RegistrationVisitor::caseDataTypeDef(ASTDataTypeDef& host, void* param)
 	DataType const& type = host.type->resolve(*scope, this);
 	if(!scope->addDataType(host.name, &type, &host))
 	{
-		ASTExprIdentifier* temp = new ASTExprIdentifier(host.name, host.location);
+		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(host.name, host.location));
 		DataType const* originalType = lookupDataType(*scope, *temp, this, true);
 		if (breakRecursion(host) || !originalType || (*originalType != type))
 			handleError(
 				CompileError::RedefDataType(
 					&host, host.name));
-		delete temp;
+		temp.reset();
 	}
 }
 
@@ -275,17 +303,17 @@ void RegistrationVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void
 	if(!host.type)
 	{
 		//Don't allow use of a name that already exists
-		ASTExprIdentifier* temp = new ASTExprIdentifier(host.name, host.location);
+		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(host.name, host.location));
 		if(DataType const* existingType = lookupDataType(*scope, *temp, this, true))
 		{
 			handleError(
 				CompileError::RedefDataType(
 					&host, host.name));
-			delete temp;
+			temp.reset();
 			doRegister(host);
 			return;
 		}
-		delete temp;
+		temp.reset();
 		
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
@@ -538,9 +566,29 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 
 void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
+	Scope* oldScope = scope;
+	
+	if(host.parentScope)
+		scope = host.parentScope;
+	else if(host.iden->components.size() > 1)
+	{
+		ASTExprIdentifier const& id = *(host.iden);
+		
+		vector<string> scopeNames(id.components.begin(), --id.components.end());
+		vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
+		host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
+		if(!host.parentScope)
+		{
+			return;
+		}
+		scope = host.parentScope;
+	}
+	else host.parentScope = scope;
+	
 	if(host.getFlag(FUNCFLAG_INVALID))
 	{
 		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
+		scope = oldScope;
 		return;
 	}
 	/* This option is being disabled for now, as inlining of user functions is being disabled -V
@@ -551,8 +599,8 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	}*/
 	// Resolve the return type under current scope.
 	DataType const& returnType = host.returnType->resolve(*scope, this);
-	if (breakRecursion(*host.returnType.get())) return;
-	if (!returnType.isResolved()) return;
+	if (breakRecursion(*host.returnType.get())) {scope = oldScope; return;}
+	if (!returnType.isResolved()) {scope = oldScope; return;}
 
 	// Gather the parameter types.
 	vector<DataType const*> paramTypes;
@@ -565,30 +613,53 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 
 		// Resolve the parameter type under current scope.
 		DataType const& type = *decl.resolveType(scope, this);
-		if (breakRecursion(decl)) return;
-		if (!type.isResolved()) return;
+		if (breakRecursion(decl)) {scope = oldScope; return;}
+		if (!type.isResolved()) {scope = oldScope; return;}
 
 		// Don't allow void params.
 		if (type == DataType::ZVOID)
 		{
 			handleError(CompileError::FunctionVoidParam(&decl, decl.name));
 			doRegister(host);
+			scope = oldScope;
 			return;
 		}
 		paramNames.push_back(new string(decl.name));
 		paramTypes.push_back(&type);
 	}
+	if(host.prototype)
+	{
+		//Check the default return
+		visit(host.defaultReturn.get(), param);
+		if(breakRecursion(host.defaultReturn.get())) {scope = oldScope; return;}
+		if(!(registered(host.defaultReturn.get()))) {scope = oldScope; return;}
+		
+		DataType const& defValType = *host.defaultReturn->getReadType(scope, this);
+		if(!defValType.isResolved()) {scope = oldScope; return;}
+		//Check type validity of default return
+		if((*(host.defaultReturn->getCompileTimeValue(this, scope)) == 0) &&
+			(defValType == DataType::CUNTYPED || defValType == DataType::UNTYPED))
+		{
+			//Default is null; don't check casting, as null needs to be valid even for things
+			//that untyped does not normally cast to, such as VOID! -V
+		}
+		else checkCast(defValType, returnType, &host);
+	}
+	
 	doRegister(host);
-
+	
+	if(breakRecursion(host)) {scope = oldScope; return;}
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
-			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host);
+			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host, this);
 	host.func = function;
-
+	
+	scope = oldScope;
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
 	{
+		if(host.prototype) return; //Skip this error for prototype functions; error is handled inside 'addFunction()' above
 		handleError(CompileError::FunctionRedef(&host, host.name));
 		return;
 	}
@@ -611,7 +682,7 @@ void RegistrationVisitor::caseVarInitializer(ASTExprVarInitializer& host, void* 
 		if(host.valueIsArray(scope, this)) doRegister(host);
 		else
 		{
-			host.value = *host.content->getCompileTimeValue(this, scope);
+			host.value = host.content->getCompileTimeValue(this, scope).value_or(0L); // sometimes has no value
 			if(host.value) doRegister(host);
 		}
 	}
@@ -688,7 +759,8 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			doRegister(host);
 			return;
 		}
@@ -698,7 +770,8 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			doRegister(host);
 			return;
 		}
@@ -713,7 +786,8 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			doRegister(host);
 			return;
 		}
@@ -724,7 +798,8 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			doRegister(host);
 			return;
 		}

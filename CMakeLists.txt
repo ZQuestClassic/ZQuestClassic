@@ -1,13 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
-set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
+set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 
-set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-option(WANT_ZSCRIPT "Enable ZScript Compiler" on)
 
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
@@ -43,6 +42,11 @@ include_directories(./include/dumb)
 include_directories(./include/alogg)
 include_directories(./include/almp3)
 include_directories(./include/gme)
+include_directories(./src)
+
+if(MSVC)
+  include_directories(./src/msvcCompat)
+endif()
 
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp
@@ -67,7 +71,6 @@ set(ZQUEST_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestGUI.txt
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestMisc.txt
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScript.txt
-	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScriptNP.txt
 )
 
 foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES})
@@ -82,7 +85,7 @@ endforeach()
 find_package(BISON QUIET)
 find_package(FLEX QUIET)
 
-if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
+if(${BISON_FOUND} AND ${FLEX_FOUND})
 	if(MSVC)
 		set(FLEXFLAGS "--wincompat")
 	endif()
@@ -90,8 +93,7 @@ if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
 	BISON_TARGET(ZScriptParser ${CMAKE_SOURCE_DIR}/src/parser/ffscript.ypp ${CMAKE_SOURCE_DIR}/src/parser/y.tab.cpp COMPILE_FLAGS -v)
 	add_flex_bison_dependency(ZScriptLexer ZScriptParser)
 else()
-	message(WARNING "Flex and Bison not found. ZQuest will be compiled without the ZScript parser.")
-	set(ZQUEST_ZSCRIPT_SOURCES ${ZQUEST_ZSCRIPT_SOURCES_NOPARSER})
+	message(FATAL_ERROR "Flex and Bison not found. ZQuest cannot be compiled without these.")
 endif()
 
 
@@ -101,6 +103,11 @@ endif()
 
 
 # Windows
+
+if(WIN32)
+	# Prevents definition of min and max macros, which conflict with std::min and std::max
+	add_definitions(-DNOMINMAX)
+endif()
 
 if(MSVC)
 	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alleg44-debug.lib>"
@@ -124,7 +131,15 @@ if(MSVC)
 	# REQUIRED or else MSVC throws internal compiler error(!)
 	add_compile_options("$<$<CONFIG:RELEASE>:/fp:fast>")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /DEBUG")
+	
+	if(MSVC_VERSION GREATER 1600)
+	# MSVC 2012, v11 or above
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE")
+		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
+	else()
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE")
+		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
+	endif()
 
 	if(USE_PCH)
 		set(ZCPrecompiledBinary "${CMAKE_CURRENT_BINARY_DIR}/zcprecompiled.pch")
@@ -169,21 +184,21 @@ target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 # Romview
 #############################################################
 
-if(MSVC)
-	list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
-elseif(LINUX)
-	list(APPEND ROMVIEWEXTRASOURCES rv_icon.c)
-	set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
-endif()
+# if(MSVC)
+	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
+# elseif(LINUX)
+	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.c)
+	# set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
+# endif()
 
-if(UNITY_BUILD)
-	enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
-	enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
-endif()
+# if(UNITY_BUILD)
+	# enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
+	# enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
+# endif()
 
-add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
+# add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
 
-target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
+# target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
 #############################################################
 # Zelda
@@ -222,6 +237,19 @@ if(MSVC AND USE_PCH)
 endif()
 
 #############################################################
+# ZScript parser
+#############################################################
+
+if(LINUX)
+	set(ZSCRIPTLIBSEXTRA ${X11_LIBRARIES})
+endif()
+
+if(${BISON_FOUND} AND ${FLEX_FOUND})
+	add_executable(zscript src/parser/ZScript_main.cpp src/util.cpp ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
+	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
+endif()
+
+#############################################################
 # ZQuest
 #############################################################
 
@@ -239,16 +267,26 @@ if(UNITY_BUILD)
 	enable_unity_build(ZQuestZScript ZQUEST_ZSCRIPT_SOURCES)
 endif()
 
-add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
+set(Boost_DEBUG ON) # set to ON if you want to see more info in cmake
+set(BOOST_ROOT ${CMAKE_SOURCE_DIR}/include/boost_1_74_0)
+set(Boost_INCLUDE_DIR ${BOOST_ROOT})
 
-target_link_libraries(zquest zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
-if(MSVC AND USE_PCH)
-	set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
-	target_compile_definitions(zquest PRIVATE ZC_PCH)
-endif()
+find_package(Boost 1.74.0)
 
-if(MSVC)
-	target_compile_definitions(zcsound PRIVATE ZCM_DLL)
-	target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
-	target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
+if(Boost_FOUND)
+	include_directories(${Boost_INCLUDE_DIRS})
+	add_definitions(-DHAS_BOOST)
+    add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
+
+	target_link_libraries(zquest zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
+	if(MSVC AND USE_PCH)
+		set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
+		target_compile_definitions(zquest PRIVATE ZC_PCH)
+	endif()
+
+	if(MSVC)
+		target_compile_definitions(zcsound PRIVATE ZCM_DLL)
+		target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
+		target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
+	endif()
 endif()

@@ -45,9 +45,31 @@
 
 struct ListData
 {
-    ListData(const char *(*lf)(int, int*), FONT **f) : listFunc(lf), font(f) {}
-    const char *(*listFunc)(int, int *);
+    constexpr ListData() noexcept:
+        unownedFunc(nullptr), ownedFunc(nullptr), font(nullptr), owner(nullptr)
+    {}
+
+    ListData(const char *(*lf)(int, int*), FONT **f) noexcept:
+        unownedFunc(lf), ownedFunc(nullptr), font(f), owner(nullptr)
+    {}
+
+    ListData(const char *(*lf)(int, int*, void*), FONT **f, void* o) noexcept:
+        unownedFunc(nullptr), ownedFunc(lf), font(f), owner(o)
+    {}
+
+    const char* listFunc(int index, int* size) const
+    {
+        if(owner)
+            return ownedFunc(index, size, owner);
+        else
+            return unownedFunc(index, size);
+    }
+
+    const char *(*unownedFunc)(int, int *);
+    const char *(*ownedFunc)(int, int *, void *);
+
     FONT **font;
+    void* owner;
 };
 
 #ifdef __cplusplus
@@ -62,6 +84,15 @@ extern "C"
 #define D_NOCLICK       D_USER
 
 #define D_RESIZED		(D_USER<<1)
+
+/* This should be used for all DIALOGs in the new GUI system.
+ * It indicates that there is a Dialog that owns this array
+ * and should be prompted to handle some events.
+ */
+#define D_NEW_GUI (D_USER<<2)
+
+/* Sent to newgui_dialog_proc to tell it to handle an event. */
+#define MSG_GUI_EVENT MSG_USER
 
 /* frame styles */
 enum {
@@ -89,6 +120,33 @@ extern int mix_value(int c1,int c2,int pos,int max);
 /* 1.5k lookup table for color matching */
 extern unsigned int col_diff[3*128];
 extern int last_droplist_sel;
+
+/* Used to indicate the new GUI dialog root. */
+extern char newGuiMarker;
+
+/* All the events that may be handled by a new GUI widget.
+ * These could possibly be pared down a bit, but it doesn't matter much.
+ */
+enum guiEvent
+{
+    geCLICK, geCHANGE_SELECTION, geCHANGE_VALUE, geCLOSE, geENTER, geTOGGLE
+};
+
+#define GUI_EVENT(dlg, event)                  \
+do                                             \
+{                                              \
+    if(dlg->flags&D_NEW_GUI)                   \
+    {                                          \
+        int ret = new_gui_event(dlg-1, event); \
+        if(ret >= 0)                           \
+            return ret;                        \
+    }                                          \
+} while(false)
+
+/* Triggers a message in the new GUI system. You should use the macro below
+ * instead of calling this directly.
+ */
+int new_gui_event(DIALOG* d, guiEvent event);
 
 int get_selected_tab(TABPANEL* panel);
 
@@ -123,6 +181,12 @@ int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c); /**< Restricted only to de
 int jwin_numedit_short_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to unsigned short int (16b) */
 int jwin_numedit_sshort_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to signed short int (16b) */
 int jwin_numedit_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers */
+//
+int jwin_swapbtn_proc(int msg,DIALOG *d,int c); //Button to swap numedit styles
+int jwin_numedit_swap_byte_proc(int msg,DIALOG *d,int c); //Bound to unsigned byte, dec and hex modes
+int jwin_numedit_swap_sshort_proc(int msg,DIALOG *d,int c); //Bound to signed short, dec and hex modes
+int jwin_numedit_swap_zsint_proc(int msg,DIALOG *d,int c); //Bound to signed int, dec and hex modes, 4 dec places, long modes
+//
 int jwin_list_proc(int msg, DIALOG *d, int c);
 int jwin_textbox_proc(int msg, DIALOG *d, int c);
 int jwin_slider_proc(int msg, DIALOG *d, int c);
@@ -147,8 +211,12 @@ int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned char *s, int x, int y, int col
 
 int jwin_do_menu(MENU *menu, int x, int y);
 
+int jwin_color_swatch(int msg, DIALOG *d, int c);
+
 int jwin_alert3(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3, FONT *title_font);
 int jwin_alert(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int c1, int c2, FONT *title_font);
+int jwin_auto_alert3(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3, FONT *title_font);
+int jwin_auto_alert(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, int c1, int c2, FONT *title_font);
 
 /* event handler that closes a dialog */
 int close_dlg();
@@ -189,4 +257,3 @@ void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color);
 }
 #endif
 #endif                                                      // _JWIN_H_
-

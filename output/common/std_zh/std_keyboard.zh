@@ -1,5 +1,5 @@
 //std_keyboard.zh for ZC 2.55
-//Document Revision: 16th May, 2019
+//Document Revision: 5th July, 2020
 
 /* 
 
@@ -228,71 +228,37 @@ char32 KeyToChar(int key, bool shifted, bool caps)
 	//End modifier keys
 	else //not shifted
 	{
-		if ( caps )
-		{
-			switch(key)
-			{
-			
-				case KEY_A : return 'A';
-				case KEY_B : return 'B';
-				case KEY_C : return 'C';
-				case KEY_D : return 'D';
-				case KEY_E : return 'E';
-				case KEY_F : return 'F';
-				case KEY_G : return 'G';
-				case KEY_H : return 'H';
-				case KEY_I : return 'I';
-				case KEY_J : return 'J';
-				case KEY_K : return 'K';
-				case KEY_L : return 'L';
-				case KEY_M : return 'M';
-				case KEY_N : return 'N';
-				case KEY_O : return 'O';
-				case KEY_P : return 'P';
-				case KEY_Q : return 'Q';
-				case KEY_R : return 'R';
-				case KEY_S : return 'S';
-				case KEY_T : return 'T';
-				case KEY_U : return 'U';
-				case KEY_V : return 'V';
-				case KEY_W : return 'W';
-				case KEY_X : return 'X';
-				case KEY_Y : return 'Y';
-				case KEY_Z : return 'Z';
-				default: return CHAR_ERROR;
-			}
-		}
-		else
+		
 		{
 			//otherwise no modifier
 			switch(key)
 			{
-				case KEY_A: return 'a';
-				case KEY_B: return 'b';
-				case KEY_C: return 'c';
-				case KEY_D: return 'd';
-				case KEY_E: return 'e';
-				case KEY_F: return 'f';
-				case KEY_G: return 'g';
-				case KEY_H: return 'h';
-				case KEY_I: return 'i';
-				case KEY_J: return 'j';
-				case KEY_K: return 'k';
-				case KEY_L: return 'l';
-				case KEY_M: return 'm';
-				case KEY_N: return 'n';
-				case KEY_O: return 'o';
-				case KEY_P: return 'p';
-				case KEY_Q: return 'q';
-				case KEY_R: return 'r';
-				case KEY_S: return 's';
-				case KEY_T: return 't';
-				case KEY_U: return 'u';
-				case KEY_V: return 'v';
-				case KEY_W: return 'w';
-				case KEY_X: return 'x';
-				case KEY_Y: return 'y';
-				case KEY_Z: return 'z';
+				case KEY_A: return ( caps ) ? 'A' : 'a';
+				case KEY_B: return ( caps ) ? 'B' : 'b';
+				case KEY_C: return ( caps ) ? 'C' : 'c';
+				case KEY_D: return ( caps ) ? 'D' : 'd';
+				case KEY_E: return ( caps ) ? 'E' : 'e';
+				case KEY_F: return ( caps ) ? 'F' : 'f';
+				case KEY_G: return ( caps ) ? 'G' : 'g';
+				case KEY_H: return ( caps ) ? 'H' : 'h';
+				case KEY_I: return ( caps ) ? 'I' : 'i';
+				case KEY_J: return ( caps ) ? 'J' : 'j';
+				case KEY_K: return ( caps ) ? 'K' : 'k';
+				case KEY_L: return ( caps ) ? 'L' : 'l';
+				case KEY_M: return ( caps ) ? 'M' : 'm';
+				case KEY_N: return ( caps ) ? 'N' : 'n';
+				case KEY_O: return ( caps ) ? 'O' : 'o';
+				case KEY_P: return ( caps ) ? 'P' : 'p';
+				case KEY_Q: return ( caps ) ? 'Q' : 'q';
+				case KEY_R: return ( caps ) ? 'R' : 'r';
+				case KEY_S: return ( caps ) ? 'S' : 's';
+				case KEY_T: return ( caps ) ? 'T' : 't';
+				case KEY_U: return ( caps ) ? 'U' : 'u';
+				case KEY_V: return ( caps ) ? 'V' : 'v';
+				case KEY_W: return ( caps ) ? 'W' : 'w';
+				case KEY_X: return ( caps ) ? 'X' : 'x';
+				case KEY_Y: return ( caps ) ? 'Y' : 'y';
+				case KEY_Z: return ( caps ) ? 'Z' : 'z';
 				
 				case KEY_0: return '0';
 				case KEY_0_PAD: return '0';

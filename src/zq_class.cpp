@@ -53,6 +53,7 @@ extern FFScript FFCore;
 
 extern ZModule zcm;
 extern zcmodule moduledata;
+extern unsigned char ViewLayer3BG, ViewLayer2BG; 
 
 
 using std::string;
@@ -1005,6 +1006,29 @@ bool zmap::ishookshottable(int bx, int by, int i)
     return true;
 }
 
+bool zmap::ishookshottable(int map, int screen, int bx, int by, int i)
+{
+	// Hookshots can be blocked by solid combos on all 3 ground layers.
+	newcombo c = combobuf[MAPCOMBO3(map, screen, -1, bx,by)];
+	
+	if(c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
+	{
+		return false;
+	}
+	
+	for(int k=0; k<2; k++)
+	{
+		c = combobuf[MAPCOMBO3(map, screen, k+1,bx,by)];
+		
+		if(c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
+
 bool zmap::isstepable(int combo)
 {
     // This is kind of odd but it's true to the engine (see maps.cpp)
@@ -1069,15 +1093,32 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
     
     newcombo c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
     
+    if (c.type == cBRIDGE) return;
+    
+    int bridgedetected = 0;
+    
     for(int i=0; i<4; i++)
     {
         int tx=((i&2)<<2)+x;
         int ty=((i&1)<<3)+y;
-        
-        if(layer==0 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+	int tx2=((i&2)<<2)+cx;
+        int ty2=((i&1)<<3)+cy;
+        for (int m = layer; m <= 1; m++)
+	{
+		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
+		{
+			bridgedetected |= (1<<i);
+		}
+        }
+	if (bridgedetected & (1<<i))
+	{
+		if (i >= 3) break;
+		else continue;
+	}
+        if(!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
             rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
             
-        if(c.walk&(1<<i))
+        if(c.walk&(1<<i) && !(combo_class_buf[c.type].water!=0 && ((c.usrflags&cflag3) || (c.usrflags&cflag4))))
         {
             if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO(cx,cy)) && ishookshottable(cx,cy,i))
             {
@@ -1089,7 +1130,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
             {
                 int color = vc(12);
                 
-                if(isstepable(MAPCOMBO(cx,cy)))
+                if(isstepable(MAPCOMBO(cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || (combo_class_buf[combobuf[MAPCOMBO(cx,cy)].type].water==0 && combo_class_buf[c.type].water==0)))
                     color=vc(6);
                 else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(cx,cy,i))
                     color=vc(7);
@@ -1099,17 +1140,156 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
         }
     }
     
+    bridgedetected = 0;
+     for(int i=0; i<4; i++)
+    {
+	int tx2=((i&2)<<2)+cx;
+        int ty2=((i&1)<<3)+cy;
+	for (int m = 0; m <= 1; m++)
+	{
+		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
+		{
+			bridgedetected |= (1<<i);
+		}
+        }
+    }
+    
     // Draw damage combos
     bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,cx,cy)].type].modify_hp_amount
                || combo_class_buf[combobuf[MAPCOMBO2(0,cx,cy)].type].modify_hp_amount
                || combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount;
+	       
+	if (combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount) bridgedetected = 0;
                
     if(dmg)
     {
-        for(int k=0; k<16; k+=2)
-            for(int j=0; j<16; j+=2)
-                if(((k+j)/2)%2)
-                    rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
+	if (bridgedetected <= 0)
+	{
+		for(int k=0; k<16; k+=2)
+		    for(int j=0; j<16; j+=2)
+			if(((k+j)/2)%2)
+			    rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
+	}
+	else
+	{
+		for(int i=0; i<4; i++)
+		{
+			if (!(bridgedetected & (1<<i)))
+			{
+				int tx=((i&2)<<2)+x;
+				int ty=((i&1)<<3)+y;
+				for(int k=0; k<8; k+=2)
+				    for(int j=0; j<8; j+=2)
+					if(((k+j)/2)%2)
+					    rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(14));
+			}
+		}
+	}
+    }
+}
+
+void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int layer, int map, int screen)
+{
+    int cx = COMBOX(pos);
+    int cy = COMBOY(pos);
+    
+    if (screen < 0) return;
+    if (map < 0) return;
+    
+    newcombo const& c = combobuf[MAPCOMBO3(map, screen, layer, pos)];
+    
+    if (c.type == cBRIDGE) return;
+    
+    int bridgedetected = 0;
+    for(int i=0; i<4; i++)
+    {
+        int tx=((i&2)<<2)+x;
+        int ty=((i&1)<<3)+y;
+	int tx2=((i&2)<<2)+cx;
+        int ty2=((i&1)<<3)+cy;
+        for (int m = layer; m <= 1; m++)
+	{
+		newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
+		if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
+		{
+			bridgedetected |= (1<<i);
+		}
+        }
+	if (bridgedetected & (1<<i))
+	{
+		continue;
+	}
+        if((layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+            rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+            
+        if(c.walk&(1<<i))
+        {
+            if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO3(map, screen, layer, cx,cy)) && ishookshottable(map, screen, cx,cy,i) && layer < 0)
+            {
+                for(int k=0; k<8; k+=2)
+                    for(int j=0; j<8; j+=2)
+                        rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
+            }
+            else
+            {
+                int color = vc(12);
+                
+                if(isstepable(MAPCOMBO3(map, screen, -1, cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1, cx,cy)].type].water==0))
+                    color=vc(6);
+                else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(map, screen, cx,cy,i))
+                    color=vc(7);
+                    
+                rectfill(dest,tx,ty,tx+7,ty+7,color);
+            }
+        }
+    }
+    
+    bridgedetected = 0;
+     for(int i=0; i<4; i++)
+    {
+	int tx2=((i&2)<<2)+cx;
+        int ty2=((i&1)<<3)+cy;
+	for (int m = 0; m <= 1; m++)
+	{
+		newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
+		if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
+		{
+			bridgedetected |= (1<<i);
+		}
+        }
+    }
+    
+    // Draw damage combos
+    bool dmg = combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1,cx,cy)].type].modify_hp_amount
+               || combo_class_buf[combobuf[MAPCOMBO3(map, screen, 0,cx,cy)].type].modify_hp_amount
+               || combo_class_buf[combobuf[MAPCOMBO3(map, screen, 1,cx,cy)].type].modify_hp_amount;
+	       
+	if (combo_class_buf[combobuf[MAPCOMBO3(map, screen, 1,cx,cy)].type].modify_hp_amount) bridgedetected = 0;
+               
+    if(dmg)
+    {
+	if (bridgedetected <= 0)
+	{
+		for(int k=0; k<16; k+=2)
+		    for(int j=0; j<16; j+=2)
+			if(((k+j)/2)%2)
+			    rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
+	}
+	else
+	{
+		for(int i=0; i<4; i++)
+		{
+			if (!(bridgedetected & (1<<i)))
+			{
+				int tx=((i&2)<<2)+x;
+				int ty=((i&1)<<3)+y;
+				for(int k=0; k<8; k+=2)
+				    for(int j=0; j<8; j+=2)
+					if(((k+j)/2)%2)
+					    rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(14));
+			}
+		}
+	}
     }
 }
 
@@ -1117,13 +1297,42 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
 {
     newcombo c = combobuf[cmbdat];
     
+    if (c.type == cBRIDGE) return;
+    
     for(int i=0; i<4; i++)
     {
         int tx=((i&2)<<2)+x;
         int ty=((i&1)<<3)+y;
         
-        if(layer==0 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
-            rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+	bool bridgedetected = false;
+	/*
+	for (int m = -1; m <= 1; m++)
+	{
+		if (combobuf[Map.MAPCOMBO2(m,tx,ty)].type == cBRIDGE && !(combobuf[Map.MAPCOMBO2(m,tx,ty)].walk&(1<<i))) 
+		{
+			bridgedetected = true;
+		}
+        }*/
+	if (bridgedetected)
+	{
+		if (i >= 3) break;
+		else continue;
+	}
+        if(combo_class_buf[c.type].water!=0)
+	{
+		
+		if ((layer==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 2)) && get_bit(quest_rules, qr_DROWN))
+		{
+			rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+			//al_trace("water, drown\n");
+		}
+		else
+		{
+			rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
+			//al_trace("water, no drown\n");
+		}
+	
+	}
             
         if(c.walk&(1<<i))
         {
@@ -1149,111 +1358,115 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
         // Draw damage combos
         if(combo_class_buf[c.type].modify_hp_amount != 0)
         {
-            for(int k=0; k<8; k+=2)
-                for(int j=0; j<8; j+=2)
-                    if(((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(4));
+	    for(int k=0; k<8; k+=2)
+		for(int j=0; j<8; j+=2)
+		    if(((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(4));
         }
     }
 }
 
-
+void put_flag(BITMAP* dest, int x, int y, int flag)
+{
+	rectfill(dest,x,y,x+15,y+15,vc(flag&15));
+	textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(flag&15)),-1,"%d",flag);
+}
 void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag)
 {
 
-    newcombo c = combobuf[cmbdat];
-    
-    if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
-    {
-        //    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
-        //    text_mode(-1);
-        //    textprintf_ex(dest,sfont,x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
-        if(sflag)
-        {
-            rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
-            textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(sflag&15)),-1,"%d",sflag);
-        }
-        
-        if(combobuf[cmbdat].flag)
-        {
-            rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
-            textprintf_ex(dest,z3smallfont,x+1,y+9,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
-        }
-    }
-    
-    if(flags&cCSET)
-    {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
-        //    text_mode(inv?vc(15):vc(0));
-        textprintf_ex(dest,z3smallfont,x+9,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",cset);
-    }
-    else if(flags&cCTYPE)
-    {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
-        //    text_mode(inv?vc(15):vc(0));
-        textprintf_ex(dest,z3smallfont,x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
-    }
+	newcombo const& c = combobuf[cmbdat];
+	
+	if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
+	{
+		//    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
+		//    text_mode(-1);
+		//    textprintf_ex(dest,sfont,x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
+		if(sflag)
+		{
+			rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
+			textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(sflag&15)),-1,"%d",sflag);
+		}
+		
+		if(c.flag)
+		{
+			rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
+			textprintf_ex(dest,z3smallfont,x+1,y+9,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
+		}
+	}
+	
+	if(flags&cCSET)
+	{
+		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+		//    text_mode(inv?vc(15):vc(0));
+		textprintf_ex(dest,z3smallfont,x+9,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",cset);
+	}
+	else if(flags&cCTYPE)
+	{
+		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+		//    text_mode(inv?vc(15):vc(0));
+		textprintf_ex(dest,z3smallfont,x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
+	}
 }
 
 void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag)
 {
 
-    newcombo c = combobuf[cmbdat];
-    
-    if(c.tile==0)
-    {
-        rectfill(dest,x,y,x+15,y+15,0);
-        rectfill(dest,x+3,y+3,x+12,y+12,vc(4));
-        return;
-    }
-    
-    putcombo(dest,x,y,cmbdat,cset);
-    
-    /* moved to put_walkflags
-      for(int i=0; i<4; i++) {
-    
-      int tx=((i&2)<<2)+x;
-      int ty=((i&1)<<3)+y;
-      if((flags&cWALK) && (c.walk&(1<<i)))
-      rectfill(dest,tx,ty,tx+7,ty+7,vc(12));
-      }
-      */
-    
-    //  if((flags&cFLAGS)&&(cmbdat&0xF800))
-    if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
-    {
-        //    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
-        //    text_mode(-1);
-        //    textprintf_ex(dest,sfont,x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
-        if(sflag)
-        {
-            rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
-            textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(sflag&15)),-1,"%d",sflag);
-        }
-        
-        if(combobuf[cmbdat].flag)
-        {
-            rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
-            textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
-        }
-    }
-    
-    if(flags&cWALK)
-    {
-        put_walkflags(dest,x,y,cmbdat,0);
-    }
-    
-    if(flags&cCSET)
-    {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
-        //    text_mode(inv?vc(15):vc(0));
-        textprintf_ex(dest,z3smallfont,x+9,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",cset);
-    }
-    else if(flags&cCTYPE)
-    {
-        bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
-        //    text_mode(inv?vc(15):vc(0));
-        textprintf_ex(dest,z3smallfont,x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
-    }
+	newcombo c = combobuf[cmbdat];
+	
+	if(c.tile==0)
+	{
+		rectfill(dest,x,y,x+15,y+15,0);
+		rectfill(dest,x+3,y+3,x+12,y+12,vc(4));
+		return;
+	}
+	
+	putcombo(dest,x,y,cmbdat,cset);
+	
+	/* moved to put_walkflags
+	  for(int i=0; i<4; i++) {
+	
+	  int tx=((i&2)<<2)+x;
+	  int ty=((i&1)<<3)+y;
+	  if((flags&cWALK) && (c.walk&(1<<i)))
+	  rectfill(dest,tx,ty,tx+7,ty+7,vc(12));
+	  }
+	  */
+	
+	//  if((flags&cFLAGS)&&(cmbdat&0xF800))
+	if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
+	{
+		//    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
+		//    text_mode(-1);
+		//    textprintf_ex(dest,sfont,x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
+		if(sflag)
+		{
+			rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
+			textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(sflag&15)),-1,"%d",sflag);
+		}
+		
+		if(combobuf[cmbdat].flag)
+		{
+			rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
+			textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
+		}
+	}
+	
+	if(flags&cWALK)
+	{
+		put_walkflags(dest,x,y,cmbdat,0);
+	}
+	
+	if(flags&cCSET)
+	{
+		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+		//    text_mode(inv?vc(15):vc(0));
+		textprintf_ex(dest,z3smallfont,x+9,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",cset);
+	}
+	else if(flags&cCTYPE)
+	{
+		bool inv = (((cmbdat&0x7800)==0x7800)&&(flags&cFLAGS));
+		//    text_mode(inv?vc(15):vc(0));
+		textprintf_ex(dest,z3smallfont,x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
+	}
 }
 
 
@@ -1672,8 +1885,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         //check main screen
         cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
         cmbcheck2 = vbound(AbsoluteScr(map, scr-16)->data[i+160], 0, MAXCOMBOS-1);
-        combocheck1.walk|=combobuf[cmbcheck1].walk;
-        combocheck2.walk|=combobuf[cmbcheck2].walk;
+        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
+        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
         
         //check layer 1
         layermap=AbsoluteScr(map, scr)->layermap[0]-1;
@@ -1682,7 +1895,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
+	    else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr-16)->layermap[0]-1;
@@ -1691,7 +1905,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr-16)->layerscreen[0];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
+	    else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         //check layer 2
@@ -1702,7 +1917,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
             
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
+	    else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr-16)->layermap[1]-1;
@@ -1711,7 +1927,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr-16)->layerscreen[1];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
+	    else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         if(((combocheck1.walk&5)*2)!=(combocheck2.walk&10))
@@ -1735,8 +1952,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         //check main screen
         cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
         cmbcheck2 = vbound(AbsoluteScr(map, scr+16)->data[i-160], 0, MAXCOMBOS-1);
-        combocheck1.walk|=combobuf[cmbcheck1].walk;
-        combocheck2.walk|=combobuf[cmbcheck2].walk;
+        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
+        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
         
         
         //check layer 1
@@ -1746,7 +1963,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr+16)->layermap[0]-1;
@@ -1755,7 +1973,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr+16)->layerscreen[0];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         //check layer 2
@@ -1765,7 +1984,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr+16)->layermap[1]-1;
@@ -1774,7 +1994,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr+16)->layerscreen[1];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         if((combocheck1.walk&10)!=((combocheck2.walk&5)*2))
@@ -1798,8 +2019,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         //check main screen
         cmbcheck1 = AbsoluteScr(map, scr)->data[i];
         cmbcheck2 = AbsoluteScr(map, scr-1)->data[i+15];
-        combocheck1.walk|=combobuf[cmbcheck1].walk;
-        combocheck2.walk|=combobuf[cmbcheck2].walk;
+        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
+        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
         
         //check layer 1
         layermap=AbsoluteScr(map, scr)->layermap[0]-1;
@@ -1808,7 +2029,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr-1)->layermap[0]-1;
@@ -1817,7 +2039,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr-1)->layerscreen[0];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         //check layer 2
@@ -1827,7 +2050,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr-1)->layermap[1]-1;
@@ -1836,7 +2060,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr-1)->layerscreen[1];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         if(((combocheck1.walk&3)*4)!=(combocheck2.walk&12))
@@ -1861,8 +2086,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         //check main screen
         cmbcheck1 = AbsoluteScr(map, scr)->data[i];
         cmbcheck2 = AbsoluteScr(map, scr+1)->data[i-15];
-        combocheck1.walk|=combobuf[cmbcheck1].walk;
-        combocheck2.walk|=combobuf[cmbcheck2].walk;
+        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
+        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
         
         //check layer 1
         layermap=AbsoluteScr(map, scr)->layermap[0]-1;
@@ -1871,7 +2096,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr+1)->layermap[0]-1;
@@ -1880,7 +2106,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr+1)->layerscreen[0];
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         //check layer 2
@@ -1890,7 +2117,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
         {
             layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
             cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            combocheck1.walk|=combobuf[cmbcheck1].walk;
+            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
+		else combocheck1.walk|=combobuf[cmbcheck1].walk;
         }
         
         layermap=AbsoluteScr(map, scr+1)->layermap[1]-1;
@@ -1900,7 +2128,8 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
             layerscreen=AbsoluteScr(map, scr+1)->layerscreen[1];
             
             cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
-            combocheck2.walk|=combobuf[cmbcheck2].walk;
+            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
+		else combocheck2.walk|=combobuf[cmbcheck2].walk;
         }
         
         if((combocheck1.walk&12)!=((combocheck2.walk&3)*4))
@@ -2061,6 +2290,37 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
     }
 }
 
+int zmap::MAPCOMBO3(int map, int screen, int layer, int x,int y)
+{
+	return MAPCOMBO3(map, screen, layer, COMBOPOS(x,y));
+}
+
+int zmap::MAPCOMBO3(int map, int screen, int layer, int pos)
+{ 
+	if (map < 0 || screen < 0) return 0;
+	
+	if(pos>175 || pos < 0)
+		return 0;
+		
+	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
+	
+	if(m->data.empty()) return 0;
+    
+	if(m->valid==0) return 0;
+	
+	int mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
+	
+	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
+	
+	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? m : &TheMaps[mapid]);
+	
+	if(scr->data.empty()) return 0;
+    
+	if(scr->valid==0) return 0;
+		
+	return scr->data[pos];						// entire combo code
+}
+
 // Takes array index layer num., not actual layer num.
 int zmap::MAPCOMBO2(int lyr,int x,int y, int map, int scr)
 {
@@ -2134,7 +2394,7 @@ int zmap::MAPCOMBO(int x,int y, int map, int scr) //map=-1,scr=-1
 
 void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 {
-    int antiflags=flags&~cFLAGS;
+    int antiflags=(flags&~cFLAGS)&~cWALK;
     
     if(map<0)
         map=currmap;
@@ -2183,7 +2443,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     
     for(int k=1; k<3; k++)
     {
-        if(k==1&&layer->flags7&fLAYER2BG)
+        if(k==1&& (layer->flags7&fLAYER2BG||ViewLayer2BG))
         {
             if(LayerMaskInt[k+1]!=0)
             {
@@ -2211,7 +2471,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             }
         }
         
-        if(k==2&&layer->flags7&fLAYER3BG)
+        if(k==2&&(layer->flags7&fLAYER3BG||ViewLayer3BG))
         {
             if(LayerMaskInt[k+1]!=0)
             {
@@ -2225,7 +2485,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     {
                         for(int i=0; i<176; i++)
                         {
-                            if(!(layer->flags7&fLAYER2BG))
+                            if(!(layer->flags7&fLAYER2BG)&&!ViewLayer2BG)
                                 put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
                             else overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i]);
                         }
@@ -2234,7 +2494,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     {
                         for(int i=0; i<176; i++)
                         {
-                            if(!(layer->flags7&fLAYER2BG))
+                            if(!(layer->flags7&fLAYER2BG)&&!ViewLayer2BG)
                                 put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
                             else overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
                         }
@@ -2252,7 +2512,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             byte cmbcset = layer->cset[i];
             int cmbflag = layer->sflag[i];
             
-            if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
+            if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG||ViewLayer2BG||ViewLayer3BG)
                 overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset);
             else put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,antiflags,cmbflag);
         }
@@ -2262,7 +2522,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     
     for(int k=0; k<2; k++)
     {
-        if(k==1&&layer->flags7&fLAYER2BG) continue;
+        if(k==1&& (layer->flags7&fLAYER2BG||ViewLayer2BG)) continue;
         
         if(LayerMaskInt[k+1]!=0)
         {
@@ -2478,7 +2738,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     
     for(int k=2; k<4; k++)
     {
-        if(k==2&&layer->flags7&fLAYER3BG) continue;
+        if(k==2&&(layer->flags7&fLAYER3BG||ViewLayer3BG)) continue;
         
         if(LayerMaskInt[k+1]!=0)
         {
@@ -2506,6 +2766,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         }
     }
     
+	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
         for(int i=0; i<176; i++)
@@ -2521,7 +2782,40 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             }
         }
     }
-    
+    //Overhead L1/2
+	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	{
+		for(int k = 0; k < 2; ++k)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				layermap=layer->layermap[k]-1;
+				
+				if(layermap>-1 && layermap<map_count)
+				{
+					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+					mapscr const& tmp = prv_mode?prvlayers[k]:TheMaps[layerscreen];
+					if(layer->layeropacity[k]==255)
+					{
+						for(int i=0; i<176; i++)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,tmp.data[i],tmp.cset[i]);
+						}
+					}
+					else
+					{
+						for(int i=0; i<176; i++)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
+						}
+					}
+				}
+			}
+		}
+	}
+	
     for(int k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
@@ -2600,7 +2894,8 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         {
             for(int i=0; i<176; i++)
             {
-                put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i], 0);
+                //put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i], 0);
+		put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1);
             }
         }
         
@@ -2745,7 +3040,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             int cmbflag = (i < (int)layer->data.size() ? layer->sflag[i] : 0);
 			if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
 				overcombo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset);
-			else put_combo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,flags|dark,cmbflag);
+			else put_combo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
         }
     }
     
@@ -2857,6 +3152,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
+	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
         for(int i=c; i<(c&0xF0)+16; i++)
@@ -2873,6 +3169,40 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
+    //Overhead L1/2
+	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	{
+		for(int k = 0; k < 2; ++k)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				layermap=layer->layermap[k]-1;
+				
+				if(layermap>-1 && layermap<map_count)
+				{
+					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+					mapscr const& tmp = TheMaps[layerscreen];
+					if(layer->layeropacity[k]==255)
+					{
+						for(int i=c; i<(c&0xF0)+16; i++)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombo(dest,((i&15)<<4)+x,y,tmp.data[i],tmp.cset[i]);
+						}
+					}
+					else
+					{
+						for(int i=c; i<(c&0xF0)+16; i++)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombotranslucent(dest,((i&15)<<4)+x,y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
+						}
+					}
+				}
+			}
+		}
+	}
+	
     for(int k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
@@ -2904,24 +3234,17 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         {
             for(int i=c; i<(c&0xF0)+16; i++)
             {
-                put_walkflags(dest,((i&15)<<4)+x,y,layer->data[i],0);
+                put_walkflags_layered_external(dest,((i&15)<<4)+x,y,i, -1, map,scr);
             }
         }
         
         for(int k=0; k<2; k++)
         {
             if(LayerMaskInt[k+1]!=0)
-            {
-                layermap=layer->layermap[k]-1;
-                
-                if(layermap>-1 && layermap<map_count)
+            { 
+                for(int i=c; i<(c&0xF0)+16; i++)
                 {
-                    layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                    
-                    for(int i=c; i<(c&0xF0)+16; i++)
-                    {
-                        put_walkflags_layered(dest,((i&15)<<4)+x,y,i, k);
-                    }
+			put_walkflags_layered_external(dest,((i&15)<<4)+x,y,i, k, map,scr);
                 }
             }
         }
@@ -3048,7 +3371,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             int cmbflag = layer->sflag[i];
 			if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
 				overcombo(dest,x,(i&0xF0)+y,cmbdat,cmbcset);
-            else put_combo(dest,x,(i&0xF0)+y,cmbdat,cmbcset,flags|dark,cmbflag);
+            else put_combo(dest,x,(i&0xF0)+y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
         }
     }
     
@@ -3162,6 +3485,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
+	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
         for(int i=c; i<176; i+=16)
@@ -3177,6 +3501,40 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             }
         }
     }
+    //Overhead L1/2
+	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	{
+		for(int k = 0; k < 2; ++k)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				layermap=layer->layermap[k]-1;
+				
+				if(layermap>-1 && layermap<map_count)
+				{
+					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+					mapscr const& tmp = TheMaps[layerscreen];
+					if(layer->layeropacity[k]==255)
+					{
+						for(int i=c; i<176; i+=16)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombo(dest,x,(i&0xF0)+y,tmp.data[i],tmp.cset[i]);
+						}
+					}
+					else
+					{
+						for(int i=c; i<176; i+=16)
+						{
+							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+								overcombotranslucent(dest,x,(i&0xF0)+y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
+						}
+					}
+				}
+			}
+		}
+	}
+	
     
     for(int k=4; k<6; k++)
     {
@@ -3208,9 +3566,9 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     {
         if(LayerMaskInt[0]!=0)
         {
-            for(int i=c; i<176; i+=16)
+            for(int i=c&0xF; i<176; i+=16)
             {
-                put_walkflags(dest,x,(i&0xF0)+y,layer->data[i],0);
+                put_walkflags_layered_external(dest,x,y+(i&0xF0),i, -1, map,scr);
             }
         }
         
@@ -3218,17 +3576,10 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         {
             if(LayerMaskInt[k+1]!=0)
             {
-                layermap=layer->layermap[k]-1;
-                
-                if(layermap>-1 && layermap<map_count)
+                for(int i=c&0xF; i<176; i+=16)
                 {
-                
-                    layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                    
-                    for(int i=c; i<(c&0xF0)+16; i++)
-                    {
-                        put_walkflags_layered(dest,x,(i&0xF0)+y,i, k);
-                    }
+			put_walkflags_layered_external(dest,x,y+(i&0xF0),i, k, map,scr);
+                        //put_walkflags_layered(dest,x,(i&0xF0)+y,i, k);
                 }
             }
         }
@@ -3310,7 +3661,42 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         rectfill(dest,x,y,x+15,y+15,0);
     }
     
+    for(int k=1; k<3; k++)
+    {
+        if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
+        {
+            layermap=layer->layermap[k]-1;
+            
+            if(layermap>-1 && layermap<map_count)
+            {
+                layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
+                
+                for(int i=c; i<176; i+=16)
+                {
+                    if(layer->layeropacity[k]<255)
+                    {
+                        overcombotranslucent(dest,x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
+                    }
+                    else
+                    {
+                        overcombo(dest,x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
+                    }
+                }
+            }
+        }
+    }
+    
     // int cs=2;
+    if(LayerMaskInt[0]!=0)
+    {
+        word cmbdat = layer->data[c];
+        byte cmbcset = layer->cset[c];
+        int cmbflag = layer->sflag[c];
+        if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
+			overcombo(dest,x,y,cmbdat,cmbcset);
+		else put_combo(dest,x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
+    }
+    
     
     for(int k=0; k<2; k++)
     {
@@ -3332,16 +3718,6 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 }
             }
         }
-    }
-    
-    if(LayerMaskInt[0]!=0)
-    {
-        word cmbdat = layer->data[c];
-        byte cmbcset = layer->cset[c];
-        int cmbflag = layer->sflag[c];
-        if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
-			overcombo(dest,x,y,cmbdat,cmbcset);
-		else put_combo(dest,x,y,cmbdat,cmbcset,flags|dark,cmbflag);
     }
 	
     for(int k=2; k<4; k++)
@@ -3366,6 +3742,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
+	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
         int ct1=layer->data[c];
@@ -3377,6 +3754,35 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             overcombo(dest,x,y,layer->data[c],layer->cset[c]);
         }
     }
+    //Overhead L1/2
+	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	{
+		for(int k = 0; k < 2; ++k)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				layermap=layer->layermap[k]-1;
+				
+				if(layermap>-1 && layermap<map_count)
+				{
+					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+					mapscr const& tmp = TheMaps[layerscreen];
+					int i = c;
+					if(layer->layeropacity[k]==255)
+					{
+						if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+							overcombo(dest,x,y,tmp.data[i],tmp.cset[i]);
+					}
+					else
+					{
+						if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+							overcombotranslucent(dest,x,y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
+					}
+				}
+			}
+		}
+	}
+	
     
     for(int k=4; k<6; k++)
     {
@@ -3404,20 +3810,15 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     {
         if(LayerMaskInt[0]!=0)
         {
-            put_walkflags(dest,x,y,layer->data[c],0);
+            put_walkflags_layered_external(dest,x,y,c,-1, map,scr);
         }
         
         for(int k=0; k<2; k++)
         {
             if(LayerMaskInt[k+1]!=0)
             {
-                layermap=layer->layermap[k]-1;
-                
-                if(layermap>-1 && layermap<map_count)
-                {
-                    layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                    put_walkflags_layered(dest,x,y,c,k);
-                }
+                    //put_walkflags_layered(dest,x,y,c,k);
+		put_walkflags_layered_external(dest,x,y,c,k, map,scr);
             }
         }
     }
@@ -4319,7 +4720,7 @@ void zmap::update_combo_cycling()
         return;
     }
     
-    int x,y;
+    int x;
     int newdata[176];
     int newcset[176];
     bool restartanim[MAXCOMBOS];
@@ -4342,7 +4743,8 @@ void zmap::update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+			if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -4363,7 +4765,8 @@ void zmap::update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -4396,7 +4799,8 @@ void zmap::update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -4417,7 +4821,8 @@ void zmap::update_combo_cycling()
                 (combobuf[x].nextcombo!=0))
         {
             newdata[i]=combobuf[x].nextcombo;
-            newcset[i]=combobuf[x].nextcset;
+            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i]=combobuf[x].nextcset;
             int c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -4457,7 +4862,8 @@ void zmap::update_combo_cycling()
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata[i]=combobuf[x].nextcombo;
-                    newcset[i]=combobuf[x].nextcset;
+                    if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+						newcset[i]=combobuf[x].nextcset;
                     int c = newdata[i];
                     
                     if(combobuf[c].animflags & AF_CYCLE)
@@ -4478,7 +4884,8 @@ void zmap::update_combo_cycling()
                         (combobuf[x].nextcombo!=0))
                 {
                     newdata[i]=combobuf[x].nextcombo;
-                    newcset[i]=combobuf[x].nextcset;
+                    if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+						newcset[i]=combobuf[x].nextcset;
                     int c = newdata[i];
                     
                     if(combobuf[c].animflags & AF_CYCLE)
@@ -4504,12 +4911,14 @@ void zmap::update_combo_cycling()
         if(restartanim[i])
         {
             combobuf[i].tile = combobuf[i].o_tile;
+			combobuf[i].cur_frame=0;
             combobuf[i].aclk = 0;
         }
         
         if(restartanim2[i])
         {
             combobuf[i].tile = combobuf[i].o_tile;
+			combobuf[i].cur_frame=0;
             combobuf[i].aclk = 0;
         }
     }
@@ -5769,19 +6178,20 @@ int init_quest(const char *templatefile)
     return 0;
 }
 
-void set_questpwd(const char *pwd, bool use_keyfile)
+void set_questpwd(std::string_view pwd, bool use_keyfile)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    use_keyfile=use_keyfile;
-    
-    memset(header.password,0,256);
-    strcpy(header.password,pwd);
-    header.dirty_password=true;
-    
-    cvs_MD5Context ctx;
-    cvs_MD5Init(&ctx);
-    cvs_MD5Update(&ctx, (const unsigned char*)pwd, (unsigned)strlen(pwd));
-    cvs_MD5Final(header.pwd_hash, &ctx);
+	header.use_keyfile=use_keyfile;
+
+	// string_view actually has some quirks that make it less than ideal here.
+	// It'd probably be best to replace it, but this works for now.
+	memset(header.password, 0, 256);
+	strcpy(header.password, pwd.data());
+	header.dirty_password=true;
+
+	cvs_MD5Context ctx;
+	cvs_MD5Init(&ctx);
+	cvs_MD5Update(&ctx, (const unsigned char*)header.password, strlen(header.password));
+	cvs_MD5Final(header.pwd_hash, &ctx);
 }
 
 
@@ -6410,7 +6820,7 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	    new_return(42);
 	}
 	#endif
-	if(!p_iputw(V_ZC_DEVSIG,f))
+	if(!p_iputw(0,f)) //was V_ZC_DEVSIG, no longer used
 	{
 	    new_return(43);
 	}
@@ -7035,6 +7445,27 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
 					}
 				}
 			}
+			if(!p_iputw(DMaps[i].onmap_script,f))
+			{
+				new_return(38);
+			}
+			for(int q = 0; q < 8; ++q)
+			{
+				if(!p_iputl(DMaps[i].onmap_initD[q],f))
+				{
+					new_return(39);
+				}
+			}
+			for(int q = 0; q < 8; ++q)
+			{
+				for(int w = 0; w < 65; ++w)
+				{
+					if(!p_putc(DMaps[i].onmap_initD_label[q][w],f))
+					{
+						new_return(40);
+					}
+				}
+			}
         }
         
         if(writecycle==0)
@@ -7547,7 +7978,14 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	//V_MISC >= 11
 	if(!p_iputl(Misc->zscript_last_compiled_version,f))
                      new_return(23);
-        
+		
+		//V_MISC >= 12
+		for(int q = 0; q < sprMAX; ++q)
+		{
+			if(!p_putc(Misc->sprites[q],f))
+				new_return(24);
+		}
+		
         if(writecycle==0)
         {
             section_size=writesize;
@@ -8042,6 +8480,10 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		if(!p_iputw(itemsbuf[i].sprite_script,f))
 		{
 			new_return(90);
+		} 
+		if(!p_putc(itemsbuf[i].pickupflag,f))
+		{
+			new_return(91);
 		} 
 		
 	    
@@ -8553,7 +8995,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range& )
         {
             return qe_invalid;
         }
@@ -8568,7 +9010,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range& )
         {
             return qe_invalid;
         }
@@ -8583,7 +9025,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range& )
         {
             return qe_invalid;
         }
@@ -9006,7 +9448,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 			new_return(24);
 	        }
 	    }
-	    for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+	    for ( int q = 0; q < 4; q++ ) //attribytes were sized 4 in this version, I bumped them up.
 	    {
 		if(!p_putc(combobuf[i].attribytes[q],f))
 		{
@@ -9036,6 +9478,20 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 		{
 			new_return(30);
 		}
+	    for ( int q = 4; q < 8; q++ ) //I bumped up attribytes -Dimi
+	    {
+		if(!p_putc(combobuf[i].attribytes[q],f))
+		{
+			new_return(31);
+		}
+	    }
+	    for ( int q = 0; q < 8; q++ ) //I also added attrishorts -Dimi
+	    {
+		if(!p_iputw(combobuf[i].attrishorts[q],f))
+		{
+			new_return(32);
+		}
+	    }
 	    
 		    
         }
@@ -9413,6 +9869,16 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
 			}
 			
 			if(!p_putc(MsgStrings[i].portrait_th,f))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_putc(MsgStrings[i].shadow_type,f))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_putc(MsgStrings[i].shadow_color,f))
 			{
 				return qe_invalid;
 			}
@@ -10323,7 +10789,8 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			new_return(98);
 		}
 	    }
-		
+			if(!p_putc(guysbuf[i].moveflags,f))
+				new_return(99);
         }
         
         if(writecycle==0)
@@ -10525,7 +10992,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<2; i++)
         {
-            for(int j=0; j<2; j++)
+            for(int j=0; j<spr_holdmax; j++)
             {
                 if(!p_iputl(holdspr[i][j][spr_tile],f))
                 {
@@ -10584,7 +11051,231 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         {
             new_return(14);
         }
-        
+		
+		//{ V_LINKSPRITES >= 7
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(frozenspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)frozenspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)frozenspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(frozen_waterspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)frozen_waterspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)frozen_waterspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(onfirespr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)onfirespr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)onfirespr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(onfire_waterspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)onfire_waterspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)onfire_waterspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(diggingspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)diggingspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)diggingspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(usingrodspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)usingrodspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)usingrodspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(usingcanespr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)usingcanespr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)usingcanespr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(pushingspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)pushingspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)pushingspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(liftingspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)liftingspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)liftingspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(liftingheavyspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)liftingheavyspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)liftingheavyspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(stunnedspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)stunnedspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)stunnedspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(stunned_waterspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)stunned_waterspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)stunned_waterspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(drowningspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)drowningspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)drowningspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(drowning_lavaspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)drowning_lavaspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)drowning_lavaspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(fallingspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)fallingspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)fallingspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(shockedspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)shockedspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)shockedspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(shocked_waterspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)shocked_waterspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)shocked_waterspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(pullswordspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)pullswordspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)pullswordspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(readingspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)readingspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)readingspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(slash180spr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)slash180spr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)slash180spr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(slashZ4spr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)slashZ4spr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)slashZ4spr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(dashspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)dashspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)dashspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(bonkspr[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)bonkspr[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)bonkspr[q][spr_extend],f))
+				new_return(15);
+		}
+		for(int q = 0; q < 3; ++q) //Not directions; number of medallion sprs
+		{
+			if(!p_iputl(medallionsprs[q][spr_tile],f))
+				new_return(15);
+			if(!p_putc((byte)medallionsprs[q][spr_flip],f))
+				new_return(15);
+			if(!p_putc((byte)medallionsprs[q][spr_extend],f))
+				new_return(15);
+		}
+        for (int q = 0; q < wMax; q++) // Link defense values
+        {
+            if (!p_putc(link_defence[q], f))
+                new_return(15);
+        }
+		//}
+		
         if(writecycle==0)
         {
             section_size=writesize;
@@ -12093,6 +12784,60 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
         {
             new_return(73);
         }
+	if(!p_iputw(zinit.subscrSpeed,f))
+        {
+            new_return(74);
+        }
+		if(!p_putc(zinit.hp_per_heart,f))
+		{
+			new_return(75);
+		}
+		if(!p_putc(zinit.magic_per_block,f))
+		{
+			new_return(76);
+		}
+		if(!p_putc(zinit.hero_damage_multiplier,f))
+		{
+			new_return(77);
+		}
+		if(!p_putc(zinit.ene_damage_multiplier,f))
+		{
+			new_return(78);
+		}
+		for(int q = 0; q < 25; ++q)
+		{
+			if(!p_iputw(zinit.scrcnt[q],f))
+			{
+				new_return(79);
+			}
+		}
+		for(int q = 0; q < 25; ++q)
+		{
+			if(!p_iputw(zinit.scrmaxcnt[q],f))
+			{
+				new_return(80);
+			}
+		}
+		if(!p_putc(zinit.dither_type,f))
+		{
+			new_return(81);
+		}
+		if(!p_putc(zinit.dither_arg,f))
+		{
+			new_return(82);
+		}
+		if(!p_putc(zinit.dither_percent,f))
+		{
+			new_return(83);
+		}
+		if(!p_putc(zinit.def_lightrad,f))
+		{
+			new_return(84);
+		}
+		if(!p_putc(zinit.transdark_percent,f))
+		{
+			new_return(85);
+		}
         
         if(writecycle==0)
         {

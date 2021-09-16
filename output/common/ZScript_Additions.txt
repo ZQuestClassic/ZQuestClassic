@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 69
-Document Revision: 6th May, 2020
+Document for: 2.55, Alpha 96
+Document Revision: 8th July, 2021
 
 
  __           _   _                 
@@ -337,8 +337,10 @@ Another example:
 		Used to get information on fonts, or to display text.
 
 	FileSystem->
-		Used to get information on the user filesystem, such as fileexists(), pathexists().
-
+		Used to get information on the user filesystem, such as FileExists(), DirExists().
+	
+	Module->
+		Use to read values or strings used by the current module.
 
 
 ________          __          __                                
@@ -395,6 +397,18 @@ char32		-214748, 214748
 			
 			foo("str\n"); 	//Will call: foo(char32)
 			foo(16);	//Will call: foo(int);
+
+long		-2,147,483,648 -> 2,147,483,647
+	Long is a special datatype, which uses special number literals. It gives access to a long integer value,
+	taking up a full 32-bits, though has no decimal portion. Bitwise operations on 'long' data will be able to hold 32 bits.
+	A long value '502L' is equivalent to a float value '0.0502'.
+	Long literals:
+		13432423L (== 1343.2423) //Decimal long
+		0xFL (== 0.0015, == 15L) //Hex long
+		101010Lb (== 0.0042, == 42L) //Binary long
+		00011bL (== 0.0003, == 3L) //Binary long
+		17oL, 17Lo (== 0.0015, == 15L) //Octal long
+	
 
 untyped : A special datatype that can be cast to and from any other type.
 	This has no distinct type of its own.
@@ -518,8 +532,11 @@ untyped : A special datatype that can be cast to and from any other type.
 		the dropset; or read its editor values for other use.
 		
 	file :
-		Object type for accessing files on the system. All files accessed must exist in "[zc root]/Files/[questname]/".
+		Object type for accessing files on the system. All files accessed must exist in "[zc root]/files/[questname]/".
 		These files can contain either text, or raw binary number data, based on which functions you use.
+		
+	directory :
+		Object type for accessing directories on the system. All directories accessed must exist in "[zc root]/files/[questname]/".
 	
 	//Planned/Incomplete
 	warpringdata : t/b/a
@@ -737,12 +754,12 @@ the values in the enumerated list.
 		
 		//If you call:
 		
-		othertype(walk, n, e);
+		myoverloads(walk, n, e);
 			//This will use 'myns::othertype myoverloads(actiontype a, npc b, eweapon c)'
 			
 		//If you instead call:
 		
-		othertype(1, n, e);
+		myoverloads(1, n, e);
 			//This will use 'myoverloads(int a, npc b, eweapon c)'
 		
 	--end example]
@@ -921,8 +938,29 @@ You may now use escape sequences in a SINGLECHAR type:
 	
 	If no type is specified, the array will default to 'untyped'.
 
+//////////////////////
+/// Octal Literals ///
+//////////////////////
 
-	
+Similarly to hex and binary literals, you can now specify numbers using octal literals.
+To specify an octal literal, the digits of the number must be 0-7, and the number must have an 'o' appended.
+
+Ex: 17o == 15
+Ex: 47o == 39	
+
+/////////////////////
+/// Long Literals ///
+/////////////////////
+
+Long is a special datatype, which uses special number literals. It gives access to a long integer value,
+taking up a full 32-bits, though has no decimal portion. Bitwise operations on 'long' data will be able to hold 32 bits.
+A long value '502L' is equivalent to a float value '0.0502'.
+Long literals:
+	13432423L (== 1343.2423) //Decimal long
+	0xFL (== 0.0015, == 15L) //Hex long
+	101010Lb (== 0.0042, == 42L) //Binary long
+	00011bL (== 0.0003, == 3L) //Binary long
+	17oL, 17Lo (== 0.0015, == 15L) //Octal long
 
  _______                  ___________            __                               
  \      \   ______  _  __ \_   _____/___ _____ _/  |_ __ _________   ____   ______
@@ -1067,6 +1105,29 @@ cases where you are not using the base function in an assign.
 	In this example, the code block would never run, because x == 6. 
 	This is the opposite of 'if', and supports 'else unless' and 'else'
 	blocks following the unless statement.
+
+//////////////////////////////////
+// Declarations in Conditionals //
+//////////////////////////////////
+
+	If statements can now have a single variable declared (must be initialized) inside their conditional check.
+	The variable will be accessible during the 'then' block (not the 'else' block, if present). The initial value
+		of the variable is read as the condition.
+
+	Example: 
+		if(npc n = GetClosestNPC(32))
+		{
+			DoSomething(n->X, n->Y);
+		}
+		else
+		{
+			DoSomethingElse(); //no enemies in range
+		}
+	
+	(For this example, assume that 'GetClosestNPC()' returns 'NULL' if no enemy is found)
+	In this example, if the GetClosestNPC() function finds an enemy (i.e. does not return NULL), then
+		the 'then' block will run, doing something with the enemy's position.
+	If no enemy is found (the function returned NULL), then the else block will run instead.
 	
 	
 ////////////
@@ -1315,6 +1376,132 @@ You may also include a custom message to be printed with the error.
 
 This can be useful to prevent yourself from making mistakes, or for scripts you share
 to ensure that others using your script don't make mistakes when setting constants.
+
+/////////////////////////
+// Conditional Include //
+/////////////////////////
+
+You may now conditionally include a file.
+
+	[example--
+	const bool USE_TANGO = true;
+	
+	#includeif(USE_TANGO, "tango.zh")
+	--end example]
+	
+If the constant expression evaluates to true, the file will be imported.
+Otherwise, it will be skipped.
+
+//////////////////////
+// Include Checking //
+//////////////////////
+
+You may now check if a file is included.
+
+	[example--
+	if(IS_INCLUDED("tango.zh"))
+	{
+		//Show a tango message
+	}
+	else Screen->Message(5);
+	--end example]
+
+This is considered a constant expression.
+
+///////////////////////////
+//  Function Prototypes  //
+///////////////////////////
+
+You may now declare a 'function prototype', which can (but does not have to) be defined later.
+	[example--
+	
+	int foo(int x, int y);
+	
+	--end example]
+
+This prototype has no body, unless you later declare the function in full.
+	[example--
+	
+	int bar();
+	
+	//Later, even in another file
+	
+	int bar()
+	{
+		Trace(10);
+		return 5;
+	}
+	
+	--end example]
+
+If the function is declared later, then that is what runs; the prototype is effectively ignored.
+If the function is NOT declared later, then calls to the prototype will *still compile*, though the prototype will do
+	nothing, aside from `return NULL;`.
+	
+You may also specify the default return value, so it will return a value other than 0!
+	[example--
+	
+	int foo() : default 7;
+	
+	--end example]
+If the function is never fully declared later, then this would simply `return 7;`.
+The value used for this default can be any constant expression, so the following are all valid:
+	[example--
+	
+	const int A = 5;
+	int foo() : default A;
+	
+	int bar() : default 5 * 7;
+	
+	int foobar() : default (IS_INCLUDED("tango.zh") ? 10 : 2);
+	
+	--end example]
+
+Do note that the type of the default value must match the return type. The default return, 'NULL', is 'untyped', and
+	will work for any type.
+	
+	[example--
+	
+	ffc foo() : default <ffc>1; //correct
+	ffc foo() : default 1; //Type cast error
+	ffc foo(); //Returns a null pointer
+	ffc foo() : default NULL; //Same as above
+	
+	void foo() : default 1; //Type cast error
+	void foo(); //correct
+	--end example]
+
+/////////////////////////////
+//  Function Declarations  //
+/////////////////////////////
+	
+You can now declare functions in remote scopes.
+	[example--
+	
+	ffc script foo{}
+	//
+	void foo.run(int x)
+	{
+		Trace(x);
+	}
+	--end example]
+This is especially useful with function prototypes!
+	[example--
+	
+	ffc script foo
+	{
+		void run()
+		{
+			Trace(bar());
+		}
+		int bar();
+	}
+	//Another file
+	int foo.bar()
+	{
+		return 10;
+	}
+	--end example]
 
 __________              _____.__                      
 \______   \__ __  _____/ ____\__|__  ___ ____   ______
@@ -1753,7 +1940,7 @@ Waitdraw Support:	Yes
 * This script can run for multiple frames, and it runs after the GLOBAL ACTIVE script.
 * You may use Waitdraw() in this script type. 
 * 
-* There are three script slots in the DMap Editor:
+* There are four script slots in the DMap Editor:
 *	Active
 *		This script runs whenever the player is on the DMap.
 *		It has eight InitD args, and eight InitD strings.
@@ -1782,6 +1969,14 @@ Waitdraw Support:	Yes
 *			If using a scripted DMap Subscreen (Active) script, then you
 *			further have the option that this script continues to run while
 *			the scripted active subscreen is open.
+*	Scripted Map
+*		This script runs, if assigned, when the player presses the
+*		MAP button, IN PLACE OF THE NORMAL ENGINE MAP.
+*		This script type hasd eight InitD args and eight InitD strings.
+*		If the player warps while this is running, then the engie will
+*		load the Scripted Map DMap script from the destination DMap (if any).
+*		If the destination DMap lacks a Scripted Map DMap script,
+*		then the virtual map will terminate.
 *
 *
 *
@@ -2309,6 +2504,37 @@ Available annotations:
 //  Global  //
 //////////////								// Global
 
+float Distance(float x1, float y1, float x1, float y2)
+ * Returns the distance between two sets of coordinates using Pythagoras' Theorem
+ * The old version is now std::Distance(...)
+ 
+float Distance(float x1, float y1, float x2, float y2, int scale)
+ * Calculates the distance over a scale 'divisor' that would otherwise 
+   overflow Distance(), allowing negative coordinates.
+ * The old version is now std::Distance(...) or LargeDistance(...).
+   
+long LongDistance(long x1, long y1, long x1, long y2)
+ * Returns the distance between two sets of coordinates using Pythagoras' Theorem
+ * Takes args only as long (e.g. 100L).
+ * Retrns a vale as a long.
+ 
+long LongDistance(long x1, long y1, long x1, long y2, long scale)
+ * Calculates the distance over a scale 'divisor' that would otherwise 
+   overflow Distance(), allowing negative coordinates.
+ * Takes args only as long (e.g. 100L).
+ * Retrns a vale as a long.
+ 
+void ArrayCopy(untyped *dest, untyped *src);
+ * Copies the data from array src to array dest. 
+ * If the arrays are the same size, then the data of 'dest' will be
+ * identical to the data of 'src'.
+ * If 'dest' is larger, than any data already in indices above
+ * the max index of 'src' is unaffected.
+ * If 'dest' is smaller than 'src', then data is copied until
+ * 'dest' is full, and verflow is ignored (harmless), but there is 
+ * no error or warning on any overflow. 
+ * This is an exceptionally fast command, when compared to for loop copying. 
+
 int Floor(float n);
  * Truncates n to the nearest integer, rounding downwards.
 
@@ -2346,10 +2572,10 @@ void LoadSRAM("filename.zcsram", int flags);
  *	dmapdata	0x10
  *	mapdata 	0x20
 
-void SRand(int seed);
+void SRand(long seed);
  * Sets the current random seed to a given value, input from script. (DOES NOT /10000)
 
-int SRand(); 
+long SRand(); 
  * Generates a random seed, sets it, and returns it.
 	
 int utol(*string);
@@ -2372,8 +2598,22 @@ int ilen(string[]);
  * Returns the number of characters used by a number in the string.
  * Includes the sign, if negative. 
 
-int itoa(int value, dest_string[]);
+int itoa(dest_string[], int value);
  * Places value into a string as char. 
+ * Returns the number of characters used in the conversion. 
+ * This will be renamed to itoa() in the near future and <string> will be
+ * updated to reflect the change. The old <string> function will remain
+ * available as std::string::itoa.
+ 
+int xtoa(dest_string[], int value);
+ * Places a hexidecimal value into a string as char. 
+ * Returns the number of characters used in the conversion. 
+ * This will be renamed to xtoa() in the near future and <string> will be
+ * updated to reflect the change. The old <string> function will remain
+ * available as std::string::xtoa.
+
+int itoacat(dest_string[], int value);
+ * Appends value into a string as char, combining itoa() with strcat().
  * Returns the number of characters used in the conversion. 
 
 int strcmp(string_a[], string_b[]);
@@ -2408,6 +2648,13 @@ int atoi(string[]);
  * Returns the decimal value of a string consisting of a number.
  * e.g. ("26" would return 26).
  
+int xtoi(string[]);
+ * Converts a hexidecimal value presented as a string into an integer. 
+ * e.g. ("0x100" would return 256, which is 0x100).
+ * This will be renamed to xtoi() in the near future and <string> will be
+ * updated to reflect the change. The old <string> function will remain
+ * available as std::string::xtoi.
+ 
 int strcat(atring_a[], string_b[]);
  * Append the contents of string_b onto string_a.
  * Returns the pointer to string_a.
@@ -2432,6 +2679,7 @@ void sprintf(char32[] buf, char32[] format, ...untyped...)
  * Points are specified using '%'. The letter after is used to determine the type of the arg.
  *     "%i" - Integer. Inserts the number as a string, without decimal places.
  *     "%f" - Float. Inserts the number as a string, with decimal places.
+ *     "%l" - Long. Inserts the number as a string, in 'long' integer format.
  *            If the number does not contain decimal places, ".0" will still appear.
  *     "%d" - Number value. Automatically chooses between "%i" and "%f".
  *     "%s" - String value. Parameter must be a valid ZScript string.
@@ -2441,6 +2689,14 @@ void sprintf(char32[] buf, char32[] format, ...untyped...)
  *            in hexidecimal. Uses lowercase for letters.
  *     "%X" - Hexadecimal, uppercase. Same as above, but uses uppercase for letters.
  *     "%%" - Inserts a single '%' character, without trying to read it as an argument.
+ *     "%" followed by anything other than the above is considered an error. This should never be done.
+ * Flags can be used between the '%' and the letter.
+ *     "%0#L", where '#' is a number, and 'L' is any letter from 'ifdpxX' (numeric points)
+ *           - Requires that the integer portion of the number be at least '#' digits long.
+ *             This will fill up to the specified length with '0' characters.
+ *             The max number allowed is 10 (ex. "%010d").
+ *           Ex. "%02d" given the argument '1' will print '01'.
+ *               "%02d" given the argument '11' will print '11'.
  * The resulting string will be placed in the buffer, which is expected to be large enough
  *     to hold the output.
 
@@ -2487,8 +2743,27 @@ __________      .__        __                    _____                ___.
 
 ////////////
 //  Game  //
-////////////								// Game
+////////////	
+							// Game
+int SubscreenSpeed;
+ * The speed multiplier for the active subscreen falling or raising.
+ * The base speed (1) is 3 pixels per frame. The maximum value is 85.
 
+untyped STD[256];
+ * An array used internally by the <std> header.
+ * Safe to read values; you should avoid writing to this array or using it
+ * for any purpose, as it is reserved exclusively for a system header.
+ 
+ untyped Ghost[256];
+ * An array used internally by the <ghost> header.
+ * Safe to read values; you should avoid writing to this array or using it
+ * for any purpose, as it is reserved exclusively for a system header.
+ 
+ untyped Tango[256];
+ * An array used internally by the <tango> header.
+ * Safe to read values; you should avoid writing to this array or using it
+ * for any purpose, as it is reserved exclusively for a system header.
+ 
 bool Suspend[susptLAST];
  * Each index represents an aspect of the game engine that you 
  * can suspend or resume by writing to this array.
@@ -2560,6 +2835,10 @@ int Scrolling[5];
 
 int Game->GetNPCScript("name");
  * Returns the slot ID of the npc script 'name'.
+ * Returns -1 if there is no match.
+ 
+int Game->GetComboScript("name");
+ * Returns the slot ID of the combodata script 'name'.
  * Returns -1 if there is no match.
  
 int Game->GetLWeaponScript("name");
@@ -2778,6 +3057,10 @@ int ZScriptVersion;
  * to read and store the correct/current version, and temporarily 
  * modify it during the execution of --that script--, restoring it thereafter.
 
+long Time;
+ * Represents the current game time as a 'long', wherein '1L == 1 frame' of the game clock.
+ * Only change from 2.50.2 is that the type is now 'long'
+
 bool DisableActiveSubscreen;		
  * If set true, the active subscreen will not fall into view when the player presses Start.
 
@@ -2893,7 +3176,7 @@ bool Key[127];
  *     system keys such as 'Esc', 'F3', 'F4', 'F6', 'F7', 'F8', 'F9'
  *     bypass this, though can be affected via 'KeyRaw[]'
  
-bool KeyPressed[127];
+bool KeyPress[127];
  * Returns true if a key was pressed this frame.
  * Functions similarly to 'Input->Press[]', but for keys.
  * Read/Write; this will affect most engine functions as well, though
@@ -2930,6 +3213,30 @@ float Mouse[6];
 
 /************************************************************************************************************/
 
+//////////////											// Module
+//  Module  //
+//////////////
+
+int GetInt(char32[] "section_id", char32[] "element_id");
+ * Returns the value of a specified element of a specified section of the current module.
+ * Example: 
+ * 	int a = Module->GetInt("METADATA", "version_year");
+ 
+void GetString(char32 buffer[256], char32[] "section_id", char32[] "element_id");
+ * Copies a string used by a specified element of a specified section of the current module to 
+ * a buffer string. The buffer should be sized to 256.
+ * Example:
+ * 	char32 buf[256];
+ * 	Module->GetString(buf, "METADATA", "author");
+ 
+ void GetItemClass(char32 buffer[256], int itemclass_id);
+ * Copies a string used for itemclass ID 'itemclass_id' in the current module to the buffer string.
+ * Example:
+ * 	char32 buf[256];
+ * 	Module->GetItemClass(buf, IC_SWORD);
+ 
+ /************************************************************************************************************/
+
 //////////////////
 //  FileSystem  //
 //////////////////
@@ -2945,6 +3252,14 @@ bool FileExists(char32[] "filepath");
  *     relative to the current ZC path.
  * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
  *     then this is relative to "[zc root]/Files/[quest name]/"
+
+bool Remove(char32[] "filepath");
+ * Deletes the file pointed to by 'filepath'.
+ * Regardless of the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder",
+ *     this will ALWAYS be relative to "[zc root]/Files/[quest name]/"
+ 
+directory LoadDirectory(char32[] path);
+ * Opens the directory named by 'path'
 
 /************************************************************************************************************/
 
@@ -2994,6 +3309,10 @@ bool Create("filepath");
  *     If the file does not exist, it will be created.
  *     If the file DOES exist, all data in the file will be deleted.
  * For an equivalent text file mode, use 'OpenMode("filepath", "w+")'
+
+bool Remove();
+ * Deletes the file. This will close it, as with '->Close()', and then delete it from the filesystem.
+ * Returns true if successful. The file will be closed even on a failure.
 
 bool OpenMode("filepath", "mode_string");
  * If the file pointer has not been allocated, this function will allocate it.
@@ -3072,6 +3391,17 @@ int ReadChars(char32[] buf, int count, int pos);
  * If 'count' is positive, reads 'count' characters into 'buf'.
  * Will always add a null character at the end of the read characters.
  * Returns the number of characters read, excluding the added null character.
+ 
+int ReadBytes(untyped[] buf, int count, int pos);
+ * Reads a section of binary data from the file.
+ * Starts placing data at 'buf[pos]'.
+ *     If 'pos' is negative, starts at 'buf[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, reads until it fills 'buf', an error occurs, or End of File is reached.
+ * If 'count' is positive, reads 'count' characters into 'buf'.
+ * The binary data read will be 8b; such that reading '1' will place '1' into buf.
+ *     This means that the binary data cannot contain decimal places.
+ * Returns the number of bytes read.
 
 int ReadInts(untyped[] buf, int count, int pos);
  * Reads a section of binary data from the file.
@@ -3096,6 +3426,17 @@ int WriteChars(char32[] buf, int count, int pos);
  * If 'count' is negative, writes from 'buf' until it finds a null character, or reaches the end of 'buf'.
  * If 'count' is positive, writes 'count' characters from buf.
  * Returns the number of characters successfully written.
+ 
+int WriteBytes(untyped[] arr, int count, int pos);
+ * Writes 8b binary data from 'arr' to file.
+ * The binary data written will be 8b; such that writing '1' will write '1' to file.
+ *     This means that the binary data cannot contain decimal places.
+ * Starts at 'arr[pos]'.
+ *     If 'pos' is negative, starts at 'arr[0]'.
+ * If 'count' is 0, does nothing and returns 0.
+ * If 'count' is negative, writes from 'arr' until it reaches the end of 'arr'.
+ * If 'count' is positive, writes 'count' ints from arr.
+ * Returns the number of bytes successfully written.
 
 int WriteInts(untyped[] arr, int count, int pos);
  * Writes 32b binary data from 'arr' to file.
@@ -3123,19 +3464,19 @@ char32 UngetChar(char32 c);
  *     but further read operations will find this as the next character to be read.
  * Useful if you read a character, then realize you don't want it.
 
-int Pos;
+long Pos;
  * Read-only.
  * This represents the current position in the file.
  * In binary modes ('Open()', 'Create()', or 'OpenMode()' including "b"), this is the number
- *     of bytes into the file, / 10000. (i.e. 1 byte in == 0.0001).
+ *     of bytes into the file, as a long; i.e. '10L' == 10 bytes.
  * In text modes ('OpenMode()' not including "b"),
  *     the numerical value may not be meaningful but can still be used to restore the position
  *     to the same position later using 'Seek()' (if there are characters put back using
  *     'UngetChar()' still pending of being read, the behavior is undefined).
 
-bool Seek(int pos, bool from_current);
+bool Seek(long pos, bool from_current);
  * Moves the current position of the file.
- * 'pos' is a 32b value, where '0.0001' represents 1 byte; similar to 'Pos'.
+ * 'pos' is a 32b value, where '1L' represents 1 byte; similar to 'Pos'.
  * If 'from_current' is true, it moves forward from the current position.
  * Otherwise, it moves so that 'Pos' is equal to 'pos'.
  * Using 'from_current'==true in a file open in text mode ('OpenMode()' not
@@ -3174,6 +3515,29 @@ void GetError(char32[] buf);
 
 /************************************************************************************************************/
 
+/////////////////////
+///   Directory   ///
+/////////////////////
+
+int Size;
+ * The number of files/folders contained in the directory
+ 
+bool GetFilename(int index, char32 buf);
+ * Loads the name of the 'index' file (0 <= index < Size)
+ * The name will be placed in the buffer
+ * Returns true if successful, false if it fails.
+
+void Reload();
+ * Refreshes the directory, so that it can 'see' changes to files.
+
+void Free();
+ * This will deallocate the directory pointer, so that the pointer ID may be re-used.
+ * There is a limit to how many directory pointers may be allocated at once,
+ *     so be sure to free them when you are no longer using them.
+
+
+/************************************************************************************************************/
+
 ////////////////
 ///  Screen  ///
 ////////////////								// Screen
@@ -3204,6 +3568,12 @@ int Script;
 
 untyped InitD[8];
  * The eight D args used by the screendata script for the current screen.
+
+bool SecretsTriggered();
+ * Returns true if the secrets for this screen have been triggered (temp or perm)
+
+int ComboE[176];
+ * The effect area bits of each of the 176 combos used on the screen.
 
 int GetRenderTarget();
  * Returns the present drawing render target ID.
@@ -3279,7 +3649,8 @@ void DrawBitmapEx	( int layer,
  * const int BITDX_VFLIP = 0x08; //Vertical Flip.
  * You can also set a pivot point for the rotation, using 'int cx' and 'int cy'
  * If these are non-zero, the rotation anchor point will centre on these coordinates.
- * You may specify a colour to 'int lit' to use a lit mode. 
+ * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that
+ * colour index of the main palette. 
 
 
 void FastCombo()
@@ -3296,6 +3667,15 @@ void DrawComboCloaked(int layer, int x, int y,
 		int combo, int tilewidth, int tileheight,
 		int flip);
  * As DrawCombo(), but draws with a cloaked effect.
+ 
+void DrawString(int layer, 
+			int x, int y, 
+			int font, int color, int background_color, int format, 
+			"string", 
+			int opacity,
+			int shadow_type, int shadow_color);
+ * As DrawString(), but includes a shadow on the text.
+ * Use the 'SHD_' constants for 'shadow_type'.
 
 void PutPixels(int layer, int ptr[])
  * Puts multiple pixels to the screen in one function call.
@@ -3328,6 +3708,15 @@ void Polygon(int layer, int num_points, int vertices[], int colour, int transpar
 	ZASM: POLYGON
  * Draws a polygon to the screen, with a number of points specified as int points,
  * with vertices supplied as an array. 
+ 
+void DrawFrame(int layer,
+			int x, int y, int tile, int cset,
+			int width, int height, bool overlay,
+			int opacity);
+ * Draws a frame using a 2x2 block of tiles, where the upper-left corner of which is the 'tile' value
+ * This works based on how the engine subscreen frame object works, stretching the frame from those tiles
+ *     to whatever size you specify.
+ * Width/height are in 8-pixel increments; ex. 4,4 would give a 2x2 tile block; 8,8 would give a 4x4.
 
 int Valid;
  * ?
@@ -3394,7 +3783,7 @@ int ItemY;
 
 int Palette;
 int CSet;
- * ? The screen palette. ?
+ * The palette for the screen set via 'F4' or 'Screen>>Palette' in ZQuest
 
 int TileWarpDMap[4];
  * The destination DMap for each of the four warp types.
@@ -3516,15 +3905,15 @@ int NextScreen;
 
 int SecretCombo[128];
  * The Combo IDs used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretCSet[128];
  * The CSets used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretFlags[128];
  * The Combo Flags used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int ViewX;
  * Unused at this time. Represents the visible width of the screen.
@@ -3702,6 +4091,24 @@ int ScriptFlip;
  * If set to 0, or higher, then the engine will use this Flip state to draw the itemsprite.
  * The default value for this is -1. 
 
+int Falling;
+ * The timer indicating how long left the itemsprite will be falling
+ * If 0, the itemsprite is not falling
+ * Max value of 70, which is the value when you begin falling
+ * Read-Write
+
+int FallCombo;
+ * The pit combo that the itemsprite is falling into
+ * Affects the SFX that will occur on the first frame of falling
+ * Read-Write
+
+bool MoveFlags[2];
+ * Flags relating to movement.
+ * See 'ITEMMV_' constants in std_constants.zh for values
+ * [0] == Obeys gravity (see ->Gravity)
+ * [1] == Can fall in pitfalls
+ * Read-Write
+
 /************************************************************************************************************/	
 
 /////////////////
@@ -3781,11 +4188,29 @@ untyped Misc[32];
  * Expanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.
  * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
 
+int Falling;
+ * The timer indicating how long left the weapon will be falling
+ * If 0, the weapon is not falling
+ * Max value of 70, which is the value when you begin falling
+ * Read-Write
+
+int FallCombo;
+ * The pit combo that the weapon is falling into
+ * Affects the SFX that will occur on the first frame of falling
+ * Read-Write
+
+bool MoveFlags[2];
+ * Flags relating to movement.
+ * See 'WPNMV_' constants in std_constants.zh for values
+ * [0] == Obeys gravity (see ->Gravity)
+ * [1] == Can fall in pitfalls
+ * Read-Write
+
 ///////////////////////////
 ///  EWeapon  Specific  ///
 ///////////////////////////							// EWeapon
 
-int ParentUID;
+float ParentUID;
  * Returns the UID of the NPC that controls this eweapon.
  * Useful in weapon scripts, using Screen->LoadNPCBYUID(this->ParentUID).
  * Returns 0 is there is no npc controlling the weapon.
@@ -3794,6 +4219,10 @@ int ParentUID;
 ///////////////////////////
 ///  LWeapon  Specific  ///
 ///////////////////////////							// LWeapon
+
+int Special;
+ * The special info for the lweapon.
+ * Used by wind lweapons, instead of Level, to determine their effects. 
 
 int Weapon;
  * The UseWeapon property for this weapon. 
@@ -3828,8 +4257,34 @@ int AClock
 /////////////
 ///  NPC  ///
 /////////////	
-								// NPC
+	
+										// NPC
 
+float ParentUID;
+ * Returns the UID of the NPC that is a parent, or core (bool Core)
+ * of the NPC assigned to the present pointer. 
+ * If there is no parent, then this returns NULL.
+ * Useful in npc scripts, using Screen->LoadNPCBYUID(this->ParentUID).
+ 
+float UID;
+ * Each npc created by ZC in in a given session is assigned a unique ID (UID).
+ * Returns the UID of an npc.
+ * UIDs begin at 00000.0001 and overflow at 217478.3648. 
+ *	Note: This allows for 2,147,483,647 unique npcs, per-session.
+
+int Frame;
+ * The current frame of the npc's animation.
+ 
+int Fading;
+ * The death effect for the npc. Use the enum NPCFadeType in std_constants.
+ 
+int Halt;
+ * The clock for how long an npc is halted.
+ 
+int MoveStatus;
+ * The movement status of an npc, usually flying. 
+ * See enum NPCMoveStatus in <std.zh>.
+ 
 int Dropset;
  * Alias for npc->ItemSet. 
  * Read or write the item dropset used by the npc.
@@ -3867,6 +4322,12 @@ bool Gravity;
 bool NoSlide;
  * 'false' by default.
  * If this is set to 'true', the npc will ignore engine knockback.
+
+int SlideClock;
+ * The timer used for enemy knockback.
+ * The first byte is the clock.
+ * The second byte is the dir.
+ * Enemies that split do not slide. 
 
 bool NoScriptKnockback;
  * 'false' by default.
@@ -3914,6 +4375,13 @@ bool Knockback(int time, int dir, int speed);
  *     The enemy is dead
  *     'bool npc->NoKnockback;' was set true for this enemy
 
+int HitDir;
+ * Read-Only.
+ * Returns a direction constant if the npc is being knocked back.
+ * Returns -1 if the npc is not being knockd back.
+ * Writing to this has no effect, and is ignored. 
+ * This value is set both from engine, and from scripted knockback.
+ 
 void Remove(); 
  * Instantly DELETES an npc. No items will be dropped, no sound will play; the npc is simply DELETED OUTRIGHT.
  * This will immediately invalidate the npc pointer, as well as update 'Screen->NumNPCs()', and change the indexes for 'Screen->LoadNPC()'
@@ -4039,7 +4507,6 @@ bool Shield[5];
  * [0] through [3] correspond to DIR* constants (wherein DIR_UP represents FRONT, and DIR_DOWN represents BACK)
  * [4] corresponds to 'Shield can be broken'.
 
-
 bool Core;
  * This returns true if the NPC is the core segment of a segmented engine enemy.
 
@@ -4086,12 +4553,6 @@ untyped Misc[32];
  * Expanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.
  * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
 
-float UID;
- * Each npc created by ZC in in a given session is assigned a unique ID (UID).
- * Returns the UID of an npc.
- * UIDs begin at 00000.0001 and overflow at 217478.3648. 
- *	Note: This allows for 2,147,483,647 unique npcs, per-session.
-
 int InvFrames;				
  * Returns the number of remaining invincibility frames if the enemy is invincible, otherwise 0. 
 
@@ -4108,6 +4569,25 @@ int ItemSet;
 int Dropset;
  * The Dropset ID that this enemy will drop from when killed
 
+int Falling;
+ * The timer indicating how long left the npc will be falling
+ * If 0, the npc is not falling
+ * Max value of 70, which is the value when you begin falling
+ * Read-Write
+
+int FallCombo;
+ * The pit combo that the npc is falling into
+ * Affects the SFX that will occur on the first frame of falling
+ * Read-Write
+
+bool MoveFlags[3];
+ * Flags relating to movement.
+ * See 'NPCMV_' constants in std_constants.zh for values
+ * [0] == Obeys gravity (see ->Gravity)
+ * [1] == Can fall in pitfalls
+ * [2] == Can walk over pitfalls
+ * Read-Write
+ 
 /* The following commands are valid, but do not yet have in-engine use, */
 
 int Frozen;
@@ -4118,15 +4598,6 @@ int FrozenTile;
  
 int FrozenCSet;
  * Unimplemented at this time.
- 
-int npcscript;
- * The script ID used by this NPC.
-
-untyped InitD[8];
- * InitialD for the npc script.
-
-untyped IntiA[2];
- * InitialA for the npc script.
 
 int Movement[32];
  * NPC Movement patterns, and args.
@@ -4137,11 +4608,29 @@ int WeaponPattern[32];
 int FireSound;
  * The sound that plays when the npc fires a weapon.
 
+
 /************************************************************************************************************/
 
 //////////////
 ///  Hero  ///
 //////////////									// Hero // Player
+
+int CSet;
+ * Returns the current CSet used to draw the player sprite.
+ * This normally only changes when the player is hurt, and flashing.
+ * Writing to this is permitted, but it will be overwritten on the next frame.
+ 
+int ClockTimer;
+ * Returns the current ticks of a stopwatch/clock item countdown timer.
+ * Writing to this while ClockActive is true sets or changes the duration of
+ * the clock effect; if no stopwatch/clock is active, it pre-sets the value
+ * so that you may start a timed effect by writing ClockActive = true. 
+
+bool ClockActive;
+ * Returns true if a stopwatch/clock is active.
+ * Writing to this acts like picking up a stopwatch/clock item, and sets the
+ * duration of its effect based on ClockTimer. If ClockTimer is 0, the effect 
+ * lasts until the player changes screens.
 
 int Steps[8];
  * The number of pixels that the player moves in a frame, based on
@@ -4183,6 +4672,11 @@ int JumpCount;
  * Returns the number of times the hero has jumped in mid-air since last landing.
  * If this is positive, it will be reset to 0 the next frame the hero is on the ground.
  * Used by Roc's Feather items to determine how many extra jumps the hero has left
+
+bool IsWarping;
+ * Returns true if the player is currently being warped
+ * Note that as scripts generally do not run in warps, this may not ever return true
+ *     during a given warp, depending on the warp type, QRs, script type, etc.
 
 float Scale;
  * The scale factor for this sprited object. 
@@ -4291,8 +4785,15 @@ int ItemA;
 int ItemB;				
  * Contains the item IDs of what is currently equiped to Link's B button.
 
+int ItemX;				
+ * Contains the item IDs of what is currently equiped to Link's X (Ex1) button.
+ 
+int ItemY;				
+ * Contains the item IDs of what is currently equiped to Link's Y (Ex2) button.
+
 int SetItemSlot(int itm_id, int button, int force);				
  * This allows you to set Link's button items without binary operation with options for forcing them.
+ * Use the constants ITM_REQUIRE_* and ITM_SLOT_* from <std> when passing values into this function. 
 
 int UsingItem;			
  * Returns the ID of an item used when Link uses an item. Returns -1 if Link is not using an item this frame. 
@@ -4346,7 +4847,7 @@ void WarpEx(int ptr[])
   Valid array params are:
 	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags})
 	and
-	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags,forcedir}
+	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags,forcedir})
 
 	type:
 		Warp types are:
@@ -4399,8 +4900,38 @@ void WarpEx(int ptr[])
 		You can either accept the engine's setting for what Link's Dir should be
 		after warping him, or force a dir.
 
+int PitPullDir;
+ * Returns the direction that the Hero is being pulled in by a pit
+ * Read-only
 
+int PitPullTimer;
+ * A timer related to pits pulling the hero
+ * The pit will only pull the hero on frames where 'PitPullTimer % PitSensitivity == 0'
+ * The Pit Sensitivity is an attribyte on the pit combo
+ * Read-Write
 
+int Falling;
+ * The timer indicating how long left the Hero will be falling
+ * If 0, the Hero is not falling
+ * Max value of 70, which is the value when you begin falling
+ * Writing 'Hero->Action = LA_FALLING' is identical to setting this to 70.
+ * Read-Write
+
+int FallCombo;
+ * The pit combo that the Hero is falling into
+ * If non-zero, this combo's attributes will affect things such as if the Hero will warp,
+ *     and how much damage they will take upon finishing falling.
+ * If ==0, the Hero will take 1/4 heart of damage, and not warp
+ * Writing 'Hero->Action = LA_FALLING' will overwrite this value
+ * Writing to '->Falling' will overwrite this value
+ * Read-Write
+
+bool MoveFlags[2];
+ * Flags relating to movement.
+ * See 'HEROMV_' constants in std_constants.zh for values
+ * [0] == Obeys gravity (see ->Gravity)
+ * [1] == Can fall in pitfalls
+ * Read-Write
 
 /************************************************************************************************************/
 
@@ -4791,35 +5322,192 @@ int TextHeight;
 	2.	Layer 3 is Background on All Screens (uses DMaps[].flgs&dmfLAYER3BG)
 	3.	Layer 2 is Background on All Screens (uses DMaps[].flgs&dmfLAYER2BG
 	
-int Map;
-int Level;
-int Offset;
-int Compass;
-int Palette;
-int MIDI;
-int Continue;
-int Type;
-int MusicTrack;
-int ActiveSubscreen;
-int PassiveSubscreen;
-int Grid[8];
-int MiniMapTile[2];
-int MiniMapCSet[2];
-int MapTile[2];
-int MapCSet[2];
-int DisabledItems[256];
-int Flags;
-bool Sideview;
-	
-void SetName(int buffer[]);
-void GetName(int buffer[]);
-void SetTitle(int buffer[]);
-void GetTitle(int buffer[]);
-void SetIntro(int buffer[]);
-void GetIntro(int buffe[]);
+int ID;
+ * Read-only. 
+ * This returns the DMap ID for a given dmapdata pointer.
 
-void SetMusic(); //enh music
-void GetMusic();
+int Map;
+ * The game map used by the dmap.
+ 
+int Level;
+ * The Level ID of the DMap.
+ 
+int Offset;
+ * The DMap offset.
+ 
+int Compass;
+ * The screen where the compass marker appears in the minimap.
+ 
+int Palette;
+ * The level palette used by the dmap. 
+ * Equivalent to Game->LevelPalette[this->ID].
+ 
+int MIDI;
+ * The MIDI ID used by the DMap.
+ 
+int Continue;
+ * The screen on which the player spawns on the DMap.
+ 
+int Type;
+ * The DMap type. Legal types are:
+ * 0: NES Dungeon
+ * 1: NES Overworld
+ * 2: Interior
+ * 3: BS Overworld
+ 
+int MusicTrack;
+ * The enhanced musiic tracker file track ID.
+ 
+int ActiveSubscreen;
+ * The active subscreen ID.
+ 
+int PassiveSubscreen;
+ * The passive subscreen ID.
+ 
+int Grid[8];
+ * The rooms displayed either when the player has the map item,
+ * or when visiting rooms, marked in the DMap editor.
+ * See the functions in dmapgrid.zh to access these values.
+ 
+int MiniMapTile[2];
+ * The first tile ID used by passive subscreen minimap tile block.
+ * Index [0] is the small minimap without the map item, and [1] is the minimap with the map item.
+ 
+int MiniMapCSet[2];
+ * The CSet used by the passive subscreen minimap tiles.
+ * Index [0] is the small minimap without the map item, and [1] is the minimap with the map item.
+ 
+int MapTile[2];
+ * The first tile ID used by active subscreen dungeon map tile block.
+ * Index [0] is the map without the map item, and [1] is the map with the map item.
+ 
+int MapCSet[2];
+ * The CSet used by the active subscreen dungeon map tiles.
+ * Index [0] is the map without the map item, and [1] is the map with the map item.
+ 
+int DisabledItems[256];
+ * The items that are disabled on the active subscreen for this DMap.
+
+int Flagset[32];
+ * This is similar to int FLags, but Flags cannot handle enough bits for the now current
+ * number of bits used by the engine. Thus, this replaces it. 
+ * Indices in use:
+	DMFS_CAVESNOTCELLARS		= 0; //Use caves instead of item cellars
+	DMFS_3STAIRWARPS		= 1; //Allow 3-stair warps
+	DMFS_WWIND			= 2; //Allow whistle whirlwinds
+	DMFS_GUYCAVES			= 3; //Special rooms and guys are in caves only
+	DMFS_NOCOMPASS			= 4; //Don't display compass marker in minimap
+	DMFS_WAVY 			= 5; //Underwater wave effect
+	DMFS_WWINDRET			= 6; //Whistle whirlwind returns Link to start
+	DMFS_ALWAYSINTROMSG		= 7; //Always display intro string
+	DMFS_VIEWMAP       		= 8; //View overworld map by pressing 'Map'
+	DMFS_DMAPMAP         		= 9; //...But only show screens marked in minimap
+	DMFS_MINIMAPCOLORFIX 		= 10; //Use minimap foreground colour 2
+	DMFS_MINIMAPCOLOURFIX 		= 11; //Use minimap foreground colour 2
+	DMFS_SCRIPT1 			= 12; //DMap Script Flags
+	DMFS_SCRIPT2 			= 13;
+	DMFS_SCRIPT3 			= 14;
+	DMFS_SCRIPT4 			= 15;
+	DMFS_SCRIPT5 			= 16;
+	DMFS_SIDEVIEW 			= 17; //DMap is Sideview
+	DMFS_LAYER3ISBACKGROUND 	= 18; //Layer 3 is Background
+	DMFS_LAYER2ISBACKGROUND 	= 19; //Layer 2 is bBackground
+	DMFS_TRUECELLARENEMIES 		= 20; //True Cellar Enemies
+ * Indices 21 to 31 are reserved for future expansion. Please do not use these. 
+
+int Flags;
+ * The flags used by the DMap. These are OR'd together. 
+ * The values are:
+ * #define dmfCAVES			0x0001
+ * #define dmf3STAIR			0x0002
+ * #define dmfWHIRLWIND			0x0004
+ * #define dmfGUYCAVES			0x0008
+ * #define dmfNOCOMPASS			0x0010
+ * #define dmfWAVY 			0x0020
+ * #define dmfWHIRLWINDRET		0x0040
+ * #define dmfALWAYSMSG   		0x0080
+ * #define dmfVIEWMAP       		0x0100
+ * #define dmfDMAPMAP         		0x0200
+ * #define dmfMINIMAPCOLORFIX 		0x0400
+ * #define dmfSCRIPT1 			0x0800
+ * #define dmfSCRIPT2 			0x1000
+ * #define dmfSCRIPT3 			0x2000
+ * #define dmfSCRIPT4 			0x4000
+ * #define dmfSCRIPT5 			0x8000
+ 
+bool Sideview;
+ * If true, all screens on the DMap are treated as sideview
+ * UNLESS the screen flag Toggle Sideview is enabled.
+ * If calse, all screens on the DMap are treated as overhead
+ * UNLESS the screen flag Toggle Sideview is enabled.
+ 
+int Script;
+ * The standard DMap Active Script ID.
+
+untyped InitD[8];
+ * The eight script args for the dmapdata active script that runs 
+ * on this DMap. 
+
+int ASubScript;
+ * The 'Active Subscreen' script slot ID
+int PSubScript;
+ * The 'Passive Subscreen' script slot ID
+
+untyped SubInitD[8];
+ * The eight script args shared by the active/passive subscreen
+ * script slots on this DMap.
+
+int MapScript;
+ * The 'Scripted Map' script slot ID
+
+untyped MapInitD[8];
+ * The eight script args for the scripted map that runs
+ * on this DMap.
+
+int Charted[128];
+ * Stores map exploration data for each screen on the DMap.
+ * Does not work on overworld dmaps at present.
+ * Data is stored bitwise, using the 'CHRT_' constants in std_constants.zh
+ *     Ex: To read visited state, use 'dm->Charted[scr] & CHRT_VISITED'
+ * If the screen value is off the edge of the dmap, it will return '-1'.
+ * If the screen values is >127 or the dmapref is invalid,
+ *     an error will be logged, and it will return '-1'.
+
+	
+void SetName(char32 buffer[]);
+ * Copies the contents of the client array 'buffer' over the original 
+ * DMap name. 
+ * UNIMPLEMENTED at this time.
+ 
+void GetName(char32 buffer[]);
+ * Copies the name of the DMap into a client string 'buffer'.
+ * UNIMPLEMENTED at this time.
+
+void SetTitle(char32 buffer[]);
+ * Copies the contents of the client array 'buffer' over the original 
+ * DMap title. 
+ * UNIMPLEMENTED at this time.
+ 
+void GetTitle(char32 buffer[]);
+ * Copies the title of the DMap into a client string 'buffer'.
+ * UNIMPLEMENTED at this time.
+ 
+void SetIntro(char32 buffer[]);
+ * Copies the contents of the client array 'buffer' over the original 
+ * DMap intro text. 
+ * UNIMPLEMENTED at this time.
+ 
+void GetIntro(char32 buffer[]);
+ * Copies the intro text of the DMap into a client string 'buffer'.
+ * UNIMPLEMENTED at this time.
+
+void SetMusic(char32 "filename"); 
+ * Sets the enhanced music used by the DMap to a specified filename.
+ * UNIMPLEMENTED at this time.
+ 
+void GetMusic(char2 buffer[]);
+ * Copies the filename of the DMap enhanced music into a client string 'buffer'.
+ * UNIMPLEMENTED at this time.
 
 
 //////////////////
@@ -5080,15 +5768,15 @@ int NextScreen;
 
 int SecretCombo[128];
  * The Combo IDs used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretCSet[128];
  * The CSets used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int SecretFlags[128];
  * The Combo Flags used by 'Secret Combos' on this screen.
- * See SCR_SEC_* in std_constants.zh for more information.
+ * See SECCMB_* in std_constants.zh for more information.
 	
 int ViewX;
  * Unused at this time. Represents the visible width of the screen.
@@ -5141,7 +5829,7 @@ int LensLayer;
 int Flags[10];
  * A set of flagsets that contain special data for thiws screen.
  * These represent S.Flags1 and S.Flags2 flags.
- * See std_constants.zh (SFG* for the screen flag froup, 
+ * See std_constants.zh (SFG* for the screen flag group, 
  *	and SFX* for the screen flag value) for more information. 
 	
 int D[8];
@@ -5157,8 +5845,14 @@ int ComboC[176];
 int ComboF[176];
  * The placed (map) flags for each of the 176 combo positions used by this screen.
 
-int ComboS[176];
+int ComboI[176];
  * The inherent flags of each of the 176 combos used on the screen.
+ 
+int ComboS[176];
+ * The solidity bits of each of the 176 combos used on the screen.
+ 
+int ComboE[176];
+ * The effect area bits of each of the 176 combos used on the screen.
 
 int State[32];
  * The screen states used by this screen. Identical to Screen->State[], but for mapdata screens.
@@ -5334,7 +6028,10 @@ int Walk;
  * The walkability flags value. 
  * Walk flags are OR'd together using values of:
  *	
- *	
+ 
+int Effect;
+ * The effect area flags value.
+ * Uses the same binary values as 'Walk' above
 
 int CSet; 
 * The CSet values for the combo.
@@ -5877,12 +6574,15 @@ void Greyscale(bool enable);
  * Converts the game to monochrome greyscale, or reverts from greyscale to colour.
  * This is useful for simulating 'Gameboy' style displays.
 	
+int IsBlankTile[214500];
+ * Returns 1 is the tile supplied as an index is blank, 0 is it is not blank.
+ * Returns -1 if the user passed an invalid tile ID to the index.
 
 /////////////////
 ///  Audio->  ///
 /////////////////								// Audio
 
-void PlayOgg(int filename[]);
+bool PlayOgg(int filename[], int track);
  * Similar to PlayEnhancedMusic(), but only for OGG files.
  * Supports seeking, and other special instructions.
 
@@ -6122,6 +6822,18 @@ void Blit
  * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
  *	as the argument to 'bitmap target'.
  * To draw to a user created bitmap, pass its pointer to 'bitmap target'.
+ *
+ * Blit supports multiple MODES, OR'd together as a bitmask:
+ * const int BITDX_NORMAL = 0;
+ * const int BITDX_TRANS = 0x01; //Translucent
+ * const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific point, instead of its centre.
+ * const int BITDX_HFLIP = 0x04; //Horizontal Flip
+ * const int BITDX_VFLIP = 0x08; //Vertical Flip.
+ * You can also set a pivot point for the rotation, using 'int cx' and 'int cy'
+ * If these are non-zero, the rotation anchor point will centre on these coordinates.
+ * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that
+ * colour index of the main palette. 
+
 
 void RevBlit 
 void BlitTo 
@@ -6139,6 +6851,17 @@ void BlitTo
  * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
  *	as the argument to 'bitmap source'.
  * To draw from a user created bitmap, pass its pointer to 'bitmap source.
+ *
+ * RevBlit supports multiple MODES, OR'd together as a bitmask:
+ * const int BITDX_NORMAL = 0;
+ * const int BITDX_TRANS = 0x01; //Translucent
+ * const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific point, instead of its centre.
+ * const int BITDX_HFLIP = 0x04; //Horizontal Flip
+ * const int BITDX_VFLIP = 0x08; //Vertical Flip.
+ * You can also set a pivot point for the rotation, using 'int cx' and 'int cy'
+ * If these are non-zero, the rotation anchor point will centre on these coordinates.
+ * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that
+ * colour index of the main palette. 
 
 void Rectangle(int layer, 
 			int x, int y, int x2, int y2, 
@@ -6168,11 +6891,10 @@ void Ellipse(int layer,
 		bool fill, int opacity);
  * Identical to Screen->Ellipse(), but it draws to a target bitmap.
 
-void Line(int layer, 
-		int x, int y, int xradius, int yradius, 
+void Line(int layer, int x, int y, int x2, int y2, 
 		int color, float scale, 
 		int rx, int ry, int rangle, 
-		bool fill, int opacity);
+		int opacity);
  * Identical to Screen->Line(), but it draws to a target bitmap.
 
 void Spline(int layer, 
@@ -6231,11 +6953,25 @@ void DrawString(int layer,
 			"string", 
 			int opacity );
  * Identical to Screen->DrawString(), but it draws to a target bitmap.
+ 
+void DrawString(int layer, 
+			int x, int y, 
+			int font, int color, int background_color, int format, 
+			"string", 
+			int opacity,
+			int shadow_type, int shadow_color);
+ * Identical to Screen->DrawString(), but it draws to a target bitmap.
 
 void DrawLayer(int layer, 
 			int source_map, int source_screen, int source_layer, 
 			int x, int y, float rotation, int opacity);
  * Identical to Screen->DrawLayer(), but it draws to a target bitmap.
+ 
+void DrawFrame(int layer,
+			int x, int y, int tile, int cset,
+			int width, int height, bool overlay,
+			int opacity);
+ * Identical to Screen->DrawFrame(), but it draws to a target bitmap.
 
 Quad( int layer, 
 	int x1, int y1, int x2, int y2, 

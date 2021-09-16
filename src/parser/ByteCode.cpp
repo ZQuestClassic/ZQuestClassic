@@ -11,7 +11,7 @@
 
 using namespace ZScript;
 using std::ostringstream;
-using namespace std;
+using std::string;
 
 string LiteralArgument::toString()
 {
@@ -275,6 +275,8 @@ string ZScript::VarToString(long ID)
 	case LINKITEMB: return "LINKITEMB";
 
 	case LINKITEMA: return "LINKITEMA";
+	case LINKITEMX: return "LINKITEMX";
+	case LINKITEMY: return "LINKITEMY";
 	case SETITEMSLOT: return "SETITEMSLOT";
 	case GAMESETB: return "GAMESETB";
 	case GAMESETA: return "GAMESETA";
@@ -441,6 +443,9 @@ string ZScript::VarToString(long ID)
 		
 	case COMBOSD:
 		return "COMBOSD";
+		
+	case COMBOED:
+		return "COMBOED";
 		
 	case COMBOIDM:
 		return "COMBOIDM";
@@ -1151,6 +1156,7 @@ string ZScript::VarToString(long ID)
 	case IDATAFLAGUNUSED: return "IDATAFLAGUNUSED";
 	case IDATAGAINLOWER: return "IDATAGAINLOWER";
 	case IDATAPSTRING: return "IDATAPSTRING";
+	case IDATAPFLAGS: return "IDATAPFLAGS";
 	
 	//idata arrays
 	case IDATAATTRIB: return "IDATAATTRIB";
@@ -1419,6 +1425,7 @@ string ZScript::VarToString(long ID)
 	case MAPDATACOMBOTD: return "MAPDATACOMBOTD";
 	case MAPDATACOMBOID: return "MAPDATACOMBOID";
 	case MAPDATACOMBOSD: return "MAPDATACOMBOSD";
+	case MAPDATACOMBOED: return "MAPDATACOMBOED";
 	
 	
 	
@@ -1593,6 +1600,7 @@ string ZScript::VarToString(long ID)
 	case COMBODTILE: return "COMBODTILE";
 	case COMBODFLIP: return "COMBODFLIP";
 	case COMBODWALK: return "COMBODWALK";
+	case COMBODEFFECT: return "COMBODEFFECT";
 	case COMBODTYPE: return "COMBODTYPE";
 	case COMBODCSET: return "COMBODCSET";
 	case COMBODFOO: return "COMBODFOO";
@@ -1684,6 +1692,12 @@ string ZScript::VarToString(long ID)
 	case EWEAPONSCRIPTUID: return "EWEAPONSCRIPTUID";
 	case ITEMSCRIPTUID: return "ITEMSCRIPTUID";
 	case DMAPDATASIDEVIEW: return "DMAPDATASIDEVIEW";
+	case DMAPDATAASUBSCRIPT: return "DMAPDATAASUBSCRIPT";
+	case DMAPDATAPSUBSCRIPT: return "DMAPDATAPSUBSCRIPT";
+	case DMAPDATASUBINITD: return "DMAPDATASUBINITD";
+	case DMAPDATAMAPSCRIPT: return "DMAPDATAMAPSCRIPT";
+	case DMAPDATAMAPINITD: return "DMAPDATAMAPINITD";
+	case DMAPDATACHARTED: return "DMAPDATACHARTED";
 	
 	
 	case DONULL: return "DONULL";
@@ -1710,6 +1724,7 @@ string ZScript::VarToString(long ID)
 	case DMAPSCRIPT: return "DMAPSCRIPT";
 	case DMAPINITD: return "DMAPINITD";
 	case SCREENSCRIPT: return "SCREENSCRIPT";
+	case SCREENSECRETSTRIGGERED: return "SCREENSECRETSTRIGGERED";
 	case SCREENINITD: return "SCREENINITD";
 	case LINKINITD: return "LINKINITD";
 	case NPCDATAWEAPONINITD: return "NPCDATAWEAPONINITD";
@@ -1780,6 +1795,7 @@ string ZScript::VarToString(long ID)
 	case ITEMSPRITEINITD: return "ITEMSPRITEINITD";
 	case ZSCRIPTVERSION: return "ZSCRIPTVERSION";
 	case REFFILE: return "REFFILE";
+	case REFDIRECTORY: return "REFDIRECTORY";
 	case REFSUBSCREEN: return "REFSUBSCREEN";
 	case LINKCLIMBING: return "LINKCLIMBING";
 	case NPCIMMORTAL: return "NPCIMMORTAL";
@@ -1834,6 +1850,62 @@ string ZScript::VarToString(long ID)
 	case INCQST: return "INCQST";
 	case HEROJUMPCOUNT: return "HEROJUMPCOUNT";
 	
+	case HEROPULLDIR: return "HEROPULLDIR";
+	case HEROPULLCLK: return "HEROPULLCLK";
+	case HEROFALLCLK: return "HEROFALLCLK";
+	case HEROFALLCMB: return "HEROFALLCMB";
+	case HEROMOVEFLAGS: return "HEROMOVEFLAGS";
+	case ITEMFALLCLK: return "ITEMFALLCLK";
+	case ITEMFALLCMB: return "ITEMFALLCMB";
+	case ITEMMOVEFLAGS: return "ITEMMOVEFLAGS";
+	case LWPNFALLCLK: return "LWPNFALLCLK";
+	case LWPNFALLCMB: return "LWPNFALLCMB";
+	case LWPNMOVEFLAGS: return "LWPNMOVEFLAGS";
+	case EWPNFALLCLK: return "EWPNFALLCLK";
+	case EWPNFALLCMB: return "EWPNFALLCMB";
+	case EWPNMOVEFLAGS: return "EWPNMOVEFLAGS";
+	case NPCFALLCLK: return "NPCFALLCLK";
+	case NPCFALLCMB: return "NPCFALLCMB";
+	case NPCMOVEFLAGS: return "NPCMOVEFLAGS";
+	case ISBLANKTILE: return "ISBLANKTILE";
+	case LWPNSPECIAL: return "LWPNSPECIAL";
+	case MODULEGETINT: return "MODULEGETINT";
+	case MODULEGETSTR: return "MODULEGETSTR";
+	case NPCORIGINALHP: return "NPCORIGINALHP";
+	
+	case CLOCKCLK: return "CLOCKCLK";
+	case CLOCKACTIVE: return "CLOCKACTIVE";
+	case NPCHITDIR: return "NPCHITDIR";
+	case DMAPDATAFLAGARR: return "DMAPDATAFLAGARR";
+	case LINKCSET: return "LINKCSET";
+	case NPCSLIDECLK: return "NPCSLIDECLK";
+	case NPCFADING: return "NPCFADING";
+	case DISTANCE: return "DISTANCE";
+	case DISTANCESCALE: return "DISTANCESCALE";
+	case STDARR: return "STDARR";
+	case GHOSTARR: return "GHOSTARR";
+	case TANGOARR: return "TANGOARR";
+	case NPCHALTCLK: return "NPCHALTCLK";
+	case NPCMOVESTATUS: return "NPCMOVESTATUS";
+	case NPCFRAME: return "NPCFRAME";
+	
+	case DIRECTORYSIZE: return "DIRECTORYSIZE";
+	case LONGDISTANCE: return "LONGDISTANCE ";
+	case LONGDISTANCESCALE: return "LONGDISTANCESCALE";
+	case ACTIVESSSPEED: return "ACTIVESSSPEED";
+	case HEROISWARPING: return "HEROISWARPING";
+	
+	case ITEMGLOWRAD: return "ITEMGLOWRAD";
+	case NPCGLOWRAD: return "NPCGLOWRAD";
+	case LWPNGLOWRAD: return "LWPNGLOWRAD";
+	case EWPNGLOWRAD: return "EWPNGLOWRAD";
+	
+	case ITEMGLOWSHP: return "ITEMGLOWSHP";
+	case NPCGLOWSHP: return "NPCGLOWSHP";
+	case LWPNGLOWSHP: return "LWPNGLOWSHP";
+	case EWPNGLOWSHP: return "EWPNGLOWSHP";
+	
+	case ITEMDIR: return "ITEMDIR";
 	
 	default:
 	{
@@ -2526,6 +2598,11 @@ string OLoadDMapDataRegister::toString()
     return "LOADDMAPDATAR " + getArgument()->toString();
 }
 
+string OLoadDirectoryRegister::toString()
+{
+    return "LOADDIRECTORYR " + getArgument()->toString();
+}
+
 string OLoadDropsetRegister	::toString()
 {
     return "LOADDROPSETR " + getArgument()->toString();
@@ -2787,6 +2864,11 @@ string ORectangleRegister::toString()
     return "RECT";
 }
 
+string OFrameRegister::toString()
+{
+    return "FRAMER";
+}
+
 string OCircleRegister::toString()
 {
     return "CIRCLE";
@@ -2880,6 +2962,11 @@ string OFastComboArrayRegister::toString()
 string ODrawStringRegister::toString()
 {
     return "DRAWSTRING";
+}
+
+string ODrawString2Register::toString()
+{
+    return "DRAWSTRINGR2";
 }
 
 string ODrawBitmapRegister::toString()
@@ -3206,6 +3293,11 @@ string OSelectBWeaponRegister::toString()
 string OGetFFCScript::toString()
 {
     return "GETFFCSCRIPT " + getArgument()->toString();
+}
+
+string OGetComboScript::toString()
+{
+    return "GETCOMBOSCRIPT " + getArgument()->toString();
 }
 
 //2.54
@@ -4498,6 +4590,11 @@ string OBMPRectangleRegister::toString()
     return "BMPRECTR";
 }
 
+string OBMPFrameRegister::toString()
+{
+    return "BMPFRAMER";
+}
+
 string OBMPCircleRegister::toString()
 {
     return "BMPCIRCLER";
@@ -4571,6 +4668,11 @@ string OBMPFastComboRegister::toString()
 string OBMPDrawStringRegister::toString()
 {
     return "BMPDRAWSTRINGR";
+}
+
+string OBMPDrawString2Register::toString()
+{
+    return "BMPDRAWSTRINGR2";
 }
 
 string OBMPDrawBitmapExRegister::toString()
@@ -4936,14 +5038,19 @@ string Ostrstr::toString()
     return "STRSTR " + getArgument()->toString();
 }
 
-string Oxtoa::toString()
-{
-    return "XTOA " + getArgument()->toString();
-}
-
 string Oitoa::toString()
 {
-    return "ITOA " + getArgument()->toString();
+    return "ITOA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string Oxtoa::toString()
+{
+    return "XTOA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string Oitoacat::toString()
+{
+    return "ITOACAT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OSaveGameStructs::toString()
@@ -5154,6 +5261,11 @@ string OFileExists::toString()
 	return "FILEEXISTS " + getArgument()->toString();
 }
 
+string OFileSystemRemove::toString()
+{
+	return "FILESYSREMOVE " + getArgument()->toString();
+}
+
 string OFileClose::toString()
 {
 	return "FILECLOSE";
@@ -5239,6 +5351,11 @@ string OFileReadChars::toString()
 	return "FILEREADCHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 };
 
+string OFileReadBytes::toString()
+{
+	return "FILEREADBYTES " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OFileReadInts::toString()
 {
 	return "FILEREADINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -5248,6 +5365,11 @@ string OFileWriteChars::toString()
 {
 	return "FILEWRITECHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 };
+
+string OFileWriteBytes::toString()
+{
+	return "FILEWRITEBYTES " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
 
 string OFileWriteInts::toString()
 {
@@ -5263,6 +5385,31 @@ string OFileOpenMode::toString()
 {
 	return "FILEOPENMODE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 };
+
+string OFileRemove::toString()
+{
+	return "FILEREMOVE";
+};
+
+string ODirectoryGet::toString()
+{
+	return "DIRECTORYGET " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string ODirectoryReload::toString()
+{
+	return "DIRECTORYRELOAD";
+}
+
+string ODirectoryFree::toString()
+{
+	return "DIRECTORYFREE";
+}
+
+string OModuleGetIC::toString()
+{
+    return "MODULEGETIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////

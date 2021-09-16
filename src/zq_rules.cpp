@@ -23,6 +23,7 @@
 #include "zsys.h"
 #include "zquest.h"
 #include "zq_custom.h"
+extern newcombo *combobuf;
 
 static int animrules1_list[] =
 {
@@ -128,7 +129,12 @@ static int comborules1_list[] =
 
 static int comborules2_list[] =
 {
-    22,23,24,25,26,27,28,29,-1 
+    22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,-1 
+};
+
+static int comborules3_list[] =
+{
+    38,39,40,-1 
 };
 
 static TABPANEL comborules_tabs[] =
@@ -136,64 +142,80 @@ static TABPANEL comborules_tabs[] =
     // (text)
     { (char *)" 1 ",     D_SELECTED, comborules1_list, 0, NULL },
     { (char *)" 2 ",     0,          comborules2_list, 0, NULL },
+    { (char *)" 3 ",     0,          comborules3_list, 0, NULL },
     { NULL,              0,          NULL,            0, NULL }
 };
 
 static DIALOG comborules_dlg[] =
 {
-    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Combos", NULL, NULL },
-    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) comborules_tabs, NULL, (void *)comborules_dlg },
-    // 3
-    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
-    // rules
-    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Link Drowns in Walkable Water", NULL, NULL },
-    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Smart Screen Scrolling", NULL, NULL },
-    { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Can't Push Blocks Onto Unwalkable Combos", NULL, NULL },
-    { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Push Blocks Don't Move When Bumped", NULL, NULL },
-    // 10
+	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Combos", NULL, NULL },
+	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) comborules_tabs, NULL, (void *)comborules_dlg },
+	// 3
+	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+	
+	// rules
+	{ jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Link Drowns in Walkable Water", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Smart Screen Scrolling", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Can't Push Blocks Onto Unwalkable Combos", NULL, NULL },
+	{ jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Push Blocks Don't Move When Bumped", NULL, NULL },
+	// 10
 	{ jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Burn Flags Are Triggered Instantly", NULL, NULL },
-    { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams", NULL, NULL },
-    { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirrors Reflect Scripted Whirlwinds", NULL, NULL },
-    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combo Cycling On Layers", NULL, NULL },
-    { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Full Priority Damage Combos", NULL, NULL },
-    // 15
+	{ jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams", NULL, NULL },
+	{ jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirrors Reflect Scripted Whirlwinds", NULL, NULL },
+	{ jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combo Cycling On Layers", NULL, NULL },
+	{ jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Full Priority Damage Combos", NULL, NULL },
+	// 15
 	{ jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Warps Ignore Arrival X/Y Position When Setting Continue Screen", NULL, NULL },
-    { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Warp Return Points Only", NULL, NULL },
-    { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scrolling Warps Don't Set The Continue Point", NULL, NULL },
-    { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old-Style Warp Detection (NES Movement Only)", NULL, NULL },
-    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Damage Combos Work On Layers 1 And 2", NULL, NULL },
-    // 20
+	{ jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Warp Return Points Only", NULL, NULL },
+	{ jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scrolling Warps Don't Set The Continue Point", NULL, NULL },
+	{ jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old-Style Warp Detection (NES Movement Only)", NULL, NULL },
+	{ jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Damage Combos Work On Layers 1 And 2", NULL, NULL },
+	// 20
 	{ jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hookshot Grab Combos Work On Layers 1 And 2", NULL, NULL },
-    // { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Changing DMaps Doesn't Set The Continue Point", NULL, NULL },
-    // { d_dummy_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Mirror and Weapon Interaction", NULL, NULL },
-    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Face Up on Sideview Ladders", NULL, NULL },
-    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Press 'Down' to Fall Through Sideview Platforms", NULL, NULL },
-    { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Press 'Down+Jump' to Fall Through Sideview Platforms", NULL, NULL },
-    // 25
-    { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Falling Through Sideview Platforms Respects 'Drunk' Inputs", NULL, NULL },
-    { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Pressing Down Will Not Grab Sideview Ladders", NULL, NULL },
-    { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Custom Combos Work on Layers 1 and 2", NULL, NULL },
-    { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slash Combos Work on Layers 1 and 2", NULL, NULL },
-    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Combo Animation", NULL, NULL },
-  
-    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+	{ jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Mirror and Weapon Interaction", NULL, NULL },
+	//tab2 - 22
+	{ jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Face Up on Sideview Ladders", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Press 'Down' to Fall Through Sideview Platforms", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Press 'Down+Jump' to Fall Through Sideview Platforms", NULL, NULL },
+	// 25
+	{ jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Falling Through Sideview Platforms Respects 'Drunk' Inputs", NULL, NULL },
+	{ jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Pressing Down Will Not Grab Sideview Ladders", NULL, NULL },
+	{ jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Custom Combos Work on Layers 1 and 2", NULL, NULL },
+	{ jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slash Combos Work on Layers 1 and 2", NULL, NULL },
+	{ jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Combo Animation", NULL, NULL },
+	// 30
+	{ jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Water Collision", NULL, NULL },
+	{ jwin_check_proc,      10, 33+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Water Hopping", NULL, NULL },
+	{ jwin_check_proc,      10, 33+110,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Can't Swim in Solid Water", NULL, NULL },
+	{ jwin_check_proc,      10, 33+120,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Water works on Layer 1", NULL, NULL },
+	{ jwin_check_proc,      10, 33+130,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Water works on Layer 2", NULL, NULL },
+	// 35
+	{ jwin_check_proc,      10, 33+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Shallow Water Detection", NULL, NULL },
+	{ jwin_check_proc,      10, 33+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fixed Smart Scrolling", NULL, NULL },
+	{ jwin_check_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Block Triggers Are Perm For Non-Heavy Blocks", NULL, NULL },
+	//tab3 - 38
+	{ jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Overhead Combos work on Layers 1 and 2", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Auto Combos work on Layer 1", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Auto Combos work on Layer 2", NULL, NULL },
+	
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 static int comborules[] =
 {
-    qr_DROWN, qr_SMARTSCREENSCROLL, qr_SOLIDBLK, qr_HESITANTPUSHBLOCKS, qr_INSTABURNFLAGS,
-    qr_SWORDMIRROR, qr_WHIRLWINDMIRROR, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI,
-    qr_WARPSIGNOREARRIVALPOINT, qr_NOARRIVALPOINT, qr_NOSCROLLCONTINUE, qr_OLDSTYLEWARP,
-    qr_DMGCOMBOLAYERFIX, qr_HOOKSHOTLAYERFIX, qr_OLDMIRRORCOMBOS, qr_SIDEVIEWLADDER_FACEUP,
+	qr_DROWN, qr_SMARTSCREENSCROLL, qr_SOLIDBLK, qr_HESITANTPUSHBLOCKS, qr_INSTABURNFLAGS,
+	qr_SWORDMIRROR, qr_WHIRLWINDMIRROR, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI,
+	qr_WARPSIGNOREARRIVALPOINT, qr_NOARRIVALPOINT, qr_NOSCROLLCONTINUE, qr_OLDSTYLEWARP,
+	qr_DMGCOMBOLAYERFIX, qr_HOOKSHOTLAYERFIX, qr_OLDMIRRORCOMBOS, qr_SIDEVIEWLADDER_FACEUP,
 	qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS, qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,
 	qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, qr_CUSTOMCOMBOSLAYERS1AND2,
-	qr_BUSHESONLAYERS1AND2, qr_NEW_COMBO_ANIMATION,
+	qr_BUSHESONLAYERS1AND2, qr_NEW_COMBO_ANIMATION, qr_SMARTER_WATER, qr_NO_HOPPING, qr_NO_SOLID_SWIM, 
+	qr_WATER_ON_LAYER_1, qr_WATER_ON_LAYER_2, qr_SHALLOW_SENSITIVE, qr_SMARTER_SMART_SCROLL,
+	qr_NONHEAVY_BLOCKTRIGGER_PERM,qr_OVERHEAD_COMBOS_L1_L2, qr_AUTOCOMBO_LAYER_1, qr_AUTOCOMBO_LAYER_2,
 	
 	-1
 };
@@ -227,13 +249,13 @@ int onComboRules()
 
 static int weapon_eweapon_rules_tab[] =
 {
-    6,
+    6,12,
 	-1
 };
 
 static int weapon_lweapon_rules_tab[] =
 {
-	//6
+	9,10,11,13,
     -1
 };
 
@@ -269,13 +291,19 @@ static DIALOG weaponrules_dlg[] =
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Unique Sprites for Custom EWeapons", NULL, NULL },
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Angular Reflected Weapons", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Mirrors Use Weapon Centre for Collision", NULL, NULL },
+    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Cannot Stunlock Enemies", NULL, NULL },
+    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Arrows Always Penetrate", NULL, NULL },
+    { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Swordbeams Always Penetrate", NULL, NULL },
+    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Boomerang EWeapons Corrected Animation", NULL, NULL },
+    { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Bombs pierce enemy shields", NULL, NULL },
     // { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) " ", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 static int weaponrules[] =
 {
-   qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS, qr_MIRRORS_USE_WEAPON_CENTRE,
+   qr_SCRIPT_WEAPONS_UNIQUE_SPRITES, qr_ANGULAR_REFLECTED_WEAPONS, qr_MIRRORS_USE_WEAPON_CENTRE, qr_NO_STUNLOCK,
+	qr_ARROWS_ALWAYS_PENETRATE,qr_SWORDBEAMS_ALWAYS_PENETRATE, qr_CORRECTED_EW_BRANG_ANIM,qr_BOMBSPIERCESHIELD,
     -1
 };
 
@@ -324,7 +352,7 @@ static TABPANEL herorules_tabs[] =
 static DIALOG herorules_dlg[] =
 {
 	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Hero", NULL, NULL },
+	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Player", NULL, NULL },
 	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
 	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) herorules_tabs, NULL, (void *)herorules_dlg },
 	// 3
@@ -439,6 +467,7 @@ static DIALOG itemrules_dlg[] =
 	{ jwin_check_proc,      10, 21+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Magic Book Costs", NULL, NULL },
 	{ jwin_check_proc,      10, 21+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Reroll Useless Drops", NULL, NULL },
 	{ jwin_check_proc,      10, 21+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Ignore Sideview Platforms", NULL, NULL },
+	//{ jwin_check_proc,      10, 21+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Cannot Stunlock Enemies", NULL, NULL },
    
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -585,7 +614,7 @@ static int fixesrules1_list[] =
 
 static int fixesrules2_list[] =
 {
-    22,23,24,25,26,27,28,-1
+    22,23,24,25,26,27,28,29,-1
 };
 
 static TABPANEL fixesrules_tabs[] =
@@ -632,6 +661,7 @@ static DIALOG fixesrules_dlg[] =
     { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Invincible Link Isn't Hurt By Own Fire Weapons", NULL, NULL },
     { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Position Offset Of Screen Items", NULL, NULL },
     { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Ladder Anywhere", NULL, NULL },
+    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Actually fixed Bomb/Darknut interaction", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -642,7 +672,7 @@ static int fixesrules[] =
     qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, qr_PUSHBLOCKCSETFIX,
     qr_TRAPPOSFIX, qr_NOBORDER, qr_OLDPICKUP, qr_SUBSCREENOVERSPRITES,
     qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS,
-    qr_NOFLICKER, qr_FIREPROOFLINK2, qr_NOITEMOFFSET, qr_LADDERANYWHERE,-1
+    qr_NOFLICKER, qr_FIREPROOFLINK2, qr_NOITEMOFFSET, qr_LADDERANYWHERE,qr_TRUEFIXEDBOMBSHIELD,-1
 };
 
 int onFixesRules()
@@ -679,7 +709,13 @@ static int miscrules1_list[] =
 
 static int miscrules2_list[] =
 {
-    22,23,24,25,26,27,28,29,30,31,-1
+    22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,
+	-1
+};
+static int miscrules3_list[] =
+{
+    38,39,
+	-1
 };
 
 static TABPANEL miscrules_tabs[] =
@@ -687,6 +723,7 @@ static TABPANEL miscrules_tabs[] =
     // (text)
     { (char *)" 1 ",     D_SELECTED,  miscrules1_list, 0, NULL },
     { (char *)" 2 ",     0,           miscrules2_list, 0, NULL },
+    { (char *)" 3 ",     0,           miscrules3_list, 0, NULL },
     { NULL,              0,           NULL,             0, NULL }
 };
 
@@ -730,7 +767,18 @@ static DIALOG miscrules_dlg[] =
     { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Ex3 and Ex4 Shift A-Button Items", NULL, NULL },
     { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Fast Mode (Uncap)", NULL, NULL },
     { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow permanent secrets on Dungeon-type dmaps", NULL, NULL },
-    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+    { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Scrolling Screen While In Air", NULL, NULL },
+    { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Reload On Death", NULL, NULL },
+    { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Higher Maximum Playtime", NULL, NULL },
+    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Setting X Button Items", NULL, NULL },
+    { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Setting Y Button Items", NULL, NULL },
+    { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Continue on Death", NULL, NULL },
+    
+	// rules 3
+    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Dark Rooms", NULL, NULL },
+    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Darkness Draws Under Layer 7", NULL, NULL },
+    
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 static int miscrules[] =
@@ -740,8 +788,9 @@ static int miscrules[] =
     qr_NOCONTINUE, qr_NOGUYFIRES, qr_NOGUYPOOF, qr_LOG, qr_SCRIPTERRLOG, qr_SHOPCHEAT, 
 	qr_NOGANONINTRO,qr_NEVERDISABLEAMMOONSUBSCREEN, qr_SIDEVIEWTRIFORCECELLAR,
 	qr_EPILEPSY, qr_NO_L_R_BUTTON_INVENTORY_SWAP, qr_USE_EX1_EX2_INVENTORYSWAP,
-	qr_NOFASTMODE, qr_DUNGEON_DMAPS_PERM_SECRETS,
-
+	qr_NOFASTMODE, qr_DUNGEON_DMAPS_PERM_SECRETS, qr_NO_SCROLL_WHILE_IN_AIR, qr_INSTANT_RESPAWN,
+	qr_GREATER_MAX_TIME,qr_SET_XBUTTON_ITEMS,qr_SET_YBUTTON_ITEMS,qr_INSTANT_CONTINUE,
+	qr_NEW_DARKROOM, qr_NEWDARK_L6,
 	-1
 };
 
@@ -779,7 +828,12 @@ static int compatrules1_list[] =
 
 static int compatrules2_list[] =
 {
-	22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, -1
+	22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, -1
+};
+
+static int compatrules3_list[] =
+{
+	36, 37, 38, 39, 40, 41, -1
 };
 
 static TABPANEL compatrules_tabs[] =
@@ -787,6 +841,7 @@ static TABPANEL compatrules_tabs[] =
     // (text)
     { (char *)" 1 ",     D_SELECTED,  compatrules1_list, 0, NULL },
     { (char *)" 2 ",     0,           compatrules2_list, 0, NULL },
+    { (char *)" 3 ",     0,           compatrules3_list, 0, NULL },
     { NULL,              0,           NULL,             0, NULL }
 };
 
@@ -799,6 +854,8 @@ static int compatrules[] =
    qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, qr_OLD_SIDEVIEW_CEILING_COLLISON, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
    qr_OLD_ENEMY_KNOCKBACK_COLLISION, qr_WEAPONSMOVEOFFSCREEN, qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
    qr_SHORTDGNWALK,qr_OLD_STRING_EDITOR_MARGINS,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT,
+   qr_BROKEN_OVERWORLD_MINIMAP, qr_BROKEN_RING_POWER, qr_NO_OVERWORLD_MAP_CHARTING, qr_DUNGEONS_USE_CLASSIC_CHARTING,
+   qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION, qr_BROKEN_HORIZONTAL_WEAPON_ANIM,
 	-1 
 };
 
@@ -850,7 +907,19 @@ static DIALOG compatrules_dlg[] =
 	{ jwin_check_proc,      10, 13+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old String Margins", NULL, NULL },
 	{ jwin_check_proc,      10, 13+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old String Frame Width/Height", NULL, NULL },
 	{ jwin_check_proc,      10, 13+170, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Bugged ->Next Combos", NULL, NULL },
-    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
+    // 35
+	{ jwin_check_proc,      10, 13+180, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Overworld Minimap Ignores Map Item", NULL, NULL },
+	//36
+	{ jwin_check_proc,      10, 13+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Broken) Ring Power Maths", NULL, NULL },
+	{ jwin_check_proc,      10, 13+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Overworld DMaps Do Not Chart Progress", NULL, NULL },
+	{ jwin_check_proc,      10, 13+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Dungeon DMaps Use Classic Charting", NULL, NULL },
+	{ jwin_check_proc,      10, 13+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Allow Editing Combo 0", NULL, NULL },
+	// 40
+	{ jwin_check_proc,      10, 13+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Chest Collision", NULL, NULL },
+	{ jwin_check_proc,      10, 13+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Broken Horizontal Weapon Animation", NULL, NULL },
+
+	
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
 };
 
 int onCompatRules()
@@ -875,6 +944,12 @@ int onCompatRules()
         {
             set_bit(quest_rules, compatrules[i], compatrules_dlg[i+8].flags & D_SELECTED);
         }
+		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+		{
+			combobuf[0].walk = 0xF0;
+			combobuf[0].type = 0;
+			combobuf[0].flag = 0;
+		}
     }
     
     return D_O_K;

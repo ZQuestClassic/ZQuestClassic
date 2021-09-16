@@ -55,9 +55,9 @@ public:
     bool behind;
 	byte linkedItem;
 	byte wscreengrid[22];
-	byte wscreengrid_layer[2][22];
+	byte wscreengrid_layer[6][22];
 
-	//!Dimentio: More variables? That suuuuuure won't break anything. Nope.
+	//!DIMI: More variables? That suuuuuure won't break anything. Nope.
     int count1; 
     int count2;
     int count3;
@@ -105,13 +105,14 @@ public:
     byte ScriptGenerated; //Used to permit creating LinkClass weapons, or other weapon types that the engine does not control.
     byte isLWeapon;
 	bool weapon_dying_frame; //a last_hurrah for weapons -V
-    
+    byte specialinfo;
     void convertType(bool toLW);
     weapon(weapon const &other);
     //weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
-    weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false, byte script_gen=0, byte isLW=0);
+    weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false, byte script_gen=0, byte isLW=0, byte special = 0, int Linked_Parent = 0);
     weapon(zfix X,zfix Y,zfix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width, int a, int b, int c, int d, int e, int f, int g);
     virtual ~weapon();
+	void cleanup_sfx();
     void LOADGFX(int wpn);
     void findcombotriggers();
     bool Dead();
@@ -132,8 +133,11 @@ public:
 	virtual int run_script(int mode);
 };
 
+void do_cswitch_combo2(newcombo const& cmb, int layer, int cpos);
+void do_generic_combo2(int bx, int by, int cid, int flag, int flag2, int ft, int scombo, bool single16, int layer);
 void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &aclk, int &aframe,
                int parentid);
+	       
 #endif
 /*** end of sprite.cc ***/
 

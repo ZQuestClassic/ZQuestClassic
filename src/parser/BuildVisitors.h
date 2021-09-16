@@ -84,6 +84,7 @@ namespace ZScript
 		virtual void caseStringLiteral(ASTStringLiteral& host, void* param);
 		virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param);
 		virtual void caseOptionValue(ASTOptionValue& host, void* param);
+		virtual void caseIsIncluded(ASTIsIncluded& host, void* param);
 		// Types
 		void caseDataType(ASTDataType& host, void* param) {}
 

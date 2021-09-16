@@ -52,6 +52,7 @@ static void massRecolorReset8Bit();
 static bool massRecolorSetup(int cset);
 static void massRecolorApply(int tile);
 extern int last_droplist_sel;
+extern int zqwin_scale;
 
 int ex=0;
 int nextcombo_fake_click=0;
@@ -711,6 +712,100 @@ void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int
 		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
 }
 
+bool do_layer_button_reset(int x,int y,int w,int h,const char *text, int flags, bool toggleflag)
+{
+    bool over=false;
+    
+    while(gui_mouse_b())
+    {
+        //vsync();
+        if(mouse_in_rect(x,y,w,h))
+        {
+            if(!over)
+            {
+                vsync();
+                scare_mouse();
+                draw_layer_button(screen, x, y, w, h, text, flags^D_SELECTED);
+                unscare_mouse();
+                over=true;
+                
+                if(is_zquest())
+                {
+                    if(myvsync)
+                    {
+                        if(zqwin_scale > 1)
+                        {
+                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+                        }
+                        else
+                        {
+                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+                        }
+                        
+                        myvsync=0;
+                    }
+                }
+            }
+        }
+        else
+        {
+            if(over)
+            {
+                vsync();
+                scare_mouse();
+                draw_layer_button(screen, x, y, w, h, text, flags);
+                unscare_mouse();
+                over=false;
+                
+                if(is_zquest())
+                {
+                    if(myvsync)
+                    {
+                        if(zqwin_scale > 1)
+                        {
+                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+                        }
+                        else
+                        {
+                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+                        }
+                        
+                        myvsync=0;
+                    }
+                }
+            }
+        }
+        
+    }
+    
+    if(over)
+    {
+        vsync();
+        scare_mouse();
+        draw_layer_button(screen, x, y, w, h, text, toggleflag ? flags^D_SELECTED : flags);
+        unscare_mouse();
+        
+        if(is_zquest())
+        {
+            if(myvsync)
+            {
+                if(zqwin_scale > 1)
+                {
+                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+                }
+                else
+                {
+                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+                }
+                
+                myvsync=0;
+            }
+        }
+    }
+    
+    return over;
+}
+
 bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin)
 {
     bool over=false;
@@ -744,7 +839,7 @@ bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool 
     return over;
 }
 
-bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin)
+bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin, bool sel)
 {
     bool over=false;
     
@@ -757,7 +852,7 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
             if(!over)
             {
                 scare_mouse();
-                draw_text_button(screen,x,y,w,h,text,fg,bg,D_SELECTED,jwin);
+                draw_text_button(screen,x,y,w,h,text,fg,bg,sel?0:D_SELECTED,jwin);
                 unscare_mouse();
                 over=true;
             }
@@ -767,7 +862,7 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
             if(over)
             {
                 scare_mouse();
-                draw_text_button(screen,x,y,w,h,text,fg,bg,0,jwin);
+                draw_text_button(screen,x,y,w,h,text,fg,bg,sel?D_SELECTED:0,jwin);
                 unscare_mouse();
                 over=false;
             }
@@ -778,7 +873,7 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
     {
         custom_vsync();
         scare_mouse();
-        draw_text_button(screen,x,y,w,h,text,fg,bg,0,jwin);
+        draw_text_button(screen,x,y,w,h,text,fg,bg,sel?0:D_SELECTED,jwin);
         unscare_mouse();
     }
     
@@ -1775,16 +1870,15 @@ void edit_tile(int tile,int flip,int &cs)
             case KEY_R:
             {
                 //if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
-                //{
+                // {
                 //do_recolor(tile); redraw=true; saved=false;
-                //}
+                // }
                 //else
-                //{
+                // {
                 go_tiles();
                 rotate_tile(tile,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
                 redraw=true;
                 saved=false;
-                //}
                 break;
             }
             
@@ -2676,7 +2770,6 @@ int bestfit_cset_color(int cs, int r, int g, int b)
     for(int i = 0; i < CSET_SIZE; i++)
     {
         byte *rgbByte;
-        RGB rgb;
         
         // This seems to be right...
         if(cs==2 || cs==3 || cs==4)
@@ -2724,7 +2817,6 @@ int bestfit_cset_color_8bit(int r, int g, int b)
     for(int i = 0; i < 192; i++) // 192 colors in CSets 0-11
     {
         byte *rgbByte;
-        RGB rgb;
         
         int cs=i>>4;
         if(cs==2 || cs==3 || cs==4)
@@ -3316,9 +3408,9 @@ void load_imagebuf()
 	//cache QRS
 	//byte cached_rules[QUESTRULES_NEW_SIZE] = { 0 };
 	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
-	//{ 
+	// { 
 	//	cached_rules[q] = quest_rules[q];
-	//}
+	// }
     bool compressed=false;
     bool encrypted=false;
     tiledata *hold=newtilebuf;
@@ -3520,9 +3612,9 @@ error2:
     //restore cashed QRs / rules
 	
 	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
-	//{ 
+	// { 
 	//	quest_rules[q] = cached_rules[q];
-	//}
+	// }
 }
 
 static char bitstrbuf[32];
@@ -6333,9 +6425,9 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
         return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
         //if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
-        //{
+        // {
         //  return false;
-        //}
+        // }
     }
     
     char *tile_move_list_text = new char[65535];
@@ -7972,9 +8064,9 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
         return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
         //if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
-        //{
+        // {
         //  return false;
-        //}
+        // }
     }
     
     char *tile_move_list_text = new char[65535];
@@ -9612,9 +9704,9 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
         return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
         //if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
-        //{
+        // {
         //  return false;
-        //}
+        // }
     }
     
     char *tile_move_list_text = new char[65535];
@@ -11171,9 +11263,9 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
         return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
         //if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
-        //{
+        // {
         //  return false;
-        //}
+        // }
     }
     
     char *tile_move_list_text = new char[65535];
@@ -13561,7 +13653,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs<15) ? cs+1:0;
+                    cs = (cs<11) ? cs+1:0;
                     
                 redraw=true;
                 break;
@@ -13621,7 +13713,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs>0)  ? cs-1:15;
+                    cs = (cs>0)  ? cs-1:11;
                     
                 redraw=true;
                 break;
@@ -13834,7 +13926,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 #ifdef ALLEGRO_LITTLE_ENDIAN
                                 
                                     //if(bitcheck==tf4Bit)
-                                    //{
+                                    // {
                                     for(int p=0; p<(8*bitcheck)-1; p++)
                                     {
                                         if(bitcheck==tf4Bit)
@@ -14975,7 +15067,7 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
     if(tile2==tile)
     {
         int nextcombo=combobuf[tile].nextcombo;
-        int nextcset=combobuf[tile].nextcset;
+        int nextcset=(combobuf[tile].animflags & AF_CYCLENOCSET) ? cs : combobuf[tile].nextcset;
         jwin_draw_frame(screen2,(136*mul)-2,(216*mul)+yofs-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
         
         if(nextcombo>0)
@@ -15515,12 +15607,20 @@ static DIALOG advpaste_dlg[] =
     { jwin_button_proc,     27,   130,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0, (void *) "O&K", NULL, NULL },
     { jwin_button_proc,     112,  130,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     
-    { jwin_check_proc,		10,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Tile", NULL, NULL },
-    { jwin_check_proc,		10,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Cset2", NULL, NULL },
-    { jwin_check_proc,		10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Walkability", NULL, NULL },
-    { jwin_check_proc,		10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Animation", NULL, NULL },
-    { jwin_check_proc,		10,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Type", NULL, NULL },
-    { jwin_check_proc,		10,	   80,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Inherent Flag", NULL, NULL },
+    { jwin_check_proc,		 10,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Tile", NULL, NULL },
+    { jwin_check_proc,		 10,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Cset2", NULL, NULL },
+    { jwin_check_proc,		 10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Walkability", NULL, NULL },
+    { jwin_check_proc,		 10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Animation", NULL, NULL },
+    { jwin_check_proc,		 10,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Type", NULL, NULL },
+    { jwin_check_proc,		 10,	   80,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Inherent Flag", NULL, NULL },
+    { jwin_check_proc,		 10,	   90,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attribytes", NULL, NULL },
+    { jwin_check_proc,		 10,	  100,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attrishorts", NULL, NULL },
+    { jwin_check_proc,		 10,	  110,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attributes", NULL, NULL },
+    { jwin_check_proc,		 10,	  120,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Flags", NULL, NULL },
+    { jwin_check_proc,		110,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Label", NULL, NULL },
+    { jwin_check_proc,		110,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Triggered By", NULL, NULL },
+    { jwin_check_proc,		110,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Script", NULL, NULL },
+    { jwin_check_proc,		110,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Effect", NULL, NULL },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -15557,7 +15657,7 @@ int advpaste(int tile, int tile2, int copy)
         
         if(advpaste_dlg[5].flags & D_SELECTED)   // walk
         {
-            combobuf[i].walk=combo.walk;
+            combobuf[i].walk=(combobuf[i].walk&0xF0) | (combo.walk&0x0F);
         }
         
         if(advpaste_dlg[6].flags & D_SELECTED)   // anim
@@ -15569,6 +15669,7 @@ int advpaste(int tile, int tile2, int copy)
             combobuf[i].skipanim=combo.skipanim;
             combobuf[i].nexttimer=combo.nexttimer;
             combobuf[i].skipanimy=combo.skipanimy;
+            combobuf[i].animflags=combo.animflags;
         }
         
         if(advpaste_dlg[7].flags & D_SELECTED)   // type
@@ -15579,6 +15680,54 @@ int advpaste(int tile, int tile2, int copy)
         if(advpaste_dlg[8].flags & D_SELECTED)   // flag
         {
             combobuf[i].flag=combo.flag;
+        }
+        
+        if(advpaste_dlg[9].flags & D_SELECTED)   // attribytes
+        {
+			for(int q = 0; q < 8; ++q)
+				combobuf[i].attribytes[q] = combo.attribytes[q];
+        }
+        
+        if(advpaste_dlg[10].flags & D_SELECTED)   // attribytes
+        {
+			for(int q = 0; q < 8; ++q)
+				combobuf[i].attrishorts[q] = combo.attrishorts[q];
+        }
+		
+        if(advpaste_dlg[11].flags & D_SELECTED)   // attributes
+        {
+			for(int q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+				combobuf[i].attributes[q] = combo.attributes[q];
+        }
+        
+        if(advpaste_dlg[12].flags & D_SELECTED)   // flags
+        {
+            combobuf[i].usrflags = combo.usrflags;
+        }
+        
+        if(advpaste_dlg[13].flags & D_SELECTED)   // label
+        {
+			for(int q = 0; q < 11; ++q)
+				combobuf[i].label[q] = combo.label[q];
+        }
+        
+        if(advpaste_dlg[14].flags & D_SELECTED)   // triggered by
+        {
+			for(int q = 0; q < 3; ++q)
+				combobuf[i].triggerflags[q] = combo.triggerflags[q];
+			combobuf[i].triggerlevel = combo.triggerlevel;
+        }
+        
+        if(advpaste_dlg[15].flags & D_SELECTED)   // script
+        {
+            combobuf[i].script = combo.script;
+			for(int q = 0; q < 2; ++q)
+				combobuf[i].initd[q] = combo.initd[q];
+        }
+        
+        if(advpaste_dlg[16].flags & D_SELECTED)   // effect
+        {
+            combobuf[i].walk=(combobuf[i].walk&0x0F) | (combo.walk&0xF0);
         }
     }
     
@@ -15839,7 +15988,7 @@ int combo_screen(int pg, int tl)
                 {
                     combobuf[i].flip^=1;
                     byte w2=combobuf[i].walk;
-                    combobuf[i].walk=(w2& ~3)>>2 | (w2&3)<<2;
+                    combobuf[i].walk=((w2& ~0x33)>>2 | (w2&0x33)<<2);
                     w2=combobuf[i].csets;
                     combobuf[i].csets= (((w2& ~0x50)>>1 | (w2&0x50)<<1) & ~0x0F) | (w2 & 0x0F);
                 }
@@ -15902,7 +16051,7 @@ int combo_screen(int pg, int tl)
                     {
                         combobuf[i].flip^=2;
                         byte w2=combobuf[i].walk;
-                        combobuf[i].walk=(w2&5)<<1 | (w2& ~5)>>1;
+                        combobuf[i].walk=(w2&0x55)<<1 | (w2& ~0x55)>>1;
                         w2=combobuf[i].csets;
                         combobuf[i].csets= (((w2&0x30)<<2 | (w2& ~0x30)>>2) & ~0x0F) | (w2 & 0x0F);
                     }
@@ -16437,9 +16586,9 @@ int d_combo_loader(int msg,DIALOG *d,int c)
     {
         FONT *f = is_large ? lfont_l : font;
         textprintf_ex(screen,f,d->x,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile:");
-        textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.o_tile);
+        textprintf_ex(screen,f,d->x+((!is_large ? 1 : 1.5)*36),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.o_tile);
         textprintf_ex(screen,f,d->x,d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Flip:");
-        textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.flip);
+        textprintf_ex(screen,f,d->x+((!is_large ? 1 : 1.5)*36),d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.flip);
         textprintf_ex(screen,f,d->x,d->y+(!is_large ? 24 : 36),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet2:");
     }
     
@@ -16524,50 +16673,87 @@ static ListData flag_list(flaglist, &font);
 static int combo_data_list[] =
 {
     // dialog control number
-    2,3,4,
-	5,6,7,8,9,10,11,12,13,
+    4,5,6,
+	7,8,9,10,11,12,13,
 	14,
-	15,16,17,18,19,20,21,22,23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, -1
+	15,16,17,18,19,20,21,22,23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
+	37, 38, 39, 40, 41, 43, 45, 46,
+	136, 137, 138, 139, 140,
+	141,142,143,144,
+	-1
+};
+
+static int combo_aflags_list[] =
+{
+	42,44,173,174,175,
+	-1
+};
+
+static int combo_attribytes_list[] =
+{
+    // dialog control number
+	47,48,
+	114,115,116,117,118,119,120,121,
+	145,146,147,148,149,150,151,152,
+	134, 135,
+	176, 177, 178, 179, 180, 181, 182, 183,
+	-1
+};
+
+static int combo_attrishorts_list[] =
+{
+    // dialog control number
+	47,48,
+	153,154,155,156,157,158,159,160,
+	161,162,163,164,165,166,167,168,
+	169,170,
+	184, 185, 186, 187, 188, 189, 190, 191,
+	-1
 };
 
 static int combo_attributes_list[] =
 {
     // dialog control number
-     45,46,47,48,49,50,51,52,53,54,102,103,
-	104,105,106,107,108,109,110,111,
-	112,113,114,115,116,117,118,119,
+    47,48,
+	57,58,59,60,61,62,63,64,104,105,
+	171, 172,
+	192, 193, 194, 195,
 	-1
 };
 
-static int combo_attributes_list2[] = 
+static int combo_flags_list[] = 
 {
 	//,
-	55,56,57,58,59,60,61,62,120,121,
+	47,48,
+	49,50,51,52,53,54,55,56,
+	106,107,108,109,110,111,112,113,
+	122,123,
 	-1
 };
 
 static int combo_trigger_list[] =
 {
     // dialog control number
-	63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86, 87,88,89,
+	65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86, 87,88,89, 90, 91,
      -1
 };
 
 static int combo_trigger_list2[] =
 {
     // dialog control number
-	90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, // 88, 89, // 102, 103,
+	92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 198, 199,// 88, 89, // 102, 103,
      -1
 };
 
 static int combo_script_list[] =
 {
     // dialog control number
-	122,123,124,125,126,127,128,129,
+	124,125,126,127,128,129,130,131,
+	196,197,
      -1
 };
 
-static TABPANEL combo_tabs[] =
+/*static TABPANEL combo_tabs[] =
 {
     // (text)
     { (char *)"Data",         D_SELECTED,    combo_data_list,         0, NULL },
@@ -16575,6 +16761,48 @@ static TABPANEL combo_tabs[] =
     { (char *)"Attributes 2",          0,             combo_attributes_list2,           0, NULL },
     { (char *)"Triggered By (1)",          0,             combo_trigger_list,           0, NULL },
     { (char *)"Triggered By (2)",          0,             combo_trigger_list2,           0, NULL },
+    { (char *)"Script",          0,             combo_script_list,           0, NULL },
+
+    { NULL,                   0,             NULL,                        0, NULL }
+};*/
+
+static TABPANEL combo_tabs_triggers[] =
+{
+    // (text)
+    { (char *)"Triggered By (1)",          D_SELECTED,             combo_trigger_list,           0, NULL },
+    { (char *)"Triggered By (2)",          0,             combo_trigger_list2,           0, NULL },
+
+    { NULL,                   0,             NULL,                        0, NULL }
+};
+
+static TABPANEL combo_tabs_data[] =
+{
+    // (text)
+    { (char *)"Data",       D_SELECTED,                    combo_data_list,         0, NULL },
+    { (char *)"AFlags",              0,                   combo_aflags_list,         0, NULL },
+    { (char *)"Attribytes",          0,              combo_attribytes_list,           0, NULL },
+    { (char *)"Attrishorts",         0,             combo_attrishorts_list,           0, NULL },
+    { (char *)"Attributes",          0,              combo_attributes_list,           0, NULL },
+    { (char *)"Flags",               0,                   combo_flags_list,           0, NULL },
+
+    { NULL,                   0,             NULL,                        0, NULL }
+};
+
+static int combo_tabs_data_list[] =
+{
+    2,-1
+};
+
+static int combo_tabs_triggers_list[] =
+{
+    3,-1
+};
+
+static TABPANEL combo_tabs[] =
+{
+    // (text)
+    { (char *)"Basic",         D_SELECTED,    combo_tabs_data_list,         0, NULL },
+    { (char *)"Triggers",          0,             combo_tabs_triggers_list,           0, NULL },
     { (char *)"Script",          0,             combo_script_list,           0, NULL },
 
     { NULL,                   0,             NULL,                        0, NULL }
@@ -16587,8 +16815,8 @@ struct ComboAttributesInfo
     int family;
 	char *flags[16];
 	char *attributes[4];
-	char *attribytes[4];
-  
+	char *attribytes[8];
+	char *attrishorts[8];
 };
 
 static ComboAttributesInfo comboattrinfo[]=
@@ -16596,715 +16824,1003 @@ static ComboAttributesInfo comboattrinfo[]=
 	{ //0
 		cNONE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTAIR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ (char*)"Sound",NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCAVE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cWATER,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ "Is Lava","Modify HP (Passive)","Solid is Land","Solid is Shallow Liquid",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Drown Damage",NULL,NULL, NULL},
+		{ "Flipper Level", NULL, NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ 
 		cARMOS,
-		{ (char*)"Specify",(char*)"Random",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ (char*)"Enemy 1",(char*)"Enemy 2",NULL, NULL}
+		{ "Specify","Random",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL, NULL},
+		{ "Enemy 1","Enemy 2",NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //5
 		cGRAVE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cDOCK,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cUNDEF,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cPUSH_WAIT,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cPUSH_HEAVY,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //10
 		cPUSH_HW,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cL_STATUE,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cR_STATUE,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cWALKSLOW,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCVUP,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,"Custom Speed",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //15
 		cCVDOWN,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,"Custom Speed",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCVLEFT,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,"Custom Speed",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCVRIGHT,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,"Custom Speed",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWIMWARP,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ (char*)"Sound",NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},
+		{ "Sound",NULL,NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cDIVEWARP,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ (char*)"Sound",NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},
+		{ "Sound",NULL,NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //20
 		cLADDERHOOKSHOT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cTRIGNOFLAG,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ (char*)"Sound",NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},
+		{ "Sound",NULL,NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cTRIGFLAG,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ (char*)"Sound",NULL,NULL, NULL}
+		{ NULL,NULL,NULL, NULL},
+		{ "Sound",NULL,NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cZELDA,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSLASH,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //25
 		cSLASHITEM,
-		{ NULL, (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL, (char *)"Dropset", NULL, NULL }
+		{ NULL, "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL, "Dropset", NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ 
 		cPUSH_HEAVY2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cPUSH_HW2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cPOUND,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cHSGRAB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //30
 		cHSBRIDGE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cDAMAGE1,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+		{ "Custom","No Knockback",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cDAMAGE2,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+		{ "Custom","No Knockback",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cDAMAGE3,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+		{ "Custom","No Knockback",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cDAMAGE4,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+		{ "Custom","No Knockback",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //35
 		cC_STATUE,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cTRAP_H,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cTRAP_V,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cTRAP_4,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cTRAP_LR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //40
 		cTRAP_UD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cPIT,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cHOOKSHOTONLY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cOVERHEAD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cNOFLYZONE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //45
 		cMIRROR,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cMIRRORSLASH,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cMIRRORBACKSLASH,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cMAGICPRISM,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cMAGICPRISM4,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //50
 		cMAGICSPONGE,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCAVE2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cEYEBALL_A,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cEYEBALL_B,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cNOJUMPZONE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //55
 		cBUSH,
-		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ "Visuals", "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cFLOWERS,
-		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ "Visuals", "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cTALLGRASS,
-		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ "Visuals", "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", "Sound", NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSHALLOWWATER,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,"Modify HP (Passive)",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cLOCKBLOCK,
-		{ (char*)"Require",(char*)"Only",(char *)"SFX",(char *)"Counter",(char *)"Eat Item",(char *)"Thief",(char *)"No Drain",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ (char *)"Amount",NULL,NULL,NULL},{ (char*)"Item",(char*)"Counter",NULL,(char *)"Sound"}
+		{ "Require","Only","SFX","Counter","Eat Item","Thief","No Drain",NULL,
+		  NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ "Amount",NULL,NULL,NULL},
+		{ "Item","Counter",NULL,"Sound",NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //60
 		cLOCKBLOCK2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBOSSLOCKBLOCK,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBOSSLOCKBLOCK2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cLADDERONLY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBSGRAVE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //65
 		cCHEST,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+		  "Can't use from top","Can't use from bottom","Can't use from left","Can't use from right",
+		  NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,"Button",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCHEST2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cLOCKEDCHEST,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+		  "Can't use from top","Can't use from bottom","Can't use from left","Can't use from right",
+		  NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,"Button",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cLOCKEDCHEST2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBOSSCHEST,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+		  "Can't use from top","Can't use from bottom","Can't use from left","Can't use from right",
+		  NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,"Button",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //70
 		cBOSSCHEST2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cRESET,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSAVE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSAVE2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCAVEB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //75
 		cCAVEC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCAVED,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTAIRB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTAIRC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTAIRD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //80
 		cPITB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cPITC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cPITD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCAVE2B,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCAVE2C,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //85
 		cCAVE2D,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWIMWARPB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWIMWARPC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWIMWARPD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cDIVEWARPB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //90
 		cDIVEWARPC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cDIVEWARPD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTAIRR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cPITR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cAWARPA,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //95
 		cAWARPB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cAWARPC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cAWARPD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cAWARPR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWARPA,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //100
 		cSWARPB,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWARPC,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWARPD,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSWARPR,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTRIGNOFLAG,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //105
 		cSTRIGFLAG,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTEP,
-		{ (char*)"Heavy",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",(char*)"Req. Item",NULL,NULL}
+		{ "Heavy",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound","Req. Item",NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTEPSAME,
-		{ (char*)"Heavy",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",(char*)"Req. Item",NULL,NULL}
+		{ "Heavy",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound","Req. Item",NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTEPALL,
-		{ (char*)"Heavy",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char*)"Sound",(char*)"Req. Item",NULL,NULL}
+		{ "Heavy",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sound","Req. Item",NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSTEPCOPY,
-		{ (char*)"Heavy",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ "Heavy",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //110
 		cNOENEMY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKARROW1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKARROW2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKARROW3,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKBRANG1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //115
 		cBLOCKBRANG2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKBRANG3,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKSBEAM,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKALL,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBLOCKFIREBALL,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //120
 		cDAMAGE5,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+		{ "Custom","No Knockback",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cDAMAGE6,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ "Amount",NULL,NULL,NULL},{ NULL,NULL,NULL, NULL}
+		{ "Custom","No Knockback",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cDAMAGE7,
-		{ "Custom",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ "Amount",NULL,NULL, NULL}
+		{ "Custom","No Knockback",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Amount",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cCHANGE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSPINTILE1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //125
 		cSPINTILE2,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSCREENFREEZE,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSCREENFREEZEFF,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cNOGROUNDENEMY, 
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSLASHNEXT,
-		{ (char *)"Visuals", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
-		
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", NULL, NULL, NULL }
+		{ "Visuals", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", NULL, NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //130
 		cSLASHNEXTITEM,
-		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
-		
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ "Visuals", "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBUSHNEXT,
-		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ "Visuals", "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSLASHTOUCHY,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSLASHITEMTOUCHY,
-		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ "Visuals", "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBUSHTOUCHY,
-		{ (char *)"Visuals", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", NULL, NULL, NULL }
+		{ "Visuals", NULL, NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", NULL, NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //135
 		cFLOWERSTOUCHY,
-		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ "Visuals", "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cTALLGRASSTOUCHY,
-		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ "Visuals", "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", "Sound", NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSLASHNEXTTOUCHY,
-		{ (char *)"Visuals",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite",NULL,NULL,NULL}
+		{ "Visuals",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSLASHNEXTITEMTOUCHY,
-		{ NULL, (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
-		
-		{ NULL,NULL,NULL,NULL},{ NULL, (char *)"Dropset", NULL, NULL }
+		{ NULL, "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL, "Dropset", NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cBUSHNEXTTOUCHY,
-		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ "Visuals", "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //140
 		cEYEBALL_4,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cTALLGRASSNEXT,
-		{ (char *)"Visuals", (char *)"Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ (char *)"Sprite", (char *)"Dropset", NULL, NULL }
+		{ "Visuals", "Itemdrop", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", "Sound", NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		cSCRIPT1,
@@ -17312,7 +17828,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[0][7],moduledata.combotypeCustomFlags[0][8],moduledata.combotypeCustomFlags[0][9],moduledata.combotypeCustomFlags[0][10],
 			moduledata.combotypeCustomFlags[0][11],moduledata.combotypeCustomFlags[0][12],moduledata.combotypeCustomFlags[0][13],moduledata.combotypeCustomFlags[0][14],moduledata.combotypeCustomFlags[0][15]},
 		{ moduledata.combotypeCustomAttributes[0][0],moduledata.combotypeCustomAttributes[0][1],moduledata.combotypeCustomAttributes[0][2],moduledata.combotypeCustomAttributes[0][3]},
-		{ moduledata.combotypeCustomAttribytes[0][0],moduledata.combotypeCustomAttribytes[0][1],moduledata.combotypeCustomAttribytes[0][2],moduledata.combotypeCustomAttribytes[0][3]}
+		{ moduledata.combotypeCustomAttribytes[0][0],moduledata.combotypeCustomAttribytes[0][1],moduledata.combotypeCustomAttribytes[0][2],moduledata.combotypeCustomAttribytes[0][3],
+			moduledata.combotypeCustomAttribytes[0][4],moduledata.combotypeCustomAttribytes[0][5],moduledata.combotypeCustomAttribytes[0][6],moduledata.combotypeCustomAttribytes[0][7]},
+		{ moduledata.combotypeCustomAttrishorts[0][0],moduledata.combotypeCustomAttrishorts[0][1],moduledata.combotypeCustomAttrishorts[0][2],moduledata.combotypeCustomAttrishorts[0][3],
+			moduledata.combotypeCustomAttrishorts[0][4],moduledata.combotypeCustomAttrishorts[0][5],moduledata.combotypeCustomAttrishorts[0][6],moduledata.combotypeCustomAttrishorts[0][7]}
 	},
 	{
 		cSCRIPT2,
@@ -17320,7 +17839,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[1][7],moduledata.combotypeCustomFlags[1][8],moduledata.combotypeCustomFlags[1][9],moduledata.combotypeCustomFlags[1][10],
 			moduledata.combotypeCustomFlags[1][11],moduledata.combotypeCustomFlags[1][12],moduledata.combotypeCustomFlags[1][13],moduledata.combotypeCustomFlags[1][14],moduledata.combotypeCustomFlags[1][15]},
 		{ moduledata.combotypeCustomAttributes[1][0],moduledata.combotypeCustomAttributes[1][1],moduledata.combotypeCustomAttributes[1][2],moduledata.combotypeCustomAttributes[1][3]},
-		{ moduledata.combotypeCustomAttribytes[1][0],moduledata.combotypeCustomAttribytes[1][1],moduledata.combotypeCustomAttribytes[1][2],moduledata.combotypeCustomAttribytes[1][3]}
+		{ moduledata.combotypeCustomAttribytes[1][0],moduledata.combotypeCustomAttribytes[1][1],moduledata.combotypeCustomAttribytes[1][2],moduledata.combotypeCustomAttribytes[1][3],
+			moduledata.combotypeCustomAttribytes[1][4],moduledata.combotypeCustomAttribytes[1][5],moduledata.combotypeCustomAttribytes[1][6],moduledata.combotypeCustomAttribytes[1][7]},
+		{ moduledata.combotypeCustomAttrishorts[1][0],moduledata.combotypeCustomAttrishorts[1][1],moduledata.combotypeCustomAttrishorts[1][2],moduledata.combotypeCustomAttrishorts[1][3],
+			moduledata.combotypeCustomAttrishorts[1][4],moduledata.combotypeCustomAttrishorts[1][5],moduledata.combotypeCustomAttrishorts[1][6],moduledata.combotypeCustomAttrishorts[1][7]}
 		
 	},
 	{
@@ -17330,7 +17852,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[2][7],moduledata.combotypeCustomFlags[2][8],moduledata.combotypeCustomFlags[2][9],moduledata.combotypeCustomFlags[2][10],
 			moduledata.combotypeCustomFlags[2][11],moduledata.combotypeCustomFlags[2][12],moduledata.combotypeCustomFlags[2][13],moduledata.combotypeCustomFlags[2][14],moduledata.combotypeCustomFlags[2][15]},
 		{ moduledata.combotypeCustomAttributes[2][0],moduledata.combotypeCustomAttributes[2][1],moduledata.combotypeCustomAttributes[2][2],moduledata.combotypeCustomAttributes[2][3]},
-		{ moduledata.combotypeCustomAttribytes[2][0],moduledata.combotypeCustomAttribytes[2][1],moduledata.combotypeCustomAttribytes[2][2],moduledata.combotypeCustomAttribytes[2][3]}
+		{ moduledata.combotypeCustomAttribytes[2][0],moduledata.combotypeCustomAttribytes[2][1],moduledata.combotypeCustomAttribytes[2][2],moduledata.combotypeCustomAttribytes[2][3],
+			moduledata.combotypeCustomAttribytes[2][4],moduledata.combotypeCustomAttribytes[2][5],moduledata.combotypeCustomAttribytes[2][6],moduledata.combotypeCustomAttribytes[2][7]},
+		{ moduledata.combotypeCustomAttrishorts[2][0],moduledata.combotypeCustomAttrishorts[2][1],moduledata.combotypeCustomAttrishorts[2][2],moduledata.combotypeCustomAttrishorts[2][3],
+			moduledata.combotypeCustomAttrishorts[2][4],moduledata.combotypeCustomAttrishorts[2][5],moduledata.combotypeCustomAttrishorts[2][6],moduledata.combotypeCustomAttrishorts[2][7]}
 		
 
 	},
@@ -17340,7 +17865,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[3][7],moduledata.combotypeCustomFlags[3][8],moduledata.combotypeCustomFlags[3][9],moduledata.combotypeCustomFlags[3][10],
 			moduledata.combotypeCustomFlags[3][11],moduledata.combotypeCustomFlags[3][12],moduledata.combotypeCustomFlags[3][13],moduledata.combotypeCustomFlags[3][14],moduledata.combotypeCustomFlags[3][15]},
 		{ moduledata.combotypeCustomAttributes[3][0],moduledata.combotypeCustomAttributes[3][1],moduledata.combotypeCustomAttributes[3][2],moduledata.combotypeCustomAttributes[3][3]},
-		{ moduledata.combotypeCustomAttribytes[3][0],moduledata.combotypeCustomAttribytes[3][1],moduledata.combotypeCustomAttribytes[3][2],moduledata.combotypeCustomAttribytes[3][3]}
+		{ moduledata.combotypeCustomAttribytes[3][0],moduledata.combotypeCustomAttribytes[3][1],moduledata.combotypeCustomAttribytes[3][2],moduledata.combotypeCustomAttribytes[3][3],
+			moduledata.combotypeCustomAttribytes[3][4],moduledata.combotypeCustomAttribytes[3][5],moduledata.combotypeCustomAttribytes[3][6],moduledata.combotypeCustomAttribytes[3][7]},
+		{ moduledata.combotypeCustomAttrishorts[3][0],moduledata.combotypeCustomAttrishorts[3][1],moduledata.combotypeCustomAttrishorts[3][2],moduledata.combotypeCustomAttrishorts[3][3],
+			moduledata.combotypeCustomAttrishorts[3][4],moduledata.combotypeCustomAttrishorts[3][5],moduledata.combotypeCustomAttrishorts[3][6],moduledata.combotypeCustomAttrishorts[3][7]}
 
 
 	},
@@ -17351,7 +17879,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[4][7],moduledata.combotypeCustomFlags[4][8],moduledata.combotypeCustomFlags[4][9],moduledata.combotypeCustomFlags[4][10],
 			moduledata.combotypeCustomFlags[4][11],moduledata.combotypeCustomFlags[4][12],moduledata.combotypeCustomFlags[4][13],moduledata.combotypeCustomFlags[4][14],moduledata.combotypeCustomFlags[4][15]},
 		{ moduledata.combotypeCustomAttributes[4][0],moduledata.combotypeCustomAttributes[4][1],moduledata.combotypeCustomAttributes[4][2],moduledata.combotypeCustomAttributes[4][3]},
-		{ moduledata.combotypeCustomAttribytes[4][0],moduledata.combotypeCustomAttribytes[4][1],moduledata.combotypeCustomAttribytes[4][2],moduledata.combotypeCustomAttribytes[4][3]}
+		{ moduledata.combotypeCustomAttribytes[4][0],moduledata.combotypeCustomAttribytes[4][1],moduledata.combotypeCustomAttribytes[4][2],moduledata.combotypeCustomAttribytes[4][3],
+			moduledata.combotypeCustomAttribytes[4][4],moduledata.combotypeCustomAttribytes[4][5],moduledata.combotypeCustomAttribytes[4][6],moduledata.combotypeCustomAttribytes[4][7]},
+		{ moduledata.combotypeCustomAttrishorts[4][0],moduledata.combotypeCustomAttrishorts[4][1],moduledata.combotypeCustomAttrishorts[4][2],moduledata.combotypeCustomAttrishorts[4][3],
+			moduledata.combotypeCustomAttrishorts[4][4],moduledata.combotypeCustomAttrishorts[4][5],moduledata.combotypeCustomAttrishorts[4][6],moduledata.combotypeCustomAttrishorts[4][7]}
 
 
 	},
@@ -17362,7 +17893,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[5][7],moduledata.combotypeCustomFlags[5][8],moduledata.combotypeCustomFlags[5][9],moduledata.combotypeCustomFlags[5][10],
 			moduledata.combotypeCustomFlags[5][11],moduledata.combotypeCustomFlags[5][12],moduledata.combotypeCustomFlags[5][13],moduledata.combotypeCustomFlags[5][14],moduledata.combotypeCustomFlags[5][15]},
 		{ moduledata.combotypeCustomAttributes[5][0],moduledata.combotypeCustomAttributes[5][1],moduledata.combotypeCustomAttributes[5][2],moduledata.combotypeCustomAttributes[5][3]},
-		{ moduledata.combotypeCustomAttribytes[5][0],moduledata.combotypeCustomAttribytes[5][1],moduledata.combotypeCustomAttribytes[5][2],moduledata.combotypeCustomAttribytes[5][3]}
+		{ moduledata.combotypeCustomAttribytes[5][0],moduledata.combotypeCustomAttribytes[5][1],moduledata.combotypeCustomAttribytes[5][2],moduledata.combotypeCustomAttribytes[5][3],
+			moduledata.combotypeCustomAttribytes[5][4],moduledata.combotypeCustomAttribytes[5][5],moduledata.combotypeCustomAttribytes[5][6],moduledata.combotypeCustomAttribytes[5][7]},
+		{ moduledata.combotypeCustomAttrishorts[5][0],moduledata.combotypeCustomAttrishorts[5][1],moduledata.combotypeCustomAttrishorts[5][2],moduledata.combotypeCustomAttrishorts[5][3],
+			moduledata.combotypeCustomAttrishorts[5][4],moduledata.combotypeCustomAttrishorts[5][5],moduledata.combotypeCustomAttrishorts[5][6],moduledata.combotypeCustomAttrishorts[5][7]}
 
 
 	},
@@ -17373,7 +17907,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[6][7],moduledata.combotypeCustomFlags[6][8],moduledata.combotypeCustomFlags[6][9],moduledata.combotypeCustomFlags[6][10],
 			moduledata.combotypeCustomFlags[6][11],moduledata.combotypeCustomFlags[6][12],moduledata.combotypeCustomFlags[6][13],moduledata.combotypeCustomFlags[6][14],moduledata.combotypeCustomFlags[6][15]},
 		{ moduledata.combotypeCustomAttributes[6][0],moduledata.combotypeCustomAttributes[6][1],moduledata.combotypeCustomAttributes[6][2],moduledata.combotypeCustomAttributes[6][3]},
-		{ moduledata.combotypeCustomAttribytes[6][0],moduledata.combotypeCustomAttribytes[6][1],moduledata.combotypeCustomAttribytes[6][2],moduledata.combotypeCustomAttribytes[6][3]}
+		{ moduledata.combotypeCustomAttribytes[6][0],moduledata.combotypeCustomAttribytes[6][1],moduledata.combotypeCustomAttribytes[6][2],moduledata.combotypeCustomAttribytes[6][3],
+			moduledata.combotypeCustomAttribytes[6][4],moduledata.combotypeCustomAttribytes[6][5],moduledata.combotypeCustomAttribytes[6][6],moduledata.combotypeCustomAttribytes[6][7]},
+		{ moduledata.combotypeCustomAttrishorts[6][0],moduledata.combotypeCustomAttrishorts[6][1],moduledata.combotypeCustomAttrishorts[6][2],moduledata.combotypeCustomAttrishorts[6][3],
+			moduledata.combotypeCustomAttrishorts[6][4],moduledata.combotypeCustomAttrishorts[6][5],moduledata.combotypeCustomAttrishorts[6][6],moduledata.combotypeCustomAttrishorts[6][7]}
 
 
 	},
@@ -17384,7 +17921,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[7][7],moduledata.combotypeCustomFlags[7][8],moduledata.combotypeCustomFlags[7][9],moduledata.combotypeCustomFlags[7][10],
 			moduledata.combotypeCustomFlags[7][11],moduledata.combotypeCustomFlags[7][12],moduledata.combotypeCustomFlags[7][13],moduledata.combotypeCustomFlags[7][14],moduledata.combotypeCustomFlags[7][15]},
 		{ moduledata.combotypeCustomAttributes[7][0],moduledata.combotypeCustomAttributes[7][1],moduledata.combotypeCustomAttributes[7][2],moduledata.combotypeCustomAttributes[7][3]},
-		{ moduledata.combotypeCustomAttribytes[7][0],moduledata.combotypeCustomAttribytes[7][1],moduledata.combotypeCustomAttribytes[7][2],moduledata.combotypeCustomAttribytes[7][3]}
+		{ moduledata.combotypeCustomAttribytes[7][0],moduledata.combotypeCustomAttribytes[7][1],moduledata.combotypeCustomAttribytes[7][2],moduledata.combotypeCustomAttribytes[7][3],
+			moduledata.combotypeCustomAttribytes[7][4],moduledata.combotypeCustomAttribytes[7][5],moduledata.combotypeCustomAttribytes[7][6],moduledata.combotypeCustomAttribytes[7][7]},
+		{ moduledata.combotypeCustomAttrishorts[7][0],moduledata.combotypeCustomAttrishorts[7][1],moduledata.combotypeCustomAttrishorts[7][2],moduledata.combotypeCustomAttrishorts[7][3],
+			moduledata.combotypeCustomAttrishorts[7][4],moduledata.combotypeCustomAttrishorts[7][5],moduledata.combotypeCustomAttrishorts[7][6],moduledata.combotypeCustomAttrishorts[7][7]}
 
 
 	},
@@ -17395,7 +17935,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[8][7],moduledata.combotypeCustomFlags[8][8],moduledata.combotypeCustomFlags[8][9],moduledata.combotypeCustomFlags[8][10],
 			moduledata.combotypeCustomFlags[8][11],moduledata.combotypeCustomFlags[8][12],moduledata.combotypeCustomFlags[8][13],moduledata.combotypeCustomFlags[8][14],moduledata.combotypeCustomFlags[8][15]},
 		{ moduledata.combotypeCustomAttributes[8][0],moduledata.combotypeCustomAttributes[8][1],moduledata.combotypeCustomAttributes[8][2],moduledata.combotypeCustomAttributes[8][3]},
-		{ moduledata.combotypeCustomAttribytes[8][0],moduledata.combotypeCustomAttribytes[8][1],moduledata.combotypeCustomAttribytes[8][2],moduledata.combotypeCustomAttribytes[8][3]}
+		{ moduledata.combotypeCustomAttribytes[8][0],moduledata.combotypeCustomAttribytes[8][1],moduledata.combotypeCustomAttribytes[8][2],moduledata.combotypeCustomAttribytes[8][3],
+			moduledata.combotypeCustomAttribytes[8][4],moduledata.combotypeCustomAttribytes[8][5],moduledata.combotypeCustomAttribytes[8][6],moduledata.combotypeCustomAttribytes[8][7]},
+		{ moduledata.combotypeCustomAttrishorts[8][0],moduledata.combotypeCustomAttrishorts[8][1],moduledata.combotypeCustomAttrishorts[8][2],moduledata.combotypeCustomAttrishorts[8][3],
+			moduledata.combotypeCustomAttrishorts[8][4],moduledata.combotypeCustomAttrishorts[8][5],moduledata.combotypeCustomAttrishorts[8][6],moduledata.combotypeCustomAttrishorts[8][7]}
 
 
 	},
@@ -17406,7 +17949,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[9][7],moduledata.combotypeCustomFlags[9][8],moduledata.combotypeCustomFlags[9][9],moduledata.combotypeCustomFlags[9][10],
 			moduledata.combotypeCustomFlags[9][11],moduledata.combotypeCustomFlags[9][12],moduledata.combotypeCustomFlags[9][13],moduledata.combotypeCustomFlags[9][14],moduledata.combotypeCustomFlags[9][15]},
 		{ moduledata.combotypeCustomAttributes[9][0],moduledata.combotypeCustomAttributes[9][1],moduledata.combotypeCustomAttributes[9][2],moduledata.combotypeCustomAttributes[9][3]},
-		{ moduledata.combotypeCustomAttribytes[9][0],moduledata.combotypeCustomAttribytes[9][1],moduledata.combotypeCustomAttribytes[9][2],moduledata.combotypeCustomAttribytes[9][3]}
+		{ moduledata.combotypeCustomAttribytes[9][0],moduledata.combotypeCustomAttribytes[9][1],moduledata.combotypeCustomAttribytes[9][2],moduledata.combotypeCustomAttribytes[9][3],
+			moduledata.combotypeCustomAttribytes[9][4],moduledata.combotypeCustomAttribytes[9][5],moduledata.combotypeCustomAttribytes[9][6],moduledata.combotypeCustomAttribytes[9][7]},
+		{ moduledata.combotypeCustomAttrishorts[9][0],moduledata.combotypeCustomAttrishorts[9][1],moduledata.combotypeCustomAttrishorts[9][2],moduledata.combotypeCustomAttrishorts[9][3],
+			moduledata.combotypeCustomAttrishorts[9][4],moduledata.combotypeCustomAttrishorts[9][5],moduledata.combotypeCustomAttrishorts[9][6],moduledata.combotypeCustomAttrishorts[9][7]}
 
 
 	},
@@ -17417,7 +17963,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[10][7],moduledata.combotypeCustomFlags[10][8],moduledata.combotypeCustomFlags[10][9],moduledata.combotypeCustomFlags[10][10],
 			moduledata.combotypeCustomFlags[10][11],moduledata.combotypeCustomFlags[10][12],moduledata.combotypeCustomFlags[10][13],moduledata.combotypeCustomFlags[10][14],moduledata.combotypeCustomFlags[10][15]},
 		{ moduledata.combotypeCustomAttributes[10][0],moduledata.combotypeCustomAttributes[10][1],moduledata.combotypeCustomAttributes[10][2],moduledata.combotypeCustomAttributes[10][3]},
-		{ moduledata.combotypeCustomAttribytes[10][0],moduledata.combotypeCustomAttribytes[10][1],moduledata.combotypeCustomAttribytes[10][2],moduledata.combotypeCustomAttribytes[10][3]}
+		{ moduledata.combotypeCustomAttribytes[10][0],moduledata.combotypeCustomAttribytes[10][1],moduledata.combotypeCustomAttribytes[10][2],moduledata.combotypeCustomAttribytes[10][3],
+			moduledata.combotypeCustomAttribytes[10][4],moduledata.combotypeCustomAttribytes[10][5],moduledata.combotypeCustomAttribytes[10][6],moduledata.combotypeCustomAttribytes[10][7]},
+		{ moduledata.combotypeCustomAttrishorts[10][0],moduledata.combotypeCustomAttrishorts[10][1],moduledata.combotypeCustomAttrishorts[10][2],moduledata.combotypeCustomAttrishorts[10][3],
+			moduledata.combotypeCustomAttrishorts[10][4],moduledata.combotypeCustomAttrishorts[10][5],moduledata.combotypeCustomAttrishorts[10][6],moduledata.combotypeCustomAttrishorts[10][7]}
 
 
 	},
@@ -17428,7 +17977,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[11][7],moduledata.combotypeCustomFlags[11][8],moduledata.combotypeCustomFlags[11][9],moduledata.combotypeCustomFlags[11][10],
 			moduledata.combotypeCustomFlags[11][11],moduledata.combotypeCustomFlags[11][12],moduledata.combotypeCustomFlags[11][13],moduledata.combotypeCustomFlags[11][14],moduledata.combotypeCustomFlags[11][15]},
 		{ moduledata.combotypeCustomAttributes[11][0],moduledata.combotypeCustomAttributes[11][1],moduledata.combotypeCustomAttributes[11][2],moduledata.combotypeCustomAttributes[11][3]},
-		{ moduledata.combotypeCustomAttribytes[11][0],moduledata.combotypeCustomAttribytes[11][1],moduledata.combotypeCustomAttribytes[11][2],moduledata.combotypeCustomAttribytes[11][3]}
+		{ moduledata.combotypeCustomAttribytes[11][0],moduledata.combotypeCustomAttribytes[11][1],moduledata.combotypeCustomAttribytes[11][2],moduledata.combotypeCustomAttribytes[11][3],
+			moduledata.combotypeCustomAttribytes[11][4],moduledata.combotypeCustomAttribytes[11][5],moduledata.combotypeCustomAttribytes[11][6],moduledata.combotypeCustomAttribytes[11][7]},
+		{ moduledata.combotypeCustomAttrishorts[11][0],moduledata.combotypeCustomAttrishorts[11][1],moduledata.combotypeCustomAttrishorts[11][2],moduledata.combotypeCustomAttrishorts[11][3],
+			moduledata.combotypeCustomAttrishorts[11][4],moduledata.combotypeCustomAttrishorts[11][5],moduledata.combotypeCustomAttrishorts[11][6],moduledata.combotypeCustomAttrishorts[11][7]}
 
 
 	},
@@ -17439,7 +17991,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[12][7],moduledata.combotypeCustomFlags[12][8],moduledata.combotypeCustomFlags[12][9],moduledata.combotypeCustomFlags[12][10],
 			moduledata.combotypeCustomFlags[12][11],moduledata.combotypeCustomFlags[12][12],moduledata.combotypeCustomFlags[12][13],moduledata.combotypeCustomFlags[12][14],moduledata.combotypeCustomFlags[12][15]},
 		{ moduledata.combotypeCustomAttributes[12][0],moduledata.combotypeCustomAttributes[12][1],moduledata.combotypeCustomAttributes[12][2],moduledata.combotypeCustomAttributes[12][3]},
-		{ moduledata.combotypeCustomAttribytes[12][0],moduledata.combotypeCustomAttribytes[12][1],moduledata.combotypeCustomAttribytes[12][2],moduledata.combotypeCustomAttribytes[12][3]}
+		{ moduledata.combotypeCustomAttribytes[12][0],moduledata.combotypeCustomAttribytes[12][1],moduledata.combotypeCustomAttribytes[12][2],moduledata.combotypeCustomAttribytes[12][3],
+			moduledata.combotypeCustomAttribytes[12][4],moduledata.combotypeCustomAttribytes[12][5],moduledata.combotypeCustomAttribytes[12][6],moduledata.combotypeCustomAttribytes[12][7]},
+		{ moduledata.combotypeCustomAttrishorts[12][0],moduledata.combotypeCustomAttrishorts[12][1],moduledata.combotypeCustomAttrishorts[12][2],moduledata.combotypeCustomAttrishorts[12][3],
+			moduledata.combotypeCustomAttrishorts[12][4],moduledata.combotypeCustomAttrishorts[12][5],moduledata.combotypeCustomAttrishorts[12][6],moduledata.combotypeCustomAttrishorts[12][7]}
 
 
 	},
@@ -17450,7 +18005,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[13][7],moduledata.combotypeCustomFlags[13][8],moduledata.combotypeCustomFlags[13][9],moduledata.combotypeCustomFlags[13][10],
 			moduledata.combotypeCustomFlags[13][11],moduledata.combotypeCustomFlags[13][12],moduledata.combotypeCustomFlags[13][13],moduledata.combotypeCustomFlags[13][14],moduledata.combotypeCustomFlags[13][15]},
 		{ moduledata.combotypeCustomAttributes[13][0],moduledata.combotypeCustomAttributes[13][1],moduledata.combotypeCustomAttributes[13][2],moduledata.combotypeCustomAttributes[13][3]},
-		{ moduledata.combotypeCustomAttribytes[13][0],moduledata.combotypeCustomAttribytes[13][1],moduledata.combotypeCustomAttribytes[13][2],moduledata.combotypeCustomAttribytes[13][3]}
+		{ moduledata.combotypeCustomAttribytes[13][0],moduledata.combotypeCustomAttribytes[13][1],moduledata.combotypeCustomAttribytes[13][2],moduledata.combotypeCustomAttribytes[13][3],
+			moduledata.combotypeCustomAttribytes[13][4],moduledata.combotypeCustomAttribytes[13][5],moduledata.combotypeCustomAttribytes[13][6],moduledata.combotypeCustomAttribytes[13][7]},
+		{ moduledata.combotypeCustomAttrishorts[13][0],moduledata.combotypeCustomAttrishorts[13][1],moduledata.combotypeCustomAttrishorts[13][2],moduledata.combotypeCustomAttrishorts[13][3],
+			moduledata.combotypeCustomAttrishorts[13][4],moduledata.combotypeCustomAttrishorts[13][5],moduledata.combotypeCustomAttrishorts[13][6],moduledata.combotypeCustomAttrishorts[13][7]}
 
 
 	},
@@ -17461,7 +18019,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[14][7],moduledata.combotypeCustomFlags[14][8],moduledata.combotypeCustomFlags[14][9],moduledata.combotypeCustomFlags[14][10],
 			moduledata.combotypeCustomFlags[14][11],moduledata.combotypeCustomFlags[14][12],moduledata.combotypeCustomFlags[14][13],moduledata.combotypeCustomFlags[14][14],moduledata.combotypeCustomFlags[14][15]},
 		{ moduledata.combotypeCustomAttributes[14][0],moduledata.combotypeCustomAttributes[14][1],moduledata.combotypeCustomAttributes[14][2],moduledata.combotypeCustomAttributes[14][3]},
-		{ moduledata.combotypeCustomAttribytes[14][0],moduledata.combotypeCustomAttribytes[14][1],moduledata.combotypeCustomAttribytes[14][2],moduledata.combotypeCustomAttribytes[14][3]}
+		{ moduledata.combotypeCustomAttribytes[14][0],moduledata.combotypeCustomAttribytes[14][1],moduledata.combotypeCustomAttribytes[14][2],moduledata.combotypeCustomAttribytes[14][3],
+			moduledata.combotypeCustomAttribytes[14][4],moduledata.combotypeCustomAttribytes[14][5],moduledata.combotypeCustomAttribytes[14][6],moduledata.combotypeCustomAttribytes[14][7]},
+		{ moduledata.combotypeCustomAttrishorts[14][0],moduledata.combotypeCustomAttrishorts[14][1],moduledata.combotypeCustomAttrishorts[14][2],moduledata.combotypeCustomAttrishorts[14][3],
+			moduledata.combotypeCustomAttrishorts[14][4],moduledata.combotypeCustomAttrishorts[14][5],moduledata.combotypeCustomAttrishorts[14][6],moduledata.combotypeCustomAttrishorts[14][7]}
 
 
 	},
@@ -17472,7 +18033,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[15][7],moduledata.combotypeCustomFlags[15][8],moduledata.combotypeCustomFlags[15][9],moduledata.combotypeCustomFlags[15][10],
 			moduledata.combotypeCustomFlags[15][11],moduledata.combotypeCustomFlags[15][12],moduledata.combotypeCustomFlags[15][13],moduledata.combotypeCustomFlags[15][14],moduledata.combotypeCustomFlags[15][15]},
 		{ moduledata.combotypeCustomAttributes[15][0],moduledata.combotypeCustomAttributes[15][1],moduledata.combotypeCustomAttributes[15][2],moduledata.combotypeCustomAttributes[15][3]},
-		{ moduledata.combotypeCustomAttribytes[15][0],moduledata.combotypeCustomAttribytes[15][1],moduledata.combotypeCustomAttribytes[15][2],moduledata.combotypeCustomAttribytes[15][3]}
+		{ moduledata.combotypeCustomAttribytes[15][0],moduledata.combotypeCustomAttribytes[15][1],moduledata.combotypeCustomAttribytes[15][2],moduledata.combotypeCustomAttribytes[15][3],
+			moduledata.combotypeCustomAttribytes[15][4],moduledata.combotypeCustomAttribytes[15][5],moduledata.combotypeCustomAttribytes[15][6],moduledata.combotypeCustomAttribytes[15][7]},
+		{ moduledata.combotypeCustomAttrishorts[15][0],moduledata.combotypeCustomAttrishorts[15][1],moduledata.combotypeCustomAttrishorts[15][2],moduledata.combotypeCustomAttrishorts[15][3],
+			moduledata.combotypeCustomAttrishorts[15][4],moduledata.combotypeCustomAttrishorts[15][5],moduledata.combotypeCustomAttrishorts[15][6],moduledata.combotypeCustomAttrishorts[15][7]}
 
 
 	},
@@ -17483,7 +18047,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[16][7],moduledata.combotypeCustomFlags[16][8],moduledata.combotypeCustomFlags[16][9],moduledata.combotypeCustomFlags[16][10],
 			moduledata.combotypeCustomFlags[16][11],moduledata.combotypeCustomFlags[16][12],moduledata.combotypeCustomFlags[16][13],moduledata.combotypeCustomFlags[16][14],moduledata.combotypeCustomFlags[16][15]},
 		{ moduledata.combotypeCustomAttributes[16][0],moduledata.combotypeCustomAttributes[16][1],moduledata.combotypeCustomAttributes[16][2],moduledata.combotypeCustomAttributes[16][3]},
-		{ moduledata.combotypeCustomAttribytes[16][0],moduledata.combotypeCustomAttribytes[16][1],moduledata.combotypeCustomAttribytes[16][2],moduledata.combotypeCustomAttribytes[16][3]}
+		{ moduledata.combotypeCustomAttribytes[16][0],moduledata.combotypeCustomAttribytes[16][1],moduledata.combotypeCustomAttribytes[16][2],moduledata.combotypeCustomAttribytes[16][3],
+			moduledata.combotypeCustomAttribytes[16][4],moduledata.combotypeCustomAttribytes[16][5],moduledata.combotypeCustomAttribytes[16][6],moduledata.combotypeCustomAttribytes[16][7]},
+		{ moduledata.combotypeCustomAttrishorts[16][0],moduledata.combotypeCustomAttrishorts[16][1],moduledata.combotypeCustomAttrishorts[16][2],moduledata.combotypeCustomAttrishorts[16][3],
+			moduledata.combotypeCustomAttrishorts[16][4],moduledata.combotypeCustomAttrishorts[16][5],moduledata.combotypeCustomAttrishorts[16][6],moduledata.combotypeCustomAttrishorts[16][7]}
 
 
 	},
@@ -17494,7 +18061,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[17][7],moduledata.combotypeCustomFlags[17][8],moduledata.combotypeCustomFlags[17][9],moduledata.combotypeCustomFlags[17][10],
 			moduledata.combotypeCustomFlags[17][11],moduledata.combotypeCustomFlags[17][12],moduledata.combotypeCustomFlags[17][13],moduledata.combotypeCustomFlags[17][14],moduledata.combotypeCustomFlags[17][15]},
 		{ moduledata.combotypeCustomAttributes[17][0],moduledata.combotypeCustomAttributes[17][1],moduledata.combotypeCustomAttributes[17][2],moduledata.combotypeCustomAttributes[17][3]},
-		{ moduledata.combotypeCustomAttribytes[17][0],moduledata.combotypeCustomAttribytes[17][1],moduledata.combotypeCustomAttribytes[17][2],moduledata.combotypeCustomAttribytes[17][3]}
+		{ moduledata.combotypeCustomAttribytes[17][0],moduledata.combotypeCustomAttribytes[17][1],moduledata.combotypeCustomAttribytes[17][2],moduledata.combotypeCustomAttribytes[17][3],
+			moduledata.combotypeCustomAttribytes[17][4],moduledata.combotypeCustomAttribytes[17][5],moduledata.combotypeCustomAttribytes[17][6],moduledata.combotypeCustomAttribytes[17][7]},
+		{ moduledata.combotypeCustomAttrishorts[17][0],moduledata.combotypeCustomAttrishorts[17][1],moduledata.combotypeCustomAttrishorts[17][2],moduledata.combotypeCustomAttrishorts[17][3],
+			moduledata.combotypeCustomAttrishorts[17][4],moduledata.combotypeCustomAttrishorts[17][5],moduledata.combotypeCustomAttrishorts[17][6],moduledata.combotypeCustomAttrishorts[17][7]}
 
 
 	},
@@ -17505,7 +18075,10 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[18][7],moduledata.combotypeCustomFlags[18][8],moduledata.combotypeCustomFlags[18][9],moduledata.combotypeCustomFlags[18][10],
 			moduledata.combotypeCustomFlags[18][11],moduledata.combotypeCustomFlags[18][12],moduledata.combotypeCustomFlags[18][13],moduledata.combotypeCustomFlags[18][14],moduledata.combotypeCustomFlags[18][15]},
 		{ moduledata.combotypeCustomAttributes[18][0],moduledata.combotypeCustomAttributes[18][1],moduledata.combotypeCustomAttributes[18][2],moduledata.combotypeCustomAttributes[18][3]},
-		{ moduledata.combotypeCustomAttribytes[18][0],moduledata.combotypeCustomAttribytes[18][1],moduledata.combotypeCustomAttribytes[18][2],moduledata.combotypeCustomAttribytes[18][3]}
+		{ moduledata.combotypeCustomAttribytes[18][0],moduledata.combotypeCustomAttribytes[18][1],moduledata.combotypeCustomAttribytes[18][2],moduledata.combotypeCustomAttribytes[18][3],
+			moduledata.combotypeCustomAttribytes[18][4],moduledata.combotypeCustomAttribytes[18][5],moduledata.combotypeCustomAttribytes[18][6],moduledata.combotypeCustomAttribytes[18][7]},
+		{ moduledata.combotypeCustomAttrishorts[18][0],moduledata.combotypeCustomAttrishorts[18][1],moduledata.combotypeCustomAttrishorts[18][2],moduledata.combotypeCustomAttrishorts[18][3],
+			moduledata.combotypeCustomAttrishorts[18][4],moduledata.combotypeCustomAttrishorts[18][5],moduledata.combotypeCustomAttrishorts[18][6],moduledata.combotypeCustomAttrishorts[18][7]}
 		
 	},
 	{
@@ -17515,520 +18088,165 @@ static ComboAttributesInfo comboattrinfo[]=
 			moduledata.combotypeCustomFlags[19][7],moduledata.combotypeCustomFlags[19][8],moduledata.combotypeCustomFlags[19][9],moduledata.combotypeCustomFlags[19][10],
 			moduledata.combotypeCustomFlags[19][11],moduledata.combotypeCustomFlags[19][12],moduledata.combotypeCustomFlags[19][13],moduledata.combotypeCustomFlags[19][14],moduledata.combotypeCustomFlags[19][15]},
 		{ moduledata.combotypeCustomAttributes[19][0],moduledata.combotypeCustomAttributes[19][1],moduledata.combotypeCustomAttributes[19][2],moduledata.combotypeCustomAttributes[19][3]},
-		{ moduledata.combotypeCustomAttribytes[19][0],moduledata.combotypeCustomAttribytes[19][1],moduledata.combotypeCustomAttribytes[19][2],moduledata.combotypeCustomAttribytes[19][3]}
+		{ moduledata.combotypeCustomAttribytes[19][0],moduledata.combotypeCustomAttribytes[19][1],moduledata.combotypeCustomAttribytes[19][2],moduledata.combotypeCustomAttribytes[19][3],
+			moduledata.combotypeCustomAttribytes[19][4],moduledata.combotypeCustomAttribytes[19][5],moduledata.combotypeCustomAttribytes[19][6],moduledata.combotypeCustomAttribytes[19][7]},
+		{ moduledata.combotypeCustomAttrishorts[19][0],moduledata.combotypeCustomAttrishorts[19][1],moduledata.combotypeCustomAttrishorts[19][2],moduledata.combotypeCustomAttrishorts[19][3],
+			moduledata.combotypeCustomAttrishorts[19][4],moduledata.combotypeCustomAttrishorts[19][5],moduledata.combotypeCustomAttrishorts[19][6],moduledata.combotypeCustomAttrishorts[19][7]}
 
 	},
 	{
 		cTRIGGERGENERIC,
-		//{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		// { "Enable", "Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
 		
-		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
-			NULL,(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
-		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
-		
-	},{
-		cMAX,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","Room Item","Singular Secret","Kill Wpn",
+			NULL,"Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy", NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", "Sound", "Singular Secret",NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
-		cFIRELAVA1,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cFIREFLAVA2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		cPITFALL,
+		{ "Warp",NULL,"Damage is Percent","Allow Ladder","No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Damage",NULL,NULL,NULL},
+		{ "Fall SFX",NULL,"Pull Sensitivity",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //165
-		cFIRELAVA3,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cFIRELAVA4,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cHOLEDROP,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cHOLEDAMAGE1,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cHOLEDAMAGE2,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{ //170
-		cHOLEDAMAGE3,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cHOLEDAMAGE4,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cDIG,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cDIGNEXT,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cDIGITEM,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{ //175
-		cLIFT,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cLIFTITEM,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cLIFTSPECITER,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cLIFTNEXT,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cLIFTNEXTITEM,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{ //180
-		cLIFTNEXTSPECITEM,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cLIFTSLASH,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cLIFTSLAHITEM,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cLIFTSLASHSPECITEM,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cLIFTSLASHNEXT,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{ //185
-		cLIFTSLASHNEXTITEM,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cLIFTSLASHNEXTSPECITEM,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cBREAKAWAYFLOOR,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cFREEZEFFCONLY,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	
-	{
-		 189,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 190,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 191,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 192,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 193,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 194,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 195,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 196,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 197,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 198,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 199,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 200,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 201,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 202,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 203,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 204,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 205,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 206,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 207,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 208,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 209,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 210,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 211,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 212,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 213,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 214,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 215,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 216,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 217,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 218,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 219,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 220,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 221,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 222,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 223,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 224,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 225,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 226,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 227,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 228,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 229,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 230,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 231,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 232,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 233,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 234,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 235,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 236,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 237,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 238,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 239,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 240,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 241,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 242,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 243,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 244,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 245,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 246,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 247,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 248,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 249,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 250,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 251,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 252,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 253,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		 254,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{
-		cEXPANDED,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
-	},
-	{ //256
-		cMAX250,
-		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL,NULL},{ NULL,NULL,NULL,NULL}
+		cBRIDGE,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		 cSTEPSFX,
+		//flags
+		{ "Landmine","wCustom is LWeapon","Don't Advance","Direct Damage",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		//attributes
+		{ "Damage",NULL,NULL,NULL},
+		//attribytes
+		{ "Sound","Weapon Type","Initial Dir","Sprite",NULL,NULL,NULL,NULL},
+		//attrishorts
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		cSIGNPOST,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+		  "Can't use from top","Can't use from bottom","Can't use from left","Can't use from right",
+		  NULL,NULL,NULL,"Hook-Grabbable"},
+		{ "String",NULL,NULL,NULL},
+		{ NULL,NULL,"Button",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		cCSWITCH,
+		{ "Kill Wpn",NULL,NULL,NULL,NULL,NULL,NULL,"Skip Cycle on Screen Entry",
+		  NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Combo Change","CSet Change",NULL,NULL},
+		{ "State Num","SFX",NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		cCSWITCHBLOCK,
+		{ "Change L0","Change L1","Change L2","Change L3","Change L4","Change L5","Change L6","Skip Cycle on Screen Entry",
+		  "Allow walk-on-top",NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ "Combo Change","CSet Change",NULL,NULL},
+		{ "State Num",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		cLANTERN,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+		  NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ "Radius",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ //arbitrary values ahead
 		257, //script combos with the 'engine' flag enabled
-		//{ (char *)"Enable", (char *)"Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Clippings",(char*)"Specific Item",NULL,NULL,NULL,NULL,NULL},
+		// { "Enable", "Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
 		
-		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"Room Item",(char *)"Secrets",(char *)"Kill Wpn",
-			"Engine",(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
-		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","Room Item","Secrets","Kill Wpn",
+			"Engine","Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy",NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", "Sound", "Secret Type",NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ 
 		258,
 		//if dropping an enemy from a script 1 to 20 combo
-		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"No Poof",(char *)"Secrets",(char *)"Kill Wpn",
-			"Engine",(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
-		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","No Poof","Secrets","Kill Wpn",
+			"Engine","Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy",NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", "Sound", "Secret Type",NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{ 
 		259,
 		//if dropping an enemy from a generic trigger combo
 		
-		{ (char *)"Visuals", (char *)"Itemdrop", (char *)"SFX", (char *)"Next",(char *)"Continuous",(char *)"No Poof",(char *)"Secrets",(char *)"Kill Wpn",
-			NULL,(char*)"Clippings",(char*)"Specific Item",(char*)"Undercombo",(char*)"Always Drop",(char*)"Drop Enemy",NULL,NULL},
-		{ NULL,NULL,NULL,NULL}, { (char *)"Sprite", (char *)"Dropset", (char *)"Sound", (char *)"Secret Type" },
+		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","No Poof","Secrets","Kill Wpn",
+			NULL,"Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy",NULL,NULL},
+		{ NULL,NULL,NULL,NULL},
+		{ "Sprite", "Dropset", "Sound", "Secret Type",NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		260, //Pit (warp on, no pull off)
+		{ "Warp","Direct Warp","Damage is Percent","Allow Ladder","No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Damage",NULL,NULL,NULL},
+		{ "Fall SFX","TileWarp ID","Pull Sensitivity",NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		261, //Pit (warp on, no pull on)
+		{ "Warp","Direct Warp","Damage is Percent","Allow Ladder","No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Damage",NULL,NULL,NULL},
+		{ "Fall SFX","TileWarp ID",NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		262, //Pit (warp off, no pull on)
+		{ "Warp",NULL,"Damage is Percent","Allow Ladder","No Pull",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Damage",NULL,NULL,NULL},
+		{ "Fall SFX",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		263, //Water (Modify HP on)
+		{ "Is Lava","Modify HP (Passive)","Solid is Land","Solid is Shallow Liquid","Rings affect HP Mod","Mod SFX only on HP change","Damage causes hit anim",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "Drown Damage","HP Modification","HP Mod SFX", NULL},
+		{ "Flipper Level", "HP Delay", "Req Itemclass", "Req Itemlevel",NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		264, //Shallow Water (Modify HP on)
+		{ NULL,"Modify HP (Passive)",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,"HP Modification","HP Mod SFX",NULL},
+		{ "Sound","HP Delay", "Req Itemclass", "Req Itemlevel",NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		265, //Conveyors (Custom Speed on)
+		{ NULL,"Custom Speed",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ "X Speed","Y Speed",NULL,NULL},
+		{ "Rate",NULL, NULL, NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
+	{
+		266, //Switch Blocks (Allow walk-on-top on)
+		{ "Change L0","Change L1","Change L2","Change L3","Change L4","Change L5","Change L6","Skip Cycle on Screen Entry",
+		  "Allow walk-on-top","-8px DrawYOffset",NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ "Combo Change","CSet Change","Z-value","Step Height"},
+		{ "State Num",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
 	{
 		-1,
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-		{ NULL,NULL,NULL, NULL},{ NULL,NULL,NULL, NULL}
+		{ NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	}
 };
 
@@ -18071,290 +18289,443 @@ ListData comboscript_list(comboscriptdroplist, &font);
 static DIALOG combo_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     31,   11,   261,  195,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    //{  jwin_win_proc,                        0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,     0,          0, NULL,         NULL,   NULL                   },
+    { jwin_win_proc,     31,   11,   261,  195+17,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
+    // {  jwin_win_proc,                        0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,     0,          0, NULL,         NULL,   NULL                   },
     
-   // { d_timer_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
-    { jwin_tab_proc,            35,     26,    254,    177,    0,                      0,                       0,       0,           0,    0, (void *) combo_tabs,                         NULL, (void *)combo_dlg  },
-  //{  jwin_tab_proc,               1,     25,    312,    220,    0,                      0,                       0,    0,          0,  0, (void *) combo_tabs,          NULL, (void *)combo_dlg   },
+    // { d_timer_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_tab_proc,            35,     26,    254,    177+17,    0,                      0,                       0,       0,           0,    0, (void *) combo_tabs,                         NULL, (void *)combo_dlg  },
+    // {  jwin_tab_proc,               1,     25,    312,    220,    0,                      0,                       0,    0,          0,  0, (void *) combo_tabs,          NULL, (void *)combo_dlg   },
     
-    //These are causing a crash, and I am not in the mood to figure out why today. -Z
     //2
-    { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+     { jwin_tab_proc,            35,     41,    254,    179,    0,                      0,                       0,       0,           0,    0, (void *) combo_tabs_data,                         NULL, (void *)combo_dlg  },
+    { jwin_tab_proc,            35,     41,    254,    179,    0,                      0,                       0,       0,           0,    0, (void *) combo_tabs_triggers,                         NULL, (void *)combo_dlg  },
+    //These are causing a crash, and I am not in the mood to figure out why today. -Z
+    //4
+    { jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'h',     0,          0,             0, (void *) onCmb_dlg_h, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'v',     0,          0,             0, (void *) onCmb_dlg_v, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'r',     0,          0,             0, (void *) onCmb_dlg_r, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      't',     0,          0,             0, (void *) click_d_ctile_proc, NULL, NULL },
-    // 9
-    { d_combo_loader,    60,   48,   0,    0,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_comboframe_proc,   158,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_combo_proc,    160,  48,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_ctile_proc,      160,  48,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_numedit_proc, 102+5,  68,   21,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    // 14
-    { d_comboframe_proc,   190,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_wflag_proc,      192,  48,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      192,  56,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      200,  48,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      200,  56,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    // 19
-    { d_comboframe_proc,   222,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_wflag_proc,      224,  48,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      232,  48,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      224,  56,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    { d_wflag_proc,      232,  56,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    // 24
-    { jwin_text_proc,       60,   126,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Type:", NULL, NULL },
-    { jwin_droplist_proc,   89,   122,  180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       60,   90,   72,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.Frames:", NULL, NULL },
-    { jwin_text_proc,       60,   108,   64,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.Speed:", NULL, NULL },
-    { jwin_numedit_proc,   102+5,  86,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    { jwin_numedit_proc,   102+5,  104,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       192,  71,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Cycle:", NULL, NULL },
-    // 31
-    { d_comboframe_proc,   190,  79,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_combo_proc,    192,  81,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       60,   144,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Flag:", NULL, NULL },
-    { jwin_droplist_proc,   89,   140,  180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &flag_list, NULL, NULL },
+    // 11
+    { d_combo_loader,    60,   48+17,   0,    0,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_comboframe_proc,   158,  55+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_combo_proc,    160,  57+17,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_ctile_proc,      160,  57+17,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
+    { jwin_numedit_proc, 88+5,  68+17,   21,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+    // 16
+    { d_comboframe_proc,   190,  55+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_wflag_proc,      192,  57+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      192,  65+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      200,  57+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      200,  65+17,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    // 21
+    { d_comboframe_proc,   222,  55+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_wflag_proc,      224,  57+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      232,  57+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      224,  65+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      232,  65+17,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    // 26
+    { jwin_text_proc,       60,   126+17,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Type:", NULL, NULL },
+    { jwin_droplist_proc,   89,   122+17,  180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,       60,   90+17,   72,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.Frames:", NULL, NULL },
+    { jwin_text_proc,       60,   108+17,   64,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.Speed:", NULL, NULL },
+    { jwin_numedit_proc,    88+5,  86+17,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_numedit_proc,    88+5,  104+17,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,       194,  102+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Cycle", NULL, NULL },
+    // 33
+    { d_comboframe_proc,   190,  79+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_combo_proc,    192,  81+17,   16,   16,   0,       0,      0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,       60,   144+17,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Flag:", NULL, NULL },
+    { jwin_droplist_proc,   89,   140+17,  180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &flag_list, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'n',     0,          0,             0, (void *) click_d_combo_proc, NULL, NULL },
-    { jwin_text_proc,       140,   108,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.SkipX:", NULL, NULL },
-    { jwin_numedit_proc,   180,  104,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       210,   108,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.SkipY:", NULL, NULL },
-    { jwin_numedit_proc,   250,  104,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,       60,   160,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Refresh Animation on Room Entry", NULL, NULL },
+    { jwin_text_proc,       122,   90+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.SkipX:", NULL, NULL },
+    { jwin_numedit_proc,   152,  86+17,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,       122,   108+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.SkipY:", NULL, NULL },
+    { jwin_numedit_proc,   152,  104+17,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+    { jwin_check_proc,       46,     30+16+3+17,     80,      9,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Refresh Animation on Room Entry", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_check_proc,       60,   169,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Restart Animation when Cycled To", NULL, NULL },
-    // 43
-    { jwin_button_proc,     271,  125,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
-    { jwin_button_proc,     271,  143,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
+    { jwin_check_proc,       46,     45+16+3+17,     80,      9,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Restart Animation when Cycled To", NULL, NULL },
+    // 45
+    { jwin_button_proc,     271,  125+17,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
+    { jwin_button_proc,     271,  143+17,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
     //Attributes tab
-    //45
-    { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     //47
-    { jwin_check_proc,        144+28,     30+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 1",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     45+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 2",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     60+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 3",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     75+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 4",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     90+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 5",                      NULL,   NULL                  },
-    //52
-    { jwin_check_proc,        144+28,     105+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 6",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     120+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 7",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+28,     135+16+3,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
-    //55
-    { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    //49
+    { jwin_check_proc,        46,     30+16+3+17,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 1",                      NULL,   (void*)get_tick_sel                  },
+    { jwin_check_proc,        46,     45+16+3+17,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 2",                      NULL,   (void*)get_tick_sel                  },
+    { jwin_check_proc,        46,     60+16+3+17,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 3",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     75+16+3+17,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 4",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     90+16+3+17,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 5",                      NULL,   (void*)get_tick_sel                  },
+    //54
+    { jwin_check_proc,        46,     105+16+3+17,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 6",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     120+16+3+17,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 7",                      NULL,   NULL                  },
+    { jwin_check_proc,        46,     135+16+3+17,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
     //57
-    { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,       30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    30-4+16+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //59
-    { jwin_text_proc,           8+22+16,    60+16+4+9,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,       45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    45-4+16+4+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //61
-    { jwin_text_proc,           8+22+16,    75+16+4+13,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
-    //63 Triggered By Weapon Types
-    { jwin_check_proc,        8+22+16,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Beam",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Boomerang",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Bomb",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Super Bomb",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Lit Bomb",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Lit S.Bomb",                      NULL,   NULL                  },
-    //70
-    { jwin_check_proc,        100,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Arrow",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Fire",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Whistle",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Bait",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Wand",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Magic",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Wind",                      NULL,   NULL                  },
-    //77
-    { jwin_check_proc,        154,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Magic",                      NULL,   NULL                  },
-    { jwin_check_proc,        154,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Fireball",                      NULL,   NULL                  },
-    { jwin_check_proc,        154,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Rock",                      NULL,   NULL                  },
-    { jwin_check_proc,        154,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Hammer",                      NULL,   NULL                  },
-    { jwin_check_proc,        154,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Hookshot",                      NULL,   NULL                  },
-    { jwin_check_proc,        154,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sparkle",                      NULL,   NULL                  },
-    { jwin_check_proc,        154,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Byrna",			NULL,   NULL                  },
-    //84
-    { jwin_check_proc,        214,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Beam",                      NULL,   NULL                  },
-    { jwin_check_proc,        214,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Stomp",                      NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,       60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    60-4+16+4+10+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
+    //63
+    { jwin_text_proc,           8+22+16,       75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    75-4+16+4+14+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
+    //65 Triggered By Weapon Types
+    { jwin_check_proc,        8+22+16,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Beam",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     60+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Boomerang",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     75+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Bomb",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     90+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Super Bomb",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     105+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Lit Bomb",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     120+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Lit S.Bomb",                      NULL,   NULL                  },
+    //72
+    { jwin_check_proc,        100,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Arrow",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Fire",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     60+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Whistle",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     75+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Bait",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     90+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Wand",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     105+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Magic",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     120+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Wind",                      NULL,   NULL                  },
+    //79
+    { jwin_check_proc,        154,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Magic",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Fireball",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     60+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Rock",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     75+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Hammer",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     90+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Hookshot",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     105+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sparkle",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     120+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Byrna",			NULL,   NULL                  },
     //86
-    { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_check_proc,        214,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Beam",                      NULL,   NULL                  },
+    { jwin_check_proc,        214,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Stomp",                      NULL,   NULL                  },
     //88
-    { jwin_edit_proc,         8+22+16,    135+16+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
-    { jwin_text_proc,           98,    135-4+16+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
-    //90 (triggered by 2)
-    { jwin_check_proc,        8+22+16,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 1",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 2",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 3",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 4",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 5",                      NULL,   NULL                  },
-    //95
-    { jwin_check_proc,        100,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 6",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 7",                      NULL,   NULL                  },
+    { jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    //90
+    { jwin_edit_proc,         8+22+16,    135+16+4+17,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           98,    135-4+16+10+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
+    //92 (triggered by 2)
+    { jwin_check_proc,        8+22+16,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 1",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 2",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     60+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 3",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     75+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 4",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     90+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 5",                      NULL,   NULL                  },
     //97
-    { jwin_check_proc,        100,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 8",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 9",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 10",                      NULL,   NULL                  },
-    //100
-    { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_check_proc,        100,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 6",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 7",                      NULL,   NULL                  },
+    //99
+    { jwin_check_proc,        100,     60+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 8",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     75+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 9",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     90+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 10",                      NULL,   NULL                  },
     //102
-   // { jwin_edit_proc,         8+22+16,    135+16+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
-   // { jwin_text_proc,           98,    135-4+16+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
-    //104
+    { jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     //102
-    { jwin_text_proc,           8+22+16,    90+16+4+12+6,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    90-4+16+4+12+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
+    // { jwin_edit_proc,         8+22+16,    135+16+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    // { jwin_text_proc,           98,    135-4+16+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
     //104
-    { jwin_check_proc,        144+22-6+72,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 9",                      NULL,   (void*)get_tick_sel                  },
-    { jwin_check_proc,        144+22-6+72,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 10",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 11",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 12",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 13",                      NULL,   NULL                  },
-    //109
-    { jwin_check_proc,        144+22-6+72,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 14",                      NULL,   (void*)get_tick_sel                  },
-    { jwin_check_proc,        144+22-6+72,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 15",                      NULL,   NULL                  },
-    { jwin_check_proc,        144+22-6+72,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 16",                      NULL,   NULL                  },
-    //{ jwin_button_proc,     68,  135+16-2,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Refresh", NULL, NULL },
-    //112
-    { jwin_text_proc,           8+22+16,    30+16+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    30-4+16+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //104
+    { jwin_text_proc,           8+22+16,    90+16+4+12+6+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    90-4+16+4+12+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
+    //106
+    { jwin_check_proc,        144+28,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 9",                      NULL,   (void*)get_tick_sel                  },
+    { jwin_check_proc,        144+28,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 10",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     60+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 11",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     75+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 12",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     90+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 13",                      NULL,   NULL                  },
+    //111
+    { jwin_check_proc,        144+28,     105+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 14",                      NULL,   (void*)get_tick_sel                  },
+    { jwin_check_proc,        144+28,     120+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 15",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+28,     135+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 16",                      NULL,   NULL                  },
+    // { jwin_button_proc,     68,  135+16-2,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Refresh", NULL, NULL },
     //114
-    { jwin_text_proc,           8+22+16,    45+16+4+5,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    45-4+16+4+6,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[0]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         98,    30-4+16+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //116
-    { jwin_text_proc,           8+22+16,    60+16+4+9,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[2]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    60-4+16+4+10,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[1]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         98,    45-4+16+4+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //118
-    { jwin_text_proc,           8+22+16,    75+16+4+13,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[3]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    75-4+16+4+14,     50,     16,    vc(12),                 vc(1),                   0,       0,           8,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8+22+16,    60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[2]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         98,    60-4+16+4+10+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //120
-    { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-   
+    { jwin_text_proc,           8+22+16,    75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[3]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         98,    75-4+16+4+14+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //122
+    { jwin_button_proc,     105,  197,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  197,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    
     //combo script
-    ///122
+    ///124
     { jwin_text_proc,           40,    50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         80,    49,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
-    { jwin_text_proc,           40,    70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         80,    69,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
-    { jwin_text_proc,           40,    84,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                  NULL,   NULL                  },
-     { jwin_droplist_proc,      40,  92,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &comboscript_list,                   NULL,   NULL 				   },
-   //128 cancel, 129 OK
-     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-   
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+    { jwin_numedit_swap_zsint_proc,         80,    49,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           40,    69,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,         80,    70,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           40,    85,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                  NULL,   NULL                  },
+    { jwin_droplist_proc,      40,  91,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &comboscript_list,                   NULL,   NULL 				   },
+    //130 cancel, 131 OK
+    { jwin_button_proc,     105,  197,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  197,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    // 132
+	{ d_dummy_proc,           76,    62,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes:",                  NULL,   NULL                  },
+	{ d_dummy_proc,          202,    62,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes:",                  NULL,   NULL                  },
+    //134 cancel, 135 ok
+    { jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	//136
+	{ d_comboframe_proc,   222,  78+17,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_wflag_proc,      224,  80+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      224,  88+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      232,  80+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    { d_wflag_proc,      232,  88+17,   8,    8,    vc(10),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+    //141
+    { jwin_ctext_proc,       234,  102+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Effect", NULL, NULL },
+    { jwin_ctext_proc,       202,  46+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Solid", NULL, NULL },
+    { jwin_ctext_proc,       234,  46+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "CSet2", NULL, NULL },
+    { jwin_ctext_proc,       170,  46+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Tile", NULL, NULL },
+	//145
+    { jwin_text_proc,           172,    30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[4]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         172+52,    30-4+16+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //147
+    { jwin_text_proc,           172,    45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[5]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         172+52,    45-4+16+4+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //149
+    { jwin_text_proc,           172,    60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[6]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         172+52,    60-4+16+4+10+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //151
+    { jwin_text_proc,           172,    75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[7]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         172+52,    75-4+16+4+14+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+	//153
+    { jwin_text_proc,           8+22+16,    30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[0]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         98,    30-4+16+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    //155
+    { jwin_text_proc,           8+22+16,    45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[1]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         98,    45-4+16+4+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    //157
+    { jwin_text_proc,           8+22+16,    60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[2]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         98,    60-4+16+4+10+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    //159
+    { jwin_text_proc,           8+22+16,    75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[3]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         98,    75-4+16+4+14+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+	//161
+    { jwin_text_proc,           172,    30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[4]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         172+52,    30-4+16+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    //163
+    { jwin_text_proc,           172,    45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[5]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         172+52,    45-4+16+4+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    //165
+    { jwin_text_proc,           172,    60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[6]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         172+52,    60-4+16+4+10+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    //167
+    { jwin_text_proc,           172,    75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[7]:",                  NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         172+52,    75-4+16+4+14+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+	//169
+	{ jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	//171
+	{ jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	//173
+    { jwin_check_proc,       46,     60+16+3+17,     80,      9,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Cycle Ignores CSet", NULL, (void*)get_tick_sel },
+	{ jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	//176
+	{ jwin_swapbtn_proc,    142,    77,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,    96,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//180
+	{ jwin_swapbtn_proc,    268,    77,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,    96,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,    77,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//185
+	{ jwin_swapbtn_proc,    142,    96,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,    77,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,    96,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//190
+	{ jwin_swapbtn_proc,    268,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    148,    77,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    148,    96,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    148,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//195
+	{ jwin_swapbtn_proc,    148,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    130,    49,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    130,    70,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//198
+	{ jwin_check_proc,        46,     105+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always Triggered",                      NULL,   NULL                  },
+	{ jwin_check_proc,        154,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Triggers Secrets",                      NULL,   NULL                  },
+	//200
+	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 
 
 void setComboLabels(int family)
 {
-    std::map<int, ComboAttributesInfo *> *nmap = getComboInfoMap();
-    std::map<int, ComboAttributesInfo *>::iterator it = nmap->find(family);
-    ComboAttributesInfo *inf = NULL;
-    
-    if(it != nmap->end())
-        inf = it->second;
-     
-    if(inf->flags[0]!=NULL)    
-	combo_dlg[47].dp = (char*)inf->flags[0];
-    else combo_dlg[47].dp = (char*)"Flags 1";
-    
-    if(inf->flags[1]!=NULL)    
-	combo_dlg[48].dp = (char*)inf->flags[1];
-    else combo_dlg[48].dp = (char*)"Flags 2";
+	std::map<int, ComboAttributesInfo *> *nmap = getComboInfoMap();
+	std::map<int, ComboAttributesInfo *>::iterator it = nmap->find(family);
+	ComboAttributesInfo *inf = NULL;
+	
+	if(it != nmap->end())
+		inf = it->second;
+	
+	if(inf && inf->flags[0]!=NULL)    
+		combo_dlg[49].dp = (char*)inf->flags[0];
+	else combo_dlg[49].dp = (char*)"Flags 1";
+	
+	if(inf && inf->flags[1]!=NULL)    
+		combo_dlg[50].dp = (char*)inf->flags[1];
+	else combo_dlg[50].dp = (char*)"Flags 2";
    
-    if(inf->flags[2]!=NULL)    
-	combo_dlg[49].dp = (char*)inf->flags[2];
-    else combo_dlg[49].dp = (char*)"Flags 3";
+	if(inf && inf->flags[2]!=NULL)    
+		combo_dlg[51].dp = (char*)inf->flags[2];
+	else combo_dlg[51].dp = (char*)"Flags 3";
    
-    if(inf->flags[3]!=NULL)    
-	combo_dlg[50].dp = (char*)inf->flags[3];
-    else combo_dlg[50].dp = (char*)"Flags 4";
+	if(inf && inf->flags[3]!=NULL)    
+		combo_dlg[52].dp = (char*)inf->flags[3];
+	else combo_dlg[52].dp = (char*)"Flags 4";
    
-    if(inf->flags[4]!=NULL)    
-	combo_dlg[51].dp = (char*)inf->flags[4];
-    else combo_dlg[51].dp = (char*)"Flags 5";
+	if(inf && inf->flags[4]!=NULL)    
+		combo_dlg[53].dp = (char*)inf->flags[4];
+	else combo_dlg[53].dp = (char*)"Flags 5";
    
-    if(inf->flags[5]!=NULL)    
-	combo_dlg[52].dp = (char*)inf->flags[5];
-    else combo_dlg[52].dp = (char*)"Flags 6";
+	if(inf && inf->flags[5]!=NULL)    
+		combo_dlg[54].dp = (char*)inf->flags[5];
+	else combo_dlg[54].dp = (char*)"Flags 6";
    
-    if(inf->flags[6]!=NULL)    
-	combo_dlg[53].dp = (char*)inf->flags[6];
-    else combo_dlg[53].dp = (char*)"Flags 7";
+	if(inf && inf->flags[6]!=NULL)    
+		combo_dlg[55].dp = (char*)inf->flags[6];
+	else combo_dlg[55].dp = (char*)"Flags 7";
    
-    if(inf->flags[7]!=NULL)    
-	combo_dlg[54].dp = (char*)inf->flags[7];
-    else combo_dlg[54].dp = (char*)"Flags 8";
+	if(inf && inf->flags[7]!=NULL)    
+		combo_dlg[56].dp = (char*)inf->flags[7];
+	else combo_dlg[56].dp = (char*)"Flags 8";
    
-    if(inf->flags[8]!=NULL)    
-	combo_dlg[104].dp = (char*)inf->flags[8];
-    else combo_dlg[104].dp = (char*)"Flags 9";
+	if(inf && inf->flags[8]!=NULL)    
+		combo_dlg[106].dp = (char*)inf->flags[8];
+	else combo_dlg[106].dp = (char*)"Flags 9";
    
-    if(inf->flags[9]!=NULL)    
-	combo_dlg[105].dp = (char*)inf->flags[9];
-    else combo_dlg[105].dp = (char*)"Flags 10";
+	if(inf && inf->flags[9]!=NULL)    
+		combo_dlg[107].dp = (char*)inf->flags[9];
+	else combo_dlg[107].dp = (char*)"Flags 10";
    
-    if(inf->flags[10]!=NULL)    
-	combo_dlg[106].dp = (char*)inf->flags[10];
-    else combo_dlg[106].dp = (char*)"Flags 11";
+	if(inf && inf->flags[10]!=NULL)    
+		combo_dlg[108].dp = (char*)inf->flags[10];
+	else combo_dlg[108].dp = (char*)"Flags 11";
    
-    if(inf->flags[11]!=NULL)    
-	combo_dlg[107].dp = (char*)inf->flags[11];
-    else combo_dlg[107].dp = (char*)"Flags 12";
+	if(inf && inf->flags[11]!=NULL)    
+		combo_dlg[109].dp = (char*)inf->flags[11];
+	else combo_dlg[109].dp = (char*)"Flags 12";
    
-    if(inf->flags[12]!=NULL)    
-	combo_dlg[108].dp = (char*)inf->flags[12];
-    else combo_dlg[108].dp = (char*)"Flags 13";
+	if(inf && inf->flags[12]!=NULL)    
+		combo_dlg[110].dp = (char*)inf->flags[12];
+	else combo_dlg[110].dp = (char*)"Flags 13";
    
-    if(inf->flags[13]!=NULL)    
-	combo_dlg[109].dp = (char*)inf->flags[13];
-    else combo_dlg[109].dp = (char*)"Flags 14";
+	if(inf && inf->flags[13]!=NULL)    
+		combo_dlg[111].dp = (char*)inf->flags[13];
+	else combo_dlg[111].dp = (char*)"Flags 14";
    
-    if(inf->flags[14]!=NULL)    
-	combo_dlg[110].dp = (char*)inf->flags[14];
-    else combo_dlg[110].dp = (char*)"Flags 15";
+	if(inf && inf->flags[14]!=NULL)    
+		combo_dlg[112].dp = (char*)inf->flags[14];
+	else combo_dlg[112].dp = (char*)"Flags 15";
    
-    if(inf->flags[15]!=NULL)    
-	combo_dlg[111].dp = (char*)inf->flags[15];
-    else combo_dlg[111].dp = (char*)"Flags 16";
-    
-    if(inf->attributes[0]!=NULL)
-	combo_dlg[55].dp = (char*)inf->attributes[0];
-    else combo_dlg[55].dp = (char*)"Attributes[0]";
-    if(inf->attributes[1]!=NULL)
-	combo_dlg[57].dp = (char*)inf->attributes[1];
-    else combo_dlg[57].dp = (char*)"Attributes[1]";
-    if(inf->attributes[2]!=NULL)
-	combo_dlg[59].dp = (char*)inf->attributes[2];
-    else combo_dlg[59].dp = (char*)"Attributes[2]";
-    if(inf->attributes[3]!=NULL)
-	combo_dlg[61].dp = (char*)inf->attributes[3];
-    else combo_dlg[61].dp = (char*)"Attributes[3]";
-    
-    
-    if(inf->attribytes[0]!=NULL)
-	combo_dlg[112].dp = (char*)inf->attribytes[0];
-    else combo_dlg[112].dp = (char*)"Attribytes[0]";
-    if(inf->attribytes[1]!=NULL)
-	combo_dlg[114].dp = (char*)inf->attribytes[1];
-    else combo_dlg[114].dp = (char*)"Attribytes[1]";
-    if(inf->attribytes[2]!=NULL)
-	combo_dlg[116].dp = (char*)inf->attribytes[2];
-    else combo_dlg[116].dp = (char*)"Attribytes[2]";
-    if(inf->attribytes[3]!=NULL)
-	combo_dlg[118].dp = (char*)inf->attribytes[3];
-    else combo_dlg[118].dp = (char*)"Attribytes[3]";
-  
+	if(inf && inf->flags[15]!=NULL)    
+		combo_dlg[113].dp = (char*)inf->flags[15];
+	else combo_dlg[113].dp = (char*)"Flags 16";
+	
+	
+	if(inf && inf->attributes[0]!=NULL)
+		combo_dlg[57].dp = (char*)inf->attributes[0];
+	else combo_dlg[57].dp = (char*)"Attributes[0]";
+	
+	if(inf && inf->attributes[1]!=NULL)
+		combo_dlg[59].dp = (char*)inf->attributes[1];
+	else combo_dlg[59].dp = (char*)"Attributes[1]";
+	
+	if(inf && inf->attributes[2]!=NULL)
+		combo_dlg[61].dp = (char*)inf->attributes[2];
+	else combo_dlg[61].dp = (char*)"Attributes[2]";
+	
+	if(inf && inf->attributes[3]!=NULL)
+		combo_dlg[63].dp = (char*)inf->attributes[3];
+	else combo_dlg[63].dp = (char*)"Attributes[3]";
+	
+	
+	if(inf && inf->attribytes[0]!=NULL)
+		combo_dlg[114].dp = (char*)inf->attribytes[0];
+	else combo_dlg[114].dp = (char*)"Attribytes[0]";
+	
+	if(inf && inf->attribytes[1]!=NULL)
+		combo_dlg[116].dp = (char*)inf->attribytes[1];
+	else combo_dlg[116].dp = (char*)"Attribytes[1]";
+	
+	if(inf && inf->attribytes[2]!=NULL)
+		combo_dlg[118].dp = (char*)inf->attribytes[2];
+	else combo_dlg[118].dp = (char*)"Attribytes[2]";
+	
+	if(inf && inf->attribytes[3]!=NULL)
+		combo_dlg[120].dp = (char*)inf->attribytes[3];
+	else combo_dlg[120].dp = (char*)"Attribytes[3]";
+	
+	if(inf && inf->attribytes[4]!=NULL)
+		combo_dlg[145].dp = (char*)inf->attribytes[4];
+	else combo_dlg[145].dp = (char*)"Attribytes[4]";
+	
+	if(inf && inf->attribytes[5]!=NULL)
+		combo_dlg[147].dp = (char*)inf->attribytes[5];
+	else combo_dlg[147].dp = (char*)"Attribytes[5]";
+	
+	if(inf && inf->attribytes[6]!=NULL)
+		combo_dlg[149].dp = (char*)inf->attribytes[6];
+	else combo_dlg[149].dp = (char*)"Attribytes[6]";
+	
+	if(inf && inf->attribytes[7]!=NULL)
+		combo_dlg[151].dp = (char*)inf->attribytes[7];
+	else combo_dlg[151].dp = (char*)"Attribytes[7]";
+	
+	
+	if(inf && inf->attrishorts[0]!=NULL)
+		combo_dlg[153].dp = (char*)inf->attrishorts[0];
+	else combo_dlg[153].dp = (char*)"Attrishorts[0]";
+	
+	if(inf && inf->attrishorts[1]!=NULL)
+		combo_dlg[155].dp = (char*)inf->attrishorts[1];
+	else combo_dlg[155].dp = (char*)"Attrishorts[1]";
+	
+	if(inf && inf->attrishorts[2]!=NULL)
+		combo_dlg[157].dp = (char*)inf->attrishorts[2];
+	else combo_dlg[157].dp = (char*)"Attrishorts[2]";
+	
+	if(inf && inf->attrishorts[3]!=NULL)
+		combo_dlg[159].dp = (char*)inf->attrishorts[3];
+	else combo_dlg[159].dp = (char*)"Attrishorts[3]";
+	
+	if(inf && inf->attrishorts[4]!=NULL)
+		combo_dlg[153].dp = (char*)inf->attrishorts[4];
+	else combo_dlg[153].dp = (char*)"Attrishorts[4]";
+	
+	if(inf && inf->attrishorts[5]!=NULL)
+		combo_dlg[155].dp = (char*)inf->attrishorts[5];
+	else combo_dlg[155].dp = (char*)"Attrishorts[5]";
+	
+	if(inf && inf->attrishorts[6]!=NULL)
+		combo_dlg[157].dp = (char*)inf->attrishorts[6];
+	else combo_dlg[157].dp = (char*)"Attrishorts[6]";
+	
+	if(inf && inf->attrishorts[7]!=NULL)
+		combo_dlg[159].dp = (char*)inf->attrishorts[7];
+	else combo_dlg[159].dp = (char*)"Attrishorts[7]";
+	
+	
 }
 
 
@@ -18378,21 +18749,28 @@ int onCmb_dlg_h()
 {
     curr_combo.flip^=1;
     
-    zc_swap(combo_dlg[15].flags, combo_dlg[17].flags);
-    zc_swap(combo_dlg[16].flags, combo_dlg[18].flags);
-    zc_swap(combo_dlg[20].flags, combo_dlg[21].flags);
+    zc_swap(combo_dlg[17].flags, combo_dlg[19].flags);
+    zc_swap(combo_dlg[18].flags, combo_dlg[20].flags);
+    zc_swap(combo_dlg[137].flags, combo_dlg[139].flags);
+    zc_swap(combo_dlg[138].flags, combo_dlg[140].flags);
     zc_swap(combo_dlg[22].flags, combo_dlg[23].flags);
+    zc_swap(combo_dlg[24].flags, combo_dlg[25].flags);
     
-    for(int i=0; i<4; i++)
-        if(combo_dlg[i+15].flags & D_SELECTED)
+    for(int i=0; i<4; ++i)
+        if(combo_dlg[i+17].flags & D_SELECTED)
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
+    for(int i=0; i<4; ++i)
+        if(combo_dlg[i+137].flags & D_SELECTED)
+            curr_combo.walk |= 1<<(i+4);
+        else
+            curr_combo.walk &= ~(1<<(i+4));
             
     curr_combo.csets &= 15;
     
     for(int i=0; i<4; i++)
-        if(combo_dlg[i+20].flags & D_SELECTED)
+        if(combo_dlg[i+22].flags & D_SELECTED)
             curr_combo.csets |= 16<<i;
             
     return D_REDRAW;
@@ -18402,21 +18780,28 @@ int onCmb_dlg_v()
 {
     curr_combo.flip^=2;
     
-    zc_swap(combo_dlg[15].flags, combo_dlg[16].flags);
     zc_swap(combo_dlg[17].flags, combo_dlg[18].flags);
-    zc_swap(combo_dlg[20].flags, combo_dlg[22].flags);
-    zc_swap(combo_dlg[21].flags, combo_dlg[23].flags);
+    zc_swap(combo_dlg[19].flags, combo_dlg[20].flags);
+    zc_swap(combo_dlg[137].flags, combo_dlg[138].flags);
+    zc_swap(combo_dlg[139].flags, combo_dlg[140].flags);
+    zc_swap(combo_dlg[22].flags, combo_dlg[24].flags);
+    zc_swap(combo_dlg[23].flags, combo_dlg[25].flags);
     
     for(int i=0; i<4; i++)
-        if(combo_dlg[i+15].flags & D_SELECTED)
+        if(combo_dlg[i+17].flags & D_SELECTED)
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
+    for(int i=0; i<4; ++i)
+        if(combo_dlg[i+137].flags & D_SELECTED)
+            curr_combo.walk |= 1<<(i+4);
+        else
+            curr_combo.walk &= ~(1<<(i+4));
             
     curr_combo.csets &= 15;
     
     for(int i=0; i<4; i++)
-        if(combo_dlg[i+20].flags & D_SELECTED)
+        if(combo_dlg[i+22].flags & D_SELECTED)
             curr_combo.csets |= 16<<i;
             
     return D_REDRAW;
@@ -18426,23 +18811,31 @@ int onCmb_dlg_r()
 {
     curr_combo.flip=rotate_value(curr_combo.flip);
     
-    zc_swap(combo_dlg[15].flags, combo_dlg[17].flags);
-    zc_swap(combo_dlg[15].flags, combo_dlg[18].flags);
-    zc_swap(combo_dlg[15].flags, combo_dlg[16].flags);
-    zc_swap(combo_dlg[20].flags, combo_dlg[21].flags);
-    zc_swap(combo_dlg[20].flags, combo_dlg[23].flags);
-    zc_swap(combo_dlg[20].flags, combo_dlg[22].flags);
+    zc_swap(combo_dlg[17].flags, combo_dlg[19].flags);
+    zc_swap(combo_dlg[17].flags, combo_dlg[20].flags);
+    zc_swap(combo_dlg[17].flags, combo_dlg[18].flags);
+    zc_swap(combo_dlg[137].flags, combo_dlg[139].flags);
+    zc_swap(combo_dlg[137].flags, combo_dlg[140].flags);
+    zc_swap(combo_dlg[137].flags, combo_dlg[138].flags);
+    zc_swap(combo_dlg[22].flags, combo_dlg[23].flags);
+    zc_swap(combo_dlg[22].flags, combo_dlg[25].flags);
+    zc_swap(combo_dlg[22].flags, combo_dlg[24].flags);
     
     for(int i=0; i<4; i++)
-        if(combo_dlg[i+15].flags & D_SELECTED)
+        if(combo_dlg[i+17].flags & D_SELECTED)
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
+    for(int i=0; i<4; ++i)
+        if(combo_dlg[i+137].flags & D_SELECTED)
+            curr_combo.walk |= 1<<(i+4);
+        else
+            curr_combo.walk &= ~(1<<(i+4));
             
     curr_combo.csets &= 15;
     
     for(int i=0; i<4; i++)
-        if(combo_dlg[i+20].flags & D_SELECTED)
+        if(combo_dlg[i+22].flags & D_SELECTED)
             curr_combo.csets |= 16<<i;
             
     return D_REDRAW;
@@ -18456,390 +18849,510 @@ static ListData combotype_list(combotypelist, &font);
 
 bool edit_combo(int c,bool freshen,int cs)
 {
-    combo_dlg[0].dp2=lfont;
-    
-    if(bict_cnt==-1)
-    {
-        build_bict_list();
-    }
-    
-    reset_combo_animations();
-    reset_combo_animations2();
-    
-    curr_combo = combobuf[c];
-    
-    char cset_str[8];
-    char frm[8];
-    char spd[8];
-    char skip[8];
-    char skipy[8];
-    //Attributes[]
-    char attrib0[8];
-    char attrib1[8];
-    char attrib2[8];
-    char attrib3[8];
-    
-    char attribyt0[8];
-    char attribyt1[8];
-    char attribyt2[8];
-    char attribyt3[8];
-    char minlevel[8];
-    char the_label[11];
-    
-    char initiald0[16];
-    char initiald1[16];
-    
-    int thescript = 0;
-    
-    char combonumstr[25];
-    
-    combo_dlg[11].d1 = -1;
-    combo_dlg[11].fg = cs;
-    
-    char csets = curr_combo.csets & 15;
-    
-    if(csets&8) //if csets>8, then it's a negative.
-    {
-        csets |= 0xF0;
-    }
-    
-    sprintf(combonumstr,"Combo %d", c);
-    sprintf(cset_str,"%d",csets);
-    //int temptile = curr_combo.tile;
-    //int temptile2 = NEWMAXTILES - temptile;
-    sprintf(frm,"%d",vbound(curr_combo.frames,0,NEWMAXTILES-curr_combo.tile));
-    //al_trace("frm is: %s\n",frm);
-    sprintf(spd,"%d",curr_combo.speed);
-    sprintf(skip,"%d",curr_combo.skipanim);
-    sprintf(skipy,"%d",curr_combo.skipanimy);
-    //Attributes[]
-    sprintf(attrib0,"%d",curr_combo.attributes[0]);
-    sprintf(attrib1,"%d",curr_combo.attributes[1]);
-    sprintf(attrib2,"%d",curr_combo.attributes[2]);
-    sprintf(attrib3,"%d",curr_combo.attributes[3]);
-    
-    //Attribytes[]
-    sprintf(attribyt0,"%d",curr_combo.attribytes[0]);
-    sprintf(attribyt1,"%d",curr_combo.attribytes[1]);
-    sprintf(attribyt2,"%d",curr_combo.attribytes[2]);
-    sprintf(attribyt3,"%d",curr_combo.attribytes[3]);
-    sprintf(minlevel,"%d",curr_combo.triggerlevel);
-    strcpy(the_label, curr_combo.label);
-    
-    sprintf(initiald0,"%.4f",curr_combo.initd[0]/10000.0);
-    sprintf(initiald1,"%.4f",curr_combo.initd[1]/10000.0);
+	combo_dlg[0].dp2=lfont;
+	
+	if(bict_cnt==-1)
+	{
+		build_bict_list();
+	}
+	
+	reset_combo_animations();
+	reset_combo_animations2();
+	
+	curr_combo = combobuf[c];
+	bool disableEdit = !get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0) && c == 0;
+	if(disableEdit)
+	{
+		curr_combo.walk = 0xF0;
+		curr_combo.type = 0;
+		curr_combo.flag = 0;
+	}
+	
+	char cset_str[8];
+	char frm[8];
+	char spd[8];
+	char skip[8];
+	char skipy[8];
+	
+	char minlevel[16];
+	char the_label[11];
+	
+	char initiald0[16];
+	char initiald1[16];
+	
+	int thescript = 0;
+	
+	char combonumstr[48];
+	
+	combo_dlg[13].d1 = -1;
+	combo_dlg[13].fg = cs;
+	
+	char csets = curr_combo.csets & 15;
+	
+	if(disableEdit)
+		sprintf(combonumstr, "Combo %d - No editing solidity/type", c);
+	else sprintf(combonumstr,"Combo %d", c);
+	sprintf(cset_str,"%d",csets);
+	//int temptile = curr_combo.tile;
+	//int temptile2 = NEWMAXTILES - temptile;
+	sprintf(frm,"%d",vbound(curr_combo.frames,0,NEWMAXTILES-curr_combo.tile));
+	//al_trace("frm is: %s\n",frm);
+	sprintf(spd,"%d",curr_combo.speed);
+	sprintf(skip,"%d",curr_combo.skipanim);
+	sprintf(skipy,"%d",curr_combo.skipanimy);
 		
-    combo_dlg[123].dp = initiald0;
-    combo_dlg[125].dp = initiald1;
-    
-    build_bidcomboscripts_list();
-    
-    int script = 0;
-    
-    for(int j = 0; j < bidcomboscripts_cnt; j++)
-    {
-        if(bidcomboscripts[j].second == curr_combo.script - 1)
-            script = j;
-            
-       
-    }
+	sprintf(minlevel,"%d",curr_combo.triggerlevel);
+	strcpy(the_label, curr_combo.label);
+	
+	combo_dlg[125].dp = initiald0;
+	combo_dlg[127].dp = initiald1;
+	combo_dlg[125].fg = curr_combo.initd[0];
+	combo_dlg[127].fg = curr_combo.initd[1];
+	combo_dlg[125].dp3 = &(combo_dlg[196]);
+	combo_dlg[127].dp3 = &(combo_dlg[197]);
+	
+	build_bidcomboscripts_list();
+	
+	int script = 0;
+	
+	for(int j = 0; j < bidcomboscripts_cnt; j++)
+	{
+		if(bidcomboscripts[j].second == curr_combo.script - 1)
+			script = j;
+	}
    
-    
-    combo_dlg[127].d1 = script;
-    
-    combo_dlg[13].dp = cset_str;
-    
-    for(int i=0; i<4; i++)
-    {
-        combo_dlg[i+15].flags = curr_combo.walk&(1<<i) ? D_SELECTED : 0;
-    }
-    
-    for(int i=0; i<4; i++)
-    {
-        combo_dlg[i+20].flags = curr_combo.csets&(16<<i) ? D_SELECTED : 0;
-    }
-    
-    //userflags
-    combo_dlg[47].flags = curr_combo.usrflags&0x01 ? D_SELECTED : 0;
-    combo_dlg[48].flags = curr_combo.usrflags&0x02 ? D_SELECTED : 0;
-    combo_dlg[49].flags = curr_combo.usrflags&0x04 ? D_SELECTED : 0;
-    combo_dlg[50].flags = curr_combo.usrflags&0x08 ? D_SELECTED : 0;
-    combo_dlg[51].flags = curr_combo.usrflags&0x10 ? D_SELECTED : 0;
-    combo_dlg[52].flags = curr_combo.usrflags&0x20 ? D_SELECTED : 0;
-    combo_dlg[53].flags = curr_combo.usrflags&0x40 ? D_SELECTED : 0;
-    combo_dlg[54].flags = curr_combo.usrflags&0x80 ? D_SELECTED : 0;
-    combo_dlg[104].flags = curr_combo.usrflags&0x100 ? D_SELECTED : 0;
-    combo_dlg[105].flags = curr_combo.usrflags&0x200 ? D_SELECTED : 0;
-    combo_dlg[106].flags = curr_combo.usrflags&0x400 ? D_SELECTED : 0;
-    combo_dlg[107].flags = curr_combo.usrflags&0x800 ? D_SELECTED : 0;
-    combo_dlg[108].flags = curr_combo.usrflags&0x1000 ? D_SELECTED : 0;
-    combo_dlg[109].flags = curr_combo.usrflags&0x2000 ? D_SELECTED : 0;
-    combo_dlg[110].flags = curr_combo.usrflags&0x4000 ? D_SELECTED : 0;
-    combo_dlg[111].flags = curr_combo.usrflags&0x8000 ? D_SELECTED : 0;
-    /*
-    for(int i=0; i<8; i++)
-    {
-        combo_dlg[i+47].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
-    }
-    */
-    //item trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
-    combo_dlg[63].flags = curr_combo.triggerflags[0]&combotriggerSWORD ? D_SELECTED : 0;
-    combo_dlg[64].flags = curr_combo.triggerflags[0]&combotriggerSWORDBEAM ? D_SELECTED : 0;
-    combo_dlg[65].flags = curr_combo.triggerflags[0]&combotriggerBRANG ? D_SELECTED : 0;
-    combo_dlg[66].flags = curr_combo.triggerflags[0]&combotriggerBOMB ? D_SELECTED : 0;
-    combo_dlg[67].flags = curr_combo.triggerflags[0]&combotriggerSBOMB ? D_SELECTED : 0;
-    combo_dlg[68].flags = curr_combo.triggerflags[0]&combotriggerLITBOMB ? D_SELECTED : 0;
-    combo_dlg[69].flags = curr_combo.triggerflags[0]&combotriggerLITSBOMB ? D_SELECTED : 0;
-    combo_dlg[70].flags = curr_combo.triggerflags[0]&combotriggerARROW ? D_SELECTED : 0;
-    combo_dlg[71].flags = curr_combo.triggerflags[0]&combotriggerFIRE ? D_SELECTED : 0;
-    combo_dlg[72].flags = curr_combo.triggerflags[0]&combotriggerWHISTLE ? D_SELECTED : 0;
-    combo_dlg[73].flags = curr_combo.triggerflags[0]&combotriggerBAIT ? D_SELECTED : 0;
-    combo_dlg[74].flags = curr_combo.triggerflags[0]&combotriggerWAND ? D_SELECTED : 0;
-    combo_dlg[75].flags = curr_combo.triggerflags[0]&combotriggerMAGIC ? D_SELECTED : 0;
-    combo_dlg[76].flags = curr_combo.triggerflags[0]&combotriggerWIND ? D_SELECTED : 0;
-    combo_dlg[77].flags = curr_combo.triggerflags[0]&combotriggerREFMAGIC ? D_SELECTED : 0;
-    combo_dlg[78].flags = curr_combo.triggerflags[0]&combotriggerREFFIREBALL ? D_SELECTED : 0;
-    combo_dlg[79].flags = curr_combo.triggerflags[0]&combotriggerREFROCK ? D_SELECTED : 0;
-    combo_dlg[80].flags = curr_combo.triggerflags[0]&combotriggerHAMMER ? D_SELECTED : 0;
-    //ZScript liter support ends here. 
-    combo_dlg[81].flags = curr_combo.triggerflags[1]&combotriggerHOOKSHOT ? D_SELECTED : 0;
-    combo_dlg[82].flags = curr_combo.triggerflags[1]&combotriggerSPARKLE ? D_SELECTED : 0;
-    combo_dlg[83].flags = curr_combo.triggerflags[1]&combotriggerBYRNA ? D_SELECTED : 0;
-    combo_dlg[84].flags = curr_combo.triggerflags[1]&combotriggerREFBEAM ? D_SELECTED : 0;
-    combo_dlg[85].flags = curr_combo.triggerflags[1]&combotriggerSTOMP ? D_SELECTED : 0;
-    
-    //item trigger flags page 2
-    combo_dlg[90].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT01 ? D_SELECTED : 0;
-    combo_dlg[91].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT02 ? D_SELECTED : 0;
-    combo_dlg[92].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT03 ? D_SELECTED : 0;
-    combo_dlg[93].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT04 ? D_SELECTED : 0;
-    combo_dlg[94].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT05 ? D_SELECTED : 0;
-    combo_dlg[95].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT06 ? D_SELECTED : 0;
-    combo_dlg[96].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT07 ? D_SELECTED : 0;
-    combo_dlg[97].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT08 ? D_SELECTED : 0;
-    combo_dlg[98].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT09 ? D_SELECTED : 0;
-    combo_dlg[99].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT10 ? D_SELECTED : 0;
-    //three bits remain that are usable (zscript limits)
-    
-    //85
-    
-    
-    /* item trigger flags
-    //userflags
-    for(int i=0; i<22; i++)
-    {
-    //starts at 63, through 85
-        combo_dlg[i+63].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
-    }
-    
-    //98 is the min level
-    
-    //then script weapons
-    for(int i=0; i<10; i++)
-    {
-    //starts at 100 through 109
-        combo_dlg[i+100].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
-    }
-    
-    //102 is the min level
-    */
-    
-    combo_dlg[0].dp = combonumstr;
-    combo_dlg[28].dp = frm;
-    combo_dlg[29].dp = spd;
-    combo_dlg[32].d1 = curr_combo.nextcombo;
-    combo_dlg[32].fg = curr_combo.nextcset;
-    combo_dlg[34].d1 = curr_combo.flag;
-    combo_dlg[37].dp = skip;
-    combo_dlg[39].dp = skipy;
-    
-    combo_dlg[40].flags = (curr_combo.animflags & AF_FRESH) ? D_SELECTED : 0;
-    combo_dlg[42].flags = (curr_combo.animflags & AF_CYCLE) ? D_SELECTED : 0;
-    
-    
-    //Attributes[]
-    combo_dlg[56].dp = attrib0;
-    combo_dlg[58].dp = attrib1;
-    combo_dlg[60].dp = attrib2;
-    combo_dlg[62].dp = attrib3;
-    
-    byte attribyte_vals[4] = {0};
-    
-    //Attribytes[]
-    attribyte_vals[0]=(byte)(atoi(attribyt0));
-    attribyte_vals[1]=(byte)(atoi(attribyt1));
-    attribyte_vals[2]=(byte)(atoi(attribyt2));
-    attribyte_vals[3]=(byte)(atoi(attribyt3));
-    
-    sprintf(attribyt0,"%d",attribyte_vals[0]);
-    sprintf(attribyt1,"%d",attribyte_vals[1]);
-    sprintf(attribyt2,"%d",attribyte_vals[2]);
-    sprintf(attribyt3,"%d",attribyte_vals[3]);
-    
-    //122, 124 initD
-    
-    combo_dlg[113].dp = attribyt0;
-    combo_dlg[115].dp = attribyt1;
-    combo_dlg[117].dp = attribyt2;
-    combo_dlg[119].dp = attribyt3;
-    
-    //initd
-    combo_dlg[123].dp = initiald0;
-    combo_dlg[125].dp = initiald1;
-    
-    
-    //trigger level
-    combo_dlg[88].dp = minlevel;
-    
-    combo_dlg[103].dp = the_label;
-    
-    //trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
-		if(combo_dlg[63].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x01; } else { curr_combo.triggerflags[0] &= ~0x01; }
-		if(combo_dlg[64].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x02; } else { curr_combo.triggerflags[0] &= ~0x02; }
-		if(combo_dlg[65].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x04; } else { curr_combo.triggerflags[0] &= ~0x04; }
-		if(combo_dlg[66].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x08; } else { curr_combo.triggerflags[0] &= ~0x08; }
-		if(combo_dlg[67].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10; } else { curr_combo.triggerflags[0] &= ~0x10; }
-		if(combo_dlg[68].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20; } else { curr_combo.triggerflags[0] &= ~0x20; }
-		if(combo_dlg[69].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x40; } else { curr_combo.triggerflags[0] &= ~0x40; }
-		if(combo_dlg[70].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x80; } else { curr_combo.triggerflags[0] &= ~0x80; }
-		if(combo_dlg[71].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x100; } else { curr_combo.triggerflags[0] &= ~0x100; }
-		if(combo_dlg[72].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x200; } else { curr_combo.triggerflags[0] &= ~0x200; }
-		//breakas here
-		if(combo_dlg[73].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x400; } else { curr_combo.triggerflags[0] &= ~0x400; }
-		if(combo_dlg[74].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x800; } else { curr_combo.triggerflags[0] &= ~0x800; }
-		if(combo_dlg[75].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x1000; } else { curr_combo.triggerflags[0] &= ~0x1000; }
-		if(combo_dlg[76].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x2000; } else { curr_combo.triggerflags[0] &= ~0x2000; }
-		if(combo_dlg[77].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x4000; } else { curr_combo.triggerflags[0] &= ~0x4000; }
-		if(combo_dlg[78].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x8000; } else { curr_combo.triggerflags[0] &= ~0x8000; }
-		if(combo_dlg[79].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10000; } else { curr_combo.triggerflags[0] &= ~0x10000; }
-		if(combo_dlg[80].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20000; } else { curr_combo.triggerflags[0] &= ~0x20000; }
-		//ZScript capable numbers end there. 
-		if(combo_dlg[81].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x01; } else { curr_combo.triggerflags[1] &= ~0x01; }
-		if(combo_dlg[82].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x02; } else { curr_combo.triggerflags[1] &= ~0x02; }
-		if(combo_dlg[83].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x04; } else { curr_combo.triggerflags[1] &= ~0x04; }
-		if(combo_dlg[84].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x08; } else { curr_combo.triggerflags[1] &= ~0x08; }
-		if(combo_dlg[85].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10; } else { curr_combo.triggerflags[1] &= ~0x10; }
+	
+	combo_dlg[129].d1 = script;
+	
+	combo_dlg[15].dp = cset_str;
+	
+	for(int i=0; i<4; i++)
+	{
+		combo_dlg[i+17].flags = curr_combo.walk&(1<<i) ? D_SELECTED : 0;
+		SETFLAG(combo_dlg[i+17].flags, D_DISABLED, disableEdit);
+	}
+	SETFLAG(combo_dlg[142].flags, D_DISABLED, disableEdit); //Text for solidity
+	for(int i=0; i<4; i++)
+	{
+		combo_dlg[i+137].flags = curr_combo.walk&(1<<(i+4)) ? D_SELECTED : 0;
+		SETFLAG(combo_dlg[i+137].flags, D_DISABLED, disableEdit);
+	}
+	SETFLAG(combo_dlg[141].flags, D_DISABLED, disableEdit); //Text for effect
+	
+	for(int i=0; i<4; i++)
+	{
+		combo_dlg[i+22].flags = curr_combo.csets&(16<<i) ? D_SELECTED : 0;
+	}
+	
+	//userflags
+	combo_dlg[49].flags = curr_combo.usrflags&0x01 ? D_SELECTED : 0;
+	combo_dlg[50].flags = curr_combo.usrflags&0x02 ? D_SELECTED : 0;
+	combo_dlg[51].flags = curr_combo.usrflags&0x04 ? D_SELECTED : 0;
+	combo_dlg[52].flags = curr_combo.usrflags&0x08 ? D_SELECTED : 0;
+	combo_dlg[53].flags = curr_combo.usrflags&0x10 ? D_SELECTED : 0;
+	combo_dlg[54].flags = curr_combo.usrflags&0x20 ? D_SELECTED : 0;
+	combo_dlg[55].flags = curr_combo.usrflags&0x40 ? D_SELECTED : 0;
+	combo_dlg[56].flags = curr_combo.usrflags&0x80 ? D_SELECTED : 0;
+	combo_dlg[106].flags = curr_combo.usrflags&0x100 ? D_SELECTED : 0;
+	combo_dlg[107].flags = curr_combo.usrflags&0x200 ? D_SELECTED : 0;
+	combo_dlg[108].flags = curr_combo.usrflags&0x400 ? D_SELECTED : 0;
+	combo_dlg[109].flags = curr_combo.usrflags&0x800 ? D_SELECTED : 0;
+	combo_dlg[110].flags = curr_combo.usrflags&0x1000 ? D_SELECTED : 0;
+	combo_dlg[111].flags = curr_combo.usrflags&0x2000 ? D_SELECTED : 0;
+	combo_dlg[112].flags = curr_combo.usrflags&0x4000 ? D_SELECTED : 0;
+	combo_dlg[113].flags = curr_combo.usrflags&0x8000 ? D_SELECTED : 0;
+	/*
+	for(int i=0; i<8; i++)
+	{
+		combo_dlg[i+47].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
+	}
+	*/
+	//item trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
+	combo_dlg[65].flags = curr_combo.triggerflags[0]&combotriggerSWORD ? D_SELECTED : 0;
+	combo_dlg[66].flags = curr_combo.triggerflags[0]&combotriggerSWORDBEAM ? D_SELECTED : 0;
+	combo_dlg[67].flags = curr_combo.triggerflags[0]&combotriggerBRANG ? D_SELECTED : 0;
+	combo_dlg[68].flags = curr_combo.triggerflags[0]&combotriggerBOMB ? D_SELECTED : 0;
+	combo_dlg[69].flags = curr_combo.triggerflags[0]&combotriggerSBOMB ? D_SELECTED : 0;
+	combo_dlg[70].flags = curr_combo.triggerflags[0]&combotriggerLITBOMB ? D_SELECTED : 0;
+	combo_dlg[71].flags = curr_combo.triggerflags[0]&combotriggerLITSBOMB ? D_SELECTED : 0;
+	combo_dlg[72].flags = curr_combo.triggerflags[0]&combotriggerARROW ? D_SELECTED : 0;
+	combo_dlg[73].flags = curr_combo.triggerflags[0]&combotriggerFIRE ? D_SELECTED : 0;
+	combo_dlg[74].flags = curr_combo.triggerflags[0]&combotriggerWHISTLE ? D_SELECTED : 0;
+	combo_dlg[75].flags = curr_combo.triggerflags[0]&combotriggerBAIT ? D_SELECTED : 0;
+	combo_dlg[76].flags = curr_combo.triggerflags[0]&combotriggerWAND ? D_SELECTED : 0;
+	combo_dlg[77].flags = curr_combo.triggerflags[0]&combotriggerMAGIC ? D_SELECTED : 0;
+	combo_dlg[78].flags = curr_combo.triggerflags[0]&combotriggerWIND ? D_SELECTED : 0;
+	combo_dlg[79].flags = curr_combo.triggerflags[0]&combotriggerREFMAGIC ? D_SELECTED : 0;
+	combo_dlg[80].flags = curr_combo.triggerflags[0]&combotriggerREFFIREBALL ? D_SELECTED : 0;
+	combo_dlg[81].flags = curr_combo.triggerflags[0]&combotriggerREFROCK ? D_SELECTED : 0;
+	combo_dlg[82].flags = curr_combo.triggerflags[0]&combotriggerHAMMER ? D_SELECTED : 0;
+	//ZScript liter support ends here. 
+	combo_dlg[83].flags = curr_combo.triggerflags[1]&combotriggerHOOKSHOT ? D_SELECTED : 0;
+	combo_dlg[84].flags = curr_combo.triggerflags[1]&combotriggerSPARKLE ? D_SELECTED : 0;
+	combo_dlg[85].flags = curr_combo.triggerflags[1]&combotriggerBYRNA ? D_SELECTED : 0;
+	combo_dlg[86].flags = curr_combo.triggerflags[1]&combotriggerREFBEAM ? D_SELECTED : 0;
+	combo_dlg[87].flags = curr_combo.triggerflags[1]&combotriggerSTOMP ? D_SELECTED : 0;
+	
+	//item trigger flags page 2
+	combo_dlg[92].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT01 ? D_SELECTED : 0;
+	combo_dlg[93].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT02 ? D_SELECTED : 0;
+	combo_dlg[94].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT03 ? D_SELECTED : 0;
+	combo_dlg[95].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT04 ? D_SELECTED : 0;
+	combo_dlg[96].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT05 ? D_SELECTED : 0;
+	combo_dlg[97].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT06 ? D_SELECTED : 0;
+	combo_dlg[98].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT07 ? D_SELECTED : 0;
+	combo_dlg[99].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT08 ? D_SELECTED : 0;
+	combo_dlg[100].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT09 ? D_SELECTED : 0;
+	combo_dlg[101].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT10 ? D_SELECTED : 0;
+	combo_dlg[198].flags = curr_combo.triggerflags[1]&combotriggerAUTOMATIC ? D_SELECTED : 0;
+	combo_dlg[199].flags = curr_combo.triggerflags[1]&combotriggerSECRETS ? D_SELECTED : 0;
+	//three bits remain that are usable (zscript limits)
+	
+	//85
+	
+	
+	/* item trigger flags
+	//userflags
+	for(int i=0; i<22; i++)
+	{
+		//starts at 63, through 85
+		combo_dlg[i+63].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
+	}
+	
+	//98 is the min level
+	
+	//then script weapons
+	for(int i=0; i<10; i++)
+	{
+		//starts at 100 through 109
+		combo_dlg[i+100].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
+	}
+	
+	//102 is the min level
+	*/
+	
+	combo_dlg[0].dp = combonumstr;
+	combo_dlg[30].dp = frm;
+	combo_dlg[31].dp = spd;
+	combo_dlg[34].d1 = curr_combo.nextcombo;
+	combo_dlg[34].fg = (curr_combo.animflags & AF_CYCLENOCSET) ? edit_combo_cset : curr_combo.nextcset;
+	combo_dlg[36].d1 = curr_combo.flag;
+	SETFLAG(combo_dlg[35].flags, D_DISABLED, disableEdit); //Text
+	SETFLAG(combo_dlg[36].flags, D_DISABLED, disableEdit); //Dropdown
+	SETFLAG(combo_dlg[45].flags, D_DISABLED, disableEdit); //? button
+	combo_dlg[39].dp = skip;
+	combo_dlg[41].dp = skipy;
+	
+	combo_dlg[42].flags = (curr_combo.animflags & AF_FRESH) ? D_SELECTED : 0;
+	combo_dlg[44].flags = (curr_combo.animflags & AF_CYCLE) ? D_SELECTED : 0;
+	combo_dlg[173].flags = (curr_combo.animflags & AF_CYCLENOCSET) ? D_SELECTED : 0;
+	
+	
+	//Attributes[]
+	char attrib0[16];
+	char attrib1[16];
+	char attrib2[16];
+	char attrib3[16];
+	combo_dlg[58].dp = attrib0;
+	combo_dlg[60].dp = attrib1;
+	combo_dlg[62].dp = attrib2;
+	combo_dlg[64].dp = attrib3;
+	combo_dlg[58].fg = curr_combo.attributes[0];
+	combo_dlg[60].fg = curr_combo.attributes[1];
+	combo_dlg[62].fg = curr_combo.attributes[2];
+	combo_dlg[64].fg = curr_combo.attributes[3];
+	combo_dlg[58].dp3 = &combo_dlg[192];
+	combo_dlg[60].dp3 = &combo_dlg[193];
+	combo_dlg[62].dp3 = &combo_dlg[194];
+	combo_dlg[64].dp3 = &combo_dlg[195];
+	
+	//Attribytes[]
+	char attribyt0[16];
+	char attribyt1[16];
+	char attribyt2[16];
+	char attribyt3[16];
+	char attribyt4[16];
+	char attribyt5[16];
+	char attribyt6[16];
+	char attribyt7[16];
+	combo_dlg[115].dp = attribyt0;
+	combo_dlg[117].dp = attribyt1;
+	combo_dlg[119].dp = attribyt2;
+	combo_dlg[121].dp = attribyt3;
+	combo_dlg[146].dp = attribyt4;
+	combo_dlg[148].dp = attribyt5;
+	combo_dlg[150].dp = attribyt6;
+	combo_dlg[152].dp = attribyt7;
+	combo_dlg[115].fg = curr_combo.attribytes[0];
+	combo_dlg[117].fg = curr_combo.attribytes[1];
+	combo_dlg[119].fg = curr_combo.attribytes[2];
+	combo_dlg[121].fg = curr_combo.attribytes[3];
+	combo_dlg[146].fg = curr_combo.attribytes[4];
+	combo_dlg[148].fg = curr_combo.attribytes[5];
+	combo_dlg[150].fg = curr_combo.attribytes[6];
+	combo_dlg[152].fg = curr_combo.attribytes[7];
+	combo_dlg[115].dp3 = &combo_dlg[176];
+	combo_dlg[117].dp3 = &combo_dlg[177];
+	combo_dlg[119].dp3 = &combo_dlg[178];
+	combo_dlg[121].dp3 = &combo_dlg[179];
+	combo_dlg[146].dp3 = &combo_dlg[180];
+	combo_dlg[148].dp3 = &combo_dlg[181];
+	combo_dlg[150].dp3 = &combo_dlg[182];
+	combo_dlg[152].dp3 = &combo_dlg[183];
+	
+	//Attrishorts[]
+	char attrishrt0[16];
+	char attrishrt1[16];
+	char attrishrt2[16];
+	char attrishrt3[16];
+	char attrishrt4[16];
+	char attrishrt5[16];
+	char attrishrt6[16];
+	char attrishrt7[16];
+	combo_dlg[154].dp = attrishrt0;
+	combo_dlg[156].dp = attrishrt1;
+	combo_dlg[158].dp = attrishrt2;
+	combo_dlg[160].dp = attrishrt3;
+	combo_dlg[162].dp = attrishrt4;
+	combo_dlg[164].dp = attrishrt5;
+	combo_dlg[166].dp = attrishrt6;
+	combo_dlg[168].dp = attrishrt7;
+	combo_dlg[154].fg = curr_combo.attrishorts[0];
+	combo_dlg[156].fg = curr_combo.attrishorts[1];
+	combo_dlg[158].fg = curr_combo.attrishorts[2];
+	combo_dlg[160].fg = curr_combo.attrishorts[3];
+	combo_dlg[162].fg = curr_combo.attrishorts[4];
+	combo_dlg[164].fg = curr_combo.attrishorts[5];
+	combo_dlg[166].fg = curr_combo.attrishorts[6];
+	combo_dlg[168].fg = curr_combo.attrishorts[7];
+	combo_dlg[154].dp3 = &combo_dlg[184];
+	combo_dlg[156].dp3 = &combo_dlg[185];
+	combo_dlg[158].dp3 = &combo_dlg[186];
+	combo_dlg[160].dp3 = &combo_dlg[187];
+	combo_dlg[162].dp3 = &combo_dlg[188];
+	combo_dlg[164].dp3 = &combo_dlg[189];
+	combo_dlg[166].dp3 = &combo_dlg[190];
+	combo_dlg[168].dp3 = &combo_dlg[191];
+	
+	//initd
+	combo_dlg[125].dp = initiald0;
+	combo_dlg[127].dp = initiald1;
+	
+	//trigger level
+	combo_dlg[90].dp = minlevel;
+	
+	combo_dlg[105].dp = the_label;
+	
+	//trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
+	SETFLAG(curr_combo.triggerflags[0], 0x01, combo_dlg[65].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x02, combo_dlg[66].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x04, combo_dlg[67].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x08, combo_dlg[68].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x10, combo_dlg[69].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x20, combo_dlg[70].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x40, combo_dlg[71].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x80, combo_dlg[72].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x100, combo_dlg[73].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x200, combo_dlg[74].flags & D_SELECTED);
+	//breakas here
+	SETFLAG(curr_combo.triggerflags[0], 0x400, combo_dlg[75].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x800, combo_dlg[76].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x1000, combo_dlg[77].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x2000, combo_dlg[78].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x4000, combo_dlg[79].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x8000, combo_dlg[80].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x10000, combo_dlg[81].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x20000, combo_dlg[82].flags & D_SELECTED);
+	//ZScript capable numbers end there. 
+	SETFLAG(curr_combo.triggerflags[1], 0x01, combo_dlg[83].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x02, combo_dlg[84].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x04, combo_dlg[85].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x08, combo_dlg[86].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x10, combo_dlg[87].flags & D_SELECTED);
 
-		//trigger flags page 2
-		if(combo_dlg[90].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x20; } else { curr_combo.triggerflags[1] &= ~0x020; }
-		if(combo_dlg[91].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x40; } else { curr_combo.triggerflags[1] &= ~0x040; }
-		if(combo_dlg[92].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x80; } else { curr_combo.triggerflags[1] &= ~0x080; }
-		if(combo_dlg[93].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x100; } else { curr_combo.triggerflags[1] &= ~0x100; }
-		if(combo_dlg[94].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x200; } else { curr_combo.triggerflags[1] &= ~0x200; }
-		if(combo_dlg[95].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x400; } else { curr_combo.triggerflags[1] &= ~0x400; }
-		if(combo_dlg[96].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x800; } else { curr_combo.triggerflags[1] &= ~0x800; }
-		if(combo_dlg[97].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
-		if(combo_dlg[98].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
-		if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
-    
-    
-    int index=0;
-    
-    al_trace("Last Selection: %d\n", last_droplist_sel);
-    
-    for(int j=0; j<bict_cnt; j++)
-    {
-        if(bict[j].i == curr_combo.type)
-        {
-            index=j;
-        }
-    }
-    
-    combo_dlg[25].d1 = index; //*
-    combo_dlg[25].dp = (void *) &combotype_list; //*
-    //  combo_dlg[1].fg = cs;
-    edit_combo_cset = cs;
-    
-    if(is_large)
-    {
-        // Fix the wflag_procs
-        if(!combo_dlg[0].d1)
-        {
-            large_dialog(combo_dlg);
-            combo_dlg[12].w=32;
-            combo_dlg[12].h=32;
-            combo_dlg[15].x-=1;
-            combo_dlg[15].y-=1;
-            combo_dlg[16].x-=1;
-            combo_dlg[16].y+=3;
-            combo_dlg[17].x+=3;
-            combo_dlg[17].y-=1;
-            combo_dlg[18].x+=3;
-            combo_dlg[18].y+=3;
-            
-            combo_dlg[20].x-=1;
-            combo_dlg[20].y-=1;
-            combo_dlg[22].x-=1;
-            combo_dlg[22].y+=3;
-            combo_dlg[21].x+=3;
-            combo_dlg[21].y-=1;
-            combo_dlg[23].x+=3;
-            combo_dlg[23].y+=3;
-        }
-    }
-    
-	if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
+	//trigger flags page 2
+	SETFLAG(curr_combo.triggerflags[1], 0x20, combo_dlg[92].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x40, combo_dlg[93].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x80, combo_dlg[94].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x100, combo_dlg[95].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x200, combo_dlg[96].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x400, combo_dlg[97].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x800, combo_dlg[98].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x1000, combo_dlg[99].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x2000, combo_dlg[100].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x4000, combo_dlg[101].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x8000, combo_dlg[198].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x10000, combo_dlg[199].flags & D_SELECTED);
+	
+	
+	int index=0;
+	
+	al_trace("Last Selection: %d\n", last_droplist_sel);
+	
+	for(int j=0; j<bict_cnt; j++)
 	{
-		if(combo_dlg[104].flags & D_SELECTED) //change labels
+		if(bict[j].i == curr_combo.type)
 		{
-			if(combo_dlg[109].flags & D_SELECTED) //change labels
-				setComboLabels(258);
-			else setComboLabels(257);
+			index=j;
 		}
-		else setComboLabels(index);
 	}
 	
-	else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
+	combo_dlg[27].d1 = index; //*
+	combo_dlg[27].dp = (void *) &combotype_list; //*
+	SETFLAG(combo_dlg[26].flags, D_DISABLED, disableEdit); //Text
+	SETFLAG(combo_dlg[27].flags, D_DISABLED, disableEdit); //Dropdown
+	SETFLAG(combo_dlg[46].flags, D_DISABLED, disableEdit); //? button
+	//  combo_dlg[1].fg = cs;
+	edit_combo_cset = cs;
+	
+	if(is_large)
 	{
-		if(combo_dlg[109].flags & D_SELECTED) //change labels
-			setComboLabels(259);
-		else setComboLabels(index);
+		// Fix the wflag_procs
+		if(!combo_dlg[0].d1)
+		{
+			large_dialog(combo_dlg);
+			combo_dlg[14].w=32;
+			combo_dlg[14].h=32;
+			
+			combo_dlg[17].x-=1;
+			combo_dlg[17].y-=1;
+			combo_dlg[18].x-=1;
+			combo_dlg[18].y+=3;
+			combo_dlg[19].x+=3;
+			combo_dlg[19].y-=1;
+			combo_dlg[20].x+=3;
+			combo_dlg[20].y+=3;
+			
+			combo_dlg[22].x-=1;
+			combo_dlg[22].y-=1;
+			combo_dlg[24].x-=1;
+			combo_dlg[24].y+=3;
+			combo_dlg[23].x+=3;
+			combo_dlg[23].y-=1;
+			combo_dlg[25].x+=3;
+			combo_dlg[25].y+=3;
+			
+			
+			combo_dlg[137].x-=1;
+			combo_dlg[137].y-=1;
+			combo_dlg[138].x-=1;
+			combo_dlg[138].y+=3;
+			combo_dlg[139].x+=3;
+			combo_dlg[139].y-=1;
+			combo_dlg[140].x+=3;
+			combo_dlg[140].y+=3;
+		}
 	}
-	else setComboLabels(index);
-    int ret = -1;
-    
-    
-    
-    if(freshen)
-    {
-        refresh(rALL);
-    }
-    
-    //if(ret==43)
-    //{
-    //}
-    
-    do
-    {
 	
-	//else if(ret == 1)
-	//	setComboLabels(combo_dlg[25].d1);
+	int ret = -1;
 	
-	//else if(ret==2 || ret==45 || ret==86 || ret==100 ) //position of OK buttons
-	//{
+	if(freshen)
+	{
+		refresh(rALL);
+	}
+	
+	//if(ret==43)
+	// {
+	// }
+	
+	do
+	{
+		//else if(ret == 1)
+		//	setComboLabels(combo_dlg[25].d1);
+		
+		//else if(ret==2 || ret==45 || ret==86 || ret==100 ) //position of OK buttons
+		// {
 		saved=false;
-	    //three bits left for the second index (for ZScript supported values)
-	    
-	    
-	    
-		if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
+		//three bits left for the second index (for ZScript supported values)
+		
+		switch(bict[combo_dlg[27].d1].i)
 		{
-			if(combo_dlg[104].flags & D_SELECTED) //change labels
+			case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
+			case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
+			case cSCRIPT11: case cSCRIPT12: case cSCRIPT13: case cSCRIPT14: case cSCRIPT15:
+			case cSCRIPT16: case cSCRIPT17: case cSCRIPT18: case cSCRIPT19: case cSCRIPT20:
 			{
-				if(combo_dlg[109].flags & D_SELECTED) //change labels
-					setComboLabels(258);
-				else setComboLabels(257);
+				if(combo_dlg[106].flags & D_SELECTED) //change labels
+				{
+					if(combo_dlg[111].flags & D_SELECTED) //change labels
+						setComboLabels(258);
+					else setComboLabels(257);
+				}
+				else setComboLabels(bict[combo_dlg[27].d1].i);
+				break;
 			}
-			else setComboLabels(bict[combo_dlg[25].d1].i);
+			case cTRIGGERGENERIC:
+			{
+				if(combo_dlg[111].flags & D_SELECTED) //change labels
+					setComboLabels(259);
+				else setComboLabels(bict[combo_dlg[27].d1].i);
+				break;
+			}
+			case cPITFALL:
+			{
+				if(combo_dlg[49].flags & D_SELECTED) //change labels
+				{
+					if(combo_dlg[53].flags & D_SELECTED)
+						setComboLabels(261);
+					else setComboLabels(260);
+				}
+				else
+				{
+					if(combo_dlg[53].flags & D_SELECTED)
+						setComboLabels(262);
+					else setComboLabels(bict[combo_dlg[27].d1].i);
+				}
+				break;
+			}
+			case cWATER:
+			{
+				if(combo_dlg[50].flags & D_SELECTED) //change labels
+				{
+					setComboLabels(263);
+				}
+				else
+				{
+					setComboLabels(bict[combo_dlg[27].d1].i);
+				}
+				break;
+			}
+			case cSHALLOWWATER:
+			{
+				if(combo_dlg[50].flags & D_SELECTED) //change labels
+				{
+					setComboLabels(264);
+				}
+				else
+				{
+					setComboLabels(bict[combo_dlg[27].d1].i);
+				}
+				break;
+			}
+			case cCVDOWN:
+			case cCVUP:
+			case cCVLEFT:
+			case cCVRIGHT:
+			{
+				if(combo_dlg[50].flags & D_SELECTED) //change labels
+				{
+					setComboLabels(265);
+				}
+				else
+				{
+					setComboLabels(bict[combo_dlg[27].d1].i);
+				}
+				break;
+			}
+			case cCSWITCHBLOCK:
+			{
+				if(combo_dlg[106].flags & D_SELECTED)
+					setComboLabels(266);
+				else
+					setComboLabels(bict[combo_dlg[27].d1].i);
+				break;
+			}
+			default: setComboLabels(bict[combo_dlg[27].d1].i); break;
 		}
-		else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
-		{
-			if(combo_dlg[109].flags & D_SELECTED) //change labels
-				setComboLabels(259);
-			else setComboLabels(bict[combo_dlg[25].d1].i);
-		}
-		else setComboLabels(bict[combo_dlg[25].d1].i);
-	    
 	
 		ret=zc_popup_dialog(combo_dlg,4);
 		//setComboLabels(combo_dlg[25].d1);
@@ -18847,19 +19360,30 @@ bool edit_combo(int c,bool freshen,int cs)
 		
 		for(int i=0; i<4; i++)
 		{
-		    if(combo_dlg[i+15].flags & D_SELECTED)
-		    {
-			curr_combo.walk |= 1<<i;
-		    }
-		    else
-		    {
-			curr_combo.walk &= ~(1<<i);
-		    }
+			if(combo_dlg[i+17].flags & D_SELECTED)
+			{
+				curr_combo.walk |= 1<<i;
+			}
+			else
+			{
+				curr_combo.walk &= ~(1<<i);
+			}
+		}
+		for(int i=0; i<4; i++)
+		{
+			if(combo_dlg[i+137].flags & D_SELECTED)
+			{
+				curr_combo.walk |= 1<<(i+4);
+			}
+			else
+			{
+				curr_combo.walk &= ~(1<<(i+4));
+			}
 		}
 		
 		
 		//userflags
-		if(combo_dlg[47].flags & D_SELECTED) 
+		if(combo_dlg[49].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x01;
 		}
@@ -18867,7 +19391,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x01;
 		}
-		if(combo_dlg[48].flags & D_SELECTED) 
+		if(combo_dlg[50].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x02;
 		}
@@ -18875,7 +19399,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x02;
 		}
-		if(combo_dlg[49].flags & D_SELECTED) 
+		if(combo_dlg[51].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x04;
 		}
@@ -18883,7 +19407,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x04;
 		}
-		if(combo_dlg[50].flags & D_SELECTED) 
+		if(combo_dlg[52].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x08;
 		}
@@ -18891,7 +19415,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x08;
 		}
-		if(combo_dlg[51].flags & D_SELECTED) 
+		if(combo_dlg[53].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x10;
 		}
@@ -18899,7 +19423,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x10;
 		}
-		if(combo_dlg[52].flags & D_SELECTED) 
+		if(combo_dlg[54].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x20;
 		}
@@ -18907,7 +19431,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x20;
 		}
-		if(combo_dlg[53].flags & D_SELECTED) 
+		if(combo_dlg[55].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x40;
 		}
@@ -18915,7 +19439,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x40;
 		}
-		if(combo_dlg[54].flags & D_SELECTED) 
+		if(combo_dlg[56].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x80;
 		}
@@ -18923,7 +19447,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x80;
 		}
-		if(combo_dlg[104].flags & D_SELECTED) 
+		if(combo_dlg[106].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x100;
 		}
@@ -18931,7 +19455,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x100;
 		}
-		if(combo_dlg[105].flags & D_SELECTED) 
+		if(combo_dlg[107].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x200;
 		}
@@ -18939,7 +19463,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x200;
 		}
-		if(combo_dlg[106].flags & D_SELECTED) 
+		if(combo_dlg[108].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x400;
 		}
@@ -18947,7 +19471,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x400;
 		}
-		if(combo_dlg[107].flags & D_SELECTED) 
+		if(combo_dlg[109].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x800;
 		}
@@ -18955,7 +19479,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x800;
 		}
-		if(combo_dlg[108].flags & D_SELECTED) 
+		if(combo_dlg[110].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x1000;
 		}
@@ -18963,7 +19487,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x1000;
 		}
-		if(combo_dlg[109].flags & D_SELECTED) 
+		if(combo_dlg[111].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x2000;
 		}
@@ -18971,7 +19495,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x2000;
 		}
-		if(combo_dlg[110].flags & D_SELECTED) 
+		if(combo_dlg[112].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x4000;
 		}
@@ -18979,7 +19503,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x4000;
 		}
-		if(combo_dlg[111].flags & D_SELECTED) 
+		if(combo_dlg[113].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x8000;
 		}
@@ -18989,62 +19513,64 @@ bool edit_combo(int c,bool freshen,int cs)
 		}
 		
 		
-		if(combo_dlg[63].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x01; } else { curr_combo.triggerflags[0] &= ~0x01; }
-		if(combo_dlg[64].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x02; } else { curr_combo.triggerflags[0] &= ~0x02; }
-		if(combo_dlg[65].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x04; } else { curr_combo.triggerflags[0] &= ~0x04; }
-		if(combo_dlg[66].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x08; } else { curr_combo.triggerflags[0] &= ~0x08; }
-		if(combo_dlg[67].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10; } else { curr_combo.triggerflags[0] &= ~0x10; }
-		if(combo_dlg[68].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20; } else { curr_combo.triggerflags[0] &= ~0x20; }
-		if(combo_dlg[69].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x40; } else { curr_combo.triggerflags[0] &= ~0x40; }
-		if(combo_dlg[70].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x80; } else { curr_combo.triggerflags[0] &= ~0x80; }
-		if(combo_dlg[71].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x100; } else { curr_combo.triggerflags[0] &= ~0x100; }
-		if(combo_dlg[72].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x200; } else { curr_combo.triggerflags[0] &= ~0x200; }
+		SETFLAG(curr_combo.triggerflags[0], 0x01, combo_dlg[65].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x02, combo_dlg[66].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x04, combo_dlg[67].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x08, combo_dlg[68].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x10, combo_dlg[69].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x20, combo_dlg[70].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x40, combo_dlg[71].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x80, combo_dlg[72].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x100, combo_dlg[73].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x200, combo_dlg[74].flags & D_SELECTED);
 		//breakas here
-		if(combo_dlg[73].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x400; } else { curr_combo.triggerflags[0] &= ~0x400; }
-		if(combo_dlg[74].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x800; } else { curr_combo.triggerflags[0] &= ~0x800; }
-		if(combo_dlg[75].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x1000; } else { curr_combo.triggerflags[0] &= ~0x1000; }
-		if(combo_dlg[76].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x2000; } else { curr_combo.triggerflags[0] &= ~0x2000; }
-		if(combo_dlg[77].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x4000; } else { curr_combo.triggerflags[0] &= ~0x4000; }
-		if(combo_dlg[78].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x8000; } else { curr_combo.triggerflags[0] &= ~0x8000; }
-		if(combo_dlg[79].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10000; } else { curr_combo.triggerflags[0] &= ~0x10000; }
-		if(combo_dlg[80].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20000; } else { curr_combo.triggerflags[0] &= ~0x20000; }
+		SETFLAG(curr_combo.triggerflags[0], 0x400, combo_dlg[75].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x800, combo_dlg[76].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x1000, combo_dlg[77].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x2000, combo_dlg[78].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x4000, combo_dlg[79].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x8000, combo_dlg[80].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x10000, combo_dlg[81].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x20000, combo_dlg[82].flags & D_SELECTED);
 		//ZScript capable numbers end there. 
-		if(combo_dlg[81].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x01; } else { curr_combo.triggerflags[1] &= ~0x01; }
-		if(combo_dlg[82].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x02; } else { curr_combo.triggerflags[1] &= ~0x02; }
-		if(combo_dlg[83].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x04; } else { curr_combo.triggerflags[1] &= ~0x04; }
-		if(combo_dlg[84].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x08; } else { curr_combo.triggerflags[1] &= ~0x08; }
-		if(combo_dlg[85].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10; } else { curr_combo.triggerflags[1] &= ~0x10; }
+		SETFLAG(curr_combo.triggerflags[1], 0x01, combo_dlg[83].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x02, combo_dlg[84].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x04, combo_dlg[85].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x08, combo_dlg[86].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x10, combo_dlg[87].flags & D_SELECTED);
 
 		//trigger flags page 2
-		if(combo_dlg[90].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x20; } else { curr_combo.triggerflags[1] &= ~0x020; }
-		if(combo_dlg[91].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x40; } else { curr_combo.triggerflags[1] &= ~0x040; }
-		if(combo_dlg[92].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x80; } else { curr_combo.triggerflags[1] &= ~0x080; }
-		if(combo_dlg[93].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x100; } else { curr_combo.triggerflags[1] &= ~0x100; }
-		if(combo_dlg[94].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x200; } else { curr_combo.triggerflags[1] &= ~0x200; }
-		if(combo_dlg[95].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x400; } else { curr_combo.triggerflags[1] &= ~0x400; }
-		if(combo_dlg[96].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x800; } else { curr_combo.triggerflags[1] &= ~0x800; }
-		if(combo_dlg[97].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
-		if(combo_dlg[98].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
-		if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
+		SETFLAG(curr_combo.triggerflags[1], 0x20, combo_dlg[92].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x40, combo_dlg[93].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x80, combo_dlg[94].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x100, combo_dlg[95].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x200, combo_dlg[96].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x400, combo_dlg[97].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x800, combo_dlg[98].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x1000, combo_dlg[99].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x2000, combo_dlg[100].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x4000, combo_dlg[101].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x8000, combo_dlg[198].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x10000, combo_dlg[199].flags & D_SELECTED);
 		
 		
 		//if(combo_dlg[113].d1 > 255)
-		//{
+		// {
 		//	al_trace("too big\n");
-		//}
+		// }
 		
-		curr_combo.csets = vbound(atoi(cset_str),-15,15) & 15; //Bound this to a size of csets, so that it does not wrap!
+		curr_combo.csets = ((vbound(atoi(cset_str),-11,11) % 12) + 12) % 12; //Bound this to a size of csets, so that it does not wrap!
 		
 		for(int i=0; i<4; i++)
 		{
-		    if(combo_dlg[i+20].flags & D_SELECTED)
-		    {
+			if(combo_dlg[i+22].flags & D_SELECTED)
+			{
 			curr_combo.csets |= 16<<i;
-		    }
-		    else
-		    {
+			}
+			else
+			{
 			curr_combo.csets &= ~(16<<i);
-		    }
+			}
 		}
 		
 		curr_combo.skipanim = zc_max(0,vbound(atoi(skip),0,255)); //bind to size of byte! -Z
@@ -19054,49 +19580,68 @@ bool edit_combo(int c,bool freshen,int cs)
 		//frames+frames*skip+frames*skipy*TILES_PER_ROW = lastframe + skip + TILES_PER_ROW*skipy
 		//frames = (lastframe+skip+TILES_PER_ROW*skipy)/(1+skip+TILES_PER_ROW*skipy)
 		int bound = (NEWMAXTILES-curr_combo.tile+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy)/
-			    (1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
-			    
+				(1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
+				
 		curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
 		//curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
 		
 		curr_combo.speed = vbound(atoi(spd),0,255);  //bind to size of byte! -Z
-		curr_combo.type = bict[combo_dlg[25].d1].i;
+		curr_combo.type = bict[combo_dlg[27].d1].i;
 		//setComboLabels(bict[combo_dlg[25].d1].i);
-		curr_combo.nextcombo = combo_dlg[32].d1;
-		curr_combo.nextcset = combo_dlg[32].fg;
-		curr_combo.flag = combo_dlg[34].d1;
+		curr_combo.nextcombo = combo_dlg[34].d1;
+		curr_combo.flag = combo_dlg[36].d1;
 		
 		//Attributes[]
-		curr_combo.attributes[0] = vbound(atoi(attrib0),-214747,214747);
-		curr_combo.attributes[1] = vbound(atoi(attrib1),-214747,214747);
-		curr_combo.attributes[2] = vbound(atoi(attrib2),-214747,214747);
-		curr_combo.attributes[3] = vbound(atoi(attrib3),-214747,214747);
+		curr_combo.attributes[0] = combo_dlg[58].fg;
+		curr_combo.attributes[1] = combo_dlg[60].fg;
+		curr_combo.attributes[2] = combo_dlg[62].fg;
+		curr_combo.attributes[3] = combo_dlg[64].fg;
 		
 		//Attribytes[]
-		
-		attribyte_vals[0] = (byte)vbound(atoi(attribyt0),0,255);
-		attribyte_vals[1] = (byte)vbound(atoi(attribyt1),0,255);
-		attribyte_vals[2] = (byte)vbound(atoi(attribyt2),0,255);
-		attribyte_vals[3] = (byte)vbound(atoi(attribyt3),0,255);
-		
-		curr_combo.attribytes[0] = attribyte_vals[0];
-		curr_combo.attribytes[1] = attribyte_vals[1];
-		curr_combo.attribytes[2] = attribyte_vals[2];
-		curr_combo.attribytes[3] = attribyte_vals[3];
+		curr_combo.attribytes[0] = combo_dlg[115].fg;
+		curr_combo.attribytes[1] = combo_dlg[117].fg;
+		curr_combo.attribytes[2] = combo_dlg[119].fg;
+		curr_combo.attribytes[3] = combo_dlg[121].fg;
+		curr_combo.attribytes[4] = combo_dlg[146].fg;
+		curr_combo.attribytes[5] = combo_dlg[148].fg;
+		curr_combo.attribytes[6] = combo_dlg[150].fg;
+		curr_combo.attribytes[7] = combo_dlg[152].fg;
+		//Attrishorts[]
+		curr_combo.attrishorts[0] = combo_dlg[154].fg;
+		curr_combo.attrishorts[1] = combo_dlg[156].fg;
+		curr_combo.attrishorts[2] = combo_dlg[158].fg;
+		curr_combo.attrishorts[3] = combo_dlg[160].fg;
+		curr_combo.attrishorts[4] = combo_dlg[162].fg;
+		curr_combo.attrishorts[5] = combo_dlg[164].fg;
+		curr_combo.attrishorts[6] = combo_dlg[166].fg;
+		curr_combo.attrishorts[7] = combo_dlg[168].fg;
 		
 		//trigger minimum level
 		curr_combo.triggerlevel = vbound(atoi(minlevel),0,214747);
 		
 		//initd and combo script
-		curr_combo.initd[0] = vbound(ffparse(initiald0),-2147483647, 2147483647);
-		curr_combo.initd[1] = vbound(ffparse(initiald1),-2147483647, 2147483647);
-		curr_combo.script = bidcomboscripts[combo_dlg[127].d1].second + 1; 
+		curr_combo.initd[0] = combo_dlg[125].fg;
+		curr_combo.initd[1] = combo_dlg[127].fg;
+		curr_combo.script = bidcomboscripts[combo_dlg[129].d1].second + 1; 
 		
 		curr_combo.animflags = 0;
-		curr_combo.animflags |= (combo_dlg[40].flags & D_SELECTED) ? AF_FRESH : 0;
-		curr_combo.animflags |= (combo_dlg[42].flags & D_SELECTED) ? AF_CYCLE : 0;
+		curr_combo.animflags |= (combo_dlg[42].flags & D_SELECTED) ? AF_FRESH : 0;
+		curr_combo.animflags |= (combo_dlg[44].flags & D_SELECTED) ? AF_CYCLE : 0;
+		curr_combo.animflags |= (combo_dlg[173].flags & D_SELECTED) ? AF_CYCLENOCSET : 0;
+		if(ret==173)
+		{
+			if(!(curr_combo.animflags & AF_CYCLENOCSET)) //just disabled
+				combo_dlg[34].fg = curr_combo.nextcset;
+		}
+		if(curr_combo.animflags & AF_CYCLENOCSET)
+		{
+			if(ret==34) //If a new nextcombo was set, write the nextcset before wiping back to default
+				curr_combo.nextcset = combo_dlg[34].fg;
+			combo_dlg[34].fg = edit_combo_cset;
+		}
+		else curr_combo.nextcset = combo_dlg[34].fg;
 		
-		if(combo_dlg[47].flags & D_SELECTED) 
+		if(combo_dlg[49].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x01;
 		}
@@ -19104,7 +19649,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x01;
 		}
-		if(combo_dlg[48].flags & D_SELECTED) 
+		if(combo_dlg[50].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x02;
 		}
@@ -19112,7 +19657,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x02;
 		}
-		if(combo_dlg[49].flags & D_SELECTED) 
+		if(combo_dlg[51].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x04;
 		}
@@ -19120,7 +19665,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x04;
 		}
-		if(combo_dlg[50].flags & D_SELECTED) 
+		if(combo_dlg[52].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x08;
 		}
@@ -19128,7 +19673,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x08;
 		}
-		if(combo_dlg[51].flags & D_SELECTED) 
+		if(combo_dlg[53].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x10;
 		}
@@ -19136,7 +19681,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x10;
 		}
-		if(combo_dlg[52].flags & D_SELECTED) 
+		if(combo_dlg[54].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x20;
 		}
@@ -19144,7 +19689,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x20;
 		}
-		if(combo_dlg[53].flags & D_SELECTED) 
+		if(combo_dlg[55].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x40;
 		}
@@ -19152,7 +19697,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x40;
 		}
-		if(combo_dlg[54].flags & D_SELECTED) 
+		if(combo_dlg[56].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x80;
 		}
@@ -19160,7 +19705,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x80;
 		}
-		if(combo_dlg[104].flags & D_SELECTED) 
+		if(combo_dlg[106].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x100;
 		}
@@ -19168,7 +19713,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x100;
 		}
-		if(combo_dlg[105].flags & D_SELECTED) 
+		if(combo_dlg[107].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x200;
 		}
@@ -19176,7 +19721,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x200;
 		}
-		if(combo_dlg[106].flags & D_SELECTED) 
+		if(combo_dlg[108].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x400;
 		}
@@ -19184,7 +19729,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x400;
 		}
-		if(combo_dlg[107].flags & D_SELECTED) 
+		if(combo_dlg[109].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x800;
 		}
@@ -19192,7 +19737,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x800;
 		}
-		if(combo_dlg[108].flags & D_SELECTED) 
+		if(combo_dlg[110].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x1000;
 		}
@@ -19200,7 +19745,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x1000;
 		}
-		if(combo_dlg[109].flags & D_SELECTED) 
+		if(combo_dlg[111].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x2000;
 		}
@@ -19208,7 +19753,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x2000;
 		}
-		if(combo_dlg[110].flags & D_SELECTED) 
+		if(combo_dlg[112].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x4000;
 		}
@@ -19216,7 +19761,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		{
 			curr_combo.usrflags &= ~0x4000;
 		}
-		if(combo_dlg[111].flags & D_SELECTED) 
+		if(combo_dlg[113].flags & D_SELECTED) 
 		{
 			curr_combo.usrflags |= 0x8000;
 		}
@@ -19231,84 +19776,45 @@ bool edit_combo(int c,bool freshen,int cs)
 		//combo label
 		strcpy(curr_combo.label, the_label);
 		
-		if(ret==25)
+		if(ret==27)
 		{
-			setComboLabels(bict[combo_dlg[25].d1].i);
+			setComboLabels(bict[combo_dlg[27].d1].i);
 		}
-		if(ret==104)
-		{
-			if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
-			{
-				if(combo_dlg[104].flags & D_SELECTED) //change labels
-				{
-					setComboLabels(257);
-					if(combo_dlg[109].flags & D_SELECTED) //change labels
-						setComboLabels(258);
-				}
-				else setComboLabels(bict[combo_dlg[25].d1].i);
-				ret=zc_popup_dialog(combo_dlg,4);
-			}
-		}
-		if(ret==109)
-		{
-			if ( (bict[combo_dlg[25].d1].i) >= cSCRIPT1 && (bict[combo_dlg[25].d1].i <= cSCRIPT20) )
-			{
-				if(combo_dlg[104].flags & D_SELECTED) //change labels
-				{
-					if(combo_dlg[109].flags & D_SELECTED) //change labels
-						setComboLabels(258);
-					else setComboLabels(257);
-				}
-				else setComboLabels(bict[combo_dlg[25].d1].i);
-			}
-			else if ((bict[combo_dlg[25].d1].i) == cTRIGGERGENERIC)
-			{
-				if(combo_dlg[109].flags & D_SELECTED) //change labels
-					setComboLabels(259);
-				else setComboLabels(bict[combo_dlg[25].d1].i);
-			}
-			else setComboLabels(bict[combo_dlg[25].d1].i);
-			ret=zc_popup_dialog(combo_dlg,4);
-		}
-		
-		
-		
-		
-		
 		
 			/*ret == combo_dlg[113].dp = attribyt0;
-    combo_dlg[115].dp = attribyt1;
-    combo_dlg[117].dp = attribyt2;
-    combo_dlg[119].dp = attribyt3;
+	combo_dlg[115].dp = attribyt1;
+	combo_dlg[117].dp = attribyt2;
+	combo_dlg[119].dp = attribyt3;
 		*/
 		
-		if(ret==43)
-		    ctype_help(bict[combo_dlg[25].d1].i);
-		else if(ret==44)
-		    cflag_help(combo_dlg[34].d1);
+		if(ret==45)
+			ctype_help(bict[combo_dlg[27].d1].i);
+		else if(ret==46)
+			cflag_help(combo_dlg[36].d1);
+
 		
 		
 		
 		
-	//}
-    
-	    
-    } while ( ret != 2 && ret != 3 && ret!=45 && ret != 46 && ret!=86 && ret!=87 && ret!=100 && ret!=101 && ret!=121 && ret !=120 && ret !=129 && ret !=128 ); //127 cancel, 128 OK
-    if ( ret==2 || ret==45 || ret==86 || ret==100 || ret == 120 || ret == 128 ) //save it
-    {
-	    curr_combo.script = bidcomboscripts[combo_dlg[127].d1].second + 1; 
-	    combobuf[c] = curr_combo;
-	    saved = false;
-    }
-	    if(freshen)
-	    {
+	// }
+	
+		
+	} while ( ret != 0 && !(combo_dlg[ret].proc == jwin_button_proc && !(strcmp((char*)combo_dlg[ret].dp,"OK") && strcmp((char*)combo_dlg[ret].dp,"Cancel"))));//ret != 4 && ret != 5 && ret!=47 && ret != 48 && ret!=88 && ret!=89 && ret!=102 && ret!=103 && ret!=123 && ret !=122 && ret !=131 && ret !=130 && ret !=135 && ret !=134 && ret !=169 && ret !=170 && ret !=171 && ret !=172 && ret !=174 && ret !=175);
+	if ( combo_dlg[ret].proc == jwin_button_proc && !strcmp((char*)combo_dlg[ret].dp,"OK") )//ret==4 || ret==47 || ret==88 || ret==102 || ret == 122 || ret == 130 || ret == 134 || ret == 169 || ret == 171 || ret == 174 ) //save it
+	{
+		curr_combo.script = bidcomboscripts[combo_dlg[129].d1].second + 1; 
+		combobuf[c] = curr_combo;
+		saved = false;
+	}
+		if(freshen)
+		{
 		refresh(rALL);
-	    }
-	    
-	    setup_combo_animations();
-	    setup_combo_animations2();
-    
-    return true;
+		}
+		
+		setup_combo_animations();
+		setup_combo_animations2();
+	
+	return true;
 }
 
 int d_itile_proc(int msg,DIALOG *d,int)
@@ -19447,6 +19953,7 @@ int d_combo_proc(int msg,DIALOG *d,int c)
             break;
         }
         
+		int ret = (d->flags & D_EXIT) ? D_CLOSE : D_O_K;
         int combo2;
         int cs;
         
@@ -19465,7 +19972,7 @@ int d_combo_proc(int msg,DIALOG *d,int c)
                 if(d->d1<0) d->d1=MAXCOMBOS-1;
             }
             
-            return D_REDRAW;
+            return ret|D_REDRAW;
         }
         else if(key[KEY_RSHIFT])
         {
@@ -19482,7 +19989,7 @@ int d_combo_proc(int msg,DIALOG *d,int c)
                 if(d->fg<0) d->fg=11;
             }
             
-            return D_REDRAW;
+            return ret|D_REDRAW;
         }
         else if(key[KEY_ALT])
         {
@@ -19492,18 +19999,18 @@ int d_combo_proc(int msg,DIALOG *d,int c)
                 d->fg = CSet;
             }
             
-            return D_REDRAW;
+            return ret|D_REDRAW;
         }
         else if(gui_mouse_b()&2||nextcombo_fake_click==2)  //right mouse button
         {
             if(d->d1==0&&d->fg==0&&!(gui_mouse_b()&1))
             {
-                return D_O_K;
+                return ret;
             }
             
             d->d1=0;
             d->fg=0;
-            return D_REDRAW;
+            return ret|D_REDRAW;
         }
         else if(gui_mouse_b()&1||nextcombo_fake_click==1)  //left mouse button
         {
@@ -19516,11 +20023,11 @@ int d_combo_proc(int msg,DIALOG *d,int c)
                 d->fg=cs;
             }
             
-            return D_REDRAW;
+            return ret|D_REDRAW;
         }
         else
         {
-            return D_REDRAWME;
+            return ret|D_REDRAWME;
         }
     }
     
@@ -19615,17 +20122,24 @@ int d_mr_cset_proc(int msg, DIALOG* d, int)
         
     case MSG_LPRESS:
         {
-            int x=gui_mouse_x()-(d->x+2);
-            massRecolorDraggedColor=colors[x/colorWidth];
+            int x=(gui_mouse_x()-(d->x+2))/colorWidth;
+			
+			if(x >= 0 && x < 16) //sanity check!
+			{
+				massRecolorDraggedColor=colors[x];
+			}
         }
         break;
         
     case MSG_LRELEASE: // This isn't exactly right, but it'll do...
         if((d->flags&D_SETTABLE)!=0 && massRecolorDraggedColor>=0)
         {
-            int x=gui_mouse_x()-(d->x+2);
-            colors[x/colorWidth]=massRecolorDraggedColor;
-            d->flags|=D_DIRTY;
+            int x=(gui_mouse_x()-(d->x+2))/colorWidth;
+			if(x >= 0 && x < 16) //sanity check!
+			{
+				colors[x]=massRecolorDraggedColor;
+				d->flags|=D_DIRTY;
+			}
         }
         massRecolorDraggedColor=-1;
         break;
@@ -20032,6 +20546,7 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 		{
 			return 0;
 		}
+		temp_combo.o_tile = temp_combo.tile;
             
 		if(!p_getc(&temp_combo.flip,f,true))
 		{
@@ -21182,7 +21697,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs<15) ? cs+1:0;
+                    cs = (cs<11) ? cs+1:0;
                     
                 redraw=true;
                 break;
@@ -21242,7 +21757,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs>0)  ? cs-1:15;
+                    cs = (cs>0)  ? cs-1:11;
                     
                 redraw=true;
                 break;
@@ -21455,7 +21970,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
 #ifdef ALLEGRO_LITTLE_ENDIAN
                                 
                                     //if(bitcheck==tf4Bit)
-                                    //{
+                                    // {
                                     for(int p=0; p<(8*bitcheck)-1; p++)
                                     {
                                         if(bitcheck==tf4Bit)

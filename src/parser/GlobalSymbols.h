@@ -595,6 +595,20 @@ private:
     void generateCode();
 };
 
+class DirectorySymbols : public LibrarySymbols
+{
+public:
+    static DirectorySymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static DirectorySymbols singleton;
+    DirectorySymbols();
+    void generateCode();
+};
+
 class SubscreenDataSymbols : public LibrarySymbols
 {
 public:
@@ -606,6 +620,21 @@ protected:
 private:
     static SubscreenDataSymbols singleton;
     SubscreenDataSymbols();
+    void generateCode();
+};
+
+//Filesystem->
+class ModuleSymbols : public LibrarySymbols
+{
+public:
+    static ModuleSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static ModuleSymbols singleton;
+    ModuleSymbols();
     void generateCode();
 };
 

@@ -28,6 +28,8 @@ extern LinkClass   Link;
 extern int directItem;
 extern int directItemA;
 extern int directItemB;
+extern int directItemY;
+extern int directItemX;
 
 //DIALOG *sso_properties_dlg;
 
@@ -79,24 +81,24 @@ void dosubscr(miscQdata *misc)
     blit(framebuf,scrollbuf,0,playing_field_offset,0,176,256,176);
     miny = 6;
     
+	bool use_a = get_bit(quest_rules,qr_SELECTAWPN), use_x = get_bit(quest_rules,qr_SET_XBUTTON_ITEMS),
+	     use_y = get_bit(quest_rules,qr_SET_YBUTTON_ITEMS);
+	bool b_only = !(use_a||use_x||use_y);
+	
     //Set the selector to the correct position before bringing up the subscreen -DD
-    if(get_bit(quest_rules,qr_SELECTAWPN))
-    {
-        if(Bwpn==0 && Awpn!=0)
-            Bpos = zc_max(game->awpn,0);
-        else
-            Bpos = zc_max(game->bwpn,0);
-    }
-    else
-    {
-        Bpos = zc_max(game->bwpn,0);
-	//Awpn = 0; 
-	//set the position for the sword
-	//Apos = game->awpn(game->awpn,0); 
+	{
+		if(Bwpn)
+			Bpos = zc_max(game->bwpn,0);
+		else if(use_a && Awpn)
+			Bpos = zc_max(game->awpn,0);
+		else if(use_x && Xwpn)
+			Bpos = zc_max(game->xwpn,0);
+		else if(use_y && Ywpn)
+			Bpos = zc_max(game->ywpn,0);
+		else Bpos = 0;
+	}
         
-    }
-        
-    for(int y=176-2; y>=6; y-=3)
+    for(int y=176-2; y>=6; y-=3*Link.subscr_speed)
     {
         do_dcounters();
         Link.refill();
@@ -129,83 +131,155 @@ void dosubscr(miscQdata *misc)
     
     do
     {
-        load_control_state();
-        int pos = Bpos;
-        
-        if(rUp())         Bpos = selectWpn_new(SEL_UP, pos);
-        else if(rDown())  Bpos = selectWpn_new(SEL_DOWN, pos);
-        else if(rLeft())  Bpos = selectWpn_new(SEL_LEFT, pos);
-        else if(rRight()) Bpos = selectWpn_new(SEL_RIGHT, pos);
-        else if(rLbtn())
-	{
-		if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))
+		load_control_state();
+		int pos = Bpos;
+		
+		if(rUp())         Bpos = selectWpn_new(SEL_UP, pos);
+		else if(rDown())  Bpos = selectWpn_new(SEL_DOWN, pos);
+		else if(rLeft())  Bpos = selectWpn_new(SEL_LEFT, pos);
+		else if(rRight()) Bpos = selectWpn_new(SEL_RIGHT, pos);
+		else if(rLbtn())
 		{
-			Bpos = selectWpn_new(SEL_LEFT, pos);
+			if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))
+			{
+				Bpos = selectWpn_new(SEL_LEFT, pos);
+			}
 		}
-	}
-        else if(rRbtn() )
-	{
-		if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
+		else if(rRbtn() )
 		{
-			Bpos = selectWpn_new(SEL_RIGHT, pos);
+			if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
+			{
+				Bpos = selectWpn_new(SEL_RIGHT, pos);
+			}
 		}
-	}
-        else if(rEx3btn() )
-	{
-		if ( get_bit(quest_rules,qr_SELECTAWPN) && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP) )
+		else if(rEx3btn() )
 		{
-			selectNextAWpn(SEL_LEFT);
+			if ( use_a && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP) )
+			{
+				selectNextAWpn(SEL_LEFT);
+			}
 		}
-	}
-	else if(rEx4btn() )
-	{
-		if ( get_bit(quest_rules,qr_SELECTAWPN) && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP) )
+		else if(rEx4btn() )
 		{
-			selectNextAWpn(SEL_RIGHT);
+			if ( use_a && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP) )
+			{
+				selectNextAWpn(SEL_RIGHT);
+			}
 		}
-	}
-        
-        if(get_bit(quest_rules,qr_SELECTAWPN))
-        {
-            if(rBbtn())
-            {
-                if(Awpn == Bweapon(Bpos))
-                {
-                    Awpn = Bwpn;
-                    game->awpn = game->bwpn;
-                    directItemA = directItemB;
-                }
-                
-                Bwpn = Bweapon(Bpos);
-		game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
-                sfx(WAV_PLACE);
-                
-                game->bwpn = Bpos;
-                directItemB = directItem;
-            }
-            else if(rAbtn())
-            {
-                if(Bwpn == Bweapon(Bpos))
-                {
-                    Bwpn = Awpn;
-                    game->bwpn = game->awpn;
-                    directItemB = directItemA;
-                }
-                
-                Awpn = Bweapon(Bpos);
-                sfx(WAV_PLACE);
-                game->awpn = Bpos;
-		game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
-                directItemA = directItem;
-            }
-        }
-        else
-        {
-            Bwpn = Bweapon(Bpos);
-            game->bwpn = Bpos;
-	    game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
-            directItemB = directItem;
-        }
+		//Assign items to buttons
+		if(rBbtn() || b_only)
+		{
+			int t = Bweapon(Bpos);
+			if(use_a && t == Awpn)
+			{
+				Awpn = Bwpn;
+				game->awpn = game->bwpn;
+				directItemA = directItemB;
+			}
+			else if(use_x && t == Xwpn)
+			{
+				Xwpn = Bwpn;
+				game->xwpn = game->bwpn;
+				directItemX = directItemB;
+			}
+			else if(use_y && t == Ywpn)
+			{
+				Ywpn = Bwpn;
+				game->ywpn = game->bwpn;
+				directItemY = directItemB;
+			}
+			
+			Bwpn = t;
+			game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
+			if(!b_only) sfx(WAV_PLACE);
+			
+			game->bwpn = Bpos;
+			directItemB = directItem;
+		}
+		else if(use_a && rAbtn())
+		{
+			int t = Bweapon(Bpos);
+			if(t == Bwpn)
+			{
+				Bwpn = Awpn;
+				game->bwpn = game->awpn;
+				directItemB = directItemA;
+			}
+			else if(use_x && t == Xwpn)
+			{
+				Xwpn = Awpn;
+				game->xwpn = game->awpn;
+				directItemX = directItemA;
+			}
+			else if(use_y && t == Ywpn)
+			{
+				Ywpn = Awpn;
+				game->ywpn = game->awpn;
+				directItemY = directItemA;
+			}
+			
+			Awpn = t;
+			sfx(WAV_PLACE);
+			game->awpn = Bpos;
+			game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
+			directItemA = directItem;
+		}
+		else if(use_x && rEx1btn())
+		{
+			int t = Bweapon(Bpos);
+			if(t == Bwpn)
+			{
+				Bwpn = Xwpn;
+				game->bwpn = game->xwpn;
+				directItemB = directItemX;
+			}
+			else if(use_a && t == Awpn)
+			{
+				Awpn = Xwpn;
+				game->awpn = game->xwpn;
+				directItemA = directItemX;
+			}
+			else if(use_y && t == Ywpn)
+			{
+				Ywpn = Xwpn;
+				game->ywpn = game->xwpn;
+				directItemY = directItemX;
+			}
+			
+			Xwpn = t;
+			sfx(WAV_PLACE);
+			game->xwpn = Bpos;
+			game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
+			directItemX = directItem;
+		}
+		else if(use_y && rEx2btn())
+		{
+			int t = Bweapon(Bpos);
+			if(t == Bwpn)
+			{
+				Bwpn = Ywpn;
+				game->bwpn = game->ywpn;
+				directItemB = directItemY;
+			}
+			else if(use_a && t == Awpn)
+			{
+				Awpn = Ywpn;
+				game->awpn = game->ywpn;
+				directItemA = directItemY;
+			}
+			else if(use_x && t == Xwpn)
+			{
+				Xwpn = Ywpn;
+				game->xwpn = game->ywpn;
+				directItemX = directItemY;
+			}
+			
+			Ywpn = t;
+			sfx(WAV_PLACE);
+			game->ywpn = Bpos;
+			game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
+			directItemY = directItem;
+		}
         
         if(pos!=Bpos)
             sfx(WAV_CHIME);
@@ -252,7 +326,7 @@ void dosubscr(miscQdata *misc)
     }
     while(!done);
     
-    for(int y=6; y<=174; y+=3)
+    for(int y=6; y<=174; y+=3*Link.subscr_speed)
     {
         do_dcounters();
         Link.refill();
@@ -302,33 +376,38 @@ void markBmap(int dir, int sc)
     
     byte drow = DMaps[get_currdmap()].grid[sc>>4];
     byte mask = 1 << (7-((sc&15)-DMaps[get_currdmap()].xoff));
-    int di = ((get_currdmap()-1)<<6) + ((sc>>4)<<3) + ((sc&15)-DMaps[get_currdmap()].xoff);
+    int di = (get_currdmap() << 7) + (sc & 0x7F); //+ ((sc&0xF)-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff));
     int code = 0;
     
     
     switch((DMaps[get_currdmap()].type&dmfTYPE))
     {
     case dmDNGN:
-    
-        // check dmap
-        if((drow&mask)==0)
-            return;
-            
-        // calculate code
-        for(int i=3; i>=0; i--)
-        {
-            code <<= 1;
-            code += tmpscr->door[i]&1;
-        }
-        
-        // mark the map
-        game->bmaps[di] = code|128;
+		if(get_bit(quest_rules, qr_DUNGEONS_USE_CLASSIC_CHARTING))
+		{
+			// check dmap
+			if((drow&mask)==0) //Only squares marked in dmap editor can be charted
+				return;
+				
+			// calculate code
+			for(int i=3; i>=0; i--)
+			{
+				code <<= 1;
+				code += tmpscr->door[i]&1; //Mark directions only for sides that have the door state set
+			}
+			
+			// mark the map
+			game->bmaps[di] = code|128;
+		}
+		else goto bmaps_default;
         break;
         
     case dmOVERW:
-        break;
+		if(get_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING))
+			break;
         
     default:
+	bmaps_default:
         game->bmaps[di] |= 128;
         
         if(dir>=0)

@@ -1,5 +1,5 @@
 // Docs for 2.55.0
-// Rev. 0.8.1; 11th May, 2020
+// Rev. 0.8.3; 3rd July, 2020
 
 Search for !#! to find areas that require completion. 
 
@@ -2521,6 +2521,7 @@ void DrawTile	(int layer, int x, int y,
 * You may use OP_TRANS (64) for a translucent (50%) image, or OP_OPAQUE (128)
 * for an opaque (100%) image. Other values are **ignored**, and will be treated 
 * as translucent (OP_TRANS, or 64).
+* To draw an 8-bit tile, and render it properly, pass 0 to the cset arg. 
 */ Example Use: !#!
 
 /************************************************************************************************************/
@@ -3178,7 +3179,7 @@ int Link;			ZASM Instruction:
 
 /************************************************************************************************************/
 
-float InitD[8];			ZASM Instruction: 
+untyped InitD[8];		ZASM Instruction: 
 				FFINITD<>
 				FFINITDD<>?
 				D<>
@@ -3191,7 +3192,7 @@ float InitD[8];			ZASM Instruction:
 
 /************************************************************************************************************/
 
-float Misc[16];			ZASM Instruction: 
+u Misc[16];			ZASM Instruction: 
 				FFMISC
 				FFMISCD
 				
@@ -3780,12 +3781,12 @@ int DrawZOffset;			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-float Misc[16];				ZASM Instruction: 
+untyped Misc[32];				ZASM Instruction: 
 					LINKMISC
 					LINKMISCD
 				
 /**
-* An array of 16 miscellaneous variables for you to use as you please.
+* An array of 32 miscellaneous variables for you to use as you please.
 * These variables are not saved with Link.
 *
 */ Example Use: !#!
@@ -4237,10 +4238,10 @@ SelectBWeapon(int dir);			ZASM Instruction:
 
 /************************************************************************************************************/
 
-	float Misc[];			ZASM Instruction: 
+	untyped Misc[32];			ZASM Instruction: 
 					NPCMISCD
 	/**
-	* An array of 16 miscellaneous variables for you to use as you please.
+	* An array of 32 miscellaneous variables for you to use as you please.
 	*/
 	
 /************************************************************************************************************/
@@ -4697,12 +4698,12 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	float Misc[];			ZASM Instruction: 
+	untyped Misc[32];			ZASM Instruction: 
 					LWPNMISCD
 					EWPNMISCD
 	
 	/**
-	* An array of 16 miscellaneous variables for you to use as you please.
+	* An array of 32 miscellaneous variables for you to use as you please.
 	*/ Example Use: !#!
 	
 
@@ -5003,10 +5004,11 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	float Misc[];			ZASM Instruction: 
+	
+untyped Misc[32];			ZASM Instruction: 
 					ITEMMISCD
 	/**
-	* An array of 16 miscellaneous variables for you to use as you please.
+	* An array of 32 miscellaneous variables for you to use as you please.
 	* Note that lweapons and eweapons possess exactly the same attributes,
 	* although their designation affects how they are treated by the engine.
 	* The values here correspond to both the lweapon and eweapon type.
@@ -5027,7 +5029,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 										class itemdata
 
 
-	float InitD[];			ZASM Instruction: 
+	untyped InitD[8];			ZASM Instruction: 
 					IDATAINITDD
 	/**
 	* The original values of the item's 8 'D#' input values are they are stored in the

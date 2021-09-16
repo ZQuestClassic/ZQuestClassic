@@ -20,6 +20,7 @@
 #include "y.tab.hpp"
 YYLTYPE noloc = {0,0,0,0};
 int yyrow, yycol;
+int doImportStr = 0;
 
 enum {st_none, st_case};
 int special_state = st_none;
@@ -37,7 +38,7 @@ using namespace ZScript;
 int srow, scol;
 std::ostringstream qstr;
 
-#define NEWLINE ++yyrow; yycol = 1
+#define NEWLINE ++yyrow; yycol = 1; doImportStr = 0
 #define ADVANCE yycol += yyleng
 
 #define UPDATE_YYLLOC \
@@ -93,6 +94,7 @@ typedef		TOKEN( TYPEDEF );
 
 catch			TOKEN( EXPECTERROR );
 OPTION_VALUE	TOKEN( OPTIONVALUE );
+IS_INCLUDED		++doImportStr; TOKEN( ISINCLUDED );
 enum			TOKEN( ENUM );
 namespace		TOKEN( NAMESPACE );
 using			TOKEN( USING );
@@ -112,6 +114,7 @@ bool		TOKEN( ZBOOL );
 float		TOKEN( ZFLOAT );
 int		TOKEN( ZFLOAT );
 char32		TOKEN( ZCHAR );
+long		TOKEN( ZLONG );
 bitmap		TOKEN( BITMAP );
 cheatdata		TOKEN( CHEAT );
 combodata	TOKEN( COMBO );
@@ -143,6 +146,7 @@ link	TOKEN( LINK );
 hero	TOKEN( LINK );
 itemsprite	TOKEN( ITEMSPRITE );
 file	TOKEN( FILE );
+directory	TOKEN( DIRECTORY );
 subscreendata	TOKEN( SUBSCREENDATA );
 particlesprite	TOKEN( PARTICLE );
 decorationsprite	TOKEN( DECORATION );
@@ -298,6 +302,7 @@ appx_equal	TOKEN( APPXEQUAL );
 	"IGNORE WARNING"	TOKEN( EXPECTERROR );
 	"define"		TOKEN( DEFINE );
 	include			BEGIN( IMPORTING ); TOKEN( INCLUDE );
+	includeif			++doImportStr; BEGIN( INITIAL ); TOKEN( INCLUDEIF );
 	inherit			TOKEN( INHERIT );
 	on			VALUE( NUMBER, ASTFloat("1", ASTFloat::TYPE_DECIMAL, yylloc) );
 	off			VALUE( NUMBER, ASTFloat("0", ASTFloat::TYPE_DECIMAL, yylloc) );
@@ -307,7 +312,12 @@ appx_equal	TOKEN( APPXEQUAL );
 
  /* Strings */
 <INITIAL>\"		{
-	BEGIN( STRING );
+	if(doImportStr > 0)
+	{
+		BEGIN( IMPORTSTR );
+		--doImportStr;
+	}
+	else BEGIN( STRING );
 	qstr.str(""); /* Clear qstr */
 	srow = yyrow;
 	scol = yycol;
@@ -325,7 +335,7 @@ appx_equal	TOKEN( APPXEQUAL );
 		yytext[yyleng - 1] = 0;
 		qstr << yytext;
 		// Read in the escaped character.
-		register int c = yyinput();
+		int c = yyinput();
 		switch (c)
     {
 			case 'a': ESC_CHAR('\a');
@@ -390,6 +400,7 @@ appx_equal	TOKEN( APPXEQUAL );
 		return TOK_QUOTEDSTRING;
 	}
 }
+
  /* Import String */
  <IMPORTING>{
 	<<EOF>>			{
@@ -439,11 +450,32 @@ appx_equal	TOKEN( APPXEQUAL );
 [0-9]*\.?[0-9]+ 	{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_DECIMAL, yylloc) );
 }
+[0-9]+L 	{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_DECIMAL, yylloc) );
+}
 0x[0-9a-fA-F]+ 		{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_HEX, yylloc) );
 }
+0x[0-9a-fA-F]+L 		{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_HEX, yylloc) );
+}
 [0-1]+b			{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_BINARY, yylloc) );
+}
+[0-1]+Lb			{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY, yylloc) );
+}
+[0-1]+bL			{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY, yylloc) );
+}
+[0-7]+o 		{
+	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_OCTAL, yylloc) );
+}
+[0-7]+oL 		{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );
+}
+[0-7]+Lo 		{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );
 }
 
  /* Char */
@@ -523,6 +555,9 @@ appx_equal	TOKEN( APPXEQUAL );
 
 void resetLexer() {
 	YY_FLUSH_BUFFER;
+	BEGIN( INITIAL );
 	yyrow = 1;
 	yycol = 1;
+	doImportStr = 0;
+	special_state = st_none;
 }

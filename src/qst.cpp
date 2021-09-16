@@ -122,7 +122,7 @@ const char *qst_error[] =
     "Version not supported","Obsolete version",
     "Missing new data"  ,                                     /* but let it pass in ZQuest */
     "Internal error occurred", "Invalid password",
-    "Doesn't match saved game", "New quest version; please restart game",
+    "Doesn't match saved game", "Save file is for older version of quest; please start new save",
     "Out of memory", "File Debug Mode"
 };
 
@@ -2488,6 +2488,8 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
 		{
 		    return qe_invalid;
 		}
+		if(!strcmp(tempheader.new_version_devsig, "Venrob"))
+			strcpy(tempheader.new_version_devsig, "EmilyV99");
 		if(!pfread(tempheader.new_version_compilername,256,f,true))
 		{
 		    return qe_invalid;
@@ -2601,20 +2603,12 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
 			{
 				case 0x255:
 				{
-					switch(tempheader.build)
-					{
-						default:
-						zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", tempheader.build); break;	
-					}
+					zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", tempheader.build);
 					break;
 				}
 				case 0x254:
 				{
-					switch(tempheader.build)
-					{
-						default:
-						zprint2("Last saved in ZC Editor Version: 2.54.0, Alpha Build ID: %d\n", tempheader.build); break;	
-					}
+					zprint2("Last saved in ZC Editor Version: 2.54.0, Alpha Build ID: %d\n", tempheader.build);
 					break;
 				}
 				case 0x250:
@@ -2711,7 +2705,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
 			
 		}
 		if ( tempheader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", tempheader.made_in_module_name);
-		if ( tempheader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s, (ID: %d)\n", tempheader.new_version_devsig, tempheader.developerid);
+		if ( tempheader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s\n", tempheader.new_version_devsig);
 		if ( tempheader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", tempheader.new_version_compilername, tempheader.compilerid);
 		if ( tempheader.new_version_compilerversion[0] ) zprint2("Compiler Version: %s, (%d,%d,%d,%d)\n", tempheader.new_version_compilerversion,tempheader.compilerversionnumber_first,tempheader.compilerversionnumber_second,tempheader.compilerversionnumber_third,tempheader.compilerversionnumber_fourth);
 		if ( tempheader.product_name[0] ) zprint2("Project ID: %s\n", tempheader.product_name);
@@ -2813,6 +2807,8 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(quest_rules, qr_OLDLENSORDER, 1);
         set_bit(quest_rules, qr_NOFAIRYGUYFIRES, 1);
         set_bit(quest_rules, qr_TRIGGERSREPEAT, 1);
+	FFCore.emulation[emuITEMPERSEG] = 1;
+	FFCore.emulation[emu210WINDROBES] = 1;
     }
     
     if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<3)))
@@ -2834,6 +2830,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         set_bit(quest_rules, qr_NOSCROLLCONTINUE, get_bit(quest_rules, qr_CMBCYCLELAYERS));
         set_bit(quest_rules, qr_CMBCYCLELAYERS, 0);
+	FFCore.emulation[emuSWORDTRIGARECONTINUOUS] = 1;
     }
     
     if(tempheader.zelda_version <= 0x210)
@@ -2920,7 +2917,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
             set_bit(quest_rules, qr_BROKENSTATUES, 1);
     }
     
-    if ( (tempheader.zelda_version == 0x250 && tempheader.build < 33) || tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
+    if ( (tempheader.zelda_version == 0x250 && tempheader.build < 33) || tempheader.zelda_version == 0x254 || tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
     {
 	FFCore.emulation[emuBUGGYNEXTCOMBOS] = 1;
 	set_bit(quest_rules, qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT, 1);
@@ -3130,6 +3127,39 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
 	  set_bit(quest_rules, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, 1);  
     }
+	if( tempheader.zelda_version < 0x255 || ( tempheader.zelda_version == 0x255 && tempheader.build < 52 ) )
+	{
+		set_bit(quest_rules, qr_OLD_PRINTF_ARGS, 1);
+	}
+	
+	
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 54) )
+	{
+		set_bit(quest_rules, qr_BROKEN_RING_POWER, 1);
+	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 56) )
+	{
+		set_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING, 1);
+	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 57) )
+	{
+		set_bit(quest_rules, qr_DUNGEONS_USE_CLASSIC_CHARTING, 1);
+	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 58) )
+	{
+		//Rule used to be 'qr_SETXYBUTTONITEMS', now split.
+		if(get_bit(quest_rules,qr_SET_XBUTTON_ITEMS))
+			set_bit(quest_rules,qr_SET_YBUTTON_ITEMS,1);
+	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 59) )
+	{
+		set_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0,1);
+	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 60) )
+	{
+		set_bit(quest_rules,qr_OLD_CHEST_COLLISION,1);
+	}
+	
     if ( tempheader.zelda_version < 0x254 )
     {
 	    set_bit(quest_rules, qr_250WRITEEDEFSCRIPT, 1);  
@@ -3186,15 +3216,18 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,1);
 	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 53) )
+	{
+		set_bit(quest_rules,qr_BROKEN_OVERWORLD_MINIMAP,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
-	
+	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
     }
-    
     return 0;
 }
 
@@ -3210,8 +3243,8 @@ void init_msgstr(MsgStr *str)
     str->sfx=18;
     str->listpos=0;
     str->x=24;
-    str->w=24*8;
-    str->h=3*8;
+	str->w=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 24*8 : 26*8;
+	str->h=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 3*8 : 5*8;
     str->hspace=0;
     str->vspace=0;
     str->stringflags=0;
@@ -3225,6 +3258,8 @@ void init_msgstr(MsgStr *str)
 	str->portrait_y = 0;
 	str->portrait_tw = 1;
 	str->portrait_th = 1;
+	str->shadow_type = 0;
+	str->shadow_color = 0;
 }
 
 void init_msgstrings(int start, int end)
@@ -3306,31 +3341,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int x=0; x<strings_to_read; x++)
         {
-            memset(&tempMsgString.s, 0, MSGSIZE+1);
-            tempMsgString.nextstring=0;
-            tempMsgString.tile=0;
-            tempMsgString.cset=0;
-            tempMsgString.trans=false;
-            tempMsgString.font=font_zfont;
-            tempMsgString.y=32;
-            tempMsgString.sfx=WAV_MSG;
-            tempMsgString.listpos=x;
-            tempMsgString.x=24;
-            tempMsgString.w=24*8;
-            tempMsgString.h=3*8;
-            tempMsgString.hspace=0;
-            tempMsgString.vspace=0;
-            tempMsgString.stringflags=0;
-			tempMsgString.margins[up] = 8;
-			tempMsgString.margins[down] = 0;
-			tempMsgString.margins[left] = 8;
-			tempMsgString.margins[right] = 0;
-			tempMsgString.portrait_tile = 0;
-			tempMsgString.portrait_cset = 0;
-			tempMsgString.portrait_x = 0;
-			tempMsgString.portrait_y = 0;
-			tempMsgString.portrait_tw = 1;
-			tempMsgString.portrait_th = 1;
+			init_msgstr(&tempMsgString);
             
             if(!pfread(&tempMsgString.s,73,f,true))
             {
@@ -3426,36 +3437,16 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
         if(keepdata)
         {
             init_msgstrings(0,msg_strings_size);
+			if(s_version < 7) set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
         }
+	
+	//zprint2("String version: (%d)", s_version);
         
         int string_length=(s_version<2)?73:145;
         
         for(int i=0; i<temp_msg_count; i++)
         {
-            tempMsgString.nextstring=0;
-            tempMsgString.tile=0;
-            tempMsgString.cset=0;
-            tempMsgString.trans=false;
-            tempMsgString.font=font_zfont;
-            tempMsgString.y=32;
-            tempMsgString.sfx=WAV_MSG;
-            tempMsgString.listpos=i;
-            tempMsgString.x=24;
-            tempMsgString.w=24*8;
-            tempMsgString.h=3*8;
-            tempMsgString.hspace=0;
-            tempMsgString.vspace=0;
-            tempMsgString.stringflags=0;
-			tempMsgString.margins[up] = 8;
-			tempMsgString.margins[down] = 0;
-			tempMsgString.margins[left] = 8;
-			tempMsgString.margins[right] = 0;
-			tempMsgString.portrait_tile = 0;
-			tempMsgString.portrait_cset = 0;
-			tempMsgString.portrait_x = 0;
-			tempMsgString.portrait_y = 0;
-			tempMsgString.portrait_tw = 1;
-			tempMsgString.portrait_th = 1;
+			init_msgstr(&tempMsgString);
             
             if(!pfread(&tempMsgString.s,string_length,f,true))
             {
@@ -3469,6 +3460,8 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(s_version<2)
             {
+		tempMsgString.w=(25*8);
+                tempMsgString.h=(4*8);
                 for(int j=72; j<MSGSIZE; j++)
                 {
                     tempMsgString.s[j]='\0';
@@ -3607,8 +3600,20 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 						return qe_invalid;
 					}
 				}
-				else set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
                 
+				if(s_version >= 8)
+				{
+					if(!p_getc(&tempMsgString.shadow_type,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempMsgString.shadow_color,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				
                 if(!p_getc(&tempMsgString.sfx,f,true))
                 {
                     return qe_invalid;
@@ -4615,6 +4620,42 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 				tempDMap.sub_initD[q] = 0;
 				for(int w = 0; w < 65; ++w)
 					tempDMap.sub_initD_label[q][w] = 0;
+			}
+		}
+		if(s_version >= 15)
+		{
+			if(!p_igetw(&tempDMap.onmap_script,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			for ( int q = 0; q < 8; ++q )
+			{
+				if(!p_igetl(&tempDMap.onmap_initD[q],f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
+			for(int q = 0; q < 8; ++q)
+			{
+				for ( int w = 0; w < 65; ++w )
+				{
+					if(!p_getc(&tempDMap.onmap_initD_label[q][w],f,keepdata))
+					{
+						return qe_invalid;
+					} 
+				}
+			}
+		}
+		else
+		{
+			tempDMap.onmap_script = 0;
+			for(int q = 0; q < 8; ++q)
+			{
+				tempDMap.onmap_initD[q] = 0;
+				for(int w = 0; w < 65; ++w)
+				{
+					tempDMap.onmap_initD_label[q][w] = 0;
+				}
 			}
 		}
 	
@@ -5659,6 +5700,22 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
    
     FFCore.quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
     
+	if(s_version >= 12)
+	{
+		byte spr;
+		for(int q = 0; q < sprMAX; ++q)
+		{
+			if(!p_getc(&spr,f,true))
+				return qe_invalid;
+			temp_misc.sprites[q] = spr;
+		}
+	}
+	else
+	{
+		memset(&(temp_misc.sprites), 0, sizeof(temp_misc.sprites));
+		//temp_misc.sprites[sprFALL] = ;
+	}
+	
     if(keepdata==true)
     {
         memcpy(Misc, &temp_misc, sizeof(temp_misc));
@@ -6377,40 +6434,6 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                             return qe_invalid;
                         }
 		}
-
-		if ( s_version < 34 )  //! set the default counter for older quests. 
-		{
-			if ( (tempitem.flags & ITEM_RUPEE_MAGIC) )
-			{
-				tempitem.cost_counter = 1;
-			}
-			else 
-			{
-				tempitem.cost_counter = 4;
-			}
-		}
-		
-		if ( s_version < 35 ) //new Lens of Truth flags		
-		{
-			if ( tempitem.family == itype_lens )
-			{
-				if ( get_bit(quest_rules,qr_RAFTLENS) ) 
-				{
-					tempitem.flags |= ITEM_FLAG4;
-				}
-				if ( get_bit(quest_rules,qr_LENSHINTS) ) 
-				{
-					tempitem.flags |= ITEM_FLAG1;
-				}
-				if ( get_bit(quest_rules,qr_LENSSEESENEMIES) ) 
-				{
-					tempitem.flags |= ITEM_FLAG5;
-				}
-				//if ( get_bit(quest_rules,qr_RAFTLENS) ) tempitem.flags &= lensflagHIDESECRETS;
-				//What controlled this before? -Z
-				//lensflagNOXRAY New option, not an old rule. -Z
-			}
-		}
 		if ( s_version >= 44 )  //! cost counter
 		{
 			for ( int q = 0; q < 8; q++ )
@@ -6455,20 +6478,13 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                             return qe_invalid;
                         }
 		}
-		if ( s_version < 44 ) //InitD Labels and Sprite Script Data
+		if ( s_version >= 48 )  //! pickup flags
 		{
-			for ( int q = 0; q < 8; q++ )
+			if(!p_getc(&(tempitem.pickupflag),f,keepdata))
 			{
-				sprintf(tempitem.initD_label[q],"InitD[%d]",q);
-				sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
-				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
-				tempitem.sprite_initiald[q] = 0;
+				return qe_invalid;
 			}
-			for ( int q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
-			tempitem.sprite_script = 0;
 		}
-		
-		
         }
         else
         {
@@ -7165,6 +7181,1378 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                     tempitem.flags |= ITEM_FLAG3; // Sideview gravity flag
             }
             
+	    if( version < 0x254) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
+		{
+			switch(tempitem.family)
+			{
+				case itype_sword:
+				{
+					tempitem.flags &= ~(ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_brang:
+				{
+					tempitem.flags &= ~(ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_arrow:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_candle:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_whistle:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bait:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_letter:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_potion:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_wand:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_ring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_wallet:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_amulet:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_shield:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bow:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_raft:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_ladder:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_book:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magickey:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bracelet:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_flippers:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_boots:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_hookshot:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_lens:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_hammer:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_dinsfire:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_faroreswind:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_nayruslove:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					break;
+				}
+				case itype_bomb:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_sbomb:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_clock:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_key:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magiccontainer:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_triforcepiece:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_map:	case itype_compass:	case itype_bosskey:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_quiver:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_lkey:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_cbyrna:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_rupee: case itype_arrowammo:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_fairy:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magic: case itype_heart: case itype_heartcontainer: case itype_heartpiece: case itype_killem: case itype_bombammo:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bombbag:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_rocs:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_hoverboots:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_spinscroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_crossscroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_quakescroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_whispring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_chargering:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_perilscroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_wealthmedal:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_heartring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magicring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_spinscroll2:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_quakescroll2:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_agony:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_stompboots:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_whimsicalring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_perilring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_custom1: case itype_custom2: case itype_custom3: case itype_custom4: case itype_custom5:
+				case itype_custom6: case itype_custom7: case itype_custom8: case itype_custom9: case itype_custom10:
+				case itype_custom11: case itype_custom12: case itype_custom13: case itype_custom14: case itype_custom15:
+				case itype_custom16: case itype_custom17: case itype_custom18: case itype_custom19: case itype_custom20:
+				case itype_bowandarrow: case itype_letterpotion: case itype_misc:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+			}
+		}
 	    //Port quest rules to items
 	    if( s_version <= 31) 
 	    {
@@ -7358,6 +8746,55 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			{
 				tempitem.misc1 = 1; //Rafting speed modifier; default 1. Negative slows, positive speeds.
 			}
+		}
+		if ( s_version < 34 )  //! set the default counter for older quests. 
+		{
+			if ( (tempitem.flags & ITEM_RUPEE_MAGIC) )
+			{
+				tempitem.cost_counter = 1;
+			}
+			else 
+			{
+				tempitem.cost_counter = 4;
+			}
+		}
+		
+		if ( s_version < 35 ) //new Lens of Truth flags		
+		{
+			if ( tempitem.family == itype_lens )
+			{
+				if ( get_bit(quest_rules,qr_RAFTLENS) ) 
+				{
+					tempitem.flags |= ITEM_FLAG4;
+				}
+				if ( get_bit(quest_rules,qr_LENSHINTS) ) 
+				{
+					tempitem.flags |= ITEM_FLAG1;
+				}
+				if ( get_bit(quest_rules,qr_LENSSEESENEMIES) ) 
+				{
+					tempitem.flags |= ITEM_FLAG5;
+				}
+				//if ( get_bit(quest_rules,qr_RAFTLENS) ) tempitem.flags &= lensflagHIDESECRETS;
+				//What controlled this before? -Z
+				//lensflagNOXRAY New option, not an old rule. -Z
+			}
+		}
+		if ( s_version < 44 ) //InitD Labels and Sprite Script Data
+		{
+			for ( int q = 0; q < 8; q++ )
+			{
+				sprintf(tempitem.initD_label[q],"InitD[%d]",q);
+				sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
+				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
+				tempitem.sprite_initiald[q] = 0;
+			}
+			for ( int q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
+			tempitem.sprite_script = 0;
+		}
+		if ( s_version < 47 ) //InitD Labels and Sprite Script Data
+		{
+			tempitem.pickupflag = 0;
 		}
 		
 		if(tempitem.fam_type==0)  // Always do this
@@ -7881,6 +9318,7 @@ int init_combo_classes()
 
 int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool keepdata)
 {
+	assert(v_linksprites < 6);
     //these are here to bypass compiler warnings about unused arguments
     cv_linksprites=cv_linksprites;
     
@@ -7888,6 +9326,7 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
     {
         zinit.link_swim_speed=67; //default
         setuplinktiles(zinit.linkanimationstyle);
+        setuplinkdefenses();
     }
     
     if(v_linksprites>=0)
@@ -8102,9 +9541,10 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
         
         if(v_linksprites>0)
         {
+			int num_holdsprs = (v_linksprites > 6 ? 3 : 2);
             for(int i=0; i<2; i++)
             {
-                for(int j=0; j<2; j++)
+                for(int j=0; j<num_holdsprs; j++)
                 {
                     if(!p_igetw(&tile,f,keepdata))
                     {
@@ -8229,6 +9669,42 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                 zinit.link_swim_speed=(byte)dummy_byte;
             }
         }
+		
+		if(keepdata)
+		{
+			memset(frozenspr, 0, sizeof(frozenspr));
+			memset(frozen_waterspr, 0, sizeof(frozen_waterspr));
+			memset(onfirespr, 0, sizeof(onfirespr));
+			memset(onfire_waterspr, 0, sizeof(onfire_waterspr));
+			memset(diggingspr, 0, sizeof(diggingspr));
+			memset(usingrodspr, 0, sizeof(usingrodspr));
+			memset(usingcanespr, 0, sizeof(usingcanespr));
+			memset(pushingspr, 0, sizeof(pushingspr));
+			memset(liftingspr, 0, sizeof(liftingspr));
+			memset(liftingheavyspr, 0, sizeof(liftingheavyspr));
+			memset(stunnedspr, 0, sizeof(stunnedspr));
+			memset(stunned_waterspr, 0, sizeof(stunned_waterspr));
+			memset(fallingspr, 0, sizeof(fallingspr));
+			memset(shockedspr, 0, sizeof(shockedspr));
+			memset(shocked_waterspr, 0, sizeof(shocked_waterspr));
+			memset(pullswordspr, 0, sizeof(pullswordspr));
+			memset(readingspr, 0, sizeof(readingspr));
+			memset(slash180spr, 0, sizeof(slash180spr));
+			memset(slashZ4spr, 0, sizeof(slashZ4spr));
+			memset(dashspr, 0, sizeof(dashspr));
+			memset(bonkspr, 0, sizeof(bonkspr));
+			memset(medallionsprs, 0, sizeof(medallionsprs));
+			memset(holdspr[0][2], 0, sizeof(holdspr[0][2])); //Sword hold (Land)
+			memset(holdspr[1][2], 0, sizeof(holdspr[1][2])); //Sword hold (Water)
+			for(int q = 0; q < 4; ++q)
+			{
+				for(int p = 0; p < 3; ++p)
+				{
+					drowningspr[q][p] = divespr[q][p];
+					drowning_lavaspr[q][p] = divespr[q][p];
+				}
+			}
+		}
     }
     
     return 0;
@@ -8244,6 +9720,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
     {
         zinit.link_swim_speed=67; //default
         setuplinktiles(zinit.linkanimationstyle);
+        setuplinkdefenses();
     }
     
     int tile, tile2;
@@ -8459,9 +9936,10 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
         
         if(v_linksprites>0)
         {
+			int num_holdsprs = (v_linksprites > 6 ? 3 : 2);
             for(int i=0; i<2; i++)
             {
-                for(int j=0; j<2; j++)
+                for(int j=0; j<num_holdsprs; j++)
                 {
                     if(!p_igetl(&tile,f,keepdata))
                     {
@@ -8584,6 +10062,519 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             if(keepdata)
             {
                 zinit.link_swim_speed=(byte)dummy_byte;
+            }
+        }
+		
+		if(v_linksprites>6)
+		{
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					frozenspr[q][spr_tile] = (int)tile;
+					frozenspr[q][spr_flip] = (int)flip;
+					frozenspr[q][spr_extend] = (int)extend;
+				}
+			}
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					frozen_waterspr[q][spr_tile] = (int)tile;
+					frozen_waterspr[q][spr_flip] = (int)flip;
+					frozen_waterspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					onfirespr[q][spr_tile] = (int)tile;
+					onfirespr[q][spr_flip] = (int)flip;
+					onfirespr[q][spr_extend] = (int)extend;
+				}
+			}
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					onfire_waterspr[q][spr_tile] = (int)tile;
+					onfire_waterspr[q][spr_flip] = (int)flip;
+					onfire_waterspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					diggingspr[q][spr_tile] = (int)tile;
+					diggingspr[q][spr_flip] = (int)flip;
+					diggingspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					usingrodspr[q][spr_tile] = (int)tile;
+					usingrodspr[q][spr_flip] = (int)flip;
+					usingrodspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					usingcanespr[q][spr_tile] = (int)tile;
+					usingcanespr[q][spr_flip] = (int)flip;
+					usingcanespr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					pushingspr[q][spr_tile] = (int)tile;
+					pushingspr[q][spr_flip] = (int)flip;
+					pushingspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					liftingspr[q][spr_tile] = (int)tile;
+					liftingspr[q][spr_flip] = (int)flip;
+					liftingspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					liftingheavyspr[q][spr_tile] = (int)tile;
+					liftingheavyspr[q][spr_flip] = (int)flip;
+					liftingheavyspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					stunnedspr[q][spr_tile] = (int)tile;
+					stunnedspr[q][spr_flip] = (int)flip;
+					stunnedspr[q][spr_extend] = (int)extend;
+				}
+			}
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					stunned_waterspr[q][spr_tile] = (int)tile;
+					stunned_waterspr[q][spr_flip] = (int)flip;
+					stunned_waterspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					drowningspr[q][spr_tile] = (int)tile;
+					drowningspr[q][spr_flip] = (int)flip;
+					drowningspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					drowning_lavaspr[q][spr_tile] = (int)tile;
+					drowning_lavaspr[q][spr_flip] = (int)flip;
+					drowning_lavaspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					fallingspr[q][spr_tile] = (int)tile;
+					fallingspr[q][spr_flip] = (int)flip;
+					fallingspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					shockedspr[q][spr_tile] = (int)tile;
+					shockedspr[q][spr_flip] = (int)flip;
+					shockedspr[q][spr_extend] = (int)extend;
+				}
+			}
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					shocked_waterspr[q][spr_tile] = (int)tile;
+					shocked_waterspr[q][spr_flip] = (int)flip;
+					shocked_waterspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					pullswordspr[q][spr_tile] = (int)tile;
+					pullswordspr[q][spr_flip] = (int)flip;
+					pullswordspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					readingspr[q][spr_tile] = (int)tile;
+					readingspr[q][spr_flip] = (int)flip;
+					readingspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					slash180spr[q][spr_tile] = (int)tile;
+					slash180spr[q][spr_flip] = (int)flip;
+					slash180spr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					slashZ4spr[q][spr_tile] = (int)tile;
+					slashZ4spr[q][spr_flip] = (int)flip;
+					slashZ4spr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					dashspr[q][spr_tile] = (int)tile;
+					dashspr[q][spr_flip] = (int)flip;
+					dashspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					bonkspr[q][spr_tile] = (int)tile;
+					bonkspr[q][spr_flip] = (int)flip;
+					bonkspr[q][spr_extend] = (int)extend;
+				}
+			}
+			
+			for(int q = 0; q < 3; ++q) //Not directions; number of medallion sprs
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					medallionsprs[q][spr_tile] = (int)tile;
+					medallionsprs[q][spr_flip] = (int)flip;
+					medallionsprs[q][spr_extend] = (int)extend;
+				}
+			}
+		}
+		else if(keepdata)
+		{
+			memset(frozenspr, 0, sizeof(frozenspr));
+			memset(frozen_waterspr, 0, sizeof(frozen_waterspr));
+			memset(onfirespr, 0, sizeof(onfirespr));
+			memset(onfire_waterspr, 0, sizeof(onfire_waterspr));
+			memset(diggingspr, 0, sizeof(diggingspr));
+			memset(usingrodspr, 0, sizeof(usingrodspr));
+			memset(usingcanespr, 0, sizeof(usingcanespr));
+			memset(pushingspr, 0, sizeof(pushingspr));
+			memset(liftingspr, 0, sizeof(liftingspr));
+			memset(liftingheavyspr, 0, sizeof(liftingheavyspr));
+			memset(stunnedspr, 0, sizeof(stunnedspr));
+			memset(stunned_waterspr, 0, sizeof(stunned_waterspr));
+			memset(fallingspr, 0, sizeof(fallingspr));
+			memset(shockedspr, 0, sizeof(shockedspr));
+			memset(shocked_waterspr, 0, sizeof(shocked_waterspr));
+			memset(pullswordspr, 0, sizeof(pullswordspr));
+			memset(readingspr, 0, sizeof(readingspr));
+			memset(slash180spr, 0, sizeof(slash180spr));
+			memset(slashZ4spr, 0, sizeof(slashZ4spr));
+			memset(dashspr, 0, sizeof(dashspr));
+			memset(bonkspr, 0, sizeof(bonkspr));
+			memset(medallionsprs, 0, sizeof(medallionsprs));
+			memset(holdspr[0][2], 0, sizeof(holdspr[0][2])); //Sword hold (Land)
+			memset(holdspr[1][2], 0, sizeof(holdspr[1][2])); //Sword hold (Water)
+			for(int q = 0; q < 4; ++q)
+			{
+				for(int p = 0; p < 3; ++p)
+				{
+					drowningspr[q][p] = divespr[q][p];
+					drowning_lavaspr[q][p] = divespr[q][p];
+				}
+			}
+		}
+        if (v_linksprites > 7)
+        {
+            int num_defense = wMax;
+            byte def = 0;
+
+            //Set num_defense accordingly if changes to enum require version upgrade - Jman
+            /*if(v_linksprites > [x])
+            * {
+            *     num_defense = 146 //value of wMax on version 8
+            * }
+            */
+
+            for (int q = 0; q < num_defense; q++)
+            {
+                if (!p_getc(&def, f, keepdata))
+                    return qe_invalid;
+
+                if (keepdata)
+                {
+                    link_defence[q] = def;
+                }
             }
         }
     }
@@ -9341,6 +11332,18 @@ int setupsubscreens()
                     
                 break;
             }
+	    /*
+	    case ssoTRIFRAME:
+	    {
+		memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
+		custom_subscreen[0].objects[i].d1 = 8594;
+		custom_subscreen[0].objects[i].d2 = 8;
+		custom_subscreen[0].objects[i].d3 = 8771;
+		custom_subscreen[0].objects[i].d4 = 8;
+		custom_subscreen[0].objects[i].d5 = 1;
+		custom_subscreen[0].objects[i].d6 = 1;
+		break;
+	    }*/
             
             default:
                 memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
@@ -9379,6 +11382,17 @@ int setupsubscreens()
                     
                 break;
             }
+	    /*
+	    case ssoTRIFRAME:
+	    {
+		custom_subscreen[1].objects[i].d1 = 8594;
+		custom_subscreen[1].objects[i].d2 = 8;
+		custom_subscreen[1].objects[i].d3 = 8771;
+		custom_subscreen[1].objects[i].d4 = 8;
+		custom_subscreen[1].objects[i].d5 = 1;
+		custom_subscreen[1].objects[i].d6 = 1;
+		break;
+	    }*/
             
             default:
                 memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
@@ -10597,7 +12611,8 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(keepdata)
             {
-                strcpy(sfx_string[i], tempname);
+		strcpy(sfx_string[i], tempname);
+		sfx_string[i][35] = 0; //Force NULL Termination
             }
         }
     }
@@ -12312,6 +14327,77 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 	    }
             
+			if(guyversion >= 42)
+			{
+				if(!p_getc(&(tempguy.moveflags),f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				switch(tempguy.family)
+				{
+					//No gravity; floats over pits
+					case eeTEK: case eePEAHAT: case eeROCK: case eeTRAP:
+					case eePROJECTILE: case eeSPINTILE: case eeKEESE: case eeFIRE:
+					//Special (bosses, etc)
+					case eeFAIRY: case eeGUY: case eeNONE: case eeZORA:
+					case eeAQUA: case eeDIG: case eeGHOMA: case eeGANON:
+					case eePATRA: case eeGLEEOK: case eeMOLD: case eeMANHAN:
+						tempguy.moveflags = FLAG_CAN_PITWALK;
+						break;
+					//No gravity, but falls in pits
+					case eeLEV:
+						tempguy.moveflags = FLAG_CAN_PITFALL;
+						break;
+					//Bosses that respect pits
+					case eeDONGO:
+						tempguy.moveflags = FLAG_OBEYS_GRAV;
+						break;
+					case eeLANM:
+						tempguy.moveflags = 0;
+						break;
+					//Gravity, floats over pits
+					case eeWIZZ: case eeWALLM: case eeGHINI:
+						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITWALK;
+						break;
+					//Gravity and falls in pits
+					case eeWALK: case eeOTHER:
+					case eeSCRIPT01: case eeSCRIPT02: case eeSCRIPT03: case eeSCRIPT04: case eeSCRIPT05:
+					case eeSCRIPT06: case eeSCRIPT07: case eeSCRIPT08: case eeSCRIPT09: case eeSCRIPT10:
+					case eeSCRIPT11: case eeSCRIPT12: case eeSCRIPT13: case eeSCRIPT14: case eeSCRIPT15:
+					case eeSCRIPT16: case eeSCRIPT17: case eeSCRIPT18: case eeSCRIPT19: case eeSCRIPT20:
+					case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05:
+					case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
+						if (tempguy.misc9!=e9tPOLSVOICE&&tempguy.misc9!=e9tVIRE) tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
+				}
+			}
+			if(guyversion < 43)
+			{
+				switch(tempguy.family)
+				{
+					//No gravity; floats over pits
+					case eeTEK: case eePEAHAT: case eeROCK: case eeTRAP:
+					case eePROJECTILE: case eeSPINTILE: case eeKEESE: case eeFIRE:
+					//Special (bosses, etc)
+					case eeFAIRY: case eeGUY: case eeNONE: case eeZORA:
+					case eeAQUA: case eeDIG: case eeGHOMA: case eeGANON:
+					case eePATRA: case eeGLEEOK: case eeMOLD: case eeMANHAN:
+					case eeWIZZ: case eeWALLM: case eeGHINI:
+					//Gravity, floats over pits
+						tempguy.moveflags |= FLAG_CAN_WATERWALK;
+						break;
+				}
+			}
+			if (guyversion < 44)
+			{
+				if ( tempguy.family == eeGHOMA )
+				{
+					tempguy.flags |= guy_fadeinstant;
+				}
+			}
+			
             if(keepdata)
             {
                 guysbuf[i] = tempguy;
@@ -12919,6 +15005,12 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
                 temp_mapscr->enemy[k]+=10;
             }
         }
+	//don't read in any invalid data
+	if ( ((unsigned)temp_mapscr->enemy[k]) > MAXGUYS )
+	{
+		al_trace("Tried to read an invalid enemy ID (%d) for tmpscr->enemy[%d]. This has been cleared to 0.\n", temp_mapscr->enemy[k], k);
+		temp_mapscr->enemy[k] = 0;
+	}
     }
     
     if(!p_getc(&(temp_mapscr->pattern),f,true))
@@ -14225,451 +16317,507 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
-    reset_combo_animations();
-    reset_combo_animations2();
-    
-    init_combo_classes();
-    
-    // combos
-    word combos_used=0;
-    int dummy;
-    byte padding;
-    newcombo temp_combo;
-    word section_version=0;
-    word section_cversion=0;
-    
-    if(keepdata==true)
-    {
-        memset(combobuf+start_combo,0,sizeof(newcombo)*max_combos);
-    }
-    
-    if(version > 0x192)
-    {
-        //section version info
-        if(!p_igetw(&section_version,f,true))
-        {
-            return qe_invalid;
-        }
-	
-	FFCore.quest_format[vCombos] = section_version;
-        
-        //al_trace("Combos version %d\n", section_version);
-        if(!p_igetw(&section_cversion,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //section size
-        if(!p_igetl(&dummy,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(version < 0x174)
-    {
-        combos_used=1024;
-    }
-    else if(version < 0x191)
-    {
-        combos_used=2048;
-    }
-    else
-    {
-        if(!p_igetw(&combos_used,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    //finally...  section data
-    for(int i=0; i<combos_used; i++)
-    {
-        memset(&temp_combo,0,sizeof(temp_combo));
-        
-	if ( section_version >= 11 )
+	//these are here to bypass compiler warnings about unused arguments
+	Header=Header;
+
+	reset_combo_animations();
+	reset_combo_animations2();
+
+	init_combo_classes();
+
+	// combos
+	word combos_used=0;
+	int dummy;
+	byte padding;
+	newcombo temp_combo;
+	word section_version=0;
+	word section_cversion=0;
+
+	if(keepdata==true)
 	{
-		if(!p_igetl(&temp_combo.tile,f,true))
+		memset(combobuf+start_combo,0,sizeof(newcombo)*max_combos);
+	}
+
+	if(version > 0x192)
+	{
+		//section version info
+		if(!p_igetw(&section_version,f,true))
 		{
-		    return qe_invalid;
+			return qe_invalid;
 		}
+		
+		FFCore.quest_format[vCombos] = section_version;
+		
+		//al_trace("Combos version %d\n", section_version);
+		if(!p_igetw(&section_cversion,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//section size
+		if(!p_igetl(&dummy,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+
+	if(version < 0x174)
+	{
+		combos_used=1024;
+	}
+	else if(version < 0x191)
+	{
+		combos_used=2048;
 	}
 	else
 	{
-		if(!p_igetw(&temp_combo.tile,f,true))
-		{
-		    return qe_invalid;
-		}
-	}
-        if(!p_getc(&temp_combo.flip,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_combo.walk,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_combo.type,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_combo.csets,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(version < 0x193)
-        {
-            if(!p_getc(&padding,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&padding,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(version < 0x192)
-            {
-                if(version == 0x191)
-                {
-                    for(int tmpcounter=0; tmpcounter<16; tmpcounter++)
-                    {
-                        if(!p_getc(&padding,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                    }
-                }
-                
-                if(keepdata==true)
-                {
-                    memcpy(&combobuf[i], &temp_combo, sizeof(temp_combo));
-                }
-                
-                continue;
-            }
-        }
-        
-        if(!p_getc(&temp_combo.frames,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_combo.speed,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&temp_combo.nextcombo,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_combo.nextcset,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //Base flag
-        if(section_version>=3)
-        {
-            if(!p_getc(&temp_combo.flag,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(section_version>=4)
-        {
-            if(!p_getc(&temp_combo.skipanim,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_combo.nexttimer,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(section_version>=5)
-        {
-            if(!p_getc(&temp_combo.skipanimy,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(section_version>=6)
-        {
-            if(!p_getc(&temp_combo.animflags,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(section_version == 6)
-                temp_combo.animflags = temp_combo.animflags ? AF_FRESH : 0;
-        }
-        
-	if(section_version>=8) //combo Attributes[4] and userflags.
-	{
-		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
-		{
-		    if(!p_igetl(&temp_combo.attributes[q],f,true))
-		    {
-			return qe_invalid;
-		    }
-		}
-		if(!p_igetl(&temp_combo.usrflags,f,true))
+		if(!p_igetw(&combos_used,f,true))
 		{
 			return qe_invalid;
 		}
 	}
-	if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
+
+	//finally...  section data
+	for(int i=0; i<combos_used; i++)
 	{
-		for ( int q = 0; q < 2; q++ )
+		memset(&temp_combo,0,sizeof(temp_combo));
+		
+		if ( section_version >= 11 )
 		{
-		    if(!p_igetl(&temp_combo.triggerflags[q],f,true))
-		    {
-			return qe_invalid;
-		    }
+			if(!p_igetl(&temp_combo.tile,f,true))
+			{
+				return qe_invalid;
+			}
 		}
-		if(!p_igetl(&temp_combo.triggerlevel,f,true))
+		else
 		{
-			return qe_invalid;
+			if(!p_igetw(&temp_combo.tile,f,true))
+			{
+				return qe_invalid;
+			}
 		}
-	}
-	if(section_version>=10) //combo trigger flags
-	{
-	    for ( int q = 0; q < 3; q++ )
-		{
-		    if(!p_igetl(&temp_combo.triggerflags[q],f,true))
-		    {
-			return qe_invalid;
-		    }
-		}
-		if(!p_igetl(&temp_combo.triggerlevel,f,true))
+		if(!p_getc(&temp_combo.flip,f,true))
 		{
 			return qe_invalid;
-		}
-	}
-	if(section_version>=12) //combo label
-	{
-	    for ( int q = 0; q < 11; q++ )
-		{
-		    if(!p_getc(&temp_combo.label[q],f,true))
-		    {
-			return qe_invalid;
-		    }
-		}
-	}
-	if(section_version<12) //combo label
-	{
-	    for ( int q = 0; q < 11; q++ )
-		{
-		    temp_combo.label[q] = 0;
-		}
-	}
-	//al_trace("Read combo label\n");
-	if(section_version>=13) //attribytes[4]
-	{
-		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
-		{
-		    if(!p_getc(&temp_combo.attribytes[q],f,true))
-		    {
-			return qe_invalid;
-		    }
 		}
 		
-	}
-	//al_trace("Read combo attribytes\n");
-	if( section_version < 13 )
-	{ 
-		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		if(!p_getc(&temp_combo.walk,f,true))
 		{
-		    temp_combo.attribytes[q] = 0;
-		}
-		
-	}
-	//combo scripts
-	if(section_version>=14) 
-	{
-		if(!p_igetw(&temp_combo.script,f,true)) return qe_invalid;
-		for ( int q = 0; q < 2; q++ )
-		{
-		    if(!p_igetl(&temp_combo.initd[q],f,true))
-		    {
 			return qe_invalid;
-		    }
 		}
 		
-	}
-	if(section_version<14)
-	{ 
-		temp_combo.script = 0;
-		for ( int q = 0; q < 2; q++ )
+		if(!p_getc(&temp_combo.type,f,true))
 		{
-		    temp_combo.initd[q] = 0;
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_combo.csets,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(version < 0x193)
+		{
+			if(!p_getc(&padding,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&padding,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(version < 0x192)
+			{
+				if(version == 0x191)
+				{
+					for(int tmpcounter=0; tmpcounter<16; tmpcounter++)
+					{
+						if(!p_getc(&padding,f,true))
+						{
+							return qe_invalid;
+						}
+					}
+				}
+				
+				if(keepdata==true)
+				{
+					memcpy(&combobuf[i], &temp_combo, sizeof(temp_combo));
+				}
+				
+				continue;
+			}
+		}
+		
+		if(!p_getc(&temp_combo.frames,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_combo.speed,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&temp_combo.nextcombo,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_combo.nextcset,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//Base flag
+		if(section_version>=3)
+		{
+			if(!p_getc(&temp_combo.flag,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(section_version>=4)
+		{
+			if(!p_getc(&temp_combo.skipanim,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_combo.nexttimer,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(section_version>=5)
+		{
+			if(!p_getc(&temp_combo.skipanimy,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(section_version>=6)
+		{
+			if(!p_getc(&temp_combo.animflags,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(section_version == 6)
+				temp_combo.animflags = temp_combo.animflags ? AF_FRESH : 0;
+		}
+		
+		if(section_version>=8) //combo Attributes[4] and userflags.
+		{
+			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			{
+				if(!p_igetl(&temp_combo.attributes[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			if(!p_igetl(&temp_combo.usrflags,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
+		{
+			for ( int q = 0; q < 2; q++ )
+			{
+				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			if(!p_igetl(&temp_combo.triggerlevel,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		if(section_version>=10) //combo trigger flags
+		{
+			for ( int q = 0; q < 3; q++ )
+			{
+				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			if(!p_igetl(&temp_combo.triggerlevel,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		if(section_version>=12) //combo label
+		{
+			for ( int q = 0; q < 11; q++ )
+			{
+				if(!p_getc(&temp_combo.label[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+		}
+		if(section_version<12) //combo label
+		{
+			for ( int q = 0; q < 11; q++ )
+			{
+				temp_combo.label[q] = 0;
+			}
+		}
+		//al_trace("Read combo label\n");
+		if(section_version>=13) //attribytes[4]
+		{
+			for ( int q = 0; q < 4; q++ ) //Bad Zoria, don't mix constants with hardcodes
+			{
+				if(!p_getc(&temp_combo.attribytes[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			
+		}
+		//al_trace("Read combo attribytes\n");
+		if( section_version < 13 )
+		{ 
+			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			{
+				temp_combo.attribytes[q] = 0;
+			}
+			
+		}
+		//combo scripts
+		if(section_version>=14) 
+		{
+			if(!p_igetw(&temp_combo.script,f,true)) return qe_invalid;
+			for ( int q = 0; q < 2; q++ )
+			{
+				if(!p_igetl(&temp_combo.initd[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			
+		}
+		if(section_version<14)
+		{ 
+			temp_combo.script = 0;
+			for ( int q = 0; q < 2; q++ )
+			{
+				temp_combo.initd[q] = 0;
+			}
+		}
+		//al_trace("Read combo script data\n");
+		if(section_version>=15)
+		{
+			if(!p_igetl(&temp_combo.o_tile,f,true)) return qe_invalid;
+			if(!p_getc(&temp_combo.cur_frame,f,true)) return qe_invalid;
+			if(!p_getc(&temp_combo.aclk,f,true)) return qe_invalid;
+		}
+		else
+		{
+			temp_combo.o_tile = temp_combo.tile;
+			temp_combo.cur_frame = 0;
+			temp_combo.aclk = 0;
+		}
+		if(section_version>=17) //attribytes[4]
+		{
+			for ( int q = 4; q < 8; q++ ) //bump up attribytes...
+			{
+				if(!p_getc(&temp_combo.attribytes[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			for ( int q = 0; q < 8; q++ ) //...and add attrishorts
+			{
+				if(!p_igetw(&temp_combo.attrishorts[q],f,true))
+				{
+				return qe_invalid;
+				}
+			}
+			
+		}
+		else
+		{
+			for ( int q = 4; q < 8; q++ ) //bump up attribytes...
+			{
+				temp_combo.attribytes[q] = 0;
+			}
+			for ( int q = 0; q < 8; q++ ) //...and add attrishorts
+			{
+				temp_combo.attrishorts[q] = 0;
+			}
+		}
+		if(section_version<18) //upper bits for .walk
+		{
+			temp_combo.walk |= 0xF0; //All on by default for old quests -E
+		}
+		if(section_version < 19)
+		{
+			for(int q = 0; q < 4; ++q)
+			{
+				temp_combo.attributes[q] *= 10000L;
+			}
+		}
+		
+		if(version < 0x193)
+		{
+			for(int q=0; q<11; q++)
+			{
+				if(!p_getc(&dummy,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		//Goriya tiles were flipped around in 2.11 build 7. Compensate for the flip here. -DD
+		if((version < 0x211)||((version == 0x211)&&(build<7)))
+		{
+			if(!get_bit(quest_rules,qr_NEWENEMYTILES))
+			{
+				switch(temp_combo.tile)
+				{
+				case 130:
+					temp_combo.tile = 132;
+					break;
+					
+				case 131:
+					temp_combo.tile = 133;
+					break;
+					
+				case 132:
+					temp_combo.tile = 130;
+					break;
+					
+				case 133:
+					temp_combo.tile = 131;
+					break;
+				}
+			}
+		}
+		
+		if(keepdata==true && i>=start_combo)
+		{
+			memcpy(&combobuf[i], &temp_combo, sizeof(temp_combo));
 		}
 	}
-	//al_trace("Read combo script data\n");
-	if(section_version>=15)
+
+	if(keepdata==true)
 	{
-		if(!p_igetl(&temp_combo.o_tile,f,true)) return qe_invalid;
-		if(!p_getc(&temp_combo.cur_frame,f,true)) return qe_invalid;
-		if(!p_getc(&temp_combo.aclk,f,true)) return qe_invalid;
+		if((version < 0x192)|| ((version == 0x192)&&(build<185)))
+		{
+			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			{
+				if(combobuf[tmpcounter].type==cHOOKSHOTONLY)
+				{
+					combobuf[tmpcounter].type=cLADDERHOOKSHOT;
+				}
+			}
+		}
+		
+		//June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
+		if(version == 0x210 && !is_zquest())
+		{
+			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+				if(combobuf[tmpcounter].type == cLADDERONLY)
+					combobuf[tmpcounter].type = cLADDERHOOKSHOT;
+		}
+		
+		if(section_version<7)
+		{
+			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			{
+				switch(combobuf[tmpcounter].type)
+				{
+				case cSLASH:
+					combobuf[tmpcounter].type=cSLASHTOUCHY;
+					break;
+					
+				case cSLASHITEM:
+					combobuf[tmpcounter].type=cSLASHITEMTOUCHY;
+					break;
+					
+				case cBUSH:
+					combobuf[tmpcounter].type=cBUSHTOUCHY;
+					break;
+					
+				case cFLOWERS:
+					combobuf[tmpcounter].type=cFLOWERSTOUCHY;
+					break;
+					
+				case cTALLGRASS:
+					combobuf[tmpcounter].type=cTALLGRASSTOUCHY;
+					break;
+					
+				case cSLASHNEXT:
+					combobuf[tmpcounter].type=cSLASHNEXTTOUCHY;
+					break;
+					
+				case cSLASHNEXTITEM:
+					combobuf[tmpcounter].type=cSLASHNEXTITEMTOUCHY;
+					break;
+					
+				case cBUSHNEXT:
+					combobuf[tmpcounter].type=cBUSHNEXTTOUCHY;
+					break;
+				}
+			}
+		}
+		if (section_version < 16)
+		{
+			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			{
+				if (combobuf[tmpcounter].type == cWATER)
+				{
+					combobuf[tmpcounter].attributes[0] = 40000L;
+				}
+			}
+		}
+		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+		{
+			combobuf[0].walk = 0xF0;
+			combobuf[0].type = 0;
+			combobuf[0].flag = 0;
+		}
 	}
-	else
+
+	//Now for the new combo alias reset
+	if(section_version<2 && keepdata)
 	{
-		temp_combo.o_tile = temp_combo.tile;
-		temp_combo.cur_frame = 0;
-		temp_combo.aclk = 0;
+		for(int j=0; j<MAXCOMBOALIASES; j++)
+		{
+			combo_aliases[j].width = 0;
+			combo_aliases[j].height = 0;
+			combo_aliases[j].layermask = 0;
+			
+			if(combo_aliases[j].combos != NULL)
+			{
+				delete[] combo_aliases[j].combos;
+			}
+			
+			if(combo_aliases[j].csets != NULL)
+			{
+				delete[] combo_aliases[j].csets;
+			}
+			
+			combo_aliases[j].combos = new word[1];
+			combo_aliases[j].csets = new byte[1];
+			combo_aliases[j].combos[0] = 0;
+			combo_aliases[j].csets[0] = 0;
+		}
 	}
-        if(version < 0x193)
-        {
-            for(int q=0; q<11; q++)
-            {
-                if(!p_getc(&dummy,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        
-        //Goriya tiles were flipped around in 2.11 build 7. Compensate for the flip here. -DD
-        if((version < 0x211)||((version == 0x211)&&(build<7)))
-        {
-            if(!get_bit(quest_rules,qr_NEWENEMYTILES))
-            {
-                switch(temp_combo.tile)
-                {
-                case 130:
-                    temp_combo.tile = 132;
-                    break;
-                    
-                case 131:
-                    temp_combo.tile = 133;
-                    break;
-                    
-                case 132:
-                    temp_combo.tile = 130;
-                    break;
-                    
-                case 133:
-                    temp_combo.tile = 131;
-                    break;
-                }
-            }
-        }
-        
-        if(keepdata==true && i>=start_combo)
-        {
-            memcpy(&combobuf[i], &temp_combo, sizeof(temp_combo));
-        }
-    }
-    
-    if(keepdata==true)
-    {
-        if((version < 0x192)|| ((version == 0x192)&&(build<185)))
-        {
-            for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
-            {
-                if(combobuf[tmpcounter].type==cHOOKSHOTONLY)
-                {
-                    combobuf[tmpcounter].type=cLADDERHOOKSHOT;
-                }
-            }
-        }
-        
-        //June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
-        if(version == 0x210 && !is_zquest())
-        {
-            for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
-                if(combobuf[tmpcounter].type == cLADDERONLY)
-                    combobuf[tmpcounter].type = cLADDERHOOKSHOT;
-        }
-        
-        if(section_version<7)
-        {
-            for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
-            {
-                switch(combobuf[tmpcounter].type)
-                {
-                case cSLASH:
-                    combobuf[tmpcounter].type=cSLASHTOUCHY;
-                    break;
-                    
-                case cSLASHITEM:
-                    combobuf[tmpcounter].type=cSLASHITEMTOUCHY;
-                    break;
-                    
-                case cBUSH:
-                    combobuf[tmpcounter].type=cBUSHTOUCHY;
-                    break;
-                    
-                case cFLOWERS:
-                    combobuf[tmpcounter].type=cFLOWERSTOUCHY;
-                    break;
-                    
-                case cTALLGRASS:
-                    combobuf[tmpcounter].type=cTALLGRASSTOUCHY;
-                    break;
-                    
-                case cSLASHNEXT:
-                    combobuf[tmpcounter].type=cSLASHNEXTTOUCHY;
-                    break;
-                    
-                case cSLASHNEXTITEM:
-                    combobuf[tmpcounter].type=cSLASHNEXTITEMTOUCHY;
-                    break;
-                    
-                case cBUSHNEXT:
-                    combobuf[tmpcounter].type=cBUSHNEXTTOUCHY;
-                    break;
-                }
-            }
-        }
-        
-    }
-    
-    //Now for the new combo alias reset
-    if(section_version<2 && keepdata)
-    {
-        for(int j=0; j<MAXCOMBOALIASES; j++)
-        {
-            combo_aliases[j].width = 0;
-            combo_aliases[j].height = 0;
-            combo_aliases[j].layermask = 0;
-            
-            if(combo_aliases[j].combos != NULL)
-            {
-                delete[] combo_aliases[j].combos;
-            }
-            
-            if(combo_aliases[j].csets != NULL)
-            {
-                delete[] combo_aliases[j].csets;
-            }
-            
-            combo_aliases[j].combos = new word[1];
-            combo_aliases[j].csets = new byte[1];
-            combo_aliases[j].combos[0] = 0;
-            combo_aliases[j].csets[0] = 0;
-        }
-    }
-    
-    
-    setup_combo_animations();
-    setup_combo_animations2();
-    return 0;
+
+
+	setup_combo_animations();
+	setup_combo_animations2();
+	return 0;
 }
 
 int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build, bool keepdata)
@@ -15010,7 +17158,6 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
 
 int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int max_tiles, bool from_init, bool keepdata)
 {
-    int dummy;
     int tiles_used=0;
 	word section_version = 0;
 	word section_cversion = 0;
@@ -15502,1303 +17649,1397 @@ int readcheatcodes(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
-    int dummy;
-    word s_version=0, s_cversion=0;
-    byte padding;
-    
-    zinitdata temp_zinit;
-    memset(&temp_zinit, 0, sizeof(zinitdata));
-    
-    
-    // Legacy item properties (now integrated into itemdata)
-    byte sword_hearts[4];
-    byte beam_hearts[4];
-    byte beam_percent=0;
-    word beam_power[4];
-    byte hookshot_length=99;
-    byte hookshot_links=100;
-    byte longshot_length=99;
-    byte longshot_links=100;
-    byte moving_fairy_hearts=3;
-    byte moving_fairy_heart_percent=0;
-    byte stationary_fairy_hearts=3;
-    byte stationary_fairy_heart_percent=0;
-    byte moving_fairy_magic=0;
-    byte moving_fairy_magic_percent=0;
-    byte stationary_fairy_magic=0;
-    byte stationary_fairy_magic_percent=0;
-    byte blue_potion_hearts=100;
-    byte blue_potion_heart_percent=1;
-    byte red_potion_hearts=100;
-    byte red_potion_heart_percent=1;
-    byte blue_potion_magic=100;
-    byte blue_potion_magic_percent=1;
-    byte red_potion_magic=100;
-    byte red_potion_magic_percent=1;
-    
-    temp_zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
-    temp_zinit.max_rupees=255;
-    temp_zinit.max_keys=255;
-    temp_zinit.hcp_per_hc=4;
-    temp_zinit.bomb_ratio=4;
-    
-    for(int i=0; i<MAXITEMS; i++)
-    {
-        temp_zinit.items[i]=false;
-    }
-    
-    if(Header->zelda_version > 0x192)
-    {
-        //section version info
-        if(!p_igetw(&s_version,f,true))
-        {
-            return qe_invalid;
-        }
-        
+	int dummy;
+	word s_version=0, s_cversion=0;
+	byte padding;
+	
+	zinitdata temp_zinit;
+	memset(&temp_zinit, 0, sizeof(zinitdata));
+	
+	
+	// Legacy item properties (now integrated into itemdata)
+	byte sword_hearts[4];
+	byte beam_hearts[4];
+	byte beam_percent=0;
+	word beam_power[4];
+	byte hookshot_length=99;
+	byte hookshot_links=100;
+	byte longshot_length=99;
+	byte longshot_links=100;
+	byte moving_fairy_hearts=3;
+	byte moving_fairy_heart_percent=0;
+	byte stationary_fairy_hearts=3;
+	byte stationary_fairy_heart_percent=0;
+	byte moving_fairy_magic=0;
+	byte moving_fairy_magic_percent=0;
+	byte stationary_fairy_magic=0;
+	byte stationary_fairy_magic_percent=0;
+	byte blue_potion_hearts=100;
+	byte blue_potion_heart_percent=1;
+	byte red_potion_hearts=100;
+	byte red_potion_heart_percent=1;
+	byte blue_potion_magic=100;
+	byte blue_potion_magic_percent=1;
+	byte red_potion_magic=100;
+	byte red_potion_magic_percent=1;
+	
+	temp_zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
+	temp_zinit.max_rupees=255;
+	temp_zinit.max_keys=255;
+	temp_zinit.hcp_per_hc=4;
+	temp_zinit.bomb_ratio=4;
+	
+	for(int i=0; i<MAXITEMS; i++)
+	{
+		temp_zinit.items[i]=false;
+	}
+	
+	if(Header->zelda_version > 0x192)
+	{
+		//section version info
+		if(!p_igetw(&s_version,f,true))
+		{
+			return qe_invalid;
+		}
+		
 	FFCore.quest_format[vInitData] = s_version;
 	
-        //al_trace("Init data version %d\n", s_version);
-        if(!p_igetw(&s_cversion,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //section size
-        if(!p_igetl(&dummy,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    /* HIGHLY UNORTHODOX UPDATING THING, by L
-     * This fixes quests made before revision 277 (such as the 'Lost Isle Build'),
-     * where the speed of Pols Voice changed. It also coincided with V_INITDATA
-     * changing from 13 to 14.
-     */
-    if(keepdata && s_version < 14)
-        fixpolsvoice=true;
-        
-    /* End highly unorthodox updating thing */
-    
-    temp_zinit.ss_grid_x=8;
-    temp_zinit.ss_grid_y=8;
-    temp_zinit.ss_grid_xofs=0;
-    temp_zinit.ss_grid_yofs=0;
-    temp_zinit.ss_grid_color=8;
-    temp_zinit.ss_bbox_1_color=15;
-    temp_zinit.ss_bbox_2_color=7;
-    temp_zinit.ss_flags=0;
-    temp_zinit.gravity=16;
-    temp_zinit.terminalv=320;
-    temp_zinit.msg_speed=5;
-    temp_zinit.transition_type=0;
-    temp_zinit.jump_link_layer_threshold=255;
-    
-    if(s_version >= 15 && get_bit(deprecated_rules, 27)) // The short-lived rule, qr_JUMPLINKLAYER3
-        temp_zinit.jump_link_layer_threshold=0;
-        
-    if(s_version >= 10)
-    {
-        char temp;
-        
-        //new-style items
-        for(int j=0; j<256; j++)
-        {
-            if(!p_getc(&temp,f,true))
-                return qe_invalid;
-                
-            temp_zinit.items[j] = (temp != 0);
-        }
-    }
-    
-    if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>26)))
-    {
-        char temp;
-        
-        //finally...  section data
-        if((Header->zelda_version > 0x192)||
-                //new only
-                ((Header->zelda_version == 0x192)&&(Header->build>173)))
-        {
-            //OLD-style items... sigh
-            if(s_version < 10)
-            {
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                temp_zinit.items[iRaft]=(temp != 0);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                temp_zinit.items[iLadder]=(temp != 0);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                temp_zinit.items[iBook]=(temp != 0);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                temp_zinit.items[iMKey]=(temp!=0);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                temp_zinit.items[iFlippers]=(temp != 0);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                temp_zinit.items[iBoots]=(temp!=0);
-            }
-        }
-        
-        if(s_version < 10)
-        {
-            char tempring, tempsword, tempshield, tempwallet, tempbracelet, tempamulet, tempbow;
-            
-            if(!p_getc(&tempring,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&tempsword,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&tempshield,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&tempwallet,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&tempbracelet,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&tempamulet,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&tempbow,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            //old only
-            if((Header->zelda_version == 0x192)&&(Header->build<174))
-            {
-                tempring=(tempring)?(1<<(tempring-1)):0;
-                tempsword=(tempsword)?(1<<(tempsword-1)):0;
-                tempshield=(tempshield)?(1<<(tempshield-1)):0;
-                tempwallet=(tempwallet)?(1<<(tempwallet-1)):0;
-                tempbracelet=(tempbracelet)?(1<<(tempbracelet-1)):0;
-                tempamulet=(tempamulet)?(1<<(tempamulet-1)):0;
-                tempbow=(tempbow)?(1<<(tempbow-1)):0;
-            }
-            
-            //rings start at level 2... wtf
-            //account for this -DD
-            tempring <<= 1;
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_ring, tempring);
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_sword, tempsword);
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_shield, tempshield);
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_wallet, tempwallet);
-            //bracelet ALSO starts at level 2 :-( -DD
-            tempbracelet<<=1;
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_bracelet, tempbracelet);
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_amulet, tempamulet);
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_bow, tempbow);
-            
-            //new only
-            if((Header->zelda_version == 0x192)&&(Header->build>173))
-            {
-                for(int q=0; q<32; q++)
-                {
-                    if(!p_getc(&padding,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                }
-            }
-            
-            char tempcandle, tempboomerang, temparrow, tempwhistle;
-            
-            if(!p_getc(&tempcandle,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&tempboomerang,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&temparrow,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&temp,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_potion, temp);
-            
-            if(!p_getc(&tempwhistle,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            //old only
-            if((Header->zelda_version == 0x192)&&(Header->build<174))
-            {
-                tempcandle=(tempcandle)?(1<<(tempcandle-1)):0;
-                tempboomerang=(tempboomerang)?(1<<(tempboomerang-1)):0;
-                temparrow=(temparrow)?(1<<(temparrow-1)):0;
-                tempwhistle=(tempwhistle)?(1<<(tempwhistle-1)):0;
-            }
-            
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_candle, tempcandle);
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_brang, tempboomerang);
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_arrow, temparrow);
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_whistle, tempwhistle);
-            //What about the potion...?
-            
-        }
-        
-        //Oh sure, stick these IN THE MIDDLE OF THE ITEMS, just to make me want
-        //to jab out my eye...
-        if(!p_getc(&temp_zinit.bombs,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_zinit.super_bombs,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //Back to more OLD item code
-        if(s_version < 10)
-        {
-            if((Header->zelda_version > 0x192)||
-                    //new only
-                    ((Header->zelda_version == 0x192)&&(Header->build>173)))
-            {
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                addOldStyleFamily(&temp_zinit, itemsbuf, itype_wand, temp);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                addOldStyleFamily(&temp_zinit, itemsbuf, itype_letter, temp);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                addOldStyleFamily(&temp_zinit, itemsbuf, itype_lens, temp);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                addOldStyleFamily(&temp_zinit, itemsbuf, itype_hookshot, temp);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                addOldStyleFamily(&temp_zinit, itemsbuf, itype_bait, temp);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                addOldStyleFamily(&temp_zinit, itemsbuf, itype_hammer, temp);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                addOldStyleFamily(&temp_zinit, itemsbuf, itype_dinsfire, temp);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                addOldStyleFamily(&temp_zinit, itemsbuf, itype_faroreswind, temp);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                addOldStyleFamily(&temp_zinit, itemsbuf, itype_nayruslove, temp);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                if(Header->zelda_version == 0x192)
-                {
-                    for(int q=0; q<32; q++)
-                    {
-                        if(!p_getc(&padding,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                    }
-                }
-            }
-        }
-        
-        //old only
-        if((Header->zelda_version == 0x192)&&(Header->build<174))
-        {
-            byte equipment, items;                                //bit flags
-            
-            if(!p_getc(&equipment,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            temp_zinit.items[iRaft]=(get_bit(&equipment, idE_RAFT)!=0);
-            temp_zinit.items[iLadder]=(get_bit(&equipment, idE_LADDER)!=0);
-            temp_zinit.items[iBook]=(get_bit(&equipment, idE_BOOK)!=0);
-            temp_zinit.items[iMKey]=(get_bit(&equipment, idE_KEY)!=0);
-            temp_zinit.items[iFlippers]=(get_bit(&equipment, idE_FLIPPERS)!=0);
-            temp_zinit.items[iBoots]=(get_bit(&equipment, idE_BOOTS)!=0);
-            
-            
-            if(!p_getc(&items,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            temp_zinit.items[iWand]=(get_bit(&items, idI_WAND)!=0);
-            temp_zinit.items[iLetter]=(get_bit(&items, idI_LETTER)!=0);
-            temp_zinit.items[iLens]=(get_bit(&items, idI_LENS)!=0);
-            temp_zinit.items[iHookshot]=(get_bit(&items, idI_HOOKSHOT)!=0);
-            temp_zinit.items[iBait]=(get_bit(&items, idI_BAIT)!=0);
-            temp_zinit.items[iHammer]=(get_bit(&items, idI_HAMMER)!=0);
-        }
-        
-        if(!p_getc(&temp_zinit.hc,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(s_version < 14)
-        {
-            byte temphp;
-            
-            if(!p_getc(&temphp,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            temp_zinit.start_heart=temphp;
-            
-            if(!p_getc(&temphp,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            temp_zinit.cont_heart=temphp;
-        }
-        else
-        {
-            if(!p_igetw(&temp_zinit.start_heart,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_zinit.cont_heart,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(!p_getc(&temp_zinit.hcp,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(s_version >= 14)
-        {
-            if(!p_getc(&temp_zinit.hcp_per_hc,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(s_version<16)  // July 2007
-            {
-                if(get_bit(quest_rules,qr_BRANGPICKUP+1))
-                    temp_zinit.hcp_per_hc = 0xFF;
-                    
-                //Dispose of legacy rule
-                set_bit(quest_rules,qr_BRANGPICKUP+1, 0);
-            }
-        }
-        
-        if(!p_getc(&temp_zinit.max_bombs,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_zinit.keys,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&temp_zinit.rupies,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_zinit.triforce,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(s_version>12 || (Header->zelda_version == 0x211 && Header->build == 18))
-        {
-            for(int i=0; i<64; i++)
-            {
-                if(!p_getc(&temp_zinit.map[i],f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            for(int i=0; i<64; i++)
-            {
-                if(!p_getc(&temp_zinit.compass[i],f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        else
-        {
-            for(int i=0; i<32; i++)
-            {
-                if(!p_getc(&temp_zinit.map[i],f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            for(int i=0; i<32; i++)
-            {
-                if(!p_getc(&temp_zinit.compass[i],f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        
-        if((Header->zelda_version > 0x192)||
-                //new only
-                ((Header->zelda_version == 0x192)&&(Header->build>173)))
-        {
-            if(s_version>12 || (Header->zelda_version == 0x211 && Header->build == 18))
-            {
-                for(int i=0; i<64; i++)
-                {
-                    if(!p_getc(&temp_zinit.boss_key[i],f,true))
-                    {
-                        return qe_invalid;
-                    }
-                }
-            }
-            else
-            {
-                for(int i=0; i<32; i++)
-                {
-                    if(!p_getc(&temp_zinit.boss_key[i],f,true))
-                    {
-                        return qe_invalid;
-                    }
-                }
-            }
-        }
-        
-        for(int i=0; i<16; i++)
-        {
-            if(!p_getc(&temp_zinit.misc[i],f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version < 15) for(int i=0; i<4; i++)
-            {
-                if(!p_getc(&sword_hearts[i],f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-        if(!p_getc(&temp_zinit.last_map,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_zinit.last_screen,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(s_version < 14)
-        {
-            byte tempmp;
-            
-            if(!p_getc(&tempmp,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            temp_zinit.max_magic=tempmp;
-            
-            if(!p_getc(&tempmp,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            temp_zinit.magic=tempmp;
-        }
-        else
-        {
-            if(!p_igetw(&temp_zinit.max_magic,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_zinit.magic,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version < 15)
-        {
-            if(s_version < 12)
-            {
-                temp_zinit.max_magic*=MAGICPERBLOCK;
-                temp_zinit.magic*=MAGICPERBLOCK;
-            }
-            
-            for(int i=0; i<4; i++)
-            {
-                if(!p_getc(&beam_hearts[i],f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(!p_getc(&beam_percent,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        else
-        {
-            if(!p_getc(&temp_zinit.bomb_ratio,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version < 15)
-        {
-            byte tempbp;
-            
-            for(int i=0; i<4; i++)
-            {
-                if(!(s_version < 14 ? p_getc(&tempbp,f,true) : p_igetw(&tempbp,f,true)))
-                {
-                    return qe_invalid;
-                }
-                
-                beam_power[i]=tempbp;
-            }
-            
-            if(!p_getc(&hookshot_links,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(s_version>6)
-            {
-                if(!p_getc(&hookshot_length,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&longshot_links,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&longshot_length,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        
-        if(!p_getc(&temp_zinit.msg_more_x,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_zinit.msg_more_y,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_zinit.subscreen,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //old only
-        if((Header->zelda_version == 0x192)&&(Header->build<174))
-        {
-            for(int i=0; i<32; i++)
-            {
-                if(!p_getc(&temp_zinit.boss_key[i],f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        
-        if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>173)))  //new only
-        {
-            if(s_version <= 10)
-            {
-                byte tempbyte;
-                
-                if(!p_getc(&tempbyte,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                temp_zinit.start_dmap = (word)tempbyte;
-            }
-            else
-            {
-                if(!p_igetw(&temp_zinit.start_dmap,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(!p_getc(&temp_zinit.linkanimationstyle,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version>1)
-        {
-            if(!p_getc(&temp_zinit.arrows,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&temp_zinit.max_arrows,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version>2)
-        {
-            if(s_version <= 10)
-            {
-                for(int i=0; i<OLDMAXLEVELS; i++)
-                {
-                    if(!p_getc(&(temp_zinit.level_keys[i]),f,true))
-                    {
-                        return qe_invalid;
-                    }
-                }
-            }
-            else
-            {
-                for(int i=0; i<MAXLEVELS; i++)
-                {
-                    if(!p_getc(&(temp_zinit.level_keys[i]),f,true))
-                    {
-                        return qe_invalid;
-                    }
-                }
-            }
-        }
-        
-        if(s_version>3)
-        {
-            if(!p_igetw(&temp_zinit.ss_grid_x,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_zinit.ss_grid_y,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_zinit.ss_grid_xofs,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_zinit.ss_grid_yofs,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_zinit.ss_grid_color,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_zinit.ss_bbox_1_color,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_zinit.ss_bbox_2_color,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_zinit.ss_flags,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            temp_zinit.ss_grid_x=zc_max(temp_zinit.ss_grid_x,1);
-            temp_zinit.ss_grid_y=zc_max(temp_zinit.ss_grid_y,1);
-        }
-        
-        if(s_version>4 && s_version<15)
-        {
-            if(!p_getc(&moving_fairy_hearts,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&moving_fairy_heart_percent,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version>5 && s_version < 10)
-        {
-            if(!p_getc(&temp,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            addOldStyleFamily(&temp_zinit, itemsbuf, itype_quiver, temp);
-        }
-        
-        if(s_version>6 && s_version<15)
-        {
-            if(!p_getc(&stationary_fairy_hearts,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&stationary_fairy_heart_percent,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&moving_fairy_magic,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&moving_fairy_magic_percent,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&stationary_fairy_magic,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&stationary_fairy_magic_percent,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&blue_potion_hearts,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&blue_potion_heart_percent,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&red_potion_hearts,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&red_potion_heart_percent,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&blue_potion_magic,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&blue_potion_magic_percent,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&red_potion_magic,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&red_potion_magic_percent,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version>6)
-        {
-            if(!p_getc(&temp_zinit.subscreen_style,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version>7)
-        {
-            if(!p_getc(&temp_zinit.usecustomsfx,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version>8)
-        {
-            if(!p_igetw(&temp_zinit.max_rupees,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_zinit.max_keys,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version>16)
-        {
-            if(!p_getc(&temp_zinit.gravity,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp_zinit.terminalv,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&temp_zinit.msg_speed,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&temp_zinit.transition_type,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&temp_zinit.jump_link_layer_threshold,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version>17)
-        {
-            if(!p_getc(&temp_zinit.msg_more_is_offset,f,true))
-            {
-                return qe_invalid;
-            }
-        }
+		//al_trace("Init data version %d\n", s_version);
+		if(!p_igetw(&s_cversion,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//section size
+		if(!p_igetl(&dummy,f,true))
+		{
+			return qe_invalid;
+		}
+	}
 	
-	//expaned init data for larger values in 2.55
-	if ( s_version >= 19 ) //expand init data bombs, sbombs, and arrows to 0xFFFF
+	/* HIGHLY UNORTHODOX UPDATING THING, by L
+	 * This fixes quests made before revision 277 (such as the 'Lost Isle Build'),
+	 * where the speed of Pols Voice changed. It also coincided with V_INITDATA
+	 * changing from 13 to 14.
+	 */
+	if(keepdata && s_version < 14)
+		fixpolsvoice=true;
+		
+	/* End highly unorthodox updating thing */
+	
+	temp_zinit.ss_grid_x=8;
+	temp_zinit.ss_grid_y=8;
+	temp_zinit.ss_grid_xofs=0;
+	temp_zinit.ss_grid_yofs=0;
+	temp_zinit.ss_grid_color=8;
+	temp_zinit.ss_bbox_1_color=15;
+	temp_zinit.ss_bbox_2_color=7;
+	temp_zinit.ss_flags=0;
+	temp_zinit.gravity=16;
+	temp_zinit.terminalv=320;
+	temp_zinit.msg_speed=5;
+	temp_zinit.transition_type=0;
+	temp_zinit.jump_link_layer_threshold=255;
+	
+	if(s_version >= 15 && get_bit(deprecated_rules, 27)) // The short-lived rule, qr_JUMPLINKLAYER3
+		temp_zinit.jump_link_layer_threshold=0;
+		
+	if(s_version >= 10)
 	{
-		al_trace("2.50.x version of init data, or older.\n");
-		if(!p_igetw(&temp_zinit.nBombs,f,true))
+		char temp;
+		
+		//new-style items
+		for(int j=0; j<256; j++)
 		{
-			return qe_invalid;
+			if(!p_getc(&temp,f,true))
+				return qe_invalid;
+				
+			temp_zinit.items[j] = (temp != 0);
 		}
-		if(!p_igetw(&temp_zinit.nSbombs,f,true))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetw(&temp_zinit.nBombmax,f,true))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetw(&temp_zinit.nSBombmax,f,true))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetw(&temp_zinit.nArrows,f,true))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetw(&temp_zinit.nArrowmax,f,true))
-		{
-			return qe_invalid;
-		}
-	    
 	}
-	else //load new vars with old data
+	
+	if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>26)))
 	{
-		al_trace("Copying over old init values:\n");
-		temp_zinit.nBombs = temp_zinit.bombs;
-		al_trace("temp_zinit.bombs is: %d\n", temp_zinit.bombs);
-		al_trace("temp_zinit.nBombs is: %d\n", temp_zinit.nBombs);
-		temp_zinit.nSbombs = temp_zinit.super_bombs;
-		al_trace("temp_zinit.super_bombs is: %d\n", temp_zinit.super_bombs);
-		al_trace("temp_zinit.nSbombs is: %d\n", temp_zinit.nSbombs);
-		temp_zinit.nBombmax = temp_zinit.max_bombs;
-		al_trace("temp_zinit.max_bombs is: %d\n", temp_zinit.max_bombs);
-		al_trace("temp_zinit.nBombmax is: %d\n", temp_zinit.nBombmax);
-		//temp_zinit.nSBombmax = temp_zinit.bombs;
-		temp_zinit.nArrows = temp_zinit.arrows;
-		al_trace("temp_zinit.arrows is: %d\n", temp_zinit.arrows);
-		al_trace("temp_zinit.nArrows is: %d\n", temp_zinit.nArrows);
-		temp_zinit.nArrowmax = temp_zinit.max_arrows;
-		al_trace("temp_zinit.max_arrows is: %d\n", temp_zinit.max_arrows);
-		al_trace("temp_zinit.nArrowmax is: %d\n", temp_zinit.nArrowmax);
-		    
-		    
+		char temp;
+		
+		//finally...  section data
+		if((Header->zelda_version > 0x192)||
+				//new only
+				((Header->zelda_version == 0x192)&&(Header->build>173)))
+		{
+			//OLD-style items... sigh
+			if(s_version < 10)
+			{
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				temp_zinit.items[iRaft]=(temp != 0);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				temp_zinit.items[iLadder]=(temp != 0);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				temp_zinit.items[iBook]=(temp != 0);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				temp_zinit.items[iMKey]=(temp!=0);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				temp_zinit.items[iFlippers]=(temp != 0);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				temp_zinit.items[iBoots]=(temp!=0);
+			}
+		}
+		
+		if(s_version < 10)
+		{
+			char tempring, tempsword, tempshield, tempwallet, tempbracelet, tempamulet, tempbow;
+			
+			if(!p_getc(&tempring,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&tempsword,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&tempshield,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&tempwallet,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&tempbracelet,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&tempamulet,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&tempbow,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			//old only
+			if((Header->zelda_version == 0x192)&&(Header->build<174))
+			{
+				tempring=(tempring)?(1<<(tempring-1)):0;
+				tempsword=(tempsword)?(1<<(tempsword-1)):0;
+				tempshield=(tempshield)?(1<<(tempshield-1)):0;
+				tempwallet=(tempwallet)?(1<<(tempwallet-1)):0;
+				tempbracelet=(tempbracelet)?(1<<(tempbracelet-1)):0;
+				tempamulet=(tempamulet)?(1<<(tempamulet-1)):0;
+				tempbow=(tempbow)?(1<<(tempbow-1)):0;
+			}
+			
+			//rings start at level 2... wtf
+			//account for this -DD
+			tempring <<= 1;
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_ring, tempring);
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_sword, tempsword);
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_shield, tempshield);
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_wallet, tempwallet);
+			//bracelet ALSO starts at level 2 :-( -DD
+			tempbracelet<<=1;
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_bracelet, tempbracelet);
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_amulet, tempamulet);
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_bow, tempbow);
+			
+			//new only
+			if((Header->zelda_version == 0x192)&&(Header->build>173))
+			{
+				for(int q=0; q<32; q++)
+				{
+					if(!p_getc(&padding,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+			}
+			
+			char tempcandle, tempboomerang, temparrow, tempwhistle;
+			
+			if(!p_getc(&tempcandle,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&tempboomerang,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&temparrow,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&temp,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_potion, temp);
+			
+			if(!p_getc(&tempwhistle,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			//old only
+			if((Header->zelda_version == 0x192)&&(Header->build<174))
+			{
+				tempcandle=(tempcandle)?(1<<(tempcandle-1)):0;
+				tempboomerang=(tempboomerang)?(1<<(tempboomerang-1)):0;
+				temparrow=(temparrow)?(1<<(temparrow-1)):0;
+				tempwhistle=(tempwhistle)?(1<<(tempwhistle-1)):0;
+			}
+			
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_candle, tempcandle);
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_brang, tempboomerang);
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_arrow, temparrow);
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_whistle, tempwhistle);
+			//What about the potion...?
+			
+		}
+		
+		//Oh sure, stick these IN THE MIDDLE OF THE ITEMS, just to make me want
+		//to jab out my eye...
+		if(!p_getc(&temp_zinit.bombs,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_zinit.super_bombs,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//Back to more OLD item code
+		if(s_version < 10)
+		{
+			if((Header->zelda_version > 0x192)||
+					//new only
+					((Header->zelda_version == 0x192)&&(Header->build>173)))
+			{
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_wand, temp);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_letter, temp);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_lens, temp);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_hookshot, temp);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_bait, temp);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_hammer, temp);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_dinsfire, temp);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_faroreswind, temp);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_nayruslove, temp);
+				
+				if(!p_getc(&temp,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				if(Header->zelda_version == 0x192)
+				{
+					for(int q=0; q<32; q++)
+					{
+						if(!p_getc(&padding,f,true))
+						{
+							return qe_invalid;
+						}
+					}
+				}
+			}
+		}
+		
+		//old only
+		if((Header->zelda_version == 0x192)&&(Header->build<174))
+		{
+			byte equipment, items;                                //bit flags
+			
+			if(!p_getc(&equipment,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			temp_zinit.items[iRaft]=(get_bit(&equipment, idE_RAFT)!=0);
+			temp_zinit.items[iLadder]=(get_bit(&equipment, idE_LADDER)!=0);
+			temp_zinit.items[iBook]=(get_bit(&equipment, idE_BOOK)!=0);
+			temp_zinit.items[iMKey]=(get_bit(&equipment, idE_KEY)!=0);
+			temp_zinit.items[iFlippers]=(get_bit(&equipment, idE_FLIPPERS)!=0);
+			temp_zinit.items[iBoots]=(get_bit(&equipment, idE_BOOTS)!=0);
+			
+			
+			if(!p_getc(&items,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			temp_zinit.items[iWand]=(get_bit(&items, idI_WAND)!=0);
+			temp_zinit.items[iLetter]=(get_bit(&items, idI_LETTER)!=0);
+			temp_zinit.items[iLens]=(get_bit(&items, idI_LENS)!=0);
+			temp_zinit.items[iHookshot]=(get_bit(&items, idI_HOOKSHOT)!=0);
+			temp_zinit.items[iBait]=(get_bit(&items, idI_BAIT)!=0);
+			temp_zinit.items[iHammer]=(get_bit(&items, idI_HAMMER)!=0);
+		}
+		
+		if(!p_getc(&temp_zinit.hc,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(s_version < 14)
+		{
+			byte temphp;
+			
+			if(!p_getc(&temphp,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			temp_zinit.start_heart=temphp;
+			
+			if(!p_getc(&temphp,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			temp_zinit.cont_heart=temphp;
+		}
+		else
+		{
+			if(!p_igetw(&temp_zinit.start_heart,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_zinit.cont_heart,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(!p_getc(&temp_zinit.hcp,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(s_version >= 14)
+		{
+			if(!p_getc(&temp_zinit.hcp_per_hc,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(s_version<16)  // July 2007
+			{
+				if(get_bit(quest_rules,qr_BRANGPICKUP+1))
+					temp_zinit.hcp_per_hc = 0xFF;
+					
+				//Dispose of legacy rule
+				set_bit(quest_rules,qr_BRANGPICKUP+1, 0);
+			}
+		}
+		
+		if(!p_getc(&temp_zinit.max_bombs,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_zinit.keys,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&temp_zinit.rupies,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_zinit.triforce,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(s_version>12 || (Header->zelda_version == 0x211 && Header->build == 18))
+		{
+			for(int i=0; i<64; i++)
+			{
+				if(!p_getc(&temp_zinit.map[i],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			for(int i=0; i<64; i++)
+			{
+				if(!p_getc(&temp_zinit.compass[i],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		else
+		{
+			for(int i=0; i<32; i++)
+			{
+				if(!p_getc(&temp_zinit.map[i],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			for(int i=0; i<32; i++)
+			{
+				if(!p_getc(&temp_zinit.compass[i],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		if((Header->zelda_version > 0x192)||
+				//new only
+				((Header->zelda_version == 0x192)&&(Header->build>173)))
+		{
+			if(s_version>12 || (Header->zelda_version == 0x211 && Header->build == 18))
+			{
+				for(int i=0; i<64; i++)
+				{
+					if(!p_getc(&temp_zinit.boss_key[i],f,true))
+					{
+						return qe_invalid;
+					}
+				}
+			}
+			else
+			{
+				for(int i=0; i<32; i++)
+				{
+					if(!p_getc(&temp_zinit.boss_key[i],f,true))
+					{
+						return qe_invalid;
+					}
+				}
+			}
+		}
+		
+		for(int i=0; i<16; i++)
+		{
+			if(!p_getc(&temp_zinit.misc[i],f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version < 15) for(int i=0; i<4; i++)
+			{
+				if(!p_getc(&sword_hearts[i],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			
+		if(!p_getc(&temp_zinit.last_map,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_zinit.last_screen,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(s_version < 14)
+		{
+			byte tempmp;
+			
+			if(!p_getc(&tempmp,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			temp_zinit.max_magic=tempmp;
+			
+			if(!p_getc(&tempmp,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			temp_zinit.magic=tempmp;
+		}
+		else
+		{
+			if(!p_igetw(&temp_zinit.max_magic,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_zinit.magic,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version < 15)
+		{
+			if(s_version < 12)
+			{
+				temp_zinit.max_magic*=32;
+				temp_zinit.magic*=32;
+			}
+			
+			for(int i=0; i<4; i++)
+			{
+				if(!p_getc(&beam_hearts[i],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			if(!p_getc(&beam_percent,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			if(!p_getc(&temp_zinit.bomb_ratio,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version < 15)
+		{
+			byte tempbp;
+			
+			for(int i=0; i<4; i++)
+			{
+				if(!(s_version < 14 ? p_getc(&tempbp,f,true) : p_igetw(&tempbp,f,true)))
+				{
+					return qe_invalid;
+				}
+				
+				beam_power[i]=tempbp;
+			}
+			
+			if(!p_getc(&hookshot_links,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(s_version>6)
+			{
+				if(!p_getc(&hookshot_length,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&longshot_links,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&longshot_length,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		if(!p_getc(&temp_zinit.msg_more_x,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_zinit.msg_more_y,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_zinit.subscreen,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//old only
+		if((Header->zelda_version == 0x192)&&(Header->build<174))
+		{
+			for(int i=0; i<32; i++)
+			{
+				if(!p_getc(&temp_zinit.boss_key[i],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>173)))  //new only
+		{
+			if(s_version <= 10)
+			{
+				byte tempbyte;
+				
+				if(!p_getc(&tempbyte,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				temp_zinit.start_dmap = (word)tempbyte;
+			}
+			else
+			{
+				if(!p_igetw(&temp_zinit.start_dmap,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			if(!p_getc(&temp_zinit.linkanimationstyle,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version>1)
+		{
+			if(!p_getc(&temp_zinit.arrows,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&temp_zinit.max_arrows,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version>2)
+		{
+			if(s_version <= 10)
+			{
+				for(int i=0; i<OLDMAXLEVELS; i++)
+				{
+					if(!p_getc(&(temp_zinit.level_keys[i]),f,true))
+					{
+						return qe_invalid;
+					}
+				}
+			}
+			else
+			{
+				for(int i=0; i<MAXLEVELS; i++)
+				{
+					if(!p_getc(&(temp_zinit.level_keys[i]),f,true))
+					{
+						return qe_invalid;
+					}
+				}
+			}
+		}
+		
+		if(s_version>3)
+		{
+			if(!p_igetw(&temp_zinit.ss_grid_x,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_zinit.ss_grid_y,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_zinit.ss_grid_xofs,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_zinit.ss_grid_yofs,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_zinit.ss_grid_color,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_zinit.ss_bbox_1_color,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_zinit.ss_bbox_2_color,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_zinit.ss_flags,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			temp_zinit.ss_grid_x=zc_max(temp_zinit.ss_grid_x,1);
+			temp_zinit.ss_grid_y=zc_max(temp_zinit.ss_grid_y,1);
+		}
+		
+		if(s_version>4 && s_version<15)
+		{
+			if(!p_getc(&moving_fairy_hearts,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&moving_fairy_heart_percent,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version>5 && s_version < 10)
+		{
+			if(!p_getc(&temp,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			addOldStyleFamily(&temp_zinit, itemsbuf, itype_quiver, temp);
+		}
+		
+		if(s_version>6 && s_version<15)
+		{
+			if(!p_getc(&stationary_fairy_hearts,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&stationary_fairy_heart_percent,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&moving_fairy_magic,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&moving_fairy_magic_percent,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&stationary_fairy_magic,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&stationary_fairy_magic_percent,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&blue_potion_hearts,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&blue_potion_heart_percent,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&red_potion_hearts,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&red_potion_heart_percent,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&blue_potion_magic,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&blue_potion_magic_percent,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&red_potion_magic,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&red_potion_magic_percent,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version>6)
+		{
+			if(!p_getc(&temp_zinit.subscreen_style,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version>7)
+		{
+			if(!p_getc(&temp_zinit.usecustomsfx,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version>8)
+		{
+			if(!p_igetw(&temp_zinit.max_rupees,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_zinit.max_keys,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version>16)
+		{
+			if(!p_getc(&temp_zinit.gravity,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&temp_zinit.terminalv,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&temp_zinit.msg_speed,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&temp_zinit.transition_type,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&temp_zinit.jump_link_layer_threshold,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version>17)
+		{
+			if(!p_getc(&temp_zinit.msg_more_is_offset,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		//expaned init data for larger values in 2.55
+		if ( s_version >= 19 ) //expand init data bombs, sbombs, and arrows to 0xFFFF
+		{
+			al_trace("2.50.x version of init data, or older.\n");
+			if(!p_igetw(&temp_zinit.nBombs,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&temp_zinit.nSbombs,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&temp_zinit.nBombmax,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&temp_zinit.nSBombmax,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&temp_zinit.nArrows,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&temp_zinit.nArrowmax,f,true))
+			{
+				return qe_invalid;
+			}
+			
+		}
+		else //load new vars with old data
+		{
+			al_trace("Copying over old init values:\n");
+			temp_zinit.nBombs = temp_zinit.bombs;
+			al_trace("temp_zinit.bombs is: %d\n", temp_zinit.bombs);
+			al_trace("temp_zinit.nBombs is: %d\n", temp_zinit.nBombs);
+			temp_zinit.nSbombs = temp_zinit.super_bombs;
+			al_trace("temp_zinit.super_bombs is: %d\n", temp_zinit.super_bombs);
+			al_trace("temp_zinit.nSbombs is: %d\n", temp_zinit.nSbombs);
+			temp_zinit.nBombmax = temp_zinit.max_bombs;
+			al_trace("temp_zinit.max_bombs is: %d\n", temp_zinit.max_bombs);
+			al_trace("temp_zinit.nBombmax is: %d\n", temp_zinit.nBombmax);
+			//temp_zinit.nSBombmax = temp_zinit.bombs;
+			temp_zinit.nArrows = temp_zinit.arrows;
+			al_trace("temp_zinit.arrows is: %d\n", temp_zinit.arrows);
+			al_trace("temp_zinit.nArrows is: %d\n", temp_zinit.nArrows);
+			temp_zinit.nArrowmax = temp_zinit.max_arrows;
+			al_trace("temp_zinit.max_arrows is: %d\n", temp_zinit.max_arrows);
+			al_trace("temp_zinit.nArrowmax is: %d\n", temp_zinit.nArrowmax);
+				
+				
+		}
+			if ( s_version >= 20 )
+		{
+			if(!p_igetw(&temp_zinit.heroStep,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{	
+			temp_zinit.heroStep = 150; //1.5 pixels per frame
+		}
+		if ( s_version >= 21 )
+		{
+			if(!p_igetw(&temp_zinit.subscrSpeed,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{	
+			temp_zinit.subscrSpeed = 1; //3 pixels per frame
+		}
+		//old only
+		if((Header->zelda_version == 0x192)&&(Header->build<174))
+		{
+			byte items2;
+			
+			if(!p_getc(&items2,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			temp_zinit.items[iDinsFire]=(get_bit(&items2, idI_DFIRE)!=0);
+			temp_zinit.items[iFaroresWind]=(get_bit(&items2, idI_FWIND)!=0);
+			temp_zinit.items[iNayrusLove]=(get_bit(&items2, idI_NLOVE)!=0);
+		}
+		
+		if(Header->zelda_version < 0x193)
+		{
+			for(int q=0; q<96; q++)
+			{
+				if(!p_getc(&padding,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			//new only
+			if((Header->zelda_version == 0x192)&&(Header->build>173))
+			{
+				if(!p_getc(&padding,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&padding,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
 	}
-        if ( s_version >= 20 ) //expand init data bombs, sbombs, and arrows to 0xFFFF
+	
+	if((Header->zelda_version < 0x211)||((Header->zelda_version == 0x211)&&(Header->build<15)))
 	{
-		al_trace("2.50.x version of init data, or older.\n");
-		if(!p_igetw(&temp_zinit.heroStep,f,true))
+		//temp_zinit.shield=i_smallshield;
+		int sshieldid = getItemID(itemsbuf, itype_shield, i_smallshield);
+		
+		if(sshieldid != -1)
+			temp_zinit.items[sshieldid] = true;
+	}
+	
+	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<27)))
+	{
+		temp_zinit.hc=3;
+		temp_zinit.start_heart=3;
+		temp_zinit.cont_heart=3;
+		temp_zinit.max_bombs=8;
+	}
+	
+	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<50)))
+	{
+		sword_hearts[0]=0;
+		sword_hearts[1]=5;
+		sword_hearts[2]=12;
+		sword_hearts[3]=21;
+	}
+	
+	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<51)))
+	{
+		temp_zinit.last_map=0;
+		temp_zinit.last_screen=0;
+	}
+	
+	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<68)))
+	{
+		temp_zinit.max_magic=0;
+		temp_zinit.magic=0;
+		set_bit(temp_zinit.misc,idM_DOUBLEMAGIC,0);
+	}
+	
+	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<129)))
+	{
+	
+		for(int x=0; x<4; x++)
+		{
+			beam_hearts[x]=100;
+		}
+		
+		for(int i=0; i<idBP_MAX; i++)
+		{
+			set_bit(&beam_percent,i,!get_bit(quest_rules,qr_LENSHINTS+i));
+			set_bit(quest_rules,qr_LENSHINTS+i,0);
+		}
+		
+		for(int x=0; x<4; x++)
+		{
+			beam_power[x]=get_bit(quest_rules,qr_HIDECARRIEDITEMS)?50:100;
+		}
+		
+		set_bit(quest_rules,qr_HIDECARRIEDITEMS,0);
+		hookshot_links=100;
+		temp_zinit.msg_more_x=224;
+		temp_zinit.msg_more_y=64;
+	}
+	
+	// Okay,  let's put these legacy values into itemsbuf.
+	if(s_version < 15) for(int i=0; i<MAXITEMS; i++)
+		{
+			switch(i)
+			{
+			case iFairyStill:
+				itemsbuf[i].misc1 = stationary_fairy_hearts;
+				itemsbuf[i].misc2 = stationary_fairy_magic;
+				itemsbuf[i].misc3 = 0;
+				itemsbuf[i].flags |= stationary_fairy_heart_percent ? ITEM_FLAG1 : 0;
+				itemsbuf[i].flags |= stationary_fairy_magic_percent ? ITEM_FLAG2 : 0;
+				break;
+				
+			case iFairyMoving:
+				itemsbuf[i].misc1 = moving_fairy_hearts;
+				itemsbuf[i].misc2 = moving_fairy_magic;
+				itemsbuf[i].misc3 = 50;
+				itemsbuf[i].flags |= moving_fairy_heart_percent ? ITEM_FLAG1 : 0;
+				itemsbuf[i].flags |= moving_fairy_magic_percent ? ITEM_FLAG2 : 0;
+				break;
+				
+			case iRPotion:
+				itemsbuf[i].misc1 = red_potion_hearts;
+				itemsbuf[i].misc2 = red_potion_magic;
+				itemsbuf[i].flags |= red_potion_heart_percent ? ITEM_FLAG1 : 0;
+				itemsbuf[i].flags |= red_potion_magic_percent ? ITEM_FLAG2 : 0;
+				break;
+				
+			case iBPotion:
+				itemsbuf[i].misc1 = blue_potion_hearts;
+				itemsbuf[i].misc2 = blue_potion_magic;
+				itemsbuf[i].flags |= blue_potion_heart_percent ? ITEM_FLAG1 : 0;
+				itemsbuf[i].flags |= blue_potion_magic_percent ? ITEM_FLAG2 : 0;
+				break;
+				
+			case iSword:
+				itemsbuf[i].pickup_hearts = sword_hearts[0];
+				itemsbuf[i].misc1 = beam_hearts[0];
+				itemsbuf[i].misc2 = beam_power[0];
+				// It seems that ITEM_FLAG1 was already added by reset_itembuf()...
+				itemsbuf[i].flags &= (!get_bit(&beam_percent,0)) ? ~ITEM_FLAG1 : ~0;
+				break;
+				
+			case iWSword:
+				itemsbuf[i].pickup_hearts = sword_hearts[1];
+				itemsbuf[i].misc1 = beam_hearts[1];
+				itemsbuf[i].misc2 = beam_power[1];
+				itemsbuf[i].flags &= (!get_bit(&beam_percent,1)) ? ~ITEM_FLAG1 : ~0;
+				break;
+				
+			case iMSword:
+				itemsbuf[i].pickup_hearts = sword_hearts[2];
+				itemsbuf[i].misc1 = beam_hearts[2];
+				itemsbuf[i].misc2 = beam_power[2];
+				itemsbuf[i].flags &= (!get_bit(&beam_percent,2)) ? ~ITEM_FLAG1 : ~0;
+				break;
+				
+			case iXSword:
+				itemsbuf[i].pickup_hearts = sword_hearts[3];
+				itemsbuf[i].misc1 = beam_hearts[3];
+				itemsbuf[i].misc2 = beam_power[3];
+				itemsbuf[i].flags &= (!get_bit(&beam_percent,3)) ? ~ITEM_FLAG1 : ~0;
+				break;
+				
+			case iHookshot:
+				itemsbuf[i].misc1 = hookshot_length;
+				itemsbuf[i].misc2 = hookshot_links;
+				break;
+				
+			case iLongshot:
+				itemsbuf[i].misc1 = longshot_length;
+				itemsbuf[i].misc2 = longshot_links;
+				break;
+			}
+		}
+		
+	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<168)))
+	{
+		//was new subscreen rule
+		temp_zinit.subscreen=get_bit(quest_rules,qr_FREEFORM)?1:0;
+		set_bit(quest_rules,qr_FREEFORM,0);
+	}
+	
+	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<185)))
+	{
+		temp_zinit.start_dmap=0;
+	}
+	
+	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<186)))
+	{
+		temp_zinit.linkanimationstyle=get_bit(quest_rules,qr_BSZELDA)?1:0;
+	}
+	
+	if(s_version < 16 && get_bit(deprecated_rules, qr_COOLSCROLL+1))
+	{
+		//addOldStyleFamily(&temp_zinit, itemsbuf, itype_wallet, 4);   //is this needed?
+		temp_zinit.max_rupees=999;
+		temp_zinit.rupies=999;
+	}
+	if(Header->zelda_version < 0x190) //1.84 bugfix. -Z
+	{
+	//temp_zinit.items[iBombBag] = true; //No, this is 30 max bombs!
+	temp_zinit.max_bombs = 8;
+	}
+	al_trace("About to copy over new init data values for quest made in: %x\n", Header->zelda_version);
+	//time to ensure that we port all new values properly:
+	if(Header->zelda_version < 0x255)
+	{
+	temp_zinit.nBombs = temp_zinit.bombs;
+	//al_trace("Copied over %s\n", "nbombs");
+	temp_zinit.nSbombs = temp_zinit.super_bombs;
+		//al_trace("Copied over %s\n", "nSbombs");
+	temp_zinit.nBombmax = temp_zinit.max_bombs;
+		//al_trace("Copied over %s\n", "nBombmax");
+		
+		//al_trace("temp_zinit.max_bombs is %d\n", temp_zinit.max_bombs);
+		//al_trace("temp_zinit.bomb_ratio is %d\n", temp_zinit.bomb_ratio);
+	if(Header->zelda_version < 0x250)
+	{//bomb ratio is 0 at this point in 2.50 quests for some reason. -Z ( 23rd March, 2019 )
+		temp_zinit.nSBombmax = temp_zinit.bomb_ratio > 0 ? ( temp_zinit.max_bombs/temp_zinit.bomb_ratio ) : (temp_zinit.max_bombs/4);
+		//al_trace("Copied over %s\n", "nSBombmax");
+	}
+	temp_zinit.nArrows = temp_zinit.arrows;
+		//al_trace("Copied over %s\n", "nArrows");
+	temp_zinit.nArrowmax = temp_zinit.max_arrows;
+		//al_trace("Copied over %s\n", "nArrowmax");
+	}	
+	
+	if(s_version > 21)
+	{
+		if(!p_getc(&temp_zinit.hp_per_heart,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_getc(&temp_zinit.magic_per_block,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_getc(&temp_zinit.hero_damage_multiplier,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_getc(&temp_zinit.ene_damage_multiplier,f,true))
 		{
 			return qe_invalid;
 		}
 	}
 	else
-	{	
-		temp_zinit.heroStep = 150; //1.5 pixels per frame
+	{
+		temp_zinit.hp_per_heart = 16; //HP_PER_HEART, previously hardcoded
+		temp_zinit.magic_per_block = 32; //MAGICPERBLOCK, previously hardcoded
+		temp_zinit.hero_damage_multiplier = 2; //DAMAGE_MULTIPLIER, previously hardcoded
+		temp_zinit.ene_damage_multiplier = 4; //(HP_PER_HEART/4), previously hardcoded
 	}
-        //old only
-        if((Header->zelda_version == 0x192)&&(Header->build<174))
-        {
-            byte items2;
-            
-            if(!p_getc(&items2,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            temp_zinit.items[iDinsFire]=(get_bit(&items2, idI_DFIRE)!=0);
-            temp_zinit.items[iFaroresWind]=(get_bit(&items2, idI_FWIND)!=0);
-            temp_zinit.items[iNayrusLove]=(get_bit(&items2, idI_NLOVE)!=0);
-        }
-        
-        if(Header->zelda_version < 0x193)
-        {
-            for(int q=0; q<96; q++)
-            {
-                if(!p_getc(&padding,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            //new only
-            if((Header->zelda_version == 0x192)&&(Header->build>173))
-            {
-                if(!p_getc(&padding,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&padding,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-    }
-    
-    if((Header->zelda_version < 0x211)||((Header->zelda_version == 0x211)&&(Header->build<15)))
-    {
-        //temp_zinit.shield=i_smallshield;
-        int sshieldid = getItemID(itemsbuf, itype_shield, i_smallshield);
-        
-        if(sshieldid != -1)
-            temp_zinit.items[sshieldid] = true;
-    }
-    
-    if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<27)))
-    {
-        temp_zinit.hc=3;
-        temp_zinit.start_heart=3;
-        temp_zinit.cont_heart=3;
-        temp_zinit.max_bombs=8;
-    }
-    
-    if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<50)))
-    {
-        sword_hearts[0]=0;
-        sword_hearts[1]=5;
-        sword_hearts[2]=12;
-        sword_hearts[3]=21;
-    }
-    
-    if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<51)))
-    {
-        temp_zinit.last_map=0;
-        temp_zinit.last_screen=0;
-    }
-    
-    if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<68)))
-    {
-        temp_zinit.max_magic=0;
-        temp_zinit.magic=0;
-        set_bit(temp_zinit.misc,idM_DOUBLEMAGIC,0);
-    }
-    
-    if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<129)))
-    {
-    
-        for(int x=0; x<4; x++)
-        {
-            beam_hearts[x]=100;
-        }
-        
-        for(int i=0; i<idBP_MAX; i++)
-        {
-            set_bit(&beam_percent,i,!get_bit(quest_rules,qr_LENSHINTS+i));
-            set_bit(quest_rules,qr_LENSHINTS+i,0);
-        }
-        
-        for(int x=0; x<4; x++)
-        {
-            beam_power[x]=get_bit(quest_rules,qr_HIDECARRIEDITEMS)?50:100;
-        }
-        
-        set_bit(quest_rules,qr_HIDECARRIEDITEMS,0);
-        hookshot_links=100;
-        temp_zinit.msg_more_x=224;
-        temp_zinit.msg_more_y=64;
-    }
-    
-    // Okay,  let's put these legacy values into itemsbuf.
-    if(s_version < 15) for(int i=0; i<MAXITEMS; i++)
-        {
-            switch(i)
-            {
-            case iFairyStill:
-                itemsbuf[i].misc1 = stationary_fairy_hearts;
-                itemsbuf[i].misc2 = stationary_fairy_magic;
-                itemsbuf[i].misc3 = 0;
-                itemsbuf[i].flags |= stationary_fairy_heart_percent ? ITEM_FLAG1 : 0;
-                itemsbuf[i].flags |= stationary_fairy_magic_percent ? ITEM_FLAG2 : 0;
-                break;
-                
-            case iFairyMoving:
-                itemsbuf[i].misc1 = moving_fairy_hearts;
-                itemsbuf[i].misc2 = moving_fairy_magic;
-                itemsbuf[i].misc3 = 50;
-                itemsbuf[i].flags |= moving_fairy_heart_percent ? ITEM_FLAG1 : 0;
-                itemsbuf[i].flags |= moving_fairy_magic_percent ? ITEM_FLAG2 : 0;
-                break;
-                
-            case iRPotion:
-                itemsbuf[i].misc1 = red_potion_hearts;
-                itemsbuf[i].misc2 = red_potion_magic;
-                itemsbuf[i].flags |= red_potion_heart_percent ? ITEM_FLAG1 : 0;
-                itemsbuf[i].flags |= red_potion_magic_percent ? ITEM_FLAG2 : 0;
-                break;
-                
-            case iBPotion:
-                itemsbuf[i].misc1 = blue_potion_hearts;
-                itemsbuf[i].misc2 = blue_potion_magic;
-                itemsbuf[i].flags |= blue_potion_heart_percent ? ITEM_FLAG1 : 0;
-                itemsbuf[i].flags |= blue_potion_magic_percent ? ITEM_FLAG2 : 0;
-                break;
-                
-            case iSword:
-                itemsbuf[i].pickup_hearts = sword_hearts[0];
-                itemsbuf[i].misc1 = beam_hearts[0];
-                itemsbuf[i].misc2 = beam_power[0];
-                // It seems that ITEM_FLAG1 was already added by reset_itembuf()...
-                itemsbuf[i].flags &= (!get_bit(&beam_percent,0)) ? ~ITEM_FLAG1 : ~0;
-                break;
-                
-            case iWSword:
-                itemsbuf[i].pickup_hearts = sword_hearts[1];
-                itemsbuf[i].misc1 = beam_hearts[1];
-                itemsbuf[i].misc2 = beam_power[1];
-                itemsbuf[i].flags &= (!get_bit(&beam_percent,1)) ? ~ITEM_FLAG1 : ~0;
-                break;
-                
-            case iMSword:
-                itemsbuf[i].pickup_hearts = sword_hearts[2];
-                itemsbuf[i].misc1 = beam_hearts[2];
-                itemsbuf[i].misc2 = beam_power[2];
-                itemsbuf[i].flags &= (!get_bit(&beam_percent,2)) ? ~ITEM_FLAG1 : ~0;
-                break;
-                
-            case iXSword:
-                itemsbuf[i].pickup_hearts = sword_hearts[3];
-                itemsbuf[i].misc1 = beam_hearts[3];
-                itemsbuf[i].misc2 = beam_power[3];
-                itemsbuf[i].flags &= (!get_bit(&beam_percent,3)) ? ~ITEM_FLAG1 : ~0;
-                break;
-                
-            case iHookshot:
-                itemsbuf[i].misc1 = hookshot_length;
-                itemsbuf[i].misc2 = hookshot_links;
-                break;
-                
-            case iLongshot:
-                itemsbuf[i].misc1 = longshot_length;
-                itemsbuf[i].misc2 = longshot_links;
-                break;
-            }
-        }
-        
-    if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<168)))
-    {
-        //was new subscreen rule
-        temp_zinit.subscreen=get_bit(quest_rules,qr_FREEFORM)?1:0;
-        set_bit(quest_rules,qr_FREEFORM,0);
-    }
-    
-    if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<185)))
-    {
-        temp_zinit.start_dmap=0;
-    }
-    
-    if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<186)))
-    {
-        temp_zinit.linkanimationstyle=get_bit(quest_rules,qr_BSZELDA)?1:0;
-    }
-    
-    if(s_version < 16 && get_bit(deprecated_rules, qr_COOLSCROLL+1))
-    {
-        //addOldStyleFamily(&temp_zinit, itemsbuf, itype_wallet, 4);   //is this needed?
-        temp_zinit.max_rupees=999;
-        temp_zinit.rupies=999;
-    }
-    if(Header->zelda_version < 0x190) //1.84 bugfix. -Z
-    {
-	//temp_zinit.items[iBombBag] = true; //No, this is 30 max bombs!
-	temp_zinit.max_bombs = 8;
-    }
-    al_trace("About to copy over new init data values for quest made in: %x\n", Header->zelda_version);
-    //time to ensure that we port all new values properly:
-    if(Header->zelda_version < 0x255)
-    {
-	temp_zinit.nBombs = temp_zinit.bombs;
-	//al_trace("Copied over %s\n", "nbombs");
-	temp_zinit.nSbombs = temp_zinit.super_bombs;
-	    //al_trace("Copied over %s\n", "nSbombs");
-	temp_zinit.nBombmax = temp_zinit.max_bombs;
-	    //al_trace("Copied over %s\n", "nBombmax");
-	    
-	    //al_trace("temp_zinit.max_bombs is %d\n", temp_zinit.max_bombs);
-	    //al_trace("temp_zinit.bomb_ratio is %d\n", temp_zinit.bomb_ratio);
-	if(Header->zelda_version < 0x250)
-	{//bomb ratio is 0 at this point in 2.50 quests for some reason. -Z ( 23rd March, 2019 )
-		temp_zinit.nSBombmax = temp_zinit.bomb_ratio > 0 ? ( temp_zinit.max_bombs/temp_zinit.bomb_ratio ) : (temp_zinit.max_bombs/4);
-	    //al_trace("Copied over %s\n", "nSBombmax");
+	
+	if(s_version > 22)
+	{
+		for(int q = 0; q < 25; ++q)
+		{
+			if(!p_igetw(&temp_zinit.scrcnt[q],f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		for(int q = 0; q < 25; ++q)
+		{
+			if(!p_igetw(&temp_zinit.scrmaxcnt[q],f,true))
+			{
+				return qe_invalid;
+			}
+		}
 	}
-	temp_zinit.nArrows = temp_zinit.arrows;
-	    //al_trace("Copied over %s\n", "nArrows");
-	temp_zinit.nArrowmax = temp_zinit.max_arrows;
-	    //al_trace("Copied over %s\n", "nArrowmax");
-    }	
-    
-    
-    
-    if(keepdata==true)
-    {
-        memcpy(&zinit, &temp_zinit, sizeof(zinitdata));
-        
-        if(zinit.linkanimationstyle==las_zelda3slow)
-        {
-            link_animation_speed=2;
-        }
-        else
-        {
-            link_animation_speed=1;
-        }
-    }
-    
-    
-    
-    
-    return 0;
+	else
+	{
+		for(int q = 0; q < 25; ++q)
+		{
+			temp_zinit.scrcnt[q] = 0;
+			temp_zinit.scrmaxcnt[q] = 0;
+		}
+	}
+	
+	
+	if(s_version > 23)
+	{
+		if(!p_getc(&temp_zinit.dither_type,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_getc(&temp_zinit.dither_arg,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_getc(&temp_zinit.dither_percent,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_getc(&temp_zinit.def_lightrad,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_getc(&temp_zinit.transdark_percent,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.dither_type = 0;
+		temp_zinit.dither_arg = 0;
+		temp_zinit.dither_percent = 20;
+		temp_zinit.def_lightrad = 24;
+		temp_zinit.transdark_percent = 0;
+	}
+	
+	if(keepdata==true)
+	{
+		memcpy(&zinit, &temp_zinit, sizeof(zinitdata));
+		
+		if(zinit.linkanimationstyle==las_zelda3slow)
+		{
+			link_animation_speed=2;
+		}
+		else
+		{
+			link_animation_speed=1;
+		}
+	}
+	
+	
+	
+	
+	return 0;
 }
 
 /*
@@ -17064,7 +19305,7 @@ void portBombRules()
 	
 }
 
-int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags)
+int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata)
 {
 	
     DMapEditorLastMaptileUsed = 0;
@@ -17121,6 +19362,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         dmapmap.clear();
         screenmap.clear();
         itemspritemap.clear();
+        comboscriptmap.clear();
         
         for(int i=0; i<NUMSCRIPTFFC-1; i++)
         {
@@ -17172,6 +19414,10 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         {
             itemspritemap[i].clear();
         }
+	for(int i=0; i<NUMSCRIPTSCOMBODATA-1; i++)
+        {
+            comboscriptmap[i].clear();
+        }
         
         reset_scripts();
     }
@@ -17192,7 +19438,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     
     //header
     box_out("Reading Header...");
-    ret=readheader(f, &tempheader, true, 1);
+    ret=readheader(f, &tempheader, true, printmetadata);
     checkstatus(ret);
     box_out("okay.");
     box_eol();

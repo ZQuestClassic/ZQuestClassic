@@ -94,6 +94,7 @@ void load_control_state();
 extern int sfx_voice[WAV_COUNT];
 
 bool getInput(int btn, bool press = false, bool drunk = false, bool ignoreDisable = false);
+bool getIntBtnInput(byte intbtn, bool press = false, bool drunk = false, bool ignoreDisable = false);
 bool Up();
 bool Down();
 bool Left();
@@ -129,6 +130,8 @@ bool AxisLeft();
 bool AxisRight();
 bool DrunkcAbtn();
 bool DrunkcBbtn();
+bool DrunkcEx1btn();
+bool DrunkcEx2btn();
 bool DrunkcSbtn();
 bool DrunkcMbtn();
 bool DrunkcLbtn();
@@ -157,6 +160,10 @@ bool DrunkrMbtn();
 bool DrunkrLbtn();
 bool DrunkrRbtn();
 bool DrunkrPbtn();
+bool DrunkrEx1btn();
+bool DrunkrEx2btn();
+bool DrunkrEx3btn();
+bool DrunkrEx4btn();
 
 int after_time();
 

@@ -79,7 +79,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->gravity=zinit.gravity;
     zinit2->terminalv=zinit.terminalv;
     zinit2->jump_link_layer_threshold=zinit.jump_link_layer_threshold;
-    zinit2->hc = gdata->get_maxlife()/HP_PER_HEART;
+    zinit2->hc = gdata->get_maxlife()/gdata->get_hp_per_heart();
     zinit2->bombs = gdata->get_bombs();
     zinit2->nBombs = gdata->get_bombs();
     zinit2->keys = gdata->get_keys();
@@ -94,7 +94,21 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->nArrows = gdata->get_arrows();
     zinit2->nArrowmax = gdata->get_maxarrows();
 	
+	zinit2->hp_per_heart = gdata->get_hp_per_heart();
+	zinit2->magic_per_block = gdata->get_mp_per_block();
+	zinit2->hero_damage_multiplier = gdata->get_hero_dmgmult();
+	zinit2->ene_damage_multiplier = gdata->get_ene_dmgmult();
+	zinit2->dither_type = gdata->get_dither_type();
+	zinit2->dither_arg = gdata->get_dither_arg();
+	zinit2->dither_percent = gdata->get_dither_perc();
+	zinit2->def_lightrad = gdata->get_light_rad();
+	zinit2->transdark_percent = gdata->get_transdark_perc();
 	
+	for(int q = 0; q < 25; ++q)
+	{
+		zinit2->scrcnt[q] = gdata->get_counter(q+7);
+		zinit2->scrmaxcnt[q] = gdata->get_maxcounter(q+7);
+	}
 	
 	
     
@@ -124,7 +138,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->max_rupees = gdata->get_maxcounter(1);
     zinit2->max_keys = gdata->get_maxcounter(5);
     
-    zinit2->start_heart = gdata->get_life()/HP_PER_HEART;
+    zinit2->start_heart = gdata->get_life()/gdata->get_hp_per_heart();
     zinit2->cont_heart = gdata->get_cont_hearts();
     zinit2->hcp_per_hc = gdata->get_hcp_per_hc();
     set_bit(zinit2->misc,idM_CONTPERCENT,gdata->get_cont_percent() ? 1 : 0);

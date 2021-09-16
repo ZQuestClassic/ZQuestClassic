@@ -19,6 +19,7 @@ namespace ZScript
 	class ASTImportDecl;
 	class ASTExprCall;
 	class ASTBlock;
+	class ASTFuncDecl;
 
 	// CompileError.h
 	class CompileErrorHandler;
@@ -131,8 +132,9 @@ namespace ZScript
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
-				int flags = 0, AST* node = NULL)
+				int flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL)
 		= 0;
+		virtual void removeFunction(Function* func) = 0;
 		virtual void setDefaultOption(CompileOptionSetting value) = 0;
 		virtual void setOption(
 				CompileOption option, CompileOptionSetting value) = 0;
@@ -349,7 +351,8 @@ namespace ZScript
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
-				int flags = 0, AST* node = NULL);
+				int flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
+		virtual void removeFunction(Function* func);
 		virtual void setDefaultOption(CompileOptionSetting value);
 		virtual void setOption(
 				CompileOption option, CompileOptionSetting value);
@@ -423,7 +426,9 @@ namespace ZScript
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
-				int flags = 0, AST* node = NULL);
+				int flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
+		virtual void removeFunction(Function* func);
+		void removeLocalFunction(Function* function);
 		
 	protected:
 		virtual bool add(Datum&, CompileErrorHandler*);
@@ -479,9 +484,11 @@ namespace ZScript
 		bool registerGetter(std::string const& name, Function* getter);
 		bool registerSetter(std::string const& name, Function* setter);
 		bool registerFunction(Function* function);
+		virtual void removeFunction(Function* func);
+		optional<Function*> getDescFuncBySig(FunctionSignature& sig);
 		
 		bool checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler);
-		
+		bool isImported(std::string const& path);
 	private:
 		mutable optional<int> stackSize_;
 
@@ -575,6 +582,8 @@ namespace ZScript
 		ZCLASSID_FILESYSTEM,
 		ZCLASSID_SUBSCREENDATA,
 		ZCLASSID_FILE,
+		ZCLASSID_MODULE,
+		ZCLASSID_DIRECTORY,
 		ZCLASSID_END
 	};
 

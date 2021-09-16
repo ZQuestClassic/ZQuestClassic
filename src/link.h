@@ -49,7 +49,9 @@ enum actiontype
     climbcoverbottom, dying, drowning, 
 	climbing, //not used -Z.
     // Fake actiontypes: used by ZScripts
-    ischarging, isspinning, isdiving, gameover, hookshotout, stunned, ispushing
+    ischarging, isspinning, isdiving, gameover, hookshotout, stunned, ispushing,
+	// New 2.55 ActionTypes
+	falling, lavadrowning
 };
 
 typedef struct tilesequence
@@ -73,6 +75,7 @@ typedef struct tilesequence
 
 #define HOV_INF 0x01
 #define HOV_OUT 0x02
+#define HOV_PITFALL_OUT 0x04
 
 class LinkClass : public sprite
 {
@@ -185,7 +188,7 @@ class LinkClass : public sprite
     
     
 public:
-	bool autostep,superman,inwallm,tapping,stomping,last_hurrah;
+	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg;
     int refilling,
         ladderx,
         laddery,
@@ -227,9 +230,11 @@ public:
 	lastdir[4], // used in Maze Path screens
 	ladderstart, // starting direction of ladder...?
 	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
-	link_is_stunned, stundir; //scripted stun from weapons; possibly for later eweapon effects in the future. 
-    int shiftdir; // shift direction when walking into corners of solid combos
-    int sdir; // scrolling direction
+	damageovertimeclk, // clock for determining when Link takes passive damage from combos beneath him.
+	newconveyorclk; // clock for determining when Link gets moved by a conveyor
+    int shiftdir, // shift direction when walking into corners of solid combos
+    link_is_stunned, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
+    sdir; // scrolling direction
     int hopdir;  // direction to hop out of water (diagonal movement only)
     int holddir;
     int landswim; // incremental time spent swimming against land
@@ -248,6 +253,11 @@ public:
     bool bigHitbox;
 	int steprate;
     byte defence[wMax];
+	int subscr_speed;
+	bool is_warping;
+	
+	bool can_pitfall(bool ignore_hover = false);
+	
     void check_slash_block(weapon *w);
     void check_slash_block_layer2(int bx, int by, weapon *w, int layer);
     void check_pound_block(weapon *w);
@@ -264,12 +274,19 @@ public:
 	long misc_internal_link_flags;// Flags to hold data temporarily for misc handling
 	int last_cane_of_byrna_item_id;
 	bool on_sideview_ladder;
+	zfix switchblock_z;
+	bool switchblock_offset;
 	byte hoverflags;
 	long extra_jump_count;
     // Methods below here.
+	bool isStanding(bool forJump = false);
     void explode(int type);
     int getTileModifier();
     void setTileModifier(int ntemod);
+	bool try_hover();
+	int check_pitslide(bool ignore_hover = false);
+	bool pitslide();
+	void pitfall();
     void movelink();
     void move(int d, int forceRate = -1);
 	void moveOld(int d2);
@@ -292,7 +309,9 @@ public:
     void checkbosslockblock();
     void checklockblock();
     void checkswordtap();
+    void oldcheckchest(int type);
     void checkchest(int type);
+    void checksigns();
     void checktouchblk();
     void checklocked();
     void deselectbombs(int super); // switch Link's weapon if his current weapon (bombs) was depleted.
@@ -311,7 +330,9 @@ public:
     int get_scroll_step(int scrolldir);
     int get_scroll_delay(int scrolldir);
     void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw);
-    void scrollscr(int dir,int destscr = -1, int destdmap = -1);
+    void calc_darkroom_link(int x1 = 0, int y1 = 0, int x2 = 0, int y2 = 0);
+	void scrollscr(int dir,int destscr = -1, int destdmap = -1);
+    int defend(weapon *w);
     
 private:
     void walkdown(bool opening);
@@ -374,7 +395,7 @@ public:
     void Freeze();
     void unfreeze();
     void finishedmsg();
-    void Drown();
+    void Drown(int state = 0);
     int getEaten();
     void setEaten(int i);
     zfix  getX();
@@ -512,7 +533,7 @@ const int SEL_DOWN = 2;
 const int SEL_RIGHT = 3;
 const int SEL_VERIFY_LEFT = 4;
 const int SEL_VERIFY_RIGHT = 5;
-int selectWpn_new(int type, int startpos, int forbiddenpos = -1);
+int selectWpn_new(int type, int startpos, int forbiddenpos = -1, int fp2 = -1, int fp3 = -1);
 bool isWpnPressed(int wpn);
 int getWpnPressed(int wpn);
 int selectSword();
@@ -521,6 +542,8 @@ void selectNextBWpn(int type);
 void verifyBothWeapons();
 void verifyAWpn();
 void verifyBWpn();
+void verifyXWpn();
+void verifyYWpn();
 bool canget(int id);
 void dospecialmoney(int index);
 void getitem(int id, bool nosound=false);

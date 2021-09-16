@@ -27,6 +27,7 @@
 #include "zsys.h"
 #include "script_drawing.h"
 #include "zfix.h"
+#include "util.h"
 
 int isFullScreen();
 int onFullscreen();
@@ -34,6 +35,7 @@ int onFullscreen();
 #if DEVLEVEL > 0
 extern bool dev_logging;
 extern bool dev_debug;
+extern bool dev_timestmp;
 #endif
 
 #define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
@@ -163,7 +165,6 @@ void game_loop();
 
 void clearmsgnext(int str);
 void donewmsg(int str);
-int donew_shop_msg(int itmstr, int shopstr);
 void msg_bg(MsgStr const& msg);
 void msg_prt();
 void blit_msgstr_bg(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
@@ -175,7 +176,7 @@ void init_dmap();
 int  init_game();
 int  cont_game();
 void restart_level();
-int  load_quest(gamedata *g, bool report=true);
+int  load_quest(gamedata *g, bool report=true, byte printmetadata = 0);
 void show_details();
 void show_ffscript_names();
 //int  init_palnames();
@@ -183,6 +184,7 @@ void show_ffscript_names();
 int get_currdmap();
 int get_dlevel();
 int get_currscr();
+int get_currmap();
 int get_homescr();
 int get_bmaps(int si);
 bool no_subscreen();
@@ -235,15 +237,15 @@ enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE,
 	SAVESC_CURSOR_CSET, 		SAVESC_CUR_SOUND,  		SAVESC_TEXT_CONTINUE_COLOUR, 
 	SAVESC_TEXT_SAVE_COLOUR, 	SAVESC_TEXT_RETRY_COLOUR, 	SAVESC_TEXT_CONTINUE_FLASH, 
 	SAVESC_TEXT_SAVE_FLASH, 	SAVESC_TEXT_RETRY_FLASH,	SAVESC_MIDI,
-	SAVESC_CUR_FLIP, 		SAVSC_TEXT_DONTSAVE_COLOUR, 	SAVESC_TEXT_SAVEQUIT_COLOUR, 
-	SAVESC_TEXT_SAVE2_COLOUR, 	SAVESC_TEXT_QUIT_COLOUR, 	SAVSC_TEXT_DONTSAVE_FLASH,
+	SAVESC_CUR_FLIP, 		    SAVESC_TEXT_DONTSAVE_COLOUR, 	SAVESC_TEXT_SAVEQUIT_COLOUR, 
+	SAVESC_TEXT_SAVE2_COLOUR, 	SAVESC_TEXT_QUIT_COLOUR, 	SAVESC_TEXT_DONTSAVE_FLASH,
 	SAVESC_TEXT_SAVEQUIT_FLASH,	SAVESC_TEXT_SAVE2_FLASH, 	SAVESC_TEXT_QUIT_FLASH,
 	SAVESC_EXTRA1, 			SAVESC_EXTRA2,			SAVESC_EXTRA3,			
 	SAVESC_LAST	};
 
 extern long SaveScreenSettings[24]; //BG, Text, Cursor CSet, MIDI
 //Save Screen text. 
-enum { SAVESC_CONTINUE, SAVESC_SAVE, SAVESC_RETRY, SAVESC_STRING_MISC1, SAVESC_STRING_MISC2, SAVESC_STRING_MISC3 };
+enum { SAVESC_CONTINUE, SAVESC_SAVE, SAVESC_RETRY, SAVESC_DONTSAVE, SAVESC_SAVEQUIT, SAVESC_SAVE2, SAVESC_QUIT, SAVESC_END };
 extern char SaveScreenText[7][32]; //(char *) "CONTINUE", (char *) "SAVE", (char*) "RETRY" , 
 					//DON'T SAVE, SAVE AND QUIT, SAVE, QUIT
 extern void SetSaveScreenSetting(int indx, int value);
@@ -254,7 +256,7 @@ INLINE void sfx(int index)
 }
 INLINE void sfx(int index,int pan)
 {
-    sfx(index,vbound(pan, 0, 255) ,false);
+	sfx(index,util::vbound(pan, 0, 255) ,false);
 }
 
 bool isSideViewGravity(int t = 0);
@@ -281,10 +283,13 @@ extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir,
 extern int strike_hint_counter;
 extern int strike_hint_timer;
 extern int strike_hint;
+extern signed char pause_in_background_menu_init;
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
 extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_txt_bmp_buf, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf, *msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp, *script_menu_buf, *f6_menu_buf;
+extern BITMAP   *darkscr_bmp_curscr, *darkscr_bmp_scrollscr,
+                *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr_trans;
 extern BITMAP *zcmouse[4];
 extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
@@ -336,7 +341,7 @@ extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of bla
 extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
 */
 extern bool ewind_restart;
-extern word     msgclk, msgstr, msgpos, msgptr, msg_count, msgcolour, msgspeed,msg_w,
+extern word     msgclk, msgstr, enqueued_str, msgpos, msgptr, msg_count, msgcolour, msgspeed,msg_w,
        msg_h,
        msg_count,
        msgorig,
@@ -346,7 +351,7 @@ extern word     msgclk, msgstr, msgpos, msgptr, msg_count, msgcolour, msgspeed,m
        cursor_y;
 extern byte msg_margins[4];
 extern int prt_tile;
-extern byte prt_cset, prt_x, prt_y, prt_tw, prt_th;
+extern byte prt_cset, prt_x, prt_y, prt_tw, prt_th, msg_shdtype, msg_shdcol;
 extern bool msg_onscreen, msg_active,msgspace;
 extern FONT	*msgfont;
 extern word     door_combo_set_count;
@@ -384,7 +389,7 @@ extern char *SAVE_FILE;
 
 extern int homescr,currscr,frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map;
 extern int newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
-extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn;
+extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
 extern int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 extern bool analog_movement;
 extern int joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
@@ -421,7 +426,7 @@ extern int SnapshotFormat, NameEntryMode;
 
 extern int add_asparkle, add_bsparkle;
 
-extern bool show_layer_0, show_layer_1, show_layer_2, show_layer_3, show_layer_4, show_layer_5, show_layer_6, show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts;
+extern bool show_layer_0, show_layer_1, show_layer_2, show_layer_3, show_layer_4, show_layer_5, show_layer_6, show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts, show_effectflags;
 
 extern int    cheat_goto_dmap, cheat_goto_screen;
 extern char   cheat_goto_dmap_str[4];

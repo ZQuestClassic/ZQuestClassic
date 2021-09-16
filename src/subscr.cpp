@@ -2540,14 +2540,17 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
         {
         case dmOVERW:
         case dmBSOVERW:
-        
-            if(DMaps[get_currdmap()].minimap_1_tile)
+		{
+            int maptile=(!get_bit(quest_rules, qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
+            int mapcset=(!get_bit(quest_rules, qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
+            //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
+            if(maptile)
             {
-                draw_block(dest,x,y,DMaps[get_currdmap()].minimap_1_tile,DMaps[get_currdmap()].minimap_1_cset,5,3);
+                draw_block(dest,x,y,maptile,mapcset,5,3);
             }
-            else if(c.new_overworld_map_tile)
+            else if(c.new_overworld_map_tile || c.overworld_map_tile)
             {
-                draw_block(dest,x,y,c.new_overworld_map_tile,c.overworld_map_cset,5,3);
+                draw_block(dest,x,y,(c.new_overworld_map_tile!=0?c.new_overworld_map_tile:c.overworld_map_tile),c.overworld_map_cset,5,3);
             }
             else
             {
@@ -2560,9 +2563,10 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
             }
             
             break;
-            
+        }
         case dmDNGN:
         case dmCAVE:
+		{
             int maptile=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
             int mapcset=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
             //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
@@ -2570,9 +2574,9 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
             {
                 draw_block(dest,x,y,maptile,mapcset,5,3);
             }
-            else if(c.new_dungeon_map_tile)
+            else if(c.new_dungeon_map_tile||c.dungeon_map_tile)
             {
-                draw_block(dest,x,y,c.new_dungeon_map_tile,c.dungeon_map_cset,5,3);
+                draw_block(dest,x,y,(c.new_dungeon_map_tile!=0?c.new_dungeon_map_tile:c.dungeon_map_tile),c.dungeon_map_cset,5,3);
             }
             else
             {
@@ -2592,6 +2596,7 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
             }
             
             break;
+		}
         }
     }
     
@@ -2642,20 +2647,22 @@ void lifemeter(BITMAP *dest,int x,int y,int tile,bool bs_style)
     {
         y+=24;
     }
-    
-    for(int i=0; i<(game != NULL ? zc_min(game->get_maxlife(),16*24) : 1); i+=HP_PER_HEART)
+    const int basetile = FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? (wpnsbuf[iwQuarterHearts].newtile) : (wpnsbuf[iwQuarterHearts].tile);
+    const int max_iter = (game != NULL ? zc_min(game->get_maxlife(),game->get_hp_per_heart()*24) : 1);
+	const int inc = (game != NULL ? game->get_hp_per_heart() : 16);
+	for(int i=0; i<max_iter; i+=inc)
     {
         if(game != NULL)
         {
             if(get_bit(quest_rules,qr_QUARTERHEART))
             {
-                if(i+((HP_PER_HEART/4)*3)>=game->get_life()) tile= FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? (wpnsbuf[iwQuarterHearts].newtile*4)+2 : (wpnsbuf[iwQuarterHearts].tile*4)+2;
+                if(i+((game->get_hp_per_heart()/4)*3)>=game->get_life()) tile= (basetile*4)+2;
                 
-                if(i+(HP_PER_HEART/2)>=game->get_life()) tile=1;
+                if(i+(game->get_hp_per_heart()/2)>=game->get_life()) tile=1;
                 
-                if(i+((HP_PER_HEART/4)*1)>=game->get_life()) tile= FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? (wpnsbuf[iwQuarterHearts].newtile*4)+3 : (wpnsbuf[iwQuarterHearts].tile*4)+3;
+                if(i+((game->get_hp_per_heart()/4)*1)>=game->get_life()) tile= (basetile*4)+3;
             }
-            else if(i+(HP_PER_HEART/2)>=game->get_life()) tile=1;
+            else if(i+(game->get_hp_per_heart()/2)>=game->get_life()) tile=1;
             
             if(i>=game->get_life()) tile=4;
         }
@@ -2693,7 +2700,7 @@ void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int n
             return;
     }
     
-    int containers=game->get_maxmagic()/MAGICPERBLOCK;
+    int containers=game->get_maxmagic()/game->get_mp_per_block();
     int tile=rand()%32767, cset=rand()%15;
     bool mod_value=(rand()%2)!=0;
     
@@ -2724,26 +2731,26 @@ void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int n
     
     if(mod_value)
     {
-        if(game->get_magic()>=container*MAGICPERBLOCK)
+        if(game->get_magic()>=container*game->get_mp_per_block())
         {
             //tile=tile;                                        //full block
-            if(game->get_magic()==container*MAGICPERBLOCK)
+            if(game->get_magic()==container*game->get_mp_per_block())
             {
                 if(unique_last)
                 {
-                    tile+=35;
+                    tile+=game->get_mp_per_block()+3;
                 }
             }
         }
         else
         {
-            if(((container-1)*MAGICPERBLOCK)>game->get_magic())
+            if(((container-1)*game->get_mp_per_block())>game->get_magic())
             {
                 tile+=4;                                //empty block
             }
             else
             {
-                tile+=4+((game->get_magic()-((container-1)*MAGICPERBLOCK))%MAGICPERBLOCK);
+                tile+=4+((game->get_magic()-((container-1)*game->get_mp_per_block()))%game->get_mp_per_block());
             }
         }
     }
@@ -2761,7 +2768,7 @@ void lifegauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int no
     speed=speed;
     delay=delay;
     
-    int containers=game->get_maxlife()/HP_PER_HEART;
+    int containers=game->get_maxlife()/game->get_hp_per_heart();
     int tile=rand()%32767, cset=rand()%15;
     bool mod_value=(rand()%2)!=0;
     
@@ -2792,26 +2799,26 @@ void lifegauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int no
     
     if(mod_value)
     {
-        if(game->get_life()>=container*HP_PER_HEART)
+        if(game->get_life()>=container*game->get_hp_per_heart())
         {
             //tile=tile;                                        //full block
-            if(game->get_life()==container*HP_PER_HEART)
+            if(game->get_life()==container*game->get_hp_per_heart())
             {
                 if(unique_last)
                 {
-                    tile+=19;
+                    tile+=game->get_hp_per_heart()+3;
                 }
             }
         }
         else
         {
-            if(((container-1)*HP_PER_HEART)>game->get_life())
+            if(((container-1)*game->get_hp_per_heart())>game->get_life())
             {
                 tile+=4;                                //empty block
             }
             else
             {
-                tile+=4+((game->get_life()-((container-1)*HP_PER_HEART))%HP_PER_HEART);
+                tile+=4+((game->get_life()-((container-1)*game->get_hp_per_heart()))%game->get_hp_per_heart());
             }
         }
     }
@@ -2837,9 +2844,9 @@ void magicmeter(BITMAP *dest,int x,int y)
         overtile8(dest,(mmtile*4)+1,x-10,y,mmcset,0);
     }
     
-    for(int i=0; i<game->get_maxmagic(); i+=MAGICPERBLOCK)
+    for(int i=0; i<game->get_maxmagic(); i+=game->get_mp_per_block())
     {
-        if(game->get_magic()>=i+MAGICPERBLOCK)
+        if(game->get_magic()>=i+game->get_mp_per_block())
         {
             tile=mmtile*4;                                        //full block
         }
@@ -2851,7 +2858,7 @@ void magicmeter(BITMAP *dest,int x,int y)
             }
             else
             {
-                tile=((mmtile+1)*4)+((game->get_magic()-i)%MAGICPERBLOCK);
+                tile=((mmtile+1)*4)+((game->get_magic()-i)%game->get_mp_per_block());
             }
         }
         
@@ -2911,8 +2918,8 @@ void putxnum(BITMAP *dest,int x,int y,int num,FONT *tempfont,int color,int shado
 
 /****  Subscr items code  ****/
 
-item *Bitem = NULL, *Aitem = NULL;
-int   Bid = 0, Aid = 0;
+item *Bitem = NULL, *Aitem = NULL, *Yitem = NULL, *Xitem = NULL;
+int   Bid = 0, Aid = 0, Xid = 0, Yid = 0;
 
 void reset_subscr_items()
 {
@@ -2927,8 +2934,19 @@ void reset_subscr_items()
         delete Bitem;
         Bitem = NULL;
     }
+    if(Yitem)
+    {
+        delete Yitem;
+        Yitem = NULL;
+    }
     
-    Aid = Bid = 0;
+    if(Xitem)
+    {
+        delete Xitem;
+        Xitem = NULL;
+    }
+    
+    Aid = Bid = Yid = Xid = 0;
 }
 
 
@@ -3006,11 +3024,87 @@ void update_subscr_items()
         }
     }
     
+    if(Xid != Xwpn)
+    {
+        Xid = 0;
+        
+        if(Xitem)
+        {
+            delete Xitem;
+            Xitem = NULL;
+        }
+        
+        if(Xwpn > 0)
+        {
+            Xitem = new item((zfix)0, (zfix)0,(zfix)0,Xwpn&0x0FFF, 0, 0);
+            
+            switch(itemsbuf[Xwpn&0x0FFF].family)
+            {
+            case itype_arrow:
+                if((Xwpn&0xF000)==0xF000)
+                {
+                    Xitem->dummy_bool[0]=true;
+                }
+                
+                break;
+		//default: break;
+            }
+            
+            if(Xitem != NULL)
+            {
+                Xid = Xwpn;
+                Xitem->yofs = 0;
+                Xitem->pickup |= ipDUMMY;
+            }
+        }
+    }
+    
+    if(Yid != Ywpn)
+    {
+        Yid = 0;
+        
+        if(Yitem)
+        {
+            delete Yitem;
+            Yitem = NULL;
+        }
+        
+        if(Ywpn > 0)
+        {
+            Yitem = new item((zfix)0, (zfix)0,(zfix)0,Ywpn&0x0FFF, 0, 0);
+            
+            switch(itemsbuf[Ywpn&0x0FFF].family)
+            {
+            case itype_arrow:
+                if((Ywpn&0xF000)==0xF000)
+                {
+                    Yitem->dummy_bool[0]=true;
+                }
+                
+                break;
+		//default: break;
+            }
+            
+            if(Yitem != NULL)
+            {
+                Yid = Ywpn;
+                Yitem->yofs = 0;
+                Yitem->pickup |= ipDUMMY;
+            }
+        }
+    }
+    
     if(Bitem)
         Bitem->animate(0);
         
     if(Aitem)
         Aitem->animate(0);
+    
+    if(Xitem)
+        Xitem->animate(0);
+        
+    if(Yitem)
+        Yitem->animate(0);
 }
 
 void add_subscr_item(item *newItem)
@@ -3044,32 +3138,82 @@ int stripspaces(char *source, char *target, int stop)
     return (end-begin+1);
 }
 
-// The conditions on which a subcreen item should be displayed.
-bool displaysubscreenitem(int itemtype, int d)
+bool findWeaponWithParent(int id, int type)
 {
-    if(game==NULL)  //ZQuest
-        return true;
-    if (get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) return true;
-        
-    if((itemtype == itype_bomb &&
-            !(game->get_bombs()
-              // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-              || (itemsbuf[current_item_id(itype_bomb)].misc1==0 && Lwpns.idCount(wLitBomb)>0)
-              || current_item_power(itype_bombbag)))
-            || (itemtype == itype_sbomb &&
-                !(game->get_sbombs()
-                  || (itemsbuf[current_item_id(itype_sbomb)].misc1==0 && Lwpns.idCount(wLitSBomb)>0)
-                  || (current_item_power(itype_bombbag)
-                      && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
-        return false;
-        
-    if(itemtype!=itype_bowandarrow ||
-            d!=itype_arrow ||
-            ((get_bit(quest_rules,qr_TRUEARROWS)&&game->get_arrows()) ||
-             (!get_bit(quest_rules,qr_TRUEARROWS)&&game->get_rupies())))
-        return true;
-        
-    return false;
+	for (int q = Lwpns.Count()-1; q >= 0; --q)
+	{
+		weapon *ew = (weapon*)(Lwpns.spr(q));
+		if (ew->id != type || ew->parentitem != id) continue;
+		return true;
+	}
+	return false;
+}
+
+int countWeaponWithParent(int id, int type)
+{
+	int count = 0;
+	for (int q = Lwpns.Count()-1; q >= 0; --q)
+	{
+		weapon *ew = (weapon*)(Lwpns.spr(q));
+		if (ew->id != type || ew->parentitem != id) continue;
+		++count;
+	}
+	return count;
+}
+
+// The conditions on which a subcreen item should be displayed.
+bool displaysubscreenitem(int itemtype, int d, int id)
+{
+	if(game==NULL)  //ZQuest
+		return true;
+	if (get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) return true;
+	//Okay, so the problem is that remote bombs are getting flagged with misc1 50, because
+	//current item id is referring to your highest levelled item instead of the actual item.
+	//Solution here is to have code for override items.
+	if (id < 0)
+	{
+		if((itemtype == itype_bomb &&
+				!(game->get_bombs()
+				  // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+				  || (itemsbuf[current_item_id(itype_bomb)].misc1==0 && Lwpns.idCount(wLitBomb)>0)
+				  || current_item_power(itype_bombbag)))
+				|| (itemtype == itype_sbomb &&
+					!(game->get_sbombs()
+					  || (itemsbuf[current_item_id(itype_sbomb)].misc1==0 && Lwpns.idCount(wLitSBomb)>0)
+					  || (current_item_power(itype_bombbag)
+						  && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
+			return false;
+			
+		if(itemtype!=itype_bowandarrow ||
+				d!=itype_arrow ||
+				((get_bit(quest_rules,qr_TRUEARROWS)&&game->get_arrows()) ||
+				 (!get_bit(quest_rules,qr_TRUEARROWS)&&game->get_rupies())))
+			return true;
+			
+		return false;
+	}
+	else
+	{
+		if((itemtype == itype_bomb &&
+				!(game->get_bombs()
+				  // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+				  || (itemsbuf[id].misc1==0 && findWeaponWithParent(id, wLitBomb))
+				  || current_item_power(itype_bombbag)))
+				|| (itemtype == itype_sbomb &&
+					!(game->get_sbombs()
+					  || (itemsbuf[id].misc1==0 && findWeaponWithParent(id, wLitSBomb))
+					  || (current_item_power(itype_bombbag)
+						  && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
+			return false;
+			
+		if(itemtype!=itype_bowandarrow ||
+				d!=itype_arrow ||
+				((get_bit(quest_rules,qr_TRUEARROWS)&&game->get_arrows()) ||
+				 (!get_bit(quest_rules,qr_TRUEARROWS)&&game->get_rupies())))
+			return true;
+			
+		return false;
+	}
 }
 
 void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
@@ -3100,7 +3244,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
                 Sitems.spr(i)->y = y;
                 Sitems.spr(i)->yofs=0;
                 
-                if(displaysubscreenitem(itemtype, d))
+                if(displaysubscreenitem(itemtype, d, -1))
                 {
                     Sitems.spr(i)->drawzcboss(dest);
                 }
@@ -3117,7 +3261,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
    // if((itemtype & 0x8000) && game->item[itemtype])
     if((itemtype & 0x8000) && 
     (has_item(itemsbuf[itemtype&0xFFF].family,itemsbuf[itemtype&0xFFF].fam_type))
-            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0))
+            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
     {
         if(overridecheck == 0xFFFF)
         {
@@ -3460,8 +3604,10 @@ void animate_selectors()
         sel_b = new item((zfix)0, (zfix)0, (zfix)0, iSelectB, 0, 0);
         
     sel_a->yofs=0;
+	sel_a->subscreenItem=true;
     sel_a->animate(0);
     sel_b->yofs=0;
+	sel_b->subscreenItem=true;
     sel_b->animate(0);
 }
 
@@ -3605,7 +3751,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                 {
                     drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
                 }
-                
+                //zprint2("Button item ID is: %d\n", css->objects[i].d1);
                 buttonitem(dest, css->objects[i].d1, x, y);
                 
                 if(css->objects[i].d2)
@@ -3934,6 +4080,76 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
             
             Bitem->drawzcboss(dest);
         }
+        
+        break;
+	
+	case 2:  //X button
+        if(Xitem&&show_subscreen_items)
+        {
+		//Y button
+		//zprint2("Drawing X Item\n");
+            Xitem->x=x;
+            Xitem->y=y;
+            
+            switch(itemsbuf[Xitem->id].family)
+            {
+            case itype_arrow:
+                if(Xitem && Xitem->dummy_bool[0]==true)
+                {
+                    if(current_item_id(itype_bow)>-1)
+                    {
+                        subscreenitem(dest, x, y, itype_bow);
+                        
+                        if(((get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_arrows()))
+                                ||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_rupies())&&!current_item_power(itype_wallet)))
+                                &&!current_item_power(itype_quiver))
+                        {
+                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
+                        }
+                    }
+                }
+                
+                break;
+            }
+            
+            Xitem->drawzcboss(dest);
+        }
+	//else zprint2("Xitem is NULL\n");
+        
+        break;
+        
+	case 3:  
+        if(Yitem&&show_subscreen_items)
+        {
+		//Y button
+		//zprint2("Drawing Y Item\n");
+            Yitem->x=x;
+            Yitem->y=y;
+            
+            switch(itemsbuf[Yitem->id].family)
+            {
+            case itype_arrow:
+                if(Yitem && Yitem->dummy_bool[0]==true)
+                {
+                    if(current_item_id(itype_bow)>-1)
+                    {
+                        subscreenitem(dest, x, y, itype_bow);
+                        
+                        if(((get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_arrows()))
+                                ||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_rupies())&&!current_item_power(itype_wallet)))
+                                &&!current_item_power(itype_quiver))
+                        {
+                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
+                        }
+                    }
+                }
+                
+                break;
+            }
+            
+            Yitem->drawzcboss(dest);
+        }
+	//else zprint2("Yitem is NULL\n");
         
         break;
         
@@ -4464,12 +4680,14 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int x, int y, int triframecolor,
     if(triframetile==0)
     {
         triframetile=misc->colors.new_triframe_tile;
+	if(triframetile==0) triframetile = misc->colors.triframe_tile;
         triframecset=misc->colors.triframe_cset;
     }
     
     if(triforcetile==0)
     {
         triforcetile=misc->colors.new_triforce_tile;
+	if(triforcetile==0) triforcetile = misc->colors.triforce_tile;
         triforcecset=misc->colors.triforce_cset;
     }
     
@@ -4634,6 +4852,7 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int x, int y, int tile, int cset
     if(tile==0)
     {
         tile=misc->colors.new_triforce_tile;
+	if (tile == 0) tile=misc->colors.triforce_tile;
     }
     
     for(int i=0; i<8; i++)
@@ -4685,13 +4904,13 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
         {
             draw_block(dest,x,y,maptile,mapcset,large?9:7,5);
         }
-        else if(misc->colors.new_dungeon_map_tile)
+        else if(misc->colors.new_dungeon_map_tile||misc->colors.dungeon_map_tile)
         {
             for(int y2=0; y2<5; y2++)
             {
                 for(int x2=0; x2<(large?8:6); x2++)
                 {
-                    overtile16(dest,misc->colors.new_dungeon_map_tile+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),misc->colors.dungeon_map_cset,0);
+                    overtile16(dest,(misc->colors.new_dungeon_map_tile!=0?misc->colors.new_dungeon_map_tile:misc->colors.dungeon_map_tile)+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),misc->colors.dungeon_map_cset,0);
                     //++si;
                 }
             }
@@ -4749,12 +4968,14 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
             roomcolor = misc->colors.bmap_fg;
         }
         
-        si=(get_currdmap()-1)<<6;
+        si=(get_currdmap() << 7);
         
         for(int y2=y+8; y2<y+72; y2+=8)
         {
             for(int x2=x+(large?32:16)+(maptile?8:0); x2<x+(large?96:80)+(maptile?8:0); x2+=8)
             {
+		while(/*DMaps[get_currdmap()].type!=dmOVERW &&*/ ((unsigned)((si&0xF)-DMaps[get_currdmap()].xoff))>7)
+			++si;
                 if(get_bmaps(si))
                 {
                     rectfill(dest,x2+1,y2+1,x2+6,y2+6,roomcolor);
@@ -4794,7 +5015,7 @@ void load_Sitems(miscQdata *misc)
     Sitems.clear();
     
     // HC Pieces
-    if(misc->colors.new_HCpieces_tile)
+    if(misc->colors.new_HCpieces_tile || misc->colors.HCpieces_tile)
     {
         //      item *HCP = new item((zfix)(inventory_x[5]-ofs),(zfix)y,iMax,0,0);
         item *HCP = new item((zfix)0,(zfix)0,(zfix)0,iHCPiece,0,0);
@@ -4802,7 +5023,7 @@ void load_Sitems(miscQdata *misc)
         if(HCP)
         {
             int hcpphc =  game->get_hcp_per_hc();
-            HCP->tile   = misc->colors.new_HCpieces_tile + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
+            HCP->tile   = (misc->colors.new_HCpieces_tile != 0 ? misc->colors.new_HCpieces_tile : misc->colors.HCpieces_tile) + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
             HCP->o_tile = HCP->tile;
             HCP->cs     = misc->colors.HCpieces_cset;
             HCP->frames = 0;

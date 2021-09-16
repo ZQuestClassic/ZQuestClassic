@@ -1345,10 +1345,10 @@ void integrityCheckItemWalkability()
             ts=&TheMaps[m*MAPSCRS+s];
             
             if(ts->item!=0&&
-                    ((combobuf[ts->data[(ts->itemy    &0xF0)+(ts->itemx    >>4)]].walk!=0) ||
-                     (combobuf[ts->data[(ts->itemy    &0xF0)+((ts->itemx+15)>>4)]].walk!=0) ||
-                     (combobuf[ts->data[((ts->itemy+15)&0xF0)+(ts->itemx    >>4)]].walk!=0) ||
-                     (combobuf[ts->data[((ts->itemy+15)&0xF0)+((ts->itemx+15)>>4)]].walk!=0)))
+                    (((combobuf[ts->data[(ts->itemy    &0xF0)+(ts->itemx    >>4)]].walk&15)!=0) ||
+                     ((combobuf[ts->data[(ts->itemy    &0xF0)+((ts->itemx+15)>>4)]].walk&15)!=0) ||
+                     ((combobuf[ts->data[((ts->itemy+15)&0xF0)+(ts->itemx    >>4)]].walk&15)!=0) ||
+                     ((combobuf[ts->data[((ts->itemy+15)&0xF0)+((ts->itemx+15)>>4)]].walk&15)!=0)))
             {
                 if(!type_found)
                 {

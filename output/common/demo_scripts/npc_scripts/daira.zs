@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////
 /// Daira NPC Script for 2.55                     ///
-/// v0.2                                          ///
-/// 7th March, 2019                               ///
+/// v0.3                                          ///
+/// 7th Febryary, 2021                            ///
 ///                                               ///
 /// Original Daira by: Tamamo, and NightmareJames ///
 /// This version, by: ZoriaRPG                    ///
@@ -77,14 +77,13 @@ npc script DairaNPC
 					}
 				}
 			}
-
 			if(attackTimer>0) //Attacking?
 			{
 				if(this->OriginalTile == OTile)
 				{
 					wpn=Screen->CreateEWeapon(EW_BEAM);
-					wpn->Dir = Ghost_Dir;
-					wpn->Step= 200;
+					wpn->Dir = this->Dir;
+					wpn->Step = this->Step;
 					wpn->UseSprite(wSprite);
 					wpn->Damage=damage;
 					wpn->Angular=false;
@@ -136,7 +135,7 @@ npc script DairaNPC
 				if(throw)
 				{
 					wpn=Screen->CreateEWeapon(EW_BEAM);
-					wpn->Dir = Ghost_Dir;
+					wpn->Dir = this->Dir;
 					wpn->Step= 200;
 					wpn->UseSprite(wSprite);
 					wpn->Damage=damage;
@@ -145,6 +144,7 @@ npc script DairaNPC
 					
 					this->OriginalTile = this->OriginalTile + 80 + (this->Dir*4);
 				}
+				else wpn->DeadState = WDS_DEAD;
 			}
 			if(this->HP <= 0)
 			{
@@ -164,41 +164,47 @@ npc script DairaNPC
 		wpn->HitHeight = 16;
 
 		//Modify it based off attack frame.
-		if(frame == 1)
+		switch(frame)
 		{
-			if(dir == DIR_UP || dir == DIR_DOWN)
+			case 1:
 			{
-				wpn->CollDetection = false;
+				if(dir == DIR_UP || dir == DIR_DOWN)
+				{
+					wpn->CollDetection = false;
+					return;
+				}
+				else
+					wpn->HitWidth = 8;
+				if(dir == DIR_RIGHT)
+					wpn->HitXOffset = 8;
+				break;
+			}
+			case 2:
+			{
+				if(dir == DIR_UP || dir==DIR_DOWN)
+				{
+					wpn->HitHeight = 8;
+					return;
+				}
+				else
+					wpn->HitWidth = 8;
+				if(dir == DIR_LEFT)
+				wpn->HitXOffset = 8; 
+				break;
+			}
+			case 3:
+			{
+				wpn->HitXOffset = Cond(dir==DIR_LEFT, 8, 0);
+				wpn->HitYOffset = Cond(dir==DIR_UP, 8, 0);
+				wpn->HitWidth = Cond(dir==DIR_LEFT||dir==DIR_RIGHT, 8, 16);
+				wpn->HitHeight = Cond(dir==DIR_UP||dir==DIR_DOWN, 8, 16);
+				break;
+			}
+			default: //Out of range.
+			{
+				wpn->DeadState = WDS_DEAD;
 				return;
 			}
-			else
-				wpn->HitWidth = 8;
-			if(dir == DIR_RIGHT)
-				wpn->HitXOffset = 8;
-		}
-		else if(frame == 2)
-		{
-			if(dir == DIR_UP || dir==DIR_DOWN)
-			{
-				wpn->HitHeight = 8;
-				return;
-			}
-			else
-				wpn->HitWidth = 8;
-			if(dir == DIR_LEFT)
-			wpn->HitXOffset = 8; 
-		}
-		else if(frame == 3)
-		{
-			wpn->HitXOffset = Cond(dir==DIR_LEFT, 8, 0);
-			wpn->HitYOffset = Cond(dir==DIR_UP, 8, 0);
-			wpn->HitWidth = Cond(dir==DIR_LEFT||dir==DIR_RIGHT, 8, 16);
-			wpn->HitHeight = Cond(dir==DIR_UP||dir==DIR_DOWN, 8, 16);
-		}
-		else //Out of range.
-		{
-			wpn->DeadState = WDS_DEAD;
-			return;
 		}
 	}
 }

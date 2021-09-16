@@ -1,8 +1,8 @@
 /*************************************
 *     Combo Editor - Attributes      *
 *         Flags and Triggers         *
-*           2.55 Alpha 45            *
-*     Rev.4, 30th December, 2019     *
+*           2.55 Alpha 95            *
+*         13th August, 2021          *
 *************************************/
 
 1. COMBO TYPES
@@ -10,6 +10,10 @@ The following combo types are new:
 	Generic
 		This is a generic combo where you, as the user, may define 
 		a number of properties that are governed by the ZC engine.
+		
+	Step->Effects
+		This combo type has special effects if the player walks on
+		top of it. 
 
 These additional combo types support extra features:
 	Script 1 to 20
@@ -45,15 +49,20 @@ These additional combo types support extra features:
 	Step Types
 		Step->Next, and Step->Secret combo types now allow setting a sound
 		effect to play when the Hero steps on them.
+	
+	Chest types
+		Chest, Locked Chest, and Boss Locked Chest now allow a 'button' to be assigned.
+		This only works if the 'Old Chest Collision' QR is disabled.
 
 2. TRIGGER WEAPONS
 	Combos now have a set of flags with which you can set weapons that trigger
 	their new properties. 
 
 3. ATTRIBUTES
-	Combos now have two sets of numeric attributes, on two tabs in the Combo Editor.
-	The values on Attributes Tab 1 are restricted to a range of 0 to 255, and the 
-	values on Attributes Tab 2 are restricted to a range of -214748.3648 to 214748.3647.
+	Combos now have three sets of numeric attributes, on three tabs in the Combo Editor.
+	The values on Attribytes Tab are restricted to a range of 0 to 255,
+	The values on Attrishorts Tab are restricted to a range of -32768 to 32767,
+	and the values on Attributes Tab are restricted to a range of -214748.3648 to 214748.3647.
 	
 4. FLAGS
 	Combos now have flags that affect their function, and interact with the values set
@@ -343,7 +352,7 @@ Custom (Script) 1 to 20
 
 
     ____                                      ______                __              
-   / __ \____ _____ ___  ____ _____ ____     / ____/___  ____ ___  / /_  ____  _____
+   / __ \____  ____ ___  ____  ____  ___     / ____/___  ____ ___  / /_  ____  _____
   / / / / __ `/ __ `__ \/ __ `/ __ `/ _ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
  / /_/ / /_/ / / / / / / /_/ / /_/ /  __/  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
 /_____/\__,_/_/ /_/ /_/\__,_/\__, /\___/   \____/\____/_/ /_/ /_/_.___/\____/____/  
@@ -354,7 +363,133 @@ Damage Combos
 	You may now specify an exact damage amount for this combo type.
 	If you wish to set an amount, first enable the 'Custom' flag on Attributes Tab 1,
 	then specify an amount of HP in the Amount field on Attributes Tab 2.
+	
 
+   _____ __               __    ______________          __      
+  / ___// /____  ____     \ \  / ____/ __/ __/__  _____/ /______
+  \__ \/ __/ _ \/ __ \_____\ \/ __/ / /_/ /_/ _ \/ ___/ __/ ___/
+ ___/ / /_/  __/ /_/ /_____/ / /___/ __/ __/  __/ /__/ /_(__  ) 
+/____/\__/\___/ .___/     /_/_____/_/ /_/  \___/\___/\__/____/  
+             /_/                                                
+Step->Effects
+	This combo type allows for special effects when the player walks over it.
+	You can set this combo type to play a sound when the player is waking on it,
+	or to create a landmine effect.
+	
+	Attributes Tab 1
+	
+		Sound
+			This sound will play when the player is walking over the combo.
+			
+		Weapon Type
+			The weapon type generated if the Landmine flag is enabled.
+			The default (0) is a bomb blast eweapon.
+			Legal values are:
+			
+			0: Enemy Bomb Explosion, default, hurts player.
+			
+			Player Weapon Types
+			2 wBeam: The player sword beam; hurts enemies.
+			3 wBrang: The player boomerang; hurts enemies.
+			4 wBomb: The player bomb explosion; hurts enemies, may hurt player.
+			5 wSBomb: The player super bomb explosion; hurts enemies, may hurt player.
+			6 wLitBomb: The player bomb weapon; hurts enemies, may hurt player.
+			7 wLitSBomb: The player super bomb weapon; hurts enemies, may hurt player.
+			8 wArrow: The player arrow weapon; hurts enemies.
+			9 wFire: The player fire weapon; hurts enemies, may hurt player.
+			10 wWhistle: The player whistle weapon; hurts enemies.
+			11 wBait: The player bait weapon; attracts enemies.
+			13 wMagic:The player magic weapon; hurts enemies.
+			14 wWind: The player whistle wind.
+			16 wRefMagic: The reflected enemy magic weapon; hurts enemies.
+			17 wRefFireball: The reflected enemy fireball weapon; hurts enemies.
+			18 wRefRock: The reflected enemy rock weapon; hurts enemies.
+			23 wSSparkle: The player sparkle weapon; may hurt enemies.
+			24 wFSparkle: The player fire sparkle weapon; may hurt enemies.
+			28 wRefBeam: The reflected enemy sword bea weapon; hurts enemies.
+			
+			Custom/Script Types
+			31 wScript1: Custom/Script 01; may be set as an eweapon, or as an lweapon.
+			32 wScript2: Custom/Script 02; may be set as an eweapon, or as an lweapon.
+			33 wScript3: Custom/Script 03; may be set as an eweapon, or as an lweapon.
+			34 wScript4: Custom/Script 04; may be set as an eweapon, or as an lweapon.
+			35 wScript5: Custom/Script 05; may be set as an eweapon, or as an lweapon.
+			36 wScript6: Custom/Script 06; may be set as an eweapon, or as an lweapon.
+			37 wScript7: Custom/Script 07; may be set as an eweapon, or as an lweapon.
+			38 wScript8: Custom/Script 08; may be set as an eweapon, or as an lweapon.
+			39 wScript9: Custom/Script 09; may be set as an eweapon, or as an lweapon.
+			40 wScript10:  Custom/Script 10; may be set as an eweapon, or as an lweapon.
+			
+			41 wIce: The player ice magic weapon; not fully implemented.
+			42 wFlame: The player flame magic weapon; not fully implemented.
+			43 wSound: The player sonic magic weapon; not fully implemented.
+			
+			Enemy Weapon Types
+			129 ewFireball: Enemy fireball; hurts player.
+			130 ewArrow: Enemy arrow; hurts player.
+			131 ewBrang: Enemy boomerang; hurts player.
+			132 ewSword: Enemy sword beam; hurts player.
+			133 ewRock: Enemy rock projectile; hurts player.
+			134 ewMagic: Enemy magic projectile; hurts player.
+			135 ewBomb: Enemy bomb weapon; hurts player.
+			136 ewSBomb: Enemy super bomb weapon; hurts player.
+			137 ewLitBomb: Enemy bomb explosion; hurts player.
+			138 ewLitSBomb: Enemy super bomb explosion; hurts player.
+			139 ewFireTrail: Enemy fire trail weapon; hurts player.
+			140 ewFlame: Enemy flame weapon; hurts player.
+			141 ewWind: Enemy wind weapon; teleports player to start of a dmap.
+			142 ewFlame2: Enemy flame 'type 2' weapon; hurts player.
+			143 ewFlame2Trail: Enemy fire trail 'type 2' weapon; hurts player.
+			144 ewIce: Enemy ice weapon; hurts player; not fully implemented.
+			145 ewFireball2: Enemy boss fireball weapon.
+			
+			All other values have the same effect as 0, but are reserved for future expansion.
+			
+		Initial Dir
+			The initial direction of the weapon created for landmine effects.
+			The default is up (0).
+			Legal values are:
+			0: Up
+			1: Down
+			2: Left
+			3: Right
+			4: Diagonal Up-Left
+			5: Diagonal Up-Right
+			6: Diagonal Down-Left
+			7: Diagonal Down-Right
+			8+ : RANDOM
+			
+		Sprite
+			If set between 1 and 255, the weapon will use this sprite, rather than its default sprite.
+			
+		Damage
+			The damage of the landmine weapon. The default when this field is
+			zero, is '4'.
+	
+	Attributes Tab 2
+	
+		Landmine
+			If enabled, the combo will create a weapon when the player walks over it.
+			
+		wCustom is LWeapon
+			If the weapon type is a Custom/Script ID, it will default to being an eweapon.
+			Set this flag to create lweapon Custom/Script landmines (that affect enemes).
+			
+		Don't Advance
+			By default, if the Landmine flag is enabled, the combo will advance as Step->Next
+			when the weapon is activated. If you enable this flag, then the combo will not 
+			advance, and repeatedly walking on it will create weapons each step.
+			This has no effect if the Landmine flag is disabled.
+			
+		Direct Damage
+			If the weapon type is an lweapon of a Custom/Script type, a Sparkle type, or
+			a Fire Sparkle type, then you may also set it to deal direct damage without
+			knocking the player backwards. This is useful, e.g., for fire floor tiles where 
+			you want to create a fire sprite behind the player and damage the player if
+			they walk on them, every few steps. 
+			
+			This option respects ring damage divisors. 
+	
 
     __               __   __    __           __      ______                __              
    / /   ____  _____/ /__/ /_  / /___  _____/ /__   / ____/___  ____ ___  / /_  ____  _____
@@ -621,4 +756,181 @@ Step Combos
 		Sound
 			The ID of the sound effect to play. Set to '0' for 'none'.
 			
-To-do: Chests
+    ____  _   __    ______                __              
+   / __ \(_)_/ /_  / ____/___  ____ ___  / /_  ____  _____
+  / /_/ / // ___/ / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+ / .___/ // /_   / /___/ /_/ / / / / / / /_/ / /_/ (__  )
+/_/   /_/ \__/   \____/\____/_/ /_/ /_/_.___/\____/____/   
+Pitfall Combos
+	
+	Attribytes
+		Fall SFX        : The ID of the sound for when something falls in this pit combo.
+						
+		TileWarp ID     : The screen tile warp ID to use if the flag 'Warp' is enabled.
+				: Legal values are 0 to 3, where 0 is Warp A, 1 is Warp B, 2 is Warp C, 
+				: and 3 is Warp D. 
+				: If the 'direct' flag is enabled, the Warp ID us used for everything
+				: other than the destination square.
+				This interacts with the following flags:
+				Warp, Direct
+						
+		Pit Sensitivity	: The strength of the pit attraction, where the pull is 1 pixel/n frames. 
+				: Higher numbers represent a weaker attractive force (pull).
+		                : For value 0: 2px/frame
+		                : For value n: 1px/n frames
+				This interacts with the following flags:
+				No Pull
+	
+	Attributes
+		Damage          : The amount of damage (in HP, not hearts) the player  take when falling.
+		                : A negative value will heal the player by an absolute amount of HP. 
+				: If flag 'Damage is Percent' is enabled, this value is a percent of MaxHP, rather
+				: than a literal amount of HP. Thus, 25 with the percentage flag enabled, where
+				: the player has four hearts, will reduce their HP by one heart; however if the player has
+				: sixteen hearts, falling will reduce their HP by 4 hearts. 
+				: If the damage value is negative when using this flag, then the player will regain
+				: up to, but not exceeding n% of their maximum HP. 
+				: Ring damage modifiers DO NOT modify falling damage. 
+				This interacts with the following flags:
+				Damage is Percent
+			
+	Flags
+		Warp
+			If enabled, when the player falls in, they will warp with the attributes set up for
+			one of the four screen Tile Warps.
+			The destination and the warp attributes are determined by the Attribyte 'TileWarp ID'.
+			
+			If disabled, the player will respawn at the room entrance, as with falling into water
+			without the ability to swim.
+		Direct Warp
+			If enabled, the warp will be 'direct', matching the player's X and Y coordinates on the
+			warp destination screen, with the coordinates at which they fell into the pit combo.
+			If disabled, the warp will place you on the return square specified in the tilewarp dialog
+		Damage is Percent
+			If enabled, the 'Damage' attribyte is read as a percentage of your max HP.
+			If disabled, it is read as a literal amount of HP (not hearts!)
+		Allow Ladder
+			If enabled, ladder class items, with the flag 'Can Ladder Over Pitfalls' enabled can be used
+			to cross this combo.
+		No Pull
+			If enabled, the pit pulling you towards it effect is entirely disabled. 
+			The player will fall when their hitbox is fully over the pit. 
+   ________              __     ______                __    
+  / ____/ /_  ___  _____/ /_   / ____/___  ____ ___  / /_  ____  _____
+ / /   / __ \/ _ \/ ___/ __/  / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+/ /___/ / / /  __(__  ) /_   / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+\____/_/ /_/\___/____/\__/   \____/\____/_/ /_/ /_/_.___/\____/____/  
+
+Chest Combos
+	Attribytes
+		Button
+			A bitwise value representing what buttons to use
+			  A = 1
+			  B = 2
+			  L = 4
+			  R = 8
+			  Ex1 = 16
+			  Ex2 = 32
+			  Ex3 = 64
+			  Ex4 = 128
+			To use multiple buttons, add their values together.
+			If the value '0' is used, the chest will be opened when you walk into it.
+	Flags
+		"Can't use from [dir]"
+			If enabled, prevents opening from the given side of the combo.
+			
+   _____ _                ______                __              
+  / ___/(_)___  ____     / ____/___  ____ ___  / /_  ____  _____
+  \__ \/ / __ `/ __ \   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/
+ ___/ / / /_/ / / / /  / /___/ /_/ / / / / / / /_/ / /_/ (__  ) 
+/____/_/\__, /_/ /_/   \____/\____/_/ /_/ /_/_.___/\____/____/ 
+       /____/        
+
+Sign Combos
+	Attributes
+		String
+			This represents what message to be displayed.
+			Values:
+				1 to 65535: Displays the numbered string
+				-1: Displays the screen's string
+				-2: Displays the string with the number matching the screen's Catch All value
+				-10 to -17: Displays the string stored in "Screen->D[0 to 7]"
+				Any other value will cause the combo to fail (no message displayed)
+	Attribytes
+		Button
+			A bitwise value representing what buttons to use
+			  A = 1
+			  B = 2
+			  L = 4
+			  R = 8
+			  Ex1 = 16
+			  Ex2 = 32
+			  Ex3 = 64
+			  Ex4 = 128
+			To use multiple buttons, add their values together.
+			If the value '0' is used, the sign will be read when you walk into it.
+	Flags
+		"Can't use from [dir]"
+			If enabled, prevents reading from the given side of the combo.
+
+
+   ______                 __        __    _____           _ __       __
+  / ____/______  __ _____/ /_ ___  / /   / ___/__  __  _ (_/ /______/ /_
+ / /   / ___/ / /  / ___/ __/ __ `/ /    \__ \/ / / / / / / __/ ___/ __ \
+/ /___/ /  / /_/  (__  ) /_/ /_/ / /    ___/ / /_/ /_/ / / /_/ /__/ / / /
+\____/_/  /____, /____/\__/\__,_/_/    /____/____,____/_/\__/\___/_/ /_/
+           ___/ /
+          /____/
+
+Crystal Switches / Switch Combos
+	Attribytes
+		State Num
+			A value (0-31) representing what switch state to toggle with this switch
+		SFX
+			The SFX to play when this combo is triggered (0 for none)
+	Flags
+		Kill Wpn
+			Kill the LWeapon that triggered this combo
+		Skip Cycle on Screen Entry
+			If the combo that would be shifted to via 'Combo Change' has combo cycling, and this is enabled,
+				the combo cycling will occur instantly (continuously until it hits a combo without cycling).
+			This is meant to allow 'rising/falling' animations, without having them replay every time you
+				re-enter a room.
+	Attributes
+		Combo Change
+			How much to change the combo by after being hit (ex. 1 = Next, -1 = Previous)
+		CSet Change
+			How much to change the CSet by after being hit (ex. 1 = Next, -1 = Previous)
+			Wraps the same way that CSet2 does
+			
+Switch Block Combos
+	Attribytes
+		State Num
+			A value (0-31) representing what switch state to toggle with this switch
+	Attributes
+		Combo Change
+			How much to change the combo by after being hit (ex. 1 = Next, -1 = Previous)
+		CSet Change
+			How much to change the CSet by after being hit (ex. 1 = Next, -1 = Previous)
+			Wraps the same way that CSet2 does
+		Z-Value
+			If the "Allow walk-on-top" flag is enabled, and this value is >0, then:
+				If the player's Z is > the value, they treat the combo as walkable
+		Step Height
+			If the "Allow walk-on-top" flag is enabled, this value is a 'leeway' to reach the Z-Value
+	Flags
+		Change L#:
+			The combo in the same position on layer # will also be shifted based on 'Combo Change'/'CSet Change'
+		Skip Cycle on Screen Entry
+			If the combo that would be shifted to via 'Combo Change' has combo cycling, and this is enabled,
+				the combo cycling will occur instantly (continuously until it hits a combo without cycling).
+			This is meant to allow 'rising/falling' animations, without having them replay every time you
+				re-enter a room.
+		Allow walk-on-top
+			If enabled, when the Player is stuck inside the combo, the Player treats all combos
+				of this type with this flag enabled as walkable (walking atop them)
+		-8px DrawYOffset
+			If enabled, when the Player stands atop the block (solid area), the player's DrawYOffset is decremented by 8.
+				When the Player leaves the block, the DrawYOffset is incremented back by 8.
+
+

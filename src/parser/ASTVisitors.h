@@ -62,6 +62,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseImportDecl(ASTImportDecl& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseImportCondDecl(ASTImportCondDecl& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseFuncDecl(ASTFuncDecl& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseDataDeclList(
@@ -180,6 +182,9 @@ namespace ZScript
 		virtual void caseOptionValue(
 				ASTOptionValue& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseIsIncluded(
+				ASTIsIncluded& host, void* param = NULL) {
+			caseDefault(host, param);}
 		// Types
 		virtual void caseScriptType(ASTScriptType& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -271,6 +276,7 @@ namespace ZScript
 		virtual void caseScript(ASTScript& host, void* param = NULL);
 		virtual void caseNamespace(ASTNamespace& host, void* param = NULL);
 		virtual void caseImportDecl(ASTImportDecl& host, void* param = NULL);
+		virtual void caseImportCondDecl(ASTImportCondDecl& host, void* param = NULL);
 		virtual void caseFuncDecl(ASTFuncDecl& host, void* param = NULL);
 		virtual void caseDataDeclList(ASTDataDeclList& host, void* param = NULL);
 		virtual void caseDataEnum(ASTDataEnum& host, void* param = NULL);
@@ -329,6 +335,12 @@ namespace ZScript
 		
 		bool hasFailed() const {return failure;}
 		bool hasTempFailed() const {return failure_temp;}
+		
+		// Signal a compile error if source can't be cast to target.
+		void checkCast(ZScript::DataType const& sourceType,
+		               ZScript::DataType const& targetType,
+		               AST* node = NULL,
+		               bool twoWay = false);
 		
 	protected:
 		// Returns true if we have failed or for some other reason must break out

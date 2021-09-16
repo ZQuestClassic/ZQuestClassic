@@ -21,6 +21,8 @@
 #define MAX_NPC_SPRITES 1024
 #define MAX_ITEM_SPRITES 1024
 
+#define ZSCRIPT_MAX_STRING_CHARS 214748
+
 #define MAX_ZQ_LAYER 6
 #define MAX_DRAW_LAYER 7
 #define MIN_ZQ_LAYER 0
@@ -66,10 +68,13 @@ enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEff
 #define svDMAPS 	0x10
 #define svMAPSCR 	0x20
 
-enum linkspritetype { LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr, 
-	LSprswimspr, LSprdivespr, LSprpoundspr,
-LSprjumpspr, LSprchargespr, LSprcastingspr, 
-	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
+enum linkspritetype
+{
+	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
+	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
+	LSprchargespr, LSprcastingspr, LSprholdspr1, LSprholdspr2,
+	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlavadrownspr, LSprlast
+};
 
 enum zasmBreak
 {
@@ -184,6 +189,69 @@ enum //ScrollingData indexes
 	SCROLLDATA_DIR, SCROLLDATA_NX, SCROLLDATA_NY, SCROLLDATA_OX, SCROLLDATA_OY, SZ_SCROLLDATA
 };
 
+///----------------------------------------------//
+//           New Mapscreen Flags Tools           //
+///----------------------------------------------//
+
+enum mapflagtype
+{
+	// Room Types
+	MSF_INTERIOR, MSF_DUNGEON, MSF_SIDEVIEW,
+	
+	// View
+	MSF_INVISLINK, MSF_NOLINKMARKER, MSF_NOSUBSCREEN, MSF_NOOFFSET,
+	MSF_LAYER2BG, MSF_LAYER3BG, MSF_DARKROOM,
+	
+	// Secrets
+	MSF_BLOCKSHUT, MSF_TEMPSECRETS, MSF_TRIGPERM, MSF_ALLTRIGFLAGS,
+	
+	// Warp
+	MSF_AUTODIRECT, MSF_SENDSIRECT, MSF_MAZEPATHS, MSF_MAZEOVERRIDE,
+	MSF_SPRITECARRY, MSF_DIRECTTIMEDWARPS, MSF_SECRETSISABLETIMEWRP, MSF_RANDOMTIMEDWARP,
+	
+	// Item
+	MSF_HOLDUP, MSF_FALLS,
+	
+	// Combo
+	MSF_MIDAIR, MSF_CYCLEINIT, MSF_IGNOREBOOTS, MSF_TOGGLERINGS,
+	
+	// Save
+	MSF_SAVECONTHERE, MSF_SAVEONENTRY, MSF_CONTHERE, MSF_NOCONTINUEWARP,
+	
+	// FFC
+	MSF_WRAPFFC, MSF_NOCARRYOVERFFC, 
+	
+	// Whistle
+	MSF_STAIRS, MSF_PALCHANGE, MSF_DRYLAKE, 
+	
+	// Enemies
+	MSF_INVISIBLEENEMIES, MSF_TRAPS_IGNORE_SOLID, MSF_EMELIESALWAYSRETURN, MSF_ENEMIES_ITEM, MSF_ENEMEIS_SECRET,
+	MSF_ENEMIES_SECRET_PERM,  
+	
+		//->enemyflags
+		MSF_SPAWN_ZORA, MSF_SPAWN_CORNERTRAP, MSF_SPAWN_MIDDLETRAP, MSF_SPAWN_ROCK, MSF_SPAWN_SHOOTER,
+		MSF_RINGLEADER, MSF_ENEMYHASITEM, MSF_ENEMYISBOSS, 
+	
+	// Misc
+	MSF_ALLOW_LADDER, MSF_NO_DIVING, MSF_SFXONENTRY, MSF_LENSEFFECT,
+		 
+	//Custom / Script 
+	MSF_SCRIPT1,
+	MSF_CUSTOM1 = MSF_SCRIPT1,
+	MSF_SCRIPT2,
+	MSF_CUSTOM2 = MSF_SCRIPT2,
+	MSF_SCRIPT3,
+	MSF_CUSTOM3 = MSF_SCRIPT3,
+	MSF_SCRIPT4,
+	MSF_CUSTOM4 = MSF_SCRIPT4,
+	MSF_SCRIPT5,
+	MSF_CUSTOM5 = MSF_SCRIPT5,
+	
+	MSF_DUMMY_8, 
+	MSF_LAST
+	
+};
+
 //User-generated / Script-Generated bitmap object
 #define UBMPFLAG_RESERVED		0x01
 #define UBMPFLAG_FREEING		0x02
@@ -288,21 +356,67 @@ struct user_rgb
 struct user_file
 {
 	FILE* file;
+	std::string filepath;
 	bool reserved;
 	
-	user_file() : file(NULL), reserved(false) {}
+	user_file() : file(NULL), reserved(false), filepath("") {}
 	
 	void clear()
 	{
 		if(file) fclose(file); //Never leave a hanging FILE*!
 		file = NULL;
 		reserved = false;
+		filepath = "";
 	}
 	
 	void close()
 	{
 		if(file) fclose(file);
 		file = NULL;
+		filepath = "";
+	}
+	
+	int do_remove()
+	{
+		if(file) fclose(file);
+		file = NULL;
+		int r = remove(filepath.c_str());
+		filepath = "";
+		return r;
+	}
+	
+	void setPath(char* buf)
+	{
+		if(buf)
+			filepath = buf;
+		else filepath = "";
+	}
+};
+
+#define MAX_USER_DIRS 256
+struct user_dir
+{
+	FLIST* list;
+	std::string filepath;
+	bool reserved;
+	
+	user_dir() : list(NULL), reserved(false), filepath("") {}
+	
+	void clear();
+	void setPath(const char* buf);
+	void refresh()
+	{
+		if(list)
+			list->load(filepath.c_str());
+		else setPath(filepath.c_str());
+	}
+	int size()
+	{
+		return list->size;
+	}
+	bool get(int index, char* buf)
+	{
+		return list->get(index, buf);
 	}
 };
 
@@ -433,6 +547,9 @@ void getRTC(const bool v);
 long getQuestHeaderInfo(int type);
 void do_graphics_getpixel();
 
+void set_mapscreenflag_state(mapscr *m, int flagid, bool state);
+long get_mapscreenflag_state(mapscr *m, int flagid);
+
 void clearRunningItemScripts();
 bool itemScriptEngine();
 void npcScriptEngineOnWaitdraw();
@@ -444,10 +561,13 @@ void eweaponScriptEngineOnWaitdraw();
 void itemSpriteScriptEngine();
 void itemSpriteScriptEngineOnWaitdraw();
 bool newScriptEngine();
+void warpScriptCheck();
+void runWarpScripts(bool waitdraw);
 void runF6Engine();
 void runOnDeathEngine();
 void runOnLaunchEngine();
 bool runActiveSubscreenScriptEngine();
+bool runOnMapScriptEngine();
 void doScriptMenuDraws();
 void runOnSaveEngine();
 void initIncludePaths();
@@ -464,6 +584,11 @@ void do_strlen(const bool v);
 void do_arraycpy(const bool a, const bool b);
 void AlloffLimited(int flagset);
 void do_xlen(const bool v);
+double ln(double temp);
+double Log2( double n );
+int numDigits(long number);
+int Log10(double temp);
+double LogToBase(double x, double base);
 void do_xtoi(const bool v);
 void do_ilen(const bool v);
 void do_atoi(const bool v);
@@ -480,6 +605,7 @@ void do_ConvertCase(const bool v);
 void do_stricmp();
 void do_strnicmp();
 
+void do_getcomboscript();
 void do_getnpcscript();
 void do_getlweaponscript();
 void do_geteweaponscript();
@@ -497,6 +623,9 @@ void do_getdmapbyname();
 
 int getLinkOTile(long index1, long index2);
 int getLinkOFlip(long index1, long index2);
+
+int IsBlankTile(int i);
+
 defWpnSprite getDefWeaponSprite(int wpnid);
 //defWpnSprite getDefWeaponSprite(weapon *wp);
 
@@ -517,8 +646,14 @@ void write_mapscreens(PACKFILE *f,int vers_id);
 void read_mapscreens(PACKFILE *f, int vers_id);
 void do_savegamestructs(const bool v, const bool v2);
 void do_loadgamestructs(const bool v, const bool v2);
+long Distance(double x1, double y1, double x2, double y2);
+long Distance(double x1, double y1, double x2, double y2, int scale);
+long LongDistance(double x1, double y1, double x2, double y2);
+long LongDistance(double x1, double y1, double x2, double y2, int scale);
+void do_distance();
 
 int combo_script_engine(const bool preload);
+int combo_script_engine_waitdraw(const bool preload);
 
 void do_strstr();
 void do_strcat();
@@ -532,6 +667,7 @@ void do_atoi2();
 void do_ilen2();
 void do_xlen2();
 void do_itoa();
+void do_itoacat();
 void do_xtoa();
 
 void do_tracebool(const bool v);
@@ -567,9 +703,13 @@ long getQuestHeaderInfo(int type)
 bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir);
 
 void user_files_init();
+void user_dirs_init();
 int get_free_file(bool skipError = false);
+int get_free_directory(bool skipError = false);
 bool get_scriptfile_path(char* buf, const char* path);
+
 void do_fopen(const bool v, const char* f_mode);
+void do_fremove();
 void do_fclose();
 void do_allocate_file();
 void do_deallocate_file();
@@ -577,9 +717,11 @@ void do_file_isallocated();
 void do_file_isvalid();
 void do_fflush();
 void do_file_readchars();
+void do_file_readbytes();
 void do_file_readstring();
 void do_file_readints();
 void do_file_writechars();
+void do_file_writebytes();
 void do_file_writestring();
 void do_file_writeints();
 void do_file_getchar();
@@ -589,6 +731,11 @@ void do_file_clearerr();
 void do_file_rewind();
 void do_file_seek();
 void do_file_geterr();
+
+void do_loaddirectory();
+void do_directory_get();
+void do_directory_reload();
+void do_directory_free();
 
 void user_bitmaps_init();
 
@@ -638,10 +785,13 @@ int numscriptdraws;
 long FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
 long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
 
-char includePaths[MAX_INCLUDE_PATHS][512];
-char includePathString[(MAX_INCLUDE_PATHS+1)*512];
+std::vector<std::string> includePaths;
+char includePathString[MAX_INCLUDE_PATH_CHARS];
 char scriptRunString[21];
 int warpex[wexLast];
+int StdArray[256];
+int GhostArray[256];
+int TangoArray[256];
 
 #define FFSCRIPTCLASS_CLOCKS 10
 long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
@@ -690,6 +840,7 @@ void clearTint();
 void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
+void initZScriptOnMapScript();
 void initZScriptActiveSubscreenScript();
 void initZScriptLinkScripts();
 void initZScriptItemScripts();
@@ -1426,6 +1577,7 @@ static void setLinkBigHitbox(bool v);
 	static void do_setDMapData_music(const bool v);
 	
 	static void do_checkdir(const bool is_dir);
+	static void do_fs_remove();
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
@@ -1509,7 +1661,7 @@ enum __Error
     }
     
     //Returns values of a zscript array as an std::string.
-    void getString(const long ptr, std::string &str, word num_chars = 256)
+    void getString(const long ptr, std::string &str, dword num_chars = ZSCRIPT_MAX_STRING_CHARS)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -1527,7 +1679,24 @@ enum __Error
             num_chars--;
         }
     }
-    
+    //Copies clues for ZS array b to a. 
+    void copyValues(const long ptr, const long ptr2, size_t num_values)
+    {
+        ZScriptArray& a = getArray(ptr);
+        ZScriptArray& b = getArray(ptr2);
+        
+        if(a == INVALIDARRAY)
+            return;
+	
+	if(b == INVALIDARRAY)
+            return;
+            
+        for(word i = 0; ((checkUserArrayIndex(i, b.Size()) == _NoError) && (checkUserArrayIndex(i, a.Size()) == _NoError) ) && num_values != 0; i++)
+        {
+            a[i] = b[i];
+            num_values--;
+        }
+    }
     //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
     void getValues(const long ptr, long* arrayPtr, word num_values)
     {
@@ -2696,8 +2865,28 @@ enum ASM_DEFINE
 	STRICMPR,
 	STRINGICOMPARE,
 	STRINGNICOMPARE,
-
-	NUMCOMMANDS           //0x018E
+	
+	FILEREMOVE,
+	FILESYSREMOVE,
+	
+	DRAWSTRINGR2,
+	BMPDRAWSTRINGR2,
+	
+	MODULEGETIC,
+	ITOACAT,
+	
+	FRAMER,
+	BMPFRAMER,
+	
+	LOADDIRECTORYR,
+	DIRECTORYGET,
+	DIRECTORYRELOAD,
+	DIRECTORYFREE,
+	FILEWRITEBYTES,
+	GETCOMBOSCRIPT,  
+	FILEREADBYTES,
+	
+	NUMCOMMANDS           //0x0197
 };
 
 
@@ -3226,7 +3415,7 @@ enum ASM_DEFINE
 #define IDATAEDIBLE 0x10D4
 #define IDATAFLAGUNUSED 0x10D5
 #define IDATAGAINLOWER 0x10D6
-#define RESVD023 0x10D7
+#define IDATAPFLAGS 0x10D7
 #define RESVD024 0x10D8
 #define RESVD025 0x10D9
 
@@ -3991,7 +4180,81 @@ enum ASM_DEFINE
 #define SWITCHKEY					0x13A9
 #define HEROJUMPCOUNT					0x13AA
 
-#define NUMVARIABLES         	0x13AB
+#define HEROPULLDIR				0x13AB
+#define HEROPULLCLK				0x13AC
+#define HEROFALLCLK				0x13AD
+#define HEROFALLCMB				0x13AE
+#define HEROMOVEFLAGS			0x13AF
+#define ITEMFALLCLK				0x13B0
+#define ITEMFALLCMB				0x13B1
+#define ITEMMOVEFLAGS			0x13B2
+#define LWPNFALLCLK				0x13B3
+#define LWPNFALLCMB				0x13B4
+#define LWPNMOVEFLAGS			0x13B5
+#define EWPNFALLCLK				0x13B6
+#define EWPNFALLCMB				0x13B7
+#define EWPNMOVEFLAGS			0x13B8
+#define NPCFALLCLK				0x13B9
+#define NPCFALLCMB				0x13BA
+#define NPCMOVEFLAGS			0x13BB
+#define ISBLANKTILE			0x13BC
+#define LWPNSPECIAL			0x13BD
+
+#define DMAPDATAASUBSCRIPT			0x13BE
+#define DMAPDATAPSUBSCRIPT			0x13BF
+#define DMAPDATASUBINITD			0x13C0
+#define MODULEGETINT			0x13C1
+#define MODULEGETSTR			0x13C2
+#define NPCORIGINALHP			0x13C3
+#define DMAPDATAMAPSCRIPT			0x13C4
+#define DMAPDATAMAPINITD			0x13C5
+
+#define CLOCKCLK			0x13C6
+#define CLOCKACTIVE			0x13C7
+#define NPCHITDIR			0x13C8
+#define DMAPDATAFLAGARR			0x13C9
+
+#define LINKCSET			0x13CA
+#define NPCSLIDECLK			0x13CB
+#define NPCFADING			0x13CC
+#define DISTANCE			0x13CD
+#define STDARR				0x13CE
+#define GHOSTARR			0x13CF
+#define TANGOARR			0x13D0
+#define NPCHALTCLK			0x13D1
+#define NPCMOVESTATUS			0x13D2
+#define DISTANCESCALE			0x13D3
+
+#define DMAPDATACHARTED			0x13D4
+#define REFDIRECTORY			0x13D5
+#define DIRECTORYSIZE			0x13D6
+#define LONGDISTANCE			0x13D7
+#define LONGDISTANCESCALE		0x13D8
+#define COMBOED			0x13D9
+#define MAPDATACOMBOED			0x13DA
+#define COMBODEFFECT			0x13DB
+#define SCREENSECRETSTRIGGERED			0x13DC
+#define PADDINGR9			0x13DD
+
+#define NPCFRAME			0x13DE
+#define LINKITEMX			0x13DF
+#define LINKITEMY			0x13E0
+#define ACTIVESSSPEED			0x13E1
+#define HEROISWARPING			0x13E2
+
+#define ITEMGLOWRAD 			0x13E3
+#define NPCGLOWRAD 			0x13E4
+#define LWPNGLOWRAD 			0x13E5
+#define EWPNGLOWRAD 			0x13E6
+
+#define ITEMGLOWSHP 			0x13E7
+#define NPCGLOWSHP 			0x13E8
+#define LWPNGLOWSHP 			0x13E9
+#define EWPNGLOWSHP 			0x13EA
+
+#define ITEMDIR 			0x13EB
+
+#define NUMVARIABLES         	0x13EC
 
 //} End variables
 

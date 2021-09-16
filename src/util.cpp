@@ -19,6 +19,15 @@ namespace util
 			str[q] = tolower(str[q]);
 	}
 	
+	string cropPath(string filepath)
+	{
+		size_t lastslash = filepath.find_last_of("/");
+		size_t lastbslash = filepath.find_last_of("\\");
+		size_t last = (lastslash == string::npos) ? lastbslash : (lastbslash == string::npos ? lastslash : (lastslash > lastbslash ? lastslash : lastbslash));
+		if(last != string::npos) filepath = filepath.substr(last+1);
+		return filepath;
+	}
+	
 	void replchar(std::string& str, char from, char to)
 	{
 		for(int q = str.size() - 1; q >= 0; --q)
@@ -63,7 +72,7 @@ namespace util
 	bool valid_dir(string const& path)
 	{
 		size_t pos = path.find_first_not_of("/\\");
-		if(pos == string::npos) return false;
+		if(pos == string::npos) return true;
 		while(pos < path.length())
 		{
 			size_t next_slash = path.find_first_of("/\\",pos);
@@ -97,11 +106,7 @@ namespace util
 	{
 		for(int q = 0; buf[q]; ++q)
 		{
-#ifdef _WIN32
-			if (buf[q] == '/') buf[q] = '\\';
-#else
-			if (buf[q] == '\\') buf[q] = '/';
-#endif
+			if (buf[q] == WRONG_PATH_SLASH) buf[q] = PATH_SLASH;
 		}
 	}
 	
@@ -195,6 +200,161 @@ namespace util
 #endif
 	}
 	
+	long long zc_atoi64(const char *str)
+	{
+		long long val=0;
+		bool neg = false;
+		if(*str == '-')
+		{
+			neg = true;
+			++str;
+		}
+		while(isdigit(*str))
+		{
+			val*=10;
+			
+			val += *str-'0';
+			
+			++str;
+		}
+		
+		return neg ? -val : val;
+	}
+	long long zc_xtoi64(const char *hexstr)
+	{
+		long long val=0;
+		bool neg = false;
+		if(*hexstr == '-')
+		{
+			neg = true;
+			++hexstr;
+		}
+		while(isxdigit(*hexstr))
+		{
+			val<<=4;
+			
+			if(*hexstr<='9')
+				val += *hexstr-'0';
+			else val+= ((*hexstr)|0x20)-'a'+10;
+			
+			++hexstr;
+		}
+		
+		return neg ? -val : val;
+	}
+	
+	int zc_xtoi(const char *hexstr)
+	{
+		int val=0;
+		bool neg = false;
+		if(*hexstr == '-')
+		{
+			neg = true;
+			++hexstr;
+		}
+		while(isxdigit(*hexstr))
+		{
+			val<<=4;
+			
+			if(*hexstr<='9')
+				val += *hexstr-'0';
+			else val+= ((*hexstr)|0x20)-'a'+10;
+			
+			++hexstr;
+		}
+		
+		return neg ? -val : val;
+	}
+	
+	long ffparse2(const char *string) //bounds result safely between -214748.3648 and +214748.3647
+	{
+		char tempstring1[32] = {0};
+		sprintf(tempstring1, string);
+		
+		char *ptr=strchr(tempstring1, '.');
+		if(!ptr)
+		{
+			return vbound(atoi(tempstring1),-214748,214748)*10000;
+		}
+		
+		long ret=0;
+		
+		for(int i=0; i<4; ++i)
+		{
+			tempstring1[strlen(string)+i]='0';
+		}
+		
+		ptr=strchr(tempstring1, '.');
+		*ptr=0;
+		ret=vbound(atoi(tempstring1),-214748,214748)*10000;
+		
+		++ptr;
+		char *ptr2=ptr;
+		ptr2+=4;
+		*ptr2=0;
+		
+		int decval = atoi(ptr);
+		if(ret<0)
+		{
+			if(ret == -2147480000)
+				decval = vbound(decval, 0, 3648);
+			ret-=decval;
+		}
+		else
+		{
+			if(ret == 2147480000)
+				decval = vbound(decval, 0, 3647);
+			ret+=decval;
+		}
+		
+		return ret;
+	}
+	long ffparseX(const char *string) //hex before '.', bounds result safely between -214748.3648 and +214748.3647
+	{
+		char tempstring1[32] = {0};
+		sprintf(tempstring1, string);
+		
+		char *ptr=strchr(tempstring1, '.');
+		if(!ptr)
+		{
+			return vbound(zc_xtoi(tempstring1),-214748,214748)*10000;
+		}
+		
+		long ret=0;
+
+		sprintf(tempstring1, string);
+		
+		for(int i=0; i<4; ++i)
+		{
+			tempstring1[strlen(string)+i]='0';
+		}
+		
+		ptr=strchr(tempstring1, '.');
+		*ptr=0;
+		ret=vbound(zc_xtoi(tempstring1),-214748,214748)*10000;
+		
+		++ptr;
+		char *ptr2=ptr;
+		ptr2+=4;
+		*ptr2=0;
+		
+		int decval = atoi(ptr);
+		if(ret<0)
+		{
+			if(ret == -2147480000)
+				decval = vbound(decval, 0, 3648);
+			ret-=decval;
+		}
+		else
+		{
+			if(ret == 2147480000)
+				decval = vbound(decval, 0, 3647);
+			ret+=decval;
+		}
+		
+		return ret;
+	}
+	
 	int zc_chmod(const char* path, mode_t mode)
 	{
 #ifdef _WIN32
@@ -210,7 +370,10 @@ namespace util
 
 		if(stat( path, &info ) != 0)
 			return false;
-		else return is_dir ? (info.st_mode & S_IFDIR)!=0 : (info.st_mode & S_IFDIR)==0;
+		else
+		{
+			return is_dir ? (info.st_mode & S_IFDIR)!=0 : (info.st_mode & S_IFDIR)==0;
+		}
 	}
 
 	void safe_al_trace(const char* str)
@@ -236,6 +399,26 @@ namespace util
 				al_trace(str+q);
 			}
 		}
+	}
+	
+	int vbound(int val, int low, int high)
+	{
+		ASSERT(low <= high);
+		if(val <= low)
+			return low;
+		if(val >= high)
+			return high;
+		return val;
+	}
+	
+	double vbound(double val, double low, double high)
+	{
+		ASSERT(low <= high);
+		if(val <= low)
+			return low;
+		if(val >= high)
+			return high;
+		return val;
 	}
 }
 

@@ -17,6 +17,9 @@
 #include "zelda.h"
 #include "items.h"
 #include "pal.h"
+#include "util.h"
+
+using namespace util;
 
 extern int dlevel;
 extern void flushItemCache();
@@ -50,11 +53,12 @@ void gamedata::Clear()
     _timevalid=false;
     std::fill(lvlitems, lvlitems+MAXLEVELS, 0);
     std::fill(lvlkeys, lvlkeys+MAXLEVELS, 0);
+    std::fill(lvlswitches, lvlswitches+MAXLEVELS, 0);
     _continue_scrn=0;
     _continue_dmap=0;
     std::fill(_generic, _generic+256, 0);
     std::fill(visited, visited+MAXDMAPS, 0);
-    std::fill(bmaps, bmaps+MAXDMAPS*64, 0);
+    std::fill(bmaps, bmaps+MAXDMAPS*128, 0);
     std::fill(maps, maps+MAXMAPS2*MAPSCRSNORMAL, 0);
     std::fill(guys, guys+MAXMAPS2*MAPSCRSNORMAL, 0);
     std::fill(qstpath, qstpath+2048, 0);
@@ -67,8 +71,12 @@ void gamedata::Clear()
     globalRAM.clear();
     awpn=0;
     bwpn=0;
+    xwpn=0;
+    ywpn=0;
     forced_awpn = -1; 
     forced_bwpn = -1;
+    forced_xwpn = -1; 
+    forced_ywpn = -1;
     isclearing=false;
 }
 
@@ -108,6 +116,7 @@ void gamedata::Copy(const gamedata& g)
     {
         lvlitems[i] = g.lvlitems[i];
         lvlkeys[i] = g.lvlkeys[i];
+        lvlswitches[i] = g.lvlswitches[i];
     }
     
     _continue_scrn = g._continue_scrn;
@@ -119,7 +128,7 @@ void gamedata::Copy(const gamedata& g)
     for(word i = 0; i < MAXDMAPS; i++)
         visited[i] = g.visited[i];
         
-    for(word i = 0; i < MAXDMAPS*64; i++)
+    for(dword i = 0; i < MAXDMAPS*128; i++)
         bmaps[i] = g.bmaps[i];
         
     for(dword i = 0; i < MAXMAPS2*MAPSCRSNORMAL; i++)
@@ -146,9 +155,13 @@ void gamedata::Copy(const gamedata& g)
         
     awpn = g.awpn;
     bwpn = g.bwpn;
+    xwpn = g.xwpn;
+    ywpn = g.ywpn;
     
     forced_awpn = g.forced_awpn; 
     forced_bwpn = g.forced_bwpn;
+    forced_xwpn = g.forced_xwpn; 
+    forced_ywpn = g.forced_ywpn;
 }
 
 char *gamedata::get_name()
@@ -791,6 +804,93 @@ void gamedata::set_cont_percent(bool ispercent)
 {
     set_generic(ispercent ? 1 : 0, 6);
 }
+
+
+byte gamedata::get_hp_per_heart()
+{
+	byte b = get_generic(genHP_PER_HEART);
+	return b ? b : 16;
+}
+void gamedata::set_hp_per_heart(byte val)
+{
+	set_generic(val, genHP_PER_HEART);
+}
+
+byte gamedata::get_mp_per_block()
+{
+	byte b = get_generic(genMP_PER_BLOCK);
+	return b ? b : 32;
+}
+void gamedata::set_mp_per_block(byte val)
+{
+	set_generic(val, genMP_PER_BLOCK);
+}
+
+byte gamedata::get_hero_dmgmult()
+{
+	byte b = get_generic(genHERO_DMG_MULT);
+	return b ? b : 1;
+}
+void gamedata::set_hero_dmgmult(byte val)
+{
+	set_generic(val, genHERO_DMG_MULT);
+}
+
+byte gamedata::get_ene_dmgmult()
+{
+	byte b = get_generic(genENE_DMG_MULT);
+	return b ? b : 1;
+}
+void gamedata::set_ene_dmgmult(byte val)
+{
+	set_generic(val, genENE_DMG_MULT);
+}
+
+byte gamedata::get_dither_type()
+{
+	return get_generic(genDITH_TYPE);
+}
+void gamedata::set_dither_type(byte val)
+{
+	set_generic(val, genDITH_TYPE);
+}
+
+byte gamedata::get_dither_arg()
+{
+	return get_generic(genDITH_ARG);
+}
+void gamedata::set_dither_arg(byte val)
+{
+	set_generic(val, genDITH_ARG);
+}
+
+byte gamedata::get_dither_perc()
+{
+	return zc_min(100, get_generic(genDITH_PERC));
+}
+void gamedata::set_dither_perc(byte val)
+{
+	set_generic(zc_min(100, val), genDITH_PERC);
+}
+
+byte gamedata::get_transdark_perc()
+{
+	return zc_min(100, get_generic(genTDARK_PERC));
+}
+void gamedata::set_transdark_perc(byte val)
+{
+	set_generic(zc_min(100, val), genTDARK_PERC);
+}
+
+byte gamedata::get_light_rad()
+{
+	return get_generic(genLIGHT_RAD);
+}
+void gamedata::set_light_rad(byte val)
+{
+	set_generic(val, genLIGHT_RAD);
+}
+
 void gamedata::set_item(int id, bool value)
 {
     set_item_no_flush(id, value);

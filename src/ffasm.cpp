@@ -818,8 +818,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	//2 INPUT, 1 RET, based on strcmp
 	{ "STRCSPN",                1,   0,   0,   0},
 	{ "STRSTR",                1,   0,   0,   0},
-	{ "XTOA",                1,   0,   0,   0},
-	{ "ITOA",                1,   0,   0,   0},
+	{ "XTOA",                2,   0,   0,   0},
+	{ "ITOA",                2,   0,   0,   0},
 	{ "STRCAT",                1,   0,   0,   0},
 	{ "STRSPN",                1,   0,   0,   0},
 	{ "STRCHR",                1,   0,   0,   0},
@@ -961,6 +961,25 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "STRINGICOMPARE",		       1,   0,   0,   0},
 	{ "STRINGNICOMPARE",		       1,   0,   0,   0},
 	
+	{ "FILEREMOVE",		       0,   0,   0,   0},
+	{ "FILESYSREMOVE",		       1,   0,   0,   0},
+	
+	{ "DRAWSTRINGR2",		       0,   0,   0,   0},
+	{ "BMPDRAWSTRINGR2",		       0,   0,   0,   0},
+	
+	{ "MODULEGETIC",             2,   0,   0,   0},
+	{ "ITOACAT",                2,   0,   0,   0},
+	
+	{ "FRAMER",                0,   0,   0,   0},
+	{ "BMPFRAMER",                0,   0,   0,   0},
+	
+	{ "LOADDIRECTORYR",                1,   0,   0,   0},
+	{ "DIRECTORYGET",                2,   0,   0,   0},
+	{ "DIRECTORYRELOAD",                0,   0,   0,   0},
+	{ "DIRECTORYFREE",                0,   0,   0,   0},
+	{ "FILEWRITEBYTES",           2,   0,   0,   0},
+	{ "GETCOMBOSCRIPT",        1,   0,   0,   0},
+	{ "FILEREADBYTES",           2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -1344,7 +1363,7 @@ script_variable variable_list[]=
 	{ "IDATACOMBINE",         IDATACOMBINE,            0,             0 },
 	{ "IDATADOWNGRADE",         IDATADOWNGRADE,            0,             0 },
 	{ "IDATAPSTRING",         IDATAPSTRING,            0,             0 },
-	{ "RESVD0023",         RESVD023,            0,             0 },
+	{ "IDATAPFLAGS",         IDATAPFLAGS,            0,             0 },
 	{ "IDATAKEEPOLD",         IDATAKEEPOLD,            0,             0 },
 	{ "IDATARUPEECOST",         IDATARUPEECOST,            0,             0 },
 	{ "IDATAEDIBLE",         IDATAEDIBLE,            0,             0 },
@@ -2110,8 +2129,74 @@ script_variable variable_list[]=
 	{ "MESSAGEDATATEXTWID", MESSAGEDATATEXTWID, 0, 0 },
 	{ "MESSAGEDATATEXTHEI", MESSAGEDATATEXTHEI, 0, 0 },
 	{ "SWITCHKEY", SWITCHKEY, 0, 0 },
-	{"INCQST", INCQST, 0, 0 },
-	{"HEROJUMPCOUNT", HEROJUMPCOUNT, 0, 0 },
+	{ "INCQST", INCQST, 0, 0 },
+	{ "HEROJUMPCOUNT", HEROJUMPCOUNT, 0, 0 },
+	{ "HEROPULLDIR", HEROPULLDIR, 0, 0 },
+	{ "HEROPULLCLK", HEROPULLCLK, 0, 0 },
+	{ "HEROFALLCLK", HEROFALLCLK, 0, 0 },
+	{ "HEROFALLCMB", HEROFALLCMB, 0, 0 },
+	{ "HEROMOVEFLAGS", HEROMOVEFLAGS, 0, 0 },
+	{ "ITEMFALLCLK", ITEMFALLCLK, 0, 0 },
+	{ "ITEMFALLCMB", ITEMFALLCMB, 0, 0 },
+	{ "ITEMMOVEFLAGS", ITEMMOVEFLAGS, 0, 0 },
+	{ "LWPNFALLCLK", LWPNFALLCLK, 0, 0 },
+	{ "LWPNFALLCMB", LWPNFALLCMB, 0, 0 },
+	{ "LWPNMOVEFLAGS", LWPNMOVEFLAGS, 0, 0 },
+	{ "EWPNFALLCLK", EWPNFALLCLK, 0, 0 },
+	{ "EWPNFALLCMB", EWPNFALLCMB, 0, 0 },
+	{ "EWPNMOVEFLAGS", EWPNMOVEFLAGS, 0, 0 },
+	{ "NPCFALLCLK", NPCFALLCLK, 0, 0 },
+	{ "NPCFALLCMB", NPCFALLCMB, 0, 0 },
+	{ "NPCMOVEFLAGS", NPCMOVEFLAGS, 0, 0 },
+	{ "ISBLANKTILE", ISBLANKTILE, 0, 0 },
+	{ "LWPNSPECIAL", LWPNSPECIAL, 0, 0 },
+	{ "DMAPDATAASUBSCRIPT", DMAPDATAASUBSCRIPT, 0, 0 },
+	{ "DMAPDATAPSUBSCRIPT", DMAPDATAPSUBSCRIPT, 0, 0 },
+	{ "DMAPDATASUBINITD", DMAPDATASUBINITD, 0, 0 },
+	{ "MODULEGETINT", MODULEGETINT, 0, 0 },
+	{ "MODULEGETSTR", MODULEGETSTR, 0, 0 },
+	{ "NPCORIGINALHP", NPCORIGINALHP, 0, 0 },
+	{ "DMAPDATAMAPSCRIPT", DMAPDATAMAPSCRIPT, 0, 0 },
+	{ "DMAPDATAMAPINITD", DMAPDATAMAPINITD, 0, 0 },
+	{ "CLOCKCLK", CLOCKCLK, 0, 0 },
+	{ "CLOCKACTIVE", CLOCKACTIVE, 0, 0 },
+	{ "NPCHITDIR", NPCHITDIR, 0, 0 },
+	{ "DMAPDATAFLAGARR", DMAPDATAFLAGARR, 0, 0 },
+	{ "LINKCSET", LINKCSET, 0, 0 },
+	{ "NPCSLIDECLK", NPCSLIDECLK, 0, 0 },
+	{ "NPCFADING", NPCFADING, 0, 0 },
+	{ "DISTANCE", DISTANCE, 0, 0 },
+	{ "STDARR", STDARR, 0, 0 },
+	{ "GHOSTARR", GHOSTARR, 0, 0 },
+	{ "TANGOARR", TANGOARR, 0, 0 },
+	{ "NPCHALTCLK", NPCHALTCLK, 0, 0 },
+	{ "NPCMOVESTATUS", NPCMOVESTATUS, 0, 0 },
+	{ "DISTANCESCALE", DISTANCESCALE, 0, 0 },
+	{ "DMAPDATACHARTED", DMAPDATACHARTED, 0, 0 },
+	{ "REFDIRECTORY", REFDIRECTORY, 0, 0 },
+	{ "DIRECTORYSIZE", DIRECTORYSIZE, 0, 0 },
+	{ "LONGDISTANCE", LONGDISTANCE, 0, 0 },
+	{ "LONGDISTANCESCALE", LONGDISTANCESCALE, 0, 0 },
+	{ "COMBOED",           COMBOED,              0,             0 },
+	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
+	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
+	{ "SCREENSECRETSTRIGGERED", SCREENSECRETSTRIGGERED, 0, 0 },
+	{ "ITEMDIR", ITEMDIR, 0, 0 },
+	
+	{ "NPCFRAME", NPCFRAME, 0, 0 },
+	{ "LINKITEMX",           LINKITEMX,            0,             0 },
+	{ "LINKITEMY",           LINKITEMY,            0,             0 },
+	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
+	{ "HEROISWARPING",           HEROISWARPING,            0,             0 },
+	
+	{ "ITEMGLOWRAD",           ITEMGLOWRAD,            0,             0 },
+	{ "NPCGLOWRAD",           NPCGLOWRAD,            0,             0 },
+	{ "LWPNGLOWRAD",           LWPNGLOWRAD,            0,             0 },
+	{ "EWPNGLOWRAD",           EWPNGLOWRAD,            0,             0 },
+	{ "ITEMGLOWSHP",           ITEMGLOWSHP,            0,             0 },
+	{ "NPCGLOWSHP",           NPCGLOWSHP,            0,             0 },
+	{ "LWPNGLOWSHP",           LWPNGLOWSHP,            0,             0 },
+	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
@@ -2156,10 +2241,10 @@ long ffparse(char *string)
 		ret-=atoi(ptr);
 	else ret+=atoi(ptr);
 	
-	zc_free(tempstring1);
+	if(tempstring1) //may be safer
+		zc_free(tempstring1);
 	return ret;
 }
-
 bool ffcheck(char *arg)
 {
 

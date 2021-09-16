@@ -123,7 +123,7 @@ extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
 extern FONT *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
        *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont
-       
+
        //#ifdef MOREFONTS_VERSION
 	   ,
 	   //New fonts for 2.54+
@@ -771,7 +771,9 @@ enum
     cmdZScriptCompilerRules,
     cmdWeaponRules,
     cmdScreenScript,
-    cmdZQSNapshot,
+    cmdScreenSnapshot,
+	cmdViewL2BG,
+	cmdViewL3BG,
     cmdMAX
 };
 
@@ -792,11 +794,6 @@ int select_item(const char *prompt,int item,bool is_editor,int &exit_status);
 void build_biw_list();
 const char *weaponlist(int index, int *list_size);
 int select_weapon(const char *prompt,int weapon);
-
-void build_bir_list();
-const char *roomlist(int index, int *list_size);
-int select_room(const char *prompt,int room);
-
 
 //char *doors_string[8]={"wall","passage","locked","shutter","bombable","walk thru","1-way shutter","boss"};
 const char *doorslist(int index, int *list_size);
@@ -840,11 +837,8 @@ int onUsedCombos();
 int onItem();
 int onZScriptSettings();
 int onZScriptCompilerSettings();
-int onRType();
-int onGuy();
-int onString();
+int onRoom();
 int onEndString();
-int onCatchall();
 int onScreenPalette();
 int onDecScrPal();
 int onIncScrPal();
@@ -898,7 +892,6 @@ int onTriPieces();
 int d_maptile_proc(int msg,DIALOG *d,int c);
 int editdmapmaps(int index);
 int d_hexedit_proc(int msg,DIALOG *d,int c);
-int xtoi(char *hexstr);
 void drawgrid(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div);
 void drawgrid(BITMAP *dest,int x,int y,int w, int h, int tw, int th, int *grid,int fg,int bg,int div);
 void drawgrid_s(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div);
@@ -1077,7 +1070,6 @@ int onEnemies();
 int d_showedit_proc(int msg,DIALOG *d,int c);
 int onHeader();
 
-//static ZCHEATS tmpcheats;
 int PickRuleset();
 int onCheats();
 int RulesPage_1();
@@ -1210,7 +1202,7 @@ int get_bmaps(int si);
 
 bool no_subscreen();
 
-extern int Awpn, Bwpn, Bpos;
+extern int Awpn, Bwpn, Bpos, Xwpn, Ywpn;
 extern sprite_list Sitems;
 
 int main(int argc,char **argv);
@@ -1263,4 +1255,3 @@ extern int midi_strict;
 #define mOTHER3         32768                                 // overwrite this value, use for expansion
 #endif
 /* end */
-

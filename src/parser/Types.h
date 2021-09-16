@@ -78,6 +78,7 @@ namespace ZScript
 		ZVARTYPEID_FLOAT,
 		ZVARTYPEID_CHAR,
 		ZVARTYPEID_BOOL,
+		ZVARTYPEID_LONG,
 		ZVARTYPEID_PRIMITIVE_END,
 
 		ZVARTYPEID_CLASS_START = ZVARTYPEID_PRIMITIVE_END,
@@ -117,6 +118,8 @@ namespace ZScript
 		ZVARTYPEID_FILESYSTEM,
 		ZVARTYPEID_SUBSCREENDATA,
 		ZVARTYPEID_FILE,
+		ZVARTYPEID_MODULE,
+		ZVARTYPEID_DIRECTORY,
 		ZVARTYPEID_CLASS_END,
 
 		ZVARTYPEID_END = ZVARTYPEID_CLASS_END
@@ -134,6 +137,8 @@ namespace ZScript
 				return "INT";
 			case ZVARTYPEID_CHAR:
 				return "CHAR32";
+			case ZVARTYPEID_LONG:
+				return "LONG";
 			case ZVARTYPEID_BOOL:
 				return "BOOL";
 			case ZVARTYPEID_GAME:
@@ -208,6 +213,10 @@ namespace ZScript
 				return "SUBSCREENDATA";
 			case ZVARTYPEID_FILE:
 				return "FILE";
+			case ZVARTYPEID_DIRECTORY:
+				return "DIRECTORY";
+			case ZVARTYPEID_MODULE:
+				return "MODULE";
 			default:
 				return "INT";
 				/*char buf[16];
@@ -229,6 +238,8 @@ namespace ZScript
 			return ZVARTYPEID_FLOAT;
 		else if(name == "CHAR32")
 			return ZVARTYPEID_CHAR;
+		else if(name == "LONG")
+			return ZVARTYPEID_LONG;
 		else if(name == "BOOL")
 			return ZVARTYPEID_BOOL;
 		else if(name == "GAME")
@@ -303,6 +314,10 @@ namespace ZScript
 			return ZVARTYPEID_SUBSCREENDATA;
 		else if(name == "FILE")
 			return ZVARTYPEID_FILE;
+		else if(name == "DIRECTORY")
+			return ZVARTYPEID_DIRECTORY;
+		else if(name == "MODULE")
+			return ZVARTYPEID_MODULE;
 		
 		return ZVARTYPEID_VOID;
 	}
@@ -342,6 +357,7 @@ namespace ZScript
 		virtual bool isUntyped() const {return false;}
 		virtual bool isVoid() const {return false;}
 		virtual bool isCustom() const {return false;}
+		virtual bool isLong() const {return false;}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		int compare(DataType const& rhs) const;
@@ -349,7 +365,9 @@ namespace ZScript
 		//Static functions
 		static DataType const* get(DataTypeId id);
 		static DataTypeClass const* getClass(int classId);
-		static DataTypeCustom const* getCustom(int customId) {return find<DataTypeCustom*>(customTypes, customId).value_or(NULL);};
+		static DataTypeCustom const* getCustom(int customId) {
+			return find<DataTypeCustom*>(customTypes, customId).value_or(boost::add_pointer<DataTypeCustom>::type());
+		};
 		static void addCustom(DataTypeCustom* custom);
 		static int getUniqueCustomId() {return nextCustomId_++;}
 		
@@ -368,11 +386,13 @@ namespace ZScript
 		static DataTypeSimpleConst CUNTYPED;
 		static DataTypeSimpleConst CFLOAT;
 		static DataTypeSimpleConst CCHAR;
+		static DataTypeSimpleConst CLONG;
 		static DataTypeSimpleConst CBOOL;
 		static DataTypeSimple UNTYPED;
 		static DataTypeSimple ZVOID;
 		static DataTypeSimple FLOAT;
 		static DataTypeSimple CHAR;
+		static DataTypeSimple LONG;
 		static DataTypeSimple BOOL;
 		static DataTypeArray STRING;
 		//Classes: Global Pointer
@@ -385,6 +405,7 @@ namespace ZScript
 		static DataTypeClassConst INPUT;
 		static DataTypeClassConst TEXT;
 		static DataTypeClassConst FILESYSTEM;
+		static DataTypeClassConst MODULE;
 		//Class: Types
 		static DataTypeClassConst CBITMAP;
 		static DataTypeClassConst CCHEATS;
@@ -413,6 +434,7 @@ namespace ZScript
 		static DataTypeClassConst CWARPRING;
 		static DataTypeClassConst CSUBSCREENDATA;
 		static DataTypeClassConst CFILE;
+		static DataTypeClassConst CDIRECTORY;
 		//Class: Var Types
 		static DataTypeClass BITMAP;
 		static DataTypeClass CHEATS;
@@ -441,6 +463,7 @@ namespace ZScript
 		static DataTypeClass WARPRING;
 		static DataTypeClass SUBSCREENDATA;
 		static DataTypeClass FILE;
+		static DataTypeClass DIRECTORY;
 	};
 
 	bool operator==(DataType const&, DataType const&);
@@ -491,6 +514,7 @@ namespace ZScript
 		virtual bool isConstant() const {return false;}
 		virtual bool isUntyped() const {return simpleId == ZVARTYPEID_UNTYPED;}
 		virtual bool isVoid() const {return simpleId == ZVARTYPEID_VOID;}
+		virtual bool isLong() const {return simpleId == ZVARTYPEID_LONG;}
 
 		int getId() const {return simpleId;}
 

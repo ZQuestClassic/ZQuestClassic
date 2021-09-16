@@ -13,6 +13,7 @@
 
 #include "zdefs.h"
 #include <stdio.h>
+#include <string_view>
 
 #define COMBOPOS(x,y) (((y)&0xF0)+((x)>>4))
 #define COMBOX(pos) ((pos)%16*16)
@@ -34,7 +35,7 @@ class zmap
     int currscr,copyscr;
     int copyffc;
     int scrpos[MAXMAPS2+1];
-    
+
     mapscr copymapscr;
     mapscr undomap[MAPSCRS+6];
     mapscr prvscr; //NEW
@@ -44,7 +45,7 @@ class zmap
     bool can_undo,can_paste,can_undo_map,can_paste_map,screen_copy;
     // A screen which uses the current screen as a layer
     int layer_target_map, layer_target_scr, layer_target_multiple;
-    
+
 public:
 
     zmap();
@@ -83,6 +84,7 @@ public:
     bool isDungeon(int scr);
     bool isstepable(int combo);
     bool ishookshottable(int bx, int by, int i);
+    bool ishookshottable(int map, int screen, int bx, int by, int i);
     int warpindex(int combo);
     bool clearall(bool validate);
     bool reset_templates(bool validate);
@@ -91,9 +93,12 @@ public:
     void clearzcmap(int map);
     int  load(const char *path);
     int  save(const char *path);
+    int MAPCOMBO3(int map, int screen, int layer, int x,int y);
+    int MAPCOMBO3(int map, int screen, int layer, int pos);
     int MAPCOMBO2(int lyr,int x,int y, int map = -1, int scr = -1);
     int MAPCOMBO(int x,int y, int map = -1, int scr = -1);
     void put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer);
+    void put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int layer, int map, int screen);
     bool misaligned(int map, int scr, int i, int dir);
     void check_alignments(BITMAP* dest,int x,int y,int scr=-1);
     void draw(BITMAP *dest,int x,int y,int flags,int map,int scr);
@@ -194,6 +199,7 @@ extern const char *loaderror[];
 
 void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer);
 void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag);
+void put_flag(BITMAP* dest, int x, int y, int flag);
 void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag);
 void copy_mapscr(mapscr *dest, const mapscr *src);
 void delete_mapscr(mapscr *dest);
@@ -207,7 +213,7 @@ void delete_mapscr(mapscr *dest);
 
 bool setMapCount2(int c);
 int init_quest(const char *templatefile);
-void set_questpwd(const char *pwd, bool use_keyfile);
+void set_questpwd(std::string_view pwd, bool use_keyfile);
 int quest_access(const char *filename, zquestheader *hdr, bool compressed);
 bool write_midi(MIDI *m,PACKFILE *f);
 int load_quest(const char *filename, bool compressed, bool encrypted);

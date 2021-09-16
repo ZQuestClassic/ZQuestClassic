@@ -1,5 +1,5 @@
-//std_functions.zh
-//31st December, 2019 for ZC 2.55.0 Alpha 48
+// std_functions.zh
+// 14th March, 2021 for ZC 2.55.0 Alpha 90
 
 //A
 
@@ -207,7 +207,7 @@ bool CanWalk(int x, int y, int dir, int step, bool full_tile)
 		case DIR_DOWN: return !(yy+step>=176||Screen->isSolid(x,yy+step)||Screen->isSolid(x+8,yy+step)||Screen->isSolid(xx,yy+step));
 		case DIR_LEFT: return !(x-step<0||Screen->isSolid(x-step,y+c)||Screen->isSolid(x-step,y+c+7)||Screen->isSolid(x-step,yy));
 		case DIR_RIGHT: return !(xx+step>=256||Screen->isSolid(xx+step,y+c)||Screen->isSolid(xx+step,y+c+7)||Screen->isSolid(xx+step,yy));
-		default: { LogPrint("Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n",step); return false; } //invalid direction
+		default: { printf("Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n",dir); return false; } //invalid direction
 	}
 }
 
@@ -855,14 +855,16 @@ int DirRad(int dir)
 	}
 } 
 
-//Returns the distance between two sets of coordinates using Pythagoras' Theorem
-float Distance(int x1, int y1, int x2, int y2) 
+namespace std
 {
-	int x = (x1-x2);
-	int y = (y1-y2);
-	return Sqrt(x*x+y*y);
+	//Returns the distance between two sets of coordinates using Pythagoras' Theorem
+	float Distance(int x1, int y1, int x2, int y2) 
+	{
+		int x = (x1-x2);
+		int y = (y1-y2);
+		return Sqrt(x*x+y*y);
+	}
 }
-
 // Returns the squared distance of a vector.
 float DistanceSquared( float x, float y ) 
 {
@@ -883,6 +885,34 @@ bool DistXY(ffc a, int dist)
 int Div(float x, float y) 
 {
 	return (x/y)<<0;
+}
+
+
+// Returns the correct index for getting minimap, or dungeon
+// map tiles and csets to use with dmapdata->MiniMapTile[]
+// and similar instructions.
+// Accepts a dmapdata pointer.
+int DMapMapGraphicsIndex(dmapdata dm)
+{
+	return ((Game->LItems[dm->ID]&LI_MAP) ? 1 : 0);
+}
+
+// Returns the correct index for getting minimap, or dungeon
+// map tiles and csets to use with dmapdata->MiniMapTile[]
+// and similar instructions.
+// Accepts a dmap ID as an integer.
+int DMapMapGraphicsIndex(int dmapID)
+{
+	return ((Game->LItems[dmapID]&LI_MAP) ? 1 : 0);
+}
+
+// Returns the correct index for getting minimap, or dungeon
+// map tiles and csets to use with dmapdata->MiniMapTile[]
+// and similar instructions.
+// Checks the current DMap.
+int DMapMapGraphicsIndex()
+{
+	return ((Game->LItems[Game->GetCurDMap()]&LI_MAP) ? 1 : 0);
 }
 
 // Convert between map and DMap screens
@@ -1170,6 +1200,58 @@ int FirstComboOf(int t, int layer)
 
 //G
 
+//Returns the catchall type used by a mapscreen passed as pointer 'm'.
+catchalltypes GetCatchallType(mapdata m)
+{
+	switch(m->RoomType)
+	{
+		//no catchall
+		case rtNONE:
+		case rtPOTIONORHEART:
+		case rtGORIYA:
+		case rtLEVEL9:
+		case rtTENRUPY:
+		case rtGAN:
+		case rtWINGAME:
+		case rtMAGIC:
+		case rtSLASH:
+			return caNONE;
+		
+		case rtGAMBLE:
+			return caGAMBLE;
+		
+		//item id
+		case rtSPECIALITEM:
+			return caITEM;
+		
+		case rtSECRETMONEY:
+			return caAMOUNT;
+		
+		//shops
+		case rtPOTION:
+		case rtSHOP:
+		case rtONEITEM:
+			return caSHOPID;
+		
+		case rtPAYINFO:
+			return caINFOSHOPID;
+		
+		//price
+		case rtARROWS:
+		case rtDOORREPAIR:
+		case rtBOMBS:
+		case rtMOYL: //the non-heart cost
+			return caPRICE;
+			
+		case rtSTAIRWARP: return caWARPRING;
+		case rtITEMPOND: return caPONDID;
+		
+		default:
+			return caNONE;
+		
+	}
+}
+
 //Returns the item ID of the item equipped to Link's A button
 int GetEquipmentA() 
 {
@@ -1254,6 +1336,61 @@ int GetHighestLevelItemOwned(int itemclass)
 	return result;
 }
 
+
+//Gets the ZString (message) ID used by a Pay for Info Shop.
+//Argument 1 is the info shop ID, argument 2 is the shop's string (0 to 2).
+//Returns the string typed as messagedata, e.g. messagedata md = GetInfoString(shop, 0);
+messagedata GetInfoString(int shop_id, int str_id)
+{
+	if (shop_id < 0 || shop_id > 255 ) 
+	{
+		printf("Invalid info shop ID (%d) passed to PayForInfoString()\n", shop_id);
+		return NULL;
+	}
+	if (str_id < 0 || str_id > 2 )
+	{
+		printf("Invalid string ID (%d) passed to PayForInfoString()\n", str_id);
+		return NULL;
+	}
+	return (Game->LoadMessageData(Game->LoadInfoShopData(shop_id)->String[str_id]));
+}
+
+//Copies the ZString (message) ID used by a Pay for Info Shop to a client (ZScript) string.
+//Argument 1 is a ZScript string pointer, Arguent 2 is the info shop ID, 
+//Argument 3 is the shop's string (0 to 2).
+void GetInfoString(char32 buffer, int shop_id, int str_id)
+{
+	if (shop_id < 0 || shop_id > 255 ) 
+	{
+		printf("Invalid info shop ID (%d) passed to PayForInfoString()\n", shop_id);
+		return;
+	}
+	if (str_id < 0 || str_id > 2 )
+	{
+		printf("Invalid string ID (%d) passed to PayForInfoString()\n", str_id);
+		return;
+	}
+	Game->LoadMessageData(Game->LoadInfoShopData(shop_id)->String[str_id])->Get(buffer);
+}
+
+//Gets the ZString (message) ID used by a Pay for Info Shop.
+//Argument 1 is the info shop ID, argument 2 is the shop's string (0 to 2).
+//Returns an integer of the string ID.
+int GetInfoStringID(int shop_id, int str_id)
+{
+	if (shop_id < 0 || shop_id > 255 ) 
+	{
+		printf("Invalid info shop ID (%d) passed to PayForInfoString()\n", shop_id);
+		return 0;
+	}
+	if (str_id < 0 || str_id > 2 )
+	{
+		printf("Invalid string ID (%d) passed to PayForInfoString()\n", str_id);
+		return 0;
+	}
+	return (Game->LoadInfoShopData(shop_id)->String[str_id]);
+}
+
 itemdata GetItemData(item i)
 {
 	return Game->LoadItemData(i->ID);
@@ -1303,8 +1440,19 @@ int GetLayerComboC(int layer, int pos)
 			}
 			else return Game->GetComboCSet(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
-		
-		return Game->GetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+		else
+		{
+			
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				return Game->GetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+			}
+			else
+			{
+				printf("The layer (%d) used by GetLayerComboC for the current screen are not properly configured.\n", layer);
+				return -1;
+			}
+		}
 	}
 }
 
@@ -1346,8 +1494,19 @@ int GetLayerComboD(int layer, int pos)
 			}
 			else return Game->GetComboData(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
+		else
+		{
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+			}
+			else
+			{
+				printf("The layer (%d) used by GetLayerComboD for the current screen are not properly configured.\n", layer);
+				return -1;
+			}
+		}
 		
-		return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 	}
 }
 
@@ -1388,8 +1547,20 @@ int GetLayerComboF(int layer, int pos)
 			}
 			else return Game->GetComboFlag(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
+		else
+		{
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+				
+			}
+			else
+			{
+				printf("The layer (%d) used by GetLayerComboF for the current screen are not properly configured.\n", layer);
+				return -1;
+			}
+		}
 		
-		return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 	}
 }
 
@@ -1431,7 +1602,19 @@ int GetLayerComboI(int layer, int pos)
 			else return Game->GetComboInherentFlag(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
 		
-		return Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+		else
+		{
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				return Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+			}
+			else
+			{
+				printf("The layer (%d) used by GetLayerComboI for the current screen are not properly configured.\n", layer);
+				return -1;
+			}
+		}
+		
 	}
 }
 
@@ -1473,8 +1656,19 @@ int GetLayerComboS(int layer, int pos)
 			}
 			else return Game->GetComboSolid(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
+		else
+		{
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+			}
+			else
+			{
+				printf("The layer (%d) used by GetLayerComboS for the current screen are not properly configured.\n", layer);
+				return -1;
+			}
+		}
 		
-		return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 	}
 }
 
@@ -1516,8 +1710,19 @@ int GetLayerComboT(int layer, int pos)
 			}
 			else return Game->GetComboType(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
+		else
+		{
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+			}
+			else
+			{
+				printf("The layer (%d) used by GetLayerComboT for the current screen are not properly configured.\n", layer);
+				return -1;
+			}
+		}
 		
-		return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 	}
 }
 
@@ -1533,6 +1738,316 @@ bool GetLevelItem(int itm)
 	return (Game->LItems[Game->GetCurLevel()]&itm);
 }
 
+//Gets mapdata EFlags, similar to ScreenEFlag()
+//Uses a mapdata pointer.
+int GetMapScreenEFlag(mapdata md, int category, int flag) 
+{
+	int catsizes[] = {5,5,4}; //this is what the editor shows. 
+	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
+	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return md->EFlags[category]&(1<<flag);
+}
+
+//Gets mapdata EFlags, similar to ScreenEFlag()
+//Uses map an screen integer values.
+int GetMapScreenEFlag(int mapid, int scr, int category, int flag) 
+{
+	mapdata m = Game->LoadMapData(mapid, scr);
+	int catsizes[] = {5,5,4}; //this is what the editor shows. 
+	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
+	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return m->EFlags[category]&(1<<flag);
+}
+
+
+//Helper function to get mapdata->Flags[] values
+//See the enum mapscreenflags for legal flags. 
+//Accepts a mapdata pointer.
+bool GetMapscreenFlag(mapdata m, mapscreenflags flagid)
+{
+	switch(flagid)
+	{
+		//0, flags
+		case MSF_BLOCKSHUT:
+			return (m->Flags[0]&1);
+		case MSF_ENEMIES_ITEM:
+			return (m->Flags[0]&2);  
+		case MSF_DARKROOM:
+			return (m->Flags[0]&4);
+		//8 IS A DUMMY PROC
+		case MSF_STAIRS:
+			return (m->Flags[0]&16);
+		case MSF_ALLOW_LADDER:
+			return (m->Flags[0]&32);
+		case MSF_MAZEPATHS:
+			return (m->Flags[0]&64);
+		case MSF_SFXONENTRY:
+			return (m->Flags[0]&128);
+		
+		//1, flags2
+		//what, no 1?
+		case MSF_MIDAIR:
+			return ((m->Flags[1]>>4)&2);
+		case MSF_TRAPS_IGNORE_SOLID:
+			return ((m->Flags[1]>>4)&4);
+		case MSF_ENEMEIS_SECRET:
+			return ((m->Flags[1]>>4)&8);
+		
+		//2, flags3
+		case MSF_HOLDUP:
+			return (m->Flags[2]&1);
+		case MSF_CYCLEINIT:
+			return (m->Flags[2]&2);
+		case MSF_INVISIBLEENEMIES:
+			return (m->Flags[2]&4);
+		case MSF_INVISLINK:
+			return (m->Flags[2]&8);
+		case MSF_NOSUBSCREEN:
+			return (m->Flags[2]&16);
+		case MSF_SPRITECARRY:
+			return (m->Flags[2]&32);
+		case MSF_NOOFFSET:
+			return (m->Flags[2]&64);
+		case MSF_EMELIESALWAYSRETURN:
+			return (m->Flags[2]&128);
+		
+		//3, flags4
+		//1 AND 2 ARE APPARENTLY UNUSED?
+		case MSF_DIRECTTIMEDWARPS:
+			return (m->Flags[3]&4);
+		case MSF_SECRETSISABLETIMEWRP:
+			return (m->Flags[3]&8);
+		case MSF_ENEMIES_SECRET_PERM:
+			return (m->Flags[3]&16);
+		//32 IS NOT USED
+		case MSF_SAVECONTHERE:
+			return (m->Flags[3]&64);
+		case MSF_SAVEONENTRY:
+			return (m->Flags[3]&128);
+		
+		//4, flags5
+		//no 1?
+		case MSF_RANDOMTIMEDWARP:
+			return (m->Flags[4]&1);
+		case MSF_IGNOREBOOTS:
+			return (m->Flags[4]&2);
+		case MSF_AUTODIRECT:
+			return (m->Flags[4]&4);
+		case MSF_SENDSIRECT:
+			return (m->Flags[4]&8);
+		case MSF_TEMPSECRETS:
+			return (m->Flags[4]&16);
+		//no 32?
+		case MSF_NO_DIVING:
+			return (m->Flags[4]&64);
+		case MSF_NOCARRYOVERFFC:
+			return (m->Flags[4]&128);
+		
+		//5, flags6
+		case MSF_INTERIOR:
+			return (m->Flags[5]&1);
+		case MSF_DUNGEON:
+			return (m->Flags[5]&2);
+		case MSF_TRIGPERM:
+			return (m->Flags[5]&4);
+		case MSF_CONTHERE:
+			return (m->Flags[5]&8);
+		case MSF_NOCONTINUEWARP:
+			return (m->Flags[5]&16);
+		case MSF_ALLTRIGFLAGS:
+			return (m->Flags[5]&32);
+		case MSF_TOGGLERINGS:
+			return (m->Flags[5]&64);
+		case MSF_WRAPFFC:
+			return (m->Flags[5]&128);
+		
+		//6, flags7
+		case MSF_LAYER3BG:
+			return (m->Flags[6]&1);
+		case MSF_LAYER2BG:
+			return (m->Flags[6]&2);
+		case MSF_FALLS:
+			return (m->Flags[6]&4);
+		case MSF_SIDEVIEW:
+			return (m->Flags[6]&8);
+		case MSF_NOLINKMARKER:
+			return (m->Flags[6]&16);
+		case MSF_PALCHANGE:
+			return (m->Flags[6]&64);
+		case MSF_DRYLAKE:
+			return (m->Flags[6]&128);
+		
+		//7, flags8
+		case MSF_SCRIPT1:
+			return (m->Flags[7]&1);
+		case MSF_SCRIPT2:
+			return (m->Flags[7]&2);
+		case MSF_SCRIPT3:
+			return (m->Flags[7]&4);
+		case MSF_SCRIPT4:
+			return (m->Flags[7]&8);
+		case MSF_SCRIPT5:
+			return (m->Flags[7]&16);
+		case MSF_LENSEFFECT:
+			return (m->Flags[7]&32);
+		case MSF_MAZEOVERRIDE:
+			return (m->Flags[7]&64);
+		
+		default: 
+		{
+			printf("Invalid flag id (%d) passed to GetMapscreenFlag()\n", flagid); return 0;
+		}
+	}
+}
+
+
+
+//Helper function to get mapdata->Flags[] values
+//See the enum mapscreenflags for legal flags. 
+//Accepts a map ID and a screen ID.
+bool GetMapscreenFlag(int mapid, int scr, mapscreenflags flagid)
+{
+	mapdata m = Game->LoadMapData(mapid, scr);
+	switch(flagid)
+	{
+		//0, flags
+		case MSF_BLOCKSHUT:
+			return (m->Flags[0]&1);
+		case MSF_ENEMIES_ITEM:
+			return (m->Flags[0]&2);  
+		case MSF_DARKROOM:
+			return (m->Flags[0]&4);
+		//8 IS A DUMMY PROC
+		case MSF_STAIRS:
+			return (m->Flags[0]&16);
+		case MSF_ALLOW_LADDER:
+			return (m->Flags[0]&32);
+		case MSF_MAZEPATHS:
+			return (m->Flags[0]&64);
+		case MSF_SFXONENTRY:
+			return (m->Flags[0]&128);
+		
+		//1, flags2
+		//what, no 1?
+		case MSF_MIDAIR:
+			return ((m->Flags[1]>>4)&2);
+		case MSF_TRAPS_IGNORE_SOLID:
+			return ((m->Flags[1]>>4)&4);
+		case MSF_ENEMEIS_SECRET:
+			return ((m->Flags[1]>>4)&8);
+		
+		//2, flags3
+		case MSF_HOLDUP:
+			return (m->Flags[2]&1);
+		case MSF_CYCLEINIT:
+			return (m->Flags[2]&2);
+		case MSF_INVISIBLEENEMIES:
+			return (m->Flags[2]&4);
+		case MSF_INVISLINK:
+			return (m->Flags[2]&8);
+		case MSF_NOSUBSCREEN:
+			return (m->Flags[2]&16);
+		case MSF_SPRITECARRY:
+			return (m->Flags[2]&32);
+		case MSF_NOOFFSET:
+			return (m->Flags[2]&64);
+		case MSF_EMELIESALWAYSRETURN:
+			return (m->Flags[2]&128);
+		
+		//3, flags4
+		//1 AND 2 ARE APPARENTLY UNUSED?
+		case MSF_DIRECTTIMEDWARPS:
+			return (m->Flags[3]&4);
+		case MSF_SECRETSISABLETIMEWRP:
+			return (m->Flags[3]&8);
+		case MSF_ENEMIES_SECRET_PERM:
+			return (m->Flags[3]&16);
+		//32 IS NOT USED
+		case MSF_SAVECONTHERE:
+			return (m->Flags[3]&64);
+		case MSF_SAVEONENTRY:
+			return (m->Flags[3]&128);
+		
+		//4, flags5
+		//no 1?
+		case MSF_RANDOMTIMEDWARP:
+			return (m->Flags[4]&1);
+		case MSF_IGNOREBOOTS:
+			return (m->Flags[4]&2);
+		case MSF_AUTODIRECT:
+			return (m->Flags[4]&4);
+		case MSF_SENDSIRECT:
+			return (m->Flags[4]&8);
+		case MSF_TEMPSECRETS:
+			return (m->Flags[4]&16);
+		//no 32?
+		case MSF_NO_DIVING:
+			return (m->Flags[4]&64);
+		case MSF_NOCARRYOVERFFC:
+			return (m->Flags[4]&128);
+		
+		//5, flags6
+		case MSF_INTERIOR:
+			return (m->Flags[5]&1);
+		case MSF_DUNGEON:
+			return (m->Flags[5]&2);
+		case MSF_TRIGPERM:
+			return (m->Flags[5]&4);
+		case MSF_CONTHERE:
+			return (m->Flags[5]&8);
+		case MSF_NOCONTINUEWARP:
+			return (m->Flags[5]&16);
+		case MSF_ALLTRIGFLAGS:
+			return (m->Flags[5]&32);
+		case MSF_TOGGLERINGS:
+			return (m->Flags[5]&64);
+		case MSF_WRAPFFC:
+			return (m->Flags[5]&128);
+		
+		//6, flags7
+		case MSF_LAYER3BG:
+			return (m->Flags[6]&1);
+		case MSF_LAYER2BG:
+			return (m->Flags[6]&2);
+		case MSF_FALLS:
+			return (m->Flags[6]&4);
+		case MSF_SIDEVIEW:
+			return (m->Flags[6]&8);
+		case MSF_NOLINKMARKER:
+			return (m->Flags[6]&16);
+		case MSF_PALCHANGE:
+			return (m->Flags[6]&64);
+		case MSF_DRYLAKE:
+			return (m->Flags[6]&128);
+		
+		//7, flags8
+		case MSF_SCRIPT1:
+			return (m->Flags[7]&1);
+		case MSF_SCRIPT2:
+			return (m->Flags[7]&2);
+		case MSF_SCRIPT3:
+			return (m->Flags[7]&4);
+		case MSF_SCRIPT4:
+			return (m->Flags[7]&8);
+		case MSF_SCRIPT5:
+			return (m->Flags[7]&16);
+		case MSF_LENSEFFECT:
+			return (m->Flags[7]&32);
+		case MSF_MAZEOVERRIDE:
+			return (m->Flags[7]&64);
+		
+		default: 
+		{
+			printf("Invalid flag id (%d) passed to GetMapscreenFlag()\n", flagid); return 0;
+		}
+	}
+}
+
+
+
+//Puts a ZQE Message String into a client array string 'ptr'
 void GetMessage(int ID, char32 ptr)
 {
 	Game->GetMessage(ID, ptr);
@@ -1743,6 +2258,34 @@ int HitboxTop(ffc a)
 
 //I
 
+//Returns if a layer is set as a background layer for the 
+//current screen.
+bool IsBackgroundLayer(int layer)
+{
+	switch(layer)
+	{
+		case 2:
+			return ( ((Screen->Flags[SF_VIEW]&SFV_LAYER2BG) ^^ (Game->LoadDMapData(Game->GetCurDMap())->Flagset[DMFS_LAYER2ISBACKGROUND])) ? true : false );
+		case 3:
+			return ( ((Screen->Flags[SF_VIEW]&SFV_LAYER3BG) ^^ (Game->LoadDMapData(Game->GetCurDMap())->Flagset[DMFS_LAYER3ISBACKGROUND])) ? true : false );
+		default: return false;
+	}
+}
+
+//Returns if a layer is set as a background layer for a 
+//mapdata pointer.
+bool IsBackgroundLayer(int layer, mapdata m)
+{
+	switch(layer)
+	{
+		case 2:
+			return ( ((m->Flags[SF_VIEW]&SFV_LAYER2BG) ^^ (Game->LoadDMapData(Game->GetCurDMap())->Flagset[DMFS_LAYER2ISBACKGROUND])) ? true : false );
+		case 3:
+			return ( ((m->Flags[SF_VIEW]&SFV_LAYER3BG) ^^ (Game->LoadDMapData(Game->GetCurDMap())->Flagset[DMFS_LAYER3ISBACKGROUND])) ? true : false );
+		default: return false;
+	}
+}
+
 //Returns the correct offset to be 'dist' pixels away from the front of a sprite facing in the direction 'dir'
 int InFrontX(int dir, int dist) 
 {
@@ -1790,6 +2333,12 @@ bool InputMiddleClick()
 bool InputRightClick() 
 {
 	return (Link->InputMouseB&MB_RIGHTCLICK);
+}
+
+//Returns true if the present screen is a dungen type. 
+bool IsDungeon() 
+{
+	return ((Screen->Flags[SF_ROOMTYPE] & 1) || Game->LoadDMapData(Game->GetCurDMap())->Type == DMAP_DUNGEON);
 }
 
 //Returns true if Link is on a Dungeon (flagged) screen
@@ -2231,11 +2780,13 @@ int NumItemsOf(int type)
 	return ret;
 }
 
+//Returns the number of keys that the player has for the level 'level'
 int NumKeys(int level)
 {
 	return Game->LKeys[level]+Game->Counter[CR_KEYS];
 }
 
+//Returns the number of keys that the player has for the current level.
 int NumKeys()
 {
 	return NumKeys(Game->GetCurLevel());
@@ -2369,18 +2920,8 @@ void old_SetLayerComboT(int layer, int pos, int type) {
 		Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, type);
 }
 
-//Returns true if the sprite at (x,y) is standing on a sideview platform on a sideview screen, as worked out
-//by ZC's internal code.
-//For 16 pixel high sprites only.
-bool OnSidePlatform(int x, int y) {
-	return ((Screen->isSolid(x+4,y+16) || Screen->isSolid(x+12,y+16)) && Screen->Flags[SF_ROOMTYPE]&4);
-}
+//OnSidePlatform() is now in std_sideview.zh
 
-//Returns true if a sprite of height 'h' at position (x,y) with an offset of (xOff,yOff) is standing
-//on a sideview platform on a sideview screen.
-bool OnSidePlatform(int x, int y, int xOff, int yOff, int h) {
-	return ((Screen->isSolid((x+xOff)+4,(y+yOff)+h) || Screen->isSolid((x+xOff)+12,(y+yOff)+h)) && Screen->Flags[SF_ROOMTYPE]&4);
-}
 //Returns the opposite direction to angle 'dir'
 int OppositeDir(int dir) 
 {
@@ -2573,21 +3114,65 @@ void ScreenCopy(int destmap, int destscr, int srcmap, int srcscr)
 //Flags are numbered starting from 0
 int ScreenEFlag(int category, int flag) 
 {
-	int catsizes[] = {5,5,4}; //this is what the editor shows. 
+	int catsizes[] = {SEFSP_LAST,SEFL1_LAST,SEFL2_LAST}; //this is what the editor shows. 
 	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
 	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
 	if(flag < 0 || flag >= catsizes[category]) return -1;
 	return Screen->EFlags[category]&(1<<flag);
 }
 
+//Returns 1 if Screen Enemy Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
+//Flags are numbered starting from 0
+int ScreenEFlag(int m, int scr, int category, int flag) 
+{
+	mapdata md = Game->LoadMapData(m,scr); 
+	int catsizes[] = {SEFSP_LAST,SEFL1_LAST,SEFL2_LAST}; //this is what the editor shows. 
+	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
+	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return md->EFlags[category]&(1<<flag);
+}
+
+//Returns 1 if Screen Enemy Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
+//Flags are numbered starting from 0
+int ScreenEFlag(mapdata md, int category, int flag) 
+{
+	int catsizes[] = {SEFSP_LAST,SEFL1_LAST,SEFL2_LAST}; //this is what the editor shows. 
+	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
+	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return md->EFlags[category]&(1<<flag);
+}
+
 //Returns 1 if Screen Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
 //Flags are numbered starting from 0
 int ScreenFlag(int category, int flag) 
 {
-	int catsizes[] = {3,7,4,5,2,4,4,2,3,7}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
+	int catsizes[] = {SFR_LAST,SFV_LAST,SFS_LAST,SFW_LAST,SFI_LAST,SFC_LAST,SFSV_LAST,SFF_LAST,SFWH_LAST,SFM_LAST}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
 	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
 	if(flag < 0 || flag >= catsizes[category]) return -1;
 	return Screen->Flags[category]&(1<<flag);
+}
+
+//Returns 1 if Screen Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
+//Flags are numbered starting from 0
+int ScreenFlag(int m, int scr, int category, int flag) 
+{
+	mapdata md = Game->LoadMapData(m,scr); 
+	int catsizes[] = {SFR_LAST,SFV_LAST,SFS_LAST,SFW_LAST,SFI_LAST,SFC_LAST,SFSV_LAST,SFF_LAST,SFWH_LAST,SFM_LAST}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
+	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return md->Flags[category]&(1<<flag);
+}
+
+//Returns 1 if Screen Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
+//Flags are numbered starting from 0
+int ScreenFlag(mapdata m, int category, int flag) 
+{
+	int catsizes[] = {SFR_LAST,SFV_LAST,SFS_LAST,SFW_LAST,SFI_LAST,SFC_LAST,SFSV_LAST,SFF_LAST,SFWH_LAST,SFM_LAST}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
+	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return m->Flags[category]&(1<<flag);
 }
 
 //Returns the item ID for the current screen, if there is one. 
@@ -2669,7 +3254,15 @@ void SetLayerComboC(int layer, int pos, int combo)
 		}
 		else
 		{
-			Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			}
+			else
+			{
+				printf("The layer (%d) used by SetLayerComboC for the current screen are not properly configured.\n", layer);
+			}
 		}
 	}
 }
@@ -2726,7 +3319,14 @@ void SetLayerComboD(int layer, int pos, int combo)
 		}
 		else
 		{
-			Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			}
+			else
+			{
+				printf("The layer (%d) used by SetLayerComboD for the current screen are not properly configured.\n", layer);
+			}
 		}
 	}
 }
@@ -2783,7 +3383,14 @@ void SetLayerComboF(int layer, int pos, int combo)
 		}
 		else
 		{
-			Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			}
+			else
+			{
+				printf("The layer (%d) used by SetLayerComboF for the current screen are not properly configured.\n", layer);
+			}
 		}
 	}
 }
@@ -2840,7 +3447,14 @@ void SetLayerComboI(int layer, int pos, int combo)
 		}
 		else
 		{
-			Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			}
+			else
+			{
+				printf("The layer (%d) used by SetLayerComboI for the current screen are not properly configured.\n", layer);
+			}
 		}
 	}
 }
@@ -2898,7 +3512,15 @@ void SetLayerComboS(int layer, int pos, int combo)
 		}
 		else
 		{
-			Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			}
+			else
+			{
+				printf("The layer (%d) used by SetLayerComboS for the current screen are not properly configured.\n", layer);
+			}
+			
 		}
 	}
 }
@@ -2956,7 +3578,15 @@ void SetLayerComboT(int layer, int pos, int combo)
 		}
 		else
 		{
-			Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			if ( Screen->LayerMap(layer) != -1 && Screen->LayerScreen(layer) != -1 )
+			{
+				Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+			}
+			else
+			{
+				printf("The layer (%d) used by SetLayerComboT for the current screen are not properly configured.\n", layer);
+			}
+			
 		}
 	}
 }
@@ -2971,6 +3601,293 @@ void SetLevelItem(int itm, bool state)
 {
 	if(state) Game->LItems[Game->GetCurLevel()] |= itm;
 	else Game->LItems[Game->GetCurLevel()] &= ~itm;
+}
+
+//Helper function to set mapdata->Flags[] bits. 
+//See the enum mapscreenflags for legal flags. 
+//Accepts a mapdata pointer.
+void SetMapscreenFlag(mapdata m, mapscreenflags flagid, bool state)
+{
+	switch(flagid)
+	{
+		//0, flags
+		case MSF_BLOCKSHUT:
+			(state) ? (m->Flags[0] |=1) : (m->Flags[0] ~=1); break;
+		case MSF_ENEMIES_ITEM:
+			(state) ? (m->Flags[0] |=2) : (m->Flags[0] ~=2); break;
+		case MSF_DARKROOM:
+			(state) ? (m->Flags[0] |=4) : (m->Flags[0] ~=4); break;
+		//8 IS A DUMMY PROC
+		case MSF_STAIRS:
+			(state) ? (m->Flags[0] |=16) : (m->Flags[0] ~=16); break;
+		case MSF_ALLOW_LADDER:
+			(state) ? (m->Flags[0] |=32) : (m->Flags[0] ~=32); break;
+		case MSF_MAZEPATHS:
+			(state) ? (m->Flags[0] |=64) : (m->Flags[0] ~=64); break;
+		case MSF_SFXONENTRY:
+			(state) ? (m->Flags[0] |=128) : (m->Flags[0] ~=128); break;
+		
+		//1, flags2
+		//what, no 1?
+		case MSF_MIDAIR:
+			(state) ? (m->Flags[1] |=2>>4) : (m->Flags[1] ~=2>>4); break;
+		case MSF_TRAPS_IGNORE_SOLID:
+			(state) ? (m->Flags[1] |=4>>4) : (m->Flags[1] ~=4>>4); break;
+		case MSF_ENEMEIS_SECRET:
+			(state) ? (m->Flags[1] |=8>>4) : (m->Flags[1] ~=8>>4); break;
+		
+		//2, flags3
+		case MSF_HOLDUP:
+			(state) ? (m->Flags[2] |=1) : (m->Flags[2] ~=1); break;
+		case MSF_CYCLEINIT:
+			(state) ? (m->Flags[2] |=2) : (m->Flags[2] ~=2); break;
+		case MSF_INVISIBLEENEMIES:
+			(state) ? (m->Flags[2] |=4) : (m->Flags[2] ~=4); break;
+		case MSF_INVISLINK:
+			(state) ? (m->Flags[2] |=8) : (m->Flags[2] ~=8); break;
+		case MSF_NOSUBSCREEN:
+			(state) ? (m->Flags[2] |=16) : (m->Flags[2] ~=16); break;
+		case MSF_SPRITECARRY:
+			(state) ? (m->Flags[2] |=32) : (m->Flags[2] ~=32); break;
+		case MSF_NOOFFSET:
+			(state) ? (m->Flags[2] |=64) : (m->Flags[2] ~=64); break;
+		case MSF_EMELIESALWAYSRETURN:
+			(state) ? (m->Flags[2] |=128) : (m->Flags[2] ~=128); break;
+		
+		//3, flags4
+		//1 AND 2 ARE APPARENTLY UNUSED?
+		case MSF_DIRECTTIMEDWARPS:
+			(state) ? (m->Flags[3] |=4) : (m->Flags[3] ~=4); break;
+		case MSF_SECRETSISABLETIMEWRP:
+			(state) ? (m->Flags[3] |=8) : (m->Flags[3] ~=8); break;
+		case MSF_ENEMIES_SECRET_PERM:
+			(state) ? (m->Flags[3] |=16) : (m->Flags[3] ~=16); break;
+		//32 IS NOT USED
+		case MSF_SAVECONTHERE:
+			(state) ? (m->Flags[3] |=64) : (m->Flags[3] ~=64); break;
+		case MSF_SAVEONENTRY:
+			(state) ? (m->Flags[3] |=128) : (m->Flags[3] ~=128); break;
+		
+		//4, flags5
+		//no 1?
+		case MSF_RANDOMTIMEDWARP:
+			(state) ? (m->Flags[4] |=1) : (m->Flags[4] ~=1); break;
+		case MSF_IGNOREBOOTS:
+			(state) ? (m->Flags[4] |=2) : (m->Flags[4] ~=2); break;
+		case MSF_AUTODIRECT:
+			(state) ? (m->Flags[4] |=4) : (m->Flags[4] ~=4); break;
+		case MSF_SENDSIRECT:
+			(state) ? (m->Flags[4] |=8) : (m->Flags[4] ~=8); break;
+		case MSF_TEMPSECRETS:
+			(state) ? (m->Flags[4] |=16) : (m->Flags[4] ~=16); break;
+		//no 32?
+		case MSF_NO_DIVING:
+			(state) ? (m->Flags[4] |=64) : (m->Flags[4] ~=64); break;
+		case MSF_NOCARRYOVERFFC:
+			(state) ? (m->Flags[4] |=128) : (m->Flags[4] ~=128); break;
+		
+		
+		//5, flags6
+		case MSF_INTERIOR:
+			(state) ? (m->Flags[5] |=1) : (m->Flags[5] ~=1); break;
+		case MSF_DUNGEON:
+			(state) ? (m->Flags[5] |=2) : (m->Flags[5] ~=2); break;
+		case MSF_TRIGPERM:
+			(state) ? (m->Flags[5] |=4) : (m->Flags[5] ~=4); break;
+		case MSF_CONTHERE:
+			(state) ? (m->Flags[5] |=8) : (m->Flags[5] ~=8); break;
+		case MSF_NOCONTINUEWARP:
+			(state) ? (m->Flags[5] |=16) : (m->Flags[5] ~=16); break;
+		case MSF_ALLTRIGFLAGS:
+			(state) ? (m->Flags[5] |=32) : (m->Flags[5] ~=32); break;
+		case MSF_TOGGLERINGS:
+			(state) ? (m->Flags[5] |=64) : (m->Flags[5] ~=64); break;
+		case MSF_WRAPFFC:
+			(state) ? (m->Flags[5] |=128) : (m->Flags[5] ~=128); break;
+		
+		//6, flags7
+		case MSF_LAYER3BG:
+			(state) ? (m->Flags[6] |=1) : (m->Flags[6] ~=1); break;
+		case MSF_LAYER2BG:
+			(state) ? (m->Flags[6] |=2) : (m->Flags[6] ~=2); break;
+		case MSF_FALLS:
+			(state) ? (m->Flags[6] |=4) : (m->Flags[6] ~=4); break;
+		case MSF_SIDEVIEW:
+			(state) ? (m->Flags[6] |=8) : (m->Flags[6] ~=8); break;
+		case MSF_NOLINKMARKER:
+			(state) ? (m->Flags[6] |=16) : (m->Flags[6] ~=16); break;
+		//32 IS UNUSED
+		case MSF_PALCHANGE:
+			(state) ? (m->Flags[6] |=64) : (m->Flags[6] ~=64); break;
+		case MSF_DRYLAKE:
+			(state) ? (m->Flags[6] |=128) : (m->Flags[6] ~=128); break;
+		
+		//7, flags8
+		case MSF_SCRIPT1:
+			(state) ? (m->Flags[7] |=1) : (m->Flags[7] ~=1); break;
+		case MSF_SCRIPT2:
+			(state) ? (m->Flags[7] |=2) : (m->Flags[7] ~=2); break;
+		case MSF_SCRIPT3:
+			(state) ? (m->Flags[7] |=4) : (m->Flags[7] ~=4); break;
+		case MSF_SCRIPT4:
+			(state) ? (m->Flags[7] |=8) : (m->Flags[7] ~=8); break;
+		case MSF_SCRIPT5:
+			(state) ? (m->Flags[7] |=16) : (m->Flags[7] ~=16); break;
+		case MSF_LENSEFFECT:
+			(state) ? (m->Flags[7] |=32) : (m->Flags[7] ~=32); break;
+		case MSF_MAZEOVERRIDE:
+			(state) ? (m->Flags[7] |=64) : (m->Flags[7] ~=64); break;
+		
+		
+		default: 
+		{
+			printf("Invalid flag id (%d) passed to SetMapscreenFlag()\n", flagid);  break;
+		}
+	}
+}
+
+//Helper function to set mapdata->Flags[] bits. 
+//See the enum mapscreenflags for legal flags. 
+//Accepts a map ID, and a screen ID.
+void SetMapscreenFlag(int mapid, int scr, mapscreenflags flagid, bool state)
+{
+	mapdata m = Game->LoadMapData(mapid, scr);
+	switch(flagid)
+	{
+		//0, flags
+		case MSF_BLOCKSHUT:
+			(state) ? (m->Flags[0] |=1) : (m->Flags[0] ~=1); break;
+		case MSF_ENEMIES_ITEM:
+			(state) ? (m->Flags[0] |=2) : (m->Flags[0] ~=2); break;
+		case MSF_DARKROOM:
+			(state) ? (m->Flags[0] |=4) : (m->Flags[0] ~=4); break;
+		//8 IS A DUMMY PROC
+		case MSF_STAIRS:
+			(state) ? (m->Flags[0] |=16) : (m->Flags[0] ~=16); break;
+		case MSF_ALLOW_LADDER:
+			(state) ? (m->Flags[0] |=32) : (m->Flags[0] ~=32); break;
+		case MSF_MAZEPATHS:
+			(state) ? (m->Flags[0] |=64) : (m->Flags[0] ~=64); break;
+		case MSF_SFXONENTRY:
+			(state) ? (m->Flags[0] |=128) : (m->Flags[0] ~=128); break;
+		
+		//1, flags2
+		//what, no 1?
+		case MSF_MIDAIR:
+			(state) ? (m->Flags[1] |=2>>4) : (m->Flags[1] ~=2>>4); break;
+		case MSF_TRAPS_IGNORE_SOLID:
+			(state) ? (m->Flags[1] |=4>>4) : (m->Flags[1] ~=4>>4); break;
+		case MSF_ENEMEIS_SECRET:
+			(state) ? (m->Flags[1] |=8>>4) : (m->Flags[1] ~=8>>4); break;
+		
+		//2, flags3
+		case MSF_HOLDUP:
+			(state) ? (m->Flags[2] |=1) : (m->Flags[2] ~=1); break;
+		case MSF_CYCLEINIT:
+			(state) ? (m->Flags[2] |=2) : (m->Flags[2] ~=2); break;
+		case MSF_INVISIBLEENEMIES:
+			(state) ? (m->Flags[2] |=4) : (m->Flags[2] ~=4); break;
+		case MSF_INVISLINK:
+			(state) ? (m->Flags[2] |=8) : (m->Flags[2] ~=8); break;
+		case MSF_NOSUBSCREEN:
+			(state) ? (m->Flags[2] |=16) : (m->Flags[2] ~=16); break;
+		case MSF_SPRITECARRY:
+			(state) ? (m->Flags[2] |=32) : (m->Flags[2] ~=32); break;
+		case MSF_NOOFFSET:
+			(state) ? (m->Flags[2] |=64) : (m->Flags[2] ~=64); break;
+		case MSF_EMELIESALWAYSRETURN:
+			(state) ? (m->Flags[2] |=128) : (m->Flags[2] ~=128); break;
+		
+		//3, flags4
+		//1 AND 2 ARE APPARENTLY UNUSED?
+		case MSF_DIRECTTIMEDWARPS:
+			(state) ? (m->Flags[3] |=4) : (m->Flags[3] ~=4); break;
+		case MSF_SECRETSISABLETIMEWRP:
+			(state) ? (m->Flags[3] |=8) : (m->Flags[3] ~=8); break;
+		case MSF_ENEMIES_SECRET_PERM:
+			(state) ? (m->Flags[3] |=16) : (m->Flags[3] ~=16); break;
+		//32 IS NOT USED
+		case MSF_SAVECONTHERE:
+			(state) ? (m->Flags[3] |=64) : (m->Flags[3] ~=64); break;
+		case MSF_SAVEONENTRY:
+			(state) ? (m->Flags[3] |=128) : (m->Flags[3] ~=128); break;
+		
+		//4, flags5
+		//no 1?
+		case MSF_RANDOMTIMEDWARP:
+			(state) ? (m->Flags[4] |=1) : (m->Flags[4] ~=1); break;
+		case MSF_IGNOREBOOTS:
+			(state) ? (m->Flags[4] |=2) : (m->Flags[4] ~=2); break;
+		case MSF_AUTODIRECT:
+			(state) ? (m->Flags[4] |=4) : (m->Flags[4] ~=4); break;
+		case MSF_SENDSIRECT:
+			(state) ? (m->Flags[4] |=8) : (m->Flags[4] ~=8); break;
+		case MSF_TEMPSECRETS:
+			(state) ? (m->Flags[4] |=16) : (m->Flags[4] ~=16); break;
+		//no 32?
+		case MSF_NO_DIVING:
+			(state) ? (m->Flags[4] |=64) : (m->Flags[4] ~=64); break;
+		case MSF_NOCARRYOVERFFC:
+			(state) ? (m->Flags[4] |=128) : (m->Flags[4] ~=128); break;
+		
+		
+		//5, flags6
+		case MSF_INTERIOR:
+			(state) ? (m->Flags[5] |=1) : (m->Flags[5] ~=1); break;
+		case MSF_DUNGEON:
+			(state) ? (m->Flags[5] |=2) : (m->Flags[5] ~=2); break;
+		case MSF_TRIGPERM:
+			(state) ? (m->Flags[5] |=4) : (m->Flags[5] ~=4); break;
+		case MSF_CONTHERE:
+			(state) ? (m->Flags[5] |=8) : (m->Flags[5] ~=8); break;
+		case MSF_NOCONTINUEWARP:
+			(state) ? (m->Flags[5] |=16) : (m->Flags[5] ~=16); break;
+		case MSF_ALLTRIGFLAGS:
+			(state) ? (m->Flags[5] |=32) : (m->Flags[5] ~=32); break;
+		case MSF_TOGGLERINGS:
+			(state) ? (m->Flags[5] |=64) : (m->Flags[5] ~=64); break;
+		case MSF_WRAPFFC:
+			(state) ? (m->Flags[5] |=128) : (m->Flags[5] ~=128); break;
+		
+		//6, flags7
+		case MSF_LAYER3BG:
+			(state) ? (m->Flags[6] |=1) : (m->Flags[6] ~=1); break;
+		case MSF_LAYER2BG:
+			(state) ? (m->Flags[6] |=2) : (m->Flags[6] ~=2); break;
+		case MSF_FALLS:
+			(state) ? (m->Flags[6] |=4) : (m->Flags[6] ~=4); break;
+		case MSF_SIDEVIEW:
+			(state) ? (m->Flags[6] |=8) : (m->Flags[6] ~=8); break;
+		case MSF_NOLINKMARKER:
+			(state) ? (m->Flags[6] |=16) : (m->Flags[6] ~=16); break;
+		//32 IS UNUSED
+		case MSF_PALCHANGE:
+			(state) ? (m->Flags[6] |=64) : (m->Flags[6] ~=64); break;
+		case MSF_DRYLAKE:
+			(state) ? (m->Flags[6] |=128) : (m->Flags[6] ~=128); break;
+		
+		//7, flags8
+		case MSF_SCRIPT1:
+			(state) ? (m->Flags[7] |=1) : (m->Flags[7] ~=1); break;
+		case MSF_SCRIPT2:
+			(state) ? (m->Flags[7] |=2) : (m->Flags[7] ~=2); break;
+		case MSF_SCRIPT3:
+			(state) ? (m->Flags[7] |=4) : (m->Flags[7] ~=4); break;
+		case MSF_SCRIPT4:
+			(state) ? (m->Flags[7] |=8) : (m->Flags[7] ~=8); break;
+		case MSF_SCRIPT5:
+			(state) ? (m->Flags[7] |=16) : (m->Flags[7] ~=16); break;
+		case MSF_LENSEFFECT:
+			(state) ? (m->Flags[7] |=32) : (m->Flags[7] ~=32); break;
+		case MSF_MAZEOVERRIDE:
+			(state) ? (m->Flags[7] |=64) : (m->Flags[7] ~=64); break;
+		
+		
+		default: 
+		{
+			printf("Invalid flag id (%d) passed to SetMapscreenFlag()\n", flagid);  break;
+		}
+	}
 }
 
 //Sets bit 'bit' of Screen->D[] register 'd' to 'state'
@@ -2992,6 +3909,106 @@ void SetScreenDBit(int d, int bit, bool state)
 	else		Screen->D[d] &= ~(1 << bit);
 }
 
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on the current screen, on the current DMap.
+//Respects DMap Offsets.
+void SetVisibleOnDungeonMap(bool state)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	//screen-Game->DMapOffset[dm->ID];
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on a specified screen, on the current DMap.
+//Respects DMap Offsets.
+void SetVisibleOnDungeonMap(int scr, bool state)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on the current screen, on a specified DMap, passed as a dmapdata pointer.
+//Respects DMap Offsets.
+void SetVisibleOnDungeonMap(dmapdata dm, bool state)
+{
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on a specified screen, on a specified DMap, passed as a dmapdata pointer.
+//Respects DMap Offsets.
+void SetVisibleOnDungeonMap(dmapdata dm, int scr, bool state)
+{
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Accepts the screen X and Y on a grid of 8x8, on a specified DMap, passed as a dmapdata pointer.
+//Offsets are immaterial, as this is direct Grid[] access with x,y of the 8x8 grid.
+void SetVisibleOnDungeonMap(dmapdata dm, int x, int y, bool state)
+{
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	(state) ? (dm->Grid[y] |= (128>>x)) : (dm->Grid[y] ~= (128>>x));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on the current screen, on the current DMap.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+void SetVisibleOnDungeonMap(bool no_offset, bool state)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	//screen-Game->DMapOffset[dm->ID];
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on a specified screen, on the current DMap.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+void SetVisibleOnDungeonMap(int scr, bool no_offset, bool state)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on the current screen, on a specified DMap, passed as a dmapdata pointer.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+void SetVisibleOnDungeonMap(dmapdata dm, bool no_offset, bool state)
+{
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
+
+//Sets if a screen is visible on the passive subscreen minimap.
+//Works on a specified screen, on a specified DMap, passed as a dmapdata pointer.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+void SetVisibleOnDungeonMap(dmapdata dm, int scr, bool no_offset, bool state)
+{
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	(state) ? (dm->Grid[row] |= ((128>>col))) : (dm->Grid[row] ~= ((128>>col)));
+}
 
 //Returns the sign of n
 int Sign(int n) 
@@ -3089,6 +4106,19 @@ bool UsingItem(int id)
 
 //V
 
+float vbound(int x, int high, int low) 
+{
+        if ( high < low ) //if high is less than low, invert them
+	{
+		high = high ^ low;
+		low = high ^ low; 
+		high = high ^ low;
+	}
+	if(x<low) x=low;
+	else if(x>high) x=high;
+	return x;
+}
+
 //same as Clamp, but with reversed values.
 int VBound(int x, int high, int low) 
 {
@@ -3113,6 +4143,120 @@ float VectorX(int len, float angle)
 float VectorY(int len, float angle) 
 {
 	return Sin(angle)*len;
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts the X and Y positions of a screen, where X and Y are 0 to 8.
+bool VisibleOnDungeonMap(int x, int y)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	return (dm->Grid[y]&(128>>x));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Uses the current screen.
+bool VisibleOnDungeonMap()
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	//screen-Game->DMapOffset[dm->ID];
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts a specific screen ID for the current dmap.
+bool VisibleOnDungeonMap(int scr)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Uses the current screen on a dmapdata pointer. 
+bool VisibleOnDungeonMap(dmapdata dm)
+{
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts a specific screen ID on a specified dmapdata pointer. 
+bool VisibleOnDungeonMap(dmapdata dm, int scr)
+{
+	int col = (scr % 0x10)-Game->DMapOffset[dm->ID];
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts the X and Y positions of a screen, where X and Y are 0 to 8,
+//using a specified dmapdata pointer. 
+bool VisibleOnDungeonMap(dmapdata dm, int x, int y)
+{
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	return (dm->Grid[y]&(128>>x));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts the X and Y positions of a screen, where X and Y are 0 to 8.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+bool VisibleOnDungeonMap(bool no_offset)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	//screen-Game->DMapOffset[dm->ID];
+	//could get screen X and Y from curscreen and dmapoffset in a separate function
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Uses the current screen.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+bool VisibleOnDungeonMap(int scr, bool no_offset)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Accepts a specific screen ID for the current dmap.
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+bool VisibleOnDungeonMap(dmapdata dm, bool no_offset)
+{
+	int scr = Game->GetCurScreen();
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+
+//Returns if a screen is visible on the passive subscreen minimap.
+//Uses the current screen on a dmapdata pointer. 
+//If bool no_offset is set true, the screen position ignores DMap offsets.
+bool VisibleOnDungeonMap(dmapdata dm, int scr, bool no_offset)
+{
+	int col = (scr % 0x10) - (no_offset ? 0 : Game->DMapOffset[dm->ID]);
+	int row = (scr>>4);
+	return (dm->Grid[row]&((128>>col)));
+}
+	
+//Sets if a screen is visible on the passive subscreen minimap.
+//Accepts the screen X and Y on a grid of 8x8, on the current DMap.
+//Offsets are immaterial, as this is direct Grid[] access with x,y of the 8x8 grid.
+void SetVisibleOnDungeonMap(int x, int y, bool state)
+{
+	dmapdata dm = Game->LoadDMapData(Game->GetCurDMap());
+	(state) ? (dm->Grid[y] |= (128>>x)) : (dm->Grid[y] ~= (128>>x));
 }
 
 //W

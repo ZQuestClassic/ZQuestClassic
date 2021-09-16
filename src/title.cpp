@@ -1269,18 +1269,22 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 	}
 	FFCore.skip_ending_credits = 0;
 	//word item_count;
-	word qstpath_len;
-	word save_count;
-	char name[9];
-	byte tempbyte;
-	short tempshort;
+	word qstpath_len=0;
+	word save_count=0;
+	char name[9]={0};
+	byte tempbyte = 0;
+	short tempshort = 0;
 	//  long templong;
-	word tempword;
-	dword tempdword;
+	word tempword = 0;
+	word tempword2 = 0;
+	word tempword3 = 0;
+	word tempword4 = 0;
+	word tempword5 = 0;
+	dword tempdword = 0;
 	long section_id=0;
 	word section_version=0;
 	word section_cversion=0;
-	dword section_size;
+	dword section_size = 0;
 	
 	//section id
 	if(!p_mgetl(&section_id,f,true))
@@ -1589,9 +1593,30 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			
 			for(int j=0; j<OLDMAXDMAPS*64; ++j)
 			{
-				if(!p_getc(&(savedata[i].bmaps[j]),f,true))
+				byte tempBMaps[OLDMAXDMAPS*64] = {0};
+				for(int j=0; j<OLDMAXDMAPS*64; ++j)
 				{
-					return 35;
+					if(!p_getc(&(tempBMaps[j]),f,true))
+					{
+						return 35;
+					}
+				}
+				std::fill(savedata[i].bmaps, savedata[i].bmaps + MAXDMAPS*128, 0);
+				for(int dm = 0; dm < OLDMAXDMAPS; ++dm)
+				{
+					for(int scr = 0; scr < 128; ++scr)
+					{
+						int di = (dm<<7) + (scr & 0x70) + (scr&15)-(DMaps[dm].type==dmOVERW ? 0 : DMaps[dm].xoff); //New Calculation
+						if(((unsigned)((scr&15)-DMaps[dm].xoff)) > 7) 
+							continue;
+						int si = ((dm-1)<<6) + ((scr>>4)<<3) + ((scr&15)-DMaps[dm].xoff); //Old Calculation
+						if(si < 0)
+						{
+							savedata[i].bmaps[di] = savedata[i].visited[512+si]&0x8F; //Replicate bug; OOB indexes
+							continue;
+						}
+						savedata[i].bmaps[di] = tempBMaps[si]&0x8F;
+					}
 				}
 			}
 		}
@@ -1605,11 +1630,42 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 				}
 			}
 			
-			for(int j=0; j<MAXDMAPS*64; ++j)
+			if(section_version < 17)
 			{
-				if(!p_getc(&(savedata[i].bmaps[j]),f,true))
+				byte tempBMaps[MAXDMAPS*64] = {0};
+				for(int j=0; j<MAXDMAPS*64; ++j)
 				{
-					return 35;
+					if(!p_getc(&(tempBMaps[j]),f,true))
+					{
+						return 35;
+					}
+				}
+				std::fill(savedata[i].bmaps, savedata[i].bmaps + MAXDMAPS*128, 0);
+				for(int dm = 0; dm < MAXDMAPS; ++dm)
+				{
+					for(int scr = 0; scr < 128; ++scr)
+					{
+						int di = (dm<<7) + (scr & 0x70) + (scr&15)-(DMaps[dm].type==dmOVERW ? 0 : DMaps[dm].xoff); //New Calculation
+						if(((unsigned)((scr&15)-DMaps[dm].xoff)) > 7) 
+							continue;
+						int si = ((dm-1)<<6) + ((scr>>4)<<3) + ((scr&15)-DMaps[dm].xoff); //Old Calculation
+						if(si < 0)
+						{
+							savedata[i].bmaps[di] = savedata[i].visited[512+si]&0x8F; //Replicate bug; OOB indexes
+							continue;
+						}
+						savedata[i].bmaps[di] = tempBMaps[si]&0x8F;
+					}
+				}
+			}
+			else
+			{
+				for(int j=0; j<MAXDMAPS*128; ++j)
+				{
+					if(!p_getc(&(savedata[i].bmaps[j]),f,true))
+					{
+						return 35;
+					}
 				}
 			}
 		}
@@ -1845,26 +1901,77 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		}
 	if((section_version > 11 && FFCore.getQuestHeaderInfo(vZelda) < 0x255) || (section_version > 15 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255))
 		{
-			if(!p_igetw(&tempword, f, true))
+			if(!p_igetw(&tempword2, f, true))
 			{
 				return 56;
 			}
 			
-			savedata[i].forced_awpn = tempword;
+			savedata[i].forced_awpn = tempword2;
 			
-			if(!p_igetw(&tempword, f, true))
+			if(!p_igetw(&tempword3, f, true))
 			{
 				return 57;
 			}
 			
-			savedata[i].forced_bwpn = tempword;
+			savedata[i].forced_bwpn = tempword3;
 		}
 		else
 		{
 			savedata[i].forced_awpn = -1;
 			savedata[i].forced_bwpn = -1;
 		}
+		if (section_version > 17)
+		{
+			
+			if(!p_getc(&tempbyte, f, true))
+			{
+				return 58;
+			}
+			
+			savedata[i].xwpn = tempbyte;
+			
+			if(!p_getc(&tempbyte, f, true))
+			{
+				return 59;
+			}
+			
+			savedata[i].ywpn = tempbyte;
+		
+			
+			if(!p_igetw(&tempword3, f, true))
+			{
+				return 60;
+			}
+			
+			savedata[i].forced_xwpn = tempword3;
+			
+			if(!p_igetw(&tempword4, f, true))
+			{
+				return 61;
+			}
+			
+			savedata[i].forced_ywpn = tempword4;
+		}
+		else
+		{
+			savedata[i].xwpn = 0;
+			savedata[i].ywpn = 0;
+			savedata[i].forced_xwpn = -1;
+			savedata[i].forced_ywpn = -1;
+		}
+		
+		if(section_version >= 19)
+		{
+			for(int j=0; j<MAXLEVELS; ++j)
+			{
+				if(!p_igetl(&(savedata[i].lvlswitches[j]),f,true))
+				{
+					return 62;
+				}
+			}
+		}
 	}
+	
 	
 	return 0;
 }
@@ -2006,6 +2113,9 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	//Load game icons
 	for(int i=0; i<MAXSAVES; i++)
 	{
+		byte showmetadata = get_config_int("zeldadx","print_metadata_for_each_save_slot",0);
+		zprint2("Reading Save Slot %d\n", i);
+		
 		if(strlen(saves[i].qstpath))
 		{
 			if(skipicon)
@@ -2022,13 +2132,14 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 			}
 			else
 			{
-				if(!iconbuffer[i].loaded)
+				if(!iconbuffer[i].loaded || get_config_int("zeldadx","reload_game_icons",1))
 				{
-					int ret2 = load_quest(saves+i, false);
+					int ret2 = load_quest(saves+i, false, showmetadata);
 					
 					if(ret2 == qe_OK)
 					{
 						load_game_icon_to_buffer(false,i);
+						load_game_icon(saves+i, true, i);
 					}
 				}
 			}
@@ -2221,7 +2332,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 			return 34;
 		}
 		
-		if(!pfwrite(savedata[i].bmaps,MAXDMAPS*64,f))
+		if(!pfwrite(savedata[i].bmaps,MAXDMAPS*128,f))
 		{
 			return 35;
 		}
@@ -2336,7 +2447,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 				if(!p_iputl(a[k], f))
 					return 53;
 		}
-	if(!p_iputw(savedata[i].forced_awpn, f))
+		if(!p_iputw(savedata[i].forced_awpn, f))
 		{
 			return 54;
 		}
@@ -2344,6 +2455,28 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 		if(!p_iputw(savedata[i].forced_bwpn, f))
 		{
 			return 55;
+		}
+	
+		if(!p_iputw(savedata[i].forced_xwpn, f))
+		{
+			return 56;
+		}
+		
+		if(!p_iputw(savedata[i].forced_ywpn, f))
+		{
+			return 57;
+		}
+		if(!p_putc(savedata[i].xwpn, f))
+		{
+			return 58;
+		}
+		if(!p_putc(savedata[i].ywpn, f))
+		{
+			return 59;
+		}
+		if(!pfwrite(savedata[i].lvlswitches,MAXLEVELS*sizeof(long),f))
+		{
+			return 60;
 		}
 	}
 	
@@ -2603,19 +2736,19 @@ static void list_save(int save_num, int ypos)
 	{
 		game->set_maxlife(saves[save_num].get_maxlife());
 		game->set_life(saves[save_num].get_maxlife());
-	//wpnsbuf[iwQuarterHearts].newtile = 4;
+		game->set_hp_per_heart(saves[save_num].get_hp_per_heart());
+		
 		wpnsbuf[iwQuarterHearts].newtile = moduledata.select_screen_tiles[sels_heart_tile];
 		//Setting the cset does nothing, because it lifemeter() uses overtile8()
 		//Modules should set the cset manually. 
 		wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];
-	//al_trace("wpnsbuf[iwQuarterHearts].csets: %d\n", wpnsbuf[iwQuarterHearts].csets);
-
-	//boogie!
-		lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(HP_PER_HEART))?8:0),0,0);
+		
+		//boogie!
+		lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(saves[save_num].get_hp_per_heart()))?8:0),0,0);
 		textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
 		
 		if(saves[save_num].get_quest())
-			textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%3d",saves[save_num].get_deaths());
+			textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%5d",saves[save_num].get_deaths());
 			
 		if ( moduledata.select_screen_tiles[draw_link_first]) 
 			overtile16(framebuf,moduledata.select_screen_tiles[sels_linktile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_link_cset] : (save_num%3)+10,0); 
@@ -2800,7 +2933,8 @@ static bool register_name()
 	}
 	int NameEntryMode2=NameEntryMode;
 	
-	saves[savecnt].set_maxlife(3*HP_PER_HEART);
+	saves[savecnt].set_maxlife(3*16);
+	saves[savecnt].set_life(3*16);
 	saves[savecnt].set_maxbombs(8);
 	saves[savecnt].set_continue_dmap(0);
 	saves[savecnt].set_continue_scrn(0xFF);
@@ -3203,7 +3337,9 @@ static bool register_name()
 			//messy hack to get this to work, since game is not yet initialized -DD
 			gamedata *oldgame = game;
 			game = saves+s;
-			saves[s].set_maxlife(zinit.hc*HP_PER_HEART);
+			saves[s].set_maxlife(zinit.hc*zinit.hp_per_heart);
+			saves[s].set_life(zinit.hc*zinit.hp_per_heart);
+			saves[s].set_hp_per_heart(zinit.hp_per_heart);
 			//saves[s].items[itype_ring]=0;
 			removeItemsOfFamily(&saves[s], itemsbuf, itype_ring);
 			int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
@@ -3464,7 +3600,9 @@ bool load_custom_game(int file)
 			
 			load_quest(saves+file);
 			
-			saves[file].set_maxlife(zinit.hc*HP_PER_HEART);
+			saves[file].set_maxlife(zinit.hc*zinit.hp_per_heart);
+			saves[file].set_life(zinit.hc*zinit.hp_per_heart);
+			saves[file].set_hp_per_heart(zinit.hp_per_heart);
 			flushItemCache();
 			
 			//messy hack to get this to work properly since game is not initialized -DD
@@ -4016,15 +4154,22 @@ void game_over(int type)
 	FFCore.skip_ending_credits = 0;
 	kill_sfx();
 	music_stop();
-	clear_to_color(screen,BLACK);
+	clear_bitmap(screen);
+	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	
+	//if(get_bit(quest_rules, qr_INSTANT_RESPAWN))
+	//{	zprint2("Reloading/n");
+	//	Quit = qRELOAD;
+	//	return;
+	//}
+	
 	if(Quit==qGAMEOVER)
-		jukebox(ZC_MIDI_GAMEOVER);
+		jukebox(SaveScreenSettings[SAVESC_MIDI] + (ZC_MIDI_COUNT - 1));
 		
 	Quit=0;
 	
-	clear_bitmap(framebuf);
+	clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 	//  text_mode(-1);
 	
 	//Setting the colour via the array isn't working. Perhaps misc colours need to be assigned to the array in init.
@@ -4032,11 +4177,11 @@ void game_over(int type)
 	//WTF! Setting this in zq Init() didn't work?! -Z
 	if(!type)
 	{
-		textout_ex(framebuf,zfont,"SAVE",88,96,QMisc.colors.msgtext,-1);
-		textout_ex(framebuf,zfont,"RETRY",88,120,QMisc.colors.msgtext,-1);
+		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVE],88,96,( SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] : QMisc.colors.msgtext),-1);
+		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_RETRY],88,120,( SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] : QMisc.colors.msgtext),-1);
 	}
 	else
-		textout_ex(framebuf,zfont,"RETRY",88,96,QMisc.colors.msgtext,-1);
+		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_RETRY],88,96,( SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] : QMisc.colors.msgtext),-1);
 		
 	int pos = 0;
 	int f=-1;
@@ -4057,7 +4202,7 @@ void game_over(int type)
 		{
 			if(getInput(btnUp, true, false, true))//rUp
 			{
-				sfx(WAV_CHINK);
+				sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
 				pos=(pos==0)?2:pos-1;
 				
 				if(type)
@@ -4068,7 +4213,7 @@ void game_over(int type)
 			
 			if(getInput(btnDown, true, false, true))//rDown
 			{
-				sfx(WAV_CHINK);
+				sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
 				pos=(pos+1)%3;
 				
 				if(type)
@@ -4087,30 +4232,38 @@ void game_over(int type)
 				
 			if(!(f&3))
 			{
-				int c = (f&4) ? QMisc.colors.msgtext : QMisc.colors.caption;
+				bool flash = (f&4)!=0;
 				
 				switch(pos)
 				{
 				case 0:
-					textout_ex(framebuf,zfont,"CONTINUE",88,72,c,-1);
+					textout_ex(framebuf,zfont,SaveScreenText[SAVESC_CONTINUE],88,72,(flash ? ( SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH]
+						: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] > 0 ? 
+							SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] : QMisc.colors.msgtext)),-1);
 					break;
 					
 				case 1:
-					textout_ex(framebuf,zfont,"SAVE",88,96,c,-1);
+					textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVE],88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH]
+						: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] > 0 ? 
+							SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] : QMisc.colors.msgtext)),-1);
 					break;
 					
 				case 2:
 					if(!type)
-						textout_ex(framebuf,zfont,"RETRY",88,120,c,-1);
-					else textout_ex(framebuf,zfont,"RETRY",88,96,c,-1);
+						textout_ex(framebuf,zfont,SaveScreenText[SAVESC_RETRY],88,120,(flash ? ( SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH]
+							: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] > 0 ? 
+								SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] : QMisc.colors.msgtext)),-1);
+					else textout_ex(framebuf,zfont,SaveScreenText[SAVESC_RETRY],88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH]
+						: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] > 0 ? 
+							SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] : QMisc.colors.msgtext)),-1);
 					
 					break;
 				}
 			}
 		}
 		
-		rectfill(framebuf,72,72,79,127,0);
-		puttile8(framebuf,htile,72,pos*(type?12:24)+72,curcset,0);
+		rectfill(framebuf,72,72,79,127,SaveScreenSettings[SAVESC_BACKGROUND]);
+		overtile8(framebuf,htile,72,pos*(type?12:24)+72,curcset,SaveScreenSettings[SAVESC_CUR_FLIP]);
 		advanceframe(true);
 	}
 	while(!Quit && !done);
@@ -4206,11 +4359,13 @@ bool save_game(bool savepoint, int type)
 {
 	kill_sfx();
 	//music_stop();
-	clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
+	clear_bitmap(screen);
+	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	
 	//  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
-	int htile = 2;
+	int htile = SaveScreenSettings[SAVESC_USETILE];
+	int curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
 	bool saved=false;
 	FFCore.kb_typing_mode = false;
@@ -4220,7 +4375,7 @@ bool save_game(bool savepoint, int type)
 		int pos = 0;
 		int f=-1;
 		bool done2=false;
-		clear_bitmap(framebuf);
+		clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 		
 		//  text_mode(-1);
 		if(type)
@@ -4228,15 +4383,15 @@ bool save_game(bool savepoint, int type)
 		//Migrate this to use SaveScreenColours[SAVESC_TEXT] and set that to a default
 		//of QMisc.colors.msgtext when loading the quest in the loadquest function
 		//for quests with a version < 0x254! -Z
-			textout_ex(framebuf,zfont,"SAVE AND QUIT",88,72,QMisc.colors.msgtext,-1);
+			textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVEQUIT],88,72,( SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] : QMisc.colors.msgtext),-1);
 		}
 		else
 		{
-			textout_ex(framebuf,zfont,"SAVE",88,72,QMisc.colors.msgtext,-1);
+			textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVE2],88,72,( SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] : QMisc.colors.msgtext),-1);
 		}
 		
-		textout_ex(framebuf,zfont,"DON'T SAVE",88,96,QMisc.colors.msgtext,-1);
-		textout_ex(framebuf,zfont,"QUIT",88,120,QMisc.colors.msgtext,-1);
+		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_DONTSAVE],88,96,( SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] : QMisc.colors.msgtext),-1);
+		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_QUIT],88,120,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 		
 		do
 		{
@@ -4266,30 +4421,38 @@ bool save_game(bool savepoint, int type)
 					
 				if(!(f&3))
 				{
-					int c = (f&4) ? QMisc.colors.msgtext : QMisc.colors.caption;
+					bool flash = (f&4)!=0;
 					
 					switch(pos)
 					{
 					case 0:
 						if(type)
-							textout_ex(framebuf,zfont,"SAVE AND QUIT",88,72,c,-1);
-						else textout_ex(framebuf,zfont,"SAVE",88,72,c,-1);
+							textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVEQUIT],88,72,(flash ? ( SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_FLASH]
+								: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] > 0 ? 
+									SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] : QMisc.colors.msgtext)),-1);
+						else textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVE2],88,72,(flash ? ( SaveScreenSettings[SAVESC_TEXT_SAVE2_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE2_FLASH]
+								: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] > 0 ? 
+									SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] : QMisc.colors.msgtext)),-1);
 						
 						break;
 						
 					case 1:
-						textout_ex(framebuf,zfont,"DON'T SAVE",88,96,c,-1);
+						textout_ex(framebuf,zfont,SaveScreenText[SAVESC_DONTSAVE],88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_DONTSAVE_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_DONTSAVE_FLASH]
+							: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] > 0 ? 
+								SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] : QMisc.colors.msgtext)),-1);
 						break;
 						
 					case 2:
-						textout_ex(framebuf,zfont,"QUIT",88,120,c,-1);
+						textout_ex(framebuf,zfont,SaveScreenText[SAVESC_QUIT],88,120,(flash ? ( SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH]
+							: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? 
+								SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext)),-1);
 						break;
 					}
 				}
 			}
 			
-			rectfill(framebuf,72,72,79,127,0);
-			puttile8(framebuf,htile,72,pos*24+72,1,0);
+			rectfill(framebuf,72,72,79,127,SaveScreenSettings[SAVESC_BACKGROUND]);
+			overtile8(framebuf,htile,72,pos*24+72,curcset,SaveScreenSettings[SAVESC_CUR_FLIP]);
 			advanceframe(true);
 		}
 		while(!Quit && !done2);
@@ -4345,11 +4508,11 @@ bool save_game(bool savepoint, int type)
 			
 			if(pos==2)
 			{
-				clear_bitmap(framebuf);
+				clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 				//  text_mode(-1);
-				textout_ex(framebuf,zfont,"ARE YOU SURE?",88,72,QMisc.colors.msgtext,-1);
-				textout_ex(framebuf,zfont,"YES",88,96,QMisc.colors.msgtext,-1);
-				textout_ex(framebuf,zfont,"NO",88,120,QMisc.colors.msgtext,-1);
+				textout_ex(framebuf,zfont,"ARE YOU SURE?",88,72,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
+				textout_ex(framebuf,zfont,"YES",88,96,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
+				textout_ex(framebuf,zfont,"NO",88,120,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 				int pos2=0;
 				int g=-1;
 				bool done3=false;
@@ -4382,16 +4545,20 @@ bool save_game(bool savepoint, int type)
 							
 						if(!(g&3))
 						{
-							int c = (g&4) ? QMisc.colors.msgtext : QMisc.colors.caption;
+							bool flash = (g&4)!=0;
 							
 							switch(pos2)
 							{
 							case 0:
-								textout_ex(framebuf,zfont,"YES",88,96,c,-1);
+								textout_ex(framebuf,zfont,"YES",88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH]
+									: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? 
+										SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext)),-1);
 								break;
 								
 							case 1:
-								textout_ex(framebuf,zfont,"NO",88,120,c,-1);
+								textout_ex(framebuf,zfont,"NO",88,120,(flash ? ( SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH]
+									: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? 
+										SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext)),-1);
 								break;
 								//case 2: textout_ex(framebuf,zfont,"QUIT",88,120,c,-1);   break;
 							}
@@ -4458,7 +4625,7 @@ static void list_saves2()
 	  game->set_maxlife( saves[listpos+i].get_maxlife());
 	  game->set_life( saves[listpos+i].get_maxlife());
 	  //boogie!
-	  lifemeter(framebuf,144,i*24+56+((game->get_maxlife()>16*(HP_PER_HEART))?8:0),0,0);
+	  lifemeter(framebuf,144,i*24+56+((game->get_maxlife()>16*(zinit.hp_per_heart))?8:0),0,0);
 	  textout_ex(framebuf,zfont,saves[listpos+i].get_name(),72,i*24+72,1,0);
 
 	  if(saves[listpos+i].get_quest())

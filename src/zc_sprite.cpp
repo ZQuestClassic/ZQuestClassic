@@ -59,6 +59,20 @@ void sprite::check_conveyor()
 }
 */
 
+void sprite::handle_sprlighting()
+{
+	if(!glowRad) return;
+	switch(glowShape)
+	{
+		case 0:
+			doDarkroomCircle(x.getInt()+(hxsz/2), y.getInt()+(hysz/2), glowRad);
+			break;
+		case 1:
+			doDarkroomCone(x.getInt()+(hxsz/2), y.getInt()+(hysz/2), glowRad, NORMAL_DIR(dir));
+			break;
+	}
+}
+
 void sprite::check_conveyor()
 {
     int deltax=0;
@@ -120,7 +134,29 @@ bool movingblock::animate(int index)
 {
     //these are here to bypass compiler warnings about unused arguments
     index=index;
-    
+    if(fallclk)
+	{
+		if(fallclk == PITFALL_FALL_FRAMES)
+			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+		if(!--fallclk)
+		{
+			blockmoving=false;
+		}
+		clk = 0;
+		return false;
+	}
+	if(drownclk)
+	{
+		//if(drownclk == WATER_DROWN_FRAMES)
+			//sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
+			//!TODO: Drown SFX
+		if(!--drownclk)
+		{
+			blockmoving=false;
+		}
+		clk = 0;
+		return false;
+	}
     if(clk<=0)
         return false;
         
@@ -130,13 +166,27 @@ bool movingblock::animate(int index)
     {
         bool bhole=false;
         blockmoving=false;
+		
+		if(fallCombo = getpitfall(x+8,y+8))
+		{
+			fallclk = PITFALL_FALL_FRAMES;
+		}
+		/*
+		//!TODO: Moving Block Drowning
+		if(drownCombo = iswaterex(MAPCOMBO(x+8,y+8), currmap, currscr, -1, x+8,y+8, false, false, true))
+		{
+			drownclk = WATER_DROWN_FRAMES;
+		}
+		*/
+		
         int f1 = tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)];
         int f2 = MAPCOMBOFLAG(x,y);
-        
-        tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]=bcombo;
-        tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=oldcset;
-        
-        if((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER)
+        if(!fallclk && !drownclk)
+	{
+		tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]=bcombo;
+		tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=oldcset;
+        }
+        if(!fallclk && !drownclk && ((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER))
         {
             trigger=true;
             tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
@@ -162,8 +212,14 @@ bool movingblock::animate(int index)
         if(bhole)
         {
             tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfNONE;
+			if(fallclk||drownclk)
+			{
+				fallclk = 0;
+				drownclk = 0;
+				return false;
+			}
         }
-        else
+        else if(!fallclk&&!drownclk)
         {
             f2 = MAPCOMBOFLAG(x,y);
             
@@ -178,6 +234,7 @@ bool movingblock::animate(int index)
                 tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
             }
         }
+		if(fallclk||drownclk) return false;
         
         if(oldflag>=mfPUSHUDINS&&oldflag&&!trigger&&!bhole)
         {
@@ -235,8 +292,9 @@ bool movingblock::animate(int index)
             
             if(canPermSecret())
             {
-                if(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
-                        || combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2)
+                if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
+					(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
+                        || combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
                 {
                     if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
                 }

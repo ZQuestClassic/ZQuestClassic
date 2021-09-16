@@ -29,6 +29,7 @@ int addenemy(int x,int y,int id,int clk);
 bool addfairy(zfix x, zfix y, int misc3, int id);
 bool can_drop(zfix x, zfix y);
 void item_fall(zfix& x, zfix& y, zfix& fall);
+int item_pits(zfix& x, zfix& y, int& fallclk);
 int select_dropitem(int item_set);
 int select_dropitem(int item_set, int x, int y);
 

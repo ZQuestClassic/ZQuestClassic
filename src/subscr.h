@@ -24,6 +24,7 @@ extern bool show_subscreen_numbers;
 extern bool show_subscreen_items;
 extern bool show_subscreen_life;
 
+void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int textstyle, int alignment, int color, int shadow, int bg);
 void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,int h,int flip,bool overlay,bool trans);
 void drawgrid(BITMAP *dest,int x,int y,int c1,int c2);
 void draw_block(BITMAP *dest,int x,int y,int tile,int cset,int w,int h);
@@ -177,8 +178,8 @@ struct subscreen_object
 {
     byte  type;
     byte  pos;
-    word  x;
-    word  y;
+    short  x;
+    short  y;
     word  w;
     word  h;
     byte  colortype1;
@@ -226,8 +227,8 @@ extern subscreen_group custom_subscreen[MAXCUSTOMSUBSCREENS];
 extern subscreen_group *current_subscreen_active;
 extern subscreen_group *current_subscreen_passive;
 
-extern item *Bitem, *Aitem;
-extern int   Bid, Aid;
+extern item *Bitem, *Aitem, *Yitem, *Xitem;
+extern int   Bid, Aid, Xid, Yid;
 const byte tripiece[2][8][3] =
 {
     //  112,112,0, 128,112,1, 96,128,0, 144,128,1,
@@ -320,6 +321,9 @@ int sso_w(subscreen_object *tempsso);
 int get_alignment(subscreen_object *tempsso);
 void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int index, int color);
 
+
+bool findWeaponWithParent(int id, int type);
+int countWeaponWithParent(int id, int type);
 #endif
 
 /*** end of subscr.cc ***/

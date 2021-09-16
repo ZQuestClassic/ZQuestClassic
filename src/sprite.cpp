@@ -23,6 +23,7 @@
 #include "sprite.h"
 #include "tiles.h"
 #include "particles.h"
+#include "maps.h"
 extern sprite_list particles;
 extern byte                quest_rules[QUESTRULES_NEW_SIZE];
 extern bool get_debug();
@@ -81,7 +82,14 @@ sprite::sprite()
     lasthit=0;
     angle=0;
     misc=0;
-    
+    pit_pulldir = -1;
+	pit_pullclk = 0;
+	fallclk = 0;
+	fallCombo = 0;
+	old_cset = 0;
+	drownclk = 0;
+	drownCombo = 0;
+	
     for(int i=0; i<10; i++)
     {
         dummy_int[i]=0;
@@ -122,7 +130,7 @@ sprite::sprite()
     do_animation = 1;
     rotation = 0;
     scale = 0;
-    obeys_gravity = 0;
+    moveflags = 0;
     drawflags = 0;
 	knockbackflags = 0;
 	knockbackSpeed = 4; //default speed
@@ -141,6 +149,8 @@ sprite::sprite()
 	    initA[q] = 0;
 	    weap_inita[q] = 0;
     }
+	glowRad = 0;
+	glowShape = 0;
 }
 
 sprite::sprite(sprite const & other):
@@ -195,7 +205,7 @@ weaponscript(other.weaponscript),
 scripttile(other.scripttile),
 scriptflip(other.scriptflip),
 rotation(other.rotation),
-obeys_gravity(other.obeys_gravity),
+moveflags(other.moveflags),
 drawflags(other.drawflags),
 knockbackflags(other.knockbackflags),
 knockbackSpeed(other.knockbackSpeed),
@@ -205,7 +215,16 @@ scale(other.scale),
 screenedge(other.screenedge),
 shadowsprite(other.shadowsprite),
 scriptshadowtile(other.scriptshadowtile),
-do_animation(other.do_animation)
+pit_pulldir(other.pit_pulldir),
+pit_pullclk(other.pit_pullclk),
+fallclk(other.fallclk),
+fallCombo(other.fallCombo),
+old_cset(other.old_cset),
+drownclk(other.drownclk),
+drownCombo(other.drownCombo),
+do_animation(other.do_animation),
+glowRad(other.glowRad),
+glowShape(other.glowShape)
 
 {
     uid = getNextUID();
@@ -254,6 +273,7 @@ sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
     x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
 {
     uid = getNextUID();
+    isspawning = false;
     hxsz=hysz=16;
     hxofs=hyofs=xofs=0;
     txsz=1;
@@ -292,7 +312,7 @@ sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
     scripttile = -1;
     scriptflip = -1;
     rotation = 0;
-    obeys_gravity = 0;
+    moveflags = 0;
 	knockbackflags = 0;
 	knockbackSpeed = 4; //default speed
 	script_knockback_clk = 0;
@@ -310,6 +330,14 @@ sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
     shadowsprite = 0;
     screenedge = 0;
     scriptshadowtile = -1;
+    pit_pulldir = -1;
+    pit_pullclk = 0;
+    fallclk = 0;
+    fallCombo = 0;
+    old_cset = 0;
+    drownclk = 0;
+    drownCombo = 0;
+    drawflags = 0;
     for ( int q = 0; q < 8; q++ ) 
     {
         initD[q] = 0;
@@ -321,6 +349,8 @@ sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
         weap_inita[q] = 0;
     }
     memset(stack, 0xFFFF, sizeof(stack));
+	glowRad = 0;
+	glowShape = 0;
 }
 
 sprite::~sprite()
@@ -374,9 +404,521 @@ int sprite::real_z(zfix fz)
     return fz.getInt();
 }
 
+int sprite::get_pit() //Returns combo ID of pit that sprite WOULD fall into; no side-effects
+{
+	int ispitul = getpitfall(x,y);
+	int ispitbl = getpitfall(x,y+15);
+	int ispitur = getpitfall(x+15,y);
+	int ispitbr = getpitfall(x+15,y+15);
+	int ispitul_50 = getpitfall(x+8,y+8);
+	int ispitbl_50 = getpitfall(x+8,y+7);
+	int ispitur_50 = getpitfall(x+7,y+8);
+	int ispitbr_50 = getpitfall(x+7,y+7);
+	switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
+	{
+		case 4:
+		{
+			return ispitul_50 ? ispitul_50 : ispitul;
+		}
+		case 3:
+		{
+			if(ispitul && ispitur && ispitbl) //UL_3
+			{
+				return ispitul_50;
+			}
+			else if(ispitul && ispitur && ispitbr) //UR_3
+			{
+				return ispitur_50;
+			}
+			else if(ispitul && ispitbl && ispitbr) //BL_3
+			{
+				return ispitbl_50;
+			}
+			else if(ispitbl && ispitur && ispitbr) //BR_3
+			{
+				return ispitbr_50;
+			}
+			break;
+		}
+		case 2:
+		{
+			if(ispitul && ispitur) //Up
+			{
+				return ispitul_50 ? ispitul_50 : ispitur_50;
+			}
+			if(ispitbl && ispitbr) //Down
+			{
+				return ispitbl_50 ? ispitbl_50 : ispitbr_50;
+			}
+			if(ispitul && ispitbl) //Left
+			{
+				return ispitul_50 ? ispitul_50 : ispitbl_50;
+			}
+			if(ispitur && ispitbr) //Right
+			{
+				return ispitur_50 ? ispitur_50 : ispitbr_50;
+			}
+			break;
+		}
+		case 1:
+		{
+			if(ispitul) //UL_1
+			{
+				return ispitul_50;
+			}
+			if(ispitur) //UR_1
+			{
+				return ispitur_50;
+			}
+			if(ispitbl) //BL_1
+			{
+				return ispitbl_50;
+			}
+			if(ispitbr) //BR_1
+			{
+				return ispitbr_50;
+			}
+			break;
+		}
+	}
+	return 0;
+}
+
+int sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fallen.
+{
+	int safe_cnt = 0;
+	bool has_fallen = false;
+	int ispitul, ispitbl, ispitur, ispitbr, ispitul_50, ispitbl_50, ispitur_50, ispitbr_50;
+	while(++safe_cnt < 16) //Prevent softlocks
+	{
+		ispitul = getpitfall(x,y);
+		ispitbl = getpitfall(x,y+15);
+		ispitur = getpitfall(x+15,y);
+		ispitbr = getpitfall(x+15,y+15);
+		ispitul_50 = getpitfall(x+8,y+8);
+		ispitbl_50 = getpitfall(x+8,y+7);
+		ispitur_50 = getpitfall(x+7,y+8);
+		ispitbr_50 = getpitfall(x+7,y+7);
+		int dir = -1;
+		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
+		{
+			case 4:
+			{
+				fallclk = PITFALL_FALL_FRAMES; //Fall
+				old_cset = cs;
+				return ispitul_50 ? ispitul_50 : ispitul;
+			}
+			case 3:
+			{
+				if(ispitul && ispitur && ispitbl) //UL_3
+				{
+					if(ispitul_50)
+					{
+						dir=l_up; break;
+					}
+				}
+				else if(ispitul && ispitur && ispitbr) //UR_3
+				{
+					if(ispitur_50)
+					{
+						dir=r_up; break;
+					}
+				}
+				else if(ispitul && ispitbl && ispitbr) //BL_3
+				{
+					if(ispitbl_50)
+					{
+						dir=l_down; break;
+					}
+				}
+				else if(ispitbl && ispitur && ispitbr) //BR_3
+				{
+					if(ispitbr_50)
+					{
+						dir=r_down; break;
+					}
+				}
+				break;
+			}
+			case 2:
+			{
+				if(ispitul && ispitur) //Up
+				{
+					if(ispitul_50 && ispitur_50) //Straight up
+					{
+						dir = up; break;
+					}
+					else if(ispitul_50)
+					{
+						dir = l_up; break;
+					}
+					else if(ispitur_50)
+					{
+						dir = r_up; break;
+					}
+				}
+				if(ispitbl && ispitbr) //Down
+				{
+					if(ispitbl_50 && ispitbr_50) //Straight down
+					{
+						dir = down; break;
+					}
+					else if(ispitbl_50)
+					{
+						dir = l_down; break;
+					}
+					else if(ispitbr_50)
+					{
+						dir = r_down; break;
+					}
+				}
+				if(ispitul && ispitbl) //Left
+				{
+					if(ispitul_50 && ispitbl_50) //Straight left
+					{
+						dir = left; break;
+					}
+					else if(ispitul_50)
+					{
+						dir = l_up; break;
+					}
+					else if(ispitbl_50)
+					{
+						dir = l_down; break;
+					}
+				}
+				if(ispitur && ispitbr) //Right
+				{
+					if(ispitur_50 && ispitbr_50) //Straight right
+					{
+						dir = right; break;
+					}
+					else if(ispitur_50)
+					{
+						dir = r_up; break;
+					}
+					else if(ispitbr_50)
+					{
+						dir = r_down; break;
+					}
+				}
+				break;
+			}
+			case 1:
+			{
+				if(ispitul && ispitul_50) //UL_1
+				{
+					dir = l_up; break;
+				}
+				if(ispitur && ispitur_50) //UR_1
+				{
+					dir = r_up; break;
+				}
+				if(ispitbl && ispitbl_50) //BL_1
+				{
+					dir = l_down; break;
+				}
+				if(ispitbr && ispitbr_50) //BR_1
+				{
+					dir = r_down; break;
+				}
+				break;
+			}
+		}
+		if(dir == -1) return 0; //Not falling
+		has_fallen = true;
+		switch(dir)
+		{
+			case l_up: case l_down: case left:
+				--x; break;
+			case r_up: case r_down: case right:
+				++x; break;
+		}
+		switch(dir)
+		{
+			case l_up: case r_up: case up:
+				--y; break;
+			case l_down: case r_down: case down:
+				++y; break;
+		}
+	}
+	if(has_fallen)
+	{
+		int old_fall = fallclk; //sanity check
+		fallclk = PITFALL_FALL_FRAMES;
+		old_cset = cs;
+		if(ispitul_50) return ispitul_50;
+		if(ispitur_50) return ispitur_50;
+		if(ispitbl_50) return ispitbl_50;
+		if(ispitbr_50) return ispitbr_50;
+		if(ispitul) return ispitul;
+		if(ispitur) return ispitur;
+		if(ispitbl) return ispitbl;
+		if(ispitbr) return ispitbr;
+		fall = old_fall; //sanity check
+	}
+	return 0;
+}
+
+int sprite::get_water()  //Returns combo ID of water that sprite WOULD fall into; no side-effects
+{
+	int ispitul = iswaterexzq(MAPCOMBOzq(x,y), get_currmap(), get_currscr(), -1, x, y, false, false, true);
+	int ispitbl = iswaterexzq(MAPCOMBOzq(x,y+15), get_currmap(), get_currscr(), -1, x, y+15, false, false, true);
+	int ispitur = iswaterexzq(MAPCOMBOzq(x+15,y), get_currmap(), get_currscr(), -1, x+15, y, false, false, true);
+	int ispitbr = iswaterexzq(MAPCOMBOzq(x+15,y+15), get_currmap(), get_currscr(), -1, x+15, y+15, false, false, true);
+	int ispitul_50 = iswaterexzq(MAPCOMBOzq(x+8,y+8), get_currmap(), get_currscr(), -1, x+8, y+8, false, false, true);
+	int ispitbl_50 = iswaterexzq(MAPCOMBOzq(x+8,y+7), get_currmap(), get_currscr(), -1, x+8, y+7, false, false, true);
+	int ispitur_50 = iswaterexzq(MAPCOMBOzq(x+7,y+8), get_currmap(), get_currscr(), -1, x+7, y+8, false, false, true);
+	int ispitbr_50 = iswaterexzq(MAPCOMBOzq(x+7,y+7), get_currmap(), get_currscr(), -1, x+7, y+7, false, false, true);
+	switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
+	{
+		case 4:
+		{
+			return ispitul_50 ? ispitul_50 : ispitul;
+		}
+		case 3:
+		{
+			if(ispitul && ispitur && ispitbl) //UL_3
+			{
+				return ispitul_50;
+			}
+			else if(ispitul && ispitur && ispitbr) //UR_3
+			{
+				return ispitur_50;
+			}
+			else if(ispitul && ispitbl && ispitbr) //BL_3
+			{
+				return ispitbl_50;
+			}
+			else if(ispitbl && ispitur && ispitbr) //BR_3
+			{
+				return ispitbr_50;
+			}
+			break;
+		}
+		case 2:
+		{
+			if(ispitul && ispitur) //Up
+			{
+				return ispitul_50 ? ispitul_50 : ispitur_50;
+			}
+			if(ispitbl && ispitbr) //Down
+			{
+				return ispitbl_50 ? ispitbl_50 : ispitbr_50;
+			}
+			if(ispitul && ispitbl) //Left
+			{
+				return ispitul_50 ? ispitul_50 : ispitbl_50;
+			}
+			if(ispitur && ispitbr) //Right
+			{
+				return ispitur_50 ? ispitur_50 : ispitbr_50;
+			}
+			break;
+		}
+		case 1:
+		{
+			if(ispitul) //UL_1
+			{
+				return ispitul_50;
+			}
+			if(ispitur) //UR_1
+			{
+				return ispitur_50;
+			}
+			if(ispitbl) //BL_1
+			{
+				return ispitbl_50;
+			}
+			if(ispitbr) //BR_1
+			{
+				return ispitbr_50;
+			}
+			break;
+		}
+	}
+	return 0;
+}
+
+int sprite::check_water() //Returns combo ID of water fallen into; 0 for not fallen.
+{
+	int safe_cnt = 0;
+	bool has_fallen = false;
+	int ispitul, ispitbl, ispitur, ispitbr, ispitul_50, ispitbl_50, ispitur_50, ispitbr_50;
+	while(++safe_cnt < 16) //Prevent softlocks
+	{
+		ispitul = iswaterexzq(MAPCOMBOzq(x,y), get_currmap(), get_currscr(), -1, x, y, false, false, true);
+		ispitbl = iswaterexzq(MAPCOMBOzq(x,y+15), get_currmap(), get_currscr(), -1, x, y+15, false, false, true);
+		ispitur = iswaterexzq(MAPCOMBOzq(x+15,y), get_currmap(), get_currscr(), -1, x+15, y, false, false, true);
+		ispitbr = iswaterexzq(MAPCOMBOzq(x+15,y+15), get_currmap(), get_currscr(), -1, x+15, y+15, false, false, true);
+		ispitul_50 = iswaterexzq(MAPCOMBOzq(x+8,y+8), get_currmap(), get_currscr(), -1, x+8, y+8, false, false, true);
+		ispitbl_50 = iswaterexzq(MAPCOMBOzq(x+8,y+7), get_currmap(), get_currscr(), -1, x+8, y+7, false, false, true);
+		ispitur_50 = iswaterexzq(MAPCOMBOzq(x+7,y+8), get_currmap(), get_currscr(), -1, x+7, y+8, false, false, true);
+		ispitbr_50 = iswaterexzq(MAPCOMBOzq(x+7,y+7), get_currmap(), get_currscr(), -1, x+7, y+7, false, false, true);
+		int dir = -1;
+		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
+		{
+			case 4:
+			{
+				drownclk = WATER_DROWN_FRAMES; //Fall
+				old_cset = cs;
+				return ispitul_50 ? ispitul_50 : ispitul;
+			}
+			case 3:
+			{
+				if(ispitul && ispitur && ispitbl) //UL_3
+				{
+					if(ispitul_50)
+					{
+						dir=l_up; break;
+					}
+				}
+				else if(ispitul && ispitur && ispitbr) //UR_3
+				{
+					if(ispitur_50)
+					{
+						dir=r_up; break;
+					}
+				}
+				else if(ispitul && ispitbl && ispitbr) //BL_3
+				{
+					if(ispitbl_50)
+					{
+						dir=l_down; break;
+					}
+				}
+				else if(ispitbl && ispitur && ispitbr) //BR_3
+				{
+					if(ispitbr_50)
+					{
+						dir=r_down; break;
+					}
+				}
+				break;
+			}
+			case 2:
+			{
+				if(ispitul && ispitur) //Up
+				{
+					if(ispitul_50 && ispitur_50) //Straight up
+					{
+						dir = up; break;
+					}
+					else if(ispitul_50)
+					{
+						dir = l_up; break;
+					}
+					else if(ispitur_50)
+					{
+						dir = r_up; break;
+					}
+				}
+				if(ispitbl && ispitbr) //Down
+				{
+					if(ispitbl_50 && ispitbr_50) //Straight down
+					{
+						dir = down; break;
+					}
+					else if(ispitbl_50)
+					{
+						dir = l_down; break;
+					}
+					else if(ispitbr_50)
+					{
+						dir = r_down; break;
+					}
+				}
+				if(ispitul && ispitbl) //Left
+				{
+					if(ispitul_50 && ispitbl_50) //Straight left
+					{
+						dir = left; break;
+					}
+					else if(ispitul_50)
+					{
+						dir = l_up; break;
+					}
+					else if(ispitbl_50)
+					{
+						dir = l_down; break;
+					}
+				}
+				if(ispitur && ispitbr) //Right
+				{
+					if(ispitur_50 && ispitbr_50) //Straight right
+					{
+						dir = right; break;
+					}
+					else if(ispitur_50)
+					{
+						dir = r_up; break;
+					}
+					else if(ispitbr_50)
+					{
+						dir = r_down; break;
+					}
+				}
+				break;
+			}
+			case 1:
+			{
+				if(ispitul && ispitul_50) //UL_1
+				{
+					dir = l_up; break;
+				}
+				if(ispitur && ispitur_50) //UR_1
+				{
+					dir = r_up; break;
+				}
+				if(ispitbl && ispitbl_50) //BL_1
+				{
+					dir = l_down; break;
+				}
+				if(ispitbr && ispitbr_50) //BR_1
+				{
+					dir = r_down; break;
+				}
+				break;
+			}
+		}
+		if(dir == -1) return 0; //Not falling
+		has_fallen = true;
+		switch(dir)
+		{
+			case l_up: case l_down: case left:
+				--x; break;
+			case r_up: case r_down: case right:
+				++x; break;
+		}
+		switch(dir)
+		{
+			case l_up: case r_up: case up:
+				--y; break;
+			case l_down: case r_down: case down:
+				++y; break;
+		}
+	}
+	if(has_fallen)
+	{
+		int old_drown = drownclk; //sanity check
+		drownclk = WATER_DROWN_FRAMES;
+		old_cset = cs;
+		if(ispitul_50) return ispitul_50;
+		if(ispitur_50) return ispitur_50;
+		if(ispitbl_50) return ispitbl_50;
+		if(ispitbr_50) return ispitbr_50;
+		if(ispitul) return ispitul;
+		if(ispitur) return ispitur;
+		if(ispitbl) return ispitbl;
+		if(ispitbr) return ispitbr;
+		fall = old_drown; //sanity check
+	}
+	return 0;
+}
+
 bool sprite::hit(sprite *s)
 {
-    if(!(scriptcoldet&1)) return false;
+    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
     
     if(id<0 || s->id<0 || clk<0) return false;
     
@@ -389,7 +931,7 @@ bool sprite::hit(sprite *s)
 
 bool sprite::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
 {
-    if(!(scriptcoldet&1)) return false;
+    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
     
     if(id<0 || clk<0) return false;
     
@@ -404,7 +946,7 @@ bool sprite::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
 
 int sprite::hitdir(int tx,int ty,int txsz2,int tysz2,int dir2)
 {
-    if(!(scriptcoldet&1)) return 0xFF;
+    if(!(scriptcoldet&1) || fallclk || drownclk) return 0xFF;
     
     int cx1=x+hxofs+(hxsz>>1);
     int cy1=y+hyofs+(hysz>>1);
@@ -502,6 +1044,8 @@ bool sprite::runKnockback()
 //To quote Jeff Goldblum, 'That is one big pile opf shit!'. -Z (5th April, 2019)
 void sprite::draw(BITMAP* dest)
 {
+	//Handle glowing sprites
+	handle_sprlighting();
 	if(!show_sprites)
 	{
 		return;
@@ -527,11 +1071,12 @@ void sprite::draw(BITMAP* dest)
 	BITMAP* sprBMP2 = create_bitmap_ex(8,256,256); //run after above failsafe, so that we always destroy it
 	int e = extend>=3 ? 3 : extend;
 	int flip_type = ((scriptflip > -1) ? scriptflip : flip);
+	isspawning = false;
 	if(clk>=0)
 	{
+		BITMAP *temp = NULL;
 		switch(e)
 		{
-			BITMAP *temp;
             
 			case 1:
 				temp = create_bitmap_ex(8,16,32);
@@ -580,8 +1125,8 @@ void sprite::draw(BITMAP* dest)
 					else masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
 				}
 				//clean-up
-				if ( sprBMP2 ) destroy_bitmap(sprBMP2);
-				destroy_bitmap(temp);
+				sane_destroy_bitmap(&sprBMP2);
+				sane_destroy_bitmap(&temp);
 				break;
             
 			case 2:
@@ -643,8 +1188,8 @@ void sprite::draw(BITMAP* dest)
 				}
 					
 				
-				destroy_bitmap(sprBMP2);
-				destroy_bitmap(temp);
+				sane_destroy_bitmap(&sprBMP2);
+				sane_destroy_bitmap(&temp);
 				break;
             
 			case 3:
@@ -695,8 +1240,8 @@ void sprite::draw(BITMAP* dest)
 							else draw_sprite(dest, sprBMP, sx, sy);
 						}
 							
-						destroy_bitmap(sprBMP);
-						destroy_bitmap(sprBMP2);
+						sane_destroy_bitmap(&sprBMP);
+						sane_destroy_bitmap(&sprBMP2);
 					} //end extend == 3 && flip == 1
 					break;
                 
@@ -743,8 +1288,8 @@ void sprite::draw(BITMAP* dest)
 							else draw_sprite(dest, sprBMP, sx, sy);
 						}
 							
-						destroy_bitmap(sprBMP);
-						destroy_bitmap(sprBMP2);
+						sane_destroy_bitmap(&sprBMP);
+						sane_destroy_bitmap(&sprBMP2);
 					}//end extend == 3 &7 flip == 2
 					break;
                 
@@ -791,8 +1336,8 @@ void sprite::draw(BITMAP* dest)
 							else draw_sprite(dest, sprBMP, sx, sy);
 						}
 							
-						destroy_bitmap(sprBMP);
-						destroy_bitmap(sprBMP2);
+						sane_destroy_bitmap(&sprBMP);
+						sane_destroy_bitmap(&sprBMP2);
 					} //end extend == 3 && flip == 3
 					break;
                 
@@ -843,8 +1388,8 @@ void sprite::draw(BITMAP* dest)
 							else draw_sprite(dest, sprBMP, sx, sy);
 						}
 						
-						destroy_bitmap(sprBMP);
-						destroy_bitmap(sprBMP2);
+						sane_destroy_bitmap(&sprBMP);
+						sane_destroy_bitmap(&sprBMP2);
                 
 						break;
 					} //end extend == 0 && flip == 3
@@ -891,8 +1436,8 @@ void sprite::draw(BITMAP* dest)
 						}
 						else draw_sprite(dest, sprBMP, sx, sy);
 					}
-					if ( sprBMP ) destroy_bitmap(sprBMP);
-					if ( sprBMP2 ) destroy_bitmap(sprBMP2);
+					sane_destroy_bitmap(&sprBMP);
+					sane_destroy_bitmap(&sprBMP2);
 					break;
 				}
 			} //end extend == 3, and also extend == 0. Why? Because someone was more mental, than me. -Z (5th April, 2019)
@@ -900,12 +1445,13 @@ void sprite::draw(BITMAP* dest)
 			if ( temp ) 
 			{
 				//if there is still somehow data in the temp bitmap
-				destroy_bitmap(temp);
+				sane_destroy_bitmap(&temp);
 			}
 		}
 	} //end if(clk>=0)
-	else //I'm unsure when the clk is < 0 -Z
+	else if (!fallclk && !drownclk) //I'm unsure when the clk is < 0 -Z
 	{
+		isspawning = true;
 		if(e!=3) //if extend != 3 
 		{
 			int t  = wpnsbuf[iwSpawn].newtile;
@@ -983,11 +1529,7 @@ void sprite::draw(BITMAP* dest)
 	if(show_hitboxes && !is_zquest())
 		rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs))-1,vc((id+16)%255));
 
-	if ( sprBMP2 ) 
-	{
-		//if there is still somehow data in the scaling bitmap
-		destroy_bitmap(sprBMP2);
-	}
+	sane_destroy_bitmap(&sprBMP2);
 	
 }
 
@@ -1010,9 +1552,9 @@ void sprite::drawzcboss(BITMAP* dest)
     
     if(clk>=0)
     {
+		BITMAP *temp = NULL;
         switch(e)
         {
-            BITMAP *temp;
             
         case 1:
             temp = create_bitmap_ex(8,16,32);
@@ -1064,7 +1606,7 @@ void sprite::drawzcboss(BITMAP* dest)
             }
             
             masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
-            destroy_bitmap(temp);
+            sane_destroy_bitmap(&temp);
             break;
             
         case 2:
@@ -1144,7 +1686,7 @@ void sprite::drawzcboss(BITMAP* dest)
             }
             
             masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
-            destroy_bitmap(temp);
+            sane_destroy_bitmap(&temp);
             break;
             
         case 3:
@@ -1261,7 +1803,7 @@ void sprite::drawzcboss(BITMAP* dest)
     {
         if(e!=3)
         {
-            int t  = wpnsbuf[iwSpawn].tile;
+            int t  = wpnsbuf[iwSpawn].newtile;
             int cs2 = wpnsbuf[iwSpawn].csets&15;
             
             if(BSZ)
@@ -1281,7 +1823,7 @@ void sprite::drawzcboss(BITMAP* dest)
         }
         else
         {
-            sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
+            sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
             w.xofs = xofs;
             w.yofs = yofs;
             w.zofs = zofs;
@@ -1353,9 +1895,9 @@ void sprite::old_draw(BITMAP* dest)
     int flip_type = ((scriptflip > -1) ? scriptflip : flip);
     if(clk>=0)
     {
+		BITMAP *temp = NULL;
         switch(e)
         {
-            BITMAP *temp;
             
         case 1:
             temp = create_bitmap_ex(8,16,32);
@@ -1380,7 +1922,7 @@ void sprite::old_draw(BITMAP* dest)
             }
             
             masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
-            destroy_bitmap(temp);
+            sane_destroy_bitmap(&temp);
             break;
             
         case 2:
@@ -1418,7 +1960,7 @@ void sprite::old_draw(BITMAP* dest)
             }
             
             masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
-            destroy_bitmap(temp);
+            sane_destroy_bitmap(&temp);
             break;
             
         case 3:
@@ -1670,9 +2212,9 @@ void sprite::draw(BITMAP* dest)
     
     if(clk>=0)
     {
+		BITMAP *temp = NULL;
         switch(e)
         {
-            BITMAP *temp;
             
         case 1:
             temp = create_bitmap_ex(8,16,32);
@@ -1697,7 +2239,7 @@ void sprite::draw(BITMAP* dest)
             }
             
             masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
-            destroy_bitmap(temp);
+            sane_destroy_bitmap(&temp);
             break;
             
         case 2:
@@ -1735,7 +2277,7 @@ void sprite::draw(BITMAP* dest)
             }
             
             masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
-            destroy_bitmap(temp);
+            sane_destroy_bitmap(&temp);
             break;
             
         case 3:
@@ -1925,9 +2467,9 @@ void sprite::old_draw(BITMAP* dest)
     
     if(clk>=0)
     {
+		BITMAP *temp = NULL;
         switch(e)
         {
-            BITMAP *temp;
             
         case 1:
             temp = create_bitmap_ex(8,16,32);
@@ -1952,7 +2494,7 @@ void sprite::old_draw(BITMAP* dest)
             }
             
             masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
-            destroy_bitmap(temp);
+            sane_destroy_bitmap(&temp);
             break;
             
         case 2:
@@ -1990,7 +2532,7 @@ void sprite::old_draw(BITMAP* dest)
             }
             
             masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
-            destroy_bitmap(temp);
+            sane_destroy_bitmap(&temp);
             break;
             
         case 3:
@@ -2235,22 +2777,28 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
         return;
     }
     
-    int shadowcs = wpnsbuf[iwShadow].csets & 0xFFFF;
-    int shadowflip = wpnsbuf[iwShadow].misc & 0xFF;
-    
     int sx = real_x(x+xofs)+(txsz-1)*8;
     int sy = real_y(y+yofs+(tysz-1)*16);
-    
-    if(clk>=0)
+    //int sy1 = sx-56; //subscreen offset
+    //if ( ispitfall(x+xofs, y+yofs+16) || ispitfall(x+xofs+8, y+yofs+16) || ispitfall(x+xofs+15, y+yofs+16)  ) return;
+    //sWTF, why is this offset by half the screen. Can't do this right now. Sanity. -Z
+    int shadowcs = wpnsbuf[iwShadow].csets & 0xFFFF;
+    int shadowflip = wpnsbuf[iwShadow].misc & 0xFF;
+    //if ( !ispitfall(sx,sy+4) && !ispitfall(sx+8,sy+4) )
     {
-        if(translucent)
-        {
-            overtiletranslucent16(dest,shadowtile,sx,sy,shadowcs,shadowflip,128);
-        }
-        else
-        {
-            overtile16(dest,shadowtile,sx,sy,shadowcs,shadowflip);
-        }
+	    if(clk>=0)
+	    {
+		//zprint2("shadow sx: %d, sy: %d\n", sx, sy);
+		//zprint2("enemy x: %d, y: %d\n", x.getInt(), y.getInt());
+		if(translucent)
+		{
+		    overtiletranslucent16(dest,shadowtile,sx,sy,shadowcs,shadowflip,128);
+		}
+		else
+		{
+		    overtile16(dest,shadowtile,sx,sy,shadowcs,shadowflip);
+		}
+	    }
     }
 }
 
@@ -2796,12 +3344,58 @@ movingblock::movingblock() : sprite()
 
 void movingblock::draw(BITMAP *dest)
 {
-    if(clk)
+	if(fallclk)
+	{
+		int old_cs = cs;
+		int old_tile = tile;
+		
+		wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
+		cs = spr.csets & 0xF;
+		int fr = spr.frames ? spr.frames : 1;
+		int spd = spr.speed ? spr.speed : 1;
+		int animclk = (PITFALL_FALL_FRAMES-fallclk);
+		tile = spr.newtile + zc_min(animclk / spd, fr-1);
+		sprite::draw(dest);
+		
+		cs = old_cs;
+		tile = old_tile;
+	}
+	else if(drownclk)
+	{
+		int old_cs = cs;
+		int old_tile = tile;
+		
+		if (drownCombo && combobuf[drownCombo].usrflags&cflag1) 
+		{
+			wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];
+			cs = spr.csets & 0xF;
+			int fr = spr.frames ? spr.frames : 1;
+			int spd = spr.speed ? spr.speed : 1;
+			int animclk = (WATER_DROWN_FRAMES-drownclk);
+			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			sprite::draw(dest);
+		}
+		else 
+		{
+			wpndata &spr = wpnsbuf[QMisc.sprites[sprDROWN]];
+			cs = spr.csets & 0xF;
+			int fr = spr.frames ? spr.frames : 1;
+			int spd = spr.speed ? spr.speed : 1;
+			int animclk = (WATER_DROWN_FRAMES-drownclk);
+			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			sprite::draw(dest);
+		}
+		
+		cs = old_cs;
+		tile = old_tile;
+	}
+    else if(clk)
     {
         //    sprite::draw(dest);
         overcombo(dest,real_x(x+xofs),real_y(y+yofs),bcombo ,cs);
     }
 }
+
 
 /*** end of sprite.cc ***/
 

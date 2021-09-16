@@ -7,8 +7,10 @@
 #include "Types.h"
 #include "AST.h"
 
-using namespace std;
+
 using namespace ZScript;
+using std::string;
+using std::vector;
 
 ////////////////////////////////////////////////////////////////
 // TypeStore
@@ -128,11 +130,13 @@ bool TypeStore::TypeIdMapComparator::operator()(
 DataTypeSimpleConst DataType::CUNTYPED(ZVARTYPEID_UNTYPED, "const untyped");
 DataTypeSimpleConst DataType::CFLOAT(ZVARTYPEID_FLOAT, "const float");
 DataTypeSimpleConst DataType::CCHAR(ZVARTYPEID_CHAR, "const char32");
+DataTypeSimpleConst DataType::CLONG(ZVARTYPEID_LONG, "const long");
 DataTypeSimpleConst DataType::CBOOL(ZVARTYPEID_BOOL, "const bool");
 DataTypeSimple DataType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", &CUNTYPED);
 DataTypeSimple DataType::ZVOID(ZVARTYPEID_VOID, "void", NULL);
 DataTypeSimple DataType::FLOAT(ZVARTYPEID_FLOAT, "float", &CFLOAT);
 DataTypeSimple DataType::CHAR(ZVARTYPEID_CHAR, "char32", &CCHAR);
+DataTypeSimple DataType::LONG(ZVARTYPEID_LONG, "long", &CLONG);
 DataTypeSimple DataType::BOOL(ZVARTYPEID_BOOL, "bool", &CBOOL);
 DataTypeArray DataType::STRING(CHAR);
 //Classes: Global Pointer
@@ -145,6 +149,7 @@ DataTypeClassConst DataType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics");
 DataTypeClassConst DataType::INPUT(ZCLASSID_INPUT, "Input");
 DataTypeClassConst DataType::TEXT(ZCLASSID_TEXT, "Text");
 DataTypeClassConst DataType::FILESYSTEM(ZCLASSID_FILESYSTEM, "FileSystem");
+DataTypeClassConst DataType::MODULE(ZCLASSID_MODULE, "Module");
 //Class: Types
 DataTypeClassConst DataType::CBITMAP(ZCLASSID_BITMAP, "const Bitmap");
 DataTypeClassConst DataType::CCHEATS(ZCLASSID_CHEATS, "const Cheats");
@@ -173,6 +178,7 @@ DataTypeClassConst DataType::CTUNES(ZCLASSID_TUNES, "const Tunes");
 DataTypeClassConst DataType::CWARPRING(ZCLASSID_WARPRING, "const WarpRing");
 DataTypeClassConst DataType::CSUBSCREENDATA(ZCLASSID_SUBSCREENDATA, "const SubscreenData");
 DataTypeClassConst DataType::CFILE(ZCLASSID_FILE, "const File");
+DataTypeClassConst DataType::CDIRECTORY(ZCLASSID_DIRECTORY, "const Directory");
 //Class: Var Types
 DataTypeClass DataType::BITMAP(ZCLASSID_BITMAP, "Bitmap", &CBITMAP);
 DataTypeClass DataType::CHEATS(ZCLASSID_CHEATS, "Cheats", &CCHEATS);
@@ -201,14 +207,15 @@ DataTypeClass DataType::TUNES(ZCLASSID_TUNES, "Tunes", &CTUNES);
 DataTypeClass DataType::WARPRING(ZCLASSID_WARPRING, "WarpRing", &CWARPRING);
 DataTypeClass DataType::SUBSCREENDATA(ZCLASSID_SUBSCREENDATA, "SubscreenData", &CSUBSCREENDATA);
 DataTypeClass DataType::FILE(ZCLASSID_FILE, "File", &CFILE);
+DataTypeClass DataType::DIRECTORY(ZCLASSID_DIRECTORY, "Directory", &CDIRECTORY);
 
 ////////////////////////////////////////////////////////////////
 // DataType
 
 int DataType::compare(DataType const& rhs) const
 {
-	type_info const& lhsType = typeid(*this);
-	type_info const& rhsType = typeid(rhs);
+	std::type_info const& lhsType = typeid(*this);
+	std::type_info const& rhsType = typeid(rhs);
 	if (lhsType.before(rhsType)) return -1;
 	if (rhsType.before(lhsType)) return 1;
 	return selfCompare(rhs);
@@ -222,6 +229,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_VOID: return &ZVOID;
 		case ZVARTYPEID_FLOAT: return &FLOAT;
 		case ZVARTYPEID_CHAR: return &CHAR;
+		case ZVARTYPEID_LONG: return &LONG;
 		case ZVARTYPEID_BOOL: return &BOOL;
 		case ZVARTYPEID_GAME: return &GAME;
 		case ZVARTYPEID_LINK: return &LINK;
@@ -239,6 +247,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_SPRITEDATA: return &SPRITEDATA;
 		case ZVARTYPEID_SUBSCREENDATA: return &SUBSCREENDATA;
 		case ZVARTYPEID_FILE: return &FILE;
+		case ZVARTYPEID_DIRECTORY: return &DIRECTORY;
 		case ZVARTYPEID_GRAPHICS: return &GRAPHICS;
 		case ZVARTYPEID_BITMAP: return &BITMAP;
 		case ZVARTYPEID_TEXT: return &TEXT;
@@ -259,6 +268,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_GAMEDATA: return &GAMEDATA;
 		case ZVARTYPEID_CHEATS: return &CHEATS;
 		case ZVARTYPEID_FILESYSTEM: return &FILESYSTEM;
+		case ZVARTYPEID_MODULE: return &MODULE;
 		default: return NULL;
 	}
 }
@@ -283,6 +293,7 @@ DataTypeClass const* DataType::getClass(int classId)
 		case ZCLASSID_SPRITEDATA: return &SPRITEDATA;
 		case ZCLASSID_SUBSCREENDATA: return &SUBSCREENDATA;
 		case ZCLASSID_FILE: return &FILE;
+		case ZCLASSID_DIRECTORY: return &DIRECTORY;
 		case ZCLASSID_GRAPHICS: return &GRAPHICS;
 		case ZCLASSID_BITMAP: return &BITMAP;
 		case ZCLASSID_TEXT: return &TEXT;
@@ -303,6 +314,7 @@ DataTypeClass const* DataType::getClass(int classId)
 		case ZCLASSID_GAMEDATA: return &GAMEDATA;
 		case ZCLASSID_CHEATS: return &CHEATS;
 		case ZCLASSID_FILESYSTEM: return &FILESYSTEM;
+		case ZCLASSID_MODULE: return &MODULE;
 		default: return NULL;
 	}
 }
@@ -445,7 +457,8 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 {
 	if (isVoid() || target.isVoid()) return false;
 	if (isUntyped() || target.isUntyped()) return true;
-	if (simpleId == ZVARTYPEID_CHAR) return FLOAT.canCastTo(target); //Char casts the same as float.
+	if (simpleId == ZVARTYPEID_CHAR || simpleId == ZVARTYPEID_LONG)
+		return FLOAT.canCastTo(target); //Char/Long cast the same as float.
 
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
@@ -454,7 +467,8 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 	if (DataTypeSimple const* t =
 			dynamic_cast<DataTypeSimple const*>(&target))
 	{
-		if (t->simpleId == ZVARTYPEID_CHAR) return canCastTo(FLOAT); //Char casts the same as float.
+		if (t->simpleId == ZVARTYPEID_CHAR || t->simpleId == ZVARTYPEID_LONG)
+			return canCastTo(FLOAT); //Char/Long cast the same as float.
 		if (simpleId == ZVARTYPEID_UNTYPED || t->simpleId == ZVARTYPEID_UNTYPED)
 			return true;
 		if (simpleId == ZVARTYPEID_VOID || t->simpleId == ZVARTYPEID_VOID)
@@ -588,6 +602,7 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 		return(t->getId() == ZVARTYPEID_UNTYPED
 			|| t->getId() == ZVARTYPEID_BOOL
 			|| t->getId() == ZVARTYPEID_FLOAT
+			|| t->getId() == ZVARTYPEID_LONG
 			|| t->getId() == ZVARTYPEID_CHAR);
 	}
 	

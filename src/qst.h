@@ -192,7 +192,7 @@ void portCandleRules();
 void portBombRules();
 
 int loadquest(const char *filename, zquestheader *Header,
-              miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags);
+              miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata = 1);
 
 char *byte_conversion(int number, int format);
 char *byte_conversion2(int number1, int number2, int format1, int format2);
@@ -244,6 +244,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readitemdropsets(PACKFILE *f, word version, word build, bool keepdata);
 int readfavorites(PACKFILE *f, int, word, bool keepdata);
 
+void init_msgstr(MsgStr *str);
 
 int get_version_and_build(PACKFILE *f, word *version, word *build);
 bool find_section(PACKFILE *f, long section_id_requested);

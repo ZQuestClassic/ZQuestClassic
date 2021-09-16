@@ -116,7 +116,7 @@ public:
     byte do_animation;
     int rotation;
     int scale; 
-    byte obeys_gravity;
+    byte moveflags;
     byte drawflags;
 	byte knockbackflags;
 	byte screenedge;
@@ -127,11 +127,22 @@ public:
 	byte knockbackSpeed;
 	int script_knockback_clk;
 	int script_knockback_speed;
+	int pit_pulldir; // Pitfall pull direction
+	int pit_pullclk; // Pitfall pull clk
+	int fallclk; // Pitfall fall clk
+	int fallCombo; // Pitfall fallen combo
+	int old_cset; // Storage var for an old cset; used by pitfalls
+	int drownclk; // Pitfall fall clk
+	int drownCombo; // Pitfall fallen combo
+	bool isspawning;
+	
+	byte glowRad, glowShape;
     
     sprite();
     sprite(sprite const & other);
     sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs);
     virtual ~sprite();
+	virtual void handle_sprlighting();
     virtual void draw(BITMAP* dest);                        // main layer
     virtual void drawzcboss(BITMAP* dest);                        // main layer
     virtual void old_draw(BITMAP* dest);                        // main layer
@@ -142,6 +153,10 @@ public:
     virtual void drawcloaked2(BITMAP* dest);                // top layer for special needs
     virtual bool animate(int index);
     virtual void check_conveyor();
+	virtual int get_pit(); //Returns combo ID of pit that sprite WOULD fall into; no side-effects
+	virtual int check_pits(); //Returns combo ID of pit fallen into; 0 for not fallen.
+	virtual int get_water(); //Returns combo ID of pit that sprite WOULD fall into; no side-effects
+	virtual int check_water(); //Returns combo ID of pit fallen into; 0 for not fallen.
     int real_x(zfix fx);
     int real_y(zfix fy);
     int real_ground_y(zfix fy);

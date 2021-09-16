@@ -49,5 +49,12 @@ int onCustomGuys();
 int d_ltile_proc(int msg,DIALOG *d,int c);
 int onCustomLink();
 void center_zq_custom_dialogs();
+
+/****************************/
+/******  onMiscSprites ******/
+/****************************/
+
+int onMiscSprites();
+
 #endif
 

@@ -68,14 +68,21 @@ extern ZModule zcm;
 extern zcmodule moduledata;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern int loadlast;
+extern word passive_subscreen_doscript;
+extern bool passive_subscreen_waitdraw;
 byte disable_direct_updating;
 byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
 bool midi_paused=false;
+int paused_midi_pos = 0;
+byte midi_suspended = 0;
+byte callback_switchin = 0;
 byte zc_192b163_warp_compatibility;
 char modulepath[2048];
 byte epilepsyFlashReduction;
+signed char pause_in_background_menu_init = 0;
+byte pause_in_background = 0;
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Link, etc. 
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
@@ -332,6 +339,7 @@ void load_game_configs()
     ClickToFreeze = get_config_int(cfg_sect,"clicktofreeze",1)!=0;
     title_version = get_config_int(cfg_sect,"title",2);
 	abc_patternmatch = get_config_int(cfg_sect, "lister_pattern_matching", 1);
+	pause_in_background = get_config_int(cfg_sect, "pause_in_background", 0);
    
     //default - scale x2, 640 x 480
     resx = get_config_int(cfg_sect,"resx",640);
@@ -382,6 +390,11 @@ void load_game_configs()
     // And this one fixes patches unloading on some MIDI setups
     midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",1);
 	monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
+#else //UNIX
+    use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
+    zasm_debugger = (byte) get_config_int("CONSOLE","print_ZASM",0);
+    zscript_debugger = (byte) get_config_int("CONSOLE","ZScript_Debugger",0);
+    monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
 #endif
    
 #ifdef ALLEGRO_MACOSX
@@ -691,11 +704,15 @@ void show_saving(BITMAP *target)
 void load_mouse()
 {
 	system_pal();
+	scare_mouse();
+	set_mouse_sprite(NULL);
 	int sz = vbound(int(16*(is_large ? get_config_float("zeldadx","cursor_scale_large",1) : get_config_float("zeldadx","cursor_scale_small",1))),16,80);
 	for(int j = 0; j < 4; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
 		BITMAP* subbmp = create_bitmap_ex(8,16,16);
+		if(zcmouse[j])
+			destroy_bitmap(zcmouse[j]);
 		zcmouse[j] = create_bitmap_ex(8,sz,sz);
 		clear_bitmap(zcmouse[j]);
 		clear_bitmap(tmpbmp);
@@ -731,6 +748,8 @@ void load_mouse()
 		destroy_bitmap(tmpbmp);
 		destroy_bitmap(subbmp);
 	}
+	set_mouse_sprite(zcmouse[0]);
+	unscare_mouse();
 	game_pal();
 }
 
@@ -744,7 +763,8 @@ bool game_vid_mode(int mode,int wait)
     
     scrx = (resx-320)>>1;
     scry = (resy-240)>>1;
-    
+    for(int q = 0; q < 4; ++q)
+		zcmouse[q] = NULL;
 	load_mouse();
     set_mouse_sprite(zcmouse[0]);
     
@@ -1762,6 +1782,7 @@ void close_black_opening(int x, int y, bool wait, int shape)
 	}
     if(wait)
     {
+		FFCore.warpScriptCheck();
         for(int i=0; i<66; i++)
         {
             draw_screen(tmpscr);
@@ -1804,6 +1825,7 @@ void open_black_opening(int x, int y, bool wait, int shape)
 	}
     if(wait)
     {
+		FFCore.warpScriptCheck();
         for(int i=0; i<66; i++)
         {
             draw_screen(tmpscr);
@@ -1963,7 +1985,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
         return (game->get_keys()>0);
         
     case itype_magiccontainer:
-        return (game->get_maxmagic()>=MAGICPERBLOCK);
+        return (game->get_maxmagic()>=game->get_mp_per_block());
         
     case itype_triforcepiece:                               //it: -2=any, -1=current level, other=that level
     {
@@ -2137,7 +2159,7 @@ int current_item(int item_type, bool checkenabled)           //item currently be
         return game->lvlkeys[get_dlevel()];
         
     case itype_magiccontainer:
-        return game->get_maxmagic()/MAGICPERBLOCK;
+        return game->get_maxmagic()/game->get_mp_per_block();
         
     case itype_triforcepiece:
     {
@@ -2462,1133 +2484,1138 @@ void draw_lens_under(BITMAP *dest, bool layer)
 	//Lens flag 5: Show Invisible Enemies
 	bool hints = (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2) ? false : (layer && (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1));
 	
-    int strike_hint_table[11]=
-    {
-        mfARROW, mfBOMB, mfBRANG, mfWANDMAGIC,
-        mfSWORD, mfREFMAGIC, mfHOOKSHOT,
-        mfREFFIREBALL, mfHAMMER, mfSWORDBEAM, mfWAND
-    };
-    
-    //  int page = tmpscr->cpage;
-    {
-        int blink_rate=((get_bit(quest_rules,qr_EPILEPSY) || epilepsyFlashReduction)?6:1);
-        //    int temptimer=0;
-        int tempitem, tempweapon=0;
-        strike_hint=strike_hint_table[strike_hint_counter];
-        
-        if(strike_hint_timer>32)
-        {
-            strike_hint_timer=0;
-            strike_hint_counter=((strike_hint_counter+1)%11);
-        }
-        
-        ++strike_hint_timer;
-        
-        for(int i=0; i<176; i++)
-        {
-            int x = (i & 15) << 4;
-            int y = (i & 0xF0) + playing_field_offset;
-            int tempitemx=-16, tempitemy=-16;
-            int tempweaponx=-16, tempweapony=-16;
-            
-            for(int iter=0; iter<2; ++iter)
-            {
-                int checkflag=0;
-                
-                if(iter==0)
-                {
-                    checkflag=combobuf[tmpscr->data[i]].flag;
-                }
-                else
-                {
-                    checkflag=tmpscr->sflag[i];
-                }
-                
-                if(checkflag==mfSTRIKE)
-                {
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSTRIKE],tmpscr->secretcset[sSTRIKE]);
-                    }
-					else
-                    {
-                        checkflag = strike_hint;
-                    }
-                }
-                
-                switch(checkflag)
-                {
-                case 0:
-                case mfZELDA:
-                case mfPUSHED:
-                case mfENEMY0:
-                case mfENEMY1:
-                case mfENEMY2:
-                case mfENEMY3:
-                case mfENEMY4:
-                case mfENEMY5:
-                case mfENEMY6:
-                case mfENEMY7:
-                case mfENEMY8:
-                case mfENEMY9:
-                case mfSINGLE:
-                case mfSINGLE16:
-                case mfNOENEMY:
-                case mfTRAP_H:
-                case mfTRAP_V:
-                case mfTRAP_4:
-                case mfTRAP_LR:
-                case mfTRAP_UD:
-                case mfNOGROUNDENEMY:
-                case mfNOBLOCKS:
-                case mfSCRIPT1:
-                case mfSCRIPT2:
-                case mfSCRIPT3:
-                case mfSCRIPT4:
-                case mfSCRIPT5:
-		case 105:
-		case 106:
-		case 107:
-		case 108:
-		case 109:
-		case 110:
-		case 111:
-		case 112:
-		case 113:
-		case 114:
-		case 115:
-		case 116:
-		case 117:
-		case 118:
-		case 119:
-		case 120:
-		case 121:
-		case 122:
-		case 123:
-		case 124:
-		case 125:
-		case 126:
-		case 127:
-		case 128:
-		case 129:
-		case 130:
-		case 131:
-		case 132:
-		case 133:
-		case 134:
-		case 135:
-		case 136:
-		case 137:
-		case 138:
-		case 139:
-		case 140:
-		case 141:
-		case 142:
-		case 143:
-		case 144:
-		case 145:
-		case 146:
-		case 147:
-		case 148:
-		case 149:
-		case 150:
-		case 151:
-		case 152:
-		case 153:
-		case 154:
-		case 155:
-		case 156:
-		case 157:
-		case 158:
-		case 159:
-		case 160:
-		case 161:
-		case 162:
-		case 163:
-		case 164:
-		case 165:
-		case 166:
-		case 167:
-		case 168:
-		case 169:
-		case 170:
-		case 171:
-		case 172:
-		case 173:
-		case 174:
-		case 175:
-		case 176:
-		case 177:
-		case 178:
-		case 179:
-		case 180:
-		case 181:
-		case 182:
-		case 183:
-		case 184:
-		case 185:
-		case 186:
-		case 187:
-		case 188:
-		case 189:
-		case 190:
-		case 191:
-		case 192:
-		case 193:
-		case 194:
-		case 195:
-		case 196:
-		case 197:
-		case 198:
-		case 199:
-		case 200:
-		case 201:
-		case 202:
-		case 203:
-		case 204:
-		case 205:
-		case 206:
-		case 207:
-		case 208:
-		case 209:
-		case 210:
-		case 211:
-		case 212:
-		case 213:
-		case 214:
-		case 215:
-		case 216:
-		case 217:
-		case 218:
-		case 219:
-		case 220:
-		case 221:
-		case 222:
-		case 223:
-		case 224:
-		case 225:
-		case 226:
-		case 227:
-		case 228:
-		case 229:
-		case 230:
-		case 231:
-		case 232:
-		case 233:
-		case 234:
-		case 235:
-		case 236:
-		case 237:
-		case 238:
-		case 239:
-		case 240:
-		case 241:
-		case 242:
-		case 243:
-		case 244:
-		case 245:
-		case 246:
-		case 247:
-		case 248:
-		case 249:
-		case 250:
-		case 251:
-		case 252:
-		case 253:
-		case 254:
-		case 255:
-                    break;
-                    
-                case mfPUSHUD:
-                case mfPUSHLR:
-                case mfPUSH4:
-                case mfPUSHU:
-                case mfPUSHD:
-                case mfPUSHL:
-                case mfPUSHR:
-                case mfPUSHUDNS:
-                case mfPUSHLRNS:
-                case mfPUSH4NS:
-                case mfPUSHUNS:
-                case mfPUSHDNS:
-                case mfPUSHLNS:
-                case mfPUSHRNS:
-                case mfPUSHUDINS:
-                case mfPUSHLRINS:
-                case mfPUSH4INS:
-                case mfPUSHUINS:
-                case mfPUSHDINS:
-                case mfPUSHLINS:
-                case mfPUSHRINS:
-                    if(!hints && ((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&16))
-                                  || ((get_debug() && zc_getkey(KEY_N)) && (frame&16))))
-                    {
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->undercombo,tmpscr->undercset);
-                    }
-                    
-                    if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                            || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                    {
-                        if(hints)
-                        {
-                            switch(combobuf[tmpscr->data[i]].type)
-                            {
-                            case cPUSH_HEAVY:
-                            case cPUSH_HW:
-                                tempitem=getItemIDPower(itemsbuf,itype_bracelet,1);
-                                tempitemx=x, tempitemy=y;
-                                
-                                if(tempitem>-1)
-                                    putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                                    
-                                break;
-                                
-                            case cPUSH_HEAVY2:
-                            case cPUSH_HW2:
-                                tempitem=getItemIDPower(itemsbuf,itype_bracelet,2);
-                                tempitemx=x, tempitemy=y;
-                                
-                                if(tempitem>-1)
-                                    putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                                    
-                                break;
-                            }
-                        }
-                    }
-                    
-                    break;
-                    
-                case mfWHISTLE:
-                    if(hints)
-                    {
-                        tempitem=getItemID(itemsbuf,itype_whistle,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                    //Why is this here?
-                case mfFAIRY:
-                case mfMAGICFAIRY:
-                case mfALLFAIRY:
-                    if(hints)
-                    {
-                        tempitem=getItemID(itemsbuf, itype_fairy,1);//iFairyMoving;
-                        
-                        if(tempitem < 0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfBCANDLE:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sBCANDLE],tmpscr->secretcset[sBCANDLE]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_candle,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfRCANDLE:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sRCANDLE],tmpscr->secretcset[sRCANDLE]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_candle,2);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfWANDFIRE:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sWANDFIRE],tmpscr->secretcset[sWANDFIRE]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_wand,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        tempweapon=wFire;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        else
-                        {
-                            tempweaponx=x;
-                            tempweapony=y;
-                        }
-                        
-                        putweapon(dest,tempweaponx,tempweapony,tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfDINSFIRE:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sDINSFIRE],tmpscr->secretcset[sDINSFIRE]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_dinsfire,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfARROW:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sARROW],tmpscr->secretcset[sARROW]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_arrow,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfSARROW:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSARROW],tmpscr->secretcset[sSARROW]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_arrow,2);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfGARROW:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sGARROW],tmpscr->secretcset[sGARROW]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_arrow,3);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfBOMB:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sBOMB],tmpscr->secretcset[sBOMB]);
-                    }
-					else
-                    {
-                        //tempitem=getItemID(itemsbuf,itype_bomb,1);
-                        tempweapon = wLitBomb;
-                        
-                        //if (tempitem<0) break;
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempweaponx=x;
-                            tempweapony=y;
-                        }
-                        
-                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
-                    }
-                    
-                    break;
-                    
-                case mfSBOMB:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSBOMB],tmpscr->secretcset[sSBOMB]);
-                    }
-					else
-                    {
-                        //tempitem=getItemID(itemsbuf,itype_sbomb,1);
-                        //if (tempitem<0) break;
-                        tempweapon = wLitSBomb;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempweaponx=x;
-                            tempweapony=y;
-                        }
-                        
-                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
-                    }
-                    
-                    break;
-                    
-                case mfARMOS_SECRET:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
-                    }    
-                    break;
-                    
-                case mfBRANG:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sBRANG],tmpscr->secretcset[sBRANG]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_brang,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfMBRANG:
-                    if(!hints)
+	int strike_hint_table[11]=
+	{
+		mfARROW, mfBOMB, mfBRANG, mfWANDMAGIC,
+		mfSWORD, mfREFMAGIC, mfHOOKSHOT,
+		mfREFFIREBALL, mfHAMMER, mfSWORDBEAM, mfWAND
+	};
+	
+	//  int page = tmpscr->cpage;
+	{
+		int blink_rate=((get_bit(quest_rules,qr_EPILEPSY) || epilepsyFlashReduction)?6:1);
+		//    int temptimer=0;
+		int tempitem, tempweapon=0;
+		strike_hint=strike_hint_table[strike_hint_counter];
+		
+		if(strike_hint_timer>32)
+		{
+			strike_hint_timer=0;
+			strike_hint_counter=((strike_hint_counter+1)%11);
+		}
+		
+		++strike_hint_timer;
+		
+		for(int i=0; i<176; i++)
+		{
+			int x = (i & 15) << 4;
+			int y = (i & 0xF0) + playing_field_offset;
+			int tempitemx=-16, tempitemy=-16;
+			int tempweaponx=-16, tempweapony=-16;
+			
+			for(int iter=0; iter<2; ++iter)
 			{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sMBRANG],tmpscr->secretcset[sMBRANG]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_brang,2);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfFBRANG:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sFBRANG],tmpscr->secretcset[sFBRANG]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_brang,3);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfWANDMAGIC:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sWANDMAGIC],tmpscr->secretcset[sWANDMAGIC]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_wand,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        tempweapon=itemsbuf[tempitem].wpn3;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        else
-                        {
-                            tempweaponx=x;
-                            tempweapony=y;
-                            --lens_hint_weapon[wMagic][4];
-                            
-                            if(lens_hint_weapon[wMagic][4]<-8)
-                            {
-                                lens_hint_weapon[wMagic][4]=8;
-                            }
-                        }
-                        
-                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfREFMAGIC:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sREFMAGIC],tmpscr->secretcset[sREFMAGIC]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_shield,3);
-                        
-                        if(tempitem<0) break;
-                        
-                        tempweapon=ewMagic;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        else
-                        {
-                            tempweaponx=x;
-                            tempweapony=y;
-                            
-                            if(lens_hint_weapon[ewMagic][2]==up)
-                            {
-                                --lens_hint_weapon[ewMagic][4];
-                            }
-                            else
-                            {
-                                ++lens_hint_weapon[ewMagic][4];
-                            }
-                            
-                            if(lens_hint_weapon[ewMagic][4]>8)
-                            {
-                                lens_hint_weapon[ewMagic][2]=up;
-                            }
-                            
-                            if(lens_hint_weapon[ewMagic][4]<=0)
-                            {
-                                lens_hint_weapon[ewMagic][2]=down;
-                            }
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, lens_hint_weapon[ewMagic][2], lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
-                    }
-                    
-                    break;
-                    
-                case mfREFFIREBALL:
-                    if(!hints)
-                    {
-						if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sREFFIREBALL],tmpscr->secretcset[sREFFIREBALL]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_shield,3);
-                        
-                        if(tempitem<0) break;
-                        
-                        tempweapon=ewFireball;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                            tempweaponx=x;
-                            tempweapony=y;
-                            ++lens_hint_weapon[ewFireball][3];
-                            
-                            if(lens_hint_weapon[ewFireball][3]>8)
-                            {
-                                lens_hint_weapon[ewFireball][3]=-8;
-                                lens_hint_weapon[ewFireball][4]=8;
-                            }
-                            
-                            if(lens_hint_weapon[ewFireball][3]>0)
-                            {
-                                ++lens_hint_weapon[ewFireball][4];
-                            }
-                            else
-                            {
-                                --lens_hint_weapon[ewFireball][4];
-                            }
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                        putweapon(dest,tempweaponx+lens_hint_weapon[tempweapon][3],tempweapony+lens_hint_weapon[ewFireball][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
-                    }
-                    
-                    break;
-                    
-                case mfSWORD:
-                    if(!hints)
-                    {
-						if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSWORD],tmpscr->secretcset[sSWORD]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_sword,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfWSWORD:
-                    if(!hints)
-                    {
-						if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sWSWORD],tmpscr->secretcset[sWSWORD]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_sword,2);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfMSWORD:
-                    if(!hints)
-                    {
-						if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sMSWORD],tmpscr->secretcset[sMSWORD]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_sword,3);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfXSWORD:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sXSWORD],tmpscr->secretcset[sXSWORD]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_sword,4);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfSWORDBEAM:
-                    if(!hints)
-                    {
-						if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSWORDBEAM],tmpscr->secretcset[sSWORDBEAM]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_sword,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 1);
-                    }
-                    
-                    break;
-                    
-                case mfWSWORDBEAM:
-                    if(!hints)
-                    {
-						if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sWSWORDBEAM],tmpscr->secretcset[sWSWORDBEAM]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_sword,2);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 2);
-                    }
-                    
-                    break;
-                    
-                case mfMSWORDBEAM:
-                    if(!hints)
-                    {
-						if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sMSWORDBEAM],tmpscr->secretcset[sMSWORDBEAM]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_sword,3);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 3);
-                    }
-                    
-                    break;
-                    
-                case mfXSWORDBEAM:
-                    if(!hints)
-                    {
-						if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sXSWORDBEAM],tmpscr->secretcset[sXSWORDBEAM]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_sword,4);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 4);
-                    }
-                    
-                    break;
-                    
-                case mfHOOKSHOT:
-                    if(!hints)
-                    {
-						if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sHOOKSHOT],tmpscr->secretcset[sHOOKSHOT]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_hookshot,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfWAND:
-                    if(!hints)
-					{
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sWAND],tmpscr->secretcset[sWAND]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_wand,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfHAMMER:
-                    if(!hints)
-                    {
-			if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sHAMMER],tmpscr->secretcset[sHAMMER]);
-                    }
-					else
-                    {
-                        tempitem=getItemID(itemsbuf,itype_hammer,1);
-                        
-                        if(tempitem<0) break;
-                        
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            tempitemx=x;
-                            tempitemy=y;
-                        }
-                        
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                    }
-                    
-                    break;
-                    
-                case mfARMOS_ITEM:
-                case mfDIVE_ITEM:
-                    if(!getmapflag() && !(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG3))
-		    {
-                        putitem2(dest,x,y,tmpscr->catchall, lens_hint_item[tmpscr->catchall][0], lens_hint_item[tmpscr->catchall][1], 0);
-		    }
-                    break;
-                    
-                case 16:
-                case 17:
-                case 18:
-                case 19:
-                case 20:
-                case 21:
-                case 22:
-                case 23:
-                case 24:
-                case 25:
-                case 26:
-                case 27:
-                case 28:
-                case 29:
-                case 30:
-                case 31:
-                    if(!hints)
-                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[checkflag-16+4],
-                                 tmpscr->secretcset[checkflag-16+4]);
-                                 
-                    break;
+				int checkflag=0;
 				
-				case mfSTRIKE:
-					if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))
+				if(iter==0)
+				{
+					checkflag=combobuf[tmpscr->data[i]].flag;
+				}
+				else
+				{
+					checkflag=tmpscr->sflag[i];
+				}
+				
+				if(checkflag==mfSTRIKE)
+				{
+					if(!hints)
 					{
-						goto special;
+						if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSTRIKE],tmpscr->secretcset[sSTRIKE]);
 					}
 					else
 					{
+						checkflag = strike_hint;
+					}
+				}
+				
+				switch(checkflag)
+				{
+					case 0:
+					case mfZELDA:
+					case mfPUSHED:
+					case mfENEMY0:
+					case mfENEMY1:
+					case mfENEMY2:
+					case mfENEMY3:
+					case mfENEMY4:
+					case mfENEMY5:
+					case mfENEMY6:
+					case mfENEMY7:
+					case mfENEMY8:
+					case mfENEMY9:
+					case mfSINGLE:
+					case mfSINGLE16:
+					case mfNOENEMY:
+					case mfTRAP_H:
+					case mfTRAP_V:
+					case mfTRAP_4:
+					case mfTRAP_LR:
+					case mfTRAP_UD:
+					case mfNOGROUNDENEMY:
+					case mfNOBLOCKS:
+					case mfSCRIPT1:
+					case mfSCRIPT2:
+					case mfSCRIPT3:
+					case mfSCRIPT4:
+					case mfSCRIPT5:
+					case mfSCRIPT6:
+					case mfSCRIPT7:
+					case mfSCRIPT8:
+					case mfSCRIPT9:
+					case mfSCRIPT10:
+					case mfSCRIPT11:
+					case mfSCRIPT12:
+					case mfSCRIPT13:
+					case mfSCRIPT14:
+					case mfSCRIPT15:
+					case mfSCRIPT16:
+					case mfSCRIPT17:
+					case mfSCRIPT18:
+					case mfSCRIPT19:
+					case mfSCRIPT20:
+					case mfPITHOLE:
+					case mfPITFALLFLOOR:
+					case mfLAVA:
+					case mfICE:
+					case mfICEDAMAGE:
+					case mfDAMAGE1:
+					case mfDAMAGE2:
+					case mfDAMAGE4:
+					case mfDAMAGE8:
+					case mfDAMAGE16:
+					case mfDAMAGE32:
+					case mfFREEZEALL:
+					case mfFREZEALLANSFFCS:
+					case mfFREEZEFFCSOLY:
+					case mfSCRITPTW1TRIG:
+					case mfSCRITPTW2TRIG:
+					case mfSCRITPTW3TRIG:
+					case mfSCRITPTW4TRIG:
+					case mfSCRITPTW5TRIG:
+					case mfSCRITPTW6TRIG:
+					case mfSCRITPTW7TRIG:
+					case mfSCRITPTW8TRIG:
+					case mfSCRITPTW9TRIG:
+					case mfSCRITPTW10TRIG:
+					case mfTROWEL:
+					case mfTROWELNEXT:
+					case mfTROWELSPECIALITEM:
+					case mfSLASHPOT:
+					case mfLIFTPOT:
+					case mfLIFTORSLASH:
+					case mfLIFTROCK:
+					case mfLIFTROCKHEAVY:
+					case mfDROPITEM:
+					case mfSPECIALITEM:
+					case mfDROPKEY:
+					case mfDROPLKEY:
+					case mfDROPCOMPASS:
+					case mfDROPMAP:
+					case mfDROPBOSSKEY:
+					case mfSPAWNNPC:
+					case mfSWITCHHOOK:
+					case mfSIDEVIEWLADDER:
+					case mfSIDEVIEWPLATFORM:
+					case mfNOENEMYSPAWN:
+					case mfENEMYALL:
+					case mf166:
+					case mf167:
+					case mf168:
+					case mf169:
+					case mf170:
+					case mf171:
+					case mf172:
+					case mf173:
+					case mf174:
+					case mf175:
+					case mf176:
+					case mf177:
+					case mf178:
+					case mf179:
+					case mf180:
+					case mf181:
+					case mf182:
+					case mf183:
+					case mf184:
+					case mf185:
+					case mf186:
+					case mf187:
+					case mf188:
+					case mf189:
+					case mf190:
+					case mf191:
+					case mf192:
+					case mf193:
+					case mf194:
+					case mf195:
+					case mf196:
+					case mf197:
+					case mf198:
+					case mf199:
+					case mf200:
+					case mf201:
+					case mf202:
+					case mf203:
+					case mf204:
+					case mf205:
+					case mf206:
+					case mf207:
+					case mf208:
+					case mf209:
+					case mf210:
+					case mf211:
+					case mf212:
+					case mf213:
+					case mf214:
+					case mf215:
+					case mf216:
+					case mf217:
+					case mf218:
+					case mf219:
+					case mf220:
+					case mf221:
+					case mf222:
+					case mf223:
+					case mf224:
+					case mf225:
+					case mf226:
+					case mf227:
+					case mf228:
+					case mf229:
+					case mf230:
+					case mf231:
+					case mf232:
+					case mf233:
+					case mf234:
+					case mf235:
+					case mf236:
+					case mf237:
+					case mf238:
+					case mf239:
+					case mf240:
+					case mf241:
+					case mf242:
+					case mf243:
+					case mf244:
+					case mf245:
+					case mf246:
+					case mf247:
+					case mf248:
+					case mf249:
+					case mf250:
+					case mf251:
+					case mf252:
+					case mf253:
+					case mf254:
+					case mfEXTENDED:
 						break;
-					}
-                    
-                default: goto special;
+						
+					case mfPUSHUD:
+					case mfPUSHLR:
+					case mfPUSH4:
+					case mfPUSHU:
+					case mfPUSHD:
+					case mfPUSHL:
+					case mfPUSHR:
+					case mfPUSHUDNS:
+					case mfPUSHLRNS:
+					case mfPUSH4NS:
+					case mfPUSHUNS:
+					case mfPUSHDNS:
+					case mfPUSHLNS:
+					case mfPUSHRNS:
+					case mfPUSHUDINS:
+					case mfPUSHLRINS:
+					case mfPUSH4INS:
+					case mfPUSHUINS:
+					case mfPUSHDINS:
+					case mfPUSHLINS:
+					case mfPUSHRINS:
+						if(!hints && ((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&16))
+									  || ((get_debug() && zc_getkey(KEY_N)) && (frame&16))))
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->undercombo,tmpscr->undercset);
+						}
+						
+						if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+								|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+						{
+							if(hints)
+							{
+								switch(combobuf[tmpscr->data[i]].type)
+								{
+								case cPUSH_HEAVY:
+								case cPUSH_HW:
+									tempitem=getItemIDPower(itemsbuf,itype_bracelet,1);
+									tempitemx=x, tempitemy=y;
+									
+									if(tempitem>-1)
+										putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+										
+									break;
+									
+								case cPUSH_HEAVY2:
+								case cPUSH_HW2:
+									tempitem=getItemIDPower(itemsbuf,itype_bracelet,2);
+									tempitemx=x, tempitemy=y;
+									
+									if(tempitem>-1)
+										putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+										
+									break;
+								}
+							}
+						}
+						
+						break;
+						
+					case mfWHISTLE:
+						if(hints)
+						{
+							tempitem=getItemID(itemsbuf,itype_whistle,1);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+						//Why is this here?
+					case mfFAIRY:
+					case mfMAGICFAIRY:
+					case mfALLFAIRY:
+						if(hints)
+						{
+							tempitem=getItemID(itemsbuf, itype_fairy,1);//iFairyMoving;
+							
+							if(tempitem < 0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfBCANDLE:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sBCANDLE],tmpscr->secretcset[sBCANDLE]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_candle,1);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfRCANDLE:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sRCANDLE],tmpscr->secretcset[sRCANDLE]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_candle,2);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfWANDFIRE:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sWANDFIRE],tmpscr->secretcset[sWANDFIRE]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_wand,1);
+							
+							if(tempitem<0) break;
+							
+							tempweapon=wFire;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							else
+							{
+								tempweaponx=x;
+								tempweapony=y;
+							}
+							
+							putweapon(dest,tempweaponx,tempweapony,tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfDINSFIRE:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sDINSFIRE],tmpscr->secretcset[sDINSFIRE]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_dinsfire,1);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfARROW:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sARROW],tmpscr->secretcset[sARROW]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_arrow,1);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfSARROW:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSARROW],tmpscr->secretcset[sSARROW]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_arrow,2);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfGARROW:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sGARROW],tmpscr->secretcset[sGARROW]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_arrow,3);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfBOMB:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sBOMB],tmpscr->secretcset[sBOMB]);
+						}
+						else
+						{
+							//tempitem=getItemID(itemsbuf,itype_bomb,1);
+							tempweapon = wLitBomb;
+							
+							//if (tempitem<0) break;
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempweaponx=x;
+								tempweapony=y;
+							}
+							
+							putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+						}
+						
+						break;
+						
+					case mfSBOMB:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSBOMB],tmpscr->secretcset[sSBOMB]);
+						}
+						else
+						{
+							//tempitem=getItemID(itemsbuf,itype_sbomb,1);
+							//if (tempitem<0) break;
+							tempweapon = wLitSBomb;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempweaponx=x;
+								tempweapony=y;
+							}
+							
+							putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+						}
+						
+						break;
+						
+					case mfARMOS_SECRET:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
+						}    
+						break;
+						
+					case mfBRANG:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sBRANG],tmpscr->secretcset[sBRANG]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_brang,1);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfMBRANG:
+						if(!hints)
+				{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sMBRANG],tmpscr->secretcset[sMBRANG]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_brang,2);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfFBRANG:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sFBRANG],tmpscr->secretcset[sFBRANG]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_brang,3);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfWANDMAGIC:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sWANDMAGIC],tmpscr->secretcset[sWANDMAGIC]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_wand,1);
+							
+							if(tempitem<0) break;
+							
+							tempweapon=itemsbuf[tempitem].wpn3;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							else
+							{
+								tempweaponx=x;
+								tempweapony=y;
+								--lens_hint_weapon[wMagic][4];
+								
+								if(lens_hint_weapon[wMagic][4]<-8)
+								{
+									lens_hint_weapon[wMagic][4]=8;
+								}
+							}
+							
+							putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfREFMAGIC:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sREFMAGIC],tmpscr->secretcset[sREFMAGIC]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_shield,3);
+							
+							if(tempitem<0) break;
+							
+							tempweapon=ewMagic;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							else
+							{
+								tempweaponx=x;
+								tempweapony=y;
+								
+								if(lens_hint_weapon[ewMagic][2]==up)
+								{
+									--lens_hint_weapon[ewMagic][4];
+								}
+								else
+								{
+									++lens_hint_weapon[ewMagic][4];
+								}
+								
+								if(lens_hint_weapon[ewMagic][4]>8)
+								{
+									lens_hint_weapon[ewMagic][2]=up;
+								}
+								
+								if(lens_hint_weapon[ewMagic][4]<=0)
+								{
+									lens_hint_weapon[ewMagic][2]=down;
+								}
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, lens_hint_weapon[ewMagic][2], lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+						}
+						
+						break;
+						
+					case mfREFFIREBALL:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sREFFIREBALL],tmpscr->secretcset[sREFFIREBALL]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_shield,3);
+							
+							if(tempitem<0) break;
+							
+							tempweapon=ewFireball;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+								tempweaponx=x;
+								tempweapony=y;
+								++lens_hint_weapon[ewFireball][3];
+								
+								if(lens_hint_weapon[ewFireball][3]>8)
+								{
+									lens_hint_weapon[ewFireball][3]=-8;
+									lens_hint_weapon[ewFireball][4]=8;
+								}
+								
+								if(lens_hint_weapon[ewFireball][3]>0)
+								{
+									++lens_hint_weapon[ewFireball][4];
+								}
+								else
+								{
+									--lens_hint_weapon[ewFireball][4];
+								}
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							putweapon(dest,tempweaponx+lens_hint_weapon[tempweapon][3],tempweapony+lens_hint_weapon[ewFireball][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+						}
+						
+						break;
+						
+					case mfSWORD:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSWORD],tmpscr->secretcset[sSWORD]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_sword,1);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfWSWORD:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sWSWORD],tmpscr->secretcset[sWSWORD]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_sword,2);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfMSWORD:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sMSWORD],tmpscr->secretcset[sMSWORD]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_sword,3);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfXSWORD:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sXSWORD],tmpscr->secretcset[sXSWORD]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_sword,4);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfSWORDBEAM:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sSWORDBEAM],tmpscr->secretcset[sSWORDBEAM]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_sword,1);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 1);
+						}
+						
+						break;
+						
+					case mfWSWORDBEAM:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sWSWORDBEAM],tmpscr->secretcset[sWSWORDBEAM]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_sword,2);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 2);
+						}
+						
+						break;
+						
+					case mfMSWORDBEAM:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sMSWORDBEAM],tmpscr->secretcset[sMSWORDBEAM]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_sword,3);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 3);
+						}
+						
+						break;
+						
+					case mfXSWORDBEAM:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sXSWORDBEAM],tmpscr->secretcset[sXSWORDBEAM]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_sword,4);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 4);
+						}
+						
+						break;
+						
+					case mfHOOKSHOT:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sHOOKSHOT],tmpscr->secretcset[sHOOKSHOT]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_hookshot,1);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfWAND:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sWAND],tmpscr->secretcset[sWAND]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_wand,1);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfHAMMER:
+						if(!hints)
+						{
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sHAMMER],tmpscr->secretcset[sHAMMER]);
+						}
+						else
+						{
+							tempitem=getItemID(itemsbuf,itype_hammer,1);
+							
+							if(tempitem<0) break;
+							
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								tempitemx=x;
+								tempitemy=y;
+							}
+							
+							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						}
+						
+						break;
+						
+					case mfARMOS_ITEM:
+					case mfDIVE_ITEM:
+						if((!getmapflag() || (tmpscr->flags9&fBELOWRETURN)) && !(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG3))
+						{
+							putitem2(dest,x,y,tmpscr->catchall, lens_hint_item[tmpscr->catchall][0], lens_hint_item[tmpscr->catchall][1], 0);
+						}
+						break;
+						
+					case 16:
+					case 17:
+					case 18:
+					case 19:
+					case 20:
+					case 21:
+					case 22:
+					case 23:
+					case 24:
+					case 25:
+					case 26:
+					case 27:
+					case 28:
+					case 29:
+					case 30:
+					case 31:
+						if(!hints)
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))
+								putcombo(dest,x,y,tmpscr->secretcombo[checkflag-16+4],tmpscr->secretcset[checkflag-16+4]);
+									 
+						break;
+					case mfSECRETSNEXT:
+						if(!hints)
+							if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))
+								putcombo(dest,x,y,tmpscr->data[i]+1,tmpscr->cset[i]);
+									 
+						break;
+					
+					case mfSTRIKE:
+						if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))
+						{
+							goto special;
+						}
+						else
+						{
+							break;
+						}
+						
+					default: goto special;
+					
+					special:
+						if(layer && ((checkflag!=mfRAFT && checkflag!=mfRAFT_BRANCH&& checkflag!=mfRAFT_BOUNCE) ||(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG4)))
+						{
+							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate)) || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							{
+								rectfill(dest,x,y,x+15,y+15,WHITE);
+							}
+						}
+						
+						break;
+				}
+			}
+		}
+		
+		if(layer)
+		{
+			if(tmpscr->door[0]==dWALK)
+				rectfill(dest, 120, 16+playing_field_offset, 135, 31+playing_field_offset, WHITE);
 				
-				special:
-                    if(layer && ((checkflag!=mfRAFT && checkflag!=mfRAFT_BRANCH&& checkflag!=mfRAFT_BOUNCE) ||(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG4)))
-                    {
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate)) || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-                        {
-                            rectfill(dest,x,y,x+15,y+15,WHITE);
-                        }
-                    }
-                    
-                    break;
-                }
-            }
-        }
-        
-        if(layer)
-        {
-            if(tmpscr->door[0]==dWALK)
-                rectfill(dest, 120, 16+playing_field_offset, 135, 31+playing_field_offset, WHITE);
-                
-            if(tmpscr->door[1]==dWALK)
-                rectfill(dest, 120, 144+playing_field_offset, 135, 159+playing_field_offset, WHITE);
-                
-            if(tmpscr->door[2]==dWALK)
-                rectfill(dest, 16, 80+playing_field_offset, 31, 95+playing_field_offset, WHITE);
-                
-            if(tmpscr->door[3]==dWALK)
-                rectfill(dest, 224, 80+playing_field_offset, 239, 95+playing_field_offset, WHITE);
-                
-            if(tmpscr->door[0]==dBOMB)
-            {
-                showbombeddoor(dest, 0);
-            }
-            
-            if(tmpscr->door[1]==dBOMB)
-            {
-                showbombeddoor(dest, 1);
-            }
-            
-            if(tmpscr->door[2]==dBOMB)
-            {
-                showbombeddoor(dest, 2);
-            }
-            
-            if(tmpscr->door[3]==dBOMB)
-            {
-                showbombeddoor(dest, 3);
-            }
-        }
-        
-        if(tmpscr->stairx + tmpscr->stairy)
-        {
-            if(!hints)
-                if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,tmpscr->stairx,tmpscr->stairy+playing_field_offset,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
-            else
-            {
-                if(tmpscr->flags&fWHISTLE)
-                {
-                    tempitem=getItemID(itemsbuf,itype_whistle,1);
-                    int tempitemx=-16;
-                    int tempitemy=-16;
-                    
-                    if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&(blink_rate/4)))
-                            || ((get_debug() && zc_getkey(KEY_N)) && (frame&(blink_rate/4))))
-                    {
-                        tempitemx=tmpscr->stairx;
-                        tempitemy=tmpscr->stairy+playing_field_offset;
-                    }
-                    
-                    putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
-                }
-            }
-        }
-    }
+			if(tmpscr->door[1]==dWALK)
+				rectfill(dest, 120, 144+playing_field_offset, 135, 159+playing_field_offset, WHITE);
+				
+			if(tmpscr->door[2]==dWALK)
+				rectfill(dest, 16, 80+playing_field_offset, 31, 95+playing_field_offset, WHITE);
+				
+			if(tmpscr->door[3]==dWALK)
+				rectfill(dest, 224, 80+playing_field_offset, 239, 95+playing_field_offset, WHITE);
+				
+			if(tmpscr->door[0]==dBOMB)
+			{
+				showbombeddoor(dest, 0);
+			}
+			
+			if(tmpscr->door[1]==dBOMB)
+			{
+				showbombeddoor(dest, 1);
+			}
+			
+			if(tmpscr->door[2]==dBOMB)
+			{
+				showbombeddoor(dest, 2);
+			}
+			
+			if(tmpscr->door[3]==dBOMB)
+			{
+				showbombeddoor(dest, 3);
+			}
+		}
+		
+		if(tmpscr->stairx + tmpscr->stairy)
+		{
+			if(!hints)
+				if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,tmpscr->stairx,tmpscr->stairy+playing_field_offset,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
+			else
+			{
+				if(tmpscr->flags&fWHISTLE)
+				{
+					tempitem=getItemID(itemsbuf,itype_whistle,1);
+					int tempitemx=-16;
+					int tempitemy=-16;
+					
+					if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&(blink_rate/4)))
+							|| ((get_debug() && zc_getkey(KEY_N)) && (frame&(blink_rate/4))))
+					{
+						tempitemx=tmpscr->stairx;
+						tempitemy=tmpscr->stairy+playing_field_offset;
+					}
+					
+					putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+				}
+			}
+		}
+	}
 }
 
 BITMAP *lens_scr_d; // The "d" is for "destructible"!
@@ -3624,7 +3651,7 @@ void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
 {
     //recreating a big bitmap every frame is highly sluggish.
     static BITMAP *wavebuf = create_bitmap_ex(8,288,240-original_playing_field_offset);
-    
+    if(epilepsyFlashReduction) amplitude/=2;
     clear_to_color(wavebuf, BLACK);
     blit(source,wavebuf,0,original_playing_field_offset,16,0,256,224-original_playing_field_offset);
     
@@ -3633,6 +3660,7 @@ void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
     //  int wavelength=4;
     amplitude = zc_min(2048,amplitude); // some arbitrary limit to prevent crashing
     int amp2=168;
+    if(epilepsyFlashReduction) amp2*=2;
     int i=frame%amp2;
     
     for(int j=0; j<168; j++)
@@ -4362,11 +4390,12 @@ void f_Quit(int type)
         resume_all_sfx();
     }
     
+    show_mouse(NULL);
     eat_buttons();
     
     zc_readrawkey(KEY_ESC);
         
-    zc_readkey(KEY_ENTER);
+    zc_readrawkey(KEY_ENTER);
 }
 
 //----------------------------------------------------------------
@@ -4492,6 +4521,11 @@ int onShowLayerF()
 int onShowLayerW()
 {
     show_walkflags=!show_walkflags;
+    return D_O_K;
+}
+int onShowLayerE()
+{
+    show_effectflags=!show_effectflags;
     return D_O_K;
 }
 int onShowFFScripts()
@@ -4668,15 +4702,14 @@ void syskeys()
     
     if(get_debug() || cheat>=2)
     {
-	if( CheatModifierKeys() )
-	{
+		if( CheatModifierKeys() )
+		{
 			if(rI())
 			{
-			    setClock(!getClock());
-			    cheat_superman=getClock();
+				setClock(!getClock());
+				cheat_superman=getClock();
 			}
-		
-	}
+		}
     }
     
     if(get_debug() || cheat>=4)
@@ -4800,11 +4833,11 @@ void syskeys()
             //magic containers
             if(zc_getkey(KEY_LSHIFT) || zc_getkey(KEY_RSHIFT))
             {
-                game->set_maxmagic(zc_min(game->get_maxmagic()+MAGICPERBLOCK,MAGICPERBLOCK*8));
+                game->set_maxmagic(zc_min(game->get_maxmagic()+game->get_mp_per_block(),game->get_mp_per_block()*8));
             }
             else
             {
-                game->set_maxlife(zc_min(game->get_maxlife()+HP_PER_HEART,HP_PER_HEART*24));
+                game->set_maxlife(zc_min(game->get_maxlife()+game->get_hp_per_heart(),game->get_hp_per_heart()*24));
             }
         }
         else
@@ -4828,13 +4861,13 @@ void syskeys()
             //magic containers
             if(zc_getkey(KEY_LSHIFT) || zc_getkey(KEY_RSHIFT))
             {
-                game->set_maxmagic(zc_max(game->get_maxmagic()-MAGICPERBLOCK,0));
+                game->set_maxmagic(zc_max(game->get_maxmagic()-game->get_mp_per_block(),0));
                 game->set_magic(zc_min(game->get_maxmagic(), game->get_magic()));
                 //heart containers
             }
             else
             {
-                game->set_maxlife(zc_max(game->get_maxlife()-HP_PER_HEART,HP_PER_HEART));
+                game->set_maxlife(zc_max(game->get_maxlife()-game->get_hp_per_heart(),game->get_hp_per_heart()));
                 game->set_life(zc_min(game->get_maxlife(), game->get_life()));
             }
         }
@@ -4908,8 +4941,10 @@ bool CheatModifierKeys()
     return false;
 }
 
-// 99*360 + 59*60
-#define MAXTIME  21405240
+//99:05:54, for some reason?
+#define OLDMAXTIME  21405240
+//9000:00:00, the highest even-thousand hour fitting within 32b signed. This is 375 *DAYS*.
+#define MAXTIME     1944000000
 
 void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 {
@@ -4949,7 +4984,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
     if(Quit)
         return;
         
-    if(Playing && game->get_time()<MAXTIME)
+    if(Playing && game->get_time()<unsigned(get_bit(quest_rules,qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
         game->change_time(1);
         
     Advance=false;
@@ -5002,6 +5037,7 @@ void zapout()
 
 void zapin()
 {
+	FFCore.warpScriptCheck();
     draw_screen(tmpscr);
     set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
     //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
@@ -5160,6 +5196,7 @@ void blackscr(int fcnt,bool showsubscr)
     reset_pal_cycling();
     script_drawing_commands.Clear();
     
+	FFCore.warpScriptCheck();
     while(fcnt>0)
     {
         clear_bitmap(framebuf);
@@ -5167,7 +5204,11 @@ void blackscr(int fcnt,bool showsubscr)
         if(showsubscr)
         {
             put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-        }
+			if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS) || (get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN)))
+			{
+				do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+			}
+		}
         
         syskeys();
         advanceframe(true);
@@ -5200,6 +5241,7 @@ void openscreen(int shape)
     
     int x=128;
     
+	FFCore.warpScriptCheck();
     for(int i=0; i<80; i++)
     {
         draw_screen(tmpscr);
@@ -5259,6 +5301,7 @@ void closescreen(int shape)
     
     int x=128;
     
+	FFCore.warpScriptCheck();
     for(int i=79; i>=0; --i)
     {
         draw_screen(tmpscr);
@@ -5960,12 +6003,12 @@ static DIALOG gamepad_dlg[] =
 	{ d_jbutton_proc,      22,   90-20,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
 	{ d_jbutton_proc,      22,   118-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bbtn},
 	{ d_jbutton_proc,      22,   146-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Sbtn},
-	{ d_jbutton_proc,      22,   178-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX1",     NULL, &Exbtn1},
+	{ d_jbutton_proc,      22,   178-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "X (EX1)",     NULL, &Exbtn1},
 	{ d_jbutton_proc,      22,   210-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX3", NULL, &Exbtn3},
 	{ d_jbutton_proc,      167,  90-20,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "L",     NULL, &Lbtn},
 	{ d_jbutton_proc,      167,  118-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "R",     NULL, &Rbtn},
 	{ d_jbutton_proc,      167,  146-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Map",   NULL, &Pbtn},
-	{ d_jbutton_proc,      167,  178-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX2",     NULL, &Exbtn2},
+	{ d_jbutton_proc,      167,  178-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Y (EX2)",     NULL, &Exbtn2},
 	{ d_jbutton_proc,      167,  210-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX4",   NULL, &Exbtn4},
 	{ d_jbutton_proc,      22,   242-20,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Menu",  NULL, &Mbtn},
 	// 29
@@ -6072,12 +6115,12 @@ static DIALOG keyboard_control_dlg[] =
 	{ d_kbutton_proc,      22,   100,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Akey},
 	{ d_kbutton_proc,      22,   128,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bkey},
 	{ d_kbutton_proc,      22,   156,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Skey},
-	{ d_kbutton_proc,      22,   188,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX1",     NULL, &Exkey1},
+	{ d_kbutton_proc,      22,   188,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "X (EX1)",     NULL, &Exkey1},
 	{ d_kbutton_proc,      22,   220,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX3", NULL, &Exkey3},
 	{ d_kbutton_proc,      167,  100,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "L",     NULL, &Lkey},
 	{ d_kbutton_proc,      167,  128,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "R",     NULL, &Rkey},
 	{ d_kbutton_proc,      167,  156,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Map",   NULL, &Pkey},
-	{ d_kbutton_proc,      167,  188,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX2",     NULL, &Exkey2},
+	{ d_kbutton_proc,      167,  188,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Y (EX2)",     NULL, &Exkey2},
 	{ d_kbutton_proc,      167,  220,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX4",   NULL, &Exkey4},
 	// 31
 	{ d_k_clearbutton_proc,      22+91,  100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Akey},
@@ -6119,18 +6162,18 @@ static DIALOG keyboard_control_dlg[] =
     { jwin_text_proc,      175,  86,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Right", NULL,  NULL },
     // 61
     { jwin_text_proc,      92-26,   101,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_leftmod1, NULL,  NULL },
-    { jwin_text_proc,      92-26,   129,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_leftmod2, NULL,  NULL },
-    { jwin_text_proc,      237-4-22,101,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_rightmod1, NULL,  NULL },
+    { jwin_text_proc,      92-26,   129,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_rightmod1, NULL,  NULL },
+    { jwin_text_proc,      237-4-22,101,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_leftmod2, NULL,  NULL },
     { jwin_text_proc,      237-4-22,129,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_rightmod2, NULL,  NULL },
 	// 65
     { d_kbutton_proc,      22,   100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Main",     NULL, &cheat_modifier_keys[0]},
-    { d_kbutton_proc,      22,   128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Second",     NULL, &cheat_modifier_keys[1]},
-    { d_kbutton_proc,      167,  100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Main", NULL, &cheat_modifier_keys[2]},
+    { d_kbutton_proc,      22,   128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Second",     NULL, &cheat_modifier_keys[2]},
+    { d_kbutton_proc,      167,  100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Main", NULL, &cheat_modifier_keys[1]},
     { d_kbutton_proc,      167,  128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Second",     NULL, &cheat_modifier_keys[3]},
     // 69
     { d_k_clearbutton_proc,      22+91,  100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[0]},
-    { d_k_clearbutton_proc,      22+91,  128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[1]},
-    { d_k_clearbutton_proc,      167+91, 100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",   NULL, &cheat_modifier_keys[2]},
+    { d_k_clearbutton_proc,      22+91,  128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[2]},
+    { d_k_clearbutton_proc,      167+91, 100,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",   NULL, &cheat_modifier_keys[1]},
     { d_k_clearbutton_proc,      167+91, 128,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[3]},
 	// 73
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
@@ -6639,24 +6682,6 @@ static DIALOG goto_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int xtoi(char *hexstr)
-{
-    int val=0;
-    
-    while(isxdigit(*hexstr))
-    {
-        val<<=4;
-        
-        if(*hexstr<='9')
-            val += *hexstr-'0';
-        else val+= ((*hexstr)|0x20)-'a'+10;
-        
-        ++hexstr;
-    }
-    
-    return val;
-}
-
 int onGoTo()
 {
     bool music = false;
@@ -6675,7 +6700,7 @@ int onGoTo()
     if(zc_popup_dialog(goto_dlg,4)==1)
     {
         cheat_goto_dmap=goto_dlg[4].d2;
-        cheat_goto_screen=zc_min(xtoi(cheat_goto_screen_str),0x7F);
+        cheat_goto_screen=zc_min(zc_xtoi(cheat_goto_screen_str),0x7F);
         do_cheat_goto=true;
     };
     
@@ -6993,8 +7018,8 @@ int onMIDICredits()
     if(listening)
         music_stop();
         
-    zc_free(text);
-    zc_free(zmi);
+    if(text) zc_free(text);
+    if(zmi) zc_free(zmi);
     return D_O_K;
 }
 
@@ -7161,7 +7186,7 @@ int onVidMode()
 //Added an extra statement, so that if the key is cleared to 0, the cleared
 //keybinding status need not be unique. -Z ( 1st April, 2019 )
 
-static enum uKey
+enum uKey
 {
 	ukey_a, ukey_b, ukey_s, ukey_l, ukey_r, ukey_p, ukey_ex1, ukey_ex2, ukey_ex3, ukey_ex4,
 	ukey_du, ukey_dd, ukey_dl, ukey_dr, ukey_mod1a, ukey_mod1b, ukey_mod2a, ukey_mod2b,
@@ -7709,8 +7734,8 @@ int onEpilepsy()
 {
 	if(jwin_alert3(
 			"Epilepsy Flash Reduction", 
-			"Enabling this will reduce flashing when picking up the quest dungeon treasure pieces.",
-			"Disabling this will restore standard flashing behaviour.",
+			"Enabling this will reduce the intensity of flashing and screen wave effects.",
+			"Disabling this will restore standard flash and wavy behaviour.",
 			"Proceed?",
 		 "&Yes", 
 		"&No", 
@@ -7722,6 +7747,7 @@ int onEpilepsy()
 	{
 	    if ( epilepsyFlashReduction ) epilepsyFlashReduction = 0;
 	    else epilepsyFlashReduction = 1;
+	    set_config_int("zeldadx","checked_epilepsy",1);
 	    save_game_configs();
 	}
     return D_O_K;
@@ -7813,15 +7839,15 @@ int onLife()
 
 int onHeartC()
 {
-    game->set_maxlife(vbound(getnumber("Heart Containers",game->get_maxlife()/HP_PER_HEART),1,4095) * HP_PER_HEART);
-    game->set_life(vbound(getnumber("Life",game->get_life()/HP_PER_HEART),1,game->get_maxlife()/HP_PER_HEART)*HP_PER_HEART);
+    game->set_maxlife(vbound(getnumber("Heart Containers",game->get_maxlife()/game->get_hp_per_heart()),1,4095) * game->get_hp_per_heart());
+    game->set_life(vbound(getnumber("Life",game->get_life()/game->get_hp_per_heart()),1,game->get_maxlife()/game->get_hp_per_heart())*game->get_hp_per_heart());
     return D_O_K;
 }
 
 int onMagicC()
 {
-    game->set_maxmagic(vbound(getnumber("Magic Containers",game->get_maxmagic()/MAGICPERBLOCK),0,2047) * MAGICPERBLOCK);
-    game->set_magic(vbound(getnumber("Magic",game->get_magic()/MAGICPERBLOCK),0,game->get_maxmagic()/MAGICPERBLOCK)*MAGICPERBLOCK);
+    game->set_maxmagic(vbound(getnumber("Magic Containers",game->get_maxmagic()/game->get_mp_per_block()),0,2047) * game->get_mp_per_block());
+    game->set_magic(vbound(getnumber("Magic",game->get_magic()/game->get_mp_per_block()),0,game->get_maxmagic()/game->get_mp_per_block())*game->get_mp_per_block());
     return D_O_K;
 }
 
@@ -7850,8 +7876,9 @@ int onRefillMagic()
 }
 int onClock()
 {
-    setClock(!getClock());
-    return D_O_K;
+	setClock(!getClock());
+	cheat_superman=getClock();
+	return D_O_K;
 }
 
 int onQstPath()
@@ -8541,6 +8568,7 @@ static MENU show_menu[] =
     { (char *)"Walkability\tW",		  onShowLayerW,                 NULL,                      0, NULL },
     { (char *)"Current FFC Scripts\tF",	  onShowFFScripts,              NULL,                      0, NULL },
     { (char *)"Hitboxes\tC",				  onShowHitboxes,               NULL,                      0, NULL },
+    { (char *)"Effects\tE",		  onShowLayerE,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                     NULL,                      0, NULL }
 };
 
@@ -8583,6 +8611,7 @@ static MENU dev_menu[] =
 {
 	{ (char *)"&Force Error Log",           devLogging,              NULL,             D_SELECTED, NULL },
 	{ (char *)"&Extra Debug Log",           devDebug,                NULL,             D_SELECTED, NULL },
+	{ (char *)"&Timestamp Log",             devTimestmp,             NULL,             D_SELECTED, NULL },
 	#if DEVLEVEL > 1
 	{ (char *)"",                           NULL,                    NULL,             0,          NULL },
 	{ (char *)"Set &Cheat",                 setCheat,                NULL,             0,          NULL },
@@ -8599,6 +8628,12 @@ int devDebug()
 {
 	dev_debug = !dev_debug;
 	dev_menu[1].flags = dev_debug ? D_SELECTED : 0;
+	return D_O_K;
+}
+int devTimestmp()
+{
+	dev_timestmp = !dev_timestmp;
+	dev_menu[2].flags = dev_timestmp ? D_SELECTED : 0;
 	return D_O_K;
 }
 #if DEVLEVEL > 1
@@ -9619,46 +9654,32 @@ void system_pal2()
 #ifdef _WIN32
 void switch_out_callback()
 {
-	if(midi_patch_fix==0 || currmidi==0)
+	if(midi_patch_fix==0 || currmidi==0 || pause_in_background) //pause in background has its own handling, only on switch-in
         return;
-        
-    bool was_paused=midi_paused;
-    long pos=midi_pos;
-    int digi_vol, midi_vol;
+
 	
-	get_volume(&digi_vol, &midi_vol);
-    stop_midi();
-    jukebox(currmidi);
-	set_volume(digi_vol, midi_vol);
-    midi_seek(pos);
-    
-    if(was_paused)
-    {
-        midi_pause();
-        midi_paused=true;
-    }
+	paused_midi_pos = midi_pos;
+	stop_midi();
+	midi_paused=true;
+	midi_suspended = midissuspHALTED;
 }
 
 void switch_in_callback()
 {
+	if(pause_in_background)
+	{
+		callback_switchin = 1;
+		return;
+	}
+	
 	if(midi_patch_fix==0 || currmidi==0)
         return;
-        
-    bool was_paused=midi_paused;
-    long pos=midi_pos;
-    int digi_vol, midi_vol;
 	
-	get_volume(&digi_vol, &midi_vol);
-    stop_midi();
-    jukebox(currmidi);
-	set_volume(digi_vol, midi_vol);
-    midi_seek(pos);
-    
-    if(was_paused)
-    {
-        midi_pause();
-        midi_paused=true;
-    }
+	else
+	{
+		callback_switchin = 1;
+		midi_suspended = midissuspRESUME;
+	}
 }
 #else // Not Windows
 void switch_out_callback()
@@ -9721,7 +9742,7 @@ void System()
     
     game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
 	#if DEVLEVEL > 1
-	dev_menu[3].flags = Playing ? 0 : D_DISABLED;
+	dev_menu[4].flags = Playing ? 0 : D_DISABLED;
 	#endif
     game_menu[3].flags =
         misc_menu[5].flags = Playing ? 0 : D_DISABLED;
@@ -9776,7 +9797,7 @@ void System()
 	//segmented enemy drops
 	compat_patch_menu[1].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x210 || FFCore.getQuestHeaderInfo(vZelda) < 0x192 ) ? D_DISABLED : ((FFCore.emulation[emuITEMPERSEG])?D_SELECTED:0);
 	//Link off-grid collision --what was the default in 2.50.0?
-	compat_patch_menu[2].flags = ( (FFCore.getQuestHeaderInfo(vZelda) > 0x210 && FFCore.getQuestHeaderInfo(vBuild) > 28) || (FFCore.getQuestHeaderInfo(vZelda) < 0x210) ) ? D_DISABLED : ((FFCore.emulation[emuGRIDCOLLISION])?D_SELECTED:0);
+	compat_patch_menu[2].flags = ( (FFCore.getQuestHeaderInfo(vZelda) > 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 28)) ? D_DISABLED : ((FFCore.emulation[emuGRIDCOLLISION])?D_SELECTED:0);
 	//Old Tribbles (1.90-only)
 	//compat_patch_menu[3].flags = ( FFCore.getQuestHeaderInfo(vZelda) != 0x190 ) ? D_DISABLED : ((FFCore.emulation[emuOLDTRIBBLES])?D_SELECTED:0);
 	//Toggle BS Animation, 1.90 only
@@ -9842,6 +9863,7 @@ void System()
             show_menu[12].flags = show_walkflags ? D_SELECTED : 0;
             show_menu[13].flags = show_ff_scripts ? D_SELECTED : 0;
             show_menu[14].flags = show_hitboxes ? D_SELECTED : 0;
+	    show_menu[15].flags = show_effectflags ? D_SELECTED : 0;
         }
         
         settings_menu[11].flags = heart_beep ? D_SELECTED : 0;
@@ -10780,6 +10802,20 @@ bool getInput(int btn, bool press, bool drunk, bool ignoreDisable)
 	if(drunk && drunkstate) ret = !ret;
 	return ret;
 }
+
+bool getIntBtnInput(byte intbtn, bool press, bool drunk, bool ignoreDisable)
+{
+	bool ret = false;
+	if(intbtn & INT_BTN_A) ret |= getInput(btnA, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_B) ret |= getInput(btnB, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_L) ret |= getInput(btnL, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_R) ret |= getInput(btnR, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_EX1) ret |= getInput(btnEx1, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_EX2) ret |= getInput(btnEx2, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_EX3) ret |= getInput(btnEx3, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_EX4) ret |= getInput(btnEx4, press, drunk, ignoreDisable);
+	return ret; //No early return, to make sure all button presses are eaten that should be! -Em
+}
 bool Up()
 {
     return getInput(btnUp);
@@ -11006,6 +11042,14 @@ bool DrunkcBbtn()
 {
     return getInput(btnB, false, true);
 }
+bool DrunkcEx1btn()
+{
+    return getInput(btnEx1, false, true);
+}
+bool DrunkcEx2btn()
+{
+    return getInput(btnEx2, false, true);
+}
 bool DrunkcSbtn()
 {
     return getInput(btnS, false, true);
@@ -11050,6 +11094,22 @@ bool DrunkrAbtn()
 bool DrunkrBbtn()
 {
     return getInput(btnB, true, true);
+}
+bool DrunkrEx1btn()
+{
+    return getInput(btnEx1, true, true);
+}
+bool DrunkrEx2btn()
+{
+    return getInput(btnEx2, true, true);
+}
+bool DrunkrEx3btn()
+{
+    return getInput(btnEx3, true, true);
+}
+bool DrunkrEx4btn()
+{
+    return getInput(btnEx4, true, true);
 }
 bool DrunkrSbtn()
 {

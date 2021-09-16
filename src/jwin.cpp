@@ -36,6 +36,8 @@
 #include "zsys.h"
 #include <stdio.h>
 #include "mem_debug.h"
+#include "util.h"
+using namespace util;
 
 //#ifndef _MSC_VER
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
@@ -56,12 +58,37 @@ int abc_patternmatch = 1;
 char abc_keypresses[1024] = {0};
 void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
 
-/* ... Included in jwin.h ...
+/* these are provided for external use */
+int jwin_colors[jcMAX] =
+{
+    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
+    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
+};
 
-  enum { jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
-  jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
-  jcMAX };
-  */
+int scheme[jcMAX] =
+{
+    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
+    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
+};
+
+int jwin_pal[jcMAX] = {0};
+extern PALETTE RAMpal;
+
+// A pointer to this variable is used to identify the DIALOG belonging to
+// the DialogRunner. It isn't used for anything else.
+char newGuiMarker;
+
+int new_gui_event(DIALOG* d, guiEvent event)
+{
+	for(int i = 0; true; --d, ++i)
+	{
+		if(d->dp3 == &newGuiMarker)
+		{
+			d->d1 = i;
+			return d->proc(MSG_GUI_EVENT, d, event);
+		}
+	}
+}
 
 int bound(int x,int low,int high)
 {
@@ -89,19 +116,6 @@ int get_selected_tab(TABPANEL* panel)
 	}
 	return -1;
 }
-
-/* these are provided for external use */
-int jwin_colors[jcMAX] =
-{
-    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
-    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
-};
-
-int scheme[jcMAX] =
-{
-    0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
-    0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
-};
 
 /*  jwin_set_colors:
  *   Loads a set of colors in 0xRRGGBB or 256-color-indexed format
@@ -400,14 +414,6 @@ void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, const char *st
     int tx = x + 2;
     int ty = y + (h-height)/2;
     PALETTE temp_pal;
-    /*
-      int i = 0;
-      for( ; i<w; i++)
-      {
-      register int c = mix_color(scheme[jcTITLEL],scheme[jcTITLER],i,w);
-      _allegro_vline(dest,x+i,y,y+h-1,c);
-      }
-      */
     get_palette(temp_pal);
     dither_rect(dest, &temp_pal, x, y, x+w-1, y+h-1,
                 makecol15(temp_pal[scheme[jcTITLEL]].r*255/63,
@@ -749,7 +755,10 @@ int jwin_win_proc(int msg, DIALOG *d, int c)
         if((d->flags & D_EXIT) && mouse_in_rect(d->x+d->w-21, d->y+5, 16, 14))
         {
             if(jwin_do_x_button(screen, d->x+d->w-21, d->y+5))
+            {
+                GUI_EVENT(d, geCLOSE);
                 return D_CLOSE;
+            }
         }
         
         break;
@@ -1020,6 +1029,7 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
         
         /* or just toggle */
         d->flags ^= D_SELECTED;
+        GUI_EVENT(d, geCLICK);
         scare_mouse();
         object_message(d, MSG_DRAW, 0);
         unscare_mouse();
@@ -1071,6 +1081,7 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
         /* redraw in normal state */
         if(down)
         {
+            GUI_EVENT(d, geCLICK);
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
@@ -1188,6 +1199,14 @@ elseif (x < 0 ) d->dp = (char*)"0";
   */
 int jwin_edit_proc(int msg, DIALOG *d, int c)
 {
+	if(d->flags & D_HIDDEN)
+	{
+		switch(msg)
+		{
+			case MSG_CHAR: case MSG_UCHAR: case MSG_XCHAR: case MSG_DRAW: case MSG_CLICK: case MSG_DCLICK: case MSG_KEY: case MSG_WANTFOCUS:
+				return D_O_K;
+		}
+	}
     int f, l, p, w, x, y, fg, bg;
     int b;
     int scroll;
@@ -1359,8 +1378,11 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
         else if((c >> 8) == KEY_DEL)
         {
             if(d->d2 < l)
+            {
                 for(p=d->d2; s[p]; p++)
                     s[p] = s[p+1];
+                GUI_EVENT(d, geCHANGE_VALUE);
+            }
         }
         else if((c >> 8) == KEY_BACKSPACE)
         {
@@ -1370,10 +1392,12 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
                 
                 for(p=d->d2; s[p]; p++)
                     s[p] = s[p+1];
+                GUI_EVENT(d, geCHANGE_VALUE);
             }
         }
         else if((c >> 8) == KEY_ENTER)
         {
+            GUI_EVENT(d, geENTER);
             if(d->flags & D_EXIT)
             {
                 scare_mouse();
@@ -1404,6 +1428,8 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
                     
                     s[d->d2] = c;
                     d->d2++;
+
+                    GUI_EVENT(d, geCHANGE_VALUE);
                 }
             }
             else
@@ -1467,7 +1493,7 @@ int jwin_numedit_short_proc(int msg,DIALOG *d,int c)
 {
 	if ( (atoi((char*)d->dp)) > 65535 )
 	{
-		strcpy((char*)d->dp,"255\0");
+		strcpy((char*)d->dp,"65535\0");
 		return jwin_numedit_proc(msg,d,c);
 	}
 	else if ( (atoi((char*)d->dp)) < 0 ) 
@@ -1525,6 +1551,372 @@ int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c)
 	}
             
     return jwin_numedit_proc(msg,d,c);
+}
+
+// Special numedit procs
+
+enum {typeDEC, typeHEX, typeLDEC, typeLHEX, typeMAX};
+int jwin_swapbtn_proc(int msg, DIALOG* d, int c)
+{
+	static char* swp[typeMAX] = {"D", "H", "LD", "LH"};
+	if(msg==MSG_START)
+	{
+		d->dp = swp[d->d1&0xF];
+	}
+	//d1 is (0xF0 = old val, 0x0F = new val)
+	//d2 is max val
+	if(d->d2 < 2 || d->d2 > typeMAX) return D_O_K; //Not setup yet, or bad value
+	DIALOG* relproc = (DIALOG*)d->dp3;
+	int ret = jwin_button_proc(msg, d, c);
+	if(d->flags & D_SELECTED) //On selection
+	{
+		d->d1 = ((d->d1&0x0F)<<4) | (((d->d1&0x0F)+1)%d->d2);
+		d->dp = swp[d->d1&0xF];
+		if(relproc)
+		{
+			object_message(relproc, MSG_DRAW, 0);
+		}
+		d->flags &= ~D_SELECTED;
+		object_message(d, MSG_DRAW, 0);
+	}
+	return ret;
+}
+int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
+{
+	DIALOG* swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_byte_proc(msg, d, c);
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		swapbtn->d2 = 2; //Max states
+		swapbtn->dp3 = (void*)d;
+	}
+	int ret = D_O_K;
+	int ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	long v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case typeDEC:
+			v = atoi(str);
+			break;
+		case typeHEX:
+			v = zc_xtoi(str);
+			break;
+	}
+	byte b;
+	if ( v > 255 )
+		b=255;
+	else if ( v < 0 )
+		b=0;
+	else b = (byte)v;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		//unsigned//b = -b;
+		c &= ~255;
+	}
+	if(unsigned(v) != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case typeDEC:
+				sprintf(str, "%d\0", b);
+				break;
+			case typeHEX:
+				sprintf(str, "%X\0", b);
+				break;
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	d->fg = b; //Store numeric data
+	switch(ntype)
+	{
+		case typeDEC:
+			d->d1 = 3; //3 digits max
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeHEX:
+			d->d1 = 2; //2 digits max
+			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
+{
+	DIALOG* swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_sshort_proc(msg, d, c);
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		swapbtn->d2 = 2; //Max states
+		swapbtn->dp3 = (void*)d;
+	}
+	int ret = D_O_K;
+	int ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	long v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case typeDEC:
+			v = atoi(str);
+			break;
+		case typeHEX:
+			v = zc_xtoi(str);
+			break;
+	}
+	short b;
+	if ( v > 32767 )
+		b=32767;
+	else if ( v < -32768 )
+		b=-32768;
+	else b = (short)v;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		b = -b;
+		c &= ~255;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case typeDEC:
+				sprintf(str, "%d\0", b);
+				break;
+			case typeHEX:
+				if(b<0)
+					sprintf(str, "-%X\0", -b);
+				else sprintf(str, "%X\0", b);
+				break;
+		}
+		d->d2 = strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	d->fg = b; //Store numeric data
+	switch(ntype)
+	{
+		case typeDEC:
+			d->d1 = 6; //6 digits max (incl '-')
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeHEX:
+			d->d1 = 5; //5 digits max (incl '-')
+			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
+{
+	DIALOG* swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_sshort_proc(msg, d, c);
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		swapbtn->d2 = 4; //Max states
+		swapbtn->dp3 = (void*)d;
+	}
+	int ret = D_O_K;
+	int ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	long long v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case typeDEC:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = atoi(tempstr);
+				v *= 10000;
+				if(v<0)
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = atoi(str);
+				v *= 10000;
+			}
+			break;
+		case typeHEX:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = zc_xtoi(tempstr);
+				v *= 10000;
+				if(v<0)
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = zc_xtoi(str);
+				v *= 10000;
+			}
+			break;
+		case typeLDEC:
+			v = zc_atoi64(str);
+			break;
+		case typeLHEX:
+			v = zc_xtoi64(str);
+			break;
+	}
+	long b;
+	if ( v > 2147483647 )
+		b=2147483647;
+	else if ( v < INT_MIN )
+		b=INT_MIN;
+	else b = (long)v;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		if(b==INT_MIN)
+			++b;
+		b = -b;
+		c &= ~255;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case typeDEC:
+				sprintf(str, "%d.%04d\0", b/10000L, abs(b%10000L));
+				break;
+			case typeHEX:
+				if(b<0)
+					sprintf(str, "-%X.%04d\0", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%X.%04d\0", b/10000L, abs(b%10000L));
+				break;
+			case typeLDEC:
+				sprintf(str, "%ld\0", b);
+				break;
+			case typeLHEX:
+				if(b<0)
+					sprintf(str, "-%lX\0", -b);
+				else sprintf(str, "%lX\0", b);
+				break;
+		}
+		d->d2 = strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	d->fg = b; //Store numeric data
+	if(msg==MSG_CHAR && ((c&255)=='.'))
+	{
+		if(ntype >= typeLDEC) //No '.' in long modes
+			c&=~255;
+		else
+		{
+			for(int q = 0; str[q]; ++q)
+			{
+				if(str[q] == '.') //Only one '.'
+				{
+					c&=~255;
+					break;
+				}
+			}
+		}
+	}
+	switch(ntype)
+	{
+		case typeDEC:
+			d->d1 = 12; //12 digits max (incl '-', '.')
+			if(msg==MSG_CHAR && (c&255))
+			{
+				int p = 0;
+				for(int q = 0; str[q]; ++q)
+				{
+					if(str[q]=='.')
+					{
+						if(d->d2 <= q)
+							break; //typing before the '.'
+						++p;
+					}
+					else if(p) ++p;
+				}
+				if(p>=5) //too many chars after '.'
+					c&=~255;
+			}
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeHEX:
+			d->d1 = 11; //11 digits max (incl '-', '.')
+			if(msg==MSG_CHAR)
+			{
+				if(!((c&255)=='.'||isxdigit(c&255)))
+					c&=~255;
+				else if(isxdigit(c&255) && !isdigit(c&255))
+					for(int q = 0; q < d->d2 && str[q]; ++q)
+					{
+						if(str[q] == '.') //No hex digits to the right of the '.'
+						{
+							c&=~255;
+							break;
+						}
+					}
+				if(c&255)
+				{
+					int p = 0;
+					for(int q = 0; str[q]; ++q)
+					{
+						if(str[q]=='.')
+						{
+							if(d->d2 <= q)
+								break; //typing before the '.'
+							++p;
+						}
+						else if(p) ++p;
+					}
+					if(p>=5) //too many chars after '.'
+						c&=~255;
+				}
+				if(isalpha(c&255)) //always capitalize
+					c = (c&~255) | (toupper(c&255));
+			}
+			ret |= jwin_edit_proc(msg, d, c);
+			break;
+		case typeLDEC:
+			d->d1 = 11; //11 digits max (incl '-')
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeLHEX:
+			d->d1 = 9; //9 digits max (incl '-')
+			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
 }
 
 /*  _calc_scroll_bar:
@@ -1803,9 +2195,9 @@ static void _handle_jwin_listbox_click(DIALOG *d)
     char *sel = (char *)d->dp2;
     int listsize, height;
     int i, j;
-    
-    (*data->listFunc)(-1, &listsize);
-    
+
+    data->listFunc(-1, &listsize);
+
     if(!listsize)
         return;
         
@@ -1927,8 +2319,8 @@ void _jwin_draw_abclistbox(DIALOG *d)
 	char *sel = (char*)d->dp2;
 	char s[1024];
 	ListData *data = (ListData *)d->dp;
-	
-	(*data->listFunc)(-1, &listsize);
+
+	data->listFunc(-1, &listsize);
 	height = (d->h-3) / text_height(*data->font);
 	bar = (listsize > height);
 	w = (bar ? d->w-21 : d->w-5);
@@ -1975,8 +2367,8 @@ void _jwin_draw_abclistbox(DIALOG *d)
 	            fg = fg_color;
 	            bg = bg_color;
 	        }
-	        
-	        strncpy(s, (*data->listFunc)(i+d->d2, NULL), 1023);
+
+	        strncpy(s, data->listFunc(i+d->d2, NULL), 1023);
 	        x = d->x + 4;
 	        y = d->y + 4 + i*text_height(*data->font);
 	        //         text_mode(bg);
@@ -2019,8 +2411,8 @@ void _jwin_draw_listbox(DIALOG *d)
     char *sel = (char*)d->dp2;
     char s[1024];
     ListData *data = (ListData *)d->dp;
-    
-    (*data->listFunc)(-1, &listsize);
+
+    data->listFunc(-1, &listsize);
     height = (d->h-3) / text_height(*data->font);
     bar = (listsize > height);
     w = (bar ? d->w-21 : d->w-5);
@@ -2055,8 +2447,8 @@ void _jwin_draw_listbox(DIALOG *d)
                 fg = fg_color;
                 bg = bg_color;
             }
-            
-            strncpy(s, (*data->listFunc)(i+d->d2, NULL), 1023);
+
+            strncpy(s, data->listFunc(i+d->d2, NULL), 1023);
             x = d->x + 4;
             y = d->y + 4 + i*text_height(*data->font);
             //         text_mode(bg);
@@ -2115,7 +2507,7 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
     {
     
     case MSG_START:
-        (*data->listFunc)(-1, &listsize);
+        data->listFunc(-1, &listsize);
         _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
         break;
         
@@ -2124,7 +2516,7 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
         break;
         
     case MSG_CLICK:
-        (*data->listFunc)(-1, &listsize);
+        data->listFunc(-1, &listsize);
         height = (d->h-3) / text_height(*data->font);
         bar = (listsize > height);
         
@@ -2207,8 +2599,8 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
         // Ignore double right-click
         if((gui_mouse_b()&2)!=0)
             break;
-        
-        (*data->listFunc)(-1, &listsize);
+
+        data->listFunc(-1, &listsize);
         height = (d->h-3) / text_height(*data->font);
         bar = (listsize > height);
         
@@ -2230,8 +2622,8 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
         break;
         
     case MSG_KEY:
-        (*data->listFunc)(-1, &listsize);
-        
+        data->listFunc(-1, &listsize);
+
         if((listsize) && (d->flags & D_EXIT))
             return D_CLOSE;
             
@@ -2241,7 +2633,7 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
         return D_WANTFOCUS;
         
     case MSG_WHEEL:
-        (*data->listFunc)(-1, &listsize);
+        data->listFunc(-1, &listsize);
         height = (d->h-4) / text_height(*data->font);
         
         if(height < listsize)
@@ -2267,8 +2659,8 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
         break;
         
     case MSG_CHAR:
-        (*data->listFunc)(-1,&listsize);
-        
+        data->listFunc(-1,&listsize);
+
         if(listsize)
         {
             c >>= 8;
@@ -2363,7 +2755,7 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
     {
     
     case MSG_START:
-        (*data->listFunc)(-1, &listsize);
+        data->listFunc(-1, &listsize);
         _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
         break;
         
@@ -2382,7 +2774,7 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
 		}
 		else //Clicked the lister
 		{
-			(*data->listFunc)(-1, &listsize);
+			data->listFunc(-1, &listsize);
 			height = (d->h-3) / text_height(*data->font);
 			bar = (listsize > height);
 			
@@ -2476,7 +2868,7 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
 		}
 		else //Clicked the lister
 		{
-			(*data->listFunc)(-1, &listsize);
+			data->listFunc(-1, &listsize);
 			height = (d->h-3) / text_height(*data->font);
 			bar = (listsize > height);
 			
@@ -2498,8 +2890,8 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
         break;
         
     case MSG_KEY:
-        (*data->listFunc)(-1, &listsize);
-        
+        data->listFunc(-1, &listsize);
+
         if((listsize) && (d->flags & D_EXIT))
             ret = D_CLOSE;
             
@@ -2510,7 +2902,7 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
 		break;
         
     case MSG_WHEEL:
-        (*data->listFunc)(-1, &listsize);
+        data->listFunc(-1, &listsize);
         height = (d->h-4) / text_height(*data->font);
         
         if(height < listsize)
@@ -2536,8 +2928,8 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
         break;
         
     case MSG_CHAR:
-        (*data->listFunc)(-1,&listsize);
-        
+        data->listFunc(-1,&listsize);
+
         if(listsize)
         {
             c >>= 8;
@@ -3974,6 +4366,155 @@ int jwin_menu_proc(int msg, DIALOG *d, int c)
     return ret;
 }
 
+int jwin_selcolor_proc(int msg, DIALOG *d, int c)
+{
+	int ret = D_O_K;
+	int cwid = d->w / 16;
+	int chei = d->h / 12;
+	d->w = cwid * 16;
+	d->h = chei * 12;
+	switch(msg)
+	{
+		case MSG_DRAW:
+		{
+			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
+			for(int c = 0; c < 0xC0; ++c) //to cset 11
+			{
+				int x = (c%16)*cwid, y = (c/16)*chei;
+				rectfill(screen, d->x+x, d->y+y, d->x+x+cwid-1, d->y+y+cwid-1, c);
+				if(c == d->d1)
+				{
+					byte bright = (RAMpal[c].r >= 32) + (RAMpal[c].g >= 32) + (RAMpal[c].b >= 32);
+					byte highlightColor = vc(7); //sysgray
+					if(bright >= 2)
+						highlightColor = vc(0); //sysblack
+					else if(!bright)
+						highlightColor = vc(15);
+					rect(screen, d->x+x+0, d->y+y+0, d->x+x+cwid-1, d->y+y+cwid-1, highlightColor);
+					rect(screen, d->x+x+1, d->y+y+1, d->x+x+cwid-2, d->y+y+cwid-2, highlightColor);
+				}
+			}
+			break;
+		}
+		
+		case MSG_CLICK:
+		{
+			if(mouse_in_rect(d->x, d->y, d->x+d->w-1, d->y+d->h-1))
+			{
+				int col = ((gui_mouse_x() - d->x) / cwid) + 16*((gui_mouse_y() - d->y) / chei);
+
+				// for(int c = 0; c < 0xC0; ++c) //to cset 11
+				// {
+					// int x = (c%16)*cwid, y = (c/16)*chei;
+					// if(mouse_in_rect(d->x+x, d->y+y, d->x+x+cwid-1, d->y+y+cwid-1))
+					// {
+						// col = c;
+						// break;
+					// }
+				// }
+				if(col>-1 && col != d->d1)
+				{
+					d->d1 = col;
+					ret |= D_REDRAWME;
+				}
+				ret |= D_WANTFOCUS;
+			}
+			break;
+		}
+		
+		case MSG_WANTFOCUS:
+		case MSG_LOSTFOCUS:
+		case MSG_KEY:
+			ret = D_WANTFOCUS;
+			break;
+		
+		case MSG_CHAR:
+		{
+			ret = D_USED_CHAR | D_REDRAWME;
+			switch(c>>8)
+			{
+				case KEY_LEFT:
+				{
+					if(d->d1 % 0x10)
+						--d->d1;
+					break;
+				}
+				case KEY_RIGHT:
+				{
+					if(d->d1 % 0x10 != 0x0F)
+						++d->d1;
+					break;
+				}
+				case KEY_UP:
+				{
+					if(d->d1 / 0x10)
+						d->d1 -= 0x10;
+					break;
+				}
+				case KEY_DOWN:
+				{
+					if(d->d1 / 0x10 != 0xC0)
+						d->d1 += 0x10;
+					break;
+				}
+				case KEY_ENTER:
+				{
+					ret = D_CLOSE;
+					break;
+				}
+				default: ret = D_O_K;
+			}
+			break;
+		}
+	}
+	return ret;
+}
+
+static DIALOG selcolor_dlg[] =
+{
+	{ jwin_win_proc,       0,    0,  256,  141,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Select Color",  NULL,  NULL },
+	{ jwin_button_proc,   64,  118,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"OK",  NULL,  NULL },
+	{ jwin_button_proc,  128,  118,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Cancel",  NULL,  NULL },
+	{ jwin_selcolor_proc, 64,   20,   16*8,   12*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
+	
+	{ NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
+};
+
+extern FONT* lfont;
+int jwin_color_swatch(int msg, DIALOG *d, int c)
+{
+	int ret = D_O_K;
+	switch(msg)
+	{
+		case MSG_DRAW:
+		{
+			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, (d->flags&D_DISABLED) ? jwin_pal[jcBOX] : d->d1);
+			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
+			break;
+		}
+		
+		case MSG_CLICK:
+		{
+			if(d->flags&D_DISABLED) break;
+			selcolor_dlg[0].dp2 = lfont;
+			selcolor_dlg[3].bg = jwin_pal[jcBOXFG];
+			selcolor_dlg[3].fg = jwin_pal[jcBOX];
+			selcolor_dlg[3].d1 = d->d1;
+			if(is_large)
+				large_dialog(selcolor_dlg);
+			while(gui_mouse_b()); //wait for mouseup
+			int val = popup_zqdialog(selcolor_dlg, 3);
+			if(val == 1 || val == 3)
+			{
+				d->d1 = selcolor_dlg[3].d1;
+				ret = D_REDRAWME;
+			}
+			break;
+		}
+	}
+	return ret;
+}
+
 static DIALOG alert_dialog[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)   (dp2)  (dp3) */
@@ -4149,6 +4690,253 @@ int jwin_alert(const char *title, const char *s1, const char *s2, const char *s3
     return ret;
 }
 
+int d_autotext_proc(int msg, DIALOG *d, int c)
+{
+	ASSERT(d);
+	ASSERT(d->dp);
+	#define AUTOBUF_SIZE 8092
+	static char auto_buf[AUTOBUF_SIZE] = {0};
+	static int auto_inds[50] = {0};
+	
+	
+	FONT *oldfont = font;
+	
+	if (d->dp2)
+		font = (FONT*)d->dp2;
+	switch(msg)
+	{
+		case MSG_START:
+		{
+			memset(auto_buf, 0, AUTOBUF_SIZE);
+			memset(auto_inds, 0, 50);
+			char* str = (char*)d->dp;
+			int len = strlen(str);
+			int pos = 0, curstrpos = 0, linecount = 1, lastWS = -1;
+			BITMAP* dummy = create_bitmap_ex(8,8,8);
+			for(int q = 0; q < len; ++q)
+			{
+				switch(str[q])
+				{
+					case ' ': case '\t':
+						lastWS = pos;
+						break;
+					case '\n': //Forced newline
+						auto_inds[linecount++] = ++pos;
+						curstrpos = pos;
+						lastWS = -1;
+						continue; //skip rest of for loop, go to next char
+				}
+				auto_buf[pos++] = str[q];
+				if(gui_textout_ex(dummy,auto_buf+curstrpos,0,0,0,0,0) >= d->w) //too long, wrap to lower line
+				{
+					if(lastWS<0)
+					{
+						auto_buf[pos-1] = 0;
+						auto_inds[linecount++] = pos;
+						curstrpos = pos;
+						auto_buf[pos++] = str[q];
+					}
+					else
+					{
+						auto_buf[lastWS] = 0;
+						auto_inds[linecount++] = lastWS+1;
+						curstrpos = lastWS+1;
+						if(gui_textout_ex(dummy,auto_buf+curstrpos,0,0,0,0,0) >= d->w) //STILL too long?
+						{
+							auto_buf[pos-1] = 0;
+							auto_inds[linecount++] = pos;
+							curstrpos = pos;
+							auto_buf[pos++] = str[q];
+						}
+						lastWS = -1;
+					}
+				}
+			}
+			destroy_bitmap(dummy);
+			d->d2 = linecount;
+			d->h = ((text_height(font) + d->d1) * linecount) - d->d1;
+		}
+		break;
+		
+		case MSG_DRAW:
+		{
+			int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+			int linecount = d->d2;
+			
+			int yinc = text_height(font)+d->d1;
+			int y = d->y;
+			for(int q = 0; q < linecount; ++q)
+			{
+				gui_textout_ex(gui_get_screen(), auto_buf+auto_inds[q], d->x, y, fg, d->bg, true);
+				y += yinc;
+			}
+		}
+		break;
+	}
+	font = oldfont;
+	return D_O_K;
+}
+
+static DIALOG alert2_dialog[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)   (dp2)  (dp3) */
+    { jwin_win_proc,     0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { d_autotext_proc,   0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
+    { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
+    { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
+    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
+};
+
+#define A2_S1  1
+#define A2_B1  2
+#define A2_B2  3
+#define A2_B3  4
+
+/* jwin_auto_alert3:
+  *  Displays a simple alert box, containing one line of text, auto-split
+  *  across lines using 'lenlim' and 'vspace,
+  *  and with either one, two, or three buttons. The text for these buttons
+  *  is passed in b1, b2, and b3 (NULL for buttons which are not used), and
+  *  the keyboard shortcuts in c1 and c2. Returns 1, 2, or 3 depending on
+  *  which button was selected.
+  */
+int jwin_auto_alert3(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3, FONT *title_font)
+{
+	gui_get_screen();
+    int maxlen = 0;
+    int len1, len2, len3;
+    int avg_w = text_length(font, " ");
+    int avg_h = text_height(font)+is_large;
+    int buttons = 0;
+    int yofs = (title ? 22 : 0);
+    int b[3];
+    int c;
+    
+#define SORT_OUT_AUTOBUTTON(x) { \
+          if (b##x)          \
+          {                  \
+            alert2_dialog[A2_B##x].flags &= ~D_HIDDEN; \
+            alert2_dialog[A2_B##x].key = c##x; \
+            alert2_dialog[A2_B##x].dp =  (void *)b##x; \
+            len##x = gui_strlen(b##x); \
+            b[buttons++] = A2_B##x; \
+          }                  \
+          else               \
+          {                  \
+            alert2_dialog[A2_B##x].flags |= D_HIDDEN; \
+            len##x = 0;      \
+          }                  \
+        }
+    
+    if(title_font)
+    {
+        alert2_dialog[0].dp2=title_font;
+    }
+    
+    alert2_dialog[A2_S1].dp = alert2_dialog[A2_B1].dp = alert2_dialog[A2_B2].dp = (void*)"";
+                                
+    if(s1)
+    {
+        alert2_dialog[A2_S1].dp = (void *)s1;
+        maxlen = lenlim;
+    }
+    
+    SORT_OUT_AUTOBUTTON(1);
+    SORT_OUT_AUTOBUTTON(2);
+    SORT_OUT_AUTOBUTTON(3);
+    
+    len1 = MAX(len1, MAX(len2, len3)) + avg_w*3;
+    
+    if(len1*buttons > maxlen)
+        maxlen = len1*buttons;
+        
+    maxlen += avg_w*4;
+    maxlen=zc_max(text_length(title_font?title_font:font,title)+29,maxlen);
+    
+    alert2_dialog[A2_S1].x = alert2_dialog[0].x + maxlen/2;
+    alert2_dialog[A2_S1].y = alert2_dialog[0].y + avg_h + yofs;
+    alert2_dialog[A2_S1].w = lenlim;
+    alert2_dialog[A2_S1].d1 = vspace;
+    
+    if(is_large)
+    {
+        large_dialog(alert2_dialog);
+        alert2_dialog[0].d1 = 0;
+    }
+	object_message(&alert2_dialog[A2_S1], MSG_START, 0); //calculate height
+	
+    if(is_large)
+    {
+		alert2_dialog[A2_S1].x = alert2_dialog[0].x + maxlen/2;
+		alert2_dialog[A2_S1].y = alert2_dialog[0].y + avg_h + yofs;
+		alert2_dialog[A2_S1].w = lenlim;
+		alert2_dialog[A2_S1].d1 = vspace;
+	}
+    alert2_dialog[A2_B1].w = alert2_dialog[A2_B2].w = alert2_dialog[A2_B3].w = len1;
+    
+    alert2_dialog[A2_B1].x = alert2_dialog[A2_B2].x = alert2_dialog[A2_B3].x =
+                               alert2_dialog[0].x + maxlen/2 - len1/2;
+                               
+    if(buttons == 3)
+    {
+        alert2_dialog[b[0]].x = alert2_dialog[0].x + maxlen/2 - len1*3/2 - avg_w;
+        alert2_dialog[b[2]].x = alert2_dialog[0].x + maxlen/2 + len1/2 + avg_w;
+    }
+    else if(buttons == 2)
+    {
+        alert2_dialog[b[0]].x = alert2_dialog[0].x + maxlen/2 - len1 - avg_w;
+        alert2_dialog[b[1]].x = alert2_dialog[0].x + maxlen/2 + avg_w;
+    }
+	
+    alert2_dialog[0].w = maxlen;
+    alert2_dialog[0].h = avg_h*4 + yofs + alert2_dialog[A2_S1].h + 13;
+    alert2_dialog[A2_B1].y = alert2_dialog[A2_B2].y = alert2_dialog[A2_B3].y =
+                               alert2_dialog[0].y + avg_h*2 + yofs + alert2_dialog[A2_S1].h;
+                               
+    alert2_dialog[A2_B1].h = alert2_dialog[A2_B2].h = alert2_dialog[A2_B3].h = avg_h+13;
+    
+    alert2_dialog[0].dp = (void *)title;
+    alert2_dialog[0].flags = (title) ? D_EXIT : 0;
+    
+    jwin_center_dialog(alert2_dialog);
+    set_dialog_color(alert2_dialog, scheme[jcTEXTFG], scheme[jcBOX]);
+    
+    clear_keybuf();
+    
+    do
+    {
+    }
+    while(gui_mouse_b());
+    
+    if(is_large)
+    {
+        large_dialog(alert2_dialog);
+        alert2_dialog[0].d1 = 0;
+    }
+    
+    c = popup_zqdialog(alert2_dialog, A2_B1);
+    
+    if(c == A2_B1)
+        return 1;
+    else if(c == A2_B2)
+        return 2;
+    else
+        return 3;
+}
+
+int jwin_auto_alert(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, int c1, int c2, FONT *title_font)
+{
+    int ret;
+    
+    ret = jwin_auto_alert3(title, s1, lenlim, vspace, b1, b2, NULL, c1, c2, 0, title_font);
+    
+    if(ret > 2)
+        ret = 2;
+        
+    return ret;
+}
+
 /*****************************************/
 /***********  drop list proc  ************/
 /*****************************************/
@@ -4179,8 +4967,8 @@ static int droplist(DIALOG *d)
     ListData *data = (ListData *)d->dp;
     int d1 = d->d1;
     int listsize, x, y, w, h, max_w;
-    
-    (*data->listFunc)(-1, &listsize);
+
+    data->listFunc(-1, &listsize);
     y = d->y + d->h;
     h = zc_min(abc_patternmatch ? listsize+1 : listsize,8) * text_height(*data->font) + 8;
     
@@ -4195,12 +4983,12 @@ static int droplist(DIALOG *d)
     
     for(int i=0; i<listsize; ++i)
     {
-        w=zc_min(max_w,zc_max(w,text_length(*data->font,(*data->listFunc)(i, NULL))+39));
+        w=zc_min(max_w,zc_max(w,text_length(*data->font,data->listFunc(i, NULL))+39));
     }
     
     if(x+w >= zq_screen_w)
     {
-        x = d->x + d->w - w;
+		x=zq_screen_w-w;
     }
     
     droplist_dlg[1] = *d;
@@ -4265,10 +5053,14 @@ int jwin_droplist_proc(int msg,DIALOG *d,int c)
         jwin_droplist_proc(MSG_DRAW, d, 0);
         unscare_mouse();
     }
-    
-    if((d1 != d->d1) && (d->flags&D_EXIT))
-        ret |= D_CLOSE;
-        
+
+    if(d1 != d->d1)
+    {
+        GUI_EVENT(d, geCHANGE_SELECTION);
+        if(d->flags&D_EXIT)
+            ret |= D_CLOSE;
+    }
+
     if(msg == MSG_DRAW)
     {
         draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
@@ -4332,7 +5124,10 @@ dropit:
     
     while(gui_mouse_b())
         clear_keybuf();
-        
+
+    if(d1!=d->d1)
+        GUI_EVENT(d, geCHANGE_SELECTION);
+
     return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
 }
 
@@ -4364,10 +5159,10 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 				}
 			}
 			//al_trace("keypresses: %s\n", abc_keypresses);
-			//the lister string is (((*data->listFunc)(i,&dummy)))
-			//al_trace("lister: %s\n", (((*data->listFunc)(i,&dummy))));
-			(*data->listFunc)(-1, &max);
-			
+			//the lister string is ((data->listFunc(i,&dummy)))
+			//al_trace("lister: %s\n", ((data->listFunc(i,&dummy))));
+			data->listFunc(-1, &max);
+
 			int cur = d->d1;
 			int charpos = 0; int listpos = 0; int lastmatch = -1;
 			char tmp[1024] = { 0 };
@@ -4383,8 +5178,8 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 				memset(lsttmp, 0, 1024);
 				
 				strcpy(tmp, abc_keypresses);
-				strcpy(lsttmp, (((*data->listFunc)(listpos,&dummy))));
-				for ( int w = 0; w < 1024; ++w ) 
+				strcpy(lsttmp, ((data->listFunc(listpos,&dummy))));
+				for ( int w = 0; w < 1024; ++w )
 				{
 					if ( isalpha(tmp[w]) )
 					{
@@ -4407,7 +5202,7 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
 				//al_trace("strlen(lsttmp) is: %d\n", strlen(tmp));
 				if ( !(strncmp(lsttmp, tmp, strlen(tmp))))
 				{
-					//al_trace("listpos (cond A) is: %d with name %s\n", listpos, (((*data->listFunc)(listpos,&dummy))));
+					//al_trace("listpos (cond A) is: %d with name %s\n", listpos, ((data->listFunc(listpos,&dummy))));
 					//al_trace("strncmp charpos was: %d\n", charpos);
 					
 					d->d1 = listpos;
@@ -4481,16 +5276,16 @@ gotit_match:
 			
 			h = (d->h-3) / text_height(*data->font);
 			c = toupper(c&0xFF);
-			
-			(*data->listFunc)(-1, &max);
-			
+
+			data->listFunc(-1, &max);
+
 			int cur = d->d1;
 			//al_trace("cur: %d\n", cur);
 			for(i=cur+1; (cur ? (i != cur) : (cur < max)); ++i) //don't infinite loop this. 
 			{
 				//al_trace("loop running\n");
 				if(i>=max) i=0;
-				if(toupper(((*data->listFunc)(i,&dummy))[0]) == c)
+				if(toupper((data->listFunc(i,&dummy))[0]) == c)
 				{
 					d->d1 = i;
 					d->d2 = zc_max(zc_min(i-(h>>1), max-h), 0);
@@ -5064,6 +5859,22 @@ int short_bmp_avg(BITMAP *bmp, int i)
     b/=k;
     return makecol15(r, g, b);
 }
+
+// A consistent RENG (random enough number generator) for dither_rect()
+static unsigned short lfsr;
+
+static inline void lfsrInit()
+{
+    lfsr=1;
+}
+
+static unsigned short lfsrNext()
+{
+    auto bits=(lfsr^(lfsr>>2)^(lfsr>>3)^(lfsr>>5))&1;
+    lfsr=(lfsr>>1)|(bits<<15);
+    return lfsr;
+}
+
 void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
                  int src_color1, int src_color2, unsigned char dest_color1,
                  unsigned char dest_color2)
@@ -5071,7 +5882,7 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
     BITMAP *src_bmp=create_bitmap_ex(15, abs(x2-x1)+1, 1);
     BITMAP *dest_bmp=create_bitmap_ex(8, abs(x2-x1)+1, abs(y2-y1)+1);
     int r, g, b, direction=1;
-    register int c;
+    int c;
     int r1, r2, g1, g2, b1, b2;
     //  int diff[2][x2-x1+3][3];
     int (*diff[2])[3];
@@ -5081,7 +5892,8 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
     RGB_MAP table;
     int temp;
     int red_rand_strength=0, green_rand_strength=0, blue_rand_strength=0;
-    
+
+    lfsrInit();
     clear_bitmap(dest_bmp);
     
     if(x1>x2)
@@ -5145,9 +5957,9 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
             for(int i=0; i<=x2-x1; ++i)
             {
                 mc=((short *)src_bmp->line[0])[i];
-                mr=bound(getr15(mc)+rand()%(red_rand_strength*2+1)-(red_rand_strength*1),0,255);
-                mg=bound(getg15(mc)+rand()%(green_rand_strength*2+1)-(green_rand_strength*1),0,255);
-                mb=bound(getb15(mc)+rand()%(blue_rand_strength*2+1)-(blue_rand_strength*1),0,255);
+                mr=bound(getr15(mc)+lfsrNext()%(red_rand_strength*2+1)-(red_rand_strength*1),0,255);
+                mg=bound(getg15(mc)+lfsrNext()%(green_rand_strength*2+1)-(green_rand_strength*1),0,255);
+                mb=bound(getb15(mc)+lfsrNext()%(blue_rand_strength*2+1)-(blue_rand_strength*1),0,255);
                 cdiff[0]=bound(mr+
                                diff[0][i][0]+
                                diff[0][i+1][0]+
@@ -6056,6 +6868,7 @@ int d_jslider_proc(int msg, DIALOG *d, int c)
     return retval;
 }
 
+// This is only used by jwin_check_proc and jwin_radio_proc.
 int d_jwinbutton_proc(int msg, DIALOG *d, int)
 {
     BITMAP *gui_bmp;
@@ -6119,6 +6932,7 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
         
         /* or just toggle */
         d->flags ^= D_SELECTED;
+        GUI_EVENT(d, geTOGGLE);
         object_message(d, MSG_DRAW, 0);
         break;
         
@@ -6144,6 +6958,7 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
             if(((state1) && (!state2)) || ((state2) && (!state1)))
             {
                 d->flags ^= D_SELECTED;
+                GUI_EVENT(d, geTOGGLE);
                 state1 = d->flags & D_SELECTED;
                 object_message(d, MSG_DRAW, 0);
             }

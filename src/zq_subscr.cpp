@@ -480,16 +480,16 @@ const char *rowslist(int index, int *list_size)
     return rows_str[index];
 }
 
-const char *button_str[2] =
+const char *button_str[4] =
 {
-    "A", "B"
+    "A", "B", "X", "Y"
 };
 
 const char *buttonlist(int index, int *list_size)
 {
     if(index<0)
     {
-        *list_size = 2;
+        *list_size = 4;
         return NULL;
     }
     
@@ -1066,7 +1066,7 @@ int sso_raw_data(subscreen_object *tempsso)
 
 static ListData wrapping_list(wrappinglist, &font);
 static ListData alignment_list(alignmentlist, &font);
-static ListData shadowstyle_list(shadowstylelist, &font);
+ListData shadowstyle_list(shadowstylelist, &font);
 static ListData misccolor_list(misccolorlist, &font);
 static ListData spectile_list(spectilelist, &font);
 static ListData ssfont_list(ssfontlist, &font);
@@ -2063,7 +2063,7 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_dlg[115],button_caption);
         ListData button_list(buttonlist, is_large? &lfont_l : &font);
         replacedp(sso_properties_dlg[119],(char *)&button_list);
-        
+        //al_trace("tempsso->d1 is: %d\n", tempsso->d1);
         sso_properties_dlg[119].d1=tempsso->d1;
     }
     break;

@@ -87,6 +87,16 @@ void RecursiveVisitor::visit(AST* node, void* param)
 	if (node) visit(*node, param);
 }
 
+void RecursiveVisitor::checkCast(
+		DataType const& sourceType, DataType const& targetType, AST* node, bool twoWay)
+{
+	if (sourceType.canCastTo(targetType)) return;
+	if (twoWay && targetType.canCastTo(sourceType)) return;
+	handleError(
+		CompileError::IllegalCast(
+			node, sourceType.getName(), targetType.getName()));
+}
+
 ////////////////////////////////////////////////////////////////
 // Cases
 
@@ -101,6 +111,8 @@ void RecursiveVisitor::caseFile(ASTFile& host, void* param)
 	block_visit(host, host.scriptTypes, param);
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.imports, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.condimports, param);
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.variables, param);
 	if (breakRecursion(host, param)) return;
@@ -129,6 +141,8 @@ void RecursiveVisitor::caseBlock(ASTBlock& host, void* param)
 
 void RecursiveVisitor::caseStmtIf(ASTStmtIf& host, void* param)
 {
+	if(host.isDecl())
+		visit(host.declaration.get(), param);
 	visit(host.condition.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.thenStatement.get(), param);
@@ -269,6 +283,22 @@ void RecursiveVisitor::caseImportDecl(ASTImportDecl& host, void* param)
 	visit(host.getTree(), param);
 }
 
+void RecursiveVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* param)
+{
+	visit(*host.cond, param);
+	if(breakRecursion(host, param)) return;
+	optional<long> val = host.cond->getCompileTimeValue(this, scope);
+	if(val && (*val != 0))
+	{
+		if(!host.preprocessed)
+		{
+			ScriptParser::preprocess_one(*host.import, ScriptParser::recursionLimit);
+			host.preprocessed = true;
+		}
+		visit(*host.import, param);
+	}
+}
+
 void RecursiveVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
 	if(host.getFlag(FUNCFLAG_INVALID))
@@ -280,7 +310,9 @@ void RecursiveVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host, host.parameters, param);
 	if (breakRecursion(host, param)) return;
-	visit(host.block.get(), param);
+	if(host.prototype)
+		visit(host.defaultReturn.get(), param);
+	else visit(host.block.get(), param);
 }
 
 void RecursiveVisitor::caseDataDeclList(ASTDataDeclList& host, void* param)

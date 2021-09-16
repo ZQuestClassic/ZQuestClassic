@@ -8,7 +8,7 @@
 #include "zdefs.h"
 #include <math.h>
 #include <limits>
-#define NAN 0
+#define FIX_NAN 0
 //std::numeric_limits<t>::quiet_NaN()
 
 typedef int32_t ZLong;
@@ -23,14 +23,26 @@ inline ZLong toZLong(long val);
 inline zfix floor(zfix fx);
 inline zfix abs(zfix fx);
 
+static int zfixvbound(ZLong x, int low, int high)
+{
+	assert(low <= high);
+	if(x<low) return low;
+	if(x>high) return high;
+	return x;
+}
+//inline int vbound(int x,int low,int high);
+//inline float vbound(float x,float low,float high);
+
+
+
 class zfix
 {
 public:
 	ZLong val;
-	
+
 	long getInt() const
 	{
-		return val/10000L;
+		return val/10000L + zfixvbound((val%10000L)/5000L,-1,1);
 	}
 	double getFloat() const
 	{
@@ -45,11 +57,30 @@ public:
 		return val%10000;
 	}
 	
+	
+	
 	zfix& doFloor()
 	{
 		val = (val / 10000) * 10000;
 		return *this;
 	}
+	long getFloor() const
+	{
+		return val / 10000L;
+	}
+	
+	zfix& doRound()
+	{
+		if ((val % 10000) >= 5000) val = ((val / 10000)+1) * 10000;
+		else val = (val / 10000) * 10000;
+		return *this;
+	}
+	long getRound() const
+	{
+		if ((val % 10000) >= 5000) return ((val / 10000)+1);
+		else return (val / 10000);
+	}
+	
 	zfix& doAbs()
 	{
 		val = abs(val);
@@ -108,19 +139,19 @@ public:
 	
 	static long longDiv(long a, long b)	{ zint64 c = a*10000L; return (long)(c/b); }
 	zfix& operator /=  (const zfix fx)	{
-		if(fx.val == 0) val = toZLong(NAN);
+		if(fx.val == 0) val = toZLong(FIX_NAN);
 		else val = longDiv(val, fx.val); return *this; }
 	zfix& operator /=  (const int v)	{
-		if(v == 0) val = toZLong(NAN);
+		if(v == 0) val = toZLong(FIX_NAN);
 		else val /= v; return *this; }
 	zfix& operator /=  (const long v)	{
-		if(v == 0) val = toZLong(NAN);
+		if(v == 0) val = toZLong(FIX_NAN);
 		else val /= v; return *this; }
 	zfix& operator /=  (const float v)	{
-		if(toZLong(v) == 0) val = toZLong(NAN);
+		if(toZLong(v) == 0) val = toZLong(FIX_NAN);
 		else val = longDiv(val, toZLong(v)); return *this; }
 	zfix& operator /=  (const double v)	{
-		if(toZLong(v) == 0) val = toZLong(NAN);
+		if(toZLong(v) == 0) val = toZLong(FIX_NAN);
 		else val = longDiv(val, toZLong(v)); return *this; }
 	
 	zfix& operator <<= (const int v)	{ val <<= v; return *this; }
@@ -242,4 +273,3 @@ public:
 #include "zfix.inl"
 
 #endif		  /* ifndef ZFIX_H */
-

@@ -51,6 +51,11 @@ void item_fall(zfix&, zfix&, zfix&)
 	return;
 }
 
+int item_pits(zfix&, zfix&, int&)
+{
+	return 0;
+}
+
 int select_dropitem(int)
 {
     return 0;

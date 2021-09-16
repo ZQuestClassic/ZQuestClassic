@@ -1,5 +1,5 @@
 // std_constants.zh
-// 10th May, 2020 for ZC 2.55 Alpha 71
+// 3rd July, 2021 for ZC 2.55.0 Alpha 93
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -11,12 +11,12 @@ const float PI				= 3.1416;
 const float PI2				= 6.2832;
 const float E				= 2.7183;
 
-const untyped NULL				= 0;
-const untyped null				= 0;
-const untyped Null				= 0;
+const untyped NULL			= 0;
+const untyped null			= 0;
+const untyped Null			= 0;
 
-const float RADIAN 			= 57.2958; //Multiplication value for converting degrees to radians.
-const float DEGREE			= 0.0174; //Multiplication value for converting radians to degrees. 
+const float RADIAN 			= 57.2958; //Multiplication value for converting radians to degrees. 
+const float DEGREE			= 0.0174; //Multiplication value for converting degrees to radians.
 
 const int SQRT_ERROR			= 464; // The return value of SafeSqrt() if a negative value is passed. 
 const float SQRT_MAX			= 463.4095; //The largest square root thet ZC can return.
@@ -32,10 +32,10 @@ const float MIN_CONSTANT		= -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649
 
 const int MAX_SCRIPTDRAWINGCOMMANDS	= 1000;
 
-const int MAX_INT = 214747 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
-const int MIN_INT = -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
-const int MAX_FLOAT = 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
-const int MIN_FLOAT = -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
+const int MAX_INT 			= 214747 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
+const int MIN_INT 			= -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
+const int MAX_FLOAT 			= 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
+const int MIN_FLOAT 			= -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
 
 const int MAX_COUNTER 			= WORD_MAX; 
 const int MIN_COUNTER 			= WORD_MIN;
@@ -53,9 +53,13 @@ const int MIN_FFC			= 1;
 const int MAX_FFC			= 32; 
 const int MIN_OBJ			= 1; //Short, const for loops. 
 
-const int MIN_COMBO_POS 			= 0;
-const int MAX_COMBO_POS 			= 175;
-const int NUM_COMBO_POS 			= 176;
+const int MIN_COUNTER_INDEX		= 0;
+const int MAX_COUNTER_INDEX		= 31;
+const int NUM_COUNTERS			= 32; //0 to 31
+
+const int MIN_COMBO_POS 		= 0;
+const int MAX_COMBO_POS 		= 175;
+const int NUM_COMBO_POS 		= 176;
 
 const int MAX_OBJECT_POINTERS 		= 255; //Max of any one type. 
 const int MAX_WEAPON_POINTERS 		= 510; //eweapon and lweapon combined.
@@ -105,6 +109,8 @@ const int MISC_SIZE			= 32;
 const int NPC_ATTRIBUTES_SIZE		= 32;
 const int ITEM_ATTRIBUTES_SIZE		= 10;
 const int GAMEMISC_SIZE 		= 32;
+const int MAX_DEFENSE 			= 42;
+const int MAX_DEFENCE 			= 42;
 
 /////////////////////
 /// Screen Dimensions
@@ -123,8 +129,10 @@ const int SUBSCREEN_BOTTOM		= -1; //Bottom of passive subscreen.
 const int SUBSCREEN_TOP 		= -56; //Top of passive subscreen.
 //! In stdExtra.zh, this is -64. ?!
 
-const int SCREEN_CENTER_X = 128;
-const int SCREEN_CENTER_Y = 88; 
+const int SCREEN_CENTER_X 		= 128;
+const int SCREEN_CENTRE_X 		= 128;
+const int SCREEN_CENTER_Y 		= 88; 
+const int SCREEN_CENTRE_Y 		= 88; 
 
 
 ///////////////////
@@ -459,6 +467,14 @@ const int GEN_WARPLEVEL         = 3; // Warp Ring number that a Whirlwind warp w
 const int GEN_HCPPERHC          = 4; // How many Pieces of Heart form a complete Heart Container?
 const int GEN_CONTINUEHEARTS    = 5; // Amount of life that Link continues with
 const int GEN_CONTINUEISPERCENT = 6; // ...Or a percentage of his total life
+const int GEN_HP_PER_HEART      = 7; //How much HP makes a 'heart'
+const int GEN_MP_PER_BLOCK      = 8; //How much MP makes a 'block'
+const int GEN_HERO_DMG_MULT     = 9; //Damage multiplier for damage by Link
+const int GEN_ENEM_DMG_MULT     = 10; //Damage multiplier for damage by enemies
+const int GEN_DITHER_TYPE       = 11; //Type of dithering used with dark rooms
+const int GEN_DITHER_ARG        = 12; //Dithering argument used with dark rooms
+const int GEN_DITHER_PERCENT    = 13; //Percent of light circles taken up by dithering
+const int GEN_DEFAULT_LIGHT_RAD = 14; //Default light radius initialized to enemies
 
 //Level item flags. Or (|) these together and use with Game->LItems[]
 const int LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
@@ -506,6 +522,7 @@ const int CB_MAX	= 18;
 const int IC_AMULET             = 11;
 const int IC_ARROW              = 2;
 const int IC_ARROWAMMO          = 40;
+const int IC_ATKRING            = 267;
 const int IC_BAIT               = 5;
 const int IC_BOMB               = 27;
 const int IC_BOMBAMMO           = 47;
@@ -614,7 +631,7 @@ const int IC_WPN_CUSTOM_08           = 263;
 const int IC_WPN_SCRIPT_08           = 263;
 const int IC_WPN_CUSTOM_09           = 264;
 const int IC_WPN_SCRIPT_09           = 264;
-const int IC_WPN_CUSTOM_19           = 265;
+const int IC_WPN_CUSTOM_10           = 265;
 const int IC_WPN_SCRIPT_10           = 265;
 
 const int IC_ICEROD          	     = 266;
@@ -870,7 +887,7 @@ const int WDS_DEAD              = 0;  // Use to dispose of most weapons.
 const int WDS_BEAMSHARDS        = 23; // Use with LW_BEAMs to shatter it into shards.
 const int WDS_ARROW             = 4;  // Use with LW_ARROWs to make them 'wink out' using tile 54.
 const int WDS_BOUNCE            = 1;  // Use with LW_BRANGs or LW_HOOKSHOTs to
-                                      // make it 'bounce off' and start returning to Link.
+                                      // make it 'bounce off' and begin returning to Link.
 
 
 ////////////////////
@@ -907,6 +924,62 @@ const int NPCT_NONE			= 38;
 const int NPCT_FAIRY			= 39;
 const int NPCT_OTHERFLOAT		= 40;
 const int NPCT_OTHER			= 41;
+
+const int NPCT_CUSTOM_01		= 43;
+const int NPCT_SCRIPT_01		= 43;
+const int NPCT_CUSTOM_02		= 44;
+const int NPCT_SCRIPT_02		= 44;
+const int NPCT_CUSTOM_03		= 45;
+const int NPCT_SCRIPT_03		= 45;
+const int NPCT_CUSTOM_04		= 46;
+const int NPCT_SCRIPT_04		= 46;
+const int NPCT_CUSTOM_05		= 47;
+const int NPCT_SCRIPT_05		= 47;
+const int NPCT_CUSTOM_06		= 48;
+const int NPCT_SCRIPT_06		= 48;
+const int NPCT_CUSTOM_07		= 49;
+const int NPCT_SCRIPT_07		= 49;
+const int NPCT_CUSTOM_08		= 50;
+const int NPCT_SCRIPT_08		= 50;
+const int NPCT_CUSTOM_09		= 51;
+const int NPCT_SCRIPT_09		= 51;
+const int NPCT_CUSTOM_10		= 52;
+const int NPCT_SCRIPT_10		= 52;
+
+const int NPCT_CUSTOM_11		= 53;
+const int NPCT_SCRIPT_11		= 53;
+const int NPCT_CUSTOM_12		= 54;
+const int NPCT_SCRIPT_12		= 54;
+const int NPCT_CUSTOM_13		= 55;
+const int NPCT_SCRIPT_13		= 55;
+const int NPCT_CUSTOM_14		= 56;
+const int NPCT_SCRIPT_14		= 56;
+const int NPCT_CUSTOM_15		= 57;
+const int NPCT_SCRIPT_15		= 57;
+const int NPCT_CUSTOM_16		= 58;
+const int NPCT_SCRIPT_16		= 58;
+const int NPCT_CUSTOM_17		= 59;
+const int NPCT_SCRIPT_17		= 59;
+const int NPCT_CUSTOM_18		= 60;
+const int NPCT_SCRIPT_18		= 60;
+const int NPCT_CUSTOM_19		= 61;
+const int NPCT_SCRIPT_19		= 61;
+const int NPCT_CUSTOM_20		= 62;
+const int NPCT_SCRIPT_20		= 62;
+
+const int NPCT_FRIENDLY_01		= 63;
+const int NPCT_FRIENDLY_02		= 64;
+const int NPCT_FRIENDLY_03		= 65;
+const int NPCT_FRIENDLY_04		= 66;
+const int NPCT_FRIENDLY_05		= 67;
+const int NPCT_FRIENDLY_06		= 68;
+const int NPCT_FRIENDLY_07		= 69;
+const int NPCT_FRIENDLY_08		= 70;
+const int NPCT_FRIENDLY_09		= 71;
+const int NPCT_FRIENDLY_10		= 72;
+
+
+
 
 //Guy IDs. Use with CreateNPC().
 const int NPC_ABEI              = 1;
@@ -1498,6 +1571,25 @@ const int DS_PHANTOM            = 1;
 const int DS_CLOAKED            = 2;
 const int DS_LINK               = 3;
 
+enum ShadowType //For '->DrawString()'
+{
+	SHD_NORMAL, //No Shadow
+	//These draw ONLY a shadow, no actual text
+	SHD_SHADOW,
+	SHD_SHADOWU,
+	SHD_OUTLINE8,
+	SHD_OUTLINEPLUS,
+	SHD_OUTLINEX,
+	//These draw a shadow behind the actual text
+	SHD_SHADOWED,
+	SHD_SHADOWEDU,
+	SHD_OUTLINED8,
+	SHD_OUTLINEDPLUS,
+	SHD_OUTLINEDX,
+	//Max number; not an actual value to use
+	SHD_MAX
+};
+
 // Font types. Use with Screen->DrawCharacter *note -some of these fonts may not represent normal ascii characters,
 //and all of these are completely undocumented. Use at your own peril
 const int FONT_Z1               = 0;
@@ -1678,6 +1770,7 @@ const int OP_TRANS              = 64;
 const int OP_OPAQUE             = 128;
 
 // Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing routines.
+const int RT_CURRENT            = -2; // Used by Blit(). mode7(), and RevBlit() for the current RT as dest.
 const int RT_SCREEN             = -1; // draws to screen
 const int RT_BITMAP0            = 0; // draws to off-screen bitmap 0
 const int RT_BITMAP1            = 1; // draws to off-screen bitmap 1
@@ -1710,66 +1803,128 @@ const int SF_MISC			= 9;
 //! These DMap Flag values do not return the expected results when compared via TraeS()ing what is anticipated!
 
 //Screen Flag Roomtype
-const int SFR_INTERIOR = 0; //0x0000 ?
-const int SFR_DUNGEON = 1; //0x0001
-const int SFR_SIDEVIEW = 2; //0x0002
+enum
+{
+	SFR_INTERIOR, //0x0000 ?
+	SFR_DUNGEON, //0x0001
+	SFR_SIDEVIEW, //0x0002
+	
+	SFR_LAST
+};
 
 //Screen Flag View
-const int SFV_INVISLINK = 0; //0x0001;
-const int SFV_NOLINKMARKER = 1;// 0x0002;
-const int SFV_NOSUBSCREEN = 2;// 0x0004;
-const int SFV_NOOFFSET = 3; // 0x0008; //'...but don't offset'
-const int SFV_LAYER2BG = 4; // 0x0010; //Layer 2 is Background
-const int SFV_LAYER3BG = 5; //0x0020;
-const int SFV_DARKROOM = 6; //0x0040; 
+enum
+{
+	SFV_INVISLINK, //0x0001;
+	SFV_NOLINKMARKER,// 0x0002;
+	SFV_NOSUBSCREEN,// 0x0004;
+	SFV_NOOFFSET, // 0x0008; //'...but don't offset'
+	SFV_LAYER2BG, // 0x0010; //Layer 2 is Background
+	SFV_LAYER3BG, //0x0020;
+	SFV_DARKROOM, //0x0040; 
+	SFV_DARK_DITHER, //0x0080; 
+	SFV_DARK_TRANS, //0x0100; 
+	
+	SFV_LAST
+};
 
 //Screen Flag Secrets
-const int SFS_BLOCKSHUT = 0; //0x0001; //Block->Shutters
-const int SFS_TEMPSECRETS = 1; //0x0002; //Secrets are temporary.
-const int SFS_TRIGPERM = 2; //0x0004; //All Triggers->Perm Secret
-const int SFS_ALLTRIGFLAGS = 3; //0x0008; //All triggers->16-31
+enum
+{
+	SFS_BLOCKSHUT, //0x0001; //Block->Shutters
+	SFS_TEMPSECRETS, //0x0002; //Secrets are temporary.
+	SFS_TRIGPERM, //0x0004; //All Triggers->Perm Secret
+	SFS_ALLTRIGFLAGS, //0x0008; //All triggers->16-31
+	
+	SFS_LAST
+};
 
 //Screen Flag Warp
-const int SFW_AUTODIRECT = 0; //  0x0001; //Auto Warps are Direct
-const int SFW_SENDSIRECT = 1; //0x0002; //Sensitive Warps are direct.
-const int SFW_MAZEPATHS = 2; //0x0004; //Use maze Path
-const int SFW_MAZEOVERRIDE = 3; //0x0008; //maze Overrides Sidewarps
-const int SFW_SPRITECARRY = 4; //0x0010; //Sprites carry over. 
+enum
+{
+	SFW_AUTODIRECT, //  0x0001; //Auto Warps are Direct
+	SFW_SENDSIRECT, //0x0002; //Sensitive Warps are direct.
+	SFW_MAZEPATHS, //0x0004; //Use maze Path
+	SFW_MAZEOVERRIDE, //0x0008; //maze Overrides Sidewarps
+	SFW_SPRITECARRY, //0x0010; //Sprites carry over. 
+	
+	SFW_LAST
+};
 
 
 //Screen Flag Items
-const int SFI_HOLDUP = 0; //0x0001; //Hold up item.
-const int SFI_FALLS = 1; //0x0002; //Falls from ceiling
+enum 
+{
+	SFI_HOLDUP, //0x0001; //Hold up item.
+	SFI_FALLS, //0x0002; //Falls from ceiling
+	SFI_SECRETSITEM, //0x0004; //Secret reveals item
+	SFI_ITEMSECRET, //0x0008; //Item triggers secrets
+	SFI_ITEMSECRETPERM, //0x0010; //Item triggering secrets is permanent
+	SFI_ITEMRETURNS, //0x0020; //Regular item always returns
+	SFI_SPECIALITEMRETURNS, //0x0040; //Special item always returns
+	
+	SFI_LAST
+};
 
 //Screen Flag Combos
-const int SFC_MIDAIR = 0;// 0x0001; //Combos affect midair Link
-const int SFC_CYCLEINIT = 1; //0x0002; //Cycle combos on screen init.
-const int SFC_IGNOREBOOTS = 2; //0x0004; //Damage combos ignore boots. 
-const int SFC_TOGGLERINGS = 3; //0x0008; //Toggle 'Rings Affect Combos'
+enum
+{
+	SFC_MIDAIR,// 0x0001; //Combos affect midair Link
+	SFC_CYCLEINIT, //0x0002; //Cycle combos on screen init.
+	SFC_IGNOREBOOTS, //0x0004; //Damage combos ignore boots. 
+	SFC_TOGGLERINGS, //0x0008; //Toggle 'Rings Affect Combos'
+	
+	SFC_LAST
+};
 
 //Screen Flag Save
-const int SFSV_SAVECONTHERE = 0; //0x0001; //Save Point->ontinue here.
-const int SFSV_SAVEONENTRY = 1; //0x0002; //Save game on entry.
-const int SFSV_CONTHERE = 2; // 0x0004; //Comtinue here.
-const int SFSV_NOCONTINUEWARP = 3; //0x0008; //No continue Here after warp. 
+enum
+{
+	SFSV_SAVECONTHERE, //0x0001; //Save Point->ontinue here.
+	SFSV_SAVEONENTRY, //0x0002; //Save game on entry.
+	SFSV_CONTHERE, // 0x0004; //Comtinue here.
+	SFSV_NOCONTINUEWARP, //0x0008; //No continue Here after warp. 
+	
+	SFSV_LAST
+};
 
 //Screen Flags FFC
-const int SFF_WRAP = 0;  //  0x0001; //Freeform Combos Wrap Around
-const int SFF_NOCARRYOVER = 1; //0x0002; //No FFC carry over. 
+enum
+{
+	SFF_WRAP,  //  0x0001; //Freeform Combos Wrap Around
+	SFF_NOCARRYOVER, //0x0002; //No FFC carry over. 
+	
+	SFF_LAST
+};
 
 //Screen Flags Whistle
-const int SFW_STAIRS = 0; //0x0001; //Whistle->Stairs
-const int SFW_PALCHANGE = 1; //0x0002; //Whistle->Palette Change
-const int SFW_DRYLAKE = 2; //0x0004; //Whistle->Dry lake
+enum
+{
+	SFWH_STAIRS = 0, //0x0001; //Whistle->Stairs
+	SFWH_PALCHANGE, //0x0002; //Whistle->Palette Change
+	SFWH_DRYLAKE, //0x0004; //Whistle->Dry lake
+	
+	SFWH_LAST
+};
 
-//Misc. Screen flags. OR (|) these together to use (Read-Only).
-const int SFM_ALLOW_LADDER	= 0; //0x0001; //Toggle 'Allow Ladder'
-const int SFM_NO_DIVING		= 1; //0x0002; //Toggle 'No Diving' 
-const int SFM_SCRIPT1		= 2; //0x0004; //General use 1 (Scripts)
-const int SFM_SCRIPT2		= 3; //0x0008; //General use 2 (Scripts)
-const int SFM_SCRIPT3		= 4; //0x0010; //General use 3 (Scripts)
-const int SFM_SCRIPT4		= 5; //0x0020; //General use 4 (Scripts)
-const int SFM_SCRIPT5		= 6; //0x0040; //General use 5 (Scripts)
+//Old constants, use the ones above.
+const int SFW_STAIRS = SFWH_STAIRS; //0x0001; //Whistle->Stairs
+const int SFW_PALCHANGE = SFWH_PALCHANGE; //0x0002; //Whistle->Palette Change
+const int SFW_DRYLAKE = SFWH_DRYLAKE; //0x0004; //Whistle->Dry lake
+
+//Misc. Screen flags. Bitshift 1 by the constant and OR to use.
+enum
+{
+	SFM_ALLOW_LADDER,   //0x0001; //Toggle 'Allow Ladder'
+	SFM_NO_DIVING,      //0x0002; //Toggle 'No Diving' 
+	SFM_SCRIPT1,        //0x0004; //General use 1 (Scripts)
+	SFM_SCRIPT2,        //0x0008; //General use 2 (Scripts)
+	SFM_SCRIPT3,        //0x0010; //General use 3 (Scripts)
+	SFM_SCRIPT4,        //0x0020; //General use 4 (Scripts)
+	SFM_SCRIPT5,        //0x0040; //General use 5 (Scripts)
+
+	SFM_LAST
+};
 
 //Screen Enemy Flag categories, handled in the same way as the SF_ constants.
 //Use in Screen->EFlags
@@ -1778,24 +1933,39 @@ const int SEF_LIST1				= 1; //left-hand list
 const int SEF_LIST2				= 2; //right-hand list
 
 //Screen Enemy Flags: Spawn
-const int SEFSP_ZORA				= 0; //0x0001
-const int SEFSP_CORNERTRAP			= 1; //0x0002
-const int SEFSP_MIDDLETRAP			= 2; //0x0004
-const int SEFSP_ROCK				= 3; //0x0008
-const int SEFSP_SHOOTER				= 4; //0x0010
+enum
+{
+	SEFSP_ZORA, //0x0001
+	SEFSP_CORNERTRAP, //0x0002
+	SEFSP_MIDDLETRAP, //0x0004
+	SEFSP_ROCK, //0x0008
+	SEFSP_SHOOTER, //0x0010
+	
+	SEFSP_LAST
+};
 
 //Screen Enemy Flags: List1
-const int SEFL1_RINGLEADER			= 0; //0x0001
-const int SEFL1_CARRYITEM			= 1; //0x0002
-const int SEFL1_INVIS				= 2; //0x0004
-const int SEFL1_BOSS				= 3; //0x0008
-const int SEFL1_TRAPS_IGNORE_SOLID	= 4; //0x0010
+enum
+{
+	SEFL1_RINGLEADER, //0x0001
+	SEFL1_CARRYITEM, //0x0002
+	SEFL1_INVIS, //0x0004
+	SEFL1_BOSS, //0x0008
+	SEFL1_TRAPS_IGNORE_SOLID, //0x0010
+	
+	SEFL1_LAST
+};
 
 //Screen Enemy Flags: List2
-const int SEFL2_ALWAYSRET			= 0; //0x0001
-const int SEFL2_ENEMIES_ITEM		= 1; //0x0002
-const int SEFL2_ENEMEIS_SECRET		= 2; //0x0004
-const int SEFL2_ENEMIES_SECRET_PERM	= 3; //0x0008
+enum
+{
+	SEFL2_ALWAYSRET, //0x0001
+	SEFL2_ENEMIES_ITEM, //0x0002
+	SEFL2_ENEMEIS_SECRET, //0x0004
+	SEFL2_ENEMIES_SECRET_PERM, //0x0008
+	
+	SEFL2_LAST
+};
 
 //Room types (Screen => Room Type)
 //Use with Screen->RoomType
@@ -1822,6 +1992,31 @@ const int RT_TAKEONEITEM        = 21;
 const int RT_TENRUPEES          = 13;
 const int RT_ZELDA              = 16;
 
+enum roomtypes
+{
+	//0
+	rtNONE, rtSPECIALITEM, rtPAYINFO, rtSECRETMONEY, rtGAMBLE,
+	//5
+	rtDOORREPAIR, rtPOTIONORHEART, rtGORIYA, rtLEVEL9, rtPOTION,
+	//10
+	rtSHOP, rtBOMBS, rtMOYL, rtTENRUPY, rtSTAIRWARP,
+	//15
+	rtGAN, rtWINGAME, rtITEMPOND, /*item ponds not implemented*/ rtMAGIC, rtSLASH, 
+	//20
+	rtARROWS, rtONEITEM, rtLAST
+};
+
+enum catchalltypes
+{
+	//0
+	caNONE, caITEM, caPRICE, caAMOUNT, caGAMBLE,
+	//5
+	caSHOPID, caINFOSHOPID, caWARPRING, caPONDID, 
+	//10
+	caLAST
+	
+};
+
 //DMap Flag constants. Use with Game->DMapFlags.
 const int DMF_CAVESNOTCELLARS		= 0x0001; //Use caves instead of item cellars
 const int DMF_3STAIRWARPS		= 0x0002; //Allow 3-stair warps
@@ -1840,6 +2035,33 @@ const int DMF_SCRIPT2 			= 0x1000;
 const int DMF_SCRIPT3 			= 0x2000;
 const int DMF_SCRIPT4 			= 0x4000;
 const int DMF_SCRIPT5 			= 0x8000;
+const int DMF_SIDEVIEW 			= 0x10000;
+const int DMF_LAYER3ISBACKGROUND 	= 0x20000; //Exceeds the bounds of ZScript LONG_MAX. We need dmapdata->Flags[]
+//const int DMF_LAYER2ISBACKGROUND 	= 0x40000;
+//const int DMF_TRUECELLARENEMIES 	= 0x80000; //(1<<19)
+
+//dmapdata->Flagset[32] indices
+const int DMFS_CAVESNOTCELLARS		= 0; //Use caves instead of item cellars
+const int DMFS_3STAIRWARPS		= 1; //Allow 3-stair warps
+const int DMFS_WWIND			= 2; //Allow whistle whirlwinds
+const int DMFS_GUYCAVES			= 3; //Special rooms and guys are in caves only
+const int DMFS_NOCOMPASS		= 4; //Don't display compass marker in minimap
+const int DMFS_WAVY 			= 5; //Underwater wave effect
+const int DMFS_WWINDRET			= 6; //Whistle whirlwind returns Link to start
+const int DMFS_ALWAYSINTROMSG		= 7; //Always display intro string
+const int DMFS_VIEWMAP       		= 8; //View overworld map by pressing 'Map'
+const int DMFS_DMAPMAP         		= 9; //...But only show screens marked in minimap
+const int DMFS_MINIMAPCOLORFIX 		= 10; //Use minimap foreground colour 2
+const int DMFS_MINIMAPCOLOURFIX 	= 10; //Use minimap foreground colour 2
+const int DMFS_SCRIPT1 			= 11; //DMap Script Flags
+const int DMFS_SCRIPT2 			= 12;
+const int DMFS_SCRIPT3 			= 13;
+const int DMFS_SCRIPT4 			= 14;
+const int DMFS_SCRIPT5 			= 15;
+const int DMFS_SIDEVIEW 		= 16; //DMap is Sideview
+const int DMFS_LAYER3ISBACKGROUND 	= 17; //Layer 3 is Background
+const int DMFS_LAYER2ISBACKGROUND 	= 18; //Layer 2 is bBackground
+const int DMFS_TRUECELLARENEMIES 	= 19; //True Cellar Enemies
 
 //Screen states. Use these with Screen->State[], etc.
 const int ST_DOORUP			= 0; // The locked/bomb door has been permanently unlocked/bombed
@@ -1890,30 +2112,38 @@ const int SL_PARTICLES          = 5; // Farore's Wind particles
 /// Link Properties
 
 //Link actions
-const int LA_NONE               = 0;
-const int LA_WALKING            = 1;
-const int LA_ATTACKING          = 2;
-const int LA_FROZEN             = 3;
-const int LA_HOLD1LAND          = 4; // One hand.
-const int LA_HOLD2LAND          = 5; // Both hands.
-const int LA_RAFTING            = 6;
-const int LA_GOTHURTLAND        = 7;
-const int LA_INWIND             = 8;
-const int LA_SCROLLING          = 9;
-const int LA_WINNING            = 10;
-const int LA_SWIMMING           = 11;
-const int LA_HOPPING            = 12; // Leaving water; read-only.
-const int LA_GOTHURTWATER       = 13;
-const int LA_HOLD1WATER         = 14;
-const int LA_HOLD2WATER         = 15;
-const int LA_CASTING            = 16; // Casting a spell; read-only.
-const int LA_CAVEWALKUP         = 17;
-const int LA_CAVEWALKDOWN       = 18;
-const int LA_DYING              = 19;
-const int LA_DROWNING           = 20;
-const int LA_CHARGING           = 22; // Charging the sword.
-const int LA_SPINNING           = 23; // Spin attack.
-const int LA_DIVING             = 24;
+enum HeroAction
+{
+	LA_NONE,
+	LA_WALKING,
+	LA_ATTACKING,
+	LA_FROZEN,
+	LA_HOLD1LAND,         // One hand.
+	LA_HOLD2LAND,         // Both hands.
+	LA_RAFTING,
+	LA_GOTHURTLAND,
+	LA_INWIND,
+	LA_SCROLLING,
+	LA_WINNING,
+	LA_SWIMMING,
+	LA_HOPPING,           // Leaving water; read-only.
+	LA_GOTHURTWATER,
+	LA_HOLD1WATER,
+	LA_HOLD2WATER,
+	LA_CASTING,           // Casting a spell; read-only.
+	LA_CAVEWALKUP,
+	LA_CAVEWALKDOWN,
+	LA_DYING,
+	LA_DROWNING,
+	LA_CLIMBING_RES,      // unused, RESERVED
+	LA_CHARGING,          // Charging the sword.
+	LA_SPINNING,          // Spin attack.
+	LA_DIVING, //24
+	//25,26 unused, RESERVED
+	LA_STUNNED = 27,
+	//28 unused, RESERVED
+	LA_FALLING = 29
+};
 
 ///////////////////////
 /// Combo Types & Flags
@@ -2088,6 +2318,9 @@ const int CF_SCRIPT_SPAWN_NPC 	= 159; // Spawn NPC (Scripted)",
 const int CF_SCRIPT_SWITCHHOOK 	= 160; // SwitchHook Spot (Scripted)",
 const int CF_SIDEVIEW_LADDER 	= 161; // Sideview Ladder
 const int CF_SIDEVIEW_PLATFORM 	= 162; // Sideview Platform
+const int CF_NO_ENEMIES_SPAWN = 163; //No Enemies Spawn
+const int CF_ALL_ENEMIES_SPAWN = 164; //All Enemies Spawn
+const int CF_SECRETS_NEXT = 165; //Secrets->Next
 
 //chests  to 16, unlocked, locked, boss; small, big. Probably better as combo types?
 
@@ -2115,6 +2348,7 @@ const int CT_BOSSCHEST          = 69;
 const int CT_BOSSCHEST2         = 70;
 const int CT_BOSSLOCKBLOCK      = 61;
 const int CT_BOSSLOCKBLOCK2     = 62;
+const int CT_BRIDGE             = 165;
 const int CT_BSGRAVE            = 64;
 const int CT_BUSH               = 55;
 const int CT_BUSHC              = 134;
@@ -2179,6 +2413,7 @@ const int CT_PIT                = 41;
 const int CT_PITB               = 80;
 const int CT_PITC               = 81;
 const int CT_PITD               = 82;
+const int CT_PITFALL            = 163;
 const int CT_PITR               = 93;
 const int CT_POUND              = 28;
 const int CT_PUSHHEAVY          = 9;
@@ -2212,6 +2447,7 @@ const int CT_SCRIPT17		= 158;
 const int CT_SCRIPT18		= 159;
 const int CT_SCRIPT19		= 160;
 const int CT_SCRIPT20		= 161;
+const int CT_SIGNPOST		= 166;
 const int CT_GENERIC		= 162;
 const int CT_SHALLOWWATER       = 58;
 const int CT_SLASH              = 24;
@@ -2233,6 +2469,7 @@ const int CT_STAIRR             = 92;
 const int CT_STEP               = 106;
 const int CT_STEPALL            = 108;
 const int CT_STEPCOPY           = 109;
+const int CT_STEPFX             = 164;
 const int CT_STEPSAME           = 107;
 const int CT_STRIGFLAG          = 105;
 const int CT_STRIGNOFLAG        = 104;
@@ -2245,6 +2482,8 @@ const int CT_SWIMWARP           = 18;
 const int CT_SWIMWARPB          = 86;
 const int CT_SWIMWARPC          = 87;
 const int CT_SWIMWARPD          = 88;
+const int CT_SWITCH             = 167;
+const int CT_SWITCHBLOCK        = 168;
 const int CT_TALLGRASS          = 57;
 const int CT_TALLGRASSC         = 136;
 const int CT_TALLGRASSNEXT      = 141;
@@ -2321,13 +2560,13 @@ const int SIDEWARP_D		= 3;
 //Values : Game->GameOverScreen[20]
 const int GOS_BACKGROUND		= 0;
 const int GOS_TEXT_COLOUR		= 1;
-const int GOS_CUSRSOR_TILE		= 2;
+const int GOS_CURSOR_TILE		= 2;
 const int GOS_CURSOR_CSET		= 3;
 const int GOS_CURSOR_SOUND  		= 4;
 const int GOS_TEXT_CONTINUE_COLOUR	= 5;
 const int GOS_TEXT_SAVE_COLOUR		= 6;
 const int GOS_TEXT_RETRY_COLOUR		= 7;
-const int GOS_EXT_CONTINUE_FLASH	= 8;
+const int GOS_TEXT_CONTINUE_FLASH	= 8;
 const int GOS_TEXT_SAVE_FLASH		= 9;
 const int GOS_TEXT_RETRY_FLASH		= 10;
 const int GOS_MIDI 			= 11;
@@ -2425,6 +2664,9 @@ const int ITM_REQUIRE_NONE = 0;
 const int ITM_REQUIRE_INVENTORY = 1;
 const int ITM_REQUIRE_A_SLOT_RULE = 2;
 
+//Slots for SetItemSlot
+enum itemslots { ITM_SLOT_B, ITM_SLOT_A, ITM_SLOT_X, ITM_SLOT_Y };
+
 //Input->Mouse[]
 const int MOUSE_X = 0;
 const int MOUSE_Y = 1;
@@ -2481,7 +2723,8 @@ const int SECCMB_HOOKSHOT	= 40;
 const int SECCMB_WAND		= 41;
 const int SECCMB_HAMMER		= 42;
 const int SECCMB_STRIKE		= 43;
-//44 to 127 unused. 
+const int SECCMB_SECRETSNEXT	= 44; //Only ->SecretFlags[] has a value for this index
+//45 to 127 unused. 
 
 //Audio->
 //Audio->Volume[]
@@ -2573,6 +2816,21 @@ const int DMAP_DUNGEON = 0;
 const int DMAP_OVERWORLD = 1;
 const int DMAP_CAVE = 2;
 const int DMAP_BSOVERWORLD = 3;
+
+enum dmapgridpositions
+{ 
+	/*The Grid[index] is the row, with leftmost being 0.
+	/ The grid values are OR'd together, with MSB at left, and LSB at right, so, 
+	/ if the top-rightmost screen is marked visible, then Grid[0] will == 1, 
+	/ if the bottom-leftmost screen is marked visible, then Grid[7] will == 128
+	/ if both the top-leftmost and top-rightmost screens are marked visible, then 
+	/ Grid[0] will == 129
+	*/
+	dmMAPGRID_ROW_0, dmMAPGRID_ROW_1, dmMAPGRID_ROW_2, dmMAPGRID_ROW_3,
+	dmMAPGRID_ROW_4, dmMAPGRID_ROW_5, dmMAPGRID_ROW_6, dmMAPGRID_ROW_7,
+	dmMAPGRID_COL_7 = 1, dmMAPGRID_COL_6, dmMAPGRID_COL_5 = 4, dmMAPGRID_COL_4 = 8,
+	dmMAPGRID_COL_3 = 16, dmMAPGRID_COL_2 = 32, dmMAPGRID_COL_1 = 64, dmMAPGRID_COL_0 = 128
+};
 
 /*Monochrome Tints and modes
 	for use with Graphics->Monochrome(int mode)
@@ -2757,10 +3015,13 @@ enum
 
 
 
-enum linkspritetype { LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr, 
-	LSprswimspr, LSprdivespr, LSprpoundspr,
-LSprjumpspr, LSprchargespr, LSprcastingspr, 
-	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
+enum linkspritetype
+{
+	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
+	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
+	LSprchargespr, LSprcastingspr, LSprholdspr1, LSprholdspr2,
+	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlast
+};
 
 	
 
@@ -2858,3 +3119,104 @@ enum //Indexes for messagedata->Flags
 	MSGFLAG_TRANS_FG     // If the text should be translucent
 };
 
+//Flags for GetMapscreenFlag, SetMapscreenFlag
+enum mapscreenflags
+{
+	// Room Types
+	MSF_INTERIOR, MSF_DUNGEON, MSF_SIDEVIEW,
+	
+	// View
+	MSF_INVISLINK, MSF_NOLINKMARKER, MSF_NOSUBSCREEN, MSF_NOOFFSET, MSF_LAYER3BG,
+	MSF_LAYER2BG, MSF_DARKROOM,
+	
+	// Secrets
+	MSF_BLOCKSHUT, MSF_TEMPSECRETS, MSF_TRIGPERM, MSF_ALLTRIGFLAGS,
+	
+	// Warp
+	MSF_AUTODIRECT, MSF_SENDSIRECT, MSF_MAZEPATHS, MSF_MAZEOVERRIDE, MSF_SPRITECARRY,
+	MSF_DIRECTTIMEDWARPS, MSF_SECRETSISABLETIMEWRP, MSF_RANDOMTIMEDWARP,
+	
+	// Item
+	MSF_HOLDUP, MSF_FALLS,
+	
+	// Combo
+	MSF_MIDAIR, MSF_CYCLEINIT, MSF_IGNOREBOOTS, MSF_TOGGLERINGS,
+	
+	// Save
+	MSF_SAVECONTHERE, MSF_SAVEONENTRY, MSF_CONTHERE, MSF_NOCONTINUEWARP,
+	
+	// FFC
+	MSF_WRAPFFC, MSF_NOCARRYOVERFFC, 
+	
+	// Whistle 
+	MSF_STAIRS, MSF_PALCHANGE, MSF_DRYLAKE,
+	
+	// Enemies
+	MSF_INVISIBLEENEMIES, MSF_TRAPS_IGNORE_SOLID, MSF_EMELIESALWAYSRETURN, MSF_ENEMIES_ITEM, MSF_ENEMEIS_SECRET,
+	MSF_ENEMIES_SECRET_PERM,
+	
+	// Misc
+	MSF_ALLOW_LADDER, MSF_NO_DIVING, MSF_SFXONENTRY, MSF_LENSEFFECT,
+		 
+	//Custom / Script 
+	MSF_SCRIPT1,
+	MSF_CUSTOM1 = MSF_SCRIPT1,
+	MSF_SCRIPT2,
+	MSF_CUSTOM2 = MSF_SCRIPT2,
+	MSF_SCRIPT3,
+	MSF_CUSTOM3 = MSF_SCRIPT3,
+	MSF_SCRIPT4,
+	MSF_CUSTOM4 = MSF_SCRIPT4,
+	MSF_SCRIPT5,
+	MSF_CUSTOM5 = MSF_SCRIPT5,
+	MSF_LAST
+};
+
+enum HeroMoveFlag
+{
+	HEROMV_OBEYS_GRAVITY,
+	HEROMV_CAN_PITFALL
+};
+
+enum ItemspriteMoveFlag
+{
+	ITEMMV_OBEYS_GRAVITY,
+	ITEMMV_CAN_PITFALL
+};
+
+enum WeaponMoveFlag
+{
+	WPNMV_OBEYS_GRAVITY,
+	WPNMV_CAN_PITFALL
+};
+
+enum NPCMoveFlag
+{
+	NPCMV_OBEYS_GRAVITY,
+	NPCMV_CAN_PITFALL,
+	NPCMV_CAN_PIT_WALK
+};
+
+define CHRT_VISITED = 10000000b;
+define CHRT_UP =      00000001b;
+define CHRT_DOWN =    00000010b;
+define CHRT_LEFT =    00000100b;
+define CHRT_RIGHT =   00001000b;
+
+// "special" walk flags
+enum NPCWalkType
+{
+	SPW_NONE, SPW_DOOR, SPW_CLIPRIGHT, SPW_FLOATER, SPW_TRAP, SPW_HALFSTEP, 
+	SPW_WATER, SPW_WIZZROBE, SPW_CLIPBOTTOMRIGHT
+};
+
+// death & fade defs
+enum NPCFadeType
+{
+	NPCF_NONE, NPCF_FLICKER, NPCF_INVISIBLE, NPCF_FLASH, NPCF_POOF
+};
+
+enum NPCMoveStatus
+{
+	NPCMS_PAUSED, NPCMS_SPEEDUP, NPCMS_NORMAL, NPCMS_SLOWDOWN
+};

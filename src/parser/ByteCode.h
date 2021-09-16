@@ -10,7 +10,7 @@
 
 #include <string>
 
-//using namespace std; //Don't do this! This is bad! -V
+// //Don't do this! This is bad! -V
 //{ START BYTECODE
 /*
  I will reserve the registers in the following scheme:
@@ -1210,7 +1210,80 @@
 #define INCQST				1138
 #define HEROJUMPCOUNT				1139
 
-#define LAST_BYTECODE 		1140
+#define HEROPULLDIR				1140
+#define HEROPULLCLK				1141
+#define HEROFALLCLK				1142
+#define HEROFALLCMB				1143
+#define HEROMOVEFLAGS			1144
+#define ITEMFALLCLK				1145
+#define ITEMFALLCMB				1146
+#define ITEMMOVEFLAGS			1147
+#define LWPNFALLCLK				1148
+#define LWPNFALLCMB				1149
+#define LWPNMOVEFLAGS			1150
+#define EWPNFALLCLK				1151
+#define EWPNFALLCMB				1152
+#define EWPNMOVEFLAGS			1153
+#define NPCFALLCLK				1154
+#define NPCFALLCMB				1155
+#define NPCMOVEFLAGS			1156
+#define ISBLANKTILE			1157
+#define LWPNSPECIAL			1158
+
+#define DMAPDATAASUBSCRIPT			1159
+#define DMAPDATAPSUBSCRIPT			1160
+#define DMAPDATASUBINITD			1161
+#define MODULEGETINT				1162
+#define MODULEGETSTR				1163
+#define NPCORIGINALHP				1164
+#define DMAPDATAMAPSCRIPT				1165
+#define DMAPDATAMAPINITD				1166
+
+#define CLOCKCLK				1167
+#define CLOCKACTIVE				1168
+#define NPCHITDIR				1169
+#define DMAPDATAFLAGARR				1170
+
+#define LINKCSET			1171
+#define NPCSLIDECLK			1172
+#define NPCFADING			1173
+#define DISTANCE			1174
+#define STDARR				1175
+#define GHOSTARR			1176
+#define TANGOARR			1177
+#define NPCHALTCLK			1178
+#define NPCMOVESTATUS			1179
+#define DISTANCESCALE			1180
+
+#define DMAPDATACHARTED				1181
+#define REFDIRECTORY			1182
+#define DIRECTORYSIZE			1183
+#define LONGDISTANCE			1184
+#define LONGDISTANCESCALE			1185
+#define COMBOED			1186
+#define MAPDATACOMBOED			1187
+#define COMBODEFFECT			1188
+#define SCREENSECRETSTRIGGERED			1189
+#define ITEMDIR			1190
+
+#define NPCFRAME			1191
+#define LINKITEMX 			1192
+#define LINKITEMY 			1193
+#define ACTIVESSSPEED 			1194
+#define HEROISWARPING 			1195
+#define IDATAPFLAGS 			1196
+
+#define ITEMGLOWRAD 			1197
+#define NPCGLOWRAD 			1198
+#define LWPNGLOWRAD 			1199
+#define EWPNGLOWRAD 			1200
+
+#define ITEMGLOWSHP 			1201
+#define NPCGLOWSHP 			1202
+#define LWPNGLOWSHP 			1203
+#define EWPNGLOWSHP 			1204
+
+#define LAST_BYTECODE 		1205
 
 //} END OF BYTECODE
 
@@ -2764,6 +2837,18 @@ namespace ZScript
 	};
 
 
+	class OLoadDirectoryRegister : public UnaryOpcode
+	{
+	public:
+		OLoadDirectoryRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadDirectoryRegister(a->clone());
+		}
+	};
+
+
 	class OLoadDropsetRegister : public UnaryOpcode
 	{
 	public:
@@ -3645,6 +3730,16 @@ namespace ZScript
 		}
 	};
 
+	class OFrameRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFrameRegister();
+		}
+	};
+
 	class OCircleRegister : public Opcode
 	{
 	public:
@@ -3872,6 +3967,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new ODrawStringRegister();
+		}
+	};
+
+	class ODrawString2Register : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODrawString2Register();
 		}
 	};
 
@@ -4264,6 +4369,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OGetFFCScript(a->clone());
+		}
+	};
+	
+	class OGetComboScript : public UnaryOpcode
+	{
+	public:
+		OGetComboScript(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGetComboScript(a->clone());
 		}
 	};
 
@@ -7569,6 +7685,15 @@ namespace ZScript
 			return new OBMPDrawStringRegister();
 		}
 	};
+	class OBMPDrawString2Register : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawString2Register();
+		}
+	};
 	class OBMPFastComboRegister : public Opcode
 	{
 	public:
@@ -7703,6 +7828,15 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OBMPRectangleRegister();
+		}
+	};
+	class OBMPFrameRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBMPFrameRegister();
 		}
 	};
 	
@@ -8376,27 +8510,41 @@ namespace ZScript
 			return new Ostrstr(a->clone());
 		}
 	};
-	class Oxtoa : public UnaryOpcode
+	
+	
+	class Oitoa : public BinaryOpcode
 	{
 	public:
-		Oxtoa(Argument *A) : UnaryOpcode(A) {}
+		Oitoa(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new Oxtoa(a->clone());
+			return new Oitoa(a->clone(),b->clone());
 		}
 	};
 	
-	class Oitoa : public UnaryOpcode
+	class Oxtoa : public BinaryOpcode
 	{
 	public:
-		Oitoa(Argument *A) : UnaryOpcode(A) {}
+		Oxtoa(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new Oitoa(a->clone());
+			return new Oxtoa(a->clone(),b->clone());
 		}
 	};
+	
+	class Oitoacat : public BinaryOpcode
+	{
+	public:
+		Oitoacat(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new Oitoacat(a->clone(),b->clone());
+		}
+	};
+	
 	class OSaveGameStructs : public BinaryOpcode
 	{
 	public:
@@ -8836,6 +8984,17 @@ namespace ZScript
 		}
 	};
 	
+	class OFileSystemRemove : public UnaryOpcode
+	{
+	public:
+		OFileSystemRemove(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileSystemRemove(a->clone());
+		}
+	};
+	
 	class OFileClose : public Opcode
 	{
 	public:
@@ -9003,6 +9162,16 @@ namespace ZScript
 		}
 	};
 	
+	class OFileRemove : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileRemove();
+		}
+	};
+	
 	class OFileReadChars : public BinaryOpcode
 	{
 	public:
@@ -9011,6 +9180,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OFileReadChars(a->clone(), b->clone());
+		}
+	};
+	
+	class OFileReadBytes : public BinaryOpcode
+	{
+	public:
+		OFileReadBytes(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileReadBytes(a->clone(), b->clone());
 		}
 	};
 	
@@ -9033,6 +9213,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OFileWriteChars(a->clone(), b->clone());
+		}
+	};
+	
+	class OFileWriteBytes : public BinaryOpcode
+	{
+	public:
+		OFileWriteBytes(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileWriteBytes(a->clone(), b->clone());
 		}
 	};
 	
@@ -9066,6 +9257,48 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OFileOpenMode(a->clone(), b->clone());
+		}
+	};
+	
+	class ODirectoryGet : public BinaryOpcode
+	{
+	public:
+		ODirectoryGet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODirectoryGet(a->clone(), b->clone());
+		}
+	};
+	
+	class ODirectoryReload : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODirectoryReload();
+		}
+	};
+	
+	class ODirectoryFree : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODirectoryFree();
+		}
+	};
+	
+	class OModuleGetIC : public BinaryOpcode
+	{
+	public:
+		OModuleGetIC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OModuleGetIC(a->clone(), b->clone());
 		}
 	};
 }
