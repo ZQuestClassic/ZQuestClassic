@@ -5,6 +5,7 @@
 #include "checkbox.h"
 #include "common.h"
 #include "drop_down_list.h"
+#include "frame.h"
 #include "grid.h"
 #include "key.h"
 #include "label.h"
@@ -79,6 +80,11 @@ inline std::shared_ptr<TextField> makeTextField()
 }
 
 // Containers
+
+inline std::shared_ptr<Frame> makeFrame()
+{
+	return std::make_shared<Frame>();
+}
 
 // This is counterintuitive: Multiple rows=rows, one row=columns.
 inline std::shared_ptr<Grid> makeColumn()
@@ -156,6 +162,16 @@ ZCGUI_BUILDER_START(DropDownList)
 	ZCGUI_SUGGEST_PROP(onClick, onSelectionChanged)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DropDownList, DropDownList, makeDropDownList)
+
+
+ZCGUI_BUILDER_START(Frame)
+	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
+	ZCGUI_ACCEPT_PROP(style, setStyle, GUI::Frame::style)
+	ZCGUI_ACCEPT_ONE_CHILD(setContent)
+
+	ZCGUI_SUGGEST_PROP(text, title)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(Frame, Frame, makeFrame)
 
 
 ZCGUI_BUILDER_START(Label)

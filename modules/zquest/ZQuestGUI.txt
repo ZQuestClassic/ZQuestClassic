@@ -27,6 +27,7 @@ src/gui/common.cpp
 src/gui/dialog_ref.cpp
 src/gui/dialog_runner.cpp
 src/gui/drop_down_list.cpp
+src/gui/frame.cpp
 src/gui/grid.cpp
 src/gui/label.cpp
 src/gui/list_data.cpp
