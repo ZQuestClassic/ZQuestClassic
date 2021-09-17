@@ -995,7 +995,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_tab_proc,              6,     16,    284,    191,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) init_tabs,                                    NULL, (void *)init_dlg);
     //5
 	initPopulate(i, jwin_initlist_proc,        11,     47,    117,    152,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_frame_proc,          130,     47,    154,    152,    vc(0),                  vc(11),                  0,    0,              FR_ETCHED,     0,  NULL,                                                 NULL,   NULL);
+    initPopulate(i, d_dummy_proc,          130,     47,    154,    152,    vc(0),                  vc(11),                  0,    0,              FR_ETCHED,     0,  NULL,                                                 NULL,   NULL);
     initPopulate(i, jwin_check_proc,          134,     57,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "1",                                          NULL,   NULL);
     initPopulate(i, jwin_check_proc,          134,     67,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "2",                                          NULL,   NULL);
     initPopulate(i, jwin_check_proc,          134,     77,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "3",                                          NULL,   NULL);
@@ -1068,7 +1068,7 @@ void PopulateInitDialog()
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_frame_proc,          100,     50,     86,     40,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, d_dummy_proc,          100,     50,     86,     40,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,           104,     47,    121,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Arrows ",                                   NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
@@ -1103,9 +1103,9 @@ void PopulateInitDialog()
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_tab_proc,              8,     33,    280,    172,    vc(14),                 vc(1),                   0,    0,              0,             0, (void *) init_var_tabs,                                 NULL, (void *)init_dlg);
     initPopulate(i, jwin_tab_proc,              8,     33,    280,    172,    vc(14),                 vc(1),                   0,    0,              0,             0, (void *) init_scrcnt_tabs,                             NULL, (void *)init_dlg);
-    initPopulate(i, jwin_frame_proc,           13,     50,     86,    118,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, d_dummy_proc,           13,     50,     86,    118,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,            17,     47,    113,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Bombs ",                                    NULL,   NULL);
-    initPopulate(i, jwin_frame_proc,           17,     60,     78,     37,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, d_dummy_proc,           17,     60,     78,     37,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,            21,     57,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Normal ",                                   NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,           36,     67,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,           77,     67,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
@@ -1113,7 +1113,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_edit_proc,            25,     77,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
     //[110] max bombs
     initPopulate(i, d_maxbombsedit_proc,       56,     77,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_frame_proc,           17,    100,     78,     37,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, d_dummy_proc,           17,    100,     78,     37,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,            21,     98,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Super ",                                    NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,           36,    108,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,           77,    108,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
@@ -1127,7 +1127,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_edit_proc,           108,     67,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
     //[120] max arrows
     initPopulate(i, jwin_edit_proc,           139,     67,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_frame_proc,          187,     50,     86,     40,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, d_dummy_proc,          187,     50,     86,     40,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,           191,     47,    121,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Rupees ",                                   NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          206,     57,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          247,     57,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
@@ -1135,7 +1135,7 @@ void PopulateInitDialog()
     //[125] starting rupees
     initPopulate(i, jwin_edit_proc,           195,     67,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_edit_proc,           226,     67,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_frame_proc,          100,     93,     86,     40,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, d_dummy_proc,          100,     93,     86,     40,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,           104,     90,    121,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Keys ",                                     NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          119,    100,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          160,    100,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
@@ -1325,7 +1325,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_edit_proc,           235,     65,     26,     16,    vc(12),                 vc(1),                   0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_frame_proc,          148,     88,    122,     30,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, d_dummy_proc,          148,     88,    122,     30,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     // 1675
     initPopulate(i, jwin_text_proc,           152,     85,      0,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) " Triforce ",                                 NULL,   NULL);
     initPopulate(i, jwin_check_proc,          156,     95,     25,      9,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) "1",                                          NULL,   NULL);
@@ -1338,7 +1338,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_check_proc,          246,    105,     25,      9,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) "8",                                          NULL,   NULL);
     initPopulate(i, jwin_check_proc,           12,    189,     17,      9,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) "Slash",                                      NULL,   NULL);
     
-    initPopulate(i, jwin_frame_proc,          172-24,    122,     98+18,     50,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, d_dummy_proc,          172-24,    122,     98+18,     50,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,           176-24,    119,    113,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Magic ",   NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          191-10,    129,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          232-10,    129,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
@@ -1617,7 +1617,7 @@ void PopulateInitDialog()
 		int y = 54 + (ind%5)*30;
 		char* buf = (char*)zc_malloc(12); //Won't be freed, should only be alloc'd once per launch -Em
 		sprintf(buf, " Script %d ", q+1); //1-indexed
-		initPopulate(i, jwin_frame_proc,           x,     y,     68,     28,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
+		initPopulate(i, d_dummy_proc,           x,     y,     68,     28,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
 		initPopulate(i, jwin_text_proc,          x+4,   y-3,      0,      0,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) buf,                                   NULL,   NULL);
 		initPopulate(i, jwin_numedit_short_proc,          x+4,   y+6,     30,     16,    0,                      0,                       0,    0,              6,             0,  NULL,                                                  NULL,   NULL);
 		initPopulate(i, jwin_numedit_short_proc,         x+34,   y+6,     30,     16,    0,                      0,                       0,    0,              6,             0,  NULL,                                                  NULL,   NULL);

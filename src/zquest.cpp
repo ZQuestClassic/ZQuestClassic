@@ -22092,8 +22092,15 @@ bool do_x_button(BITMAP *dest, int x, int y)
 }
 
 
-int d_dummy_proc(int, DIALOG*, int)
+int d_dummy_proc(int msg, DIALOG* d, int)
 {
+	if(msg == MSG_START)
+	{
+		//prevent dummy procs from blocking other procs
+		d->w = 0;
+		d->h = 0;
+		d->x = 99999;
+	}
     return D_O_K;
 }
 

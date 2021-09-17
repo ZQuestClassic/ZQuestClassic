@@ -250,11 +250,16 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 
 static char cfg_sect[] = "zeldadx"; //We need to rename this.
 
-int d_dummy_proc(int msg,DIALOG *d,int c)
+int d_dummy_proc(int msg,DIALOG *d,int )
 {
-    msg=msg;
-    d=d;
-    c=c; /*these are here to bypass compiler warnings about unused arguments*/ return D_O_K;
+	if(msg == MSG_START)
+	{
+		//prevent dummy procs from blocking other procs
+		d->w = 0;
+		d->h = 0;
+		d->x = 99999;
+	}
+    return D_O_K;
 }
 
 void load_game_configs()
