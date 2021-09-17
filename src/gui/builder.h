@@ -9,6 +9,7 @@
 #include "grid.h"
 #include "key.h"
 #include "label.h"
+#include "list.h"
 #include "size.h"
 #include "switcher.h"
 #include "tab.h"
@@ -72,6 +73,11 @@ inline std::shared_ptr<DropDownList> makeDropDownList()
 inline std::shared_ptr<Label> makeLabel()
 {
 	return std::make_shared<Label>();
+}
+
+inline std::shared_ptr<List> makeList()
+{
+	return std::make_shared<List>();
 }
 
 inline std::shared_ptr<TextField> makeTextField()
@@ -181,6 +187,16 @@ ZCGUI_BUILDER_START(Label)
 	ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Label, Label, makeLabel)
+
+
+ZCGUI_BUILDER_START(List)
+	ZCGUI_ACCEPT_PROP(data, setListData, GUI::ListData)
+	ZCGUI_ACCEPT_PROP(selectedValue, setSelectedValue, int)
+	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
+
+	ZCGUI_SUGGEST_PROP(onClick, onSelectionChanged)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(List, List, makeList)
 
 
 ZCGUI_BUILDER_START(Grid)

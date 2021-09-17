@@ -30,6 +30,7 @@ src/gui/drop_down_list.cpp
 src/gui/frame.cpp
 src/gui/grid.cpp
 src/gui/label.cpp
+src/gui/list.cpp
 src/gui/list_data.cpp
 src/gui/size.cpp
 src/gui/switcher.cpp
