@@ -10,6 +10,8 @@
 #include "label.h"
 #include "size.h"
 #include "switcher.h"
+#include "tab.h"
+#include "tab_panel.h"
 #include "text_field.h"
 #include "window.h"
 #include <initializer_list>
@@ -104,6 +106,16 @@ inline std::shared_ptr<Switcher> makeSwitcher()
 	return std::make_shared<Switcher>();
 }
 
+inline std::shared_ptr<Tab> makeTab()
+{
+	return std::make_shared<Tab>();
+}
+
+inline std::shared_ptr<TabPanel> makeTabPanel()
+{
+	return std::make_shared<TabPanel>();
+}
+
 // Top-level widgets
 
 inline std::shared_ptr<Window> makeWindow()
@@ -172,6 +184,21 @@ ZCGUI_BUILDER_START(Switcher)
 	ZCGUI_ACCEPT_MULTIPLE_CHILDREN(add)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Switcher, Switcher, makeSwitcher)
+
+
+ZCGUI_MINIMAL_BUILDER_START(Tab)
+	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
+	ZCGUI_ACCEPT_ONE_CHILD(setContent)
+
+	ZCGUI_SUGGEST_PROP(text, title)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(Tab, Tab, makeTab)
+
+
+ZCGUI_BUILDER_START(TabPanel)
+	ZCGUI_ACCEPT_MULTIPLE_CHILDREN(addTab)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(TabPanel, TabPanel, makeTabPanel)
 
 
 ZCGUI_BUILDER_START(TextField)
