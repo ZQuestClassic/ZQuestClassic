@@ -181,6 +181,7 @@ int item::run_script(int mode)
 	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptITEMSPRITESCRIPTS])
 		return RUNSCRIPT_OK;
 	int ret = RUNSCRIPT_OK;
+	alloc_scriptmem();
 	switch(mode)
 	{
 		case MODE_NORMAL:

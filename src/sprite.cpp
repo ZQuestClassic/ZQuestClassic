@@ -53,6 +53,16 @@ fixed rad_to_fixed(T d)
 /******* Sprite Base Class ********/
 /**********************************/
 
+void sprite::alloc_scriptmem()
+{
+	if(!scrmem)
+	{
+		scrmem = new scriptmem();
+		memset(scrmem->stack, 0xFFFF, MAX_SCRIPT_REGISTERS);
+		scrmem->scriptData.Clear();
+	}
+}
+
 sprite::sprite()
 {
     uid = getNextUID();
@@ -68,8 +78,7 @@ sprite::sprite()
     drawstyle=0;
     extend=0;
     wpnsprite = 0; //wpnsprite is new for 2.6 -Z
-    //memset(stack,0,sizeof(stack));
-    memset(stack, 0xFFFF, sizeof(stack));
+    scrmem = NULL;
     
     /*ewpnclass=0;
     lwpnclass=0;
@@ -108,7 +117,6 @@ sprite::sprite()
     //sp=0;
     //itemclass=0;
     //ffcref=0;
-    scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
     doscript=1;
     waitdraw = 0;
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
@@ -185,7 +193,6 @@ sprite::sprite(sprite const & other):
     drawstyle(other.drawstyle),
     extend(other.extend),
     wpnsprite(other.wpnsprite),
-    scriptData(other.scriptData),
 //ffcref(other.ffcref),
 //itemref(other.itemref),
 //guyref(other.guyref),
@@ -251,22 +258,17 @@ glowShape(other.glowShape)
     initialised = other.initialised;
     
     
-    //for ( int q = 0; q < MAX_SCRIPT_REGISTERS; q++ )
-    //{
-//	stack[q] = other.stack[q];
-    //}
-    memset(stack, 0xFFFF, sizeof(stack));
-    for (int i=0; i<8; ++i)
-    {
-      initD[i]=other.initD[i];
-      weap_initd[i]=other.weap_initd[i];
-	   // al_trace("Sprite.cpp: Assigning other.initD[%d] is: %d\n",i, other.initD[i]);
-    }
-    for (int i=0; i<2; ++i)
-    {
-      initA[i]=other.initA[i];
-      weap_inita[i]=other.weap_inita[i];
-    }
+    scrmem = NULL;
+	for (int i=0; i<8; ++i)
+	{
+		initD[i]=other.initD[i];
+		weap_initd[i]=other.weap_initd[i];
+	}
+	for (int i=0; i<2; ++i)
+	{
+		initA[i]=other.initA[i];
+		weap_inita[i]=other.weap_inita[i];
+	}
 }
 
 sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
@@ -299,7 +301,6 @@ sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
     
     scriptcoldet = 1;
     initialised = 0;
-    scriptData.Clear();
     //ewpnclass=0;
     //lwpnclass=0;
     //guyclass=0;
@@ -348,14 +349,18 @@ sprite::sprite(zfix X,zfix Y,int T,int CS,int F,int Clk,int Yofs):
         initA[q] = 0;
         weap_inita[q] = 0;
     }
-    memset(stack, 0xFFFF, sizeof(stack));
+    scrmem = NULL;
 	glowRad = 0;
 	glowShape = 0;
 }
 
 sprite::~sprite()
 {
-  
+	if(scrmem)
+	{
+		delete scrmem;
+		scrmem = NULL;
+	}
 }
 
 long sprite::getNextUID()

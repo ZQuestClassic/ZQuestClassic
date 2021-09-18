@@ -342,12 +342,14 @@ eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -390,12 +392,14 @@ eOther::eOther(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -441,12 +445,14 @@ eScript::eScript(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -489,12 +495,14 @@ eFriendly::eFriendly(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -539,12 +547,14 @@ eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -589,12 +599,14 @@ eTektite::eTektite(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -634,12 +646,14 @@ eItemFairy::eItemFairy(enemy const & other, bool new_script_uid, bool clear_pare
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -682,12 +696,14 @@ ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -728,12 +744,14 @@ eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -773,12 +791,14 @@ eWallM::eWallM(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -826,12 +846,14 @@ eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -871,12 +893,14 @@ eZora::eZora(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -916,12 +940,14 @@ eSpinTile::eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -961,12 +987,14 @@ eNPC::eNPC(enemy const & other, bool new_script_uid, bool clear_parent_script_UI
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1006,12 +1034,14 @@ eTrigger::eTrigger(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1052,12 +1082,14 @@ eProjectile::eProjectile(enemy const & other, bool new_script_uid, bool clear_pa
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1097,12 +1129,14 @@ eBoulder::eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1142,12 +1176,14 @@ eRock::eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1187,12 +1223,14 @@ eTrap2::eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1234,12 +1272,14 @@ eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1286,12 +1326,14 @@ eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1334,12 +1376,14 @@ eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1379,12 +1423,14 @@ eDodongo::eDodongo(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1425,12 +1471,14 @@ eDodongo2::eDodongo2(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1472,12 +1520,14 @@ eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_pa
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1518,12 +1568,14 @@ eGohma::eGohma(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1563,12 +1615,14 @@ eLilDig::eLilDig(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1608,12 +1662,14 @@ eBigDig::eBigDig(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1655,12 +1711,14 @@ eGanon::eGanon(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1703,12 +1761,14 @@ eMoldorm::eMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1749,12 +1809,14 @@ esMoldorm::esMoldorm(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1803,12 +1865,14 @@ eManhandla::eManhandla(enemy const & other, bool new_script_uid, bool clear_pare
 {
 	
 	//arrays
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1847,12 +1911,14 @@ esManhandla::esManhandla(enemy const & other, bool new_script_uid, bool clear_pa
 {
 	
 	//arrays
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1896,12 +1962,14 @@ eGleeok::eGleeok(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1952,12 +2020,14 @@ esGleeok::esGleeok(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2015,12 +2085,14 @@ ePatra::ePatra(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2066,12 +2138,14 @@ ePatraBS::ePatraBS(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2112,12 +2186,14 @@ esPatra::esPatra(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2166,12 +2242,14 @@ esPatraBS::esPatraBS(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2563,19 +2641,19 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	wpn(other.wpn),			//int
 	SIZEflags(other.SIZEflags),			//int
 	haslink(haslink)
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
 
 {
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2990,15 +3068,9 @@ bool enemy::animate(int index)
 	++c_clk;
 	
 	//Run its script
-	if ( script > 0 && doscript ) 
+	if (run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE)
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !(FFCore.system_suspend[susptNPCSCRIPTS])  )
-		{
-			if(ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID())==RUNSCRIPT_SELFDELETE)
-			{
-				return 0; //Avoid NULLPO if this object deleted itself
-			}
-		}
+		return 0; //Avoid NULLPO if this object deleted itself
 	}
 	
 	// returns true when enemy is defeated
@@ -9327,6 +9399,7 @@ int enemy::run_script(int mode)
 	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
 		return RUNSCRIPT_OK;
 	int ret = RUNSCRIPT_OK;
+	alloc_scriptmem();
 	switch(mode)
 	{
 		case MODE_NORMAL:
