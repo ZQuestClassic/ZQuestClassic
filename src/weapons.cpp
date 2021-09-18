@@ -4006,23 +4006,7 @@ void weapon::runscript(int index)
 	    case wScript9:
 	    case wScript10:
 	    {
-		    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());	
-		/*
-                if ( doscript && weaponscript > 0 ) 
-                {
-			if ( Dead() )
-			{
-				doscript = 0;
-				weaponscript = 0;
-			}
-			else
-			{
-				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
-				FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
-			}
-		}
-		    */
+			run_script(MODE_NORMAL);
 		break;
 	    }
 	    case wBeam:
@@ -4030,16 +4014,8 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 ) 
 		{
-			/*if ( Dead() )
 			{
-				doscript = 0;
-				weaponscript = 0;
-			}
-			else*/
-			{
-				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
-				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
+				run_script(MODE_NORMAL);	
 			}
 		}
 		break;
@@ -4049,16 +4025,8 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 ) 
 		{
-			/*if ( Dead() )
 			{
-				doscript = 0;
-				weaponscript = 0;
-			}
-			else*/
-			{
-				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
-				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
+				run_script(MODE_NORMAL);
 			}
 		}
 		break;
@@ -4073,16 +4041,8 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 ) 
 		{
-			/*if ( Dead() )
 			{
-				doscript = 0;
-				weaponscript = 0;
-			}
-			else*/
-			{
-				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
-				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
+				run_script(MODE_NORMAL);
 			}
 		}
 		break;
@@ -4104,16 +4064,8 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 ) 
 		{
-			/*if ( Dead() )
 			{
-				doscript = 0;
-				weaponscript = 0;
-			}
-			else*/
-			{
-				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
-				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
+				run_script(MODE_NORMAL);
 			}
 		}
 		
@@ -4125,7 +4077,7 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 ) 
 		{
-			ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+			run_script(MODE_NORMAL);
 		}
 		break;
 	    }
@@ -4133,16 +4085,8 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 ) 
 		{
-			/*if ( dead != -1 )
 			{
-				doscript = 0;
-				weaponscript = 0;
-			}
-			else*/
-			{
-                            //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                            //FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
-                            if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
+                run_script(MODE_NORMAL);
 			}
 		}
 		break;
@@ -4152,16 +4096,8 @@ void weapon::runscript(int index)
                 
 		if ( doscript && weaponscript > 0 ) 
 		{
-			/*if ( Dead() )
 			{
-				doscript = 0;
-				weaponscript = 0;
-			}
-			else*/
-			{
-				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
-				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
+				run_script(MODE_NORMAL);
 			}
 		}
 	
@@ -4187,16 +4123,8 @@ void weapon::runscript(int index)
 		//:Weapon Only
 		if ( doscript && weaponscript > 0 ) 
 		{
-			/*if ( Dead() )
 			{
-				doscript = 0;
-				weaponscript = 0;
-			}
-			else*/
-			{
-				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
-				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
+				run_script(MODE_NORMAL);
 			}
 		}
 	    }
@@ -4206,16 +4134,8 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 && ScriptGenerated ) 
 		{
-			/*if ( Dead() )
 			{
-				doscript = 0;
-				weaponscript = 0;
-			}
-			else*/
-			{
-				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
-				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
+				run_script(MODE_NORMAL);
 			}
 		}
 		break;
@@ -4559,40 +4479,17 @@ bool weapon::animate(int index)
 		if ( parentitem > -1 || (isLWeapon && ScriptGenerated) )
 		{
 		    //Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
-		    if ( doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());	
+		    run_script(MODE_NORMAL);
 		}
 		
-		//Can EW_SCRIPT run a weapon script ?? -Z
 		
-		//Disabled for now because FFCore.eweaponScriptEngine() runs the enemy weapon scripts. -Z (25-Dec-2018)
-		//else if ( parentid > -1 && parentid != Link.getUID() && !isLWeapon )
-		//{
-			
-		//	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, weaponscript, getUID());	
-		//}
-		/*
-                if ( doscript && weaponscript > 0 ) 
-                {
-			if ( Dead() )
-			{
-				doscript = 0;
-				weaponscript = 0;
-			}
-			else
-			{
-				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
-				FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
-			}
-		}
-		    */
 		break;
 	    }
         // Link's weapons
     case wSword:
 	if ( doscript && itemsbuf[parentitem].misc10 == 50 )
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		run_script(MODE_NORMAL);
 	}
     case wWand:
     case wHammer:
@@ -4644,7 +4541,7 @@ bool weapon::animate(int index)
 	}
 	if ( doscript )
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		run_script(MODE_NORMAL);
 	}
     }
     
@@ -4923,7 +4820,7 @@ bool weapon::animate(int index)
 	{
 		if ( doscript )
 		{
-			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+			run_script(MODE_NORMAL);
 		}
 	}
 	if ( id == ewSword )
@@ -4943,7 +4840,7 @@ bool weapon::animate(int index)
         
 	if ( doscript )
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		run_script(MODE_NORMAL);
 	}
         break;
     }
@@ -4985,7 +4882,7 @@ bool weapon::animate(int index)
             
 	if ( doscript )
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		run_script(MODE_NORMAL);
 	}
         break;
     }
@@ -5077,7 +4974,7 @@ bool weapon::animate(int index)
         }
         if ( doscript )
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		run_script(MODE_NORMAL);
 	}
         break;
     }
@@ -5089,7 +4986,7 @@ bool weapon::animate(int index)
     {
 	if ( doscript )
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		run_script(MODE_NORMAL);
 	}
         if(!misc)
         {
@@ -5220,10 +5117,6 @@ bool weapon::animate(int index)
                 dead=1;
             }
         }
-        //if ( doscript )
-	//{
-	//	FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	//}
         break;
     }
         case ewLitBomb:
@@ -5360,11 +5253,6 @@ bool weapon::animate(int index)
                 dead=1;
             }
         }
-	//eweapon script, again, later
-       //if ( doscript )
-	// {
-	//	FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	///}
         break;
     }
     
@@ -5373,7 +5261,7 @@ bool weapon::animate(int index)
 	//Z_scripterrlog("Arrow weaponscript is: %d\n", weaponscript);
 	if ( doscript )
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		run_script(MODE_NORMAL);
 	}
         if(dead>0)
         {
@@ -5434,7 +5322,7 @@ bool weapon::animate(int index)
 	
 	if ( doscript && isLWeapon )
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		run_script(MODE_NORMAL);
 	}
         
         break;
@@ -5454,7 +5342,7 @@ bool weapon::animate(int index)
 	
 	if ( doscript && isLWeapon )
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		run_script(MODE_NORMAL);
 	}
         
         break;
@@ -5465,7 +5353,7 @@ bool weapon::animate(int index)
         {
 	    if ( doscript )
 	    {
-		   if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		   run_script(MODE_NORMAL);
 	    }
             dead=23;
 	    goto skip_second_bait_script;
@@ -5477,7 +5365,7 @@ bool weapon::animate(int index)
         }
         if ( doscript )
 	{
-		   if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		   run_script(MODE_NORMAL);
 	}
 	skip_second_bait_script:
         break;
@@ -5491,7 +5379,7 @@ bool weapon::animate(int index)
             stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
 	    if ( doscript )
 	    {
-		   if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		   run_script(MODE_NORMAL);
 	    }
             break;
         }
@@ -5500,7 +5388,7 @@ bool weapon::animate(int index)
         {
 	    if ( doscript )
 	    {
-		   if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		   run_script(MODE_NORMAL);
 	    }
             onhit(false);
         }
@@ -5508,7 +5396,7 @@ bool weapon::animate(int index)
 	{
 	    if ( doscript )
 	    {
-		   if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		   run_script(MODE_NORMAL);
 	    }
 	}
 	
@@ -5597,10 +5485,6 @@ bool weapon::animate(int index)
         {
             ++clk;
             sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true);
-	    //if ( doscript )
-	    //{
-		//   FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	    //}
             return false;
         }
         
@@ -5670,13 +5554,6 @@ bool weapon::animate(int index)
             
             seekLink();
         }
-        //call before the sfx
-        
-        //if ( doscript )
-	//{
-		//Z_scripterrlog("Engine Brang DeadState is: %d\n",dead);
-	//	FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	//}
         sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true,false);
         
         break;
@@ -6060,7 +5937,7 @@ bool weapon::animate(int index)
             }
             if ( doscript )
 	    {
-		   if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		   run_script(MODE_NORMAL);
 	    }
             return false;
         }
@@ -6101,7 +5978,7 @@ bool weapon::animate(int index)
                 }
                 if ( doscript )
 	        {
-		   if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		   run_script(MODE_NORMAL);
 	        }
                 return true;
             }
@@ -6121,7 +5998,7 @@ bool weapon::animate(int index)
     }
     if ( doscript )
     {
-		   if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		   run_script(MODE_NORMAL);
     }
     break;
     
@@ -6811,7 +6688,7 @@ bool weapon::animate(int index)
         //:Weapon Only
         if ( doscript )
 	{
-		   if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		   run_script(MODE_NORMAL);
 	}
     }
     break;
@@ -7136,12 +7013,6 @@ mirrors:
                 dead=0;
             }
         }
-        //:Weapon Only
-        //eweapon, later
-	//if ( doscript )
-	//{
-	//	   FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	//}
     }
     break;
     
@@ -7218,7 +7089,7 @@ mirrors:
         }
         if ( id == wRefFireball && ScriptGenerated && doscript )
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		run_script(MODE_NORMAL);
 	}
         break;
     }
@@ -7447,7 +7318,7 @@ mirrors:
 	{
 		if ( doscript && getUID() == Link.getUID() || isLWeapon )
 		{
-			   FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+			run_script(MODE_NORMAL);
 		}
 		break;
 	}
@@ -7529,2268 +7400,6 @@ mirrors:
     //}
     return dead==0;
 }
-
-
-bool weapon::animateandrunscript(int ii)
-{
-    // do special timing stuff
-    bool hooked=false;
-//	Z_scripterrlog("Weapon script is: %d\n",weaponscript);
-	
-    
-    
-    // fall down
-    switch(id)
-    {
-    case wFire:
-    
-        // Din's Fire shouldn't fall
-        if(parentitem>=0 && itemsbuf[parentitem].family==itype_dinsfire && !(itemsbuf[parentitem].flags & ITEM_FLAG3))
-        {
-            break;
-        }
-        
-    case wLitBomb:
-    case wLitSBomb:
-    case wBait:
-    case ewFlame:
-    case ewFireTrail:
-        if(isSideViewGravity())
-        {
-            if(!_walkflag(x,y+16,0))
-            {
-                y+=fall/100;
-                
-                if(fall <= (int)zinit.terminalv)
-                {
-                    fall += zinit.gravity;
-                }
-            }
-            else
-            {
-                if(fall!=0 && !(step>0 && dir==up))  // Don't fix pos if still moving through solidness
-                    y-=(int)y%8; // Fix position
-                    
-                fall = 0;
-            }
-            
-            if(y>192) dead=0;  // Out of bounds
-        }
-        else
-        {
-            z-=fall/100;
-            
-            if(z<=0)
-            {
-                z = fall = 0;
-            }
-            else if(fall <= (int)zinit.terminalv)
-            {
-                fall += zinit.gravity;
-            }
-        }
-    }
-    
-    if(id>wEnemyWeapons && id!=ewBrang && id != ewFireball2 && id != ewBomb && id != ewSBomb)
-        switch(misc)
-        {
-        case up:
-            y-=.5;
-            break;
-            
-        case down:
-            y+=.5;
-            break;
-            
-        case left:
-            x-=.5;
-            break;
-            
-        case right:
-            x+=.5;
-            break;
-            
-        case 4:
-            y-=1;
-            break;
-            
-        case 5:
-            y+=1;
-            break;
-            
-        case 6:
-            x-=1;
-            break;
-            
-        case 7:
-            x+=1;
-            break;
-            //case l_up:  y-=.354; x-=.354; break;
-            //case r_up:  y-=.354; x+=.354; break;
-            //case l_down:y+=.354; x-=.354; break;
-            //case r_down:y+=.354; x+=.354; break;
-        }
-        
-    switch(id)
-    {
-        // Link's weapons
-    case wSword:
-    case wWand:
-    case wHammer:
-        if(LinkAction()!=attacking && LinkAction()!=ischarging && !LinkCharged())
-        {
-            dead=0;
-        }
-        
-        break;
-        
-    case wCByrna:
-    {
-        if(blocked())
-        {
-            dead=0;
-        }
-        
-        int speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
-        int radius = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc2,8) : 8;
-        double xdiff = -(sin((double)clk/speed) * radius);
-        double ydiff = (cos((double)clk/speed) * radius);
-        
-        double ddir=atan2(double(ydiff),double(xdiff));
-        
-        if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
-            dir=r_up;
-        else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
-            dir=right;
-        else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
-            dir=r_down;
-        else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
-            dir=down;
-        else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
-            dir=l_down;
-        else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
-            dir=left;
-        else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
-            dir=l_up;
-        else
-            dir=up;
-            
-        x = (zfix)((double)LinkX() + xdiff);
-        y = (zfix)((double)LinkY() + ydiff);
-        z = LinkZ();
-        
-        if(parentitem>-1)
-            sfx(itemsbuf[parentitem].usesound,pan(int(x)),true,false);
-    }
-    break;
-    
-    case wBeam:
-    case wRefBeam:
-    {
-        for(int i2=0; i2<=zc_min(type-1,3) && dead!=23; i2++)
-        {
-            if(findentrance(x,y,mfSWORDBEAM+i2,true)) dead=23;
-        }
-        
-        if(blocked())
-        {
-            dead=23;
-        }
-        if ( doscript && weaponscript > 0 ) 
-        {
-                /*if ( Dead() )
-                {
-                        doscript = 0;
-                        weaponscript = 0;
-                }
-                else*/
-                {
-                        int w_index = -1; //Give the script the correct index! -Z
-                        for(word i = 0; i < Lwpns.Count(); i++)
-                        {
-                                if(Lwpns.spr(i)->getUID() == getUID())
-                                w_index = i;
-                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        }
-                                
-                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);		
-                }
-        }
-        
-    }
-    case ewSword:
-        if(blocked())
-        {
-            dead=0;
-        }
-        
-        if(id==ewSword && get_bit(quest_rules,qr_SWORDMIRROR) || id!=ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & ITEM_FLAG9 : get_bit(quest_rules,qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
-        {
-            int checkx=0, checky=0;
-            
-            switch(dir)
-            {
-            case up:
-                checkx=x+7;
-                checky=y+8;
-                break;
-                
-            case down:
-                checkx=x+7;
-                checky=y;
-                break;
-                
-            case left:
-                checkx=x+8;
-                checky=y+7;
-                break;
-                
-            case right:
-                checkx=x;
-                checky=y+7;
-                break;
-            }
-            
-            if(ignorecombo==(((int)checky&0xF0)+((int)checkx>>4)))
-                break;
-                
-		int posx, posy;
-		if(get_bit(quest_rules,qr_OLDMIRRORCOMBOS))//Replace this conditional with an ER; true if the ER is checked. This will use the old (glitchy) behavior for sword beams.
-		{
-			posx=x;
-			posy=y;
-		}
-		else
-		{
-			posx=checkx;
-			posy=checky;
-		}
-            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
-            {
-                id = wRefBeam;
-                dir ^= 1;
-                
-                if(dir&2)
-                    flip ^= 1;
-                else
-                    flip ^= 2;
-                    
-                ignoreLink=false;
-                ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                y=(int)posy&0xF0;
-                x=(int)posx&0xF0;
-            }
-            
-            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
-            {
-                id = wRefBeam;
-		if ( do_animation ) 
-		{
-			dir = 3-dir;
-			{
-			    if(dir==right)
-				flip &= ~1; // not horiz
-			    else if(dir==left)
-				flip |= 1;  // horiz
-			    else if(dir==up)
-				flip &= ~2; // not vert
-			    else if(dir==down)
-				flip |= 2;  // vert
-			}
-			tile=o_tile;
-			
-			if(dir&2)
-			{
-			    if(frames>1)
-			    {
-				tile+=frames;
-			    }
-			    else
-			    {
-				++tile;
-			    }
-			}
-                }
-                ignoreLink=false;
-                ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                y=(int)posy&0xF0;
-                x=(int)posx&0xF0;
-            }
-            
-            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
-            {
-                id = wRefBeam;
-                dir ^= 2;
-                {
-			if ( do_animation ) 
-			{
-			    if(dir==right)
-				flip &= ~1; // not horiz
-			    else if(dir==left)
-				flip |= 1;  // horiz
-			    else if(dir==up)
-				flip &= ~2; // not vert
-			    else if(dir==down)
-				flip |= 2;  // vert
-			}
-                }
-		if ( do_animation ) 
-		{
-			tile=o_tile;
-			
-			if(dir&2)
-			{
-			    if(frames>1)
-			    {
-				tile+=frames;
-			    }
-			    else
-			    {
-				++tile;
-			    }
-			}
-                }
-                ignoreLink=false;
-                ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                y=(int)posy&0xF0;
-                x=(int)posx&0xF0;
-            }
-            
-            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM))
-            {
-                int newx, newy;
-                newy=(int)posy&0xF0;
-                newx=(int)posx&0xF0;
-                
-                for(int tdir=0; tdir<4; tdir++)
-                {
-                    if(dir!=(tdir^1))
-                    {
-                        weapon *w=new weapon(*this);
-                        w->dir=tdir;
-			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
-			{
-				double newangle = this->angle - DegreesToRadians(90*tdir);
-				w->angle = WrapAngle(newangle);
-			}
-                        w->x=newx;
-                        w->y=newy;
-                        w->z=z;
-                        w->id=wRefBeam;
-                        w->parentid=parentid;
-                        w->parentitem=parentitem;
-                        w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                        w->hyofs = w->hxofs = 0;
-                        //also set up the magic's correct animation -DD
-                        w->flip=0;
-                        if ( do_animation ) 
-			{
-				switch(w->dir)
-				{
-				case down:
-				    w->flip=2;
-				    
-				case up:
-				    w->tile = w->o_tile;
-				    w->hyofs=2;
-				    w->hysz=12;
-				    break;
-				    
-				case left:
-				    w->flip=1;
-				    
-				case right:
-				    w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-				    w->hxofs=2;
-				    w->hxsz=12;
-				    break;
-				
-				default: break;
-				}
-                        }
-                        Lwpns.add(w);
-                    }
-                }
-                
-                dead=0;
-            }
-            
-            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4))
-            {
-                int newx, newy;
-                newy=(int)posy&0xF0;
-                newx=(int)posx&0xF0;
-                
-                for(int tdir=0; tdir<4; tdir++)
-                {
-                    weapon *w=new weapon(*this);
-                    w->dir=tdir;
-		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
-		    {
-			double newangle = this->angle - DegreesToRadians(90*tdir);
-			w->angle = WrapAngle(newangle);
-		    }
-                    w->x=newx;
-                    w->y=newy;
-                    w->z=z;
-                    w->id=wRefBeam;
-                    w->parentid=parentid;
-                    w->parentitem=parentitem;
-                    w->hyofs = w->hxofs = 0;
-                    w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                    //also set up the magic's correct animation -DD
-                    w->flip=0;
-                    if ( do_animation ) 
-		    {
-			    switch(w->dir)
-			    {
-			    case down:
-				w->flip=2;
-				
-			    case up:
-				w->tile = w->o_tile;
-				w->hyofs=2;
-				w->hysz=12;
-				break;
-				
-			    case left:
-				w->flip=1;
-				
-			    case right:
-				w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-				w->hxofs=2;
-				w->hxsz=12;
-				break;
-			    
-			    default: break;
-			    }
-                    }
-                    Lwpns.add(w);
-                }
-                
-                dead=0;
-            }
-        }
-        
-        break;
-        
-    case wWhistle:
-    {
-        if(clk)
-        {
-            dead=1;
-        }
-        if ( doscript && weaponscript > 0 ) 
-        {
-                /*if ( Dead() )
-                {
-                        doscript = 0;
-                        weaponscript = 0;
-                }
-                else*/
-                {
-                        int w_index = -1; //Give the script the correct index! -Z
-                        for(word i = 0; i < Lwpns.Count(); i++)
-                        {
-                                if(Lwpns.spr(i)->getUID() == getUID())
-                                w_index = i;
-                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        }
-                                
-                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);		
-                }
-        }
-        break;
-    }
-        
-    case wWind:
-    {
-        if(blocked())
-        {
-            dead=1;
-        }
-        
-        int wrx;
-        
-        if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-            wrx=tmpscr->warpreturnx[0];
-        else wrx=tmpscr->warparrivalx;
-        
-        int wry;
-        
-        if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-            wry=tmpscr->warpreturny[0];
-        else wry=tmpscr->warparrivaly;
-        
-        if(specialinfo==1 && dead==-1 && x==(int)wrx && y==(int)wry)
-        {
-	    stop_sfx(WAV_ZN1WHIRLWIND);
-            dead=2;
-        }
-        else if(LinkAction() !=inwind && ((dir==right && x>=240) || (dir==down && y>=160) || (dir==left && x<=0) || (dir==up && y<=0)))
-        {
-            stop_sfx(WAV_ZN1WHIRLWIND);
-            dead=1;
-        }
-        else if(get_bit(quest_rules,qr_MORESOUNDS) && dead < 1)
-            sfx(WAV_ZN1WHIRLWIND,pan(int(x)),true,false);
-            
-        if((parentitem==-1 && get_bit(quest_rules,qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & ITEM_FLAG3))
-            goto mirrors;
-            
-        break;
-    }
-    
-    case wFire:
-    {
-        if(blocked())
-        {
-            dead=1;
-        }
-        
-        if(parentitem<0 || (parentitem>-1 && itemsbuf[parentitem].family!=itype_book))
-        {
-            if(clk==32)
-            {
-                step=0;
-                
-                if(parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG2))
-                {
-                    isLit = true;
-                    if((parentitem==-1&&get_bit(quest_rules,qr_TEMPCANDLELIGHT))||itemsbuf[parentitem].flags & ITEM_FLAG5){
-				checkLightSources();
-			} else {
-				checkLightSources(true);
-			}
-                }
-            }
-            
-            if(clk==94)
-            {
-                dead=1;
-                
-                if(((parentitem==-1 && get_bit(quest_rules,qr_TEMPCANDLELIGHT)) ||
-		   (parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG2)&&(itemsbuf[parentitem].flags & ITEM_FLAG5))) &&
-                   (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
-                {
-                    isLit = false;
-                    checkLightSources();
-                }
-            }
-            
-            if(clk==94 || get_bit(quest_rules,qr_INSTABURNFLAGS))
-            {
-                findentrance(x,y,mfBCANDLE,true);
-                
-                if(type>1) //red candle
-                {
-                    findentrance(x,y,mfRCANDLE,true);
-                }
-                
-                if(linked_parent == itype_dinsfire)
-                {
-                    findentrance(x,y,mfDINSFIRE,true);
-                }
-            }
-        }                                                     //wand fire
-        else
-        {
-            if(clk==1)
-            {
-                isLit = true;
-                if(itemsbuf[parentitem].flags & ITEM_FLAG5){
-			checkLightSources();
-		} else {
-			checkLightSources(true);
-		}
-            }
-            
-            if(clk==80)
-            {
-                dead=1;
-                findentrance(x,y,mfBCANDLE,true);
-                findentrance(x,y,mfRCANDLE,true);
-                findentrance(x,y,mfWANDFIRE,true);
-                
-                if(((parentitem==-1&&get_bit(quest_rules,qr_TEMPCANDLELIGHT))||(parentitem>-1&&(itemsbuf[parentitem].flags & ITEM_FLAG5))) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
-                {
-                    isLit=false;
-                    checkLightSources();
-                }
-            }
-        }
-        
-        // Killed by script?
-        if(dead==0 && ((parentitem==-1&&get_bit(quest_rules,qr_TEMPCANDLELIGHT))||(parentitem>0&&(itemsbuf[parentitem].flags & ITEM_FLAG5))) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
-        {
-            isLit=false;
-            checkLightSources();
-        }
-        if ( doscript && weaponscript > 0 ) 
-        {
-                /*if ( Dead() )
-                {
-                        doscript = 0;
-                        weaponscript = 0;
-                }
-                else*/
-                {
-                        int w_index = -1; //Give the script the correct index! -Z
-                        for(word i = 0; i < Lwpns.Count(); i++)
-                        {
-                                if(Lwpns.spr(i)->getUID() == getUID())
-                                w_index = i;
-                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        }
-                                
-                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);		
-                }
-        }
-        break;
-    }
-    
-    case wLitBomb:
-    case wBomb:
-    case ewLitBomb:
-    case ewBomb:
-    case ewLitSBomb:
-    case ewSBomb:
-    case wLitSBomb:
-    case wSBomb:
-    {
-        if(!misc)
-        {
-            break;
-        }
-        
-        // Naaah.
-        /*if (blocked())
-        {
-          dead=1;
-        }*/
-        if(clk==(misc-2) && step==0)
-        {
-            id = (id>wEnemyWeapons ? (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb)
-                      : parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
-                      : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb));
-            hxofs=2000;
-        }
-        
-        if(clk==(misc-1) && step==0)
-    {
-            sfx((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
-                itemsbuf[parentitem].usesound,pan(int(x)));
-                
-            if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
-            {
-                hxofs=hyofs=-16;
-                hxsz=hysz=48;
-            }
-            else
-            {
-                hxofs=hyofs=-8;
-                hxsz=hysz=32;
-            }
-            
-            hzsz=16;
-        }
-        
-        int boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
-                              (parentitem>-1 && itemsbuf[parentitem].flags & ITEM_FLAG1)) ? 35 : 31));
-                              
-        if(clk==boomend && step==0)
-        {
-            hxofs=2000;
-        }
-        
-        if(id<wEnemyWeapons)
-        {
-            if(clk==(misc-1))
-            {
-                int f1 = (id==wSBomb || id==wLitSBomb) ? 16 : 0; // Large SBomb triggerbox
-                
-                for(int tx=-f1; tx<=f1; tx+=8)  // -16,-8,0,8,16
-                {
-                    int f2 = 0;
-                    
-                    if(tx==-8 || tx==8)
-                        f2 = f1;
-                        
-                    for(int ty=-f2; ty<=f2; ty+=32)
-                    {
-                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
-                        
-                        if(id==wSBomb || id==wLitSBomb)
-                        {
-                            findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
-                        }
-                        
-                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
-                    }
-                }
-            }
-            
-            if(!get_bit(quest_rules,qr_NOBOMBPALFLASH))
-            {
-                if(!usebombpal)
-                {
-                    if(clk==misc || clk==misc+5)
-                    {
-                    
-                        usebombpal=true;
-                        memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
-                        
-                        //grayscale entire screen
-                        if(get_bit(quest_rules,qr_FADE))
-                        {
-                            for(int i=CSET(0); i < CSET(15); i++)
-                            {
-                                int g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
-                                g = (g >> 1) + 32;
-                                RAMpal[i] = _RGB(g,g,g);
-                            }
-                            
-                        }
-                        else
-                        {
-                            // this is awkward. NES Z1 converts colors based on the global
-                            // NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-                            for(int i=CSET(0); i < CSET(15); i++)
-                            {
-                                RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
-                            }
-                        }
-                        
-                        refreshpal = true;
-                    }
-                }
-                
-                if((clk==misc+4 || clk==misc+9) && usebombpal)
-                {
-                    // undo grayscale
-                    usebombpal=false;
-                    memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
-                    refreshpal = true;
-                }
-            }
-            
-            if(clk==misc+30)
-            {
-                bombdoor(x,y);
-            }
-        }
-        
-        if(clk==misc+34)
-        {
-            if(step==0)
-            {
-                dead=1;
-            }
-        }
-        
-        break;
-    }
-    
-    case wArrow:
-    {
-        if(dead>0)
-        {
-            break;
-        }
-        
-        if(misc>0 && clk > misc)
-        {
-            dead=4;
-        }
-        
-        if(findentrance(x,y,mfSTRIKE,true))
-        {
-            dead=4;
-        }
-        
-        if(findentrance(x,y,mfARROW,true))
-        {
-            dead=4;
-        }
-        
-        if(current_item(itype_arrow)>1)
-        {
-            if(findentrance(x,y,mfSARROW,true))
-            {
-                dead=4;
-            }
-        }
-        
-        if(current_item(itype_arrow)>=3)
-        {
-            if(findentrance(x,y,mfGARROW,true))
-            {
-                dead=4;
-            }
-        }
-        
-        if(blocked())
-        {
-            dead=4;
-        }
-        
-        if ( doscript && weaponscript > 0 ) 
-        {
-                /*if ( Dead() )
-                {
-                        doscript = 0;
-                        weaponscript = 0;
-                }
-                else*/
-                {
-                        int w_index = -1; //Give the script the correct index! -Z
-                        for(word i = 0; i < Lwpns.Count(); i++)
-                        {
-                                if(Lwpns.spr(i)->getUID() == getUID())
-                                w_index = i;
-                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        }
-                                
-                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);		
-                }
-        }
-        
-        break;
-    }
-    
-    case wSSparkle:
-    {
-        if(blocked())  //no spakle area?
-        {
-            dead=1;
-        }
-        
-        if(clk>=frames*o_speed-1) //(((wpnsbuf[wSSPARKLE].frames) * (wpnsbuf[wSSPARKLE].speed))-1))
-        {
-            dead=1;
-        }
-        
-        break;
-    }
-        
-    case wFSparkle:
-    {
-        if(blocked())  //no sparkle area?
-        {
-            dead=1;
-        }
-        
-        if(clk>=frames*o_speed-1) //(((wpnsbuf[wFSPARKLE].frames) * (wpnsbuf[wFSPARKLE].speed))-1))
-        {
-            dead=1;
-        }
-        
-        break;
-    }
-    case wBait:
-    {
-        if(blocked())  //no bait area?
-        {
-            dead=23;
-        }
-        
-        if(parentitem>-1 && clk>=itemsbuf[parentitem].misc1)
-        {
-            int w_index = -1; //Give the script the correct index! -Z
-                        for(word i = 0; i < Lwpns.Count(); i++)
-                        {
-                                if(Lwpns.spr(i)->getUID() == getUID())
-                                w_index = i;
-                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        }
-                                
-                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);
-            dead=1;
-        }
-        if ( doscript && weaponscript > 0 ) 
-        {
-                /*if ( dead != -1 )
-                {
-                        doscript = 0;
-                        weaponscript = 0;
-                }
-                else*/
-                {
-                        int w_index = -1; //Give the script the correct index! -Z
-                        for(word i = 0; i < Lwpns.Count(); i++)
-                        {
-                                if(Lwpns.spr(i)->getUID() == getUID())
-                                w_index = i;
-                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        }
-                                
-                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);		
-                }
-        }
-        break;
-    }
-    case wBrang:
-    {
-        if(dead==0)  // Set by ZScript
-        {
-            stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
-            break;
-        }
-        
-        else if(dead==1) // Set by ZScript
-        {
-            onhit(false);
-        }
-        
-        int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:1;
-        
-	/* This causes brang weapons with a level > 3 to hit OTHER flags. 
-	// e.g., a brang with a level of 5 would trigger mfBRANG through mfGARROW! -Z
-        for(int i=0; i<current_item(itype_brang); i++)
-        {
-            if(findentrance(x,y,mfBRANG+i,true)) dead=deadval;
-        }
-	*/
-	
-	int branglevel = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].fam_type;
-	
-	switch ( branglevel )
-	{
-		case 0:
-		case 1:
-		{
-			if(findentrance(x,y,mfBRANG,true)) dead=deadval; break;
-		}
-		case 2: 
-		{
-			if(findentrance(x,y,mfBRANG,true)) dead=deadval;
-			if(findentrance(x,y,mfMBRANG,true)) dead=deadval;
-			break;
-		}
-		case 3:
-		{
-			goto brang_level_3_or_higher;
-		}
-		default: //level higher than 3
-		{
-			goto brang_level_3_or_higher;
-		}
-		brang_level_3_or_higher: 
-		{
-			if(findentrance(x,y,mfBRANG,true)) dead=deadval;
-			if(findentrance(x,y,mfMBRANG,true)) dead=deadval;
-			if(findentrance(x,y,mfFBRANG,true)) dead=deadval;
-			break;
-		}
-	}
-		
-        
-        if(findentrance(x,y,mfSTRIKE,true)) dead=deadval;
-        
-        if(blocked())
-        {
-            dead=deadval;
-            onhit(false);
-        }
-        
-        ++clk2;
-        int range = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].misc1;
-        
-        if(range && clk2>=range)
-        {
-            if(deadval==1)
-            {
-                misc=1;
-            }
-            else
-            {
-                dead=deadval;
-            }
-        }
-        
-        if(range && clk2>range-18 && clk2<range+16)
-        {
-            step=1;
-        }
-        else if(misc)
-        {
-            step=2;
-        }
-        else
-        {
-            step=3;
-        }
-        
-        if(clk==0)                                            // delay a frame
-        {
-            ++clk;
-            sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true);
-            return false;
-        }
-        
-        if(clk==1)                                            // then check directional input
-        {
-            if(Up())
-            {
-                dir=up;
-                
-                if(Left())  dir=l_up;
-                
-                if(Right()) dir=r_up;
-            }
-            else if(Down())
-            {
-                dir=down;
-                
-                if(Left())  dir=l_down;
-                
-                if(Right()) dir=r_down;
-            }
-            else if(Left())
-            {
-                dir=left;
-            }
-            else if(Right())
-            {
-                dir=right;
-            }
-        }
-        
-        if(dead==1)
-        {
-            dead=-1;
-            misc=1;
-        }
-        
-        if(dead==-2)
-        {
-            misc=1;
-        }
-        
-        if(misc==1)                                           // returning
-        {
-            if((abs(LinkY()-y)<7 && abs(LinkX()-x)<7)||dead==-2)
-            {
-                if(dead!=-2)
-                {
-                    CatchBrang();
-                }
-                
-                if(Lwpns.idCount(wBrang)<=1 && (!get_bit(quest_rules, qr_MORESOUNDS) || !Ewpns.idCount(ewBrang)))
-                    stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
-                    
-                /*if (dummy_bool[0])
-                {
-                    add_grenade(x,y,z,0,-1); //TODO: Super bombs as well?
-                    dummy_bool[0]=false;
-                }*/
-                if(dragging!=-1)
-                {
-                    getdraggeditem(dragging);
-                }
-                
-                return true;
-            }
-            
-            seekLink();
-        }
-        //call before the sfx
-        if ( doscript && weaponscript > 0 ) 
-        {
-                /*if ( Dead() )
-                {
-                        doscript = 0;
-                        weaponscript = 0;
-                }
-                else*/
-                {
-                        int w_index = -1; //Give the script the correct index! -Z
-                        for(word i = 0; i < Lwpns.Count(); i++)
-                        {
-                                if(Lwpns.spr(i)->getUID() == getUID())
-                                w_index = i;
-                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        }
-                                
-                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);		
-                }
-        }
-        
-        sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true,false);
-        
-        break;
-    }
-    
-    case wHookshot:
-    {
-        if(dead==0)  // Set by ZScript
-        {
-            hookshot_used = false;
-            
-            for(int i=0; i<chainlinks.Count(); i++)
-            {
-                chainlinks.del(chainlinks.idFirst(wHSChain));
-            }
-        }
-	
-        // Hookshot grab and retract code
-        if(misc==0)
-        {
-            int maxlength=parentitem>-1 ? 16*itemsbuf[parentitem].misc1 : 0;
-            
-            if((abs(LinkX()-x)>maxlength)||(abs(LinkY()-y)>maxlength))
-            {
-                dead=1;
-            }
-            
-            if(findentrance(x,y,mfSTRIKE,true)) dead=1;
-            
-            if(findentrance(x,y,mfHOOKSHOT,true)) dead=1;
-            
-            if(dir==up)
-            {
-                if(isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]))
-                {
-                    hooked=true;
-                }
-                
-                if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
-                    
-                if(!hooked && _walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7))
-                {
-                    dead=1;
-                }
-            }
-            
-            if(dir==down)
-            {
-                if(isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]))
-                {
-                    hooked=true;
-                }
-                
-                if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
-                    
-                if(!hooked && _walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12))
-                {
-                    dead=1;
-                }
-            }
-            
-            if(dir==left)
-            {
-                if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
-                {
-                    if(isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]))
-                    {
-                        hooked=true;
-                    }
-                }
-                else if(isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)]))
-                {
-                    hooked=true;
-                }
-                
-                if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]);
-                    
-                if(!hooked && _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13))
-                {
-                    dead=1;
-                }
-            }
-            
-            if(dir==right)
-            {
-                if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
-                {
-                    if(isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]))
-                    {
-                        hooked=true;
-                    }
-                }
-                else if(isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)]))
-                {
-                    hooked=true;
-                }
-                
-                if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-                    hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]);
-                    
-                if(!hooked && _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13))
-                {
-                    dead=1;
-                }
-            }
-	    //Diagonal Hookshot (9) (This function never runs at this time.)
-	    //Diagonal Hookshot Grab Points (This function never runs at this time.)
-	    if ( dir == r_down ) 
-		{
-			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
-			{	//right						//down
-				if( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
-				{
-					hooked=true;
-				}
-			}
-
-					//right						//down
-			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
-			{
-				hooked=true;
-			}
-
-			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
-			{
-				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]) || 
-				//down
-				isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
-			}
-                    
-			//right
-			if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
-				//down
-				(_walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12)) ) )
-			{
-			    dead=1;
-			}
-		    
-		    
-		}
-		if ( dir == l_down ) 
-		{
-			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
-			{	//left						//down
-				if( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
-				{
-					hooked=true;
-				}
-			}
-			
-
-					//left						//down
-			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
-			{
-				hooked=true;
-			}
-
-			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-			{
-							//left
-				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]) || 
-					//down
-				isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
-			}
-			//left
-			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
-				//down
-				(_walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12)) ) )
-			{
-				dead=1;
-			}
-		    
-		    
-		}
-		if ( dir == r_up ) 
-		{
-		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
-			{	//right						//up
-			    if( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
-				{
-					hooked=true;
-				}
-			}
-
-					//right						//up
-			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
-			{
-				hooked=true;
-			}
-
-			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
-			{
-				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]) || 
-				//up
-				isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
-			}
-			//right
-			if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
-				//up
-				(_walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7)) ) )
-			{
-				dead=1;
-			}
-		}
-		if ( dir == l_up ) 
-		{
-		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
-			{	//left						//up
-				if( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
-				{
-					hooked=true;
-				}
-			}
-
-					//left						//up
-			else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
-			{
-				hooked=true;
-			}
-
-			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//left
-			{
-				hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]) || 
-				//up
-				isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
-			}
-							//left
-			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
-				//up
-				(_walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7)) ) )
-			{
-				dead=1;
-			}
-		}
-        }
-        
-        if(hooked==true)
-        {
-            misc=1;
-            pull_link=true;
-            step=0;
-        }
-        
-        ++clk2;
-        
-        if(clk==0)                                            // delay a frame
-        {
-            ++clk;
-            
-            if(parentitem>-1)
-            {
-                sfx(itemsbuf[parentitem].usesound,pan(int(x)),true);
-            }
-            
-            return false;
-        }
-        
-        if(dead==1)
-        {
-            dead=-1;
-            
-            if(step > 0)
-                step = -step;
-                
-            misc=1;
-        }
-        
-        if(misc==1)                                           // returning
-        {
-            if((dir<left && abs(LinkY()-y)<9) || (dir >= left && abs(LinkX()-x)<9))
-            {
-                hookshot_used=false;
-                
-                if(pull_link)
-                {
-                    hs_fix=true;
-                }
-                
-                pull_link=false;
-                chainlinks.clear();
-                CatchBrang();
-                
-                if(parentitem>-1)
-                {
-                    stop_sfx(itemsbuf[parentitem].usesound);
-                }
-                
-                if(dragging!=-1)
-                {
-                    getdraggeditem(dragging);
-                }
-                
-                return true;
-            }
-        }
-        
-        if(parentitem>-1)
-        {
-            sfx(itemsbuf[parentitem].usesound,pan(int(x)),true,false);
-        }
-        
-        if(blocked())
-        {
-            //not on the return!! -DD
-            if(dead != -1)
-                dead=1;
-        }
-    }
-    break;
-    
-    case wHSHandle:
-    {
-        if(hookshot_used==false)
-        {
-            dead=0;
-        }
-        
-        if(blocked())  //no hookshot handle area?
-        {
-            hookshot_used=false;
-            dead=0;
-        }
-        
-        break;
-    }
-    case wPhantom:
-    {
-        switch(type)
-        {
-        case pDINSFIREROCKET:
-            if(y <= -200)
-                dead = 1;
-                
-            break;
-            
-        case pDINSFIREROCKETRETURN:                                             //Din's Fire Rocket return
-            if(y>=casty)
-            {
-                dead=1;
-                castnext=true;
-            }
-            
-            break;
-            
-        case pDINSFIREROCKETTRAIL:                                             //Din's Fire Rocket trail
-            if(clk>=(((wpnsbuf[wDINSFIRES1A].frames) * (wpnsbuf[wDINSFIRES1A].speed))-1))
-            {
-                dead=0;
-            }
-            
-            break;
-            
-        case pDINSFIREROCKETTRAILRETURN:                                             //Din's Fire Rocket return trail
-            if(clk>=(((wpnsbuf[wDINSFIRES1B].frames) * (wpnsbuf[wDINSFIRES1B].speed))-1))
-            {
-                dead=0;
-            }
-            
-            break;
-            
-        case pNAYRUSLOVEROCKETRETURN1:                                             //Nayru's Love Rocket return
-            if(x>=castx)
-            {
-                dead=1;
-                castnext=true;
-            }
-            
-            break;
-            
-        case pNAYRUSLOVEROCKETTRAIL1:                                             //Nayru's Love Rocket trail
-            if(clk>=(((wpnsbuf[wNAYRUSLOVES1A].frames) * (wpnsbuf[wNAYRUSLOVES1A].speed))-1))
-            {
-                dead=0;
-            }
-            
-            break;
-            
-        case pNAYRUSLOVEROCKETTRAILRETURN1:                                             //Nayru's Love Rocket return trail
-            if(clk>=(((wpnsbuf[wNAYRUSLOVES1B].frames) * (wpnsbuf[wNAYRUSLOVES1B].speed))-1))
-            {
-                dead=0;
-            }
-            
-            break;
-            
-        case pNAYRUSLOVEROCKETRETURN2:                                             //Nayru's Love Rocket return
-            if(x<=castx)
-            {
-                dead=0;
-                castnext=true;
-            }
-            
-            break;
-            
-        case pNAYRUSLOVEROCKETTRAIL2:                                             //Nayru's Love Rocket trail
-            if(clk>=(((wpnsbuf[wNAYRUSLOVES2A].frames) * (wpnsbuf[wNAYRUSLOVES2A].speed))-1))
-            {
-                dead=0;
-            }
-            
-            break;
-            
-        case pNAYRUSLOVEROCKETTRAILRETURN2:                                             //Nayru's Love Rocket return trail
-            if(clk>=(((wpnsbuf[wNAYRUSLOVES2B].frames) * (wpnsbuf[wNAYRUSLOVES2B].speed))-1))
-            {
-                dead=0;
-            }
-            
-            break;
-            
-        }
-        
-        if(blocked()) //not really sure this is needed
-        {
-            dead=1;
-        }
-        
-        break;
-    }
-    case wRefMagic:
-    case wMagic:
-    case ewMagic:
-    {
-        if((id==wMagic)&&(findentrance(x,y,mfWANDMAGIC,true))) dead=0;
-        
-        if((id==wRefMagic)&&(findentrance(x,y,mfREFMAGIC,true))) dead=0;
-        
-        if((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
-	
-	    
-	
-       
-	//Create an ER to use this in older quests -V
-	if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
-	{
-		
-                //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3407);
-		if((id==wMagic && current_item(itype_book) &&
-			itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
-		{
-		    findentrance(x,y,mfBCANDLE,true);
-		    findentrance(x,y,mfRCANDLE,true);
-		    findentrance(x,y,mfWANDFIRE,true);
-		}
-	}
-	else
-	{
-                //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3418);
-		 if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
-                itemsbuf[linkedItem].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
-		{
-		    findentrance(x,y,mfBCANDLE,true);
-		    findentrance(x,y,mfRCANDLE,true);
-		    findentrance(x,y,mfWANDFIRE,true);
-		}
-	}
-		
-        
-mirrors:
-        int checkx=0, checky=0;
-        
-        switch(dir)
-        {
-        case up:
-            checkx=x+7;
-            checky=y+8;
-            break;
-            
-        case down:
-            checkx=x+7;
-            checky=y;
-            break;
-            
-        case left:
-            checkx=x+8;
-            checky=y+7;
-            break;
-            
-        case right:
-            checkx=x;
-            checky=y+7;
-            break;
-        }
-        
-        if(ignorecombo!=(((int)checky&0xF0)+((int)checkx>>4)))
-        {
-            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
-            {
-                weapon *w=NULL;
-                
-                if(id==ewMagic)
-                {
-		    w=new weapon(*this);
-                    Lwpns.add(w);
-                    dead=0;
-                }
-                else
-                {
-                    w=this;
-                }
-                
-                
-                w->dir ^= 1;
-                
-                if(w->id != wWind)
-                {
-                    w->id = wRefMagic; w->convertType(true);
-                    
-                    if(w->dir&2)
-                        w->flip ^= 1;
-                    else
-                        w->flip ^= 2;
-                }
-                
-                w->ignoreLink=false;
-                w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                w->y=checky&0xF0;
-                w->x=checkx&0xF0;
-            }
-            
-            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
-            {
-                weapon *w=NULL;
-                
-                if(id==ewMagic)
-                {
-		    w=new weapon(*this);
-                    Lwpns.add(w);
-                    dead=0;
-                }
-                else
-                {
-                    w=this;
-                }
-                
-                w->dir = 3-w->dir;
-                
-                if(w->id != wWind)
-                {
-                    w->id = wRefMagic; w->convertType(true);
-			if ( do_animation ) 
-			{
-				if((w->dir==1)||(w->dir==2))
-				w->flip ^= 3;
-			}
-                }
-                if ( do_animation ) 
-		{
-			w->tile=w->o_tile;
-			
-			if(w->dir&2)
-			{
-			    if(w->frames>1)
-			    {
-				w->tile+=w->frames;
-			    }
-			    else
-			    {
-				++w->tile;
-			    }
-			}
-                }
-                w->ignoreLink=false;
-                w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                w->y=checky&0xF0;
-                w->x=checkx&0xF0;
-            }
-            
-            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
-            {
-                weapon *w=NULL;
-                
-                if(id==ewMagic)
-                {
-		    w=new weapon(*this);
-                    Lwpns.add(w);
-                    dead=0;
-                }
-                else
-                {
-                    w=this;
-                }
-                
-                w->dir ^= 2;
-                
-                if(w->id != wWind)
-                {
-                    w->id = wRefMagic; w->convertType(true);
-			if ( do_animation ) 
-			{
-				if(w->dir&1)
-					w->flip ^= 2;
-				else
-					w->flip ^= 1;
-			}
-                }
-                if ( do_animation ) 
-		{
-			w->tile=w->o_tile;
-			
-			if(w->dir&2)
-			{
-			    if(w->frames>1)
-			    {
-				w->tile+=w->frames;
-			    }
-			    else
-			    {
-				++w->tile;
-			    }
-			}
-		}
-                
-                w->ignoreLink=false;
-                w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                w->y=checky&0xF0;
-                w->x=checkx&0xF0;
-            }
-            
-            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM) && (id != wWind))
-            {
-                int newx, newy;
-                newy=checky&0xF0;
-                newx=checkx&0xF0;
-                
-                for(int tdir=0; tdir<4; tdir++)
-                {
-                    if(dir!=(tdir^1))
-                    {
-                        weapon *w=new weapon(*this);
-                        w->dir=tdir;
-			if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
-			{
-				double newangle = this->angle - DegreesToRadians(90*tdir);
-				w->angle = WrapAngle(newangle);
-			}
-                        w->x=newx;
-                        w->y=newy;
-                        w->z=z;
-                        w->id=wRefMagic; w->convertType(true);
-                        w->parentid=parentid;
-                        w->parentitem=parentitem;
-                        w->flip = 0;
-                        w->ignoreLink = false;
-                        w->hyofs = w->hxofs = 0;
-                        w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                        if ( do_animation ) 
-			{
-				//also set up the magic's correct animation -DD
-				switch(w->dir)
-				{
-				case down:
-				    w->flip=2;
-				    
-				case up:
-				    w->tile = w->o_tile;
-				    w->hyofs=2;
-				    w->hysz=12;
-				    break;
-				    
-				case left:
-				    w->flip=1;
-				    
-				case right:
-				    w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-				    w->hxofs=2;
-				    w->hxsz=12;
-				    break;
-				
-				default: break;
-				}
-                        }
-                        Lwpns.add(w);
-                    }
-                }
-                
-                dead=0;
-            }
-            
-            if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4) && (id != wWind))
-            {
-                int newx, newy;
-                newy=checky&0xF0;
-                newx=checkx&0xF0;
-                
-                for(int tdir=0; tdir<4; tdir++)
-                {
-                    weapon *w=new weapon(*this);
-                    w->dir=tdir;
-		    if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
-		    {
-			double newangle = this->angle - DegreesToRadians(90*tdir);
-			w->angle = WrapAngle(newangle);
-		    }
-                    w->x=newx;
-                    w->y=newy;
-                    w->z=z;
-                    w->id=wRefMagic; w->convertType(true);
-                    w->parentid=parentid;
-                    w->parentitem=parentitem;
-                    w->flip = 0;
-                    w->ignoreLink = false;
-                    w->hyofs = w->hxofs = 0;
-                    w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                    
-		    if ( do_animation ) 
-		    {
-			    //also set up the magic's correct animation -DD
-			    switch(w->dir)
-			    {
-			    case down:
-				w->flip=2;
-				
-			    case up:
-				w->tile = w->o_tile;
-				w->hyofs=2;
-				w->hysz=12;
-				break;
-				
-			    case left:
-				w->flip=1;
-				
-			    case right:
-				w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-				w->hxofs=2;
-				w->hxsz=12;
-				break;
-			    
-			    default: break;
-			    }
-                    }
-                    Lwpns.add(w);
-                }
-                
-                dead=0;
-            }
-            
-            if(blocked(0, 0))
-            {
-                dead=0;
-            }
-        }
-        //:Weapon Only
-        if ( doscript && weaponscript > 0 && (id == wMagic || id == wRefMagic) ) 
-        {
-                /*if ( Dead() )
-                {
-                        doscript = 0;
-                        weaponscript = 0;
-                }
-                else*/
-                {
-                        int w_index = -1; //Give the script the correct index! -Z
-                        for(word i = 0; i < Lwpns.Count(); i++)
-                        {
-                                if(Lwpns.spr(i)->getUID() == getUID())
-                                w_index = i;
-                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        }
-                                
-                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS]) ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);		
-                }
-        }
-    }
-    break;
-    
-    // enemy weapons
-    case ewFireball2:
-        switch(misc)
-        {
-        case up:
-            y-=.5;
-            break;
-            
-        case down:
-            y+=.5;
-            break;
-            
-        case left:
-            x-=.5;
-            break;
-            
-        case right:
-            x+=.5;
-            break;
-            
-        case l_up:
-            y-=.354;
-            x-=.354;
-            break;
-            
-        case r_up:
-            y-=.354;
-            x+=.354;
-            break;
-            
-        case l_down:
-            y+=.354;
-            x-=.354;
-            break;
-            
-        case r_down:
-            y+=.354;
-            x+=.354;
-            break;
-        }
-        
-        //fallthrough
-    case wRefFireball:
-    case ewFireball:
-    {
-        if((id==wRefFireball)&&(findentrance(x,y,mfREFFIREBALL,true))) dead=0;
-        
-        if((id==wRefFireball)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
-        
-        if(blocked())
-        {
-            dead=0;
-        }
-        
-        if(clk<16)
-        {
-            ++clk;
-            
-            if(dead>0)
-                --dead;
-                
-            return dead==0;
-        }
-        
-        break;
-    }
-    
-    case ewFlame:
-    {
-        if(clk==32)
-        {
-            step=0;
-            misc = -1; // Don't drift diagonally anymore
-            isLit=true;
-            if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)){
-			checkLightSources();
-		} else {
-			checkLightSources(true);
-		}
-        }
-        
-        if(clk==126)
-        {
-            dead=1;
-            
-            if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
-            {
-                isLit=false;
-                checkLightSources();
-            }
-        }
-        
-        if(blocked())
-        {
-            dead=1;
-        }
-        
-        // Killed by script?
-        if(dead==0 && get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
-        {
-            isLit=false;
-            checkLightSources();
-        }
-        
-        break;
-    }
-    
-    case ewFireTrail:
-    {
-        if(clk==32)
-        {
-            step=0;  //should already be 0, but still...
-            isLit=true;
-            if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)){
-			checkLightSources();
-		} else {
-			checkLightSources(true);
-		}
-        }
-        
-        if(clk==640)
-        {
-            dead=1;
-            
-            if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
-            {
-                isLit=false;
-                checkLightSources();
-            }
-        }
-        
-        if(blocked())
-        {
-            dead=1;
-        }
-        
-        if ( doscript && weaponscript > 0 && id == wRefFireball) 
-        {
-                /*if ( Dead() )
-                {
-                        doscript = 0;
-                        weaponscript = 0;
-                }
-                else*/
-                {
-                        int w_index = -1; //Give the script the correct index! -Z
-                        for(word i = 0; i < Lwpns.Count(); i++)
-                        {
-                                if(Lwpns.spr(i)->getUID() == getUID())
-                                w_index = i;
-                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        }
-                                
-                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255  && !(FFCore.system_suspend[susptLWEAPONSCRIPTS])) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);		
-                }
-        }
-        break;
-    }
-    
-    case ewBrang:
-    {
-        if(clk==0)
-        {
-            misc2=(dir<left)?y:x;                               // save home position
-            
-            if(dummy_bool[0]==true)
-            {
-                seekLink();
-            }
-            
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-            {
-                //if (step!=0)
-                sfx(WAV_BRANG, pan(int(x)), true);
-                //else
-                ;//stop_sfx(WAV_BRANG);
-            }
-        }
-        
-        ++clk2;
-        
-        if(clk2==45&&!dummy_bool[0])
-        {
-            misc=1;
-            dir^=1;
-        }
-        
-        if(dummy_bool[0])
-        {
-            step=5;
-        }
-        else
-        {
-            if(clk2>27 && clk2<61)
-            {
-                step=1;
-            }
-            else if(misc)
-            {
-                step=2;
-            }
-            else
-            {
-                step=3;
-            }
-        }
-        
-        bool killrang = false;
-        
-        if(misc==1)                                           // returning
-        {
-            if(dummy_bool[0]==true)
-            {
-                //no parent
-                if(parentid < 0)
-                    return true;
-                    
-                //find parent
-                int index = -1;
-                
-                for(int i=0; i<guys.Count(); i++)
-                    if(guys.spr(i)->getUID()==parentid)
-                    {
-                        index = i;
-                        break;
-                    }
-                    
-                //parent is not a guy
-                if(index < 0)
-                    return true;
-                    
-                seekEnemy(index);
-                
-                if((abs(x-GuyX(index))<7)&&(abs(y-GuyY(index))<7))
-                {
-                    if(get_bit(quest_rules,qr_MORESOUNDS) && !Lwpns.idCount(wBrang) && Ewpns.idCount(ewBrang)<=1)
-                    {
-                        stop_sfx(WAV_BRANG);
-                    }
-                    
-                    return true;
-                }
-            }
-            else
-            {
-                switch(dir)
-                {
-                case up:
-                    if(y<misc2) killrang=true;
-                    
-                    break;
-                    
-                case down:
-                    if(y>misc2) killrang=true;
-                    
-                    break;
-                    
-                case left:
-                    if(x<misc2) killrang=true;
-                    
-                    break;
-                    
-                case right:
-                    if(x>misc2) killrang=true;
-                    
-                    break;
-                }
-            }
-        }
-        else if(blocked())
-        {
-            //only obey block flags before the bounce
-            dead=1;
-        }
-        
-        //if the boomerang is not on its way home, it bounces
-        if(dead==1 && misc != 1)
-        {
-            dead=-1;
-            misc=1;
-            dir^=1;
-            clk2=zc_max(46,90-clk2);
-        }
-        
-        //otherwise it disappears
-        if(killrang || dead==1)
-        {
-            if(get_bit(quest_rules,qr_MORESOUNDS) && !Lwpns.idCount(wBrang) && Ewpns.idCount(ewBrang)<=1)
-            {
-                stop_sfx(WAV_BRANG);
-            }
-            
-            dead = 1;
-        }
-    }
-    }
-    
-    // move sprite, check clipping
-    if(dead==-1 && clk>=0)
-    {
-        move(step);
-        
-        if(clip())
-        {
-            onhit(true);
-        }
-        else if(id==ewRock)
-        {
-            if(_walkflag(x,y,2) || _walkflag(x,y+8,2))
-            {
-                onhit(true);
-            }
-        }
-    }
-    else if(dead==-10) // Scripting hack thing related to weapon->DeadState
-    {
-        if(clip())
-        {
-            onhit(true);
-        }
-    }
-    
-    if(bounce)
-    {
-        switch(dir)
-        {
-        case up:
-            x-=1;
-            y+=2;
-            break;
-            
-        case down:
-            x+=1;
-            y-=2;
-            break;
-            
-        case left:
-            x+=2;
-            y-=1;
-            break;
-            
-        case right:
-            x-=2;
-            y-=1;
-            break;
-        }
-    }
-    
-    // update clocks
-    ++clk;
-    
-    if(dead>0)
-    {
-        --dead;
-    }
-    /*
-    if ( weaponscript > 0 ) 
-    {
-	if ( isLinkWeapon() )
-	{
-		int w_index = -1; //Give the script the correct index! -Z
-		for(word i = 0; i < Lwpns.Count(); i++)
-		{
-			if(Lwpns.spr(i)->getUID() == getUID())
-			w_index = i;
-			//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-		}
-		if ( !isLinkMelee() ) 
-		{
-			al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-			FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);
-		}
-		//else if ( canrunscript > 0 ) 
-		//{
-		//	al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-		//	FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);
-		//}
-		
-			
-	}
-	else //eweapons
-	{
-		int w_index = -1; //Give the script the correct index! -Z
-		for(word i = 0; i < Lwpns.Count(); i++)
-		{
-			if(Lwpns.spr(i)->getUID() == getUID())
-			w_index = i;
-		}
-		//Z_scripterrlog("Running an EWeapon script (script ID: %d) for item index: %d\n", weaponscript, index);
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, weaponscript, w_index);
-	}
-        
-    }*/
-    
-    return dead==0;
-}
-
 
 void weapon::onhit(bool clipped)
 {
@@ -10595,14 +8204,15 @@ int weapon::run_script(int mode)
 	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
 		return RUNSCRIPT_OK;
 	int ret = RUNSCRIPT_OK;
+	alloc_scriptmem();
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			return ZScriptVersion::RunScript(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, script, getUID());
+			return ZScriptVersion::RunScript(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, weaponscript, getUID());
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
-				ret = ZScriptVersion::RunScript(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, script, getUID());
+				ret = ZScriptVersion::RunScript(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, weaponscript, getUID());
 				waitdraw = 0;
 			}
 			break;

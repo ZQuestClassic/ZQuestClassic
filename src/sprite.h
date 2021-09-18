@@ -32,6 +32,12 @@ extern int frame;
 extern bool BSZ;
 extern int conveyclk;
 
+struct scriptmem
+{
+    long stack[MAX_SCRIPT_REGISTERS];
+    refInfo scriptData;
+};
+
 /**********************************/
 /******* Sprite Base Class ********/
 /**********************************/
@@ -84,27 +90,11 @@ public:
     long miscellaneous[32];
     byte scriptcoldet;
     int wpnsprite; //wpnsprite is new for 2.6 -Z
-    long stack[MAX_SCRIPT_REGISTERS];
+	scriptmem* scrmem;
     byte initialised;
-    //Are you kidding? Really? 256 * sizeof(long) = 2048 bytes = 2kb of wasted memory for every sprite, and it'll never
-    //even get used because item scripts only run for one frame. Gah! Maybe when we have npc scripts, not not now...
-    refInfo scriptData; //For when we have npc scripts maybe
-    //long d[8];
-    //long a[2];
-    //byte ffcref;
-    //dword itemref;
-    //dword guyref;
-    //dword lwpnref;
-    //dword ewpnref;
-    //byte sp;
-    //word pc;
     dword scriptflag;
     word doscript;
     byte waitdraw;
-    //byte itemclass;
-    //byte guyclass; 
-    //byte lwpnclass;
-    //byte ewpnclass;
     word script;
     word weaponscript;
     long initD[8];
@@ -171,7 +161,8 @@ public:
 	virtual bool knockback(int time, int dir, int speed);
 	virtual bool runKnockback();
     void explode(int mode);
-    //void explode(int type);
+	
+	void alloc_scriptmem();
 	
 	virtual int run_script(int mode);
 };

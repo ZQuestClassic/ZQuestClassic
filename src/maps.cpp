@@ -3921,9 +3921,11 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
-	calc_darkroom_combos();
-	Link.calc_darkroom_link();
-	
+	if(get_bit(quest_rules, qr_NEW_DARKROOM)&& (this_screen->flags&fDARK))
+	{
+		calc_darkroom_combos();
+		Link.calc_darkroom_link();
+	}
 	//Darkroom if under the subscreen
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
