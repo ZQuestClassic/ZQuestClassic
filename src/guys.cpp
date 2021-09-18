@@ -25,7 +25,7 @@
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "particles.h"
-extern sprite_list particles;
+extern particle_list particles;
 
 extern FFScript FFCore;
 extern word item_doscript[256];
@@ -2733,14 +2733,14 @@ void enemy::explode(int type)
 						{
 							particles.add(new pTwilight((zfix)x+j, (zfix)y-(zfix)z+i, 5, 0, 0, (rand()%8)+i*4));
 							int k=particles.Count()-1;
-							particle *p = (particle*)(particles.spr(k));
+							particle *p = (particles.at(k));
 							p->step=3;
 						}
 						else if(type ==1)  // Sands of Hours
 						{
 							particles.add(new pTwilight((zfix)x+j, (zfix)y-(zfix)z+i, 5, 1, 2, (rand()%16)+i*2));
 							int k=particles.Count()-1;
-							particle *p = (particle*)(particles.spr(k));
+							particle *p = (particles.at(k));
 							p->step=4;
 							
 							if(rand()%10 < 2)
@@ -2754,7 +2754,7 @@ void enemy::explode(int type)
 							particles.add(new pFaroresWindDust((zfix)x+j, (zfix)y-(zfix)z+i, 5, 6, linktilebuf[i*16+j], rand()%96));
 							
 							int k=particles.Count()-1;
-							particle *p = (particle*)(particles.spr(k));
+							particle *p = (particles.at(k));
 							p->angular=true;
 							p->angle=rand();
 							p->step=(((double)j)/8);

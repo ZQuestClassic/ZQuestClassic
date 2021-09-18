@@ -64,7 +64,8 @@ float log2(float n)
 
 FONT *get_zc_font(int index);
 
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
+extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
 extern zinitdata zinit;
 extern LinkClass Link;
@@ -3450,26 +3451,14 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	{
 		do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true);
 		
-		for(pcounter=0; pcounter<particles.Count(); pcounter++)
-		{
-			if(((particle*)particles.spr(pcounter))->layer==1)
-			{
-				particles.spr(pcounter)->draw(scrollbuf);
-			}
-		}
+		particles.draw(temp_buf, true, 1);
 	}
 	
 	if(this_screen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG)
 	{
 		do_layer(scrollbuf,2, this_screen, 0, 0, 2, false, true);
 		
-		for(pcounter=0; pcounter<particles.Count(); pcounter++)
-		{
-			if(((particle*)particles.spr(pcounter))->layer==2)
-			{
-				particles.spr(pcounter)->draw(scrollbuf);
-			}
-		}
+		particles.draw(temp_buf, true, 2);
 	}
 	
 	putscr(scrollbuf,0,playing_field_offset,this_screen);
@@ -3483,13 +3472,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	if(show_layer_0)
 		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
 		
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==-3)
-		{
-			particles.spr(pcounter)->draw(scrollbuf);
-		}
-	}
+	particles.draw(temp_buf, true, -3);
 	
 	set_clip_rect(scrollbuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
@@ -3526,13 +3509,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	
 	do_layer(scrollbuf,0, this_screen, 0, 0, 2, false, true); // LAYER 1
 	
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==0)
-		{
-			particles.spr(pcounter)->draw(scrollbuf);
-		}
-	}
+	particles.draw(temp_buf, true, 0);
 	
 	do_layer(scrollbuf,-3, this_screen, 0, 0, 2); // freeform combos!
 	
@@ -3540,13 +3517,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	{
 		do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true); // LAYER 2
 		
-		for(pcounter=0; pcounter<particles.Count(); pcounter++)
-		{
-			if(((particle*)particles.spr(pcounter))->layer==1)
-			{
-				particles.spr(pcounter)->draw(scrollbuf);
-			}
-		}
+		particles.draw(temp_buf, true, 1);
 	}
 	
 	if(get_bit(quest_rules,qr_LAYER12UNDERCAVE))
@@ -3770,37 +3741,19 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		do_layer(temp_buf,2, this_screen, 0, 0, 2, false, true);
 		do_layer(scrollbuf, 2, this_screen, 0, 0, 2);
 		
-		for(pcounter=0; pcounter<particles.Count(); pcounter++)
-		{
-			if(((particle*)particles.spr(pcounter))->layer==2)
-			{
-				particles.spr(pcounter)->draw(temp_buf);
-			}
-		}
+		particles.draw(temp_buf, true, 2);
 	}
 	
 	do_layer(temp_buf,3, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 3, this_screen, 0, 0, 2);
 	//do_primitives(temp_buf, 3, this_screen, 0,playing_field_offset);//don't uncomment me
 	
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==3)
-		{
-			particles.spr(pcounter)->draw(temp_buf);
-		}
-	}
+	particles.draw(temp_buf, true, 3);
 	
 	do_layer(temp_buf,-1, this_screen, 0, 0, 2);
 	do_layer(scrollbuf,-1, this_screen, 0, 0, 2);
 	
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==-1)
-		{
-			particles.spr(pcounter)->draw(temp_buf);
-		}
-	}
+	particles.draw(temp_buf, true, -1);
 	
 	//6. Blit temp_buf onto framebuf with clipping
 	
@@ -3870,13 +3823,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	do_layer(temp_buf,4, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 4, this_screen, 0, 0, 2);
 	
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==4)
-		{
-			particles.spr(pcounter)->draw(temp_buf);
-		}
-	}
+	particles.draw(temp_buf, true, 4);
 	
 	do_layer(temp_buf,-4, this_screen, 0, 0, 2); // overhead freeform combos!
 	do_layer(scrollbuf, -4, this_screen, 0, 0, 2);
@@ -3884,13 +3831,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	do_layer(temp_buf,5, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 5, this_screen, 0, 0, 2);
 	
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==5)
-		{
-			particles.spr(pcounter)->draw(temp_buf);
-		}
-	}
+	particles.draw(temp_buf, true, 5);
 	
 	//10. Blit temp_buf onto framebuf with clipping
 	

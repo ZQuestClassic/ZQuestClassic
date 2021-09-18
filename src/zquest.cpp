@@ -33,7 +33,7 @@
 #include "mem_debug.h"
 #include "particles.h"
 #include "metadata/versionsig.h"
-sprite_list particles;
+particle_list particles;
 void setZScriptVersion(int) { } //bleh...
 
 #include <png.h>

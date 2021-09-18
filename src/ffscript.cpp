@@ -1330,6 +1330,7 @@ byte itemScriptsWaitdraw[256] = {0};
 //miscQdata *Misc;
 
 #include "zelda.h"
+#include "particles.h"
 #include "link.h"
 //extern int directItem = -1; //Is set if Link is currently using an item directly
 //extern int directItemA = -1;
@@ -1381,7 +1382,7 @@ T zc_max(T a, T b)
 
 using std::string;
 
-extern sprite_list particles;
+extern particle_list particles;
 extern LinkClass Link;
 extern char *guy_string[];
 extern int skipcont;

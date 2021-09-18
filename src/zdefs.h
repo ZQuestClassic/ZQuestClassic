@@ -1055,7 +1055,7 @@ enum
 enum direction { up, down, left, right, l_up, r_up, l_down, r_down };
 const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_up};
 const direction normalDir[]={up,down,left,right,l_up,r_up,l_down,r_down,up,r_up,right,r_down,down,l_down,left,l_up};
-#define NORMAL_DIR(dir)    (normalDir[unsigned(dir)%16])
+#define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : -1)
 // refill stuff
 enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
 #define REFILL_FAIRY -1

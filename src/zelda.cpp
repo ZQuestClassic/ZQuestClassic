@@ -1400,7 +1400,8 @@ bool blockmoving;
 #include "sprite.h"
 movingblock mblock2;                                        //mblock[4]?
 
-sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
+sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+particle_list particles;
 
 #include "zc_custom.h"
 #include "link.h"
@@ -3045,14 +3046,14 @@ void do_magic_casting()
                         {
                             particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (rand()%8)+i*4));
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(itemsbuf[magicitem].misc1==2)  // Sands of Hours
                         {
                             particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (rand()%16)+i*2));
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->step=4;
                             
                             if(rand()%10 < 2)
@@ -3066,7 +3067,7 @@ void do_magic_casting()
                             particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], rand()%96));
                             
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->angular=true;
                             p->angle=rand();
                             p->step=(((double)j)/8);
@@ -4313,6 +4314,7 @@ void doDarkroomCone(int sx, int sy, byte glowRad, int dir, BITMAP* dest,BITMAP* 
 	
 	double xs = 0, ys = 0;
 	int d = NORMAL_DIR(dir);
+	if(d<0) return;
 	switch(d)
 	{
 		case up: case l_up: case r_up: ys=1; break;

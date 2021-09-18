@@ -24,7 +24,7 @@
 #include "tiles.h"
 #include "particles.h"
 #include "maps.h"
-extern sprite_list particles;
+extern particle_list particles;
 extern byte                quest_rules[QUESTRULES_NEW_SIZE];
 extern bool get_debug();
 extern bool halt;
@@ -3240,7 +3240,7 @@ void sprite::explode(int type)
                         {
                             particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (rand()%8)+i*4));
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->step=3;
 			    p->cset=cs;
 			    p->color= rand()%4+1;
@@ -3250,7 +3250,7 @@ void sprite::explode(int type)
                         {
                             particles.add(new pTwilight(x+j, y-z+i, 5, 1, 2, (rand()%16)+i*2));
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->step=4;
                             
                             if(rand()%10 < 2)
@@ -3264,7 +3264,7 @@ void sprite::explode(int type)
                             particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, spritetilebuf[i*16+j], rand()%96));
                             
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->angular=true;
                             p->angle=rand();
                             p->step=(((double)j)/8);
@@ -3302,14 +3302,14 @@ void sprite::explode(int type)
                         {
                             particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (rand()%8)+i*4));
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(type ==1)  // Sands of Hours
                         {
                             particles.add(new pTwilight(x+j, y-z()+i, 5, 1, 2, (rand()%16)+i*2));
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->step=4;
                             
                             if(rand()%10 < 2)
@@ -3323,7 +3323,7 @@ void sprite::explode(int type)
                             particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, linktilebuf[i*16+j], rand()%96));
                             
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->angular=true;
                             p->angle=rand();
                             p->step=(((double)j)/8);

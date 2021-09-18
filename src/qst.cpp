@@ -40,12 +40,14 @@
 #include "sfx.h"
 #include "md5.h"
 #include "ffscript.h"
+#include "particles.h"
 //FFScript FFCore;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern unsigned char __isZQuest;
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
+extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern particle_list particles;
 //FFSCript   FFEngine;
 
 int temp_ffscript_version = 0;
