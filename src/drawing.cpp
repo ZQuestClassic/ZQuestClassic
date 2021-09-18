@@ -2,6 +2,8 @@
 #include "drawing.h"
 #include "zelda.h"
 #include "util.h"
+#include <allegro/internal/aintern.h>
+
 using namespace util;
 
 static inline bool dithercheck(byte type, byte arg, int x, int y, int wid=256, int hei=168)
@@ -76,18 +78,20 @@ static inline bool dithercheck(byte type, byte arg, int x, int y, int wid=256, i
 
 void ditherblit(BITMAP* dest, BITMAP* src, int color, byte dType, byte dArg, int xoffs, int yoffs)
 {
-	int wid = zc_min(dest->w, src->w);
-	int hei = zc_min(dest->h, src->h);
-	for(int tx = 0; tx < wid; ++tx)
-	{
-		for(int ty = 0; ty < hei; ++ty)
-		{
-			if(getpixel(src, tx, ty) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
-			{
-				putpixel(dest, tx, ty, color);
-			}
-		}
-	}
+    int wid = zc_min(dest->w, src->w);
+    int hei = zc_min(dest->h, src->h);
+    for(int ty = 0; ty < hei; ++ty)
+    {
+        uintptr_t addr = bmp_read_line(src, ty);
+        for(int tx = 0; tx < wid; ++tx)
+        {
+            if(bmp_read8(addr+tx) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
+            {
+                putpixel(dest, tx, ty, color);
+            }
+        }
+        bmp_unwrite_line(src);
+    }
 }
 
 void dithercircfill(BITMAP* dest, int x, int y, int rad, int color, byte ditherType, byte ditherArg, int xoffs, int yoffs)
