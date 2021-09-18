@@ -31,6 +31,8 @@ void Frame::applyVisibility(bool visible)
 			alDialog[1].flags |= D_HIDDEN;
 		}
 	}
+	if(content)
+		content->applyVisibility(visible);
 }
 
 void Frame::calculateSize()
