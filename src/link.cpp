@@ -17409,8 +17409,9 @@ void LinkClass::checkspecial()
         
         // clear enemies and open secret
         if(!did_secret && (tmpscr->flags2&fCLEARSECRET))
-        { 
-            hidden_entrance(0,true,true,-2);
+        {
+			bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
+            hidden_entrance(0,true,only16_31,-2);
             
             if(tmpscr->flags4&fENEMYSCRTPERM && canPermSecret())
             {

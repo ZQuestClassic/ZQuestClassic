@@ -2731,6 +2731,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	int dummy;
 	zquestheader tempheader;
 	word s_version=0;
+	dword compatrule_version=0;
 	
 	memcpy(&tempheader, Header, sizeof(tempheader));
 	
@@ -2748,6 +2749,15 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			return qe_invalid;
 		}
+		
+		if(s_version > 16)
+		{
+			if(!p_igetl(&compatrule_version,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		FFCore.quest_format[vCompatRule] = compatrule_version;
 		
 		//section size
 		if(!p_igetl(&dummy,f,true))
@@ -2775,7 +2785,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	
 	//al_trace("Rules version %d\n", s_version);
-	
+	//{ bunch of compat stuff
 	memcpy(deprecated_rules, quest_rules, QUESTRULES_NEW_SIZE);
 	
 	if(s_version<2)
@@ -3214,6 +3224,13 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 53) )
 	{
 		set_bit(quest_rules,qr_BROKEN_OVERWORLD_MINIMAP,1);
+	}
+	//}
+	
+	if(compatrule_version < 1)
+	{
+		//Enemies->Secret only affects flag 16-31
+		set_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31,1);
 	}
 	
 	//always set
@@ -20175,6 +20192,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
 	al_trace("Quest Section 'FFScript' is Version: %d\n", FFCore.quest_format[vFFScript]);
 	al_trace("Quest Section 'SFX' is Version: %d\n", FFCore.quest_format[vSFX]);
 	al_trace("Quest Section 'Favorites' is Version: %d\n", FFCore.quest_format[vFavourites]);
+	al_trace("Quest Section 'CompatRules' is Version: %d\n", FFCore.quest_format[vCompatRule]);
 	//Print metadata for versions under 2.10 here. Bleah.
 	if( FFCore.quest_format[vZelda] < 0x210 ) 
 	{

@@ -833,7 +833,7 @@ static int compatrules2_list[] =
 
 static int compatrules3_list[] =
 {
-	36, 37, 38, 39, 40, 41, -1
+	36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, -1
 };
 
 static TABPANEL compatrules_tabs[] =
@@ -855,7 +855,7 @@ static int compatrules[] =
    qr_OLD_ENEMY_KNOCKBACK_COLLISION, qr_WEAPONSMOVEOFFSCREEN, qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
    qr_SHORTDGNWALK,qr_OLD_STRING_EDITOR_MARGINS,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT,
    qr_BROKEN_OVERWORLD_MINIMAP, qr_BROKEN_RING_POWER, qr_NO_OVERWORLD_MAP_CHARTING, qr_DUNGEONS_USE_CLASSIC_CHARTING,
-   qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION, qr_BROKEN_HORIZONTAL_WEAPON_ANIM,
+   qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION, qr_BROKEN_HORIZONTAL_WEAPON_ANIM,qr_ENEMIES_SECRET_ONLY_16_31,
 	-1 
 };
 
@@ -892,12 +892,12 @@ static DIALOG compatrules_dlg[] =
     // 20
 	{ jwin_check_proc,      10, 13+170, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Infinite Magic Prevents Items From Draining Rupees", NULL, NULL },
     { jwin_check_proc,      10, 13+180, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Use DrawBitmap() Offsets Prior to 2.50.2", NULL, NULL },
-    { jwin_check_proc,      10, 13+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Faster) Sprite Drawing", NULL, NULL },
-	{ jwin_check_proc,      10, 13+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Instant) F6 Menu", NULL, NULL },
-	{ jwin_check_proc,      10, 13+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Broken ASkipY Animation Frames", NULL, NULL },
+    { jwin_check_proc,      10,  13+50, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Faster) Sprite Drawing", NULL, NULL },
+	{ jwin_check_proc,      10,  13+60, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Instant) F6 Menu", NULL, NULL },
+	{ jwin_check_proc,      10,  13+70, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Broken ASkipY Animation Frames", NULL, NULL },
 	// 25
-	{ jwin_check_proc,      10, 13+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Enemies Clip Through Top-Half Partial Solids", NULL, NULL },
-	{ jwin_check_proc,      10, 13+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Sideview Ceiling Collision", NULL, NULL },
+	{ jwin_check_proc,      10,  13+80, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Enemies Clip Through Top-Half Partial Solids", NULL, NULL },
+	{ jwin_check_proc,      10,  13+90, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Sideview Ceiling Collision", NULL, NULL },
 	{ jwin_check_proc,      10, 13+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Items set to 0 AFrames ignore AFrame changes", NULL, NULL },
 	{ jwin_check_proc,      10, 13+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Enemy Knockback Collision", NULL, NULL },
 	{ jwin_check_proc,      10, 13+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Weapons Can Go Out of Bounds (Offscreen)", NULL, NULL },
@@ -910,14 +910,23 @@ static DIALOG compatrules_dlg[] =
     // 35
 	{ jwin_check_proc,      10, 13+180, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Overworld Minimap Ignores Map Item", NULL, NULL },
 	//36
-	{ jwin_check_proc,      10, 13+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Broken) Ring Power Maths", NULL, NULL },
-	{ jwin_check_proc,      10, 13+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Overworld DMaps Do Not Chart Progress", NULL, NULL },
-	{ jwin_check_proc,      10, 13+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Dungeon DMaps Use Classic Charting", NULL, NULL },
-	{ jwin_check_proc,      10, 13+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Allow Editing Combo 0", NULL, NULL },
+	{ jwin_check_proc,      10,  13+50, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Broken) Ring Power Maths", NULL, NULL },
+	{ jwin_check_proc,      10,  13+60, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Overworld DMaps Do Not Chart Progress", NULL, NULL },
+	{ jwin_check_proc,      10,  13+70, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Dungeon DMaps Use Classic Charting", NULL, NULL },
+	{ jwin_check_proc,      10,  13+80, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Allow Editing Combo 0", NULL, NULL },
 	// 40
-	{ jwin_check_proc,      10, 13+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Chest Collision", NULL, NULL },
-	{ jwin_check_proc,      10, 13+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Broken Horizontal Weapon Animation", NULL, NULL },
-
+	{ jwin_check_proc,      10,  13+90, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Chest Collision", NULL, NULL },
+	{ jwin_check_proc,      10, 13+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Broken Horizontal Weapon Animation", NULL, NULL },
+	{ jwin_check_proc,      10, 13+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Enemies->Secret only affects flags 16-31", NULL, NULL },
+	{ jwin_check_proc,      10, 13+120, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0,        (void *) "--", NULL, NULL },
+	{ jwin_check_proc,      10, 13+130, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0,        (void *) "--", NULL, NULL },
+	// 45
+	{ jwin_check_proc,      10, 13+140, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0,        (void *) "--", NULL, NULL },
+	{ jwin_check_proc,      10, 13+150, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0,        (void *) "--", NULL, NULL },
+	{ jwin_check_proc,      10, 13+160, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0,        (void *) "--", NULL, NULL },
+	{ jwin_check_proc,      10, 13+170, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0,        (void *) "--", NULL, NULL },
+	{ jwin_check_proc,      10, 13+180, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0,        (void *) "--", NULL, NULL },
+	// 50
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
 };

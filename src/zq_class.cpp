@@ -6902,6 +6902,11 @@ int writerules(PACKFILE *f, zquestheader *Header)
     {
         new_return(3);
     }
+	
+	if(!p_iputl(V_COMPATRULE,f))
+	{
+		new_return(6);
+	}
     
     for(int writecycle=0; writecycle<2; ++writecycle)
     {
