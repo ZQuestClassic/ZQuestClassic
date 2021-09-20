@@ -21880,7 +21880,7 @@ void check_collisions()
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
 						{
 							if(itemsbuf[theItem->id].collect_script)
 							{
@@ -21900,7 +21900,7 @@ void check_collisions()
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
 							if(w->id == wBrang)
 							{

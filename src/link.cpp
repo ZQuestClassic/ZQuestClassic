@@ -2650,14 +2650,14 @@ bool LinkClass::checkstab()
 			}
 		}
 	
-	if(((parentitem==-1&&get_bit(quest_rules,qr_NOITEMMELEE))||parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
+	if(((parentitem==-1&&!get_bit(quest_rules,qr_NOITEMMELEE))||parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
 	{
 		for(int j=0; j<items.Count(); j++)
 		{
 			item* ptr = (item*)items.spr(j); 
-			if(ptr->pickup & ipTIMER)
+			if((ptr->pickup & ipCANGRAB) || (ptr->pickup & ipTIMER))
 			{
-				if(ptr->clk2 >= 32 && !ptr->fallclk && !ptr->drownclk)
+				if(((ptr->pickup & ipCANGRAB) || ptr->clk2 >= 32) && !ptr->fallclk && !ptr->drownclk)
 				{
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8,z,wxsz,wysz,1))
 							|| (attack==wHammer && ptr->hit(x,y-8,z,wxsz,wysz,1)))
@@ -23765,8 +23765,8 @@ void LinkClass::checkitems(int index)
     
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
-    if((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))
-        if((items.spr(index)->id!=iFairyMoving)&&(items.spr(index)->id!=iFairyMoving))
+    if((ptr->pickup & ipCANGRAB) || ((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32)))
+        if(items.spr(index)->id!=iFairyMoving)
             // wait for it to stop flashing, doesn't check for other items yet
             return;
             

@@ -568,7 +568,6 @@ extern bool fake_pack_writing;
 #define ipBIGRANGE      1                                   // Collision rectangle is large
 #define ipHOLDUP        2                                   // Link holds up item when he gets it
 #define ipONETIME       4                                   // Getting this item sets mITEM
-#define ipONETIME2      2048                                // Getting this item sets mBELOW
 #define ipDUMMY         8                                   // Dummy item.  Can't get this.
 #define ipCHECK         16                                  // Check restrictions (money in a shop, etc.)
 #define ipMONEY         32                                  // This item causes money loss (bomb upgrade, swindle room, etc.)
@@ -577,8 +576,9 @@ extern bool fake_pack_writing;
 #define ipTIMER         256                                 // Disappears after a while
 #define ipBIGTRI        512                                 // Large collision rectangle (used for large triforce)
 #define ipNODRAW        1024                                // Don't draw this (for underwater items)
+#define ipONETIME2      2048                                // Getting this item sets mBELOW
 #define ipSECRETS       4096                                // Trigger Secrets when picked up
-
+#define ipCANGRAB       8192                                // Always grabbable to hookshot/arrows/brang
 
 
 //Common struct array element sizes-Z

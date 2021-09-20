@@ -792,12 +792,20 @@ const int I_WHISTLE             = 31;
 
 //Item pickup flags. OR (|) these together to use with item->Pickup
 //Other values are reserved for internal usage, and have no effect
-const int IP_HOLDUP			= 0x002; //Link holds it up when collecting it.
-const int IP_ST_ITEM			= 0x004; //Sets the screen state "Item" when collected.
-const int IP_DUMMY			= 0x008; //A 'dummy' item, such as rupee markers in shops. Can't be collected and ignores gravity.
-const int IP_ENEMYCARRIED		= 0x080; //The item-carrying NPC carries it. If no NPC has an item, the most recently created NPC carries it.
-const int IP_TIMEOUT			= 0x100; //Disappears after 512 frames. Can be collected by melee weapons if the related quest rule is not set.
-const int IP_ST_SPECIALITEM		= 0x800; //Sets the screen state "Special Item" when collected.
+const int IP_BIGRANGE       = 0x0001; //INTERNAL Collision rectangle is large
+const int IP_HOLDUP         = 0x0002; //Link holds it up when collecting it.
+const int IP_ST_ITEM        = 0x0004; //Sets the screen state "Item" when collected.
+const int IP_DUMMY          = 0x0008; //A 'dummy' item, such as rupee markers in shops. Can't be collected and ignores gravity.
+const int IP_CHECK          = 0x0010; //INTERNAL Check restrictions (money in a shop, etc.)
+const int IP_MONEY          = 0x0020; //INTERNAL This item causes money loss (bomb upgrade, swindle room, etc.)
+const int IP_FADE           = 0x0040; //INTERNAL Blinks if fadeclk>0
+const int IP_ENEMYCARRIED   = 0x0080; //The item-carrying NPC carries it. If no NPC has an item, the most recently created NPC carries it.
+const int IP_TIMEOUT        = 0x0100; //Disappears after 512 frames. Can be collected by melee weapons if the related quest rule is not set.
+const int IP_BIGTRIFORCE    = 0x0200; //INTERNAL Large collision rectangle (used for large triforce)
+const int IP_NODRAW         = 0x0400; //INTERNAL Don't draw this (for underwater items)
+const int IP_ST_SPECIALITEM = 0x0800; //Sets the screen state "Special Item" when collected.
+const int IP_TRIGGERSECRETS = 0x1000; // Triggers screen secrets when collected
+const int IP_ALWAYSGRAB     = 0x2000; // Item is always able to be picked up (ex. brang/hshot/arrows/melee weapons)
 
 
 /////////////////////////

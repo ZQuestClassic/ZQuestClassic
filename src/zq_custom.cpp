@@ -1542,15 +1542,15 @@ static DIALOG itemdata_dlg[] =
 	{ jwin_check_proc,        242,     86+13+5,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	{ jwin_check_proc,        242,     105+12+5,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//259
-	{ jwin_text_proc,           8,     192,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Pick-Up Flags:",                  NULL,   NULL                  },
-	{ jwin_check_proc,      60,   188,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_check_proc,        96,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+	{ d_dummy_proc,            8,     192,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Pick-Up Flags:",                  NULL,   NULL                  },
+	{ d_dummy_proc,           60,     188,     32,     16,    vc(12),                 vc(1),                   0,       0,          12,    0, NULL, NULL, NULL },
+	{ d_dummy_proc,           96,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//262 Pickup string
-	{ jwin_text_proc,           157,     191,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "String:",                  NULL,   NULL                  },
-	{ jwin_edit_proc,      180,   188,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_check_proc,        219,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always",                        NULL,   NULL                  },
+	{ jwin_text_proc,          8,     191,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "String:",                  NULL,   NULL                  },
+	{ jwin_edit_proc,         31,     188,     32,     16,    vc(12),                 vc(1),                   0,       0,          12,    0, NULL, NULL, NULL },
+	{ jwin_check_proc,        70,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always",                        NULL,   NULL                  },
 	
-	{ jwin_check_proc,        260,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Only Held",                        NULL,   NULL                  },
+	{ jwin_check_proc,       111,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Only Held",                        NULL,   NULL                  },
    
 	//266
 	{ jwin_text_proc,           60,     53,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) " ",                  NULL,   NULL                  },
@@ -1642,7 +1642,7 @@ static DIALOG itemdata_dlg[] =
 	{ jwin_check_proc,        6,       147,    95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Invisible",                        NULL,   NULL                  },
 	{ jwin_check_proc,        6,       157,    95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Triggers Screen State ST_SP_ITEM",                        NULL,   NULL                  },
 	{ jwin_check_proc,        6,       167,    95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Triggers Screen Secrets",                        NULL,   NULL                  },
-	{ jwin_check_proc,        6,       177,    95,      9,    vc(14),                 vc(1),                   0,       D_DISABLED,  1,    0, (void *) "--",                        NULL,   NULL                  },
+	{ jwin_check_proc,        6,       177,    95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always Grabbable",          NULL,   NULL                  },
 	{ jwin_check_proc,        6,       187,    95,      9,    vc(14),                 vc(1),                   0,       D_DISABLED,  1,    0, (void *) "--",                        NULL,   NULL                  },
 	{ jwin_check_proc,        6,       197,    95,      9,    vc(14),                 vc(1),                   0,       D_DISABLED,  1,    0, (void *) "--",                        NULL,   NULL                  },
 	//339
