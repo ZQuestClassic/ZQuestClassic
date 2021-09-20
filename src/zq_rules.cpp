@@ -714,7 +714,7 @@ static int miscrules2_list[] =
 };
 static int miscrules3_list[] =
 {
-    38,39,
+    38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,
 	-1
 };
 
@@ -775,9 +775,24 @@ static DIALOG miscrules_dlg[] =
     { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Instant Continue on Death", NULL, NULL },
     
 	// rules 3
-    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Dark Rooms", NULL, NULL },
-    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Darkness Draws Under Layer 7", NULL, NULL },
+    { jwin_check_proc,      10,  33+10, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Dark Rooms", NULL, NULL },
+    { jwin_check_proc,      10,  33+20, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Darkness Draws Under Layer 7", NULL, NULL },
+	{ jwin_check_proc,      10,  33+30, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Cellars/Passageways/Caves use own music", NULL, NULL },
+    { jwin_check_proc,      10,  33+40, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10,  33+50, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10,  33+60, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10,  33+70, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10,  33+80, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10,  33+90, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
+    { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0, (void *) "--", NULL, NULL },
     
+	//54
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -790,7 +805,7 @@ static int miscrules[] =
 	qr_EPILEPSY, qr_NO_L_R_BUTTON_INVENTORY_SWAP, qr_USE_EX1_EX2_INVENTORYSWAP,
 	qr_NOFASTMODE, qr_DUNGEON_DMAPS_PERM_SECRETS, qr_NO_SCROLL_WHILE_IN_AIR, qr_INSTANT_RESPAWN,
 	qr_GREATER_MAX_TIME,qr_SET_XBUTTON_ITEMS,qr_SET_YBUTTON_ITEMS,qr_INSTANT_CONTINUE,
-	qr_NEW_DARKROOM, qr_NEWDARK_L6,
+	qr_NEW_DARKROOM, qr_NEWDARK_L6,qr_SCREEN80_OWN_MUSIC,
 	-1
 };
 
