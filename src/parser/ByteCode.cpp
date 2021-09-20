@@ -1907,6 +1907,8 @@ string ZScript::VarToString(long ID)
 	
 	case ITEMDIR: return "ITEMDIR";
 	
+	case ITEMENGINEANIMATE: return "ITEMENGINEANIMATE";
+	
 	default:
 	{
 		sprintf(temp, "d%d", ID);

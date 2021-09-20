@@ -2197,6 +2197,7 @@ script_variable variable_list[]=
 	{ "NPCGLOWSHP",           NPCGLOWSHP,            0,             0 },
 	{ "LWPNGLOWSHP",           LWPNGLOWSHP,            0,             0 },
 	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
+	{ "ITEMENGINEANIMATE",           ITEMENGINEANIMATE,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

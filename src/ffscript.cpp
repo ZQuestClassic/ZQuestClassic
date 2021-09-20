@@ -4770,6 +4770,13 @@ long get_register(const long arg)
 			}
 			break;
 			
+		case ITEMENGINEANIMATE:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = int(((item*)(s))->do_animation) * 10000;
+			}
+			break;
+			
 		///----------------------------------------------------------------------------------------------------//
 		//Itemdata Variables
 		
@@ -11455,7 +11462,7 @@ void set_register(const long arg, const long value)
 			break;
 		
 		case LINKENGINEANIMATE:
-			Link.do_animation=(value/10000);
+			Link.do_animation=(value ? 1 : 0);
 			break;
 			
 		case LINKSWORDJINX:
@@ -12672,6 +12679,13 @@ void set_register(const long arg, const long value)
 			}
 			break;
 			
+		case ITEMENGINEANIMATE:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->do_animation=(value ? 1 : 0);
+			}
+			break;
+			
 	///----------------------------------------------------------------------------------------------------//
 	//Itemdata Variables
 		//not mine, but let;s guard some of them all the same -Z
@@ -13395,7 +13409,7 @@ void set_register(const long arg, const long value)
 		
 		case LWPNENGINEANIMATE:
 			if(0!=(s=checkLWpn(ri->lwpn,"Animation")))
-				(((weapon*)(s))->do_animation)=value/10000;
+				(((weapon*)(s))->do_animation)=(value ? 1 : 0);
 				
 			break;
 		
@@ -13800,7 +13814,7 @@ void set_register(const long arg, const long value)
 		
 		case EWPNENGINEANIMATE:
 			if(0!=(s=checkEWpn(ri->ewpn,"Animation")))
-				(((weapon*)(s))->do_animation)=value/10000;
+				(((weapon*)(s))->do_animation)=(value ? 1 : 0);
 				
 			break;
 		
@@ -34517,6 +34531,7 @@ script_variable ZASMVars[]=
 	{ "NPCGLOWSHP",           NPCGLOWSHP,            0,             0 },
 	{ "LWPNGLOWSHP",           LWPNGLOWSHP,            0,             0 },
 	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
+	{ "ITEMENGINEANIMATE",           ITEMENGINEANIMATE,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
