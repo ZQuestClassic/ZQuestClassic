@@ -3435,7 +3435,6 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	set_clip_rect(temp_buf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
 	int cmby2=0;
-	int pcounter;
 	
 	//0: Sideview Grvity from DMaps.
 	
