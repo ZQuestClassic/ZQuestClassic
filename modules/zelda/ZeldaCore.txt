@@ -17,6 +17,7 @@ src/win32.cpp
 src/alleg_compat.cpp
 src/util.cpp
 src/drawing.cpp
+src/random.cpp
 
 ## End of Zelda Core module
 )
