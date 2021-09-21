@@ -17535,11 +17535,19 @@ void set_register(const long arg, const long value)
 		}
 		case DMAPDATASUBSCRA:	 //byte, active subscreen
 		{
-			DMaps[ri->dmapsref].active_subscreen= ((byte)(value / 10000)); break;
+			bool changed = DMaps[ri->dmapsref].active_subscreen != ((byte)(value / 10000));
+			DMaps[ri->dmapsref].active_subscreen= ((byte)(value / 10000));
+			if(changed&&ri->dmapsref==currdmap)
+				update_subscreens();
+			break;
 		}
 		case DMAPDATASUBSCRP:	 //byte, passive subscreen
 		{
-			DMaps[ri->dmapsref].passive_subscreen= ((byte)(value / 10000)); break;
+			bool changed = DMaps[ri->dmapsref].passive_subscreen != ((byte)(value / 10000));
+			DMaps[ri->dmapsref].passive_subscreen= ((byte)(value / 10000));
+			if(changed&&ri->dmapsref==currdmap)
+				update_subscreens();
+			break;
 		}
 		case DMAPDATADISABLEDITEMS:	 //byte[iMax]
 		{
