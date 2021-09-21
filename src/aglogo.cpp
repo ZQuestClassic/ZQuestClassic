@@ -79,9 +79,9 @@ static void AddFire(BITMAP* firebuf,word N)
 {
 	while(N)
 	{
-		int cx = (rand()%10+1)<<1;
-		int x = rand()%314;
-		byte color = (rand()&127) + 128;
+		int cx = (zc_rand()%10+1)<<1;
+		int x = zc_rand()%314;
+		byte color = (zc_rand()&127) + 128;
 		
 		while(cx)
 		{

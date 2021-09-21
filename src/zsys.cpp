@@ -133,7 +133,7 @@ void temp_name(char temporaryname[])
         
         for(int j=0; j<8; ++j)
         {
-            tempnum=rand()%62;
+            tempnum=zc_rand()%62;
             
             if(tempnum<26)
             {

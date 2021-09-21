@@ -532,7 +532,7 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	
 	if (!logger_name)
 	{	// no name was give , create name based on the current address+time
-		// (you can modify it to use PID , rand() ,...
+		// (you can modify it to use PID , zc_rand() ,...
 		unsigned long now = GetTickCount64();
 		logger_name = m_name+ strlen(m_name);
 		sprintf((char*)logger_name,"logger%d_%lu",(int)this,now);
@@ -19283,9 +19283,9 @@ void do_rnd(const bool v)
 	long temp = SH::get_arg(sarg2, v) / 10000;
 
 	if(temp > 0)
-		set_register(sarg1, (rand() % temp) * 10000);
+		set_register(sarg1, (zc_rand() % temp) * 10000);
 	else if(temp < 0)
-		set_register(sarg1, (rand() % (-temp)) * -10000);
+		set_register(sarg1, (zc_rand() % (-temp)) * -10000);
 	else
 		set_register(sarg1, 0); // Just return 0. (Do not log an error)
 }
@@ -19293,16 +19293,16 @@ void do_rnd(const bool v)
 void do_srnd(const bool v)
 {
 	unsigned int seed = SH::get_arg(sarg1, v); //Do not `/10000`- allow the decimal portion to be used! -V
-	srand(seed);
+	zc_srand(seed);
 }
 
 void do_srndrnd()
 {
 	//Randomize the seed to the current system time, + or - the product of 2 random numbers.
-	int seed = time(0) + ((rand() * rand()) * ((rand() % 2) ? 1 : -1));
+	int seed = time(0) + ((zc_rand() * zc_rand()) * ((zc_rand() % 2) ? 1 : -1));
 	seed = vbound(seed, -2147479999, 2147479999); //Don't allow it to be outside ZScript range, so it can be returned.
 	set_register(sarg1, seed);
-	srand(seed);
+	zc_srand(seed);
 }
 
 //Returns the system Real-Time-Clock value for a specific type. 

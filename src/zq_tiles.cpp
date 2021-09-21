@@ -5031,7 +5031,7 @@ void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empt
 					{
 						for(int dx=0; dx<=l+1; dx++)
 						{
-							dest->line[dy+(y)][dx+(x)]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+							dest->line[dy+(y)][dx+(x)]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
 						}
 					}
 				}
@@ -5112,7 +5112,7 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
             {
                 for(int dx=0; dx<16*mul; dx++)
                 {
-                    screen2->line[(216*mul+yofs+dy)][36*mul+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                    screen2->line[(216*mul+yofs+dy)][36*mul+dx]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
                 }
             }
         }
@@ -5228,7 +5228,7 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
             {
                 for(int dx=0; dx<16*mul; dx++)
                 {
-                    screen2->line[216*mul+yofs+dy][124*mul+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                    screen2->line[216*mul+yofs+dy][124*mul+dx]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
                 }
             }
         }
@@ -15031,7 +15031,7 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
             {
                 for(int dx=0; dx<16*mul; dx++)
                 {
-                    screen2->line[(216*mul)+yofs+dy][(31*mul)+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                    screen2->line[(216*mul)+yofs+dy][(31*mul)+dx]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
                 }
             }
         }
@@ -15083,7 +15083,7 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
                 {
                     for(int dx=0; dx<16*mul; dx++)
                     {
-                        screen2->line[(216*mul)+yofs+dy][(136*mul)+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                        screen2->line[(216*mul)+yofs+dy][(136*mul)+dx]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
                     }
                 }
             }
