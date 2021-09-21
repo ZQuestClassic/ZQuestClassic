@@ -12843,6 +12843,10 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(85);
 		}
+		if(!p_putc(zinit.darkcol,f))
+		{
+			new_return(86);
+		}
         
         if(writecycle==0)
         {

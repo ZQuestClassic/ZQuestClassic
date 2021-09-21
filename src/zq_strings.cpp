@@ -171,7 +171,7 @@ DIALOG editmsg_dlg[] =
 	//55
 	{ jwin_text_proc,        160,   126,   110,     16,  0,                  0,                0,       0,          0,             0, (void *)"Shadow Type:", NULL, NULL },
 	{ jwin_text_proc,        160,   138,   110,     16,  0,                  0,                0,       0,          0,             0, (void *)"Shadow Color:", NULL, NULL },
-	{ jwin_color_swatch,     200,   136,    12,     12,  0,                  0,                0,       0,          0,             0, NULL, NULL, NULL },
+	{ jwin_color_swatch,     200,   136,    12,     12,  0,                  0,                0,       0,          0,             12, NULL, NULL, NULL },
 	{ d_msg_edit_proc,      119,   66,   32,  16,    vc(12),  vc(1),  0,       0,          8,             0,       NULL, NULL, NULL },
 	{ jwin_text_proc,        61,   68,   110,     16,  0,                  0,                0,       0,          0,             0, (void *)"Player Name Preview:", NULL, NULL },
 	

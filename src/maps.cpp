@@ -4407,10 +4407,10 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 {
 	if(!tmp)
 		triggered_screen_secrets = false; //Reset var
-	clear_to_color(darkscr_bmp_curscr, vc(0));
-	clear_to_color(darkscr_bmp_curscr_trans, vc(0));
-	clear_to_color(darkscr_bmp_scrollscr, vc(0));
-	clear_to_color(darkscr_bmp_scrollscr_trans, vc(0));
+	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 	int destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 	
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;

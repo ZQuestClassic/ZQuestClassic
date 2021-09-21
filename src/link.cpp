@@ -22194,10 +22194,10 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 			
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && ((newscr->flags&fDARK)||(oldscr->flags&fDARK)))
 		{
-			clear_to_color(darkscr_bmp_curscr, vc(0));
-			clear_to_color(darkscr_bmp_curscr_trans, vc(0));
-			clear_to_color(darkscr_bmp_scrollscr, vc(0));
-			clear_to_color(darkscr_bmp_scrollscr_trans, vc(0));
+			clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
+			clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
+			clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
+			clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 			calc_darkroom_combos(true);
 			calc_darkroom_link(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
 		}

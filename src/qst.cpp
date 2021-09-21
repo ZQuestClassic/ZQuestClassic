@@ -19034,6 +19034,18 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		temp_zinit.transdark_percent = 0;
 	}
 	
+	if(s_version > 24)
+	{
+		if(!p_getc(&temp_zinit.darkcol,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.darkcol = BLACK;
+	}
+	
 	if(keepdata==true)
 	{
 		memcpy(&zinit, &temp_zinit, sizeof(zinitdata));
