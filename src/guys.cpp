@@ -8364,9 +8364,9 @@ void enemy::tiledir_big(int ndir, bool fourdir)
 void enemy::update_enemy_frame()
 {
 	if(fallclk||drownclk) return;
-	if ( ( !do_animation ) || (( anim == aNONE ) && (family != eeGUY)) ) 
+	if (!do_animation) 
 	{  
-	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) return; //Anim == none, don't animate. -Z
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) return; //Anim == none, don't animate. -Z
 	}
 	int newfrate = zc_max(frate,4);
 	int f4=clk/(newfrate/4); // casts clk to [0,1,2,3]
