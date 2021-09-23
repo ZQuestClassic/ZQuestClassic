@@ -162,6 +162,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #define strnicmp _strnicmp
+#define unlink _unlink
 #endif
 
 #ifdef _WIN32

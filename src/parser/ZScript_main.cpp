@@ -56,7 +56,7 @@ int compile(std::string script_path)
     fclose(tempfile);
 
     boost::movelib::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
-    _unlink("tmp");
+    unlink("tmp");
 
     return 0;
 }
