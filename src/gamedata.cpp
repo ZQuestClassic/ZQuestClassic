@@ -891,6 +891,15 @@ void gamedata::set_light_rad(byte val)
 	set_generic(val, genLIGHT_RAD);
 }
 
+byte gamedata::get_darkscr_color()
+{
+	return get_generic(genDARK_COL);
+}
+void gamedata::set_darkscr_color(byte val)
+{
+	set_generic(val, genDARK_COL);
+}
+
 void gamedata::set_item(int id, bool value)
 {
     set_item_no_flush(id, value);

@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include "mem_debug.h"
 #include "util.h"
+#include "pal.h"
 using namespace util;
 
 //#ifndef _MSC_VER
@@ -72,7 +73,6 @@ int scheme[jcMAX] =
 };
 
 int jwin_pal[jcMAX] = {0};
-extern PALETTE RAMpal;
 
 // A pointer to this variable is used to identify the DIALOG belonging to
 // the DialogRunner. It isn't used for anything else.
@@ -4366,34 +4366,81 @@ int jwin_menu_proc(int msg, DIALOG *d, int c)
     return ret;
 }
 
+const char* rowpref(int row)
+{
+	static const char *lcol = "Level Colors", *sprcol = "Sprite Colors", *bosscol = "Boss Colors", *thmcol = "Theme Colors", *nlcol="";
+	switch(row)
+	{
+		case 2: case 3: case 4: case 9:
+			return lcol;
+		case 12: case 13:
+			return sprcol;
+		case 14:
+			return bosscol;
+		case 15:
+			return thmcol;
+		default:
+			return nlcol;
+	}
+}
+
 int jwin_selcolor_proc(int msg, DIALOG *d, int c)
 {
 	int ret = D_O_K;
-	int cwid = d->w / 16;
-	int chei = d->h / 12;
-	d->w = cwid * 16;
-	d->h = chei * 12;
+	if(!d->d2) d->d2 = 12;
+	int numcsets = d->d2;
+	int numcol = numcsets*0x10;
+	if(msg==MSG_START)
+	{
+		d->w = d->h = (16*8) * (is_large?1.5:1);
+	}
+	int csz = 8*(is_large?1.5:1);
+	d->w = csz * 16;
+	d->h = csz * numcsets;
 	switch(msg)
 	{
 		case MSG_DRAW:
 		{
 			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
-			for(int c = 0; c < 0xC0; ++c) //to cset 11
+			for(int c = 0; c < numcol; ++c)
 			{
-				int x = (c%16)*cwid, y = (c/16)*chei;
-				rectfill(screen, d->x+x, d->y+y, d->x+x+cwid-1, d->y+y+cwid-1, c);
+				int x = (c%16)*csz, y = (c/16)*csz;
+				rectfill(screen, d->x+x, d->y+y, d->x+x+csz-1, d->y+y+csz-1, c);
 				if(c == d->d1)
 				{
-					byte bright = (RAMpal[c].r >= 32) + (RAMpal[c].g >= 32) + (RAMpal[c].b >= 32);
+					RGB foo;
+					get_color(c, &foo);
+					byte bright = (foo.r >= 32) + (foo.g >= 32) + (foo.b >= 32);
 					byte highlightColor = vc(7); //sysgray
 					if(bright >= 2)
 						highlightColor = vc(0); //sysblack
 					else if(!bright)
 						highlightColor = vc(15);
-					rect(screen, d->x+x+0, d->y+y+0, d->x+x+cwid-1, d->y+y+cwid-1, highlightColor);
-					rect(screen, d->x+x+1, d->y+y+1, d->x+x+cwid-2, d->y+y+cwid-2, highlightColor);
+					rect(screen, d->x+x+0, d->y+y+0, d->x+x+csz-1, d->y+y+csz-1, highlightColor);
+					rect(screen, d->x+x+1, d->y+y+1, d->x+x+csz-2, d->y+y+csz-2, highlightColor);
 				}
 			}
+			
+            FONT *oldfont = font;
+            
+            if(d->dp2)
+            {
+                font = (FONT*)d->dp2;
+            }
+			
+			char buf[32]={0};
+			for(int col = 0; col < 16; ++col)
+			{
+				sprintf(buf, "%X", col);
+				gui_textout_ln(screen, (unsigned char*)buf, d->x + (csz*col) + (csz/2), d->y-3-text_height(font), palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 1);
+			}
+			for(int row = 0; row < numcsets; ++row)
+			{
+				sprintf(buf, "%s 0x%02X", rowpref(row), row*16);
+				gui_textout_ln(screen, (unsigned char*)buf, d->x-3, d->y + (csz*row) + (csz-text_height(font))/2, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 2);
+			}
+			
+            font = oldfont;
 			break;
 		}
 		
@@ -4401,12 +4448,12 @@ int jwin_selcolor_proc(int msg, DIALOG *d, int c)
 		{
 			if(mouse_in_rect(d->x, d->y, d->x+d->w-1, d->y+d->h-1))
 			{
-				int col = ((gui_mouse_x() - d->x) / cwid) + 16*((gui_mouse_y() - d->y) / chei);
+				int col = ((gui_mouse_x() - d->x) / csz) + 16*((gui_mouse_y() - d->y) / csz);
 
 				// for(int c = 0; c < 0xC0; ++c) //to cset 11
 				// {
-					// int x = (c%16)*cwid, y = (c/16)*chei;
-					// if(mouse_in_rect(d->x+x, d->y+y, d->x+x+cwid-1, d->y+y+cwid-1))
+					// int x = (c%16)*csz, y = (c/16)*csz;
+					// if(mouse_in_rect(d->x+x, d->y+y, d->x+x+csz-1, d->y+y+csz-1))
 					// {
 						// col = c;
 						// break;
@@ -4453,7 +4500,7 @@ int jwin_selcolor_proc(int msg, DIALOG *d, int c)
 				}
 				case KEY_DOWN:
 				{
-					if(d->d1 / 0x10 != 0xC0)
+					if(d->d1 / 0x10 != numcsets)
 						d->d1 += 0x10;
 					break;
 				}
@@ -4472,10 +4519,10 @@ int jwin_selcolor_proc(int msg, DIALOG *d, int c)
 
 static DIALOG selcolor_dlg[] =
 {
-	{ jwin_win_proc,       0,    0,  256,  141,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Select Color",  NULL,  NULL },
-	{ jwin_button_proc,   64,  118,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"OK",  NULL,  NULL },
-	{ jwin_button_proc,  128,  118,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Cancel",  NULL,  NULL },
-	{ jwin_selcolor_proc, 64,   20,   16*8,   12*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
+	{ jwin_win_proc,       0,    0,  300,  59+16*8,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Select Color",  NULL,  NULL },
+	{ jwin_button_proc,   75,  36+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"OK",  NULL,  NULL },
+	{ jwin_button_proc,  164,  36+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Cancel",  NULL,  NULL },
+	{ jwin_selcolor_proc, 150-64,   30,   16*8,   16*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
 	
 	{ NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
 };
@@ -4484,8 +4531,16 @@ extern FONT* lfont;
 int jwin_color_swatch(int msg, DIALOG *d, int c)
 {
 	int ret = D_O_K;
+	
 	switch(msg)
 	{
+		case MSG_START:
+		{
+			if(d->d2 < 1) d->d2 = 12;
+			else if(d->d2 > 16) d->d2 = 16;
+			break;
+		}
+		
 		case MSG_DRAW:
 		{
 			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, (d->flags&D_DISABLED) ? jwin_pal[jcBOX] : d->d1);
@@ -4500,10 +4555,25 @@ int jwin_color_swatch(int msg, DIALOG *d, int c)
 			selcolor_dlg[3].bg = jwin_pal[jcBOXFG];
 			selcolor_dlg[3].fg = jwin_pal[jcBOX];
 			selcolor_dlg[3].d1 = d->d1;
+			selcolor_dlg[3].d2 = d->d2;
 			if(is_large)
 				large_dialog(selcolor_dlg);
+			
 			while(gui_mouse_b()); //wait for mouseup
+			
+			//!TODO Move this out of jwin, and do better palette management.
+			//!TODO Allow loading different level palettes, sprite palettes, etc via buttons
+			PALETTE oldpal;
+			get_palette(oldpal);
+			PALETTE foopal;
+			get_palette(foopal);
+			foopal[BLACK] = _RGB(0,0,0);
+			foopal[WHITE] = _RGB(63,63,63);
+			set_palette(foopal);
+			
 			int val = popup_zqdialog(selcolor_dlg, 3);
+			
+			set_palette(oldpal);
 			if(val == 1 || val == 3)
 			{
 				d->d1 = selcolor_dlg[3].d1;

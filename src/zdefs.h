@@ -163,6 +163,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #define strnicmp _strnicmp
+#define unlink _unlink
 #endif
 
 #ifdef _WIN32
@@ -237,7 +238,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        24
+#define V_INITDATA        25
 #define V_GUYS            44
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -3781,7 +3782,7 @@ enum generic_ind
 	genHCP, genMDRAINRATE, genCANSLASH, genWLEVEL,
 	genHCP_PER_HC, genCONTHP, genCONTHP_IS_PERC, genHP_PER_HEART,
 	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
-	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,
+	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,genDARK_COL,
 	genLAST,
 	genMAX = 256
 };
@@ -3997,6 +3998,9 @@ struct gamedata
 	
 	byte get_transdark_perc();
 	void set_transdark_perc(byte val);
+	
+	byte get_darkscr_color();
+	void set_darkscr_color(byte val);
     
     byte get_continue_scrn();
     void set_continue_scrn(byte s);
@@ -4113,7 +4117,7 @@ struct zinitdata
     word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep, subscrSpeed;
 	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
 	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em 
-	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent;
+	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
 };
 
 struct zcmap
