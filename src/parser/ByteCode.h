@@ -1284,8 +1284,9 @@
 #define EWPNGLOWSHP 			1204
 
 #define ITEMENGINEANIMATE 		1205
+#define REFRNG 		1206
 
-#define LAST_BYTECODE 		1206
+#define LAST_BYTECODE 		1207
 
 //} END OF BYTECODE
 
@@ -2627,7 +2628,106 @@ namespace ZScript
 			return new OSRandRand(a->clone());
 		}
 	};
+	
+	class ORNGRand1 : public Opcode
+	{
+	public:
+		ORNGRand1() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGRand1();
+		}
+	};
+	
+	class ORNGRand2 : public UnaryOpcode
+	{
+	public:
+		ORNGRand2(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGRand2(a->clone());
+		}
+	};
 
+	class ORNGRand3 : public BinaryOpcode
+	{
+	public:
+		ORNGRand3(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGRand3(a->clone(), b->clone());
+		}
+	};
+	
+	class ORNGLRand1 : public Opcode
+	{
+	public:
+		ORNGLRand1() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGLRand1();
+		}
+	};
+	
+	class ORNGLRand2 : public UnaryOpcode
+	{
+	public:
+		ORNGLRand2(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGLRand2(a->clone());
+		}
+	};
+
+	class ORNGLRand3 : public BinaryOpcode
+	{
+	public:
+		ORNGLRand3(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGLRand3(a->clone(), b->clone());
+		}
+	};
+	
+	class ORNGSeed : public UnaryOpcode
+	{
+	public:
+		ORNGSeed(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGSeed(a->clone());
+		}
+	};
+	
+	class ORNGRSeed : public Opcode
+	{
+	public:
+		ORNGRSeed() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGRSeed();
+		}
+	};
+	
+	class ORNGFree : public Opcode
+	{
+	public:
+		ORNGFree() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGFree();
+		}
+	};
+	
 	class OSqrtRegister : public BinaryOpcode
 	{
 	public:
@@ -2847,6 +2947,18 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OLoadDirectoryRegister(a->clone());
+		}
+	};
+
+
+	class OLoadRNG : public Opcode
+	{
+	public:
+		OLoadRNG() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadRNG();
 		}
 	};
 

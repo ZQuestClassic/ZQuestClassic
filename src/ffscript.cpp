@@ -86,6 +86,9 @@ zcmodule moduledata;
 script_bitmaps scb;
 user_file script_files[MAX_USER_FILES];
 user_dir script_dirs[MAX_USER_DIRS];
+user_rng nulrng;
+user_rng script_rngs[MAX_USER_RNGS];
+zc_randgen script_rnggens[MAX_USER_RNGS];
 
 FONT *get_zc_font(int index);
 
@@ -3372,6 +3375,26 @@ user_dir *checkDir(long ref, const char *what, bool skipError = false)
 		{
 			return dr;
 		}
+	}
+	if(skipError) return NULL;
+	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
+	Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
+	return NULL;
+}
+
+user_rng *checkRNG(long ref, const char *what, bool skipError = false)
+{
+	if(ref > 0 && ref <= MAX_USER_RNGS)
+	{
+		user_rng* rng = &script_rngs[ref-1];
+		if(rng->reserved)
+		{
+			return rng;
+		}
+	}
+	else if(!ref) //A null RNG pointer is special-case, access engine rng.
+	{
+		return &nulrng;
 	}
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
@@ -10836,6 +10859,7 @@ long get_register(const long arg)
 		case REFFILE: ret = ri->fileref; break;
 		case REFDIRECTORY: ret = ri->directoryref; break;
 		case REFSUBSCREEN: ret = ri->subscreenref; break;
+		case REFRNG: ret = ri->rngref; break;
 		
 			
 		case SP:
@@ -18809,6 +18833,10 @@ void set_register(const long arg, const long value)
 		case REFPALCYCLE:  ri->palcycleref = value; break;
 		case REFGAMEDATA:  ri->gamedataref = value; break;
 		case REFCHEATS:  ri->cheatsref = value; break;
+		case REFFILE: ri->fileref = value; break;
+		case REFDIRECTORY: ri->directoryref = value; break;
+		case REFSUBSCREEN: ri->subscreenref = value; break;
+		case REFRNG: ri->rngref = value; break;
 			
 		default:
 		{
@@ -19283,9 +19311,9 @@ void do_rnd(const bool v)
 	long temp = SH::get_arg(sarg2, v) / 10000;
 
 	if(temp > 0)
-		set_register(sarg1, (zc_rand() % temp) * 10000);
+		set_register(sarg1, (zc_oldrand() % temp) * 10000);
 	else if(temp < 0)
-		set_register(sarg1, (zc_rand() % (-temp)) * -10000);
+		set_register(sarg1, (zc_oldrand() % (-temp)) * -10000);
 	else
 		set_register(sarg1, 0); // Just return 0. (Do not log an error)
 }
@@ -19299,8 +19327,7 @@ void do_srnd(const bool v)
 void do_srndrnd()
 {
 	//Randomize the seed to the current system time, + or - the product of 2 random numbers.
-	int seed = time(0) + ((zc_rand() * zc_rand()) * ((zc_rand() % 2) ? 1 : -1));
-	seed = vbound(seed, -2147479999, 2147479999); //Don't allow it to be outside ZScript range, so it can be returned.
+	int seed = time(0) + ((zc_rand() * zc_rand()) * (zc_rand(1) ? 1 : -1));
 	set_register(sarg1, seed);
 	zc_srand(seed);
 }
@@ -20752,6 +20779,12 @@ void FFScript::do_loaddmapdata(const bool v)
 		
 	else ri->dmapsref = ID;
 	//Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
+}
+
+void FFScript::do_loadrng()
+{
+	ri->rngref = get_free_rng();
+	ri->d[2] = ri->rngref;
 }
 
 void FFScript::do_loaddirectory()
@@ -25017,7 +25050,9 @@ int run_script(const byte type, const word script, const long i)
 			case LOADDIRECTORYR:
 				FFCore.do_loaddirectory(); break;
 			case LOADDROPSETR: //command
-				FFScript::do_loaddropset(false); break;
+				FFCore.do_loaddropset(false); break;
+			case LOADRNG: //command
+				FFCore.do_loadrng(); break;
 
 
 			case DMAPDATAGETNAMER: //command
@@ -26512,6 +26547,70 @@ int run_script(const byte type, const word script, const long i)
 				break;
 			}
 			
+			//{ Randgen Stuff
+			case RNGRAND1:
+				if(user_rng* r = checkRNG(ri->rngref, "Rand()"))
+				{
+					ri->d[rEXP1] = r->rand(214748, -214748)*10000L;
+				}
+				else ri->d[rEXP1] = -10000L;
+				break;
+			case RNGRAND2:
+				if(user_rng* r = checkRNG(ri->rngref, "Rand(int)"))
+				{
+					set_register(sarg1,r->rand(get_register(sarg1)/10000L)*10000L);
+				}
+				else set_register(sarg1,-10000L);
+				break;
+			case RNGRAND3:
+				if(user_rng* r = checkRNG(ri->rngref, "Rand(int,int)"))
+				{
+					set_register(sarg1,r->rand(get_register(sarg1)/10000L, get_register(sarg2)/10000L)* 10000L);
+				}
+				else set_register(sarg1,-10000L);
+				break;
+			case RNGLRAND1:
+				if(user_rng* r = checkRNG(ri->rngref, "LRand()"))
+				{
+					ri->d[rEXP1] = r->rand();
+				}
+				else ri->d[rEXP1] = -10000L;
+				break;
+			case RNGLRAND2:
+				if(user_rng* r = checkRNG(ri->rngref, "LRand(long)"))
+				{
+					ri->d[rEXP1] = r->rand(get_register(sarg1));
+				}
+				else ri->d[rEXP1] = -10000L;
+				break;
+			case RNGLRAND3:
+				if(user_rng* r = checkRNG(ri->rngref, "LRand(long,long)"))
+				{
+					ri->d[rEXP1] = r->rand(get_register(sarg1), get_register(sarg2));
+				}
+				else ri->d[rEXP1] = -10000L;
+				break;
+			case RNGSEED:
+				if(user_rng* r = checkRNG(ri->rngref, "SRand(long)"))
+				{
+					r->srand(get_register(sarg1));
+				}
+				break;
+			case RNGRSEED:
+				if(user_rng* r = checkRNG(ri->rngref, "SRand()"))
+				{
+					ri->d[rEXP1] = r->srand();
+				}
+				else ri->d[rEXP1] = -10000;
+				break;
+			case RNGFREE:
+				if(user_rng* r = checkRNG(ri->rngref, "SRand()", true))
+				{
+					r->reserved = false;
+				}
+				break;
+			//}
+			
 			case NOP: //No Operation. Do nothing. -V
 				break;
 			
@@ -26924,6 +27023,14 @@ void FFScript::user_dirs_init()
 	}
 }
 
+void FFScript::user_rng_init()
+{
+	for(int q = 0; q < MAX_USER_RNGS; ++q)
+	{
+		script_rngs[q].set_gen(&script_rnggens[q]);
+	}
+}
+
 int FFScript::get_free_file(bool skipError)
 {
 	for(int q = 0; q < MAX_USER_FILES; ++q)
@@ -26949,6 +27056,20 @@ int FFScript::get_free_directory(bool skipError)
 		}
 	}
 	if(!skipError) Z_scripterrlog("get_free_directory() could not find a valid free directory pointer!\n");
+	return 0;
+}
+
+int FFScript::get_free_rng(bool skipError)
+{
+	for(int q = 0; q < MAX_USER_RNGS; ++q)
+	{
+		if(!script_rngs[q].reserved)
+		{
+			script_rngs[q].reserved = true;
+			return q+1; //1-indexed; 0 is null value
+		}
+	}
+	if(!skipError) Z_scripterrlog("get_free_rng() could not find a valid free rng pointer!\n");
 	return 0;
 }
 #ifdef _WIN32
@@ -33333,6 +33454,17 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "FILEWRITEBYTES",           2,   0,   0,   0},
 	{ "GETCOMBOSCRIPT",        1,   0,   0,   0},
 	{ "FILEREADBYTES",           2,   0,   0,   0},
+	
+	{ "LOADRNG",           0,   0,   0,   0},
+	{ "RNGRAND1",           0,   0,   0,   0},
+	{ "RNGRAND2",           1,   0,   0,   0},
+	{ "RNGRAND3",           2,   0,   0,   0},
+	{ "RNGLRAND1",           0,   0,   0,   0},
+	{ "RNGLRAND2",           1,   0,   0,   0},
+	{ "RNGLRAND3",           2,   0,   0,   0},
+	{ "RNGSEED",           1,   0,   0,   0},
+	{ "RNGRSEED",           0,   0,   0,   0},
+	{ "RNGFREE",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -34540,6 +34672,7 @@ script_variable ZASMVars[]=
 	{ "LWPNGLOWSHP",           LWPNGLOWSHP,            0,             0 },
 	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
 	{ "ITEMENGINEANIMATE",           ITEMENGINEANIMATE,            0,             0 },
+	{ "REFRNG",           REFRNG,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

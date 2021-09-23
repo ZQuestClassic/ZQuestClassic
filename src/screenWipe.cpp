@@ -776,7 +776,7 @@ static int chooseWipeShape()
         return bos_circle;
         
     // Pick one of the set bits
-    bitCounter=zc_rand()%numBits+1;
+    bitCounter=zc_oldrand()%numBits+1;
     
     for(int i=0; i<4; i++)
     {

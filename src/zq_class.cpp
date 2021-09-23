@@ -2881,7 +2881,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                 {
                     if(layer->ffflags[i]&ffCHANGER)
                     {
-                        putpixel(dest,(layer->ffx[i]/10000)+x,(layer->ffy[i]/10000)+y,vc(zc_rand()%16));
+                        putpixel(dest,(layer->ffx[i]/10000)+x,(layer->ffy[i]/10000)+y,vc(zc_oldrand()%16));
                     }
                 }
             }
@@ -3889,7 +3889,7 @@ void zmap::drawstaticblock(BITMAP* dest,int x,int y)
         {
             for(int dx=0; dx<16; dx++)
             {
-                dest->line[y+dy][x+dx]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
+                dest->line[y+dy][x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
             }
         }
     }
@@ -3910,7 +3910,7 @@ void zmap::drawstaticcolumn(BITMAP* dest,int x,int y)
         {
             for(int dx=0; dx<16; dx++)
             {
-                dest->line[y+dy][x+dx]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
+                dest->line[y+dy][x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
             }
         }
     }
@@ -3931,7 +3931,7 @@ void zmap::drawstaticrow(BITMAP* dest,int x,int y)
         {
             for(int dx=0; dx<256; dx++)
             {
-                dest->line[y+dy][x+dx]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
+                dest->line[y+dy][x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
             }
         }
     }
@@ -13470,7 +13470,7 @@ int save_quest(const char *filename, bool timed_save)
         if(ret == 0)
         {
             box_out("Encrypting...");
-            ret = encode_file_007(tmpfilename, filename,((INTERNAL_VERSION + zc_rand()) & 0xffff) + 0x413F0000, ENC_STR, ENC_METHOD_MAX-1);
+            ret = encode_file_007(tmpfilename, filename,((INTERNAL_VERSION + zc_oldrand()) & 0xffff) + 0x413F0000, ENC_STR, ENC_METHOD_MAX-1);
             
             if(ret)
             {

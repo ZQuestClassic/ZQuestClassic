@@ -420,6 +420,38 @@ struct user_dir
 	}
 };
 
+#define MAX_USER_RNGS 256
+struct user_rng
+{
+	zc_randgen* gen;
+	bool reserved;
+	
+	int rand()
+	{
+		return zc_rand(gen);
+	}
+	int rand(int upper, int lower=0)
+	{
+		return zc_rand(upper, lower, gen);
+	}
+	void srand(long seed)
+	{
+		zc_srand(seed, gen);
+	}
+	long srand()
+	{
+		long seed = time(0) + ((rand() * rand()) * ((rand() % 2) ? 1 : -1));
+		srand(seed);
+		return seed;
+	}
+	void set_gen(zc_randgen* newgen)
+	{
+		gen = newgen;
+		if(newgen) srand();
+	}
+	user_rng() : gen(NULL), reserved(false)
+	{}
+};
 
 //Module System.
 //Putting this here for now.
@@ -703,8 +735,11 @@ bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY
 
 void user_files_init();
 void user_dirs_init();
+void user_rng_init();
 int get_free_file(bool skipError = false);
 int get_free_directory(bool skipError = false);
+int get_free_rng(bool skipError = false);
+
 bool get_scriptfile_path(char* buf, const char* path);
 
 void do_fopen(const bool v, const char* f_mode);
@@ -732,6 +767,7 @@ void do_file_seek();
 void do_file_geterr();
 
 void do_loaddirectory();
+void do_loadrng();
 void do_directory_get();
 void do_directory_reload();
 void do_directory_free();
@@ -2885,7 +2921,18 @@ enum ASM_DEFINE
 	GETCOMBOSCRIPT,  
 	FILEREADBYTES,
 	
-	NUMCOMMANDS           //0x0197
+	LOADRNG,
+	RNGRAND1,
+	RNGRAND2,
+	RNGRAND3,
+	RNGLRAND1,
+	RNGLRAND2,
+	RNGLRAND3,
+	RNGSEED,
+	RNGRSEED,
+	RNGFREE,
+	
+	NUMCOMMANDS           //0x01A1
 };
 
 
@@ -4252,8 +4299,9 @@ enum ASM_DEFINE
 #define EWPNGLOWSHP 			0x13EA
 
 #define ITEMENGINEANIMATE 			0x13EB
+#define REFRNG 			0x13EC
 
-#define NUMVARIABLES         	0x13EC
+#define NUMVARIABLES         	0x13ED
 
 //} End variables
 

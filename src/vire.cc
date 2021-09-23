@@ -6,7 +6,7 @@ public:
     hp=4;
     cs=7;
     frate=20;
-    dir=zc_rand()&3;
+    dir=zc_oldrand()&3;
     step=0.5;
     item_set=isBOMBS;
   }

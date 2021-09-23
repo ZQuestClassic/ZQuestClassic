@@ -400,7 +400,7 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	
 	if (!logger_name)
 	{	// no name was give , create name based on the current address+time
-		// (you can modify it to use PID , zc_rand() ,...
+		// (you can modify it to use PID , zc_oldrand() ,...
 		unsigned long now = GetTickCount();
 		logger_name = m_name+ strlen(m_name);
 		sprintf((char*)logger_name,"logger%d_%lu",(int)this,now);
@@ -6217,7 +6217,7 @@ void drawpanel(int pnl)
                     {
                         for(int dx=0; dx<16; dx++)
                         {
-                            menu1->line[dy+panel[0].y+11][dx+panel[0].x+panel[0].w-36]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
+                            menu1->line[dy+panel[0].y+11][dx+panel[0].x+panel[0].w-36]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                         }
                     }
                 }
@@ -7026,7 +7026,7 @@ void refresh(int flags)
 						{
 							for(int dx=0; dx<3*BMM; dx++)
 							{
-								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
+								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
 							}
 						}
 					}
@@ -7310,7 +7310,7 @@ void refresh(int flags)
                     {
                         for(int dx=0; dx<32; dx++)
                         {
-                            menu1->line[dy+combo_preview.y][dx+combo_preview.x+int(combo_preview.w*1.5)]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
+                            menu1->line[dy+combo_preview.y][dx+combo_preview.x+int(combo_preview.w*1.5)]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                         }
                     }
                 }
@@ -7378,7 +7378,7 @@ void refresh(int flags)
                             {
                                 for(int dx=0; dx<16; dx++)
                                 {
-                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
+                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                                 }
                             }
                         }
@@ -7408,7 +7408,7 @@ void refresh(int flags)
                             {
                                 for(int dx=0; dx<16; dx++)
                                 {
-                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_rand()%100)/50)?0:8)+(((zc_rand()%100)/50)?0:7));
+                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                                 }
                             }
                         }
@@ -11066,7 +11066,7 @@ void domouse()
 					if(warpindex>=4)
 					{
 						jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
-						warpindex=zc_rand()&3;
+						warpindex=zc_oldrand()&3;
 					}
 					
 					int tm = Map.getCurrMap();
@@ -34213,7 +34213,7 @@ int save_config_file()
     
     //save the beta warning confirmation info
     //10% chance of showing the warning again. heh -DD
-    if(zc_rand() % 10 < 9)
+    if(zc_oldrand() % 10 < 9)
     {
         char *uniquestr = getBetaControlString();
         set_config_string("zquest", "beta_warning", uniquestr);

@@ -538,6 +538,9 @@ untyped : A special datatype that can be cast to and from any other type.
 	directory :
 		Object type for accessing directories on the system. All directories accessed must exist in "[zc root]/files/[questname]/".
 	
+	randgen :
+		Object type for seeded random number generation.
+	
 	//Planned/Incomplete
 	warpringdata : t/b/a
 		(Planned) Access to all Warpring Editor data.
@@ -3260,6 +3263,10 @@ bool Remove(char32[] "filepath");
  
 directory LoadDirectory(char32[] path);
  * Opens the directory named by 'path'
+ 
+randgen LoadRNG();
+ * Opens a free random number generator and returns it.
+ * Be sure to '->Free()' it when you are done with it!
 
 /************************************************************************************************************/
 
@@ -3533,6 +3540,45 @@ void Reload();
 void Free();
  * This will deallocate the directory pointer, so that the pointer ID may be re-used.
  * There is a limit to how many directory pointers may be allocated at once,
+ *     so be sure to free them when you are no longer using them.
+
+
+/************************************************************************************************************/
+
+/////////////////////
+///    randgen    ///
+/////////////////////
+ * Using a 'NULL' randgen pointer will reference the engine randgen,
+ * rather than a script-specific one.
+ * The global pointer 'RandGen->' can be used as a null randgen pointer.
+
+int Rand();
+ * Returns a random value from -214748 to 214748
+
+int Rand(int bound)
+ * Returns a random integer value between '0' and 'bound'.
+
+int Rand(int bound1, int bound2)
+ * Returns a random integer value between the two bounds
+
+long LRand();
+ * Returns a random long value from -2147483648L to 2147483647L
+
+long LRand(long bound)
+ * Returns a random long value between '0' and 'bound'.
+
+long LRand(long bound1, long bound2)
+ * Returns a random long value between the two bounds
+
+void SRand(long seed)
+ * Seeds this randgen with the provided seed
+
+long SRand()
+ * Seeds this randgen with an effectively randomized seed, and returns the chosen seed.
+
+void Free();
+ * This will deallocate the randgen pointer, so that the pointer ID may be re-used.
+ * There is a limit to how many randgen pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
 
 
