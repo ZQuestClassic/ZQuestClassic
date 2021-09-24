@@ -25,16 +25,9 @@ public:
 private:
 	std::string title;
 	std::shared_ptr<Widget> content;
-	std::vector<int> dialogs;
 
 	/* Returns the title as a char* for jwin_tab_proc. */
 	char* getTitle();
-
-	/* Returns a -1-terminated array of indices in the DIALOG array
-	 * indicating the widgets in this tab. This must be called
-	 * only after realize().
-	 */
-	int* getContentIndices();
 
 	void applyVisibility(bool visible) override;
 	void calculateSize() override;

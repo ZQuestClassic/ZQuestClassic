@@ -12,11 +12,6 @@ char* Tab::getTitle()
 	return title.data();
 }
 
-int* Tab::getContentIndices()
-{
-	return dialogs.data();
-}
-
 void Tab::applyVisibility(bool visible)
 {
 	// Easiest way to handle it...
@@ -48,18 +43,8 @@ void Tab::arrange(int contX, int contY, int contW, int contH)
 
 void Tab::realize(DialogRunner& runner)
 {
-	// The TabPanel needs an int array with the indices of the widgets
-	// in this tab. That'll just be all of them added by content->realize().
 	if(content)
-	{
-		int sizeBefore = runner.size();
 		content->realize(runner);
-		int sizeAfter = runner.size();
-		dialogs.reserve(1+sizeAfter-sizeBefore);
-		for(int i = sizeBefore; i < sizeAfter; ++i)
-			dialogs.push_back(i);
-	}
-	dialogs.push_back(-1);
 }
 
 }

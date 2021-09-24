@@ -115,6 +115,8 @@ extern int abc_patternmatch;
 /* a copy of the default color scheme; do what you want with this */
 extern int jwin_colors[jcMAX];
 
+extern int scheme[jcMAX];
+
 extern int mix_value(int c1,int c2,int pos,int max);
 
 /* 1.5k lookup table for color matching */
@@ -230,6 +232,7 @@ int short_bmp_avg(BITMAP *bmp, int i);
 void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
                  int src_color1, int src_color2, unsigned char dest_color1,
                  unsigned char dest_color2);
+bool do_text_button_reset(int x,int y,int w,int h,const char *text);
 void jwin_center_dialog(DIALOG *dialog);
 void jwin_ulalign_dialog(DIALOG *dialog);
 
