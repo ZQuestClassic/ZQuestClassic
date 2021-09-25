@@ -341,6 +341,9 @@ Another example:
 	
 	Module->
 		Use to read values or strings used by the current module.
+	
+	RandGen->
+		Use to generate random numbers, using the engine's RNG
 
 
 ________          __          __                                
@@ -2980,6 +2983,10 @@ shopdata LoadInfoShopData(int shop);
  * Loads a Shop Editor table ref for an info shop with an ID of 'id' to a 'shopdata' typed pointer.
  * !! I may make 'infoshopdata' its own type, to prevent conflicts and reduce future shops expansion overhead. -Z
 
+randgen LoadRNG();
+ * Opens a free random number generator and returns it.
+ * Be sure to '->Free()' it when you are done with it!
+
 bool TypingMode;
  * If set true, all keyboard presses that would ordinarily perform an in-engine action are suppressed.
  * 	Example: The 'z' key is bound to the 'A Button'; the user presses the 'z' key.
@@ -3263,10 +3270,6 @@ bool Remove(char32[] "filepath");
  
 directory LoadDirectory(char32[] path);
  * Opens the directory named by 'path'
- 
-randgen LoadRNG();
- * Opens a free random number generator and returns it.
- * Be sure to '->Free()' it when you are done with it!
 
 /************************************************************************************************************/
 
