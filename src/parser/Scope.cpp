@@ -1207,6 +1207,7 @@ RootScope::RootScope(TypeStore& typeStore)
 	BuiltinConstant::create(*this, DataType::CHEATS, "Cheats", 1);
 	BuiltinConstant::create(*this, DataType::FILESYSTEM, "FileSystem", 1);
 	BuiltinConstant::create(*this, DataType::MODULE, "Module", 1);
+	BuiltinConstant::create(*this, DataType::CRNG, "RandGen", 0); //Nullptr is valid for engine RNG
 }
 
 optional<int> RootScope::getRootStackSize() const

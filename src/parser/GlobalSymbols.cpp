@@ -401,6 +401,7 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 	case ZVARTYPEID_FILE: return &FileSymbols::getInst();
 	case ZVARTYPEID_DIRECTORY: return &DirectorySymbols::getInst();
 	case ZVARTYPEID_MODULE: return &ModuleSymbols::getInst();
+	case ZVARTYPEID_RNG: return &RNGSymbols::getInst();
     default: return NULL;
     }
 }
@@ -4540,6 +4541,7 @@ static AccessorTable gameTable[] =
 	{ "LoadMessageData",               ZVARTYPEID_ZMESSAGE,      FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadDMapData",                  ZVARTYPEID_DMAPDATA,      FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadDropset",                   ZVARTYPEID_DROPSET,       FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadRNG",                       ZVARTYPEID_RNG,           FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_GAME,          -1,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "CreateBitmap",                  ZVARTYPEID_BITMAP,        FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "PlayOgg",                       ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetOggPos",                     ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_GAME,          -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -4621,6 +4623,19 @@ void GameSymbols::generateCode()
         POPREF();
         code.push_back(new OLoadDropsetRegister(new VarArgument(EXP1)));
         code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFDROPS)));
+        RETURN();
+        function->giveCode(code);
+    }
+    
+    //RNG
+    {
+	    Function* function = getFunction("LoadRNG", 1);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop pointer
+        POPREF();
+        code.push_back(new OLoadRNG());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -13291,6 +13306,153 @@ SubscreenDataSymbols::SubscreenDataSymbols()
 void SubscreenDataSymbols::generateCode()
 {
 	//
+}
+
+RNGSymbols RNGSymbols::singleton = RNGSymbols();
+
+static AccessorTable RNGTable[] =
+{
+//	  name,                     rettype,                     setorget,     var,   numindex,   funcFlags,                            numParams,   params
+//	{ "DirExists",              ZVARTYPEID_BOOL,             FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Rand",                   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_RNG,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Rand",                   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_RNG,        ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Rand",                   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_RNG,        ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LRand",                  ZVARTYPEID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_RNG,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LRand",                  ZVARTYPEID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_RNG,        ZVARTYPEID_LONG,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LRand",                  ZVARTYPEID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_RNG,        ZVARTYPEID_LONG,                               ZVARTYPEID_LONG,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SRand",                  ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_RNG,        ZVARTYPEID_LONG,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SRand",                  ZVARTYPEID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_RNG,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Free",                   ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_RNG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+RNGSymbols::RNGSymbols()
+{
+    table = RNGTable;
+    refVar = REFRNG;
+}
+
+void RNGSymbols::generateCode()
+{
+	//int Rand()
+	{
+		Function* function = getFunction("Rand", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new ORNGRand1());
+		RETURN();
+		function->giveCode(code);
+	}
+	//int Rand(int bound)
+	{
+		Function* function = getFunction("Rand", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		code.push_back(new ORNGRand2(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int Rand(int bound1, int bound2)
+	{
+		Function* function = getFunction("Rand", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		code.push_back(new ORNGRand3(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//long LRand()
+	{
+		Function* function = getFunction("LRand", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new ORNGLRand1());
+		RETURN();
+		function->giveCode(code);
+	}
+	//long LRand(long bound)
+	{
+		Function* function = getFunction("LRand", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		code.push_back(new ORNGLRand2(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//long LRand(long bound1, long bound2)
+	{
+		Function* function = getFunction("LRand", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		code.push_back(new ORNGLRand3(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SRand(long seed)
+    {
+	    Function* function = getFunction("SRand", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop seed
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+		POPREF();
+        code.push_back(new ORNGSeed(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //long SRand()
+    {
+	    Function* function = getFunction("SRand", 1);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+		ASSERT_NON_NUL();
+		POPREF();
+        LABELBACK(label);
+        code.push_back(new ORNGRSeed());
+        RETURN();
+        function->giveCode(code);
+    }
+	//void Free()
+	{
+		Function* function = getFunction("Free", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new ORNGFree());
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 ModuleSymbols ModuleSymbols::singleton = ModuleSymbols();

@@ -1732,7 +1732,7 @@ int choose_opening_shape()
         return bosCIRCLE;
         
     // Pick a bit
-    bitCounter=rand()%numBits+1;
+    bitCounter=zc_rand()%numBits+1;
     
     for(int i=0; i<bosMAX; i++)
     {
@@ -11014,7 +11014,7 @@ bool rI()
 /*No longer in use -V
 bool drunk()
 {
-    return ((!(frame%((rand()%100)+1)))&&(rand()%MAXDRUNKCLOCK<Link.DrunkClock()));
+    return ((!(frame%((zc_rand()%100)+1)))&&(zc_rand()%MAXDRUNKCLOCK<Link.DrunkClock()));
 }*/
 
 bool DrunkUp()

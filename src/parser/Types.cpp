@@ -179,6 +179,7 @@ DataTypeClassConst DataType::CWARPRING(ZCLASSID_WARPRING, "const WarpRing");
 DataTypeClassConst DataType::CSUBSCREENDATA(ZCLASSID_SUBSCREENDATA, "const SubscreenData");
 DataTypeClassConst DataType::CFILE(ZCLASSID_FILE, "const File");
 DataTypeClassConst DataType::CDIRECTORY(ZCLASSID_DIRECTORY, "const Directory");
+DataTypeClassConst DataType::CRNG(ZCLASSID_RNG, "const RNG");
 //Class: Var Types
 DataTypeClass DataType::BITMAP(ZCLASSID_BITMAP, "Bitmap", &CBITMAP);
 DataTypeClass DataType::CHEATS(ZCLASSID_CHEATS, "Cheats", &CCHEATS);
@@ -208,6 +209,7 @@ DataTypeClass DataType::WARPRING(ZCLASSID_WARPRING, "WarpRing", &CWARPRING);
 DataTypeClass DataType::SUBSCREENDATA(ZCLASSID_SUBSCREENDATA, "SubscreenData", &CSUBSCREENDATA);
 DataTypeClass DataType::FILE(ZCLASSID_FILE, "File", &CFILE);
 DataTypeClass DataType::DIRECTORY(ZCLASSID_DIRECTORY, "Directory", &CDIRECTORY);
+DataTypeClass DataType::RNG(ZCLASSID_RNG, "RNG", &CRNG);
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -248,6 +250,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_SUBSCREENDATA: return &SUBSCREENDATA;
 		case ZVARTYPEID_FILE: return &FILE;
 		case ZVARTYPEID_DIRECTORY: return &DIRECTORY;
+		case ZVARTYPEID_RNG: return &RNG;
 		case ZVARTYPEID_GRAPHICS: return &GRAPHICS;
 		case ZVARTYPEID_BITMAP: return &BITMAP;
 		case ZVARTYPEID_TEXT: return &TEXT;
@@ -294,6 +297,7 @@ DataTypeClass const* DataType::getClass(int classId)
 		case ZCLASSID_SUBSCREENDATA: return &SUBSCREENDATA;
 		case ZCLASSID_FILE: return &FILE;
 		case ZCLASSID_DIRECTORY: return &DIRECTORY;
+		case ZCLASSID_RNG: return &RNG;
 		case ZCLASSID_GRAPHICS: return &GRAPHICS;
 		case ZCLASSID_BITMAP: return &BITMAP;
 		case ZCLASSID_TEXT: return &TEXT;

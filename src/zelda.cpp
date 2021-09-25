@@ -1619,7 +1619,7 @@ void StunGuy(int j,int stun)
     if(((enemy*)guys.spr(j))->z==0 && canfall(((enemy*)guys.spr(j))->id))
     {
         ((enemy*)guys.spr(j))->stunclk=zc_min(360,stun*4);
-        ((enemy*)guys.spr(j))->fall=-zc_min(FEATHERJUMP,(stun*8)+rand()%5);
+        ((enemy*)guys.spr(j))->fall=-zc_min(FEATHERJUMP,(stun*8)+zc_oldrand()%5);
     }
 }
 
@@ -1866,7 +1866,7 @@ int init_game()
 {
 	
   //port250QuestRules();	
-    srand(time(0));
+    zc_srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.kb_typing_mode = false;
 	
@@ -1923,7 +1923,7 @@ int init_game()
     if(game != NULL)
         delete game;
         
-    char *dummy = (char *) zc_malloc((rand()%(RAND_MAX/2))+32);
+    char *dummy = (char *) zc_malloc((zc_oldrand()%(RAND_MAX/2))+32);
     game = new gamedata;
     game->Clear();
     
@@ -3013,8 +3013,8 @@ void do_magic_casting()
         
         if(magiccastclk>=0&&magiccastclk<64)
         {
-            Link.setX(tempx+((rand()%3)-1));
-            Link.setY(tempy+((rand()%3)-1));
+            Link.setX(tempx+((zc_oldrand()%3)-1));
+            Link.setY(tempy+((zc_oldrand()%3)-1));
         }
         
         if(magiccastclk==64)
@@ -3044,19 +3044,19 @@ void do_magic_casting()
                     {
                         if(itemsbuf[magicitem].misc1==1)  // Twilight
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (rand()%8)+i*4));
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(itemsbuf[magicitem].misc1==2)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (rand()%16)+i*2));
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
                             
-                            if(rand()%10 < 2)
+                            if(zc_oldrand()%10 < 2)
                             {
                                 p->color=1;
                                 p->cset=0;
@@ -3064,12 +3064,12 @@ void do_magic_casting()
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], rand()%96));
+                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], zc_oldrand()%96));
                             
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->angular=true;
-                            p->angle=rand();
+                            p->angle=zc_oldrand();
                             p->step=(((double)j)/8);
                             p->yofs=Link.getYOfs();
                         }
@@ -3959,15 +3959,15 @@ void game_loop()
         // Other effects in zc_sys.cpp
     }
     
-    //  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int(rand()%16)));
+    //  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int(zc_oldrand()%16)));
 }
 
 void runDrunkRNG(){
 	//Runs the RNG for drunk for each control which makes use of drunk toggling. 
 	//Index 0-10 refer to control_state[0]-[9], while index 11 is used for `DrunkrMbtn()`/`DrunkcMbtn()`, which do not use control_states[]
 	for(int i = 0; i<sizeof(drunk_toggle_state); i++){
-		if((!(frame%((rand()%100)+1)))&&(rand()%MAXDRUNKCLOCK<Link.DrunkClock())){
-			drunk_toggle_state[i] = (rand()%2)?true:false;
+		if((!(frame%((zc_oldrand()%100)+1)))&&(zc_oldrand()%MAXDRUNKCLOCK<Link.DrunkClock())){
+			drunk_toggle_state[i] = (zc_oldrand()%2)?true:false;
 		} else {
 			drunk_toggle_state[i] = false;
 		}

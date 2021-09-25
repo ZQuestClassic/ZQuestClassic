@@ -133,7 +133,7 @@ void temp_name(char temporaryname[])
         
         for(int j=0; j<8; ++j)
         {
-            tempnum=rand()%62;
+            tempnum=zc_rand(61);
             
             if(tempnum<26)
             {
@@ -410,30 +410,30 @@ int anim_3_4(int clk, int speed)
 /**********  Encryption Stuff  *****************/
 
 //#define MASK 0x4C358938
-static int seed = 0;
+static int enc_seed = 0;
 //#define MASK 0x91B2A2D1
-//static int seed = 7351962;
+//static int enc_seed = 7351962;
 static int enc_mask[ENC_METHOD_MAX]= {(int)0x4C358938,(int)0x91B2A2D1,(int)0x4A7C1B87,(int)0xF93941E6,(int)0xFD095E94};
 static int pvalue[ENC_METHOD_MAX]= {0x62E9,0x7D14,0x1A82,0x02BB,0xE09C};
 static int qvalue[ENC_METHOD_MAX]= {0x3619,0xA26B,0xF03C,0x7B12,0x4E8F};
 
 static int rand_007(int method)
 {
-    short BX = seed >> 8;
-    short CX = (seed & 0xFF) << 8;
-    signed char AL = seed >> 24;
+    short BX = enc_seed >> 8;
+    short CX = (enc_seed & 0xFF) << 8;
+    signed char AL = enc_seed >> 24;
     signed char C = AL >> 7;
     signed char D = BX >> 15;
     AL <<= 1;
     BX = (BX << 1) | C;
     CX = (CX << 1) | D;
-    CX += seed & 0xFFFF;
-    BX += (seed >> 16) + C;
+    CX += enc_seed & 0xFFFF;
+    BX += (enc_seed >> 16) + C;
     //  CX += 0x62E9;
     //  BX += 0x3619 + D;
     CX += pvalue[method];
     BX += qvalue[method] + D;
-    seed = (BX << 16) + CX;
+    enc_seed = (BX << 16) + CX;
     return (CX << 16) + BX;
 }
 
@@ -455,7 +455,7 @@ void encode_007(byte *buf, dword size, dword key2, word *check1, word *check2, i
     }
     
     p = buf;
-    seed = key2;
+    enc_seed = key2;
     
     for(i=0; i<size; i+=2)
     {
@@ -478,7 +478,7 @@ bool decode_007(byte *buf, dword size, dword key2, word check1, word check2, int
     byte *p;
     
     p = buf;
-    seed = key2;
+    enc_seed = key2;
     
     for(i=0; i<size; i+=2)
     {
@@ -517,7 +517,7 @@ int encode_file_007(const char *srcfile, const char *destfile, int key2, const c
     int tog = 0, c, r=0;
     short c1 = 0, c2 = 0;
     
-    seed = key2;
+    enc_seed = key2;
     src = fopen(srcfile, "rb");
     
     if(!src)
@@ -700,7 +700,7 @@ int decode_file_007(const char *srcfile, const char *destfile, const char *heade
         }
     }
     
-    seed = c << 24;
+    enc_seed = c << 24;
     
     if(packed)
     {
@@ -717,7 +717,7 @@ int decode_file_007(const char *srcfile, const char *destfile, const char *heade
         }
     }
     
-    seed += (c & 255) << 16;
+    enc_seed += (c & 255) << 16;
     
     if(packed)
     {
@@ -734,7 +734,7 @@ int decode_file_007(const char *srcfile, const char *destfile, const char *heade
         }
     }
     
-    seed += (c & 255) << 8;
+    enc_seed += (c & 255) << 8;
     
     if(packed)
     {
@@ -751,8 +751,8 @@ int decode_file_007(const char *srcfile, const char *destfile, const char *heade
         }
     }
     
-    seed += c & 255;
-    seed ^= enc_mask[method];
+    enc_seed += c & 255;
+    enc_seed ^= enc_mask[method];
     
     // decode the data
     for(i=0; i<size; i++)

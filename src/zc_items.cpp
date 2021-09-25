@@ -117,7 +117,7 @@ int select_dropitem(int item_set)
     if(total_chance==0)
         return -1;
         
-    int item_chance=(rand()%total_chance)+1;
+    int item_chance=(zc_oldrand()%total_chance)+1;
     
     int drop_item=-1;
     
