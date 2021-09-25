@@ -22,8 +22,9 @@ int zc_rand(int upper, int lower, zc_randgen* rng)
 		lower = upper;
 		upper = t;
 	}
-	std::uniform_int_distribution<int> dist(lower,upper);
-	return dist(*rng);
+	// std::uniform_int_distribution<int> dist(lower,upper);
+	// return dist(*rng);
+	return signed(unsigned(zc_rand(rng))%unsigned((upper-lower)+1))+lower;
 }
 
 void zc_srand(long seedval, zc_randgen* rng)
