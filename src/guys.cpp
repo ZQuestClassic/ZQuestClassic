@@ -3841,14 +3841,61 @@ int enemy::resolveEnemyDefence(weapon *w)
 	return weapondef;
 }
 
+byte get_def_ignrflag(int edef)
+{
+	switch(edef)
+	{
+		case edIGNORE:
+		case edIGNOREL1:
+		case edSTUNORIGNORE:
+			return WPNUNB_IGNR;
+		case edSTUNORCHINK:
+		case edCHINK:
+		case edCHINKL1:
+		case edCHINKL2:
+		case edCHINKL4:
+		case edCHINKL6:
+		case edCHINKL8:
+		case edCHINKL10:
+		case edLEVELCHINK2:
+		case edLEVELCHINK3:
+		case edLEVELCHINK4:
+		case edLEVELCHINK5:
+			return WPNUNB_BLOCK;
+	}
+}
 
+int conv_edef_unblockable(int edef, byte unblockable)
+{
+	if(!(unblockable&get_def_ignrflag(edef))) return edef;
+	switch(edef)
+	{
+		case edIGNORE:
+		case edIGNOREL1:
+		case edCHINK:
+		case edCHINKL1:
+		case edCHINKL2:
+		case edCHINKL4:
+		case edCHINKL6:
+		case edCHINKL8:
+		case edCHINKL10:
+		case edLEVELCHINK2:
+		case edLEVELCHINK3:
+		case edLEVELCHINK4:
+		case edLEVELCHINK5:
+			return edNORMAL;
+		case edSTUNORIGNORE:
+		case edSTUNORCHINK:
+			return edSTUNONLY;
+	}
+}
 
 // Do we do damage?
 // 0: takehit returns 0
 // 1: takehit returns 1
 // -1: do damage
 //The input from resolveEnemyDefence() for the param 'edef' is negative if a specific defence RESULT is being used.
-int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set return on brangs and hookshots
+int enemy::defendNew(int wpnId, int *power, int edef, byte unblockable) //May need *wpn to set return on brangs and hookshots
 {
 	int tempx = x;
 	int tempy = y;
@@ -3856,61 +3903,25 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 	if ( edef < 0 ) //we are using a specific base default defence for a weapon
 	{
 		the_defence = edef*-1; //A specific defence type. 
-		
 	}
 	else the_defence = defense[edef];
-	//Weapon Editor, Default Defence if set aqnd npc defence is none. 
-	//otherwise, use enemy editor definitions.  -Z
-	/*
-	int the_defence = 0;
 	
-	//al_trace("enemy::defend(), Step 1, checking defense[edef]: %d\n", defense[edef]);
-	//Z_message("enemy::defend(), Step 1, checking defense[edef]: %d\n", defense[edef]);
-	if ( defense[edef] > 0 ) 
-	{ 
-		al_trace("defendNew() is at: %s\n", "defense[edef] is > 0");
-		al_trace("defendNew()defense[edef] is: %d\n",defense[edef]);
-		the_defence = defense[edef]; 
-	   // al_trace("enemy::defend(), Step 2, defense[edef] > 0, setting defence: %d\n", defence);
-		//Z_message("enemy::defend(), Step 2, defense[edef] > 0, setting defence: %d\n", defence);
+	the_defence = conv_edef_unblockable(the_defence, unblockable);
 	
-	} 
-	else 
+	if(shieldCanBlock && !(unblockable&WPNUNB_SHLD))
 	{
-		al_trace("defendNew() is at: %s\n", "defense[edef] is <= 0");
-		the_defence = edef; //itemsbuf[id].usedefense;
-		//al_trace("enemy::defend(), Step 3, defense[edef] !> 0, setting defence: %d\n", edef);
-		//Z_message("enemy::defend(), Step 2, defense[edef] !> 0, setting defence: %d\n", edef);
-	}
-	//al_trace("defendNew() the_defence is: %d\n", the_defence);
-	//al_trace("defendNew() is at: %s\n", "is shieldCanBlock");
-	*/
-	if(shieldCanBlock)
-	{
-	   // al_trace("enemy::defend(), shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
-	  //  Z_message("enemy::defend(), shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
-		//switch(the_defence)
-		switch(the_defence) //usedefence should be set as part of the edef input to this function
+		switch(the_defence)
 		{
-		case edIGNORE:
-			return 0;
-		case edIGNOREL1:
-		case edSTUNORIGNORE:
-			if(*power <= 0)
+			case edIGNORE:
 				return 0;
+			case edIGNOREL1:
+			case edSTUNORIGNORE:
+				if(*power <= 0)
+					return 0;
 		}
-		//al_trace("defendNew() is at: %s\n", "playing shield block sound");
 		sfx(WAV_CHINK,pan(int(x)));
 		return 1;
 	}
-	
-   // al_trace("enemy::defend(), !shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
-	//Z_message("enemy::defend(), !shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
-	//al_trace("defendNew() is at: %s\n", "switch(the_defence)");
-	//al_trace("defendNew() the_defence is: %d\n", the_defence);
-	//switch(the_defence)
-	
-	// = NULL;
 	
 	int new_id = id;
 	int effect_type = dmisc15;
@@ -3918,9 +3929,8 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 	enemy *gleeok = NULL;
 	enemy *ptra = NULL;
 	int c = 0;
-	//int dummy_wpn_id = 23;
 	
-	switch(the_defence) //usedefence should be set as part of the edef input to this function
+	switch(the_defence)
 	{
 	case edREPLACE:
 	{
@@ -4457,7 +4467,7 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 					c-=guysbuf[new_id].misc4;
 					*/
 					
-				//}
+				// }
 				}
 				break;
 				
@@ -4819,8 +4829,6 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 	
 	}
 	
-	
-	
 	return -1;
 }
 
@@ -4872,7 +4880,7 @@ int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 		case wCByrna:
 		{
 			//al_trace("defenditemclassnew is: %s\n", "calling defendNew()");
-		def = defendNew(wid, power, edef);
+		def = defendNew(wid, power, edef, w->unblockable);
 			//al_trace("enemy::defenditemclass(), Step 2A, wid is NOT a script type, doing defendNew(wid, power, resolveEnemyDefence(w); def is: %d\n", def);
 			//Z_message("enemy::defenditemclass(), Step 2A, wid is NOT a script type, doing defendNew(wid, power, resolveEnemyDefence(w); def is: %d\n", def);
 		}
@@ -4882,58 +4890,14 @@ int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 	   
 		
 		
-		 case wScript1:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript2:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript3:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript4:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript5:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript6:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript7:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript8:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript9:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript10:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
+		 case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+		 case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
+			if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef, w->unblockable);
+			else def = defend(wpnId, power,  edefSCRIPT);
+			break;
 	
 	case wWhistle:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
+		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef, w->unblockable);
 		//if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefWhistle);
 		else break;
 		break;
@@ -4945,7 +4909,7 @@ int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 		//Either that, or we need a boolean flag to set int he enemy editor, or by ZScript that changes this behaviour. 
 		//such as bool UseSeparatedScriptDefences. hah.
 		default:
-			def = defendNew(wid, power,  edef);
+			def = defendNew(wid, power,  edef, w->unblockable);
 				//al_trace("enemy::defenditemclass(), reached DEFAULT, doing defendNew(wid, power, resolveEnemyDefence(w); def is: %d\n", def);
 			//Z_message("enemy::defenditemclass(), reached DEFAULT, doing defendNew(wid, power, resolveEnemyDefence(w); def is: %d\n", def);
 			   
@@ -4964,32 +4928,35 @@ int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 
 
 // Check defenses without actually acting on them.
-bool enemy::candamage(int power, int edef)
+bool enemy::candamage(int power, int edef, byte unblockable)
 {
 	switch(defense[edef])
 	{
-	case edSTUNORCHINK:
-	case edSTUNORIGNORE:
 	case edSTUNONLY:
-	case edCHINK:
-	case edIGNORE:
 		return false;
+	case edSTUNORCHINK:
+	case edCHINK:
+		return unblockable&WPNUNB_BLOCK;
+	case edSTUNORIGNORE:
+	case edIGNORE:
+		return unblockable&WPNUNB_IGNR;
 		
 	case edIGNOREL1:
+		return (unblockable&WPNUNB_IGNR) || power >= 1*game->get_hero_dmgmult();
 	case edCHINKL1:
-		return power >= 1*game->get_hero_dmgmult();
+		return (unblockable&WPNUNB_BLOCK) || power >= 1*game->get_hero_dmgmult();
 		
 	case edCHINKL2:
-		return power >= 2*game->get_hero_dmgmult();
+		return (unblockable&WPNUNB_BLOCK) || power >= 2*game->get_hero_dmgmult();
 		
 	case edCHINKL4:
-		return power >= 4*game->get_hero_dmgmult();
+		return (unblockable&WPNUNB_BLOCK) || power >= 4*game->get_hero_dmgmult();
 		
 	case edCHINKL6:
-		return power >= 6*game->get_hero_dmgmult();
+		return (unblockable&WPNUNB_BLOCK) || power >= 6*game->get_hero_dmgmult();
 		
 	case edCHINKL8:
-		return power >= 8*game->get_hero_dmgmult();
+		return (unblockable&WPNUNB_BLOCK) || power >= 8*game->get_hero_dmgmult();
 	}
 	
 	return true;
@@ -5390,8 +5357,8 @@ int enemy::takehit(weapon *w)
 	shieldCanBlock=false;
 	
 	//if (family==eeFLOAT && flags&(inv_front|inv_back_inv_left|inv_right)) xdir=down;
-	if((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
-			|| ((flags&inv_front && wpnDir==(xdir^down)) || (flags&inv_back && wpnDir==(xdir^up)) || (flags&inv_left && wpnDir==(xdir^left)) || (flags&inv_right && wpnDir==(xdir^right)))
+	if(!(w->unblockable&WPNUNB_BLOCK)&&((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
+			|| ((flags&inv_front && wpnDir==(xdir^down)) || (flags&inv_back && wpnDir==(xdir^up)) || (flags&inv_left && wpnDir==(xdir^left)) || (flags&inv_right && wpnDir==(xdir^right))))
 	  )
 		// The hammer should already be dealt with by subclasses (Walker etc.)
 	{
@@ -5500,7 +5467,7 @@ int enemy::takehit(weapon *w)
 		w->power = itemsbuf[parent_item].misc5;
 			
 		//int def = defendNew(wWhistle, &power,  resolveEnemyDefence(w));
-		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w));
+		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w), w->unblockable);
 		//int def = defend(wWhistle, &power,  edefWhistle);
 			
 		//al_trace("whistle def is: %d\n", def);
@@ -5543,17 +5510,17 @@ int enemy::takehit(weapon *w)
 			switch(f)
 			{
 			case itype_arrow:
-				if(!candamage(p, edefARROW)) return 0;
+				if(!candamage(p, edefARROW, w->unblockable)) return 0;
 				
 				break;
 				
 			case itype_cbyrna:
-				if(!candamage(p, edefBYRNA)) return 0;
+				if(!candamage(p, edefBYRNA, w->unblockable)) return 0;
 				
 				break;
 				
 			case itype_brang:
-				if(!candamage(p, edefBRANG)) return 0;
+				if(!candamage(p, edefBRANG, w->unblockable)) return 0;
 				
 				break;
 				
@@ -5570,7 +5537,7 @@ int enemy::takehit(weapon *w)
 	case wBrang:
 	{
 		//int def = defendNew(wpnId, &power, edefBRANG, w);
-		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w));
+		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w), w->unblockable);
 		//preventing stunlock might be best, here. -Z
 		if(def >= 0) return def;
 		
@@ -5599,7 +5566,7 @@ int enemy::takehit(weapon *w)
 	case wHookshot:
 	{
 		//int def = defendNew(wpnId, &power, edefHOOKSHOT,w);
-		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w));
+		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w), w->unblockable);
 		
 		if(def >= 0) return def;
 		
@@ -17786,9 +17753,9 @@ int ePatra::defend(int wpnId, int *power, int edef)
 	return ret;
 }
 
-int ePatra::defendNew(int wpnId, int *power, int edef)
+int ePatra::defendNew(int wpnId, int *power, int edef, byte unblockable)
 {
-	int ret = enemy::defendNew(wpnId, power, edef);
+	int ret = enemy::defendNew(wpnId, power, edef, unblockable);
 	
 	if(ret < 0 && (flycnt||flycnt2))
 		return 0;
@@ -18176,9 +18143,9 @@ int ePatraBS::defend(int wpnId, int *power, int edef)
 	return ret;
 }
 
-int ePatraBS::defendNew(int wpnId, int *power, int edef)
+int ePatraBS::defendNew(int wpnId, int *power, int edef, byte unblockable)
 {
-	int ret = enemy::defendNew(wpnId, power, edef);
+	int ret = enemy::defendNew(wpnId, power, edef, unblockable);
 	
 	if(ret < 0 && (flycnt||flycnt2))
 		return 0;

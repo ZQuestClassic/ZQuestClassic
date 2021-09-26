@@ -4157,6 +4157,12 @@ bool MoveFlags[2];
  * [0] == Obeys gravity (see ->Gravity)
  * [1] == Can fall in pitfalls
  * Read-Write
+ 
+int LightRadius;
+ * The radius of light this object emits in a dark room
+
+int LightShape;
+ * The shape of light this object emits in a dark room.
 
 /************************************************************************************************************/	
 
@@ -4254,6 +4260,16 @@ bool MoveFlags[2];
  * [0] == Obeys gravity (see ->Gravity)
  * [1] == Can fall in pitfalls
  * Read-Write
+ 
+int LightRadius;
+ * The radius of light this object emits in a dark room
+
+int LightShape;
+ * The shape of light this object emits in a dark room.
+
+int Unblockable;
+ * A flagset representing the weapon's ability to pierce defenses.
+ * Use the 'UNBLOCK_' constants with bitwise operations to get/set this state.
 
 ///////////////////////////
 ///  EWeapon  Specific  ///
@@ -4636,6 +4652,12 @@ bool MoveFlags[3];
  * [1] == Can fall in pitfalls
  * [2] == Can walk over pitfalls
  * Read-Write
+ 
+int LightRadius;
+ * The radius of light this object emits in a dark room
+
+int LightShape;
+ * The shape of light this object emits in a dark room.
  
 /* The following commands are valid, but do not yet have in-engine use, */
 

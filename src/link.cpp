@@ -5495,8 +5495,8 @@ void LinkClass::check_pound_block(weapon *w)
 // 1 Effects, weapon is not ignored or removed
 int LinkClass::defend(weapon *w)
 {
-	//zprint2("Running Link::defend with weapon ID: %d\n", w->id);
-	switch(defence[w->id])
+	int def = conv_edef_unblockable(defence[w->id], w->unblockable);
+	switch(def)
 	{
 		case edNORMAL: return 1;
 		case edHALFDAMAGE: // : IMPLEMENTED : Take half damage
@@ -5511,7 +5511,6 @@ int LinkClass::defend(weapon *w)
 		}
 		case edSTUNONLY:
 		{
-			zprint2("Stunning ink\n");
 			setStunClock(120);
 			return 1;
 		}
@@ -5855,6 +5854,11 @@ int LinkClass::EwpnHit()
                 break;
             }
             
+			if(reflect && (ew->unblockable&WPNUNB_REFL))
+				reflect = false;
+			if(!reflect && (ew->unblockable&WPNUNB_SHLD))
+				return i;
+			
             int oldid = ew->id;
             ew->onhit(false, reflect ? 2 : 1, dir);
             

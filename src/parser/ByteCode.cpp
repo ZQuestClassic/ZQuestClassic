@@ -1909,6 +1909,8 @@ string ZScript::VarToString(long ID)
 	case ITEMDIR: return "ITEMDIR";
 	
 	case ITEMENGINEANIMATE: return "ITEMENGINEANIMATE";
+	case LWPNUNBL: return "LWPNUNBL";
+	case EWPNUNBL: return "EWPNUNBL";
 	
 	default:
 	{

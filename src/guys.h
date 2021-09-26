@@ -46,6 +46,9 @@ void screen_combo_modify_postroutine(mapscr *s, int pos);
 // Find the IDs of enemies spawned by combos and flags. Called once on loading a quest.
 void identifyCFEnemies();
 
+byte get_def_ignrflag(int edef);
+int conv_edef_unblockable(int edef, byte unblockable);
+
 /**********************************/
 /*******  Enemy Base Class  *******/
 /**********************************/
@@ -263,9 +266,9 @@ protected:
 	int weaponToDefence(int wid);
 	int getWeaponID(weapon *w);
 	int resolveEnemyDefence(weapon *w);
-	virtual int defendNew(int wpnId, int *power, int edef);
+	virtual int defendNew(int wpnId, int *power, int edef, byte unblockable);
 	//virtual int defend_wdmg(int wpnId, int dmg, int edef);
-	bool candamage(int power, int edef);
+	bool candamage(int power, int edef, byte unblockable);
 	int defenditemclass(int wpnId, int *power);
 	int defenditemclassNew(int wpnId, int *power, weapon *w);
 	
@@ -799,7 +802,7 @@ public:
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 	virtual int defend(int wpnId, int *power, int edef);
-	virtual int defendNew(int wpnId, int *power, int edef);
+	virtual int defendNew(int wpnId, int *power, int edef, byte unblockable);
 };
 
 // segment class
@@ -824,7 +827,7 @@ public:
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 	virtual int defend(int wpnId, int *power, int edef);
-	virtual int defendNew(int wpnId, int *power, int edef);
+	virtual int defendNew(int wpnId, int *power, int edef, byte unblockable);
 };
 
 // segment class

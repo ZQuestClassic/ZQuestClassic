@@ -28,6 +28,13 @@ extern byte bszboomflip[4];
 
 #define WEAPON_CLOCKS 10
 
+#define WPNUNB_NONE      0x00
+#define WPNUNB_BLOCK     0x01
+#define WPNUNB_IGNR      0x02
+#define WPNUNB_SHLD      0x04
+#define WPNUNB_REFL      0x08
+#define WPNUNB_ALL       0x0F
+
 class weapon : public sprite
 {
 private:
@@ -54,6 +61,7 @@ public:
     int temp1;
     bool behind;
 	byte linkedItem;
+	byte unblockable;
 	byte wscreengrid[22];
 	byte wscreengrid_layer[6][22];
 

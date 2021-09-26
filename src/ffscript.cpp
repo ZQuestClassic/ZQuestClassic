@@ -6316,6 +6316,13 @@ long get_register(const long arg)
 			}
 			break;
 			
+		case LWPNUNBL:
+			if(0!=(s=checkLWpn(ri->lwpn,"Unblockable")))
+			{
+				ret = ((weapon*)(s))->unblockable * 10000;
+			}
+			break;
+			
 		///----------------------------------------------------------------------------------------------------//
 		//EWeapon Variables
 		case EWPNSCALE:
@@ -6709,6 +6716,13 @@ long get_register(const long arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
 			{
 				ret = ((weapon*)(s))->glowShape * 10000;
+			}
+			break;
+			
+		case EWPNUNBL:
+			if(0!=(s=checkEWpn(ri->ewpn,"Unblockable")))
+			{
+				ret = ((weapon*)(s))->unblockable * 10000;
 			}
 			break;
 		
@@ -13537,6 +13551,13 @@ void set_register(const long arg, const long value)
 			}
 			break;
 			
+		case LWPNUNBL:
+			if(0!=(s=checkLWpn(ri->lwpn,"Unblockable")))
+			{
+				((weapon*)(s))->unblockable = (value/10000)&WPNUNB_ALL;
+			}
+			break;
+			
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
 		case EWPNSCALE:
@@ -13922,6 +13943,13 @@ void set_register(const long arg, const long value)
 			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
 			{
 				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case EWPNUNBL:
+			if(0!=(s=checkEWpn(ri->ewpn,"Unblockable")))
+			{
+				((weapon*)(s))->unblockable = (value/10000)&WPNUNB_ALL;
 			}
 			break;
 			
@@ -34673,6 +34701,8 @@ script_variable ZASMVars[]=
 	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
 	{ "ITEMENGINEANIMATE",           ITEMENGINEANIMATE,            0,             0 },
 	{ "REFRNG",           REFRNG,            0,             0 },
+	{ "LWPNUNBL",           LWPNUNBL,            0,             0 },
+	{ "EWPNUNBL",           EWPNUNBL,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
