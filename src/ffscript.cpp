@@ -9383,7 +9383,7 @@ long get_register(const long arg)
 		}
 		case DMAPDATATYPE:	//byte
 		{
-			ret = ((byte)DMaps[ri->dmapsref].type) * 10000; break;
+			ret = ((byte)DMaps[ri->dmapsref].type&dmfTYPE) * 10000; break;
 		}
 		case DMAPDATASIDEVIEW:	//byte
 		{
@@ -17458,7 +17458,7 @@ void set_register(const long arg, const long value)
 		}
 		case DMAPDATATYPE:	//byte
 		{
-			DMaps[ri->dmapsref].type = ((byte)(value / 10000)); break;
+			DMaps[ri->dmapsref].type = (((byte)(value / 10000))&dmfTYPE) | (DMaps[ri->dmapsref].type&~dmfTYPE); break;
 		}
 		case DMAPSCRIPT:	//byte
 		{
