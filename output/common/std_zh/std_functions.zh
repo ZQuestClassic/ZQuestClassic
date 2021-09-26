@@ -1,5 +1,5 @@
 // std_functions.zh
-// 14th March, 2021 for ZC 2.55.0 Alpha 90
+// 26th Sept, 2021 for ZC 2.55 Alpha 96
 
 //A
 
@@ -160,7 +160,7 @@ int AngleDir8(float angle)
 
 //Returns the correct offset to be at the front of a sprite facing in the direction 'dir'
 int AtFrontX(int dir) {
-
+	dir=DirNormal(dir);
 	int x = 0;
 	if(dir == DIR_UP || dir == DIR_DOWN) x = 8;
 	else if(dir == DIR_RIGHT) x = 16;
@@ -168,7 +168,7 @@ int AtFrontX(int dir) {
 }
 
 int AtFrontY(int dir) {
-
+	dir=DirNormal(dir);
 	int y = 0;
 	if(dir == DIR_DOWN) y = 16;
 	else if(dir == DIR_LEFT || dir == DIR_RIGHT) y = 8;
@@ -201,7 +201,7 @@ bool CanWalk(int x, int y, int dir, int step, bool full_tile)
 	int xx = x+15;
 	int yy = y+15;
 	if(full_tile) c=0;
-	switch(dir)
+	switch(DirNormal(dir))
 	{
 		case DIR_UP: return !(y-step<0||Screen->isSolid(x,y+c-step)||Screen->isSolid(x+8,y+c-step)||Screen->isSolid(xx,y+c-step));
 		case DIR_DOWN: return !(yy+step>=176||Screen->isSolid(x,yy+step)||Screen->isSolid(x+8,yy+step)||Screen->isSolid(xx,yy+step));
@@ -327,7 +327,7 @@ bool Collision(lweapon a, eweapon b)
 	int bx = b->X + b->HitXOffset;
 	int ay = a->Y + a->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
 }
 
 //A collision between an lweapon and an lweapon.
@@ -337,7 +337,7 @@ bool Collision(lweapon a, lweapon b)
 	int bx = b->X + b->HitXOffset;
 	int ay = a->Y + a->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
 }
 
 //A collision between an eweapon and an eweapon.
@@ -347,7 +347,7 @@ bool Collision(eweapon a, eweapon b)
 	int bx = b->X + b->HitXOffset;
 	int ay = a->Y + a->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
 }
 
 //A collision between an lweapon and an npc.
@@ -357,7 +357,7 @@ bool Collision(lweapon a, npc b)
 	int bx = b->X + b->HitXOffset;
 	int ay = a->Y + a->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
 }
 
 //A collision between an eweapon and an npc.
@@ -367,7 +367,7 @@ bool Collision(eweapon a, npc b)
 	int bx = b->X + b->HitXOffset;
 	int ay = a->Y + a->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
 }
 
 //A collision between an npc and an npc.
@@ -377,7 +377,7 @@ bool Collision(npc a, npc b)
 	int bx = b->X + b->HitXOffset;
 	int ay = a->Y + a->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
 }
 
 //A collision between an item and an lweapon.
@@ -387,7 +387,7 @@ bool Collision(item a, lweapon b)
 	int bx = b->X + b->HitXOffset;
 	int ay = a->Y + a->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
 }
 
 //A collision between an item and an eweapon.
@@ -397,7 +397,7 @@ bool Collision(item a, eweapon b)
 	int bx = b->X + b->HitXOffset;
 	int ay = a->Y + a->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
 }
 
 //A collision between an item and an npc.
@@ -407,7 +407,7 @@ bool Collision(item a, npc b)
 	int bx = b->X + b->HitXOffset;
 	int ay = a->Y + a->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
 }
 
 //A collision between an item and an item.
@@ -417,7 +417,7 @@ bool Collision(item a, item b)
 	int bx = b->X + b->HitXOffset;
 	int ay = a->Y + a->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+a->HitWidth-1, ay+a->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
 }
 
 //A collision between an ffc and an lweapon. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
@@ -425,7 +425,7 @@ bool Collision(ffc f, lweapon b)
 {
 	int bx = b->X + b->HitXOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1);
 }
 
 //A collision between an ffc and an eweapon. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
@@ -433,7 +433,7 @@ bool Collision(ffc f, eweapon b)
 {
 	int bx = b->X + b->HitXOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1);
 }
 
 //A collision between an ffc and an npc. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
@@ -441,7 +441,7 @@ bool Collision(ffc f, npc b)
 {
 	int bx = b->X + b->HitXOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1);
 }
 
 //A collision between an ffc and an item. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
@@ -449,13 +449,13 @@ bool Collision(ffc f, item b)
 {
 	int bx = b->X + b->HitXOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1);
 }
 
 //A collision between an ffc and an ffc. Uses TileWidth and TileHeight for the FFCs' bounding boxes.
 bool Collision(ffc f, ffc f2) 
 {
-	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), f2->X, f2->Y, f2->X+f2->TileWidth*16, f2->Y+f2->TileHeight*16);
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, f2->X, f2->Y, f2->X+f2->TileWidth*16-1, f2->Y+f2->TileHeight*16-1);
 }
 
 //A circular collision between an ffc and an ffc. Uses TileWidth and TileHeight to find the centre of the FFCs.
@@ -523,7 +523,7 @@ bool Collision(eweapon b)
 	int bx = b->X + b->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
 }
 
 // Returns true if there is a collision between Link's hitbox and the lweapon's.
@@ -534,7 +534,7 @@ bool Collision(lweapon b)
 	int bx = b->X + b->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
 }
 
 // Returns true if there is a collision between Link's hitbox and the item's.
@@ -545,7 +545,7 @@ bool Collision(item b)
 	int bx = b->X + b->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
 }
 
 // Returns true if there is a collision between Link's hitbox and the npc's.
@@ -556,7 +556,7 @@ bool Collision(npc b)
 	int bx = b->X + b->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
 }
 
 // Returns true if there is a collision between Link's hitbox and the FFC's.
@@ -565,7 +565,7 @@ bool Collision(ffc f)
 {
 	int ax = Link->X + Link->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
-	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1);
 }
 
 //Only legal from combodata scripts as this->Collision
@@ -573,7 +573,7 @@ bool Collision(combodata f)
 {
 	int ax = Link->X + Link->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
-	return RectCollision(f->PosX(), f->PosY(), f->PosX()+16, f->PosY()+16, ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
+	return RectCollision(f->PosX(), f->PosY(), f->PosX()+15, f->PosY()+15, ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1);
 }
 
 //Finds the location of a combo, given its (x,y) coordinates on the screen
@@ -792,11 +792,44 @@ float DegtoRad(float d)
 }
 
 
+//Normalizes a dir between 8 and 15
+int DirNormal(int dir)
+{
+	if(dir < 8 || dir > 15) return dir;
+	switch(dir)
+	{
+		case DIR2_UP: return DIR_UP;
+		case DIR2_RIGHTUP: return DIR_RIGHTUP;
+		case DIR2_RIGHT: return DIR_RIGHT;
+		case DIR2_RIGHTDOWN: return DIR_RIGHTDOWN;
+		case DIR2_DOWN: return DIR_DOWN;
+		case DIR2_LEFTDOWN: return DIR_LEFTDOWN;
+		case DIR2_LEFT: return DIR_LEFT;
+		case DIR2_LEFTUP: return DIR_LEFTUP;
+	}
+}
+//The reverse
+int DirAbnormal(int dir)
+{
+	if(dir < 0 || dir > 7) return dir;
+	switch(dir)
+	{
+		case DIR_UP: return DIR2_UP;
+		case DIR_RIGHTUP: return DIR2_RIGHTUP;
+		case DIR_RIGHT: return DIR2_RIGHT;
+		case DIR_RIGHTDOWN: return DIR2_RIGHTDOWN;
+		case DIR_DOWN: return DIR2_DOWN;
+		case DIR_LEFTDOWN: return DIR2_LEFTDOWN;
+		case DIR_LEFT: return DIR2_LEFT;
+		case DIR_LEFTUP: return DIR2_LEFTUP;
+	}
+}
+
 //Returns angle of the given direction.
 int Dir4Angle(int dir)
 {
 	//dir &=7;
-	switch(dir)
+	switch(DirNormal(dir))
 	{
 		case DIR_UP: return DEG_DIR_UP;
 		case DIR_DOWN: return DEG_DIR_DOWN;
@@ -810,7 +843,7 @@ int Dir4Angle(int dir)
 int DirAngle(int dir)
 {
 	//dir &=7; //I do not recall why this is here. Removing it as it seems extraneous. -Z
-	switch(dir)
+	switch(DirNormal(dir))
 	{
 		case DIR_UP: return DEG_DIR_UP;
 		case DIR_DOWN: return DEG_DIR_DOWN;
@@ -827,7 +860,7 @@ int DirAngle(int dir)
 //Same as Dir4Angle, but return value is measured in radians.
 int Dir4Rad(int dir)
 {
-	switch(dir)
+	switch(DirNormal(dir))
 	{
 		case DIR_UP: return RAD_DIR_UP;
 		case DIR_DOWN: return RAD_DIR_DOWN;
@@ -841,7 +874,7 @@ int Dir4Rad(int dir)
 int DirRad(int dir)
 {
 	//dir &=7;
-	switch(dir)
+	switch(DirNormal(dir))
 	{
 		case DIR_UP: return RAD_DIR_UP;
 		case DIR_DOWN: return RAD_DIR_DOWN;
@@ -2290,7 +2323,7 @@ bool IsBackgroundLayer(int layer, mapdata m)
 int InFrontX(int dir, int dist) 
 {
 	//int x = 0;
-	switch(dir)
+	switch(DirNormal(dir))
 	{
 		case DIR_LEFT: return dist-16;
 		case DIR_RIGHT: return 16-dist;
@@ -2304,7 +2337,7 @@ int InFrontX(int dir, int dist)
 int InFrontY(int dir, int dist)
 {
 	//int y = 0;
-	switch(dir)
+	switch(DirNormal(dir))
 	{
 		case DIR_UP: return dist-16;
 		case DIR_DOWN: return 16-dist;
@@ -2491,7 +2524,7 @@ bool LinkCollision(eweapon b)
 	int bx = b->X + b->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
 }
 
 // Returns true if there is a collision between Link's hitbox and the lweapon's.
@@ -2502,7 +2535,7 @@ bool LinkCollision(lweapon b)
 	int bx = b->X + b->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
 }
 
 // Returns true if there is a collision between Link's hitbox and the item's.
@@ -2513,7 +2546,7 @@ bool LinkCollision(item b)
 	int bx = b->X + b->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
 }
 
 // Returns true if there is a collision between Link's hitbox and the npc's.
@@ -2524,7 +2557,7 @@ bool LinkCollision(npc b)
 	int bx = b->X + b->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
 	int by = b->Y + b->HitYOffset;
-	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+	return RectCollision(ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1, bx, by, bx+b->HitWidth-1, by+b->HitHeight-1) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
 }
 
 // Returns true if there is a collision between Link's hitbox and the FFC's.
@@ -2533,7 +2566,7 @@ bool LinkCollision(ffc f)
 {
 	int ax = Link->X + Link->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
-	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1);
 }
 
 // Returns the first EWeapon of the given type. Use the EW_ constants.
@@ -2725,7 +2758,6 @@ void NoAction()
 	Link->InputEx4 = false; Link->PressEx4 = false;
 	*/
 }
-
 
 //Returns the number of enemy NPCs on the current screen.
 int NumberEnemies()
@@ -2925,6 +2957,10 @@ void old_SetLayerComboT(int layer, int pos, int type) {
 //Returns the opposite direction to angle 'dir'
 int OppositeDir(int dir) 
 {
+	if(dir > 7 && dir < 16)
+	{
+		return 8+((dir+4)%8);
+	}
 	return ( (dir < 4) ? dir^1b : dir^11b );
 }
 
@@ -4031,13 +4067,47 @@ int SpinDir(int dir)
 	switch(dir)
 	{
 		case DIR_UP:
-			return DIR_UP;
-		case DIR_DOWN:
 			return DIR_RIGHT;
-		case DIR_LEFT: 
-			return DIR_DOWN;
 		case DIR_RIGHT:
+			return DIR_DOWN;
+		case DIR_DOWN:
 			return DIR_LEFT;
+		case DIR_LEFT: 
+			return DIR_UP;
+			
+		case DIR2_UP:
+			return DIR2_RIGHT;
+		case DIR2_RIGHT:
+			return DIR2_DOWN;
+		case DIR2_DOWN:
+			return DIR2_LEFT;
+		case DIR2_LEFT: 
+			return DIR2_UP;
+		default: return -1;
+	}
+}
+int SpinDir8(int dir) 
+{
+	switch(dir)
+	{
+		case DIR_UP:
+			return DIR_RIGHTUP;
+		case DIR_RIGHTUP:
+			return DIR_RIGHT;
+		case DIR_RIGHT:
+			return DIR_RIGHTDOWN;
+		case DIR_RIGHTDOWN:
+			return DIR_DOWN;
+		case DIR_DOWN:
+			return DIR_LEFTDOWN;
+		case DIR_LEFTDOWN:
+			return DIR_LEFT;
+		case DIR_LEFT:
+			return DIR_LEFTUP;
+		case DIR_LEFTUP:
+			return DIR_UP;
+		case DIR2_UP...DIR2_LEFTUP:
+			return 8+((dir+1)%8);
 		default: return -1;
 	}
 }

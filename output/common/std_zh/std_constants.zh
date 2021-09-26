@@ -1,5 +1,5 @@
 // std_constants.zh
-// 3rd July, 2021 for ZC 2.55.0 Alpha 93
+// 26th Sept, 2021 for ZC 2.55 Alpha 96
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -332,6 +332,23 @@ const int DIR_UPLEFT            = 4; //100b
 const int DIR_UPRIGHT           = 5; //101b
 const int DIR_DOWNLEFT          = 6; //110b
 const int DIR_DOWNRIGHT         = 7; //111b
+
+
+//Extra Directions. Used with some stuff?
+const int DIR2_UP                = 8;
+const int DIR2_RIGHTUP           = 9;
+const int DIR2_RIGHT             = 10;
+const int DIR2_RIGHTDOWN         = 11;
+const int DIR2_DOWN              = 12;
+const int DIR2_LEFTDOWN          = 13;
+const int DIR2_LEFT              = 14;
+const int DIR2_LEFTUP            = 15;
+
+//Repeat in DOWN*/UP* format
+const int DIR2_UPRIGHT           = 9;
+const int DIR2_DOWNRIGHT         = 11;
+const int DIR2_DOWNLEFT          = 13;
+const int DIR2_UPLEFT            = 15;
 
 					//Equivalent Degrees and Radians for Cardinal Directions
 //Degrees
