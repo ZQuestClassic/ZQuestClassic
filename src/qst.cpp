@@ -3233,6 +3233,12 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31,1);
 	}
 	
+	if(compatrule_version < 2)
+	{
+		//Old CSet2 Handling
+		set_bit(quest_rules,qr_OLDCS2,1);
+	}
+	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);

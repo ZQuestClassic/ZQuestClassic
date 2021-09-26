@@ -251,7 +251,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              7
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       1
+#define V_COMPATRULE       2
 //= V_SHOPS is under V_MISC
 
 /*
@@ -371,6 +371,8 @@ extern bool fake_pack_writing;
 
 //TODO Turn this into an init data var, and allow editing it per-weapon! -Em
 #define DEFAULT_FIRE_LIGHT_RADIUS 40
+
+#define WRAP_CS2(cs,cs2) (get_bit(quest_rules,qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+12)%12))
 
 //#define MAGICDRAINRATE  2
 
@@ -1006,7 +1008,7 @@ enum
 	qr_AUTOCOMBO_LAYER_1, qr_AUTOCOMBO_LAYER_2, qr_TRUEFIXEDBOMBSHIELD, qr_BOMBSPIERCESHIELD,
 	qr_BROKEN_HORIZONTAL_WEAPON_ANIM, qr_NEW_DARKROOM, qr_NEWDARK_L6, qr_ENEMIES_SECRET_ONLY_16_31,
 	//31
-	qr_SCREEN80_OWN_MUSIC,
+	qr_SCREEN80_OWN_MUSIC, qr_OLDCS2,
 	
 	//ZScript Parser //room for 20 of these
 	//80

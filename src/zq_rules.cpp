@@ -871,6 +871,7 @@ static int compatrules[] =
    qr_SHORTDGNWALK,qr_OLD_STRING_EDITOR_MARGINS,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT,
    qr_BROKEN_OVERWORLD_MINIMAP, qr_BROKEN_RING_POWER, qr_NO_OVERWORLD_MAP_CHARTING, qr_DUNGEONS_USE_CLASSIC_CHARTING,
    qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION, qr_BROKEN_HORIZONTAL_WEAPON_ANIM,qr_ENEMIES_SECRET_ONLY_16_31,
+   qr_OLDCS2,
 	-1 
 };
 
@@ -933,7 +934,7 @@ static DIALOG compatrules_dlg[] =
 	{ jwin_check_proc,      10,  13+90, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Chest Collision", NULL, NULL },
 	{ jwin_check_proc,      10, 13+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Broken Horizontal Weapon Animation", NULL, NULL },
 	{ jwin_check_proc,      10, 13+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Enemies->Secret only affects flags 16-31", NULL, NULL },
-	{ jwin_check_proc,      10, 13+120, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0,        (void *) "--", NULL, NULL },
+	{ jwin_check_proc,      10, 13+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old CSet2 Handling", NULL, NULL },
 	{ jwin_check_proc,      10, 13+130, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0,        (void *) "--", NULL, NULL },
 	// 45
 	{ jwin_check_proc,      10, 13+140, 185,    9,    vc(14),   vc(1),      0,      D_DISABLED, 1,             0,        (void *) "--", NULL, NULL },

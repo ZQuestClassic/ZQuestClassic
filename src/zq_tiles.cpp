@@ -18888,6 +18888,10 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[13].fg = cs;
 	
 	char csets = curr_combo.csets & 15;
+	if(csets&8) //if csets>8, then it's a negative.
+	{
+		csets |= 0xF0;
+	}
 	
 	if(disableEdit)
 		sprintf(combonumstr, "Combo %d - No editing solidity/type", c);
@@ -19559,7 +19563,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		//	al_trace("too big\n");
 		// }
 		
-		curr_combo.csets = ((vbound(atoi(cset_str),-11,11) % 12) + 12) % 12; //Bound this to a size of csets, so that it does not wrap!
+		curr_combo.csets = vbound(atoi(cset_str),-8,7)&15; //Bound this to a size of csets, so that it does not wrap!
 		
 		for(int i=0; i<4; i++)
 		{
