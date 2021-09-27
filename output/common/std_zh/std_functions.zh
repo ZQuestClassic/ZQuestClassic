@@ -2997,19 +2997,25 @@ float RadtoDeg(float r)
 //Returns a random integer in the bounds of min and max
 int Rand(int min, int max) 
 {
-	return min+(Rand((1+max)-min));
+	if(OLD_RAND_FUNCS)
+		return min+(Rand((1+max)-min));
+	return RandGen->Rand(max, min);
 }
 
 //Returns a random floating point number up to n
 float Randf(float n) 
 {
-	return (Rand(0x7fff)/0x7fff)*n;
+	if(OLD_RAND_FUNCS)
+		return (Rand(0x7fff)/0x7fff)*n;
+	return RandGen->RandL(n);
 }
 
 //Returns a random floating point number between min and max
 float Randf(float n1, float n2) 
 {
-	return n1 + (Rand(0x7fff)/(0x7fff))*(n2-n1);
+	if(OLD_RAND_FUNCS)
+		return n1 + (Rand(0x7fff)/(0x7fff))*(n2-n1);
+	return RandGen->RandL(n1, n2);
 }
 
 //Generalized and optimized rectangle collision checking function.
