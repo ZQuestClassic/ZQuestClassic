@@ -48,5 +48,25 @@ echo Copying '\output\modules'...
 echo Copying '\output\modules'...>>%log%
 xcopy /e /y /i "%mod%" "%nb%\modules" >>%log%
 
-pause
+choice /c YN /N /T 20 /D Y /M "Create .zip? (Y/N)"
 
+if %ERRORLEVEL% NEQ 1 goto close
+
+echo Zipping...
+echo Zipping...>>%log%
+if exist "C:\Program Files\7-Zip\7z.exe" (
+	
+	if exist "%nb%.zip" (
+		del "%nb%.zip"
+	)
+	
+	"C:\Program Files\7-Zip\7z.exe" a -tzip "%nb%.zip" -r "%nb%\*" -mx9
+	
+	goto end
+)
+
+echo No ZIP Program Found!
+echo No ZIP Program Found! >>%log%
+:end
+pause
+:close

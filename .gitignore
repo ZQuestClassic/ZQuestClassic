@@ -110,3 +110,4 @@ cmake_install.cmake
 # Package generation
 output/_auto/buildpack_log.txt
 output/_auto/buildpack
+output/_auto/buildpack.zip
