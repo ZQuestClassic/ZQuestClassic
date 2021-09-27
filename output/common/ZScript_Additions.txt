@@ -4164,6 +4164,11 @@ int LightRadius;
 int LightShape;
  * The shape of light this object emits in a dark room.
 
+void Remove();
+ * Instantly DELETES an itemsprite.
+ * This will immediately invalidate the itemsprite pointer, as well as update 'Screen->NumItems()', and change the indexes for 'Screen->LoadItem()'
+ * If called from an itemsprite script on the itemsprite running the script, immediately terminates the script.
+
 /************************************************************************************************************/	
 
 /////////////////
@@ -4266,6 +4271,11 @@ int LightRadius;
 
 int LightShape;
  * The shape of light this object emits in a dark room.
+ 
+void Remove();
+ * Instantly DELETES a weapon.
+ * This will immediately invalidate the weapon pointer, as well as update 'Screen->Num*Weapons()', and change the indexes for 'Screen->Load*Weapon()'
+ * If called from a weapon script on the weapon running the script, immediately terminates the script.
 
 int Unblockable;
  * A flagset representing the weapon's ability to pierce defenses.
@@ -4446,11 +4456,6 @@ int HitDir;
  * Returns -1 if the npc is not being knockd back.
  * Writing to this has no effect, and is ignored. 
  * This value is set both from engine, and from scripted knockback.
- 
-void Remove(); 
- * Instantly DELETES an npc. No items will be dropped, no sound will play; the npc is simply DELETED OUTRIGHT.
- * This will immediately invalidate the npc pointer, as well as update 'Screen->NumNPCs()', and change the indexes for 'Screen->LoadNPC()'
- * If called from an NPC script on the NPC running the script, immediately terminates the script.
 
 void StopBGSFX();
  * Stops the background sounds that the npc is generating.
@@ -4659,25 +4664,30 @@ int LightRadius;
 int LightShape;
  * The shape of light this object emits in a dark room.
  
+void Remove();
+ * Instantly DELETES an npc. No items will be dropped, no sound will play; the npc is simply DELETED OUTRIGHT.
+ * This will immediately invalidate the npc pointer, as well as update 'Screen->NumNPCs()', and change the indexes for 'Screen->LoadNPC()'
+ * If called from an NPC script on the NPC running the script, immediately terminates the script.
+ 
 /* The following commands are valid, but do not yet have in-engine use, */
 
-int Frozen;
- * Returns the number of frames for which the npc remains frozen
+// int Frozen;
+// * Returns the number of frames for which the npc remains frozen
 
-int FrozenTile;
- * Unimplemented at this time.
+// int FrozenTile;
+// * Unimplemented at this time.
  
-int FrozenCSet;
- * Unimplemented at this time.
+// int FrozenCSet;
+// * Unimplemented at this time.
 
-int Movement[32];
- * NPC Movement patterns, and args.
+// int Movement[32];
+// * NPC Movement patterns, and args.
 
-int WeaponPattern[32];
- * NPC weapon movement patterns and args.
+// int WeaponPattern[32];
+// * NPC weapon movement patterns and args.
 
-int FireSound;
- * The sound that plays when the npc fires a weapon.
+// int FireSound;
+// * The sound that plays when the npc fires a weapon.
 
 
 /************************************************************************************************************/

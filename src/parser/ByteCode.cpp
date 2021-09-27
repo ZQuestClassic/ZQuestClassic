@@ -4843,6 +4843,18 @@ string ONPCRemove::toString()
 {
     return "NPCKICKBUCKET " + getArgument()->toString();
 }
+string OLWpnRemove::toString()
+{
+    return "LWPNDEL";
+}
+string OEWpnRemove::toString()
+{
+    return "EWPNDEL";
+}
+string OItemRemove::toString()
+{
+    return "ITEMDEL";
+}
 string ONPCStopSFX::toString()
 {
     return "NPCSTOPBGSFX " + getArgument()->toString();

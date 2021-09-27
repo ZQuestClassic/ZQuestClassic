@@ -991,6 +991,9 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "RNGSEED",           1,   0,   0,   0},
 	{ "RNGRSEED",           0,   0,   0,   0},
 	{ "RNGFREE",           0,   0,   0,   0},
+	{ "LWPNDEL",           0,   0,   0,   0},
+	{ "EWPNDEL",           0,   0,   0,   0},
+	{ "ITEMDEL",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

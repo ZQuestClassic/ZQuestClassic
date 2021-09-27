@@ -127,7 +127,6 @@ public:
     bool isScriptGenerated();
     bool clip();
     bool blocked();
-    void runscript(int index);
     virtual bool blocked(int xOffset, int yOffset);
     virtual bool animate(int index);
     virtual void onhit(bool clipped);

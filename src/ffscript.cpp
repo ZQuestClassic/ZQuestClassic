@@ -26279,14 +26279,49 @@ int run_script(const byte type, const word script, const long i)
 				break;
 			
 			case NPCKICKBUCKET:
+			{
 				FFScript::deallocateAllArrays(SCRIPT_NPC, ri->guyref);
 				if(type == SCRIPT_NPC && ri->guyref == i)
 				{
-					FFCore.do_npckickbucket();
+					FFCore.do_npc_delete();
 					return RUNSCRIPT_SELFDELETE;
 				}
-				FFCore.do_npckickbucket();
+				FFCore.do_npc_delete();
 				break;
+			}
+			case LWPNDEL:
+			{
+				FFScript::deallocateAllArrays(SCRIPT_LWPN, ri->lwpn);
+				if(type == SCRIPT_LWPN && ri->lwpn == i)
+				{
+					FFCore.do_lweapon_delete();
+					return RUNSCRIPT_SELFDELETE;
+				}
+				FFCore.do_lweapon_delete();
+				break;
+			}
+			case EWPNDEL:
+			{
+				FFScript::deallocateAllArrays(SCRIPT_EWPN, ri->ewpn);
+				if(type == SCRIPT_EWPN && ri->ewpn == i)
+				{
+					FFCore.do_eweapon_delete();
+					return RUNSCRIPT_SELFDELETE;
+				}
+				FFCore.do_eweapon_delete();
+				break;
+			}
+			case ITEMDEL:
+			{
+				FFScript::deallocateAllArrays(SCRIPT_ITEMSPRITE, ri->itemref);
+				if(type == SCRIPT_ITEMSPRITE && ri->itemref == i)
+				{
+					FFCore.do_itemsprite_delete();
+					return RUNSCRIPT_SELFDELETE;
+				}
+				FFCore.do_itemsprite_delete();
+				break;
+			}
 			
 			case NPCSTOPBGSFX:
 				FFCore.do_npc_stopbgsfx();
@@ -30929,17 +30964,6 @@ void FFScript::do_slidenpc()
 	else set_register(sarg1, -10000);
 }
 
-void FFScript::do_npckickbucket()
-{
-	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		//e->kickbucket();
-		//GuyH::getNPC()->kickbucket();
-		guys.del(GuyH::getNPCIndex(ri->guyref));
-	}
-}
-
 void FFScript::do_npc_stopbgsfx()
 {
 	//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
@@ -30948,6 +30972,38 @@ void FFScript::do_npc_stopbgsfx()
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		//e->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
 		GuyH::getNPC()->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
+	}
+}
+
+void FFScript::do_npc_delete()
+{
+	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") == SH::_NoError)
+	{
+		guys.del(GuyH::getNPCIndex(ri->guyref));
+	}
+}
+
+void FFScript::do_lweapon_delete()
+{
+	if(0!=(s=checkLWpn(ri->lwpn,"Remove()")))
+	{
+		Lwpns.del(LwpnH::getLWeaponIndex(ri->lwpn));
+	}
+}
+
+void FFScript::do_eweapon_delete()
+{
+	if(0!=(s=checkEWpn(ri->ewpn,"Remove()")))
+	{
+		Ewpns.del(EwpnH::getEWeaponIndex(ri->ewpn));
+	}
+}
+
+void FFScript::do_itemsprite_delete()
+{
+	if(0!=(s=checkItem(ri->itemref)))
+	{
+		items.del(ItemH::getItemIndex(ri->itemref));
 	}
 }
 
@@ -33493,6 +33549,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "RNGSEED",           1,   0,   0,   0},
 	{ "RNGRSEED",           0,   0,   0,   0},
 	{ "RNGFREE",           0,   0,   0,   0},
+	{ "LWPNDEL",           0,   0,   0,   0},
+	{ "EWPNDEL",           0,   0,   0,   0},
+	{ "ITEMDEL",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

@@ -3988,6 +3988,7 @@ static AccessorTable itemTable[] =
 	{ "setDir",                 ZVARTYPEID_VOID,          SETTER,       ITEMDIR,              1,           0,                                    2,           {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getAnimation",           ZVARTYPEID_FLOAT,         GETTER,       ITEMENGINEANIMATE,    1,           0,                                    1,           {  ZVARTYPEID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setAnimation",           ZVARTYPEID_VOID,          SETTER,       ITEMENGINEANIMATE,    1,           0,                                    2,           {  ZVARTYPEID_ITEM,          ZVARTYPEID_BOOL,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Remove",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -4027,7 +4028,19 @@ void ItemSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+	//void Remove(itemsprite)
+	{
+		Function* function = getFunction("Remove", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		POPREF();
+		LABELBACK(label);
+		//Break shield
+		code.push_back(new OItemRemove());
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 ItemclassSymbols ItemclassSymbols::singleton = ItemclassSymbols();
@@ -7400,6 +7413,7 @@ static AccessorTable lwpnTable[] =
 	{ "setLightShape",          ZVARTYPEID_VOID,          SETTER,       LWPNGLOWSHP,          1,           0,                                    2,           {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getUnblockable",         ZVARTYPEID_FLOAT,         GETTER,       LWPNUNBL,             1,           0,                                    1,           {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setUnblockable",         ZVARTYPEID_VOID,          SETTER,       LWPNUNBL,             1,           0,                                    2,           {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Remove",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -7454,7 +7468,19 @@ void LinkWeaponSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+	//void Remove(lweapon)
+	{
+		Function* function = getFunction("Remove", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		POPREF();
+		LABELBACK(label);
+		//Break shield
+		code.push_back(new OLWpnRemove());
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 EnemyWeaponSymbols EnemyWeaponSymbols::singleton = EnemyWeaponSymbols();
@@ -7581,6 +7607,7 @@ static AccessorTable ewpnTable[] =
 	{ "setLightShape",          ZVARTYPEID_VOID,          SETTER,       EWPNGLOWSHP,          1,           0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getUnblockable",         ZVARTYPEID_FLOAT,         GETTER,       EWPNUNBL,             1,           0,                                    1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setUnblockable",         ZVARTYPEID_VOID,          SETTER,       EWPNUNBL,             1,           0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Remove",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -7635,7 +7662,19 @@ void EnemyWeaponSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+	//void Remove(eweapon)
+	{
+		Function* function = getFunction("Remove", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		POPREF();
+		LABELBACK(label);
+		//Break shield
+		code.push_back(new OEWpnRemove());
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 /////// New Types

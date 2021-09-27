@@ -8097,6 +8097,37 @@ namespace ZScript
 			return new ONPCRemove(a->clone());
 		}
 	};
+	
+	class OLWpnRemove : public Opcode
+	{
+	public:
+		OLWpnRemove() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLWpnRemove();
+		}
+	};
+	class OEWpnRemove : public Opcode
+	{
+	public:
+		OEWpnRemove() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OEWpnRemove();
+		}
+	};
+	class OItemRemove : public Opcode
+	{
+	public:
+		OItemRemove() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OItemRemove();
+		}
+	};
 	class ONPCStopSFX : public UnaryOpcode
 	{
 	public:

@@ -930,7 +930,6 @@ int getEWeaponByScriptUID(int sUID);
 void do_isdeadnpc();
 void do_canslidenpc();
 void do_slidenpc();
-void do_npckickbucket();
 void do_npc_stopbgsfx();
 void do_npcattack();
 void do_npc_newdir();
@@ -952,6 +951,12 @@ void do_npc_add(const bool v);
 void do_npc_canmove(const bool v);
 void get_npcdata_initd_label(const bool v);
 void do_getnpcdata_getname();
+
+//Deletion functions
+void do_npc_delete();
+void do_lweapon_delete();
+void do_eweapon_delete();
+void do_itemsprite_delete();
 
 //int do_get_internal_uid
 
@@ -2931,8 +2936,11 @@ enum ASM_DEFINE
 	RNGSEED,
 	RNGRSEED,
 	RNGFREE,
+	LWPNDEL,
+	EWPNDEL,
+	ITEMDEL,
 	
-	NUMCOMMANDS           //0x01A1
+	NUMCOMMANDS           //0x01A4
 };
 
 

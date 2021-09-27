@@ -2916,8 +2916,7 @@ bool enemy::animate(int index)
 			--stunclk;
 		if ( frozenclock > 0 ) 
 			--frozenclock;
-		run_script(MODE_NORMAL);
-		if(fallclk && haslink)
+		if(haslink)
 		{
 			Link.setX(x);
 			Link.setY(y);
@@ -2925,6 +2924,7 @@ bool enemy::animate(int index)
 			Link.fallclk = fallclk;
 			haslink = false; //Let Link go if falling
 		}
+		run_script(MODE_NORMAL);
 		return false;
 	}
 	if(do_drowning(index)) return true;
@@ -2937,14 +2937,14 @@ bool enemy::animate(int index)
 			--stunclk;
 		if ( frozenclock > 0 ) 
 			--frozenclock;
-		run_script(MODE_NORMAL);
-		if(drownclk && haslink)
+		if(haslink)
 		{
 			Link.setX(x);
 			Link.setY(y);
 			Link.drownclk = drownclk;
 			haslink = false; //Let Link go if falling
 		}
+		run_script(MODE_NORMAL);
 		return false;
 	}
 	int nx = real_x(x);
