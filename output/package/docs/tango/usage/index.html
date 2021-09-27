@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Usage - tango.zh 1.3.3</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Usage";
+    var mkdocs_page_input_path = "usage.md";
+    var mkdocs_page_url = "/usage/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> tango.zh 1.3.3</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">Usage</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#usage">Usage</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#basic-usage">Basic usage</a></li>
+        
+            <li><a class="toctree-l3" href="#tango-code">Tango code</a></li>
+        
+            <li><a class="toctree-l3" href="#menus">Menus</a></li>
+        
+            <li><a class="toctree-l3" href="#extending-tango-code">Extending Tango code</a></li>
+        
+            <li><a class="toctree-l3" href="#string-control-codes">String control codes</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../zscriptFuncs/index.html">ZScript functions</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../constants/index.html">ZScript constants</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../tangoCode/index.html">Tango variables and functions</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../dataFormats/index.html">Data structures and formats</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../errors/index.html">Error codes</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../faq/index.html">FAQ</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">tango.zh 1.3.3</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Usage</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="usage">Usage</h1>
+<h2 id="basic-usage">Basic usage</h2>
+<p>There are three functions, listed listed <a href="../zscriptFuncs/index.html#global-script">here</a>,
+that need to be added to the active global script, or you can use the provided
+<code>TangoActiveScript</code>.</p>
+<p>Displaying a string involves working with two data structures: styles and
+text slots. Styles determines how strings look and behave. Text slots are
+where the text and processing state are stored. To display a string, you must
+set up a style, load the text into a text slot, apply the style to the slot,
+and then activate it.</p>
+<p>All it takes to set up a style is a call to <code>Tango_SetStyleAttribute()</code> for
+each attribute you want to set. Most attributes are optional, but you must
+at least set a font and text color. The regular <code>FONT</code> constants from std.zh
+can't be used; you'll need to import one of the font definitions in the
+<code>tango/font</code> folder and use the <code>TANGO_FONT</code> constant defined there.</p>
+<p>Once a style is set up, displaying text requires six steps:</p>
+<ol>
+<li>Find a free text slot (<code>Tango_GetFreeSlot()</code>)</li>
+<li>Clear any data already in the slot (<code>Tango_ClearSlot()</code>)</li>
+<li>Load text into the slot (<code>Tango_LoadString()</code> or <code>Tango_LoadMessage()</code>)</li>
+<li>Set a style (<code>Tango_SetSlotStyle()</code>)</li>
+<li>Set the position (<code>Tango_SetSlotPosition()</code>)</li>
+<li>Activate the text slot (<code>Tango_ActivateSlot()</code>)</li>
+</ol>
+<p>If you want to try it out without learning all the details, or if you'd
+just like a simple, straightforward example, check out tangoQuickStart.zh.
+It provides a few simple functions and a minimal global script. There are
+a few constants to set for colors, combos, and sounds; the defaults are
+set up for the classic tileset.</p>
+<p>For more information on text slots and styles, see the page on <a href="../dataFormats/index.html">data structures
+and formats</a>.</p>
+<h2 id="tango-code">Tango code</h2>
+<p>Tango implements a simple scripting language with functions embedded
+in strings. Code is identified by the character <code>@</code> (by default;
+set <code>__TANGO_CODE_DELIMITER</code> to change this).</p>
+<p><code>@</code> is followed immediately by a function name, then up to two arguments
+in parentheses, separated by spaces. Parentheses are needed even if
+a function takes no arguments. For example, the string
+<code>"@playsfx(64)Hello, @savename()!"</code> would play sound 64 and print (possibly)
+<code>"Hello, Link!"</code>.</p>
+<p>Variables are also available. These can be used to set the properties of
+the text. For instance, <code>@speed</code> controls how quickly the text is drawn.
+Each slot has two variables, <code>@a0</code> and <code>@a1</code>, used to store arbitrary data or
+communicate with ZScript. You can also create your own variables for
+the same purposes.</p>
+<p>It's also possible to use <code>@##</code> or <code>@(##)</code> to insert a character directly into
+the text. The string <code>"@90@69@76@68@65"</code> is equivalent to <code>"ZELDA"</code> This is
+useful for inserting line breaks (<code>@26</code>) and font characters beyond the
+ASCII range. Also, <code>@0</code> can be used to terminate the text early; anything after
+<code>@0</code> won't be printed.</p>
+<p>Finally, it's possible to highlight text using double brackets. For example,
+in the string <code>You got the ((Wooden Sword))!</code>, the text "Wooden Sword" would
+be printed in a different color than the rest of the text. <code>(( ))</code>, <code>[[ ]]</code>,
+<code>&lt;&lt; &gt;&gt;</code>, and <code>{{ }}</code> each have style settings allowing them to produce
+different colors. This feature can be disabled by setting
+<code>__TANGO_ENABLE_BRACKET_HIGHLIGHT</code> to 0.</p>
+<h2 id="menus">Menus</h2>
+<p>Tango code can be used to set up simple menus in strings using a few simple
+function calls. It's also necessary to set the <code>TANGO_STYLE_MENU_CURSOR</code>
+style attributes so the cursor will be drawn correctly.</p>
+<p>To create a menu, add a call to <code>@choice()</code> for each choice followed by the
+corresponding text. Each call to <code>@choice()</code> needs an argument - a number that
+will be the value of that choice. The choices should be followed by a call to
+<code>@domenu()</code>, which will run until the user makes a selection or cancels.
+Afterward, the value of the selected choice will be stored in <code>@chosen</code>, or 0
+if the user cancelled.</p>
+<p>For example:
+<code>"Pick one!@26@choice(1)Option A@26@choice(2)Option B@domenu()@26@if(@equal(@chosen 1) @append(2))@else(@append(3))"</code></p>
+<p><code>@26</code> represents a line break; their use here indicates that a new line should
+be started before each option and after the user picks an option. This menu
+will look like this:</p>
+<div class="codehilite"><pre><span></span>Pick one!
+&gt; Option A
+  Option B
+</pre></div>
+
+
+<p>It will be followed by message 2 if the option A is selected or message 3 if
+option B is selected.</p>
+<p>Using ZScript functions, a menu can be created with cursor stops at arbitrary
+locations on the screen. Creating a menu this way takes four or five steps:</p>
+<ol>
+<li>Initialize menu data (<code>Tango_InitializeMenu()</code>)</li>
+<li>Add choices (<code>Tango_AddChoice()</code>)</li>
+<li>Set the cursor's appearance (<code>Tango_SetMenuCursor()</code>)</li>
+<li>(optional) Set the menu sound effects (<code>Tango_SetMenuSFX()</code>)</li>
+<li>Activate the menu (<code>Tango_ActivateMenu()</code>)</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Tango only draws and moves the cursor. If you wish to display any other
+graphics, you'll have to draw them yourself. You may wish to do this
+in a <code>while(Tango_MenuIsActive())</code> loop.</p>
+</div>
+<h2 id="extending-tango-code">Extending Tango code</h2>
+<p>It's possible to create your own variables and functions to use in Tango code.</p>
+<p>The name of the new function or variable must be a series of lower-case
+letters and numbers, and the first character must be a letter. There's no
+set limit on length, but the name must convert to a number small enough
+to be represented in ZScript (no greater than 214747.9999).</p>
+<p>The name of the function or variable needs to be converted to a number.
+<code>Tango_ConvertFunctionName()</code> and <code>Tango_ConvertVariableName()</code> will do this
+for you; they'll even write the result to allegro.log in a form suitable
+to copy and paste directly into a script. The conversion process is described
+<a href="../dataFormats/index.html#identifier-conversion">here</a>.</p>
+<p>User-defined functions can be numeric, effect, or condition functions.
+To make Tango handle a function, add the implementation to
+<code>__Tango_RunCustomFunction()</code>. The <code>function</code> argument is the function ID.
+<code>args</code> is an array containing the arguments. A function can take up to four
+arguments; any unused arguments will be 0. For debugging purposes, you may
+want to call <code>Tango_LogUndefinedFunction()</code> if the function is not recognized.</p>
+<p>A simple example:</p>
+<div class="codehilite"><pre><span></span><span class="k">const</span> <span class="kt">float</span> <span class="n">FUNC_DOSTUFF2</span> <span class="o">=</span> <span class="mf">543.3828</span><span class="p">;</span> <span class="c1">// @dostuff2()</span>
+
+<span class="kt">float</span> <span class="nf">__Tango_RunCustomFunction</span><span class="p">(</span><span class="kt">float</span> <span class="n">function</span><span class="p">,</span> <span class="kt">float</span> <span class="n">args</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">function</span><span class="o">==</span><span class="n">FUNC_DOSTUFF2</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// This will just return the sum of the arguments.</span>
+        <span class="k">return</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="c1">// Unknown function</span>
+        <span class="n">Tango_LogUndefinedFunction</span><span class="p">(</span><span class="n">function</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>To implement a variable, use <code>Tango_GetCustomVar()</code> and <code>Tango_SetCustomVar()</code>.
+The <code>var</code> argument is the variable id.</p>
+<p>A trivial example of a custom variable:</p>
+<div class="codehilite"><pre><span></span><span class="kt">int</span> <span class="n">myVar</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">float</span> <span class="n">VAR_MYVAR</span> <span class="o">=</span> <span class="mf">4.0891</span><span class="p">;</span> <span class="c1">// @myvar</span>
+
+<span class="kt">float</span> <span class="nf">Tango_GetCustomVar</span><span class="p">(</span><span class="kt">float</span> <span class="n">var</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">var</span><span class="o">==</span><span class="n">VAR_MYVAR</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">myVar</span><span class="p">;</span>
+    <span class="k">else</span> <span class="c1">// Unknown</span>
+    <span class="p">{</span>
+        <span class="n">Tango_LogInvalidVariable</span><span class="p">(</span><span class="n">var</span><span class="p">);</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">Tango_SetCustomVar</span><span class="p">(</span><span class="kt">float</span> <span class="n">var</span><span class="p">,</span> <span class="kt">float</span> <span class="n">value</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">var</span><span class="o">==</span><span class="n">VAR_MYVAR</span><span class="p">)</span>
+        <span class="n">myVar</span><span class="o">=</span><span class="n">value</span><span class="p">;</span>
+    <span class="k">else</span> <span class="c1">// Unknown</span>
+        <span class="n">Tango_LogInvalidVariable</span><span class="p">(</span><span class="n">var</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Note that it's possible, although very unlikely, for two function or variable
+names to convert to the same number. In that case, you'll just have to rename
+one of them. It's okay for a variable and a function to have the same name.</p>
+<h2 id="string-control-codes">String control codes</h2>
+<p>String control codes are supported only in ZC messages, not ZScript strings.
+They're enabled by default, but they can be disabled if you don't need them.
+To disable them, import stringControlCodeDisabled.zh instead of
+stringControlCode.zh.</p>
+<p>Control codes can be used alongside Tango code, but they cannot be combined.
+Something like <code>\20\@rand(61, 63)</code> or <code>@if(@a0 \16\6)</code> will not work.</p>
+<p>Note that codes 16 and 17 (add or remove item) don't work quite the same
+as they normally do. The item is simply added to or removed from the inventory;
+no changes are made to any counters.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../zscriptFuncs/index.html" class="btn btn-neutral float-right" title="ZScript functions">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral" title="About"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../zscriptFuncs/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

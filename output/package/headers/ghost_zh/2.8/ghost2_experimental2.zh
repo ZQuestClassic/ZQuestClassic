@@ -1,0 +1,46 @@
+//this or the next depend on if the Ghost_Step is in full pixels per frame
+//or if it isPixels per frame * 100.//e.g., IDR if it is 100 for one pixel/frame using Ghost_Step, or 1.0
+void Ghost_CanMoveAtAngle(float angle, float step, int imprecision)
+{
+	for ( int q = 1; q < step; ++q )
+	{
+		if(!Ghost_CanMovePixel(VectorX(q, angle), VectorY(q, angle), Ghost_Z>0))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void Ghost_CanMoveAtAngle(float angle, float step, int imprecision)
+{
+	for ( int q = 1; q < (step*0.01); ++q )
+	{
+		if(!Ghost_CanMovePixel(VectorX(q, angle), VectorY(q, angle), Ghost_Z>0))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void Ghost_CanMoveAtAngle(float angle, float step)
+{
+	for ( int q = 1; q < (step*0.01); ++q )
+	{
+		if(!Ghost_CanMovePixel(VectorX(q, angle), VectorY(q, angle), Ghost_Z>0))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void Ghost_CanMoveAtAngle(float angle, float step, bool onlycheckdest)
+{
+	if(!Ghost_CanMovePixel(VectorX((step*0.01), angle), VectorY((step*0.01), angle), Ghost_Z>0))
+	{
+		return false;
+	}
+	return true;
+}

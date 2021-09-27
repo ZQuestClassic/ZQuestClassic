@@ -1,0 +1,270 @@
+// ghost.zh
+// Version 2.8.15
+
+// All the EWeapon death effect functions are in this file.
+
+void __DoEWeaponDeathPrototype(eweapon wpn)
+{
+    int id;
+    eweapon prototype;
+    eweapon newWpn;
+    int spreadType;
+    int centerX;
+    int centerY;
+    float angle;
+    int numShots;
+    int i;
+
+    // Find the prototype
+    id=Floor(wpn->Misc[__EWI_ON_DEATH]);
+    for(i=Screen->NumEWeapons(); i>0; i--)
+    {
+        prototype=Screen->LoadEWeapon(i);
+        if((prototype->Misc[__EWI_FLAGS]&__EWFI_DUMMY_CHECK)!=__EWFI_DUMMY_CHECK)
+            continue;
+
+        // It's a dummy; check the ID
+        if(prototype->Misc[__EWI_ID]==id)
+            break;
+    }
+
+    // Didn't find it? Print an error, remove the weapon, and return
+    if(i==0)
+    {
+        int error[]="ghost.zh: Failed to find prototype eweapon";
+        TraceS(error);
+        TraceNL();
+        wpn->DeadState=0;
+        return;
+    }
+
+    angle=wpn->Misc[__EWI_ON_DEATH_ARG]%10-6.2832;
+    numShots=(wpn->Misc[__EWI_ON_DEATH]-id)*10000;
+    spreadType=((wpn->Misc[__EWI_ON_DEATH_ARG]-angle)/100)>>0;
+
+    if(wpn->Extend==3)
+    {
+        centerX=wpn->X+8*wpn->TileWidth;
+        centerY=wpn->Y+8*wpn->TileHeight;
+    }
+    else
+    {
+        centerX=wpn->X+8;
+        centerY=wpn->Y+8;
+    }
+
+    // Got the data; create some weapons
+
+    // Evenly spaced
+    if(spreadType==EWD_EVEN)
+    {
+        for(float i=0; i<numShots; i++)
+            __CopyEWeapon(prototype, centerX, centerY, angle+6.2832*i/numShots);
+        Game->PlaySound(prototype->Misc[__EWI_DUMMY_SOUND]);
+    }
+
+    // Random angles
+    else if(spreadType==EWD_RANDOM)
+    {
+        for(int i=0; i<numShots; i++)
+            __CopyEWeapon(prototype, centerX, centerY, Rand(31416)/5000);
+        Game->PlaySound(prototype->Misc[__EWI_DUMMY_SOUND]);
+    }
+
+    // Aimed at Link
+    else // EWD_AIMED
+    {
+        if(numShots>1)
+        {
+            float startAngle=ArcTan(Link->X+8-centerX, Link->Y+8-centerY)-angle/2;
+            for(int i=0; i<numShots; i++)
+                __CopyEWeapon(prototype, centerX, centerY, startAngle+angle*i/(numShots-1));
+        }
+        else if(numShots==1)
+            __CopyEWeapon(prototype, centerX, centerY, ArcTan(Link->X+8-centerX, Link->Y+8-centerY));
+
+        Game->PlaySound(prototype->Misc[__EWI_DUMMY_SOUND]);
+    }
+
+    wpn->DeadState=0;
+
+}
+
+void __DoEWeaponDeathAimAtLink(eweapon wpn)
+{
+    wpn->Step=0;
+    wpn->Misc[__EWI_ON_DEATH_ARG]-=1;
+    if(wpn->Misc[__EWI_ON_DEATH_ARG]<=0)
+    {
+        wpn->Angle=RadianAngle(wpn->X, wpn->Y, Link->X, Link->Y);
+        SetEWeaponDir(wpn);
+        wpn->Step=300;
+        wpn->Misc[__EWI_ON_DEATH]=0;
+    }
+    
+    // Spin while waiting
+    else if(wpn->Angular)
+    {
+        wpn->Angle+=0.3;
+        SetEWeaponDir(wpn);
+    }
+    else
+    {
+        // Pick a direction based on the counter
+        int dir=wpn->Misc[__EWI_ON_DEATH_ARG]&110b;
+        if(dir==110b)
+            SetEWeaponRotation(wpn, DIR_UP);
+        else if(dir==100b)
+            SetEWeaponRotation(wpn, DIR_RIGHT);
+        else if(dir==010b)
+            SetEWeaponRotation(wpn, DIR_DOWN);
+        else
+            SetEWeaponRotation(wpn, DIR_LEFT);
+    }
+}
+
+// Some of these could probably be combined...
+void __DoEWeaponDeathExplode(eweapon wpn)
+{
+    FireNonAngularEWeapon(EW_BOMBBLAST, CenterX(wpn)-8, CenterY(wpn)-8, wpn->Dir, 0, wpn->Misc[__EWI_ON_DEATH_ARG], -1, 0, 0);
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeathSBombExplode(eweapon wpn)
+{
+    FireNonAngularEWeapon(EW_SBOMBBLAST, CenterX(wpn)-8, CenterY(wpn)-8, wpn->Dir, 0, wpn->Misc[__EWI_ON_DEATH_ARG], -1, 0, 0);
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeath4FireballsHV(eweapon wpn)
+{
+    for(int i=0; i<4; i++)
+        FireNonAngularEWeapon(EW_FIREBALL, CenterX(wpn)-8, CenterY(wpn)-8, i, 200, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeath4FireballsDiag(eweapon wpn)
+{
+    for(int i=4; i<8; i++)
+        FireNonAngularEWeapon(EW_FIREBALL, CenterX(wpn)-8, CenterY(wpn)-8, i, 200, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeath4FireballsRand(eweapon wpn)
+{
+    if(Rand(2)==0)
+    {
+        for(int i=0; i<4; i++)
+            FireNonAngularEWeapon(EW_FIREBALL, CenterX(wpn)-8, CenterY(wpn)-8, i, 200, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    }
+    else
+    {
+        for(int i=4; i<8; i++)
+            FireNonAngularEWeapon(EW_FIREBALL, CenterX(wpn)-8, CenterY(wpn)-8, i, 200, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    }
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeath8Fireballs(eweapon wpn)
+{
+    for(int i=0; i<8; i++)
+        FireNonAngularEWeapon(EW_FIREBALL, CenterX(wpn)-8, CenterY(wpn)-8, i, 200, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeath4FiresHV(eweapon wpn)
+{
+    for(int i=0; i<4; i++)
+        FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, i, 100, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    Game->PlaySound(SFX_FIRE); // Only play sound once
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeath4FiresDiag(eweapon wpn)
+{
+    for(int i=4; i<8; i++)
+        FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, i, 71, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    Game->PlaySound(SFX_FIRE);
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeath4FiresRand(eweapon wpn)
+{
+    if(Rand(2)==0)
+    {
+        for(int i=0; i<4; i++)
+            FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, i, 100, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    }
+    else
+    {
+        for(int i=4; i<8; i++)
+            FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, i, 71, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    }
+
+    Game->PlaySound(SFX_FIRE);
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeath8Fires(eweapon wpn)
+{
+    for(int i=0; i<4; i++)
+        FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, i, 100, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    for(int i=4; i<8; i++)
+        FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, i, 71, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    Game->PlaySound(SFX_FIRE);
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeathSingleFire(eweapon wpn)
+{
+    FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, wpn->Dir, 0, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
+    Game->PlaySound(SFX_FIRE);
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeathSpawnNPC(eweapon wpn)
+{
+    npc enemy=Screen->CreateNPC(wpn->Misc[__EWI_ON_DEATH_ARG]);
+    enemy->X=wpn->X;
+    enemy->Y=wpn->Y;
+    wpn->DeadState=0;
+}
+
+void __DoEWeaponDeathRunScript(eweapon wpn)
+{
+    int ffcID;
+    ffc f;
+    eweapon checkWpn;
+    int minID;
+    
+    // First, find a free FFC
+    ffcID=FindUnusedFFC();
+    if(ffcID==0)
+    {
+        // None available; just remove the weapon
+        wpn->DeadState=0;
+        return;
+    }
+    f=Screen->LoadFFC(ffcID);
+    
+    // Give the weapon an ID number so it can be found later
+    for(int i=Screen->NumEWeapons(); i>0; i--)
+    {
+        checkWpn=Screen->LoadEWeapon(i);
+        if((checkWpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY_CHECK)!=__EWFI_IS_GHZH_EWPN) // Filter out dummies
+            continue;
+
+        minID=Min(minID, checkWpn->Misc[__EWI_ID]);
+    }
+    wpn->Misc[__EWI_ID]=minID-1;
+    
+    // Set the death effect done flag so this doesn't repeat every frame
+    wpn->Misc[__EWI_FLAGS]|=__EWFI_DEATH_EFFECT_DONE;
+    
+    // Then run the script
+    f->Data=GH_INVISIBLE_COMBO;
+    f->X=CenterX(wpn)-8;
+    f->Y=CenterY(wpn)-8;
+    f->Script=wpn->Misc[__EWI_ON_DEATH_ARG];
+    f->InitD[0]=minID-1;
+}

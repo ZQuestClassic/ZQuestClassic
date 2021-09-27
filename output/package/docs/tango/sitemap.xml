@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    
+    <url>
+     <loc>/index.html</loc>
+     <lastmod>2019-08-01</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/usage/index.html</loc>
+     <lastmod>2019-08-01</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/zscriptFuncs/index.html</loc>
+     <lastmod>2019-08-01</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/constants/index.html</loc>
+     <lastmod>2019-08-01</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/tangoCode/index.html</loc>
+     <lastmod>2019-08-01</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/dataFormats/index.html</loc>
+     <lastmod>2019-08-01</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/errors/index.html</loc>
+     <lastmod>2019-08-01</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/faq/index.html</loc>
+     <lastmod>2019-08-01</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+</urlset>

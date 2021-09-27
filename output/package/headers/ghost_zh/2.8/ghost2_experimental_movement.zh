@@ -1,0 +1,79 @@
+//Experimental canmoe functions for 2.8.x
+
+// The maths here depend on if the Ghost_Step is in full pixels per frame
+// or if it isPixels per frame * 100.//e.g., IDR if it is 100 for one pixel/frame using Ghost_Step, or 1.0
+
+// Basic model for imprecision, assuming that step is an integer (e.g. 250 == 2.5 pixels per frame), as in the Enemy Editor
+// If step is a float as in the engine (type 'fix' there), then we need to remove the *0.01
+void Ghost_CanMoveAtAngle(float angle, float step, float imprecision, bool onlycheckdest)
+{
+	if(onlycheckdest)
+	{
+		if(Ghost_CanMovePixel(VectorX(q, angle), VectorY(q, angle), Ghost_Z>0))
+		{
+			//can_move_imprecise
+			return true;
+		}
+		if(Ghost_CanMovePixel(VectorX(q+imprecision, angle), VectorY(q+imprecision, angle), Ghost_Z>0))
+		{
+			return true;
+		}
+		return false;
+	}
+	else 
+	{
+		//bool can_move_imprecise;
+		for ( int q = Max((step*0.01), 1); q > 0; --q )
+		{
+			if(Ghost_CanMovePixel(VectorX(q, angle), VectorY(q, angle), Ghost_Z>0))
+			{
+				//can_move_imprecise
+				return true;
+			}
+			if(Ghost_CanMovePixel(VectorX(q+imprecision, angle), VectorY(q+imprecision, angle), Ghost_Z>0))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+//this assumes that a step of 2.5 pixels per frame is 2.5, not 250
+void Ghost_CanMoveAtAngle(float angle, float step, int imprecision)
+{
+	for ( int q = Max((step), 1); q > 0; --q )
+	{
+		if(Ghost_CanMovePixel(VectorX(q, angle), VectorY(q, angle), Ghost_Z>0))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+//this assumes that a step of 2.5 pixels/frame is an integer of 250, as with the enemy editor
+void Ghost_CanMoveAtAngle(float angle, float step, int imprecision)
+{
+	for ( int q = Max((step*0.01), 1); q > 0; --q )
+	{
+		if(Ghost_CanMovePixel(VectorX(q, angle), VectorY(q, angle), Ghost_Z>0))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void Ghost_CanMoveAtAngle(float angle, float step)
+{
+	for ( int q = Max((step*0.01), 1); q > 0; --q )
+	{
+		if(!Ghost_CanMovePixel(VectorX(q, angle), VectorY(q, angle), Ghost_Z>0))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+

@@ -1,0 +1,68 @@
+const int SPINNER_BG_COLOR = 0;
+const int SPINNER_TEXT_COLOR = 1;
+const int SPINNER_VALUE = 2;
+const int SPINNER_MIN_VALUE = 3;
+const int SPINNER_MAX_VALUE = 4;
+
+int Spinner_Create(int parent, int min, int max, int init)
+{
+    int id=Widget_Create(WTYPE_SPINNER, parent);
+    GUI_Data[id+WIDGET_WIDTH]=56;
+    GUI_Data[id+WIDGET_HEIGHT]=8;
+    GUI_Data[id+WIDGET_FLAGS]|=WFLAG_WANTS_MOUSE;
+    GUI_Data[id+SPINNER_BG_COLOR]=SPINNER_DEFAULT_BG_COLOR;
+    GUI_Data[id+SPINNER_TEXT_COLOR]=SPINNER_DEFAULT_TEXT_COLOR;
+    GUI_Data[id+SPINNER_MIN_VALUE]=min;
+    GUI_Data[id+SPINNER_MAX_VALUE]=max;
+    GUI_Data[id+SPINNER_VALUE]=Clamp(init, min, max);
+    return id;
+}
+
+int Spinner_GetValue(int id)
+{
+    return GUI_Data[id+SPINNER_VALUE];
+}
+
+void Spinner_SetValue(int id, int value)
+{
+    GUI_Data[id+SPINNER_VALUE]=Clamp(value,
+      GUI_Data[id+SPINNER_MIN_VALUE], GUI_Data[id+SPINNER_MAX_VALUE]);
+}
+
+void Spinner_SetRange(int id, int min, int max)
+{
+    GUI_Data[id+SPINNER_MIN_VALUE]=min;
+    GUI_Data[id+SPINNER_MAX_VALUE]=max;
+    GUI_Data[id+SPINNER_VALUE]=Clamp(GUI_Data[id+SPINNER_VALUE],
+      GUI_Data[id+SPINNER_MIN_VALUE], GUI_Data[id+SPINNER_MAX_VALUE]);
+}
+
+void Spinner_Draw(int id, int x, int y)
+{
+    int str[8];
+    itoa(str, 0, GUI_Data[id+SPINNER_VALUE]);
+    
+    Screen->Rectangle(GUI_DRAW_LAYER, x, y, x+55, y+7,
+      GUI_Data[id+SPINNER_BG_COLOR], 1, 0, 0, 0, true, OP_OPAQUE);
+    Screen->DrawString(GUI_DRAW_LAYER, x+56, y, FONT_Z1,
+      GUI_Data[id+SPINNER_TEXT_COLOR], -1, TF_RIGHT, str, OP_OPAQUE);
+}
+
+void Spinner_OnMouseWheelUp(int id)
+{
+    if(GUI_Data[id+SPINNER_VALUE]<GUI_Data[id+SPINNER_MAX_VALUE])
+    {
+        GUI_Data[id+SPINNER_VALUE]+=1;
+        Event_Add(EVENT_SPINNER_CHANGED, id, GUI_Data[id+SPINNER_VALUE]);
+    }
+}
+
+void Spinner_OnMouseWheelDown(int id)
+{
+    if(GUI_Data[id+SPINNER_VALUE]>GUI_Data[id+SPINNER_MIN_VALUE])
+    {
+        GUI_Data[id+SPINNER_VALUE]-=1;
+        Event_Add(EVENT_SPINNER_CHANGED, id, GUI_Data[id+SPINNER_VALUE]);
+    }
+}
+

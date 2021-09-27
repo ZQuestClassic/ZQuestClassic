@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Enemy scripts - ghost.zh 2.8.15</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Enemy scripts";
+    var mkdocs_page_input_path = "enemyScript.md";
+    var mkdocs_page_url = "/enemyScript/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> ghost.zh 2.8.15</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../autoGhost/index.html">AutoGhost setup</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../usage/index.html">General usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../globalScript/index.html">Global script</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">Enemy scripts</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#enemy-variables-and-functions">Enemy variables and functions</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#global-variables">Global variables</a></li>
+        
+            <li><a class="toctree-l3" href="#initialization">Initialization</a></li>
+        
+            <li><a class="toctree-l3" href="#flags">Flags</a></li>
+        
+            <li><a class="toctree-l3" href="#waitframe">Waitframe</a></li>
+        
+            <li><a class="toctree-l3" href="#modification">Modification</a></li>
+        
+            <li><a class="toctree-l3" href="#movement">Movement</a></li>
+        
+            <li><a class="toctree-l3" href="#other">Other</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../eweapon/index.html">Eweapons</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../other/index.html">Miscellaneous</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">ghost.zh 2.8.15</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Enemy scripts</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="enemy-variables-and-functions">Enemy variables and functions</h1>
+<h2 id="global-variables">Global variables</h2>
+<p>Many aspects of the enemy are controlled by these global variables. They're set
+by a <code>Ghost_Init</code> function and kept consistent between frames by the
+<code>Ghost_Waitframe</code> functions.</p>
+<dl>
+<dt>float Ghost_X</dt>
+<dt>float Ghost_Y</dt>
+<dt>float Ghost_Z</dt>
+<dd>The X, Y and Z position of the enemy.</dd>
+<dt>float Ghost_Vx</dt>
+<dt>float Ghost_Vy</dt>
+<dt>float Ghost_Jump</dt>
+<dd>
+<p>The X, Y, and Z velocity of the enemy.</p>
+<p><code>Ghost_Vx</code> and <code>Ghost_Vy</code> are handled by <code>Ghost_MoveXY()</code>, so they will respect
+solidity, water, pits, and screen edges.</p>
+</dd>
+<dt>float Ghost_Ax</dt>
+<dt>float Ghost_Ay</dt>
+<dd>The X and Y acceleration of the enemy.</dd>
+<dt>int Ghost_Dir</dt>
+<dd>The direction the enemy is facing.</dd>
+<dt>int Ghost_Data</dt>
+<dt>int Ghost_CSet</dt>
+<dd>
+<p>The current combo and CSet of the enemy.</p>
+<p>If <code>Ghost_InitAutoGhost()</code> is used, <code>Ghost_CSet</code> will be set to the enemy's CSet.
+All other initializion functions will use the FFC's CSet.</p>
+<p>If the <code>GHF_4WAY</code> or <code>GHF_8WAY</code> flags are used, <code>Ghost_Data</code> should always be set to
+the upward-facing combo.</p>
+</dd>
+<dt>int Ghost_TileWidth</dt>
+<dt>int Ghost_TileHeight</dt>
+<dd>
+<p>The width and height of the enemy in tiles, which must be between 1 and 4.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>If these variables are set, the change will not fully take effect until
+the next Waitframe. It's better to use <code>Ghost_SetSize()</code> instead and
+consider these variables read-only.</p>
+</div>
+</dd>
+<dt>int Ghost_HP</dt>
+<dd>The enemy's current HP.</dd>
+</dl>
+<h2 id="initialization">Initialization</h2>
+<p>Call one of the init functions at the start of the script. It will set
+the ffc's and npc's properties and initialize the global variables.
+Normally, <code>ghost-&gt;OriginalTile</code> will be set to <code>GH_BLANK_TILE</code> to make the enemy
+invisible, <code>ghost-&gt;Extend</code> will be set to 3, and <code>Ghost_TileWidth</code> and
+<code>Ghost_TileHeight</code> will be set to the size of the FFC. These will not happen
+if the FFC's combo is <code>GH_INVISIBLE_COMBO</code>, or, in the case of AutoGhost
+enemies, if that's the combo they're set to use.</p>
+<dl>
+<dt>void Ghost_Init(ffc this, npc ghost)</dt>
+<dd>The basic initialization function. Provide your own npc.</dd>
+<dt>npc Ghost_InitCreate(ffc this, int enemyID)</dt>
+<dd>This will create an npc of type <code>enemyID</code> and return a pointer to it.</dd>
+<dt>npc Ghost_InitWait(ffc this, int enemyIndex, bool useEnemyPos)</dt>
+<dd>
+<p>This function will select an enemy on the screen as the ghost.</p>
+<p><code>enemyIndex</code> is the number to pass to <code>Screen-&gt;LoadNPC()</code>, normally the npc's
+position in the screen's enemy list.</p>
+<p>If <code>useEnemyPos</code> is true, the FFC will be moved to the enemy's position.
+Otherwise, the FFC's current position will be used.</p>
+<p>The function will only wait 4 frames for the enemy to appear to minimize
+the possibility of incorrectly using an enemy that is spawned later on. If
+the expected enemy does not appear in that time, it will call <code>Quit()</code>.</p>
+</dd>
+<dt>npc Ghost_InitWait2(ffc this, int enemyID, bool useEnemyPos)</dt>
+<dd>Similar to <code>Ghost_InitWait()</code>, except this loads the first enemy of type
+<code>enemyID</code> that is not already in use by another ghost.zh script. This is
+especially helpful if enemies are present other than those placed by
+<strong>Screen &gt; Enemies</strong>, since you can't always be certain what index an enemy
+will be assigned.</dd>
+<dt>npc Ghost_InitSpawn(ffc this, int enemyID)</dt>
+<dd>This will create the ghosted enemy in a random location.</dd>
+<dt>npc Ghost_InitAutoGhost(ffc this, int enemyID)</dt>
+<dd>This should only be used with a script that is meant to be set up
+automatically by the <code>AutoGhost()</code> function. Similar to <code>Ghost_InitWait2()</code>,
+this will load the first unused enemy of the given type. The enemy must
+already be on the screen when the function is called, or it will log
+an error and call <code>Quit()</code>.</dd>
+</dl>
+<h2 id="flags">Flags</h2>
+<p>There are a number of flags you can apply to an enemy to control its behavior
+and appearance. This is typically done just after initialization, but flags
+can be changed at any time while the enemy is alive.</p>
+<p>Note that these flags cannot be combined with bitwise OR.</p>
+<dl>
+<dt>void Ghost_SetFlag(int flag)</dt>
+<dt>void Ghost_UnsetFlag(int flag)</dt>
+<dd>
+<p>Set or unset a flag that controls details of the enemy's behavior.</p>
+<p>Valid arguments are:</p>
+<dl>
+<dt>GHF_KNOCKBACK</dt>
+<dd>The enemy can be knocked back when hit.</dd>
+<dt>GHF_KNOCKBACK_4WAY</dt>
+<dd>
+<p>The enemy will be knocked back when hit, even if its direction and
+Link's are not suitably aligned.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is not necessary to use <code>GHF_KNOCKBACK</code> along with this flag.</p>
+</div>
+</dd>
+<dt>GHF_REDUCED_KNOCKBACK</dt>
+<dd>
+<p>The enemy will be knocked back 2 pixels per frame instead of 4.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is not necessary to use <code>GHF_KNOCKBACK</code> along with this flag.</p>
+</div>
+</dd>
+<dt>GHF_STUN</dt>
+<dd>Stunning will be handled automatically. <code>Ghost_Waitframe</code> functions will not
+return while the enemy is stunned.</dd>
+<dt>GHF_CLOCK</dt>
+<dd>The enemy will be affected by clocks. <code>Ghost_Waitframe</code> functions will not
+return while a clock is active.</dd>
+<dt>GHF_NO_FALL</dt>
+<dd><code>ghost-&gt;Jump</code> will be set to 0 each frame and <code>Ghost_Jump</code> will be ignored.
+If <code>GHF_NO_FALL</code> is not used, <code>Ghost_CanMove(DIR_UP)</code> will always be false
+on sideview screens.</dd>
+<dt>GHF_SET_DIRECTION</dt>
+<dd>The enemy's direction will automatically be set based on which way
+it moves. Unless <code>GHF_8WAY</code> is set, this will only use up, down, left,
+and right.</dd>
+<dt>GHF_SET_OVERLAY</dt>
+<dd>Set or unset the <strong>Draw Over</strong> flag each frame based on Z position. The
+height at which it changes is determined by <code>GH_DRAW_OVER_THRESHOLD</code>.</dd>
+<dt>GHF_FAKE_Z</dt>
+<dd>
+<p><code>Ghost_Z</code> and <code>Ghost_Jump</code> will affect the enemy's position on the Y axis
+rather than Z. A shadow will be drawn under it according to the
+<code>GH_SHADOW_</code> settings.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the global setting <code>GH_FAKE_Z</code> is enabled, all Z movement
+will behave this way, and this flag will have no effect.</p>
+</div>
+</dd>
+<dt>GHF_4WAY</dt>
+<dd>Change the FFC's combo based on <code>Ghost_Dir</code>. This requires a particular
+setup. There must be four consecutive combos in the list, one for each
+direction: up, down, left, and right, in order. Set <code>Ghost_Data</code> to the
+upward-facing combo.</dd>
+<dt>GHF_8WAY</dt>
+<dd>Set the FFC's combo based on direction, inclusing diagonals. This will
+also cause <code>GHF_SET_DIRECTION</code> to use all eight directions. The combo
+order is up, down, left, right, up-left, up-right, down-left, down-right.</dd>
+<dt>GHF_MOVE_OFFSCREEN</dt>
+<dd>Movement functions will not stop the enemy at the screen edges.</dd>
+<dt>GHF_NORMAL</dt>
+<dd>Combines <code>GHF_KNOCKBACK</code>, <code>GHF_STUN</code>, <code>GHF_CLOCK</code>, and <code>GHF_SET_DIRECTION</code>.</dd>
+<dt>GHF_IGNORE_SOLIDITY</dt>
+<dd>
+<p>The enemy can move over solid combos, as long as they are not pits or water.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This and the following walkability control flags only affect movement
+via the <code>Ghost_Move</code> functions and <code>Ghost_Vx</code> and <code>Ghost_Vy</code>.
+If <code>Ghost_X</code> and <code>Ghost_Y</code> are set directly, the enemy can move anywhere.</p>
+</div>
+</dd>
+<dt>GHF_IGNORE_WATER</dt>
+<dd>The enemy can move over water, regardless of solidity.</dd>
+<dt>GHF_IGNORE_PITS</dt>
+<dd>The enemy can move over direct warps, regardless of solidity.</dd>
+<dt>GHF_IGNORE_ALL_TERRAIN</dt>
+<dd>Combines <code>GHF_IGNORE_SOLIDITY</code>, <code>GHF_IGNORE_WATER</code>, and <code>GHF_IGNORE_PITS</code>.</dd>
+<dt>GHF_WATER_ONLY</dt>
+<dd>The enemy can only move in water (including shallow water). This overrides
+the above terrain flags.</dd>
+<dt>GHF_DEEP_WATER_ONLY</dt>
+<dd>The enemy can only move in deep water. This overrides the above
+terrain flags.</dd>
+<dt>GHF_FULL_TILE_MOVEMENT</dt>
+<dd>The enemy will not walk onto a tile unless the entire tile is walkable.
+This is particularly useful for enemies using walking functions along
+with other movement.</dd>
+<dt>GHF_FLYING_ENEMY</dt>
+<dd>
+<p>The enemy will be blocked by the <strong>No Flying Enemies</strong> combo type.
+If this flag is not set, it will be blocked by <strong>No Ground Enemies</strong> if
+<code>Ghost_Z==0</code> or <strong>No Jumping Enemies</strong> if <code>Ghost_Z&gt;0</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This flag does not imply any others that a flying enemy would likely use,
+such as <code>GHF_IGNORE_PITS</code> or <code>GHF_NO_FALL</code>. Those must be set separately.</p>
+</div>
+</dd>
+<dt>GHF_IGNORE_NO_ENEMY</dt>
+<dd>The enemy will ignore all enemy blocking flags and combos.</dd>
+<dt>GHF_STATIC_SHADOW</dt>
+<dd>The enemy's shadow will not animate. This only applies if Z movement is
+faked due to either by <code>GH_FAKE_Z</code> or <code>GHF_FAKE_Z</code>.</dd>
+</dl>
+</dd>
+<dt>void Ghost_ClearFlags()</dt>
+<dd>Unsets all flags.</dd>
+<dt>bool Ghost_FlagIsSet(int flag)</dt>
+<dd>Returns true if the given flag is set and false if not.</dd>
+</dl>
+<h2 id="waitframe">Waitframe</h2>
+<p>After the enemy is initialized and until it dies, use the <code>Ghost_Waitframe</code>
+functions below instead of <code>Waitframe()</code> to keep the global variables
+consistent and maintain the illusion of a real enemy. Failure to do so may
+cause the global variables to become incorrect, completely breaking your script.</p>
+<dl>
+<dt>bool Ghost_Waitframe(ffc this, npc ghost, bool clearOnDeath, bool quitOnDeath)</dt>
+<dd>
+<p>This is a replacement function for <code>Waitframe()</code>. In addition to waiting a frame,
+it will handle the necessary routine updates. These include setting the npc's
+and ffc's positions and movement and dealing with clocks, stunning, flashing,
+knockback, and death. If the enemy is stunned or frozen by a clock, or if
+scripts are suspended, <code>Ghost_Waitframe()</code> will not return until the enemy dies
+or the blocking condition ends.</p>
+<p>If <code>clearOnDeath</code> is true, when the npc dies, <code>this-&gt;Data</code> will be set to 0,
+<code>Ghost_ClearAttachedFFCs()</code> will be called, and the npc will be moved so that
+its death animation and dropped item are centered.</p>
+<p>If <code>quitOnDeath</code> is true, <code>Quit()</code> will be called when the npc dies.
+If it's false, the function will return true if the npc is alive and false otherwise.</p>
+</dd>
+<dt>bool Ghost_Waitframe2(ffc this, npc ghost, bool clearOnDeath, bool quitOnDeath)</dt>
+<dd>Like the above, except this ignores the position and movement variables and
+uses the npc's instead. Use this if you want to use built-in enemy movement.</dd>
+<dt>void Ghost_WaitframeLight(ffc this, npc ghost)</dt>
+<dd>Minimal waitframe function. Aside from waiting a frame, this only keeps the
+global variables consistent, positions attached FFCs, and sets up drawing.
+If scripts are suspended, this function will not return until they are resumed.</dd>
+<dt>bool Ghost_Waitframes(ffc this, npc ghost, bool clearOnDeath, bool quitOnDeath, int numFrames)</dt>
+<dt>bool Ghost_Waitframes2(ffc this, npc ghost, bool clearOnDeath, bool quitOnDeath, int numFrames)</dt>
+<dt>void Ghost_WaitframesLight(ffc this, npc ghost, int numFrames)</dt>
+<dd>These simply call the corresponding <code>Ghost_Waitframe</code> function <code>numFrames</code> times.</dd>
+<dt>void Ghost_Waitframe(ffc this, npc ghost)</dt>
+<dt>void Ghost_Waitframe2(ffc this, npc ghost)</dt>
+<dt>void Ghost_Waitframes(ffc this, npc ghost, int numFrames)</dt>
+<dt>void Ghost_Waitframes2(ffc this, npc ghost, int numFrames)</dt>
+<dd>Simpler variants of the Waitframe functions. These are equivalent to calling
+the regular functions with <code>clearOnDeath</code> and <code>quitOnDeath</code> both true. The
+script will quit if the enemy dies, so there is no return value from these.</dd>
+<dt>bool Ghost_Waitframe(ffc this, npc ghost, int deathAnimation, bool quitOnDeath)</dt>
+<dt>bool Ghost_Waitframe2(ffc this, npc ghost, int deathAnimation, bool quitOnDeath)</dt>
+<dd>These will call <code>Ghost_DeathAnimation()</code> with the specified animation if the
+enemy dies. See <code>Ghost_DeathAnimation()</code> for <code>deathAnimation</code> arguments.</dd>
+</dl>
+<h2 id="modification">Modification</h2>
+<dl>
+<dt>void Ghost_SetSize(ffc this, npc ghost, int tileWidth, int tileHeight)</dt>
+<dd>Sets the tile size of the enemy. The new width and height are given
+in tiles and must be between 1 and 4. If -1 is given for either dimension,
+it will not be changed. If you called <code>Ghost_SetHitOffsets()</code> previously,
+it will be undone; the enemy's size and position will be set to match
+the FFC's.</dd>
+<dt>void Ghost_Transform(ffc this, npc ghost, int combo, int cset, int tileWidth, int tileHeight)</dt>
+<dd>Change the FFC to a new combo and CSet and resize the FFC and npc. The FFC's
+and npc's positions will be adjusted so that they're centered on the same
+spotas before. For all four numeric arguments, pass in -1 if you don't want to change
+the existing value. If you called <code>Ghost_SetHitOffsets()</code> previously, it will
+be undone. Attached FFCs will not be affected.</dd>
+<dt>void Ghost_SetHitOffsets(npc ghost, float top, float bottom, float left, float right)</dt>
+<dd>If you want the enemy's hitbox to be smaller than the FFC, use this function
+to adjust it. Each argument will cause the hitbox to shrink away from the
+corresponding edge. This applies to both collision detection and movement.
+For each argument, if the number is 1 or greater, it will be interpreted as
+the difference in pixels; if the number is between 0 and 1, it will be
+treated as a fraction of the FFC's full size. So, for instance, a <code>top</code>
+argument of 0.25 would shrink the hitbox by 1/4 of the FFC's height.</dd>
+<dt>void Ghost_SwapNPC(npc oldGhost, npc newGhost, bool copyHP)</dt>
+<dd>Copies size, position, Misc[], and HP (optionally) from the old ghost to the
+new one, then moves the old one out of the way.</dd>
+<dt>void Ghost_ReplaceNPC(npc oldGhost, npc newGhost, bool copyHP)</dt>
+<dd>Copies data from the old ghost to the new one, then silently kills the old one.</dd>
+<dt>void Ghost_StoreDefenses(npc ghost, int storedDefense[])</dt>
+<dd>Copies <code>ghost-&gt;Defense[]</code> into <code>storedDefense</code>. The array size must be at least 18.</dd>
+<dt>void Ghost_SetDefenses(npc ghost, int defense[])</dt>
+<dd>Copies <code>defense</code> into <code>ghost-&gt;Defense[]</code>. The array size must be at least 18.</dd>
+<dt>void Ghost_SetAllDefenses(npc ghost, int defType)</dt>
+<dd>Sets all of the enemy's defenses to <code>defType</code>, which should be an NPCDT constant.</dd>
+</dl>
+<h2 id="movement">Movement</h2>
+<dl>
+<dt>void Ghost_Move(int dir, float step, int imprecision)</dt>
+<dt>void Ghost_MoveXY(float xStep, float yStep, int imprecision)</dt>
+<dt>void Ghost_MoveAtAngle(float angle, float step, int imprecision)</dt>
+<dt>void Ghost_MoveTowardLink(float step, int imprecision)</dt>
+<dd>
+<p>Makes the enemy move. <code>Ghost_CanMove()</code> will be checked automatically.
+If the <code>GHF_SETDIRECTION</code> flag is set, the npc's direction will be changed
+accordingly unless <code>Ghost_ForceDir()</code> was called beforehand. </p>
+<p><code>step</code> is given in pixels.</p>
+<p><code>Ghost_MoveAtAngle()</code>'s <code>angle</code> argument is in degrees.</p>
+<p><code>imprecision</code> makes the function ignore a couple of pixels at the
+edges of the enemy's hitbox so that it doesn't get stuck on corners.</p>
+</dd>
+<dt>bool Ghost_CanMove(int dir, float step, int imprecision)</dt>
+<dt>bool Ghost_CanMove(int dir, float step, int imprecision, bool inAir)</dt>
+<dd>
+<p>Determines whether the enemy can move in the given direction and distance.
+step is given in pixels.</p>
+<p>On sideview screens, a direction of <code>DIR_UP</code> will always return false unless
+the <code>GHF_NO_FALL</code> flag is set.</p>
+<p><code>inAir</code> determines whether non-flying enemies check for <strong>No Ground Enemies</strong> or
+<strong>No Jumping Enemies</strong>. If it is not specified, <code>inAir</code> is true if <code>Ghost_Z&gt;0</code>.</p>
+</dd>
+<dt>bool Ghost_CanMovePixel(int x, int y)</dt>
+<dt>bool Ghost_CanMovePixel(int x, int y, bool inAir)</dt>
+<dd>Used internally by <code>Ghost_CanMove()</code>. Returns true if the enemy can move onto
+the given pixel.</dd>
+<dt>float Ghost_HaltingWalk4(int counter, int step, int rate, int homing, int hunger, int haltRate, int haltTime)</dt>
+<dd>
+<p>This function mimics the built-in movement function used by walking enemies.</p>
+<p><code>step</code> corresponds to <code>npc-&gt;Step</code>. It represents speed in hundredths of a pixel
+per frame.</p>
+<p><code>rate</code> corresponds to <code>npc-&gt;Rate</code> and should be between 0 and 16.</p>
+<p><code>homing</code> corresponds to <code>npc-&gt;Homing</code> and should be between 0 and 256.</p>
+<p><code>hunger</code> corresponds to <code>npc-&gt;Hunger</code> and should be between 0 and 4.</p>
+<p><code>haltRate</code> corresponds to <code>npc-&gt;Haltrate</code> and should be between 0 and 16.</p>
+<p><code>haltTime</code> determines how long the enemy will stand still when it
+halts. Zols use <code>Rand(8)&lt;&lt;4</code>, Gels use <code>(Rand(8)&lt;&lt;3)+2</code>, Goriyas use 1, and all
+others use 48.</p>
+<p><code>counter</code> should initially be -1, then set to the function's
+return value each frame. While the enemy is halted, the return value will be
+the remaining halt time, which you can use to determine when to fire. So:</p>
+<pre class="codehilite"><code class="language-cpp">int counter = -1;
+while(true)
+{
+    counter=Ghost_HaltingWalk4(counter, step, rate, homing, hunger, haltRate, 48);
+    if(counter==16) // Fire after halted for 32 frames
+        FireEWeapon(...);
+    Ghost_Waitframe(...);
+}</code></pre>
+
+
+<p>This function depends on <code>Ghost_Dir</code> and will set it even if <code>GHF_SET_DIRECTION</code>
+is not used. It will also set <code>Ghost_Dir</code> to -1 if the enemy is trapped.</p>
+</dd>
+<dt>int Ghost_ConstantWalk4(int counter, int step, int rate, int homing, int hunger)</dt>
+<dd>
+<p>This is the movement function used by Dodongos and Lanmolas. The arguments
+are the same as above.</p>
+<p>This function depends on <code>Ghost_Dir</code> and will set it
+even if <code>GHF_SET_DIRECTION</code> is not used. It will also set <code>Ghost_Dir</code> to -1 if
+the enemy is trapped.</p>
+</dd>
+<dt>int Ghost_ConstantWalk8(int counter, int step, int rate, int homing, int hunger)</dt>
+<dd>
+<p>This is the movement function used by Moldorms. The arguments are the same as above.</p>
+<p>This function depends on <code>Ghost_Dir</code> and will set it even if <code>GHF_SET_DIRECTION</code>
+is not used. It will also set <code>Ghost_Dir</code> to -1 if the enemy is trapped.</p>
+</dd>
+<dt>int Ghost_VariableWalk8(int counter, int step, int rate, int homing, int hunger, int turnCheckTime)</dt>
+<dd>
+<p>This is the movement function used by Digdoggers, Manhandlas, Patras, and
+fairies.</p>
+<p><code>turnCheckTime</code> deterines how many frames the enemy moves before checking
+whether it should change direction.</p>
+<p>The other arguments are the same as above.</p>
+<p>This function depends on <code>Ghost_Dir</code> and will set it even if <code>GHF_SET_DIRECTION</code>
+is not used. It will also set <code>Ghost_Dir</code> to -1 if the enemy is trapped.</p>
+</dd>
+<dt>float Ghost_FloaterWalk(float counter, int normalStep, int accelTime, float accelAmount, int accelSteps, int rate, int homing, int hunger, int turnCheckTime, int restTime)</dt>
+<dd>
+<p>This is the movement function used by Peahats, Keese, and Ghinis. It works
+like <code>Ghost_VariableWalk8()</code>, plus the enemy will periodically stop moving.
+When the enemy is moving at full speed, there is a 1 in 768 chance each frame
+that it will stop.</p>
+<p>When the enemy starts or stops moving, its speed will change in discrete
+increments of <code>accelAmount</code>. <code>accelSteps</code> is the number of times this will
+happen, and <code>accelTime</code> is the time in frames between each step.</p>
+<p><code>restTime</code> is how long the enemy stays stopped. Peahats use 80, while
+Ghinis and Keese use 120.</p>
+</dd>
+</dl>
+<h2 id="other">Other</h2>
+<dl>
+<dt>float Ghost_GetAttribute(npc ghost, int index, float defaultVal)</dt>
+<dt>float Ghost_GetAttribute(npc ghost, int index, float defaultVal, float min, float max)</dt>
+<dd>Retrieves the value of <code>ghost-&gt;Attribute[index]</code> bound to the range <code>min</code> - <code>max</code>.
+If the value is 0, <code>defaultVal</code> will be returned. <code>defaultVal</code> does not need to be
+between <code>min</code> and <code>max</code>.</dd>
+<dt>void Ghost_SpawnAnimationPuff(ffc this, npc ghost)</dt>
+<dd>The initialization functions interrupt the normal enemy spawning animation;
+this function fakes it. It draws a sprite (lweapon) using sprite number
+<code>GH_SPAWN_SPRITE</code> at the enemy's position and returns after the animation completes.</dd>
+<dt>void Ghost_SpawnAnimationFlicker(ffc this, npc ghost)</dt>
+<dd>Draws the other spawn animation, in which the enemy flickers for 64 frames.
+With a visible enemy and invisible FFC, the timing won't be quite right
+unless the enemy's spawn type is <strong>Instant</strong>.</dd>
+<dt>void Ghost_DeathAnimation(ffc this, npc ghost, int anim)</dt>
+<dd>
+<p>Displays a death animation based on <code>anim</code>, then clears the enemy. This does
+not call <code>Quit()</code>.</p>
+<p><code>anim</code> should be one of these:</p>
+<dl>
+<dt>GHD_EXPLODE</dt>
+<dd>A series of explosions appear randomly around the enemy.</dd>
+<dt>GHD_EXPLODE_FLASH</dt>
+<dd>The same, plus the enemy flashes.</dd>
+<dt>GHD_SHRINK</dt>
+<dd>The enemy grows slightly and then shrinks away to nothing. This does not
+work with enemies that use additional combos.</dd>
+</dl>
+<p>Any other value will simply cause the enemy to disappear.</p>
+</dd>
+<dt>void Ghost_AddCombo(int combo, float x, float y)</dt>
+<dt>void Ghost_AddCombo(int combo, float x, float y, int width, int height)</dt>
+<dd>Add another combo to the enemy. It will move, flash, and flicker along with
+the enemy. <code>x</code> and <code>y</code> are offsets from <code>Ghost_X</code> and <code>Ghost_Y</code>. Up to four combos
+may be added in this way.</dd>
+<dt>void Ghost_ClearCombos</dt>
+<dd>Clears all combos added by <code>Ghost_AddCombo()</code>.</dd>
+<dt>bool Ghost_GotHit()</dt>
+<dd>Returns true if the enemy was hit in the last frame.</dd>
+<dt>bool Ghost_WasFrozen()</dt>
+<dd>Returns true if the enemy was stunned or frozen by a clock in the last frame.
+This only works if <code>GHF_STUN</code> or <code>GHF_CLOCK</code> is used.</dd>
+<dt>void Ghost_ForceDir(int dir)</dt>
+<dd>Sets <code>Ghost_Dir</code> and stops it from being changed automatically until the next frame.</dd>
+<dt>void Ghost_ForceCSet(int cset)</dt>
+<dd>
+<p>Sets <code>Ghost_CSet</code> and stops flashing until the next frame.</p>
+<p>This won't work with scripts that use a visible enemy and invisible FFC.</p>
+</dd>
+<dt>void Ghost_StartFlashing()</dt>
+<dt>void Ghost_StartFlashing(int time)</dt>
+<dd>
+<p>Makes the enemy start flashing or flickering as though it had been hit.</p>
+<p>If <code>time</code> is specified, the enemy will flash for that many frames
+instead of the standard 32.</p>
+<p>This won't work with scripts that use a visible enemy and invisible FFC.</p>
+</dd>
+<dt>void Ghost_StopFlashing()</dt>
+<dd>
+<p>Makes the enemy stop flashing or flickering.</p>
+<p>This won't work with scripts that use a visible enemy and invisible FFC.</p>
+</dd>
+<dt>void Ghost_StopKnockback()</dt>
+<dd>Stops the enemy from being knocked back.</dd>
+<dt>void Ghost_CheckHit(ffc this, npc ghost)</dt>
+<dd>
+<p>This will cause the enemy to flash and be knocked back when it is damaged.</p>
+<p>This is used internally by the <code>Ghost_Waitframe</code> functions. If you use
+one of those, you don't need to use this as well.</p>
+</dd>
+<dt>bool Ghost_CheckFreeze(ffc this, npc ghost)</dt>
+<dd>
+<p>Checks whether the npc has been stunned or frozen by a clock. If so, the
+function does not return until the npc either recovers or dies. <code>Ghost_CheckHit()</code>
+will be called each frame during that time. The return value is true if the
+npc is still alive and false if it's dead.</p>
+<p>This is used internally by the <code>Ghost_Waitframe</code> functions. If you use
+one of those, you don't need to use this as well.</p>
+</dd>
+<dt>void Ghost_SetPosition(ffc this, npc ghost)</dt>
+<dd>Positions the NPC and FFC according to the position variables and
+<code>ghost-&gt;Draw*Offset</code>. This is done automatically in the <code>Ghost_Waitframe</code>
+functions, so you generally will never need to use this.</dd>
+</dl>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../eweapon/index.html" class="btn btn-neutral float-right" title="Eweapons">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../globalScript/index.html" class="btn btn-neutral" title="Global script"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../globalScript/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../eweapon/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

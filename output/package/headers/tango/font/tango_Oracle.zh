@@ -1,0 +1,11 @@
+// tango.zh font definition for built-in font "Oracle"
+
+int TANGO_FONT_ORACLE[] = {
+    TANGO_FONT_BUILTIN,
+    TANGO_FONT_MONOSPACE,
+    FONT_GBORACLE,
+    0,  // Unused
+    15, // Character height
+    0,  // Space between lines,
+    8   // Width of each character, including trailing space
+};

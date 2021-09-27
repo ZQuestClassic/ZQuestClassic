@@ -1,0 +1,199 @@
+// ghost.zh
+// Version 2.8.15
+
+
+void Ghost_Transform(ffc this, npc ghost, int combo, int cset, int tileWidth, int tileHeight)
+{
+    int diff;
+    
+    if(combo>=0)
+    {
+        Ghost_Data=combo;
+        this->Data=combo;
+    }
+    
+    if(cset>=0)
+    {
+        Ghost_CSet=cset;
+        this->CSet=cset;
+        ghost->CSet=cset;
+
+    }
+    
+    if(tileWidth>0)
+    {
+        diff=8*(Ghost_TileWidth-tileWidth);
+        Ghost_TileWidth=tileWidth;
+        ghost->TileWidth=Ghost_TileWidth;
+        this->TileWidth=Ghost_TileWidth;
+
+        Ghost_X+=diff;
+        this->X=Ghost_X;
+        ghost->X=Ghost_X;
+    }
+    
+    if(tileHeight>0)
+    {
+        diff=8*(Ghost_TileHeight-tileHeight);
+        Ghost_TileHeight=tileHeight;
+        ghost->TileHeight=Ghost_TileHeight;
+        this->TileHeight=Ghost_TileHeight;
+
+        Ghost_Y+=diff;
+        this->Y=Ghost_Y;
+        ghost->Y=Ghost_Y;
+    }
+    
+    Ghost_SetHitOffsets(ghost, 0, 0, 0, 0);
+}
+
+
+void Ghost_SetSize(ffc this, npc ghost, int tileWidth, int tileHeight)
+{
+    if(tileWidth>0)
+    {
+        Ghost_TileWidth=tileWidth;
+        ghost->TileWidth=Ghost_TileWidth;
+        this->TileWidth=Ghost_TileWidth;
+    }
+    
+    if(tileHeight>0)
+    {
+        Ghost_TileHeight=tileHeight;
+        ghost->TileHeight=Ghost_TileHeight;
+        this->TileHeight=Ghost_TileHeight;
+    }
+    
+    Ghost_SetHitOffsets(ghost, 0, 0, 0, 0);
+}
+
+
+void Ghost_SetHitOffsets(npc ghost, float top, float bottom, float left, float right)
+{
+    ghost->TileHeight=Ghost_TileHeight;
+    ghost->TileWidth=Ghost_TileWidth;
+    
+    if(top>0 && top<1)
+        top=Round(top*Ghost_TileHeight*16);
+    if(bottom>0 && bottom<1)
+        bottom=Round(bottom*Ghost_TileHeight*16);
+    if(left>0 && left<1)
+        left=Round(left*Ghost_TileWidth*16);
+    if(right>0 && right<1)
+        right=Round(right*Ghost_TileWidth*16);
+
+    top=Clamp(top, 0,64);
+    bottom=Clamp(bottom, 0, 64);
+    left=Clamp(left, 0, 64);
+    right=Clamp(right, 0, 64);
+
+    ghost->HitXOffset=left;
+    ghost->HitYOffset=top;
+    ghost->HitWidth=16*Ghost_TileWidth-(left+right);
+    ghost->HitHeight=16*Ghost_TileHeight-(top+bottom);
+
+    __Ghost_XOffsets=(left<<8)+right;
+    __Ghost_YOffsets=(top<<8)+bottom;
+}
+
+
+void Ghost_SwapNPC(npc oldGhost, npc newGhost, bool copyHP)
+{
+    newGhost->X=Ghost_X;
+    newGhost->Y=Ghost_Y;
+    newGhost->Z=Ghost_Z;
+    newGhost->Jump=Ghost_Jump;
+    newGhost->Dir=Ghost_Dir;
+
+    newGhost->Extend=oldGhost->Extend;
+    newGhost->TileWidth=oldGhost->TileWidth;
+    newGhost->TileHeight=oldGhost->TileHeight;
+    newGhost->HitWidth=oldGhost->HitWidth;
+    newGhost->HitHeight=oldGhost->HitHeight;
+    newGhost->HitXOffset=oldGhost->HitXOffset;
+    newGhost->HitYOffset=oldGhost->HitYOffset;
+    newGhost->CollDetection=oldGhost->CollDetection;
+
+    for(int i=0; i<16; i++)
+        newGhost->Misc[i]=oldGhost->Misc[i];
+
+    if(copyHP)
+        newGhost->HP=oldGhost->HP;
+
+    // Move the old ghost out of the way
+    oldGhost->CollDetection=false;
+    oldGhost->X=256;
+    oldGhost->Y=176;
+}
+
+
+void Ghost_ReplaceNPC(npc oldGhost, npc newGhost, bool copyHP)
+{
+    Ghost_SwapNPC(oldGhost, newGhost, copyHP);
+
+    oldGhost->X=384;
+    oldGhost->HP=-1000;
+}
+
+
+void Ghost_StoreDefenses(npc ghost, int storedDefense)
+{
+    for(int i=0; i<18; i++)
+        storedDefense[i]=ghost->Defense[i];
+}
+
+
+void Ghost_SetDefenses(npc ghost, int defense)
+{
+    for(int i=0; i<18; i++)
+        ghost->Defense[i]=defense[i];
+}
+
+
+void Ghost_SetAllDefenses(npc ghost, int defType)
+{
+    for(int i=0; i<18; i++)
+        ghost->Defense[i]=defType;
+}
+
+
+void Ghost_ForceDir(int dir)
+{
+    Ghost_Dir=dir;
+    __Ghost_InternalFlags|=__GHFI_DIR_FORCED;
+}
+
+
+void Ghost_ForceCSet(int cset)
+{
+    Ghost_CSet=cset;
+    __Ghost_InternalFlags|=__GHFI_CSET_FORCED;
+}
+
+
+void Ghost_StartFlashing()
+{
+    __Ghost_FlashCounter=__GH_FLASH_TIME;
+}
+
+
+void Ghost_StartFlashing(int time)
+{
+    __Ghost_FlashCounter=time;
+}
+
+
+void Ghost_StopFlashing()
+{
+    __Ghost_FlashCounter=0;
+}
+
+
+void Ghost_StopKnockback()
+{
+    if(__Ghost_KnockbackCounter>0)
+    {
+        __Ghost_KnockbackCounter=0;
+        __Ghost_InternalFlags|=__GHFI_KNOCKBACK_INTERRUPTED;
+    }
+}

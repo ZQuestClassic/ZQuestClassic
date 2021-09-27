@@ -1,0 +1,5 @@
+const int GUI_ROOT = 0; // Root widget; parent of all top-level widgets
+
+const int WFLAG_WANTS_MOUSE = 01b; // Accepts mouse input
+const int WFLAG_HIDDEN      = 10b; // Invisible and unusable (applies to children)
+

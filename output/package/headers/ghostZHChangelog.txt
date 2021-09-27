@@ -1,0 +1,265 @@
+ghost.zh
+Version 2.8.15
+
+2.8.15
+	( 2020-19-APRIL )
+* Added __GH_FIX_255_ANONE to fix issues where the tiles for enemies
+* 	using Animation Style 'None' in 2.55.0 (and possibly in 2.53.1)
+*	do not have visual bugs. 
+
+2.8.14
+	( 2020-23-MARCH )
+	* Added some YuuRand-specific fixes. 
+2.8.13
+	( 2020-28-JAN )
+* Further optimised AutoGHost, plus tabbing/spacing clean-up.
+* Optimised int __AutoGhostParseName() and __IsScriptNameChar()
+
+2.8.12
+	(2020-27-JAN)
+* Removed AutoGhost.txt: This file was deprecated by autoGhostReadme.txt.
+* Fixed some docs typos and searching for new additions.
+* 	Search keywords need two spaces on either side of them
+*	in search_index.json.
+* Updated the Docs (txt, html, and md) with new configs, and 
+*	to the 2.53.1 spec for use of '#include'.
+* Fixed some bugs when using EWM_FALL and EWM_THROW in sideview. 
+*	-ywkls provided the base fixes.
+* Added the following config values:
+*	__GH_WEAPONS_HIT_PLATFORMS
+*		If set to 1, weapons in sideview will die when 
+*		they hit a solid sideview platform.
+*		
+*	__GH_FIX_EWM_FALL
+*		If set to 1, this will patch bugs where falling 
+*		weapons can be inappropriately destroyed because 
+*		of their position.
+*
+*	__GH_FIX_EWM_THROW
+*		If set to 1, this will patch bugs where thrown 
+*		weapons can be inappropriately destroyed because 
+*		of their position.
+*
+* These configs default on:
+* 	Set any of these to 0 if this causes bugs in legacy quests/scripts.
+*
+* Patched the compatibility file for 2.50.x and 2.53.0
+* Updated the demo quest anddemo npcs to use include, the new '.zs'
+*	extension, and to show ghost enemies behind layers.
+*	The demo quest main script is now in the demo path, instead
+*	of the buffer.
+* Try to fix bugs caused by changes in 2.8.10.
+* Added a config, __GH_ETHEREAL, defaulted to 1 to user settings.
+*	This forces ffcs used to control ghost npcs to Ethereal.
+
+2.8.11 
+	(2020-23-JAN)
+* Fixed __GhCleanUp() to reset the ffc positions to 0,0.
+
+2.8.10 (2020-18/19-JAN)
+* Fixed sanity check in ghost_create functions to use consts.
+* Fix a logic bug in Ghost_InitAutoGhost
+* Add sanity checks to Ghost_InitCreate, Ghost_InitCreateAt to legal ranges.
+* Added Ghost_InitCreateAt(ffc this, int enemyID, int x, int y)
+* Don't continue in Autoghost() until after we are ready to kill
+*	invalid enemies, deallocating them.
+* Optimised some function calls.
+* Changed void __AutoGhostParseName() to int __AutoGhostParseName
+* 	return 1 on success; or 0.
+* FindUnusedFFC is optimised now and has an extra sanity check.
+* Fixed bad logging caused by some kind of ZASM quirk in 2.53+. 
+*	Apparently ZASM doesn't want to return before the traces?!
+* Optimised Ghost_InitAutoGhost()
+
+
+2.8.9 
+	(2020-18-JAN)
+* Optimised Ghost_InitAutoGhost().
+* Fixed bad logging caused by some kind of ZASM quirk in 2.53+.
+* Apparently ZASM doesn't want to return before the traces?!
+	(2020-16-JAN)
+* Deleted ghost.cfg:
+* I added ghost.cfg to bypass a issue with the YR wrapper, but ultimately
+*	it was not needed, so the settings are once again in ghost.zh.
+
+
+2.8.8 (2020-12-JAN)
+* Removed dummy functions and added new YuuRand specific functions to ghost2_yuurand.zh
+*	to use for UpdateEWeapon, and for UpdateGhostZH1. 
+* Split off configs into ghost.cfg so that the includes are their
+* 	own file, adding ghost.cfg.
+* Added non-YR dummy file to avoid a compiler error, adding ghost2_no_yuurand.zh.
+
+2.8.7 (2020-09-JAN)
+* Moved YuuRand addendums into 2.8/ghost_yuurand.zh and simplified
+*	the process of upgrading. 
+* Validate arrays in YuuRand functions that take them by reference.
+* Don't use 'array' as an identifier. Use 'aptr'.
+* Add YuuRannd Compatibility
+* 	Made the stock ghost.zh/.8/... files compatible with YuuRannd
+*	Added GhostYR.zh with YuuRand Constants to use instead of Ghost.zh stock file. 
+*	Added YuuRand_Readme.txt
+
+2.8.6 (2019-15-DEC)
+* Fixed eweapon death effect EWD_AIM_AT_LINK slightly missing Link.
+
+2.8.5 (2019-12-12)
+* Renamed files to comply with HEADER_GUARD option in 2.53.1 
+	and 2.55.x.
+
+2.8.4 (2019-07-15)
+* Fixed possible invalid array access in SetEnemyProperty() and
+    GetEnemyProperty().
+
+2.8.3 (2019-03-19)
+* Renamed a couple of variables to fix conflicts in ZC 2.53.
+* Now packaged with HTML documentation instead of text files.
+
+2.8.2 (2017-09-10)
+* Added an option to determine whether ffc->Link is reset in __GhCleanUp().
+* Include ffc->Delay in __GhCleanUp().
+* Call __GhCleanUp() when Ghost_DeathAnimation() is called with no animation
+    and when initialization fails.
+
+2.8.1 (2016-09-16)
+* Fixed a bug in positioning enemies after knockback in Ghost_HaltingWalk4()
+    and Ghost_ConstantWalk4().
+* Fixed an error in validating spawn locations in FindSpawnPoint().
+* Fixed some weird behavior in weapons with EWD_AIM_AT_LINK spinning while
+    waiting to aim.
+* EWM_THROW with an argument of -1 (land at Link's position) is now much more
+    accurate at long distances.
+* Added ghostZHChangelog.txt.
+
+2.8.0 (2015-10-06)
+* Moved files into a numbered subdirectory so multiple versions can coexist.
+* Added an option to always read the script's name from the enemy's name,
+    freeing misc. attribute 12 for other uses.
+* Added Ghost_SetSize().
+* Added __IsPit() to allow customization of what constitutes a "pit."
+* Added a new death animation in which the enemy shrinks to nothing.
+* Added constants to use as arguments to Ghost_DeathAnimation() and
+    Waitframe functions.
+* SetEnemyProperty() now directly affects the npc's data as well as the
+    stored global variable.
+* The "All Enemies Are Invisible" screen flag now works, although it makes
+    enemies completely invisible.
+* The "Can Only Be Seen By Lens Of Truth" flag now works as long as
+    __GH_USE_DRAWCOMBO is disabled.
+* Fixed spawning enemies not being hidden correctly.
+* Fixed an issue with knockback in Ghost_ConstantWalk4().
+* Fixed __Ghost_NewDir4() ignoring random rate.
+* Fixed walkability detection in walking functions when hitbox size is not
+    a multiple of 16.
+* The FFC is now more thoroughly cleaned up when an enemy dies.
+* EWF_ROTATE_360 now works with large weapons.
+* Weapons with EWF_ROTATE_360 are no longer drawn when Link is dead.
+* Added EWF_FAKE_Z and a setting to make all weapons use fake Z values.
+* Fixed dummy weapons being instantly deleted in some cases.
+
+2.7.2 (2014-08-20)
+* AutoGhost() will no longer grab changers.
+* AutoGhost() now sets the FFC's size.
+* FindUnusedFFC() will no longer return changers.
+* When an enemy dies, its FFC is set to 0 instead of GH_INVISIBLE_COMBO.
+* Fixed some walkability checking issues in the walking functions.
+* Fixed the exploding and flashing death animation not flashing.
+* Corrected flashing CSets.
+* Legacy Waitframes are now included when ghost.zh scripts are suspended.
+
+2.7.1 (2014-01-30)
+* AutoGhost() doesn't run when ghost.zh scripts are suspended.
+* Fixed enemies being unable to drop items if they use a death animation.
+* FindUnusedFFC() now checks for GH_INVISIBLE_COMBO.
+* Fixed walkability checking issues when turning in the walking functions.
+
+2.7.0 (2013-11-21)
+* Added Ghost_FloaterWalk().
+* Added EWF_ROTATE_360.
+* Added settings to change how big an enemy must be to use large shadows.
+* Added an option to use scripted shadows rather than built-in ones
+    whenever possible.
+* Added new Ghost_Waitframe() variants to simplify usage; you can now leave out
+    the quitOnDeath and clearOnDeath arguments (they'll both be true) or
+    specify a death animation
+* The global script functions have been consolidated into three. This should
+    eliminate the need to update the global script for future updates.
+    
+Changes in 2.7.0 and earlier were not tracked at the time. The logs for
+those versions may be incomplete.
+
+2.6.0 (2013-02-27)
+* Added GetEnemyProperty() and SetEnemyProperty().
+* SetEWeaponMovement() now takes another argument. Some similar weapon movement
+    types have been merged with the differing functionality now controlled by
+    the second argument.
+* The movement functions have been rewritten to be more accurate and faster.
+* The FireEWeapon functions can now take -1 for the sprite and sound arguments
+    to use defaults for the weapon type.
+* 2x2 shadows are now used for enemies 3x3 and larger.
+    (Only applies if GH_FAKE_Z or GHF_FAKE_Z is used)
+* Added GHF_STATIC_SHADOW for enemies whose shadows should never animate.
+    (Only applies if GH_FAKE_Z or GHF_FAKE_Z is used)
+
+2.5.1 (2012-12-21)
+* AutoGhost scripts can now be read from the enemy's name. Set misc.
+    attribute 12 to -1 and put the script name in the enemy's name after @.
+* Added constants to control flashing and knockback.
+
+2.5.0 (2012-12-09)
+* Split ghost.zh into multiple files.
+* Drawing has been moved to the global script, so enemies won't disappear
+    when the screen freezes.
+* The multi-FFC functions have been replaced.
+* Directions 8-15 should be handled correctly now.
+* Ghost_Explode() has been replaced by Ghost_DeathAnimation().
+* Added functions to suspend and resume ghost.zh scripts.
+* Added functions to find random spawn points.
+* Added functions to simplify reading attributes.
+* Shadows can now be animated.
+* The "Is Flashing" and "Is Flickering" enemy flags work now.
+
+2.4.0 (2012-07-22)
+* Added Ghost_WasFrozen().
+
+2.3.2 (2012-07-12)
+* Added __GH_INVISIBLE_EXTEND, which will set up an FFC with the invisible
+    combo but still set npc->Extend to 3.
+
+2.3.1 (2012-06-15)
+* Fixed a drawing error.
+
+2.3.0 (2012-05-20)
+* Added support for enemies to use multiple FFCs.
+* It's now possible to use Screen->DrawCombo rather than making the FFC
+    itself visible.
+* Enemy blocking combos and flags are now respected.
+* Ghost_CanMove and Ghost_CanMovePixel now take an optional argument indicating
+    whether the enemy is in the air; this defaults to Ghost_Z>0.
+* Added a setting to make all Z-axis movement actually use the Y axis.
+* Added a setting to make enemies flicker instead of flash.
+* You can now use an alternate number (-1 by default) instead of
+    GH_INVISIBLE_COMBO to make enemies use the invisible combo.
+* Added GHF_FLYING_ENEMY, GHF_IGNORE_NO_ENEMY, GHF_WATER_ONLY, and 
+    GHF_DEEP_WATER_ONLY
+* GHF_ flags can no longer be ORed together; they must be set individually.
+* Ghost_SetFlags() and the init functions with a flags argument are deprecated.
+* Ghost_WaitframeLight() now takes ffc and npc arguments. The old version
+    is deprecated and may not work correctly with existing scripts.
+
+2.2.0 (2012-02-28)
+* Added some handling for sideview screens.
+* Added GHF_FULL_TILE_MOVEMENT, which makes the enemy consider a combo
+    completely solid if any quadrant of it is.
+* Various bug fixes.
+
+2.1.0 (2011-08-14)
+* Added Ghost_ConstantWalk4(), Ghost_ConstantWalk8(), Ghost_HaltingWalk4(),
+    and Ghost_VariableWalk8().
+* Added EWM_DRIFT and EWM_DRIFT_WAIT.
+* The hitbox adjustments made by Ghost_SetHitOffsets() are now
+    taken into account by Ghost_CanMove().
+
+2.0.0 (2011-08-03)
+* First version of modern ghost.zh. Completely overhauled.
+

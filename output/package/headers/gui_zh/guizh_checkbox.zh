@@ -1,0 +1,72 @@
+const int CB_TILE = 0;
+const int CB_CSET = 1;
+const int CB_TEXT = 2;
+const int CB_FONT = 3;
+const int CB_TEXT_COLOR = 4;
+const int CB_STATE = 5;
+
+const int CBSTATE_UNDER_MOUSE = 001b;
+const int CBSTATE_CLICKED     = 010b;
+const int CBSTATE_CHECKED     = 100b;
+
+
+int Checkbox_Create(int parent, int tile, int cset, int text, int font, int textColor)
+{
+    int id=Widget_Create(WTYPE_CHECKBOX, parent);
+    GUI_Data[id+WIDGET_WIDTH]=8;
+    GUI_Data[id+WIDGET_HEIGHT]=8;
+    GUI_Data[id+CB_TILE]=tile;
+    GUI_Data[id+CB_CSET]=cset;
+    GUI_Data[id+CB_TEXT]=text;
+    GUI_Data[id+CB_FONT]=font;
+    GUI_Data[id+CB_TEXT_COLOR]=textColor;
+    GUI_Data[id+CB_STATE]=0;
+    GUI_Data[id+WIDGET_FLAGS]|=WFLAG_WANTS_MOUSE;
+    return id;
+}
+
+void Checkbox_Draw(int id, int x, int y)
+{
+    int tile=GUI_Data[id+CB_TILE]+GUI_Data[id+CB_STATE];
+    Screen->FastTile(GUI_DRAW_LAYER, x, y, tile, GUI_Data[id+CB_CSET], OP_OPAQUE);
+    if(GUI_Data[id+CB_TEXT]!=0)
+            Screen->DrawString(GUI_DRAW_LAYER,
+              x+GUI_Data[id+WIDGET_WIDTH]+2, y,
+              GUI_Data[id+CB_FONT], GUI_Data[id+CB_TEXT_COLOR], -1,
+              TF_NORMAL, GUI_Data[id+CB_TEXT], OP_OPAQUE);
+}
+
+void Checkbox_OnMouseEnter(int id)
+{
+    GUI_Data[id+CB_STATE]|=CBSTATE_UNDER_MOUSE;
+}
+
+void Checkbox_OnMouseExit(int id)
+{
+    GUI_Data[id+CB_STATE]&=~CBSTATE_UNDER_MOUSE;
+}
+
+void Checkbox_OnMousePress(int id)
+{
+    GUI_Data[id+CB_STATE]|=CBSTATE_CLICKED;
+}
+
+void Checkbox_OnMouseRelease(int id)
+{
+    if((GUI_Data[id+CB_STATE]&CBSTATE_UNDER_MOUSE)!=0)
+    {
+        if((GUI_Data[id+CB_STATE]&CBSTATE_CHECKED)==0) // Unchecked -> Checked
+        {
+            GUI_Data[id+CB_STATE]|=CBSTATE_CHECKED;
+            Event_Add(EVENT_CHECKBOX_CHANGED, id, 1);
+        }
+        else // Checked -> Unchecked
+        {
+            GUI_Data[id+CB_STATE]&=~CBSTATE_CHECKED;
+            Event_Add(EVENT_CHECKBOX_CHANGED, id, 0);
+        }
+    }
+    
+    GUI_Data[id+CB_STATE]&=~CBSTATE_CLICKED;
+}
+

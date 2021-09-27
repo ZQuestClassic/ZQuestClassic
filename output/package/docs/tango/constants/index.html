@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>ZScript constants - tango.zh 1.3.3</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "ZScript constants";
+    var mkdocs_page_input_path = "constants.md";
+    var mkdocs_page_url = "/constants/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> tango.zh 1.3.3</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../usage/index.html">Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../zscriptFuncs/index.html">ZScript functions</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">ZScript constants</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#zscript-constants">ZScript constants</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#style-attributes">Style attributes</a></li>
+        
+            <li><a class="toctree-l3" href="#style-flags">Style flags</a></li>
+        
+            <li><a class="toctree-l3" href="#backdrop-types">Backdrop types</a></li>
+        
+            <li><a class="toctree-l3" href="#menu-flags">Menu flags</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../tangoCode/index.html">Tango variables and functions</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../dataFormats/index.html">Data structures and formats</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../errors/index.html">Error codes</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../faq/index.html">FAQ</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">tango.zh 1.3.3</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>ZScript constants</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="zscript-constants">ZScript constants</h1>
+<h2 id="style-attributes">Style attributes</h2>
+<p>These are the attributes that can be set with <code>Tango_SetStyleAttribute()</code>.
+Attributes associated with specific backdrop types are excluded here;
+they're listed with the relevant <code>TANGO_BACKDROP</code> constants in the
+<a href="#backdrop-types">backdrop types</a> section.</p>
+<dl>
+<dt>TANGO_STYLE_BACKDROP_TYPE</dt>
+<dd>The type of backdrop to display behind the text; this should be
+<a href="#backdrop-types">one of the <code>TANGO_BACKDROP</code> constants below</a>. There are
+also several more attributes associated with each backdrop type.</dd>
+<dt>TANGO_STYLE_TEXT_FONT</dt>
+<dd>The default font used to render the text. This must be a Tango font
+definition, not a ZC font.</dd>
+<dt>TANGO_STYLE_TEXT_X</dt>
+<dt>TANGO_STYLE_TEXT_Y</dt>
+<dd>The position of the text. These are offsets from the values set with
+<code>Tango_SetSlotPosition()</code>.</dd>
+<dt>TANGO_STYLE_TEXT_WIDTH</dt>
+<dt>TANGO_STYLE_TEXT_HEIGHT</dt>
+<dd>The size of the area in which text will be displayed.</dd>
+<dt>TANGO_STYLE_TEXT_CSET</dt>
+<dt>TANGO_STYLE_TEXT_COLOR</dt>
+<dd>The default color of the text. <code>TANGO_STYLE_TEXT_COLOR</code> is used to select
+color 0-15 in the given CSet; this only applies to characters in
+built-in fonts.</dd>
+<dt>TANGO_STYLE_TEXT_SPEED</dt>
+<dd>The delay before each character is printed. A speed of 0 means there is
+no delay between characters; this is similar to <code>TANGO_FLAG_INSTANTANEOUS</code>,
+but differs in that the speed can be changed mid-text. The flag requires
+less processing, so it should be preferred whenever possible.</dd>
+<dt>TANGO_STYLE_TEXT_SFX</dt>
+<dd>The default sound played when printing a character.</dd>
+<dt>TANGO_STYLE_TEXT_END_SFX</dt>
+<dd>The sound played when the end of the text is reached.</dd>
+<dt>TANGO_STYLE_MORE_COMBO</dt>
+<dt>TANGO_STYLE_MORE_CSET</dt>
+<dd>The appearance of the "more..." icon.</dd>
+<dt>TANGO_STYLE_MORE_X</dt>
+<dt>TANGO_STYLE_MORE_Y</dt>
+<dd>The position of the "more..." icon. These are offsets from the values
+set with <code>Tango_SetSlotPosition()</code>.</dd>
+<dt>TANGO_STYLE_FLAGS</dt>
+<dd>Flags controlling various aspects of the text slot's appearance and
+behavior. These are <a href="#style-flags"><code>TANGO_FLAG</code> constants</a>, which can be
+ORed together.</dd>
+<dt>TANGO_STYLE_ALT_CSET_1</dt>
+<dt>TANGO_STYLE_ALT_CSET_2</dt>
+<dt>TANGO_STYLE_ALT_CSET_3</dt>
+<dt>TANGO_STYLE_ALT_CSET_4</dt>
+<dt>TANGO_STYLE_ALT_COLOR_1</dt>
+<dt>TANGO_STYLE_ALT_COLOR_2</dt>
+<dt>TANGO_STYLE_ALT_COLOR_3</dt>
+<dt>TANGO_STYLE_ALT_COLOR_4</dt>
+<dd>
+<p>Set highlight colors to use for double-bracketed text.</p>
+<p>1 is <code>(( ))</code></p>
+<p>2 is <code>[[ ]]</code></p>
+<p>3 is <code>{{ }}</code></p>
+<p>4 is <code>&lt;&lt; &gt;&gt;</code></p>
+</dd>
+<dt>TANGO_STYLE_ALT_OFFSET_1</dt>
+<dt>TANGO_STYLE_ALT_OFFSET_2</dt>
+<dt>TANGO_STYLE_ALT_OFFSET_3</dt>
+<dt>TANGO_STYLE_ALT_OFFSET_4</dt>
+<dd>Similar to the above, this sets a tile offset for double-bracketed text.
+This adds a number to the base tile of custom and extended fonts; this is
+applied in addition to the color change. It's meant for 8-bit tiles,
+as those can't simply be recolored.</dd>
+<dt>TANGO_STYLE_MENU_CHOICE_INDENT</dt>
+<dd>How much extra space to add before each menu choice to make room for
+the cursor, in pixels.</dd>
+<dt>TANGO_STYLE_MENU_CURSOR_COMBO</dt>
+<dt>TANGO_STYLE_MENU_CURSOR_CSET</dt>
+<dt>TANGO_STYLE_MENU_CURSOR_WIDTH</dt>
+<dt>TANGO_STYLE_MENU_CURSOR_HEIGHT</dt>
+<dd>The appearance of the menu cursor. Width and height are in tiles.</dd>
+<dt>TANGO_STYLE_MENU_CURSOR_MOVE_SFX</dt>
+<dt>TANGO_STYLE_MENU_SELECT_SFX</dt>
+<dt>TANGO_STYLE_MENU_CANCEL_SFX</dt>
+<dd>The sounds to play in the menu.</dd>
+<dt>TANGO_STYLE_MENU_SCROLL_UP_COMBO</dt>
+<dt>TANGO_STYLE_MENU_SCROLL_UP_CSET</dt>
+<dt>TANGO_STYLE_MENU_SCROLL_UP_X</dt>
+<dt>TANGO_STYLE_MENU_SCROLL_UP_Y</dt>
+<dt>TANGO_STYLE_MENU_SCROLL_DOWN_COMBO</dt>
+<dt>TANGO_STYLE_MENU_SCROLL_DOWN_CSET</dt>
+<dt>TANGO_STYLE_MENU_SCROLL_DOWN_X</dt>
+<dt>TANGO_STYLE_MENU_SCROLL_DOWN_Y</dt>
+<dd>If a menu is too large to fit in the text area, these combos will be drawn
+to indicate that it can scroll up or down.</dd>
+</dl>
+<h2 id="style-flags">Style flags</h2>
+<p>Constants to be used with <code>TANGO_STYLE</code> flags. These can be combined
+with bitwise OR.</p>
+<dl>
+<dt>TANGO_FLAG_ENABLE_SPEEDUP</dt>
+<dd>The text can be sped up by holding down A.</dd>
+<dt>TANGO_FLAG_ENABLE_SUPER_SPEED</dt>
+<dd>The text can be printed instantly by pressing B.</dd>
+<dt>TANGO_FLAG_AUTO_ADVANCE</dt>
+<dd>The player will not be prompted to press A when the text finishes;
+it will advance or disappear automatically.</dd>
+<dt>TANGO_FLAG_CARRY_OVER</dt>
+<dd>The slot will not be deactivated when the screen changes.</dd>
+<dt>TANGO_FLAG_BLOCK_INPUT</dt>
+<dd>
+<p>While the slot is active, all keys will be unpressed.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>Unpressing keys is handled by <code>Tango_Update1()</code>. FFC scripts and
+anything earlier in the global script will see the unmodified input.</p>
+</div>
+</dd>
+<dt>TANGO_FLAG_LINE_BY_LINE</dt>
+<dd>Text is printed one line at a time instead of one character at a time.</dd>
+<dt>TANGO_FLAG_INSTANTANEOUS</dt>
+<dd>The text is printed all at once, regardless of the nominal speed.
+<code>@while()</code> still runs only once per frame and holds up further processing
+until its condition is false. <code>@delay()</code> and <code>@waituntil()</code> still work.</dd>
+<dt>TANGO_FLAG_PERSISTENT</dt>
+<dd>When the text is finished printing, the player is not prompted
+to press A and the text does not disappear.</dd>
+<dt>TANGO_FLAG_CENTERED</dt>
+<dd>Text is centered in the printable area.</dd>
+<dt>TANGO_FLAG_FREEZE_SCREEN</dt>
+<dd>
+<p>The game is frozen while the slot is active.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In order for this flag to work, you must implement the functions
+<code>__Tango_FreezeScreen()</code> and <code>__Tango_UnfreezeScreen()</code>.</p>
+</div>
+</dd>
+</dl>
+<h2 id="backdrop-types">Backdrop types</h2>
+<p>These are the different backdrop types used with <code>TANGO_STYLE_BACKDROP_TYPE</code>
+and related attributes used to configure them.</p>
+<dl>
+<dt>TANGO_BACKDROP_CLEAR</dt>
+<dd>No backdrop.</dd>
+<dt>TANGO_BACKDROP_COLOR</dt>
+<dt>TANGO_BACKDROP_COLOR_TRANS</dt>
+<dd>
+<p>A rectangle of a single color, either opaque or transparent.</p>
+<p>Related attributes:</p>
+<dl>
+<dt>TANGO_STYLE_TEXT_CSET</dt>
+<dt>TANGO_STYLE_TEXT_COLOR</dt>
+<dd>The rectangle's CSet and color. The color is 0-15 within the CSet.</dd>
+<dt>TANGO_STYLE_BACKDROP_WIDTH</dt>
+<dt>TANGO_STYLE_BACKDROP_HEIGHT</dt>
+<dd>The size of the rectangle in pixels.</dd>
+</dl>
+</dd>
+<dt>TANGO_BACKDROP_TILE</dt>
+<dt>TANGO_BACKDROP_TILE_TRANS</dt>
+<dd>
+<p>A block of tiles, either opaque or transparent.</p>
+<p>Related attributes:</p>
+<dl>
+<dt>TANGO_STYLE_BACKDROP_TILE</dt>
+<dd>The top-left tile of the block.</dd>
+<dt>TANGO_STYLE_BACKDROP_CSET</dt>
+<dd>The CSet of the backdrop.</dd>
+<dt>TANGO_STYLE_BACKDROP_WIDTH</dt>
+<dt>TANGO_STYLE_BACKDROP_HEIGHT</dt>
+<dd>The size of the backdrop in tiles.</dd>
+</dl>
+</dd>
+<dt>TANGO_BACKDROP_COMBO</dt>
+<dt>TANGO_BACKDROP_COMBO_TRANS</dt>
+<dd>
+<p>A block of tiles drawn from a combo, either opaque or transparent.</p>
+<p>Related attributes:</p>
+<dl>
+<dt>TANGO_STYLE_BACKDROP_COMBO</dt>
+<dd>The combo using the top-left tile of the block.</dd>
+<dt>TANGO_STYLE_BACKDROP_CSET</dt>
+<dd>The CSet of the backdrop.</dd>
+<dt>TANGO_STYLE_BACKDROP_WIDTH</dt>
+<dt>TANGO_STYLE_BACKDROP_HEIGHT</dt>
+<dd>The size of the backdrop in tiles.</dd>
+</dl>
+</dd>
+<dt>TANGO_BACKDROP_COMPLEX</dt>
+<dd>
+<p>A backdrop made up of multiple drawing commands.</p>
+<p>Related attributes:</p>
+<dl>
+<dt>TANGO_STYLE_BACKDROP_DATA</dt>
+<dd>The array of data from which to draw the backdrop. For details, see
+<a href="../dataFormats/index.html#complex-backdrops">the complex backdrops section</a>.</dd>
+</dl>
+</dd>
+</dl>
+<h2 id="menu-flags">Menu flags</h2>
+<p>These should be used as arguments to <code>Tango_SetMenuFlags()</code>.</p>
+<dl>
+<dt>TANGO_MENU_CAN_CANCEL</dt>
+<dd>The user can cancel out of the menu instead of making a selection.</dd>
+<dt>TANGO_MENU_PERSISTENT</dt>
+<dd>The menu is persistent, meaning it will not close when a selection is made.
+It will still close if the user cancels.</dd>
+</dl>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../tangoCode/index.html" class="btn btn-neutral float-right" title="Tango variables and functions">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../zscriptFuncs/index.html" class="btn btn-neutral" title="ZScript functions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../zscriptFuncs/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../tangoCode/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

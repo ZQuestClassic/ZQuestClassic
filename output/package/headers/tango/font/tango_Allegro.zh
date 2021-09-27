@@ -1,0 +1,11 @@
+// tango.zh font definition for built-in font "Allegro Default"
+
+int TANGO_FONT_ALLEGRO[] = {
+    TANGO_FONT_BUILTIN,
+    TANGO_FONT_MONOSPACE,
+    FONT_DEF,
+    0, // Unused
+    8, // Character height
+    0, // Space between lines,
+    8  // Character width
+};
