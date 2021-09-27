@@ -1,0 +1,55 @@
+2.55 Script Timing
+3rd August, 2020 for Alpha 79
+
+1. (If firstplay) Global Init; allocate global arrays and variables.
+2. (If firstplay) Link Init
+3. (If loading from a saved file) Global OnLoadSave
+4. Global onLaunch (if not F6 continue)
+5. Global Continue Game (if F6 Continue)
+6. Screen script
+7. FFCs by Screen Index (1 to 32)
+8. Global Active (prior to Waitdraw)
+9. Link Active  (prior to Waitdraw)
+10. DMap Active Subscreen (prior to Waitdraw)
+11. DMap Passive Subscreen (prior to Waitdraw)
+12. Cobodata scripts, in order of layer (0 to 6), with each position (0 to 175) running in seuence, per layer.
+12. Itemsprite Scripts (by screen index)
+14. Passive and Continual item scripts, after first frame (ordered by item ID)
+15. NPC Active (by screen index)
+16. EWeapon Active (by screen index)
+17. Clear script one-frame conditions: Clears HitBy[]
+18. Link.animate() : During this function, global, Link, and DMap scripts are run during screen scrolling)
+19a. Global active during scrolling
+19b. Link active, during scrolling, waitdraw may apply
+19c. DMap Active, during scrolling, waitdraw may apply
+19d. DMap Subscreen Passive, during scrolling, waitdraw may apply.
+19e. DMap Subscreen Active, is the player pressed the Start button or the script was already running. 
+	Running this script executes is its own isolated event loop. 
+	If the DMap Subscreen Active script is running:
+		(a) DMap Active (if the QR to run it is enabled)
+		(b) DMap Subscreen Passive (if the QR to run it is enabled)
+		(c) DMap Subscreen Active
+		(d) Waitdraw
+		(e) DMap Active (after waitdraw, if the QR to run it is enabled)
+		(f) DMap Subscreen Passive (after waitdraw, if the QR to run it is enabled)
+		(g) DMap Subscreen Active (after waitdraw)
+20. Item Collect Scripts
+21. Item Action scripts 
+22. LWeapon scripts (by screen index)
+23. WAITDRAW
+24. Global Active (after Waitdraw pause)
+25. Link Active (after Waitdraw pause)
+26. DMap Subscreen Active (after Waitdraw pause)
+27. DMap Subscreen passive (after Waitdraw pause)
+28. Screen script (after Waitfraw pause)
+29. FFC scripts (after Waitfraw pause)
+30. Combo scripts (after Waitfraw pause)
+31. Item scripts (after Waitfraw pause)
+32. NPC scripts (after Waitfraw pause)
+33. EWeapon scripts (after Waitfraw pause)
+34. LWeapon scripts (after Waitfraw pause)
+35. Itemsprite scripts (after Waitfraw pause)
+36.0. Global Exit  (if applicable)
+36.1. Link Death (if applicable)
+36.2.  Link Win (if Applicable)
+37. Global F6 Script (if the player pressed F6)

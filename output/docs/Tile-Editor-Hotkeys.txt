@@ -1,0 +1,55 @@
+Tile Editor Hotkeys & Operation
+v1.4
+
+SELECTING TILES
+
+To select multiple tiles, click one tile, hold SHIFT and click another tile. This will select
+	a block of tiles from tile A to tile B if you are in rectangular selection mode.
+To select multiple rows or columns of tiles, click a tile hold SHIFT, and then press the ARROW keys.
+You can select an entire column of tiles by selecting a tile, holding SHIFT and clicking on a tile in a
+	lower column of the same row.
+You can select an entire row of tiles by selecting a tile, holding SHIFT and selecting another tile in 
+	same row.
+You can add rows or columns of tiles to those that you have selected, by holding SHIFT and using 
+	the ARROW keys to add the desired area. 
+To select an entire page of tiles, press HOME, then hold SHIFT and press END. 
+To select multiple pages of tiles, after selecting an entire page, press SHIFT then PAGE DOWN or PAGE UP.
+
+HOTKEYS
+
+E : 	Opens the selected tile in the pixel editor.
+C : 	Copies a tile, or a tile block to swap memory.
+V : 	If a tile or block is copied into swap, pressing V will paste it to a selected dest.
+	Otherwise, this vertically flips a selection.
+	Hold CONTROL to paste a single copied tile to every tile of a selected block of tiles.
+O : 	If a tile or block is copied into swap, pressing O will overlay it to a selected dest.
+	Hold SHIFT to perform mass overlay of a single copied tile to a destination block.
+	Hold CONTROL to underlay the image, instead of overlaying it. 
+H : 	Performs an horizontal flip on the selection.
+P :	Opens a dialogue to jump to a desired tile page.
+G : 	Opens the Tile Grabber.
+R : 	Rotates a tile clockwise. Hold SHIFT to rotate anticlockwise. 
+	Hold CONTROL to open the Mass Recolour dialogue. 
+SPACE :	Toggles selection mode from Rectangular to Arbitrary. 
+X : 	{ex=(ex+1)%3;} //Extend, on tiles?!
+F12 :	Produces a snapshot of the present tile page.
+F : 	Floodfills a tile block from swap. 
+U : 	Hold CONTROL to show only unused tiles; if showing unused tiles, pressing U will reveal all tiles.
+8 :	Show or hide the 8-bit marker in the corner of tiles.
+M : 	Opens the combo maker for a selected block of tiles, or for a single tile.
+D : 	Opens the Relational / Dungeon Carving creator dialogue for a selected block of tiles.
+B : 	Converts a tile to 8-bit colour. Hold CONTROL to convert an 8-bit tile to 4-bit colour.
+	
+
+PAGE UP: Decrements the tile page by one. Hold CONTROL to jump to the first tile page.
+PAGE DOWN: Increments the tile page by one. Hold CONTROL to jump to the last tile page.
+HOME: Jumps to the first tile on the present tile page. Hold CONTROL to jump to tile 0.
+END: Jumps to the last tile on the present tile page. Hold CONTROL to jump the last legal tile. 
+DELETE: Deletes a tile, clearing its pixels to colour 0. A dialogue appears to confirm this action.
+
+MOVING TILE ALIGNMENT
+
+You can move the alignment of a single tile or a tile block on a page by first selecting a tile,
+	or a block of tiles (including across multiple tile pages)., then when holding the ALT key, 
+	press the ARROW keys to move tiles by one pixel at a time. This affects the entire selection; 
+	and it is very useful when you wish to rip tiles, but the rip does not align to the Tile Editor grid.
