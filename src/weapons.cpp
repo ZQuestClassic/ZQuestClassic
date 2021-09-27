@@ -1659,7 +1659,8 @@ weapon::weapon(weapon const & other):
 	//script_UID(other.script_UID), //Should never be identical. Should get a new script_UID if needed.
 	//If the cloned weapon is not getting an incremented UID for ZASM, then it needs one below.
 	script_wrote_otile(other.script_wrote_otile),
-	weapon_dying_frame(other.weapon_dying_frame)
+	weapon_dying_frame(other.weapon_dying_frame),
+	unblockable(other.unblockable)
     
 	
 	//End Weapon editor non-arrays. 
@@ -1907,6 +1908,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
     quantity_iterator = 0;
 	weapon_dying_frame = false;
 	parent_script_UID = 0;
+	unblockable = 0;
     if ( Parentitem > -1 )
     {
 	weaponscript = itemsbuf[Parentitem].weaponscript;
@@ -8233,6 +8235,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int usesprite, int Dir, int step, int
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "prntid", prntid);
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "height", height);
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "width", width);
+	unblockable = 0;
     x=X;
     y=Y;
     z=Z;

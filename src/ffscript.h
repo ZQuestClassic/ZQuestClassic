@@ -4300,8 +4300,10 @@ enum ASM_DEFINE
 
 #define ITEMENGINEANIMATE 			0x13EB
 #define REFRNG 			0x13EC
+#define LWPNUNBL 			0x13ED
+#define EWPNUNBL 			0x13EE
 
-#define NUMVARIABLES         	0x13ED
+#define NUMVARIABLES         	0x13EF
 
 //} End variables
 

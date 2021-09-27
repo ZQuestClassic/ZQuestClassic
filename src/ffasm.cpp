@@ -2210,6 +2210,8 @@ script_variable variable_list[]=
 	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
 	{ "ITEMENGINEANIMATE",           ITEMENGINEANIMATE,            0,             0 },
 	{ "REFRNG",           REFRNG,            0,             0 },
+	{ "LWPNUNBL",           LWPNUNBL,            0,             0 },
+	{ "EWPNUNBL",           EWPNUNBL,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

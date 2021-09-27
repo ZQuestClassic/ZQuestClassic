@@ -2051,7 +2051,7 @@ const int DMF_WWIND			= 0x0004; //Allow whistle whirlwinds
 const int DMF_GUYCAVES			= 0x0008; //Special rooms and guys are in caves only
 const int DMF_NOCOMPASS			= 0x0010; //Don't display compass marker in minimap
 const int DMF_WAVY 			= 0x0020; //Underwater wave effect
-const int DMF_WWINDRET			= 0x0040; //Whistle whirlwind returns Link to start
+const int DMF_WWINDRET			= 0x0040; //Whistle whirlwind returns Link to beginning
 const int DMF_ALWAYSINTROMSG		= 0x0080; //Always display intro string
 const int DMF_VIEWMAP       		= 0x0100; //View overworld map by pressing 'Map'
 const int DMF_DMAPMAP         		= 0x0200; //...But only show screens marked in minimap
@@ -2074,7 +2074,7 @@ const int DMFS_WWIND			= 2; //Allow whistle whirlwinds
 const int DMFS_GUYCAVES			= 3; //Special rooms and guys are in caves only
 const int DMFS_NOCOMPASS		= 4; //Don't display compass marker in minimap
 const int DMFS_WAVY 			= 5; //Underwater wave effect
-const int DMFS_WWINDRET			= 6; //Whistle whirlwind returns Link to start
+const int DMFS_WWINDRET			= 6; //Whistle whirlwind returns Link to beginning
 const int DMFS_ALWAYSINTROMSG		= 7; //Always display intro string
 const int DMFS_VIEWMAP       		= 8; //View overworld map by pressing 'Map'
 const int DMFS_DMAPMAP         		= 9; //...But only show screens marked in minimap
@@ -3247,3 +3247,10 @@ enum NPCMoveStatus
 {
 	NPCMS_PAUSED, NPCMS_SPEEDUP, NPCMS_NORMAL, NPCMS_SLOWDOWN
 };
+
+DEFINE UNBLOCK_NONE = 0000b; //Not unblockable
+DEFINE UNBLOCK_NORM = 0001b; //Bypasses normal 'block' defenses
+DEFINE UNBLOCK_IGNR = 0010b; //Bypasses 'ignore' defenses
+DEFINE UNBLOCK_SHLD = 0100b; //Bypasses enemy/hero 'shields'
+DEFINE UNBLOCK_REFL = 1000b; //Bypasses hero 'reflect' on shields
+DEFINE UNBLOCK_ALL  = 1111b; //All bits set
