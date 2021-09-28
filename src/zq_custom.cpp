@@ -494,7 +494,7 @@ static int itemdata_itemsize_list[] =
 static int itemdata_weaponsize_list[] =
 {
 	// dialog control number
-	232,233,234,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254, 255, 256, 257, 258, -1
+	232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254, 255, 256, 257, 258, -1
 };
 
 static int itemdata_weaponproperty_list[] =
