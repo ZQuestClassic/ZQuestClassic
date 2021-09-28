@@ -2610,7 +2610,7 @@ bool LinkClass::checkstab()
 				long dmg = weaponattackpower();
 				if(whimsyid>-1)
 				{
-					if(!(zc_rand()%zc_max(itemsbuf[whimsyid].misc1,1)))
+					if(!(zc_oldrand()%zc_max(itemsbuf[whimsyid].misc1,1)))
 						dmg += current_item_power(itype_whimsicalring);
 					else whimsyid = -1;
 				}
@@ -3495,7 +3495,7 @@ void LinkClass::check_slash_block(int bx, int by)
 		
 		else
 		{
-			int r=zc_rand()%100;
+			int r=zc_oldrand()%100;
             
 			if(r<15)
 			{
@@ -4260,7 +4260,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 		
 		else
 		{
-			int r=zc_rand()%100;
+			int r=zc_oldrand()%100;
             
 			if(r<15)
 			{
@@ -4949,7 +4949,7 @@ void LinkClass::check_slash_block(weapon *w)
 		
 		else
 		{
-			int r=zc_rand()%100;
+			int r=zc_oldrand()%100;
             
 			if(r<15)
 			{
@@ -6777,7 +6777,7 @@ void LinkClass::addsparkle(int wpn)
     int wpn2 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn4 : itemsbuf[itemid].wpn2;
     int wpn3 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn5 : itemsbuf[itemid].wpn3;
     // Either one (wpn2) or the other (wpn3). If both are present, randomise.
-    int sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (zc_rand()&1 ? wpn2 : wpn3)));
+    int sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (zc_oldrand()&1 ? wpn2 : wpn3)));
     int direction=w->dir;
     
     if(sparkle_type)
@@ -6814,8 +6814,8 @@ void LinkClass::addsparkle(int wpn)
                 direction=oppositeDir[direction];
         }
         
-        Lwpns.add(new weapon((zfix)(w->x+(itemtype==itype_cbyrna ? 2 : zc_rand()%4)+(h*4)),
-                             (zfix)(w->y+(itemtype==itype_cbyrna ? 2 : zc_rand()%4)+(v*4)),
+        Lwpns.add(new weapon((zfix)(w->x+(itemtype==itype_cbyrna ? 2 : zc_oldrand()%4)+(h*4)),
+                             (zfix)(w->y+(itemtype==itype_cbyrna ? 2 : zc_oldrand()%4)+(v*4)),
                              w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID(),false,false,true, 0, sparkle_type));
 	weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	}
@@ -6844,8 +6844,8 @@ void LinkClass::addsparkle2(int type1, int type2)
         return;
     }
     
-    Lwpns.add(new weapon((zfix)((Lwpns.spr(arrow)->x-3)+(zc_rand()%7)),
-                         (zfix)((Lwpns.spr(arrow)->y-3)+(zc_rand()%7)),
+    Lwpns.add(new weapon((zfix)((Lwpns.spr(arrow)->x-3)+(zc_oldrand()%7)),
+                         (zfix)((Lwpns.spr(arrow)->y-3)+(zc_oldrand()%7)),
                          Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
 }
 
@@ -8022,7 +8022,7 @@ bool LinkClass::animate(int)
 			
 			int index2 = 0;
 			
-			if(tmpscr->flags5 & fRANDOMTIMEDWARP) index2=zc_rand()%4;
+			if(tmpscr->flags5 & fRANDOMTIMEDWARP) index2=zc_oldrand()%4;
 			
 			sdir = dir;
 			dowarp(1,index2);
@@ -8095,7 +8095,7 @@ bool LinkClass::animate(int)
 				else if(cmb.type==cAWARPR)
 				{
 					awarp=true;
-					ind=zc_rand()%4;
+					ind=zc_oldrand()%4;
 				}
 				
 				if(awarp)
@@ -8145,7 +8145,7 @@ bool LinkClass::animate(int)
 			else if(combobuf[tmpscr->ffdata[i]].type==cAWARPR)
 			{
 				awarp=true;
-				ind=zc_rand()%4;
+				ind=zc_oldrand()%4;
 			}
 			
 			if(awarp)
@@ -16992,7 +16992,7 @@ void LinkClass::checktouchblk()
 			
 			if ( combobuf[cid].usrflags&cflag1 ) //custom enemy ids
 			{
-				int r = (combobuf[cid].usrflags&cflag2) ? zc_rand()%2 : 0;
+				int r = (combobuf[cid].usrflags&cflag2) ? zc_oldrand()%2 : 0;
 				id2 = combobuf[cid].attribytes[0+r];
 				//if(guysbuf[id2].family==eeWALK)
 				//{
@@ -17571,7 +17571,7 @@ void LinkClass::checkspecial2(int *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,(zc_rand()%4),warpsound);
+				dowarp(0,(zc_oldrand()%4),warpsound);
 				return;
 			}
 			
@@ -17790,7 +17790,7 @@ void LinkClass::checkspecial2(int *ls)
 		{
 			types[i]=cPIT;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-			index=zc_rand()%4;
+			index=zc_oldrand()%4;
 		}
 		
 		if(types[i]==cSTAIR)
@@ -17819,7 +17819,7 @@ void LinkClass::checkspecial2(int *ls)
 		else if(types[i]==cSTAIRR)
 		{
 			types[i]=cSTAIR;
-			index=zc_rand()%4;
+			index=zc_oldrand()%4;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		
@@ -18246,7 +18246,7 @@ void LinkClass::checkspecial2(int *ls)
 		int wpdir = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2];
 		if ( ((unsigned)wpdir) > r_down )
 		{
-			wpdir = zc_rand()&3;
+			wpdir = zc_oldrand()&3;
 		}
 		int damg = combobuf[MAPCOMBO(tx+8,ty+8)].attributes[0]/10000L;
 		switch(wpn)
@@ -23347,7 +23347,7 @@ void dospecialmoney(int index)
     {
         if(game->get_spendable_rupies()<10 && !current_item_power(itype_wallet)) return; //Why 10? 
         
-        unsigned si=(zc_rand()%24)*3;
+        unsigned si=(zc_oldrand()%24)*3;
         
         for(int i=0; i<3; i++)
             prices[i]=gambledat[si++];
@@ -25741,19 +25741,19 @@ void LinkClass::explode(int type)
                     {
                         if(type==0)  // Twilight
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (zc_rand()%8)+i*4));
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(type ==1)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (zc_rand()%16)+i*2));
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
                             
-                            if(zc_rand()%10 < 2)
+                            if(zc_oldrand()%10 < 2)
                             {
                                 p->color=1;
                                 p->cset=0;
@@ -25761,12 +25761,12 @@ void LinkClass::explode(int type)
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], zc_rand()%96));
+                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], zc_oldrand()%96));
                             
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->angular=true;
-                            p->angle=zc_rand();
+                            p->angle=zc_oldrand();
                             p->step=(((double)j)/8);
                             p->yofs=Link.getYOfs();
                         }

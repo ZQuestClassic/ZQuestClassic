@@ -2701,8 +2701,8 @@ void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int n
     }
     
     int containers=game->get_maxmagic()/game->get_mp_per_block();
-    int tile=zc_rand()%32767, cset=zc_rand()%15;
-    bool mod_value=(zc_rand()%2)!=0;
+    int tile=zc_oldrand()%32767, cset=zc_oldrand()%15;
+    bool mod_value=(zc_oldrand()%2)!=0;
     
     if(container<containers)
     {
@@ -2769,8 +2769,8 @@ void lifegauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int no
     delay=delay;
     
     int containers=game->get_maxlife()/game->get_hp_per_heart();
-    int tile=zc_rand()%32767, cset=zc_rand()%15;
-    bool mod_value=(zc_rand()%2)!=0;
+    int tile=zc_oldrand()%32767, cset=zc_oldrand()%15;
+    bool mod_value=(zc_oldrand()%2)!=0;
     
     if(container<containers)
     {
@@ -3357,7 +3357,7 @@ int subscreen_color(miscQdata *misc, int c1, int c2)
             break;
             
         default:
-            ret=(zc_rand()*1000)%256;
+            ret=(zc_oldrand()*1000)%256;
             break;
         }
         
@@ -3410,7 +3410,7 @@ int subscreen_cset(miscQdata *misc,int c1, int c2)
             break;
             
         default:
-            ret=(zc_rand()*1000)%256;
+            ret=(zc_oldrand()*1000)%256;
             break;
         }
         
@@ -3562,7 +3562,7 @@ FONT *ss_font(int fontnum)
 	case ssfZX: tempfont= zxfont; break;
 	case ssfLISA: tempfont= lisafont; break;
     default:
-        fontnum=zc_rand()%ssfMAX;
+        fontnum=zc_oldrand()%ssfMAX;
         tempfont=ss_font(fontnum);
         break;
     }
@@ -3902,7 +3902,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                         break;
                         
                     default:
-                        t=(zc_rand()*100000)%32767;
+                        t=(zc_oldrand()*100000)%32767;
                         break;
                     }
                 }
@@ -5279,7 +5279,7 @@ int sso_y(subscreen_object *tempsso)
         break;
         
     default:
-        y=(zc_rand()*1000)%64;
+        y=(zc_oldrand()*1000)%64;
         break;
     }
     
@@ -5359,7 +5359,7 @@ int sso_x(subscreen_object *tempsso)
         break;
         
     default:
-        x=(zc_rand()*1000)%64;
+        x=(zc_oldrand()*1000)%64;
         break;
     }
     
@@ -5545,7 +5545,7 @@ int sso_h(subscreen_object *tempsso)
         break;
         
     default:
-        h=(zc_rand()*1000)%64;
+        h=(zc_oldrand()*1000)%64;
         break;
     }
     
@@ -5731,7 +5731,7 @@ int sso_w(subscreen_object *tempsso)
         break;
         
     default:
-        w=(zc_rand()*1000)%64;
+        w=(zc_oldrand()*1000)%64;
         break;
     }
     

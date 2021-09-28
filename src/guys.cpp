@@ -145,7 +145,7 @@ int random_layer_enemy()
 		return eNONE;
 	}
 	
-	int ret=zc_rand()%cnt;
+	int ret=zc_oldrand()%cnt;
 	cnt=0;
 	
 	for(int i=0; i<6; ++i)
@@ -2467,7 +2467,7 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	leader = itemguy = dying = scored = false;
 	canfreeze = count_enemy = true;
 	mainguy = !(flags & guy_doesntcount);
-	dir = zc_rand()&3;
+	dir = zc_oldrand()&3;
 	
 	//2.6 Enemy Editor Hit and TIle Sizes
 	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
@@ -2734,19 +2734,19 @@ void enemy::explode(int type)
 					{
 						if(type==0)  // Twilight
 						{
-							particles.add(new pTwilight((zfix)x+j, (zfix)y-(zfix)z+i, 5, 0, 0, (zc_rand()%8)+i*4));
+							particles.add(new pTwilight((zfix)x+j, (zfix)y-(zfix)z+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
 							int k=particles.Count()-1;
 							particle *p = (particles.at(k));
 							p->step=3;
 						}
 						else if(type ==1)  // Sands of Hours
 						{
-							particles.add(new pTwilight((zfix)x+j, (zfix)y-(zfix)z+i, 5, 1, 2, (zc_rand()%16)+i*2));
+							particles.add(new pTwilight((zfix)x+j, (zfix)y-(zfix)z+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
 							int k=particles.Count()-1;
 							particle *p = (particles.at(k));
 							p->step=4;
 							
-							if(zc_rand()%10 < 2)
+							if(zc_oldrand()%10 < 2)
 							{
 								p->color=1;
 								p->cset=0;
@@ -2754,12 +2754,12 @@ void enemy::explode(int type)
 						}
 						else
 						{
-							particles.add(new pFaroresWindDust((zfix)x+j, (zfix)y-(zfix)z+i, 5, 6, linktilebuf[i*16+j], zc_rand()%96));
+							particles.add(new pFaroresWindDust((zfix)x+j, (zfix)y-(zfix)z+i, 5, 6, linktilebuf[i*16+j], zc_oldrand()%96));
 							
 							int k=particles.Count()-1;
 							particle *p = (particles.at(k));
 							p->angular=true;
-							p->angle=zc_rand();
+							p->angle=zc_oldrand();
 							p->step=(((double)j)/8);
 							p->yofs=0;//yofs;
 						}
@@ -3400,26 +3400,26 @@ void enemy::FireBreath(bool seeklink)
 		switch(dir)
 		{
 		case down:
-			fire_angle=PI*((zc_rand()%20)+10)/40;
+			fire_angle=PI*((zc_oldrand()%20)+10)/40;
 			wx=x;
 			wy=y+8;
 			break;
 			
 		case -1:
 		case up:
-			fire_angle=PI*((zc_rand()%20)+50)/40;
+			fire_angle=PI*((zc_oldrand()%20)+50)/40;
 			wx=x;
 			wy=y-8;
 			break;
 			
 		case left:
-			fire_angle=PI*((zc_rand()%20)+30)/40;
+			fire_angle=PI*((zc_oldrand()%20)+30)/40;
 			wx=x-8;
 			wy=y;
 			break;
 			
 		case right:
-			fire_angle=PI*((zc_rand()%20)+70)/40;
+			fire_angle=PI*((zc_oldrand()%20)+70)/40;
 			wx=x+8;
 			wy=y;
 			break;
@@ -3450,7 +3450,7 @@ void enemy::FireBreath(bool seeklink)
 	weapon *ew = (weapon*)(Ewpns.spr(i));
 	ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 	
-	if(!seeklink && (zc_rand()&4))
+	if(!seeklink && (zc_oldrand()&4))
 	{
 		ew->angular=true;
 		ew->angle=fire_angle;
@@ -3458,7 +3458,7 @@ void enemy::FireBreath(bool seeklink)
 	
 	if(wpn==ewFlame && wpnsbuf[ewFLAME].frames>1)
 	{
-		ew->aframe=zc_rand()%wpnsbuf[ewFLAME].frames;
+		ew->aframe=zc_oldrand()%wpnsbuf[ewFLAME].frames;
 		if ( ew->do_animation ) ew->tile+=ew->aframe;
 	}
 	
@@ -3572,7 +3572,7 @@ void enemy::FireWeapon()
 		if(bc<=40)  // Not too many enemies
 		{
 			int kids = guys.Count();
-			int bats=(zc_rand()%zc_max(1,dmisc4))+1;
+			int bats=(zc_oldrand()%zc_max(1,dmisc4))+1;
 			
 			for(int i=0; i<bats; i++)
 			{
@@ -3604,7 +3604,7 @@ void enemy::FireWeapon()
 		
 		if(kids<40)
 		{
-			int newguys=(zc_rand()%3)+1;
+			int newguys=(zc_oldrand()%3)+1;
 			bool summoned=false;
 			
 			for(int i=0; i<newguys; i++)
@@ -3615,8 +3615,8 @@ void enemy::FireWeapon()
 				
 				for(int k=0; k<20; ++k)
 				{
-					x2=16*((zc_rand()%12)+2);
-					y2=16*((zc_rand()%7)+2);
+					x2=16*((zc_oldrand()%12)+2);
+					y2=16*((zc_oldrand()%7)+2);
 					
 					if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Link.getX())>=32)||(abs(y2-Link.getY())>=32)))
 					{
@@ -4635,11 +4635,11 @@ int enemy::defendNew(int wpnId, int *power, int edef, byte unblockable) //May ne
 		
 		//al_trace("edSplit dmisc3: %d\n", dmisc3);
 		//al_trace("edSplit dmisc4: %d\n", dmisc4);
-		int summon_count = (zc_rand()%dmisc4)+1;
+		int summon_count = (zc_oldrand()%dmisc4)+1;
 		for ( int q = 0; q < summon_count; q++ )
 		{
-			int x2=16*((zc_rand()%12)+2);
-			int y2=16*((zc_rand()%7)+2);
+			int x2=16*((zc_oldrand()%12)+2);
+			int y2=16*((zc_oldrand()%7)+2);
 			addenemy(
 				//(x+(txsz*16)/2),(y+(tysz*16)/2)
 				x2,y2,
@@ -5339,7 +5339,7 @@ int enemy::takehit(weapon *w)
 	if(get_bit(quest_rules,qr_BOMBDARKNUTFIX) && (wpnId==wBomb || wpnId==wSBomb))
 	{
 		double ddir=atan2(double(wpny-y),double(x-wpnx));
-		wpnDir=zc_rand()&3;
+		wpnDir=zc_oldrand()&3;
 		
 		if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
 		{
@@ -6908,7 +6908,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 	// can move straight, check if it wants to turn
 	if(canmove_old(dir,step,special,dx1,dy1,dx2,dy2))
 	{
-		if(grumble && (zc_rand()&4)<grumble) //Homing
+		if(grumble && (zc_oldrand()&4)<grumble) //Homing
 		{
 			int w = Lwpns.idFirst(wBait);
 			
@@ -6941,7 +6941,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 		}
 		
 		// Homing added.
-		if(newhoming && (zc_rand()&255)<newhoming)
+		if(newhoming && (zc_oldrand()&255)<newhoming)
 		{
 			ndir = lined_up(8,true);
 			
@@ -6953,7 +6953,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 			return;
 		}
 		
-		int r=zc_rand();
+		int r=zc_oldrand();
 		
 		if(newrate>0 && !(r%newrate))
 		{
@@ -6981,7 +6981,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 	
 	for(; i<32; i++)  // Try random dir
 	{
-		ndir=(zc_rand()&7)+8;
+		ndir=(zc_oldrand()&7)+8;
 		
 		if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
 			break;
@@ -6995,7 +6995,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 				goto ok;
 		}
 		
-		ndir = (isSideViewGravity()) ? (zc_rand()&1 ? left : right) : -1;  // Sideview enemies get trapped if their dir becomes -1
+		ndir = (isSideViewGravity()) ? (zc_oldrand()&1 ? left : right) : -1;  // Sideview enemies get trapped if their dir becomes -1
 	}
 	
 ok:
@@ -7011,7 +7011,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 	// can move straight, check if it wants to turn
 	if(canmove(dir,step,special,dx1,dy1,dx2,dy2,false))
 	{
-		if(grumble && (zc_rand()&4)<grumble) //Homing
+		if(grumble && (zc_oldrand()&4)<grumble) //Homing
 		{
 			int w = Lwpns.idFirst(wBait);
 			
@@ -7044,7 +7044,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 		}
 		
 		// Homing added.
-		if(newhoming && (zc_rand()&255)<newhoming)
+		if(newhoming && (zc_oldrand()&255)<newhoming)
 		{
 			ndir = lined_up(8,true);
 			
@@ -7056,7 +7056,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 			return;
 		}
 		
-		int r=zc_rand();
+		int r=zc_oldrand();
 		
 		if(newrate>0 && !(r%newrate))
 		{
@@ -7084,7 +7084,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 	
 	for(; i<32; i++)  // Try random dir
 	{
-		ndir=(zc_rand()&7)+8;
+		ndir=(zc_oldrand()&7)+8;
 		
 		if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
 			break;
@@ -7098,7 +7098,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 				goto ok;
 		}
 		
-		ndir = (isSideViewGravity()) ? (zc_rand()&1 ? left : right) : -1;  // Sideview enemies get trapped if their dir becomes -1
+		ndir = (isSideViewGravity()) ? (zc_oldrand()&1 ? left : right) : -1;  // Sideview enemies get trapped if their dir becomes -1
 	}
 	
 ok:
@@ -7484,7 +7484,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 {
 	int ndir=-1;
 	
-	if(grumble && (zc_rand()&3)<grumble)
+	if(grumble && (zc_oldrand()&3)<grumble)
 	{
 		int w = Lwpns.idFirst(wBait);
 		
@@ -7514,7 +7514,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 		}
 	}
 	
-	if((zc_rand()&255)<newhoming)
+	if((zc_oldrand()&255)<newhoming)
 	{
 		ndir = lined_up(8,false);
 		
@@ -7529,7 +7529,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 	
 	for(; i<32; i++)
 	{
-		int r=zc_rand();
+		int r=zc_oldrand();
 		
 		if((r&15)<newrate)
 			ndir=(r>>4)&3;
@@ -7548,7 +7548,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 				goto ok;
 		}
 		
-		ndir = (isSideViewGravity()) ? (zc_rand()&1 ? left : right) : -1; // Sideview enemies get trapped if their dir becomes -1
+		ndir = (isSideViewGravity()) ? (zc_oldrand()&1 ? left : right) : -1; // Sideview enemies get trapped if their dir becomes -1
 	}
 	
 ok:
@@ -7721,7 +7721,7 @@ void enemy::halting_walk(int newrate,int newhoming,int special,int newhrate, int
 		{
 			clk2=0;
 		}
-		else if((zc_rand()&15)<newhrate)
+		else if((zc_oldrand()&15)<newhrate)
 		{
 			clk2=haltcnt;
 			return;
@@ -7792,7 +7792,7 @@ void enemy::halting_walk_8(int newrate,int newhoming, int newclk,int special,int
 		{
 			clk2=0;
 		}
-		else if((zc_rand()&15)<newhrate)
+		else if((zc_oldrand()&15)<newhrate)
 		{
 			newdir_8(newrate,newhoming,special);
 			clk2=haltcnt;
@@ -7885,7 +7885,7 @@ void enemy::floater_walk(int newrate,int newclk,zfix ms,zfix ss,int s,int p, int
 	case 2:                                                 // normal
 		step=ms;
 		
-		if(clk2>48 && !(zc_rand()%768))
+		if(clk2>48 && !(zc_oldrand()%768))
 		{
 			step=ss*s;
 			movestatus=3;
@@ -8020,7 +8020,7 @@ void enemy::place_on_axis(bool floater, bool solid_ok)
 {
 	int lx=zc_min(zc_max(int(Link.getX())&0xF0,32),208);
 	int ly=zc_min(zc_max(int(Link.getY())&0xF0,32),128);
-	int pos2=zc_rand()%23;
+	int pos2=zc_oldrand()%23;
 	int tried=0;
 	bool last_resort,placed=false;
 	
@@ -8209,10 +8209,10 @@ void enemy::tiledir_small(int ndir, bool fourdir)
 		break;
 		
 	default:
-		//dir=(zc_rand()*100)%8;
+		//dir=(zc_oldrand()*100)%8;
 		//tiledir_small(dir);
-		//      flip=zc_rand()&3;
-		//      tile=(zc_rand()*100000)%NEWMAXTILES;
+		//      flip=zc_oldrand()&3;
+		//      tile=(zc_oldrand()*100000)%NEWMAXTILES;
 		break;
 	}
 }
@@ -8280,10 +8280,10 @@ void enemy::tiledir(int ndir, bool fourdir)
 		break;
 		
 	default:
-		//dir=(zc_rand()*100)%8;
+		//dir=(zc_oldrand()*100)%8;
 		//tiledir(dir);
-		//      flip=zc_rand()&3;
-		//      tile=(zc_rand()*100000)%NEWMAXTILES;
+		//      flip=zc_oldrand()&3;
+		//      tile=(zc_oldrand()*100000)%NEWMAXTILES;
 		break;
 	}
 }
@@ -8349,10 +8349,10 @@ void enemy::tiledir_big(int ndir, bool fourdir)
 		break;
 		
 	default:
-		//dir=(zc_rand()*100)%8;
+		//dir=(zc_oldrand()*100)%8;
 		//tiledir_big(dir);
-		//      flip=zc_rand()&3;
-		//      tile=(zc_rand()*100000)%NEWMAXTILES;
+		//      flip=zc_oldrand()&3;
+		//      tile=(zc_oldrand()*100000)%NEWMAXTILES;
 		break;
 	}
 }
@@ -8816,7 +8816,7 @@ waves2:
 	{
 		tilerows = 2;
 		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
-		int lookat=zc_rand()&15;
+		int lookat=zc_oldrand()&15;
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 		{
@@ -10048,7 +10048,7 @@ eTektite::eTektite(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	clk=-15;
 	
 	if(!BSZ)
-		clk*=zc_rand()%3+1;
+		clk*=zc_oldrand()%3+1;
 		
 	// avoid divide by 0 errors
 	if(dmisc1 == 0)
@@ -10100,7 +10100,7 @@ bool eTektite::animate(int index)
 		switch(misc)
 		{
 		case 0:                                               // normal
-			if(!(zc_rand()%dmisc1))
+			if(!(zc_oldrand()%dmisc1))
 			{
 				misc=1;
 				clk2=32;
@@ -10111,7 +10111,7 @@ bool eTektite::animate(int index)
 		case 1:                                               // waiting to pounce
 			if(--clk2<=0)
 			{
-				int r=zc_rand();
+				int r=zc_oldrand();
 				misc=2;
 				step=0-(zslongToFix(dstep*100));                           // initial speed
 				clk3=(r&1)+2;                                       // left or right
@@ -10245,7 +10245,7 @@ bool eTektite::animate(int index)
 					step=0-step;
 					y--;
 				}
-				else if(zc_rand()%dmisc2)                                 //land and wait
+				else if(zc_oldrand()%dmisc2)                                 //land and wait
 				{
 					clk=misc=0;
 				}                                                   //land and jump again
@@ -10580,7 +10580,7 @@ bool eLeever::animate(int index)
 			case -1:  //submerged
 			{
 		
-				if((dmisc1==2)&&(zc_rand()&255))
+				if((dmisc1==2)&&(zc_oldrand()&255))
 				{
 					break;
 				}
@@ -10620,7 +10620,7 @@ bool eLeever::animate(int index)
 					break;
 				}
 				
-				int d2=zc_rand()&1;
+				int d2=zc_oldrand()&1;
 				
 				if(LinkDir()>=left)
 				{
@@ -11360,7 +11360,7 @@ eTrap2::eTrap2(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	mainguy=false;
 	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	step=2;
-	if(dmisc1==1 || (dmisc1==0 && zc_rand()&2))
+	if(dmisc1==1 || (dmisc1==0 && zc_oldrand()&2))
 	{
 		dir=(x<=112)?right:left;
 	}
@@ -11559,17 +11559,17 @@ bool eRock::animate(int index)
 	
 	if(++clk2==0)                                             // start it
 	{
-		x=zc_rand()&0xF0;
+		x=zc_oldrand()&0xF0;
 		y=0;
 		clk3=0;
-		clk2=zc_rand()&15;
+		clk2=zc_oldrand()&15;
 	}
 	
 	if(clk2>16)                                               // move it
 	{
 		if(clk3<=0)                                             // start bounce
 		{
-			dir=zc_rand()&1;
+			dir=zc_oldrand()&1;
 			
 			if(x<32)  dir=1;
 			
@@ -11611,7 +11611,7 @@ bool eRock::animate(int index)
 		else if(y<176)
 			clk3=0;                                               // next bounce
 		else
-			clk2 = -(zc_rand()&63);                                  // back to top
+			clk2 = -(zc_oldrand()&63);                                  // back to top
 	}
 	
 	return enemy::animate(index);
@@ -11700,17 +11700,17 @@ bool eBoulder::animate(int index)
 	
 	if(++clk2==0)                                             // start it
 	{
-		x=zc_rand()&0xF0;
+		x=zc_oldrand()&0xF0;
 		y=-32;
 		clk3=0;
-		clk2=zc_rand()&15;
+		clk2=zc_oldrand()&15;
 	}
 	
 	if(clk2>16)                                               // move it
 	{
 		if(clk3<=0)                                             // start bounce
 		{
-			dir=zc_rand()&1;
+			dir=zc_oldrand()&1;
 			
 			if(x<32)  dir=1;
 			
@@ -11752,7 +11752,7 @@ bool eBoulder::animate(int index)
 		else if(y<176)
 			clk3=0;                                               // next bounce
 		else
-			clk2 = -(zc_rand()&63);                                  // back to top
+			clk2 = -(zc_oldrand()&63);                                  // back to top
 	}
 	
 	return enemy::animate(index);
@@ -11882,11 +11882,11 @@ bool eProjectile::animate(int index)
 		{
 			if(timer==0)
 			{
-				unsigned r=zc_rand();
+				unsigned r=zc_oldrand();
 				
 				if(!(r&63))
 				{
-					timer=zc_rand()%50+50;
+					timer=zc_oldrand()%50+50;
 				}
 			}
 			
@@ -11906,7 +11906,7 @@ bool eProjectile::animate(int index)
 		
 		else // Not breath type
 		{
-			unsigned r=zc_rand();
+			unsigned r=zc_oldrand();
 			
 			if(!(r&63) && !LinkInRange(minRange))
 			{
@@ -12017,7 +12017,7 @@ bool eNPC::animate(int index)
 	case 1:
 		halting_walk(rate, homing, 0, hrate, 48);
 		
-		if(clk2==1 && (misc < dmisc1) && !(zc_rand()&15))
+		if(clk2==1 && (misc < dmisc1) && !(zc_oldrand()&15))
 		{
 			newdir(rate, homing, 0);
 			clk2=48;
@@ -12280,7 +12280,7 @@ bool eZora::animate(int index)
 	case 0:                                                 // reposition him
 	{
 		int t=0;
-		int pos2=zc_rand()%160 + 16;
+		int pos2=zc_oldrand()%160 + 16;
 		bool placed=false;
 		
 		while(!placed && t<160)
@@ -12359,7 +12359,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	haslink = false;
 	dummy_bool[0]=false;
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
-	if(dmisc9==e9tARMOS && zc_rand()&1)
+	if(dmisc9==e9tARMOS && zc_oldrand()&1)
 	{
 		step=zslongToFix(dmisc10*100);
 		
@@ -12749,8 +12749,8 @@ bool eStalfos::animate(int index)
 				}
 				/*
 				 * Boomerang-throwers have a halt count of 1
-				 * Zols have a halt count of (zc_rand()&7)<<4
-				 * Gels have a halt count of ((zc_rand()&7)<<3)+2
+				 * Zols have a halt count of (zc_oldrand()&7)<<4
+				 * Gels have a halt count of ((zc_oldrand()&7)<<3)+2
 				 * Everything else has 48
 				 */
 				else
@@ -12763,11 +12763,11 @@ bool eStalfos::animate(int index)
 					{
 						if(dmisc2==e2tSPLITHIT) // Zol
 						{
-							halting_walk(rate,homing,0,hrate,(zc_rand()&7)<<4);
+							halting_walk(rate,homing,0,hrate,(zc_oldrand()&7)<<4);
 						}
 						else if(frate<=8 && starting_hp==1) // Gel
 						{
-							halting_walk(rate,homing,0,hrate,((zc_rand()&7)<<3)+2);
+							halting_walk(rate,homing,0,hrate,((zc_oldrand()&7)<<3)+2);
 						}
 						else // Other
 						{
@@ -12844,7 +12844,7 @@ bool eStalfos::animate(int index)
 			default:
 				if(misc==1)
 				{
-					dir=(zc_rand()%4);
+					dir=(zc_oldrand()%4);
 					step=8;
 				}
 				
@@ -12899,7 +12899,7 @@ bool eStalfos::animate(int index)
 		
 		if(wpn==ewFIRETRAIL && wpnsbuf[ewFIRETRAIL].frames>1)
 		{
-			ew->aframe=zc_rand()%wpnsbuf[ewFIRETRAIL].frames;
+			ew->aframe=zc_oldrand()%wpnsbuf[ewFIRETRAIL].frames;
 			if ( ew->do_animation ) ew->tile+=ew->aframe;
 		}
 	}
@@ -12960,7 +12960,7 @@ bool eStalfos::animate(int index)
 				fired=false;
 			}
 			
-			clk5+=(zc_rand()&3);
+			clk5+=(zc_oldrand()&3);
 			
 			if((clk5>24)&&(clk5<52))
 			{
@@ -12978,7 +12978,7 @@ bool eStalfos::animate(int index)
 		}
 		
 		case e1tFIREOCTO: //Fire Octo
-			timer=zc_rand()%50+50;
+			timer=zc_oldrand()%50+50;
 			break;
 			
 		default:
@@ -12992,7 +12992,7 @@ bool eStalfos::animate(int index)
 	 * - not carrying Link
 	 * - one in 0xF chance
 	 */
-	if(clk2==1 && (multishot < dmisc6) && dmisc1 != e1tEACHTILE && !haslink && !(zc_rand()&15))
+	if(clk2==1 && (multishot < dmisc6) && dmisc1 != e1tEACHTILE && !haslink && !(zc_oldrand()&15))
 	{
 #if 1
 		newdir(rate, homing, grumble);
@@ -13230,7 +13230,7 @@ void eStalfos::vire_hop()
 		if(clk2<=0)
 		{
 			//z=0;
-			if(!canmove(dir,(zfix)2,spw_none,false) || m_walkflag(x,y,spw_none, dir) || (zc_rand()&15)>=hrate)
+			if(!canmove(dir,(zfix)2,spw_none,false) || m_walkflag(x,y,spw_none, dir) || (zc_oldrand()&15)>=hrate)
 			{
                 
 				clk2=(wpn==ewBrang ? 1 : int((16.0*jump_width)/step.getFloat()));
@@ -13363,7 +13363,7 @@ void eStalfos::break_shield()
 
 eKeese::eKeese(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
-	dir=(zc_rand()&7)+8;
+	dir=(zc_oldrand()&7)+8;
 	step=0;
 	movestatus=1;
 	c=0;
@@ -13572,13 +13572,13 @@ bool eWizzrobe::animate(int index)
 			{
 				if(isdungeon())
 				{
-					x=((zc_rand()%12)+2)*16;
-					y=((zc_rand()%7)+2)*16;
+					x=((zc_oldrand()%12)+2)*16;
+					y=((zc_oldrand()%7)+2)*16;
 				}
 				else
 				{
-					x=((zc_rand()%14)+1)*16;
-					y=((zc_rand()%9)+1)*16;
+					x=((zc_oldrand()%14)+1)*16;
+					y=((zc_oldrand()%9)+1)*16;
 				}
 						
 				if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
@@ -13630,13 +13630,13 @@ bool eWizzrobe::animate(int index)
 					{
 						if(isdungeon())
 						{
-							x=((zc_rand()%12)+2)*16;
-							y=((zc_rand()%7)+2)*16;
+							x=((zc_oldrand()%12)+2)*16;
+							y=((zc_oldrand()%7)+2)*16;
 						}
 						else
 						{
-							x=((zc_rand()%14)+1)*16;
-							y=((zc_rand()%9)+1)*16;
+							x=((zc_oldrand()%14)+1)*16;
+							y=((zc_oldrand()%9)+1)*16;
 						}
 						
 						if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
@@ -13790,7 +13790,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 		if(bc<=40)
 		{
 			int kids = guys.Count();
-			int bats=(zc_rand()%3)+1;
+			int bats=(zc_oldrand()%3)+1;
 			
 			for(int i=0; i<bats; i++)
 			{
@@ -13813,7 +13813,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 		
 		if(kids<200)
 		{
-			int newguys=(zc_rand()%3)+1;
+			int newguys=(zc_oldrand()%3)+1;
 			bool summoned=false;
 			
 			for(int i=0; i<newguys; i++)
@@ -13824,8 +13824,8 @@ void eWizzrobe::wizzrobe_attack_for_real()
 				
 				for(int k=0; k<20; ++k)
 				{
-					x2=16*((zc_rand()%12)+2);
-					y2=16*((zc_rand()%7)+2);
+					x2=16*((zc_oldrand()%12)+2);
+					y2=16*((zc_oldrand()%7)+2);
 					
 					if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Link.getX())>=32 || abs(y2-Link.getY())>=32))
 					{
@@ -13879,7 +13879,7 @@ void eWizzrobe::wizzrobe_attack()
 			int jy=y;
 			int jdir=-1;
 			
-			switch(zc_rand()&7)
+			switch(zc_oldrand()&7)
 			{
 			case 0:
 				jx-=32;
@@ -13985,7 +13985,7 @@ void eWizzrobe::wizzrobe_attack()
 		}
 		else
 		{
-			if((zc_rand()%500)>=400)
+			if((zc_oldrand()%500)>=400)
 			{
 				wizzrobe_attack_for_real();
 				fclk=30;
@@ -13993,7 +13993,7 @@ void eWizzrobe::wizzrobe_attack()
 		}
 	}
 	
-	if(misc==0 && (zc_rand()&127)==0)
+	if(misc==0 && (zc_oldrand()&127)==0)
 		misc=2;
 		
 	if(misc==2 && clk3==4)
@@ -14466,14 +14466,14 @@ bool eAquamentus::animate(int index)
 		sfx(wpnsfx(wpn),pan(int(x)));
 	}
 	
-	if(clk3<-80 && !(zc_rand()&63))
+	if(clk3<-80 && !(zc_oldrand()&63))
 	{
 		clk3=32;
 	}
 	
 	if(!((clk4+1)&63))
 	{
-		int d2=(zc_rand()%3)+1;
+		int d2=(zc_oldrand()%3)+1;
 		
 		if(d2>=left)
 		{
@@ -14617,7 +14617,7 @@ eGohma::eGohma(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)  // enemy((zfix
 	hxsz=48;
 	clk4=0;
 	yofs=playing_field_offset+1;
-	dir=zc_rand()%3+1;
+	dir=zc_oldrand()%3+1;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
@@ -14679,7 +14679,7 @@ bool eGohma::animate(int index)
 		if(clk4&64)
 			dir^=1;
 		else
-			dir=zc_rand()%3+1;
+			dir=zc_oldrand()%3+1;
 	}
 	
 	if((clk&63)==3)
@@ -15149,7 +15149,7 @@ bool eGanon::animate(int index)
 		misc=0;
 		
 	case 0:
-		if(++clk2>72 && !(zc_rand()&3))
+		if(++clk2>72 && !(zc_oldrand()&3))
 		{
 			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
 			sfx(wpnsfx(wpn),pan(int(x)));
@@ -15164,7 +15164,7 @@ bool eGanon::animate(int index)
 	case 2:
 		if(--Stunclk<=0)
 		{
-			int r=zc_rand();
+			int r=zc_oldrand();
 			
 			if(r&1)
 			{
@@ -15340,7 +15340,7 @@ void eGanon::draw(BITMAP *dest)
 	{
 	case 0:
 		if((clk&3)==3)
-			tile=(zc_rand()%5)*2+o_tile;
+			tile=(zc_oldrand()%5)*2+o_tile;
 			
 		if(db!=999)
 			break;
@@ -15447,7 +15447,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
 		misc=0;
 		
 	case 0:
-		if(++clk2>72 && !(zc_rand()&3))
+		if(++clk2>72 && !(zc_oldrand()&3))
 		{
 			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
 			sfx(wpnsfx(wpn),pan(int(x)));
@@ -15462,7 +15462,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
 	case 2:
 		if(--Stunclk<=0)
 		{
-			int r=zc_rand();
+			int r=zc_oldrand();
 			
 			if(r&1)
 			{
@@ -15599,7 +15599,7 @@ void eGanon::draw(BITMAP *dest)
 	{
 	case 0:
 		if((clk&3)==3)
-			tile=(zc_rand()%5)*2+o_tile;
+			tile=(zc_oldrand()%5)*2+o_tile;
 			
 		if(db!=999)
 			break;
@@ -15738,7 +15738,7 @@ eMoldorm::eMoldorm(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		y=48;
 	}
 	//else { x = X; y = Y; }
-	dir=(zc_rand()&7)+8;
+	dir=(zc_oldrand()&7)+8;
 	superman=1;
 	fading=fade_invisible;
 	hxofs=1000;
@@ -16370,7 +16370,7 @@ eManhandla::eManhandla(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 	//these are here to bypass compiler warnings about unused arguments
 	Clk=Clk;
 	superman=1;
-	dir=(zc_rand()&7)+8;
+	dir=(zc_oldrand()&7)+8;
 	armcnt=dmisc2?8:4;//((id==eMANHAN)?4:8);
 	
 	for(int i=0; i<armcnt; i++)
@@ -16802,11 +16802,11 @@ bool esManhandla::animate(int index)
 	
 	if(--clk2<=0)
 	{
-		clk2=unsigned(zc_rand())%5+5;
+		clk2=unsigned(zc_oldrand())%5+5;
 		clk3^=1;
 	}
 	
-	if(!(zc_rand()&127))
+	if(!(zc_oldrand()&127))
 	{
 		addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
 		sfx(wpnsfx(wpn),pan(int(x)));
@@ -17010,9 +17010,9 @@ bool eGleeok::animate(int index)
 	
 	if(!dmisc3)
 	{
-		if(++clk2>72 && !(zc_rand()&3))
+		if(++clk2>72 && !(zc_oldrand()&3))
 		{
-			int i=zc_rand()%misc;
+			int i=zc_oldrand()%misc;
 			enemy *head = ((enemy*)guys.spr(index+i+1));
 			addEwpn(head->x,head->y,head->z,wpn,3,wdp,dir,getUID());
 			sfx(wpnsfx(wpn),pan(int(x)));
@@ -17021,10 +17021,10 @@ bool eGleeok::animate(int index)
 	}
 	else
 	{
-		if(++clk2>100 && !(zc_rand()&3))
+		if(++clk2>100 && !(zc_oldrand()&3))
 		{
-			enemy *head = ((enemy*)guys.spr(zc_rand()%misc+index+1));
-			head->timer=zc_rand()%50+50;
+			enemy *head = ((enemy*)guys.spr(zc_oldrand()%misc+index+1));
+			head->timer=zc_oldrand()%50+50;
 			clk2=0;
 		}
 	}
@@ -17158,7 +17158,7 @@ esGleeok::esGleeok(zfix X,zfix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,C
 	clk2=clk;                                                 // how long to wait before moving first time
 	clk=0;
 	mainguy=count_enemy=false;
-	dir=zc_rand();
+	dir=zc_oldrand();
 	clk3=((dir&2)>>1)+2;                                      // left or right
 	dir&=1;                                                   // up or down
 	dmisc5=vbound(dmisc5,1,255);
@@ -17257,7 +17257,7 @@ bool esGleeok::animate(int index)
 			
 			if(y>= (int)parent->y + dmisc5*8) dir = up;
 			
-			if(y<= (int)parent->y + 10 && !(zc_rand()&31))
+			if(y<= (int)parent->y + 10 && !(zc_oldrand()&31))
 			{
 				dir^=1;
 			}
@@ -17286,13 +17286,13 @@ bool esGleeok::animate(int index)
 					clk3=left;
 				}
 				
-				if(y <= (int)parent->y+(dmisc5*6) && !(zc_rand()&15))
+				if(y <= (int)parent->y+(dmisc5*6) && !(zc_oldrand()&15))
 				{
 					clk3^=1;                                        // x jig
 				}
 				else
 				{
-					if(y<=(int)parent->y+(dmisc5*4) && !(zc_rand()&31))
+					if(y<=(int)parent->y+(dmisc5*4) && !(zc_oldrand()&31))
 					{
 						clk3^=1;                                      // x switch back
 					}
@@ -17311,8 +17311,8 @@ bool esGleeok::animate(int index)
 			
 			for(int i=1; i<dmisc5; i++)
 			{
-				nxoffset[i] = (zc_rand()%3);
-				nyoffset[i] = (zc_rand()%3);
+				nxoffset[i] = (zc_oldrand()%3);
+				nyoffset[i] = (zc_oldrand()%3);
 			}
 		}
 		
@@ -17337,7 +17337,7 @@ bool esGleeok::animate(int index)
 		cs=8;
 		clk=-24;
 		clk2=40;
-		dir=(zc_rand()&7)+8;
+		dir=(zc_oldrand()&7)+8;
 		step=8.0/9.0;
 	}
 	break;
@@ -17432,7 +17432,7 @@ ePatra::ePatra(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)// enemy((zfix)1
 	}
 	else { x = X; y = Y; }
 	adjusted=false;
-	dir=(zc_rand()&7)+8;
+	dir=(zc_oldrand()&7)+8;
 	//step=0.25;
 	flycnt=dmisc1;
 	flycnt2=dmisc2;
@@ -17610,7 +17610,7 @@ bool ePatra::animate(int index)
 	
 	if(dmisc5==1)
 	{
-		if(!(zc_rand()&127))
+		if(!(zc_oldrand()&127))
 		{
 			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
 			sfx(wpnsfx(wpn),pan(int(x)));
@@ -17673,7 +17673,7 @@ bool ePatra::animate(int index)
 			{
 				if(dmisc5==2)
 				{
-					if(!(zc_rand()&127))
+					if(!(zc_oldrand()&127))
 					{
 						addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
 						sfx(wpnsfx(wpn),pan(int(x)));
@@ -17904,7 +17904,7 @@ void esPatra::draw(BITMAP *dest)
 ePatraBS::ePatraBS(zfix ,zfix ,int Id,int Clk) : enemy((zfix)128,(zfix)48,Id,Clk)
 {
 	adjusted=false;
-	dir=(zc_rand()&7)+8;
+	dir=(zc_oldrand()&7)+8;
 	step=0.25;
 	//flycnt=6; flycnt2=0;
 	flycnt=dmisc1;
@@ -19654,7 +19654,7 @@ void loadguys()
 			if(currscr<128)
 				sfx(WAV_SCALE);
 				
-			addguy(120,64,Guy, (dlevel||BSZ)?-15:startguy[zc_rand()&7], true);
+			addguy(120,64,Guy, (dlevel||BSZ)?-15:startguy[zc_oldrand()&7], true);
 			Link.Freeze();
 		}
 	}
@@ -19961,9 +19961,9 @@ void load_default_enemies()
 	{
 		if(rockID>=0)
 		{
-			addenemy(zc_rand()&0xF0, 0, rockID, 0);
-			addenemy(zc_rand()&0xF0, 0, rockID, 0);
-			addenemy(zc_rand()&0xF0, 0, rockID, 0);
+			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
+			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
+			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
 		}
 	}
 	
@@ -20002,15 +20002,15 @@ void nsp(bool random)
 {
 	if(random)
 	{
-		if(zc_rand()%2)
+		if(zc_oldrand()%2)
 		{
-			sle_x = (zc_rand()%2) ? 0 : 240;
-			sle_y = (zc_rand()%10)*16;
+			sle_x = (zc_oldrand()%2) ? 0 : 240;
+			sle_y = (zc_oldrand()%10)*16;
 		}
 		else
 		{
-			sle_y = (zc_rand()%2) ? 0 : 160;
-			sle_x = (zc_rand()%15)*16;
+			sle_y = (zc_oldrand()%2) ? 0 : 160;
+			sle_x = (zc_oldrand()%15)*16;
 		}
 		
 		return;
@@ -20338,7 +20338,7 @@ int placeenemy(int i)
 	}
 	
 	if(frees > 0)
-		return freeposcache[zc_rand()%frees];
+		return freeposcache[zc_oldrand()%frees];
 		
 	return -1;
 }
@@ -20433,7 +20433,7 @@ void loadenemies()
 	//if(true)                    // enemies appear at random places
 	//{
 	//int set=loadside*9;
-	int pos=zc_rand()%9;
+	int pos=zc_oldrand()%9;
 	int clk=-15,x=0,y=0,fastguys=0;
 	int i=0,guycnt=0;
 	
@@ -21104,7 +21104,7 @@ bool parsemsgcode()
 		{
 			int odds = (int)(grab_next_argument());
 			
-			if(!((zc_rand()%(2*odds))/odds))
+			if(!((zc_oldrand()%(2*odds))/odds))
 				goto switched;
 				
 			(void)grab_next_argument();

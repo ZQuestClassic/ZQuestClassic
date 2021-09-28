@@ -1154,7 +1154,7 @@ int d_cset_proc(int msg,DIALOG *d,int c)
             //sniggles
             //        ((RGB*)d->dp3)[243]=((RGB*)d->dp3)[rc[(fc++)&15]];
             //        set_palette_range(((RGB*)d->dp3),FLASH,FLASH,false);
-            ((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[zc_rand()%14+dvc(1)];
+            ((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[zc_oldrand()%14+dvc(1)];
             set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
             //if(zqwin_scale > 1)
             {
@@ -1493,7 +1493,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
             custom_vsync();
             //sniggles
             //      pal[FLASH]=pal[rc[(fc++)&15]];
-            pal[dvc(0)]=pal[zc_rand()%14+dvc(1)];
+            pal[dvc(0)]=pal[zc_oldrand()%14+dvc(1)];
             set_palette_range(pal,dvc(0),dvc(0),false);
             
             bool en = (colors_dlg[2].d1 == colors_dlg[2].d2);

@@ -2753,30 +2753,30 @@ void sprite::explode(int type)
                     {
                         if(type==0)  // Twilight
                         {
-                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (zc_rand()%8)+i*4));
+                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
 			    p->cset=cs;
-			    p->color= zc_rand()%4+1;
+			    p->color= zc_oldrand()%4+1;
                         }
                         
 			else if(type ==1)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(x+j, y-z+i, 5, 1, 2, (zc_rand()%16)+i*2));
+                            particles.add(new pTwilight(x+j, y-z+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
                             
-                            if(zc_rand()%10 < 2)
+                            if(zc_oldrand()%10 < 2)
                             {
-                                p->color= zc_rand()%4+1;
+                                p->color= zc_oldrand()%4+1;
                                 p->cset=cs;
                             }
                         }
                         else //explode
                         {
-                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, spritetilebuf[i*16+j], zc_rand()%96));
+                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, spritetilebuf[i*16+j], zc_oldrand()%96));
                             
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
@@ -2784,7 +2784,7 @@ void sprite::explode(int type)
                             p->angle=zc_rand();
                             p->step=(((double)j)/8);
                             p->yofs=yofs;
-			    p->color= zc_rand()%4+1;
+			    p->color= zc_oldrand()%4+1;
 			    p->cset=cs;
                         }
 			
@@ -2815,19 +2815,19 @@ void sprite::explode(int type)
                     {
                         if(type==0)  // Twilight
                         {
-                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (zc_rand()%8)+i*4));
+                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(type ==1)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(x+j, y-z()+i, 5, 1, 2, (zc_rand()%16)+i*2));
+                            particles.add(new pTwilight(x+j, y-z()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
                             
-                            if(zc_rand()%10 < 2)
+                            if(zc_oldrand()%10 < 2)
                             {
                                 p->color=1;
                                 p->cset=0;
@@ -2835,7 +2835,7 @@ void sprite::explode(int type)
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, linktilebuf[i*16+j], zc_rand()%96));
+                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, linktilebuf[i*16+j], zc_oldrand()%96));
                             
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
