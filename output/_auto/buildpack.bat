@@ -24,6 +24,10 @@ copy /y "%rel%\zelda.exe" "%nb%\zelda.exe" >>%log%
 copy /y "%rel%\zquest.exe" "%nb%\zquest.exe" >>%log%
 copy /y "%rel%\zcsound.dll" "%nb%\zcsound.dll" >>%log%
 
+echo Copying 'changelog.txt'...
+echo Copying 'changelog.txt'...>>%log%
+copy /y "%src%\changelog.txt" "%nb%\changelog.txt" >>%log%
+
 echo Copying '\output\include'...
 echo Copying '\output\include'...>>%log%
 xcopy /e /y /i "%incl%" "%nb%\include" >>%log%
