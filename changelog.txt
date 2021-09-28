@@ -1,14 +1,230 @@
 // 2.55 Change Log
-// Updated 18th March, 2021
+// Updated 28th Sept, 2021
 
-//ALpha 92
+//Alpha 97
+
+Fix 'Always Grabbable' pickup flag bugs
+Fix crashes related to new RNG
+Add customizable shadow/death/spawn sprites
+	( EmilyV, 28th Sept, 2021 )
+
+//Alpha 96
+
+Add 'sprite->Remove()' for non-npc sprite types
+	( EmilyV, 27th Sept, 2021 )
+
+Fix weapon scripts
+Fix CSet2
+Add '*weapon->Unblockable'
+Fix dmapdata->Type
+	( EmilyV, 26th Sept, 2021 )
+
+New RNG system
+Add 'randgen' ZScript class
+remove aNONE non-animation
+	( EmilyV, 23rd Sept, 2021 )
+
+Darkroom Color Selection
+	( EmilyV, 21st Sept, 2021 )
+	
+Make dmapdata changes to subscreen update instantly
+Compat rule work, V_COMPATRULE added
+add 'item->Animation', previously missing
+Add 'Always Grabbable' pickup flag
+	( EmilyV, 20th Sept, 2021 )
+
+Make 'Particle' objects different from 'sprites'
+Separate script memory from sprites so it's only used when needed
+	( EmilyV, 18th Sept, 2021 )
+
+Upgrade to C++17
+	( Saffith and EmilyV, 16th sept, 2021 )
+
+Add real darkrooms + lantern itemtype
+	-Sprites can emit light
+	-Multiple light shapes
+	-Dithering/transparency options
+	( EmilyV, 7th - 13th Sept, 2021 )
+
+//Alpha 95
+
+Add shadows in string editor
+	Add SCCs for string shadows
+	Add SCC for insterting player's name
+	Add SCC for inserting a tile block
+	( EmilyV, 5th Sept, 2021 )
+
+Add reloading of game icons (with config)
+	( EmilyV, 4th Sept, 2021 )
+
+Fixed bug with horizontal weapons with animations
+	( Dimi, 4th Sept, 2021 )
+
+Fix pickup string bug
+	( Saffith, 4th Sept, 2021 )
+
+Fix ringcolor not updating from SCCs
+Update combo type help text
+	( EmilyV, 30th Aug, 2021 )
+
+Add "Attack Ring" itemclass
+	( EmilyV, 22nd Aug, 2021 )
+
+Add button to InitD[] / Combo Attributes allowing
+	entering numbers in decimal or hex, and in long or standard modes
+	( EmilyV, 18th Aug, 2021 )
+
+Fixed system palettes being shown in ZQuest palette editor.
+Fixed Darknut bomb interaction with new QRs
+Fixed remote bomb subscreen handling.
+	( Dimi, 16th Aug, 2021 )
+
+Fixed Gohmas poofing in older quests
+	( Dimi, 15th Aug, 2021 )
+	
+Added Automatic Triggers
+	( Dimi, 13th Aug, 2021 )
+
+Add Crystal Switches / Switch Blocks
+Add 'Secrets->Next' flag
+	( EmilyV, 12th Aug, 2021 )
+
+Added Item/Special Item always returns.
+Added Item->Secrets
+	( Dimi, 10th Aug, 2021 )
+
+Add Signpost Combos
+Update chest combos
+'Secrets->Item' flag, and 'Screen->SecretsTriggered()'
+Prevent editing combo 0 (with compat rule)
+	( EmilyV, 10th Aug, 2021 )
+
+Fix ruleset/effect conflict, re-organize ruleset code
+Add 'Draw Block->3x3'
+	( EmilyV, 9th Aug, 2021 )
+
+Add in-conditional data declaration to ZScript
+	i.e. 'if(npc n = foo()){}'
+	Also fixes ambiguous syntax error on if/else chains
+	( EmilyV, 8th Aug, 2021 )
+
+Add 'Overhead combos on layers 1&2' QR
+	( EmilyV, 7th Aug, 2021 )
+
+Allow decimal value for combo attributes
+	( EmilyV, 5th Aug, 2021 )
+	
+Added custom conveyor speed
+	( Dimi, 5th Aug, 2021 )
+
+Add effect area to combos
+	( Dimi, 3rd Aug, 2021 )
+
+Re-organize squares in combo editor, add labels
+Fix cancel buttons in combo editor
+Update View Palette dialog to show hovered color value
+Add Ctrl+(0-6) to switch active layer
+Add Damage Combo No Knockback Flag
+	( EmilyV, 3rd Aug, 2021)
+
+Update favorite commands (GUI/style)
+Add favorite commands (Layer2/3 is BG)
+	( EmilyV, 1st Aug, 2021)
+
+Fix random noise in view palette dialog
+Fix fonts for favorite command dialog
+Fix 'Graphics->NumDraws()'
+	( EmilyV, 30th Jul, 2021)
+
+Add qr to make writes to Hero->Step temporary
+	( EmilyV, 29th Jul, 2021)
+
+Fix roc's feather issue
+	( EmilyV, 28th Jul, 2021)
+
+Fix pickup strings always playing
+Add QR to correct EW_BRANG animation
+Fix L/R cycling
+Split X/Y button rule into 2 rules
+Fix message string issues
+	( EmilyV, 27th Jul, 2021)
+
+Fix X/Y button issues
+Fix QR naming (Player/Hero)
+Fix 'sparkle bug'
+Fix mapdata setters/getters
+	( EmilyV, 26th Jul, 2021)
+
+Add QR: Non-heavy blocks trigger block triggers permanently
+	( EmilyV, 23rd Jul, 2021)
+
+Add 'bool Hero->IsWarping', read-only
+	( EmilyV, 8th Jul, 2021)
+
+Fix enemy defenses / weapon override types
+	Fix defense resolution, re: 'useweapon'/'usedefense'
+	Fix off-by-one error in weapon type dropdown
+	( EmilyV, 3rd Jul, 2021)
+
+Various Minor Fixes
+	( EmilyV, 24th May - 3rd Jul, 2021)
+
+Make ZScript 'Distance()' internal
+	( Timelord, 22nd April, 2021 )
+
+Re-organized combo editor
+	( Dimi, 19th April, 2021 )
+Fix vires in sideview
+	( Dimi, 16th April, 2021 )
+
+Add Instant Continue on Death QR
+	( Timelord, 11th April, 2021 )
+
+Fixes for Slash->Next, Lock Blocks
+	( Dimi, 10th April, 2021 )
+
+//Alpha 94
+
+Water Refactor
+	( Dimi, 27th March, 2021 )
+
+Add Link->Defense Dialog (In Graphics->Sprites->Player)
+	( jman, 26th March, 2021 )
+
+Fix smart scrolling bugs
+	( Dimi, 26th March, 2021 )
+
+Add 'ReadBytes'/'WriteBytes' ZScript functions
+Fix negative layer solidity drawing bugs
+	( Dimi, 25th March, 2021 )
+
+//Alpha 93
+
+Updated solidity drawing to work with Bridge combo.
+	( Dimi, 24th March, 2021 )
+
+Add ladder compatability with bridges
+	( Dimi, 21st March, 2021 )
+
+Feat: Subscreen fall speed
+Fix Special Item rooms not freezing messages
+Fix Combo Script initialization bugs
+	( Timelord, 21st March, 2021 )
+
+Allow writing Hero->Pushing (Experimental)
+	( Timelord, 21st March, 2021 )
+	
+Added Bridge combo types
+	( Dimi, 20th March, 2021 )
+
+//Alpha 92
 
 Correct scaling for 256 increments of resx.
 Allow scaling resx in ZC Player to 256 to fit CRT televisions,
 	as requested by user 'Zabii'.
 	( Timelord, 18th march, 2021 )
 
-//Aplha 91
+//Alpha 91
 
 <std 1.7114> Added enum itemslots with consts ITM_SLOT_* for all four slots. 
 Added Hero->ItemX and ItemY variables to match ItemA and ItemB. 
