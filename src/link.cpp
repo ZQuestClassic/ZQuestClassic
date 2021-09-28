@@ -1283,7 +1283,7 @@ void LinkClass::drawshadow(BITMAP* dest, bool translucent)
 {
     int tempy=yofs;
     yofs+=8;
-    shadowtile = wpnsbuf[iwShadow].newtile;
+    shadowtile = wpnsbuf[spr_shadow].newtile;
     sprite::drawshadow(dest,translucent);
     yofs=tempy;
 }
@@ -24749,6 +24749,7 @@ void slide_in_color(int color)
 void LinkClass::heroDeathAnimation()
 {
 	int f=0;
+	int deathclk=0,deathfrm=0;
     
 	action=none; FFCore.setLinkAction(dying); //mayhaps a new action of 'gameover'? -Z
 	
@@ -24914,10 +24915,23 @@ void LinkClass::heroDeathAnimation()
 				}
                     
 				extend = 0;
-				cs = wpnsbuf[iwDeath].csets&15;
-				tile = wpnsbuf[iwDeath].newtile;
-                
-				if(BSZ)
+				cs = wpnsbuf[spr_death].csets&15;
+				tile = wpnsbuf[spr_death].newtile;
+                if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+				{
+					tile += deathfrm;
+					f = 206;
+					if(++deathclk >= wpnsbuf[spr_death].speed)
+					{
+						deathclk=0;
+						if(++deathfrm >= wpnsbuf[spr_death].frames)
+						{
+							f = 208;
+							deathfrm = 0;
+						}
+					}
+				}
+				else if(BSZ)
 				{
 					tile += (f-194)/3;
 				}

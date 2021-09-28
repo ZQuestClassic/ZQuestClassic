@@ -4800,6 +4800,13 @@ long get_register(const long arg)
 			}
 			break;
 			
+		case ITEMSHADOWSPR:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = int(((item*)(s))->spr_shadow) * 10000;
+			}
+			break;
+			
 		///----------------------------------------------------------------------------------------------------//
 		//Itemdata Variables
 		
@@ -5894,6 +5901,25 @@ long get_register(const long arg)
 				ret = GuyH::getNPC()->glowShape * 10000;
 			}
 			break;
+			
+		case NPCSHADOWSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->ShadowSprite") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->spr_shadow * 10000;
+			}
+			break;
+		case NPCSPAWNSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->SpawnSprite") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->spr_spawn * 10000;
+			}
+			break;
+		case NPCDEATHSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->DeathSprite") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->spr_death * 10000;
+			}
+			break;
 		
 		
 		
@@ -6323,6 +6349,13 @@ long get_register(const long arg)
 			}
 			break;
 			
+		case LWPNSHADOWSPR:
+			if(0!=(s=checkLWpn(ri->lwpn,"ShadowSprite")))
+			{
+				ret = ((weapon*)(s))->spr_shadow * 10000;
+			}
+			break;
+			
 		///----------------------------------------------------------------------------------------------------//
 		//EWeapon Variables
 		case EWPNSCALE:
@@ -6723,6 +6756,13 @@ long get_register(const long arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"Unblockable")))
 			{
 				ret = ((weapon*)(s))->unblockable * 10000;
+			}
+			break;
+			
+		case EWPNSHADOWSPR:
+			if(0!=(s=checkEWpn(ri->ewpn,"ShadowSprite")))
+			{
+				ret = ((weapon*)(s))->spr_shadow * 10000;
 			}
 			break;
 		
@@ -10578,6 +10618,46 @@ long get_register(const long arg)
 			} 
 		}
 
+		case NPCDSHADOWSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->ShadowSprite: %d\n", (ri->npcdataref*10000));
+				ret = -10000; 
+			} 
+			else 
+			{
+				ret = guysbuf[ri->npcdataref].spr_shadow * 10000;
+			} 
+			break;
+		}
+		case NPCDSPAWNSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->SpawnSprite: %d\n", (ri->npcdataref*10000));
+				ret = -10000; 
+			} 
+			else 
+			{
+				ret = guysbuf[ri->npcdataref].spr_spawn * 10000;
+			} 
+			break;
+		}
+		case NPCDDEATHSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->DeathSprite: %d\n", (ri->npcdataref*10000));
+				ret = -10000; 
+			} 
+			else 
+			{
+				ret = guysbuf[ri->npcdataref].spr_death * 10000;
+			} 
+			break;
+		}
+		
 		case NPCMATCHINITDLABEL: 	 //Same form as SetScreenD()
 			//bool npcdata->MatchInitDLabel("label", d)
 		{
@@ -12724,6 +12804,13 @@ void set_register(const long arg, const long value)
 			}
 			break;
 			
+		case ITEMSHADOWSPR:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->spr_shadow=vbound(value/10000,0,255);
+			}
+			break;
+			
 	///----------------------------------------------------------------------------------------------------//
 	//Itemdata Variables
 		//not mine, but let;s guard some of them all the same -Z
@@ -13558,6 +13645,13 @@ void set_register(const long arg, const long value)
 			}
 			break;
 			
+		case LWPNSHADOWSPR:
+			if(0!=(s=checkLWpn(ri->lwpn,"ShadowSprite")))
+			{
+				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
+			}
+			break;
+			
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
 		case EWPNSCALE:
@@ -13950,6 +14044,13 @@ void set_register(const long arg, const long value)
 			if(0!=(s=checkEWpn(ri->ewpn,"Unblockable")))
 			{
 				((weapon*)(s))->unblockable = (value/10000)&WPNUNB_ALL;
+			}
+			break;
+			
+		case EWPNSHADOWSPR:
+			if(0!=(s=checkEWpn(ri->ewpn,"ShadowSprite")))
+			{
+				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
 			}
 			break;
 			
@@ -14732,6 +14833,25 @@ void set_register(const long arg, const long value)
 			if(GuyH::loadNPC(ri->guyref, "npc->LightShape") == SH::_NoError)
 			{
 				GuyH::getNPC()->glowShape = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case NPCSHADOWSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->ShadowSprite") == SH::_NoError)
+			{
+				GuyH::getNPC()->spr_shadow = vbound(value/10000,0,255);
+			}
+			break;
+		case NPCSPAWNSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->SpawnSprite") == SH::_NoError)
+			{
+				GuyH::getNPC()->spr_spawn = vbound(value/10000,0,255);
+			}
+			break;
+		case NPCDEATHSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->DeathSprite") == SH::_NoError)
+			{
+				GuyH::getNPC()->spr_death = vbound(value/10000,0,255);
 			}
 			break;
 		
@@ -18620,6 +18740,43 @@ void set_register(const long arg, const long value)
 				}
 				break;
 			} 
+		}
+
+		case NPCDSHADOWSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->ShadowSprite: %d\n", (ri->npcdataref*10000));
+			} 
+			else 
+			{
+				guysbuf[ri->npcdataref].spr_shadow = vbound(value/10000, 0, 255);
+			} 
+			break;
+		}
+		case NPCDSPAWNSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->SpawnSprite: %d\n", (ri->npcdataref*10000));
+			} 
+			else 
+			{
+				guysbuf[ri->npcdataref].spr_spawn = vbound(value/10000, 0, 255);
+			} 
+			break;
+		}
+		case NPCDDEATHSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->DeathSprite: %d\n", (ri->npcdataref*10000));
+			} 
+			else 
+			{
+				guysbuf[ri->npcdataref].spr_death = vbound(value/10000, 0, 255);
+			} 
+			break;
 		}
 
 
@@ -34762,6 +34919,15 @@ script_variable ZASMVars[]=
 	{ "REFRNG",           REFRNG,            0,             0 },
 	{ "LWPNUNBL",           LWPNUNBL,            0,             0 },
 	{ "EWPNUNBL",           EWPNUNBL,            0,             0 },
+	{ "NPCSHADOWSPR",           NPCSHADOWSPR,            0,             0 },
+	{ "LWPNSHADOWSPR",           LWPNSHADOWSPR,            0,             0 },
+	{ "EWPNSHADOWSPR",           EWPNSHADOWSPR,            0,             0 },
+	{ "ITEMSHADOWSPR",           ITEMSHADOWSPR,            0,             0 },
+	{ "NPCSPAWNSPR",           NPCSPAWNSPR,            0,             0 },
+	{ "NPCDEATHSPR",           NPCDEATHSPR,            0,             0 },
+	{ "NPCDSHADOWSPR",           NPCDSHADOWSPR,            0,             0 },
+	{ "NPCDSPAWNSPR",           NPCDSPAWNSPR,            0,             0 },
+	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

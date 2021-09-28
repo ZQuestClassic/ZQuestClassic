@@ -2358,6 +2358,9 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	dmisc30=d->misc30;
 	dmisc31=d->misc31;
 	dmisc31=d->misc32;
+	spr_shadow=d->spr_shadow;
+	spr_death=d->spr_death;
+	spr_spawn=d->spr_spawn;
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=d->defense[i];
@@ -2879,7 +2882,8 @@ bool enemy::Dead(int index)
 	{
 		--clk2;
 		
-		if(clk2==12 && hp>-1000)                                // not killed by ringleader
+		if((get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) ? clk2==12 : clk2==18)
+		   && hp>-1000) // not killed by ringleader
 			death_sfx();
 			
 		if(clk2==0)
@@ -3863,6 +3867,7 @@ byte get_def_ignrflag(int edef)
 		case edLEVELCHINK5:
 			return WPNUNB_BLOCK;
 	}
+	return 0;
 }
 
 int conv_edef_unblockable(int edef, byte unblockable)
@@ -3888,6 +3893,7 @@ int conv_edef_unblockable(int edef, byte unblockable)
 		case edSTUNORCHINK:
 			return edSTUNONLY;
 	}
+	return edef;
 }
 
 // Do we do damage?
@@ -5753,30 +5759,37 @@ void enemy::old_draw(BITMAP *dest)
 		}
 		
 		flip = 0;
-		tile = wpnsbuf[iwDeath].newtile;
-	//The scale of this tile shouldx be based on the enemy size. -Z
+		tile = wpnsbuf[spr_death].newtile;
+		//The scale of this tile shouldx be based on the enemy size. -Z
 		if ( do_animation ) 
-	{
-		if(BSZ)
-			tile += zc_min((15-clk2)/3,4);
-		else if(clk2>6 && clk2<=12)
-			++tile;
-	}
-		/* trying to get more death frames here
-		  if(wpnsbuf[wid].frames)
-		  {
-		  if(++clk2 >= wpnsbuf[wid].speed)
-		  {
-		  clk2 = 0;
-		  if(++aframe >= wpnsbuf[wid].frames)
-		  aframe = 0;
-		  }
-		  tile = wpnsbuf[wid].tile + aframe;
-		  }
-		  */
+		{
+			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+			{
+				if(clk2 > 2)
+				{
+					spr_death_anim_clk=0;
+					clk2=1;
+				}
+				if(clk2==1 && spr_death_anim_clk>-1)
+				{
+					++clk2;
+					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
+					{
+						spr_death_anim_clk=-1;
+						clk2=1;
+					}
+				}
+				tile += spr_death_anim_frm;
+			}
+			else if(BSZ)
+				tile += zc_min((15-clk2)/3,4);
+			else if(clk2>6 && clk2<=12)
+				++tile;
+		}
 		
-		if(BSZ || fading==fade_blue_poof)
-			cs = wpnsbuf[iwDeath].csets&15;
+		if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading==fade_blue_poof)
+			cs = wpnsbuf[spr_death].csets&15;
 		else
 			cs = (((clk2+5)>>1)&3)+6;
 	}
@@ -6001,30 +6014,37 @@ void enemy::draw(BITMAP *dest)
 		}
 		
 		flip = 0;
-		tile = wpnsbuf[iwDeath].newtile;
-	//The scale of this tile shouldx be based on the enemy size. -Z
+		tile = wpnsbuf[spr_death].newtile;
+		//The scale of this tile shouldx be based on the enemy size. -Z
 		if ( do_animation ) 
-	{
-		if(BSZ)
-			tile += zc_min((15-clk2)/3,4);
-		else if(clk2>6 && clk2<=12)
-			++tile;
-	}
-		/* trying to get more death frames here
-		  if(wpnsbuf[wid].frames)
-		  {
-		  if(++clk2 >= wpnsbuf[wid].speed)
-		  {
-		  clk2 = 0;
-		  if(++aframe >= wpnsbuf[wid].frames)
-		  aframe = 0;
-		  }
-		  tile = wpnsbuf[wid].tile + aframe;
-		  }
-		  */
+		{
+			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+			{
+				if(clk2 > 2)
+				{
+					spr_death_anim_clk=0;
+					clk2=1;
+				}
+				if(clk2==1 && spr_death_anim_clk>-1)
+				{
+					++clk2;
+					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
+					{
+						spr_death_anim_clk=-1;
+						clk2=1;
+					}
+				}
+				tile += spr_death_anim_frm;
+			}
+			else if(BSZ)
+				tile += zc_min((15-clk2)/3,4);
+			else if(clk2>6 && clk2<=12)
+				++tile;
+		}
 		
-		if(BSZ || fading==fade_blue_poof)
-			cs = wpnsbuf[iwDeath].csets&15;
+		if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading==fade_blue_poof)
+			cs = wpnsbuf[spr_death].csets&15;
 		else
 			cs = (((clk2+5)>>1)&3)+6;
 	}
@@ -6143,28 +6163,37 @@ void enemy::drawzcboss(BITMAP *dest)
 		}
 		
 		flip = 0;
-		tile = wpnsbuf[iwDeath].newtile;
+		tile = wpnsbuf[spr_death].newtile;
 		
-		if(BSZ && do_animation)
-			tile += zc_min((15-clk2)/3,4);
-		else if(clk2>6 && clk2<=12 && do_animation)
-			++tile;
-			
-		/* trying to get more death frames here
-		  if(wpnsbuf[wid].frames)
-		  {
-		  if(++clk2 >= wpnsbuf[wid].speed)
-		  {
-		  clk2 = 0;
-		  if(++aframe >= wpnsbuf[wid].frames)
-		  aframe = 0;
-		  }
-		  tile = wpnsbuf[wid].tile + aframe;
-		  }
-		  */
+		if ( do_animation ) 
+		{
+			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+			{
+				if(clk2 > 2)
+				{
+					spr_death_anim_clk=0;
+					clk2=1;
+				}
+				if(clk2==1 && spr_death_anim_clk>-1)
+				{
+					++clk2;
+					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
+					{
+						spr_death_anim_clk=-1;
+						clk2=1;
+					}
+				}
+				tile += spr_death_anim_frm;
+			}
+			else if(BSZ)
+				tile += zc_min((15-clk2)/3,4);
+			else if(clk2>6 && clk2<=12)
+				++tile;
+		}
 		
-		if(BSZ || fading==fade_blue_poof)
-			cs = wpnsbuf[iwDeath].csets&15;
+		if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading==fade_blue_poof)
+			cs = wpnsbuf[spr_death].csets&15;
 		else
 			cs = (((clk2+5)>>1)&3)+6;
 	}
@@ -6293,7 +6322,7 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 	else
 	{
 		/*   if (enemycanfall(id) && z>0)
-			 shadowtile = wpnsbuf[iwShadow].tile;
+			 shadowtile = wpnsbuf[spr_shadow].tile;
 		   sprite::drawshadow(dest,translucent);
 		   if (z==0)
 			 shadowtile = 0;*/
@@ -6303,7 +6332,7 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 		//this hack is in place as not all enemies that should use the z axis while in the air
 		//(ie rocks, boulders) actually do. To be removed when the enemy revamp is complete -DD
 		if(enemycanfall(id) && shadowtile == 0)
-			shadowtile = wpnsbuf[iwShadow].newtile;
+			shadowtile = wpnsbuf[spr_shadow].newtile;
 			
 		if(z>0 || !enemycanfall(id))
 		{
@@ -10257,7 +10286,7 @@ void eTektite::drawshadow(BITMAP *dest,bool translucent)
 	int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 		   efrate:((clk>=(frate>>1))?1:0);
 	flip = 0;
-	shadowtile = wpnsbuf[iwShadow].newtile;
+	shadowtile = wpnsbuf[spr_shadow].newtile;
 	
 	if(get_bit(quest_rules,qr_NEWENEMYTILES))
 	{
@@ -10430,7 +10459,7 @@ void ePeahat::drawshadow(BITMAP *dest, bool translucent)
 {
 	int tempy=yofs;
 	flip = 0;
-	shadowtile = wpnsbuf[iwShadow].newtile+posframe;
+	shadowtile = wpnsbuf[spr_shadow].newtile+posframe;
 	
 	if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
 	{
@@ -11598,7 +11627,7 @@ void eRock::drawshadow(BITMAP *dest, bool translucent)
 		int efrate = fdiv == 0 ? 0 : clk/fdiv;
 		int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[iwShadow].newtile+f2;
+		shadowtile = wpnsbuf[spr_shadow].newtile+f2;
 		
 		yofs+=8;
 		yofs+=zc_max(0,zc_min(29-clk3,clk3));
@@ -11736,7 +11765,7 @@ void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 		int tempy=yofs;
 		flip = 0;
 		int f2=((clk<<2)/frate)<<1;
-		shadowtile = wpnsbuf[iwLargeShadow].newtile+f2;
+		shadowtile = wpnsbuf[spr_shadow].newtile+f2;
 		yofs+=zc_max(0,zc_min(29-clk3,clk3));
 		
 		yofs+=8;
@@ -12141,7 +12170,7 @@ void eSpinTile::draw(BITMAP *dest)
 void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
 {
 	flip = 0;
-	shadowtile = wpnsbuf[iwShadow].newtile+(clk%4);
+	shadowtile = wpnsbuf[spr_shadow].newtile+(clk%4);
 	yofs+=4;
 	if(!shadow_overpit(this))
 		enemy::drawshadow(dest, translucent);
@@ -13058,7 +13087,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 		flip = 0;
 		int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 		  (clk/(frate/4)):((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[iwShadow].tile+f2;
+		shadowtile = wpnsbuf[spr_shadow].tile+f2;
 		yofs+=(((int)y+17)&0xF0)-y;
 		yofs+=8;
 	  }
@@ -13071,7 +13100,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 		
 		int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[iwShadow].newtile;
+		shadowtile = wpnsbuf[spr_shadow].newtile;
 		
 		if(get_bit(quest_rules,qr_NEWENEMYTILES))
 		{
@@ -13439,7 +13468,7 @@ void eKeese::drawshadow(BITMAP *dest, bool translucent)
 {
 	int tempy=yofs;
 	flip = 0;
-	shadowtile = wpnsbuf[iwShadow].newtile+posframe;
+	shadowtile = wpnsbuf[spr_shadow].newtile+posframe;
 	yofs+=8;
 	
 	if(!get_bit(quest_rules,qr_ENEMIESZAXIS))

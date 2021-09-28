@@ -2215,6 +2215,15 @@ script_variable variable_list[]=
 	{ "REFRNG",           REFRNG,            0,             0 },
 	{ "LWPNUNBL",           LWPNUNBL,            0,             0 },
 	{ "EWPNUNBL",           EWPNUNBL,            0,             0 },
+	{ "NPCSHADOWSPR",           NPCSHADOWSPR,            0,             0 },
+	{ "LWPNSHADOWSPR",           LWPNSHADOWSPR,            0,             0 },
+	{ "EWPNSHADOWSPR",           EWPNSHADOWSPR,            0,             0 },
+	{ "ITEMSHADOWSPR",           ITEMSHADOWSPR,            0,             0 },
+	{ "NPCSPAWNSPR",           NPCSPAWNSPR,            0,             0 },
+	{ "NPCDEATHSPR",           NPCDEATHSPR,            0,             0 },
+	{ "NPCDSHADOWSPR",           NPCDSHADOWSPR,            0,             0 },
+	{ "NPCDSPAWNSPR",           NPCDSPAWNSPR,            0,             0 },
+	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

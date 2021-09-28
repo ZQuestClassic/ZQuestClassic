@@ -7957,7 +7957,7 @@ void weapon::draw(BITMAP *dest)
     
     if ( z > 0 && get_bit(quest_rules, qr_WEAPONSHADOWS) )
     {
-	shadowtile = wpnsbuf[iwShadow].newtile+aframe;
+	shadowtile = wpnsbuf[spr_shadow].newtile+aframe;
 	sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
     }
     sprite::draw(dest);

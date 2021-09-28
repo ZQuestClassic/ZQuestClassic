@@ -110,7 +110,6 @@ public:
     byte drawflags;
 	byte knockbackflags;
 	byte screenedge;
-	byte shadowsprite;
 	int scriptshadowtile;
 #define FLAG_NOSLIDE 0x01
 #define FLAG_NOSCRIPTKNOCKBACK 0x02
@@ -125,6 +124,10 @@ public:
 	int drownclk; // Pitfall fall clk
 	int drownCombo; // Pitfall fallen combo
 	bool isspawning;
+	
+	byte spr_shadow, spr_death, spr_spawn;
+	short spr_death_anim_clk, spr_spawn_anim_clk;
+	byte spr_death_anim_frm, spr_spawn_anim_frm;
 	
 	byte glowRad, glowShape;
     

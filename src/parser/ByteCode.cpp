@@ -1912,6 +1912,16 @@ string ZScript::VarToString(long ID)
 	case LWPNUNBL: return "LWPNUNBL";
 	case EWPNUNBL: return "EWPNUNBL";
 	
+	case NPCSHADOWSPR: return "NPCSHADOWSPR";
+	case LWPNSHADOWSPR: return "LWPNSHADOWSPR";
+	case EWPNSHADOWSPR: return "EWPNSHADOWSPR";
+	case ITEMSHADOWSPR: return "ITEMSHADOWSPR";
+	case NPCSPAWNSPR: return "NPCSPAWNSPR";
+	case NPCDEATHSPR: return "NPCDEATHSPR";
+	case NPCDSHADOWSPR: return "NPCDSHADOWSPR";
+	case NPCDSPAWNSPR: return "NPCDSPAWNSPR";
+	case NPCDDEATHSPR: return "NPCDDEATHSPR";
+	
 	default:
 	{
 		sprintf(temp, "d%d", ID);

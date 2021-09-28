@@ -3239,6 +3239,12 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_OLDCS2,1);
 	}
 	
+	if(compatrule_version < 3)
+	{
+		//Hardcoded Shadow/Spawn/Death anim frames
+		set_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS,1);
+	}
+	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
@@ -14414,6 +14420,27 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				{
 					tempguy.flags |= guy_fadeinstant;
 				}
+			}
+			if (guyversion > 44)
+			{
+				if(!p_getc(&(tempguy.spr_shadow),f,keepdata))
+				{
+					return qe_invalid;
+				}
+				if(!p_getc(&(tempguy.spr_death),f,keepdata))
+				{
+					return qe_invalid;
+				}
+				if(!p_getc(&(tempguy.spr_spawn),f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				tempguy.spr_shadow = (tempguy.family==eeROCK && tempguy.misc10==1) ? iwLargeShadow : iwShadow;
+				tempguy.spr_death = iwDeath;
+				tempguy.spr_spawn = iwSpawn;
 			}
 			
             if(keepdata)

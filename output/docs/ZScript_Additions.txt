@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 96
-Document Revision: 26th Sept, 2021
+Document Revision: 28th Sept, 2021
 
 
  __           _   _                 
@@ -4164,6 +4164,9 @@ int LightRadius;
 int LightShape;
  * The shape of light this object emits in a dark room.
 
+int ShadowSprite;
+ * The shadow sprite used by the itemsprite, 0-255
+
 void Remove();
  * Instantly DELETES an itemsprite.
  * This will immediately invalidate the itemsprite pointer, as well as update 'Screen->NumItems()', and change the indexes for 'Screen->LoadItem()'
@@ -4280,6 +4283,9 @@ void Remove();
 int Unblockable;
  * A flagset representing the weapon's ability to pierce defenses.
  * Use the 'UNBLOCK_' constants with bitwise operations to get/set this state.
+
+int ShadowSprite;
+ * The shadow sprite used by the weapon, 0-255
 
 ///////////////////////////
 ///  EWeapon  Specific  ///
@@ -4663,6 +4669,13 @@ int LightRadius;
 
 int LightShape;
  * The shape of light this object emits in a dark room.
+
+int ShadowSprite;
+ * The shadow sprite used by the npc, 0-255
+int SpawnSprite;
+ * The spawn sprite used by the npc, 0-255
+int DeathSprite;
+ * The death sprite used by the npc, 0-255
  
 void Remove();
  * Instantly DELETES an npc. No items will be dropped, no sound will play; the npc is simply DELETED OUTRIGHT.
@@ -6456,14 +6469,12 @@ int FrozenTile;
 int FrozenCSet;
  * The CSet value used to render the enemy, when the enemy is frozen solid. //Not yet implemented in-engine.
 
-t/b/a
-//int Movement[32]
-//* The Movement Pattern values used by the enemy.
-//int WeaponMovement[32]
-//* The Weapon Movement Pattern values used by the enemy.
-
-//FireSFX
-//* The sound played when the enemy uses its weapon.
+int ShadowSprite;
+ * The shadow sprite used by the enemy, 0-255
+int SpawnSprite;
+ * The spawn sprite used by the enemy, 0-255
+int DeathSprite;
+ * The death sprite used by the enemy, 0-255
 
 
 

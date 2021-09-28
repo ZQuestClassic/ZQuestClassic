@@ -239,7 +239,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        25
-#define V_GUYS            44
+#define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        19 //skipped 13->15 for 2.53.1
@@ -251,7 +251,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              7
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       2
+#define V_COMPATRULE       3
 //= V_SHOPS is under V_MISC
 
 /*
@@ -1008,7 +1008,7 @@ enum
 	qr_AUTOCOMBO_LAYER_1, qr_AUTOCOMBO_LAYER_2, qr_TRUEFIXEDBOMBSHIELD, qr_BOMBSPIERCESHIELD,
 	qr_BROKEN_HORIZONTAL_WEAPON_ANIM, qr_NEW_DARKROOM, qr_NEWDARK_L6, qr_ENEMIES_SECRET_ONLY_16_31,
 	//31
-	qr_SCREEN80_OWN_MUSIC, qr_OLDCS2,
+	qr_SCREEN80_OWN_MUSIC, qr_OLDCS2, qr_HARDCODED_ENEMY_ANIMS,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -2078,6 +2078,8 @@ struct guydata
     long weap_initiald[INITIAL_D];
     byte weap_initiala[INITIAL_A];
     
+	byte spr_shadow, spr_death, spr_spawn;
+	
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
 #define ENEMY_FLAG3     0x04

@@ -4310,8 +4310,17 @@ enum ASM_DEFINE
 #define REFRNG 			0x13EC
 #define LWPNUNBL 			0x13ED
 #define EWPNUNBL 			0x13EE
+#define NPCSHADOWSPR 			0x13EF
+#define LWPNSHADOWSPR 			0x13F0
+#define EWPNSHADOWSPR 			0x13F1
+#define ITEMSHADOWSPR 			0x13F2
+#define NPCSPAWNSPR 			0x13F3
+#define NPCDEATHSPR 			0x13F4
+#define NPCDSHADOWSPR 			0x13F5
+#define NPCDSPAWNSPR 			0x13F6
+#define NPCDDEATHSPR 			0x13F7
 
-#define NUMVARIABLES         	0x13EF
+#define NUMVARIABLES         	0x13F8
 
 //} End variables
 
