@@ -3007,7 +3007,7 @@ float Randf(float n)
 {
 	if(OLD_RAND_FUNCS)
 		return (Rand(0x7fff)/0x7fff)*n;
-	return RandGen->RandL(n);
+	return RandGen->LRand(n);
 }
 
 //Returns a random floating point number between min and max
@@ -3015,7 +3015,7 @@ float Randf(float n1, float n2)
 {
 	if(OLD_RAND_FUNCS)
 		return n1 + (Rand(0x7fff)/(0x7fff))*(n2-n1);
-	return RandGen->RandL(n1, n2);
+	return RandGen->LRand(n1, n2);
 }
 
 //Generalized and optimized rectangle collision checking function.
