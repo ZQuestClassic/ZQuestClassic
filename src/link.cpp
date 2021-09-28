@@ -23773,7 +23773,7 @@ void LinkClass::checkitems(int index)
     
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
-    if((ptr->pickup & ipCANGRAB) || ((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32)))
+    if(((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
         if(items.spr(index)->id!=iFairyMoving)
             // wait for it to stop flashing, doesn't check for other items yet
             return;
