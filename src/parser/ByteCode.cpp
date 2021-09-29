@@ -4963,6 +4963,10 @@ string OBitmapFree::toString()
 {
     return "BITMAPFREE";
 }
+string OBitmapWriteTile::toString()
+{
+    return "BMPWRITETILE";
+}
 
 string OIsValidBitmap::toString()
 {

@@ -1,5 +1,10 @@
 // 2.55 Change Log
-// Updated 28th Sept, 2021
+// Updated 29th Sept, 2021
+
+//Recent changes
+
+Add 'bitmap->WriteTile()', allowing scripts to draw to the tile pages.
+	( EmilyV, 29th Sept, 2021 )
 
 //Alpha 97
 

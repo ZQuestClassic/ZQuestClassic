@@ -8807,6 +8807,7 @@ static AccessorTable BitmapTable[] =
 	{ "ClearToColor",           ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Free",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_BITMAP,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "DrawFrame",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                     10,           {  ZVARTYPEID_BITMAP,                ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_BOOL,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "WriteTile",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      7,           {  ZVARTYPEID_BITMAP,                ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_BOOL,                           ZVARTYPEID_BOOL,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                   -1,                     -1,               -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
@@ -9521,6 +9522,21 @@ void BitmapSymbols::generateCode()
 		POPREF();
 		LABELBACK(label);
 		code.push_back(new OBitmapFree());
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void WriteTile(bitmap, int, int, int, int, bool, bool)
+	{
+		Function* function = getFunction("WriteTile", 7);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OBitmapWriteTile());
+		LABELBACK(label);
+		POP_ARGS(6, NUL);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
 		RETURN();
 		function->giveCode(code);
 	}

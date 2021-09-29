@@ -994,6 +994,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "LWPNDEL",           0,   0,   0,   0},
 	{ "EWPNDEL",           0,   0,   0,   0},
 	{ "ITEMDEL",           0,   0,   0,   0},
+	{ "BMPWRITETILE",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

@@ -2781,7 +2781,7 @@ void sprite::explode(int type)
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->angular=true;
-                            p->angle=zc_rand();
+                            p->angle=zc_oldrand();
                             p->step=(((double)j)/8);
                             p->yofs=yofs;
 			    p->color= zc_oldrand()%4+1;
@@ -2840,7 +2840,7 @@ void sprite::explode(int type)
                             int k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->angular=true;
-                            p->angle=zc_rand();
+                            p->angle=zc_oldrand();
                             p->step=(((double)j)/8);
                             p->yofs=yofs;
                         }

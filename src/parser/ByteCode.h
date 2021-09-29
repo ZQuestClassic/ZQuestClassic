@@ -8411,6 +8411,16 @@ namespace ZScript
 		}
 	};
 	
+	class OBitmapWriteTile : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapWriteTile();
+		}
+	};
+	
 	class OBMPDrawScreenSolidRegister : public Opcode
 	{
 	public:

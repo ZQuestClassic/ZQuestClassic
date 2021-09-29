@@ -572,10 +572,45 @@ bool copy_tile(tiledata *buf, int src, int dest, bool swap)
             buf[src].data[j]=temptiledata[j];
         }
     }
+	int t = blank_tile_table[dest];
+	blank_tile_table[dest] = blank_tile_table[src];
+	if(swap) blank_tile_table[src] = t;
     
     zc_free(temptiledata);
     
     return true;
+}
+
+bool write_tile(tiledata *buf, BITMAP* src, int dest, int x, int y, bool is8bit, bool overlay)
+{
+	unpack_tile(buf, dest, 0, false);
+	
+	bool blank = !is8bit;
+	int bitmod = (is8bit ? 256 : 16);
+	for(int tx = 0; tx < 16; ++tx)
+		for(int ty = 0; ty < 16; ++ty)
+		{
+			int i = (tx+(16*ty));
+			int v = getpixel(src, x+tx, y+ty)%bitmod;
+			if(v%bitmod)
+			{
+				blank = false;
+				unpackbuf[i] = v;
+			}
+			else if(!overlay)
+			{
+				unpackbuf[i] = v;
+			}
+		}
+	
+	if(overlay)
+	{
+		if(!blank)
+			blank_tile_table[dest]=false;
+	}
+	else blank_tile_table[dest]=blank;
+	reset_tile(buf, dest, is8bit ? tf8Bit : tf4Bit);
+	pack_tile(buf, unpackbuf, dest);
 }
 
 

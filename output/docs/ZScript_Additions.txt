@@ -6899,6 +6899,11 @@ void Write(int layer, "filename", bool allow_overwrite);
  *     to "[zc root]".
  * Remember that POSIX filesystems are Case-SenSitive. 
 
+void WriteTile( int layer, int x, int y, int tile, bool is8bit, bool mask);
+ * Writes a 16x16 area from (x,y) of the bitmap at layer 'layer' 
+ *     TO the tile page, overwriting the tile 'tile', either 4 or 8 bit.
+ * If 'mask' is true, overlays instead of overwrites
+
 void Blit	
 	( 
 		int layer, 
