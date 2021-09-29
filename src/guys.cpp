@@ -2882,7 +2882,7 @@ bool enemy::Dead(int index)
 	{
 		--clk2;
 		
-		if((get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) ? clk2==12 : clk2==18)
+		if((get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) && clk2==12)
 		   && hp>-1000) // not killed by ringleader
 			death_sfx();
 			
@@ -5769,6 +5769,7 @@ void enemy::old_draw(BITMAP *dest)
 				{
 					spr_death_anim_clk=0;
 					clk2=1;
+					death_sfx();
 				}
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
@@ -6024,6 +6025,7 @@ void enemy::draw(BITMAP *dest)
 				{
 					spr_death_anim_clk=0;
 					clk2=1;
+					death_sfx();
 				}
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
@@ -6173,6 +6175,7 @@ void enemy::drawzcboss(BITMAP *dest)
 				{
 					spr_death_anim_clk=0;
 					clk2=1;
+					death_sfx();
 				}
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
