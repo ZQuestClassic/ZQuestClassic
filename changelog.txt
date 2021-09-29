@@ -3,6 +3,7 @@
 
 //Recent changes
 
+Fix game icon issues
 Add 'bitmap->WriteTile()', allowing scripts to draw to the tile pages.
 	( EmilyV, 29th Sept, 2021 )
 

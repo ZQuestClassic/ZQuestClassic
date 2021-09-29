@@ -20,6 +20,7 @@ int custom_game(int file);
 int getsaveslot();
 void load_game_icon(gamedata *g, bool forceDefault, int index);
 void load_game_icon_to_buffer(bool forceDefault, int index);
+void reload_icon_buffer(int index);
 void titlescreen(int lsave);
 void game_over(int type);
 void save_game(bool savepoint);
