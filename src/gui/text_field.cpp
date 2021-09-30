@@ -235,6 +235,13 @@ void TextField::applyVisibility(bool visible)
 		else
 			alDialog->flags |= D_HIDDEN;
 	}
+	if(swapBtnDialog)
+	{
+		if(visible)
+			swapBtnDialog->flags &= ~D_HIDDEN;
+		else
+			swapBtnDialog->flags |= D_HIDDEN;
+	}
 }
 
 int TextField::onEvent(int event, MessageDispatcher& sendMessage)
