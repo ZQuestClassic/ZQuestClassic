@@ -14,9 +14,9 @@ class TextField: public Widget
 public:
 	enum class type
 	{
-		TEXT, INT_DECIMAL, INT_HEX
+		TEXT, INT_DECIMAL, INT_HEX, SWAP_BYTE, SWAP_SSHORT, SWAP_ZSINT
 	};
-
+	
 	TextField();
 
 	/* Set the text field's input type. This determines how the text
@@ -25,6 +25,18 @@ public:
 	inline void setType(type newType)
 	{
 		tfType = newType;
+	}
+	
+	bool isSwapType()
+	{
+		switch(tfType)
+		{
+			case type::SWAP_BYTE:
+			case type::SWAP_SSHORT:
+			case type::SWAP_ZSINT:
+				return true;
+		}
+		return false;
 	}
 
 	/* Set the current text. If it's longer than the current maximum length,
@@ -38,6 +50,15 @@ public:
 	 * the TextField, so don't hold on to it after the dialog is closed.
 	 */
 	std::string_view getText();
+	
+	/* Set the int value, unused for type::TEXT
+	 */
+	void setVal(int val);
+	
+	/* Gets the value as an integer.
+	 * Attempts to read 'type::TEXT' as a decimal int value.
+	 */
+	int getVal();
 
 	/* Set the maximum length of the text, not including the null terminator.
 	 */
@@ -65,9 +86,11 @@ public:
 
 private:
 	std::unique_ptr<char[]> buffer;
+	int startVal;
 	type tfType;
 	size_t maxLength;
 	DialogRef alDialog;
+	DialogRef swapBtnDialog;
 	int onEnterMsg, onValueChangedMsg;
 
 	void applyVisibility(bool visible) override;

@@ -45,6 +45,7 @@ void setZScriptVersion(int) { } //bleh...
 #include "dialog/cheat_codes.h"
 #include "dialog/room.h"
 #include "dialog/set_password.h"
+#include "dialog/foodlg.h"
 
 #include "gui.h"
 #include "load_gif.h"
@@ -32772,6 +32773,9 @@ int main(int argc,char **argv)
     }
     
     load_icons();
+	
+	call_foo_dlg();
+	
     bool load_last_timed_save=false;
     
     if((last_timed_save[0]!=0)&&(exists(last_timed_save)))

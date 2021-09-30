@@ -1583,8 +1583,13 @@ int jwin_swapbtn_proc(int msg, DIALOG* d, int c)
 }
 int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 {
-	DIALOG* swapbtn = (DIALOG*)d->dp3;
-	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_byte_proc(msg, d, c);
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+(int)(d->dp3);
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
 		swapbtn->d2 = 2; //Max states
@@ -1631,7 +1636,12 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 		}
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
-	d->fg = b; //Store numeric data
+	
+	if(d->fg != b)
+	{
+		GUI_EVENT(d, geUPDATE_SWAP);
+		d->fg = b; //Store numeric data
+	}
 	switch(ntype)
 	{
 		case typeDEC:
@@ -1652,8 +1662,13 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 }
 int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 {
-	DIALOG* swapbtn = (DIALOG*)d->dp3;
-	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_sshort_proc(msg, d, c);
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+(int)(d->dp3);
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
 		swapbtn->d2 = 2; //Max states
@@ -1703,7 +1718,12 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 		d->d2 = strlen(str);
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
-	d->fg = b; //Store numeric data
+	
+	if(d->fg != b)
+	{
+		GUI_EVENT(d, geUPDATE_SWAP);
+		d->fg = b; //Store numeric data
+	}
 	switch(ntype)
 	{
 		case typeDEC:
@@ -1724,8 +1744,13 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 }
 int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 {
-	DIALOG* swapbtn = (DIALOG*)d->dp3;
-	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_sshort_proc(msg, d, c);
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+(int)(d->dp3);
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
 		swapbtn->d2 = 4; //Max states
@@ -1827,7 +1852,11 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 		d->d2 = strlen(str);
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
-	d->fg = b; //Store numeric data
+	if(d->fg != b)
+	{
+		GUI_EVENT(d, geUPDATE_SWAP);
+		d->fg = b; //Store numeric data
+	}
 	if(msg==MSG_CHAR && ((c&255)=='.'))
 	{
 		if(ntype >= typeLDEC) //No '.' in long modes
