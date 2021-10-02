@@ -3,13 +3,17 @@
 
 #include "button.h"
 #include "checkbox.h"
+#include "checkbox_qr.h"
 #include "common.h"
 #include "drop_down_list.h"
 #include "grid.h"
 #include "key.h"
 #include "label.h"
+#include "qrpanel.h"
 #include "size.h"
 #include "switcher.h"
+#include "tabpanel.h"
+#include "tabref.h"
 #include "text_field.h"
 #include "window.h"
 #include <initializer_list>
@@ -61,6 +65,11 @@ inline std::shared_ptr<Checkbox> makeCheckbox()
 	return std::make_shared<Checkbox>();
 }
 
+inline std::shared_ptr<QRCheckbox> makeQRCheckbox()
+{
+	return std::make_shared<QRCheckbox>();
+}
+
 inline std::shared_ptr<DropDownList> makeDropDownList()
 {
 	return std::make_shared<DropDownList>();
@@ -102,6 +111,21 @@ inline std::shared_ptr<Grid> makeRows(size_t size)
 inline std::shared_ptr<Switcher> makeSwitcher()
 {
 	return std::make_shared<Switcher>();
+}
+
+inline std::shared_ptr<TabPanel> makeTabPanel()
+{
+	return std::make_shared<TabPanel>();
+}
+
+inline std::shared_ptr<QRPanel> makeQRPanel()
+{
+	return std::make_shared<QRPanel>();
+}
+
+inline std::shared_ptr<TabRef> makeTabRef()
+{
+	return std::make_shared<TabRef>();
 }
 
 // Top-level widgets
@@ -173,6 +197,25 @@ ZCGUI_BUILDER_START(Switcher)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Switcher, Switcher, makeSwitcher)
 
+ZCGUI_BUILDER_START(TabPanel)
+	ZCGUI_ACCEPT_MULTIPLE_CHILDREN(add)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(TabPanel, TabPanel, makeTabPanel)
+
+ZCGUI_BUILDER_START(QRPanel)
+	ZCGUI_ACCEPT_PROP(onToggle, onToggle, Dialog::message)
+	ZCGUI_ACCEPT_PROP(initializer, loadQRs, byte const*)
+	ZCGUI_ACCEPT_PROP(count, setCount, size_t)
+	ZCGUI_ACCEPT_PROP(data, loadList, const ::GUI::ListData&)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(QRPanel, QRPanel, makeQRPanel)
+
+ZCGUI_BUILDER_START(TabRef)
+	ZCGUI_ACCEPT_PROP(name, setName, std::string)
+	ZCGUI_ACCEPT_ONE_CHILD(setContent)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(TabRef, TabRef, makeTabRef)
+
 
 ZCGUI_BUILDER_START(TextField)
 	ZCGUI_ACCEPT_PROP(maxLength, setMaxLength, std::size_t);
@@ -206,6 +249,7 @@ namespace GUI::Props
 using ::GUI::operator ""_em;
 using ::GUI::operator ""_px;
 using ::GUI::operator ""_lpx;
+using ::GUI::operator ""_spx;
 
 } // namespace GUI::Props
 

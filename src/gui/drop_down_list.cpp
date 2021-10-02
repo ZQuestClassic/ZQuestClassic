@@ -92,13 +92,7 @@ void DropDownList::setIndex()
 
 void DropDownList::applyVisibility(bool visible)
 {
-	if(alDialog)
-	{
-		if(visible)
-			alDialog->flags &= ~D_HIDDEN;
-		else
-			alDialog->flags |= D_HIDDEN;
-	}
+	if(alDialog) alDialog.applyVisibility(visible);
 }
 
 void DropDownList::realize(DialogRunner& runner)

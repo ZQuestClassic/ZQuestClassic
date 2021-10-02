@@ -46,6 +46,7 @@ void setZScriptVersion(int) { } //bleh...
 #include "dialog/room.h"
 #include "dialog/set_password.h"
 #include "dialog/foodlg.h"
+#include "dialog/quest_rules.h"
 
 #include "gui.h"
 #include "load_gif.h"
@@ -137,7 +138,6 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 
 #include "zq_init.h"
 #include "zq_doors.h"
-#include "zq_rules.h"
 #include "zq_cset.h"
 
 #ifdef _MSC_VER
@@ -1712,21 +1712,35 @@ static MENU script_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+int onRulesDlg()
+{
+	QRDialog(quest_rules, (is_large?20:13), [](byte* newrules)
+	{
+		memcpy(quest_rules, newrules, QR_SZ);
+		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+		{
+			combobuf[0].walk = 0xF0;
+			combobuf[0].type = 0;
+			combobuf[0].flag = 0;
+		}
+        
+        // For 2.50.0 and 2.50.1
+        if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
+            set_bit(quest_rules, qr_FASTDNGN, 1);
+        
+        //this is only here until the subscreen style is selectable by itself
+        zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
+	}).show();
+	return D_O_K;
+}
+
 static MENU rules_menu[] =
 {
     { (char *)"&Header",                    onHeader,                  NULL,                     0,            NULL   },
     { (char *)"&Map Count",                 onMapCount,                NULL,                     0,            NULL   },
-    { (char *)"Pick &Ruleset\t ",                  PickRuleset,                      NULL,               0,            NULL   },
+    { (char *)"Pick &Ruleset\t ",           PickRuleset,               NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Animation",                 onAnimationRules,          NULL,                     0,            NULL   },
-    { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
-    { (char *)"&Combos",                    onComboRules,              NULL,                     0,            NULL   },
-    { (char *)"&Enemies",                   onEnemyRules,              NULL,                     0,            NULL   },
-    { (char *)"&Items",                     onItemRules,               NULL,                     0,            NULL   },
-    { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
-    { (char *)"&Other",                     onMiscRules,               NULL,                     0,            NULL   },
-    { (char *)"&Player",                      onHeroRules,               NULL,                     0,            NULL   },
-    { (char *)"&Weapons",                   onWeaponRules,             NULL,                     0,            NULL   },
+    { (char *)"Rules",                      onRulesDlg,                NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -33543,7 +33557,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(orgcomboa_dlg);
     jwin_center_dialog(path_dlg);
     jwin_center_dialog(pattern_dlg);
-    center_zq_rules_dialog();
     jwin_center_dialog(scrdata_dlg);
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
@@ -34448,7 +34461,7 @@ command_pair commands[cmdMAX]=
     { "Revert",                             0, (intF) onRevert                                         },
     { "Room Data",                          0, (intF) onRoom                                           },
     { "Paste Room Type Data",               0, (intF) onPasteRoom                                      },
-    { "Rules - Animation",                  0, (intF) onAnimationRules                                 },
+    { " Rules - Animation",                 0, NULL                                                    },
     { "Save",                               0, (intF) onSave                                           },
     { "Save as",                            0, (intF) onSaveAs                                         },
     { "Paste Screen Data",                  0, (intF) onPasteScreenData                                },
@@ -34488,15 +34501,15 @@ command_pair commands[cmdMAX]=
     { "Toggle Flags",                       0, (intF) onShowFlags                                      },
     { "Toggle CSets",                       0, (intF) onShowCSet                                       },
     { "Toggle Types",                       0, (intF) onShowCType                                      },
-    { "Rules - Combos",                     0, (intF) onComboRules                                     },
-    { "Rules - Items",                      0, (intF) onItemRules                                      },
-    { "Rules - Enemies",                    0, (intF) onEnemyRules                                     },
-    { "Rules - NES Fixes",                  0, (intF) onFixesRules                                     },
-    { "Rules - Other",                      0, (intF) onMiscRules                                      },
+    { " Rules - Combos",                    0, NULL                                                    },
+    { " Rules - Items",                     0, NULL                                                    },
+    { " Rules - Enemies",                   0, NULL                                                    },
+    { " Rules - NES Fixes",                 0, NULL                                                    },
+    { " Rules - Other",                     0, NULL                                                    },
     { "Default Items",                      0, (intF) onDefault_Items                                  },
     { "Item Drop Set Editor",               0, (intF) onItemDropSets                                   },
     { "Paste Palette",                      0, (intF) onPastePalette                                   },
-    { "Rules - Compatibility",              0, (intF) onCompatRules                                    },
+    { "Quest Rules",                        0, (intF) onRulesDlg                                       },
     { "Report: Combo Locations",            0, (intF) onComboLocationReport                            },
     { "Report: Combo Type Locs.",           0, (intF) onComboTypeLocationReport                        },
     { "Report: Enemy Locations",            0, (intF) onEnemyLocationReport                            },
@@ -34509,9 +34522,9 @@ command_pair commands[cmdMAX]=
     { "Find Buggy Next->",                  0, (intF) onBuggedNextComboLocationReport                  },
     { "Rules - ZScript",                    0, (intF) onZScriptSettings                                },
     { "Export ZASM",                        0, (intF) onExportZASM                                     },
-    { "Rules - Hero",                       0, (intF) onHeroRules                                      },
+    { " Rules - Hero",                      0, NULL                                                    },
     { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings                        },
-    { "Rules - Weapons",                    0, (intF) onWeaponRules                                    },
+    { " Rules - Weapons",                   0, NULL                                                    },
     { "Screen Script",                      0, (intF) onScreenScript                                   },
     { "Take Screen Snapshot",               0, (intF) onMapscrSnapshot                                 },
     { "View L2 as BG",                      0, (intF) onLayer2BG                                       },

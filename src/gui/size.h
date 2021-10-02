@@ -25,6 +25,12 @@ public:
     }
 
     template<typename T>
+    static inline Size smallPixels(T t) noexcept
+    {
+        return Size::sized(static_cast<int>(t)*3/2);
+    }
+
+    template<typename T>
 	static inline constexpr Size pixels(T t) noexcept
 	{
 		return Size(static_cast<int>(t));
@@ -87,6 +93,11 @@ inline constexpr Size operator ""_px(unsigned long long size)
 inline Size operator ""_lpx(unsigned long long size)
 {
 	return Size::largePixels(size);
+}
+
+inline Size operator ""_spx(unsigned long long size)
+{
+	return Size::smallPixels(size);
 }
 
 }

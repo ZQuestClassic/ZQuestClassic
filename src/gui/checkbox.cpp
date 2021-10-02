@@ -2,6 +2,7 @@
 #include "common.h"
 #include "dialog.h"
 #include "dialog_runner.h"
+#include "size.h"
 #include "../jwin.h"
 #include "../zquest.h"
 #include <cassert>
@@ -15,8 +16,7 @@ namespace GUI
 Checkbox::Checkbox(): checked(false), text(),
 	placement(boxPlacement::LEFT), alDialog(), message(-1)
 {
-	setPreferredHeight(Size::pixels(text_height(FONT))+2_lpx);
-	setPreferredWidth(Size::largePixels(13));
+	setPreferredHeight(9_spx);
 }
 
 void Checkbox::setText(std::string newText)
@@ -45,19 +45,13 @@ bool Checkbox::getChecked()
 
 void Checkbox::applyVisibility(bool visible)
 {
-	if(alDialog)
-	{
-		if(visible)
-			alDialog->flags &= ~D_HIDDEN;
-		else
-			alDialog->flags |= D_HIDDEN;
-	}
+	if(alDialog) alDialog.applyVisibility(visible);
 }
 
 void Checkbox::realize(DialogRunner& runner)
 {
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_checkfont_proc,
+		new_check_proc,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		getAccelKey(text),
@@ -65,6 +59,12 @@ void Checkbox::realize(DialogRunner& runner)
 		static_cast<int>(placement), 0, // d1, d2,
 		text.data(), FONT, nullptr // dp, dp2, dp3
 	});
+}
+
+void Checkbox::calculateSize()
+{
+	//setPreferredHeight(Size::pixels(std::min(9_spx.resolve(), text_height(FONT)+2_spx.resolve())));
+	setPreferredWidth(9_spx+12_px+Size::pixels(gui_text_width(FONT, text.c_str())));
 }
 
 int Checkbox::onEvent(int event, MessageDispatcher& sendMessage)

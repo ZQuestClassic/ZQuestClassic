@@ -16,6 +16,8 @@ namespace GUI
 Window::Window(): content(nullptr), title(""), closeMessage(-1)
 {
 	setMargins(0_px);
+	capWidth(Size::pixels(zq_screen_w));
+	capHeight(Size::pixels(zq_screen_h));
 }
 
 void Window::setTitle(std::string newTitle)
@@ -32,13 +34,7 @@ void Window::setContent(shared_ptr<Widget> newContent) noexcept
 
 void Window::applyVisibility(bool visible)
 {
-	if(alDialog)
-	{
-		if(visible)
-			alDialog->flags &= ~D_HIDDEN;
-		else
-			alDialog->flags |= D_HIDDEN;
-	}
+	if(alDialog) alDialog.applyVisibility(visible);
 	if(content)
 		content->applyVisibility(visible);
 }

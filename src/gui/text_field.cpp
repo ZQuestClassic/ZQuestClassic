@@ -228,20 +228,8 @@ void TextField::realize(DialogRunner& runner)
 
 void TextField::applyVisibility(bool visible)
 {
-	if(alDialog)
-	{
-		if(visible)
-			alDialog->flags &= ~D_HIDDEN;
-		else
-			alDialog->flags |= D_HIDDEN;
-	}
-	if(swapBtnDialog)
-	{
-		if(visible)
-			swapBtnDialog->flags &= ~D_HIDDEN;
-		else
-			swapBtnDialog->flags |= D_HIDDEN;
-	}
+	if(alDialog) alDialog.applyVisibility(visible);
+	if(swapBtnDialog) swapBtnDialog.applyVisibility(visible);
 }
 
 int TextField::onEvent(int event, MessageDispatcher& sendMessage)

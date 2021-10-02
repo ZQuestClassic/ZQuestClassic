@@ -195,9 +195,11 @@ int jwin_droplist_proc(int msg, DIALOG *d, int c);
 int jwin_abclist_proc(int msg, DIALOG *d, int c);
 int jwin_check_proc(int msg, DIALOG *d, int c);
 int jwin_checkfont_proc(int msg, DIALOG *d, int c);
+int new_check_proc(int msg, DIALOG *d, int c);
 int jwin_radio_proc(int msg, DIALOG *d, int c);
 int jwin_radiofont_proc(int msg, DIALOG *d, int c);
 int jwin_tab_proc(int msg, DIALOG *d, int c);
+int new_tab_proc(int msg, DIALOG *d, int c);
 int jwin_hline_proc(int msg, DIALOG *d, int c);
 int jwin_vline_proc(int msg, DIALOG *d, int c);
 void _jwin_draw_abclistbox(DIALOG *d);
@@ -207,7 +209,8 @@ void wipe_abc_keypresses();
 /* other GUI procedures */
 void jwin_set_dialog_color(DIALOG *dialog);
 
-int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned char *s, int x, int y, int color, int bg, int pos);
+int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int x, int y, int color, int bg, int pos);
+int gui_text_width(FONT *f, const char *s);
 
 int jwin_do_menu(MENU *menu, int x, int y);
 

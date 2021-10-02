@@ -26,13 +26,7 @@ void Button::setText(std::string newText)
 
 void Button::applyVisibility(bool visible)
 {
-	if(alDialog)
-	{
-		if(visible)
-			alDialog->flags &= ~D_HIDDEN;
-		else
-			alDialog->flags |= D_HIDDEN;
-	}
+	if(alDialog) alDialog.applyVisibility(visible);
 }
 
 void Button::realize(DialogRunner& runner)

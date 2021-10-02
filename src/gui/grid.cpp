@@ -132,6 +132,8 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 	{
 		int cx = x;
 		int height = rowHeights[row];
+		if(cy+height > y+getHeight())
+			height = std::max(0,getHeight());
 		for(size_t col = 0; col < numCols; ++col)
 		{
 			size_t index = growthType == type::ROWS ?
@@ -141,6 +143,8 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 				break;
 
 			int width = colWidths[col];
+			if(cx+width > x+getWidth())
+				width = std::max(0,getWidth());
 			children[index]->arrange(cx, cy, width, height);
 			cx += width+colSpacing;
 		}

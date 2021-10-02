@@ -611,6 +611,7 @@ bool write_tile(tiledata *buf, BITMAP* src, int dest, int x, int y, bool is8bit,
 	else blank_tile_table[dest]=blank;
 	reset_tile(buf, dest, is8bit ? tf8Bit : tf4Bit);
 	pack_tile(buf, unpackbuf, dest);
+    return true;
 }
 
 

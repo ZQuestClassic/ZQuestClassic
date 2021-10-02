@@ -254,6 +254,8 @@ struct widgetType##Builder                                                      
     }                                                                                              \
     ZCGUI_ACCEPT_PROP(width, overrideWidth, ::GUI::Size)                                           \
     ZCGUI_ACCEPT_PROP(height, overrideHeight, ::GUI::Size)                                         \
+    ZCGUI_ACCEPT_PROP(maxwidth, capWidth, ::GUI::Size)                                             \
+    ZCGUI_ACCEPT_PROP(maxheight, capHeight, ::GUI::Size)                                           \
     ZCGUI_ACCEPT_PROP(visible, setVisible, bool)                                                   \
     ZCGUI_ACCEPT_PROP(hAlign, setHAlign, float)                                                    \
     ZCGUI_ACCEPT_PROP(vAlign, setVAlign, float)                                                    \

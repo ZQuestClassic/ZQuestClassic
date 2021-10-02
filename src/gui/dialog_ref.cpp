@@ -32,4 +32,22 @@ const DIALOG& DialogRef::operator[](int offset) const
 	return owner->alDialog.at(index+offset);
 }
 
+void DialogRef::message(int msg, int c)
+{
+	object_message(&owner->alDialog[index], msg, c);
+}
+
+void DialogRef::applyVisibility(bool visible)
+{
+	if(visible)
+	{
+		owner->alDialog[index].flags &= ~D_HIDDEN;
+		message(MSG_DRAW, 0);
+	}
+	else
+	{
+		owner->alDialog[index].flags |= D_HIDDEN;
+	}
+}
+
 }

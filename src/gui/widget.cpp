@@ -14,6 +14,7 @@ Widget::Widget() noexcept:
 	topMargin(sized(2, 3)), bottomMargin(sized(2, 3)),
 	hAlign(0.5), vAlign(0.5),
 	width(0), height(0),
+	maxwidth(-1), maxheight(-1),
 	flags(0),
 	hideCount(0)
 {}
@@ -30,16 +31,34 @@ void Widget::overrideHeight(Size newHeight) noexcept
 	height = newHeight.resolve();
 }
 
+void Widget::capWidth(Size newWidth) noexcept
+{
+	maxwidth = newWidth.resolve();
+	if(width > maxwidth) width = maxwidth;
+}
+
+void Widget::capHeight(Size newHeight) noexcept
+{
+	maxheight = newHeight.resolve();
+	if(height > maxheight) height = maxheight;
+}
+
 void Widget::setPreferredWidth(Size newWidth) noexcept
 {
-	if((flags&f_WIDTH_OVERRIDDEN) == 0)
-		width = newWidth.resolve();
+	if(flags&f_WIDTH_OVERRIDDEN) return;
+	
+	width = newWidth.resolve();
+	if(maxwidth > -1 && width > maxwidth)
+		width = maxwidth;
 }
 
 void Widget::setPreferredHeight(Size newHeight) noexcept
 {
-	if((flags&f_HEIGHT_OVERRIDDEN) == 0)
-		height = newHeight.resolve();
+	if(flags&f_HEIGHT_OVERRIDDEN) return;
+	
+	height = newHeight.resolve();
+	if(maxheight > -1 && height > maxheight)
+		height = maxheight;
 }
 
 void Widget::setHMargins(Size size) noexcept
@@ -124,11 +143,21 @@ void Widget::setFocused(bool focused) noexcept
 		flags &= ~f_FOCUSED;
 }
 
+void Widget::setDisabled(bool disabled) noexcept
+{
+	if(disabled)
+		flags |= f_DISABLED;
+	else
+		flags &= ~f_DISABLED;
+}
+
 int Widget::getFlags() const noexcept
 {
 	int ret = D_NEW_GUI;
 	if(hideCount > 0 || (flags&f_INVISIBLE) != 0)
 		ret |= D_HIDDEN;
+	if(flags&f_DISABLED)
+		ret |= D_DISABLED;
 	return ret;
 }
 

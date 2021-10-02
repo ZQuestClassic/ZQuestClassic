@@ -30,6 +30,16 @@ public:
 	 */
 	void overrideHeight(Size newHeight) noexcept;
 
+	/* Cap the widget's width, if it is below the given width
+	 * This should not be used by widgets.
+	 */
+	void capWidth(Size newWidth) noexcept;
+
+	/* Cap the widget's height, if it is below the given height
+	 * This should not be used by widgets.
+	 */
+	void capHeight(Size newHeight) noexcept;
+
 	inline void setLeftMargin(Size size) noexcept
 	{
 		leftMargin = size.resolve();
@@ -139,6 +149,17 @@ public:
 	{
 		return flags&f_FOCUSED;
 	}
+	
+	/* If this is true, this widget is 'disabled' (greyed-out) when the dialog starts
+	 * This does not affect the status if the dialog is open already
+	 */
+	void setDisabled(bool focused) noexcept;
+
+	/* Returns true if this widget should be disabled initially. */
+	inline bool getDisabled() const noexcept
+	{
+		return flags&f_DISABLED;
+	}
 
 protected:
 	/* Use this as the return type of message setters so non-integer types
@@ -168,14 +189,15 @@ protected:
 private:
 	enum
 	{
-		f_WIDTH_OVERRIDDEN =  0b0001,
-		f_HEIGHT_OVERRIDDEN = 0b0010,
-		f_INVISIBLE =         0b0100,
-		f_FOCUSED =           0b1000
+		f_WIDTH_OVERRIDDEN =  0b00001,
+		f_HEIGHT_OVERRIDDEN = 0b00010,
+		f_INVISIBLE =         0b00100,
+		f_FOCUSED =           0b01000,
+		f_DISABLED =          0b10000
 	};
 
-	int width, height;
-	unsigned char flags: 4;
+	int width, height, maxwidth, maxheight;
+	unsigned char flags: 5;
 
 	/* The number of containers hiding this widget. Shouldn't be too many,
 	 * but there might be, say, a switcher in nested tab containers.
