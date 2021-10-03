@@ -206,7 +206,7 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 					text = "&Info",
 					width = 3_em,
 					onClick = message::ROOM_INFO,
-					margins = 0_px
+					padding = 0_px
 				)
 			),
 			Row(

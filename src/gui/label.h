@@ -18,12 +18,15 @@ public:
 
 	/* Sets the maximum number of lines the text can be split into. */
 	void setMaxLines(size_t newMax);
+	
+	void setAlign(int ta);
 
 private:
 	std::string text;
 	size_t maxLines;
 	DialogRef alDialog;
 	int contX, contY, contW, contH;
+	int textAlign;
 
 	void applyVisibility(bool visible) override;
 	void arrange(int contX, int contY, int contW, int contH) override;

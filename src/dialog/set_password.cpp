@@ -26,7 +26,7 @@ std::shared_ptr<GUI::Widget> SetPasswordDialog::view()
 					checked = this->useKeyFile)
 			),
 			Row(
-				topMargin = 0.5_em,
+				topPadding = 0.5_em,
 				vAlign = 1.0,
 				spacing = 2_em,
 				Button(

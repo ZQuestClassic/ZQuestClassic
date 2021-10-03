@@ -40,12 +40,12 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 		Column(
 			Label(
 				width = 20_em,
-				hMargins = 1_em,
+				hPadding = 1_em,
 				maxLines = 10,
 				text = std::move(dlgText)),
 			Button(
 				text = "&Close",
-				topMargin = 0.5_em,
+				topPadding = 0.5_em,
 				onClick = 0,
 				focused = true)
 		)

@@ -15,7 +15,9 @@ namespace GUI
 
 Window::Window(): content(nullptr), title(""), closeMessage(-1)
 {
-	setMargins(0_px);
+	setPadding(0_px);
+	capWidth(Size::pixels(zq_screen_w));
+	capHeight(Size::pixels(zq_screen_h));
 }
 
 void Window::setTitle(std::string newTitle)
@@ -32,13 +34,8 @@ void Window::setContent(shared_ptr<Widget> newContent) noexcept
 
 void Window::applyVisibility(bool visible)
 {
-	if(alDialog)
-	{
-		if(visible)
-			alDialog->flags &= ~D_HIDDEN;
-		else
-			alDialog->flags |= D_HIDDEN;
-	}
+	Widget::applyVisibility(visible);
+	if(alDialog) alDialog.applyVisibility(visible);
 	if(content)
 		content->applyVisibility(visible);
 }
@@ -87,6 +84,8 @@ void Window::arrange(int contX, int contY, int contW, int contH)
 
 void Window::realize(DialogRunner& runner)
 {
+	setFramed(false); //don't allow frame on window proc
+	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		jwin_win_proc,
 		x, y, getWidth(), getHeight(),

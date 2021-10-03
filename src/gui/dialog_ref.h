@@ -27,10 +27,14 @@ public:
 	{
 		return owner;
 	}
-
+	
+	void applyVisibility(bool visible);
+	void message(int msg, int c);
+	
 private:
 	DialogRunner* owner;
 	size_t index;
+	int old_x;
 
 	DialogRef(DialogRunner* owner, size_t index);
 

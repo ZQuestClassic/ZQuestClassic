@@ -279,10 +279,18 @@ void set_bit(byte *bitstr,int bit,byte val)
         *bitstr &= ~mask;
 }
 
-int get_bit(byte *bitstr,int bit)
+int get_bit(byte const *bitstr,int bit)
 {
     bitstr += bit>>3;
     return ((*bitstr) >> (bit&7))&1;
+}
+
+bool toggle_bit(byte *bitstr,int bit)
+{
+	bitstr += bit>>3;
+    byte mask = 1 << (bit&7);
+	*bitstr ^= mask;
+	return *bitstr&mask;
 }
 
 

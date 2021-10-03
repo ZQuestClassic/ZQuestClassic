@@ -754,7 +754,7 @@ enum
     cmdDefault_Items,
     cmdItemDropSets,
     cmdPastePalette,
-    cmdCompatRules,
+    cmdQuestRules,
     cmdComboLocations,
     cmdComboTypeLocations,
     cmdEnemyLocations,

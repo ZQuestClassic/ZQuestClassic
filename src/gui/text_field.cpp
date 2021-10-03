@@ -139,6 +139,7 @@ void TextField::setMaxLength(size_t newMax)
 
 void TextField::realize(DialogRunner& runner)
 {
+	Widget::realize(runner);
 	assert(maxLength > 0);
 
 	using ProcType = int(*)(int, DIALOG*, int);
@@ -228,20 +229,9 @@ void TextField::realize(DialogRunner& runner)
 
 void TextField::applyVisibility(bool visible)
 {
-	if(alDialog)
-	{
-		if(visible)
-			alDialog->flags &= ~D_HIDDEN;
-		else
-			alDialog->flags |= D_HIDDEN;
-	}
-	if(swapBtnDialog)
-	{
-		if(visible)
-			swapBtnDialog->flags &= ~D_HIDDEN;
-		else
-			swapBtnDialog->flags |= D_HIDDEN;
-	}
+	Widget::applyVisibility(visible);
+	if(alDialog) alDialog.applyVisibility(visible);
+	if(swapBtnDialog) swapBtnDialog.applyVisibility(visible);
 }
 
 int TextField::onEvent(int event, MessageDispatcher& sendMessage)

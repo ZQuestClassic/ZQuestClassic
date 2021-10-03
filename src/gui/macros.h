@@ -254,6 +254,8 @@ struct widgetType##Builder                                                      
     }                                                                                              \
     ZCGUI_ACCEPT_PROP(width, overrideWidth, ::GUI::Size)                                           \
     ZCGUI_ACCEPT_PROP(height, overrideHeight, ::GUI::Size)                                         \
+    ZCGUI_ACCEPT_PROP(maxwidth, capWidth, ::GUI::Size)                                             \
+    ZCGUI_ACCEPT_PROP(maxheight, capHeight, ::GUI::Size)                                           \
     ZCGUI_ACCEPT_PROP(visible, setVisible, bool)                                                   \
     ZCGUI_ACCEPT_PROP(hAlign, setHAlign, float)                                                    \
     ZCGUI_ACCEPT_PROP(vAlign, setVAlign, float)                                                    \
@@ -264,7 +266,17 @@ struct widgetType##Builder                                                      
     ZCGUI_ACCEPT_PROP(hMargins, setHMargins, ::GUI::Size)                                          \
     ZCGUI_ACCEPT_PROP(vMargins, setVMargins, ::GUI::Size)                                          \
     ZCGUI_ACCEPT_PROP(margins, setMargins, ::GUI::Size)                                            \
+    ZCGUI_ACCEPT_PROP(leftPadding, setLeftPadding, ::GUI::Size)                                    \
+    ZCGUI_ACCEPT_PROP(rightPadding, setRightPadding, ::GUI::Size)                                  \
+    ZCGUI_ACCEPT_PROP(topPadding, setTopPadding, ::GUI::Size)                                      \
+    ZCGUI_ACCEPT_PROP(bottomPadding, setBottomPadding, ::GUI::Size)                                \
+    ZCGUI_ACCEPT_PROP(hPadding, setHPadding, ::GUI::Size)                                          \
+    ZCGUI_ACCEPT_PROP(vPadding, setVPadding, ::GUI::Size)                                          \
+    ZCGUI_ACCEPT_PROP(padding, setPadding, ::GUI::Size)                                            \
     ZCGUI_ACCEPT_PROP(focused, setFocused, bool)                                                   \
+    ZCGUI_ACCEPT_PROP(framed, setFramed, bool)                                                     \
+    ZCGUI_ACCEPT_PROP(fitParent, setFitParent, bool)                                               \
+    ZCGUI_ACCEPT_PROP(disabled, setDisabled, bool)                                                 \
 };
 
 

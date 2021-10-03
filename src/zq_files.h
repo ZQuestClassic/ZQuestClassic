@@ -24,6 +24,7 @@ int qtlist_del();
 int onQuestTemplates();
 int NewQuestFile(int template_slot);
 int onNew();
+void applyRuleset(int ruleset);
 int PickRuleset();
 int onSave();
 int onSaveAs();
@@ -73,6 +74,11 @@ int readonezdoorset(PACKFILE *f, int index);
 
 int onExport_Doorset();
 int onImport_Doorset();
+
+enum
+{
+	rulesetNONE, rulesetNES, rulesetFixedNES, rulesetBSZ, rulesetZ3, rulesetModern, rulesetLast
+};
 
 #endif
  

@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_CHECKBOX_H
-#define ZC_GUI_CHECKBOX_H
+#ifndef ZC_GUI_RADIO_H
+#define ZC_GUI_RADIO_H
 
 #include "widget.h"
 #include "dialog_ref.h"
@@ -7,27 +7,27 @@
 namespace GUI
 {
 
-class Checkbox: public Widget
+class Radio: public Widget
 {
 public:
-	enum class boxPlacement { RIGHT, LEFT };
+	Radio();
 
-	Checkbox();
-
-	/* Sets the text to appear next to the checkbox. */
+	/* Sets the text to appear next to the radio. */
 	void setText(std::string newText);
 
-	/* Sets whether the checkbox is checked or not. */
+	/* Sets whether the radio is checked or not. */
 	void setChecked(bool value);
 
-	/* Returns true if the checkbox is checked. */
+	/* Returns true if the radio is checked. */
 	bool getChecked();
 
-	/* Sets whether the box is to the left or right of the text. */
-	inline void setBoxPlacement(boxPlacement newPlacement) noexcept
-	{
-		placement = newPlacement;
-	}
+	void setProcSet(int newProcSet);
+	
+	int getProcSet() const {return procset;}
+	
+	void setIndex(size_t newIndex);
+	
+	size_t getIndex() const {return index;}
 
 	template<typename T>
 	RequireMessage<T> onToggle(T m)
@@ -39,7 +39,8 @@ protected:
 private:
 	bool checked;
 	std::string text;
-	boxPlacement placement;
+	int procset;
+	size_t index;
 	DialogRef alDialog;
 
 	void applyVisibility(bool visible) override;
