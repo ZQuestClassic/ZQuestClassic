@@ -908,6 +908,44 @@ int jwin_rtext_proc(int msg, DIALOG *d, int c)
     return D_O_K;
 }
 
+int new_text_proc(int msg, DIALOG *d, int c)
+{
+	BITMAP* oldscreen = screen;
+	if(msg==MSG_DRAW)
+	{
+		screen = create_bitmap_ex(8,oldscreen->w,oldscreen->h);
+		clear_bitmap(screen);
+		set_clip_rect(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1);
+	}
+	int ret = D_O_K;
+	int w = d->w, h = d->h, x = d->x, y = d->y;
+	switch(d->d1)
+	{
+		case 0:
+			ret = jwin_text_proc(msg, d, c);
+			break;
+		case 1:
+			d->x += d->w/2;
+			ret = jwin_ctext_proc(msg, d, c);
+			break;
+		case 2:
+            d->x += d->w - 1;
+			ret = jwin_rtext_proc(msg, d, c);
+			break;
+	}
+	d->w = w;
+	d->h = h;
+	d->x = x;
+	d->y = y;
+	if(msg==MSG_DRAW)
+	{
+		masked_blit(screen, oldscreen, d->x, d->y, d->x, d->y, d->w, d->h);
+		destroy_bitmap(screen);
+		screen = oldscreen;
+	}
+	return ret;
+}
+
 /* draw_text_button:
   *  Helper for jwin_button_proc.
   */
@@ -5714,6 +5752,7 @@ int jwin_radio_proc(int msg, DIALOG *d, int c)
         d->flags &= ~D_SELECTED;
         broadcast_dialog_message(MSG_RADIO, d->d1);
         d->flags |= D_SELECTED;
+		GUI_EVENT(d, geRADIO);
     }
     
     return ret;
@@ -6875,7 +6914,7 @@ int new_tab_proc(int msg, DIALOG *d, int c)
 				{
 					if(do_text_button_reset(d->x+d->w-14, d->y+2, 14, 14, "\x8B"))
 					{
-						int t = last_visible_tab(panel, d->d1, d->w);
+						size_t t = last_visible_tab(panel, d->d1, d->w);
 						if(t<(panel->getSize()-1))
 						{
 							while(t==last_visible_tab(panel, d->d1, d->w))

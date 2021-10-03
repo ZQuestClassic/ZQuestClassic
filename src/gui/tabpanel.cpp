@@ -36,6 +36,7 @@ void TabPanel::add(std::shared_ptr<TabRef> child)
 
 void TabPanel::applyVisibility(bool visible)
 {
+	Widget::applyVisibility(visible);
 	// We'll handle invisibility by applying an extra "hide" to each child.
 	// That's easier than keeping precise track of what's visible or not.
 	if(alDialog) alDialog.applyVisibility(visible);
@@ -51,7 +52,7 @@ void TabPanel::calculateSize()
 		child->calculateSize();
 		setPreferredWidth(Size::pixels(child->getTotalWidth()));
 		setPreferredHeight(Size::pixels(child->getTotalHeight()));
-		setMargins(0_px);
+		setPadding(0_px);
 	}
 	else
 	{
@@ -95,6 +96,7 @@ void TabPanel::arrange(int contX, int contY, int contW, int contH)
 
 void TabPanel::realize(DialogRunner& runner)
 {
+	Widget::realize(runner);
 	if(children.size() == 1)
 	{
 		auto& child = children.at(0);

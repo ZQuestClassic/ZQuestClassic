@@ -92,11 +92,13 @@ void DropDownList::setIndex()
 
 void DropDownList::applyVisibility(bool visible)
 {
+	Widget::applyVisibility(visible);
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
 void DropDownList::realize(DialogRunner& runner)
 {
+	Widget::realize(runner);
 	// An empty list might logically be valid, but there's currently
 	// no way to get a value from it.
 	assert(listData);

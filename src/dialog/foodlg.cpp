@@ -45,7 +45,7 @@ std::shared_ptr<GUI::Widget> FooDialog::view()
 					focused = true)
 			),
 			Row(
-				topMargin = 0.5_em,
+				topPadding = 0.5_em,
 				vAlign = 1.0,
 				spacing = 2_em,
 				Button(

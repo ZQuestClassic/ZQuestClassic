@@ -94,7 +94,8 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 				TabRef(
 					name = "Script",
 					QRPanel(
-						margins = 2_spx,
+						margins = 0_px,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -104,7 +105,8 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 				TabRef(
 					name = "Instructions",
 					QRPanel(
-						margins = 2_spx,
+						margins = 0_px,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -114,7 +116,8 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 				TabRef(
 					name = "Object",
 					QRPanel(
-						margins = 2_spx,
+						margins = 0_px,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -124,7 +127,8 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 				TabRef(
 					name = "Drawing",
 					QRPanel(
-						margins = 2_spx,
+						margins = 0_px,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -134,7 +138,8 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 				TabRef(
 					name = "Bugfix",
 					QRPanel(
-						margins = 2_spx,
+						margins = 0_px,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -143,7 +148,7 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 				)
 			),
 			Row(
-				topMargin = 0.5_em,
+				topPadding = 0.5_em,
 				vAlign = 1.0,
 				spacing = 2_em,
 				Button(

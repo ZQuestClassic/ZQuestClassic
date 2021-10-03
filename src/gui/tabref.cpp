@@ -15,6 +15,7 @@ void TabRef::setContent(std::shared_ptr<Widget> newContent) noexcept
 
 void TabRef::applyVisibility(bool visible)
 {
+	Widget::applyVisibility(visible);
 	content->applyVisibility(visible);
 }
 
@@ -32,6 +33,7 @@ void TabRef::arrange(int contX, int contY, int contW, int contH)
 
 void TabRef::realize(DialogRunner& runner)
 {
+	Widget::realize(runner);
 	content->realize(runner);
 }
 

@@ -1,4 +1,5 @@
 #include "quest_rules.h"
+#include "pickruleset.h"
 #include <gui/builder.h>
 #include "gui/size.h"
 #include "../jwin.h"
@@ -259,9 +260,30 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 			TabPanel(
 				maxwidth = sized(308_px, 800_px),
 				TabRef(
+					name = "Options",
+					Rows<2>(
+						hPadding = 0.5_em,
+						spacing = 2_em,
+						Button(
+							disabled = true,
+							text = "&Header",
+							onClick = message::HEADER
+						),
+						Button(
+							text = "&Pick Ruleset",
+							onClick = message::RULESET
+						),
+						Button(
+							disabled = true,
+							text = "&Map Count",
+							onClick = message::MAPCOUNT
+						)
+					)
+				),
+				TabRef(
 					name = "Anim",
 					QRPanel(
-						margins = 2_spx,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -271,7 +293,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				TabRef(
 					name = "Combo",
 					QRPanel(
-						margins = 2_spx,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -281,7 +303,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				TabRef(
 					name = "Compat",
 					QRPanel(
-						margins = 2_spx,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -291,7 +313,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				TabRef(
 					name = "Enemy",
 					QRPanel(
-						margins = 2_spx,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -301,7 +323,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				TabRef(
 					name = "Item",
 					QRPanel(
-						margins = 2_spx,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -311,7 +333,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				TabRef(
 					name = "Misc",
 					QRPanel(
-						margins = 2_spx,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -321,7 +343,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				TabRef(
 					name = "NESFix",
 					QRPanel(
-						margins = 2_spx,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -331,7 +353,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				TabRef(
 					name = "Player",
 					QRPanel(
-						margins = 2_spx,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -341,7 +363,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				TabRef(
 					name = "Weapon",
 					QRPanel(
-						margins = 2_spx,
+						padding = 2_spx,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -350,7 +372,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				)
 			),
 			Row(
-				topMargin = 0.5_em,
+				topPadding = 0.5_em,
 				vAlign = 1.0,
 				spacing = 2_em,
 				Button(
@@ -371,6 +393,17 @@ bool QRDialog::handleMessage(message msg, GUI::MessageArg messageArg)
 		case message::TOGGLE_QR:
 			toggle_bit(local_qrs, messageArg);
 			return false;
+		case message::HEADER:
+			
+			return false;
+		case message::RULESET:
+			call_ruleset_dlg();
+			return false;
+		case message::MAPCOUNT:
+			
+			return false;
+		
+		//Closing buttons
 		case message::OK:
 			setQRs(local_qrs);
 			[[fallthrough]];

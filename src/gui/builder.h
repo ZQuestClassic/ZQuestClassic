@@ -10,6 +10,8 @@
 #include "key.h"
 #include "label.h"
 #include "qrpanel.h"
+#include "radio.h"
+#include "radioset.h"
 #include "size.h"
 #include "switcher.h"
 #include "tabpanel.h"
@@ -128,6 +130,16 @@ inline std::shared_ptr<TabRef> makeTabRef()
 	return std::make_shared<TabRef>();
 }
 
+inline std::shared_ptr<Radio> makeRadio()
+{
+	return std::make_shared<Radio>();
+}
+
+inline std::shared_ptr<RadioSet> makeRadioSet()
+{
+	return std::make_shared<RadioSet>();
+}
+
 // Top-level widgets
 
 inline std::shared_ptr<Window> makeWindow()
@@ -159,6 +171,27 @@ ZCGUI_BUILDER_START(Checkbox)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Checkbox, Checkbox, makeCheckbox)
 
+ZCGUI_BUILDER_START(Radio)
+	ZCGUI_ACCEPT_PROP(checked, setChecked, bool)
+	ZCGUI_ACCEPT_PROP(text, setText, std::string)
+	ZCGUI_ACCEPT_PROP(set, setProcSet, int)
+	ZCGUI_ACCEPT_PROP(index, setIndex, size_t)
+	ZCGUI_ACCEPT_PROP(onToggle, onToggle, Dialog::message)
+
+	ZCGUI_SUGGEST_PROP(title, text)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(Radio, Radio, makeRadio)
+
+
+ZCGUI_BUILDER_START(RadioSet)
+	ZCGUI_ACCEPT_PROP(checked, setChecked, int)
+	ZCGUI_ACCEPT_PROP(set, setProcSet, int)
+	ZCGUI_ACCEPT_PROP(onToggle, onToggle, Dialog::message)
+	
+	ZCGUI_ACCEPT_PROP(data, loadList, const ::GUI::ListData&)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(RadioSet, RadioSet, makeRadioSet)
+
 
 ZCGUI_BUILDER_START(DropDownList)
 	ZCGUI_ACCEPT_PROP(data, setListData, const ::GUI::ListData&)
@@ -173,6 +206,7 @@ ZCGUI_BUILDER_FUNCTION(DropDownList, DropDownList, makeDropDownList)
 ZCGUI_BUILDER_START(Label)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 	ZCGUI_ACCEPT_PROP(maxLines, setMaxLines, std::size_t)
+	ZCGUI_ACCEPT_PROP(textAlign, setAlign, int)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()

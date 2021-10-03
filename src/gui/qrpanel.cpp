@@ -57,13 +57,12 @@ void QRPanel::loadList(GUI::ListData qrlist)
 				++q;
 			}
 			cbox->setHAlign(0.0);
-			cbox->setHMargins(0_px);
-			cbox->setVMargins(1_px);
+			cbox->setPadding(0_px);
 			content->add(cbox);
 		}
 		content->setHAlign(0.0);
 		content->setVAlign(0.0);
-		content->setVMargins(0_px);
+		content->setVPadding(0_px);
 		std::shared_ptr<TabRef> tab = std::make_shared<TabRef>();
 		tab->setContent(content);
 		tab->setName(" "+std::to_string(tabnum++)+" ");

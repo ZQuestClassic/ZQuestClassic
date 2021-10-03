@@ -26,11 +26,13 @@ void Button::setText(std::string newText)
 
 void Button::applyVisibility(bool visible)
 {
+	Widget::applyVisibility(visible);
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
 void Button::realize(DialogRunner& runner)
 {
+	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		jwin_button_proc,
 		x, y, getWidth(), getHeight(),

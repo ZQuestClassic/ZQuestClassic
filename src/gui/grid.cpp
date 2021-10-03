@@ -14,6 +14,7 @@ Grid::Grid(type growthType, size_t growthLimit):
 
 void Grid::applyVisibility(bool visible)
 {
+	Widget::applyVisibility(visible);
 	for(auto& child: children)
 		child->applyVisibility(visible);
 }
@@ -112,9 +113,10 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 	// This currently just assumes there's enough space for everything to be
 	// as big as it wants to be.
 	size_t numRows, numCols;
-
+	
+	setFitParent(false); //Not allowed for grids
 	Widget::arrange(contX, contY, contW, contH);
-
+	
 	if(growthType == type::ROWS)
 	{
 		// +growthLimit-1 to round up
@@ -132,8 +134,6 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 	{
 		int cx = x;
 		int height = rowHeights[row];
-		if(cy+height > y+getHeight())
-			height = std::max(0,getHeight());
 		for(size_t col = 0; col < numCols; ++col)
 		{
 			size_t index = growthType == type::ROWS ?
@@ -143,8 +143,6 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 				break;
 
 			int width = colWidths[col];
-			if(cx+width > x+getWidth())
-				width = std::max(0,getWidth());
 			children[index]->arrange(cx, cy, width, height);
 			cx += width+colSpacing;
 		}
@@ -154,6 +152,7 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 
 void Grid::realize(DialogRunner& runner)
 {
+	Widget::realize(runner);
 	for(auto& child: children)
 		child->realize(runner);
 }

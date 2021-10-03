@@ -12,7 +12,7 @@
 class QRDialog: public GUI::Dialog<QRDialog>
 {
 public:
-	enum class message { OK, CANCEL, TOGGLE_QR };
+	enum class message { OK, CANCEL, TOGGLE_QR, HEADER, RULESET, MAPCOUNT };
 
 	QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs);
 

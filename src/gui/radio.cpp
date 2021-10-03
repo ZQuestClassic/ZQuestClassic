@@ -1,4 +1,4 @@
-#include "checkbox.h"
+#include "radio.h"
 #include "common.h"
 #include "dialog.h"
 #include "dialog_runner.h"
@@ -13,20 +13,20 @@
 namespace GUI
 {
 
-Checkbox::Checkbox(): checked(false), text(),
-	placement(boxPlacement::LEFT), alDialog(), message(-1)
+Radio::Radio(): checked(false), text(),
+	alDialog(), message(-1), procset(0)
 {
 	setPreferredHeight(9_spx);
 }
 
-void Checkbox::setText(std::string newText)
+void Radio::setText(std::string newText)
 {
 	int textWidth = text_length(FONT, newText.c_str());
 	setPreferredWidth(Size::pixels(textWidth)+13_lpx);
 	text = std::move(newText);
 }
 
-void Checkbox::setChecked(bool value)
+void Radio::setChecked(bool value)
 {
 	checked = value;
 	if(alDialog)
@@ -38,42 +38,52 @@ void Checkbox::setChecked(bool value)
 	}
 }
 
-bool Checkbox::getChecked()
+bool Radio::getChecked()
 {
 	return alDialog ? alDialog->flags&D_SELECTED : checked;
 }
 
-void Checkbox::applyVisibility(bool visible)
+void Radio::setProcSet(int newProcSet)
+{
+	procset = newProcSet;
+	if(alDialog) alDialog->d1 = procset;
+}
+	
+void Radio::setIndex(size_t newIndex)
+{
+	index = newIndex;
+}
+
+void Radio::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
-void Checkbox::realize(DialogRunner& runner)
+void Radio::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		new_check_proc,
+		jwin_radiofont_proc,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		getAccelKey(text),
 		getFlags()|(checked ? D_SELECTED : 0),
-		static_cast<int>(placement), 0, // d1, d2,
+		procset, 0, // d1, d2,
 		text.data(), FONT, nullptr // dp, dp2, dp3
 	});
 }
 
-void Checkbox::calculateSize()
+void Radio::calculateSize()
 {
-	//setPreferredHeight(Size::pixels(std::min(9_spx.resolve(), text_height(FONT)+2_spx.resolve())));
 	setPreferredWidth(9_spx+12_px+Size::pixels(gui_text_width(FONT, text.c_str())));
 }
 
-int Checkbox::onEvent(int event, MessageDispatcher& sendMessage)
+int Radio::onEvent(int event, MessageDispatcher& sendMessage)
 {
-	assert(event == geTOGGLE);
+	if(event != geRADIO) return -1;
 	if(message >= 0)
-		sendMessage(message, (alDialog->flags&D_SELECTED) != 0);
+		sendMessage(message, (int)index);
 	return -1;
 }
 

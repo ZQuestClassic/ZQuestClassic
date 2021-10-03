@@ -129,7 +129,8 @@ extern char newGuiMarker;
  */
 enum guiEvent
 {
-    geCLICK, geCHANGE_SELECTION, geCHANGE_VALUE, geCLOSE, geENTER, geTOGGLE, geUPDATE_SWAP
+    geCLICK, geCHANGE_SELECTION, geCHANGE_VALUE, geCLOSE, geENTER, geTOGGLE, geUPDATE_SWAP,
+	geRADIO
 };
 
 #define GUI_EVENT(dlg, event)                  \
@@ -173,6 +174,7 @@ int jwin_func_button_proc(int msg, DIALOG *d, int c);
 int jwin_text_proc(int msg, DIALOG *d, int c);
 int jwin_ctext_proc(int msg, DIALOG *d, int c);
 int jwin_rtext_proc(int msg, DIALOG *d, int c);
+int new_text_proc(int msg, DIALOG *d, int c);
 int jwin_edit_proc(int msg, DIALOG *d, int c);
 int jwin_hexedit_proc(int msg,DIALOG *d,int c); /**< Restricted only to hex. numbers */
 int jwin_numedit_zscriptint_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers,  bound to ZScript int (no decimals) */

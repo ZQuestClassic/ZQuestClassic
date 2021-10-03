@@ -13,7 +13,11 @@ namespace GUI
 struct ListItem
 {
 	ListItem(std::string text, int value) noexcept:
-		text(std::move(text)), value(value)
+		text(std::move(text)), value(value), info("")
+	{}
+	
+	ListItem(std::string text, int value, std::string info) noexcept:
+		text(std::move(text)), value(value), info(std::move(info))
 	{}
 
 	ListItem& operator=(const ListItem& other) = default;
@@ -23,6 +27,7 @@ struct ListItem
 	ListItem(ListItem&& other) noexcept=default;
 
 	std::string text;
+	std::string info;
 	int value;
 };
 
@@ -68,6 +73,32 @@ public:
 	inline const int getValue(size_t index) const
 	{
 		return listItems.at(index).value;
+	}
+
+	inline const std::string& getInfo(size_t index) const
+	{
+		return listItems.at(index).info;
+	}
+	
+	inline static const std::string nullstr = "";
+	inline const std::string& findText(int key) const
+	{
+		for(ListItem const& li : listItems)
+		{
+			if(li.value == key)
+				return li.text;
+		}
+		return nullstr;
+	}
+	
+	inline const std::string& findInfo(int key) const
+	{
+		for(ListItem const& li : listItems)
+		{
+			if(li.value == key)
+				return li.info;
+		}
+		return nullstr;
 	}
 
 private:
