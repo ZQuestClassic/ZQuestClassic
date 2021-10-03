@@ -47,6 +47,7 @@ src/dialog/info.cpp
 src/dialog/room.cpp
 src/dialog/foodlg.cpp
 src/dialog/quest_rules.cpp
+src/dialog/script_rules.cpp
 
 ## End of ZQuest GUI module
 )
