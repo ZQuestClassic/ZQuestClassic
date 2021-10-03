@@ -2603,20 +2603,12 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
 			{
 				case 0x255:
 				{
-					switch(tempheader.build)
-					{
-						default:
-						zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", tempheader.build); break;	
-					}
+					zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", tempheader.build);
 					break;
 				}
 				case 0x254:
 				{
-					switch(tempheader.build)
-					{
-						default:
-						zprint2("Last saved in ZC Editor Version: 2.54.0, Alpha Build ID: %d\n", tempheader.build); break;	
-					}
+					zprint2("Last saved in ZC Editor Version: 2.54.0, Alpha Build ID: %d\n", tempheader.build);
 					break;
 				}
 				case 0x250:
@@ -17275,7 +17267,6 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
 
 int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int max_tiles, bool from_init, bool keepdata)
 {
-    int dummy;
     int tiles_used=0;
 	word section_version = 0;
 	word section_cversion = 0;

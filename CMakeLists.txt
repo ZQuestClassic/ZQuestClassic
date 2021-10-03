@@ -1,13 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
-set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
+set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 
-set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-option(WANT_ZSCRIPT "Enable ZScript Compiler" on)
 
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
@@ -72,7 +71,6 @@ set(ZQUEST_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestGUI.txt
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestMisc.txt
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScript.txt
-	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScriptNP.txt
 )
 
 foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES})
@@ -87,7 +85,7 @@ endforeach()
 find_package(BISON QUIET)
 find_package(FLEX QUIET)
 
-if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
+if(${BISON_FOUND} AND ${FLEX_FOUND})
 	if(MSVC)
 		set(FLEXFLAGS "--wincompat")
 	endif()
@@ -95,8 +93,7 @@ if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
 	BISON_TARGET(ZScriptParser ${CMAKE_SOURCE_DIR}/src/parser/ffscript.ypp ${CMAKE_SOURCE_DIR}/src/parser/y.tab.cpp COMPILE_FLAGS -v)
 	add_flex_bison_dependency(ZScriptLexer ZScriptParser)
 else()
-	message(WARNING "Flex and Bison not found. ZQuest will be compiled without the ZScript parser.")
-	set(ZQUEST_ZSCRIPT_SOURCES ${ZQUEST_ZSCRIPT_SOURCES_NOPARSER})
+	message(FATAL_ERROR "Flex and Bison not found. ZQuest cannot be compiled without these.")
 endif()
 
 
@@ -106,6 +103,11 @@ endif()
 
 
 # Windows
+
+if(WIN32)
+	# Prevents definition of min and max macros, which conflict with std::min and std::max
+	add_definitions(-DNOMINMAX)
+endif()
 
 if(MSVC)
 	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alleg44-debug.lib>"
@@ -132,9 +134,11 @@ if(MSVC)
 	
 	if(MSVC_VERSION GREATER 1600)
 	# MSVC 2012, v11 or above
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /DEBUG")
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE")
+		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
 	else()
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /DEBUG")
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE")
+		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
 	endif()
 
 	if(USE_PCH)
@@ -240,7 +244,7 @@ if(LINUX)
 	set(ZSCRIPTLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
-if(${BISON_FOUND} AND ${FLEX_FOUND} AND WANT_ZSCRIPT)
+if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript src/parser/ZScript_main.cpp src/util.cpp ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
 	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
 endif()

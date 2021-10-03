@@ -4984,7 +4984,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
     if(Quit)
         return;
         
-    if(Playing && game->get_time()<(get_bit(quest_rules,qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
+    if(Playing && game->get_time()<unsigned(get_bit(quest_rules,qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
         game->change_time(1);
         
     Advance=false;

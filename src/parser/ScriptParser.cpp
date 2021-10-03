@@ -149,7 +149,7 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int reclimit)
 			if(importfound != 0)
 				importname = importname.substr(importfound); //Remove leading `/` and `\`
 			//Convert the include string to a proper import path
-			for ( int q = 0; q < ZQincludePaths.size() && !fname; ++q ) //Loop through all include paths, or until valid file is found
+			for (size_t q = 0; q < ZQincludePaths.size() && !fname; ++q ) //Loop through all include paths, or until valid file is found
 			{
 				includePath = ZQincludePaths.at(q);
 				//Add a `/` to the end of the include path, if it is missing

@@ -23821,7 +23821,7 @@ void LinkClass::checkitems(int index)
     int id2 = ((item*)items.spr(index))->id;
     int pstr = ((item*)items.spr(index))->pstring;
     int pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
-    int tempnextmsg;
+    //int tempnextmsg;
     
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	

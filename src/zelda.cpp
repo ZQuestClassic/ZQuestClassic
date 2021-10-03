@@ -2232,20 +2232,12 @@ int init_game()
 			{
 				case 0x255:
 				{
-					switch(QHeader.build)
-					{
-						default:
-						zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", QHeader.build); break;	
-					}
+					zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", QHeader.build);	
 					break;
 				}
 				case 0x254:
 				{
-					switch(QHeader.build)
-					{
-						default:
-						zprint2("Last saved in ZC Editor Version: 2.54.0, Alpha Build ID: %d\n", QHeader.build); break;	
-					}
+					zprint2("Last saved in ZC Editor Version: 2.54.0, Alpha Build ID: %d\n", QHeader.build);	
 					break;
 				}
 				case 0x250:

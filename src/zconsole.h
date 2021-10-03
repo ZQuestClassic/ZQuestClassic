@@ -124,7 +124,7 @@ public:
             
         singleton.isOpen = true;
         
-        const int MAX_ZASM_LINES = 32768;
+        const int MAX_ZASM_LINES = 32767;
         
         CONSOLE_SCREEN_BUFFER_INFO console_info;
         int hConHandle;

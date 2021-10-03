@@ -1682,7 +1682,7 @@ enum __Error
         }
     }
     //Copies clues for ZS array b to a. 
-    void copyValues(const long ptr, const long ptr2, word num_values)
+    void copyValues(const long ptr, const long ptr2, size_t num_values)
     {
         ZScriptArray& a = getArray(ptr);
         ZScriptArray& b = getArray(ptr2);
