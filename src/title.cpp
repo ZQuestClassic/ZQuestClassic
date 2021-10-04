@@ -2132,7 +2132,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 			}
 			else
 			{
-				if(!iconbuffer[i].loaded || get_config_int("zeldadx","reload_game_icons",1))
+				if(!iconbuffer[i].loaded || get_config_int("zeldadx","reload_game_icons",0))
 				{
 					int ret2 = load_quest(saves+i, false, showmetadata);
 					
