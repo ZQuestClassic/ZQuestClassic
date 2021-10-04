@@ -108,7 +108,7 @@ void List::realize(DialogRunner& runner)
 		setIndex();
 
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_list_proc,
+		newGUIProc<jwin_list_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key

@@ -57,7 +57,7 @@ void Checkbox::applyVisibility(bool visible)
 void Checkbox::realize(DialogRunner& runner)
 {
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_checkfont_proc,
+		newGUIProc<jwin_checkfont_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		getAccelKey(text),

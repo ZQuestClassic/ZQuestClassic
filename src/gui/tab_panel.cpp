@@ -289,7 +289,7 @@ void TabPanel::realize(DialogRunner& runner)
 	assert(selectedTab<tabs.size());
 
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		proc,
+		newGUIProc<proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0,

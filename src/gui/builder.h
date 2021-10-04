@@ -10,6 +10,7 @@
 #include "key.h"
 #include "label.h"
 #include "list.h"
+#include "scrolling_pane.h"
 #include "size.h"
 #include "switcher.h"
 #include "tab.h"
@@ -113,6 +114,11 @@ inline std::shared_ptr<Grid> makeRows(size_t size)
 	return Grid::rows(size);
 }
 
+inline std::shared_ptr<ScrollingPane> makeScrollingPane()
+{
+	return std::make_shared<ScrollingPane>();
+}
+
 inline std::shared_ptr<Switcher> makeSwitcher()
 {
 	return std::make_shared<Switcher>();
@@ -210,6 +216,12 @@ ZCGUI_BUILDER_FUNCTION(Grid, Row, makeRow)
 ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Rows, makeRows, std::size_t)
 ZCGUI_BUILDER_FUNCTION(Grid, Column, makeColumn)
 ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Columns, makeColumns, std::size_t)
+
+
+ZCGUI_BUILDER_START(ScrollingPane)
+	ZCGUI_ACCEPT_ONE_CHILD(setContent)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(ScrollingPane, ScrollingPane, makeScrollingPane)
 
 
 ZCGUI_BUILDER_START(Switcher)

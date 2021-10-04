@@ -111,7 +111,7 @@ void DropDownList::realize(DialogRunner& runner)
 		setIndex();
 
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_droplist_proc,
+		newGUIProc<jwin_droplist_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key

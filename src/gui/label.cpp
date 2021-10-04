@@ -111,7 +111,7 @@ void Label::arrange(int cx, int cy, int cw, int ch)
 void Label::realize(DialogRunner& runner)
 {
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_text_proc,
+		newGUIProc<jwin_text_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key

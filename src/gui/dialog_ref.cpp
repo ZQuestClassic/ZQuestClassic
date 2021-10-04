@@ -22,6 +22,11 @@ const DIALOG* DialogRef::operator->() const
 	return &owner->alDialog[index];
 }
 
+DIALOG& DialogRef::operator*()
+{
+	return owner->alDialog[index];
+}
+
 DIALOG& DialogRef::operator[](int offset)
 {
 	return owner->alDialog.at(index+offset);

@@ -32,6 +32,7 @@ src/gui/grid.cpp
 src/gui/label.cpp
 src/gui/list.cpp
 src/gui/list_data.cpp
+src/gui/scrolling_pane.cpp
 src/gui/size.cpp
 src/gui/switcher.cpp
 src/gui/tab.cpp

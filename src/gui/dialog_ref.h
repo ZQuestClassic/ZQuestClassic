@@ -21,6 +21,7 @@ public:
 	DialogRef();
 	DIALOG* operator->();
 	const DIALOG* operator->() const;
+	DIALOG& operator*();
 	DIALOG& operator[](int offset);
 	const DIALOG& operator[](int offset) const;
 	operator bool() const

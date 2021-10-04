@@ -91,8 +91,30 @@ extern "C"
  */
 #define D_NEW_GUI (D_USER<<2)
 
+/* Set on widgets inside a scrolling pane so that they know they're in one. */
+#define D_SCROLLING (D_USER<<3)
+
+/* Set on widgets in a scrolling pane to indicate that the screen bitmap
+ * needs clipped before redrawing.
+ */
+#define D_NEEDSCLIPPED (D_USER<<4)
+
 /* Sent to newgui_dialog_proc to tell it to handle an event. */
 #define MSG_GUI_EVENT MSG_USER
+
+/* Send to a scrolling pane to redraw a child with the screen bitmap clipped. */
+#define MSG_DRAWCLIPPED (MSG_USER+1)
+
+/* Sent to a scrolling pane to indicate that one of its children has
+ * taken focus and it needs to scroll to show it.
+ */
+#define MSG_CHILDFOCUSED (MSG_USER+2)
+
+/* Sent to a proc to check if it handles mouse wheel events. If not,
+ * they can be handled by the containing scrolling pane. Any nonzero
+ * return value is treated as true.
+ */
+#define MSG_WANTWHEEL (MSG_USER+3)
 
 /* frame styles */
 enum {

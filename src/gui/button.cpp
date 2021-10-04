@@ -38,7 +38,7 @@ void Button::applyVisibility(bool visible)
 void Button::realize(DialogRunner& runner)
 {
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_button_proc,
+		newGUIProc<jwin_button_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		getAccelKey(text),

@@ -80,7 +80,7 @@ void Frame::arrange(int contX, int contY, int contW, int contH)
 void Frame::realize(DialogRunner& runner)
 {
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_frame_proc,
+		newGUIProc<jwin_frame_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key

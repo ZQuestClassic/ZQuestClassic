@@ -72,15 +72,15 @@ void TextField::realize(DialogRunner& runner)
 	switch(tfType)
 	{
 	case type::TEXT:
-		proc = jwin_edit_proc;
+		proc = newGUIProc<jwin_edit_proc>;
 		break;
 
 	case type::INT_DECIMAL:
-		proc = jwin_numedit_proc;
+		proc = newGUIProc<jwin_numedit_proc>;
 		break;
 
 	case type::INT_HEX:
-		proc = jwin_hexedit_proc;
+		proc = newGUIProc<jwin_hexedit_proc>;
 		break;
 	}
 

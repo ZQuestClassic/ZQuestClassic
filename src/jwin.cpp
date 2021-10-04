@@ -1939,7 +1939,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
     enum { top_btn, bottom_btn, bar, top_bar, bottom_bar };
     
     int xx, yy;
-    int height = (d->h-3) / text_height(fnt);
+    int height = (d->h-3) / (fnt ? text_height(fnt) : 1);
     int hh = d->h - 32;
     int obj = bar;
     int bh, len, pos;
@@ -2632,6 +2632,9 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
     case MSG_WANTFOCUS:
         return D_WANTFOCUS;
         
+    case MSG_WANTWHEEL:
+        return 1;
+
     case MSG_WHEEL:
         data->listFunc(-1, &listsize);
         height = (d->h-4) / text_height(*data->font);
@@ -2901,6 +2904,9 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
         ret = D_WANTFOCUS;
 		break;
         
+    case MSG_WANTWHEEL:
+        return 1;
+
     case MSG_WHEEL:
         data->listFunc(-1, &listsize);
         height = (d->h-4) / text_height(*data->font);
@@ -3307,6 +3313,9 @@ int jwin_textbox_proc(int msg, DIALOG *d, int c)
         
         break;
         
+    case MSG_WANTWHEEL:
+        return 1;
+
     case MSG_WHEEL:
         l = (d->h-8)/text_height(font);
         delta = (l > 3) ? 3 : 1;
@@ -6781,6 +6790,9 @@ int d_jslider_proc(int msg, DIALOG *d, int c)
         
         break;
         
+    case MSG_WANTWHEEL:
+        return 1;
+
     case MSG_WHEEL:
         oldval = d->d2;
         d->d2 = MID(0, d->d2+c, d->d1);
