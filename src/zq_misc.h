@@ -283,7 +283,6 @@ int onExport_Doorset();
 int onImport_Doorset();
 
 int onGotoMap();
-int onMapCount();
 
 int onViewPic();
 int onViewMap();

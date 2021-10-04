@@ -54,17 +54,16 @@ public:
 		children.emplace_back(std::move(child));
 	}
 
+	void applyVisibility(bool visible) override;
+	void calculateSize() override;
+	void arrange(int contX, int contY, int contW, int contH) override;
+	void realize(DialogRunner& runner) override;
 private:
 	std::vector<std::shared_ptr<Widget>> children;
 	std::vector<int> rowWidths, colWidths, rowHeights, colHeights;
 	unsigned short rowSpacing, colSpacing;
 	type growthType;
 	size_t growthLimit;
-
-	void applyVisibility(bool visible) override;
-	void calculateSize() override;
-	void arrange(int contX, int contY, int contW, int contH) override;
-	void realize(DialogRunner& runner) override;
 };
 
 }

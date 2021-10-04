@@ -623,6 +623,20 @@ private:
     void generateCode();
 };
 
+class RNGSymbols : public LibrarySymbols
+{
+public:
+    static RNGSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static RNGSymbols singleton;
+    RNGSymbols();
+    void generateCode();
+};
+
 //Filesystem->
 class ModuleSymbols : public LibrarySymbols
 {

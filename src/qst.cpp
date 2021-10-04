@@ -40,12 +40,14 @@
 #include "sfx.h"
 #include "md5.h"
 #include "ffscript.h"
+#include "particles.h"
 //FFScript FFCore;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern unsigned char __isZQuest;
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
+extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern particle_list particles;
 //FFSCript   FFEngine;
 
 int temp_ffscript_version = 0;
@@ -2726,379 +2728,386 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
 
 int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
-    int dummy;
-    zquestheader tempheader;
-    word s_version=0;
-    
-    memcpy(&tempheader, Header, sizeof(tempheader));
-    
-    if(tempheader.zelda_version >= 0x193)
-    {
-        //section version info
-        if(!p_igetw(&s_version,f,true))
-        {
-            return qe_invalid;
-        }
+	int dummy;
+	zquestheader tempheader;
+	word s_version=0;
+	dword compatrule_version=0;
 	
-	FFCore.quest_format[vRules] = s_version;
-        
-        if(!p_igetw(&dummy,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //section size
-        if(!p_igetl(&dummy,f,true))
-        {
-            return qe_invalid;
-        }
-        
-	if ( s_version < 15 )
+	memcpy(&tempheader, Header, sizeof(tempheader));
+	
+	if(tempheader.zelda_version >= 0x193)
 	{
-		//finally...  section data
-		if(!pfread(quest_rules,QUESTRULES_SIZE,f,true))
+		//section version info
+		if(!p_igetw(&s_version,f,true))
 		{
-		    return qe_invalid;
+			return qe_invalid;
 		}
-	}
-	else
-	{
+	
+		FFCore.quest_format[vRules] = s_version;
 		
-		if(!pfread(quest_rules,QUESTRULES_NEW_SIZE,f,true))
+		if(!p_igetw(&dummy,f,true))
 		{
-		    return qe_invalid;
+			return qe_invalid;
 		}
 		
+		if(s_version > 16)
+		{
+			if(!p_igetl(&compatrule_version,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		FFCore.quest_format[vCompatRule] = compatrule_version;
+		
+		//section size
+		if(!p_igetl(&dummy,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if ( s_version < 15 )
+		{
+			//finally...  section data
+			if(!pfread(quest_rules,QUESTRULES_SIZE,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			
+			if(!pfread(quest_rules,QUESTRULES_NEW_SIZE,f,true))
+			{
+				return qe_invalid;
+			}
+			
+		}
 	}
-    }
-    
-    //al_trace("Rules version %d\n", s_version);
-    
-    memcpy(deprecated_rules, quest_rules, QUESTRULES_NEW_SIZE);
-    
-    if(s_version<2)
-    {
-        set_bit(quest_rules,14,0);
-        set_bit(quest_rules,27,0);
-        set_bit(quest_rules,28,0);
-        set_bit(quest_rules,29,0);
-        set_bit(quest_rules,30,0);
-        set_bit(quest_rules,32,0);
-        set_bit(quest_rules,36,0);
-        set_bit(quest_rules,49,0);
-        set_bit(quest_rules,50,0);
-        set_bit(quest_rules,51,0);
-        set_bit(quest_rules,68,0);
-        set_bit(quest_rules,75,0);
-        set_bit(quest_rules,76,0);
-        set_bit(quest_rules,98,0);
-        set_bit(quest_rules,110,0);
-        set_bit(quest_rules,113,0);
-        set_bit(quest_rules,116,0);
-        set_bit(quest_rules,102,0);
-        set_bit(quest_rules,132,0);
-    }
-    
-    //Now, do any updates...
-    if((tempheader.zelda_version < 0x211)||((tempheader.zelda_version == 0x211)&&(tempheader.build<18)))
-    {
-        set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING,1);
-        set_bit(quest_rules, qr_REPLACEOPENDOORS, 1);
-        set_bit(quest_rules, qr_OLDLENSORDER, 1);
-        set_bit(quest_rules, qr_NOFAIRYGUYFIRES, 1);
-        set_bit(quest_rules, qr_TRIGGERSREPEAT, 1);
-	FFCore.emulation[emuITEMPERSEG] = 1;
-	FFCore.emulation[emu210WINDROBES] = 1;
-    }
-    
-    if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<3)))
-    {
-        set_bit(quest_rules,qr_WALLFLIERS,1);
-    }
-    
-    if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<4)))
-    {
-        set_bit(quest_rules,qr_NOBOMBPALFLASH,1);
-    }
-    
-    if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<3)))
-    {
-        set_bit(quest_rules,qr_NOSCROLLCONTINUE,1);
-    }
-    
-    if(tempheader.zelda_version == 0x210)
-    {
-        set_bit(quest_rules, qr_NOSCROLLCONTINUE, get_bit(quest_rules, qr_CMBCYCLELAYERS));
-        set_bit(quest_rules, qr_CMBCYCLELAYERS, 0);
-	FFCore.emulation[emuSWORDTRIGARECONTINUOUS] = 1;
-    }
-    
-    if(tempheader.zelda_version <= 0x210)
-    {
-        set_bit(quest_rules,qr_OLDSTYLEWARP,1);
-    }
-    
-    //might not be correct
-    if(tempheader.zelda_version < 0x210)
-    {
-        set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP,1);
-        set_bit(quest_rules, qr_OLDHOOKSHOTGRAB,1);
-    }
-    
-    if(tempheader.zelda_version == 0x210)
-    {
-        set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, get_bit(quest_rules, qr_DMGCOMBOPRI));
-        set_bit(quest_rules, qr_DMGCOMBOPRI, 0);
-    }
-    
-    if(tempheader.zelda_version < 0x211 || (tempheader.zelda_version == 0x211 && tempheader.build<15))
-    {
-        set_bit(quest_rules, qr_OLDPICKUP,1);
-    }
-    
-    if(tempheader.zelda_version < 0x211 || (tempheader.zelda_version == 0x211 && tempheader.build < 18))
-    {
-        set_bit(quest_rules,qr_NOSOLIDDAMAGECOMBOS, 1);
-        set_bit(quest_rules, qr_ITEMPICKUPSETSBELOW, 1); // broke around build 400
-    }
-    
-    if(tempheader.zelda_version < 0x250) // version<0x250 checks for beta 18; build was set to 18 prematurely
-    {
-        set_bit(quest_rules,qr_HOOKSHOTDOWNBUG, 1);
-    }
-    
-    if(tempheader.zelda_version == 0x250 && tempheader.build == 24) // Annoying...
-    {
-        set_bit(quest_rules,qr_PEAHATCLOCKVULN, 1);
-    }
-    
-    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<28))
-    {
-        set_bit(quest_rules, qr_OFFSCREENWEAPONS, 1);
-    }
-    
-    //Bombchu fix.
-    if(tempheader.zelda_version == 0x250)
-    {
-	    if ( tempheader.build == 24 ) //2.50.0
-	    {
-		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
-		    FFCore.emulation[emu210BOMBCHU] = 1;
-	    }
-	    if ( tempheader.build == 28 ) //2.50.1
-	    {
-		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
-		    FFCore.emulation[emu210BOMBCHU] = 1;
-	    }
-	    if ( tempheader.build == 29 ) //2.50.2
-	    {
-		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
-		    FFCore.emulation[emu210BOMBCHU] = 0;
-	    }
-	    if ( tempheader.build == 30 ) //2.50.3RC1
-	    {
-		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
-		    FFCore.emulation[emu210BOMBCHU] = 0;
-	    }
-    }
-    
-    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
-    {
-        // qr_OFFSETEWPNCOLLISIONFIX
-        // All 'official' quests need this disabled.
-        // All 2.10 and lower quests need this enabled to preseve compatability.
-        // All 2.11 - 2.5.1 quests should have it set also, due to a bug in about half of all the betas.
+	
+	//al_trace("Rules version %d\n", s_version);
+	//{ bunch of compat stuff
+	memcpy(deprecated_rules, quest_rules, QUESTRULES_NEW_SIZE);
+	
+	if(s_version<2)
+	{
+		set_bit(quest_rules,14,0);
+		set_bit(quest_rules,27,0);
+		set_bit(quest_rules,28,0);
+		set_bit(quest_rules,29,0);
+		set_bit(quest_rules,30,0);
+		set_bit(quest_rules,32,0);
+		set_bit(quest_rules,36,0);
+		set_bit(quest_rules,49,0);
+		set_bit(quest_rules,50,0);
+		set_bit(quest_rules,51,0);
+		set_bit(quest_rules,68,0);
+		set_bit(quest_rules,75,0);
+		set_bit(quest_rules,76,0);
+		set_bit(quest_rules,98,0);
+		set_bit(quest_rules,110,0);
+		set_bit(quest_rules,113,0);
+		set_bit(quest_rules,116,0);
+		set_bit(quest_rules,102,0);
+		set_bit(quest_rules,132,0);
+	}
+	
+	//Now, do any updates...
+	if((tempheader.zelda_version < 0x211)||((tempheader.zelda_version == 0x211)&&(tempheader.build<18)))
+	{
+		set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING,1);
+		set_bit(quest_rules, qr_REPLACEOPENDOORS, 1);
+		set_bit(quest_rules, qr_OLDLENSORDER, 1);
+		set_bit(quest_rules, qr_NOFAIRYGUYFIRES, 1);
+		set_bit(quest_rules, qr_TRIGGERSREPEAT, 1);
+		FFCore.emulation[emuITEMPERSEG] = 1;
+		FFCore.emulation[emu210WINDROBES] = 1;
+	}
+	
+	if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<3)))
+	{
+		set_bit(quest_rules,qr_WALLFLIERS,1);
+	}
+	
+	if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<4)))
+	{
+		set_bit(quest_rules,qr_NOBOMBPALFLASH,1);
+	}
+	
+	if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<3)))
+	{
+		set_bit(quest_rules,qr_NOSCROLLCONTINUE,1);
+	}
+	
+	if(tempheader.zelda_version == 0x210)
+	{
+		set_bit(quest_rules, qr_NOSCROLLCONTINUE, get_bit(quest_rules, qr_CMBCYCLELAYERS));
+		set_bit(quest_rules, qr_CMBCYCLELAYERS, 0);
+		FFCore.emulation[emuSWORDTRIGARECONTINUOUS] = 1;
+	}
+	
+	if(tempheader.zelda_version <= 0x210)
+	{
+		set_bit(quest_rules,qr_OLDSTYLEWARP,1);
+	}
+	
+	//might not be correct
+	if(tempheader.zelda_version < 0x210)
+	{
+		set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP,1);
+		set_bit(quest_rules, qr_OLDHOOKSHOTGRAB,1);
+	}
+	
+	if(tempheader.zelda_version == 0x210)
+	{
+		set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, get_bit(quest_rules, qr_DMGCOMBOPRI));
+		set_bit(quest_rules, qr_DMGCOMBOPRI, 0);
+	}
+	
+	if(tempheader.zelda_version < 0x211 || (tempheader.zelda_version == 0x211 && tempheader.build<15))
+	{
+		set_bit(quest_rules, qr_OLDPICKUP,1);
+	}
+	
+	if(tempheader.zelda_version < 0x211 || (tempheader.zelda_version == 0x211 && tempheader.build < 18))
+	{
+		set_bit(quest_rules,qr_NOSOLIDDAMAGECOMBOS, 1);
+		set_bit(quest_rules, qr_ITEMPICKUPSETSBELOW, 1); // broke around build 400
+	}
+	
+	if(tempheader.zelda_version < 0x250) // version<0x250 checks for beta 18; build was set to 18 prematurely
+	{
+		set_bit(quest_rules,qr_HOOKSHOTDOWNBUG, 1);
+	}
+	
+	if(tempheader.zelda_version == 0x250 && tempheader.build == 24) // Annoying...
+	{
+		set_bit(quest_rules,qr_PEAHATCLOCKVULN, 1);
+	}
+	
+	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<28))
+	{
+		set_bit(quest_rules, qr_OFFSCREENWEAPONS, 1);
+	}
+	
+	//Bombchu fix.
+	if(tempheader.zelda_version == 0x250)
+	{
+		if ( tempheader.build == 24 ) //2.50.0
+		{
+			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
+			FFCore.emulation[emu210BOMBCHU] = 1;
+		}
+		if ( tempheader.build == 28 ) //2.50.1
+		{
+			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
+			FFCore.emulation[emu210BOMBCHU] = 1;
+		}
+		if ( tempheader.build == 29 ) //2.50.2
+		{
+			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
+			FFCore.emulation[emu210BOMBCHU] = 0;
+		}
+		if ( tempheader.build == 30 ) //2.50.3RC1
+		{
+			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
+			FFCore.emulation[emu210BOMBCHU] = 0;
+		}
+	}
+	
+	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
+	{
+		// qr_OFFSETEWPNCOLLISIONFIX
+		// All 'official' quests need this disabled.
+		// All 2.10 and lower quests need this enabled to preseve compatability.
+		// All 2.11 - 2.5.1 quests should have it set also, due to a bug in about half of all the betas.
 
-	    //~Gleeok
+		//~Gleeok
 		set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 1); //This has to be set!!!!
 		
 		// Broke in build 695
 		if(tempheader.zelda_version>=0x211 && tempheader.build>=18)
-            set_bit(quest_rules, qr_BROKENSTATUES, 1);
-    }
-    
-    if ( (tempheader.zelda_version == 0x250 && tempheader.build < 33) || tempheader.zelda_version == 0x254 || tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
-    {
-	FFCore.emulation[emuBUGGYNEXTCOMBOS] = 1;
-	set_bit(quest_rules, qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT, 1);
-    }
-    
-    if ( (tempheader.zelda_version < 0x211) ) //2.10 water and ladder interaction
-    {
-	FFCore.emulation[emuOLD210WATER] = 1;
-    }
-    
-    if ( (tempheader.zelda_version < 0x255 ) || (tempheader.zelda_version == 0x255 &&  tempheader.build < 51 ) ) //2.10 water and ladder interaction
-    {
-	set_bit(quest_rules,qr_STEP_IS_FLOAT,0);
-    }
-    
-    if ( tempheader.zelda_version < 0x250 ) 
-    {
-	FFCore.emulation[emu8WAYSHOTSFX] = 1;    
-    }
-    
-    if(s_version < 3)
-    {
-        set_bit(quest_rules, qr_HOLDNOSTOPMUSIC, 1);
-        set_bit(quest_rules, qr_CAVEEXITNOSTOPMUSIC, 1);
-    }
-    
-    if(s_version<4)
-    {
-        set_bit(quest_rules,10,0);
-    }
-    
-    if(s_version<5)
-    {
-        set_bit(quest_rules,27,0);
-    }
-    
-    if(s_version<6)
-    {
-        set_bit(quest_rules,46,0);
-    }
-    
-    if(s_version<7) // January 2008
-    {
-        set_bit(quest_rules,qr_HEARTSREQUIREDFIX,0);
-        set_bit(quest_rules,qr_PUSHBLOCKCSETFIX,1);
-    }
-    
-    if(s_version<8)
-    {
-        set_bit(quest_rules, 12, 0);
-    }
-    else
-    {
-        set_bit(deprecated_rules, 12, 0);
-    }
-    
-    if(s_version<9) // October 2008
-    {
-        set_bit(quest_rules,qr_NOROPE2FLASH_DEP,0);
-        set_bit(quest_rules,qr_NOBUBBLEFLASH_DEP,0);
-        set_bit(quest_rules,qr_GHINI2BLINK_DEP,0);
-        set_bit(quest_rules,qr_PHANTOMGHINI2_DEP,0);
-    }
-    
-    if(s_version<10) // December 2008
-    {
-        set_bit(quest_rules,qr_NOCLOCKS_DEP,0);
-        set_bit(quest_rules, qr_ALLOW10RUPEEDROPS_DEP,0);
-    }
-    
-    if(s_version<11) // April 2009
-    {
-        set_bit(quest_rules,qr_SLOWENEMYANIM_DEP,0);
-    }
-    
-    if(s_version<12)  // December 2009
-    {
-        set_bit(quest_rules,qr_BRKBLSHLDS_DEP,0);
-        set_bit(quest_rules, qr_OLDTRIBBLES_DEP,0);
-    }
-    
-    //if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build < 24))
-    if(s_version < 13)
-    {
-        set_bit(quest_rules,qr_SHOPCHEAT, 1);
-    }
-    
-    // Not entirely sure this is the best place for this...
-    //2.50.2 bitmap offset fix
-    memset(extra_rules, 0, EXTRARULES_SIZE);
-    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
-    {
-        set_bit(extra_rules, er_BITMAPOFFSET, 1);
-        set_bit(quest_rules, qr_BITMAPOFFSETFIX, 1);
-    }
-    //required because quest templates also used this bit, although
-    //it never did anything, before. -Z
-    if ( tempheader.zelda_version == 0x250 )
-    {
-	    if( tempheader.build == 29 || tempheader.build == 30 || tempheader.build == 31 )
-	    {
+			set_bit(quest_rules, qr_BROKENSTATUES, 1);
+	}
+	
+	if ( (tempheader.zelda_version == 0x250 && tempheader.build < 33) || tempheader.zelda_version == 0x254 || tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
+	{
+		FFCore.emulation[emuBUGGYNEXTCOMBOS] = 1;
+		set_bit(quest_rules, qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT, 1);
+	}
+	
+	if ( (tempheader.zelda_version < 0x211) ) //2.10 water and ladder interaction
+	{
+		FFCore.emulation[emuOLD210WATER] = 1;
+	}
+	
+	if ( (tempheader.zelda_version < 0x255 ) || (tempheader.zelda_version == 0x255 &&  tempheader.build < 51 ) ) //2.10 water and ladder interaction
+	{
+		set_bit(quest_rules,qr_STEP_IS_FLOAT,0);
+	}
+	
+	if ( tempheader.zelda_version < 0x250 ) 
+	{
+		FFCore.emulation[emu8WAYSHOTSFX] = 1;    
+	}
+	
+	if(s_version < 3)
+	{
+		set_bit(quest_rules, qr_HOLDNOSTOPMUSIC, 1);
+		set_bit(quest_rules, qr_CAVEEXITNOSTOPMUSIC, 1);
+	}
+	
+	if(s_version<4)
+	{
+		set_bit(quest_rules,10,0);
+	}
+	
+	if(s_version<5)
+	{
+		set_bit(quest_rules,27,0);
+	}
+	
+	if(s_version<6)
+	{
+		set_bit(quest_rules,46,0);
+	}
+	
+	if(s_version<7) // January 2008
+	{
+		set_bit(quest_rules,qr_HEARTSREQUIREDFIX,0);
+		set_bit(quest_rules,qr_PUSHBLOCKCSETFIX,1);
+	}
+	
+	if(s_version<8)
+	{
+		set_bit(quest_rules, 12, 0);
+	}
+	else
+	{
+		set_bit(deprecated_rules, 12, 0);
+	}
+	
+	if(s_version<9) // October 2008
+	{
+		set_bit(quest_rules,qr_NOROPE2FLASH_DEP,0);
+		set_bit(quest_rules,qr_NOBUBBLEFLASH_DEP,0);
+		set_bit(quest_rules,qr_GHINI2BLINK_DEP,0);
+		set_bit(quest_rules,qr_PHANTOMGHINI2_DEP,0);
+	}
+	
+	if(s_version<10) // December 2008
+	{
+		set_bit(quest_rules,qr_NOCLOCKS_DEP,0);
+		set_bit(quest_rules, qr_ALLOW10RUPEEDROPS_DEP,0);
+	}
+	
+	if(s_version<11) // April 2009
+	{
+		set_bit(quest_rules,qr_SLOWENEMYANIM_DEP,0);
+	}
+	
+	if(s_version<12)  // December 2009
+	{
+		set_bit(quest_rules,qr_BRKBLSHLDS_DEP,0);
+		set_bit(quest_rules, qr_OLDTRIBBLES_DEP,0);
+	}
+	
+	//if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build < 24))
+	if(s_version < 13)
+	{
+		set_bit(quest_rules,qr_SHOPCHEAT, 1);
+	}
+	
+	// Not entirely sure this is the best place for this...
+	//2.50.2 bitmap offset fix
+	memset(extra_rules, 0, EXTRARULES_SIZE);
+	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
+	{
+		set_bit(extra_rules, er_BITMAPOFFSET, 1);
+		set_bit(quest_rules, qr_BITMAPOFFSETFIX, 1);
+	}
+	//required because quest templates also used this bit, although
+	//it never did anything, before. -Z
+	if ( tempheader.zelda_version == 0x250 )
+	{
+		if( tempheader.build == 29 || tempheader.build == 30 || tempheader.build == 31 )
+		{
+			set_bit(extra_rules, er_BITMAPOFFSET, 0);
+			set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
+		}
+	}
+	if ( tempheader.zelda_version == 0x254 )
+	{
 		set_bit(extra_rules, er_BITMAPOFFSET, 0);
 		set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
-	    }
-    }
-    if ( tempheader.zelda_version == 0x254 )
-    {
-	set_bit(extra_rules, er_BITMAPOFFSET, 0);
-	set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
-    }
-    if ( tempheader.zelda_version == 0x255 && tempheader.build < 42 ) //QR was added to 255 in this build.
-    {
-	set_bit(extra_rules, er_BITMAPOFFSET, 0);
-	set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
-    }
-    //optimise fast drawing for older versions.
-    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 42) )
-    {
-	set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);    
-    }
-    //Old eweapon->Parent (was added in 2.54, Alpha 19)
-    //The change was made in build 43, but I'm setting this to < 42, because quests made in 42 would benefit from this change, and
-    //older quests can set the rule by hand. We need a new qst.dat again.
-    if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 42) )
-    {
-	set_bit(quest_rules, qr_OLDEWPNPARENT, 1);    
-    }
-    if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
-    {
-	set_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS, 1);    
-    }
-    if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 45) )
-    {
-	set_bit(quest_rules, qr_OLDQUESTMISC, 1);    
-    }
-    if ( tempheader.zelda_version < 0x254 )
-    {
-	set_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS, 0);  
-	set_bit(quest_rules, qr_OLDEWPNPARENT, 0); 	    
-	set_bit(quest_rules, qr_OLDQUESTMISC, 0); 	    
-    }
-    
-    //item scripts continue to run
-    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
-    {
-	set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 0);  	    
-	set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 0);  	    
-	set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 0);
-	set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 0);  	    
-	set_bit(quest_rules, qr_DYINGENEMYESDONTHURTLINK, 0);  	    
-	set_bit(quest_rules, qr_OUTOFBOUNDSENEMIES, 0);  
-	set_bit(quest_rules, qr_SPRITEXY_IS_FLOAT, 0);
-    }
-    
-    
-    
-    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 46) )
-    {
-	set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);  	    
-	  	    
-    }
-    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 46) )
-    {
-	set_bit(quest_rules, qr_TRACESCRIPTIDS, 0);      
-	set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);      
-	set_bit(quest_rules, qr_PARSER_BOOL_TRUE_DECIMAL, 1);   
-	set_bit(quest_rules,qr_PARSER_250DIVISION,1);
-	set_bit(quest_rules,qr_PARSER_BOOL_TRUE_DECIMAL,1);
-	set_bit(quest_rules,qr_PARSER_TRUE_INT_SIZE,0);
-	set_bit(quest_rules,qr_PARSER_FORCE_INLINE,0);
-	set_bit(quest_rules,qr_PARSER_BINARY_32BIT,0);
-	if ( get_bit(quest_rules, qr_SELECTAWPN) ) 
-	{
-		set_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP,1); 
-		//In < 2.55a27, if you had an A+B subscreen, L and R didn't shift through inventory.
-		//Now they **do**, unless you disable that behaviour.
-		//For the sake of compatibility, old quests with the A+B subscreen rule enabed
-		//now enable the disable L/R item swap on load.
 	}
-	  	    
-    }
+	if ( tempheader.zelda_version == 0x255 && tempheader.build < 42 ) //QR was added to 255 in this build.
+	{
+		set_bit(extra_rules, er_BITMAPOFFSET, 0);
+		set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
+	}
+	//optimise fast drawing for older versions.
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 42) )
+	{
+		set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);    
+	}
+	//Old eweapon->Parent (was added in 2.54, Alpha 19)
+	//The change was made in build 43, but I'm setting this to < 42, because quests made in 42 would benefit from this change, and
+	//older quests can set the rule by hand. We need a new qst.dat again.
+	if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 42) )
+	{
+		set_bit(quest_rules, qr_OLDEWPNPARENT, 1);    
+	}
+	if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
+	{
+		set_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS, 1);    
+	}
+	if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 45) )
+	{
+		set_bit(quest_rules, qr_OLDQUESTMISC, 1);    
+	}
+	if ( tempheader.zelda_version < 0x254 )
+	{
+		set_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS, 0);  
+		set_bit(quest_rules, qr_OLDEWPNPARENT, 0); 	    
+		set_bit(quest_rules, qr_OLDQUESTMISC, 0); 	    
+	}
+	
+	//item scripts continue to run
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
+	{
+		set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 0);  	    
+		set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 0);  	    
+		set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 0);
+		set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 0);  	    
+		set_bit(quest_rules, qr_DYINGENEMYESDONTHURTLINK, 0);  	    
+		set_bit(quest_rules, qr_OUTOFBOUNDSENEMIES, 0);  
+		set_bit(quest_rules, qr_SPRITEXY_IS_FLOAT, 0);
+	}
+	
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 46) )
+	{
+		set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);  	    
+	}
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 46) )
+	{
+		set_bit(quest_rules, qr_TRACESCRIPTIDS, 0);      
+		set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);      
+		set_bit(quest_rules, qr_PARSER_BOOL_TRUE_DECIMAL, 1);   
+		set_bit(quest_rules,qr_PARSER_250DIVISION,1);
+		set_bit(quest_rules,qr_PARSER_BOOL_TRUE_DECIMAL,1);
+		set_bit(quest_rules,qr_PARSER_TRUE_INT_SIZE,0);
+		set_bit(quest_rules,qr_PARSER_FORCE_INLINE,0);
+		set_bit(quest_rules,qr_PARSER_BINARY_32BIT,0);
+		if ( get_bit(quest_rules, qr_SELECTAWPN) ) 
+		{
+			set_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP,1); 
+			//In < 2.55a27, if you had an A+B subscreen, L and R didn't shift through inventory.
+			//Now they **do**, unless you disable that behaviour.
+			//For the sake of compatibility, old quests with the A+B subscreen rule enabed
+			//now enable the disable L/R item swap on load.
+		}
+			
+	}
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
 	{
 		//Compatibility: Setting the hero's action to rafting was previously disallowed, though legal for scripts to attempt.
@@ -3115,18 +3124,18 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		//Collision used some odd calculations before, and enemies could not be hit back into the top row or left column
 		set_bit(quest_rules, qr_OLD_ENEMY_KNOCKBACK_COLLISION, 1);
 	}
-    if ( tempheader.zelda_version < 0x255 )
-    {
-	  set_bit(quest_rules, qr_NOFFCWAITDRAW, 1);  
-	  set_bit(quest_rules, qr_NOITEMWAITDRAW, 1);  
-	  set_bit(quest_rules, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, 1); 
-	  set_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING, 1);
-	  //set_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, 1);
-    }
-    if ( tempheader.zelda_version < 0x255 || ( tempheader.zelda_version == 0x255 && tempheader.build < 48 ) )
-    {
-	  set_bit(quest_rules, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, 1);  
-    }
+	if ( tempheader.zelda_version < 0x255 )
+	{
+		set_bit(quest_rules, qr_NOFFCWAITDRAW, 1);  
+		set_bit(quest_rules, qr_NOITEMWAITDRAW, 1);  
+		set_bit(quest_rules, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, 1); 
+		set_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING, 1);
+		//set_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, 1);
+	}
+	if ( tempheader.zelda_version < 0x255 || ( tempheader.zelda_version == 0x255 && tempheader.build < 48 ) )
+	{
+		set_bit(quest_rules, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, 1);  
+	}
 	if( tempheader.zelda_version < 0x255 || ( tempheader.zelda_version == 0x255 && tempheader.build < 52 ) )
 	{
 		set_bit(quest_rules, qr_OLD_PRINTF_ARGS, 1);
@@ -3160,38 +3169,38 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_OLD_CHEST_COLLISION,1);
 	}
 	
-    if ( tempheader.zelda_version < 0x254 )
-    {
-	    set_bit(quest_rules, qr_250WRITEEDEFSCRIPT, 1);  
-    }
-    //Sideview spikes in 2.50.0
-    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3
-    {
-        set_bit(quest_rules, qr_OLDSIDEVIEWSPIKES, 1);
-    }
-    //more 2.50 fixes -Z
-    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<31))
-    {
-        set_bit(quest_rules, qr_MELEEMAGICCOST, 0);
-        set_bit(quest_rules, qr_NOGANONINTRO, 0);
-        set_bit(quest_rules, qr_OLDMIRRORCOMBOS, 1);
-        set_bit(quest_rules, qr_BROKENBOOKCOST, 1);
-	set_bit(quest_rules, qr_BROKENCHARINTDRAWING, 1);
+	if ( tempheader.zelda_version < 0x254 )
+	{
+		set_bit(quest_rules, qr_250WRITEEDEFSCRIPT, 1);  
+	}
+	//Sideview spikes in 2.50.0
+	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3
+	{
+		set_bit(quest_rules, qr_OLDSIDEVIEWSPIKES, 1);
+	}
+	//more 2.50 fixes -Z
+	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<31))
+	{
+		set_bit(quest_rules, qr_MELEEMAGICCOST, 0);
+		set_bit(quest_rules, qr_NOGANONINTRO, 0);
+		set_bit(quest_rules, qr_OLDMIRRORCOMBOS, 1);
+		set_bit(quest_rules, qr_BROKENBOOKCOST, 1);
+		set_bit(quest_rules, qr_BROKENCHARINTDRAWING, 1);
 	
-    }
-    if(tempheader.zelda_version == 0x254 && tempheader.build<41)
-    {
-	//set_bit(quest_rules,qr_MELEEMAGICCOST, get_bit(extra_rules,er_MAGICCOSTSWORD));
-	set_bit(quest_rules,qr_MELEEMAGICCOST, 1);
-    }
-	    
-    
-    if(tempheader.zelda_version < 0x193)
-    {
-        set_bit(quest_rules, qr_SHORTDGNWALK, 1);
-    }
-    
-	if(tempheader.zelda_version < 0x255){
+	}
+	if(tempheader.zelda_version == 0x254 && tempheader.build<41)
+	{
+		//set_bit(quest_rules,qr_MELEEMAGICCOST, get_bit(extra_rules,er_MAGICCOSTSWORD));
+		set_bit(quest_rules,qr_MELEEMAGICCOST, 1);
+	}
+	
+	if(tempheader.zelda_version < 0x193)
+	{
+		set_bit(quest_rules, qr_SHORTDGNWALK, 1);
+	}
+	
+	if(tempheader.zelda_version < 0x255)
+	{
 		set_bit(quest_rules, qr_OLDINFMAGIC, 1);
 	}
 	
@@ -3200,11 +3209,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR,1);
 	}
 	
-	if((tempheader.zelda_version < 0x255))
-	{
-		
-	}
-    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
 	{
 		set_bit(quest_rules,qr_OLD_F6,1);
 	}
@@ -3220,15 +3225,34 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_BROKEN_OVERWORLD_MINIMAP,1);
 	}
+	//}
+	
+	if(compatrule_version < 1)
+	{
+		//Enemies->Secret only affects flag 16-31
+		set_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31,1);
+	}
+	
+	if(compatrule_version < 2)
+	{
+		//Old CSet2 Handling
+		set_bit(quest_rules,qr_OLDCS2,1);
+	}
+	
+	if(compatrule_version < 3)
+	{
+		//Hardcoded Shadow/Spawn/Death anim frames
+		set_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
-    if(keepdata==true)
-    {
-        memcpy(Header, &tempheader, sizeof(tempheader));
-    }
-    return 0;
+	if(keepdata==true)
+	{
+		memcpy(Header, &tempheader, sizeof(tempheader));
+	}
+	return 0;
 }
 
 void init_msgstr(MsgStr *str)
@@ -14506,6 +14530,27 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					tempguy.flags |= guy_fadeinstant;
 				}
 			}
+			if (guyversion > 44)
+			{
+				if(!p_getc(&(tempguy.spr_shadow),f,keepdata))
+				{
+					return qe_invalid;
+				}
+				if(!p_getc(&(tempguy.spr_death),f,keepdata))
+				{
+					return qe_invalid;
+				}
+				if(!p_getc(&(tempguy.spr_spawn),f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				tempguy.spr_shadow = (tempguy.family==eeROCK && tempguy.misc10==1) ? iwLargeShadow : iwShadow;
+				tempguy.spr_death = iwDeath;
+				tempguy.spr_spawn = iwSpawn;
+			}
 			
             if(keepdata)
             {
@@ -19133,11 +19178,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version > 24)
 	{
-		if(!p_igetl(&temp_zinit.gravity2,f,true))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&temp_zinit.swimgravity,f,true))
+		if(!p_getc(&temp_zinit.darkcol,f,true))
 		{
 			return qe_invalid;
 		}
@@ -19149,6 +19190,24 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		temp_zinit.dither_percent = 20;
 		temp_zinit.def_lightrad = 24;
 		temp_zinit.transdark_percent = 0;
+		temp_zinit.darkcol = BLACK;
+	}
+	
+	if(s_version > 25)
+	{
+		if(!p_igetl(&temp_zinit.gravity2,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetl(&temp_zinit.swimgravity,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.gravity2 = temp_zinit.gravity*10000;
+		temp_zinit.swimgravity = temp_zinit.gravity2*0.75;
 	}
 	
 	if(keepdata==true)
@@ -20309,6 +20368,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
 	al_trace("Quest Section 'FFScript' is Version: %d\n", FFCore.quest_format[vFFScript]);
 	al_trace("Quest Section 'SFX' is Version: %d\n", FFCore.quest_format[vSFX]);
 	al_trace("Quest Section 'Favorites' is Version: %d\n", FFCore.quest_format[vFavourites]);
+	al_trace("Quest Section 'CompatRules' is Version: %d\n", FFCore.quest_format[vCompatRule]);
 	//Print metadata for versions under 2.10 here. Bleah.
 	if( FFCore.quest_format[vZelda] < 0x210 ) 
 	{

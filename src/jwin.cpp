@@ -37,6 +37,8 @@
 #include <stdio.h>
 #include "mem_debug.h"
 #include "util.h"
+#include "pal.h"
+#include "gui/tabpanel.h"
 using namespace util;
 
 //#ifndef _MSC_VER
@@ -72,7 +74,6 @@ int scheme[jcMAX] =
 };
 
 int jwin_pal[jcMAX] = {0};
-extern PALETTE RAMpal;
 
 // A pointer to this variable is used to identify the DIALOG belonging to
 // the DialogRunner. It isn't used for anything else.
@@ -576,7 +577,7 @@ static void _dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
   *
   *  Handles '\n' characters.
   */
-int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned char *s, int x, int y, int color, int bg, int pos)
+int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int x, int y, int color, int bg, int pos)
 {
     char tmp[1024];
     int c = 0;
@@ -648,9 +649,14 @@ int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned char *s, int x, int y, int col
     return pix_len;
 }
 
-int gui_textout_ln(BITMAP *bmp, unsigned char *s, int x, int y, int color, int bg, int pos)
+int gui_textout_ln(BITMAP *bmp, unsigned const char *s, int x, int y, int color, int bg, int pos)
 {
     return gui_textout_ln(bmp, font, s, x, y, color, bg, pos);
+}
+
+int gui_text_width(FONT *f, const char *s)
+{
+	return gui_textout_ln(NULL, f, (unsigned char*)s, 0, 0, 0, 0, 0);
 }
 
 int count_newline(unsigned char *s)
@@ -902,6 +908,44 @@ int jwin_rtext_proc(int msg, DIALOG *d, int c)
     return D_O_K;
 }
 
+int new_text_proc(int msg, DIALOG *d, int c)
+{
+	BITMAP* oldscreen = screen;
+	if(msg==MSG_DRAW)
+	{
+		screen = create_bitmap_ex(8,oldscreen->w,oldscreen->h);
+		clear_bitmap(screen);
+		set_clip_rect(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1);
+	}
+	int ret = D_O_K;
+	int w = d->w, h = d->h, x = d->x, y = d->y;
+	switch(d->d1)
+	{
+		case 0:
+			ret = jwin_text_proc(msg, d, c);
+			break;
+		case 1:
+			d->x += d->w/2;
+			ret = jwin_ctext_proc(msg, d, c);
+			break;
+		case 2:
+            d->x += d->w - 1;
+			ret = jwin_rtext_proc(msg, d, c);
+			break;
+	}
+	d->w = w;
+	d->h = h;
+	d->x = x;
+	d->y = y;
+	if(msg==MSG_DRAW)
+	{
+		masked_blit(screen, oldscreen, d->x, d->y, d->x, d->y, d->w, d->h);
+		destroy_bitmap(screen);
+		screen = oldscreen;
+	}
+	return ret;
+}
+
 /* draw_text_button:
   *  Helper for jwin_button_proc.
   */
@@ -1001,104 +1045,118 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
     
     switch(msg)
     {
-    
-    case MSG_DRAW:
-    {
-        FONT *oldfont = font;
-        
-        if(d->dp2)
-        {
-            font = (FONT*)d->dp2;
-        }
-        
-        jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
-        font = oldfont;
-    }
-    break;
-    
-    case MSG_WANTFOCUS:
-        return D_WANTFOCUS;
-        
-    case MSG_KEY:
-    
-        /* close dialog? */
-        if(d->flags & D_EXIT)
-        {
-            return D_CLOSE;
-        }
-        
-        /* or just toggle */
-        d->flags ^= D_SELECTED;
-        GUI_EVENT(d, geCLICK);
-        scare_mouse();
-        object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
-        break;
-        
-    case MSG_CLICK:
-        last_draw = 0;
-        
-        /* track the mouse until it is released */
-        while(gui_mouse_b())
-        {
-            down = mouse_in_rect(d->x, d->y, d->w, d->h);
-            
-            /* redraw? */
-            if(last_draw != down)
-            {
-                if(down != selected)
-                    d->flags |= D_SELECTED;
-                else
-                    d->flags &= ~D_SELECTED;
-                    
-                scare_mouse();
-                object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
-                last_draw = down;
-            }
-            
-            /* let other objects continue to animate */
-            broadcast_dialog_message(MSG_IDLE, 0);
-            
-            if(is_zquest())
-            {
-                if(myvsync)
-                {
-                    if(zqwin_scale > 1)
-                    {
-                        stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                    }
-                    else
-                    {
-                        blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                    }
-                    
-                    myvsync=0;
-                }
-            }
-        }
-        
-        /* redraw in normal state */
-        if(down)
-        {
-            GUI_EVENT(d, geCLICK);
-            if(d->flags&D_EXIT)
-            {
-                d->flags &= ~D_SELECTED;
-                scare_mouse();
-                object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
-            }
-        }
-        
-        /* should we close the dialog? */
-        if(down && (d->flags & D_EXIT))
-            return D_CLOSE;
-            
-        break;
-    }
-    
-    return D_O_K;
+		case MSG_DRAW:
+		{
+			FONT *oldfont = font;
+			
+			if(d->dp2)
+			{
+				font = (FONT*)d->dp2;
+			}
+			
+			jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
+			font = oldfont;
+		}
+		break;
+		
+		case MSG_WANTFOCUS:
+			return D_WANTFOCUS;
+			
+		case MSG_KEY:
+			/* close dialog? */
+			if(d->flags & D_EXIT)
+			{
+				return D_CLOSE;
+			}
+			if(d->d2 == 1) //Insta-button
+			{
+				GUI_EVENT(d, geCLICK);
+				break;
+			}
+			/* or just toggle */
+			d->flags ^= D_SELECTED;
+			GUI_EVENT(d, geCLICK);
+			scare_mouse();
+			object_message(d, MSG_DRAW, 0);
+			unscare_mouse();
+			break;
+			
+		case MSG_CLICK:
+		{
+			if(d->d2 == 1) //Insta-button
+			{
+				if(mouse_in_rect(d->x, d->y, d->w, d->h))
+				{
+					GUI_EVENT(d, geCLICK);
+					if(d->flags & D_EXIT)
+						return D_CLOSE;
+				}
+			}
+			else
+			{
+				last_draw = 0;
+				
+				/* track the mouse until it is released */
+				while(gui_mouse_b())
+				{
+					down = mouse_in_rect(d->x, d->y, d->w, d->h);
+					
+					/* redraw? */
+					if(last_draw != down)
+					{
+						if(down != selected)
+							d->flags |= D_SELECTED;
+						else
+							d->flags &= ~D_SELECTED;
+							
+						scare_mouse();
+						object_message(d, MSG_DRAW, 0);
+						unscare_mouse();
+						last_draw = down;
+					}
+					
+					/* let other objects continue to animate */
+					broadcast_dialog_message(MSG_IDLE, 0);
+					
+					if(is_zquest())
+					{
+						if(myvsync)
+						{
+							if(zqwin_scale > 1)
+							{
+								stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+							}
+							else
+							{
+								blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+							}
+							
+							myvsync=0;
+						}
+					}
+				}
+				
+				/* redraw in normal state */
+				if(down)
+				{
+					GUI_EVENT(d, geCLICK);
+					if(d->flags&D_EXIT)
+					{
+						d->flags &= ~D_SELECTED;
+						scare_mouse();
+						object_message(d, MSG_DRAW, 0);
+						unscare_mouse();
+					}
+				}
+				
+				/* should we close the dialog? */
+				if(down && (d->flags & D_EXIT))
+					return D_CLOSE;
+			}
+		}
+		break;
+	}
+	return D_O_K;
 }
 
 /* jwin_func_button_proc:
@@ -1583,8 +1641,13 @@ int jwin_swapbtn_proc(int msg, DIALOG* d, int c)
 }
 int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 {
-	DIALOG* swapbtn = (DIALOG*)d->dp3;
-	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_byte_proc(msg, d, c);
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+(int)(d->dp3);
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
 		swapbtn->d2 = 2; //Max states
@@ -1631,7 +1694,12 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 		}
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
-	d->fg = b; //Store numeric data
+	
+	if(d->fg != b)
+	{
+		GUI_EVENT(d, geUPDATE_SWAP);
+		d->fg = b; //Store numeric data
+	}
 	switch(ntype)
 	{
 		case typeDEC:
@@ -1652,8 +1720,13 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 }
 int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 {
-	DIALOG* swapbtn = (DIALOG*)d->dp3;
-	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_sshort_proc(msg, d, c);
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+(int)(d->dp3);
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
 		swapbtn->d2 = 2; //Max states
@@ -1703,7 +1776,12 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 		d->d2 = strlen(str);
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
-	d->fg = b; //Store numeric data
+	
+	if(d->fg != b)
+	{
+		GUI_EVENT(d, geUPDATE_SWAP);
+		d->fg = b; //Store numeric data
+	}
 	switch(ntype)
 	{
 		case typeDEC:
@@ -1724,8 +1802,13 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 }
 int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 {
-	DIALOG* swapbtn = (DIALOG*)d->dp3;
-	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return jwin_numedit_sshort_proc(msg, d, c);
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+(int)(d->dp3);
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
 		swapbtn->d2 = 4; //Max states
@@ -1827,7 +1910,11 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 		d->d2 = strlen(str);
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
-	d->fg = b; //Store numeric data
+	if(d->fg != b)
+	{
+		GUI_EVENT(d, geUPDATE_SWAP);
+		d->fg = b; //Store numeric data
+	}
 	if(msg==MSG_CHAR && ((c&255)=='.'))
 	{
 		if(ntype >= typeLDEC) //No '.' in long modes
@@ -4366,34 +4453,81 @@ int jwin_menu_proc(int msg, DIALOG *d, int c)
     return ret;
 }
 
+const char* rowpref(int row)
+{
+	static const char *lcol = "Level Colors", *sprcol = "Sprite Colors", *bosscol = "Boss Colors", *thmcol = "Theme Colors", *nlcol="";
+	switch(row)
+	{
+		case 2: case 3: case 4: case 9:
+			return lcol;
+		case 12: case 13:
+			return sprcol;
+		case 14:
+			return bosscol;
+		case 15:
+			return thmcol;
+		default:
+			return nlcol;
+	}
+}
+
 int jwin_selcolor_proc(int msg, DIALOG *d, int c)
 {
 	int ret = D_O_K;
-	int cwid = d->w / 16;
-	int chei = d->h / 12;
-	d->w = cwid * 16;
-	d->h = chei * 12;
+	if(!d->d2) d->d2 = 12;
+	int numcsets = d->d2;
+	int numcol = numcsets*0x10;
+	if(msg==MSG_START)
+	{
+		d->w = d->h = (16*8) * (is_large?1.5:1);
+	}
+	int csz = 8*(is_large?1.5:1);
+	d->w = csz * 16;
+	d->h = csz * numcsets;
 	switch(msg)
 	{
 		case MSG_DRAW:
 		{
 			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
-			for(int c = 0; c < 0xC0; ++c) //to cset 11
+			for(int c = 0; c < numcol; ++c)
 			{
-				int x = (c%16)*cwid, y = (c/16)*chei;
-				rectfill(screen, d->x+x, d->y+y, d->x+x+cwid-1, d->y+y+cwid-1, c);
+				int x = (c%16)*csz, y = (c/16)*csz;
+				rectfill(screen, d->x+x, d->y+y, d->x+x+csz-1, d->y+y+csz-1, c);
 				if(c == d->d1)
 				{
-					byte bright = (RAMpal[c].r >= 32) + (RAMpal[c].g >= 32) + (RAMpal[c].b >= 32);
+					RGB foo;
+					get_color(c, &foo);
+					byte bright = (foo.r >= 32) + (foo.g >= 32) + (foo.b >= 32);
 					byte highlightColor = vc(7); //sysgray
 					if(bright >= 2)
 						highlightColor = vc(0); //sysblack
 					else if(!bright)
 						highlightColor = vc(15);
-					rect(screen, d->x+x+0, d->y+y+0, d->x+x+cwid-1, d->y+y+cwid-1, highlightColor);
-					rect(screen, d->x+x+1, d->y+y+1, d->x+x+cwid-2, d->y+y+cwid-2, highlightColor);
+					rect(screen, d->x+x+0, d->y+y+0, d->x+x+csz-1, d->y+y+csz-1, highlightColor);
+					rect(screen, d->x+x+1, d->y+y+1, d->x+x+csz-2, d->y+y+csz-2, highlightColor);
 				}
 			}
+			
+            FONT *oldfont = font;
+            
+            if(d->dp2)
+            {
+                font = (FONT*)d->dp2;
+            }
+			
+			char buf[32]={0};
+			for(int col = 0; col < 16; ++col)
+			{
+				sprintf(buf, "%X", col);
+				gui_textout_ln(screen, (unsigned char*)buf, d->x + (csz*col) + (csz/2), d->y-3-text_height(font), palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 1);
+			}
+			for(int row = 0; row < numcsets; ++row)
+			{
+				sprintf(buf, "%s 0x%02X", rowpref(row), row*16);
+				gui_textout_ln(screen, (unsigned char*)buf, d->x-3, d->y + (csz*row) + (csz-text_height(font))/2, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 2);
+			}
+			
+            font = oldfont;
 			break;
 		}
 		
@@ -4401,12 +4535,12 @@ int jwin_selcolor_proc(int msg, DIALOG *d, int c)
 		{
 			if(mouse_in_rect(d->x, d->y, d->x+d->w-1, d->y+d->h-1))
 			{
-				int col = ((gui_mouse_x() - d->x) / cwid) + 16*((gui_mouse_y() - d->y) / chei);
+				int col = ((gui_mouse_x() - d->x) / csz) + 16*((gui_mouse_y() - d->y) / csz);
 
 				// for(int c = 0; c < 0xC0; ++c) //to cset 11
 				// {
-					// int x = (c%16)*cwid, y = (c/16)*chei;
-					// if(mouse_in_rect(d->x+x, d->y+y, d->x+x+cwid-1, d->y+y+cwid-1))
+					// int x = (c%16)*csz, y = (c/16)*csz;
+					// if(mouse_in_rect(d->x+x, d->y+y, d->x+x+csz-1, d->y+y+csz-1))
 					// {
 						// col = c;
 						// break;
@@ -4453,7 +4587,7 @@ int jwin_selcolor_proc(int msg, DIALOG *d, int c)
 				}
 				case KEY_DOWN:
 				{
-					if(d->d1 / 0x10 != 0xC0)
+					if(d->d1 / 0x10 != numcsets)
 						d->d1 += 0x10;
 					break;
 				}
@@ -4472,10 +4606,10 @@ int jwin_selcolor_proc(int msg, DIALOG *d, int c)
 
 static DIALOG selcolor_dlg[] =
 {
-	{ jwin_win_proc,       0,    0,  256,  141,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Select Color",  NULL,  NULL },
-	{ jwin_button_proc,   64,  118,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"OK",  NULL,  NULL },
-	{ jwin_button_proc,  128,  118,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Cancel",  NULL,  NULL },
-	{ jwin_selcolor_proc, 64,   20,   16*8,   12*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
+	{ jwin_win_proc,       0,    0,  300,  59+16*8,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Select Color",  NULL,  NULL },
+	{ jwin_button_proc,   75,  36+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"OK",  NULL,  NULL },
+	{ jwin_button_proc,  164,  36+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Cancel",  NULL,  NULL },
+	{ jwin_selcolor_proc, 150-64,   30,   16*8,   16*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
 	
 	{ NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
 };
@@ -4484,8 +4618,16 @@ extern FONT* lfont;
 int jwin_color_swatch(int msg, DIALOG *d, int c)
 {
 	int ret = D_O_K;
+	
 	switch(msg)
 	{
+		case MSG_START:
+		{
+			if(d->d2 < 1) d->d2 = 12;
+			else if(d->d2 > 16) d->d2 = 16;
+			break;
+		}
+		
 		case MSG_DRAW:
 		{
 			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, (d->flags&D_DISABLED) ? jwin_pal[jcBOX] : d->d1);
@@ -4500,10 +4642,25 @@ int jwin_color_swatch(int msg, DIALOG *d, int c)
 			selcolor_dlg[3].bg = jwin_pal[jcBOXFG];
 			selcolor_dlg[3].fg = jwin_pal[jcBOX];
 			selcolor_dlg[3].d1 = d->d1;
+			selcolor_dlg[3].d2 = d->d2;
 			if(is_large)
 				large_dialog(selcolor_dlg);
+			
 			while(gui_mouse_b()); //wait for mouseup
+			
+			//!TODO Move this out of jwin, and do better palette management.
+			//!TODO Allow loading different level palettes, sprite palettes, etc via buttons
+			PALETTE oldpal;
+			get_palette(oldpal);
+			PALETTE foopal;
+			get_palette(foopal);
+			foopal[BLACK] = _RGB(0,0,0);
+			foopal[WHITE] = _RGB(63,63,63);
+			set_palette(foopal);
+			
 			int val = popup_zqdialog(selcolor_dlg, 3);
+			
+			set_palette(oldpal);
 			if(val == 1 || val == 3)
 			{
 				d->d1 = selcolor_dlg[3].d1;
@@ -5402,6 +5559,95 @@ int jwin_check_proc(int msg, DIALOG *d, int c)
     return d_jwinbutton_proc(msg, d, 0);
 }
 
+int new_check_proc(int msg, DIALOG *d, int c)
+{
+	//these are here to bypass compiler warnings about unused arguments
+	c=c;
+	int bx=0, tl=0;
+	ASSERT(d);
+	
+    FONT *oldfont = font;
+    
+    if(d->dp2)
+    {
+        font = (FONT *)d->dp2;
+    }
+	switch(msg)
+	{
+		case MSG_DRAW:
+		{
+			int tx = 2, ty = 2, tx2 = 0;
+			BITMAP* tmp = create_bitmap_ex(8, d->w+4, d->h+4);
+			clear_bitmap(tmp);
+			set_clip_rect(tmp, tx, ty, tmp->w-tx, tmp->h-ty);
+			if(!(d->d1))
+			{
+				if(d->dp)
+				{
+					if(d->flags & D_DISABLED)
+					{
+						gui_textout_ln(tmp, (unsigned char *)d->dp, tx+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
+						tl=gui_textout_ln(tmp, (unsigned char *)d->dp, tx, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcMEDDARK], -1, 0);
+						bx=tl+text_height(font)/2;
+					}
+					else
+					{
+						tl=gui_textout_ln(tmp, (unsigned char *)d->dp, tx, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
+						bx=tl+text_height(font)/2;
+					}
+				}
+			}
+			
+			jwin_draw_frame(tmp, tx+bx, ty, d->h, d->h, FR_DEEP);
+			
+			if(!(d->flags & D_DISABLED))
+			{
+				rectfill(tmp, tx+bx+2, ty+2, tx+bx+d->h-3, ty+d->h-3, scheme[jcTEXTBG]);
+			}
+			
+			if(d->d1)
+			{
+				tx2=tx+bx+d->h-1+(text_height(font)/2);
+				
+				if(d->dp)
+				{
+					if(d->flags & D_DISABLED)
+					{
+						gui_textout_ln(tmp, (unsigned char *)d->dp, tx2+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
+						tl=gui_textout_ln(tmp, (unsigned char *)d->dp, tx2, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcMEDDARK], -1, 0);
+					}
+					else
+					{
+						tl=gui_textout_ln(tmp, (unsigned char *)d->dp, tx2, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
+					}
+				}
+			}
+
+			if(d->flags & D_SELECTED)
+			{
+				line(tmp, tx+bx+2, ty+2, tx+bx+d->h-3, ty+d->h-3, scheme[jcTEXTFG]);
+				line(tmp, tx+bx+2, ty+d->h-3, tx+bx+d->h-3, ty+2, scheme[jcTEXTFG]);
+			}
+			
+			set_clip_rect(tmp, 0, 0, tmp->w, tmp->h);
+			//d->w=int(text_height(font)*1.5);
+			if(d->dp)
+			{
+				dotted_rect(tmp, tx2-1, ty-1, tx2+tl, ty+(text_height(font)), (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
+			}
+			
+			masked_blit(tmp, screen, 0, 0, d->x-tx, d->y-ty, d->w+tx+tx, d->h+ty+ty);
+			break;
+		}
+	}
+	
+	int rval = D_O_K;
+	if(msg != MSG_DRAW)
+		rval = d_jwinbutton_proc(msg, d, 0);
+    font = oldfont;
+	return rval;
+}
+
 int jwin_radiofont_proc(int msg, DIALOG *d, int c)
 {
     FONT *oldfont = font;
@@ -5520,6 +5766,7 @@ int jwin_radio_proc(int msg, DIALOG *d, int c)
         d->flags &= ~D_SELECTED;
         broadcast_dialog_message(MSG_RADIO, d->d1);
         d->flags |= D_SELECTED;
+		GUI_EVENT(d, geRADIO);
     }
     
     return ret;
@@ -6497,6 +6744,215 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
     }
     
     return D_O_K;
+}
+
+int discern_tab(GUI::TabPanel *panel, int first_tab, int x)
+{
+    int w=0;
+    
+    for(size_t i=first_tab; i < panel->getSize(); i++)
+    {
+        w+=text_length(font, panel->getName(i))+15;
+        
+        if(w>x)
+        {
+            return i;
+        }
+    }
+    
+    return -1;
+}
+int tabs_width(GUI::TabPanel *panel)
+{
+    int w=0;
+    
+    for(size_t i=0; i < panel->getSize(); ++i)
+    {
+        w+=text_length(font, panel->getName(i))+15;
+    }
+    
+    return w+1;
+}
+bool uses_tab_arrows(GUI::TabPanel *panel, int maxwidth)
+{
+	return (tabs_width(panel)>maxwidth);
+}
+size_t last_visible_tab(GUI::TabPanel *panel, int first_tab, int maxwidth)
+{
+    size_t i;
+    int w=0;
+    
+    if(uses_tab_arrows(panel, maxwidth))
+    {
+        maxwidth-=28;
+    }
+    
+    for(i=first_tab; i < panel->getSize(); ++i)
+    {
+        w+=text_length(font, panel->getName(i))+15;
+        
+        if(w>maxwidth)
+        {
+            return i-1;
+        }
+    }
+    
+    return i-1;
+}
+int displayed_tabs_width(GUI::TabPanel *panel, int first_tab, int maxwidth)
+{
+    size_t i=0;
+    int w=0;
+    
+    for(i=first_tab; i<=last_visible_tab(panel, first_tab, maxwidth); ++i)
+    {
+        w+=text_length(font, panel->getName(i))+15;
+    }
+    
+    return w+1;
+}
+INLINE int is_in_rect(int x,int y,int rx1,int ry1,int rx2,int ry2);
+int new_tab_proc(int msg, DIALOG *d, int c)
+{
+	assert(d->flags&D_NEW_GUI);
+	
+    int tx;
+	int ret = D_O_K;
+    int sd=2; //selected delta
+	GUI::TabPanel *panel=(GUI::TabPanel*)d->dp;
+    ASSERT(d);
+    
+    if(d->dp==NULL) return D_O_K;
+    
+	FONT *oldfont = font;
+	if(d->dp2)
+	{
+		font = (FONT *)d->dp2;
+	}
+	
+	switch(msg)
+	{
+		case MSG_DRAW:
+		{
+			if(d->x<zq_screen_w&&d->y<zq_screen_h)
+			{
+				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+8+text_height(font), scheme[jcBOX]); //tab area
+				rectfill(screen, d->x+1, d->y+sd+text_height(font)+7, d->x+d->w-2, d->y+sd+d->h-2, scheme[jcBOX]); //panel
+				_allegro_vline(screen, d->x, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcLIGHT]);
+				_allegro_vline(screen, d->x+1, d->y+sd+7+text_height(font), d->y+sd+d->h-3, scheme[jcMEDLT]);
+				_allegro_vline(screen, d->x+d->w-2, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcMEDDARK]);
+				_allegro_vline(screen, d->x+d->w-1, d->y+sd+7+text_height(font)-1, d->y+sd+d->h-1, scheme[jcDARK]);
+				_allegro_hline(screen, d->x+1, d->y+sd+d->h-2, d->x+d->w-3, scheme[jcMEDDARK]);
+				_allegro_hline(screen, d->x, d->y+sd+d->h-1, d->x+d->w-2, scheme[jcDARK]);
+				tx=d->x;
+				
+				if(d->dp)
+				{
+					if(panel->getCurrentIndex() != d->d1)
+					{
+						_allegro_hline(screen, tx+1, d->y+sd+6+text_height(font)+1, tx+2, scheme[jcMEDLT]); //initial bottom
+						_allegro_hline(screen, tx, d->y+sd+6+text_height(font), tx+1, scheme[jcLIGHT]);     //initial bottom
+					}
+					
+					tx+=2;
+					
+					for(size_t i=d->d1; i < panel->getSize()&&i<=last_visible_tab(panel,d->d1,d->w); ++i)
+					{
+						sd=(i==panel->getCurrentIndex())?0:2;
+						
+						if((i==d->d1) || (i-1 != panel->getCurrentIndex()))
+						{
+							_allegro_vline(screen, tx-(2-sd), d->y+sd+2, d->y+8+text_height(font), scheme[jcLIGHT]); //left side
+							_allegro_vline(screen, tx-(2-sd)+1, d->y+sd+2, d->y+8+text_height(font), scheme[jcMEDLT]); //left side
+							putpixel(screen, tx+1-(2-sd), d->y+sd+1, scheme[jcLIGHT]);                               //left angle
+						}
+						
+						_allegro_hline(screen, tx+2-(2-sd), d->y+sd, tx+12+(2-sd)+text_length(font, panel->getName(i)), scheme[jcLIGHT]); //top
+						_allegro_hline(screen, tx+2-(2-sd), d->y+sd+1, tx+12+(2-sd)+text_length(font, panel->getName(i)), scheme[jcMEDLT]); //top
+						
+						if(i!=panel->getCurrentIndex())
+						{
+							_allegro_hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, panel->getName(i))+1, scheme[jcLIGHT]); //bottom
+							_allegro_hline(screen, tx, d->y+sd+6+text_height(font)+1, tx+13+text_length(font, panel->getName(i))+1, scheme[jcMEDLT]); //bottom
+						}
+						
+						tx+=4;
+						gui_textout_ln(screen, (unsigned char*)(panel->getName(i)), tx+4, d->y+sd+4, scheme[jcBOXFG], scheme[jcBOX], 0);
+						tx+=text_length(font, panel->getName(i))+10;
+						
+						if((i+1>=panel->getSize()) || (i+1!=panel->getCurrentIndex()))
+						{
+							putpixel(screen, tx-1+(2-sd), d->y+sd+1, scheme[jcDARK]); //right angle
+							_allegro_vline(screen, tx+(2-sd), d->y+sd+2, d->y+8+text_height(font)-1, scheme[jcDARK]); //right side
+							_allegro_vline(screen, tx+(2-sd)-1, d->y+sd+2, d->y+8+text_height(font)-(sd?1:0), scheme[jcMEDDARK]); //right side
+						}
+						
+						tx++;
+					}
+					
+					if(d->d1!=0||last_visible_tab(panel,d->d1,d->w)+1<panel->getSize())
+					{
+						jwin_draw_text_button(screen,d->x+d->w-14,d->y+2, 14, 14, "\x8B", 0, true);
+						jwin_draw_text_button(screen,d->x+d->w-28,d->y+2, 14, 14, "\x8A", 0, true);
+					}
+				}
+				
+				if((tx+(2-sd))<(d->x+d->w))
+				{
+					_allegro_hline(screen, tx+(2-sd)-1, d->y+8+text_height(font), d->x+d->w-1, scheme[jcLIGHT]); //ending bottom
+					_allegro_hline(screen, tx+(2-sd)-2, d->y+8+text_height(font)+1, d->x+d->w-2, scheme[jcMEDLT]); //ending bottom
+				}
+				
+			}
+		}
+		break;
+		
+		case MSG_CLICK:
+		{
+			// is the mouse on one of the tab arrows (if visible) or in the tab area?
+			if(uses_tab_arrows(panel, d->w)&&(mouse_in_rect(d->x+d->w-28, d->y+2, 28, 14)))
+			{
+				if(mouse_in_rect(d->x+d->w-28, d->y+2, 14, 14))
+				{
+					if(do_text_button_reset(d->x+d->w-28, d->y+2, 14, 14, "\x8A"))
+					{
+						if(d->d1>0)
+						{
+							--d->d1;
+						}
+						
+						ret |= D_REDRAW;
+					}
+				}
+				else if(mouse_in_rect(d->x+d->w-14, d->y+2, 14, 14))
+				{
+					if(do_text_button_reset(d->x+d->w-14, d->y+2, 14, 14, "\x8B"))
+					{
+						size_t t = last_visible_tab(panel, d->d1, d->w);
+						if(t<(panel->getSize()-1))
+						{
+							while(t==last_visible_tab(panel, d->d1, d->w))
+								++d->d1;
+						}
+						
+						ret |= D_REDRAW;
+					}
+				}
+			}
+			else if(is_in_rect(gui_mouse_x(),gui_mouse_y(), d->x+2, d->y+2, d->x+displayed_tabs_width(panel,((d->d1&0xFF00)>>8),d->w), d->y+text_height(font)+9))
+			{
+				// find out what the new tab (tb) will be (where the mouse is)
+				int newtab = discern_tab(panel, d->d1, gui_mouse_x()-d->x-2);
+				if(newtab > -1 && newtab != panel->getCurrentIndex())
+				{
+					panel->switchTo(newtab);
+				}
+			}
+		}
+		break;
+	}
+    font = oldfont;
+    return ret;
 }
 
 

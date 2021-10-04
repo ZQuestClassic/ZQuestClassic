@@ -1,0 +1,965 @@
+// ghost.zh
+// Version 2.8.15
+
+// Arguments to SetEWeaponMovement()
+const int EWM_SINE_WAVE         = 1;
+const int EWM_HOMING            = 3;
+const int EWM_HOMING_REAIM      = 4;
+const int EWM_RANDOM            = 5;
+const int EWM_RANDOM_REAIM      = 6;
+const int EWM_VEER              = 7;
+const int EWM_THROW             = 15;
+const int EWM_FALL              = 19;
+const int EWM_DRIFT             = 20;
+const int EWM_DRIFT_WAIT        = 28;
+const int EWM_HOMING_P2         = 30;
+const int EWM_HOMING_REAIM_P2   = 31;
+
+// Flags used by certain EWeapon movement types
+const int EWMF_DIE = 01b;
+const int EWMF_BOUNCE = 10b;
+
+// Arguments to SetEWeaponLifespan()
+const int EWL_TIMER        = 1;
+const int EWL_NEAR_LINK    = 2;
+const int EWL_SLOW_TO_HALT = 3;
+
+// Arguments to SetEWeaponDeathEffect()
+const int EWD_VANISH             = 1;
+const int EWD_AIM_AT_LINK        = 2;
+const int EWD_EXPLODE            = 3;
+const int EWD_SBOMB_EXPLODE      = 4;
+const int EWD_4_FIREBALLS_HV     = 5;
+const int EWD_4_FIREBALLS_DIAG   = 6;
+const int EWD_4_FIREBALLS_RANDOM = 7;
+const int EWD_8_FIREBALLS        = 8;
+const int EWD_4_FIRES_HV         = 9;
+const int EWD_4_FIRES_DIAG       = 10;
+const int EWD_4_FIRES_RANDOM     = 11;
+const int EWD_8_FIRES            = 12;
+const int EWD_SPAWN_NPC          = 13;
+const int EWD_FIRE               = 14;
+const int EWD_RUN_SCRIPT         = 15;
+const int EWD_AIM_AT_P2          = 16;
+
+// Prototype-based version
+const int EWD_EVEN   = 1;
+const int EWD_RANDOM = 2;
+const int EWD_AIMED  = 3;
+
+// EWeapon flags
+const int EWF_UNBLOCKABLE          = 00000000001b;
+const int EWF_ROTATE               = 00000000010b;
+const int EWF_ROTATE_360           = 00000000100b;
+const int EWF_SHADOW               = 00000001000b;
+const int EWF_FLICKER              = 00000010000b;
+const int EWF_NO_COLLISION         = 00000100000b;
+const int EWF_FAKE_Z               = 00001000000b;
+
+// Internal EWeapon flags
+const int __EWFI_DEAD              = 00010000000b;
+const int __EWFI_DUMMY             = 00100000000b;
+const int __EWFI_IS_GHZH_EWPN      = 01000000000b;
+const int __EWFI_DUMMY_CHECK       = 01100000000b;
+const int __EWFI_DEATH_EFFECT_DONE = 10000000000b;
+const int __EWFI_INTERNAL          = 11110000000b;
+
+
+
+// Fire an eweapon
+eweapon FireEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags)
+{
+    if(sprite<0)
+        sprite=GetDefaultEWeaponSprite(weaponID);
+    
+    if(sound<0)
+        sound=GetDefaultEWeaponSound(weaponID);
+    
+    eweapon wpn=Screen->CreateEWeapon(weaponID);
+    wpn->X=x;
+    wpn->Y=y;
+    wpn->Step=step;
+    wpn->Damage=damage;
+    wpn->Angular=true;
+    wpn->Angle=angle;
+    
+    if(sprite>=0)
+        wpn->UseSprite(sprite);
+    
+    wpn->Misc[__EWI_FLAGS]=flags|__EWFI_IS_GHZH_EWPN;
+    
+    SetEWeaponDir(wpn); // After flags so unblockability is detected
+    
+    if((flags&EWF_NO_COLLISION)!=0)
+        wpn->CollDetection=false;
+    
+    if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
+        SetEWeaponRotation(wpn);
+    
+    Game->PlaySound(sound);
+    
+    return wpn;
+}
+
+
+// Fire an eweapon aimed based on Link's position
+eweapon FireAimedEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags)
+{
+    return FireEWeapon(weaponID, x, y, ArcTan(Link->X-x, Link->Y-y)+angle, step, damage, sprite, sound, flags);
+}
+
+
+// Fire a non-angular eweapon
+eweapon FireNonAngularEWeapon(int weaponID, int x, int y, int dir, int step, int damage, int sprite, int sound, int flags)
+{
+    if(sprite<0)
+        sprite=GetDefaultEWeaponSprite(weaponID);
+    
+    if(sound<0)
+        sound=GetDefaultEWeaponSound(weaponID);
+    
+    eweapon wpn=Screen->CreateEWeapon(weaponID);
+    wpn->X=x;
+    wpn->Y=y;
+    wpn->Step=step;
+    wpn->Damage=damage;
+    wpn->Angular=false;
+    
+    if((flags&EWF_UNBLOCKABLE)!=0)
+        wpn->Dir=__UnblockableDir(dir);
+    else
+        wpn->Dir=dir;
+        
+    if(sprite>=0)
+        wpn->UseSprite(sprite);
+
+    if((flags&EWF_NO_COLLISION)!=0)
+        wpn->CollDetection=false;
+
+    if((flags&EWF_ROTATE)!=0)
+        SetEWeaponRotation(wpn);
+    
+    wpn->Misc[__EWI_FLAGS]=flags|__EWFI_IS_GHZH_EWPN;
+    
+    Game->PlaySound(sound);
+    return wpn;
+}
+
+
+// Fire an eweapon larger than 1x1
+eweapon FireBigEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags, int width, int height)
+{
+    eweapon wpn=FireEWeapon(weaponID, x, y, angle, step, damage, sprite, sound, flags);
+    wpn->Extend=3;
+    wpn->TileWidth=width;
+    wpn->TileHeight=height;
+    wpn->HitWidth=16*width;
+    wpn->HitHeight=16*height;
+    return wpn;
+}
+
+
+// Fire an eweapon larger than 1x1 aimed based on Link's position
+eweapon FireBigAimedEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags, int width, int height)
+{
+    eweapon wpn=FireEWeapon(weaponID, x, y, ArcTan(Link->X-x, Link->Y-y)+angle, step, damage, sprite, sound, flags);
+    wpn->Extend=3;
+    wpn->TileWidth=width;
+    wpn->TileHeight=height;
+    wpn->HitWidth=16*width;
+    wpn->HitHeight=16*height;
+    return wpn;
+}
+
+
+// Fire a non-angular eweapon larger than 1x1
+eweapon FireBigNonAngularEWeapon(int weaponID, int x, int y, int dir, int step, int damage, int sprite, int sound, int flags, int width, int height)
+{
+    eweapon wpn=FireNonAngularEWeapon(weaponID, x, y, dir, step, damage, sprite, sound, flags);
+    wpn->Extend=3;
+    wpn->TileWidth=width;
+    wpn->TileHeight=height;
+    wpn->HitWidth=16*width;
+    wpn->HitHeight=16*height;
+    return wpn;
+}
+
+// Create a dummy eweapon to use as a prototype
+eweapon CreateDummyEWeapon(int weaponID, int step, int damage, int sprite, int sound, int flags)
+{
+    eweapon wpn=Screen->CreateEWeapon(weaponID);
+    eweapon checkWpn;
+    int minID;
+    wpn->Step=0;
+    wpn->Damage=damage;
+    wpn->Misc[__EWI_DUMMY_STEP]=step;
+    wpn->Misc[__EWI_DUMMY_SOUND]=sound;
+    wpn->Misc[__EWI_DUMMY_SPRITE]=sprite;
+    
+    // Give the weapon a unique ID number so it can be found later
+    for(int i=Screen->NumEWeapons(); i>0; i--)
+    {
+        checkWpn=Screen->LoadEWeapon(i);
+        if((checkWpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY_CHECK)==__EWFI_DUMMY_CHECK)
+            continue;
+        minID=Min(minID, checkWpn->Misc[__EWI_ID]);
+    }
+    wpn->Misc[__EWI_ID]=minID-1;
+    
+    wpn->Misc[__EWI_FLAGS]=flags|__EWFI_IS_GHZH_EWPN|__EWFI_DUMMY;
+    
+    wpn->CollDetection=false;
+    wpn->DrawXOffset=32768;
+    
+    // Move it to make sure it's not deleted
+    wpn->X=32;
+    wpn->Y=32;
+    
+    return wpn;
+}
+
+
+// Create a dummy eweapon larger than 1x1
+eweapon CreateBigDummyEWeapon(int weaponID, int step, int damage, int sprite, int sound, int flags, int width, int height)
+{
+    eweapon wpn=CreateDummyEWeapon(weaponID, step, damage, sprite, sound, flags);
+    wpn->Extend=3;
+
+    wpn->TileWidth=width;
+    wpn->TileHeight=height;
+    // No point setting the hitbox here
+    return wpn;
+}
+
+
+// Set an eweapon's movement type
+void SetEWeaponMovement(eweapon wpn, int type, int arg, int arg2)
+{
+    // Dummies normally use __EWI_XPOS and __EWI_YPOS for other purposes,
+    // so don't overwrite them
+    if((wpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY)==0)
+    {
+        wpn->Misc[__EWI_XPOS]=wpn->X;
+        wpn->Misc[__EWI_YPOS]=wpn->Y;
+    }
+    wpn->Misc[__EWI_WORK]=0;
+    wpn->Misc[__EWI_MOVEMENT]=type;
+    wpn->Misc[__EWI_MOVEMENT_ARG]=arg;
+    wpn->Misc[__EWI_MOVEMENT_ARG_2]=arg2;
+    wpn->Misc[__EWI_FLAGS]|=__EWFI_IS_GHZH_EWPN;
+
+    if(type==EWM_HOMING_REAIM || type==EWM_RANDOM_REAIM)
+    {
+        // Dummy? Use its stored step instead of its real step
+        if((wpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY)!=0)
+            wpn->Misc[__EWI_WORK_2]=wpn->Misc[__EWI_DUMMY_STEP];
+        else
+            wpn->Misc[__EWI_WORK_2]=wpn->Step;
+    }
+    else if(type==EWM_THROW)
+    {
+        wpn->Misc[__EWI_WORK_2]=wpn->Z;
+
+        // Necessary upward velocity to reach Link for thrown weapons
+        if(arg<=0)
+        {
+            // Special case for dummy weapons
+            if((wpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY)!=0)
+                wpn->Misc[__EWI_MOVEMENT_ARG]=-1;
+
+            else
+                wpn->Misc[__EWI_MOVEMENT_ARG]=__GetEWeaponThrowHeight(wpn);
+        }
+    }
+    else if(type==EWM_FALL)
+    {
+        wpn->Z=arg;
+        wpn->Misc[__EWI_WORK_2]=arg;
+        wpn->Misc[__EWI_WORK]=GH_GRAVITY;
+    }
+}
+
+// Returns the Z velocity at which a weapon should be thrown
+// to land at Link's position.
+float __GetEWeaponThrowHeight(eweapon wpn)
+{
+    float step=wpn->Step/100;
+    if(step<=0)
+        return 1;
+    
+    float dist=Distance(wpn->X+wpn->HitWidth/2, wpn->Y+wpn->HitHeight/2,
+      Link->X+8, Link->Y+8);
+    if(dist<1)
+        return 1;
+    
+    float travelTime=dist/step;
+    float ret=0;
+    
+    // Every increase in velocity of GH_GRAVITY means two frames in the air.
+    // This might overshoot by a frame, but that's all right.
+    while(ret<=GH_TERMINAL_VELOCITY)
+    {
+        ret+=GH_GRAVITY;
+        travelTime-=2;
+        if(travelTime<=0)
+            return ret;
+    }
+    
+    // Needs to exceed terminal velocity. Slightly trickier here, because
+    // an increase of GH_GRAVITY may mean more than two more frames in the air.
+    float excess=0; // Distance left to fall after reaching TV
+    while(travelTime>excess/GH_TERMINAL_VELOCITY)
+    {
+        ret+=GH_GRAVITY;
+        excess+=ret-GH_TERMINAL_VELOCITY;
+        travelTime-=2;
+    }
+    
+    return ret;
+}
+
+// Set an eweapon's lifespan
+void SetEWeaponLifespan(eweapon wpn, int type, int arg)
+{
+    wpn->Misc[__EWI_LIFESPAN]=type;
+    wpn->Misc[__EWI_LIFESPAN_ARG]=arg;
+    wpn->Misc[__EWI_FLAGS]|=__EWFI_IS_GHZH_EWPN;
+}
+
+
+// Set an eweapon to use a standard death effect
+void SetEWeaponDeathEffect(eweapon wpn, int type, int arg)
+{
+    // Make sure the script number is valid
+    if(type==EWD_RUN_SCRIPT)
+    {
+        if(arg<1 || arg>511)
+            type=EWD_VANISH;
+    }
+    
+    wpn->Misc[__EWI_ON_DEATH]=type;
+    wpn->Misc[__EWI_ON_DEATH_ARG]=arg;
+    wpn->Misc[__EWI_FLAGS]|=__EWFI_IS_GHZH_EWPN;
+}
+
+
+// Set an eweapon to spawn more eweapons on death
+void SetEWeaponDeathEffect(eweapon wpn, eweapon prototype, int numShots, int spreadType, float angle)
+{
+    // Combining four variables into two... Ugly, but doable
+    wpn->Misc[__EWI_ON_DEATH]=prototype->Misc[__EWI_ID]+(numShots%1000)/10000;
+    wpn->Misc[__EWI_ON_DEATH_ARG]=spreadType*100+(WrapAngle(angle)+6.2832);
+    wpn->Misc[__EWI_FLAGS]|=__EWFI_IS_GHZH_EWPN;
+}
+
+
+// Update a weapon's movement, lifespan, and death effects
+void UpdateEWeapon(eweapon wpn)
+{
+    if((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_SUSPEND)!=0)
+        return;
+    
+    // Needed for EWF_ROTATE_360
+    int startX=wpn->X;
+    int startY=wpn->Y;
+    bool selfPropelled=true;
+
+    // Is the weapon still active?
+    if((wpn->Misc[__EWI_FLAGS]&__EWFI_DEAD)==0)
+    {
+        // Start movement updates
+        if(wpn->Misc[__EWI_MOVEMENT]!=0)
+        {
+            // Split in half to reduce checks
+            if(wpn->Misc[__EWI_MOVEMENT]<=EWM_RANDOM_REAIM)
+            {
+                if(wpn->Misc[__EWI_MOVEMENT]==EWM_SINE_WAVE)
+                    __UpdateEWMSineWave(wpn);
+                else if(wpn->Misc[__EWI_MOVEMENT]==EWM_HOMING)
+                    __UpdateEWMHoming(wpn);
+                else if(wpn->Misc[__EWI_MOVEMENT]==EWM_HOMING_REAIM)
+                    __UpdateEWMHomingReaim(wpn);
+                else if(wpn->Misc[__EWI_MOVEMENT]==EWM_RANDOM)
+                    __UpdateEWMRandom(wpn);
+                else // EWM_RANDOM_REAIM
+                    __UpdateEWMRandomReaim(wpn);
+            }
+            else // wpn->Misc[__EWI_MOVEMENT]>EWM_RANDOM_REAIM
+            {
+                if(wpn->Misc[__EWI_MOVEMENT]==EWM_VEER)
+                {
+                    startX=wpn->Misc[__EWI_XPOS];
+                    startY=wpn->Misc[__EWI_YPOS];
+                    __UpdateEWMVeer(wpn);
+                    selfPropelled=false;
+                }
+                else if(wpn->Misc[__EWI_MOVEMENT]==EWM_THROW)
+                    __UpdateEWMThrow(wpn);
+                else if(wpn->Misc[__EWI_MOVEMENT]==EWM_FALL)
+                    __UpdateEWMFall(wpn);
+                else if(wpn->Misc[__EWI_MOVEMENT]==EWM_DRIFT)
+                {
+                    startX=wpn->Misc[__EWI_XPOS];
+                    startY=wpn->Misc[__EWI_YPOS];
+                    __UpdateEWMDrift(wpn);
+                    selfPropelled=false;
+                }
+		
+                else //EWM_DRIFT_WAIT
+                {
+                    startX=wpn->Misc[__EWI_XPOS];
+                    startY=wpn->Misc[__EWI_YPOS];
+                    __UpdateEWMDriftWait(wpn);
+                    selfPropelled=false;
+                }
+            }
+        } // End movement updates
+        
+        
+        // Start lifespan updates
+        if(wpn->Misc[__EWI_LIFESPAN]!=0)
+        {
+            if(wpn->Misc[__EWI_LIFESPAN]==EWL_TIMER)
+            {
+                wpn->Misc[__EWI_LIFESPAN_ARG]-=1;
+                if(wpn->Misc[__EWI_LIFESPAN_ARG]<=0)
+                    KillEWeapon(wpn);
+            }
+            else if(wpn->Misc[__EWI_LIFESPAN]==EWL_NEAR_LINK)
+            {
+                if(Distance(wpn->X, wpn->Y, Link->X, Link->Y)<wpn->Misc[__EWI_LIFESPAN_ARG])
+                    KillEWeapon(wpn);
+            }
+            else if(wpn->Misc[__EWI_LIFESPAN]==EWL_SLOW_TO_HALT)
+            {
+                wpn->Step=Max(0, wpn->Step-wpn->Misc[__EWI_LIFESPAN_ARG]);
+                if(wpn->Step<=0)
+                    KillEWeapon(wpn);
+            }
+        } // End lifespan updates
+    }
+
+    // Start death effects
+    else if(wpn->Misc[__EWI_ON_DEATH]!=0 && (wpn->Misc[__EWI_FLAGS]&__EWFI_DEATH_EFFECT_DONE)==0)
+    {
+        if(wpn->Misc[__EWI_ON_DEATH]<0)
+            __DoEWeaponDeathPrototype(wpn);
+
+        // Split in half to reduce checks
+        else if(wpn->Misc[__EWI_ON_DEATH]<8)
+        {
+            if(wpn->Misc[__EWI_ON_DEATH]==EWD_VANISH)
+                wpn->DeadState=0;
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_AIM_AT_LINK)
+                __DoEWeaponDeathAimAtLink(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_EXPLODE)
+                __DoEWeaponDeathExplode(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_SBOMB_EXPLODE)
+                __DoEWeaponDeathSBombExplode(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_4_FIREBALLS_HV)
+                __DoEWeaponDeath4FireballsHV(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_4_FIREBALLS_DIAG)
+                __DoEWeaponDeath4FireballsDiag(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_4_FIREBALLS_RANDOM)
+                __DoEWeaponDeath4FireballsRand(wpn);
+        }
+        else // wpn->Misc[__EWI_ON_DEATH]>=8
+        {
+            if(wpn->Misc[__EWI_ON_DEATH]==EWD_8_FIREBALLS)
+                __DoEWeaponDeath8Fireballs(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_4_FIRES_HV)
+                __DoEWeaponDeath4FiresHV(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_4_FIRES_DIAG)
+                __DoEWeaponDeath4FiresDiag(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_4_FIRES_RANDOM)
+                __DoEWeaponDeath4FiresRand(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_8_FIRES)
+                __DoEWeaponDeath8Fires(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_SPAWN_NPC)
+                __DoEWeaponDeathSpawnNPC(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_FIRE)
+                __DoEWeaponDeathSingleFire(wpn);
+            else if(wpn->Misc[__EWI_ON_DEATH]==EWD_RUN_SCRIPT)
+                __DoEWeaponDeathRunScript(wpn);
+        }
+    } // End death effects
+    
+    // Start flags
+
+    if((wpn->Misc[__EWI_FLAGS]&EWF_SHADOW)!=0)
+    {
+        if(wpn->Z>0)
+            DrawEWeaponShadow(wpn);
+    }
+    
+    if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE_360)!=0)
+    {
+        wpn->DrawXOffset=1000;
+        
+        // Don't draw if Link is dead
+        if(Link->HP<=0)
+            return;
+        
+        // Flickering? Nothing to do here.
+        if((wpn->Misc[__EWI_FLAGS]&EWF_FLICKER)!=0 &&
+           (__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
+            return;
+        
+        float endX;
+        float endY;
+        float angle;
+        
+        // Get the angle first
+        if(wpn->Angular)
+            angle=RadtoDeg(wpn->Angle);
+        else
+        {
+            int dir=__NormalizeDir(wpn->Dir);
+            
+            if(dir==DIR_UP)
+                angle=-90;
+            else if(dir==DIR_RIGHTUP)
+                angle=-45;
+            else if(dir==DIR_RIGHT)
+                angle=0;
+            else if(dir==DIR_RIGHTDOWN)
+                angle=45;
+            else if(dir==DIR_DOWN)
+                angle=90;
+            else if(dir==DIR_LEFTDOWN)
+                angle=135;
+            else if(dir==DIR_LEFT)
+                angle=180;
+            else // DIR_LEFTUP
+                angle=-135;
+        }
+        
+        if(selfPropelled)
+        {
+            endX=wpn->X+wpn->Step/100*Cos(angle);
+            endY=wpn->Y+wpn->Step/100*Sin(angle);
+        }
+        else
+        {
+            endX=wpn->Misc[__EWI_XPOS];
+            endY=wpn->Misc[__EWI_YPOS];
+        }
+        
+        // If the weapon's moving, use that angle instead of
+        // wpn->Angle or wpn->Dir
+        if(!(startX==endX && startY==endY))
+            angle=Angle(startX, startY, endX, endY);
+        
+        int flip;
+        if(angle>=0 && angle<180)
+            flip=0;
+        else
+            flip=2;
+        
+        // Currently, these are always drawn on layer 4.
+        // That should probably be changed...
+        Screen->DrawTile(4, endX, endY-wpn->Z, wpn->Tile,
+          wpn->TileWidth, wpn->TileHeight, wpn->CSet, -1, -1,
+          endX, endY-wpn->Z, angle, flip, true, OP_OPAQUE);
+    }
+    else // EWF_ROTATE_360 isn't set
+    {
+        if((wpn->Misc[__EWI_FLAGS]&EWF_FLICKER)!=0)
+        {
+            // Weapons can't be made invisible; use DrawXOffset instead
+            if((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
+                wpn->DrawXOffset=1000;
+            else
+                wpn->DrawXOffset=0;
+        }
+        
+        if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
+            SetEWeaponRotation(wpn);
+    }
+    
+    if((wpn->Misc[__EWI_FLAGS]&EWF_FAKE_Z)!=0 || __GH_FAKE_EWEAPON_Z!=0)
+    {
+        // For some reason, DrawZOffset is also HitZOffset,
+        // so Y offsets also have to be used.
+        wpn->DrawZOffset=-wpn->Z;
+        wpn->HitYOffset=-wpn->Z;
+        wpn->DrawYOffset=-wpn->Z;
+    }
+    
+    // End flags
+}
+
+// Used when Link is holding up an item. UpdateEWeapon() doesn't run, but
+// the appearance-related flags still need handled.
+void __UpdateEWeaponVisualFlags(eweapon wpn)
+{
+    if((wpn->Misc[__EWI_FLAGS]&EWF_SHADOW)!=0)
+    {
+        if(wpn->Z>0)
+            DrawEWeaponShadow(wpn);
+    }
+    
+    if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE_360)!=0)
+    {
+        wpn->DrawXOffset=1000;
+        
+        // Flickering? Nothing to do here.
+        if((wpn->Misc[__EWI_FLAGS]&EWF_FLICKER)!=0 &&
+           (__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
+            return;
+        
+        // This works a little differently than in UpdateEWeapon(). Since
+        // movement isn't updating normally, the angle or direction are
+        // always used. It's not perfect, but it'll have to do.
+        
+        float angle;
+        
+        if(wpn->Angular)
+            angle=RadtoDeg(wpn->Angle);
+        else
+        {
+            int dir=__NormalizeDir(wpn->Dir);
+            
+            if(dir==DIR_UP)
+                angle=-90;
+            else if(dir==DIR_RIGHTUP)
+                angle=-45;
+            else if(dir==DIR_RIGHT)
+                angle=0;
+            else if(dir==DIR_RIGHTDOWN)
+                angle=45;
+            else if(dir==DIR_DOWN)
+                angle=90;
+            else if(dir==DIR_LEFTDOWN)
+                angle=135;
+            else if(dir==DIR_LEFT)
+                angle=180;
+            else // DIR_LEFTUP
+                angle=-135;
+        }
+        
+        int flip;
+        if(angle>=0 && angle<180)
+            flip=0;
+        else
+            flip=2;
+        
+        // Currently, these are always drawn on layer 4.
+        // That should probably be changed...
+        Screen->DrawTile(4, wpn->X, wpn->Y-wpn->Z, wpn->Tile, 1, 1, wpn->CSet,
+                         -1, -1, wpn->X, wpn->Y-wpn->Z, angle, flip, true, OP_OPAQUE);
+    }
+    else // EWF_ROTATE_360 isn't set
+    {
+        if((wpn->Misc[__EWI_FLAGS]&EWF_FLICKER)!=0)
+        {
+            // Weapons can't be made invisible; use DrawXOffset instead
+            if((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
+                wpn->DrawXOffset=1000;
+            else
+                wpn->DrawXOffset=0;
+        }
+        
+        if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
+            SetEWeaponRotation(wpn);
+    }
+}
+
+// Set the weapon's direction based on its angle;
+// Can also makes weapons unblockable
+void SetEWeaponDir(eweapon wpn)
+{
+    float angle=wpn->Angle%6.2832;
+    int dir;
+    
+    if(angle<0)
+        angle+=6.2832;
+    
+    if(angle<0.3927 || angle>5.8905)
+        dir=DIR_RIGHT;
+    else if(angle<1.1781)
+        dir=DIR_RIGHTDOWN;
+    else if(angle<1.9635)
+        dir=DIR_DOWN;
+    else if(angle<2.7489)
+        dir=DIR_LEFTDOWN;
+    else if(angle<3.5343)
+        dir=DIR_LEFT;
+    else if(angle<4.3197)
+        dir=DIR_LEFTUP;
+    else if(angle<5.1051)
+        dir=DIR_UP;
+    else
+        dir=DIR_RIGHTUP;
+    
+    if((wpn->Misc[__EWI_FLAGS]&EWF_UNBLOCKABLE)!=0)
+        dir=__UnblockableDir(dir);
+    
+    wpn->Dir=dir;
+}
+
+
+// Flip the weapon's sprite to match its direction
+void SetEWeaponRotation(eweapon wpn)
+{
+    if(wpn->Angular)
+    {
+        float angle=wpn->Angle%6.2832;
+        if(angle<0)
+            angle+=6.2832;
+
+        if(angle<0.7854 || angle>5.4978) // Right
+            wpn->Flip=4;
+        else if(angle<=2.3562) // Down
+            wpn->Flip=3;
+        else if(angle<3.927) // Left
+            wpn->Flip=7;
+        else // Up
+            wpn->Flip=0;
+    }
+    else
+    {
+        int dir=__NormalizeDir(wpn->Dir);
+        if(dir==DIR_UP || dir==DIR_RIGHTUP || dir==DIR_LEFTUP)
+            wpn->Flip=0;
+        else if(dir==DIR_DOWN || dir==DIR_RIGHTDOWN || dir==DIR_LEFTDOWN)
+            wpn->Flip=3;
+        else if(dir==DIR_LEFT)
+            wpn->Flip=7;
+        else // Right
+            wpn->Flip=4;
+    }
+}
+
+
+// Flip the weapon's sprite to match the given direction
+void SetEWeaponRotation(eweapon wpn, int dir)
+{
+    dir=__NormalizeDir(dir);
+    if(dir==DIR_UP || dir==DIR_RIGHTUP || dir==DIR_LEFTUP)
+        wpn->Flip=0;
+    else if(dir==DIR_DOWN || dir==DIR_RIGHTDOWN || dir==DIR_LEFTDOWN)
+        wpn->Flip=3;
+    else if(dir==DIR_LEFT)
+        wpn->Flip=7;
+    else // Right
+        wpn->Flip=4;
+}
+
+
+// Kill an eweapon, triggering any death effects
+void KillEWeapon(eweapon wpn)
+{
+    wpn->Misc[__EWI_FLAGS]|=__EWFI_DEAD;
+}
+
+
+// Draw a shadow under an eweapon
+void DrawEWeaponShadow(eweapon wpn)
+{
+    if(GH_SHADOW_FLICKER>0 && (__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
+        return;
+    
+    int x=CenterX(wpn)-8+wpn->DrawXOffset;
+    int y=wpn->Y+(wpn->TileHeight-1)*16+wpn->DrawYOffset-wpn->DrawZOffset;
+
+    if(GH_SHADOW_TRANSLUCENT>0)
+        Screen->DrawTile(1, x, y, GH_SHADOW_TILE+__ghzhData[__GHI_SHADOW_FRAME],
+                         1, 1, GH_SHADOW_CSET, -1, -1, 0, 0, 0, 0, true, 64);
+    else
+        Screen->DrawTile(1, x, y, GH_SHADOW_TILE+__ghzhData[__GHI_SHADOW_FRAME],
+                         1, 1, GH_SHADOW_CSET, -1, -1, 0, 0, 0, 0, true, 128);
+}
+
+
+// Get the standard sprite for this weapon type
+int GetDefaultEWeaponSprite(int weaponID)
+{
+    if(weaponID==EW_FIREBALL || weaponID==EW_FIREBALL2)
+        return 17;
+    else if(weaponID==EW_ROCK)
+        return 18;
+    else if(weaponID==EW_ARROW)
+        return 19;
+    else if(weaponID==EW_FIRE)
+        return 35;
+    else if(weaponID==EW_FIRE2)
+        return 81;
+    else if(weaponID==EW_FIRETRAIL)
+        return 80;
+    else if(weaponID==EW_MAGIC)
+        return 21;
+    else if(weaponID==EW_BEAM)
+        return 20;
+    else if(weaponID==EW_WIND)
+        return 36;
+    else if(weaponID==EW_BOMB)
+        return 76;
+    else if(weaponID==EW_SBOMB)
+        return 77;
+    else if(weaponID==EW_BRANG)
+    {
+        // The sprite depends on what boomerang Link has, so check his inventory
+        int maxLevel=0;
+        itemdata id;
+
+        for(int i=0; i<256; i++)
+        {
+            if(!Link->Item[i])
+                continue;
+
+            id=Game->LoadItemData(i);
+
+            if(id->Family!=IC_BRANG)
+                continue;
+
+            if(id->Level>maxLevel)
+            {
+                maxLevel=id->Level;
+                if(maxLevel>=3) // Any higher won't matter
+                    break;
+            }
+
+        }
+
+        if(maxLevel<=1)
+            return 4;
+        else if(maxLevel==2)
+            return 5;
+        else
+            return 6;
+    }
+    else
+        return 0;
+}
+
+
+// Find the sound normally made by weapons of this type
+int GetDefaultEWeaponSound(int weaponID)
+{
+     if(weaponID==EW_FIREBALL || weaponID==EW_FIREBALL2)
+        return 40;
+    else if(weaponID==EW_MAGIC || weaponID==EW_WIND)
+        return 32;
+    else if(weaponID==EW_FIRE || weaponID==EW_FIRE2 || weaponID==EW_FIRETRAIL)
+        return 13;
+    else if(weaponID==EW_ROCK)
+        return 51;
+    else
+        return 0;
+}
+
+
+// Use this in a script started on eweapon death to find the weapon
+// that created it
+eweapon GetAssociatedEWeapon(int weaponID)
+{
+    eweapon wpn;
+    
+    for(int i=Screen->NumEWeapons(); i>0; i--)
+    {
+        wpn=Screen->LoadEWeapon(i);
+        if((wpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY_CHECK)!=__EWFI_IS_GHZH_EWPN) // Filter out dummies
+            continue;
+
+        if(wpn->Misc[__EWI_ID]==weaponID)
+            return wpn;
+    }
+    
+    // Couldn't find it; return an uninitialized weapon
+    eweapon invalidWpn;
+    return invalidWpn;
+}
+
+
+// Is this a ghost.zh-controlled weapon?
+bool IsGhostZHEWeapon(eweapon wpn)
+{
+    return (wpn->Misc[__EWI_FLAGS]&__EWFI_IS_GHZH_EWPN)!=0;
+}
+
+
+// Is this a dummy weapon?
+bool IsDummyEWeapon(eweapon wpn)
+{
+    return (wpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY_CHECK)==__EWFI_DUMMY_CHECK;
+}
+
+
+// Make a copy of the given eweapon, which should be a dummy
+void __CopyEWeapon(eweapon prototype, int centerX, int centerY, float angle)
+{
+    eweapon wpn=Screen->CreateEWeapon(prototype->ID);
+    if(prototype->Misc[__EWI_DUMMY_SPRITE]>0)
+        wpn->UseSprite(prototype->Misc[__EWI_DUMMY_SPRITE]);
+
+    if(prototype->Extend==3)
+    {
+        wpn->Extend=3;
+        wpn->TileWidth=prototype->TileWidth;
+        wpn->TileHeight=prototype->TileHeight;
+        wpn->HitWidth=16*prototype->TileWidth;
+        wpn->HitHeight=16*prototype->TileHeight;
+        wpn->X=centerX-8*wpn->TileWidth;
+        wpn->Y=centerY-8*wpn->TileWidth;
+    }
+    else
+    {
+        wpn->X=centerX-8;
+        wpn->Y=centerY-8;
+    }
+
+    wpn->Step=prototype->Misc[__EWI_DUMMY_STEP];
+    wpn->Damage=prototype->Damage;
+    wpn->Angular=true;
+    wpn->Angle=angle;
+    SetEWeaponDir(wpn);
+
+    wpn->Misc[__EWI_XPOS]=wpn->X;
+    wpn->Misc[__EWI_YPOS]=wpn->Y;
+    wpn->Misc[__EWI_MOVEMENT]=prototype->Misc[__EWI_MOVEMENT];
+    wpn->Misc[__EWI_MOVEMENT_ARG_2]=prototype->Misc[__EWI_MOVEMENT_ARG_2];
+
+    // Special case for thrown weapons with automatic velocity
+    if(prototype->Misc[__EWI_MOVEMENT]==EWM_THROW && prototype->Misc[__EWI_MOVEMENT_ARG]==-1)
+        wpn->Misc[__EWI_MOVEMENT_ARG]=__GetEWeaponThrowHeight(wpn);
+    else
+        wpn->Misc[__EWI_MOVEMENT_ARG]=prototype->Misc[__EWI_MOVEMENT_ARG];
+
+    wpn->Misc[__EWI_LIFESPAN]=prototype->Misc[__EWI_LIFESPAN];
+    wpn->Misc[__EWI_LIFESPAN_ARG]=prototype->Misc[__EWI_LIFESPAN_ARG];
+    wpn->Misc[__EWI_ON_DEATH]=prototype->Misc[__EWI_ON_DEATH];
+    wpn->Misc[__EWI_ON_DEATH_ARG]=prototype->Misc[__EWI_ON_DEATH_ARG];
+    wpn->Misc[__EWI_FLAGS]=(prototype->Misc[__EWI_FLAGS]&(~__EWFI_DUMMY));
+
+    if((wpn->Misc[__EWI_FLAGS]&EWF_NO_COLLISION)!=0)
+        wpn->CollDetection=false;
+
+    if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
+        SetEWeaponRotation(wpn);
+}
+
+
+// Get the unblockable version (8-15) of a direction
+int __UnblockableDir(int dir)
+{
+    if(dir==DIR_UP)
+        return 8;
+    if(dir==DIR_DOWN)
+        return 12;
+    if(dir==DIR_LEFT)
+        return 14;
+    if(dir==DIR_RIGHT)
+        return 10;
+    if(dir==DIR_LEFTUP)
+        return 15;
+    if(dir==DIR_RIGHTUP)
+        return 9;
+    if(dir==DIR_LEFTDOWN)
+        return 13;
+    if(dir==DIR_RIGHTDOWN)
+        return 11;
+    
+    // Should never get here
+    return dir;
+}

@@ -572,9 +572,45 @@ bool copy_tile(tiledata *buf, int src, int dest, bool swap)
             buf[src].data[j]=temptiledata[j];
         }
     }
+	int t = blank_tile_table[dest];
+	blank_tile_table[dest] = blank_tile_table[src];
+	if(swap) blank_tile_table[src] = t;
     
     zc_free(temptiledata);
     
+    return true;
+}
+
+bool write_tile(tiledata *buf, BITMAP* src, int dest, int x, int y, bool is8bit, bool overlay)
+{
+	unpack_tile(buf, dest, 0, false);
+	
+	bool blank = !is8bit;
+	int bitmod = (is8bit ? 256 : 16);
+	for(int tx = 0; tx < 16; ++tx)
+		for(int ty = 0; ty < 16; ++ty)
+		{
+			int i = (tx+(16*ty));
+			int v = getpixel(src, x+tx, y+ty)%bitmod;
+			if(v%bitmod)
+			{
+				blank = false;
+				unpackbuf[i] = v;
+			}
+			else if(!overlay)
+			{
+				unpackbuf[i] = v;
+			}
+		}
+	
+	if(overlay)
+	{
+		if(!blank)
+			blank_tile_table[dest]=false;
+	}
+	else blank_tile_table[dest]=blank;
+	reset_tile(buf, dest, is8bit ? tf8Bit : tf4Bit);
+	pack_tile(buf, unpackbuf, dest);
     return true;
 }
 
@@ -1667,10 +1703,11 @@ void putcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opacit
     {
         int csets[4];
         int cofs = c.csets&15;
-        
+        if(cofs&8)
+            cofs |= ~int(0xF);
             
         for(int i=0; i<4; ++i)
-            csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
+            csets[i] = c.csets&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
             
         putblocktranslucent8(dest,drawtile<<2,x,y,csets,c.flip,15,opacity);
     }
@@ -1704,11 +1741,11 @@ void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset,
             {
                 int csets[4];
                 int cofs = c.csets&15;
-                
-              
+                if(cofs&8)
+                    cofs |= ~int(0xF);
                     
                 for(int i=0; i<4; ++i)
-                    csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
+                    csets[i] = c.csets&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
                     
                 overblocktranslucent8(dest,tiletodraw<<2,x+16*woff,y+16*hoff,csets,c.flip,15,opacity);
             }
@@ -2558,12 +2595,12 @@ void putcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
     {
         int csets[4];
         int cofs = c.csets&15;
-        //    if(cofs&8)
-        //      cofs |= ~int(0xF);
+        if(cofs&8)
+            cofs |= ~int(0xF);
         
         for(int i=0; i<4; ++i)
         {
-            csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
+            csets[i] = c.csets&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
         }
         
         putblock8(dest,drawtile<<2,x,y,csets,c.flip,15);
@@ -2583,12 +2620,12 @@ void oldputcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
     {
         int csets[4];
         int cofs = c.csets&15;
-        //    if(cofs&8)
-        //      cofs |= ~int(0xF);
+        if(cofs&8)
+            cofs |= ~int(0xF);
         
         for(int i=0; i<4; ++i)
         {
-            csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
+            csets[i] = c.csets&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
         }
         
         oldputblock8(dest,drawtile<<2,x,y,csets,c.flip,15);
@@ -2624,10 +2661,11 @@ void overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int
             {
                 int csets[4];
                 int cofs = c.csets&15;
-                
+                if(cofs&8)
+                    cofs |= ~int(0xF);
                     
                 for(int i=0; i<4; ++i)
-                    csets[i] = c.csets&(16<<i) ? (((cset + cofs) % 12) + 12) % 12 : cset;
+                    csets[i] = c.csets&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
                     
                 overblock8(dest,tiletodraw<<2,x+16*woff,y+16*hoff,csets,c.flip,15);
             }

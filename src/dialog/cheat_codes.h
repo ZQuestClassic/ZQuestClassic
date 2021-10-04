@@ -7,6 +7,8 @@
 #include <functional>
 #include <string_view>
 
+void call_cheats_dlg();
+
 /* Note: The string_views passed to setCheatCodes will include
  * null terminators.
  */

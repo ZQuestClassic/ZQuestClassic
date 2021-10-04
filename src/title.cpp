@@ -2132,13 +2132,25 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 			}
 			else
 			{
-				if(!iconbuffer[i].loaded || get_config_int("zeldadx","reload_game_icons",1))
+				if(!iconbuffer[i].loaded || get_config_int("zeldadx","reload_game_icons",0))
 				{
 					int ret2 = load_quest(saves+i, false, showmetadata);
 					
 					if(ret2 == qe_OK)
 					{
-						load_game_icon_to_buffer(false,i);
+						int ring=0;
+						flushItemCache();
+						int maxringid = getHighestLevelOfFamily(saves+i, itemsbuf, itype_ring);
+						
+						if(maxringid != -1)
+						{
+							ring = itemsbuf[maxringid].fam_type;
+						}
+						
+						ring = ring ? ring-1 : 0;
+						iconbuffer[i].ring = zc_min(ring, 3);
+						reload_icon_buffer(i);
+						//load_game_icon_to_buffer(false,i);
 						load_game_icon(saves+i, true, i);
 					}
 				}
@@ -2565,28 +2577,9 @@ void load_game_icon(gamedata *g, bool, int index)
 	}
 }
 
-void load_game_icon_to_buffer(bool forceDefault, int index)
+void reload_icon_buffer(int index)
 {
-	int ring=0;
-	
-	if(!forceDefault)
-	{
-		flushItemCache();
-		int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
-		
-		if(maxringid != -1)
-		{
-			ring = itemsbuf[maxringid].fam_type;
-		}
-	}
-	
-	//blue rings now start at level 2 for some reason, account for that -DD
-	ring = ring ? ring-1 : 0;
-	iconbuffer[index].ring = zc_min(ring, 3);
-	
 	int t=0;
-	//if(!forceDefault)
-	//t = QMisc.icons[i];
 	
 	for(int i=0; i<4; i++)
 	{
@@ -2649,6 +2642,28 @@ void load_game_icon_to_buffer(bool forceDefault, int index)
 	}
 	
 	iconbuffer[index].loaded=1;
+}
+
+void load_game_icon_to_buffer(bool forceDefault, int index)
+{
+	int ring=0;
+	
+	if(!forceDefault)
+	{
+		flushItemCache();
+		int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+		
+		if(maxringid != -1)
+		{
+			ring = itemsbuf[maxringid].fam_type;
+		}
+	}
+	
+	//blue rings now start at level 2 for some reason, account for that -DD
+	ring = ring ? ring-1 : 0;
+	iconbuffer[index].ring = zc_min(ring, 3);
+	
+	reload_icon_buffer(index);
 }
 
 static void select_mode()

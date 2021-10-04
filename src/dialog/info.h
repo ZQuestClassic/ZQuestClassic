@@ -18,9 +18,9 @@ public:
 	InfoDialog(std::string title, std::vector<std::string_view> lines);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	bool handleMessage(message);
+	virtual bool handleMessage(message);
 
-private:
+protected:
 	std::string dlgTitle;
 	std::string dlgText;
 };

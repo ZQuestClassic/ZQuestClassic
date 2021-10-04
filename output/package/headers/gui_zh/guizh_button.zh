@@ -1,0 +1,67 @@
+const int BUTTON_TILE = 0;
+const int BUTTON_CSET = 1;
+const int BUTTON_STATE = 2;
+const int BUTTON_USER_DATA = 3;
+
+const int BTNSTATE_NORMAL = 0;
+const int BTNSTATE_UNDER_MOUSE = 1;
+const int BTNSTATE_DOWN = 2;
+const int BTNSTATE_DRAGGED_OFF = 3;
+
+int Button_Create(int parent, int tile, int cset)
+{
+    int id=Widget_Create(WTYPE_BUTTON, parent);
+    GUI_Data[id+WIDGET_WIDTH]=16;
+    GUI_Data[id+WIDGET_HEIGHT]=16;
+    GUI_Data[id+BUTTON_TILE]=tile;
+    GUI_Data[id+BUTTON_CSET]=cset;
+    GUI_Data[id+BUTTON_STATE]=BTNSTATE_NORMAL;
+    GUI_Data[id+BUTTON_USER_DATA]=0;
+    GUI_Data[id+WIDGET_FLAGS]|=WFLAG_WANTS_MOUSE;
+    return id;
+}
+
+// Set data to send on click
+void Button_SetUserData(int id, int data)
+{
+    GUI_Data[id+BUTTON_USER_DATA]=data;
+}
+
+void Button_Draw(int id, int x, int y)
+{
+    int tile=GUI_Data[id+BUTTON_TILE]+GUI_Data[id+BUTTON_STATE];
+    Screen->FastTile(GUI_DRAW_LAYER, x, y, tile, GUI_Data[id+BUTTON_CSET], OP_OPAQUE);
+}
+
+void Button_OnMouseEnter(int id)
+{
+    if(GUI_Data[id+BUTTON_STATE]==BTNSTATE_DRAGGED_OFF)
+        GUI_Data[id+BUTTON_STATE]=BTNSTATE_DOWN;
+    else
+        GUI_Data[id+BUTTON_STATE]=BTNSTATE_UNDER_MOUSE;
+}
+
+void Button_OnMouseExit(int id)
+{
+    if(GUI_Data[id+BUTTON_STATE]==BTNSTATE_DOWN)
+        GUI_Data[id+BUTTON_STATE]=BTNSTATE_DRAGGED_OFF;
+    else
+        GUI_Data[id+BUTTON_STATE]=BTNSTATE_NORMAL;
+}
+
+void Button_OnMousePress(int id)
+{
+    GUI_Data[id+BUTTON_STATE]=BTNSTATE_DOWN;
+}
+
+void Button_OnMouseRelease(int id)
+{
+    if(GUI_Data[id+BUTTON_STATE]==BTNSTATE_DOWN)
+    {
+        GUI_Data[id+BUTTON_STATE]=BTNSTATE_UNDER_MOUSE;
+        Event_Add(EVENT_BUTTON_CLICKED, id, GUI_Data[id+BUTTON_USER_DATA]);
+    }
+    else
+        GUI_Data[id+BUTTON_STATE]=BTNSTATE_NORMAL;
+}
+

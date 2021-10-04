@@ -33,7 +33,7 @@
 #include "mem_debug.h"
 #include "particles.h"
 #include "metadata/versionsig.h"
-sprite_list particles;
+particle_list particles;
 void setZScriptVersion(int) { } //bleh...
 
 #include <png.h>
@@ -45,6 +45,9 @@ void setZScriptVersion(int) { } //bleh...
 #include "dialog/cheat_codes.h"
 #include "dialog/room.h"
 #include "dialog/set_password.h"
+#include "dialog/foodlg.h"
+#include "dialog/quest_rules.h"
+#include "dialog/script_rules.h"
 
 #include "gui.h"
 #include "load_gif.h"
@@ -136,13 +139,10 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 
 #include "zq_init.h"
 #include "zq_doors.h"
-#include "zq_rules.h"
 #include "zq_cset.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
-#define stricmp _stricmp
-#define unlink _unlink
 
 #endif
 
@@ -400,7 +400,7 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	
 	if (!logger_name)
 	{	// no name was give , create name based on the current address+time
-		// (you can modify it to use PID , rand() ,...
+		// (you can modify it to use PID , zc_oldrand() ,...
 		unsigned long now = GetTickCount();
 		logger_name = m_name+ strlen(m_name);
 		sprintf((char*)logger_name,"logger%d_%lu",(int)this,now);
@@ -1713,42 +1713,56 @@ static MENU script_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-static MENU rules_menu[] =
+int onRulesDlg()
 {
-    { (char *)"&Header",                    onHeader,                  NULL,                     0,            NULL   },
-    { (char *)"&Map Count",                 onMapCount,                NULL,                     0,            NULL   },
-    { (char *)"Pick &Ruleset\t ",                  PickRuleset,                      NULL,               0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Animation",                 onAnimationRules,          NULL,                     0,            NULL   },
-    { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
-    { (char *)"&Combos",                    onComboRules,              NULL,                     0,            NULL   },
-    { (char *)"&Enemies",                   onEnemyRules,              NULL,                     0,            NULL   },
-    { (char *)"&Items",                     onItemRules,               NULL,                     0,            NULL   },
-    { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
-    { (char *)"&Other",                     onMiscRules,               NULL,                     0,            NULL   },
-    { (char *)"&Player",                      onHeroRules,               NULL,                     0,            NULL   },
-    { (char *)"&Weapons",                   onWeaponRules,             NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
+	QRDialog(quest_rules, (is_large?20:13), [](byte* newrules)
+	{
+		saved = false;
+		memcpy(quest_rules, newrules, QR_SZ);
+		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+		{
+			combobuf[0].walk = 0xF0;
+			combobuf[0].type = 0;
+			combobuf[0].flag = 0;
+		}
+        
+        // For 2.50.0 and 2.50.1
+        if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
+            set_bit(quest_rules, qr_FASTDNGN, 1);
+        
+        //this is only here until the subscreen style is selectable by itself
+        zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
+	}).show();
+	return D_O_K;
+}
+
+int onZScriptSettings()
+{
+	ScriptRulesDialog(quest_rules, (is_large?17:13), [](byte* newrules)
+	{
+		saved = false;
+		memcpy(quest_rules, newrules, QR_SZ);
+	}).show();
+	return D_O_K;
+}
 
 static MENU quest_menu[] = 
 {
-    { (char *)"&Options\t ",                  NULL,                      rules_menu,               0,            NULL   },
-    { (char *)"Ch&eats",                    onCheats,                  NULL,                     0,            NULL   },
-    { (char *)"&Items",                     onCustomItems,             NULL,                     0,            NULL   },
-    { (char *)"Ene&mies",                   onCustomEnemies,           NULL,                     0,            NULL   },
-    { (char *)"&Player",                      onCustomLink,              NULL,                     0,            NULL   },
-    { (char *)"&Strings",                   onStrings,                 NULL,                     0,            NULL   },
-    { (char *)"&DMaps",                     onDmaps,                   NULL,                     0,            NULL   },
-    { (char *)"I&nit Data",                 onInit,                    NULL,                     0,            NULL   },
-    { (char *)"Misc D&ata\t ",              NULL,                      misc_menu,                0,            NULL   },
+    { (char *)"&Options\t ",          onRulesDlg,                      NULL,                     0,            NULL   },
+    { (char *)"&Items",            onCustomItems,                      NULL,                     0,            NULL   },
+    { (char *)"Ene&mies",        onCustomEnemies,                      NULL,                     0,            NULL   },
+    { (char *)"&Player",            onCustomLink,                      NULL,                     0,            NULL   },
+    { (char *)"&Strings",              onStrings,                      NULL,                     0,            NULL   },
+    { (char *)"&DMaps",                  onDmaps,                      NULL,                     0,            NULL   },
+    { (char *)"I&nit Data",               onInit,                      NULL,                     0,            NULL   },
+    { (char *)"Misc D&ata\t ",              NULL,                 misc_menu,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Graphics\t ",               NULL,                      graphics_menu,            0,            NULL   },
-    { (char *)"A&udio\t ",                  NULL,                      audio_menu,               0,            NULL   },
+    { (char *)"&Graphics\t ",               NULL,             graphics_menu,                     0,            NULL   },
+    { (char *)"A&udio\t ",                  NULL,                audio_menu,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"De&faults\t ",               NULL,                      defs_menu,                0,            NULL   },
+    { (char *)"De&faults\t ",               NULL,                 defs_menu,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Misc[]",               onQMiscValues,                      NULL,                0,            NULL   },
+    { (char *)"Misc[]",            onQMiscValues,                      NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -6217,7 +6231,7 @@ void drawpanel(int pnl)
                     {
                         for(int dx=0; dx<16; dx++)
                         {
-                            menu1->line[dy+panel[0].y+11][dx+panel[0].x+panel[0].w-36]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                            menu1->line[dy+panel[0].y+11][dx+panel[0].x+panel[0].w-36]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                         }
                     }
                 }
@@ -7026,7 +7040,7 @@ void refresh(int flags)
 						{
 							for(int dx=0; dx<3*BMM; dx++)
 							{
-								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
 							}
 						}
 					}
@@ -7310,7 +7324,7 @@ void refresh(int flags)
                     {
                         for(int dx=0; dx<32; dx++)
                         {
-                            menu1->line[dy+combo_preview.y][dx+combo_preview.x+int(combo_preview.w*1.5)]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                            menu1->line[dy+combo_preview.y][dx+combo_preview.x+int(combo_preview.w*1.5)]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                         }
                     }
                 }
@@ -7378,7 +7392,7 @@ void refresh(int flags)
                             {
                                 for(int dx=0; dx<16; dx++)
                                 {
-                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                                 }
                             }
                         }
@@ -7408,7 +7422,7 @@ void refresh(int flags)
                             {
                                 for(int dx=0; dx<16; dx++)
                                 {
-                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                                 }
                             }
                         }
@@ -11066,7 +11080,7 @@ void domouse()
 					if(warpindex>=4)
 					{
 						jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
-						warpindex=rand()&3;
+						warpindex=zc_oldrand()&3;
 					}
 					
 					int tm = Map.getCurrMap();
@@ -14293,78 +14307,40 @@ const char *infolist(int index, int *list_size)
     return NULL;
 }
 
-
-
-int onMapCount()
+bool mapcount_will_affect_layers(word newmapcount)
 {
-    bool makechange=true;
-    bool willaffectlayers=false;
-    int oldmapcount=map_count-1;
-    
-    int ret = select_data("Number of Maps",map_count-1,maplist, lfont);
-    
-    if(ret == oldmapcount)
-        return D_O_K; //they selected the same number of maps they already have.
-        
-    {
-        if(ret < 0)
-            makechange=false;
-        else if(ret<oldmapcount)
-        {
-            for(int i=0; i<(ret+1)*MAPSCRS; i++)
-            {
-                mapscr *layerchecker=&TheMaps[i];
-                
-                for(int j=0; j<6; j++)
-                {
-                    if(layerchecker->layermap[j]>(ret+1))
-                    {
-                        willaffectlayers=true;
-                        break;
-                    }
-                }
-                
-                if(willaffectlayers)
-                {
-                    break;
-                }
-            }
-            
-            if(willaffectlayers)
-            {
-                if(jwin_alert("Confirm Change",
-                              "This change will delete maps being used for",
-                              "layers in the remaining maps. The map numbers",
-                              "of the affected layers will be reset to 0.",
-                              "O&K", "&Cancel", 'o', 'c', lfont)==2)
-                {
-                    makechange=false;
-                }
-            }
-        }
-        
-        if(makechange)
-        {
-            saved = false;
-            setMapCount2(ret+1);
-	    //Prevent the nine 'last mapscreen' buttons from pointing to invlid locations
-	    //if the user reduces the mapcount. -Z ( 23rd September, 2019 )
-	    for ( int q = 0; q < 9; q++ )
-	    {
-		map_page[q].map = ( map_page[q].map > ret ) ? ret : map_page[q].map;
-	    }
-            if(willaffectlayers)
-            {
-                for(int i=0; i<(ret+1)*MAPSCRS; i++)
-                {
-                    fix_layers(&TheMaps[i], false);
-                }
-            }
-        }
-    }
-    
+	for(int i=0; i<(newmapcount)*MAPSCRS; i++)
+	{
+		mapscr *layerchecker=&TheMaps[i];
+		
+		for(int j=0; j<6; j++)
+		{
+			if(layerchecker->layermap[j]>(newmapcount))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void update_map_count(word newmapcount)
+{
+	if(map_count == newmapcount) return;
+	saved = false;
+	setMapCount2(newmapcount);
+	//Prevent the nine 'last mapscreen' buttons from pointing to invlid locations
+	//if the user reduces the mapcount. -Z ( 23rd September, 2019 )
+	for ( int q = 0; q < 9; q++ )
+	{
+		map_page[q].map = ( map_page[q].map > newmapcount-1 ) ? newmapcount-1 : map_page[q].map;
+	}
+	for(int i=0; i<(newmapcount)*MAPSCRS; i++)
+	{
+		fix_layers(&TheMaps[i], false);
+	}
+
     refresh(rMAP+rSCRMAP+rMENU);
-    return D_O_K;
 }
 
 int onGotoMap()
@@ -21757,229 +21733,17 @@ int d_showedit_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-static DIALOG header_dlg[] =
-{
-    /* (dialog proc)        (x)   (y)   (w)   (h)   (fg)                (bg)              (key)    (flags)       (d1)           (d2)     (dp) */
-    { jwin_win_proc,        20,   16,   280,  205,  vc(14),             vc(1),            0,       D_EXIT,        0,             0, (void *) "Quest Header", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_text_proc,       26,   40,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Made in ZQ Version:", NULL, NULL },
-    { jwin_text_proc,       126,  40,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_DISABLED,    0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       204,   43,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Number:", NULL, NULL },
-    //5
-    { jwin_edit_proc,       260,  40,    32,   16,  vc(12),             vc(1),            0,       0,             2,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       26,   90-16,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Rev:", NULL, NULL },
-    { jwin_edit_proc,       66,  86-16,    80,   16,  vc(12),             vc(1),            0,       0,             8,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       26,   108-16,   96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Min. Rev:", NULL, NULL },
-    { jwin_edit_proc,       66,  104-16,   80,   16,  vc(12),             vc(1),            0,       0,             8,             0,       NULL, NULL, NULL },
-    // 10
-    { jwin_text_proc,       26,   126-16,   96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Title:", NULL, NULL },
-    { d_showedit_proc,      66,   122-16,   80,   16,  vc(12),             vc(1),            0,       0,            64,             0,       title, NULL, NULL },
-    { jwin_textbox_proc,    26,   138-16,   120,  40,  vc(11),  vc(1),  0,       0,          64,            0,       title, NULL, NULL },
-    { jwin_text_proc,       174,  126-16,   96,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "Author:", NULL, NULL },
-    { d_showedit_proc,      214,  122-16,   80,   16,    vc(12),  vc(1),  0,       0,          64,            0,       author, NULL, NULL },
-    { jwin_textbox_proc,    174,  138-16,   120,  40,   vc(11),  vc(1),  0,       0,          64,            0,       author, NULL, NULL },
-    // 16
-    { jwin_button_proc,     110,  204-32,  101,   21,   vc(14),             vc(1),            13,      D_EXIT,        0,             0, (void *) "Change Password", NULL, NULL },
-    { jwin_button_proc,     90,   204-8,  61,   21,   vc(14),             vc(1),            13,      D_EXIT,        0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  204-8,  61,   21,   vc(14),             vc(1),            27,      D_EXIT,        0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,      0,    0,    0,    0,    0,                  0,                0,       0,             KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    //20
-    { jwin_button_proc,     150,  69-16,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
-    { jwin_button_proc,     150,  88-16,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
+void call_header_dlg();
 int onHeader()
 {
-    char zver_str[11],q_num[8],version[10],minver[10];
-    
-    bool resize=!(get_debug()||key[KEY_LSHIFT]||key[KEY_RSHIFT]);
-    
-    if(resize)
-    {
-        for(int i=6; i<19; ++i)
-        {
-            header_dlg[i].y-=18;
-        }
-        
-        header_dlg[0].h-=18;
-	
-	//header_dlg[4].flags |= D_DISABLED;
-	//header_dlg[5].flags |= D_DISABLED;
-        //header_dlg[4].proc=d_dummy_proc;
-        //header_dlg[5].proc=d_dummy_proc;
-    }
-    
-    //if ( key[KEY_LSHIFT]||key[KEY_RSHIFT] )
-    //{
-	//header_dlg[4].flags &= ~D_DISABLED;
-	//header_dlg[5].flags &= ~D_DISABLED;    
-    //}
-    
-    jwin_center_dialog(header_dlg);
-    
-    sprintf(zver_str,"%d.%02X (%d)",header.zelda_version>>8,header.zelda_version&0xFF,header.build);
-    sprintf(q_num,"%d",header.quest_number);
-    strcpy(version,header.version);
-    strcpy(minver,header.minver);
-    strcpy(author,header.author);
-    strcpy(title,header.title);
-    //header_dlg[17].flags |= D_GOTFOCUS
-    header_dlg[0].dp2 = lfont;
-    header_dlg[3].dp = zver_str;
-    header_dlg[5].dp = q_num;
-    header_dlg[7].dp = version;
-    header_dlg[9].dp = minver;
-
-    if(is_large)
-    {
-        large_dialog(header_dlg);
-    }
-    
-    int ret = -1;
-    
-    do
-    {
-        ret=zc_popup_dialog(header_dlg,17);
-	    
-	if ( key[KEY_ENTER] )
-	{
-		for ( int q = 0; q < 22; q++ )
-		{
-			if ( header_dlg[q].flags&D_GOTFOCUS )
-			{
-				key[KEY_ENTER] = 0; 
-				//Always save if the proc type is a text edit field. 
-				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
-				{
-					ret = 17; //always SAVE on Enter key from A TEXT PROC
-					break;
-				}
-				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
-				else ret = q;
-				break;
-			}
-		}
-		//if ( ret == -1 )
-		//{
-		//	key[KEY_ENTER] = 0; 
-		//	ret = 17;
-		//}
-	}
-	if ( key[KEY_ENTER_PAD] )
-	{
-		//if ( ret == -1 )
-		//{
-		//	key[KEY_ENTER_PAD] = 0; 
-		//	ret = 17;
-		//}
-		for ( int q = 0; q < 22; q++ )
-		{
-			if ( header_dlg[q].flags&D_GOTFOCUS )
-			{
-				key[KEY_ENTER_PAD] = 0; 
-				//Always save if the proc type is a text edit field. 
-				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
-				{
-					ret = 17; //always SAVE on Enter key from A TEXT PROC
-					break;
-				}
-				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
-				else ret = q;
-				break;
-			}
-		}
-	}
-		
-	//if (zc_readkey(KEY_ENTER)||zc_readkey(KEY_ENTER_PAD) && ret == -1) ret = 17; 
-        
-        if(ret==20)
-            questrev_help();
-        else if(ret==21)
-            questminrev_help();
-		else if(ret==16)
-			SetPasswordDialog(header.use_keyfile, set_questpwd).show();
-    }
-    while(ret == 20 || ret == 21 || ret == 16);
-    
-    //do
-    //{
-    //    ret=zc_popup_dialog(header_dlg,-1);
-        /*
-	if ( !( key[KEY_LSHIFT]||key[KEY_RSHIFT] ) )
-	{
-	    header_dlg[4].flags |= D_DISABLED;
-	    header_dlg[5].flags |= D_DISABLED;
-        }
-    
-	if ( key[KEY_LSHIFT]||key[KEY_RSHIFT] )
-	{
-	    header_dlg[4].flags &= ~D_DISABLED;
-	    header_dlg[5].flags &= ~D_DISABLED;    
-	}
-        */
-	
-     //   if(ret==16)
-     //   {
-     //       ret=zc_popup_dialog(password_dlg,-1);
-            
-     //       if(ret==5)
-     //       {
-     //           header.use_keyfile=password_dlg[4].flags&D_SELECTED?1:0;
-     //           set_questpwd(pwd,header.use_keyfile!=0);
-     //       }
-            
-     //       ret=16;
-     //   }
-    //}
-    //while(ret==16);
-    
-    
-    
-    
-    if(ret==17)
-    {
-        saved=false;
-        header.quest_number=atoi(q_num);
-        strcpy(header.author,author);
-        strcpy(header.title,title);
-        strcpy(header.version,version);
-        strcpy(header.minver,minver);
-    }
-    
-    if(resize)
-    {
-        for(int i=6; i<19; ++i)
-        {
-            header_dlg[i].y+=18;
-        }
-        
-        header_dlg[0].h+=18;
-        header_dlg[4].proc=jwin_text_proc;
-        header_dlg[5].proc=jwin_edit_proc;
-    }
-    
-    jwin_center_dialog(header_dlg);
-    
+	call_header_dlg();
     return D_O_K;
 }
 
+void call_cheats_dlg();
 int onCheats()
 {
-	std::string_view currentCodes[4]={
-		zcheats.codes[0], zcheats.codes[1], zcheats.codes[2], zcheats.codes[3]
-	};
-
-	CheatCodesDialog(zcheats.flags, currentCodes,
-		[&](bool enabled, std::string_view newCodes[4]) {
-			saved = false;
-			zcheats.flags = enabled ? 1 : 0;
-			newCodes[0].copy(zcheats.codes[0], 41);
-			newCodes[1].copy(zcheats.codes[1], 41);
-			newCodes[2].copy(zcheats.codes[2], 41);
-			newCodes[3].copy(zcheats.codes[3], 41);
-		}
-	).show();
+	call_cheats_dlg();
 	return D_O_K;
 }
 
@@ -22092,9 +21856,9 @@ bool do_x_button(BITMAP *dest, int x, int y)
 }
 
 
-int d_dummy_proc(int, DIALOG*, int)
+int d_dummy_proc(int,DIALOG *,int)
 {
-    return D_O_K;
+	return D_O_K;
 }
 
 int d_maptile_proc(int msg, DIALOG *d, int)
@@ -24982,178 +24746,6 @@ void showScriptInfo(zasm_meta const* meta)
 	jwin_zmeta_proc(MSG_START,&scriptinfo_dlg[3],0); //Calculate size before calling dialog
 	jwin_center_dialog(scriptinfo_dlg);
 	zc_popup_dialog(scriptinfo_dlg,2);
-}
-
-static int zscript_settings_scripts_list[] =
-{
-	7, 19, 23, 26, 27, 32, 33,
-	34, 35, 36, 37, 38, 39, 45,
-	-1
-};
-
-static int zscript_settings_instructions[] =
-{
-	6,
-	-1
-};
-static int zscript_settings_instructions_1[] =
-{
-	8, 9, 16, 17, 20, 21, 24, 28,
-	29, 30, 31, 41, 42, 43,
-	-1
-};
-static int zscript_settings_instructions_2[] =
-{
-	44, 46, 47, 48, 49,
-	-1
-};
-
-static int zscript_settings_objects_list[] =
-{
-	13, 14, 15, 25, -1
-};
-
-static int zscript_settings_drawing_list[] =
-{
-	10, 12, -1
-};
-
-static int zscript_settings_bugfixes_list[] =
-{
-	11, 18, 22, 40,
-	-1
-};
-
-static TABPANEL zscript_settings_tabs[] =
-{
-    // (text)
-    { (char *)" Scripts ",         D_SELECTED,  zscript_settings_scripts_list, 0, NULL },
-    { (char *)" Instructions ",    0,           zscript_settings_instructions, 0, NULL },
-    { (char *)" Objects ",         0,           zscript_settings_objects_list, 0, NULL },
-    { (char *)" Drawing ",         0,           zscript_settings_drawing_list, 0, NULL },
-    { (char *)" Bugfixes ",        0,           zscript_settings_bugfixes_list, 0, NULL },
-    { NULL,              0,           NULL,             0, NULL }
-};
-static TABPANEL zscript_settings_instructions_tabs[] =
-{
-    // (text)
-    { (char *)" 1 ",     D_SELECTED,  zscript_settings_instructions_1, 0, NULL },
-    { (char *)" 2 ",     0,           zscript_settings_instructions_2, 0, NULL },
-    { NULL,              0,           NULL,             0, NULL }
-};
-
-static DIALOG zscript_settings_dlg[] =
-{
-	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Settings", NULL, NULL },
-	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) zscript_settings_tabs, NULL, (void *)zscript_settings_dlg },
-	// 3
-	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-	//6 Subtab (Instructions)
-	{ jwin_tab_proc,         7,   40,   286,  164,    vc(14),   vc(1),      0,      0,          1,             0, (void *) zscript_settings_instructions_tabs, NULL, (void *)zscript_settings_dlg },
-	
-	// rules //7
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Scripts Continue To Run", NULL, NULL },
-	{ jwin_check_proc,      12, 47+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Item Script Waitdraw()", NULL, NULL },
-	{ jwin_check_proc,      12, 47+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No FFC Waitdraw()", NULL, NULL },
-	// 10
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fix Scripts Running During Scrolling", NULL, NULL },
-	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite Coordinates are Float", NULL, NULL },
-	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Have Shadows", NULL, NULL },
-	// 15
-	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Have Shadows", NULL, NULL },
-	{ jwin_check_proc,      12, 47+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old eweapon->Parent", NULL, NULL },
-	{ jwin_check_proc,      12, 47+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Args for CreateBitmap() and bitmap->Create()", NULL, NULL },
-	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Game->Misc[] is not *10000", NULL, NULL },
-	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Clear InitD[] on Script Change", NULL, NULL },
-	// 20
-	{ jwin_check_proc,      12, 47+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Print Script Metadata on Traces", NULL, NULL },
-	{ jwin_check_proc,      12, 47+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
-	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Deallocate Arrays", NULL, NULL },
-	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hero OnDeath script runs AFTER engine death animation", NULL, NULL },
-	{ jwin_check_proc,      12, 47+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Allow Setting Action to Rafting", NULL, NULL },
-	// 25
-	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Live One Extra Frame With WDS_DEAD", NULL, NULL },
-	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during Active Subscreen Script", NULL, NULL },
-	{ jwin_check_proc,      10, 33+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "DMap Active Script runs during Active Subscreen Script", NULL, NULL },
-	{ jwin_check_proc,      12, 47+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", NULL, NULL },
-	{ jwin_check_proc,      12, 47+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Weapon Sets its Weapon Sprite", NULL, NULL },
-	// 30
-	{ jwin_check_proc,      12, 47+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken DrawInteger and DrawCharacter Scaling", NULL, NULL },
-	{ jwin_check_proc,      12, 47+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*", NULL, NULL },
-	{ jwin_check_proc,      10, 33+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 0", NULL, NULL },
-	{ jwin_check_proc,      10, 33+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 1", NULL, NULL },
-	{ jwin_check_proc,      10, 33+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 2", NULL, NULL },
-	// 35
-	{ jwin_check_proc,      10, 33+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 3", NULL, NULL },
-	{ jwin_check_proc,      10, 33+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 4", NULL, NULL },
-	{ jwin_check_proc,      10, 33+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 5", NULL, NULL },
-	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 6", NULL, NULL },
-	{ jwin_check_proc,      10, 33+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old Global Init and SaveLoad Timing", NULL, NULL },
-	// 40
-	{ jwin_check_proc,      10, 33+40,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Deallocate Init/SaveLoad Local Arrays", NULL, NULL },
-	{ jwin_check_proc,      12, 47+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", NULL, NULL },
-	{ jwin_check_proc,      12, 47+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't allow overwriting hopping action", NULL, NULL },
-	{ jwin_check_proc,      12, 47+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite->Step uses new, precise values", NULL, NULL },
-	{ jwin_check_proc,      12, 47+10,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old printf() args", NULL, NULL },
-	// 45
-	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during wipes/refills", NULL, NULL },
-	{ jwin_check_proc,      12, 47+20,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing Screen->EntryX, EntryY Resets Spawn Points", NULL, NULL },
-	{ jwin_check_proc,      12, 47+30,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Log on Loading Invalid UID", NULL, NULL },
-	{ jwin_check_proc,      12, 47+40,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Combodata->InitD[]", NULL, NULL },
-	{ jwin_check_proc,      12, 47+50,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Script writes to Hero->Step don't carry over", NULL, NULL },
-	// 50
-	
-	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
-};
-
-
-static int zscriptrules[] =
-{
-    qr_ITEMSCRIPTSKEEPRUNNING, qr_NOITEMWAITDRAW, qr_NOFFCWAITDRAW, 
-	qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,qr_SPRITEXY_IS_FLOAT,
-	qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS,qr_OLDQUESTMISC,qr_CLEARINITDONSCRIPTCHANGE,
-	qr_TRACESCRIPTIDS,qr_FIXDRUNKINPUTS, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,
-	qr_DISALLOW_SETTING_RAFTING, qr_WEAPONS_EXTRA_FRAME, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT,
-	qr_250WRITEEDEFSCRIPT, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, qr_BROKENCHARINTDRAWING, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES,
-	qr_COMBOSCRIPTS_LAYER_0, qr_COMBOSCRIPTS_LAYER_1, qr_COMBOSCRIPTS_LAYER_2, qr_COMBOSCRIPTS_LAYER_3,
-	qr_COMBOSCRIPTS_LAYER_4, qr_COMBOSCRIPTS_LAYER_5, qr_COMBOSCRIPTS_LAYER_6, qr_OLD_INIT_SCRIPT_TIMING, 
-	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
-	qr_NO_OVERWRITING_HOPPING, qr_STEP_IS_FLOAT, qr_OLD_PRINTF_ARGS, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,
-	qr_LOG_INVALID_UID_LOAD, qr_COMBODATA_INITD_MULT_TENK, qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER,
-    -1
-};
-
-int onZScriptSettings()
-{
-    if(is_large)
-        large_dialog(zscript_settings_dlg);
-        
-    zscript_settings_dlg[0].dp2=lfont;
-    
-    for(int i=0; zscriptrules[i]!=-1; i++)
-    {
-        zscript_settings_dlg[i+7].flags = get_bit(quest_rules,zscriptrules[i]) ? D_SELECTED : 0;
-    }
-    
-    int ret = zc_popup_dialog(zscript_settings_dlg,4);
-    
-    if(ret==4)
-    {
-        saved=false;
-        
-        for(int i=0; zscriptrules[i]!=-1; i++)
-        {
-            set_bit(quest_rules, zscriptrules[i], (zscript_settings_dlg[i+7].flags & D_SELECTED));
-        }
-    }
-    
-    return D_O_K;
 }
 
 static int compiler_tab_list_global[] =
@@ -28549,7 +28141,6 @@ int onImportZASM()
 
 void centre_zscript_dialogs()
 {
-    jwin_center_dialog(zscript_settings_dlg);
     jwin_center_dialog(zscript_parser_dlg);
     jwin_center_dialog(exportzasm_dlg);
     jwin_center_dialog(importzasm_dlg);
@@ -30758,7 +30349,7 @@ int main(int argc,char **argv)
     
     Z_message("OK\n");                                      // Allocating file path buffers...
     
-    srand(time(0));
+    zc_srand(time(0));
     
     
     set_uformat(U_ASCII);
@@ -32774,6 +32365,9 @@ int main(int argc,char **argv)
     }
     
     load_icons();
+	
+	call_foo_dlg();
+	
     bool load_last_timed_save=false;
     
     if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
@@ -33527,7 +33121,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(glist_dlg);
-    jwin_center_dialog(header_dlg);
     jwin_center_dialog(help_dlg);
     jwin_center_dialog(ilist_dlg);
     center_zq_init_dialog();
@@ -33541,7 +33134,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(orgcomboa_dlg);
     jwin_center_dialog(path_dlg);
     jwin_center_dialog(pattern_dlg);
-    center_zq_rules_dialog();
     jwin_center_dialog(scrdata_dlg);
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
@@ -34206,7 +33798,7 @@ int save_config_file()
     
     //save the beta warning confirmation info
     //10% chance of showing the warning again. heh -DD
-    if(rand() % 10 < 9)
+    if(zc_oldrand() % 10 < 9)
     {
         char *uniquestr = getBetaControlString();
         set_config_string("zquest", "beta_warning", uniquestr);
@@ -34420,7 +34012,7 @@ command_pair commands[cmdMAX]=
     { "Link Sprite",                        0, (intF) onCustomLink                                     },
     { "List Combos Used",                   0, (intF) onUsedCombos                                     },
     { "Palettes - Main",                    0, (intF) onColors_Main                                    },
-    { "Map Count",                          0, (intF) onMapCount                                       },
+    { " Map Count",                         0, NULL                                                    },
     { "Default Map Styles",                 0, (intF) onDefault_MapStyles                              },
     { "Map Styles",                         0, (intF) onMapStyles                                      },
     { "Master Subscreen Type",              0, (intF) onSubscreen                                      },
@@ -34446,7 +34038,7 @@ command_pair commands[cmdMAX]=
     { "Revert",                             0, (intF) onRevert                                         },
     { "Room Data",                          0, (intF) onRoom                                           },
     { "Paste Room Type Data",               0, (intF) onPasteRoom                                      },
-    { "Rules - Animation",                  0, (intF) onAnimationRules                                 },
+    { " Rules - Animation",                 0, NULL                                                    },
     { "Save",                               0, (intF) onSave                                           },
     { "Save as",                            0, (intF) onSaveAs                                         },
     { "Paste Screen Data",                  0, (intF) onPasteScreenData                                },
@@ -34486,15 +34078,15 @@ command_pair commands[cmdMAX]=
     { "Toggle Flags",                       0, (intF) onShowFlags                                      },
     { "Toggle CSets",                       0, (intF) onShowCSet                                       },
     { "Toggle Types",                       0, (intF) onShowCType                                      },
-    { "Rules - Combos",                     0, (intF) onComboRules                                     },
-    { "Rules - Items",                      0, (intF) onItemRules                                      },
-    { "Rules - Enemies",                    0, (intF) onEnemyRules                                     },
-    { "Rules - NES Fixes",                  0, (intF) onFixesRules                                     },
-    { "Rules - Other",                      0, (intF) onMiscRules                                      },
+    { " Rules - Combos",                    0, NULL                                                    },
+    { " Rules - Items",                     0, NULL                                                    },
+    { " Rules - Enemies",                   0, NULL                                                    },
+    { " Rules - NES Fixes",                 0, NULL                                                    },
+    { " Rules - Other",                     0, NULL                                                    },
     { "Default Items",                      0, (intF) onDefault_Items                                  },
     { "Item Drop Set Editor",               0, (intF) onItemDropSets                                   },
     { "Paste Palette",                      0, (intF) onPastePalette                                   },
-    { "Rules - Compatibility",              0, (intF) onCompatRules                                    },
+    { "Quest Rules",                        0, (intF) onRulesDlg                                       },
     { "Report: Combo Locations",            0, (intF) onComboLocationReport                            },
     { "Report: Combo Type Locs.",           0, (intF) onComboTypeLocationReport                        },
     { "Report: Enemy Locations",            0, (intF) onEnemyLocationReport                            },
@@ -34507,9 +34099,9 @@ command_pair commands[cmdMAX]=
     { "Find Buggy Next->",                  0, (intF) onBuggedNextComboLocationReport                  },
     { "Rules - ZScript",                    0, (intF) onZScriptSettings                                },
     { "Export ZASM",                        0, (intF) onExportZASM                                     },
-    { "Rules - Hero",                       0, (intF) onHeroRules                                      },
+    { " Rules - Hero",                      0, NULL                                                    },
     { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings                        },
-    { "Rules - Weapons",                    0, (intF) onWeaponRules                                    },
+    { " Rules - Weapons",                   0, NULL                                                    },
     { "Screen Script",                      0, (intF) onScreenScript                                   },
     { "Take Screen Snapshot",               0, (intF) onMapscrSnapshot                                 },
     { "View L2 as BG",                      0, (intF) onLayer2BG                                       },

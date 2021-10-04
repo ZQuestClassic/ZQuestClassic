@@ -24,6 +24,7 @@ For example, the implementation in `Checkbox` looks like this:
 ```
 void Checkbox::realize(DialogRunner& runner)
 {
+	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		jwin_checkfont_proc,
 		x, y, getWidth(), getHeight(),

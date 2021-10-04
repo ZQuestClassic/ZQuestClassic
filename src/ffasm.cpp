@@ -980,6 +980,21 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "FILEWRITEBYTES",           2,   0,   0,   0},
 	{ "GETCOMBOSCRIPT",        1,   0,   0,   0},
 	{ "FILEREADBYTES",           2,   0,   0,   0},
+	
+	{ "LOADRNG",           0,   0,   0,   0},
+	{ "RNGRAND1",           0,   0,   0,   0},
+	{ "RNGRAND2",           1,   0,   0,   0},
+	{ "RNGRAND3",           2,   0,   0,   0},
+	{ "RNGLRAND1",           0,   0,   0,   0},
+	{ "RNGLRAND2",           1,   0,   0,   0},
+	{ "RNGLRAND3",           2,   0,   0,   0},
+	{ "RNGSEED",           1,   0,   0,   0},
+	{ "RNGRSEED",           0,   0,   0,   0},
+	{ "RNGFREE",           0,   0,   0,   0},
+	{ "LWPNDEL",           0,   0,   0,   0},
+	{ "EWPNDEL",           0,   0,   0,   0},
+	{ "ITEMDEL",           0,   0,   0,   0},
+	{ "BMPWRITETILE",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2197,6 +2212,19 @@ script_variable variable_list[]=
 	{ "NPCGLOWSHP",           NPCGLOWSHP,            0,             0 },
 	{ "LWPNGLOWSHP",           LWPNGLOWSHP,            0,             0 },
 	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
+	{ "ITEMENGINEANIMATE",           ITEMENGINEANIMATE,            0,             0 },
+	{ "REFRNG",           REFRNG,            0,             0 },
+	{ "LWPNUNBL",           LWPNUNBL,            0,             0 },
+	{ "EWPNUNBL",           EWPNUNBL,            0,             0 },
+	{ "NPCSHADOWSPR",           NPCSHADOWSPR,            0,             0 },
+	{ "LWPNSHADOWSPR",           LWPNSHADOWSPR,            0,             0 },
+	{ "EWPNSHADOWSPR",           EWPNSHADOWSPR,            0,             0 },
+	{ "ITEMSHADOWSPR",           ITEMSHADOWSPR,            0,             0 },
+	{ "NPCSPAWNSPR",           NPCSPAWNSPR,            0,             0 },
+	{ "NPCDEATHSPR",           NPCDEATHSPR,            0,             0 },
+	{ "NPCDSHADOWSPR",           NPCDSHADOWSPR,            0,             0 },
+	{ "NPCDSPAWNSPR",           NPCDSPAWNSPR,            0,             0 },
+	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

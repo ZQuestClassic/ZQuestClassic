@@ -134,7 +134,7 @@ static void InitMatrix()
     
     for(int i=0; i<cols; i++)
     {
-        column[i].speed = ((rand() % (_speed + 8)) * (7 - _speed)) + (7 - _speed) * 6;
+        column[i].speed = ((zc_oldrand() % (_speed + 8)) * (7 - _speed)) + (7 - _speed) * 6;
         column[i].cnt = 0;
         activecol[i] = 0;
     }
@@ -148,15 +148,15 @@ static void AddTracer()
     
     if(--delay <= 0)
     {
-        delay = rand() % (32 - _density*3 - _speed*2);
+        delay = zc_oldrand() % (32 - _density*3 - _speed*2);
         
         for(int i=0; i<maxtracers; i++)
         {
             if(tracer[i].speed == 0)
             {
-                tracer[i].x = rand()%cols;
+                tracer[i].x = zc_oldrand()%cols;
                 tracer[i].y = 0;
-                tracer[i].speed = (rand()&7) * (4-_speed/2) + 8 - _speed;
+                tracer[i].speed = (zc_oldrand()&7) * (4-_speed/2) + 8 - _speed;
                 tracer[i].cnt = 0;
                 activecol[tracer[i].x] = 1;
                 DrawLetter(tracer[i].x, tracer[i].y, LIGHT_GREEN);
@@ -172,11 +172,11 @@ static void AddEraser(int col = -1)
     {
         if(eraser[i].speed == 0 && (col>=0 || (tracer[i].speed
                                                && tracer[i].y > 5 + (_density - _speed)/2
-                                               && (rand() % ((7 + _density - _speed)*5 + 10)) == 0)))
+                                               && (zc_oldrand() % ((7 + _density - _speed)*5 + 10)) == 0)))
         {
             eraser[i].x = col>=0 ? col : tracer[i].x;
             eraser[i].y = 0;
-            eraser[i].speed = col>=0 ? (rand()&7) * (4-_speed/2) + 8 - _speed : tracer[i].speed + (rand()&3);
+            eraser[i].speed = col>=0 ? (zc_oldrand()&7) * (4-_speed/2) + 8 - _speed : tracer[i].speed + (zc_oldrand()&3);
             eraser[i].cnt = 0;
             activecol[eraser[i].x] = 0;
             DrawEraser(eraser[i].x, eraser[i].y, 1);
@@ -231,7 +231,7 @@ static void UpdateErasers()
 
 static void DrawLetter(int x, int y, int color)
 {
-    int r = rand();
+    int r = zc_oldrand();
     int letter = r & 255;
     
     if(letter < 32)
@@ -298,7 +298,7 @@ static void UpdateColumns()
                 
                 if(++activecol[i] >= rows/3)
                 {
-                    if(rand()&15)
+                    if(zc_oldrand()&15)
                         AddEraser(i);
                 }
             }

@@ -1,6 +1,26 @@
 #include "cheat_codes.h"
 #include <gui/builder.h>
 
+extern ZCHEATS zcheats;
+extern bool saved;
+void call_cheats_dlg()
+{
+	std::string_view currentCodes[4]={
+		zcheats.codes[0], zcheats.codes[1], zcheats.codes[2], zcheats.codes[3]
+	};
+
+	CheatCodesDialog(zcheats.flags, currentCodes,
+		[&](bool enabled, std::string_view newCodes[4]) {
+			saved = false;
+			zcheats.flags = enabled ? 1 : 0;
+			newCodes[0].copy(zcheats.codes[0], 41);
+			newCodes[1].copy(zcheats.codes[1], 41);
+			newCodes[2].copy(zcheats.codes[2], 41);
+			newCodes[3].copy(zcheats.codes[3], 41);
+		}
+	).show();
+}
+
 CheatCodesDialog::CheatCodesDialog(bool enabled,
 	std::string_view oldCodes[4],
 	std::function<void(bool, std::string_view[4])> setCheatCodes):

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Eweapons - ghost.zh 2.8.15</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Eweapons";
+    var mkdocs_page_input_path = "eweapon.md";
+    var mkdocs_page_url = "/eweapon/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> ghost.zh 2.8.15</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../autoGhost/index.html">AutoGhost setup</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../usage/index.html">General usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../globalScript/index.html">Global script</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../enemyScript/index.html">Enemy scripts</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">Eweapons</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#eweapon-functions">Eweapon functions</a></li>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../other/index.html">Miscellaneous</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">ghost.zh 2.8.15</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Eweapons</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="eweapon-functions">Eweapon functions</h1>
+<dl>
+<dt>eweapon FireEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags)</dt>
+<dt>eweapon FireAimedEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags)</dt>
+<dt>eweapon FireNonAngularEWeapon(int weaponID, int x, int y, int direction, int step, int damage, int sprite, int sound, int flags)</dt>
+<dt>eweapon FireBigEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags, int width, int height)</dt>
+<dt>eweapon FireBigAimedEWeapon(int weaponID, int x, int y, float angle, int step, int damage, int sprite, int sound, int flags, int width, int height)</dt>
+<dt>eweapon FireBigNonAngularEWeapon(int weaponID, int x, int y, int direction, int step, int damage, int sprite, int sound, int flags, int width, int height)</dt>
+<dd>
+<p>Create an eweapon with the given properties.</p>
+<p><code>angle</code> is given in radians. If the weapon is aimed, this is an offset from
+the base angle. So, for instance, an <code>angle</code> of 0.2 will always aim slightly
+away from Link.</p>
+<p><code>sprite</code> should be the ID of a sprite from <strong>Quest &gt; Graphics &gt; Sprites &gt; Weapons/Misc.</strong> 
+If this is -1, the standard sprite for the weapon type will be used.</p>
+<p><code>sound</code> specifies a sound to play. If this is 0, no sound will be played.
+If it's -1, a sound will be chosen automatically based on the type of weapon.</p>
+<p><code>flags</code> argument should be one or more <code>EWF_</code> constants ORed together, or 0 for none.</p>
+<dl>
+<dt>EWF_UNBLOCKABLE</dt>
+<dd>The weapon is unblockable.</dd>
+<dt>EWF_ROTATE</dt>
+<dd>The weapon's sprite will be rotated and flipped according to the weapon's direction.</dd>
+<dt>EWF_ROTATE_360</dt>
+<dd>
+<p>The weapon will be drawn using Screen-&gt;DrawTile(), allowing the sprite
+to rotate in whichever direction the weapon is moving.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The base sprite set in <strong>Quest &gt; Graphics &gt; Sprites &gt; Weapons/Misc.</strong>
+should be pointing to the right.</p>
+</div>
+</dd>
+<dt>EWF_SHADOW</dt>
+<dd>The weapon will cast a shadow if its Z position is greater than 0.</dd>
+<dt>EWF_FLICKER</dt>
+<dd>The weapon will be invisible every other frame.</dd>
+<dt>EWF_NO_COLLISION</dt>
+<dd>The weapon's collision detection will be disabled.</dd>
+<dt>EWF_FAKE_Z</dt>
+<dd>
+<p>The weapon's hitbox will always be on the ground.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This does not actually keep the weapon on the ground; it only
+simulates this by setting the weapon's hit and draw offsets.</p>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>eweapon CreateDummyEWeapon(int weaponID, int step, int damage, int sprite, int sound, int flags)</dt>
+<dt>eweapon CreateBigDummyEWeapon(int weaponID, int step, int damage, int sprite, int sound, int flags, int width, int height)</dt>
+<dd>
+<p>These will create a dummy eweapon to be used as a prototype for
+<code>SetEWeaponDeathEffect()</code>. The dummy weapon will be invisible and will have
+collision detection disabled. It can have a movement, lifespan, and death
+effect set, but the dummy weapon itself will not make use of them - only
+its copies will.</p>
+<p>A dummy weapon will never be removed automatically. If reaching the weapon
+limit is a concern, you should destroy the weapon yourself when it's no
+longer needed.</p>
+</dd>
+<dt>void SetEWeaponMovement(eweapon wpn, int type, float arg, float arg2)</dt>
+<dd>
+<p>This sets an eweapon's movement pattern. The type argument should be one of
+the <code>EWM_</code> constants below. The effect of <code>arg</code> and <code>arg2</code> vary depending on
+the type of movement.</p>
+<dl>
+<dt>EWM_SINE_WAVE</dt>
+<dd>
+<p>Move in a sine wave.</p>
+<p><code>arg</code>: Amplitude</p>
+<p><code>arg2</code>: Angular frequency in degrees per frame</p>
+</dd>
+<dt>EWM_HOMING</dt>
+<dd>
+<p>Turn toward Link each frame.</p>
+<p><code>arg</code>: Maximum rotation per frame in radians</p>
+<p><code>arg2</code>: Homing time in frames - after this many frames, the weapon
+will die. Use -1 to home indefinitely.</p>
+</dd>
+<dt>EWM_HOMING_REAIM</dt>
+<dd>
+<p>Move in straight lines, stopping and re-aiming at Link.</p>
+<p><code>arg</code>: Number of re-aims</p>
+<p><code>arg2</code>: Time between re-aims</p>
+</dd>
+<dt>EWM_RANDOM</dt>
+<dd>
+<p>Turn randomly each frame.</p>
+<p><code>arg</code>: Maximum rotation per frame in radians</p>
+<p><code>arg2</code>: Rotation time in frames - after this many frames, the weapon
+will die. Use -1 to keep moving indefinitely.</p>
+</dd>
+<dt>EWM_RANDOM_REAIM</dt>
+<dd>
+<p>Stop frequently and aim in a random direction</p>
+<p><code>arg</code>: Number of re-aims</p>
+<p><code>arg2</code>: Time between re-aims</p>
+</dd>
+<dt>EWM_VEER</dt>
+<dd>
+<p>Accelerate in a given direction.</p>
+<p><code>arg</code>: Direction of acceleration</p>
+<p><code>arg2</code>: Rate of acceleration</p>
+</dd>
+<dt>EWM_DRIFT</dt>
+<dd>
+<p>Drift in the given direction at a constant speed.</p>
+<p><code>arg</code>: Drift direction</p>
+<p><code>arg2</code>: Drift speed</p>
+</dd>
+<dt>EWM_DRIFT_WAIT</dt>
+<dd>
+<p>Drift in the given direction at a constant speed and wait 16 frames before
+beginning normal movement. This mimics the behavior of boss fireballs.</p>
+<p><code>arg</code>: Drift direction</p>
+<p><code>arg2</code>: Drift speed</p>
+</dd>
+<dt>EWM_THROW</dt>
+<dd>
+<p>Arc through the air as if thrown. The weapon stops moving when it hits
+the ground.</p>
+<p><code>arg</code>: Initial upward velocity; use -1 to make the weapon travel the
+distance to Link</p>
+<p><code>arg2</code>: OR together these flags, or use 0 for none:</p>
+<dl>
+<dt>EWMF_BOUNCE</dt>
+<dd>The weapon will bounce on impact.</dd>
+<dt>EWMF_DIE</dt>
+<dd>The weapon will die on impact rather than simply stopping.</dd>
+</dl>
+</dd>
+<dt>EWM_FALL</dt>
+<dd>
+<p>Fall straight down. The weapon stops moving when it hits the ground.</p>
+<p><code>arg</code>: Initial height</p>
+<p><code>arg2</code>: OR together these flags, or use 0 for none:</p>
+<dl>
+<dt>EWMF_BOUNCE</dt>
+<dd>The weapon will bounce on impact.</dd>
+<dt>EWMF_DIE</dt>
+<dd>The weapon will die on impact rather than simply stopping.</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>void SetEWeaponLifespan(eweapon wpn, int type, int arg)</dt>
+<dd>
+<p>This controls the conditions under which a weapon dies. "Dying" does not mean
+the weapon is removed, but that its scripted movement is no longer handled,
+and, optionally, a death effect is activated. Use one of the EWL_ constants
+for the type argument. The effect of arg depends on the type.</p>
+<dl>
+<dt>EWL_TIMER</dt>
+<dd>
+<p>Die after a certain amount of time.</p>
+<p><code>arg</code>: Time in frames</p>
+</dd>
+<dt>EWL_NEAR_LINK</dt>
+<dd>
+<p>Die when within a certain distance of Link.</p>
+<p><code>arg</code>: Distance in pixels</p>
+</dd>
+<dt>EWL_SLOW_TO_HALT</dt>
+<dd>
+<p>Slow down until stopped, then die. This can behave oddly if movement is set.</p>
+<p><code>arg</code>: Step per frame</p>
+</dd>
+</dl>
+</dd>
+<dt>void SetEWeaponDeathEffect(eweapon wpn, int type, int arg)</dt>
+<dd>
+<p>This determines what happens when the weapon dies. The type argument should
+be one of the <code>EWD_</code> constants below. The effect of arg depends on the type.</p>
+<dl>
+<dt>EWD_VANISH</dt>
+<dd>
+<p>The weapon is removed.</p>
+<p><code>arg</code>: No effect</p>
+</dd>
+<dt>EWD_AIM_AT_LINK</dt>
+<dd>
+<p>The weapon pauses for a moment, then aims at Link.</p>
+<p><code>arg</code>: Delay</p>
+</dd>
+<dt>EWD_EXPLODE</dt>
+<dd>
+<p>The weapon explodes.</p>
+<p><code>arg</code>: Explosion damage</p>
+</dd>
+<dt>EWD_SBOMB_EXPLODE</dt>
+<dd>
+<p>The weapon explodes like a super bomb.</p>
+<p><code>arg</code>: Explosion damage</p>
+</dd>
+<dt>EWD_4_FIREBALLS_HV</dt>
+<dd>
+<p>Shoots fireballs horizontally and vertically.</p>
+<p><code>arg</code>: Fireball sprite</p>
+</dd>
+<dt>EWD_4_FIREBALLS_DIAG</dt>
+<dd>
+<p>Shoots fireballs at 45-degree angles.</p>
+<p><code>arg</code>: Fireball sprite</p>
+</dd>
+<dt>EWD_4_FIREBALLS_RANDOM</dt>
+<dd>
+<p>Randomly shoots fireballs either vertically and horizontally or at
+45-degree angles.</p>
+<p><code>arg</code>: Fireball sprite</p>
+</dd>
+<dt>EWD_8_FIREBALLS</dt>
+<dd>
+<p>Shoots fireballs horizontally, vertically, and at 45-degree angles</p>
+<p><code>arg</code>: Fireball sprite</p>
+</dd>
+<dt>EWD_FIRE</dt>
+<dd>
+<p>Leaves a single, immobile fire</p>
+<p><code>arg</code>: Fire sprite</p>
+</dd>
+<dt>EWD_4_FIRES_HV</dt>
+<dd>
+<p>Shoots fires horizontally and vertically.</p>
+<p><code>arg</code>: Fire sprite</p>
+</dd>
+<dt>EWD_4_FIRES_DIAG</dt>
+<dd>
+<p>Shoots fires at 45-degree angles.</p>
+<p><code>arg</code>: Fire sprite</p>
+</dd>
+<dt>EWD_4_FIRES_RANDOM</dt>
+<dd>
+<p>Randomly shoots fires either vertically and horizontally or at
+45-degree angles.</p>
+<p><code>arg</code>: Fire sprite</p>
+</dd>
+<dt>EWD_8_FIRES</dt>
+<dd>
+<p>Shoots fires horizontally, vertically, and at 45-degree angles</p>
+<p><code>arg</code>: Fire sprite</p>
+</dd>
+<dt>EWD_SPAWN_NPC</dt>
+<dd>
+<p>Creates an npc at the weapon's location. This is done without regard for
+the suitability of the location.</p>
+<p><code>arg</code>: npc to spawn</p>
+</dd>
+<dt>EWD_RUN_SCRIPT</dt>
+<dd>
+<p>Loads an unused FFC, positions it at the weapons position, and runs a
+script. The weapon will not be removed; it should be loaded by the script
+with <code>GetAssociatedEWeapon()</code>. The number to pass into it will be given to
+the script as argument D0. If no FFC is free, the weapon will simply be removed.</p>
+<p><code>arg</code>: Script to run. If this is not a valid script, <code>EWD_VANISH</code> will be
+set instead</p>
+</dd>
+</dl>
+</dd>
+<dt>void SetEWeaponDeathEffect(eweapon wpn, eweapon prototype, int numShots, int spreadType, float angle)</dt>
+<dd>
+<p>This will make a weapon spawn copies of a prototype weapon when it dies.
+The prototype must be a dummy eweapon.</p>
+<p><code>spreadType</code> is one of the following:</p>
+<dl>
+<dt>EWD_EVEN</dt>
+<dd>
+<p>Weapons are evenly spaced</p>
+<p><code>angle</code>: First weapon's offset from 0 in radians</p>
+</dd>
+<dt>EWD_AIMED</dt>
+<dd>
+<p>Weapons are aimed at Link</p>
+<p><code>angle</code>: Angle range of spawned weapons in radians</p>
+</dd>
+<dt>EWD_RANDOM</dt>
+<dd>
+<p>Weapons are fired at random angles</p>
+<p><code>angle</code>: No effect</p>
+</dd>
+</dl>
+</dd>
+<dt>void SetEWeaponDir(eweapon wpn)</dt>
+<dd>Set the direction of an angled eweapon so that it interacts correctly
+with shields. This is normally handled automatically, but you may need
+to use it if you script a weapon's movement yourself.</dd>
+<dt>void SetEWeaponRotation(eweapon wpn)</dt>
+<dt>void SetEWeaponRotation(eweapon wpn, int direction)</dt>
+<dd>Rotate the weapon's sprite. If <code>direction</code> is not given,
+this is done according to the weapon's direction.</dd>
+<dt>void KillEWeapon(eweapon wpn)</dt>
+<dd>Kill the eweapon, stopping scripted movement and activating any
+death effects.</dd>
+<dt>void DrawEWeaponShadow(eweapon wpn)</dt>
+<dd>Draws a shadow under the eweapon according to the <code>GH_SHADOW_</code> constants. This
+is used internally when <code>EWF_SHADOW</code> is set.</dd>
+<dt>int GetDefaultEWeaponSprite(int weaponID)</dt>
+<dd>Returns the sprite normally used by the given weapon type.</dd>
+<dt>int GetDefaultEWeaponSound(int weaponID)</dt>
+<dd>Returns the sound normally used by the given weapon type.</dd>
+<dt>eweapon GetAssociatedEWeapon(int weaponID)</dt>
+<dd>Finds an eweapon using an internal ID number. This should be used by scripts
+launched by <code>EWD_RUN_SCRIPT</code>, and the weaponID argument should be the number
+passed to the script as D0. If the requested weapon is not found, an
+uninitialized pointer will be returned.</dd>
+<dt>bool IsGhostZHEWeapon(eweapon wpn)</dt>
+<dd>Returns true if the weapon is one created or handled by ghost.zh.</dd>
+<dt>bool IsDummyEWeapon(eweapon wpn)</dt>
+<dd>Returns true if the eweapon is a dummy.</dd>
+</dl>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../other/index.html" class="btn btn-neutral float-right" title="Miscellaneous">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../enemyScript/index.html" class="btn btn-neutral" title="Enemy scripts"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../enemyScript/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../other/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

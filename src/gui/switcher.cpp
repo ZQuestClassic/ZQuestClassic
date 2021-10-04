@@ -31,6 +31,7 @@ void Switcher::add(std::shared_ptr<Widget> child)
 
 void Switcher::applyVisibility(bool visible)
 {
+	Widget::applyVisibility(visible);
 	// We'll handle invisibility by applying an extra "hide" to each child.
 	// That's easier than keeping precise track of what's visible or not.
 	for(auto& child: children)
@@ -63,6 +64,7 @@ void Switcher::arrange(int contX, int contY, int contW, int contH)
 
 void Switcher::realize(DialogRunner& runner)
 {
+	Widget::realize(runner);
 	for(auto& child: children)
 		child->realize(runner);
 }

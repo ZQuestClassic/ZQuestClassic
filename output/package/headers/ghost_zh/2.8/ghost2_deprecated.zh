@@ -1,0 +1,203 @@
+// ghost.zh
+// Version 2.8.15
+
+// The functions and constants in this file are provided only for backward
+// compatibility. They should not be used in new scripts.
+
+const int EWM_SINE_WAVE_FAST    = 2;
+const int EWM_THROW_STOP        = 16;
+const int EWM_THROW_BOUNCE      = 17;
+const int EWM_THROW_BOUNCE_STOP = 18;
+
+const int EWM_VEER_UP              = 7;
+const int EWM_VEER_DOWN            = 8;
+const int EWM_VEER_LEFT            = 9;
+const int EWM_VEER_RIGHT           = 10;
+const int EWM_VEER_LEFTUP          = 11;
+const int EWM_VEER_RIGHTUP         = 12;
+const int EWM_VEER_LEFTDOWN        = 13;
+const int EWM_VEER_RIGHTDOWN       = 14;
+const int EWM_DRIFT_UP             = 20;
+const int EWM_DRIFT_DOWN           = 21;
+const int EWM_DRIFT_LEFT           = 22;
+const int EWM_DRIFT_RIGHT          = 23;
+const int EWM_DRIFT_LEFTUP         = 24;
+const int EWM_DRIFT_RIGHTUP        = 25;
+const int EWM_DRIFT_LEFTDOWN       = 26;
+const int EWM_DRIFT_RIGHTDOWN      = 27;
+const int EWM_DRIFT_WAIT_UP        = 28;
+const int EWM_DRIFT_WAIT_DOWN      = 29;
+const int EWM_DRIFT_WAIT_LEFT      = 30;
+const int EWM_DRIFT_WAIT_RIGHT     = 31;
+const int EWM_DRIFT_WAIT_LEFTUP    = 32;
+const int EWM_DRIFT_WAIT_RIGHTUP   = 33;
+const int EWM_DRIFT_WAIT_LEFTDOWN  = 34;
+const int EWM_DRIFT_WAIT_RIGHTDOWN = 35;
+
+void Ghost_Init(ffc this, npc ghost, int flags)
+{
+    Ghost_Init(this, ghost);
+    Ghost_SetFlags(flags);
+}
+
+npc Ghost_InitCreate(ffc this, int enemyID, int flags)
+{
+    npc ghost=Ghost_InitCreate(this, enemyID);
+    Ghost_SetFlags(flags);
+    return ghost;
+}
+
+npc Ghost_InitWait(ffc this, int enemyIndex, bool useEnemyPos, int flags)
+{
+    npc ghost=Ghost_InitWait(this, enemyIndex, useEnemyPos);
+    Ghost_SetFlags(flags);
+    return ghost;
+}
+
+npc Ghost_InitWait2(ffc this, int enemyID, bool useEnemyPos, int flags)
+{
+    npc ghost=Ghost_InitWait2(this, enemyID, useEnemyPos);
+    Ghost_SetFlags(flags);
+    return ghost;
+}
+
+npc Ghost_InitSpawn(ffc this, int enemyID, int flags)
+{
+    npc ghost=Ghost_InitSpawn(this, enemyID);
+    Ghost_SetFlags(flags);
+    return ghost;
+}
+
+npc Ghost_InitAutoGhost(ffc this, int enemyID, int flags)
+{
+    npc ghost=Ghost_InitAutoGhost(this, enemyID);
+    Ghost_SetFlags(flags);
+    return ghost;
+}
+
+void Ghost_SetFlags(int flags)
+{
+    __Ghost_Flags=flags;
+}
+
+void Ghost_WaitframeLight()
+{
+    // Remember all the global variables
+    float tempGhostX=Ghost_X;
+    float tempGhostY=Ghost_Y;
+    float tempGhostZ=Ghost_Z;
+    float tempGhostJump=Ghost_Jump;
+    float tempGhostVx=Ghost_Vx;
+    float tempGhostVy=Ghost_Vy;
+    float tempGhostAx=Ghost_Ax;
+    float tempGhostAy=Ghost_Ay;
+    float tempGhostPrevX=__Ghost_PrevX;
+    float tempGhostPrevY=__Ghost_PrevY;
+    int tempGhostCSet=Ghost_CSet;
+    int tempGhostDir=Ghost_Dir;
+    int tempGhostData=Ghost_Data;
+    int tempGhostTileWidth=Ghost_TileWidth;
+    int tempGhostTileHeight=Ghost_TileHeight;
+    int tempGhostFlags=__Ghost_Flags;
+    int tempGhostFlags2=__Ghost_Flags2;
+    int tempGhostInternalFlags=__Ghost_InternalFlags;
+    int tempGhostFlashCounter=__Ghost_FlashCounter;
+    int tempGhostKnockbackCounter=__Ghost_KnockbackCounter;
+    int tempGhostHP=Ghost_HP;
+    int tempGhostXOffsets=__Ghost_XOffsets;
+    int tempGhostYOffsets=__Ghost_YOffsets;
+    
+    do
+    {
+        Waitframe();
+    } while((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_SUSPEND)!=0);
+    
+    // Restore the global variables
+    Ghost_X=tempGhostX;
+    Ghost_Y=tempGhostY;
+    Ghost_Z=tempGhostZ;
+    Ghost_Jump=tempGhostJump;
+    Ghost_Vx=tempGhostVx;
+    Ghost_Vy=tempGhostVy;
+    Ghost_Ax=tempGhostAx;
+    Ghost_Ay=tempGhostAy;
+    __Ghost_PrevX=tempGhostPrevX;
+    __Ghost_PrevY=tempGhostPrevY;
+    Ghost_CSet=tempGhostCSet;
+    Ghost_Dir=tempGhostDir;
+    Ghost_Data=tempGhostData;
+    Ghost_TileWidth=tempGhostTileWidth;
+    Ghost_TileHeight=tempGhostTileHeight;
+    __Ghost_Flags=tempGhostFlags;
+    __Ghost_Flags2=tempGhostFlags2;
+    __Ghost_InternalFlags=tempGhostInternalFlags;
+    __Ghost_FlashCounter=tempGhostFlashCounter;
+    __Ghost_KnockbackCounter=tempGhostKnockbackCounter;
+    Ghost_HP=tempGhostHP;
+    __Ghost_XOffsets=tempGhostXOffsets;
+    __Ghost_YOffsets=tempGhostYOffsets;
+}
+
+
+void Ghost_WaitframesLight(int numFrames)
+{
+    for(; numFrames>0; numFrames--)
+        Ghost_WaitframeLight();
+}
+
+
+void StartClock()
+{
+    InitializeGhostZHData();
+}
+
+
+void UpdateClock()
+{
+    UpdateGhostZHData();
+}
+
+
+void Ghost_Explode(ffc this, npc ghost)
+{
+    __Ghost_Explode(this, ghost, false);
+}
+
+
+void SetEWeaponMovement(eweapon wpn, int type, int arg)
+{
+    if(type==EWM_SINE_WAVE)
+        SetEWeaponMovement(wpn, EWM_SINE_WAVE, arg, 15);
+    else if(type==EWM_SINE_WAVE_FAST)
+        SetEWeaponMovement(wpn, EWM_SINE_WAVE, arg, 36);
+    else if(type==EWM_HOMING)
+        SetEWeaponMovement(wpn, EWM_HOMING, arg, -1);
+    else if(type==EWM_HOMING_REAIM)
+        SetEWeaponMovement(wpn, EWM_HOMING_REAIM, arg, 45);
+    else if(type==EWM_RANDOM)
+        SetEWeaponMovement(wpn, EWM_RANDOM, arg, -1);
+    else if(type==EWM_RANDOM_REAIM)
+        SetEWeaponMovement(wpn, EWM_RANDOM_REAIM, arg, 45);
+    else if(type>=EWM_VEER && type<=EWM_VEER_RIGHTDOWN)
+        SetEWeaponMovement(wpn, EWM_VEER, type-EWM_VEER, arg);
+    else if(type==EWM_THROW)
+        SetEWeaponMovement(wpn, EWM_THROW, arg, EWMF_DIE);
+    else if(type==EWM_THROW_STOP)
+        SetEWeaponMovement(wpn, EWM_THROW, arg, 0);
+    else if(type==EWM_THROW_BOUNCE)
+        SetEWeaponMovement(wpn, EWM_THROW, arg, EWMF_BOUNCE|EWMF_DIE);
+    else if(type==EWM_THROW_BOUNCE_STOP)
+        SetEWeaponMovement(wpn, EWM_THROW, arg, EWMF_BOUNCE);
+    else if(type==EWM_FALL)
+        SetEWeaponMovement(wpn, EWM_FALL, arg, EWMF_DIE);
+    else if(type>=EWM_DRIFT && type<=EWM_DRIFT_RIGHTDOWN)
+        SetEWeaponMovement(wpn, EWM_DRIFT, type-EWM_DRIFT, arg);
+    else if(type>=EWM_DRIFT_WAIT && type<=EWM_DRIFT_WAIT_RIGHTDOWN)
+        SetEWeaponMovement(wpn, EWM_DRIFT_WAIT, type-EWM_DRIFT_WAIT, arg);
+}
+
+void UpdateGhostZHData()
+{
+    UpdateGhostZHData1();
+    UpdateGhostZHData2();
+}

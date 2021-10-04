@@ -112,6 +112,8 @@
 #include "zc_alleg.h"
 #include "gamedata.h"
 #include "zc_array.h"
+#include "random.h"
+#include "util.h"
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
@@ -162,6 +164,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #define strnicmp _strnicmp
+#define unlink _unlink
 #endif
 
 #ifdef _WIN32
@@ -222,7 +225,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 
 //Version number of the different section types
 #define V_HEADER           5
-#define V_RULES           16
+#define V_RULES           17
 #define V_STRINGS          8
 #define V_MISC             12
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
@@ -236,8 +239,8 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        25
-#define V_GUYS            44
+#define V_INITDATA        26
+#define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        19 //skipped 13->15 for 2.53.1
@@ -248,6 +251,8 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_FFSCRIPT         18
 #define V_SFX              7
 #define V_FAVORITES        1
+
+#define V_COMPATRULE       3
 //= V_SHOPS is under V_MISC
 
 /*
@@ -367,6 +372,8 @@ extern bool fake_pack_writing;
 
 //TODO Turn this into an init data var, and allow editing it per-weapon! -Em
 #define DEFAULT_FIRE_LIGHT_RADIUS 40
+
+#define WRAP_CS2(cs,cs2) (get_bit(quest_rules,qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+12)%12))
 
 //#define MAGICDRAINRATE  2
 
@@ -568,7 +575,6 @@ extern bool fake_pack_writing;
 #define ipBIGRANGE      1                                   // Collision rectangle is large
 #define ipHOLDUP        2                                   // Link holds up item when he gets it
 #define ipONETIME       4                                   // Getting this item sets mITEM
-#define ipONETIME2      2048                                // Getting this item sets mBELOW
 #define ipDUMMY         8                                   // Dummy item.  Can't get this.
 #define ipCHECK         16                                  // Check restrictions (money in a shop, etc.)
 #define ipMONEY         32                                  // This item causes money loss (bomb upgrade, swindle room, etc.)
@@ -577,8 +583,9 @@ extern bool fake_pack_writing;
 #define ipTIMER         256                                 // Disappears after a while
 #define ipBIGTRI        512                                 // Large collision rectangle (used for large triforce)
 #define ipNODRAW        1024                                // Don't draw this (for underwater items)
+#define ipONETIME2      2048                                // Getting this item sets mBELOW
 #define ipSECRETS       4096                                // Trigger Secrets when picked up
-
+#define ipCANGRAB       8192                                // Always grabbable to hookshot/arrows/brang
 
 
 //Common struct array element sizes-Z
@@ -1000,8 +1007,9 @@ enum
 	qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER, qr_OVERHEAD_COMBOS_L1_L2, qr_ALLOW_EDITING_COMBO_0, qr_OLD_CHEST_COLLISION,
 	//30
 	qr_AUTOCOMBO_LAYER_1, qr_AUTOCOMBO_LAYER_2, qr_TRUEFIXEDBOMBSHIELD, qr_BOMBSPIERCESHIELD,
-	qr_BROKEN_HORIZONTAL_WEAPON_ANIM, qr_NEW_DARKROOM, qr_NEWDARK_L6, qr_SIDESWIM, 
+	qr_BROKEN_HORIZONTAL_WEAPON_ANIM, qr_NEW_DARKROOM, qr_NEWDARK_L6, qr_ENEMIES_SECRET_ONLY_16_31,
 	//31
+	qr_SCREEN80_OWN_MUSIC, qr_OLDCS2, qr_HARDCODED_ENEMY_ANIMS, qr_SIDESWIM,
 	qr_SIDESWIMDIR,
 	
 	//ZScript Parser //room for 20 of these
@@ -1057,7 +1065,7 @@ enum
 enum direction { up, down, left, right, l_up, r_up, l_down, r_down };
 const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_up};
 const direction normalDir[]={up,down,left,right,l_up,r_up,l_down,r_down,up,r_up,right,r_down,down,l_down,left,l_up};
-#define NORMAL_DIR(dir)    (normalDir[unsigned(dir)%16])
+#define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : -1)
 // refill stuff
 enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
 #define REFILL_FAIRY -1
@@ -2072,6 +2080,8 @@ struct guydata
     long weap_initiald[INITIAL_D];
     byte weap_initiala[INITIAL_A];
     
+	byte spr_shadow, spr_death, spr_spawn;
+	
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
 #define ENEMY_FLAG3     0x04
@@ -2115,7 +2125,7 @@ public:
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
-	dword fileref, subscreenref, comboidref, directoryref;
+	dword fileref, subscreenref, comboidref, directoryref, rngref;
 	int combosref, comboposref;
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
@@ -2133,7 +2143,7 @@ public:
 		paletteref = 0, palcycleref = 0, tunesref = 0,
 		gamedataref = 0, cheatsref = 0; 
 		fileref = 0, subscreenref = 0;
-		comboidref = 0; directoryref = 0;
+		comboidref = 0; directoryref = 0; rngref = 0;
 		comboposref = 0;
         memset(d, 0, 8 * sizeof(long));
         a[0] = a[1] = 0;
@@ -2163,7 +2173,7 @@ public:
 		doorsref = rhs.doorsref, zcoloursref = rhs.zcoloursref, rgbref = rhs.rgbref, 
 		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
 		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
-		fileref = rhs.fileref, subscreenref = rhs.subscreenref, directoryref = rhs.directoryref;
+		fileref = rhs.fileref, subscreenref = rhs.subscreenref, directoryref = rhs.directoryref, rngref = rhs.rngref;
         memcpy(d, rhs.d, 8 * sizeof(long));
         memcpy(a, rhs.a, 2 * sizeof(long));
 		switchkey = rhs.switchkey;
@@ -3778,7 +3788,7 @@ enum generic_ind
 	genHCP, genMDRAINRATE, genCANSLASH, genWLEVEL,
 	genHCP_PER_HC, genCONTHP, genCONTHP_IS_PERC, genHP_PER_HEART,
 	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
-	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,
+	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,genDARK_COL,
 	genLAST,
 	genMAX = 256
 };
@@ -3994,6 +4004,9 @@ struct gamedata
 	
 	byte get_transdark_perc();
 	void set_transdark_perc(byte val);
+	
+	byte get_darkscr_color();
+	void set_darkscr_color(byte val);
     
     byte get_continue_scrn();
     void set_continue_scrn(byte s);
@@ -4111,9 +4124,12 @@ struct zinitdata
     word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep, subscrSpeed;
 
 	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
-	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em 
+	
+	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em
+	
 	int swimgravity;
-	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent;
+	
+	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
 };
 
 struct zcmap

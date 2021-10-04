@@ -1,0 +1,103 @@
+int Widget_Create(int type, int parent)
+{
+    // Skip ID 0
+    for(int i=SIZEOF_WIDGET; i<GUI_DATA_SIZE; i+=SIZEOF_WIDGET)
+    {
+        if(GUI_Data[i+WIDGET_TYPE]==WTYPE_NONE)
+        {
+            GUI_Data[i+WIDGET_TYPE]=type;
+            GUI_Data[i+WIDGET_X]=0;
+            GUI_Data[i+WIDGET_Y]=0;
+            GUI_Data[i+WIDGET_WIDTH]=0;
+            GUI_Data[i+WIDGET_HEIGHT]=0;
+            GUI_Data[i+WIDGET_FIRST_CHILD]=-1;
+            Widget_AddChild(parent, i);
+            return i;
+        }
+    }
+    
+    return -1; // Shouldn't happen...
+}
+
+void Widget_Destroy(int id)
+{
+    int other;
+    GUI_Data[id+WIDGET_TYPE]=WTYPE_NONE;
+    
+    if(GUI_Data[id+WIDGET_NEXT_CHILD]!=-1)
+    {
+        other=GUI_Data[id+WIDGET_NEXT_CHILD];
+        GUI_Data[other+WIDGET_PREV_CHILD]=GUI_Data[id+WIDGET_PREV_CHILD];
+    }
+    
+    if(GUI_Data[id+WIDGET_PREV_CHILD]!=-1)
+    {
+        other=GUI_Data[id+WIDGET_PREV_CHILD];
+        GUI_Data[other+WIDGET_NEXT_CHILD]=GUI_Data[id+WIDGET_NEXT_CHILD];
+    }
+    else // Parent's first child
+    {
+        other=GUI_Data[id+WIDGET_PARENT];
+        GUI_Data[other+WIDGET_FIRST_CHILD]=GUI_Data[id+WIDGET_NEXT_CHILD];
+    }
+    
+    while(GUI_Data[id+WIDGET_FIRST_CHILD]!=-1) // Destroy children
+        Widget_Destroy(GUI_Data[id+WIDGET_FIRST_CHILD]);
+}
+
+void Widget_AddChild(int id, int newChild)
+{
+    GUI_Data[newChild+WIDGET_PARENT]=id;
+    GUI_Data[newChild+WIDGET_NEXT_CHILD]=-1;
+    
+    int curChild=GUI_Data[id+WIDGET_FIRST_CHILD];
+    if(curChild==-1)
+    {
+        GUI_Data[id+WIDGET_FIRST_CHILD]=newChild;
+        GUI_Data[newChild+WIDGET_PREV_CHILD]=-1;
+    }
+    else
+    {
+        while(GUI_Data[curChild+WIDGET_NEXT_CHILD]!=-1)
+            curChild=GUI_Data[curChild+WIDGET_NEXT_CHILD];
+        
+        GUI_Data[curChild+WIDGET_NEXT_CHILD]=newChild;
+        GUI_Data[newChild+WIDGET_PREV_CHILD]=curChild;
+    }
+}
+
+void Widget_SetPos(int id, int x, int y)
+{
+    GUI_Data[id+WIDGET_X]=x;
+    GUI_Data[id+WIDGET_Y]=y;
+}
+
+void Widget_SetSize(int id, int width, int height)
+{
+    GUI_Data[id+WIDGET_WIDTH]=width;
+    GUI_Data[id+WIDGET_HEIGHT]=height;
+}
+
+void Widget_SetFlag(int id, int flag)
+{
+    GUI_Data[id+WIDGET_FLAGS]|=flag;
+}
+
+void Widget_UnsetFlag(int id, int flag)
+{
+    GUI_Data[id+WIDGET_FLAGS]&=~flag;
+}
+
+void Widget_ToggleFlag(int id, int flag)
+{
+    if((GUI_Data[id+WIDGET_FLAGS]&flag)!=0)
+        GUI_Data[id+WIDGET_FLAGS]&=~flag;
+    else
+        GUI_Data[id+WIDGET_FLAGS]|=flag;
+}
+
+void Widget_SetAllFlags(int id, int flags)
+{
+    GUI_Data[id+WIDGET_FLAGS]=flags;
+}
+

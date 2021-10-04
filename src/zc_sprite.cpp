@@ -61,6 +61,8 @@ void sprite::check_conveyor()
 
 void sprite::handle_sprlighting()
 {
+	if(!(tmpscr->flags & fDARK)) return;
+	if(!get_bit(quest_rules, qr_NEW_DARKROOM)) return;
 	if(!glowRad) return;
 	switch(glowShape)
 	{

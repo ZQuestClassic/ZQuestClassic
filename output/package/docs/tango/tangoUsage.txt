@@ -1,0 +1,280 @@
+tango.zh
+Version 1.3.3
+
+
+================ Overview ================
+
+This is just a quick overview of all the stuff below - a simple, high-level
+explanation of how Tango works.
+
+If you want to try it out without learning all the details, you can use
+tangoQuickStart.zh. It provides a minimal global script and a couple of
+simple functions. There are a few constants to set for colors, combos,
+and sounds; the defaults are okay for the classic tileset.
+
+To display strings, there are two concepts you need to deal with: text slots
+and styles. If you're familiar with other programming languages, these are
+comparable to structs or classes. There are a fixed (but customizable) number
+of them, and they're identified by integers.
+
+A text slot consists of text, a style reference, and some internal data.
+You can create different types to control drawing order and how much space
+is alloted, but they're fundamentally all the same.
+
+A style is just a collection of settings - the size and color of the text,
+the sound to play as it's printing, and so forth. These are mostly cosmetic
+settings, but there are also a few behavioral flags. These control whether the
+text can be sped up by holding a button, whether the screen is frozen while
+it's displayed, and some other things.
+
+Tango also provides a simple scripting language that can be embedded in
+strings. This allows you to control what text is displayed and how, create
+menus, or even make messages run arbitrary ZScript functions.
+
+
+================ Basic usage ================
+
+There are three functions that need to be added to the active global script.
+Tango_Start() should be called before the main loop, Tango_Update1() in the
+main loop before Waitdraw(), and Tango_Update2() in the main loop after
+Waitdraw(). It is recommended that Tango_Update1() be called before any other
+funcions so that buttons can be unpressed as soon as possible. Tango_Update2()
+should generally come after everything else that does any drawing, since one
+normally wants message windows drawn on top of everything else.
+
+At least one style must be set up. This can be done once per quest or
+on demand. Setting up a style simply involves repeated calls to
+Tango_SetStyleAttribute().
+
+Displaying text on the screen requires six steps:
+1: Find a free text slot (Tango_GetFreeSlot())
+2: Clear any data already in the slot (Tango_ClearSlot())
+3: Load text into the slot (Tango_LoadString() or Tango_LoadMessage())
+4: Set a style (Tango_SetSlotStyle())
+5: Set the position (Tango_SetSlotPosition())
+6: Activate the text slot (Tango_ActivateSlot())
+
+Displaying a menu from a script takes four or five steps:
+1: Initialize menu data (Tango_InitializeMenu())
+2: Add choices (Tango_AddChoice())
+3: Set the cursor's appearance (Tango_SetMenuCursor())
+4: (optional) Set the menu sound effects (Tango_SetMenuSFX())
+5: Activate the menu (Tango_ActivateMenu())
+
+
+================ Text slots ================
+
+Tango has a number of "text slots" where text and associated data are stored.
+Before any text can be displayed on the screen, it must be loaded into a slot,
+and the slot must have a style set. Slots are numbered 0 to __TANGO_NUM_SLOTS-1.
+
+Text slots are defined in __Tango_SlotDefs[]. The slot definition defines
+where in the buffer text is stored and where it's rendered on the offscreen
+bitmap. It is permissible for slots to overlap in both the buffer and
+the bitmap, but be careful about this; using overlapping slots simultaneously
+is likely to cause problems.
+
+There are three reasons you might use different slot types.
+
+1: Reservation
+There are a limited number of text slots available. If you display several
+strings at once, you could run into a situation where you want to display
+another but have no free slots for it. If there's something you always want
+to be able to show, create a slot type just for that, and you can be sure
+it will be available when you need it.
+
+2: Ordering
+Text slots are drawn to the screen in the order they're defined in
+__Tango_SlotDefs[]. That means later slots will appear on top of earlier
+ones. If there's a string that should always appear on top of any others,
+you can define a slot type that's only used by the last slot.
+
+3: Efficiency
+Using different slot types lets you divide up __Tango_Buffer[] efficiently.
+It may be that you want to display one or two long strings at a time along
+with a lot of small strings. Creating separate slot types for long and short
+strings lets you do this without wasting a lot of space in the buffer.
+
+The intention is that all slots of a given type will use the same amount
+of space in the buffer and the bitmap, but this is not enforced. There's
+no obvious reason to make slots of the same type different, but you can
+if you like.
+
+There are two slots and one slot type defined by default. This should
+be plenty for most quests, but you can add as many slots and types
+as you like. Slot type IDs should be 0 or greater.
+
+To control the number of slots, set __TANGO_NUM_SLOTS, set the size of
+__Tango_SlotData[], and add definitions to __Tango_SlotDefs[]. You may
+also want to set the size of __Tango_Buffer[] to control the amount of
+space available for text.
+
+
+================ Fonts ================
+
+Tango can't use ZC's built-in fonts directly; it needs additional data about
+spacing to position everything correctly. Tango font definitions are arrays
+that provide the necessary information.
+
+Definitions for most built-in fonts are included, but they're not imported
+by default. The files are in the tango/font directory. Although they aren't
+constants (since ZScript doesn't allow constant arrays), the names are
+written in all caps to indicate that they should be used as though they were.
+
+You can create your own fonts, too. Using characters made from tiles, you can
+extend built-in fonts with additional characters or create completely original
+ones. The drawback of tile-based characters is that they have fewer color
+options; they only have a CSet, not a CSet and a color. On the other hand,
+tile-based characters can use multiple colors, and they can even be 8-bit.
+
+If you want to create a font, see the font format section of tango.txt
+for details.
+
+
+================ Styles ================
+
+Before any text can be displayed, the slot must have a style set. The style
+defines how the text will be displayed - the font, the backdrop, the sound
+effects, and so forth. Style IDs are integers 0 and up.
+
+Use Tango_SetStyleAttribute() to set each style attribute. You must at least
+set the font and color; every other setting has a valid default. The attributes
+and expected values are listed in the style attributes section of tango.txt.
+
+To control the number of styles available, set __TANGO_NUM_STYLES and the
+size of __Tango_Styles[].
+
+
+================ Tango code ================
+
+Tango implements a simple scripting language with functions embedded
+in strings. Code is identified by the character '@' (by default;
+set __TANGO_CODE_DELIMITER to change this).
+
+@ is followed immediately by a function name, then up to two arguments
+in parentheses, separated by spaces. Parentheses are needed even if
+a function takes no arguments. For example, the string
+  "@playsfx(64)Hello, @savename()!"
+would play sound 64 and print (possibly)
+  "Hello, Link!"
+
+Variables are also available. These can be used to set the properties of
+the text. For instance, @speed controls how quickly the text is drawn.
+Each slot has two variables, @a0 and @a1, used to store arbitrary data or
+communicate with ZScript. You can also create your own variables for
+the same purposes.
+
+It's also possible to use @## or @(##)to insert a character directly into
+the text. The string
+  "@90@69@76@68@65"
+would be printed as
+  "ZELDA"
+This is useful for inserting line breaks (@26) and font characters beyond
+the ASCII range. Also, @0 can be used to terminate the text early; anything
+after @0 won't be printed.
+
+
+================ Extending Tango code ================
+
+It's possible to create your own variables and functions. 
+
+The name of the new function or variable must be a series of lower-case
+letters and numbers, and the first character must be a letter. There's no
+set limit on length, but the name must convert to a number small enough
+to be represented in ZScript (no greater than 214747.9999).
+
+The name of the function or variable needs to be converted to a number.
+Tango_ConvertFunctionName() and Tango_ConvertVariableName() will do this
+for you; they'll even write the result to allegro.log in a form suitable
+to copy and paste directly into a script. If you'd rather do the math
+yourself, see the section titled "identifier conversion" in tango.txt.
+
+User-defined functions can be numeric, effect, or condition functions.
+To make Tango handle a function, add the implementation to
+__Tango_RunCustomFunction(). The function argument is the function ID.
+args is an array containing the arguments. A function can take up to four
+arguments; any unused arguments will be 0. For debugging purposes, you may
+want to call Tango_LogUndefinedFunction() if the function is not recognized.
+
+A simple example:
+
+const float FUNC_DOSTUFF2 = 543.3828; // @dostuff2()
+
+float __Tango_RunCustomFunction(float function, float args)
+{
+    if(function==FUNC_DOSTUFF2)
+    {
+        // This will just return the sum of the arguments.
+        return args[0]+args[1];
+    }
+    else
+    {
+        // Unknown function
+        Tango_LogUndefinedFunction(function);
+    }
+    
+    return 0;
+}
+
+
+To implement a variable, use Tango_GetCustomVar() and Tango_SetCustomVar().
+The var argument is the variable id.
+
+A trivial example of a custom variable:
+
+int myVar;
+const float VAR_MYVAR = 4.0891; // @myvar
+
+float Tango_GetCustomVar(int var)
+{
+    if(var==VAR_MYVAR)
+        return myVar;
+    else // Unknown
+    {
+        Tango_LogInvalidVariable(var);
+        return 0;
+    }
+}
+
+void Tango_SetCustomVar(int var, float value)
+{
+    if(var==VAR_MYVAR)
+        myVar=value;
+    else // Unknown
+        Tango_LogInvalidVariable(var);
+}
+
+
+Note that it's possible, although very unlikely, for two function or variable
+names to convert to the same number. In that case, you'll just have to rename
+one of them. It's okay for a variable and a function to have the same name.
+
+
+================ String control codes ================
+
+String control codes are supported only in ZC messages, not ZScript strings.
+They're enabled by default, but they can be disabled if you don't need them.
+To disable them, import stringControlCodeDisabled.zh instead of
+stringControlCode.zh.
+
+Control codes can be used alongside Tango code, but they cannot be combined.
+Something like
+  \20\@rand(61, 63)
+or
+  @if(@a0 \16\6)
+will not work.
+
+Note that codes 16 and 17 (add or remove item) don't work quite the same
+as they normally do. The item is simply added to or removed from the inventory;
+no changes are made to any counters.
+
+
+================ Warnings ================
+
+Although Tango performs a lot of input validation, catching every problem
+is not feasible. Some errors might hang or crash the game, so be ready for that.
+
+Text is drawn into offscreen bitmaps one character at a time, even when
+an entire string is drawn at once. Using TANGO_FLAG_INSTANTANEOUS with
+long strings will push you significantly closer to the drawing limit.
+

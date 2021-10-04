@@ -117,7 +117,7 @@ int select_dropitem(int item_set)
     if(total_chance==0)
         return -1;
         
-    int item_chance=(rand()%total_chance)+1;
+    int item_chance=(zc_oldrand()%total_chance)+1;
     
     int drop_item=-1;
     
@@ -181,6 +181,7 @@ int item::run_script(int mode)
 	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptITEMSPRITESCRIPTS])
 		return RUNSCRIPT_OK;
 	int ret = RUNSCRIPT_OK;
+	alloc_scriptmem();
 	switch(mode)
 	{
 		case MODE_NORMAL:

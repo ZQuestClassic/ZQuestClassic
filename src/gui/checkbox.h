@@ -34,16 +34,17 @@ public:
 	{
 		message = static_cast<int>(m);
 	}
-
+protected:
+	int message;
 private:
 	bool checked;
 	std::string text;
 	boxPlacement placement;
 	DialogRef alDialog;
-	int message;
 
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
+	void calculateSize() override;
 	int onEvent(int event, MessageDispatcher& sendMessage) override;
 };
 

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>ZScript functions - tango.zh 1.3.3</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "ZScript functions";
+    var mkdocs_page_input_path = "zscriptFuncs.md";
+    var mkdocs_page_url = "/zscriptFuncs/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> tango.zh 1.3.3</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../usage/index.html">Usage</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">ZScript functions</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#zscript-functions">ZScript functions</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#global-script">Global script</a></li>
+        
+            <li><a class="toctree-l3" href="#text-slot-management">Text slot management</a></li>
+        
+            <li><a class="toctree-l3" href="#style-setup">Style setup</a></li>
+        
+            <li><a class="toctree-l3" href="#menu">Menu</a></li>
+        
+            <li><a class="toctree-l3" href="#other">Other</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../constants/index.html">ZScript constants</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../tangoCode/index.html">Tango variables and functions</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../dataFormats/index.html">Data structures and formats</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../errors/index.html">Error codes</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../faq/index.html">FAQ</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">tango.zh 1.3.3</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>ZScript functions</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="zscript-functions">ZScript functions</h1>
+<h2 id="global-script">Global script</h2>
+<dl>
+<dt>void Tango_Start()</dt>
+<dd>
+<p>Clears the menu and all text slots.</p>
+<p>Call this in the active global script before the main loop.</p>
+</dd>
+<dt>void Tango_Update1()</dt>
+<dd>
+<p>Processes each text slot and the menu.</p>
+<p>After calling this function, the render target will be set to <code>RT_SCREEN</code>.</p>
+<p>Call this in the active global script's main loop before <code>Waitdraw()</code>.
+It is recommended that it be called before any other functions so that
+the <code>TANGO_FLAG_BLOCK_INPUT</code> can be handled as soon as possible.</p>
+</dd>
+<dt>void Tango_Update2()</dt>
+<dd>
+<p>Draws all active text slots to the screen.</p>
+<p>After calling this function, the render target will be set to <code>RT_SCREEN</code>.</p>
+<p>Call this in the active global script's main loop after <code>Waitdraw()</code>.
+This should generally come after everything else that does any drawing,
+since you probably want text boxes drawn on top of everything else.</p>
+</dd>
+<dt>bool Tango_ValidateConfiguration()</dt>
+<dd>
+<p>This function will check the arrays and text slot definitions for errors
+and print a report to allegro.log. It can't catch all possible errors,
+but it should get the most common ones. Returns true if no errors were found.</p>
+<p>Note that not all potential problems are necessarily invalid; some, such as
+overlapping text slots, may be okay. These will be logged, but not
+considered errors.</p>
+<p>This function should not be used in published quests. It only exists to
+help you configure tango.zh correctly.</p>
+</dd>
+</dl>
+<h2 id="text-slot-management">Text slot management</h2>
+<dl>
+<dt>int Tango_GetFreeSlot()</dt>
+<dt>int Tango_GetFreeSlot(int slotType)</dt>
+<dd>Get the number of a slot not currently in use. You can specify a slot type;
+if you don't care, pass in <code>TANGO_SLOT_ANY</code> or leave out the argument.</dd>
+<dt>void Tango_ClearSlot(int slot)</dt>
+<dd>Clear all data for the given slot. If the slot is active, it will be
+deactivated.</dd>
+<dt>bool Tango_ReserveSlot(int slot)</dt>
+<dd>
+<p>Mark a slot as reserved, preventing <code>Tango_GetFreeSlot()</code> from returning it.
+Use this if you get a free slot and don't plan to use it immediately.
+Returns true if the reservation succeeded (i.e. the slot wasn't already
+reserved or active).</p>
+<p>The reserved state will be cleared if <code>Tango_ClearSlot()</code> is called or Link
+moves to a new screen.</p>
+</dd>
+<dt>void Tango_LoadString(int slot, int string[])</dt>
+<dd>Loads a ZScript string (<code>int[]</code>) into the given slot.</dd>
+<dt>void Tango_LoadMessage(int slot, int messageID)</dt>
+<dd>Loads a ZC message (<strong>Quest-&gt;Strings</strong>) into the given slot.</dd>
+<dt>void Tango_AppendString(int slot, int string[])</dt>
+<dt>void Tango_AppendMessage(int slot, int messageID)</dt>
+<dd>Loads a string or message into the given slot, appending it to the end of
+whatever text is already there.</dd>
+<dt>void Tango_LoadString(int slot, int string[], int startChar)</dt>
+<dt>void Tango_LoadMessage(int slot, int messageID, int startChar)</dt>
+<dt>void Tango_AppendString(int slot, int string[], int startChar)</dt>
+<dt>void Tango_AppendMessage(int slot, int messageID, int startChar)</dt>
+<dd>
+<p>Like the above, but specifies a starting point in the string to load.</p>
+<p>Loading will start from the first character after <code>startChar</code>. For instance:</p>
+<div class="codehilite"><pre><span></span>int str[]=&quot;abcd%efg&quot;;
+Tango_LoadString(0, str, &#39;%&#39;);
+</pre></div>
+
+
+<p>will load "efg" into slot 0.</p>
+<p>If the character specified is not in the string, the entire string
+will be loaded. The string must contain the actual character, not
+a character code (@##).</p>
+</dd>
+<dt>void Tango_SetSlotStyle(int slot, int style)</dt>
+<dt>int Tango_GetSlotStyle(int slot)</dt>
+<dd>Set or get the style used by the given slot.</dd>
+<dt>void Tango_SetSlotPosition(int slot, int x, int y)</dt>
+<dt>int Tango_GetSlotX(int slot)</dt>
+<dt>int Tango_GetSlotY(int slot)</dt>
+<dd>Set or get the position where the text slot will be shown on the screen.</dd>
+<dt>void Tango_ActivateSlot(int slot)</dt>
+<dd>Display the current slot on the screen. Do this only after setting
+the slot's text, style, and position. The render target will be set to
+<code>RT_SCREEN</code> after calling this function.</dd>
+<dt>bool Tango_SlotIsActive(int slot)</dt>
+<dd>Returns true if the slot is currently being displayed on the screen.
+A suspended slot is still considered active.</dd>
+<dt>bool Tango_AnySlotIsActive()</dt>
+<dd>Returns true if any slot is currently being displayed.</dd>
+<dt>bool Tango_SlotIsFinished(int slot)</dt>
+<dd>Returns true if the given slot is finished printing and is still
+being displayed.</dd>
+</dl>
+<h2 id="style-setup">Style setup</h2>
+<dl>
+<dt>void Tango_ClearStyle(int style)</dt>
+<dd>Clear all data for the given style.</dd>
+<dt>void Tango_SetStyleAttribute(int style, int attribute, int value)</dt>
+<dt>int Tango_GetStyleAttribute(int style, int attribute)</dt>
+<dd>
+<p>Set or get an attribute of the given style. See <a href="../constants/index.html#style-attributes">the style attributes
+section</a> for the available attributes
+and expected values.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Modifying a style in use by an active text slot
+is not guaranteed to work correctly.</p>
+</div>
+</dd>
+<dt>int Tango_GetSlotStyleAttribute(int slot, int attribute)</dt>
+<dd>Get the value of an attribute from whatever style the given text slot
+is using.</dd>
+<dt>int Tango_GetStringWidth(int str[], int font)</dt>
+<dd>Returns the width of the given string when printed in the given font.
+Tango code will not be evaluated and line breaks will be ignored.
+This should be used for centering text when using <code>TANGO_DRAW_TEXT</code>
+in a complex backdrop.</dd>
+</dl>
+<h2 id="menu">Menu</h2>
+<dl>
+<dt>void Tango_InitializeMenu()</dt>
+<dd>Clear all menu data and deactivate the menu if one is active.</dd>
+<dt>void Tango_AddMenuChoice(int value, int x, int y)</dt>
+<dd>Add a menu choice with the given value at the specified position.
+The value should be greater than 0.</dd>
+<dt>void Tango_MoveMenuChoice(int choice, int x, int y)</dt>
+<dd>Reposition a menu choice on the screen.</dd>
+<dt>void Tango_SetMenuCursor(int combo, int cset)</dt>
+<dt>void Tango_SetMenuCursor(int combo, int cset, int width, int height)</dt>
+<dd>Set the appearance of the menu cursor. If width and height are not
+specified, they will default to 1.</dd>
+<dt>void Tango_SetMenuSFX(int moveSound, int selectSound, int cancelSound)</dt>
+<dd>Set the sounds to be used by the menu.</dd>
+<dt>void Tango_SetMenuFlags(int flags)</dt>
+<dd>Set flags for the menu. The value is 0 or one or more menu flags
+ORed together. See <a href="../constants/index.html#menu-flags">the menu flags section</a> for
+available flags.</dd>
+<dt>void Tango_ActivateMenu()</dt>
+<dd>Activate a menu set up using the above functions.</dd>
+<dt>void Tango_DeactivateMenu()</dt>
+<dd>Deactivate the active menu. This is typically only needed for
+persistent menus.</dd>
+<dt>int Tango_GetLastMenuChoice()</dt>
+<dd>
+<p>Returns the value of the last selection made in a menu. Returns 0 if
+a non-persistent menu is currently active, no menu has been shown yet,
+or the user cancelled in the last menu.</p>
+<p>If the menu is persistent, this function will only return each selection
+for a single frame before returning to 0.</p>
+</dd>
+<dt>int Tango_GetCurrentMenuChoice()</dt>
+<dd>Returns the value if the currently selected choice in the menu.
+Returns 0 if no menu is active or the current cursor position is invalid.</dd>
+<dt>bool Tango_MenuIsActive()</dt>
+<dd>
+<p>Returns true if a menu is currently active.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>If you display a string that creates a menu, the menu will not
+be active until at least the next call to <code>Tango_Update1()</code>, even if
+<code>TANGO_FLAG_INSTANTANEOUS</code> is used.</p>
+<p>This is not the case for menus created by scripts. The menu will be
+active as soon as <code>Tango_ActivateMenu()</code> is called.</p>
+</div>
+</dd>
+<dt>void Tango_SaveMenuState(int state[])</dt>
+<dd>
+<p>Store the current state of the menu into output. This will store the
+values and positions of the options, the cursor and sound settings, and
+the currently selected option.</p>
+<p>The size of output must be at least <code>20 + 3 * __TANGO_MAX_MENU_ITEMS</code>.
+Later versions of tango.zh are likely to use more data; you may
+want to use a larger array for future-proofing.</p>
+</dd>
+<dt>void Tango_SetMenuAutosaveDest(int state[])</dt>
+<dd>
+<p>Sets an array in which the menu state will automatically be saved
+when a selection is made or the player cancels. The state will not
+be saved if the menu is closed for another reason. After setting
+the autosave array, you can call this again with an argument of <code>NULL</code>
+to clear it.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The data to be saved includes the autosave destination, so restoring
+the menu state with this array will set it up to autosave again.</p>
+</div>
+</dd>
+<dt>void Tango_RestoreMenuState(int oldState[])</dt>
+<dd>Restore the state saved with <code>Tango_SaveMenuState()</code>.</dd>
+<dt>int Tango_GetMenuCursorPosition()</dt>
+<dd>Returns the current position of the menu cursor. Choices are numbered
+from 0. Setting the cursor position to an invalid number is allowed,
+so the position is not guaranteed to be valid.</dd>
+<dt>void Tango_SetMenuCursorPosition(int pos)</dt>
+<dd>Sets the cursor position to pos. If pos is invalid, no item will be
+selected, and the cursor will be hidden.</dd>
+</dl>
+<h2 id="other">Other</h2>
+<dl>
+<dt>void Tango_Sync(int value)</dt>
+<dd>Used to synchronize a script and a text slot. See <code>@sync()</code> for details.</dd>
+<dt>void Tango_SetSlotVar(int slot, int what, float value)</dt>
+<dt>float Tango_GetSlotVar(int slot, int what)</dt>
+<dd>Use these to set and get a text slot's <code>@a0</code> and <code>@a1</code>. Use either
+<code>TANGO_VAR_A0</code> or <code>TANGO_VAR_A1</code> as the <code>what</code> argument.</dd>
+<dt>void Tango_SuspendSlot(int slot)</dt>
+<dd>Suspends processing of an active text slot. The slot will remain visible,
+but it will not advance.</dd>
+<dt>void Tango_ResumeSlot(int slot)</dt>
+<dd>Resumes processing of a suspended text slot.</dd>
+<dt>float Tango_GetSlotScrollPos(int slot)</dt>
+<dt>float Tango_GetSlotMaxScrollPos(int slot)</dt>
+<dd>If the text is too long to be displayed all at once, it will scroll down.
+These functions get the current and maximum scroll positions. The minimum
+position is always 0, and the maximum is 0 or greater. The scroll amount
+is given in pixels.</dd>
+<dt>void Tango_ScrollSlot(int slot, float amount)</dt>
+<dd>Scrolls the text slot up or down. As above, the amount is in pixels.
+Poitive numbers scroll down, and negative numbers scroll up. The slot
+will not scroll beyond the beginning or end of the text.</dd>
+<dt>int Tango_GetCurrentSlot()</dt>
+<dd>Returns the ID of the slot currently being processed. This should only
+be used in <code>__Tango_RunCustomFunction()</code>, <code>Tango_GetCustomVar()</code>, and 
+<code>Tango_SetCustomVar()</code>. At any other time, the value is meaningless.</dd>
+<dt>void Tango_SaveSlotState(int slot, int output[], int bitmap)</dt>
+<dt>void Tango_SaveSlotState(int slot, int output[])</dt>
+<dd>
+<p>Store the state of a text slot into aoutputa. The current text, style,
+position, state, and variables will be saved. The style's data
+will not be saved.</p>
+<p>If <code>bitmap</code> is specified, the text already rendered will be copied to 
+that bitmap, and the render target will be set to <code>RT_SCREEN</code> afterward.</p>
+<p>The size of <code>output</code> must be at least the slot's length in the buffer + 21.
+Later versions of tango.zh are likely to use more data; you may
+want to use a larger array for future-proofing.</p>
+</dd>
+<dt>void Tango_RestoreSlotState(int slot, int oldState[], int bitmap)</dt>
+<dt>void Tango_RestoreSlotState(int slot, int oldState[])</dt>
+<dd>
+<p>Restore the state of a slot saved with <code>Tango_SaveSlotState()</code>. The slot
+number should be the same, as it will be assumed that the position
+on the bitmap is the same.</p>
+<p>If a bitmap is specified, the render target will be set to <code>RT_SCREEN</code>
+afterward.</p>
+</dd>
+<dt>float Tango_ConvertFunctionName(int name[])</dt>
+<dt>float Tango_ConvertVariableName(int name[])</dt>
+<dd>
+<p>Returns the converted value of the given name and prints a constant
+definition to allegro.log. Do not include <code>@</code> in the name.</p>
+<div class="codehilite"><pre><span></span>int name[] = &quot;dostuff2&quot;;
+float value = Tango_ConvertFunctionName(name);
+</pre></div>
+
+
+<p><code>value</code> will be equal to 543.3828, and allegro.log will contain
+<code>const float FUNC_DOSTUFF2 = 543.3828;</code>.</p>
+</dd>
+<dt>void Tango_LogUndefinedFunction(float function)</dt>
+<dd>This will log an error indicating the use of an unknown function.
+This is meant to be called from <code>__Tango_RunCustomFunction()</code> if
+the function is not recognized. It's only useful for debugging,
+so it can be considered optional.</dd>
+<dt>void Tango_LogUndefinedVariable(float var)</dt>
+<dd>This will log an error indicating the use of an unknown variable.
+It's meant to be called from <code>Tango_GetCustomVar()</code> and <code>Tango_SetCustomVar()</code>
+and is useful only for debugging.</dd>
+</dl>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../constants/index.html" class="btn btn-neutral float-right" title="ZScript constants">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../usage/index.html" class="btn btn-neutral" title="Usage"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../usage/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../constants/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

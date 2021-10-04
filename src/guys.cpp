@@ -25,7 +25,7 @@
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "particles.h"
-extern sprite_list particles;
+extern particle_list particles;
 
 extern FFScript FFCore;
 extern word item_doscript[256];
@@ -145,7 +145,7 @@ int random_layer_enemy()
 		return eNONE;
 	}
 	
-	int ret=rand()%cnt;
+	int ret=zc_oldrand()%cnt;
 	cnt=0;
 	
 	for(int i=0; i<6; ++i)
@@ -342,12 +342,14 @@ eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -390,12 +392,14 @@ eOther::eOther(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -441,12 +445,14 @@ eScript::eScript(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -489,12 +495,14 @@ eFriendly::eFriendly(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -539,12 +547,14 @@ eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -589,12 +599,14 @@ eTektite::eTektite(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -634,12 +646,14 @@ eItemFairy::eItemFairy(enemy const & other, bool new_script_uid, bool clear_pare
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -682,12 +696,14 @@ ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -728,12 +744,14 @@ eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -773,12 +791,14 @@ eWallM::eWallM(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -826,12 +846,14 @@ eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -871,12 +893,14 @@ eZora::eZora(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -916,12 +940,14 @@ eSpinTile::eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -961,12 +987,14 @@ eNPC::eNPC(enemy const & other, bool new_script_uid, bool clear_parent_script_UI
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1006,12 +1034,14 @@ eTrigger::eTrigger(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1052,12 +1082,14 @@ eProjectile::eProjectile(enemy const & other, bool new_script_uid, bool clear_pa
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1097,12 +1129,14 @@ eBoulder::eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1142,12 +1176,14 @@ eRock::eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1187,12 +1223,14 @@ eTrap2::eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1234,12 +1272,14 @@ eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1286,12 +1326,14 @@ eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1334,12 +1376,14 @@ eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1379,12 +1423,14 @@ eDodongo::eDodongo(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1425,12 +1471,14 @@ eDodongo2::eDodongo2(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1472,12 +1520,14 @@ eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_pa
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1518,12 +1568,14 @@ eGohma::eGohma(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1563,12 +1615,14 @@ eLilDig::eLilDig(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1608,12 +1662,14 @@ eBigDig::eBigDig(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1655,12 +1711,14 @@ eGanon::eGanon(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1703,12 +1761,14 @@ eMoldorm::eMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1749,12 +1809,14 @@ esMoldorm::esMoldorm(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1803,12 +1865,14 @@ eManhandla::eManhandla(enemy const & other, bool new_script_uid, bool clear_pare
 {
 	
 	//arrays
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1847,12 +1911,14 @@ esManhandla::esManhandla(enemy const & other, bool new_script_uid, bool clear_pa
 {
 	
 	//arrays
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1896,12 +1962,14 @@ eGleeok::eGleeok(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -1952,12 +2020,14 @@ esGleeok::esGleeok(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2015,12 +2085,14 @@ ePatra::ePatra(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2066,12 +2138,14 @@ ePatraBS::ePatraBS(enemy const & other, bool new_script_uid, bool clear_parent_s
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2112,12 +2186,14 @@ esPatra::esPatra(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2166,12 +2242,14 @@ esPatraBS::esPatraBS(enemy const & other, bool new_script_uid, bool clear_parent
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2280,6 +2358,9 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	dmisc30=d->misc30;
 	dmisc31=d->misc31;
 	dmisc31=d->misc32;
+	spr_shadow=d->spr_shadow;
+	spr_death=d->spr_death;
+	spr_spawn=d->spr_spawn;
 	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=d->defense[i];
@@ -2386,7 +2467,7 @@ enemy::enemy(zfix X,zfix Y,int Id,int Clk) : sprite()
 	leader = itemguy = dying = scored = false;
 	canfreeze = count_enemy = true;
 	mainguy = !(flags & guy_doesntcount);
-	dir = rand()&3;
+	dir = zc_oldrand()&3;
 	
 	//2.6 Enemy Editor Hit and TIle Sizes
 	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
@@ -2563,19 +2644,19 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	wpn(other.wpn),			//int
 	SIZEflags(other.SIZEflags),			//int
 	haslink(haslink)
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
 
 {
 	
 	//arrays
 	
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-	
-	scriptData = other.scriptData;
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 	
@@ -2653,19 +2734,19 @@ void enemy::explode(int type)
 					{
 						if(type==0)  // Twilight
 						{
-							particles.add(new pTwilight((zfix)x+j, (zfix)y-(zfix)z+i, 5, 0, 0, (rand()%8)+i*4));
+							particles.add(new pTwilight((zfix)x+j, (zfix)y-(zfix)z+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
 							int k=particles.Count()-1;
-							particle *p = (particle*)(particles.spr(k));
+							particle *p = (particles.at(k));
 							p->step=3;
 						}
 						else if(type ==1)  // Sands of Hours
 						{
-							particles.add(new pTwilight((zfix)x+j, (zfix)y-(zfix)z+i, 5, 1, 2, (rand()%16)+i*2));
+							particles.add(new pTwilight((zfix)x+j, (zfix)y-(zfix)z+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
 							int k=particles.Count()-1;
-							particle *p = (particle*)(particles.spr(k));
+							particle *p = (particles.at(k));
 							p->step=4;
 							
-							if(rand()%10 < 2)
+							if(zc_oldrand()%10 < 2)
 							{
 								p->color=1;
 								p->cset=0;
@@ -2673,12 +2754,12 @@ void enemy::explode(int type)
 						}
 						else
 						{
-							particles.add(new pFaroresWindDust((zfix)x+j, (zfix)y-(zfix)z+i, 5, 6, linktilebuf[i*16+j], rand()%96));
+							particles.add(new pFaroresWindDust((zfix)x+j, (zfix)y-(zfix)z+i, 5, 6, linktilebuf[i*16+j], zc_oldrand()%96));
 							
 							int k=particles.Count()-1;
-							particle *p = (particle*)(particles.spr(k));
+							particle *p = (particles.at(k));
 							p->angular=true;
-							p->angle=rand();
+							p->angle=zc_oldrand();
 							p->step=(((double)j)/8);
 							p->yofs=0;//yofs;
 						}
@@ -2801,7 +2882,8 @@ bool enemy::Dead(int index)
 	{
 		--clk2;
 		
-		if(clk2==12 && hp>-1000)                                // not killed by ringleader
+		if((get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) && clk2==12)
+		   && hp>-1000) // not killed by ringleader
 			death_sfx();
 			
 		if(clk2==0)
@@ -2838,8 +2920,7 @@ bool enemy::animate(int index)
 			--stunclk;
 		if ( frozenclock > 0 ) 
 			--frozenclock;
-		run_script(MODE_NORMAL);
-		if(fallclk && haslink)
+		if(haslink)
 		{
 			Link.setX(x);
 			Link.setY(y);
@@ -2847,6 +2928,7 @@ bool enemy::animate(int index)
 			Link.fallclk = fallclk;
 			haslink = false; //Let Link go if falling
 		}
+		run_script(MODE_NORMAL);
 		return false;
 	}
 	if(do_drowning(index)) return true;
@@ -2859,14 +2941,14 @@ bool enemy::animate(int index)
 			--stunclk;
 		if ( frozenclock > 0 ) 
 			--frozenclock;
-		run_script(MODE_NORMAL);
-		if(drownclk && haslink)
+		if(haslink)
 		{
 			Link.setX(x);
 			Link.setY(y);
 			Link.drownclk = drownclk;
 			haslink = false; //Let Link go if falling
 		}
+		run_script(MODE_NORMAL);
 		return false;
 	}
 	int nx = real_x(x);
@@ -2990,15 +3072,9 @@ bool enemy::animate(int index)
 	++c_clk;
 	
 	//Run its script
-	if ( script > 0 && doscript ) 
+	if (run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE)
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !(FFCore.system_suspend[susptNPCSCRIPTS])  )
-		{
-			if(ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID())==RUNSCRIPT_SELFDELETE)
-			{
-				return 0; //Avoid NULLPO if this object deleted itself
-			}
-		}
+		return 0; //Avoid NULLPO if this object deleted itself
 	}
 	
 	// returns true when enemy is defeated
@@ -3324,26 +3400,26 @@ void enemy::FireBreath(bool seeklink)
 		switch(dir)
 		{
 		case down:
-			fire_angle=PI*((rand()%20)+10)/40;
+			fire_angle=PI*((zc_oldrand()%20)+10)/40;
 			wx=x;
 			wy=y+8;
 			break;
 			
 		case -1:
 		case up:
-			fire_angle=PI*((rand()%20)+50)/40;
+			fire_angle=PI*((zc_oldrand()%20)+50)/40;
 			wx=x;
 			wy=y-8;
 			break;
 			
 		case left:
-			fire_angle=PI*((rand()%20)+30)/40;
+			fire_angle=PI*((zc_oldrand()%20)+30)/40;
 			wx=x-8;
 			wy=y;
 			break;
 			
 		case right:
-			fire_angle=PI*((rand()%20)+70)/40;
+			fire_angle=PI*((zc_oldrand()%20)+70)/40;
 			wx=x+8;
 			wy=y;
 			break;
@@ -3374,7 +3450,7 @@ void enemy::FireBreath(bool seeklink)
 	weapon *ew = (weapon*)(Ewpns.spr(i));
 	ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 	
-	if(!seeklink && (rand()&4))
+	if(!seeklink && (zc_oldrand()&4))
 	{
 		ew->angular=true;
 		ew->angle=fire_angle;
@@ -3382,7 +3458,7 @@ void enemy::FireBreath(bool seeklink)
 	
 	if(wpn==ewFlame && wpnsbuf[ewFLAME].frames>1)
 	{
-		ew->aframe=rand()%wpnsbuf[ewFLAME].frames;
+		ew->aframe=zc_oldrand()%wpnsbuf[ewFLAME].frames;
 		if ( ew->do_animation ) ew->tile+=ew->aframe;
 	}
 	
@@ -3496,7 +3572,7 @@ void enemy::FireWeapon()
 		if(bc<=40)  // Not too many enemies
 		{
 			int kids = guys.Count();
-			int bats=(rand()%zc_max(1,dmisc4))+1;
+			int bats=(zc_oldrand()%zc_max(1,dmisc4))+1;
 			
 			for(int i=0; i<bats; i++)
 			{
@@ -3528,7 +3604,7 @@ void enemy::FireWeapon()
 		
 		if(kids<40)
 		{
-			int newguys=(rand()%3)+1;
+			int newguys=(zc_oldrand()%3)+1;
 			bool summoned=false;
 			
 			for(int i=0; i<newguys; i++)
@@ -3539,8 +3615,8 @@ void enemy::FireWeapon()
 				
 				for(int k=0; k<20; ++k)
 				{
-					x2=16*((rand()%12)+2);
-					y2=16*((rand()%7)+2);
+					x2=16*((zc_oldrand()%12)+2);
+					y2=16*((zc_oldrand()%7)+2);
 					
 					if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Link.getX())>=32)||(abs(y2-Link.getY())>=32)))
 					{
@@ -3769,14 +3845,63 @@ int enemy::resolveEnemyDefence(weapon *w)
 	return weapondef;
 }
 
+byte get_def_ignrflag(int edef)
+{
+	switch(edef)
+	{
+		case edIGNORE:
+		case edIGNOREL1:
+		case edSTUNORIGNORE:
+			return WPNUNB_IGNR;
+		case edSTUNORCHINK:
+		case edCHINK:
+		case edCHINKL1:
+		case edCHINKL2:
+		case edCHINKL4:
+		case edCHINKL6:
+		case edCHINKL8:
+		case edCHINKL10:
+		case edLEVELCHINK2:
+		case edLEVELCHINK3:
+		case edLEVELCHINK4:
+		case edLEVELCHINK5:
+			return WPNUNB_BLOCK;
+	}
+	return 0;
+}
 
+int conv_edef_unblockable(int edef, byte unblockable)
+{
+	if(!(unblockable&get_def_ignrflag(edef))) return edef;
+	switch(edef)
+	{
+		case edIGNORE:
+		case edIGNOREL1:
+		case edCHINK:
+		case edCHINKL1:
+		case edCHINKL2:
+		case edCHINKL4:
+		case edCHINKL6:
+		case edCHINKL8:
+		case edCHINKL10:
+		case edLEVELCHINK2:
+		case edLEVELCHINK3:
+		case edLEVELCHINK4:
+		case edLEVELCHINK5:
+			return edNORMAL;
+		case edSTUNORIGNORE:
+		case edSTUNORCHINK:
+			return edSTUNONLY;
+	}
+	return edef;
+}
 
 // Do we do damage?
 // 0: takehit returns 0
 // 1: takehit returns 1
 // -1: do damage
 //The input from resolveEnemyDefence() for the param 'edef' is negative if a specific defence RESULT is being used.
-int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set return on brangs and hookshots
+int enemy::defendNew(int wpnId, int *power, int edef, byte unblockable) //May need *wpn to set return on brangs and hookshots
 {
 	int tempx = x;
 	int tempy = y;
@@ -3784,61 +3909,25 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 	if ( edef < 0 ) //we are using a specific base default defence for a weapon
 	{
 		the_defence = edef*-1; //A specific defence type. 
-		
 	}
 	else the_defence = defense[edef];
-	//Weapon Editor, Default Defence if set aqnd npc defence is none. 
-	//otherwise, use enemy editor definitions.  -Z
-	/*
-	int the_defence = 0;
 	
-	//al_trace("enemy::defend(), Step 1, checking defense[edef]: %d\n", defense[edef]);
-	//Z_message("enemy::defend(), Step 1, checking defense[edef]: %d\n", defense[edef]);
-	if ( defense[edef] > 0 ) 
-	{ 
-		al_trace("defendNew() is at: %s\n", "defense[edef] is > 0");
-		al_trace("defendNew()defense[edef] is: %d\n",defense[edef]);
-		the_defence = defense[edef]; 
-	   // al_trace("enemy::defend(), Step 2, defense[edef] > 0, setting defence: %d\n", defence);
-		//Z_message("enemy::defend(), Step 2, defense[edef] > 0, setting defence: %d\n", defence);
+	the_defence = conv_edef_unblockable(the_defence, unblockable);
 	
-	} 
-	else 
+	if(shieldCanBlock && !(unblockable&WPNUNB_SHLD))
 	{
-		al_trace("defendNew() is at: %s\n", "defense[edef] is <= 0");
-		the_defence = edef; //itemsbuf[id].usedefense;
-		//al_trace("enemy::defend(), Step 3, defense[edef] !> 0, setting defence: %d\n", edef);
-		//Z_message("enemy::defend(), Step 2, defense[edef] !> 0, setting defence: %d\n", edef);
-	}
-	//al_trace("defendNew() the_defence is: %d\n", the_defence);
-	//al_trace("defendNew() is at: %s\n", "is shieldCanBlock");
-	*/
-	if(shieldCanBlock)
-	{
-	   // al_trace("enemy::defend(), shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
-	  //  Z_message("enemy::defend(), shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
-		//switch(the_defence)
-		switch(the_defence) //usedefence should be set as part of the edef input to this function
+		switch(the_defence)
 		{
-		case edIGNORE:
-			return 0;
-		case edIGNOREL1:
-		case edSTUNORIGNORE:
-			if(*power <= 0)
+			case edIGNORE:
 				return 0;
+			case edIGNOREL1:
+			case edSTUNORIGNORE:
+				if(*power <= 0)
+					return 0;
 		}
-		//al_trace("defendNew() is at: %s\n", "playing shield block sound");
 		sfx(WAV_CHINK,pan(int(x)));
 		return 1;
 	}
-	
-   // al_trace("enemy::defend(), !shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
-	//Z_message("enemy::defend(), !shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
-	//al_trace("defendNew() is at: %s\n", "switch(the_defence)");
-	//al_trace("defendNew() the_defence is: %d\n", the_defence);
-	//switch(the_defence)
-	
-	// = NULL;
 	
 	int new_id = id;
 	int effect_type = dmisc15;
@@ -3846,9 +3935,8 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 	enemy *gleeok = NULL;
 	enemy *ptra = NULL;
 	int c = 0;
-	//int dummy_wpn_id = 23;
 	
-	switch(the_defence) //usedefence should be set as part of the edef input to this function
+	switch(the_defence)
 	{
 	case edREPLACE:
 	{
@@ -4385,7 +4473,7 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 					c-=guysbuf[new_id].misc4;
 					*/
 					
-				//}
+				// }
 				}
 				break;
 				
@@ -4547,11 +4635,11 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 		
 		//al_trace("edSplit dmisc3: %d\n", dmisc3);
 		//al_trace("edSplit dmisc4: %d\n", dmisc4);
-		int summon_count = (rand()%dmisc4)+1;
+		int summon_count = (zc_oldrand()%dmisc4)+1;
 		for ( int q = 0; q < summon_count; q++ )
 		{
-			int x2=16*((rand()%12)+2);
-			int y2=16*((rand()%7)+2);
+			int x2=16*((zc_oldrand()%12)+2);
+			int y2=16*((zc_oldrand()%7)+2);
 			addenemy(
 				//(x+(txsz*16)/2),(y+(tysz*16)/2)
 				x2,y2,
@@ -4747,8 +4835,6 @@ int enemy::defendNew(int wpnId, int *power, int edef) //May need *wpn to set ret
 	
 	}
 	
-	
-	
 	return -1;
 }
 
@@ -4800,7 +4886,7 @@ int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 		case wCByrna:
 		{
 			//al_trace("defenditemclassnew is: %s\n", "calling defendNew()");
-		def = defendNew(wid, power, edef);
+		def = defendNew(wid, power, edef, w->unblockable);
 			//al_trace("enemy::defenditemclass(), Step 2A, wid is NOT a script type, doing defendNew(wid, power, resolveEnemyDefence(w); def is: %d\n", def);
 			//Z_message("enemy::defenditemclass(), Step 2A, wid is NOT a script type, doing defendNew(wid, power, resolveEnemyDefence(w); def is: %d\n", def);
 		}
@@ -4810,58 +4896,14 @@ int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 	   
 		
 		
-		 case wScript1:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript2:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript3:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript4:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript5:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript6:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript7:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript8:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript9:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	
-	case wScript10:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
-		else def = defend(wpnId, power,  edefSCRIPT);
-		break;
+		 case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+		 case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
+			if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef, w->unblockable);
+			else def = defend(wpnId, power,  edefSCRIPT);
+			break;
 	
 	case wWhistle:
-		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef);
+		if(QHeader.zelda_version > 0x250) def = defendNew(wid, power,  edef, w->unblockable);
 		//if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefWhistle);
 		else break;
 		break;
@@ -4873,7 +4915,7 @@ int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 		//Either that, or we need a boolean flag to set int he enemy editor, or by ZScript that changes this behaviour. 
 		//such as bool UseSeparatedScriptDefences. hah.
 		default:
-			def = defendNew(wid, power,  edef);
+			def = defendNew(wid, power,  edef, w->unblockable);
 				//al_trace("enemy::defenditemclass(), reached DEFAULT, doing defendNew(wid, power, resolveEnemyDefence(w); def is: %d\n", def);
 			//Z_message("enemy::defenditemclass(), reached DEFAULT, doing defendNew(wid, power, resolveEnemyDefence(w); def is: %d\n", def);
 			   
@@ -4892,32 +4934,35 @@ int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 
 
 // Check defenses without actually acting on them.
-bool enemy::candamage(int power, int edef)
+bool enemy::candamage(int power, int edef, byte unblockable)
 {
 	switch(defense[edef])
 	{
-	case edSTUNORCHINK:
-	case edSTUNORIGNORE:
 	case edSTUNONLY:
-	case edCHINK:
-	case edIGNORE:
 		return false;
+	case edSTUNORCHINK:
+	case edCHINK:
+		return unblockable&WPNUNB_BLOCK;
+	case edSTUNORIGNORE:
+	case edIGNORE:
+		return unblockable&WPNUNB_IGNR;
 		
 	case edIGNOREL1:
+		return (unblockable&WPNUNB_IGNR) || power >= 1*game->get_hero_dmgmult();
 	case edCHINKL1:
-		return power >= 1*game->get_hero_dmgmult();
+		return (unblockable&WPNUNB_BLOCK) || power >= 1*game->get_hero_dmgmult();
 		
 	case edCHINKL2:
-		return power >= 2*game->get_hero_dmgmult();
+		return (unblockable&WPNUNB_BLOCK) || power >= 2*game->get_hero_dmgmult();
 		
 	case edCHINKL4:
-		return power >= 4*game->get_hero_dmgmult();
+		return (unblockable&WPNUNB_BLOCK) || power >= 4*game->get_hero_dmgmult();
 		
 	case edCHINKL6:
-		return power >= 6*game->get_hero_dmgmult();
+		return (unblockable&WPNUNB_BLOCK) || power >= 6*game->get_hero_dmgmult();
 		
 	case edCHINKL8:
-		return power >= 8*game->get_hero_dmgmult();
+		return (unblockable&WPNUNB_BLOCK) || power >= 8*game->get_hero_dmgmult();
 	}
 	
 	return true;
@@ -5294,7 +5339,7 @@ int enemy::takehit(weapon *w)
 	if(get_bit(quest_rules,qr_BOMBDARKNUTFIX) && (wpnId==wBomb || wpnId==wSBomb))
 	{
 		double ddir=atan2(double(wpny-y),double(x-wpnx));
-		wpnDir=rand()&3;
+		wpnDir=zc_oldrand()&3;
 		
 		if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
 		{
@@ -5318,8 +5363,8 @@ int enemy::takehit(weapon *w)
 	shieldCanBlock=false;
 	
 	//if (family==eeFLOAT && flags&(inv_front|inv_back_inv_left|inv_right)) xdir=down;
-	if((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
-			|| ((flags&inv_front && wpnDir==(xdir^down)) || (flags&inv_back && wpnDir==(xdir^up)) || (flags&inv_left && wpnDir==(xdir^left)) || (flags&inv_right && wpnDir==(xdir^right)))
+	if(!(w->unblockable&WPNUNB_BLOCK)&&((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
+			|| ((flags&inv_front && wpnDir==(xdir^down)) || (flags&inv_back && wpnDir==(xdir^up)) || (flags&inv_left && wpnDir==(xdir^left)) || (flags&inv_right && wpnDir==(xdir^right))))
 	  )
 		// The hammer should already be dealt with by subclasses (Walker etc.)
 	{
@@ -5428,7 +5473,7 @@ int enemy::takehit(weapon *w)
 		w->power = itemsbuf[parent_item].misc5;
 			
 		//int def = defendNew(wWhistle, &power,  resolveEnemyDefence(w));
-		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w));
+		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w), w->unblockable);
 		//int def = defend(wWhistle, &power,  edefWhistle);
 			
 		//al_trace("whistle def is: %d\n", def);
@@ -5471,17 +5516,17 @@ int enemy::takehit(weapon *w)
 			switch(f)
 			{
 			case itype_arrow:
-				if(!candamage(p, edefARROW)) return 0;
+				if(!candamage(p, edefARROW, w->unblockable)) return 0;
 				
 				break;
 				
 			case itype_cbyrna:
-				if(!candamage(p, edefBYRNA)) return 0;
+				if(!candamage(p, edefBYRNA, w->unblockable)) return 0;
 				
 				break;
 				
 			case itype_brang:
-				if(!candamage(p, edefBRANG)) return 0;
+				if(!candamage(p, edefBRANG, w->unblockable)) return 0;
 				
 				break;
 				
@@ -5498,7 +5543,7 @@ int enemy::takehit(weapon *w)
 	case wBrang:
 	{
 		//int def = defendNew(wpnId, &power, edefBRANG, w);
-		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w));
+		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w), w->unblockable);
 		//preventing stunlock might be best, here. -Z
 		if(def >= 0) return def;
 		
@@ -5527,7 +5572,7 @@ int enemy::takehit(weapon *w)
 	case wHookshot:
 	{
 		//int def = defendNew(wpnId, &power, edefHOOKSHOT,w);
-		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w));
+		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w), w->unblockable);
 		
 		if(def >= 0) return def;
 		
@@ -5714,30 +5759,38 @@ void enemy::old_draw(BITMAP *dest)
 		}
 		
 		flip = 0;
-		tile = wpnsbuf[iwDeath].newtile;
-	//The scale of this tile shouldx be based on the enemy size. -Z
+		tile = wpnsbuf[spr_death].newtile;
+		//The scale of this tile shouldx be based on the enemy size. -Z
 		if ( do_animation ) 
-	{
-		if(BSZ)
-			tile += zc_min((15-clk2)/3,4);
-		else if(clk2>6 && clk2<=12)
-			++tile;
-	}
-		/* trying to get more death frames here
-		  if(wpnsbuf[wid].frames)
-		  {
-		  if(++clk2 >= wpnsbuf[wid].speed)
-		  {
-		  clk2 = 0;
-		  if(++aframe >= wpnsbuf[wid].frames)
-		  aframe = 0;
-		  }
-		  tile = wpnsbuf[wid].tile + aframe;
-		  }
-		  */
+		{
+			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+			{
+				if(clk2 > 2)
+				{
+					spr_death_anim_clk=0;
+					clk2=1;
+					death_sfx();
+				}
+				if(clk2==1 && spr_death_anim_clk>-1)
+				{
+					++clk2;
+					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
+					{
+						spr_death_anim_clk=-1;
+						clk2=1;
+					}
+				}
+				tile += spr_death_anim_frm;
+			}
+			else if(BSZ)
+				tile += zc_min((15-clk2)/3,4);
+			else if(clk2>6 && clk2<=12)
+				++tile;
+		}
 		
-		if(BSZ || fading==fade_blue_poof)
-			cs = wpnsbuf[iwDeath].csets&15;
+		if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading==fade_blue_poof)
+			cs = wpnsbuf[spr_death].csets&15;
 		else
 			cs = (((clk2+5)>>1)&3)+6;
 	}
@@ -5962,30 +6015,38 @@ void enemy::draw(BITMAP *dest)
 		}
 		
 		flip = 0;
-		tile = wpnsbuf[iwDeath].newtile;
-	//The scale of this tile shouldx be based on the enemy size. -Z
+		tile = wpnsbuf[spr_death].newtile;
+		//The scale of this tile shouldx be based on the enemy size. -Z
 		if ( do_animation ) 
-	{
-		if(BSZ)
-			tile += zc_min((15-clk2)/3,4);
-		else if(clk2>6 && clk2<=12)
-			++tile;
-	}
-		/* trying to get more death frames here
-		  if(wpnsbuf[wid].frames)
-		  {
-		  if(++clk2 >= wpnsbuf[wid].speed)
-		  {
-		  clk2 = 0;
-		  if(++aframe >= wpnsbuf[wid].frames)
-		  aframe = 0;
-		  }
-		  tile = wpnsbuf[wid].tile + aframe;
-		  }
-		  */
+		{
+			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+			{
+				if(clk2 > 2)
+				{
+					spr_death_anim_clk=0;
+					clk2=1;
+					death_sfx();
+				}
+				if(clk2==1 && spr_death_anim_clk>-1)
+				{
+					++clk2;
+					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
+					{
+						spr_death_anim_clk=-1;
+						clk2=1;
+					}
+				}
+				tile += spr_death_anim_frm;
+			}
+			else if(BSZ)
+				tile += zc_min((15-clk2)/3,4);
+			else if(clk2>6 && clk2<=12)
+				++tile;
+		}
 		
-		if(BSZ || fading==fade_blue_poof)
-			cs = wpnsbuf[iwDeath].csets&15;
+		if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading==fade_blue_poof)
+			cs = wpnsbuf[spr_death].csets&15;
 		else
 			cs = (((clk2+5)>>1)&3)+6;
 	}
@@ -6104,28 +6165,38 @@ void enemy::drawzcboss(BITMAP *dest)
 		}
 		
 		flip = 0;
-		tile = wpnsbuf[iwDeath].newtile;
+		tile = wpnsbuf[spr_death].newtile;
 		
-		if(BSZ && do_animation)
-			tile += zc_min((15-clk2)/3,4);
-		else if(clk2>6 && clk2<=12 && do_animation)
-			++tile;
-			
-		/* trying to get more death frames here
-		  if(wpnsbuf[wid].frames)
-		  {
-		  if(++clk2 >= wpnsbuf[wid].speed)
-		  {
-		  clk2 = 0;
-		  if(++aframe >= wpnsbuf[wid].frames)
-		  aframe = 0;
-		  }
-		  tile = wpnsbuf[wid].tile + aframe;
-		  }
-		  */
+		if ( do_animation ) 
+		{
+			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+			{
+				if(clk2 > 2)
+				{
+					spr_death_anim_clk=0;
+					clk2=1;
+					death_sfx();
+				}
+				if(clk2==1 && spr_death_anim_clk>-1)
+				{
+					++clk2;
+					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
+					{
+						spr_death_anim_clk=-1;
+						clk2=1;
+					}
+				}
+				tile += spr_death_anim_frm;
+			}
+			else if(BSZ)
+				tile += zc_min((15-clk2)/3,4);
+			else if(clk2>6 && clk2<=12)
+				++tile;
+		}
 		
-		if(BSZ || fading==fade_blue_poof)
-			cs = wpnsbuf[iwDeath].csets&15;
+		if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading==fade_blue_poof)
+			cs = wpnsbuf[spr_death].csets&15;
 		else
 			cs = (((clk2+5)>>1)&3)+6;
 	}
@@ -6254,7 +6325,7 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 	else
 	{
 		/*   if (enemycanfall(id) && z>0)
-			 shadowtile = wpnsbuf[iwShadow].tile;
+			 shadowtile = wpnsbuf[spr_shadow].tile;
 		   sprite::drawshadow(dest,translucent);
 		   if (z==0)
 			 shadowtile = 0;*/
@@ -6264,7 +6335,7 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 		//this hack is in place as not all enemies that should use the z axis while in the air
 		//(ie rocks, boulders) actually do. To be removed when the enemy revamp is complete -DD
 		if(enemycanfall(id) && shadowtile == 0)
-			shadowtile = wpnsbuf[iwShadow].newtile;
+			shadowtile = wpnsbuf[spr_shadow].newtile;
 			
 		if(z>0 || !enemycanfall(id))
 		{
@@ -6840,7 +6911,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 	// can move straight, check if it wants to turn
 	if(canmove_old(dir,step,special,dx1,dy1,dx2,dy2))
 	{
-		if(grumble && (rand()&4)<grumble) //Homing
+		if(grumble && (zc_oldrand()&4)<grumble) //Homing
 		{
 			int w = Lwpns.idFirst(wBait);
 			
@@ -6873,7 +6944,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 		}
 		
 		// Homing added.
-		if(newhoming && (rand()&255)<newhoming)
+		if(newhoming && (zc_oldrand()&255)<newhoming)
 		{
 			ndir = lined_up(8,true);
 			
@@ -6885,7 +6956,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 			return;
 		}
 		
-		int r=rand();
+		int r=zc_oldrand();
 		
 		if(newrate>0 && !(r%newrate))
 		{
@@ -6913,7 +6984,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 	
 	for(; i<32; i++)  // Try random dir
 	{
-		ndir=(rand()&7)+8;
+		ndir=(zc_oldrand()&7)+8;
 		
 		if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
 			break;
@@ -6927,7 +6998,7 @@ void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,i
 				goto ok;
 		}
 		
-		ndir = (isSideViewGravity()) ? (rand()&1 ? left : right) : -1;  // Sideview enemies get trapped if their dir becomes -1
+		ndir = (isSideViewGravity()) ? (zc_oldrand()&1 ? left : right) : -1;  // Sideview enemies get trapped if their dir becomes -1
 	}
 	
 ok:
@@ -6943,7 +7014,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 	// can move straight, check if it wants to turn
 	if(canmove(dir,step,special,dx1,dy1,dx2,dy2,false))
 	{
-		if(grumble && (rand()&4)<grumble) //Homing
+		if(grumble && (zc_oldrand()&4)<grumble) //Homing
 		{
 			int w = Lwpns.idFirst(wBait);
 			
@@ -6976,7 +7047,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 		}
 		
 		// Homing added.
-		if(newhoming && (rand()&255)<newhoming)
+		if(newhoming && (zc_oldrand()&255)<newhoming)
 		{
 			ndir = lined_up(8,true);
 			
@@ -6988,7 +7059,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 			return;
 		}
 		
-		int r=rand();
+		int r=zc_oldrand();
 		
 		if(newrate>0 && !(r%newrate))
 		{
@@ -7016,7 +7087,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 	
 	for(; i<32; i++)  // Try random dir
 	{
-		ndir=(rand()&7)+8;
+		ndir=(zc_oldrand()&7)+8;
 		
 		if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
 			break;
@@ -7030,7 +7101,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 				goto ok;
 		}
 		
-		ndir = (isSideViewGravity()) ? (rand()&1 ? left : right) : -1;  // Sideview enemies get trapped if their dir becomes -1
+		ndir = (isSideViewGravity()) ? (zc_oldrand()&1 ? left : right) : -1;  // Sideview enemies get trapped if their dir becomes -1
 	}
 	
 ok:
@@ -7416,7 +7487,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 {
 	int ndir=-1;
 	
-	if(grumble && (rand()&3)<grumble)
+	if(grumble && (zc_oldrand()&3)<grumble)
 	{
 		int w = Lwpns.idFirst(wBait);
 		
@@ -7446,7 +7517,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 		}
 	}
 	
-	if((rand()&255)<newhoming)
+	if((zc_oldrand()&255)<newhoming)
 	{
 		ndir = lined_up(8,false);
 		
@@ -7461,7 +7532,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 	
 	for(; i<32; i++)
 	{
-		int r=rand();
+		int r=zc_oldrand();
 		
 		if((r&15)<newrate)
 			ndir=(r>>4)&3;
@@ -7480,7 +7551,7 @@ void enemy::newdir(int newrate,int newhoming,int special)
 				goto ok;
 		}
 		
-		ndir = (isSideViewGravity()) ? (rand()&1 ? left : right) : -1; // Sideview enemies get trapped if their dir becomes -1
+		ndir = (isSideViewGravity()) ? (zc_oldrand()&1 ? left : right) : -1; // Sideview enemies get trapped if their dir becomes -1
 	}
 	
 ok:
@@ -7653,7 +7724,7 @@ void enemy::halting_walk(int newrate,int newhoming,int special,int newhrate, int
 		{
 			clk2=0;
 		}
-		else if((rand()&15)<newhrate)
+		else if((zc_oldrand()&15)<newhrate)
 		{
 			clk2=haltcnt;
 			return;
@@ -7724,7 +7795,7 @@ void enemy::halting_walk_8(int newrate,int newhoming, int newclk,int special,int
 		{
 			clk2=0;
 		}
-		else if((rand()&15)<newhrate)
+		else if((zc_oldrand()&15)<newhrate)
 		{
 			newdir_8(newrate,newhoming,special);
 			clk2=haltcnt;
@@ -7817,7 +7888,7 @@ void enemy::floater_walk(int newrate,int newclk,zfix ms,zfix ss,int s,int p, int
 	case 2:                                                 // normal
 		step=ms;
 		
-		if(clk2>48 && !(rand()%768))
+		if(clk2>48 && !(zc_oldrand()%768))
 		{
 			step=ss*s;
 			movestatus=3;
@@ -7952,7 +8023,7 @@ void enemy::place_on_axis(bool floater, bool solid_ok)
 {
 	int lx=zc_min(zc_max(int(Link.getX())&0xF0,32),208);
 	int ly=zc_min(zc_max(int(Link.getY())&0xF0,32),128);
-	int pos2=rand()%23;
+	int pos2=zc_oldrand()%23;
 	int tried=0;
 	bool last_resort,placed=false;
 	
@@ -8141,10 +8212,10 @@ void enemy::tiledir_small(int ndir, bool fourdir)
 		break;
 		
 	default:
-		//dir=(rand()*100)%8;
+		//dir=(zc_oldrand()*100)%8;
 		//tiledir_small(dir);
-		//      flip=rand()&3;
-		//      tile=(rand()*100000)%NEWMAXTILES;
+		//      flip=zc_oldrand()&3;
+		//      tile=(zc_oldrand()*100000)%NEWMAXTILES;
 		break;
 	}
 }
@@ -8212,10 +8283,10 @@ void enemy::tiledir(int ndir, bool fourdir)
 		break;
 		
 	default:
-		//dir=(rand()*100)%8;
+		//dir=(zc_oldrand()*100)%8;
 		//tiledir(dir);
-		//      flip=rand()&3;
-		//      tile=(rand()*100000)%NEWMAXTILES;
+		//      flip=zc_oldrand()&3;
+		//      tile=(zc_oldrand()*100000)%NEWMAXTILES;
 		break;
 	}
 }
@@ -8281,10 +8352,10 @@ void enemy::tiledir_big(int ndir, bool fourdir)
 		break;
 		
 	default:
-		//dir=(rand()*100)%8;
+		//dir=(zc_oldrand()*100)%8;
 		//tiledir_big(dir);
-		//      flip=rand()&3;
-		//      tile=(rand()*100000)%NEWMAXTILES;
+		//      flip=zc_oldrand()&3;
+		//      tile=(zc_oldrand()*100000)%NEWMAXTILES;
 		break;
 	}
 }
@@ -8292,9 +8363,9 @@ void enemy::tiledir_big(int ndir, bool fourdir)
 void enemy::update_enemy_frame()
 {
 	if(fallclk||drownclk) return;
-	if ( ( !do_animation ) || (( anim == aNONE ) && (family != eeGUY)) ) 
+	if (!do_animation) 
 	{  
-	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) return; //Anim == none, don't animate. -Z
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) return; //Anim == none, don't animate. -Z
 	}
 	int newfrate = zc_max(frate,4);
 	int f4=clk/(newfrate/4); // casts clk to [0,1,2,3]
@@ -8748,7 +8819,7 @@ waves2:
 	{
 		tilerows = 2;
 		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
-		int lookat=rand()&15;
+		int lookat=zc_oldrand()&15;
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 		{
@@ -9327,6 +9398,7 @@ int enemy::run_script(int mode)
 	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
 		return RUNSCRIPT_OK;
 	int ret = RUNSCRIPT_OK;
+	alloc_scriptmem();
 	switch(mode)
 	{
 		case MODE_NORMAL:
@@ -9979,7 +10051,7 @@ eTektite::eTektite(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	clk=-15;
 	
 	if(!BSZ)
-		clk*=rand()%3+1;
+		clk*=zc_oldrand()%3+1;
 		
 	// avoid divide by 0 errors
 	if(dmisc1 == 0)
@@ -10031,7 +10103,7 @@ bool eTektite::animate(int index)
 		switch(misc)
 		{
 		case 0:                                               // normal
-			if(!(rand()%dmisc1))
+			if(!(zc_oldrand()%dmisc1))
 			{
 				misc=1;
 				clk2=32;
@@ -10042,7 +10114,7 @@ bool eTektite::animate(int index)
 		case 1:                                               // waiting to pounce
 			if(--clk2<=0)
 			{
-				int r=rand();
+				int r=zc_oldrand();
 				misc=2;
 				step=0-(zslongToFix(dstep*100));                           // initial speed
 				clk3=(r&1)+2;                                       // left or right
@@ -10176,7 +10248,7 @@ bool eTektite::animate(int index)
 					step=0-step;
 					y--;
 				}
-				else if(rand()%dmisc2)                                 //land and wait
+				else if(zc_oldrand()%dmisc2)                                 //land and wait
 				{
 					clk=misc=0;
 				}                                                   //land and jump again
@@ -10217,7 +10289,7 @@ void eTektite::drawshadow(BITMAP *dest,bool translucent)
 	int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 		   efrate:((clk>=(frate>>1))?1:0);
 	flip = 0;
-	shadowtile = wpnsbuf[iwShadow].newtile;
+	shadowtile = wpnsbuf[spr_shadow].newtile;
 	
 	if(get_bit(quest_rules,qr_NEWENEMYTILES))
 	{
@@ -10390,7 +10462,7 @@ void ePeahat::drawshadow(BITMAP *dest, bool translucent)
 {
 	int tempy=yofs;
 	flip = 0;
-	shadowtile = wpnsbuf[iwShadow].newtile+posframe;
+	shadowtile = wpnsbuf[spr_shadow].newtile+posframe;
 	
 	if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
 	{
@@ -10511,7 +10583,7 @@ bool eLeever::animate(int index)
 			case -1:  //submerged
 			{
 		
-				if((dmisc1==2)&&(rand()&255))
+				if((dmisc1==2)&&(zc_oldrand()&255))
 				{
 					break;
 				}
@@ -10551,7 +10623,7 @@ bool eLeever::animate(int index)
 					break;
 				}
 				
-				int d2=rand()&1;
+				int d2=zc_oldrand()&1;
 				
 				if(LinkDir()>=left)
 				{
@@ -11291,7 +11363,7 @@ eTrap2::eTrap2(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	mainguy=false;
 	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	step=2;
-	if(dmisc1==1 || (dmisc1==0 && rand()&2))
+	if(dmisc1==1 || (dmisc1==0 && zc_oldrand()&2))
 	{
 		dir=(x<=112)?right:left;
 	}
@@ -11490,17 +11562,17 @@ bool eRock::animate(int index)
 	
 	if(++clk2==0)                                             // start it
 	{
-		x=rand()&0xF0;
+		x=zc_oldrand()&0xF0;
 		y=0;
 		clk3=0;
-		clk2=rand()&15;
+		clk2=zc_oldrand()&15;
 	}
 	
 	if(clk2>16)                                               // move it
 	{
 		if(clk3<=0)                                             // start bounce
 		{
-			dir=rand()&1;
+			dir=zc_oldrand()&1;
 			
 			if(x<32)  dir=1;
 			
@@ -11542,7 +11614,7 @@ bool eRock::animate(int index)
 		else if(y<176)
 			clk3=0;                                               // next bounce
 		else
-			clk2 = -(rand()&63);                                  // back to top
+			clk2 = -(zc_oldrand()&63);                                  // back to top
 	}
 	
 	return enemy::animate(index);
@@ -11558,7 +11630,7 @@ void eRock::drawshadow(BITMAP *dest, bool translucent)
 		int efrate = fdiv == 0 ? 0 : clk/fdiv;
 		int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[iwShadow].newtile+f2;
+		shadowtile = wpnsbuf[spr_shadow].newtile+f2;
 		
 		yofs+=8;
 		yofs+=zc_max(0,zc_min(29-clk3,clk3));
@@ -11631,17 +11703,17 @@ bool eBoulder::animate(int index)
 	
 	if(++clk2==0)                                             // start it
 	{
-		x=rand()&0xF0;
+		x=zc_oldrand()&0xF0;
 		y=-32;
 		clk3=0;
-		clk2=rand()&15;
+		clk2=zc_oldrand()&15;
 	}
 	
 	if(clk2>16)                                               // move it
 	{
 		if(clk3<=0)                                             // start bounce
 		{
-			dir=rand()&1;
+			dir=zc_oldrand()&1;
 			
 			if(x<32)  dir=1;
 			
@@ -11683,7 +11755,7 @@ bool eBoulder::animate(int index)
 		else if(y<176)
 			clk3=0;                                               // next bounce
 		else
-			clk2 = -(rand()&63);                                  // back to top
+			clk2 = -(zc_oldrand()&63);                                  // back to top
 	}
 	
 	return enemy::animate(index);
@@ -11696,7 +11768,7 @@ void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 		int tempy=yofs;
 		flip = 0;
 		int f2=((clk<<2)/frate)<<1;
-		shadowtile = wpnsbuf[iwLargeShadow].newtile+f2;
+		shadowtile = wpnsbuf[spr_shadow].newtile+f2;
 		yofs+=zc_max(0,zc_min(29-clk3,clk3));
 		
 		yofs+=8;
@@ -11813,11 +11885,11 @@ bool eProjectile::animate(int index)
 		{
 			if(timer==0)
 			{
-				unsigned r=rand();
+				unsigned r=zc_oldrand();
 				
 				if(!(r&63))
 				{
-					timer=rand()%50+50;
+					timer=zc_oldrand()%50+50;
 				}
 			}
 			
@@ -11837,7 +11909,7 @@ bool eProjectile::animate(int index)
 		
 		else // Not breath type
 		{
-			unsigned r=rand();
+			unsigned r=zc_oldrand();
 			
 			if(!(r&63) && !LinkInRange(minRange))
 			{
@@ -11948,7 +12020,7 @@ bool eNPC::animate(int index)
 	case 1:
 		halting_walk(rate, homing, 0, hrate, 48);
 		
-		if(clk2==1 && (misc < dmisc1) && !(rand()&15))
+		if(clk2==1 && (misc < dmisc1) && !(zc_oldrand()&15))
 		{
 			newdir(rate, homing, 0);
 			clk2=48;
@@ -12101,7 +12173,7 @@ void eSpinTile::draw(BITMAP *dest)
 void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
 {
 	flip = 0;
-	shadowtile = wpnsbuf[iwShadow].newtile+(clk%4);
+	shadowtile = wpnsbuf[spr_shadow].newtile+(clk%4);
 	yofs+=4;
 	if(!shadow_overpit(this))
 		enemy::drawshadow(dest, translucent);
@@ -12211,7 +12283,7 @@ bool eZora::animate(int index)
 	case 0:                                                 // reposition him
 	{
 		int t=0;
-		int pos2=rand()%160 + 16;
+		int pos2=zc_oldrand()%160 + 16;
 		bool placed=false;
 		
 		while(!placed && t<160)
@@ -12290,7 +12362,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 	haslink = false;
 	dummy_bool[0]=false;
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
-	if(dmisc9==e9tARMOS && rand()&1)
+	if(dmisc9==e9tARMOS && zc_oldrand()&1)
 	{
 		step=zslongToFix(dmisc10*100);
 		
@@ -12680,8 +12752,8 @@ bool eStalfos::animate(int index)
 				}
 				/*
 				 * Boomerang-throwers have a halt count of 1
-				 * Zols have a halt count of (rand()&7)<<4
-				 * Gels have a halt count of ((rand()&7)<<3)+2
+				 * Zols have a halt count of (zc_oldrand()&7)<<4
+				 * Gels have a halt count of ((zc_oldrand()&7)<<3)+2
 				 * Everything else has 48
 				 */
 				else
@@ -12694,11 +12766,11 @@ bool eStalfos::animate(int index)
 					{
 						if(dmisc2==e2tSPLITHIT) // Zol
 						{
-							halting_walk(rate,homing,0,hrate,(rand()&7)<<4);
+							halting_walk(rate,homing,0,hrate,(zc_oldrand()&7)<<4);
 						}
 						else if(frate<=8 && starting_hp==1) // Gel
 						{
-							halting_walk(rate,homing,0,hrate,((rand()&7)<<3)+2);
+							halting_walk(rate,homing,0,hrate,((zc_oldrand()&7)<<3)+2);
 						}
 						else // Other
 						{
@@ -12775,7 +12847,7 @@ bool eStalfos::animate(int index)
 			default:
 				if(misc==1)
 				{
-					dir=(rand()%4);
+					dir=(zc_oldrand()%4);
 					step=8;
 				}
 				
@@ -12830,7 +12902,7 @@ bool eStalfos::animate(int index)
 		
 		if(wpn==ewFIRETRAIL && wpnsbuf[ewFIRETRAIL].frames>1)
 		{
-			ew->aframe=rand()%wpnsbuf[ewFIRETRAIL].frames;
+			ew->aframe=zc_oldrand()%wpnsbuf[ewFIRETRAIL].frames;
 			if ( ew->do_animation ) ew->tile+=ew->aframe;
 		}
 	}
@@ -12891,7 +12963,7 @@ bool eStalfos::animate(int index)
 				fired=false;
 			}
 			
-			clk5+=(rand()&3);
+			clk5+=(zc_oldrand()&3);
 			
 			if((clk5>24)&&(clk5<52))
 			{
@@ -12909,7 +12981,7 @@ bool eStalfos::animate(int index)
 		}
 		
 		case e1tFIREOCTO: //Fire Octo
-			timer=rand()%50+50;
+			timer=zc_oldrand()%50+50;
 			break;
 			
 		default:
@@ -12923,7 +12995,7 @@ bool eStalfos::animate(int index)
 	 * - not carrying Link
 	 * - one in 0xF chance
 	 */
-	if(clk2==1 && (multishot < dmisc6) && dmisc1 != e1tEACHTILE && !haslink && !(rand()&15))
+	if(clk2==1 && (multishot < dmisc6) && dmisc1 != e1tEACHTILE && !haslink && !(zc_oldrand()&15))
 	{
 #if 1
 		newdir(rate, homing, grumble);
@@ -13018,7 +13090,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 		flip = 0;
 		int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 		  (clk/(frate/4)):((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[iwShadow].tile+f2;
+		shadowtile = wpnsbuf[spr_shadow].tile+f2;
 		yofs+=(((int)y+17)&0xF0)-y;
 		yofs+=8;
 	  }
@@ -13031,7 +13103,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 		
 		int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[iwShadow].newtile;
+		shadowtile = wpnsbuf[spr_shadow].newtile;
 		
 		if(get_bit(quest_rules,qr_NEWENEMYTILES))
 		{
@@ -13161,7 +13233,7 @@ void eStalfos::vire_hop()
 		if(clk2<=0)
 		{
 			//z=0;
-			if(!canmove(dir,(zfix)2,spw_none,false) || m_walkflag(x,y,spw_none, dir) || (rand()&15)>=hrate)
+			if(!canmove(dir,(zfix)2,spw_none,false) || m_walkflag(x,y,spw_none, dir) || (zc_oldrand()&15)>=hrate)
 			{
                 
 				clk2=(wpn==ewBrang ? 1 : int((16.0*jump_width)/step.getFloat()));
@@ -13294,7 +13366,7 @@ void eStalfos::break_shield()
 
 eKeese::eKeese(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
-	dir=(rand()&7)+8;
+	dir=(zc_oldrand()&7)+8;
 	step=0;
 	movestatus=1;
 	c=0;
@@ -13399,7 +13471,7 @@ void eKeese::drawshadow(BITMAP *dest, bool translucent)
 {
 	int tempy=yofs;
 	flip = 0;
-	shadowtile = wpnsbuf[iwShadow].newtile+posframe;
+	shadowtile = wpnsbuf[spr_shadow].newtile+posframe;
 	yofs+=8;
 	
 	if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
@@ -13503,13 +13575,13 @@ bool eWizzrobe::animate(int index)
 			{
 				if(isdungeon())
 				{
-					x=((rand()%12)+2)*16;
-					y=((rand()%7)+2)*16;
+					x=((zc_oldrand()%12)+2)*16;
+					y=((zc_oldrand()%7)+2)*16;
 				}
 				else
 				{
-					x=((rand()%14)+1)*16;
-					y=((rand()%9)+1)*16;
+					x=((zc_oldrand()%14)+1)*16;
+					y=((zc_oldrand()%9)+1)*16;
 				}
 						
 				if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
@@ -13561,13 +13633,13 @@ bool eWizzrobe::animate(int index)
 					{
 						if(isdungeon())
 						{
-							x=((rand()%12)+2)*16;
-							y=((rand()%7)+2)*16;
+							x=((zc_oldrand()%12)+2)*16;
+							y=((zc_oldrand()%7)+2)*16;
 						}
 						else
 						{
-							x=((rand()%14)+1)*16;
-							y=((rand()%9)+1)*16;
+							x=((zc_oldrand()%14)+1)*16;
+							y=((zc_oldrand()%9)+1)*16;
 						}
 						
 						if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
@@ -13721,7 +13793,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 		if(bc<=40)
 		{
 			int kids = guys.Count();
-			int bats=(rand()%3)+1;
+			int bats=(zc_oldrand()%3)+1;
 			
 			for(int i=0; i<bats; i++)
 			{
@@ -13744,7 +13816,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 		
 		if(kids<200)
 		{
-			int newguys=(rand()%3)+1;
+			int newguys=(zc_oldrand()%3)+1;
 			bool summoned=false;
 			
 			for(int i=0; i<newguys; i++)
@@ -13755,8 +13827,8 @@ void eWizzrobe::wizzrobe_attack_for_real()
 				
 				for(int k=0; k<20; ++k)
 				{
-					x2=16*((rand()%12)+2);
-					y2=16*((rand()%7)+2);
+					x2=16*((zc_oldrand()%12)+2);
+					y2=16*((zc_oldrand()%7)+2);
 					
 					if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Link.getX())>=32 || abs(y2-Link.getY())>=32))
 					{
@@ -13810,7 +13882,7 @@ void eWizzrobe::wizzrobe_attack()
 			int jy=y;
 			int jdir=-1;
 			
-			switch(rand()&7)
+			switch(zc_oldrand()&7)
 			{
 			case 0:
 				jx-=32;
@@ -13916,7 +13988,7 @@ void eWizzrobe::wizzrobe_attack()
 		}
 		else
 		{
-			if((rand()%500)>=400)
+			if((zc_oldrand()%500)>=400)
 			{
 				wizzrobe_attack_for_real();
 				fclk=30;
@@ -13924,7 +13996,7 @@ void eWizzrobe::wizzrobe_attack()
 		}
 	}
 	
-	if(misc==0 && (rand()&127)==0)
+	if(misc==0 && (zc_oldrand()&127)==0)
 		misc=2;
 		
 	if(misc==2 && clk3==4)
@@ -14397,14 +14469,14 @@ bool eAquamentus::animate(int index)
 		sfx(wpnsfx(wpn),pan(int(x)));
 	}
 	
-	if(clk3<-80 && !(rand()&63))
+	if(clk3<-80 && !(zc_oldrand()&63))
 	{
 		clk3=32;
 	}
 	
 	if(!((clk4+1)&63))
 	{
-		int d2=(rand()%3)+1;
+		int d2=(zc_oldrand()%3)+1;
 		
 		if(d2>=left)
 		{
@@ -14548,7 +14620,7 @@ eGohma::eGohma(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)  // enemy((zfix
 	hxsz=48;
 	clk4=0;
 	yofs=playing_field_offset+1;
-	dir=rand()%3+1;
+	dir=zc_oldrand()%3+1;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
@@ -14610,7 +14682,7 @@ bool eGohma::animate(int index)
 		if(clk4&64)
 			dir^=1;
 		else
-			dir=rand()%3+1;
+			dir=zc_oldrand()%3+1;
 	}
 	
 	if((clk&63)==3)
@@ -15080,7 +15152,7 @@ bool eGanon::animate(int index)
 		misc=0;
 		
 	case 0:
-		if(++clk2>72 && !(rand()&3))
+		if(++clk2>72 && !(zc_oldrand()&3))
 		{
 			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
 			sfx(wpnsfx(wpn),pan(int(x)));
@@ -15095,7 +15167,7 @@ bool eGanon::animate(int index)
 	case 2:
 		if(--Stunclk<=0)
 		{
-			int r=rand();
+			int r=zc_oldrand();
 			
 			if(r&1)
 			{
@@ -15271,7 +15343,7 @@ void eGanon::draw(BITMAP *dest)
 	{
 	case 0:
 		if((clk&3)==3)
-			tile=(rand()%5)*2+o_tile;
+			tile=(zc_oldrand()%5)*2+o_tile;
 			
 		if(db!=999)
 			break;
@@ -15378,7 +15450,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
 		misc=0;
 		
 	case 0:
-		if(++clk2>72 && !(rand()&3))
+		if(++clk2>72 && !(zc_oldrand()&3))
 		{
 			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
 			sfx(wpnsfx(wpn),pan(int(x)));
@@ -15393,7 +15465,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
 	case 2:
 		if(--Stunclk<=0)
 		{
-			int r=rand();
+			int r=zc_oldrand();
 			
 			if(r&1)
 			{
@@ -15530,7 +15602,7 @@ void eGanon::draw(BITMAP *dest)
 	{
 	case 0:
 		if((clk&3)==3)
-			tile=(rand()%5)*2+o_tile;
+			tile=(zc_oldrand()%5)*2+o_tile;
 			
 		if(db!=999)
 			break;
@@ -15669,7 +15741,7 @@ eMoldorm::eMoldorm(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 		y=48;
 	}
 	//else { x = X; y = Y; }
-	dir=(rand()&7)+8;
+	dir=(zc_oldrand()&7)+8;
 	superman=1;
 	fading=fade_invisible;
 	hxofs=1000;
@@ -16301,7 +16373,7 @@ eManhandla::eManhandla(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 	//these are here to bypass compiler warnings about unused arguments
 	Clk=Clk;
 	superman=1;
-	dir=(rand()&7)+8;
+	dir=(zc_oldrand()&7)+8;
 	armcnt=dmisc2?8:4;//((id==eMANHAN)?4:8);
 	
 	for(int i=0; i<armcnt; i++)
@@ -16733,11 +16805,11 @@ bool esManhandla::animate(int index)
 	
 	if(--clk2<=0)
 	{
-		clk2=unsigned(rand())%5+5;
+		clk2=unsigned(zc_oldrand())%5+5;
 		clk3^=1;
 	}
 	
-	if(!(rand()&127))
+	if(!(zc_oldrand()&127))
 	{
 		addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
 		sfx(wpnsfx(wpn),pan(int(x)));
@@ -16941,9 +17013,9 @@ bool eGleeok::animate(int index)
 	
 	if(!dmisc3)
 	{
-		if(++clk2>72 && !(rand()&3))
+		if(++clk2>72 && !(zc_oldrand()&3))
 		{
-			int i=rand()%misc;
+			int i=zc_oldrand()%misc;
 			enemy *head = ((enemy*)guys.spr(index+i+1));
 			addEwpn(head->x,head->y,head->z,wpn,3,wdp,dir,getUID());
 			sfx(wpnsfx(wpn),pan(int(x)));
@@ -16952,10 +17024,10 @@ bool eGleeok::animate(int index)
 	}
 	else
 	{
-		if(++clk2>100 && !(rand()&3))
+		if(++clk2>100 && !(zc_oldrand()&3))
 		{
-			enemy *head = ((enemy*)guys.spr(rand()%misc+index+1));
-			head->timer=rand()%50+50;
+			enemy *head = ((enemy*)guys.spr(zc_oldrand()%misc+index+1));
+			head->timer=zc_oldrand()%50+50;
 			clk2=0;
 		}
 	}
@@ -17089,7 +17161,7 @@ esGleeok::esGleeok(zfix X,zfix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,C
 	clk2=clk;                                                 // how long to wait before moving first time
 	clk=0;
 	mainguy=count_enemy=false;
-	dir=rand();
+	dir=zc_oldrand();
 	clk3=((dir&2)>>1)+2;                                      // left or right
 	dir&=1;                                                   // up or down
 	dmisc5=vbound(dmisc5,1,255);
@@ -17188,7 +17260,7 @@ bool esGleeok::animate(int index)
 			
 			if(y>= (int)parent->y + dmisc5*8) dir = up;
 			
-			if(y<= (int)parent->y + 10 && !(rand()&31))
+			if(y<= (int)parent->y + 10 && !(zc_oldrand()&31))
 			{
 				dir^=1;
 			}
@@ -17217,13 +17289,13 @@ bool esGleeok::animate(int index)
 					clk3=left;
 				}
 				
-				if(y <= (int)parent->y+(dmisc5*6) && !(rand()&15))
+				if(y <= (int)parent->y+(dmisc5*6) && !(zc_oldrand()&15))
 				{
 					clk3^=1;                                        // x jig
 				}
 				else
 				{
-					if(y<=(int)parent->y+(dmisc5*4) && !(rand()&31))
+					if(y<=(int)parent->y+(dmisc5*4) && !(zc_oldrand()&31))
 					{
 						clk3^=1;                                      // x switch back
 					}
@@ -17242,8 +17314,8 @@ bool esGleeok::animate(int index)
 			
 			for(int i=1; i<dmisc5; i++)
 			{
-				nxoffset[i] = (rand()%3);
-				nyoffset[i] = (rand()%3);
+				nxoffset[i] = (zc_oldrand()%3);
+				nyoffset[i] = (zc_oldrand()%3);
 			}
 		}
 		
@@ -17268,7 +17340,7 @@ bool esGleeok::animate(int index)
 		cs=8;
 		clk=-24;
 		clk2=40;
-		dir=(rand()&7)+8;
+		dir=(zc_oldrand()&7)+8;
 		step=8.0/9.0;
 	}
 	break;
@@ -17363,7 +17435,7 @@ ePatra::ePatra(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)// enemy((zfix)1
 	}
 	else { x = X; y = Y; }
 	adjusted=false;
-	dir=(rand()&7)+8;
+	dir=(zc_oldrand()&7)+8;
 	//step=0.25;
 	flycnt=dmisc1;
 	flycnt2=dmisc2;
@@ -17541,7 +17613,7 @@ bool ePatra::animate(int index)
 	
 	if(dmisc5==1)
 	{
-		if(!(rand()&127))
+		if(!(zc_oldrand()&127))
 		{
 			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
 			sfx(wpnsfx(wpn),pan(int(x)));
@@ -17604,7 +17676,7 @@ bool ePatra::animate(int index)
 			{
 				if(dmisc5==2)
 				{
-					if(!(rand()&127))
+					if(!(zc_oldrand()&127))
 					{
 						addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
 						sfx(wpnsfx(wpn),pan(int(x)));
@@ -17713,9 +17785,9 @@ int ePatra::defend(int wpnId, int *power, int edef)
 	return ret;
 }
 
-int ePatra::defendNew(int wpnId, int *power, int edef)
+int ePatra::defendNew(int wpnId, int *power, int edef, byte unblockable)
 {
-	int ret = enemy::defendNew(wpnId, power, edef);
+	int ret = enemy::defendNew(wpnId, power, edef, unblockable);
 	
 	if(ret < 0 && (flycnt||flycnt2))
 		return 0;
@@ -17835,7 +17907,7 @@ void esPatra::draw(BITMAP *dest)
 ePatraBS::ePatraBS(zfix ,zfix ,int Id,int Clk) : enemy((zfix)128,(zfix)48,Id,Clk)
 {
 	adjusted=false;
-	dir=(rand()&7)+8;
+	dir=(zc_oldrand()&7)+8;
 	step=0.25;
 	//flycnt=6; flycnt2=0;
 	flycnt=dmisc1;
@@ -18103,9 +18175,9 @@ int ePatraBS::defend(int wpnId, int *power, int edef)
 	return ret;
 }
 
-int ePatraBS::defendNew(int wpnId, int *power, int edef)
+int ePatraBS::defendNew(int wpnId, int *power, int edef, byte unblockable)
 {
-	int ret = enemy::defendNew(wpnId, power, edef);
+	int ret = enemy::defendNew(wpnId, power, edef, unblockable);
 	
 	if(ret < 0 && (flycnt||flycnt2))
 		return 0;
@@ -19585,7 +19657,7 @@ void loadguys()
 			if(currscr<128)
 				sfx(WAV_SCALE);
 				
-			addguy(120,64,Guy, (dlevel||BSZ)?-15:startguy[rand()&7], true);
+			addguy(120,64,Guy, (dlevel||BSZ)?-15:startguy[zc_oldrand()&7], true);
 			Link.Freeze();
 		}
 	}
@@ -19892,9 +19964,9 @@ void load_default_enemies()
 	{
 		if(rockID>=0)
 		{
-			addenemy(rand()&0xF0, 0, rockID, 0);
-			addenemy(rand()&0xF0, 0, rockID, 0);
-			addenemy(rand()&0xF0, 0, rockID, 0);
+			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
+			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
+			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
 		}
 	}
 	
@@ -19933,15 +20005,15 @@ void nsp(bool random)
 {
 	if(random)
 	{
-		if(rand()%2)
+		if(zc_oldrand()%2)
 		{
-			sle_x = (rand()%2) ? 0 : 240;
-			sle_y = (rand()%10)*16;
+			sle_x = (zc_oldrand()%2) ? 0 : 240;
+			sle_y = (zc_oldrand()%10)*16;
 		}
 		else
 		{
-			sle_y = (rand()%2) ? 0 : 160;
-			sle_x = (rand()%15)*16;
+			sle_y = (zc_oldrand()%2) ? 0 : 160;
+			sle_x = (zc_oldrand()%15)*16;
 		}
 		
 		return;
@@ -20269,7 +20341,7 @@ int placeenemy(int i)
 	}
 	
 	if(frees > 0)
-		return freeposcache[rand()%frees];
+		return freeposcache[zc_oldrand()%frees];
 		
 	return -1;
 }
@@ -20364,7 +20436,7 @@ void loadenemies()
 	//if(true)                    // enemies appear at random places
 	//{
 	//int set=loadside*9;
-	int pos=rand()%9;
+	int pos=zc_oldrand()%9;
 	int clk=-15,x=0,y=0,fastguys=0;
 	int i=0,guycnt=0;
 	
@@ -21035,7 +21107,7 @@ bool parsemsgcode()
 		{
 			int odds = (int)(grab_next_argument());
 			
-			if(!((rand()%(2*odds))/odds))
+			if(!((zc_oldrand()%(2*odds))/odds))
 				goto switched;
 				
 			(void)grab_next_argument();
@@ -21807,7 +21879,7 @@ void check_collisions()
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
 						{
 							if(itemsbuf[theItem->id].collect_script)
 							{
@@ -21827,7 +21899,7 @@ void check_collisions()
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
 							if(w->id == wBrang)
 							{

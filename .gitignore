@@ -106,3 +106,8 @@ cmake_install.cmake
 
 # Bison
 /src/parser/y.output
+
+# Package generation
+output/_auto/buildpack_log.txt
+output/_auto/buildpack
+output/_auto/buildpack.zip

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Tango variables and functions - tango.zh 1.3.3</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Tango variables and functions";
+    var mkdocs_page_input_path = "tangoCode.md";
+    var mkdocs_page_url = "/tangoCode/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> tango.zh 1.3.3</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../usage/index.html">Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../zscriptFuncs/index.html">ZScript functions</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../constants/index.html">ZScript constants</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">Tango variables and functions</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#tango-code-variables-and-functions">Tango code variables and functions</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#variables">Variables</a></li>
+        
+            <li><a class="toctree-l3" href="#setter-functions">Setter functions</a></li>
+        
+            <li><a class="toctree-l3" href="#control-functions">Control functions</a></li>
+        
+            <li><a class="toctree-l3" href="#numeric-functions">Numeric functions</a></li>
+        
+            <li><a class="toctree-l3" href="#text-functions">Text functions</a></li>
+        
+            <li><a class="toctree-l3" href="#flow-functions">Flow functions</a></li>
+        
+            <li><a class="toctree-l3" href="#condition-functions">Condition functions</a></li>
+        
+            <li><a class="toctree-l3" href="#menu-functions">Menu functions</a></li>
+        
+            <li><a class="toctree-l3" href="#effect-functions">Effect functions</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../dataFormats/index.html">Data structures and formats</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../errors/index.html">Error codes</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../faq/index.html">FAQ</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">tango.zh 1.3.3</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Tango variables and functions</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="tango-code-variables-and-functions">Tango code variables and functions</h1>
+<h2 id="variables">Variables</h2>
+<dl>
+<dt>@a0, @a1</dt>
+<dd>
+<p>Read/write</p>
+<p>Use these to access the slot's <code>a[0]</code> and <code>a[1]</code>.</p>
+</dd>
+<dt>@x, @y</dt>
+<dd>
+<p>Read/write</p>
+<p>The slot's position on the screen.</p>
+</dd>
+<dt>@cset, @color</dt>
+<dd>
+<p>Read/write</p>
+<p>The slot's current text color. <code>@color</code> refers to color 0-15 within
+the CSet and only applies to built-in font characters.</p>
+</dd>
+<dt>@speed</dt>
+<dd>
+<p>Read/write</p>
+<p>The current text speed.</p>
+</dd>
+<dt>@sfx</dt>
+<dd>
+<p>Read/write</p>
+<p>The current text sound.</p>
+</dd>
+<dt>@style</dt>
+<dd>
+<p>Read/write</p>
+<p>The slot's current style. You should only write to this at
+the beginning of a string, before any text is printed; changing
+styles mid-text may cause problems.</p>
+</dd>
+<dt>@next</dt>
+<dd>
+<p>Read/write</p>
+<p>The next message to be shown after the current one finishes.</p>
+</dd>
+<dt>@chosen</dt>
+<dd>
+<p>Read-only</p>
+<p>The last option chosen in a menu. This is 0 if a menu is currently active,
+if no menu has been displayed yet, or if the player canceled in
+the last menu.</p>
+</dd>
+<dt>@default</dt>
+<dd>
+<p>Read-only</p>
+<p>This is a pseudo-variable used to reset style variables to the default.
+There are only four valid uses:</p>
+<p><code>@set(@cset @default)</code></p>
+<p><code>@set(@color @default)</code></p>
+<p><code>@set(@speed @default)</code></p>
+<p><code>@set(@sfx @default)</code></p>
+<p>The result of any other use is undefined.</p>
+</dd>
+</dl>
+<h2 id="setter-functions">Setter functions</h2>
+<dl>
+<dt>@set(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Writable variable</p>
+<p><code>a2</code>: Number or condition</p>
+<p>Sets the value of a variable.</p>
+</dd>
+<dt>@inc(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Writable variable</p>
+<p><code>a2</code>: Number or condition</p>
+<p>Adds a value to a variable.</p>
+</dd>
+</dl>
+<h2 id="control-functions">Control functions</h2>
+<p>These functions affect the text display in ways not covered by other functions.</p>
+<dl>
+<dt>@append(a1)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p>Appends message <code>a1</code> to the end of the current text.</p>
+</dd>
+<dt>@delay(a1)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p>Suspends processing of the slot for <code>a1</code> frames. If the text is sped up
+(by holding down A), the delay will be reduced accordingly.</p>
+</dd>
+<dt>@pressa()</dt>
+<dd>Prompts the player to press the the advance button (A by default)
+before continuing.</dd>
+<dt>@suspend()</dt>
+<dd>Suspends the current slot until a script calls <code>Tango_ResumeSlot()</code>.</dd>
+<dt>@next(a1)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p>Sets message <code>a1</code> to follow the current text. Equivalent to <code>@set(@next a1)</code>.</p>
+</dd>
+<dt>@goto(a1)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p>Immediately terminates the current text and loads message <code>a1</code>.</p>
+</dd>
+<dt>@tab(a1)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p>Indents the text to <code>a1</code> pixels. This may be left of the current position,
+causing the following text to be printed over earlier text.</p>
+<p>The behavior of this function with centered text is currently undefined.</p>
+</dd>
+<dt>@close()</dt>
+<dd>Immediately deactivates the current slot.</dd>
+<dt>@sync(a1)</dt>
+<dt>@sync(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p><code>a2</code>: Number</p>
+<p>This can be used to synchronize multiple text slots or to synchronize
+a slot and script.</p>
+<p>The first string to call <code>@sync()</code> with one argument is suspended.
+When <code>@sync()</code> is called with the same argument from a second
+slot, both slots resume processing. For example, when two slots are
+active simultaneously and both call <code>@sync(5)</code>, the first one to reach
+that function will stop and wait for the other to catch up.</p>
+<p>If two arguments are used, any slots waiting for <code>a1</code> will be resumed,
+but the current slot will not stop if no other is waiting for it. It will
+treat the second argument the same way it would a single one. This is
+almost the same as calling <code>@sync(a1)@sync(a2)</code>, except the first call
+would never hang. This is convenient for synchronizing multiple strings,
+such as if two characters are talking to each other. Think of it this way:
+<code>@sync(5 6)</code> means "tell the other string I've reached point 5, then wait
+for it to reach point 6."</p>
+<p><code>Tango_Sync()</code> works in much the same way. A call to <code>Tango_Sync()</code>
+will not return until a string calls <code>@sync()</code> with the same value.
+Do not count on this coordination being precisely timed, as there may be
+a discrepancy of a frame or two. Also, <code>Tango_Sync()</code> cannot be used
+on its own to synchronize multiple scripts; there must be at least
+one call to <code>@sync()</code> involved.</p>
+</dd>
+</dl>
+<h2 id="numeric-functions">Numeric functions</h2>
+<dl>
+<dt>@add(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p><code>a2</code>: Number</p>
+<p>Returns a1+a2</p>
+</dd>
+<dt>@rand(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p><code>a2</code>: Number</p>
+<p>Returns a random integer between <code>a1</code> and <code>a2</code>, inclusive.</p>
+</dd>
+</dl>
+<h2 id="text-functions">Text functions</h2>
+<p>These functions are replaced with text when they run.</p>
+<dl>
+<dt>@char(a1)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p>Inserts the character with the given number. This is similar to
+inserting character codes; <code>@26</code> and <code>@char(26)</code> are essentially the same.
+The main difference is that <code>@char()</code> allows variables and functions
+to be used. <code>@char(@a0)</code> is legal; <code>@(@a0)</code> is not.</p>
+</dd>
+<dt>@number(a1)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p>Inserts a number as text.</p>
+</dd>
+<dt>@ordinal(a1)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p>Inserts a number as text followed by "st", "nd", "rd", or "th".</p>
+</dd>
+<dt>@savename()</dt>
+<dd>Inserts the save file name.</dd>
+<dt>@string(a1)</dt>
+<dd>
+<p><code>a1</code>: Number (ZScript string pointer)</p>
+<p>Inserts an arbitrary ZScript string. Code in this string will not
+be evaluated. The maximum length of the string is determined by
+the constant <code>__TANGO_MAX_STRING_FUNC_LENGTH</code>.</p>
+</dd>
+</dl>
+<h2 id="flow-functions">Flow functions</h2>
+<dl>
+<dt>@while(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Condition or number</p>
+<p><code>a2</code>: Setter or effect function</p>
+<p>Executes <code>a2</code> as long as <code>a1</code> is nonzero. Runs once per frame while
+the condition is true.</p>
+</dd>
+<dt>@if(a1 a2)</dt>
+<dt>@elseif(a1 a2)</dt>
+<dt>@else(a2)</dt>
+<dd>
+<p><code>a1</code>: Condition or number</p>
+<p><code>a2</code>: Setter or effect function</p>
+<p>Execute <code>a2</code> if <code>a1</code> is nonzero.</p>
+</dd>
+<dt>@waituntil(a1)</dt>
+<dd>
+<p><code>a1</code>: Condition or number function</p>
+<p>Supends processing of the slot until <code>a1</code> is nonzero.</p>
+</dd>
+</dl>
+<h2 id="condition-functions">Condition functions</h2>
+<p>These functions should be used as the first argument to <code>@if()</code>, <code>@elseif()</code>,
+<code>@while()</code>, and <code>@waituntil()</code>, but they can also be used as numeric functions.
+They return 1 if the condition is true and 0 if it's false.</p>
+<dl>
+<dt>@equal(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Number or condition</p>
+<p><code>a2</code>: Number or condition</p>
+<p>True if <code>a1</code> and <code>a2</code> are equal.</p>
+</dd>
+<dt>@notequal(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Number or condition</p>
+<p><code>a2</code>: Number or condition</p>
+<p>True if <code>a1</code> and <code>a2</code> are not equal.</p>
+</dd>
+<dt>@greater(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p><code>a2</code>: Number</p>
+<p>True if <code>a1</code> is greater than <code>a2</code>.</p>
+</dd>
+<dt>@less(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p><code>a2</code>: Number</p>
+<p>True if <code>a1</code> is less than <code>a2</code>.</p>
+</dd>
+<dt>@and(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Condition or number</p>
+<p><code>a2</code>: Condition or number</p>
+<p>True if <code>a1</code> and <code>a2</code> are both nonzero.</p>
+</dd>
+<dt>@or(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Condition or number</p>
+<p><code>a2</code>: Condition or number</p>
+<p>True if at least one of <code>a1</code> and <code>a2</code> is nonzero.</p>
+</dd>
+<dt>@not(a1)</dt>
+<dd>
+<p><code>a1</code>: Condition or number</p>
+<p>True if <code>a1</code> is 0, false otherwise.</p>
+</dd>
+</dl>
+<h2 id="menu-functions">Menu functions</h2>
+<dl>
+<dt>@choice(a1)</dt>
+<dd>
+<p><code>a1</code>: number</p>
+<p>Creates a menu option with value <code>a1</code>. <code>a1</code> should be greater than 0.
+The maximum number of choices is determined by the constant
+<code>__TANGO_MAX_MENU_ITEMS</code>.</p>
+</dd>
+<dt>@domenu()</dt>
+<dt>@domenu(a1)</dt>
+<dt>@domenu(a1 a2)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p><code>a2</code>: Number</p>
+<p>Activates the menu and suspends further processing until a selection
+is made.</p>
+<p>For argument <code>a1</code>, add the following values to enable the corresponding
+feature or use 0 to disable both.</p>
+<p><strong>1</strong>: The player can cancel instead of making a selection</p>
+<p><strong>2</strong>: The menu is persistent (doesn't close after a selection is made)</p>
+<p>These correspond to the <a href="../constants/index.html#menu-flags">ZScript <code>MENU</code> constants</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A persistent menu is only useful when a script is running and
+watching for each selection.</p>
+</div>
+<p><code>a2</code> specifies the initially selected choice, counting from 0. If an invalid
+number is given, no choice will be selected initially; this is sometimes
+useful to prevent the player from making a selection accidentally.</p>
+</dd>
+<dt>@menuwait()</dt>
+<dd>Suspends processing of the slot until a menu selection is made.
+Don't use this together with <code>@domenu()</code>; it should be used when
+a script or another string will create the menu.</dd>
+</dl>
+<h2 id="effect-functions">Effect functions</h2>
+<p>These functions perform functions in the game. They do not return useful values.</p>
+<dl>
+<dt>@playsfx(a1)</dt>
+<dd>
+<p><code>a1</code>: Number</p>
+<p>Play a sound.</p>
+</dd>
+</dl>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../dataFormats/index.html" class="btn btn-neutral float-right" title="Data structures and formats">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../constants/index.html" class="btn btn-neutral" title="ZScript constants"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../constants/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../dataFormats/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

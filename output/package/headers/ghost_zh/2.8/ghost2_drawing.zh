@@ -1,0 +1,231 @@
+// ghost.zh
+// Version 2.8.15
+
+int __ghzhDrawData[1000];
+
+// Combo drawing aptr indices
+const int __GHI_CD_COUNT = 0;
+const int __GHI_CD_CSET  = 1;
+const int __GHI_CD_FLAGS = 2;
+const int __GHI_CD_DATA  = 3;
+
+// Data offsets
+const int __GH_CD_COMBO    = 0;
+const int __GH_CD_X        = 1;
+const int __GH_CD_Y        = 2;
+const int __GH_CD_WIDTH    = 3;
+const int __GH_CD_HEIGHT   = 4;
+const int __GH_CD_ROTATION = 5;
+
+const int __GH_CD_DATA_SIZE = 6;
+
+// Drawing flags
+const int __GHDF_TRANS   = 001b;
+const int __GHDF_FLICKER = 010b;
+const int __GHDF_OVERLAY = 100b;
+
+
+int __GetDrawingArray(npc ghost)
+{
+    if((ghost->Misc[__GHI_NPC_DATA]&0x10000)==0)
+        // Not a ghost.zh enemy
+        return 0;
+    
+    // Get the temp data aptr
+    int aptr=ghost->Misc[__GHI_NPC_DATA]&0x0FFFF;
+    if(aptr==0)
+        return 0;
+    
+    // And, from that, get the drawing data aptr
+    aptr=aptr[23];
+    return aptr;
+}
+
+void DrawGhostFFCs()
+{
+    if((Screen->EFlags[SEF_LIST1]&100b)!=0) // All Enemies Are Invisible
+    {
+        if(!__HaveAmulet())
+            return;
+    }
+    
+    int aptr;
+    int baseIndex;
+    npc ghost;
+    
+    int opacity;
+    int layer;
+    
+    int normalLayer;
+    int overlayLayer;
+    
+    if(__GH_USE_DRAWCOMBO!=0)
+    {
+        if((Screen->Flags[SF_VIEW]&10000b)!=0) // Layer 2 is background
+            normalLayer=1;
+        else
+            normalLayer=2;
+        overlayLayer=4;
+    }
+    else
+    {
+        normalLayer=1;
+        overlayLayer=5;
+    }
+    
+    for(int i=1; i<=Screen->NumNPCs(); i++)
+    {
+        ghost=Screen->LoadNPC(i);
+        aptr=__GetDrawingArray(ghost);
+        if(aptr==0)
+            continue;
+        
+        // Got an aptr; draw all the combos
+        
+        // ... Except the ones that are flickering
+        if((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
+        {
+            if((aptr[__GHI_CD_FLAGS]&__GHDF_FLICKER)!=0)
+                continue;
+        }
+        
+        if((aptr[__GHI_CD_FLAGS]&__GHDF_TRANS)!=0)
+            opacity=OP_TRANS;
+        else
+            opacity=OP_OPAQUE;
+        
+        if((aptr[__GHI_CD_FLAGS]&__GHDF_OVERLAY)!=0)
+            layer=overlayLayer;
+        else
+            layer=normalLayer;
+        
+        baseIndex=__GHI_CD_DATA;
+        for(int j=0; j<aptr[__GHI_CD_COUNT]; j++)
+        {
+            if(aptr[baseIndex+__GH_CD_COMBO]!=GH_INVISIBLE_COMBO &&
+               aptr[baseIndex+__GH_CD_COMBO]!=0)
+            {
+                Screen->DrawCombo(layer,
+                                  aptr[baseIndex+__GH_CD_X],
+                                  aptr[baseIndex+__GH_CD_Y],
+                                  aptr[baseIndex+__GH_CD_COMBO],
+                                  aptr[baseIndex+__GH_CD_WIDTH],
+                                  aptr[baseIndex+__GH_CD_HEIGHT],
+                                  aptr[__GHI_CD_CSET],
+                                  -1, -1, 0, 0, 0, 0, 0,
+                                  true, opacity);
+            }
+            
+            baseIndex+=__GH_CD_DATA_SIZE;
+        }
+    }
+}
+
+void __SetUpDrawingArray(ffc this, npc ghost, int aptr)
+{
+    int flags=0;
+    
+    if(this->Flags[FFCF_OVERLAY])
+        flags|=__GHDF_OVERLAY;
+    
+    if(this->Flags[FFCF_TRANS])
+        flags|=__GHDF_TRANS;
+    
+    if(__Ghost_IsFlickering(ghost))
+        flags|=__GHDF_FLICKER;
+    
+    aptr[__GHI_CD_CSET]=this->CSet;
+    aptr[__GHI_CD_FLAGS]=flags;
+    
+    int baseIndex=__GHI_CD_DATA;
+    float baseX=Ghost_X+ghost->DrawXOffset;
+    float baseY=Ghost_Y+ghost->DrawYOffset-(Ghost_Z+ghost->DrawZOffset);
+    
+    // Set up additional combos
+    if(__Ghost_AdditionalCombos[0]>0)
+    {
+        int baseACIndex=__GHI_AC_DATA;
+        
+        for(int i=0; i<__Ghost_AdditionalCombos[__GHI_AC_COUNT]; i++)
+        {
+            aptr[baseIndex+__GH_CD_COMBO]=__Ghost_AdditionalCombos[baseACIndex+__GH_AC_COMBO];
+            aptr[baseIndex+__GH_CD_X]=baseX+__Ghost_AdditionalCombos[baseACIndex+__GH_AC_X];
+            aptr[baseIndex+__GH_CD_Y]=baseY+__Ghost_AdditionalCombos[baseACIndex+__GH_AC_Y];
+            aptr[baseIndex+__GH_CD_WIDTH]=__Ghost_AdditionalCombos[baseACIndex+__GH_AC_WIDTH];
+            aptr[baseIndex+__GH_CD_HEIGHT]=__Ghost_AdditionalCombos[baseACIndex+__GH_AC_HEIGHT];
+            
+            baseIndex+=__GH_CD_DATA_SIZE;
+            baseACIndex+=__GH_AC_DATA_SIZE;
+            aptr[__GHI_CD_COUNT]++;
+        }
+    }
+    
+    // Set up the main combo
+    if(__GH_USE_DRAWCOMBO!=0)
+    {
+            aptr[baseIndex+__GH_CD_COMBO]=this->Data;
+            aptr[baseIndex+__GH_CD_X]=baseX;
+            aptr[baseIndex+__GH_CD_Y]=baseY;
+            aptr[baseIndex+__GH_CD_WIDTH]=this->TileWidth;
+            aptr[baseIndex+__GH_CD_HEIGHT]=this->TileHeight;
+            
+            aptr[__GHI_CD_COUNT]++;
+    }
+}
+
+void __Ghost_DrawShadow(npc ghost)
+{
+    // No shadow needed if the enemy isn't in the air
+    if(Ghost_Z==0)
+        return;
+    
+    // Must be using fake Z, have Extend of 4, or be of type "Other (Floating)"
+    if(!(Ghost_FlagIsSet(GHF_FAKE_Z) || GH_FAKE_Z>0 ||
+         ghost->Extend==4 || ghost->Type==NPCT_OTHERFLOAT))
+        return;
+    
+    if(GH_SHADOW_FLICKER!=0 && (__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
+        return;
+    
+    int x;
+    int y;
+    int tile;
+    int size;
+    
+    // 1x1 shadow
+    if(Ghost_TileWidth<GH_LARGE_SHADOW_MIN_WIDTH ||
+       Ghost_TileHeight<GH_LARGE_SHADOW_MIN_HEIGHT ||
+       GH_LARGE_SHADOW_TILE==0)
+    {
+        x=Ghost_X+8*(Ghost_TileWidth-1);
+        y=Ghost_Y+16*(Ghost_TileHeight-1);
+        size=1;
+        if(Ghost_FlagIsSet(GHF_STATIC_SHADOW))
+            tile=GH_SHADOW_TILE;
+        else
+            tile=GH_SHADOW_TILE+__ghzhData[__GHI_SHADOW_FRAME];
+    }
+    // 2x2 shadow
+    else
+    {
+        x=Ghost_X+8*(Ghost_TileWidth-2);
+        y=Ghost_Y+16*(Ghost_TileHeight-2);
+        size=2;
+        if(Ghost_FlagIsSet(GHF_STATIC_SHADOW))
+            tile=GH_LARGE_SHADOW_TILE;
+        else
+            tile=GH_LARGE_SHADOW_TILE+2*__ghzhData[__GHI_LARGE_SHADOW_FRAME];
+    }
+    
+    if(GH_SHADOW_TRANSLUCENT>0)
+    {
+        Screen->DrawTile(1, x, y, tile, size, size, GH_SHADOW_CSET,
+                         -1, -1, 0, 0, 0, 0, true, OP_TRANS);
+    }
+    else
+    {
+        Screen->DrawTile(1, x, y, tile, size, size, GH_SHADOW_CSET,
+                         -1, -1, 0, 0, 0, 0, true, OP_OPAQUE);
+    }
+}
+

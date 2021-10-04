@@ -1,0 +1,11 @@
+//User definitions
+
+typedef const int define;
+typedef const int DEFINE;
+typedef const long DEFINEL;
+typedef const bool DEFINEB;
+typedef const int CONFIG;
+typedef const long CONFIGL;
+typedef const bool CONFIGB;
+typedef itemsprite item;
+script typedef itemdata item;

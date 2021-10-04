@@ -6,7 +6,7 @@ FFScript FFCore;
 std::vector<std::string> ZQincludePaths;
 byte quest_rules[QUESTRULES_NEW_SIZE];
 
-int get_bit(byte *bitstr,int bit)
+int get_bit(byte const* bitstr,int bit)
 {
     bitstr += bit>>3;
     return ((*bitstr) >> (bit&7))&1;
@@ -56,7 +56,7 @@ int compile(std::string script_path)
     fclose(tempfile);
 
     boost::movelib::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
-    _unlink("tmp");
+    unlink("tmp");
 
     return 0;
 }

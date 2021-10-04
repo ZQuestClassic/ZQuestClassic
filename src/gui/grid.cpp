@@ -14,6 +14,7 @@ Grid::Grid(type growthType, size_t growthLimit):
 
 void Grid::applyVisibility(bool visible)
 {
+	Widget::applyVisibility(visible);
 	for(auto& child: children)
 		child->applyVisibility(visible);
 }
@@ -112,9 +113,9 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 	// This currently just assumes there's enough space for everything to be
 	// as big as it wants to be.
 	size_t numRows, numCols;
-
+	
 	Widget::arrange(contX, contY, contW, contH);
-
+	
 	if(growthType == type::ROWS)
 	{
 		// +growthLimit-1 to round up
@@ -150,6 +151,7 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 
 void Grid::realize(DialogRunner& runner)
 {
+	Widget::realize(runner);
 	for(auto& child: children)
 		child->realize(runner);
 }

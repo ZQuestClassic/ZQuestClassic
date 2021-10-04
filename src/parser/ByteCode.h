@@ -1283,7 +1283,21 @@
 #define LWPNGLOWSHP 			1203
 #define EWPNGLOWSHP 			1204
 
-#define LAST_BYTECODE 		1205
+#define ITEMENGINEANIMATE 		1205
+#define REFRNG 		1206
+#define LWPNUNBL 		1207
+#define EWPNUNBL 		1208
+#define NPCSHADOWSPR 			1209
+#define LWPNSHADOWSPR 			1210
+#define EWPNSHADOWSPR 			1211
+#define ITEMSHADOWSPR 			1212
+#define NPCSPAWNSPR 			1213
+#define NPCDEATHSPR 			1214
+#define NPCDSHADOWSPR 			1215
+#define NPCDSPAWNSPR 			1216
+#define NPCDDEATHSPR 			1217
+
+#define LAST_BYTECODE 		1218
 
 //} END OF BYTECODE
 
@@ -2625,7 +2639,106 @@ namespace ZScript
 			return new OSRandRand(a->clone());
 		}
 	};
+	
+	class ORNGRand1 : public Opcode
+	{
+	public:
+		ORNGRand1() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGRand1();
+		}
+	};
+	
+	class ORNGRand2 : public UnaryOpcode
+	{
+	public:
+		ORNGRand2(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGRand2(a->clone());
+		}
+	};
 
+	class ORNGRand3 : public BinaryOpcode
+	{
+	public:
+		ORNGRand3(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGRand3(a->clone(), b->clone());
+		}
+	};
+	
+	class ORNGLRand1 : public Opcode
+	{
+	public:
+		ORNGLRand1() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGLRand1();
+		}
+	};
+	
+	class ORNGLRand2 : public UnaryOpcode
+	{
+	public:
+		ORNGLRand2(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGLRand2(a->clone());
+		}
+	};
+
+	class ORNGLRand3 : public BinaryOpcode
+	{
+	public:
+		ORNGLRand3(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGLRand3(a->clone(), b->clone());
+		}
+	};
+	
+	class ORNGSeed : public UnaryOpcode
+	{
+	public:
+		ORNGSeed(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGSeed(a->clone());
+		}
+	};
+	
+	class ORNGRSeed : public Opcode
+	{
+	public:
+		ORNGRSeed() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGRSeed();
+		}
+	};
+	
+	class ORNGFree : public Opcode
+	{
+	public:
+		ORNGFree() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGFree();
+		}
+	};
+	
 	class OSqrtRegister : public BinaryOpcode
 	{
 	public:
@@ -2845,6 +2958,18 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OLoadDirectoryRegister(a->clone());
+		}
+	};
+
+
+	class OLoadRNG : public Opcode
+	{
+	public:
+		OLoadRNG() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadRNG();
 		}
 	};
 
@@ -7981,6 +8106,37 @@ namespace ZScript
 			return new ONPCRemove(a->clone());
 		}
 	};
+	
+	class OLWpnRemove : public Opcode
+	{
+	public:
+		OLWpnRemove() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLWpnRemove();
+		}
+	};
+	class OEWpnRemove : public Opcode
+	{
+	public:
+		OEWpnRemove() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OEWpnRemove();
+		}
+	};
+	class OItemRemove : public Opcode
+	{
+	public:
+		OItemRemove() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OItemRemove();
+		}
+	};
 	class ONPCStopSFX : public UnaryOpcode
 	{
 	public:
@@ -8252,6 +8408,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OBitmapFree();
+		}
+	};
+	
+	class OBitmapWriteTile : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapWriteTile();
 		}
 	};
 	

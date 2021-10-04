@@ -56,6 +56,7 @@ extern dmap *DMaps;
 extern itemdata *itemsbuf;
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 extern char *item_string[];
+extern byte *colordata;
 
 void initPopulate(int &i, DIALOG_PROC proc, int x, int y, int w, int h, int fg, int bg, int key, int flags, int d1, int d2,
                   void *dp, void *dp2 = NULL, void *dp3 = NULL);
@@ -753,7 +754,7 @@ static int init_var_list[] =
 
 static int init_var_list2[] =
 {
-	3376, 3377, 3378, 3379, 3380, 3381, 3382, 3383, 3384, 3385,3386,3387,
+	3376, 3377, 3378, 3379, 3380, 3381, 3382, 3383, 3384, 3385, 3386, 3387, 3388, 3389,
 	-1
 };
 
@@ -1648,11 +1649,16 @@ void PopulateInitDialog()
     //3385
     initPopulate(i, jwin_numedit_byte_proc,            162,     130,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
     
-    // 3386
+	//3386
+	initPopulate(i, jwin_text_proc,        192,   53,   110,     16,  0,                  0,                0,       0,          0,             0, (void *)"Darkness Color:", NULL, NULL),
+	//3387
+	initPopulate(i, jwin_color_swatch,     248,   53,    12,     12,  0,                  0,                0,       0,          0,             16, NULL, NULL, NULL),
+	
+    // 3388
 	initPopulate(i, jwin_text_proc,            12,     153,    128,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Water Gravity:",                                   NULL,   NULL);
 	initPopulate(i, jwin_edit_proc,            162,     150,     96,     16,    vc(12),                 vc(1),                   0,    0,              9,             0,  NULL,                                                  NULL,   NULL);
      
-    // 3388 -- Termination
+    // 3390 -- Termination
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     ASSERT(INIT_DLG_SZ>=i); //index after termination
     /*
@@ -1979,6 +1985,8 @@ int doInit(zinitdata *local_zinit)
         sprintf(key_list[i], "%d", local_zinit->level_keys[i]);
         init_dlg[i+3008-256].dp = key_list[i];
     }
+	
+	init_dlg[3387].d1 = local_zinit->darkcol;
     
     // misc
     char tempbuf[6];
@@ -2115,6 +2123,8 @@ int doInit(zinitdata *local_zinit)
             set_bit(local_zinit->boss_key,i,init_dlg[i+2752-256].flags & D_SELECTED);
             local_zinit->level_keys[i]=vbound(atoi(key_list[i]),0,255);
         }
+		
+		local_zinit->darkcol = init_dlg[3387].d1;
         
         // misc
         local_zinit->start_dmap = init_dlg[1656].d1;
@@ -2331,6 +2341,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 	game2->set_dither_perc(zinit2->dither_percent);
 	game2->set_light_rad(zinit2->def_lightrad);
 	game2->set_transdark_perc(zinit2->transdark_percent);
+	game2->set_darkscr_color(zinit2->darkcol);
     
     for(int i=0; i<MAXLEVELS; i++)
     {

@@ -66,7 +66,8 @@ extern LinkClass Link;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
+extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern particle_list particles;
 extern int loadlast;
 extern word passive_subscreen_doscript;
 extern bool passive_subscreen_waitdraw;
@@ -250,11 +251,9 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 
 static char cfg_sect[] = "zeldadx"; //We need to rename this.
 
-int d_dummy_proc(int msg,DIALOG *d,int c)
+int d_dummy_proc(int,DIALOG *,int)
 {
-    msg=msg;
-    d=d;
-    c=c; /*these are here to bypass compiler warnings about unused arguments*/ return D_O_K;
+	return D_O_K;
 }
 
 void load_game_configs()
@@ -1733,7 +1732,7 @@ int choose_opening_shape()
         return bosCIRCLE;
         
     // Pick a bit
-    bitCounter=rand()%numBits+1;
+    bitCounter=zc_rand()%numBits+1;
     
     for(int i=0; i<bosMAX; i++)
     {
@@ -11015,7 +11014,7 @@ bool rI()
 /*No longer in use -V
 bool drunk()
 {
-    return ((!(frame%((rand()%100)+1)))&&(rand()%MAXDRUNKCLOCK<Link.DrunkClock()));
+    return ((!(frame%((zc_rand()%100)+1)))&&(zc_rand()%MAXDRUNKCLOCK<Link.DrunkClock()));
 }*/
 
 bool DrunkUp()

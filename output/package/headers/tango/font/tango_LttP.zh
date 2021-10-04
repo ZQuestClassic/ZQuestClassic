@@ -1,0 +1,37 @@
+// tango.zh font definition for built-in font "Link to the Past"
+
+int TANGO_FONT_LTTP[] = {
+    TANGO_FONT_BUILTIN,
+    TANGO_FONT_PROPORTIONAL,
+    FONT_Z3,
+    0,  // Unused
+    16, // Character height
+    0,  // Space between lines
+    
+    // Character widths, including any trailing space
+    // ASCII characters 32 to 126
+    
+    // sp !  "  #  $  %  &  '  (  )  *  +  ,  -  .  /
+       3, 2, 4, 6, 6, 6, 6, 3, 5, 5, 6, 6, 3, 5, 3, 6,
+    
+    // 0  1  2  3  4  5  6  7  8  9
+       5, 3, 5, 5, 5, 5, 5, 5, 5, 5,
+    // :  ;  <  =  >  ?  @
+       3, 3, 6, 5, 6, 6, 6,
+    // A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
+       5, 5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 6, 5, 6, 6, 6, 6, 5,
+    // [  \  ]  ^  _  `
+       5, 6, 5, 6, 7, 3,
+    // a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
+       5, 5, 5, 5, 5, 5, 5, 5, 2, 4, 5, 2, 6, 5, 5, 5, 5, 4, 5, 5, 5, 6, 6, 6, 6, 5,
+    // {  |  }  ~
+       6, 2, 6, 6,
+       
+    // Additional characters
+       5, 5, 5, 15, 6, 6, 6, 6, 6, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+       7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+       7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8,
+       7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+       7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+       7, 7, 7, 7, 7, 7, 7, 7, 6
+};

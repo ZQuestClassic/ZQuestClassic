@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "dialog_message.h"
+#include "dialog_ref.h"
 #include "size.h"
 #include "../zc_alleg.h"
 #include <memory>
@@ -29,6 +30,16 @@ public:
 	 * This should not be used by widgets.
 	 */
 	void overrideHeight(Size newHeight) noexcept;
+
+	/* Cap the widget's width, if it is below the given width
+	 * This should not be used by widgets.
+	 */
+	void capWidth(Size newWidth) noexcept;
+
+	/* Cap the widget's height, if it is below the given height
+	 * This should not be used by widgets.
+	 */
+	void capHeight(Size newHeight) noexcept;
 
 	inline void setLeftMargin(Size size) noexcept
 	{
@@ -58,6 +69,35 @@ public:
 
 	/* Set all four margins to the same value. */
 	void setMargins(Size size) noexcept;
+	
+	inline void setLeftPadding(Size size) noexcept
+	{
+		leftPadding = size.resolve();
+	}
+
+	inline void setRightPadding(Size size) noexcept
+	{
+		rightPadding = size.resolve();
+	}
+
+	inline void setTopPadding(Size size) noexcept
+	{
+		topPadding = size.resolve();
+	}
+
+	inline void setBottomPadding(Size size) noexcept
+	{
+		bottomPadding = size.resolve();
+	}
+
+	/* Set the left and right paddings to the same value. */
+	void setHPadding(Size size) noexcept;
+
+	/* Set the top and bottom paddings to the same value. */
+	void setVPadding(Size size) noexcept;
+
+	/* Set all four paddings to the same value. */
+	void setPadding(Size size) noexcept;
 
 	inline void setHAlign(float align) noexcept
 	{
@@ -74,6 +114,8 @@ public:
 	 * This simply sets a flag indicating whether the widget is visible.
 	 */
 	void setVisible(bool visible);
+	
+	bool getVisible() const {return !(flags&f_INVISIBLE);}
 
 	/* Sets this widget to be visible or invisible. This function should
 	 * be called by container widgets, e.g. a tab container hiding its children.
@@ -95,7 +137,7 @@ public:
 	virtual void arrange(int contX, int contY, int contW, int contH);
 
 	/* Creates DIALOGs for this widget and any children. */
-	virtual void realize(DialogRunner& runner) = 0;
+	virtual void realize(DialogRunner& runner);
 
 	/* This function is called when an event occurs (e.g. a button is clicked
 	 * or a list selection is changed). It should send the appropriate message
@@ -112,22 +154,38 @@ public:
 
 	/* Returns the height of the widget. This should only be used by widgets. */
 	int getHeight() const { return height; }
+	
+	/* Returns the width limit of the widget. This should only be used by widgets. */
+	int getMaxWidth() const { return maxwidth; }
 
-	/* Returns the width of the widget plus left and right margins.
+	/* Returns the height limit of the widget. This should only be used by widgets. */
+	int getMaxHeight() const { return maxheight; }
+
+	/* Returns the width of the widget plus left and right padding.
 	 * This should only be used by widgets.
 	 */
-	int getTotalWidth() const noexcept { return width+leftMargin+rightMargin; }
+	int getPaddedWidth() const noexcept { return width+leftPadding+rightPadding; }
 
-	/* Returns the height of the widget plus top and bottom margins.
+	/* Returns the height of the widget plus top and bottom padding.
 	 * This should only be used by widgets.
 	 */
-	int getTotalHeight() const noexcept { return height+topMargin+bottomMargin; }
+	int getPaddedHeight() const noexcept { return height+topPadding+bottomPadding; }
+
+	/* Returns the width of the widget plus left and right margins+padding.
+	 * This should only be used by widgets.
+	 */
+	int getTotalWidth() const noexcept { return width+leftPadding+rightPadding+leftMargin+rightMargin; }
+
+	/* Returns the height of the widget plus top and bottom margins+padding.
+	 * This should only be used by widgets.
+	 */
+	int getTotalHeight() const noexcept { return height+topPadding+bottomPadding+topMargin+bottomMargin; }
 
 	/* Called when the widget actually switches from visible to invisible
 	* or vice-versa. This should set or unset DIALOGs' D_HIDDEN flag.
 	* This is only public so containers can call it on their children.
 	*/
-	virtual void applyVisibility(bool visible) = 0;
+	virtual void applyVisibility(bool visible);
 
 	/* If this is true, this widget should be focused when the dialog opens.
 	 * This does not give the widget focus if the dialog is open already.
@@ -139,8 +197,41 @@ public:
 	{
 		return flags&f_FOCUSED;
 	}
+	
+	/* If this is true, this widget is 'disabled' (greyed-out) when the dialog starts
+	 * This does not affect the status if the dialog is open already
+	 */
+	void setDisabled(bool disabled) noexcept;
 
+	/* Returns true if this widget should be disabled initially. */
+	inline bool getDisabled() const noexcept
+	{
+		return flags&f_DISABLED;
+	}
+	
+	/* If this is true, a frame proc will be generated around this widget
+	 */
+	void setFramed(bool framed) noexcept;
+
+	/* Returns true if this widget should be disabled initially. */
+	inline bool getFramed() const noexcept
+	{
+		return flags&f_FRAMED;
+	}
+	
+	/* If this is true, the widget will expand to fill it's parent
+	 */
+	void setFitParent(bool fit) noexcept;
+
+	/* Returns true if this widget should expand to fill it's parent. */
+	inline bool getFitParent() const noexcept
+	{
+		return flags&f_FIT_PARENT;
+	}
+	
 protected:
+	inline bool getWidthOverridden() const noexcept {return flags&f_WIDTH_OVERRIDDEN;}
+	inline bool getHeightOverridden() const noexcept {return flags&f_HEIGHT_OVERRIDDEN;}
 	/* Use this as the return type of message setters so non-integer types
 	 * are properly caught.
 	 */
@@ -152,7 +243,9 @@ protected:
 	int x, y;
 	int fgColor, bgColor;
 	unsigned short leftMargin, rightMargin, topMargin, bottomMargin;
+	unsigned short leftPadding, rightPadding, topPadding, bottomPadding;
 	float hAlign, vAlign;
+	DialogRef frameDialog;
 
 	/* Sets the widget's width if it hasn't been overridden. */
 	void setPreferredWidth(Size newWidth) noexcept;
@@ -168,14 +261,17 @@ protected:
 private:
 	enum
 	{
-		f_WIDTH_OVERRIDDEN =  0b0001,
-		f_HEIGHT_OVERRIDDEN = 0b0010,
-		f_INVISIBLE =         0b0100,
-		f_FOCUSED =           0b1000
+		f_WIDTH_OVERRIDDEN =  0b0000001,
+		f_HEIGHT_OVERRIDDEN = 0b0000010,
+		f_INVISIBLE =         0b0000100,
+		f_FOCUSED =           0b0001000,
+		f_DISABLED =          0b0010000,
+		f_FRAMED =            0b0100000,
+		f_FIT_PARENT =        0b1000000,
 	};
 
-	int width, height;
-	unsigned char flags: 4;
+	int width, height, maxwidth, maxheight;
+	unsigned char flags: 7;
 
 	/* The number of containers hiding this widget. Shouldn't be too many,
 	 * but there might be, say, a switcher in nested tab containers.
@@ -183,6 +279,12 @@ private:
 	unsigned char hideCount: 4;
 
 	static constexpr unsigned char MAX_HIDE_COUNT = 15;
+};
+
+class DummyWidget : public Widget
+{
+public:
+	DummyWidget::DummyWidget() {}
 };
 
 }

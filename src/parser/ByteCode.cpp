@@ -1797,6 +1797,7 @@ string ZScript::VarToString(long ID)
 	case REFFILE: return "REFFILE";
 	case REFDIRECTORY: return "REFDIRECTORY";
 	case REFSUBSCREEN: return "REFSUBSCREEN";
+	case REFRNG: return "REFRNG";
 	case LINKCLIMBING: return "LINKCLIMBING";
 	case NPCIMMORTAL: return "NPCIMMORTAL";
 	case NPCNOSLIDE: return "NPCNOSLIDE";
@@ -1906,6 +1907,20 @@ string ZScript::VarToString(long ID)
 	case EWPNGLOWSHP: return "EWPNGLOWSHP";
 	
 	case ITEMDIR: return "ITEMDIR";
+	
+	case ITEMENGINEANIMATE: return "ITEMENGINEANIMATE";
+	case LWPNUNBL: return "LWPNUNBL";
+	case EWPNUNBL: return "EWPNUNBL";
+	
+	case NPCSHADOWSPR: return "NPCSHADOWSPR";
+	case LWPNSHADOWSPR: return "LWPNSHADOWSPR";
+	case EWPNSHADOWSPR: return "EWPNSHADOWSPR";
+	case ITEMSHADOWSPR: return "ITEMSHADOWSPR";
+	case NPCSPAWNSPR: return "NPCSPAWNSPR";
+	case NPCDEATHSPR: return "NPCDEATHSPR";
+	case NPCDSHADOWSPR: return "NPCDSHADOWSPR";
+	case NPCDSPAWNSPR: return "NPCDSPAWNSPR";
+	case NPCDDEATHSPR: return "NPCDDEATHSPR";
 	
 	default:
 	{
@@ -2528,6 +2543,51 @@ string OSRandRand::toString()
     return "SRNDRND " + getArgument()->toString();
 }
 
+string ORNGRand1::toString()
+{
+    return "RNGRAND1";
+}
+
+string ORNGRand2::toString()
+{
+    return "RNGRAND2 " + getArgument()->toString();
+}
+
+string ORNGRand3::toString()
+{
+    return "RNGRAND3 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string ORNGLRand1::toString()
+{
+    return "RNGLRAND1";
+}
+
+string ORNGLRand2::toString()
+{
+    return "RNGLRAND2 " + getArgument()->toString();
+}
+
+string ORNGLRand3::toString()
+{
+    return "RNGLRAND3 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string ORNGSeed::toString()
+{
+    return "RNGSEED " + getArgument()->toString();
+}
+
+string ORNGRSeed::toString()
+{
+    return "RNGRSEED";
+}
+
+string ORNGFree::toString()
+{
+    return "RNGFREE";
+}
+
 string OCheckTrig::toString()
 {
     return "CHECKTRIG";
@@ -2601,6 +2661,11 @@ string OLoadDMapDataRegister::toString()
 string OLoadDirectoryRegister::toString()
 {
     return "LOADDIRECTORYR " + getArgument()->toString();
+}
+
+string OLoadRNG::toString()
+{
+    return "LOADRNG";
 }
 
 string OLoadDropsetRegister	::toString()
@@ -4788,6 +4853,18 @@ string ONPCRemove::toString()
 {
     return "NPCKICKBUCKET " + getArgument()->toString();
 }
+string OLWpnRemove::toString()
+{
+    return "LWPNDEL";
+}
+string OEWpnRemove::toString()
+{
+    return "EWPNDEL";
+}
+string OItemRemove::toString()
+{
+    return "ITEMDEL";
+}
 string ONPCStopSFX::toString()
 {
     return "NPCSTOPBGSFX " + getArgument()->toString();
@@ -4885,6 +4962,10 @@ string OWriteBitmap::toString()
 string OBitmapFree::toString()
 {
     return "BITMAPFREE";
+}
+string OBitmapWriteTile::toString()
+{
+    return "BMPWRITETILE";
 }
 
 string OIsValidBitmap::toString()

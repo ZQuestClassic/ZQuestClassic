@@ -1542,15 +1542,15 @@ static DIALOG itemdata_dlg[] =
 	{ jwin_check_proc,        242,     86+13+5,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	{ jwin_check_proc,        242,     105+12+5,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//259
-	{ jwin_text_proc,           8,     192,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Pick-Up Flags:",                  NULL,   NULL                  },
-	{ jwin_check_proc,      60,   188,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_check_proc,        96,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+	{ d_dummy_proc,            8,     192,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Pick-Up Flags:",                  NULL,   NULL                  },
+	{ d_dummy_proc,           60,     188,     32,     16,    vc(12),                 vc(1),                   0,       0,          12,    0, NULL, NULL, NULL },
+	{ d_dummy_proc,           96,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//262 Pickup string
-	{ jwin_text_proc,           157,     191,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "String:",                  NULL,   NULL                  },
-	{ jwin_edit_proc,      180,   188,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_check_proc,        219,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always",                        NULL,   NULL                  },
+	{ jwin_text_proc,          8,     191,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "String:",                  NULL,   NULL                  },
+	{ jwin_edit_proc,         31,     188,     32,     16,    vc(12),                 vc(1),                   0,       0,          12,    0, NULL, NULL, NULL },
+	{ jwin_check_proc,        70,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always",                        NULL,   NULL                  },
 	
-	{ jwin_check_proc,        260,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Only Held",                        NULL,   NULL                  },
+	{ jwin_check_proc,       111,     191,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Only Held",                        NULL,   NULL                  },
    
 	//266
 	{ jwin_text_proc,           60,     53,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) " ",                  NULL,   NULL                  },
@@ -1642,7 +1642,7 @@ static DIALOG itemdata_dlg[] =
 	{ jwin_check_proc,        6,       147,    95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Invisible",                        NULL,   NULL                  },
 	{ jwin_check_proc,        6,       157,    95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Triggers Screen State ST_SP_ITEM",                        NULL,   NULL                  },
 	{ jwin_check_proc,        6,       167,    95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Triggers Screen Secrets",                        NULL,   NULL                  },
-	{ jwin_check_proc,        6,       177,    95,      9,    vc(14),                 vc(1),                   0,       D_DISABLED,  1,    0, (void *) "--",                        NULL,   NULL                  },
+	{ jwin_check_proc,        6,       177,    95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always Grabbable",          NULL,   NULL                  },
 	{ jwin_check_proc,        6,       187,    95,      9,    vc(14),                 vc(1),                   0,       D_DISABLED,  1,    0, (void *) "--",                        NULL,   NULL                  },
 	{ jwin_check_proc,        6,       197,    95,      9,    vc(14),                 vc(1),                   0,       D_DISABLED,  1,    0, (void *) "--",                        NULL,   NULL                  },
 	//339
@@ -4411,7 +4411,7 @@ static int enedata_data_list[] =
 
 static int enedata_data2_list[] =
 {
-	54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,179,180,181,182,183,184,187,188,189,190,235,236,-1
+	54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,179,180,181,182,183,184,187,188,189,190,-1
 };
 
 static int enedata_flags_list[] =
@@ -4544,8 +4544,9 @@ static int enemy_attribs_4_list[] =
 	-1
 };
 
-static int enemy_gfx_tiles_list[] =
+static int enemy_gfx_sprites_list[] =
 {
+	235,236,393,394,395,396,397,398,
 	-1
 };
 
@@ -4562,8 +4563,8 @@ static TABPANEL enemy_attribs_tabs[] =
 
 static TABPANEL enemy_graphics_tabs[] =
 {
-	{ (char *)"Tiles",	 D_SELECTED,               enemy_gfx_tiles_list,   0, NULL },
-	{ NULL,                   0,               NULL,                  0, NULL }
+	{ (char *)"Sprites",      D_SELECTED,      enemy_gfx_sprites_list,  0, NULL },
+	{ NULL,                   0,               NULL,                    0, NULL }
 };
 
 
@@ -4709,7 +4710,7 @@ static TABPANEL enemy_basic_tabs[] =
 	{ (char *)"Data 1",	 D_SELECTED,               enedata_data_list,   0, NULL },
 	{ (char *)"Data 2",	 0,               enedata_data2_list,   0, NULL },
 	{ (char *)"Size",	 0,               enedata_spritesize_list,   0, NULL },
-   // { (char *)"Graphics",	 D_SELECTED,               enemy_gfx_tiles_list,   0, NULL },
+   // { (char *)"Graphics",	 D_SELECTED,               enemy_gfx_sprites_list,   0, NULL },
    // { (char *)"Sound Efects",	 D_SELECTED,               enemy_sfx_sounds_list,   0, NULL },
 	{ NULL,                   0,               NULL,                  0, NULL }
 };
@@ -6657,9 +6658,9 @@ static DIALOG enedata_dlg[] =
 	{ jwin_text_proc,         96,      51,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "(Tiles)",                                  NULL,   NULL                 },
 	{ jwin_text_proc,         96,      67,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "(Tiles)",                                  NULL,   NULL                 },
 	//235 : Weapon Sprite Pulldown
-	{  jwin_text_proc,          8,    193-4+12,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Weapon Sprite:",                              NULL,   NULL                 },
-	// {  jwin_droplist_proc,      86, 189-4+12,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-	{  jwin_edit_proc,         86, 189-4+12,    151,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+	{  jwin_text_proc,          9,    90-36,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Weapon Sprite:",                              NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 86-36,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+	// {  jwin_edit_proc,         86, 189-4+12,    151,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	//237 HitWidth Override
 	 { jwin_check_proc,        94+50,     83,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//238 HitHeight override
@@ -6903,6 +6904,12 @@ static DIALOG enedata_dlg[] =
 	{ jwin_swapbtn_proc,    164,   167,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
 	{ jwin_swapbtn_proc,    164,   185,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
 	//393
+	{  jwin_text_proc,        9,   108-36,    80,     8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Shadow Sprite:",                              NULL,   NULL                 },
+	{  jwin_droplist_proc,  126,   104-36,   151,    16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+	{  jwin_text_proc,        9,   126-36,    80,     8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Death Sprite:",                              NULL,   NULL                 },
+	{  jwin_droplist_proc,  126,   122-36,   151,    16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+	{  jwin_text_proc,        9,   144-36,    80,     8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawn Sprite:",                              NULL,   NULL                 },
+	{  jwin_droplist_proc,  126,   140-36,   151,    16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
 
 	{  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
@@ -7142,7 +7149,7 @@ void edit_enemydata(int index)
 	char attribs[32][8];
 	char enemynumstr[75];
 	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
-	char weapsprite[8]; char npc_initd_labels[8][65];
+	char npc_initd_labels[8][65];
 	char weapon_initd_labels[8][65];
 	char weap_initdvals[8][13];
 	
@@ -7437,120 +7444,22 @@ void edit_enemydata(int index)
 	}
 	enedata_dlg[184].d1= (int)guysbuf[index].deadsfx;
 	
-	//2.6 Enemy Weapon Sprite -Z
-	
-	//Find the default sprite. THe values are offset, somehow. Perhaps a switch statement would be better. 
-	
-	/*
-	byte default_weapon_sprites[]={
-		0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //15
-		0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,255, //31 script weapons start here
-		255,255,255,255,255,255,255,255, 255,0,0,0,0,0,0,0, //47 last script weapon: 40
-		0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //63
-		
-		0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //79
-		0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //95
-		0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //111
-		0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //127
-		17, //fireball 128
-		//spritelist goes here
-		19,	//enemy arrow 130
-		0,
-		4, //enemy brfang 131
-		20, //enemy swordbeam 132
-		0,0,
-		18, //rock 133
-		21, //magic	 134
-		78, //enemy bomb explosion 135
-		79, //enemy Sbomb explosion 136
-		76, //enemy bomb projectile 137
-		77, //enemy Sbomb projectile 138
-	   
-		80, //firetrail 139
-		35, //fire flame 140
-		36, //wind magic 141
-		81, //fire2 (fire gleeok flame) 142
-		82, //143 (fire trail 2?
-		83, //144 (ice?)
-		
-		0
-	};
-	
-	*/
-	
-	//If the weapon sprite is 0, assign it here. 
-   //Moved weapon sprite assignment to quest loading.
-	
-	//Set the dialogue. 
-	sprintf(weapsprite,"%d",guysbuf[index].wpnsprite);
-	enedata_dlg[236].dp = weapsprite;
-	
-	/* Sprite list pulldown. 
-	enedata_dlg[236].dp3 = is_large() ? lfont_l : pfont;
-	sprintf(efr,"%d",guysbuf[index].wpnsprite);
-	*/
-	//enedata_dlg[236].dp = wpnsp;
-	
-	//make the sprites list. 
-	/*
-	bool foundwpnsprite; //char wpnsp_def[10];
-	//build_biw_list(); //built in weapons
+	// Sprites
 	if(biw_cnt==-1)
 	{
-		build_biw_list(); //built-in weapons
+		build_biw_list();
 	}
-	
-	*/
-	
-	
-	/*
-	if ( guysbuf[index].wpnsprite <= 0 ) {
-		for ( int q = FIRST_EWEAPON_ID; q < wMAX; q++ ) //read the weapon type of the npc and find its sprite
-		{
-		if ( guysbuf[index].weapon == q ) { guysbuf[index].wpnsprite = default_weapon_sprites[q]; itemdata_dlg[4+236].d1 = default_weapon_sprites[q]; break; }
-		}
-	}
-	else {
-	*/
-	
-	/*
 	for(int j=0; j<biw_cnt; j++)
 	{
-		if(biw[j].i == guysbuf[index].wpnsprite){
-			itemdata_dlg[4+236].d1 = j;
-			foundwpnsprite = true;
-			al_trace("Found weapon sprite: \n", j);
-			break;
-		}
+		if(biw[j].i == guysbuf[index].wpnsprite)
+			enedata_dlg[236].d1  = j;
+		if(biw[j].i == guysbuf[index].spr_shadow)
+			enedata_dlg[394].d1  = j;
+		if(biw[j].i == guysbuf[index].spr_death)
+			enedata_dlg[396].d1  = j;
+		if(biw[j].i == guysbuf[index].spr_spawn)
+			enedata_dlg[398].d1  = j;
 	}
-	// }
-	
-	*/
-	
-	//We could always make it a text entry box if all else fails. 
-	
-	
-	
-	
-	//Do enemies use sprite 0 for their weapons? if not then we can override. Hell, we can just read
-	//their weapon, and if it is set to sprite 0 and not an arrow, and the quest header is not 2.54+, 
-	//we change it to the appropriate sprite HERE. -Z
-	
-	//Otherwise, add an exception that if the sprite is 0, it is treated as NULL?
-	
-	//Arrow (Enemy) will always be the first on the list, so we absolutely /must/ prime the enemy weapon sprite somewhere. -Z
-	/*
-	if ( !foundwpnsprite ) {
-		//set a string "Default" for -1
-	}
-	*/
-	
-	//We need to set the initial default sprites for all weapons. 
-	/* This requires that the default value of guydata.wpnsprite is -1, because sprite 0 is a legal sprite. 
-	
-	*/
-	
-	//enedata_dlg[236].d1= (int)guysbuf[index].wpnsprite;
 	
 	sprintf(bsp,"%d",guysbuf[index].bosspal);
 	
@@ -7686,9 +7595,18 @@ void edit_enemydata(int index)
 		test.hitsfx = enedata_dlg[183].d1;
 		test.deadsfx = enedata_dlg[184].d1;
 		
-		//2.6 Enemy Weapon Sprite
-		//test.wpnsprite = biw[enedata_cpy[236].d1].i;
-		test.wpnsprite = atoi(weapsprite);
+		// Sprites
+		for(int j=0; j<biw_cnt; j++)
+		{
+			if(enedata_dlg[236].d1 == j)
+				test.wpnsprite = biw[j].i;
+			if(enedata_dlg[394].d1 == j)
+				test.spr_shadow = biw[j].i;
+			if(enedata_dlg[396].d1 == j)
+				test.spr_death = biw[j].i;
+			if(enedata_dlg[398].d1 == j)
+				test.spr_spawn = biw[j].i;
+		}
 		
 		test.misc1 = (enedata_dlg[64].proc==jwin_droplist_proc) ? enedata_dlg[64].d1 : atol(ms[0]);
 		test.misc2 = (enedata_dlg[65].proc==jwin_droplist_proc) ? enedata_dlg[65].d1 : atol(ms[1]);

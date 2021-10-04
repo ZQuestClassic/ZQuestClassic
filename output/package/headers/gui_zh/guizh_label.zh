@@ -1,0 +1,35 @@
+const int LABEL_STRING = 0;
+const int LABEL_FONT = 1;
+const int LABEL_COLOR = 2;
+
+int Label_Create(int parent, int string, int font)
+{
+    int id=Widget_Create(WTYPE_LABEL, parent);
+    GUI_Data[id+LABEL_STRING]=string;
+    GUI_Data[id+LABEL_FONT]=font;
+    GUI_Data[id+LABEL_COLOR]=LABEL_DEFAULT_COLOR;
+    return id;
+}
+
+void Label_Draw(int id, int x, int y)
+{
+    if(GUI_Data[id+LABEL_STRING]!=0)
+        Screen->DrawString(GUI_DRAW_LAYER, x, y, GUI_Data[id+LABEL_FONT],
+          GUI_Data[id+LABEL_COLOR], -1, TF_NORMAL, GUI_Data[id+LABEL_STRING],
+          OP_OPAQUE);
+}
+
+void Label_SetText(int id, int str)
+{
+    GUI_Data[id+LABEL_STRING]=str;
+}
+
+void Label_SetFont(int id, int font)
+{
+    GUI_Data[id+LABEL_FONT]=font;
+}
+
+void Label_SetColor(int id, int color)
+{
+    GUI_Data[id+LABEL_COLOR]=color;
+}

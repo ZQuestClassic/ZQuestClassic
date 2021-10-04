@@ -1,0 +1,46 @@
+// Various GUI stuff.
+
+const int GUI_DRAW_LAYER = 6;
+const int GUI_CURSOR_TILE = 20500;
+const int GUI_CURSOR_CSET = 7;
+
+// 0-7 are for widget use - increase everything down to GUI_Data[] to add more
+const int WIDGET_TYPE = 8;
+const int WIDGET_X = 9; // X and Y are relative to parent if possible...
+const int WIDGET_Y = 10;
+const int WIDGET_WIDTH = 11;
+const int WIDGET_HEIGHT = 12;
+const int WIDGET_PARENT = 13; // ID of the parent of this widget
+const int WIDGET_FIRST_CHILD = 14; // ID of the first child of this widget
+const int WIDGET_NEXT_CHILD = 15; // ID of the next child of this widget's parent
+const int WIDGET_PREV_CHILD = 16; // ID of the previous child of this widget's parent
+const int WIDGET_FLAGS = 17;
+const int SIZEOF_WIDGET = 18;
+
+const int MAX_WIDGETS = 1000;
+const int GUI_DATA_SIZE = 18000; // SIZEOF_WIDGET * MAX_WIDGETS
+
+int GUI_Data[18000]; // GUI_DATA_SIZE
+
+const int WINDOW_DEFAULT_BG_COLOR = 3;
+const int WINDOW_DEFAULT_BORDER_COLOR = 1;
+
+const int LABEL_DEFAULT_COLOR = 1;
+
+const int SPINNER_DEFAULT_BG_COLOR = 1;
+const int SPINNER_DEFAULT_TEXT_COLOR = 15;
+
+#include "gui_zh/guizh_button.zh"
+#include "gui_zh/guizh_checkbox.zh"
+#include "gui_zh/guizh_common.zh"
+#include "gui_zh/guizh_event.zh"
+#include "gui_zh/guizh_label.zh"
+#include "gui_zh/guizh_main.zh"
+#include "gui_zh/guizh_radioButton.zh"
+#include "gui_zh/guizh_root.zh"
+#include "gui_zh/guizh_types.zh"
+#include "gui_zh/guizh_spinner.zh"
+#include "gui_zh/guizh_widget.zh"
+#include "gui_zh/guizh_window.zh"
+
+

@@ -203,10 +203,10 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 					selectedValue = room.string),
 
 				Button(
-					text = "&Info",
-					width = 3_em,
+					text = "?",
+					width = 2_em,
 					onClick = message::ROOM_INFO,
-					margins = 0_px
+					padding = 0_px
 				)
 			),
 			Row(

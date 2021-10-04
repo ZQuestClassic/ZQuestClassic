@@ -1,0 +1,412 @@
+// ghost.zh
+// Version 2.8.15
+
+void StartGhostZH()
+{
+    InitializeGhostZHData();
+}
+
+void UpdateGhostZH1()
+{
+    UpdateEWeapons();
+    CleanUpGhostFFCs(); // Only needed if __GH_USE_DRAWCOMBO is 0
+    UpdateGhostZHData1();
+}
+
+void UpdateGhostZH2()
+{
+    DrawGhostFFCs();
+    AutoGhost();
+    UpdateGhostZHData2();
+}
+
+void InitializeGhostZHData()
+{
+    __ghzhData[__GHI_GLOBAL_FLAGS]=0;
+    __ghzhData[__GHI_FLASH_COUNTER]=0;
+    __ghzhData[__GHI_SHADOW_FRAME]=0;
+    __ghzhData[__GHI_SHADOW_TIMER]=0;
+    __ghzhData[__GHI_LARGE_SHADOW_FRAME]=0;
+    __ghzhData[__GHI_LARGE_SHADOW_TIMER]=0;
+    __ghzhData[__GHI_CLOCK_TIMER]=0;
+}
+
+
+void UpdateGhostZHData1()
+{
+    // Update the clock
+    
+    // Check for screen change first
+    int screen=(Game->GetCurDMap()<<8)+Game->GetCurDMapScreen();
+    if(__ghzhData[__GHI_PREV_SCREEN]!=screen) // Changed screens, end clock
+    {
+        __ghzhData[__GHI_CLOCK_TIMER]=0;
+        __ghzhData[__GHI_PREV_SCREEN]=screen;
+    }
+    
+    // Same screen, count down
+    else if(__ghzhData[__GHI_CLOCK_TIMER]>0)
+        __ghzhData[__GHI_CLOCK_TIMER]--;
+}
+
+
+void UpdateGhostZHData2()
+{
+    // Update the flash counter and toggle the flicker flag
+    __ghzhData[__GHI_FLASH_COUNTER]=(__ghzhData[__GHI_FLASH_COUNTER]+1)%8;
+    if((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)==0)
+        __ghzhData[__GHI_GLOBAL_FLAGS]|=__GHGF_FLICKER;
+    else
+        __ghzhData[__GHI_GLOBAL_FLAGS]&=~__GHGF_FLICKER;
+    
+    // Update shadow animation
+    if(GH_SHADOW_FRAMES>1)
+    {
+        __ghzhData[__GHI_SHADOW_TIMER]++;
+        if(__ghzhData[__GHI_SHADOW_TIMER]>=GH_SHADOW_ANIM_SPEED)
+        {
+            __ghzhData[__GHI_SHADOW_TIMER]=0;
+            __ghzhData[__GHI_SHADOW_FRAME]=
+              (__ghzhData[__GHI_SHADOW_FRAME]+1)%GH_SHADOW_FRAMES;
+        }
+    }
+    if(GH_LARGE_SHADOW_FRAMES>1)
+    {
+        __ghzhData[__GHI_LARGE_SHADOW_TIMER]++;
+        if(__ghzhData[__GHI_LARGE_SHADOW_TIMER]>=GH_LARGE_SHADOW_ANIM_SPEED)
+        {
+            __ghzhData[__GHI_LARGE_SHADOW_TIMER]=0;
+            __ghzhData[__GHI_LARGE_SHADOW_FRAME]=
+              (__ghzhData[__GHI_LARGE_SHADOW_FRAME]+1)%GH_LARGE_SHADOW_FRAMES;
+        }
+    }
+}
+
+// Calls UpdateEWeapon() on every eweapon on the screen
+void UpdateEWeapons()
+{
+    eweapon wpn;
+    
+    // Only update behavior if Link isn't holding up an item.
+    if(!(Link->Action==LA_HOLD1LAND || Link->Action==LA_HOLD2LAND ||
+         Link->Action==LA_HOLD1WATER || Link->Action==LA_HOLD2WATER))
+   {
+        for(int i=Screen->NumEWeapons(); i>0; i--)
+        {
+            wpn=Screen->LoadEWeapon(i);
+            
+            // If this is a dummy, or if it's not a ghost.zh weapon, don't do anything
+            if((wpn->Misc[__EWI_FLAGS]&__EWFI_IS_GHZH_EWPN)==0 ||
+               (wpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY)!=0)
+                continue;
+
+        
+            UpdateEWeapon(wpn);
+        }
+   }
+   
+   // If he is, just update appearance-related flags.
+   else
+   {
+        for(int i=Screen->NumEWeapons(); i>0; i--)
+        {
+            wpn=Screen->LoadEWeapon(i);
+            
+            // If this is a dummy, or if it's not a ghost.zh weapon, don't do anything
+            if((wpn->Misc[__EWI_FLAGS]&__EWFI_IS_GHZH_EWPN)==0 ||
+               (wpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY)!=0)
+                continue;
+
+        
+            __UpdateEWeaponVisualFlags(wpn);
+        }
+   }
+}
+
+
+// Hides enemy FFCs when Link dies
+void CleanUpGhostFFCs()
+{
+    // Hide FFCs when Link is dead
+    if(Link->HP<=0 && __GH_USE_DRAWCOMBO==0)
+    {
+        ffc f;
+        for(int i=1; i<=32; i++)
+        {
+            f=Screen->LoadFFC(i);
+            if((__Ghost_Scripts[f->Script>>4]&(1<<(f->Script&1111b)))!=0)
+                f->Data=0;
+        }
+    }
+}
+
+
+// Detects AutoGhost enemies and sets up FFCs for them
+void AutoGhost()
+{
+	// Shouldn't run if scripts are suspended.
+	if((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_SUSPEND))
+	{
+		return;
+	}
+    
+	npc enemy;
+	int ffcID = 0;
+	ffc f;
+    
+	// Search enemies for one that should be autoghosted
+	for( int i = Screen->NumNPCs(); i > 0; --i)
+	{
+		enemy=Screen->LoadNPC(i);
+        
+		// ID out of range??
+		if( enemy->ID < AUTOGHOST_MIN_ENEMY_ID )
+		{
+			continue;
+		}
+		if ( enemy->ID > AUTOGHOST_MAX_ENEMY_ID )
+		{
+			continue;
+		}
+	
+		if ( __GH_ALWAYS_USE_NAME ) // Read from name
+		{
+			// Already checked this enemy?
+			if ( enemy->Misc[__GHI_NPC_DATA] ) //will == 1 if it was checked
+			{
+				continue;
+			}
+			//else if(enemy->Misc[__GHI_NPC_DATA]&0x10000) continue; //don't do this yet?
+			
+		}
+		else
+		{
+			// Already in use?
+			if ( (enemy->Misc[__GHI_NPC_DATA]&0x10000) )
+			{
+				continue;
+			}
+			// No combo or script set?
+			if ( !enemy->Attributes[10] )
+			{
+				continue;
+			}
+			if ( !enemy->Attributes[11] )
+			{
+				continue;
+			}
+		}
+        
+		// May have found one; get the setup data
+		int scriptNum;
+		int combo;
+        
+		if ( __GH_ALWAYS_USE_NAME )
+		{
+			int data[2];
+			__AutoGhostParseName(enemy, data);
+			scriptNum = data[0];
+			combo = data[1];
+			enemy->Misc[__GHI_NPC_DATA] = 1; // Just to make sure it's nonzero
+			//if(scriptNum<=0)
+			//  continue;
+		}
+		else
+		{
+			combo = enemy->Attributes[10];
+			scriptNum = enemy->Attributes[11];
+			if ( scriptNum == AUTOGHOST_READ_NAME )
+			{
+				int data[2];
+				__AutoGhostParseName(enemy, data);
+				scriptNum = data[0];
+			}
+		}
+        
+		// Invalid script?
+		if ( scriptNum <= 0 ) //|| scriptNum>511)
+		{
+		    __AutoGhostKill(enemy);
+		    continue;
+		}
+		if ( scriptNum > 511 )
+		{
+		    __AutoGhostKill(enemy);
+		    continue;
+		}
+        
+		// Found an enemy that needs ghosted; now find an FFC
+		ffcID = FindUnusedFFC(ffcID);
+        
+		// No suitable FFC? Kill the enemy, then
+		if(!ffcID)
+		{
+			__AutoGhostKill(enemy);
+			continue;
+		}
+        
+		// Everything's okay; set up the enemy
+		f = Screen->LoadFFC(ffcID);
+		f->Data = GH_INVISIBLE_COMBO;
+		f->CSet = enemy->CSet;
+		f->TileWidth = 1;
+		f->TileHeight = 1;
+		f->X = enemy->X;
+		f->Y = (enemy->Y-enemy->Z);
+		f->Vx = 0;
+		f->Vy = 0;
+		f->Ax = 0;
+		f->Ay = 0;
+		f->Script = scriptNum;
+		f->InitD[0] = enemy->ID;
+		if (__GH_ETHEREAL )
+		{
+			//if( combo <= 0 || combo == GH_INVISIBLE_COMBO ) //Only do this if not using combo draws
+			f->Flags[FFCF_ETHEREAL] = true; //move down to the lower if(combo<=0) check if this is bugged anddraws to higher layers.
+		}
+        
+		// Setting this in advance hides the spawn animation, so it's not
+		// visible for a single frame before the script starts (assuming
+		// this is after Waitdraw())
+		if (combo != GH_INVISIBLE_COMBO )
+		{
+			if (combo != __GH_INVISIBLE_ALT)
+			{
+				enemy->Extend = 3;
+				enemy->DrawXOffset = 1024;
+			}
+		}
+        
+		if ( combo <= 0 )
+		{
+			enemy->Misc[__GHI_NPC_DATA] = GH_INVISIBLE_COMBO;
+		}
+		else
+		{
+			enemy->Misc[__GHI_NPC_DATA] = combo;
+		}
+	}
+}
+
+// Reads a script name and combo number from the enemy's name. The script
+// number and combo are stored in output[0] and output[1], respectively.
+int __AutoGhostParseName(npc enemy, int output)
+{
+	int npcName[64];
+	int buffer[64];
+    
+	output[1] = GH_INVISIBLE_COMBO; // Default value
+    
+	enemy->GetName(npcName);
+    
+	for ( int i = 0; i < 63; ++i )
+	{
+		if ( npcName[i] == AUTOGHOST_DELIMITER )
+		{
+			// Found something
+			int character = npcName[i+1];
+			if ( __IsScriptNameChar(character, true) )
+			{
+				// Script name
+				int j = 0;
+				for ( i = i + 1; (__IsScriptNameChar(npcName[i], false)); ++i )
+				{
+					buffer[j] = npcName[i];
+					++j;
+				}
+				buffer[j] = NULL;
+				output[0] = Game->GetFFCScript(buffer);
+				--i;
+                
+				// No such script?
+				if ( output[0] <= 0 )
+				{
+					int error1[] = 		"ghost.zh: AutoGhost setup failed - script does not exist.\n";
+					int error2[80] = 	"  Script name: %s\n";
+					printf(error1);
+					printf(error2, buffer);
+					return 0;
+				}
+			}
+			else if ( ( character >= '0' && character <= '9' ) || character == '-' )
+			{
+				// Combo number
+				int j = 0;
+				if ( character == '-' )
+				{
+					buffer[0] = '-';
+					j = 1;
+					++i;
+				}
+				for ( i = i + 1; ( npcName[i] >= '0' && npcName[i] <= '9' ); ++i )
+				{
+					buffer[j] = npcName[i];
+					++j;
+				}
+				buffer[j] = NULL;
+				output[1] = atoi(buffer);
+				--i;
+			}
+		}
+	}
+    
+	// Expected a script name and didn't find it?
+	if( !(__GH_ALWAYS_USE_NAME) )// == 0 && output[0] <= 0 ) //wtf; why would you check this array twice? You check it conditionally below, too. -Z
+	{
+		// Didn't find it?
+		if ( output[0] <=0 )
+		{
+			int error1[]=	"ghost.zh: AutoGhost setup failed - script not found.\n";
+			int error2[80]=	"  Enemy name: %s\n";
+			int error3[55]=	"  Script name should start after this character: %c\n";
+			printf(error1);
+			printf(error2, npcName);
+			printf(error3, AUTOGHOST_DELIMITER);
+			return 0;
+		}
+	}
+	return 1;
+}
+
+// Used to silently kill an enemy when it couldn't be set up.
+void __AutoGhostKill(npc enemy)
+{
+    enemy->Misc[__GHI_NPC_DATA]=0x10000;
+    enemy->X=1024;
+    enemy->Y=1024;
+    enemy->HP=HP_SILENT;
+    enemy->ItemSet=0;
+}
+
+bool __IsScriptNameChar(int character, bool first)
+{
+	if ( character >= 'a' )
+	{
+		if( character <= 'z')
+		{
+			return true;
+		}
+	}
+	if ( character >= 'A' )
+	{
+		if ( character <= 'Z' )
+		{
+			return true;
+		}
+	}
+	if( character == '_' )
+        {
+		return true;
+	}
+	if(!first)
+	{
+		if ( character >= '0' )
+		{
+			if ( character <= '9' )
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}

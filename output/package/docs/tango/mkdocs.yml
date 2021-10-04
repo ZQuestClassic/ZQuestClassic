@@ -1,0 +1,18 @@
+site_name: tango.zh 1.3.2
+pages:
+    - About: index.md
+    - Usage: usage.md
+    - ZScript functions: zscriptFuncs.md
+    - ZScript constants: constants.md
+    - Tango variables and functions: tangoCode.md
+    - Data structures and formats: dataFormats.md
+    - Error codes: errors.md
+    - FAQ: faq.md
+theme: readthedocs
+use_directory_urls: false
+markdown_extensions:
+    - admonition
+    - def_list
+    - codehilite
+extra:
+    version: 1.3.2

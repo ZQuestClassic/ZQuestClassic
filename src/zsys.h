@@ -54,8 +54,9 @@ int encode_file_007(const char *srcfile, const char *destfile, int key, const ch
 int decode_file_007(const char *srcfile, const char *destfile, const char *header, int method, bool packed, const char *password);
 void copy_file(const char *src, const char *dest);
 
-int  get_bit(byte *bitstr,int bit);
+int  get_bit(byte const* bitstr,int bit);
 void set_bit(byte *bitstr,int bit,byte val);
+bool toggle_bit(byte *bitstr,int bit);
 
 int  get_bitl(long bitstr,int bit);
 void set_bitl(long bitstr,int bit,byte val);

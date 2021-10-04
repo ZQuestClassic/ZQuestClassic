@@ -1,0 +1,11 @@
+void Ghost_CanMoveAtAngle(float angle, float step, int imprecision)
+{
+	for ( int q = 1; q < step; ++q )
+	{
+		if(!Ghost_CanMovePixel(VectorX(q, angle), VectorY(q, angle), Ghost_Z>0))
+		{
+			return false;
+		}
+	}
+	return true;
+}
