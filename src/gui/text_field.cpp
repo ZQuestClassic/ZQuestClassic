@@ -11,8 +11,6 @@
 #include <string>
 #include <utility>
 
-#define FONT sized(nfont, lfont_l)
-
 namespace GUI
 {
 
@@ -181,7 +179,7 @@ void TextField::realize(DialogRunner& runner)
 				0, // key
 				getFlags(), // flags
 				static_cast<int>(maxLength), 0, // d1, d2
-				buffer.get(), FONT, nullptr // dp, dp2, dp3
+				buffer.get(), widgFont, nullptr // dp, dp2, dp3
 			});
 			break;
 		}
@@ -217,7 +215,7 @@ void TextField::realize(DialogRunner& runner)
 				0, // key
 				getFlags(), // flags
 				static_cast<int>(maxLength), 0, // d1, d2
-				buffer.get(), FONT, nullptr // dp, dp2, dp3
+				buffer.get(), widgFont, nullptr // dp, dp2, dp3
 			});
 			swapBtnDialog = runner.push(shared_from_this(), DIALOG {
 				jwin_swapbtn_proc,
@@ -226,7 +224,7 @@ void TextField::realize(DialogRunner& runner)
 				0, // key
 				getFlags(), // flags
 				0, 0, // d1, d2
-				nullptr, FONT, nullptr // dp, dp2, dp3
+				nullptr, GUI_DEF_FONT, nullptr // dp, dp2, dp3
 			});
 			//Set the dp3 to the swapbtn pointer
 			//alDialog->dp3 = (void*)&(swapBtnDialog[0]);
@@ -241,6 +239,15 @@ void TextField::applyVisibility(bool visible)
 	Widget::applyVisibility(visible);
 	if(alDialog) alDialog.applyVisibility(visible);
 	if(swapBtnDialog) swapBtnDialog.applyVisibility(visible);
+}
+
+void TextField::applyFont(FONT* newFont)
+{
+	if(alDialog)
+	{
+		alDialog->dp2 = newFont;
+	}
+	Widget::applyFont(newFont);
 }
 
 int TextField::onEvent(int event, MessageDispatcher& sendMessage)

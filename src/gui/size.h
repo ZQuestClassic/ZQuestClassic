@@ -41,7 +41,17 @@ public:
 	{
 		return value;
 	}
-
+	
+	inline constexpr operator int() const noexcept
+	{
+		return value;
+	}
+	
+	inline constexpr Size operator+(const int& other) const noexcept
+	{
+		return Size(value+other);
+	}
+	
 	inline constexpr Size operator+(const Size& other) const noexcept
 	{
 		return Size(value+other.value);

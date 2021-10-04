@@ -9,6 +9,9 @@
 #include <memory>
 #include <type_traits>
 #include <vector>
+#include "../fonts.h"
+
+#define GUI_DEF_FONT sized(nfont, lfont_l)
 
 namespace GUI
 {
@@ -229,6 +232,15 @@ public:
 		return flags&f_FIT_PARENT;
 	}
 	
+	//Sets the text that appears inside the frame, if framed
+	void setFrameText(std::string const& newstr);
+	
+	//Sets the font to use for the widget (overridable)
+	virtual void applyFont(FONT* newfont);
+	
+	//For some reason need this to not be virtual???
+	void setFont(FONT* newfont) {applyFont(newfont);}
+	
 protected:
 	inline bool getWidthOverridden() const noexcept {return flags&f_WIDTH_OVERRIDDEN;}
 	inline bool getHeightOverridden() const noexcept {return flags&f_HEIGHT_OVERRIDDEN;}
@@ -245,7 +257,8 @@ protected:
 	unsigned short leftMargin, rightMargin, topMargin, bottomMargin;
 	unsigned short leftPadding, rightPadding, topPadding, bottomPadding;
 	float hAlign, vAlign;
-	DialogRef frameDialog;
+	DialogRef frameDialog, frameTextDialog;
+	std::string frameText;
 
 	/* Sets the widget's width if it hasn't been overridden. */
 	void setPreferredWidth(Size newWidth) noexcept;
@@ -257,7 +270,11 @@ protected:
 	 * The widget should add its own
 	 */
 	int getFlags() const noexcept;
-
+	
+	bool isRealized() const noexcept {return wasRealized;}
+	
+	FONT* widgFont;
+	
 private:
 	enum
 	{
@@ -271,6 +288,7 @@ private:
 	};
 
 	int width, height, maxwidth, maxheight;
+	bool wasRealized;
 	unsigned char flags: 7;
 
 	/* The number of containers hiding this widget. Shouldn't be too many,

@@ -32,6 +32,7 @@ private:
 	void applyVisibility(bool visible) override;
 	void arrange(int contX, int contY, int contW, int contH) override;
 	void realize(DialogRunner& runner) override;
+	void applyFont(FONT* newFont) override;
 
 	/* Inserts line breaks into the text if it's longer than
 	 * the alloted width.

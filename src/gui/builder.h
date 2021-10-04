@@ -18,6 +18,7 @@
 #include "tabref.h"
 #include "text_field.h"
 #include "window.h"
+#include "widget.h"
 #include <initializer_list>
 #include <memory>
 #include <string>

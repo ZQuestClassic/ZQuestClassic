@@ -18,8 +18,8 @@ Widget::Widget() noexcept:
 	hAlign(0.5), vAlign(0.5),
 	width(0), height(0),
 	maxwidth(-1), maxheight(-1),
-	flags(0),
-	hideCount(0)
+	flags(0), hideCount(0),
+	frameText(""), widgFont(GUI_DEF_FONT)
 {}
 
 void Widget::overrideWidth(Size newWidth) noexcept
@@ -109,6 +109,7 @@ void Widget::setPadding(Size size) noexcept
 void Widget::applyVisibility(bool visible)
 {
 	if(frameDialog) frameDialog.applyVisibility(visible);
+	if(frameTextDialog) frameTextDialog.applyVisibility(visible);
 }
 
 void Widget::setVisible(bool visible)
@@ -173,6 +174,10 @@ void Widget::arrange(int contX, int contY, int contW, int contH)
 		frameDialog->y = y-topPadding;
 		frameDialog->w = getPaddedWidth();
 		frameDialog->h = getPaddedHeight();
+		frameTextDialog->x = x-leftPadding+4_spx;
+		frameTextDialog->y = y-topPadding-(text_height(widgFont)/2);
+		frameTextDialog->w = getPaddedWidth()-4_spx;
+		frameTextDialog->h = text_height(widgFont);
 	}
 }
 
@@ -189,7 +194,17 @@ void Widget::realize(DialogRunner& runner)
 			FR_ETCHED, 0, // d1, d2,
 			nullptr, nullptr, nullptr // dp, dp2, dp3
 		});
+		frameTextDialog = runner.push(shared_from_this(), DIALOG {
+			new_text_proc,
+			x-leftPadding+4_spx, y-topPadding-(text_height(widgFont)/2), getPaddedWidth()-4_spx, text_height(widgFont),
+			fgColor, bgColor,
+			0,
+			getFlags(),
+			0, 0, // d1, d2,
+			frameText.data(), widgFont, nullptr // dp, dp2, dp3
+		});
 	}
+	wasRealized = true;
 }
 
 void Widget::setFocused(bool focused) noexcept
@@ -223,6 +238,32 @@ void Widget::setFitParent(bool fit) noexcept
 		flags |= f_FIT_PARENT;
 	else
 		flags &= ~f_FIT_PARENT;
+}
+
+void Widget::setFrameText(std::string const& newstr)
+{
+	frameText = newstr;
+	if(frameTextDialog)
+	{
+		frameTextDialog->dp = frameText.data();
+		if(getVisible())
+		{
+			broadcast_dialog_message(MSG_DRAW, 0);
+		}
+	}
+}
+
+void Widget::applyFont(FONT* newfont)
+{
+	widgFont = newfont;
+	if(frameTextDialog)
+	{
+		frameTextDialog->dp2 = widgFont;
+	}
+	if(isRealized() && getVisible())
+	{
+		broadcast_dialog_message(MSG_DRAW, 0);
+	}
 }
 
 int Widget::getFlags() const noexcept

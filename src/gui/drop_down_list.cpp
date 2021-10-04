@@ -7,9 +7,6 @@
 #include <cassert>
 #include <cmath>
 
-#define FONT sized(nfont, lfont_l)
-#define FONT_PTR sized(&nfont, &lfont_l)
-
 namespace GUI
 {
 
@@ -28,7 +25,7 @@ DropDownList::DropDownList():
 void DropDownList::setListData(const ::GUI::ListData& newListData)
 {
 	listData = &newListData;
-	jwinListData = newListData.getJWin(FONT_PTR);
+	jwinListData = newListData.getJWin(&widgFont);
 }
 
 void DropDownList::setSelectedValue(int value)
@@ -94,6 +91,15 @@ void DropDownList::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
 	if(alDialog) alDialog.applyVisibility(visible);
+}
+
+void DropDownList::applyFont(FONT* newFont)
+{
+	if(alDialog)
+	{
+		alDialog->dp2 = newFont;
+	}
+	Widget::applyFont(newFont);
 }
 
 void DropDownList::realize(DialogRunner& runner)

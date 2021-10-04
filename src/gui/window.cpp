@@ -40,6 +40,15 @@ void Window::applyVisibility(bool visible)
 		content->applyVisibility(visible);
 }
 
+void Window::applyFont(FONT* newFont)
+{
+	if(alDialog)
+	{
+		alDialog->dp2 = newFont;
+	}
+	Widget::applyFont(newFont);
+}
+
 void Window::calculateSize()
 {
 	if(content)

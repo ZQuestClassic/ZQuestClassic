@@ -8,8 +8,6 @@
 #include <cassert>
 #include <utility>
 
-#define FONT sized(nfont, lfont_l)
-
 namespace GUI
 {
 
@@ -21,7 +19,7 @@ Radio::Radio(): checked(false), text(),
 
 void Radio::setText(std::string newText)
 {
-	int textWidth = text_length(FONT, newText.c_str());
+	int textWidth = text_length(widgFont, newText.c_str());
 	setPreferredWidth(Size::pixels(textWidth)+13_lpx);
 	text = std::move(newText);
 }
@@ -60,6 +58,15 @@ void Radio::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void Radio::applyFont(FONT* newFont)
+{
+	if(alDialog)
+	{
+		alDialog->dp2 = newFont;
+	}
+	Widget::applyFont(newFont);
+}
+
 void Radio::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
@@ -70,13 +77,13 @@ void Radio::realize(DialogRunner& runner)
 		getAccelKey(text),
 		getFlags()|(checked ? D_SELECTED : 0),
 		procset, 0, // d1, d2,
-		text.data(), FONT, nullptr // dp, dp2, dp3
+		text.data(), widgFont, nullptr // dp, dp2, dp3
 	});
 }
 
 void Radio::calculateSize()
 {
-	setPreferredWidth(9_spx+12_px+Size::pixels(gui_text_width(FONT, text.c_str())));
+	setPreferredWidth(9_spx+12_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
 }
 
 int Radio::onEvent(int event, MessageDispatcher& sendMessage)

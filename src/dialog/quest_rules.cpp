@@ -5,16 +5,11 @@
 #include "info.h"
 #include "alert.h"
 #include <gui/builder.h>
-#include "gui/size.h"
 #include "../jwin.h"
 #include "../zquest.h"
 #include "../zsys.h"
-
-using GUI::Size;
-using GUI::operator ""_em;
-using GUI::operator ""_px;
-using GUI::operator ""_lpx;
-using GUI::operator ""_spx;
+#include "gui/use_size.h"
+using GUI::sized;
 
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);

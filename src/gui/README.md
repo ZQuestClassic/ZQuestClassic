@@ -32,7 +32,7 @@ void Checkbox::realize(DialogRunner& runner)
 		getAccelKey(text),
 		getFlags()|(checked ? D_SELECTED : 0),
 		static_cast<int>(placement), 0,
-		text.data(), FONT, nullptr
+		text.data(), widgFont, nullptr
 	});
 }
 ```

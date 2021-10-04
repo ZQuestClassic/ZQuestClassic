@@ -6,14 +6,12 @@
 #include "../zquest.h"
 #include <utility>
 
-#define FONT sized(nfont, lfont_l)
-
 namespace GUI
 {
 
 Label::Label(): text(), text_fit(), maxLines(10), contX(0), contY(0), contW(0), contH(0), textAlign(0)
 {
-	setPreferredHeight(Size::pixels(text_height(FONT)));
+	setPreferredHeight(Size::pixels(text_height(widgFont)));
 }
 
 void Label::setText(std::string newText)
@@ -44,12 +42,22 @@ void Label::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void Label::applyFont(FONT* newFont)
+{
+	if(alDialog)
+	{
+		alDialog->dp2 = newFont;
+	}
+	Widget::applyFont(newFont);
+	fitText();
+}
+
 void Label::fitText()
 {
 	// text_length doesn't understand line breaks, so we'll do it ourselves.
 	text_fit = text;
 	char* data = text_fit.data();
-	auto* f = FONT;
+	auto* f = widgFont;
 	auto* char_length = f->vtable->char_length;
 	int actualWidth = getWidthOverridden() ? getWidth() : getMaxWidth();
 	if(actualWidth < 0) actualWidth = zq_screen_w;
@@ -103,7 +111,7 @@ void Label::fitText()
 	if(widthSoFar > max_width)
 		max_width = widthSoFar;
 
-	setPreferredHeight(Size::pixels(text_height(FONT)*currentLine));
+	setPreferredHeight(Size::pixels(text_height(widgFont)*currentLine));
 	setPreferredWidth(Size::pixels(max_width));
 	if(alDialog)
 	{
@@ -144,7 +152,7 @@ void Label::realize(DialogRunner& runner)
 		0, // key
 		getFlags(), // flags
 		textAlign, 0, // d1, d2
-		text_fit.data(), FONT, nullptr // dp, dp2, dp3
+		text_fit.data(), widgFont, nullptr // dp, dp2, dp3
 	});
 }
 

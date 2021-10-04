@@ -56,6 +56,7 @@ private:
 	void calculateSize() override;
 	void arrange(int contX, int contY, int contW, int contH) override;
 	void realize(DialogRunner& runner) override;
+	void applyFont(FONT* newFont) override;
 };
 
 }
