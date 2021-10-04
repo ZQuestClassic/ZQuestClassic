@@ -87,6 +87,8 @@ public:
 		onValueChangedMsg = static_cast<int>(m);
 	}
 
+	/* Sets a function to be called on value change. */
+	void setOnValChanged(std::function<void(type,std::string_view,int)> newOnValChanged);
 private:
 	std::unique_ptr<char[]> buffer;
 	int startVal;
@@ -96,6 +98,7 @@ private:
 	DialogRef alDialog;
 	DialogRef swapBtnDialog;
 	int onEnterMsg, onValueChangedMsg;
+	std::function<void(type,std::string_view,int)> onValChanged;
 
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;

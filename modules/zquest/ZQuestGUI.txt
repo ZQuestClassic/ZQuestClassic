@@ -53,6 +53,7 @@ src/dialog/script_rules.cpp
 src/dialog/pickruleset.cpp
 src/dialog/headerdlg.cpp
 src/dialog/alert.cpp
+src/dialog/init_data.cpp
 
 ## End of ZQuest GUI module
 )

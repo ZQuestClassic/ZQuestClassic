@@ -30,6 +30,10 @@ void TextField::setText(std::string_view newText)
 		setMaxLength(newText.size());
 	newText.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength, newText.size())] = '\0';
+	if(alDialog && getVisible())
+	{
+		alDialog.message(MSG_DRAW, 0);
+	}
 }
 
 void TextField::setVal(int val)
@@ -77,6 +81,10 @@ void TextField::setVal(int val)
 	}
 	v.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength, v.size())] = '\0';
+	if(alDialog && getVisible())
+	{
+		alDialog.message(MSG_DRAW, 0);
+	}
 }
 
 std::string_view TextField::getText()
@@ -142,6 +150,11 @@ void TextField::setMaxLength(size_t newMax)
 	int btnsz = isSwapType() ? 16 : 0;
 	
 	setPreferredWidth(Size::largePixels(btnsz)+Size::em(std::min((newMax+1)*0.75, 20.0)));
+}
+
+void TextField::setOnValChanged(std::function<void(type,std::string_view,int)> newOnValChanged)
+{
+	onValChanged = std::move(newOnValChanged);
 }
 
 void TextField::realize(DialogRunner& runner)
@@ -261,12 +274,18 @@ int TextField::onEvent(int event, MessageDispatcher& sendMessage)
 
 		case geCHANGE_VALUE:
 			if(!isSwapType())
+			{
 				message = onValueChangedMsg;
+				onValChanged(tfType, getText(), getVal());
+			}
 			break;
 			
 		case geUPDATE_SWAP:
 			if(isSwapType())
+			{
 				message = onValueChangedMsg;
+				onValChanged(tfType, getText(), getVal());
+			}
 			break;
 		
 		case geCLICK:

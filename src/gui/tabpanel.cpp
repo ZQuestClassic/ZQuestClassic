@@ -24,12 +24,15 @@ void TabPanel::switchTo(size_t index)
 	children[index]->setExposed(true); //Show the new child
 }
 
-void TabPanel::add(std::shared_ptr<TabRef> child)
+void TabPanel::add(std::shared_ptr<Widget> child)
 {
-	if(alDialog && //Only do this if dialog is already realized?
-		children.size() != visibleChild)
-		child->setExposed(false);
-	children.emplace_back(std::move(child));
+	if(std::shared_ptr<TabRef> tbchld = std::dynamic_pointer_cast<TabRef>(child))
+	{
+		if(alDialog && //Only do this if dialog is already realized?
+			children.size() != visibleChild)
+			tbchld->setExposed(false);
+		children.emplace_back(std::move(tbchld));
+	}
 }
 
 void TabPanel::applyVisibility(bool visible)

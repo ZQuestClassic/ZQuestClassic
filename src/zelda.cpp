@@ -86,6 +86,7 @@ extern char zc_aboutstr[80];
 
 int DMapEditorLastMaptileUsed = 0;
 int switch_type = 0; //Init here to avoid Linux building error in g++.
+bool saved = true;
 
 #include "init.h"
 #include <assert.h>

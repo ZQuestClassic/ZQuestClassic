@@ -1752,8 +1752,10 @@ const char *item_class_list(int index, int *list_size)
 
 //InitData store values. -Z
 
+#include "dialog/init_data.h"
 int doInit(zinitdata *local_zinit)
 {
+	call_init_dlg(*local_zinit);
     for(int i=0; i<MAXITEMS; i++)
     {
         int family = itemsbuf[i].family;
