@@ -19131,6 +19131,26 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		temp_zinit.transdark_percent = 0;
 	}
 	
+	if(s_version > 24)
+	{
+		if(!p_igetl(&temp_zinit.gravity2,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetl(&temp_zinit.swimgravity,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.dither_type = 0;
+		temp_zinit.dither_arg = 0;
+		temp_zinit.dither_percent = 20;
+		temp_zinit.def_lightrad = 24;
+		temp_zinit.transdark_percent = 0;
+	}
+	
 	if(keepdata==true)
 	{
 		memcpy(&zinit, &temp_zinit, sizeof(zinitdata));

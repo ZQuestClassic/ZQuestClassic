@@ -9163,6 +9163,98 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				
 				break;
 				
+			case ls_sideswim:
+			case ls_sideswimcharge:
+				linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.linkanimationstyle);
+				
+				if(p[lt_clock]>=6)
+				{
+					if(d->d1==up&&d->d2==ls_sideswim)
+					{
+						p[lt_flip]=1;				//h flip
+					}
+					else
+					{
+						p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;			   //tile++
+					}
+				};
+				
+				if(p[lt_clock]>=11)
+				{
+					p[lt_clock]=-1;
+				}
+				
+				break;
+		
+			case ls_sideswimslash:
+				if(p[lt_clock]<6)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswimslash, d->d1, zinit.linkanimationstyle);
+				}
+				else if(p[lt_clock]<12)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+				}
+				else if(p[lt_clock]<13)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+				}
+				else
+				{
+					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
+					
+					if(p[lt_clock]>=16)
+					{
+						p[lt_clock]=-1;
+					}
+				};
+				
+				break;
+				
+			case ls_sideswimstab:
+				if(p[lt_clock]<12)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+				}
+				else if(p[lt_clock]<13)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+				}
+				else
+				{
+					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
+					
+					if(p[lt_clock]>=16)
+					{
+						p[lt_clock]=-1;
+					}
+				};
+				
+				break;
+				
+			case ls_sideswimpound:
+				if(p[lt_clock]<12)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswimpound, d->d1, zinit.linkanimationstyle);
+				}
+				else if(p[lt_clock]<30)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+				}
+				else
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+					
+					if(p[lt_clock]>=31)
+					{
+						p[lt_clock]=-1;
+					}
+				};
+				
+				break;
+		
 			case ls_jump:
 				if(p[lt_clock]>=24)
 				{
@@ -9397,6 +9489,87 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				
 				break;
 				
+			case ls_sideswim:
+			case ls_sideswimcharge:
+				linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.linkanimationstyle);
+				p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+				
+				if(p[lt_clock]>=27)
+				{
+					p[lt_clock]=-1;
+				}
+				
+				break;
+				
+			case ls_sideswimslash:
+				if(p[lt_clock]<6)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswimslash, d->d1, zinit.linkanimationstyle);
+				}
+				else if(p[lt_clock]<12)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+				}
+				else if(p[lt_clock]<13)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+				}
+				else
+				{
+					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
+					
+					if(p[lt_clock]>=16)
+					{
+						p[lt_clock]=-1;
+					}
+				};
+				
+				break;
+				
+			case ls_sideswimstab:
+				if(p[lt_clock]<12)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+				}
+				else if(p[lt_clock]<13)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+				}
+				else
+				{
+					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
+					
+					if(p[lt_clock]>=16)
+					{
+						p[lt_clock]=-1;
+					}
+				};
+				
+				break;
+				
+			case ls_sideswimpound:
+				if(p[lt_clock]<12)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswimpound, d->d1, zinit.linkanimationstyle);
+				}
+				else if(p[lt_clock]<30)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+				}
+				else
+				{
+					linktile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.linkanimationstyle);
+					
+					if(p[lt_clock]>=31)
+					{
+						p[lt_clock]=-1;
+					}
+				};
+				
+				break;
+				
 			case ls_jump:
 				if(p[lt_clock]>=24)
 				{
@@ -9539,8 +9712,8 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				}
 				
 				break;
-		
-		case ls_lavadrown:
+				
+			case ls_lavadrown:
 				linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.linkanimationstyle);
 				
 				if(p[lt_clock]<=4)
@@ -9620,6 +9793,80 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 					{
 						p[lt_clock]=-1;
 					}
+				}
+				
+				break;
+			case ls_sideswim:
+			case ls_sideswimcharge:
+				linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.linkanimationstyle);
+				
+				if(p[lt_clock]>=(64*(link_animation_speed)))
+				{
+					p[lt_tile]+=(p[lt_extend]==2?2:1);
+					
+					int l=((p[lt_clock]/link_animation_speed)&15);
+					l-=((l>3)?1:0)+((l>12)?1:0);
+					p[lt_tile]+=(l/2)*(p[lt_extend]==2?2:1);
+					
+					//p[lt_tile]+=(((p[lt_clock]>>2)%8)*(p[lt_extend]==2?2:1));
+					if(p[lt_clock]>=255)
+					{
+						p[lt_clock]=-1;
+					}
+				}
+				
+				break;
+			 
+			case ls_sideswimstab:
+				if(p[lt_clock]>35)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimstab, d->d1, zinit.linkanimationstyle);
+					p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
+					
+					if(p[lt_clock]>=47)
+					{
+						p[lt_clock]=-1;
+					}
+				}
+				else
+				{
+					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+				}
+				
+				break;
+				
+			case ls_sideswimslash:
+				if(p[lt_clock]>23)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimslash, d->d1, zinit.linkanimationstyle);
+					p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
+					
+					if(p[lt_clock]>=47)
+					{
+						p[lt_clock]=-1;
+					}
+				}
+				else
+				{
+					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
+				}
+				
+				break;
+				
+			case ls_sideswimpound:
+				if(p[lt_clock]>35)
+				{
+					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimpound, d->d1, zinit.linkanimationstyle);
+					p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
+					
+					if(p[lt_clock]>=47)
+					{
+						p[lt_clock]=-1;
+					}
+				}
+				else
+				{
+					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.linkanimationstyle);
 				}
 				
 				break;
@@ -9751,8 +9998,8 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				}
 				
 				break;
-		
-		case ls_lavadrown:
+				
+			case ls_lavadrown:
 				linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.linkanimationstyle);
 				
 				if(p[lt_clock]<=4)
@@ -10065,7 +10312,7 @@ static int linktile_sidewater_charge_list[] =
 static TABPANEL linktile_sidewater_tabs[] =
 {
 	// (text)
-	{ (char *)"Swim",       0,           linktile_sidewater_swim_list, 0, NULL },
+	{ (char *)"Swim",       D_SELECTED,           linktile_sidewater_swim_list, 0, NULL },
 	{ (char *)"Swim Slash",       0,           linktile_sidewater_slash_list, 0, NULL },
 	{ (char *)"Swim Stab",      0,           linktile_sidewater_stab_list, 0, NULL },
 	{ (char *)"Swim Pound",       0,           linktile_sidewater_pound_list, 0, NULL },

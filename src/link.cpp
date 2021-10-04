@@ -7136,6 +7136,11 @@ bool LinkClass::animate(int)
 				Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=ydiff;
 			}
 		}
+		else if(IsSideSwim())
+		{
+			fall = hoverclk = jumping = 0;
+			hoverflags = 0;
+		}
 		// Stop hovering/falling if you land on something.
 		if((on_sideview_solid(x,y) || getOnSideviewLadder())  && !(pull_link && dir==down) && action!=rafting)
 		{
@@ -14686,7 +14691,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         }
     }
     //All problems related to exiting water are probably here. -Z
-    if(action==swimming)
+    if(action==swimming || IsSideSwim())
     {
         if(!wf)
         {

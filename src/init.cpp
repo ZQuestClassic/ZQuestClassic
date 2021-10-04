@@ -753,7 +753,7 @@ static int init_var_list[] =
 
 static int init_var_list2[] =
 {
-	3376, 3377, 3378, 3379, 3380, 3381, 3382, 3383, 3384, 3385,
+	3376, 3377, 3378, 3379, 3380, 3381, 3382, 3383, 3384, 3385,3386,3387,
 	-1
 };
 
@@ -1649,8 +1649,8 @@ void PopulateInitDialog()
     initPopulate(i, jwin_numedit_byte_proc,            162,     130,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
     
     // 3386
-	initPopulate(i, jwin_text_proc,            12,     68+59,    128,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Water Gravity:",                                   NULL,   NULL);
-	initPopulate(i, jwin_edit_proc,            52,     72+61,     96,     16,    vc(12),                 vc(1),                   0,    0,              9,             0,  NULL,                                                  NULL,   NULL);
+	initPopulate(i, jwin_text_proc,            12,     153,    128,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Water Gravity:",                                   NULL,   NULL);
+	initPopulate(i, jwin_edit_proc,            162,     150,     96,     16,    vc(12),                 vc(1),                   0,    0,              9,             0,  NULL,                                                  NULL,   NULL);
      
     // 3388 -- Termination
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
@@ -2012,7 +2012,6 @@ int doInit(zinitdata *local_zinit)
     sprintf(bombratiostring, "%d", local_zinit->bomb_ratio);
     sprintf(gravitystring, "%d.%02d\0", local_zinit->gravity2/10000L, abs((local_zinit->gravity2/100)%100L));
     sprintf(swimgravitystring, "%d.%02d\0", local_zinit->swimgravity/10000L, abs((local_zinit->swimgravity/100)%100L));
-    sprintf(swimgravitystring, "%.4f", local_zinit->swimgravity/10000.0);
     sprintf(terminalvstring, "%.2f", local_zinit->terminalv/100.0);
     sprintf(thresholdstring, "%d", local_zinit->jump_link_layer_threshold);
     
@@ -2058,6 +2057,7 @@ int doInit(zinitdata *local_zinit)
     init_dlg[3381].dp=dith_perc;
     init_dlg[3383].dp=light_rad;
     init_dlg[3385].dp=tdark_perc;
+    init_dlg[3387].dp=swimgravitystring;
     if(is_large)
     {
         large_dialog(init_dlg);
@@ -2151,7 +2151,7 @@ int doInit(zinitdata *local_zinit)
         local_zinit->max_keys = vbound(atoi(maxkeystring), 0, 0xFFFF);
         local_zinit->bomb_ratio = vbound(atoi(bombratiostring),0,255);
         local_zinit->gravity = vbound(int(strtod(gravitystring, NULL)*10000),1,255);
-        local_zinit->gravity2 = vbound(int(strtod(gravitystring, NULL)*10000),-2147483648,2147483647);
+        local_zinit->gravity2 = int(strtod(gravitystring, NULL)*10000);
         local_zinit->terminalv = vbound(int(strtod(terminalvstring, NULL)*100), 1, 9999);
         local_zinit->jump_link_layer_threshold = vbound(atoi(thresholdstring),0,255);
         local_zinit->heroStep = vbound(atoi(herostepstr),0,9999);
@@ -2165,6 +2165,7 @@ int doInit(zinitdata *local_zinit)
 		local_zinit->dither_percent = vbound(atoi(dith_perc),0,100);
 		local_zinit->def_lightrad = vbound(atoi(light_rad),0,255);
 		local_zinit->transdark_percent = vbound(atoi(tdark_perc),0,255);
+		local_zinit->swimgravity = int(strtod(swimgravitystring, NULL)*10000);
         onInitOK();
     }
     
