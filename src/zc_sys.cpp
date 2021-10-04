@@ -10738,7 +10738,7 @@ bool zc_key_pressed()
     return false;
 }
 
-bool getInput(int btn, bool press, bool drunk, bool ignoreDisable)
+bool getInput(int btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely)
 {
 	bool ret = false, drunkstate = false;
 	bool* flag = NULL;
@@ -10747,27 +10747,33 @@ bool getInput(int btn, bool press, bool drunk, bool ignoreDisable)
 		case btnF12:
 			ret = zc_getkey(KEY_F12, ignoreDisable);
 			flag = &F12;
+			eatEntirely = false;
 			break;
 		case btnF11:
 			ret = zc_getkey(KEY_F11, ignoreDisable);
 			flag = &F11;
+			eatEntirely = false;
 			break;
 		case btnF5:
 			ret = zc_getkey(KEY_F5, ignoreDisable);
 			flag = &F5;
+			eatEntirely = false;
 			break;
 		case btnQ:
 			ret = zc_getkey(KEY_Q, ignoreDisable);
 			flag = &keyQ;
+			eatEntirely = false;
 			break;
 		case btnI:
 			ret = zc_getkey(KEY_I, ignoreDisable);
 			flag = &keyI;
+			eatEntirely = false;
 			break;
 		case btnM:
 			if(FFCore.kb_typing_mode) return false;
 			ret = zc_getrawkey(KEY_ESC, ignoreDisable);
 			flag = &Mdown;
+			eatEntirely = false;
 			break;
 		default: //control_state[] index
 			if(FFCore.kb_typing_mode) return false;
@@ -10798,21 +10804,22 @@ bool getInput(int btn, bool press, bool drunk, bool ignoreDisable)
 	}
 	assert(flag);
 	if(press) ret = rButton(ret, *flag);
+	if(eatEntirely) control_state[btn] = false;
 	if(drunk && drunkstate) ret = !ret;
 	return ret;
 }
 
-bool getIntBtnInput(byte intbtn, bool press, bool drunk, bool ignoreDisable)
+bool getIntBtnInput(byte intbtn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely)
 {
 	bool ret = false;
-	if(intbtn & INT_BTN_A) ret |= getInput(btnA, press, drunk, ignoreDisable);
-	if(intbtn & INT_BTN_B) ret |= getInput(btnB, press, drunk, ignoreDisable);
-	if(intbtn & INT_BTN_L) ret |= getInput(btnL, press, drunk, ignoreDisable);
-	if(intbtn & INT_BTN_R) ret |= getInput(btnR, press, drunk, ignoreDisable);
-	if(intbtn & INT_BTN_EX1) ret |= getInput(btnEx1, press, drunk, ignoreDisable);
-	if(intbtn & INT_BTN_EX2) ret |= getInput(btnEx2, press, drunk, ignoreDisable);
-	if(intbtn & INT_BTN_EX3) ret |= getInput(btnEx3, press, drunk, ignoreDisable);
-	if(intbtn & INT_BTN_EX4) ret |= getInput(btnEx4, press, drunk, ignoreDisable);
+	if(intbtn & INT_BTN_A) ret |= getInput(btnA, press, drunk, ignoreDisable, eatEntirely);
+	if(intbtn & INT_BTN_B) ret |= getInput(btnB, press, drunk, ignoreDisable, eatEntirely);
+	if(intbtn & INT_BTN_L) ret |= getInput(btnL, press, drunk, ignoreDisable, eatEntirely);
+	if(intbtn & INT_BTN_R) ret |= getInput(btnR, press, drunk, ignoreDisable, eatEntirely);
+	if(intbtn & INT_BTN_EX1) ret |= getInput(btnEx1, press, drunk, ignoreDisable, eatEntirely);
+	if(intbtn & INT_BTN_EX2) ret |= getInput(btnEx2, press, drunk, ignoreDisable, eatEntirely);
+	if(intbtn & INT_BTN_EX3) ret |= getInput(btnEx3, press, drunk, ignoreDisable, eatEntirely);
+	if(intbtn & INT_BTN_EX4) ret |= getInput(btnEx4, press, drunk, ignoreDisable, eatEntirely);
 	return ret; //No early return, to make sure all button presses are eaten that should be! -Em
 }
 bool Up()

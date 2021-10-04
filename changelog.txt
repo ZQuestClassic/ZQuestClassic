@@ -3,6 +3,7 @@
 
 //Recent changes
 
+Fix Signposts/Chests not properly eating inputs
 Add "Map Count" field to "Quest Options"
 Move "Cheats" dialog into "Quest Options"
 Changed "Quest->Options" from a submenu to just opening the new dialog
