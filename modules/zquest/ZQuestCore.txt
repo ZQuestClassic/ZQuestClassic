@@ -22,6 +22,7 @@ src/init.cpp
 src/alleg_compat.cpp
 src/util.cpp
 src/random.cpp
+src/module.cpp
 
 ## End of ZQuest Core module
 )

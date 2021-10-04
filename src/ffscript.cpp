@@ -33,6 +33,7 @@ unsigned char using_SRAM = 0;
 #include "util.h"
 #include "ending.h"
 #include "zc_malloc.h"
+#include "module.h"
 using namespace util;
 #include <sstream>
 using std::ostringstream;
@@ -30019,27 +30020,6 @@ bool ZModule::init(bool d) //bool default
 		
 		
 		//item families
-		const char default_itype_strings[itype_max][255] = 
-		{ 
-			"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
-			"Bait", "Letters", "Potions", "Wands", "Rings", 
-			"Wallets", "Amulets", "Shields", "Bows", "Rafts",
-			"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", 
-			"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire", 
-			"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", 
-			"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses", 
-			"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", 
-			"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", 
-			"Heart Pieces", "Kill All Enemies", "Bomb Ammo", "Bomb Bags", "Roc Items", 
-			"Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer","Whisp Rings", 
-			"Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", 
-			"Scroll: Hurricane Spin", "Scroll: Super Quake","Stones of Agony", "Stomp Boots", "Whimsical Rings", 
-			"Peril Rings", "Non-gameplay Items", "Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03",
-			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
-			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
-			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
-			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)", "zz089"
-		};
 							 
 		const char itype_fields[itype_max][255] =
 		{
