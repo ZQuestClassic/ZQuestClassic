@@ -3,6 +3,7 @@
 
 //Recent changes
 
+Fix "4-Frame Flying 8-Dir Firing" animation
 Fix Signposts/Chests not properly eating inputs
 Add "Map Count" field to "Quest Options"
 Move "Cheats" dialog into "Quest Options"
