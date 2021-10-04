@@ -3,6 +3,7 @@
 
 //Recent changes
 
+Add beam shards new animation type for 'Misc Type = 4'
 Fix "4-Frame Flying 8-Dir Firing" animation
 Fix Signposts/Chests not properly eating inputs
 Add "Map Count" field to "Quest Options"
