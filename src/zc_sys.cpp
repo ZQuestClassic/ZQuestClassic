@@ -10804,7 +10804,7 @@ bool getInput(int btn, bool press, bool drunk, bool ignoreDisable, bool eatEntir
 	}
 	assert(flag);
 	if(press) ret = rButton(ret, *flag);
-	if(eatEntirely) control_state[btn] = false;
+	if(eatEntirely && ret) control_state[btn] = false;
 	if(drunk && drunkstate) ret = !ret;
 	return ret;
 }
