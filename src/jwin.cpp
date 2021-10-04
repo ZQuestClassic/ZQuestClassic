@@ -1045,104 +1045,118 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
     
     switch(msg)
     {
-    
-    case MSG_DRAW:
-    {
-        FONT *oldfont = font;
-        
-        if(d->dp2)
-        {
-            font = (FONT*)d->dp2;
-        }
-        
-        jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
-        font = oldfont;
-    }
-    break;
-    
-    case MSG_WANTFOCUS:
-        return D_WANTFOCUS;
-        
-    case MSG_KEY:
-    
-        /* close dialog? */
-        if(d->flags & D_EXIT)
-        {
-            return D_CLOSE;
-        }
-        
-        /* or just toggle */
-        d->flags ^= D_SELECTED;
-        GUI_EVENT(d, geCLICK);
-        scare_mouse();
-        object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
-        break;
-        
-    case MSG_CLICK:
-        last_draw = 0;
-        
-        /* track the mouse until it is released */
-        while(gui_mouse_b())
-        {
-            down = mouse_in_rect(d->x, d->y, d->w, d->h);
-            
-            /* redraw? */
-            if(last_draw != down)
-            {
-                if(down != selected)
-                    d->flags |= D_SELECTED;
-                else
-                    d->flags &= ~D_SELECTED;
-                    
-                scare_mouse();
-                object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
-                last_draw = down;
-            }
-            
-            /* let other objects continue to animate */
-            broadcast_dialog_message(MSG_IDLE, 0);
-            
-            if(is_zquest())
-            {
-                if(myvsync)
-                {
-                    if(zqwin_scale > 1)
-                    {
-                        stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                    }
-                    else
-                    {
-                        blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                    }
-                    
-                    myvsync=0;
-                }
-            }
-        }
-        
-        /* redraw in normal state */
-        if(down)
-        {
-            GUI_EVENT(d, geCLICK);
-            if(d->flags&D_EXIT)
-            {
-                d->flags &= ~D_SELECTED;
-                scare_mouse();
-                object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
-            }
-        }
-        
-        /* should we close the dialog? */
-        if(down && (d->flags & D_EXIT))
-            return D_CLOSE;
-            
-        break;
-    }
-    
-    return D_O_K;
+		case MSG_DRAW:
+		{
+			FONT *oldfont = font;
+			
+			if(d->dp2)
+			{
+				font = (FONT*)d->dp2;
+			}
+			
+			jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
+			font = oldfont;
+		}
+		break;
+		
+		case MSG_WANTFOCUS:
+			return D_WANTFOCUS;
+			
+		case MSG_KEY:
+			/* close dialog? */
+			if(d->flags & D_EXIT)
+			{
+				return D_CLOSE;
+			}
+			if(d->d2 == 1) //Insta-button
+			{
+				GUI_EVENT(d, geCLICK);
+				break;
+			}
+			/* or just toggle */
+			d->flags ^= D_SELECTED;
+			GUI_EVENT(d, geCLICK);
+			scare_mouse();
+			object_message(d, MSG_DRAW, 0);
+			unscare_mouse();
+			break;
+			
+		case MSG_CLICK:
+		{
+			if(d->d2 == 1) //Insta-button
+			{
+				if(mouse_in_rect(d->x, d->y, d->w, d->h))
+				{
+					GUI_EVENT(d, geCLICK);
+					if(d->flags & D_EXIT)
+						return D_CLOSE;
+				}
+			}
+			else
+			{
+				last_draw = 0;
+				
+				/* track the mouse until it is released */
+				while(gui_mouse_b())
+				{
+					down = mouse_in_rect(d->x, d->y, d->w, d->h);
+					
+					/* redraw? */
+					if(last_draw != down)
+					{
+						if(down != selected)
+							d->flags |= D_SELECTED;
+						else
+							d->flags &= ~D_SELECTED;
+							
+						scare_mouse();
+						object_message(d, MSG_DRAW, 0);
+						unscare_mouse();
+						last_draw = down;
+					}
+					
+					/* let other objects continue to animate */
+					broadcast_dialog_message(MSG_IDLE, 0);
+					
+					if(is_zquest())
+					{
+						if(myvsync)
+						{
+							if(zqwin_scale > 1)
+							{
+								stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+							}
+							else
+							{
+								blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+							}
+							
+							myvsync=0;
+						}
+					}
+				}
+				
+				/* redraw in normal state */
+				if(down)
+				{
+					GUI_EVENT(d, geCLICK);
+					if(d->flags&D_EXIT)
+					{
+						d->flags &= ~D_SELECTED;
+						scare_mouse();
+						object_message(d, MSG_DRAW, 0);
+						unscare_mouse();
+					}
+				}
+				
+				/* should we close the dialog? */
+				if(down && (d->flags & D_EXIT))
+					return D_CLOSE;
+			}
+		}
+		break;
+	}
+	return D_O_K;
 }
 
 /* jwin_func_button_proc:

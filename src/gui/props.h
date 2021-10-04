@@ -63,6 +63,7 @@ ZCGUI_DECLARE_PROPERTY(framed)
 ZCGUI_DECLARE_PROPERTY(fitParent)
 ZCGUI_DECLARE_PROPERTY(textAlign)
 ZCGUI_DECLARE_PROPERTY(disabled)
+ZCGUI_DECLARE_PROPERTY(onPressFunc)
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop

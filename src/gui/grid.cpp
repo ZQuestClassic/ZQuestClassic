@@ -114,7 +114,6 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 	// as big as it wants to be.
 	size_t numRows, numCols;
 	
-	setFitParent(false); //Not allowed for grids
 	Widget::arrange(contX, contY, contW, contH);
 	
 	if(growthType == type::ROWS)

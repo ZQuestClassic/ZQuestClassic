@@ -26,6 +26,8 @@ void Widget::overrideWidth(Size newWidth) noexcept
 {
 	flags |= f_WIDTH_OVERRIDDEN;
 	width = newWidth.resolve();
+	if(maxwidth > width)
+		maxwidth = width;
 }
 
 void Widget::overrideHeight(Size newHeight) noexcept

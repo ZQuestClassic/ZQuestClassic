@@ -24,6 +24,11 @@ void Button::setText(std::string newText)
 	text = std::move(newText);
 }
 
+void Button::setOnPress(std::function<void()> newOnPress)
+{
+	onPress = std::move(newOnPress);
+}
+
 void Button::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
@@ -49,6 +54,9 @@ int Button::onEvent(int event, MessageDispatcher& sendMessage)
 	assert(event == geCLICK);
 	// jwin_button_proc doesn't seem to allow for a non-toggle button...
 	alDialog->flags &= ~D_SELECTED;
+	
+	if(onPress)
+		onPress();
 	if(message >= 0)
 		sendMessage(message, MessageArg::none);
 	return -1;

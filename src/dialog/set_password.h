@@ -7,6 +7,8 @@
 #include <functional>
 #include <string_view>
 
+void call_password_dlg();
+
 class SetPasswordDialog: public GUI::Dialog<SetPasswordDialog>
 {
 public:

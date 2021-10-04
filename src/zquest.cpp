@@ -1717,6 +1717,7 @@ int onRulesDlg()
 {
 	QRDialog(quest_rules, (is_large?20:13), [](byte* newrules)
 	{
+		saved = false;
 		memcpy(quest_rules, newrules, QR_SZ);
 		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
 		{
@@ -1739,6 +1740,7 @@ int onZScriptSettings()
 {
 	ScriptRulesDialog(quest_rules, (is_large?17:13), [](byte* newrules)
 	{
+		saved = false;
 		memcpy(quest_rules, newrules, QR_SZ);
 	}).show();
 	return D_O_K;
@@ -1746,10 +1748,8 @@ int onZScriptSettings()
 
 static MENU rules_menu[] =
 {
-    { (char *)"&Header",                    onHeader,                  NULL,                     0,            NULL   },
     { (char *)"&Map Count",                 onMapCount,                NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Rules",                      onRulesDlg,                NULL,                     0,            NULL   },
+    { (char *)"&Rules",                     onRulesDlg,                NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -21779,210 +21779,10 @@ int d_showedit_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-static DIALOG header_dlg[] =
-{
-    /* (dialog proc)        (x)   (y)   (w)   (h)   (fg)                (bg)              (key)    (flags)       (d1)           (d2)     (dp) */
-    { jwin_win_proc,        20,   16,   280,  205,  vc(14),             vc(1),            0,       D_EXIT,        0,             0, (void *) "Quest Header", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_text_proc,       26,   40,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Made in ZQ Version:", NULL, NULL },
-    { jwin_text_proc,       126,  40,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_DISABLED,    0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       204,   43,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Number:", NULL, NULL },
-    //5
-    { jwin_edit_proc,       260,  40,    32,   16,  vc(12),             vc(1),            0,       0,             2,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       26,   90-16,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Rev:", NULL, NULL },
-    { jwin_edit_proc,       66,  86-16,    80,   16,  vc(12),             vc(1),            0,       0,             8,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       26,   108-16,   96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Min. Rev:", NULL, NULL },
-    { jwin_edit_proc,       66,  104-16,   80,   16,  vc(12),             vc(1),            0,       0,             8,             0,       NULL, NULL, NULL },
-    // 10
-    { jwin_text_proc,       26,   126-16,   96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Title:", NULL, NULL },
-    { d_showedit_proc,      66,   122-16,   80,   16,  vc(12),             vc(1),            0,       0,            64,             0,       title, NULL, NULL },
-    { jwin_textbox_proc,    26,   138-16,   120,  40,  vc(11),  vc(1),  0,       0,          64,            0,       title, NULL, NULL },
-    { jwin_text_proc,       174,  126-16,   96,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "Author:", NULL, NULL },
-    { d_showedit_proc,      214,  122-16,   80,   16,    vc(12),  vc(1),  0,       0,          64,            0,       author, NULL, NULL },
-    { jwin_textbox_proc,    174,  138-16,   120,  40,   vc(11),  vc(1),  0,       0,          64,            0,       author, NULL, NULL },
-    // 16
-    { jwin_button_proc,     110,  204-32,  101,   21,   vc(14),             vc(1),            13,      D_EXIT,        0,             0, (void *) "Change Password", NULL, NULL },
-    { jwin_button_proc,     90,   204-8,  61,   21,   vc(14),             vc(1),            13,      D_EXIT,        0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  204-8,  61,   21,   vc(14),             vc(1),            27,      D_EXIT,        0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,      0,    0,    0,    0,    0,                  0,                0,       0,             KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    //20
-    { jwin_button_proc,     150,  69-16,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
-    { jwin_button_proc,     150,  88-16,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
+void call_header_dlg();
 int onHeader()
 {
-    char zver_str[11],q_num[8],version[10],minver[10];
-    
-    bool resize=!(get_debug()||key[KEY_LSHIFT]||key[KEY_RSHIFT]);
-    
-    if(resize)
-    {
-        for(int i=6; i<19; ++i)
-        {
-            header_dlg[i].y-=18;
-        }
-        
-        header_dlg[0].h-=18;
-	
-	//header_dlg[4].flags |= D_DISABLED;
-	//header_dlg[5].flags |= D_DISABLED;
-        //header_dlg[4].proc=d_dummy_proc;
-        //header_dlg[5].proc=d_dummy_proc;
-    }
-    
-    //if ( key[KEY_LSHIFT]||key[KEY_RSHIFT] )
-    //{
-	//header_dlg[4].flags &= ~D_DISABLED;
-	//header_dlg[5].flags &= ~D_DISABLED;    
-    //}
-    
-    jwin_center_dialog(header_dlg);
-    
-    sprintf(zver_str,"%d.%02X (%d)",header.zelda_version>>8,header.zelda_version&0xFF,header.build);
-    sprintf(q_num,"%d",header.quest_number);
-    strcpy(version,header.version);
-    strcpy(minver,header.minver);
-    strcpy(author,header.author);
-    strcpy(title,header.title);
-    //header_dlg[17].flags |= D_GOTFOCUS
-    header_dlg[0].dp2 = lfont;
-    header_dlg[3].dp = zver_str;
-    header_dlg[5].dp = q_num;
-    header_dlg[7].dp = version;
-    header_dlg[9].dp = minver;
-
-    if(is_large)
-    {
-        large_dialog(header_dlg);
-    }
-    
-    int ret = -1;
-    
-    do
-    {
-        ret=zc_popup_dialog(header_dlg,17);
-	    
-	if ( key[KEY_ENTER] )
-	{
-		for ( int q = 0; q < 22; q++ )
-		{
-			if ( header_dlg[q].flags&D_GOTFOCUS )
-			{
-				key[KEY_ENTER] = 0; 
-				//Always save if the proc type is a text edit field. 
-				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
-				{
-					ret = 17; //always SAVE on Enter key from A TEXT PROC
-					break;
-				}
-				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
-				else ret = q;
-				break;
-			}
-		}
-		//if ( ret == -1 )
-		//{
-		//	key[KEY_ENTER] = 0; 
-		//	ret = 17;
-		//}
-	}
-	if ( key[KEY_ENTER_PAD] )
-	{
-		//if ( ret == -1 )
-		//{
-		//	key[KEY_ENTER_PAD] = 0; 
-		//	ret = 17;
-		//}
-		for ( int q = 0; q < 22; q++ )
-		{
-			if ( header_dlg[q].flags&D_GOTFOCUS )
-			{
-				key[KEY_ENTER_PAD] = 0; 
-				//Always save if the proc type is a text edit field. 
-				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
-				{
-					ret = 17; //always SAVE on Enter key from A TEXT PROC
-					break;
-				}
-				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
-				else ret = q;
-				break;
-			}
-		}
-	}
-		
-	//if (zc_readkey(KEY_ENTER)||zc_readkey(KEY_ENTER_PAD) && ret == -1) ret = 17; 
-        
-        if(ret==20)
-            questrev_help();
-        else if(ret==21)
-            questminrev_help();
-		else if(ret==16)
-			SetPasswordDialog(header.use_keyfile, set_questpwd).show();
-    }
-    while(ret == 20 || ret == 21 || ret == 16);
-    
-    //do
-    //{
-    //    ret=zc_popup_dialog(header_dlg,-1);
-        /*
-	if ( !( key[KEY_LSHIFT]||key[KEY_RSHIFT] ) )
-	{
-	    header_dlg[4].flags |= D_DISABLED;
-	    header_dlg[5].flags |= D_DISABLED;
-        }
-    
-	if ( key[KEY_LSHIFT]||key[KEY_RSHIFT] )
-	{
-	    header_dlg[4].flags &= ~D_DISABLED;
-	    header_dlg[5].flags &= ~D_DISABLED;    
-	}
-        */
-	
-     //   if(ret==16)
-     //   {
-     //       ret=zc_popup_dialog(password_dlg,-1);
-            
-     //       if(ret==5)
-     //       {
-     //           header.use_keyfile=password_dlg[4].flags&D_SELECTED?1:0;
-     //           set_questpwd(pwd,header.use_keyfile!=0);
-     //       }
-            
-     //       ret=16;
-     //   }
-    //}
-    //while(ret==16);
-    
-    
-    
-    
-    if(ret==17)
-    {
-        saved=false;
-        header.quest_number=atoi(q_num);
-        strcpy(header.author,author);
-        strcpy(header.title,title);
-        strcpy(header.version,version);
-        strcpy(header.minver,minver);
-    }
-    
-    if(resize)
-    {
-        for(int i=6; i<19; ++i)
-        {
-            header_dlg[i].y+=18;
-        }
-        
-        header_dlg[0].h+=18;
-        header_dlg[4].proc=jwin_text_proc;
-        header_dlg[5].proc=jwin_edit_proc;
-    }
-    
-    jwin_center_dialog(header_dlg);
-    
+	call_header_dlg();
     return D_O_K;
 }
 
@@ -33379,7 +33179,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(glist_dlg);
-    jwin_center_dialog(header_dlg);
     jwin_center_dialog(help_dlg);
     jwin_center_dialog(ilist_dlg);
     center_zq_init_dialog();

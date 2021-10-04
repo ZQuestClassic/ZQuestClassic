@@ -62,7 +62,6 @@ void QRPanel::loadList(GUI::ListData qrlist)
 		}
 		content->setHAlign(0.0);
 		content->setVAlign(0.0);
-		content->setVPadding(0_px);
 		std::shared_ptr<TabRef> tab = std::make_shared<TabRef>();
 		tab->setContent(content);
 		tab->setName(" "+std::to_string(tabnum++)+" ");

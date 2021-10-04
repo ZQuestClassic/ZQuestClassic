@@ -140,6 +140,11 @@ inline std::shared_ptr<RadioSet> makeRadioSet()
 	return std::make_shared<RadioSet>();
 }
 
+inline std::shared_ptr<DummyWidget> makeDummyWidget()
+{
+	return std::make_shared<DummyWidget>();
+}
+
 // Top-level widgets
 
 inline std::shared_ptr<Window> makeWindow()
@@ -155,6 +160,7 @@ namespace GUI::Builder
 ZCGUI_BUILDER_START(Button)
 	ZCGUI_ACCEPT_PROP(onClick, onClick, Dialog::message)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
+	ZCGUI_ACCEPT_PROP(onPressFunc, setOnPress, std::function<void()>)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 	ZCGUI_SUGGEST_PROP(onEnter, onClick)
@@ -273,6 +279,10 @@ ZCGUI_BUILDER_START(Window)
 	ZCGUI_SUGGEST_PROP(text, title)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Window, Window, makeWindow)
+
+ZCGUI_BUILDER_START(DummyWidget)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(DummyWidget, DummyWidget, makeDummyWidget)
 
 } // namespace GUI::builder
 

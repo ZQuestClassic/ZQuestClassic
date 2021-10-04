@@ -228,8 +228,10 @@ public:
 	{
 		return flags&f_FIT_PARENT;
 	}
-
+	
 protected:
+	inline bool getWidthOverridden() const noexcept {return flags&f_WIDTH_OVERRIDDEN;}
+	inline bool getHeightOverridden() const noexcept {return flags&f_HEIGHT_OVERRIDDEN;}
 	/* Use this as the return type of message setters so non-integer types
 	 * are properly caught.
 	 */
@@ -277,6 +279,12 @@ private:
 	unsigned char hideCount: 4;
 
 	static constexpr unsigned char MAX_HIDE_COUNT = 15;
+};
+
+class DummyWidget : public Widget
+{
+public:
+	DummyWidget::DummyWidget() {}
 };
 
 }

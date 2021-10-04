@@ -1,6 +1,13 @@
 #include "set_password.h"
 #include <gui/builder.h>
 
+extern zquestheader header;
+void set_questpwd(std::string_view pwd, bool use_keyfile);
+void call_password_dlg()
+{
+	SetPasswordDialog(header.use_keyfile, set_questpwd).show();
+}
+
 SetPasswordDialog::SetPasswordDialog(bool useKeyFile,
 	std::function<void(std::string_view, bool)> setPassword):
 		useKeyFile(useKeyFile), setPassword(setPassword)

@@ -11,7 +11,7 @@
 namespace GUI
 {
 
-Label::Label(): text(), maxLines(1), contX(0), contY(0), contW(0), contH(0), textAlign(0)
+Label::Label(): text(), text_fit(), maxLines(10), contX(0), contY(0), contW(0), contH(0), textAlign(0)
 {
 	setPreferredHeight(Size::pixels(text_height(FONT)));
 }
@@ -21,20 +21,6 @@ void Label::setText(std::string newText)
 	text=newText;
 
 	fitText();
-
-	if(alDialog)
-	{
-		Widget::arrange(contX, contY, contW, contH);
-		alDialog->x = x;
-		alDialog->y = y;
-		alDialog->h = getHeight();
-		alDialog->w = getWidth();
-		
-		if(getVisible())
-		{
-			broadcast_dialog_message(MSG_DRAW, 0);
-		}
-	}
 }
 
 void Label::setMaxLines(size_t newMax)
@@ -60,12 +46,12 @@ void Label::applyVisibility(bool visible)
 
 void Label::fitText()
 {
-	if(maxLines < 2) return;
 	// text_length doesn't understand line breaks, so we'll do it ourselves.
-	char* data = text.data();
+	text_fit = text;
+	char* data = text_fit.data();
 	auto* f = FONT;
 	auto* char_length = f->vtable->char_length;
-	int actualWidth = getMaxWidth();
+	int actualWidth = getWidthOverridden() ? getWidth() : getMaxWidth();
 	if(actualWidth < 0) actualWidth = zq_screen_w;
 	int lastSpace = -1;
 	int widthSoFar = 0;
@@ -119,6 +105,20 @@ void Label::fitText()
 
 	setPreferredHeight(Size::pixels(text_height(FONT)*currentLine));
 	setPreferredWidth(Size::pixels(max_width));
+	if(alDialog)
+	{
+		Widget::arrange(contX, contY, contW, contH);
+		alDialog->x = x;
+		alDialog->y = y;
+		alDialog->h = getHeight();
+		alDialog->w = getWidth();
+		alDialog->dp = text_fit.data();
+		
+		if(getVisible())
+		{
+			broadcast_dialog_message(MSG_DRAW, 0);
+		}
+	}
 }
 
 void Label::arrange(int cx, int cy, int cw, int ch)
@@ -129,6 +129,8 @@ void Label::arrange(int cx, int cy, int cw, int ch)
 	contY = cy;
 	contW = cw;
 	contH = ch;
+	capWidth(Size::pixels(contW-(leftMargin+rightMargin+leftPadding+rightPadding)));
+	fitText();
 	Widget::arrange(cx, cy, cw, ch);
 }
 
@@ -142,7 +144,7 @@ void Label::realize(DialogRunner& runner)
 		0, // key
 		getFlags(), // flags
 		textAlign, 0, // d1, d2
-		text.data(), FONT, nullptr // dp, dp2, dp3
+		text_fit.data(), FONT, nullptr // dp, dp2, dp3
 	});
 }
 

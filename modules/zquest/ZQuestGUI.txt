@@ -51,6 +51,7 @@ src/dialog/foodlg.cpp
 src/dialog/quest_rules.cpp
 src/dialog/script_rules.cpp
 src/dialog/pickruleset.cpp
+src/dialog/headerdlg.cpp
 
 ## End of ZQuest GUI module
 )

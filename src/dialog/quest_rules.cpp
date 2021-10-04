@@ -1,5 +1,6 @@
 #include "quest_rules.h"
 #include "pickruleset.h"
+#include "headerdlg.h"
 #include <gui/builder.h>
 #include "gui/size.h"
 #include "../jwin.h"
@@ -265,7 +266,6 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						hPadding = 0.5_em,
 						spacing = 2_em,
 						Button(
-							disabled = true,
 							text = "&Header",
 							onClick = message::HEADER
 						),
@@ -394,7 +394,7 @@ bool QRDialog::handleMessage(message msg, GUI::MessageArg messageArg)
 			toggle_bit(local_qrs, messageArg);
 			return false;
 		case message::HEADER:
-			
+			call_header_dlg();
 			return false;
 		case message::RULESET:
 			call_ruleset_dlg();

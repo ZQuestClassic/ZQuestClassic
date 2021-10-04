@@ -23,6 +23,7 @@ public:
 
 private:
 	std::string text;
+	std::string text_fit;
 	size_t maxLines;
 	DialogRef alDialog;
 	int contX, contY, contW, contH;
