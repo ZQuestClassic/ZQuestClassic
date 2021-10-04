@@ -1746,31 +1746,23 @@ int onZScriptSettings()
 	return D_O_K;
 }
 
-static MENU rules_menu[] =
-{
-    { (char *)"&Map Count",                 onMapCount,                NULL,                     0,            NULL   },
-    { (char *)"&Rules",                     onRulesDlg,                NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
 static MENU quest_menu[] = 
 {
-    { (char *)"&Options\t ",                  NULL,                      rules_menu,               0,            NULL   },
-    { (char *)"Ch&eats",                    onCheats,                  NULL,                     0,            NULL   },
-    { (char *)"&Items",                     onCustomItems,             NULL,                     0,            NULL   },
-    { (char *)"Ene&mies",                   onCustomEnemies,           NULL,                     0,            NULL   },
-    { (char *)"&Player",                      onCustomLink,              NULL,                     0,            NULL   },
-    { (char *)"&Strings",                   onStrings,                 NULL,                     0,            NULL   },
-    { (char *)"&DMaps",                     onDmaps,                   NULL,                     0,            NULL   },
-    { (char *)"I&nit Data",                 onInit,                    NULL,                     0,            NULL   },
-    { (char *)"Misc D&ata\t ",              NULL,                      misc_menu,                0,            NULL   },
+    { (char *)"&Options\t ",          onRulesDlg,                      NULL,                     0,            NULL   },
+    { (char *)"&Items",            onCustomItems,                      NULL,                     0,            NULL   },
+    { (char *)"Ene&mies",        onCustomEnemies,                      NULL,                     0,            NULL   },
+    { (char *)"&Player",            onCustomLink,                      NULL,                     0,            NULL   },
+    { (char *)"&Strings",              onStrings,                      NULL,                     0,            NULL   },
+    { (char *)"&DMaps",                  onDmaps,                      NULL,                     0,            NULL   },
+    { (char *)"I&nit Data",               onInit,                      NULL,                     0,            NULL   },
+    { (char *)"Misc D&ata\t ",              NULL,                 misc_menu,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Graphics\t ",               NULL,                      graphics_menu,            0,            NULL   },
-    { (char *)"A&udio\t ",                  NULL,                      audio_menu,               0,            NULL   },
+    { (char *)"&Graphics\t ",               NULL,             graphics_menu,                     0,            NULL   },
+    { (char *)"A&udio\t ",                  NULL,                audio_menu,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"De&faults\t ",               NULL,                      defs_menu,                0,            NULL   },
+    { (char *)"De&faults\t ",               NULL,                 defs_menu,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Misc[]",               onQMiscValues,                      NULL,                0,            NULL   },
+    { (char *)"Misc[]",            onQMiscValues,                      NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -14315,78 +14307,40 @@ const char *infolist(int index, int *list_size)
     return NULL;
 }
 
-
-
-int onMapCount()
+bool mapcount_will_affect_layers(word newmapcount)
 {
-    bool makechange=true;
-    bool willaffectlayers=false;
-    int oldmapcount=map_count-1;
-    
-    int ret = select_data("Number of Maps",map_count-1,maplist, lfont);
-    
-    if(ret == oldmapcount)
-        return D_O_K; //they selected the same number of maps they already have.
-        
-    {
-        if(ret < 0)
-            makechange=false;
-        else if(ret<oldmapcount)
-        {
-            for(int i=0; i<(ret+1)*MAPSCRS; i++)
-            {
-                mapscr *layerchecker=&TheMaps[i];
-                
-                for(int j=0; j<6; j++)
-                {
-                    if(layerchecker->layermap[j]>(ret+1))
-                    {
-                        willaffectlayers=true;
-                        break;
-                    }
-                }
-                
-                if(willaffectlayers)
-                {
-                    break;
-                }
-            }
-            
-            if(willaffectlayers)
-            {
-                if(jwin_alert("Confirm Change",
-                              "This change will delete maps being used for",
-                              "layers in the remaining maps. The map numbers",
-                              "of the affected layers will be reset to 0.",
-                              "O&K", "&Cancel", 'o', 'c', lfont)==2)
-                {
-                    makechange=false;
-                }
-            }
-        }
-        
-        if(makechange)
-        {
-            saved = false;
-            setMapCount2(ret+1);
-	    //Prevent the nine 'last mapscreen' buttons from pointing to invlid locations
-	    //if the user reduces the mapcount. -Z ( 23rd September, 2019 )
-	    for ( int q = 0; q < 9; q++ )
-	    {
-		map_page[q].map = ( map_page[q].map > ret ) ? ret : map_page[q].map;
-	    }
-            if(willaffectlayers)
-            {
-                for(int i=0; i<(ret+1)*MAPSCRS; i++)
-                {
-                    fix_layers(&TheMaps[i], false);
-                }
-            }
-        }
-    }
-    
+	for(int i=0; i<(newmapcount)*MAPSCRS; i++)
+	{
+		mapscr *layerchecker=&TheMaps[i];
+		
+		for(int j=0; j<6; j++)
+		{
+			if(layerchecker->layermap[j]>(newmapcount))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void update_map_count(word newmapcount)
+{
+	if(map_count == newmapcount) return;
+	saved = false;
+	setMapCount2(newmapcount);
+	//Prevent the nine 'last mapscreen' buttons from pointing to invlid locations
+	//if the user reduces the mapcount. -Z ( 23rd September, 2019 )
+	for ( int q = 0; q < 9; q++ )
+	{
+		map_page[q].map = ( map_page[q].map > newmapcount-1 ) ? newmapcount-1 : map_page[q].map;
+	}
+	for(int i=0; i<(newmapcount)*MAPSCRS; i++)
+	{
+		fix_layers(&TheMaps[i], false);
+	}
+
     refresh(rMAP+rSCRMAP+rMENU);
-    return D_O_K;
 }
 
 int onGotoMap()
@@ -21786,22 +21740,10 @@ int onHeader()
     return D_O_K;
 }
 
+void call_cheats_dlg();
 int onCheats()
 {
-	std::string_view currentCodes[4]={
-		zcheats.codes[0], zcheats.codes[1], zcheats.codes[2], zcheats.codes[3]
-	};
-
-	CheatCodesDialog(zcheats.flags, currentCodes,
-		[&](bool enabled, std::string_view newCodes[4]) {
-			saved = false;
-			zcheats.flags = enabled ? 1 : 0;
-			newCodes[0].copy(zcheats.codes[0], 41);
-			newCodes[1].copy(zcheats.codes[1], 41);
-			newCodes[2].copy(zcheats.codes[2], 41);
-			newCodes[3].copy(zcheats.codes[3], 41);
-		}
-	).show();
+	call_cheats_dlg();
 	return D_O_K;
 }
 
@@ -34070,7 +34012,7 @@ command_pair commands[cmdMAX]=
     { "Link Sprite",                        0, (intF) onCustomLink                                     },
     { "List Combos Used",                   0, (intF) onUsedCombos                                     },
     { "Palettes - Main",                    0, (intF) onColors_Main                                    },
-    { "Map Count",                          0, (intF) onMapCount                                       },
+    { " Map Count",                         0, NULL                                                    },
     { "Default Map Styles",                 0, (intF) onDefault_MapStyles                              },
     { "Map Styles",                         0, (intF) onMapStyles                                      },
     { "Master Subscreen Type",              0, (intF) onSubscreen                                      },

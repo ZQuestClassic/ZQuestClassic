@@ -1,6 +1,9 @@
 #include "quest_rules.h"
 #include "pickruleset.h"
+#include "cheat_codes.h"
 #include "headerdlg.h"
+#include "info.h"
+#include "alert.h"
 #include <gui/builder.h>
 #include "gui/size.h"
 #include "../jwin.h"
@@ -12,6 +15,11 @@ using GUI::operator ""_em;
 using GUI::operator ""_px;
 using GUI::operator ""_lpx;
 using GUI::operator ""_spx;
+
+bool mapcount_will_affect_layers(word newmapcount);
+void update_map_count(word newmapcount);
+
+//{
 
 static const GUI::ListData animRulesList
 {
@@ -243,6 +251,8 @@ static const GUI::ListData weaponsRulesList
 	{ "Bombs pierce enemy shields", qr_BOMBSPIERCESHIELD }
 };
 
+//}
+
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
 	setQRs(setQRs), qrs_per_tab(qrs_per_tab)
 {
@@ -254,7 +264,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	return Window(
-		title = "Quest Rules",
+		title = "Quest Options",
 		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
@@ -262,21 +272,39 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				maxwidth = sized(308_px, 800_px),
 				TabRef(
 					name = "Options",
-					Rows<2>(
-						hPadding = 0.5_em,
-						spacing = 2_em,
-						Button(
-							text = "&Header",
-							onClick = message::HEADER
+					Column(
+						Rows<2>(
+							hPadding = 0.5_em,
+							spacing = 1_em,
+							Button(
+								text = "&Header",
+								onClick = message::HEADER
+							),
+							Button(
+								text = "&Pick Ruleset",
+								onClick = message::RULESET
+							),
+							Button(
+								text = "&Cheats",
+								onClick = message::CHEATS
+							)
 						),
-						Button(
-							text = "&Pick Ruleset",
-							onClick = message::RULESET
-						),
-						Button(
-							disabled = true,
-							text = "&Map Count",
-							onClick = message::MAPCOUNT
+						Row(
+							Label(text = "Map Count:"),
+							mapCountTF = TextField(
+								type = GUI::TextField::type::INT_DECIMAL,
+								maxLength = 3,
+								text = std::to_string(map_count),
+								low = 1, high = 255
+							),
+							Button(width = 2_em, text = "?", hAlign = 1.0, onPressFunc = []()
+							{
+								InfoDialog("Map Count","The number of 'maps' available in the quest file. The higher this value is,"
+									" the larger your quest file will be, and the more memory it takes to keep your quest loaded;"
+									" so it is generally suggested to only set this to a number of maps you will actually be "
+									"making use of.\n\nIf you set this to a number lower than it is currently, maps in excess"
+									" of the count will be entirely deleted.").show();
+							})
 						)
 					)
 				),
@@ -399,14 +427,43 @@ bool QRDialog::handleMessage(message msg, GUI::MessageArg messageArg)
 		case message::RULESET:
 			call_ruleset_dlg();
 			return false;
-		case message::MAPCOUNT:
-			
+		case message::CHEATS:
+			call_cheats_dlg();
 			return false;
 		
 		//Closing buttons
 		case message::OK:
+		{
 			setQRs(local_qrs);
-			[[fallthrough]];
+			word new_map_count = mapCountTF->getVal();
+			if(new_map_count < map_count)
+			{
+				AlertDialog(
+					"WARNING! Map Deletion",
+					"This action will delete " + std::to_string(map_count-new_map_count)
+					+ " maps from the end of your map list!",
+					[&new_map_count](bool ret)
+					{
+						if(ret)
+						{
+							if(mapcount_will_affect_layers(new_map_count))
+							{
+								AlertDialog(
+									"WARNING! Layer Deletion!",
+									"Some of the maps being deleted are used as layermaps for screens that will remain!"
+									" If you continue, these screens will have their layermap set to 0!",
+									[&new_map_count](bool ret)
+									{
+										if(ret) update_map_count(new_map_count);
+									}).show();
+							}
+							else update_map_count(new_map_count);
+						}
+					}).show();
+			}
+			else update_map_count(new_map_count);
+		}
+		[[fallthrough]];
 		case message::CANCEL:
 		default:
 			return true;

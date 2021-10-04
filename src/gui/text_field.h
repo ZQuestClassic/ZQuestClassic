@@ -59,7 +59,10 @@ public:
 	 * Attempts to read 'type::TEXT' as a decimal int value.
 	 */
 	int getVal();
-
+	
+	void setLowBound(int low);
+	void setHighBound(int high);
+	
 	/* Set the maximum length of the text, not including the null terminator.
 	 */
 	void setMaxLength(size_t newMax);
@@ -87,6 +90,7 @@ public:
 private:
 	std::unique_ptr<char[]> buffer;
 	int startVal;
+	int lbound, ubound;
 	type tfType;
 	size_t maxLength;
 	DialogRef alDialog;

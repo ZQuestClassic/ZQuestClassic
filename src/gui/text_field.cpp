@@ -17,7 +17,7 @@ namespace GUI
 {
 
 TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
-	onEnterMsg(-1), onValueChangedMsg(-1), startVal(0)
+	onEnterMsg(-1), onValueChangedMsg(-1), startVal(0), lbound(0), ubound(-1)
 {
 	setPreferredWidth(1_em);
 	setPreferredHeight(24_lpx);
@@ -88,7 +88,14 @@ std::string_view TextField::getText()
 	else
 		return std::string_view("", 1);
 }
-
+void TextField::setLowBound(int low)
+{
+	lbound = low;
+}
+void TextField::setHighBound(int high)
+{
+	ubound = high;
+}
 int TextField::getVal()
 {
 	int value=0;
@@ -111,6 +118,8 @@ int TextField::getVal()
 			value = alDialog->fg;
 			break;
 	}
+	if(ubound > lbound)
+		return vbound(value, lbound, ubound);
 	return value;
 }
 
@@ -134,7 +143,7 @@ void TextField::setMaxLength(size_t newMax)
 	
 	int btnsz = isSwapType() ? 16 : 0;
 	
-	setPreferredWidth(Size::largePixels(btnsz)+Size::em(std::min(newMax*0.75, 20.0)));
+	setPreferredWidth(Size::largePixels(btnsz)+Size::em(std::min((newMax+1)*0.75, 20.0)));
 }
 
 void TextField::realize(DialogRunner& runner)

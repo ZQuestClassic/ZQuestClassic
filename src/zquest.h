@@ -830,7 +830,6 @@ const char *screenmidilist(int index, int *list_size);
 const char *custommidilist(int index, int *list_size);
 const char *enhancedmusiclist(int index, int *list_size);
 const char *levelnumlist(int index, int *list_size);
-int onMapCount();
 int onGotoMap();
 int onFlags();
 int onUsedCombos();

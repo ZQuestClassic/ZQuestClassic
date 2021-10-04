@@ -1368,7 +1368,6 @@ int onExport_ZQT();
 int onExport_UnencodedQuest();
 
 int onGotoMap();
-int onMapCount();
 
 int onViewPic();
 int onViewMap();

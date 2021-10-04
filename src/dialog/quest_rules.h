@@ -12,7 +12,7 @@
 class QRDialog: public GUI::Dialog<QRDialog>
 {
 public:
-	enum class message { OK, CANCEL, TOGGLE_QR, HEADER, RULESET, MAPCOUNT };
+	enum class message { OK, CANCEL, TOGGLE_QR, HEADER, RULESET, CHEATS };
 
 	QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs);
 
@@ -21,6 +21,7 @@ public:
 
 private:
 	std::function<void(byte*)> setQRs;
+	std::shared_ptr<GUI::TextField> mapCountTF;
 	byte local_qrs[QR_SZ];
 	size_t qrs_per_tab;
 };
