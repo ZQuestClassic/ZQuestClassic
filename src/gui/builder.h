@@ -262,6 +262,7 @@ ZCGUI_BUILDER_START(List)
 	ZCGUI_ACCEPT_PROP(selectedIndex, setSelectedIndex, int)
 	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
 	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int)>)
+	ZCGUI_ACCEPT_PROP(isABC, setIsABC, bool)
 
 	ZCGUI_SUGGEST_PROP(onClick, onSelectionChanged)
 ZCGUI_BUILDER_END()

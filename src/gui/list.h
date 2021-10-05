@@ -40,6 +40,8 @@ public:
 	{
 		onSelectFunc = newOnSelect;
 	}
+	
+	void setIsABC(bool abc);
 
 	template<typename T>
 	RequireMessage<T> onSelectionChanged(T m)
@@ -55,6 +57,7 @@ private:
 	DialogRef alDialog;
 	int message;
 	std::function<void(int)> onSelectFunc;
+	bool isABC;
 
 	/* If a value was set rather than an index, find an index to select. */
 	void setIndex();

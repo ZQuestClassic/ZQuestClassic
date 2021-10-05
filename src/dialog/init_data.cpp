@@ -221,7 +221,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					padding = sized(0_px, 2_spx),
 					TabRef(name = "Equipment", Row(
 						List(minheight = 160_px,
-							data = list_items,
+							data = list_items, isABC = false,
 							selectedIndex = 0,
 							onSelectFunc = [&](int val)
 							{
@@ -507,7 +507,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				padding = sized(0_px, 2_spx),
 				TabRef(name = "Equipment", Row(
 					List(minheight = 300_px,
-						data = list_items,
+						data = list_items, isABC = false,
 						selectedIndex = 0,
 						onSelectFunc = [&](int val)
 						{

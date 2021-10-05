@@ -11,7 +11,7 @@ namespace GUI
 {
 
 List::List():
-	listData(nullptr), selectedIndex(0), selectedValue(0), message(-1)
+	listData(nullptr), selectedIndex(0), selectedValue(0), message(-1), isABC(false)
 {
 	setPreferredWidth(20_em);
 	setPreferredHeight(12_em);
@@ -84,6 +84,15 @@ void List::setIndex()
 	}
 }
 
+void List::setIsABC(bool abc)
+{
+	isABC = abc;
+	if(alDialog)
+	{
+		alDialog->proc = (isABC ? newGUIProc<jwin_do_abclist_proc> : newGUIProc<jwin_list_proc>);
+	}
+}
+
 void List::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
@@ -100,7 +109,7 @@ void List::realize(DialogRunner& runner)
 		setIndex();
 
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		newGUIProc<jwin_list_proc>,
+		isABC ? newGUIProc<jwin_do_abclist_proc> : newGUIProc<jwin_list_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
