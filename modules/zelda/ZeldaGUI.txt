@@ -42,6 +42,7 @@ src/gui/qrpanel.cpp
 src/gui/checkbox_qr.cpp
 src/gui/radio.cpp
 src/gui/radioset.cpp
+src/gui/colorsel.cpp
 
 src/dialog/init_data.cpp
 

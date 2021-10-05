@@ -149,16 +149,17 @@ int Widget::onEvent(int, MessageDispatcher&)
 
 void Widget::arrange(int contX, int contY, int contW, int contH)
 {
-	if(flags&f_FIT_PARENT)
-	{
-		setPreferredWidth(Size::pixels(contW));
-		setPreferredHeight(Size::pixels(contH));
-	}
 	contX += leftMargin+leftPadding;
 	contW -= leftMargin+rightMargin+leftPadding+rightPadding;
 	contY += topMargin+topPadding;
 	contH -= topMargin+bottomMargin+topPadding+bottomPadding;
 
+	if(flags&f_FIT_PARENT)
+	{
+		setPreferredWidth(Size::pixels(contW));
+		setPreferredHeight(Size::pixels(contH));
+	}
+	
 	if(width > contW)
 		width = contW;
 	if(height > contH)

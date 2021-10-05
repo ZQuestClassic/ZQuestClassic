@@ -69,6 +69,7 @@ ZCGUI_DECLARE_PROPERTY(high)
 ZCGUI_DECLARE_PROPERTY(useFont)
 ZCGUI_DECLARE_PROPERTY(frameText)
 ZCGUI_DECLARE_PROPERTY(onValChangedFunc)
+ZCGUI_DECLARE_PROPERTY(places)
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop

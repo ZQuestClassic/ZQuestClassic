@@ -4,6 +4,7 @@
 #include "button.h"
 #include "checkbox.h"
 #include "checkbox_qr.h"
+#include "colorsel.h"
 #include "common.h"
 #include "drop_down_list.h"
 #include "grid.h"
@@ -86,6 +87,11 @@ inline std::shared_ptr<Label> makeLabel()
 inline std::shared_ptr<TextField> makeTextField()
 {
 	return std::make_shared<TextField>();
+}
+
+inline std::shared_ptr<ColorSel> makeColorSel()
+{
+	return std::make_shared<ColorSel>();
 }
 
 // Containers
@@ -268,8 +274,16 @@ ZCGUI_BUILDER_START(TextField)
 	ZCGUI_ACCEPT_PROP(low, setLowBound, int)
 	ZCGUI_ACCEPT_PROP(high, setHighBound, int)
 	ZCGUI_ACCEPT_PROP(onValChangedFunc, setOnValChanged, std::function<void(TextField::type,std::string_view,int)>)
+	ZCGUI_ACCEPT_PROP(places, setFixedPlaces, size_t)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TextField, TextField, makeTextField)
+
+ZCGUI_BUILDER_START(ColorSel)
+	ZCGUI_ACCEPT_PROP(onValueChanged, onValueChanged, Dialog::message)
+	ZCGUI_ACCEPT_PROP(val, setVal, byte)
+	ZCGUI_ACCEPT_PROP(onValChangedFunc, setOnValChanged, std::function<void(byte)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(ColorSel, ColorSel, makeColorSel)
 
 
 ZCGUI_BUILDER_START(Window)

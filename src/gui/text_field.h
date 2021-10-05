@@ -14,7 +14,7 @@ class TextField: public Widget
 public:
 	enum class type
 	{
-		TEXT, INT_DECIMAL, INT_HEX, SWAP_BYTE, SWAP_SSHORT, SWAP_ZSINT
+		TEXT, INT_DECIMAL, INT_HEX, SWAP_BYTE, SWAP_SSHORT, SWAP_ZSINT, FIXED_DECIMAL
 	};
 	
 	TextField();
@@ -89,15 +89,19 @@ public:
 
 	/* Sets a function to be called on value change. */
 	void setOnValChanged(std::function<void(type,std::string_view,int)> newOnValChanged);
+	
+	void setFixedPlaces(size_t places);
 private:
 	std::unique_ptr<char[]> buffer;
 	int startVal;
+	int fixedPlaces;
 	int lbound, ubound;
 	type tfType;
 	size_t maxLength;
 	DialogRef alDialog;
 	DialogRef swapBtnDialog;
 	int onEnterMsg, onValueChangedMsg;
+	bool valSet;
 	std::function<void(type,std::string_view,int)> onValChanged;
 
 	void applyVisibility(bool visible) override;

@@ -9,7 +9,9 @@ namespace GUI
 {
 
 TabPanel::TabPanel(): visibleChild(0)
-{}
+{
+	setFitParent(true);
+}
 
 void TabPanel::switchTo(size_t index)
 {
@@ -76,7 +78,7 @@ void TabPanel::calculateSize()
 			if(w > maxW)
 				maxW = w;
 			int h = child->getTotalHeight(); // getTotalHeight()?
-			if(w > maxH)
+			if(h > maxH)
 				maxH = h;
 		}
 		if(tabwid > maxW)
@@ -88,12 +90,9 @@ void TabPanel::calculateSize()
 
 void TabPanel::arrange(int contX, int contY, int contW, int contH)
 {
-	//Override the width/height to fit the container
-	setPreferredWidth(Size::pixels(contW));
-	setPreferredHeight(Size::pixels(contH));
-	//Arrange
 	if(children.size() == 1)
 	{
+		Widget::arrange(contX, contY, contW, contH);
 		auto& child = children.at(0);
 		child->arrange(contX, contY, contW, contH);
 	}

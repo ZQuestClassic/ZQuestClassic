@@ -2081,7 +2081,7 @@ int doInit(zinitdata *local_zinit)
 		local_zinit->ene_damage_multiplier = vbound(atoi(dmgmultstr2),1,255);
 		local_zinit->dither_type = vbound(atoi(dith_type),0,255);
 		local_zinit->dither_arg = vbound(atoi(dith_arg),0,255);
-		local_zinit->dither_percent = vbound(atoi(dith_perc),0,100);
+		local_zinit->dither_percent = vbound(atoi(dith_perc),0,255);
 		local_zinit->def_lightrad = vbound(atoi(light_rad),0,255);
 		local_zinit->transdark_percent = vbound(atoi(tdark_perc),0,255);
         onInitOK();

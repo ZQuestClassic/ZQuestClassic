@@ -866,20 +866,20 @@ void gamedata::set_dither_arg(byte val)
 
 byte gamedata::get_dither_perc()
 {
-	return zc_min(100, get_generic(genDITH_PERC));
+	return zc_min(255, get_generic(genDITH_PERC));
 }
 void gamedata::set_dither_perc(byte val)
 {
-	set_generic(zc_min(100, val), genDITH_PERC);
+	set_generic(zc_min(255, val), genDITH_PERC);
 }
 
 byte gamedata::get_transdark_perc()
 {
-	return zc_min(100, get_generic(genTDARK_PERC));
+	return zc_min(255, get_generic(genTDARK_PERC));
 }
 void gamedata::set_transdark_perc(byte val)
 {
-	set_generic(zc_min(100, val), genTDARK_PERC);
+	set_generic(zc_min(255, val), genTDARK_PERC);
 }
 
 byte gamedata::get_light_rad()

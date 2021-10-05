@@ -29,7 +29,7 @@ void Label::setMaxLines(size_t newMax)
 
 void Label::setAlign(int ta)
 {
-	textAlign = util::vbound(ta,0,2);
+	textAlign = vbound(ta,0,2);
 	if(alDialog)
 	{
 		alDialog->d1 = textAlign;

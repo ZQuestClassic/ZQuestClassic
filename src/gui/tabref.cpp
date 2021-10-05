@@ -22,8 +22,8 @@ void TabRef::applyVisibility(bool visible)
 void TabRef::calculateSize()
 {
 	content->calculateSize();
-	setPreferredWidth(Size::pixels(content->getWidth()));
-	setPreferredHeight(Size::pixels(content->getHeight()));
+	setPreferredWidth(Size::pixels(content->getTotalWidth()));
+	setPreferredHeight(Size::pixels(content->getTotalHeight()));
 }
 
 void TabRef::arrange(int contX, int contY, int contW, int contH)

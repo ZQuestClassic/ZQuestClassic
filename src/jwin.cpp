@@ -4664,6 +4664,7 @@ int jwin_color_swatch(int msg, DIALOG *d, int c)
 			if(val == 1 || val == 3)
 			{
 				d->d1 = selcolor_dlg[3].d1;
+				GUI_EVENT(d, geCHANGE_VALUE);
 				ret = D_REDRAWME;
 			}
 			break;
