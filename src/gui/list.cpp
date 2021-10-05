@@ -1,4 +1,4 @@
-#include "drop_down_list.h"
+#include "list.h"
 #include "common.h"
 #include "dialog.h"
 #include "dialog_runner.h"
@@ -7,28 +7,28 @@
 #include <cassert>
 #include <cmath>
 
+#define FONT sized(nfont, lfont_l)
+#define FONT_PTR sized(&nfont, &lfont_l)
+
 namespace GUI
 {
 
-DropDownList::DropDownList():
+List::List():
 	listData(nullptr), selectedIndex(0), selectedValue(0), message(-1)
 {
 	setPreferredWidth(20_em);
-	if(is_large) // This has to be exactly right to look good
-		setPreferredHeight(21_px);
-	else
-		setPreferredHeight(16_px);
+	setPreferredHeight(12_em);
 	fgColor = jwin_pal[jcTEXTFG];
 	bgColor = jwin_pal[jcTEXTBG];
 }
 
-void DropDownList::setListData(const ::GUI::ListData& newListData)
+void List::setListData(const ::GUI::ListData& newListData)
 {
 	listData = &newListData;
-	jwinListData = newListData.getJWin(&widgFont);
+	jwinListData = newListData.getJWin(FONT_PTR);
 }
 
-void DropDownList::setSelectedValue(int value)
+void List::setSelectedValue(int value)
 {
 	selectedValue = value;
 	selectedIndex = -1;
@@ -39,7 +39,7 @@ void DropDownList::setSelectedValue(int value)
 	}
 }
 
-void DropDownList::setSelectedIndex(int index)
+void List::setSelectedIndex(int index)
 {
 	selectedIndex = index;
 	if(alDialog)
@@ -49,7 +49,7 @@ void DropDownList::setSelectedIndex(int index)
 	}
 }
 
-int DropDownList::getSelectedValue() const
+int List::getSelectedValue() const
 {
 	if(alDialog)
 	{
@@ -60,7 +60,7 @@ int DropDownList::getSelectedValue() const
 		return selectedValue;
 }
 
-void DropDownList::setIndex()
+void List::setIndex()
 {
 	// Find a valid selection. We'll take the first thing with a matching
 	// value. If nothing matches exactly, take the one that's closest to
@@ -87,24 +87,19 @@ void DropDownList::setIndex()
 	}
 }
 
-void DropDownList::applyVisibility(bool visible)
-{
-	Widget::applyVisibility(visible);
-	if(alDialog) alDialog.applyVisibility(visible);
-}
-
-void DropDownList::applyFont(FONT* newFont)
+void List::applyVisibility(bool visible)
 {
 	if(alDialog)
 	{
-		alDialog->dp2 = newFont;
+		if(visible)
+			alDialog->flags &= ~D_HIDDEN;
+		else
+			alDialog->flags |= D_HIDDEN;
 	}
-	Widget::applyFont(newFont);
 }
 
-void DropDownList::realize(DialogRunner& runner)
+void List::realize(DialogRunner& runner)
 {
-	Widget::realize(runner);
 	// An empty list might logically be valid, but there's currently
 	// no way to get a value from it.
 	assert(listData);
@@ -113,7 +108,7 @@ void DropDownList::realize(DialogRunner& runner)
 		setIndex();
 
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		newGUIProc<jwin_droplist_proc>,
+		newGUIProc<jwin_list_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
@@ -123,11 +118,9 @@ void DropDownList::realize(DialogRunner& runner)
 	});
 }
 
-int DropDownList::onEvent(int event, MessageDispatcher& sendMessage)
+int List::onEvent(int event, MessageDispatcher& sendMessage)
 {
 	assert(event == geCHANGE_SELECTION);
-	if(onSelectFunc)
-		onSelectFunc(listData->getValue(alDialog->d1));
 	if(message >= 0)
 		sendMessage(message, listData->getValue(alDialog->d1));
 	return -1;

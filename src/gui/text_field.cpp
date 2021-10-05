@@ -201,15 +201,15 @@ void TextField::realize(DialogRunner& runner)
 		switch(tfType)
 		{
 			case type::SWAP_BYTE:
-				proc = jwin_numedit_swap_byte_proc;
+				proc = newGUIProc<jwin_numedit_swap_byte_proc>;
 				break;
 
 			case type::SWAP_SSHORT:
-				proc = jwin_numedit_swap_sshort_proc;
+				proc = newGUIProc<jwin_numedit_swap_sshort_proc>;
 				break;
 
 			case type::SWAP_ZSINT:
-				proc = jwin_numedit_swap_zsint_proc;
+				proc = newGUIProc<jwin_numedit_swap_zsint_proc>;
 				break;
 		}
 		
@@ -247,15 +247,15 @@ void TextField::realize(DialogRunner& runner)
 		{
 			case type::TEXT:
 			case type::FIXED_DECIMAL:
-				proc = jwin_edit_proc;
+				proc = newGUIProc<jwin_edit_proc>;
 				break;
 
 			case type::INT_DECIMAL:
-				proc = jwin_numedit_proc;
+				proc = newGUIProc<jwin_numedit_proc>;
 				break;
 
 			case type::INT_HEX:
-				proc = jwin_hexedit_proc;
+				proc = newGUIProc<jwin_hexedit_proc>;
 				break;
 		}
 

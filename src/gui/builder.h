@@ -7,6 +7,7 @@
 #include "colorsel.h"
 #include "common.h"
 #include "drop_down_list.h"
+#include "frame.h"
 #include "grid.h"
 #include "key.h"
 #include "label.h"
@@ -17,6 +18,8 @@
 #include "switcher.h"
 #include "tabpanel.h"
 #include "tabref.h"
+#include "list.h"
+#include "scrolling_pane.h"
 #include "text_field.h"
 #include "window.h"
 #include "widget.h"
@@ -84,6 +87,11 @@ inline std::shared_ptr<Label> makeLabel()
 	return std::make_shared<Label>();
 }
 
+inline std::shared_ptr<List> makeList()
+{
+	return std::make_shared<List>();
+}
+
 inline std::shared_ptr<TextField> makeTextField()
 {
 	return std::make_shared<TextField>();
@@ -95,6 +103,11 @@ inline std::shared_ptr<ColorSel> makeColorSel()
 }
 
 // Containers
+
+inline std::shared_ptr<Frame> makeFrame()
+{
+	return std::make_shared<Frame>();
+}
 
 // This is counterintuitive: Multiple rows=rows, one row=columns.
 inline std::shared_ptr<Grid> makeColumn()
@@ -115,6 +128,11 @@ inline std::shared_ptr<Grid> makeRow()
 inline std::shared_ptr<Grid> makeRows(size_t size)
 {
 	return Grid::rows(size);
+}
+
+inline std::shared_ptr<ScrollingPane> makeScrollingPane()
+{
+	return std::make_shared<ScrollingPane>();
 }
 
 inline std::shared_ptr<Switcher> makeSwitcher()
@@ -218,6 +236,16 @@ ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DropDownList, DropDownList, makeDropDownList)
 
 
+ZCGUI_BUILDER_START(Frame)
+	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
+	ZCGUI_ACCEPT_PROP(style, setStyle, GUI::Frame::style)
+	ZCGUI_ACCEPT_ONE_CHILD(setContent)
+
+	ZCGUI_SUGGEST_PROP(text, title)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(Frame, Frame, makeFrame)
+
+
 ZCGUI_BUILDER_START(Label)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 	ZCGUI_ACCEPT_PROP(maxLines, setMaxLines, std::size_t)
@@ -226,6 +254,16 @@ ZCGUI_BUILDER_START(Label)
 	ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Label, Label, makeLabel)
+
+
+ZCGUI_BUILDER_START(List)
+	ZCGUI_ACCEPT_PROP(data, setListData, GUI::ListData)
+	ZCGUI_ACCEPT_PROP(selectedValue, setSelectedValue, int)
+	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
+
+	ZCGUI_SUGGEST_PROP(onClick, onSelectionChanged)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(List, List, makeList)
 
 
 ZCGUI_BUILDER_START(Grid)
@@ -239,6 +277,12 @@ ZCGUI_BUILDER_FUNCTION(Grid, Row, makeRow)
 ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Rows, makeRows, std::size_t)
 ZCGUI_BUILDER_FUNCTION(Grid, Column, makeColumn)
 ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Columns, makeColumns, std::size_t)
+
+
+ZCGUI_BUILDER_START(ScrollingPane)
+	ZCGUI_ACCEPT_ONE_CHILD(setContent)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(ScrollingPane, ScrollingPane, makeScrollingPane)
 
 
 ZCGUI_BUILDER_START(Switcher)
@@ -264,7 +308,6 @@ ZCGUI_BUILDER_START(TabRef)
 	ZCGUI_ACCEPT_ONE_CHILD(setContent)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TabRef, TabRef, makeTabRef)
-
 
 ZCGUI_BUILDER_START(TextField)
 	ZCGUI_ACCEPT_PROP(maxLength, setMaxLength, std::size_t);

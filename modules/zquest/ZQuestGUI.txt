@@ -26,9 +26,12 @@ src/gui/common.cpp
 src/gui/dialog_ref.cpp
 src/gui/dialog_runner.cpp
 src/gui/drop_down_list.cpp
+src/gui/frame.cpp
 src/gui/grid.cpp
 src/gui/label.cpp
+src/gui/list.cpp
 src/gui/list_data.cpp
+src/gui/scrolling_pane.cpp
 src/gui/size.cpp
 src/gui/switcher.cpp
 src/gui/text_field.cpp

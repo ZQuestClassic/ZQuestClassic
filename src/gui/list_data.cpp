@@ -18,7 +18,8 @@ ListData::ListData(::ListData const& jwinldata, int valoffs)
 	int sz;
 	jwinldata.listFunc(-1, &sz);
 	listItems.reserve(size_t(sz));
-	for(size_t index = 0; index < sz; ++index)
+	if (sz < 1) return;
+	for(size_t index = 0; index < size_t(sz); ++index)
 	{
 		std::string str(jwinldata.listFunc(index, NULL));
 		listItems.emplace_back(std::move(str), int(index)+valoffs);
