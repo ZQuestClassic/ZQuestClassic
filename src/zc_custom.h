@@ -33,6 +33,8 @@ extern int script_link_flip;
 
 extern byte link_defence[wMax];
 
+extern int hammeroffsets[4];
+
 extern int old_floatspr, old_slashspr, linkspr;
 extern int walkspr[4][3];                                   //dir,                           tile/flip/extend
 extern int stabspr[4][3];                                   //dir,                           tile/flip/extend
@@ -80,5 +82,6 @@ void linktile(int *tile, int *flip, int *extend, int state, int dir, int style);
 void setuplinktiles(int style);
 void setlinktile(int tile, int flip, int extend, int state, int dir);
 void setuplinkdefenses();
+void setuplinkoffsets();
 #endif
 

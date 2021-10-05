@@ -27,6 +27,8 @@ int script_link_cset = -1;
 
 byte link_defence[wMax];
 
+int hammeroffsets[4];
+
 int old_floatspr, old_slashspr, linkspr;
 int walkspr[4][3];                                   //dir,                           tile/flip/extend
 int stabspr[4][3];                                   //dir,                           tile/flip/extend
@@ -812,3 +814,10 @@ void setuplinkdefenses()
     
 }
 
+void setuplinkoffsets()
+{
+	for (int i = 0; i < 4; i++)
+	{
+		hammeroffsets[i] = 0;
+	}
+}

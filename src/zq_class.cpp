@@ -11325,6 +11325,11 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)sideswimchargespr[q][spr_extend],f))
 				new_return(18);
 		}
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(hammeroffsets[q],f))
+				new_return(19);
+		}
 		
         for (int q = 0; q < wMax; q++) // Link defense values
         {

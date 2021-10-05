@@ -10218,7 +10218,7 @@ static int linktile_sidewater_stab_list[] =
 static int linktile_sidewater_pound_list[] =
 {
 	// dialog control number
-	220, 221, 222, 223, 224, 225, 226, 227, -1
+	220, 221, 222, 223, 224, 225, 226, 227, 236, 237, 238, 239, 240, 241, 242, 243,-1
 };
 
 static int linktile_sidewater_charge_list[] =
@@ -10667,7 +10667,16 @@ static DIALOG linktile_dlg[] =
 	{  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_sideswimcharge,         NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sideswimcharge,         NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_sideswimcharge,         NULL,                            NULL,   NULL                   },
-	
+	// 236 (swim hammer offset titles)
+	{  jwin_rtext_proc,                     40,     100,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                   NULL,   NULL                   },
+	{  jwin_rtext_proc,                    108,     100,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                     40,    138,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                    108,    138,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                NULL,   NULL                   },
+	// 240 (swim hammer offset fields)
+	{  jwin_edit_proc,                     43,    97,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
+	{  jwin_edit_proc,                     111,    97,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
+	{  jwin_edit_proc,                     43,    135,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
+	{  jwin_edit_proc,                     111,    135,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
 	{  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }    
 
 };
@@ -10714,6 +10723,18 @@ int onCustomLink()
 	int oldSideSwimStabSpr[4][3];
 	int oldSideSwimPoundSpr[4][3];
 	int oldSideSwimChargeSpr[4][3];
+	char hmr1[8];
+	char hmr2[8];
+	char hmr3[8];
+	char hmr4[8];
+	sprintf(hmr1,"%ld",hammeroffsets[0]);
+	sprintf(hmr2,"%ld",hammeroffsets[1]);
+	sprintf(hmr3,"%ld",hammeroffsets[2]);
+	sprintf(hmr4,"%ld",hammeroffsets[3]);
+	linktile_dlg[240].dp = hmr1;
+	linktile_dlg[241].dp = hmr2;
+	linktile_dlg[242].dp = hmr3;
+	linktile_dlg[243].dp = hmr4;
 	memcpy(oldWalkSpr, walkspr, 4*3*sizeof(int));
 	memcpy(oldStabSpr, stabspr, 4*3*sizeof(int));
 	memcpy(oldSlashSpr, slashspr, 4*3*sizeof(int));
@@ -10791,6 +10812,10 @@ int onCustomLink()
 			link_defence[wScript8] = linktile_dlg[178+8].d1;
 			link_defence[wScript9] = linktile_dlg[179+8].d1;
 			link_defence[wScript10] = linktile_dlg[180+8].d1;
+			hammeroffsets[0] = atoi(hmr1);
+			hammeroffsets[1] = atoi(hmr2);
+			hammeroffsets[2] = atoi(hmr3);
+			hammeroffsets[3] = atoi(hmr4);
 		}
 		else if (ret == 168)
 		{

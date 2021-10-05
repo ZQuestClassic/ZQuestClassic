@@ -2046,7 +2046,7 @@ int doInit(zinitdata *local_zinit)
     sprintf(maxmagicstring, "%d", local_zinit->max_magic);
     sprintf(bombratiostring, "%d", local_zinit->bomb_ratio);
     sprintf(gravitystring, "%d.%02d\0", local_zinit->gravity2/10000L, abs((local_zinit->gravity2/100)%100L));
-    sprintf(swimgravitystring, "%d.%02d\0", local_zinit->swimgravity/10000L, abs((local_zinit->swimgravity/100)%100L));
+    sprintf(swimgravitystring, "%ld.%02d\0", local_zinit->swimgravity/10000L, abs((local_zinit->swimgravity/100)%100L));
     sprintf(terminalvstring, "%.2f", local_zinit->terminalv/100.0);
     sprintf(thresholdstring, "%d", local_zinit->jump_link_layer_threshold);
     

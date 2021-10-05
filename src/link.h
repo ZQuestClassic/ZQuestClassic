@@ -236,6 +236,10 @@ public:
     link_is_stunned, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
     sdir, // scrolling direction
     sideswimdir;  //for forcing link to face left or right in sideview
+    int hammer_swim_up_offset,
+	hammer_swim_down_offset,
+	hammer_swim_left_offset,
+	hammer_swim_right_offset;
     int hopdir;  // direction to hop out of water (diagonal movement only)
     int holddir;
     int landswim; // incremental time spent swimming against land

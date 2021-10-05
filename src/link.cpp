@@ -1181,6 +1181,11 @@ void LinkClass::init()
 	swimsiderate = zinit.heroSideswimSideStep;
 	swimdownrate = zinit.heroSideswimDownStep;
 	is_warping = false;
+	
+	hammer_swim_up_offset = hammeroffsets[0];
+	hammer_swim_down_offset = hammeroffsets[1];
+	hammer_swim_left_offset = hammeroffsets[2];
+	hammer_swim_right_offset = hammeroffsets[3];
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
     {
@@ -1874,6 +1879,7 @@ attack:
 			case up:
 				wx=-1;
 				wy=-15;
+				if (IsSideSwim())wy+=hammer_swim_up_offset;
 				
 				if(attackclk>=13)
 				{
@@ -1884,6 +1890,7 @@ attack:
 				
 				if(attackclk>=15)
 				{
+					if (IsSideSwim())wy-=hammer_swim_up_offset;
 					++t;
 				}
 				
@@ -1892,6 +1899,7 @@ attack:
 			case down:
 				wx=3;
 				wy=-14;
+				if (IsSideSwim())wy+=hammer_swim_down_offset;
 				t+=3;
 				
 				if(attackclk>=13)
@@ -1904,6 +1912,7 @@ attack:
 				{
 					wx-=1;
 					wy+=12;
+					if (IsSideSwim())wy-=hammer_swim_down_offset;
 					++t;
 				}
 				
@@ -1912,6 +1921,7 @@ attack:
 			case left:
 				wx=0;
 				wy=-14;
+				if (IsSideSwim())wy+=hammer_swim_left_offset;
 				t+=6;
 				f=1;
 				
@@ -1926,6 +1936,7 @@ attack:
 				{
 					wx-=8;
 					wy+=8;
+					if (IsSideSwim())wy-=hammer_swim_left_offset;
 					++t;
 				}
 				
@@ -1934,6 +1945,7 @@ attack:
 			case right:
 				wx=0;
 				wy=-14;
+				if (IsSideSwim())wy+=hammer_swim_right_offset;
 				t+=6;
 				
 				if(attackclk>=13)
@@ -1947,6 +1959,7 @@ attack:
 				{
 					wx+=8;
 					wy+=8;
+					if (IsSideSwim())wy-=hammer_swim_right_offset;
 					++t;
 				}
 				

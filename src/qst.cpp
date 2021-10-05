@@ -9351,6 +9351,7 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
         zinit.link_swim_speed=67; //default
         setuplinktiles(zinit.linkanimationstyle);
         setuplinkdefenses();
+	setuplinkoffsets();
     }
     
     if(v_linksprites>=0)
@@ -9750,6 +9751,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
         zinit.link_swim_speed=67; //default
         setuplinktiles(zinit.linkanimationstyle);
         setuplinkdefenses();
+	setuplinkoffsets();
     }
     
     int tile, tile2;
@@ -10646,6 +10648,21 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					}
 				}
 			}
+			if (v_linksprites > 10)
+			{
+				for(int q = 0; q < 4; ++q)
+				{
+					int hmr;
+					if(!p_igetl(&hmr,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						hammeroffsets[q] = hmr;
+					}
+				}
+			}
+			else for(int q = 0; q < 4; ++q) hammeroffsets[q] = 0;
 		}
 		else if(keepdata)
 		{
@@ -10686,6 +10703,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 			memset(sideswimstabspr, 0, sizeof(sideswimstabspr));
 			memset(sideswimpoundspr, 0, sizeof(sideswimpoundspr));
 			memset(sideswimchargespr, 0, sizeof(sideswimchargespr));
+			for(int q = 0; q < 4; ++q) hammeroffsets[q] = 0;
 		}
         if (v_linksprites > 7)
         {
