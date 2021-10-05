@@ -193,13 +193,14 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		std::shared_ptr<GUI::Grid> grid = Columns<10>(fitParent = true,hAlign=0.0,vAlign=0.0);
 		for(std::vector<int>::iterator itid = (*it).second.begin(); itid != (*it).second.end(); ++itid)
 		{
+			int id = *itid;
 			std::shared_ptr<GUI::Checkbox> cb = Checkbox(
 				hAlign=0.0,vAlign=0.0,
-				checked = local_zinit.items[*itid],
-				text = item_string[*itid],
-				onToggleFunc = [&](bool state)
+				checked = local_zinit.items[id],
+				text = item_string[id],
+				onToggleFunc = [&,id](bool state)
 				{
-					local_zinit.items[*itid] = state;
+					local_zinit.items[id] = state;
 				}
 			);
 			grid->add(cb);
