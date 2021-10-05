@@ -46,6 +46,8 @@ public:
 
 	ListData(std::vector<ListItem> listItems): listItems(std::move(listItems))
 	{}
+	
+	ListData(::ListData const& jwinldata, int valoffs = 0);
 
 	ListData(size_t numItems, std::function<std::string(size_t)> getString,
 		std::function<int(size_t)> getValue);

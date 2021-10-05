@@ -132,7 +132,7 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 	for(size_t row = 0; row < numRows; ++row)
 	{
 		int cx = x;
-		int height = rowHeights[row];
+		int c_hei = rowHeights[row];
 		for(size_t col = 0; col < numCols; ++col)
 		{
 			size_t index = growthType == type::ROWS ?
@@ -141,11 +141,15 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 			if(index >= children.size())
 				break;
 
-			int width = colWidths[col];
-			children[index]->arrange(cx, cy, width, height);
-			cx += width+colSpacing;
+			int c_wid = colWidths[col];
+			if(c_hei > (getHeight()-(cy-y)))
+				c_hei = (getHeight()-(cy-y));
+			if(c_wid > (getWidth()-(cx-x)))
+				c_wid = (getWidth()-(cx-x));
+			children[index]->arrange(cx, cy, c_wid, c_hei);
+			cx += c_wid+colSpacing;
 		}
-		cy += height+rowSpacing;
+		cy += c_hei+rowSpacing;
 	}
 }
 

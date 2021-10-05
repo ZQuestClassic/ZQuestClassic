@@ -13,6 +13,18 @@ ListData::ListData(size_t numItems,
 		listItems.emplace_back(std::move(getString(index)), getValue(index));
 }
 
+ListData::ListData(::ListData const& jwinldata, int valoffs)
+{
+	int sz;
+	jwinldata.listFunc(-1, &sz);
+	listItems.reserve(size_t(sz));
+	for(size_t index = 0; index < sz; ++index)
+	{
+		std::string str(jwinldata.listFunc(index, NULL));
+		listItems.emplace_back(std::move(str), int(index)+valoffs);
+	}
+}
+
 const char* ListData::jwinWrapper(int index, int* size, void* owner)
 {
 	ListData* cb=static_cast<ListData*>(owner);

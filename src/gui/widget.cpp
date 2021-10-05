@@ -153,7 +153,10 @@ void Widget::arrange(int contX, int contY, int contW, int contH)
 	contW -= leftMargin+rightMargin+leftPadding+rightPadding;
 	contY += topMargin+topPadding;
 	contH -= topMargin+bottomMargin+topPadding+bottomPadding;
-
+	if(maxwidth > -1 && contW > maxwidth)
+		contW = maxwidth;
+	if(maxheight > -1 && contH > maxheight)
+		contH = maxheight;
 	if(flags&f_FIT_PARENT)
 	{
 		setPreferredWidth(Size::pixels(contW));

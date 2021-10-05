@@ -5,6 +5,7 @@
 #include <gui/checkbox.h>
 #include <gui/label.h>
 #include <gui/text_field.h>
+#include <gui/list_data.h>
 #include <functional>
 #include <string_view>
 
@@ -30,6 +31,8 @@ private:
 	std::shared_ptr<GUI::TextField> l_keys[10];
 	zinitdata local_zinit;
 	size_t levelsOffset;
+	GUI::ListData list_dmaps;
+	
 	std::function<void(zinitdata const&)> setVals;
 };
 

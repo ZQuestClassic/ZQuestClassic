@@ -169,7 +169,7 @@ void TextField::setMaxLength(size_t newMax)
 	
 	int btnsz = isSwapType() ? 16 : 0;
 	
-	setPreferredWidth(Size::largePixels(btnsz)+Size::em(std::min((newMax+1)*0.75, 20.0)));
+	setPreferredWidth(Size::largePixels(btnsz)+Size::em(std::min((newMax+sized(2,1))*0.75, 20.0)));
 }
 
 void TextField::setOnValChanged(std::function<void(type,std::string_view,int)> newOnValChanged)

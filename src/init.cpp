@@ -981,7 +981,7 @@ void initPopulate(int &i, DIALOG_PROC Proc, int X, int Y, int W, int H, int FG, 
     ++i;
 }
 
-static ListData dmap_list(dmaplist, &font);
+ListData dmap_list(dmaplist, &font);
 
 //InitData
 

@@ -3,7 +3,9 @@
 #include "gui/use_size.h"
 #include <gui/builder.h>
 #include "zsys.h"
-	
+
+extern ListData dmap_list;
+
 extern bool saved;
 void call_init_dlg(zinitdata& sourcezinit)
 {
@@ -16,7 +18,7 @@ void call_init_dlg(zinitdata& sourcezinit)
 }
 
 InitDataDialog::InitDataDialog(zinitdata const& start, std::function<void(zinitdata const&)> setVals):
-	local_zinit(start), setVals(setVals), levelsOffset(0)
+	local_zinit(start), setVals(setVals), levelsOffset(0), list_dmaps(dmap_list)
 {}
 
 void InitDataDialog::setOfs(size_t ofs)
@@ -98,17 +100,17 @@ ColorSel(hAlign = 1.0, val = local_zinit.member, \
 Row( \
 	padding = 0_px, \
 	l_lab[ind] = Label(text = std::to_string(ind), width = 3_em, textAlign = 2), \
-	l_maps[ind] = Checkbox(checked = get_bit(local_zinit.map,ind+levelsOffset)!=0, \
+	l_maps[ind] = Checkbox(checked = get_bit(local_zinit.map,ind+levelsOffset), \
 		onToggleFunc = [&](bool state) \
 		{ \
 			set_bit(local_zinit.map, ind+levelsOffset, state); \
 		}), \
-	l_comp[ind] = Checkbox(checked = get_bit(local_zinit.compass,ind+levelsOffset)!=0, \
+	l_comp[ind] = Checkbox(checked = get_bit(local_zinit.compass,ind+levelsOffset), \
 		onToggleFunc = [&](bool state) \
 		{ \
 			set_bit(local_zinit.compass, ind+levelsOffset, state); \
 		}), \
-	l_bkey[ind] = Checkbox(checked = get_bit(local_zinit.boss_key,ind+levelsOffset)!=0, \
+	l_bkey[ind] = Checkbox(checked = get_bit(local_zinit.boss_key,ind+levelsOffset), \
 		onToggleFunc = [&](bool state) \
 		{ \
 			set_bit(local_zinit.boss_key, ind+levelsOffset, state); \
@@ -134,6 +136,16 @@ Button(maxwidth = sized(3_em,4_em), padding = 0_px, margins = 0_px, \
 	text = ZCGUI_STRINGIZE(val), onClick = message::LEVEL, onPressFunc = [&]() \
 	{ \
 		setOfs(((levelsOffset/100)*100) + val); \
+	} \
+)
+
+#define TRICHECK(ind) \
+Checkbox( \
+	checked = get_bit(&(local_zinit.triforce),ind), \
+	text = std::to_string(ind+1), \
+	onToggleFunc = [&](bool state) \
+	{ \
+		set_bit(&(local_zinit.triforce),ind,state); \
 	} \
 )
 //}
@@ -251,7 +263,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						),
 						Columns<6>(
 							Row(
-								maxheight = 1_em,
+								maxheight = 1.5_em,
 								DummyWidget(width = 3_em),
 								Label(text = "M", textAlign = 0, width = 9_spx+12_px),
 								Label(text = "C", textAlign = 0, width = 9_spx+12_px),
@@ -264,7 +276,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							LEVEL_FIELD(3),
 							LEVEL_FIELD(4),
 							Row(
-								maxheight = 1_em,
+								maxheight = 1.5_em,
 								DummyWidget(width = 3_em),
 								Label(text = "M", textAlign = 0, width = 9_spx+12_px),
 								Label(text = "C", textAlign = 0, width = 9_spx+12_px),
@@ -278,7 +290,91 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							LEVEL_FIELD(9)
 						)
 					)),
-					TabRef(name = "Misc", Column()),
+					TabRef(name = "Misc", Column(
+						Row(
+							framed = true,
+							Label(text = "Start DMap:"),
+							DropDownList(data = list_dmaps,
+								selectedValue = local_zinit.start_dmap,
+								onSelectFunc = [&](int val)
+								{
+									local_zinit.start_dmap = val;
+								}
+							)
+						),
+						Row(
+							Row(
+								framed = true,
+								Label(text = "Continue HP:"),
+								BYTE_FIELD(cont_heart),
+								Checkbox(checked = get_bit(local_zinit.misc,idM_CONTPERCENT),
+									text = "%",
+									onToggleFunc = [&](bool state)
+									{
+										set_bit(local_zinit.misc,idM_CONTPERCENT,state);
+									}
+								)
+							),
+							Row(
+								framed = true,
+								Label(text = "Pieces:"),
+								BYTE_FIELD(hcp)
+							),
+							Row(
+								framed = true,
+								Label(text = "Per HC:"),
+								BYTE_FIELD(hcp_per_hc)
+							)
+						),
+						Row(
+							Rows<2>(
+								framed = true, frameText = "Hearts",
+								Label(hAlign = 0.0, topMargin = 2_px, bottomPadding = 0_px, text = "Start"),
+								Label(hAlign = 1.0, topMargin = 2_px, bottomPadding = 0_px, text = "Max"),
+								BYTE_FIELD(start_heart),
+								BYTE_FIELD(hc)
+							),
+							Rows<3>(
+								framed = true, frameText = "Magic",
+								Label(hAlign = 0.0, topMargin = 2_px, bottomPadding = 0_px, text = "Start"),
+								Label(hAlign = 1.0, topMargin = 2_px, bottomPadding = 0_px, text = "Max"),
+								DummyWidget(),
+								WORD_FIELD(magic),
+								WORD_FIELD(max_magic),
+								Checkbox(
+									checked = get_bit(local_zinit.misc,idM_DOUBLEMAGIC),
+									text = "Half Cost",
+									onToggleFunc = [&](bool state)
+									{
+										set_bit(local_zinit.misc,idM_DOUBLEMAGIC,state);
+									}
+								)
+							)
+						),
+						Columns<2>(
+							framed = true, frameText = "Triforce",
+							topMargin = 2_spx,
+							TRICHECK(0),
+							TRICHECK(1),
+							TRICHECK(2),
+							TRICHECK(3),
+							TRICHECK(4),
+							TRICHECK(5),
+							TRICHECK(6),
+							TRICHECK(7)
+						),
+						Row(
+							framed = true,
+							Checkbox(
+								checked = get_bit(local_zinit.misc,idM_CANSLASH),
+								text = "Can Slash",
+								onToggleFunc = [&](bool state)
+								{
+									set_bit(local_zinit.misc,idM_CANSLASH,state);
+								}
+							)
+						)
+					)),
 					TabRef(name = "Vars", TabPanel(
 						TabRef(name = "1", Row(
 							Column(vAlign = 0.0,
@@ -436,7 +532,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					),
 					Columns<6>(
 						Row(
-							maxheight = 1_em,
 							DummyWidget(width = 3_em),
 							Label(text = "M", textAlign = 0, width = 9_spx+12_px),
 							Label(text = "C", textAlign = 0, width = 9_spx+12_px),
@@ -449,7 +544,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						LEVEL_FIELD(3),
 						LEVEL_FIELD(4),
 						Row(
-							maxheight = 1_em,
 							DummyWidget(width = 3_em),
 							Label(text = "M", textAlign = 0, width = 9_spx+12_px),
 							Label(text = "C", textAlign = 0, width = 9_spx+12_px),
@@ -463,7 +557,91 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						LEVEL_FIELD(9)
 					)
 				)),
-				TabRef(name = "Misc", Column()),
+				TabRef(name = "Misc", Column(
+					Row(
+						framed = true,
+						Label(text = "Start DMap:"),
+						DropDownList(data = list_dmaps,
+							selectedValue = local_zinit.start_dmap,
+							onSelectFunc = [&](int val)
+							{
+								local_zinit.start_dmap = val;
+							}
+						)
+					),
+					Row(
+						Row(
+							framed = true,
+							Label(text = "Continue HP:"),
+							BYTE_FIELD(cont_heart),
+							Checkbox(checked = get_bit(local_zinit.misc,idM_CONTPERCENT),
+								text = "%",
+								onToggleFunc = [&](bool state)
+								{
+									set_bit(local_zinit.misc,idM_CONTPERCENT,state);
+								}
+							)
+						),
+						Row(
+							framed = true,
+							Label(text = "Pieces:"),
+							BYTE_FIELD(hcp)
+						),
+						Row(
+							framed = true,
+							Label(text = "Per HC:"),
+							BYTE_FIELD(hcp_per_hc)
+						)
+					),
+					Row(
+						Rows<2>(
+							framed = true, frameText = "Hearts",
+							Label(hAlign = 0.0, topMargin = 2_px, bottomPadding = 0_px, text = "Start"),
+							Label(hAlign = 1.0, topMargin = 2_px, bottomPadding = 0_px, text = "Max"),
+							BYTE_FIELD(start_heart),
+							BYTE_FIELD(hc)
+						),
+						Rows<3>(
+							framed = true, frameText = "Magic",
+							Label(hAlign = 0.0, topMargin = 2_px, bottomPadding = 0_px, text = "Start"),
+							Label(hAlign = 1.0, topMargin = 2_px, bottomPadding = 0_px, text = "Max"),
+							DummyWidget(),
+							WORD_FIELD(magic),
+							WORD_FIELD(max_magic),
+							Checkbox(
+								checked = get_bit(local_zinit.misc,idM_DOUBLEMAGIC),
+								text = "Half Cost",
+								onToggleFunc = [&](bool state)
+								{
+									set_bit(local_zinit.misc,idM_DOUBLEMAGIC,state);
+								}
+							)
+						)
+					),
+					Columns<2>(
+						framed = true, frameText = "Triforce",
+						topMargin = 2_spx,
+						TRICHECK(0),
+						TRICHECK(1),
+						TRICHECK(2),
+						TRICHECK(3),
+						TRICHECK(4),
+						TRICHECK(5),
+						TRICHECK(6),
+						TRICHECK(7)
+					),
+					Row(
+						framed = true,
+						Checkbox(
+							checked = get_bit(local_zinit.misc,idM_CANSLASH),
+							text = "Can Slash",
+							onToggleFunc = [&](bool state)
+							{
+								set_bit(local_zinit.misc,idM_CANSLASH,state);
+							}
+						)
+					)
+				)),
 				TabRef(name = "Vars", TabPanel(TabRef(name = "", Row(
 					Column(vAlign = 0.0,
 						Rows<2>(
@@ -520,15 +698,17 @@ bool InitDataDialog::handleMessage(message msg)
 				if(q+levelsOffset > 511)
 					break;
 				l_lab[q]->setText(std::to_string(q+levelsOffset));
-				l_maps[q]->setChecked(get_bit(local_zinit.map,q+levelsOffset)!=0);
-				l_comp[q]->setChecked(get_bit(local_zinit.compass,q+levelsOffset)!=0);
-				l_bkey[q]->setChecked(get_bit(local_zinit.boss_key,q+levelsOffset)!=0);
+				l_maps[q]->setChecked(get_bit(local_zinit.map,q+levelsOffset));
+				l_comp[q]->setChecked(get_bit(local_zinit.compass,q+levelsOffset));
+				l_bkey[q]->setChecked(get_bit(local_zinit.boss_key,q+levelsOffset));
 				l_keys[q]->setVal(local_zinit.level_keys[q+levelsOffset]);
 			}
 		}
 		return false;
 		case message::OK:
 		{
+			local_zinit.cont_heart = std::min(local_zinit.cont_heart, word(get_bit(local_zinit.misc,idM_CONTPERCENT)?100:local_zinit.hc));
+			local_zinit.hcp = std::min(local_zinit.hcp, byte(local_zinit.hcp_per_hc-1));
 			setVals(local_zinit);
 		}
 		return true;

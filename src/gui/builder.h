@@ -211,6 +211,7 @@ ZCGUI_BUILDER_START(DropDownList)
 	ZCGUI_ACCEPT_PROP(data, setListData, const ::GUI::ListData&)
 	ZCGUI_ACCEPT_PROP(selectedValue, setSelectedValue, int)
 	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
+	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int)>)
 
 	ZCGUI_SUGGEST_PROP(onClick, onSelectionChanged)
 ZCGUI_BUILDER_END()
