@@ -29,7 +29,7 @@ void Label::setMaxLines(size_t newMax)
 
 void Label::setAlign(int ta)
 {
-	textAlign = util::vbound(ta,0,2);
+	textAlign = vbound(ta,0,2);
 	if(alDialog)
 	{
 		alDialog->d1 = textAlign;
@@ -146,7 +146,7 @@ void Label::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		new_text_proc,
+		newGUIProc<new_text_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key

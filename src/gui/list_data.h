@@ -46,6 +46,8 @@ public:
 
 	ListData(std::vector<ListItem> listItems): listItems(std::move(listItems))
 	{}
+	
+	ListData(::ListData const& jwinldata, int valoffs = 0);
 
 	ListData(size_t numItems, std::function<std::string(size_t)> getString,
 		std::function<int(size_t)> getValue);
@@ -100,9 +102,26 @@ public:
 		}
 		return nullstr;
 	}
-
+	
+	inline void removeVal(int key)
+	{
+		for(std::vector<ListItem>::iterator it = listItems.begin(); it != listItems.end();)
+		{
+			if((*it).value == key)
+				it = listItems.erase(it);
+			else ++it;
+		}
+	}
+	//Static constructors for specific lists
+	static ListData itemclass(bool numbered);
+	
 private:
 	std::vector<ListItem> listItems;
+	
+	ListData::ListData(){}
+	void add(ListItem item) {listItems.push_back(item);}
+	void add(std::string name, int val) {listItems.emplace_back(name, val);};
+	void add(std::string name, int val, std::string desc) {listItems.emplace_back(name, val,desc);};
 
 	static const char* jwinWrapper(int index, int* size, void* owner);
 };

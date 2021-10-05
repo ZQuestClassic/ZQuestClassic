@@ -1,5 +1,5 @@
 #ifndef ZC_DIALOG_HEADERDLG_H
-#define ZC_DIALOG_CHEATCODES_H
+#define ZC_DIALOG_HEADERDLG_H
 
 #include <gui/dialog.h>
 #include <gui/checkbox.h>

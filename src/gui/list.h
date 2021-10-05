@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_DROPDOWNLIST_H
-#define ZC_GUI_DROPDOWNLIST_H
+#ifndef ZC_GUI_LIST_H
+#define ZC_GUI_LIST_H
 
 #include "widget.h"
 #include "dialog_ref.h"
@@ -12,10 +12,14 @@ namespace GUI
 
 class DialogRunner;
 
-class DropDownList: public Widget
+/* This and DropDownList are nearly identical. They should have a common
+ * base class, or perhaps even be the same class. This is just a quick
+ * and dirty copy-paste job.
+ */
+class List: public Widget
 {
 public:
-	DropDownList();
+	List();
 
 	/* Sets the source of items to appear in the list. */
 	void setListData(const ::GUI::ListData& newListData);
@@ -36,7 +40,7 @@ public:
 	{
 		onSelectFunc = newOnSelect;
 	}
-	
+
 	template<typename T>
 	RequireMessage<T> onSelectionChanged(T m)
 	{
@@ -57,7 +61,6 @@ private:
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
 	int onEvent(int event, MessageDispatcher& sendMessage) override;
-	void applyFont(FONT* newFont) override;
 };
 
 }

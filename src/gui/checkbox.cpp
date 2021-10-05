@@ -41,6 +41,11 @@ bool Checkbox::getChecked()
 	return alDialog ? alDialog->flags&D_SELECTED : checked;
 }
 
+void Checkbox::setOnToggleFunc(std::function<void(bool)> newOnToggleFunc)
+{
+	onToggleFunc = std::move(newOnToggleFunc);
+}
+
 void Checkbox::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
@@ -60,7 +65,7 @@ void Checkbox::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		new_check_proc,
+		newGUIProc<new_check_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		getAccelKey(text),
@@ -79,6 +84,8 @@ void Checkbox::calculateSize()
 int Checkbox::onEvent(int event, MessageDispatcher& sendMessage)
 {
 	assert(event == geTOGGLE);
+	if(onToggleFunc)
+		onToggleFunc((alDialog->flags&D_SELECTED) != 0);
 	if(message >= 0)
 		sendMessage(message, (alDialog->flags&D_SELECTED) != 0);
 	return -1;

@@ -9,7 +9,9 @@ namespace GUI
 {
 
 TabPanel::TabPanel(): visibleChild(0)
-{}
+{
+	setFitParent(true);
+}
 
 void TabPanel::switchTo(size_t index)
 {
@@ -24,12 +26,15 @@ void TabPanel::switchTo(size_t index)
 	children[index]->setExposed(true); //Show the new child
 }
 
-void TabPanel::add(std::shared_ptr<TabRef> child)
+void TabPanel::add(std::shared_ptr<Widget> child)
 {
-	if(alDialog && //Only do this if dialog is already realized?
-		children.size() != visibleChild)
-		child->setExposed(false);
-	children.emplace_back(std::move(child));
+	if(std::shared_ptr<TabRef> tbchld = std::dynamic_pointer_cast<TabRef>(child))
+	{
+		if(alDialog && //Only do this if dialog is already realized?
+			children.size() != visibleChild)
+			tbchld->setExposed(false);
+		children.emplace_back(std::move(tbchld));
+	}
 }
 
 void TabPanel::applyVisibility(bool visible)
@@ -73,7 +78,7 @@ void TabPanel::calculateSize()
 			if(w > maxW)
 				maxW = w;
 			int h = child->getTotalHeight(); // getTotalHeight()?
-			if(w > maxH)
+			if(h > maxH)
 				maxH = h;
 		}
 		if(tabwid > maxW)
@@ -85,12 +90,9 @@ void TabPanel::calculateSize()
 
 void TabPanel::arrange(int contX, int contY, int contW, int contH)
 {
-	//Override the width/height to fit the container
-	setPreferredWidth(Size::pixels(contW));
-	setPreferredHeight(Size::pixels(contH));
-	//Arrange
 	if(children.size() == 1)
 	{
+		Widget::arrange(contX, contY, contW, contH);
 		auto& child = children.at(0);
 		child->arrange(contX, contY, contW, contH);
 	}

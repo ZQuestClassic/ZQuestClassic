@@ -2026,7 +2026,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
     enum { top_btn, bottom_btn, bar, top_bar, bottom_bar };
     
     int xx, yy;
-    int height = (d->h-3) / text_height(fnt);
+    int height = (d->h-3) / (fnt ? text_height(fnt) : 1);
     int hh = d->h - 32;
     int obj = bar;
     int bh, len, pos;
@@ -2276,7 +2276,7 @@ static void idle_cb()
   *  the selection.
   */
 
-static void _handle_jwin_listbox_click(DIALOG *d)
+static bool _handle_jwin_listbox_click(DIALOG *d)
 {
     ListData *data = (ListData *)d->dp;
     char *sel = (char *)d->dp2;
@@ -2286,7 +2286,7 @@ static void _handle_jwin_listbox_click(DIALOG *d)
     data->listFunc(-1, &listsize);
 
     if(!listsize)
-        return;
+        return false;
         
     height = (d->h-3) / text_height(*data->font);
     
@@ -2328,6 +2328,7 @@ static void _handle_jwin_listbox_click(DIALOG *d)
         
         d->d1 = i;
         i = d->d2;
+		
         _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
         
         scare_mouse();
@@ -2336,7 +2337,9 @@ static void _handle_jwin_listbox_click(DIALOG *d)
         
         if(i != d->d2)
             rest_callback(MID(10, text_height(font)*16-d->h, 100), idle_cb);
+		return true;
     }
+	return false;
 }
 
 /* _jwin_draw_scrollable_frame:
@@ -2628,15 +2631,19 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
                 }
             }
             
-            _handle_jwin_listbox_click(d);
+            if(_handle_jwin_listbox_click(d)) GUI_EVENT(d, geCHANGE_SELECTION);
             
             bool rightClicked=(gui_mouse_b()&2)!=0;
             while(gui_mouse_b())
             {
                 broadcast_dialog_message(MSG_IDLE, 0);
                 d->flags |= D_INTERNAL;
-                _handle_jwin_listbox_click(d);
-                d->flags &= ~D_INTERNAL;
+				if(_handle_jwin_listbox_click(d))
+				{
+					d->flags &= ~D_INTERNAL;
+					GUI_EVENT(d, geCHANGE_SELECTION);
+				}
+				d->flags &= ~D_INTERNAL;
                 
                 //	#ifdef _ZQUEST_SCALE_
                 if(is_zquest())
@@ -2719,6 +2726,9 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
     case MSG_WANTFOCUS:
         return D_WANTFOCUS;
         
+    case MSG_WANTWHEEL:
+        return 1;
+
     case MSG_WHEEL:
         data->listFunc(-1, &listsize);
         height = (d->h-4) / text_height(*data->font);
@@ -2803,9 +2813,12 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
                 }
             }
             
-            /* if we changed something, better redraw... */
+            /* if we changed something, better redraw... !Also bounds the index! */
             _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
-            scare_mouse();
+			
+			GUI_EVENT(d, geCHANGE_SELECTION);
+            
+			scare_mouse();
             object_message(d, MSG_DRAW, 0);
             unscare_mouse();
             return D_USED_CHAR;
@@ -2886,14 +2899,18 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
 					}
 				}
 				
-				_handle_jwin_listbox_click(d);
+				if(_handle_jwin_listbox_click(d)) GUI_EVENT(d, geCHANGE_SELECTION);
 				
 				bool rightClicked=(gui_mouse_b()&2)!=0;
 				while(gui_mouse_b())
 				{
 					broadcast_dialog_message(MSG_IDLE, 0);
 					d->flags |= D_INTERNAL;
-					_handle_jwin_listbox_click(d);
+					if(_handle_jwin_listbox_click(d))
+					{
+						d->flags &= ~D_INTERNAL;
+						GUI_EVENT(d, geCHANGE_SELECTION);
+					}
 					d->flags &= ~D_INTERNAL;
 					
 					//	#ifdef _ZQUEST_SCALE_
@@ -2988,6 +3005,9 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
         ret = D_WANTFOCUS;
 		break;
         
+    case MSG_WANTWHEEL:
+        return 1;
+
     case MSG_WHEEL:
         data->listFunc(-1, &listsize);
         height = (d->h-4) / text_height(*data->font);
@@ -3394,6 +3414,9 @@ int jwin_textbox_proc(int msg, DIALOG *d, int c)
         
         break;
         
+    case MSG_WANTWHEEL:
+        return 1;
+
     case MSG_WHEEL:
         l = (d->h-8)/text_height(font);
         delta = (l > 3) ? 3 : 1;
@@ -4664,6 +4687,7 @@ int jwin_color_swatch(int msg, DIALOG *d, int c)
 			if(val == 1 || val == 3)
 			{
 				d->d1 = selcolor_dlg[3].d1;
+				GUI_EVENT(d, geCHANGE_VALUE);
 				ret = D_REDRAWME;
 			}
 			break;
@@ -7237,6 +7261,9 @@ int d_jslider_proc(int msg, DIALOG *d, int c)
         
         break;
         
+    case MSG_WANTWHEEL:
+        return 1;
+
     case MSG_WHEEL:
         oldval = d->d2;
         d->d2 = MID(0, d->d2+c, d->d1);

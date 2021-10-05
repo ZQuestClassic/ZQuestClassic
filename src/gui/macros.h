@@ -8,15 +8,16 @@
 namespace GUI::Internal
 {
 
-// TODO: Can this be done better?
-// It's not actually used yet, anyway...
 template<typename parent, typename child>
-inline void allowChild(std::shared_ptr<parent>, std::shared_ptr<child>)
+inline void allowChild(const std::shared_ptr<parent>&, const std::shared_ptr<child>&)
 {
-    #define ZCGUI_DISALLOW_PAIRING(p, c, msg) \
-        ZCGUI_STATIC_ASSERT(!(std::is_same_v<parent, p> && std::is_same_v<child, c>), msg)
     #define ZCGUI_REQUIRE_PARENT(p, c, msg) \
         ZCGUI_STATIC_ASSERT((std::is_same_v<parent, p> || !std::is_same_v<child, c>), msg)
+    #define ZCGUI_REQUIRE_CHILD(p, c, msg) \
+        ZCGUI_STATIC_ASSERT((!std::is_same_v<parent, p> || std::is_same_v<child, c>), msg)
+
+	ZCGUI_REQUIRE_PARENT(::GUI::TabPanel, ::GUI::TabRef, "Tabrefs can only be added to TabPanels.");
+	ZCGUI_REQUIRE_CHILD(::GUI::TabPanel, ::GUI::TabRef, "Only Tabrefs can be added to TabPanels.");
 }
 
 } // namespace GUI::Internal
@@ -120,7 +121,64 @@ struct name##Prop                                                               
 static constexpr name##Prop ZCGUI_PROP_NAME(name);
 
 
+// Builder for most widgets. Accepts all common properties.
 #define ZCGUI_BUILDER_START(widgetType)                                                            \
+struct widgetType##Builder                                                                         \
+{                                                                                                  \
+    struct Dummy;                                                                                  \
+                                                                                                   \
+    std::shared_ptr<::GUI:: widgetType> ptr;                                                       \
+                                                                                                   \
+    inline widgetType##Builder(std::shared_ptr<::GUI:: widgetType>&& p):                           \
+        ptr(p)                                                                                     \
+    {}                                                                                             \
+                                                                                                   \
+    inline std::shared_ptr<::GUI:: widgetType> resolve() const                                     \
+    {                                                                                              \
+        return ptr;                                                                                \
+    }                                                                                              \
+                                                                                                   \
+    /* This function will be called if a property not valid for this widget is given. */           \
+    template<typename PropType, typename PropTagType>                                              \
+    void applyProp(PropType&& prop, PropTagType&&)                                                 \
+    {                                                                                              \
+        prop.assertInvalid();                                                                      \
+    }                                                                                              \
+                                                                                                   \
+    /* Accept properties common to most widgets. */                                                \
+    ZCGUI_ACCEPT_PROP(width, overrideWidth, ::GUI::Size)                                           \
+    ZCGUI_ACCEPT_PROP(height, overrideHeight, ::GUI::Size)                                         \
+    ZCGUI_ACCEPT_PROP(maxwidth, capWidth, ::GUI::Size)                                             \
+    ZCGUI_ACCEPT_PROP(maxheight, capHeight, ::GUI::Size)                                           \
+    ZCGUI_ACCEPT_PROP(minwidth, minWidth, ::GUI::Size)                                             \
+    ZCGUI_ACCEPT_PROP(minheight, minHeight, ::GUI::Size)                                           \
+    ZCGUI_ACCEPT_PROP(visible, setVisible, bool)                                                   \
+    ZCGUI_ACCEPT_PROP(hAlign, setHAlign, float)                                                    \
+    ZCGUI_ACCEPT_PROP(vAlign, setVAlign, float)                                                    \
+    ZCGUI_ACCEPT_PROP(leftMargin, setLeftMargin, ::GUI::Size)                                      \
+    ZCGUI_ACCEPT_PROP(rightMargin, setRightMargin, ::GUI::Size)                                    \
+    ZCGUI_ACCEPT_PROP(topMargin, setTopMargin, ::GUI::Size)                                        \
+    ZCGUI_ACCEPT_PROP(bottomMargin, setBottomMargin, ::GUI::Size)                                  \
+    ZCGUI_ACCEPT_PROP(hMargins, setHMargins, ::GUI::Size)                                          \
+    ZCGUI_ACCEPT_PROP(vMargins, setVMargins, ::GUI::Size)                                          \
+    ZCGUI_ACCEPT_PROP(margins, setMargins, ::GUI::Size)                                            \
+    ZCGUI_ACCEPT_PROP(leftPadding, setLeftPadding, ::GUI::Size)                                    \
+    ZCGUI_ACCEPT_PROP(rightPadding, setRightPadding, ::GUI::Size)                                  \
+    ZCGUI_ACCEPT_PROP(topPadding, setTopPadding, ::GUI::Size)                                      \
+    ZCGUI_ACCEPT_PROP(bottomPadding, setBottomPadding, ::GUI::Size)                                \
+    ZCGUI_ACCEPT_PROP(hPadding, setHPadding, ::GUI::Size)                                          \
+    ZCGUI_ACCEPT_PROP(vPadding, setVPadding, ::GUI::Size)                                          \
+    ZCGUI_ACCEPT_PROP(padding, setPadding, ::GUI::Size)                                            \
+    ZCGUI_ACCEPT_PROP(focused, setFocused, bool)                                                   \
+    ZCGUI_ACCEPT_PROP(framed, setFramed, bool)                                                     \
+    ZCGUI_ACCEPT_PROP(fitParent, setFitParent, bool)                                               \
+    ZCGUI_ACCEPT_PROP(disabled, setDisabled, bool)                                                 \
+    ZCGUI_ACCEPT_PROP(useFont, setFont, FONT*)                                                     \
+    ZCGUI_ACCEPT_PROP(frameText, setFrameText, std::string const&)                                 \
+
+
+// Builder for widgets that don't accept common properties.
+#define ZCGUI_MINIMAL_BUILDER_START(widgetType)                                                    \
 struct widgetType##Builder                                                                         \
 {                                                                                                  \
     struct Dummy;                                                                                  \
@@ -245,40 +303,13 @@ struct widgetType##Builder                                                      
     }
 
 
-// Accept common properties and reject children by default.
+// Reject children by default.
 #define ZCGUI_BUILDER_END()                                                                        \
     template<bool b = false>                                                                       \
     void addChildren(...)                                                                          \
     {                                                                                              \
         ZCGUI_STATIC_ASSERT(b, "This widget cannot have children.");                               \
     }                                                                                              \
-    ZCGUI_ACCEPT_PROP(width, overrideWidth, ::GUI::Size)                                           \
-    ZCGUI_ACCEPT_PROP(height, overrideHeight, ::GUI::Size)                                         \
-    ZCGUI_ACCEPT_PROP(maxwidth, capWidth, ::GUI::Size)                                             \
-    ZCGUI_ACCEPT_PROP(maxheight, capHeight, ::GUI::Size)                                           \
-    ZCGUI_ACCEPT_PROP(visible, setVisible, bool)                                                   \
-    ZCGUI_ACCEPT_PROP(hAlign, setHAlign, float)                                                    \
-    ZCGUI_ACCEPT_PROP(vAlign, setVAlign, float)                                                    \
-    ZCGUI_ACCEPT_PROP(leftMargin, setLeftMargin, ::GUI::Size)                                      \
-    ZCGUI_ACCEPT_PROP(rightMargin, setRightMargin, ::GUI::Size)                                    \
-    ZCGUI_ACCEPT_PROP(topMargin, setTopMargin, ::GUI::Size)                                        \
-    ZCGUI_ACCEPT_PROP(bottomMargin, setBottomMargin, ::GUI::Size)                                  \
-    ZCGUI_ACCEPT_PROP(hMargins, setHMargins, ::GUI::Size)                                          \
-    ZCGUI_ACCEPT_PROP(vMargins, setVMargins, ::GUI::Size)                                          \
-    ZCGUI_ACCEPT_PROP(margins, setMargins, ::GUI::Size)                                            \
-    ZCGUI_ACCEPT_PROP(leftPadding, setLeftPadding, ::GUI::Size)                                    \
-    ZCGUI_ACCEPT_PROP(rightPadding, setRightPadding, ::GUI::Size)                                  \
-    ZCGUI_ACCEPT_PROP(topPadding, setTopPadding, ::GUI::Size)                                      \
-    ZCGUI_ACCEPT_PROP(bottomPadding, setBottomPadding, ::GUI::Size)                                \
-    ZCGUI_ACCEPT_PROP(hPadding, setHPadding, ::GUI::Size)                                          \
-    ZCGUI_ACCEPT_PROP(vPadding, setVPadding, ::GUI::Size)                                          \
-    ZCGUI_ACCEPT_PROP(padding, setPadding, ::GUI::Size)                                            \
-    ZCGUI_ACCEPT_PROP(focused, setFocused, bool)                                                   \
-    ZCGUI_ACCEPT_PROP(framed, setFramed, bool)                                                     \
-    ZCGUI_ACCEPT_PROP(fitParent, setFitParent, bool)                                               \
-    ZCGUI_ACCEPT_PROP(disabled, setDisabled, bool)                                                 \
-    ZCGUI_ACCEPT_PROP(useFont, setFont, FONT*)                                                     \
-    ZCGUI_ACCEPT_PROP(frameText, setFrameText, std::string const&)                                 \
 };
 
 

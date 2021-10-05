@@ -45,7 +45,7 @@ int onInit()
     dmap_list_size=MAXDMAPS;
     dmap_list_zero=true;
     init_dlg[1656].d1 = zinit.start_dmap;
-    return doInit(&zinit);
+    return doInit(&zinit, false);
 }
 
 void center_zq_init_dialog()

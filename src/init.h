@@ -36,7 +36,7 @@ int d_maxbombsedit_proc(int msg,DIALOG *d,int c);
 int d_bombratio_proc(int msg,DIALOG *d,int c);
 extern DIALOG init_dlg[];
 extern TABPANEL init_tabs[];
-int doInit(zinitdata *zinit);
+int doInit(zinitdata *zinit, bool isZC);
 void resetItems(gamedata *data, zinitdata *zinit, bool lvlitems);
 #endif
 

@@ -21,6 +21,7 @@ public:
 	DialogRef();
 	DIALOG* operator->();
 	const DIALOG* operator->() const;
+	DIALOG& operator*();
 	DIALOG& operator[](int offset);
 	const DIALOG& operator[](int offset) const;
 	operator bool() const
@@ -28,7 +29,7 @@ public:
 		return owner;
 	}
 	
-	void applyVisibility(bool visible);
+	void applyVisibility(bool visible, int offs = 0);
 	void message(int msg, int c);
 	
 private:

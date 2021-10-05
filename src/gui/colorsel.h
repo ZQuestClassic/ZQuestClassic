@@ -1,0 +1,46 @@
+#ifndef ZC_GUI_COLORSEL_H
+#define ZC_GUI_COLORSEL_H
+
+#include "widget.h"
+#include "dialog_ref.h"
+#include <memory>
+#include <string_view>
+
+namespace GUI
+{
+
+class ColorSel: public Widget
+{
+public:
+	
+	ColorSel();
+	
+	void setVal(byte val);
+	byte getVal();
+	
+	/* Sets the message to send whenever the text changes. Like onEnter,
+	 * the type of the argument varies depending on the text field's type.
+	 */
+	template<typename T>
+	RequireMessage<T> onValueChanged(T m)
+	{
+		onValueChangedMsg = static_cast<int>(m);
+	}
+
+	/* Sets a function to be called on value change. */
+	void setOnValChanged(std::function<void(byte)> newOnValChanged);
+	
+private:
+	DialogRef alDialog;
+	int onValueChangedMsg;
+	byte colorVal;
+	std::function<void(byte)> onValChanged;
+
+	void applyVisibility(bool visible) override;
+	void realize(DialogRunner& runner) override;
+	int onEvent(int event, MessageDispatcher& sendMessage) override;
+};
+
+}
+
+#endif

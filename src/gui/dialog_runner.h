@@ -6,6 +6,7 @@
 #include "dialog_ref.h"
 #include "helper.h"
 #include "widget.h"
+#include "../signal.h"
 #include <memory>
 #include <type_traits>
 
@@ -54,6 +55,20 @@ public:
 	{
 		return alDialog.size();
 	}
+
+	/* Returns a raw pointer to the DIALOG array for widgets that need it.
+	 * This must not be called until the array is fully constructed.
+	 * This can be done using the dialogConstructed signal.
+	 */
+	inline DIALOG* getDialogArray()
+	{
+		return alDialog.data();
+	}
+
+	/* A signal emitted when construction of the DIALOG array is finished.
+	 * Shouldn't really be public, but that can be dealt with later.
+	 */
+	Signal dialogConstructed;
 
 private:
 	MessageDispatcher sendMessage;
