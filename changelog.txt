@@ -1,7 +1,10 @@
 // 2.55 Change Log
-// Updated 4th Oct, 2021
+// Updated 5th Oct, 2021
 
-//Recent changes
+//Alpha 98
+
+Init Data dialog upgrade
+	( EmilyV & Saffith, Oct 5th, 2021 )
 
 Fix itype names missing in cheat menu
 Add beam shards new animation type for 'Misc Type = 4'
