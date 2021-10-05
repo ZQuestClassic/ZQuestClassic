@@ -21,7 +21,7 @@ Widget::Widget() noexcept:
 	minwidth(-1), minheight(-1),
 	flags(0), hideCount(0),
 	frameText(""), widgFont(GUI_DEF_FONT),
-	wasRealized(false)
+	owner(NULL)
 {}
 
 void Widget::overrideWidth(Size newWidth) noexcept
@@ -205,6 +205,7 @@ void Widget::arrange(int contX, int contY, int contW, int contH)
 
 void Widget::realize(DialogRunner& runner)
 {
+	owner = &runner;
 	if(flags&f_FRAMED)
 	{
 		frameDialog = runner.push(shared_from_this(), DIALOG {
@@ -226,7 +227,6 @@ void Widget::realize(DialogRunner& runner)
 			frameText.data(), widgFont, nullptr // dp, dp2, dp3
 		});
 	}
-	wasRealized = true;
 }
 
 void Widget::setFocused(bool focused) noexcept
@@ -268,7 +268,7 @@ void Widget::setFrameText(std::string const& newstr)
 	if(frameTextDialog)
 	{
 		frameTextDialog->dp = frameText.data();
-		if(getVisible())
+		if(allowDraw() && getVisible())
 		{
 			broadcast_dialog_message(MSG_DRAW, 0);
 		}
@@ -282,7 +282,7 @@ void Widget::applyFont(FONT* newfont)
 	{
 		frameTextDialog->dp2 = widgFont;
 	}
-	if(isRealized() && getVisible())
+	if(allowDraw() && getVisible())
 	{
 		broadcast_dialog_message(MSG_DRAW, 0);
 	}
@@ -296,6 +296,16 @@ int Widget::getFlags() const noexcept
 	if(flags&f_DISABLED)
 		ret |= D_DISABLED;
 	return ret;
+}
+
+bool Widget::allowDraw()
+{
+	return owner && owner->allowDraw();
+}
+
+bool Widget::isConstructed()
+{
+	return owner && owner->isConstructed();
 }
 
 }

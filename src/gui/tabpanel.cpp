@@ -22,7 +22,8 @@ void TabPanel::switchTo(size_t index)
 	
 	children[visibleChild]->setExposed(false); //Hide the old child
 	visibleChild = index;
-	alDialog.message(MSG_DRAW, 0); //Draw the tabpanel again, with the correct tab selected
+	if(allowDraw() && getVisible())
+		alDialog.message(MSG_DRAW, 0); //Draw the tabpanel again, with the correct tab selected
 	children[index]->setExposed(true); //Show the new child
 }
 

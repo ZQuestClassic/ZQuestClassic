@@ -23,10 +23,11 @@ ColorSel::ColorSel(): onValueChangedMsg(-1), colorVal(0)
 void ColorSel::setVal(byte val)
 {
 	colorVal = val;
-	if(alDialog && getVisible())
+	if(alDialog)
 	{
 		alDialog->d1 = val;
-		alDialog.message(MSG_DRAW, 0);
+		if(allowDraw() && getVisible())
+			alDialog.message(MSG_DRAW, 0);
 	}
 }
 

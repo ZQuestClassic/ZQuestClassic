@@ -262,7 +262,7 @@ int popup_zqdialog(DIALOG *dialog, int focus_obj)
  * afterward, but uses dialog[1] for the size and position. It also doesn't
  * return a value.
  */
-void new_gui_popup_dialog(DIALOG* dialog, int focus_obj, bool& done)
+void new_gui_popup_dialog(DIALOG* dialog, int focus_obj, bool& done, bool& running)
 {
 	ASSERT(dialog);
 	int x=dialog[1].x;
@@ -280,12 +280,12 @@ void new_gui_popup_dialog(DIALOG* dialog, int focus_obj, bool& done)
 	}
 	else
 		*allegro_errno=ENOMEM;
-
+	running=true;
 	int ret=0;
 	while(!done && ret>=0)
 		// Not quite sure which one of these to use...
 		ret=do_zqdialog(dialog, focus_obj);
-
+	running=false;
 	if(backup)
 	{
 		scare_mouse_area(x, y, w, h);

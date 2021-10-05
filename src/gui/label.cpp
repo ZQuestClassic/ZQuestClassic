@@ -122,7 +122,7 @@ void Label::fitText()
 		alDialog->w = getWidth();
 		alDialog->dp = text_fit.data();
 		
-		if(getVisible())
+		if(allowDraw() && getVisible())
 		{
 			broadcast_dialog_message(MSG_DRAW, 0);
 		}

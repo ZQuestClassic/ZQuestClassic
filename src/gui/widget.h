@@ -281,10 +281,12 @@ protected:
 	 */
 	int getFlags() const noexcept;
 	
-	bool isRealized() const noexcept {return wasRealized;}
-	
 	FONT* widgFont;
-	bool wasRealized;
+	
+	/* Returns true if the dialog is running, and thus draws to the screen are permitted */
+	bool allowDraw();
+	/* Returns true if the entire dialog has been realized */
+	bool isConstructed();
 	
 private:
 	enum
@@ -299,6 +301,7 @@ private:
 	};
 
 	int width, height, maxwidth, maxheight, minwidth, minheight;
+	DialogRunner *owner;
 	unsigned char flags: 7;
 
 	/* The number of containers hiding this widget. Shouldn't be too many,

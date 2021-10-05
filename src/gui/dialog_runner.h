@@ -64,18 +64,28 @@ public:
 	{
 		return alDialog.data();
 	}
-
+	
+	bool isConstructed()
+	{
+		return realized;
+	}
+	
+	bool allowDraw()
+	{
+		return running;
+	}
+	
 	/* A signal emitted when construction of the DIALOG array is finished.
 	 * Shouldn't really be public, but that can be dealt with later.
 	 */
 	Signal dialogConstructed;
-
+	
 private:
 	MessageDispatcher sendMessage;
 	std::vector<DIALOG> alDialog;
 	std::vector<std::shared_ptr<Widget>> widgets;
 	int focused;
-	bool redrawPending, done;
+	bool redrawPending, done, realized, running;
 
 	/* Sets up the DIALOG array for a dialog so that it can be run. */
 	void realize(std::shared_ptr<Widget> root);

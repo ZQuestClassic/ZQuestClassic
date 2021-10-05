@@ -32,7 +32,7 @@ void TextField::setText(std::string_view newText)
 	newText.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength, newText.size())] = '\0';
 	valSet = true;
-	if(alDialog && getVisible())
+	if(alDialog && allowDraw() && getVisible())
 	{
 		alDialog.message(MSG_DRAW, 0);
 	}
@@ -94,7 +94,7 @@ void TextField::setVal(int val)
 	v.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength, v.size())] = '\0';
 	valSet = true;
-	if(alDialog && getVisible())
+	if(alDialog && allowDraw() && getVisible())
 	{
 		alDialog.message(MSG_DRAW, 0);
 	}
@@ -300,7 +300,7 @@ int TextField::onEvent(int event, MessageDispatcher& sendMessage)
 			if(!isSwapType())
 			{
 				message = onValueChangedMsg;
-				onValChanged(tfType, getText(), getVal());
+				if(onValChanged) onValChanged(tfType, getText(), getVal());
 			}
 			break;
 			
@@ -308,7 +308,7 @@ int TextField::onEvent(int event, MessageDispatcher& sendMessage)
 			if(isSwapType())
 			{
 				message = onValueChangedMsg;
-				onValChanged(tfType, getText(), getVal());
+				if (onValChanged) onValChanged(tfType, getText(), getVal());
 			}
 			break;
 		
