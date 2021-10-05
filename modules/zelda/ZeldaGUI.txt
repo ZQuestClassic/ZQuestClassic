@@ -44,6 +44,8 @@ src/gui/radio.cpp
 src/gui/radioset.cpp
 src/gui/colorsel.cpp
 src/gui/scrolling_pane.cpp
+src/gui/frame.cpp
+src/gui/list.cpp
 
 src/dialog/init_data.cpp
 

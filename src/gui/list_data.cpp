@@ -1,5 +1,7 @@
 #include "list_data.h"
 #include <boost/format.hpp>
+#include <map>
+extern zcmodule moduledata;
 
 namespace GUI
 {
@@ -37,6 +39,49 @@ const char* ListData::jwinWrapper(int index, int* size, void* owner)
 		*size = cb->size();
 		return nullptr;
 	}
+}
+
+ListData ListData::itemclass(bool numbered)
+{
+	std::map<std::string, int> fams;
+	std::set<std::string> famnames;
+	
+	for(int i=0; i<itype_max; ++i)
+	{
+        if(i < itype_last || moduledata.item_editor_type_names[i][0] != NULL )
+		{
+            char const* module_str = moduledata.item_editor_type_names[i];
+            char* name = new char[strlen(module_str) + 7];
+            if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+            else strcpy(name, module_str);
+			std::string sname(name);
+			
+			fams[sname] = i;
+			famnames.insert(sname);
+			delete[] name;
+		}
+		else 
+		{
+			char *name = new char[12];
+			if(numbered)
+				sprintf(name, "zz%03d (%03d)", i, i);
+			else sprintf(name, "zz%03d", i);
+			std::string sname(name);
+			
+			fams[sname] = i;
+			famnames.insert(sname);
+			delete[] name;
+		}
+	}
+	
+	ListData ls;
+	
+	for(std::set<std::string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
+	{
+		ls.add(*it, fams[*it]);
+	}
+	return ls;
 }
 
 }

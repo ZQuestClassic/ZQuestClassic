@@ -5,11 +5,13 @@
 #include "zsys.h"
 
 extern ListData dmap_list;
-
 extern bool saved;
-void call_init_dlg(zinitdata& sourcezinit)
+extern itemdata *itemsbuf;
+extern char *item_string[];
+
+void call_init_dlg(zinitdata& sourcezinit, bool zc)
 {
-    InitDataDialog(sourcezinit,
+    InitDataDialog(sourcezinit, zc,
         [&sourcezinit](zinitdata const& other)
 		{
 			saved = false;
@@ -17,8 +19,9 @@ void call_init_dlg(zinitdata& sourcezinit)
 		}).show();
 }
 
-InitDataDialog::InitDataDialog(zinitdata const& start, std::function<void(zinitdata const&)> setVals):
-	local_zinit(start), setVals(setVals), levelsOffset(0), list_dmaps(dmap_list)
+InitDataDialog::InitDataDialog(zinitdata const& start, bool zc, std::function<void(zinitdata const&)> setVals):
+	local_zinit(start), setVals(setVals), levelsOffset(0), list_dmaps(dmap_list),
+	list_items(GUI::ListData::itemclass(false)), isZC(zc)
 {}
 
 void InitDataDialog::setOfs(size_t ofs)
@@ -67,9 +70,9 @@ Rows<2>( \
 	field2 \
 )
 
-#define VAL_FIELD(name, minval, maxval, member) \
+#define VAL_FIELD(name, minval, maxval, member, dis) \
 Label(text = name, hAlign = 0.0), \
-TextField(maxLength = 11, type = GUI::TextField::type::INT_DECIMAL, \
+TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::INT_DECIMAL, \
 	hAlign = 1.0, low = minval, high = maxval, val = local_zinit.member, \
 	width = 4.5_em, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
@@ -77,9 +80,9 @@ TextField(maxLength = 11, type = GUI::TextField::type::INT_DECIMAL, \
 		local_zinit.member = val; \
 	})
 
-#define DEC_VAL_FIELD(name, minval, maxval, numPlaces, member) \
+#define DEC_VAL_FIELD(name, minval, maxval, numPlaces, member, dis) \
 Label(text = name, hAlign = 0.0), \
-TextField(maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL, \
+TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL, \
 	hAlign = 1.0, low = minval, high = maxval, val = local_zinit.member, \
 	width = 4.5_em, places = numPlaces, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
@@ -87,9 +90,9 @@ TextField(maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL, \
 		local_zinit.member = val; \
 	})
 
-#define COLOR_FIELD(name, member) \
+#define COLOR_FIELD(name, member, dis) \
 Label(text = name, hAlign = 0.0), \
-ColorSel(hAlign = 1.0, val = local_zinit.member, \
+ColorSel(disabled = dis, hAlign = 1.0, val = local_zinit.member, \
 	width = 4.5_em, \
 	onValChangedFunc = [&](byte val) \
 	{ \
@@ -155,6 +158,55 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
+	std::map<int, std::vector<int>> families;
+	icswitcher = Switcher(fitParent = true, hAlign = 0.0, vAlign = 0.0);
+	
+	for(int q = 0; q < MAXITEMS; ++q)
+	{
+		int family = itemsbuf[q].family;
+		
+		if(family == 0x200 || family == itype_triforcepiece || !(itemsbuf[q].flags & ITEM_GAMEDATA))
+		{
+			continue;
+		}
+		
+		std::map<int,std::vector<int> >::iterator it = families.find(family);
+		
+        if(it == families.end())
+        {
+            families[family] = std::vector<int>();
+        }
+        
+        families[family].push_back(q);
+	}
+	
+	int fam_ind = 0;
+	for(int q = 0; q < itype_max; ++q)
+	{
+		std::map<int,std::vector<int> >::iterator it = families.find(q);
+		if(it == families.end())
+		{
+			list_items.removeVal(q); //Remove from the lister
+			continue;
+		}
+		switchids[q] = fam_ind++;
+		std::shared_ptr<GUI::Grid> grid = Columns<10>(fitParent = true,hAlign=0.0,vAlign=0.0);
+		for(std::vector<int>::iterator itid = (*it).second.begin(); itid != (*it).second.end(); ++itid)
+		{
+			std::shared_ptr<GUI::Checkbox> cb = Checkbox(
+				hAlign=0.0,vAlign=0.0,
+				checked = local_zinit.items[*itid],
+				text = item_string[*itid],
+				onToggleFunc = [&](bool state)
+				{
+					local_zinit.items[*itid] = state;
+				}
+			);
+			grid->add(cb);
+		}
+		icswitcher->add(grid);
+	}
+	icswitcher->switchTo(switchids[list_items.getValue(0)]);
 	if(!is_large) //Just return an entirely different dialog...
 	{
 		return Window(
@@ -166,7 +218,20 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				padding = sized(0_px, 2_spx),
 				TabPanel(
 					padding = sized(0_px, 2_spx),
-					TabRef(name = "Equipment", Column()),
+					TabRef(name = "Equipment", Row(
+						List(minheight = 160_px,
+							data = list_items,
+							selectedIndex = 0,
+							onSelectFunc = [&](int val)
+							{
+								icswitcher->switchTo(switchids[val]);
+								broadcast_dialog_message(MSG_DRAW,0);
+							}
+						),
+						Frame(fitParent = true,
+							icswitcher
+						)
+					)),
 					TabRef(name = "Counters", TabPanel(
 						TabRef(name = "Engine", Rows<2>(
 							Rows<2>(
@@ -197,7 +262,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									disabled = true
 								),
 								TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-									high = 255, val = local_zinit.bomb_ratio,
+									high = 255, val = local_zinit.bomb_ratio, disabled = isZC,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
 									{
 										local_zinit.bomb_ratio = val;
@@ -294,8 +359,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						Row(
 							framed = true,
 							Label(text = "Start DMap:"),
-							DropDownList(data = list_dmaps,
-								selectedValue = local_zinit.start_dmap,
+							DropDownList(disabled = isZC, data = list_dmaps,
+								selectedValue = isZC ? 0 : local_zinit.start_dmap,
 								onSelectFunc = [&](int val)
 								{
 									local_zinit.start_dmap = val;
@@ -381,22 +446,22 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								Rows<2>(
 									margins = 0_px,
 									padding = 0_px,
-									DEC_VAL_FIELD("Gravity:",1,255,2,gravity),
-									DEC_VAL_FIELD("Terminal Vel:",1,9999,2,terminalv),
-									VAL_FIELD("Jump Layer Height:",0,255,jump_link_layer_threshold),
-									VAL_FIELD("Hero Step:",0,9999,heroStep),
-									VAL_FIELD("Subscren Fall Mult:",1,85,subscrSpeed)
+									DEC_VAL_FIELD("Gravity:",1,255,2,gravity,isZC),
+									DEC_VAL_FIELD("Terminal Vel:",1,9999,2,terminalv,isZC),
+									VAL_FIELD("Jump Layer Height:",0,255,jump_link_layer_threshold,isZC),
+									VAL_FIELD("Hero Step:",0,9999,heroStep,isZC),
+									VAL_FIELD("Subscreen Fall Mult:",1,85,subscrSpeed,isZC)
 								)
 							),
 							Column(vAlign = 0.0,
 								Rows<2>(
 									margins = 0_px,
 									padding = 0_px,
-									VAL_FIELD("HP Per Heart:",1,255,hp_per_heart),
-									VAL_FIELD("MP Per Block:",1,255,magic_per_block),
-									VAL_FIELD("Player Damage Mult:",1,255,hero_damage_multiplier),
-									VAL_FIELD("Enemy Damage Mult:",1,255,ene_damage_multiplier),
-									COLOR_FIELD("Darkness Color", darkcol)
+									VAL_FIELD("HP Per Heart:",1,255,hp_per_heart,false),
+									VAL_FIELD("MP Per Block:",1,255,magic_per_block,false),
+									VAL_FIELD("Player Damage Mult:",1,255,hero_damage_multiplier,false),
+									VAL_FIELD("Enemy Damage Mult:",1,255,ene_damage_multiplier,false),
+									COLOR_FIELD("Darkness Color", darkcol,false)
 								)
 							)
 						)),
@@ -405,11 +470,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								Rows<2>(
 									margins = 0_px,
 									padding = 0_px,
-									VAL_FIELD("Light Dither Type:",0,255,dither_type),
-									VAL_FIELD("Light Dither Arg:",0,255,dither_arg),
-									VAL_FIELD("Light Dither %:",0,255,dither_percent),
-									VAL_FIELD("Light Radius:",0,255,def_lightrad),
-									VAL_FIELD("Light Transp. %:",0,255,transdark_percent)
+									VAL_FIELD("Light Dither Type:",0,255,dither_type,false),
+									VAL_FIELD("Light Dither Arg:",0,255,dither_arg,false),
+									VAL_FIELD("Light Dither %:",0,255,dither_percent,false),
+									VAL_FIELD("Light Radius:",0,255,def_lightrad,false),
+									VAL_FIELD("Light Transp. %:",0,255,transdark_percent,false)
 								)
 							)
 						))
@@ -439,7 +504,20 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			padding = sized(0_px, 2_spx),
 			TabPanel(
 				padding = sized(0_px, 2_spx),
-				TabRef(name = "Equipment", Column()),
+				TabRef(name = "Equipment", Row(
+					List(minheight = 300_px,
+						data = list_items,
+						selectedIndex = 0,
+						onSelectFunc = [&](int val)
+						{
+							icswitcher->switchTo(switchids[val]);
+							broadcast_dialog_message(MSG_DRAW,0);
+						}
+					),
+					Frame(fitParent = true,
+						icswitcher
+					)
+				)),
 				TabRef(name = "Counters", TabPanel(
 					TabRef(name = "Engine", Rows<2>(hAlign = 0.0, vAlign = 0.0,
 						Rows<2>(
@@ -470,7 +548,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								disabled = true
 							),
 							TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-								high = 255, val = local_zinit.bomb_ratio,
+								high = 255, val = local_zinit.bomb_ratio, disabled = isZC,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
 								{
 									local_zinit.bomb_ratio = val;
@@ -481,7 +559,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						COUNTER_FRAME("Rupees", WORD_FIELD(rupies), WORD_FIELD(max_rupees)),
 						COUNTER_FRAME("Keys", BYTE_FIELD(keys), WORD_FIELD(max_keys))
 					)),
-					TabRef(name = "Script", Columns<5>(margins = 1_px,
+					TabRef(name = "Script 1", Columns<5>(margins = 1_px,
 						COUNTER_FRAME("Script 1", WORD_FIELD(scrcnt[0]), WORD_FIELD(scrmaxcnt[0])),
 						COUNTER_FRAME("Script 2", WORD_FIELD(scrcnt[1]), WORD_FIELD(scrmaxcnt[1])),
 						COUNTER_FRAME("Script 3", WORD_FIELD(scrcnt[2]), WORD_FIELD(scrmaxcnt[2])),
@@ -496,7 +574,9 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						COUNTER_FRAME("Script 12", WORD_FIELD(scrcnt[11]), WORD_FIELD(scrmaxcnt[11])),
 						COUNTER_FRAME("Script 13", WORD_FIELD(scrcnt[12]), WORD_FIELD(scrmaxcnt[12])),
 						COUNTER_FRAME("Script 14", WORD_FIELD(scrcnt[13]), WORD_FIELD(scrmaxcnt[13])),
-						COUNTER_FRAME("Script 15", WORD_FIELD(scrcnt[14]), WORD_FIELD(scrmaxcnt[14])),
+						COUNTER_FRAME("Script 15", WORD_FIELD(scrcnt[14]), WORD_FIELD(scrmaxcnt[14]))
+					)),
+					TabRef(name = "Script 2", Columns<5>(margins = 1_px,
 						COUNTER_FRAME("Script 16", WORD_FIELD(scrcnt[15]), WORD_FIELD(scrmaxcnt[15])),
 						COUNTER_FRAME("Script 17", WORD_FIELD(scrcnt[16]), WORD_FIELD(scrmaxcnt[16])),
 						COUNTER_FRAME("Script 18", WORD_FIELD(scrcnt[17]), WORD_FIELD(scrmaxcnt[17])),
@@ -561,7 +641,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					Row(
 						framed = true,
 						Label(text = "Start DMap:"),
-						DropDownList(data = list_dmaps,
+						DropDownList(disabled = isZC, data = list_dmaps,
 							selectedValue = local_zinit.start_dmap,
 							onSelectFunc = [&](int val)
 							{
@@ -647,27 +727,27 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						Rows<2>(
 							margins = 0_px,
 							padding = 0_px,
-							DEC_VAL_FIELD("Gravity:",1,255,2,gravity),
-							DEC_VAL_FIELD("Terminal Vel:",1,9999,2,terminalv),
-							VAL_FIELD("Jump Layer Height:",0,255,jump_link_layer_threshold),
-							VAL_FIELD("Hero Step:",0,9999,heroStep),
-							VAL_FIELD("Subscren Fall Mult:",1,85,subscrSpeed),
-							VAL_FIELD("HP Per Heart:",1,255,hp_per_heart),
-							VAL_FIELD("MP Per Block:",1,255,magic_per_block),
-							VAL_FIELD("Player Damage Mult:",1,255,hero_damage_multiplier),
-							VAL_FIELD("Enemy Damage Mult:",1,255,ene_damage_multiplier)
+							DEC_VAL_FIELD("Gravity:",1,255,2,gravity,isZC),
+							DEC_VAL_FIELD("Terminal Vel:",1,9999,2,terminalv,isZC),
+							VAL_FIELD("Jump Layer Height:",0,255,jump_link_layer_threshold,isZC),
+							VAL_FIELD("Hero Step:",0,9999,heroStep,isZC),
+							VAL_FIELD("Subscren Fall Mult:",1,85,subscrSpeed,isZC),
+							VAL_FIELD("HP Per Heart:",1,255,hp_per_heart,false),
+							VAL_FIELD("MP Per Block:",1,255,magic_per_block,false),
+							VAL_FIELD("Player Damage Mult:",1,255,hero_damage_multiplier,false),
+							VAL_FIELD("Enemy Damage Mult:",1,255,ene_damage_multiplier,false)
 						)
 					),
 					Column(vAlign = 0.0,
 						Rows<2>(
 							margins = 0_px,
 							padding = 0_px,
-							VAL_FIELD("Light Dither Type:",0,255,dither_type),
-							VAL_FIELD("Light Dither Arg:",0,255,dither_arg),
-							VAL_FIELD("Light Dither Percentage:",0,255,dither_percent),
-							VAL_FIELD("Light Radius:",0,255,def_lightrad),
-							VAL_FIELD("Light Transp. Percentage:",0,255,transdark_percent),
-							COLOR_FIELD("Darkness Color:", darkcol)
+							VAL_FIELD("Light Dither Type:",0,255,dither_type,false),
+							VAL_FIELD("Light Dither Arg:",0,255,dither_arg,false),
+							VAL_FIELD("Light Dither Percentage:",0,255,dither_percent,false),
+							VAL_FIELD("Light Radius:",0,255,def_lightrad,false),
+							VAL_FIELD("Light Transp. Percentage:",0,255,transdark_percent,false),
+							COLOR_FIELD("Darkness Color:", darkcol,false)
 						)
 					)
 				))))

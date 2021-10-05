@@ -18,8 +18,10 @@ Widget::Widget() noexcept:
 	hAlign(0.5), vAlign(0.5),
 	width(0), height(0),
 	maxwidth(-1), maxheight(-1),
+	minwidth(-1), minheight(-1),
 	flags(0), hideCount(0),
-	frameText(""), widgFont(GUI_DEF_FONT)
+	frameText(""), widgFont(GUI_DEF_FONT),
+	wasRealized(false)
 {}
 
 void Widget::overrideWidth(Size newWidth) noexcept
@@ -48,6 +50,18 @@ void Widget::capHeight(Size newHeight) noexcept
 	if(height > maxheight) height = maxheight;
 }
 
+void Widget::minWidth(Size newWidth) noexcept
+{
+	minwidth = newWidth.resolve();
+	if(width < minwidth) width = minwidth;
+}
+
+void Widget::minHeight(Size newHeight) noexcept
+{
+	minheight = newHeight.resolve();
+	if(height < minheight) height = minheight;
+}
+
 void Widget::setPreferredWidth(Size newWidth) noexcept
 {
 	if(flags&f_WIDTH_OVERRIDDEN) return;
@@ -55,6 +69,8 @@ void Widget::setPreferredWidth(Size newWidth) noexcept
 	width = newWidth.resolve();
 	if(maxwidth > -1 && width > maxwidth)
 		width = maxwidth;
+	if(minwidth > -1 && width < minwidth)
+		width = minwidth;
 }
 
 void Widget::setPreferredHeight(Size newHeight) noexcept
@@ -64,6 +80,8 @@ void Widget::setPreferredHeight(Size newHeight) noexcept
 	height = newHeight.resolve();
 	if(maxheight > -1 && height > maxheight)
 		height = maxheight;
+	if(minheight > -1 && height < minheight)
+		height = minheight;
 }
 
 void Widget::setHMargins(Size size) noexcept

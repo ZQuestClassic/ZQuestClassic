@@ -14,9 +14,11 @@ void Switcher::switchTo(size_t index)
 		return;
 
 	assert(index<children.size());
-
-	children[visibleChild]->setExposed(false);
-	children[index]->setExposed(true);
+	if(wasRealized)
+	{
+		children[visibleChild]->setExposed(false);
+		children[index]->setExposed(true);
+	}
 	visibleChild = index;
 }
 

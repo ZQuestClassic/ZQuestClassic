@@ -34,15 +34,25 @@ public:
 	 */
 	void overrideHeight(Size newHeight) noexcept;
 
-	/* Cap the widget's width, if it is below the given width
+	/* Cap the widget's width, if it is above the given width
 	 * This should not be used by widgets.
 	 */
 	void capWidth(Size newWidth) noexcept;
 
-	/* Cap the widget's height, if it is below the given height
+	/* Cap the widget's height, if it is above the given height
 	 * This should not be used by widgets.
 	 */
 	void capHeight(Size newHeight) noexcept;
+	
+	/* Expand the widget's width, if it is below the given width
+	 * This should not be used by widgets.
+	 */
+	void minWidth(Size newWidth) noexcept;
+
+	/* Expand the widget's height, if it is below the given height
+	 * This should not be used by widgets.
+	 */
+	void minHeight(Size newHeight) noexcept;
 
 	inline void setLeftMargin(Size size) noexcept
 	{
@@ -274,6 +284,7 @@ protected:
 	bool isRealized() const noexcept {return wasRealized;}
 	
 	FONT* widgFont;
+	bool wasRealized;
 	
 private:
 	enum
@@ -287,8 +298,7 @@ private:
 		f_FIT_PARENT =        0b1000000,
 	};
 
-	int width, height, maxwidth, maxheight;
-	bool wasRealized;
+	int width, height, maxwidth, maxheight, minwidth, minheight;
 	unsigned char flags: 7;
 
 	/* The number of containers hiding this widget. Shouldn't be too many,

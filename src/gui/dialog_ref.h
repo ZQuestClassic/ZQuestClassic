@@ -29,7 +29,7 @@ public:
 		return owner;
 	}
 	
-	void applyVisibility(bool visible);
+	void applyVisibility(bool visible, int offs = 0);
 	void message(int msg, int c);
 	
 private:

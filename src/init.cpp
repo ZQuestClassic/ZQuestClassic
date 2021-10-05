@@ -1753,9 +1753,10 @@ const char *item_class_list(int index, int *list_size)
 //InitData store values. -Z
 
 #include "dialog/init_data.h"
-int doInit(zinitdata *local_zinit)
+int doInit(zinitdata *local_zinit, bool isZC)
 {
-	call_init_dlg(*local_zinit);
+	call_init_dlg(*local_zinit, isZC);
+	return D_O_K;
     for(int i=0; i<MAXITEMS; i++)
     {
         int family = itemsbuf[i].family;
@@ -2196,6 +2197,7 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
 
 void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 {
+    game2->set_life(zinit2->start_heart*zinit2->hp_per_heart);
     game2->set_maxlife(zinit2->hc*zinit2->hp_per_heart);
     game2->set_maxbombs(zinit2->nBombmax);
     game2->set_maxcounter(zinit2->nBombmax/zc_max(1,zinit2->bomb_ratio), 6);

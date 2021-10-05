@@ -16,18 +16,11 @@ void Frame::setTitle(const std::string& newTitle)
 
 void Frame::applyVisibility(bool visible)
 {
+	Widget::applyVisibility(visible);
 	if(alDialog)
 	{
-		if(visible)
-		{
-			alDialog[0].flags &= ~D_HIDDEN;
-			alDialog[1].flags &= ~D_HIDDEN;
-		}
-		else
-		{
-			alDialog[0].flags |= D_HIDDEN;
-			alDialog[1].flags |= D_HIDDEN;
-		}
+		alDialog.applyVisibility(visible);
+		alDialog.applyVisibility(visible,1);
 	}
 	if(content)
 		content->applyVisibility(visible);

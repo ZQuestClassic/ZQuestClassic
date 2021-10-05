@@ -2276,7 +2276,7 @@ static void idle_cb()
   *  the selection.
   */
 
-static void _handle_jwin_listbox_click(DIALOG *d)
+static bool _handle_jwin_listbox_click(DIALOG *d)
 {
     ListData *data = (ListData *)d->dp;
     char *sel = (char *)d->dp2;
@@ -2286,7 +2286,7 @@ static void _handle_jwin_listbox_click(DIALOG *d)
     data->listFunc(-1, &listsize);
 
     if(!listsize)
-        return;
+        return false;
         
     height = (d->h-3) / text_height(*data->font);
     
@@ -2328,6 +2328,7 @@ static void _handle_jwin_listbox_click(DIALOG *d)
         
         d->d1 = i;
         i = d->d2;
+		
         _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
         
         scare_mouse();
@@ -2336,7 +2337,9 @@ static void _handle_jwin_listbox_click(DIALOG *d)
         
         if(i != d->d2)
             rest_callback(MID(10, text_height(font)*16-d->h, 100), idle_cb);
+		return true;
     }
+	return false;
 }
 
 /* _jwin_draw_scrollable_frame:
@@ -2628,15 +2631,19 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
                 }
             }
             
-            _handle_jwin_listbox_click(d);
+            if(_handle_jwin_listbox_click(d)) GUI_EVENT(d, geCHANGE_SELECTION);
             
             bool rightClicked=(gui_mouse_b()&2)!=0;
             while(gui_mouse_b())
             {
                 broadcast_dialog_message(MSG_IDLE, 0);
                 d->flags |= D_INTERNAL;
-                _handle_jwin_listbox_click(d);
-                d->flags &= ~D_INTERNAL;
+				if(_handle_jwin_listbox_click(d))
+				{
+					d->flags &= ~D_INTERNAL;
+					GUI_EVENT(d, geCHANGE_SELECTION);
+				}
+				d->flags &= ~D_INTERNAL;
                 
                 //	#ifdef _ZQUEST_SCALE_
                 if(is_zquest())
@@ -2806,9 +2813,12 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
                 }
             }
             
-            /* if we changed something, better redraw... */
+            /* if we changed something, better redraw... !Also bounds the index! */
             _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
-            scare_mouse();
+			
+			GUI_EVENT(d, geCHANGE_SELECTION);
+            
+			scare_mouse();
             object_message(d, MSG_DRAW, 0);
             unscare_mouse();
             return D_USED_CHAR;
@@ -2889,14 +2899,18 @@ int jwin_do_abclist_proc(int msg, DIALOG *d, int c)
 					}
 				}
 				
-				_handle_jwin_listbox_click(d);
+				if(_handle_jwin_listbox_click(d)) GUI_EVENT(d, geCHANGE_SELECTION);
 				
 				bool rightClicked=(gui_mouse_b()&2)!=0;
 				while(gui_mouse_b())
 				{
 					broadcast_dialog_message(MSG_IDLE, 0);
 					d->flags |= D_INTERNAL;
-					_handle_jwin_listbox_click(d);
+					if(_handle_jwin_listbox_click(d))
+					{
+						d->flags &= ~D_INTERNAL;
+						GUI_EVENT(d, geCHANGE_SELECTION);
+					}
 					d->flags &= ~D_INTERNAL;
 					
 					//	#ifdef _ZQUEST_SCALE_

@@ -42,16 +42,16 @@ void DialogRef::message(int msg, int c)
 	object_message(&owner->alDialog[index], msg, c);
 }
 
-void DialogRef::applyVisibility(bool visible)
+void DialogRef::applyVisibility(bool visible, int offs)
 {
 	if(visible)
 	{
-		owner->alDialog[index].flags &= ~D_HIDDEN;
+		owner->alDialog[index+offs].flags &= ~D_HIDDEN;
 		message(MSG_DRAW, 0);
 	}
 	else
 	{
-		owner->alDialog[index].flags |= D_HIDDEN;
+		owner->alDialog[index+offs].flags |= D_HIDDEN;
 	}
 }
 

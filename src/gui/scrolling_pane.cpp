@@ -192,13 +192,8 @@ bool ScrollingPane::scrollToShowChild(int childPos)
 
 void ScrollingPane::applyVisibility(bool visible)
 {
-	if(alDialog)
-	{
-		if(visible)
-			alDialog->flags &= ~D_HIDDEN;
-		else
-			alDialog->flags |= D_HIDDEN;
-	}
+	Widget::applyVisibility(visible);
+	if(alDialog) alDialog.applyVisibility(visible);
 	if(content)
 	{
 		START_CLIP(alDialog);

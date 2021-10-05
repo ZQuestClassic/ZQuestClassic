@@ -7,9 +7,6 @@
 #include <cassert>
 #include <cmath>
 
-#define FONT sized(nfont, lfont_l)
-#define FONT_PTR sized(&nfont, &lfont_l)
-
 namespace GUI
 {
 
@@ -25,7 +22,7 @@ List::List():
 void List::setListData(const ::GUI::ListData& newListData)
 {
 	listData = &newListData;
-	jwinListData = newListData.getJWin(FONT_PTR);
+	jwinListData = newListData.getJWin(&widgFont);
 }
 
 void List::setSelectedValue(int value)
@@ -89,13 +86,8 @@ void List::setIndex()
 
 void List::applyVisibility(bool visible)
 {
-	if(alDialog)
-	{
-		if(visible)
-			alDialog->flags &= ~D_HIDDEN;
-		else
-			alDialog->flags |= D_HIDDEN;
-	}
+	Widget::applyVisibility(visible);
+	if(alDialog) alDialog.applyVisibility(visible);
 }
 
 void List::realize(DialogRunner& runner)
@@ -121,6 +113,8 @@ void List::realize(DialogRunner& runner)
 int List::onEvent(int event, MessageDispatcher& sendMessage)
 {
 	assert(event == geCHANGE_SELECTION);
+	if(onSelectFunc)
+		onSelectFunc(listData->getValue(alDialog->d1));
 	if(message >= 0)
 		sendMessage(message, listData->getValue(alDialog->d1));
 	return -1;
