@@ -234,9 +234,9 @@ public:
 	newconveyorclk; // clock for determining when Link gets moved by a conveyor
     int shiftdir, // shift direction when walking into corners of solid combos
     link_is_stunned, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
-    sdir; // scrolling direction
+    sdir, // scrolling direction
+    sideswimdir;  //for forcing link to face left or right in sideview
     int hopdir;  // direction to hop out of water (diagonal movement only)
-    bool sideswimdir; //for forcing link to face left or right in sideview
     int holddir;
     int landswim; // incremental time spent swimming against land
     bool ilswim; // is land swimming?
@@ -253,6 +253,9 @@ public:
     bool diagonalMovement;
     bool bigHitbox;
 	int steprate;
+	int swimuprate;
+	int swimsiderate;
+	int swimdownrate;
     byte defence[wMax];
 	int subscr_speed;
 	bool is_warping;
@@ -502,6 +505,13 @@ public:
     void setBigHitbox(bool newbighitbox);
 	int getStepRate();
 	void setStepRate(int newrate);
+	int getSwimUpRate();
+	void setSwimUpRate(int newrate);
+	int getSwimSideRate();
+	void setSwimSideRate(int newrate);
+	int getSwimDownRate();
+	void setSwimDownRate(int newrate);
+
 	
 	
 	int getLastLensID();	

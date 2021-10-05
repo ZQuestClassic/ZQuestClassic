@@ -384,6 +384,30 @@ void LinkClass::setStepRate(int newrate)
 {
     steprate = newrate;
 }
+int LinkClass::getSwimUpRate()
+{
+    return swimuprate;
+}
+void LinkClass::setSwimUpRate(int newrate)
+{
+    swimuprate = newrate;
+}
+int LinkClass::getSwimSideRate()
+{
+    return swimsiderate;
+}
+void LinkClass::setSwimSideRate(int newrate)
+{
+    swimsiderate = newrate;
+}
+int LinkClass::getSwimDownRate()
+{
+    return swimdownrate;
+}
+void LinkClass::setSwimDownRate(int newrate)
+{
+    swimdownrate = newrate;
+}
 
 
 //void LinkClass::linkstep() { lstep = lstep<(BSZ?27:11) ? lstep+1 : 0; }
@@ -1143,6 +1167,7 @@ void LinkClass::init()
     damageovertimeclk = -1;
     newconveyorclk = 0;
     shiftdir = -1;
+    sideswimdir = right;
     holddir = -1;
     landswim = 0;
     sdir = up;
@@ -1152,6 +1177,9 @@ void LinkClass::init()
     warp_sound = 0;
     subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
+	swimuprate = zinit.heroSideswimUpStep;
+	swimsiderate = zinit.heroSideswimSideStep;
+	swimdownrate = zinit.heroSideswimDownStep;
 	is_warping = false;
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
@@ -7144,6 +7172,10 @@ bool LinkClass::animate(int)
 		{
 			fall = hoverclk = jumping = 0;
 			hoverflags = 0;
+			if(!DrunkUp() && !DrunkDown() && !DrunkLeft() && !DrunkRight() && !autostep && !on_sideview_solid(x,y))
+			{
+				y+=(zinit.swimgravity / 10000.0);
+			}
 		}
 		// Stop hovering/falling if you land on something.
 		if((on_sideview_solid(x,y) || getOnSideviewLadder())  && !(pull_link && dir==down) && action!=rafting)
@@ -11045,7 +11077,7 @@ void LinkClass::movelink()
 	if(attackclk || action==attacking || action==sideswimattacking)
 	{
 		
-		if((attackclk==0) && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
+		if((attackclk==0) && action!=sideswimattacking && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 		{
 			if((xoff==0)||diagonalMovement)
 			{
@@ -11063,7 +11095,7 @@ void LinkClass::movelink()
 		bool attacked = doattack();
 		
 		// This section below interferes with script-setting Link->Dir, so it comes after doattack
-		if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0)
+		if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0 && action!=sideswimattacking)
 		{
 			if((xoff==0)||diagonalMovement)
 			{
@@ -11531,7 +11563,7 @@ void LinkClass::movelink()
 			break;
 		} //end switch
 		
-		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT)) //!DIRECTION SET
 		{
 			walkable = false;
 			if(DrunkUp()&&(holddir==-1||holddir==up))
@@ -11541,7 +11573,7 @@ void LinkClass::movelink()
 				}
 				else
 				{
-					if(charging==0 && spins==0)
+					if(charging==0 && spins==0 && action != sideswimattacking && !(IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)))
 					{
 						dir=up;
 					}
@@ -11551,10 +11583,14 @@ void LinkClass::movelink()
 					if(DrunkRight()&&shiftdir!=left)
 					{
 						shiftdir=right;
+						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)) dir = right;
+						sideswimdir = right;
 					}
 					else if(DrunkLeft()&&shiftdir!=right)
 					{
 						shiftdir=left;
+						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)) dir = left;
+						sideswimdir = left;
 					}
 					else
 					{
@@ -11763,7 +11799,7 @@ void LinkClass::movelink()
 				}
 				else
 				{
-					if(charging==0 && spins==0)
+					if(charging==0 && spins==0 && action != sideswimattacking && !(IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)))
 					{
 						dir=down;
 					}
@@ -11773,10 +11809,14 @@ void LinkClass::movelink()
 					if(DrunkRight()&&shiftdir!=left)
 					{
 						shiftdir=right;
+						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)) dir = right;
+						sideswimdir = right;
 					}
 					else if(DrunkLeft()&&shiftdir!=right)
 					{
 						shiftdir=left;
+						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)) dir = left;
+						sideswimdir = left;
 					}
 					else
 					{
@@ -11982,10 +12022,11 @@ void LinkClass::movelink()
 				}
 				else
 				{
-					if(charging==0 && spins==0)
+					if(charging==0 && spins==0 && action != sideswimattacking)
 					{
 						dir=left;
 					}
+					sideswimdir = left;
 					
 					holddir=left;
 					
@@ -12198,10 +12239,11 @@ void LinkClass::movelink()
 				}
 				else
 				{
-					if(charging==0 && spins==0)
+					if(charging==0 && spins==0 && action != sideswimattacking)
 					{
 						dir=right;
 					}
+					sideswimdir = right;
 					
 					holddir=right;
 					
@@ -14170,6 +14212,11 @@ void LinkClass::move(int d2, int forceRate)
 	zfix movepix(steprate / 100.0);
 	zfix step(movepix);
 	zfix step_diag(movepix);
+	zfix up_step(swimuprate / -100.0);
+	zfix left_step(swimsiderate / -100.0);
+	zfix right_step(swimsiderate / 100.0);
+	zfix down_step(swimdownrate / 100.0);
+	
 	if(link_newstep > movepix) link_newstep = movepix;
 	if(link_newstep_diag > movepix) link_newstep_diag = movepix;
 	//2/3 speed
@@ -14177,12 +14224,20 @@ void LinkClass::move(int d2, int forceRate)
 	{
 		step = ((step / 3.0) * 2);
 		step_diag = ((step_diag / 3.0) * 2);
+		up_step = ((up_step / 3.0) * 2);
+		left_step = ((left_step / 3.0) * 2);
+		right_step = ((right_step / 3.0) * 2);
+		down_step = ((down_step / 3.0) * 2);
 	}
 	//1/2 speed
 	else if((is_swimming && !fastSwim) || (slowcharging && slowcombo))
 	{
 		step /= 2;
 		step_diag /= 2;
+		up_step /= 2;
+		left_step /= 2;
+		right_step /= 2;
+		down_step /= 2;
 	}
 	//normal speed
 	else
@@ -14200,6 +14255,10 @@ void LinkClass::move(int d2, int forceRate)
 			{
 				step = STEP_DIAGONAL(step);
 				step_diag = STEP_DIAGONAL(step_diag);
+				up_step = STEP_DIAGONAL(up_step);
+				left_step = STEP_DIAGONAL(left_step);
+				right_step = STEP_DIAGONAL(right_step);
+				down_step = STEP_DIAGONAL(down_step);
 			}
 		}
 		if(link_newstep < step) step = link_newstep; //handle collision
@@ -14211,14 +14270,17 @@ void LinkClass::move(int d2, int forceRate)
 				{
 					case left:
 						dx = -step_diag;
+						if (IsSideSwim()) dx = left_step;
 						break;
 					case right:
 						dx = step_diag;
+						if (IsSideSwim()) dx = right_step;
 						break;
 				}
 				if(walkable)
 				{
 					dy = -step;
+					if (IsSideSwim()) dy = up_step;
 				}
 				break;
 			case down:
@@ -14226,14 +14288,17 @@ void LinkClass::move(int d2, int forceRate)
 				{
 					case left:
 						dx = -step_diag;
+						if (IsSideSwim()) dx = left_step;
 						break;
 					case right:
 						dx = step_diag;
+						if (IsSideSwim()) dx = right_step;
 						break;
 				}
 				if(walkable)
 				{
 					dy = step;
+					if (IsSideSwim()) dy = down_step;
 				}
 				break;
 			case left:
@@ -14241,14 +14306,17 @@ void LinkClass::move(int d2, int forceRate)
 				{
 					case up:
 						dy = -step_diag;
+						if (IsSideSwim()) dy = up_step;
 						break;
 					case down:
 						dy = step_diag;
+						if (IsSideSwim()) dy = down_step;
 						break;
 				}
 				if(walkable)
 				{
 					dx = -step;
+					if (IsSideSwim()) dx = left_step;
 				}
 				break;
 			case right:
@@ -14256,14 +14324,17 @@ void LinkClass::move(int d2, int forceRate)
 				{
 					case up:
 						dy = -step_diag;
+						if (IsSideSwim()) dy = up_step;
 						break;
 					case down:
 						dy = step_diag;
+						if (IsSideSwim()) dy = down_step;
 						break;
 				}
 				if(walkable)
 				{
 					dx = step;
+					if (IsSideSwim()) dx = right_step;
 				}
 				break;
 		};
@@ -14275,24 +14346,32 @@ void LinkClass::move(int d2, int forceRate)
 		{
 			case up:
 				dy -= step;
+				if (IsSideSwim()) dy = up_step;
 				break;
 			case down:
 				dy += step;
+				if (IsSideSwim()) dy = down_step;
 				break;
 			case left:
 				dx -= step;
+				if (IsSideSwim()) dx = left_step;
 				break;
 			case right:
 				dx += step;
+				if (IsSideSwim()) dx = right_step;
 				break;
 		}
 	}
 	link_newstep = movepix;
 	link_newstep_diag = movepix;
 
-	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME)
+	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME && action != sideswimattacking && !(IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down))) //!DIRECTION SET
 	{
 		dir=d2;
+	}
+	else if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down) && (shiftdir == left || shiftdir == right))
+	{
+		dir = shiftdir; 
 	}
 	if(forceRate > -1)
 	{
@@ -14621,9 +14700,13 @@ void LinkClass::moveOld(int d2)
         }
     }
     
-    if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME)
+    if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME && action != sideswimattacking && !(IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down))) //!DIRECTION SET
     {
         dir=d2;
+    }
+    else if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down) && (shiftdir == left || shiftdir == right))
+    {
+	dir = shiftdir; 
     }
     
     if(action != swimming && !IsSideSwim())
@@ -25803,7 +25886,11 @@ void LinkClass::explode(int type)
 
 void LinkClass::SetSwim()
 {
-	if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) {action=sideswimming; FFCore.setLinkAction(sideswimming);}
+	if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) 
+	{
+		action=sideswimming; FFCore.setLinkAction(sideswimming);
+		if (get_bit(quest_rules,qr_SIDESWIMDIR)) dir = sideswimdir;
+	}
         else {action=swimming; FFCore.setLinkAction(swimming);}
 }
 

@@ -12910,7 +12910,18 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(87);
 		}
-		
+		if(!p_iputw(zinit.heroSideswimUpStep,f))
+		{
+			new_return(88);
+		}
+		if(!p_iputw(zinit.heroSideswimSideStep,f))
+		{
+			new_return(88);
+		}
+		if(!p_iputw(zinit.heroSideswimDownStep,f))
+		{
+			new_return(88);
+		}
 		if(writecycle==0)
 		{
 			section_size=writesize;

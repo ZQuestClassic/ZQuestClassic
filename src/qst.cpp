@@ -19210,6 +19210,28 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		temp_zinit.swimgravity = temp_zinit.gravity2*0.75;
 	}
 	
+	if(s_version > 26)
+	{
+		if(!p_igetw(&temp_zinit.heroSideswimUpStep,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetw(&temp_zinit.heroSideswimSideStep,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetw(&temp_zinit.heroSideswimDownStep,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.heroSideswimUpStep = temp_zinit.heroStep*0.5;
+		temp_zinit.heroSideswimSideStep = temp_zinit.heroStep*0.67;
+		temp_zinit.heroSideswimDownStep = temp_zinit.heroStep*0.5;
+	}
+	
 	if(keepdata==true)
 	{
 		memcpy(&zinit, &temp_zinit, sizeof(zinitdata));
