@@ -4339,7 +4339,7 @@ bool weapon::animate(int index)
 			}
 		case wWand:
 		case wHammer:
-			if(LinkAction()!=attacking && LinkAction()!=ischarging && !LinkCharged())
+			if(LinkAction()!=attacking && LinkAction()!=sideswimattacking && LinkAction()!=ischarging && !LinkCharged())
 			{
 				dead=0;
 			}

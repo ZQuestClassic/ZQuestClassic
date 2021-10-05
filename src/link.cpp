@@ -7185,9 +7185,20 @@ bool LinkClass::animate(int)
 		{
 			fall = hoverclk = jumping = 0;
 			hoverflags = 0;
-			if(!DrunkUp() && !DrunkDown() && !DrunkLeft() && !DrunkRight() && !autostep && !on_sideview_solid(x,y))
+			if(!DrunkUp() && !DrunkDown() && !DrunkLeft() && !DrunkRight() && !autostep)
 			{
-				y+=(zinit.swimgravity / 10000.0);
+				WalkflagInfo info;
+				if (zinit.swimgravity<0)
+				{
+					info = walkflag(x,y+8-(bigHitbox*8)-2,2,up);
+					execute(info);
+				}
+				else
+				{
+					info = walkflag(x,y+15+2,2,down);
+					execute(info);
+				}
+			        if(!info.isUnwalkable() && (zinit.swimgravity > 0 || iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)-2), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false))) y+=(zinit.swimgravity / 10000.0);
 			}
 		}
 		// Stop hovering/falling if you land on something.
