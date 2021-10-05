@@ -179,6 +179,7 @@ ZCGUI_BUILDER_START(Checkbox)
 	ZCGUI_ACCEPT_PROP(checked, setChecked, bool)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 	ZCGUI_ACCEPT_PROP(boxPlacement, setBoxPlacement, Checkbox::boxPlacement)
+	ZCGUI_ACCEPT_PROP(onToggleFunc, setOnToggleFunc, std::function<void(bool)>)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()
