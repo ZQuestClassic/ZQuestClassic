@@ -26,9 +26,12 @@ src/gui/common.cpp
 src/gui/dialog_ref.cpp
 src/gui/dialog_runner.cpp
 src/gui/drop_down_list.cpp
+src/gui/frame.cpp
 src/gui/grid.cpp
 src/gui/label.cpp
+src/gui/list.cpp
 src/gui/list_data.cpp
+src/gui/scrolling_pane.cpp
 src/gui/size.cpp
 src/gui/switcher.cpp
 src/gui/text_field.cpp
@@ -41,6 +44,7 @@ src/gui/qrpanel.cpp
 src/gui/checkbox_qr.cpp
 src/gui/radio.cpp
 src/gui/radioset.cpp
+src/gui/colorsel.cpp
 
 src/dialog/set_password.cpp
 src/dialog/cheat_codes.cpp
@@ -53,6 +57,7 @@ src/dialog/script_rules.cpp
 src/dialog/pickruleset.cpp
 src/dialog/headerdlg.cpp
 src/dialog/alert.cpp
+src/dialog/init_data.cpp
 
 ## End of ZQuest GUI module
 )

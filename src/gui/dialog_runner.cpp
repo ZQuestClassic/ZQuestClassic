@@ -39,7 +39,8 @@ int dialog_proc(int msg, DIALOG *d, int c)
 		return D_O_K;
 }
 
-DialogRunner::DialogRunner(): focused(-1), redrawPending(false), done(false)
+DialogRunner::DialogRunner(): focused(-1), redrawPending(false), done(false), realized(false),
+	running(false)
 {}
 
 DialogRef DialogRunner::push(shared_ptr<Widget> owner, DIALOG dlg)
@@ -80,12 +81,15 @@ void DialogRunner::realize(shared_ptr<Widget> root)
 		0, 0, // d1, d2
 		nullptr, nullptr, nullptr // dp1, dp2, dp3
 	});
+
+	dialogConstructed.emit();
 }
 
 void DialogRunner::runInner(std::shared_ptr<Widget> root)
 {
 	realize(root);
-	new_gui_popup_dialog(alDialog.data(), focused, done);
+	realized = true;
+	new_gui_popup_dialog(alDialog.data(), focused, done, running);
 }
 
 }

@@ -9,6 +9,9 @@
 #include <memory>
 #include <type_traits>
 #include <vector>
+#include "../fonts.h"
+
+#define GUI_DEF_FONT sized(nfont, lfont_l)
 
 namespace GUI
 {
@@ -31,15 +34,25 @@ public:
 	 */
 	void overrideHeight(Size newHeight) noexcept;
 
-	/* Cap the widget's width, if it is below the given width
+	/* Cap the widget's width, if it is above the given width
 	 * This should not be used by widgets.
 	 */
 	void capWidth(Size newWidth) noexcept;
 
-	/* Cap the widget's height, if it is below the given height
+	/* Cap the widget's height, if it is above the given height
 	 * This should not be used by widgets.
 	 */
 	void capHeight(Size newHeight) noexcept;
+	
+	/* Expand the widget's width, if it is below the given width
+	 * This should not be used by widgets.
+	 */
+	void minWidth(Size newWidth) noexcept;
+
+	/* Expand the widget's height, if it is below the given height
+	 * This should not be used by widgets.
+	 */
+	void minHeight(Size newHeight) noexcept;
 
 	inline void setLeftMargin(Size size) noexcept
 	{
@@ -229,6 +242,15 @@ public:
 		return flags&f_FIT_PARENT;
 	}
 	
+	//Sets the text that appears inside the frame, if framed
+	void setFrameText(std::string const& newstr);
+	
+	//Sets the font to use for the widget (overridable)
+	virtual void applyFont(FONT* newfont);
+	
+	//For some reason need this to not be virtual???
+	void setFont(FONT* newfont) {applyFont(newfont);}
+	
 protected:
 	inline bool getWidthOverridden() const noexcept {return flags&f_WIDTH_OVERRIDDEN;}
 	inline bool getHeightOverridden() const noexcept {return flags&f_HEIGHT_OVERRIDDEN;}
@@ -245,7 +267,8 @@ protected:
 	unsigned short leftMargin, rightMargin, topMargin, bottomMargin;
 	unsigned short leftPadding, rightPadding, topPadding, bottomPadding;
 	float hAlign, vAlign;
-	DialogRef frameDialog;
+	DialogRef frameDialog, frameTextDialog;
+	std::string frameText;
 
 	/* Sets the widget's width if it hasn't been overridden. */
 	void setPreferredWidth(Size newWidth) noexcept;
@@ -257,7 +280,14 @@ protected:
 	 * The widget should add its own
 	 */
 	int getFlags() const noexcept;
-
+	
+	FONT* widgFont;
+	
+	/* Returns true if the dialog is running, and thus draws to the screen are permitted */
+	bool allowDraw();
+	/* Returns true if the entire dialog has been realized */
+	bool isConstructed();
+	
 private:
 	enum
 	{
@@ -270,7 +300,8 @@ private:
 		f_FIT_PARENT =        0b1000000,
 	};
 
-	int width, height, maxwidth, maxheight;
+	int width, height, maxwidth, maxheight, minwidth, minheight;
+	DialogRunner *owner;
 	unsigned char flags: 7;
 
 	/* The number of containers hiding this widget. Shouldn't be too many,

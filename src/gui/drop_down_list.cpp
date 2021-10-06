@@ -7,9 +7,6 @@
 #include <cassert>
 #include <cmath>
 
-#define FONT sized(nfont, lfont_l)
-#define FONT_PTR sized(&nfont, &lfont_l)
-
 namespace GUI
 {
 
@@ -28,7 +25,7 @@ DropDownList::DropDownList():
 void DropDownList::setListData(const ::GUI::ListData& newListData)
 {
 	listData = &newListData;
-	jwinListData = newListData.getJWin(FONT_PTR);
+	jwinListData = newListData.getJWin(&widgFont);
 }
 
 void DropDownList::setSelectedValue(int value)
@@ -96,6 +93,15 @@ void DropDownList::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void DropDownList::applyFont(FONT* newFont)
+{
+	if(alDialog)
+	{
+		alDialog->dp2 = newFont;
+	}
+	Widget::applyFont(newFont);
+}
+
 void DropDownList::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
@@ -107,7 +113,7 @@ void DropDownList::realize(DialogRunner& runner)
 		setIndex();
 
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_droplist_proc,
+		newGUIProc<jwin_droplist_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
@@ -120,6 +126,8 @@ void DropDownList::realize(DialogRunner& runner)
 int DropDownList::onEvent(int event, MessageDispatcher& sendMessage)
 {
 	assert(event == geCHANGE_SELECTION);
+	if(onSelectFunc)
+		onSelectFunc(listData->getValue(alDialog->d1));
 	if(message >= 0)
 		sendMessage(message, listData->getValue(alDialog->d1));
 	return -1;

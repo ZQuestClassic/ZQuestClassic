@@ -1,15 +1,9 @@
 #include "script_rules.h"
 #include <gui/builder.h>
-#include "gui/size.h"
 #include "../jwin.h"
 #include "../zquest.h"
 #include "../zsys.h"
-
-using GUI::Size;
-using GUI::operator ""_em;
-using GUI::operator ""_px;
-using GUI::operator ""_lpx;
-using GUI::operator ""_spx;
+#include "gui/use_size.h"
 
 static const GUI::ListData scriptRulesList
 {

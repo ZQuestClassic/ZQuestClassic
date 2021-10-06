@@ -988,7 +988,7 @@ void initPopulate(int &i, DIALOG_PROC Proc, int X, int Y, int W, int H, int FG, 
     ++i;
 }
 
-static ListData dmap_list(dmaplist, &font);
+ListData dmap_list(dmaplist, &font);
 
 //InitData
 
@@ -1721,116 +1721,31 @@ void build_biic_list()
 	std::map<std::string, int> fams;
 	std::set<std::string> famnames;
 	
-	
-	
+	for(int i=start; i<itype_max; ++i)
+	{
+        if(i < itype_last || moduledata.item_editor_type_names[i][0] != NULL )
+		{
+            char const* module_str = moduledata.item_editor_type_names[i];
+            char* name = new char[strlen(module_str) + 7];
+            sprintf(name, "%s (%03d)", module_str, i);
+            std::string sname(name);
 
-	for(int i=start; i<itype_last; i++)
-	{
-		//std::string name = std::string(itype_names[i]);
-		std::string name = std::string(moduledata.item_editor_type_names[i]);
-		
-		
-		
-		while(famnames.find(name) != famnames.end())
-		{
-			name += ' '; 
-		}
-		
-		fams[name] = i;
-		famnames.insert(name);
-	
-	}
-	
-	/*
-	sprintf these in series. 
-	itype_names[itype_scripted_001] = "User-Scripted 001";
-		itype_names[itype_scripted_002] = "User-Scripted 002";
-		itype_names[itype_scripted_003] = "User-Scripted 003";
-		itype_names[itype_scripted_004] = "User-Scripted 004";
-		itype_names[itype_scripted_005] = "User-Scripted 005";
-		itype_names[itype_scripted_006] = "User-Scripted 006";
-		itype_names[itype_scripted_007] = "User-Scripted 007";
-		itype_names[itype_scripted_008] = "User-Scripted 008";
-		itype_names[itype_scripted_009] = "User-Scripted 009";
-		itype_names[itype_scripted_010] = "User-Scripted 010";
-	
-	*/
-	
-	for(int i=itype_last; i<itype_max; i++)
-	{
-		/*
-		char *name = new char[10];
-			
-		if ( i == 256 ) sprintf(name, "Script 01");
-			else if ( i == 257 ) sprintf(name, "Script 02");
-			 else if ( i == 258 ) sprintf(name, "Script 03");
-			 else if ( i == 259 ) sprintf(name, "Script 04");
-			 else if ( i == 260 ) sprintf(name, "Script 05");
-			 else if ( i == 261 ) sprintf(name, "Script 06");
-			 else if ( i == 262 ) sprintf(name, "Script 07");
-			 else if ( i == 263 ) sprintf(name, "Script 08");
-			 else if ( i == 264 ) sprintf(name, "Script 09");
-			 else if ( i == 265 ) sprintf(name, "Script 10");
-			 else if ( i == 266 ) sprintf(name, "Ice Rod");
-			else 
-		{
-			sprintf(name, "zz%03d", i);
-		}
-			std::string sname(name);
-			while(famnames.find(sname) != famnames.end())
-			{
-				sname += ' ';
-			}
-			
 			fams[sname] = i;
 			famnames.insert(sname);
 			delete[] name;
-		*/
-		//expanded names
-		if (moduledata.item_editor_type_names[i][0] != NULL ) //std::string name = std::string(moduledata.item_editor_type_names[i]);
-		{
-			
-			std::string name = std::string(moduledata.item_editor_type_names[i]);
-			while(famnames.find(name) != famnames.end())
-			{
-				name += ' '; 
-			}
-			
-			fams[name] = i;
-			famnames.insert(name);
 		}
 		else 
 		{
-			char *name = new char[10];
-			sprintf(name, "zz%03d", i);
+			char *name = new char[12];
+			sprintf(name, "zz%03d (%03d)", i, i);
 			std::string sname(name);
-			while(famnames.find(sname) != famnames.end())
-			{
-				sname += ' ';
-			}
 			
 			fams[sname] = i;
 			famnames.insert(sname);
 			delete[] name;
 		}
 	}
-	/*
-	//Set up new/special weapons for 2.54 and above. 
-	for(int i=itype_script1; i<itype_templast; i++)
-	{
-		std::string name = std::string(itype_new_names[i-itype_script1]);
-		
-		
-		
-		while(famnames.find(name) != famnames.end())
-		{
-			name += ' ';
-		}
-		
-		fams[name] = i;
-		famnames.insert(name);
-	}
-	*/
+	
 	for(std::set<std::string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
 	{
 		biic[biic_cnt].s = new char[(*it).length() + 1];
@@ -1862,8 +1777,11 @@ const char *item_class_list(int index, int *list_size)
 
 //InitData store values. -Z
 
-int doInit(zinitdata *local_zinit)
+#include "dialog/init_data.h"
+int doInit(zinitdata *local_zinit, bool isZC)
 {
+	call_init_dlg(*local_zinit, isZC);
+	return D_O_K;
     for(int i=0; i<MAXITEMS; i++)
     {
         int family = itemsbuf[i].family;
@@ -2202,7 +2120,7 @@ int doInit(zinitdata *local_zinit)
 		local_zinit->ene_damage_multiplier = vbound(atoi(dmgmultstr2),1,255);
 		local_zinit->dither_type = vbound(atoi(dith_type),0,255);
 		local_zinit->dither_arg = vbound(atoi(dith_arg),0,255);
-		local_zinit->dither_percent = vbound(atoi(dith_perc),0,100);
+		local_zinit->dither_percent = vbound(atoi(dith_perc),0,255);
 		local_zinit->def_lightrad = vbound(atoi(light_rad),0,255);
 		local_zinit->transdark_percent = vbound(atoi(tdark_perc),0,255);
 		local_zinit->swimgravity = int(strtod(swimgravitystring, NULL)*10000);
@@ -2321,6 +2239,7 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
 
 void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 {
+    game2->set_life(zinit2->start_heart*zinit2->hp_per_heart);
     game2->set_maxlife(zinit2->hc*zinit2->hp_per_heart);
     game2->set_maxbombs(zinit2->nBombmax);
     game2->set_maxcounter(zinit2->nBombmax/zc_max(1,zinit2->bomb_ratio), 6);

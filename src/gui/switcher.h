@@ -16,7 +16,10 @@ class Switcher: public Widget
 public:
 	Switcher();
 
-	void add(std::shared_ptr<Widget> child);
+	void add(std::shared_ptr<Widget> child) noexcept
+	{
+		children.emplace_back(std::move(child));
+	}
 
 	/* Makes the widget with the given index visible, hiding all others. */
 	void switchTo(size_t index);

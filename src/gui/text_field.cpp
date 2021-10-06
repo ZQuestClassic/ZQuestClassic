@@ -11,13 +11,12 @@
 #include <string>
 #include <utility>
 
-#define FONT sized(nfont, lfont_l)
-
 namespace GUI
 {
 
 TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
-	onEnterMsg(-1), onValueChangedMsg(-1), startVal(0), lbound(0), ubound(-1)
+	onEnterMsg(-1), onValueChangedMsg(-1), startVal(0), lbound(0), ubound(-1),
+	fixedPlaces(4), valSet(false)
 {
 	setPreferredWidth(1_em);
 	setPreferredHeight(24_lpx);
@@ -32,6 +31,11 @@ void TextField::setText(std::string_view newText)
 		setMaxLength(newText.size());
 	newText.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength, newText.size())] = '\0';
+	valSet = true;
+	if(alDialog && allowDraw() && getVisible())
+	{
+		alDialog.message(MSG_DRAW, 0);
+	}
 }
 
 void TextField::setVal(int val)
@@ -55,6 +59,15 @@ void TextField::setVal(int val)
 		case type::SWAP_ZSINT:
 			startVal = val;
 			break;
+		case type::FIXED_DECIMAL:
+		{
+			double scale = pow(10, fixedPlaces);
+			char templ[20];
+			sprintf(templ, "%%.%df", fixedPlaces);
+			sprintf(buf, templ, val/scale);
+			break;
+		}
+		
 	}
 	std::string_view v(buf);
 	// This probably could be handled with less allocating and copying...
@@ -65,6 +78,7 @@ void TextField::setVal(int val)
 			case type::TEXT:
 			case type::INT_DECIMAL:
 			case type::INT_HEX:
+			case type::FIXED_DECIMAL:
 				if(v.size()>0)
 				{
 					setMaxLength(v.size());
@@ -79,6 +93,11 @@ void TextField::setVal(int val)
 	}
 	v.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength, v.size())] = '\0';
+	valSet = true;
+	if(alDialog && allowDraw() && getVisible())
+	{
+		alDialog.message(MSG_DRAW, 0);
+	}
 }
 
 std::string_view TextField::getText()
@@ -117,6 +136,13 @@ int TextField::getVal()
 		case type::SWAP_ZSINT:
 			value = alDialog->fg;
 			break;
+			
+		case type::FIXED_DECIMAL:
+		{
+			double scale = pow(10, fixedPlaces);
+			value = int(strtod(buffer.get(), NULL)*scale);
+			break;
+		}
 	}
 	if(ubound > lbound)
 		return vbound(value, lbound, ubound);
@@ -143,7 +169,24 @@ void TextField::setMaxLength(size_t newMax)
 	
 	int btnsz = isSwapType() ? 16 : 0;
 	
-	setPreferredWidth(Size::largePixels(btnsz)+Size::em(std::min((newMax+1)*0.75, 20.0)));
+	setPreferredWidth(Size::largePixels(btnsz)+Size::em(std::min((newMax+sized(2,1))*0.75, 20.0)));
+}
+
+void TextField::setOnValChanged(std::function<void(type,std::string_view,int)> newOnValChanged)
+{
+	onValChanged = std::move(newOnValChanged);
+}
+
+void TextField::setFixedPlaces(size_t places)
+{
+	places = vbound(places,1,4);
+	if(valSet)
+	{
+		int val = getVal();
+		fixedPlaces = places;
+		setVal(val);
+	}
+	else fixedPlaces = places;
 }
 
 void TextField::realize(DialogRunner& runner)
@@ -153,87 +196,79 @@ void TextField::realize(DialogRunner& runner)
 
 	using ProcType = int(*)(int, DIALOG*, int);
 	ProcType proc;
-	switch(tfType)
+	if(isSwapType())
 	{
-		case type::TEXT:
-		case type::INT_DECIMAL:
-		case type::INT_HEX:
+		switch(tfType)
 		{
-			switch(tfType)
-			{
-				case type::TEXT:
-					proc = jwin_edit_proc;
-					break;
+			case type::SWAP_BYTE:
+				proc = newGUIProc<jwin_numedit_swap_byte_proc>;
+				break;
 
-				case type::INT_DECIMAL:
-					proc = jwin_numedit_proc;
-					break;
+			case type::SWAP_SSHORT:
+				proc = newGUIProc<jwin_numedit_swap_sshort_proc>;
+				break;
 
-				case type::INT_HEX:
-					proc = jwin_hexedit_proc;
-					break;
-			}
-
-			alDialog = runner.push(shared_from_this(), DIALOG {
-				proc,
-				x, y, getWidth(), getHeight(),
-				fgColor, bgColor,
-				0, // key
-				getFlags(), // flags
-				static_cast<int>(maxLength), 0, // d1, d2
-				buffer.get(), FONT, nullptr // dp, dp2, dp3
-			});
-			break;
+			case type::SWAP_ZSINT:
+				proc = newGUIProc<jwin_numedit_swap_zsint_proc>;
+				break;
 		}
-		case type::SWAP_BYTE:
-		case type::SWAP_SSHORT:
-		case type::SWAP_ZSINT:
-		{
-			switch(tfType)
-			{
-				case type::SWAP_BYTE:
-					proc = jwin_numedit_swap_byte_proc;
-					break;
-
-				case type::SWAP_SSHORT:
-					proc = jwin_numedit_swap_sshort_proc;
-					break;
-
-				case type::SWAP_ZSINT:
-					proc = jwin_numedit_swap_zsint_proc;
-					break;
-			}
-			
-			int totalwid = getWidth();
-			int btnwid = 24_lpx.resolve();
-			int txtfwid = totalwid-btnwid;
-			
-			al_trace("%d = (%d + %d)\n", totalwid, txtfwid, btnwid);
-			
-			alDialog = runner.push(shared_from_this(), DIALOG {
-				proc,
-				x, y, txtfwid, getHeight(),
-				startVal, bgColor,
-				0, // key
-				getFlags(), // flags
-				static_cast<int>(maxLength), 0, // d1, d2
-				buffer.get(), FONT, nullptr // dp, dp2, dp3
-			});
-			swapBtnDialog = runner.push(shared_from_this(), DIALOG {
-				jwin_swapbtn_proc,
-				x+txtfwid, y, btnwid, getHeight(),
-				0, 0,
-				0, // key
-				getFlags(), // flags
-				0, 0, // d1, d2
-				nullptr, FONT, nullptr // dp, dp2, dp3
-			});
-			//Set the dp3 to the swapbtn pointer
-			//alDialog->dp3 = (void*)&(swapBtnDialog[0]);
-			alDialog->dp3 = (void*)1;
-		}
+		
+		int totalwid = getWidth();
+		int btnwid = 24_lpx.resolve();
+		int txtfwid = totalwid-btnwid;
+		
+		al_trace("%d = (%d + %d)\n", totalwid, txtfwid, btnwid);
+		
+		alDialog = runner.push(shared_from_this(), DIALOG {
+			proc,
+			x, y, txtfwid, getHeight(),
+			startVal, bgColor,
+			0, // key
+			getFlags(), // flags
+			static_cast<int>(maxLength), 0, // d1, d2
+			buffer.get(), widgFont, nullptr // dp, dp2, dp3
+		});
+		swapBtnDialog = runner.push(shared_from_this(), DIALOG {
+			jwin_swapbtn_proc,
+			x+txtfwid, y, btnwid, getHeight(),
+			0, 0,
+			0, // key
+			getFlags(), // flags
+			0, 0, // d1, d2
+			nullptr, GUI_DEF_FONT, nullptr // dp, dp2, dp3
+		});
+		//Set the dp3 to the swapbtn pointer
+		//alDialog->dp3 = (void*)&(swapBtnDialog[0]);
+		alDialog->dp3 = (void*)1;
 	}
-	
+	else
+	{
+		switch(tfType)
+		{
+			case type::TEXT:
+			case type::FIXED_DECIMAL:
+				proc = newGUIProc<jwin_edit_proc>;
+				break;
+
+			case type::INT_DECIMAL:
+				proc = newGUIProc<jwin_numedit_proc>;
+				break;
+
+			case type::INT_HEX:
+				proc = newGUIProc<jwin_hexedit_proc>;
+				break;
+		}
+
+		alDialog = runner.push(shared_from_this(), DIALOG {
+			proc,
+			x, y, getWidth(), getHeight(),
+			fgColor, bgColor,
+			0, // key
+			getFlags(), // flags
+			static_cast<int>(maxLength), 0, // d1, d2
+			buffer.get(), widgFont, nullptr // dp, dp2, dp3
+		});
+	}
 }
 
 void TextField::applyVisibility(bool visible)
@@ -241,6 +276,15 @@ void TextField::applyVisibility(bool visible)
 	Widget::applyVisibility(visible);
 	if(alDialog) alDialog.applyVisibility(visible);
 	if(swapBtnDialog) swapBtnDialog.applyVisibility(visible);
+}
+
+void TextField::applyFont(FONT* newFont)
+{
+	if(alDialog)
+	{
+		alDialog->dp2 = newFont;
+	}
+	Widget::applyFont(newFont);
 }
 
 int TextField::onEvent(int event, MessageDispatcher& sendMessage)
@@ -254,12 +298,18 @@ int TextField::onEvent(int event, MessageDispatcher& sendMessage)
 
 		case geCHANGE_VALUE:
 			if(!isSwapType())
+			{
 				message = onValueChangedMsg;
+				if(onValChanged) onValChanged(tfType, getText(), getVal());
+			}
 			break;
 			
 		case geUPDATE_SWAP:
 			if(isSwapType())
+			{
 				message = onValueChangedMsg;
+				if (onValChanged) onValChanged(tfType, getText(), getVal());
+			}
 			break;
 		
 		case geCLICK:

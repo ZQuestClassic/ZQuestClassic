@@ -1,7 +1,30 @@
 // 2.55 Change Log
-// Updated 29th Sept, 2021
+// Updated 5th Oct, 2021
 
-//Recent changes
+//Alpha 98
+
+Init Data dialog upgrade
+	( EmilyV & Saffith, Oct 5th, 2021 )
+
+Fix itype names missing in cheat menu
+Add beam shards new animation type for 'Misc Type = 4'
+Fix "4-Frame Flying 8-Dir Firing" animation
+Fix Signposts/Chests not properly eating inputs
+Add "Map Count" field to "Quest Options"
+Move "Cheats" dialog into "Quest Options"
+Changed "Quest->Options" from a submenu to just opening the new dialog
+Show itemclass numbers in itemclass selection dropdowns
+	( EmilyV, 4th Oct, 2021 )
+
+Add new "Header" and "Pick Ruleset" dialogs, inside "Quest Options"
+	( EmilyV, 3rd Oct, 2021 )
+
+Add new "Quest Options" dialog
+Add new "Script Settings" dialog
+	( EmilyV, 2nd Oct, 2021 )
+
+Fix 'cancel' button not cancelling during mass combo creation
+	( EmilyV, 30th Sept, 2021 )
 
 Fix game icon issues
 Add 'bitmap->WriteTile()', allowing scripts to draw to the tile pages.

@@ -89,6 +89,8 @@ void setZScriptVersion(int) { } //bleh...
 
 #include <fstream>
 
+#include "module.h"
+
 //Windows mmemory tools
 #ifdef _WIN32
 #include <windows.h>
@@ -1175,19 +1177,6 @@ COLOR_MAP trans_table, trans_table2;
 char *datafile_str;
 DATAFILE *zcdata=NULL, *fontsdata=NULL, *sfxdata=NULL;
 MIDI *song=NULL;
-FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
-           *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont
-	   //#ifdef MOREFONTS_VERSION
-	   ,
-	   //New fonts for 2.54+
-		*atari800font, *acornfont, *adosfont, *baseallegrofont, *apple2font, *apple280colfont, *apple2gsfont,
-		*aquariusfont, *atari400font, *c64font, *c64hiresfont, *cgafont, *cocofont, *coco2font,
-		*coupefont, *cpcfont, *fantasyfont, *fdskanafont, *fdslikefont, *fdsromanfont, *finalffont,
-		*futharkfont, *gaiafont, *hirafont, *jpfont, *kongfont, *manafont, *mlfont, *motfont,
-		*msxmode0font, *msxmode1font, *petfont, *pstartfont, *saturnfont, *scififont, *sherwoodfont,
-		*sinqlfont, *spectrumfont, *speclgfont, *ti99font, *trsfont, *z2font, *zxfont, *lisafont
-	    //#endif
-	   ;
 BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp;//*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
@@ -35822,53 +35811,7 @@ bool ZModule::init(bool d) //bool default
 		
 		//item editor
 		
-		//item families
-		const char default_itype_strings[itype_max][255] = 
-		{ 
-			"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
-			"Bait", "Letters", "Potions", "Wands", "Rings", 
-			"Wallets", "Amulets", "Shields", "Bows", "Rafts",
-			"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", 
-			"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire", 
-			"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", 
-			"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses", 
-			"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", 
-			"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", 
-			"Heart Pieces", "Kill All Enemies", "Bomb Ammo", "Bomb Bags", "Roc Items", 
-			"Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer","Whisp Rings", 
-			"Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", 
-			"Scroll: Hurricane Spin", "Scroll: Super Quake","Stones of Agony", "Stomp Boots", "Whimsical Rings", 
-			"Peril Rings", "Non-gameplay Items", "Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03",
-			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
-			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
-			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
-			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)",
-			"zz089", "zz090", "zz091", "zz092", "zz093", "zz094", "zz095", "zz096",
-			"zz097", "zz098", "zz099", "zz100", "zz101", "zz102", "zz103", "zz104",
-			"zz105", "zz106", "zz107", "zz108", "zz109", "zz110", "zz111", "zz112",
-			"zz113", "zz114", "zz115", "zz116", "zz117", "zz118", "zz119", "zz120",
-			"zz121", "zz122", "zz123", "zz124", "zz125", "zz126", "zz127", "zz128",
-			"zz129", "zz130", "zz131", "zz132", "zz133", "zz134", "zz135", "zz136",
-			"zz137", "zz138", "zz139", "zz140", "zz141", "zz142", "zz143", "zz144",
-			"zz145", "zz146", "zz147", "zz148", "zz149", "zz150", "zz151", "zz152",
-			"zz153", "zz154", "zz155", "zz156", "zz157", "zz158", "zz159", "zz160",
-			"zz161", "zz162", "zz163", "zz164", "zz165", "zz166", "zz167", "zz168",
-			"zz169", "zz170", "zz171", "zz172", "zz173", "zz174", "zz175", "zz176",
-			"zz177", "zz178", "zz179", "zz180", "zz181", "zz182", "zz183", "zz184",
-			"zz185", "zz186", "zz187", "zz188", "zz189", "zz190", "zz191", "zz192",
-			"zz193", "zz194", "zz195", "zz196", "zz197", "zz198", "zz199", "zz200",
-			"zz201", "zz202", "zz203", "zz204", "zz205", "zz206", "zz207", "zz208",
-			"zz209", "zz210", "zz211", "zz212", "zz213", "zz214", "zz215", "zz216",
-			"zz217", "zz218", "zz219", "zz220", "zz221", "zz222", "zz223", "zz224",
-			"zz225", "zz226", "zz227", "zz228", "zz229", "zz230", "zz231", "zz232",
-			"zz233", "zz234", "zz235", "zz236", "zz237", "zz238", "zz239", "zz240",
-			"zz241", "zz242", "zz243", "zz244", "zz245", "zz246", "zz247", "zz248",
-			"zz249", "zz250", "zz251", "zz252", "zz253", "zz254", "zz255",
-			"Script 01", "Script 02", "Script 03", "Script 04", "Script 05",
-			"Script 06", "Script 07", "Script 08", "Script 09", "Script 10",
-			"Ice Rod", "Attack Ring", "Lanterns"
-		};
-						     
+		//item families  
 		const char itype_fields[itype_max][255] =
 		{
 			"ic_sword","ic_brang", "ic_arrow","ic_cand","ic_whis",

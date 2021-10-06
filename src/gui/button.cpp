@@ -7,8 +7,6 @@
 #include <algorithm>
 #include <utility>
 
-#define FONT sized(nfont, lfont_l)
-
 namespace GUI
 {
 
@@ -35,17 +33,26 @@ void Button::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void Button::applyFont(FONT* newFont)
+{
+	if(alDialog)
+	{
+		alDialog->dp2 = newFont;
+	}
+	Widget::applyFont(newFont);
+}
+
 void Button::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_button_proc,
+		newGUIProc<jwin_button_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		getAccelKey(text),
 		getFlags(),
 		0, 0, // d1, d2
-		text.data(), FONT, nullptr // dp, dp2, dp3
+		text.data(), widgFont, nullptr // dp, dp2, dp3
 	});
 }
 

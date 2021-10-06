@@ -32,6 +32,11 @@ public:
 	/* Returns the value of the currently selected item. */
 	int getSelectedValue() const;
 
+	void setOnSelectFunc(std::function<void(int)> newOnSelect)
+	{
+		onSelectFunc = newOnSelect;
+	}
+	
 	template<typename T>
 	RequireMessage<T> onSelectionChanged(T m)
 	{
@@ -45,12 +50,14 @@ private:
 	int selectedIndex, selectedValue;
 	DialogRef alDialog;
 	int message;
+	std::function<void(int)> onSelectFunc;
 
 	/* If a value was set rather than an index, find an index to select. */
 	void setIndex();
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
 	int onEvent(int event, MessageDispatcher& sendMessage) override;
+	void applyFont(FONT* newFont) override;
 };
 
 }

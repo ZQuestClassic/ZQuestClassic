@@ -18,7 +18,7 @@ class TabPanel: public Widget
 public:
 	TabPanel();
 
-	void add(std::shared_ptr<TabRef> child);
+	void add(std::shared_ptr<Widget> child);
 
 	/* Makes the widget with the given index visible, hiding all others. */
 	void switchTo(size_t index);
@@ -56,6 +56,7 @@ private:
 	void calculateSize() override;
 	void arrange(int contX, int contY, int contW, int contH) override;
 	void realize(DialogRunner& runner) override;
+	void applyFont(FONT* newFont) override;
 };
 
 }

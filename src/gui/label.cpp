@@ -6,14 +6,12 @@
 #include "../zquest.h"
 #include <utility>
 
-#define FONT sized(nfont, lfont_l)
-
 namespace GUI
 {
 
 Label::Label(): text(), text_fit(), maxLines(10), contX(0), contY(0), contW(0), contH(0), textAlign(0)
 {
-	setPreferredHeight(Size::pixels(text_height(FONT)));
+	setPreferredHeight(Size::pixels(text_height(widgFont)));
 }
 
 void Label::setText(std::string newText)
@@ -31,7 +29,7 @@ void Label::setMaxLines(size_t newMax)
 
 void Label::setAlign(int ta)
 {
-	textAlign = util::vbound(ta,0,2);
+	textAlign = vbound(ta,0,2);
 	if(alDialog)
 	{
 		alDialog->d1 = textAlign;
@@ -44,12 +42,22 @@ void Label::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void Label::applyFont(FONT* newFont)
+{
+	if(alDialog)
+	{
+		alDialog->dp2 = newFont;
+	}
+	Widget::applyFont(newFont);
+	fitText();
+}
+
 void Label::fitText()
 {
 	// text_length doesn't understand line breaks, so we'll do it ourselves.
 	text_fit = text;
 	char* data = text_fit.data();
-	auto* f = FONT;
+	auto* f = widgFont;
 	auto* char_length = f->vtable->char_length;
 	int actualWidth = getWidthOverridden() ? getWidth() : getMaxWidth();
 	if(actualWidth < 0) actualWidth = zq_screen_w;
@@ -103,7 +111,7 @@ void Label::fitText()
 	if(widthSoFar > max_width)
 		max_width = widthSoFar;
 
-	setPreferredHeight(Size::pixels(text_height(FONT)*currentLine));
+	setPreferredHeight(Size::pixels(text_height(widgFont)*currentLine));
 	setPreferredWidth(Size::pixels(max_width));
 	if(alDialog)
 	{
@@ -114,7 +122,7 @@ void Label::fitText()
 		alDialog->w = getWidth();
 		alDialog->dp = text_fit.data();
 		
-		if(getVisible())
+		if(allowDraw() && getVisible())
 		{
 			broadcast_dialog_message(MSG_DRAW, 0);
 		}
@@ -138,13 +146,13 @@ void Label::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		new_text_proc,
+		newGUIProc<new_text_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
 		getFlags(), // flags
 		textAlign, 0, // d1, d2
-		text_fit.data(), FONT, nullptr // dp, dp2, dp3
+		text_fit.data(), widgFont, nullptr // dp, dp2, dp3
 	});
 }
 

@@ -5,13 +5,13 @@
 #include "../zquest.h"
 #include <utility>
 
-#define FONT sized(nfont, lfont_l)
-
 namespace GUI
 {
 
 TabPanel::TabPanel(): visibleChild(0)
-{}
+{
+	setFitParent(true);
+}
 
 void TabPanel::switchTo(size_t index)
 {
@@ -22,16 +22,20 @@ void TabPanel::switchTo(size_t index)
 	
 	children[visibleChild]->setExposed(false); //Hide the old child
 	visibleChild = index;
-	alDialog.message(MSG_DRAW, 0); //Draw the tabpanel again, with the correct tab selected
+	if(allowDraw() && getVisible())
+		alDialog.message(MSG_DRAW, 0); //Draw the tabpanel again, with the correct tab selected
 	children[index]->setExposed(true); //Show the new child
 }
 
-void TabPanel::add(std::shared_ptr<TabRef> child)
+void TabPanel::add(std::shared_ptr<Widget> child)
 {
-	if(alDialog && //Only do this if dialog is already realized?
-		children.size() != visibleChild)
-		child->setExposed(false);
-	children.emplace_back(std::move(child));
+	if(std::shared_ptr<TabRef> tbchld = std::dynamic_pointer_cast<TabRef>(child))
+	{
+		if(alDialog && //Only do this if dialog is already realized?
+			children.size() != visibleChild)
+			tbchld->setExposed(false);
+		children.emplace_back(std::move(tbchld));
+	}
 }
 
 void TabPanel::applyVisibility(bool visible)
@@ -42,6 +46,15 @@ void TabPanel::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 	for(auto& child: children)
 		child->setExposed(visible);
+}
+
+void TabPanel::applyFont(FONT* newFont)
+{
+	if(alDialog)
+	{
+		alDialog->dp2 = newFont;
+	}
+	Widget::applyFont(newFont);
 }
 
 void TabPanel::calculateSize()
@@ -61,36 +74,33 @@ void TabPanel::calculateSize()
 		for(auto& child: children)
 		{
 			child->calculateSize();
-			tabwid+=text_length(FONT, child->getName().c_str())+15;
+			tabwid+=text_length(widgFont, child->getName().c_str())+15;
 			int w = child->getTotalWidth(); // Should this be getTotalWidth()?
 			if(w > maxW)
 				maxW = w;
 			int h = child->getTotalHeight(); // getTotalHeight()?
-			if(w > maxH)
+			if(h > maxH)
 				maxH = h;
 		}
 		if(tabwid > maxW)
 			maxW = tabwid;
 		setPreferredWidth(Size::pixels(maxW+6));
-		setPreferredHeight(Size::pixels(text_height(FONT) + 9) + Size::pixels(maxH));
+		setPreferredHeight(Size::pixels(text_height(widgFont) + 9) + Size::pixels(maxH));
 	}
 }
 
 void TabPanel::arrange(int contX, int contY, int contW, int contH)
 {
-	//Override the width/height to fit the container
-	setPreferredWidth(Size::pixels(contW));
-	setPreferredHeight(Size::pixels(contH));
-	//Arrange
 	if(children.size() == 1)
 	{
+		Widget::arrange(contX, contY, contW, contH);
 		auto& child = children.at(0);
 		child->arrange(contX, contY, contW, contH);
 	}
 	else for(auto& child: children)
 	{
 		Widget::arrange(contX, contY, contW, contH);
-		child->arrange(x, y+text_height(FONT)+9, getWidth(), getHeight()-(text_height(FONT)+9));
+		child->arrange(x, y+text_height(widgFont)+9, getWidth(), getHeight()-(text_height(widgFont)+9));
 	}
 }
 
@@ -110,7 +120,7 @@ void TabPanel::realize(DialogRunner& runner)
 		0, // key
 		getFlags(), // flags,
 		0, 0, // d1, d2
-		this, FONT, nullptr // dp, dp2, dp3
+		this, widgFont, nullptr // dp, dp2, dp3
 	});
 	
 	for(auto& child: children)

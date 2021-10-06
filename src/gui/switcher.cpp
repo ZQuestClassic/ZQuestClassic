@@ -14,19 +14,12 @@ void Switcher::switchTo(size_t index)
 		return;
 
 	assert(index<children.size());
-
-	children[visibleChild]->setExposed(false);
-	children[index]->setExposed(true);
+	if(isConstructed())
+	{
+		children[visibleChild]->setExposed(false);
+		children[index]->setExposed(true);
+	}
 	visibleChild = index;
-}
-
-void Switcher::add(std::shared_ptr<Widget> child)
-{
-	// If the child being added is the visible one, it shouldn't be hidden.
-	// That's most likely the first child while visibleChild is the default 0.
-	if(children.size() != visibleChild)
-		child->setExposed(false);
-	children.emplace_back(std::move(child));
 }
 
 void Switcher::applyVisibility(bool visible)
@@ -65,8 +58,12 @@ void Switcher::arrange(int contX, int contY, int contW, int contH)
 void Switcher::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
-	for(auto& child: children)
-		child->realize(runner);
+	for(size_t i = 0; i < children.size(); ++i)
+	{
+		children[i]->realize(runner);
+		if(i != visibleChild)
+			children[i]->setExposed(false);
+	}
 }
 
 }

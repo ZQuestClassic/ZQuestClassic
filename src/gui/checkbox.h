@@ -29,6 +29,9 @@ public:
 		placement = newPlacement;
 	}
 
+	/* Sets a function to be called on toggle. */
+	void setOnToggleFunc(std::function<void(bool)> newOnToggleFunc);
+	
 	template<typename T>
 	RequireMessage<T> onToggle(T m)
 	{
@@ -41,11 +44,13 @@ private:
 	std::string text;
 	boxPlacement placement;
 	DialogRef alDialog;
+	std::function<void(bool)> onToggleFunc;
 
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
 	void calculateSize() override;
 	int onEvent(int event, MessageDispatcher& sendMessage) override;
+	void applyFont(FONT* newFont) override;
 };
 
 }

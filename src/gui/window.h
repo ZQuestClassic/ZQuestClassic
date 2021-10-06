@@ -37,6 +37,7 @@ private:
 	void arrange(int contX, int contY, int contW, int contH) override;
 	void realize(DialogRunner& runner) override;
 	int onEvent(int event, MessageDispatcher& sendMessage) override;
+	void applyFont(FONT* newFont) override;
 };
 
 }

@@ -18,6 +18,8 @@ src/alleg_compat.cpp
 src/util.cpp
 src/drawing.cpp
 src/random.cpp
+src/module.cpp
+src/fonts.cpp
 
 ## End of Zelda Core module
 )

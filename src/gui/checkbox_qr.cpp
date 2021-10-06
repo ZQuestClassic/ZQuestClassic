@@ -7,8 +7,6 @@
 #include <cassert>
 #include <utility>
 
-#define FONT sized(nfont, lfont_l)
-
 namespace GUI
 {
 

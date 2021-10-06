@@ -16146,7 +16146,7 @@ void LinkClass::checkchest(int type)
 	
 	if(intbtn) //
 	{
-		if(!getIntBtnInput(intbtn, true, true))
+		if(!getIntBtnInput(intbtn, true, true, false, true))
 			return; //Button not pressed
 	}
 	else if(pushing < 8) return; //Not pushing against chest enough
@@ -16320,7 +16320,7 @@ void LinkClass::checksigns()
 	
 	if(intbtn) //
 	{
-		if(!getIntBtnInput(intbtn, true, true))
+		if(!getIntBtnInput(intbtn, true, true, false, true))
 			return; //Button not pressed
 	}
 	else if(pushing < 8 || pushing%8) return; //Not pushing against sign enough

@@ -54,7 +54,7 @@ int onCheatConsole()
     init_dlg[1705].flags |= D_DISABLED;
 //  the following statement has no effect, as the D_DISABLED flag is ignored by the jwin_tab_proc
 //  init_tabs[4].flags |= D_DISABLED;
-    int rval = doInit(zinit2);
+    int rval = doInit(zinit2, true);
     resetItems(game, zinit2, false);
     delete zinit2;
     ringcolor(false);
@@ -80,6 +80,8 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->gravity2=zinit.gravity2;
     zinit2->terminalv=zinit.terminalv;
     zinit2->jump_link_layer_threshold=zinit.jump_link_layer_threshold;
+    zinit2->heroStep=zinit.heroStep;
+    zinit2->subscrSpeed=zinit.subscrSpeed;
     zinit2->hc = gdata->get_maxlife()/gdata->get_hp_per_heart();
     zinit2->bombs = gdata->get_bombs();
     zinit2->nBombs = gdata->get_bombs();

@@ -8368,12 +8368,11 @@ void enemy::update_enemy_frame()
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) return; //Anim == none, don't animate. -Z
 	}
 	int newfrate = zc_max(frate,4);
-	int f4=clk/(newfrate/4); // casts clk to [0,1,2,3]
-	int f2=clk/(newfrate/2); // casts clk to [0,1]
+	int f4=abs(clk/(newfrate/4)); // casts clk to [0,1,2,3]
+	int f2=abs(clk/(newfrate/2)); // casts clk to [0,1]
 	int fx = get_bit(quest_rules, qr_NEWENEMYTILES) ? f4 : f2;
 	tile = o_tile;
 	int tilerows = 1; // How many rows of tiles? The Extend code needs to know.
-	
 	switch(anim)
 	{
 	
@@ -9198,6 +9197,7 @@ waves2:
 	case a4FRMPOS8DIR:
 	{
 		tilerows = 2;
+		int n = tile;
 		n_frame_n_dir(4,8,0);
 		//        tile+=f2;
 		tile+=posframe;
@@ -9207,7 +9207,7 @@ waves2:
 	case a4FRMPOS8DIRF:
 	{
 		tilerows = 2;
-		n_frame_n_dir(4,8,f4);
+		n_frame_n_dir(4,8,0);
 		
 		if(clk2>0)                                              //stopped to fire
 		{
@@ -9219,7 +9219,6 @@ waves2:
 			}
 		}
 		
-		//        tile+=f2;
 		tile+=posframe;
 	}
 	break;
