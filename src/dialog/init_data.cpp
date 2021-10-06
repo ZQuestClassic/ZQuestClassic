@@ -447,8 +447,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								Rows<2>(
 									margins = 0_px,
 									padding = 0_px,
-									DEC_VAL_FIELD("Gravity:",1,255,2,gravity,isZC),
-									DEC_VAL_FIELD("Terminal Vel:",1,9999,2,terminalv,isZC),
+									DEC_VAL_FIELD("Gravity:",1,99990000,4,gravity2,isZC),
+									DEC_VAL_FIELD("Terminal Vel:",1,999900,2,terminalv,isZC),
 									VAL_FIELD("Jump Layer Height:",0,255,jump_link_layer_threshold,isZC),
 									VAL_FIELD("Hero Step:",0,9999,heroStep,isZC),
 									VAL_FIELD("Subscreen Fall Mult:",1,85,subscrSpeed,isZC)
@@ -476,6 +476,17 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									VAL_FIELD("Light Dither %:",0,255,dither_percent,false),
 									VAL_FIELD("Light Radius:",0,255,def_lightrad,false),
 									VAL_FIELD("Light Transp. %:",0,255,transdark_percent,false)
+								)
+							),
+							Column(vAlign = 0.0,
+								Rows<2>(
+									margins = 0_px,
+									padding = 0_px,
+									DEC_VAL_FIELD("Water Gravity:",-99990000,99990000,4,swimgravity,false),
+									VAL_FIELD("Swideswim Up Step:",0,9999,heroSideswimUpStep,false),
+									VAL_FIELD("Swideswim Side Step:",0,9999,heroSideswimSideStep,false),
+									VAL_FIELD("Swideswim Down Step:",0,9999,heroSideswimDownStep,false),
+									DEC_VAL_FIELD("Sideswim Leaving Jump:",-2550000,2550000,4,exitWaterJump,false)
 								)
 							)
 						))
@@ -728,8 +739,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						Rows<2>(
 							margins = 0_px,
 							padding = 0_px,
-							DEC_VAL_FIELD("Gravity:",1,255,2,gravity,isZC),
-							DEC_VAL_FIELD("Terminal Vel:",1,9999,2,terminalv,isZC),
+							DEC_VAL_FIELD("Gravity:",1,99990000,4,gravity2,isZC),
+							DEC_VAL_FIELD("Terminal Vel:",1,999900,2,terminalv,isZC),
 							VAL_FIELD("Jump Layer Height:",0,255,jump_link_layer_threshold,isZC),
 							VAL_FIELD("Hero Step:",0,9999,heroStep,isZC),
 							VAL_FIELD("Subscren Fall Mult:",1,85,subscrSpeed,isZC),
@@ -749,6 +760,17 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							VAL_FIELD("Light Radius:",0,255,def_lightrad,false),
 							VAL_FIELD("Light Transp. Percentage:",0,255,transdark_percent,false),
 							COLOR_FIELD("Darkness Color:", darkcol,false)
+						)
+					),
+					Column(vAlign = 0.0,
+						Rows<2>(
+							margins = 0_px,
+							padding = 0_px,
+							DEC_VAL_FIELD("Water Gravity:",-99990000,99990000,4,swimgravity,false),
+							VAL_FIELD("Swideswim Up Step:",0,9999,heroSideswimUpStep,false),
+							VAL_FIELD("Swideswim Side Step:",0,9999,heroSideswimSideStep,false),
+							VAL_FIELD("Swideswim Down Step:",0,9999,heroSideswimDownStep,false),
+							DEC_VAL_FIELD("Sideswim Leaving Jump:",-2550000,2550000,4,exitWaterJump,false)
 						)
 					)
 				))))

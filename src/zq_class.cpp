@@ -12927,6 +12927,10 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(88);
 		}
+		if(!p_iputl(zinit.exitWaterJump,f))
+		{
+			new_return(89);
+		}
 		if(writecycle==0)
 		{
 			section_size=writesize;

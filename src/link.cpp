@@ -1180,6 +1180,7 @@ void LinkClass::init()
 	swimuprate = zinit.heroSideswimUpStep;
 	swimsiderate = zinit.heroSideswimSideStep;
 	swimdownrate = zinit.heroSideswimDownStep;
+	swimjump = zinit.exitWaterJump;
 	is_warping = false;
 	
 	hammer_swim_up_offset = hammeroffsets[0];
@@ -7198,7 +7199,7 @@ bool LinkClass::animate(int)
 					info = walkflag(x,y+15+2,2,down);
 					execute(info);
 				}
-			        if(!info.isUnwalkable() && (zinit.swimgravity > 0 || iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)-2), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false))) y+=(zinit.swimgravity / 10000.0);
+			        if(!info.isUnwalkable() && (zinit.swimgravity > 0 || iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)-2), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false))) y+=(zinit.swimgravity/10000.0);
 			}
 		}
 		// Stop hovering/falling if you land on something.
@@ -14240,6 +14241,7 @@ void LinkClass::move(int d2, int forceRate)
 	zfix left_step(swimsiderate / -100.0);
 	zfix right_step(swimsiderate / 100.0);
 	zfix down_step(swimdownrate / 100.0);
+	bool checkladder  = false;
 	
 	if(link_newstep > movepix) link_newstep = movepix;
 	if(link_newstep_diag > movepix) link_newstep_diag = movepix;
@@ -14303,8 +14305,12 @@ void LinkClass::move(int d2, int forceRate)
 				}
 				if(walkable)
 				{
-					dy = -step;
-					if (IsSideSwim()) dy = up_step;
+					if (!IsSideSwim()) dy = -step;
+					if (IsSideSwim()) 
+					{
+						dy = up_step;
+						if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+					}
 				}
 				break;
 			case down:
@@ -14329,8 +14335,12 @@ void LinkClass::move(int d2, int forceRate)
 				switch(shiftdir)
 				{
 					case up:
-						dy = -step_diag;
-						if (IsSideSwim()) dy = up_step;
+						if (!IsSideSwim()) dy = -step_diag;
+						if (IsSideSwim()) 
+						{
+							dy = up_step;
+							if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+						}
 						break;
 					case down:
 						dy = step_diag;
@@ -14347,8 +14357,12 @@ void LinkClass::move(int d2, int forceRate)
 				switch(shiftdir)
 				{
 					case up:
-						dy = -step_diag;
-						if (IsSideSwim()) dy = up_step;
+						if (!IsSideSwim()) dy = -step_diag;
+						if (IsSideSwim()) 
+						{
+							dy = up_step;
+							if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+						}
 						break;
 					case down:
 						dy = step_diag;
@@ -14384,7 +14398,7 @@ void LinkClass::move(int d2, int forceRate)
 				dx += step;
 				if (IsSideSwim()) dx = right_step;
 				break;
-		}
+		};
 	}
 	link_newstep = movepix;
 	link_newstep_diag = movepix;
@@ -14399,6 +14413,7 @@ void LinkClass::move(int d2, int forceRate)
 	}
 	if(forceRate > -1)
 	{
+		checkladder = false;
 		switch(dir)
 		{
 			case right:
@@ -14449,7 +14464,22 @@ void LinkClass::move(int d2, int forceRate)
 	}
 	
 	if(charging==0 || attack!=wHammer)
+	{
 		sprite::move(dx, dy);
+	
+		if (checkladder && !canSideviewLadderRemote(x, y-4))
+		{
+			if (swimjump != 0)
+			{
+				setFall(zfix(0-(FEATHERJUMP*(swimjump/10000.0))));
+				action = none;
+			}
+			else
+			{
+				sprite::move(zfix(0), zfix(-1*dy));
+			}
+		}
+	}
 }
 
 void LinkClass::moveOld(int d2)
@@ -25786,6 +25816,25 @@ bool LinkClass::canSideviewLadder(bool down)
 	return (isSVLadder(x+4,y+(bigHitbox?0:8)) || isSVLadder(x+12,y+(bigHitbox?0:8)))
 		|| isSVLadder(x+4,y+15) || isSVLadder(x+12,y+15)
 		|| (down && (isSVLadder(x+4,y+16) || isSVLadder(x+12,y+16)));
+}
+
+bool LinkClass::canSideviewLadderRemote(int wx, int wy, bool down)
+{
+	if(!isSideViewLink()) return false;
+	if(jumping < 0) return false;
+	if(down && get_bit(quest_rules, qr_DOWN_DOESNT_GRAB_LADDERS))
+	{
+		bool onSolid = on_sideview_solid(x,y,true);
+		return ((isSVLadder(wx+4,wy+16) && (!isSVLadder(wx+4,wy)||onSolid)) || (isSVLadder(wx+12,wy+16) && (!isSVLadder(wx+12,wy)||onSolid)));
+	}
+	//Are you presently able to climb a sideview ladder?
+	//x+4 / +12 are the offsets used for detecting a platform below you in sideview
+	//y+0 checks your top-half for large hitbox; y+8 for small
+	//y+15 checks if you are on one at all. This is necessary so you don't just fall off before reaching the top.
+	//y+16 check is for going down onto a ladder you are standing on.
+	return (isSVLadder(wx+4,wy+(bigHitbox?0:8)) || isSVLadder(wx+12,wy+(bigHitbox?0:8)))
+		|| isSVLadder(wx+4,wy+15) || isSVLadder(wx+12,wy+15)
+		|| (down && (isSVLadder(wx+4,wy+16) || isSVLadder(wx+12,wy+16)));
 }
 
 void LinkClass::execute(LinkClass::WalkflagInfo info)

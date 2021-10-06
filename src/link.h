@@ -220,7 +220,8 @@ public:
         stepoutdmap, // which dmap the passageway exits to
         stepoutscr, // which screen the passageway exits to
         slashxofs, slashyofs; // used by positionSword() and draw()
-	byte skipstep,lstep,
+	//spacing so no confusion between byte and int
+    byte skipstep,lstep, 
 	hopclk, // hopping into water timeout.
 	diveclk, // diving timeout.
 	whirlwind, // is Link inside an arriving whirlwind? (yes = 255)
@@ -239,7 +240,8 @@ public:
     int hammer_swim_up_offset,
 	hammer_swim_down_offset,
 	hammer_swim_left_offset,
-	hammer_swim_right_offset;
+	hammer_swim_right_offset,
+	swimjump; //jump amount when leaving sideview water from the top
     int hopdir;  // direction to hop out of water (diagonal movement only)
     int holddir;
     int landswim; // incremental time spent swimming against land
@@ -524,6 +526,7 @@ public:
 	bool getOnSideviewLadder();
 	void setOnSideviewLadder(bool val);
 	bool canSideviewLadder(bool down = false);
+	bool canSideviewLadderRemote(int wx, int wy, bool down = false);
 };
 
 bool isRaftFlag(int flag);

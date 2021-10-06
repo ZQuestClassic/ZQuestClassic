@@ -19224,8 +19224,8 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	else
 	{
-		temp_zinit.gravity2 = temp_zinit.gravity*10000;
-		temp_zinit.swimgravity = temp_zinit.gravity2*0.75;
+		temp_zinit.gravity2 = temp_zinit.gravity*100;
+		temp_zinit.swimgravity = 5;
 	}
 	
 	if(s_version > 26)
@@ -19245,9 +19245,21 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	else
 	{
-		temp_zinit.heroSideswimUpStep = temp_zinit.heroStep*0.5;
-		temp_zinit.heroSideswimSideStep = temp_zinit.heroStep*0.67;
-		temp_zinit.heroSideswimDownStep = temp_zinit.heroStep*0.5;
+		temp_zinit.heroSideswimUpStep = 150;
+		temp_zinit.heroSideswimSideStep = 100;
+		temp_zinit.heroSideswimDownStep = 75;
+	}
+	
+	if(s_version > 27)
+	{
+		if(!p_igetl(&temp_zinit.exitWaterJump,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.exitWaterJump = 0;
 	}
 	
 	if(keepdata==true)
