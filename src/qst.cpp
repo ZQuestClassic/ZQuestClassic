@@ -3245,6 +3245,12 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS,1);
 	}
 	
+	if(compatrule_version < 4)
+	{
+		//Hardcoded Shadow/Spawn/Death anim frames
+		set_bit(quest_rules,qr_OLD_ITEMDATA_SCRIPT_TIMING,1);
+	}
+	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);

@@ -3609,30 +3609,33 @@ void game_loop()
         
 	if ( !FFCore.system_suspend[susptONEFRAMECONDS] )  clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
 	
-	if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )  FFCore.itemScriptEngine(); //run before lweapon scripts
-	
+	if ( get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
+		FFCore.itemScriptEngine(); //run before lweapon scripts
 	if ( !FFCore.system_suspend[susptLINK] )
 	{
 		for(int i = 0; i < (gofast ? 8 : 1); i++)
 		{
-		    #if LOGGAMELOOP > 0
-		al_trace("game_loop is at: %s\n", "if(Link.animate(0)\n");
-		#endif
-		    if(Link.animate(0))
-		    {
-			if(!Quit)
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is at: %s\n", "if(Link.animate(0)\n");
+			#endif
+			if(Link.animate(0))
 			{
-			    //set a B item hack
-			    //Bwpn = Bweapon(Bpos);
-			    Quit = qGAMEOVER;
+				if(!Quit)
+				{
+					//set a B item hack
+					//Bwpn = Bweapon(Bpos);
+					Quit = qGAMEOVER;
+				}
+				
+				return;
 			}
 			
-			return;
-		    }
-		    
-		    checklink=false;
+			checklink=false;
 		}
 	}
+	if ( !get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
+		FFCore.itemScriptEngine(); //run before lweapon scripts
+	
 	//FFCore.itemScriptEngine(); //run before lweapon scripts
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");

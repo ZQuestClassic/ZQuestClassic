@@ -112,7 +112,8 @@ static const GUI::ListData compatRulesList
 	{ "Broken Horizontal Weapon Animation", qr_BROKEN_HORIZONTAL_WEAPON_ANIM },
 	{ "Enemies->Secret only affects flags 16-31", qr_ENEMIES_SECRET_ONLY_16_31 },
 	{ "Old CSet2 Handling", qr_OLDCS2 },
-	{ "Hardcoded Shadow/Spawn/Death anim frames", qr_HARDCODED_ENEMY_ANIMS }
+	{ "Hardcoded Shadow/Spawn/Death anim frames", qr_HARDCODED_ENEMY_ANIMS },
+	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING }
 };
 
 static const GUI::ListData enemiesRulesList
