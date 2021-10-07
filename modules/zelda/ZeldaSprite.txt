@@ -19,6 +19,11 @@ src/enemyWeapon.cpp
 src/enemyProjectileWeapon.cpp
 src/enemySummonWeapon.cpp
 
+src/enemy/hive.cpp
+src/enemy/mage_floating.cpp
+src/enemy/mage_teleporting.cpp
+src/enemy/unicorn.cpp
+
 ## End of Zelda Sprite module
 )
 

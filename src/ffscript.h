@@ -4264,8 +4264,4 @@ struct triangle3Dstruct
 #endif
 
 //extern FFCScript FFEngine;
-
-
-
-
-
+extern FFScript FFCore;

@@ -506,6 +506,9 @@ public:
 	bool canSideviewLadder(bool down = false);
 };
 
+
+extern LinkClass   Link;
+
 bool isRaftFlag(int flag);
 void do_lens();
 void do_210_lens();

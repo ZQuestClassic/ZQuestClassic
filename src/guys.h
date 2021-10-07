@@ -579,77 +579,6 @@ public:
 	virtual void draw(BITMAP *dest);
 };
 
-class eWizzrobeTeleporting : public enemy
-{
-public:
-	eWizzrobeTeleporting(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eWizzrobeTeleporting(zfix X,zfix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index) override;
-    virtual void draw(BITMAP *dest) override;
-
-private:
-    enum class AnimState: char { normal, charging, firing };
-
-    AnimState animState;
-
-    /* Tries to teleport the wizzrobe according to its settings
-     * and the version. Returns true if the teleport was successful.
-     */
-    bool tryTeleport();
-
-    /* Sets position to a random location on the screen.
-     * Returns true if it's okay to teleport there.
-     */
-    bool teleportRandomly();
-
-    /* Teleport to a tile aligned with Link. This one never fails. */
-    void teleportAligned(bool solid_ok);
-
-    /* Turns the Wizzrobe to face Link. */
-    void faceLink();
-
-};
-
-class eWizzrobeFloating : public enemy
-{
-public:
-	eWizzrobeFloating(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eWizzrobeFloating(zfix X, zfix Y, int Id, int Clk);
-	virtual bool animate(int index) override;
-	virtual void draw(BITMAP *dest) override;
-
-private:
-    enum class Action: int
-    {
-        init=-3, init2, init3, // TODO Not this
-        walking=0, phasing, pausing, jumping, initialize
-    };
-
-    // These are bound to the old clk3 and misc because
-    // who knows what else uses them
-    Action& action;
-    int& actionTimer;
-    int shotTimer;
-
-    /* Returns true if the wizzrobe is in position to fire. */
-    bool readyToFire() const;
-
-    /* Turns the wizzrobe to face a new direction. */
-    void turn(int homing);
-
-    /* May start a diagonal "jump" phase. Decides at random whether to try
-     * and fails if the destination would be out of range. Returns true
-     * if a jump was started.
-     */
-    bool maybeJump();
-
-    /* Returns true if the wizzrobe can jump to this position. */
-    inline bool canJumpTo(zfix x, zfix y) const
-    {
-        return x>=32_x && x<=208_x && y>=32_x && y<=128_x;
-    }
-};
-
 /*********************************/
 /**********   Bosses   ***********/
 /*********************************/
@@ -673,26 +602,6 @@ public:
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
 	virtual int takehit(weapon *w);
-};
-
-class eAquamentus : public enemy
-{
-public:
-	eAquamentus(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eAquamentus(zfix X,zfix Y,int Id,int Clk); // : enemy((zfix)176,(zfix)64,Id,Clk)
-	virtual bool animate(int index) override;
-	virtual void draw(BITMAP *dest) override;
-	virtual bool hit(weapon *w) override;
-
-private:
-    enum class Facing: bool { left, right };
-
-    Facing facingDir;
-    int walkTimer;
-    int& shotTimer;
-
-    inline bool tooFarLeft() { return x<=(facingDir==Facing::right) ? 40 : 136; }
-    inline bool tooFarRight() { return x>=(facingDir==Facing::right) ? 104 : 200; }
 };
 
 class eGohma : public enemy
@@ -851,57 +760,6 @@ public:
 	virtual int takehit(weapon *w);
 	virtual void draw(BITMAP *dest);
 	virtual void draw2(BITMAP *dest);
-};
-
-class ePatra : public enemy
-{
-public:
-	int flycnt,flycnt2, loopcnt, lookat;
-	double circle_x, circle_y;
-	double temp_x, temp_y;
-	bool adjusted;
-	//ePatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	ePatra(zfix X,zfix Y,int Id,int Clk);                     // : enemy((zfix)128,(zfix)48,Id,Clk)
-	virtual bool animate(int index);
-	virtual void draw(BITMAP *dest);
-	virtual int defend(int wpnId, int *power, int edef);
-	virtual int defendNew(int wpnId, int *power, int edef);
-};
-
-// segment class
-class esPatra : public enemy
-{
-public:
-	//esPatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	esPatra(zfix X,zfix Y,int Id,int Clk,sprite * prnt);                    // : enemy(X,Y,Id,Clk)
-	sprite * parent;
-	virtual bool animate(int index);
-	virtual void draw(BITMAP *dest);
-};
-
-class ePatraBS : public enemy
-{
-public:
-	int flycnt,flycnt2, loopcnt, lookat;
-	double temp_x, temp_y;
-	bool adjusted;
-	//ePatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	ePatraBS(zfix X,zfix Y,int Id,int Clk);                   // : enemy((zfix)128,(zfix)48,Id,Clk)
-	virtual bool animate(int index);
-	virtual void draw(BITMAP *dest);
-	virtual int defend(int wpnId, int *power, int edef);
-	virtual int defendNew(int wpnId, int *power, int edef);
-};
-
-// segment class
-class esPatraBS : public enemy
-{
-public:
-	//esPatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	esPatraBS(zfix X,zfix Y,int Id,int Clk,sprite * prnt);                  // : enemy(X,Y,Id,Clk)
-	sprite * parent;
-	virtual bool animate(int index);
-	virtual void draw(BITMAP *dest);
 };
 
 /**********************************/
