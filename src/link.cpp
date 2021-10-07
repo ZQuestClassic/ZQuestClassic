@@ -685,7 +685,7 @@ void LinkClass::setZ(int new_z)
 	}
             
         default:
-            if(charging)
+            if(charging) //!DIMITODO: Let Link jump while charging sword
             {
                 reset_swordcharge();
                 attackclk=0;
@@ -784,7 +784,7 @@ void LinkClass::setZfix(zfix new_z)
 	}
             
         default:
-            if(charging)
+            if(charging) //!DIMITODO: Let Link jump while charging sword
             {
                 reset_swordcharge();
                 attackclk=0;
@@ -2134,7 +2134,7 @@ attack:
 			}
 			else
 			{
-				linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+				linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.linkanimationstyle);
 				
 				if(dir>up)
 				{
@@ -2225,7 +2225,7 @@ attack:
 			}
 			else
 			{
-				linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+				linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.linkanimationstyle);
 				
 				if(dir>up)
 				{
@@ -2318,7 +2318,7 @@ attack:
 			}
 			else
 			{
-				linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+				linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.linkanimationstyle);
 				
 				if(action == walking || action == climbcoverbottom || action == climbcovertop)
 				{
@@ -7994,7 +7994,8 @@ bool LinkClass::animate(int)
 			{
 				hopclk=0;
 				diveclk=0;
-				action=none; FFCore.setLinkAction(none);
+				if (action != sideswimattacking && action != attacking) {action=none; FFCore.setLinkAction(none);}
+				else {action=attacking; FFCore.setLinkAction(attacking);}
 				hopdir=-1;
 			}
 		}
@@ -9620,7 +9621,7 @@ bool LinkClass::doattack()
         // Once a charging threshold is reached, play the sound.
         if(charging==normalcharge)
         {
-            paymagiccost(itemid);
+            paymagiccost(itemid); //!DIMITODO: Can this underflow or even just do it even if you don't have magic?
             sfx(WAV_ZN1CHARGE,pan(x.getInt()));
         }
         else if(charging==magiccharge)
@@ -9959,10 +9960,13 @@ void LinkClass::do_hopping()
         
         if((!(x.getInt()&7) && !(y.getInt()&7)) || (diagonalMovement||NO_GRIDLOCK))
         {
-            SetSwim();
-            hopclk = 0;
-            charging = attackclk = 0;
-            tapping = false;
+		SetSwim();
+		hopclk = 0;
+		if (!IsSideSwim()) 
+		{
+			charging = attackclk = 0;
+			tapping = false;
+		}
         }
         else
         {
@@ -10146,8 +10150,8 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0xFF;
                         diveclk=0;
-                        reset_swordcharge();
                         SetSwim();
+                        if (!IsSideSwim()) reset_swordcharge();
                     }
                 }
                 
@@ -10211,8 +10215,8 @@ void LinkClass::do_hopping()
                 if(iswaterex(MAPCOMBO(x.getInt(),y.getInt()+8), currmap, currscr, -1, x.getInt(),y.getInt()+8, true, false))
                 {
                     // hopped in
-                    attackclk = charging = spins = 0;
                     SetSwim();
+                    if (!IsSideSwim()) attackclk = charging = spins = 0;
                 }
             }
             else
@@ -11608,14 +11612,14 @@ void LinkClass::movelink()
 					if(DrunkRight()&&shiftdir!=left)
 					{
 						shiftdir=right;
-						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)) dir = right;
-						sideswimdir = right;
+						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (charging==0 && spins==0)) dir = right;
+						if (!IsSideSwim() || (charging==0 && spins==0)) sideswimdir = right;
 					}
 					else if(DrunkLeft()&&shiftdir!=right)
 					{
 						shiftdir=left;
-						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)) dir = left;
-						sideswimdir = left;
+						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (charging==0 && spins==0)) dir = left;
+						if (!IsSideSwim() || (charging==0 && spins==0)) sideswimdir = left;
 					}
 					else
 					{
@@ -11834,14 +11838,14 @@ void LinkClass::movelink()
 					if(DrunkRight()&&shiftdir!=left)
 					{
 						shiftdir=right;
-						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)) dir = right;
-						sideswimdir = right;
+						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (charging==0 && spins==0)) dir = right;
+						if (!IsSideSwim() || (charging==0 && spins==0)) sideswimdir = right;
 					}
 					else if(DrunkLeft()&&shiftdir!=right)
 					{
 						shiftdir=left;
-						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)) dir = left;
-						sideswimdir = left;
+						if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (charging==0 && spins==0)) dir = left;
+						if (!IsSideSwim() || (charging==0 && spins==0)) sideswimdir = left;
 					}
 					else
 					{
@@ -14407,7 +14411,7 @@ void LinkClass::move(int d2, int forceRate)
 	{
 		dir=d2;
 	}
-	else if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down) && (shiftdir == left || shiftdir == right))
+	else if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down) && (shiftdir == left || shiftdir == right) && (charging==0 && spins==0))
 	{
 		dir = shiftdir; 
 	}
@@ -14472,6 +14476,7 @@ void LinkClass::move(int d2, int forceRate)
 			if (swimjump != 0)
 			{
 				setFall(zfix(0-(FEATHERJUMP*(swimjump/10000.0))));
+				sfx(WAV_ZN1SPLASH,(int)x);
 				action = none;
 			}
 			else
@@ -14758,7 +14763,7 @@ void LinkClass::moveOld(int d2)
     {
         dir=d2;
     }
-    else if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down) && (shiftdir == left || shiftdir == right))
+    else if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down) && (shiftdir == left || shiftdir == right) && (charging==0 && spins==0))
     {
 	dir = shiftdir; 
     }
@@ -18365,8 +18370,8 @@ void LinkClass::checkspecial2(int *ls)
 		}
 		else if (!isSwimming())
 		{
-			attackclk = charging = spins = 0;
 			SetSwim();
+			if (!IsSideSwim()) attackclk = charging = spins = 0;
 			landswim=0;
 			return;
 		}
@@ -19706,8 +19711,8 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].attribytes[0] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))
 		{
 			hopclk=0xFF;
-			attackclk = charging = spins = 0;
 			SetSwim();
+			if (!IsSideSwim()) attackclk = charging = spins = 0;
 		}
 		else
 		{
@@ -19867,8 +19872,8 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			if(iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && _walkflag(x,y+8,0,SWITCHBLOCK_STATE) && current_item(itype_flippers))
 			{
 				hopclk=0xFF;
-				attackclk = charging = spins = 0;
 				SetSwim();
+				if (!IsSideSwim()) attackclk = charging = spins = 0;
 			}
 			else
 			{
@@ -25961,8 +25966,9 @@ void LinkClass::SetSwim()
 {
 	if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) 
 	{
-		action=sideswimming; FFCore.setLinkAction(sideswimming);
-		if (get_bit(quest_rules,qr_SIDESWIMDIR)) dir = sideswimdir;
+		if (action != sideswimattacking && action != attacking) {action=sideswimming; FFCore.setLinkAction(sideswimming);}
+		else {action=sideswimattacking; FFCore.setLinkAction(sideswimattacking);}
+		if (get_bit(quest_rules,qr_SIDESWIMDIR) && spins <= 0 && dir != left && dir != right) dir = sideswimdir;
 	}
         else {action=swimming; FFCore.setLinkAction(swimming);}
 }
