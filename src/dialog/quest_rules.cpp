@@ -97,7 +97,6 @@ static const GUI::ListData compatRulesList
 	{ "Old Sideview Ceiling Collision", qr_OLD_SIDEVIEW_CEILING_COLLISON },
 	{ "Items set to 0 AFrames ignore AFrame changes", qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES },
 	{ "Old Enemy Knockback Collision", qr_OLD_ENEMY_KNOCKBACK_COLLISION },
-	{ "Weapons Can Go Out of Bounds (Offscreen)", qr_WEAPONSMOVEOFFSCREEN },
 	{ "Check Clip for Custom / Script Type Weapons on Screen Edge", qr_CHECKSCRIPTWEAPONOFFSCREENCLIP },
 	{ "1.92 Diagonal Walk Speed", qr_SHORTDGNWALK },
 	{ "Old String Margins", qr_OLD_STRING_EDITOR_MARGINS },
@@ -244,7 +243,8 @@ static const GUI::ListData weaponsRulesList
 	{ "Arrows Always Penetrate", qr_ARROWS_ALWAYS_PENETRATE },
 	{ "Swordbeams Always Penetrate", qr_SWORDBEAMS_ALWAYS_PENETRATE },
 	{ "Boomerang EWeapons Corrected Animation", qr_CORRECTED_EW_BRANG_ANIM },
-	{ "Bombs pierce enemy shields", qr_BOMBSPIERCESHIELD }
+	{ "Bombs pierce enemy shields", qr_BOMBSPIERCESHIELD },
+	{ "Weapons Move Offscreen (Buggy, use at own risk)", qr_WEAPONSMOVEOFFSCREEN }
 };
 
 //}
