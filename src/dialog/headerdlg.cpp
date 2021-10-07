@@ -7,11 +7,16 @@ extern zquestheader header;
 extern bool saved;
 void call_header_dlg()
 {
-    char zver_str[128];
-    sprintf(zver_str,"%d.%02X (Build %d)",header.zelda_version>>8,header.zelda_version&0xFF,header.build);
-    std::string startvals[5] = { std::string(header.version), std::string(header.minver), std::string(header.title), std::string(header.author), std::to_string(header.quest_number) };
-    HeaderDialog(std::string(zver_str), startvals,
-        [](std::string_view vals[5])
+	char alphastr[64];
+	if ( header.new_version_id_alpha ) { sprintf(alphastr, " (Alpha %d)", header.new_version_id_alpha); }
+	else if ( header.new_version_id_beta ) { sprintf(alphastr, " (Beta %d)", header.new_version_id_beta); }
+	else if ( header.new_version_id_gamma ) { sprintf(alphastr, " (Gamma %d)", header.new_version_id_gamma); }
+	else if ( header.new_version_id_release ) { sprintf(alphastr, " (Release %d)", header.new_version_id_release); }
+	char zver_str[256];
+	sprintf(zver_str,"%d.%02X (Build %d)%s",header.zelda_version>>8,header.zelda_version&0xFF,header.build,alphastr);
+	std::string startvals[5] = { std::string(header.version), std::string(header.minver), std::string(header.title), std::string(header.author), std::to_string(header.quest_number) };
+	HeaderDialog(std::string(zver_str), startvals,
+		[](std::string_view vals[5])
 		{
 			saved = false;
 			
@@ -110,7 +115,7 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 						framed = true,
 						height = 3_em,
 						vPadding = 4_spx,
-						leftMargin = 2_em+4_spx,
+						rightMargin = 2_em+4_spx,
 						text = vals[3],
 						textAlign = 1
 					)
