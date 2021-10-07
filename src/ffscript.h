@@ -173,7 +173,7 @@ enum
 	vTiles, vCombos, vCSets, vMaps, vDMaps, vDoors, vItems, vWeaponSprites,
 	vColours, vIcons, vGfxPack, vInitData, vGuys, vMIDIs, vCheats, vSaveformat,
 	vComboAliases, vLinkSprites, vSubscreen, vItemDropsets, vFFScript, vSFX, vFavourites,
-	qMapCount, vLastCompile,
+	qMapCount, vLastCompile, vCompatRule,
 	versiontypesLAST
 	
 };
@@ -420,6 +420,38 @@ struct user_dir
 	}
 };
 
+#define MAX_USER_RNGS 256
+struct user_rng
+{
+	zc_randgen* gen;
+	bool reserved;
+	
+	int rand()
+	{
+		return zc_rand(gen);
+	}
+	int rand(int upper, int lower=0)
+	{
+		return zc_rand(upper, lower, gen);
+	}
+	void srand(long seed)
+	{
+		zc_srand(seed, gen);
+	}
+	long srand()
+	{
+		long seed = time(0) + ((rand() * rand()) * ((rand() % 2) ? 1 : -1));
+		srand(seed);
+		return seed;
+	}
+	void set_gen(zc_randgen* newgen)
+	{
+		gen = newgen;
+		if(newgen) srand();
+	}
+	user_rng() : gen(NULL), reserved(false)
+	{}
+};
 
 //Module System.
 //Putting this here for now.
@@ -555,7 +587,6 @@ bool itemScriptEngine();
 void npcScriptEngineOnWaitdraw();
 bool itemScriptEngineOnWaitdraw();
 void lweaponScriptEngineOnWaitdraw();
-void lweaponScriptEngine();
 void eweaponScriptEngine();
 void eweaponScriptEngineOnWaitdraw();
 void itemSpriteScriptEngine();
@@ -584,7 +615,6 @@ void do_strlen(const bool v);
 void do_arraycpy(const bool a, const bool b);
 void AlloffLimited(int flagset);
 void do_xlen(const bool v);
-int xtoi(char *hexstring);
 double ln(double temp);
 double Log2( double n );
 int numDigits(long number);
@@ -705,8 +735,11 @@ bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY
 
 void user_files_init();
 void user_dirs_init();
+void user_rng_init();
 int get_free_file(bool skipError = false);
 int get_free_directory(bool skipError = false);
+int get_free_rng(bool skipError = false);
+
 bool get_scriptfile_path(char* buf, const char* path);
 
 void do_fopen(const bool v, const char* f_mode);
@@ -734,6 +767,7 @@ void do_file_seek();
 void do_file_geterr();
 
 void do_loaddirectory();
+void do_loadrng();
 void do_directory_get();
 void do_directory_reload();
 void do_directory_free();
@@ -786,8 +820,8 @@ int numscriptdraws;
 long FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
 long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
 
-char includePaths[MAX_INCLUDE_PATHS][512];
-char includePathString[(MAX_INCLUDE_PATHS+1)*512];
+std::vector<std::string> includePaths;
+char includePathString[MAX_INCLUDE_PATH_CHARS];
 char scriptRunString[21];
 int warpex[wexLast];
 int StdArray[256];
@@ -896,7 +930,6 @@ int getEWeaponByScriptUID(int sUID);
 void do_isdeadnpc();
 void do_canslidenpc();
 void do_slidenpc();
-void do_npckickbucket();
 void do_npc_stopbgsfx();
 void do_npcattack();
 void do_npc_newdir();
@@ -918,6 +951,12 @@ void do_npc_add(const bool v);
 void do_npc_canmove(const bool v);
 void get_npcdata_initd_label(const bool v);
 void do_getnpcdata_getname();
+
+//Deletion functions
+void do_npc_delete();
+void do_lweapon_delete();
+void do_eweapon_delete();
+void do_itemsprite_delete();
 
 //int do_get_internal_uid
 
@@ -1681,7 +1720,7 @@ enum __Error
         }
     }
     //Copies clues for ZS array b to a. 
-    void copyValues(const long ptr, const long ptr2, word num_values)
+    void copyValues(const long ptr, const long ptr2, size_t num_values)
     {
         ZScriptArray& a = getArray(ptr);
         ZScriptArray& b = getArray(ptr2);
@@ -2887,7 +2926,23 @@ enum ASM_DEFINE
 	GETCOMBOSCRIPT,  
 	FILEREADBYTES,
 	
-	NUMCOMMANDS           //0x0197
+	LOADRNG,
+	RNGRAND1,
+	RNGRAND2,
+	RNGRAND3,
+	RNGLRAND1,
+	RNGLRAND2,
+	RNGLRAND3,
+	RNGSEED,
+	RNGRSEED,
+	RNGFREE,
+	LWPNDEL,
+	EWPNDEL,
+	ITEMDEL,
+	
+	BMPWRITETILE,
+	
+	NUMCOMMANDS           //0x01A4
 };
 
 
@@ -4235,7 +4290,7 @@ enum ASM_DEFINE
 #define MAPDATACOMBOED			0x13DA
 #define COMBODEFFECT			0x13DB
 #define SCREENSECRETSTRIGGERED			0x13DC
-#define PADDINGR9			0x13DD
+#define ITEMDIR			0x13DD
 
 #define NPCFRAME			0x13DE
 #define LINKITEMX			0x13DF
@@ -4243,7 +4298,31 @@ enum ASM_DEFINE
 #define ACTIVESSSPEED			0x13E1
 #define HEROISWARPING			0x13E2
 
-#define NUMVARIABLES         	0x13E3
+#define ITEMGLOWRAD 			0x13E3
+#define NPCGLOWRAD 			0x13E4
+#define LWPNGLOWRAD 			0x13E5
+#define EWPNGLOWRAD 			0x13E6
+
+#define ITEMGLOWSHP 			0x13E7
+#define NPCGLOWSHP 			0x13E8
+#define LWPNGLOWSHP 			0x13E9
+#define EWPNGLOWSHP 			0x13EA
+
+#define ITEMENGINEANIMATE 			0x13EB
+#define REFRNG 			0x13EC
+#define LWPNUNBL 			0x13ED
+#define EWPNUNBL 			0x13EE
+#define NPCSHADOWSPR 			0x13EF
+#define LWPNSHADOWSPR 			0x13F0
+#define EWPNSHADOWSPR 			0x13F1
+#define ITEMSHADOWSPR 			0x13F2
+#define NPCSPAWNSPR 			0x13F3
+#define NPCDEATHSPR 			0x13F4
+#define NPCDSHADOWSPR 			0x13F5
+#define NPCDSPAWNSPR 			0x13F6
+#define NPCDDEATHSPR 			0x13F7
+
+#define NUMVARIABLES         	0x13F8
 
 //} End variables
 

@@ -1,0 +1,42 @@
+// tango.zh font definition for built-in font "GUI Font Narrow"
+
+int TANGO_FONT_GUI_NARROW[] = {
+    TANGO_FONT_BUILTIN,
+    TANGO_FONT_PROPORTIONAL,
+    FONT_P,
+    0, // Unused
+    8, // Character height
+    0, // Space between lines
+    
+    // Character widths, including any trailing space
+    // ASCII characters 32 to 126
+    
+    // sp !  "  #  $  %  &  '  (  )  *  +  ,  -  .  /
+       4, 2, 4, 6, 6, 4, 5, 2, 3, 3, 4, 4, 3, 4, 2, 4,
+    
+    // 0  1  2  3  4  5  6  7  8  9
+       4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+    
+    // :  ;  <  =  >  ?  @
+       2, 3, 4, 6, 4, 4, 4,
+    
+    // A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
+       4, 4, 4, 4, 4, 3, 4, 4, 4, 5, 4, 3, 6, 5, 4, 4, 4, 4, 4, 4, 4, 6, 6, 4, 4, 4,
+    
+    // [  \  ]  ^  _  `
+       4, 4, 4, 4, 4, 4,
+    
+    // a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
+       4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 4, 2, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 6, 4, 4, 4,
+    
+    // {  |  }  ~
+       4, 2, 4, 5,
+    
+    // Additional characters
+       6, 6, 6, 5, 6, 6, 6, 7, 7, 8, 8, 5, 5, 3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 9, 9, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+       6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+       4, 4, 4, 4, 4, 4, 4, 4, 4
+};

@@ -31,6 +31,7 @@
 #include "zc_custom.h"
 #include "title.h"
 #include "ffscript.h"
+#include "drawing.h"
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
@@ -92,7 +93,7 @@ extern int script_link_cset;
 
 void playLevelMusic();
 
-extern sprite_list particles;
+extern particle_list particles;
 
 byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
@@ -1282,7 +1283,7 @@ void LinkClass::drawshadow(BITMAP* dest, bool translucent)
 {
     int tempy=yofs;
     yofs+=8;
-    shadowtile = wpnsbuf[iwShadow].newtile;
+    shadowtile = wpnsbuf[spr_shadow].newtile;
     sprite::drawshadow(dest,translucent);
     yofs=tempy;
 }
@@ -2605,20 +2606,27 @@ bool LinkClass::checkstab()
 				// to damaging hits in the following frames.
 				
 				int whimsyid = current_item_id(itype_whimsicalring);
-				int whimsypower = 0;
 				
+				long dmg = weaponattackpower();
 				if(whimsyid>-1)
 				{
-					whimsypower = rand()%zc_max(itemsbuf[current_item_id(itype_whimsicalring)].misc1,1) ?
-								  0 : current_item_power(itype_whimsicalring);
+					if(!(zc_oldrand()%zc_max(itemsbuf[whimsyid].misc1,1)))
+						dmg += current_item_power(itype_whimsicalring);
+					else whimsyid = -1;
+				}
+				int atkringid = current_item_id(itype_atkring);
+				if(atkringid>-1)
+				{
+					dmg *= itemsbuf[atkringid].misc2; //Multiplier
+					dmg += itemsbuf[atkringid].misc1; //Additive
 				}
 				
-				int h = hit_enemy(i,attack,(weaponattackpower() + whimsypower)*DAMAGE_MULTIPLIER,wx,wy,dir,directWpn);
-			enemy *e = (enemy*)guys.spr(i);
-			if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
-			//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
+				int h = hit_enemy(i,attack,dmg*game->get_hero_dmgmult(),wx,wy,dir,directWpn);
+				enemy *e = (enemy*)guys.spr(i);
+				if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
+				//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
 				
-				if(h<0 && whimsypower)
+				if(h<0 && whimsyid>-1)
 				{
 					sfx(itemsbuf[whimsyid].usesound);
 				}
@@ -2642,14 +2650,14 @@ bool LinkClass::checkstab()
 			}
 		}
 	
-	if(((parentitem==-1&&get_bit(quest_rules,qr_NOITEMMELEE))||parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
+	if(((parentitem==-1&&!get_bit(quest_rules,qr_NOITEMMELEE))||parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
 	{
 		for(int j=0; j<items.Count(); j++)
 		{
 			item* ptr = (item*)items.spr(j); 
-			if(ptr->pickup & ipTIMER)
+			if((ptr->pickup & ipCANGRAB) || (ptr->pickup & ipTIMER))
 			{
-				if(ptr->clk2 >= 32 && !ptr->fallclk && !ptr->drownclk)
+				if(((ptr->pickup & ipCANGRAB) || ptr->clk2 >= 32) && !ptr->fallclk && !ptr->drownclk)
 				{
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8,z,wxsz,wysz,1))
 							|| (attack==wHammer && ptr->hit(x,y-8,z,wxsz,wysz,1)))
@@ -3487,7 +3495,7 @@ void LinkClass::check_slash_block(int bx, int by)
 		
 		else
 		{
-			int r=rand()%100;
+			int r=zc_oldrand()%100;
             
 			if(r<15)
 			{
@@ -4252,7 +4260,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 		
 		else
 		{
-			int r=rand()%100;
+			int r=zc_oldrand()%100;
             
 			if(r<15)
 			{
@@ -4941,7 +4949,7 @@ void LinkClass::check_slash_block(weapon *w)
 		
 		else
 		{
-			int r=rand()%100;
+			int r=zc_oldrand()%100;
             
 			if(r<15)
 			{
@@ -5487,8 +5495,8 @@ void LinkClass::check_pound_block(weapon *w)
 // 1 Effects, weapon is not ignored or removed
 int LinkClass::defend(weapon *w)
 {
-	//zprint2("Running Link::defend with weapon ID: %d\n", w->id);
-	switch(defence[w->id])
+	int def = conv_edef_unblockable(defence[w->id], w->unblockable);
+	switch(def)
 	{
 		case edNORMAL: return 1;
 		case edHALFDAMAGE: // : IMPLEMENTED : Take half damage
@@ -5503,7 +5511,6 @@ int LinkClass::defend(weapon *w)
 		}
 		case edSTUNONLY:
 		{
-			zprint2("Stunning ink\n");
 			setStunClock(120);
 			return 1;
 		}
@@ -5847,12 +5854,17 @@ int LinkClass::EwpnHit()
                 break;
             }
             
+			if(reflect && (ew->unblockable&WPNUNB_REFL))
+				reflect = false;
+			if(!reflect && (ew->unblockable&WPNUNB_SHLD))
+				return i;
+			
             int oldid = ew->id;
             ew->onhit(false, reflect ? 2 : 1, dir);
             
             if(ew->id != oldid)                                     // changed type from ewX to wX
             {
-                //        ew->power*=DAMAGE_MULTIPLIER;
+                //        ew->power*=game->get_hero_dmgmult();
                 Lwpns.add(ew);
                 Ewpns.remove(ew);
 		ew->isLWeapon = true; //Make sure this gets set everywhere!
@@ -6230,7 +6242,7 @@ killweapon:
             {
                 if(NayrusLoveShieldClk<=0)
                 {
-                    int ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *HP_PER_HEART));
+                    int ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart()));
                     game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-ringpow,0)));
                 }
                 
@@ -6615,7 +6627,7 @@ void LinkClass::hitlink(int hit2)
     {
         int itemid = current_item_id(itype_stompboots);
         paymagiccost(itemid);
-        hit_enemy(hit2,wStomp,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,x,y,0,itemid);
+        hit_enemy(hit2,wStomp,itemsbuf[itemid].power*game->get_hero_dmgmult(),x,y,0,itemid);
         
         if(itemsbuf[itemid].flags & ITEM_DOWNGRADE)
             game->set_item(itemid,false);
@@ -6765,7 +6777,7 @@ void LinkClass::addsparkle(int wpn)
     int wpn2 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn4 : itemsbuf[itemid].wpn2;
     int wpn3 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn5 : itemsbuf[itemid].wpn3;
     // Either one (wpn2) or the other (wpn3). If both are present, randomise.
-    int sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (rand()&1 ? wpn2 : wpn3)));
+    int sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (zc_oldrand()&1 ? wpn2 : wpn3)));
     int direction=w->dir;
     
     if(sparkle_type)
@@ -6802,8 +6814,8 @@ void LinkClass::addsparkle(int wpn)
                 direction=oppositeDir[direction];
         }
         
-        Lwpns.add(new weapon((zfix)(w->x+(itemtype==itype_cbyrna ? 2 : rand()%4)+(h*4)),
-                             (zfix)(w->y+(itemtype==itype_cbyrna ? 2 : rand()%4)+(v*4)),
+        Lwpns.add(new weapon((zfix)(w->x+(itemtype==itype_cbyrna ? 2 : zc_oldrand()%4)+(h*4)),
+                             (zfix)(w->y+(itemtype==itype_cbyrna ? 2 : zc_oldrand()%4)+(v*4)),
                              w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID(),false,false,true, 0, sparkle_type));
 	weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	}
@@ -6832,8 +6844,8 @@ void LinkClass::addsparkle2(int type1, int type2)
         return;
     }
     
-    Lwpns.add(new weapon((zfix)((Lwpns.spr(arrow)->x-3)+(rand()%7)),
-                         (zfix)((Lwpns.spr(arrow)->y-3)+(rand()%7)),
+    Lwpns.add(new weapon((zfix)((Lwpns.spr(arrow)->x-3)+(zc_oldrand()%7)),
+                         (zfix)((Lwpns.spr(arrow)->y-3)+(zc_oldrand()%7)),
                          Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
 }
 
@@ -7550,47 +7562,50 @@ bool LinkClass::animate(int)
 	{
 		int tx = x.getInt()+8,
 		    ty = y.getInt()+(bigHitbox?8:12);
-		for(int q = 0; q < 3; ++q)
+		if(!(unsigned(ty)>160 || unsigned(tx) > 240))
 		{
-			if(q && !tmpscr2[q-1].valid) continue;
-			newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
-			if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
-			int b = 1;
-			if(tx&8) b <<= 2;
-			if(ty&8) b <<= 1;
-			b |= (b<<4); //check equivalent effect flag too
-			if((cmb.walk&b)==b) //solid and effecting
+			for(int q = 0; q < 3; ++q)
 			{
-				if(z==0)
-				{
-					if(cmb.usrflags&cflag10)
-					{
-						if(!switchblock_offset)
-						{
-							switchblock_offset=true;
-							yofs -= 8;
-						}
-					}
-					else
-					{
-						if(switchblock_offset)
-						{
-							switchblock_offset=false;
-							yofs += 8;
-						}
-					}
-				}
-				if(cmb.attributes[2]>0 && switchblock_z>=0)
+				if(q && !tmpscr2[q-1].valid) continue;
+				newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
+				if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
+				int b = 1;
+				if(tx&8) b <<= 2;
+				if(ty&8) b <<= 1;
+				b |= (b<<4); //check equivalent effect flag too
+				if((cmb.walk&b)==b) //solid and effecting
 				{
 					if(z==0)
-						switchblock_z = zc_max(switchblock_z,zslongToFix(cmb.attributes[2]));
-					else if(SWITCHBLOCK_STATE < zslongToFix(cmb.attributes[2]))
 					{
-						switchblock_z += zslongToFix(cmb.attributes[2])-SWITCHBLOCK_STATE;
+						if(cmb.usrflags&cflag10)
+						{
+							if(!switchblock_offset)
+							{
+								switchblock_offset=true;
+								yofs -= 8;
+							}
+						}
+						else
+						{
+							if(switchblock_offset)
+							{
+								switchblock_offset=false;
+								yofs += 8;
+							}
+						}
 					}
+					if(cmb.attributes[2]>0 && switchblock_z>=0)
+					{
+						if(z==0)
+							switchblock_z = zc_max(switchblock_z,zslongToFix(cmb.attributes[2]));
+						else if(SWITCHBLOCK_STATE < zslongToFix(cmb.attributes[2]))
+						{
+							switchblock_z += zslongToFix(cmb.attributes[2])-SWITCHBLOCK_STATE;
+						}
+					}
+					else switchblock_z = -1;
+					break;
 				}
-				else switchblock_z = -1;
-				break;
 			}
 		}
 	}
@@ -7712,7 +7727,7 @@ bool LinkClass::animate(int)
 			action=none; FFCore.setLinkAction(none);
 			int water = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			int damage = combobuf[water].attributes[0]/10000L;
-			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (HP_PER_HEART/4);
+			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (game->get_hp_per_heart()/4);
 			if (combobuf[water].type != cWATER) damage = 4;
 			game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
 			x=entry_x;
@@ -8007,7 +8022,7 @@ bool LinkClass::animate(int)
 			
 			int index2 = 0;
 			
-			if(tmpscr->flags5 & fRANDOMTIMEDWARP) index2=rand()%4;
+			if(tmpscr->flags5 & fRANDOMTIMEDWARP) index2=zc_oldrand()%4;
 			
 			sdir = dir;
 			dowarp(1,index2);
@@ -8080,7 +8095,7 @@ bool LinkClass::animate(int)
 				else if(cmb.type==cAWARPR)
 				{
 					awarp=true;
-					ind=rand()%4;
+					ind=zc_oldrand()%4;
 				}
 				
 				if(awarp)
@@ -8130,7 +8145,7 @@ bool LinkClass::animate(int)
 			else if(combobuf[tmpscr->ffdata[i]].type==cAWARPR)
 			{
 				awarp=true;
-				ind=rand()%4;
+				ind=zc_oldrand()%4;
 			}
 			
 			if(awarp)
@@ -8227,7 +8242,7 @@ bool LinkClass::animate(int)
 		pushing=false;
 	}
 	
-	if( game->get_life() <= (HP_PER_HEART) && !(game->get_maxlife() <= (HP_PER_HEART)) && (heart_beep_timer > -3))
+	if( game->get_life() <= (game->get_hp_per_heart()) && !(game->get_maxlife() <= (game->get_hp_per_heart())) && (heart_beep_timer > -3))
 	{
 		if(heart_beep)
 		{
@@ -8640,7 +8655,7 @@ bool LinkClass::startwpn(int itemid)
         }
         
         Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitBomb,itemsbuf[itemid].fam_type,
-                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                             itemsbuf[itemid].power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
         sfx(WAV_PLACE,pan(wx));
     }
     break;
@@ -8684,7 +8699,7 @@ bool LinkClass::startwpn(int itemid)
         if(itemsbuf[itemid].misc1>0) // If not remote bombs
             deselectbombs(true);
             
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir, itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*game->get_hero_dmgmult(),dir, itemid,getUID(),false,false,true));
         sfx(WAV_PLACE,pan(wx));
     }
     break;
@@ -8718,7 +8733,7 @@ bool LinkClass::startwpn(int itemid)
 	if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
 	{
 		type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
-		pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
+		pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*game->get_hero_dmgmult();
 	}
 	else
 	{
@@ -8726,7 +8741,7 @@ bool LinkClass::startwpn(int itemid)
 		//Wait, so, why are you using current_item(itype_book) and not itemsbuf[bookid].whatever? 
 		//There is an actual field on the magic book and/or wand for the damage modification!! -Z
 		type = (bookid != -1 && paybook) ? current_item(itype_book) : itemsbuf[itemid].fam_type;
-		pow = ((bookid != -1 && paybook) ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
+		pow = ((bookid != -1 && paybook) ? current_item_power(itype_book) : itemsbuf[itemid].power)*game->get_hero_dmgmult();
 	}
         for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
             if(dir!=(i^1))
@@ -8759,7 +8774,7 @@ bool LinkClass::startwpn(int itemid)
     }
     /*
     //    Fireball Wand
-    Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wRefFireball,0,2*DAMAGE_MULTIPLIER,dir));
+    Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wRefFireball,0,2*game->get_hero_dmgmult(),dir));
     switch (dir)
     {
     case up:
@@ -8803,13 +8818,13 @@ bool LinkClass::startwpn(int itemid)
         
         if(itemsbuf[itemid].flags & ITEM_FLAG2)
         {
-            temppower=DAMAGE_MULTIPLIER*itemsbuf[itemid].power;
+            temppower=game->get_hero_dmgmult()*itemsbuf[itemid].power;
             temppower=temppower*itemsbuf[itemid].misc2;
             temppower=temppower/100;
         }
         else
         {
-            temppower = DAMAGE_MULTIPLIER*itemsbuf[itemid].misc2;
+            temppower = game->get_hero_dmgmult()*itemsbuf[itemid].misc2;
         }
         
         //Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
@@ -8846,7 +8861,7 @@ bool LinkClass::startwpn(int itemid)
         Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wFire,
                              //(itemsbuf[itemid].fam_type > 1), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
                              (itemsbuf[itemid].fam_type), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
-                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                             itemsbuf[itemid].power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
         sfx(itemsbuf[itemid].usesound,pan(wx));
         attack=wFire;
     }
@@ -8860,7 +8875,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript1,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript1,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8875,7 +8890,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript2,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript2,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8890,7 +8905,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript3,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript3,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8905,7 +8920,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript4,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript4,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8920,7 +8935,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript5,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript5,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8935,7 +8950,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript6,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript6,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8950,7 +8965,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript7,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript7,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8965,7 +8980,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript8,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript8,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8980,7 +8995,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript9,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript9,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -8995,7 +9010,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript10,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript10,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -9010,7 +9025,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -9042,7 +9057,7 @@ bool LinkClass::startwpn(int itemid)
         
         paymagiccost(itemid);
         
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wArrow,itemsbuf[itemid].fam_type,game->get_hero_dmgmult()*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=(current_item_power(itype_bow)+1)/2;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -9086,7 +9101,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         current_item_power(itype_brang);
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*game->get_hero_dmgmult()),dir,itemid,getUID(),false,false,true));
     }
     break;
     
@@ -9181,9 +9196,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy-4,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx;
                 hs_starty=wy-4;
             }
@@ -9193,9 +9208,9 @@ bool LinkClass::startwpn(int itemid)
                 int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx;
                 hs_starty=wy;
             }
@@ -9204,9 +9219,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx-4;
                 hs_starty=wy;
             }
@@ -9215,9 +9230,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
@@ -9227,9 +9242,9 @@ bool LinkClass::startwpn(int itemid)
                 hookshot_used=true;
 		int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
@@ -9237,9 +9252,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
@@ -9248,9 +9263,9 @@ bool LinkClass::startwpn(int itemid)
                 hookshot_used=true;
 		int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
@@ -9258,9 +9273,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+                                     hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
@@ -9331,8 +9346,8 @@ bool LinkClass::startwpn(int itemid)
 		//zprint("Added byrna weapon %d.\n", i);
 		//the iterator isn passed to 'type'. weapons.cpp converts thisd to
 		//'quantity_iterator' pn construction; and this is used for orbit initial spacing.
-		Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
-            //Lwpns.add(new weapon((zfix)wx+cos(2 * PI / (i+1)),(zfix)wy+sin(2 * PI / (i+1)),(zfix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
+		Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wCByrna,i,itemsbuf[itemid].power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+            //Lwpns.add(new weapon((zfix)wx+cos(2 * PI / (i+1)),(zfix)wy+sin(2 * PI / (i+1)),(zfix)wz,wCByrna,i,itemsbuf[itemid].power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 		//wx += cos(2 * PI / (itemsbuf[itemid].misc3-i));
 		//wy += sin(2 * PI / (itemsbuf[itemid].misc3-i));
 	}
@@ -9611,16 +9626,16 @@ bool LinkClass::doattack()
         }
         else
         {
-            templife*=HP_PER_HEART;
+            templife*=game->get_hp_per_heart();
         }
         
-        bool normalbeam = (game->get_life()+(get_bit(quest_rules,qr_QUARTERHEART)?((HP_PER_HEART/4)-1):((HP_PER_HEART/2)-1))>=templife);
+        bool normalbeam = (game->get_life()+(get_bit(quest_rules,qr_QUARTERHEART)?((game->get_hp_per_heart()/4)-1):((game->get_hp_per_heart()/2)-1))>=templife);
         int perilid = current_item_id(itype_perilscroll);
-        bool perilbeam = (perilid>=0 && wpnid>=0 && game->get_life()<=itemsbuf[perilid].misc1*HP_PER_HEART
+        bool perilbeam = (perilid>=0 && wpnid>=0 && game->get_life()<=itemsbuf[perilid].misc1*game->get_hp_per_heart()
                           && checkmagiccost(perilid)
                           // Must actually be able to shoot sword beams
                           && ((itemsbuf[wpnid].flags & ITEM_FLAG1)
-                              || itemsbuf[wpnid].misc1 <= game->get_maxlife()/HP_PER_HEART));
+                              || itemsbuf[wpnid].misc1 <= game->get_maxlife()/game->get_hp_per_heart()));
                               
         if(attack==wSword && !tapping)
         {
@@ -10615,7 +10630,7 @@ void LinkClass::pitfall()
 		//Handle falling
 		if(!--fallclk)
 		{
-			int dmg = HP_PER_HEART/4;
+			int dmg = game->get_hp_per_heart()/4;
 			bool dmg_perc = false;
 			bool warp = false;
 			
@@ -10630,7 +10645,7 @@ void LinkClass::pitfall()
 			if(dmg) //Damage
 			{
 				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
-				game->set_life(vbound(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg),0,game->get_maxlife()));
+				game->set_life(vbound(int(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg)),0,game->get_maxlife()));
 			}
 			if(warp) //Warp
 			{
@@ -15958,7 +15973,7 @@ void LinkClass::checkchest(int type)
 	
 	if(intbtn) //
 	{
-		if(!getIntBtnInput(intbtn, true, true))
+		if(!getIntBtnInput(intbtn, true, true, false, true))
 			return; //Button not pressed
 	}
 	else if(pushing < 8) return; //Not pushing against chest enough
@@ -16132,7 +16147,7 @@ void LinkClass::checksigns()
 	
 	if(intbtn) //
 	{
-		if(!getIntBtnInput(intbtn, true, true))
+		if(!getIntBtnInput(intbtn, true, true, false, true))
 			return; //Button not pressed
 	}
 	else if(pushing < 8 || pushing%8) return; //Not pushing against sign enough
@@ -16977,7 +16992,7 @@ void LinkClass::checktouchblk()
 			
 			if ( combobuf[cid].usrflags&cflag1 ) //custom enemy ids
 			{
-				int r = (combobuf[cid].usrflags&cflag2) ? rand()%2 : 0;
+				int r = (combobuf[cid].usrflags&cflag2) ? zc_oldrand()%2 : 0;
 				id2 = combobuf[cid].attribytes[0+r];
 				//if(guysbuf[id2].family==eeWALK)
 				//{
@@ -17398,8 +17413,9 @@ void LinkClass::checkspecial()
         
         // clear enemies and open secret
         if(!did_secret && (tmpscr->flags2&fCLEARSECRET))
-        { 
-            hidden_entrance(0,true,true,-2);
+        {
+			bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
+            hidden_entrance(0,true,only16_31,-2);
             
             if(tmpscr->flags4&fENEMYSCRTPERM && canPermSecret())
             {
@@ -17555,7 +17571,7 @@ void LinkClass::checkspecial2(int *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,(rand()%4),warpsound);
+				dowarp(0,(zc_oldrand()%4),warpsound);
 				return;
 			}
 			
@@ -17774,7 +17790,7 @@ void LinkClass::checkspecial2(int *ls)
 		{
 			types[i]=cPIT;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
-			index=rand()%4;
+			index=zc_oldrand()%4;
 		}
 		
 		if(types[i]==cSTAIR)
@@ -17803,7 +17819,7 @@ void LinkClass::checkspecial2(int *ls)
 		else if(types[i]==cSTAIRR)
 		{
 			types[i]=cSTAIR;
-			index=rand()%4;
+			index=zc_oldrand()%4;
 		warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		
@@ -18230,7 +18246,7 @@ void LinkClass::checkspecial2(int *ls)
 		int wpdir = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2];
 		if ( ((unsigned)wpdir) > r_down )
 		{
-			wpdir = rand()&3;
+			wpdir = zc_oldrand()&3;
 		}
 		int damg = combobuf[MAPCOMBO(tx+8,ty+8)].attributes[0]/10000L;
 		switch(wpn)
@@ -18815,1164 +18831,1163 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		//}
 		
 	}
-    if ( warp_sound > 0 ) warpsfx = warp_sound;
-    word wdmap=0;
-    byte wscr=0,wtype=0,t=0;
-    bool overlay=false;
-    t=(currscr<128)?0:1;
-    int wrindex = 0;
-    //int lastent_org = lastentrance;
-    //int lastdmap_org = lastentrance_dmap;
-    bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
-    
-    // Drawing commands probably shouldn't carry over...
-    if ( !get_bit(quest_rules,qr_SCRIPTDRAWSINWARPS) )
+	if ( warp_sound > 0 ) warpsfx = warp_sound;
+	word wdmap=0;
+	byte wscr=0,wtype=0,t=0;
+	bool overlay=false;
+	t=(currscr<128)?0:1;
+	int wrindex = 0;
+	//int lastent_org = lastentrance;
+	//int lastdmap_org = lastentrance_dmap;
+	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
+	
+	// Drawing commands probably shouldn't carry over...
+	if ( !get_bit(quest_rules,qr_SCRIPTDRAWSINWARPS) )
 	script_drawing_commands.Clear();
-    
-    //KILL ambient sound
-//    mapscr *m = &TheMaps[ri->mapsref]
-    //oceansfx = 0; newscr->oceansfx
-    switch(type)
-    {
-    case 0:                                                 // tile warp
-        wtype = tmpscr[t].tilewarptype[index];
-        wdmap = tmpscr[t].tilewarpdmap[index];
-        wscr = tmpscr[t].tilewarpscr[index];
-        overlay = get_bit(&tmpscr[t].tilewarpoverlayflags,index)?1:0;
-        wrindex=(tmpscr->warpreturnc>>(index*2))&3;
-        break;
-        
-    case 1:                                                 // side warp
-        wtype = tmpscr[t].sidewarptype[index];
-        wdmap = tmpscr[t].sidewarpdmap[index];
-        wscr = tmpscr[t].sidewarpscr[index];
-        overlay = get_bit(&tmpscr[t].sidewarpoverlayflags,index)?1:0;
-        wrindex=(tmpscr->warpreturnc>>(8+(index*2)))&3;
-	//tmpscr->doscript = 0; //kill the currebt screen's script so that it does not continue to run during the scroll.
-	//there is no doscript for screen scripts. They run like ffcs. 
+	
+	//KILL ambient sound
+	//    mapscr *m = &TheMaps[ri->mapsref]
+	//oceansfx = 0; newscr->oceansfx
+	switch(type)
+	{
+		case 0:                                                 // tile warp
+			wtype = tmpscr[t].tilewarptype[index];
+			wdmap = tmpscr[t].tilewarpdmap[index];
+			wscr = tmpscr[t].tilewarpscr[index];
+			overlay = get_bit(&tmpscr[t].tilewarpoverlayflags,index)?1:0;
+			wrindex=(tmpscr->warpreturnc>>(index*2))&3;
+			break;
+			
+		case 1:                                                 // side warp
+			wtype = tmpscr[t].sidewarptype[index];
+			wdmap = tmpscr[t].sidewarpdmap[index];
+			wscr = tmpscr[t].sidewarpscr[index];
+			overlay = get_bit(&tmpscr[t].sidewarpoverlayflags,index)?1:0;
+			wrindex=(tmpscr->warpreturnc>>(8+(index*2)))&3;
+		//tmpscr->doscript = 0; //kill the currebt screen's script so that it does not continue to run during the scroll.
+		//there is no doscript for screen scripts. They run like ffcs. 
 
-        break;
-        
-    case 2:                                                 // whistle warp
-    {
-        wtype = wtWHISTLE;
-        int wind = whistleitem>-1 ? itemsbuf[whistleitem].misc2 : 8;
-        int level=0;
-        
-        if(blowcnt==0)
-            level = selectWlevel(0);
-        else
-        {
-            for(int i=0; i<abs(blowcnt); i++)
-                level = selectWlevel(blowcnt);
-        }
-        
-        if(level > QMisc.warp[wind].size && QMisc.warp[wind].size>0)
-        {
-            level %= QMisc.warp[wind].size;
-            game->set_wlevel(level);
-        }
-        
-        wdmap = QMisc.warp[wind].dmap[level];
-        wscr = QMisc.warp[wind].scr[level];
-    }
-    break;
-    
-    case 3:
-        wtype = wtIWARP;
-        wdmap = cheat_goto_dmap;
-        wscr = cheat_goto_screen;
-        break;
-        
-    case 4:
-        wtype = wtIWARP;
-        wdmap = currdmap;
-        wscr = homescr-DMaps[currdmap].xoff;
-        break;
-    }
-    
-	 bool intradmap = (wdmap == currdmap);
-    int olddmap = currdmap;
-    //if ( intradmap ) 
-    //{
-	//FFCore.initZScriptDMapScripts();   //Not needed. 
-    //} 
-    rehydratelake(type!=wtSCROLL);
-    
-    switch(wtype)
-    {
-    case wtCAVE:
-    {
-        // cave/item room
-        ALLOFF();
-        homescr=currscr;
-        currscr=0x80;
-        
-        if(DMaps[currdmap].flags&dmfCAVES)                                         // cave
-        {
-            music_stop();
-            kill_sfx();
-            
-            if(tmpscr->room==rWARP)
-            {
-                currscr=0x81;
-                specialcave = STAIRCAVE;
-            }
-            else specialcave = GUYCAVE;
-            
-            //lighting(2,dir);
-            lighting(false, true);
-            loadlvlpal(10);
-            bool b2 = COOLSCROLL&&
-                      ((combobuf[MAPCOMBO(x,y-16)].type==cCAVE)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2)||
-                       (combobuf[MAPCOMBO(x,y-16)].type==cCAVEB)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2B)||
-                       (combobuf[MAPCOMBO(x,y-16)].type==cCAVEC)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2C)||
-                       (combobuf[MAPCOMBO(x,y-16)].type==cCAVED)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2D));
-            blackscr(30,b2?false:true);
-            loadscr(0,wdmap,currscr,up,false);
-            loadscr(1,wdmap,homescr,up,false);
-            //preloaded freeform combos
-            ffscript_engine(true);
-            putscr(scrollbuf,0,0,tmpscr);
-            putscrdoors(scrollbuf,0,0,tmpscr);
-            dir=up;
-            x=112;
-            y=160;
-            
-            if(didpit)
-            {
-                didpit=false;
-                x=pitx;
-                y=pity;
-            }
-            
-            reset_hookshot();
-		if(reposition_sword_postwarp)
+			break;
+			
+		case 2:                                                 // whistle warp
 		{
-			weapon *swd=NULL;
-			for(int i=0; i<Lwpns.Count(); i++)
+			wtype = wtWHISTLE;
+			int wind = whistleitem>-1 ? itemsbuf[whistleitem].misc2 : 8;
+			int level=0;
+			
+			if(blowcnt==0)
+				level = selectWlevel(0);
+			else
 			{
-			    swd = (weapon*)Lwpns.spr(i);
-			    
-			    if(swd->id == (attack==wSword ? wSword : wWand))
-			    {
-				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-				positionSword(swd,item_id);
-				break;
-			    }
+				for(int i=0; i<abs(blowcnt); i++)
+					level = selectWlevel(blowcnt);
 			}
-		}
-            stepforward(diagonalMovement?5:6, false);
-        }
-        else                                                  // item room
-        {
-            specialcave = ITEMCELLAR;
-            map_bkgsfx(false);
-            kill_enemy_sfx();
-            draw_screen(tmpscr,false);
-            
-            //unless the room is already dark, fade to black
-            if(!darkroom)
-            {
-                darkroom = true;
-                fade(DMaps[currdmap].color,true,false);
-            }
-            
-            blackscr(30,true);
-            loadscr(0,wdmap,currscr,down,false);
-            loadscr(1,wdmap,homescr,-1,false);
-            if ( dontdraw < 2 ) {  dontdraw=1; }
-            draw_screen(tmpscr);
-            fade(11,true,true);
-            darkroom = false;
-            dir=down;
-            x=48;
-            y=0;
-            
-            // is this didpit check necessary?
-            if(didpit)
-            {
-                didpit=false;
-                x=pitx;
-                y=pity;
-            }
-            
-            reset_hookshot();
-	    if(reposition_sword_postwarp)
-		{
-			weapon *swd=NULL;
-			for(int i=0; i<Lwpns.Count(); i++)
+			
+			if(level > QMisc.warp[wind].size && QMisc.warp[wind].size>0)
 			{
-			    swd = (weapon*)Lwpns.spr(i);
-			    
-			    if(swd->id == (attack==wSword ? wSword : wWand))
-			    {
-				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-				positionSword(swd,item_id);
-				break;
-			    }
+				level %= QMisc.warp[wind].size;
+				game->set_wlevel(level);
 			}
+			
+			wdmap = QMisc.warp[wind].dmap[level];
+			wscr = QMisc.warp[wind].scr[level];
 		}
-            lighting(false, true);
-            if ( dontdraw < 2 ) { dontdraw=0; }
-            stepforward(diagonalMovement?16:18, false);
-        }
-        
-        break;
-    }
-    
-    case wtPASS:                                            // passageway
-    {
-        map_bkgsfx(false);
-        kill_enemy_sfx();
-        ALLOFF();
-	//play sound
-	if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
-        homescr=currscr;
-        currscr=0x81;
-        specialcave = PASSAGEWAY;
-        byte warpscr2 = wscr + DMaps[wdmap].xoff;
-        draw_screen(tmpscr,false);
-        
-        if(!darkroom)
-            fade(DMaps[currdmap].color,true,false);
-            
-        darkroom=true;
-        blackscr(30,true);
-        loadscr(0,wdmap,currscr,down,false);
-        loadscr(1,wdmap,homescr,-1,false);
-        //preloaded freeform combos
-        ffscript_engine(true);
-        if ( dontdraw < 2 ) { dontdraw=1; }
-        draw_screen(tmpscr);
-        lighting(false, true);
-        dir=down;
-        x=48;
-        
-        if((homescr&15) > (warpscr2&15))
-        {
-            x=192;
-        }
-        
-        if((homescr&15) == (warpscr2&15))
-        {
-            if((currscr>>4) > (warpscr2>>4))
-            {
-                x=192;
-            }
-        }
-        
-        // is this didpit check necessary?
-        if(didpit)
-        {
-            didpit=false;
-            x=pitx;
-            y=pity;
-        }
-        
-        setEntryPoints(x,y=0);
-        reset_hookshot();
-	if(reposition_sword_postwarp)
-	{
-		weapon *swd=NULL;
-		for(int i=0; i<Lwpns.Count(); i++)
-		{
-		    swd = (weapon*)Lwpns.spr(i);
-		    
-		    if(swd->id == (attack==wSword ? wSword : wWand))
-		    {
-			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-			positionSword(swd,item_id);
+		break;
+		
+		case 3:
+			wtype = wtIWARP;
+			wdmap = cheat_goto_dmap;
+			wscr = cheat_goto_screen;
 			break;
-		    }
-		}
-	}
-        if ( dontdraw < 2 ) { dontdraw=0; }
-        stepforward(diagonalMovement?16:18, false);
-        newscr_clk=frame;
-        activated_timed_warp=false;
-        stepoutindex=index;
-        stepoutscr = warpscr2;
-        stepoutdmap = wdmap;
-        stepoutwr=wrindex;
-    }
-    break;
-    
-    case wtEXIT: // entrance/exit
-    {
-		lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
-        ALLOFF();
-        music_stop();
-        kill_sfx();
-        blackscr(30,false);
-        currdmap = wdmap;
-        dlevel=DMaps[currdmap].level;
-        currmap=DMaps[currdmap].map;
-        init_dmap();
-        update_subscreens(wdmap);
-        loadfullpal();
-        ringcolor(false);
-        loadlvlpal(DMaps[currdmap].color);
-        //lastentrance_dmap = currdmap;
-        homescr = currscr = wscr + DMaps[currdmap].xoff;
-        loadscr(0,currdmap,currscr,-1,overlay);
-        
-        if(tmpscr->flags&fDARK)
-        {
-            if(get_bit(quest_rules,qr_FADE))
-            {
-                interpolatedfade();
-            }
-            else
-            {
-                loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
-            }
-            
-            darkroom=naturaldark=true;
-        }
-        else
-        {
-            darkroom=naturaldark=false;
-        }
-        
-        int wrx,wry;
-        
-        if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-        {
-            wrx=tmpscr->warpreturnx[0];
-            wry=tmpscr->warpreturny[0];
-        }
-        else
-        {
-            wrx=tmpscr->warparrivalx;
-            wry=tmpscr->warparrivaly;
-        }
-        
-        if(((wrx>0||wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
-        {
-            if(dlevel)
-            {
-                lastentrance = currscr;
-            }
-            else
-            {
-                lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
-            }
-            
-            lastentrance_dmap = wdmap;
-        }
-        
-        if(dlevel)
-        {
-            if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-            {
-                x=tmpscr->warpreturnx[wrindex];
-                y=tmpscr->warpreturny[wrindex];
-            }
-            else
-            {
-                x=tmpscr->warparrivalx;
-                y=tmpscr->warparrivaly;
-            }
-        }
-        else
-        {
-            x=tmpscr->warpreturnx[wrindex];
-            y=tmpscr->warpreturny[wrindex];
-        }
-        
-        if(didpit)
-        {
-            didpit=false;
-            x=pitx;
-            y=pity;
-        }
-        
-        dir=down;
-        
-        if(x==0)   dir=right;
-        
-        if(x==240) dir=left;
-        
-        if(y==0)   dir=down;
-        
-        if(y==160) dir=up;
-        
-        if(dlevel)
-        {
-            // reset enemy kill counts
-            for(int i=0; i<128; i++)
-            {
-                game->guys[(currmap*MAPSCRSNORMAL)+i] = 0;
-                game->maps[(currmap*MAPSCRSNORMAL)+i] &= ~mTMPNORET;
-            }
-        }
-        
-        markBmap(dir^1);
-        //preloaded freeform combos
-        ffscript_engine(true);
-	
-        reset_hookshot();
-	if(reposition_sword_postwarp)
-	{
-		weapon *swd=NULL;
-		for(int i=0; i<Lwpns.Count(); i++)
-		{
-		    swd = (weapon*)Lwpns.spr(i);
-		    
-		    if(swd->id == (attack==wSword ? wSword : wWand))
-		    {
-			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-			positionSword(swd,item_id);
+			
+		case 4:
+			wtype = wtIWARP;
+			wdmap = currdmap;
+			wscr = homescr-DMaps[currdmap].xoff;
 			break;
-		    }
-		}
 	}
-
-        if(isdungeon())
-        {
-            openscreen();
-            if(get_bit(extra_rules, er_SHORTDGNWALK)==0)
-                stepforward(diagonalMovement?11:12, false);
-            else
-                // Didn't walk as far pre-1.93, and some quests depend on that
-                stepforward(8, false);
-        }
-        else
-        {
-            if(!COOLSCROLL)
-                openscreen();
-                
-            int type1 = combobuf[MAPCOMBO(x,y-16)].type; // Old-style blue square placement
-            int type2 = combobuf[MAPCOMBO(x,y)].type;
-            int type3 = combobuf[MAPCOMBO(x,y+16)].type; // More old-style blue square placement
-            
-            if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
-            {
-                reset_pal_cycling();
-                putscr(scrollbuf,0,0,tmpscr);
-                putscrdoors(scrollbuf,0,0,tmpscr);
-                walkup(COOLSCROLL);
-            }
-            else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
-            {
-                reset_pal_cycling();
-                putscr(scrollbuf,0,0,tmpscr);
-                putscrdoors(scrollbuf,0,0,tmpscr);
-                walkdown2(COOLSCROLL);
-            }
-            else if(COOLSCROLL)
-            {
-                openscreen();
-            }
-        }
-        
-        show_subscreen_life=true;
-        show_subscreen_numbers=true;
-        playLevelMusic();
-        currcset=DMaps[currdmap].color;
-        dointro();
-        setEntryPoints(x,y);
-        
-        for(int i=0; i<6; i++)
-            visited[i]=-1;
-            
-        break;
-    }
-    
-    case wtSCROLL:                                          // scrolling warp
-    {
-        int c = DMaps[currdmap].color;
-		scrolling_map = currmap;
-        currmap = DMaps[wdmap].map;
-	update_subscreens(wdmap);
 	
-	dlevel = DMaps[wdmap].level;
-	    //check if Link has the map for the new location before updating the subscreen. ? -Z
-	    //This works only in one direction, if Link had a map, to not having one.
-	    //If Link does not have a map, and warps somewhere where he does, then the map still briefly shows. 
-	update_subscreens(wdmap);
-	    
-	if ( has_item(itype_map, dlevel) ) 
-	{
-		//Blank the map during an intra-dmap scrolling warp. 
-		dlevel = -1; //a hack for the minimap. This works!! -Z
-	}
-	    
-        // fix the scrolling direction, if it was a tile or instant warp
-        if(type==0 || type>=3)
-        {
-            sdir = dir;
-        }
-        
-        scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
-	dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
-	
-        reset_hookshot();
-        if(reposition_sword_postwarp)
-	{
-		weapon *swd=NULL;
-		for(int i=0; i<Lwpns.Count(); i++)
-		{
-		    swd = (weapon*)Lwpns.spr(i);
-		    
-		    if(swd->id == (attack==wSword ? wSword : wWand))
-		    {
-			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-			positionSword(swd,item_id);
-			break;
-		    }
-		}
-	}
-        if(!intradmap)
-        {
-            currdmap = wdmap;
-            dlevel = DMaps[currdmap].level;
-            homescr = currscr = wscr + DMaps[wdmap].xoff;
-            init_dmap();
-            
-            int wrx,wry;
-            
-            if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-            {
-                wrx=tmpscr->warpreturnx[0];
-                wry=tmpscr->warpreturny[0];
-            }
-            else
-            {
-                wrx=tmpscr->warparrivalx;
-                wry=tmpscr->warparrivaly;
-            }
-            
-            if(((wrx>0||wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
-            {
-                if(dlevel)
-                {
-                    lastentrance = currscr;
-                }
-                else
-                {
-                    lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
-                }
-                
-                lastentrance_dmap = wdmap;
-            }
-        }
-        
-        //else
+	bool intradmap = (wdmap == currdmap);
+	int olddmap = currdmap;
+	//if ( intradmap ) 
 	//{
-	//	dmapscriptInitialised = 0; //reinitialise DMap script InitD
-	//}
-	if(DMaps[currdmap].color != c)
-        {
-            lighting(false, true);
-        }
-        
-        playLevelMusic();
-        currcset=DMaps[currdmap].color;
-        dointro();
-    }
-    break;
-    
-    case wtWHISTLE:                                         // whistle warp
-    {
-		scrolling_map = currmap;
-        currmap = DMaps[wdmap].map;
-        scrollscr(index, wscr+DMaps[wdmap].xoff, wdmap);
-        reset_hookshot();
-        currdmap=wdmap;
-        dlevel=DMaps[currdmap].level;
-        lighting(false, true);
-        init_dmap();
-        
-        playLevelMusic();
-        currcset=DMaps[currdmap].color;
-        dointro();
-        action=inwind; FFCore.setLinkAction(inwind);
-        int wry;
-        
-        if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-            wry=tmpscr->warpreturny[0];
-        else wry=tmpscr->warparrivaly;
-        
-        int wrx;
-        
-        if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-            wrx=tmpscr->warpreturnx[0];
-        else wrx=tmpscr->warparrivalx;
-        
-        Lwpns.add(new weapon((zfix)(index==left?240:index==right?0:wrx),(zfix)(index==down?0:index==up?160:wry),
-                             (zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true,1));
-        whirlwind=255;
-        whistleitem=-1;
-    }
-    break;
-    
-    case wtIWARP:
-    case wtIWARPBLK:
-    case wtIWARPOPEN:
-    case wtIWARPZAP:
-    case wtIWARPWAVE:                                       // insta-warps
-    {
-	    
+	//FFCore.initZScriptDMapScripts();   //Not needed. 
+	//} 
+	rehydratelake(type!=wtSCROLL);
 	
-	bool old_192 = false;
-	if ( FFCore.emulation[emu192b163] )
+	switch(wtype)
 	{
-		if ( wtype == wtIWARPWAVE )
+		case wtCAVE:
 		{
-			wtype = wtIWARPWAVE;
-			old_192 = true;
+			// cave/item room
+			ALLOFF();
+			homescr=currscr;
+			currscr=0x80;
+			
+			if(DMaps[currdmap].flags&dmfCAVES)                                         // cave
+			{
+				music_stop();
+				kill_sfx();
+				
+				if(tmpscr->room==rWARP)
+				{
+					currscr=0x81;
+					specialcave = STAIRCAVE;
+				}
+				else specialcave = GUYCAVE;
+				
+				//lighting(2,dir);
+				lighting(false, true);
+				loadlvlpal(10);
+				bool b2 = COOLSCROLL&&
+						  ((combobuf[MAPCOMBO(x,y-16)].type==cCAVE)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2)||
+						   (combobuf[MAPCOMBO(x,y-16)].type==cCAVEB)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2B)||
+						   (combobuf[MAPCOMBO(x,y-16)].type==cCAVEC)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2C)||
+						   (combobuf[MAPCOMBO(x,y-16)].type==cCAVED)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2D));
+				blackscr(30,b2?false:true);
+				loadscr(0,wdmap,currscr,up,false);
+				loadscr(1,wdmap,homescr,up,false);
+				//preloaded freeform combos
+				ffscript_engine(true);
+				putscr(scrollbuf,0,0,tmpscr);
+				putscrdoors(scrollbuf,0,0,tmpscr);
+				dir=up;
+				x=112;
+				y=160;
+				
+				if(didpit)
+				{
+					didpit=false;
+					x=pitx;
+					y=pity;
+				}
+				
+				reset_hookshot();
+				if(reposition_sword_postwarp)
+				{
+					weapon *swd=NULL;
+					for(int i=0; i<Lwpns.Count(); i++)
+					{
+						swd = (weapon*)Lwpns.spr(i);
+						
+						if(swd->id == (attack==wSword ? wSword : wWand))
+						{
+						int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+						int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+						positionSword(swd,item_id);
+						break;
+						}
+					}
+				}
+				stepforward(diagonalMovement?5:6, false);
+			}
+			else                                                  // item room
+			{
+				specialcave = ITEMCELLAR;
+				map_bkgsfx(false);
+				kill_enemy_sfx();
+				draw_screen(tmpscr,false);
+				
+				//unless the room is already dark, fade to black
+				if(!darkroom)
+				{
+					darkroom = true;
+					fade(DMaps[currdmap].color,true,false);
+				}
+				
+				blackscr(30,true);
+				loadscr(0,wdmap,currscr,down,false);
+				loadscr(1,wdmap,homescr,-1,false);
+				if ( dontdraw < 2 ) {  dontdraw=1; }
+				draw_screen(tmpscr);
+				fade(11,true,true);
+				darkroom = false;
+				dir=down;
+				x=48;
+				y=0;
+				
+				// is this didpit check necessary?
+				if(didpit)
+				{
+					didpit=false;
+					x=pitx;
+					y=pity;
+				}
+				
+				reset_hookshot();
+				if(reposition_sword_postwarp)
+				{
+					weapon *swd=NULL;
+					for(int i=0; i<Lwpns.Count(); i++)
+					{
+						swd = (weapon*)Lwpns.spr(i);
+						
+						if(swd->id == (attack==wSword ? wSword : wWand))
+						{
+							int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+							int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+							positionSword(swd,item_id);
+							break;
+						}
+					}
+				}
+				lighting(false, true);
+				if ( dontdraw < 2 ) { dontdraw=0; }
+				stepforward(diagonalMovement?16:18, false);
+			}
+			if(get_bit(quest_rules,qr_SCREEN80_OWN_MUSIC)) playLevelMusic();
+			break;
 		}
-		if ( old_192 )
+		
+		case wtPASS:                                            // passageway
 		{
-			al_trace("Encountered a warp in a 1.92b163 style quest, that was set as a Wave Warp.\n %s\n", "Trying to redirect it into a Cancel Effect");
+			map_bkgsfx(false);
+			kill_enemy_sfx();
+			ALLOFF();
+			//play sound
+			if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
+			homescr=currscr;
+			currscr=0x81;
+			specialcave = PASSAGEWAY;
+			byte warpscr2 = wscr + DMaps[wdmap].xoff;
+			draw_screen(tmpscr,false);
+			
+			if(!darkroom)
+				fade(DMaps[currdmap].color,true,false);
+				
+			darkroom=true;
+			blackscr(30,true);
+			loadscr(0,wdmap,currscr,down,false);
+			loadscr(1,wdmap,homescr,-1,false);
+			//preloaded freeform combos
+			ffscript_engine(true);
+			if ( dontdraw < 2 ) { dontdraw=1; }
+			draw_screen(tmpscr);
+			lighting(false, true);
+			dir=down;
+			x=48;
+			
+			if((homescr&15) > (warpscr2&15))
+			{
+				x=192;
+			}
+			
+			if((homescr&15) == (warpscr2&15))
+			{
+				if((currscr>>4) > (warpscr2>>4))
+				{
+					x=192;
+				}
+			}
+			
+			// is this didpit check necessary?
+			if(didpit)
+			{
+				didpit=false;
+				x=pitx;
+				y=pity;
+			}
+			
+			setEntryPoints(x,y=0);
+			reset_hookshot();
+			if(reposition_sword_postwarp)
+			{
+				weapon *swd=NULL;
+				for(int i=0; i<Lwpns.Count(); i++)
+				{
+					swd = (weapon*)Lwpns.spr(i);
+					
+					if(swd->id == (attack==wSword ? wSword : wWand))
+					{
+					int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+					int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+					positionSword(swd,item_id);
+					break;
+					}
+				}
+			}
+			if ( dontdraw < 2 ) { dontdraw=0; }
+			stepforward(diagonalMovement?16:18, false);
+			newscr_clk=frame;
+			activated_timed_warp=false;
+			stepoutindex=index;
+			stepoutscr = warpscr2;
+			stepoutdmap = wdmap;
+			stepoutwr=wrindex;
+			if(get_bit(quest_rules,qr_SCREEN80_OWN_MUSIC)) playLevelMusic();
+		}
+		break;
+		
+		case wtEXIT: // entrance/exit
+		{
+			lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
+			ALLOFF();
+			music_stop();
+			kill_sfx();
+			blackscr(30,false);
+			currdmap = wdmap;
+			dlevel=DMaps[currdmap].level;
+			currmap=DMaps[currdmap].map;
+			init_dmap();
+			update_subscreens(wdmap);
+			loadfullpal();
+			ringcolor(false);
+			loadlvlpal(DMaps[currdmap].color);
+			//lastentrance_dmap = currdmap;
+			homescr = currscr = wscr + DMaps[currdmap].xoff;
+			loadscr(0,currdmap,currscr,-1,overlay);
+			
+			if(tmpscr->flags&fDARK)
+			{
+				if(get_bit(quest_rules,qr_FADE))
+				{
+					interpolatedfade();
+				}
+				else
+				{
+					loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
+				}
+				
+				darkroom=naturaldark=true;
+			}
+			else
+			{
+				darkroom=naturaldark=false;
+			}
+			
+			int wrx,wry;
+			
+			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+			{
+				wrx=tmpscr->warpreturnx[0];
+				wry=tmpscr->warpreturny[0];
+			}
+			else
+			{
+				wrx=tmpscr->warparrivalx;
+				wry=tmpscr->warparrivaly;
+			}
+			
+			if(((wrx>0||wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
+			{
+				if(dlevel)
+				{
+					lastentrance = currscr;
+				}
+				else
+				{
+					lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+				}
+				
+				lastentrance_dmap = wdmap;
+			}
+			
+			if(dlevel)
+			{
+				if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+				{
+					x=tmpscr->warpreturnx[wrindex];
+					y=tmpscr->warpreturny[wrindex];
+				}
+				else
+				{
+					x=tmpscr->warparrivalx;
+					y=tmpscr->warparrivaly;
+				}
+			}
+			else
+			{
+				x=tmpscr->warpreturnx[wrindex];
+				y=tmpscr->warpreturny[wrindex];
+			}
+			
+			if(didpit)
+			{
+				didpit=false;
+				x=pitx;
+				y=pity;
+			}
+			
+			dir=down;
+			
+			if(x==0)   dir=right;
+			
+			if(x==240) dir=left;
+			
+			if(y==0)   dir=down;
+			
+			if(y==160) dir=up;
+			
+			if(dlevel)
+			{
+				// reset enemy kill counts
+				for(int i=0; i<128; i++)
+				{
+					game->guys[(currmap*MAPSCRSNORMAL)+i] = 0;
+					game->maps[(currmap*MAPSCRSNORMAL)+i] &= ~mTMPNORET;
+				}
+			}
+			
+			markBmap(dir^1);
+			//preloaded freeform combos
+			ffscript_engine(true);
+		
+			reset_hookshot();
+			if(reposition_sword_postwarp)
+			{
+				weapon *swd=NULL;
+				for(int i=0; i<Lwpns.Count(); i++)
+				{
+					swd = (weapon*)Lwpns.spr(i);
+					
+					if(swd->id == (attack==wSword ? wSword : wWand))
+					{
+						int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+						int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+						positionSword(swd,item_id);
+						break;
+					}
+				}
+			}
+
+			if(isdungeon())
+			{
+				openscreen();
+				if(get_bit(extra_rules, er_SHORTDGNWALK)==0)
+					stepforward(diagonalMovement?11:12, false);
+				else
+					// Didn't walk as far pre-1.93, and some quests depend on that
+					stepforward(8, false);
+			}
+			else
+			{
+				if(!COOLSCROLL)
+					openscreen();
+					
+				int type1 = combobuf[MAPCOMBO(x,y-16)].type; // Old-style blue square placement
+				int type2 = combobuf[MAPCOMBO(x,y)].type;
+				int type3 = combobuf[MAPCOMBO(x,y+16)].type; // More old-style blue square placement
+				
+				if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
+				{
+					reset_pal_cycling();
+					putscr(scrollbuf,0,0,tmpscr);
+					putscrdoors(scrollbuf,0,0,tmpscr);
+					walkup(COOLSCROLL);
+				}
+				else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
+				{
+					reset_pal_cycling();
+					putscr(scrollbuf,0,0,tmpscr);
+					putscrdoors(scrollbuf,0,0,tmpscr);
+					walkdown2(COOLSCROLL);
+				}
+				else if(COOLSCROLL)
+				{
+					openscreen();
+				}
+			}
+			
+			show_subscreen_life=true;
+			show_subscreen_numbers=true;
+			playLevelMusic();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			setEntryPoints(x,y);
+			
+			for(int i=0; i<6; i++)
+				visited[i]=-1;
+				
+			break;
+		}
+		
+		case wtSCROLL:                                          // scrolling warp
+		{
+			int c = DMaps[currdmap].color;
+			scrolling_map = currmap;
+			currmap = DMaps[wdmap].map;
+			update_subscreens(wdmap);
+			
+			dlevel = DMaps[wdmap].level;
+				//check if Link has the map for the new location before updating the subscreen. ? -Z
+				//This works only in one direction, if Link had a map, to not having one.
+				//If Link does not have a map, and warps somewhere where he does, then the map still briefly shows. 
+			update_subscreens(wdmap);
+				
+			if ( has_item(itype_map, dlevel) ) 
+			{
+				//Blank the map during an intra-dmap scrolling warp. 
+				dlevel = -1; //a hack for the minimap. This works!! -Z
+			}
+			
+			// fix the scrolling direction, if it was a tile or instant warp
+			if(type==0 || type>=3)
+			{
+				sdir = dir;
+			}
+			
+			scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
+			dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
+		
+			reset_hookshot();
+			if(reposition_sword_postwarp)
+			{
+				weapon *swd=NULL;
+				for(int i=0; i<Lwpns.Count(); i++)
+				{
+					swd = (weapon*)Lwpns.spr(i);
+					
+					if(swd->id == (attack==wSword ? wSword : wWand))
+					{
+					int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+					int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+					positionSword(swd,item_id);
+					break;
+					}
+				}
+			}
+			if(!intradmap)
+			{
+				currdmap = wdmap;
+				dlevel = DMaps[currdmap].level;
+				homescr = currscr = wscr + DMaps[wdmap].xoff;
+				init_dmap();
+				
+				int wrx,wry;
+				
+				if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+				{
+					wrx=tmpscr->warpreturnx[0];
+					wry=tmpscr->warpreturny[0];
+				}
+				else
+				{
+					wrx=tmpscr->warparrivalx;
+					wry=tmpscr->warparrivaly;
+				}
+				
+				if(((wrx>0||wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
+				{
+					if(dlevel)
+					{
+						lastentrance = currscr;
+					}
+					else
+					{
+						lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+					}
+					
+					lastentrance_dmap = wdmap;
+				}
+			}
+			
+			//else
+			//{
+			//	dmapscriptInitialised = 0; //reinitialise DMap script InitD
+			//}
+			if(DMaps[currdmap].color != c)
+			{
+				lighting(false, true);
+			}
+			
+			playLevelMusic();
+			currcset=DMaps[currdmap].color;
+			dointro();
+		}
+		break;
+		
+		case wtWHISTLE:                                         // whistle warp
+		{
+			scrolling_map = currmap;
+			currmap = DMaps[wdmap].map;
+			scrollscr(index, wscr+DMaps[wdmap].xoff, wdmap);
+			reset_hookshot();
+			currdmap=wdmap;
+			dlevel=DMaps[currdmap].level;
+			lighting(false, true);
+			init_dmap();
+			
+			playLevelMusic();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			action=inwind; FFCore.setLinkAction(inwind);
+			int wry;
+			
+			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+				wry=tmpscr->warpreturny[0];
+			else wry=tmpscr->warparrivaly;
+			
+			int wrx;
+			
+			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+				wrx=tmpscr->warpreturnx[0];
+			else wrx=tmpscr->warparrivalx;
+			
+			Lwpns.add(new weapon((zfix)(index==left?240:index==right?0:wrx),(zfix)(index==down?0:index==up?160:wry),
+								 (zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true,1));
+			whirlwind=255;
+			whistleitem=-1;
+		}
+		break;
+		
+		case wtIWARP:
+		case wtIWARPBLK:
+		case wtIWARPOPEN:
+		case wtIWARPZAP:
+		case wtIWARPWAVE:                                       // insta-warps
+		{
+			bool old_192 = false;
+			if ( FFCore.emulation[emu192b163] )
+			{
+				if ( wtype == wtIWARPWAVE )
+				{
+					wtype = wtIWARPWAVE;
+					old_192 = true;
+				}
+				if ( old_192 )
+				{
+					al_trace("Encountered a warp in a 1.92b163 style quest, that was set as a Wave Warp.\n %s\n", "Trying to redirect it into a Cancel Effect");
+					didpit=false;
+					update_subscreens();
+					warp_sound = 0;
+					is_warping = false;
+					return false;
+				}
+			}
+			//for determining whether to exit cave
+			int type1 = combobuf[MAPCOMBO(x,y-16)].type;
+			int type2 = combobuf[MAPCOMBO(x,y)].type;
+			int type3 = combobuf[MAPCOMBO(x,y+16)].type;
+			
+			bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
+							 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
+						
+			if(!(tmpscr->flags3&fIWARPFULLSCREEN))
+			{
+				//ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
+				bool wasswimming = (action == swimming);
+				int olddiveclk = diveclk;
+				ALLOFF();
+				
+				if(wasswimming)
+				{
+					Link.setAction(swimming); FFCore.setLinkAction(swimming);
+					diveclk = olddiveclk;
+				}
+				
+				kill_sfx();
+			}
+			//play sound
+			if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
+			if(wtype==wtIWARPZAP)
+			{
+				zapout();
+			}
+			else if(wtype==wtIWARPWAVE)
+			{
+				//only draw Link if he's not in a cave -DD
+				wavyout(!cavewarp);
+			}
+			else if(wtype!=wtIWARP)
+			{
+				bool b2 = COOLSCROLL&&cavewarp;
+				blackscr(30,b2?false:true);
+			}
+			
+			int c = DMaps[currdmap].color;
+			currdmap = wdmap;
+			dlevel = DMaps[currdmap].level;
+			currmap = DMaps[currdmap].map;
+			init_dmap();
+			update_subscreens(wdmap);
+			
+			ringcolor(false);
+			
+			if(DMaps[currdmap].color != c)
+				loadlvlpal(DMaps[currdmap].color);
+				
+			homescr = currscr = wscr + DMaps[currdmap].xoff;
+			
+			lightingInstant(); // Also sets naturaldark
+			
+			loadscr(0,currdmap,currscr,-1,overlay);
+			
+			x = tmpscr->warpreturnx[wrindex];
+			y = tmpscr->warpreturny[wrindex];
+			
+			if(didpit)
+			{
+				didpit=false;
+				x=pitx;
+				y=pity;
+			}
+			
+			type1 = combobuf[MAPCOMBO(x,y-16)].type;
+			type2 = combobuf[MAPCOMBO(x,y)].type;
+			type3 = combobuf[MAPCOMBO(x,y+16)].type;
+			
+			if(x==0)   dir=right;
+			
+			if(x==240) dir=left;
+			
+			if(y==0)   dir=down;
+			
+			if(y==160) dir=up;
+			
+			markBmap(dir^1);
+		
+			int checkwater = iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
+			
+			if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].attribytes[0] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))
+			{
+				hopclk=0xFF;
+				attackclk = charging = spins = 0;
+				action=swimming; FFCore.setLinkAction(swimming);
+			}
+			else
+			{
+				action = none; FFCore.setLinkAction(none);
+			}
+			//preloaded freeform combos
+			ffscript_engine(true);
+			
+			putscr(scrollbuf,0,0,tmpscr);
+			putscrdoors(scrollbuf,0,0,tmpscr);
+			
+			if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
+			{
+				reset_pal_cycling();
+				putscr(scrollbuf,0,0,tmpscr);
+				putscrdoors(scrollbuf,0,0,tmpscr);
+				walkup(COOLSCROLL);
+			}
+			else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
+			{
+				reset_pal_cycling();
+				putscr(scrollbuf,0,0,tmpscr);
+				putscrdoors(scrollbuf,0,0,tmpscr);
+				walkdown2(COOLSCROLL);
+			}
+			else if(wtype==wtIWARPZAP)
+			{
+				zapin();
+			}
+			else if(wtype==wtIWARPWAVE)
+			{
+				wavyin();
+			}
+			else if(wtype==wtIWARPOPEN)
+			{
+				openscreen();
+			}
+			if(reposition_sword_postwarp)
+			{
+				weapon *swd=NULL;
+				for(int i=0; i<Lwpns.Count(); i++)
+				{
+					swd = (weapon*)Lwpns.spr(i);
+					
+					if(swd->id == (attack==wSword ? wSword : wWand))
+					{
+					int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+					int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+					positionSword(swd,item_id);
+					break;
+					}
+				}
+			}
+			show_subscreen_life=true;
+			show_subscreen_numbers=true;
+			playLevelMusic();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			setEntryPoints(x,y);
+		}
+		break;
+		
+		
+		case wtNOWARP:
+		{
+			bool old_192 = false;
+			if ( FFCore.emulation[emu192b163] )
+			{
+				wtype = wtIWARPWAVE;
+				old_192 = true;
+			}
+			if ( old_192 )
+			{
+				al_trace("Encountered a warp in a 1.92b163 style quest, that was set as a Cancel Warp.\n %s\n", "Trying to redirect it into a Wave Effect");
+				//for determining whether to exit cave
+				int type1 = combobuf[MAPCOMBO(x,y-16)].type;
+				int type2 = combobuf[MAPCOMBO(x,y)].type;
+				int type3 = combobuf[MAPCOMBO(x,y+16)].type;
+				
+				bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
+						 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
+						 
+				if(!(tmpscr->flags3&fIWARPFULLSCREEN))
+				{
+					//ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
+					bool wasswimming = (action == swimming);
+					int olddiveclk = diveclk;
+					ALLOFF();
+					
+					if(wasswimming)
+					{
+					Link.setAction(swimming); FFCore.setLinkAction(swimming);
+					diveclk = olddiveclk;
+					}
+					
+					kill_sfx();
+				}
+				//play sound
+				if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));	
+				if(wtype==wtIWARPZAP)
+				{
+					zapout();
+				}
+				else if(wtype==wtIWARPWAVE)
+				{
+					//only draw Link if he's not in a cave -DD
+					wavyout(!cavewarp);
+				}
+				else if(wtype!=wtIWARP)
+				{
+					bool b2 = COOLSCROLL&&cavewarp;
+					blackscr(30,b2?false:true);
+				}
+				
+				int c = DMaps[currdmap].color;
+				currdmap = wdmap;
+				dlevel = DMaps[currdmap].level;
+				currmap = DMaps[currdmap].map;
+				init_dmap();
+				update_subscreens(wdmap);
+				
+				ringcolor(false);
+				
+				if(DMaps[currdmap].color != c)
+					loadlvlpal(DMaps[currdmap].color);
+					
+				homescr = currscr = wscr + DMaps[currdmap].xoff;
+				
+				lightingInstant(); // Also sets naturaldark
+				
+				loadscr(0,currdmap,currscr,-1,overlay);
+				
+				x = tmpscr->warpreturnx[wrindex];
+				y = tmpscr->warpreturny[wrindex];
+				
+				if(didpit)
+				{
+					didpit=false;
+					x=pitx;
+					y=pity;
+				}
+					
+				type1 = combobuf[MAPCOMBO(x,y-16)].type;
+				type2 = combobuf[MAPCOMBO(x,y)].type;
+				type3 = combobuf[MAPCOMBO(x,y+16)].type;
+				
+				if(x==0)   dir=right;
+				
+				if(x==240) dir=left;
+				
+				if(y==0)   dir=down;
+				
+				if(y==160) dir=up;
+				
+				markBmap(dir^1);
+				
+				if(iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && _walkflag(x,y+8,0,SWITCHBLOCK_STATE) && current_item(itype_flippers))
+				{
+					hopclk=0xFF;
+					attackclk = charging = spins = 0;
+					action=swimming;
+					FFCore.setLinkAction(swimming);
+				}
+				else
+				{
+					action = none;
+					FFCore.setLinkAction(none);
+				}
+				//preloaded freeform combos
+				ffscript_engine(true);
+				
+				putscr(scrollbuf,0,0,tmpscr);
+				putscrdoors(scrollbuf,0,0,tmpscr);
+				
+				if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
+				{
+					reset_pal_cycling();
+					putscr(scrollbuf,0,0,tmpscr);
+					putscrdoors(scrollbuf,0,0,tmpscr);
+					walkup(COOLSCROLL);
+				}
+				else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
+				{
+					reset_pal_cycling();
+					putscr(scrollbuf,0,0,tmpscr);
+					putscrdoors(scrollbuf,0,0,tmpscr);
+					walkdown2(COOLSCROLL);
+				}
+				else if(wtype==wtIWARPZAP)
+				{
+					zapin();
+				}
+				else if(wtype==wtIWARPWAVE)
+				{
+					wavyin();
+				}
+				else if(wtype==wtIWARPOPEN)
+				{
+					openscreen();
+				}
+				if(reposition_sword_postwarp)
+				{
+					weapon *swd=NULL;
+					for(int i=0; i<Lwpns.Count(); i++)
+					{
+						swd = (weapon*)Lwpns.spr(i);
+						
+						if(swd->id == (attack==wSword ? wSword : wWand))
+						{
+						int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+						int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+						positionSword(swd,item_id);
+						break;
+						}
+					}
+				}
+				show_subscreen_life=true;
+				show_subscreen_numbers=true;
+				playLevelMusic();
+				currcset=DMaps[currdmap].color;
+				dointro();
+				setEntryPoints(x,y);
+				break;
+			}
+			else
+			{
+				if(reposition_sword_postwarp)
+				{
+					weapon *swd=NULL;
+					for(int i=0; i<Lwpns.Count(); i++)
+					{
+						swd = (weapon*)Lwpns.spr(i);
+						
+						if(swd->id == (attack==wSword ? wSword : wWand))
+						{
+						int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+						int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+						positionSword(swd,item_id);
+						break;
+						}
+					}
+				}
+				didpit=false;
+				update_subscreens();
+				warp_sound = 0;
+				is_warping = false;
+				return false;
+			}
+		
+		}
+		default:
 			didpit=false;
 			update_subscreens();
 			warp_sound = 0;
 			is_warping = false;
+			if(reposition_sword_postwarp)
+			{
+				weapon *swd=NULL;
+				for(int i=0; i<Lwpns.Count(); i++)
+				{
+					swd = (weapon*)Lwpns.spr(i);
+					
+					if(swd->id == (attack==wSword ? wSword : wWand))
+					{
+						int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+						int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+						positionSword(swd,item_id);
+						break;
+					}
+				}
+			}
 			return false;
-		}
 	}
-        //for determining whether to exit cave
-        int type1 = combobuf[MAPCOMBO(x,y-16)].type;
-        int type2 = combobuf[MAPCOMBO(x,y)].type;
-        int type3 = combobuf[MAPCOMBO(x,y+16)].type;
-        
-        bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
-                         ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
-                    
-        if(!(tmpscr->flags3&fIWARPFULLSCREEN))
-        {
-            //ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
-            bool wasswimming = (action == swimming);
-            int olddiveclk = diveclk;
-            ALLOFF();
-            
-            if(wasswimming)
-            {
-                Link.setAction(swimming); FFCore.setLinkAction(swimming);
-                diveclk = olddiveclk;
-            }
-            
-            kill_sfx();
-        }
-        //play sound
-	if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
-        if(wtype==wtIWARPZAP)
-        {
-            zapout();
-        }
-        else if(wtype==wtIWARPWAVE)
-        {
-            //only draw Link if he's not in a cave -DD
-            wavyout(!cavewarp);
-        }
-        else if(wtype!=wtIWARP)
-        {
-            bool b2 = COOLSCROLL&&cavewarp;
-            blackscr(30,b2?false:true);
-        }
-        
-        int c = DMaps[currdmap].color;
-        currdmap = wdmap;
-        dlevel = DMaps[currdmap].level;
-        currmap = DMaps[currdmap].map;
-        init_dmap();
-        update_subscreens(wdmap);
-        
-        ringcolor(false);
-        
-        if(DMaps[currdmap].color != c)
-            loadlvlpal(DMaps[currdmap].color);
-            
-        homescr = currscr = wscr + DMaps[currdmap].xoff;
-        
-        lightingInstant(); // Also sets naturaldark
-        
-        loadscr(0,currdmap,currscr,-1,overlay);
-        
-        x = tmpscr->warpreturnx[wrindex];
-        y = tmpscr->warpreturny[wrindex];
-        
-        if(didpit)
-        {
-            didpit=false;
-            x=pitx;
-            y=pity;
-        }
-        
-        type1 = combobuf[MAPCOMBO(x,y-16)].type;
-        type2 = combobuf[MAPCOMBO(x,y)].type;
-        type3 = combobuf[MAPCOMBO(x,y+16)].type;
-        
-        if(x==0)   dir=right;
-        
-        if(x==240) dir=left;
-        
-        if(y==0)   dir=down;
-        
-        if(y==160) dir=up;
-        
-        markBmap(dir^1);
 	
-	int checkwater = iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
-        
-        if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].attribytes[0] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))
-        {
-            hopclk=0xFF;
-            attackclk = charging = spins = 0;
-            action=swimming; FFCore.setLinkAction(swimming);
-        }
-        else
+	
+	
+	// Stop Link from drowning!
+	if(action==drowning || action==lavadrowning)
 	{
-            action = none; FFCore.setLinkAction(none);
+		drownclk=0;
+		action=none; FFCore.setLinkAction(none);
 	}
-        //preloaded freeform combos
-        ffscript_engine(true);
-        
-        putscr(scrollbuf,0,0,tmpscr);
-        putscrdoors(scrollbuf,0,0,tmpscr);
-        
-        if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
-        {
-            reset_pal_cycling();
-            putscr(scrollbuf,0,0,tmpscr);
-            putscrdoors(scrollbuf,0,0,tmpscr);
-            walkup(COOLSCROLL);
-        }
-        else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
-        {
-            reset_pal_cycling();
-            putscr(scrollbuf,0,0,tmpscr);
-            putscrdoors(scrollbuf,0,0,tmpscr);
-            walkdown2(COOLSCROLL);
-        }
-        else if(wtype==wtIWARPZAP)
-        {
-            zapin();
-        }
-        else if(wtype==wtIWARPWAVE)
-        {
-            wavyin();
-        }
-        else if(wtype==wtIWARPOPEN)
-        {
-            openscreen();
-        }
-        if(reposition_sword_postwarp)
+	
+	int checkwater = iswaterex(MAPCOMBO(x,y+(bigHitbox?8:12)), currmap, currscr, -1, x,y+(bigHitbox?8:12));
+	// But keep him swimming if he ought to be!
+	// Unless the water is too high levelled, in which case... well, he'll drown on transition probably anyways. -Dimi
+	if(action!=rafting && checkwater && (_walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) || get_bit(quest_rules,qr_DROWN))
+			//&& (current_item(itype_flippers) >= combobuf[checkwater].attribytes[0]) 
+		&& (action!=inwind))
 	{
-		weapon *swd=NULL;
-		for(int i=0; i<Lwpns.Count(); i++)
-		{
-		    swd = (weapon*)Lwpns.spr(i);
-		    
-		    if(swd->id == (attack==wSword ? wSword : wWand))
-		    {
-			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-			positionSword(swd,item_id);
-			break;
-		    }
-		}
+		hopclk=0xFF;
+		action=swimming; FFCore.setLinkAction(swimming);
 	}
-        show_subscreen_life=true;
-        show_subscreen_numbers=true;
-        playLevelMusic();
-        currcset=DMaps[currdmap].color;
-        dointro();
-        setEntryPoints(x,y);
-    }
-    break;
-    
-    
-    case wtNOWARP:
-    {
-	bool old_192 = false;
-	if ( FFCore.emulation[emu192b163] )
+	
+	newscr_clk=frame;
+	activated_timed_warp=false;
+	eat_buttons();
+	
+	if(wtype!=wtIWARP)
+		attackclk=0;
+		
+	didstuff=0;
+	map_bkgsfx(true);
+	loadside=dir^1;
+	whistleclk=-1;
+	
+	if(z>0 && isSideViewLink())
 	{
-		wtype = wtIWARPWAVE;
-		old_192 = true;
+		y-=z;
+		z=0;
 	}
-	if ( old_192 )
+	else if(!isSideViewLink())
 	{
-		al_trace("Encountered a warp in a 1.92b163 style quest, that was set as a Cancel Warp.\n %s\n", "Trying to redirect it into a Wave Effect");
-		//for determining whether to exit cave
-		int type1 = combobuf[MAPCOMBO(x,y-16)].type;
-		int type2 = combobuf[MAPCOMBO(x,y)].type;
-		int type3 = combobuf[MAPCOMBO(x,y+16)].type;
-		
-		bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
-				 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
-				 
-		if(!(tmpscr->flags3&fIWARPFULLSCREEN))
+		fall=0;
+	}
+	
+	// If warping between top-down and sideview screens,
+	// fix enemies that are carried over by Full Screen Warp
+	const bool tmpscr_is_sideview = isSideViewLink();
+	
+	if(!wasSideview && tmpscr_is_sideview)
+	{
+		for(int i=0; i<guys.Count(); i++)
 		{
-		    //ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
-		    bool wasswimming = (action == swimming);
-		    int olddiveclk = diveclk;
-		    ALLOFF();
-		    
-		    if(wasswimming)
-		    {
-			Link.setAction(swimming); FFCore.setLinkAction(swimming);
-			diveclk = olddiveclk;
-		    }
-		    
-		    kill_sfx();
-		}
-		//play sound
-		if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));	
-		if(wtype==wtIWARPZAP)
-		{
-		    zapout();
-		}
-		else if(wtype==wtIWARPWAVE)
-		{
-		    //only draw Link if he's not in a cave -DD
-		    wavyout(!cavewarp);
-		}
-		else if(wtype!=wtIWARP)
-		{
-		    bool b2 = COOLSCROLL&&cavewarp;
-		    blackscr(30,b2?false:true);
-		}
-		
-		int c = DMaps[currdmap].color;
-		currdmap = wdmap;
-		dlevel = DMaps[currdmap].level;
-		currmap = DMaps[currdmap].map;
-		init_dmap();
-		update_subscreens(wdmap);
-		
-		ringcolor(false);
-		
-		if(DMaps[currdmap].color != c)
-		    loadlvlpal(DMaps[currdmap].color);
-		    
-		homescr = currscr = wscr + DMaps[currdmap].xoff;
-		
-		lightingInstant(); // Also sets naturaldark
-		
-		loadscr(0,currdmap,currscr,-1,overlay);
-		
-		x = tmpscr->warpreturnx[wrindex];
-		y = tmpscr->warpreturny[wrindex];
-		
-		if(didpit)
-		{
-		    didpit=false;
-		    x=pitx;
-		    y=pity;
-		}
+			if(guys.spr(i)->z > 0)
+			{
+				guys.spr(i)->y -= guys.spr(i)->z;
+				guys.spr(i)->z = 0;
+			}
 			
-		type1 = combobuf[MAPCOMBO(x,y-16)].type;
-		type2 = combobuf[MAPCOMBO(x,y)].type;
-		type3 = combobuf[MAPCOMBO(x,y+16)].type;
-		
-		if(x==0)   dir=right;
-		
-		if(x==240) dir=left;
-		
-		if(y==0)   dir=down;
-		
-		if(y==160) dir=up;
-		
-		markBmap(dir^1);
-		
-		if(iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && _walkflag(x,y+8,0,SWITCHBLOCK_STATE) && current_item(itype_flippers))
+			if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+				guys.spr(i)->yofs += 2;
+		}
+	}
+	else if(wasSideview && !tmpscr_is_sideview)
+	{
+		for(int i=0; i<guys.Count(); i++)
 		{
-		    hopclk=0xFF;
-		    attackclk = charging = spins = 0;
-		    action=swimming;
-		    FFCore.setLinkAction(swimming);
+			if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+				guys.spr(i)->yofs -= 2;
+		}
+	}
+	
+	if((DMaps[currdmap].type&dmfCONTINUE) || (currdmap==0))
+	{
+		if(dlevel)
+		{
+			int wrx,wry;
+			
+			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+			{
+				wrx=tmpscr->warpreturnx[0];
+				wry=tmpscr->warpreturny[0];
+			}
+			else
+			{
+				wrx=tmpscr->warparrivalx;
+				wry=tmpscr->warparrivaly;
+			}
+			
+			if((wtype == wtEXIT)
+					|| (((wtype == wtSCROLL) && !intradmap) && ((wrx>0 || wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))))
+			{
+				if(!(wtype==wtSCROLL)||!(get_bit(quest_rules,qr_NOSCROLLCONTINUE)))
+				{
+					game->set_continue_scrn(homescr);
+					//Z_message("continue_scrn = %02X e/e\n",game->get_continue_scrn());
+				}
+				else if(currdmap != game->get_continue_dmap())
+				{
+					game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+				}
+			}
+			else
+			{
+				if(currdmap != game->get_continue_dmap())
+				{
+					game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+					//Z_message("continue_scrn = %02X dlevel\n",game->get_continue_scrn());
+				}
+			}
 		}
 		else
 		{
-		    action = none;
-		    FFCore.setLinkAction(none);
+			game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+			//Z_message("continue_scrn = %02X\n !dlevel\n",game->get_continue_scrn());
 		}
-		//preloaded freeform combos
-		ffscript_engine(true);
 		
-		putscr(scrollbuf,0,0,tmpscr);
-		putscrdoors(scrollbuf,0,0,tmpscr);
-		
-		if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
-		{
-		    reset_pal_cycling();
-		    putscr(scrollbuf,0,0,tmpscr);
-		    putscrdoors(scrollbuf,0,0,tmpscr);
-		    walkup(COOLSCROLL);
-		}
-		else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
-		{
-		    reset_pal_cycling();
-		    putscr(scrollbuf,0,0,tmpscr);
-		    putscrdoors(scrollbuf,0,0,tmpscr);
-		    walkdown2(COOLSCROLL);
-		}
-		else if(wtype==wtIWARPZAP)
-		{
-		    zapin();
-		}
-		else if(wtype==wtIWARPWAVE)
-		{
-		    wavyin();
-		}
-		else if(wtype==wtIWARPOPEN)
-		{
-		    openscreen();
-		}
-		if(reposition_sword_postwarp)
-		{
-			weapon *swd=NULL;
-			for(int i=0; i<Lwpns.Count(); i++)
-			{
-			    swd = (weapon*)Lwpns.spr(i);
-			    
-			    if(swd->id == (attack==wSword ? wSword : wWand))
-			    {
-				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-				positionSword(swd,item_id);
-				break;
-			    }
-			}
-		}
-		show_subscreen_life=true;
-		show_subscreen_numbers=true;
-		playLevelMusic();
-		currcset=DMaps[currdmap].color;
-		dointro();
-		setEntryPoints(x,y);
-		break;
-	}
-	else
-	{
-		if(reposition_sword_postwarp)
-		{
-			weapon *swd=NULL;
-			for(int i=0; i<Lwpns.Count(); i++)
-			{
-			    swd = (weapon*)Lwpns.spr(i);
-			    
-			    if(swd->id == (attack==wSword ? wSword : wWand))
-			    {
-				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-				positionSword(swd,item_id);
-				break;
-			    }
-			}
-		}
-		didpit=false;
-		update_subscreens();
-		warp_sound = 0;
-		is_warping = false;
-		return false;
+		game->set_continue_dmap(currdmap);
+		lastentrance_dmap = currdmap;
+		lastentrance = game->get_continue_scrn();
+		//Z_message("continue_map = %d\n",game->get_continue_dmap());
 	}
 	
-    }
-    default:
-        didpit=false;
-        update_subscreens();
-        warp_sound = 0;
-		is_warping = false;
+	if(tmpscr->flags4&fAUTOSAVE)
+	{
+		save_game(true,0);
+	}
+	
+	if(tmpscr->flags6&fCONTINUEHERE)
+	{
+		lastentrance_dmap = currdmap;
+		lastentrance = homescr;
+	}
+	
+	update_subscreens();
+	verifyBothWeapons();
+	
+	if(wtype==wtCAVE)
+	{
+		if(DMaps[currdmap].flags&dmfGUYCAVES)
+			Z_eventlog("Entered %s containing %s.\n",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar",
+					   (char *)moduledata.roomtype_names[tmpscr[1].room]);
+		else
+			Z_eventlog("Entered %s.",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar");
+	}
+	else Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,currscr,
+						wtype==wtPASS ? "Passageway" :
+						wtype==wtEXIT ? "Entrance/Exit" :
+						wtype==wtSCROLL ? "Scrolling Warp" :
+						wtype==wtWHISTLE ? "Whistle Warp" :
+						"Insta-Warp");
+						
+	eventlog_mapflags();
 	if(reposition_sword_postwarp)
 	{
 		weapon *swd=NULL;
 		for(int i=0; i<Lwpns.Count(); i++)
 		{
-		    swd = (weapon*)Lwpns.spr(i);
-		    
-		    if(swd->id == (attack==wSword ? wSword : wWand))
-		    {
+			swd = (weapon*)Lwpns.spr(i);
+			
+			if(swd->id == (attack==wSword ? wSword : wWand))
+			{
 			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
 			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 			positionSword(swd,item_id);
 			break;
-		    }
+			}
 		}
 	}
-        return false;
-    }
-    
-    
-    
-    // Stop Link from drowning!
-    if(action==drowning || action==lavadrowning)
-    {
-        drownclk=0;
-        action=none; FFCore.setLinkAction(none);
-    }
-    
-    int checkwater = iswaterex(MAPCOMBO(x,y+(bigHitbox?8:12)), currmap, currscr, -1, x,y+(bigHitbox?8:12));
-    // But keep him swimming if he ought to be!
-    // Unless the water is too high levelled, in which case... well, he'll drown on transition probably anyways. -Dimi
-    if(action!=rafting && checkwater && (_walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) || get_bit(quest_rules,qr_DROWN))
-            //&& (current_item(itype_flippers) >= combobuf[checkwater].attribytes[0]) 
-	    && (action!=inwind))
-    {
-        hopclk=0xFF;
-        action=swimming; FFCore.setLinkAction(swimming);
-    }
-    
-    newscr_clk=frame;
-    activated_timed_warp=false;
-    eat_buttons();
-    
-    if(wtype!=wtIWARP)
-        attackclk=0;
-        
-    didstuff=0;
-    map_bkgsfx(true);
-    loadside=dir^1;
-    whistleclk=-1;
-    
-    if(z>0 && isSideViewLink())
-    {
-        y-=z;
-        z=0;
-    }
-    else if(!isSideViewLink())
-    {
-        fall=0;
-    }
-    
-    // If warping between top-down and sideview screens,
-    // fix enemies that are carried over by Full Screen Warp
-    const bool tmpscr_is_sideview = isSideViewLink();
-    
-    if(!wasSideview && tmpscr_is_sideview)
-    {
-        for(int i=0; i<guys.Count(); i++)
-        {
-            if(guys.spr(i)->z > 0)
-            {
-                guys.spr(i)->y -= guys.spr(i)->z;
-                guys.spr(i)->z = 0;
-            }
-            
-            if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
-                guys.spr(i)->yofs += 2;
-        }
-    }
-    else if(wasSideview && !tmpscr_is_sideview)
-    {
-        for(int i=0; i<guys.Count(); i++)
-        {
-            if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
-                guys.spr(i)->yofs -= 2;
-        }
-    }
-    
-    if((DMaps[currdmap].type&dmfCONTINUE) || (currdmap==0))
-    {
-        if(dlevel)
-        {
-            int wrx,wry;
-            
-            if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-            {
-                wrx=tmpscr->warpreturnx[0];
-                wry=tmpscr->warpreturny[0];
-            }
-            else
-            {
-                wrx=tmpscr->warparrivalx;
-                wry=tmpscr->warparrivaly;
-            }
-            
-            if((wtype == wtEXIT)
-                    || (((wtype == wtSCROLL) && !intradmap) && ((wrx>0 || wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))))
-            {
-                if(!(wtype==wtSCROLL)||!(get_bit(quest_rules,qr_NOSCROLLCONTINUE)))
-                {
-                    game->set_continue_scrn(homescr);
-                    //Z_message("continue_scrn = %02X e/e\n",game->get_continue_scrn());
-                }
-                else if(currdmap != game->get_continue_dmap())
-                {
-                    game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
-                }
-            }
-            else
-            {
-                if(currdmap != game->get_continue_dmap())
-                {
-                    game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
-                    //Z_message("continue_scrn = %02X dlevel\n",game->get_continue_scrn());
-                }
-            }
-        }
-        else
-        {
-            game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
-            //Z_message("continue_scrn = %02X\n !dlevel\n",game->get_continue_scrn());
-        }
-        
-        game->set_continue_dmap(currdmap);
-        lastentrance_dmap = currdmap;
-        lastentrance = game->get_continue_scrn();
-        //Z_message("continue_map = %d\n",game->get_continue_dmap());
-    }
-    
-    if(tmpscr->flags4&fAUTOSAVE)
-    {
-        save_game(true,0);
-    }
-    
-    if(tmpscr->flags6&fCONTINUEHERE)
-    {
-        lastentrance_dmap = currdmap;
-        lastentrance = homescr;
-    }
-    
-    update_subscreens();
-    verifyBothWeapons();
-    
-    if(wtype==wtCAVE)
-    {
-        if(DMaps[currdmap].flags&dmfGUYCAVES)
-            Z_eventlog("Entered %s containing %s.\n",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar",
-                       (char *)moduledata.roomtype_names[tmpscr[1].room]);
-        else
-            Z_eventlog("Entered %s.",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar");
-    }
-    else Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,currscr,
-                        wtype==wtPASS ? "Passageway" :
-                        wtype==wtEXIT ? "Entrance/Exit" :
-                        wtype==wtSCROLL ? "Scrolling Warp" :
-                        wtype==wtWHISTLE ? "Whistle Warp" :
-                        "Insta-Warp");
-                        
-    eventlog_mapflags();
-    if(reposition_sword_postwarp)
-	{
-		weapon *swd=NULL;
-		for(int i=0; i<Lwpns.Count(); i++)
-		{
-		    swd = (weapon*)Lwpns.spr(i);
-		    
-		    if(swd->id == (attack==wSword ? wSword : wWand))
-		    {
-			int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-			int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-			positionSword(swd,item_id);
-			break;
-		    }
-		}
-	}
-    FFCore.init_combo_doscript();
-    FFCore.initZScriptDMapScripts();
-    FFCore.initZScriptActiveSubscreenScript();
+	FFCore.init_combo_doscript();
+	FFCore.initZScriptDMapScripts();
+	FFCore.initZScriptActiveSubscreenScript();
 	is_warping = false;
-    return true;
+	return true;
 }
 
 void LinkClass::exitcave()
@@ -20570,11 +20585,15 @@ void LinkClass::stepout() // Step out of item cellars and passageways
     markBmap(-1);
     map_bkgsfx(true);
     
-    if(get_bit(quest_rules, qr_CAVEEXITNOSTOPMUSIC) == 0)
+    if(!get_bit(quest_rules, qr_CAVEEXITNOSTOPMUSIC))
     {
         music_stop();
         playLevelMusic();
     }
+	else if(get_bit(quest_rules,qr_SCREEN80_OWN_MUSIC))
+	{
+		playLevelMusic();
+	}
     
     loadside=dir^1;
 }
@@ -21482,6 +21501,29 @@ int LinkClass::get_scroll_delay(int scrolldir)
 	}
 }
 
+void LinkClass::calc_darkroom_link(int x1, int y1, int x2, int y2)
+{
+	int itemid = current_item_id(itype_lantern);
+	if(itemid < 0) return; //no lantern light circle
+	int hx1 = x.getInt() - x1 + 8;
+	int hy1 = y.getInt() - y1 + 8;
+	int hx2 = x.getInt() - x2 + 8;
+	int hy2 = y.getInt() - y2 + 8;
+	
+	itemdata& lamp = itemsbuf[itemid];
+	switch(lamp.misc1) //Shape
+	{
+		case 0: //Circle
+			doDarkroomCircle(hx1, hy1, lamp.misc2, darkscr_bmp_curscr);
+			doDarkroomCircle(hx2, hy2, lamp.misc2, darkscr_bmp_scrollscr);
+			break;
+		case 1: //Lamp Cone
+			doDarkroomCone(hx1, hy1, lamp.misc2, dir, darkscr_bmp_curscr);
+			doDarkroomCone(hx2, hy2, lamp.misc2, dir, darkscr_bmp_scrollscr);
+			break;
+	}
+}
+
 void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 {
 	if(action==freeze)
@@ -22154,11 +22196,100 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 			blit_msgstr_fg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
 		}
 			
-		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && ((newscr->flags&fDARK)||(oldscr->flags&fDARK)))
+		{
+			clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
+			clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
+			clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
+			clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+			calc_darkroom_combos(true);
+			calc_darkroom_link(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
+		}
 		
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
+		{
+			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+			int dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
+			int dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
+			if(newscr->flags & fDARK)
+			{
+				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
+				else 
+					masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
+				color_map = &trans_table;
+			}
+			if(oldscr->flags & fDARK)
+			{
+				if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_scrollscr,darkscr_bmp_scrollscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_scrollscr_trans,darkscr_bmp_scrollscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
+				else 
+					masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
+				color_map = &trans_table;
+			}
+			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		}
+		
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
-			
+		
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6))
+		{
+			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+			int dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
+			int dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
+			if(newscr->flags & fDARK)
+			{
+				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
+				else 
+					masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 168);
+				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
+				color_map = &trans_table;
+			}
+			if(oldscr->flags & fDARK)
+			{
+				if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_scrollscr,darkscr_bmp_scrollscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_scrollscr_trans,darkscr_bmp_scrollscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
+				else 
+					masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 168);
+				draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
+				color_map = &trans_table;
+			}
+			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		}
+		
 		//end drawing
 		advanceframe(true/*,true,false*/);
 		actiontype lastaction = action;
@@ -22358,7 +22489,7 @@ int LinkClass::ringpower(int dmg)
 		/* Now for the Peril Ring */
 		itemid = current_item_id(itype_perilring);
     
-		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
+		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*game->get_hp_per_heart() && checkmagiccost(itemid))
 		{
 			usering = true;
 			paymagiccost(itemid);
@@ -22410,7 +22541,7 @@ int LinkClass::ringpower(int dmg)
 		/* Now for the Peril Ring */
 		itemid = current_item_id(itype_perilring);
 	    
-		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
+		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*game->get_hp_per_heart() && checkmagiccost(itemid))
 		{
 			usering = true;
 			paymagiccost(itemid);
@@ -22502,17 +22633,17 @@ bool LinkClass::sideviewhammerpound()
 // The following are only used for Link damage. Damage is in quarter hearts.
 int enemy_dp(int index)
 {
-    return (((enemy*)guys.spr(index))->dp)*(HP_PER_HEART/4);
+    return (((enemy*)guys.spr(index))->dp)*(game->get_ene_dmgmult());
 }
 
 int ewpn_dp(int index)
 {
-    return (((weapon*)Ewpns.spr(index))->power)*(HP_PER_HEART/4);
+    return (((weapon*)Ewpns.spr(index))->power)*(game->get_ene_dmgmult());
 }
 
 int lwpn_dp(int index)
 {
-    return (((weapon*)Lwpns.spr(index))->power)*(HP_PER_HEART/4);
+    return (((weapon*)Lwpns.spr(index))->power)*(game->get_ene_dmgmult());
 }
 
 bool checkmagiccost(int itemid)
@@ -22671,7 +22802,7 @@ int Bweapon(int pos)
         case itype_bomb:
             if((game->get_bombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
+                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitBomb))) ||
                     current_item_power(itype_bombbag))
             {
                 select=true;
@@ -22706,7 +22837,7 @@ int Bweapon(int pos)
             
             if((game->get_sbombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
+                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitSBomb))) ||
                     (current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
             {
                 select=true;
@@ -23150,7 +23281,7 @@ int selectSword()
 // Used for the 'Pickup Hearts' item pickup condition.
 bool canget(int id)
 {
-    return id>=0 && (game->get_maxlife()>=(itemsbuf[id].pickup_hearts*HP_PER_HEART));
+    return id>=0 && (game->get_maxlife()>=(itemsbuf[id].pickup_hearts*game->get_hp_per_heart()));
 }
 
 void dospecialmoney(int index)
@@ -23216,7 +23347,7 @@ void dospecialmoney(int index)
     {
         if(game->get_spendable_rupies()<10 && !current_item_power(itype_wallet)) return; //Why 10? 
         
-        unsigned si=(rand()%24)*3;
+        unsigned si=(zc_oldrand()%24)*3;
         
         for(int i=0; i<3; i++)
             prices[i]=gambledat[si++];
@@ -23320,11 +23451,11 @@ void dospecialmoney(int index)
         }
         else
         {
-            if(game->get_maxlife()<=HP_PER_HEART)
+            if(game->get_maxlife()<=game->get_hp_per_heart())
                 return;
                 
-            game->set_life(zc_max(game->get_life()-HP_PER_HEART,0));
-            game->set_maxlife(zc_max(game->get_maxlife()-HP_PER_HEART,(HP_PER_HEART)));
+            game->set_life(zc_max(game->get_life()-game->get_hp_per_heart(),0));
+            game->set_maxlife(zc_max(game->get_maxlife()-game->get_hp_per_heart(),(game->get_hp_per_heart())));
         }
         
         setmapflag();
@@ -23506,8 +23637,8 @@ void getitem(int id, bool nosound)
         
     case itype_fairy:
     
-        game->set_life(zc_min(game->get_life()+(itemsbuf[id].flags&ITEM_FLAG1 ?(int)(game->get_maxlife()*(itemsbuf[id].misc1/100.0)):((itemsbuf[id].misc1*HP_PER_HEART))),game->get_maxlife()));
-        game->set_magic(zc_min(game->get_magic()+(itemsbuf[id].flags&ITEM_FLAG2 ?(int)(game->get_maxmagic()*(itemsbuf[id].misc2/100.0)):((itemsbuf[id].misc2*MAGICPERBLOCK))),game->get_maxmagic()));
+        game->set_life(zc_min(game->get_life()+(itemsbuf[id].flags&ITEM_FLAG1 ?(int)(game->get_maxlife()*(itemsbuf[id].misc1/100.0)):((itemsbuf[id].misc1*game->get_hp_per_heart()))),game->get_maxlife()));
+        game->set_magic(zc_min(game->get_magic()+(itemsbuf[id].flags&ITEM_FLAG2 ?(int)(game->get_maxmagic()*(itemsbuf[id].misc2/100.0)):((itemsbuf[id].misc2*game->get_mp_per_block()))),game->get_maxmagic()));
         break;
         
     case itype_heartpiece:
@@ -23576,7 +23707,7 @@ void takeitem(int id)
         break;
         
     case itype_heartpiece:
-        if(game->get_maxlife()>HP_PER_HEART)
+        if(game->get_maxlife()>game->get_hp_per_heart())
         {
             if(game->get_HCpieces()==0)
             {
@@ -23586,7 +23717,6 @@ void takeitem(int id)
             
             game->change_HCpieces(-1);
         }
-        
         break;
         
     case itype_map:
@@ -23603,8 +23733,14 @@ void takeitem(int id)
         
     case itype_lkey:
         if(game->lvlkeys[dlevel]) game->lvlkeys[dlevel]--;
-        
         break;
+		
+	case itype_ring:
+		if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
+		{
+			ringcolor(false);
+		}
+		break;
     }
 }
 
@@ -23633,12 +23769,12 @@ void LinkClass::checkitems(int index)
     int id2 = ((item*)items.spr(index))->id;
     int pstr = ((item*)items.spr(index))->pstring;
     int pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
-    int tempnextmsg;
+    //int tempnextmsg;
     
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
-    if((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))
-        if((items.spr(index)->id!=iFairyMoving)&&(items.spr(index)->id!=iFairyMoving))
+    if(((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
+        if(items.spr(index)->id!=iFairyMoving)
             // wait for it to stop flashing, doesn't check for other items yet
             return;
             
@@ -23972,7 +24108,7 @@ void LinkClass::checkitems(int index)
 		//show the info string
 		//non-held
 		//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
-			int shop_pstr = ( tmpscr[tmp].room == rSHOP && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
+		int shop_pstr = ( tmpscr[tmp].room == rSHOP && PriceIndex>=0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
 		if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 		{
 			if ( (pstr > 0 && pstr < msg_count) && ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )
@@ -24092,8 +24228,8 @@ bool LinkClass::refill()
     
     if(refill_why>=0 && itemsbuf[refill_why].family==itype_potion)
     {
-        refill_heart_stop=zc_min(potion_life+(itemsbuf[refill_why].flags & ITEM_FLAG1 ?int(game->get_maxlife()*(itemsbuf[refill_why].misc1 /100.0)):((itemsbuf[refill_why].misc1 *HP_PER_HEART))),game->get_maxlife());
-        refill_magic_stop=zc_min(potion_magic+(itemsbuf[refill_why].flags & ITEM_FLAG2 ?int(game->get_maxmagic()*(itemsbuf[refill_why].misc2 /100.0)):((itemsbuf[refill_why].misc2 *MAGICPERBLOCK))),game->get_maxmagic());
+        refill_heart_stop=zc_min(potion_life+(itemsbuf[refill_why].flags & ITEM_FLAG1 ?int(game->get_maxlife()*(itemsbuf[refill_why].misc1 /100.0)):((itemsbuf[refill_why].misc1 *game->get_hp_per_heart()))),game->get_maxlife());
+        refill_magic_stop=zc_min(potion_magic+(itemsbuf[refill_why].flags & ITEM_FLAG2 ?int(game->get_maxmagic()*(itemsbuf[refill_why].misc2 /100.0)):((itemsbuf[refill_why].misc2 *game->get_mp_per_block()))),game->get_maxmagic());
     }
     
     if(refillclk%speed == 0)
@@ -24102,7 +24238,7 @@ bool LinkClass::refill()
         switch(refill_what)
         {
         case REFILL_LIFE:
-            game->set_life(zc_min(refill_heart_stop, (game->get_life()+HP_PER_HEART/2)));
+            game->set_life(zc_min(refill_heart_stop, (game->get_life()+game->get_hp_per_heart()/2)));
             
             if(game->get_life()>=refill_heart_stop)
             {
@@ -24122,7 +24258,7 @@ bool LinkClass::refill()
             break;
             
         case REFILL_MAGIC:
-            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+MAGICPERBLOCK/4)));
+            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+game->get_mp_per_block()/4)));
             
             if(game->get_magic()>=refill_magic_stop)
             {
@@ -24142,8 +24278,8 @@ bool LinkClass::refill()
             break;
             
         case REFILL_ALL:
-            game->set_life(zc_min(refill_heart_stop, (game->get_life()+HP_PER_HEART/2)));
-            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+MAGICPERBLOCK/4)));
+            game->set_life(zc_min(refill_heart_stop, (game->get_life()+game->get_hp_per_heart()/2)));
+            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+game->get_mp_per_block()/4)));
             
             if((game->get_life()>=refill_heart_stop)&&(game->get_magic()>=refill_magic_stop))
             {
@@ -24613,6 +24749,7 @@ void slide_in_color(int color)
 void LinkClass::heroDeathAnimation()
 {
 	int f=0;
+	int deathclk=0,deathfrm=0;
     
 	action=none; FFCore.setLinkAction(dying); //mayhaps a new action of 'gameover'? -Z
 	
@@ -24778,10 +24915,23 @@ void LinkClass::heroDeathAnimation()
 				}
                     
 				extend = 0;
-				cs = wpnsbuf[iwDeath].csets&15;
-				tile = wpnsbuf[iwDeath].newtile;
-                
-				if(BSZ)
+				cs = wpnsbuf[spr_death].csets&15;
+				tile = wpnsbuf[spr_death].newtile;
+                if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+				{
+					tile += deathfrm;
+					f = 206;
+					if(++deathclk >= wpnsbuf[spr_death].speed)
+					{
+						deathclk=0;
+						if(++deathfrm >= wpnsbuf[spr_death].frames)
+						{
+							f = 208;
+							deathfrm = 0;
+						}
+					}
+				}
+				else if(BSZ)
 				{
 					tile += (f-194)/3;
 				}
@@ -25591,19 +25741,19 @@ void LinkClass::explode(int type)
                     {
                         if(type==0)  // Twilight
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (rand()%8)+i*4));
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(type ==1)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (rand()%16)+i*2));
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->step=4;
                             
-                            if(rand()%10 < 2)
+                            if(zc_oldrand()%10 < 2)
                             {
                                 p->color=1;
                                 p->cset=0;
@@ -25611,12 +25761,12 @@ void LinkClass::explode(int type)
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], rand()%96));
+                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], zc_oldrand()%96));
                             
                             int k=particles.Count()-1;
-                            particle *p = (particle*)(particles.spr(k));
+                            particle *p = (particles.at(k));
                             p->angular=true;
-                            p->angle=rand();
+                            p->angle=zc_oldrand();
                             p->step=(((double)j)/8);
                             p->yofs=Link.getYOfs();
                         }

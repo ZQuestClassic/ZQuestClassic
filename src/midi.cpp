@@ -135,7 +135,7 @@ err:
 
 dword getval(byte *buf,int nbytes)
 {
-    register dword value;
+    dword value;
     value=0;
     
     for(int i=0; i<nbytes; i++)

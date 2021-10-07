@@ -939,7 +939,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			return;
 		}
 		vector<DataType const*>& paramTypes = host.readFunction->paramTypes;
@@ -948,7 +949,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			return;
 		}
 	}
@@ -962,7 +964,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			return;
 		}
 		vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
@@ -972,7 +975,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : "")));
+							host.right + (host.index ? "[]" : ""),
+							leftType->getName().c_str()));
 			return;
 		}
 	}
@@ -1053,7 +1057,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		// Count number of casts.
 		Function& function = **it;
 		int castCount = 0;
-		for (int i = 0; i < parameterTypes.size(); ++i)
+		for(size_t i = 0; i < parameterTypes.size(); ++i)
 		{
 			DataType const& from = getNaiveType(*parameterTypes[i], scope);
 			DataType const& to = getNaiveType(*function.paramTypes[i], scope);

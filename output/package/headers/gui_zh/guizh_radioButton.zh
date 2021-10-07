@@ -1,0 +1,120 @@
+const int RADBTN_GROUP = 0;
+const int RADBTN_TILE = 1;
+const int RADBTN_CSET = 2;
+const int RADBTN_TEXT = 3;
+const int RADBTN_FONT = 4;
+const int RADBTN_TEXT_COLOR = 5;
+const int RADBTN_STATE = 6;
+const int RADBTN_USER_DATA = 7;
+
+const int RBSTATE_UNDER_MOUSE = 001b;
+const int RBSTATE_CLICKED     = 010b;
+const int RBSTATE_SELECTED    = 100b;
+
+int RadioButton_Create(int parent, int group, int tile, int cset, int text, int font, int textColor)
+{
+    int id=Widget_Create(WTYPE_RADIO_BUTTON, parent);
+    GUI_Data[id+WIDGET_WIDTH]=8;
+    GUI_Data[id+WIDGET_HEIGHT]=8;
+    GUI_Data[id+RADBTN_GROUP]=group;
+    GUI_Data[id+RADBTN_TILE]=tile;
+    GUI_Data[id+RADBTN_CSET]=cset;
+    GUI_Data[id+RADBTN_TEXT]=text;
+    GUI_Data[id+RADBTN_FONT]=font;
+    GUI_Data[id+RADBTN_TEXT_COLOR]=textColor;
+    GUI_Data[id+RADBTN_STATE]=0;
+    GUI_Data[id+RADBTN_USER_DATA]=0;
+    GUI_Data[id+WIDGET_FLAGS]|=WFLAG_WANTS_MOUSE;
+    return id;
+}
+
+void RadioButton_Select(int id)
+{
+    if((GUI_Data[id+RADBTN_STATE]&RBSTATE_SELECTED)==0)
+    {
+        GUI_Data[id+RADBTN_STATE]|=RBSTATE_SELECTED;
+        RadioButtonGroup_SetSelected(GUI_Data[id+RADBTN_GROUP], id, false);
+    }
+}
+
+int RadioButton_GetGroup(int id)
+{
+    return GUI_Data[id+RADBTN_GROUP];
+}
+
+void RadioButton_SetUserData(int id, int data)
+{
+    GUI_Data[id+RADBTN_USER_DATA]=data;
+}
+
+void RadioButton_Draw(int id, int x, int y)
+{
+    int tile=GUI_Data[id+RADBTN_TILE]+GUI_Data[id+RADBTN_STATE];
+    Screen->FastTile(GUI_DRAW_LAYER, x, y, tile, GUI_Data[id+RADBTN_CSET], OP_OPAQUE);
+    if(GUI_Data[id+RADBTN_TEXT]!=0)
+            Screen->DrawString(GUI_DRAW_LAYER,
+              x+GUI_Data[id+WIDGET_WIDTH]+2, y,
+              GUI_Data[id+RADBTN_FONT], GUI_Data[id+RADBTN_TEXT_COLOR], -1,
+              TF_NORMAL, GUI_Data[id+RADBTN_TEXT], OP_OPAQUE);
+}
+
+void RadioButton_OnMouseEnter(int id)
+{
+    GUI_Data[id+RADBTN_STATE]|=RBSTATE_UNDER_MOUSE;
+}
+
+void RadioButton_OnMouseExit(int id)
+{
+    GUI_Data[id+RADBTN_STATE]&=~RBSTATE_UNDER_MOUSE;
+}
+
+void RadioButton_OnMousePress(int id)
+{
+    GUI_Data[id+RADBTN_STATE]|=RBSTATE_CLICKED;
+}
+
+void RadioButton_OnMouseRelease(int id)
+{
+    if((GUI_Data[id+RADBTN_STATE]&RBSTATE_UNDER_MOUSE)!=0 &&
+      (GUI_Data[id+RADBTN_STATE]&RBSTATE_SELECTED)==0)
+    {
+        GUI_Data[id+RADBTN_STATE]|=RBSTATE_SELECTED;
+        RadioButtonGroup_SetSelected(GUI_Data[id+RADBTN_GROUP], id, true);
+    }
+    
+    GUI_Data[id+RADBTN_STATE]&=~CBSTATE_CLICKED;
+}
+
+// Radio button group ----------------------------------------------------------
+
+const int RBGROUP_SELECTED = 0;
+
+int RadioButtonGroup_Create()
+{
+    int id=Widget_Create(WTYPE_RADIO_BUTTON_GROUP, GUI_ROOT);
+    GUI_Data[id+RBGROUP_SELECTED]=-1;
+    return id;
+}
+
+int RadioButtonGroup_GetSelected(int id)
+{
+    return GUI_Data[id+RBGROUP_SELECTED];
+}
+
+// To be used by radio buttons, not users
+void RadioButtonGroup_SetSelected(int groupID, int buttonID, bool addEvent)
+{
+    if(GUI_Data[groupID+RBGROUP_SELECTED]==buttonID)
+        return;
+    
+    if(GUI_Data[groupID+RBGROUP_SELECTED]!=-1)
+    {
+        int rb=GUI_Data[groupID+RBGROUP_SELECTED];
+        GUI_Data[rb+RADBTN_STATE]&=~RBSTATE_SELECTED;
+    }
+    GUI_Data[groupID+RBGROUP_SELECTED]=buttonID;
+    
+    if(addEvent)
+        Event_Add(EVENT_RADIO_BUTTON_CHANGED, buttonID, GUI_Data[buttonID+RADBTN_USER_DATA]);
+}
+

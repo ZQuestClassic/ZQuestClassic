@@ -1,0 +1,526 @@
+// ghost.zh
+// Version 2.8.15
+
+// All the EWeapon movement update functions are in this file.
+
+void __UpdateEWMSineWave(eweapon wpn)
+{
+    float offset;
+    wpn->Misc[__EWI_WORK]+=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+    
+    // Adjust the weapon's position at an angle
+    // perpendicular to that of its forward movement.
+    offset=wpn->Misc[__EWI_MOVEMENT_ARG]*Sin(wpn->Misc[__EWI_WORK]);
+    wpn->Misc[__EWI_XPOS]+=(wpn->Step/100)*RadianCos(wpn->Angle);
+    wpn->Misc[__EWI_YPOS]+=(wpn->Step/100)*RadianSin(wpn->Angle);
+    wpn->X=wpn->Misc[__EWI_XPOS]+offset*RadianCos(wpn->Angle+1.5708);
+    wpn->Y=wpn->Misc[__EWI_YPOS]+offset*RadianSin(wpn->Angle+1.5708);
+}
+
+void __UpdateEWMHoming(eweapon wpn)
+{
+    // Wrap angle to 0..2*PI
+    float currentAngle=wpn->Angle%6.2832;
+
+    if(currentAngle<0)
+        currentAngle+=6.2832;
+
+    // Find angle to Link and wrap it
+    float targetAngle=RadianAngle(wpn->X, wpn->Y, Link->X, Link->Y);
+    if(targetAngle<0)
+        targetAngle+=6.2832;
+
+    float diff=Abs(currentAngle-targetAngle);
+
+    // Turn toward Link
+    if(diff<wpn->Misc[__EWI_MOVEMENT_ARG] || diff>6.2832-wpn->Misc[__EWI_MOVEMENT_ARG])
+        wpn->Angle=targetAngle;
+    
+    // Can't turn enough to point directly at him...
+    else if(Sign(currentAngle-targetAngle)==Sign(diff-PI)) // current>target and diff>pi or
+        wpn->Angle+=wpn->Misc[__EWI_MOVEMENT_ARG];         // current<target and diff<pi
+    else                                                   // - Turn CW or CCW?
+        wpn->Angle-=wpn->Misc[__EWI_MOVEMENT_ARG];
+
+    SetEWeaponDir(wpn);
+    
+    // Decrement timer, unless it was negative to begin with
+    if(wpn->Misc[__EWI_MOVEMENT_ARG_2]>0)
+    {
+        wpn->Misc[__EWI_MOVEMENT_ARG_2]--;
+        if(wpn->Misc[__EWI_MOVEMENT_ARG_2]<=0)
+            KillEWeapon(wpn);
+    }
+}
+
+void __UpdateEWMHomingReaim(eweapon wpn)
+{
+    // Set time before re-aiming
+    if(wpn->Misc[__EWI_WORK]==0)
+        wpn->Misc[__EWI_WORK]=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+
+    if(wpn->Misc[__EWI_WORK]>0) // If positive, wpn is moving
+
+    {
+
+        wpn->Misc[__EWI_WORK]--;
+        if(wpn->Misc[__EWI_WORK]==0)
+        {
+            if(wpn->Misc[__EWI_MOVEMENT_ARG]<=0) // No more aims left
+                KillEWeapon(wpn);
+
+            else // Stop
+            {
+                wpn->Misc[__EWI_MOVEMENT_ARG]--;
+                wpn->Step=0;
+                wpn->Misc[__EWI_WORK]=-20;
+            }
+        }
+    }
+    else // If negative, it's stopped to aim
+    {
+        wpn->Misc[__EWI_WORK]++;
+        if(wpn->Misc[__EWI_WORK]==0) // Start up again
+        {
+            wpn->Misc[__EWI_WORK]=45;
+            wpn->Angle=RadianAngle(wpn->X, wpn->Y, Link->X, Link->Y);
+            wpn->Step=wpn->Misc[__EWI_WORK_2];
+            SetEWeaponDir(wpn);
+            if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
+                SetEWeaponRotation(wpn);
+        }
+        // Spin in place while waiting
+        if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE_360)!=0)
+            wpn->Angle+=0.3;
+        else if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
+        {
+            wpn->Angle+=0.2;
+            // Pick the direction based on the timer
+            int dir=-wpn->Misc[__EWI_WORK]&110b;
+            
+            if(dir==110b)
+                SetEWeaponRotation(wpn, DIR_UP);
+            else if(dir==100b)
+                SetEWeaponRotation(wpn, DIR_RIGHT);
+            else if(dir==010b)
+                SetEWeaponRotation(wpn, DIR_DOWN);
+            else
+                SetEWeaponRotation(wpn, DIR_LEFT);
+        }
+    }
+}
+
+void __UpdateEWMRandom(eweapon wpn)
+{
+    wpn->Angle+=Randf(2*wpn->Misc[__EWI_MOVEMENT_ARG])-wpn->Misc[__EWI_MOVEMENT_ARG];
+    SetEWeaponDir(wpn);
+    if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
+        SetEWeaponRotation(wpn);
+    
+    // Update the timer
+    if(wpn->Misc[__EWI_MOVEMENT_ARG_2]>0)
+    {
+        wpn->Misc[__EWI_MOVEMENT_ARG_2]--;
+        if(wpn->Misc[__EWI_MOVEMENT_ARG_2]<=0)
+            KillEWeapon(wpn);
+    }
+}
+
+void __UpdateEWMRandomReaim(eweapon wpn)
+{
+    // Set movement time
+    if(wpn->Misc[__EWI_WORK]==0)
+        wpn->Misc[__EWI_WORK]=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+
+    if(wpn->Misc[__EWI_WORK]>0) // If positive, wpn is moving
+    {
+        wpn->Misc[__EWI_WORK]--;
+        if(wpn->Misc[__EWI_WORK]==0)
+        {
+            if(wpn->Misc[__EWI_MOVEMENT_ARG]<=0) // No more aims left
+                KillEWeapon(wpn);
+            else // Stop
+            {
+                wpn->Misc[__EWI_MOVEMENT_ARG]--;
+                wpn->Step=0;
+                wpn->Misc[__EWI_WORK]=-20;
+            }
+        }
+
+    }
+    else // If negative, it's stopped to aim
+    {
+        wpn->Misc[__EWI_WORK]++;
+        if(wpn->Misc[__EWI_WORK]==0) // Start up again
+        {
+            wpn->Misc[__EWI_WORK]=45;
+            wpn->Angle=Rand(62832)*0.0001;
+            wpn->Step=wpn->Misc[__EWI_WORK_2];
+            SetEWeaponDir(wpn);
+            if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
+                SetEWeaponRotation(wpn);
+        }
+        // Spin in place while waiting
+        if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE_360)!=0)
+            wpn->Angle+=0.3;
+        else if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
+        {
+            // Pick the direction based on the timer
+            int dir=-wpn->Misc[__EWI_WORK]&110b;
+            
+            if(dir==110b)
+                SetEWeaponRotation(wpn, DIR_UP);
+            else if(dir==100b)
+                SetEWeaponRotation(wpn, DIR_RIGHT);
+            else if(dir==010b)
+                SetEWeaponRotation(wpn, DIR_DOWN);
+            else
+                SetEWeaponRotation(wpn, DIR_LEFT);
+        }
+    }
+}
+
+void __UpdateEWMVeer(eweapon wpn)
+{
+    // Override regular movement
+    int dir=wpn->Misc[__EWI_MOVEMENT_ARG];
+    wpn->Misc[__EWI_XPOS]+=(wpn->Step/100)*RadianCos(wpn->Angle);
+    wpn->Misc[__EWI_YPOS]+=(wpn->Step/100)*RadianSin(wpn->Angle);
+    
+    if(dir==DIR_UP)
+        wpn->Misc[__EWI_YPOS]-=wpn->Misc[__EWI_WORK];
+    else if(dir==DIR_DOWN)
+        wpn->Misc[__EWI_YPOS]+=wpn->Misc[__EWI_WORK];
+    else if(dir==DIR_LEFT)
+        wpn->Misc[__EWI_XPOS]-=wpn->Misc[__EWI_WORK];
+    else if(dir==DIR_RIGHT)
+        wpn->Misc[__EWI_XPOS]+=wpn->Misc[__EWI_WORK];
+    else if(dir==DIR_LEFTUP)
+    {
+        wpn->Misc[__EWI_XPOS]-=wpn->Misc[__EWI_WORK]*0.7071;
+        wpn->Misc[__EWI_YPOS]-=wpn->Misc[__EWI_WORK]*0.7071;
+    }
+    else if(dir==DIR_RIGHTUP)
+    {
+        wpn->Misc[__EWI_XPOS]+=wpn->Misc[__EWI_WORK]*0.7071;
+        wpn->Misc[__EWI_YPOS]-=wpn->Misc[__EWI_WORK]*0.7071;
+    }
+    else if(dir==DIR_LEFTDOWN)
+    {
+        wpn->Misc[__EWI_XPOS]-=wpn->Misc[__EWI_WORK]*0.7071;
+        wpn->Misc[__EWI_YPOS]+=wpn->Misc[__EWI_WORK]*0.7071;
+    }
+    else // DIR_RIGHTDOWN
+    {
+        wpn->Misc[__EWI_XPOS]+=wpn->Misc[__EWI_WORK]*0.7071;
+        wpn->Misc[__EWI_YPOS]+=wpn->Misc[__EWI_WORK]*0.7071;
+    }
+
+    wpn->X=wpn->Misc[__EWI_XPOS];
+    wpn->Y=wpn->Misc[__EWI_YPOS];
+    wpn->Misc[__EWI_WORK]+=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+}
+
+void __UpdateEWMThrow(eweapon wpn)
+{
+	// __EWI_WORK: Current jump
+	// __EWI_WORK_2: Current Z position
+	// __EWI_MOVEMENT_ARG: Initial jump
+	// __EWI_MOVEMENT_ARG_2: Flags
+    
+	wpn->Jump=0; // Override engine handling of Z movement
+    
+	// Just thrown
+	if(wpn->Misc[__EWI_WORK]==0 && wpn->Misc[__EWI_MOVEMENT_ARG]!=0)
+	{
+		wpn->Misc[__EWI_WORK]=wpn->Misc[__EWI_MOVEMENT_ARG];
+		wpn->Misc[__EWI_MOVEMENT_ARG]=0;
+	}
+    
+	// Fall
+	wpn->Misc[__EWI_WORK_2]=Max(wpn->Misc[__EWI_WORK_2]+wpn->Misc[__EWI_WORK], 0);
+	if(__GH_FIX_EWM_THROW)
+	{
+		if(!IsSideview())
+		{
+			wpn->Z=wpn->Misc[__EWI_WORK_2];
+		}
+		else
+		{
+			wpn->Y = 176-wpn->Misc[__EWI_WORK_2];
+		}
+	}
+	else
+	{
+		wpn->Y = 176-wpn->Misc[__EWI_WORK_2];
+	}
+    
+	// Still in the air; adjust velocity
+	if(wpn->Misc[__EWI_WORK_2] > 0 )
+	{
+		if(__GH_WEAPONS_HIT_PLATFORMS)
+		{
+			if (!ghost2__OnSidePlatform(wpn->X, wpn->Y, 
+							wpn->HitXOffset,
+							wpn->HitYOffset, 
+							wpn->HitHeight,wpn->HitWidth)
+			)
+			{
+				wpn->Misc[__EWI_WORK]=Max(wpn->Misc[__EWI_WORK]-GH_GRAVITY, -GH_TERMINAL_VELOCITY);
+			}
+		}
+		else 
+		{
+			wpn->Misc[__EWI_WORK]=Max(wpn->Misc[__EWI_WORK]-GH_GRAVITY, -GH_TERMINAL_VELOCITY);
+		}
+	}
+    
+	// Hit the ground
+	else
+	{
+		bool done=false;
+        
+		// Bounce
+		if((wpn->Misc[__EWI_MOVEMENT_ARG_2]&EWMF_BOUNCE))
+		{
+			// Falling fast enough?
+			if(wpn->Misc[__EWI_WORK]<-0.5) // Jump<=-0.5
+			{
+				wpn->Misc[__EWI_WORK]*=-0.5;
+				wpn->Step*=0.75;
+			}
+			// Not fast enough
+			else
+			{
+				done=true;
+			}
+		}
+		// Don't bounce
+		else
+		{
+			done=true;
+		}
+		// Movement ended; stop or die?
+		if(done)
+		{
+			if((wpn->Misc[__EWI_MOVEMENT_ARG_2]&EWMF_DIE))
+			{
+				wpn->Z=0;
+				KillEWeapon(wpn);
+			}
+			else
+			{
+				wpn->Misc[__EWI_MOVEMENT]=0;
+				wpn->Step=0;
+			}
+		}
+	}
+}
+
+void __UpdateEWMFall(eweapon wpn)
+{
+	wpn->Jump=0; // Override engine handling of Z movement
+	wpn->Misc[__EWI_WORK_2]-=wpn->Misc[__EWI_WORK];
+	if(__GH_FIX_EWM_FALL)
+	{
+		if(!IsSideview())	
+		{
+			wpn->Z=wpn->Misc[__EWI_WORK_2];
+		}
+		else
+		{
+			wpn->HitYOffset= wpn->Misc[__EWI_WORK_2];
+			wpn->DrawYOffset=wpn->Misc[__EWI_WORK_2];
+		}
+		wpn->Misc[__EWI_WORK]=Min(wpn->Misc[__EWI_WORK]+GH_GRAVITY, GH_TERMINAL_VELOCITY);
+	}
+	else
+	{
+		wpn->Z=wpn->Misc[__EWI_WORK_2];
+		wpn->Misc[__EWI_WORK]=Min(wpn->Misc[__EWI_WORK]+GH_GRAVITY, GH_TERMINAL_VELOCITY);
+	}
+	
+	// Hit the ground?
+	if(__GH_WEAPONS_HIT_PLATFORMS)
+	{
+		if ( wpn->Misc[__EWI_WORK_2] <=0 )
+		{
+			if(!ghost2__OnSidePlatform(wpn->X, wpn->Y, 
+							wpn->HitXOffset,
+							wpn->HitYOffset, 
+							wpn->HitHeight,wpn->HitWidth)
+			)
+			{
+				bool done=false;
+        
+				// Bounce
+				if((wpn->Misc[__EWI_MOVEMENT_ARG_2]&EWMF_BOUNCE)!=0)
+				{
+					// Falling fast enough?
+					if(wpn->Misc[__EWI_WORK]<-0.5) // Jump<=-0.5
+					{
+						wpn->Misc[__EWI_WORK]*=-0.5;
+						wpn->Step*=0.75;
+					}
+					// Not fast enough
+					else
+					{
+						done=true;
+					}
+				}
+				// Don't bounce
+				else
+				{
+					done=true;
+				}
+				// Movement ended; stop or die?
+				if(done)
+				{
+					if((wpn->Misc[__EWI_MOVEMENT_ARG_2]&EWMF_DIE))
+					{
+						wpn->Z=0;
+						KillEWeapon(wpn);
+					}
+					else
+					{
+						wpn->Misc[__EWI_MOVEMENT]=0;
+						wpn->Step=0;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		if(wpn->Misc[__EWI_WORK_2]<=0)
+		{
+			bool done=false;
+		
+			// Bounce
+			if((wpn->Misc[__EWI_MOVEMENT_ARG_2]&EWMF_BOUNCE))
+			{
+				// Falling fast enough?
+				if(wpn->Misc[__EWI_WORK]<-0.5) // Jump<=-0.5
+				{
+					wpn->Misc[__EWI_WORK]*=-0.5;
+					wpn->Step*=0.75;
+				}
+				// Not fast enough
+				else
+				{
+					done=true;
+				}
+			}
+			// Don't bounce
+			else
+			{
+				done=true;
+			}
+			// Movement ended; stop or die?
+			if(done)
+			{
+				if((wpn->Misc[__EWI_MOVEMENT_ARG_2]&EWMF_DIE))
+				{
+					wpn->Z=0;
+					KillEWeapon(wpn);
+				}
+				else
+				{
+					wpn->Misc[__EWI_MOVEMENT]=0;
+					wpn->Step=0;
+				}
+			}
+		}
+	}
+}
+
+void __UpdateEWMDrift(eweapon wpn)
+{
+    int dir=wpn->Misc[__EWI_MOVEMENT_ARG];
+    
+    // Override regular movement
+    wpn->Misc[__EWI_XPOS]+=(wpn->Step/100)*RadianCos(wpn->Angle);
+    wpn->Misc[__EWI_YPOS]+=(wpn->Step/100)*RadianSin(wpn->Angle);
+    
+    // Drifting
+    if(dir==DIR_UP)
+        wpn->Misc[__EWI_YPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+    else if(dir==DIR_DOWN)
+        wpn->Misc[__EWI_YPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+    else if(dir==DIR_LEFT)
+        wpn->Misc[__EWI_XPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+    else if(dir==DIR_RIGHT)
+        wpn->Misc[__EWI_XPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+    else if(dir==DIR_LEFTUP)
+    {
+        wpn->Misc[__EWI_XPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+        wpn->Misc[__EWI_YPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+    }
+    else if(dir==DIR_RIGHTUP)
+    {
+        wpn->Misc[__EWI_XPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+        wpn->Misc[__EWI_YPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+    }
+    else if(dir==DIR_LEFTDOWN)
+    {
+        wpn->Misc[__EWI_XPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+        wpn->Misc[__EWI_YPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+    }
+    else // DIR_RIGHTDOWN
+    {
+        wpn->Misc[__EWI_XPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+        wpn->Misc[__EWI_YPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+    }
+    
+    wpn->X=wpn->Misc[__EWI_XPOS];
+    wpn->Y=wpn->Misc[__EWI_YPOS];
+}
+
+void __UpdateEWMDriftWait(eweapon wpn)
+{
+    int dir=wpn->Misc[__EWI_MOVEMENT_ARG];
+    
+    // Is the weapon moving? Override its regular movement if so
+    if(wpn->Misc[__EWI_WORK]>=16)
+    {
+        wpn->Misc[__EWI_XPOS]+=(wpn->Step/100)*RadianCos(wpn->Angle);
+        wpn->Misc[__EWI_YPOS]+=(wpn->Step/100)*RadianSin(wpn->Angle);
+    }
+    
+    // If not, just drift in place
+    else
+        wpn->Misc[__EWI_WORK]++;
+    
+    // Drifting
+    if(dir==DIR_UP)
+        wpn->Misc[__EWI_YPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+    else if(dir==DIR_DOWN)
+        wpn->Misc[__EWI_YPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+    else if(dir==DIR_LEFT)
+        wpn->Misc[__EWI_XPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+    else if(dir==DIR_RIGHT)
+        wpn->Misc[__EWI_XPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2];
+    else if(dir==DIR_LEFTUP)
+    {
+        wpn->Misc[__EWI_XPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+        wpn->Misc[__EWI_YPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+    }
+    else if(dir==DIR_RIGHTUP)
+    {
+        wpn->Misc[__EWI_XPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+        wpn->Misc[__EWI_YPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+    }
+    else if(dir==DIR_LEFTDOWN)
+    {
+        wpn->Misc[__EWI_XPOS]-=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+        wpn->Misc[__EWI_YPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+    }
+    else // DIR_RIGHTDOWN
+    {
+        wpn->Misc[__EWI_XPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+        wpn->Misc[__EWI_YPOS]+=wpn->Misc[__EWI_MOVEMENT_ARG_2]*0.7071;
+    }
+    
+    wpn->X=wpn->Misc[__EWI_XPOS];
+    wpn->Y=wpn->Misc[__EWI_YPOS];
+}

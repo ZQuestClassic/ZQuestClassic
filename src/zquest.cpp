@@ -33,7 +33,7 @@
 #include "mem_debug.h"
 #include "particles.h"
 #include "metadata/versionsig.h"
-sprite_list particles;
+particle_list particles;
 void setZScriptVersion(int) { } //bleh...
 
 #include <png.h>
@@ -41,6 +41,13 @@ void setZScriptVersion(int) { } //bleh...
 
 #include <loadpng.h>
 #include <jpgalleg.h>
+
+#include "dialog/cheat_codes.h"
+#include "dialog/room.h"
+#include "dialog/set_password.h"
+#include "dialog/foodlg.h"
+#include "dialog/quest_rules.h"
+#include "dialog/script_rules.h"
 
 #include "gui.h"
 #include "load_gif.h"
@@ -81,6 +88,8 @@ void setZScriptVersion(int) { } //bleh...
 #include "ffasmexport.h"
 
 #include <fstream>
+
+#include "module.h"
 
 //Windows mmemory tools
 #ifdef _WIN32
@@ -132,13 +141,10 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 
 #include "zq_init.h"
 #include "zq_doors.h"
-#include "zq_rules.h"
 #include "zq_cset.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
-#define stricmp _stricmp
-#define unlink _unlink
 
 #endif
 
@@ -396,7 +402,7 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	
 	if (!logger_name)
 	{	// no name was give , create name based on the current address+time
-		// (you can modify it to use PID , rand() ,...
+		// (you can modify it to use PID , zc_oldrand() ,...
 		unsigned long now = GetTickCount();
 		logger_name = m_name+ strlen(m_name);
 		sprintf((char*)logger_name,"logger%d_%lu",(int)this,now);
@@ -1076,7 +1082,7 @@ std::vector<string> asscreenscripts;
 std::vector<string> asitemspritescripts;
 std::vector<string> ascomboscripts;
 
-char ZQincludePaths[MAX_INCLUDE_PATHS][512];
+std::vector<string> ZQincludePaths;
 
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
@@ -1171,19 +1177,6 @@ COLOR_MAP trans_table, trans_table2;
 char *datafile_str;
 DATAFILE *zcdata=NULL, *fontsdata=NULL, *sfxdata=NULL;
 MIDI *song=NULL;
-FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
-           *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont
-	   //#ifdef MOREFONTS_VERSION
-	   ,
-	   //New fonts for 2.54+
-		*atari800font, *acornfont, *adosfont, *baseallegrofont, *apple2font, *apple280colfont, *apple2gsfont,
-		*aquariusfont, *atari400font, *c64font, *c64hiresfont, *cgafont, *cocofont, *coco2font,
-		*coupefont, *cpcfont, *fantasyfont, *fdskanafont, *fdslikefont, *fdsromanfont, *finalffont,
-		*futharkfont, *gaiafont, *hirafont, *jpfont, *kongfont, *manafont, *mlfont, *motfont,
-		*msxmode0font, *msxmode1font, *petfont, *pstartfont, *saturnfont, *scififont, *sherwoodfont,
-		*sinqlfont, *spectrumfont, *speclgfont, *ti99font, *trsfont, *z2font, *zxfont, *lisafont
-	    //#endif
-	   ;
 BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp;//*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
@@ -1368,7 +1361,7 @@ int SnapshotFormat = 0;
 
 int memrequested = 0;
 byte Color = 0;
-int jwin_pal[jcMAX] = {0};
+extern int jwin_pal[jcMAX];
 int gui_colorset=0;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
@@ -1709,42 +1702,56 @@ static MENU script_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-static MENU rules_menu[] =
+int onRulesDlg()
 {
-    { (char *)"&Header",                    onHeader,                  NULL,                     0,            NULL   },
-    { (char *)"&Map Count",                 onMapCount,                NULL,                     0,            NULL   },
-    { (char *)"Pick &Ruleset\t ",                  PickRuleset,                      NULL,               0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Animation",                 onAnimationRules,          NULL,                     0,            NULL   },
-    { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
-    { (char *)"&Combos",                    onComboRules,              NULL,                     0,            NULL   },
-    { (char *)"&Enemies",                   onEnemyRules,              NULL,                     0,            NULL   },
-    { (char *)"&Items",                     onItemRules,               NULL,                     0,            NULL   },
-    { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
-    { (char *)"&Other",                     onMiscRules,               NULL,                     0,            NULL   },
-    { (char *)"&Player",                      onHeroRules,               NULL,                     0,            NULL   },
-    { (char *)"&Weapons",                   onWeaponRules,             NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
+	QRDialog(quest_rules, (is_large?20:13), [](byte* newrules)
+	{
+		saved = false;
+		memcpy(quest_rules, newrules, QR_SZ);
+		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+		{
+			combobuf[0].walk = 0xF0;
+			combobuf[0].type = 0;
+			combobuf[0].flag = 0;
+		}
+        
+        // For 2.50.0 and 2.50.1
+        if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
+            set_bit(quest_rules, qr_FASTDNGN, 1);
+        
+        //this is only here until the subscreen style is selectable by itself
+        zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
+	}).show();
+	return D_O_K;
+}
+
+int onZScriptSettings()
+{
+	ScriptRulesDialog(quest_rules, (is_large?17:13), [](byte* newrules)
+	{
+		saved = false;
+		memcpy(quest_rules, newrules, QR_SZ);
+	}).show();
+	return D_O_K;
+}
 
 static MENU quest_menu[] = 
 {
-    { (char *)"&Options\t ",                  NULL,                      rules_menu,               0,            NULL   },
-    { (char *)"Ch&eats",                    onCheats,                  NULL,                     0,            NULL   },
-    { (char *)"&Items",                     onCustomItems,             NULL,                     0,            NULL   },
-    { (char *)"Ene&mies",                   onCustomEnemies,           NULL,                     0,            NULL   },
-    { (char *)"&Player",                      onCustomLink,              NULL,                     0,            NULL   },
-    { (char *)"&Strings",                   onStrings,                 NULL,                     0,            NULL   },
-    { (char *)"&DMaps",                     onDmaps,                   NULL,                     0,            NULL   },
-    { (char *)"I&nit Data",                 onInit,                    NULL,                     0,            NULL   },
-    { (char *)"Misc D&ata\t ",              NULL,                      misc_menu,                0,            NULL   },
+    { (char *)"&Options\t ",          onRulesDlg,                      NULL,                     0,            NULL   },
+    { (char *)"&Items",            onCustomItems,                      NULL,                     0,            NULL   },
+    { (char *)"Ene&mies",        onCustomEnemies,                      NULL,                     0,            NULL   },
+    { (char *)"&Player",            onCustomLink,                      NULL,                     0,            NULL   },
+    { (char *)"&Strings",              onStrings,                      NULL,                     0,            NULL   },
+    { (char *)"&DMaps",                  onDmaps,                      NULL,                     0,            NULL   },
+    { (char *)"I&nit Data",               onInit,                      NULL,                     0,            NULL   },
+    { (char *)"Misc D&ata\t ",              NULL,                 misc_menu,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Graphics\t ",               NULL,                      graphics_menu,            0,            NULL   },
-    { (char *)"A&udio\t ",                  NULL,                      audio_menu,               0,            NULL   },
+    { (char *)"&Graphics\t ",               NULL,             graphics_menu,                     0,            NULL   },
+    { (char *)"A&udio\t ",                  NULL,                audio_menu,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"De&faults\t ",               NULL,                      defs_menu,                0,            NULL   },
+    { (char *)"De&faults\t ",               NULL,                 defs_menu,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Misc[]",               onQMiscValues,                      NULL,                0,            NULL   },
+    { (char *)"Misc[]",            onQMiscValues,                      NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1864,15 +1871,6 @@ static MENU view_menu[] =
 
 int onSelectFFCombo();
 
-static MENU room_menu[] =
-{
-  { (char *)"&Guy\tG",                    onGuy,                     NULL,                     0,            NULL   },
-    { (char *)"&Message String\tS",         onString,                  NULL,                     0,            NULL   },
-    { (char *)"&Room Type\tR",              onRType,                   NULL,                     0,            NULL   },
-    { (char *)"Catch &All\tA",              onCatchall,                NULL,                     0,   	       NULL   }, //Allow setting a generic catch-a;;. or clearing it mamnually.
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
 static MENU data_menu[] =
 {
     { (char *)"&Screen Data\tF9",           onScrData,                 NULL,                     0,            NULL   },
@@ -1885,8 +1883,8 @@ static MENU data_menu[] =
     { (char *)"&Doors\tF6",                 onDoors,                   NULL,                     0,            NULL   },
     { (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Room Data",                   NULL,                      room_menu,                0,            NULL   },
-    
+    { (char *)"&Room Data\tR",              onRoom,                    NULL,                     0,            NULL   },
+
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
     { (char *)"&Enemies\tE",                onEnemies,                 NULL,                     0,            NULL   },
@@ -2286,6 +2284,23 @@ void onKeySlash()
 	}
 }
 
+void onAKey()
+{
+	if(prv_mode)
+		Map.set_prvadvance(1);
+}
+
+void onRKey()
+{
+	if(prv_mode)
+	{
+		Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
+		Map.set_prvcmb(0);
+	}
+	else
+		onRoom();
+}
+
 void onSKey()
 {
 	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
@@ -2301,7 +2316,11 @@ void onSKey()
 				onSave();
 		}
 	}
-	else onString();
+	else if(prv_mode)
+    {
+        Map.prv_secrets(false);
+        refresh(rALL);
+    }
 }
 
 /* Notice: If you insert or remove entries from dialogs[], you will need
@@ -2344,13 +2363,11 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F11,        0, (void *) onSideWarp, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,        0, (void *) onLayers, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ESC,        0, (void *) onExit, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_A,          0, (void *) onCatchall, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_B,          0, (void *) onResetTransparency, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_C,          0, (void *) onCopy, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_D,          0, (void *) onToggleDarkness, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_E,          0, (void *) onEnemies, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F,          0, (void *) onShowFlags, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_G,          0, (void *) onGuy, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_H,          0, (void *) onH, NULL, NULL },      //Flip
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_I,          0, (void *) onItem, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_J,          0, (void *) onJ, NULL, NULL },      //This does nothing
@@ -2361,7 +2378,7 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_O,          0, (void *) onDrawingMode, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_P,          0, (void *) onGotoPage, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Q,          0, (void *) onShowComboInfoCSet, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_R,          0, (void *) onRType, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_R,          0, (void *) onRKey, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_S,          0, (void *) onSKey, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_T,          0, (void *) onTiles, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_U,          0, (void *) onUndo, NULL, NULL },
@@ -3503,7 +3520,7 @@ int gethexnumber(const char *prompt,int initialval)
     }
     
     if(ret==3)
-        return xtoi(buf);
+        return zc_xtoi(buf);
         
     return initialval;
 }
@@ -3637,6 +3654,11 @@ static int options_3_list[] =
     // dialog control number
     31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, -1
 };
+static int options_4_list[] =
+{
+	57, 58, 59, 60,
+	-1
+};
 
 static TABPANEL options_tabs[] =
 {
@@ -3644,6 +3666,7 @@ static TABPANEL options_tabs[] =
     { (char *)" 1 ",       D_SELECTED,   options_1_list,  0, NULL },
     { (char *)" 2 ",       0,            options_2_list,  0, NULL },
     { (char *)" 3 ",       0,            options_3_list,  0, NULL },
+    { (char *)" 4 ",       0,            options_4_list,  0, NULL },
     { NULL,                0,            NULL, 0, NULL }
 };
 
@@ -3728,17 +3751,42 @@ static DIALOG options_dlg[] =
     { d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
     // 55
 	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-    
     { d_timer_proc,             0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
+    
+	{ jwin_text_proc,          12,     48,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Cursor Scale (Large Mode):",                                      NULL,   NULL                },
+    { jwin_edit_proc,         121,     44,     36,     16,    0,          0,           0,    0,          8,    0,  NULL,                                                                   NULL,   NULL                },
+    { jwin_text_proc,          12,     66,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Cursor Scale (Small Mode):",                                       NULL,   NULL                },
+    // 60
+	{ jwin_edit_proc,         121,     62,     36,     16,    0,          0,           0,    0,          8,    0,  NULL,                                                                   NULL,   NULL                },
     { NULL,                     0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                }
 };
 
 int onOptions()
 {
     int OldAutoSaveInterval=AutoSaveInterval;
-    char kbdelay[80], kbrate[80];
+    char kbdelay[80], kbrate[80], cur_large[16]={0}, cur_small[16]={0};
     sprintf(kbdelay, "%d", KeyboardRepeatDelay);
     sprintf(kbrate, "%d", KeyboardRepeatRate);
+	sprintf(cur_large, "%f", get_config_float("zquest","cursor_scale_large",1.5));
+	sprintf(cur_small, "%f", get_config_float("zquest","cursor_scale_small",1.0));
+	for(int q = 15; q >= 0; --q) //trim trailing 0s
+	{
+		if(cur_large[q] && cur_large[q] != '0')
+		{
+			if(cur_large[q] == '.') cur_large[q] = 0;
+			break;
+		}
+		cur_large[q] = 0;
+	}
+	for(int q = 15; q >= 0; --q) //trim trailing 0s
+	{
+		if(cur_small[q] && cur_small[q] != '0')
+		{
+			if(cur_small[q] == '.') cur_small[q] = 0;
+			break;
+		}
+		cur_small[q] = 0;
+	}
     options_dlg[0].dp2=lfont;
     reset_combo_animations();
     reset_combo_animations2();
@@ -3769,6 +3817,8 @@ int onOptions()
     options_dlg[45].dp = kbrate;
     options_dlg[50].flags = abc_patternmatch ? D_SELECTED : 0;
     options_dlg[51].flags = NoScreenPreview ? D_SELECTED : 0;
+    options_dlg[58].dp = cur_large;
+    options_dlg[60].dp = cur_small;
     
     if(is_large)
         large_dialog(options_dlg);
@@ -3801,7 +3851,11 @@ int onOptions()
         KeyboardRepeatRate         = atoi(kbrate);
 		abc_patternmatch           = options_dlg[50].flags & D_SELECTED ? 1 : 0;
 		NoScreenPreview            = options_dlg[51].flags & D_SELECTED ? 1 : 0;
-        
+		set_config_float("zquest","cursor_scale_large",vbound(atof(cur_large),1.0,5.0));
+		set_config_float("zquest","cursor_scale_small",vbound(atof(cur_small),1.0,5.0));
+		
+		load_mice(); //Reload cursor scale
+		
         set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
     }
     
@@ -5193,36 +5247,65 @@ static int gamemisc1_list[] =
 {
 	5,6,7,8,
 	9,10,11,12,
-	13,14,15,16,
-	17,18,19,20,
 	
 	37,38,39,40,
 	41,42,43,44,
-	45,46,47,48,
-	49,50,51,52,
+	
+	71,72,73,74,
+	75,76,77,78,
+	
 	-1
 };
 
-// Yep, a whole tab for one rule.
 static int gamemisc2_list[] =
+{
+	13,14,15,16,
+	17,18,19,20,
+	
+	45,46,47,48,
+	49,50,51,52,
+	
+	79,80,81,82,
+	83,84,85,86,
+	
+	-1
+};
+
+static int gamemisc3_list[] =
 {
     21,22,23,24,
 	25,26,27,28,
-	29,30,31,32,
-	33,34,35,36,
 	
 	53,54,55,56,
 	57,58,59,60,
+	
+	87,88,89,90,
+	91,92,93,94,
+	
+	-1
+};
+
+static int gamemisc4_list[] =
+{
+	29,30,31,32,
+	33,34,35,36,
+	
 	61,62,63,64,
 	65,66,67,68,
+	
+	95,96,97,98,
+	99,100,101,102,
+	
 	-1
 };
 
 static TABPANEL gamemisc_tabs[] =
 {
     // (text)
-    { (char *)" Misc[0]...Misc[15] ",     D_SELECTED, gamemisc1_list, 0, NULL },
-    { (char *)" Misc[16]...Misc[31] ",     0,          gamemisc2_list, 0, NULL },
+    { (char *)" Misc[0-7] ",     D_SELECTED, gamemisc1_list, 0, NULL },
+    { (char *)" Misc[8-15] ",     0,          gamemisc2_list, 0, NULL },
+    { (char *)" Misc[16-23] ",     0,          gamemisc3_list, 0, NULL },
+    { (char *)" Misc[24-31] ",     0,          gamemisc4_list, 0, NULL },
     { NULL,              0,          NULL,            0, NULL }
 };
 
@@ -5235,92 +5318,129 @@ static DIALOG gamemiscarray_dlg[] =
 	
 	{ jwin_win_proc,       0,   10,  310,  224,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       (void *) "Game->Misc[]", NULL, NULL },
 	{ d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
-	{ jwin_tab_proc,         5,   26,   300,  174,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
+	{ jwin_tab_proc,         3,   26,   304,  174,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
 	{  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
 	{  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
 	
 	//5
-	{ jwin_edit_proc,     10,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//8
-	{ jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42+120,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+120,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//13
-	{ jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//18
-	{ jwin_edit_proc,     160,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//23
-	{ jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     10,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//28
-	{ jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,      8,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
 	//33
-	{ jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-	//36
-	{ jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     101,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//38
-	{ jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//43
-	{ jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	{ jwin_edit_proc,     8,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+	//37
+	{ jwin_numedit_swap_zsint_proc,     96,  42,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+20,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//39
+	{ jwin_numedit_swap_zsint_proc,     96,  42+40,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+60,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+80,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+100,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+120,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//44
+	{ jwin_numedit_swap_zsint_proc,     96,  42+140,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+20,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
 	
-	{ jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//48
-	{ jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//53
-	{ jwin_edit_proc,     101, 42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//58
-	{ jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//63
-	{ jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-	//68
+	{ jwin_numedit_swap_zsint_proc,     96,  42+40,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+60,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//49
+	{ jwin_numedit_swap_zsint_proc,     96,  42+80,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+100,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+120,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+140,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//54
+	{ jwin_numedit_swap_zsint_proc,     96,  42+20,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+40,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+60,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+80,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+100,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//59
+	{ jwin_numedit_swap_zsint_proc,     96,  42+120,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+140,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+20,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+40,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//64
+	{ jwin_numedit_swap_zsint_proc,     96,  42+60,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+80,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+100,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+120,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	{ jwin_numedit_swap_zsint_proc,     96,  42+140,   60,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+	//69
 	{ jwin_button_proc,       70,    204,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
 	{ jwin_button_proc,      170,    204,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
+	
+	//71
+	{ jwin_swapbtn_proc,    156,    42,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,    62,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,    82,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   102,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   122,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   142,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   162,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   182,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//79
+	{ jwin_swapbtn_proc,    156,    42,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,    62,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,    82,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   102,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   122,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   142,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   162,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   182,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//87
+	{ jwin_swapbtn_proc,    156,    42,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,    62,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,    82,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   102,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   122,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   142,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   162,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   182,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//95
+	{ jwin_swapbtn_proc,    156,    42,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,    62,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,    82,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   102,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   122,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   142,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   162,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    156,   182,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
 	
 	{ NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -5334,8 +5454,9 @@ void EditGameMiscArray()
 	memset(miscvalue_labels, 0, sizeof(miscvalue_labels));
 	for ( int q = 0; q < 32; q++ )
 	{
-		sprintf(miscvalue[q],"%.4f",misc.questmisc[q]/10000.0);
 		gamemiscarray_dlg[37+q].dp = miscvalue[q];
+		gamemiscarray_dlg[37+q].fg = misc.questmisc[q];
+		gamemiscarray_dlg[37+q].dp3 = &(gamemiscarray_dlg[71+q]);
 		
 		strcpy(miscvalue_labels[q], misc.questmisc_strings[q]);
 		if ( miscvalue_labels[q][0] == NULL ) sprintf(miscvalue_labels[q],"Misc[%d]",q);
@@ -5352,7 +5473,8 @@ void EditGameMiscArray()
 		ret = zc_popup_dialog(gamemiscarray_dlg,65);
 		for ( int q = 0; q < 32; q++ )
 		{
-			misc.questmisc[q] = ffparse2(miscvalue[q]);
+			
+			misc.questmisc[q] = gamemiscarray_dlg[37+q].fg;
 			strcpy(misc.questmisc_strings[q], miscvalue_labels[q]);
 		}
 		
@@ -6098,7 +6220,7 @@ void drawpanel(int pnl)
                     {
                         for(int dx=0; dx<16; dx++)
                         {
-                            menu1->line[dy+panel[0].y+11][dx+panel[0].x+panel[0].w-36]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                            menu1->line[dy+panel[0].y+11][dx+panel[0].x+panel[0].w-36]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                         }
                     }
                 }
@@ -6907,7 +7029,7 @@ void refresh(int flags)
 						{
 							for(int dx=0; dx<3*BMM; dx++)
 							{
-								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
 							}
 						}
 					}
@@ -7191,7 +7313,7 @@ void refresh(int flags)
                     {
                         for(int dx=0; dx<32; dx++)
                         {
-                            menu1->line[dy+combo_preview.y][dx+combo_preview.x+int(combo_preview.w*1.5)]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                            menu1->line[dy+combo_preview.y][dx+combo_preview.x+int(combo_preview.w*1.5)]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                         }
                     }
                 }
@@ -7259,7 +7381,7 @@ void refresh(int flags)
                             {
                                 for(int dx=0; dx<16; dx++)
                                 {
-                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                                 }
                             }
                         }
@@ -7289,7 +7411,7 @@ void refresh(int flags)
                             {
                                 for(int dx=0; dx<16; dx++)
                                 {
-                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                                 }
                             }
                         }
@@ -10947,7 +11069,7 @@ void domouse()
 					if(warpindex>=4)
 					{
 						jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
-						warpindex=rand()&3;
+						warpindex=zc_oldrand()&3;
 					}
 					
 					int tm = Map.getCurrMap();
@@ -11745,45 +11867,26 @@ void questminrev_help()
 
 void ctype_help(int id)
 {
-    if(id < 0 || id >= cMAX) return;  // Sanity check
-    
-    if(id==0)
-    {
-        jwin_alert("Help","Select a Type, then click","this button to find out what it does.",NULL,"O&K",NULL,'k',0,lfont);
-    }
-    else if(id >= cCVUP && id <= cCVRIGHT)
-    {
-        char buf1[80];
-        sprintf(buf1,"be moved %sward at 1/4 of his normal walking",id==cCVUP ? "up" : id==cCVDOWN ? "down" : id==cCVLEFT ? "left" : "right");
-        jwin_alert(combo_class_buf[id].name,"While Link is standing on top of this, he will",buf1,"speed, until he collides with a solid combo.","O&K",NULL,'k',0,lfont);
-    }
-    else if((id >= cDAMAGE1 && id <= cDAMAGE4) || (id >= cDAMAGE5 && id <= cDAMAGE7))
-    {
-        char buf1[80];
-        int lvl = (id < cDAMAGE5 ? (id - cDAMAGE1 + 1) : (id - cDAMAGE5 + 1));
-        sprintf(buf1,"that protect against Damage Combo Level %d,",lvl);
-        char buf2[80];
-        int d = -combo_class_buf[id].modify_hp_amount/8;
-        
-        if(d==1)
-            sprintf(buf2,"he is damaged for 1/2 of a heart.");
-        else
-            sprintf(buf2,"he is damaged for %d heart%s.", d/2, d == 2 ? "" : "s");
-            
-        jwin_alert(combo_class_buf[id].name,"If Link touches this combo without Boots",buf1,buf2, "O&K",NULL,'k',0,lfont);
-    }
-    else if(id >= cSLASHTOUCHY && id <= cBUSHNEXTTOUCHY)
-    {
-        char buf1[80];
-        sprintf(buf1,"Identical to %s, but if slashing this combo",combotype_help_string[id*3]);
-        jwin_alert(combo_class_buf[id].name,buf1,"changes it to another slash-affected combo,","then that combo will also change.","O&K",NULL,'k',0,lfont);
-    }
-    else if(( id >= cSCRIPT1 && id <= cSCRIPT5) || ( id >= cSCRIPT6 && id <= cSCRIPT20 ) )
-    {
-        jwin_alert(combo_class_buf[id].name,"This type has no built-in effect, but can be","given special significance with ZASM or ZScript.",NULL,"O&K",NULL,'k',0,lfont);
-    }
-    else
-        jwin_alert(combo_class_buf[id].name,combotype_help_string[id*3],combotype_help_string[1+(id*3)],combotype_help_string[2+(id*3)],"O&K",NULL,'k',0,lfont);
+	if(id < 0 || id >= cMAX) return;  // Sanity check
+	
+	if((id >= cDAMAGE1 && id <= cDAMAGE4) || (id >= cDAMAGE5 && id <= cDAMAGE7))
+	{
+		char buf[512];
+		int lvl = (id < cDAMAGE5 ? (id - cDAMAGE1 + 1) : (id - cDAMAGE5 + 1));
+		int d = -combo_class_buf[id].modify_hp_amount/8;
+		char buf2[80];
+		if(d==1)
+			sprintf(buf2,"1/2 of a heart.");
+		else
+			sprintf(buf2,"%d heart%s.", d/2, d == 2 ? "" : "s");
+		sprintf(buf,"If the Player touches this combo without Boots that protect against Damage Combo Level %d, he is damaged for %s.",lvl,buf2);
+		
+		jwin_auto_alert(combo_class_buf[id].name,buf,256,2, "O&K",NULL,'k',0,lfont);
+	}
+	else
+	{
+		jwin_auto_alert(combo_class_buf[id].name,combotype_help_string[id],256,2,"O&K",NULL,'k',0,lfont);
+	}
 }
 
 void cflag_help(int id)
@@ -12571,19 +12674,6 @@ static DIALOG wlist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static DIALOG rlist_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_abclist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     70,   163,  51,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     190,  163,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     130,  163,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Help", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
 
 /*
   typedef struct item_struct {
@@ -13092,183 +13182,6 @@ int select_weapon(const char *prompt,int weapon)
 }
 
 
-item_struct bir[rMAX];
-int bir_cnt=-1;
-
-void build_bir_list()
-{
-    bir_cnt=0;
-    
-    for(int i=0; i<rMAX; i++)
-    {
-        if(moduledata.roomtype_names[i][0]!='-')
-        {
-            bir[bir_cnt].s = (char *)moduledata.roomtype_names[i];
-            bir[bir_cnt].i = i;
-            ++bir_cnt;
-        }
-    }
-    
-    for(int i=0; i<bir_cnt-1; i++)
-    {
-        for(int j=i+1; j<bir_cnt; j++)
-        {
-            if(stricmp(bir[i].s,bir[j].s)>0)
-            {
-                zc_swap(bir[i],bir[j]);
-            }
-        }
-    }
-}
-
-const char *roomlist(int index, int *list_size)
-{
-    if(index<0)
-    {
-        *list_size = bir_cnt;
-        return NULL;
-    }
-    
-    return bir[index].s;
-}
-
-int select_room(const char *prompt,int room)
-{
-    if(bir_cnt==-1)
-    {
-        build_bir_list();
-    }
-    
-    int index=0;
-    
-    for(int j=0; j<bir_cnt; j++)
-    {
-        if(bir[j].i == room)
-        {
-            index=j;
-        }
-    }
-    
-    rlist_dlg[0].dp=(void *)prompt;
-    rlist_dlg[0].dp2=lfont;
-    rlist_dlg[2].d1=index;
-    ListData room_list(roomlist, &font);
-    rlist_dlg[2].dp=(void *) &room_list;
-    
-    if(is_large)
-        large_dialog(rlist_dlg);
-        
-    int ret;
-    
-    do
-    {
-        ret=zc_popup_dialog(rlist_dlg,2);
-        
-        if(ret==5)
-        {
-            int id = bir[rlist_dlg[2].d1].i;
-            
-            switch(id)
-            {
-            case rSP_ITEM:
-                jwin_alert(roomtype_string[id],"If a Guy is set, he will offer an item to Link.","Also used for Item Cellar warps, and","'Armos/Chest->Item' and 'Dive For Item' combo flags.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rINFO:
-                jwin_alert(roomtype_string[id],"Pay rupees to make one of three strings appear.","Strings and prices are set in","Misc. Data -> Info Types.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rMONEY:
-                jwin_alert(roomtype_string[id],"If a Guy is set, he will offer rupees to Link.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rGAMBLE:
-                jwin_alert(roomtype_string[id],"The 'Money-Making Game' from The Legend of Zelda.","Risk losing up to 40 rupees for a","chance to win up to 50 rupees.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rREPAIR:
-                jwin_alert(roomtype_string[id],"When the Guy's String vanishes,","Link loses a given amount of rupees.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rRP_HC:
-                jwin_alert(roomtype_string[id],"The Guy offers item 28 and item 30 to Link.","Taking one makes the other vanish forever.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rGRUMBLE:
-                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","until Link uses (and thus loses) a Bait item.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rTRIFORCE:
-                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","unless Link has Triforces from levels 1-8.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rP_SHOP:
-                jwin_alert(roomtype_string[id],"Similar to a Shop, but the items and String","won't appear until Link uses a Letter item.","(Or, if Link already has a Level 2 Letter item.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rSHOP:
-                jwin_alert(roomtype_string[id],"The Guy offers three items for a fee.","You can use the Shop as often as you want.","Items and prices are set in Misc. Data -> Shop Types.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rBOMBS:
-                jwin_alert(roomtype_string[id],"The Guy offers to increase Link's Bombs","and Max. Bombs by 4, for a fee.","You can only buy it once.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rSWINDLE:
-                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","until Link pays the fee or forfeits a Heart Container.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case r10RUPIES:
-                jwin_alert(roomtype_string[id],"10 instances of item 0 appear in a","diamond formation in the center of the screen.","No Guy or String needs to be set for this.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rWARP:
-                jwin_alert(roomtype_string[id],"All 'Stair [A]' type combos send Link to","a destination in a given Warp Ring, based","on the combo's X position (<112, >136, or between).","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rGANON:
-                jwin_alert(roomtype_string[id],"Link holds up the Triforce, and Ganon appears.",NULL,"(Unless the current DMap's Dungeon Boss was beaten.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rZELDA:
-                jwin_alert(roomtype_string[id],"Four instances of enemy 85 appear","on the screen in front of the Guy.","(That's all it does.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rMUPGRADE:
-                jwin_alert(roomtype_string[id],"When the Guy's String finishes,","Link gains the 1/2 Magic Usage attribute.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rLEARNSLASH:
-                jwin_alert(roomtype_string[id],"When the Guy's String finishes,","Link gains the Slash attribute.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rARROWS:
-                jwin_alert(roomtype_string[id],"The Guy offers to increase Link's Arrows","and Max. Arrows by 10, for a fee.","You can only buy it once.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rTAKEONE:
-                jwin_alert(roomtype_string[id],"The Guy offers three items.","Taking one makes the others vanish forever.","Item choices are set in Misc. Data -> Shop Types.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            default:
-                jwin_alert("Help","Select a Room Type, then click","Help to find out what it does.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-            }
-        }
-    }
-    while(ret==5);
-    
-    if(ret==0||ret==4)
-    {
-        position_mouse_z(0);
-        return -1;
-    }
-    else
-        index = rlist_dlg[2].d1;
-        
-    position_mouse_z(0);
-    return bir[index].i;
-}
 
 static MENU seldata_rclick_menu[] =
 {
@@ -13382,7 +13295,7 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), const
 static int edit_scrdata1[] = // Flags 1
 {
     //6,8,10,11,12,15,18,19,21,22,24,37,57,59,60,-1
-    118,45,46,57,  119,21,58,22,24,54,55,8, //Ordered as they are on the dialog
+    118,45,46,57,  119,21,58,22,24,54,55,8,141,142, //Ordered as they are on the dialog
     120,6,43,47,50,  121,37,42,12,135,23,  -1
 };
 
@@ -13677,8 +13590,12 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,      15,  108,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item->Secrets", NULL, NULL },
     { jwin_check_proc,      15,  118,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item->Secret is permanent", NULL, NULL },
     { jwin_check_proc,      15,  128,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item always returns", NULL, NULL },
-    { jwin_check_proc,      15,  138,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Special Item always returns", NULL, NULL },
-    { NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
+    //140
+	{ jwin_check_proc,      15,  138,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Special Item always returns", NULL, NULL },
+    { jwin_check_proc,      15,  188,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Dithered Darkness", NULL, NULL },
+    { jwin_check_proc,      15,  198,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Transparent Darkness", NULL, NULL },
+    
+	{ NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
 };
 
 
@@ -13724,15 +13641,15 @@ static DIALOG screenscript_dlg[] =
     { jwin_text_proc,           10,    42+140+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[7]:",                      NULL,   NULL                  },
     
     //13
-     { jwin_edit_proc,     60,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-     { jwin_edit_proc,     60,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     60,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     60,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     60,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+     { jwin_numedit_swap_zsint_proc,     60,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+     { jwin_numedit_swap_zsint_proc,     60,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
     //18
-    { jwin_edit_proc,     60,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     60,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     60,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,     60,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
     //21
     { jwin_text_proc,          112+10+20+34+1-4,    42+2,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                            NULL,   NULL                  },
     //22
@@ -13740,8 +13657,17 @@ static DIALOG screenscript_dlg[] =
    
     { jwin_button_proc,       70,    202,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
     { jwin_button_proc,      170,    202,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
-    
+    //25
     { jwin_check_proc,          112+10+20+34-4,    42+30,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Run On Screen Init",   NULL,   NULL                  },
+	{ jwin_swapbtn_proc,  148,      42,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,   42+20,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,   42+40,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,   42+60,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    //30
+	{ jwin_swapbtn_proc,  148,   42+80,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,  42+100,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,  42+120,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    { jwin_swapbtn_proc,  148,  42+140,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
     
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -13770,10 +13696,9 @@ void EditScreenScript()
 	
 	for ( int q = 0; q < 8; q++ )
 	{
-	    
-		sprintf(initd[q],"%.4f",theMap->screeninitd[q]/10000.0);
-	 
 		screenscript_dlg[13+q].dp = initd[q];
+		screenscript_dlg[13+q].fg = theMap->screeninitd[q];
+		screenscript_dlg[13+q].dp3 = &(screenscript_dlg[26+q]);
 	}
 	int ret;
 	if(is_large)
@@ -13791,7 +13716,7 @@ void EditScreenScript()
 			theMap->preloadscript = 0;
 		
 		for(int j=0; j<8; j++)
-			theMap->screeninitd[j] = ffparse2(initd[j]);
+			theMap->screeninitd[j] = screenscript_dlg[13+j].fg;
 		
 	}
 	while(ret==22);//press OK
@@ -13957,6 +13882,8 @@ int onScrData()
 	scrdata_dlg[138].flags = (f&fITEMSECRETPERM) ? D_SELECTED : 0;
 	scrdata_dlg[139].flags = (f&fITEMRETURN) ? D_SELECTED : 0;
 	scrdata_dlg[140].flags = (f&fBELOWRETURN) ? D_SELECTED : 0;
+	scrdata_dlg[141].flags = (f&fDARK_DITHER) ? D_SELECTED : 0;
+	scrdata_dlg[142].flags = (f&fDARK_TRANS) ? D_SELECTED : 0;
 	
 	word g = Map.CurrScr()->noreset;
 	scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
@@ -14083,6 +14010,8 @@ int onScrData()
 		f |= scrdata_dlg[138].flags & D_SELECTED ? fITEMSECRETPERM:0;
 		f |= scrdata_dlg[139].flags & D_SELECTED ? fITEMRETURN:0;
 		f |= scrdata_dlg[140].flags & D_SELECTED ? fBELOWRETURN:0;
+		f |= scrdata_dlg[141].flags & D_SELECTED ? fDARK_DITHER:0;
+		f |= scrdata_dlg[142].flags & D_SELECTED ? fDARK_TRANS:0;
 		Map.CurrScr()->flags9 = f;
 		
 		g=0;
@@ -14367,78 +14296,40 @@ const char *infolist(int index, int *list_size)
     return NULL;
 }
 
-
-
-int onMapCount()
+bool mapcount_will_affect_layers(word newmapcount)
 {
-    bool makechange=true;
-    bool willaffectlayers=false;
-    int oldmapcount=map_count-1;
-    
-    int ret = select_data("Number of Maps",map_count-1,maplist, lfont);
-    
-    if(ret == oldmapcount)
-        return D_O_K; //they selected the same number of maps they already have.
-        
-    {
-        if(ret < 0)
-            makechange=false;
-        else if(ret<oldmapcount)
-        {
-            for(int i=0; i<(ret+1)*MAPSCRS; i++)
-            {
-                mapscr *layerchecker=&TheMaps[i];
-                
-                for(int j=0; j<6; j++)
-                {
-                    if(layerchecker->layermap[j]>(ret+1))
-                    {
-                        willaffectlayers=true;
-                        break;
-                    }
-                }
-                
-                if(willaffectlayers)
-                {
-                    break;
-                }
-            }
-            
-            if(willaffectlayers)
-            {
-                if(jwin_alert("Confirm Change",
-                              "This change will delete maps being used for",
-                              "layers in the remaining maps. The map numbers",
-                              "of the affected layers will be reset to 0.",
-                              "O&K", "&Cancel", 'o', 'c', lfont)==2)
-                {
-                    makechange=false;
-                }
-            }
-        }
-        
-        if(makechange)
-        {
-            saved = false;
-            setMapCount2(ret+1);
-	    //Prevent the nine 'last mapscreen' buttons from pointing to invlid locations
-	    //if the user reduces the mapcount. -Z ( 23rd September, 2019 )
-	    for ( int q = 0; q < 9; q++ )
-	    {
-		map_page[q].map = ( map_page[q].map > ret ) ? ret : map_page[q].map;
-	    }
-            if(willaffectlayers)
-            {
-                for(int i=0; i<(ret+1)*MAPSCRS; i++)
-                {
-                    fix_layers(&TheMaps[i], false);
-                }
-            }
-        }
-    }
-    
+	for(int i=0; i<(newmapcount)*MAPSCRS; i++)
+	{
+		mapscr *layerchecker=&TheMaps[i];
+		
+		for(int j=0; j<6; j++)
+		{
+			if(layerchecker->layermap[j]>(newmapcount))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void update_map_count(word newmapcount)
+{
+	if(map_count == newmapcount) return;
+	saved = false;
+	setMapCount2(newmapcount);
+	//Prevent the nine 'last mapscreen' buttons from pointing to invlid locations
+	//if the user reduces the mapcount. -Z ( 23rd September, 2019 )
+	for ( int q = 0; q < 9; q++ )
+	{
+		map_page[q].map = ( map_page[q].map > newmapcount-1 ) ? newmapcount-1 : map_page[q].map;
+	}
+	for(int i=0; i<(newmapcount)*MAPSCRS; i++)
+	{
+		fix_layers(&TheMaps[i], false);
+	}
+
     refresh(rMAP+rSCRMAP+rMENU);
-    return D_O_K;
 }
 
 int onGotoMap()
@@ -14649,81 +14540,27 @@ int onItem()
         }
     }
     while(exit_status == 5);
-    
+
     refresh(rMAP+rMENU);
     return D_O_K;
 }
 
-int onRType()
+int onRoom()
 {
-    if(prv_mode)
-    {
-        Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
-        Map.set_prvcmb(0);
-        return D_O_K;
-    }
-    
-    restore_mouse();
-    build_bir_list();
-    int ret=select_room("Select Room Type",Map.CurrScr()->room);
-    
-    if(ret>=0)
-    {
-        saved=false;
-        Map.CurrScr()->room=ret;
-    }
-    
-    int c=Map.CurrScr()->catchall;
-    
-    switch(Map.CurrScr()->room)
-    {
-    case rSP_ITEM:
-        Map.CurrScr()->catchall=bound(c,0,ITEMCNT-1);
-        break;
-        // etc...
-    }
-    
-    refresh(rMENU);
-    
-    return D_O_K;
-}
-
-int onGuy()
-{
-    restore_mouse();
-    build_big_list(true);
-    int ret=select_guy("Select Guy",Map.CurrScr()->guy);
-    
-    if(ret>=0)
-    {
-        saved=false;
-        Map.CurrScr()->guy=ret;
-    }
-    
-    refresh(rMAP+rMENU);
-    return D_O_K;
-}
-
-int onString()
-{
-    if(prv_mode)
-    {
-        Map.prv_secrets(false);
-        refresh(rALL);
-        return D_O_K;
-    }
-    
-    restore_mouse();
-    int ret=select_data("Select Message String",MsgStrings[Map.CurrScr()->str].listpos,msgslist,lfont);
-    
-    if(ret>=0)
-    {
-        saved=false;
-        Map.CurrScr()->str=msglistcache[ret];
-    }
-    
-    refresh(rMENU);
-    return D_O_K;
+	restore_mouse();
+	auto* scr = Map.CurrScr();
+	RoomDialog(scr->room, scr->catchall, scr->guy, scr->str,
+		[scr](int r, int a, int g, int m)
+		{
+			scr->room = r;
+			scr->guy = g;
+			scr->str = m;
+			scr->catchall = a;
+			saved = false;
+		}
+	).show();
+	refresh(rMAP+rMENU);
+	return D_O_K;
 }
 
 int onEndString()
@@ -14735,80 +14572,7 @@ int onEndString()
         saved=false;
         misc.endstring=msglistcache[ret];
     }
-    
-    refresh(rMENU);
-    return D_O_K;
-}
 
-int onCatchall()
-{
-    if(prv_mode)
-    {
-        Map.set_prvadvance(1);
-        return D_O_K;
-    }
-    
-    if(room_menu[3].flags==D_DISABLED)
-    {
-        return D_O_K;
-    }
-    
-    restore_mouse();
-    int ret=-1;
-    int rtype=Map.CurrScr()->room;
-    
-    switch(rtype)
-    {
-    case rSP_ITEM:
-        int exit_status;
-        build_bii_list(false);
-        
-        do
-        {
-            ret=select_item("Select Special Item",Map.CurrScr()->catchall,false,exit_status);
-            
-            if(exit_status == 5 && ret >= 0)
-            {
-                build_biw_list();
-                edit_itemdata(ret);
-            }
-            else exit_status = -1;
-        }
-        while(exit_status == 5);
-        
-        break;
-	
-    case rINFO:
-        info_list_size = 256;
-        ret = select_data("Select Info Type",Map.CurrScr()->catchall,infolist,"OK","Cancel",lfont);
-        break;
-        
-    case rTAKEONE:
-        shop_list_size = 256;
-        ret = select_data("Select \"Take One Item\" Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
-        break;
-        
-    case rP_SHOP:
-    case rSHOP:
-        shop_list_size = 256;
-        ret = select_data("Select Shop Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
-        break;
-        
-    default:
-        char buf[80]="Enter ";
-        strcat(buf,catchall_string[rtype]);
-        ret=getnumber(buf,Map.CurrScr()->catchall);
-        break;
-    }
-    
-    if(ret>=0)
-    {
-        if(ret != Map.CurrScr()->catchall)
-            saved=false;
-            
-        Map.CurrScr()->catchall=ret;
-    }
-    
     refresh(rMENU);
     return D_O_K;
 }
@@ -15323,24 +15087,6 @@ static DIALOG dmapmaps_dlg[] =
 int d_hexedit_proc(int msg,DIALOG *d,int c)
 {
     return jwin_hexedit_proc(msg,d,c);
-}
-
-int xtoi(char *hexstr)
-{
-    int val=0;
-    
-    while(isxdigit(*hexstr))
-    {
-        val<<=4;
-        
-        if(*hexstr<='9')
-            val += *hexstr-'0';
-        else val+= ((*hexstr)|0x20)-'a'+10;
-        
-        ++hexstr;
-    }
-    
-    return val;
 }
 
 void drawgrid(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div)
@@ -16144,6 +15890,7 @@ static int editdmap_script_active[] =
 	130,131,132,133,134,135,136,137,//InitD Labels
 	138,139,140,141,142,143,144,145,//InitD Values
 	146,147, //TextProc & Dropdown
+	187,188,189,190,191,192,193,194,//Swapbtns
 	-1
 };
 
@@ -16153,6 +15900,7 @@ static int editdmap_script_subsc[] =
 	148,149,150,151,152,153,154,155,//InitD Labels
 	156,157,158,159,160,161,162,163,//InitD Values
 	164,165,166,167, //TextProcs & Dropdowns
+	195,196,197,198,199,200,201,202,//Swapbtns
 	-1
 };
 
@@ -16162,6 +15910,7 @@ static int editdmap_script_onmap[] =
 	169,170,171,172,173,174,175,176,//InitD Labels
 	177,178,179,180,181,182,183,184,//InitD Values
 	185,186, //TextProcs & Dropdowns
+	203,204,205,206,207,208,209,210,//Swapbtns
 	-1
 };
 
@@ -16265,8 +16014,8 @@ static DIALOG editdmap_dlg[] =
     {  jwin_text_proc,               10,     29,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Name: ",                                     NULL,                 NULL                  },
     {  jwin_edit_proc,               40,     25,    168,     16,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          20,             0,  NULL,                                                  NULL,                 NULL                  },
     //5
-    {  jwin_tab_proc,                 6,     45,    300,    179,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
-    {  jwin_tab_proc,                10,     62,    292,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmapmap_tabs,                             NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                 6,     45,    310,    179,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                 8,     62,    306,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmapmap_tabs,                             NULL, (void *)editdmap_dlg  },
     {  jwin_ctext_proc,              67,     87,      0,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Minimap",                                    NULL,                 NULL                  },
     {  jwin_frame_proc,              31,     95,     84,     52,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_DEEP,       0,  NULL,                                                  NULL,                 NULL                  },
     {  d_maptile_proc,               33,     97,     80,     48,    0,                      0,                       0,    0,           0,             0,  NULL, (void*)0,             NULL                  },
@@ -16292,7 +16041,7 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,              274,     65,     26,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           3,             0,  NULL,                                                  NULL,                 NULL                  },
     {  jwin_text_proc,              28,    150,     70,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Setting this tile disables",                                NULL,                 NULL                  },
     {  jwin_text_proc,              28,    158,     70,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "the classic NES minimap.",                                NULL,                 NULL                  },
-    {  jwin_tab_proc,                10,     62,    292,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_script_tabs,                             NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                8,     62,    306,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_script_tabs,                             NULL, (void *)editdmap_dlg  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     //30
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
@@ -16437,17 +16186,17 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     
     //138
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //146
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     //148
     {  jwin_edit_proc,         6+10-4-2,     10+29+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10-4-2,     10+47+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
@@ -16458,20 +16207,20 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     //156
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //164
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Active Subscreen Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Active Subscreen Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     //166
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+28+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Passive Subscreen Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+28+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+28+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Passive Subscreen Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+28+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
     
     //168
     {  jwin_check_proc,              12,    175,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Use Enemy List for Cellar Enemies",      NULL,                 NULL                  },
@@ -16486,18 +16235,45 @@ static DIALOG editdmap_dlg[] =
     {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1+16,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     //177
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //186
-    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "OnMap Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1+16,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
-	
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+29+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+47+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+65+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+83+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,   10+101+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+119+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+137+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      (90-24)+34+10-4-2,  10+155+20+3+1+16,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //185
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2+14,  10+29+12+7+3+1+16,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "OnMap Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2+14,  10+29+20+7+3+1+16,     136,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+	//187 (for 138+)
+	{ jwin_swapbtn_proc,  158,      79,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,      97,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     115,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     133,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     151,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     169,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     187,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     205,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    //195 (for 156+)
+	{ jwin_swapbtn_proc,  158,      79,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,      97,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     115,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     133,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     151,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     169,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     187,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     205,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    //203 (for 177+)
+	{ jwin_swapbtn_proc,  158,      79,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,      97,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     115,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     133,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     151,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     169,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     187,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,  158,     205,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
@@ -16565,13 +16341,15 @@ void editdmap(int index)
     
 	for ( int q = 0; q < 8; q++ )
 	{
-		sprintf(initdvals[q],"%.4f",DMaps[index].initD[q]/10000.0);
-		sprintf(subinitdvals[q],"%.4f",DMaps[index].sub_initD[q]/10000.0);
-		sprintf(onmapinitdvals[q],"%.4f",DMaps[index].onmap_initD[q]/10000.0);
-	 
 		editdmap_dlg[138+q].dp = initdvals[q];
 		editdmap_dlg[156+q].dp = subinitdvals[q];
 		editdmap_dlg[177+q].dp = onmapinitdvals[q];
+		editdmap_dlg[138+q].fg = DMaps[index].initD[q];
+		editdmap_dlg[156+q].fg = DMaps[index].sub_initD[q];
+		editdmap_dlg[177+q].fg = DMaps[index].onmap_initD[q];
+		editdmap_dlg[138+q].dp3 = &(editdmap_dlg[187+q]);
+		editdmap_dlg[156+q].dp3 = &(editdmap_dlg[195+q]);
+		editdmap_dlg[177+q].dp3 = &(editdmap_dlg[203+q]);
 	}
 	
     editdmap_dlg[0].dp=dmapnumstr;
@@ -16793,8 +16571,8 @@ void editdmap(int index)
             }
         }
         
-        DMaps[index].compass = xtoi(compassstr);
-        DMaps[index].cont = vbound(xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
+        DMaps[index].compass = zc_xtoi(compassstr);
+        DMaps[index].cont = vbound(zc_xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
         DMaps[index].color = editdmap_dlg[65].d1;
         DMaps[index].active_subscreen=editdmap_dlg[75].d1;
         DMaps[index].passive_subscreen=editdmap_dlg[77].d1;
@@ -16840,9 +16618,9 @@ void editdmap(int index)
 	
 	for ( int q = 0; q < 8; q++ )
 	{
-		DMaps[index].initD[q] = ffparse2(initdvals[q]);
-		DMaps[index].sub_initD[q] = ffparse2(subinitdvals[q]);
-		DMaps[index].onmap_initD[q] = ffparse2(onmapinitdvals[q]);
+		DMaps[index].initD[q] = editdmap_dlg[138+q].fg;
+		DMaps[index].sub_initD[q] = editdmap_dlg[156+q].fg;
+		DMaps[index].onmap_initD[q] = editdmap_dlg[177+q].fg;
 		////initd_labels
 		sprintf(DMaps[index].initD_label[q],"%s",initd_labels[q]);
 		sprintf(DMaps[index].sub_initD_label[q],"%s",sub_initd_labels[q]);
@@ -19932,16 +19710,16 @@ int onTileWarp()
     if(ret==14 || ret==15)
     {
         saved=false;
-        Map.CurrScr()->tilewarpscr[0] = xtoi(buf);
+        Map.CurrScr()->tilewarpscr[0] = zc_xtoi(buf);
         Map.CurrScr()->tilewarptype[0] = warp_dlg[7].d1;
         Map.CurrScr()->tilewarpdmap[0] = warp_dlg[8].d1;
-        Map.CurrScr()->tilewarpscr[1] = xtoi(buf2);
+        Map.CurrScr()->tilewarpscr[1] = zc_xtoi(buf2);
         Map.CurrScr()->tilewarptype[1] = warp_dlg[22].d1;
         Map.CurrScr()->tilewarpdmap[1] = warp_dlg[23].d1;
-        Map.CurrScr()->tilewarpscr[2] = xtoi(buf3);
+        Map.CurrScr()->tilewarpscr[2] = zc_xtoi(buf3);
         Map.CurrScr()->tilewarptype[2] = warp_dlg[34].d1;
         Map.CurrScr()->tilewarpdmap[2] = warp_dlg[35].d1;
-        Map.CurrScr()->tilewarpscr[3] = xtoi(buf4);
+        Map.CurrScr()->tilewarpscr[3] = zc_xtoi(buf4);
         Map.CurrScr()->tilewarptype[3] = warp_dlg[46].d1;
         Map.CurrScr()->tilewarpdmap[3] = warp_dlg[47].d1;
         
@@ -20180,16 +19958,16 @@ int onSideWarp()
     if(ret==14 || ret==15)
     {
         saved=false;
-        Map.CurrScr()->sidewarpscr[0] = xtoi(buf);
+        Map.CurrScr()->sidewarpscr[0] = zc_xtoi(buf);
         Map.CurrScr()->sidewarptype[0] = warp_dlg[7].d1;
         Map.CurrScr()->sidewarpdmap[0] = warp_dlg[8].d1;
-        Map.CurrScr()->sidewarpscr[1] = xtoi(buf2);
+        Map.CurrScr()->sidewarpscr[1] = zc_xtoi(buf2);
         Map.CurrScr()->sidewarptype[1] = warp_dlg[22].d1;
         Map.CurrScr()->sidewarpdmap[1] = warp_dlg[23].d1;
-        Map.CurrScr()->sidewarpscr[2] = xtoi(buf3);
+        Map.CurrScr()->sidewarpscr[2] = zc_xtoi(buf3);
         Map.CurrScr()->sidewarptype[2] = warp_dlg[34].d1;
         Map.CurrScr()->sidewarpdmap[2] = warp_dlg[35].d1;
-        Map.CurrScr()->sidewarpscr[3] = xtoi(buf4);
+        Map.CurrScr()->sidewarpscr[3] = zc_xtoi(buf4);
         Map.CurrScr()->sidewarptype[3] = warp_dlg[46].d1;
         Map.CurrScr()->sidewarpdmap[3] = warp_dlg[47].d1;
         
@@ -21036,7 +20814,7 @@ void EditWarpRingScr(int ring,int index)
     {
         saved=false;
         misc.warp[ring].dmap[index] = warpring_warp_dlg[8].d1;
-        misc.warp[ring].scr[index] = xtoi(buf);
+        misc.warp[ring].scr[index] = zc_xtoi(buf);
     }
     
     if(ret==15)
@@ -21944,293 +21722,18 @@ int d_showedit_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-static DIALOG header_dlg[] =
-{
-    /* (dialog proc)        (x)   (y)   (w)   (h)   (fg)                (bg)              (key)    (flags)       (d1)           (d2)     (dp) */
-    { jwin_win_proc,        20,   16,   280,  205,  vc(14),             vc(1),            0,       D_EXIT,        0,             0, (void *) "Quest Header", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_text_proc,       26,   40,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Made in ZQ Version:", NULL, NULL },
-    { jwin_text_proc,       126,  40,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_DISABLED,    0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       204,   43,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Number:", NULL, NULL },
-    //5
-    { jwin_edit_proc,       260,  40,    32,   16,  vc(12),             vc(1),            0,       0,             2,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       26,   90-16,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Rev:", NULL, NULL },
-    { jwin_edit_proc,       66,  86-16,    80,   16,  vc(12),             vc(1),            0,       0,             8,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       26,   108-16,   96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Min. Rev:", NULL, NULL },
-    { jwin_edit_proc,       66,  104-16,   80,   16,  vc(12),             vc(1),            0,       0,             8,             0,       NULL, NULL, NULL },
-    // 10
-    { jwin_text_proc,       26,   126-16,   96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Title:", NULL, NULL },
-    { d_showedit_proc,      66,   122-16,   80,   16,  vc(12),             vc(1),            0,       0,            64,             0,       title, NULL, NULL },
-    { jwin_textbox_proc,    26,   138-16,   120,  40,  vc(11),  vc(1),  0,       0,          64,            0,       title, NULL, NULL },
-    { jwin_text_proc,       174,  126-16,   96,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "Author:", NULL, NULL },
-    { d_showedit_proc,      214,  122-16,   80,   16,    vc(12),  vc(1),  0,       0,          64,            0,       author, NULL, NULL },
-    { jwin_textbox_proc,    174,  138-16,   120,  40,   vc(11),  vc(1),  0,       0,          64,            0,       author, NULL, NULL },
-    // 16
-    { jwin_button_proc,     110,  204-32,  101,   21,   vc(14),             vc(1),            13,      D_EXIT,        0,             0, (void *) "Change Password", NULL, NULL },
-    { jwin_button_proc,     90,   204-8,  61,   21,   vc(14),             vc(1),            13,      D_EXIT,        0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  204-8,  61,   21,   vc(14),             vc(1),            27,      D_EXIT,        0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,      0,    0,    0,    0,    0,                  0,                0,       0,             KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    //20
-    { jwin_button_proc,     150,  69-16,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
-    { jwin_button_proc,     150,  88-16,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-static DIALOG password_dlg[] =
-{
-    /* (dialog proc)        (x)   (y)   (w)   (h)   (fg)                (bg)              (key)    (flags)       (d1)           (d2)     (dp) */
-    { jwin_win_proc,        0,    0,   300,  111-32,  vc(14),             vc(1),            0,       D_EXIT,        0,             0, (void *) "Set Password", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_text_proc,       6,   30,   96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Enter new password:", NULL, NULL },
-    { jwin_edit_proc,       104,  26,   190,   16,  vc(12),             vc(1),            0,       0,             255,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      6,   42,   128+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Save key file", NULL, NULL },
-    { jwin_button_proc,     80,   54,  61,   21,   vc(14),             vc(1),            13,      D_EXIT,        0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,    160,   54,  61,   21,   vc(14),             vc(1),            27,      D_EXIT,        0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,      0,    0,    0,    0,    0,                  0,                0,       0,             KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
-
+void call_header_dlg();
 int onHeader()
 {
-    char zver_str[11],q_num[8],version[10],minver[10];
-    
-    bool resize=!(get_debug()||key[KEY_LSHIFT]||key[KEY_RSHIFT]);
-    
-    if(resize)
-    {
-        for(int i=6; i<19; ++i)
-        {
-            header_dlg[i].y-=18;
-        }
-        
-        header_dlg[0].h-=18;
-	
-	//header_dlg[4].flags |= D_DISABLED;
-	//header_dlg[5].flags |= D_DISABLED;
-        //header_dlg[4].proc=d_dummy_proc;
-        //header_dlg[5].proc=d_dummy_proc;
-    }
-    
-    //if ( key[KEY_LSHIFT]||key[KEY_RSHIFT] )
-    //{
-	//header_dlg[4].flags &= ~D_DISABLED;
-	//header_dlg[5].flags &= ~D_DISABLED;    
-    //}
-    
-    jwin_center_dialog(header_dlg);
-    
-    sprintf(zver_str,"%d.%02X (%d)",header.zelda_version>>8,header.zelda_version&0xFF,header.build);
-    sprintf(q_num,"%d",header.quest_number);
-    strcpy(version,header.version);
-    strcpy(minver,header.minver);
-    strcpy(author,header.author);
-    strcpy(title,header.title);
-    //header_dlg[17].flags |= D_GOTFOCUS
-    header_dlg[0].dp2 = lfont;
-    header_dlg[3].dp = zver_str;
-    header_dlg[5].dp = q_num;
-    header_dlg[7].dp = version;
-    header_dlg[9].dp = minver;
-    
-    password_dlg[0].dp2=lfont;
-    char pwd[256];
-    memset(pwd,0,256);
-    password_dlg[3].dp=pwd;
-    password_dlg[4].flags=header.use_keyfile?D_SELECTED:0;
-    
-    if(is_large)
-    {
-        large_dialog(header_dlg);
-        large_dialog(password_dlg);
-    }
-    
-    int ret = -1;
-    
-    do
-    {
-        ret=zc_popup_dialog(header_dlg,17);
-	    
-	if ( key[KEY_ENTER] )
-	{
-		for ( int q = 0; q < 22; q++ )
-		{
-			if ( header_dlg[q].flags&D_GOTFOCUS )
-			{
-				key[KEY_ENTER] = 0; 
-				//Always save if the proc type is a text edit field. 
-				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
-				{
-					ret = 17; //always SAVE on Enter key from A TEXT PROC
-					break;
-				}
-				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
-				else ret = q;
-				break;
-			}
-		}
-		//if ( ret == -1 )
-		//{
-		//	key[KEY_ENTER] = 0; 
-		//	ret = 17;
-		//}
-	}
-	if ( key[KEY_ENTER_PAD] )
-	{
-		//if ( ret == -1 )
-		//{
-		//	key[KEY_ENTER_PAD] = 0; 
-		//	ret = 17;
-		//}
-		for ( int q = 0; q < 22; q++ )
-		{
-			if ( header_dlg[q].flags&D_GOTFOCUS )
-			{
-				key[KEY_ENTER_PAD] = 0; 
-				//Always save if the proc type is a text edit field. 
-				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
-				{
-					ret = 17; //always SAVE on Enter key from A TEXT PROC
-					break;
-				}
-				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
-				else ret = q;
-				break;
-			}
-		}
-	}
-		
-	//if (zc_readkey(KEY_ENTER)||zc_readkey(KEY_ENTER_PAD) && ret == -1) ret = 17; 
-        
-        if(ret==20)
-            questrev_help();
-        else if(ret==21)
-            questminrev_help();
-	else if(ret==16)
-        {
-            ret=zc_popup_dialog(password_dlg,-1);
-            
-            if(ret==5)
-            {
-                header.use_keyfile=password_dlg[4].flags&D_SELECTED?1:0;
-                set_questpwd(pwd,header.use_keyfile!=0);
-            }
-            
-            ret=16;
-        }
-    }
-    while(ret == 20 || ret == 21 || ret == 16);
-    
-    //do
-    //{
-    //    ret=zc_popup_dialog(header_dlg,-1);
-        /*
-	if ( !( key[KEY_LSHIFT]||key[KEY_RSHIFT] ) )
-	{
-	    header_dlg[4].flags |= D_DISABLED;
-	    header_dlg[5].flags |= D_DISABLED;
-        }
-    
-	if ( key[KEY_LSHIFT]||key[KEY_RSHIFT] )
-	{
-	    header_dlg[4].flags &= ~D_DISABLED;
-	    header_dlg[5].flags &= ~D_DISABLED;    
-	}
-        */
-	
-     //   if(ret==16)
-     //   {
-     //       ret=zc_popup_dialog(password_dlg,-1);
-            
-     //       if(ret==5)
-     //       {
-     //           header.use_keyfile=password_dlg[4].flags&D_SELECTED?1:0;
-     //           set_questpwd(pwd,header.use_keyfile!=0);
-     //       }
-            
-     //       ret=16;
-     //   }
-    //}
-    //while(ret==16);
-    
-    
-    
-    
-    if(ret==17)
-    {
-        saved=false;
-        header.quest_number=atoi(q_num);
-        strcpy(header.author,author);
-        strcpy(header.title,title);
-        strcpy(header.version,version);
-        strcpy(header.minver,minver);
-    }
-    
-    if(resize)
-    {
-        for(int i=6; i<19; ++i)
-        {
-            header_dlg[i].y+=18;
-        }
-        
-        header_dlg[0].h+=18;
-        header_dlg[4].proc=jwin_text_proc;
-        header_dlg[5].proc=jwin_edit_proc;
-    }
-    
-    jwin_center_dialog(header_dlg);
-    
+	call_header_dlg();
     return D_O_K;
 }
 
-
-static ZCHEATS tmpcheats;
-
-
-static DIALOG cheats_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,      32,   44,   256,  142,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Cheat Codes", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    // 2
-    { jwin_button_proc,     90,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,       0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    // 5
-    { jwin_check_proc,      104,  72,   0,    9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enable Cheats", NULL, NULL },
-    { jwin_text_proc,       40,   72,   0,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Lvl  Code", NULL, NULL },
-    { jwin_text_proc,       48,   90,   8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "1", NULL, NULL },
-    { jwin_text_proc,       48,   108,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "2", NULL, NULL },
-    { jwin_text_proc,       48,   126,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "3", NULL, NULL },
-    { jwin_text_proc,       48,   144,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "4", NULL, NULL },
-    // 11
-    { jwin_edit_proc,       61,   86,   210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[0], NULL, NULL },
-    { jwin_edit_proc,       61,   104,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[1], NULL, NULL },
-    { jwin_edit_proc,       61,   122,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[2], NULL, NULL },
-    { jwin_edit_proc,       61,   140,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[3], NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
+void call_cheats_dlg();
 int onCheats()
 {
-    cheats_dlg[0].dp2=lfont;
-    tmpcheats = zcheats;
-    cheats_dlg[5].flags = zcheats.flags ? D_SELECTED : 0;
-    
-    if(is_large)
-        large_dialog(cheats_dlg);
-        
-    int ret = zc_popup_dialog(cheats_dlg, 3);
-    
-    if(ret == 2)
-    {
-        saved = false;
-        zcheats = tmpcheats;
-        zcheats.flags = (cheats_dlg[5].flags & D_SELECTED) ? 1 : 0;
-    }
-    
-    return D_O_K;
+	call_cheats_dlg();
+	return D_O_K;
 }
 
 const char *subscrtype_str[ssdtMAX+1] = { "Original","New Subscreen","Revision 2","BS Zelda Original","BS Zelda Modified","BS Zelda Enhanced","BS Zelda Complete","Zelda 3","Custom" };
@@ -22342,9 +21845,9 @@ bool do_x_button(BITMAP *dest, int x, int y)
 }
 
 
-int d_dummy_proc(int, DIALOG*, int)
+int d_dummy_proc(int,DIALOG *,int)
 {
-    return D_O_K;
+	return D_O_K;
 }
 
 int d_maptile_proc(int msg, DIALOG *d, int)
@@ -23750,7 +23253,9 @@ static int ffcombo_flag_list[] =
 
 static int ffcombo_arg_list[] =
 {
-    56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,-1
+    56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,
+	82,83,84,85,86,87,88,89,
+	-1
 };
 
 static TABPANEL ffcombo_tabs[] =
@@ -23851,14 +23356,14 @@ static DIALOG ffcombo_dlg[] =
     { jwin_text_proc,       6+10,  137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
     { jwin_text_proc,       6+10,  155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
     //64
-    { jwin_edit_proc,      34+10,   25+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   43+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   61+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   79+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   97+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  115+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  133+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  151+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      34+10,   25+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      34+10,   43+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      34+10,   61+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      34+10,   79+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      34+10,   97+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      34+10,  115+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      34+10,  133+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_numedit_swap_zsint_proc,      34+10,  151+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //72
     { jwin_text_proc,       112+10,  29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A1:", NULL, NULL },
     { jwin_text_proc,       112+10,  47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A2:", NULL, NULL },
@@ -23872,7 +23377,16 @@ static DIALOG ffcombo_dlg[] =
     { jwin_check_proc,    154+10,  55+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Solid", NULL, NULL },
     { jwin_check_proc,    154+10,  65+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Imprecision", NULL, NULL },
     { jwin_check_proc,    154+10,  75+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Inv. to Lens", NULL, NULL },
-  
+	//82
+	{ jwin_swapbtn_proc,    98,    45,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    98,    63,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    98,    81,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    98,    99,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    98,   117,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    98,   135,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    98,   153,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    98,   171,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -23885,7 +23399,7 @@ char *strip_decimals(char *string)
     memcpy(src,string,len+1);
     memset(src,0,len+1);
     
-    for(unsigned int i=0; string[i]&&i<=strlen(string); i++)
+    for(size_t i=0; string[i]&&i<=strlen(string); i++)
     {
         *tmpsrc=string[i];
         
@@ -23917,7 +23431,7 @@ char *clean_numeric_string(char *string)
     memset(src,0,len+1);
     
     // strip out non-numerical characters
-    for(unsigned int i=0; string[i]&&i<=strlen(string); i++)
+    for(size_t i=0; string[i]&&i<=strlen(string); i++)
     {
         *tmpsrc=string[i];
         
@@ -23939,7 +23453,7 @@ char *clean_numeric_string(char *string)
     memset(src2,0,len+1);
     
     // second purge
-    for(unsigned int i=0; src[i]&&i<=strlen(src); i++)
+    for(size_t i=0; src[i]&&i<=strlen(src); i++)
     {
         *tmpsrc=src[i];
         
@@ -24667,18 +24181,18 @@ const char *gscriptlist2(int index, int *list_size)
 
 static DIALOG compile_dlg[] =
 {
-	//						x		y		w		h		fg		bg		key	flags	d1	d2	dp
-	{ jwin_win_proc,		0,		0,		200,	130,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile ZScript", NULL, NULL },
-	{ jwin_button_proc,		109,	89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
-	{ jwin_button_proc,		131,	30,		61,		21,		vc(14),	vc(1),	'e',	D_EXIT,	0,	0,	(void *) "&Edit", NULL, NULL },
-	{ jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'l',	D_EXIT,	0,	0,	(void *) "&Load", NULL, NULL },
-	{ jwin_text_proc,		8,		35,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zScriptBytes, NULL, NULL },
-	{ jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
-	{ jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
-	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-	{ jwin_text_proc,		8,		25,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zLastVer, NULL, NULL },
-	{ jwin_check_proc,      8,  112,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Recover ZASM for scripts missing during compile", NULL, NULL },
-	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,   NULL,  NULL }
+	//                      x       y       w       h       fg      bg      key     flags   d1  d2  dp
+	{ jwin_win_proc,        0,      0,      200,    130,    vc(14), vc(1),  0,      D_EXIT,  0,  0, (void *)"Compile ZScript", NULL, NULL },
+	{ jwin_button_proc,     109,    89,     61,     21,     vc(14), vc(1),  27,     D_EXIT,  0,  0, (void *)"Cancel", NULL, NULL },
+	{ jwin_button_proc,     131,    30,     61,     21,     vc(14), vc(1),  'e',    D_EXIT,  0,  0, (void *)"&Edit", NULL, NULL },
+	{ jwin_button_proc,     30,     60,     61,     21,     vc(14), vc(1),  'l',    D_EXIT,  0,  0, (void *)"&Load", NULL, NULL },
+	{ jwin_text_proc,       8,      35,     61,     21,     vc(14), vc(1),  0,           0,  0,  0, (void *)zScriptBytes, NULL, NULL },
+	{ jwin_button_proc,     30,     89,     61,     21,     vc(14), vc(1),  'c',    D_EXIT,  0,  0, (void *)"&Compile!", NULL, NULL },
+	{ jwin_button_proc,     109,    60,     61,     21,     vc(14), vc(1),  'x',    D_EXIT,  0,  0, (void *)"E&xport", NULL, NULL },
+	{ d_timer_proc,         0,      0,      0,      0,      0,      0,      0,           0,  0,  0, NULL, NULL, NULL },
+	{ jwin_text_proc,       8,      25,     61,     21,     vc(14), vc(1),  0,           0,  0,  0, (void *)zLastVer, NULL, NULL },
+	{ jwin_check_proc,      8,      112,    90,     8,      vc(14), vc(1),  0,  D_DISABLED,  0,  0, (void *)"Recover ZASM for scripts missing during compile", NULL, NULL },
+	{ NULL,                 0,      0,      0,      0,      0,      0,      0,           0,  0,  0, NULL, NULL, NULL }
 };
 
 static int as_ffc_list[] = { 4, 5, 6, -1};
@@ -25134,7 +24648,7 @@ int jwin_zmeta_proc(int msg, DIALOG *d, int )
 						oss << ", ";
 					string type_name = ZScript::getTypeName(meta.run_types[q]);
 					lowerstr(type_name); //all lowercase for this output
-					if(oss.str().size() > (indentrun ? 41 : 50))
+					if(oss.str().size() > unsigned(indentrun ? 41 : 50))
 					{
 						memset(buf, 0, sizeof(buf));
 						sprintf(buf, "%s", oss.str().c_str());
@@ -25223,178 +24737,6 @@ void showScriptInfo(zasm_meta const* meta)
 	zc_popup_dialog(scriptinfo_dlg,2);
 }
 
-static int zscript_settings_scripts_list[] =
-{
-	7, 19, 23, 26, 27, 32, 33,
-	34, 35, 36, 37, 38, 39, 45,
-	-1
-};
-
-static int zscript_settings_instructions[] =
-{
-	6,
-	-1
-};
-static int zscript_settings_instructions_1[] =
-{
-	8, 9, 16, 17, 20, 21, 24, 28,
-	29, 30, 31, 41, 42, 43,
-	-1
-};
-static int zscript_settings_instructions_2[] =
-{
-	44, 46, 47, 48, 49,
-	-1
-};
-
-static int zscript_settings_objects_list[] =
-{
-	13, 14, 15, 25, -1
-};
-
-static int zscript_settings_drawing_list[] =
-{
-	10, 12, -1
-};
-
-static int zscript_settings_bugfixes_list[] =
-{
-	11, 18, 22, 40,
-	-1
-};
-
-static TABPANEL zscript_settings_tabs[] =
-{
-    // (text)
-    { (char *)" Scripts ",         D_SELECTED,  zscript_settings_scripts_list, 0, NULL },
-    { (char *)" Instructions ",    0,           zscript_settings_instructions, 0, NULL },
-    { (char *)" Objects ",         0,           zscript_settings_objects_list, 0, NULL },
-    { (char *)" Drawing ",         0,           zscript_settings_drawing_list, 0, NULL },
-    { (char *)" Bugfixes ",        0,           zscript_settings_bugfixes_list, 0, NULL },
-    { NULL,              0,           NULL,             0, NULL }
-};
-static TABPANEL zscript_settings_instructions_tabs[] =
-{
-    // (text)
-    { (char *)" 1 ",     D_SELECTED,  zscript_settings_instructions_1, 0, NULL },
-    { (char *)" 2 ",     0,           zscript_settings_instructions_2, 0, NULL },
-    { NULL,              0,           NULL,             0, NULL }
-};
-
-static DIALOG zscript_settings_dlg[] =
-{
-	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Settings", NULL, NULL },
-	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) zscript_settings_tabs, NULL, (void *)zscript_settings_dlg },
-	// 3
-	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-	//6 Subtab (Instructions)
-	{ jwin_tab_proc,         7,   40,   286,  164,    vc(14),   vc(1),      0,      0,          1,             0, (void *) zscript_settings_instructions_tabs, NULL, (void *)zscript_settings_dlg },
-	
-	// rules //7
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Scripts Continue To Run", NULL, NULL },
-	{ jwin_check_proc,      12, 47+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Item Script Waitdraw()", NULL, NULL },
-	{ jwin_check_proc,      12, 47+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No FFC Waitdraw()", NULL, NULL },
-	// 10
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fix Scripts Running During Scrolling", NULL, NULL },
-	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
-	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite Coordinates are Float", NULL, NULL },
-	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Have Shadows", NULL, NULL },
-	// 15
-	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Have Shadows", NULL, NULL },
-	{ jwin_check_proc,      12, 47+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old eweapon->Parent", NULL, NULL },
-	{ jwin_check_proc,      12, 47+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Args for CreateBitmap() and bitmap->Create()", NULL, NULL },
-	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Game->Misc[] is not *10000", NULL, NULL },
-	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Clear InitD[] on Script Change", NULL, NULL },
-	// 20
-	{ jwin_check_proc,      12, 47+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Print Script Metadata on Traces", NULL, NULL },
-	{ jwin_check_proc,      12, 47+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
-	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Deallocate Arrays", NULL, NULL },
-	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hero OnDeath script runs AFTER engine death animation", NULL, NULL },
-	{ jwin_check_proc,      12, 47+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Allow Setting Action to Rafting", NULL, NULL },
-	// 25
-	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Live One Extra Frame With WDS_DEAD", NULL, NULL },
-	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during Active Subscreen Script", NULL, NULL },
-	{ jwin_check_proc,      10, 33+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "DMap Active Script runs during Active Subscreen Script", NULL, NULL },
-	{ jwin_check_proc,      12, 47+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", NULL, NULL },
-	{ jwin_check_proc,      12, 47+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Weapon Sets its Weapon Sprite", NULL, NULL },
-	// 30
-	{ jwin_check_proc,      12, 47+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken DrawInteger and DrawCharacter Scaling", NULL, NULL },
-	{ jwin_check_proc,      12, 47+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*", NULL, NULL },
-	{ jwin_check_proc,      10, 33+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 0", NULL, NULL },
-	{ jwin_check_proc,      10, 33+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 1", NULL, NULL },
-	{ jwin_check_proc,      10, 33+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 2", NULL, NULL },
-	// 35
-	{ jwin_check_proc,      10, 33+90,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 3", NULL, NULL },
-	{ jwin_check_proc,      10, 33+100,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 4", NULL, NULL },
-	{ jwin_check_proc,      10, 33+110,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 5", NULL, NULL },
-	{ jwin_check_proc,      10, 33+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combos Run Scripts on Layer 6", NULL, NULL },
-	{ jwin_check_proc,      10, 33+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old Global Init and SaveLoad Timing", NULL, NULL },
-	// 40
-	{ jwin_check_proc,      10, 33+40,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Deallocate Init/SaveLoad Local Arrays", NULL, NULL },
-	{ jwin_check_proc,      12, 47+120,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", NULL, NULL },
-	{ jwin_check_proc,      12, 47+130,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't allow overwriting hopping action", NULL, NULL },
-	{ jwin_check_proc,      12, 47+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite->Step uses new, precise values", NULL, NULL },
-	{ jwin_check_proc,      12, 47+10,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old printf() args", NULL, NULL },
-	// 45
-	{ jwin_check_proc,      10, 33+140,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during wipes/refills", NULL, NULL },
-	{ jwin_check_proc,      12, 47+20,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing Screen->EntryX, EntryY Resets Spawn Points", NULL, NULL },
-	{ jwin_check_proc,      12, 47+30,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Log on Loading Invalid UID", NULL, NULL },
-	{ jwin_check_proc,      12, 47+40,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Combodata->InitD[]", NULL, NULL },
-	{ jwin_check_proc,      12, 47+50,    185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Script writes to Hero->Step don't carry over", NULL, NULL },
-	// 50
-	
-	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
-};
-
-
-static int zscriptrules[] =
-{
-    qr_ITEMSCRIPTSKEEPRUNNING, qr_NOITEMWAITDRAW, qr_NOFFCWAITDRAW, 
-	qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,qr_SPRITEXY_IS_FLOAT,
-	qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS,qr_OLDQUESTMISC,qr_CLEARINITDONSCRIPTCHANGE,
-	qr_TRACESCRIPTIDS,qr_FIXDRUNKINPUTS, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,
-	qr_DISALLOW_SETTING_RAFTING, qr_WEAPONS_EXTRA_FRAME, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT,
-	qr_250WRITEEDEFSCRIPT, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, qr_BROKENCHARINTDRAWING, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES,
-	qr_COMBOSCRIPTS_LAYER_0, qr_COMBOSCRIPTS_LAYER_1, qr_COMBOSCRIPTS_LAYER_2, qr_COMBOSCRIPTS_LAYER_3,
-	qr_COMBOSCRIPTS_LAYER_4, qr_COMBOSCRIPTS_LAYER_5, qr_COMBOSCRIPTS_LAYER_6, qr_OLD_INIT_SCRIPT_TIMING, 
-	qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
-	qr_NO_OVERWRITING_HOPPING, qr_STEP_IS_FLOAT, qr_OLD_PRINTF_ARGS, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,
-	qr_LOG_INVALID_UID_LOAD, qr_COMBODATA_INITD_MULT_TENK, qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER,
-    -1
-};
-
-int onZScriptSettings()
-{
-    if(is_large)
-        large_dialog(zscript_settings_dlg);
-        
-    zscript_settings_dlg[0].dp2=lfont;
-    
-    for(int i=0; zscriptrules[i]!=-1; i++)
-    {
-        zscript_settings_dlg[i+7].flags = get_bit(quest_rules,zscriptrules[i]) ? D_SELECTED : 0;
-    }
-    
-    int ret = zc_popup_dialog(zscript_settings_dlg,4);
-    
-    if(ret==4)
-    {
-        saved=false;
-        
-        for(int i=0; zscriptrules[i]!=-1; i++)
-        {
-            set_bit(quest_rules, zscriptrules[i], (zscript_settings_dlg[i+7].flags & D_SELECTED));
-        }
-    }
-    
-    return D_O_K;
-}
-
 static int compiler_tab_list_global[] =
 {
 	10,11,12,13,14,15,16,18,19,20,21,
@@ -25470,92 +24812,57 @@ const char *zcompiler_guardlist(int index, int *list_size)
 
 static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
 
-
-const char *zcompiler_num_include_paths(int index, int *list_size)
-{
-    if(index >= 0)
-    {
-        bound(index,0,MAX_INCLUDE_PATHS);
-        
-	switch(index)
-        {
-            
-	case 0:
-	    return "0";
-        case 1:
-            return "1";
-	case 2:
-            return "2";
-	case 3:
-            return "3";
-	case 4:
-            return "4";
-	case 5:
-            return "5";
-        }
-	
-    }
-    
-    *list_size = MAX_INCLUDE_PATHS+1;
-    return NULL;
-}
-
-static ListData zcompiler_number_include_paths_list(zcompiler_num_include_paths, &pfont);
-
-
-
-
-char tempincludepath[(MAX_INCLUDE_PATHS+1)*512];
+char tempincludepath[MAX_INCLUDE_PATH_CHARS];
 char temprunstring[21];
 
 static DIALOG zscript_parser_dlg[] =
 {
-    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
-    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    // { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
-    { jwin_tab_proc,            4,     23,    252,    182,    vc(0),      vc(15),      0,    0,          0,    0, (void *) compiler_options_tabs,     NULL, (void *)zscript_parser_dlg },
-    // 3
-    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
-    // rules //6
-    { jwin_check_proc,      10, 32+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
-    { jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
-    { jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
-    { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Value of Boolean 'true' is 0.0001", NULL, NULL },
-    //10
-    { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          512,            0,       tempincludepath, NULL, NULL },
-    { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          512,            0,       tempincludepath, NULL, NULL },
+	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
+	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+	// { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+	{ jwin_tab_proc,            4,     23,    252,    182,    vc(0),      vc(15),      0,    0,          0,    0, (void *) compiler_options_tabs,     NULL, (void *)zscript_parser_dlg },
+	// 3
+	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+	
+	// rules //6
+	{ jwin_check_proc,      10, 32+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
+	{ jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
+	{ jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
+	{ jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Value of Boolean 'true' is 0.0001", NULL, NULL },
+	//10
+	{ d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0, MAX_INCLUDE_PATH_CHARS,            0,       tempincludepath, NULL, NULL },
+	{ jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          0,            0,       tempincludepath, NULL, NULL },
    
-    { jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+	{ jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": On Error",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     10,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+	{ jwin_droplist_proc,     10,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
 		(void *) &zcompiler_halt_list,						 NULL,   NULL 				   },
-    { jwin_text_proc,           86,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+	{ jwin_text_proc,           86,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": Header Guard",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     10,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+	{ jwin_droplist_proc,     10,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
 		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
-    { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+	{ jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "Include Paths:",                  NULL,   NULL                  },
-    //17
-    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True MAX_INT sizing", NULL, NULL },
-   
-    { jwin_text_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+	//17
+	{ jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True MAX_INT sizing", NULL, NULL },
+	
+	{ d_dummy_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": Max Include Paths",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
-		(void *) &zcompiler_number_include_paths_list,						 NULL,   NULL 				   },
-    
-    //20 run function
-    { jwin_edit_proc,    16,  102-11,   50,  16,   vc(11),  vc(1),  0,       0,          64,            0,       temprunstring, NULL, NULL },
-    { jwin_text_proc,           68,     102-8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+	{ d_dummy_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		NULL,						 NULL,   NULL 				   },
+	
+	//20 run function
+	{ jwin_edit_proc,    16,  102-11,   50,  16,   vc(11),  vc(1),  0,       0,          64,            0,       temprunstring, NULL, NULL },
+	{ jwin_text_proc,           68,     102-8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "void run()' label:",                  NULL,   NULL                  },
-    { d_dummy_proc,      10, 32+60+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Inline all possible functions", NULL, NULL },
-    { jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Binary Operations use true 32-bit Int", NULL, NULL },
-    { jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Switch/case of strings is case-insensitive", NULL, NULL },
-    
-    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+	{ d_dummy_proc,      10, 32+60+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Inline all possible functions", NULL, NULL },
+	{ jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Binary Operations use true 32-bit Int", NULL, NULL },
+	{ jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Switch/case of strings is case-insensitive", NULL, NULL },
+	
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 
@@ -25580,72 +24887,71 @@ static int zscripparsertrules[] =
 	qr_PARSER_FORCE_INLINE,
 	qr_PARSER_BINARY_32BIT,
 	qr_PARSER_STRINGSWITCH_INSENSITIVE,
-    -1
+	-1
 };
 
 int onZScriptCompilerSettings()
 {
-    if(is_large)
-        large_dialog(zscript_parser_dlg);
-        
-    zscript_parser_dlg[0].dp2=lfont;
-    
-    zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
-    zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
-    zscript_parser_dlg[19].d1 = get_config_int("Compiler","number_of_include_paths",5);
-    
-    //memset(tempincludepath,0,sizeof(tempincludepath));
-    strcpy(tempincludepath,FFCore.includePathString);
-    //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
-    zscript_parser_dlg[10].dp = tempincludepath;
-    
-    //run label
-    strcpy(temprunstring,FFCore.scriptRunString);
-    //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
-    zscript_parser_dlg[20].dp = temprunstring;
+	if(is_large)
+		large_dialog(zscript_parser_dlg);
+		
+	zscript_parser_dlg[0].dp2=lfont;
+	
+	zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
+	zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
+	
+	//memset(tempincludepath,0,sizeof(tempincludepath));
+	strcpy(tempincludepath,FFCore.includePathString);
+	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
+	zscript_parser_dlg[10].dp = tempincludepath;
+	
+	//run label
+	strcpy(temprunstring,FFCore.scriptRunString);
+	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
+	zscript_parser_dlg[20].dp = temprunstring;
    
-    for(int i=0; zscripparsertrules[i]!=-1; i++)
-    {
-	    //This loop ignores trying to set bits in quest_rules, if the option is on the global settings tab.
-	    //These settings are stored in zquest.cfg, not in the quest file. -ZoriaRPG (3rd April, 2019 )
-	    for ( int q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
-	    {
+	for(int i=0; zscripparsertrules[i]!=-1; i++)
+	{
+		//This loop ignores trying to set bits in quest_rules, if the option is on the global settings tab.
+		//These settings are stored in zquest.cfg, not in the quest file. -ZoriaRPG (3rd April, 2019 )
+		for ( int q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
+		{
 		if ( compiler_tab_list_global[q] == i ) continue;
-		    
-	    }
-        zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
-    }
-    
+			
+		}
+		zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
+	}
+	
  
-    
-    int ret = zc_popup_dialog(zscript_parser_dlg,4);
-    
-    if(ret==4)
-    {
-        saved=false;
-        
-        for(int i=0; zscripparsertrules[i]!=-1; i++)
-        {
-            set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
-        }
-	al_trace("Current include path string: %s\n", tempincludepath);
-	memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
-	strcpy(FFCore.includePathString,tempincludepath);
-	//set_config_string("Compiler","include_path",FFCore.includePathString);
-	set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
-	set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
-	set_config_int("Compiler","number_of_include_paths",zscript_parser_dlg[19].d1);
-	memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
-	strcpy(FFCore.scriptRunString,temprunstring);
-	al_trace("Run string set to: %s\n",FFCore.scriptRunString);
-	save_config_file();
-	FFCore.updateIncludePaths();
-        memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
 	
+	int ret = zc_popup_dialog(zscript_parser_dlg,4);
 	
-    }
-    
-    return D_O_K;
+	if(ret==4)
+	{
+		saved=false;
+		
+		for(int i=0; zscripparsertrules[i]!=-1; i++)
+		{
+			set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
+		}
+		al_trace("Current include path string: ");
+		safe_al_trace(tempincludepath);
+		al_trace("\n");
+		memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
+		strcpy(FFCore.includePathString,tempincludepath);
+		set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
+		set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
+		strcpy(FFCore.scriptRunString,temprunstring);
+		al_trace("Run string set to: %s\n",FFCore.scriptRunString);
+		save_config_file();
+		FFCore.updateIncludePaths();
+		ZQincludePaths = FFCore.includePaths;
+		
+		
+	}
+	
+	return D_O_K;
 }
 
 //editbox_data zscript_edit_data;
@@ -25933,11 +25239,11 @@ int onCompileScript()
 	BOOL memresult = false;
 	#endif
 	
-	if(try_recovering_missing_scripts!=0)
+	/*if(try_recovering_missing_scripts!=0)
 	{
 		compile_dlg[9].flags |= D_SELECTED;
 	}
-	else
+	else*/
 	{
 		compile_dlg[9].flags &= ~D_SELECTED;
 	}
@@ -26110,9 +25416,9 @@ int onCompileScript()
 			}
 			else
 			{
+				compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
 				if ( compile_error_sample > 0 )
 				{
-					compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
 					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
 					//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 					if(sfxdat)
@@ -28824,7 +28130,6 @@ int onImportZASM()
 
 void centre_zscript_dialogs()
 {
-    jwin_center_dialog(zscript_settings_dlg);
     jwin_center_dialog(zscript_parser_dlg);
     jwin_center_dialog(exportzasm_dlg);
     jwin_center_dialog(importzasm_dlg);
@@ -28882,14 +28187,6 @@ int onEditFFCombo(int ffcombo)
     sprintf(wstring[2],"%d",(Map.CurrScr()->ffwidth[ffcombo]>>6)+1);
     sprintf(wstring[3],"%d",(Map.CurrScr()->ffheight[ffcombo]>>6)+1);
     
-    sprintf(dastring[0],"%.4f",Map.CurrScr()->initd[ffcombo][0]/10000.0);
-    sprintf(dastring[1],"%.4f",Map.CurrScr()->initd[ffcombo][1]/10000.0);
-    sprintf(dastring[2],"%.4f",Map.CurrScr()->initd[ffcombo][2]/10000.0);
-    sprintf(dastring[3],"%.4f",Map.CurrScr()->initd[ffcombo][3]/10000.0);
-    sprintf(dastring[4],"%.4f",Map.CurrScr()->initd[ffcombo][4]/10000.0);
-    sprintf(dastring[5],"%.4f",Map.CurrScr()->initd[ffcombo][5]/10000.0);
-    sprintf(dastring[6],"%.4f",Map.CurrScr()->initd[ffcombo][6]/10000.0);
-    sprintf(dastring[7],"%.4f",Map.CurrScr()->initd[ffcombo][7]/10000.0);
     sprintf(dastring[8],"%ld",Map.CurrScr()->inita[ffcombo][0]/10000);
     sprintf(dastring[9],"%ld",Map.CurrScr()->inita[ffcombo][1]/10000);
     
@@ -28916,14 +28213,13 @@ int onEditFFCombo(int ffcombo)
     ffcombo_dlg[29].dp = wstring[2];
     ffcombo_dlg[30].dp = wstring[3];
     
-    ffcombo_dlg[64].dp = dastring[0];
-    ffcombo_dlg[65].dp = dastring[1];
-    ffcombo_dlg[66].dp = dastring[2];
-    ffcombo_dlg[67].dp = dastring[3];
-    ffcombo_dlg[68].dp = dastring[4];
-    ffcombo_dlg[69].dp = dastring[5];
-    ffcombo_dlg[70].dp = dastring[6];
-    ffcombo_dlg[71].dp = dastring[7];
+	for(int q = 0; q < 8; ++q)
+    {
+		ffcombo_dlg[64+q].dp = dastring[q];
+		ffcombo_dlg[64+q].fg = Map.CurrScr()->initd[ffcombo][q];
+		ffcombo_dlg[64+q].dp3 = &(ffcombo_dlg[82+q]);
+	}
+	//InitA
     ffcombo_dlg[74].dp = dastring[8];
     ffcombo_dlg[75].dp = dastring[9];
     
@@ -28985,12 +28281,12 @@ int onEditFFCombo(int ffcombo)
         Map.CurrScr()->ffdata[ffcombo] = ffcombo_dlg[6].d1;
         Map.CurrScr()->ffcset[ffcombo] = ffcombo_dlg[6].fg;
         Map.CurrScr()->fflink[ffcombo] = ffcombo_dlg[15].d1;
-        Map.CurrScr()->ffx[ffcombo] = vbound(ffparse(xystring[0]),-320000, 2880000);
-        Map.CurrScr()->ffy[ffcombo] = vbound(ffparse(xystring[1]),-320000, 2080000);
-        Map.CurrScr()->ffxdelta[ffcombo] = vbound(ffparse(xystring[2]),-1280000, 1280000);
-        Map.CurrScr()->ffydelta[ffcombo] = vbound(ffparse(xystring[3]),-1280000, 1280000);
-        Map.CurrScr()->ffxdelta2[ffcombo] = vbound(ffparse(xystring[4]),-1280000, 1280000);
-        Map.CurrScr()->ffydelta2[ffcombo] = vbound(ffparse(xystring[5]),-1280000, 1280000);
+        Map.CurrScr()->ffx[ffcombo] = vbound(ffparse2(xystring[0]),-320000, 2880000);
+        Map.CurrScr()->ffy[ffcombo] = vbound(ffparse2(xystring[1]),-320000, 2080000);
+        Map.CurrScr()->ffxdelta[ffcombo] = vbound(ffparse2(xystring[2]),-1280000, 1280000);
+        Map.CurrScr()->ffydelta[ffcombo] = vbound(ffparse2(xystring[3]),-1280000, 1280000);
+        Map.CurrScr()->ffxdelta2[ffcombo] = vbound(ffparse2(xystring[4]),-1280000, 1280000);
+        Map.CurrScr()->ffydelta2[ffcombo] = vbound(ffparse2(xystring[5]),-1280000, 1280000);
         Map.CurrScr()->ffdelay[ffcombo] = atoi(xystring[6])<10000?zc_max(0,atoi(xystring[6])):9999;
         Map.CurrScr()->ffscript[ffcombo] = biffs[ffcombo_dlg[55].d1].second + 1;
         
@@ -29001,15 +28297,11 @@ int onEditFFCombo(int ffcombo)
         Map.CurrScr()->ffwidth[ffcombo] = (cw-1)+((tw-1)<<6);
         Map.CurrScr()->ffheight[ffcombo] = (ch-1)+((th-1)<<6);
         
-        Map.CurrScr()->initd[ffcombo][0] = ffparse2(dastring[0]);
-        Map.CurrScr()->initd[ffcombo][1] = ffparse2(dastring[1]);
-        Map.CurrScr()->initd[ffcombo][2] = ffparse2(dastring[2]);
-        Map.CurrScr()->initd[ffcombo][3] = ffparse2(dastring[3]);
-        Map.CurrScr()->initd[ffcombo][4] = ffparse2(dastring[4]);
-        Map.CurrScr()->initd[ffcombo][5] = ffparse2(dastring[5]);
-        Map.CurrScr()->initd[ffcombo][6] = ffparse2(dastring[6]);
-        Map.CurrScr()->initd[ffcombo][7] = ffparse2(dastring[7]);
-        
+		for(int q = 0; q < 8; ++q)
+		{
+			Map.CurrScr()->initd[ffcombo][q] = ffcombo_dlg[64+q].fg;
+        }
+		
         Map.CurrScr()->inita[ffcombo][0] = vbound(atoi(dastring[8])*10000,0,320000);
         Map.CurrScr()->inita[ffcombo][1] = vbound(atoi(dastring[9])*10000,0,320000);
         
@@ -29916,11 +29208,11 @@ int onMiscColors()
         
         for(int i=0; i<16; i++)
         {
-            *si = xtoi(buf[i]);
+            *si = zc_xtoi(buf[i]);
             ++si;
         }
         
-        misc.colors.msgtext = xtoi(buf[16]);
+        misc.colors.msgtext = zc_xtoi(buf[16]);
     }
     
     return D_O_K;
@@ -30197,9 +29489,9 @@ int edit_layers(mapscr* tempscr)
                 tempscr->layermap[x]=0;
             }
             
-            tempscr->layerscreen[x]=xtoi(buf[x][1]);
+            tempscr->layerscreen[x]=zc_xtoi(buf[x][1]);
             
-            if(xtoi(buf[x][1])>=MAPSCRS)
+            if(zc_xtoi(buf[x][1])>=MAPSCRS)
             {
                 tempscr->layerscreen[x]=0;
             }
@@ -31046,7 +30338,7 @@ int main(int argc,char **argv)
     
     Z_message("OK\n");                                      // Allocating file path buffers...
     
-    srand(time(0));
+    zc_srand(time(0));
     
     
     set_uformat(U_ASCII);
@@ -33009,7 +32301,14 @@ int main(int argc,char **argv)
     
     zScript = std::string();
     strcpy(zScriptBytes, "0 Bytes in Buffer");
-    
+    for(int i=0; i<MOUSE_BMP_MAX; i++)
+	{
+		for(int j=0; j<4; j++)
+		{
+			mouse_bmp[i][j] = NULL;
+			mouse_bmp_1x[i][j] = NULL;
+		}
+	}
     load_mice();
     gui_mouse_focus=0;
     set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
@@ -33055,6 +32354,9 @@ int main(int argc,char **argv)
     }
     
     load_icons();
+	
+	call_foo_dlg();
+	
     bool load_last_timed_save=false;
     
     if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
@@ -33185,7 +32487,8 @@ int main(int argc,char **argv)
     time(&auto_save_time_start);
     
     FFCore.init();
-	memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
+	ZQincludePaths = FFCore.includePaths;
+	
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
 	
 	
@@ -33231,20 +32534,7 @@ int main(int argc,char **argv)
         {
             alignment_arrow_timer=0;
         }
-        
-        if(strcmp(catchall_string[Map.CurrScr()->room]," "))
-        {
-            static char ca_menu_str[40];
-            sprintf(ca_menu_str,"%s\tA",catchall_string[Map.CurrScr()->room]);
-            room_menu[3].text=ca_menu_str;
-            room_menu[3].flags=commands[cmdCatchall].flags=0;
-        }
-        else
-        {
-            room_menu[3].text=(char *)"Catch All\tA";
-            room_menu[3].flags=commands[cmdCatchall].flags=D_DISABLED;
-        }
-        
+
 	/* Notice: Adjust and Update these values if you hae modified any of the following, where
 		your modifications hae inserted or removed ANY entries. 
 		dialogs[]
@@ -33799,7 +33089,6 @@ void center_zquest_dialogs()
 {
     jwin_center_dialog(assignscript_dlg);
     jwin_center_dialog(autolayer_dlg);
-    jwin_center_dialog(cheats_dlg);
     jwin_center_dialog(clist_dlg);
     jwin_center_dialog(cpage_dlg);
     center_zq_cset_dialogs();
@@ -33821,7 +33110,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(glist_dlg);
-    jwin_center_dialog(header_dlg);
     jwin_center_dialog(help_dlg);
     jwin_center_dialog(ilist_dlg);
     center_zq_init_dialog();
@@ -33834,10 +33122,7 @@ void center_zquest_dialogs()
     jwin_center_dialog(options_dlg);
     jwin_center_dialog(orgcomboa_dlg);
     jwin_center_dialog(path_dlg);
-    jwin_center_dialog(password_dlg);
     jwin_center_dialog(pattern_dlg);
-    jwin_center_dialog(rlist_dlg);
-    center_zq_rules_dialog();
     jwin_center_dialog(scrdata_dlg);
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
@@ -34038,11 +33323,11 @@ void dopreview()
                     break;
                     
                 case KEY_R:
-                    onRType();
+                    onRKey();
                     break;
                     
                 case KEY_S:
-                    onString();
+                    onSKey();
                     break;
                     
                     /*
@@ -34056,7 +33341,7 @@ void dopreview()
                     break;
                     
                 case KEY_A:
-                    onCatchall();
+                    onAKey();
                     break;
                     
                 case KEY_P:
@@ -34399,7 +33684,14 @@ int save_config_file()
     chop_path(tmusicpath2);
     
 	set_config_string("ZCMODULE","current_module",moduledata.module_name);
-	set_config_string("Compiler","include_path",FFCore.includePathString);
+	//
+	FILE* f = fopen("includepaths.txt", "w");
+	if(f)
+	{
+		fwrite(FFCore.includePathString,1,strlen(FFCore.includePathString),f);
+		fclose(f);
+	}
+	//
 	set_config_string("Compiler","run_string",FFCore.scriptRunString);
 	//set_config_int("Compiler","Compile_Success_Tune",compile_tune); //Can't save here until we assign this in a dialogue. Otherwise, quitting will write it 0.
 	
@@ -34495,7 +33787,7 @@ int save_config_file()
     
     //save the beta warning confirmation info
     //10% chance of showing the warning again. heh -DD
-    if(rand() % 10 < 9)
+    if(zc_oldrand() % 10 < 9)
     {
         char *uniquestr = getBetaControlString();
         set_config_string("zquest", "beta_warning", uniquestr);
@@ -34639,7 +33931,7 @@ command_pair commands[cmdMAX]=
 {
     { "(None)",                             0, NULL                                                    },
     { "About",                              0, (intF) onAbout                                          },
-    { "Catch All",                          0, (intF) onCatchall                                       },
+    { " Catch All",                         0, NULL                                                    },
     { "Change track",                       0, (intF) changeTrack                                      },
     { "Cheats",                             0, (intF) onCheats                                         },
     { "Color Set Fix",                      0, (intF) onCSetFix                                        },
@@ -34679,7 +33971,7 @@ command_pair commands[cmdMAX]=
     { "Toggle Fullscreen",                  0, (intF) onFullScreen                                     },
     { "Game icons",                         0, (intF) onIcons                                          },
     { "Goto Map",                           0, (intF) onGotoMap                                        },
-    { "Guy",                                0, (intF) onGuy                                            },
+    { " Guy",                               0,  NULL                                                   },
     { "Paste Guy/String",                   0, (intF) onPasteGuy                                       },
     { "Header",                             0, (intF) onHeader                                         },
     { "Help",                               0, (intF) onHelp                                           },
@@ -34709,11 +34001,11 @@ command_pair commands[cmdMAX]=
     { "Link Sprite",                        0, (intF) onCustomLink                                     },
     { "List Combos Used",                   0, (intF) onUsedCombos                                     },
     { "Palettes - Main",                    0, (intF) onColors_Main                                    },
-    { "Map Count",                          0, (intF) onMapCount                                       },
+    { " Map Count",                         0, NULL                                                    },
     { "Default Map Styles",                 0, (intF) onDefault_MapStyles                              },
     { "Map Styles",                         0, (intF) onMapStyles                                      },
     { "Master Subscreen Type",              0, (intF) onSubscreen                                      },
-    { "Message String",                     0, (intF) onString                                         },
+    { " Message String",                    0, NULL                                                    },
     { "MIDIs",                              0, (intF) onMidis                                          },
     { "Misc Colors",                        0, (intF) onMiscColors                                     },
     { "New",                                0, (intF) do_NewQuest                                      },
@@ -34733,9 +34025,9 @@ command_pair commands[cmdMAX]=
     { "Apply Template to All",              0, (intF) onReTemplate                                     },
     { "Relational Mode",                    0, (intF) onDrawingModeRelational                          },
     { "Revert",                             0, (intF) onRevert                                         },
-    { "Room Type",                          0, (intF) onRType                                          },
+    { "Room Data",                          0, (intF) onRoom                                           },
     { "Paste Room Type Data",               0, (intF) onPasteRoom                                      },
-    { "Rules - Animation",                  0, (intF) onAnimationRules                                 },
+    { " Rules - Animation",                 0, NULL                                                    },
     { "Save",                               0, (intF) onSave                                           },
     { "Save as",                            0, (intF) onSaveAs                                         },
     { "Paste Screen Data",                  0, (intF) onPasteScreenData                                },
@@ -34775,15 +34067,15 @@ command_pair commands[cmdMAX]=
     { "Toggle Flags",                       0, (intF) onShowFlags                                      },
     { "Toggle CSets",                       0, (intF) onShowCSet                                       },
     { "Toggle Types",                       0, (intF) onShowCType                                      },
-    { "Rules - Combos",                     0, (intF) onComboRules                                     },
-    { "Rules - Items",                      0, (intF) onItemRules                                      },
-    { "Rules - Enemies",                    0, (intF) onEnemyRules                                     },
-    { "Rules - NES Fixes",                  0, (intF) onFixesRules                                     },
-    { "Rules - Other",                      0, (intF) onMiscRules                                      },
+    { " Rules - Combos",                    0, NULL                                                    },
+    { " Rules - Items",                     0, NULL                                                    },
+    { " Rules - Enemies",                   0, NULL                                                    },
+    { " Rules - NES Fixes",                 0, NULL                                                    },
+    { " Rules - Other",                     0, NULL                                                    },
     { "Default Items",                      0, (intF) onDefault_Items                                  },
     { "Item Drop Set Editor",               0, (intF) onItemDropSets                                   },
     { "Paste Palette",                      0, (intF) onPastePalette                                   },
-    { "Rules - Compatibility",              0, (intF) onCompatRules                                    },
+    { "Quest Rules",                        0, (intF) onRulesDlg                                       },
     { "Report: Combo Locations",            0, (intF) onComboLocationReport                            },
     { "Report: Combo Type Locs.",           0, (intF) onComboTypeLocationReport                        },
     { "Report: Enemy Locations",            0, (intF) onEnemyLocationReport                            },
@@ -34796,9 +34088,9 @@ command_pair commands[cmdMAX]=
     { "Find Buggy Next->",                  0, (intF) onBuggedNextComboLocationReport                  },
     { "Rules - ZScript",                    0, (intF) onZScriptSettings                                },
     { "Export ZASM",                        0, (intF) onExportZASM                                     },
-    { "Rules - Hero",                       0, (intF) onHeroRules                                      },
+    { " Rules - Hero",                      0, NULL                                                    },
     { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings                        },
-    { "Rules - Weapons",                    0, (intF) onWeaponRules                                    },
+    { " Rules - Weapons",                   0, NULL                                                    },
     { "Screen Script",                      0, (intF) onScreenScript                                   },
     { "Take Screen Snapshot",               0, (intF) onMapscrSnapshot                                 },
     { "View L2 as BG",                      0, (intF) onLayer2BG                                       },
@@ -35191,18 +34483,21 @@ void FFScript::init()
 
 void FFScript::updateIncludePaths()
 {
-	memset(includePaths,0,sizeof(includePaths));
-	int pos = 0; int dest = 0; int pathnumber = 0;
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	includePaths.clear();
+	int pos = 0; int pathnumber = 0;
+	for ( int q = 0; includePathString[pos]; ++q )
 	{
-		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		int dest = 0;
+		char buf[2048] = {0};
+		while(includePathString[pos] != ';' && includePathString[pos])
 		{
-			includePaths[q][dest] = includePathString[pos];
-			pos++;
-			dest++;
+			buf[dest] = includePathString[pos];
+			++pos;
+			++dest;
 		}
 		++pos;
-		dest = 0;
+		std::string str(buf);
+		includePaths.push_back(str);
 	}
 }
 
@@ -35210,31 +34505,41 @@ void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
 	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
-	al_trace("Run is set to: %s \n",includePathString);
+	al_trace("Run is set to: %s \n",scriptRunString);
 }
 
 void FFScript::initIncludePaths()
 {
-	memset(includePaths,0,sizeof(includePaths));
 	memset(includePathString,0,sizeof(includePathString));
-	strcpy(includePathString,get_config_string("Compiler","include_path","include/"));
-	includePathString[((MAX_INCLUDE_PATHS+1)*512)-1] = '\0';
-	al_trace("Full path string is: %s\n",includePathString);
-	int pos = 0; int dest = 0; int pathnumber = 0;
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	FILE* f = fopen("includepaths.txt", "r");
+	if(f)
 	{
-		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		int pos = 0;
+		int c;
+		do
 		{
-			includePaths[q][dest] = includePathString[pos];
-			pos++;
-			dest++;
+			c = fgetc(f);
+			if(c!=EOF) 
+				includePathString[pos++] = c;
 		}
-		++pos;
-		dest = 0;
+		while(c!=EOF && pos<MAX_INCLUDE_PATH_CHARS);
+		if(pos<MAX_INCLUDE_PATH_CHARS)
+			includePathString[pos] = '\0';
+		includePathString[MAX_INCLUDE_PATH_CHARS-1] = '\0';
+		fclose(f);
 	}
+	else strcpy(includePathString, "include/;headers/;scripts/;");
+	al_trace("Full path string is: ");
+	safe_al_trace(includePathString);
+	al_trace("\n");
+	updateIncludePaths();
 
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
-		al_trace("Include path %d: %s\n",q,includePaths[q]);
+	for ( size_t q = 0; q < includePaths.size(); ++q )
+	{
+		al_trace("Include path %d: ",q);
+		safe_al_trace(includePaths.at(q).c_str());
+		al_trace("\n");
+	}
 }
 
 void FFScript::setFFRules()
@@ -35683,7 +34988,8 @@ const char *itemclass_help_string_cats[itype_max*3]=
 			"This item class is used to create", "LW_SCRIPT_10 type lweapons with", "properties defined by the Item Editor.",
 			//265 == icerod
 			"This item class is", "reserved for the Ice Rod", "in a future version of ZC",
-			"This item class is", "reserved for future", "versions of ZC",
+			//266 == atkring
+			"The Sword, Wand and Hammer deal more damage.","The multiplier applies before the bonus damage.","",
 			"This item class is", "reserved for future", "versions of ZC",
 			"This item class is", "reserved for future", "versions of ZC",
 			"This item class is", "reserved for future", "versions of ZC",
@@ -36505,29 +35811,7 @@ bool ZModule::init(bool d) //bool default
 		
 		//item editor
 		
-		//item families
-		const char default_itype_strings[itype_max][255] = 
-		{ 
-			"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
-			"Bait", "Letters", "Potions", "Wands", "Rings", 
-			"Wallets", "Amulets", "Shields", "Bows", "Rafts",
-			"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", 
-			"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire", 
-			"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", 
-			"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses", 
-			"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", 
-			"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", 
-			"Heart Pieces", "Kill All Enemies", "Bomb Ammo", "Bomb Bags", "Roc Items", 
-			"Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer","Whisp Rings", 
-			"Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", 
-			"Scroll: Hurricane Spin", "Scroll: Super Quake","Stones of Agony", "Stomp Boots", "Whimsical Rings", 
-			"Peril Rings", "Non-gameplay Items", "Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03",
-			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
-			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
-			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
-			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)", "zz089"
-		};
-						     
+		//item families  
 		const char itype_fields[itype_max][255] =
 		{
 			"ic_sword","ic_brang", "ic_arrow","ic_cand","ic_whis",
@@ -36567,8 +35851,11 @@ bool ZModule::init(bool d) //bool default
 			"ic_202","ic_203","ic_204","ic_205","ic_206","ic_207","ic_208","ic_209","ic_210","ic_211","ic_212","ic_213","ic_214","ic_215","ic_216","ic_217",
 			"ic_218","ic_219","ic_220","ic_221","ic_222","ic_223","ic_224","ic_225","ic_226","ic_227","ic_228","ic_229","ic_230","ic_231","ic_232","ic_233",
 			"ic_234","ic_235","ic_236","ic_237","ic_238","ic_239","ic_240","ic_241","ic_242","ic_243","ic_244","ic_245","ic_246","ic_247","ic_248","ic_249",
-			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255","ic_256","ic_257","ic_258","ic_259","ic_260","ic_261","ic_262","ic_263","ic_264","ic_265",
-			"ic_266","ic_267","ic_267","ic_269""ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
+			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255",
+			"ic_script01","ic_script02","ic_script03","ic_script04","ic_script05",
+			"ic_script06","ic_script07","ic_script08","ic_script09","ic_script10",
+			"ic_icerod","ic_atkring",
+			"ic_267","ic_269""ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
 			"ic_286","ic_287","ic_288","ic_289","ic_290","ic_291","ic_292","ic_293","ic_294","ic_295","ic_296","ic_297","ic_298","ic_299","ic_300","ic_301","ic_302","ic_303","ic_304",
 			"ic_305","ic_306","ic_307","ic_308","ic_309","ic_311","ic_312","ic_313","ic_314","ic_315","ic_316","ic_317","ic_318","ic_319","ic_320","ic_321",
 			"ic_322","ic_323","ic_324","ic_325","ic_326","ic_327","ic_328","ic_329","ic_330","ic_331","ic_332","ic_333","ic_334","ic_335","ic_336","ic_337",
@@ -36622,7 +35909,7 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
 		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE", "cSIGNPOST",
-		    "cCSWITCH", "cCSWITCHBLOCK"
+		    "cCSWITCH", "cCSWITCHBLOCK", "cLANTERN"
 		};
 		
 		const char default_ctype_strings[cMAX][255] = 
@@ -36644,7 +35931,7 @@ bool ZModule::init(bool d) //bool default
 			"", "", "", "", "", "", "", "", "", "",
 			"", "", "", "", "", "", "", "", "", "",
 			"", "", "Generic", "Pitfall", "Step->Effects", "Bridge", "Signpost",
-			"Switch", "Switch Block"
+			"Switch", "Switch Block", "Lantern"
 		};
 		
 		for ( int q = 0; q < cMAX; q++ )
@@ -37147,3 +36434,7 @@ void zprint2(const char * const format,...)
 	
     }
 }
+
+void doDarkroomCircle(int cx, int cy, byte glowRad,BITMAP* dest,BITMAP* transdest){}
+void doDarkroomCone(int sx, int sy, byte glowRad, int dir, BITMAP* dest,BITMAP* transdest){}
+

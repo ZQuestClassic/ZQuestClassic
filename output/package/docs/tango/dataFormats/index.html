@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Data structures and formats - tango.zh 1.3.3</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Data structures and formats";
+    var mkdocs_page_input_path = "dataFormats.md";
+    var mkdocs_page_url = "/dataFormats/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> tango.zh 1.3.3</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../usage/index.html">Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../zscriptFuncs/index.html">ZScript functions</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../constants/index.html">ZScript constants</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../tangoCode/index.html">Tango variables and functions</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">Data structures and formats</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#data-structures-and-formats">Data structures and formats</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#text-slots">Text slots</a></li>
+        
+            <li><a class="toctree-l3" href="#styles">Styles</a></li>
+        
+            <li><a class="toctree-l3" href="#complex-backdrops">Complex backdrops</a></li>
+        
+            <li><a class="toctree-l3" href="#fonts">Fonts</a></li>
+        
+            <li><a class="toctree-l3" href="#identifier-conversion">Identifier conversion</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../errors/index.html">Error codes</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../faq/index.html">FAQ</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">tango.zh 1.3.3</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Data structures and formats</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="data-structures-and-formats">Data structures and formats</h1>
+<h2 id="text-slots">Text slots</h2>
+<p>A text slot represents the state of a string being displayed in much
+the same way as an <code>npc</code> pointer represents the state of an enemy.
+It stores the text, its style, and its position on the screen. A text slot
+is said to be "active" if the text is currently being displayed. The data in
+a text slot is mostly internal; most of the time, all you'll care about is
+its style, its position, and whether it's active.</p>
+<p>Text slots have definitions separate from the slots themselves. They are
+defined in <code>__Tango_SlotDefs[]</code>. The slot definition controls the slot type,
+where in the buffer text is stored, and where it's rendered on the offscreen
+bitmap.</p>
+<p>For more advanced uses, you may want to customize the available text slots.
+If you want to display multiple strings at once, you'll need at least one slot
+for each string. You may want to set up slots of different types to ensure
+one is always available for a certain use when you need it or to ensure that
+some strings are never covered up by others.</p>
+<p>There are only a couple of properties to set in a slot definition: each slot
+has a type and a certain amount of space allocated. The order in which they're
+defined is also significant.</p>
+<p>A slot's type has no direct impact on how it works; the only thing it affects
+is what is returned by <code>Tango_GetFreeSlot()</code>. Any difference beyond that comes
+down to how you choose to define and use them.</p>
+<p>The ordering of slots is significant because they are drawn in order. Slot 0
+is drawn first, then slot 1, and so on. That means that if multiple slots
+are active at once, higher-numbered slots will appear in front of
+lower-numbered ones.</p>
+<p>There are two slots and one slot type defined by default. This should be plenty
+for most quests, but you can add as many slots and types as you like. Slots are
+integers from 0 to <code>__TANGO_NUM_SLOTS - 1</code>, and type IDs should be 0 or greater.</p>
+<p>To control the number of slots, set <code>__TANGO_NUM_SLOTS</code>, set the size of
+<code>__Tango_SlotData[]</code>, and add definitions to <code>__Tango_SlotDefs[]</code>. You may
+also want to set the size of <code>__Tango_Buffer[]</code> to control the total amount of
+space available for text.</p>
+<p>Each slot is defined by seven numbers in <code>__Tango_SlotDefs[]</code>. These are,
+in order:</p>
+<ol>
+<li>Slot type</li>
+<li>Starting index in <code>__Tango_Buffer[]</code></li>
+<li>Maximum length in <code>__Tango_Buffer[]</code></li>
+<li>X position in offscreen bitmap</li>
+<li>Y position in offscreen bitmap</li>
+<li>Width in offscreen bitmap</li>
+<li>Height in offscreen bitmap</li>
+</ol>
+<p>It is permissible for slots to overlap in both the buffer and the bitmap, but
+be careful about this; using overlapping slots simultaneously is likely to
+cause problems.</p>
+<h2 id="styles">Styles</h2>
+<p>Before any text can be displayed, the slot must have a style set. The style
+defines how the text will be displayed - the font, the backdrop, the sound
+effects, and so forth. Style IDs are integers 0 and up.</p>
+<p>A style is simply a collection of settings. These are mostly cosmetic, but
+there are also a few behavioral flags. These control whether the text can be
+sped up by holding a button and whether the screen is frozen while it's
+displayed, among other things.</p>
+<p>Use <code>Tango_SetStyleAttribute()</code> to set each style attribute. You must at least
+set the font and color; every other setting has a valid default. See the
+<a href="../constants/index.html">constants</a> page for the available attributes and expected values.
+Most of the constants defined by Tango are style-related. Once an attribute
+is set, it won't change unless you change it yourself, so it's okay to set up
+styles in the <code>Init</code> script and never touch them again.</p>
+<p>To control the number of styles available, set <code>__TANGO_NUM_STYLES</code> and the
+size of <code>__Tango_Styles[]</code>.</p>
+<h2 id="complex-backdrops">Complex backdrops</h2>
+<p>To use a complex backdrop, you must create a properly formatted array
+and provide a pointer to it with <code>TANGO_BACKDROP_DATA</code>. The array must exist
+for as long as the slot is active.</p>
+<p>The array must consist of a series of drawing commands followed by
+<code>TANGO_DRAW_END</code>. A drawing command, in this context, means a <code>TANGO_DRAW</code>
+constant followed by six numbers. The meanings of these numbers depends on
+what is being drawn.</p>
+<dl>
+<dt>TANGO_DRAW_RECT</dt>
+<dt>TANGO_DRAW_RECT_TRANS</dt>
+<dd>
+<p>A plain rectangle, either opaque or transparent.</p>
+<p>Data:</p>
+<ol>
+<li>CSet</li>
+<li>Color (0-15 within the CSet)</li>
+<li>X position</li>
+<li>Y position</li>
+<li>Width in pixels</li>
+<li>Height in pixels</li>
+</ol>
+</dd>
+<dt>TANGO_DRAW_TILE</dt>
+<dt>TANGO_DRAW_TILE_TRANS</dt>
+<dd>
+<p>A block of tiles, either opaque or transparent.</p>
+<p>Data:</p>
+<ol>
+<li>Starting tile</li>
+<li>CSet</li>
+<li>X position</li>
+<li>Y position</li>
+<li>Width in tiles</li>
+<li>Height in tiles</li>
+</ol>
+</dd>
+<dt>TANGO_DRAW_COMBO</dt>
+<dt>TANGO_DRAW_COMBO_TRANS</dt>
+<dd>
+<p>A block of tiles drawn from a combo, either opaque or transparent.</p>
+<p>Data:</p>
+<ol>
+<li>Starting combo</li>
+<li>CSet</li>
+<li>X position</li>
+<li>Y position</li>
+<li>Width in tiles</li>
+<li>Height in tiles</li>
+</ol>
+</dd>
+<dt>TANGO_DRAW_TEXT</dt>
+<dd>
+<p>A string of text. This is a ZScript string, which must exist as long as
+the slot is active. The font must be a Tango font, not a built-in one.
+If you want to center the text, you can use <code>Tango_GetStringWidth()</code>
+to find its width.</p>
+<p>Data:</p>
+<ol>
+<li>String pointer</li>
+<li>Font</li>
+<li>CSet</li>
+<li>Color (0-15 within the CSet)</li>
+<li>X position</li>
+<li>Y position</li>
+</ol>
+</dd>
+</dl>
+<p>As an example, a backdrop consisting of a transparent rectangle with a block
+of tiles over it might look like this:</p>
+<div class="codehilite"><pre><span></span><span class="kt">int</span> <span class="n">sampleBackdrop</span><span class="p">[]</span><span class="o">=</span> <span class="p">{</span>
+    <span class="n">TANGO_DRAW_RECT_TRANS</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>       <span class="c1">// CSet</span>
+        <span class="mi">4</span><span class="p">,</span>       <span class="c1">// Color</span>
+        <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span>    <span class="c1">// X, Y (pixels)</span>
+        <span class="mi">184</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="c1">// Width, height (pixels)</span>
+    <span class="n">TANGO_DRAW_TILE</span><span class="p">,</span>
+        <span class="mi">400</span><span class="p">,</span>   <span class="c1">// Tile</span>
+        <span class="mi">5</span><span class="p">,</span>     <span class="c1">// CSet</span>
+        <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1">// X, Y (pixels)</span>
+        <span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="c1">// Width, height (tiles)</span>
+    <span class="n">TANGO_DRAW_END</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<h2 id="fonts">Fonts</h2>
+<p>Tango can't use ZC's built-in fonts directly; it needs additional data about
+spacing to position everything correctly. Tango font definitions are arrays
+that provide the necessary information.</p>
+<p>Definitions for most built-in fonts are included, but they're not imported
+by default. The files are in the tango/font directory. Although they aren't
+constants (since ZScript doesn't allow constant arrays), the names are
+written in all caps to indicate that they should be used as though they were.</p>
+<p>You can create your own fonts, too. Using characters made from tiles, you can
+extend built-in fonts with additional characters or create completely original
+ones. The drawback of tile-based characters is that they have fewer color
+options; they only have a CSet, not a CSet and a color. On the other hand,
+tile-based characters can use multiple colors, and they can even be 8-bit.</p>
+<p>A font definition is an array consisting of the following data, in order:</p>
+<ol>
+<li>
+<p>Font type</p>
+<p>This must be one of:</p>
+<ul>
+<li><code>TANGO_FONT_BUILTIN</code></li>
+<li><code>TANGO_FONT_EXTENDED</code></li>
+<li><code>TANGO_FONT_CUSTOM</code></li>
+</ul>
+</li>
+<li>
+<p>Width type</p>
+<p>This must be one of:</p>
+<ul>
+<li><code>TANGO_FONT_MONOSPACE</code></li>
+<li><code>TANGO_FONT_PROPORTIONAL</code></li>
+</ul>
+</li>
+<li>
+<p>Font ID</p>
+<p>For built-in and extended fonts, this is the value of the built-in font;
+use one of std.zh's <code>FONT</code> constants. Custom fonts ignore this value.</p>
+</li>
+<li>
+<p>Tile start</p>
+<p>This is the tile used by the first extended character (256) in extended
+fonts or the first printable character (33, '!') in custom fonts. Built-in
+fonts ignore this value.</p>
+</li>
+<li>
+<p>Character height in pixels</p>
+<p>In tile-based fonts, this is the distance from the top of a tile to the
+bottom of the lowest character. Built-in fonts often include some space
+above each character; in that case, this is the distance from the top of
+that space to the bottom of the lowest character.</p>
+</li>
+<li>
+<p>Space between lines in pixels</p>
+<p>This is the space from the bottom of one line to the top of the next,
+not the total line height.</p>
+</li>
+<li>
+<p>(and up) Character widths in pixels</p>
+<p>The width of each character, including any trailing space. In monospaced
+fonts, this is a single value. For proportional fonts, this is a list of
+widths for each character starting from space (32). Characters 32-126
+follow ASCII order; characters 127 and up are arbitrary and vary by font.</p>
+</li>
+</ol>
+<p>If you want to create an extended font, it's easiest to copy one of
+the included built-in font definitions, change <code>TANGO_FONT_BUILTIN</code> to
+<code>TANGO_FONT_EXTENDED</code>, then add the starting tile and extra character widths.
+Be aware that many built-in fonts leave some space above the glyphs. Extended
+characters will need to account for this.</p>
+<h2 id="identifier-conversion">Identifier conversion</h2>
+<p><code>Tango_ConvertFunctionName()</code> and <code>Tango_ConvertVariableName()</code> will convert
+names to numbers for you. But if you want to do it yourself, here's how.
+Start by converting each character in the name to a number:</p>
+<pre>
+a  b  c ... x  y  z  0  1  2  ... 7  8  9
+1  2  3 ... 24 25 26 27 28 29 ... 34 35 36
+</pre>
+
+<p>Multiply each number by 7<sup>n</sup> according to its position, add them up, and
+divide by 10000.</p>
+<p>For example, for a function called @dostuff2:</p>
+<pre>
+d   4   x7 x7 x7 x7 x7 x7 x7 = 3294172 +
+o   15  x7 x7 x7 x7 x7 x7    = 1764735 +
+s   19  x7 x7 x7 x7 x7       =  319333 +
+t   20  x7 x7 x7 x7          =   48020 +
+u   21  x7 x7 x7             =    7203 +
+f   6   x7 x7                =     294 +
+f   6   x7                   =      42 +
+2   29                       =      29
+                               -------
+                               5433828 / 10000 = 543.3828
+</pre>
+
+<p>Note that this may change in future versions.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../errors/index.html" class="btn btn-neutral float-right" title="Error codes">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../tangoCode/index.html" class="btn btn-neutral" title="Tango variables and functions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../tangoCode/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../errors/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

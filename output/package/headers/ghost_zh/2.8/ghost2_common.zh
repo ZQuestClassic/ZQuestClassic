@@ -1,0 +1,130 @@
+// ghost.zh
+// Version 2.8.15
+
+// Used for DrawGhostFFCs()
+const int __GHI_DRAW_COMBO      = 0;
+const int __GHI_DRAW_CSET       = 1;
+const int __GHI_DRAW_X          = 2;
+const int __GHI_DRAW_Y          = 3;
+const int __GHI_DRAW_WIDTH      = 4;
+const int __GHI_DRAW_HEIGHT     = 5;
+const int __GHI_DRAW_ADDITIONAL = 6;
+const int __GHI_DRAW_LAYER      = 7;
+const int __GHI_DRAW_OPACITY    = 8;
+const int __GHI_DRAW_ARRAY_SIZE = 9;
+
+// __Ghost_AdditionalCombos indices
+const int __GHI_AC_COUNT             = 0;
+const int __GHI_AC_DATA              = 1;
+
+// __Ghost_AdditionalCombos data offsets
+const int __GH_AC_COMBO             = 0; // 1, 7, 13, 19
+const int __GH_AC_X                 = 1; // 2, 8, 14, 20
+const int __GH_AC_Y                 = 2; // 3, 9, 15, 21
+const int __GH_AC_WIDTH             = 3; // 4, 10, 16, 22
+const int __GH_AC_HEIGHT            = 4; // 5, 11, 17, 23
+const int __GH_AC_ROTATION          = 5; // 6, 12, 18, 24
+
+// Changing these requires changing the size of __Ghost_AdditionalCombos and
+// several arrays in Ghost_WaitframeLight()
+const int __GH_AC_MAX_ADDITIONAL_COMBOS = 4;
+const int __GH_AC_DATA_SIZE = 6; // Number of repeating elements
+
+// Enemy properties - used with GetEnemyProperty and SetEnemyProperty
+// These must match tempGhostData in Ghost_WaitframeLight
+const int ENPROP_X = 0;
+const int ENPROP_Y = 1;
+const int ENPROP_Z = 2;
+const int ENPROP_JUMP = 3;
+const int ENPROP_DIR = 11;
+const int ENPROP_HP = 20;
+const int ENPROP_CSET = 10;
+
+// Death animations
+const int GHD_EXPLODE = 1;
+const int GHD_EXPLODE_FLASH = 2;
+const int GHD_SHRINK = 3;
+
+
+// Global variables
+
+// Position
+float Ghost_X;
+float Ghost_Y;
+float Ghost_Z;
+int Ghost_Dir;
+
+// Velocity and acceleration
+float Ghost_Jump;
+float Ghost_Vx;
+float Ghost_Vy;
+float Ghost_Ax;
+float Ghost_Ay;
+
+// Appearance
+int Ghost_Data;
+int Ghost_CSet;
+int Ghost_TileWidth;
+int Ghost_TileHeight;
+
+// HP
+int Ghost_HP;
+
+// Internal use
+int __Ghost_Flags;
+int __Ghost_Flags2;
+int __Ghost_InternalFlags;
+float __Ghost_PrevX;
+float __Ghost_PrevY;
+int __Ghost_FlashCounter;
+int __Ghost_KnockbackCounter;
+int __Ghost_XOffsets;
+int __Ghost_YOffsets;
+int __Ghost_Scripts[32];
+int __Ghost_AdditionalCombos[25]; // Size is 1 + __GH_AC_MAX_ADDITIONAL_COMBOS * __GH_AC_DATA_SIZE
+                                  // tempGhostAdditionalCombos in Ghost_WaitframeLight() should match
+
+int __ghzhData[8];
+
+// __ghzhData indices
+const int __GHI_GLOBAL_FLAGS       = 0;
+const int __GHI_FLASH_COUNTER      = 1;
+const int __GHI_SHADOW_FRAME       = 2;
+const int __GHI_SHADOW_TIMER       = 3;
+const int __GHI_LARGE_SHADOW_FRAME = 4;
+const int __GHI_LARGE_SHADOW_TIMER = 5;
+const int __GHI_CLOCK_TIMER        = 6;
+const int __GHI_PREV_SCREEN        = 7;
+
+// Global flags
+const int __GHGF_FLICKER = 01b;
+const int __GHGF_SUSPEND = 10b;
+
+// Get a normal direction (a DIR_ constant) from a number outside that range
+int __NormalizeDir(int dir)
+{
+    // Already normal
+    if(dir>=0 && dir<=7)
+        return dir;
+    
+    // 8-15 go clockwise from up to up-left
+    if(dir==8)
+        return DIR_UP;
+    if(dir==9)
+        return DIR_RIGHTUP;
+    if(dir==10)
+        return DIR_RIGHT;
+    if(dir==11)
+        return DIR_RIGHTDOWN;
+    if(dir==12)
+        return DIR_DOWN;
+    if(dir==13)
+        return DIR_LEFTDOWN;
+    if(dir==14)
+        return DIR_LEFT;
+    if(dir==15)
+        return DIR_LEFTUP;
+    
+    // Out of range, probably -1
+    return DIR_UP;
+}

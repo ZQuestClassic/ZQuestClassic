@@ -9,26 +9,28 @@ eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_pa
 	walkTimer(((eAquamentus&)other).walkTimer),
     shotTimer(clk3)
 {
-
+	
 	//arrays
-
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-
-	scriptData = other.scriptData;
+	
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-
+	
 	for(int i=0; i<edefLAST255; i++)
 		defense[i]=other.defense[i];
 	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-
+	
 	if(new_script_uid)
 	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs.
+		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
 	}
 	if(clear_parent_script_UID)
 	{
@@ -36,13 +38,13 @@ eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_pa
 	}
 	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
 	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-
-	for ( int q = 0; q < 8; q++ )
+	
+	for ( int q = 0; q < 8; q++ ) 
 	{
 		initD[q] = other.initD[q];
 		weap_initiald[q] = other.weap_initiald[q];
 	}
-	for ( int q = 0; q < 2; q++ )
+	for ( int q = 0; q < 2; q++ ) 
 	{
 		initA[q] = other.initA[q];
 		weap_initiala[q] = other.weap_initiala[q];

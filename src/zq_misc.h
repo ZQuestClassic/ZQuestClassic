@@ -83,7 +83,7 @@ extern const char *warpeffect_string[MAXWARPEFFECTS];
 extern const char *flag_string[MAXFLAGS];
 extern const char *flag_help_string[(mfMAX)*3];
 extern const char *itemclass_help_string[(itype_last-20)*3];
-extern const char *combotype_help_string[cMAX*3];
+extern const char *combotype_help_string[cMAX];
 extern const char	*old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
 extern const char *pattern_string[MAXPATTERNS];
@@ -232,7 +232,6 @@ int onIcons();
 int onInit();
 int onLayers();
 int onScreenPalette();
-int xtoi(char *hexstr);
 
 int onColors_Main();
 int onColors_Levels();
@@ -284,7 +283,6 @@ int onExport_Doorset();
 int onImport_Doorset();
 
 int onGotoMap();
-int onMapCount();
 
 int onViewPic();
 int onViewMap();

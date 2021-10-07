@@ -1,0 +1,42 @@
+// tango.zh font definition for built-in font "GUI Font Bold"
+
+int TANGO_FONT_GUI_BOLD[] = {
+    TANGO_FONT_BUILTIN,
+    TANGO_FONT_PROPORTIONAL,
+    FONT_L,
+    0,  // Unused
+    13, // Character height
+    0,  // Space between lines
+    
+    // Character widths, including any trailing space
+    // ASCII characters 32 to 126
+    
+    // sp !  "  #  $  %  &  '  (  )  *  +  ,  -  .  /
+       7, 3, 6, 8, 7, 9, 8, 3, 4, 4, 7, 7, 4, 4, 3, 6,
+    
+    // 0  1  2  3  4  5  6  7  8  9
+       7, 5, 7, 7, 7, 7, 7, 7, 7, 7,
+    
+    // :  ;  <  =  >  ?  @
+       3, 4, 6, 7, 6, 7, 12,
+    
+    // A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W   X  Y  Z
+       9, 7, 8, 8, 7, 7, 8, 8, 3, 6, 8, 7, 9, 8, 8, 8, 8, 8, 7, 7, 8, 9, 13, 9, 9, 9,
+    
+    // [  \  ]  ^  _  `
+       4, 6, 4, 7, 7, 4,
+    
+    // a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
+       7, 7, 7, 7, 7, 4, 7, 7, 3, 3, 7, 3, 9, 7, 7, 7, 7, 4, 6, 4, 7, 7, 9, 6, 6, 6,
+    
+    // {  |  }  ~
+       5, 3, 5, 8,
+    
+    // Additional characters
+       4, 11, 11, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+       4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 3, 7, 7, 7, 7, 3, 7, 5, 10, 5, 8, 7, 4, 9,
+       8, 5, 7, 5, 5, 4, 7, 7, 4, 4, 4, 6, 8, 9, 9, 9, 7, 9, 9, 9, 9, 9, 9, 11,
+       8, 7, 7, 7, 7, 3, 4, 5, 5, 9, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 9, 8,
+       7, 7, 7, 7, 7, 7, 7, 11, 7, 7, 7, 7, 7, 4, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7,
+       7, 7, 7, 7, 7, 7, 7, 7, 7
+};

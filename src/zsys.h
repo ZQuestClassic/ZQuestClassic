@@ -38,8 +38,6 @@ void extract_name(char *path,char *name,int type);
 void temp_name(char temporaryname[]);
 char *zc_make_relative_filename(char *dest, const char *path, const char *filename, int size);
 void chop_path(char *path);
-int  vbound(int x,int low,int high);
-float vbound(float x,float low,float high);
 int  used_switch(int argc,char *argv[],const char *s);
 bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2);
 
@@ -56,8 +54,9 @@ int encode_file_007(const char *srcfile, const char *destfile, int key, const ch
 int decode_file_007(const char *srcfile, const char *destfile, const char *header, int method, bool packed, const char *password);
 void copy_file(const char *src, const char *dest);
 
-int  get_bit(byte *bitstr,int bit);
+int  get_bit(byte const* bitstr,int bit);
 void set_bit(byte *bitstr,int bit,byte val);
+bool toggle_bit(byte *bitstr,int bit);
 
 int  get_bitl(long bitstr,int bit);
 void set_bitl(long bitstr,int bit,byte val);
@@ -181,6 +180,8 @@ void quit_game();
 
 int zc_trace_handler(const char *);
 void zc_trace_clear();
+
+void sane_destroy_bitmap(BITMAP **bmp);
 
 extern bool zconsole;
 

@@ -59,6 +59,22 @@ void sprite::check_conveyor()
 }
 */
 
+void sprite::handle_sprlighting()
+{
+	if(!(tmpscr->flags & fDARK)) return;
+	if(!get_bit(quest_rules, qr_NEW_DARKROOM)) return;
+	if(!glowRad) return;
+	switch(glowShape)
+	{
+		case 0:
+			doDarkroomCircle(x.getInt()+(hxsz/2), y.getInt()+(hysz/2), glowRad);
+			break;
+		case 1:
+			doDarkroomCone(x.getInt()+(hxsz/2), y.getInt()+(hysz/2), glowRad, NORMAL_DIR(dir));
+			break;
+	}
+}
+
 void sprite::check_conveyor()
 {
     int deltax=0;
@@ -133,7 +149,7 @@ bool movingblock::animate(int index)
 	}
 	if(drownclk)
 	{
-		if(drownclk == WATER_DROWN_FRAMES);
+		//if(drownclk == WATER_DROWN_FRAMES)
 			//sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
 			//!TODO: Drown SFX
 		if(!--drownclk)

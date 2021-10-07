@@ -1,0 +1,108 @@
+// Widget types
+const int WTYPE_NONE = -1;
+const int WTYPE_GUI_ROOT = 0;
+const int WTYPE_WINDOW = 1;
+const int WTYPE_BUTTON = 2;
+const int WTYPE_LABEL = 3;
+const int WTYPE_SPINNER = 4;
+const int WTYPE_RADIO_BUTTON = 5;
+const int WTYPE_RADIO_BUTTON_GROUP = 6;
+const int WTYPE_CHECKBOX = 7;
+
+// Event types
+const int EVENT_BUTTON_CLICKED = 1;
+const int EVENT_SPINNER_CHANGED = 2;
+const int EVENT_RADIO_BUTTON_CHANGED = 3; // Sender is group, data is new button
+const int EVENT_CHECKBOX_CHANGED = 4;
+
+void Signal_Draw(int id, int x, int y)
+{
+    int type=GUI_Data[id+WIDGET_TYPE];
+    
+    if(type==WTYPE_WINDOW)
+        Window_Draw(id, x, y);
+    else if(type==WTYPE_BUTTON)
+        Button_Draw(id, x, y);
+    else if(type==WTYPE_LABEL)
+        Label_Draw(id, x, y);
+    else if(type==WTYPE_SPINNER)
+        Spinner_Draw(id, x, y);
+    else if(type==WTYPE_RADIO_BUTTON)
+        RadioButton_Draw(id, x, y);
+    else if(type==WTYPE_CHECKBOX)
+        Checkbox_Draw(id, x, y);
+}
+
+void Signal_OnMouseEnter(int id)
+{
+    int type=GUI_Data[id+WIDGET_TYPE];
+    
+    if(type==WTYPE_BUTTON)
+        Button_OnMouseEnter(id);
+    else if(type==WTYPE_RADIO_BUTTON)
+        RadioButton_OnMouseEnter(id);
+    else if(type==WTYPE_CHECKBOX)
+        Checkbox_OnMouseEnter(id);
+}
+
+void Signal_OnMouseExit(int id)
+{
+    int type=GUI_Data[id+WIDGET_TYPE];
+    
+    if(type==WTYPE_BUTTON)
+        Button_OnMouseExit(id);
+    else if(type==WTYPE_RADIO_BUTTON)
+        RadioButton_OnMouseExit(id);
+    else if(type==WTYPE_CHECKBOX)
+        Checkbox_OnMouseExit(id);
+}
+
+// Only sent if the widget has already been clicked
+void Signal_OnMouseMove(int id, int x, int y)
+{
+    int type=GUI_Data[id+WIDGET_TYPE];
+    
+    if(type==WTYPE_WINDOW)
+        Window_OnMouseMove(id, x, y);
+}
+
+void Signal_OnMousePress(int id)
+{
+    int type=GUI_Data[id+WIDGET_TYPE];
+    
+    if(type==WTYPE_BUTTON)
+        Button_OnMousePress(id);
+    else if(type==WTYPE_RADIO_BUTTON)
+        RadioButton_OnMousePress(id);
+    else if(type==WTYPE_CHECKBOX)
+        Checkbox_OnMousePress(id);
+}
+
+void Signal_OnMouseRelease(int id)
+{
+    int type=GUI_Data[id+WIDGET_TYPE];
+    
+    if(type==WTYPE_BUTTON)
+        Button_OnMouseRelease(id);
+    else if(type==WTYPE_RADIO_BUTTON)
+        RadioButton_OnMouseRelease(id);
+    else if(type==WTYPE_CHECKBOX)
+        Checkbox_OnMouseRelease(id);
+}
+
+void Signal_OnMouseWheelUp(int id)
+{
+    int type=GUI_Data[id+WIDGET_TYPE];
+    
+    if(type==WTYPE_SPINNER)
+        Spinner_OnMouseWheelUp(id);
+}
+
+void Signal_OnMouseWheelDown(int id)
+{
+    int type=GUI_Data[id+WIDGET_TYPE];
+    
+    if(type==WTYPE_SPINNER)
+        Spinner_OnMouseWheelDown(id);
+}
+

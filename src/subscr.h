@@ -321,6 +321,9 @@ int sso_w(subscreen_object *tempsso);
 int get_alignment(subscreen_object *tempsso);
 void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int index, int color);
 
+
+bool findWeaponWithParent(int id, int type);
+int countWeaponWithParent(int id, int type);
 #endif
 
 /*** end of subscr.cc ***/

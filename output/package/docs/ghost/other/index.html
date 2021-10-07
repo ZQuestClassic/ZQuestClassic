@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Miscellaneous - ghost.zh 2.8.15</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Miscellaneous";
+    var mkdocs_page_input_path = "other.md";
+    var mkdocs_page_url = "/other/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> ghost.zh 2.8.15</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../autoGhost/index.html">AutoGhost setup</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../usage/index.html">General usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../globalScript/index.html">Global script</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../enemyScript/index.html">Enemy scripts</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../eweapon/index.html">Eweapons</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">Miscellaneous</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#miscellaneous-functions">Miscellaneous functions</a></li>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">ghost.zh 2.8.15</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Miscellaneous</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="miscellaneous-functions">Miscellaneous functions</h1>
+<dl>
+<dt>void SetEnemyProperty(npc enemy, int property, float newValue)</dt>
+<dt>float GetEnemyProperty(npc enemy, int property)</dt>
+<dd>
+<p>These functions allow some of the properties of ghost.zh scripts to be read
+and set from other scripts. property must be one of the following:</p>
+<ul>
+<li><code>ENPROP_X</code></li>
+<li><code>ENPROP_Y</code></li>
+<li><code>ENPROP_Z</code></li>
+<li><code>ENPROP_JUMP</code></li>
+<li><code>ENPROP_DIR</code></li>
+<li><code>ENPROP_HP</code></li>
+<li><code>ENPROP_CSET</code></li>
+</ul>
+<p>These work for all enemies, not just scripted ones, so there's no need
+to check that beforehand.</p>
+</dd>
+<dt>int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)</dt>
+<dd>
+<p>Finds a random combo position meeting the given criteria some distance away
+from Link and enemies. This can be useful if you want the enemy to spawn in
+a random position that ZC would not select itself. The result is undefined
+if no suitable location exists, but that will not happen unless there is
+almost no space abailable on the screen.</p>
+<p><code>landOK</code>: Walkable, non-water, non-pit combos are okay</p>
+<p><code>wallsOK</code>: Unwalkable, non-water, non-pit combos are okay</p>
+<p><code>waterOK</code>: All deep water combos are okay</p>
+<p><code>pitsOK</code>: Direct warps are okay</p>
+</dd>
+<dt>int FindSpawnPoint(int type, int flag)</dt>
+<dd>Like the above, but finds a combo with the given combo type or flag,
+regardless of solidity. Only layer 0 is checked. Use -1 for either argument
+to ignore it.</dd>
+<dt>npc SpawnNPC(int id)</dt>
+<dd>Spawns an npc with the given ID in a random location and returns a pointer to it.</dd>
+<dt>int FindUnusedFFC()</dt>
+<dt>int FindUnusedFFC(int startingFrom)</dt>
+<dd>Returns the ID number of an FFC that is not currently in use in the range
+<code>AUTOGHOST_MIN_FFC</code> to <code>AUTOGHOST_MAX_FFC</code>. Returns 0 if no FFC is available in
+that range. If <code>startingFrom</code> is given, the ID returned will be at least
+<code>startingFrom+1</code>.</dd>
+<dt>void Ghost_MarkAsInUse(npc ghost)</dt>
+<dd>Mark an enemy as being in use by a script. This allows you to create
+additional enemies without <code>AutoGhost()</code> or <code>Ghost_InitWait2()</code> trying to use them.</dd>
+<dt>bool Ghost_IsInUse(npc ghost)</dt>
+<dd>Returns true if the given enemy is in use by a ghost.zh script.</dd>
+<dt>bool ClockIsActive()</dt>
+<dd>Returns true if a clock is currently in effect.</dd>
+<dt>void SuspendGhostZHScripts()</dt>
+<dd>Suspends the execution of all ghost.zh scripts. Until scripts are resumed,
+<code>Ghost_Waitframe</code> functions will not return and <code>UpdateEWeapon()</code> will not
+do anything. This also stops <code>AutoGhost()</code> from running, so any new enemies
+will not have scripts launched until <code>ResumeGhostZHScripts()</code> is called.</dd>
+<dt>void ResumeGhostZHScripts()</dt>
+<dd>Resumes execution of ghost.zh scripts.</dd>
+</dl>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../eweapon/index.html" class="btn btn-neutral" title="Eweapons"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../eweapon/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

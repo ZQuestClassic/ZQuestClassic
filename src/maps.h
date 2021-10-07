@@ -111,6 +111,7 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen);
 void do_effectflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen);
 void do_primitives(BITMAP *bmp, int type, mapscr *layer, int x, int y);
 void do_script_draws(BITMAP *bmp, mapscr *layer, int x, int y, bool hideLayer7 = false);
+void calc_darkroom_combos(bool scrolling = false);
 void draw_screen(mapscr* this_screen, bool showlink=true);
 /*
   INLINE void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen)
@@ -144,6 +145,10 @@ bool hit_walkflag(int x,int y,int cnt);
 void map_bkgsfx(bool on);
 void toggle_switches(dword flags, bool entry);
 void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t);
+
+//
+void doDarkroomCircle(int cx, int cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL);
+void doDarkroomCone(int sx, int sy, byte glowRad, int dir, BITMAP* dest=NULL,BITMAP* transdest=NULL);
 
 //extern FONT *lfont;
 /****  View Map  ****/

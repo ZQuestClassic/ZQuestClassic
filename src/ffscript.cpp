@@ -33,6 +33,7 @@ unsigned char using_SRAM = 0;
 #include "util.h"
 #include "ending.h"
 #include "zc_malloc.h"
+#include "module.h"
 using namespace util;
 #include <sstream>
 using std::ostringstream;
@@ -86,6 +87,9 @@ zcmodule moduledata;
 script_bitmaps scb;
 user_file script_files[MAX_USER_FILES];
 user_dir script_dirs[MAX_USER_DIRS];
+user_rng nulrng;
+user_rng script_rngs[MAX_USER_RNGS];
+zc_randgen script_rnggens[MAX_USER_RNGS];
 
 FONT *get_zc_font(int index);
 
@@ -532,8 +536,8 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	
 	if (!logger_name)
 	{	// no name was give , create name based on the current address+time
-		// (you can modify it to use PID , rand() ,...
-		unsigned long now = GetTickCount();
+		// (you can modify it to use PID , zc_rand() ,...
+		unsigned long now = GetTickCount64();
 		logger_name = m_name+ strlen(m_name);
 		sprintf((char*)logger_name,"logger%d_%lu",(int)this,now);
 	}
@@ -1182,7 +1186,7 @@ int FFScript::UpperToLower(std::string *s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( unsigned int q = 0; q < s->size(); ++q )
+	for ( size_t q = 0; q < s->size(); ++q )
 	{
 		//if ( s->at(q) >= 'A' || s->at(q) <= 'Z' )
 		//{
@@ -1200,7 +1204,7 @@ int FFScript::LowerToUpper(std::string *s)
 		Z_scripterrlog("String passed to LowerToUpper() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( unsigned int q = 0; q < s->size(); ++q )
+	for ( size_t q = 0; q < s->size(); ++q )
 	{
 		//if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		//{
@@ -1218,7 +1222,7 @@ int FFScript::ConvertCase(std::string *s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
 		return 0;
 	}
-	for ( unsigned int q = 0; q < s->size(); ++q )
+	for ( size_t q = 0; q < s->size(); ++q )
 	{
 		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
 		{
@@ -1330,6 +1334,7 @@ byte itemScriptsWaitdraw[256] = {0};
 //miscQdata *Misc;
 
 #include "zelda.h"
+#include "particles.h"
 #include "link.h"
 //extern int directItem = -1; //Is set if Link is currently using an item directly
 //extern int directItemA = -1;
@@ -1381,7 +1386,7 @@ T zc_max(T a, T b)
 
 using std::string;
 
-extern sprite_list particles;
+extern particle_list particles;
 extern LinkClass Link;
 extern char *guy_string[];
 extern int skipcont;
@@ -1601,6 +1606,7 @@ void FFScript::initZScriptItemScripts()
 //           New Mapscreen Flags Tools           //
 ///----------------------------------------------//
 
+/*
 void FFScript::set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 {
 	switch(flagid)
@@ -1746,18 +1752,16 @@ void FFScript::set_mapscreenflag_state(mapscr *m, int flagid, bool state)
 		case MSF_MIDAIR: 
 		{ //FIX ME!
 			//! What the ever love of fuck mate?!
-			/*
-			byte *f2 = &(m->flags2);
-			f2 >>=4;
-			int f = 0;
-			f<<=1;
-			f |= state ? 1:0;
-			m->flags2 &= 0x0F;
-			m->flags2 |= f<<4;
+			// byte *f2 = &(m->flags2);
+			// f2 >>=4;
+			// int f = 0;
+			// f<<=1;
+			// f |= state ? 1:0;
+			// m->flags2 &= 0x0F;
+			// m->flags2 |= f<<4;
 			//if ( state )
 			//	(m->flags2>>4) |= 2;
 			//else (m->flags2>>4) &= ~2;
-			*/
 			break;
 		}
 		case MSF_CYCLEINIT: 
@@ -2169,7 +2173,7 @@ long FFScript::get_mapscreenflag_state(mapscr *m, int flagid)
 		}
 	}
 }
-
+*/
 //ScriptHelper
 class SH
 {
@@ -2259,7 +2263,7 @@ long get_screenflags(mapscr *m, int flagset)
 	case 1: // View
 		f = ornextflag(m->flags3&8)  | ornextflag(m->flags7&16) | ornextflag(m->flags3&16)
 			| ornextflag(m->flags3&64) | ornextflag(m->flags7&2)  | ornextflag(m->flags7&1)
-			| ornextflag(m->flags&4);
+			| ornextflag(m->flags&fDARK) | ornextflag(m->flags9&fDARK_DITHER) | ornextflag(m->flags9&fDARK_TRANS);
 		break;
 		
 	case 2: // Secrets
@@ -3372,6 +3376,26 @@ user_dir *checkDir(long ref, const char *what, bool skipError = false)
 		{
 			return dr;
 		}
+	}
+	if(skipError) return NULL;
+	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
+	Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
+	return NULL;
+}
+
+user_rng *checkRNG(long ref, const char *what, bool skipError = false)
+{
+	if(ref > 0 && ref <= MAX_USER_RNGS)
+	{
+		user_rng* rng = &script_rngs[ref-1];
+		if(rng->reserved)
+		{
+			return rng;
+		}
+	}
+	else if(!ref) //A null RNG pointer is special-case, access engine rng.
+	{
+		return &nulrng;
 	}
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
@@ -4748,6 +4772,41 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		
+		case ITEMGLOWRAD:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->glowRad * 10000;
+			}
+			break;
+			
+		case ITEMGLOWSHP:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->glowShape * 10000;
+			}
+			break;
+			
+		case ITEMDIR:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->dir * 10000;
+			}
+			break;
+			
+		case ITEMENGINEANIMATE:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = int(((item*)(s))->do_animation) * 10000;
+			}
+			break;
+			
+		case ITEMSHADOWSPR:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = int(((item*)(s))->spr_shadow) * 10000;
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//Itemdata Variables
@@ -5830,6 +5889,39 @@ long get_register(const long arg)
 			break;
 		}
 		
+		case NPCGLOWRAD:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->glowRad * 10000;
+			}
+			break;
+			
+		case NPCGLOWSHP:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightShape") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->glowShape * 10000;
+			}
+			break;
+			
+		case NPCSHADOWSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->ShadowSprite") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->spr_shadow * 10000;
+			}
+			break;
+		case NPCSPAWNSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->SpawnSprite") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->spr_spawn * 10000;
+			}
+			break;
+		case NPCDEATHSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->DeathSprite") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->spr_death * 10000;
+			}
+			break;
+		
 		
 		
 		///----------------------------------------------------------------------------------------------------//
@@ -6236,7 +6328,34 @@ long get_register(const long arg)
 			}
 			break;
 		}
-
+		
+		case LWPNGLOWRAD:
+			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
+			{
+				ret = ((weapon*)(s))->glowRad * 10000;
+			}
+			break;
+			
+		case LWPNGLOWSHP:
+			if(0!=(s=checkLWpn(ri->lwpn,"LightShape")))
+			{
+				ret = ((weapon*)(s))->glowShape * 10000;
+			}
+			break;
+			
+		case LWPNUNBL:
+			if(0!=(s=checkLWpn(ri->lwpn,"Unblockable")))
+			{
+				ret = ((weapon*)(s))->unblockable * 10000;
+			}
+			break;
+			
+		case LWPNSHADOWSPR:
+			if(0!=(s=checkLWpn(ri->lwpn,"ShadowSprite")))
+			{
+				ret = ((weapon*)(s))->spr_shadow * 10000;
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//EWeapon Variables
@@ -6619,6 +6738,34 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		
+		case EWPNGLOWRAD:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
+			{
+				ret = ((weapon*)(s))->glowRad * 10000;
+			}
+			break;
+			
+		case EWPNGLOWSHP:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
+			{
+				ret = ((weapon*)(s))->glowShape * 10000;
+			}
+			break;
+			
+		case EWPNUNBL:
+			if(0!=(s=checkEWpn(ri->ewpn,"Unblockable")))
+			{
+				ret = ((weapon*)(s))->unblockable * 10000;
+			}
+			break;
+			
+		case EWPNSHADOWSPR:
+			if(0!=(s=checkEWpn(ri->ewpn,"ShadowSprite")))
+			{
+				ret = ((weapon*)(s))->spr_shadow * 10000;
+			}
+			break;
 		
 		/*
 		case LWEAPONSCRIPTUID:
@@ -7186,7 +7333,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7210,6 +7357,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboData", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 					
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7228,7 +7376,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7252,6 +7400,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboCSet", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7270,7 +7419,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7294,6 +7443,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboFlag", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
@@ -7311,7 +7461,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7335,6 +7485,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboType", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7353,7 +7504,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7377,6 +7528,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboInherentFlag", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -7394,7 +7546,7 @@ long get_register(const long arg)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -7418,6 +7570,7 @@ long get_register(const long arg)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboSolid", m);
 				ret = -10000;
 			}
+			else if(m < 0) ret = 0; //No layer present
 			
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
@@ -9285,7 +9438,7 @@ long get_register(const long arg)
 		}
 		case DMAPDATATYPE:	//byte
 		{
-			ret = ((byte)DMaps[ri->dmapsref].type) * 10000; break;
+			ret = ((byte)DMaps[ri->dmapsref].type&dmfTYPE) * 10000; break;
 		}
 		case DMAPDATASIDEVIEW:	//byte
 		{
@@ -10466,6 +10619,46 @@ long get_register(const long arg)
 			} 
 		}
 
+		case NPCDSHADOWSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->ShadowSprite: %d\n", (ri->npcdataref*10000));
+				ret = -10000; 
+			} 
+			else 
+			{
+				ret = guysbuf[ri->npcdataref].spr_shadow * 10000;
+			} 
+			break;
+		}
+		case NPCDSPAWNSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->SpawnSprite: %d\n", (ri->npcdataref*10000));
+				ret = -10000; 
+			} 
+			else 
+			{
+				ret = guysbuf[ri->npcdataref].spr_spawn * 10000;
+			} 
+			break;
+		}
+		case NPCDDEATHSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->DeathSprite: %d\n", (ri->npcdataref*10000));
+				ret = -10000; 
+			} 
+			else 
+			{
+				ret = guysbuf[ri->npcdataref].spr_death * 10000;
+			} 
+			break;
+		}
+		
 		case NPCMATCHINITDLABEL: 	 //Same form as SetScreenD()
 			//bool npcdata->MatchInitDLabel("label", d)
 		{
@@ -10761,6 +10954,7 @@ long get_register(const long arg)
 		case REFFILE: ret = ri->fileref; break;
 		case REFDIRECTORY: ret = ri->directoryref; break;
 		case REFSUBSCREEN: ret = ri->subscreenref; break;
+		case REFRNG: ret = ri->rngref; break;
 		
 			
 		case SP:
@@ -11387,7 +11581,7 @@ void set_register(const long arg, const long value)
 			break;
 		
 		case LINKENGINEANIMATE:
-			Link.do_animation=(value/10000);
+			Link.do_animation=(value ? 1 : 0);
 			break;
 			
 		case LINKSWORDJINX:
@@ -12582,6 +12776,41 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
+		case ITEMGLOWRAD:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->glowRad = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case ITEMGLOWSHP:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->glowShape = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case ITEMDIR:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->dir=(value/10000);
+			}
+			break;
+			
+		case ITEMENGINEANIMATE:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->do_animation=(value ? 1 : 0);
+			}
+			break;
+			
+		case ITEMSHADOWSPR:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->spr_shadow=vbound(value/10000,0,255);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//Itemdata Variables
@@ -13306,7 +13535,7 @@ void set_register(const long arg, const long value)
 		
 		case LWPNENGINEANIMATE:
 			if(0!=(s=checkLWpn(ri->lwpn,"Animation")))
-				(((weapon*)(s))->do_animation)=value/10000;
+				(((weapon*)(s))->do_animation)=(value ? 1 : 0);
 				
 			break;
 		
@@ -13395,6 +13624,34 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
+		case LWPNGLOWRAD:
+			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
+			{
+				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case LWPNGLOWSHP:
+			if(0!=(s=checkLWpn(ri->lwpn,"LightShape")))
+			{
+				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case LWPNUNBL:
+			if(0!=(s=checkLWpn(ri->lwpn,"Unblockable")))
+			{
+				((weapon*)(s))->unblockable = (value/10000)&WPNUNB_ALL;
+			}
+			break;
+			
+		case LWPNSHADOWSPR:
+			if(0!=(s=checkLWpn(ri->lwpn,"ShadowSprite")))
+			{
+				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
@@ -13697,7 +13954,7 @@ void set_register(const long arg, const long value)
 		
 		case EWPNENGINEANIMATE:
 			if(0!=(s=checkEWpn(ri->ewpn,"Animation")))
-				(((weapon*)(s))->do_animation)=value/10000;
+				(((weapon*)(s))->do_animation)=(value ? 1 : 0);
 				
 			break;
 		
@@ -13770,6 +14027,33 @@ void set_register(const long arg, const long value)
 			}
 			break;
 		}
+		
+		case EWPNGLOWRAD:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightRadius")))
+			{
+				((weapon*)(s))->glowRad = vbound(value/10000,0,255);
+			}
+			break;
+		case EWPNGLOWSHP:
+			if(0!=(s=checkEWpn(ri->ewpn,"LightShape")))
+			{
+				((weapon*)(s))->glowShape = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case EWPNUNBL:
+			if(0!=(s=checkEWpn(ri->ewpn,"Unblockable")))
+			{
+				((weapon*)(s))->unblockable = (value/10000)&WPNUNB_ALL;
+			}
+			break;
+			
+		case EWPNSHADOWSPR:
+			if(0!=(s=checkEWpn(ri->ewpn,"ShadowSprite")))
+			{
+				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//NPC Variables
@@ -14540,6 +14824,38 @@ void set_register(const long arg, const long value)
 			break;
 		}
 		
+		case NPCGLOWRAD:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
+			{
+				GuyH::getNPC()->glowRad = vbound(value/10000,0,255);
+			}
+			break;
+		case NPCGLOWSHP:
+			if(GuyH::loadNPC(ri->guyref, "npc->LightShape") == SH::_NoError)
+			{
+				GuyH::getNPC()->glowShape = vbound(value/10000,0,255);
+			}
+			break;
+			
+		case NPCSHADOWSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->ShadowSprite") == SH::_NoError)
+			{
+				GuyH::getNPC()->spr_shadow = vbound(value/10000,0,255);
+			}
+			break;
+		case NPCSPAWNSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->SpawnSprite") == SH::_NoError)
+			{
+				GuyH::getNPC()->spr_spawn = vbound(value/10000,0,255);
+			}
+			break;
+		case NPCDEATHSPR:
+			if(GuyH::loadNPC(ri->guyref, "npc->DeathSprite") == SH::_NoError)
+			{
+				GuyH::getNPC()->spr_death = vbound(value/10000,0,255);
+			}
+			break;
+		
 		
 	///----------------------------------------------------------------------------------------------------//
 	//Game Information
@@ -15050,7 +15366,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			int layr = whichlayer(scr);
 			
@@ -15071,7 +15387,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboData", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboData", m);
 				break;
@@ -15113,7 +15429,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
@@ -15133,7 +15449,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboCSet", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboCSet", m);
 				break;
@@ -15155,7 +15471,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
@@ -15175,7 +15491,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboFlag", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboFlag", m);
 				break;
@@ -15197,7 +15513,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
@@ -15218,7 +15534,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboType", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboType", m);
 				break;
@@ -15251,7 +15567,7 @@ void set_register(const long arg, const long value)
 		{
 			int pos = (ri->d[rINDEX])/10000;
 			int sc = (ri->d[rEXP1]/10000);
-			int m = zc_max((ri->d[rINDEX2]/10000)-1,0);
+			int m = (ri->d[rINDEX2]/10000)-1;
 			long scr = zc_max(m*MAPSCRS+sc,0);
 			
 			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
@@ -15272,7 +15588,7 @@ void set_register(const long arg, const long value)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", sc);
 				break;
 			}
-			if(m >= map_count) 
+			if(unsigned(m) >= map_count) 
 			{
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboInherentFlag", m);
 				break;
@@ -17291,7 +17607,7 @@ void set_register(const long arg, const long value)
 		}
 		case DMAPDATATYPE:	//byte
 		{
-			DMaps[ri->dmapsref].type = ((byte)(value / 10000)); break;
+			DMaps[ri->dmapsref].type = (((byte)(value / 10000))&dmfTYPE) | (DMaps[ri->dmapsref].type&~dmfTYPE); break;
 		}
 		case DMAPSCRIPT:	//byte
 		{
@@ -17392,11 +17708,19 @@ void set_register(const long arg, const long value)
 		}
 		case DMAPDATASUBSCRA:	 //byte, active subscreen
 		{
-			DMaps[ri->dmapsref].active_subscreen= ((byte)(value / 10000)); break;
+			bool changed = DMaps[ri->dmapsref].active_subscreen != ((byte)(value / 10000));
+			DMaps[ri->dmapsref].active_subscreen= ((byte)(value / 10000));
+			if(changed&&ri->dmapsref==currdmap)
+				update_subscreens();
+			break;
 		}
 		case DMAPDATASUBSCRP:	 //byte, passive subscreen
 		{
-			DMaps[ri->dmapsref].passive_subscreen= ((byte)(value / 10000)); break;
+			bool changed = DMaps[ri->dmapsref].passive_subscreen != ((byte)(value / 10000));
+			DMaps[ri->dmapsref].passive_subscreen= ((byte)(value / 10000));
+			if(changed&&ri->dmapsref==currdmap)
+				update_subscreens();
+			break;
 		}
 		case DMAPDATADISABLEDITEMS:	 //byte[iMax]
 		{
@@ -18419,6 +18743,43 @@ void set_register(const long arg, const long value)
 			} 
 		}
 
+		case NPCDSHADOWSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->ShadowSprite: %d\n", (ri->npcdataref*10000));
+			} 
+			else 
+			{
+				guysbuf[ri->npcdataref].spr_shadow = vbound(value/10000, 0, 255);
+			} 
+			break;
+		}
+		case NPCDSPAWNSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->SpawnSprite: %d\n", (ri->npcdataref*10000));
+			} 
+			else 
+			{
+				guysbuf[ri->npcdataref].spr_spawn = vbound(value/10000, 0, 255);
+			} 
+			break;
+		}
+		case NPCDDEATHSPR:
+		{
+			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			{ 
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->DeathSprite: %d\n", (ri->npcdataref*10000));
+			} 
+			else 
+			{
+				guysbuf[ri->npcdataref].spr_death = vbound(value/10000, 0, 255);
+			} 
+			break;
+		}
+
 
 	///----------------------------------------------------------------------------------------------------//
 	//Dropset Variables
@@ -18658,6 +19019,10 @@ void set_register(const long arg, const long value)
 		case REFPALCYCLE:  ri->palcycleref = value; break;
 		case REFGAMEDATA:  ri->gamedataref = value; break;
 		case REFCHEATS:  ri->cheatsref = value; break;
+		case REFFILE: ri->fileref = value; break;
+		case REFDIRECTORY: ri->directoryref = value; break;
+		case REFSUBSCREEN: ri->subscreenref = value; break;
+		case REFRNG: ri->rngref = value; break;
 			
 		default:
 		{
@@ -19132,9 +19497,9 @@ void do_rnd(const bool v)
 	long temp = SH::get_arg(sarg2, v) / 10000;
 
 	if(temp > 0)
-		set_register(sarg1, (rand() % temp) * 10000);
+		set_register(sarg1, (zc_oldrand() % temp) * 10000);
 	else if(temp < 0)
-		set_register(sarg1, (rand() % (-temp)) * -10000);
+		set_register(sarg1, (zc_oldrand() % (-temp)) * -10000);
 	else
 		set_register(sarg1, 0); // Just return 0. (Do not log an error)
 }
@@ -19142,16 +19507,15 @@ void do_rnd(const bool v)
 void do_srnd(const bool v)
 {
 	unsigned int seed = SH::get_arg(sarg1, v); //Do not `/10000`- allow the decimal portion to be used! -V
-	srand(seed);
+	zc_srand(seed);
 }
 
 void do_srndrnd()
 {
 	//Randomize the seed to the current system time, + or - the product of 2 random numbers.
-	int seed = time(0) + ((rand() * rand()) * ((rand() % 2) ? 1 : -1));
-	seed = vbound(seed, -2147479999, 2147479999); //Don't allow it to be outside ZScript range, so it can be returned.
+	int seed = time(0) + ((zc_rand() * zc_rand()) * (zc_rand(1) ? 1 : -1));
 	set_register(sarg1, seed);
-	srand(seed);
+	zc_srand(seed);
 }
 
 //Returns the system Real-Time-Clock value for a specific type. 
@@ -20603,6 +20967,12 @@ void FFScript::do_loaddmapdata(const bool v)
 	//Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
 }
 
+void FFScript::do_loadrng()
+{
+	ri->rngref = get_free_rng();
+	ri->d[2] = ri->rngref;
+}
+
 void FFScript::do_loaddirectory()
 {
 	long arrayptr = get_register(sarg1) / 10000;
@@ -21245,563 +21615,568 @@ void do_drawing_command(const int script_command)
 	
 	switch(script_command)
 	{
-	case RECTR:
-		set_drawing_command_args(j, 12);
-		break;
+		case RECTR:
+			set_drawing_command_args(j, 12);
+			break;
+			
+		case FRAMER:
+			set_drawing_command_args(j, 9);
+			break;
+			
+		case CIRCLER:
+			set_drawing_command_args(j, 11);
+			break;
+			
+		case ARCR:
+			set_drawing_command_args(j, 14);
+			break;
+			
+		case ELLIPSER:
+			set_drawing_command_args(j, 12);
+			break;
+			
+		case LINER:
+			set_drawing_command_args(j, 11);
+			break;
+			
+		case PUTPIXELR:
+			set_drawing_command_args(j, 8);
+			break;
 		
-	case FRAMER:
-		set_drawing_command_args(j, 9);
-		break;
-		
-	case CIRCLER:
-		set_drawing_command_args(j, 11);
-		break;
-		
-	case ARCR:
-		set_drawing_command_args(j, 14);
-		break;
-		
-	case ELLIPSER:
-		set_drawing_command_args(j, 12);
-		break;
-		
-	case LINER:
-		set_drawing_command_args(j, 11);
-		break;
-		
-	case PUTPIXELR:
-		set_drawing_command_args(j, 8);
-		break;
-	
-	case PIXELARRAYR:
-	{
-		set_drawing_command_args(j, 5);
-		std::vector<long> *v = script_drawing_commands.GetVector();
-		//for ( int q = 0; q < 6; q++ ) 
-		//{ 
-		//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
-		//}
-		int arrayptr = script_drawing_commands[j][2]/10000;
-		if ( !arrayptr ) //Don't crash because of vector size.
+		case PIXELARRAYR:
 		{
-			Z_scripterrlog("Invalid array pointer %d passed to Screen->PutPixels(). Aborting.", arrayptr);
+			set_drawing_command_args(j, 5);
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			//for ( int q = 0; q < 6; q++ ) 
+			//{ 
+			//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+			//}
+			int arrayptr = script_drawing_commands[j][2]/10000;
+			if ( !arrayptr ) //Don't crash because of vector size.
+			{
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->PutPixels(). Aborting.", arrayptr);
+				break;
+			}
+			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
+			int sz = ArrayH::getSize(arrayptr);
+			//FFCore.getSize(script_drawing_commands[j][2]/10000);
+			//zprint("Pixelarray size is: %d\n", sz);
+			v->resize(sz, 0);
+			long* pos = &v->at(0);
+			
+			FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+			script_drawing_commands[j].SetVector(v);
 			break;
 		}
-		//zprint("Pixelarray array pointer is: %d\n", arrayptr);
-		int sz = ArrayH::getSize(arrayptr);
-		//FFCore.getSize(script_drawing_commands[j][2]/10000);
-		//zprint("Pixelarray size is: %d\n", sz);
-		v->resize(sz, 0);
-		long* pos = &v->at(0);
 		
-		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
-		script_drawing_commands[j].SetVector(v);
-		break;
-	}
-	
-	case TILEARRAYR:
-	{
-		set_drawing_command_args(j, 2);
-		std::vector<long> *v = script_drawing_commands.GetVector();
-		//for ( int q = 0; q < 6; q++ ) 
-		//{ 
-		//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
-		//}
-		int arrayptr = script_drawing_commands[j][2]/10000;
-		if ( !arrayptr ) //Don't crash because of vector size.
+		case TILEARRAYR:
 		{
-			Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawTiles(). Aborting.", arrayptr);
+			set_drawing_command_args(j, 2);
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			//for ( int q = 0; q < 6; q++ ) 
+			//{ 
+			//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+			//}
+			int arrayptr = script_drawing_commands[j][2]/10000;
+			if ( !arrayptr ) //Don't crash because of vector size.
+			{
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawTiles(). Aborting.", arrayptr);
+				break;
+			}
+			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
+			int sz = ArrayH::getSize(arrayptr);
+			//FFCore.getSize(script_drawing_commands[j][2]/10000);
+			//zprint("Pixelarray size is: %d\n", sz);
+			v->resize(sz, 0);
+			long* pos = &v->at(0);
+			
+			FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+			script_drawing_commands[j].SetVector(v);
 			break;
-		}
-		//zprint("Pixelarray array pointer is: %d\n", arrayptr);
-		int sz = ArrayH::getSize(arrayptr);
-		//FFCore.getSize(script_drawing_commands[j][2]/10000);
-		//zprint("Pixelarray size is: %d\n", sz);
-		v->resize(sz, 0);
-		long* pos = &v->at(0);
-		
-		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
-		script_drawing_commands[j].SetVector(v);
-		break;
-		}
-		
-	case LINESARRAY:
-	{
-		set_drawing_command_args(j, 2);
-		std::vector<long> *v = script_drawing_commands.GetVector();
-		//for ( int q = 0; q < 6; q++ ) 
-		//{ 
-		//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
-		//}
-		int arrayptr = script_drawing_commands[j][2]/10000;
-		if ( !arrayptr ) //Don't crash because of vector size.
+			}
+			
+		case LINESARRAY:
 		{
-			Z_scripterrlog("Invalid array pointer %d passed to Screen->Lines(). Aborting.", arrayptr);
+			set_drawing_command_args(j, 2);
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			//for ( int q = 0; q < 6; q++ ) 
+			//{ 
+			//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+			//}
+			int arrayptr = script_drawing_commands[j][2]/10000;
+			if ( !arrayptr ) //Don't crash because of vector size.
+			{
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->Lines(). Aborting.", arrayptr);
+				break;
+			}
+			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
+			int sz = ArrayH::getSize(arrayptr);
+			//FFCore.getSize(script_drawing_commands[j][2]/10000);
+			//zprint("Pixelarray size is: %d\n", sz);
+			v->resize(sz, 0);
+			long* pos = &v->at(0);
+			
+			FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+			script_drawing_commands[j].SetVector(v);
 			break;
-		}
-		//zprint("Pixelarray array pointer is: %d\n", arrayptr);
-		int sz = ArrayH::getSize(arrayptr);
-		//FFCore.getSize(script_drawing_commands[j][2]/10000);
-		//zprint("Pixelarray size is: %d\n", sz);
-		v->resize(sz, 0);
-		long* pos = &v->at(0);
+			}
 		
-		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
-		script_drawing_commands[j].SetVector(v);
-		break;
-		}
-	
-		/*
-		historical-old-master
-		set_drawing_command_args(j, 6);
-		int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+			/*
+			historical-old-master
+			set_drawing_command_args(j, 6);
+			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
 
-		long* ptr = (long*)script_drawing_commands.AllocateDrawBuffer(3 * count * sizeof(long));
-		long* p = ptr;
+			long* ptr = (long*)script_drawing_commands.AllocateDrawBuffer(3 * count * sizeof(long));
+			long* p = ptr;
 
-		FFCore.getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
-		FFCore.getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
-		FFCore.getValues(script_drawing_commands[j][5] / 10000, p, count);
+			FFCore.getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+			FFCore.getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+			FFCore.getValues(script_drawing_commands[j][5] / 10000, p, count);
 
-		script_drawing_commands[j].SetPtr(ptr);
-		*/
-		// Unused
-		//const int index = script_drawing_commands[j][19] = j;
-		
-		//std::array    *aptr = script_drawing_commands.GetString();
-		//ArrayH::getString(script_drawing_commands[j][2] / 10000, *aptr);
-		//script_drawing_commands[j].SetArray(aptr);
-		//set_drawing_command_args(j, 2);
-		//break;
-		
-	case COMBOARRAYR:
-	{
-		set_drawing_command_args(j, 2);
-		std::vector<long> *v = script_drawing_commands.GetVector();
-		//for ( int q = 0; q < 6; q++ ) 
-		//{ 
-		//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
-		//}
-		int arrayptr = script_drawing_commands[j][2]/10000;
-		if ( !arrayptr ) //Don't crash because of vector size.
+			script_drawing_commands[j].SetPtr(ptr);
+			*/
+			// Unused
+			//const int index = script_drawing_commands[j][19] = j;
+			
+			//std::array    *aptr = script_drawing_commands.GetString();
+			//ArrayH::getString(script_drawing_commands[j][2] / 10000, *aptr);
+			//script_drawing_commands[j].SetArray(aptr);
+			//set_drawing_command_args(j, 2);
+			//break;
+			
+		case COMBOARRAYR:
 		{
-			Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawCombos(). Aborting.", arrayptr);
+			set_drawing_command_args(j, 2);
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			//for ( int q = 0; q < 6; q++ ) 
+			//{ 
+			//	zprint("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+			//}
+			int arrayptr = script_drawing_commands[j][2]/10000;
+			if ( !arrayptr ) //Don't crash because of vector size.
+			{
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawCombos(). Aborting.", arrayptr);
+				break;
+			}
+			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
+			int sz = ArrayH::getSize(arrayptr);
+			//FFCore.getSize(script_drawing_commands[j][2]/10000);
+			//zprint("Pixelarray size is: %d\n", sz);
+			v->resize(sz, 0);
+			long* pos = &v->at(0);
+			
+			FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+			script_drawing_commands[j].SetVector(v);
 			break;
 		}
-		//zprint("Pixelarray array pointer is: %d\n", arrayptr);
-		int sz = ArrayH::getSize(arrayptr);
-		//FFCore.getSize(script_drawing_commands[j][2]/10000);
-		//zprint("Pixelarray size is: %d\n", sz);
-		v->resize(sz, 0);
-		long* pos = &v->at(0);
-		
-		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
-		script_drawing_commands[j].SetVector(v);
-		break;
-	}
-	case POLYGONR:
-	{
-		set_drawing_command_args(j, 5);
-			
-		int arrayptr = script_drawing_commands[j][3]/10000;
-		if ( !arrayptr ) //Don't crash because of vector size.
+		case POLYGONR:
 		{
-			Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+			set_drawing_command_args(j, 5);
+				
+			int arrayptr = script_drawing_commands[j][3]/10000;
+			if ( !arrayptr ) //Don't crash because of vector size.
+			{
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+				break;
+			}
+			int sz = ArrayH::getSize(arrayptr);
+				
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			v->resize(sz, 0);
+			
+			long* pos = &v->at(0);
+			
+			
+			FFCore.getValues(script_drawing_commands[j][3] / 10000, pos, sz);
+			script_drawing_commands[j].SetVector(v);
+		}
+		break;
+			
+		case DRAWTILER:
+			set_drawing_command_args(j, 15);
+			break;
+			
+		case DRAWTILECLOAKEDR:
+			set_drawing_command_args(j, 7);
+			break;
+			
+		case DRAWCOMBOR:
+			set_drawing_command_args(j, 16);
+			break;
+			
+		case DRAWCOMBOCLOAKEDR:
+			set_drawing_command_args(j, 7);
+			break;
+			
+		case FASTTILER:
+			set_drawing_command_args(j, 6);
+			break;
+			
+		case FASTCOMBOR:
+			set_drawing_command_args(j, 6);
+			break;
+			
+		case DRAWCHARR:
+			set_drawing_command_args(j, 10);
+			break;
+			
+		case DRAWINTR:
+			set_drawing_command_args(j, 11);
+			break;
+			
+		case SPLINER:
+			set_drawing_command_args(j, 11);
+			break;
+			
+		case QUADR:
+			set_drawing_command_args(j, 15);
+			break;
+			
+		case TRIANGLER:
+			set_drawing_command_args(j, 13);
+			break;
+			
+		case BITMAPR:
+			set_drawing_command_args(j, 12);
+			break;
+		
+		case BITMAPEXR:
+			set_drawing_command_args(j, 16);
+			break;
+			
+		case DRAWLAYERR:
+			set_drawing_command_args(j, 8);
+			break;
+			
+		case DRAWSCREENR:
+			set_drawing_command_args(j, 6);
+			break;
+			
+		case QUAD3DR:
+		{
+			set_drawing_command_args(j, 8);
+			int arrayptr = script_drawing_commands[j][2]/10000;
+			int sz = ArrayH::getSize(arrayptr);
+			arrayptr = script_drawing_commands[j][3]/10000;
+			sz += ArrayH::getSize(arrayptr);
+			arrayptr = script_drawing_commands[j][4]/10000;
+			sz += ArrayH::getSize(arrayptr);
+			arrayptr = script_drawing_commands[j][5]/10000;
+			sz += ArrayH::getSize(arrayptr);
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			v->resize(sz, 0);
+			
+			long* pos = &v->at(0);
+			long* uv = &v->at(12);
+			long* col = &v->at(20);
+			long* size = &v->at(24);
+			
+			FFCore.getValues((script_drawing_commands[j][2] / 10000), pos, 12);
+			FFCore.getValues((script_drawing_commands[j][3] / 10000), uv, 8);
+			FFCore.getValues((script_drawing_commands[j][4] / 10000), col, 4);
+			//FFCore.getValues2(script_drawing_commands[j][5] / 10000, size, 2);
+			FFCore.getValues((script_drawing_commands[j][5] / 10000), size, 2);
+			
+			script_drawing_commands[j].SetVector(v);
+		}
+		break;
+		
+		case TRIANGLE3DR:
+		{
+			set_drawing_command_args(j, 8);
+				
+			int arrayptr = script_drawing_commands[j][2]/10000;
+			int sz = ArrayH::getSize(arrayptr);
+			arrayptr = script_drawing_commands[j][3]/10000;
+			sz += ArrayH::getSize(arrayptr);
+			arrayptr = script_drawing_commands[j][4]/10000;
+			sz += ArrayH::getSize(arrayptr);
+			arrayptr = script_drawing_commands[j][5]/10000;
+			sz += ArrayH::getSize(arrayptr);
+			
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			v->resize(sz, 0);
+			
+			long* pos = &v->at(0);
+			long* uv = &v->at(9);
+			long* col = &v->at(15);
+			long* size = &v->at(18);
+			
+			FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 8);
+			FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 6);
+			FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 3);
+			FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
+			
+			script_drawing_commands[j].SetVector(v);
+		}
+		break;
+		
+		case DRAWSTRINGR:
+		{
+			set_drawing_command_args(j, 9);
+			// Unused
+			//const int index = script_drawing_commands[j][19] = j;
+			
+			string *str = script_drawing_commands.GetString();
+			ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
+			script_drawing_commands[j].SetString(str);
+		}
+		break;
+		
+		case DRAWSTRINGR2:
+		{
+			set_drawing_command_args(j, 11);
+			// Unused
+			//const int index = script_drawing_commands[j][19] = j;
+			
+			string *str = script_drawing_commands.GetString();
+			ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
+			script_drawing_commands[j].SetString(str);
+		}
+		break;
+		
+		case BMPRECTR:	
+			set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12);
+			//Pop the args off the stack first. Then pop the pointer and push it to sdci[17]. 
+			//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12.
+			break;
+		
+		case BMPFRAMER:	
+			set_user_bitmap_command_args(j, 9);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
+			break;
+			
+		case CLEARBITMAP:	
+		{
+			set_user_bitmap_command_args(j, 1);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+1); 
 			break;
 		}
-		int sz = ArrayH::getSize(arrayptr);
-			
-		std::vector<long> *v = script_drawing_commands.GetVector();
-		v->resize(sz, 0);
-		
-		long* pos = &v->at(0);
-		
-		
-		FFCore.getValues(script_drawing_commands[j][3] / 10000, pos, sz);
-		script_drawing_commands[j].SetVector(v);
-	}
-	break;
-		
-	case DRAWTILER:
-		set_drawing_command_args(j, 15);
-		break;
-		
-	case DRAWTILECLOAKEDR:
-		set_drawing_command_args(j, 7);
-		break;
-		
-	case DRAWCOMBOR:
-		set_drawing_command_args(j, 16);
-		break;
-		
-	case DRAWCOMBOCLOAKEDR:
-		set_drawing_command_args(j, 7);
-		break;
-		
-	case FASTTILER:
-		set_drawing_command_args(j, 6);
-		break;
-		
-	case FASTCOMBOR:
-		set_drawing_command_args(j, 6);
-		break;
-		
-	case DRAWCHARR:
-		set_drawing_command_args(j, 10);
-		break;
-		
-	case DRAWINTR:
-		set_drawing_command_args(j, 11);
-		break;
-		
-	case SPLINER:
-		set_drawing_command_args(j, 11);
-		break;
-		
-	case QUADR:
-		set_drawing_command_args(j, 15);
-		break;
-		
-	case TRIANGLER:
-		set_drawing_command_args(j, 13);
-		break;
-		
-	case BITMAPR:
-		set_drawing_command_args(j, 12);
-		break;
-	
-	case BITMAPEXR:
-		set_drawing_command_args(j, 16);
-		break;
-		
-	case DRAWLAYERR:
-		set_drawing_command_args(j, 8);
-		break;
-		
-	case DRAWSCREENR:
-		set_drawing_command_args(j, 6);
-		break;
-		
-	case QUAD3DR:
-	{
-		set_drawing_command_args(j, 8);
-		int arrayptr = script_drawing_commands[j][2]/10000;
-		int sz = ArrayH::getSize(arrayptr);
-		arrayptr = script_drawing_commands[j][3]/10000;
-		sz += ArrayH::getSize(arrayptr);
-		arrayptr = script_drawing_commands[j][4]/10000;
-		sz += ArrayH::getSize(arrayptr);
-		arrayptr = script_drawing_commands[j][5]/10000;
-		sz += ArrayH::getSize(arrayptr);
-		std::vector<long> *v = script_drawing_commands.GetVector();
-		v->resize(sz, 0);
-		
-		long* pos = &v->at(0);
-		long* uv = &v->at(12);
-		long* col = &v->at(20);
-		long* size = &v->at(24);
-		
-		FFCore.getValues((script_drawing_commands[j][2] / 10000), pos, 12);
-		FFCore.getValues((script_drawing_commands[j][3] / 10000), uv, 8);
-		FFCore.getValues((script_drawing_commands[j][4] / 10000), col, 4);
-		//FFCore.getValues2(script_drawing_commands[j][5] / 10000, size, 2);
-		FFCore.getValues((script_drawing_commands[j][5] / 10000), size, 2);
-		
-		script_drawing_commands[j].SetVector(v);
-	}
-	break;
-	
-	case TRIANGLE3DR:
-	{
-		set_drawing_command_args(j, 8);
-			
-		int arrayptr = script_drawing_commands[j][2]/10000;
-		int sz = ArrayH::getSize(arrayptr);
-		arrayptr = script_drawing_commands[j][3]/10000;
-		sz += ArrayH::getSize(arrayptr);
-		arrayptr = script_drawing_commands[j][4]/10000;
-		sz += ArrayH::getSize(arrayptr);
-		arrayptr = script_drawing_commands[j][5]/10000;
-		sz += ArrayH::getSize(arrayptr);
-		
-		std::vector<long> *v = script_drawing_commands.GetVector();
-		v->resize(sz, 0);
-		
-		long* pos = &v->at(0);
-		long* uv = &v->at(9);
-		long* col = &v->at(15);
-		long* size = &v->at(18);
-		
-		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 8);
-		FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 6);
-		FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 3);
-		FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
-		
-		script_drawing_commands[j].SetVector(v);
-	}
-	break;
-	
-	case DRAWSTRINGR:
-	{
-		set_drawing_command_args(j, 9);
-		// Unused
-		//const int index = script_drawing_commands[j][19] = j;
-		
-		string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
-		script_drawing_commands[j].SetString(str);
-	}
-	break;
-	
-	case DRAWSTRINGR2:
-	{
-		set_drawing_command_args(j, 11);
-		// Unused
-		//const int index = script_drawing_commands[j][19] = j;
-		
-		string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
-		script_drawing_commands[j].SetString(str);
-	}
-	break;
-	
-	case BMPRECTR:	
-		set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12);
-		//Pop the args off the stack first. Then pop the pointer and push it to sdci[17]. 
-		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12.
-		break;
-	
-	case BMPFRAMER:	
-		set_user_bitmap_command_args(j, 9);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
-		break;
-		
-	case CLEARBITMAP:	
-	{
-		set_user_bitmap_command_args(j, 1);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+1); 
-		break;
-	}
-	case BITMAPCLEARTOCOLOR:	
-	{
-		set_user_bitmap_command_args(j, 2);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
-		break;
-	}
-	case REGENERATEBITMAP:	
-	{
-		set_user_bitmap_command_args(j, 3);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
-		break;
-	}
-	case BMPPOLYGONR:
-	{
-		set_user_bitmap_command_args(j, 5);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+5); 
-		int arrayptr = script_drawing_commands[j][3]/10000;
-		if ( !arrayptr ) //Don't crash because of vector size.
+		case BITMAPCLEARTOCOLOR:	
 		{
-			Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+			set_user_bitmap_command_args(j, 2);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
 			break;
 		}
-		int sz = ArrayH::getSize(arrayptr);
+		case REGENERATEBITMAP:	
+		{
+			set_user_bitmap_command_args(j, 3);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
+			break;
+		}
+		case BMPPOLYGONR:
+		{
+			set_user_bitmap_command_args(j, 5);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5); 
+			int arrayptr = script_drawing_commands[j][3]/10000;
+			if ( !arrayptr ) //Don't crash because of vector size.
+			{
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+				break;
+			}
+			int sz = ArrayH::getSize(arrayptr);
+				
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			v->resize(sz, 0);
 			
-		std::vector<long> *v = script_drawing_commands.GetVector();
-		v->resize(sz, 0);
-		
-		long* pos = &v->at(0);
-		
-		
-		FFCore.getValues(script_drawing_commands[j][3] / 10000, pos, sz);
-		script_drawing_commands[j].SetVector(v);
-	}
-	break;
-	case READBITMAP:	
-	{
-		//zprint("Calling %s\n","READBITMAP");
-		set_user_bitmap_command_args(j, 2);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2);
-		string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str, 256);
-		
-		//char cptr = new char[str->size()+1]; // +1 to account for \0 byte
-		//strncpy(cptr, str->c_str(), str->size());
-		
-		if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
-		{
-			char buf[2048] = {0};
-			if(FFCore.get_scriptfile_path(buf, str->c_str()))
-				(*str) = buf;
+			long* pos = &v->at(0);
+			
+			
+			FFCore.getValues(script_drawing_commands[j][3] / 10000, pos, sz);
+			script_drawing_commands[j].SetVector(v);
 		}
-		regulate_path(*str);
-		
-		//zprint("READBITMAP string is %s\n", cptr);
-		
-		script_drawing_commands[j].SetString(str);
 		break;
-	}
-	case WRITEBITMAP:	
-	{
-		//zprint("Calling %s\n","WRITEBITMAP");
-		set_user_bitmap_command_args(j, 3);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
-		std::string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str, 256);
-		
-		
-		//char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
-		//strncpy(cptr, str->c_str(), str->size());
-		
-		if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+		case READBITMAP:	
 		{
-			char buf[2048] = {0};
-			if(FFCore.get_scriptfile_path(buf, str->c_str()))
-				(*str) = buf;
+			//zprint("Calling %s\n","READBITMAP");
+			set_user_bitmap_command_args(j, 2);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+2);
+			string *str = script_drawing_commands.GetString();
+			ArrayH::getString(script_drawing_commands[j][2] / 10000, *str, 256);
+			
+			//char cptr = new char[str->size()+1]; // +1 to account for \0 byte
+			//strncpy(cptr, str->c_str(), str->size());
+			
+			if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+			{
+				char buf[2048] = {0};
+				if(FFCore.get_scriptfile_path(buf, str->c_str()))
+					(*str) = buf;
+			}
+			regulate_path(*str);
+			
+			//zprint("READBITMAP string is %s\n", cptr);
+			
+			script_drawing_commands[j].SetString(str);
+			break;
 		}
-		regulate_path(*str);
-		
-		//zprint("WRITEBITMAP string is %s\n", cptr);
-		script_drawing_commands[j].SetString(str);
-		break;
-	}
-	
-	case BMPCIRCLER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11);  break;
-	case BMPARCR:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14);  break;
-	case BMPELLIPSER:	set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12);  break;
-	case BMPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
-	case BMPSPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
-	case BMPPUTPIXELR:	set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
-	case BMPDRAWTILER:	set_user_bitmap_command_args(j, 15); script_drawing_commands[j][17] = SH::read_stack(ri->sp+15); break;
-	case BMPDRAWTILECLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
-	case BMPDRAWCOMBOR:	set_user_bitmap_command_args(j, 16); script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
-	case BMPDRAWCOMBOCLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
-	case BMPFASTTILER:	set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
-	case BMPFASTCOMBOR:  set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
-	case BMPDRAWCHARR:	set_user_bitmap_command_args(j, 10); script_drawing_commands[j][17] = SH::read_stack(ri->sp+10); break;
-	case BMPDRAWINTR:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
-	case BMPDRAWSTRINGR:	
-	{
-		set_user_bitmap_command_args(j, 9);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
-		// Unused
-		//const int index = script_drawing_commands[j][19] = j;
-		
-		string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
-		script_drawing_commands[j].SetString(str);
-		
-	}
-	break;
-	case BMPDRAWSTRINGR2:	
-	{
-		set_user_bitmap_command_args(j, 11);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+11);
-		// Unused
-		//const int index = script_drawing_commands[j][19] = j;
-		
-		string *str = script_drawing_commands.GetString();
-		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
-		script_drawing_commands[j].SetString(str);
-		
-	}
-	break;
-	case BMPQUADR:	set_user_bitmap_command_args(j, 16);  script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
-	case BMPQUAD3DR:
-	{
-		set_drawing_command_args(j, 9);
-		std::vector<long> *v = script_drawing_commands.GetVector();
-		v->resize(26, 0);
-		
-		long* pos = &v->at(0);
-		long* uv = &v->at(12);
-		long* col = &v->at(20);
-		long* size = &v->at(24);
-		
-		
-		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 12);
-		FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 8);
-		FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 4);
-		FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
-		
-		script_drawing_commands[j].SetVector(v);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
-		
-	}
-	break;
-	case BMPTRIANGLER:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); break;
-	case BMPTRIANGLE3DR:
-	{
-		set_drawing_command_args(j, 9);
-		
-		std::vector<long> *v = script_drawing_commands.GetVector();
-		v->resize(20, 0);
-		
-		long* pos = &v->at(0);
-		long* uv = &v->at(9);
-		long* col = &v->at(15);
-		long* size = &v->at(18);
-		
-		
-		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 8);
-		FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 6);
-		FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 3);
-		FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
-		
-		script_drawing_commands[j].SetVector(v);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
-		break;
-	}
-	
-	case BMPDRAWLAYERR:
-		set_user_bitmap_command_args(j, 8);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+8);
-		break;
-	case BMPDRAWLAYERSOLIDR: 
-	case BMPDRAWLAYERCFLAGR: 
-	case BMPDRAWLAYERCTYPER: 
-	case BMPDRAWLAYERCIFLAGR: 
-	case BMPDRAWLAYERSOLIDITYR: set_user_bitmap_command_args(j, 9); script_drawing_commands[j][17] = SH::read_stack(ri->sp+9); break;
-	case BMPDRAWSCREENR:
-	case BMPDRAWSCREENSOLIDR:
-	case BMPDRAWSCREENSOLID2R:
-	case BMPDRAWSCREENCOMBOFR:
-	case BMPDRAWSCREENCOMBOIR:
-	case BMPDRAWSCREENCOMBOTR:
-		set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
-	case BITMAPGETPIXEL:
-	{
-		for(int q = 0; q < 20; q++)
+		case WRITEBITMAP:	
 		{
-			Z_scripterrlog("getpixel SH::read_stack(ri->sp+%d) is: %d\n", q, SH::read_stack(ri->sp+q));
+			//zprint("Calling %s\n","WRITEBITMAP");
+			set_user_bitmap_command_args(j, 3);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
+			std::string *str = script_drawing_commands.GetString();
+			ArrayH::getString(script_drawing_commands[j][2] / 10000, *str, 256);
+			
+			
+			//char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
+			//strncpy(cptr, str->c_str(), str->size());
+			
+			if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+			{
+				char buf[2048] = {0};
+				if(FFCore.get_scriptfile_path(buf, str->c_str()))
+					(*str) = buf;
+			}
+			regulate_path(*str);
+			
+			//zprint("WRITEBITMAP string is %s\n", cptr);
+			script_drawing_commands[j].SetString(str);
+			break;
 		}
-		set_user_bitmap_command_args(j, 3); script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); break;
-	}
-	case BMPBLIT:	
-	{
-		set_user_bitmap_command_args(j, 16); 
-		//for(int q = 0; q < 8; ++q )
-		//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
+		
+		case BMPCIRCLER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11);  break;
+		case BMPARCR:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14);  break;
+		case BMPELLIPSER:	set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12);  break;
+		case BMPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
+		case BMPSPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
+		case BMPPUTPIXELR:	set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
+		case BMPDRAWTILER:	set_user_bitmap_command_args(j, 15); script_drawing_commands[j][17] = SH::read_stack(ri->sp+15); break;
+		case BMPDRAWTILECLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
+		case BMPDRAWCOMBOR:	set_user_bitmap_command_args(j, 16); script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
+		case BMPDRAWCOMBOCLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
+		case BMPFASTTILER:	set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+		case BMPFASTCOMBOR:  set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+		case BMPDRAWCHARR:	set_user_bitmap_command_args(j, 10); script_drawing_commands[j][17] = SH::read_stack(ri->sp+10); break;
+		case BMPDRAWINTR:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
+		case BMPDRAWSTRINGR:	
+		{
+			set_user_bitmap_command_args(j, 9);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
+			// Unused
+			//const int index = script_drawing_commands[j][19] = j;
+			
+			string *str = script_drawing_commands.GetString();
+			ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
+			script_drawing_commands[j].SetString(str);
+			
+		}
 		break;
-	}
-	case BMPBLITTO:	
-	{
-		set_user_bitmap_command_args(j, 16); 
-		//for(int q = 0; q < 8; ++q )
-		//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
+		case BMPDRAWSTRINGR2:	
+		{
+			set_user_bitmap_command_args(j, 11);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+11);
+			// Unused
+			//const int index = script_drawing_commands[j][19] = j;
+			
+			string *str = script_drawing_commands.GetString();
+			ArrayH::getString(script_drawing_commands[j][8] / 10000, *str, 256);
+			script_drawing_commands[j].SetString(str);
+			
+		}
 		break;
-	}
-	case BMPMODE7:	
-	{
-		set_user_bitmap_command_args(j, 13); 
-		//for(int q = 0; q < 8; ++q )
-		//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+13);
+		case BMPQUADR:	set_user_bitmap_command_args(j, 16);  script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
+		case BMPQUAD3DR:
+		{
+			set_drawing_command_args(j, 9);
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			v->resize(26, 0);
+			
+			long* pos = &v->at(0);
+			long* uv = &v->at(12);
+			long* col = &v->at(20);
+			long* size = &v->at(24);
+			
+			
+			FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 12);
+			FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 8);
+			FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 4);
+			FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
+			
+			script_drawing_commands[j].SetVector(v);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
+			
+		}
 		break;
-	}
-	
-	
+		case BMPTRIANGLER:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); break;
+		case BMPTRIANGLE3DR:
+		{
+			set_drawing_command_args(j, 9);
+			
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			v->resize(20, 0);
+			
+			long* pos = &v->at(0);
+			long* uv = &v->at(9);
+			long* col = &v->at(15);
+			long* size = &v->at(18);
+			
+			
+			FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 8);
+			FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 6);
+			FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 3);
+			FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
+			
+			script_drawing_commands[j].SetVector(v);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
+			break;
+		}
+		
+		case BMPDRAWLAYERR:
+			set_user_bitmap_command_args(j, 8);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+8);
+			break;
+		case BMPDRAWLAYERSOLIDR: 
+		case BMPDRAWLAYERCFLAGR: 
+		case BMPDRAWLAYERCTYPER: 
+		case BMPDRAWLAYERCIFLAGR: 
+		case BMPDRAWLAYERSOLIDITYR: set_user_bitmap_command_args(j, 9); script_drawing_commands[j][17] = SH::read_stack(ri->sp+9); break;
+		case BMPDRAWSCREENR:
+		case BMPDRAWSCREENSOLIDR:
+		case BMPDRAWSCREENSOLID2R:
+		case BMPDRAWSCREENCOMBOFR:
+		case BMPDRAWSCREENCOMBOIR:
+		case BMPDRAWSCREENCOMBOTR:
+			set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+		case BITMAPGETPIXEL:
+		{
+			for(int q = 0; q < 20; q++)
+			{
+				Z_scripterrlog("getpixel SH::read_stack(ri->sp+%d) is: %d\n", q, SH::read_stack(ri->sp+q));
+			}
+			set_user_bitmap_command_args(j, 3); script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); break;
+		}
+		case BMPBLIT:	
+		{
+			set_user_bitmap_command_args(j, 16); 
+			//for(int q = 0; q < 8; ++q )
+			//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
+			break;
+		}
+		case BMPBLITTO:	
+		{
+			set_user_bitmap_command_args(j, 16); 
+			//for(int q = 0; q < 8; ++q )
+			//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
+			break;
+		}
+		case BMPMODE7:	
+		{
+			set_user_bitmap_command_args(j, 13); 
+			//for(int q = 0; q < 8; ++q )
+			//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+13);
+			break;
+		}
+		
+		case BMPWRITETILE:
+		{
+			set_user_bitmap_command_args(j, 6);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+6);
+			break;			
+		}
 	}
 }
 
@@ -23211,11 +23586,11 @@ int run_script(const byte type, const word script, const long i)
 			int npc_index = GuyH::getNPCIndex(i);
 			enemy *w = (enemy*)guys.spr(npc_index);
 			
-			ri = &(guys.spr(GuyH::getNPCIndex(i))->scriptData);
+			ri = &(guys.spr(GuyH::getNPCIndex(i))->scrmem->scriptData);
 			
 			curscript = guyscripts[guys.spr(GuyH::getNPCIndex(i))->script];
 			
-			stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
+			stack = &(guys.spr(GuyH::getNPCIndex(i))->scrmem->stack);
 			
 			enemy *wa = (enemy*)guys.spr(GuyH::getNPCIndex(i));
 			ri->guyref = wa->getUID();
@@ -23237,11 +23612,11 @@ int run_script(const byte type, const word script, const long i)
 		{
 			int lwpn_index = LwpnH::getLWeaponIndex(i);
 			weapon *w = (weapon*)Lwpns.spr(lwpn_index);
-			ri = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->scriptData);
+			ri = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->scrmem->scriptData);
 			
 			curscript = lwpnscripts[Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript];
 		
-			stack = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->stack);
+			stack = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->scrmem->stack);
 			
 			weapon *wa = (weapon*)Lwpns.spr(LwpnH::getLWeaponIndex(i));
 			ri->lwpn = wa->getUID();
@@ -23265,12 +23640,12 @@ int run_script(const byte type, const word script, const long i)
 			int ewpn_index = EwpnH::getEWeaponIndex(i);
 
 			weapon *w = (weapon*)Ewpns.spr(ewpn_index);
-			ri = &(Ewpns.spr(EwpnH::getEWeaponIndex(i))->scriptData);
+			ri = &(Ewpns.spr(EwpnH::getEWeaponIndex(i))->scrmem->scriptData);
 			
 			curscript = ewpnscripts[Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript];
 			
 			
-			stack = &(Ewpns.spr(EwpnH::getEWeaponIndex(i))->stack);
+			stack = &(Ewpns.spr(EwpnH::getEWeaponIndex(i))->scrmem->stack);
 			
 			weapon *wa = (weapon*)Ewpns.spr(EwpnH::getEWeaponIndex(i));
 			ri->ewpn = wa->getUID();
@@ -23293,11 +23668,11 @@ int run_script(const byte type, const word script, const long i)
 			int the_index = ItemH::getItemIndex(i);
 			
 			item *w = (item*)items.spr(the_index);
-			ri = &(items.spr(ItemH::getItemIndex(i))->scriptData);
+			ri = &(items.spr(ItemH::getItemIndex(i))->scrmem->scriptData);
 		
 			curscript = itemspritescripts[items.spr(ItemH::getItemIndex(i))->script]; //Set the editor sprite script field to 'script'
 				
-			stack = &(items.spr(ItemH::getItemIndex(i))->stack);
+			stack = &(items.spr(ItemH::getItemIndex(i))->scrmem->stack);
 			
 			item *wa = (item*)items.spr(ItemH::getItemIndex(i));
 			ri->itemref = wa->getUID();
@@ -24866,7 +25241,9 @@ int run_script(const byte type, const word script, const long i)
 			case LOADDIRECTORYR:
 				FFCore.do_loaddirectory(); break;
 			case LOADDROPSETR: //command
-				FFScript::do_loaddropset(false); break;
+				FFCore.do_loaddropset(false); break;
+			case LOADRNG: //command
+				FFCore.do_loadrng(); break;
 
 
 			case DMAPDATAGETNAMER: //command
@@ -25274,6 +25651,7 @@ int run_script(const byte type, const word script, const long i)
 			case CLEARBITMAP:
 			case BITMAPCLEARTOCOLOR:
 			case BMPFRAMER:
+			case BMPWRITETILE:
 				do_drawing_command(scommand);
 				break;
 			case READBITMAP:
@@ -26065,14 +26443,49 @@ int run_script(const byte type, const word script, const long i)
 				break;
 			
 			case NPCKICKBUCKET:
+			{
 				FFScript::deallocateAllArrays(SCRIPT_NPC, ri->guyref);
 				if(type == SCRIPT_NPC && ri->guyref == i)
 				{
-					FFCore.do_npckickbucket();
+					FFCore.do_npc_delete();
 					return RUNSCRIPT_SELFDELETE;
 				}
-				FFCore.do_npckickbucket();
+				FFCore.do_npc_delete();
 				break;
+			}
+			case LWPNDEL:
+			{
+				FFScript::deallocateAllArrays(SCRIPT_LWPN, ri->lwpn);
+				if(type == SCRIPT_LWPN && ri->lwpn == i)
+				{
+					FFCore.do_lweapon_delete();
+					return RUNSCRIPT_SELFDELETE;
+				}
+				FFCore.do_lweapon_delete();
+				break;
+			}
+			case EWPNDEL:
+			{
+				FFScript::deallocateAllArrays(SCRIPT_EWPN, ri->ewpn);
+				if(type == SCRIPT_EWPN && ri->ewpn == i)
+				{
+					FFCore.do_eweapon_delete();
+					return RUNSCRIPT_SELFDELETE;
+				}
+				FFCore.do_eweapon_delete();
+				break;
+			}
+			case ITEMDEL:
+			{
+				FFScript::deallocateAllArrays(SCRIPT_ITEMSPRITE, ri->itemref);
+				if(type == SCRIPT_ITEMSPRITE && ri->itemref == i)
+				{
+					FFCore.do_itemsprite_delete();
+					return RUNSCRIPT_SELFDELETE;
+				}
+				FFCore.do_itemsprite_delete();
+				break;
+			}
 			
 			case NPCSTOPBGSFX:
 				FFCore.do_npc_stopbgsfx();
@@ -26360,6 +26773,70 @@ int run_script(const byte type, const word script, const long i)
 			
 				break;
 			}
+			
+			//{ Randgen Stuff
+			case RNGRAND1:
+				if(user_rng* r = checkRNG(ri->rngref, "Rand()"))
+				{
+					ri->d[rEXP1] = r->rand(214748, -214748)*10000L;
+				}
+				else ri->d[rEXP1] = -10000L;
+				break;
+			case RNGRAND2:
+				if(user_rng* r = checkRNG(ri->rngref, "Rand(int)"))
+				{
+					set_register(sarg1,r->rand(get_register(sarg1)/10000L)*10000L);
+				}
+				else set_register(sarg1,-10000L);
+				break;
+			case RNGRAND3:
+				if(user_rng* r = checkRNG(ri->rngref, "Rand(int,int)"))
+				{
+					set_register(sarg1,r->rand(get_register(sarg1)/10000L, get_register(sarg2)/10000L)* 10000L);
+				}
+				else set_register(sarg1,-10000L);
+				break;
+			case RNGLRAND1:
+				if(user_rng* r = checkRNG(ri->rngref, "LRand()"))
+				{
+					ri->d[rEXP1] = r->rand();
+				}
+				else ri->d[rEXP1] = -10000L;
+				break;
+			case RNGLRAND2:
+				if(user_rng* r = checkRNG(ri->rngref, "LRand(long)"))
+				{
+					ri->d[rEXP1] = r->rand(get_register(sarg1));
+				}
+				else ri->d[rEXP1] = -10000L;
+				break;
+			case RNGLRAND3:
+				if(user_rng* r = checkRNG(ri->rngref, "LRand(long,long)"))
+				{
+					ri->d[rEXP1] = r->rand(get_register(sarg1), get_register(sarg2));
+				}
+				else ri->d[rEXP1] = -10000L;
+				break;
+			case RNGSEED:
+				if(user_rng* r = checkRNG(ri->rngref, "SRand(long)"))
+				{
+					r->srand(get_register(sarg1));
+				}
+				break;
+			case RNGRSEED:
+				if(user_rng* r = checkRNG(ri->rngref, "SRand()"))
+				{
+					ri->d[rEXP1] = r->srand();
+				}
+				else ri->d[rEXP1] = -10000;
+				break;
+			case RNGFREE:
+				if(user_rng* r = checkRNG(ri->rngref, "SRand()", true))
+				{
+					r->reserved = false;
+				}
+				break;
+			//}
 			
 			case NOP: //No Operation. Do nothing. -V
 				break;
@@ -26773,6 +27250,14 @@ void FFScript::user_dirs_init()
 	}
 }
 
+void FFScript::user_rng_init()
+{
+	for(int q = 0; q < MAX_USER_RNGS; ++q)
+	{
+		script_rngs[q].set_gen(&script_rnggens[q]);
+	}
+}
+
 int FFScript::get_free_file(bool skipError)
 {
 	for(int q = 0; q < MAX_USER_FILES; ++q)
@@ -26798,6 +27283,20 @@ int FFScript::get_free_directory(bool skipError)
 		}
 	}
 	if(!skipError) Z_scripterrlog("get_free_directory() could not find a valid free directory pointer!\n");
+	return 0;
+}
+
+int FFScript::get_free_rng(bool skipError)
+{
+	for(int q = 0; q < MAX_USER_RNGS; ++q)
+	{
+		if(!script_rngs[q].reserved)
+		{
+			script_rngs[q].reserved = true;
+			return q+1; //1-indexed; 0 is null value
+		}
+	}
+	if(!skipError) Z_scripterrlog("get_free_rng() could not find a valid free rng pointer!\n");
 	return 0;
 }
 #ifdef _WIN32
@@ -27148,10 +27647,10 @@ void FFScript::do_file_writebytes()
 {
 	if(user_file* f = checkFile(ri->fileref, "WriteBytes()", true))
 	{
-		int pos = zc_max(ri->d[rINDEX] / 10000,0);
-		int count = get_register(sarg2) / 10000;
-		if(count == 0) return;
-		if(count == -1 || count > (MAX_ZC_ARRAY_SIZE-pos)) count = MAX_ZC_ARRAY_SIZE-pos;
+		unsigned int pos = zc_max(ri->d[rINDEX] / 10000,0);
+		int arg = get_register(sarg2) / 10000;
+		if(arg == 0) return;
+		unsigned int count = ((arg<0 || unsigned(arg) >(MAX_ZC_ARRAY_SIZE - pos)) ? MAX_ZC_ARRAY_SIZE - pos : unsigned(arg));
 		long arrayptr = get_register(sarg1) / 10000;
 		string output;
 		ZScriptArray& a = getArray(arrayptr);
@@ -27166,7 +27665,7 @@ void FFScript::do_file_writebytes()
 		}
 		if(count < 0 || unsigned(count) > a.Size()-pos) count = a.Size()-pos;
 		std::vector<unsigned char> data(count);
-		for(int q = 0; q < count; ++q)
+		for(unsigned int q = 0; q < count; ++q)
 		{
 			data[q] = a[q+pos] / 10000;
 		}
@@ -28276,7 +28775,7 @@ void do_issolid()
 //void FFScript::getNPCData_scriptdefence(){GET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence)};
 
 
-void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,(edefLAST255))};
+void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,int(edefLAST255))};
 
 
 void FFScript::getNPCData_SIZEflags(){GET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags);}
@@ -28434,7 +28933,7 @@ void FFScript::setNPCData_wpnsprite(){SET_NPCDATA_FUNCTION_VAR_INT(wpnsprite,511
 
 
 //void FFScript::setNPCData_scriptdefence(){SET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence);}
-void FFScript::setNPCData_defense(int v){SET_NPCDATA_FUNCTION_VAR_INDEX(defense,v, ZS_INT, (edefLAST255) );}
+void FFScript::setNPCData_defense(int v){SET_NPCDATA_FUNCTION_VAR_INDEX(defense,v, ZS_INT, int(edefLAST255) );}
 void FFScript::setNPCData_SIZEflags(int v){SET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags,v);}
 void FFScript::setNPCData_misc(int val)
 {
@@ -29521,27 +30020,6 @@ bool ZModule::init(bool d) //bool default
 		
 		
 		//item families
-		const char default_itype_strings[itype_max][255] = 
-		{ 
-			"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
-			"Bait", "Letters", "Potions", "Wands", "Rings", 
-			"Wallets", "Amulets", "Shields", "Bows", "Rafts",
-			"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", 
-			"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire", 
-			"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", 
-			"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses", 
-			"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", 
-			"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", 
-			"Heart Pieces", "Kill All Enemies", "Bomb Ammo", "Bomb Bags", "Roc Items", 
-			"Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer","Whisp Rings", 
-			"Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", 
-			"Scroll: Hurricane Spin", "Scroll: Super Quake","Stones of Agony", "Stomp Boots", "Whimsical Rings", 
-			"Peril Rings", "Non-gameplay Items", "Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03",
-			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
-			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
-			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
-			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)", "zz089"
-		};
 							 
 		const char itype_fields[itype_max][255] =
 		{
@@ -29900,8 +30378,6 @@ void FFScript::clearRunningItemScripts()
 
 bool FFScript::newScriptEngine()
 {
-	//itemScriptEngine();
-	//lweaponScriptEngine();
 	advanceframe(true);
 	return false;
 }
@@ -30255,346 +30731,108 @@ void FFScript::runOnSaveEngine()
 	}
 }
 
-void FFScript::lweaponScriptEngine()
-{
-	if ( FFCore.system_suspend[susptLWEAPONSCRIPTS] ) return;
-	for ( int q = 0; q < Lwpns.Count(); q++ )
-	{
-		//ri->lwpn = Lwpns.spr(q)->getUID();
-		//zprint("lweaponScriptEngine(): UID (%d) ri->lwpn (%d)\n", Lwpns.spr(q)->getUID(), ri->lwpn);
-		//ri->lwpn = Lwpns.spr(q)->getUID();
-		weapon *wp = (weapon*)Lwpns.spr(q);
-		switch(Lwpns.spr(q)->id)
-		{
-			/* We can't have this, because the same script would run on the sword, and on the swordbeam!
-			case wSword:
-			{
-				weapon *wa = (weapon*)Lwpns.spr(q);
-				if ( wa->Dead() ) break;
-				if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
-				{
-					weapon *w = (weapon*)Lwpns.spr(q);
-					if ( w->Dead() )
-					{
-						Lwpns.spr(q)->doscript = 0;
-						Lwpns.spr(q)->weaponscript = 0;
-						//memset(w->stack, 0xFFFF, sizeof(w->stack));
-						break;
-					}
-					else
-					{
-						//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
-						ri->lwpn = w->getUID();
-						if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
-					}
-				}
-				break;
-			}
-			*/
-			case wBeam:
-			case wRefBeam:
-			{
-				weapon *wa = (weapon*)Lwpns.spr(q);
-				if ( wa->Dead() ) break;
-				if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
-				{
-					weapon *w = (weapon*)Lwpns.spr(q);
-					if ( w->Dead() )
-					{
-						Lwpns.spr(q)->doscript = 0;
-						Lwpns.spr(q)->weaponscript = 0;
-						//memset(w->stack, 0xFFFF, sizeof(w->stack));
-						break;
-					}
-					else
-					{
-						//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
-						ri->lwpn = w->getUID();
-						if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
-					}
-				}
-				break;
-			}
-			
-			case wWhistle:
-			{
-				weapon *wa = (weapon*)Lwpns.spr(q);
-				if ( wa->Dead() ) break;
-				if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
-				{
-					weapon *w = (weapon*)Lwpns.spr(q);
-					if ( w->Dead() )
-					{
-						Lwpns.spr(q)->doscript = 0;
-						Lwpns.spr(q)->weaponscript = 0;
-						break;
-					}
-					else
-					{
-						//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());	
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);
-						ri->lwpn = w->getUID();
-						if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());
-					}
-				}
-				break;
-			}
-			
-			case wWind:
-			{
-				break;
-			}
-			
-			case wFire:
-			{
-				weapon *wa = (weapon*)Lwpns.spr(q);
-				if ( wa->Dead() ) break;
-				if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
-				{
-					weapon *w = (weapon*)Lwpns.spr(q);
-					if ( w->Dead() )
-					{
-						Lwpns.spr(q)->doscript = 0;
-						Lwpns.spr(q)->weaponscript = 0;
-						break;
-					}
-					else
-					{
-						//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);
-						if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());
-						ri->lwpn = w->getUID();
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					}
-				}
-				break;
-			}
-			
-			case wLitBomb:
-			case wBomb:
-			case ewLitBomb:
-			case ewBomb:
-			case ewLitSBomb:
-			case ewSBomb:
-			case wLitSBomb:
-			case wSBomb:
-			{
-				break;
-			}
-			
-			case wArrow:
-			{
-				weapon *wa = (weapon*)Lwpns.spr(q);
-				if ( wa->Dead() ) break;
-				if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
-				{
-					weapon *w = (weapon*)Lwpns.spr(q);
-					if ( w->Dead() )
-					{
-						Lwpns.spr(q)->doscript = 0;
-						Lwpns.spr(q)->weaponscript = 0;
-						break;
-					}
-					else
-					{
-						//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
-						ri->lwpn = w->getUID();					
-						if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
-					}
-				}
-				break;
-			}
-			
-			case wSSparkle:
-			case wFSparkle:
-			{
-				weapon *wa = (weapon*)Lwpns.spr(q);
-				if ( wa->Dead() ) break;
-				if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
-				{
-					weapon *w = (weapon*)Lwpns.spr(q);
-					if ( w->Dead() )
-					{
-						Lwpns.spr(q)->doscript = 0;
-						Lwpns.spr(q)->weaponscript = 0;
-						break;
-					}
-					else
-					{
-						//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
-						ri->lwpn = w->getUID();
-						if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
-					}
-				}
-				break;
-			}
-			case wBait:
-			{
-				weapon *wa = (weapon*)Lwpns.spr(q);
-				if ( wa->Dead() ) break;
-				if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
-				{
-					weapon *w = (weapon*)Lwpns.spr(q);
-					if ( w->Dead() )
-					{
-						Lwpns.spr(q)->doscript = 0;
-						Lwpns.spr(q)->weaponscript = 0;
-						break;
-					}
-					else
-					{
-						//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
-						ri->lwpn = w->getUID();
-						if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
-					}
-				}
-				break;
-			}
-			case wBrang:
-			{
-				weapon *wa = (weapon*)Lwpns.spr(q);
-					
-				if ( Lwpns.spr(q)->doscript ) 
-				{
-					weapon *w = (weapon*)Lwpns.spr(q);
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
-				}
-			
-				
-				break;
-			}
-			
-			case wHookshot:
-			{
-				break;
-			}
-			case wHSHandle:
-			{
-				break;
-			}
-			case wPhantom:
-			{
-				break;
-			}
-			case wRefMagic:
-			case wMagic:
-			{
-				//:Weapon Only
-				if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
-				{
-					weapon *w = (weapon*)Lwpns.spr(q);
-					if ( w->Dead() )
-					{
-						Lwpns.spr(q)->doscript = 0;
-						Lwpns.spr(q)->weaponscript = 0;
-						break;
-					}
-					else
-					{
-						//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
-						ri->lwpn = w->getUID();
-						if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
-					}
-				}
-				break;
-			}
-			
-			case wRefFireball:
-			{
-				weapon *wa = (weapon*)Lwpns.spr(q);
-				if ( wa->Dead() ) break;
-				if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 && wa->ScriptGenerated ) 
-				{
-					weapon *w = (weapon*)Lwpns.spr(q);
-					if ( w->Dead() )
-					{
-						Lwpns.spr(q)->doscript = 0;
-						Lwpns.spr(q)->weaponscript = 0;
-						break;
-					}
-					else
-					{
-						//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
-						ri->lwpn = w->getUID();
-						if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
-					}
-				}
-				break;
-			}
-			case wScript1:
-			case wScript2:
-			case wScript3:
-			case wScript4:
-			case wScript5:
-			case wScript6:
-			case wScript7:
-			case wScript8:
-			case wScript9:
-			case wScript10:
-			{
-				weapon *wa = (weapon*)Lwpns.spr(q);
-				//if ( wa->Dead() ) break;
-				if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
-				{
-					weapon *w = (weapon*)Lwpns.spr(q);
-					if ( w->Dead() )
-					{
-						Lwpns.spr(q)->doscript = 0;
-						Lwpns.spr(q)->weaponscript = 0;
-						break;
-					}
-					else
-					{
-						//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-						//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
-						ri->lwpn = w->getUID();
-						if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
-					}
-				}
-				break;
-			}
-			default: break;
-		}
-	}
-}
-
-
 bool FFScript::itemScriptEngine()
 {
 	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
 	//zprint("Trying to check if an %s is running.\n","item script");
-	for ( int q = 0; q < 256; q++ )
+	for ( int q = 0; q < MAXITEMS; q++ )
 	{
 		
 		//zprint("Checking item ID: %d\n",q);
-		if ( itemsbuf[q].script == 0 ) continue;
+		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
+		
 		if ( item_doscript[q] < 1 ) continue;
+		#if DEVLEVEL > 0
+		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int mode)
+		{
+			zprint("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+		}
+		#endif
+		
+		//Passive items
+		if ( ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		{
+			//zprint("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+			continue;
+			
+		}
+		else
+		{
+		
+			//Normal Items 
+			//zprint("Running ItemScriptEngine() for item ID: %dn", q);
+			/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
+				After executing RunScript(), item_doscript is set to '1' in Link.cpp.
+				If the quest allows the item to continue running, the itemScriptEngine() function ignores running the
+				  same item script (again) that frame, and insteads increments item_doscript to '2'.
+				If item_doscript == 2, then we know we are on the second frame, and we run it perpetually.
+				If the QR to enable item scripts to run for more than one frame is not enabled, then item_doscript is set to '0'.
+				If the item flag 'PERPETUAL SCRIPT' is enabled, then we ignore the lack of item_doscript==2.
+				  This allows passive item scripts to function. 
+			*/
+			
+			if ( item_doscript[q] == 1 ) // FIrst frame, normally set in Link.cpp
+			{
+				if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+				{
+					item_doscript[q] = 2;
+				}
+			}
+			else if (item_doscript[q] == 2) //Second frame and later, if scripts continue to run.
+			{
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+			}
+			else if (item_doscript[q] == 3) //Run via itemdata->RunScript
+			{
+				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+				{
+					item_doscript[q] = 2; //Reduce to normal run status
+				}
+				else 
+				{
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+					item_doscript[q] = 0;
+				}
+			}
+			else if(item_doscript[q]==4)  //Item set itself false, kill script and clear data here
+			{
+				item_doscript[q] = 0;
+			}
+			if(item_doscript[q]==0)  //Item script ended. Clear the data, if any remains.
+			{
+				itemScriptData[q].Clear();
+				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
+				itemscriptInitialised[q] = 0;
+				continue;
+			}
+		}
+	}
+	return false;
+}
+
+bool FFScript::itemScriptEngineOnWaitdraw()
+{
+	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
+	//zprint("Trying to check if an %s is running.\n","item script");
+	for ( int q = 0; q < MAXITEMS; q++ )
+	{
+		//zprint("Checking item ID: %d\n",q);
+		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
+		
+		if ( item_doscript[q] < 1 ) continue;
+		if ( !itemScriptsWaitdraw[q] ) continue;
+		else itemScriptsWaitdraw[q] = 0;
+		
+		#if DEVLEVEL > 0
+		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int mode)
+		{
+			zprint("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+		}
+		#endif
+		
 		//zprint("Running ItemScriptEngine() for item ID: %dn", q);
 		/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
 			After executing RunScript(), item_doscript is set to '1' in Link.cpp.
@@ -30605,1141 +30843,87 @@ bool FFScript::itemScriptEngine()
 			If the item flag 'PERPETUAL SCRIPT' is enabled, then we ignore the lack of item_doscript==2.
 			  This allows passive item scripts to function. 
 		*/
-		switch(item_doscript[q])
+		//Passive items
+		if ( ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		{
-			case 3:
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+			continue;
+		}
+		else
+		{
+			//Normal items
+			if ( item_doscript[q] == 1 ) // FIrst frame, normally set in Link.cpp
+			{
+				if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+				{
+					item_doscript[q] = 2;
+				}
+			}
+			else if (item_doscript[q] == 2) //Second frame and later, if scripts continue to run.
+			{
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+			}
+			else if (item_doscript[q] == 3) //Run via itemdata->RunScript
 			{
 				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 				{
-					item_doscript[q] = 2;
-					continue;
+					item_doscript[q] = 2; //Reduce to normal run status
 				}
 				else 
 				{
 					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
 					item_doscript[q] = 0;
 				}
-				break;
 			}
-			case 2:
-			{
-				break;
-				
-			}
-			case 1:
-			{
-				
-				if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
-				{
-					item_doscript[q] = 0;
-					itemScriptData[q].Clear();
-					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
-					break;
-				}
-				//else 
-				//{	
-				//	item_doscript[q] = 2;
-					//goto SKIPITEM; //the script ran one time this frame, from Link.cpp.
-				//}
-				break;
-			}
-			case 4: //Item set itself false, kill script and clear data here
+			else if(item_doscript[q]==4)  //Item set itself false, kill script and clear data here.
 			{
 				item_doscript[q] = 0;
+			}
+			if(item_doscript[q]==0)  //Item script ended. Clear the data, if any remains.
+			{
 				itemScriptData[q].Clear();
 				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
-				//fall-through
-			}
-			case 0:
-			{
 				itemscriptInitialised[q] = 0;
-				break;
-			}
-			
-			
-		}
-		
-		if ( (item_doscript[q] > 1) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
-		{
-			//zprint("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
-			continue;
-			
-		}
-		else if ( item_doscript[q] == 1 )
-		{
-			if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-			{
-				item_doscript[q] = 2;
-				//get ready for second frame
-				
+				continue;
 			}
 		}
-		
-		if(item_doscript[q]==4)  //Item set itself false, kill script and clear data here
-		{
-			item_doscript[q] = 0;
-			itemScriptData[q].Clear();
-			itemscriptInitialised[q] = 0;
-		}
-		//SKIPITEM:
-		//if ( ( item_doscript[q] == 3 ) )
-		//{
-		//	if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) item_doscript[q] = 2;
-		//	else 
-		//	{
-		//		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-		//		item_doscript[q] = 0;
-		//	}
-		//}
-		//if ( ( item_doscript[q] > 1)  || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
-		//Is this needed? If the user selects perpetual script, then should that not override the QR? Hmm. IDK. -Z 16th June, 2019 
-		//{
-		//	ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-		//}
-		//else if ( item_doscript[q] == 1 )
-		//{
-		//	if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
-		//	{
-		//		item_doscript[q] = 0;
-		//	}
-		//	else item_doscript[q] = 2;
-		//}
-		//if ( runningItemScripts[i] == 1 )
-		//{
-			//zprint("Found a script running on item ID: %d\n",q);
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-			//zprint("Script Detected for that item is: %d\n",itemsbuf[q].script);
-			
-			////if ( runningItemScripts[q] == 1 || ( /*PASSIVE ITEM THAT ALWAYS RUNS*/ ((itemsbuf[q].flags&ITEM_FLAG16) && game->item[q])) )
-			////{
-			////	if ( get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING) )
-			////	{
-			////		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-			////	}
-			////	else //if the QR isn't set, treat Waitframe as Quit()
-			////	{
-			////		runningItemScripts[q] = 0;
-			////	}
-			////}
-		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int mode)
-		{
-			zprint("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-		}
-		//}
-			
 	}
-	
 	return false;
 }
-
 void FFScript::npcScriptEngineOnWaitdraw()
 {
 	if ( FFCore.system_suspend[susptNPCSCRIPTS] ) return;
-	for ( int q = 0; q < guys.Count(); q++ )
-	{
-		
-		enemy *wp = (enemy*)guys.spr(q);
-		//zprint("waitdraw is: %d\n", (wp->waitdraw));
-		//zprint("wp->doscript is: %d\n", wp->waitdraw);
-		//Lwpns.spr(LwpnH::getLWeaponIndex(i))->waitdraw = 1;
-		if ( wp->doscript && wp->waitdraw ) 
-		{
-			//zprint("Running npc script on waitdraw.\n");
-			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_NPC, guys.spr(q)->script, wp->getUID());		
-			wp->waitdraw = 0;
-		}
-		
-	}
-}
-
-bool FFScript::itemScriptEngineOnWaitdraw()
-{
-	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
-	//zprint("Trying to check if an %s is running.\n","item script");
-	for ( int q = 0; q < 256; q++ )
-	{
-		//zprint("Checking item ID: %d\n",q);
-		if ( itemsbuf[q].script == 0 ) continue;
-		if ( item_doscript[q] < 1 ) continue;
-		if ( !itemScriptsWaitdraw[q] ) continue;
-		else itemScriptsWaitdraw[q] = 0;
-		switch(item_doscript[q])
-		{
-			case 3:
-			{
-				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-				{
-					item_doscript[q] = 2;
-					continue;
-				}
-				else 
-				{
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-					item_doscript[q] = 0;
-				}
-				break;
-			}
-			case 2:
-			{
-				break;
-				
-			}
-			case 1:
-			{
-				
-				if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
-				{
-					item_doscript[q] = 0;
-					break;
-				}
-				//else 
-				//{	
-				//	item_doscript[q] = 2;
-					//goto SKIPITEM; //the script ran one time this frame, from Link.cpp.
-				//}
-				break;
-			}
-			case 0:
-			{
-				itemscriptInitialised[q] = 0;
-				break;
-			}
-			
-			
-		}
-		
-		if ( (item_doscript[q] > 1) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
-		{
-			//zprint("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
-			continue;
-			
-		}
-		else if ( item_doscript[q] == 1 )
-		{
-			if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-			{
-				item_doscript[q] = 2;
-				//get ready for second frame
-				
-			}
-		}
-			
-		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int mode)
-		{
-			zprint("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-		}
-		//itemScriptsWaitdraw[q] = 0; THis is the wrong place, so I moved it into an else stmt at the top of this function's body. -Z
-		
-	}
-	
-	return false;
+	guys.run_script(MODE_WAITDRAW);
 }
 
 void FFScript::eweaponScriptEngine()
 {
 	if ( FFCore.system_suspend[susptEWEAPONSCRIPTS] ) return;
-	for ( int q = 0; q < Ewpns.Count(); q++ )
-	{
-		//ri->ewpn = Ewpns.spr(q)->getUID();
-		//zprint("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
-		//ri->ewpn = Ewpns.spr(q)->getUID();
-		weapon *wp = (weapon*)Ewpns.spr(q);
-		if ( wp->isLWeapon ) continue;
-		//if ( wp->Dead() ) continue;
-		//if ( Ewpns.spr(q)->weaponscript == 0 ) continue;
-		//if ( Ewpns.spr(q)->doscript == 0 ) continue;
-		if ( wp->doscript ) if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, wp->getUID());		
-				
-		/*
-		switch(Ewpns.spr(q)->id)
-		{
-			case ewSword:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					//memset(w->stack, 0xFFFF, sizeof(w->stack));
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-		
-			
-			case ewFlame:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
-					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-				}
-			}
-			break;
-			}
-			
-			
-			case ewSBomb:
-			case ewBomb:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
-					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-				}
-			}
-			break;
-			}
-			
-			case ewLitBomb:
-			case ewLitSBomb:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
-					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-				}
-			}
-			break;
-			}
-			
-			case ewArrow:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();					
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			
-			break;
-			}
-			
-			case ewRock:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			case ewBrang:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-		
-			
-			break;
-			}
-			
-			case ewMagic:
-			{
-			//:Weapon Only
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			
-			case ewFireball:
-			case ewFireball2:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			
-			case ewFireTrail:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			case ewWind:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			} 
-			case ewFlame2:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			} 
-			case ewFlame2Trail:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			
-			case ewIce:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			case wScript1:
-			case wScript2:
-			case wScript3:
-			case wScript4:
-			case wScript5:
-			case wScript6:
-			case wScript7:
-			case wScript8:
-			case wScript9:
-			case wScript10:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			//if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			default: break;
-		}
-		*/
-	}
+	Ewpns.run_script(MODE_NORMAL);
 }
 
 void FFScript::lweaponScriptEngineOnWaitdraw()
 {
 	if ( FFCore.system_suspend[susptLWEAPONSCRIPTS] ) return;
-	for ( int q = 0; q < Lwpns.Count(); q++ )
-	{
-		//ri->ewpn = Ewpns.spr(q)->getUID();
-		//zprint("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
-		//ri->ewpn = Ewpns.spr(q)->getUID();
-		weapon *wp = (weapon*)Lwpns.spr(q);
-		if ( !wp->isLWeapon ) continue;
-		//if ( wp->Dead() ) continue;
-		//if ( Ewpns.spr(q)->weaponscript == 0 ) continue;
-		//if ( Ewpns.spr(q)->doscript == 0 ) continue;
-		if ( wp->doscript && wp->waitdraw ) 
-		{
-			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, wp->getUID());		
-			wp->waitdraw = 0;
-		}
-		
-	}
+	Lwpns.run_script(MODE_WAITDRAW);
 }
 
 void FFScript::eweaponScriptEngineOnWaitdraw()
 {
 	if ( FFCore.system_suspend[susptEWEAPONSCRIPTS] ) return;
-	for ( int q = 0; q < Ewpns.Count(); q++ )
-	{
-		//ri->ewpn = Ewpns.spr(q)->getUID();
-		//zprint("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
-		//ri->ewpn = Ewpns.spr(q)->getUID();
-		weapon *wp = (weapon*)Ewpns.spr(q);
-		if ( wp->isLWeapon ) continue;
-		//if ( wp->Dead() ) continue;
-		//if ( Ewpns.spr(q)->weaponscript == 0 ) continue;
-		//if ( Ewpns.spr(q)->doscript == 0 ) continue;
-		if ( wp->doscript && wp->waitdraw ) 
-		{
-			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, wp->getUID());		
-			wp->waitdraw = 0;
-		}
-		/*
-		switch(Ewpns.spr(q)->id)
-		{
-			case ewSword:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					//memset(w->stack, 0xFFFF, sizeof(w->stack));
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-		
-			
-			case ewFlame:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
-					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-				}
-			}
-			break;
-			}
-			
-			
-			case ewSBomb:
-			case ewBomb:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
-					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-				}
-			}
-			break;
-			}
-			
-			case ewLitBomb:
-			case ewLitSBomb:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
-					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-				}
-			}
-			break;
-			}
-			
-			case ewArrow:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();					
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			
-			break;
-			}
-			
-			case ewRock:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			case ewBrang:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-		
-			
-			break;
-			}
-			
-			case ewMagic:
-			{
-			//:Weapon Only
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			
-			case ewFireball:
-			case ewFireball2:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			
-			case ewFireTrail:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			case ewWind:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			} 
-			case ewFlame2:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			} 
-			case ewFlame2Trail:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			
-			case ewIce:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			case wScript1:
-			case wScript2:
-			case wScript3:
-			case wScript4:
-			case wScript5:
-			case wScript6:
-			case wScript7:
-			case wScript8:
-			case wScript9:
-			case wScript10:
-			{
-			weapon *wa = (weapon*)Ewpns.spr(q);
-			//if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
-			{
-				weapon *w = (weapon*)Ewpns.spr(q);
-				if ( w->Dead() )
-				{
-					Ewpns.spr(q)->doscript = 0;
-					Ewpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
-					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
-				}
-			}
-			break;
-			}
-			default: break;
-		}
-		*/
-	}
+	Ewpns.run_script(MODE_WAITDRAW);
 }
 
 void FFScript::itemSpriteScriptEngine()
 {
 	if ( FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) return;
-	for ( int q = 0; q < items.Count(); q++ )
-	{
-		item *wp = (item*)items.spr(q);
-		if ( wp->script == 0 ) continue;
-		if ( wp->doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, items.spr(q)->script, wp->getUID());		
-	}
+	items.run_script(MODE_NORMAL);
 }
 
 void FFScript::itemSpriteScriptEngineOnWaitdraw()
 {
 	if ( FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) return;
-	for ( int q = 0; q < items.Count(); q++ )
-	{
-		
-		item *wp = (item*)items.spr(q);
-
-		if ( wp->waitdraw && wp->doscript && wp->script && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
-		{
-			ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, items.spr(q)->script, wp->getUID());
-			wp->waitdraw = 0;
-		}			
-	}
+	items.run_script(MODE_WAITDRAW);
 }
 
 
@@ -31847,17 +31031,6 @@ void FFScript::do_slidenpc()
 	else set_register(sarg1, -10000);
 }
 
-void FFScript::do_npckickbucket()
-{
-	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		//e->kickbucket();
-		//GuyH::getNPC()->kickbucket();
-		guys.del(GuyH::getNPCIndex(ri->guyref));
-	}
-}
-
 void FFScript::do_npc_stopbgsfx()
 {
 	//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
@@ -31869,20 +31042,55 @@ void FFScript::do_npc_stopbgsfx()
 	}
 }
 
+void FFScript::do_npc_delete()
+{
+	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") == SH::_NoError)
+	{
+		guys.del(GuyH::getNPCIndex(ri->guyref));
+	}
+}
+
+void FFScript::do_lweapon_delete()
+{
+	if(0!=(s=checkLWpn(ri->lwpn,"Remove()")))
+	{
+		Lwpns.del(LwpnH::getLWeaponIndex(ri->lwpn));
+	}
+}
+
+void FFScript::do_eweapon_delete()
+{
+	if(0!=(s=checkEWpn(ri->ewpn,"Remove()")))
+	{
+		Ewpns.del(EwpnH::getEWeaponIndex(ri->ewpn));
+	}
+}
+
+void FFScript::do_itemsprite_delete()
+{
+	if(0!=(s=checkItem(ri->itemref)))
+	{
+		items.del(ItemH::getItemIndex(ri->itemref));
+	}
+}
+
 void FFScript::updateIncludePaths()
 {
-	memset(includePaths,0,sizeof(includePaths));
-	int pos = 0; int dest = 0; int pathnumber = 0;
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	includePaths.clear();
+	int pos = 0; int pathnumber = 0;
+	for ( int q = 0; includePathString[pos]; ++q )
 	{
-		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		int dest = 0;
+		char buf[2048] = {0};
+		while(includePathString[pos] != ';' && includePathString[pos])
 		{
-			includePaths[q][dest] = includePathString[pos];
-			pos++;
-			dest++;
+			buf[dest] = includePathString[pos];
+			++pos;
+			++dest;
 		}
 		++pos;
-		dest = 0;
+		std::string str(buf);
+		includePaths.push_back(str);
 	}
 }
 
@@ -31890,30 +31098,41 @@ void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
 	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
+	al_trace("Run is set to: %s \n",scriptRunString);
 }
 
 void FFScript::initIncludePaths()
 {
-	memset(includePaths,0,sizeof(includePaths));
 	memset(includePathString,0,sizeof(includePathString));
-	strcpy(includePathString,get_config_string("Compiler","include_path","include/"));
-	includePathString[((MAX_INCLUDE_PATHS+1)*512)-1] = '\0';
-	al_trace("Full path string is: %s\n",includePathString);
-	int pos = 0; int dest = 0; int pathnumber = 0;
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	FILE* f = fopen("includepaths.txt", "r");
+	if(f)
 	{
-		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		int pos = 0;
+		int c;
+		do
 		{
-			includePaths[q][dest] = includePathString[pos];
-			pos++;
-			dest++;
+			c = fgetc(f);
+			if(c!=EOF) 
+				includePathString[pos++] = c;
 		}
-		++pos;
-		dest = 0;
+		while(c!=EOF && pos<MAX_INCLUDE_PATH_CHARS);
+		if(pos<MAX_INCLUDE_PATH_CHARS)
+			includePathString[pos] = '\0';
+		includePathString[MAX_INCLUDE_PATH_CHARS-1] = '\0';
+		fclose(f);
 	}
+	else strcpy(includePathString, "include/;headers/;scripts/;");
+	al_trace("Full path string is: ");
+	safe_al_trace(includePathString);
+	al_trace("\n");
+	updateIncludePaths();
 
-	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
-		al_trace("Include path %d: %s\n",q,includePaths[q]);
+	for ( size_t q = 0; q < includePaths.size(); ++q )
+	{
+		al_trace("Include path %d: ",q);
+		safe_al_trace(includePaths.at(q).c_str());
+		al_trace("\n");
+	}
 }
 
 void FFScript::do_npcattack()
@@ -32548,7 +31767,7 @@ void FFScript::do_LowerToUpper(const bool v)
 		zprint("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( unsigned int q = 0; q < strA.size(); ++q )
+	for ( size_t q = 0; q < strA.size(); ++q )
 	{
 		strA[q] -= 32 * (strA[q] >= 'a' && strA[q] <= 'z');
 		//if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
@@ -32579,7 +31798,7 @@ void FFScript::do_UpperToLower(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( unsigned int q = 0; q < strA.size(); ++q )
+	for ( size_t q = 0; q < strA.size(); ++q )
 	{
 		strA[q] += 32 * (strA[q] >= 'A' && strA[q] <= 'Z');
 		//if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
@@ -32875,7 +32094,7 @@ void FFScript::do_ConvertCase(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( unsigned int q = 0; q < strA.size(); ++q )
+	for ( size_t q = 0; q < strA.size(); ++q )
 	{
 		if ( strA[q] < 'a' )
 			strA[q] += 32 * (strA[q] >= 'A' && strA[q] <= 'Z');
@@ -32915,29 +32134,6 @@ void FFScript::do_xlen(const bool v)
 	//set_register(sarg1, (xlen(str.c_str()) * 10000));
 }
 
-//xtoi, conv hex string to integer
-int FFScript::xtoi(char *hexstring)
-{
-	int	i = 0;
-	signed char isneg = 1;
-	if ((*hexstring == '-')) {isneg = -1; ++hexstring;}
-	
-	if ((*hexstring == '0') && (*(hexstring+1) == 'x'))
-		  hexstring += 2;// + (isneg?1:0);
-	while (*hexstring)
-	{
-		char c = toupper(*hexstring++);
-		if ((c < '0') || (c > 'F') || ((c > '9') && (c < 'A')))
-			break;
-		c -= '0';
-		if (c > 9)
-			c -= 7;
-		i = (i << 4) + c;
-	}
-	//zprint2("FFCore.xtoi result is %d\n", i);
-	return i * (isneg);
-}
-
 void FFScript::do_xtoi(const bool v)
 {
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
@@ -32945,17 +32141,16 @@ void FFScript::do_xtoi(const bool v)
 	FFCore.getString(arrayptr, str);
 	//zprint2("xtoi array pointer is: %d\n", arrayptr);
 	//zprint2("xtoi string is %s\n", str.c_str());
-	double val = FFCore.xtoi(const_cast<char*>(str.c_str()));
+	double val = zc_xtoi(const_cast<char*>(str.c_str()));
 	//zprint2("xtoi val is %f\n", val);
 	set_register(sarg1, (long)(val) * 10000);
 }
 void FFScript::do_xtoi2() 
 {
-	//Not implemented, xtoi not found
 	long arrayptr_a = ri->d[rINDEX]/10000; //get_register(sarg1) / 10000? Index and Index2 are intentional.
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	//set_register(sarg1, (xtoi(strA.c_str()) * 10000));
+	set_register(sarg1, (zc_xtoi(strA.c_str()) * 10000));
 }
 
 // Calculates log2 of number.  
@@ -34410,6 +33605,21 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "FILEWRITEBYTES",           2,   0,   0,   0},
 	{ "GETCOMBOSCRIPT",        1,   0,   0,   0},
 	{ "FILEREADBYTES",           2,   0,   0,   0},
+	
+	{ "LOADRNG",           0,   0,   0,   0},
+	{ "RNGRAND1",           0,   0,   0,   0},
+	{ "RNGRAND2",           1,   0,   0,   0},
+	{ "RNGRAND3",           2,   0,   0,   0},
+	{ "RNGLRAND1",           0,   0,   0,   0},
+	{ "RNGLRAND2",           1,   0,   0,   0},
+	{ "RNGLRAND3",           2,   0,   0,   0},
+	{ "RNGSEED",           1,   0,   0,   0},
+	{ "RNGRSEED",           0,   0,   0,   0},
+	{ "RNGFREE",           0,   0,   0,   0},
+	{ "LWPNDEL",           0,   0,   0,   0},
+	{ "EWPNDEL",           0,   0,   0,   0},
+	{ "ITEMDEL",           0,   0,   0,   0},
+	{ "BMPWRITETILE",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -35602,12 +34812,33 @@ script_variable ZASMVars[]=
 	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
 	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
 	{ "SCREENSECRETSTRIGGERED", SCREENSECRETSTRIGGERED, 0, 0 },
-	{ "PADDINGR9", PADDINGR9, 0, 0 },
+	{ "ITEMDIR", ITEMDIR, 0, 0 },
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
 	{ "HEROISWARPING",           HEROISWARPING,            0,             0 },
+	{ "ITEMGLOWRAD",           ITEMGLOWRAD,            0,             0 },
+	{ "NPCGLOWRAD",           NPCGLOWRAD,            0,             0 },
+	{ "LWPNGLOWRAD",           LWPNGLOWRAD,            0,             0 },
+	{ "EWPNGLOWRAD",           EWPNGLOWRAD,            0,             0 },
+	{ "ITEMGLOWSHP",           ITEMGLOWSHP,            0,             0 },
+	{ "NPCGLOWSHP",           NPCGLOWSHP,            0,             0 },
+	{ "LWPNGLOWSHP",           LWPNGLOWSHP,            0,             0 },
+	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
+	{ "ITEMENGINEANIMATE",           ITEMENGINEANIMATE,            0,             0 },
+	{ "REFRNG",           REFRNG,            0,             0 },
+	{ "LWPNUNBL",           LWPNUNBL,            0,             0 },
+	{ "EWPNUNBL",           EWPNUNBL,            0,             0 },
+	{ "NPCSHADOWSPR",           NPCSHADOWSPR,            0,             0 },
+	{ "LWPNSHADOWSPR",           LWPNSHADOWSPR,            0,             0 },
+	{ "EWPNSHADOWSPR",           EWPNSHADOWSPR,            0,             0 },
+	{ "ITEMSHADOWSPR",           ITEMSHADOWSPR,            0,             0 },
+	{ "NPCSPAWNSPR",           NPCSPAWNSPR,            0,             0 },
+	{ "NPCDEATHSPR",           NPCDEATHSPR,            0,             0 },
+	{ "NPCDSHADOWSPR",           NPCDSHADOWSPR,            0,             0 },
+	{ "NPCDSPAWNSPR",           NPCDSPAWNSPR,            0,             0 },
+	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

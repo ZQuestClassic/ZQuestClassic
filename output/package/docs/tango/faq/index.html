@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>FAQ - tango.zh 1.3.3</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "FAQ";
+    var mkdocs_page_input_path = "faq.md";
+    var mkdocs_page_url = "/faq/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> tango.zh 1.3.3</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../usage/index.html">Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../zscriptFuncs/index.html">ZScript functions</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../constants/index.html">ZScript constants</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../tangoCode/index.html">Tango variables and functions</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../dataFormats/index.html">Data structures and formats</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../errors/index.html">Error codes</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">FAQ</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#faq">FAQ</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#why-isnt-my-script-working-correctly">Why isn't my script working correctly?</a></li>
+        
+            <li><a class="toctree-l3" href="#how-do-i-display-a-string">How do I display a string?</a></li>
+        
+            <li><a class="toctree-l3" href="#what-is-a-text-slot">What is a text slot?</a></li>
+        
+            <li><a class="toctree-l3" href="#what-is-a-style">What is a style?</a></li>
+        
+            <li><a class="toctree-l3" href="#how-many-text-slots-do-i-need">How many text slots do I need?</a></li>
+        
+            <li><a class="toctree-l3" href="#how-do-i-add-more-text-slots">How do I add more text slots?</a></li>
+        
+            <li><a class="toctree-l3" href="#what-is-the-purpose-of-slot-types">What is the purpose of slot types?</a></li>
+        
+            <li><a class="toctree-l3" href="#how-do-i-create-a-style">How do I create a style?</a></li>
+        
+            <li><a class="toctree-l3" href="#when-should-i-set-up-a-style">When should I set up a style?</a></li>
+        
+            <li><a class="toctree-l3" href="#why-isnt-the-screen-freeze-style-flag-working">Why isn't the screen freeze style flag working?</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">tango.zh 1.3.3</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>FAQ</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="faq">FAQ</h1>
+<h2 id="why-isnt-my-script-working-correctly">Why isn't my script working correctly?</h2>
+<p>Whenever something doesn't work, you should look at allegro.log to see
+if any errors have been reported. You'll get more helpful messages using
+full logging, which is enabled by importing loggingFull.zh instead of
+loggingMinimal.zh. These are found near the bottom of the main file.</p>
+<p>Some common errors:</p>
+<ul>
+<li>
+<p>Using more styles than alloted</p>
+<ul>
+<li>Fixed by increasing <code>__TANGO_NUM_STYLES</code> and the size of <code>__Tango_Styles[]</code></li>
+</ul>
+</li>
+<li>
+<p>Using more menu options than alloted</p>
+<ul>
+<li>Fixed by increasing <code>__TANGO_MAX_MENU_ITEMS</code> and the size of <code>__Tango_Data[]</code></li>
+</ul>
+</li>
+<li>
+<p>Incorrect constants for custom functions</p>
+<ul>
+<li>Use <code>Tango_ConvertFunctionName()</code> to make sure you've got them right</li>
+</ul>
+</li>
+</ul>
+<p>You can also try calling the function <code>Tango_ValidateConfiguration()</code>. This will
+analyze your settings and report any errors it finds in allegro.log.</p>
+<h2 id="how-do-i-display-a-string">How do I display a string?</h2>
+<ol>
+<li>Find a free text slot (<code>Tango_GetFreeSlot()</code>)</li>
+<li>Clear all data in the slot (<code>Tango_ClearSlot()</code>)</li>
+<li>Load text into the slot (<code>Tango_LoadString()</code> or <code>Tango_LoadMessage()</code>)</li>
+<li>Set a style (<code>Tango_SetSlotStyle()</code>)</li>
+<li>Set the position on the screen (<code>Tango_SetSlotPosition()</code>)</li>
+<li>Activate the text slot (<code>Tango_ActivateSlot()</code>)</li>
+</ol>
+<p><code>Tango_LoadString()</code> loads a ZScript string (an <code>int</code> array);
+<code>Tango_LoadMessage()</code> loads a ZC message (<strong>Quest &gt; Strings</strong>). All built-in
+function names follow this naming convention.</p>
+<p>You'll probably want to combine these into a single function for simplicity.
+tangoQuickStart.zh provides examples in the <code>ShowString()</code> and <code>ShowMessage()</code>
+functions.</p>
+<h2 id="what-is-a-text-slot">What is a text slot?</h2>
+<p>Text slots are where strings are stored for processing and display. They store
+the text, the style, and the position on the screen, as well as some internal
+data. Before any text can be shown on the screen, it must be loaded into
+one of the available slots.</p>
+<p>Slot IDs are integers counting up from 0. Most often, you'll want to find
+a free slot automatically, but you can also use hardcoded slot numbers.
+Each slot has its own definition, which determines how long a string can be and
+how much space is available for drawing it.</p>
+<h2 id="what-is-a-style">What is a style?</h2>
+<p>A style determines the appearance and behavior of displayed text. For instance,
+the font, the backdrop, and whether the text can be sped up by holding A
+are all controlled by the style.</p>
+<p>Style IDs are integers counting up from 0. Every text slot using the same style
+will have the same appearance and behavior.</p>
+<h2 id="how-many-text-slots-do-i-need">How many text slots do I need?</h2>
+<p>You need at least as many slots as will ever be active at once. If you want
+fifty strings onscreen at once, you need fifty slots. If you only want one
+string active at a time, just one slot will suffice.</p>
+<p>For more advanced uses, you may want more slots than are strictly necessary.
+For instance, you might want to reserve certain slots for specific purposes,
+even if they'll never all be in use at once.</p>
+<h2 id="how-do-i-add-more-text-slots">How do I add more text slots?</h2>
+<p>Set <code>__TANGO_NUM_SLOTS</code> to the number of slots you want and change the size of
+<code>__Tango_Buffer[]</code> so that it's large enough to hold the text for all of them.</p>
+<p>The slot definitions go in <code>__Tango_SlotDefs[]</code>. The first seven numbers define
+slot 0, the next seven define slot 1, and so on. In order, these numbers are
+the slot type, the starting index and size in <code>__Tango_Buffer[]</code>, the X and Y
+coordinates on the bitmap, and the width and height on the bitmap. For example:</p>
+<div class="codehilite"><pre><span></span><span class="kt">int</span> <span class="n">__Tango_SlotDefs</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1">// Slot 0</span>
+    <span class="n">TANGO_SLOT_NORMAL</span><span class="p">,</span> <span class="c1">// The slot type</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span>   <span class="c1">// Occupies __Tango_Buffer[0] to __Tango_Buffer[511]</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1">// Draws to a region at 0, 0 on the bitmap</span>
+    <span class="mi">192</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="c1">// Drawing region is 192x128 pixels</span>
+
+    <span class="c1">// Slot 1</span>
+    <span class="n">TANGO_SLOT_SMALL</span><span class="p">,</span>
+    <span class="mi">512</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="c1">// Occupies __Tango_Buffer[512] to __Tango_Buffer[575]</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span>  <span class="c1">// Draws to a region at 0, 128 (just below slot 0)</span>
+    <span class="mi">128</span><span class="p">,</span> <span class="mi">32</span>  <span class="c1">// Drawing region is 128x32</span>
+
+    <span class="c1">// Slot 2</span>
+    <span class="n">TANGO_SLOT_SMALL</span><span class="p">,</span>
+    <span class="mi">576</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="c1">// Occupies __Tango_Buffer[576] to __Tango_Buffer[639]</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span>  <span class="c1">// Draws to a region at 0, 160 (just below slot 1)</span>
+    <span class="mi">128</span><span class="p">,</span> <span class="mi">32</span>  <span class="c1">// Drawing region is 128x32</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<p>The slot type is arbitrary. It can be any non-negative number. The default
+slot type, <code>TANGO_SLOT_NORMAL</code>, can safely be renamed or deleted.</p>
+<p>Generally, you shouldn't let slots overlap in the buffer or the bitmap.
+If they won't be in use at the same time, however, it won't cause problems.
+If you use a very large number of slots, it may even be necessary for them
+to share some space on the bitmap.</p>
+<h2 id="what-is-the-purpose-of-slot-types">What is the purpose of slot types?</h2>
+<p>A slot's type makes no difference to how it's handled internally. The only
+thing it actually affects is what's returned by <code>Tango_GetFreeSlot()</code>. Slot
+types exist for users to create their own distictions. There are three reasons
+you might use different slot types:</p>
+<ol>
+<li>
+<p>Reservation</p>
+<p>In order to display a string, you must first have a free slot. If no slots
+are free, you can't show any text without clearing one out. If there's
+something you need to be able to display, you can create a dedicated slot
+type for it, so there will always be a slot free when you need it.</p>
+<p>For instance, suppose you want NPCs to spout random lines of dialog in the
+background. You might define several slots of type <code>SLOT_BG</code> to use for this
+purpose, and one of type <code>SLOT_FG</code> for the text box when Link talks to
+someone. This way, you can have the NPCs use as many <code>SLOT_BG</code> slots as they
+like, and the main <code>SLOT_FG</code> will always be available when you need it.</p>
+</li>
+<li>
+<p>Drawing order</p>
+<p>Text slots are drawn to the screen in order from first to last. If you want
+certain strings to be drawn above or below others, you can enforce this by
+using different slot types.</p>
+<p>Going back to the same example, you wouldn't want your NPCs' random lines
+to appear on top of the main text box. If slots 0-4 are <code>SLOT_BG</code> and
+slot 5 is <code>SLOT_FG</code>, you can be sure the most important text will always
+be on top.</p>
+</li>
+<li>
+<p>Efficient use of space</p>
+<p>If you plan to have one or two long strings appear alongside a lot of
+short ones, you can use different slot types to avoid wasting space
+in <code>__Tango_Buffer[]</code>. Because <code>__Tango_Buffer[]</code> is a global array,
+it is part of the quest's save data. Making it larger than necessary
+causes useless data to be saved and loaded, making both take a little
+longer (though only slightly). More importantly, there's limited space
+for drawing on the offscreen bitmap. If you have ten slots all using
+192x128 pixels, they'll have to overlap, potentially causing graphical
+errors.</p>
+<p>If your random NPC dialog will only ever be a line or two, you can give
+<code>SLOT_BG</code> a small amount of space in the buffer and bitmap, while <code>SLOT_FG</code>
+might have room for several hundred characters and space to draw a large
+text box.</p>
+</li>
+</ol>
+<p>Ordinarily, it is expected that all slots of the same type have the same amount
+of space allocated in the buffer and on the bitmap, but this is not enforced.
+If you want to make some <code>SLOT_BG</code>s small and some large, you can do that, but
+it's up to you to ensure they're used correctly.</p>
+<h2 id="how-do-i-create-a-style">How do I create a style?</h2>
+<p>With a series of calls to <code>Tango_SetStyleAttribute()</code>. Each call will set
+a single attribute of the style. At a minimum, you must set a font and color
+for the text. See <a href="../constants/index.html">the constants page</a> for the available settings.
+Check out tangoQuickStart.zh for an example.</p>
+<p>If you want to unload a style after it's been set up, use <code>Tango_ClearStyle()</code>.
+This is only necessary if you want to reuse an ID for a different style,
+which is rarely done.</p>
+<h2 id="when-should-i-set-up-a-style">When should I set up a style?</h2>
+<p>Any time before it's actually used is fine. The most common method is to set up
+all of your styles at the beginning of the active global script. It's also okay
+to do it in the <code>Init</code> script. Styles will stay set up until you clear them or
+change them.</p>
+<p>Another approach is to set a style up immediately before displaying a string
+that uses it; this may be preferable when using a large number of different
+styles.</p>
+<p>A combination of those two methods is also possible. If you want multiple
+styles that are mostly the same, you might set the common attributes
+in advance and set the distinct ones on demand.</p>
+<p>Changing a style while it's in use is permitted, but changes to the text color
+and font will not affect any text that has already been printed.</p>
+<h2 id="why-isnt-the-screen-freeze-style-flag-working">Why isn't the screen freeze style flag working?</h2>
+<p>There are two functions in the main file, <code>__Tango_FreezeScreen()</code> and
+<code>__Tango_UnfreezeScreen()</code>, that are blank by default. In order for the
+screen freeze style flag to work, you must implement these functions.</p>
+<p>The reason that they're blank is that there isn't a reasonable default
+implementation; they're too dependent on the quest. Grabbing arbitrary FFCs
+or changing combo definitions in an unknown quest might cause serious problems.</p>
+<p>The recommended method is to set two unused FFCs to combos of type
+<strong>Screen Freeze (Except FFCs)</strong> and <strong>Screen Freeze (FFCs Only)</strong>. Be aware,
+however, that if an FFC script triggers this, that script will freeze, too.
+If you're using ghost.zh, <code>SuspendGhostZHScripts()</code> and <code>ResumeGhostZHScripts()</code>
+should be used as well. Other headers may have similar suspend functions that
+should also be included.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../errors/index.html" class="btn btn-neutral" title="Error codes"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../errors/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

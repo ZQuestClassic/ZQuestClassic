@@ -47,6 +47,9 @@ void screen_combo_modify_postroutine(mapscr *s, int pos);
 // Find the IDs of enemies spawned by combos and flags. Called once on loading a quest.
 void identifyCFEnemies();
 
+byte get_def_ignrflag(int edef);
+int conv_edef_unblockable(int edef, byte unblockable);
+
 /**********************************/
 /*******  Enemy Base Class  *******/
 /**********************************/
@@ -60,11 +63,11 @@ public:
 	byte movestatus, item_set, grumble, posframe;
 	bool itemguy, count_enemy, dying, ceiling, leader, scored, script_spawned;
 	zfix  step, floor_y;
-
+	
 	//d variables
 	dword flags;
 	dword flags2;
-
+	
 	short  family, dcset, anim;
 	short  dp, wdp, wpn;
 	EnemyWeapon eWpn;
@@ -81,56 +84,57 @@ public:
 	int  starting_hp;
 	int  ox, oy;
 	word  s_tile; //secondary (additional) tile(s)
-
+	
 	long hitby[NUM_HIT_TYPES_USED];
 	short firesfx;
 	bool isCore;
-	short parentCore;
+	short parentCore; 
 	int script_UID; 	//used to determine the UID of an enemy by the user (in scripts), plus
 			//in-engine assignment of children to a parent and
 			//for future use in npc scripts (as the ref for `this`)--the easy way to determine to
 			//what npc a script on the stack is bound.
-
+	
 	int wpnsprite; //wpnsprite is new for 2.6 -Z
-	int SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults.
+	int SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults. 
 	int frozentile, frozencset, frozenclock;
-
+	
 	bool haslink;
-
+	
 	short frozenmisc[10];
-
-	long dmisc16, dmisc17, dmisc18, dmisc19, dmisc20, dmisc21, dmisc22, dmisc23,
+	
+	long dmisc16, dmisc17, dmisc18, dmisc19, dmisc20, dmisc21, dmisc22, dmisc23, 
 	dmisc24, dmisc25, dmisc26, dmisc27, dmisc28, dmisc29, dmisc30, dmisc31, dmisc32;
-	long movement[32]; //Reserved for npc movement types and args.
+	long movement[32]; //Reserved for npc movement types and args. 
 	long new_weapon[32]; //Reserved for weapon patterns and args.
-	word npcscript;
+	word npcscript; 
 	long initD[8], initA[2];
 	word weaponscript;
 	long weap_initiald[8];
 	long weap_initiala[2];
 	byte stickclk;
 	int parent_script_UID;
-
-	long dialogue_str; //WIll be set in spawn flags.
+   
+	long dialogue_str; //WIll be set in spawn flags. 
 	long editorflags; //Enemy editor flags 1 to 16
-
+	
 	bool immortal;
 	bool noSlide;
 	signed short hitdir;
-
+	
 	int getScriptUID();
 	void setScriptUID(int new_id);
 	//void explode(int type);
-
+	
 	zfix  getX();
 	zfix  getY();
 	int  getID();
 
     enemy(enemy const & other);
+	
 	enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	enemy(zfix X,zfix Y,int Id,int Clk);                      // : sprite()
 	virtual ~enemy();
-
+	
 	// Handle pitfalls
 	bool do_falling(int index);
 	// Handle drowning
@@ -143,7 +147,7 @@ public:
 	// The one with an index is the one that is called by
 	// the guys sprite list; index is the enemy's index in the list.
 	virtual bool animate(int index);
-
+	
 	// auomatically kill off enemy (for rooms with ringleaders)
 	virtual void kickbucket();
 	virtual bool isSubmerged();
@@ -159,7 +163,7 @@ public:
 	virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
 	virtual bool hit(weapon *w);
 	virtual void break_shield() {}; // Overridden by types that can have shields
-
+	
 	bool can_pitfall(bool checkspawning = true);
 	void try_death(bool force_kill = false);
 	 // returns true if next step is ok, false if there is something there
@@ -235,7 +239,7 @@ public:
 	// Enemies that cannot ever be penetrated by weapons
 	bool cannotpenetrate();
 	bool isOnSideviewPlatform(); //This handles large enemies, too!
-
+	
 	// Returns true iff a combo type or flag precludes enemy movement.
 	bool groundblocked(int dx, int dy, bool isKB = false);
 	// Returns true iff enemy is floating and blocked by a combo type or flag.
@@ -244,19 +248,19 @@ public:
 	{
 		return false;
 	}
-
+	
 	virtual int run_script(int mode);
 
 protected:
-
-
+	
+	
 	// to allow for different sfx on defeating enemy
 	virtual void death_sfx();
 	virtual void move(zfix dx,zfix dy);
 	virtual void removearmos(int ax,int ay);
 	virtual void move(zfix s);
 	void leave_item();
-
+	
 	// take damage or ignore it
 	virtual bool hitshield(int wpnx, int wpny, int xdir);
 	virtual int defend(int wpnId, int *power, int edef);
@@ -264,12 +268,12 @@ protected:
 	int weaponToDefence(int wid);
 	int getWeaponID(weapon *w);
 	int resolveEnemyDefence(weapon *w);
-	virtual int defendNew(int wpnId, int *power, int edef);
+	virtual int defendNew(int wpnId, int *power, int edef, byte unblockable);
 	//virtual int defend_wdmg(int wpnId, int dmg, int edef);
-	bool candamage(int power, int edef);
+	bool candamage(int power, int edef, byte unblockable);
 	int defenditemclass(int wpnId, int *power);
 	int defenditemclassNew(int wpnId, int *power, weapon *w);
-
+	
 	bool dont_draw();
 	// base drawing function to be used by all derived classes instead of
 	// sprite::draw()
@@ -280,14 +284,14 @@ protected:
 	void drawblock(BITMAP *dest,int mask);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	void masked_draw(BITMAP *dest,int mx,int my,int mw,int mh);
-
+	
 	//                         --==**==--
 	//   Movement routines that can be used by derived classes as needed
 	//                         --==**==--
 	void fix_coords(bool bound=false);
-
-
-
+   
+	
+	
 private:
 	bool shieldCanBlock;
 };
@@ -498,7 +502,7 @@ public:
 	eProjectile(zfix X,zfix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int index);
 	virtual void draw(BITMAP *dest);
-
+	
 	const int minRange;
 };
 
@@ -811,7 +815,7 @@ FONT *setmsgfont();
 bool parsemsgcode();
 void putmsg();
 int message_more_y();
-int wpnsfx(int wpn);
+int wpnsfx(int wpn); 
 
 /***  Collision detection & handling  ***/
 
@@ -822,3 +826,4 @@ void roaming_item();
 int more_carried_items();
 #endif
 /*** end of guys.cc ***/
+

@@ -1,0 +1,51 @@
+const int WINDOW_BG_COLOR = 0;
+const int WINDOW_BORDER_COLOR = 1;
+const int WINDOW_MOVEABLE = 2;
+
+int Window_Create(int parent)
+{
+    int id=Widget_Create(WTYPE_WINDOW, parent);
+    GUI_Data[id+WIDGET_FLAGS]|=WFLAG_WANTS_MOUSE;
+    GUI_Data[id+WINDOW_BG_COLOR]=WINDOW_DEFAULT_BG_COLOR;
+    GUI_Data[id+WINDOW_BORDER_COLOR]=WINDOW_DEFAULT_BORDER_COLOR;
+    GUI_Data[id+WINDOW_MOVEABLE]=1;
+    return id;
+}
+
+void Window_Draw(int id, int x, int y)
+{
+    Screen->Rectangle(GUI_DRAW_LAYER, x+1, y+1,
+      x+GUI_Data[id+WIDGET_WIDTH]-2, y+GUI_Data[id+WIDGET_HEIGHT]-2,
+      GUI_Data[id+WINDOW_BG_COLOR], 1, 0, 0, 0, true, OP_OPAQUE);
+    Screen->Rectangle(GUI_DRAW_LAYER, x, y,
+      x+GUI_Data[id+WIDGET_WIDTH]-1, y+GUI_Data[id+WIDGET_HEIGHT]-1,
+      GUI_Data[id+WINDOW_BORDER_COLOR], 1, 0, 0, 0, false, OP_OPAQUE);
+}
+
+void Window_OnMouseMove(int id, int x, int y)
+{
+    if(GUI_Data[id+WINDOW_MOVEABLE]==0)
+        return;
+    
+    GUI_Data[id+WIDGET_X]+=x;
+    GUI_Data[id+WIDGET_Y]+=y;
+}
+
+void Window_SetBGColor(int id, int color)
+{
+    GUI_Data[id+WINDOW_BG_COLOR]=color;
+}
+
+void Window_SetBorderColor(int id, int color)
+{
+    GUI_Data[id+WINDOW_BORDER_COLOR]=color;
+}
+
+void Window_SetBorderMoveable(int id, bool val)
+{
+    if(val)
+        GUI_Data[id+WINDOW_MOVEABLE]=1;
+    else
+        GUI_Data[id+WINDOW_MOVEABLE]=0;
+}
+

@@ -1068,8 +1068,8 @@ void edit_cycles(int level)
         {
             palcycle c;
             c.first = (atoi(buf[i*5])&7)<<4;
-            c.first += xtoi(buf[i*5+1])&15;
-            c.count =  xtoi(buf[i*5+2])&15;
+            c.first += zc_xtoi(buf[i*5+1])&15;
+            c.count =  zc_xtoi(buf[i*5+2])&15;
             c.count += (atoi(buf[i*5+3])&15)<<4;
             c.speed =  atoi(buf[i*5+4]);
             misc.cycles[level][i] = c;
@@ -1154,7 +1154,7 @@ int d_cset_proc(int msg,DIALOG *d,int c)
             //sniggles
             //        ((RGB*)d->dp3)[243]=((RGB*)d->dp3)[rc[(fc++)&15]];
             //        set_palette_range(((RGB*)d->dp3),FLASH,FLASH,false);
-            ((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[rand()%14+dvc(1)];
+            ((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[zc_oldrand()%14+dvc(1)];
             set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
             //if(zqwin_scale > 1)
             {
@@ -1493,7 +1493,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
             custom_vsync();
             //sniggles
             //      pal[FLASH]=pal[rc[(fc++)&15]];
-            pal[dvc(0)]=pal[rand()%14+dvc(1)];
+            pal[dvc(0)]=pal[zc_oldrand()%14+dvc(1)];
             set_palette_range(pal,dvc(0),dvc(0),false);
             
             bool en = (colors_dlg[2].d1 == colors_dlg[2].d2);
@@ -1597,7 +1597,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
 
 int onColors_Main()
 {
-    int l9 = EditColors("Main Palette",0,pdFULL,mainpal_csets);
+    int l9 = EditColors("Main Palette",0,pdFULL-3,mainpal_csets);
     
     // copy main to level 0
     int di = CSET(poLEVEL)*3;

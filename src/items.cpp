@@ -108,11 +108,10 @@ bool item::animate(int)
 		}
 		if(drownclk > 0)
 		{
-			if(drownclk == WATER_DROWN_FRAMES && drownCombo); //sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+			//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 			//!TODO: Drown SFX
 			if(!--drownclk) return true;
 			
-			wpndata spr;
 			if (drownCombo && combobuf[drownCombo].usrflags&cflag1) 
 			{
 				wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];
@@ -222,7 +221,7 @@ bool item::animate(int)
 		}
 	}
 	
-	if(get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0))
+	if(do_animation && (get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0)))
 	{
 		int spd = o_speed;
 		
@@ -281,7 +280,7 @@ void item::draw(BITMAP *dest)
 		
 	if ( z > 0 && get_bit(quest_rules, qr_ITEMSHADOWS) )
 	{
-		shadowtile = wpnsbuf[iwShadow].newtile+aframe;
+		shadowtile = wpnsbuf[spr_shadow].newtile+aframe;
 		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
 	}
 	if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1 || fallclk || drownclk)
@@ -532,6 +531,14 @@ void removeItemsOfFamily(zinitdata *z, itemdata *items, int family)
 			if ( game->forced_awpn == i ) 
 			{
 				game->forced_awpn = -1;
+			}
+			if ( game->forced_xwpn == i ) 
+			{
+				game->forced_xwpn = -1;
+			}
+			if ( game->forced_ywpn == i ) 
+			{
+				game->forced_ywpn = -1;
 			}
 		}
 	}

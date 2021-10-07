@@ -980,6 +980,21 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "FILEWRITEBYTES",           2,   0,   0,   0},
 	{ "GETCOMBOSCRIPT",        1,   0,   0,   0},
 	{ "FILEREADBYTES",           2,   0,   0,   0},
+	
+	{ "LOADRNG",           0,   0,   0,   0},
+	{ "RNGRAND1",           0,   0,   0,   0},
+	{ "RNGRAND2",           1,   0,   0,   0},
+	{ "RNGRAND3",           2,   0,   0,   0},
+	{ "RNGLRAND1",           0,   0,   0,   0},
+	{ "RNGLRAND2",           1,   0,   0,   0},
+	{ "RNGLRAND3",           2,   0,   0,   0},
+	{ "RNGSEED",           1,   0,   0,   0},
+	{ "RNGRSEED",           0,   0,   0,   0},
+	{ "RNGFREE",           0,   0,   0,   0},
+	{ "LWPNDEL",           0,   0,   0,   0},
+	{ "EWPNDEL",           0,   0,   0,   0},
+	{ "ITEMDEL",           0,   0,   0,   0},
+	{ "BMPWRITETILE",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2181,13 +2196,35 @@ script_variable variable_list[]=
 	{ "MAPDATACOMBOED", MAPDATACOMBOED, 0, 0 },
 	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
 	{ "SCREENSECRETSTRIGGERED", SCREENSECRETSTRIGGERED, 0, 0 },
-	{ "PADDINGR9", PADDINGR9, 0, 0 },
+	{ "ITEMDIR", ITEMDIR, 0, 0 },
 	
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
 	{ "HEROISWARPING",           HEROISWARPING,            0,             0 },
+	
+	{ "ITEMGLOWRAD",           ITEMGLOWRAD,            0,             0 },
+	{ "NPCGLOWRAD",           NPCGLOWRAD,            0,             0 },
+	{ "LWPNGLOWRAD",           LWPNGLOWRAD,            0,             0 },
+	{ "EWPNGLOWRAD",           EWPNGLOWRAD,            0,             0 },
+	{ "ITEMGLOWSHP",           ITEMGLOWSHP,            0,             0 },
+	{ "NPCGLOWSHP",           NPCGLOWSHP,            0,             0 },
+	{ "LWPNGLOWSHP",           LWPNGLOWSHP,            0,             0 },
+	{ "EWPNGLOWSHP",           EWPNGLOWSHP,            0,             0 },
+	{ "ITEMENGINEANIMATE",           ITEMENGINEANIMATE,            0,             0 },
+	{ "REFRNG",           REFRNG,            0,             0 },
+	{ "LWPNUNBL",           LWPNUNBL,            0,             0 },
+	{ "EWPNUNBL",           EWPNUNBL,            0,             0 },
+	{ "NPCSHADOWSPR",           NPCSHADOWSPR,            0,             0 },
+	{ "LWPNSHADOWSPR",           LWPNSHADOWSPR,            0,             0 },
+	{ "EWPNSHADOWSPR",           EWPNSHADOWSPR,            0,             0 },
+	{ "ITEMSHADOWSPR",           ITEMSHADOWSPR,            0,             0 },
+	{ "NPCSPAWNSPR",           NPCSPAWNSPR,            0,             0 },
+	{ "NPCDEATHSPR",           NPCDEATHSPR,            0,             0 },
+	{ "NPCDSHADOWSPR",           NPCDSHADOWSPR,            0,             0 },
+	{ "NPCDSPAWNSPR",           NPCDSPAWNSPR,            0,             0 },
+	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
@@ -2236,59 +2273,6 @@ long ffparse(char *string)
 		zc_free(tempstring1);
 	return ret;
 }
-long ffparse2(char *string) //bounds result safely between -214748.3648 and +214748.3647
-{
-	//return int(atof(string)*10000);
-	
-	//this function below isn't working too well yet
-	//clean_numeric_string(string);
-	
-	//if no decimal point, ascii to int conversion
-	char *ptr=strchr(string, '.');
-	
-	if(!ptr)
-	{
-		return vbound(atoi(string),-214748,214748)*10000;
-	}
-	
-	long ret=0;
-	char *tempstring1;
-	tempstring1=(char *)zc_malloc(strlen(string)+5);
-	sprintf(tempstring1, string);
-	
-	for(int i=0; i<4; ++i)
-	{
-		tempstring1[strlen(string)+i]='0';
-	}
-	
-	ptr=strchr(tempstring1, '.');
-	*ptr=0;
-	ret=vbound(atoi(tempstring1),-214748,214748)*10000;
-	
-	++ptr;
-	char *ptr2=ptr;
-	ptr2+=4;
-	*ptr2=0;
-	
-	int decval = atoi(ptr);
-	if(ret<0)
-	{
-		if(ret == -2147480000)
-			decval = vbound(decval, 0, 3648);
-		ret-=decval;
-	}
-	else
-	{
-		if(ret == 2147480000)
-			decval = vbound(decval, 0, 3647);
-		ret+=decval;
-	}
-	
-	if(tempstring1) //may be safer
-		zc_free(tempstring1);
-	return ret;
-}
-
 bool ffcheck(char *arg)
 {
 

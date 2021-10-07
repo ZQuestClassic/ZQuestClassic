@@ -1,0 +1,42 @@
+// tango.zh font definition for built-in font "SS 3"
+
+int TANGO_FONT_SS_3[] = {
+    TANGO_FONT_BUILTIN,
+    TANGO_FONT_PROPORTIONAL,
+    FONT_SUBSCREEN3,
+    0,  // Unused
+    8, // Character height
+    0,  // Space between lines
+    
+    // Character widths, including any trailing space
+    // ASCII characters 32 to 126
+    
+    // sp !  "  #  $  %  &  '  (  )  *  +  ,  -  .  /
+       3, 3, 6, 8, 8, 9, 7, 3, 5, 5, 6, 7, 4, 6, 4, 7,
+    
+    // 0  1  2  3  4  5  6  7  8  9
+       6, 4, 6, 6, 6, 6, 6, 6, 6, 6,
+    
+    // :  ;  <  =  >  ?  @
+       3, 3, 6, 6, 6, 6, 9,
+    
+    // A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
+       6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 9, 7, 6, 6, 6, 6, 6, 5, 6, 6, 9, 6, 7, 6,
+    
+    // [  \  ]  ^  _  `
+       4, 7, 4, 6, 6, 4,
+    
+    // a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
+       6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 6, 6, 9, 7, 6, 6, 6, 6, 6, 5, 6, 6, 9, 6, 7, 6,
+    
+    // {  |  }  ~
+       5, 3, 5, 8,
+    
+    // Additional characters
+       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+       6, 6, 6, 6, 6, 6, 6, 6, 6
+};

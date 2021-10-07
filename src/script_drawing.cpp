@@ -246,44 +246,7 @@ public:
     
     static void OverTile(BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, byte skiprows=0)
     {
-        if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
-        {
-            byte w2=(tile+w)%TILES_PER_ROW;
-            OverTile(_Dest, tile, x, y, w-w2, h, color, flip);
-            OverTile(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, color, flip);
-            return;
-        }
-        
-        switch(flip)
-        {
-        case 1:
-            for(int j=0; j<h; j++)
-                for(int k=w-1; k>=0; k--)
-                    overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, color, flip);
-                    
-            break;
-            
-        case 2:
-            for(int j=h-1; j>=0; j--)
-                for(int k=0; k<w; k++)
-                    overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, color, flip);
-                    
-            break;
-            
-        case 3:
-            for(int j=h-1; j>=0; j--)
-                for(int k=w-1; k>=0; k--)
-                    overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, color, flip);
-                    
-            break;
-            
-        default:
-            for(int j=0; j<h; j++)
-                for(int k=0; k<w; k++)
-                    overtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, color, flip);
-                    
-            break;
-        }
+		overtileblock16(_Dest,tile,x,y,w,h,color,flip,skiprows);
     }
 	
 	static void OverTileCloaked(BITMAP* _Dest, int tile, int x, int y, int w, int h, int flip, byte skiprows=0)
@@ -806,9 +769,6 @@ void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     // the ellipse, but it shouldn't be used anyway.
     if(color==0)
     {
-        int x;
-        int y;
-        
         // This is very slow, so check the smallest possible square
         int endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
         int endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
@@ -4476,9 +4436,6 @@ void bmp_do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     // the ellipse, but it shouldn't be used anyway.
     if(color==0)
     {
-        int x;
-        int y;
-        
         // This is very slow, so check the smallest possible square
         int endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
         int endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
@@ -5123,6 +5080,26 @@ void bmp_do_fasttiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         overtiletranslucent16(refbmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0, opacity);
     else
         overtile16(refbmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0);
+}
+
+void do_bmpwritetile(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	/* layer, x, y, tile, is8bit, mask */
+	//sdci[17] Bitmap Pointer
+	if ( sdci[17] <= 0 )
+	{
+		Z_scripterrlog("bitmap->WriteTile() wanted to read from an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
+	}
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
+	int x = (sdci[2]/10000), y = (sdci[3]/10000), tl = (sdci[4]/10000);
+	bool is8bit = sdci[5]!=0, mask = sdci[6]!=0;
+	
+	write_tile(newtilebuf, refbmp, tl, x+xoffset, y+yoffset, is8bit, mask);
 }
 
 
@@ -10801,312 +10778,311 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bo
 
 void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, int yoff)
 {
-    color_map = &trans_table2;
-    
-    //was this next variable ever used? -- DN
-    //bool drawsubscr=false;
-    
-    if(type > 7)
-        return;
+	color_map = &trans_table2;
+	
+	//was this next variable ever used? -- DN
+	//bool drawsubscr=false;
+	
+	if(type > 7)
+		return;
 	if(theScreen->hidescriptlayers & (1<<type))
 		return; //Script draws hidden for this layer
-    //--script_drawing_commands[][] reference--
-    //[][0]: type
-    //[][1-16]: defined by type
-    //[][17]: unused
-    //[][18]: rendertarget
-    //[][19]: unused
-    
-    // Trying to match the old behavior exactly...
-    const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
-    
-    bool isTargetOffScreenBmp = false;
-    const int type_mul_10000 = type * 10000;
-    const int numDrawCommandsToProcess = script_drawing_commands.Count();
-    FFCore.numscriptdraws = numDrawCommandsToProcess;
-    int xoffset=xoff, yoffset=yoff;
-    for(int i(0); i < numDrawCommandsToProcess; ++i)
-    {
-        if(!brokenOffset)
-        {
-            xoffset = 0;
-            yoffset = 0;
-        }
-        int *sdci = &script_drawing_commands[i][0];
+	//--script_drawing_commands[][] reference--
+	//[][0]: type
+	//[][1-16]: defined by type
+	//[][17]: unused
+	//[][18]: rendertarget
+	//[][19]: unused
+	
+	// Trying to match the old behavior exactly...
+	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
+	
+	bool isTargetOffScreenBmp = false;
+	const int type_mul_10000 = type * 10000;
+	const int numDrawCommandsToProcess = script_drawing_commands.Count();
+	FFCore.numscriptdraws = numDrawCommandsToProcess;
+	int xoffset=xoff, yoffset=yoff;
+	for(int i(0); i < numDrawCommandsToProcess; ++i)
+	{
+		if(!brokenOffset)
+		{
+			xoffset = 0;
+			yoffset = 0;
+		}
+		int *sdci = &script_drawing_commands[i][0];
 		
-        if(sdci[1] != type_mul_10000)
-            continue;
-        // get the correct render target, if set.
-        BITMAP *bmp = zscriptDrawingRenderTarget->GetTargetBitmap(sdci[18]);
-        
-        if(!bmp)
-        {
+		if(sdci[1] != type_mul_10000)
+			continue;
+		// get the correct render target, if set.
+		BITMAP *bmp = zscriptDrawingRenderTarget->GetTargetBitmap(sdci[18]);
+		
+		if(!bmp)
+		{
 			// draw to screen with subscreen offset
 			if(!brokenOffset)
-            {
-                xoffset = xoff;
-                yoffset = yoff;
-            }
-            bmp = targetBitmap;
-        }
-        else
-        {
-            //not drawing to screen, so no subscreen offset
-            if(brokenOffset)
-            {
-                xoffset = 0;
-                yoffset = 0;
-            }
-            isTargetOffScreenBmp = true;
-        }
-        
-        switch(sdci[0])
-        {
-        case RECTR:
-        {
-            do_rectr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        case FRAMER:
-        {
-            do_framer(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-	
-        
-        case CIRCLER:
-        {
-            do_circler(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case ARCR:
-        {
-            do_arcr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case ELLIPSER:
-        {
-            do_ellipser(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case LINER:
-        {
-            do_liner(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case SPLINER:
-        {
-            do_spliner(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case PUTPIXELR:
-        {
-            do_putpixelr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-	case PIXELARRAYR:
-        {
-		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
-            do_putpixelsr(bmp, i, sdci, xoffset, yoffset);
-        }
-        break;
-	
-	case TILEARRAYR:
-        {
-		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
-            do_fasttilesr(bmp, i, sdci, xoffset, yoffset);
-        }
-        break;
-	
-	case LINESARRAY:
-        {
-		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
-            do_linesr(bmp, i, sdci, xoffset, yoffset);
-        }
-        break;
-	
-	case COMBOARRAYR:
-        {
-		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
-            do_fastcombosr(bmp, i, sdci, xoffset, yoffset);
-        }
-        break;
-	
-	
-        
-        case DRAWTILER:
-        {
-            do_drawtiler(bmp, sdci, xoffset, yoffset);
-        }
-        break;
+			{
+				xoffset = xoff;
+				yoffset = yoff;
+			}
+			bmp = targetBitmap;
+		}
+		else
+		{
+			//not drawing to screen, so no subscreen offset
+			if(brokenOffset)
+			{
+				xoffset = 0;
+				yoffset = 0;
+			}
+			isTargetOffScreenBmp = true;
+		}
 		
-        case DRAWTILECLOAKEDR:
-        {
-            do_drawtilecloakedr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case DRAWCOMBOR:
-        {
-            do_drawcombor(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case DRAWCOMBOCLOAKEDR:
-        {
-            do_drawcombocloakedr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case FASTTILER:
-        {
-            do_fasttiler(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case FASTCOMBOR:
-        {
-            do_fastcombor(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case DRAWCHARR:
-        {
-            do_drawcharr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case DRAWINTR:
-        {
-            do_drawintr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case DRAWSTRINGR:
-        {
-            do_drawstringr(bmp, i, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case DRAWSTRINGR2:
-        {
-            do_drawstringr2(bmp, i, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case QUADR:
-        {
-            do_drawquadr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case QUAD3DR:
-        {
-            do_drawquad3dr(bmp, i, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case TRIANGLER:
-        {
-            do_drawtriangler(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case TRIANGLE3DR:
-        {
-            do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset);
-        }
-        break;
+		switch(sdci[0])
+		{
+			case RECTR:
+			{
+				do_rectr(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			case FRAMER:
+			{
+				do_framer(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			
+			case CIRCLER:
+			{
+				do_circler(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case ARCR:
+			{
+				do_arcr(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case ELLIPSER:
+			{
+				do_ellipser(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case LINER:
+			{
+				do_liner(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case SPLINER:
+			{
+				do_spliner(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case PUTPIXELR:
+			{
+				do_putpixelr(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			case PIXELARRAYR:
+			{
+			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
+				do_putpixelsr(bmp, i, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case TILEARRAYR:
+			{
+			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
+				do_fasttilesr(bmp, i, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case LINESARRAY:
+			{
+			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
+				do_linesr(bmp, i, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case COMBOARRAYR:
+			{
+			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
+				do_fastcombosr(bmp, i, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			
+			
+			case DRAWTILER:
+			{
+				do_drawtiler(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case DRAWTILECLOAKEDR:
+			{
+				do_drawtilecloakedr(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case DRAWCOMBOR:
+			{
+				do_drawcombor(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case DRAWCOMBOCLOAKEDR:
+			{
+				do_drawcombocloakedr(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case FASTTILER:
+			{
+				do_fasttiler(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case FASTCOMBOR:
+			{
+				do_fastcombor(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case DRAWCHARR:
+			{
+				do_drawcharr(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case DRAWINTR:
+			{
+				do_drawintr(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case DRAWSTRINGR:
+			{
+				do_drawstringr(bmp, i, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case DRAWSTRINGR2:
+			{
+				do_drawstringr2(bmp, i, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case QUADR:
+			{
+				do_drawquadr(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case QUAD3DR:
+			{
+				do_drawquad3dr(bmp, i, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case TRIANGLER:
+			{
+				do_drawtriangler(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case TRIANGLE3DR:
+			{
+				do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case POLYGONR:
+			{
+				do_polygonr(bmp, i, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			
+			case BITMAPR:
+			{
+				do_drawbitmapr(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case BITMAPEXR:
+			{
+				do_drawbitmapexr(bmp, sdci, xoffset, yoffset);
+			}
+			break;
+			
+			case DRAWLAYERR:
+			{
+				do_drawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
+			}
+			break;
+			
+			case DRAWSCREENR:
+			{
+				do_drawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
+			}
+			break;
+			
+			case BMPRECTR: bmp_do_rectr(bmp, sdci, xoffset, yoffset); break;
+			case BMPFRAMER: bmp_do_framer(bmp, sdci, xoffset, yoffset); break;
+			case BMPCIRCLER: bmp_do_circler(bmp, sdci, xoffset, yoffset); break;
+			case BMPARCR: bmp_do_arcr(bmp, sdci, xoffset, yoffset); break;
+			case BMPELLIPSER: bmp_do_ellipser(bmp, sdci, xoffset, yoffset); break;
+			case BMPLINER: bmp_do_liner(bmp, sdci, xoffset, yoffset); break;
+			case BMPSPLINER: bmp_do_spliner(bmp, sdci, xoffset, yoffset); break;
+			case BMPPUTPIXELR: bmp_do_putpixelr(bmp, sdci, xoffset, yoffset); break;
+			case BMPDRAWTILER: bmp_do_drawtiler(bmp, sdci, xoffset, yoffset); break;
+			case BMPDRAWTILECLOAKEDR: bmp_do_drawtilecloakedr(bmp, sdci, xoffset, yoffset); break;
+			case BMPDRAWCOMBOR: bmp_do_drawcombor(bmp, sdci, xoffset, yoffset); break;
+			case BMPDRAWCOMBOCLOAKEDR: bmp_do_drawcombocloakedr(bmp, sdci, xoffset, yoffset); break;
+			case BMPFASTTILER: bmp_do_fasttiler(bmp, sdci, xoffset, yoffset); break;
+			case BMPFASTCOMBOR: bmp_do_fastcombor(bmp, sdci, xoffset, yoffset); break;
+			case BMPDRAWCHARR: bmp_do_drawcharr(bmp, sdci, xoffset, yoffset); break;
+			case BMPDRAWINTR: bmp_do_drawintr(bmp, sdci, xoffset, yoffset); break;
+			case BMPDRAWSTRINGR: bmp_do_drawstringr(bmp, i, sdci, xoffset, yoffset); break;
+			case BMPDRAWSTRINGR2: bmp_do_drawstringr2(bmp, i, sdci, xoffset, yoffset); break;
+			case BMPQUADR: bmp_do_drawquadr(bmp, sdci, xoffset, yoffset); break;
+			case BMPQUAD3DR: bmp_do_drawquad3dr(bmp, i, sdci, xoffset, yoffset); break;
+				
+			case BITMAPGETPIXEL: bmp_do_getpixelr(bmp, sdci, xoffset, yoffset); break;
+			case BMPTRIANGLER: bmp_do_drawtriangler(bmp, sdci, xoffset, yoffset); break;
+			case BMPTRIANGLE3DR: bmp_do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset); break;
+			case BMPPOLYGONR: bmp_do_polygonr(bmp, i, sdci, xoffset, yoffset); break;
+			case BMPDRAWLAYERR: do_bmpdrawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPDRAWSCREENR: do_bmpdrawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPDRAWSCREENSOLIDR: do_bmpdrawscreen_solidmaskr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPDRAWSCREENSOLID2R: do_bmpdrawscreen_solidr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPDRAWSCREENCOMBOFR: do_bmpdrawscreen_cflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPDRAWSCREENCOMBOIR: do_bmpdrawscreen_ciflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPDRAWSCREENCOMBOTR: do_bmpdrawscreen_ctyper(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPBLIT: bmp_do_drawbitmapexr(bmp, sdci, xoffset, yoffset); break;
+			case BMPMODE7: bmp_do_mode7r(bmp, sdci, xoffset, yoffset); break;
+			case BMPBLITTO: bmp_do_blittor(bmp, sdci, xoffset, yoffset); break;
+			case READBITMAP: bmp_do_readr(bmp, i, sdci, xoffset, yoffset); break;
+			case WRITEBITMAP: bmp_do_writer(bmp, i, sdci, xoffset, yoffset); break;
+			case CLEARBITMAP: bmp_do_clearr(bmp, sdci, xoffset, yoffset); break;
+			case BITMAPCLEARTOCOLOR: bmp_do_clearcolorr(bmp, sdci, xoffset, yoffset); break;
+			case REGENERATEBITMAP: bmp_do_regenr(bmp, sdci, xoffset, yoffset); break;
+			
+			case BMPDRAWLAYERSOLIDR: do_bmpdrawlayersolidmaskr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPDRAWLAYERCFLAGR: do_bmpdrawlayercflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPDRAWLAYERCTYPER: do_bmpdrawlayerctyper(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPDRAWLAYERCIFLAGR: do_bmpdrawlayerciflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPDRAWLAYERSOLIDITYR: do_bmpdrawlayersolidityr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPWRITETILE: do_bmpwritetile(bmp, sdci, xoffset, yoffset); break;
+		}
+	}
 	
-	case POLYGONR:
-        {
-            do_polygonr(bmp, i, sdci, xoffset, yoffset);
-        }
-        break;
 	
-        
-        case BITMAPR:
-        {
-            do_drawbitmapr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-		
-	case BITMAPEXR:
-        {
-            do_drawbitmapexr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-        
-        case DRAWLAYERR:
-        {
-            do_drawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
-        }
-        break;
-        
-        case DRAWSCREENR:
-        {
-            do_drawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
-        }
-        break;
-	
-	case 	BMPRECTR: bmp_do_rectr(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPFRAMER: bmp_do_framer(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPCIRCLER: bmp_do_circler(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPARCR: bmp_do_arcr(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPELLIPSER: bmp_do_ellipser(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPLINER: bmp_do_liner(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPSPLINER: bmp_do_spliner(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPPUTPIXELR: bmp_do_putpixelr(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPDRAWTILER: bmp_do_drawtiler(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPDRAWTILECLOAKEDR: bmp_do_drawtilecloakedr(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPDRAWCOMBOR: bmp_do_drawcombor(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPDRAWCOMBOCLOAKEDR: bmp_do_drawcombocloakedr(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPFASTTILER: bmp_do_fasttiler(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPFASTCOMBOR: bmp_do_fastcombor(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPDRAWCHARR: bmp_do_drawcharr(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPDRAWINTR: bmp_do_drawintr(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPDRAWSTRINGR: bmp_do_drawstringr(bmp, i, sdci, xoffset, yoffset); break;
-	case 	BMPDRAWSTRINGR2: bmp_do_drawstringr2(bmp, i, sdci, xoffset, yoffset); break;
-	case 	BMPQUADR: bmp_do_drawquadr(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPQUAD3DR: bmp_do_drawquad3dr(bmp, i, sdci, xoffset, yoffset); break;
-		
-	case 	BITMAPGETPIXEL: bmp_do_getpixelr(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPTRIANGLER: bmp_do_drawtriangler(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPTRIANGLE3DR: bmp_do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset); break;
-	case 	BMPPOLYGONR: bmp_do_polygonr(bmp, i, sdci, xoffset, yoffset); break;
-	case 	BMPDRAWLAYERR: do_bmpdrawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	case 	BMPDRAWSCREENR: do_bmpdrawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	case 	BMPDRAWSCREENSOLIDR: do_bmpdrawscreen_solidmaskr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	case 	BMPDRAWSCREENSOLID2R: do_bmpdrawscreen_solidr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	case 	BMPDRAWSCREENCOMBOFR: do_bmpdrawscreen_cflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	case 	BMPDRAWSCREENCOMBOIR: do_bmpdrawscreen_ciflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	case 	BMPDRAWSCREENCOMBOTR: do_bmpdrawscreen_ctyper(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	case 	BMPBLIT: bmp_do_drawbitmapexr(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPMODE7: bmp_do_mode7r(bmp, sdci, xoffset, yoffset); break;
-	case 	BMPBLITTO: bmp_do_blittor(bmp, sdci, xoffset, yoffset); break;
-	case 	READBITMAP: bmp_do_readr(bmp, i, sdci, xoffset, yoffset); break;
-	case 	WRITEBITMAP: bmp_do_writer(bmp, i, sdci, xoffset, yoffset); break;
-	case 	CLEARBITMAP: bmp_do_clearr(bmp, sdci, xoffset, yoffset); break;
-	case 	BITMAPCLEARTOCOLOR: bmp_do_clearcolorr(bmp, sdci, xoffset, yoffset); break;
-	case 	REGENERATEBITMAP: bmp_do_regenr(bmp, sdci, xoffset, yoffset); break;
-	
-	case 	BMPDRAWLAYERSOLIDR: do_bmpdrawlayersolidmaskr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	case 	BMPDRAWLAYERCFLAGR: do_bmpdrawlayercflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	case 	BMPDRAWLAYERCTYPER: do_bmpdrawlayerctyper(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	case 	BMPDRAWLAYERCIFLAGR: do_bmpdrawlayerciflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	case 	BMPDRAWLAYERSOLIDITYR: do_bmpdrawlayersolidityr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
-	
-        
-        }
-    }
-    
-    
-    color_map=&trans_table;
+	color_map=&trans_table;
 }
 
 void CScriptDrawingCommands::Clear()

@@ -28,6 +28,13 @@ extern byte bszboomflip[4];
 
 #define WEAPON_CLOCKS 10
 
+#define WPNUNB_NONE      0x00
+#define WPNUNB_BLOCK     0x01
+#define WPNUNB_IGNR      0x02
+#define WPNUNB_SHLD      0x04
+#define WPNUNB_REFL      0x08
+#define WPNUNB_ALL       0x0F
+
 class weapon : public sprite
 {
 private:
@@ -54,6 +61,7 @@ public:
     int temp1;
     bool behind;
 	byte linkedItem;
+	byte unblockable;
 	byte wscreengrid[22];
 	byte wscreengrid_layer[6][22];
 
@@ -119,10 +127,8 @@ public:
     bool isScriptGenerated();
     bool clip();
     bool blocked();
-    void runscript(int index);
     virtual bool blocked(int xOffset, int yOffset);
     virtual bool animate(int index);
-    virtual bool animateandrunscript(int index);
     virtual void onhit(bool clipped);
     virtual void onhit(bool clipped, int special, int linkdir);
     // override hit detection to check for invicibility, etc
@@ -137,6 +143,7 @@ void do_cswitch_combo2(newcombo const& cmb, int layer, int cpos);
 void do_generic_combo2(int bx, int by, int cid, int flag, int flag2, int ft, int scombo, bool single16, int layer);
 void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &aclk, int &aframe,
                int parentid);
+	       
 #endif
 /*** end of sprite.cc ***/
 

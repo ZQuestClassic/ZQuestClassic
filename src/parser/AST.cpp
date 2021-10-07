@@ -178,7 +178,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 		{
 			bool founddot = false;
 
-			for(unsigned int i=0; i<f.size(); i++)
+			for(size_t i=0; i<f.size(); i++)
 			{
 				if(f.at(i) == '.')
 				{
@@ -242,7 +242,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			// Parse the hex.
 			long val2=0;
 		
-			for(unsigned int i=0; i<f.size(); i++)
+			for(size_t i=0; i<f.size(); i++)
 			{
 				char d = f.at(i);
 				val2*=16;
@@ -292,7 +292,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			// Parse the octal.
 			long val2=0;
 		
-			for(unsigned int i=0; i<f.size(); i++)
+			for(size_t i=0; i<f.size(); i++)
 			{
 				char d = f.at(i);
 				val2*=8;
@@ -355,7 +355,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 				f = f.substr(f.size() - 18, 18);
 			}
 			
-			for(unsigned int i=0; i<f.size(); i++)
+			for(size_t i=0; i<f.size(); i++)
 			{
 				val2<<=1;
 				if(f.at(i) == '1') val2 |= 1;

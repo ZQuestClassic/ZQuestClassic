@@ -401,6 +401,7 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 	case ZVARTYPEID_FILE: return &FileSymbols::getInst();
 	case ZVARTYPEID_DIRECTORY: return &DirectorySymbols::getInst();
 	case ZVARTYPEID_MODULE: return &ModuleSymbols::getInst();
+	case ZVARTYPEID_RNG: return &RNGSymbols::getInst();
     default: return NULL;
     }
 }
@@ -463,32 +464,17 @@ void setVariable(int refVar, Function* function, int var)
 
 void setBoolVariable(int refVar, Function* function, int var)
 {
-	//Functions passed here take 5 opcodes, +popref, +ret; therefore should NOT be inlined -V
-	//function->setFlag(FUNCFLAG_INLINE);
+	function->setFlag(FUNCFLAG_INLINE);
 	int label = function->getLabel();
 	vector<Opcode *> code;
 	//pop off the value to set to
 	code.push_back(new OPopRegister(new VarArgument(EXP1)));
 	LABELBACK(label);
 	//renormalize true to 1
-	int donerenorm = ScriptParser::getUniqueLabelID();
-	code.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-	code.push_back(new OGotoTrueImmediate(new LabelArgument(donerenorm)));
-	code.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
+	code.push_back(new OCastBoolI(new VarArgument(EXP1)));
 	
-	//pop object pointer
-	if (refVar == NUL)
-	{
-		function->internal_flags |= IFUNCFLAG_SKIPPOINTER;
-		code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
-		LABELBACK(donerenorm);
-	}
-	else
-	{
-		code.push_back(new OPopRegister(new VarArgument(refVar)));
-		LABELBACK(donerenorm);
-		code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
-	}
+	POPREF();
+	code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
 	RETURN();
 	function->giveCode(code);
 }
@@ -3994,6 +3980,17 @@ static AccessorTable itemTable[] =
 	{ "setFallCombo",           ZVARTYPEID_VOID,          SETTER,       ITEMFALLCMB,          1,           0,                                    2,           {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getMoveFlags[]",         ZVARTYPEID_BOOL,          GETTER,       ITEMMOVEFLAGS,        2,           0,                                    2,           {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setMoveFlags[]",         ZVARTYPEID_VOID,          SETTER,       ITEMMOVEFLAGS,        2,           0,                                    3,           {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getLightRadius",         ZVARTYPEID_FLOAT,         GETTER,       ITEMGLOWRAD,          1,           0,                                    1,           {  ZVARTYPEID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setLightRadius",         ZVARTYPEID_VOID,          SETTER,       ITEMGLOWRAD,          1,           0,                                    2,           {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getLightShape",          ZVARTYPEID_FLOAT,         GETTER,       ITEMGLOWSHP,          1,           0,                                    1,           {  ZVARTYPEID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setLightShape",          ZVARTYPEID_VOID,          SETTER,       ITEMGLOWSHP,          1,           0,                                    2,           {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getDir",                 ZVARTYPEID_FLOAT,         GETTER,       ITEMDIR,              1,           0,                                    1,           {  ZVARTYPEID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setDir",                 ZVARTYPEID_VOID,          SETTER,       ITEMDIR,              1,           0,                                    2,           {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getAnimation",           ZVARTYPEID_FLOAT,         GETTER,       ITEMENGINEANIMATE,    1,           0,                                    1,           {  ZVARTYPEID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setAnimation",           ZVARTYPEID_VOID,          SETTER,       ITEMENGINEANIMATE,    1,           0,                                    2,           {  ZVARTYPEID_ITEM,          ZVARTYPEID_BOOL,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Remove",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getShadowSprite",        ZVARTYPEID_FLOAT,         GETTER,       ITEMSHADOWSPR,        1,           0,                                    1,           {  ZVARTYPEID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setShadowSprite",        ZVARTYPEID_VOID,          SETTER,       ITEMSHADOWSPR,        1,           0,                                    2,           {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -4033,7 +4030,19 @@ void ItemSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+	//void Remove(itemsprite)
+	{
+		Function* function = getFunction("Remove", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		POPREF();
+		LABELBACK(label);
+		//Break shield
+		code.push_back(new OItemRemove());
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 ItemclassSymbols ItemclassSymbols::singleton = ItemclassSymbols();
@@ -4547,6 +4556,7 @@ static AccessorTable gameTable[] =
 	{ "LoadMessageData",               ZVARTYPEID_ZMESSAGE,      FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadDMapData",                  ZVARTYPEID_DMAPDATA,      FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadDropset",                   ZVARTYPEID_DROPSET,       FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadRNG",                       ZVARTYPEID_RNG,           FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_GAME,          -1,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "CreateBitmap",                  ZVARTYPEID_BITMAP,        FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "PlayOgg",                       ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetOggPos",                     ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_GAME,          -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -4628,6 +4638,19 @@ void GameSymbols::generateCode()
         POPREF();
         code.push_back(new OLoadDropsetRegister(new VarArgument(EXP1)));
         code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFDROPS)));
+        RETURN();
+        function->giveCode(code);
+    }
+    
+    //RNG
+    {
+	    Function* function = getFunction("LoadRNG", 1);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop pointer
+        POPREF();
+        code.push_back(new OLoadRNG());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }
@@ -6866,6 +6889,16 @@ static AccessorTable npcTable[] =
 	{ "setFallCombo",           ZVARTYPEID_VOID,          SETTER,       NPCFALLCMB,          1,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getMoveFlags[]",         ZVARTYPEID_BOOL,          GETTER,       NPCMOVEFLAGS,        3,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setMoveFlags[]",         ZVARTYPEID_VOID,          SETTER,       NPCMOVEFLAGS,        3,           0,                                    3,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getLightRadius",         ZVARTYPEID_FLOAT,         GETTER,       NPCGLOWRAD,           1,           0,                                    1,           {  ZVARTYPEID_NPC,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setLightRadius",         ZVARTYPEID_VOID,          SETTER,       NPCGLOWRAD,           1,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getLightShape",          ZVARTYPEID_FLOAT,         GETTER,       NPCGLOWSHP,           1,           0,                                    1,           {  ZVARTYPEID_NPC,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setLightShape",          ZVARTYPEID_VOID,          SETTER,       NPCGLOWSHP,           1,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getShadowSprite",        ZVARTYPEID_FLOAT,         GETTER,       NPCSHADOWSPR,         1,           0,                                    1,           {  ZVARTYPEID_NPC,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setShadowSprite",        ZVARTYPEID_VOID,          SETTER,       NPCSHADOWSPR,         1,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getSpawnSprite",         ZVARTYPEID_FLOAT,         GETTER,       NPCSPAWNSPR,          1,           0,                                    1,           {  ZVARTYPEID_NPC,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setSpawnSprite",         ZVARTYPEID_VOID,          SETTER,       NPCSPAWNSPR,          1,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getDeathSprite",         ZVARTYPEID_FLOAT,         GETTER,       NPCDEATHSPR,          1,           0,                                    1,           {  ZVARTYPEID_NPC,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setDeathSprite",         ZVARTYPEID_VOID,          SETTER,       NPCDEATHSPR,          1,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -7382,6 +7415,15 @@ static AccessorTable lwpnTable[] =
 	{ "setFallCombo",           ZVARTYPEID_VOID,          SETTER,       LWPNFALLCMB,          1,           0,                                    2,           {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getMoveFlags[]",         ZVARTYPEID_BOOL,          GETTER,       LWPNMOVEFLAGS,        2,           0,                                    2,           {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setMoveFlags[]",         ZVARTYPEID_VOID,          SETTER,       LWPNMOVEFLAGS,        2,           0,                                    3,           {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getLightRadius",         ZVARTYPEID_FLOAT,         GETTER,       LWPNGLOWRAD,          1,           0,                                    1,           {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setLightRadius",         ZVARTYPEID_VOID,          SETTER,       LWPNGLOWRAD,          1,           0,                                    2,           {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getLightShape",          ZVARTYPEID_FLOAT,         GETTER,       LWPNGLOWSHP,          1,           0,                                    1,           {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setLightShape",          ZVARTYPEID_VOID,          SETTER,       LWPNGLOWSHP,          1,           0,                                    2,           {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getUnblockable",         ZVARTYPEID_FLOAT,         GETTER,       LWPNUNBL,             1,           0,                                    1,           {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setUnblockable",         ZVARTYPEID_VOID,          SETTER,       LWPNUNBL,             1,           0,                                    2,           {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Remove",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getShadowSprite",        ZVARTYPEID_FLOAT,         GETTER,       LWPNSHADOWSPR,        1,           0,                                    1,           {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setShadowSprite",        ZVARTYPEID_VOID,          SETTER,       LWPNSHADOWSPR,        1,           0,                                    2,           {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -7436,7 +7478,19 @@ void LinkWeaponSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+	//void Remove(lweapon)
+	{
+		Function* function = getFunction("Remove", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		POPREF();
+		LABELBACK(label);
+		//Break shield
+		code.push_back(new OLWpnRemove());
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 EnemyWeaponSymbols EnemyWeaponSymbols::singleton = EnemyWeaponSymbols();
@@ -7557,6 +7611,15 @@ static AccessorTable ewpnTable[] =
 	{ "setFallCombo",           ZVARTYPEID_VOID,          SETTER,       EWPNFALLCMB,          1,           0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getMoveFlags[]",         ZVARTYPEID_BOOL,          GETTER,       EWPNMOVEFLAGS,        2,           0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setMoveFlags[]",         ZVARTYPEID_VOID,          SETTER,       EWPNMOVEFLAGS,        2,           0,                                    3,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getLightRadius",         ZVARTYPEID_FLOAT,         GETTER,       EWPNGLOWRAD,          1,           0,                                    1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setLightRadius",         ZVARTYPEID_VOID,          SETTER,       EWPNGLOWRAD,          1,           0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getLightShape",          ZVARTYPEID_FLOAT,         GETTER,       EWPNGLOWSHP,          1,           0,                                    1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setLightShape",          ZVARTYPEID_VOID,          SETTER,       EWPNGLOWSHP,          1,           0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getUnblockable",         ZVARTYPEID_FLOAT,         GETTER,       EWPNUNBL,             1,           0,                                    1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setUnblockable",         ZVARTYPEID_VOID,          SETTER,       EWPNUNBL,             1,           0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Remove",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getShadowSprite",        ZVARTYPEID_FLOAT,         GETTER,       EWPNSHADOWSPR,        1,           0,                                    1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setShadowSprite",        ZVARTYPEID_VOID,          SETTER,       EWPNSHADOWSPR,        1,           0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -7611,7 +7674,19 @@ void EnemyWeaponSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+	//void Remove(eweapon)
+	{
+		Function* function = getFunction("Remove", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		POPREF();
+		LABELBACK(label);
+		//Break shield
+		code.push_back(new OEWpnRemove());
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 /////// New Types
@@ -8732,6 +8807,7 @@ static AccessorTable BitmapTable[] =
 	{ "ClearToColor",           ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Free",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_BITMAP,                -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "DrawFrame",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                     10,           {  ZVARTYPEID_BITMAP,                ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_BOOL,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "WriteTile",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      7,           {  ZVARTYPEID_BITMAP,                ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_BOOL,                           ZVARTYPEID_BOOL,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                   -1,                     -1,               -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
@@ -9446,6 +9522,21 @@ void BitmapSymbols::generateCode()
 		POPREF();
 		LABELBACK(label);
 		code.push_back(new OBitmapFree());
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void WriteTile(bitmap, int, int, int, int, bool, bool)
+	{
+		Function* function = getFunction("WriteTile", 7);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OBitmapWriteTile());
+		LABELBACK(label);
+		POP_ARGS(6, NUL);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -11225,11 +11316,18 @@ static AccessorTable NPCDataTable[] =
 	{ "getWeaponInitD[]",         ZVARTYPEID_FLOAT,        GETTER,       NPCDATAWEAPONINITD,   8,             0,                                    2,           {  ZVARTYPEID_NPCDATA,           ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setWeaponInitD[]",         ZVARTYPEID_VOID,         SETTER,       NPCDATAWEAPONINITD,   8,             0,                                    3,           {  ZVARTYPEID_NPCDATA,           ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
+	{ "getShadowSprite",        ZVARTYPEID_FLOAT,         GETTER,       NPCDSHADOWSPR,         1,           0,                                    1,           {  ZVARTYPEID_NPCDATA,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setShadowSprite",        ZVARTYPEID_VOID,          SETTER,       NPCDSHADOWSPR,         1,           0,                                    2,           {  ZVARTYPEID_NPCDATA,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getSpawnSprite",         ZVARTYPEID_FLOAT,         GETTER,       NPCDSPAWNSPR,          1,           0,                                    1,           {  ZVARTYPEID_NPCDATA,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setSpawnSprite",         ZVARTYPEID_VOID,          SETTER,       NPCDSPAWNSPR,          1,           0,                                    2,           {  ZVARTYPEID_NPCDATA,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getDeathSprite",         ZVARTYPEID_FLOAT,         GETTER,       NPCDDEATHSPR,          1,           0,                                    1,           {  ZVARTYPEID_NPCDATA,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setDeathSprite",         ZVARTYPEID_VOID,          SETTER,       NPCDDEATHSPR,          1,           0,                                    2,           {  ZVARTYPEID_NPCDATA,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
 	{ "GetInitDLabel",            ZVARTYPEID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           {  ZVARTYPEID_NPCDATA,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "MatchInitDLabel",          ZVARTYPEID_BOOL,         FUNCTION,     0,                    1,             0,                                    3,           {  ZVARTYPEID_NPCDATA,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetName",                  ZVARTYPEID_VOID,         FUNCTION,     0,                    1,             0,                                    2,           {  ZVARTYPEID_NPCDATA,     ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
-//	Functions
+//{	Functions
 //	one inout, no return
 	{ "GetTile",                  ZVARTYPEID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           {  ZVARTYPEID_NPCDATA,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetEHeight",               ZVARTYPEID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           {  ZVARTYPEID_NPCDATA,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -11333,7 +11431,8 @@ static AccessorTable NPCDataTable[] =
 	Plus One master function to set all attriutes using an array?
 */   
 	
-//	SetName
+//}
+	
 	{ "",                         -1,                      -1,           -1,                   -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
@@ -13286,6 +13385,153 @@ SubscreenDataSymbols::SubscreenDataSymbols()
 void SubscreenDataSymbols::generateCode()
 {
 	//
+}
+
+RNGSymbols RNGSymbols::singleton = RNGSymbols();
+
+static AccessorTable RNGTable[] =
+{
+//	  name,                     rettype,                     setorget,     var,   numindex,   funcFlags,                            numParams,   params
+//	{ "DirExists",              ZVARTYPEID_BOOL,             FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Rand",                   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_RNG,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Rand",                   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_RNG,        ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Rand",                   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_RNG,        ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LRand",                  ZVARTYPEID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_RNG,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LRand",                  ZVARTYPEID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_RNG,        ZVARTYPEID_LONG,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LRand",                  ZVARTYPEID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_RNG,        ZVARTYPEID_LONG,                               ZVARTYPEID_LONG,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SRand",                  ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_RNG,        ZVARTYPEID_LONG,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SRand",                  ZVARTYPEID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_RNG,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Free",                   ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_RNG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+RNGSymbols::RNGSymbols()
+{
+    table = RNGTable;
+    refVar = REFRNG;
+}
+
+void RNGSymbols::generateCode()
+{
+	//int Rand()
+	{
+		Function* function = getFunction("Rand", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new ORNGRand1());
+		RETURN();
+		function->giveCode(code);
+	}
+	//int Rand(int bound)
+	{
+		Function* function = getFunction("Rand", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		code.push_back(new ORNGRand2(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int Rand(int bound1, int bound2)
+	{
+		Function* function = getFunction("Rand", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		code.push_back(new ORNGRand3(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//long LRand()
+	{
+		Function* function = getFunction("LRand", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new ORNGLRand1());
+		RETURN();
+		function->giveCode(code);
+	}
+	//long LRand(long bound)
+	{
+		Function* function = getFunction("LRand", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		code.push_back(new ORNGLRand2(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//long LRand(long bound1, long bound2)
+	{
+		Function* function = getFunction("LRand", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		code.push_back(new ORNGLRand3(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SRand(long seed)
+    {
+	    Function* function = getFunction("SRand", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop seed
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+		POPREF();
+        code.push_back(new ORNGSeed(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //long SRand()
+    {
+	    Function* function = getFunction("SRand", 1);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+		ASSERT_NON_NUL();
+		POPREF();
+        LABELBACK(label);
+        code.push_back(new ORNGRSeed());
+        RETURN();
+        function->giveCode(code);
+    }
+	//void Free()
+	{
+		Function* function = getFunction("Free", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		code.push_back(new ORNGFree());
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 ModuleSymbols ModuleSymbols::singleton = ModuleSymbols();

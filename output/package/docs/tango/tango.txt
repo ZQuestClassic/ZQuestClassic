@@ -1,0 +1,966 @@
+tango.zh
+Version 1.3.3
+
+
+
+////=================================\\\\
+|||| ZScript variables and functions ||||
+\\\\=================================////
+
+
+Note: There are many undocumented functions, constants, variables, and
+arrays whose names begin with __. These are meant for internal use only;
+they may be changed or removed without warning in future versions.
+
+
+================ Global script functions ================
+
+void Tango_Start()
+ * Clears the menu and all text slots.
+ * Call this in the active global script before the main loop.
+ 
+void Tango_Update1()
+ * Processes each text slot and the menu.
+ * After calling this function, the render target will be set to RT_SCREEN.
+ * Call this in the active global script's main loop before Waitdraw().
+
+void Tango_Update2()
+ * Draws all active text slots to the screen.
+ * After calling this function, the render target will be set to RT_SCREEN.
+ * Call this in the active global script's main loop after Waitdraw().
+
+bool Tango_ValidateConfiguration()
+ * This function will check the arrays and text slot definitions for errors
+ * and print a report to allegro.log. It can't catch all possible errors,
+ * but it should get the most common ones. Returns true if no errors were found.
+ * Note that not all potential problems are necessarily invalid; some, such as
+ * overlapping text slots, may be okay. These will be logged, but not
+ * considered errors.
+ * This function should not be used in published quests. It only exists to
+ * help you configure tango.zh correctly.
+
+
+================ Text slot management functions ================
+
+int Tango_GetFreeSlot()
+int Tango_GetFreeSlot(int slotType)
+ * Get the number of a slot not currently in use. You can specify a slot type;
+ * if you don't care, pass in TANGO_SLOT_ANY or leave out the argument.
+
+void Tango_ClearSlot(int slot)
+ * Clear all data for the given slot.
+
+bool Tango_ReserveSlot(int slot)
+ * Mark a slot as reserved, preventing Tango_GetFreeSlot() from returning it.
+ * Use this if you get a free slot and don't plan to use it immediately.
+ * Returns true if the reservation succeeded (i.e. the slot wasn't already
+ * in use).
+ * The reserved state will be cleared if Tango_ClearSlot() is called or Link
+ * moves to a new screen.
+
+void Tango_LoadString(int slot, int string[])
+ * Loads a ZScript string (int[]) into the given slot.
+
+void Tango_LoadMessage(int slot, int messageID)
+ * Loads a ZC message (Quest->Strings) into the given slot.
+
+void Tango_AppendString(int slot, int string[])
+void Tango_AppendMessage(int slot, int messageID)
+ * Loads a string or message into the given slot, appending it to the end of
+ * whatever text is already there.
+
+void Tango_LoadString(int slot, int string[], int startChar)
+void Tango_LoadMessage(int slot, int messageID, int startChar)
+void Tango_AppendString(int slot, int string[], int startChar)
+void Tango_AppendMessage(int slot, int messageID, int startChar)
+ * Like the above, but specifies a starting point in the string to load.
+ * Loading will start from the first character after startChar. For instance:
+ * int str[]="abcd%efg";
+ * Tango_LoadString(0, str, '%');
+ * will load "efg" into slot 0.
+ * If the character specified is not in the string, the entire string
+ * will be loaded. The string must contain the actual character, not
+ * a character code (@##).
+
+void Tango_SetSlotStyle(int slot, int style)
+int Tango_GetSlotStyle(int slot)
+ * Set or get the style used by the given slot.
+
+void Tango_SetSlotPosition(int slot, int x, int y)
+int Tango_GetSlotX(int slot)
+int Tango_GetSlotY(int slot)
+ * Set or get the position where the text slot will be shown on the screen.
+
+void Tango_ActivateSlot(int slot)
+ * Display the current slot on the screen. Do this only after setting
+ * the slot's text, style, and position. The render target will be set to
+ * RT_SCREEN after calling this function.
+
+bool Tango_SlotIsActive(int slot)
+ * Returns true if the slot is currently being displayed on the screen.
+ * A suspended slot is still considered active.
+
+bool Tango_AnySlotIsActive()
+ * Returns true if any slot is currently being displayed.
+
+bool Tango_SlotIsFinished(int slot)
+ * Returns true if the given slot is finished printing and is still
+ * being displayed.
+
+
+================ Style setup functions ================
+
+void Tango_ClearStyle(int style)
+ * Clear all data for the given style.
+
+void Tango_SetStyleAttribute(int style, int attribute, int value)
+int Tango_GetStyleAttribute(int style, int attribute)
+ * Set or get an attribute of the given style. See the style attributes
+ * section for the available attributes and expected values.
+ * Modifying a style in use by an active text slot is not guaranteed
+ * to work correctly.
+
+int Tango_GetSlotStyleAttribute(int slot, int attribute)
+ * Get an attribute from whatever style the given text slot is using.
+
+int Tango_GetStringWidth(int str[], int font)
+ * Returns the width of the given string when printed in the given font.
+ * Tango code will not be evaluated and line breaks will be ignored.
+ * This should be used for centering text when using TANGO_DRAW_TEXT
+ * in a complex backdrop.
+
+
+================ Menu functions ================
+
+void Tango_InitializeMenu()
+ * Clear all menu data and deactivate the menu if one is active.
+
+void Tango_AddMenuChoice(int value, int x, int y)
+ * Add a menu choice with the given value at the specified position.
+ * The value should be greater than 0.
+
+void Tango_MoveMenuChoice(int choice, int x, int y)
+ * Reposition a menu choice on the screen.
+
+void Tango_SetMenuCursor(int combo, int cset)
+void Tango_SetMenuCursor(int combo, int cset, int width, int height)
+ * Set the appearance of the menu cursor. If width and height are not
+ * specified, they will default to 1.
+
+void Tango_SetMenuSFX(int moveSound, int selectSound, int cancelSound)
+ * Set the sounds to be used by the menu.
+
+void Tango_SetMenuFlags(int flags)
+ * Set flags for the menu. The value is 0 or one or more menu flags
+ * ORed together. See the menu flags section for available flags.
+
+void Tango_ActivateMenu()
+ * Activate a menu set up using the above functions.
+
+void Tango_DeactivateMenu()
+ * Deactivate the active menu. This is typically only needed for
+ * persistent menus.
+
+int Tango_GetLastMenuChoice()
+ * Returns the value of the last selection made in a menu. Returns 0 if
+ * a non-persistent menu is currently active, no menu has been shown yet,
+ * or the user cancelled in the last menu.
+ * If the menu is persistent, this function will only return each selection
+ * for a single frame before returning to 0.
+
+int Tango_GetCurrentMenuChoice()
+ * Returns the value if the currently selected choice in the menu.
+ * Returns 0 if no menu is active or the current cursor position is invalid.
+
+bool Tango_MenuIsActive()
+ * Returns true if a menu is currently active.
+ * Note: If you display a string that creates a menu, the menu will not
+ * be active until at least the next call to Tango_Update1(), even if
+ * TANGO_FLAG_INSTANTANEOUS is used.
+
+void Tango_SaveMenuState(int state[])
+ * Store the current state of the menu into output. This will store the
+ * values and positions of the options, the cursor and sound settings, and
+ * the currently selected option.
+ * The size of output must be at least 20 + 3 * __TANGO_MAX_MENU_ITEMS.
+ * Later versions of tango.zh are likely to use more data; you may
+ * want to use a larger array for future-proofing.
+
+void Tango_SetMenuAutosaveDest(int state[])
+ * Sets an array in which the menu state will automatically be saved
+ * when a selection is made or the player cancels. The state will not
+ * be saved if the menu is closed for another reason. Note that the
+ * saved state includes the pointer to the autosave location itself.
+ * After setting the autosave array, you can call this again with an
+ * argument of NULL to clear it.
+
+void Tango_RestoreMenuState(int oldState[])
+ * Restore the state saved with Tango_SaveMenuState().
+
+int Tango_GetMenuCursorPosition()
+ * Returns the current position of the menu cursor. Choices are numbered
+ * from 0. Keep in mind that the return value is not guaranteed to be valid.
+
+void Tango_SetMenuCursorPosition(int pos)
+ * Sets the cursor position to pos. If pos is invalid, no item will be
+ * selected, and the cursor will be hidden.
+
+
+================ Other functions ================
+
+void Tango_Sync(int value)
+ * Used to synchronize a script and a text slot. See @sync() for details.
+
+void Tango_SetSlotVar(int slot, int what, float value)
+float Tango_GetSlotVar(int slot, int what)
+ * Use these to set and get a text slot's @a0 and @a1. Use either
+ * TANGO_VAR_A0 or TANGO_VAR_A1 as the what argument.
+
+void Tango_SuspendSlot(int slot)
+ * Suspends processing of a text slot.
+
+void Tango_ResumeSlot(int slot)
+ * Resumes processing of a suspended text slot.
+
+float Tango_GetSlotScrollPos(int slot)
+float Tango_GetSlotMaxScrollPos(int slot)
+ * If the text is too long to be displayed all at once, it will scroll down.
+ * These functions get the current and maximum scroll positions. The minimum
+ * position is always 0, and the maximum is 0 or greater. The scroll amount
+ * is given in pixels.
+
+void Tango_ScrollSlot(int slot, float amount)
+ * Scrolls the text slot up or down. As above, the amount is in pixels.
+ * Poitive numbers scroll down, and negative numbers scroll up. The slot
+ * will not scroll beyond the beginning or end of the text.
+
+int Tango_GetCurrentSlot()
+ * Returns the ID of the slot currently being processed. This should only
+ * be used in __Tango_RunCustomFunction(), Tango_GetCustomVar(), and 
+ * Tango_SetCustomVar(). At any other time, the value is meaningless.
+
+void Tango_SaveSlotState(int slot, int output[], int bitmap)
+void Tango_SaveSlotState(int slot, int output[])
+ * Store the state of a text slot into output. The current text, style,
+ * position, state, and variables will be saved. The style's data
+ * will not be saved.
+ * If a bitmap is specified, the text already rendered will be copied to 
+ * that bitmap. The render target will be set to RT_SCREEN afterward.
+ * The size of output must be at least the slot's length in the buffer + 21.
+ * Later versions of tango.zh are likely to use more data; you may
+ * want to use a larger array for future-proofing.
+
+void Tango_RestoreSlotState(int slot, int oldState[], int bitmap)
+void Tango_RestoreSlotState(int slot, int oldState[])
+ * Restore the state of a slot saved with Tango_SaveSlotState(). The slot
+ * number should be the same, as it will be assumed that the position
+ * on the bitmap is the same.
+ * If a bitmap is specified, the render target will be set to RT_SCREEN.
+
+float Tango_ConvertFunctionName(int name[])
+float Tango_ConvertVariableName(int name[])
+ * Returns the converted value of the given name and prints a constant
+ * definition to allegro.log. Do not include '@' in the name.
+ *
+ * int name[] = "dostuff2";
+ * float value = Tango_ConvertFunctionName(name);
+ *
+ * value will be equal to 543.3828, and allegro.log will contain
+ * const float FUNC_DOSTUFF2 = 543.3828;
+
+void Tango_LogUndefinedFunction(float function)
+ * This will log an error indicating the use of an unknown function.
+ * This is meant to be called from __Tango_RunCustomFunction() if
+ * the function is not recognized. It's only useful for debugging,
+ * so it can be considered optional.
+
+void Tango_LogUndefinedVariable(float var)
+ * This will log an error indicating the use of an unknown variable.
+ * It's meant to be called from Tango_GetCustomVar() and Tango_SetCustomVar()
+ * and is useful only for debugging.
+
+
+
+////====================================\\\\
+|||| Tango code variables and functions ||||
+\\\\====================================////
+
+
+
+================ Variables ================
+
+@a0, @a1
+ * Read/write
+ * Use these to access the slot's a[0] and a[1].
+
+@x, @y
+ * Read/write
+ * The slot's position on the screen.
+
+@cset, @color
+ * Read/write
+ * The slot's current text color. @color refers to color 0-15 within
+ * the CSet and only applies to built-in font characters.
+
+@speed
+ * Read/write
+ * The current text speed.
+
+@sfx
+ * Read/write
+ * The current text sound.
+
+@style
+ * Read/write
+ * The slot's current style. You should only write to this at
+ * the beginning of a string, before any text is printed; changing
+ * styles mid-text may cause problems.
+
+@next
+ * Read/write
+ * The next message to be shown after the current one finishes.
+
+@chosen
+ * Read-only
+ * The last option chosen in a menu. This is 0 if a menu is currently active,
+ * if no menu has been displayed yet, or if the player canceled in
+ * the last menu.
+
+@default
+ * Read-only
+ * This is a pseudo-variable used to reset style variables to the default.
+ * There are only four valid uses:
+ * @set(@cset @default)
+ * @set(@color @default)
+ * @set(@speed @default)
+ * @set(@sfx @default)
+ * The result of any other use is undefined.
+
+
+================ Setter functions ================
+
+@set(a1 a2)
+ * a1: Writable variable
+ * a2: Number or condition
+ * Sets the value of a variable.
+
+@inc(a1 a2)
+ * a1: Writable variable
+ * a2: Number or condition
+ * Adds a value to a variable.
+
+
+================ Control functions ================
+
+These functions affect the text display in ways not covered by other functions.
+
+@append(a1)
+ * a1: Number
+ * Appends message a1 to the end of the current text.
+
+@delay(a1)
+ * a1: Number
+ * Suspends processing of the slot for a1 frames. If the text is sped up
+ * (by holding down A), the delay will be reduced accordingly.
+
+@pressa()
+ * Prompts the player to press the the advance button (A by default)
+ * before continuing.
+
+@suspend()
+ * Suspends the current slot until a script calls Tango_ResumeSlot().
+
+@next(a1)
+ * a1: Number
+ * Sets message a1 to follow the current text. Equivalent to @set(@next a1)
+
+@goto(a1)
+ * a1: Number
+ * Immediately terminates the current text and loads message a1.
+
+@tab(a1)
+ * a1: Number
+ * Indents the text to a1 pixels. This may be left of the current position,
+ * causing the following text to be printed over earlier text.
+ * The behavior of this function with centered text is currently undefined.
+
+@close()
+ * Immediately deactivates the current slot.
+
+@sync(a1)
+@sync(a1 a2)
+ * a1: Number
+ * a2: Number
+ * This can be used to synchronize multiple text slots or to synchronize
+ * a slot and script. The first string to call @sync with one argument
+ * is suspended. When @sync() is called with the same argument from a second
+ * slot, both slots resume processing. In other words, when two slots are
+ * active simultaneously and both call @sync(5), the first one to reach
+ * that function will stop and wait for the other to catch up.
+ * If two arguments are used, any slots waiting for a1 will be resumed,
+ * but the current slot will not stop if no other is waiting for it. It will
+ * treat the second argument the same way it would a single one. This is
+ * almost the same as calling @sync(a1)@sync(a2), except the first call
+ * would never hang. This is convenient for synchronizing multiple strings.
+ * Tango_Sync() works in much the same way. A call to Tango_Sync() will not
+ * return until a string calls @sync() with the same value. Do not count on
+ * this coordination being precisely timed; there may be a discrepancy of
+ * a frame or two. Also, Tango_Sync() cannot be used on its own to synchronize
+ * multiple scripts; there must be at least one call to @sync() involved.
+
+
+================ Numeric functions ================
+
+@add(a1 a2)
+* a1: Number
+* a2: Number
+* Returns a1+a2
+
+@rand(a1 a2)
+* a1: Number
+* a2: Number
+* Returns a number between a1 and a2, inclusive.
+
+
+================ Text functions ================
+
+These functions are replaced with text when they run.
+
+@char(a1)
+ * a1: Number
+ * Inserts the character with the given number. This is similar to
+ * inserting character codes; @26 and @char(26) are essentially the same.
+ * The main difference is that @char() allows variables and functions
+ * to be used. @char(@a0) is legal; @(@a0) is not.
+
+@number(a1)
+ * a1: Number
+ * Inserts a number as text.
+
+@ordinal(a1)
+ * a1: Number
+ * Inserts a number as text followed by "st", "nd", "rd", or "th".
+
+@savename()
+ * Inserts the save file name.
+
+@string(a1)
+ * a1: Number (ZScript string pointer)
+ * Inserts an arbitrary ZScript string. Code in this string will not
+ * be evaluated. The maximum length of the string is determined by
+ * the constant __TANGO_MAX_STRING_FUNC_LENGTH.
+
+
+================ Flow functions ================
+
+@while(a1 a2)
+ * a1: Condition or number
+ * a2: Setter or effect function
+ * Executes a2 as long as a1 is nonzero. Runs once per frame while
+ * the condition is true.
+
+@if(a1 a2)
+@elseif(a1 a2)
+@else(a2)
+ * a1: Condition or number
+ * a2: Setter or effect function
+ * Execute a2 if a1 is nonzero.
+
+@waituntil(a1)
+ * a1: Condition or number
+ * Supends processing of the slot until a1 is nonzero.
+
+
+================ Condition functions ================
+
+These functions should be used as the first argument to @if(), @elseif(),
+@while(), and @waituntil(), but they can also be used as numeric functions.
+They return 1 if the condition is true and 0 if it's false.
+
+@equal(a1 a2)
+* a1: Number or condition
+* a2: Number or condition
+* True if a1 and a2 are equal.
+
+@notequal(a1 a2)
+ * a1: Number or condition
+ * a2: Number or condition
+ * True if a1 and a2 are not equal.
+
+@greater(a1 a2)
+* a1: Number
+* a2: Number
+* True if a1 is greater than a2.
+
+@less(a1 a2)
+* a1: Number
+* a2: Number
+* True if a1 is less than a2.
+
+@and(a1 a2)
+* a1: Condition or number
+* a2: Condition or number
+* True if a1 and a2 are both nonzero.
+
+@or(a1 a2)
+* a1: Condition or number
+* a2: Condition or number
+* True if at least one of a1 and a2 is nonzero.
+
+@not(a1)
+* a1: Condition or number
+* True if a1 is zero, false otherwise.
+
+
+================ Menu functions ================
+
+@choice(a1)
+ * a1: number
+ * Creates a menu option with value a1. a1 should be greater than 0.
+ * The maximum number of choices is determined by the constant
+ * __TANGO_MAX_MENU_ITEMS.
+
+@domenu()
+@domenu(a1)
+@domenu(a1 a2)
+ * a1: Number
+ * Activates the menu and suspends further processing until a selection
+ * is made.
+ * For argument a1, add the following values to enable the corresponding feature
+ * or use 0 to disable both.
+ *   1: The player can cancel instead of making a selection
+ *   2: The menu is persistent (doesn't close after a selection is made)
+ *   - This is only useful when a script is running to see each selection
+ * a2 specifies the initially selected choice, counting from 0. If an invalid
+ * number is given, no choice will be selected initially; this is sometimes
+ * useful to prevent the player from making a selection accidentally.
+
+@menuwait()
+ * Suspends processing of the slot until a menu selection is made.
+ * Don't use this together with @domenu(); it should be used when
+ * a script or another string will create the menu.
+
+
+================ Effect functions ================
+
+These functions perform functions in the game. They do not return useful values.
+
+@playsfx(a1)
+ * a1: Number
+ * Play a sound.
+
+
+
+////============\\\\
+|||| Appendices ||||
+\\\\============////
+
+
+
+================ Style attributes ================
+
+These are the attributes that can be set with Tango_SetStyleAttribute().
+
+TANGO_STYLE_BACKDROP_TYPE
+ * The type of backdrop to display behind the text; this should be
+ * a TANGO_BACKDROP constant. There are also several more attributes
+ * associated with each backdrop type. See the backdrops section below
+ * for backdrop types and related attributes.
+
+TANGO_STYLE_TEXT_FONT
+ * The default font used to render the text. This must be a Tango font
+ * definition, not a ZC font.
+
+TANGO_STYLE_TEXT_X
+TANGO_STYLE_TEXT_Y
+ * The position of the text. These are offsets from the values set with
+ * Tango_SetSlotPosition().
+
+TANGO_STYLE_TEXT_WIDTH
+TANGO_STYLE_TEXT_HEIGHT
+ * The size of the area in which text will be displayed.
+
+TANGO_STYLE_TEXT_CSET
+TANGO_STYLE_TEXT_COLOR
+ * The default color of the text. TANGO_STYLE_TEXT_COLOR is used to select
+ * color 0-15 in the given CSet; this only applies to characters in
+ * built-in fonts.
+
+TANGO_STYLE_TEXT_SPEED
+ * The delay before each character is printed. A speed of 0 means there is
+ * no delay between characters; this is similar to TANGO_FLAG_INSTANTANEOUS,
+ * but differs in that the speed can be changed mid-text. The flag requires
+ * less processing, so it should be preferred whenever possible.
+
+TANGO_STYLE_TEXT_SFX
+ * The default sound played when printing a character.
+
+TANGO_STYLE_TEXT_END_SFX
+ * The sound played when the end of the text is reached.
+
+TANGO_STYLE_ALT_CSET_1
+TANGO_STYLE_ALT_CSET_2
+TANGO_STYLE_ALT_CSET_3
+TANGO_STYLE_ALT_CSET_4
+TANGO_STYLE_ALT_COLOR_1
+TANGO_STYLE_ALT_COLOR_2
+TANGO_STYLE_ALT_COLOR_3
+TANGO_STYLE_ALT_COLOR_4
+ * Set highlight colors to use for double-bracketed text.
+ * 1 is (( ))
+ * 2 is [[ ]]
+ * 3 is {{ }}
+ * 4 is << >>
+
+TANGO_STYLE_ALT_OFFSET_1
+TANGO_STYLE_ALT_OFFSET_2
+TANGO_STYLE_ALT_OFFSET_3
+TANGO_STYLE_ALT_OFFSET_4
+ * Similar to the above, this sets a tile offset for double-bracketed text.
+ * This adds a number to the base tile of custom and extended fonts; this is
+ * applied in addition to the color change. It's meant for 8-bit tiles,
+ * as those can't simply be recolored.
+
+TANGO_STYLE_MENU_CHOICE_INDENT
+ * How much extra space to add before each menu choice to make room for
+ * the cursor, in pixels.
+
+TANGO_STYLE_MENU_CURSOR_COMBO
+TANGO_STYLE_MENU_CURSOR_CSET
+TANGO_STYLE_MENU_CURSOR_WIDTH
+TANGO_STYLE_MENU_CURSOR_HEIGHT
+ * The appearance of the menu cursor. Width and height are in tiles.
+
+TANGO_STYLE_MENU_CURSOR_MOVE_SFX
+TANGO_STYLE_MENU_SELECT_SFX
+TANGO_STYLE_MENU_CANCEL_SFX
+ * The sounds to play in the menu.
+
+TANGO_STYLE_MENU_SCROLL_UP_COMBO
+TANGO_STYLE_MENU_SCROLL_UP_CSET
+TANGO_STYLE_MENU_SCROLL_UP_X
+TANGO_STYLE_MENU_SCROLL_UP_Y
+TANGO_STYLE_MENU_SCROLL_DOWN_COMBO
+TANGO_STYLE_MENU_SCROLL_DOWN_CSET
+TANGO_STYLE_MENU_SCROLL_DOWN_X
+TANGO_STYLE_MENU_SCROLL_DOWN_Y
+ * If a menu is too large to fit in the text area, these combos will be drawn
+ * to indicate that it can scroll up or down.
+
+TANGO_STYLE_MORE_COMBO
+TANGO_STYLE_MORE_CSET
+ * The appearance of the "more..." icon.
+
+TANGO_STYLE_MORE_X
+TANGO_STYLE_MORE_Y
+ * The position of the "more..." icon. These are offsets from the values
+ * set with Tango_SetSlotPosition().
+
+TANGO_STYLE_FLAGS
+ * Flags controlling various aspects of the text slot's appearance and behavior.
+ * These are TANGO_FLAG constants, which can be ORed together. See the flags
+ * section for a list of flags.
+
+
+================ Style flags ================
+
+Constants to be used with TANGO_STYLE flags. These can be combined
+with bitwise OR.
+
+TANGO_FLAG_ENABLE_SPEEDUP
+ * The text can be sped up by holding down A.
+
+TANGO_FLAG_ENABLE_SUPER_SPEED
+ * The text can be printed instantly by pressing B.
+
+TANGO_FLAG_AUTO_ADVANCE
+ * The player will not be prompted to press A when the text finishes;
+ * it will advance or disappear automatically.
+
+TANGO_FLAG_CARRY_OVER
+ * The slot will not be deactivated when the screen changes.
+
+TANGO_FLAG_BLOCK_INPUT
+ * While the slot is active, all keys will be unpressed.
+ * Keep in mind that this will be handled by Tango_Update1(); FFC scripts
+ * and anything earlier in the global script will see the original input.
+
+TANGO_FLAG_LINE_BY_LINE
+ * Text is printed one line at a time instead of one character at a time.
+
+TANGO_FLAG_INSTANTANEOUS
+ * The text is printed all at once, regardless of the nominal speed.
+ * @while() still runs only once per frame and holds up further processing
+ * until its condition is false. @delay() and @waituntil() still work.
+
+TANGO_FLAG_PERSISTENT
+ * When the text is finished printing, the player is not prompted
+ * to press A and the text does not disappear.
+
+TANGO_FLAG_CENTERED
+ * Text is centered in the printable area.
+
+TANGO_FLAG_FREEZE_SCREEN
+ * The game is frozen while the slot is active. This uses the functions
+ * __Tango_FreezeScreen() and __Tango_UnfreezeScreen(), which you'll
+ * have to implement yourself.
+
+
+================ Backdrops ================
+
+These are the different backdrop types used with TANGO_STYLE_BACKDROP_TYPE
+and related attributes used to configure them.
+
+TANGO_BACKDROP_CLEAR
+ * No backdrop.
+
+TANGO_BACKDROP_COLOR
+TANGO_BACKDROP_COLOR_TRANS
+ * A rectangle of a single color, either opaque or transparent.
+ * 
+ * Related attributes:
+ * TANGO_STYLE_TEXT_CSET
+ * TANGO_STYLE_TEXT_COLOR
+ *   The rectangle's CSet and color. The color is 0-15 within the CSet.
+ * 
+ * TANGO_STYLE_BACKDROP_WIDTH
+ * TANGO_STYLE_BACKDROP_HEIGHT
+ * The size of the rectangle in pixels.
+
+TANGO_BACKDROP_TILE
+TANGO_BACKDROP_TILE_TRANS
+ * A block of tiles, either opaque or transparent.
+ * 
+ * Related attributes:
+ * TANGO_STYLE_BACKDROP_TILE
+ *   The top-left tile of the block.
+ * 
+ * TANGO_STYLE_BACKDROP_CSET
+ *   The CSet of the backdrop.
+ * 
+ * TANGO_STYLE_BACKDROP_WIDTH
+ * TANGO_STYLE_BACKDROP_HEIGHT
+ *   The size of the backdrop in tiles.
+
+TANGO_BACKDROP_COMBO
+TANGO_BACKDROP_COMBO_TRANS
+ * A block of tiles drawn from a combo, either opaque or transparent.
+ * 
+ * Related attributes:
+ * TANGO_STYLE_BACKDROP_COMBO
+ *   The combo using the top-left tile of the block.
+ * 
+ * TANGO_STYLE_BACKDROP_CSET
+ *   The CSet of the backdrop.
+ * 
+ * TANGO_STYLE_BACKDROP_WIDTH
+ * TANGO_STYLE_BACKDROP_HEIGHT
+ *   The size of the backdrop in tiles.
+
+TANGO_BACKDROP_COMPLEX
+ * A backdrop made up of multiple drawing commands.
+ * 
+ * Related attributes:
+ * TANGO_STYLE_BACKDROP_DATA
+ *   The array of data from which to draw the backdrop. See the
+ *   complex backdrops section for details.
+
+
+================ Complex backdrops ================
+
+To use a complex backdrop, you must create a properly formatted array
+and provide a pointer to it with TANGO_BACKDROP_DATA. The array must exist
+for as long as the slot is active.
+
+The array must consist of a series of drawing commands, followed by
+TANGO_DRAW_END. A drawing command, in this context, means a TANGO_DRAW
+constant followed by six numbers. The meanings of these numbers depends on
+what is being drawn.
+
+TANGO_DRAW_RECT
+TANGO_DRAW_RECT_TRANS
+ * A plain rectangle, either opaque or transparent.
+ * 
+ * Data:
+ *   CSet
+ *   Color (0-15 within the CSet)
+ *   X position
+ *   Y position
+ *   Width in pixels
+ *   Height in pixels
+
+TANGO_DRAW_TILE
+TANGO_DRAW_TILE_TRANS
+ * A block of tiles, either opaque or transparent.
+ * 
+ * Data:
+ *   Starting tile
+ *   CSet
+ *   X position
+ *   Y position
+ *   Width in tiles
+ *   Height in tiles
+
+TANGO_DRAW_COMBO
+TANGO_DRAW_COMBO_TRANS
+ * A block of tiles drawn from a combo, either opaque or transparent.
+ * 
+ * Data:
+ *   Starting combo
+ *   CSet
+ *   X position
+ *   Y position
+ *   Width in tiles
+ *   Height in tiles
+
+TANGO_DRAW_TEXT
+ * A string of text. This is a ZScript string, which must exist as long as
+ * the slot is active. The font must be a Tango font, not a built-in one.
+ * If you want to center the text, you can use Tango_GetStringWidth()
+ * to find its width.
+ * 
+ * Data:
+ *   String pointer
+ *   Font
+ *   CSet
+ *   Color (0-15 within the CSet)
+ *   X position
+ *   Y position
+
+As an example, a backdrop consisting of a transparent rectangle with a block
+of tiles over it might look like this:
+
+int sampleBackdrop[]= {
+    TANGO_DRAW_RECT_TRANS,
+        0,       // CSet
+        4,       // Color
+        4, 5,    // X, Y (pixels)
+        184, 72, // Width, height (pixels)
+    TANGO_DRAW_TILE,
+        400,   // Tile
+        5,     // CSet
+        0, 0,  // X, Y (pixels)
+        12, 5, // Width, height (tiles)
+    TANGO_DRAW_END
+};
+
+
+================ Menu flags ================
+
+TANGO_MENU_CAN_CANCEL
+ * The user can cancel out of the menu instead of making a selection.
+
+TANGO_MENU_PERSISTENT
+ * The menu is persistent, meaning it will not close when a selection is made.
+ * It will still close if the user cancels.
+
+
+================ Text slot definition format ================
+
+Text slots are defined in __Tango_SlotDefs[]. Each slot is defined by
+seven numbers, in order:
+  Slot type
+  Starting index in __Tango_Buffer[]
+  Maximum length in __Tango_Buffer[]
+  X position in offscreen bitmap
+  Y position in offscreen bitmap
+  Width in offscreen bitmap
+  Height in offscreen bitmap
+
+
+================ Font format ================
+
+A font definition is an array consisting of the following data, in order:
+
+Font type
+ * Whether this is a built-in, extended, or custom font. Values:
+ * TANGO_FONT_BUILTIN
+ * TANGO_FONT_EXTENDED
+ * TANGO_FONT_CUSTOM
+
+Width type
+ * Monospace or proportional. Values:
+ * TANGO_FONT_MONOSPACE
+ * TANGO_FONT_PROPORTIONAL
+
+Font ID
+ * For built-in and extended fonts, this is the value of the built-in font;
+ * use one of std.zh's FONT constants. Custom fonts do not use this value.
+
+Tile start
+ * This is the tile used by the first extended character (256) in
+ * extended fonts or the first printable character (33, '!') in custom fonts.
+ * Built-in fonts do not use this value.
+
+Character height in pixels
+
+Space between lines in pixels
+
+Character widths
+ * The width of each character. In monospaced fonts, this is a single value.
+ * For proportional fonts, this is a list of widths for each character,
+ * starting from space (32). Characters 32-126 follow ASCII order;
+ * characters 127 and up are arbitrary and vary by font.
+
+
+If you want to create an extended font, it's easiest to copy one of
+the included built-in font definitions, change TANGO_FONT_BUILTIN to
+TANGO_FONT_EXTENDED, then add the starting tile and extra character widths.
+Be aware that many built-in fonts leave some space above and below the
+glyphs. Extended characters will need to account for this.
+
+
+================ Identifier conversion ================
+
+Tango_ConvertFunctionName() and Tango_ConvertVariableName() will convert
+names to numbers for you. If you'd rather do it yourself, here's how.
+Start by converting each character in the name to a number:
+
+a  b  c ... x  y  z  0  1  2  ... 7  8  9
+1  2  3 ... 24 25 26 27 28 29 ... 34 35 36
+
+Multiply each number by 7^n according to its position, add them up, and
+divide by 10000.
+
+For example, for a function called @dostuff2:
+
+d   4   x7 x7 x7 x7 x7 x7 x7 = 3294172 +
+o   15  x7 x7 x7 x7 x7 x7    = 1764735 +
+s   19  x7 x7 x7 x7 x7       =  319333 +
+t   20  x7 x7 x7 x7          =   48020 +
+u   21  x7 x7 x7             =    7203 +
+f   6   x7 x7                =     294 +
+f   6   x7                   =      42 +
+2   29                       =      29
+                               -------
+                               5433828 / 10000 = 543.3828
+
+
+================ Error numbers ================
+
+If you use loggingMinimal.zh instead of loggingFull.zh, error messages
+will be logged only as ID numbers. These are all the possible error codes:
+
+101: Attempted to load an invalid message
+102: Attempted to load an invalid string
+103: The text to be loaded would not fit in the buffer
+104: The text contained an invalid or incomplete function call
+105: The text contained an invalid function argument
+106: The text contained an invalid character code
+107: The message contained an incomplete string control code
+108: The message contained a string control code, but they're disabled
+201: The text contained an invalid character
+202: An undefined function was called
+203: An undefined variable was referenced
+204: More than 4 arguments were passed to a function
+205: An invalid argument was given to @string()
+301: A menu with no choices was activated
+302: Too many choices were added to a menu
+303: Tried to move an invalid menu choice
+401: An invalid style ID was used
+402: An invalid slot ID was used
+403: The array passed to Tango_SaveSlotState() or Tango_RestoreSlotState()
+     was too small
+404: The array passed to Tango_SaveMenuState() or Tango_RestoreMenuState()
+     was too small
+

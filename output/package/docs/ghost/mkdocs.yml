@@ -1,0 +1,17 @@
+site_name: ghost.zh 2.8.5
+pages:
+    - About: index.md
+    - AutoGhost setup: autoGhost.md
+    - General usage: usage.md
+    - Global script: globalScript.md
+    - Enemy scripts: enemyScript.md
+    - Eweapons: eweapon.md
+    - Miscellaneous: other.md
+theme: readthedocs
+use_directory_urls: false
+markdown_extensions:
+    - admonition
+    - def_list
+    - codehilite
+extra:
+    version: 2.8.4

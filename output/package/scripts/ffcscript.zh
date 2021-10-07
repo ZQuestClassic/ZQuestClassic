@@ -1,0 +1,121 @@
+// ffcscript.zh
+// Version 1.1.1
+
+// Combo to be used for generic script vehicle FFCs. This should be
+// an invisible combo with no type or flag. It cannot be combo 0.
+const int FFCS_INVISIBLE_COMBO = 1;
+
+// Range of FFCs to use. Numbers must be between 1 and 32.
+const int FFCS_MIN_FFC = 1;
+const int FFCS_MAX_FFC = 32;
+
+
+int RunFFCScript(int scriptNum, float args)
+{
+    // Invalid script
+    if(scriptNum<0 || scriptNum>511)
+        return 0;
+    
+    ffc theFFC;
+    
+    // Find an FFC not already in use
+    for(int i=FFCS_MIN_FFC; i<=FFCS_MAX_FFC; i++)
+    {
+        theFFC=Screen->LoadFFC(i);
+        
+        if(theFFC->Script!=0 ||
+         (theFFC->Data!=0 && theFFC->Data!=FFCS_INVISIBLE_COMBO) ||
+         theFFC->Flags[FFCF_CHANGER])
+            continue;
+        
+        // Found an unused one; set it up
+        theFFC->Data=FFCS_INVISIBLE_COMBO;
+        theFFC->Script=scriptNum;
+        
+        if(args!=NULL)
+        {
+            for(int j=Min(SizeOfArray(args), 8)-1; j>=0; j--)
+                theFFC->InitD[j]=args[j];
+        }
+        
+        return i;
+    }
+    
+    // No FFCs available
+    return 0;
+}
+
+ffc RunFFCScriptOrQuit(int scriptNum, float args)
+{
+    // Invalid script
+    if(scriptNum<0 || scriptNum>511)
+        Quit();
+    
+    int ffcID=RunFFCScript(scriptNum, args);
+    if(ffcID==0)
+        Quit();
+    
+    return Screen->LoadFFC(ffcID);
+}
+
+int FindFFCRunning(int scriptNum)
+{
+    // Invalid script
+    if(scriptNum<0 || scriptNum>511)
+        return 0;
+    
+    ffc f;
+    
+    for(int i=1; i<=32; i++)
+    {
+        f=Screen->LoadFFC(i);
+        if(f->Script==scriptNum)
+            return i;
+    }
+    
+    // No FFCs running it
+    return 0;
+}
+
+int FindNthFFCRunning(int scriptNum, int n)
+{
+    // Invalid script
+    if(scriptNum<0 || scriptNum>511)
+        return 0;
+    
+    ffc f;
+    
+    for(int i=1; i<=32; i++)
+    {
+        f=Screen->LoadFFC(i);
+        if(f->Script==scriptNum)
+        {
+            n--;
+            if(n==0)
+                return i;
+        }
+    }
+    
+    // Not that many FFCs running it
+    return 0;
+}
+
+int CountFFCsRunning(int scriptNum)
+{
+    // Invalid script
+    if(scriptNum<0 || scriptNum>511)
+        return 0;
+    
+    ffc f;
+    int numFFCs=0;
+    
+    for(int i=1; i<=32; i++)
+    {
+        f=Screen->LoadFFC(i);
+        if(f->Script==scriptNum)
+            numFFCs++;
+    }
+    
+    return numFFCs;
+}
+

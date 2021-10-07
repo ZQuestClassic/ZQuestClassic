@@ -35,6 +35,7 @@ using std::set;
 #include "link.h"
 #include "guys.h"
 #include "ffscript.h"
+#include "drawing.h"
 extern word combo_doscript[176];
 extern refInfo screenScriptData;
 extern FFScript FFCore;
@@ -63,7 +64,8 @@ float log2(float n)
 
 FONT *get_zc_font(int index);
 
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
+extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
 extern zinitdata zinit;
 extern LinkClass Link;
@@ -1298,6 +1300,7 @@ bool isHSGrabbable(newcombo const& cmb)
 		case cBUSHNEXTTOUCHY:
 		case cSIGNPOST:
 		case cCSWITCHBLOCK:
+		case cLANTERN:
 			return (cmb.usrflags&cflag16)?true:false;
 		default:
 			return false;
@@ -3349,6 +3352,59 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen)
 	}
 }
 
+void doLampCirc(BITMAP* bmp, int pos, newcombo const& cmb)
+{
+	if(cmb.type != cLANTERN) return;
+	doDarkroomCircle(MAPCOMBOX(pos)+8, MAPCOMBOY(pos)+8, cmb.attribytes[0], bmp);
+}
+
+void calc_darkroom_combos(bool scrolling)
+{
+	for(int q = 0; q < 176; ++q)
+	{
+		newcombo const& cmb = combobuf[tmpscr->data[q]];
+		if(cmb.type == cLANTERN)
+		{
+			doLampCirc(darkscr_bmp_curscr, q, cmb);
+		}
+	}
+	for(int lyr = 0; lyr < 6; ++lyr)
+	{
+		if(!tmpscr->layermap[lyr]) continue; //invalid layer
+		for(int q = 0; q < 176; ++q)
+		{
+			newcombo const& cmb = combobuf[tmpscr2[lyr].data[q]];
+			if(cmb.type == cLANTERN)
+			{
+				doLampCirc(darkscr_bmp_curscr, q, cmb);
+			}
+		}
+	}
+	
+	if(!scrolling) return; //not a scrolling call, don't run code for scrolling screen
+	
+	for(int q = 0; q < 176; ++q)
+	{
+		newcombo const& cmb = combobuf[tmpscr[1].data[q]];
+		if(cmb.type == cLANTERN)
+		{
+			doLampCirc(darkscr_bmp_scrollscr, q, cmb);
+		}
+	}
+	for(int lyr = 0; lyr < 6; ++lyr)
+	{
+		if(!tmpscr[1].layermap[lyr]) continue; //invalid layer
+		for(int q = 0; q < 176; ++q)
+		{
+			newcombo const& cmb = combobuf[tmpscr3[lyr].data[q]];
+			if(cmb.type == cLANTERN)
+			{
+				doLampCirc(darkscr_bmp_scrollscr, q, cmb);
+			}
+		}
+	}
+}
+
 void draw_screen(mapscr* this_screen, bool showlink)
 {
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
@@ -3379,7 +3435,6 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	set_clip_rect(temp_buf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
 	int cmby2=0;
-	int pcounter;
 	
 	//0: Sideview Grvity from DMaps.
 	
@@ -3395,26 +3450,14 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	{
 		do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true);
 		
-		for(pcounter=0; pcounter<particles.Count(); pcounter++)
-		{
-			if(((particle*)particles.spr(pcounter))->layer==1)
-			{
-				particles.spr(pcounter)->draw(scrollbuf);
-			}
-		}
+		particles.draw(temp_buf, true, 1);
 	}
 	
 	if(this_screen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG)
 	{
 		do_layer(scrollbuf,2, this_screen, 0, 0, 2, false, true);
 		
-		for(pcounter=0; pcounter<particles.Count(); pcounter++)
-		{
-			if(((particle*)particles.spr(pcounter))->layer==2)
-			{
-				particles.spr(pcounter)->draw(scrollbuf);
-			}
-		}
+		particles.draw(temp_buf, true, 2);
 	}
 	
 	putscr(scrollbuf,0,playing_field_offset,this_screen);
@@ -3428,13 +3471,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	if(show_layer_0)
 		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
 		
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==-3)
-		{
-			particles.spr(pcounter)->draw(scrollbuf);
-		}
-	}
+	particles.draw(temp_buf, true, -3);
 	
 	set_clip_rect(scrollbuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
@@ -3471,13 +3508,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	
 	do_layer(scrollbuf,0, this_screen, 0, 0, 2, false, true); // LAYER 1
 	
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==0)
-		{
-			particles.spr(pcounter)->draw(scrollbuf);
-		}
-	}
+	particles.draw(temp_buf, true, 0);
 	
 	do_layer(scrollbuf,-3, this_screen, 0, 0, 2); // freeform combos!
 	
@@ -3485,13 +3516,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	{
 		do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true); // LAYER 2
 		
-		for(pcounter=0; pcounter<particles.Count(); pcounter++)
-		{
-			if(((particle*)particles.spr(pcounter))->layer==1)
-			{
-				particles.spr(pcounter)->draw(scrollbuf);
-			}
-		}
+		particles.draw(temp_buf, true, 1);
 	}
 	
 	if(get_bit(quest_rules,qr_LAYER12UNDERCAVE))
@@ -3669,9 +3694,12 @@ void draw_screen(mapscr* this_screen, bool showlink)
 				Link.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
 			}
 			
-			decorations.draw2(framebuf,true);
-			Link.draw(framebuf);
-			decorations.draw(framebuf,true);
+			if(Link.getZ() <= (zfix)zinit.jump_link_layer_threshold)
+			{
+				decorations.draw2(framebuf,true);
+				Link.draw(framebuf);
+				decorations.draw(framebuf,true);
+			}
 		}
 	}
 	
@@ -3712,37 +3740,19 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		do_layer(temp_buf,2, this_screen, 0, 0, 2, false, true);
 		do_layer(scrollbuf, 2, this_screen, 0, 0, 2);
 		
-		for(pcounter=0; pcounter<particles.Count(); pcounter++)
-		{
-			if(((particle*)particles.spr(pcounter))->layer==2)
-			{
-				particles.spr(pcounter)->draw(temp_buf);
-			}
-		}
+		particles.draw(temp_buf, true, 2);
 	}
 	
 	do_layer(temp_buf,3, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 3, this_screen, 0, 0, 2);
 	//do_primitives(temp_buf, 3, this_screen, 0,playing_field_offset);//don't uncomment me
 	
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==3)
-		{
-			particles.spr(pcounter)->draw(temp_buf);
-		}
-	}
+	particles.draw(temp_buf, true, 3);
 	
 	do_layer(temp_buf,-1, this_screen, 0, 0, 2);
 	do_layer(scrollbuf,-1, this_screen, 0, 0, 2);
 	
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==-1)
-		{
-			particles.spr(pcounter)->draw(temp_buf);
-		}
-	}
+	particles.draw(temp_buf, true, -1);
 	
 	//6. Blit temp_buf onto framebuf with clipping
 	
@@ -3812,13 +3822,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	do_layer(temp_buf,4, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 4, this_screen, 0, 0, 2);
 	
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==4)
-		{
-			particles.spr(pcounter)->draw(temp_buf);
-		}
-	}
+	particles.draw(temp_buf, true, 4);
 	
 	do_layer(temp_buf,-4, this_screen, 0, 0, 2); // overhead freeform combos!
 	do_layer(scrollbuf, -4, this_screen, 0, 0, 2);
@@ -3826,13 +3830,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	do_layer(temp_buf,5, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 5, this_screen, 0, 0, 2);
 	
-	for(pcounter=0; pcounter<particles.Count(); pcounter++)
-	{
-		if(((particle*)particles.spr(pcounter))->layer==5)
-		{
-			particles.spr(pcounter)->draw(temp_buf);
-		}
-	}
+	particles.draw(temp_buf, true, 5);
 	
 	//10. Blit temp_buf onto framebuf with clipping
 	
@@ -3863,14 +3861,60 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
+	if(get_bit(quest_rules, qr_NEW_DARKROOM)&& (this_screen->flags&fDARK))
+	{
+		calc_darkroom_combos();
+		Link.calc_darkroom_link();
+	}
+	//Darkroom if under the subscreen
+	if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
+	{
+		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
+		{
+			ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+		}
+		
+		color_map = &trans_table2;
+		if(this_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
+			draw_trans_sprite(framebuf, darkscr_bmp_curscr, 0, playing_field_offset);
+		else 
+			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+		draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
+		color_map = &trans_table;
+		
+		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+	}	
+
 	//12. Draw the subscreen, without clipping
-	
 	if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 	{
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
 		
 		// Draw primitives over subscren
 		do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
+	}
+	
+	//Darkroom if above the subscreen
+	if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
+	{
+		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
+		{
+			ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+		}
+		
+		color_map = &trans_table2;
+		if(this_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
+			draw_trans_sprite(framebuf, darkscr_bmp_curscr, 0, playing_field_offset);
+		else 
+			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+		draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
+		color_map = &trans_table;
+		
+		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 	}
 	
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
@@ -4363,7 +4407,10 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 {
 	if(!tmp)
 		triggered_screen_secrets = false; //Reset var
-	
+	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 	int destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 	
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;

@@ -205,7 +205,7 @@ bool ePatra::animate(int index)
             enemy* orbiter=(enemy*)guys.spr(i);
             if(!adjusted)
             {
-                orbiter->hp=12*DAMAGE_MULTIPLIER;
+                orbiter->hp=12*game->get_hero_dmgmult();
 
                 if(get_bit(quest_rules,qr_NEWENEMYTILES))
                 {
@@ -321,9 +321,9 @@ int ePatra::defend(int wpnId, int *power, int edef)
 	return ret;
 }
 
-int ePatra::defendNew(int wpnId, int *power, int edef)
+int ePatra::defendNew(int wpnId, int *power, int edef, byte unblockable)
 {
-	int ret=enemy::defendNew(wpnId, power, edef);
+	int ret=enemy::defendNew(wpnId, power, edef, unblockable);
 
 	if(ret<0 && (flycnt || flycnt2))
 		return 0;
@@ -646,9 +646,9 @@ int ePatraBS::defend(int wpnId, int *power, int edef)
 	return ret;
 }
 
-int ePatraBS::defendNew(int wpnId, int *power, int edef)
+int ePatraBS::defendNew(int wpnId, int *power, int edef, byte unblockable)
 {
-	int ret = enemy::defendNew(wpnId, power, edef);
+	int ret = enemy::defendNew(wpnId, power, edef, unblockable);
 
 	if(ret<0 && (flycnt || flycnt2))
 		return 0;

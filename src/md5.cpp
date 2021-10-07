@@ -216,7 +216,7 @@ void
 cvs_MD5Transform(cvs_uint32 buf[4],
                  const unsigned char inraw[64])
 {
-    register cvs_uint32 a, b, c, d;
+    cvs_uint32 a, b, c, d;
     cvs_uint32 in[16];
     int i;
     

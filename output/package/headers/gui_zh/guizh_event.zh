@@ -1,0 +1,52 @@
+int GUI_Events[90];
+int GUI_EventPtr;
+int GUI_EventIter;
+
+void Event_Clear()
+{
+    GUI_EventPtr=0;
+}
+
+void Event_Add(int type, int sender, int data)
+{
+    GUI_Events[GUI_EventPtr]=type;
+    GUI_Events[GUI_EventPtr+1]=sender;
+    GUI_Events[GUI_EventPtr+2]=data;
+    GUI_EventPtr+=3;
+}
+
+// No data
+void Event_Add(int type, int sender)
+{
+    GUI_Events[GUI_EventPtr]=type;
+    GUI_Events[GUI_EventPtr+1]=sender;
+    GUI_Events[GUI_EventPtr+2]=0;
+    GUI_EventPtr+=3;
+}
+
+void EventIter_Begin()
+{
+    GUI_EventIter=-3;
+}
+
+bool EventIter_Next()
+{
+    GUI_EventIter+=3;
+    return GUI_EventIter<GUI_EventPtr;
+}
+
+int EventIter_GetType()
+{
+    return GUI_Events[GUI_EventIter];
+}
+
+int EventIter_GetSender()
+{
+    return GUI_Events[GUI_EventIter+1];
+}
+
+int EventIter_GetData()
+{
+    return GUI_Events[GUI_EventIter+2];
+}
+

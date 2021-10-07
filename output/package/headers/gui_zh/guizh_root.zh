@@ -1,0 +1,16 @@
+// It doesn't do a whole lot.
+
+void GUIRoot_Create()
+{
+    // Always id 0
+    GUI_Data[WIDGET_TYPE]=WTYPE_GUI_ROOT;
+    GUI_Data[WIDGET_X]=0;
+    GUI_Data[WIDGET_Y]=-56;
+    GUI_Data[WIDGET_WIDTH]=256;
+    GUI_Data[WIDGET_HEIGHT]=168+56;
+    GUI_Data[WIDGET_PARENT]=-1;
+    GUI_Data[WIDGET_FIRST_CHILD]=-1;
+    GUI_Data[WIDGET_NEXT_CHILD]=-1;
+    GUI_Data[WIDGET_PREV_CHILD]=-1;
+}
+

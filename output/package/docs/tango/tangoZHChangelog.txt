@@ -1,0 +1,64 @@
+tango.zh
+Version 1.3.2
+
+1.3.3 (2019-12-12)
+* Renamed files to comply with 2.53.1 and 2.55.x HEADER_GUARD options.
+* Fixed illegal use of 'bitmap' as an identifier for 2.53.1 and 2.55.
+
+1.3.2 (2019-08-01)
+* Fixed an erroneous delay after the player responds to @pressa().
+* Activating a slot using a style with no font set now reports an error.
+* Replaced tango.txt, tangoUsage.txt, and tangoFAQ.txt with HTML documentation.
+
+1.3.1 (2017-12-27)
+* Corrected subdirectory in the main file's import statements.
+
+
+1.3.0 (2017-09-10)
+* __Tango_PressAdvance() now takes an argument indicating how long the slot
+    has been waiting. This allows the slot to advance if A or B are held
+    for a period of time.
+* Added the ability to highlight text with [[double brackets]].
+* Added Tango_GetSlotX() and Tango_GetSlotY().
+
+
+1.2.0 (2016-09-16)
+* Added Tango_SetMenuAutosaveDest(), which allows a menu's state
+    to be saved automatically when a selection is made.
+* Added Tango_SetMenuFlags() and Tango_DeactivateMenu().
+* A menu can now be persistent (i.e. it won't close when a selection is made).
+* Tango_ActivateMenu() no longer takes an argument. The functionality is now
+    handled by setting the TANGO_MENU_CAN_CANCEL flag.
+* @domenu()'s first argument is now menu flags rather than a simple
+    "can cancel" bool.
+* Fixed an error in scrolling menus.
+* Added tangoZHChangelog.txt.
+
+
+1.1.0 (2016-01-05)
+* Added Tango_SlotIsFinished() and Tango_MoveMenuChoice().
+* Added support for centered and right-aligned text in complex backdrops.
+* Tango_ScrollSlot() can now scroll menus.
+* Added optional graphics to indicate that a menu can scroll.
+* Menu cursors can now move smoothly between options.
+* Menu cursors are now drawn behind text.
+* Added style options to control the size of the cursor.
+* Renamed TANGO_STYLE_MENU_CURSOR_WIDTH to TANGO_STYLE_MENU_CHOICE_INDENT.
+* Added an option to ignore speedup keys pressed the same frame a slot
+    is activated.
+* Arrays passed to state saving and loading functions are now validated.
+* Added optional onscreen notification when an error is logger.
+* Added options to control logging level and onscreen notifications.
+* A warning is logged when a slot is requested and no slots are available.
+* An error is logged when too many menu choices are added.
+* Increased the numbers of styles and menu choices enabled by default.
+* String control codes are now enabled by default.
+* Fixed the auto-advance timer not being reset when a slot is cleared.
+* Added Tango_ValidateConfiguration().
+* Tango_Start() now attempts to detect and warn about incompatible saved data.
+* Added tangoFAQ.txt.
+* Organized error codes and listed them in tango.txt.
+
+1.0.0 (2015-01-11)
+* Initial stable release.
+

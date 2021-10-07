@@ -1,0 +1,268 @@
+// tango.zh
+// Version 1.3.3
+
+
+// Standard settings -----------------------------------------------------------
+
+// How fast messages scroll.
+const int __TANGO_SCROLL_SPEED = 4;
+
+// How much holding A speeds up text.
+const int __TANGO_SPEEDUP_FACTOR = 5;
+
+// If this is enabled, speedup keys pressed in the same frame a slot
+// was activated will be ignored until they're pressed again.
+const int __TANGO_IGNORE_NEWLY_PRESSED_SPEED_KEYS = 1;
+
+// Whether the current string scrolls up before displaying the next one
+// rather than just disappearing.
+const int __TANGO_SCROLL_TO_NEXT = 1;
+
+// Whether holding A or B speeds up scrolling to the next message.
+const int __TANGO_SCROLL_SPEEDUP = 1;
+
+// Whether a sound is played when a space is printed.
+const int __TANGO_SFX_ON_SPACE = 0;
+
+// Whether there's a delay before a space, as with printable characters.
+const int __TANGO_DELAY_ON_SPACE = 1;
+
+// Strings that advance automatically will wait this long before doing so.
+const int __TANGO_AUTO_ADVANCE_TIME = 90;
+
+// Whether [[double brackets]] change the text color instead of being printed.
+const int __TANGO_ENABLE_BRACKET_HIGHLIGHT = 1;
+
+// Menu cursors will take this long to travel between options.
+// A speed of 1 or less is instantaneous.
+const int __TANGO_MENU_CURSOR_TRAVEL_TIME = 0;
+
+// The layer to draw on.
+const int __TANGO_DRAWING_LAYER = 6;
+
+// Which offscreen bitmap to use for text rendering.
+const int __TANGO_BITMAP = 6;
+
+// String codes are marked by this character.
+// 64 is @
+const int __TANGO_CODE_DELIMITER = 64;
+
+// The maximum length of a string handled by @string. Increasing this will
+// make the function take more space in the buffer, regardless of the argument.
+// It's not necessary to account for the null terminator.
+const int __TANGO_MAX_STRING_FUNC_LENGTH = 16;
+
+// Logging level.
+// 0: Don't log anything
+// 1: Only log errors
+// 2: Log all messages (only if loggingFull.zh is used)
+const int __TANGO_LOGGING_LEVEL = 2;
+
+// Whether to display a notification onscreen when an error is logged.
+const int __TANGO_ONSCREEN_NOTIFICATION = 1;
+
+// Onscreen error notification colors.
+const int __TANGO_ERROR_NOTIFICATION_TEXT_COLOR = 1;
+const int __TANGO_ERROR_NOTIFICATION_BG_COLOR = 0;
+
+// End standard settings -------------------------------------------------------
+
+
+
+// Advanced settings -----------------------------------------------------------
+
+// Custom variables
+float Tango_D[8]; // Access as @d0 to @d7; can be safely removed
+
+const float VAR_TANGO_D0 =  0.0055;
+const float VAR_TANGO_D7 =  0.0062;
+
+float Tango_GetCustomVar(float var)
+{
+    if(var>=VAR_TANGO_D0 && var<=VAR_TANGO_D7)
+        return Tango_D[(var-VAR_TANGO_D0)*10000];
+    else
+    {
+        Tango_LogUndefinedVariable(var);
+        return 0;
+    }
+}
+
+void Tango_SetCustomVar(float var, float value)
+{
+    if(var>=VAR_TANGO_D0 && var<=VAR_TANGO_D7)
+        Tango_D[(var-VAR_TANGO_D0)*10000]=value;
+    else
+        Tango_LogUndefinedVariable(var);
+}
+
+// Custom functions
+
+float __Tango_RunCustomFunction(float function, float args)
+{
+    Tango_LogUndefinedFunction(function);
+    return 0;
+}
+
+// Menu data
+const int __TANGO_MAX_MENU_ITEMS = 20;
+float __Tango_Data[94]; // 34+3*__TANGO_MAX_MENU_ITEMS
+
+// Style data
+const int __TANGO_NUM_STYLES = 10;
+int __Tango_Styles[480]; // 48 * __TANGO_NUM_STYLES
+
+// Text buffer and slots
+int __Tango_Buffer[2048]; // Arbitrary size
+
+const int __TANGO_NUM_SLOTS = 2;
+int __Tango_SlotData[48]; // 24 * __TANGO_NUM_SLOTS
+
+// Slot types and definitions
+const int TANGO_SLOT_NORMAL = 0;
+
+int __Tango_SlotDefs[] = {
+    // 0
+    TANGO_SLOT_NORMAL,
+    0, 1024,  // Starting index and length in __Tango_Buffer
+    0, 0,     // X, Y on offscreen bitmap
+    256, 512, // Width, height on offscreen bitmap
+    
+    // 1
+    TANGO_SLOT_NORMAL,
+    1024, 1024,
+    256, 0,
+    256, 512
+};
+
+// These must be implemented in order for TANGO_FLAG_FREEZE_SCREEN to work.
+void __Tango_FreezeScreen()
+{
+}
+
+void __Tango_UnfreezeScreen()
+{
+}
+
+// Edit these functions to change which buttons are used.
+
+// Return Link->Press* for advance/end string button
+// waitTime indicates how long the prompt has been displayed
+bool __Tango_PressAdvance(int waitTime)
+{
+    if(waitTime>=90)
+        return Link->InputA;
+    else
+        return Link->PressA;
+}
+
+// Return Link->Input* for advance/end string button
+bool __Tango_InputAdvance()
+{
+    return Link->InputA;
+}
+
+// Unset Link->Input* and Link->Press* for advance/end string button
+void __Tango_UnpressAdvance()
+{
+    Link->InputA=false;
+    Link->PressA=false;
+}
+
+// Return Link->Press* for speedup button
+bool __Tango_PressSpeedup()
+{
+    return Link->PressA;
+}
+
+// Return Link->Input* for speedup button
+bool __Tango_InputSpeedup()
+{
+    return Link->InputA;
+}
+
+// Unset Link->Input* and Link->Press* for speedup button
+void __Tango_UnpressSpeedup()
+{
+    Link->InputA=false;
+    Link->PressA=false;
+}
+
+// Return Link->Press* for super speed button
+bool __Tango_PressSuperSpeed()
+{
+    return Link->PressB;
+}
+
+// Return Link->Input* for super speed button
+bool __Tango_InputSuperSpeed()
+{
+    return Link->InputB;
+}
+
+// Unset Link->Input* and Link->Press* for super speed button
+void __Tango_UnpressSuperSpeed()
+{
+    Link->InputB=false;
+    Link->PressB=false;
+}
+
+// Return Link->Press* for menu select button
+bool __Tango_PressMenuSelect()
+{
+    return Link->PressA;
+}
+
+// Return Link->Press* for menu cancel button
+bool __Tango_PressMenuCancel()
+{
+    return Link->PressB;
+}
+
+// Return Link->Input* for both menu select and cancel buttons
+bool __Tango_InputMenu()
+{
+    return Link->InputA || Link->InputB;
+}
+
+// Unset Link->Input* and Link->Press* for menu select and cancel buttons
+void __Tango_UnpressMenu()
+{
+    Link->InputA=false;
+    Link->PressA=false;
+    Link->InputB=false;
+    Link->PressB=false;
+}
+
+
+// #include stringControlCode.zh instead of stringControlCodeDisabled.zh
+// to enable string control codes.
+//#include "tango/1.3/stringControlCodeDisabled.zh"
+#include "tango/1.3/tango_stringControlCode.zh"
+
+
+// #include loggingFull.zh instead of loggingMinimal.zh for more useful
+// error messages. This will bloat scripts, so it should only be used
+// for debugging.
+#include "tango/1.3/tango_loggingMinimal.zh"
+//#include "tango/1.3/tango_loggingFull.zh"
+
+// End advanced settings -------------------------------------------------------
+
+
+#include "tango/1.3/tango_access.zh"
+#include "tango/1.3/tango_common.zh"
+#include "tango/1.3/tango_deprecated.zh"
+#include "tango/1.3/tango_drawing.zh"
+#include "tango/1.3/tango_font.zh"
+#include "tango/1.3/tango_functions.zh"
+#include "tango/1.3/tango_loading.zh"
+#include "tango/1.3/tango_menu.zh"
+#include "tango/1.3/tango_messages.zh"
+#include "tango/1.3/tango_metrics.zh"
+#include "tango/1.3/tango_processing.zh"
+#include "tango/1.3/tango_style.zh"
+#include "tango/1.3/tango_user.zh"
+#include "tango/1.3/tango_validation.zh"
+
+#include "tango/1.3/tango_script.zs"

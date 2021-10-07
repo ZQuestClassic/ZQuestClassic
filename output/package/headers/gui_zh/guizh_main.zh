@@ -1,0 +1,177 @@
+bool GUI_MouseWasPressed;
+int GUI_OldMouseX;
+int GUI_OldMouseY;
+int GUI_OldMouseZ;
+int GUI_ClickedWidget;
+int GUI_WidgetUnderMouse;
+
+void GUI_Create()
+{
+    Game->ClickToFreezeEnabled=false;
+    GUI_MouseWasPressed=false;
+    GUI_OldMouseX=-1;
+    GUI_OldMouseY=-1;
+    GUI_OldMouseZ=Link->InputMouseZ;
+    GUI_WidgetUnderMouse=-1;
+    GUI_ClickedWidget=-1;
+    
+    for(int i=SIZEOF_WIDGET; i<GUI_DATA_SIZE; i+=SIZEOF_WIDGET)
+        GUI_Data[i+WIDGET_TYPE]=WTYPE_NONE;
+    
+    GUIRoot_Create();
+}
+
+void GUI_Destroy()
+{
+    for(int i=0; i<GUI_DATA_SIZE; i+=SIZEOF_WIDGET)
+        GUI_Data[i+WIDGET_TYPE]=WTYPE_NONE;
+    
+    Game->ClickToFreezeEnabled=true;
+}
+
+void GUI_Update()
+{
+    Event_Clear();
+    
+    int oldUnderMouse=GUI_WidgetUnderMouse;
+    GUI_WidgetUnderMouse=GUI_GetWidgetUnderMouse(GUI_ROOT, Link->InputMouseX, Link->InputMouseY);
+    
+    if(Link->InputMouseX!=GUI_OldMouseX || Link->InputMouseY!=GUI_OldMouseY)
+    {
+        // Only send a signal if something was clicked
+        if(GUI_ClickedWidget!=-1)
+            Signal_OnMouseMove(GUI_ClickedWidget,
+              Link->InputMouseX-GUI_OldMouseX,
+              Link->InputMouseY-GUI_OldMouseY);
+        GUI_OldMouseX=Link->InputMouseX;
+        GUI_OldMouseY=Link->InputMouseY;
+    }
+    
+    if(GUI_WidgetUnderMouse!=oldUnderMouse) // Mouse moved to new widget
+    {
+        // If something was clicked, only notify that widget
+        if(GUI_ClickedWidget!=-1)
+        {
+            if(GUI_WidgetUnderMouse==GUI_ClickedWidget)
+                Signal_OnMouseEnter(GUI_ClickedWidget);
+            else if(oldUnderMouse==GUI_ClickedWidget)
+                Signal_OnMouseExit(GUI_ClickedWidget);
+        }
+        else // Nothing was clicked; notify both widgets
+        {
+            if(oldUnderMouse!=-1)
+                Signal_OnMouseExit(oldUnderMouse);
+            if(GUI_WidgetUnderMouse!=-1)
+                Signal_OnMouseEnter(GUI_WidgetUnderMouse);
+        }
+    }
+    
+    if((Link->InputMouseB&MB_LEFTCLICK)!=0) // Button is pressed
+    {
+        if(!GUI_MouseWasPressed) // Just clicked
+        {
+            GUI_ClickedWidget=GUI_WidgetUnderMouse;
+            if(GUI_ClickedWidget!=-1)
+                Signal_OnMousePress(GUI_ClickedWidget);
+            GUI_MouseWasPressed=true;
+        }
+    }
+    else // Button is not down
+    {
+        if(GUI_MouseWasPressed) // Just released
+        {
+            if(GUI_ClickedWidget!=-1)
+            {
+                Signal_OnMouseRelease(GUI_ClickedWidget);
+                GUI_ClickedWidget=-1;
+            }
+            GUI_MouseWasPressed=false;
+        }
+    }
+    
+    if(Link->InputMouseZ!=GUI_OldMouseZ) // Scroll wheel
+    {
+        if(GUI_ClickedWidget!=-1)
+        {
+            for(; GUI_OldMouseZ<Link->InputMouseZ; GUI_OldMouseZ++)
+                Signal_OnMouseWheelUp(GUI_ClickedWidget);
+            for(; GUI_OldMouseZ>Link->InputMouseZ; GUI_OldMouseZ--)
+                Signal_OnMouseWheelDown(GUI_ClickedWidget);
+        }
+        else if(GUI_WidgetUnderMouse!=-1)
+        {
+            for(; GUI_OldMouseZ<Link->InputMouseZ; GUI_OldMouseZ++)
+                Signal_OnMouseWheelUp(GUI_WidgetUnderMouse);
+            for(; GUI_OldMouseZ>Link->InputMouseZ; GUI_OldMouseZ--)
+                Signal_OnMouseWheelDown(GUI_WidgetUnderMouse);
+        }
+        else
+            GUI_OldMouseZ=Link->InputMouseZ;
+    }
+}
+
+void GUI_Draw()
+{
+    if(GUI_Data[WIDGET_FIRST_CHILD]!=-1)
+        GUI_DispatchDrawSignal(GUI_Data[WIDGET_FIRST_CHILD], 0, -56);
+    Screen->FastTile(GUI_DRAW_LAYER, Link->InputMouseX, Link->InputMouseY,
+      GUI_CURSOR_TILE, GUI_CURSOR_CSET, OP_OPAQUE);
+}
+
+void GUI_DispatchDrawSignal(int id, int x, int y)
+{
+    if((GUI_Data[id+WIDGET_FLAGS]&WFLAG_HIDDEN)==0)
+    {
+        Signal_Draw(id, x+GUI_Data[id+WIDGET_X], y+GUI_Data[id+WIDGET_Y]);
+        
+        if(GUI_Data[id+WIDGET_FIRST_CHILD]!=-1)
+            GUI_DispatchDrawSignal(GUI_Data[id+WIDGET_FIRST_CHILD],
+              x+GUI_Data[id+WIDGET_X], y+GUI_Data[id+WIDGET_Y]);
+    }
+    if(GUI_Data[id+WIDGET_NEXT_CHILD]!=-1)
+        GUI_DispatchDrawSignal(GUI_Data[id+WIDGET_NEXT_CHILD], x, y);
+}
+
+int GUI_GetWidgetUnderMouse(int id, int mouseX, int mouseY)
+{
+    // If there are more children after this, check those first
+    if(GUI_Data[id+WIDGET_NEXT_CHILD]!=-1)
+    {
+        int next=GUI_GetWidgetUnderMouse(GUI_Data[id+WIDGET_NEXT_CHILD], mouseX, mouseY);
+        if(next!=-1)
+            return next;
+    }
+    
+    int x=GUI_Data[id+WIDGET_X];
+    int y=GUI_Data[id+WIDGET_Y];
+    bool underMouse=true;
+    
+    if((GUI_Data[id+WIDGET_FLAGS]&WFLAG_HIDDEN)!=0)
+        underMouse=false;
+    else if(mouseX<x)
+        underMouse=false;
+    else if(mouseX>=x+GUI_Data[id+WIDGET_WIDTH])
+        underMouse=false;
+    else if(mouseY<y)
+        underMouse=false;
+    else if(mouseY>=y+GUI_Data[id+WIDGET_HEIGHT])
+        underMouse=false;
+    
+    if(underMouse)
+    {
+        if(GUI_Data[id+WIDGET_FIRST_CHILD]!=-1)
+        {
+            int child=GUI_GetWidgetUnderMouse(GUI_Data[id+WIDGET_FIRST_CHILD], mouseX-x, mouseY-y);
+            if(child!=-1)
+                return child;
+        }
+        
+        if((GUI_Data[id+WIDGET_FLAGS]&WFLAG_WANTS_MOUSE)!=0)
+            return id;
+        else
+            return -1;
+    }
+    else
+        return -1;
+}
+

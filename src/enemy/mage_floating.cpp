@@ -12,13 +12,15 @@ eWizzrobeFloating::eWizzrobeFloating(enemy const & other, bool new_script_uid, b
 {
 
 	//arrays
-
-	//stack(other.stack),			//int
-	//scriptData(other.scriptData)			//int
-	memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-	memcpy(stack, other.stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-
-	scriptData = other.scriptData;
+	
+	if(other.scrmem)
+	{
+		alloc_scriptmem();
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		
+		scrmem->scriptData = other.scrmem->scriptData;
+	}
+	else scrmem = NULL;
 	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
 	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
 

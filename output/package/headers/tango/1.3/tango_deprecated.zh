@@ -1,0 +1,11 @@
+// tango.zh
+// Version 1.3.3
+
+void Tango_ActivateMenu(bool canCancel)
+{
+    if(canCancel)
+        Tango_SetMenuFlags(TANGO_MENU_CAN_CANCEL);
+    else
+        Tango_SetMenuFlags(0);
+    Tango_ActivateMenu();
+}

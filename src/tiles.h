@@ -55,6 +55,7 @@ void reset_tile(tiledata *buf, int t, int format);
 void clear_tiles(tiledata *buf);
 void overlay_tile(tiledata *buf,int dest,int src,int cs,bool backwards);
 bool copy_tile(tiledata *buf, int src, int dest, bool swap);
+bool write_tile(tiledata *buf, BITMAP* src, int dest, int x, int y, bool is8bit, bool overlay);
 void unpack_tile(tiledata *buf, int tile, int flip, bool force);
 
 void pack_tile(tiledata *buf, byte *src,int tile);
@@ -68,6 +69,7 @@ void overtile8(BITMAP* dest,int tile,int x,int y,int cset,int flip);
 void puttile16(BITMAP* dest,int tile,int x,int y,int cset,int flip);
 void oldputtile16(BITMAP* dest,int tile,int x,int y,int cset,int flip);
 void overtile16(BITMAP* dest,int tile,int x,int y,int cset,int flip);
+void overtileblock16(BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, byte skiprows=0);
 
 void putblock8(BITMAP *dest,int tile,int x,int y,int csets[],int flip,int mask);
 void oldputblock8(BITMAP *dest,int tile,int x,int y,int csets[],int flip,int mask);

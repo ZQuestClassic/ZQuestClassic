@@ -1870,16 +1870,15 @@ void edit_tile(int tile,int flip,int &cs)
             case KEY_R:
             {
                 //if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
-                //{
+                // {
                 //do_recolor(tile); redraw=true; saved=false;
-                //}
+                // }
                 //else
-                //{
+                // {
                 go_tiles();
                 rotate_tile(tile,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
                 redraw=true;
                 saved=false;
-                //}
                 break;
             }
             
@@ -2771,7 +2770,6 @@ int bestfit_cset_color(int cs, int r, int g, int b)
     for(int i = 0; i < CSET_SIZE; i++)
     {
         byte *rgbByte;
-        RGB rgb;
         
         // This seems to be right...
         if(cs==2 || cs==3 || cs==4)
@@ -2819,7 +2817,6 @@ int bestfit_cset_color_8bit(int r, int g, int b)
     for(int i = 0; i < 192; i++) // 192 colors in CSets 0-11
     {
         byte *rgbByte;
-        RGB rgb;
         
         int cs=i>>4;
         if(cs==2 || cs==3 || cs==4)
@@ -3411,9 +3408,9 @@ void load_imagebuf()
 	//cache QRS
 	//byte cached_rules[QUESTRULES_NEW_SIZE] = { 0 };
 	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
-	//{ 
+	// { 
 	//	cached_rules[q] = quest_rules[q];
-	//}
+	// }
     bool compressed=false;
     bool encrypted=false;
     tiledata *hold=newtilebuf;
@@ -3615,9 +3612,9 @@ error2:
     //restore cashed QRs / rules
 	
 	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
-	//{ 
+	// { 
 	//	quest_rules[q] = cached_rules[q];
-	//}
+	// }
 }
 
 static char bitstrbuf[32];
@@ -5034,7 +5031,7 @@ void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empt
 					{
 						for(int dx=0; dx<=l+1; dx++)
 						{
-							dest->line[dy+(y)][dx+(x)]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+							dest->line[dy+(y)][dx+(x)]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
 						}
 					}
 				}
@@ -5115,7 +5112,7 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
             {
                 for(int dx=0; dx<16*mul; dx++)
                 {
-                    screen2->line[(216*mul+yofs+dy)][36*mul+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                    screen2->line[(216*mul+yofs+dy)][36*mul+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                 }
             }
         }
@@ -5231,7 +5228,7 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
             {
                 for(int dx=0; dx<16*mul; dx++)
                 {
-                    screen2->line[216*mul+yofs+dy][124*mul+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                    screen2->line[216*mul+yofs+dy][124*mul+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                 }
             }
         }
@@ -6428,9 +6425,9 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
         return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
         //if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
-        //{
+        // {
         //  return false;
-        //}
+        // }
     }
     
     char *tile_move_list_text = new char[65535];
@@ -8067,9 +8064,9 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
         return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
         //if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
-        //{
+        // {
         //  return false;
-        //}
+        // }
     }
     
     char *tile_move_list_text = new char[65535];
@@ -9707,9 +9704,9 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
         return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
         //if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
-        //{
+        // {
         //  return false;
-        //}
+        // }
     }
     
     char *tile_move_list_text = new char[65535];
@@ -11266,9 +11263,9 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
         return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
         //if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
-        //{
+        // {
         //  return false;
-        //}
+        // }
     }
     
     char *tile_move_list_text = new char[65535];
@@ -13512,1389 +13509,1382 @@ int writetilefile(PACKFILE *f, int index, int count)
 
 int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, bool always_use_flip)
 {
-    reset_combo_animations();
-    reset_combo_animations2();
-    bound(tile,0,NEWMAXTILES-1);
-    ex=exnow;
-    int done=0;
-    int oflip=flip;
-    int otile=tile;
-    int ocs=cs;
-    int first=(tile/TILES_PER_PAGE)*TILES_PER_PAGE; //first tile on the current page
-    int copy=-1;
-    int tile2=tile,copycnt=0;
-    int tile_clicked=-1;
-    bool rect_sel=true;
-    bound(first,0,(TILES_PER_PAGE*TILE_PAGES)-1);
-    position_mouse_z(0);
-    
-    go();
-    
-    register_used_tiles();
-    int window_xofs=0;
-    int window_yofs=0;
-    int screen_xofs=0;
-    int screen_yofs=0;
-    int panel_yofs=0;
-    int w = 320;
-    int h = 240;
-    int mul = 1;
-    FONT *tfont = pfont;
-    
-    if(is_large)
-    {
-        w *= 2;
-        h *= 2;
-        mul = 2; // multiply dimensions by 2
-        window_xofs=(zq_screen_w-w-12)>>1;
-        window_yofs=(zq_screen_h-h-25-6)>>1;
-        screen_xofs=window_xofs+6;
-        screen_yofs=window_yofs+25;
-        panel_yofs=3;
-        tfont = lfont_l;
-    }
-    
-    draw_tile_list_window();
-    int f=0;
-    draw_tiles(first,cs,f);
-    
-    if(type==0)
-    {
-        tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
-    }
-    else
-    {
-        tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
-    }
-    
-    go_tiles();
-    
-    while(gui_mouse_b())
-    {
-        /* do nothing */
-    }
-    
-    bool bdown=false;
-    
-    #define FOREACH_START(_t) \
-    { \
-        int _first, _last; \
-        if(is_rect) \
-        { \
-            _first=top*TILES_PER_ROW+left; \
-            _last=_first+rows*TILES_PER_ROW|+columns-1; \
-        } \
-        else \
-        { \
-            _first=zc_min(tile, tile2); \
-            _last=zc_max(tile, tile2); \
-        } \
-        for(int _t=_first; _t<=_last; _t++) \
-        { \
-            if(is_rect) \
-            { \
-                int row=TILEROW(_t); \
-                if(row<top || row>=top+rows) \
-                    continue; \
-                int col=TILECOL(_t); \
-                if(col<left || col>=left+columns) \
-                    continue; \
-            } \
-        
-    #define FOREACH_END\
-        } \
-    }
-    
-    
-    do
-    {
-        rest(4);
-        int top=TILEROW(zc_min(tile, tile2));
-        int left=zc_min(TILECOL(tile), TILECOL(tile2));
-        int rows=TILEROW(zc_max(tile, tile2))-top+1;
-        int columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
-        bool is_rect=(rows==1)||(columns==TILES_PER_ROW)||rect_sel;
-        bool redraw=false;
-        
-        if(mouse_z!=0)
-        {
-            sel_tile(tile,tile2,first,type,((mouse_z/abs(mouse_z))*(-1)*TILES_PER_PAGE));
-            position_mouse_z(0);
-            redraw=true;
-        }
-        
-        if(keypressed())
-        {
-            switch(readkey()>>8)
-            {
-            case KEY_ENTER_PAD:
-            case KEY_ENTER:
-                done=2;
-                break;
-                
-            case KEY_ESC:
-                done=1;
-                break;
-                
-            case KEY_F1:
-                onHelp();
-                break;
-                
-            case KEY_EQUALS:
-            case KEY_PLUS_PAD:
-            {
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
-                        key[KEY_ALT] || key[KEY_ALTGR])
-                {
-                    FOREACH_START(t)
-                        if(key[KEY_ALT] || key[KEY_ALTGR])
-                            shift_tile_colors(t, 16, false);
-                        else
-                            shift_tile_colors(t, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-                    FOREACH_END
-                    
-                    register_blank_tiles();
-                }
-                else if(edit_cs)
-                    cs = (cs<15) ? cs+1:0;
-                    
-                redraw=true;
-                break;
-            }
-	    case KEY_Z:
-	    {
-		    onSnapshot();
-		    break;
-	    }
-            case KEY_S:
-	    {
-		if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
-			break;   
-		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-		if(!f) break;
-		al_trace("Saving tile: %d\n", tile);
-		writetilefile(f,tile,1);
-		pack_fclose(f);
-		break;
-	    }
-	    case KEY_L:
-	    {
-		if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
-			break;   
-		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-		if(!f) break;
-		al_trace("Saving tile: %d\n", tile);
-		if (!readtilefile(f))
-		{
-			al_trace("Could not read from .ztile packfile %s\n", temppath);
-			jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-		}
-		else
-		{
-			jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-		}
+	reset_combo_animations();
+	reset_combo_animations2();
+	bound(tile,0,NEWMAXTILES-1);
+	ex=exnow;
+	int done=0;
+	int oflip=flip;
+	int otile=tile;
+	int ocs=cs;
+	int first=(tile/TILES_PER_PAGE)*TILES_PER_PAGE; //first tile on the current page
+	int copy=-1;
+	int tile2=tile,copycnt=0;
+	int tile_clicked=-1;
+	bool rect_sel=true;
+	bound(first,0,(TILES_PER_PAGE*TILE_PAGES)-1);
+	position_mouse_z(0);
 	
-		pack_fclose(f);
-		//register_blank_tiles();
-		//register_used_tiles();
-		redraw=true;
-		break;
-	    }
-            case KEY_MINUS:
-            case KEY_MINUS_PAD:
-            {
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
-                        key[KEY_ALT] || key[KEY_ALTGR])
-                {
-                    FOREACH_START(t)
-                        if(key[KEY_ALT] || key[KEY_ALTGR])
-                            shift_tile_colors(t, -16, false);
-                        else
-                            shift_tile_colors(t, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-                    FOREACH_END
-                    
-                    register_blank_tiles();
-                }
-                else if(edit_cs)
-                    cs = (cs>0)  ? cs-1:15;
-                    
-                redraw=true;
-                break;
-            }
-            
-            case KEY_UP:
-            {
-                switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
-                {
-                case 3:  //ALT and CTRL
-                case 2:  //ALT
-                    if(is_rect)
-                    {
-                        saved=false;
-                        go_slide_tiles(columns, rows, top, left);
-                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-                        bool same = true;
-                        
-                        for(int d=0; d<columns; d++)
-                        {
-                            for(int s=0; s<rows; s++)
-                            {
-                                int t=((top+s)*TILES_PER_ROW)+left+d;
-                                
-                                if(newtilebuf[t].format!=bitcheck) same = false;
-                            }
-                        }
-                        
-                        if(!same) break;
-                        
-                        for(int c=0; c<columns; c++)
-                        {
-                            for(int r=0; r<rows; r++)
-                            {
-                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
-                                qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(8*bitcheck));
-                                qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data);
-                                
-                                for(int pixelrow=0; pixelrow<16*bitcheck; pixelrow++)
-                                {
-                                    if(pixelrow==15*bitcheck)
-                                    {
-                                        int srctile=temptile+TILES_PER_ROW;
-                                        if(srctile>=NEWMAXTILES)
-                                            srctile-=rows*TILES_PER_ROW;
-                                        src_pixelrow=(qword*)(newtilebuf[srctile].data);
-                                    }
-                                    
-                                    *dest_pixelrow=*src_pixelrow;
-                                    dest_pixelrow++;
-                                    src_pixelrow++;
-                                }
-                            }
-                            
-                            qword *dest_pixelrow=(qword*)(newtilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
-                            
-                            for(int b=0; b<bitcheck; b++,dest_pixelrow++)
-                            {
-                                if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
-                                {
-                                    *dest_pixelrow=0;
-                                }
-                                else
-                                {
-                                    qword *src_pixelrow=(qword*)(newundotilebuf[(top*TILES_PER_ROW)+left+c].data+(8*b));
-                                    *dest_pixelrow=*src_pixelrow;
-                                }
-                            }
-                        }
-                    }
-                    
-                    register_blank_tiles();
-                    redraw=true;
-                    break;
-                    
-                case 1:  //CTRL
-                case 0:  //None
-                    sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(tile_page_row(tile)*TILES_PER_ROW):-TILES_PER_ROW);
-                    redraw=true;
-                    
-                default: //Others
-                    break;
-                }
-            }
-            break;
-            
-            case KEY_DOWN:
-            {
-                switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
-                {
-                case 3:  //ALT and CTRL
-                case 2:  //ALT
-                    if(is_rect)
-                    {
-                        saved=false;
-                        go_slide_tiles(columns, rows, top, left);
-                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-                        bool same = true;
-                        
-                        for(int c=0; c<columns; c++)
-                        {
-                            for(int r=0; r<rows; r++)
-                            {
-                                int t=((top+r)*TILES_PER_ROW)+left+c;
-                                
-                                if(newtilebuf[t].format!=bitcheck) same = false;
-                            }
-                        }
-                        
-                        if(!same) break;
-                        
-                        for(int c=0; c<columns; c++)
-                        {
-                            for(int r=rows-1; r>=0; r--)
-                            {
-                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
-                                qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(112*bitcheck)+(8*(bitcheck-1)));
-                                qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data+(120*bitcheck)+(8*(bitcheck-1)));
-                                
-                                for(int pixelrow=(8<<bitcheck)-1; pixelrow>=0; pixelrow--)
-                                {
-                                    if(pixelrow<bitcheck)
-                                    {
-                                        int srctile=temptile-TILES_PER_ROW;
-                                        if(srctile<0)
-                                            srctile+=rows*TILES_PER_ROW;
-                                        qword *tempsrc=(qword*)(newtilebuf[srctile].data+(120*bitcheck)+(8*pixelrow));
-                                        *dest_pixelrow=*tempsrc;
-                                        //*dest_pixelrow=0;
-                                    }
-                                    else
-                                    {
-                                        *dest_pixelrow=*src_pixelrow;
-                                    }
-                                    
-                                    dest_pixelrow--;
-                                    src_pixelrow--;
-                                }
-                            }
-                            
-                            qword *dest_pixelrow=(qword*)(newtilebuf[(top*TILES_PER_ROW)+left+c].data);
-                            qword *src_pixelrow=(qword*)(newundotilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
-                            
-                            for(int b=0; b<bitcheck; b++)
-                            {
-                                if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
-                                {
-                                    *dest_pixelrow=0;
-                                }
-                                else
-                                {
-                                    *dest_pixelrow=*src_pixelrow;
-                                }
-                                
-                                dest_pixelrow++;
-                                src_pixelrow++;
-                            }
-                        }
-                    }
-                    
-                    register_blank_tiles();
-                    redraw=true;
-                    break;
-                    
-                case 1:  //CTRL
-                case 0:  //None
-                    sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
-                    redraw=true;
-                    
-                default: //Others
-                    break;
-                }
-            }
-            break;
-            
-            case KEY_LEFT:
-            {
-                switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
-                {
-                case 3:  //ALT and CTRL
-                case 2:  //ALT
-                    if(is_rect)
-                    {
-                        saved=false;
-                        go_slide_tiles(columns, rows, top, left);
-                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-                        bool same = true;
-                        
-                        for(int c=0; c<columns; c++)
-                        {
-                            for(int r=0; r<rows; r++)
-                            {
-                                int t=((top+r)*TILES_PER_ROW)+left+c;
-                                
-                                if(newtilebuf[t].format!=bitcheck) same = false;
-                            }
-                        }
-                        
-                        if(!same) break;
-                        
-                        for(int r=0; r<rows; r++)
-                        {
-                            for(int c=0; c<columns; c++)
-                            {
-                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
-                                byte *dest_pixelrow=(newtilebuf[temptile].data);
-                                
-                                for(int pixelrow=0; pixelrow<16; pixelrow++)
-                                {
-#ifdef ALLEGRO_LITTLE_ENDIAN
-                                
-                                    //if(bitcheck==tf4Bit)
-                                    //{
-                                    for(int p=0; p<(8*bitcheck)-1; p++)
-                                    {
-                                        if(bitcheck==tf4Bit)
-                                        {
-                                            *dest_pixelrow=*dest_pixelrow>>4;
-                                            *dest_pixelrow|=(*(dest_pixelrow+1)<<4);
-                                            
-                                            if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)>>4;
-                                        }
-                                        else
-                                        {
-                                            *dest_pixelrow=*(dest_pixelrow+1);
-                                        }
-                                        
-                                        dest_pixelrow++;
-                                    }
-                                    
-#else
-                                    
-                                    for(int p=0; p<(8*bitcheck)-1; p++)
-                                    {
-                                        if(bitcheck==tf4Bit)
-                                        {
-                                            *dest_pixelrow=*dest_pixelrow<<4;
-                                            *dest_pixelrow|=(*(dest_pixelrow+1)>>4);
-                                    
-                                            if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)<<4;
-                                        }
-                                        else
-                                        {
-                                            *dest_pixelrow=*(dest_pixelrow+1);
-                                        }
-                                    
-                                        dest_pixelrow++;
-                                    }
-                                    
-#endif
-                                    
-                                    if(c==columns-1)
-                                    {
-                                        if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
-                                        {
-                                            byte *tempsrc=(newundotilebuf[((top+r)*TILES_PER_ROW)+left].data+(pixelrow*8*bitcheck));
-#ifdef ALLEGRO_LITTLE_ENDIAN
-                                            
-                                            if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-                                            else *dest_pixelrow=*tempsrc;
-                                            
-#else
-                                            
-                                            if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-                                            else *dest_pixelrow=*tempsrc;
-                                            
-#endif
-                                        }
-                                    }
-                                    else
-                                    
-                                    {
-                                        byte *tempsrc=(newtilebuf[temptile+1].data+(pixelrow*8*bitcheck));
-#ifdef ALLEGRO_LITTLE_ENDIAN
-                                        
-                                        if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-                                        else *dest_pixelrow=*tempsrc;
-                                        
-#else
-                                        
-                                        if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-                                        else *dest_pixelrow=*tempsrc;
-                                        
-#endif
-                                    }
-                                    
-                                    dest_pixelrow++;
-                                }
-                            }
-                        }
-                        
-                        register_blank_tiles();
-                        redraw=true;
-                    }
-                    
-                    break;
-                    
-                case 1:  //CTRL
-                case 0:  //None
-                    sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile%TILES_PER_ROW):-1);
-                    redraw=true;
-                    
-                default: //Others
-                    break;
-                }
-            }
-            break;
-            
-            case KEY_RIGHT:
-            {
-                switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
-                {
-                case 3:  //ALT and CTRL
-                case 2:  //ALT
-                    if(is_rect)
-                    {
-                        saved=false;
-                        go_slide_tiles(columns, rows, top, left);
-                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-                        bool same = true;
-                        
-                        for(int c=0; c<columns; c++)
-                        {
-                            for(int r=0; r<rows; r++)
-                            {
-                                int t=((top+r)*TILES_PER_ROW)+left+c;
-                                
-                                if(newtilebuf[t].format!=bitcheck) same = false;
-                            }
-                        }
-                        
-                        if(!same) break;
-                        
-                        for(int r=0; r<rows; r++)
-                        {
-                            for(int c=columns-1; c>=0; c--)
-                            {
-                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
-                                byte *dest_pixelrow=(newtilebuf[temptile].data)+(128*bitcheck)-1;
-                                
-                                for(int pixelrow=15; pixelrow>=0; pixelrow--)
-                                {
-#ifdef ALLEGRO_LITTLE_ENDIAN
-                                
-                                    //*dest_pixelrow=(*dest_pixelrow)<<4;
-                                    for(int p=0; p<(8*bitcheck)-1; p++)
-                                    {
-                                        if(bitcheck==tf4Bit)
-                                        {
-                                            *dest_pixelrow=*dest_pixelrow<<4;
-                                            *dest_pixelrow|=(*(dest_pixelrow-1)>>4);
-                                            
-                                            if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)<<4;
-                                        }
-                                        else
-                                        {
-                                            *dest_pixelrow=*(dest_pixelrow-1);
-                                        }
-                                        
-                                        dest_pixelrow--;
-                                    }
-                                    
-#else
-                                    
-                                    for(int p=0; p<(8*bitcheck)-1; p++)
-                                    {
-                                        if(bitcheck==tf4Bit)
-                                        {
-                                            *dest_pixelrow=*dest_pixelrow>>4;
-                                            *dest_pixelrow|=(*(dest_pixelrow-1)<<4);
-                                    
-                                            if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)>>4;
-                                        }
-                                        else
-                                        {
-                                            *dest_pixelrow=*(dest_pixelrow-1);
-                                        }
-                                    
-                                        dest_pixelrow--;
-                                    }
-                                    
-#endif
-                                    
-                                    if(c==0)
-                                    {
-                                        if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
-                                        {
-                                            byte *tempsrc=(newundotilebuf[(((top+r)*TILES_PER_ROW)+left+columns-1)].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
-#ifdef ALLEGRO_LITTLE_ENDIAN
-                                            
-                                            if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-                                            else *dest_pixelrow=*tempsrc;
-                                            
-#else
-                                            
-                                            if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-                                            else *dest_pixelrow=*tempsrc;
-                                            
-#endif
-                                        }
-                                    }
-                                    else
-                                    {
-                                        byte *tempsrc=(newtilebuf[temptile-1].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
-#ifdef ALLEGRO_LITTLE_ENDIAN
-                                        
-                                        // (*dest_pixelrow)|=((*(dest_pixelrow-16))&0xF000000000000000ULL)>>60;
-                                        if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-                                        else *dest_pixelrow=*tempsrc;
-                                        
-#else
-                                        
-                                        if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-                                        else *dest_pixelrow=*tempsrc;
-                                        
-#endif
-                                    }
-                                    
-                                    dest_pixelrow--;
-                                }
-                            }
-                        }
-                        
-                        register_blank_tiles();
-                        redraw=true;
-                    }
-                    
-                    break;
-                    
-                case 1:  //CTRL
-                case 0:  //None
-                    sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
-                    redraw=true;
-                    
-                default: //Others
-                    break;
-                }
-            }
-            break;
-            
-            case KEY_PGUP:
-                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
-                redraw=true;
-                break;
-                
-            case KEY_PGDN:
-                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
-                redraw=true;
-                break;
-                
-            case KEY_HOME:
-                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile):-(tile%TILES_PER_PAGE));
-                redraw=true;
-                break;
-                
-            case KEY_END:
-                sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1);
-                redraw=true;
-                break;
-                
-            case KEY_P:
-            {
-                int whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
-                
-                if(whatPage >= 0)
-                    sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
-                    
-                break;
-            }
-            
-            case KEY_O:
-                if(type==0 && copy>=0)
-                {
-                    go_tiles();
-                    
-                    if(key[KEY_LSHIFT] ||key[KEY_RSHIFT])
-                    {
-			mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]), rect_sel);
-                        saved=false;
-                    }
-                    else
-                    {
-                        saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
-			//overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
-                    }
-                    
-                    saved=false;
-                    redraw=true;
-                }
-                
-                break;
-                
-            case KEY_E:
-                if(type==0)
-                {
-                    edit_tile(tile,flip,cs);
-                    draw_tile_list_window();
-                    redraw=true;
-                }
-                
-                break;
-                
-            case KEY_G:
-                if(type==0)
-                {
-                    grab_tile(tile,cs);
-                    draw_tile_list_window();
-                    redraw=true;
-                }
-                
-                break;
-                
-            case KEY_C:
-                copy=zc_min(tile,tile2);
-                copycnt=abs(tile-tile2)+1;
-                redraw=true;
-                break;
-                
-            case KEY_X:
-                if(type==2)
-                {
-                    ex=(ex+1)%3;
-                }
-                
-                break;
-                
-                //usetiles=true;
-            case KEY_R:
-                if(type==2)
-                    break;
-                    
-                go_tiles();
-                
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-                {
-                    bool go=false;
-                    if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-                        go=true;
-                    else if(massRecolorSetup(cs))
-                        go=true;
-                    
-                    if(go)
-                    {
-                        FOREACH_START(t)
-                            massRecolorApply(t);
-                        FOREACH_END
-                        
-                        register_blank_tiles();
-                    }
-                }
-                else
-                {
-                    FOREACH_START(t)
-                        rotate_tile(t,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
-                    FOREACH_END
-                }
-                
-                redraw=true;
-                saved=false;
-                break;
-                
-            case KEY_SPACE:
-                rect_sel=!rect_sel;
-                copy=-1;
-                redraw=true;
-                break;
-                
-                //     case KEY_N:     go_tiles(); normalize(tile,tile2,flip); flip=0; redraw=true; saved=false; usetiles=true; break;
-            case KEY_H:
-                flip^=1;
-                go_tiles();
-                
-                if(type==0)
-                {
-                    normalize(tile,tile2,rect_sel,flip);
-                    flip=0;
-                }
-                
-                redraw=true;
-                break;
-                
-            case KEY_F12:
-                onSnapshot();
-                break;
-                
-            case KEY_V:
-                if(copy==-1)
-                {
-                    if(type!=2)
-                    {
-                        flip^=2;
-                        go_tiles();
-                        
-                        if(type==0)
-                        {
-                            normalize(tile,tile2,rect_sel,flip);
-                            flip=0;
-                        }
-                    }
-                }
-                else
-                {
-                    bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
-		    go_tiles();
-                    saved = !copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
-                }
-                
-                redraw=true;
-                break;
-                
+	go();
+	
+	register_used_tiles();
+	int window_xofs=0;
+	int window_yofs=0;
+	int screen_xofs=0;
+	int screen_yofs=0;
+	int panel_yofs=0;
+	int w = 320;
+	int h = 240;
+	int mul = 1;
+	FONT *tfont = pfont;
+	
+	if(is_large)
+	{
+		w *= 2;
+		h *= 2;
+		mul = 2; // multiply dimensions by 2
+		window_xofs=(zq_screen_w-w-12)>>1;
+		window_yofs=(zq_screen_h-h-25-6)>>1;
+		screen_xofs=window_xofs+6;
+		screen_yofs=window_yofs+25;
+		panel_yofs=3;
+		tfont = lfont_l;
+	}
+	
+	draw_tile_list_window();
+	int f=0;
+	draw_tiles(first,cs,f);
+	
+	if(type==0)
+	{
+		tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
+	}
+	else
+	{
+		tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
+	}
+	
+	go_tiles();
+	
+	while(gui_mouse_b())
+	{
+		/* do nothing */
+	}
+	
+	bool bdown=false;
+	
+	#define FOREACH_START(_t) \
+	{ \
+		int _first, _last; \
+		if(is_rect) \
+		{ \
+			_first=top*TILES_PER_ROW+left; \
+			_last=_first+rows*TILES_PER_ROW|+columns-1; \
+		} \
+		else \
+		{ \
+			_first=zc_min(tile, tile2); \
+			_last=zc_max(tile, tile2); \
+		} \
+		for(int _t=_first; _t<=_last; _t++) \
+		{ \
+			if(is_rect) \
+			{ \
+				int row=TILEROW(_t); \
+				if(row<top || row>=top+rows) \
+					continue; \
+				int col=TILECOL(_t); \
+				if(col<left || col>=left+columns) \
+					continue; \
+			} \
 		
+	#define FOREACH_END\
+		} \
+	}
+	
+	
+	do
+	{
+		rest(4);
+		int top=TILEROW(zc_min(tile, tile2));
+		int left=zc_min(TILECOL(tile), TILECOL(tile2));
+		int rows=TILEROW(zc_max(tile, tile2))-top+1;
+		int columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
+		bool is_rect=(rows==1)||(columns==TILES_PER_ROW)||rect_sel;
+		bool redraw=false;
 		
-	    case KEY_F:
-                if(copy==-1)
-                {
-                    break;
-                }
-                else
-                {
-		    go_tiles();
-		    {
-			    saved = !copy_tiles_floodfill(tile,tile2,copy,copycnt,rect_sel,false);
-		    }
-                }
-                
-                redraw=true;
-                break;
+		if(mouse_z!=0)
+		{
+			sel_tile(tile,tile2,first,type,((mouse_z/abs(mouse_z))*(-1)*TILES_PER_PAGE));
+			position_mouse_z(0);
+			redraw=true;
+		}
 		
-            case KEY_DEL:
-                delete_tiles(tile,tile2,rect_sel);
-                redraw=true;
-                break;
-                
-            case KEY_U:
-            {
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-                {
-					//Only toggle the first 2 bits!
-                    show_only_unused_tiles = (show_only_unused_tiles&~3) | (((show_only_unused_tiles&3)+1)%4);
-                }
-                else
-                {
-                    comeback_tiles();
-                }
-                
-                redraw=true;
-            }
-            break;
-			
-			case KEY_8:
-			case KEY_8_PAD:
-				hide_8bit_marker();
+		if(keypressed())
+		{
+			switch(readkey()>>8)
+			{
+				case KEY_ENTER_PAD:
+				case KEY_ENTER:
+					done=2;
+					break;
+				
+				case KEY_ESC:
+					done=1;
+					break;
+				
+				case KEY_F1:
+					onHelp();
+					break;
+				
+				case KEY_EQUALS:
+				case KEY_PLUS_PAD:
+				{
+					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+							key[KEY_ALT] || key[KEY_ALTGR])
+					{
+						FOREACH_START(t)
+							if(key[KEY_ALT] || key[KEY_ALTGR])
+								shift_tile_colors(t, 16, false);
+							else
+								shift_tile_colors(t, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+						FOREACH_END
+						
+						register_blank_tiles();
+					}
+					else if(edit_cs)
+						cs = (cs<11) ? cs+1:0;
+						
+					redraw=true;
+					break;
+				}
+				case KEY_Z:
+				{
+					onSnapshot();
+					break;
+				}
+				case KEY_S:
+				{
+					if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+						break;   
+					PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+					if(!f) break;
+					al_trace("Saving tile: %d\n", tile);
+					writetilefile(f,tile,1);
+					pack_fclose(f);
+					break;
+				}
+				case KEY_L:
+				{
+					if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+						break;   
+					PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+					if(!f) break;
+					al_trace("Saving tile: %d\n", tile);
+					if (!readtilefile(f))
+					{
+						al_trace("Could not read from .ztile packfile %s\n", temppath);
+						jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					}
+					else
+					{
+						jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					}
+				
+					pack_fclose(f);
+					//register_blank_tiles();
+					//register_used_tiles();
+					redraw=true;
+					break;
+				}
+				case KEY_MINUS:
+				case KEY_MINUS_PAD:
+				{
+					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+							key[KEY_ALT] || key[KEY_ALTGR])
+					{
+						FOREACH_START(t)
+							if(key[KEY_ALT] || key[KEY_ALTGR])
+								shift_tile_colors(t, -16, false);
+							else
+								shift_tile_colors(t, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+						FOREACH_END
+						
+						register_blank_tiles();
+					}
+					else if(edit_cs)
+						cs = (cs>0)  ? cs-1:11;
+						
+					redraw=true;
+					break;
+				}
+				
+				case KEY_UP:
+				{
+					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+					{
+						case 3:  //ALT and CTRL
+						case 2:  //ALT
+							if(is_rect)
+							{
+								saved=false;
+								go_slide_tiles(columns, rows, top, left);
+								int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+								bool same = true;
+								
+								for(int d=0; d<columns; d++)
+								{
+									for(int s=0; s<rows; s++)
+									{
+										int t=((top+s)*TILES_PER_ROW)+left+d;
+										
+										if(newtilebuf[t].format!=bitcheck) same = false;
+									}
+								}
+								
+								if(!same) break;
+								
+								for(int c=0; c<columns; c++)
+								{
+									for(int r=0; r<rows; r++)
+									{
+										int temptile=((top+r)*TILES_PER_ROW)+left+c;
+										qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(8*bitcheck));
+										qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data);
+										
+										for(int pixelrow=0; pixelrow<16*bitcheck; pixelrow++)
+										{
+											if(pixelrow==15*bitcheck)
+											{
+												int srctile=temptile+TILES_PER_ROW;
+												if(srctile>=NEWMAXTILES)
+													srctile-=rows*TILES_PER_ROW;
+												src_pixelrow=(qword*)(newtilebuf[srctile].data);
+											}
+											
+											*dest_pixelrow=*src_pixelrow;
+											dest_pixelrow++;
+											src_pixelrow++;
+										}
+									}
+									
+									qword *dest_pixelrow=(qword*)(newtilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
+									
+									for(int b=0; b<bitcheck; b++,dest_pixelrow++)
+									{
+										if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+										{
+											*dest_pixelrow=0;
+										}
+										else
+										{
+											qword *src_pixelrow=(qword*)(newundotilebuf[(top*TILES_PER_ROW)+left+c].data+(8*b));
+											*dest_pixelrow=*src_pixelrow;
+										}
+									}
+								}
+							}
+							
+							register_blank_tiles();
+							redraw=true;
+							break;
+							
+						case 1:  //CTRL
+						case 0:  //None
+							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(tile_page_row(tile)*TILES_PER_ROW):-TILES_PER_ROW);
+							redraw=true;
+							
+						default: //Others
+							break;
+					}
+				}
 				break;
-            
-            case KEY_M:
-		    //al_trace("mass combo key pressed, type == %d\n",type);
-                if(type==0)
-                {
-			 //al_trace("mass combo key pressed, copy == %d\n",copy);
-                    if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
-                    {
-                        go_tiles();
-                        saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
-                    }
-                    else if(copy==-1)
-                    {
-                        // I don't know what this was supposed to be doing before.
-                        // It didn't work in anything like a sensible way.
-                        if(rect_sel)
-			{
-                            make_combos_rect(top, left, rows, columns, cs);
+				
+				case KEY_DOWN:
+				{
+					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+					{
+						case 3:  //ALT and CTRL
+						case 2:  //ALT
+							if(is_rect)
+							{
+								saved=false;
+								go_slide_tiles(columns, rows, top, left);
+								int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+								bool same = true;
+								
+								for(int c=0; c<columns; c++)
+								{
+									for(int r=0; r<rows; r++)
+									{
+										int t=((top+r)*TILES_PER_ROW)+left+c;
+										
+										if(newtilebuf[t].format!=bitcheck) same = false;
+									}
+								}
+								
+								if(!same) break;
+								
+								for(int c=0; c<columns; c++)
+								{
+									for(int r=rows-1; r>=0; r--)
+									{
+										int temptile=((top+r)*TILES_PER_ROW)+left+c;
+										qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(112*bitcheck)+(8*(bitcheck-1)));
+										qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data+(120*bitcheck)+(8*(bitcheck-1)));
+										
+										for(int pixelrow=(8<<bitcheck)-1; pixelrow>=0; pixelrow--)
+										{
+											if(pixelrow<bitcheck)
+											{
+												int srctile=temptile-TILES_PER_ROW;
+												if(srctile<0)
+													srctile+=rows*TILES_PER_ROW;
+												qword *tempsrc=(qword*)(newtilebuf[srctile].data+(120*bitcheck)+(8*pixelrow));
+												*dest_pixelrow=*tempsrc;
+												//*dest_pixelrow=0;
+											}
+											else
+											{
+												*dest_pixelrow=*src_pixelrow;
+											}
+											
+											dest_pixelrow--;
+											src_pixelrow--;
+										}
+									}
+									
+									qword *dest_pixelrow=(qword*)(newtilebuf[(top*TILES_PER_ROW)+left+c].data);
+									qword *src_pixelrow=(qword*)(newundotilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
+									
+									for(int b=0; b<bitcheck; b++)
+									{
+										if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+										{
+											*dest_pixelrow=0;
+										}
+										else
+										{
+											*dest_pixelrow=*src_pixelrow;
+										}
+										
+										dest_pixelrow++;
+										src_pixelrow++;
+									}
+								}
+							}
+							
+							register_blank_tiles();
+							redraw=true;
+							break;
+							
+						case 1:  //CTRL
+						case 0:  //None
+							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
+							redraw=true;
+							
+						default: //Others
+							break;
+					}
+				}
+				break;
+				
+				case KEY_LEFT:
+				{
+					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+					{
+						case 3:  //ALT and CTRL
+						case 2:  //ALT
+							if(is_rect)
+							{
+								saved=false;
+								go_slide_tiles(columns, rows, top, left);
+								int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+								bool same = true;
+								
+								for(int c=0; c<columns; c++)
+								{
+									for(int r=0; r<rows; r++)
+									{
+										int t=((top+r)*TILES_PER_ROW)+left+c;
+										
+										if(newtilebuf[t].format!=bitcheck) same = false;
+									}
+								}
+								
+								if(!same) break;
+								
+								for(int r=0; r<rows; r++)
+								{
+									for(int c=0; c<columns; c++)
+									{
+										int temptile=((top+r)*TILES_PER_ROW)+left+c;
+										byte *dest_pixelrow=(newtilebuf[temptile].data);
+										
+										for(int pixelrow=0; pixelrow<16; pixelrow++)
+										{
+		#ifdef ALLEGRO_LITTLE_ENDIAN
+										
+											//if(bitcheck==tf4Bit)
+											// {
+											for(int p=0; p<(8*bitcheck)-1; p++)
+											{
+												if(bitcheck==tf4Bit)
+												{
+													*dest_pixelrow=*dest_pixelrow>>4;
+													*dest_pixelrow|=(*(dest_pixelrow+1)<<4);
+													
+													if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)>>4;
+												}
+												else
+												{
+													*dest_pixelrow=*(dest_pixelrow+1);
+												}
+												
+												dest_pixelrow++;
+											}
+											
+		#else
+											
+											for(int p=0; p<(8*bitcheck)-1; p++)
+											{
+												if(bitcheck==tf4Bit)
+												{
+													*dest_pixelrow=*dest_pixelrow<<4;
+													*dest_pixelrow|=(*(dest_pixelrow+1)>>4);
+											
+													if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)<<4;
+												}
+												else
+												{
+													*dest_pixelrow=*(dest_pixelrow+1);
+												}
+											
+												dest_pixelrow++;
+											}
+											
+		#endif
+											
+											if(c==columns-1)
+											{
+												if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+												{
+													byte *tempsrc=(newundotilebuf[((top+r)*TILES_PER_ROW)+left].data+(pixelrow*8*bitcheck));
+		#ifdef ALLEGRO_LITTLE_ENDIAN
+													
+													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
+													else *dest_pixelrow=*tempsrc;
+													
+		#else
+													
+													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
+													else *dest_pixelrow=*tempsrc;
+													
+		#endif
+												}
+											}
+											else
+											
+											{
+												byte *tempsrc=(newtilebuf[temptile+1].data+(pixelrow*8*bitcheck));
+		#ifdef ALLEGRO_LITTLE_ENDIAN
+												
+												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
+												else *dest_pixelrow=*tempsrc;
+												
+		#else
+												
+												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
+												else *dest_pixelrow=*tempsrc;
+												
+		#endif
+											}
+											
+											dest_pixelrow++;
+										}
+									}
+								}
+								
+								register_blank_tiles();
+								redraw=true;
+							}
+							
+							break;
+							
+						case 1:  //CTRL
+						case 0:  //None
+							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile%TILES_PER_ROW):-1);
+							redraw=true;
+							
+						default: //Others
+							break;
+					}
+				}
+				break;
+			
+				case KEY_RIGHT:
+				{
+					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+					{
+						case 3:  //ALT and CTRL
+						case 2:  //ALT
+							if(is_rect)
+							{
+								saved=false;
+								go_slide_tiles(columns, rows, top, left);
+								int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+								bool same = true;
+								
+								for(int c=0; c<columns; c++)
+								{
+									for(int r=0; r<rows; r++)
+									{
+										int t=((top+r)*TILES_PER_ROW)+left+c;
+										
+										if(newtilebuf[t].format!=bitcheck) same = false;
+									}
+								}
+								
+								if(!same) break;
+								
+								for(int r=0; r<rows; r++)
+								{
+									for(int c=columns-1; c>=0; c--)
+									{
+										int temptile=((top+r)*TILES_PER_ROW)+left+c;
+										byte *dest_pixelrow=(newtilebuf[temptile].data)+(128*bitcheck)-1;
+										
+										for(int pixelrow=15; pixelrow>=0; pixelrow--)
+										{
+		#ifdef ALLEGRO_LITTLE_ENDIAN
+										
+											//*dest_pixelrow=(*dest_pixelrow)<<4;
+											for(int p=0; p<(8*bitcheck)-1; p++)
+											{
+												if(bitcheck==tf4Bit)
+												{
+													*dest_pixelrow=*dest_pixelrow<<4;
+													*dest_pixelrow|=(*(dest_pixelrow-1)>>4);
+													
+													if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)<<4;
+												}
+												else
+												{
+													*dest_pixelrow=*(dest_pixelrow-1);
+												}
+												
+												dest_pixelrow--;
+											}
+											
+		#else
+											
+											for(int p=0; p<(8*bitcheck)-1; p++)
+											{
+												if(bitcheck==tf4Bit)
+												{
+													*dest_pixelrow=*dest_pixelrow>>4;
+													*dest_pixelrow|=(*(dest_pixelrow-1)<<4);
+											
+													if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)>>4;
+												}
+												else
+												{
+													*dest_pixelrow=*(dest_pixelrow-1);
+												}
+											
+												dest_pixelrow--;
+											}
+											
+		#endif
+											
+											if(c==0)
+											{
+												if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+												{
+													byte *tempsrc=(newundotilebuf[(((top+r)*TILES_PER_ROW)+left+columns-1)].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
+		#ifdef ALLEGRO_LITTLE_ENDIAN
+													
+													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
+													else *dest_pixelrow=*tempsrc;
+													
+		#else
+													
+													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
+													else *dest_pixelrow=*tempsrc;
+													
+		#endif
+												}
+											}
+											else
+											{
+												byte *tempsrc=(newtilebuf[temptile-1].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
+		#ifdef ALLEGRO_LITTLE_ENDIAN
+												
+												// (*dest_pixelrow)|=((*(dest_pixelrow-16))&0xF000000000000000ULL)>>60;
+												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
+												else *dest_pixelrow=*tempsrc;
+												
+		#else
+												
+												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
+												else *dest_pixelrow=*tempsrc;
+												
+		#endif
+											}
+											
+											dest_pixelrow--;
+										}
+									}
+								}
+								
+								register_blank_tiles();
+								redraw=true;
+							}
+							
+							break;
+							
+						case 1:  //CTRL
+						case 0:  //None
+							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
+							redraw=true;
+							
+						default: //Others
+							break;
+					}
+				}
+				break;
+			
+				case KEY_PGUP:
+					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
+					redraw=true;
+					break;
+				
+				case KEY_PGDN:
+					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
+					redraw=true;
+					break;
+				
+				case KEY_HOME:
+					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile):-(tile%TILES_PER_PAGE));
+					redraw=true;
+					break;
+				
+				case KEY_END:
+					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1);
+					redraw=true;
+					break;
+				
+				case KEY_P:
+				{
+					int whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
+					
+					if(whatPage >= 0)
+						sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
+						
+					break;
+				}
+				
+				case KEY_O:
+					if(type==0 && copy>=0)
+					{
+						go_tiles();
+						
+						if(key[KEY_LSHIFT] ||key[KEY_RSHIFT])
+						{
+							mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]), rect_sel);
+							saved=false;
+						}
+						else
+						{
+							saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
+							//overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
+						}
+						
+						saved=false;
+						redraw=true;
+					}
+					
+					break;
+				
+				case KEY_E:
+					if(type==0)
+					{
+						edit_tile(tile,flip,cs);
+						draw_tile_list_window();
+						redraw=true;
+					}
+					
+					break;
+				
+				case KEY_G:
+					if(type==0)
+					{
+						grab_tile(tile,cs);
+						draw_tile_list_window();
+						redraw=true;
+					}
+					
+					break;
+				
+				case KEY_C:
+					copy=zc_min(tile,tile2);
+					copycnt=abs(tile-tile2)+1;
+					redraw=true;
+					break;
+				
+				case KEY_X:
+					if(type==2)
+					{
+						ex=(ex+1)%3;
+					}
+					
+					break;
+				
+				//usetiles=true;
+				case KEY_R:
+					if(type==2)
+						break;
+						
+					go_tiles();
+					
+					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					{
+						bool go=false;
+						if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+							go=true;
+						else if(massRecolorSetup(cs))
+							go=true;
+						
+						if(go)
+						{
+							FOREACH_START(t)
+								massRecolorApply(t);
+							FOREACH_END
+							
+							register_blank_tiles();
+						}
+					}
+					else
+					{
+						FOREACH_START(t)
+							rotate_tile(t,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
+						FOREACH_END
+					}
+					
+					redraw=true;
+					saved=false;
+					break;
+				
+				case KEY_SPACE:
+					rect_sel=!rect_sel;
+					copy=-1;
+					redraw=true;
+					break;
+				
+				//     case KEY_N:     go_tiles(); normalize(tile,tile2,flip); flip=0; redraw=true; saved=false; usetiles=true; break;
+				case KEY_H:
+					flip^=1;
+					go_tiles();
+					
+					if(type==0)
+					{
+						normalize(tile,tile2,rect_sel,flip);
+						flip=0;
+					}
+					
+					redraw=true;
+					break;
+				
+				case KEY_F12:
+					onSnapshot();
+					break;
+				
+				case KEY_V:
+					if(copy==-1)
+					{
+						if(type!=2)
+						{
+							flip^=2;
+							go_tiles();
+							
+							if(type==0)
+							{
+								normalize(tile,tile2,rect_sel,flip);
+								flip=0;
+							}
+						}
+					}
+					else
+					{
+						bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
+						go_tiles();
+						saved = !copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
+					}
+					
+					redraw=true;
+					break;
+				
+				case KEY_F:
+					if(copy==-1)
+					{
+						break;
+					}
+					else
+					{
+						go_tiles();
+						{
+							saved = !copy_tiles_floodfill(tile,tile2,copy,copycnt,rect_sel,false);
+						}
+					}
+					
+					redraw=true;
+					break;
+			
+				case KEY_DEL:
+					delete_tiles(tile,tile2,rect_sel);
+					redraw=true;
+					break;
+				
+				case KEY_U:
+				{
+					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					{
+						//Only toggle the first 2 bits!
+						show_only_unused_tiles = (show_only_unused_tiles&~3) | (((show_only_unused_tiles&3)+1)%4);
+					}
+					else
+					{
+						comeback_tiles();
+					}
+					
+					redraw=true;
+				}
+				break;
+				
+				case KEY_8:
+				case KEY_8_PAD:
+					hide_8bit_marker();
+					break;
+				
+				case KEY_M:
+					//al_trace("mass combo key pressed, type == %d\n",type);
+					if(type==0)
+					{
+						//al_trace("mass combo key pressed, copy == %d\n",copy);
+						if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
+						{
+							go_tiles();
+							saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
+						}
+						else if(copy==-1)
+						{
+							// I don't know what this was supposed to be doing before.
+							// It didn't work in anything like a sensible way.
+							if(rect_sel)
+							{
+								make_combos_rect(top, left, rows, columns, cs);
+							}
+							else
+							{
+								make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+							}
+						}
+						
+						redraw=true;
+					}
+					break;
+				
+				case KEY_D:
+				{
+					int frames=1;
+					char buf[80];
+					sprintf(buf, "%d", frames);
+					create_relational_tiles_dlg[0].dp2=lfont;
+					create_relational_tiles_dlg[2].dp=buf;
+					
+					if(is_large)
+						large_dialog(create_relational_tiles_dlg);
+						
+					int ret=zc_popup_dialog(create_relational_tiles_dlg,2);
+					
+					if(ret==5)
+					{
+						frames=zc_max(atoi(buf),1);
+						bool same = true;
+						int bitcheck=newtilebuf[tile].format;
+						
+						for(int t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
+						{
+							if(newtilebuf[tile+t].format!=bitcheck) same = false;
+						}
+						
+						if(!same)
+						{
+							jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,lfont);
+							break;
+						}
+						
+						if(tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
+						{
+							jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,lfont);
+							break;
+						}
+						
+						for(int i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
+						{
+							reset_tile(newtilebuf, tile+i, bitcheck);
+						}
+						
+						if(create_relational_tiles_dlg[3].flags&D_SELECTED)
+						{
+							for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+							{
+								for(int j=0; j<frames; ++j)
+								{
+									merge_tiles(tile+(i*frames)+j, (tile+(relational_template[i][0]*frames)+j)<<2, ((tile+(relational_template[i][1]*frames)+j)<<2)+1, ((tile+(relational_template[i][2]*frames)+j)<<2)+2, ((tile+(relational_template[i][3]*frames)+j)<<2)+3);
+								}
+							}
+						}
+						else
+						{
+							for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+							{
+								for(int j=0; j<frames; ++j)
+								{
+									merge_tiles(tile+(i*frames)+j, (tile+(dungeon_carving_template[i][0]*frames)+j)<<2, ((tile+(dungeon_carving_template[i][1]*frames)+j)<<2)+1, ((tile+(dungeon_carving_template[i][2]*frames)+j)<<2)+2, ((tile+(dungeon_carving_template[i][3]*frames)+j)<<2)+3);
+								}
+							}
+						}
+					}
+				}
+				
+				register_blank_tiles();
+				register_used_tiles();
+				redraw=true;
+				saved=false;
+				break;
+				
+				case KEY_B:
+				{
+					bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+					bool control=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+					bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
+					
+					do_convert_tile(tile, tile2, cs, rect_sel, control, shift, alt);
+					register_blank_tiles();
+				}
+				break;
 			}
-                        else
+			
+			clear_keybuf();
+		}
+		
+		if(gui_mouse_b()&1)
+		{
+			if(is_large)
 			{
-                            make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+				if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + w + 12 - 21, window_yofs + 5, window_xofs + w +12 - 21 + 15, window_yofs + 5 + 13))
+				{
+					if(do_x_button(screen, w+12+window_xofs - 21, 5+window_yofs))
+					{
+						done=1;
+					}
+				}
 			}
-                    }
-                    
-                    redraw=true;
-                }
-                
-                break;
-                
-            case KEY_D:
-            {
-                int frames=1;
-                char buf[80];
-                sprintf(buf, "%d", frames);
-                create_relational_tiles_dlg[0].dp2=lfont;
-                create_relational_tiles_dlg[2].dp=buf;
-                
-                if(is_large)
-                    large_dialog(create_relational_tiles_dlg);
-                    
-                int ret=zc_popup_dialog(create_relational_tiles_dlg,2);
-                
-                if(ret==5)
-                {
-                    frames=zc_max(atoi(buf),1);
-                    bool same = true;
-                    int bitcheck=newtilebuf[tile].format;
-                    
-                    for(int t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
-                    {
-                        if(newtilebuf[tile+t].format!=bitcheck) same = false;
-                    }
-                    
-                    if(!same)
-                    {
-                        jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,lfont);
-                        break;
-                    }
-                    
-                    if(tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
-                    {
-                        jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,lfont);
-                        break;
-                    }
-                    
-                    for(int i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
-                    {
-                        reset_tile(newtilebuf, tile+i, bitcheck);
-                    }
-                    
-                    if(create_relational_tiles_dlg[3].flags&D_SELECTED)
-                    {
-                        for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
-                        {
-                            for(int j=0; j<frames; ++j)
-                            {
-                                merge_tiles(tile+(i*frames)+j, (tile+(relational_template[i][0]*frames)+j)<<2, ((tile+(relational_template[i][1]*frames)+j)<<2)+1, ((tile+(relational_template[i][2]*frames)+j)<<2)+2, ((tile+(relational_template[i][3]*frames)+j)<<2)+3);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
-                        {
-                            for(int j=0; j<frames; ++j)
-                            {
-                                merge_tiles(tile+(i*frames)+j, (tile+(dungeon_carving_template[i][0]*frames)+j)<<2, ((tile+(dungeon_carving_template[i][1]*frames)+j)<<2)+1, ((tile+(dungeon_carving_template[i][2]*frames)+j)<<2)+2, ((tile+(dungeon_carving_template[i][3]*frames)+j)<<2)+3);
-                            }
-                        }
-                    }
-                }
-            }
-            
-            register_blank_tiles();
-            register_used_tiles();
-            redraw=true;
-            saved=false;
-            break;
-            
-            case KEY_B:
-            {
-                bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-                bool control=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
-                bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
-                
-                do_convert_tile(tile, tile2, cs, rect_sel, control, shift, alt);
-                register_blank_tiles();
-            }
-            break;
-            }
-            
-            clear_keybuf();
-        }
-        
-        if(gui_mouse_b()&1)
-        {
-            if(is_large)
-            {
-                if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + w + 12 - 21, window_yofs + 5, window_xofs + w +12 - 21 + 15, window_yofs + 5 + 13))
-                {
-                    if(do_x_button(screen, w+12+window_xofs - 21, 5+window_yofs))
-                    {
-                        done=1;
-                    }
-                }
-            }
-            
-            int x=gui_mouse_x()-screen_xofs;
-            int y=gui_mouse_y()-screen_yofs;
-            
-            if(y>=0 && y<208*mul)
-            {
-                x=zc_min(zc_max(x,0),(320*mul)-1);
-                int t = (y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first;
-                
-                if(type==0 && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
-                {
-                    tile2=t;
-                }
-                else
-                {
-                    tile=tile2=t;
-                }
-                
-                if(tile_clicked!=t)
-                {
-                    dclick_status=DCLICK_NOT;
-                }
-                else if(dclick_status == DCLICK_AGAIN)
-                {
-                    while(gui_mouse_b())
-                    {
-                        /* do nothing */
-                    }
-                    
-                    if(((y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first)!=t)
-                    {
-                        dclick_status=DCLICK_NOT;
-                    }
-                    else
-                    {
-                        if(type==0)
-                        {
-                            edit_tile(tile,flip,cs);
-                            draw_tile_list_window();
-                            redraw=true;
-                        }
-                        else
-                        {
-                            done=2;
-                        }
-                    }
-                }
-                
-                tile_clicked=t;
-            }
-            else if(x>300*mul && !bdown)
-            {
-                if(y<224*mul && first>0)
-                {
-                    first-=TILES_PER_PAGE;
-                    redraw=true;
-                }
-                
-                if(y>=224*mul && first<TILES_PER_PAGE*(TILE_PAGES-1))
-                {
-                    first+=TILES_PER_PAGE;
-                    redraw=true;
-                }
-                
-                bdown=true;
-            }
-            
-            if(type==1||type==2)
-            {
-                if(!bdown && isinRect(x,y,8*mul,216*mul+panel_yofs,23*mul,231*mul+panel_yofs))
-                    done=1;
-                    
-                if(!bdown && isinRect(x,y,148*mul,216*mul+panel_yofs,163*mul,231*mul+panel_yofs))
-                    done=2;
-            }
-            else if(!bdown && isinRect(x,y,127*mul,216*mul+panel_yofs,(127+15)*mul,(216+15)*mul+panel_yofs))
-            {
-                rect_sel=!rect_sel;
-                copy=-1;
-                redraw=true;
-            }
-            else if(!bdown && isinRect(x,y,150*mul,213*mul+panel_yofs,(150+28)*mul,(213+21)*mul+panel_yofs))
-            {
-                FONT *tf = font;
-                font = tfont;
-                
-                if(do_text_button(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-                {
-                    font = tf;
-                    grab_tile(tile,cs);
-                    draw_tile_list_window();
-                    position_mouse_z(0);
-                    redraw=true;
-                }
-                
-                font = tf;
-            }
-            else if(!bdown && isinRect(x,y,(150+28)*mul,213*mul+panel_yofs,(150+28*2)*mul,(213+21)*mul+panel_yofs+21))
-            {
-                FONT *tf = font;
-                font = tfont;
-                
-                if(do_text_button((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-                {
-                    font = tf;
-                    edit_tile(tile,flip,cs);
-                    draw_tile_list_window();
-                    redraw=true;
-                }
-                
-                font = tf;
-            }
-            else if(!bdown && isinRect(x,y,(150+28*2)*mul,213*mul+panel_yofs,(150+28*3)*mul,(213+21)*mul+panel_yofs))
-            {
-                FONT *tf = font;
-                font = tfont;
-                
-                if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-                {
-                    if(getname("Export Tile Page (.png)","png",NULL,datapath,false))
-                    {
-                        PALETTE temppal;
-                        get_palette(temppal);
-                        BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
+			
+			int x=gui_mouse_x()-screen_xofs;
+			int y=gui_mouse_y()-screen_yofs;
+			
+			if(y>=0 && y<208*mul)
+			{
+				x=zc_min(zc_max(x,0),(320*mul)-1);
+				int t = (y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first;
+				
+				if(type==0 && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
+				{
+					tile2=t;
+				}
+				else
+				{
+					tile=tile2=t;
+				}
+				
+				if(tile_clicked!=t)
+				{
+					dclick_status=DCLICK_NOT;
+				}
+				else if(dclick_status == DCLICK_AGAIN)
+				{
+					while(gui_mouse_b())
+					{
+						/* do nothing */
+					}
+					
+					if(((y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first)!=t)
+					{
+						dclick_status=DCLICK_NOT;
+					}
+					else
+					{
+						if(type==0)
+						{
+							edit_tile(tile,flip,cs);
+							draw_tile_list_window();
+							redraw=true;
+						}
+						else
+						{
+							done=2;
+						}
+					}
+				}
+				
+				tile_clicked=t;
+			}
+			else if(x>300*mul && !bdown)
+			{
+				if(y<224*mul && first>0)
+				{
+					first-=TILES_PER_PAGE;
+					redraw=true;
+				}
+				
+				if(y>=224*mul && first<TILES_PER_PAGE*(TILE_PAGES-1))
+				{
+					first+=TILES_PER_PAGE;
+					redraw=true;
+				}
+				
+				bdown=true;
+			}
+			
+			if(type==1||type==2)
+			{
+				if(!bdown && isinRect(x,y,8*mul,216*mul+panel_yofs,23*mul,231*mul+panel_yofs))
+					done=1;
+					
+				if(!bdown && isinRect(x,y,148*mul,216*mul+panel_yofs,163*mul,231*mul+panel_yofs))
+					done=2;
+			}
+			else if(!bdown && isinRect(x,y,127*mul,216*mul+panel_yofs,(127+15)*mul,(216+15)*mul+panel_yofs))
+			{
+				rect_sel=!rect_sel;
+				copy=-1;
+				redraw=true;
+			}
+			else if(!bdown && isinRect(x,y,150*mul,213*mul+panel_yofs,(150+28)*mul,(213+21)*mul+panel_yofs))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				if(do_text_button(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				{
+					font = tf;
+					grab_tile(tile,cs);
+					draw_tile_list_window();
+					position_mouse_z(0);
+					redraw=true;
+				}
+				
+				font = tf;
+			}
+			else if(!bdown && isinRect(x,y,(150+28)*mul,213*mul+panel_yofs,(150+28*2)*mul,(213+21)*mul+panel_yofs+21))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				if(do_text_button((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				{
+					font = tf;
+					edit_tile(tile,flip,cs);
+					draw_tile_list_window();
+					redraw=true;
+				}
+				
+				font = tf;
+			}
+			else if(!bdown && isinRect(x,y,(150+28*2)*mul,213*mul+panel_yofs,(150+28*3)*mul,(213+21)*mul+panel_yofs))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				{
+					if(getname("Export Tile Page (.png)","png",NULL,datapath,false))
+					{
+						PALETTE temppal;
+						get_palette(temppal);
+						BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
 						draw_tiles(tempbmp,first,cs,f,false,true);
-                        save_bitmap(temppath, tempbmp, RAMpal);
-                        destroy_bitmap(tempbmp);
-                    }
-                }
-                
-                font = tf;
-            }
-            else if(!bdown && isinRect(x,y,(150+28*3)*mul,213*mul+panel_yofs,(150+28*4)*mul,(213+21)*mul+panel_yofs))
-            {
-                FONT *tf = font;
-                font = tfont;
-                
-                if(do_text_button((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-                {
-                    if(massRecolorSetup(cs))
-                    {
-                        go_tiles();
-                        
-                        FOREACH_START(t)
-                            massRecolorApply(t);
-                        FOREACH_END
-                        
-                        register_blank_tiles();
-                    }
-                }
-                
-                font = tf;
-            }
-            else if(!bdown && isinRect(x,y,(150+28*4)*mul,213*mul+panel_yofs,(150+28*5)*mul,(213+21)*mul+panel_yofs))
-            {
-                FONT *tf = font;
-                font = tfont;
-                
-                if(do_text_button((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-                {
-                    done=1;
-                }
-                
-                font = tf;
-            }
-            
-            bdown=true;
-        }
-        
-        bool r_click = false;
-        
-        if(gui_mouse_b()&2 && !bdown && type==0)
-        {
-            int x=(gui_mouse_x()-screen_xofs);//&0xFF0;
-            int y=(gui_mouse_y()-screen_yofs);//&0xF0;
-            
-            if(y>=0 && y<208*mul)
-            {
-                x=zc_min(zc_max(x,0),(320*mul)-1);
-                int t = ((y)>>(4+is_large))*TILES_PER_ROW + ((x)>>(4+is_large)) + first;
-                
-                if(t<zc_min(tile,tile2) || t>zc_max(tile,tile2))
-                    tile=tile2=t;
-            }
-            
-            bdown = r_click = true;
-            f=8;
-        }
-        
-        if(gui_mouse_b()==0)
-            bdown=false;
-            
-        position_mouse_z(0);
-        
+						save_bitmap(temppath, tempbmp, RAMpal);
+						destroy_bitmap(tempbmp);
+					}
+				}
+				
+				font = tf;
+			}
+			else if(!bdown && isinRect(x,y,(150+28*3)*mul,213*mul+panel_yofs,(150+28*4)*mul,(213+21)*mul+panel_yofs))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				if(do_text_button((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				{
+					if(massRecolorSetup(cs))
+					{
+						go_tiles();
+						
+						FOREACH_START(t)
+							massRecolorApply(t);
+						FOREACH_END
+						
+						register_blank_tiles();
+					}
+				}
+				
+				font = tf;
+			}
+			else if(!bdown && isinRect(x,y,(150+28*4)*mul,213*mul+panel_yofs,(150+28*5)*mul,(213+21)*mul+panel_yofs))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				if(do_text_button((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				{
+					done=1;
+				}
+				
+				font = tf;
+			}
+			
+			bdown=true;
+		}
+		
+		bool r_click = false;
+		
+		if(gui_mouse_b()&2 && !bdown && type==0)
+		{
+			int x=(gui_mouse_x()-screen_xofs);//&0xFF0;
+			int y=(gui_mouse_y()-screen_yofs);//&0xF0;
+			
+			if(y>=0 && y<208*mul)
+			{
+				x=zc_min(zc_max(x,0),(320*mul)-1);
+				int t = ((y)>>(4+is_large))*TILES_PER_ROW + ((x)>>(4+is_large)) + first;
+				
+				if(t<zc_min(tile,tile2) || t>zc_max(tile,tile2))
+					tile=tile2=t;
+			}
+			
+			bdown = r_click = true;
+			f=8;
+		}
+		
+		if(gui_mouse_b()==0)
+			bdown=false;
+			
+		position_mouse_z(0);
+		
 REDRAW:
 
-        if((f%16)==0 || InvalidStatic)
-            redraw=true;
-            
-        if(redraw)
-            draw_tiles(first,cs,f);
-            
-        if(f&8)
-        {
-            if(rect_sel)
-            {
-                for(int i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
-                          zc_min(TILECOL(tile),TILECOL(tile2));
-                        i<=zc_max(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
-                        zc_max(TILECOL(tile),TILECOL(tile2)); i++)
-                {
-                    if(i>=first && i<first+TILES_PER_PAGE &&
-                            TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
-                            TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
-                    {
-                        int x=(i%TILES_PER_ROW)<<(4+is_large);
-                        int y=((i-first)/TILES_PER_ROW)<<(4+is_large);
-                        rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
-                    }
-                }
-            }
-            else
-            {
-                for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
-                {
-                    if(i>=first && i<first+TILES_PER_PAGE)
-                    {
-                        int x=TILECOL(i)<<(4+is_large);
-                        int y=TILEROW(i-first)<<(4+is_large);
-                        rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
-                    }
-                }
-            }
-        }
-        
-        if(type==0)
-            tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
-        else
-            tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
-            
-        if(type==2)
-        {
-            char cbuf[16];
-            sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
-            gui_textout_ln(screen, is_large?lfont_l:pfont, (unsigned char *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
-        }
-        
-        ++f;
-        
-        if(r_click)
-        {
-            select_tile_rc_menu[1].flags = (copy==-1) ? D_DISABLED : 0;
-            select_tile_rc_menu[2].flags = (copy==-1) ? D_DISABLED : 0;
-            select_tile_view_menu[0].flags = HIDE_USED ? D_SELECTED : 0;
-            select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
-            select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
-            select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
-            int m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
-            redraw=true;
-            
-            switch(m)
-            {
-            case 0:
-                copy=zc_min(tile,tile2);
-                copycnt=abs(tile-tile2)+1;
-                break;
-                
-            case 2:
-            case 1:
-                saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,(m==2));
-                break;
-                
-            case 3:
-                delete_tiles(tile,tile2,rect_sel);
-                break;
-                
-            case 5:
-                edit_tile(tile,flip,cs);
-                draw_tile_list_window();
-                break;
-                
-            case 7:
-            {
-                do_convert_tile(tile,tile2,cs,rect_sel,(newtilebuf[tile].format!=tf4Bit),false,false);
-                break;
-            }
-            
-            case 6:
-                grab_tile(tile,cs);
-                draw_tile_list_window();
-                position_mouse_z(0);
-                break;
-                
-            case 9:
-                show_blank_tile(tile);
-                break;
-	    
-	    case 12: //overlay
-		    overlay_tile(newtilebuf,tile,copy,cs,0);
-		    break;
-	    
-	    case 13: //h-flip
-	    {
-		flip^=1;
-		go_tiles();
-		
-		if(type==0)
+		if((f%16)==0 || InvalidStatic)
+			redraw=true;
+			
+		if(redraw)
+			draw_tiles(first,cs,f);
+			
+		if(f&8)
 		{
-		    normalize(tile,tile2,rect_sel,flip);
-		    flip=0;
-		}
-		
-		redraw=true;   
-		break;
-		    
-	      }
-	      
-	      case 14: //h-flip
-	      {
-			if(copy==-1)
+			if(rect_sel)
 			{
-			    if(type!=2)
-			    {
-				flip^=2;
-				go_tiles();
-				
-				if(type==0)
+				for(int i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+						  zc_min(TILECOL(tile),TILECOL(tile2));
+						i<=zc_max(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+						zc_max(TILECOL(tile),TILECOL(tile2)); i++)
 				{
-				    normalize(tile,tile2,rect_sel,flip);
-				    flip=0;
+					if(i>=first && i<first+TILES_PER_PAGE &&
+							TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
+							TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
+					{
+						int x=(i%TILES_PER_ROW)<<(4+is_large);
+						int y=((i-first)/TILES_PER_ROW)<<(4+is_large);
+						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
+					}
 				}
-			    }
 			}
 			else
 			{
-			    go_tiles();
-			    saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
+				for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+				{
+					if(i>=first && i<first+TILES_PER_PAGE)
+					{
+						int x=TILECOL(i)<<(4+is_large);
+						int y=TILEROW(i-first)<<(4+is_large);
+						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
+					}
+				}
+			}
+		}
+		
+		if(type==0)
+			tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
+		else
+			tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
+			
+		if(type==2)
+		{
+			char cbuf[16];
+			sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
+			gui_textout_ln(screen, is_large?lfont_l:pfont, (unsigned char *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+		}
+		
+		++f;
+		
+		if(r_click)
+		{
+			select_tile_rc_menu[1].flags = (copy==-1) ? D_DISABLED : 0;
+			select_tile_rc_menu[2].flags = (copy==-1) ? D_DISABLED : 0;
+			select_tile_view_menu[0].flags = HIDE_USED ? D_SELECTED : 0;
+			select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
+			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
+			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
+			int m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
+			redraw=true;
+			
+			switch(m)
+			{
+				case 0:
+					copy=zc_min(tile,tile2);
+					copycnt=abs(tile-tile2)+1;
+					break;
+					
+				case 2:
+				case 1:
+					saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,(m==2));
+					break;
+					
+				case 3:
+					delete_tiles(tile,tile2,rect_sel);
+					break;
+					
+				case 5:
+					edit_tile(tile,flip,cs);
+					draw_tile_list_window();
+					break;
+					
+				case 7:
+				{
+					do_convert_tile(tile,tile2,cs,rect_sel,(newtilebuf[tile].format!=tf4Bit),false,false);
+					break;
+				}
+				
+				case 6:
+					grab_tile(tile,cs);
+					draw_tile_list_window();
+					position_mouse_z(0);
+					break;
+					
+				case 9:
+					show_blank_tile(tile);
+					break;
+				
+				case 12: //overlay
+					overlay_tile(newtilebuf,tile,copy,cs,0);
+					break;
+				
+				case 13: //h-flip
+				{
+					flip^=1;
+					go_tiles();
+					
+					if(type==0)
+					{
+						normalize(tile,tile2,rect_sel,flip);
+						flip=0;
+					}
+					
+					redraw=true;   
+					break;
+				}
+				
+				case 14: //h-flip
+				{
+					if(copy==-1)
+					{
+						if(type!=2)
+						{
+							flip^=2;
+							go_tiles();
+							
+							if(type==0)
+							{
+								normalize(tile,tile2,rect_sel,flip);
+								flip=0;
+							}
+						}
+					}
+					else
+					{
+						go_tiles();
+						saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
+					}
+					
+					redraw=true;
+					break;
+				}
+				
+				
+				case 15: //mass combo
+				{
+					if(type==0)
+					{
+						//al_trace("mass combo key pressed, copy == %d\n",copy);
+						if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
+						{
+							go_tiles();
+							saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
+						}
+						else if(copy==-1)
+						{
+							// I don't know what this was supposed to be doing before.
+							// It didn't work in anything like a sensible way.
+							if(rect_sel)
+							{
+								make_combos_rect(top, left, rows, columns, cs);
+							}
+							else
+							{
+								make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+							}
+						}
+						
+						redraw=true;
+					}
+				}
+				break;
+					
+				default:
+					redraw=false;
+					break;
 			}
 			
-			redraw=true;
-		break;
-		    
-	      }
-		    
-	    
-	    case 15: //mass combo
-	    {
-		if(type==0)
-                {
-			 //al_trace("mass combo key pressed, copy == %d\n",copy);
-                    if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
-                    {
-                        go_tiles();
-                        saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
-                    }
-                    else if(copy==-1)
-                    {
-                        // I don't know what this was supposed to be doing before.
-                        // It didn't work in anything like a sensible way.
-                        if(rect_sel)
-			{
-                            make_combos_rect(top, left, rows, columns, cs);
-			}
-                        else
-			{
-                            make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
-			}
-                    }
-                    
-                    redraw=true;
-                }
-		    
-	    }
-		    break;
-                
-            default:
-                redraw=false;
-                break;
-            }
-            
-            r_click = false;
-            goto REDRAW;
-        }
-        
-    }
-    while(!done);
-    
-    while(gui_mouse_b())
-    {
-        /* do nothing */
-    }
-    
-    comeback();
-    register_blank_tiles();
-    register_used_tiles();
-    setup_combo_animations();
-    setup_combo_animations2();
-    return done-1;
+			r_click = false;
+			goto REDRAW;
+		}
+	}
+	while(!done);
+	
+	while(gui_mouse_b())
+	{
+		/* do nothing */
+	}
+	
+	comeback();
+	register_blank_tiles();
+	register_used_tiles();
+	setup_combo_animations();
+	setup_combo_animations2();
+	return done-1;
 }
 
 int onTiles()
@@ -15034,7 +15024,7 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
             {
                 for(int dx=0; dx<16*mul; dx++)
                 {
-                    screen2->line[(216*mul)+yofs+dy][(31*mul)+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                    screen2->line[(216*mul)+yofs+dy][(31*mul)+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                 }
             }
         }
@@ -15086,7 +15076,7 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
                 {
                     for(int dx=0; dx<16*mul; dx++)
                     {
-                        screen2->line[(216*mul)+yofs+dy][(136*mul)+dx]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+                        screen2->line[(216*mul)+yofs+dy][(136*mul)+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                     }
                 }
             }
@@ -16603,49 +16593,38 @@ int bict_cnt=-1;
 
 void build_bict_list()
 {
-    bict[0].s = (char *)"(None)";
-    bict[0].i = 0;
-    bict_cnt=1;
-    
-    for(int i=0; i<cMAX; i++)
-    {
-//    if(combotype_string[i][0]!='-')
-	if ( moduledata.combo_type_names[i][0] != NULL )
+	bict[0].s = (char *)"(None)";
+	bict[0].i = 0;
+	bict_cnt=1;
+	
+	for(int i=1; i<cMAX; i++)
 	{
-		//al_trace("copying over module combo type ID %d to bict[%d]",i,i);
-		if(moduledata.combo_type_names[i][0]!='-')
+		if ( moduledata.combo_type_names[i][0] != NULL )
 		{
-			bict[bict_cnt].s = (char *)moduledata.combo_type_names[i];
-			//al_trace("the module value for combo ID %d, type is: %s\n",i,(char *)moduledata.combo_type_names[i]);
-			//al_trace("built in combo ID %d has a string of %s for its type\n",i,bict[bict_cnt].s);
-			bict[bict_cnt].i = i;
-			++bict_cnt;
+			if(moduledata.combo_type_names[i][0]!='-')
+			{
+				bict[bict_cnt].s = (char *)moduledata.combo_type_names[i];
+				bict[bict_cnt].i = i;
+				++bict_cnt;
+			}
 		}
-		
-	}
-        else
-	{
-		if ( i == 0 ) 
+		else
 		{
-			bict[bict_cnt].s = (char *)"(None)";
-			continue;
-		}
-		if(combo_class_buf[i].name[0]!='-')
-		{
-	//      bict[bict_cnt].s = combotype_string[i];
-		    bict[bict_cnt].s = combo_class_buf[i].name;
-		    bict[bict_cnt].i = i;
-		    ++bict_cnt;
+			if(combo_class_buf[i].name[0]!='-')
+			{
+				//bict[bict_cnt].s = combotype_string[i];
+				bict[bict_cnt].s = combo_class_buf[i].name;
+				bict[bict_cnt].i = i;
+				++bict_cnt;
+			}
 		}
 	}
 	
-    }
-    
-    for(int i=1; i<bict_cnt-1; i++)
-        for(int j=i+1; j<bict_cnt; j++)
-            if(stricmp(bict[i].s,bict[j].s)>0)
-                zc_swap(bict[i],bict[j]);
-                
+	for(int i=1; i<bict_cnt-1; i++)
+		for(int j=i+1; j<bict_cnt; j++)
+			if(stricmp(bict[i].s,bict[j].s)>0)
+				zc_swap(bict[i],bict[j]);
+	
 }
 
 const char *combotypelist(int index, int *list_size)
@@ -16699,6 +16678,7 @@ static int combo_attribytes_list[] =
 	114,115,116,117,118,119,120,121,
 	145,146,147,148,149,150,151,152,
 	134, 135,
+	176, 177, 178, 179, 180, 181, 182, 183,
 	-1
 };
 
@@ -16709,6 +16689,7 @@ static int combo_attrishorts_list[] =
 	153,154,155,156,157,158,159,160,
 	161,162,163,164,165,166,167,168,
 	169,170,
+	184, 185, 186, 187, 188, 189, 190, 191,
 	-1
 };
 
@@ -16718,6 +16699,7 @@ static int combo_attributes_list[] =
     47,48,
 	57,58,59,60,61,62,63,64,104,105,
 	171, 172,
+	192, 193, 194, 195,
 	-1
 };
 
@@ -16741,7 +16723,7 @@ static int combo_trigger_list[] =
 static int combo_trigger_list2[] =
 {
     // dialog control number
-	92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 176, 177,// 88, 89, // 102, 103,
+	92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 198, 199,// 88, 89, // 102, 103,
      -1
 };
 
@@ -16749,6 +16731,7 @@ static int combo_script_list[] =
 {
     // dialog control number
 	124,125,126,127,128,129,130,131,
+	196,197,
      -1
 };
 
@@ -18153,6 +18136,14 @@ static ComboAttributesInfo comboattrinfo[]=
 		{ "State Num",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
 	},
+	{
+		cLANTERN,
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+		  NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Hook-Grabbable"},
+		{ NULL,NULL,NULL,NULL},
+		{ "Radius",NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
+	},
 	{ //arbitrary values ahead
 		257, //script combos with the 'engine' flag enabled
 		// { "Enable", "Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
@@ -18357,16 +18348,16 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,        46,     135+16+3+17,     80,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag 8",                      NULL,   NULL                  },
     //57
     { jwin_text_proc,           8+22+16,       30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    30-4+16+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    30-4+16+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //59
     { jwin_text_proc,           8+22+16,       45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    45-4+16+4+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    45-4+16+4+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //61
     { jwin_text_proc,           8+22+16,       60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    60-4+16+4+10+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    60-4+16+4+10+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //63
     { jwin_text_proc,           8+22+16,       75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,        98,    75-4+16+4+14+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,        98,    75-4+16+4+14+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           12,    0,  NULL,                                           NULL,   NULL                  },
     //65 Triggered By Weapon Types
     { jwin_check_proc,        8+22+16,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
     { jwin_check_proc,        8+22+16,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Beam",                      NULL,   NULL                  },
@@ -18436,16 +18427,16 @@ static DIALOG combo_dlg[] =
     // { jwin_button_proc,     68,  135+16-2,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Refresh", NULL, NULL },
     //114
     { jwin_text_proc,           8+22+16,    30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    30-4+16+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         98,    30-4+16+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //116
     { jwin_text_proc,           8+22+16,    45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    45-4+16+4+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         98,    45-4+16+4+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //118
     { jwin_text_proc,           8+22+16,    60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[2]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    60-4+16+4+10+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         98,    60-4+16+4+10+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //120
     { jwin_text_proc,           8+22+16,    75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[3]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         98,    75-4+16+4+14+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         98,    75-4+16+4+14+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //122
     { jwin_button_proc,     105,  197,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  197,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
@@ -18453,9 +18444,9 @@ static DIALOG combo_dlg[] =
     //combo script
     ///124
     { jwin_text_proc,           40,    50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         80,    49,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,         80,    49,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     { jwin_text_proc,           40,    69,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_proc,         80,    70,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_zsint_proc,         80,    70,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     { jwin_text_proc,           40,    85,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                  NULL,   NULL                  },
     { jwin_droplist_proc,      40,  91,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &comboscript_list,                   NULL,   NULL 				   },
     //130 cancel, 131 OK
@@ -18480,40 +18471,40 @@ static DIALOG combo_dlg[] =
     { jwin_ctext_proc,       170,  46+17,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Tile", NULL, NULL },
 	//145
     { jwin_text_proc,           172,    30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[4]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         172+52,    30-4+16+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         172+52,    30-4+16+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //147
     { jwin_text_proc,           172,    45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[5]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         172+52,    45-4+16+4+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         172+52,    45-4+16+4+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //149
     { jwin_text_proc,           172,    60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[6]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         172+52,    60-4+16+4+10+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         172+52,    60-4+16+4+10+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //151
     { jwin_text_proc,           172,    75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attribytes[7]:",                  NULL,   NULL                  },
-    { jwin_numedit_byte_proc,         172+52,    75-4+16+4+14+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_byte_proc,         172+52,    75-4+16+4+14+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
 	//153
     { jwin_text_proc,           8+22+16,    30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[0]:",                  NULL,   NULL                  },
-    { jwin_numedit_sshort_proc,         98,    30-4+16+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         98,    30-4+16+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
     //155
     { jwin_text_proc,           8+22+16,    45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[1]:",                  NULL,   NULL                  },
-    { jwin_numedit_sshort_proc,         98,    45-4+16+4+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         98,    45-4+16+4+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
     //157
     { jwin_text_proc,           8+22+16,    60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[2]:",                  NULL,   NULL                  },
-    { jwin_numedit_sshort_proc,         98,    60-4+16+4+10+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         98,    60-4+16+4+10+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
     //159
     { jwin_text_proc,           8+22+16,    75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[3]:",                  NULL,   NULL                  },
-    { jwin_numedit_sshort_proc,         98,    75-4+16+4+14+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         98,    75-4+16+4+14+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
 	//161
     { jwin_text_proc,           172,    30+16+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[4]:",                  NULL,   NULL                  },
-    { jwin_numedit_sshort_proc,         172+52,    30-4+16+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         172+52,    30-4+16+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
     //163
     { jwin_text_proc,           172,    45+16+4+5+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[5]:",                  NULL,   NULL                  },
-    { jwin_numedit_sshort_proc,         172+52,    45-4+16+4+6+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         172+52,    45-4+16+4+6+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
     //165
     { jwin_text_proc,           172,    60+16+4+9+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[6]:",                  NULL,   NULL                  },
-    { jwin_numedit_sshort_proc,         172+52,    60-4+16+4+10+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         172+52,    60-4+16+4+10+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
     //167
     { jwin_text_proc,           172,    75+16+4+13+12+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attrishorts[7]:",                  NULL,   NULL                  },
-    { jwin_numedit_sshort_proc,         172+52,    75-4+16+4+14+12+17,     50,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_numedit_swap_sshort_proc,         172+52,    75-4+16+4+14+12+17,     44,     16,    vc(12),                 vc(1),                   0,       0,           6,    0,  NULL,                                           NULL,   NULL                  },
 	//169
 	{ jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
@@ -18524,9 +18515,37 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,       46,     60+16+3+17,     80,      9,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Cycle Ignores CSet", NULL, (void*)get_tick_sel },
 	{ jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-   //176
-   { jwin_check_proc,        46,     105+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always Triggered",                      NULL,   NULL                  },
-   { jwin_check_proc,        154,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Triggers Secrets",                      NULL,   NULL                  },
+	//176
+	{ jwin_swapbtn_proc,    142,    77,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,    96,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//180
+	{ jwin_swapbtn_proc,    268,    77,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,    96,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,    77,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//185
+	{ jwin_swapbtn_proc,    142,    96,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    142,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,    77,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,    96,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//190
+	{ jwin_swapbtn_proc,    268,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    268,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    148,    77,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    148,    96,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    148,   115,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//195
+	{ jwin_swapbtn_proc,    148,   134,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    130,    49,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	{ jwin_swapbtn_proc,    130,    70,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+	//198
+	{ jwin_check_proc,        46,     105+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always Triggered",                      NULL,   NULL                  },
+	{ jwin_check_proc,        154,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Triggers Secrets",                      NULL,   NULL                  },
+	//200
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -18836,29 +18855,6 @@ bool edit_combo(int c,bool freshen,int cs)
 	char spd[8];
 	char skip[8];
 	char skipy[8];
-	//Attributes[]
-	char attrib0[16];
-	char attrib1[16];
-	char attrib2[16];
-	char attrib3[16];
-	
-	char attribyt0[16];
-	char attribyt1[16];
-	char attribyt2[16];
-	char attribyt3[16];
-	char attribyt4[16];
-	char attribyt5[16];
-	char attribyt6[16];
-	char attribyt7[16];
-	
-	char attrishrt0[16];
-	char attrishrt1[16];
-	char attrishrt2[16];
-	char attrishrt3[16];
-	char attrishrt4[16];
-	char attrishrt5[16];
-	char attrishrt6[16];
-	char attrishrt7[16];
 	
 	char minlevel[16];
 	char the_label[11];
@@ -18874,7 +18870,6 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[13].fg = cs;
 	
 	char csets = curr_combo.csets & 15;
-	
 	if(csets&8) //if csets>8, then it's a negative.
 	{
 		csets |= 0xF0;
@@ -18891,40 +18886,16 @@ bool edit_combo(int c,bool freshen,int cs)
 	sprintf(spd,"%d",curr_combo.speed);
 	sprintf(skip,"%d",curr_combo.skipanim);
 	sprintf(skipy,"%d",curr_combo.skipanimy);
-	//Attributes[]
-	sprintf(attrib0,"%d.%04d",curr_combo.attributes[0] / 10000L, abs(curr_combo.attributes[0] % 10000L));
-	sprintf(attrib1,"%d.%04d",curr_combo.attributes[1] / 10000L, abs(curr_combo.attributes[1] % 10000L));
-	sprintf(attrib2,"%d.%04d",curr_combo.attributes[2] / 10000L, abs(curr_combo.attributes[2] % 10000L));
-	sprintf(attrib3,"%d.%04d",curr_combo.attributes[3] / 10000L, abs(curr_combo.attributes[3] % 10000L));
-	
-	//Attribytes[]
-	sprintf(attribyt0,"%d",curr_combo.attribytes[0]);
-	sprintf(attribyt1,"%d",curr_combo.attribytes[1]);
-	sprintf(attribyt2,"%d",curr_combo.attribytes[2]);
-	sprintf(attribyt3,"%d",curr_combo.attribytes[3]);
-	sprintf(attribyt4,"%d",curr_combo.attribytes[4]);
-	sprintf(attribyt5,"%d",curr_combo.attribytes[5]);
-	sprintf(attribyt6,"%d",curr_combo.attribytes[6]);
-	sprintf(attribyt7,"%d",curr_combo.attribytes[7]);
-	//Attrishorts[]
-	sprintf(attrishrt0,"%d",curr_combo.attrishorts[0]);
-	sprintf(attrishrt1,"%d",curr_combo.attrishorts[1]);
-	sprintf(attrishrt2,"%d",curr_combo.attrishorts[2]);
-	sprintf(attrishrt3,"%d",curr_combo.attrishorts[3]);
-	sprintf(attrishrt4,"%d",curr_combo.attrishorts[4]);
-	sprintf(attrishrt5,"%d",curr_combo.attrishorts[5]);
-	sprintf(attrishrt6,"%d",curr_combo.attrishorts[6]);
-	sprintf(attrishrt7,"%d",curr_combo.attrishorts[7]);
-	
-	
+		
 	sprintf(minlevel,"%d",curr_combo.triggerlevel);
 	strcpy(the_label, curr_combo.label);
 	
-	sprintf(initiald0,"%.4f",curr_combo.initd[0]/10000.0);
-	sprintf(initiald1,"%.4f",curr_combo.initd[1]/10000.0);
-		
 	combo_dlg[125].dp = initiald0;
 	combo_dlg[127].dp = initiald1;
+	combo_dlg[125].fg = curr_combo.initd[0];
+	combo_dlg[127].fg = curr_combo.initd[1];
+	combo_dlg[125].dp3 = &(combo_dlg[196]);
+	combo_dlg[127].dp3 = &(combo_dlg[197]);
 	
 	build_bidcomboscripts_list();
 	
@@ -19019,8 +18990,8 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[99].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT08 ? D_SELECTED : 0;
 	combo_dlg[100].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT09 ? D_SELECTED : 0;
 	combo_dlg[101].flags = curr_combo.triggerflags[1]&combotriggerSCRIPT10 ? D_SELECTED : 0;
-	combo_dlg[176].flags = curr_combo.triggerflags[1]&combotriggerAUTOMATIC ? D_SELECTED : 0;
-	combo_dlg[177].flags = curr_combo.triggerflags[1]&combotriggerSECRETS ? D_SELECTED : 0;
+	combo_dlg[198].flags = curr_combo.triggerflags[1]&combotriggerAUTOMATIC ? D_SELECTED : 0;
+	combo_dlg[199].flags = curr_combo.triggerflags[1]&combotriggerSECRETS ? D_SELECTED : 0;
 	//three bits remain that are usable (zscript limits)
 	
 	//85
@@ -19064,53 +19035,32 @@ bool edit_combo(int c,bool freshen,int cs)
 	
 	
 	//Attributes[]
+	char attrib0[16];
+	char attrib1[16];
+	char attrib2[16];
+	char attrib3[16];
 	combo_dlg[58].dp = attrib0;
 	combo_dlg[60].dp = attrib1;
 	combo_dlg[62].dp = attrib2;
 	combo_dlg[64].dp = attrib3;
-	
-	byte attribyte_vals[8] = {0};
-	short attrishort_vals[8] = {0};
+	combo_dlg[58].fg = curr_combo.attributes[0];
+	combo_dlg[60].fg = curr_combo.attributes[1];
+	combo_dlg[62].fg = curr_combo.attributes[2];
+	combo_dlg[64].fg = curr_combo.attributes[3];
+	combo_dlg[58].dp3 = &combo_dlg[192];
+	combo_dlg[60].dp3 = &combo_dlg[193];
+	combo_dlg[62].dp3 = &combo_dlg[194];
+	combo_dlg[64].dp3 = &combo_dlg[195];
 	
 	//Attribytes[]
-	attribyte_vals[0]=(byte)(atoi(attribyt0));
-	attribyte_vals[1]=(byte)(atoi(attribyt1));
-	attribyte_vals[2]=(byte)(atoi(attribyt2));
-	attribyte_vals[3]=(byte)(atoi(attribyt3));
-	attribyte_vals[4]=(byte)(atoi(attribyt4));
-	attribyte_vals[5]=(byte)(atoi(attribyt5));
-	attribyte_vals[6]=(byte)(atoi(attribyt6));
-	attribyte_vals[7]=(byte)(atoi(attribyt7));
-	
-	sprintf(attribyt0,"%d",attribyte_vals[0]);
-	sprintf(attribyt1,"%d",attribyte_vals[1]);
-	sprintf(attribyt2,"%d",attribyte_vals[2]);
-	sprintf(attribyt3,"%d",attribyte_vals[3]);
-	sprintf(attribyt4,"%d",attribyte_vals[4]);
-	sprintf(attribyt5,"%d",attribyte_vals[5]);
-	sprintf(attribyt6,"%d",attribyte_vals[6]);
-	sprintf(attribyt7,"%d",attribyte_vals[7]);
-	//Attrishorts[]
-	attrishort_vals[0]=(short)(atoi(attrishrt0));
-	attrishort_vals[1]=(short)(atoi(attrishrt1));
-	attrishort_vals[2]=(short)(atoi(attrishrt2));
-	attrishort_vals[3]=(short)(atoi(attrishrt3));
-	attrishort_vals[4]=(short)(atoi(attrishrt4));
-	attrishort_vals[5]=(short)(atoi(attrishrt5));
-	attrishort_vals[6]=(short)(atoi(attrishrt6));
-	attrishort_vals[7]=(short)(atoi(attrishrt7));
-	
-	sprintf(attrishrt0,"%d",attrishort_vals[0]);
-	sprintf(attrishrt1,"%d",attrishort_vals[1]);
-	sprintf(attrishrt2,"%d",attrishort_vals[2]);
-	sprintf(attrishrt3,"%d",attrishort_vals[3]);
-	sprintf(attrishrt4,"%d",attrishort_vals[4]);
-	sprintf(attrishrt5,"%d",attrishort_vals[5]);
-	sprintf(attrishrt6,"%d",attrishort_vals[6]);
-	sprintf(attrishrt7,"%d",attrishort_vals[7]);
-	
-	//122, 124 initD
-	
+	char attribyt0[16];
+	char attribyt1[16];
+	char attribyt2[16];
+	char attribyt3[16];
+	char attribyt4[16];
+	char attribyt5[16];
+	char attribyt6[16];
+	char attribyt7[16];
 	combo_dlg[115].dp = attribyt0;
 	combo_dlg[117].dp = attribyt1;
 	combo_dlg[119].dp = attribyt2;
@@ -19119,7 +19069,32 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[148].dp = attribyt5;
 	combo_dlg[150].dp = attribyt6;
 	combo_dlg[152].dp = attribyt7;
+	combo_dlg[115].fg = curr_combo.attribytes[0];
+	combo_dlg[117].fg = curr_combo.attribytes[1];
+	combo_dlg[119].fg = curr_combo.attribytes[2];
+	combo_dlg[121].fg = curr_combo.attribytes[3];
+	combo_dlg[146].fg = curr_combo.attribytes[4];
+	combo_dlg[148].fg = curr_combo.attribytes[5];
+	combo_dlg[150].fg = curr_combo.attribytes[6];
+	combo_dlg[152].fg = curr_combo.attribytes[7];
+	combo_dlg[115].dp3 = &combo_dlg[176];
+	combo_dlg[117].dp3 = &combo_dlg[177];
+	combo_dlg[119].dp3 = &combo_dlg[178];
+	combo_dlg[121].dp3 = &combo_dlg[179];
+	combo_dlg[146].dp3 = &combo_dlg[180];
+	combo_dlg[148].dp3 = &combo_dlg[181];
+	combo_dlg[150].dp3 = &combo_dlg[182];
+	combo_dlg[152].dp3 = &combo_dlg[183];
 	
+	//Attrishorts[]
+	char attrishrt0[16];
+	char attrishrt1[16];
+	char attrishrt2[16];
+	char attrishrt3[16];
+	char attrishrt4[16];
+	char attrishrt5[16];
+	char attrishrt6[16];
+	char attrishrt7[16];
 	combo_dlg[154].dp = attrishrt0;
 	combo_dlg[156].dp = attrishrt1;
 	combo_dlg[158].dp = attrishrt2;
@@ -19128,11 +19103,26 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[164].dp = attrishrt5;
 	combo_dlg[166].dp = attrishrt6;
 	combo_dlg[168].dp = attrishrt7;
+	combo_dlg[154].fg = curr_combo.attrishorts[0];
+	combo_dlg[156].fg = curr_combo.attrishorts[1];
+	combo_dlg[158].fg = curr_combo.attrishorts[2];
+	combo_dlg[160].fg = curr_combo.attrishorts[3];
+	combo_dlg[162].fg = curr_combo.attrishorts[4];
+	combo_dlg[164].fg = curr_combo.attrishorts[5];
+	combo_dlg[166].fg = curr_combo.attrishorts[6];
+	combo_dlg[168].fg = curr_combo.attrishorts[7];
+	combo_dlg[154].dp3 = &combo_dlg[184];
+	combo_dlg[156].dp3 = &combo_dlg[185];
+	combo_dlg[158].dp3 = &combo_dlg[186];
+	combo_dlg[160].dp3 = &combo_dlg[187];
+	combo_dlg[162].dp3 = &combo_dlg[188];
+	combo_dlg[164].dp3 = &combo_dlg[189];
+	combo_dlg[166].dp3 = &combo_dlg[190];
+	combo_dlg[168].dp3 = &combo_dlg[191];
 	
 	//initd
 	combo_dlg[125].dp = initiald0;
 	combo_dlg[127].dp = initiald1;
-	
 	
 	//trigger level
 	combo_dlg[90].dp = minlevel;
@@ -19140,45 +19130,45 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[105].dp = the_label;
 	
 	//trigger flags page 1 ( 01000000000000000000000 is the largest binary value that can be used with ZScript)
-	if(combo_dlg[65].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x01; } else { curr_combo.triggerflags[0] &= ~0x01; }
-	if(combo_dlg[66].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x02; } else { curr_combo.triggerflags[0] &= ~0x02; }
-	if(combo_dlg[67].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x04; } else { curr_combo.triggerflags[0] &= ~0x04; }
-	if(combo_dlg[68].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x08; } else { curr_combo.triggerflags[0] &= ~0x08; }
-	if(combo_dlg[69].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10; } else { curr_combo.triggerflags[0] &= ~0x10; }
-	if(combo_dlg[70].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20; } else { curr_combo.triggerflags[0] &= ~0x20; }
-	if(combo_dlg[71].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x40; } else { curr_combo.triggerflags[0] &= ~0x40; }
-	if(combo_dlg[72].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x80; } else { curr_combo.triggerflags[0] &= ~0x80; }
-	if(combo_dlg[73].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x100; } else { curr_combo.triggerflags[0] &= ~0x100; }
-	if(combo_dlg[74].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x200; } else { curr_combo.triggerflags[0] &= ~0x200; }
+	SETFLAG(curr_combo.triggerflags[0], 0x01, combo_dlg[65].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x02, combo_dlg[66].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x04, combo_dlg[67].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x08, combo_dlg[68].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x10, combo_dlg[69].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x20, combo_dlg[70].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x40, combo_dlg[71].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x80, combo_dlg[72].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x100, combo_dlg[73].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x200, combo_dlg[74].flags & D_SELECTED);
 	//breakas here
-	if(combo_dlg[75].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x400; } else { curr_combo.triggerflags[0] &= ~0x400; }
-	if(combo_dlg[76].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x800; } else { curr_combo.triggerflags[0] &= ~0x800; }
-	if(combo_dlg[77].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x1000; } else { curr_combo.triggerflags[0] &= ~0x1000; }
-	if(combo_dlg[78].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x2000; } else { curr_combo.triggerflags[0] &= ~0x2000; }
-	if(combo_dlg[79].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x4000; } else { curr_combo.triggerflags[0] &= ~0x4000; }
-	if(combo_dlg[80].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x8000; } else { curr_combo.triggerflags[0] &= ~0x8000; }
-	if(combo_dlg[81].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10000; } else { curr_combo.triggerflags[0] &= ~0x10000; }
-	if(combo_dlg[82].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20000; } else { curr_combo.triggerflags[0] &= ~0x20000; }
+	SETFLAG(curr_combo.triggerflags[0], 0x400, combo_dlg[75].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x800, combo_dlg[76].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x1000, combo_dlg[77].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x2000, combo_dlg[78].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x4000, combo_dlg[79].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x8000, combo_dlg[80].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x10000, combo_dlg[81].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[0], 0x20000, combo_dlg[82].flags & D_SELECTED);
 	//ZScript capable numbers end there. 
-	if(combo_dlg[83].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x01; } else { curr_combo.triggerflags[1] &= ~0x01; }
-	if(combo_dlg[84].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x02; } else { curr_combo.triggerflags[1] &= ~0x02; }
-	if(combo_dlg[85].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x04; } else { curr_combo.triggerflags[1] &= ~0x04; }
-	if(combo_dlg[86].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x08; } else { curr_combo.triggerflags[1] &= ~0x08; }
-	if(combo_dlg[87].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10; } else { curr_combo.triggerflags[1] &= ~0x10; }
+	SETFLAG(curr_combo.triggerflags[1], 0x01, combo_dlg[83].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x02, combo_dlg[84].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x04, combo_dlg[85].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x08, combo_dlg[86].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x10, combo_dlg[87].flags & D_SELECTED);
 
 	//trigger flags page 2
-	if(combo_dlg[92].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x20; } else { curr_combo.triggerflags[1] &= ~0x020; }
-	if(combo_dlg[93].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x40; } else { curr_combo.triggerflags[1] &= ~0x040; }
-	if(combo_dlg[94].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x80; } else { curr_combo.triggerflags[1] &= ~0x080; }
-	if(combo_dlg[95].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x100; } else { curr_combo.triggerflags[1] &= ~0x100; }
-	if(combo_dlg[96].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x200; } else { curr_combo.triggerflags[1] &= ~0x200; }
-	if(combo_dlg[97].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x400; } else { curr_combo.triggerflags[1] &= ~0x400; }
-	if(combo_dlg[98].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x800; } else { curr_combo.triggerflags[1] &= ~0x800; }
-	if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
-	if(combo_dlg[100].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
-	if(combo_dlg[101].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
-	if(combo_dlg[176].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x8000; } else { curr_combo.triggerflags[1] &= ~0x8000; }
-	if(combo_dlg[177].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10000; } else { curr_combo.triggerflags[1] &= ~0x10000; }
+	SETFLAG(curr_combo.triggerflags[1], 0x20, combo_dlg[92].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x40, combo_dlg[93].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x80, combo_dlg[94].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x100, combo_dlg[95].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x200, combo_dlg[96].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x400, combo_dlg[97].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x800, combo_dlg[98].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x1000, combo_dlg[99].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x2000, combo_dlg[100].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x4000, combo_dlg[101].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x8000, combo_dlg[198].flags & D_SELECTED);
+	SETFLAG(curr_combo.triggerflags[1], 0x10000, combo_dlg[199].flags & D_SELECTED);
 	
 	
 	int index=0;
@@ -19248,8 +19238,8 @@ bool edit_combo(int c,bool freshen,int cs)
 	}
 	
 	//if(ret==43)
-	//{
-	//}
+	// {
+	// }
 	
 	do
 	{
@@ -19257,7 +19247,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		//	setComboLabels(combo_dlg[25].d1);
 		
 		//else if(ret==2 || ret==45 || ret==86 || ret==100 ) //position of OK buttons
-		//{
+		// {
 		saved=false;
 		//three bits left for the second index (for ZScript supported values)
 		
@@ -19509,53 +19499,53 @@ bool edit_combo(int c,bool freshen,int cs)
 		}
 		
 		
-		if(combo_dlg[65].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x01; } else { curr_combo.triggerflags[0] &= ~0x01; }
-		if(combo_dlg[66].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x02; } else { curr_combo.triggerflags[0] &= ~0x02; }
-		if(combo_dlg[67].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x04; } else { curr_combo.triggerflags[0] &= ~0x04; }
-		if(combo_dlg[68].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x08; } else { curr_combo.triggerflags[0] &= ~0x08; }
-		if(combo_dlg[69].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10; } else { curr_combo.triggerflags[0] &= ~0x10; }
-		if(combo_dlg[70].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20; } else { curr_combo.triggerflags[0] &= ~0x20; }
-		if(combo_dlg[71].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x40; } else { curr_combo.triggerflags[0] &= ~0x40; }
-		if(combo_dlg[72].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x80; } else { curr_combo.triggerflags[0] &= ~0x80; }
-		if(combo_dlg[73].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x100; } else { curr_combo.triggerflags[0] &= ~0x100; }
-		if(combo_dlg[74].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x200; } else { curr_combo.triggerflags[0] &= ~0x200; }
+		SETFLAG(curr_combo.triggerflags[0], 0x01, combo_dlg[65].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x02, combo_dlg[66].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x04, combo_dlg[67].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x08, combo_dlg[68].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x10, combo_dlg[69].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x20, combo_dlg[70].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x40, combo_dlg[71].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x80, combo_dlg[72].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x100, combo_dlg[73].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x200, combo_dlg[74].flags & D_SELECTED);
 		//breakas here
-		if(combo_dlg[75].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x400; } else { curr_combo.triggerflags[0] &= ~0x400; }
-		if(combo_dlg[76].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x800; } else { curr_combo.triggerflags[0] &= ~0x800; }
-		if(combo_dlg[77].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x1000; } else { curr_combo.triggerflags[0] &= ~0x1000; }
-		if(combo_dlg[78].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x2000; } else { curr_combo.triggerflags[0] &= ~0x2000; }
-		if(combo_dlg[79].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x4000; } else { curr_combo.triggerflags[0] &= ~0x4000; }
-		if(combo_dlg[80].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x8000; } else { curr_combo.triggerflags[0] &= ~0x8000; }
-		if(combo_dlg[81].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x10000; } else { curr_combo.triggerflags[0] &= ~0x10000; }
-		if(combo_dlg[82].flags & D_SELECTED) { curr_combo.triggerflags[0] |= 0x20000; } else { curr_combo.triggerflags[0] &= ~0x20000; }
+		SETFLAG(curr_combo.triggerflags[0], 0x400, combo_dlg[75].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x800, combo_dlg[76].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x1000, combo_dlg[77].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x2000, combo_dlg[78].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x4000, combo_dlg[79].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x8000, combo_dlg[80].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x10000, combo_dlg[81].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[0], 0x20000, combo_dlg[82].flags & D_SELECTED);
 		//ZScript capable numbers end there. 
-		if(combo_dlg[83].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x01; } else { curr_combo.triggerflags[1] &= ~0x01; }
-		if(combo_dlg[84].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x02; } else { curr_combo.triggerflags[1] &= ~0x02; }
-		if(combo_dlg[85].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x04; } else { curr_combo.triggerflags[1] &= ~0x04; }
-		if(combo_dlg[86].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x08; } else { curr_combo.triggerflags[1] &= ~0x08; }
-		if(combo_dlg[87].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10; } else { curr_combo.triggerflags[1] &= ~0x10; }
+		SETFLAG(curr_combo.triggerflags[1], 0x01, combo_dlg[83].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x02, combo_dlg[84].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x04, combo_dlg[85].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x08, combo_dlg[86].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x10, combo_dlg[87].flags & D_SELECTED);
 
 		//trigger flags page 2
-		if(combo_dlg[92].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x20; } else { curr_combo.triggerflags[1] &= ~0x020; }
-		if(combo_dlg[93].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x40; } else { curr_combo.triggerflags[1] &= ~0x040; }
-		if(combo_dlg[94].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x80; } else { curr_combo.triggerflags[1] &= ~0x080; }
-		if(combo_dlg[95].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x100; } else { curr_combo.triggerflags[1] &= ~0x100; }
-		if(combo_dlg[96].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x200; } else { curr_combo.triggerflags[1] &= ~0x200; }
-		if(combo_dlg[97].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x400; } else { curr_combo.triggerflags[1] &= ~0x400; }
-		if(combo_dlg[98].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x800; } else { curr_combo.triggerflags[1] &= ~0x800; }
-		if(combo_dlg[99].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x1000; } else { curr_combo.triggerflags[1] &= ~0x1000; }
-		if(combo_dlg[100].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x2000; } else { curr_combo.triggerflags[1] &= ~0x2000; }
-		if(combo_dlg[101].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x4000; } else { curr_combo.triggerflags[1] &= ~0x4000; }
-		if(combo_dlg[176].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x8000; } else { curr_combo.triggerflags[1] &= ~0x8000; }
-		if(combo_dlg[177].flags & D_SELECTED) { curr_combo.triggerflags[1] |= 0x10000; } else { curr_combo.triggerflags[1] &= ~0x10000; }
+		SETFLAG(curr_combo.triggerflags[1], 0x20, combo_dlg[92].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x40, combo_dlg[93].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x80, combo_dlg[94].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x100, combo_dlg[95].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x200, combo_dlg[96].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x400, combo_dlg[97].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x800, combo_dlg[98].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x1000, combo_dlg[99].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x2000, combo_dlg[100].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x4000, combo_dlg[101].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x8000, combo_dlg[198].flags & D_SELECTED);
+		SETFLAG(curr_combo.triggerflags[1], 0x10000, combo_dlg[199].flags & D_SELECTED);
 		
 		
 		//if(combo_dlg[113].d1 > 255)
-		//{
+		// {
 		//	al_trace("too big\n");
-		//}
+		// }
 		
-		curr_combo.csets = vbound(atoi(cset_str),-15,15) & 15; //Bound this to a size of csets, so that it does not wrap!
+		curr_combo.csets = vbound(atoi(cset_str),-8,7)&15; //Bound this to a size of csets, so that it does not wrap!
 		
 		for(int i=0; i<4; i++)
 		{
@@ -19588,56 +19578,36 @@ bool edit_combo(int c,bool freshen,int cs)
 		curr_combo.flag = combo_dlg[36].d1;
 		
 		//Attributes[]
-		curr_combo.attributes[0] = ffparse2(attrib0);
-		curr_combo.attributes[1] = ffparse2(attrib1);
-		curr_combo.attributes[2] = ffparse2(attrib2);
-		curr_combo.attributes[3] = ffparse2(attrib3);
+		curr_combo.attributes[0] = combo_dlg[58].fg;
+		curr_combo.attributes[1] = combo_dlg[60].fg;
+		curr_combo.attributes[2] = combo_dlg[62].fg;
+		curr_combo.attributes[3] = combo_dlg[64].fg;
 		
 		//Attribytes[]
-		
-		attribyte_vals[0] = (byte)vbound(atoi(attribyt0),0,255);
-		attribyte_vals[1] = (byte)vbound(atoi(attribyt1),0,255);
-		attribyte_vals[2] = (byte)vbound(atoi(attribyt2),0,255);
-		attribyte_vals[3] = (byte)vbound(atoi(attribyt3),0,255);
-		attribyte_vals[4] = (byte)vbound(atoi(attribyt4),0,255);
-		attribyte_vals[5] = (byte)vbound(atoi(attribyt5),0,255);
-		attribyte_vals[6] = (byte)vbound(atoi(attribyt6),0,255);
-		attribyte_vals[7] = (byte)vbound(atoi(attribyt7),0,255);
-		
-		curr_combo.attribytes[0] = attribyte_vals[0];
-		curr_combo.attribytes[1] = attribyte_vals[1];
-		curr_combo.attribytes[2] = attribyte_vals[2];
-		curr_combo.attribytes[3] = attribyte_vals[3];
-		curr_combo.attribytes[4] = attribyte_vals[4];
-		curr_combo.attribytes[5] = attribyte_vals[5];
-		curr_combo.attribytes[6] = attribyte_vals[6];
-		curr_combo.attribytes[7] = attribyte_vals[7];
+		curr_combo.attribytes[0] = combo_dlg[115].fg;
+		curr_combo.attribytes[1] = combo_dlg[117].fg;
+		curr_combo.attribytes[2] = combo_dlg[119].fg;
+		curr_combo.attribytes[3] = combo_dlg[121].fg;
+		curr_combo.attribytes[4] = combo_dlg[146].fg;
+		curr_combo.attribytes[5] = combo_dlg[148].fg;
+		curr_combo.attribytes[6] = combo_dlg[150].fg;
+		curr_combo.attribytes[7] = combo_dlg[152].fg;
 		//Attrishorts[]
-		
-		attrishort_vals[0] = (short)vbound(atoi(attrishrt0),-32768,32767);
-		attrishort_vals[1] = (short)vbound(atoi(attrishrt1),-32768,32767);
-		attrishort_vals[2] = (short)vbound(atoi(attrishrt2),-32768,32767);
-		attrishort_vals[3] = (short)vbound(atoi(attrishrt3),-32768,32767);
-		attrishort_vals[4] = (short)vbound(atoi(attrishrt4),-32768,32767);
-		attrishort_vals[5] = (short)vbound(atoi(attrishrt5),-32768,32767);
-		attrishort_vals[6] = (short)vbound(atoi(attrishrt6),-32768,32767);
-		attrishort_vals[7] = (short)vbound(atoi(attrishrt7),-32768,32767);
-		
-		curr_combo.attrishorts[0] = attrishort_vals[0];
-		curr_combo.attrishorts[1] = attrishort_vals[1];
-		curr_combo.attrishorts[2] = attrishort_vals[2];
-		curr_combo.attrishorts[3] = attrishort_vals[3];
-		curr_combo.attrishorts[4] = attrishort_vals[4];
-		curr_combo.attrishorts[5] = attrishort_vals[5];
-		curr_combo.attrishorts[6] = attrishort_vals[6];
-		curr_combo.attrishorts[7] = attrishort_vals[7];
+		curr_combo.attrishorts[0] = combo_dlg[154].fg;
+		curr_combo.attrishorts[1] = combo_dlg[156].fg;
+		curr_combo.attrishorts[2] = combo_dlg[158].fg;
+		curr_combo.attrishorts[3] = combo_dlg[160].fg;
+		curr_combo.attrishorts[4] = combo_dlg[162].fg;
+		curr_combo.attrishorts[5] = combo_dlg[164].fg;
+		curr_combo.attrishorts[6] = combo_dlg[166].fg;
+		curr_combo.attrishorts[7] = combo_dlg[168].fg;
 		
 		//trigger minimum level
 		curr_combo.triggerlevel = vbound(atoi(minlevel),0,214747);
 		
 		//initd and combo script
-		curr_combo.initd[0] = ffparse2(initiald0);
-		curr_combo.initd[1] = ffparse2(initiald1);
+		curr_combo.initd[0] = combo_dlg[125].fg;
+		curr_combo.initd[1] = combo_dlg[127].fg;
 		curr_combo.script = bidcomboscripts[combo_dlg[129].d1].second + 1; 
 		
 		curr_combo.animflags = 0;
@@ -19812,25 +19782,27 @@ bool edit_combo(int c,bool freshen,int cs)
 		
 		
 		
-	//}
+	// }
 	
 		
 	} while ( ret != 0 && !(combo_dlg[ret].proc == jwin_button_proc && !(strcmp((char*)combo_dlg[ret].dp,"OK") && strcmp((char*)combo_dlg[ret].dp,"Cancel"))));//ret != 4 && ret != 5 && ret!=47 && ret != 48 && ret!=88 && ret!=89 && ret!=102 && ret!=103 && ret!=123 && ret !=122 && ret !=131 && ret !=130 && ret !=135 && ret !=134 && ret !=169 && ret !=170 && ret !=171 && ret !=172 && ret !=174 && ret !=175);
+	bool edited = false;
 	if ( combo_dlg[ret].proc == jwin_button_proc && !strcmp((char*)combo_dlg[ret].dp,"OK") )//ret==4 || ret==47 || ret==88 || ret==102 || ret == 122 || ret == 130 || ret == 134 || ret == 169 || ret == 171 || ret == 174 ) //save it
 	{
 		curr_combo.script = bidcomboscripts[combo_dlg[129].d1].second + 1; 
 		combobuf[c] = curr_combo;
 		saved = false;
+		edited = true;
 	}
-		if(freshen)
-		{
+	if(freshen)
+	{
 		refresh(rALL);
-		}
-		
-		setup_combo_animations();
-		setup_combo_animations2();
+	}
 	
-	return true;
+	setup_combo_animations();
+	setup_combo_animations2();
+	
+	return edited;
 }
 
 int d_itile_proc(int msg,DIALOG *d,int)
@@ -21713,7 +21685,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs<15) ? cs+1:0;
+                    cs = (cs<11) ? cs+1:0;
                     
                 redraw=true;
                 break;
@@ -21773,7 +21745,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs>0)  ? cs-1:15;
+                    cs = (cs>0)  ? cs-1:11;
                     
                 redraw=true;
                 break;
@@ -21986,7 +21958,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
 #ifdef ALLEGRO_LITTLE_ENDIAN
                                 
                                     //if(bitcheck==tf4Bit)
-                                    //{
+                                    // {
                                     for(int p=0; p<(8*bitcheck)-1; p++)
                                     {
                                         if(bitcheck==tf4Bit)
