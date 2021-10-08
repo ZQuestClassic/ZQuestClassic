@@ -4342,6 +4342,17 @@ struct zcmodule
     : ((__DATE__[4] == ' ' ? 0 : \
     ((__DATE__[4] - '0') * 10)) + __DATE__[5] - '0'))
 
+#define BUILDTM_HOUR (\
+	(__TIME__[0]-'0')*10 + \
+	(__TIME__[1]-'0'))
+	
+#define BUILDTM_MINUTE (\
+	(__TIME__[3]-'0')*10 + \
+	(__TIME__[4]-'0'))
+	
+#define BUILDTM_SECOND (\
+	(__TIME__[6]-'0')*10 + \
+	(__TIME__[7]-'0'))
 
 template <class T>
 INLINE T sign(T a)

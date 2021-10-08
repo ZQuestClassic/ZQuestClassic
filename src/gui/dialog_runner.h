@@ -24,7 +24,7 @@ public:
 			{
 				DialogMessage<typename T::message> dm;
 				dm.message = static_cast<typename T::message>(msg);
-				if(arg) dm.argument = arg;
+				dm.argument = arg;
 				dm.sender = snd;
 				this->done = this->done || dlg.handleMessage(dm);
 			};

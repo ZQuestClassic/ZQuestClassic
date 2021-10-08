@@ -6666,55 +6666,55 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	
 	if(!p_iputl(V_ZC_FIRST,f))
 	{
-	    new_return(21);
+		new_return(21);
 	}
 	if(!p_iputl(V_ZC_SECOND,f))
 	{
-	    new_return(22);
+		new_return(22);
 	}
 	if(!p_iputl(V_ZC_THIRD,f))
 	{
-	    new_return(23);
+		new_return(23);
 	}
 	if(!p_iputl(V_ZC_FOURTH,f))
 	{
-	    new_return(24);
+		new_return(24);
 	}
 	if(!p_iputl(V_ZC_ALPHA,f))
 	{
-	    new_return(25);
+		new_return(25);
 	}
 	if(!p_iputl(V_ZC_BETA,f))
 	{
-	    new_return(26);
+		new_return(26);
 	}
 	if(!p_iputl(V_ZC_GAMMA,f))
 	{
-	    new_return(27);
+		new_return(27);
 	}
 	if(!p_iputl(V_ZC_RELEASE,f))
 	{
-	    new_return(28);
+		new_return(28);
 	}
 	if(!p_iputw(BUILDTM_YEAR,f))
 	{
-	    new_return(29);
+		new_return(29);
 	}
 	if(!p_putc(BUILDTM_MONTH,f))
 	{
-	    new_return(30);
+		new_return(30);
 	}
 	if(!p_putc(BUILDTM_DAY,f))
 	{
-	    new_return(31);
+		new_return(31);
 	}
-	if(!p_putc(V_ZC_HOUR,f))
+	if(!p_putc(BUILDTM_HOUR,f))
 	{
-	    new_return(32);
+		new_return(32);
 	}
-	if(!p_putc(V_ZC_MINUTE,f))
+	if(!p_putc(BUILDTM_MINUTE,f))
 	{
-	    new_return(33);
+		new_return(33);
 	}
 	
 	
@@ -6724,18 +6724,18 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	strcpy(tempsig, DEV_SIGNOFF);
 	
 	if(!pfwrite(&tempsig,256,f))
-        {
-            new_return(34);
-        }
+	{
+		new_return(34);
+	}
 	
 	char tempcompilersig[256];
 	memset(tempcompilersig, 0, 256);
 	strcpy(tempcompilersig, COMPILER_NAME);
 	
 	if(!pfwrite(&tempcompilersig,256,f))
-        {
-            new_return(35);
-        }
+	{
+		new_return(35);
+	}
 	
 	char tempcompilerversion[256];
 	memset(tempcompilerversion, 0, 256); 

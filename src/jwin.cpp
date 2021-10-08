@@ -583,6 +583,7 @@ int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int x, int y, i
     int c = 0;
     int len;
     int pix_len = 0;
+    int max_len = 0;
     int hline_pos;
     int xx = x;
     
@@ -613,8 +614,8 @@ int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int x, int y, i
         }
         
         tmp[len] = 0;
-        pix_len = zc_max(text_length(f, tmp), pix_len);
-        
+        pix_len = text_length(f, tmp);
+        if (pix_len > max_len) max_len = pix_len;
         x = xx;
         
         if(pos==1)  //center
@@ -646,7 +647,7 @@ int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int x, int y, i
         y += text_height(f);
     }
     
-    return pix_len;
+    return max_len;
 }
 
 int gui_textout_ln(BITMAP *bmp, unsigned const char *s, int x, int y, int color, int bg, int pos)

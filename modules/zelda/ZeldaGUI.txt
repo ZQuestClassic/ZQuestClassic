@@ -49,6 +49,8 @@ src/gui/list.cpp
 src/gui/seltile_swatch.cpp
 
 src/dialog/init_data.cpp
+src/dialog/info.cpp
+src/dialog/alert.cpp
 
 src/gui/zc_gui.cpp
 
