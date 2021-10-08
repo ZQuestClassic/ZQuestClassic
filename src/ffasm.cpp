@@ -995,6 +995,10 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "EWPNDEL",           0,   0,   0,   0},
 	{ "ITEMDEL",           0,   0,   0,   0},
 	{ "BMPWRITETILE",           0,   0,   0,   0},
+	{ "BMPDITHER",           0,   0,   0,   0},
+	{ "BMPREPLCOLOR",           0,   0,   0,   0},
+	{ "BMPSHIFTCOLOR",           0,   0,   0,   0},
+	{ "BMPMASKDRAW",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

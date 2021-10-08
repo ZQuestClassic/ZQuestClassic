@@ -790,9 +790,9 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	);
 }
 
-bool InitDataDialog::handleMessage(message msg)
+bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	switch(msg)
+	switch(msg.message)
 	{
 		case message::LEVEL:
 		{

@@ -6,6 +6,7 @@
 #include "dialog_ref.h"
 #include "size.h"
 #include "../zc_alleg.h"
+#include <any>
 #include <memory>
 #include <type_traits>
 #include <vector>
@@ -251,6 +252,20 @@ public:
 	//For some reason need this to not be virtual???
 	void setFont(FONT* newfont) {applyFont(newfont);}
 	
+	template<typename T>
+	inline void setUserData(T&& ud)
+	{
+		// It might be better to have to specify a type, e.g. userData<int>=5.
+		// But for now, the use cases are simple.
+		userData=std::make_any<std::decay_t<T>>(ud);
+	}
+
+	template<typename T>
+	inline T getUserData()
+	{
+		return std::any_cast<T>(userData);
+	}
+
 protected:
 	inline bool getWidthOverridden() const noexcept {return flags&f_WIDTH_OVERRIDDEN;}
 	inline bool getHeightOverridden() const noexcept {return flags&f_HEIGHT_OVERRIDDEN;}
@@ -267,6 +282,7 @@ protected:
 	unsigned short leftMargin, rightMargin, topMargin, bottomMargin;
 	unsigned short leftPadding, rightPadding, topPadding, bottomPadding;
 	float hAlign, vAlign;
+	std::any userData;
 	DialogRef frameDialog, frameTextDialog;
 	std::string frameText;
 
@@ -315,7 +331,7 @@ private:
 class DummyWidget : public Widget
 {
 public:
-	DummyWidget::DummyWidget() {}
+	DummyWidget() {}
 };
 
 }

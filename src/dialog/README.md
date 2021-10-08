@@ -15,10 +15,10 @@ public:
     };
 
     std::shared_ptr<GUI::Widget> view() override;
-    bool handleMessage(message msg, MessageArg msgArg);
+    bool handleMessage(const GUI::DialogMessage<message>& msg);
 };
 ```
-Note that the `handleMessage` function is not virtual. The second argument can be omitted if no message arguments are needed.
+Note that the `handleMessage` function is not virtual.
 
 The `view` function returns the dialog's window. If the dialog needs to keep pointers to any widgets, that is also done here.
 
@@ -88,18 +88,19 @@ std::shared_ptr<GUI::Widget> WhateverDialog::view()
 ```
 `GUI::Key` contains most common keys that might be used. Modifier keys can be added with `+`, and numerals are accepted after modifiers as number keys. For example, `F`, `Alt+1`, and `Ctrl+Shift+PgDn` will all work as expected. The one exception is number keys with no modifier; you have to use either `3_key` or `GUI::ShortcutKey(3)` rather than just `3`.
 
-Messages sent from the dialog are processed by the `handleMessage` function. If the message comes with an argument (which depends on the widget and event that triggered it), it will be sent as a `GUI::MessageArg`. This can be cast to the appropriate type to retrieve the argument, and the type can be checked with `msgArg.is<type>()`. `handleMessage` should return `true` if the dialog should be closed and `false` if not.
+Messages sent from the dialog are processed by the `handleMessage` function. They're sent in the form of `GUI::DialogMessage<message>`, which has three fields:
+`message`, the message itself; `arg`, an argument that can be interpreted by casting it to the appropriate type; and `sender`, a pointer to the widget that sent the event. `handleMessage` should return `true` if the dialog should be closed and `false` if not.
 
 The function for the dialog above might look like this:
 ```
-bool WhateverDialog::handleMessage(message msg, GUI::MessageArg msgArg)
+bool WhateverDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-    switch(msg)
+    switch(msg.message)
     {
     case message::SET_VALUE:
         // A numeric TextField sends its argument as an int;
         // this will be implicitly cast.
-        value=msgArg;
+        value=msg.argument;
         warningLabel->setVisible(value<0);
         return false;
 

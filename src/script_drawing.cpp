@@ -20,6 +20,7 @@
 #include "ffscript.h"
 #include "util.h"
 #include "subscr.h"
+#include "drawing.h"
 using namespace util;
 extern FFScript FFCore;
 extern ZModule zcm;
@@ -5102,6 +5103,93 @@ void do_bmpwritetile(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	write_tile(newtilebuf, refbmp, tl, x+xoffset, y+yoffset, is8bit, mask);
 }
 
+void do_bmpdither(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	/* layer, mask, color, ditherType, ditherArg */
+	//sdci[2] Mask Bitmap Pointer
+	//sdci[3] Color
+	//sdci[17] Bitmap Pointer
+	if ( sdci[17] <= 0 )
+	{
+		Z_scripterrlog("bitmap->Dither() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
+	}
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+	if ( sdci[2] <= 0 )
+	{
+		Z_scripterrlog("bitmap->Dither() wanted to read from an invalid bitmap id: %d. Aborting.\n", sdci[2]);
+		return;
+	}
+	BITMAP *mask = FFCore.GetScriptBitmap(sdci[2]-10);
+	if ( mask == NULL ) return;
+	
+	int dType = sdci[4] / 10000L;
+	if(dType < 0 || dType >= dithMax)
+	{
+		Z_scripterrlog("bitmap->Dither() used an invalid dither type: %d. Aborting.\n", dType);
+		return;
+	}
+	
+	ditherblit(refbmp, mask, byte(sdci[3]/10000L), dType, sdci[5]/10000L);
+}
+
+void do_bmpreplcol(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	/* layer, shift, startcol, endcol */
+	//sdci[2] NewCol
+	//sdci[3] StartCol
+	//sdci[4] EndCol
+	//sdci[17] Bitmap Pointer
+	if ( sdci[17] <= 0 )
+	{
+		Z_scripterrlog("bitmap->ReplaceColors() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
+	}
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+	replColor(refbmp, sdci[2]/10000L, sdci[3]/10000L, sdci[4]/10000L, false);
+}
+
+void do_bmpshiftcol(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	/* layer, shift, startcol, endcol */
+	//sdci[2] ShiftAmount
+	//sdci[3] StartCol
+	//sdci[4] EndCol
+	//sdci[17] Bitmap Pointer
+	if ( sdci[17] <= 0 )
+	{
+		Z_scripterrlog("bitmap->ShiftColors() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
+	}
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+	replColor(refbmp, sdci[2]/10000L, sdci[3]/10000L, sdci[4]/10000L, true);
+}
+
+void do_bmpmaskdraw(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	/* layer, mask, color */
+	//sdci[2] Mask Bitmap Pointer
+	//sdci[3] Color
+	//sdci[17] Bitmap Pointer
+	if ( sdci[17] <= 0 )
+	{
+		Z_scripterrlog("bitmap->MaskDraw() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
+	}
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+	if ( sdci[2] <= 0 )
+	{
+		Z_scripterrlog("bitmap->MaskDraw() wanted to read from an invalid bitmap id: %d. Aborting.\n", sdci[2]);
+		return;
+	}
+	BITMAP *mask = FFCore.GetScriptBitmap(sdci[2]-10);
+	if ( refbmp == NULL ) return;
+	maskblit(refbmp, mask, byte(sdci[3]/10000L));
+}
 
 void bmp_do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
@@ -11078,6 +11166,10 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, 
 			case BMPDRAWLAYERCIFLAGR: do_bmpdrawlayerciflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 			case BMPDRAWLAYERSOLIDITYR: do_bmpdrawlayersolidityr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 			case BMPWRITETILE: do_bmpwritetile(bmp, sdci, xoffset, yoffset); break;
+			case BMPDITHER: do_bmpdither(bmp, sdci, xoffset, yoffset); break;
+			case BMPREPLCOLOR: do_bmpreplcol(bmp, sdci, xoffset, yoffset); break;
+			case BMPSHIFTCOLOR: do_bmpshiftcol(bmp, sdci, xoffset, yoffset); break;
+			case BMPMASKDRAW: do_bmpmaskdraw(bmp, sdci, xoffset, yoffset); break;
 		}
 	}
 	

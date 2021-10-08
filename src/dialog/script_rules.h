@@ -17,7 +17,7 @@ public:
 	ScriptRulesDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	bool handleMessage(message msg, GUI::MessageArg messageArg);
+	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	std::function<void(byte*)> setQRs;

@@ -18,7 +18,7 @@ public:
 	HeaderDialog(std::string verstr, std::string initVals[5], std::function<void(std::string_view[5])> setVals);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	bool handleMessage(message msg);
+	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	std::shared_ptr<GUI::TextField> questRev, minRev, titlestr, author, questNum;

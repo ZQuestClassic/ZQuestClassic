@@ -8421,6 +8421,46 @@ namespace ZScript
 		}
 	};
 	
+	class OBitmapDither : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapDither();
+		}
+	};
+	
+	class OBitmapReplColor : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapReplColor();
+		}
+	};
+	
+	class OBitmapShiftColor : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapShiftColor();
+		}
+	};
+	
+	class OBitmapMaskDraw : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapMaskDraw();
+		}
+	};
+	
 	class OBMPDrawScreenSolidRegister : public Opcode
 	{
 	public:

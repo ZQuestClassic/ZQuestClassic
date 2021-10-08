@@ -8809,6 +8809,11 @@ static AccessorTable BitmapTable[] =
 	{ "DrawFrame",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                     10,           {  ZVARTYPEID_BITMAP,                ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_BOOL,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "WriteTile",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      7,           {  ZVARTYPEID_BITMAP,                ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_BOOL,                           ZVARTYPEID_BOOL,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
+	{ "Dither",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      6,           {  ZVARTYPEID_BITMAP,                ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "ReplaceColors",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           {  ZVARTYPEID_BITMAP,                ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "ShiftColors",            ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           {  ZVARTYPEID_BITMAP,                ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "MaskedDraw",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      4,           {  ZVARTYPEID_BITMAP,                ZVARTYPEID_FLOAT,         ZVARTYPEID_BITMAP,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
 
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                   -1,                     -1,               -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -9534,6 +9539,66 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OBitmapWriteTile());
 		LABELBACK(label);
 		POP_ARGS(6, NUL);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void Dither(bitmap, int, int, int, int, int)
+	{
+		Function* function = getFunction("Dither", 6);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OBitmapDither());
+		LABELBACK(label);
+		POP_ARGS(5, NUL);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void ReplaceColors(bitmap, int, int, int, int)
+	{
+		Function* function = getFunction("ReplaceColors", 5);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OBitmapReplColor());
+		LABELBACK(label);
+		POP_ARGS(4, NUL);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void ShiftColors(bitmap, int, int, int, int)
+	{
+		Function* function = getFunction("ShiftColors", 5);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OBitmapShiftColor());
+		LABELBACK(label);
+		POP_ARGS(4, NUL);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void MaskedDraw(bitmap, int, bitmap, int)
+	{
+		Function* function = getFunction("MaskedDraw", 4);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		code.push_back(new OBitmapMaskDraw());
+		LABELBACK(label);
+		POP_ARGS(3, NUL);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         

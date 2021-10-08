@@ -59,9 +59,9 @@ std::shared_ptr<GUI::Widget> FooDialog::view()
 	);
 }
 
-bool FooDialog::handleMessage(message msg)
+bool FooDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	switch(msg)
+	switch(msg.message)
 	{
 		case message::OK:
 			setVal(datafield->getVal(),false);

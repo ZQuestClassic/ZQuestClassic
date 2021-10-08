@@ -99,7 +99,6 @@ static const GUI::ListData compatRulesList
 	{ "Old Sideview Ceiling Collision", qr_OLD_SIDEVIEW_CEILING_COLLISON },
 	{ "Items set to 0 AFrames ignore AFrame changes", qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES },
 	{ "Old Enemy Knockback Collision", qr_OLD_ENEMY_KNOCKBACK_COLLISION },
-	{ "Weapons Can Go Out of Bounds (Offscreen)", qr_WEAPONSMOVEOFFSCREEN },
 	{ "Check Clip for Custom / Script Type Weapons on Screen Edge", qr_CHECKSCRIPTWEAPONOFFSCREENCLIP },
 	{ "1.92 Diagonal Walk Speed", qr_SHORTDGNWALK },
 	{ "Old String Margins", qr_OLD_STRING_EDITOR_MARGINS },
@@ -114,7 +113,8 @@ static const GUI::ListData compatRulesList
 	{ "Broken Horizontal Weapon Animation", qr_BROKEN_HORIZONTAL_WEAPON_ANIM },
 	{ "Enemies->Secret only affects flags 16-31", qr_ENEMIES_SECRET_ONLY_16_31 },
 	{ "Old CSet2 Handling", qr_OLDCS2 },
-	{ "Hardcoded Shadow/Spawn/Death anim frames", qr_HARDCODED_ENEMY_ANIMS }
+	{ "Hardcoded Shadow/Spawn/Death anim frames", qr_HARDCODED_ENEMY_ANIMS },
+	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING }
 };
 
 static const GUI::ListData enemiesRulesList
@@ -245,7 +245,8 @@ static const GUI::ListData weaponsRulesList
 	{ "Arrows Always Penetrate", qr_ARROWS_ALWAYS_PENETRATE },
 	{ "Swordbeams Always Penetrate", qr_SWORDBEAMS_ALWAYS_PENETRATE },
 	{ "Boomerang EWeapons Corrected Animation", qr_CORRECTED_EW_BRANG_ANIM },
-	{ "Bombs pierce enemy shields", qr_BOMBSPIERCESHIELD }
+	{ "Bombs pierce enemy shields", qr_BOMBSPIERCESHIELD },
+	{ "Weapons Move Offscreen (Buggy, use at own risk)", qr_WEAPONSMOVEOFFSCREEN }
 };
 
 //}
@@ -411,12 +412,12 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 	);
 }
 
-bool QRDialog::handleMessage(message msg, GUI::MessageArg messageArg)
+bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	switch(msg)
+	switch(msg.message)
 	{
 		case message::TOGGLE_QR:
-			toggle_bit(local_qrs, messageArg);
+			toggle_bit(local_qrs, msg.argument);
 			return false;
 		case message::HEADER:
 			call_header_dlg();

@@ -17,7 +17,8 @@ int dialog_proc(int msg, DIALOG *d, int c)
 	auto* dr = static_cast<DialogRunner*>(d->dp);
 	if(msg == MSG_GUI_EVENT)
 	{
-		int ret = dr->widgets[d->d1]->onEvent(c, dr->sendMessage);
+		MessageDispatcher md(dr->widgets[d->d1], dr->sendMessage);
+		int ret = dr->widgets[d->d1]->onEvent(c, md);
 		if(dr->done)
 			return D_EXIT;
 		else

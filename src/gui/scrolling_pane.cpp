@@ -7,9 +7,6 @@
 
 extern int jwin_pal[jcMAX];
 
-extern __declspec(dllimport) int (*gui_mouse_x)(void);
-extern __declspec(dllimport) int (*gui_mouse_y)(void);
-
 int screen_w, screen_h;
 #define START_CLIP(d) set_clip_rect( \
 	gui_get_screen(), d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4)
@@ -19,17 +16,16 @@ int screen_w, screen_h;
 namespace GUI
 {
 
-// This probably needs to be positive, not negative
 static int minusOneHundred()
 {
 	return -100;
 }
 
-/* When Allegro is searching for the array for a mouse handler,
- * mouseBreakerProc checks the mouse position
- * If the mouse is not in the pane, it replaces gui_mouse_x and gui_mouse_y
- * so that Allegro won't find anything in the pane. The only thing it will
- * find is mouseFixerProc, which restores the old mouse functions.
+/* When Allegro is searching the array for a mouse handler, mouseBreakerProc
+ * checks the mouse position. If the mouse is not in the pane, it replaces
+ * gui_mouse_x and gui_mouse_y so that Allegro won't find anything in the pane.
+ * The only thing it will find is mouseFixerProc, which restores the old
+ * mouse functions.
  */
 
 int ScrollingPane::mouseBreakerProc(int msg, DIALOG* d, int c)
@@ -38,7 +34,6 @@ int ScrollingPane::mouseBreakerProc(int msg, DIALOG* d, int c)
 	{
 	case MSG_WANTMOUSE:
 	{
-		//std::cout<<"mainProc got MSG_WANTMOUSE"<<std::endl;
 		auto* sp=static_cast<ScrollingPane*>(d->dp);
 		sp->oldMouseX=gui_mouse_x;
 		sp->oldMouseY=gui_mouse_y;
@@ -63,7 +58,6 @@ int ScrollingPane::mouseFixerProc(int msg, DIALOG* d, int c)
 	{
 	case MSG_WANTMOUSE:
 	{
-		//std::cout<<"mainProc got MSG_WANTMOUSE"<<std::endl;
 		auto* sp=static_cast<ScrollingPane*>(d->dp);
 		gui_mouse_x=sp->oldMouseX;
 		gui_mouse_y=sp->oldMouseY;
@@ -84,11 +78,11 @@ int scrollProc(int msg, DIALOG* d, int c)
 	{
 	case MSG_DRAWCLIPPED:
 	{
-		// This is called by a widget inside the pane when redrawing
+		// This message is sent by a widget inside the pane when redrawing
 		// after MSG_GOTFOCUS or MSG_LOSTFOCUS.
 		auto* sp=static_cast<ScrollingPane*>(d->dp);
 		auto* child=&sp->alDialog[c];
-		child->flags &= ~D_NEEDSCLIPPED; // Do this first or it'll loop forever
+		child->flags &= ~D_NEEDSCLIPPED; // Do this first or it'll recurse
 		START_CLIP(d);
 		child->proc(MSG_DRAW, child, 0);
 		set_clip_rect(gui_get_screen(), 0, 0, 800, 600);

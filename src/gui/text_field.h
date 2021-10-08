@@ -35,8 +35,9 @@ public:
 			case type::SWAP_SSHORT:
 			case type::SWAP_ZSINT:
 				return true;
+			default:
+				return false;
 		}
-		return false;
 	}
 
 	/* Set the current text. If it's longer than the current maximum length,

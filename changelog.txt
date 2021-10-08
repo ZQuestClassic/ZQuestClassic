@@ -1,5 +1,10 @@
 // 2.55 Change Log
-// Updated 5th Oct, 2021
+// Updated 7th Oct, 2021
+
+//Recent Changes
+
+Add new bitmap drawing functions
+	( EmilyV, Oct 7th, 2021 )
 
 //Alpha 98
 

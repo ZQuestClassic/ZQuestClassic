@@ -17,7 +17,7 @@ public:
 	PickRulesetDialog(std::function<void(int)> setRuleset);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	bool handleMessage(message msg, GUI::MessageArg messageArg);
+	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	std::shared_ptr<GUI::RadioSet> rulesetChoice;
