@@ -21,7 +21,7 @@ public:
 	InitDataDialog(zinitdata const& start, bool zc, std::function<void(zinitdata const&)> setVals);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	bool handleMessage(message msg);
+	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	void setOfs(size_t ofs);

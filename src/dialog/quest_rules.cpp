@@ -410,12 +410,12 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 	);
 }
 
-bool QRDialog::handleMessage(message msg, GUI::MessageArg messageArg)
+bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	switch(msg)
+	switch(msg.message)
 	{
 		case message::TOGGLE_QR:
-			toggle_bit(local_qrs, messageArg);
+			toggle_bit(local_qrs, msg.argument);
 			return false;
 		case message::HEADER:
 			call_header_dlg();

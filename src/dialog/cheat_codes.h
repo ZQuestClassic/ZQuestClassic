@@ -21,7 +21,7 @@ public:
 		std::function<void(bool, std::string_view[4])> setCheatCodes);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	bool handleMessage(message msg);
+	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	bool enabled;

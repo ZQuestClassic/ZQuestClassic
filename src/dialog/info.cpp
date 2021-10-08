@@ -52,7 +52,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 	);
 }
 
-bool InfoDialog::handleMessage(message)
+bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	return true;
 }
