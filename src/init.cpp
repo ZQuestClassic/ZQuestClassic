@@ -754,7 +754,13 @@ static int init_var_list[] =
 
 static int init_var_list2[] =
 {
-	3376, 3377, 3378, 3379, 3380, 3381, 3382, 3383, 3384, 3385,3386,3387,
+	3376, 3377, 3378, 3379, 3380, 3381, 3382, 3383, 3384, 3385, 3386, 3387,
+	-1
+};
+
+static int init_var_list3[] =
+{
+	3388, 3389, 3390, 3391, 3392, 3393, 3394, 3395,
 	-1
 };
 
@@ -890,6 +896,7 @@ TABPANEL init_var_tabs[] =
     // (text)
     { (char *)"1",               D_SELECTED,   init_var_list,          0, NULL },
     { (char *)"2",               0,            init_var_list2,         0, NULL },
+    { (char *)"3",               0,            init_var_list3,         0, NULL },
     { NULL,                      0,            0,                      0, NULL }
 };
 
@@ -1654,7 +1661,25 @@ void PopulateInitDialog()
 	//3387
 	initPopulate(i, jwin_color_swatch,     248,   53,    12,     12,  0,                  0,                0,       0,          0,             16, NULL, NULL, NULL),
 	
-    // 3388 -- Termination
+    // 3388
+	initPopulate(i, jwin_text_proc,            12,     53,    128,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Water Gravity:",                                   NULL,   NULL);
+	initPopulate(i, jwin_edit_proc,            162,     50,     96,     16,    vc(12),                 vc(1),                   0,    0,              9,             0,  NULL,                                                  NULL,   NULL);
+      
+    //3390
+    initPopulate(i, jwin_text_proc,            12,     73,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Hero Step (Sideswim Up):",                                   NULL,   NULL);
+    //3391
+    initPopulate(i, jwin_edit_proc,            162,     70,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    //3392
+    initPopulate(i, jwin_text_proc,            12,     93,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Hero Step (Sideswim Side):",                                   NULL,   NULL);
+    //3393
+    initPopulate(i, jwin_edit_proc,            162,     90,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    //3394
+    initPopulate(i, jwin_text_proc,            12,     113,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Hero Step (Sideswim Down):",                                   NULL,   NULL);
+    //3395
+    initPopulate(i, jwin_edit_proc,            162,     110,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
+    
+    // 3396 -- Termination
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     ASSERT(INIT_DLG_SZ>=i); //index after termination
     /*
@@ -1831,6 +1856,9 @@ int doInit(zinitdata *local_zinit, bool isZC)
     char arrowstring[6];
     char maxarrowstring[6];
     char herostepstr[6];
+    char herosideswimupstepstr[6];
+    char herosideswimsidestepstr[6];
+    char herosideswimdownstepstr[6];
     char subscrspeedstr[6];
 	char hpperheartstr[8];
 	char mpperblockstr[8];
@@ -1843,6 +1871,9 @@ int doInit(zinitdata *local_zinit, bool isZC)
     sprintf(arrowstring, "%d", local_zinit->nArrows);
     sprintf(maxarrowstring, "%d", local_zinit->nArrowmax);
     sprintf(herostepstr, "%d", local_zinit->heroStep);
+    sprintf(herosideswimupstepstr, "%d", local_zinit->heroSideswimUpStep);
+    sprintf(herosideswimsidestepstr, "%d", local_zinit->heroSideswimSideStep);
+    sprintf(herosideswimdownstepstr, "%d", local_zinit->heroSideswimDownStep);
     sprintf(subscrspeedstr, "%d", local_zinit->subscrSpeed);
     sprintf(hpperheartstr, "%d", local_zinit->hp_per_heart);
     sprintf(mpperblockstr, "%d", local_zinit->magic_per_block);
@@ -1916,7 +1947,8 @@ int doInit(zinitdata *local_zinit, bool isZC)
     char maxrupeestring[6];
     char maxkeystring[6];
     char bombratiostring[5];
-    char gravitystring[5];
+    char gravitystring[10];
+    char swimgravitystring[10];
     char terminalvstring[8];
     char thresholdstring[8];
     
@@ -1931,7 +1963,8 @@ int doInit(zinitdata *local_zinit, bool isZC)
     sprintf(magicstring, "%d", local_zinit->magic);
     sprintf(maxmagicstring, "%d", local_zinit->max_magic);
     sprintf(bombratiostring, "%d", local_zinit->bomb_ratio);
-    sprintf(gravitystring, "%.2f", local_zinit->gravity/100.0);
+    sprintf(gravitystring, "%d.%02d\0", local_zinit->gravity2/10000L, abs((local_zinit->gravity2/100)%100L));
+    sprintf(swimgravitystring, "%ld.%02d\0", local_zinit->swimgravity/10000L, abs((local_zinit->swimgravity/100)%100L));
     sprintf(terminalvstring, "%.2f", local_zinit->terminalv/100.0);
     sprintf(thresholdstring, "%d", local_zinit->jump_link_layer_threshold);
     
@@ -1977,6 +2010,10 @@ int doInit(zinitdata *local_zinit, bool isZC)
     init_dlg[3381].dp=dith_perc;
     init_dlg[3383].dp=light_rad;
     init_dlg[3385].dp=tdark_perc;
+    init_dlg[3389].dp=swimgravitystring;
+    init_dlg[3391].dp=herosideswimupstepstr;
+    init_dlg[3393].dp=herosideswimsidestepstr;
+    init_dlg[3395].dp=herosideswimdownstepstr;
     if(is_large)
     {
         large_dialog(init_dlg);
@@ -2071,7 +2108,8 @@ int doInit(zinitdata *local_zinit, bool isZC)
         local_zinit->max_rupees = vbound(atoi(maxrupeestring), 0, 0xFFFF);
         local_zinit->max_keys = vbound(atoi(maxkeystring), 0, 0xFFFF);
         local_zinit->bomb_ratio = vbound(atoi(bombratiostring),0,255);
-        local_zinit->gravity = vbound(int(strtod(gravitystring, NULL)*100),1,255);
+        local_zinit->gravity = vbound(int(strtod(gravitystring, NULL)*10000),1,255);
+        local_zinit->gravity2 = int(strtod(gravitystring, NULL)*10000);
         local_zinit->terminalv = vbound(int(strtod(terminalvstring, NULL)*100), 1, 9999);
         local_zinit->jump_link_layer_threshold = vbound(atoi(thresholdstring),0,255);
         local_zinit->heroStep = vbound(atoi(herostepstr),0,9999);
@@ -2085,6 +2123,10 @@ int doInit(zinitdata *local_zinit, bool isZC)
 		local_zinit->dither_percent = vbound(atoi(dith_perc),0,255);
 		local_zinit->def_lightrad = vbound(atoi(light_rad),0,255);
 		local_zinit->transdark_percent = vbound(atoi(tdark_perc),0,255);
+		local_zinit->swimgravity = int(strtod(swimgravitystring, NULL)*10000);
+		local_zinit->heroSideswimUpStep = vbound(atoi(herosideswimupstepstr),0,9999);
+		local_zinit->heroSideswimSideStep = vbound(atoi(herosideswimsidestepstr),0,9999);
+		local_zinit->heroSideswimDownStep = vbound(atoi(herosideswimdownstepstr),0,9999);
         onInitOK();
     }
     
@@ -2252,6 +2294,11 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 	game2->set_light_rad(zinit2->def_lightrad);
 	game2->set_transdark_perc(zinit2->transdark_percent);
 	game2->set_darkscr_color(zinit2->darkcol);
+	game2->set_watergrav(zinit2->swimgravity);
+	game2->set_sideswim_up(zinit2->heroSideswimUpStep);
+	game2->set_sideswim_side(zinit2->heroSideswimSideStep);
+	game2->set_sideswim_down(zinit2->heroSideswimDownStep);
+	game2->set_sideswim_jump(zinit2->exitWaterJump);
     
     for(int i=0; i<MAXLEVELS; i++)
     {

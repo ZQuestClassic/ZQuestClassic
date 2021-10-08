@@ -2911,7 +2911,7 @@ void do_magic_casting()
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
             //          Link.tile=(BSZ)?32:29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
@@ -2927,7 +2927,7 @@ void do_magic_casting()
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
             //          Link.tile=29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
@@ -2939,7 +2939,7 @@ void do_magic_casting()
         
         if(castnext)
         {
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sideswimcast:ls_cast, Link.getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
@@ -2979,7 +2979,7 @@ void do_magic_casting()
     {
         if(magiccastclk==0)
         {
-            linktile(&ltile, &lflip, ls_stab, down, zinit.linkanimationstyle);
+            linktile(&ltile, &lflip, Link.IsSideSwim()?ls_sideswimstab:ls_stab, down, zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
@@ -2990,7 +2990,7 @@ void do_magic_casting()
             memcpy(linktilebuf, unpackbuf, 256);
             tempx=Link.getX();
             tempy=Link.getY();
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_pound, down, zinit.linkanimationstyle);
+            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sideswimpound:ls_pound, down, zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
@@ -3008,7 +3008,7 @@ void do_magic_casting()
         {
             Link.setX(tempx);
             Link.setY(tempy);
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_stab, down, zinit.linkanimationstyle);
+            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sideswimstab:ls_stab, down, zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
@@ -3092,7 +3092,7 @@ void do_magic_casting()
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
             //          Link.tile=(BSZ)?32:29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sideswimcast:ls_cast, Link.getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
@@ -3120,7 +3120,7 @@ void do_magic_casting()
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
             //          Link.tile=29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sideswimcast:ls_cast, Link.getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
@@ -3133,7 +3133,7 @@ void do_magic_casting()
         if(castnext)
         {
             //          Link.tile=4;
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {

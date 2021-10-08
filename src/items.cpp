@@ -62,7 +62,7 @@ bool item::animate(int)
 				
 				if(fall <= (int)zinit.terminalv)
 				{
-					fall += zinit.gravity;
+					fall += (zinit.gravity2 / 100);
 				}
 				}
 				else
@@ -85,7 +85,7 @@ bool item::animate(int)
 				}
 				else if(fall <= (int)zinit.terminalv)
 				{
-				fall += zinit.gravity;
+				fall += (zinit.gravity2 / 100);
 				}
 			}
 		} 
@@ -169,14 +169,14 @@ bool item::animate(int)
 					z = 0;
 					fall = -fall/2;
 				}
-				else if(z <= 1 && abs(fall) < (int)zinit.gravity)
+				else if(z <= 1 && abs(fall) < (int)(zinit.gravity2 / 100))
 				{
 					z=0;
 					fall=0;
 				}
 				else if(fall <= (int)zinit.terminalv)
 				{
-					fall += zinit.gravity;
+					fall += (zinit.gravity2 / 100);
 				}
 			}
 			if ( moveflags & FLAG_CAN_PITFALL )

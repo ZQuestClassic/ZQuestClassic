@@ -3006,7 +3006,7 @@ bool enemy::animate(int index)
 				{
 					y+=fall/100;
 					if(fall <= (int)zinit.terminalv)
-						fall += zinit.gravity;
+						fall += (zinit.gravity2/100);
 				}
 			}
 			else
@@ -3028,7 +3028,7 @@ bool enemy::animate(int index)
 			if(z<0)
 				z = fall = 0;
 			else if(fall <= (int)zinit.terminalv)
-				fall += zinit.gravity;
+				fall += (zinit.gravity2/100);
 			
 		}
 	}

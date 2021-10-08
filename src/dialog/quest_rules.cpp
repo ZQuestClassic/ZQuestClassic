@@ -71,7 +71,9 @@ static const GUI::ListData comboRulesList
 	{ "Block Triggers Are Perm For Non-Heavy Blocks", qr_NONHEAVY_BLOCKTRIGGER_PERM },
 	{ "Overhead Combos work on Layers 1 and 2", qr_OVERHEAD_COMBOS_L1_L2 },
 	{ "Auto Combos work on Layer 1", qr_AUTOCOMBO_LAYER_1 },
-	{ "Auto Combos work on Layer 2", qr_AUTOCOMBO_LAYER_2 }
+	{ "Auto Combos work on Layer 2", qr_AUTOCOMBO_LAYER_2 },
+	{ "Sideview Swimming", qr_SIDESWIM },
+	{ "Link faces Left/Right while Sideview Swimming", qr_SIDESWIMDIR }
 };
 
 static const GUI::ListData compatRulesList
