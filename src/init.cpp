@@ -2294,6 +2294,11 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 	game2->set_light_rad(zinit2->def_lightrad);
 	game2->set_transdark_perc(zinit2->transdark_percent);
 	game2->set_darkscr_color(zinit2->darkcol);
+	game2->set_watergrav(zinit2->swimgravity);
+	game2->set_sideswim_up(zinit2->heroSideswimUpStep);
+	game2->set_sideswim_side(zinit2->heroSideswimSideStep);
+	game2->set_sideswim_down(zinit2->heroSideswimDownStep);
+	game2->set_sideswim_jump(zinit2->exitWaterJump);
     
     for(int i=0; i<MAXLEVELS; i++)
     {

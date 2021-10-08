@@ -900,6 +900,50 @@ void gamedata::set_darkscr_color(byte val)
 	set_generic(val, genDARK_COL);
 }
 
+int gamedata::get_watergrav()
+{
+	return get_generic(genWATER_GRAV);
+}
+void gamedata::set_watergrav(int val)
+{
+	set_generic(val, genWATER_GRAV);
+}
+int gamedata::get_sideswim_up()
+{
+	return get_generic(genSIDESWIM_UP);
+}
+void gamedata::set_sideswim_up(int val)
+{
+	set_generic(val, genSIDESWIM_UP);
+}
+
+int gamedata::get_sideswim_side()
+{
+	return get_generic(genSIDESWIM_SIDE);
+}
+void gamedata::set_sideswim_side(int val)
+{
+	set_generic(val, genSIDESWIM_SIDE);
+}
+
+int gamedata::get_sideswim_down()
+{
+	return get_generic(genSIDESWIM_DOWN);
+}
+void gamedata::set_sideswim_down(int val)
+{
+	set_generic(val, genSIDESWIM_DOWN);
+}
+
+int gamedata::get_sideswim_jump()
+{
+	return get_generic(genSIDESWIM_JUMP);
+}
+void gamedata::set_sideswim_jump(int val)
+{
+	set_generic(val, genSIDESWIM_JUMP);
+}
+
 void gamedata::set_item(int id, bool value)
 {
     set_item_no_flush(id, value);

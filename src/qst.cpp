@@ -9734,6 +9734,8 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 			memset(sideswimstabspr, 0, sizeof(sideswimstabspr));
 			memset(sideswimpoundspr, 0, sizeof(sideswimpoundspr));
 			memset(sideswimchargespr, 0, sizeof(sideswimchargespr));
+			memset(sideswimholdspr, 0, sizeof(sideswimholdspr));
+			memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
 		}
     }
     
@@ -10663,6 +10665,62 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				}
 			}
 			else for(int q = 0; q < 4; ++q) hammeroffsets[q] = 0;
+			if (v_linksprites > 11)
+			{
+				for(int q = 0; q < 3; ++q)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&flip,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&extend,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						sideswimholdspr[q][spr_tile] = (int)tile;
+						sideswimholdspr[q][spr_flip] = (int)flip;
+						sideswimholdspr[q][spr_extend] = (int)extend;
+					}
+				}
+			}
+			if (v_linksprites > 12)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				sideswimcastingspr[spr_tile]=(int)tile;
+				sideswimcastingspr[spr_flip]=(int)flip;
+				sideswimcastingspr[spr_extend]=(int)extend;
+			}
+			if (v_linksprites > 13)
+			{
+				for(int q = 0; q < 4; ++q)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&flip,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&extend,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						sidedrowningspr[q][spr_tile] = (int)tile;
+						sidedrowningspr[q][spr_flip] = (int)flip;
+						sidedrowningspr[q][spr_extend] = (int)extend;
+					}
+				}
+			}
 		}
 		else if(keepdata)
 		{
@@ -10703,6 +10761,9 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 			memset(sideswimstabspr, 0, sizeof(sideswimstabspr));
 			memset(sideswimpoundspr, 0, sizeof(sideswimpoundspr));
 			memset(sideswimchargespr, 0, sizeof(sideswimchargespr));
+			memset(sideswimholdspr, 0, sizeof(sideswimholdspr));
+			memset(sideswimcastingspr, 0, sizeof(sideswimcastingspr));
+			memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
 			for(int q = 0; q < 4; ++q) hammeroffsets[q] = 0;
 		}
         if (v_linksprites > 7)

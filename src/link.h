@@ -51,7 +51,9 @@ enum actiontype
     // Fake actiontypes: used by ZScripts
     ischarging, isspinning, isdiving, gameover, hookshotout, stunned, ispushing,
 	// New 2.55 ActionTypes
-	falling, lavadrowning, sideswimming, sideswimhit, sideswimattacking
+	falling, lavadrowning, sideswimming, sideswimhit, sideswimattacking, 
+	sidewaterhold1, sidewaterhold2, sideswimcasting, sideswimfreeze, sidedrowning,
+	sideswimisspinning, sideswimischarging, la_max
 };
 
 typedef struct tilesequence

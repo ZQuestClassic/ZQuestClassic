@@ -11330,6 +11330,41 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_iputl(hammeroffsets[q],f))
 				new_return(19);
 		}
+		for(int q = 0; q < 3; ++q)
+		{
+			if(!p_iputl(sideswimholdspr[q][spr_tile],f))
+				new_return(20);
+			if(!p_putc((byte)sideswimholdspr[q][spr_flip],f))
+				new_return(20);
+			if(!p_putc((byte)sideswimholdspr[q][spr_extend],f))
+				new_return(20);
+		}
+		
+		if(!p_iputl(sideswimcastingspr[spr_tile],f))
+		{
+		    new_return(21);
+		}
+		
+		if(!p_putc((byte)sideswimcastingspr[spr_flip],f))
+		{
+		    new_return(21);
+		}
+		
+		if(!p_putc((byte)sideswimcastingspr[spr_extend],f))
+		{
+		    new_return(21);
+		}
+		
+		for(int q = 0; q < 4; ++q)
+		{
+			if(!p_iputl(sidedrowningspr[q][spr_tile],f))
+				new_return(22);
+			if(!p_putc((byte)sidedrowningspr[q][spr_flip],f))
+				new_return(22);
+			if(!p_putc((byte)sidedrowningspr[q][spr_extend],f))
+				new_return(22);
+		}
+        
 		
         for (int q = 0; q < wMax; q++) // Link defense values
         {

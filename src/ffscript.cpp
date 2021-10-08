@@ -11263,11 +11263,17 @@ void set_register(const long arg, const long value)
 		case LINKACTION:
 		{
 			int act = value / 10000;
-			if ( act < 25 || (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && (act == falling)) )
+			switch(act)
 			{
-				Link.setAction((actiontype)(act));
+				case hookshotout:
+				case stunned:
+				case ispushing:
+					FFCore.setLinkAction(act);
+					break;
+				default:
+					Link.setAction((actiontype)(act));
 			}
-			else FFCore.setLinkAction(act); //Protect from writing illegal actions to Link's raw variable. 
+			//Protect from writing illegal actions to Link's raw variable. 
 			//in the future, we can move all scripted actions that are not possible
 			//to set in ZC into this mechanic. -Z
 			break;
@@ -39597,6 +39603,7 @@ int FFScript::getLinkOTile(long index1, long index2)
 			case LSprswimspr: the_ret = swimspr[dir][0];
 			case LSprdivespr: the_ret = divespr[dir][0];
 			case LSprdrownspr: the_ret = drowningspr[dir][0];
+			case LSprsidedrownspr: the_ret = sidedrowningspr[dir][0];
 			case LSprlavadrownspr: the_ret = drowning_lavaspr[dir][0];
 			case LSprsideswimspr: the_ret = sideswimspr[dir][0];
 			case LSprsideswimslashspr: the_ret = sideswimslashspr[dir][0];
@@ -39607,10 +39614,13 @@ int FFScript::getLinkOTile(long index1, long index2)
 			case LSprjumpspr: the_ret = jumpspr[dir][0];
 			case LSprchargespr: the_ret = chargespr[dir][0];
 			case LSprcastingspr: the_ret = castingspr[0];
+			case LSprsideswimcastingspr: the_ret = sideswimcastingspr[0];
 			case LSprholdspr1: the_ret = holdspr[0][0][0];
 			case LSprholdspr2:  the_ret = holdspr[0][1][0];
 			case LSprholdsprw1: the_ret = holdspr[1][0][0];
 			case LSprholdsprw2: the_ret = holdspr[1][1][0];
+			case LSprholdsprSw1: the_ret = sideswimholdspr[0][0];
+			case LSprholdsprSw2: the_ret = sideswimholdspr[1][0];
 			default: the_ret = 0;
 		}
 	

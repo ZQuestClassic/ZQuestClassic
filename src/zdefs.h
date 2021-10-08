@@ -245,7 +245,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_CHEATS           1
 #define V_SAVEGAME        19 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
-#define V_LINKSPRITES      11
+#define V_LINKSPRITES      14
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         18
@@ -3789,7 +3789,7 @@ enum generic_ind
 	genHCP_PER_HC, genCONTHP, genCONTHP_IS_PERC, genHP_PER_HEART,
 	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
 	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,genDARK_COL,
-	genLAST,
+	genWATER_GRAV, genSIDESWIM_UP, genSIDESWIM_SIDE, genSIDESWIM_DOWN, genSIDESWIM_JUMP, genLAST,
 	genMAX = 256
 };
 enum glow_shape
@@ -4007,6 +4007,21 @@ struct gamedata
 	
 	byte get_darkscr_color();
 	void set_darkscr_color(byte val);
+	
+	int get_watergrav();
+	void set_watergrav(int val);
+	
+	int get_sideswim_up();
+	void set_sideswim_up(int val);
+	
+	int get_sideswim_side();
+	void set_sideswim_side(int val);
+	
+	int get_sideswim_down();
+	void set_sideswim_down(int val);
+	
+	int get_sideswim_jump();
+	void set_sideswim_jump(int val);
     
     byte get_continue_scrn();
     void set_continue_scrn(byte s);
