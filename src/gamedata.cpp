@@ -352,18 +352,18 @@ void gamedata::change_dcounter(short change, byte c)
     return;
 }
 
-short gamedata::get_generic(byte c)
+long gamedata::get_generic(byte c)
 {
     return _generic[c];
 }
 
-void gamedata::set_generic(byte change, byte c)
+void gamedata::set_generic(long change, byte c)
 {
     _generic[c]=change;
     return;
 }
 
-void gamedata::change_generic(short change, byte c)
+void gamedata::change_generic(long change, byte c)
 {
     _generic[c]+=change;
     return;

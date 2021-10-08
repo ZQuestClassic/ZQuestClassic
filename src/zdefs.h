@@ -243,7 +243,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        19 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        20 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
 #define V_LINKSPRITES      14
 #define V_SUBSCREEN        6
@@ -3838,7 +3838,7 @@ struct gamedata
     short _dmagic;*/
     //byte  _magicdrainrate;
     //byte  _canslash;                                           //Link slashes instead of stabs.
-    byte _generic[256];	// Generic gamedata. See enum above this struct for indexes.
+    long _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
     //byte  padding[2];
     //636
     byte  visited[MAXDMAPS];
@@ -4051,9 +4051,9 @@ struct gamedata
     void set_canslash(byte s);
     void change_canslash(short s);
     
-    short get_generic(byte c);
-    void set_generic(byte change, byte c);
-    void change_generic(short change, byte c);
+    long get_generic(byte c);
+    void set_generic(long change, byte c);
+    void change_generic(long change, byte c);
     
     byte get_lkeys();
     
