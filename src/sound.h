@@ -23,21 +23,4 @@ private:
 	short id;
 };
 
-class SoundLoop
-{
-public:
-	SoundLoop();
-	SoundLoop(short id);
-	SoundLoop(const SoundLoop& other);
-	SoundLoop& operator=(short newID);
-	SoundLoop& operator=(const SoundLoop& other);
-	~SoundLoop();
-	void start();
-	void stop();
-
-private:
-	short id;
-	bool playing;
-};
-
 #endif
