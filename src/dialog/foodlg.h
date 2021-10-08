@@ -16,7 +16,7 @@ public:
 	FooDialog(int v, std::function<void(int,bool)> setVal);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	bool handleMessage(message msg);
+	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	std::shared_ptr<GUI::TextField> datafield;

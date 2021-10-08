@@ -175,7 +175,7 @@ struct widgetType##Builder                                                      
     ZCGUI_ACCEPT_PROP(disabled, setDisabled, bool)                                                 \
     ZCGUI_ACCEPT_PROP(useFont, setFont, FONT*)                                                     \
     ZCGUI_ACCEPT_PROP(frameText, setFrameText, std::string const&)                                 \
-
+    ZCGUI_ACCEPT_PROP(userData, setUserData, anything)
 
 // Builder for widgets that don't accept common properties.
 #define ZCGUI_MINIMAL_BUILDER_START(widgetType)                                                    \

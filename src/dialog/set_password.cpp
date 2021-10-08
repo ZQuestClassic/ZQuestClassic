@@ -47,9 +47,9 @@ std::shared_ptr<GUI::Widget> SetPasswordDialog::view()
 	);
 }
 
-bool SetPasswordDialog::handleMessage(message msg)
+bool SetPasswordDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	switch(msg)
+	switch(msg.message)
 	{
 	case message::OK:
 		setPassword(pwField->getText(), saveKeyFileCB->getChecked());

@@ -18,7 +18,7 @@ public:
 		std::function<void(std::string_view, bool)> setPassword);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	bool handleMessage(message msg);
+	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	bool useKeyFile;

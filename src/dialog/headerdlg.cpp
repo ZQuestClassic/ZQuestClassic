@@ -19,7 +19,7 @@ void call_header_dlg()
 		[](std::string_view vals[5])
 		{
 			saved = false;
-			
+
 			vals[0].copy(header.version, 9);
 			vals[1].copy(header.minver, 9);
 			vals[2].copy(header.title, 64);
@@ -137,9 +137,9 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 	);
 }
 
-bool HeaderDialog::handleMessage(message msg)
+bool HeaderDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	switch(msg)
+	switch(msg.message)
 	{
 	case message::TITLE:
 	{

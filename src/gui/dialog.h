@@ -1,6 +1,7 @@
 #ifndef ZC_GUI_DIALOG_H
 #define ZC_GUI_DIALOG_H
 
+#include "dialog_message.h"
 #include "dialog_runner.h"
 #include "widget.h"
 #include <memory>
@@ -23,10 +24,10 @@ public:
 		showDialog(*static_cast<T*>(this));
 	}
 
-	/* Subclasses must implement one of these two. Don't implement both.
-	bool handleMessage(T msg, MessageArg arg)
-	bool handleMessage(T msg)
-	*/
+	/* Subclasses must define an int-convertible type called `message`
+	 * and implement:
+	 * bool handleMessage(const DialogMessage<message>&)
+	 */
 };
 
 }
