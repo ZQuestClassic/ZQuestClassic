@@ -23,6 +23,7 @@
 #include "text_field.h"
 #include "window.h"
 #include "widget.h"
+#include "seltile_swatch.h"
 #include <initializer_list>
 #include <memory>
 #include <string>
@@ -168,6 +169,11 @@ inline std::shared_ptr<RadioSet> makeRadioSet()
 inline std::shared_ptr<DummyWidget> makeDummyWidget()
 {
 	return std::make_shared<DummyWidget>();
+}
+
+inline std::shared_ptr<SelTileSwatch> makeSelTileSwatch()
+{
+	return std::make_shared<SelTileSwatch>();
 }
 
 // Top-level widgets
@@ -349,6 +355,14 @@ ZCGUI_BUILDER_FUNCTION(Window, Window, makeWindow)
 ZCGUI_BUILDER_START(DummyWidget)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DummyWidget, DummyWidget, makeDummyWidget)
+
+ZCGUI_BUILDER_START(SelTileSwatch)
+	ZCGUI_ACCEPT_PROP(tile, setTile, int)
+	ZCGUI_ACCEPT_PROP(cset, setCSet, int)
+	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
+	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int,int)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(SelTileSwatch, SelTileSwatch, makeSelTileSwatch)
 
 } // namespace GUI::builder
 

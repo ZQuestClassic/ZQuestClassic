@@ -32355,8 +32355,6 @@ int main(int argc,char **argv)
     
     load_icons();
 	
-	call_foo_dlg();
-	
     bool load_last_timed_save=false;
     
     if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
@@ -32500,6 +32498,8 @@ int main(int argc,char **argv)
 	else dialogs[0].dp = (void *) the_menu_large;
         */
 	
+	
+	call_foo_dlg();
     while(!quit)
     {
     

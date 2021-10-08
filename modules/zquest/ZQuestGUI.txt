@@ -58,6 +58,7 @@ src/dialog/pickruleset.cpp
 src/dialog/headerdlg.cpp
 src/dialog/alert.cpp
 src/dialog/init_data.cpp
+src/gui/seltile_swatch.cpp
 
 ## End of ZQuest GUI module
 )
