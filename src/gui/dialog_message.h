@@ -24,6 +24,8 @@ public:
 	inline constexpr MessageArg(const MessageArg& other) noexcept=default;
 
 	inline constexpr MessageArg(MessageArg&& other) noexcept=default;
+	
+	MessageArg& operator=(const MessageArg& other) = default;
 
 	// You would think a template constructor would work, but apparently not.
 	inline constexpr MessageArg(std::monostate) noexcept: value(none)

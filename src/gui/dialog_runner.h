@@ -22,11 +22,10 @@ public:
 		sendMessage =
 			[this, &dlg](int msg, MessageArg arg, std::shared_ptr<Widget> snd)
 			{
-				DialogMessage<typename T::message> dm = {
-					.message = static_cast<typename T::message>(msg),
-					.argument = arg,
-					.sender = snd
-				};
+				DialogMessage<typename T::message> dm;
+				dm.message = static_cast<typename T::message>(msg);
+				if(arg) dm.argument = arg;
+				dm.sender = snd;
 				this->done = this->done || dlg.handleMessage(dm);
 			};
 
