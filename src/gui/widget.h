@@ -331,7 +331,7 @@ private:
 class DummyWidget : public Widget
 {
 public:
-	DummyWidget::DummyWidget() {}
+	DummyWidget() {}
 };
 
 }

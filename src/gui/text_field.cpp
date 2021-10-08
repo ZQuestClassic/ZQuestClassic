@@ -211,13 +211,14 @@ void TextField::realize(DialogRunner& runner)
 			case type::SWAP_ZSINT:
 				proc = newGUIProc<jwin_numedit_swap_zsint_proc>;
 				break;
+
+			default:
+				break;
 		}
 		
 		int totalwid = getWidth();
-		int btnwid = 24_lpx.resolve();
+		int btnwid = (24_lpx).resolve();
 		int txtfwid = totalwid-btnwid;
-		
-		al_trace("%d = (%d + %d)\n", totalwid, txtfwid, btnwid);
 		
 		alDialog = runner.push(shared_from_this(), DIALOG {
 			proc,
@@ -256,6 +257,9 @@ void TextField::realize(DialogRunner& runner)
 
 			case type::INT_HEX:
 				proc = newGUIProc<jwin_hexedit_proc>;
+				break;
+
+			default:
 				break;
 		}
 

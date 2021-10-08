@@ -118,7 +118,7 @@ public:
 private:
 	std::vector<ListItem> listItems;
 	
-	ListData::ListData(){}
+	ListData(){}
 	void add(ListItem item) {listItems.push_back(item);}
 	void add(std::string name, int val) {listItems.emplace_back(name, val);};
 	void add(std::string name, int val, std::string desc) {listItems.emplace_back(name, val,desc);};
