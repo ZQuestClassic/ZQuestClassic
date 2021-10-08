@@ -3,35 +3,35 @@
 
 #include "../guys.h"
 
-class eWizzrobeTeleporting : public enemy
+class MageTeleporting : public enemy
 {
 public:
-	eWizzrobeTeleporting(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eWizzrobeTeleporting(zfix X,zfix Y,int Id,int Clk);
-	virtual bool animate(int index) override;
-    virtual void draw(BITMAP *dest) override;
+	MageTeleporting(const enemy& other, bool newScriptUID, bool clearParentUID);
+	MageTeleporting(zfix x, zfix y, int id, int clk);
 
 private:
-    enum class AnimState: char { normal, charging, firing };
+	enum class animState: char { NORMAL, CHARGING, FIRING };
 
-    AnimState animState;
+	animState currAnimState;
 
-    /* Tries to teleport the wizzrobe according to its settings
-     * and the version. Returns true if the teleport was successful.
-     */
-    bool tryTeleport();
+	/* Tries to teleport the mage according to its settings
+	 * and the version. Returns true if the teleport was successful.
+	 */
+	bool tryTeleport();
 
-    /* Sets position to a random location on the screen.
-     * Returns true if it's okay to teleport there.
-     */
-    bool teleportRandomly();
+	/* Sets position to a random location on the screen.
+	 * Returns true if it's okay to teleport there.
+	 */
+	bool teleportRandomly();
 
-    /* Teleport to a tile aligned with Link. This one never fails. */
-    void teleportAligned(bool solid_ok);
+	/* Teleport to a tile aligned with the hero. This one never fails. */
+	void teleportAligned(bool solid_ok);
 
-    /* Turns the Wizzrobe to face Link. */
-    void faceLink();
+	/* Turns the Mage to face the hero. */
+	void faceHero();
 
+	bool animate(int index) override;
+	void draw(BITMAP *dest) override;
 };
 
 #endif

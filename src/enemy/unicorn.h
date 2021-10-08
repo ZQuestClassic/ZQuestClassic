@@ -3,31 +3,32 @@
 
 #include "../guys.h"
 
-class eAquamentus : public enemy
+class Unicorn : public enemy
 {
 public:
-	eAquamentus(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eAquamentus(zfix X,zfix Y,int Id,int Clk);
-	virtual bool animate(int index) override;
-	virtual void draw(BITMAP *dest) override;
-	virtual bool hit(weapon *w) override;
+	Unicorn(enemy const & other, bool newScriptUID, bool clearParentUID);
+	Unicorn(zfix x, zfix y, int id, int clk);
 
 private:
-    enum class Facing: bool { left, right };
+	enum class facing: bool { LEFT, RIGHT };
 
-    Facing facingDir;
-    int walkTimer;
-    int& shotTimer;
+	facing facingDir;
+	int walkTimer;
+	int& shotTimer;
 
-    inline bool tooFarLeft()
+	inline bool tooFarLeft() const
 	{
-		return x<=(facingDir==Facing::right ? 40 : 136);
+		return x <= ((facingDir == facing::RIGHT) ? 40_x : 136_x);
 	}
 
-    inline bool tooFarRight()
+	inline bool tooFarRight() const
 	{
-		return x>=(facingDir==Facing::right ? 104 : 200);
+		return x >= ((facingDir == facing::RIGHT) ? 104_x : 200_x);
 	}
+
+	bool animate(int index) override;
+	void draw(BITMAP *dest) override;
+	bool hit(weapon *w) override;
 };
 
 #endif

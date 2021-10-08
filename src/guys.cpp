@@ -3689,9 +3689,9 @@ int enemy::defendNew(int wpnId, int *power, int edef, byte unblockable) //May ne
 				{
 				enemy *e;
 				if(guysbuf[new_id&0xFFF].misc1==0)
-					e = new eWizzrobeTeleporting(x,y,new_id,clk);
+					e = new MageTeleporting(x,y,new_id,clk);
 				else
-					e = new eWizzrobeFloating(x,y,new_id,clk);
+					e = new MageFloating(x,y,new_id,clk);
 				guys.add(e);
 				}
 				break;
@@ -3712,7 +3712,7 @@ int enemy::defendNew(int wpnId, int *power, int edef, byte unblockable) //May ne
 				
 				case eeAQUA:
 				{
-				enemy *e = new eAquamentus(x,y,new_id,clk);
+				enemy *e = new Unicorn(x,y,new_id,clk);
 				guys.add(e);
 					e->x = x;
 					e->y = y;
@@ -16525,9 +16525,9 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 		
 	case eeWIZZ:
 		if(guysbuf[id&0xFFF].misc1==0)
-			e = new eWizzrobeTeleporting((zfix)x,(zfix)y,id,clk);
+			e = new MageTeleporting((zfix)x,(zfix)y,id,clk);
 		else
-			e = new eWizzrobeFloating((zfix)x,(zfix)y,id,clk);
+			e = new MageFloating((zfix)x,(zfix)y,id,clk);
 		break;
 		
 	case eePROJECTILE:
@@ -16539,7 +16539,7 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 		break;
 		
 	case eeAQUA:
-		e = new eAquamentus((zfix)x,(zfix)y,id,clk);
+		e = new Unicorn((zfix)x,(zfix)y,id,clk);
 		break;
 		
 	case eeMOLD:
@@ -16974,9 +16974,9 @@ int addenemy(int x,int y,int z,int id,int clk)
 		
 	case eeWIZZ:
 		if(guysbuf[id&0xFFF].misc1==0)
-			e = new eWizzrobeTeleporting((zfix)x,(zfix)y,id,clk);
+			e = new MageTeleporting((zfix)x,(zfix)y,id,clk);
 		else
-			e = new eWizzrobeFloating((zfix)x,(zfix)y,id,clk);
+			e = new MageFloating((zfix)x,(zfix)y,id,clk);
 		break;
 		
 	case eePROJECTILE:
@@ -16988,7 +16988,7 @@ int addenemy(int x,int y,int z,int id,int clk)
 		break;
 		
 	case eeAQUA:
-		e = new eAquamentus((zfix)x,(zfix)y,id,clk);
+		e = new Unicorn((zfix)x,(zfix)y,id,clk);
 		break;
 		
 	case eeMOLD:
