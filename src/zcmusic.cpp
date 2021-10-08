@@ -1420,7 +1420,7 @@ void ogg_stop(OGGFILE *ogg)
     }
 }
 
-OGGEXFILE *load_ogg_ex_file(char *filename) //!DIMENTIO: Start of og_ex. og_ex allows for seeking and getting total length of audio file.
+OGGEXFILE *load_ogg_ex_file(char *filename) //!dimi: Start of og_ex. og_ex allows for seeking and getting total length of audio file.
 {
     //OGGEXFILE *p = NULL;
     OGGEXFILE *p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE));
@@ -1629,7 +1629,7 @@ void ogg_ex_stop(OGGEXFILE *ogg)
     }
 }
 
-int ogg_ex_getpos(OGGEXFILE *ogg) //!DIMENTIO: both getpos and setpos are in milliseconds. This is so that you can (hopefully) use decimals in zscript to access sub-second values.
+int ogg_ex_getpos(OGGEXFILE *ogg) //!dimi: both getpos and setpos are in milliseconds. This is so that you can (hopefully) use decimals in zscript to access sub-second values.
 {
     if(ogg->s != NULL)
     {
@@ -1659,7 +1659,7 @@ void ogg_ex_setspeed(OGGEXFILE *ogg, int speed)
     }
 }
 
-//!DIMENTIO: End of ogg_ex.
+//!dimi: End of ogg_ex.
 
 int poll_gme_file(GMEFILE* gme)
 {

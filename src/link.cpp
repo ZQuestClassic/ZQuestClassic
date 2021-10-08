@@ -8912,7 +8912,7 @@ bool LinkClass::startwpn(int itemid)
 	}
 	else
 	{
-		//@Venrob:
+		//@Emily:
 		//Wait, so, why are you using current_item(itype_book) and not itemsbuf[bookid].whatever? 
 		//There is an actual field on the magic book and/or wand for the damage modification!! -Z
 		type = (bookid != -1 && paybook) ? current_item(itype_book) : itemsbuf[itemid].fam_type;
@@ -10503,7 +10503,7 @@ bool LinkClass::try_hover()
 //Returns '-2' if should be falling in
 int LinkClass::check_pitslide(bool ignore_hover)
 {
-	//Pitfall todo -Venrob
+	//Pitfall todo -Emily
 	//Iron boots; can't fight slipping, 2px/frame
 	//Scripted variables to read pull dir/clk (clk only for non-link)
 	//Implement falling for all sprite types (npc AI)
