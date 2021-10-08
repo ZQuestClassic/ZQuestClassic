@@ -1357,10 +1357,6 @@ byte itemScriptsWaitdraw[256] = {0};
 #include "zc_custom.h"
 #include "qst.h"
 
-#ifdef _FFDEBUG
-#include "ffdebug.h"
-#endif
-
 #include "debug.h"
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
