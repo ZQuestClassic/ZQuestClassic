@@ -8609,6 +8609,7 @@ bool LinkClass::startwpn(int itemid)
         wx+=16;
         break;
     }
+    if (IsSideSwim() && (itemsbuf[itemid].flags & ITEM_SIDESWIM_DISABLED)) return false;
     
     bool use_hookshot=true;
     

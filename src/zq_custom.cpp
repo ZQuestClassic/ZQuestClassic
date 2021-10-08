@@ -473,7 +473,7 @@ static int itemdata_action_list[] =
 	/*135, 136,*/ 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156,
 	157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182,
 	203, 204, 
-	266,267, 321,
+	266,267, 321,357,
 	-1
 };
 
@@ -1667,6 +1667,7 @@ static DIALOG itemdata_dlg[] =
 	{ jwin_swapbtn_proc,    164,   172,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
 	{ jwin_swapbtn_proc,    164,   190,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
 	//357
+	{ jwin_check_proc,        210,     67,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Disable when sideswim",                        NULL,   NULL                  },
 	
 	{ NULL,                     0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
 };
@@ -2369,6 +2370,7 @@ void edit_itemdata(int index)
 	itemdata_dlg[4+260].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS) ? D_SELECTED : 0;
 	itemdata_dlg[4+261].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP) ? D_SELECTED : 0;
 	
+	
 	//New itemdata vars
 	sprintf(wrange,"%d",itemsbuf[index].weaprange);
 	sprintf(wdur,"%d",itemsbuf[index].weapduration);
@@ -2430,6 +2432,7 @@ void edit_itemdata(int index)
 	itemdata_dlg[4+272].flags = (itemsbuf[index].flags&ITEM_FLAG14) ? D_SELECTED : 0;
 	itemdata_dlg[4+273].flags = (itemsbuf[index].flags&ITEM_FLAG15) ? D_SELECTED : 0;
 	itemdata_dlg[4+274].flags = (itemsbuf[index].flags&ITEM_FLAG16) ? D_SELECTED : 0;
+	itemdata_dlg[357].flags = (itemsbuf[index].flags&ITEM_SIDESWIM_DISABLED) ? D_SELECTED : 0;
 	itemdata_dlg[4+21].dp = ms1;
 	itemdata_dlg[4+23].dp = ms2;
 	itemdata_dlg[4+25].dp = ms3;
@@ -2710,7 +2713,7 @@ void edit_itemdata(int index)
 		test.pstring = vbound(atoi(i_pickupstring), 0, (msg_count-1));
 		if(itemdata_dlg[4+260].flags & D_SELECTED) test.pickup_string_flags |= itemdataPSTRING_ALWAYS;
 		if(itemdata_dlg[4+261].flags & D_SELECTED) test.pickup_string_flags |= itemdataPSTRING_IP_HOLDUP;
-		
+		if(itemdata_dlg[357].flags & D_SELECTED) test.flags |= ITEM_SIDESWIM_DISABLED;
 		//item Sizing
 		
 		//item size
