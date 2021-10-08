@@ -8630,7 +8630,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 			else if(tempitem.family == itype_book || tempitem.family == itype_candle)
 			{
-				//@VenRob: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
+				//@Emily: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
 				if ( (get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
 				else tempitem.flags &= ~ ITEM_FLAG3;
 			}

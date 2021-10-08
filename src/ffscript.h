@@ -785,7 +785,7 @@ long create_user_bitmap_ex(int w, int h, int depth);
 void do_isvalidbitmap();
 void do_isallocatedbitmap();
 
-//OGG Ex --Dimentio
+//OGG Ex --dimi
 void do_playogg_ex(const bool v);
 void do_set_oggex_position(const bool v);
 void go_get_oggex_position();
@@ -2944,10 +2944,6 @@ enum ASM_DEFINE
 	ITEMDEL,
 	
 	BMPWRITETILE,
-	BMPDITHER,
-	BMPREPLCOLOR,
-	BMPSHIFTCOLOR,
-	BMPMASKDRAW,
 	
 	NUMCOMMANDS           //0x01A4
 };

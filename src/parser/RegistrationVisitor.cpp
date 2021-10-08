@@ -1,7 +1,7 @@
 /**
  * Registration handler, to ensure that anything global can be referenced in any order
  * Begun: 26th June, 2019
- * Author: Venrob
+ * Author: Emily
  */
 
 #include "parserDefs.h"

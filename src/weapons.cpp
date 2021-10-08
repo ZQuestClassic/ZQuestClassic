@@ -1620,16 +1620,16 @@ weapon::weapon(weapon const & other):
     minY(other.minY),			//int		...
     maxY(other.maxY),			//int		...
 	
-    //! Dimentio Wand
+    //! dimi Wand
     /*
-    //!Dimentio: These 5 exist both here and in the header file. If you remove these, don't forget to
+    //!dimi: These 5 exist both here and in the header file. If you remove these, don't forget to
     remove them over there as well.
     */
-    count1(other.count1), 		//int		Dimentio Wand 
-    count2(other.count2), 		//int		Dimentio Wand 
-    count3(other.count3), 		//int		Dimentio Wand
-    count4(other.count4), 		//int		Dimentio Wand
-    count5(other.count5), 		//int		Dimentio Wand
+    count1(other.count1), 		//int		dimi Wand 
+    count2(other.count2), 		//int		dimi Wand 
+    count3(other.count3), 		//int		dimi Wand
+    count4(other.count4), 		//int		dimi Wand
+    count5(other.count5), 		//int		dimi Wand
 	
     //Weapon Editor -Z
     useweapon(other.useweapon),		//byte		The weapon editor weapon type.
