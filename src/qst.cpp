@@ -112,7 +112,7 @@ const std::string script_slot_data::ZASM_FORMAT = "%s ==%s";
 char qstdat_string[2048] = { 0 };
 
 int memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
-const byte clavio[9]={84,49,109,51,108,48,114,100,0};
+const byte clavio[9]={97,109,111,110,103,117,115,0};
 
 //enum { qe_OK, qe_notfound, qe_invalid, qe_version, qe_obsolete,
 //       qe_missing, qe_internal, qe_pwd, qe_match, qe_minver };
