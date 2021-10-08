@@ -15,14 +15,14 @@ public:
 	void fire(zfix xOffset = 0_x, zfix yOffset = 0_x) const;
 
 private:
-	enum class AttackType: char {
-		none, aquamentus, wizzrobe, fireWizzrobe
+	enum class attackType: char {
+		NONE, UNICORN, MAGE, FIRE_MAGE
 	};
 
 	enemy& owner;
-	AttackType attackType;
+	attackType type;
 	short wpn, damage;
-	int type;
+	int wpnSubtype;
 	Sound sfx;
 
 	void init(guydata& data);

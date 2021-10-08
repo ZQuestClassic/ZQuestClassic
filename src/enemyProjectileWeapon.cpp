@@ -37,7 +37,7 @@ static int defaultSound(int wpn)
 	return -1;
 }
 
-static int fireWizzrobeDefaultSound(int wpn)
+static int fireMageDefaultSound(int wpn)
 {
 	switch(wpn)
 	{
@@ -85,10 +85,10 @@ static int fireWizzrobeDefaultSound(int wpn)
 
 EnemyProjectileWeapon::EnemyProjectileWeapon(enemy& owner, guydata& data):
 	owner(owner),
-	attackType(AttackType::none),
+	type(attackType::NONE),
 	wpn(data.weapon),
 	damage(data.wdp),
-	type(0),
+	wpnSubtype(0),
 	sfx(0)
 {
 	init(data);
@@ -97,10 +97,10 @@ EnemyProjectileWeapon::EnemyProjectileWeapon(enemy& owner, guydata& data):
 EnemyProjectileWeapon::EnemyProjectileWeapon(enemy& owner,
 	const EnemyProjectileWeapon& other):
 		owner(owner),
-		attackType(other.attackType),
+		type(other.type),
 		wpn(other.wpn),
 		damage(other.damage),
-		type(other.type),
+		wpnSubtype(other.wpnSubtype),
 		sfx(other.sfx)
 {}
 
@@ -108,36 +108,36 @@ void EnemyProjectileWeapon::init(guydata& data)
 {
 	if(data.weapon == 0)
 	{
-		attackType = AttackType::none;
+		type = attackType::NONE;
 		return;
 	}
 
 	switch(data.family)
 	{
 	case eeAQUA:
-		attackType = AttackType::aquamentus;
-		type = 2;
+		type = attackType::UNICORN;
+		wpnSubtype = 2;
 		sfx = defaultSound(data.weapon);
 		break;
 
 	case eeWIZZ:
 		if(data.misc2 == 0)
 		{
-			attackType = AttackType::wizzrobe;
+			type = attackType::MAGE;
 			sfx = WAV_WAND;
 		}
 		else if(data.misc2 == 1)
 		{
-			attackType = AttackType::fireWizzrobe;
+			type = attackType::FIRE_MAGE;
 			if(FFCore.emulation[emu8WAYSHOTSFX])
 				sfx = WAV_FIRE;
 			else
-				sfx = fireWizzrobeDefaultSound(data.weapon);
+				sfx = fireMageDefaultSound(data.weapon);
 		}
 		break;
 
 	default:
-		attackType = AttackType::none;
+		type = attackType::NONE;
 		break;
 	}
 }
@@ -147,22 +147,22 @@ void EnemyProjectileWeapon::fire(zfix xOffset, zfix yOffset) const
 	zfix x = owner.x+xOffset;
 	zfix y = owner.y+yOffset;
 
-	switch(attackType)
+	switch(type)
 	{
-	case AttackType::aquamentus:
-		// Aquamentus shots drift in the specified direction.
+	case attackType::UNICORN:
+		// Unicorn shots drift in the specified direction.
 		fireDirectional(x, y, owner.z, up);
 		fireDirectional(x, y, owner.z, 8);
 		fireDirectional(x, y, owner.z, down);
 		sfx.play(x);
 		break;
 
-	case AttackType::wizzrobe:
+	case attackType::MAGE:
 		fireDirectional(x, y, owner.z, owner.dir);
 		sfx.play(x);
 		break;
 
-	case AttackType::fireWizzrobe:
+	case attackType::FIRE_MAGE:
 		fireDirectional(x, y, owner.z, up).moveflags &= ~FLAG_CAN_PITFALL;
 		fireDirectional(x, y, owner.z, down).moveflags &= ~FLAG_CAN_PITFALL;
 		fireDirectional(x, y, owner.z, left).moveflags &= ~FLAG_CAN_PITFALL;
@@ -174,7 +174,7 @@ void EnemyProjectileWeapon::fire(zfix xOffset, zfix yOffset) const
 		sfx.play(x);
 		break;
 
-	case AttackType::none:
+	case attackType::NONE:
 		break;
 	}
 }
@@ -183,7 +183,7 @@ weapon& EnemyProjectileWeapon::fireDirectional(zfix x, zfix y, zfix z,
 	int dir) const
 {
 	weapon* newWeapon = new weapon(
-	x, y, z, wpn, type, damage, dir, -1, owner.getUID(), false);
+	x, y, z, wpn, wpnSubtype, damage, dir, -1, owner.getUID(), false);
 	Ewpns.add(newWeapon);
 	return *newWeapon;
 }

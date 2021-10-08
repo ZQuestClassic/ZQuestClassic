@@ -14,10 +14,10 @@ public:
 	void summon() const;
 
 private:
-	enum class Type: bool { single, fromLayer };
+	enum class summonType: bool { SINGLE, FROM_LAYER };
 
 	enemy& owner;
-	Type type;
+	summonType type;
 	int enemyToSummon;
 	Sound sfx;
 

@@ -2,26 +2,26 @@
 #include "zdefs.h"
 #include <new>
 
-EnemyWeapon::Type getType(guydata& data)
+EnemyWeapon::attackType getType(guydata& data)
 {
 	// XXX Is this right? This is how it was in 2.55, but check 2.50.
 	// Did summoners not work with no weapon set?
 	if(data.weapon == 0)
-		return EnemyWeapon::Type::none;
+		return EnemyWeapon::attackType::NONE;
 
 	switch(data.family)
 	{
 	case eeAQUA:
-		return EnemyWeapon::Type::projectile;
+		return EnemyWeapon::attackType::PROJECTILE;
 
 	case eeWIZZ:
 		if(data.misc2 < 2)
-			return EnemyWeapon::Type::projectile;
+			return EnemyWeapon::attackType::PROJECTILE;
 		else
-			return EnemyWeapon::Type::summon;
+			return EnemyWeapon::attackType::SUMMON;
 	}
 
-	return EnemyWeapon::Type::none;
+	return EnemyWeapon::attackType::NONE;
 }
 
 EnemyWeapon::EnemyWeapon(enemy& owner, guydata& data):
@@ -34,23 +34,22 @@ EnemyWeapon::EnemyWeapon(enemy& owner, const EnemyWeapon& other):
 	wpn(other.type, owner, other.wpn)
 {}
 
-EnemyWeapon::WeaponUnion::WeaponUnion(EnemyWeapon::Type type, enemy& owner,
-	guydata& data):
-		dummy(0)
+EnemyWeapon::WeaponUnion::WeaponUnion(EnemyWeapon::attackType type, enemy& owner, guydata& data):
+	dummy(0)
 {
-	if(type == EnemyWeapon::Type::projectile)
+	if(type == EnemyWeapon::attackType::PROJECTILE)
 		new(&proj) EnemyProjectileWeapon(owner, data);
-	else if(type == EnemyWeapon::Type::summon)
+	else if(type == EnemyWeapon::attackType::SUMMON)
 		new(&summon) EnemySummonWeapon(owner, data);
 }
 
-EnemyWeapon::WeaponUnion::WeaponUnion(EnemyWeapon::Type type, enemy& owner,
+EnemyWeapon::WeaponUnion::WeaponUnion(EnemyWeapon::attackType type, enemy& owner,
 	const EnemyWeapon::WeaponUnion& other):
 		dummy(0)
 {
-	if(type == EnemyWeapon::Type::projectile)
+	if(type == EnemyWeapon::attackType::PROJECTILE)
 		new(&proj) EnemyProjectileWeapon(owner, other.proj);
-	else if(type == EnemyWeapon::Type::summon)
+	else if(type == EnemyWeapon::attackType::SUMMON)
 		new(&summon) EnemySummonWeapon(owner, other.summon);
 }
 
@@ -58,11 +57,11 @@ void EnemyWeapon::fire(zfix xOffset, zfix yOffset) const
 {
 	switch(type)
 	{
-	case Type::projectile:
+	case attackType::PROJECTILE:
 		wpn.proj.fire(xOffset, yOffset);
 		break;
 
-	case Type::summon:
+	case attackType::SUMMON:
 		wpn.summon.summon();
 		break;
 

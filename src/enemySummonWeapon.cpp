@@ -1,27 +1,23 @@
 #include "enemySummonWeapon.h"
 #include "guys.h"
-#include "link.h" // for guys
+#include "link.h" // declares guys and Link
 #include "maps.h"
 #include "sfx.h"
 
-// Not declared in any header, apparently
-extern LinkClass Link;
-
 EnemySummonWeapon::EnemySummonWeapon(enemy& owner, guydata& data):
 	owner(owner),
-	type(EnemySummonWeapon::Type::fromLayer),
+	type(EnemySummonWeapon::summonType::FROM_LAYER),
 	enemyToSummon(0),
 	sfx(WAV_FIRE)
 {
 	init(data);
 }
 
-EnemySummonWeapon::EnemySummonWeapon(enemy& owner,
-	const EnemySummonWeapon& other):
-		owner(owner),
-		type(other.type),
-		enemyToSummon(other.enemyToSummon),
-		sfx(other.sfx)
+EnemySummonWeapon::EnemySummonWeapon(enemy& owner, const EnemySummonWeapon& other):
+	owner(owner),
+	type(other.type),
+	enemyToSummon(other.enemyToSummon),
+	sfx(other.sfx)
 {}
 
 void EnemySummonWeapon::init(guydata& data)
@@ -31,11 +27,11 @@ void EnemySummonWeapon::init(guydata& data)
 	case eeWIZZ:
 		if(data.misc2 == 2)
 		{
-			type=Type::single;
+			type=summonType::SINGLE;
 			enemyToSummon = data.misc3;
 		}
 		else
-			type=Type::fromLayer;
+			type=summonType::FROM_LAYER;
 	}
 
 	// XXX It looks like batrobes always used WAV_FIRE before.
@@ -47,7 +43,7 @@ void EnemySummonWeapon::summon() const
 {
 	switch(type)
 	{
-	case Type::single:
+	case summonType::SINGLE:
 	{
 		int existing = 0;
 
@@ -67,7 +63,7 @@ void EnemySummonWeapon::summon() const
 		sfx.play(owner.x);
 		break;
 	}
-	case Type::fromLayer:
+	case summonType::FROM_LAYER:
 	{
 		if(count_layer_enemies() == 0)
 			break;

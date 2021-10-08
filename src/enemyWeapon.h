@@ -15,24 +15,23 @@ public:
 	void fire(zfix xOffset = 0_x, zfix yOffset = 0_x) const;
 
 private:
-	enum class Type: char
+	enum class attackType: char
 	{
-		none, projectile, summon
+		NONE, PROJECTILE, SUMMON
 	};
 
-	Type type;
+	attackType type;
 	union WeaponUnion
 	{
 		EnemyProjectileWeapon proj;
 		EnemySummonWeapon summon;
 		int dummy;
 
-		WeaponUnion(EnemyWeapon::Type type, enemy& owner, guydata& data);
-		WeaponUnion(EnemyWeapon::Type type, enemy& owner,
-			const WeaponUnion& other);
+		WeaponUnion(EnemyWeapon::attackType type, enemy& owner, guydata& data);
+		WeaponUnion(EnemyWeapon::attackType type, enemy& owner, const WeaponUnion& other);
 	} wpn;
 
-	friend Type getType(guydata&);
+	friend attackType getType(guydata&);
 };
 
 #endif
