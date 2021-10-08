@@ -22177,6 +22177,25 @@ void do_drawing_command(const int script_command)
 			script_drawing_commands[j][17] = SH::read_stack(ri->sp+6);
 			break;			
 		}
+		case BMPDITHER:
+		{
+			set_user_bitmap_command_args(j, 5);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5);
+			break;			
+		}
+		case BMPMASKDRAW:
+		{
+			set_user_bitmap_command_args(j, 3);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
+			break;			
+		}
+		case BMPREPLCOLOR:
+		case BMPSHIFTCOLOR:
+		{
+			set_user_bitmap_command_args(j, 4);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+4);
+			break;			
+		}
 	}
 }
 
@@ -25652,6 +25671,10 @@ int run_script(const byte type, const word script, const long i)
 			case BITMAPCLEARTOCOLOR:
 			case BMPFRAMER:
 			case BMPWRITETILE:
+			case BMPDITHER:
+			case BMPREPLCOLOR:
+			case BMPSHIFTCOLOR:
+			case BMPMASKDRAW:
 				do_drawing_command(scommand);
 				break;
 			case READBITMAP:
@@ -33620,6 +33643,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "EWPNDEL",           0,   0,   0,   0},
 	{ "ITEMDEL",           0,   0,   0,   0},
 	{ "BMPWRITETILE",           0,   0,   0,   0},
+	{ "BMPDITHER",           0,   0,   0,   0},
+	{ "BMPREPLCOLOR",           0,   0,   0,   0},
+	{ "BMPSHIFTCOLOR",           0,   0,   0,   0},
+	{ "BMPMASKDRAW",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

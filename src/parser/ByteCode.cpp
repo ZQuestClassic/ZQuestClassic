@@ -4967,6 +4967,22 @@ string OBitmapWriteTile::toString()
 {
     return "BMPWRITETILE";
 }
+string OBitmapDither::toString()
+{
+    return "BMPDITHER";
+}
+string OBitmapReplColor::toString()
+{
+    return "BMPREPLCOLOR";
+}
+string OBitmapShiftColor::toString()
+{
+    return "BMPSHIFTCOLOR";
+}
+string OBitmapMaskDraw::toString()
+{
+    return "BMPMASKDRAW";
+}
 
 string OIsValidBitmap::toString()
 {
