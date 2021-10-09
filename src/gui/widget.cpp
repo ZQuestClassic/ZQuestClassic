@@ -128,6 +128,7 @@ void Widget::applyVisibility(bool visible)
 {
 	if(frameDialog) frameDialog.applyVisibility(visible);
 	if(frameTextDialog) frameTextDialog.applyVisibility(visible);
+	pendDraw();
 }
 
 void Widget::setVisible(bool visible)
@@ -268,10 +269,7 @@ void Widget::setFrameText(std::string const& newstr)
 	if(frameTextDialog)
 	{
 		frameTextDialog->dp = frameText.data();
-		if(allowDraw() && getVisible())
-		{
-			broadcast_dialog_message(MSG_DRAW, 0);
-		}
+		pendDraw();
 	}
 }
 
@@ -281,10 +279,7 @@ void Widget::applyFont(FONT* newfont)
 	if(frameTextDialog)
 	{
 		frameTextDialog->dp2 = widgFont;
-	}
-	if(allowDraw() && getVisible())
-	{
-		broadcast_dialog_message(MSG_DRAW, 0);
+		pendDraw();
 	}
 }
 
@@ -301,6 +296,11 @@ int Widget::getFlags() const noexcept
 bool Widget::allowDraw()
 {
 	return owner && owner->allowDraw();
+}
+
+void Widget::pendDraw()
+{
+	if(owner) owner->pendDraw();
 }
 
 bool Widget::isConstructed()

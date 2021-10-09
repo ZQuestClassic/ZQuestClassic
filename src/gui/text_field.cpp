@@ -32,10 +32,7 @@ void TextField::setText(std::string_view newText)
 	newText.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength, newText.size())] = '\0';
 	valSet = true;
-	if(alDialog && allowDraw() && getVisible())
-	{
-		alDialog.message(MSG_DRAW, 0);
-	}
+	pendDraw();
 }
 
 void TextField::setVal(int val)
@@ -94,10 +91,7 @@ void TextField::setVal(int val)
 	v.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength, v.size())] = '\0';
 	valSet = true;
-	if(alDialog && allowDraw() && getVisible())
-	{
-		alDialog.message(MSG_DRAW, 0);
-	}
+	pendDraw();
 }
 
 std::string_view TextField::getText()

@@ -47,7 +47,6 @@ void DialogRef::applyVisibility(bool visible, int offs)
 	if(visible)
 	{
 		owner->alDialog[index+offs].flags &= ~D_HIDDEN;
-		if(owner->allowDraw()) message(MSG_DRAW, 0);
 	}
 	else
 	{

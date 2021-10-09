@@ -28,7 +28,7 @@ void SelTileSwatch::setTile(int value)
 	if(alDialog)
 	{
 		alDialog->d1 = value;
-		if(allowDraw()) broadcast_dialog_message(MSG_DRAW, 0);
+		pendDraw();
 	}
 }
 
@@ -38,7 +38,7 @@ void SelTileSwatch::setCSet(int value)
 	if(alDialog)
 	{
 		alDialog->d2 = value;
-		if(allowDraw()) broadcast_dialog_message(MSG_DRAW, 0);
+		pendDraw();
 	}
 }
 
@@ -63,7 +63,7 @@ void SelTileSwatch::applyFont(FONT* newFont)
 	if(alDialog)
 	{
 		alDialog->dp2 = newFont;
-		if(allowDraw()) broadcast_dialog_message(MSG_DRAW, 0);
+		pendDraw();
 	}
 	Widget::applyFont(newFont);
 }

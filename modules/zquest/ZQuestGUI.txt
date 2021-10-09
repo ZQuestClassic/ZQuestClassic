@@ -45,6 +45,7 @@ src/gui/checkbox_qr.cpp
 src/gui/radio.cpp
 src/gui/radioset.cpp
 src/gui/colorsel.cpp
+src/gui/seltile_swatch.cpp
 
 src/dialog/set_password.cpp
 src/dialog/cheat_codes.cpp
@@ -58,7 +59,7 @@ src/dialog/pickruleset.cpp
 src/dialog/headerdlg.cpp
 src/dialog/alert.cpp
 src/dialog/init_data.cpp
-src/gui/seltile_swatch.cpp
+src/dialog/itemeditor.cpp
 
 ## End of ZQuest GUI module
 )

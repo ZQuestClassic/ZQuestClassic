@@ -21,7 +21,11 @@ void Checkbox::setText(std::string newText)
 {
 	int textWidth = text_length(widgFont, newText.c_str());
 	setPreferredWidth(Size::pixels(textWidth)+13_lpx);
-	text = std::move(newText);
+	text = newText;
+	if(alDialog)
+	{
+		alDialog->dp = text.data();
+	}
 }
 
 void Checkbox::setChecked(bool value)

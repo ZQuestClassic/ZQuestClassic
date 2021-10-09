@@ -2432,6 +2432,11 @@ int lcm(int a, int b)
     return a*b/gcd(a,b);
 }
 
+size_t count_digits(int n)
+{
+    return std::to_string(n).size();
+}
+
 //Fun fact: Allegro used to be in control of allegro.log. This caused
 //problems, because it would hold on to a file handle. Even if we blank
 //the contents of the log, it will still write to the end, causing

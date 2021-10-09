@@ -301,6 +301,8 @@ protected:
 	
 	/* Returns true if the dialog is running, and thus draws to the screen are permitted */
 	bool allowDraw();
+	/* Note that the widget has done something requiring redraw */
+	void pendDraw();
 	/* Returns true if the entire dialog has been realized */
 	bool isConstructed();
 	

@@ -24,7 +24,10 @@ void Window::setTitle(std::string newTitle)
 {
 	title = std::move(newTitle);
 	if(alDialog)
+	{
 		alDialog->dp = title.data();
+		pendDraw();
+	}
 }
 
 void Window::setContent(shared_ptr<Widget> newContent) noexcept
