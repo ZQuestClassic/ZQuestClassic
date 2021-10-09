@@ -62,7 +62,7 @@ static const GUI::ListData comboRulesList
 	{ "Slash Combos Work on Layers 1 and 2", qr_BUSHESONLAYERS1AND2 },
 	{ "New Combo Animation", qr_NEW_COMBO_ANIMATION },
 	{ "New Water Collision", qr_SMARTER_WATER },
-	{ "No Water Hopping", qr_NO_HOPPING },
+	{ "Disable LA_HOPPING", qr_NO_HOPPING },
 	{ "Can't Swim in Solid Water", qr_NO_SOLID_SWIM },
 	{ "Water works on Layer 1", qr_WATER_ON_LAYER_1 },
 	{ "Water works on Layer 2", qr_WATER_ON_LAYER_2 },
