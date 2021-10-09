@@ -24,6 +24,7 @@
 #include "window.h"
 #include "widget.h"
 #include "seltile_swatch.h"
+#include "tileanim_frame.h"
 #include <initializer_list>
 #include <memory>
 #include <string>
@@ -174,6 +175,11 @@ inline std::shared_ptr<DummyWidget> makeDummyWidget()
 inline std::shared_ptr<SelTileSwatch> makeSelTileSwatch()
 {
 	return std::make_shared<SelTileSwatch>();
+}
+
+inline std::shared_ptr<TileFrame> makeTileFrame()
+{
+	return std::make_shared<TileFrame>();
 }
 
 // Top-level widgets
@@ -344,6 +350,7 @@ ZCGUI_BUILDER_START(Window)
 	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
 	ZCGUI_ACCEPT_PROP(onClose, onClose, Dialog::message)
 	ZCGUI_ACCEPT_PROP(onEnter, onEnter, Dialog::message)
+	ZCGUI_ACCEPT_PROP(use_vsync, setVSync, bool)
 	ZCGUI_ACCEPT_PROP(shortcuts, addShortcuts,
 		std::initializer_list<KeyboardShortcut>)
 	ZCGUI_ACCEPT_ONE_CHILD(setContent)
@@ -363,6 +370,15 @@ ZCGUI_BUILDER_START(SelTileSwatch)
 	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int,int)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(SelTileSwatch, SelTileSwatch, makeSelTileSwatch)
+
+ZCGUI_BUILDER_START(TileFrame)
+	ZCGUI_ACCEPT_PROP(tile, setTile, int)
+	ZCGUI_ACCEPT_PROP(cset, setCSet, int)
+	ZCGUI_ACCEPT_PROP(speed, setSpeed, int)
+	ZCGUI_ACCEPT_PROP(frames, setFrames, int)
+	ZCGUI_ACCEPT_PROP(delay, setDelay, int)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(TileFrame, TileFrame, makeTileFrame)
 
 } // namespace GUI::builder
 

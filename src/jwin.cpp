@@ -7500,6 +7500,27 @@ void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color)
 	line(dest, x1, y2, x2, y1, color);
 }
 
+int d_vsync_proc(int msg,DIALOG *,int c)
+{
+    static clock_t tics;
+    
+    switch(msg)
+    {
+		case MSG_START:
+			tics=clock()+(CLOCKS_PER_SEC/60);
+			break;
+			
+		case MSG_IDLE:
+			if(clock()>tics)
+			{
+				tics=clock()+(CLOCKS_PER_SEC/60);
+				broadcast_dialog_message(MSG_VSYNC, c);
+			}
+			break;
+    }
+    
+    return D_O_K;
+}
 
 /***  The End  ***/
 

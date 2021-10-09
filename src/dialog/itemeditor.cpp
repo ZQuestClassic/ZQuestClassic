@@ -205,6 +205,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 	char titlebuf[256];
 	sprintf(titlebuf, "Item Editor (%d): %s", index, itemname.c_str());
 	window = Window(
+		use_vsync = true,
 		title = titlebuf,
 		onEnter = message::OK,
 		onClose = message::CANCEL,
@@ -692,6 +693,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
 								{
 									local_itemref.frames = val;
+									animFrame->setFrames(val);
 								}
 							),
 							Label(text = "Animation Speed:", hAlign = 1.0),
@@ -702,6 +704,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
 								{
 									local_itemref.speed = val;
+									animFrame->setSpeed(val);
 								}
 							),
 							Label(text = "Initial Delay:", hAlign = 1.0),
@@ -712,6 +715,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
 								{
 									local_itemref.delay = val;
+									animFrame->setDelay(val);
 								}
 							),
 							Label(text = "Player Tile Modifier:", hAlign = 1.0),
@@ -734,6 +738,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									local_itemref.tile = t;
 									local_itemref.csets &= 0xF0;
 									local_itemref.csets |= c&0x0F;
+									animFrame->setTile(t);
+									animFrame->setCSet(c);
 								}
 							),
 							Checkbox(
@@ -754,7 +760,14 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									SETFLAG(local_itemref.misc,2,state);
 								}
 							),
-							DummyWidget() //!TODO Animated Preview
+							animFrame = TileFrame(
+								hAlign = 0.0,
+								tile = local_itemref.tile,
+								cset = (local_itemref.csets & 0xF),
+								frames = local_itemref.frames,
+								speed = local_itemref.speed,
+								delay = local_itemref.delay
+							)
 						)
 					)),
 					TabRef(name = "Sprites", Columns<5>(

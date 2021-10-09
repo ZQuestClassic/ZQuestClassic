@@ -17,7 +17,7 @@ namespace GUI
 SelTileSwatch::SelTileSwatch(): tile(0), cset(0),
 	alDialog(), message(-1)
 {
-	Size s = sized(16_px,36_px);
+	Size s = sized(16_px,32_px)+4_px;
 	setPreferredWidth(s);
 	setPreferredHeight(s);
 }
@@ -84,7 +84,7 @@ void SelTileSwatch::realize(DialogRunner& runner)
 
 void SelTileSwatch::calculateSize()
 {
-	Size s = sized(16_px,36_px);
+	Size s = sized(16_px,32_px)+4_px;
 	setPreferredWidth(s + text_length(widgFont, "Tile: 999999"));
 	setPreferredHeight(s);
 }

@@ -19240,32 +19240,6 @@ int d_warpdestsel_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_vsync_proc(int msg,DIALOG *d,int c)
-{
-    //these are here to bypass compiler warnings about unused arguments
-    d=d;
-    
-    static clock_t tics;
-    
-    switch(msg)
-    {
-    case MSG_START:
-        tics=clock()+(CLOCKS_PER_SEC/60);
-        break;
-        
-    case MSG_IDLE:
-        if(clock()>tics)
-        {
-            tics=clock()+(CLOCKS_PER_SEC/60);
-            broadcast_dialog_message(MSG_VSYNC, c);
-        }
-        
-        break;
-    }
-    
-    return D_O_K;
-}
-
 #if 0
 static DIALOG warpdestsel_dlg[] =
 {

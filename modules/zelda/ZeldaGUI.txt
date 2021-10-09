@@ -47,6 +47,7 @@ src/gui/scrolling_pane.cpp
 src/gui/frame.cpp
 src/gui/list.cpp
 src/gui/seltile_swatch.cpp
+src/gui/tileanim_frame.cpp
 
 src/dialog/init_data.cpp
 src/dialog/info.cpp

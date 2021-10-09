@@ -116,6 +116,8 @@ extern "C"
  */
 #define MSG_WANTWHEEL (MSG_USER+3)
 
+#define MSG_VSYNC (MSG_USER+4)
+
 /* frame styles */
 enum {
     FR_WIN, FR_BOX, FR_INV, FR_DEEP, FR_DARK, FR_ETCHED, FR_MEDDARK
@@ -282,6 +284,7 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int c);
 //Misc bitmap drawing
 void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color);
 
+int d_vsync_proc(int msg,DIALOG *,int c);
 
 #ifdef __cplusplus
 }

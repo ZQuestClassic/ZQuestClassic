@@ -19,7 +19,13 @@ public:
 
 	/* Sets the widget that will appear in the window. */
 	void setContent(std::shared_ptr<Widget> newContent) noexcept;
-
+	
+	/* Sets if the dialog needs a d_vsync_proc or not */
+	void setVSync(bool useVSync)
+	{
+		use_vsync = useVSync;
+	}
+	
 	template<typename T>
 	RequireMessage<T> onClose(T m)
 	{
@@ -31,6 +37,7 @@ private:
 	std::string title;
 	DialogRef alDialog;
 	int closeMessage;
+	bool use_vsync;
 
 	void applyVisibility(bool visible) override;
 	void calculateSize() override;

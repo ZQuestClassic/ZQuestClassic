@@ -7,6 +7,7 @@
 #include <gui/text_field.h>
 #include <gui/window.h>
 #include <gui/list_data.h>
+#include <gui/tileanim_frame.h>
 #include <functional>
 #include <string_view>
 #include <map>
@@ -77,6 +78,7 @@ private:
 	std::shared_ptr<GUI::Checkbox> l_flags[16];
 	std::shared_ptr<GUI::Label> l_power;
 	std::shared_ptr<GUI::Label> l_sfx;
+	std::shared_ptr<GUI::TileFrame> animFrame;
 	std::string itemname;
 	int index;
 	itemdata local_itemref;
