@@ -76,10 +76,11 @@ private:
 	std::shared_ptr<GUI::Label> l_attribs[10];
 	std::shared_ptr<GUI::Checkbox> l_flags[16];
 	std::shared_ptr<GUI::Label> l_power;
+	std::shared_ptr<GUI::Label> l_sfx;
 	std::string itemname;
 	int index;
 	itemdata local_itemref;
-	GUI::ListData list_items;
+	GUI::ListData list_items, list_counters;
 };
 
 #endif

@@ -84,4 +84,16 @@ ListData ListData::itemclass(bool numbered)
 	return ls;
 }
 
+ListData ListData::counters()
+{
+	ListData ls;
+	
+	for(int q = -1; q < MAX_COUNTERS; ++q)
+	{
+		ls.add(moduledata.counter_names[q+1], q);
+	}
+	
+	return ls;
+}
+
 }

@@ -3798,6 +3798,7 @@ enum glow_shape
 	glshapeCIRC, glshapeCONE,
 	glshapeMAX
 };
+#define MAX_COUNTERS 32
 struct gamedata
 {
     //private:
@@ -3815,9 +3816,9 @@ struct gamedata
     bool  item[MAXITEMS];
     byte  items_off[MAXITEMS];
     //280
-    word _maxcounter[32];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
-    word _counter[32];
-    short _dcounter[32];
+    word _maxcounter[MAX_COUNTERS];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
+    word _counter[MAX_COUNTERS];
+    short _dcounter[MAX_COUNTERS];
     
     char  version[9];
     char  title[65];

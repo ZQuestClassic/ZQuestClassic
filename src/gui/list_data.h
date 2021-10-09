@@ -113,7 +113,8 @@ public:
 		}
 	}
 	//Static constructors for specific lists
-	static ListData itemclass(bool numbered);
+	static ListData itemclass(bool numbered = false);
+	static ListData counters();
 	
 private:
 	std::vector<ListItem> listItems;

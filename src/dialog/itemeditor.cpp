@@ -129,12 +129,15 @@ std::map<int, ItemNameInfo *> *getItemNameMap()
 
 ItemEditorDialog::ItemEditorDialog(int index):
 	local_itemref(itemsbuf[index]), itemname(item_string[index]), index(index),
-	list_items(GUI::ListData::itemclass(true))
+	list_items(GUI::ListData::itemclass(true)),
+	list_counters(GUI::ListData::counters())
 {}
 //{
 
 #define ATTR_WID 6_em
 #define ATTR_LAB_WID 12_em
+#define ACTION_LAB_WID 6_em
+#define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 18_em
 
 #define NUM_FIELD(member,_min,_max,wid) \
@@ -182,24 +185,37 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
-			Rows<2>(
-				Label(text = "Name:"),
-				TextField(
-					//width = 8_em,
-					maxLength = 63,
-					text = itemname,
-					onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int)
-					{
-						itemname = str;
-						char buf[256];
-						sprintf(buf, "Item Editor (%d): %s", index, itemname.c_str());
-						window->setTitle(buf);
-					}
+			Row(
+				Rows<2>(padding = 0_px,
+					Label(text = "Name:"),
+					TextField(
+						//width = 8_em,
+						maxLength = 63,
+						text = itemname,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int)
+						{
+							itemname = str;
+							char buf[256];
+							sprintf(buf, "Item Editor (%d): %s", index, itemname.c_str());
+							window->setTitle(buf);
+						}
+					),
+					Label(text = "Type:"),
+					DropDownList(data = list_items,
+						selectedValue = local_itemref.family,
+						onSelectionChanged = message::ITEMCLASS
+					)
 				),
-				Label(text = "Type:"),
-				DropDownList(data = list_items,
-					selectedValue = local_itemref.family,
-					onSelectionChanged = message::ITEMCLASS
+				Column(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
+					Checkbox(
+						hAlign = 0.0,
+						checked = (local_itemref.flags & ITEM_GAMEDATA),
+						text = "Equipment Item",
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_itemref.flags,ITEM_GAMEDATA,state);
+						}
+					)
 				)
 			),
 			TabPanel(
@@ -264,7 +280,71 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							FLAG_CHECK(15,ITEM_FLAG16)
 						)
 					)),
-					TabRef(name = "Action", DummyWidget()),
+					TabRef(name = "Action", Columns<4>(
+						Row(
+							Label(text = "Cost:", textAlign = 2, width = ACTION_LAB_WID),
+							TextField(maxLength = 3,
+								val = local_itemref.magic,
+								type = GUI::TextField::type::INT_DECIMAL,
+								width = ACTION_FIELD_WID, high = 255,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+								{
+									local_itemref.magic = val;
+								}
+							)
+						),
+						DropDownList(
+							maxwidth = ACTION_FIELD_WID+ACTION_LAB_WID+4_spx,
+							data = list_counters,
+							selectedValue = local_itemref.cost_counter,
+							onSelectFunc = [&](int val)
+							{
+								local_itemref.cost_counter = val;
+							}
+						),
+						Row(
+							Label(text = "Timer:", textAlign = 2, width = ACTION_LAB_WID),
+							TextField(maxLength = 3,
+								val = local_itemref.magiccosttimer,
+								type = GUI::TextField::type::INT_DECIMAL,
+								width = ACTION_FIELD_WID, high = 255,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+								{
+									local_itemref.magiccosttimer = val;
+								}
+							)
+						),
+						Row(
+							l_sfx = Label(textAlign = 2, width = ACTION_LAB_WID),
+							TextField(maxLength = 3,
+								val = local_itemref.usesound,
+								type = GUI::TextField::type::INT_DECIMAL,
+								width = ACTION_FIELD_WID, high = 255,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+								{
+									local_itemref.usesound = val;
+								}
+							)
+						),
+						Checkbox(
+							hAlign = 0.0,
+							checked = (local_itemref.flags & ITEM_DOWNGRADE),
+							text = "Remove Item When Used",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_itemref.flags,ITEM_DOWNGRADE,state);
+							}
+						),
+						Checkbox(
+							hAlign = 0.0,
+							checked = (local_itemref.flags & ITEM_VALIDATEONLY),
+							text = "Only Validate Cost",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY,state);
+							}
+						)
+					)),
 					TabRef(name = "Pickup", DummyWidget()),
 					TabRef(name = "P. Flags", DummyWidget())
 				)),
@@ -337,6 +417,8 @@ void ItemEditorDialog::loadItemClass()
 	__SET(l_flags[13], flag14);
 	__SET(l_flags[14], flag15);
 	__SET(l_flags[15], flag16);
+	
+	__SET(l_sfx, actionsnd);
 }
 
 bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
