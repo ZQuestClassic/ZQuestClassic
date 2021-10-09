@@ -18457,12 +18457,41 @@ void movefairy2(zfix x,zfix y,int misc)
 		guys.spr(i)->x = x;
 		guys.spr(i)->y = y;
 	}
+}// Move item with guy
+
+void movefairynew(zfix &x,zfix &y, item const &itemfairy)
+{
+	enemy *fairy = (enemy *) guys.getByUID(itemfairy.fairyUID);
+	
+	if(fairy)
+	{
+		x = fairy->x;
+		y = fairy->y;
+	}
+}
+
+// Move guy with item (used by FFC scripts and hookshot-dragged fairies)
+void movefairynew2(zfix x,zfix y, item const &itemfairy)
+{
+	enemy *fairy = (enemy *) guys.getByUID(itemfairy.fairyUID);
+	
+	if(fairy)
+	{
+		fairy->x = x;
+		fairy->y = y;
+	}
 }
 
 void killfairy(int misc)
 {
 	int i = guys.idFirst(eITEMFAIRY+0x1000*misc);
 	guys.del(i);
+}
+
+void killfairynew(item const &itemfairy)
+{
+	enemy *fairy = (enemy *) guys.getByUID(itemfairy.fairyUID);
+	guys.del(fairy->id);
 }
 
 int addenemy(int x,int y,int id,int clk)
@@ -21938,7 +21967,7 @@ void dragging_item()
 				
 				if(itemsbuf[id].family ==itype_fairy && itemsbuf[id].misc3)
 				{
-					movefairy2(w->x,w->y,items.spr(w->dragging)->misc);
+					movefairynew2(w->x,w->y,*((item*)items.spr(w->dragging)));
 				}
 			}
 		}

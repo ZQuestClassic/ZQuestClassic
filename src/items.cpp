@@ -41,8 +41,8 @@ int fairy_cnt=0;
 
 item::~item()
 {
-	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0)
-		killfairy(misc);
+	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && !get_bit(quest_rules,qr_FIXED_FAIRY_LIMIT))
+		killfairynew(*this);
 	FFCore.deallocateAllArrays(SCRIPT_ITEMSPRITE, getUID());
 }
 
@@ -254,7 +254,7 @@ bool item::animate(int)
 	
 	if(itemsbuf[id].family ==itype_fairy && itemsbuf[id].misc3)
 	{
-		movefairy(x,y,misc);
+		movefairynew(x,y,*this);
 	}
 	
 	if(fadeclk==0 && !subscreenItem)
@@ -385,7 +385,7 @@ item::item(zfix X,zfix Y,zfix Z,int i,int p,int c, bool isDummy) : sprite()
 	{
 		misc = ++fairy_cnt;
 		
-		if(addfairy(x, y, itemsbuf[id].misc3, misc))
+		if(addfairynew(x, y, itemsbuf[id].misc3, *this))
 			sfx(itemsbuf[id].usesound);
 	}
 	

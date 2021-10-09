@@ -11263,7 +11263,7 @@ void LinkClass::movelink()
 		
 		if(!(diagonalMovement || NO_GRIDLOCK))
 		{
-			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 			{
 				if(dir==up&&yoff)
 				{
@@ -11649,7 +11649,7 @@ void LinkClass::movelink()
 			break;
 		} //end switch
 		
-		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT)) //!DIRECTION SET
+		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim()) //!DIRECTION SET
 		{
 			walkable = false;
 			if(DrunkUp()&&(holddir==-1||holddir==up))
@@ -13251,7 +13251,7 @@ void LinkClass::movelink()
 	
 	if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
 	{
-		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 			goto LEFTRIGHT_OLDMOVE;
 		else goto LEFTRIGHT_NEWMOVE;
 	}
@@ -13261,7 +13261,7 @@ void LinkClass::movelink()
 	//ignore ladder for this part. sigh sigh sigh -DD
 	oldladderx = ladderx;
 	oldladdery = laddery;
-	if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+	if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 	{
 		if(isdungeon() && DrunkLeft() && (temp_x==32 && temp_y==80))
 		{
@@ -14275,7 +14275,7 @@ void LinkClass::move(int d2, int forceRate)
     if( inlikelike || link_is_stunned > 0 )
         return;
 	
-	if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+	if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) && !IsSideSwim())
 	{
 		moveOld(d2);
 		return;
@@ -19033,7 +19033,7 @@ void kill_enemy_sfx()
         if(((enemy*)guys.spr(i))->bgsfx)
             stop_sfx(((enemy*)guys.spr(i))->bgsfx);
     }
-    
+    if (Link.action!=inwind) stop_sfx(WAV_ZN1WHIRLWIND);
     if(tmpscr->room==rGANON)
         stop_sfx(WAV_ROAR);
 }
@@ -20305,7 +20305,7 @@ void LinkClass::stepforward(int steps, bool adjust)
     {
 		if(diagonalMovement)
         {
-			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 			{
 				tstep = 1.5;
 			}
@@ -20359,7 +20359,7 @@ void LinkClass::stepforward(int steps, bool adjust)
         {
             if((dir<left?x.getInt()&7:y.getInt()&7)&&adjust==true)
             {
-				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 				{
 					walkable = false;
 					shiftdir = -1;
@@ -20389,7 +20389,7 @@ void LinkClass::stepforward(int steps, bool adjust)
             }
             else
             {
-				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 				{
 					s-=1.5;
 				}
@@ -20427,7 +20427,7 @@ void LinkClass::stepforward(int steps, bool adjust)
             }
             else
 			{
-				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 				{
 					s-=1.5;
 				}

@@ -19,14 +19,17 @@
 #include "zdefs.h"
 #include "zfix.h"
 
-
+class item;
 extern char *item_string[ITEMCNT];
 
 extern int fairy_cnt;
 void movefairy(zfix &x,zfix &y,int misc);
+void movefairynew(zfix &x,zfix &y,item const &itemfairy);
 void killfairy(int misc);
+void killfairynew(item const &itemfairy);
 int addenemy(int x,int y,int id,int clk);
 bool addfairy(zfix x, zfix y, int misc3, int id);
+bool addfairynew(zfix x, zfix y, int misc3, item &itemfairy);
 bool can_drop(zfix x, zfix y);
 void item_fall(zfix& x, zfix& y, zfix& fall);
 int item_pits(zfix& x, zfix& y, int& fallclk);
@@ -41,6 +44,7 @@ public:
     char PriceIndex;
     bool flash,twohand,anim, subscreenItem;
     int o_tile,o_cset, o_speed, o_delay, frames;
+    long fairyUID;
     word pstring; //pickup string
     word pickup_string_flags;
     //int script_UID;

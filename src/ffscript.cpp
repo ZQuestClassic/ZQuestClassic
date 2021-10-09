@@ -12337,7 +12337,7 @@ void set_register(const long arg, const long value)
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
-					movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
+					movefairynew2(((item*)(s))->x,((item*)(s))->y,*((item*)(s)));
 			}
 			
 			break;
@@ -12371,7 +12371,7 @@ void set_register(const long arg, const long value)
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
-					movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
+					movefairynew2(((item*)(s))->x,((item*)(s))->y,*((item*)(s)));
 			}
 			
 			break;
@@ -29444,19 +29444,15 @@ void FFScript::setFFRules()
 	FF_jump_link_layer_threshold = zinit.jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 	FF_link_swim_speed = zinit.link_swim_speed;
 	FFCore.zasm_break_mode = ZASM_BREAK_NONE;
-	for ( int q = 0; q < MAXITEMS; q++ )
-	{
-		item_messages_played[q] = 0;
-	}
 }
 
 void FFScript::SetItemMessagePlayed(int itm)
 {
-	item_messages_played[itm] = 1;
+	game->item_messages_played[itm] = 1;
 }
 bool FFScript::GetItemMessagePlayed(int itm)
 {
-	return (( item_messages_played[itm] ) ? true : false);
+	return ((game->item_messages_played[itm] ) ? true : false);
 }
 
 void FFScript::setRule(int rule, bool s)

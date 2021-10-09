@@ -51,6 +51,18 @@ bool addfairy(zfix x, zfix y, int misc3, int id)
     return true;
 }
 
+bool addfairynew(zfix x, zfix y, int misc3, item &itemfairy)
+{
+    addenemy(x,y,eITEMFAIRY,0);
+    enemy *ptr = ((enemy*)guys.spr(guys.Count()-1));
+    ptr->dstep=misc3;
+    ptr->step=(misc3/100.0);
+    itemfairy.fairyUID = ptr->getUID();
+    if (get_bit(quest_rules, qr_FAIRYDIR)) ptr->dir = zc_rand(7);
+    movefairynew(x,y,itemfairy);
+    return true;
+}
+
 bool can_drop(zfix x, zfix y)
 {
     return !(_walkflag(x,y+16,0) ||
@@ -162,7 +174,7 @@ int select_dropitem(int item_set, int x, int y)
 {
 	int drop_item = select_dropitem(item_set);
 	
-    if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy)
+    if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy && !get_bit(quest_rules,qr_FIXED_FAIRY_LIMIT))
     {
         for(int j=0; j<items.Count(); ++j)
         {

@@ -114,7 +114,8 @@ static const GUI::ListData compatRulesList
 	{ "Enemies->Secret only affects flags 16-31", qr_ENEMIES_SECRET_ONLY_16_31 },
 	{ "Old CSet2 Handling", qr_OLDCS2 },
 	{ "Hardcoded Shadow/Spawn/Death anim frames", qr_HARDCODED_ENEMY_ANIMS },
-	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING }
+	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING },
+	{ "No fairy spawn limit", qr_FIXED_FAIRY_LIMIT }
 };
 
 static const GUI::ListData enemiesRulesList
@@ -156,7 +157,8 @@ static const GUI::ListData itemRulesList
 	{ "Broken Magic Book Costs", qr_BROKENBOOKCOST },
 	{ "Reroll Useless Drops", qr_SMARTDROPS },
 	{ "Items Ignore Sideview Platforms", qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS },
-	{ "Items Held Above Link's Head Continue To Animate", qr_HOLDITEMANIMATION }
+	{ "Items Held Above Link's Head Continue To Animate", qr_HOLDITEMANIMATION },
+	{ "Fairies spawn with random direction", qr_FAIRYDIR }
 };
 
 static const GUI::ListData miscRulesList
