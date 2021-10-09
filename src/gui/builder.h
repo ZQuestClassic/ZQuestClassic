@@ -377,5 +377,5 @@ using ::GUI::operator ""_spx;
 
 } // namespace GUI::Props
 
-
+#define _d DummyWidget()
 #endif

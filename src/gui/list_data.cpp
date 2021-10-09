@@ -3,6 +3,7 @@
 #include <map>
 extern zcmodule moduledata;
 
+extern char *weapon_string[];
 namespace GUI
 {
 
@@ -93,6 +94,28 @@ ListData ListData::counters()
 		ls.add(moduledata.counter_names[q+1], q);
 	}
 	
+	return ls;
+}
+
+ListData ListData::miscsprites()
+{
+	std::map<std::string, int> ids;
+	std::set<std::string> sprnames;
+	
+	for(int i=0; i<wMAX; ++i)
+	{
+		std::string sname(weapon_string[i]);
+		
+		ids[sname] = i;
+		sprnames.insert(sname);
+	}
+	
+	ListData ls;
+	
+	for(std::set<std::string>::iterator it = sprnames.begin(); it != sprnames.end(); ++it)
+	{
+		ls.add(*it, ids[*it]);
+	}
 	return ls;
 }
 

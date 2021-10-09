@@ -80,7 +80,7 @@ private:
 	std::string itemname;
 	int index;
 	itemdata local_itemref;
-	GUI::ListData list_items, list_counters;
+	GUI::ListData list_items, list_counters, list_sprites;
 };
 
 #endif
