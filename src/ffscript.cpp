@@ -10148,6 +10148,19 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		case COMBOLAYERR:
+		{
+			if ( curScriptType == SCRIPT_COMBO )
+			{
+				ret = (( ((ri->comboposref)/176) ) * 10000); //comboscriptstack[i]
+			}
+			else
+			{
+				Z_scripterrlog("combodata->Pos() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
+				ret = -10000;
+			}
+			break;
+		}
 		
 		//NEWCOMBO STRUCT
 		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
@@ -34872,6 +34885,9 @@ script_variable ZASMVars[]=
 	{ "NPCDSHADOWSPR",           NPCDSHADOWSPR,            0,             0 },
 	{ "NPCDSPAWNSPR",           NPCDSPAWNSPR,            0,             0 },
 	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
+	
+	{ "COMBOLAYERR",           COMBOLAYERR,            0,             0 },
+	
 	{ " ",                       -1,             0,             0 }
 };
 

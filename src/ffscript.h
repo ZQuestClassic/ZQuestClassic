@@ -4329,7 +4329,9 @@ enum ASM_DEFINE
 #define NPCDSPAWNSPR 			0x13F6
 #define NPCDDEATHSPR 			0x13F7
 
-#define NUMVARIABLES         	0x13F8
+#define COMBOLAYERR 			0x13F8
+
+#define NUMVARIABLES         	0x13F9
 
 //} End variables
 

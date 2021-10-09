@@ -2229,6 +2229,9 @@ script_variable variable_list[]=
 	{ "NPCDSHADOWSPR",           NPCDSHADOWSPR,            0,             0 },
 	{ "NPCDSPAWNSPR",           NPCDSPAWNSPR,            0,             0 },
 	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
+	
+	{ "COMBOLAYERR",           COMBOLAYERR,            0,             0 },
+	
 	{ " ",                       -1,             0,             0 }
 };
 
