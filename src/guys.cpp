@@ -5774,7 +5774,7 @@ void enemy::old_draw(BITMAP *dest)
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
 					++clk2;
-					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					spr_death_anim_frm=(spr_death_anim_clk/zc_max(wpnsbuf[spr_death].speed,1));
 					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
 					{
 						spr_death_anim_clk=-1;
@@ -6030,7 +6030,7 @@ void enemy::draw(BITMAP *dest)
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
 					++clk2;
-					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					spr_death_anim_frm=(spr_death_anim_clk/zc_max(wpnsbuf[spr_death].speed,1));
 					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
 					{
 						spr_death_anim_clk=-1;
@@ -6180,7 +6180,7 @@ void enemy::drawzcboss(BITMAP *dest)
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
 					++clk2;
-					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					spr_death_anim_frm=(spr_death_anim_clk/zc_max(wpnsbuf[spr_death].speed,1));
 					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
 					{
 						spr_death_anim_clk=-1;
