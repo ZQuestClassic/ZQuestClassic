@@ -1956,7 +1956,6 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 					strcpy(buf, str);
 					sprintf(str, "-%s", buf);
 					++d->d2;
-					if(msg != MSG_DRAW) ret |= D_REDRAWME;
 				}
 			}
 			else if(str[0] == '-')
@@ -1965,8 +1964,8 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 				strcpy(buf, str);
 				sprintf(str, "%s", buf+1);
 				if(d->d2) --d->d2;
-				if(msg != MSG_DRAW) ret |= D_REDRAWME;
 			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
 		}
 		else queued_neg = !queued_neg; //queue negative
 		c &= ~255;
@@ -1987,7 +1986,6 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 				strcpy(buf, str);
 				sprintf(str, "-%s", buf);
 				++d->d2;
-				if(msg != MSG_DRAW) ret |= D_REDRAWME;
 			}
 		}
 		else if(!b && str[0] == '-')
@@ -1996,8 +1994,8 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 			strcpy(buf, str);
 			sprintf(str, "%s", buf+1);
 			if(d->d2) --d->d2;
-			if(msg != MSG_DRAW) ret |= D_REDRAWME;
 		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
 	if(v != b || otype != ntype || msg == MSG_START)
 	{
