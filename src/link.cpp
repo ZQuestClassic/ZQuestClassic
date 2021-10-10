@@ -7722,7 +7722,7 @@ bool LinkClass::animate(int)
 	{
 		int tx = x.getInt()+8,
 		    ty = y.getInt()+(bigHitbox?8:12);
-		if(!(unsigned(ty)>160 || unsigned(tx) > 240))
+		if(!(unsigned(ty)>175 || unsigned(tx) > 255))
 		{
 			for(int q = 0; q < 3; ++q)
 			{
