@@ -1698,8 +1698,8 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 	
 	if(d->fg != b)
 	{
-		GUI_EVENT(d, geUPDATE_SWAP);
 		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
 	}
 	switch(ntype)
 	{
@@ -1780,8 +1780,8 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 	
 	if(d->fg != b)
 	{
-		GUI_EVENT(d, geUPDATE_SWAP);
 		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
 	}
 	switch(ntype)
 	{
@@ -1913,8 +1913,8 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 	}
 	if(d->fg != b)
 	{
-		GUI_EVENT(d, geUPDATE_SWAP);
 		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
 	}
 	if(msg==MSG_CHAR && ((c&255)=='.'))
 	{

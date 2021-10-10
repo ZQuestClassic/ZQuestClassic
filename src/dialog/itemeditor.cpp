@@ -1,15 +1,28 @@
 #include "itemeditor.h"
 #include "info.h"
+#include "alert.h"
 #include "../zsys.h"
 #include <gui/builder.h>
 
+void reset_itembuf(itemdata *item, int id);
 extern zquestheader header;
 extern bool saved;
 extern char *item_string[];
 extern itemdata *itemsbuf;
+extern zcmodule moduledata;
+static bool _reset_default;
+static itemdata reset_ref;
+static std::string reset_name;
 void call_item_editor(int index)
 {
+	_reset_default = false;
 	ItemEditorDialog(index).show();
+	while(_reset_default)
+	{
+		_reset_default = false;
+		reset_itembuf(&reset_ref, index);
+		ItemEditorDialog(reset_ref, reset_name.c_str(), index).show();
+	}
 }
 
 static const GUI::ListData PFlagTypeList
@@ -19,6 +32,22 @@ static const GUI::ListData PFlagTypeList
 	{ "Add These", 2 },
 	{ "Subtract These", 3 },
 	{ "Limit To These", 4 }
+};
+
+static const GUI::ListData WeapMoveTypeList
+{
+	{ "None", 0 },
+	{ "Line", 1 },
+	{ "Sine Wave", 2 },
+	{ "Cosine", 3 },
+	{ "Circular", 4 },
+	{ "Arc", 5 },
+	{ "Pattern A", 6 },
+	{ "Pattern B", 7 },
+	{ "Pattern C", 8 },
+	{ "Pattern D", 9 },
+	{ "Pattern E", 10 },
+	{ "Pattern F", 11 }
 };
 
 //Sets the Item Editor Field Names
@@ -136,14 +165,25 @@ std::map<int, ItemNameInfo *> *getItemNameMap()
 	return inamemap;
 }
 
-ItemEditorDialog::ItemEditorDialog(int index):
-	local_itemref(itemsbuf[index]), itemname(item_string[index]), index(index),
+ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int index):
+	local_itemref(ref), itemname(str), index(index),
 	list_items(GUI::ListData::itemclass(true)),
 	list_counters(GUI::ListData::counters()),
-	list_sprites(GUI::ListData::miscsprites())
+	list_sprites(GUI::ListData::miscsprites()),
+	list_itemdatscript(GUI::ListData::itemdata_script()),
+	list_itemsprscript(GUI::ListData::itemsprite_script()),
+	list_weaponscript(GUI::ListData::lweapon_script()),
+	list_weaptype(GUI::ListData::lweaptypes()),
+	list_deftypes(GUI::ListData::deftypes())
 {}
-//{
 
+ItemEditorDialog::ItemEditorDialog(int index):
+	ItemEditorDialog(itemsbuf[index], item_string[index], index)
+{}
+
+//{ Macros
+
+#define DISABLE_WEAP_DATA true
 #define ATTR_WID 6_em
 #define ATTR_LAB_WID 12_em
 #define ACTION_LAB_WID 6_em
@@ -214,7 +254,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 				Rows<2>(padding = 0_px,
 					Label(text = "Name:"),
 					TextField(
-						//width = 8_em,
+						fitParent = true,
 						maxLength = 63,
 						text = itemname,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int)
@@ -226,9 +266,21 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						}
 					),
 					Label(text = "Type:"),
-					DropDownList(data = list_items,
-						selectedValue = local_itemref.family,
-						onSelectionChanged = message::ITEMCLASS
+					Row(
+						height = sized(16_px, 21_px),
+						DropDownList(data = list_items,
+							fitParent = true, padding = 0_px,
+							selectedValue = local_itemref.family,
+							onSelectionChanged = message::ITEMCLASS
+						),
+						Button(width = 1.5_em, padding = 0_px, text = "?", hAlign = 1.0, onPressFunc = [&]()
+						{
+							InfoDialog(moduledata.item_editor_type_names[local_itemref.family],{
+								moduledata.itemclass_help_strings[(local_itemref.family*3)+0],
+								moduledata.itemclass_help_strings[(local_itemref.family*3)+1],
+								moduledata.itemclass_help_strings[(local_itemref.family*3)+2]
+							}).show();
+						})
 					)
 				),
 				Column(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
@@ -319,7 +371,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							)
 						),
 						DropDownList(
-							maxwidth = ACTION_FIELD_WID+ACTION_LAB_WID+4_spx,
+							hAlign = 1.0,
 							data = list_counters,
 							selectedValue = local_itemref.cost_counter,
 							onSelectFunc = [&](int val)
@@ -375,7 +427,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							//
 							Label(text = "Counter:", hAlign = 1.0),
 							DropDownList(
-								maxwidth = 10_em,
+								fitParent = true,
 								data = list_counters,
 								selectedValue = local_itemref.count,
 								onSelectFunc = [&](int val)
@@ -669,6 +721,124 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								}
 							)
 						)
+					)),
+					TabRef(name = "Weapon Data", Row(
+						Row(
+							vAlign = 0.0,
+							Rows<4>(
+								Label(hAlign = 1.0, text = "Weapon Type:"),
+								DropDownList(
+									fitParent = true,
+									data = list_weaptype,
+									selectedValue = local_itemref.useweapon,
+									onSelectFunc = [&](int val)
+									{
+										local_itemref.useweapon = val;
+									}
+								), _d, _d,
+								Label(hAlign = 1.0, text = "Default Defense:"),
+								DropDownList(
+									fitParent = true,
+									data = list_deftypes,
+									selectedValue = local_itemref.usedefence,
+									onSelectFunc = [&](int val)
+									{
+										local_itemref.usedefence = val;
+									}
+								), _d, _d,
+								Label(hAlign = 1.0, text = "Movement Pattern:"),
+								DropDownList(
+									disabled = DISABLE_WEAP_DATA,
+									fitParent = true,
+									data = WeapMoveTypeList,
+									selectedValue = local_itemref.weap_pattern[0],
+									onSelectFunc = [&](int val)
+									{
+										local_itemref.weap_pattern[0] = val;
+									}
+								), _d, _d,
+								Label(hAlign = 1.0, text = "Movement Arg 1:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[1],
+									type = GUI::TextField::type::INT_DECIMAL,
+									hAlign = 0.0, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_pattern[1] = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Weapon Range:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weaprange,
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weaprange = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Movement Arg 2:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[2],
+									type = GUI::TextField::type::INT_DECIMAL,
+									hAlign = 0.0, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_pattern[2] = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Weapon Duration:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weapduration,
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weapduration = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Movement Arg 3:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[3],
+									type = GUI::TextField::type::INT_DECIMAL,
+									hAlign = 0.0, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_pattern[3] = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Other 1:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[5],
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_pattern[5] = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Movement Arg 4:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[4],
+									type = GUI::TextField::type::INT_DECIMAL,
+									hAlign = 0.0, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_pattern[4] = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Other 2:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[6],
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_pattern[6] = val;
+									}
+								)
+							)
+						)
 					))
 				)),
 				TabRef(name = "Graphics", TabPanel(
@@ -782,12 +952,455 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						SPRITE_DROP(8,wpn9),
 						SPRITE_DROP(9,wpn10)
 					)),
-					TabRef(name = "Size", DummyWidget()),
-					TabRef(name = "Weapon Size", DummyWidget())
+					TabRef(name = "Size", Row(
+						Columns<5>(
+							vAlign = 0.0,
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "TileWidth:"),
+								TextField(
+									val = local_itemref.tilew,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 32,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.tilew = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_TILEWIDTH,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "TileHeight:"),
+								TextField(
+									val = local_itemref.tileh,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 32,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.tileh = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_TILEHEIGHT,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitXOffset:"),
+								TextField(
+									val = local_itemref.hxofs,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.hxofs = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_X_OFFSET,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitYOffset:"),
+								TextField(
+									val = local_itemref.hyofs,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.hyofs = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_Y_OFFSET,state);
+									}
+								)
+							),
+							_d,
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitWidth:"),
+								TextField(
+									val = local_itemref.hxsz,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.hxsz = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_WIDTH,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitHeight:"),
+								TextField(
+									val = local_itemref.hysz,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.hysz = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_HEIGHT,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitZHeight:"),
+								TextField(
+									val = local_itemref.hzsz,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.hzsz = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_Z_HEIGHT),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_Z_HEIGHT,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "DrawXOffset:"),
+								TextField(
+									val = local_itemref.xofs,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.xofs = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_DRAW_X_OFFSET),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_DRAW_X_OFFSET,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "DrawYOffset:"),
+								TextField(
+									val = local_itemref.yofs,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.yofs = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_DRAW_Y_OFFSET),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_DRAW_Y_OFFSET,state);
+									}
+								)
+							)
+						)
+					)),
+					TabRef(name = "Weapon Size", Row(
+						Columns<5>(
+							vAlign = 0.0,
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "TileWidth:"),
+								TextField(
+									val = local_itemref.weap_tilew,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 32,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_tilew = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_TILEWIDTH),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_TILEWIDTH,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "TileHeight:"),
+								TextField(
+									val = local_itemref.weap_tileh,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 32,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_tileh = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_TILEHEIGHT),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_TILEHEIGHT,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitXOffset:"),
+								TextField(
+									val = local_itemref.weap_hxofs,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_hxofs = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_X_OFFSET,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitYOffset:"),
+								TextField(
+									val = local_itemref.weap_hyofs,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_hyofs = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_Y_OFFSET,state);
+									}
+								)
+							),
+							_d,
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitWidth:"),
+								TextField(
+									val = local_itemref.weap_hxsz,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_hxsz = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_WIDTH),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_WIDTH,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitHeight:"),
+								TextField(
+									val = local_itemref.weap_hysz,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_hysz = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_HEIGHT,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitZHeight:"),
+								TextField(
+									val = local_itemref.weap_hzsz,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_hzsz = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_Z_HEIGHT),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_Z_HEIGHT,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "DrawXOffset:"),
+								TextField(
+									val = local_itemref.weap_xofs,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_xofs = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_DRAW_X_OFFSET),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_DRAW_X_OFFSET,state);
+									}
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "DrawYOffset:"),
+								TextField(
+									val = local_itemref.weap_yofs,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.weap_yofs = val;
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_DRAW_Y_OFFSET),
+									text = "Enabled",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_DRAW_Y_OFFSET,state);
+									}
+								)
+							)
+						)
+					))
 				)),
 				TabRef(name = "Scripts", TabPanel(
-					TabRef(name = "Item", DummyWidget()),
-					TabRef(name = "Weapon", DummyWidget())
+					TabRef(name = "Item", Row(
+						Column(
+							INITD_ROW(0, local_itemref.initiald, local_itemref.initD_label),
+							INITD_ROW(1, local_itemref.initiald, local_itemref.initD_label),
+							INITD_ROW(2, local_itemref.initiald, local_itemref.initD_label),
+							INITD_ROW(3, local_itemref.initiald, local_itemref.initD_label),
+							INITD_ROW(4, local_itemref.initiald, local_itemref.initD_label),
+							INITD_ROW(5, local_itemref.initiald, local_itemref.initD_label),
+							INITD_ROW(6, local_itemref.initiald, local_itemref.initD_label),
+							INITD_ROW(7, local_itemref.initiald, local_itemref.initD_label)
+						),
+						Column(
+							padding = 0_px, fitParent = true,
+							Rows<2>(vAlign = 0.0,
+								SCRIPT_LIST("Action Script:", list_itemdatscript, local_itemref.script),
+								SCRIPT_LIST("Pickup Script:", list_itemdatscript, local_itemref.collect_script),
+								SCRIPT_LIST("Sprite Script:", list_itemsprscript, local_itemref.sprite_script)
+							),
+							Rows<2>(hAlign = 1.0,
+								Label(text = "A1:"),
+								TextField(
+									val = local_itemref.initiala[0],
+									type = GUI::TextField::type::INT_DECIMAL,
+									high = 32,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.initiala[0] = val;
+									}
+								),
+								Label(text = "A2:"),
+								TextField(
+									val = local_itemref.initiala[1],
+									type = GUI::TextField::type::INT_DECIMAL,
+									high = 32,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									{
+										local_itemref.initiala[1] = val;
+									}
+								)
+							)
+						)
+					)),
+					TabRef(name = "Weapon", Row(
+						Column(
+							INITD_ROW(0, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
+							INITD_ROW(1, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
+							INITD_ROW(2, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
+							INITD_ROW(3, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
+							INITD_ROW(4, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
+							INITD_ROW(5, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
+							INITD_ROW(6, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
+							INITD_ROW(7, local_itemref.weap_initiald, local_itemref.weapon_initD_label)
+						),
+						Rows<2>(vAlign = 0.0,
+							SCRIPT_LIST("Weapon Script:", list_weaponscript, local_itemref.weaponscript)
+						)
+					))
 				))
 			),
 			Row(
@@ -799,7 +1412,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					onClick = message::CANCEL)
+					onClick = message::CANCEL),
+				Button(
+					text = "Default",
+					onClick = message::DEFAULT)
 			)
 		)
 	);
@@ -862,6 +1478,24 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			loadItemClass();
 			return false;
 		}
+
+		case message::DEFAULT:
+		{
+			bool cancel = false;
+			AlertDialog(
+				"Reset itemdata?",
+				"Reset this item to default?",
+				[&](bool ret)
+				{
+					cancel = !ret;
+				}).show();
+			if(cancel) return false;
+			_reset_default = true;
+			reset_ref = local_itemref;
+			reset_name = itemname;
+			return true;
+		}
+
 		case message::OK:
 			saved = false;
 			itemsbuf[index] = local_itemref;
@@ -873,3 +1507,4 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return true;
 	}
 }
+

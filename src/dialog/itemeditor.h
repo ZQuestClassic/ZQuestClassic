@@ -64,14 +64,15 @@ std::map<int, ItemNameInfo *> *getItemNameMap();
 class ItemEditorDialog: public GUI::Dialog<ItemEditorDialog>
 {
 public:
-	enum class message { OK, CANCEL, ITEMCLASS };
-
-	ItemEditorDialog(int index);
+	enum class message { OK, CANCEL, DEFAULT, ITEMCLASS };
+	
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
+	ItemEditorDialog(itemdata const& ref, char const* str, int index);
+	ItemEditorDialog(int index);
 	void loadItemClass();
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::Label> l_attribs[10];
@@ -82,7 +83,10 @@ private:
 	std::string itemname;
 	int index;
 	itemdata local_itemref;
-	GUI::ListData list_items, list_counters, list_sprites;
+	GUI::ListData list_items, list_counters, list_sprites,
+		list_itemdatscript, list_itemsprscript, list_weaponscript,
+		list_weaptype, list_deftypes;
+	friend void call_item_editor(int index);
 };
 
 #endif

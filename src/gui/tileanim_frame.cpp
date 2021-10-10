@@ -27,6 +27,8 @@ int tile_anim_proc(int msg,DIALOG *d,int c)
 		{
 			if(d->flags & D_DISABLED)
 				break; //Disable animation
+			if(data[TileFrame::tfr_frames] < 2)
+				break; //nothing to animate
 			if(++clk > data[TileFrame::tfr_speed])
 				d->flags |= D_DIRTY; //mark for redraw
 			else if(clk < -data[TileFrame::tfr_delay])
@@ -43,6 +45,11 @@ int tile_anim_proc(int msg,DIALOG *d,int c)
 					frm %= data[TileFrame::tfr_frames];
 					clk = -data[TileFrame::tfr_delay];
 				}
+			}
+			else if(frm >= data[TileFrame::tfr_frames])
+			{ //Incase frames was changed
+				frm %= data[TileFrame::tfr_frames];
+				clk = -data[TileFrame::tfr_delay];
 			}
 			BITMAP *buf = create_bitmap_ex(8,16,16);
 			BITMAP *bigbmp = create_bitmap_ex(8,d->w+4,d->h+4);

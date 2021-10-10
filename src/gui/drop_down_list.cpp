@@ -14,10 +14,7 @@ DropDownList::DropDownList():
 	listData(nullptr), selectedIndex(0), selectedValue(0), message(-1)
 {
 	setPreferredWidth(20_em);
-	if(is_large) // This has to be exactly right to look good
-		setPreferredHeight(21_px);
-	else
-		setPreferredHeight(16_px);
+	overrideHeight(sized(16_px, 21_px));
 	fgColor = jwin_pal[jcTEXTFG];
 	bgColor = jwin_pal[jcTEXTBG];
 }
@@ -87,6 +84,19 @@ void DropDownList::setIndex()
 	}
 }
 
+void DropDownList::calculateSize()
+{
+	int maxWid = text_length(widgFont, "(None)");
+	for(size_t q = 0; q < listData->size(); ++q)
+	{
+		int w = text_length(widgFont, listData->getText(q).c_str());
+		if(w > maxWid)
+			maxWid = w;
+	}
+	setPreferredWidth(3_em+maxWid);
+	overrideHeight(sized(16_px, 21_px));
+}
+
 void DropDownList::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
@@ -95,10 +105,6 @@ void DropDownList::applyVisibility(bool visible)
 
 void DropDownList::applyFont(FONT* newFont)
 {
-	if(alDialog)
-	{
-		alDialog->dp2 = newFont;
-	}
 	Widget::applyFont(newFont);
 }
 

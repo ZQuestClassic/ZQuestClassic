@@ -21,7 +21,7 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 		onClose = message::CANCEL,
 		Column(
 			Label(
-				width = 20_em,
+				maxwidth = 20_em,
 				hPadding = 1_em,
 				maxLines = 10,
 				text = std::move(dlgText)),

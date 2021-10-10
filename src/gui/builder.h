@@ -393,5 +393,50 @@ using ::GUI::operator ""_spx;
 
 } // namespace GUI::Props
 
+//{ Builder Shortcuts
 #define _d DummyWidget()
+
+#define INITD_ROW(ind, d_mem, lab_mem) \
+	Row(vPadding = 0_px, \
+		TextField(maxLength = 64, \
+		text = std::string(lab_mem[ind]), \
+		type = GUI::TextField::type::TEXT, \
+		width = 8_em, \
+		rightPadding = 0_px, \
+		onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int) \
+		{ \
+			for(size_t q = 0; q < 65; ++q) \
+			{ \
+				if(q < str.size()) \
+					lab_mem[ind][q] = str.at(q); \
+				else \
+					lab_mem[ind][q] = 0; \
+			} \
+		} \
+	), \
+	TextField( \
+		type = GUI::TextField::type::SWAP_ZSINT, \
+		val = d_mem[ind], \
+		width = 6.5_em+16_px, \
+		leftPadding = 0_px, \
+		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
+		{ \
+			d_mem[ind] = val; \
+		} \
+	) \
+)
+
+#define SCRIPT_LIST(name, list, mem) \
+Label(minwidth = 6.5_em, text = name, textAlign = 2), \
+DropDownList( \
+	fitParent = true, \
+	data = list, \
+	selectedValue = mem, \
+	onSelectFunc = [&](int val) \
+	{ \
+		mem = val; \
+	} \
+)
+//}
+
 #endif
