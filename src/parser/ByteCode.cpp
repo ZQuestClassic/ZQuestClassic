@@ -1834,6 +1834,7 @@ string ZScript::VarToString(long ID)
 	case COMBOXR: return "COMBOXR";
 	case COMBOYR: return "COMBOYR";
 	case COMBOPOSR: return "COMBOPOSR";
+	case COMBOLAYERR: return "COMBOLAYERR";
 	case COMBODATASCRIPT: return "COMBODATASCRIPT";
 	case COMBODATAINITD: return "COMBODATAINITD";
 	case HEROSCRIPTCSET: return "HEROSCRIPTCSET";

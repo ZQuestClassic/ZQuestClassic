@@ -243,7 +243,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        20 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        21 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
 #define V_LINKSPRITES      14
 #define V_SUBSCREEN        6
@@ -1010,7 +1010,10 @@ enum
 	qr_BROKEN_HORIZONTAL_WEAPON_ANIM, qr_NEW_DARKROOM, qr_NEWDARK_L6, qr_ENEMIES_SECRET_ONLY_16_31,
 	//31
 	qr_SCREEN80_OWN_MUSIC, qr_OLDCS2, qr_HARDCODED_ENEMY_ANIMS, qr_OLD_ITEMDATA_SCRIPT_TIMING,
-  qr_SIDESWIM, qr_SIDESWIMDIR,
+	qr_SIDESWIM, qr_SIDESWIMDIR, 
+	
+	//35
+	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -3854,6 +3857,7 @@ struct gamedata
     char  qstpath[2048];
     byte  icon[128];
     byte  pal[48];
+    bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
     long  screen_d[MAXDMAPS*MAPSCRSNORMAL][8];                // script-controlled screen variables
     long  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
     std::vector< ZCArray <long> > globalRAM;

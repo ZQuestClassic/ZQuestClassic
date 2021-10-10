@@ -1481,7 +1481,7 @@ void sprite::draw(BITMAP* dest)
 				if(clk==-1 && spr_spawn_anim_clk>-1)
 				{
 					--clk;
-					spr_spawn_anim_frm=(spr_spawn_anim_clk/wpnsbuf[spr_spawn].speed);
+					spr_spawn_anim_frm=(spr_spawn_anim_clk/zc_max(wpnsbuf[spr_spawn].speed,1));
 					if(++spr_spawn_anim_clk >= (zc_max(wpnsbuf[spr_spawn].speed,1) * zc_max(wpnsbuf[spr_spawn].frames,1)))
 					{
 						spr_spawn_anim_clk=-1;
@@ -1853,7 +1853,7 @@ void sprite::drawzcboss(BITMAP* dest)
 				if(clk==-1 && spr_spawn_anim_clk>-1)
 				{
 					--clk;
-					spr_spawn_anim_frm=(spr_spawn_anim_clk/wpnsbuf[spr_spawn].speed);
+					spr_spawn_anim_frm=(spr_spawn_anim_clk/zc_max(wpnsbuf[spr_spawn].speed,1));
 					if(++spr_spawn_anim_clk >= (zc_max(wpnsbuf[spr_spawn].speed,1) * zc_max(wpnsbuf[spr_spawn].frames,1)))
 					{
 						spr_spawn_anim_clk=-1;
@@ -2128,7 +2128,7 @@ void sprite::old_draw(BITMAP* dest)
 				if(clk==-1 && spr_spawn_anim_clk>-1)
 				{
 					--clk;
-					spr_spawn_anim_frm=(spr_spawn_anim_clk/wpnsbuf[spr_spawn].speed);
+					spr_spawn_anim_frm=(spr_spawn_anim_clk/zc_max(wpnsbuf[spr_spawn].speed,1));
 					if(++spr_spawn_anim_clk >= (zc_max(wpnsbuf[spr_spawn].speed,1) * zc_max(wpnsbuf[spr_spawn].frames,1)))
 					{
 						spr_spawn_anim_clk=-1;
@@ -2258,7 +2258,7 @@ void sprite::drawcloaked(BITMAP* dest)
 			if(clk==-1 && spr_spawn_anim_clk>-1)
 			{
 				--clk;
-				spr_spawn_anim_frm=(spr_spawn_anim_clk/wpnsbuf[spr_spawn].speed);
+				spr_spawn_anim_frm=(spr_spawn_anim_clk/zc_max(wpnsbuf[spr_spawn].speed,1));
 				if(++spr_spawn_anim_clk >= (zc_max(wpnsbuf[spr_spawn].speed,1) * zc_max(wpnsbuf[spr_spawn].frames,1)))
 				{
 					spr_spawn_anim_clk=-1;

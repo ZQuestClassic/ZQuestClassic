@@ -476,24 +476,31 @@ const int CR_CUSTOM24           = 30;
 const int CR_CUSTOM25           = 31;
 
 //Generic data indices. Use this with Game->Generic[]
-const int GEN_HEARTPIECES       = 0; // Heart Pieces currently possessed
-const int GEN_MAGICDRAINRATE    = 1; // Link's magic usage equals n / 2.
-const int GEN_CANSLASH          = 2; // Link can slash with the sword.
-const int GEN_WARPLEVEL         = 3; // Warp Ring number that a Whirlwind warp will send Link to.
+const int GEN_HEARTPIECES        = 0; // Heart Pieces currently possessed
+const int GEN_MAGICDRAINRATE     = 1; // Link's magic usage equals n / 2.
+const int GEN_CANSLASH           = 2; // Link can slash with the sword.
+const int GEN_WARPLEVEL          = 3; // Warp Ring number that a Whirlwind warp will send Link to.
 							  // It is set every time that Link uses the Whistle.
-const int GEN_HCPPERHC          = 4; // How many Pieces of Heart form a complete Heart Container?
-const int GEN_CONTINUEHEARTS    = 5; // Amount of life that Link continues with
-const int GEN_CONTINUEISPERCENT = 6; // ...Or a percentage of his total life
-const int GEN_HP_PER_HEART      = 7; //How much HP makes a 'heart'
-const int GEN_MP_PER_BLOCK      = 8; //How much MP makes a 'block'
-const int GEN_HERO_DMG_MULT     = 9; //Damage multiplier for damage by Link
-const int GEN_ENEM_DMG_MULT     = 10; //Damage multiplier for damage by enemies
-const int GEN_DITHER_TYPE       = 11; //Type of dithering used with dark rooms
-const int GEN_DITHER_ARG        = 12; //Dithering argument used with dark rooms
-const int GEN_DITHER_PERCENT    = 13; //Percent of light circles taken up by dithering
-const int GEN_DEFAULT_LIGHT_RAD = 14; //Default light radius initialized to enemies
-const int GEN_TRANS_PERCENT     = 15; //Percent of light circles taken up by transparency
-const int GEN_DARKNESS_COLOR    = 16; //Color of darkness
+const int GEN_HCPPERHC           = 4; // How many Pieces of Heart form a complete Heart Container?
+const int GEN_CONTINUEHEARTS     = 5; // Amount of life that Link continues with
+const int GEN_CONTINUEISPERCENT  = 6; // ...Or a percentage of his total life
+const int GEN_HP_PER_HEART       = 7; //How much HP makes a 'heart'
+const int GEN_MP_PER_BLOCK       = 8; //How much MP makes a 'block'
+const int GEN_HERO_DMG_MULT      = 9; //Damage multiplier for damage by Link
+const int GEN_ENEM_DMG_MULT      = 10; //Damage multiplier for damage by enemies
+const int GEN_DITHER_TYPE        = 11; //Type of dithering used with dark rooms
+const int GEN_DITHER_ARG         = 12; //Dithering argument used with dark rooms
+const int GEN_DITHER_PERCENT     = 13; //Percent of light circles taken up by dithering
+const int GEN_DEFAULT_LIGHT_RAD  = 14; //Default light radius initialized to enemies
+const int GEN_TRANS_PERCENT      = 15; //Percent of light circles taken up by transparency
+const int GEN_DARKNESS_COLOR     = 16; //Color of darkness
+
+const int GEN_WATERGRAVITY       = 17; //Y position addition when not moving when sideview swimming, can be negative
+const int GEN_SIDESWIM_STEP_UP   = 18; //Hero step speed when sideview swimming, moving up
+const int GEN_SIDESWIM_STEP_SIDE = 19; //Hero step speed when sideview swimming, moving left and right
+const int GEN_SIDESWIM_STEP_DOWN = 20; //Hero step speed when sideview swimming, moving down
+const int GEN_SIDESWIM_EXITJUMP  = 21; //Jump value when exiting water from the top.
+						//If 0, Link can only leave the top of the water via sideview ladder.
 
 //Level item flags. Or (|) these together and use with Game->LItems[]
 const int LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
@@ -855,7 +862,7 @@ const int LW_POT		= 44; //Thrown pot
 const int LW_ELECTRIC		= 45; //Zap
 const int LW_Z3SWORD		= 46;
 const int LW_GBSWORD		= 47;
-const int LA_SPINATTACK		= 48;
+const int LW_SPINATTACK		= 48;
 const int LW_SHIELD		= 49; 
 const int LW_SHOVEL		= 50; 
 
@@ -2149,8 +2156,24 @@ enum HeroAction
 	//25,26 unused, RESERVED
 	LA_STUNNED = 27,
 	//28 unused, RESERVED
-	LA_FALLING = 29
+	LA_FALLING = 29,
+	LA_LAVADROWN,
+	LA_SIDESWIM,
+	LA_SIDESWIMHIT,
+	LA_SIDESWIMATTACKING,
+	LA_HOLD1SIDESWIM,
+	LA_HOLD2SIDESWIM,
+	LA_SIDESWIMCASTING,
+	LA_SIDESWIMFROZEN,
+	LA_SIDEDROWN,
+	LA_SIDESWIMSPINNING,
+	LA_SIDESWIMCHARGING,
+	LA_MAX
 };
+
+							/*lavadrowning, sideswimming, sideswimhit, sideswimattacking, 
+								sidewaterhold1, sidewaterhold2, sideswimcasting, sideswimfreeze, sidedrowning,
+								sideswimisspinning, sideswimischarging*/
 
 ///////////////////////
 /// Combo Types & Flags

@@ -901,7 +901,7 @@ int getCombodataX(int c, int scripttype);
 
 int GetScriptObjectUID(int type);
     
-byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
+//byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 				//so that they do not play every time an item is collected, unless one of the flags is set for it.
 
 void SetFFEngineFlag(int flag, bool v);
@@ -4329,7 +4329,9 @@ enum ASM_DEFINE
 #define NPCDSPAWNSPR 			0x13F6
 #define NPCDDEATHSPR 			0x13F7
 
-#define NUMVARIABLES         	0x13F8
+#define COMBOLAYERR 			0x13F8
+
+#define NUMVARIABLES         	0x13F9
 
 //} End variables
 

@@ -279,6 +279,7 @@ public:
     void SetSwim();
     void SetAttack();
     bool IsSideSwim();
+    bool CanSideSwim();
     
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
     int hurtsfx; //Link's Hurt SOund

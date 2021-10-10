@@ -1983,6 +1983,24 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 				}
 			}
 		}
+		else
+		{
+			std::fill(savedata[i].lvlswitches, savedata[i].lvlswitches+MAXLEVELS, 0);
+		}
+		if(section_version >= 21)
+		{
+			for(int j=0; j<MAXITEMS; ++j)
+			{
+				if(!p_getc(&(savedata[i].item_messages_played[j]),f,true))
+				{
+					return 63;
+				}
+			}
+		}
+		else 
+		{
+			std::fill(savedata[i].item_messages_played, savedata[i].item_messages_played+MAXITEMS, 0);
+		}
 	}
 	
 	
@@ -2502,6 +2520,10 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 		if(!pfwrite(savedata[i].lvlswitches,MAXLEVELS*sizeof(long),f))
 		{
 			return 60;
+		}
+		if(!pfwrite(savedata[i].item_messages_played,MAXITEMS*sizeof(bool),f))
+		{
+			return 61;
 		}
 	}
 	

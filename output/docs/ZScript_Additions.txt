@@ -6063,24 +6063,31 @@ void SetFFCInitA(int ffc_index, int init_a, float value);
 ///  combodata  ///
 ///////////////////								// Combodata
 
+int Layer();
+int Layer;
+ * Returns the layer the combo is on in a combodata script, from the 'this->' pointer as 'this->Layer()'
+ * Using this from any other combodata variable is illegal and undefined.
+
 int Pos();
+int Pos;
  * Returns the combo screen index of a combo from a combodata script, from the 'this->'
  * pointer as 'this->Pos()'.
  * Using this from any other combodata variable is illegal and undefined.
+ * Read-only
 
 int PosX();
 int X;
  * Returns the X-coordinate of a combo from a combodata script, from the 'this->'
  * pointer as 'this->PosX()'.
  * Using this from any other combodata variable is illegal and undefined.
- * If used as 'this->X', it is read-only.
+ * Read-only
 
 int PosY();
 int Y;
  * Returns the Y-coordinate of a combo from a combodata script, from the 'this->'
  * pointer as 'this->PosY()'.
  * Using this from any other combodata variable is illegal and undefined.
- * If used as 'this->Y', it is read-only.
+ * Read-only
 
 int Script;
  * The combodata script used by this combo.

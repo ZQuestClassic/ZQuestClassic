@@ -1651,6 +1651,7 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
+		d->bg = 0;
 		swapbtn->d2 = 2; //Max states
 		swapbtn->dp3 = (void*)d;
 	}
@@ -1730,6 +1731,7 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
+		d->bg = 0;
 		swapbtn->d2 = 2; //Max states
 		swapbtn->dp3 = (void*)d;
 	}
@@ -1756,10 +1758,61 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 	else if ( v < -32768 )
 		b=-32768;
 	else b = (short)v;
+	bool queued_neg = d->bg;
 	if(msg==MSG_CHAR && ((c&255)=='-'))
 	{
-		b = -b;
+		if(b)
+		{
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					++d->d2;
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				if(d->d2) --d->d2;
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue the negative
 		c &= ~255;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				++d->d2;
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			if(d->d2) --d->d2;
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
 	if(v != b || otype != ntype || msg == MSG_START)
 	{
@@ -1783,6 +1836,9 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 		d->fg = b; //Store numeric data
 		GUI_EVENT(d, geUPDATE_SWAP);
 	}
+	int t = d->d2;
+	if(msg == MSG_CHAR && queued_neg && !t)
+		++d->d2;
 	switch(ntype)
 	{
 		case typeDEC:
@@ -1796,6 +1852,8 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
 	}
+	if(msg == MSG_CHAR && queued_neg && !t)
+		if(d->d2-1 == t) --d->d2;
 	
 	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
 	
@@ -1812,6 +1870,7 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
+		d->bg = 0;
 		swapbtn->d2 = 4; //Max states
 		swapbtn->dp3 = (void*)d;
 	}
@@ -1880,12 +1939,63 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 	else if ( v < INT_MIN )
 		b=INT_MIN;
 	else b = (long)v;
+	bool queued_neg = d->bg;
 	if(msg==MSG_CHAR && ((c&255)=='-'))
 	{
-		if(b==INT_MIN)
-			++b;
-		b = -b;
+		if(b)
+		{
+			if(b==INT_MIN)
+				++b;
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					++d->d2;
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				if(d->d2) --d->d2;
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue negative
 		c &= ~255;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				++d->d2;
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			if(d->d2) --d->d2;
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
 	if(v != b || otype != ntype || msg == MSG_START)
 	{
@@ -1932,6 +2042,9 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 			}
 		}
 	}
+	int t = d->d2;
+	if(msg == MSG_CHAR && queued_neg && !t)
+		++d->d2;
 	switch(ntype)
 	{
 		case typeDEC:
@@ -2001,6 +2114,8 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
 	}
+	if(msg == MSG_CHAR && queued_neg && !t)
+		if(d->d2-1 == t) --d->d2;
 	
 	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
 	

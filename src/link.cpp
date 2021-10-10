@@ -613,6 +613,7 @@ void LinkClass::setX(int new_x)
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
+	hs_startx+=(int)dx;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -641,6 +642,7 @@ void LinkClass::setY(int new_y)
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
+	hs_starty+=(int)dy;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -712,6 +714,7 @@ void LinkClass::setXfix(zfix new_x)
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
+	hs_startx+=(int)dx;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -740,6 +743,7 @@ void LinkClass::setYfix(zfix new_y)
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
+	hs_starty+=(int)dy;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -7722,7 +7726,7 @@ bool LinkClass::animate(int)
 	{
 		int tx = x.getInt()+8,
 		    ty = y.getInt()+(bigHitbox?8:12);
-		if(!(unsigned(ty)>160 || unsigned(tx) > 240))
+		if(!(unsigned(ty)>175 || unsigned(tx) > 255))
 		{
 			for(int q = 0; q < 3; ++q)
 			{
@@ -8037,7 +8041,7 @@ bool LinkClass::animate(int)
                 || _walkflag(x+7,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)
 		|| _walkflag(x+8,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE)
                 || _walkflag(x+8,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)) isthissolid = true;
-		if (get_bit(quest_rules, qr_NO_HOPPING) && !isthissolid) //Since hopping won't be set with this on, something needs to kick Link out of water...
+		if ((get_bit(quest_rules, qr_NO_HOPPING) || CanSideSwim()) && !isthissolid) //Since hopping won't be set with this on, something needs to kick Link out of water...
 		{
 			if(!iswaterex(MAPCOMBO(x.getInt()+4,y.getInt()+9), currmap, currscr, -1, x.getInt()+4,y.getInt()+9, true, false)||!iswaterex(MAPCOMBO(x.getInt()+4,y.getInt()+15), currmap, currscr, -1, x.getInt()+4,y.getInt()+15, true, false)
 			|| !iswaterex(MAPCOMBO(x.getInt()+11,y.getInt()+9), currmap, currscr, -1, x.getInt()+11,y.getInt()+9, true, false)||!iswaterex(MAPCOMBO(x.getInt()+11,y.getInt()+15), currmap, currscr, -1, x.getInt()+11,y.getInt()+15, true, false))
@@ -9890,7 +9894,7 @@ void do_lens()
 	    //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ngetWpnPressed:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,getWpnPressed(itype_lens),current_item_id(itype_lens));
 	    if(itemid<0)
 		return;
-		
+		//LinkItemClk is the item jinx.
 	    if(isWpnPressed(itype_lens) && !LinkItemClk() && !lensclk && checkmagiccost(itemid))
 	    {
 		if(lensid<0)
@@ -9901,7 +9905,7 @@ void do_lens()
 		    if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
 		}
 		
-		paymagiccost(itemid);
+		paymagiccost(itemid, true); //Needs to ignore timer cause lensclk is our timer.
 		
 		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !item_doscript[itemid])
 		{
@@ -9918,7 +9922,8 @@ void do_lens()
 		        did_scriptl=true;
 		}
 		
-		lensclk = 12;
+		if (itemsbuf[itemid].magiccosttimer) lensclk = itemsbuf[itemid].magiccosttimer;
+		else lensclk = 12;
 	    }
 	    else
 	    {
@@ -9955,7 +9960,7 @@ void do_210_lens()
             if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
         }
         
-        paymagiccost(itemid);
+        paymagiccost(itemid, true);
         
         if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !item_doscript[itemid])
         {
@@ -9972,7 +9977,8 @@ void do_210_lens()
 		did_scriptl=true;
         }
         
-        lensclk = 12;
+        if (itemsbuf[itemid].magiccosttimer) lensclk = itemsbuf[itemid].magiccosttimer;
+	else lensclk = 12;
     }
     else
     {
@@ -11261,7 +11267,7 @@ void LinkClass::movelink()
 		
 		if(!(diagonalMovement || NO_GRIDLOCK))
 		{
-			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 			{
 				if(dir==up&&yoff)
 				{
@@ -11647,7 +11653,7 @@ void LinkClass::movelink()
 			break;
 		} //end switch
 		
-		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT)) //!DIRECTION SET
+		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim()) //!DIRECTION SET
 		{
 			walkable = false;
 			if(DrunkUp()&&(holddir==-1||holddir==up))
@@ -13249,7 +13255,7 @@ void LinkClass::movelink()
 	
 	if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
 	{
-		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 			goto LEFTRIGHT_OLDMOVE;
 		else goto LEFTRIGHT_NEWMOVE;
 	}
@@ -13259,7 +13265,7 @@ void LinkClass::movelink()
 	//ignore ladder for this part. sigh sigh sigh -DD
 	oldladderx = ladderx;
 	oldladdery = laddery;
-	if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+	if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 	{
 		if(isdungeon() && DrunkLeft() && (temp_x==32 && temp_y==80))
 		{
@@ -14273,7 +14279,7 @@ void LinkClass::move(int d2, int forceRate)
     if( inlikelike || link_is_stunned > 0 )
         return;
 	
-	if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+	if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) && !IsSideSwim())
 	{
 		moveOld(d2);
 		return;
@@ -14925,7 +14931,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     else if(wy>168)
                         changehop = false;
                 }
-		if (get_bit(quest_rules, qr_NO_HOPPING) && !isthissolid) changehop = false;
+		if ((get_bit(quest_rules, qr_NO_HOPPING) || CanSideSwim()) && !isthissolid) changehop = false;
                 //This may be where the hang-up for exiting water exists. -Z
                 // hop out of the water
                 if(changehop)
@@ -14933,7 +14939,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             }
             else
             {
-                if((!get_bit(quest_rules, qr_NO_HOPPING) || isthissolid) && (dir==d2 || shiftdir==d2))
+                if((!(get_bit(quest_rules, qr_NO_HOPPING) || CanSideSwim()) || isthissolid) && (dir==d2 || shiftdir==d2))
                 {
                     //int vx=((int)x+4)&0xFFF8;
                     //int vy=((int)y+4)&0xFFF8;
@@ -19031,7 +19037,7 @@ void kill_enemy_sfx()
         if(((enemy*)guys.spr(i))->bgsfx)
             stop_sfx(((enemy*)guys.spr(i))->bgsfx);
     }
-    
+    if (Link.action!=inwind) stop_sfx(WAV_ZN1WHIRLWIND);
     if(tmpscr->room==rGANON)
         stop_sfx(WAV_ROAR);
 }
@@ -20303,7 +20309,7 @@ void LinkClass::stepforward(int steps, bool adjust)
     {
 		if(diagonalMovement)
         {
-			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+			if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 			{
 				tstep = 1.5;
 			}
@@ -20357,7 +20363,7 @@ void LinkClass::stepforward(int steps, bool adjust)
         {
             if((dir<left?x.getInt()&7:y.getInt()&7)&&adjust==true)
             {
-				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 				{
 					walkable = false;
 					shiftdir = -1;
@@ -20387,7 +20393,7 @@ void LinkClass::stepforward(int steps, bool adjust)
             }
             else
             {
-				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 				{
 					s-=1.5;
 				}
@@ -20425,7 +20431,7 @@ void LinkClass::stepforward(int steps, bool adjust)
             }
             else
 			{
-				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+				if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 				{
 					s-=1.5;
 				}
@@ -20783,6 +20789,15 @@ void LinkClass::stepout() // Step out of item cellars and passageways
         {
             loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
         }
+	byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poLEVEL)*3;
+	si+=3*48;
+	    
+	for(int i=0; i<16; i++)
+	{
+		RAMpal[CSET(9)+i] = _RGB(si);
+		tempgreypal[CSET(9)+i] = _RGB(si); //preserve monochrome
+		si+=3;
+	}
     }
     
     x = tmpscr->warpreturnx[stepoutwr];
@@ -20959,9 +20974,9 @@ bool LinkClass::nextcombo_solid(int d2)
 	
 	// from MAPCOMBO()
 	
-	for(int i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((cy&7)?2:1):((cy&7)?1:0)); cy+=8,i++)
+	for(int i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((cy&7)?2:1):((cy&7)?1:0)) && cy < 176; cy+=8,i++)
 	{
-		for(int k=0; k<=(get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)?((cx&7)?2:1):0); cx+=8,k++)
+		for(int k=0; k<=(get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)?((cx&7)?2:1):0) && cx < 256; cx+=8,k++)
 		{
 			int cmb = (cy&0xF0)+(cx>>4);
 			
@@ -22137,7 +22152,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	// 2) When scrolling between DMaps of different colours.
 	if(destdmap != -1 && DMaps[destdmap].color != currcset)
 	{
-fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
+		fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
 		darkroom = true;
 	}
 	else if(!darkroom)
@@ -26040,7 +26055,7 @@ void LinkClass::explode(int type)
 
 void LinkClass::SetSwim()
 {
-	if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) 
+	if (CanSideSwim()) 
 	{
 		if (action != sideswimattacking && action != attacking) {action=sideswimming; FFCore.setLinkAction(sideswimming);}
 		else {action=sideswimattacking; FFCore.setLinkAction(sideswimattacking);}
@@ -26058,6 +26073,11 @@ void LinkClass::SetAttack()
 bool LinkClass::IsSideSwim()
 {
 	return (action==sideswimming || action==sideswimhit || action == sideswimattacking || action == sidewaterhold1 || action == sidewaterhold2 || action == sideswimcasting || action == sideswimfreeze);
+}
+
+bool LinkClass::CanSideSwim()
+{
+	return (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM));
 }
 
 //int LinkClass::getTileModifier() { return item_tile_mod(shieldModify); }

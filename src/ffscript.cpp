@@ -10148,6 +10148,19 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		case COMBOLAYERR:
+		{
+			if ( curScriptType == SCRIPT_COMBO )
+			{
+				ret = (( ((ri->comboposref)/176) ) * 10000); //comboscriptstack[i]
+			}
+			else
+			{
+				Z_scripterrlog("combodata->Pos() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
+				ret = -10000;
+			}
+			break;
+		}
 		
 		//NEWCOMBO STRUCT
 		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
@@ -12337,7 +12350,7 @@ void set_register(const long arg, const long value)
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
-					movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
+					movefairynew2(((item*)(s))->x,((item*)(s))->y,*((item*)(s)));
 			}
 			
 			break;
@@ -12371,7 +12384,7 @@ void set_register(const long arg, const long value)
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
-					movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
+					movefairynew2(((item*)(s))->x,((item*)(s))->y,*((item*)(s)));
 			}
 			
 			break;
@@ -29444,19 +29457,15 @@ void FFScript::setFFRules()
 	FF_jump_link_layer_threshold = zinit.jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 	FF_link_swim_speed = zinit.link_swim_speed;
 	FFCore.zasm_break_mode = ZASM_BREAK_NONE;
-	for ( int q = 0; q < MAXITEMS; q++ )
-	{
-		item_messages_played[q] = 0;
-	}
 }
 
 void FFScript::SetItemMessagePlayed(int itm)
 {
-	item_messages_played[itm] = 1;
+	game->item_messages_played[itm] = 1;
 }
 bool FFScript::GetItemMessagePlayed(int itm)
 {
-	return (( item_messages_played[itm] ) ? true : false);
+	return ((game->item_messages_played[itm] ) ? true : false);
 }
 
 void FFScript::setRule(int rule, bool s)
@@ -34876,6 +34885,9 @@ script_variable ZASMVars[]=
 	{ "NPCDSHADOWSPR",           NPCDSHADOWSPR,            0,             0 },
 	{ "NPCDSPAWNSPR",           NPCDSPAWNSPR,            0,             0 },
 	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
+	
+	{ "COMBOLAYERR",           COMBOLAYERR,            0,             0 },
+	
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -19,6 +19,8 @@
 #include "weapons.h"
 #include "zfix.h"
 
+class item;
+
 extern int repaircharge;
 extern bool adjustmagic;
 extern bool learnslash;
@@ -862,7 +864,10 @@ void GrabLink(int index);
 bool CarryLink();
 void movefairy(zfix &x,zfix &y,int misc);
 void movefairy2(zfix x,zfix y,int misc);
+void movefairynew(zfix &x,zfix &y,item const &itemfairy);
+void movefairynew2(zfix x,zfix y,item const &itemfairy);
 void killfairy(int misc);
+void killfairynew(item const &itemfairy);
 int addenemy(int x,int y,int id,int clk);
 int addenemy(int x,int y,int z,int id,int clk);
 int addchild(int x,int y,int id,int clk, int parent_scriptUID);

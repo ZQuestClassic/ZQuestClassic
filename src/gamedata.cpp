@@ -54,6 +54,7 @@ void gamedata::Clear()
     std::fill(lvlitems, lvlitems+MAXLEVELS, 0);
     std::fill(lvlkeys, lvlkeys+MAXLEVELS, 0);
     std::fill(lvlswitches, lvlswitches+MAXLEVELS, 0);
+    std::fill(item_messages_played, item_messages_played+MAXITEMS, 0);
     _continue_scrn=0;
     _continue_dmap=0;
     std::fill(_generic, _generic+256, 0);

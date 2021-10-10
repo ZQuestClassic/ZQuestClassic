@@ -36,9 +36,24 @@ void killfairy(int)
     return;
 }
 
+void killfairynew(item const&)
+{
+    return;
+}
+
+void movefairynew(zfix&, zfix&, item const&)
+{
+    return;
+}
+
 bool addfairy(zfix, zfix, int, int)
 {
     return false;
+}
+
+bool addfairynew(zfix x, zfix y, int misc3, item&)
+{
+	return false;
 }
 
 bool can_drop(zfix, zfix)
