@@ -20789,6 +20789,15 @@ void LinkClass::stepout() // Step out of item cellars and passageways
         {
             loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
         }
+	byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poLEVEL)*3;
+	si+=3*48;
+	    
+	for(int i=0; i<16; i++)
+	{
+		RAMpal[CSET(9)+i] = _RGB(si);
+		tempgreypal[CSET(9)+i] = _RGB(si); //preserve monochrome
+		si+=3;
+	}
     }
     
     x = tmpscr->warpreturnx[stepoutwr];
@@ -22143,7 +22152,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	// 2) When scrolling between DMaps of different colours.
 	if(destdmap != -1 && DMaps[destdmap].color != currcset)
 	{
-fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
+		fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
 		darkroom = true;
 	}
 	else if(!darkroom)
