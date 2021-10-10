@@ -613,6 +613,7 @@ void LinkClass::setX(int new_x)
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
+	hs_startx+=(int)dx;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -641,6 +642,7 @@ void LinkClass::setY(int new_y)
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
+	hs_starty+=(int)dy;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -712,6 +714,7 @@ void LinkClass::setXfix(zfix new_x)
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
+	hs_startx+=(int)dx;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -740,6 +743,7 @@ void LinkClass::setYfix(zfix new_y)
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
+	hs_starty+=(int)dy;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
