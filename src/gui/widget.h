@@ -13,7 +13,8 @@
 #include "../fonts.h"
 
 #define GUI_DEF_FONT sized(nfont, lfont_l)
-
+#define DEFAULT_PADDING       sized(1_px,3_px)
+#define DEFAULT_PADDING_INT   sized(1,3)
 namespace GUI
 {
 

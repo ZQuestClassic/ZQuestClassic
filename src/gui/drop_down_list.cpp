@@ -93,7 +93,7 @@ void DropDownList::calculateSize()
 		if(w > maxWid)
 			maxWid = w;
 	}
-	setPreferredWidth(3_em+maxWid);
+	setPreferredWidth(sized(5_em,3_em)+maxWid);
 	overrideHeight(sized(16_px, 21_px));
 }
 

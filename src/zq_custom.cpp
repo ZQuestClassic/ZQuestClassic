@@ -2131,7 +2131,7 @@ void test_item(itemdata test, int x, int y)
 
 void edit_itemdata(int index)
 {
-	if(is_large) call_item_editor(index);
+	call_item_editor(index);
 	char frm[8], spd[8], fcs[8], dly[8], ltm[8];
 	char /*cls[8],*/ cll[8], amt[8], fmx[8], max[8], asn[8];
 	char snd[8], mgc[8], hrt[8], pow[8];
