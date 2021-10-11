@@ -2950,6 +2950,7 @@ npcdata LoadNPCData(int id);
 
 mapdata LoadMapData(int map, int screen);
  * Loads a screen data ref for screen ID 'screen', of Map ID 'map', to a 'mapdata' typed pointer.
+ * Valid screens: 0x00 - 0x81
 
 mapdata LoadTempScreen(int layer);
  * Loads a screen data ref for the TEMPORARY data of the layer 'layer'.
