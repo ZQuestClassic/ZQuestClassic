@@ -28136,7 +28136,6 @@ int load_zmod_module_file()
 	    build_biic_list();
 	    build_bief_list();
 	    build_biea_list(); 
-	    build_biwt_list();
 	    build_biew_list();
 	    return D_O_K;
 }

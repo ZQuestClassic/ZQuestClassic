@@ -15,7 +15,6 @@ void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);
 int d_cstile_proc(int msg,DIALOG *d,int c);
 int jwin_as_droplist_proc(int msg,DIALOG *d,int c);
-void build_biwt_list();
 void build_bief_list();
 void build_biic_list();
 void build_biea_list();
