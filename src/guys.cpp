@@ -20012,6 +20012,7 @@ void screen_combo_modify_preroutine(mapscr *s, int pos)
 // Everything that must be done after we change a screen's combo to another combo. -L
 void screen_combo_modify_postroutine(mapscr *s, int pos)
 {
+	s->valid |= mVALID;
 	activate_fireball_statue(pos);
 	
 	if(combobuf[s->data[pos]].type==cSPINTILE1)

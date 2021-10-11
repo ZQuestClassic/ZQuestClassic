@@ -2739,348 +2739,348 @@ void bombdoor(int x,int y)
 
 void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen)
 {
-    static int mf;
-    
-    switch(type)
-    {
-    case -4: //overhead FFCs
-    case -3:                                                //freeform combos
-        for(int i = 31; i >= 0; i--)
-        {
-            if(layer->ffdata[i])
-            {
-                if(!(layer->ffflags[i]&ffCHANGER) //If FFC is a changer, don't draw
-					&& !((layer->ffflags[i]&ffLENSINVIS) && lensclk) //If lens is active and ffc is invis to lens, don't draw
-					&& (!(layer->ffflags[i]&ffLENSVIS) || lensclk)) //If FFC does not require lens, or lens is active, draw
-                {
-                    if(scrolling && (layer->ffflags[i] & ffCARRYOVER) != 0 && tempscreen == 3)
-                        continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
-                        
-                    //otherwise we'll draw the same one twice
-                    
-                    if(!!(layer->ffflags[i]&ffOVERLAY) == (type==-4)) //what exactly is this supposed to mean?
-                    {
-                        int tx=((layer->ffx[i]/10000));
-                        int ty=((layer->ffy[i]/10000))+playing_field_offset;
-                        
-                        if(layer->ffflags[i]&ffTRANS)
-                        {
-                            overcomboblocktranslucent(bmp, tx-x, ty-y, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6),128);
-                        }
-                        else
-                        {
-                            overcomboblock(bmp, tx-x, ty-y, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6));
-                        }
-                    }
-                }
-            }
-        }
-        
-        break;
-        
-    case -2:                                                //push blocks
-        for(int i=0; i<176; i++)
-        {
-            mf=layer->sflag[i];
-            
-            if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS)))
-            {
-                overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
-            }
-            else
-            {
-                mf=combobuf[layer->data[i]].flag;
-                
-                if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS)))
-                {
-                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
-                }
-            }
-        }
-        
-        break;
-        
-    case -1:                                                //over combo
-        for(int i=0; i<176; i++)
-        {
-            if(combo_class_buf[combobuf[layer->data[i]].type].overhead)
-            {
-                overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
-            }
-        }
-		if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
-		{
-			for(int lyr = 0; lyr <= 1; ++lyr)
-			if(TransLayers || layer->layeropacity[lyr]==255)
+	static int mf;
+	
+	switch(type)
+	{
+		case -4: //overhead FFCs
+		case -3:                                                //freeform combos
+			for(int i = 31; i >= 0; i--)
 			{
-				if(layer->layermap[lyr]>0)
+				if(layer->ffdata[i])
 				{
-					mapscr const& tmp = (tempscreen==2?tmpscr2[lyr]:tmpscr3[lyr]);
-					if(scrolling)
+					if(!(layer->ffflags[i]&ffCHANGER) //If FFC is a changer, don't draw
+						&& !((layer->ffflags[i]&ffLENSINVIS) && lensclk) //If lens is active and ffc is invis to lens, don't draw
+						&& (!(layer->ffflags[i]&ffLENSVIS) || lensclk)) //If FFC does not require lens, or lens is active, draw
 					{
-						if(layer->layeropacity[lyr]==255)
+						if(scrolling && (layer->ffflags[i] & ffCARRYOVER) != 0 && tempscreen == 3)
+							continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
+							
+						//otherwise we'll draw the same one twice
+						
+						if(!!(layer->ffflags[i]&ffOVERLAY) == (type==-4)) //what exactly is this supposed to mean?
 						{
-							for(int i=0; i<176; i++)
+							int tx=((layer->ffx[i]/10000));
+							int ty=((layer->ffy[i]/10000))+playing_field_offset;
+							
+							if(layer->ffflags[i]&ffTRANS)
 							{
-								if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								overcomboblocktranslucent(bmp, tx-x, ty-y, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6),128);
 							}
-						}
-						else
-						{
-							for(int i=0; i<176; i++)
+							else
 							{
-								if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[lyr]);
-							}
-						}
-					}
-					else
-					{
-						if(layer->layeropacity[lyr]==255)
-						{
-							for(int i=0; i<176; i++)
-							{
-								if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-							}
-						}
-						else
-						{
-							for(int i=0; i<176; i++)
-							{
-								if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[lyr]);
+								overcomboblock(bmp, tx-x, ty-y, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6));
 							}
 						}
 					}
 				}
 			}
-		}
-        
-        break;
-        
-    case 0:
-    
-        //case 1:
-        //case 2:
-    case 3:
-    case 4:
-    case 5:
-        if(TransLayers || layer->layeropacity[type]==255)
-        {
-            if(layer->layermap[type]>0)
-            {
+			
+			break;
+			
+		case -2:                                                //push blocks
+			for(int i=0; i<176; i++)
+			{
+				mf=layer->sflag[i];
+				
+				if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS)))
+				{
+					overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
+				}
+				else
+				{
+					mf=combobuf[layer->data[i]].flag;
+					
+					if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS)))
+					{
+						overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
+					}
+				}
+			}
+			
+			break;
+			
+		case -1:                                                //over combo
+			for(int i=0; i<176; i++)
+			{
+				if(combo_class_buf[combobuf[layer->data[i]].type].overhead)
+				{
+					overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
+				}
+			}
+			if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+			{
+				for(int lyr = 0; lyr <= 1; ++lyr)
+				if(TransLayers || layer->layeropacity[lyr]==255)
+				{
+					if(layer->layermap[lyr]>0)
+					{
+						mapscr const& tmp = (tempscreen==2?tmpscr2[lyr]:tmpscr3[lyr]);
+						if(scrolling)
+						{
+							if(layer->layeropacity[lyr]==255)
+							{
+								for(int i=0; i<176; i++)
+								{
+									if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+										overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
+							}
+							else
+							{
+								for(int i=0; i<176; i++)
+								{
+									if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+										overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[lyr]);
+								}
+							}
+						}
+						else
+						{
+							if(layer->layeropacity[lyr]==255)
+							{
+								for(int i=0; i<176; i++)
+								{
+									if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+										overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
+							}
+							else
+							{
+								for(int i=0; i<176; i++)
+								{
+									if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
+										overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[lyr]);
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			break;
+			
+		case 0:
+		
+			//case 1:
+			//case 2:
+		case 3:
+		case 4:
+		case 5:
+			if(TransLayers || layer->layeropacity[type]==255)
+			{
 				mapscr const& tmp = (tempscreen==2?tmpscr2[type]:tmpscr3[type]);
-                if(scrolling)
-                {
-                    if(layer->layeropacity[type]==255)
-                    {
-						for(int i=0; i<176; i++)
+				if(tmp.valid)
+				{
+					if(scrolling)
+					{
+						if(layer->layeropacity[type]==255)
 						{
-							overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							for(int i=0; i<176; i++)
+							{
+								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
 						}
-                    }
-                    else
-                    {
-						for(int i=0; i<176; i++)
+						else
 						{
-							overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+							for(int i=0; i<176; i++)
+							{
+								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+							}
 						}
-                    }
-                }
-                else
-                {
-                    if(layer->layeropacity[type]==255)
-                    {
-						for(int i=0; i<176; i++)
+					}
+					else
+					{
+						if(layer->layeropacity[type]==255)
 						{
-							overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							for(int i=0; i<176; i++)
+							{
+								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+							}
 						}
-                    }
-                    else
-                    {
-						for(int i=0; i<176; i++)
+						else
 						{
-							overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+							for(int i=0; i<176; i++)
+							{
+								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+							}
 						}
-                    }
-                }
-            }
-        }
-        
-        break;
-        
-    case 1:
-        if(TransLayers || layer->layeropacity[type]==255)
-        {
-            if(layer->layermap[type]>0)
-            {
+					}
+				}
+			}
+			
+			break;
+			
+		case 1:
+			if(TransLayers || layer->layeropacity[type]==255)
+			{
 				mapscr const& tmp = (tempscreen==2?tmpscr2[type]:tmpscr3[type]);
-                if(scrolling)
-                {
-                    if(layer->layeropacity[type]==255)
-                    {
-                        if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
-                        {
-							for(int i=0; i<176; i++)
+				if(tmp.valid)
+				{
+					if(scrolling)
+					{
+						if(layer->layeropacity[type]==255)
+						{
+							if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
 							{
-								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                        else
-                        {
-							for(int i=0; i<176; i++)
+							else
 							{
-								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                    }
-                    else
-                    {
-                        if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
-                        {
-							for(int i=0; i<176; i++)
+						}
+						else
+						{
+							if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
 							{
-								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                        else
-                        {
-							for(int i=0; i<176; i++)
+							else
 							{
-								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+								for(int i=0; i<176; i++)
+								{
+									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+								}
 							}
-                        }
-                    }
-                }
-                else
-                {
-                    if(layer->layeropacity[type]==255)
-                    {
-                        if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
-                        {
-							for(int i=0; i<176; i++)
+						}
+					}
+					else
+					{
+						if(layer->layeropacity[type]==255)
+						{
+							if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
 							{
-								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                        else
-                        {
-							for(int i=0; i<176; i++)
+							else
 							{
-								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                    }
-                    else
-                    {
-                        if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
-                        {
-							for(int i=0; i<176; i++)
+						}
+						else
+						{
+							if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
 							{
-								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                        else
-                        {
-							for(int i=0; i<176; i++)
+							else
 							{
-								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+								for(int i=0; i<176; i++)
+								{
+									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+								}
 							}
-                        }
-                    }
-                }
-            }
-        }
-        
-        break;
-        
-    case 2:
-        if(TransLayers || layer->layeropacity[type]==255)
-        {
-            if(layer->layermap[type]>0)
-            {
+						}
+					}
+				}
+			}
+			
+			break;
+			
+		case 2:
+			if(TransLayers || layer->layeropacity[type]==255)
+			{
 				mapscr const& tmp = (tempscreen==2?tmpscr2[type]:tmpscr3[type]);
-                if(scrolling)
-                {
-                    if(layer->layeropacity[type]==255)
-                    {
-                        if( (layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) && !(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
-                        {
-							for(int i=0; i<176; i++)
+				if(tmp.valid)
+				{
+					if(scrolling)
+					{
+						if(layer->layeropacity[type]==255)
+						{
+							if( (layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) && !(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
 							{
-								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                        else
-                        {
-							for(int i=0; i<176; i++)
+							else
 							{
-								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                    }
-                    else
-                    {
-                        if( (layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) && !(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
-                        {
-							for(int i=0; i<176; i++)
+						}
+						else
+						{
+							if( (layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) && !(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
 							{
-								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                        else
-                        {
-							for(int i=0; i<176; i++)
+							else
 							{
-								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+								for(int i=0; i<176; i++)
+								{
+									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+								}
 							}
-                        }
-                    }
-                }
-                else
-                {
-                    if(layer->layeropacity[type]==255)
-                    {
-                        if((layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) &&!(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
-                        {
-							for(int i=0; i<176; i++)
+						}
+					}
+					else
+					{
+						if(layer->layeropacity[type]==255)
+						{
+							if((layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) &&!(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
 							{
-								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                        else
-                        {
-							for(int i=0; i<176; i++)
+							else
 							{
-								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                    }
-                    else
-                    {
-                        if((layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) &&!(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
-                        {
-							for(int i=0; i<176; i++)
+						}
+						else
+						{
+							if((layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) &&!(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
 							{
-								putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								for(int i=0; i<176; i++)
+								{
+									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
+								}
 							}
-                        }
-                        else
-                        {
-							for(int i=0; i<176; i++)
+							else
 							{
-								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+								for(int i=0; i<176; i++)
+								{
+									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
+								}
 							}
-                        }
-                    }
-                }
-            }
-        }
-        
-        break;
-    }
+						}
+					}
+				}
+			}
+			
+			break;
+	}
 }
 
 
@@ -4438,6 +4438,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 	
 	
 	const int _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
+	tmpscr[tmp].valid |= mVALID; //layer 0 is always valid
 	tmpscr[tmp].data = TheMaps[currmap*MAPSCRS+scr].data;
 	tmpscr[tmp].sflag = TheMaps[currmap*MAPSCRS+scr].sflag;
 	tmpscr[tmp].cset = TheMaps[currmap*MAPSCRS+scr].cset;
@@ -4461,14 +4462,14 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 			tmpscr[tmp].screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
 			}
 		//}
-	tmpscr[tmp].screendatascriptInitialised = 0;
-	tmpscr[tmp].doscript = 1;
+		tmpscr[tmp].screendatascriptInitialised = 0;
+		tmpscr[tmp].doscript = 1;
 	}
 	else
 	{
-	tmpscr[tmp].script = 0;
-	tmpscr[tmp].screendatascriptInitialised = 0;
-	tmpscr[tmp].doscript = 0;
+		tmpscr[tmp].script = 0;
+		tmpscr[tmp].screendatascriptInitialised = 0;
+		tmpscr[tmp].doscript = 0;
 	}
 	
 	
@@ -4514,13 +4515,13 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 	if(tmp==0)
 	{
 		// Before loading new FFCs, deallocate the arrays used by those that aren't carrying over
-	
-	for(int ffid = 0; ffid < 32; ++ffid)
-	{
-		if(!(ffscr.flags5&fNOFFCARRYOVER) && (ffscr.ffflags[ffid]&ffCARRYOVER)) continue;
-		FFCore.deallocateAllArrays(SCRIPT_FFC, ffid, false); //false means this does not require 'qr_ALWAYS_DEALLOCATE_ARRAYS' to be checked. -V
-	}
-	FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
+		
+		for(int ffid = 0; ffid < 32; ++ffid)
+		{
+			if(!(ffscr.flags5&fNOFFCARRYOVER) && (ffscr.ffflags[ffid]&ffCARRYOVER)) continue;
+			FFCore.deallocateAllArrays(SCRIPT_FFC, ffid, false); //false means this does not require 'qr_ALWAYS_DEALLOCATE_ARRAYS' to be checked. -V
+		}
+		FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
 		
 		for(int i = 0; i < 32; i++)
 		{
