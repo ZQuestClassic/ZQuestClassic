@@ -12,7 +12,7 @@
 //alpha id
 #define V_ZC_FOURTH 0
 //build
-#define V_ZC_ALPHA 98
+#define V_ZC_ALPHA 99
 #define V_ZC_BETA 0
 #define V_ZC_GAMMA 0
 #define V_ZC_RELEASE 0
