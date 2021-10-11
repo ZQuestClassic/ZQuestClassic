@@ -186,6 +186,7 @@ ItemEditorDialog::ItemEditorDialog(int index):
 #define DISABLE_WEAP_DATA true
 #define ATTR_WID 6_em
 #define ATTR_LAB_WID 12_em
+#define SPR_LAB_WID sized(14_em,10_em)
 #define ACTION_LAB_WID 6_em
 #define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 18_em
@@ -223,9 +224,9 @@ l_flags[index] = Checkbox( \
 
 #define SPRITE_DROP(ind, mem) \
 Rows<2>(vPadding = 0_px, \
-	Label(text = ("Sprites["#ind"]:"), hAlign = 1.0), \
+	l_spr[ind] = Label(textAlign = 2, width = SPR_LAB_WID, topMargin = 1_px), \
 	DropDownList( \
-		maxwidth = sized(12_em, 14_em), \
+		maxwidth = sized(18_em, 14_em), \
 		data = list_sprites, \
 		selectedValue = local_itemref.mem, \
 		onSelectFunc = [&](int val) \
@@ -2110,18 +2111,24 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								)
 							)
 						)),
-						TabRef(name = "Sprites", Columns<5>(
-							SPRITE_DROP(0,wpn),
-							SPRITE_DROP(1,wpn2),
-							SPRITE_DROP(2,wpn3),
-							SPRITE_DROP(3,wpn4),
-							SPRITE_DROP(4,wpn5),
-							SPRITE_DROP(5,wpn6),
-							SPRITE_DROP(6,wpn7),
-							SPRITE_DROP(7,wpn8),
-							SPRITE_DROP(8,wpn9),
-							SPRITE_DROP(9,wpn10)
-						)),
+						TabRef(name = "Sprites", 
+							TabPanel(
+								TabRef(name = "1", Column(
+									SPRITE_DROP(0,wpn),
+									SPRITE_DROP(1,wpn2),
+									SPRITE_DROP(2,wpn3),
+									SPRITE_DROP(3,wpn4),
+									SPRITE_DROP(4,wpn5)
+								)),
+								TabRef(name = "2", Column(
+									SPRITE_DROP(5,wpn6),
+									SPRITE_DROP(6,wpn7),
+									SPRITE_DROP(7,wpn8),
+									SPRITE_DROP(8,wpn9),
+									SPRITE_DROP(9,wpn10)
+								))
+							)
+						),
 						TabRef(name = "Size", Row(
 							Rows<2>(
 								vAlign = 0.0,
@@ -2605,6 +2612,17 @@ void ItemEditorDialog::loadItemClass()
 	__SET(l_flags[15], flag16);
 	
 	__SET(l_sfx, actionsnd);
+	
+	__SET(l_spr[0], wpn1);
+	__SET(l_spr[1], wpn2);
+	__SET(l_spr[2], wpn3);
+	__SET(l_spr[3], wpn4);
+	__SET(l_spr[4], wpn5);
+	__SET(l_spr[5], wpn6);
+	__SET(l_spr[6], wpn7);
+	__SET(l_spr[7], wpn8);
+	__SET(l_spr[8], wpn9);
+	__SET(l_spr[9], wpn10);
 }
 
 bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)

@@ -19,6 +19,7 @@ void Switcher::switchTo(size_t index)
 		children[visibleChild]->setExposed(false);
 		children[index]->setExposed(true);
 	}
+	pendDraw();
 	visibleChild = index;
 }
 

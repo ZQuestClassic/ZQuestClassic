@@ -76,6 +76,7 @@ private:
 	void loadItemClass();
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::Label> l_attribs[10];
+	std::shared_ptr<GUI::Label> l_spr[10];
 	std::shared_ptr<GUI::Checkbox> l_flags[16];
 	std::shared_ptr<GUI::Label> l_power;
 	std::shared_ptr<GUI::Label> l_sfx;
