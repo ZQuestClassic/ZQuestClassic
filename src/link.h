@@ -323,6 +323,7 @@ public:
     void checkspecial2(int *ls);
     void checkspecial3();
     void checkpushblock();
+    bool checksoliddamage();
     void checkbosslockblock();
     void checklockblock();
     void checkswordtap();
