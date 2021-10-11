@@ -15369,6 +15369,110 @@ LinkClass::WalkflagInfo LinkClass::walkflagMBlock(int wx,int wy)
     return ret;
 }
 
+bool LinkClass::checksoliddamage()
+{
+	if(toogam) return false;
+    
+	if(z!=0) return false;
+	int bx = x.getInt();
+	int by = y.getInt();
+	int initk = 0;
+	switch(dir)
+	{
+	case up:
+		
+		by-=bigHitbox ? 4 : -4;
+		
+		if(by<0)
+		{
+			return false;
+		}
+		break;
+		
+	case down:
+		
+		by+=20;
+		if(by>175)
+		{
+			return false;
+		}
+		
+		break;
+		
+	case left:
+		bx-=4;
+		if (!bigHitbox) 
+		{
+			by+=8;
+			initk = 1;
+		}
+		if(bx<0)
+		{
+			return false;
+		}
+		
+		break;
+		
+	case right:
+		
+		bx+=20;
+		if (!bigHitbox) 
+		{
+			by+=8;
+			initk = 1;
+		}
+		if(bx>255)
+		{
+			return false;
+		}
+		
+		break;
+	}
+	int t = combobuf[MAPCOMBO(bx,by)].type;
+	int initbx = bx;
+	int initby = by;
+	
+	// Unlike push blocks, damage combos should be tested on layers 2 and under
+	for(int i=(get_bit(quest_rules,qr_DMGCOMBOLAYERFIX) ? 2 : 0); i>=0; i--)
+	{
+		bx = initbx;
+		by = initby;
+		for (int k = initk; k <= 2; k++)
+		{
+			t = COMBOTYPE2(i-1,bx,by);
+			
+			// Solid damage combos use pushing>0, hence the code is here.
+			if(combo_class_buf[t].modify_hp_amount && _walkflag(bx,by,1,SWITCHBLOCK_STATE) && pushing>0 && hclk<1 && action!=casting && action != sideswimcasting && !get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS))
+			{
+				// Bite Link
+				if (checkdamagecombos(bx, bx, by, by, i-1, true)) return true;
+			}
+			if(isSideViewLink() && // Check for sideview damage combos
+					hclk<1 && action!=casting && action!=sideswimcasting) // ... but only if Link could be hurt
+			{
+			
+				//old 2.50.2-ish code for 2.50.0 sideview quests for er_OLDSIDEVIEWSPIKES
+				if ( get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES ) )
+				{
+					if (checkdamagecombos(x+8-(zfix)(tmpscr->csensitive),
+						x+8+(zc_max(tmpscr->csensitive-1,0)),
+						y+17-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
+						y+17+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true))
+							return true;
+				}
+				else //2.50.1 and later
+				{
+					if(checkdamagecombos(x+4, x+12, y+16, y+24))
+						return true;
+				}
+				
+			}
+			if (dir < left) bx += (k % 2) ? 7 : 8;
+			else by += (k % 2) ? 7 : 8;
+		}
+	}
+	return false;
+}
 void LinkClass::checkpushblock()
 {
     if(toogam) return;
@@ -15454,50 +15558,11 @@ void LinkClass::checkpushblock()
         break;
     }
     
-    // In sideview, we still have to check for damage combos.
-    if(earlyReturn && !isSideViewLink())
-        return;
-    
     int f = MAPFLAG(bx,by);
     int f2 = MAPCOMBOFLAG(bx,by);
     int t = combobuf[MAPCOMBO(bx,by)].type;
     
-    // Unlike push blocks, damage combos should be tested on layers 2 and under
-    for(int i=(get_bit(quest_rules,qr_DMGCOMBOLAYERFIX) ? 2 : 0); i>=0; i--)
-    {
-        t = combobuf[i==0 ? MAPCOMBO(bx,by) : MAPCOMBO2(i-1,bx,by)].type;
-        
-        // Solid damage combos use pushing>0, hence the code is here.
-        if(combo_class_buf[t].modify_hp_amount && _walkflag(bx,by,1,SWITCHBLOCK_STATE) && pushing>0 && hclk<1 && action!=casting && action != sideswimcasting && !get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS))
-        {
-            // Bite Link
-            checkdamagecombos(bx+8-(tmpscr->csensitive),
-                              bx+8+(zc_max(tmpscr->csensitive-1,0)),
-                              by+(bigHitbox?8:12)-(bigHitbox?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
-                              by+zc_max((bigHitbox?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
-            return;
-        }
-        if(isSideViewLink() && // Check for sideview damage combos
-                hclk<1 && action!=casting && action!=sideswimcasting) // ... but only if Link could be hurt
-        {
-		
-		//old 2.50.2-ish code for 2.50.0 sideview quests for er_OLDSIDEVIEWSPIKES
-		if ( get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES ) )
-		{
-			checkdamagecombos(x+8-(zfix)(tmpscr->csensitive),
-                                         x+8+(zc_max(tmpscr->csensitive-1,0)),
-                                         y+17-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
-                                         y+17+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
-			return;
-		}
-		else //2.50.1 and later
-		{
-			if(checkdamagecombos(x+4, x+12, y+16, y+24))
-				return;		
-		}
-            
-        }
-    }
+    if (checksoliddamage()) return;
     
     if(earlyReturn)
         return;
@@ -20971,12 +21036,14 @@ bool LinkClass::nextcombo_solid(int d2)
 	
 	if(d2==left||d2==right) cy+=bigHitbox?0:8;
 	
-	
+	int initcx = cx;
+	int initcy = cy;
 	// from MAPCOMBO()
 	
-	for(int i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((cy&7)?2:1):((cy&7)?1:0)) && cy < 176; cy+=8,i++)
+	for(int i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((initcy&7)?2:1):((initcy&7)?1:0)) && cy < 176; cy+=(cy%2)?7:8,i++)
 	{
-		for(int k=0; k<=(get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)?((cx&7)?2:1):0) && cx < 256; cx+=8,k++)
+		cx = initcx;
+		for(int k=0; k<=(get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)?((initcx&7)?2:1):0) && cx < 256; cx+=(cx%2)?7:8,k++)
 		{
 			int cmb = (cy&0xF0)+(cx>>4);
 			
