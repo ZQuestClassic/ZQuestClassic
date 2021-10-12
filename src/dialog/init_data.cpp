@@ -2,6 +2,7 @@
 #include "info.h"
 #include "gui/use_size.h"
 #include <gui/builder.h>
+#include "util.h"
 #include "zsys.h"
 
 extern ListData dmap_list;

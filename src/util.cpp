@@ -1,5 +1,5 @@
-
 #include "util.h"
+#include <cmath>
 #include <sys/stat.h>
 using namespace std;
 
@@ -399,6 +399,63 @@ namespace util
 				al_trace(str+q);
 			}
 		}
+	}
+
+	direction angleToDir4(double angle)
+	{
+		angle = std::fmod(angle, 2.0*PI);
+		if(angle < 0)
+			angle += 2.0*PI;
+
+		if(angle <= PI/4.0 || angle > 7.0*PI/4.0)
+			return right;
+		else if(angle <= 3.0*PI/4.0)
+			return down;
+		else if(angle <= 5.0*PI/4.0)
+			return left;
+		else
+			return up;
+	}
+
+	direction angleToDir8(double angle)
+	{
+		angle = std::fmod(angle, 2.0*PI);
+		if(angle < 0)
+			angle += 2.0*PI;
+
+		if(angle <= PI/8.0 || angle > 15.0*PI/8.0)
+			return right;
+		else if(angle <= 3.0*PI/8.0)
+			return r_down;
+		else if(angle <= 5.0*PI/8.0)
+			return down;
+		else if(angle <= 7.0*PI/8.0)
+			return l_down;
+		else if(angle <= 9.0*PI/8.0)
+			return left;
+		else if(angle <= 11.0*PI/8.0)
+			return l_up;
+		else if(angle <= 13.0*PI/8.0)
+			return up;
+		else
+			return r_up;
+	}
+
+	direction dir4To(int fromX, int fromY, int toX, int toY)
+	{
+		int dx = toX-fromX;
+		int dy = toY-fromY;
+		if(std::abs(dx) > std::abs(dy))
+			return (dx <= 0) ? left : right;
+		else
+			return (dy <= 0) ? up : down;
+	}
+
+	direction dir8To(int fromX, int fromY, int toX, int toY)
+	{
+		if(fromX == toX && fromY == toY)
+			return up;
+		return angleToDir8(std::atan2(double(toY-fromY), double(toX-fromX)));
 	}
 }
 

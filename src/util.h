@@ -35,6 +35,10 @@ namespace util
 	int zc_chmod(const char* path, mode_t mode);
 	bool checkPath(const char* path, const bool is_dir);
 	void safe_al_trace(const char* str);
+	direction angleToDir4(double angle);
+	direction angleToDir8(double angle);
+	direction dir4To(int fromX, int fromY, int toX, int toY);
+	direction dir8To(int fromX, int fromY, int toX, int toY);
 }
 int vbound(int val, int low, int high);
 double vbound(double val, double low, double high);
@@ -42,4 +46,3 @@ double vbound(double val, double low, double high);
 //#define vbound(x,low,high) (x<low?low:(x>high?high:x))
 
 #endif
-

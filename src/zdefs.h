@@ -113,7 +113,6 @@
 #include "gamedata.h"
 #include "zc_array.h"
 #include "random.h"
-#include "util.h"
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
