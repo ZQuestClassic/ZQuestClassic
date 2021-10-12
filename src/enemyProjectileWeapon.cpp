@@ -120,10 +120,16 @@ void EnemyProjectileWeapon::init(guydata& data)
 		sfx = defaultSound(data.weapon);
 		break;
 
+	case eePATRA:
+		type = attackType::BASIC;
+		wpnSubtype = 3;
+		sfx = defaultSound(data.weapon);
+		break;
+
 	case eeWIZZ:
 		if(data.misc2 == 0)
 		{
-			type = attackType::MAGE;
+			type = attackType::BASIC;
 			sfx = WAV_WAND;
 		}
 		else if(data.misc2 == 1)
@@ -149,15 +155,7 @@ void EnemyProjectileWeapon::fire(zfix xOffset, zfix yOffset) const
 
 	switch(type)
 	{
-	case attackType::UNICORN:
-		// Unicorn shots drift in the specified direction.
-		fireDirectional(x, y, owner.z, up);
-		fireDirectional(x, y, owner.z, 8);
-		fireDirectional(x, y, owner.z, down);
-		sfx.play(x);
-		break;
-
-	case attackType::MAGE:
+	case attackType::BASIC:
 		fireDirectional(x, y, owner.z, owner.dir);
 		sfx.play(x);
 		break;
@@ -171,6 +169,14 @@ void EnemyProjectileWeapon::fire(zfix xOffset, zfix yOffset) const
 		fireDirectional(x, y, owner.z, r_up).moveflags &= ~FLAG_CAN_PITFALL;
 		fireDirectional(x, y, owner.z, l_down).moveflags &= ~FLAG_CAN_PITFALL;
 		fireDirectional(x, y, owner.z, r_down).moveflags &= ~FLAG_CAN_PITFALL;
+		sfx.play(x);
+		break;
+
+	case attackType::UNICORN:
+		// Unicorn shots drift in the specified direction.
+		fireDirectional(x, y, owner.z, up);
+		fireDirectional(x, y, owner.z, 8);
+		fireDirectional(x, y, owner.z, down);
 		sfx.play(x);
 		break;
 

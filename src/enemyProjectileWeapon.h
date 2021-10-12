@@ -16,7 +16,7 @@ public:
 
 private:
 	enum class attackType: char {
-		NONE, UNICORN, MAGE, FIRE_MAGE
+		NONE, BASIC, FIRE_MAGE, UNICORN
 	};
 
 	enemy& owner;

@@ -3949,28 +3949,11 @@ int enemy::defendNew(int wpnId, int *power, int edef, byte unblockable) //May ne
 				
 				case eePATRA:
 				{
-					switch(guysbuf[new_id&0xFFF].misc10)
-					{
-						case 1:
-						{
-						enemy *e = new ePatraBS(x,y,new_id,clk);
-						guys.add(e);
-							e->x = x;
-							e->y = y;
-						}
-						break;
-					
-						case 0:
-						default:
-						{
-							enemy *e = new ePatra(x,y,new_id,clk);
-							guys.add(e);
-							e->x = x;
-							e->y = y;
-						}
-						break;
-					}
-				
+					int numEnemies=Hive::numOrbiters(guysbuf[new_id])+1;
+					if(!guys.has_space(numEnemies))
+						return 0;
+					enemy *e = new Hive(x,y,new_id,clk);
+					guys.add(e);
 					break;
 				}
 				
@@ -4169,43 +4152,15 @@ int enemy::defendNew(int wpnId, int *power, int edef, byte unblockable) //May ne
 				
 				case eePATRA:
 				{
-				new_id &= 0xFFF;
-				int outeyes = 0;
-					ptra = new ePatraBS((zfix)x,(zfix)y,id,clk);
-				
-				for(int i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc1); i++)
-				{
-					if(!(guysbuf[new_id].misc10?guys.add(new esPatraBS((zfix)x,(zfix)y,new_id+0x1000,i,ptra)):guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i,ptra))))
+					int numOrbiters = Hive::numOrbiters(guysbuf[new_id]);
+					auto* hive = (Hive*)guys.spr(guys.Count()-1);
+					for(int i = 0; i < numOrbiters; ++i)
 					{
-					al_trace("Patra outer eye %d could not be created!\n",i+1);
-					
-					for(int j=0; j<i+1; j++)
-						guys.del(guys.Count()-1);
-						
-					return 0;
-					}
-					else
-					outeyes++;
-					
-					
-				}
-				
-				for(int i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc2); i++)
-				{
-					if(!guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i,ptra)))
-					{
-					al_trace("Patra inner eye %d could not be created!\n",i+1);
-					
-					for(int j=0; j<i+1+zc_min(254,outeyes); j++)
-						guys.del(guys.Count()-1);
-						
-					return 0;
+						enemy* e = hive->createOrbiter();
+						guys.add(e);
 					}
 					
-					
-				}
-				delete ptra;
-				break;
+					break;
 				}
 			}
 			
@@ -16702,18 +16657,10 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 	
 	case eePATRA:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
-		{
-		case 1:
-			e = new ePatraBS((zfix)x,(zfix)y,id,clk);
-			break;
-			
-		case 0:
-		default:
-			e = new ePatra((zfix)x,(zfix)y,id,clk);
-			break;
-		}
-		
+		int numEnemies=Hive::numOrbiters(guysbuf[id&0xFFF])+1;
+		if(!guys.has_space(numEnemies))
+			return 0;
+		e = new Hive((zfix)x,(zfix)y,id,clk);
 		break;
 	}
 	
@@ -16884,39 +16831,13 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 	
 	case eePATRA:
 	{
-		id &= 0xFFF;
-		int outeyes = 0;
-		
-		for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc1); i++)
+		int numOrbiters = Hive::numOrbiters(guysbuf[id&0xFFF]);
+		auto* hive = (Hive*)e;
+		for(int i = 0; i < numOrbiters; ++i)
 		{
-			if(!(guysbuf[id].misc10?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
-			{
-				al_trace("Patra outer eye %d could not be created!\n",i+1);
-				
-				for(int j=0; j<i+1; j++)
-					guys.del(guys.Count()-1);
-					
-				return 0;
-			}
-			else
-				outeyes++;
-				
-			ret++;
-		}
-		
-		for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc2); i++)
-		{
-			if(!guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e)))
-			{
-				al_trace("Patra inner eye %d could not be created!\n",i+1);
-				
-				for(int j=0; j<i+1+zc_min(254,outeyes); j++)
-					guys.del(guys.Count()-1);
-					
-				return 0;
-			}
-			
-			ret++;
+			enemy* orbiter = hive->createOrbiter();
+			guys.add(orbiter);
+			++ret;
 		}
 		
 		break;
@@ -17151,18 +17072,10 @@ int addenemy(int x,int y,int z,int id,int clk)
 	
 	case eePATRA:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
-		{
-		case 1:
-			e = new ePatraBS((zfix)x,(zfix)y,id,clk);
-			break;
-			
-		case 0:
-		default:
-			e = new ePatra((zfix)x,(zfix)y,id,clk);
-			break;
-		}
-		
+		int numEnemies = Hive::numOrbiters(guysbuf[id&0xFFF])+1;
+		if(!guys.has_space(numEnemies))
+			return 0;
+		e = new Hive((zfix)x,(zfix)y,id,clk);
 		break;
 	}
 	
@@ -17327,39 +17240,13 @@ int addenemy(int x,int y,int z,int id,int clk)
 	
 	case eePATRA:
 	{
-		id &= 0xFFF;
-		int outeyes = 0;
-		
-		for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc1); i++)
+		int numOrbiters = Hive::numOrbiters(guysbuf[id&0xFFF]);
+		auto* hive = (Hive*)e;
+		for(int i = 0; i < numOrbiters; ++i)
 		{
-			if(!(guysbuf[id].misc10?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
-			{
-				al_trace("Patra outer eye %d could not be created!\n",i+1);
-				
-				for(int j=0; j<i+1; j++)
-					guys.del(guys.Count()-1);
-					
-				return 0;
-			}
-			else
-				outeyes++;
-				
-			ret++;
-		}
-		
-		for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc2); i++)
-		{
-			if(!guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e)))
-			{
-				al_trace("Patra inner eye %d could not be created!\n",i+1);
-				
-				for(int j=0; j<i+1+zc_min(254,outeyes); j++)
-					guys.del(guys.Count()-1);
-					
-				return 0;
-			}
-			
-			ret++;
+			enemy* orbiter = hive->createOrbiter();
+			guys.add(orbiter);
+			++ret;
 		}
 		
 		break;

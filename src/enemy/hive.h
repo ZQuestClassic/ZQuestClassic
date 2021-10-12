@@ -2,56 +2,62 @@
 #define ZC_ENEMY_HIVE_H
 
 #include "../guys.h"
+#include <vector>
 
-class ePatra : public enemy
+class HiveOrbiter;
+
+class Hive: public enemy
 {
 public:
-	int flycnt,flycnt2, loopcnt, lookat;
-	double circle_x, circle_y;
-	double temp_x, temp_y;
-	bool adjusted;
-	//ePatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	ePatra(zfix X,zfix Y,int Id,int Clk);                     // : enemy((zfix)128,(zfix)48,Id,Clk)
-	virtual bool animate(int index);
-	virtual void draw(BITMAP *dest);
-	virtual int defend(int wpnId, int *power, int edef);
-	virtual int defendNew(int wpnId, int *power, int edef, byte unblockable);
+	static int numOrbiters(guydata& data);
+
+	Hive(zfix x, zfix y, int id, int clk);
+	HiveOrbiter* createOrbiter();
+
+private:
+	int& mainTimer;
+	int timerLimit;
+	std::vector<HiveOrbiter*> orbiters;
+	int outerRingCount, innerRingCount, patternCounter;
+
+	/* Called by orbiters when they die. Updates the list of living orbiters. */
+	void orbiterDied(HiveOrbiter* orbiter);
+	int defend(int wpnId, int *power, int edef) override;
+	int defendNew(int wpnId, int *power, int edef, byte unblockable) override;
+	bool animate(int index) override;
+	void draw(BITMAP *dest) override;
+
+	inline bool isBig() const { return dmisc10 == 1; }
+
+	friend class HiveOrbiter;
 };
 
-// segment class
-class esPatra : public enemy
+class HiveOrbiter: public enemy
 {
 public:
-	//esPatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	esPatra(zfix X,zfix Y,int Id,int Clk,sprite * prnt);                    // : enemy(X,Y,Id,Clk)
-	sprite * parent;
-	virtual bool animate(int index);
-	virtual void draw(BITMAP *dest);
-};
+	HiveOrbiter(int id, Hive* parent, int pos, bool inner);
 
-class ePatraBS : public enemy
-{
-public:
-	int flycnt,flycnt2, loopcnt, lookat;
-	double temp_x, temp_y;
-	bool adjusted;
-	//ePatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	ePatraBS(zfix X,zfix Y,int Id,int Clk);                   // : enemy((zfix)128,(zfix)48,Id,Clk)
-	virtual bool animate(int index);
-	virtual void draw(BITMAP *dest);
-	virtual int defend(int wpnId, int *power, int edef);
-	virtual int defendNew(int wpnId, int *power, int edef, byte unblockable);
-};
 
-// segment class
-class esPatraBS : public enemy
-{
-public:
-	//esPatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	esPatraBS(zfix X,zfix Y,int Id,int Clk,sprite * prnt);                  // : enemy(X,Y,Id,Clk)
-	sprite * parent;
-	virtual bool animate(int index);
-	virtual void draw(BITMAP *dest);
+private:
+	Hive* parent;
+
+	/* True if this is part of the inner ring. */
+	bool inner;
+
+	/* This orbiter's position as a fraction of a circle ( [0, 1) ) */
+	double relOffset;
+
+	/* This orbiter's position as an angle ( [0, 2*pi) ) */
+	double absOffset;
+
+	void positionBigCircle();
+	void positionOval();
+	bool animate(int index) override;
+	void draw(BITMAP *dest) override;
+
+	inline bool isBig() const { return dmisc10 == 1; }
+
+	friend class Hive;
 };
 
 #endif

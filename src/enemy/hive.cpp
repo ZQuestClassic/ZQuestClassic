@@ -1,770 +1,431 @@
 #include "hive.h"
 #include "../link.h"
 
-// This should probably go somewhere else...
 static direction angleToDir(double angle)
 {
-    if(angle<=-5*PI/8 && angle>-7*PI/8)
-        return l_down;
-    else if(angle<=-3*PI/8 && angle>-5*PI/8)
-        return left;
-    else if(angle<=-1*PI/8 && angle>-3*PI/8)
-        return l_up;
-    else if(angle<=1*PI/8 && angle>-1*PI/8)
-        return up;
-    else if(angle<=3*PI/8 && angle>1*PI/8)
-        return r_up;
-    else if(angle<=5*PI/8 && angle>3*PI/8)
-        return right;
-    else if(angle<=7*PI/8 && angle>5*PI/8)
-        return r_down;
-    else
-        return down;
+	if(angle <= -5*PI/8 && angle > -7*PI/8)
+		return l_down;
+	else if(angle <= -3*PI/8 && angle > -5*PI/8)
+		return left;
+	else if(angle <= -1*PI/8 && angle > -3*PI/8)
+		return l_up;
+	else if(angle <= 1*PI/8 && angle > -1*PI/8)
+		return up;
+	else if(angle <= 3*PI/8 && angle > 1*PI/8)
+		return r_up;
+	else if(angle <= 5*PI/8 && angle > 3*PI/8)
+		return right;
+	else if(angle <= 7*PI/8 && angle > 5*PI/8)
+		return r_down;
+	else
+		return down;
 }
 
-ePatra::ePatra(zfix X, zfix Y, int Id, int Clk):
-    enemy(X, Y, Id, Clk)
+int Hive::numOrbiters(guydata& data)
 {
-    if((editorflags&ENEMY_FLAG5)==0)
-    {
-        x=128;
-        y=48;
-    }
-    else
-    {
-        x=X;
-        y=Y;
-    }
-
-    adjusted=false;
-    dir=(rand()&7)+8;
-    flycnt=dmisc1;
-    flycnt2=dmisc2;
-    loopcnt=0;
-    if(dmisc6<1)
-        dmisc6=1; // ratio cannot be 0!
-    SIZEflags = d->SIZEflags;
-    if(SIZEflags&guyflagOVERRIDE_TILE_WIDTH && txsz>0)
-    {
-        txsz=txsz;
-        if(txsz>1)
-            extend=3;
-    }
-    if(SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && tysz>0)
-    {
-        tysz=tysz;
-        if(tysz>1)
-            extend = 3;
-    }
-    if(SIZEflags&guyflagOVERRIDE_HIT_WIDTH && hxsz>=0)
-        hxsz=hxsz;
-    if(SIZEflags&guyflagOVERRIDE_HIT_HEIGHT && hysz>=0)
-        hysz=hysz;
-    if(SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT && hzsz>=0)
-        hzsz=hzsz;
-    if(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET)
-        hxofs=hxofs;
-    if(SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET)
-        hyofs=hyofs;
-    if(SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET)
-        xofs=xofs;
-    if(SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET)
-    {
-        yofs=yofs; //This seems to be setting to +48 or something with any value set?! -Z
-        yofs+=56 ; //this offset fixes yofs not plaing properly. -Z
-    }
-    if(SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET)
-        zofs=zofs;
+	if(data.misc10 == 1)
+		// Big - outer orbiters only
+		return data.misc1;
+	else
+		// Small - inner and outer
+		return data.misc1+data.misc2;
 }
 
-bool ePatra::animate(int index)
+// Hive ========================================================================
+
+Hive::Hive(zfix _x, zfix _y, int id, int clk):
+	enemy(_x, _y, id, clk),
+	mainTimer(clk2),
+	outerRingCount(dmisc1),
+	innerRingCount(dmisc2),
+	patternCounter(0)
 {
-    if(dying)
-    {
-        for(int i=index+1; i<index+flycnt+flycnt2+1; i++)
-            ((enemy*)guys.spr(i))->hp=-1000;
-
-        return Dead(index);
-    }
-
-    if(clk==0)
-        removearmos(x, y);
-
-    variable_walk_8(rate, homing, hrate, spw_floater);
-
-    clk2++;
-    if(clk2>84)
-    {
-        clk2=0;
-
-        if(loopcnt)
-            loopcnt--;
-        else
-        {
-            if(misc%dmisc6==0)
-                loopcnt=dmisc7;
-        }
-
-        misc++;
-    }
-
-    double size=1;
-
-    for(int i=index+1; i<index+flycnt+1; i++)
-    {
-        enemy* orbiter=(enemy*)guys.spr(i);
-        //outside ring
-        if(!adjusted)
-        {
-            if(get_bit(quest_rules,qr_NEWENEMYTILES))
-            {
-                orbiter->o_tile=o_tile+dmisc8;
-                orbiter->parent_script_UID= this->script_UID;
-            }
-            else
-            {
-                orbiter->o_tile=o_tile+1;
-                orbiter->parent_script_UID=this->script_UID;
-            }
-
-            orbiter->cs=dmisc9;
-            orbiter->hp=dmisc3;
-        }
-
-        if(orbiter->hp<=0)
-        {
-            for(int j=i; j<index+flycnt+flycnt2; j++)
-                guys.swap(j,j+1);
-
-                --flycnt;
-        }
-        else
-        {
-            int pos2 = orbiter->misc;
-            double a2 = (clk2-pos2*84.0/(dmisc1 == 0 ? 1 : dmisc1))*PI/42;
-
-            if(!dmisc4)
-            {
-                //maybe playing_field_offset here?
-                if(loopcnt>0)
-                {
-                    orbiter->x =  cos(a2+PI/2)*56*size - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*28*size;
-                    orbiter->y = -sin(a2+PI/2)*56*size + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*28*size;
-                }
-                else
-                {
-                    orbiter->x =  cos(a2+PI/2)*28*size;
-                    orbiter->y = -sin(a2+PI/2)*28*size;
-                }
-
-                temp_x=orbiter->x;
-                temp_y=orbiter->y;
-            }
-            else
-            {
-                circle_x=cos(a2+PI/2)*42;
-                circle_y=-sin(a2+PI/2)*42;
-
-                if(loopcnt>0)
-                {
-                    orbiter->x=cos(a2+PI/2)*42;
-                    orbiter->y=(-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*21;
-                }
-                else
-                {
-                    orbiter->x=circle_x;
-                    orbiter->y=circle_y;
-                }
-
-                temp_x=circle_x;
-                temp_y=circle_y;
-            }
-
-            orbiter->dir=angleToDir(atan2(double(temp_y), double(temp_x)));
-
-            orbiter->x+=x;
-            orbiter->y+=y;
-        }
-    }
-
-    if(dmisc5==1)
-    {
-        if((rand()&127)==0)
-        {
-            addEwpn(x, y, z, wpn, 3, wdp, dir, getUID());
-            sfx(wpnsfx(wpn),pan(int(x)));
-        }
-    }
-
-    size=.5;
-
-    if(flycnt2)
-    {
-        for(int i=index+flycnt+1; i<index+flycnt+flycnt2+1; i++)//inner ring
-        {
-            enemy* orbiter=(enemy*)guys.spr(i);
-            if(!adjusted)
-            {
-                orbiter->hp=12*game->get_hero_dmgmult();
-
-                if(get_bit(quest_rules,qr_NEWENEMYTILES))
-                {
-                    switch(dmisc5)
-                    {
-                    // Center eye shoots projectiles; make room for its firing tiles
-                    case 1:
-                        orbiter->o_tile=o_tile+120;
-                        break;
-
-                    // Center eyes does not shoot; use tiles two rows below for inner eyes.
-                    default:
-                    case 2:
-                        orbiter->o_tile=o_tile+40;
-                        break;
-                    }
-                }
-                else
-                    orbiter->o_tile=o_tile+1;
-
-                orbiter->cs=dmisc9;
-            }
-
-            if(flycnt>0)
-                orbiter->superman=true;
-            else
-                orbiter->superman=false;
-
-            if(orbiter->hp <= 0)
-            {
-                for(int j=i; j<index+flycnt+flycnt2; j++)
-                    guys.swap(j, j+1);
-
-                flycnt2--;
-            }
-            else
-            {
-                if(dmisc5==2)
-                {
-                    if((rand()&127)==0)
-                    {
-                        addEwpn(guys.spr(i)->x, guys.spr(i)->y, guys.spr(i)->z, wpn, 3, wdp, dir, getUID());
-                        sfx(wpnsfx(wpn), pan(int(x)));
-                    }
-                }
-
-                int pos2 = ((enemy*)guys.spr(i))->misc;
-                double a2 = ((clk2-pos2*84/(dmisc2==0 ? 1 : dmisc2))*PI/(42));
-
-                if(dmisc4==0)
-                {
-                    if(loopcnt>0)
-                    {
-                        orbiter->x=cos(a2+PI/2)*56*size-sin(pos2*PI*2/(dmisc2==0 ? 1 : dmisc2))*28*size;
-                        orbiter->y=-sin(a2+PI/2)*56*size+cos(pos2*PI*2/(dmisc2==0 ? 1 : dmisc2))*28*size;
-                    }
-                    else
-                    {
-                        orbiter->x=cos(a2+PI/2)*28*size;
-                        orbiter->y=-sin(a2+PI/2)*28*size;
-                    }
-
-                    temp_x=orbiter->x;
-                    temp_y=orbiter->y;
-                }
-                else
-                {
-                    circle_x=cos(a2+PI/2)*42*size;
-                    circle_y=-sin(a2+PI/2)*42*size;
-
-                    if(loopcnt>0)
-                    {
-                        orbiter->x=cos(a2+PI/2)*42*size;
-                        orbiter->y=(-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*21*size;
-                    }
-                    else
-                    {
-                        orbiter->x=circle_x;
-                        orbiter->y=circle_y;
-                    }
-
-                    temp_x=circle_x;
-                    temp_y=circle_y;
-                }
-
-                orbiter->dir=angleToDir(atan2(double(temp_y),double(temp_x)));
-
-                orbiter->x+=x;
-                orbiter->y=y-orbiter->y;
-
-            }
-        }
-    }
-
-    adjusted=true;
-    return enemy::animate(index);
-}
-
-void ePatra::draw(BITMAP *dest)
-{
-	tile=o_tile;
-	update_enemy_frame();
-	enemy::draw(dest);
-}
-
-int ePatra::defend(int wpnId, int *power, int edef)
-{
-	int ret=enemy::defend(wpnId, power, edef);
-
-	if(ret<0 && (flycnt || flycnt2))
-		return 0;
-
-	return ret;
-}
-
-int ePatra::defendNew(int wpnId, int *power, int edef, byte unblockable)
-{
-	int ret=enemy::defendNew(wpnId, power, edef, unblockable);
-
-	if(ret<0 && (flycnt || flycnt2))
-		return 0;
-
-	return ret;
-}
-
-esPatra::esPatra(zfix X, zfix Y, int Id, int Clk, sprite* prnt):
-    enemy(X, Y, Id, Clk),
-    parent(prnt)
-{
-    item_set=0;
-    misc=clk;
-    clk=-((misc*21)>>1)-1;
-    yofs=playing_field_offset;
-    enemy* prntenemy=(enemy*)prnt;
-    int prntSIZEflags=prntenemy->SIZEflags;
-    if(SIZEflags&guyflagOVERRIDE_TILE_WIDTH && txsz>0)
-    {
-        txsz=prntenemy->txsz;
-        if(txsz>1)
-            extend=3;
-    }
-    if(SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && tysz>0)
-    {
-        tysz=prntenemy->tysz;
-        if(tysz>1)
-            extend=3;
-    }
-    if(SIZEflags&guyflagOVERRIDE_HIT_WIDTH && hxsz>=0)
-        hxsz=prntenemy->hxsz;
-    else
-        hxsz=12;
-    if(SIZEflags&guyflagOVERRIDE_HIT_HEIGHT && hysz>=0)
-        hysz=prntenemy->hysz;
-    else
-        hysz=12;
-    if(SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT && hzsz>=0)
-        hzsz=prntenemy->hzsz;
-    if(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET)
-        hxofs=prntenemy->hxofs;
-    else
-        hxofs=2;
-    if(SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET)
-        hyofs=prntenemy->hyofs;
-    else
-        hyofs=2;
-    if(SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET)
-        xofs=prntenemy->xofs;
-    if(SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET)
-        yofs=prntenemy->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-
-    if(SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET)
-        zofs=prntenemy->zofs;
-
-    mainguy=count_enemy=false;
-    bgsfx=-1;
-    flags&=~guy_neverret;
-    deadsfx=WAV_EDEAD;
-    hitsfx=WAV_EHIT;
-    isCore=false;
-}
-
-bool esPatra::animate(int index)
-{
-	if(dying)
-		return Dead(index);
-
-	return enemy::animate(index);
-}
-
-void esPatra::draw(BITMAP *dest)
-{
-	if(get_bit(quest_rules,qr_NEWENEMYTILES))
+	if((editorflags&ENEMY_FLAG5) == 0)
 	{
-		tile=o_tile+(clk&3);
-        flip=0;
-		switch(dir)
+		x = 128_x;
+		y = 48_x;
+	}
+
+	dir = (rand()&7)+8;
+	if(dmisc6 < 1) // Make sure pattern timer is valid
+		dmisc6 = 1;
+
+	if(isBig())
+	{
+		step = 0.25_x;
+		innerRingCount = 0; // Big hives don't have inner rings
+		dmisc5 = 0;  // or shoot projectiles
+		timerLimit = 90;
+		hxsz = 32;
+		hxofs = -8;
+	}
+	else
+		timerLimit = 84;
+
+	orbiters.reserve(outerRingCount+innerRingCount);
+
+	SIZEflags = d->SIZEflags;
+	if((SIZEflags & guyflagOVERRIDE_TILE_WIDTH) && txsz > 0)
+	{
+		txsz = d->txsz;
+		if(txsz > 1)
+			extend = 3;
+	}
+	if((SIZEflags & guyflagOVERRIDE_TILE_HEIGHT) && tysz > 0)
+	{
+		tysz = d->tysz;
+		if(tysz > 1)
+			extend = 3;
+	}
+	if((SIZEflags & guyflagOVERRIDE_HIT_WIDTH) && hxsz >= 0)
+		hxsz = d->hxsz;
+	if((SIZEflags & guyflagOVERRIDE_HIT_HEIGHT) && hysz >= 0)
+		hysz = d->hysz;
+	if((SIZEflags & guyflagOVERRIDE_HIT_Z_HEIGHT) && hzsz >= 0)
+		hzsz = d->hzsz;
+	if(SIZEflags & guyflagOVERRIDE_HIT_X_OFFSET)
+		hxofs = d->hxofs;
+	if(SIZEflags & guyflagOVERRIDE_HIT_Y_OFFSET)
+		hyofs = d->hyofs;
+	if(SIZEflags & guyflagOVERRIDE_DRAW_X_OFFSET)
+		xofs = d->xofs;
+	if(SIZEflags & guyflagOVERRIDE_DRAW_Y_OFFSET)
+	{
+		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
+		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+	}
+	if(SIZEflags & guyflagOVERRIDE_DRAW_Z_OFFSET)
+		zofs = d->zofs;
+}
+
+HiveOrbiter* Hive::createOrbiter()
+{
+	HiveOrbiter* orbiter;
+	if(orbiters.size() < outerRingCount) // Outer
+		orbiter = new HiveOrbiter(id|0x1000, this, orbiters.size(), false);
+	else // Inner
+		orbiter = new HiveOrbiter(id|0x1000, this, orbiters.size()-outerRingCount, true);
+	orbiters.push_back(orbiter);
+	return orbiter;
+}
+
+void Hive::orbiterDied(HiveOrbiter* orbiter)
+{
+	if(orbiter->inner)
+		--innerRingCount;
+	else
+		--outerRingCount;
+
+	for(int i = 0; i < orbiters.size(); ++i)
+	{
+		if(orbiter == orbiters[i])
 		{
-		case up:
-			break;
-
-		case down:
-			tile+=4;
-			break;
-
-		case left:
-			tile+=8;
-			break;
-
-		case right:
-			tile+=12;
-			break;
-
-		case l_up:
-			tile+=20;
-			break;
-
-		case r_up:
-			tile+=24;
-			break;
-
-		case l_down:
-			tile+=28;
-			break;
-
-		case r_down:
-			tile+=32;
+			orbiters.erase(orbiters.begin()+i);
 			break;
 		}
 	}
-	else
-		tile=o_tile+((clk&2)>>1);
-
-	if(clk>=0)
-		enemy::draw(dest);
 }
 
-
-ePatraBS::ePatraBS(zfix, zfix, int Id, int Clk):
-    enemy(128_x, 48_x, Id, Clk)
-{
-    adjusted=false;
-    dir=(rand()&7)+8;
-    step=0.25;
-    //flycnt=6; flycnt2=0;
-    flycnt=dmisc1;
-    flycnt2=0; // PatraBS doesn't have inner rings!
-    loopcnt=0;
-
-    SIZEflags = d->SIZEflags;
-    if(SIZEflags&guyflagOVERRIDE_TILE_WIDTH && txsz>0)
-    {
-        txsz=d->txsz;
-        if(txsz>1)
-            extend=3;
-    }
-    if(SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && tysz>0)
-    {
-        tysz=d->tysz;
-        if(tysz>1)
-            extend = 3;
-    }
-    if(SIZEflags&guyflagOVERRIDE_HIT_WIDTH && hxsz>=0)
-        hxsz=d->hxsz;
-    else
-        hxsz=32;
-    if(SIZEflags&guyflagOVERRIDE_HIT_HEIGHT && hysz>=0)
-        hysz=d->hysz;
-    if(SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT && hzsz>=0)
-        hzsz=d->hzsz;
-    if(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET)
-        hxofs=d->hxofs;
-    else
-        hxofs=-8;
-    if(SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET)
-        hyofs=d->hyofs;
-    if(SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET)
-        xofs=d->xofs;
-    if(SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET)
-    {
-        yofs=d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-        yofs+=56 ; //this offset fixes yofs not plaing properly. -Z
-    }
-    if(SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET)
-        zofs=d->zofs;
-    if(dmisc6<1)
-        dmisc6=1; // ratio cannot be 0!
-}
-
-bool ePatraBS::animate(int index)
+bool Hive::animate(int index)
 {
 	if(dying)
+	{
+		for(auto* orbiter: orbiters)
+		{
+			orbiter->parent = nullptr;
+			orbiter->hp = -1000;
+		}
+		orbiters.clear();
 		return Dead(index);
+	}
 
-	if(clk==0)
+	if(clk == 0)
 		removearmos(x,y);
 
 	variable_walk_8(rate, homing, hrate, spw_floater);
 
-    clk2++;
-	if(clk2>90)
+	++mainTimer;
+	if(mainTimer == timerLimit)
 	{
-		clk2=0;
+		mainTimer = 0;
 
-		if(loopcnt)
-			loopcnt--;
+		if(patternCounter)
+			--patternCounter;
 		else
 		{
-			if(misc%dmisc6==0)
-				loopcnt=dmisc7;
+			if(misc%dmisc6 == 0)
+				patternCounter = dmisc7;
 		}
 
-		misc++;
+		++misc;
 	}
 
-	for(int i=index+1; i<index+flycnt+1; i++)
-	{
-        enemy* orbiter=(enemy*)guys.spr(i);
+	if(dmisc5 == 1 && (zc_oldrand()&127) == 0)
+		eWpn.fire();
 
-		if(!adjusted)
-		{
-			orbiter->hp=dmisc3;
-
-			if(get_bit(quest_rules,qr_NEWENEMYTILES))
-				orbiter->o_tile=o_tile+dmisc8;
-			else
-				orbiter->o_tile=o_tile+1;
-
-			orbiter->cs=dmisc9;
-		}
-
-		if(orbiter->hp<=0)
-		{
-			for(int j=i; j<index+flycnt+flycnt2; j++)
-				guys.swap(j,j+1);
-
-			flycnt--;
-		}
-		else
-		{
-			int pos2=orbiter->misc;
-			double a2=(clk2-pos2*90/(dmisc1==0?1:dmisc1))*PI/45;
-			temp_x=cos(a2+PI/2)*45;
-			temp_y=-sin(a2+PI/2)*45;
-
-			if(loopcnt>0)
-			{
-				orbiter->x=cos(a2+PI/2)*45;
-				orbiter->y=(-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1==0 ? 1 : dmisc1)))*22.5;
-			}
-			else
-			{
-				orbiter->x=temp_x;
-				orbiter->y=temp_y;
-			}
-
-			orbiter->x+=x;
-			orbiter->y+=y;
-            orbiter->dir=angleToDir(atan2(double(temp_y), double(temp_x)));
-		}
-	}
-
-	adjusted=true;
 	return enemy::animate(index);
 }
 
-void ePatraBS::draw(BITMAP *dest)
+int Hive::defend(int wpnId, int *power, int edef)
 {
-	tile=o_tile;
+	int ret = enemy::defend(wpnId, power, edef);
 
-	if(get_bit(quest_rules, qr_NEWENEMYTILES))
-	{
-        flip=0; // XXX Would this ever be set to something nonzero?
-		switch(angleToDir(atan2(double(y-(Link.y)),double(Link.x-x))))
-		{
-		case up:
-			break;
-
-		case down:
-			tile+=8;
-			break;
-
-		case left:
-			tile+=40;
-			break;
-
-		case right:
-			tile+=48;
-			break;
-
-		case l_up:
-			tile+=80;
-			break;
-
-		case r_up:
-			tile+=88;
-			break;
-
-		case l_down:
-			tile+=120;
-			break;
-
-		case r_down:
-			tile+=128;
-			break;
-		}
-
-		tile+=(2*(clk&3));
-		xofs-=8;
-		yofs-=8;
-		drawblock(dest,15);
-		xofs+=8;
-		yofs+=8;
-	}
-	else
-	{
-		flip=(clk&1);
-		xofs-=8;
-		yofs-=8;
-		enemy::draw(dest);
-		xofs+=16;
-		enemy::draw(dest);
-		yofs+=16;
-		enemy::draw(dest);
-		xofs-=16;
-		enemy::draw(dest);
-		xofs+=8;
-		yofs-=8;
-	}
-}
-
-int ePatraBS::defend(int wpnId, int *power, int edef)
-{
-	int ret=enemy::defend(wpnId, power, edef);
-
-	if(ret<0 && (flycnt || flycnt2))
+	if(ret<0 && (outerRingCount || innerRingCount))
 		return 0;
 
 	return ret;
 }
 
-int ePatraBS::defendNew(int wpnId, int *power, int edef, byte unblockable)
+int Hive::defendNew(int wpnId, int *power, int edef, byte unblockable)
 {
 	int ret = enemy::defendNew(wpnId, power, edef, unblockable);
 
-	if(ret<0 && (flycnt || flycnt2))
+	if(ret < 0 && (outerRingCount || innerRingCount))
 		return 0;
 
 	return ret;
 }
 
-esPatraBS::esPatraBS(zfix X, zfix Y, int Id, int Clk, sprite* prnt):
-    enemy(X, Y, Id, Clk),
-    parent(prnt)
+void Hive::draw(BITMAP *dest)
 {
-    item_set=0;
-    misc=clk;
-    clk=-((misc*21)>>1)-1;
+	tile=o_tile;
 
-    enemy* prntenemy=(enemy*)prnt;
-    int prntSIZEflags=prntenemy->SIZEflags;
-    if(prntSIZEflags&guyflagOVERRIDE_TILE_WIDTH && txsz>0)
-    {
-        txsz=prntenemy->txsz;
-        if(txsz>1)
-            extend=3;
-    }
-    if(prntSIZEflags&guyflagOVERRIDE_TILE_HEIGHT && tysz>0)
-    {
-        tysz=prntenemy->tysz;
-        if(tysz>1)
-            extend=3;
-    }
-    if(prntSIZEflags&guyflagOVERRIDE_HIT_WIDTH && hxsz>=0)
-        hxsz=prntenemy->hxsz;
-    else
-        hxsz=16;
-    if(prntSIZEflags&guyflagOVERRIDE_HIT_HEIGHT && hysz>=0)
-        hysz=prntenemy->hysz;
-    else
-        hysz=16;
-    if(prntSIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT && hzsz>=0)
-        hzsz=prntenemy->hzsz;
-    if(prntSIZEflags&guyflagOVERRIDE_HIT_X_OFFSET)
-        hxofs=prntenemy->hxofs;
-    if(prntSIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET)
-        hyofs=prntenemy->hyofs;
-    else
-        hyofs=2;
-    if(prntSIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET)
-        xofs=prntenemy->xofs;
-    if(prntSIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET)
-        yofs=prntenemy->yofs;
-    else
-        yofs=playing_field_offset;
-    if(prntSIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET)
-        prntenemy->zofs=zofs;
 
-    bgsfx=-1;
-    mainguy=count_enemy=false;
-    deadsfx=WAV_EDEAD;
-    hitsfx=WAV_EHIT;
-    flags&=~guy_neverret;
-    isCore=false;
+	if(isBig())
+	{
+		if(get_bit(quest_rules, qr_NEWENEMYTILES))
+		{
+			static constexpr int tileOffset[8] = { 0, 8, 40, 48, 80, 88, 120, 128 };
+			flip = 0;
+			int tileDir = angleToDir(atan2(double(y-(Link.y)), double(Link.x-x)));
+			tile += tileOffset[tileDir];
+
+			tile += (2*(clk&3));
+			xofs -= 8;
+			yofs -= 8;
+			drawblock(dest, 15);
+			xofs += 8;
+			yofs += 8;
+		}
+		else
+		{
+			flip = clk&1;
+			xofs -= 8;
+			yofs -= 8;
+			enemy::draw(dest);
+			xofs += 16;
+			enemy::draw(dest);
+			yofs += 16;
+			enemy::draw(dest);
+			xofs -= 16;
+			enemy::draw(dest);
+			xofs += 8;
+			yofs -= 8;
+		}
+	}
+	else
+	{
+		update_enemy_frame();
+		enemy::draw(dest);
+	}
 }
 
-bool esPatraBS::animate(int index)
+// Hive orbiter ================================================================
+
+HiveOrbiter::HiveOrbiter(int id, Hive* parent, int pos, bool inner):
+	enemy(parent->x, parent->y, id, -((pos*21)>>1)-1),
+	inner(inner),
+	parent(parent)
+{
+	misc = pos;
+	hp = dmisc3;
+	cs = dmisc9;
+	item_set = 0;
+	mainguy = false;
+	count_enemy = false;
+	flags &= ~guy_neverret;
+	bgsfx = -1;
+	deadsfx = WAV_EDEAD;
+	hitsfx = WAV_EHIT;
+	isCore = false;
+	parent_script_UID = parent->script_UID;
+
+	double numOrbiters = inner ? dmisc2 : dmisc1;
+	relOffset = double(misc)/numOrbiters;
+	absOffset = relOffset*PI*2;
+
+	if(inner)
+	{
+		if(get_bit(quest_rules, qr_NEWENEMYTILES))
+		{
+			if(dmisc5==1)
+				// The center eye shoots projectiles;
+				// make room for its firing tiles
+				o_tile = parent->o_tile+120;
+			else
+				// The center eyes does not shoot; use
+				// the next two tile rows for inner eyes.
+				o_tile = parent->o_tile+40;
+		}
+		else
+			o_tile = parent->o_tile+1;
+	}
+	else
+	{
+		if(get_bit(quest_rules, qr_NEWENEMYTILES))
+			o_tile = parent->o_tile+dmisc8;
+		else
+			o_tile = parent->o_tile+1;
+	}
+
+	if(isBig())
+	{
+		hxsz = 16;
+		hysz = 16;
+	}
+	else
+	{
+		hxsz = 12;
+		hysz = 12;
+		hxofs = 2;
+		hyofs = 2;
+	}
+	yofs = playing_field_offset;
+
+	if((SIZEflags & guyflagOVERRIDE_TILE_WIDTH) && txsz > 0)
+	{
+		txsz = parent->txsz;
+		if(txsz > 1)
+			extend = 3;
+	}
+	if((SIZEflags & guyflagOVERRIDE_TILE_HEIGHT) && tysz > 0)
+	{
+		tysz = parent->tysz;
+		if(tysz > 1)
+			extend = 3;
+	}
+	if((SIZEflags & guyflagOVERRIDE_HIT_WIDTH) && hxsz >= 0)
+		hxsz = parent->hxsz;
+	if((SIZEflags & guyflagOVERRIDE_HIT_HEIGHT) && hysz >= 0)
+		hysz = parent->hysz;
+	if((SIZEflags & guyflagOVERRIDE_HIT_Z_HEIGHT) && hzsz >= 0)
+		hzsz = parent->hzsz;
+	if(SIZEflags & guyflagOVERRIDE_HIT_X_OFFSET)
+		hxofs = parent->hxofs;
+	if(SIZEflags & guyflagOVERRIDE_HIT_Y_OFFSET)
+		hyofs = parent->hyofs;
+	if(SIZEflags & guyflagOVERRIDE_DRAW_X_OFFSET)
+		xofs = parent->xofs;
+	if(SIZEflags & guyflagOVERRIDE_DRAW_Y_OFFSET)
+		yofs = parent->yofs; //This seems to be setting to +48 or something with any value set?! -Z
+	if(SIZEflags & guyflagOVERRIDE_DRAW_Z_OFFSET)
+		zofs = parent->zofs;
+}
+
+bool HiveOrbiter::animate(int index)
 {
 	if(dying)
+	{
+		if(parent)
+		{
+			parent->orbiterDied(this);
+			parent = nullptr;
+		}
 		return Dead(index);
+	}
+
+	if(inner)
+		superman = parent->outerRingCount > 0;
+
+	if(dmisc4 == 0 && !isBig())
+		positionBigCircle();
+	else
+		positionOval();
+
+	if(inner && dmisc5 == 2 && (zc_oldrand()&127) == 0)
+		eWpn.fire();
 
 	return enemy::animate(index);
 }
 
-void esPatraBS::draw(BITMAP *dest)
+void HiveOrbiter::positionBigCircle()
 {
-	tile=o_tile;
+	double orbit = inner ? 14.0 : 28.0;
+	double a2 = PI*(parent->mainTimer-parent->timerLimit*relOffset)/(parent->timerLimit/2)+PI/2;
+	double offsetX, offsetY;
 
-	if(get_bit(quest_rules, qr_NEWENEMYTILES))
+	if(parent->patternCounter>0)
 	{
-        flip=0;
-		switch(dir)
-		{
-		case up:
-			break;
-
-		case down:
-			tile+=4;
-			break;
-
-		case left:
-			tile+=8;
-			break;
-
-		case right:
-			tile+=12;
-			break;
-
-		case l_up:
-			tile+=20;
-			break;
-
-		case r_up:
-			tile+=24;
-			break;
-
-		case l_down:
-			tile+=28;
-			break;
-
-		case r_down:
-			tile+=32;
-			break;
-		}
-
-		tile+=(clk&6)>>1;
+		offsetX = (cos(a2)*2-sin(absOffset))*orbit;
+		offsetY = (-sin(a2)*2+cos(absOffset))*orbit;
 	}
 	else
-		tile+=(clk&4) ? 1 : 0;
+	{
+		offsetX = cos(a2)*orbit;
+		offsetY = -sin(a2)*orbit;
+	}
 
-	if(clk>=0)
+	dir = angleToDir(atan2(offsetY, offsetX));
+
+	x = parent->x+offsetX;
+	if(inner)
+		y = parent->y-offsetY;
+	else
+		y = parent->y+offsetY;
+}
+
+void HiveOrbiter::positionOval()
+{
+	double orbit;
+	if(isBig())
+		orbit = 45;
+	else
+		orbit = inner ? 21.0 : 42.0;
+
+	double a2 = PI*(parent->mainTimer-parent->timerLimit*relOffset)/(parent->timerLimit/2)+PI/2;
+	double circleX = cos(a2)*orbit;
+	double circleY = -sin(a2)*orbit;
+	double offsetX, offsetY;
+
+	offsetX = circleX;
+	if(parent->patternCounter > 0)
+		offsetY = (-sin(a2)-cos(absOffset))*orbit/2.0;
+	else
+		offsetY = circleY;
+
+	x = parent->x+offsetX;
+	if(inner)
+	{
+		y = parent->y-offsetY;
+		dir = angleToDir(atan2(circleY, -circleX));
+	}
+	else
+	{
+		y = parent->y+offsetY;
+		dir = angleToDir(atan2(circleY, circleX));
+	}
+}
+
+void HiveOrbiter::draw(BITMAP *dest)
+{
+	if(get_bit(quest_rules, qr_NEWENEMYTILES))
+	{
+		static constexpr int tileOffset[8] = { 0, 4, 8, 12, 20, 24, 28, 32 };
+		flip = 0;
+		tile = o_tile+tileOffset[dir&7];
+		if(isBig())
+			tile += (clk&6)>>1;
+		else
+			tile += clk&3;
+	}
+	else
+	{
+		if(isBig())
+			tile = o_tile+(clk&4) ? 1 : 0;
+		else
+			tile = o_tile+((clk&2)>>1);
+	}
+
+	if(clk >= 0)
 		enemy::draw(dest);
 }

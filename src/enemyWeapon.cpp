@@ -12,6 +12,7 @@ EnemyWeapon::attackType getType(guydata& data)
 	switch(data.family)
 	{
 	case eeAQUA:
+	case eePATRA:
 		return EnemyWeapon::attackType::PROJECTILE;
 
 	case eeWIZZ:
