@@ -28,6 +28,7 @@
 #include "enemy/hive.h"
 #include "enemy/mage_floating.h"
 #include "enemy/mage_teleporting.h"
+#include "enemy/spin_tile.h"
 #include "enemy/unicorn.h"
 extern particle_list particles;
 
@@ -888,53 +889,6 @@ eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_s
 }
 
 eZora::eZora(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	if(other.scrmem)
-	{
-		alloc_scriptmem();
-		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-		
-		scrmem->scriptData = other.scrmem->scriptData;
-	}
-	else scrmem = NULL;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eSpinTile::eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -3831,7 +3785,7 @@ int enemy::defendNew(int wpnId, int *power, int edef, byte unblockable) //May ne
 				
 				case eeSPINTILE:
 				{
-				enemy *e = new eSpinTile(x,y,new_id,clk);
+				enemy *e = new SpinTile(x,y,new_id,clk);
 				guys.add(e);
 					e->x = x;
 					e->y = y;
@@ -11636,139 +11590,6 @@ int eNPC::takehit(weapon*)
 	return 0;
 }
 
-eSpinTile::eSpinTile(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
-{
-	if(clk>0)  // clk>0 when created by a Spinning Tile combo
-	{
-		o_tile=clk;
-		cs=id>>12;
-	}
-	
-	id=id&0xFFF;
-	clk=0;
-	step=0;
-	mainguy=false;
-	SIZEflags = d->SIZEflags;
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
-   // al_trace("Enemy txsz:%i\n", txsz);
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
-	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
-	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
-//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
-	if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = d->xofs;
-	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
-	{
-		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
-	}
-  
-	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
-}
-
-void eSpinTile::facelink()
-{
-	if(Link.x-x==0)
-	{
-		if (Link.y + 8 < y)
-			dir = up;
-		else
-			dir = down;
-	}
-	else
-	{
-		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
-		
-		if((ddir <= -5.0*PI/8.0) && (ddir > -7.0*PI/8.0))
-		{
-			dir=l_down;
-		}
-		else if ((ddir <= -3.0*PI / 8.0) && (ddir > -5.0*PI / 8.0))
-		{
-			dir=down;
-		}
-		else if ((ddir <= -1.0*PI / 8.0) && (ddir > -3.0*PI / 8.0))
-		{
-			dir=r_down;
-		}
-		else if ((ddir <= 1.0*PI / 8.0) && (ddir > -1.0*PI / 8.0))
-		{
-			dir=right;
-		}
-		else if ((ddir <= 3.0*PI / 8.0) && (ddir > 1.0*PI / 8.0))
-		{
-			dir=r_up;
-		}
-		else if ((ddir <= 5.0*PI / 8.0) && (ddir > 3.0*PI / 8.0))
-		{
-			dir=up;
-		}
-		else if ((ddir <= 7.0*PI / 8.0) && (ddir > 5.0*PI / 8.0))
-		{
-			dir=l_up;
-		}
-		else
-		{
-			dir=left;
-		}
-	}
-}
-
-
-bool eSpinTile::animate(int index)
-{
-	if(fallclk||drownclk) return enemy::animate(index);
-	if(dying)
-	{
-		return Dead(index);
-	}
-	
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	++misc;
-	
-	if(misc==96)
-	{
-		facelink();
-		double ddir=atan2(double((Link.y)-y),double(Link.x-x));
-		angular=true;
-		angle=ddir;
-		step=zslongToFix(dstep*100);
-	}
-	
-	if(y>186 || y<=-16 || x>272 || x<=-16)
-		kickbucket();
-		
-	sprite::move(step);
-	return enemy::animate(index);
-}
-
-void eSpinTile::draw(BITMAP *dest)
-{
-	update_enemy_frame();
-	y-=(misc>>4);
-	yofs+=2;
-	enemy::draw(dest);
-	yofs-=2;
-	y+=(misc>>4);
-}
-
-void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
-{
-	flip = 0;
-	shadowtile = wpnsbuf[spr_shadow].newtile+(clk%4);
-	yofs+=4;
-	if(!shadow_overpit(this))
-		enemy::drawshadow(dest, translucent);
-	yofs-=4;
-}
-
 eZora::eZora(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 {
 	//these are here to bypass compiler warnings about unused arguments
@@ -16612,7 +16433,7 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 	}	
 		
 	case eeSPINTILE:
-		e = new eSpinTile((zfix)x,(zfix)y,id,clk);
+		e = new SpinTile((zfix)x,(zfix)y,id,clk);
 		break;
 		
 		// and these enemies use the misc10/misc2 value
@@ -17027,7 +16848,7 @@ int addenemy(int x,int y,int z,int id,int clk)
 	}	
 		
 	case eeSPINTILE:
-		e = new eSpinTile((zfix)x,(zfix)y,id,clk);
+		e = new SpinTile((zfix)x,(zfix)y,id,clk);
 		break;
 		
 		// and these enemies use the misc10/misc2 value

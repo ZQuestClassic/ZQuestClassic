@@ -527,17 +527,6 @@ public:
 	virtual int takehit(weapon *w);
 };
 
-class eSpinTile : public enemy
-{
-public:
-	eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eSpinTile(zfix X,zfix Y,int Id,int Clk);                       // : enemy(X,Y,Id,Clk)
-	virtual void facelink();
-	virtual bool animate(int index);
-	virtual void draw(BITMAP *dest);
-	virtual void drawshadow(BITMAP *dest, bool translucent);
-};
-
 class eZora : public enemy
 {
 public:
