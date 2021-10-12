@@ -1297,7 +1297,9 @@
 #define NPCDSPAWNSPR 			1216
 #define NPCDDEATHSPR 			1217
 
-#define LAST_BYTECODE 		1218
+#define COMBOLAYERR 			1218
+
+#define LAST_BYTECODE 		1219
 
 //} END OF BYTECODE
 
@@ -8418,6 +8420,46 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OBitmapWriteTile();
+		}
+	};
+	
+	class OBitmapDither : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapDither();
+		}
+	};
+	
+	class OBitmapReplColor : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapReplColor();
+		}
+	};
+	
+	class OBitmapShiftColor : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapShiftColor();
+		}
+	};
+	
+	class OBitmapMaskDraw : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapMaskDraw();
 		}
 	};
 	

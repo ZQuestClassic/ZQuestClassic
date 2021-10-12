@@ -5,6 +5,7 @@
 #include <functional>
 #include <initializer_list>
 #include <string>
+#include <map>
 #include <utility>
 
 namespace GUI
@@ -113,16 +114,26 @@ public:
 		}
 	}
 	//Static constructors for specific lists
-	static ListData itemclass(bool numbered);
+	static ListData itemclass(bool numbered = false);
+	static ListData counters();
+	static ListData miscsprites();
+	
+	static ListData lweaptypes();
+	static ListData const& deftypes();
+	
+	static ListData itemdata_script();
+	static ListData itemsprite_script();
+	static ListData lweapon_script();
 	
 private:
 	std::vector<ListItem> listItems;
 	
-	ListData::ListData(){}
+	ListData(){}
 	void add(ListItem item) {listItems.push_back(item);}
 	void add(std::string name, int val) {listItems.emplace_back(name, val);};
 	void add(std::string name, int val, std::string desc) {listItems.emplace_back(name, val,desc);};
-
+	void add(std::set<std::string> names, std::map<std::string, int> vals);
+	
 	static const char* jwinWrapper(int index, int* size, void* owner);
 };
 

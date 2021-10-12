@@ -4382,16 +4382,18 @@ int WeaponTypeToID(int wpnt)
 // Wraps radian value towards the range of -PI,PI.
 float WrapAngle( float radians ) 
 {
-	while (radians <= -PI) radians += PI2;
-	while (radians > PI) radians -= PI2;
+	if(radians < 0) radians = PI2 - ((-radians)%PI2);
+	else radians %= PI2;
+	if(radians > PI) return radians - PI2;
 	return radians;
 }
 
 // Wraps degree value towards the range of -180,180.
 float WrapDegrees( float degrees ) 
 {
-	while (degrees <= -180) degrees += 360;
-	while (degrees > 180) degrees -= 360;
+	if(degrees < 0) degrees = 360 - ((-degrees)%360);
+	else degrees %= 360;
+	if(degrees > 180) return degrees - 360;
 	return degrees;
 }
 

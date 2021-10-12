@@ -35,8 +35,9 @@ public:
 			case type::SWAP_SSHORT:
 			case type::SWAP_ZSINT:
 				return true;
+			default:
+				return false;
 		}
-		return false;
 	}
 
 	/* Set the current text. If it's longer than the current maximum length,
@@ -98,6 +99,7 @@ private:
 	int lbound, ubound;
 	type tfType;
 	size_t maxLength;
+	bool forced_length;
 	DialogRef alDialog;
 	DialogRef swapBtnDialog;
 	int onEnterMsg, onValueChangedMsg;
@@ -108,6 +110,9 @@ private:
 	void realize(DialogRunner& runner) override;
 	int onEvent(int event, MessageDispatcher& sendMessage) override;
 	void applyFont(FONT* newFont) override;
+	
+	void _updateBuf(size_t sz);
+	void check_len(size_t min);
 };
 
 }

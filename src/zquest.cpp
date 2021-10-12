@@ -19240,32 +19240,6 @@ int d_warpdestsel_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_vsync_proc(int msg,DIALOG *d,int c)
-{
-    //these are here to bypass compiler warnings about unused arguments
-    d=d;
-    
-    static clock_t tics;
-    
-    switch(msg)
-    {
-    case MSG_START:
-        tics=clock()+(CLOCKS_PER_SEC/60);
-        break;
-        
-    case MSG_IDLE:
-        if(clock()>tics)
-        {
-            tics=clock()+(CLOCKS_PER_SEC/60);
-            broadcast_dialog_message(MSG_VSYNC, c);
-        }
-        
-        break;
-    }
-    
-    return D_O_K;
-}
-
 #if 0
 static DIALOG warpdestsel_dlg[] =
 {
@@ -28162,7 +28136,6 @@ int load_zmod_module_file()
 	    build_biic_list();
 	    build_bief_list();
 	    build_biea_list(); 
-	    build_biwt_list();
 	    build_biew_list();
 	    return D_O_K;
 }
@@ -32355,8 +32328,6 @@ int main(int argc,char **argv)
     
     load_icons();
 	
-	call_foo_dlg();
-	
     bool load_last_timed_save=false;
     
     if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
@@ -32500,6 +32471,8 @@ int main(int argc,char **argv)
 	else dialogs[0].dp = (void *) the_menu_large;
         */
 	
+	
+	call_foo_dlg();
     while(!quit)
     {
     
@@ -34568,10 +34541,6 @@ void FFScript::setFFRules()
 	FF_transition_type = zinit.transition_type; // Can't edit, yet.
 	FF_jump_link_layer_threshold = zinit.jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 	FF_link_swim_speed = zinit.link_swim_speed;
-	for ( int q = 0; q < MAXITEMS; q++ )
-	{
-		item_messages_played[q] = 0;
-	}
 }
 
 

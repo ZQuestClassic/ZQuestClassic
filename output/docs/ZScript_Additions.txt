@@ -2950,6 +2950,7 @@ npcdata LoadNPCData(int id);
 
 mapdata LoadMapData(int map, int screen);
  * Loads a screen data ref for screen ID 'screen', of Map ID 'map', to a 'mapdata' typed pointer.
+ * Valid screens: 0x00 - 0x81
 
 mapdata LoadTempScreen(int layer);
  * Loads a screen data ref for the TEMPORARY data of the layer 'layer'.
@@ -6063,24 +6064,31 @@ void SetFFCInitA(int ffc_index, int init_a, float value);
 ///  combodata  ///
 ///////////////////								// Combodata
 
+int Layer();
+int Layer;
+ * Returns the layer the combo is on in a combodata script, from the 'this->' pointer as 'this->Layer()'
+ * Using this from any other combodata variable is illegal and undefined.
+
 int Pos();
+int Pos;
  * Returns the combo screen index of a combo from a combodata script, from the 'this->'
  * pointer as 'this->Pos()'.
  * Using this from any other combodata variable is illegal and undefined.
+ * Read-only
 
 int PosX();
 int X;
  * Returns the X-coordinate of a combo from a combodata script, from the 'this->'
  * pointer as 'this->PosX()'.
  * Using this from any other combodata variable is illegal and undefined.
- * If used as 'this->X', it is read-only.
+ * Read-only
 
 int PosY();
 int Y;
  * Returns the Y-coordinate of a combo from a combodata script, from the 'this->'
  * pointer as 'this->PosY()'.
  * Using this from any other combodata variable is illegal and undefined.
- * If used as 'this->Y', it is read-only.
+ * Read-only
 
 int Script;
  * The combodata script used by this combo.
@@ -6903,6 +6911,20 @@ void WriteTile( int layer, int x, int y, int tile, bool is8bit, bool mask);
  * Writes a 16x16 area from (x,y) of the bitmap at layer 'layer' 
  *     TO the tile page, overwriting the tile 'tile', either 4 or 8 bit.
  * If 'mask' is true, overlays instead of overwrites
+
+void MaskDraw( int layer, bitmap mask, int color )
+ * Draws 'color' to the bitmap, on any pixels that are non-color-0 on the mask.
+
+void Dither( int layer, bitmap mask, int color, int ditherType, int ditherArg )
+ * Draws 'color' to the bitmap, using a dithering pattern, only on pixels that are
+ * non-color-0 on the mask bitmap.
+ * Use 'DITH_' constants from std_constants.zh for 'ditherType'.
+
+void ReplaceColors( int layer, int color, int startCol, int endCol )
+ * Replaces colors >= startCol and <= endCol with 'color'
+ 
+void ShiftColors( int layer, int shift, int startCol, int endCol )
+ * Adds 'shift' to colors >= startCol and <= endCol
 
 void Blit	
 	( 

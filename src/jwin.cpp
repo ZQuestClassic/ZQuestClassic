@@ -583,6 +583,7 @@ int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int x, int y, i
     int c = 0;
     int len;
     int pix_len = 0;
+    int max_len = 0;
     int hline_pos;
     int xx = x;
     
@@ -613,8 +614,8 @@ int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int x, int y, i
         }
         
         tmp[len] = 0;
-        pix_len = zc_max(text_length(f, tmp), pix_len);
-        
+        pix_len = text_length(f, tmp);
+        if (pix_len > max_len) max_len = pix_len;
         x = xx;
         
         if(pos==1)  //center
@@ -646,7 +647,7 @@ int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int x, int y, i
         y += text_height(f);
     }
     
-    return pix_len;
+    return max_len;
 }
 
 int gui_textout_ln(BITMAP *bmp, unsigned const char *s, int x, int y, int color, int bg, int pos)
@@ -1650,6 +1651,7 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
+		d->bg = 0;
 		swapbtn->d2 = 2; //Max states
 		swapbtn->dp3 = (void*)d;
 	}
@@ -1697,8 +1699,8 @@ int jwin_numedit_swap_byte_proc(int msg, DIALOG *d, int c)
 	
 	if(d->fg != b)
 	{
-		GUI_EVENT(d, geUPDATE_SWAP);
 		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
 	}
 	switch(ntype)
 	{
@@ -1729,6 +1731,7 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
+		d->bg = 0;
 		swapbtn->d2 = 2; //Max states
 		swapbtn->dp3 = (void*)d;
 	}
@@ -1755,10 +1758,61 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 	else if ( v < -32768 )
 		b=-32768;
 	else b = (short)v;
+	bool queued_neg = d->bg;
 	if(msg==MSG_CHAR && ((c&255)=='-'))
 	{
-		b = -b;
+		if(b)
+		{
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					++d->d2;
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				if(d->d2) --d->d2;
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue the negative
 		c &= ~255;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				++d->d2;
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			if(d->d2) --d->d2;
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
 	if(v != b || otype != ntype || msg == MSG_START)
 	{
@@ -1779,9 +1833,12 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 	
 	if(d->fg != b)
 	{
-		GUI_EVENT(d, geUPDATE_SWAP);
 		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
 	}
+	int t = d->d2;
+	if(msg == MSG_CHAR && queued_neg && !t)
+		++d->d2;
 	switch(ntype)
 	{
 		case typeDEC:
@@ -1795,6 +1852,8 @@ int jwin_numedit_swap_sshort_proc(int msg, DIALOG *d, int c)
 			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
 	}
+	if(msg == MSG_CHAR && queued_neg && !t)
+		if(d->d2-1 == t) --d->d2;
 	
 	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
 	
@@ -1811,6 +1870,7 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
+		d->bg = 0;
 		swapbtn->d2 = 4; //Max states
 		swapbtn->dp3 = (void*)d;
 	}
@@ -1879,12 +1939,63 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 	else if ( v < INT_MIN )
 		b=INT_MIN;
 	else b = (long)v;
+	bool queued_neg = d->bg;
 	if(msg==MSG_CHAR && ((c&255)=='-'))
 	{
-		if(b==INT_MIN)
-			++b;
-		b = -b;
+		if(b)
+		{
+			if(b==INT_MIN)
+				++b;
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					++d->d2;
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				if(d->d2) --d->d2;
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue negative
 		c &= ~255;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				++d->d2;
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			if(d->d2) --d->d2;
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
 	if(v != b || otype != ntype || msg == MSG_START)
 	{
@@ -1912,8 +2023,8 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 	}
 	if(d->fg != b)
 	{
-		GUI_EVENT(d, geUPDATE_SWAP);
 		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
 	}
 	if(msg==MSG_CHAR && ((c&255)=='.'))
 	{
@@ -1931,6 +2042,9 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 			}
 		}
 	}
+	int t = d->d2;
+	if(msg == MSG_CHAR && queued_neg && !t)
+		++d->d2;
 	switch(ntype)
 	{
 		case typeDEC:
@@ -2000,6 +2114,8 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
 	}
+	if(msg == MSG_CHAR && queued_neg && !t)
+		if(d->d2-1 == t) --d->d2;
 	
 	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
 	
@@ -7499,6 +7615,27 @@ void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color)
 	line(dest, x1, y2, x2, y1, color);
 }
 
+int d_vsync_proc(int msg,DIALOG *,int c)
+{
+    static clock_t tics;
+    
+    switch(msg)
+    {
+		case MSG_START:
+			tics=clock()+(CLOCKS_PER_SEC/60);
+			break;
+			
+		case MSG_IDLE:
+			if(clock()>tics)
+			{
+				tics=clock()+(CLOCKS_PER_SEC/60);
+				broadcast_dialog_message(MSG_VSYNC, c);
+			}
+			break;
+    }
+    
+    return D_O_K;
+}
 
 /***  The End  ***/
 

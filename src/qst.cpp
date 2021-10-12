@@ -112,7 +112,7 @@ const std::string script_slot_data::ZASM_FORMAT = "%s ==%s";
 char qstdat_string[2048] = { 0 };
 
 int memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
-const byte clavio[9]={84,49,109,51,108,48,114,100,0};
+const byte clavio[9]={97,109,111,110,103,117,115,0};
 
 //enum { qe_OK, qe_notfound, qe_invalid, qe_version, qe_obsolete,
 //       qe_missing, qe_internal, qe_pwd, qe_match, qe_minver };
@@ -8630,7 +8630,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 			else if(tempitem.family == itype_book || tempitem.family == itype_candle)
 			{
-				//@VenRob: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
+				//@Emily: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
 				if ( (get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
 				else tempitem.flags &= ~ ITEM_FLAG3;
 			}
@@ -9357,6 +9357,7 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
         zinit.link_swim_speed=67; //default
         setuplinktiles(zinit.linkanimationstyle);
         setuplinkdefenses();
+	setuplinkoffsets();
     }
     
     if(v_linksprites>=0)
@@ -9734,6 +9735,13 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					drowning_lavaspr[q][p] = divespr[q][p];
 				}
 			}
+			memset(sideswimspr, 0, sizeof(sideswimspr));
+			memset(sideswimslashspr, 0, sizeof(sideswimslashspr));
+			memset(sideswimstabspr, 0, sizeof(sideswimstabspr));
+			memset(sideswimpoundspr, 0, sizeof(sideswimpoundspr));
+			memset(sideswimchargespr, 0, sizeof(sideswimchargespr));
+			memset(sideswimholdspr, 0, sizeof(sideswimholdspr));
+			memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
 		}
     }
     
@@ -9751,6 +9759,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
         zinit.link_swim_speed=67; //default
         setuplinktiles(zinit.linkanimationstyle);
         setuplinkdefenses();
+	setuplinkoffsets();
     }
     
     int tile, tile2;
@@ -10548,6 +10557,176 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					medallionsprs[q][spr_extend] = (int)extend;
 				}
 			}
+			if (v_linksprites > 8)
+			{
+				for(int q = 0; q < 4; ++q)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&flip,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&extend,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						sideswimspr[q][spr_tile] = (int)tile;
+						sideswimspr[q][spr_flip] = (int)flip;
+						sideswimspr[q][spr_extend] = (int)extend;
+					}
+				}
+			}
+			if (v_linksprites > 9)
+			{
+				for(int q = 0; q < 4; ++q)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&flip,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&extend,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						sideswimslashspr[q][spr_tile] = (int)tile;
+						sideswimslashspr[q][spr_flip] = (int)flip;
+						sideswimslashspr[q][spr_extend] = (int)extend;
+					}
+				}
+				for(int q = 0; q < 4; ++q)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&flip,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&extend,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						sideswimstabspr[q][spr_tile] = (int)tile;
+						sideswimstabspr[q][spr_flip] = (int)flip;
+						sideswimstabspr[q][spr_extend] = (int)extend;
+					}
+				}
+				for(int q = 0; q < 4; ++q)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&flip,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&extend,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						sideswimpoundspr[q][spr_tile] = (int)tile;
+						sideswimpoundspr[q][spr_flip] = (int)flip;
+						sideswimpoundspr[q][spr_extend] = (int)extend;
+					}
+				}
+			}
+			if (v_linksprites > 9)
+			{
+				for(int q = 0; q < 4; ++q)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&flip,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&extend,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						sideswimchargespr[q][spr_tile] = (int)tile;
+						sideswimchargespr[q][spr_flip] = (int)flip;
+						sideswimchargespr[q][spr_extend] = (int)extend;
+					}
+				}
+			}
+			if (v_linksprites > 10)
+			{
+				for(int q = 0; q < 4; ++q)
+				{
+					int hmr;
+					if(!p_igetl(&hmr,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						hammeroffsets[q] = hmr;
+					}
+				}
+			}
+			else for(int q = 0; q < 4; ++q) hammeroffsets[q] = 0;
+			if (v_linksprites > 11)
+			{
+				for(int q = 0; q < 3; ++q)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&flip,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&extend,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						sideswimholdspr[q][spr_tile] = (int)tile;
+						sideswimholdspr[q][spr_flip] = (int)flip;
+						sideswimholdspr[q][spr_extend] = (int)extend;
+					}
+				}
+			}
+			if (v_linksprites > 12)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				sideswimcastingspr[spr_tile]=(int)tile;
+				sideswimcastingspr[spr_flip]=(int)flip;
+				sideswimcastingspr[spr_extend]=(int)extend;
+			}
+			if (v_linksprites > 13)
+			{
+				for(int q = 0; q < 4; ++q)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&flip,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&extend,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						sidedrowningspr[q][spr_tile] = (int)tile;
+						sidedrowningspr[q][spr_flip] = (int)flip;
+						sidedrowningspr[q][spr_extend] = (int)extend;
+					}
+				}
+			}
 		}
 		else if(keepdata)
 		{
@@ -10583,6 +10762,15 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					drowning_lavaspr[q][p] = divespr[q][p];
 				}
 			}
+			memset(sideswimspr, 0, sizeof(sideswimspr));
+			memset(sideswimslashspr, 0, sizeof(sideswimslashspr));
+			memset(sideswimstabspr, 0, sizeof(sideswimstabspr));
+			memset(sideswimpoundspr, 0, sizeof(sideswimpoundspr));
+			memset(sideswimchargespr, 0, sizeof(sideswimchargespr));
+			memset(sideswimholdspr, 0, sizeof(sideswimholdspr));
+			memset(sideswimcastingspr, 0, sizeof(sideswimcastingspr));
+			memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
+			for(int q = 0; q < 4; ++q) hammeroffsets[q] = 0;
 		}
         if (v_linksprites > 7)
         {
@@ -19082,7 +19270,63 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	else
 	{
+		temp_zinit.dither_type = 0;
+		temp_zinit.dither_arg = 0;
+		temp_zinit.dither_percent = 20;
+		temp_zinit.def_lightrad = 24;
+		temp_zinit.transdark_percent = 0;
 		temp_zinit.darkcol = BLACK;
+	}
+	
+	if(s_version > 25)
+	{
+		if(!p_igetl(&temp_zinit.gravity2,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetl(&temp_zinit.swimgravity,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.gravity2 = temp_zinit.gravity*100;
+		temp_zinit.swimgravity = 5;
+	}
+	
+	if(s_version > 26)
+	{
+		if(!p_igetw(&temp_zinit.heroSideswimUpStep,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetw(&temp_zinit.heroSideswimSideStep,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetw(&temp_zinit.heroSideswimDownStep,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.heroSideswimUpStep = 150;
+		temp_zinit.heroSideswimSideStep = 100;
+		temp_zinit.heroSideswimDownStep = 75;
+	}
+	
+	if(s_version > 27)
+	{
+		if(!p_igetl(&temp_zinit.exitWaterJump,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.exitWaterJump = 0;
 	}
 	
 	if(keepdata==true)

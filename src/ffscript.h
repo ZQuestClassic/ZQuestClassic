@@ -73,7 +73,10 @@ enum linkspritetype
 	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
 	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
 	LSprchargespr, LSprcastingspr, LSprholdspr1, LSprholdspr2,
-	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlavadrownspr, LSprlast
+	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlavadrownspr, 
+	LSprsideswimspr, LSprsideswimslashspr, LSprsideswimstabspr, 
+	LSprsideswimpoundspr, LSprsideswimchargespr, LSprholdsprSw1, 
+	LSprholdsprSw2, LSprsideswimcastingspr, LSprsidedrownspr, LSprlast
 };
 
 enum zasmBreak
@@ -782,7 +785,7 @@ long create_user_bitmap_ex(int w, int h, int depth);
 void do_isvalidbitmap();
 void do_isallocatedbitmap();
 
-//OGG Ex --Dimentio
+//OGG Ex --dimi
 void do_playogg_ex(const bool v);
 void do_set_oggex_position(const bool v);
 void go_get_oggex_position();
@@ -840,7 +843,7 @@ long FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and si
 short passive_subscreen_offsets[2];
 byte active_subscreen_scrollspeed_adjustment;
 
-byte FF_gravity;
+int FF_gravity;
 word FF_terminalv;
 byte FF_msg_speed;
 byte FF_transition_type; // Can't edit, yet.
@@ -898,7 +901,7 @@ int getCombodataX(int c, int scripttype);
 
 int GetScriptObjectUID(int type);
     
-byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
+//byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 				//so that they do not play every time an item is collected, unless one of the flags is set for it.
 
 void SetFFEngineFlag(int flag, bool v);
@@ -2941,6 +2944,10 @@ enum ASM_DEFINE
 	ITEMDEL,
 	
 	BMPWRITETILE,
+	BMPDITHER,
+	BMPREPLCOLOR,
+	BMPSHIFTCOLOR,
+	BMPMASKDRAW,
 	
 	NUMCOMMANDS           //0x01A4
 };
@@ -4322,7 +4329,9 @@ enum ASM_DEFINE
 #define NPCDSPAWNSPR 			0x13F6
 #define NPCDDEATHSPR 			0x13F7
 
-#define NUMVARIABLES         	0x13F8
+#define COMBOLAYERR 			0x13F8
+
+#define NUMVARIABLES         	0x13F9
 
 //} End variables
 

@@ -1620,16 +1620,16 @@ weapon::weapon(weapon const & other):
     minY(other.minY),			//int		...
     maxY(other.maxY),			//int		...
 	
-    //! Dimentio Wand
+    //! dimi Wand
     /*
-    //!Dimentio: These 5 exist both here and in the header file. If you remove these, don't forget to
+    //!dimi: These 5 exist both here and in the header file. If you remove these, don't forget to
     remove them over there as well.
     */
-    count1(other.count1), 		//int		Dimentio Wand 
-    count2(other.count2), 		//int		Dimentio Wand 
-    count3(other.count3), 		//int		Dimentio Wand
-    count4(other.count4), 		//int		Dimentio Wand
-    count5(other.count5), 		//int		Dimentio Wand
+    count1(other.count1), 		//int		dimi Wand 
+    count2(other.count2), 		//int		dimi Wand 
+    count3(other.count3), 		//int		dimi Wand
+    count4(other.count4), 		//int		dimi Wand
+    count5(other.count5), 		//int		dimi Wand
 	
     //Weapon Editor -Z
     useweapon(other.useweapon),		//byte		The weapon editor weapon type.
@@ -4339,7 +4339,7 @@ bool weapon::animate(int index)
 			}
 		case wWand:
 		case wHammer:
-			if(LinkAction()!=attacking && LinkAction()!=ischarging && !LinkCharged())
+			if(LinkAction()!=attacking && LinkAction()!=sideswimattacking && LinkAction()!=ischarging && !LinkCharged())
 			{
 				dead=0;
 			}
@@ -7484,7 +7484,7 @@ offscreenCheck:
 		if(((id==wMagic && current_item(itype_book) &&
 			(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
-		    Lwpns.add(new weapon(x,y,z,wFire,2,1*game->get_hero_dmgmult(),0,current_item_id(itype_book),-1));
+		    Lwpns.add(new weapon(x,y,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,current_item_id(itype_book),-1));
 		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
 		    {
 			sfx(WAV_FIRE,pan(x));
@@ -7498,7 +7498,7 @@ offscreenCheck:
 		if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
 			(itemsbuf[linkedItem].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
-		    Lwpns.add(new weapon(x,y,z,wFire,2,1*game->get_hero_dmgmult(),0,linkedItem,-1));
+		    Lwpns.add(new weapon(x,y,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,linkedItem,-1));
 		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
 		    {
 			sfx(WAV_FIRE,pan(x));

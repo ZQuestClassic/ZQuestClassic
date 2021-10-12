@@ -2691,7 +2691,7 @@ bool enemy::animate(int index)
 				{
 					y+=fall/100;
 					if(fall <= (int)zinit.terminalv)
-						fall += zinit.gravity;
+						fall += (zinit.gravity2/100);
 				}
 			}
 			else
@@ -2713,7 +2713,7 @@ bool enemy::animate(int index)
 			if(z<0)
 				z = fall = 0;
 			else if(fall <= (int)zinit.terminalv)
-				fall += zinit.gravity;
+				fall += (zinit.gravity2/100);
 			
 		}
 	}
@@ -5418,7 +5418,7 @@ void enemy::old_draw(BITMAP *dest)
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
 					++clk2;
-					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					spr_death_anim_frm=(spr_death_anim_clk/zc_max(wpnsbuf[spr_death].speed,1));
 					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
 					{
 						spr_death_anim_clk=-1;
@@ -5674,7 +5674,7 @@ void enemy::draw(BITMAP *dest)
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
 					++clk2;
-					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					spr_death_anim_frm=(spr_death_anim_clk/zc_max(wpnsbuf[spr_death].speed,1));
 					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
 					{
 						spr_death_anim_clk=-1;
@@ -5824,7 +5824,7 @@ void enemy::drawzcboss(BITMAP *dest)
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
 					++clk2;
-					spr_death_anim_frm=(spr_death_anim_clk/wpnsbuf[spr_death].speed);
+					spr_death_anim_frm=(spr_death_anim_clk/zc_max(wpnsbuf[spr_death].speed,1));
 					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
 					{
 						spr_death_anim_clk=-1;
@@ -16421,12 +16421,41 @@ void movefairy2(zfix x,zfix y,int misc)
 		guys.spr(i)->x = x;
 		guys.spr(i)->y = y;
 	}
+}// Move item with guy
+
+void movefairynew(zfix &x,zfix &y, item const &itemfairy)
+{
+	enemy *fairy = (enemy *) guys.getByUID(itemfairy.fairyUID);
+	
+	if(fairy)
+	{
+		x = fairy->x;
+		y = fairy->y;
+	}
+}
+
+// Move guy with item (used by FFC scripts and hookshot-dragged fairies)
+void movefairynew2(zfix x,zfix y, item const &itemfairy)
+{
+	enemy *fairy = (enemy *) guys.getByUID(itemfairy.fairyUID);
+	
+	if(fairy)
+	{
+		fairy->x = x;
+		fairy->y = y;
+	}
 }
 
 void killfairy(int misc)
 {
 	int i = guys.idFirst(eITEMFAIRY+0x1000*misc);
 	guys.del(i);
+}
+
+void killfairynew(item const &itemfairy)
+{
+	enemy *fairy = (enemy *) guys.getByUID(itemfairy.fairyUID);
+	guys.del(fairy->id);
 }
 
 int addenemy(int x,int y,int id,int clk)
@@ -17885,6 +17914,7 @@ void screen_combo_modify_preroutine(mapscr *s, int pos)
 // Everything that must be done after we change a screen's combo to another combo. -L
 void screen_combo_modify_postroutine(mapscr *s, int pos)
 {
+	s->valid |= mVALID;
 	activate_fireball_statue(pos);
 	
 	if(combobuf[s->data[pos]].type==cSPINTILE1)
@@ -19840,7 +19870,7 @@ void dragging_item()
 				
 				if(itemsbuf[id].family ==itype_fairy && itemsbuf[id].misc3)
 				{
-					movefairy2(w->x,w->y,items.spr(w->dragging)->misc);
+					movefairynew2(w->x,w->y,*((item*)items.spr(w->dragging)));
 				}
 			}
 		}

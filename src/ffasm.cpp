@@ -995,6 +995,10 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "EWPNDEL",           0,   0,   0,   0},
 	{ "ITEMDEL",           0,   0,   0,   0},
 	{ "BMPWRITETILE",           0,   0,   0,   0},
+	{ "BMPDITHER",           0,   0,   0,   0},
+	{ "BMPREPLCOLOR",           0,   0,   0,   0},
+	{ "BMPSHIFTCOLOR",           0,   0,   0,   0},
+	{ "BMPMASKDRAW",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2225,6 +2229,9 @@ script_variable variable_list[]=
 	{ "NPCDSHADOWSPR",           NPCDSHADOWSPR,            0,             0 },
 	{ "NPCDSPAWNSPR",           NPCDSPAWNSPR,            0,             0 },
 	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
+	
+	{ "COMBOLAYERR",           COMBOLAYERR,            0,             0 },
+	
 	{ " ",                       -1,             0,             0 }
 };
 

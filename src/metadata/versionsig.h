@@ -12,15 +12,10 @@
 //alpha id
 #define V_ZC_FOURTH 0
 //build
-#define V_ZC_ALPHA 98
+#define V_ZC_ALPHA 99
 #define V_ZC_BETA 0
 #define V_ZC_GAMMA 0
 #define V_ZC_RELEASE 0
-#define V_ZC_YEAR 2021
-#define V_ZC_MONTH 1
-#define V_ZC_DAY 15   
-#define V_ZC_HOUR 11
-#define V_ZC_MINUTE 29
 
 #define PROJECT_NAME "AEternal"
 #define COMPANY_NAME "Armageddon Games"

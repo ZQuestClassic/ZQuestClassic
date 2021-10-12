@@ -20,7 +20,7 @@ public:
 		std::function<void(int, int, int, int)> setRoomVars);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	bool handleMessage(message msg, GUI::MessageArg);
+	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	GUI::ListData itemListData, shopListData, infoShopListData, stringListData;

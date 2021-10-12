@@ -39,9 +39,9 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 		onClose = 0,
 		Column(
 			Label(
-				width = 20_em,
-				hPadding = 1_em,
+				hPadding = 3_em,
 				maxLines = 10,
+				textAlign = 1,
 				text = std::move(dlgText)),
 			Button(
 				text = "&Close",
@@ -52,7 +52,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 	);
 }
 
-bool InfoDialog::handleMessage(message)
+bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	return true;
 }

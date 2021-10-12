@@ -1357,10 +1357,6 @@ byte itemScriptsWaitdraw[256] = {0};
 #include "zc_custom.h"
 #include "qst.h"
 
-#ifdef _FFDEBUG
-#include "ffdebug.h"
-#endif
-
 #include "debug.h"
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
@@ -7015,7 +7011,7 @@ long get_register(const long arg)
 				switch(indx)
 				{
 					case 0: //Gravity Strength
-						ret = zinit.gravity * 100;
+						ret = zinit.gravity2 * 10000;
 						break;
 					case 1: //Terminal Velocity
 						ret = zinit.terminalv * 100;
@@ -10152,6 +10148,19 @@ long get_register(const long arg)
 			}
 			break;
 		}
+		case COMBOLAYERR:
+		{
+			if ( curScriptType == SCRIPT_COMBO )
+			{
+				ret = (( ((ri->comboposref)/176) ) * 10000); //comboscriptstack[i]
+			}
+			else
+			{
+				Z_scripterrlog("combodata->Pos() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
+				ret = -10000;
+			}
+			break;
+		}
 		
 		//NEWCOMBO STRUCT
 		case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
@@ -11223,7 +11232,7 @@ void set_register(const long arg, const long value)
 		case LINKDIR:
 		{
 			//Link->setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
-			if(Link.getAction() == attacking) Link.dir = (value/10000);
+			if(Link.getAction() == attacking || Link.getAction() == sideswimattacking) Link.dir = (value/10000);
 			else Link.setDir(value/10000);
 			
 			break;
@@ -11263,11 +11272,17 @@ void set_register(const long arg, const long value)
 		case LINKACTION:
 		{
 			int act = value / 10000;
-			if ( act < 25 || (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && (act == falling)) )
+			switch(act)
 			{
-				Link.setAction((actiontype)(act));
+				case hookshotout:
+				case stunned:
+				case ispushing:
+					FFCore.setLinkAction(act);
+					break;
+				default:
+					Link.setAction((actiontype)(act));
 			}
-			else FFCore.setLinkAction(act); //Protect from writing illegal actions to Link's raw variable. 
+			//Protect from writing illegal actions to Link's raw variable. 
 			//in the future, we can move all scripted actions that are not possible
 			//to set in ZC into this mechanic. -Z
 			break;
@@ -12335,7 +12350,7 @@ void set_register(const long arg, const long value)
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
-					movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
+					movefairynew2(((item*)(s))->x,((item*)(s))->y,*((item*)(s)));
 			}
 			
 			break;
@@ -12369,7 +12384,7 @@ void set_register(const long arg, const long value)
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
-					movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
+					movefairynew2(((item*)(s))->x,((item*)(s))->y,*((item*)(s)));
 			}
 			
 			break;
@@ -15060,7 +15075,7 @@ void set_register(const long arg, const long value)
 				switch(indx)
 				{
 					case 0: //Gravity Strength
-						zinit.gravity = value / 100;
+						zinit.gravity2 = value / 10000;
 						break;
 					case 1: //Terminal Velocity
 						zinit.terminalv = value / 100;
@@ -22177,6 +22192,25 @@ void do_drawing_command(const int script_command)
 			script_drawing_commands[j][17] = SH::read_stack(ri->sp+6);
 			break;			
 		}
+		case BMPDITHER:
+		{
+			set_user_bitmap_command_args(j, 5);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5);
+			break;			
+		}
+		case BMPMASKDRAW:
+		{
+			set_user_bitmap_command_args(j, 3);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
+			break;			
+		}
+		case BMPREPLCOLOR:
+		case BMPSHIFTCOLOR:
+		{
+			set_user_bitmap_command_args(j, 4);
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+4);
+			break;			
+		}
 	}
 }
 
@@ -22407,6 +22441,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		{
 			//zprint("FFCore.warp_link reached line: %d \n", 15936);
 			bool wasswimming = (Link.getAction()==swimming);
+			bool wassideswim = (Link.getAction()==sideswimming);
 			int olddiveclk = Link.diveclk;
 			if ( !(warpFlags&warpFlagDONTCLEARSPRITES) )
 			{
@@ -22420,6 +22455,11 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			{
 				Link.setAction(swimming); FFCore.setLinkAction(swimming);
 				Link.diveclk = olddiveclk;
+			}
+			if(wassideswim)
+			{
+				Link.setAction(sideswimming); FFCore.setLinkAction(sideswimming);
+				Link.diveclk = 0;
 			}
 			//zprint("FFCore.warp_link reached line: %d \n", 15948);
 			switch(warpEffect)
@@ -22503,7 +22543,8 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			{
 				Link.hopclk=0xFF;
 				Link.attackclk = Link.charging = Link.spins = 0;
-				Link.setAction(swimming); FFCore.setLinkAction(swimming);
+				if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) {Link.setAction(sideswimming); FFCore.setLinkAction(sideswimming);}
+				else {Link.setAction(swimming); FFCore.setLinkAction(swimming);}
 			}
 			else
 			{
@@ -22747,7 +22788,8 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			&& (current_item(itype_flippers)) && (Link.getAction()!=inwind))
 	{
 		Link.hopclk=0xFF;
-		Link.setAction(swimming); FFCore.setLinkAction(swimming);
+		if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) {Link.setAction(sideswimming); FFCore.setLinkAction(sideswimming);}
+		else {Link.setAction(swimming); FFCore.setLinkAction(swimming);}
 	}
 		
 	newscr_clk=frame;
@@ -25652,6 +25694,10 @@ int run_script(const byte type, const word script, const long i)
 			case BITMAPCLEARTOCOLOR:
 			case BMPFRAMER:
 			case BMPWRITETILE:
+			case BMPDITHER:
+			case BMPREPLCOLOR:
+			case BMPSHIFTCOLOR:
+			case BMPMASKDRAW:
 				do_drawing_command(scommand);
 				break;
 			case READBITMAP:
@@ -29404,26 +29450,22 @@ void FFScript::setFFRules()
 	}
 	active_subscreen_scrollspeed_adjustment = 0;
 	//zinit.terminalv
-	FF_gravity = zinit.gravity;
+	FF_gravity = zinit.gravity2;
 	FF_terminalv = zinit.terminalv;
 	FF_msg_speed = zinit.msg_speed;
 	FF_transition_type = zinit.transition_type; // Can't edit, yet.
 	FF_jump_link_layer_threshold = zinit.jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 	FF_link_swim_speed = zinit.link_swim_speed;
 	FFCore.zasm_break_mode = ZASM_BREAK_NONE;
-	for ( int q = 0; q < MAXITEMS; q++ )
-	{
-		item_messages_played[q] = 0;
-	}
 }
 
 void FFScript::SetItemMessagePlayed(int itm)
 {
-	item_messages_played[itm] = 1;
+	game->item_messages_played[itm] = 1;
 }
 bool FFScript::GetItemMessagePlayed(int itm)
 {
-	return (( item_messages_played[itm] ) ? true : false);
+	return ((game->item_messages_played[itm] ) ? true : false);
 }
 
 void FFScript::setRule(int rule, bool s)
@@ -33620,6 +33662,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "EWPNDEL",           0,   0,   0,   0},
 	{ "ITEMDEL",           0,   0,   0,   0},
 	{ "BMPWRITETILE",           0,   0,   0,   0},
+	{ "BMPDITHER",           0,   0,   0,   0},
+	{ "BMPREPLCOLOR",           0,   0,   0,   0},
+	{ "BMPSHIFTCOLOR",           0,   0,   0,   0},
+	{ "BMPMASKDRAW",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -34839,6 +34885,9 @@ script_variable ZASMVars[]=
 	{ "NPCDSHADOWSPR",           NPCDSHADOWSPR,            0,             0 },
 	{ "NPCDSPAWNSPR",           NPCDSPAWNSPR,            0,             0 },
 	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
+	
+	{ "COMBOLAYERR",           COMBOLAYERR,            0,             0 },
+	
 	{ " ",                       -1,             0,             0 }
 };
 
@@ -39513,15 +39562,24 @@ int FFScript::getLinkOTile(long index1, long index2)
 			case LSprswimspr: the_ret = swimspr[dir][0];
 			case LSprdivespr: the_ret = divespr[dir][0];
 			case LSprdrownspr: the_ret = drowningspr[dir][0];
+			case LSprsidedrownspr: the_ret = sidedrowningspr[dir][0];
 			case LSprlavadrownspr: the_ret = drowning_lavaspr[dir][0];
+			case LSprsideswimspr: the_ret = sideswimspr[dir][0];
+			case LSprsideswimslashspr: the_ret = sideswimslashspr[dir][0];
+			case LSprsideswimstabspr: the_ret = sideswimstabspr[dir][0];
+			case LSprsideswimpoundspr: the_ret = sideswimpoundspr[dir][0];
+			case LSprsideswimchargespr: the_ret = sideswimchargespr[dir][0];
 			case LSprpoundspr: the_ret = poundspr[dir][0];
 			case LSprjumpspr: the_ret = jumpspr[dir][0];
 			case LSprchargespr: the_ret = chargespr[dir][0];
 			case LSprcastingspr: the_ret = castingspr[0];
+			case LSprsideswimcastingspr: the_ret = sideswimcastingspr[0];
 			case LSprholdspr1: the_ret = holdspr[0][0][0];
 			case LSprholdspr2:  the_ret = holdspr[0][1][0];
 			case LSprholdsprw1: the_ret = holdspr[1][0][0];
 			case LSprholdsprw2: the_ret = holdspr[1][1][0];
+			case LSprholdsprSw1: the_ret = sideswimholdspr[0][0];
+			case LSprholdsprSw2: the_ret = sideswimholdspr[1][0];
 			default: the_ret = 0;
 		}
 	

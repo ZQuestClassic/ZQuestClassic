@@ -20,6 +20,7 @@
 #include <math.h>
 #include <map>
 #include <ctype.h>
+#include <sstream>
 #include "zc_alleg.h"
 #include "gamedata.h"
 #include "zc_init.h"
@@ -31,6 +32,7 @@
 #endif
 
 #include "zdefs.h"
+#include "metadata/sigs/devsig.h.sig"
 #include "metadata/versionsig.h"
 #include "zelda.h"
 #include "tiles.h"
@@ -7022,35 +7024,45 @@ int onMIDICredits()
     return D_O_K;
 }
 
+#include "dialog/info.h"
 int onAbout()
 {
+	char buf1[80]={0};
+	std::ostringstream oss;
+	sprintf(buf1,"%s (%s), Version: %s", ZC_PLAYER_NAME,PROJECT_NAME,ZC_PLAYER_V);
+	oss << buf1 << '\n';
 	if ( V_ZC_ALPHA )
 	{
-		sprintf(str_s,"(v.%s, Alpha %d, Build %d)",ZC_PLAYER_V,V_ZC_ALPHA, VERSION_BUILD);
+		sprintf(buf1,"Alpha %d, Build: %d",V_ZC_ALPHA, VERSION_BUILD);
+		oss << buf1 << '\n';
+		sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+		oss << buf1 << '\n';
 	}
-		
 	else if ( V_ZC_BETA )
 	{
-		sprintf(str_s,"(v.%s, Beta %d, Build %d)",ZC_PLAYER_V,V_ZC_BETA, VERSION_BUILD);
+		sprintf(buf1,"Beta %d, Build: %d",V_ZC_BETA, VERSION_BUILD);
+		oss << buf1 << '\n';
+		sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+		oss << buf1 << '\n';
 	}
 	else if ( V_ZC_GAMMA )
 	{
-		sprintf(str_s,"(v.%s, Gamma %d, Build %d)",ZC_PLAYER_V,V_ZC_GAMMA, VERSION_BUILD);
+		sprintf(buf1,"Gamma %d, Build: %d",V_ZC_GAMMA, VERSION_BUILD);
+		oss << buf1 << '\n';
+		sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+		oss << buf1 << '\n';
 	}
-	else /*( V_ZC_RELEASE )*/
+	else
 	{
-		sprintf(str_s,"(v.%s, Release %d, Build %d)",ZC_PLAYER_V,V_ZC_RELEASE, VERSION_BUILD);
+		sprintf(buf1,"Release %d, Build: %d",V_ZC_RELEASE, VERSION_BUILD);
+		oss << buf1 << '\n';
+		sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+		oss << buf1 << '\n';
 	}
-		
+	sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
+	oss << buf1 << '\n';
 	
-    
-    //  sprintf(str_s,"%s",VerStr(ZELDA_VERSION));
-    about_dlg[0].dp2=lfont;
-    
-    if(is_large)
-        large_dialog(about_dlg);
-        
-    zc_popup_dialog(about_dlg,1);
+	InfoDialog("About ZC", oss.str()).show();
     return D_O_K;
 }
 

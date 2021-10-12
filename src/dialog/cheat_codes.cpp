@@ -81,9 +81,9 @@ std::shared_ptr<GUI::Widget> CheatCodesDialog::view()
 	);
 }
 
-bool CheatCodesDialog::handleMessage(message msg)
+bool CheatCodesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	switch(msg)
+	switch(msg.message)
 	{
 	case message::OK:
 		{

@@ -66,6 +66,7 @@ void Label::fitText()
 	size_t currentLine = 1;
 	int max_width = 0;
 	int i;
+	size_t linecount = 1;
 	for(i = 0; data[i] && currentLine < maxLines; ++i)
 	{
 		char c = data[i];
@@ -82,7 +83,7 @@ void Label::fitText()
 		}
 		else if(c == ' ')
 			lastSpace = i;
-
+		linecount = currentLine;
 		widthSoFar += char_length(f, c);
 		if(widthSoFar > actualWidth)
 		{
@@ -93,26 +94,23 @@ void Label::fitText()
 			{
 				if(actualWidth > max_width)
 					max_width = actualWidth;
+				widthSoFar = 0;
 				data[lastSpace] = '\n';
 				data = data+lastSpace+1;
-				widthSoFar = 0;
 				lastSpace = -1;
 				i = -1;
 				++currentLine;
+				continue;
 			}
 			if(widthSoFar > max_width)
 				max_width = widthSoFar;
 		}
 	}
-	for(;data[i];++i)
-	{
-		widthSoFar += char_length(f, data[i]);
-	}
+	widthSoFar = text_length(f, data);
 	if(widthSoFar > max_width)
 		max_width = widthSoFar;
-
-	setPreferredHeight(Size::pixels(text_height(widgFont)*currentLine));
-	setPreferredWidth(Size::pixels(max_width));
+	setPreferredHeight(Size::pixels(text_height(widgFont)*linecount));
+	setPreferredWidth(Size::pixels(max_width)+4_spx);
 	if(alDialog)
 	{
 		Widget::arrange(contX, contY, contW, contH);
@@ -121,11 +119,7 @@ void Label::fitText()
 		alDialog->h = getHeight();
 		alDialog->w = getWidth();
 		alDialog->dp = text_fit.data();
-		
-		if(allowDraw() && getVisible())
-		{
-			broadcast_dialog_message(MSG_DRAW, 0);
-		}
+		pendDraw();
 	}
 }
 

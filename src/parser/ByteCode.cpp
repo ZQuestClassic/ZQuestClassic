@@ -1834,6 +1834,7 @@ string ZScript::VarToString(long ID)
 	case COMBOXR: return "COMBOXR";
 	case COMBOYR: return "COMBOYR";
 	case COMBOPOSR: return "COMBOPOSR";
+	case COMBOLAYERR: return "COMBOLAYERR";
 	case COMBODATASCRIPT: return "COMBODATASCRIPT";
 	case COMBODATAINITD: return "COMBODATAINITD";
 	case HEROSCRIPTCSET: return "HEROSCRIPTCSET";
@@ -4966,6 +4967,22 @@ string OBitmapFree::toString()
 string OBitmapWriteTile::toString()
 {
     return "BMPWRITETILE";
+}
+string OBitmapDither::toString()
+{
+    return "BMPDITHER";
+}
+string OBitmapReplColor::toString()
+{
+    return "BMPREPLCOLOR";
+}
+string OBitmapShiftColor::toString()
+{
+    return "BMPSHIFTCOLOR";
+}
+string OBitmapMaskDraw::toString()
+{
+    return "BMPMASKDRAW";
 }
 
 string OIsValidBitmap::toString()

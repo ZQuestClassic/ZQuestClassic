@@ -76,22 +76,44 @@ static inline bool dithercheck(byte type, byte arg, int x, int y, int wid=256, i
 	return ret^inv;
 }
 
+void maskblit(BITMAP* dest, BITMAP* src, int color)
+{
+	int wid = zc_min(dest->w, src->w);
+	int hei = zc_min(dest->h, src->h);
+	for(int ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t read_addr = bmp_read_line(src, ty);
+		uintptr_t write_addr = bmp_write_line(dest, ty);
+		for(int tx = 0; tx < wid; ++tx)
+		{
+			if(bmp_read8(read_addr+tx))
+			{
+				bmp_write8(write_addr+tx, color);
+			}
+		}
+	}
+	bmp_unwrite_line(src);
+	bmp_unwrite_line(dest);
+}
+
 void ditherblit(BITMAP* dest, BITMAP* src, int color, byte dType, byte dArg, int xoffs, int yoffs)
 {
-    int wid = zc_min(dest->w, src->w);
-    int hei = zc_min(dest->h, src->h);
-    for(int ty = 0; ty < hei; ++ty)
-    {
-        uintptr_t addr = bmp_read_line(src, ty);
-        for(int tx = 0; tx < wid; ++tx)
-        {
-            if(bmp_read8(addr+tx) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
-            {
-                putpixel(dest, tx, ty, color);
-            }
-        }
-        bmp_unwrite_line(src);
-    }
+	int wid = zc_min(dest->w, src->w);
+	int hei = zc_min(dest->h, src->h);
+	for(int ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t read_addr = bmp_read_line(src, ty);
+		uintptr_t write_addr = bmp_write_line(dest, ty);
+		for(int tx = 0; tx < wid; ++tx)
+		{
+			if(bmp_read8(read_addr+tx) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
+			{
+				bmp_write8(write_addr+tx, color);
+			}
+		}
+	}
+	bmp_unwrite_line(src);
+	bmp_unwrite_line(dest);
 }
 
 void dithercircfill(BITMAP* dest, int x, int y, int rad, int color, byte ditherType, byte ditherArg, int xoffs, int yoffs)
@@ -460,5 +482,25 @@ void ditherLampCone(BITMAP* dest, int sx, int sy, int range, int dir, int color,
 	lampcone(tmp, sx, sy, range, dir, 1);
 	ditherblit(dest, tmp, color, ditherType, ditherArg, xoffs, yoffs);
 	destroy_bitmap(tmp);
+}
+
+void replColor(BITMAP* dest, byte col, byte startCol, byte endCol, bool shift)
+{
+	int wid = dest->w;
+	int hei = dest->h;
+	for(int ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t read_addr = bmp_read_line(dest, ty);
+		uintptr_t write_addr = bmp_write_line(dest, ty);
+		for(int tx = 0; tx < wid; ++tx)
+		{
+			byte c = bmp_read8(read_addr+tx);
+			if(c >= startCol && c <= endCol)
+			{
+				bmp_write8(write_addr+tx, shift ? byte(c+col) : col);
+			}
+		}
+	}
+	bmp_unwrite_line(dest);
 }
 

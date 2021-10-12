@@ -23,6 +23,7 @@
 #include "dialog/info.h"
 #include <string.h>
 #include <stdio.h>
+#include <sstream>
 
 #include "metadata/sigs/devsig.h.sig"
 #include "metadata/versionsig.h"
@@ -1604,11 +1605,11 @@ int onExit()
 int onAbout()
 {
     char buf1[80]={0};
-    char buf2[80]={0};
-    char buf3[80]={0};
-
+	
     if(get_debug())
     {
+		char buf2[80]={0};
+		char buf3[80]={0};
 #if V_ZC_ALPHA
         {
             sprintf(buf1,"ZQuest %s Alpha Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
@@ -1628,61 +1629,41 @@ int onAbout()
     }
     else
     {
-	sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
-        //switch(IS_BETA)
-        //{
-		//case -1:
+		std::ostringstream oss;
+		sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
+		oss << buf1 << '\n';
 		if ( V_ZC_ALPHA )
 		{
-			//sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-			sprintf(buf2,"Alpha %d, Build: %d",V_ZC_ALPHA, VERSION_BUILD);
-			sprintf(buf3,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			//break;
+			sprintf(buf1,"Alpha %d, Build: %d",V_ZC_ALPHA, VERSION_BUILD);
+			oss << buf1 << '\n';
+			sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+			oss << buf1 << '\n';
 		}
-
-		//case 1:
 		else if ( V_ZC_BETA )
 		{
-			sprintf(buf2,"Beta %d, Build: %d",V_ZC_BETA, VERSION_BUILD);
-			sprintf(buf3,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			//break;
+			sprintf(buf1,"Beta %d, Build: %d",V_ZC_BETA, VERSION_BUILD);
+			oss << buf1 << '\n';
+			sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+			oss << buf1 << '\n';
 		}
-
 		else if ( V_ZC_GAMMA )
 		{
-			sprintf(buf2,"Gamma %d, Build: %d",V_ZC_GAMMA, VERSION_BUILD);
-			sprintf(buf3,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			//break;
+			sprintf(buf1,"Gamma %d, Build: %d",V_ZC_GAMMA, VERSION_BUILD);
+			oss << buf1 << '\n';
+			sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+			oss << buf1 << '\n';
 		}
-
-		//case 0:
 		else
 		{
-		    sprintf(buf2,"Release %d, Build: %d",V_ZC_RELEASE, VERSION_BUILD);
-		    sprintf(buf3,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			//break;
+		    sprintf(buf1,"Release %d, Build: %d",V_ZC_RELEASE, VERSION_BUILD);
+			oss << buf1 << '\n';
+		    sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+			oss << buf1 << '\n';
 		}
-		/*
-		default:
-		{
-		    if ( IS_BETA > 0 )
-		    {
-			sprintf(buf2,"Beta %d Build: %d",V_ZC_BETA, VERSION_BUILD);
-			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-		    }
-		    else
-		    {
-			sprintf(buf2,"Alpha %d Build: %d",V_ZC_ALPHA, VERSION_BUILD);
-			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-		    }
-		    break;
-		}
-		*/
-
-        //}
-
-
-        InfoDialog("About ZQuest", { buf1, buf2, buf3 }).show();
+		sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
+		oss << buf1 << '\n';
+		
+        InfoDialog("About ZQuest", oss.str()).show();
     }
 
     return D_O_K;

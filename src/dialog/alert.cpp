@@ -21,7 +21,7 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 		onClose = message::CANCEL,
 		Column(
 			Label(
-				width = 20_em,
+				maxwidth = 20_em,
 				hPadding = 1_em,
 				maxLines = 10,
 				text = std::move(dlgText)),
@@ -43,8 +43,8 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 	);
 }
 
-bool AlertDialog::handleMessage(int m)
+bool AlertDialog::handleMessage(const GUI::DialogMessage<int>& msg)
 {
-	onEnd((message)m==message::OK);
+	onEnd((message)msg.message==message::OK);
 	return true;
 }

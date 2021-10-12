@@ -23,6 +23,8 @@
 #include "text_field.h"
 #include "window.h"
 #include "widget.h"
+#include "seltile_swatch.h"
+#include "tileanim_frame.h"
 #include <initializer_list>
 #include <memory>
 #include <string>
@@ -168,6 +170,16 @@ inline std::shared_ptr<RadioSet> makeRadioSet()
 inline std::shared_ptr<DummyWidget> makeDummyWidget()
 {
 	return std::make_shared<DummyWidget>();
+}
+
+inline std::shared_ptr<SelTileSwatch> makeSelTileSwatch()
+{
+	return std::make_shared<SelTileSwatch>();
+}
+
+inline std::shared_ptr<TileFrame> makeTileFrame()
+{
+	return std::make_shared<TileFrame>();
 }
 
 // Top-level widgets
@@ -338,6 +350,7 @@ ZCGUI_BUILDER_START(Window)
 	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
 	ZCGUI_ACCEPT_PROP(onClose, onClose, Dialog::message)
 	ZCGUI_ACCEPT_PROP(onEnter, onEnter, Dialog::message)
+	ZCGUI_ACCEPT_PROP(use_vsync, setVSync, bool)
 	ZCGUI_ACCEPT_PROP(shortcuts, addShortcuts,
 		std::initializer_list<KeyboardShortcut>)
 	ZCGUI_ACCEPT_ONE_CHILD(setContent)
@@ -349,6 +362,23 @@ ZCGUI_BUILDER_FUNCTION(Window, Window, makeWindow)
 ZCGUI_BUILDER_START(DummyWidget)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DummyWidget, DummyWidget, makeDummyWidget)
+
+ZCGUI_BUILDER_START(SelTileSwatch)
+	ZCGUI_ACCEPT_PROP(tile, setTile, int)
+	ZCGUI_ACCEPT_PROP(cset, setCSet, int)
+	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
+	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int,int)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(SelTileSwatch, SelTileSwatch, makeSelTileSwatch)
+
+ZCGUI_BUILDER_START(TileFrame)
+	ZCGUI_ACCEPT_PROP(tile, setTile, int)
+	ZCGUI_ACCEPT_PROP(cset, setCSet, int)
+	ZCGUI_ACCEPT_PROP(speed, setSpeed, int)
+	ZCGUI_ACCEPT_PROP(frames, setFrames, int)
+	ZCGUI_ACCEPT_PROP(delay, setDelay, int)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(TileFrame, TileFrame, makeTileFrame)
 
 } // namespace GUI::builder
 
@@ -363,5 +393,50 @@ using ::GUI::operator ""_spx;
 
 } // namespace GUI::Props
 
+//{ Builder Shortcuts
+#define _d DummyWidget()
+
+#define INITD_ROW(ind, d_mem, lab_mem) \
+	Row(vPadding = 0_px, \
+		TextField(maxLength = 64, \
+		text = std::string(lab_mem[ind]), \
+		type = GUI::TextField::type::TEXT, \
+		width = 8_em, \
+		rightPadding = 0_px, \
+		onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int) \
+		{ \
+			for(size_t q = 0; q < 65; ++q) \
+			{ \
+				if(q < str.size()) \
+					lab_mem[ind][q] = str.at(q); \
+				else \
+					lab_mem[ind][q] = 0; \
+			} \
+		} \
+	), \
+	TextField( \
+		type = GUI::TextField::type::SWAP_ZSINT, \
+		val = d_mem[ind], \
+		width = 6.5_em+16_px, \
+		leftPadding = 0_px, \
+		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
+		{ \
+			d_mem[ind] = val; \
+		} \
+	) \
+)
+
+#define SCRIPT_LIST(name, list, mem) \
+Label(minwidth = 6.5_em, text = name, textAlign = 2), \
+DropDownList( \
+	fitParent = true, \
+	data = list, \
+	selectedValue = mem, \
+	onSelectFunc = [&](int val) \
+	{ \
+		mem = val; \
+	} \
+)
+//}
 
 #endif

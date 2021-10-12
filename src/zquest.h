@@ -22,7 +22,6 @@
 
 #define MAXARROWS 8
 #define SHADOW_DEPTH 2
-#define MSG_VSYNC MSG_USER
 
 #define rtgxo 2
 #define rtgyo 2

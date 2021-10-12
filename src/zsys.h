@@ -176,6 +176,8 @@ void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 int gcd(int a, int b);
 int lcm(int a, int b);
 
+size_t count_digits(int n);
+
 void quit_game();
 
 int zc_trace_handler(const char *);

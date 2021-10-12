@@ -1,5 +1,35 @@
 // 2.55 Change Log
-// Updated 5th Oct, 2021
+// Updated 10th Oct, 2021
+
+//Alpha 99
+
+Brand new item editor design!!!
+	( EmilyV, Oct 10th, 2021 )
+
+Fix wrong CSet9 colors when returning from passage into dark room
+Fix buggy hookshot when player moved by script
+	( Dimi, Oct 10th, 2021 )
+
+Fix walking atop switch blocks
+Fix swap-textfield '-' handling
+Fix crashes
+Add 'this->Layer()' for combo scripts
+	( EmilyV, Oct 9th, 2021 )
+
+Allow setting book fire damage
+Various fixes: crash, sideview swimming hopping, smartscroll,
+	fairy spawn limits, whistle sound bugs, item messages not saving
+	( Dimi, Oct 9th, 2021 )
+
+Sideview Swimming!!!
+	( Dimi, Oct 8th, 2021 )
+
+Update 'About' dialogs
+Increase Game->Generic[] to long
+	( EmilyV, Oct 8th, 2021 )
+
+Add new bitmap drawing functions
+	( EmilyV, Oct 7th, 2021 )
 
 //Alpha 98
 

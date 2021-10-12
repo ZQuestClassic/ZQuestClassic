@@ -51,7 +51,9 @@ enum actiontype
     // Fake actiontypes: used by ZScripts
     ischarging, isspinning, isdiving, gameover, hookshotout, stunned, ispushing,
 	// New 2.55 ActionTypes
-	falling, lavadrowning
+	falling, lavadrowning, sideswimming, sideswimhit, sideswimattacking, 
+	sidewaterhold1, sidewaterhold2, sideswimcasting, sideswimfreeze, sidedrowning,
+	sideswimisspinning, sideswimischarging, la_max
 };
 
 typedef struct tilesequence
@@ -220,7 +222,8 @@ public:
         stepoutdmap, // which dmap the passageway exits to
         stepoutscr, // which screen the passageway exits to
         slashxofs, slashyofs; // used by positionSword() and draw()
-	byte skipstep,lstep,
+	//spacing so no confusion between byte and int
+    byte skipstep,lstep, 
 	hopclk, // hopping into water timeout.
 	diveclk, // diving timeout.
 	whirlwind, // is Link inside an arriving whirlwind? (yes = 255)
@@ -234,7 +237,13 @@ public:
 	newconveyorclk; // clock for determining when Link gets moved by a conveyor
     int shiftdir, // shift direction when walking into corners of solid combos
     link_is_stunned, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
-    sdir; // scrolling direction
+    sdir, // scrolling direction
+    sideswimdir;  //for forcing link to face left or right in sideview
+    int hammer_swim_up_offset,
+	hammer_swim_down_offset,
+	hammer_swim_left_offset,
+	hammer_swim_right_offset,
+	swimjump; //jump amount when leaving sideview water from the top
     int hopdir;  // direction to hop out of water (diagonal movement only)
     int holddir;
     int landswim; // incremental time spent swimming against land
@@ -252,6 +261,9 @@ public:
     bool diagonalMovement;
     bool bigHitbox;
 	int steprate;
+	int swimuprate;
+	int swimsiderate;
+	int swimdownrate;
     byte defence[wMax];
 	int subscr_speed;
 	bool is_warping;
@@ -263,6 +275,11 @@ public:
     void check_pound_block(weapon *w);
     void check_wand_block(weapon *w);
     void check_slash_block_layer(int bx, int by, int layer);
+    
+    void SetSwim();
+    void SetAttack();
+    bool IsSideSwim();
+    bool CanSideSwim();
     
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
     int hurtsfx; //Link's Hurt SOund
@@ -306,6 +323,7 @@ public:
     void checkspecial2(int *ls);
     void checkspecial3();
     void checkpushblock();
+    bool checksoliddamage();
     void checkbosslockblock();
     void checklockblock();
     void checkswordtap();
@@ -497,6 +515,13 @@ public:
     void setBigHitbox(bool newbighitbox);
 	int getStepRate();
 	void setStepRate(int newrate);
+	int getSwimUpRate();
+	void setSwimUpRate(int newrate);
+	int getSwimSideRate();
+	void setSwimSideRate(int newrate);
+	int getSwimDownRate();
+	void setSwimDownRate(int newrate);
+
 	
 	
 	int getLastLensID();	
@@ -505,6 +530,7 @@ public:
 	bool getOnSideviewLadder();
 	void setOnSideviewLadder(bool val);
 	bool canSideviewLadder(bool down = false);
+	bool canSideviewLadderRemote(int wx, int wy, bool down = false);
 };
 
 

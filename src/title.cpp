@@ -1281,6 +1281,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 	word tempword4 = 0;
 	word tempword5 = 0;
 	dword tempdword = 0;
+	long templong = 0;
 	long section_id=0;
 	word section_version=0;
 	word section_cversion=0;
@@ -1838,7 +1839,19 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			}
 		}
 		
-		if(section_version>3)
+		if(section_version>19)
+		{
+			for(int j=0; j<256; j++)
+			{
+				if(!p_igetl(&templong,f,true))
+				{
+					return 49;
+				}
+				
+				savedata[i].set_generic(templong, j);
+			}
+		}
+		else if(section_version>3)
 		{
 			for(int j=0; j<256; j++)
 			{
@@ -1969,6 +1982,24 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 					return 62;
 				}
 			}
+		}
+		else
+		{
+			std::fill(savedata[i].lvlswitches, savedata[i].lvlswitches+MAXLEVELS, 0);
+		}
+		if(section_version >= 21)
+		{
+			for(int j=0; j<MAXITEMS; ++j)
+			{
+				if(!p_getc(&(savedata[i].item_messages_played[j]),f,true))
+				{
+					return 63;
+				}
+			}
+		}
+		else 
+		{
+			std::fill(savedata[i].item_messages_played, savedata[i].item_messages_played+MAXITEMS, 0);
 		}
 	}
 	
@@ -2426,7 +2457,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 		
 		for(int j=0; j<256; j++)
 		{
-			if(!p_putc(savedata[i].get_generic(j), f))
+			if(!p_iputl(savedata[i].get_generic(j), f))
 			{
 				return 48;
 			}
@@ -2489,6 +2520,10 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 		if(!pfwrite(savedata[i].lvlswitches,MAXLEVELS*sizeof(long),f))
 		{
 			return 60;
+		}
+		if(!pfwrite(savedata[i].item_messages_played,MAXITEMS*sizeof(bool),f))
+		{
+			return 61;
 		}
 	}
 	

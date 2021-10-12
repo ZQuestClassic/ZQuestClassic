@@ -77,6 +77,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinitdata *zinit2 = new zinitdata;
     //populate it
     zinit2->gravity=zinit.gravity;
+    zinit2->gravity2=zinit.gravity2;
     zinit2->terminalv=zinit.terminalv;
     zinit2->jump_link_layer_threshold=zinit.jump_link_layer_threshold;
     zinit2->heroStep=zinit.heroStep;
@@ -106,6 +107,11 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->def_lightrad = gdata->get_light_rad();
 	zinit2->transdark_percent = gdata->get_transdark_perc();
 	zinit2->darkcol = gdata->get_darkscr_color();
+	zinit2->swimgravity = gdata->get_watergrav();
+	zinit2->heroSideswimUpStep = gdata->get_sideswim_up();
+	zinit2->heroSideswimSideStep = gdata->get_sideswim_side();
+	zinit2->heroSideswimDownStep = gdata->get_sideswim_down();
+	zinit2->exitWaterJump = gdata->get_sideswim_jump();
 	
 	for(int q = 0; q < 25; ++q)
 	{

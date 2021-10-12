@@ -26,8 +26,7 @@ void ColorSel::setVal(byte val)
 	if(alDialog)
 	{
 		alDialog->d1 = val;
-		if(allowDraw() && getVisible())
-			alDialog.message(MSG_DRAW, 0);
+		pendDraw();
 	}
 }
 

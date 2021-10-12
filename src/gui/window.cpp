@@ -13,7 +13,7 @@ using std::max, std::shared_ptr;
 namespace GUI
 {
 
-Window::Window(): content(nullptr), title(""), closeMessage(-1)
+Window::Window(): content(nullptr), title(""), closeMessage(-1), use_vsync(false)
 {
 	setPadding(0_px);
 	capWidth(Size::pixels(zq_screen_w));
@@ -24,7 +24,10 @@ void Window::setTitle(std::string newTitle)
 {
 	title = std::move(newTitle);
 	if(alDialog)
+	{
 		alDialog->dp = title.data();
+		pendDraw();
+	}
 }
 
 void Window::setContent(shared_ptr<Widget> newContent) noexcept
@@ -107,7 +110,20 @@ void Window::realize(DialogRunner& runner)
 
 	if(content)
 		content->realize(runner);
-
+	
+	if(use_vsync)
+	{
+		runner.push(shared_from_this(), DIALOG {
+			d_vsync_proc,
+			0, 0, 0, 0,
+			0, 0,
+			0, // key
+			0, // flags,
+			0, 0, // d1, d2
+			nullptr, nullptr, nullptr // dp, dp2, dp3
+		});
+	}
+	
 	realizeKeys(runner);
 }
 

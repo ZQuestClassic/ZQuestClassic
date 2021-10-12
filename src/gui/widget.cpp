@@ -13,8 +13,8 @@ Widget::Widget() noexcept:
 	fgColor(vc(14)), bgColor(vc(1)),
 	leftMargin(0), rightMargin(0),
 	topMargin(0), bottomMargin(0),
-	leftPadding(sized(2, 3)), rightPadding(sized(2, 3)),
-	topPadding(sized(2, 3)), bottomPadding(sized(2, 3)),
+	leftPadding(DEFAULT_PADDING_INT), rightPadding(DEFAULT_PADDING_INT),
+	topPadding(DEFAULT_PADDING_INT), bottomPadding(DEFAULT_PADDING_INT),
 	hAlign(0.5), vAlign(0.5),
 	width(0), height(0),
 	maxwidth(-1), maxheight(-1),
@@ -128,6 +128,7 @@ void Widget::applyVisibility(bool visible)
 {
 	if(frameDialog) frameDialog.applyVisibility(visible);
 	if(frameTextDialog) frameTextDialog.applyVisibility(visible);
+	pendDraw();
 }
 
 void Widget::setVisible(bool visible)
@@ -268,10 +269,7 @@ void Widget::setFrameText(std::string const& newstr)
 	if(frameTextDialog)
 	{
 		frameTextDialog->dp = frameText.data();
-		if(allowDraw() && getVisible())
-		{
-			broadcast_dialog_message(MSG_DRAW, 0);
-		}
+		pendDraw();
 	}
 }
 
@@ -281,10 +279,7 @@ void Widget::applyFont(FONT* newfont)
 	if(frameTextDialog)
 	{
 		frameTextDialog->dp2 = widgFont;
-	}
-	if(allowDraw() && getVisible())
-	{
-		broadcast_dialog_message(MSG_DRAW, 0);
+		pendDraw();
 	}
 }
 
@@ -301,6 +296,11 @@ int Widget::getFlags() const noexcept
 bool Widget::allowDraw()
 {
 	return owner && owner->allowDraw();
+}
+
+void Widget::pendDraw()
+{
+	if(owner) owner->pendDraw();
 }
 
 bool Widget::isConstructed()

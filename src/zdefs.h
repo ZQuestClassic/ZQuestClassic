@@ -239,13 +239,13 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        25
+#define V_INITDATA        28
 #define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        19 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        21 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
-#define V_LINKSPRITES      8
+#define V_LINKSPRITES      14
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         18
@@ -1010,6 +1010,10 @@ enum
 	qr_BROKEN_HORIZONTAL_WEAPON_ANIM, qr_NEW_DARKROOM, qr_NEWDARK_L6, qr_ENEMIES_SECRET_ONLY_16_31,
 	//31
 	qr_SCREEN80_OWN_MUSIC, qr_OLDCS2, qr_HARDCODED_ENEMY_ANIMS, qr_OLD_ITEMDATA_SCRIPT_TIMING,
+	qr_SIDESWIM, qr_SIDESWIMDIR, 
+	
+	//35
+	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -1782,6 +1786,7 @@ struct itemdata
 #define ITEM_FLAG15     0x00400000
 #define ITEM_FLAG16     0x00800000
 #define ITEM_VALIDATEONLY	0x01000000
+#define ITEM_SIDESWIM_DISABLED	0x02000000
 
 
 
@@ -3788,7 +3793,7 @@ enum generic_ind
 	genHCP_PER_HC, genCONTHP, genCONTHP_IS_PERC, genHP_PER_HEART,
 	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
 	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,genDARK_COL,
-	genLAST,
+	genWATER_GRAV, genSIDESWIM_UP, genSIDESWIM_SIDE, genSIDESWIM_DOWN, genSIDESWIM_JUMP, genLAST,
 	genMAX = 256
 };
 enum glow_shape
@@ -3796,6 +3801,7 @@ enum glow_shape
 	glshapeCIRC, glshapeCONE,
 	glshapeMAX
 };
+#define MAX_COUNTERS 32
 struct gamedata
 {
     //private:
@@ -3813,9 +3819,9 @@ struct gamedata
     bool  item[MAXITEMS];
     byte  items_off[MAXITEMS];
     //280
-    word _maxcounter[32];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
-    word _counter[32];
-    short _dcounter[32];
+    word _maxcounter[MAX_COUNTERS];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
+    word _counter[MAX_COUNTERS];
+    short _dcounter[MAX_COUNTERS];
     
     char  version[9];
     char  title[65];
@@ -3837,7 +3843,7 @@ struct gamedata
     short _dmagic;*/
     //byte  _magicdrainrate;
     //byte  _canslash;                                           //Link slashes instead of stabs.
-    byte _generic[256];	// Generic gamedata. See enum above this struct for indexes.
+    long _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
     //byte  padding[2];
     //636
     byte  visited[MAXDMAPS];
@@ -3851,6 +3857,7 @@ struct gamedata
     char  qstpath[2048];
     byte  icon[128];
     byte  pal[48];
+    bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
     long  screen_d[MAXDMAPS*MAPSCRSNORMAL][8];                // script-controlled screen variables
     long  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
     std::vector< ZCArray <long> > globalRAM;
@@ -4006,6 +4013,21 @@ struct gamedata
 	
 	byte get_darkscr_color();
 	void set_darkscr_color(byte val);
+	
+	int get_watergrav();
+	void set_watergrav(int val);
+	
+	int get_sideswim_up();
+	void set_sideswim_up(int val);
+	
+	int get_sideswim_side();
+	void set_sideswim_side(int val);
+	
+	int get_sideswim_down();
+	void set_sideswim_down(int val);
+	
+	int get_sideswim_jump();
+	void set_sideswim_jump(int val);
     
     byte get_continue_scrn();
     void set_continue_scrn(byte s);
@@ -4035,9 +4057,9 @@ struct gamedata
     void set_canslash(byte s);
     void change_canslash(short s);
     
-    short get_generic(byte c);
-    void set_generic(byte change, byte c);
-    void change_generic(short change, byte c);
+    long get_generic(byte c);
+    void set_generic(long change, byte c);
+    void change_generic(long change, byte c);
     
     byte get_lkeys();
     
@@ -4112,16 +4134,25 @@ struct zinitdata
     byte subscreen_style;
     byte usecustomsfx;
     word max_rupees, max_keys;
-    byte gravity;
+    byte gravity; //Deprecated!
+    int gravity2; //Bumping this up to an int.
     word terminalv;
     byte msg_speed;
     byte transition_type; // Can't edit, yet.
     byte jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
     byte link_swim_speed;
     
-    word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep, subscrSpeed;
+    word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep, subscrSpeed, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
+    
+    int exitWaterJump;
+
 	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
-	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em 
+	
+	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em
+	
+	int swimgravity;
+	
+	
 	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
 };
 
@@ -4316,6 +4347,17 @@ struct zcmodule
     : ((__DATE__[4] == ' ' ? 0 : \
     ((__DATE__[4] - '0') * 10)) + __DATE__[5] - '0'))
 
+#define BUILDTM_HOUR (\
+	(__TIME__[0]-'0')*10 + \
+	(__TIME__[1]-'0'))
+	
+#define BUILDTM_MINUTE (\
+	(__TIME__[3]-'0')*10 + \
+	(__TIME__[4]-'0'))
+	
+#define BUILDTM_SECOND (\
+	(__TIME__[6]-'0')*10 + \
+	(__TIME__[7]-'0'))
 
 template <class T>
 INLINE T sign(T a)

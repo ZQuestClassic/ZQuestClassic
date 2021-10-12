@@ -6,20 +6,13 @@
 void call_foo_dlg()
 {
 	return; //This dialog for testing purposes only
-	bool loop = true;
-	while(loop)
+	FooDialog(false, [&](int v, int v2)
 	{
-		FooDialog(loop, [&loop](int v, bool cancel)
-		{
-			loop = !cancel;
-			if(loop)
-			{
-				char buf[32]={0};
-				sprintf(buf, "Value: %d", v);
-				jwin_alert("Foo", buf, NULL, NULL, "OK", NULL, 0, 0, lfont);
-			}
-		}).show();
-	}
+		return;
+		char buf[32]={0};
+		sprintf(buf, "Value: %d, %d", v, v2);
+		jwin_alert("Foo", buf, NULL, NULL, "OK", NULL, 0, 0, lfont);
+	}).show();
 }
 
 FooDialog::FooDialog(int v, std::function<void(int,bool)> setVal):
@@ -42,7 +35,12 @@ std::shared_ptr<GUI::Widget> FooDialog::view()
 					type = GUI::TextField::type::SWAP_ZSINT,
 					maxLength = 12,
 					val = v,
-					focused = true)
+					focused = true),
+				SelTileSwatch(tile = 1, cset = 8,
+					onSelectFunc = [&](int t, int c)
+					{
+						setVal(t,c);
+					})
 			),
 			Row(
 				topPadding = 0.5_em,
@@ -59,9 +57,9 @@ std::shared_ptr<GUI::Widget> FooDialog::view()
 	);
 }
 
-bool FooDialog::handleMessage(message msg)
+bool FooDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	switch(msg)
+	switch(msg.message)
 	{
 		case message::OK:
 			setVal(datafield->getVal(),false);

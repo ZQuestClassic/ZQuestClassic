@@ -16,28 +16,18 @@ namespace GUI
 class DialogRunner
 {
 public:
-	DialogRunner();
-
 	template<typename T>
-	void runWithArg(T& dlg)
+	void run(T& dlg)
 	{
-		sendMessage = [&dlg, this](int msg, MessageArg arg)
-		{
-			this->done = this->done ||
-				dlg.handleMessage(static_cast<typename T::message>(msg), arg);
-		};
-
-		runInner(dlg.view());
-	}
-
-	template<typename T>
-	void runWithoutArg(T& dlg)
-	{
-		sendMessage = [&dlg, this](int msg, MessageArg)
-		{
-			this->done = this->done ||
-				dlg.handleMessage(static_cast<typename T::message>(msg));
-		};
+		sendMessage =
+			[this, &dlg](int msg, MessageArg arg, std::shared_ptr<Widget> snd)
+			{
+				DialogMessage<typename T::message> dm;
+				dm.message = static_cast<typename T::message>(msg);
+				dm.argument = arg;
+				dm.sender = snd;
+				this->done = this->done || dlg.handleMessage(dm);
+			};
 
 		runInner(dlg.view());
 	}
@@ -64,28 +54,35 @@ public:
 	{
 		return alDialog.data();
 	}
-	
+
 	bool isConstructed()
 	{
 		return realized;
 	}
-	
+
 	bool allowDraw()
 	{
 		return running;
 	}
 	
+	void pendDraw()
+	{
+		redrawPending = true;
+	}
+
 	/* A signal emitted when construction of the DIALOG array is finished.
 	 * Shouldn't really be public, but that can be dealt with later.
 	 */
 	Signal dialogConstructed;
-	
+
 private:
-	MessageDispatcher sendMessage;
+	std::function<void(int, MessageArg, std::shared_ptr<Widget>)> sendMessage;
 	std::vector<DIALOG> alDialog;
 	std::vector<std::shared_ptr<Widget>> widgets;
 	int focused;
 	bool redrawPending, done, realized, running;
+
+	DialogRunner();
 
 	/* Sets up the DIALOG array for a dialog so that it can be run. */
 	void realize(std::shared_ptr<Widget> root);
@@ -94,52 +91,16 @@ private:
 
 	friend class DialogRef;
 	friend int dialog_proc(int msg, DIALOG *d, int c);
+	template<typename T> friend void showDialog(T& dlg);
 };
 
-// Pick either the argument or non-argument version of handleMessage()
-// based on which can be called.
-
+// Separate from DialogRunner due to type resolution limitations.
 template<typename T>
-std::enable_if_t<
-	std::is_invocable_v<
-		decltype(&T::handleMessage), T&, typename T::message, GUI::MessageArg
-	>, void
-> showDialog(T& dlg)
+inline void showDialog(T& dlg)
 {
 	auto dr=DialogRunner();
-	dr.runWithArg(dlg);
+	dr.run(dlg);
 }
-
-template<typename T>
-std::enable_if_t<
-	std::is_invocable_v<
-		decltype(&T::handleMessage), T&, typename T::message
-	>, void
-> showDialog(T& dlg)
-{
-	auto dr=DialogRunner();
-	dr.runWithoutArg(dlg);
-}
-
-// This one just exists to produce a more helpful error message if neither
-// version is correctly defined. The enable_if is just to prevent additional
-// errors from ambiguity with the two above.
-template<typename T, bool b=false>
-std::enable_if_t<
-	!std::is_invocable_v<
-		decltype(&T::handleMessage), T&, typename T::message, GUI::MessageArg>
-	&& !std::is_invocable_v<
-		decltype(&T::handleMessage), T&, typename T::message
-	>, void
-> showDialog(T& dlg)
-{
-	ZCGUI_STATIC_ASSERT(b,
-		"No valid handleMessage() implementation found.\n"
-		"You must implement one of the following:\n"
-		"handleMessage([DialogClass]::Message, GUI::EventArg)\n"
-		"handleMessage([DialogClass]::Message)");
-}
-
 
 }
 

@@ -2,12 +2,15 @@
 #define ZC_GUI_DIALOGMESSAGE_H
 
 #include <functional>
+#include <memory>
 #include <string_view>
 #include <utility>
 #include <variant>
 
 namespace GUI
 {
+
+class Widget;
 
 class MessageArg
 {
@@ -21,6 +24,8 @@ public:
 	inline constexpr MessageArg(const MessageArg& other) noexcept=default;
 
 	inline constexpr MessageArg(MessageArg&& other) noexcept=default;
+	
+	MessageArg& operator=(const MessageArg& other) = default;
 
 	// You would think a template constructor would work, but apparently not.
 	inline constexpr MessageArg(std::monostate) noexcept: value(none)
@@ -66,7 +71,33 @@ private:
 	> value;
 };
 
-using MessageDispatcher = std::function<void(int, MessageArg)>;
+template<typename T>
+struct DialogMessage
+{
+	T message;
+	MessageArg argument;
+	std::shared_ptr<Widget> sender;
+};
+
+class MessageDispatcher
+{
+public:
+	MessageDispatcher(
+		std::shared_ptr<Widget> sender,
+		std::function<void(int, MessageArg, std::shared_ptr<Widget>)> send):
+			sender(sender),
+			send(send)
+	{}
+
+	inline void operator()(int msg, MessageArg arg)
+	{
+		send(msg, arg, sender);
+	}
+
+private:
+	std::shared_ptr<Widget> sender;
+	std::function<void(int, MessageArg, std::shared_ptr<Widget>)> send;
+};
 
 }
 

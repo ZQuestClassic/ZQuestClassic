@@ -6,13 +6,15 @@
 #include "dialog_ref.h"
 #include "size.h"
 #include "../zc_alleg.h"
+#include <any>
 #include <memory>
 #include <type_traits>
 #include <vector>
 #include "../fonts.h"
 
 #define GUI_DEF_FONT sized(nfont, lfont_l)
-
+#define DEFAULT_PADDING       sized(1_px,3_px)
+#define DEFAULT_PADDING_INT   sized(1,3)
 namespace GUI
 {
 
@@ -251,6 +253,20 @@ public:
 	//For some reason need this to not be virtual???
 	void setFont(FONT* newfont) {applyFont(newfont);}
 	
+	template<typename T>
+	inline void setUserData(T&& ud)
+	{
+		// It might be better to have to specify a type, e.g. userData<int>=5.
+		// But for now, the use cases are simple.
+		userData=std::make_any<std::decay_t<T>>(ud);
+	}
+
+	template<typename T>
+	inline T getUserData()
+	{
+		return std::any_cast<T>(userData);
+	}
+
 protected:
 	inline bool getWidthOverridden() const noexcept {return flags&f_WIDTH_OVERRIDDEN;}
 	inline bool getHeightOverridden() const noexcept {return flags&f_HEIGHT_OVERRIDDEN;}
@@ -267,6 +283,7 @@ protected:
 	unsigned short leftMargin, rightMargin, topMargin, bottomMargin;
 	unsigned short leftPadding, rightPadding, topPadding, bottomPadding;
 	float hAlign, vAlign;
+	std::any userData;
 	DialogRef frameDialog, frameTextDialog;
 	std::string frameText;
 
@@ -285,6 +302,8 @@ protected:
 	
 	/* Returns true if the dialog is running, and thus draws to the screen are permitted */
 	bool allowDraw();
+	/* Note that the widget has done something requiring redraw */
+	void pendDraw();
 	/* Returns true if the entire dialog has been realized */
 	bool isConstructed();
 	
@@ -315,7 +334,7 @@ private:
 class DummyWidget : public Widget
 {
 public:
-	DummyWidget::DummyWidget() {}
+	DummyWidget() {}
 };
 
 }

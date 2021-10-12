@@ -5,6 +5,7 @@
 #include "../jwin.h"
 #include "../zdefs.h"
 #include "../zquest.h"
+#include "../zsys.h"
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -16,7 +17,7 @@ namespace GUI
 
 TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
 	onEnterMsg(-1), onValueChangedMsg(-1), startVal(0), lbound(0), ubound(-1),
-	fixedPlaces(4), valSet(false)
+	fixedPlaces(4), valSet(false), forced_length(false)
 {
 	setPreferredWidth(1_em);
 	setPreferredHeight(24_lpx);
@@ -26,16 +27,11 @@ TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
 
 void TextField::setText(std::string_view newText)
 {
-	// This probably could be handled with less allocating and copying...
-	if(maxLength == 0 && newText.size() > 0)
-		setMaxLength(newText.size());
+	check_len(newText.size());
 	newText.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength, newText.size())] = '\0';
 	valSet = true;
-	if(alDialog && allowDraw() && getVisible())
-	{
-		alDialog.message(MSG_DRAW, 0);
-	}
+	pendDraw();
 }
 
 void TextField::setVal(int val)
@@ -70,34 +66,31 @@ void TextField::setVal(int val)
 		
 	}
 	std::string_view v(buf);
-	// This probably could be handled with less allocating and copying...
-	if(maxLength == 0)
+	//
+	size_t s = 1;
+	switch(tfType)
 	{
-		switch(tfType)
-		{
-			case type::TEXT:
-			case type::INT_DECIMAL:
-			case type::INT_HEX:
-			case type::FIXED_DECIMAL:
-				if(v.size()>0)
-				{
-					setMaxLength(v.size());
-				}
-				break;
-			case type::SWAP_BYTE:
-			case type::SWAP_SSHORT:
-			case type::SWAP_ZSINT:
-				setMaxLength(12);
-				break;
-		}
+		case type::TEXT:
+		case type::INT_DECIMAL:
+		case type::INT_HEX:
+		case type::FIXED_DECIMAL:
+			if(v.size()>0)
+			{
+				s = v.size();
+			}
+			break;
+		case type::SWAP_BYTE:
+		case type::SWAP_SSHORT:
+		case type::SWAP_ZSINT:
+			s = 12;
+			break;
 	}
+	check_len(s);
+	//
 	v.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength, v.size())] = '\0';
 	valSet = true;
-	if(alDialog && allowDraw() && getVisible())
-	{
-		alDialog.message(MSG_DRAW, 0);
-	}
+	pendDraw();
 }
 
 std::string_view TextField::getText()
@@ -110,10 +103,12 @@ std::string_view TextField::getText()
 void TextField::setLowBound(int low)
 {
 	lbound = low;
+	check_len(1);
 }
 void TextField::setHighBound(int high)
 {
 	ubound = high;
+	check_len(1);
 }
 int TextField::getVal()
 {
@@ -151,25 +146,48 @@ int TextField::getVal()
 
 void TextField::setMaxLength(size_t newMax)
 {
-	assert(newMax > 0);
-	if(newMax == maxLength)
+	if(newMax < 1)
+	{
+		forced_length = false;
+		check_len(1);
 		return;
+	}
+	forced_length = true;
+	
+	_updateBuf(newMax);
+}
 
-	auto newBuffer = std::make_unique<char[]>(newMax+1);
+void TextField::check_len(size_t min)
+{
+	if(forced_length)
+		return;
+	size_t s = std::max(min, maxLength);
+	if(ubound > lbound)
+	{
+		s = std::max(count_digits(lbound), count_digits(ubound));
+	}
+	_updateBuf(s);
+}
+
+void TextField::_updateBuf(size_t sz)
+{
+	if(sz == maxLength)
+		return;
+	auto newBuffer = std::make_unique<char[]>(sz+1);
 	if(maxLength > 0)
 	{
-		strncpy(newBuffer.get(), buffer.get(), std::min(maxLength, newMax));
-		newBuffer[newMax-1] = '\0';
+		strncpy(newBuffer.get(), buffer.get(), std::min(maxLength, sz));
+		newBuffer[sz-1] = '\0';
 	}
 	else
 		newBuffer[0] = '\0';
 
 	buffer = std::move(newBuffer);
-	maxLength = newMax;
+	maxLength = sz;
 	
 	int btnsz = isSwapType() ? 16 : 0;
 	
-	setPreferredWidth(Size::largePixels(btnsz)+Size::em(std::min((newMax+sized(2,1))*0.75, 20.0)));
+	setPreferredWidth(Size::largePixels(btnsz)+Size::em(std::min((sz+sized(2,1))*0.75, 20.0)));
 }
 
 void TextField::setOnValChanged(std::function<void(type,std::string_view,int)> newOnValChanged)
@@ -211,13 +229,14 @@ void TextField::realize(DialogRunner& runner)
 			case type::SWAP_ZSINT:
 				proc = newGUIProc<jwin_numedit_swap_zsint_proc>;
 				break;
+
+			default:
+				break;
 		}
 		
 		int totalwid = getWidth();
-		int btnwid = 24_lpx.resolve();
+		int btnwid = (24_lpx).resolve();
 		int txtfwid = totalwid-btnwid;
-		
-		al_trace("%d = (%d + %d)\n", totalwid, txtfwid, btnwid);
 		
 		alDialog = runner.push(shared_from_this(), DIALOG {
 			proc,
@@ -256,6 +275,9 @@ void TextField::realize(DialogRunner& runner)
 
 			case type::INT_HEX:
 				proc = newGUIProc<jwin_hexedit_proc>;
+				break;
+
+			default:
 				break;
 		}
 

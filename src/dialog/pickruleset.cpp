@@ -105,13 +105,13 @@ std::shared_ptr<GUI::Widget> PickRulesetDialog::view()
 	);
 }
 
-bool PickRulesetDialog::handleMessage(message msg, GUI::MessageArg messageArg)
+bool PickRulesetDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	switch(msg)
+	switch(msg.message)
 	{
 		case message::RULESET:
 		{
-			rulesetInfo->setText(rulesetsList.findInfo(messageArg));
+			rulesetInfo->setText(rulesetsList.findInfo(msg.argument));
 			return false;
 		}	
 		//Exiting messages
