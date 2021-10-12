@@ -104,8 +104,11 @@ void EnemySummonWeapon::summon() const
 void EnemySummonWeapon::spawnEnemy(int id, zfix x, zfix y, zfix z) const
 {
 	// XXX Why is clk -10?
-	// XXX This always marks the last enemy
-	auto index = guys.Count();
-	auto added = addchild(x, y, z, id, -10, owner.script_UID);
-	((enemy*)guys.spr(index))->count_enemy = false;
+	auto countBefore = guys.Count();
+	if(addchild(x, y, z, id, -10, owner.script_UID))
+	{
+		auto countAfter = guys.Count();
+		for(auto i = countBefore; i < countAfter; ++i)
+			((enemy*)guys.spr(i))->count_enemy = false;
+	}
 }
