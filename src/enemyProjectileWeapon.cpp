@@ -85,7 +85,7 @@ static int fireMageDefaultSound(int wpn)
 
 EnemyProjectileWeapon::EnemyProjectileWeapon(enemy& owner, guydata& data):
 	owner(owner),
-	type(attackType::NONE),
+	pattern(attackPattern::NONE),
 	wpn(data.weapon),
 	damage(data.wdp),
 	wpnSubtype(0),
@@ -97,7 +97,7 @@ EnemyProjectileWeapon::EnemyProjectileWeapon(enemy& owner, guydata& data):
 EnemyProjectileWeapon::EnemyProjectileWeapon(enemy& owner,
 	const EnemyProjectileWeapon& other):
 		owner(owner),
-		type(other.type),
+		pattern(other.pattern),
 		wpn(other.wpn),
 		damage(other.damage),
 		wpnSubtype(other.wpnSubtype),
@@ -108,20 +108,20 @@ void EnemyProjectileWeapon::init(guydata& data)
 {
 	if(data.weapon == 0)
 	{
-		type = attackType::NONE;
+		pattern = attackPattern::NONE;
 		return;
 	}
 
 	switch(data.family)
 	{
 	case eeAQUA:
-		type = attackType::UNICORN;
+		pattern = attackPattern::UNICORN;
 		wpnSubtype = 2;
 		sfx = defaultSound(data.weapon);
 		break;
 
 	case eePATRA:
-		type = attackType::BASIC;
+		pattern = attackPattern::BASIC;
 		wpnSubtype = 3;
 		sfx = defaultSound(data.weapon);
 		break;
@@ -129,12 +129,12 @@ void EnemyProjectileWeapon::init(guydata& data)
 	case eeWIZZ:
 		if(data.misc2 == 0)
 		{
-			type = attackType::BASIC;
+			pattern = attackPattern::BASIC;
 			sfx = WAV_WAND;
 		}
 		else if(data.misc2 == 1)
 		{
-			type = attackType::FIRE_MAGE;
+			pattern = attackPattern::FIRE_MAGE;
 			if(FFCore.emulation[emu8WAYSHOTSFX])
 				sfx = WAV_FIRE;
 			else
@@ -143,7 +143,7 @@ void EnemyProjectileWeapon::init(guydata& data)
 		break;
 
 	default:
-		type = attackType::NONE;
+		pattern = attackPattern::NONE;
 		break;
 	}
 }
@@ -153,43 +153,43 @@ void EnemyProjectileWeapon::fire(zfix xOffset, zfix yOffset) const
 	zfix x = owner.x+xOffset;
 	zfix y = owner.y+yOffset;
 
-	switch(type)
+	switch(pattern)
 	{
-	case attackType::BASIC:
-		fireDirectional(x, y, owner.z, owner.dir);
+	case attackPattern::BASIC:
+		spawnWeapon(x, y, owner.z, owner.dir);
 		sfx.play(x);
 		break;
 
-	case attackType::FIRE_MAGE:
-		fireDirectional(x, y, owner.z, up).moveflags &= ~FLAG_CAN_PITFALL;
-		fireDirectional(x, y, owner.z, down).moveflags &= ~FLAG_CAN_PITFALL;
-		fireDirectional(x, y, owner.z, left).moveflags &= ~FLAG_CAN_PITFALL;
-		fireDirectional(x, y, owner.z, right).moveflags &= ~FLAG_CAN_PITFALL;
-		fireDirectional(x, y, owner.z, l_up).moveflags &= ~FLAG_CAN_PITFALL;
-		fireDirectional(x, y, owner.z, r_up).moveflags &= ~FLAG_CAN_PITFALL;
-		fireDirectional(x, y, owner.z, l_down).moveflags &= ~FLAG_CAN_PITFALL;
-		fireDirectional(x, y, owner.z, r_down).moveflags &= ~FLAG_CAN_PITFALL;
+	case attackPattern::FIRE_MAGE:
+		spawnWeapon(x, y, owner.z, up).moveflags &= ~FLAG_CAN_PITFALL;
+		spawnWeapon(x, y, owner.z, down).moveflags &= ~FLAG_CAN_PITFALL;
+		spawnWeapon(x, y, owner.z, left).moveflags &= ~FLAG_CAN_PITFALL;
+		spawnWeapon(x, y, owner.z, right).moveflags &= ~FLAG_CAN_PITFALL;
+		spawnWeapon(x, y, owner.z, l_up).moveflags &= ~FLAG_CAN_PITFALL;
+		spawnWeapon(x, y, owner.z, r_up).moveflags &= ~FLAG_CAN_PITFALL;
+		spawnWeapon(x, y, owner.z, l_down).moveflags &= ~FLAG_CAN_PITFALL;
+		spawnWeapon(x, y, owner.z, r_down).moveflags &= ~FLAG_CAN_PITFALL;
 		sfx.play(x);
 		break;
 
-	case attackType::UNICORN:
+	case attackPattern::UNICORN:
 		// Unicorn shots drift in the specified direction.
-		fireDirectional(x, y, owner.z, up);
-		fireDirectional(x, y, owner.z, 8);
-		fireDirectional(x, y, owner.z, down);
+		spawnWeapon(x, y, owner.z, up);
+		spawnWeapon(x, y, owner.z, 8);
+		spawnWeapon(x, y, owner.z, down);
 		sfx.play(x);
 		break;
 
-	case attackType::NONE:
+	case attackPattern::NONE:
 		break;
 	}
 }
 
-weapon& EnemyProjectileWeapon::fireDirectional(zfix x, zfix y, zfix z,
+weapon& EnemyProjectileWeapon::spawnWeapon(zfix x, zfix y, zfix z,
 	int dir) const
 {
 	weapon* newWeapon = new weapon(
-	x, y, z, wpn, wpnSubtype, damage, dir, -1, owner.getUID(), false);
+		x, y, z, wpn, wpnSubtype, damage, dir, -1, owner.getUID(), false);
 	Ewpns.add(newWeapon);
 	return *newWeapon;
 }

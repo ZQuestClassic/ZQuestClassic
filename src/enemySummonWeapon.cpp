@@ -49,8 +49,8 @@ void EnemySummonWeapon::summon() const
 
 		for(int i = 0; i < guys.Count(); ++i)
 		{
-			if((((enemy*)guys.spr(i))->id) == enemyToSummon)
-			++existing;
+			if(guys.spr(i)->id == enemyToSummon)
+				++existing;
 		}
 
 		if(existing <= 40)
@@ -88,7 +88,7 @@ void EnemySummonWeapon::summon() const
 					spawnEnemy(id, zfix(x), zfix(y),
 						get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64_x : 0_x);
 
-					summoned=true;
+					summoned = true;
 					break;
 				}
 			}

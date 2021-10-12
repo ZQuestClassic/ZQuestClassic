@@ -15,20 +15,20 @@ public:
 	void fire(zfix xOffset = 0_x, zfix yOffset = 0_x) const;
 
 private:
-	enum class attackType: char {
+	enum class attackPattern: char {
 		NONE, BASIC, FIRE_MAGE, UNICORN
 	};
 
 	enemy& owner;
-	attackType type;
+	attackPattern pattern;
 	short wpn, damage;
 	int wpnSubtype;
 	Sound sfx;
 
 	void init(guydata& data);
 
-	// This is probably named incorrectly...
-	weapon& fireDirectional(zfix x, zfix y, zfix z, int dir) const;
+	/* Fires a single weapon. */
+	weapon& spawnWeapon(zfix x, zfix y, zfix z, int dir) const;
 };
 
 #endif
