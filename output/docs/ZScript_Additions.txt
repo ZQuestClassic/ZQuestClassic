@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 96
-Document Revision: 28th Sept, 2021
+Document for: 2.55, Alpha 99
+Document Revision: 13th Oct, 2021
 
 
  __           _   _                 
@@ -4234,7 +4234,10 @@ int Parent;
 npc Parent;
  * The ID of the item, or pointer of the npc (respectively for lweapon, and for eweapon) that created this weapon.
  * Weapons created by script have a default Parent of -1 (lweapon) and <npc>-0.0001 (eweapon). 
-	
+ * For lweapons, this value determines what item editor index to read item flags from.
+ *     Setting it to an item of a class that does not normally generate the given weapon
+ *     type may have unexpected effects.
+ 
 int Level;
  * LWeapons: The Level value associated with the weapon. 
  * EWeapons: The first bit (Level&1) is used to set a 'boss/unblockable'
