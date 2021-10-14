@@ -1297,9 +1297,10 @@
 #define NPCDSPAWNSPR 			1216
 #define NPCDDEATHSPR 			1217
 
-#define COMBOLAYERR 			1218
+#define COMBOLAYERR             1218
+#define COMBODATTRISHORTS       1219
 
-#define LAST_BYTECODE 		1219
+#define LAST_BYTECODE           1220
 
 //} END OF BYTECODE
 

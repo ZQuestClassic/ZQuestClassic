@@ -10247,7 +10247,8 @@ long get_register(const long arg)
 			} 
 			break;
 		}
-		case COMBODATTRIBYTES: 		GET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 4); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRIBYTES: 		GET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 8); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRISHORTS: 		GET_COMBO_VAR_INDEX(attrishorts,	"Attrishorts[]", 8); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
 		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -15192,94 +15193,94 @@ void set_register(const long arg, const long value)
 		
 	///----------------------------------------------------------------------------------------------------//
 	//Screen->ComboX
-    case COMBODD:
-    {
-        int pos = (ri->d[rINDEX])/10000;
-	int val = (value/10000);
-        if ( ((unsigned) pos) > 175 )
+	case COMBODD:
 	{
-		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboD[]\n", pos);
+		int pos = (ri->d[rINDEX])/10000;
+		int val = (value/10000);
+		if ( ((unsigned) pos) > 175 )
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboD[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= MAXCOMBOS )
+		{
+			Z_scripterrlog("Invalid combo ID %d used to write to Screen->ComboD[]\n", val);
+		}
+		else
+		{
+			screen_combo_modify_preroutine(tmpscr,pos);
+			tmpscr->data[pos]=(val);
+			screen_combo_modify_postroutine(tmpscr,pos);
+			//Start the script for the new combo
+			FFCore.clear_combo_stack(pos);
+			comboScriptData[pos].Clear();
+			
+			/*
+			ri = &(comboScriptData[i]);
+
+				curscript = comboscripts[script];
+				stack = &(combo_stack[i]);
+				int pos = ((i%176));
+				int lyr = i/176;
+				int id = comboscript_combo_ids[i]; 
+
+				if(!(combo_initialised[pos] & (1<<lyr)))
+				{
+					memset(ri->d, 0, 8 * sizeof(long));
+					for ( int q = 0; q < 2; q++ )
+						ri->d[q] = combobuf[id].initd[q];
+					combo_initialised[pos] |= 1<<lyr;
+				}
+
+				ri->combosref = id; //'this' pointer
+				ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
+				break;
+				*/
+			combo_doscript[pos] = 1;
+			combo_initialised[pos] &= ~(1<<0);
+			//Not ure if combodata arrays clean themselves up, or leak. -Z
+			//Not sure if this could result in stack corruption. 
+		}
 	}
-	else if ( ((unsigned) val) >= MAXCOMBOS )
+	break;
+    
+	case COMBOCD:
 	{
-		Z_scripterrlog("Invalid combo ID %d used to write to Screen->ComboD[]\n", val);
+		int pos = (ri->d[rINDEX])/10000;
+		int val = (value/10000); //cset
+		if ( ((unsigned) pos) > 175 )
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboC[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 15 )
+		{
+			Z_scripterrlog("Invalid CSet ID %d used to write to Screen->ComboC[]\n", val);
+		}
+		else
+		{
+			screen_combo_modify_preroutine(tmpscr,pos);
+			tmpscr->cset[pos]=(val)&15;
+			screen_combo_modify_postroutine(tmpscr,pos);
+		}
 	}
-        else
-        {
-            screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr->data[pos]=(val);
-            screen_combo_modify_postroutine(tmpscr,pos);
-	    //Start the script for the new combo
-		FFCore.clear_combo_stack(pos);
-		comboScriptData[pos].Clear();
+	break;
+    
+	case COMBOFD:
+	{
+		int pos = (ri->d[rINDEX])/10000;
+		int val = (value/10000); //flag
+		if ( ((unsigned) pos) > 175 )
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboF[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 256 )
+		{
+			Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboF[]\n", val);
+		}
 		
-		/*
-		ri = &(comboScriptData[i]);
-
-			curscript = comboscripts[script];
-			stack = &(combo_stack[i]);
-			int pos = ((i%176));
-			int lyr = i/176;
-			int id = comboscript_combo_ids[i]; 
-
-			if(!(combo_initialised[pos] & (1<<lyr)))
-			{
-				memset(ri->d, 0, 8 * sizeof(long));
-				for ( int q = 0; q < 2; q++ )
-					ri->d[q] = combobuf[id].initd[q];
-				combo_initialised[pos] |= 1<<lyr;
-			}
-
-			ri->combosref = id; //'this' pointer
-			ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
-			break;
-			*/
-		combo_doscript[pos] = 1;
-		combo_initialised[pos] &= ~(1<<0);
-		//Not ure if combodata arrays clean themselves up, or leak. -Z
-		//Not sure if this could result in stack corruption. 
-        }
-    }
-    break;
-    
-    case COMBOCD:
-    {
-        int pos = (ri->d[rINDEX])/10000;
-        int val = (value/10000); //cset
-	if ( ((unsigned) pos) > 175 )
-	{
-		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboC[]\n", pos);
+		else
+			tmpscr->sflag[pos]=(val);
 	}
-	else if ( ((unsigned) val) >= 15 )
-	{
-		Z_scripterrlog("Invalid CSet ID %d used to write to Screen->ComboC[]\n", val);
-	}
-        else
-        {
-            screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr->cset[pos]=(val)&15;
-            screen_combo_modify_postroutine(tmpscr,pos);
-        }
-    }
-    break;
-    
-    case COMBOFD:
-    {
-        int pos = (ri->d[rINDEX])/10000;
-        int val = (value/10000); //flag
-	if ( ((unsigned) pos) > 175 )
-	{
-		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboF[]\n", pos);
-	}
-	else if ( ((unsigned) val) >= 256 )
-	{
-		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboF[]\n", val);
-	}
-        
-        else
-            tmpscr->sflag[pos]=(val);
-    }
-    break;
+	break;
     
     case COMBOTD:
     {
@@ -18162,6 +18163,23 @@ void set_register(const long arg, const long value)
 					combobuf[ri->combosref].member[indx] = vbound((value / 10000),0,214747); \
 				} \
 		}
+		
+		#define SET_COMBO_VAR_INDEX2(member, str, indexbound, low, high) \
+		{ \
+				int indx = ri->d[rINDEX] / 10000; \
+				if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+				{ \
+					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				} \
+				else if ( indx < 0 || indx > indexbound ) \
+				{ \
+					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+				} \
+				else \
+				{ \
+					combobuf[ri->combosref].member[indx] = vbound((value / 10000),low,high); \
+				} \
+		}
 
 		#define SET_COMBO_BYTE_INDEX(member, str, indexbound) \
 		{ \
@@ -18367,7 +18385,8 @@ void set_register(const long arg, const long value)
 		}
 		
 		
-		case COMBODATTRIBYTES: 	SET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRIBYTES: 	SET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 8); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
+		case COMBODATTRISHORTS: 	SET_COMBO_VAR_INDEX2(attrishorts,	"Attrishorts[]", 8, -32768, 32767); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
 		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -34887,6 +34906,7 @@ script_variable ZASMVars[]=
 	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
 	
 	{ "COMBOLAYERR",           COMBOLAYERR,            0,             0 },
+	{ "COMBODATTRISHORTS",           COMBODATTRISHORTS,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

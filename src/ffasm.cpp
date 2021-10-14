@@ -2231,6 +2231,7 @@ script_variable variable_list[]=
 	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
 	
 	{ "COMBOLAYERR",           COMBOLAYERR,            0,             0 },
+	{ "COMBODATTRISHORTS",           COMBODATTRISHORTS,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

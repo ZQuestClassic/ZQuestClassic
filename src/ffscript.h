@@ -4330,8 +4330,9 @@ enum ASM_DEFINE
 #define NPCDDEATHSPR 			0x13F7
 
 #define COMBOLAYERR 			0x13F8
+#define COMBODATTRISHORTS       0x13F9
 
-#define NUMVARIABLES         	0x13F9
+#define NUMVARIABLES         	0x13FA
 
 //} End variables
 
