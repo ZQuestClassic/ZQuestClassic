@@ -1617,6 +1617,16 @@ int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c)
 enum {typeDEC, typeHEX, typeLDEC, typeLHEX, typeMAX};
 void trim_trailing_0s(char* str)
 {
+	bool foundDec = false;
+	for(int q = 0; str[q]; ++q)
+	{
+		if(str[q] == '.')
+		{
+			foundDec = true;
+			break;
+		}
+	}
+	if(!foundDec) return; //No decimal place, thus no trailing 0's.
 	for(int q = strlen(str)-1; q > 0; --q)
 	{
 		if(str[q] == '0' && str[q-1] != '.')
