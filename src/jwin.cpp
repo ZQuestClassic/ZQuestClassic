@@ -1615,6 +1615,17 @@ int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c)
 // Special numedit procs
 
 enum {typeDEC, typeHEX, typeLDEC, typeLHEX, typeMAX};
+void trim_trailing_0s(char* str)
+{
+	for(int q = strlen(str)-1; q > 0; --q)
+	{
+		if(str[q] == '0' && str[q-1] != '.')
+		{
+			str[q] = 0;
+		}
+		else return;
+	}
+}
 int jwin_swapbtn_proc(int msg, DIALOG* d, int c)
 {
 	static char* swp[typeMAX] = {"D", "H", "LD", "LH"};
@@ -1895,7 +1906,7 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
 				v = atoi(tempstr);
 				v *= 10000;
-				if(v<0)
+				if(tempstr[0] == '-')
 					v -= atoi(ptr);
 				else v += atoi(ptr);
 			}
@@ -1916,7 +1927,7 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
 				v = zc_xtoi(tempstr);
 				v *= 10000;
-				if(v<0)
+				if(tempstr[0] == '-')
 					v -= atoi(ptr);
 				else v += atoi(ptr);
 			}
@@ -2002,12 +2013,16 @@ int jwin_numedit_swap_zsint_proc(int msg, DIALOG *d, int c)
 		switch(ntype)
 		{
 			case typeDEC:
-				sprintf(str, "%d.%04d\0", b/10000L, abs(b%10000L));
+				if(b < 0)
+					sprintf(str, "-%d.%04d\0", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%d.%04d\0", b/10000L, b%10000L);
+				trim_trailing_0s(str);
 				break;
 			case typeHEX:
 				if(b<0)
 					sprintf(str, "-%X.%04d\0", abs(b/10000L), abs(b%10000L));
 				else sprintf(str, "%X.%04d\0", b/10000L, abs(b%10000L));
+				trim_trailing_0s(str);
 				break;
 			case typeLDEC:
 				sprintf(str, "%ld\0", b);
