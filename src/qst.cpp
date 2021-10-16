@@ -1534,6 +1534,7 @@ static MIDI *read_midi(PACKFILE *f, bool)
 void clear_combo(int32_t i)
 {
     memset(combobuf+i,0,sizeof(newcombo));
+	combobuf[i].walk = 0xF0; //Green square default on!
 }
 
 void clear_combos()

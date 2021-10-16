@@ -29526,7 +29526,7 @@ int32_t findblankcombo()
     for(int32_t i=0; i<MAXCOMBOS; i++)
     {
     
-        if(!combobuf[i].flip&&!combobuf[i].walk&&!combobuf[i].type&&
+        if(!combobuf[i].flip&&!(combobuf[i].walk&0xF)&&!combobuf[i].type&&
                 !combobuf[i].csets&&!combobuf[i].frames&&!combobuf[i].speed&&
                 !combobuf[i].nextcombo&&!combobuf[i].nextcset&&
                 blank_tile_table[combobuf[i].tile])
