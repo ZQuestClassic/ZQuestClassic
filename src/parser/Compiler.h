@@ -15,6 +15,7 @@
 #include <map>
 #include <vector>
 #include <string>
+using std::unique_ptr;
 
 namespace ZScript
 {
