@@ -102,7 +102,7 @@ void CompileError::initialize()
 namespace // file local
 {
 	////////////////////////////////////////////////////////////////
-	// Convert int to int, and string to char const*
+	// Convert int32_t to int32_t, and string to char const*
 	// for the format function.
 
 	// formatArgOut<Type>::type = Type
@@ -198,11 +198,11 @@ namespace // file local
 // Define argument types. Non-void has preceding comma to fit in the
 // argument list properly.
 #define ARG_VOID(ARGNAME) /* ignore void types */
-#define ARG_INT(ARGNAME) ,int ARGNAME
+#define ARG_INT(ARGNAME) ,int32_t ARGNAME
 #define ARG_STR(ARGNAME) ,string const& ARGNAME
 // CEImpl template types
 #define TYPE_VOID void
-#define TYPE_INT int
+#define TYPE_INT int32_t
 #define TYPE_STR string
 // CEImpl constructor arguments
 #define ARGC_VOID(ARGNAME) /* ignore void types */

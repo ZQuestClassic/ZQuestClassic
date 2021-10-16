@@ -228,7 +228,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_RULES           17
 #define V_STRINGS          8
 #define V_MISC             12
-#define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
+#define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           19
 #define V_CSETS            4
 #define V_MAPS            22
@@ -310,22 +310,22 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ZITEM -1
 #define V_ZWPNSPR -1
 
-extern int curr_tb_page;
+extern int32_t curr_tb_page;
 extern bool triplebuffer_not_available;
-extern int original_playing_field_offset;
-extern int playing_field_offset;
-extern int passive_subscreen_height;
-extern int passive_subscreen_offset;
+extern int32_t original_playing_field_offset;
+extern int32_t playing_field_offset;
+extern int32_t passive_subscreen_height;
+extern int32_t passive_subscreen_offset;
 
-extern int CSET_SIZE;
-extern int CSET_SHFT;
+extern int32_t CSET_SIZE;
+extern int32_t CSET_SHFT;
 
-typedef unsigned char        byte;                               //0-                       255  ( 8 bits)
-typedef unsigned short       word;                               //0-                    65,535  (16 bits)
-typedef unsigned long        dword;                              //0-             4,294,967,295  (32 bits)
-typedef unsigned long long   qword;                              //0-18,446,744,073,709,551,616  (64 bits)
+typedef uint8_t  byte;  //0-255  ( 8 bits)
+typedef uint16_t word;  //0-65,535  (16 bits)
+typedef uint32_t dword; //0-4,294,967,295  (32 bits)
+typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 
-extern int readsize, writesize;
+extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
 
 // system colors
@@ -1675,10 +1675,10 @@ enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 
 struct size_and_pos
 {
-    int x;
-    int y;
-    int w;
-    int h;
+    int32_t x;
+    int32_t y;
+    int32_t w;
+    int32_t h;
 };
 
 //#define OLDITEMCNT i90
@@ -1750,17 +1750,17 @@ enum
 
 struct itemdata
 {
-    int tile;
+    int32_t tile;
     byte misc;                                                // 0000vhtf (vh:flipping, t:two hands, f:flash)
     byte csets;                                               // ffffcccc (f:flash cset, c:cset)
     byte frames;                                              // animation frame count
     byte speed;                                               // animation speed
     byte delay;                                               // extra delay factor (-1) for first frame
-    long ltm;                                                 // Link Tile Modifier
-    long family;												// What family the item is in
+    int32_t ltm;                                                 // Link Tile Modifier
+    int32_t family;												// What family the item is in
     byte fam_type;	//level										// What type in this family the item is
-    long power;	// Damage, height, etc. //changed from byte to int in V_ITEMS 31
-    long flags;
+    int32_t power;	// Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
+    int32_t flags;
 #define ITEM_GAMEDATA    0x00000001  // Whether this item sets the corresponding gamedata value or not
 #define ITEM_EDIBLE      0x00000002  // can be eaten by Like Like
 #define ITEM_COMBINE     0x00000004  // blue potion + blue potion = red potion
@@ -1794,12 +1794,12 @@ struct itemdata
     word script;												// Which script the item is using
     char count;
     word amount;
-    short setmax;
+    int16_t setmax;
     word max;
     byte playsound;
     word collect_script;
 //  byte exp[10];                                             // not used
-    long initiald[INITIAL_D];
+    int32_t initiald[INITIAL_D];
     byte initiala[INITIAL_A];
     byte wpn;
     byte wpn2;
@@ -1812,38 +1812,38 @@ struct itemdata
     byte wpn9;
     byte wpn10;
     byte pickup_hearts;
-    long misc1;
-    long misc2;
-    long misc3;
-    long misc4;
-    long misc5;
-    long misc6;
-    long misc7;
-    long misc8;
-    long misc9;
-    long misc10;
+    int32_t misc1;
+    int32_t misc2;
+    int32_t misc3;
+    int32_t misc4;
+    int32_t misc5;
+    int32_t misc6;
+    int32_t misc7;
+    int32_t misc8;
+    int32_t misc9;
+    int32_t misc10;
     byte magic; // Magic usage!
     byte usesound;
     byte useweapon; //lweapon id type -Z
     byte usedefence; //default defence type -Z
-    int weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
-    int weaprange; //default range -Z
-    int weapduration; //default duration, 0 = infinite. 
+    int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
+    int32_t weaprange; //default range -Z
+    int32_t weapduration; //default duration, 0 = infinite. 
  
     
     //To implement next;
-    int duplicates; //Number of duplicate weapons generated.
-    int wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
+    int32_t duplicates; //Number of duplicate weapons generated.
+    int32_t wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
     
-    long weap_initiald[INITIAL_D];
+    int32_t weap_initiald[INITIAL_D];
     byte weap_initiala[INITIAL_A];
     
     byte drawlayer;
-    long collectflags;
-    int hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs; //item
-    int weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
-    int tilew, tileh, weap_tilew, weap_tileh; //New for 2.54
-    long pickup; byte pickupflag;
+    int32_t collectflags;
+    int32_t hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs; //item
+    int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
+    int32_t tilew, tileh, weap_tilew, weap_tileh; //New for 2.54
+    int32_t pickup; byte pickupflag;
     
 #define itemdataPSTRING_ALWAYS		0x00000001
 #define itemdataPSTRING_IP_HOLDUP	0x00000002
@@ -1867,19 +1867,19 @@ struct itemdata
 #define itemdataOVERRIDE_DRAW_Z_OFFSET	0x00000200
 #define itemdataOVERRIDE_PICKUP		0x00000400
 
-    int overrideFLAGS; //Override flags.
-    int weapoverrideFLAGS; 
+    int32_t overrideFLAGS; //Override flags.
+    int32_t weapoverrideFLAGS; 
     
     word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
-    int wpnsprite; //enemy weapon sprite. 
-    int magiccosttimer; //TImer for timed magic costs. 
+    int32_t wpnsprite; //enemy weapon sprite. 
+    int32_t magiccosttimer; //TImer for timed magic costs. 
     char cost_counter; //replaces mp cost with a list
     
     char initD_label[8][65];
     char weapon_initD_label[8][65];
     char sprite_initD_label[8][65];
     
-    long sprite_initiald[INITIAL_D];
+    int32_t sprite_initiald[INITIAL_D];
     byte sprite_initiala[INITIAL_A];
     word sprite_script;
 };
@@ -1894,7 +1894,7 @@ struct wpndata
     byte type;                                                // used by certain weapons
 //  byte wpn_type;
     word script;
-	int newtile; //copy tile to newtile at quest load and update all refs?
+	int32_t newtile; //copy tile to newtile at quest load and update all refs?
 //  byte exp;                                                 // not used
 };
 
@@ -2027,61 +2027,61 @@ struct guydata
 {
     dword flags;
     dword flags2;
-    int  tile;
+    int32_t  tile;
     byte  width;
     byte  height; //0=striped, 1+=rectangular
-    int  s_tile; //secondary (additional) tile(s)
+    int32_t  s_tile; //secondary (additional) tile(s)
     byte  s_width;
     byte  s_height;  //0=striped, 1+=rectangular
-    int  e_tile;
+    int32_t  e_tile;
     byte  e_width;
     byte  e_height;
     
-    short hp;
+    int16_t hp;
     
-    short  family, cset, anim, e_anim, frate, e_frate;
-    short  dp, wdp, weapon;
+    int16_t  family, cset, anim, e_anim, frate, e_frate;
+    int16_t  dp, wdp, weapon;
     
-    short  rate, hrate, step, homing, grumble, item_set;
-    long   misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15;
-    short  bgsfx, bosspal, extend;
+    int16_t  rate, hrate, step, homing, grumble, item_set;
+    int32_t   misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15;
+    int16_t  bgsfx, bosspal, extend;
     byte defense[edefLAST255];
    // byte scriptdefense[
-    //  short  startx, starty;
-    //  short  foo1,foo2,foo3,foo4,foo5,foo6;
+    //  int16_t  startx, starty;
+    //  int16_t  foo1,foo2,foo3,foo4,foo5,foo6;
     byte  hitsfx, deadsfx;
     //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
     //Adding earlier will offset defdata arrays. -Z
     
     //2.6 enemy editor tile and hit sizes. -Z
-    int xofs,yofs,zofs; //saved to the packfile, so I am using int. I can typecast to fix and back in the functions. 
+    int32_t xofs,yofs,zofs; //saved to the packfile, so I am using int32_t. I can typecast to fix and back in the functions. 
     // no hzofs - it's always equal to zofs.
-    int hxofs,hyofs,hxsz,hysz,hzsz;
-    int txsz,tysz;
+    int32_t hxofs,hyofs,hxsz,hysz,hzsz;
+    int32_t txsz,tysz;
     byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
-    int wpnsprite; //wpnsprite is new for 2.6 -Z
-    int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
-    int frozentile, frozencset, frozenclock;
-    short frozenmisc[10];
+    int32_t wpnsprite; //wpnsprite is new for 2.6 -Z
+    int32_t SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
+    int32_t frozentile, frozencset, frozenclock;
+    int16_t frozenmisc[10];
     //v 34
-    short firesfx; //weapon fire (attack) sound
+    int16_t firesfx; //weapon fire (attack) sound
     //expanded ->Attributes[] to size of 32.
-    long misc16, misc17, misc18, misc19, misc20, misc21, misc22, misc23, 
+    int32_t misc16, misc17, misc18, misc19, misc20, misc21, misc22, misc23, 
 	misc24, misc25, misc26, misc27, misc28, misc29, misc30, misc31, misc32;
-    long movement[32]; //Reserved for npc movement types and args. 
-    long new_weapon[32]; //Reserved for weapon patterns and args.
-    long initD[8], initA[2];
+    int32_t movement[32]; //Reserved for npc movement types and args. 
+    int32_t new_weapon[32]; //Reserved for weapon patterns and args.
+    int32_t initD[8], initA[2];
     
     word script; //For future npc action scripts. 
-    //short parentCore; //Probably not needed here. -Z
-    long editorflags;
+    //int16_t parentCore; //Probably not needed here. -Z
+    int32_t editorflags;
 	byte moveflags;
     
     char initD_label[8][65];
     char weapon_initD_label[8][65];
     
     word weaponscript;
-    long weap_initiald[INITIAL_D];
+    int32_t weap_initiald[INITIAL_D];
     byte weap_initiala[INITIAL_A];
     
 	byte spr_shadow, spr_death, spr_spawn;
@@ -2117,25 +2117,25 @@ public:
     //word script; //script number
     dword pc; //current command offset
     
-    long d[8]; //d registers
-    long a[2]; //a regsisters (reference to another ffc on screen)
+    int32_t d[8]; //d registers
+    int32_t a[2]; //a regsisters (reference to another ffc on screen)
     word sp : BITS_SP; //stack pointer for current script
     dword scriptflag; //stores whether various operations were true/false etc.
     
     byte ffcref, idata; //current object pointers
     dword itemref, guyref, lwpn, ewpn;
 	dword screenref, npcdataref, bitmapref, spritesref, dmapsref, zmsgref, shopsref, untypedref;
-	long mapsref;
+	int32_t mapsref;
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
 	dword fileref, subscreenref, comboidref, directoryref, rngref;
-	int combosref, comboposref;
+	int32_t combosref, comboposref;
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
-	long switchkey; //used for switch statements
+	int32_t switchkey; //used for switch statements
     
     void Clear()
     {
@@ -2149,7 +2149,7 @@ public:
 		fileref = 0, subscreenref = 0;
 		comboidref = 0; directoryref = 0; rngref = 0;
 		comboposref = 0;
-        memset(d, 0, 8 * sizeof(long));
+        memset(d, 0, 8 * sizeof(int32_t));
         a[0] = a[1] = 0;
 		switchkey = 0;
     }
@@ -2178,8 +2178,8 @@ public:
 		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
 		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
 		fileref = rhs.fileref, subscreenref = rhs.subscreenref, directoryref = rhs.directoryref, rngref = rhs.rngref;
-        memcpy(d, rhs.d, 8 * sizeof(long));
-        memcpy(a, rhs.a, 2 * sizeof(long));
+        memcpy(d, rhs.d, 8 * sizeof(int32_t));
+        memcpy(a, rhs.a, 2 * sizeof(int32_t));
 		switchkey = rhs.switchkey;
         return *this;
     }
@@ -2267,12 +2267,12 @@ struct mapscr
     word ffdata[NUM_FFCS];
     byte ffcset[NUM_FFCS];
     word ffdelay[NUM_FFCS];
-    long ffx[NUM_FFCS];
-    long ffy[NUM_FFCS];
-    long ffxdelta[NUM_FFCS];
-    long ffydelta[NUM_FFCS];
-    long ffxdelta2[NUM_FFCS];
-    long ffydelta2[NUM_FFCS];
+    int32_t ffx[NUM_FFCS];
+    int32_t ffy[NUM_FFCS];
+    int32_t ffxdelta[NUM_FFCS];
+    int32_t ffydelta[NUM_FFCS];
+    int32_t ffxdelta2[NUM_FFCS];
+    int32_t ffydelta2[NUM_FFCS];
     dword ffflags[NUM_FFCS];
     byte ffwidth[NUM_FFCS];
     byte ffheight[NUM_FFCS];
@@ -2280,12 +2280,12 @@ struct mapscr
     
     //ffc script attachments
     word ffscript[NUM_FFCS];
-    long initd[NUM_FFCS][INITIAL_D];
-    long inita[NUM_FFCS][INITIAL_A];
+    int32_t initd[NUM_FFCS][INITIAL_D];
+    int32_t inita[NUM_FFCS][INITIAL_A];
     bool initialized[NUM_FFCS];
     
-    /*long d[32][8];
-    long a[32][2];
+    /*int32_t d[32][8];
+    int32_t a[32][2];
     word pc[32];
     dword scriptflag[32];
     byte sp[32]; //stack pointer
@@ -2299,8 +2299,8 @@ struct mapscr
     //byte ewpnclass[32]; Not implemented
     //byte guyclass[32]; Not implemented
     
-    /*long map_stack[256];
-    long map_d[8];
+    /*int32_t map_stack[256];
+    int32_t map_d[8];
     word map_pc;
     dword map_scriptflag;
     byte map_sp;
@@ -2324,21 +2324,21 @@ struct mapscr
     
     // for importing older quests...
     byte old_cpage;
-    short screen_midi;
+    int16_t screen_midi;
     byte lens_layer;
     
     //for future versions after 2.54 -Z
-    long npcstrings[10];
-    short new_items[10];
-    signed short new_item_x[10];
-    signed short new_item_y[10];
+    int32_t npcstrings[10];
+    int16_t new_items[10];
+    int16_t new_item_x[10];
+    int16_t new_item_y[10];
     
     
     word script;
-    long screeninitd[8];
+    int32_t screeninitd[8];
     byte screen_waitdraw;
     byte preloadscript;
-    unsigned long ffcswaitdraw;
+    uint32_t ffcswaitdraw;
     byte screendatascriptInitialised;
     
 	byte hidelayers;
@@ -2405,7 +2405,7 @@ struct mapscr
 	old_cpage = 0;
 	screen_midi = 0;
         
-        for(int i(0); i<4; i++)
+        for(int32_t i(0); i<4; i++)
         {
             door[i]=0;
             tilewarpdmap[i]=0;
@@ -2419,32 +2419,32 @@ struct mapscr
             sidewarptype[i]=0;
         }
         
-        for(int i(0); i<10; i++)
+        for(int32_t i(0); i<10; i++)
             enemy[i]=0;
             
-        for(int i(0); i<128; i++)
+        for(int32_t i(0); i<128; i++)
         {
             secretcombo[i]=0;
             secretcset[i]=0;
             secretflag[i]=0;
         }
         
-        for(int i(0); i<6; i++)
+        for(int32_t i(0); i<6; i++)
         {
             layermap[i]=0;
             layerscreen[i]=0;
             layeropacity[i]=0;
         }
         
-        for(int i(0); i<32; i++)
+        for(int32_t i(0); i<32; i++)
         {
-            for(int j(0); j<8; j++)
+            for(int32_t j(0); j<8; j++)
             {
                 //d[i][j]=0;
                 initd[i][j]=0;
             }
             
-            for(int j(0); j<2; j++)
+            for(int32_t j(0); j<2; j++)
             {
                 inita[i][j]=0;
                 //a[i][j]=0;
@@ -2473,11 +2473,11 @@ struct mapscr
             ffscript[i]=0;
         }
         
-        /*	  for(int i(0);i<256;i++)
+        /*	  for(int32_t i(0);i<256;i++)
         	  {
         	   map_stack[i]=0;
         	  }
-        	   for(int i(0);i<8;i++)
+        	   for(int32_t i(0);i<8;i++)
         	  {
         	   map_d[i]=0;
         	  }
@@ -2500,14 +2500,14 @@ struct mapscr
         holdupsfx=0;
         lens_layer=0;
 	
-	for ( int q = 0; q < 10; q++ ) npcstrings[q] = 0;
-        for ( int q = 0; q < 10; q++ ) new_items[q] = 0;
-        for ( int q = 0; q < 10; q++ ) new_item_x[q] = 0;
-        for ( int q = 0; q < 10; q++ ) new_item_y[q] = 0;
+	for ( int32_t q = 0; q < 10; q++ ) npcstrings[q] = 0;
+        for ( int32_t q = 0; q < 10; q++ ) new_items[q] = 0;
+        for ( int32_t q = 0; q < 10; q++ ) new_item_x[q] = 0;
+        for ( int32_t q = 0; q < 10; q++ ) new_item_y[q] = 0;
 	
 	script = 0;
 	doscript = 0;
-	for ( int q = 0; q < 8; q++) screeninitd[q] = 0;
+	for ( int32_t q = 0; q < 8; q++) screeninitd[q] = 0;
 	preloadscript = 0;
         
 	screen_waitdraw = 0;
@@ -2616,7 +2616,7 @@ struct zasm_meta
 		compiler_v2 = 0;
 		compiler_v3 = 0;
 		compiler_v4 = 0;
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
 			memset(&run_idens[q], 0, 33);
 			run_types[q] = ZMETA_NULL_TYPE;
@@ -2645,7 +2645,7 @@ struct zasm_meta
 		meta_v = other.meta_v;
 		ffscript_v = other.ffscript_v;
 		script_type = other.script_type;
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
 			memcpy(&run_idens[q], &(other.run_idens[q]), 33);
 			run_types[q] = other.run_types[q];
@@ -2664,8 +2664,8 @@ struct zasm_meta
 struct ffscript
 {
     word command;
-    long arg1;
-    long arg2;
+    int32_t arg1;
+    int32_t arg2;
     char *ptr;
 };
 
@@ -2685,7 +2685,7 @@ struct script_data
 			zasm[0].command = 0xFFFF;
 	}
 	
-	script_data(long cmds)
+	script_data(int32_t cmds)
 	{
 		if(cmds > 0)
 			zasm = new ffscript[cmds];
@@ -2724,7 +2724,7 @@ struct script_command
 struct script_variable
 {
     char name[64];
-    long id;
+    int32_t id;
     word maxcount;
     byte multiple;
 };
@@ -2754,28 +2754,28 @@ struct comboclass
     byte  block_hole;                     //  b
     byte  block_trigger;                  //  c
     byte  block_weapon[32];               //  d (ID of lweapons/eweapons to block)
-    short conveyor_x_speed;               //  e
-    short conveyor_y_speed;               //  f
+    int16_t conveyor_x_speed;               //  e
+    int16_t conveyor_y_speed;               //  f
     word  create_enemy;                   //  g
     byte  create_enemy_when;              //  h
-    long  create_enemy_change;            //  i
+    int32_t  create_enemy_change;            //  i
     byte  directional_change_type;        //  j
-    long  distance_change_tiles;          //  k
-    short dive_item;                      //  l
+    int32_t  distance_change_tiles;          //  k
+    int16_t dive_item;                      //  l
     byte  dock;                           //  m
     byte  fairy;                          //  n
     byte  ff_combo_attr_change;           //  o
-    long  foot_decorations_tile;          //  p
+    int32_t  foot_decorations_tile;          //  p
     byte  foot_decorations_type;          //  q
     byte  hookshot_grab_point;            //  r
     byte  ladder_pass;                    //  s
     byte  lock_block_type;                //  t
-    long  lock_block_change;              //  u
+    int32_t  lock_block_change;              //  u
     byte  magic_mirror_type;              //  v
-    short modify_hp_amount;               //  w
+    int16_t modify_hp_amount;               //  w
     byte  modify_hp_delay;                //  x
     byte  modify_hp_type;                 //  y
-    short modify_mp_amount;               //  z
+    int16_t modify_mp_amount;               //  z
     byte  modify_mp_delay;                // aa
     byte  modify_mp_type;                 // ab
     byte  no_push_blocks;                 // ac
@@ -2794,13 +2794,13 @@ struct comboclass
     byte  slow_movement;                  // ap
     byte  statue_type;                    // aq
     byte  step_type;                      // ar
-    long  step_change_to;                 // as
+    int32_t  step_change_to;                 // as
     byte  strike_weapons[32];             // at
-    long  strike_remnants;                // au
+    int32_t  strike_remnants;                // au
     byte  strike_remnants_type;           // av
-    long  strike_change;                  // aw
-    short strike_item;                    // ax
-    short touch_item;                     // ay
+    int32_t  strike_change;                  // aw
+    int16_t strike_item;                    // ax
+    int16_t touch_item;                     // ay
     byte  touch_stairs;                   // az
     byte  trigger_type;                   // ba
     byte  trigger_sensitive;              // bb
@@ -2913,7 +2913,7 @@ without needing the user to have bit precision. -Z
 
 struct newcombo
 {
-    int tile; //32 bits
+    int32_t tile; //32 bits
     byte flip; //8 bits
     byte walk; //8 bits
     byte type; //8 bits
@@ -2930,26 +2930,26 @@ struct newcombo
     byte animflags; //8 bits
     byte expansion[6]; //48 bits
 	
-	long attributes[NUM_COMBO_ATTRIBUTES]; //32 bits; combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
-	long usrflags; //32 bits ; combodata->Flags and Screen->ComboFlags[pos]
-	long triggerflags[3]; //96 bits
-	long triggerlevel; //32 bits
+	int32_t attributes[NUM_COMBO_ATTRIBUTES]; //32 bits; combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
+	int32_t usrflags; //32 bits ; combodata->Flags and Screen->ComboFlags[pos]
+	int32_t triggerflags[3]; //96 bits
+	int32_t triggerlevel; //32 bits
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
-		//long triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
+		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
 		//Thus, a weapon level affects all triggers for that combo type. 
     //384 bits total per object
     byte attribytes[8];
-    short attrishorts[8];
+    int16_t attrishorts[8];
     word script;
-    long initd[2];
+    int32_t initd[2];
     //refinfo scriptData; //no, better to have 176 refinfos*layers, than one per combo. 
     //byte initialised; //no, better to have 176 inits, each bit for a layter,  
-	int o_tile;
+	int32_t o_tile;
 	byte cur_frame;
 	byte aclk;
 	
-	void set_tile(int newtile)
+	void set_tile(int32_t newtile)
 	{
 		o_tile = newtile;
 		tile = newtile;
@@ -2972,22 +2972,22 @@ struct newcombo
 		skipanimy = 0;
 		nexttimer = 0;
 		animflags = 0;
-		for(int q = 0; q < 6; ++q)
+		for(int32_t q = 0; q < 6; ++q)
 			expansion[q] = 0;
-		for(int q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 			attributes[q] = 0;
 		usrflags = 0;
-		for(int q = 0; q < 3; ++q)
+		for(int32_t q = 0; q < 3; ++q)
 			triggerflags[q] = 0;
 		triggerlevel = 0;
-		for(int q = 0; q < 11; ++q)
+		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 			attribytes[0] = 0;
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 			attrishorts[0] = 0;
 		script = 0;
-		for(int q = 0; q < 2; ++q)
+		for(int32_t q = 0; q < 2; ++q)
 			initd[q] = 0;
 		o_tile = 0;
 		cur_frame = 0;
@@ -3020,7 +3020,7 @@ struct zquestheader
 {
     char  id_str[31];
     //32
-    short zelda_version;
+    int16_t zelda_version;
     word  internal;
     byte  quest_number;
     byte  old_rules[2];
@@ -3036,10 +3036,10 @@ struct zquestheader
     char  author[65];
     //byte  padding;
     //204
-    //  short pwdkey;
+    //  int16_t pwdkey;
     bool  dirty_password;
     char  password[256];
-    unsigned char pwd_hash[16];
+    uint8_t pwd_hash[16];
     //236
     char  minver[9];
     byte  build;
@@ -3057,14 +3057,14 @@ struct zquestheader
     //304
     byte  old_foo2[18];
     char  templatepath[2048];
-    long new_version_id_main;
-    long new_version_id_second;
-    long new_version_id_third;
-    long new_version_id_fourth;
-    long new_version_id_alpha;
-    long new_version_id_beta;
-    long new_version_id_gamma;
-    long new_version_id_release;
+    int32_t new_version_id_main;
+    int32_t new_version_id_second;
+    int32_t new_version_id_third;
+    int32_t new_version_id_fourth;
+    int32_t new_version_id_alpha;
+    int32_t new_version_id_beta;
+    int32_t new_version_id_gamma;
+    int32_t new_version_id_release;
     word new_version_id_date_year;
     byte new_version_id_date_month;
     byte new_version_id_date_day;
@@ -3075,10 +3075,10 @@ struct zquestheader
     char new_version_compilerversion[256];
     char product_name[1024];
     byte compilerid;
-    long compilerversionnumber_first;
-    long compilerversionnumber_second;
-    long compilerversionnumber_third;
-    long compilerversionnumber_fourth;
+    int32_t compilerversionnumber_first;
+    int32_t compilerversionnumber_second;
+    int32_t compilerversionnumber_third;
+    int32_t compilerversionnumber_fourth;
     word developerid;
     char made_in_module_name[1024];
     char build_datestamp[256];
@@ -3218,21 +3218,21 @@ struct MsgStr
 {
 	char s[MSGSIZE+1];
 	word nextstring;
-	int tile;
+	int32_t tile;
 	byte cset;
 	bool trans;
 	byte font;
-	short x;
-	short y;   // y position of message boxes.
-	unsigned short w;
-	unsigned short h;
+	int16_t x;
+	int16_t y;   // y position of message boxes.
+	uint16_t w;
+	uint16_t h;
 	byte sfx; // either WAV_MSG or something else.
 	word listpos;
 	byte vspace;
 	byte hspace;
 	byte stringflags;
-	short margins[4];
-	int portrait_tile;
+	int16_t margins[4];
+	int32_t portrait_tile;
 	byte portrait_cset;
 	byte portrait_x;
 	byte portrait_y;
@@ -3271,7 +3271,7 @@ struct MsgStr
 		vspace=other.vspace;
 		hspace=other.hspace;
 		stringflags=other.stringflags;
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			margins[q] = other.margins[q];
 		}
@@ -3342,45 +3342,45 @@ struct dmap
     char intro[73];
     //byte padding;
     //132
-    int minimap_1_tile;                                      //before getting map
+    int32_t minimap_1_tile;                                      //before getting map
     byte minimap_1_cset;                                      //cset for minimap 1
     //byte padding;
-    int minimap_2_tile;                                      //after getting map
+    int32_t minimap_2_tile;                                      //after getting map
     byte minimap_2_cset;                                      //cset for minimap 2
     //byte padding;
     //140
-    int largemap_1_tile;                                     //large map
+    int32_t largemap_1_tile;                                     //large map
     byte largemap_1_cset;                                     //cset for large
     //byte padding;
-    int largemap_2_tile;                                     //large map
+    int32_t largemap_2_tile;                                     //large map
     byte largemap_2_cset;                                     //cset for large
     char tmusic[56];
     byte tmusictrack;
     byte active_subscreen;
     byte passive_subscreen;
-    // int emusic;
+    // int32_t emusic;
     //byte padding;
     //204
     byte disableditems[iMax];
     // 460
-    long flags;
+    int32_t flags;
     //byte sideview;
     //byte gravity; //This is a byte (not a float!) in initdata -Z
     //word terminalv; //This is a word  (not a float!) in initdata -Z
-    //long jump_z_layer_3;
+    //int32_t jump_z_layer_3;
     //byte noF6;
-    //long init_d[8];
-    //long script;
+    //int32_t init_d[8];
+    //int32_t script;
     char sideview;
     word script;
-    long initD[8];
+    int32_t initD[8];
     char initD_label[8][65];
 	word active_sub_script;
 	word passive_sub_script;
-	long sub_initD[8];
+	int32_t sub_initD[8];
 	char sub_initD_label[8][65];
 	word onmap_script;
-	long onmap_initD[8];
+	int32_t onmap_initD[8];
 	char onmap_initD_label[8][65];
 };
 
@@ -3499,12 +3499,12 @@ struct zcolors
     byte HCpieces_cset;
     byte msgtext;
     
-    int new_triforce_tile;
-    int new_triframe_tile;
-    int new_overworld_map_tile;
-    int new_dungeon_map_tile;
-    int new_blueframe_tile;
-    int new_HCpieces_tile;
+    int32_t new_triforce_tile;
+    int32_t new_triframe_tile;
+    int32_t new_overworld_map_tile;
+    int32_t new_dungeon_map_tile;
+    int32_t new_blueframe_tile;
+    int32_t new_HCpieces_tile;
     
     byte foo[6];
     //40
@@ -3543,7 +3543,7 @@ struct miscQdata
     //2858 (8)
     zcolors  colors;
     //3154 (296)
-    int     icons[4];
+    int32_t     icons[4];
     //3162 (8=2*4)
     //pondtype pond[16];
     //4314 (1152=72*16)
@@ -3551,10 +3551,10 @@ struct miscQdata
     //  byte dummy;  // left over from a word
     //word expansion[98];
     //4512
-    long questmisc[32]; //Misc init values for the user. Used by scripts.
+    int32_t questmisc[32]; //Misc init values for the user. Used by scripts.
     char questmisc_strings[32][128]; //needs to be memset then data allocated from IntiData
 	//We probably want a way to access these in ZScript by their string, or to get the strings stored.
-    long zscript_last_compiled_version;
+    int32_t zscript_last_compiled_version;
 	byte sprites[sprMAX];
 };
 
@@ -3571,12 +3571,12 @@ public:
 
     char title[36];
     //20
-    long start;
-    long loop_start;
-    long loop_end;
+    int32_t start;
+    int32_t loop_start;
+    int32_t loop_end;
     //32
-    short loop;
-    short volume;
+    int16_t loop;
+    int16_t volume;
     byte flags;
     // 37
     void *data;
@@ -3591,10 +3591,10 @@ public:
         reset();
     }
     
-    zctune(char _title[36], long _start, long _loop_start, long _loop_end, short _loop,short _volume, void *_data, byte _format)
+    zctune(char _title[36], int32_t _start, int32_t _loop_start, int32_t _loop_end, int16_t _loop,int16_t _volume, void *_data, byte _format)
         : start(_start), loop_start(_loop_start), loop_end(_loop_end), loop(_loop), volume(_volume), data(_data), format(_format)
     {
-        //memcpy(title, _title, 20); //NOT SAFE for short strings
+        //memcpy(title, _title, 20); //NOT SAFE for int16_t strings
         strncpy(title, _title, 36);
     }
     
@@ -3614,7 +3614,7 @@ public:
         loop = z.loop;
         flags = z.flags;
         volume = z.volume;
-        //memcpy(title, z.title,20); //NOT SAFE for short title strings
+        //memcpy(title, z.title,20); //NOT SAFE for int16_t title strings
         strncpy(title, z.title, 36);
         data = z.data;
     }
@@ -3648,12 +3648,12 @@ public:
 {
   char title[20];
   //20
-  long start;
-  long loop_start;
-  long loop_end;
+  int32_t start;
+  int32_t loop_start;
+  int32_t loop_end;
   //32
-  short loop;
-  short volume;
+  int16_t loop;
+  int16_t volume;
   //36
   byte format;
   MIDI *midi;
@@ -3809,7 +3809,7 @@ struct gamedata
     byte  _quest;
     //10
     //word _life,_maxlife;
-    //short _drupy;
+    //int16_t _drupy;
     //word _rupies,_arrows,_maxarrows,
     word _deaths;
     //20
@@ -3821,7 +3821,7 @@ struct gamedata
     //280
     word _maxcounter[MAX_COUNTERS];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
     word _counter[MAX_COUNTERS];
-    short _dcounter[MAX_COUNTERS];
+    int16_t _dcounter[MAX_COUNTERS];
     
     char  version[9];
     char  title[65];
@@ -3840,10 +3840,10 @@ struct gamedata
     word  _continue_dmap;
     //620
     /*word  _maxmagic, _magic;
-    short _dmagic;*/
+    int16_t _dmagic;*/
     //byte  _magicdrainrate;
     //byte  _canslash;                                           //Link slashes instead of stabs.
-    long _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
+    int32_t _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
     //byte  padding[2];
     //636
     byte  visited[MAXDMAPS];
@@ -3858,12 +3858,12 @@ struct gamedata
     byte  icon[128];
     byte  pal[48];
     bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
-    long  screen_d[MAXDMAPS*MAPSCRSNORMAL][8];                // script-controlled screen variables
-    long  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
-    std::vector< ZCArray <long> > globalRAM;
+    int32_t  screen_d[MAXDMAPS*MAPSCRSNORMAL][8];                // script-controlled screen variables
+    int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
+    std::vector< ZCArray <int32_t> > globalRAM;
     
     byte awpn, bwpn, xwpn, ywpn;											// Currently selected weapon slots
-    signed short forced_awpn, forced_bwpn, forced_xwpn, forced_ywpn;
+    int16_t forced_awpn, forced_bwpn, forced_xwpn, forced_ywpn;
     bool isclearing; // The gamedata is being cleared
     //115456 (260)
     
@@ -3892,88 +3892,88 @@ struct gamedata
     
     byte get_quest();
     void set_quest(byte q);
-    void change_quest(short q);
+    void change_quest(int16_t q);
     
     word get_counter(byte c);
     void set_counter(word change, byte c);
-    void change_counter(short change, byte c);
+    void change_counter(int16_t change, byte c);
     
     word get_maxcounter(byte c);
     void set_maxcounter(word change, byte c);
-    void change_maxcounter(short change, byte c);
+    void change_maxcounter(int16_t change, byte c);
     
-    short get_dcounter(byte c);
-    void set_dcounter(short change, byte c);
-    void change_dcounter(short change, byte c);
+    int16_t get_dcounter(byte c);
+    void set_dcounter(int16_t change, byte c);
+    void change_dcounter(int16_t change, byte c);
     
     word get_life();
     void set_life(word l);
-    void change_life(short l);
+    void change_life(int16_t l);
     
     word get_maxlife();
     void set_maxlife(word m);
-    void change_maxlife(short m);
+    void change_maxlife(int16_t m);
     
-    short get_drupy();
-    void set_drupy(short d);
-    void change_drupy(short d);
+    int16_t get_drupy();
+    void set_drupy(int16_t d);
+    void change_drupy(int16_t d);
     
     word get_rupies();
     word get_spendable_rupies();
     void set_rupies(word r);
-    void change_rupies(short r);
+    void change_rupies(int16_t r);
     
     word get_maxarrows();
     void set_maxarrows(word a);
-    void change_maxarrows(short a);
+    void change_maxarrows(int16_t a);
     
     word get_arrows();
     void set_arrows(word a);
-    void change_arrows(short a);
+    void change_arrows(int16_t a);
     
     word get_deaths();
     void set_deaths(word d);
-    void change_deaths(short d);
+    void change_deaths(int16_t d);
     
     word get_keys();
     void set_keys(word k);
-    void change_keys(short k);
+    void change_keys(int16_t k);
     
     word get_bombs();
     void set_bombs(word k);
-    void change_bombs(short k);
+    void change_bombs(int16_t k);
     
     word get_maxbombs();
     void set_maxbombs(word b, bool setSuperBombs=true);
-    void change_maxbombs(short b);
+    void change_maxbombs(int16_t b);
     
     word get_sbombs();
     void set_sbombs(word k);
-    void change_sbombs(short k);
+    void change_sbombs(int16_t k);
     
     word get_wlevel();
     void set_wlevel(word l);
-    void change_wlevel(short l);
+    void change_wlevel(int16_t l);
     
     byte get_cheat();
     void set_cheat(byte c);
-    void change_cheat(short c);
+    void change_cheat(int16_t c);
     
     byte get_hasplayed();
     void set_hasplayed(byte p);
-    void change_hasplayed(short p);
+    void change_hasplayed(int16_t p);
     
     dword get_time();
     void set_time(dword t);
-    void change_time(long long t);
+    void change_time(int64_t t);
     
     byte get_timevalid();
     void set_timevalid(byte t);
-    void change_timevalid(short t);
+    void change_timevalid(int16_t t);
     
     byte get_HCpieces();
     void set_HCpieces(byte p);
-    void change_HCpieces(short p);
+    void change_HCpieces(int16_t p);
     
     byte get_hcp_per_hc();
     void set_hcp_per_hc(byte val);
@@ -4014,58 +4014,58 @@ struct gamedata
 	byte get_darkscr_color();
 	void set_darkscr_color(byte val);
 	
-	int get_watergrav();
-	void set_watergrav(int val);
+	int32_t get_watergrav();
+	void set_watergrav(int32_t val);
 	
-	int get_sideswim_up();
-	void set_sideswim_up(int val);
+	int32_t get_sideswim_up();
+	void set_sideswim_up(int32_t val);
 	
-	int get_sideswim_side();
-	void set_sideswim_side(int val);
+	int32_t get_sideswim_side();
+	void set_sideswim_side(int32_t val);
 	
-	int get_sideswim_down();
-	void set_sideswim_down(int val);
+	int32_t get_sideswim_down();
+	void set_sideswim_down(int32_t val);
 	
-	int get_sideswim_jump();
-	void set_sideswim_jump(int val);
+	int32_t get_sideswim_jump();
+	void set_sideswim_jump(int32_t val);
     
     byte get_continue_scrn();
     void set_continue_scrn(byte s);
-    void change_continue_scrn(short s);
+    void change_continue_scrn(int16_t s);
     
     word get_continue_dmap();
     void set_continue_dmap(word d);
-    void change_continue_dmap(short d);
+    void change_continue_dmap(int16_t d);
     
     word get_maxmagic();
     void set_maxmagic(word m);
-    void change_maxmagic(short m);
+    void change_maxmagic(int16_t m);
     
     word get_magic();
     void set_magic(word m);
-    void change_magic(short m);
+    void change_magic(int16_t m);
     
-    short get_dmagic();
-    void set_dmagic(short d);
-    void change_dmagic(short d);
+    int16_t get_dmagic();
+    void set_dmagic(int16_t d);
+    void change_dmagic(int16_t d);
     
     byte get_magicdrainrate();
     void set_magicdrainrate(byte r);
-    void change_magicdrainrate(short r);
+    void change_magicdrainrate(int16_t r);
     
     byte get_canslash();
     void set_canslash(byte s);
-    void change_canslash(short s);
+    void change_canslash(int16_t s);
     
-    long get_generic(byte c);
-    void set_generic(long change, byte c);
-    void change_generic(long change, byte c);
+    int32_t get_generic(byte c);
+    void set_generic(int32_t change, byte c);
+    void change_generic(int32_t change, byte c);
     
     byte get_lkeys();
     
-    void set_item(int id, bool value);
-    void set_item_no_flush(int id, bool value);
-    inline bool get_item(int id)
+    void set_item(int32_t id, bool value);
+    void set_item_no_flush(int32_t id, bool value);
+    inline bool get_item(int32_t id)
     {
 	if ( ((unsigned)id) >= MAXITEMS ) return false;
         return item[id];
@@ -4123,19 +4123,19 @@ struct zinitdata
     //byte expansion[98];
     //336 bytes total
     byte level_keys[MAXLEVELS];
-    int ss_grid_x;
-    int ss_grid_y;
-    int ss_grid_xofs;
-    int ss_grid_yofs;
-    int ss_grid_color;
-    int ss_bbox_1_color;
-    int ss_bbox_2_color;
-    int ss_flags;
+    int32_t ss_grid_x;
+    int32_t ss_grid_y;
+    int32_t ss_grid_xofs;
+    int32_t ss_grid_yofs;
+    int32_t ss_grid_color;
+    int32_t ss_bbox_1_color;
+    int32_t ss_bbox_2_color;
+    int32_t ss_flags;
     byte subscreen_style;
     byte usecustomsfx;
     word max_rupees, max_keys;
     byte gravity; //Deprecated!
-    int gravity2; //Bumping this up to an int.
+    int32_t gravity2; //Bumping this up to an int32_t.
     word terminalv;
     byte msg_speed;
     byte transition_type; // Can't edit, yet.
@@ -4144,13 +4144,13 @@ struct zinitdata
     
     word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep, subscrSpeed, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
     
-    int exitWaterJump;
+    int32_t exitWaterJump;
 
 	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
 	
 	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em
 	
-	int swimgravity;
+	int32_t swimgravity;
 	
 	
 	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
@@ -4241,10 +4241,10 @@ struct zcmodule
 	//If this is 0, we do quests in strict order.
 	//if it is 1, then we use the old hardcoded quest flow.
 	
-	int max_quest_files;
+	int32_t max_quest_files;
 	word startingdmap[10];
 	word startingscreen[10];
-	int title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
+	int32_t title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
 	
 	char enem_type_names[eeMAX][255];
 	char enem_anim_type_names[aMAX][255];
@@ -4264,11 +4264,11 @@ struct zcmodule
 	
 	char base_NSF_file[1024];
 	char copyright_strings[3][2048];
-	int copyright_string_vars[10*3]; //font, 104,136,13,-1
+	int32_t copyright_string_vars[10*3]; //font, 104,136,13,-1
 	char animate_NES_title;
 	char delete_quest_data_on_wingame[20]; //Do we purge items, scripts, and other data when moving to the next quest?
         
-        int select_screen_tiles[sels_tile_LAST];
+        int32_t select_screen_tiles[sels_tile_LAST];
         char select_screen_tile_csets[sels_tile_cset_LAST];
 	byte refresh_title_screen;
 	
@@ -4294,7 +4294,7 @@ struct zcmodule
         char combotypeCustomAttrishorts[20][8][32];
         char combotypeCustomFlags[20][16][32];
 	
-	unsigned char ignore;
+	uint8_t ignore;
 
 }; //zcmodule
 
@@ -4393,7 +4393,7 @@ static INLINE bool is_between(T a, T b, T c, bool inclusive)
 
 #define NEWALLEGRO
 
-INLINE bool pfwrite(void *p,long n,PACKFILE *f)
+INLINE bool pfwrite(void *p,int32_t n,PACKFILE *f)
 {
     bool success=true;
     
@@ -4410,7 +4410,7 @@ INLINE bool pfwrite(void *p,long n,PACKFILE *f)
     return success;
 }
 
-INLINE bool pfread(void *p,long n,PACKFILE *f,bool keepdata)
+INLINE bool pfread(void *p,int32_t n,PACKFILE *f,bool keepdata)
 {
     bool success;
     
@@ -4440,8 +4440,8 @@ INLINE bool pfread(void *p,long n,PACKFILE *f,bool keepdata)
 
 INLINE bool p_getc(void *p,PACKFILE *f,bool keepdata)
 {
-    unsigned char *cp = (unsigned char *)p;
-    int c;
+    uint8_t *cp = (uint8_t *)p;
+    int32_t c;
     
     if(!f) return false;
     
@@ -4476,7 +4476,7 @@ INLINE bool p_getc(void *p,PACKFILE *f,bool keepdata)
     return true;
 }
 
-INLINE bool p_putc(int c,PACKFILE *f)
+INLINE bool p_putc(int32_t c,PACKFILE *f)
 {
     bool success=true;
     
@@ -4508,8 +4508,8 @@ INLINE bool p_putc(int c,PACKFILE *f)
 
 INLINE bool p_igetw(void *p,PACKFILE *f,bool keepdata)
 {
-    short *cp = (short *)p;
-    int c;
+    int16_t *cp = (int16_t *)p;
+    int32_t c;
     
     if(!f) return false;
     
@@ -4544,7 +4544,7 @@ INLINE bool p_igetw(void *p,PACKFILE *f,bool keepdata)
     return true;
 }
 
-INLINE bool p_iputw(int c,PACKFILE *f)
+INLINE bool p_iputw(int32_t c,PACKFILE *f)
 {
     bool success=true;
     
@@ -4577,7 +4577,7 @@ INLINE bool p_iputw(int c,PACKFILE *f)
 INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
 {
     dword *cp = (dword *)p;
-    long c;
+    int32_t c;
     
     if(!f) return false;
     
@@ -4614,9 +4614,9 @@ INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
 
 INLINE bool p_igetd(void *p, PACKFILE *f, bool keepdata)
 {
-    long temp;
+    int32_t temp;
     bool result = p_igetl(&temp,f,keepdata);
-    *(int *)p=(int)temp;
+    *(int32_t *)p=(int32_t)temp;
     return result;
 }
 
@@ -4649,14 +4649,14 @@ INLINE bool p_igetf(void *p,PACKFILE *f,bool keepdata)
         memset(p, 0,sizeof(float));
 #ifdef ALLEGRO_MACOSX
         
-        for(int i=0; i<(int)sizeof(float); i++)
+        for(int32_t i=0; i<(int32_t)sizeof(float); i++)
         {
             ((byte *)p)[i] = tempfloat[i];
         }
         
 #else
         
-        for(int i=0; i<(int)sizeof(float); i++)
+        for(int32_t i=0; i<(int32_t)sizeof(float); i++)
         {
             ((byte *)p)[sizeof(float)-i-1] = tempfloat[i];
         }
@@ -4668,7 +4668,7 @@ INLINE bool p_igetf(void *p,PACKFILE *f,bool keepdata)
     return true;
 }
 
-INLINE bool p_iputl(long c,PACKFILE *f)
+INLINE bool p_iputl(int32_t c,PACKFILE *f)
 {
     bool success=true;
     
@@ -4700,8 +4700,8 @@ INLINE bool p_iputl(long c,PACKFILE *f)
 
 INLINE bool p_mgetw(void *p,PACKFILE *f,bool keepdata)
 {
-    short *cp = (short *)p;
-    int c;
+    int16_t *cp = (int16_t *)p;
+    int32_t c;
     
     if(!f) return false;
     
@@ -4736,7 +4736,7 @@ INLINE bool p_mgetw(void *p,PACKFILE *f,bool keepdata)
     return true;
 }
 
-INLINE bool p_mputw(int c,PACKFILE *f)
+INLINE bool p_mputw(int32_t c,PACKFILE *f)
 {
     bool success=true;
     
@@ -4769,7 +4769,7 @@ INLINE bool p_mputw(int c,PACKFILE *f)
 INLINE bool p_mgetl(void *p,PACKFILE *f,bool keepdata)
 {
     dword *cp = (dword *)p;
-    long c;
+    int32_t c;
     
     if(!f) return false;
     
@@ -4804,7 +4804,7 @@ INLINE bool p_mgetl(void *p,PACKFILE *f,bool keepdata)
     return true;
 }
 
-INLINE bool p_mputl(long c,PACKFILE *f)
+INLINE bool p_mputl(int32_t c,PACKFILE *f)
 {
     bool success=true;
     
@@ -4834,7 +4834,7 @@ INLINE bool p_mputl(long c,PACKFILE *f)
     return success;
 }
 
-INLINE bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2)
+INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
 }
@@ -4845,24 +4845,24 @@ INLINE void SCRFIX()
 }
 
 // ack no, inline doesn't work this way -DD
-//INLINE int new_return(int x) { fake_pack_writing=false; return x; }
+//INLINE int32_t new_return(int32_t x) { fake_pack_writing=false; return x; }
 #define new_return(x) {assert(x == 0); fake_pack_writing = false; return x; }
 
 //some methods for dealing with items
-int getItemFamily(itemdata *items, int item);
-void removeItemsOfFamily(gamedata *g, itemdata *items, int family);
-void removeItemsOfFamily(zinitdata *i, itemdata *items, int family);
-void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int family, int level);
-int getHighestLevelOfFamily(zinitdata *source, itemdata *items, int family);
-int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family, bool checkenabled = false);
-int getItemID(itemdata *items, int family, int level);
-int getCanonicalItemID(itemdata *items, int family);
-int getItemIDPower(itemdata *items, int family, int power);
-void addOldStyleFamily(zinitdata *dest, itemdata *items, int family, char levels);
-int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family);
+int32_t getItemFamily(itemdata *items, int32_t item);
+void removeItemsOfFamily(gamedata *g, itemdata *items, int32_t family);
+void removeItemsOfFamily(zinitdata *i, itemdata *items, int32_t family);
+void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int32_t family, int32_t level);
+int32_t getHighestLevelOfFamily(zinitdata *source, itemdata *items, int32_t family);
+int32_t getHighestLevelOfFamily(gamedata *source, itemdata *items, int32_t family, bool checkenabled = false);
+int32_t getItemID(itemdata *items, int32_t family, int32_t level);
+int32_t getCanonicalItemID(itemdata *items, int32_t family);
+int32_t getItemIDPower(itemdata *items, int32_t family, int32_t power);
+void addOldStyleFamily(zinitdata *dest, itemdata *items, int32_t family, char levels);
+int32_t computeOldStyleBitfield(zinitdata *source, itemdata *items, int32_t family);
 
 extern void flushItemCache();
-extern void removeFromItemCache(int itemid);
+extern void removeFromItemCache(int32_t itemid);
 #define NUMSCRIPTFFC			512
 #define NUMSCRIPTFFCOLD			256
 #define NUMSCRIPTITEM			256

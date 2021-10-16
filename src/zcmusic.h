@@ -13,6 +13,7 @@
 #else
 #define ZCM_EXTERN extern
 #endif
+#include <cstdint>
 
 #ifdef __cplusplus
 extern "C"
@@ -34,32 +35,32 @@ extern "C"
 #define ZCM_TOGGLE -1
 
 ZCM_EXTERN char const * zcmusic_types;
-ZCM_EXTERN int zcmusic_bufsz;
+ZCM_EXTERN int32_t zcmusic_bufsz;
 
-ZCM_EXTERN bool zcmusic_init(int flags = -1);
-ZCM_EXTERN bool zcmusic_poll(int flags = -1);
+ZCM_EXTERN bool zcmusic_init(int32_t flags = -1);
+ZCM_EXTERN bool zcmusic_poll(int32_t flags = -1);
 ZCM_EXTERN void zcmusic_exit();
 
 typedef struct ZCMUSICBASE
 {
-    int type;                                               // uses ZCMF defines
-    int playing;                                            // -1 = paused, 0 = stopped, 1 = playing
-    int position;                                           // Only needed to sync Triforce jingle
+    int32_t type;                                               // uses ZCMF defines
+    int32_t playing;                                            // -1 = paused, 0 = stopped, 1 = playing
+    int32_t position;                                           // Only needed to sync Triforce jingle
     char filename[256];
-    int track;
+    int32_t track;
 } ZCMUSIC;
 
 ZCM_EXTERN ZCMUSIC const * zcmusic_load_file(char *filename);
 ZCM_EXTERN ZCMUSIC const * zcmusic_load_file_ex(char *filename);
-ZCM_EXTERN bool zcmusic_play(ZCMUSIC* zcm, int vol);
-ZCM_EXTERN bool zcmusic_pause(ZCMUSIC* zcm, int pause);
+ZCM_EXTERN bool zcmusic_play(ZCMUSIC* zcm, int32_t vol);
+ZCM_EXTERN bool zcmusic_pause(ZCMUSIC* zcm, int32_t pause);
 ZCM_EXTERN bool zcmusic_stop(ZCMUSIC* zcm);
 ZCM_EXTERN void zcmusic_unload_file(ZCMUSIC* &zcm);
-ZCM_EXTERN int zcmusic_get_tracks(ZCMUSIC* zcm);
-ZCM_EXTERN int zcmusic_change_track(ZCMUSIC* zcm, int tracknum);
-ZCM_EXTERN int zcmusic_get_curpos(ZCMUSIC* zcm);
-ZCM_EXTERN void zcmusic_set_curpos(ZCMUSIC* zcm, int value);
-ZCM_EXTERN void zcmusic_set_speed(ZCMUSIC* zcm, int value);
+ZCM_EXTERN int32_t zcmusic_get_tracks(ZCMUSIC* zcm);
+ZCM_EXTERN int32_t zcmusic_change_track(ZCMUSIC* zcm, int32_t tracknum);
+ZCM_EXTERN int32_t zcmusic_get_curpos(ZCMUSIC* zcm);
+ZCM_EXTERN void zcmusic_set_curpos(ZCMUSIC* zcm, int32_t value);
+ZCM_EXTERN void zcmusic_set_speed(ZCMUSIC* zcm, int32_t value);
 
 #ifdef __cplusplus
 }                                                           // extern "C"

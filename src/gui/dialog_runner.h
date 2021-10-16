@@ -20,7 +20,7 @@ public:
 	void run(T& dlg)
 	{
 		sendMessage =
-			[this, &dlg](int msg, MessageArg arg, std::shared_ptr<Widget> snd)
+			[this, &dlg](int32_t msg, MessageArg arg, std::shared_ptr<Widget> snd)
 			{
 				DialogMessage<typename T::message> dm;
 				dm.message = static_cast<typename T::message>(msg);
@@ -76,10 +76,10 @@ public:
 	Signal dialogConstructed;
 
 private:
-	std::function<void(int, MessageArg, std::shared_ptr<Widget>)> sendMessage;
+	std::function<void(int32_t, MessageArg, std::shared_ptr<Widget>)> sendMessage;
 	std::vector<DIALOG> alDialog;
 	std::vector<std::shared_ptr<Widget>> widgets;
-	int focused;
+	int32_t focused;
 	bool redrawPending, done, realized, running;
 
 	DialogRunner();
@@ -90,7 +90,7 @@ private:
 	void runInner(std::shared_ptr<Widget> root);
 
 	friend class DialogRef;
-	friend int dialog_proc(int msg, DIALOG *d, int c);
+	friend int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c);
 	template<typename T> friend void showDialog(T& dlg);
 };
 

@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-int save_gif(const char *filename, BITMAP *bmp, const RGB *pal);
+int32_t save_gif(const char *filename, BITMAP *bmp, const RGB *pal);
 
 #ifdef __cplusplus
 }

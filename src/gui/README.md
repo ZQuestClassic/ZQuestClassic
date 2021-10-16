@@ -31,7 +31,7 @@ void Checkbox::realize(DialogRunner& runner)
 		fgColor, bgColor,
 		getAccelKey(text),
 		getFlags()|(checked ? D_SELECTED : 0),
-		static_cast<int>(placement), 0,
+		static_cast<int32_t>(placement), 0,
 		text.data(), widgFont, nullptr
 	});
 }
@@ -43,7 +43,7 @@ void applyVisibility(bool visible)
 This makes the widget visible or invisible. Widgets with `DIALOG`s should set or unset the `D_HIDDEN` flag. Containers should propagate the call to their contents.
 
 ```
-int onEvent(int event, MessageDispatcher& sendMessage)
+int32_t onEvent(int32_t event, MessageDispatcher& sendMessage)
 ```
 This is called by the `DialogRunner` when the widget should send a message to the dialog. `sendMessage` should be called as a function with the message and argument as arguments. If there is no argument to send, use `MessageArg::none`.
 
@@ -51,7 +51,7 @@ Top-level widgets, if they don't recognize the event themselves, should call `To
 
 This is the implementation in `Checkbox`:
 ```
-int Checkbox::onEvent(int event, MessageDispatcher sendMessage)
+int32_t Checkbox::onEvent(int32_t event, MessageDispatcher sendMessage)
 {
 	assert(event == ngeTOGGLE); // The only valid event for a Checkbox
 	if(message >= 0) // -1 indicates no message has been set
@@ -83,7 +83,7 @@ void calculateSize()
 This can determine the preferred size of the widget, which should be set with `setPreferredWidth()` and `setPreferredHeight()`. However, many widgets determine their size when they're created or when their content is set, so they don't need this function. Containers should propagate the call to their children and use the result to set their own preferred sizes.
 
 ```
-void arrange(int contX, int contY, int contW, int contH)
+void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 ```
 This sets the *actual* size of the widget and positions it in its parent. Non-container widgets should not override this unless they expect their size and position to change later on. Containers should call up to `Widget::arrange()`, then call `arrange()` for each of their children with appropriate areas of their own geometry.
 

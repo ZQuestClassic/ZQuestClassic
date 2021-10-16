@@ -28,8 +28,8 @@
 #endif // defined(NDEBUG) && (ZC_DEBUG_MALLOC_ENABLED)
 
 
-extern void *__zc_debug_malloc(size_t numBytes, const char* file, int line);
-extern void  __zc_debug_free(void* p, const char* file, int line);
+extern void *__zc_debug_malloc(size_t numBytes, const char* file, int32_t line);
+extern void  __zc_debug_free(void* p, const char* file, int32_t line);
 extern void  __zc_debug_malloc_free_print_memory_leaks();
 
 #if (ZC_DEBUG_MALLOC_ENABLED != 0)
@@ -40,7 +40,7 @@ extern void  __zc_debug_malloc_free_print_memory_leaks();
 #define zc_free		free
 #endif // (ZC_DEBUG_MALLOC_ENABLED != 0)
 
-void __zc_always_assert(bool e, const char* expression, const char* file, int line);
+void __zc_always_assert(bool e, const char* expression, const char* file, int32_t line);
 
 /***
 * Summary: Deallocates a pointer or raw dynamic array

@@ -9,13 +9,13 @@
 #include <utility>
 #include "tiles.h"
 
-int tile_anim_proc(int msg,DIALOG *d,int c)
+int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	using GUI::TileFrame;
 	assert(d->dp);
-	int *data = ((int*)d->dp);
-	int &clk = data[TileFrame::tfr_aclk];
-	int &frm = data[TileFrame::tfr_aframe];
+	int32_t *data = ((int32_t*)d->dp);
+	int32_t &clk = data[TileFrame::tfr_aclk];
+	int32_t &frm = data[TileFrame::tfr_aframe];
 	switch(msg)
 	{
 		case MSG_START:
@@ -78,37 +78,37 @@ TileFrame::TileFrame(): alDialog()
 	setPreferredWidth(s);
 	setPreferredHeight(s);
 	bgColor = palette_color[scheme[jcBOX]];
-	for(int q = 0; q < tfr_MAX; ++q)
+	for(int32_t q = 0; q < tfr_MAX; ++q)
 	{
 		data[q] = (q == tfr_frames || q == tfr_speed) ? 1 : 0;
 	}
 }
 
-void TileFrame::setTile(int value)
+void TileFrame::setTile(int32_t value)
 {
 	data[tfr_tile] = vbound(value, 0, NEWMAXTILES);
 	pendDraw();
 }
 
-void TileFrame::setCSet(int value)
+void TileFrame::setCSet(int32_t value)
 {
 	data[tfr_cset] = vbound(value, 0, 15);
 	pendDraw();
 }
 
-void TileFrame::setFrames(int value)
+void TileFrame::setFrames(int32_t value)
 {
 	data[tfr_frames] = std::max(1,value);
 	pendDraw();
 }
 
-void TileFrame::setSpeed(int value)
+void TileFrame::setSpeed(int32_t value)
 {
 	data[tfr_speed] = std::max(1,value);
 	pendDraw();
 }
 
-void TileFrame::setDelay(int value)
+void TileFrame::setDelay(int32_t value)
 {
 	data[tfr_delay] = vbound(value,0,255);
 	pendDraw();

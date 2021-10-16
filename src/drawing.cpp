@@ -6,7 +6,7 @@
 
 using namespace util;
 
-static inline bool dithercheck(byte type, byte arg, int x, int y, int wid=256, int hei=168)
+static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_t wid=256, int32_t hei=168)
 {
 	bool ret = false,
 	     inv = (type%2); //invert return for odd types
@@ -76,15 +76,15 @@ static inline bool dithercheck(byte type, byte arg, int x, int y, int wid=256, i
 	return ret^inv;
 }
 
-void maskblit(BITMAP* dest, BITMAP* src, int color)
+void maskblit(BITMAP* dest, BITMAP* src, int32_t color)
 {
-	int wid = zc_min(dest->w, src->w);
-	int hei = zc_min(dest->h, src->h);
-	for(int ty = 0; ty < hei; ++ty)
+	int32_t wid = zc_min(dest->w, src->w);
+	int32_t hei = zc_min(dest->h, src->h);
+	for(int32_t ty = 0; ty < hei; ++ty)
 	{
 		uintptr_t read_addr = bmp_read_line(src, ty);
 		uintptr_t write_addr = bmp_write_line(dest, ty);
-		for(int tx = 0; tx < wid; ++tx)
+		for(int32_t tx = 0; tx < wid; ++tx)
 		{
 			if(bmp_read8(read_addr+tx))
 			{
@@ -96,15 +96,15 @@ void maskblit(BITMAP* dest, BITMAP* src, int color)
 	bmp_unwrite_line(dest);
 }
 
-void ditherblit(BITMAP* dest, BITMAP* src, int color, byte dType, byte dArg, int xoffs, int yoffs)
+void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg, int32_t xoffs, int32_t yoffs)
 {
-	int wid = zc_min(dest->w, src->w);
-	int hei = zc_min(dest->h, src->h);
-	for(int ty = 0; ty < hei; ++ty)
+	int32_t wid = zc_min(dest->w, src->w);
+	int32_t hei = zc_min(dest->h, src->h);
+	for(int32_t ty = 0; ty < hei; ++ty)
 	{
 		uintptr_t read_addr = bmp_read_line(src, ty);
 		uintptr_t write_addr = bmp_write_line(dest, ty);
-		for(int tx = 0; tx < wid; ++tx)
+		for(int32_t tx = 0; tx < wid; ++tx)
 		{
 			if(bmp_read8(read_addr+tx) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
 			{
@@ -116,7 +116,7 @@ void ditherblit(BITMAP* dest, BITMAP* src, int color, byte dType, byte dArg, int
 	bmp_unwrite_line(dest);
 }
 
-void dithercircfill(BITMAP* dest, int x, int y, int rad, int color, byte ditherType, byte ditherArg, int xoffs, int yoffs)
+void dithercircfill(BITMAP* dest, int32_t x, int32_t y, int32_t rad, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs, int32_t yoffs)
 {
 	BITMAP* tmp = create_bitmap_ex(8, dest->w, dest->h);
 	clear_bitmap(tmp);
@@ -125,10 +125,10 @@ void dithercircfill(BITMAP* dest, int x, int y, int rad, int color, byte ditherT
 	destroy_bitmap(tmp);
 }
 
-void lampcone(BITMAP* dest, int sx, int sy, int range, int dir, int color)
+void lampcone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color)
 {
-	int vert[34] = {sx,sy};
-	int vertcnt = 11;
+	int32_t vert[34] = {sx,sy};
+	int32_t vertcnt = 11;
 	switch(dir)
 	{
 		case up:
@@ -475,7 +475,7 @@ void lampcone(BITMAP* dest, int sx, int sy, int range, int dir, int color)
 	polygon(dest, vertcnt, vert, color);
 }
 
-void ditherLampCone(BITMAP* dest, int sx, int sy, int range, int dir, int color, byte ditherType, byte ditherArg, int xoffs, int yoffs)
+void ditherLampCone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs, int32_t yoffs)
 {
 	BITMAP* tmp = create_bitmap_ex(8, dest->w, dest->h);
 	clear_bitmap(tmp);
@@ -486,13 +486,13 @@ void ditherLampCone(BITMAP* dest, int sx, int sy, int range, int dir, int color,
 
 void replColor(BITMAP* dest, byte col, byte startCol, byte endCol, bool shift)
 {
-	int wid = dest->w;
-	int hei = dest->h;
-	for(int ty = 0; ty < hei; ++ty)
+	int32_t wid = dest->w;
+	int32_t hei = dest->h;
+	for(int32_t ty = 0; ty < hei; ++ty)
 	{
 		uintptr_t read_addr = bmp_read_line(dest, ty);
 		uintptr_t write_addr = bmp_write_line(dest, ty);
-		for(int tx = 0; tx < wid; ++tx)
+		for(int32_t tx = 0; tx < wid; ++tx)
 		{
 			byte c = bmp_read8(read_addr+tx);
 			if(c >= startCol && c <= endCol)

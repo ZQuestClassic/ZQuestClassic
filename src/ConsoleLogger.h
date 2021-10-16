@@ -19,6 +19,7 @@
 #include <fcntl.h>
 #include "io.h"
 #include "direct.h"
+#include <cstdint>
 
 
 #include "ntverp.h"
@@ -46,21 +47,21 @@ public:
 	virtual ~CConsoleLogger();
 	
 	// create a logger: starts a pipe+create the child process
-	long Create(const char *lpszWindowTitle=NULL,
-				int buffer_size_x=-1,int buffer_size_y=-1,
+	int32_t Create(const char *lpszWindowTitle=NULL,
+				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
 				const char *logger_name=NULL,
 				const char *helper_executable=NULL);
 
 	// close everything
-	long Close(void);
+	int32_t Close(void);
 	
 	// output functions
-	inline int print(const char *lpszText,int iSize=-1);
-	int printf(const char *format,...);
+	inline int32_t print(const char *lpszText,int32_t iSize=-1);
+	int32_t printf(const char *format,...);
 	
 	// play with the CRT output functions
-	int SetAsDefaultOutput(void);
-	static int ResetDefaultOutput(void);
+	int32_t SetAsDefaultOutput(void);
+	static int32_t ResetDefaultOutput(void);
 
 protected:
 	char	m_name[64];
@@ -106,11 +107,11 @@ protected:
 #endif
 
 	// you can extend this class by overriding the function
-	virtual long	AddHeaders(void)
+	virtual int32_t	AddHeaders(void)
 	{ return 0;}
 
 	// the _print() helper function
-	virtual int _print(const char *lpszText,int iSize);
+	virtual int32_t _print(const char *lpszText,int32_t iSize);
 
 	
 
@@ -196,13 +197,13 @@ public:
 	void clear_eol(DWORD color);
 	
 	// write string , use specified color
-	int cprintf(int attributes,const char *format,...);
+	int32_t cprintf(int32_t attributes,const char *format,...);
 	
 	// write string , use current color
-	int cprintf(const char *format,...);
+	int32_t cprintf(const char *format,...);
 	
 	// goto(x,y)
-	void gotoxy(int x,int y);
+	void gotoxy(int32_t x,int32_t y);
 
 
 
@@ -214,7 +215,7 @@ public:
 	
 
 protected:
-	virtual long	AddHeaders(void)
+	virtual int32_t	AddHeaders(void)
 	{	// Thnx to this function, the "Helper" can see that we are "extended" logger !!!
 		// (so we can use the same helper-child-application for both loggers
 		DWORD cbWritten=0;
@@ -223,8 +224,8 @@ protected:
 		return (cbWritten==strlen(ptr)) ? 0 : -1;
 	}
 	
-	virtual int _print(const char *lpszText,int iSize);
-	virtual int _cprint(int attributes,const char *lpszText,int iSize);
+	virtual int32_t _print(const char *lpszText,int32_t iSize);
+	virtual int32_t _cprint(int32_t attributes,const char *lpszText,int32_t iSize);
 
 
 };

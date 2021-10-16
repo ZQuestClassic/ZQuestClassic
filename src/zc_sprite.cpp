@@ -24,7 +24,7 @@ void sprite::check_conveyor()
 {
   if (conveyclk<=0)
   {
-    int ctype=(combobuf[MAPCOMBO(x+8,y+8)].type);
+    int32_t ctype=(combobuf[MAPCOMBO(x+8,y+8)].type);
     if((ctype>=cOLD_CVUP) && (ctype<=cOLD_CVRIGHT))
     {
       switch (ctype-cOLD_CVUP)
@@ -77,12 +77,12 @@ void sprite::handle_sprlighting()
 
 void sprite::check_conveyor()
 {
-    int deltax=0;
-    int deltay=0;
+    int32_t deltax=0;
+    int32_t deltay=0;
     
     if(conveyclk<=0 && (z==0 || (tmpscr->flags2&fAIRCOMBOS)))
     {
-        int ctype=(combobuf[MAPCOMBO(x+8,y+8)].type);
+        int32_t ctype=(combobuf[MAPCOMBO(x+8,y+8)].type);
         deltax=combo_class_buf[ctype].conveyor_x_speed;
         deltay=combo_class_buf[ctype].conveyor_y_speed;
         
@@ -109,18 +109,18 @@ void sprite::check_conveyor()
     }
 }
 
-void movingblock::push(zfix bx,zfix by,int d2,int f)
+void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 {
     trigger=false;
     endx=x=bx;
     endy=y=by;
     dir=d2;
     oldflag=f;
-    word *di = &(tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]);
-    byte *ci = &(tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]);
+    word *di = &(tmpscr->data[(int32_t(y)&0xF0)+(int32_t(x)>>4)]);
+    byte *ci = &(tmpscr->cset[(int32_t(y)&0xF0)+(int32_t(x)>>4)]);
     //   bcombo = ((*di)&0xFF)+(tmpscr->cpage<<8);
-    bcombo =  tmpscr->data[(int(y)&0xF0)+(int(x)>>4)];
-    oldcset = tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)];
+    bcombo =  tmpscr->data[(int32_t(y)&0xF0)+(int32_t(x)>>4)];
+    oldcset = tmpscr->cset[(int32_t(y)&0xF0)+(int32_t(x)>>4)];
     cs     = (isdungeon() && !get_bit(quest_rules, qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
     tile = combobuf[bcombo].tile;
     flip = combobuf[bcombo].flip;
@@ -132,7 +132,7 @@ void movingblock::push(zfix bx,zfix by,int d2,int f)
     blockmoving=true;
 }
 
-bool movingblock::animate(int index)
+bool movingblock::animate(int32_t index)
 {
     //these are here to bypass compiler warnings about unused arguments
     index=index;
@@ -181,17 +181,17 @@ bool movingblock::animate(int index)
 		}
 		*/
 		
-        int f1 = tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)];
-        int f2 = MAPCOMBOFLAG(x,y);
+        int32_t f1 = tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)];
+        int32_t f2 = MAPCOMBOFLAG(x,y);
         if(!fallclk && !drownclk)
 	{
-		tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]=bcombo;
-		tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=oldcset;
+		tmpscr->data[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=bcombo;
+		tmpscr->cset[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=oldcset;
         }
         if(!fallclk && !drownclk && ((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER))
         {
             trigger=true;
-            tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
+            tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=mfPUSHED;
             //the above line used to be in the following if statement.
             //However, it caused inherent-flag pushblocks to not lock into
             //block trigger combos unless the block trigger is also an
@@ -199,21 +199,21 @@ bool movingblock::animate(int index)
             /*
             if(f2==mfBLOCKTRIGGER)
             {
-              tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
+              tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=mfPUSHED;
             }
             */
         }
         
         if((f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE)
         {
-            tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]+=1;
+            tmpscr->data[(int32_t(y)&0xF0)+(int32_t(x)>>4)]+=1;
             bhole=true;
-            //tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=;
+            //tmpscr->cset[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=;
         }
         
         if(bhole)
         {
-            tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfNONE;
+            tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=mfNONE;
 			if(fallclk||drownclk)
 			{
 				fallclk = 0;
@@ -233,17 +233,17 @@ bool movingblock::animate(int index)
                     (f2==mfPUSHRINS && dir==right) ||
                     (f2==mfPUSH4INS)))
             {
-                tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
+                tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=mfPUSHED;
             }
         }
 		if(fallclk||drownclk) return false;
         
         if(oldflag>=mfPUSHUDINS&&oldflag&&!trigger&&!bhole)
         {
-            tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=oldflag;
+            tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=oldflag;
         }
         
-        for(int i=0; i<176; i++)
+        for(int32_t i=0; i<176; i++)
         {
             if(tmpscr->sflag[i]==mfBLOCKTRIGGER||combobuf[tmpscr->data[i]].flag==mfBLOCKTRIGGER)
             {

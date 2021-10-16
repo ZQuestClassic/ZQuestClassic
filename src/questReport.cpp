@@ -18,16 +18,16 @@
 #include "zquest.h"
 #include "qst.h"
 
-extern int bie_cnt;
+extern int32_t bie_cnt;
 
 std::string quest_report_str;
 
-char *palname_spaced(int pal)
+char *palname_spaced(int32_t pal)
 {
     static char buf[17];
     sprintf(buf,"%s",palnames[pal]);
     
-    for(int i=strlen(buf); i<17; i+=1)
+    for(int32_t i=strlen(buf); i<17; i+=1)
     {
         strcat(buf," ");
     }
@@ -35,7 +35,7 @@ char *palname_spaced(int pal)
     return buf;
 }
 
-static int isNextType(int type)
+static int32_t isNextType(int32_t type)
 {
 	//return true here, if an emulation bit says to use buggy code
 	switch(type)
@@ -54,7 +54,7 @@ static int isNextType(int type)
 	}
 }
 
-static int usesSecretTriggerFlag(int type)
+static int32_t usesSecretTriggerFlag(int32_t type)
 {
 	//return true here, if an emulation bit says to use buggy code
 	switch(type)
@@ -145,12 +145,12 @@ void enlargeIntegrityReportDialog()
     integrity_report_dlg[6].dp2 = lfont_l;
 }
 
-void showQuestReport(int bg,int fg)
+void showQuestReport(int32_t bg,int32_t fg)
 {
     integrity_report_dlg[0].dp2= lfont;
     integrity_report_dlg[2].dp = new EditboxModel(quest_report_str, new EditboxWordWrapView(&integrity_report_dlg[2], is_large? sfont3 : sfont2, fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     integrity_report_dlg[2].bg = bg;
-    int ret=zc_popup_dialog(integrity_report_dlg,2);
+    int32_t ret=zc_popup_dialog(integrity_report_dlg,2);
     delete(EditboxModel*)(integrity_report_dlg[2].dp);
     
     if(ret==6)
@@ -172,9 +172,9 @@ void showQuestReport(int bg,int fg)
             return;
         }
         
-        int written = (int)fwrite(quest_report_str.c_str(), sizeof(char), quest_report_str.size(), report);
+        int32_t written = (int32_t)fwrite(quest_report_str.c_str(), sizeof(char), quest_report_str.size(), report);
         
-        if(written != (int)quest_report_str.size())
+        if(written != (int32_t)quest_report_str.size())
             jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
             
         fclose(report);
@@ -188,26 +188,26 @@ void TileWarpsReport()
     
     bool type_found=false;
     
-    int *warp_check;
-    warp_check=(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+    int32_t *warp_check;
+    warp_check=(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
-    for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
+    for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
         warp_check[i]=0;
     }
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             ts=&TheMaps[i];
             
-            for(int w=0; w<4; ++w)
+            for(int32_t w=0; w<4; ++w)
             {
-                int wdm=ts->tilewarpdmap[w];
-                int ws=(DMaps[wdm].map*MAPSCRS+ts->tilewarpscr[w]+DMaps[wdm].xoff);
-                int cs=Map.getCurrMap()*MAPSCRS+Map.getCurrScr();
+                int32_t wdm=ts->tilewarpdmap[w];
+                int32_t ws=(DMaps[wdm].map*MAPSCRS+ts->tilewarpscr[w]+DMaps[wdm].xoff);
+                int32_t cs=Map.getCurrMap()*MAPSCRS+Map.getCurrScr();
                 
                 if(ws==cs)
                 {
@@ -217,11 +217,11 @@ void TileWarpsReport()
         }
     }
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             
             if(warp_check[i]!=0)
             {
@@ -254,26 +254,26 @@ void SideWarpsReport()
     
     bool type_found=false;
     
-    int *warp_check;
-    warp_check=(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+    int32_t *warp_check;
+    warp_check=(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
-    for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
+    for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
         warp_check[i]=0;
     }
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             ts=&TheMaps[i];
             
-            for(int w=0; w<4; ++w)
+            for(int32_t w=0; w<4; ++w)
             {
-                int wdm=ts->sidewarpdmap[w];
-                int ws=(DMaps[wdm].map*MAPSCRS+ts->sidewarpscr[w]+DMaps[wdm].xoff);
-                int cs=Map.getCurrMap()*MAPSCRS+Map.getCurrScr();
+                int32_t wdm=ts->sidewarpdmap[w];
+                int32_t ws=(DMaps[wdm].map*MAPSCRS+ts->sidewarpscr[w]+DMaps[wdm].xoff);
+                int32_t cs=Map.getCurrMap()*MAPSCRS+Map.getCurrScr();
                 
                 if(ws==cs)
                 {
@@ -283,11 +283,11 @@ void SideWarpsReport()
         }
     }
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             
             if(warp_check[i]!=0)
             {
@@ -320,23 +320,23 @@ void LayersReport()
     
     bool type_found=false;
     
-    int *layer_check;
-    layer_check =(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+    int32_t *layer_check;
+    layer_check =(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
-    for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
+    for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
         layer_check[i]=0;
     }
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             ts=&TheMaps[i];
             
             // Search through each layer
-            for(int w=0; w<6; ++w)
+            for(int32_t w=0; w<6; ++w)
             {
                 if(ts->layerscreen[w]==Map.getCurrScr() && (ts->layermap[w]-1)==Map.getCurrMap())
                 {
@@ -346,11 +346,11 @@ void LayersReport()
         }
     }
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             
             if(layer_check[i]!=0)
             {
@@ -389,9 +389,9 @@ void integrityCheckSpecialItem()
     
     bool type_found=false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             ts=&TheMaps[m*MAPSCRS+s];
             
@@ -440,7 +440,7 @@ bool integrityBoolEnemiesItem(mapscr *ts)
         
         bool problem_found=true;
         
-        for(int e=0; e<10; ++e)
+        for(int32_t e=0; e<10; ++e)
         {
             if(ts->enemy[e]!=0)
             {
@@ -463,9 +463,9 @@ void integrityCheckEnemiesItem()
     bool problem_found=false;
     bool type_found=false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             problem_found=true;
             ts=&TheMaps[m*MAPSCRS+s];
@@ -517,7 +517,7 @@ bool integrityBoolEnemiesSecret(mapscr *ts)
         
         bool problem_found=true;
         
-        for(int e=0; e<10; ++e)
+        for(int32_t e=0; e<10; ++e)
         {
             if(ts->enemy[e]!=0)
             {
@@ -540,9 +540,9 @@ void integrityCheckEnemiesSecret()
     bool problem_found=false;
     bool type_found=false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             problem_found=true;
             ts=&TheMaps[m*MAPSCRS+s];
@@ -576,31 +576,31 @@ void integrityCheckTileWarpDestSquare()
     
     bool type_found=false;
     
-    int *warp_check;
+    int32_t *warp_check;
     mapscr *wscr;
-    warp_check=(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+    warp_check=(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
-    for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
+    for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
         warp_check[i]=0;
     }
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             ts=&TheMaps[i];
             
-            for(int w=0; w<4; ++w)
+            for(int32_t w=0; w<4; ++w)
             {
-                int wdm=ts->tilewarpdmap[w];
-                int ws=(DMaps[wdm].map*MAPSCRS+ts->tilewarpscr[w]+DMaps[wdm].xoff);
+                int32_t wdm=ts->tilewarpdmap[w];
+                int32_t ws=(DMaps[wdm].map*MAPSCRS+ts->tilewarpscr[w]+DMaps[wdm].xoff);
                 wscr=&TheMaps[ws];
                 
                 if(ts->tilewarptype[w]!=wtPASS)
                 {
-                    int wx, wy, retc = (ts->warpreturnc>>(w*2))&3;
+                    int32_t wx, wy, retc = (ts->warpreturnc>>(w*2))&3;
                     
                     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
                     {
@@ -622,11 +622,11 @@ void integrityCheckTileWarpDestSquare()
         }
     }
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             
             if(warp_check[i]!=0)
             {
@@ -660,11 +660,11 @@ void integrityCheckTileWarpDest()
     bool type_found=false;
     bool warpa = false, warpb = false, warpc = false, warpd = false, warpr = false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             ts=&TheMaps[i];
             
             if(!(ts->valid&mVALID))
@@ -672,10 +672,10 @@ void integrityCheckTileWarpDest()
                 
             warpa = warpb = warpc = warpd = warpr = false;
             
-            for(int c=0; c<176+128; ++c)
+            for(int32_t c=0; c<176+128; ++c)
             {
                 // Checks both combos and secret combos.
-                int ctype = combobuf[(c>=176 ? ts->secretcombo[c-176] : ts->data[c])].type;
+                int32_t ctype = combobuf[(c>=176 ? ts->secretcombo[c-176] : ts->data[c])].type;
                 
                 switch(ctype)
                 {
@@ -779,11 +779,11 @@ void integrityCheckSideWarpDest()
     bool type_found=false;
     bool warpa = false, warpb = false, warpc = false, warpd = false, warpr = false, warpt = false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRSNORMAL; ++s) // not MAPSCRS
+        for(int32_t s=0; s<MAPSCRSNORMAL; ++s) // not MAPSCRS
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             ts=&TheMaps[i];
             
             if(!(ts->valid&mVALID))
@@ -791,10 +791,10 @@ void integrityCheckSideWarpDest()
                 
             warpa = warpb = warpc = warpd = warpr = warpt = false;
             
-            for(int c=0; c<176+128; ++c)
+            for(int32_t c=0; c<176+128; ++c)
             {
                 // Checks both combos and secret combos.
-                int ctype = combobuf[(c>=176 ? ts->secretcombo[c-176] : ts->data[c])].type;
+                int32_t ctype = combobuf[(c>=176 ? ts->secretcombo[c-176] : ts->data[c])].type;
                 
                 // Check Triforce items as well.
                 bool triforce = (itemsbuf[ts->item].family==itype_triforcepiece && itemsbuf[ts->item].flags & ITEM_FLAG1);
@@ -880,7 +880,7 @@ void integrityCheckSideWarpDest()
 }
 
 
-bool integrityBoolUnderCombo(mapscr *ts, int ctype)
+bool integrityBoolUnderCombo(mapscr *ts, int32_t ctype)
 {
     switch(ctype)
     {
@@ -915,11 +915,11 @@ void integrityCheckUnderCombo()
     bool type_found=false;
     bool case_found;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             ts=&TheMaps[i];
             
             if(!(ts->valid&mVALID))
@@ -927,7 +927,7 @@ void integrityCheckUnderCombo()
                 
             case_found=false;
             
-            for(int c=0; c<176+128; ++c)
+            for(int32_t c=0; c<176+128; ++c)
             {
                 // Checks both combos and secret combos.
                 if(integrityBoolUnderCombo(ts,combobuf[(c>=176 ? ts->secretcombo[c-176] : ts->data[c])].type))
@@ -959,7 +959,7 @@ void integrityCheckUnderCombo()
 }
 
 
-bool integrityBoolSaveCombo(mapscr *ts, int ctype)
+bool integrityBoolSaveCombo(mapscr *ts, int32_t ctype)
 {
     switch(ctype)
     {
@@ -983,11 +983,11 @@ void integrityCheckSaveCombo()
     bool type_found=false;
     bool case_found;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             ts=&TheMaps[i];
             
             if(!(ts->valid&mVALID))
@@ -995,7 +995,7 @@ void integrityCheckSaveCombo()
                 
             case_found=false;
             
-            for(int c=0; c<176+128; ++c)
+            for(int32_t c=0; c<176+128; ++c)
             {
                 // Checks both combos and secret combos.
                 if(integrityBoolSaveCombo(ts,combobuf[(c>=176 ? ts->secretcombo[c-176] : ts->data[c])].type))
@@ -1004,7 +1004,7 @@ void integrityCheckSaveCombo()
                 }
             }
             
-            for(int c=0; c< MAXFFCS; c++)
+            for(int32_t c=0; c< MAXFFCS; c++)
             {
                 // Checks both combos and secret combos.
                 if(integrityBoolSaveCombo(ts,combobuf[ts->ffdata[c]].type))
@@ -1045,9 +1045,9 @@ void integrityCheckStringNoGuy()
     
     bool type_found=false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             ts=&TheMaps[m*MAPSCRS+s];
             
@@ -1085,9 +1085,9 @@ void integrityCheckGuyNoString()
     
     bool type_found=false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             ts=&TheMaps[m*MAPSCRS+s];
             
@@ -1155,9 +1155,9 @@ void integrityCheckRoomNoGuy()
     
     bool type_found=false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             ts=&TheMaps[m*MAPSCRS+s];
             
@@ -1225,9 +1225,9 @@ void integrityCheckRoomNoString()
     
     bool type_found=false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             ts=&TheMaps[m*MAPSCRS+s];
             
@@ -1295,9 +1295,9 @@ void integrityCheckRoomNoGuyNoString()
     
     bool type_found=false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             ts=&TheMaps[m*MAPSCRS+s];
             
@@ -1338,9 +1338,9 @@ void integrityCheckItemWalkability()
     
     bool type_found=false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             ts=&TheMaps[m*MAPSCRS+s];
             
@@ -1376,25 +1376,25 @@ void integrityCheckTileWarpDestSquareWalkability()
     
     bool type_found=false;
     
-    int *warp_check;
+    int32_t *warp_check;
     mapscr *wscr;
-    warp_check=(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+    warp_check=(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
-    for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
+    for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
         warp_check[i]=0;
     }
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            for(int w=0; w<4; ++w)
+            for(int32_t w=0; w<4; ++w)
             {
-                int i=(m*MAPSCRS+s);
+                int32_t i=(m*MAPSCRS+s);
                 ts=&TheMaps[i];
-                int wdm=ts->tilewarpdmap[w];
-                int ws=(DMaps[wdm].map*MAPSCRS+ts->tilewarpscr[w]+DMaps[wdm].xoff);
+                int32_t wdm=ts->tilewarpdmap[w];
+                int32_t ws=(DMaps[wdm].map*MAPSCRS+ts->tilewarpscr[w]+DMaps[wdm].xoff);
                 wscr=&TheMaps[ws];
                 
                 if(ts->tilewarptype[w]!=wtPASS)
@@ -1411,11 +1411,11 @@ void integrityCheckTileWarpDestSquareWalkability()
         }
     }
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             
             if(warp_check[i]!=0)
             {
@@ -1447,25 +1447,25 @@ void integrityCheckTileWarpDestScreenInvalid()
     
     bool type_found=false;
     
-    int *warp_check;
+    int32_t *warp_check;
     mapscr *wscr;
-    warp_check=(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+    warp_check=(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
-    for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
+    for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
         warp_check[i]=0;
     }
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            for(int w=0; w<4; ++w)
+            for(int32_t w=0; w<4; ++w)
             {
-                int i=(m*MAPSCRS+s);
+                int32_t i=(m*MAPSCRS+s);
                 ts=&TheMaps[i];
-                int wdm=ts->tilewarpdmap[w];
-                int ws=(DMaps[wdm].map*MAPSCRS+ts->tilewarpscr[w]+DMaps[wdm].xoff);
+                int32_t wdm=ts->tilewarpdmap[w];
+                int32_t ws=(DMaps[wdm].map*MAPSCRS+ts->tilewarpscr[w]+DMaps[wdm].xoff);
                 wscr=&TheMaps[ws];
                 
                 if(!(wscr->valid&mVALID))
@@ -1493,7 +1493,7 @@ void integrityCheckTileWarpDestScreenInvalid()
     zc_free(warp_check);
 }
 
-int onIntegrityCheckSpecialItem()
+int32_t onIntegrityCheckSpecialItem()
 {
     quest_report_str="";
     integrityCheckSpecialItem();
@@ -1502,7 +1502,7 @@ int onIntegrityCheckSpecialItem()
     return D_O_K;
 }
 
-int onIntegrityCheckEnemiesItem()
+int32_t onIntegrityCheckEnemiesItem()
 {
     quest_report_str="";
     integrityCheckEnemiesItem();
@@ -1511,7 +1511,7 @@ int onIntegrityCheckEnemiesItem()
     return D_O_K;
 }
 
-int onIntegrityCheckEnemiesSecret()
+int32_t onIntegrityCheckEnemiesSecret()
 {
     quest_report_str="";
     integrityCheckEnemiesSecret();
@@ -1520,7 +1520,7 @@ int onIntegrityCheckEnemiesSecret()
     return D_O_K;
 }
 
-int onIntegrityCheckTileWarpDestSquare()
+int32_t onIntegrityCheckTileWarpDestSquare()
 {
     quest_report_str="";
     integrityCheckTileWarpDestSquare();
@@ -1529,7 +1529,7 @@ int onIntegrityCheckTileWarpDestSquare()
     return D_O_K;
 }
 
-int onIntegrityCheckStringNoGuy()
+int32_t onIntegrityCheckStringNoGuy()
 {
     quest_report_str="";
     integrityCheckStringNoGuy();
@@ -1538,7 +1538,7 @@ int onIntegrityCheckStringNoGuy()
     return D_O_K;
 }
 
-int onIntegrityCheckGuyNoString()
+int32_t onIntegrityCheckGuyNoString()
 {
     quest_report_str="";
     integrityCheckGuyNoString();
@@ -1547,7 +1547,7 @@ int onIntegrityCheckGuyNoString()
     return D_O_K;
 }
 
-int onIntegrityCheckRoomNoGuy()
+int32_t onIntegrityCheckRoomNoGuy()
 {
     quest_report_str="";
     integrityCheckRoomNoGuy();
@@ -1556,7 +1556,7 @@ int onIntegrityCheckRoomNoGuy()
     return D_O_K;
 }
 
-int onIntegrityCheckRoomNoString()
+int32_t onIntegrityCheckRoomNoString()
 {
     quest_report_str="";
     integrityCheckRoomNoString();
@@ -1565,7 +1565,7 @@ int onIntegrityCheckRoomNoString()
     return D_O_K;
 }
 
-int onIntegrityCheckRoomNoGuyNoString()
+int32_t onIntegrityCheckRoomNoGuyNoString()
 {
     quest_report_str="";
     integrityCheckRoomNoGuyNoString();
@@ -1574,7 +1574,7 @@ int onIntegrityCheckRoomNoGuyNoString()
     return D_O_K;
 }
 
-int onIntegrityCheckQuestNumber()
+int32_t onIntegrityCheckQuestNumber()
 {
     quest_report_str="";
     integrityCheckQuestNumber();
@@ -1583,7 +1583,7 @@ int onIntegrityCheckQuestNumber()
     return D_O_K;
 }
 
-int onIntegrityCheckItemWalkability()
+int32_t onIntegrityCheckItemWalkability()
 {
     quest_report_str="";
     integrityCheckItemWalkability();
@@ -1592,7 +1592,7 @@ int onIntegrityCheckItemWalkability()
     return D_O_K;
 }
 
-int onIntegrityCheckTileWarpDestSquareWalkability()
+int32_t onIntegrityCheckTileWarpDestSquareWalkability()
 {
     quest_report_str="";
     integrityCheckTileWarpDestSquareWalkability();
@@ -1601,7 +1601,7 @@ int onIntegrityCheckTileWarpDestSquareWalkability()
     return D_O_K;
 }
 
-int onIntegrityCheckTileWarpDestScreenInvalid()
+int32_t onIntegrityCheckTileWarpDestScreenInvalid()
 {
     quest_report_str="";
     integrityCheckTileWarpDestScreenInvalid();
@@ -1634,7 +1634,7 @@ void integrityCheckAllWarps()
     integrityCheckTileWarpDestScreenInvalid();
 }
 
-int onIntegrityCheckRooms()
+int32_t onIntegrityCheckRooms()
 {
     quest_report_str="";
     integrityCheckAllRooms();
@@ -1643,7 +1643,7 @@ int onIntegrityCheckRooms()
     return D_O_K;
 }
 
-int onIntegrityCheckWarps()
+int32_t onIntegrityCheckWarps()
 {
     quest_report_str="";
     integrityCheckAllWarps();
@@ -1652,7 +1652,7 @@ int onIntegrityCheckWarps()
     return D_O_K;
 }
 
-int onIntegrityCheckAll()
+int32_t onIntegrityCheckAll()
 {
     quest_report_str="";
     // Quest Checks!
@@ -1668,27 +1668,27 @@ int onIntegrityCheckAll()
 
 typedef struct item_location_node
 {
-    int map;
-    int screen;
-    int extra1;
-    int extra2;
-    int enemy;
-    int pal;
+    int32_t map;
+    int32_t screen;
+    int32_t extra1;
+    int32_t extra2;
+    int32_t enemy;
+    int32_t pal;
     item_location_node* next;
 } item_location_node;
 
 void itemLocationReport()
 {
     mapscr *ts=NULL;
-    int sc=0;
-    int location_types=6;
+    int32_t sc=0;
+    int32_t location_types=6;
     char buf[255];
     
     item_location_node **item_location_grid;
     
     item_location_grid = new item_location_node*[iMax];
     
-    for(int i=0; i<iMax; i++)
+    for(int32_t i=0; i<iMax; i++)
     {
         item_location_grid[i] = new item_location_node[location_types];
     }
@@ -1697,9 +1697,9 @@ void itemLocationReport()
     item_location_node *tempnode2=NULL;
     item_location_node *newnode=NULL;
     
-    for(int i=0; i<iMax; ++i)
+    for(int32_t i=0; i<iMax; ++i)
     {
-        for(int j=0; j<location_types; ++j)
+        for(int32_t j=0; j<location_types; ++j)
         {
             item_location_grid[i][j].map=-1;
             item_location_grid[i][j].screen=-1;
@@ -1716,9 +1716,9 @@ void itemLocationReport()
     quest_report_str+="The following items have been found in the quest at the following locations. This may not include items placed with or given by scripts:\n";
     
     //check all the screens on all the maps
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             sc=m*MAPSCRS+s;
             ts=&TheMaps[sc];
@@ -1729,7 +1729,7 @@ void itemLocationReport()
                 //start at the room item in the item location grid
                 tempnode=&(item_location_grid[ts->item][0]);
                 //loop to the end of the list
-                int count=0;
+                int32_t count=0;
                 
                 while(tempnode->next!=NULL)
                 {
@@ -1821,7 +1821,7 @@ void itemLocationReport()
             
             if(ts->room==rSHOP||ts->room==rP_SHOP||ts->room==rTAKEONE)
             {
-                for(int si=0; si<3; ++si)
+                for(int32_t si=0; si<3; ++si)
                 {
                     if(misc.shop[ts->catchall].item[si]>0)
                     {
@@ -1854,13 +1854,13 @@ void itemLocationReport()
     build_bii_list(false);
     
     //for each item
-    for(int i2=0; i2<iMax; ++i2)
+    for(int32_t i2=0; i2<iMax; ++i2)
     {
-        int i=bii[i2].i;
+        int32_t i=bii[i2].i;
         item_found=false;
         
         //check each item location type (room item, special item, shop item, choose any item, etc.)
-        for(int type=0; type<location_types; ++type)
+        for(int32_t type=0; type<location_types; ++type)
         {
             //set the tempnode at the start
             tempnode=&(item_location_grid[i][type]);
@@ -1923,9 +1923,9 @@ void itemLocationReport()
         }
     }
     
-    for(int i=0; i<iMax; ++i)
+    for(int32_t i=0; i<iMax; ++i)
     {
-        for(int type=0; type<location_types; ++type)
+        for(int32_t type=0; type<location_types; ++type)
         {
             if(item_location_grid[i][type].next!=NULL)
             {
@@ -1960,7 +1960,7 @@ void itemLocationReport()
     delete[] item_location_grid;
 }
 
-int onItemLocationReport()
+int32_t onItemLocationReport()
 {
     quest_report_str="";
     itemLocationReport();
@@ -1972,28 +1972,28 @@ int onItemLocationReport()
 
 typedef struct enemy_location_node
 {
-    int map;
-    int screen;
-    int pal;
-    int list;
-    int eflag;
-    int comboflag;
-    int combotype;
-    int ganonscr;
+    int32_t map;
+    int32_t screen;
+    int32_t pal;
+    int32_t list;
+    int32_t eflag;
+    int32_t comboflag;
+    int32_t combotype;
+    int32_t ganonscr;
     enemy_location_node* next;
 } enemy_location_node;
 
 void enemyLocationReport()
 {
     mapscr *ts=NULL;
-    int sc=0;
+    int32_t sc=0;
     char buf[255];
     
     enemy_location_node *enemy_location_grid;
     
     enemy_location_grid = new enemy_location_node[MAXGUYS];
     
-    for(int i=0; i<MAXGUYS; i++)
+    for(int32_t i=0; i<MAXGUYS; i++)
     {
         enemy_location_grid[i].map=-1;
         enemy_location_grid[i].screen=-1;
@@ -2015,25 +2015,25 @@ void enemyLocationReport()
     quest_report_str+="The following enemies are instantiated in the quest at the following locations (note that this does not include combo type, combo flag or enemy screen flag spawns):\n";
     
     //check all the screens on all the maps
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             sc=m*MAPSCRS+s;
             ts=&TheMaps[sc];
-            int enemytally[MAXGUYS];
+            int32_t enemytally[MAXGUYS];
             memset(enemytally,0,sizeof(enemytally));
             
-            for(int i=0; i<10; i++)
+            for(int32_t i=0; i<10; i++)
             {
-                int enemy = ts->enemy[i];
+                int32_t enemy = ts->enemy[i];
                 
                 if(!enemy) continue;
                 
                 enemytally[enemy]++;
             }
             
-            for(int i=0; i<MAXGUYS; ++i)
+            for(int32_t i=0; i<MAXGUYS; ++i)
             {
                 if(enemytally[i]==0) continue;
                 
@@ -2064,9 +2064,9 @@ void enemyLocationReport()
     
     build_bie_list(false);
     
-    for(int i2=1; i2<bie_cnt; ++i2)
+    for(int32_t i2=1; i2<bie_cnt; ++i2)
     {
-        int i=bie[i2].i;
+        int32_t i=bie[i2].i;
         enemy_found=false;
         //set the tempnode at the start
         tempnode=&(enemy_location_grid[i]);
@@ -2102,7 +2102,7 @@ void enemyLocationReport()
         }
     }
     
-    for(int i=0; i<MAXGUYS; ++i)
+    for(int32_t i=0; i<MAXGUYS; ++i)
     {
         if(enemy_location_grid[i].next!=NULL)
         {
@@ -2132,7 +2132,7 @@ void enemyLocationReport()
     }
 }
 
-int onEnemyLocationReport()
+int32_t onEnemyLocationReport()
 {
     quest_report_str="";
     enemyLocationReport();
@@ -2144,30 +2144,30 @@ int onEnemyLocationReport()
 
 typedef struct script_location_node
 {
-    int map;
-    int screen;
-    int pal;
-    long d[8];
+    int32_t map;
+    int32_t screen;
+    int32_t pal;
+    int32_t d[8];
     script_location_node* next;
 } script_location_node;
 
 void scriptLocationReport()
 {
     mapscr *ts=NULL;
-    int sc=0;
+    int32_t sc=0;
     char buf[255];
     
     script_location_node *script_location_grid;
     
     script_location_grid = new script_location_node[NUMSCRIPTFFC];
     
-    for(int i=0; i<NUMSCRIPTFFC-1; i++)
+    for(int32_t i=0; i<NUMSCRIPTFFC-1; i++)
     {
         script_location_grid[i].map=-1;
         script_location_grid[i].screen=-1;
         script_location_grid[i].pal=0;
         
-        for(int k=0; k<8; ++k)
+        for(int32_t k=0; k<8; ++k)
             script_location_grid[i].d[k]=0;
             
         script_location_grid[i].next=NULL;
@@ -2182,16 +2182,16 @@ void scriptLocationReport()
     quest_report_str+="The following FFC scripts are instantiated in the quest at the following locations:\n";
     
     //check all the screens on all the maps
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
             sc=m*MAPSCRS+s;
             ts=&TheMaps[sc];
             
-            for(int i=0; i<32; i++)
+            for(int32_t i=0; i<32; i++)
             {
-                int script = ts->ffscript[i];
+                int32_t script = ts->ffscript[i];
                 
                 if(!script || !ts->ffdata[i]) continue;
                 
@@ -2210,7 +2210,7 @@ void scriptLocationReport()
                 newnode->screen=s;
                 newnode->pal=ts->color;
                 
-                for(int j=0; j<8; ++j)
+                for(int32_t j=0; j<8; ++j)
                     newnode->d[j] = ts->initd[i][j];
                     
                 newnode->next=NULL;
@@ -2219,7 +2219,7 @@ void scriptLocationReport()
         }
     }
     
-    for(int i=0; i<NUMSCRIPTFFC-1; ++i)
+    for(int32_t i=0; i<NUMSCRIPTFFC-1; ++i)
     {
         script_found=false;
         //set the tempnode at the start
@@ -2254,7 +2254,7 @@ void scriptLocationReport()
         }
     }
     
-    for(int i=0; i<NUMSCRIPTFFC-1; ++i)
+    for(int32_t i=0; i<NUMSCRIPTFFC-1; ++i)
     {
         if(script_location_grid[i].next!=NULL)
         {
@@ -2284,7 +2284,7 @@ void scriptLocationReport()
     }
 }
 
-int onScriptLocationReport()
+int32_t onScriptLocationReport()
 {
     quest_report_str="";
     scriptLocationReport();
@@ -2301,22 +2301,22 @@ void ComboLocationReport()
     
     bool type_found=false;
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             ts=&TheMaps[i];
             
             if(!(ts->valid&mVALID))
                 continue;
                 
-            int uses = 0;
-            int secretuses = 0;
-            int ffuses = 0;
+            int32_t uses = 0;
+            int32_t secretuses = 0;
+            int32_t ffuses = 0;
             bool undercombouses = false;
             
-            for(int c=0; c<337; ++c)
+            for(int32_t c=0; c<337; ++c)
             {
                 // Checks both combos and secret combos.
                 if(c<176)
@@ -2380,22 +2380,22 @@ void BuggedNextComboLocationReport()
     mapscr *ts=NULL;
     char buf[1024];
     
-    for(int m=0; m<Map.getMapCount(); ++m)
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             ts=&TheMaps[i];
             
             if(!(ts->valid&mVALID))
                 continue;
             
-            for(int c=0; c<176; ++c)
+            for(int32_t c=0; c<176; ++c)
             {
                 // Checks both combos and secret combos.
                 if(c<176)
                 {
-		    int cmbid = ts->data[c];
+		    int32_t cmbid = ts->data[c];
                     if(isNextType(combobuf[cmbid].type))
 		    {
 			if ( usesSecretTriggerFlag(ts->sflag[c]) )
@@ -2412,7 +2412,7 @@ void BuggedNextComboLocationReport()
     }
 }
 
-int onComboLocationReport()
+int32_t onComboLocationReport()
 {
     quest_report_str="";
     ComboLocationReport();
@@ -2427,7 +2427,7 @@ int onComboLocationReport()
     return D_O_K;
 }
 
-int onBuggedNextComboLocationReport()
+int32_t onBuggedNextComboLocationReport()
 {
     quest_report_str="";
     BuggedNextComboLocationReport();
@@ -2444,12 +2444,12 @@ int onBuggedNextComboLocationReport()
 
 typedef struct combotype_location_node
 {
-    int map;
-    int screen;
-    int pal;
-    int uses;
-    int secretuses;
-    int ffuses;
+    int32_t map;
+    int32_t screen;
+    int32_t pal;
+    int32_t uses;
+    int32_t secretuses;
+    int32_t ffuses;
     bool undercombouses;
     combotype_location_node* next;
 } combotype_location_node;
@@ -2465,7 +2465,7 @@ void ComboTypeLocationReport()
     combotype_location_node *combotype_location_grid;
     combotype_location_grid = new combotype_location_node[MAXCOMBOTYPES];
     
-    for(int i=0; i<MAXCOMBOTYPES; i++)
+    for(int32_t i=0; i<MAXCOMBOTYPES; i++)
     {
         combotype_location_grid[i].map=-1;
         combotype_location_grid[i].screen=-1;
@@ -2481,22 +2481,22 @@ void ComboTypeLocationReport()
     combotype_location_node *tempnode2=NULL;
     combotype_location_node *newnode=NULL;
     
-    for(int Type=1; Type < MAXCOMBOTYPES; Type++)   // Don't do the (None) type.
+    for(int32_t Type=1; Type < MAXCOMBOTYPES; Type++)   // Don't do the (None) type.
     {
-        for(int m=0; m<Map.getMapCount(); ++m) for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t m=0; m<Map.getMapCount(); ++m) for(int32_t s=0; s<MAPSCRS; ++s)
             {
-                int i=(m*MAPSCRS+s);
+                int32_t i=(m*MAPSCRS+s);
                 ts=&TheMaps[i];
                 
                 if(!(ts->valid&mVALID))
                     continue;
                     
-                int uses = 0;
-                int secretuses = 0;
-                int ffuses = 0;
+                int32_t uses = 0;
+                int32_t secretuses = 0;
+                int32_t ffuses = 0;
                 bool undercombouses = false;
                 
-                for(int c=0; c<337; ++c)
+                for(int32_t c=0; c<337; ++c)
                 {
                     // Checks both combos and secret combos.
                     if(c<176)
@@ -2540,7 +2540,7 @@ void ComboTypeLocationReport()
             }
     }
     
-    for(int i=0; i<MAXCOMBOTYPES; ++i)
+    for(int32_t i=0; i<MAXCOMBOTYPES; ++i)
     {
         bool ctype_found=false;
         //set the tempnode at the start
@@ -2591,7 +2591,7 @@ void ComboTypeLocationReport()
         }
     }
     
-    for(int i=0; i<MAXCOMBOTYPES; ++i)
+    for(int32_t i=0; i<MAXCOMBOTYPES; ++i)
     {
         if(combotype_location_grid[i].next!=NULL)
         {
@@ -2621,7 +2621,7 @@ void ComboTypeLocationReport()
     }
 }
 
-int onComboTypeLocationReport()
+int32_t onComboTypeLocationReport()
 {
     quest_report_str="";
     ComboTypeLocationReport();
@@ -2631,7 +2631,7 @@ int onComboTypeLocationReport()
     return D_O_K;
 }
 
-int onWhatWarpsReport()
+int32_t onWhatWarpsReport()
 {
     quest_report_str="";
     TileWarpsReport();

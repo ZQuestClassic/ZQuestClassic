@@ -37,20 +37,20 @@
 //#define FLASH 243
 
 #ifdef ALLEGRO_MACOSX
-extern int midi_strict; //L
+extern int32_t midi_strict; //L
 #endif
 extern bool cancelgetnum;
 
 extern bool is_large;
-extern int RulesetDialog;
+extern int32_t RulesetDialog;
 
 extern bool disable_saving, OverwriteProtection;
-extern int zq_scale, TileProtection;
+extern int32_t zq_scale, TileProtection;
 
-void setZScriptVersion(int); //Intentionally does nothing >_<
+void setZScriptVersion(int32_t); //Intentionally does nothing >_<
 
-extern unsigned char PreFillTileEditorPage, PreFillComboEditorPage, PreFillMapTilePage;
-extern int DMapEditorLastMaptileUsed;
+extern uint8_t PreFillTileEditorPage, PreFillComboEditorPage, PreFillMapTilePage;
+extern int32_t DMapEditorLastMaptileUsed;
 
 enum
 {
@@ -62,8 +62,8 @@ enum {MOUSE_BMP_NORMAL=0, MOUSE_BMP_POINT_BOX, MOUSE_BMP_FLAG, MOUSE_BMP_BOX, MO
 enum {ICON_BMP_ITEM=0, ICON_BMP_WARP, ICON_BMP_WARPDEST, ICON_BMP_FLAG, ICON_BMP_RETURN_A, ICON_BMP_RETURN_B, ICON_BMP_RETURN_C, ICON_BMP_RETURN_D, ICON_BMP_MAX};
 
 
-extern int CSET_SIZE;
-extern int CSET_SHFT;
+extern int32_t CSET_SIZE;
+extern int32_t CSET_SHFT;
 
 void update_combo_cycling();
 void update_freeform_combos();
@@ -71,9 +71,9 @@ void update_freeform_combos();
 bool layers_valid(mapscr *tempscr);
 void fix_layers(mapscr *tempscr, bool showwarning);
 
-extern int coord_timer, coord_frame;
-extern int blackout_color, zq_screen_w, zq_screen_h;
-extern int jwin_pal[jcMAX];
+extern int32_t coord_timer, coord_frame;
+extern int32_t blackout_color, zq_screen_w, zq_screen_h;
+extern int32_t jwin_pal[jcMAX];
 
 extern size_and_pos minimap;
 
@@ -105,16 +105,16 @@ extern size_and_pos dummy_panel;
 extern size_and_pos tooltip_box;
 extern size_and_pos tooltip_trigger;
 
-extern int mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
-extern int mouse_scroll_h;
-extern int tooltip_timer, tooltip_maxtimer;
+extern int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
+extern int32_t mouse_scroll_h;
+extern int32_t tooltip_timer, tooltip_maxtimer;
 
 extern bool canfill;                                        //to prevent double-filling (which stops undos)
 extern bool resize_mouse_pos;                               //for eyeball combos
 
-extern int lens_hint_item[MAXITEMS][2];                     //aclk, aframe
-extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
-//extern int mode, switch_mode, orig_mode;
+extern int32_t lens_hint_item[MAXITEMS][2];                     //aclk, aframe
+extern int32_t lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
+//extern int32_t mode, switch_mode, orig_mode;
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
 extern char *datafile_str;
@@ -137,70 +137,70 @@ extern bool zq_showpal;
 extern bool combo_cols;
 
 
-extern int alignment_arrow_timer;
-extern int  Flip,Combo,CSet,First[3];
-extern int  Flags,Flag,menutype;
-extern int MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview;
-extern int Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
+extern int32_t alignment_arrow_timer;
+extern int32_t  Flip,Combo,CSet,First[3];
+extern int32_t  Flags,Flag,menutype;
+extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview;
+extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
 extern bool Vsync, ShowFPS;
-extern int ComboBrush;                                      //show the brush instead of the normal mouse
-extern int ComboBrushPause;                                 //temporarily disable the combo brush
-extern int BrushPosition;                                   //top left, middle, bottom right, etc.
-extern int FloatBrush;                                      //makes the combo brush float a few pixels up and left complete with shadow
+extern int32_t ComboBrush;                                      //show the brush instead of the normal mouse
+extern int32_t ComboBrushPause;                                 //temporarily disable the combo brush
+extern int32_t BrushPosition;                                   //top left, middle, bottom right, etc.
+extern int32_t FloatBrush;                                      //makes the combo brush float a few pixels up and left complete with shadow
 
-extern int OpenLastQuest;                                   //makes the program reopen the quest that was
+extern int32_t OpenLastQuest;                                   //makes the program reopen the quest that was
 //open at the time you quit
-extern int ShowMisalignments;                               //makes the program display arrows over combos that are
+extern int32_t ShowMisalignments;                               //makes the program display arrows over combos that are
 //not aligned with the next screen.
-extern int AnimationOn;                                     //animate the combos in zquest?
-extern int AutoBackupRetention;                             //use auto-backup feature?  if so, how many backups (1-10) to keep
-extern int AutoSaveInterval;                                //how often a timed autosave is made (not overwriting the current file)
-extern int UncompressedAutoSaves;                           //should timed saves be uncompressed/encrypted?
+extern int32_t AnimationOn;                                     //animate the combos in zquest?
+extern int32_t AutoBackupRetention;                             //use auto-backup feature?  if so, how many backups (1-10) to keep
+extern int32_t AutoSaveInterval;                                //how often a timed autosave is made (not overwriting the current file)
+extern int32_t UncompressedAutoSaves;                           //should timed saves be uncompressed/encrypted?
 extern time_t auto_save_time_start, auto_save_time_current;
 extern double auto_save_time_diff;
-extern int AutoSaveRetention;                               //how many autosaves of a quest to keep
-extern int ImportMapBias;                                   //tells what has precedence on map importing
-extern int BrushWidth, BrushHeight;
+extern int32_t AutoSaveRetention;                               //how many autosaves of a quest to keep
+extern int32_t ImportMapBias;                                   //tells what has precedence on map importing
+extern int32_t BrushWidth, BrushHeight;
 extern bool quit,saved;
 extern bool __debug;
 extern byte LayerMask[2];                                   //determines which layers are on or off.  0-15
-extern int LayerMaskInt[7];
-extern int CurrentLayer;
-extern int DuplicateAction[4];
-extern int OnlyCheckNewTilesForDuplicates;
+extern int32_t LayerMaskInt[7];
+extern int32_t CurrentLayer;
+extern int32_t DuplicateAction[4];
+extern int32_t OnlyCheckNewTilesForDuplicates;
 /*
   , HorizontalDuplicateAction;
-  int VerticalDuplicateAction, BothDuplicateAction;
+  int32_t VerticalDuplicateAction, BothDuplicateAction;
   */
 extern word msg_count, qt_count;
 extern word door_combo_set_count;
-extern int LeechUpdate;
-extern int LeechUpdateTiles;
-extern int SnapshotFormat;
-extern int memrequested;
+extern int32_t LeechUpdate;
+extern int32_t LeechUpdateTiles;
+extern int32_t SnapshotFormat;
+extern int32_t memrequested;
 extern byte Color;
 
 extern byte compile_tune;
 
 extern ZCMUSIC *zcmusic;
-extern volatile int myvsync;
+extern volatile int32_t myvsync;
 extern BITMAP *hw_screen;
 
-extern int fill_type;
+extern int32_t fill_type;
 
 extern bool first_save;
 extern char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
 extern char *helpbuf;
 extern std::string helpstr;
 
-extern int rules_page, rules_pages;
-extern int init_page, init_pages;
-extern int doorcombos_page, doorcombos_pages;
+extern int32_t rules_page, rules_pages;
+extern int32_t init_page, init_pages;
+extern int32_t doorcombos_page, doorcombos_pages;
 extern bool rules_done, save_rules;
 extern bool init_done, save_init;
 extern bool doorcombos_done, save_doorcombos;
 
-void loadlvlpal(int level);
+void loadlvlpal(int32_t level);
 
 bool get_debug();
 void set_debug(bool d);
@@ -218,7 +218,7 @@ extern std::vector<mapscr> TheMaps;
 extern zcmap               *ZCMaps;
 extern dmap                *DMaps;
 extern MsgStr              *MsgStrings;
-extern int				   msg_strings_size;
+extern int32_t				   msg_strings_size;
 extern DoorComboSet        *DoorComboSets;
 extern class zctune        *customtunes;
 //extern emusic            *enhancedMusic;
@@ -243,10 +243,10 @@ extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of bla
 */
 extern char   fontsdat_sig[52];
 
-extern unsigned char console_is_open;
+extern uint8_t console_is_open;
 
 // qst.cc helpers
-bool bad_version(int ver);
+bool bad_version(int32_t ver);
 zfix LinkModifiedX();
 zfix LinkModifiedY();
 
@@ -255,147 +255,147 @@ extern MENU colors_menu[];
 void rebuild_trans_table();
 void rebuild_string_list();
 
-int onResetTransparency();
-int d_vsync_proc(int msg,DIALOG *d,int c);
-int d_nbmenu_proc(int msg,DIALOG *d,int c);
-int getnumber(const char *prompt,int initialval);
-int gettilepagenumber(const char *prompt, int initialval);
+int32_t onResetTransparency();
+int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t getnumber(const char *prompt,int32_t initialval);
+int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 
-void about_module(const char *prompt,int initialval);
-void savesometiles(const char *prompt,int initialval);
-void writesometiles_to(const char *prompt,int initialval);
+void about_module(const char *prompt,int32_t initialval);
+void savesometiles(const char *prompt,int32_t initialval);
+void writesometiles_to(const char *prompt,int32_t initialval);
 
-void savesomecombos(const char *prompt,int initialval);
-void writesomecombos_to(const char *prompt,int initialval);
-void writesomecombos(const char *prompt,int initialval);
-void loadcombopack(const char *prompt,int initialval);
+void savesomecombos(const char *prompt,int32_t initialval);
+void writesomecombos_to(const char *prompt,int32_t initialval);
+void writesomecombos(const char *prompt,int32_t initialval);
+void loadcombopack(const char *prompt,int32_t initialval);
 
-void savesomecomboaliases(const char *prompt,int initialval);
-void writesomecomboaliases_to(const char *prompt,int initialval);
+void savesomecomboaliases(const char *prompt,int32_t initialval);
+void writesomecomboaliases_to(const char *prompt,int32_t initialval);
 
-int writeonedmap(PACKFILE *f, int i);
-int readonedmap(PACKFILE *f, int index);
-int writesomedmaps(PACKFILE *f, int first, int last, int max);
-int readsomedmaps(PACKFILE *f);
+int32_t writeonedmap(PACKFILE *f, int32_t i);
+int32_t readonedmap(PACKFILE *f, int32_t index);
+int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max);
+int32_t readsomedmaps(PACKFILE *f);
 //need readsomedmaps_to, with a starting index, in the future
-void savesomedmaps(const char *prompt,int initialval);
+void savesomedmaps(const char *prompt,int32_t initialval);
 
-void do_importdoorset(const char *prompt,int initialval);
-void do_exportdoorset(const char *prompt,int initialval);
+void do_importdoorset(const char *prompt,int32_t initialval);
+void do_exportdoorset(const char *prompt,int32_t initialval);
 
-int gettilepagenumber(const char *prompt, int initialval);
-int gethexnumber(const char *prompt,int initialval);
+int32_t gettilepagenumber(const char *prompt, int32_t initialval);
+int32_t gethexnumber(const char *prompt,int32_t initialval);
 
 void update_combo_cycling();
 
 bool confirmBox(const char *m1, const char *m2 = NULL, const char *m3 = NULL);
-int onSelectSFX();
-int onOptions();
+int32_t onSelectSFX();
+int32_t onOptions();
 void fix_drawing_mode_menu();
-int onDrawingMode();
-int onDrawingModeNormal();
-int onDrawingModeRelational();
-int onDrawingModeDungeon();
-int onDrawingModeAlias();
-int onReTemplate();
-int onUndo();
-int onCopy();
-int onFlipDMapHorizontal(int d);
-int onFlipDMapVertical(int d);
-int onFlipMapHorizontal();
-int onFlipMapVertical();
-int onFlipScreenHorizontal();
-int onFlipScreenVertical();
-int onH();
-int onPaste();
-int onPasteAll();
-int onPasteToAll();
-int onPasteAllToAll();
-int onPasteUnderCombo();
-int onPasteSecretCombos();
-int onPasteFFCombos();
-int onPasteWarps();
-int onPasteScreenData();
-int onPasteWarpLocations();
-int onPasteDoors();
-int onPasteLayers();
-int onPastePalette();
-int onPasteRoom();
-int onPasteGuy();
-int onPasteEnemies();
-int onDelete();
-int onDeleteMap();
-int onToggleDarkness();
-int onIncMap();
-int onDecMap();
-int onDecColour();
-int onIncColour();
-int onDefault_Pals();
-int onDefault_Combos();
-int onDefault_Items();
-int onDefault_Guys();
-int onDefault_Weapons();
-int onDefault_SFX();
-int onDefault_Tiles();
-int onDefault_MapStyles();
-int on0();
-int on1();
-int on2();
-int on3();
-int on4();
-int on5();
-int on6();
-int on7();
-int on8();
-int on9();
-int on10();
-int on11();
-int on12();
-int on13();
-int on14();
-int on15();
-int onLeft();
-int onRight();
-int onUp();
-int onDown();
-int onPgUp();
-int onPgDn();
-int onIncreaseCSet();
-int onDecreaseCSet();
-int onGotoPage();
+int32_t onDrawingMode();
+int32_t onDrawingModeNormal();
+int32_t onDrawingModeRelational();
+int32_t onDrawingModeDungeon();
+int32_t onDrawingModeAlias();
+int32_t onReTemplate();
+int32_t onUndo();
+int32_t onCopy();
+int32_t onFlipDMapHorizontal(int32_t d);
+int32_t onFlipDMapVertical(int32_t d);
+int32_t onFlipMapHorizontal();
+int32_t onFlipMapVertical();
+int32_t onFlipScreenHorizontal();
+int32_t onFlipScreenVertical();
+int32_t onH();
+int32_t onPaste();
+int32_t onPasteAll();
+int32_t onPasteToAll();
+int32_t onPasteAllToAll();
+int32_t onPasteUnderCombo();
+int32_t onPasteSecretCombos();
+int32_t onPasteFFCombos();
+int32_t onPasteWarps();
+int32_t onPasteScreenData();
+int32_t onPasteWarpLocations();
+int32_t onPasteDoors();
+int32_t onPasteLayers();
+int32_t onPastePalette();
+int32_t onPasteRoom();
+int32_t onPasteGuy();
+int32_t onPasteEnemies();
+int32_t onDelete();
+int32_t onDeleteMap();
+int32_t onToggleDarkness();
+int32_t onIncMap();
+int32_t onDecMap();
+int32_t onDecColour();
+int32_t onIncColour();
+int32_t onDefault_Pals();
+int32_t onDefault_Combos();
+int32_t onDefault_Items();
+int32_t onDefault_Guys();
+int32_t onDefault_Weapons();
+int32_t onDefault_SFX();
+int32_t onDefault_Tiles();
+int32_t onDefault_MapStyles();
+int32_t on0();
+int32_t on1();
+int32_t on2();
+int32_t on3();
+int32_t on4();
+int32_t on5();
+int32_t on6();
+int32_t on7();
+int32_t on8();
+int32_t on9();
+int32_t on10();
+int32_t on11();
+int32_t on12();
+int32_t on13();
+int32_t on14();
+int32_t on15();
+int32_t onLeft();
+int32_t onRight();
+int32_t onUp();
+int32_t onDown();
+int32_t onPgUp();
+int32_t onPgDn();
+int32_t onIncreaseCSet();
+int32_t onDecreaseCSet();
+int32_t onGotoPage();
 
 bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 //bool getname_nogo(char *prompt,char *ext,char *def,bool usefilename);
 
-int playTune1();
-int playTune2();
-int playTune3();
-int playTune4();
-int playTune5();
-int playTune6();
-int playTune7();
-int playTune8();
-int playTune9();
-int playTune10();
-int playTune11();
-int playTune12();
-int playTune13();
-int playTune14();
-int playTune15();
-int playTune16();
-int playTune17();
-int playTune18();
-int playTune19();
+int32_t playTune1();
+int32_t playTune2();
+int32_t playTune3();
+int32_t playTune4();
+int32_t playTune5();
+int32_t playTune6();
+int32_t playTune7();
+int32_t playTune8();
+int32_t playTune9();
+int32_t playTune10();
+int32_t playTune11();
+int32_t playTune12();
+int32_t playTune13();
+int32_t playTune14();
+int32_t playTune15();
+int32_t playTune16();
+int32_t playTune17();
+int32_t playTune18();
+int32_t playTune19();
 
-int changeTrack();
-int playMusic();
-int playTune(int pos);
-int stopMusic();
+int32_t changeTrack();
+int32_t playMusic();
+int32_t playTune(int32_t pos);
+int32_t stopMusic();
 
-int onQMiscValues();
+int32_t onQMiscValues();
 
-int onTemplates();
+int32_t onTemplates();
 
 //  +----------+
 //  |          |
@@ -407,129 +407,129 @@ int onTemplates();
 
 extern BITMAP *pic;
 extern PALETTE picpal;
-extern int  pblack,pwhite;
+extern int32_t  pblack,pwhite;
 extern double scale;
 extern bool vp_showpal, vp_showsize, vp_center;
 
-INLINE int pal_sum(RGB p)
+INLINE int32_t pal_sum(RGB p)
 {
     return p.r + p.g + p.b;
 }
 
-void get_bw(RGB *pal,int &black,int &white);
-void draw_bw_mouse(int white, int old_mouse, int new_mouse);
-int load_the_pic(BITMAP **dst, PALETTE dstpal);
-int onViewPic();
-int load_the_map();
-int onViewMap();
+void get_bw(RGB *pal,int32_t &black,int32_t &white);
+void draw_bw_mouse(int32_t white, int32_t old_mouse, int32_t new_mouse);
+int32_t load_the_pic(BITMAP **dst, PALETTE dstpal);
+int32_t onViewPic();
+int32_t load_the_map();
+int32_t onViewMap();
 
 //static char *dirstr[4] = {"up","down","left","right"};
 //char _pathstr[25]="up,up,up,up";
 
 char *pathstr(byte path[]);
-void drawpanel(int panel);
-void refresh(int flags);
+void drawpanel(int32_t panel);
+void refresh(int32_t flags);
 void select_scr();
-void select_combo(int list);
+void select_combo(int32_t list);
 void update_combobrush();
 void draw(bool);
-void replace(int c);
-void draw_block(int start,int w,int h);
-void fill(mapscr* fillscr, int targetcombo, int targetcset, int sx, int sy, int dir, int diagonal, bool only_cset);
-void fill2(mapscr* fillscr, int targetcombo, int targetcset, int sx, int sy, int dir, int diagonal, bool only_cset);
-int d_wflag_proc(int msg,DIALOG *d,int c);
+void replace(int32_t c);
+void draw_block(int32_t start,int32_t w,int32_t h);
+void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
+void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
+int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 
 /**************************/
 /*****     Mouse      *****/
 /**************************/
 
-void doxypos(byte &px,byte &py,int color,int mask, bool immediately);
-void doxypos(byte &px,byte &py,int color,int mask, bool immediately,  int cursoroffx, int cursoroffy, int iconw, int iconh);
+void doxypos(byte &px,byte &py,int32_t color,int32_t mask, bool immediately);
+void doxypos(byte &px,byte &py,int32_t color,int32_t mask, bool immediately,  int32_t cursoroffx, int32_t cursoroffy, int32_t iconw, int32_t iconh);
 void doflags();
-void set_brush_width(int width);
-void set_brush_height(int height);
+void set_brush_width(int32_t width);
+void set_brush_height(int32_t height);
 
-int set_brush_width_1();
-int set_brush_width_2();
-int set_brush_width_3();
-int set_brush_width_4();
-int set_brush_width_5();
-int set_brush_width_6();
-int set_brush_width_7();
-int set_brush_width_8();
-int set_brush_width_9();
-int set_brush_width_10();
-int set_brush_width_11();
-int set_brush_width_12();
-int set_brush_width_13();
-int set_brush_width_14();
-int set_brush_width_15();
-int set_brush_width_16();
+int32_t set_brush_width_1();
+int32_t set_brush_width_2();
+int32_t set_brush_width_3();
+int32_t set_brush_width_4();
+int32_t set_brush_width_5();
+int32_t set_brush_width_6();
+int32_t set_brush_width_7();
+int32_t set_brush_width_8();
+int32_t set_brush_width_9();
+int32_t set_brush_width_10();
+int32_t set_brush_width_11();
+int32_t set_brush_width_12();
+int32_t set_brush_width_13();
+int32_t set_brush_width_14();
+int32_t set_brush_width_15();
+int32_t set_brush_width_16();
 
-int set_brush_height_1();
-int set_brush_height_2();
-int set_brush_height_3();
-int set_brush_height_4();
-int set_brush_height_5();
-int set_brush_height_6();
-int set_brush_height_7();
-int set_brush_height_8();
-int set_brush_height_9();
-int set_brush_height_10();
-int set_brush_height_11();
+int32_t set_brush_height_1();
+int32_t set_brush_height_2();
+int32_t set_brush_height_3();
+int32_t set_brush_height_4();
+int32_t set_brush_height_5();
+int32_t set_brush_height_6();
+int32_t set_brush_height_7();
+int32_t set_brush_height_8();
+int32_t set_brush_height_9();
+int32_t set_brush_height_10();
+int32_t set_brush_height_11();
 
-int set_flood();
-int set_fill_4();
-int set_fill_8();
-int set_fill2_4();
-int set_fill2_8();
+int32_t set_flood();
+int32_t set_fill_4();
+int32_t set_fill_8();
+int32_t set_fill2_4();
+int32_t set_fill2_8();
 
 void flood();
 void fill_4();
 void fill_8();
 void fill2_4();
 void fill2_8();
-void set_brush_width(int width);
-void set_brush_height(int height);
+void set_brush_width(int32_t width);
+void set_brush_height(int32_t height);
 void domouse();
 void restore_mouse();
-int onShowPal();
-int onTestGUI();
-int onCSetFix();
-int onTemplate();
-int onComboPage();
-const char *flaglist(int index, int *list_size);
-int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT *title_font, void (*copyFunc)(int, int)=0);
-int select_data(const char *prompt,int index,const char *(proc)(int,int*), const char *b1, const char *b2, FONT *title_font, void (*copyFunc)(int, int)=0);
-int select_flag(int &f);
-int d_scombo_proc(int msg,DIALOG *d,int c);
-int d_ffcombolist_proc(int msg,DIALOG *d,int c);
-int d_comboalist_proc(int msg,DIALOG *d,int c);
-int onSecretF();
-int onSecretCombo();
-int onUnderCombo();
-int load_zmod_module_file();
-int onImportFFScript();
-int onImportItemScript();
-int onImportNPCScript();
-int onImportSCREENScript();
-int onImportHEROScript();
-int onImportITEMSPRITEScript();
-int onImportComboScript();
-int onImportDMapScript();
-int onImportLWPNScript();
-int onImportEWPNScript();
-int onImportGScript();
-int onCompileScript();
-int onSlotAssign();
-int onExportZASM();
-int onImportZASM();
+int32_t onShowPal();
+int32_t onTestGUI();
+int32_t onCSetFix();
+int32_t onTemplate();
+int32_t onComboPage();
+const char *flaglist(int32_t index, int32_t *list_size);
+int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,int32_t*), FONT *title_font, void (*copyFunc)(int32_t, int32_t)=0);
+int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,int32_t*), const char *b1, const char *b2, FONT *title_font, void (*copyFunc)(int32_t, int32_t)=0);
+int32_t select_flag(int32_t &f);
+int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_comboalist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t onSecretF();
+int32_t onSecretCombo();
+int32_t onUnderCombo();
+int32_t load_zmod_module_file();
+int32_t onImportFFScript();
+int32_t onImportItemScript();
+int32_t onImportNPCScript();
+int32_t onImportSCREENScript();
+int32_t onImportHEROScript();
+int32_t onImportITEMSPRITEScript();
+int32_t onImportComboScript();
+int32_t onImportDMapScript();
+int32_t onImportLWPNScript();
+int32_t onImportEWPNScript();
+int32_t onImportGScript();
+int32_t onCompileScript();
+int32_t onSlotAssign();
+int32_t onExportZASM();
+int32_t onImportZASM();
 
 
 typedef struct item_struct
 {
     char *s;
-    int i;
+    int32_t i;
 } item_struct;
 
 extern item_struct bii[iMax+1];
@@ -537,59 +537,59 @@ extern item_struct bii[iMax+1];
 typedef struct weapon_struct
 {
     char *s;
-    int i;
+    int32_t i;
 } weapon_struct;
 
 extern weapon_struct biw[wMAX];
 
-typedef std::pair<std::string, int> script_struct;
+typedef std::pair<std::string, int32_t> script_struct;
 void build_biitems_list();
 void build_bidcomboscripts_list();
 extern script_struct biitems[NUMSCRIPTITEM]; //item script
-extern int biitems_cnt;
+extern int32_t biitems_cnt;
 
 
 //npc script list for editors
 void build_binpcs_list();
 extern script_struct binpcs[NUMSCRIPTGUYS]; //item script
-extern int binpcs_cnt;
+extern int32_t binpcs_cnt;
 
 //lweapon script list for editors
 void build_bilweapons_list();
 extern script_struct bilweapons[NUMSCRIPTWEAPONS]; //item script
-extern int bilweapons_cnt;
+extern int32_t bilweapons_cnt;
 
 //eweapon script list for editors
 void build_bieweapons_list();
 extern script_struct bieweapons[NUMSCRIPTWEAPONS]; //item script
-extern int bieweapons_cnt;
+extern int32_t bieweapons_cnt;
 
 //link script list for editors
 void build_bilinks_list();
 extern script_struct bilinks[NUMSCRIPTLINK]; //item script
-extern int bilinks_cnt;
+extern int32_t bilinks_cnt;
 
 //screen script list for editors
 void build_biscreens_list();
 extern script_struct biscreens[NUMSCRIPTSCREEN]; //item script
-extern int biscreens_cnt;
+extern int32_t biscreens_cnt;
 
 //dmap script list for editors
 void build_bidmaps_list();
 extern script_struct bidmaps[NUMSCRIPTSDMAP]; //item script
-extern int bidmaps_cnt;
+extern int32_t bidmaps_cnt;
 
 //dmap script list for editors
 void build_biitemsprites_list();
 extern script_struct biditemsprites[NUMSCRIPTSDMAP]; //item script
-extern int biitemsprites_cnt;
+extern int32_t biitemsprites_cnt;
 
 //extern script_struct biffs[NUMSCRIPTFFC];
 
 typedef struct command_struct
 {
     char *s;
-    int i;
+    int32_t i;
 } command_struct;
 
 enum
@@ -766,89 +766,89 @@ enum
 extern command_struct bic[cmdMAX];
 
 extern combo_alias combo_aliases[MAXCOMBOALIASES];
-//int combo_apos;
-//int combo_alistpos;
+//int32_t combo_apos;
+//int32_t combo_alistpos;
 
-int set_comboaradio(byte layermask);
-extern int alias_origin;
-void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y, int size);
+int32_t set_comboaradio(byte layermask);
+extern int32_t alias_origin;
+void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int32_t y, int32_t size);
 
 void build_bii_list(bool usenone);
-const char *itemlist(int index, int *list_size);
-int select_item(const char *prompt,int item,bool is_editor,int &exit_status);
+const char *itemlist(int32_t index, int32_t *list_size);
+int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit_status);
 
 void build_biw_list();
-const char *weaponlist(int index, int *list_size);
-int select_weapon(const char *prompt,int weapon);
+const char *weaponlist(int32_t index, int32_t *list_size);
+int32_t select_weapon(const char *prompt,int32_t weapon);
 
 //char *doors_string[8]={"wall","passage","locked","shutter","bombable","walk thru","1-way shutter","boss"};
-const char *doorslist(int index, int *list_size);
-void edit_door(int side);
-int d_combo_proc(int msg,DIALOG *d,int c);
-const char *doorcombosetlist(int index, int *list_size);
-int onDoors();
-int onScrData();
-int onScreenScript();
-const char *nslist(int index, int *list_size);
-const char *flaglist(int index, int *list_size);
-const char *roomslist(int index, int *list_size);
-const char *guyslist(int index, int *list_size);
-const char *msgslist(int index, int *list_size);
+const char *doorslist(int32_t index, int32_t *list_size);
+void edit_door(int32_t side);
+int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
+const char *doorcombosetlist(int32_t index, int32_t *list_size);
+int32_t onDoors();
+int32_t onScrData();
+int32_t onScreenScript();
+const char *nslist(int32_t index, int32_t *list_size);
+const char *flaglist(int32_t index, int32_t *list_size);
+const char *roomslist(int32_t index, int32_t *list_size);
+const char *guyslist(int32_t index, int32_t *list_size);
+const char *msgslist(int32_t index, int32_t *list_size);
 
 //static char number_str_buf[32];
-//int number_list_size=1;
+//int32_t number_list_size=1;
 //bool number_list_zero=false;
 
-const char *numberlist(int index, int *list_size);
+const char *numberlist(int32_t index, int32_t *list_size);
 
 //static char dmap_str_buf[37];
-//int dmap_list_size=1;
+//int32_t dmap_list_size=1;
 //bool dmap_list_zero=false;
 
-const char *dmaplist(int index, int *list_size);
+const char *dmaplist(int32_t index, int32_t *list_size);
 
-char *hexnumlist(int index, int *list_size);
-const char *maplist(int index, int *list_size);
-const char *gotomaplist(int index, int *list_size);
-const char *nextmaplist(int index, int *list_size);
-const char *midilist(int index, int *list_size);
-const char *screenmidilist(int index, int *list_size);
-const char *custommidilist(int index, int *list_size);
-const char *enhancedmusiclist(int index, int *list_size);
-const char *levelnumlist(int index, int *list_size);
-int onGotoMap();
-int onFlags();
-int onUsedCombos();
-int onItem();
-int onZScriptSettings();
-int onZScriptCompilerSettings();
-int onRoom();
-int onEndString();
-int onScreenPalette();
-int onDecScrPal();
-int onIncScrPal();
-int onDecScrPal16();
-int onIncScrPal16();
-int onFullScreen();
-int isFullScreen();
-int onToggleGrid();
-int onToggleShowScripts();
-int onToggleShowSquares();
-int onToggleShowInfo();
+char *hexnumlist(int32_t index, int32_t *list_size);
+const char *maplist(int32_t index, int32_t *list_size);
+const char *gotomaplist(int32_t index, int32_t *list_size);
+const char *nextmaplist(int32_t index, int32_t *list_size);
+const char *midilist(int32_t index, int32_t *list_size);
+const char *screenmidilist(int32_t index, int32_t *list_size);
+const char *custommidilist(int32_t index, int32_t *list_size);
+const char *enhancedmusiclist(int32_t index, int32_t *list_size);
+const char *levelnumlist(int32_t index, int32_t *list_size);
+int32_t onGotoMap();
+int32_t onFlags();
+int32_t onUsedCombos();
+int32_t onItem();
+int32_t onZScriptSettings();
+int32_t onZScriptCompilerSettings();
+int32_t onRoom();
+int32_t onEndString();
+int32_t onScreenPalette();
+int32_t onDecScrPal();
+int32_t onIncScrPal();
+int32_t onDecScrPal16();
+int32_t onIncScrPal16();
+int32_t onFullScreen();
+int32_t isFullScreen();
+int32_t onToggleGrid();
+int32_t onToggleShowScripts();
+int32_t onToggleShowSquares();
+int32_t onToggleShowInfo();
 
 //char msgbuf[MSGSTRS*3];
 
-int d_ndroplist_proc(int msg,DIALOG *d,int c);
-int d_idroplist_proc(int msg,DIALOG *d,int c);
-int d_nidroplist_proc(int msg,DIALOG *d,int c);
-int d_ilist_proc(int msg,DIALOG *d,int c);
-int d_wlist_proc(int msg,DIALOG *d,int c);
-int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list);
-INLINE int d_enelist_proc(int msg,DIALOG *d,int c)
+int32_t d_ndroplist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list);
+INLINE int32_t d_enelist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     return enelist_proc(msg,d,c,true);
 }
-INLINE int d_enelistnoabc_proc(int msg,DIALOG *d,int c)
+INLINE int32_t d_enelistnoabc_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     return enelist_proc(msg,d,c,false);
 }
@@ -866,169 +866,169 @@ INLINE int d_enelistnoabc_proc(int msg,DIALOG *d,int c)
   };
   */
 
-int d_tri_frame_proc(int msg,DIALOG *d,int c);
-int d_tri_edit_proc(int msg,DIALOG *d,int c);
-int onTriPieces();
+int32_t d_tri_frame_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_tri_edit_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t onTriPieces();
 
 /**********************************/
 /***********  onDMaps  ************/
 /**********************************/
 
-int d_maptile_proc(int msg,DIALOG *d,int c);
-int editdmapmaps(int index);
-int d_hexedit_proc(int msg,DIALOG *d,int c);
-void drawgrid(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div);
-void drawgrid(BITMAP *dest,int x,int y,int w, int h, int tw, int th, int *grid,int fg,int bg,int div);
-void drawgrid_s(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div);
-void drawdmap(int dmap);
-int d_dmaplist_proc(int msg,DIALOG *d,int c);
-int d_dropdmaplist_proc(int msg,DIALOG *d,int c);
-int d_dropdmaptypelist_proc(int msg,DIALOG *d,int c);
-int d_grid_proc(int msg,DIALOG *d,int c);
-void drawxmap(int map,int xoff,bool large);
-int d_xmaplist_proc(int msg,DIALOG *d,int c);
+int32_t d_maptile_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t editdmapmaps(int32_t index);
+int32_t d_hexedit_proc(int32_t msg,DIALOG *d,int32_t c);
+void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t grid,int32_t fg,int32_t bg,int32_t div);
+void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t w, int32_t h, int32_t tw, int32_t th, int32_t *grid,int32_t fg,int32_t bg,int32_t div);
+void drawgrid_s(BITMAP *dest,int32_t x,int32_t y,int32_t grid,int32_t fg,int32_t bg,int32_t div);
+void drawdmap(int32_t dmap);
+int32_t d_dmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_dropdmaptypelist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_grid_proc(int32_t msg,DIALOG *d,int32_t c);
+void drawxmap(int32_t map,int32_t xoff,bool large);
+int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
 
-//int xmapspecs[4] = {0,0,84+58,118+32+5};
+//int32_t xmapspecs[4] = {0,0,84+58,118+32+5};
 
-int onXslider(void *dp3,int d2);
+int32_t onXslider(void *dp3,int32_t d2);
 
 //char *dmaptype_str[dmMAX] = { "Dngn","Overw","Cave","BS-Ow" };
 
-const char *typelist(int index, int *list_size);
-void put_title_str(char *s,int x,int y,int fg,int bg,int pos,int lines,int cpl);
-int d_title_edit_proc(int msg,DIALOG *d,int c);
-void put_intro_str(char *s,int x,int y,int fg,int bg,int pos);
-int d_intro_edit_proc(int msg,DIALOG *d,int c);
+const char *typelist(int32_t index, int32_t *list_size);
+void put_title_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos,int32_t lines,int32_t cpl);
+int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c);
+void put_intro_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos);
+int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c);
 
 //char dmap_title[21];
 //char dmap_name[33];
 //char dmap_intro[73];
 
-void editdmap(int index);
+void editdmap(int32_t index);
 
-//int selectdmapxy[6] = {164-74,108+8+24,164,80+44+24,164,90+44+24};
+//int32_t selectdmapxy[6] = {164-74,108+8+24,164,80+44+24,164,90+44+24};
 
-int onDmaps();
-int onEditSFX(int index);
+int32_t onDmaps();
+int32_t onEditSFX(int32_t index);
 
 /************************************/
 /**********  onDoorCombos  **********/
 /************************************/
 
-void fix_dcs(int index, int dir);
-void editdoorcomboset(int index);
+void fix_dcs(int32_t index, int32_t dir);
+void editdoorcomboset(int32_t index);
 
-const char *doorcombosetlist(int index, int *list_size);
+const char *doorcombosetlist(int32_t index, int32_t *list_size);
 
-int doorcombosetlist_del();
-int copydcs();
-int pastedcs();
-int replacedcs();
-void reset_doorcomboset(int index);
+int32_t doorcombosetlist_del();
+int32_t copydcs();
+int32_t pastedcs();
+int32_t replacedcs();
+void reset_doorcomboset(int32_t index);
 void fix_door_combo_set(word &door_combo_set, byte index);
 void init_doorcombosets();
-int onDoorCombos();
+int32_t onDoorCombos();
 
 /*******************************/
 /**********  onMidis  **********/
 /*******************************/
 
-void edit_tune(int i);
-int d_midilist_proc(int msg,DIALOG *d,int c);
-int onMidis();
+void edit_tune(int32_t i);
+int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t onMidis();
 
 /*******************************/
 /******  onEnhancedMusic  ******/
 /*******************************/
 
-void edit_music(int i);
-int d_musiclist_proc(int msg,DIALOG *d,int c);
-int onEnhancedMusic();
+void edit_music(int32_t i);
+int32_t d_musiclist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t onEnhancedMusic();
 
 /*******************************/
 /****  onTest/onTestOptions  ***/
 /*******************************/
 
-int onTest();
-int onTestOptions();
+int32_t onTest();
+int32_t onTestOptions();
 
 /*******************************/
 /**********  onWarp  ***********/
 /*******************************/
 
-const char *warptypelist(int index, int *list_size);
+const char *warptypelist(int32_t index, int32_t *list_size);
 
-//int warpdmapxy[6] = {188,126,188,100,188,112};
+//int32_t warpdmapxy[6] = {188,126,188,100,188,112};
 
-int d_warpdestsel_proc(int msg,DIALOG *d,int c);
-int onTileWarpIndex(int index);
-int onTileWarp();
-int onTimedWarp();
-int onItemWarp();
-int onSideWarp();
-void EditWindWarp(int level);
-int onWhistle();
+int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t onTileWarpIndex(int32_t index);
+int32_t onTileWarp();
+int32_t onTimedWarp();
+int32_t onItemWarp();
+int32_t onSideWarp();
+void EditWindWarp(int32_t level);
+int32_t onWhistle();
 
 /*******************************/
 /*********** onPath ************/
 /*******************************/
 
-const char *dirlist(int index, int *list_size);
+const char *dirlist(int32_t index, int32_t *list_size);
 
-int onPath();
+int32_t onPath();
 
 /********************************/
 /********* onInfoTypes **********/
 /********************************/
 
-void EditInfoType(int index);
-int onInfoTypes();
+void EditInfoType(int32_t index);
+int32_t onInfoTypes();
 
 /********************************/
 /********* onShopTypes **********/
 /********************************/
 
-void EditShopType(int index);
-int onShopTypes();
+void EditShopType(int32_t index);
+int32_t onShopTypes();
 
 /***********************************/
 /********* onItemDropSets **********/
 /***********************************/
 
-int count_item_drop_sets();
-void EditItemDropSet(int index);
-int onItemDropSets();
+int32_t count_item_drop_sets();
+void EditItemDropSet(int32_t index);
+int32_t onItemDropSets();
 
 /********************************/
 /********* onWarpRings **********/
 /********************************/
 
-//int curr_ring;
+//int32_t curr_ring;
 
-void EditWarpRingScr(int ring,int index);
-int d_warplist_proc(int msg,DIALOG *d,int c);
-int d_wclist_proc(int msg,DIALOG *d,int c);
-const char *wclist(int index, int *list_size);
+void EditWarpRingScr(int32_t ring,int32_t index);
+int32_t d_warplist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_wclist_proc(int32_t msg,DIALOG *d,int32_t c);
+const char *wclist(int32_t index, int32_t *list_size);
 
-//int warpringdmapxy[8] = {160,106,160,80,160,92,160,144};
+//int32_t warpringdmapxy[8] = {160,106,160,80,160,92,160,144};
 
-int select_warp();
-void EditWarpRing(int ring);
-int onWarpRings();
+int32_t select_warp();
+void EditWarpRing(int32_t ring);
+int32_t onWarpRings();
 
 /********************************/
 /********** onEnemies ***********/
 /********************************/
 
-const char *pattern_list(int index, int *list_size);
-int onPattern();
-int onEnemyFlags();
-const char *enemy_viewer(int index, int *list_size);
+const char *pattern_list(int32_t index, int32_t *list_size);
+int32_t onPattern();
+int32_t onEnemyFlags();
+const char *enemy_viewer(int32_t index, int32_t *list_size);
 
 typedef struct enemy_struct
 {
     char *s;
-    int i;
+    int32_t i;
 } enemy_struct;
 
 #define zqMAXGUYS    gDUMMY1
@@ -1037,82 +1037,82 @@ extern enemy_struct bie[eMAXGUYS];
 extern enemy_struct big[zqMAXGUYS];
 void build_bie_list(bool hide);
 void build_big_list(bool hide);
-const char *enemylist(int index, int *list_size);
-const char *guylist(int index, int *list_size);
-int efrontfacingtile(int id);
-int select_enemy(const char *prompt,int enemy,bool hide,bool edit,int& exit_status);
-int select_guy(const char *prompt,int guy);
+const char *enemylist(int32_t index, int32_t *list_size);
+const char *guylist(int32_t index, int32_t *list_size);
+int32_t efrontfacingtile(int32_t id);
+int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool edit,int32_t& exit_status);
+int32_t select_guy(const char *prompt,int32_t guy);
 
-//unsigned char check[2] = { ';'+128,0 };
+//uint8_t check[2] = { ';'+128,0 };
 
-int onEnemies();
+int32_t onEnemies();
 
 /*******************************/
 /********** onHeader ***********/
 /*******************************/
 
 //char author[65],title[65],password[32];
-int d_showedit_proc(int msg,DIALOG *d,int c);
-int onHeader();
+int32_t d_showedit_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t onHeader();
 
-int PickRuleset();
-int onCheats();
-int RulesPage_1();
-int RulesPage_2();
-int RulesPage_3();
-int RulesPage_4();
-int RulesPage_5();
-int RulesPage_6();
-int RulesPage_7();
-int RulesPage_8();
-int RulesPage_9();
-int RulesPage_10();
-int onAnimationRules();
-int onWeaponRules();
-int onHeroRules();
-int onComboRules();
-int onItemRules();
-int onEnemyRules();
-int onFixesRules();
-int onMiscRules();
-int d_line_proc(int msg, DIALOG *d, int c);
-const char *subscrtypelist(int index, int *list_size);
-int InitPage_1();
-int InitPage_2();
-int InitPage_3();
-int InitPage_4();
-int InitPage_5();
-int InitPage_6();
-int InitPage_7();
-int InitPage_8();
-int onInit();
-int onItemProps();
-int onSubscreen();
+int32_t PickRuleset();
+int32_t onCheats();
+int32_t RulesPage_1();
+int32_t RulesPage_2();
+int32_t RulesPage_3();
+int32_t RulesPage_4();
+int32_t RulesPage_5();
+int32_t RulesPage_6();
+int32_t RulesPage_7();
+int32_t RulesPage_8();
+int32_t RulesPage_9();
+int32_t RulesPage_10();
+int32_t onAnimationRules();
+int32_t onWeaponRules();
+int32_t onHeroRules();
+int32_t onComboRules();
+int32_t onItemRules();
+int32_t onEnemyRules();
+int32_t onFixesRules();
+int32_t onMiscRules();
+int32_t d_line_proc(int32_t msg, DIALOG *d, int32_t c);
+const char *subscrtypelist(int32_t index, int32_t *list_size);
+int32_t InitPage_1();
+int32_t InitPage_2();
+int32_t InitPage_3();
+int32_t InitPage_4();
+int32_t InitPage_5();
+int32_t InitPage_6();
+int32_t InitPage_7();
+int32_t InitPage_8();
+int32_t onInit();
+int32_t onItemProps();
+int32_t onSubscreen();
 
-void get_cset(int dataset,int row,RGB *pal);
-void draw_edit_dataset_specs(int index,int copy);
+void get_cset(int32_t dataset,int32_t row,RGB *pal);
+void draw_edit_dataset_specs(int32_t index,int32_t copy);
 void init_colormixer();
-void colormixer(int color,int gray,int ratio);
-bool do_x_button(BITMAP *dest, int x, int y);
-void edit_dataset(int dataset);
-int pal_index(RGB *pal,RGB c);
-void grab_dataset(int dataset);
+void colormixer(int32_t color,int32_t gray,int32_t ratio);
+bool do_x_button(BITMAP *dest, int32_t x, int32_t y);
+void edit_dataset(int32_t dataset);
+int32_t pal_index(RGB *pal,RGB c);
+void grab_dataset(int32_t dataset);
 
 //byte cset_hold[15][16*3];
 //byte cset_hold_cnt;
 //bool cset_ready = false;
-//int cset_count,cset_first;
+//int32_t cset_count,cset_first;
 //PALETTE pal,undopal;
 
 //byte rc[16] = {253,248,0,0,0,0,0,246,247,249,250,251,252,240,255,254};
 
 void undo_pal();
-void calc_dark(int first);
-void edit_cycles(int level);
+void calc_dark(int32_t first);
+void edit_cycles(int32_t level);
 void draw_cset_proc(DIALOG *d);
-int d_cset_proc(int msg,DIALOG *d,int c);
+int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c);
 
-int d_dummy_proc(int msg,DIALOG *d,int c);
+int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
 
 //byte mainpal_csets[30]    = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14, 11,11,12,12,12,11, 10,10,10,12,10,10,10,10,9 };
 //byte levelpal_csets[26]   = { 2,3,4,9,2,3,4,2,3,4, 2, 3, 4,       15,15,15,15, 7,7,7, 8,8,8, 0,0,0 };
@@ -1120,23 +1120,23 @@ int d_dummy_proc(int msg,DIALOG *d,int c);
 //byte spritepal_csets[30]  = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14, 14,14,14,14,14,14, 14,14,14,14,14,14,14,14,14 };
 //byte spritepal2_csets[30] = { 15,16,17,18,19,20,21,22,23,24,25,26,27,28,29, 14,14,14,14,14,14, 14,14,14,14,14,14,14,14,14 };
 
-int EditColors(const char *caption,int first,int count,byte *label);
-//int onColors_Main();
-//int onColors_Levels();
-//int onColors_Sprites();
-int d_maptile_proc(int msg,DIALOG *d,int c);
-int onMapStyles();
-int d_misccolors_proc(int msg,DIALOG *d,int c);
-int onMiscColors();
-int onTestBox();
+int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label);
+//int32_t onColors_Main();
+//int32_t onColors_Levels();
+//int32_t onColors_Sprites();
+int32_t d_maptile_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t onMapStyles();
+int32_t d_misccolors_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t onMiscColors();
+int32_t onTestBox();
 
 
-int d_ticsedit_proc(int msg,DIALOG *d,int c);
+int32_t d_ticsedit_proc(int32_t msg,DIALOG *d,int32_t c);
 
 // ****  Palette cycling  ****
 
-//static int palclk[3];
-//static int palpos[3];
+//static int32_t palclk[3];
+//static int32_t palpos[3];
 
 void reset_pal_cycling();
 void cycle_palette();
@@ -1145,21 +1145,21 @@ void cycle_palette();
 /******  Help  ******/
 /********************/
 
-void doHelp(int bg,int fg);
-int onshieldblockhelp();
-int onZstringshelp();
-int onHelp();
-int onZScripthelp();
-int edit_layers(mapscr* tempscr);
-void autolayer(mapscr* tempscr, int layer, int al[6][3]);
-int findblankcombo();
-int onLayers();
+void doHelp(int32_t bg,int32_t fg);
+int32_t onshieldblockhelp();
+int32_t onZstringshelp();
+int32_t onHelp();
+int32_t onZScripthelp();
+int32_t edit_layers(mapscr* tempscr);
+void autolayer(mapscr* tempscr, int32_t layer, int32_t al[6][3]);
+int32_t findblankcombo();
+int32_t onLayers();
 
 // **** Timers ****
 
-//volatile int lastfps=0;
-//volatile int framecnt=0;
-extern volatile int myvsync;
+//volatile int32_t lastfps=0;
+//volatile int32_t framecnt=0;
+extern volatile int32_t myvsync;
 
 void myvsync_callback();
 void fps_callback();
@@ -1177,42 +1177,42 @@ void Z_eventlog(const char *format,...);
 void Z_scripterrlog(const char * const format,...);
 void zprint(const char * const format,...);
 void zprint2(const char * const format,...);
-int get_currdmap();
-int current_item(int item_type);
-int current_item_power(int item_type);
-int current_item_id(int item_type, bool checkmagic);
-bool can_use_item(int item_type, int item);
-bool has_item(int item_type, int it);
-int get_bmaps(int si);
+int32_t get_currdmap();
+int32_t current_item(int32_t item_type);
+int32_t current_item_power(int32_t item_type);
+int32_t current_item_id(int32_t item_type, bool checkmagic);
+bool can_use_item(int32_t item_type, int32_t item);
+bool has_item(int32_t item_type, int32_t it);
+int32_t get_bmaps(int32_t si);
 
 bool no_subscreen();
 
-extern int Awpn, Bwpn, Bpos, Xwpn, Ywpn;
+extern int32_t Awpn, Bwpn, Bpos, Xwpn, Ywpn;
 extern sprite_list Sitems;
 
-int main(int argc,char **argv);
-int d_nbmenu_proc(int msg,DIALOG *d,int c);
+int32_t main(int32_t argc,char **argv);
+int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
 void center_zquest_dialogs();
 void centre_zscript_dialogs();
 void animate_coords();
 void do_animations();
-int onZQVidMode();
+int32_t onZQVidMode();
 bool is_zquest();
-int save_config_file();
-int d_timer_proc(int msg, DIALOG *d, int c);
+int32_t save_config_file();
+int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 void check_autosave();
 
-void update_tooltip(int x, int y, int trigger_x, int trigger_y, int trigger_w, int trigger_h, char *tipmsg);
+void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char *tipmsg);
 void clear_tooltip();
 void ZQ_ClearQuestPath();
-void cflag_help(int id);
-void ctype_help(int id);
+void cflag_help(int32_t id);
+void ctype_help(int32_t id);
 void questrev_help();
 void questminrev_help();
 
 //throw together midi_strict hack
 #ifdef ALLEGRO_LINUX_GP2X
-extern int midi_strict;
+extern int32_t midi_strict;
 #endif
 
 // game.maps[] flags

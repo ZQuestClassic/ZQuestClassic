@@ -49,15 +49,15 @@ struct ListData
         unownedFunc(nullptr), ownedFunc(nullptr), font(nullptr), owner(nullptr)
     {}
 
-    ListData(const char *(*lf)(int, int*), FONT **f) noexcept:
+    ListData(const char *(*lf)(int32_t, int32_t*), FONT **f) noexcept:
         unownedFunc(lf), ownedFunc(nullptr), font(f), owner(nullptr)
     {}
 
-    ListData(const char *(*lf)(int, int*, void*), FONT **f, void* o) noexcept:
+    ListData(const char *(*lf)(int32_t, int32_t*, void*), FONT **f, void* o) noexcept:
         unownedFunc(nullptr), ownedFunc(lf), font(f), owner(o)
     {}
 
-    const char* listFunc(int index, int* size) const
+    const char* listFunc(int32_t index, int32_t* size) const
     {
         if(owner)
             return ownedFunc(index, size, owner);
@@ -65,8 +65,8 @@ struct ListData
             return unownedFunc(index, size);
     }
 
-    const char *(*unownedFunc)(int, int *);
-    const char *(*ownedFunc)(int, int *, void *);
+    const char *(*unownedFunc)(int32_t, int32_t *);
+    const char *(*ownedFunc)(int32_t, int32_t *, void *);
 
     FONT **font;
     void* owner;
@@ -134,18 +134,18 @@ enum
 	jcMAX
 };
 
-extern int abc_patternmatch;
+extern int32_t abc_patternmatch;
 
 /* a copy of the default color scheme; do what you want with this */
-extern int jwin_colors[jcMAX];
+extern int32_t jwin_colors[jcMAX];
 
-extern int scheme[jcMAX];
+extern int32_t scheme[jcMAX];
 
-extern int mix_value(int c1,int c2,int pos,int max);
+extern int32_t mix_value(int32_t c1,int32_t c2,int32_t pos,int32_t max);
 
 /* 1.5k lookup table for color matching */
-extern unsigned int col_diff[3*128];
-extern int last_droplist_sel;
+extern uint32_t col_diff[3*128];
+extern int32_t last_droplist_sel;
 
 /* Used to indicate the new GUI dialog root. */
 extern char newGuiMarker;
@@ -164,7 +164,7 @@ do                                             \
 {                                              \
     if(dlg->flags&D_NEW_GUI)                   \
     {                                          \
-        int ret = new_gui_event(dlg-1, event); \
+        int32_t ret = new_gui_event(dlg-1, event); \
         if(ret >= 0)                           \
             return ret;                        \
     }                                          \
@@ -173,118 +173,118 @@ do                                             \
 /* Triggers a message in the new GUI system. You should use the macro below
  * instead of calling this directly.
  */
-int new_gui_event(DIALOG* d, guiEvent event);
+int32_t new_gui_event(DIALOG* d, guiEvent event);
 
-int get_selected_tab(TABPANEL* panel);
+int32_t get_selected_tab(TABPANEL* panel);
 
 /* you should call this before using the other procedures */
-void jwin_set_colors(int *colors);
+void jwin_set_colors(int32_t *colors);
 
 /* drawing routines */
-void jwin_draw_frame(BITMAP *dest,int x,int y,int w,int h,int style);
-void jwin_draw_minimap_frame(BITMAP *dest,int x,int y,int w,int h,int scrsz,int style);
-void jwin_draw_win(BITMAP *dest,int x,int y,int w,int h,int frame);
-void jwin_draw_button(BITMAP *dest,int x,int y,int w,int h,int state,int type);
-void draw_x_button(BITMAP *dest, int x, int y, int state);
-char *shorten_string(char *dest, char *src, FONT *usefont, int maxchars, int maxwidth);
-void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, const char *str, bool draw_button);
-void jwin_draw_text_button(BITMAP *dest, int x, int y, int w, int h, const char *str, int flags, bool show_dotted_rect);
-void jwin_draw_graphics_button(BITMAP *dest, int x, int y, int w, int h, BITMAP *bmp, BITMAP *bmp2, int flags, bool show_dotted_rect, bool overlay);
+void jwin_draw_frame(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t style);
+void jwin_draw_minimap_frame(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t scrsz,int32_t style);
+void jwin_draw_win(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame);
+void jwin_draw_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t state,int32_t type);
+void draw_x_button(BITMAP *dest, int32_t x, int32_t y, int32_t state);
+char *shorten_string(char *dest, char *src, FONT *usefont, int32_t maxchars, int32_t maxwidth);
+void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, bool draw_button);
+void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, int32_t flags, bool show_dotted_rect);
+void jwin_draw_graphics_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, BITMAP *bmp, BITMAP *bmp2, int32_t flags, bool show_dotted_rect, bool overlay);
 
 /* Allegro DIALOG procedures */
-int jwin_win_proc(int msg, DIALOG *d, int c);
-int jwin_frame_proc(int msg, DIALOG *d, int c);
-int jwin_guitest_proc(int msg, DIALOG *d, int c);
-int jwin_button_proc(int msg, DIALOG *d, int c);
-int jwin_func_button_proc(int msg, DIALOG *d, int c);
-int jwin_text_proc(int msg, DIALOG *d, int c);
-int jwin_ctext_proc(int msg, DIALOG *d, int c);
-int jwin_rtext_proc(int msg, DIALOG *d, int c);
-int new_text_proc(int msg, DIALOG *d, int c);
-int jwin_edit_proc(int msg, DIALOG *d, int c);
-int jwin_hexedit_proc(int msg,DIALOG *d,int c); /**< Restricted only to hex. numbers */
-int jwin_numedit_zscriptint_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers,  bound to ZScript int (no decimals) */
-int jwin_numedit_byte_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to unsigned byte (8b) */
-int jwin_numedit_sbyte_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to signed byte (8b) */
-int jwin_numedit_short_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to unsigned short int (16b) */
-int jwin_numedit_sshort_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers, bound to signed short int (16b) */
-int jwin_numedit_proc(int msg,DIALOG *d,int c); /**< Restricted only to dec. numbers */
+int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_frame_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_guitest_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_text_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_ctext_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to hex. numbers */
+int32_t jwin_numedit_zscriptint_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers,  bound to ZScript int32_t (no decimals) */
+int32_t jwin_numedit_byte_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers, bound to unsigned byte (8b) */
+int32_t jwin_numedit_sbyte_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers, bound to signed byte (8b) */
+int32_t jwin_numedit_short_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers, bound to uint16_t int32_t (16b) */
+int32_t jwin_numedit_sshort_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers, bound to int16_t (16b) */
+int32_t jwin_numedit_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers */
 //
-int jwin_swapbtn_proc(int msg,DIALOG *d,int c); //Button to swap numedit styles
-int jwin_numedit_swap_byte_proc(int msg,DIALOG *d,int c); //Bound to unsigned byte, dec and hex modes
-int jwin_numedit_swap_sshort_proc(int msg,DIALOG *d,int c); //Bound to signed short, dec and hex modes
-int jwin_numedit_swap_zsint_proc(int msg,DIALOG *d,int c); //Bound to signed int, dec and hex modes, 4 dec places, long modes
+int32_t jwin_swapbtn_proc(int32_t msg,DIALOG *d,int32_t c); //Button to swap numedit styles
+int32_t jwin_numedit_swap_byte_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to unsigned byte, dec and hex modes
+int32_t jwin_numedit_swap_sshort_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int16_t, dec and hex modes
+int32_t jwin_numedit_swap_zsint_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int32_t, dec and hex modes, 4 dec places, int32_t modes
 //
-int jwin_list_proc(int msg, DIALOG *d, int c);
-int jwin_textbox_proc(int msg, DIALOG *d, int c);
-int jwin_slider_proc(int msg, DIALOG *d, int c);
-int jwin_menu_proc(int msg, DIALOG *d, int c);
-int jwin_droplist_proc(int msg, DIALOG *d, int c);
-int jwin_abclist_proc(int msg, DIALOG *d, int c);
-int jwin_check_proc(int msg, DIALOG *d, int c);
-int jwin_checkfont_proc(int msg, DIALOG *d, int c);
-int new_check_proc(int msg, DIALOG *d, int c);
-int jwin_radio_proc(int msg, DIALOG *d, int c);
-int jwin_radiofont_proc(int msg, DIALOG *d, int c);
-int jwin_tab_proc(int msg, DIALOG *d, int c);
-int new_tab_proc(int msg, DIALOG *d, int c);
-int jwin_hline_proc(int msg, DIALOG *d, int c);
-int jwin_vline_proc(int msg, DIALOG *d, int c);
+int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_slider_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_droplist_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_abclist_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_checkfont_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_radio_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_radiofont_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_hline_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_vline_proc(int32_t msg, DIALOG *d, int32_t c);
 void _jwin_draw_abclistbox(DIALOG *d);
-int jwin_do_abclist_proc(int msg, DIALOG *d, int c);
+int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c);
 void wipe_abc_keypresses();
 
 /* other GUI procedures */
 void jwin_set_dialog_color(DIALOG *dialog);
 
-int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int x, int y, int color, int bg, int pos);
-int gui_text_width(FONT *f, const char *s);
+int32_t gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int32_t x, int32_t y, int32_t color, int32_t bg, int32_t pos);
+int32_t gui_text_width(FONT *f, const char *s);
 
-int jwin_do_menu(MENU *menu, int x, int y);
+int32_t jwin_do_menu(MENU *menu, int32_t x, int32_t y);
 
-int jwin_color_swatch(int msg, DIALOG *d, int c);
+int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c);
 
-int jwin_alert3(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3, FONT *title_font);
-int jwin_alert(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int c1, int c2, FONT *title_font);
-int jwin_auto_alert3(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3, FONT *title_font);
-int jwin_auto_alert(const char *title, const char *s1, int lenlim, int vspace, const char *b1, const char *b2, int c1, int c2, FONT *title_font);
+int32_t jwin_alert3(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int32_t c1, int32_t c2, int32_t c3, FONT *title_font);
+int32_t jwin_alert(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int32_t c1, int32_t c2, FONT *title_font);
+int32_t jwin_auto_alert3(const char *title, const char *s1, int32_t lenlim, int32_t vspace, const char *b1, const char *b2, const char *b3, int32_t c1, int32_t c2, int32_t c3, FONT *title_font);
+int32_t jwin_auto_alert(const char *title, const char *s1, int32_t lenlim, int32_t vspace, const char *b1, const char *b2, int32_t c1, int32_t c2, FONT *title_font);
 
 /* event handler that closes a dialog */
-int close_dlg();
-int mouse_in_rect(int x,int y,int w,int h);
+int32_t close_dlg();
+int32_t mouse_in_rect(int32_t x,int32_t y,int32_t w,int32_t h);
 
 void bestfit_init(void);
-int bestfit_color_range(AL_CONST PALETTE pal, int r, int g, int b, unsigned char start, unsigned char end);
-int makecol8_map(int r, int g, int b, RGB_MAP *table);
-void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char start, unsigned char end, void (*callback)(int pos));
-int short_bmp_avg(BITMAP *bmp, int i);
-void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
-                 int src_color1, int src_color2, unsigned char dest_color1,
-                 unsigned char dest_color2);
-bool do_text_button_reset(int x,int y,int w,int h,const char *text);
+int32_t bestfit_color_range(AL_CONST PALETTE pal, int32_t r, int32_t g, int32_t b, uint8_t start, uint8_t end);
+int32_t makecol8_map(int32_t r, int32_t g, int32_t b, RGB_MAP *table);
+void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, uint8_t start, uint8_t end, void (*callback)(int32_t pos));
+int32_t short_bmp_avg(BITMAP *bmp, int32_t i);
+void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                 int32_t src_color1, int32_t src_color2, uint8_t dest_color1,
+                 uint8_t dest_color2);
+bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 void jwin_center_dialog(DIALOG *dialog);
 void jwin_ulalign_dialog(DIALOG *dialog);
 
-void _calc_scroll_bar(int h, int height, int listsize, int offset,
-                      int *bh, int *len, int *pos);
-void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int state);
-void draw_arrow_button_horiz(BITMAP *dest, int x, int y, int w, int h, int up, int state);
+void _calc_scroll_bar(int32_t h, int32_t height, int32_t listsize, int32_t offset,
+                      int32_t *bh, int32_t *len, int32_t *pos);
+void draw_arrow_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state);
+void draw_arrow_button_horiz(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state);
 
 
-void dotted_rect(BITMAP *dest, int x1, int y1, int x2, int y2, int fg, int bg);
-void _jwin_draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int type);
-void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, FONT *fnt);
+void dotted_rect(BITMAP *dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t fg, int32_t bg);
+void _jwin_draw_scrollable_frame(DIALOG *d, int32_t listsize, int32_t offset, int32_t height, int32_t type);
+void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *offset, FONT *fnt);
 
-extern int  popup_zqdialog(DIALOG *dialog, int focus_obj);
-extern int  do_zqdialog(DIALOG *dialog, int focus_obj);
+extern int32_t  popup_zqdialog(DIALOG *dialog, int32_t focus_obj);
+extern int32_t  do_zqdialog(DIALOG *dialog, int32_t focus_obj);
 
-int d_jslider_proc(int msg, DIALOG *d, int c);
-int d_jwinbutton_proc(int msg, DIALOG *d, int c);
+int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t c);
 
 //Misc bitmap drawing
-void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color);
+void draw_x(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color);
 
-int d_vsync_proc(int msg,DIALOG *,int c);
+int32_t d_vsync_proc(int32_t msg,DIALOG *,int32_t c);
 
 #ifdef __cplusplus
 }

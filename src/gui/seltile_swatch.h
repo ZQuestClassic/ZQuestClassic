@@ -12,13 +12,13 @@ class SelTileSwatch: public Widget
 public:
 	SelTileSwatch();
 
-	void setTile(int value);
-	void setCSet(int value);
+	void setTile(int32_t value);
+	void setCSet(int32_t value);
 
-	int getTile();
-	int getCSet();
+	int32_t getTile();
+	int32_t getCSet();
 
-	void setOnSelectFunc(std::function<void(int,int)> newOnSelect)
+	void setOnSelectFunc(std::function<void(int32_t,int32_t)> newOnSelect)
 	{
 		onSelectFunc = newOnSelect;
 	}
@@ -26,19 +26,19 @@ public:
 	template<typename T>
 	RequireMessage<T> onSelectionChanged(T m)
 	{
-		message = static_cast<int>(m);
+		message = static_cast<int32_t>(m);
 	}
 protected:
-	int message;
+	int32_t message;
 private:
-	int tile, cset;
+	int32_t tile, cset;
 	DialogRef alDialog;
-	std::function<void(int,int)> onSelectFunc;
+	std::function<void(int32_t,int32_t)> onSelectFunc;
 	
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
 	void calculateSize() override;
-	int onEvent(int event, MessageDispatcher& sendMessage) override;
+	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 	void applyFont(FONT* newFont) override;
 };
 

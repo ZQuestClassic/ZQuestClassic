@@ -31,29 +31,29 @@
 #include "zq_cset.h"
 #include "zq_class.h"
 
-extern int d_dummy_proc(int msg,DIALOG *d,int c);
-extern int d_dropdmaplist_proc(int msg,DIALOG *d,int c);
-extern int onHelp();
+extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t onHelp();
 extern FONT *lfont;
-extern int jwin_pal[jcMAX];
-extern const char *dmaplist(int index, int *list_size);
+extern int32_t jwin_pal[jcMAX];
+extern const char *dmaplist(int32_t index, int32_t *list_size);
 extern bool saved;
-extern int dmap_list_size;
+extern int32_t dmap_list_size;
 extern bool dmap_list_zero;
 extern zinitdata zinit;
-extern int startdmapxy[6];
+extern int32_t startdmapxy[6];
 extern PALETTE RAMpal;
 
 
 #include "gfxpal.h"
 
-int color_index=0, color_copy=-1;
+int32_t color_index=0, color_copy=-1;
 
-void get_cset(int dataset,int row,RGB *pal)
+void get_cset(int32_t dataset,int32_t row,RGB *pal)
 {
     saved=false;
     
-    for(int i=0; i<16; i++)
+    for(int32_t i=0; i<16; i++)
     {
         colordata[(CSET(dataset)+i)*3]   = pal[(row<<4)+i].r;
         colordata[(CSET(dataset)+i)*3+1] = pal[(row<<4)+i].g;
@@ -61,16 +61,16 @@ void get_cset(int dataset,int row,RGB *pal)
     }
 }
 
-int color = 0;
-int gray  = 0;
-int ratio = 32;
+int32_t color = 0;
+int32_t gray  = 0;
+int32_t ratio = 32;
 
-int jwin_hsl_proc(int msg, DIALOG *d, int c);
-int jwin_cset_proc(int msg, DIALOG* d, int c);
-int edit_cset_kb_handler(int msg, DIALOG* d, int c);
+int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c);
+int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c);
 void onInsertColor();
 void onInsertColor_Text();
-void jumpText(int r, int g, int b);
+void jumpText(int32_t r, int32_t g, int32_t b);
 void onJumpText();
 void onJumpHSL();
 
@@ -105,7 +105,7 @@ static DIALOG edit_cset_dlg[] =
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int jwin_hsl_proc(int msg, DIALOG *d, int c)
+int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 #define HSL_FLAG_HASMOUSE	1
 #define HSL_FLAG_COLOR		2
@@ -115,8 +115,8 @@ int jwin_hsl_proc(int msg, DIALOG *d, int c)
 	//d->w and d->h are ignored
 	d->w = (is_large?1.5:1)*174;
 	d->h = (is_large?1.5:1)*88;
-	int ret = D_O_K;
-	static int hue_x_offs = 24, hue_y_offs = 2, light_x_offs = 2, light_y_offs = 24,
+	int32_t ret = D_O_K;
+	static int32_t hue_x_offs = 24, hue_y_offs = 2, light_x_offs = 2, light_y_offs = 24,
 		sat_x_offs = 158, sat_y_offs = 24, c_x_offs = 24, c_y_offs = 24, c_wid = 128, c_hei = 64, misc_wh = 16;
 	if(d->flags & D_DIRTY)
 	{
@@ -137,9 +137,9 @@ int jwin_hsl_proc(int msg, DIALOG *d, int c)
 		c_hei *= 1.5;
 		misc_wh *= 1.5;
 	}
-	int clr = color, gr = gray, rat = ratio;
-	int x=gui_mouse_x();
-	int y=gui_mouse_y();
+	int32_t clr = color, gr = gray, rat = ratio;
+	int32_t x=gui_mouse_x();
+	int32_t y=gui_mouse_y();
 	switch(msg)
 	{
 		case MSG_START:
@@ -197,26 +197,26 @@ int jwin_hsl_proc(int msg, DIALOG *d, int c)
 			custom_vsync();
 			scare_mouse();
 			//Hue
-			jwin_draw_frame(screen, d->x+hue_x_offs-2, d->y+hue_y_offs-2, int(128*(is_large?1.5:1)+4), misc_wh+4, FR_DEEP);
-			for(int i=0; i<128; i++)
+			jwin_draw_frame(screen, d->x+hue_x_offs-2, d->y+hue_y_offs-2, int32_t(128*(is_large?1.5:1)+4), misc_wh+4, FR_DEEP);
+			for(int32_t i=0; i<128; i++)
 			{
-				rectfill(screen,int(floor(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs,int(ceil(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs+misc_wh-1,i);
+				rectfill(screen,int32_t(floor(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs,int32_t(ceil(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs+misc_wh-1,i);
 			}
 			//Light
-			jwin_draw_frame(screen, d->x+light_x_offs-2, d->y+light_y_offs-2, misc_wh+4, int(64*(is_large?1.5:1)+4), FR_DEEP);
-			for(int i=0; i<32; i++)
+			jwin_draw_frame(screen, d->x+light_x_offs-2, d->y+light_y_offs-2, misc_wh+4, int32_t(64*(is_large?1.5:1)+4), FR_DEEP);
+			for(int32_t i=0; i<32; i++)
 			{
-				rectfill(screen,d->x+light_x_offs,((int)floor(i*(is_large?1.5:1))<<1)+d->y+light_y_offs,
-						 d->x+light_x_offs+misc_wh-1,((int)ceil(i*(is_large?1.5:1))<<1)+d->y+light_y_offs+1,i+128);
+				rectfill(screen,d->x+light_x_offs,((int32_t)floor(i*(is_large?1.5:1))<<1)+d->y+light_y_offs,
+						 d->x+light_x_offs+misc_wh-1,((int32_t)ceil(i*(is_large?1.5:1))<<1)+d->y+light_y_offs+1,i+128);
 			}
 			//Saturation
-			jwin_draw_frame(screen, d->x + (sat_x_offs-2), d->y + (sat_y_offs-2), misc_wh+4, int(64*(is_large?1.5:1)+4), FR_DEEP);
-			for(int i=0; i<32; i++)
+			jwin_draw_frame(screen, d->x + (sat_x_offs-2), d->y + (sat_y_offs-2), misc_wh+4, int32_t(64*(is_large?1.5:1)+4), FR_DEEP);
+			for(int32_t i=0; i<32; i++)
 			{
 				RAMpal[i+160] = mixRGB(gfx_pal[clr*3],gfx_pal[clr*3+1],
 									   gfx_pal[clr*3+2],gr,gr,gr,i<<1); //saturatn
-				rectfill(screen,d->x + sat_x_offs,((int)floor(i*(is_large?1.5:1))<<1)+d->y+sat_y_offs,
-						 d->x+sat_x_offs+misc_wh-1,((int)ceil(i*(is_large?1.5:1))<<1)+d->y+sat_y_offs+1,i+160);
+				rectfill(screen,d->x + sat_x_offs,((int32_t)floor(i*(is_large?1.5:1))<<1)+d->y+sat_y_offs,
+						 d->x+sat_x_offs+misc_wh-1,((int32_t)ceil(i*(is_large?1.5:1))<<1)+d->y+sat_y_offs+1,i+160);
 			}
 			RAMpal[edc] = mixRGB(gfx_pal[clr*3],gfx_pal[clr*3+1],gfx_pal[clr*3+2],gr,gr,gr,rat);
 			RAMpal[edi] = invRGB(RAMpal[edc]);
@@ -229,8 +229,8 @@ int jwin_hsl_proc(int msg, DIALOG *d, int c)
 			_allegro_vline(screen,color+d->x+c_x_offs,d->y+c_y_offs,d->y+c_y_offs+c_hei-1,edi);
 			_allegro_hline(screen,d->x+sat_x_offs,ratio+d->y+sat_y_offs,d->x+sat_x_offs+misc_wh-1,edi);
 			if((edit_cset_dlg[19].flags & D_SELECTED))
-				textprintf_centre_ex(screen,font,d->x+(d->w/2),int(d->y+c_y_offs+c_hei+10*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %3d %3d %3d  ",RAMpal[edc].r*4,RAMpal[edc].g*4,RAMpal[edc].b*4);
-			else textprintf_centre_ex(screen,font,d->x+(d->w/2),int(d->y+c_y_offs+c_hei+10*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
+				textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %3d %3d %3d  ",RAMpal[edc].r*4,RAMpal[edc].g*4,RAMpal[edc].b*4);
+			else textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
 			unscare_mouse();
 			SCRFIX();
 			break;
@@ -238,13 +238,13 @@ int jwin_hsl_proc(int msg, DIALOG *d, int c)
 	return ret;
 }
 
-int jwin_cset_proc(int msg, DIALOG* d, int c)
+int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c)
 {
-	static int cs_hei = 8;
-	static int last_index = 0, last_copy = 0;
-	static int lastshow16 = 0;
+	static int32_t cs_hei = 8;
+	static int32_t last_index = 0, last_copy = 0;
+	static int32_t lastshow16 = 0;
 	ASSERT(d);
-	int ret = D_O_K;
+	int32_t ret = D_O_K;
 	if(d->flags & D_DIRTY)
 	{
 		ret |= D_REDRAWME;
@@ -256,7 +256,7 @@ int jwin_cset_proc(int msg, DIALOG* d, int c)
 		char* c1 = (char*)edit_cset_dlg[10].dp;
 		char* c2 = (char*)edit_cset_dlg[11].dp;
 		char* c3 = (char*)edit_cset_dlg[12].dp;
-		int r = atoi(c1), g = atoi(c2), b = atoi(c3);
+		int32_t r = atoi(c1), g = atoi(c2), b = atoi(c3);
 		
 		if(!lastshow16) //Just turned off
 		{
@@ -272,8 +272,8 @@ int jwin_cset_proc(int msg, DIALOG* d, int c)
 		cs_hei *= 1.5;
 		d->h = cs_hei * 3;
 	}
-	int x = gui_mouse_x();
-	int y = gui_mouse_y();
+	int32_t x = gui_mouse_x();
+	int32_t y = gui_mouse_y();
 	if(gui_mouse_b()!=1) d->d1 = -1;
 	switch(msg)
 	{
@@ -284,7 +284,7 @@ int jwin_cset_proc(int msg, DIALOG* d, int c)
 			break;
 		case MSG_LPRESS:
 		{
-			int new_index=vbound((int)((x-d->x)/(is_large?1.5:1))>>3,0,15);
+			int32_t new_index=vbound((int32_t)((x-d->x)/(is_large?1.5:1))>>3,0,15);
 			if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y + d->h - 1))
 				d->d1 = new_index;
 			break;
@@ -299,7 +299,7 @@ int jwin_cset_proc(int msg, DIALOG* d, int c)
 		case MSG_IDLE:
 			if(gui_mouse_b()==1)
 			{
-				int new_index=vbound((int)((x-d->x)/(is_large?1.5:1))>>3,0,15);
+				int32_t new_index=vbound((int32_t)((x-d->x)/(is_large?1.5:1))>>3,0,15);
                 
                 if(color_index!=new_index && (d->d1 > -1 || isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y + d->h - 1)))
                 {
@@ -307,12 +307,12 @@ int jwin_cset_proc(int msg, DIALOG* d, int c)
 					{
 						if(color_index<new_index)
 						{
-							for(int i=color_index; i<new_index; ++i)
+							for(int32_t i=color_index; i<new_index; ++i)
 								zc_swap(RAMpal[14*16+i], RAMpal[14*16+i+1]);
 						}
 						else
 						{
-							for(int i=color_index; i>new_index; --i)
+							for(int32_t i=color_index; i>new_index; --i)
 								zc_swap(RAMpal[14*16+i], RAMpal[14*16+i-1]);
 						}
 					}
@@ -331,45 +331,45 @@ int jwin_cset_proc(int msg, DIALOG* d, int c)
 			rectfill(screen,d->x-2,d->y-2,d->x+d->w+4,d->y+d->h+20,jwin_pal[jcBOX]);
 			// Old colors
 			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, cs_hei+4, FR_DEEP);
-			for(int i=0; i<16; ++i)
+			for(int32_t i=0; i<16; ++i)
 			{
-				rectfill(screen,int((i<<3)*(is_large?1.5:1)+d->x),d->y,int((i<<3)*(is_large?1.5:1)+d->x+cs_hei-1),d->y+cs_hei-1,12*16+i);
+				rectfill(screen,int32_t((i<<3)*(is_large?1.5:1)+d->x),d->y,int32_t((i<<3)*(is_large?1.5:1)+d->x+cs_hei-1),d->y+cs_hei-1,12*16+i);
 			}
 			// New colors
 			jwin_draw_frame(screen, d->x-2, d->y-2+(cs_hei*2), d->w+4, cs_hei+4, FR_DEEP);
-			for(int i=0; i<16; ++i)
+			for(int32_t i=0; i<16; ++i)
 			{
-				rectfill(screen,int((i<<3)*(is_large?1.5:1)+d->x),d->y+(cs_hei*2),int((i<<3)*(is_large?1.5:1)+d->x+cs_hei-1),d->y+cs_hei-1+(cs_hei*2),14*16+i);
+				rectfill(screen,int32_t((i<<3)*(is_large?1.5:1)+d->x),d->y+(cs_hei*2),int32_t((i<<3)*(is_large?1.5:1)+d->x+cs_hei-1),d->y+cs_hei-1+(cs_hei*2),14*16+i);
 			}
 			//Text
-			rectfill(screen,d->x,d->y + d->h + 3,d->x + d->w - 1,int(d->y + d->h + (32*(is_large?1.5:1))),jwin_pal[jcBOX]);
+			rectfill(screen,d->x,d->y + d->h + 3,d->x + d->w - 1,int32_t(d->y + d->h + (32*(is_large?1.5:1))),jwin_pal[jcBOX]);
 			
 			if(color_copy>=0)
 			{
-				textout_ex(screen,(is_large?lfont_l:font),"\x81",int((color_copy<<3)*(is_large?1.5:1)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+				textout_ex(screen,(is_large?lfont_l:font),"\x81",int32_t((color_copy<<3)*(is_large?1.5:1)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 			}
 			
-			textout_ex(screen,(is_large?lfont_l:font),"\x88",int((color_index<<3)*(is_large?1.5:1)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+			textout_ex(screen,(is_large?lfont_l:font),"\x88",int32_t((color_index<<3)*(is_large?1.5:1)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 			
 			if((edit_cset_dlg[19].flags & D_SELECTED))
 			{
-				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int(12*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r*4,RAMpal[12*16+color_index].g*4,RAMpal[12*16+color_index].b*4);
-				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int(22*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %3d %3d %3d",color_index, RAMpal[14*16+color_index].r*4,RAMpal[14*16+color_index].g*4,RAMpal[14*16+color_index].b*4);
+				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int32_t(12*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r*4,RAMpal[12*16+color_index].g*4,RAMpal[12*16+color_index].b*4);
+				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int32_t(22*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %3d %3d %3d",color_index, RAMpal[14*16+color_index].r*4,RAMpal[14*16+color_index].g*4,RAMpal[14*16+color_index].b*4);
 			}
 			else
 			{
-				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int(12*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %2d %2d %2d",color_index, RAMpal[12*16+color_index].r,RAMpal[12*16+color_index].g,RAMpal[12*16+color_index].b);
-				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int(22*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %2d %2d %2d",color_index, RAMpal[14*16+color_index].r,RAMpal[14*16+color_index].g,RAMpal[14*16+color_index].b);
+				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int32_t(12*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %2d %2d %2d",color_index, RAMpal[12*16+color_index].r,RAMpal[12*16+color_index].g,RAMpal[12*16+color_index].b);
+				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int32_t(22*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %2d %2d %2d",color_index, RAMpal[14*16+color_index].r,RAMpal[14*16+color_index].g,RAMpal[14*16+color_index].b);
 			}
 			break;
 	}
 	return ret;
 }
 
-int edit_cset_kb_handler(int msg, DIALOG* d, int c)
+int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 {
 	ASSERT(d);
-	int ret = D_O_K;
+	int32_t ret = D_O_K;
 	switch(msg)
 	{
 		case MSG_START:
@@ -563,7 +563,7 @@ void onInsertColor()
 
 void onInsertColor_Text()
 {
-	int r = atoi((char*)edit_cset_dlg[10].dp),
+	int32_t r = atoi((char*)edit_cset_dlg[10].dp),
 		g = atoi((char*)edit_cset_dlg[11].dp),
 		b = atoi((char*)edit_cset_dlg[12].dp);
 	if(edit_cset_dlg[19].flags & D_SELECTED)
@@ -585,7 +585,7 @@ void onInsertColor_Text()
 	edit_cset_dlg[9].flags |= D_DIRTY;
 }
 
-void jumpText(int r, int g, int b)
+void jumpText(int32_t r, int32_t g, int32_t b)
 {
 	if(edit_cset_dlg[19].flags & D_SELECTED)
 	{
@@ -596,7 +596,7 @@ void jumpText(int r, int g, int b)
 	char* c1 = (char*)edit_cset_dlg[10].dp;
 	char* c2 = (char*)edit_cset_dlg[11].dp;
 	char* c3 = (char*)edit_cset_dlg[12].dp;
-	for(int q = 0; q < 2; ++q)
+	for(int32_t q = 0; q < 2; ++q)
 	{
 		c1[q] = 0;
 		c2[q] = 0;
@@ -622,17 +622,17 @@ void onJumpHSL()
 
 void init_gfxpal()
 {
-	for(int i=0; i<128; i++)
+	for(int32_t i=0; i<128; i++)
 	{
 		RAMpal[i] = _RGB(gfx_pal+i*3); //hue
 	}
-	for(int i=0; i<32; i++)
+	for(int32_t i=0; i<32; i++)
 	{
 		RAMpal[i+128] = _RGB(i<<1,i<<1,i<<1); //lightness
 	}
 }
 
-void edit_dataset(int dataset)
+void edit_dataset(int32_t dataset)
 {
 	PALETTE holdpal;
 	memcpy(holdpal,RAMpal,sizeof(RAMpal));
@@ -657,7 +657,7 @@ void edit_dataset(int dataset)
 	
 	while(gui_mouse_b()) {} //Do nothing
 	edit_cset_dlg[0].dp2 = lfont;
-	int ret = zc_popup_dialog(edit_cset_dlg,3);
+	int32_t ret = zc_popup_dialog(edit_cset_dlg,3);
 	al_trace("DLG RETURN VAL -------------------------- %d", ret);
 	switch(ret)
 	{
@@ -677,26 +677,26 @@ void edit_dataset(int dataset)
 	font = old;
 }
 
-int pal_index(RGB *pal,RGB c)
+int32_t pal_index(RGB *pal,RGB c)
 {
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
         if(pal[i].r==c.r && pal[i].g==c.g && pal[i].b==c.b)
             return i;
             
     return -1;
 }
 
-void grab_dataset(int dataset)
+void grab_dataset(int32_t dataset)
 {
-    int row=0;
-    static int palx=176;
-    static int paly=64;
-    int imagex=0;
-    int imagey=0;
-    int buttonx=184;
-    int buttony=195;
-    int filenamex=0;
-    int filenamey=232;
+    int32_t row=0;
+    static int32_t palx=176;
+    static int32_t paly=64;
+    int32_t imagex=0;
+    int32_t imagey=0;
+    int32_t buttonx=184;
+    int32_t buttony=195;
+    int32_t filenamex=0;
+    int32_t filenamey=232;
     
     if(is_large)
     {
@@ -721,8 +721,8 @@ void grab_dataset(int dataset)
     rgb_map = &rgb_table;
     create_color_table(&imagepal_table, RAMpal, return_RAMpal_color, NULL);
     
-    int jwin_pal2[jcMAX];
-    memcpy(jwin_pal2, jwin_pal, sizeof(int)*jcMAX);
+    int32_t jwin_pal2[jcMAX];
+    memcpy(jwin_pal2, jwin_pal, sizeof(int32_t)*jcMAX);
     
     jwin_pal[jcBOX]    =imagepal_table.data[0][jwin_pal[jcBOX]];
     jwin_pal[jcLIGHT]  =imagepal_table.data[0][jwin_pal[jcLIGHT]];
@@ -743,8 +743,8 @@ void grab_dataset(int dataset)
     jwin_set_colors(jwin_pal);
     
     get_bw(picpal,pblack,pwhite);
-    int bg = gui_bg_color;
-    int fg = gui_fg_color;
+    int32_t bg = gui_bg_color;
+    int32_t fg = gui_fg_color;
     gui_bg_color = pblack;
     gui_fg_color = pwhite;
     
@@ -760,8 +760,8 @@ void grab_dataset(int dataset)
     
     bool redraw=true;
     bool reload=false;
-    int done=0;
-    int f=0;
+    int32_t done=0;
+    int32_t f=0;
     FONT *fnt = font;
     
     if(is_large)
@@ -770,8 +770,8 @@ void grab_dataset(int dataset)
     do
     {
         rest(1);
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
+        int32_t x=gui_mouse_x();
+        int32_t y=gui_mouse_y();
         
         custom_vsync();
         
@@ -879,10 +879,10 @@ void grab_dataset(int dataset)
                 //        tmp = picpal;
                 memcpy(tmp,picpal,sizeof(picpal));
                 
-                for(int i=0; i<16; i++)
+                for(int32_t i=0; i<16; i++)
                     tmp[(row<<4)+i] = invRGB(tmp[(row<<4)+i]);
                     
-                for(int i=0; i<12; i++)
+                for(int32_t i=0; i<12; i++)
                 {
                     custom_vsync();
                     
@@ -907,10 +907,10 @@ void grab_dataset(int dataset)
         
         scare_mouse();
         
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
         {
-            int x2=((i&15)<<3)+palx;
-            int y2=((i>>4)<<3)+paly;
+            int32_t x2=((i&15)<<3)+palx;
+            int32_t y2=((i>>4)<<3)+paly;
             rectfill(screen2,x2,y2,x2+7,y2+7,i);
         }
         
@@ -949,7 +949,7 @@ void grab_dataset(int dataset)
     
     set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
     clear_to_color(mouse_bmp[MOUSE_BMP_BLANK][0],0);
-    memcpy(jwin_pal, jwin_pal2, sizeof(int)*jcMAX);
+    memcpy(jwin_pal, jwin_pal2, sizeof(int32_t)*jcMAX);
     
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
@@ -963,7 +963,7 @@ void grab_dataset(int dataset)
 byte cset_hold[15][16*3];
 byte cset_hold_cnt;
 bool cset_ready = false;
-int cset_count,cset_first;
+int32_t cset_count,cset_first;
 PALETTE pal,undopal;
 
 //#define FLASH 243
@@ -971,14 +971,14 @@ PALETTE pal,undopal;
 
 void undo_pal()
 {
-    for(int i=0; i<cset_count; i++)
+    for(int32_t i=0; i<cset_count; i++)
         get_cset(cset_first+i,i,undopal);
         
     //  undopal=pal;
     memcpy(undopal,pal,sizeof(pal));
 }
 
-void calc_dark(int first)
+void calc_dark(int32_t first)
 {
     //  undopal=pal;
     memcpy(undopal,pal,sizeof(pal));
@@ -989,17 +989,17 @@ void calc_dark(int first)
     
     fade_interpolate(pal,black_palette,tmp,16,0,47);
     
-    for(int i=0; i<48; i++)
+    for(int32_t i=0; i<48; i++)
         tmp[i+64] = tmp[i];
         
     fade_interpolate(pal,black_palette,tmp,32,0,47);
     
-    for(int i=0; i<48; i++)
+    for(int32_t i=0; i<48; i++)
         tmp[i+112] = tmp[i];
         
     tmp[160+3] = tmp[3];
     
-    for(int i=4; i<11; i++)
+    for(int32_t i=4; i<11; i++)
         get_cset(first+i,i,tmp);
 }
 
@@ -1038,12 +1038,12 @@ static DIALOG cycle_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void edit_cycles(int level)
+void edit_cycles(int32_t level)
 {
     char buf[15][8];
     palcycle cycle_none[1][3];  //create a null palette cycle here. -Z
 	memset(cycle_none, 0, sizeof(cycle_none)); 
-    for(int i=0; i<3; i++)
+    for(int32_t i=0; i<3; i++)
     {
         palcycle c = ( level < 256 ) ? misc.cycles[level][i] : cycle_none[0][i]; //Only level palettes 0 through 255 have valid data in 2.50.x. -Z
         sprintf(buf[i*5  ],"%d",c.first>>4);
@@ -1053,7 +1053,7 @@ void edit_cycles(int level)
         sprintf(buf[i*5+4],"%d",c.speed);
     }
     
-    for(int i=0; i<15; i++)
+    for(int32_t i=0; i<15; i++)
         cycle_dlg[i+10].dp = buf[i];
         
     if(is_large)
@@ -1064,7 +1064,7 @@ void edit_cycles(int level)
         saved=false;
         reset_pal_cycling();
         
-        for(int i=0; i<3; i++)
+        for(int32_t i=0; i<3; i++)
         {
             palcycle c;
             c.first = (atoi(buf[i*5])&7)<<4;
@@ -1079,16 +1079,16 @@ void edit_cycles(int level)
 
 void draw_cset_proc(DIALOG *d)
 {
-    int d1 = zc_min(d->d1, d->d2);
-    int d2 = zc_max(d->d1, d->d2);
+    int32_t d1 = zc_min(d->d1, d->d2);
+    int32_t d2 = zc_max(d->d1, d->d2);
     
     
     d_bitmap_proc(MSG_DRAW,d,0);
     //  text_mode(d->bg);
     
     //  rect(screen,d->x,(d1<<3)+d->y,d->x+d->w-1,(d2<<3)+d->y+7,FLASH);
-    rect(screen,d->x,int((d1<<3)*(is_large?1.5:1)+d->y),d->x+d->w-1,int((d2<<3)*(is_large?1.5:1)+d->y+(is_large?11:7)),dvc(0)); //highlights currently selected cset
-    int drc;
+    rect(screen,d->x,int32_t((d1<<3)*(is_large?1.5:1)+d->y),d->x+d->w-1,int32_t((d2<<3)*(is_large?1.5:1)+d->y+(is_large?11:7)),dvc(0)); //highlights currently selected cset
+    int32_t drc;
     
     if((d->flags & D_GOTFOCUS))
         drc = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
@@ -1098,7 +1098,7 @@ void draw_cset_proc(DIALOG *d)
     dotted_rect(d->x-1, d->y-1, d->x+d->w, d->y+d->h, drc, d->bg);
 }
 
-int d_cset_proc(int msg,DIALOG *d,int c)
+int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -1116,9 +1116,9 @@ int d_cset_proc(int msg,DIALOG *d,int c)
     case MSG_CLICK:
     {
         bool dragging=false;
-        int src=0;
-        int x;
-        int y;
+        int32_t src=0;
+        int32_t x;
+        int32_t y;
         
         // Start dragging?
         if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
@@ -1129,8 +1129,8 @@ int d_cset_proc(int msg,DIALOG *d,int c)
             if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
             {
                 dragging=true;
-                src=vbound((int)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
-                    vbound((int)((x-d->x) / (is_large?1.5:1))>>3,0,15);
+                src=vbound((int32_t)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
+                    vbound((int32_t)((x-d->x) / (is_large?1.5:1))>>3,0,15);
             }
         }
         
@@ -1141,7 +1141,7 @@ int d_cset_proc(int msg,DIALOG *d,int c)
             
             if(!dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
             {
-                d->d2 = vbound((int)((y-d->y)/(is_large?1.5:1))>>3,0,15);
+                d->d2 = vbound((int32_t)((y-d->y)/(is_large?1.5:1))>>3,0,15);
                 
                 if(!(key_shifts&KB_SHIFT_FLAG))
                     d->d1 = d->d2;
@@ -1169,8 +1169,8 @@ int d_cset_proc(int msg,DIALOG *d,int c)
         
         if(dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
         {
-            int dest=vbound((int)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
-                     vbound((int)((x-d->x) / (is_large?1.5:1))>>3,0,15);
+            int32_t dest=vbound((int32_t)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
+                     vbound((int32_t)((x-d->x) / (is_large?1.5:1))>>3,0,15);
                      
             if(src!=dest)
             {
@@ -1178,16 +1178,16 @@ int d_cset_proc(int msg,DIALOG *d,int c)
                 
                 if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
                 {
-                    for(int i=0; i<3; i++)
+                    for(int32_t i=0; i<3; i++)
                         zc_swap(*(((byte*)d->dp2)+dest*3+i), *(((byte*)d->dp2)+src*3+i));
                 }
                 else
                 {
-                    for(int i=0; i<3; i++)
+                    for(int32_t i=0; i<3; i++)
                         *(((byte*)d->dp2)+dest*3+i) = *(((byte*)d->dp2)+src*3+i);
                 }
                 
-                for(int i=0; i<cset_count; i++)
+                for(int32_t i=0; i<cset_count; i++)
                     load_cset(pal,i,cset_first+i);
                     
                 set_palette(pal);
@@ -1199,8 +1199,8 @@ int d_cset_proc(int msg,DIALOG *d,int c)
     
     case MSG_CHAR:
     {
-        int shift = (key_shifts&KB_SHIFT_FLAG);
-        int k=c>>8;
+        int32_t shift = (key_shifts&KB_SHIFT_FLAG);
+        int32_t k=c>>8;
         
         switch(k)
         {
@@ -1212,7 +1212,7 @@ int d_cset_proc(int msg,DIALOG *d,int c)
             break;
             
         case KEY_DOWN:
-            if(d->d2<((int)ceil((d->h)/(is_large?1.5:1))>>3)-1)
+            if(d->d2<((int32_t)ceil((d->h)/(is_large?1.5:1))>>3)-1)
                 ++d->d2;
                 
             if(!shift) d->d1 = d->d2;
@@ -1227,7 +1227,7 @@ int d_cset_proc(int msg,DIALOG *d,int c)
             break;
             
         case KEY_PGDN:
-            d->d2=((int)ceil((d->h)/(is_large?1.5:1))>>3)-1;
+            d->d2=((int32_t)ceil((d->h)/(is_large?1.5:1))>>3)-1;
             
             if(!shift) d->d1 = d->d2;
             
@@ -1236,12 +1236,12 @@ int d_cset_proc(int msg,DIALOG *d,int c)
         case KEY_C:
             cset_hold_cnt=0;
             
-            for(int row=0; row <= abs(d->d1 - d->d2); row++)
+            for(int32_t row=0; row <= abs(d->d1 - d->d2); row++)
             {
-                int d1 = zc_min(d->d1,d->d2);
+                int32_t d1 = zc_min(d->d1,d->d2);
                 ++cset_hold_cnt;
                 
-                for(int i=0; i<16*3; i++)
+                for(int32_t i=0; i<16*3; i++)
                     cset_hold[row][i] = *(((byte*)d->dp2)+CSET(d1+row)*3+i);
             }
             
@@ -1254,15 +1254,15 @@ int d_cset_proc(int msg,DIALOG *d,int c)
             {
                 //         undopal=pal;
                 memcpy(undopal,pal,sizeof(pal));
-                int d1 = zc_min(d->d1,d->d2);
+                int32_t d1 = zc_min(d->d1,d->d2);
                 
-                for(int row=0; row<cset_hold_cnt && d1+row<cset_count; row++)
+                for(int32_t row=0; row<cset_hold_cnt && d1+row<cset_count; row++)
                 {
-                    for(int i=0; i<16*3; i++)
+                    for(int32_t i=0; i<16*3; i++)
                         *(((byte*)d->dp2)+CSET(d1+row)*3+i) = cset_hold[row][i];
                 }
                 
-                for(int i=0; i<cset_count; i++)
+                for(int32_t i=0; i<cset_count; i++)
                     load_cset(pal,i,cset_first+i);
                     
                 set_palette(pal);
@@ -1274,7 +1274,7 @@ int d_cset_proc(int msg,DIALOG *d,int c)
         case KEY_U:
             undo_pal();
             
-            for(int i=0; i<cset_count; i++)
+            for(int32_t i=0; i<cset_count; i++)
                 load_cset(pal,i,cset_first+i);
                 
             set_palette(pal);
@@ -1370,22 +1370,22 @@ static DIALOG colors_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int EditColors(const char *caption,int first,int count,byte *label)
+int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 {
 
     char tempstuff[17];
     cset_first=first;
     cset_count=count;
     
-    for(int i=240; i<256; i++)
+    for(int32_t i=240; i<256; i++)
     {
         pal[i] = RAMpal[i];
     }
     
     go();
     
-    int bw = 128;
-    int bh = count*8;
+    int32_t bw = 128;
+    int32_t bh = count*8;
     
     if(colors_dlg[0].d1)
     {
@@ -1398,10 +1398,10 @@ int EditColors(const char *caption,int first,int count,byte *label)
     if(!bmp)
         return 0;
         
-    for(int i=0; i<16*count; i++)
+    for(int32_t i=0; i<16*count; i++)
     {
-        int x=int(((i&15)<<3)*(is_large?1.5:1));
-        int y=int(((i>>4)<<3)*(is_large?1.5:1));
+        int32_t x=int32_t(((i&15)<<3)*(is_large?1.5:1));
+        int32_t y=int32_t(((i>>4)<<3)*(is_large?1.5:1));
         rectfill(bmp,x,y,x+(is_large ? 15:7),y+(is_large ? 15:7),i);
     }
     
@@ -1429,7 +1429,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
     //char (*buf)[4]= new char[count][4];
     char buf[50][4];
     
-    for(int i=0; i<15; i++)
+    for(int32_t i=0; i<15; i++)
     {
         if(i<count)
         {
@@ -1441,7 +1441,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
         }
         
         colors_dlg[3+i].dp=buf[i];
-        colors_dlg[3+i].y=colors_dlg[0].y+int(((i<<3)+36-(is_large?3:0))*((is_large && colors_dlg[0].d1)?1.5:1));
+        colors_dlg[3+i].y=colors_dlg[0].y+int32_t(((i<<3)+36-(is_large?3:0))*((is_large && colors_dlg[0].d1)?1.5:1));
         //sniggles
         //    colors_dlg[3+i].fg=rc[label[i+count]];
     }
@@ -1449,19 +1449,19 @@ int EditColors(const char *caption,int first,int count,byte *label)
     colors_dlg[0].dp  = (void *)caption;
     colors_dlg[0].dp2 = lfont;
     
-    for(int i=0; i<count; i++)
+    for(int32_t i=0; i<count; i++)
     {
         load_cset(pal,i,i+first);
     }
     
     memcpy(undopal,pal,sizeof(pal));
-    int ret=0;
+    int32_t ret=0;
     
     do
     {
         rest(4);
         
-        for(int i=0; i<count; i++)
+        for(int32_t i=0; i<count; i++)
         {
             load_cset(pal,i,i+first);
         }
@@ -1533,7 +1533,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
         
         if(ret==21)
         {
-		int curpal = (first/pdLEVEL+poLEVEL)-10; 
+		int32_t curpal = (first/pdLEVEL+poLEVEL)-10; 
 		
 		
 		    if(!get_bit(quest_rules,qr_FADE))
@@ -1592,23 +1592,23 @@ int EditColors(const char *caption,int first,int count,byte *label)
     comeback();
     destroy_bitmap(bmp);
     //delete[] buf;
-    return int(ret==23);
+    return int32_t(ret==23);
 }
 
-int onColors_Main()
+int32_t onColors_Main()
 {
-    int l9 = EditColors("Main Palette",0,pdFULL-3,mainpal_csets);
+    int32_t l9 = EditColors("Main Palette",0,pdFULL-3,mainpal_csets);
     
     // copy main to level 0
-    int di = CSET(poLEVEL)*3;
-    int si = CSET(2)*3;
+    int32_t di = CSET(poLEVEL)*3;
+    int32_t si = CSET(2)*3;
     
-    for(int i=0; i<CSET(3)*3; i++)
+    for(int32_t i=0; i<CSET(3)*3; i++)
         colordata[di++] = colordata[si++];
         
     si = CSET(9)*3;
     
-    for(int i=0; i<16*3; i++)
+    for(int32_t i=0; i<16*3; i++)
         colordata[di++] = colordata[si++];
         
     loadlvlpal(Color);
@@ -1622,39 +1622,39 @@ int onColors_Main()
     return D_O_K;
 }
 
-void copyPal(int src, int dest)
+void copyPal(int32_t src, int32_t dest)
 {
-    int srcStart=CSET(src*pdLEVEL+poLEVEL)*3;
-    int destStart=CSET(dest*pdLEVEL+poLEVEL)*3;
+    int32_t srcStart=CSET(src*pdLEVEL+poLEVEL)*3;
+    int32_t destStart=CSET(dest*pdLEVEL+poLEVEL)*3;
     
-    for(int i=0; i<pdLEVEL*16*3; i++)
+    for(int32_t i=0; i<pdLEVEL*16*3; i++)
         colordata[destStart+i]=colordata[srcStart+i];
 }
 
-int onColors_Levels()
+int32_t onColors_Levels()
 {
-    int cycle = get_bit(quest_rules,qr_FADE);
-    int index=Map.getcolor();
+    int32_t cycle = get_bit(quest_rules,qr_FADE);
+    int32_t index=Map.getcolor();
     
     while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",lfont, copyPal))!=-1)
     {
         char buf[40];
         sprintf(buf,"Level %X Palettes",index);
-        int l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
+        int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
         setup_lcolors();
         
         if(index==0)
         {
             // copy level 0 to main
-            int si = CSET(poLEVEL)*3;
-            int di = CSET(2)*3;
+            int32_t si = CSET(poLEVEL)*3;
+            int32_t di = CSET(2)*3;
             
-            for(int i=0; i<CSET(3)*3; i++)
+            for(int32_t i=0; i<CSET(3)*3; i++)
                 colordata[di++] = colordata[si++];
                 
             di = CSET(9)*3;
             
-            for(int i=0; i<16*3; i++)
+            for(int32_t i=0; i<16*3; i++)
                 colordata[di++] = colordata[si++];
         }
         
@@ -1670,9 +1670,9 @@ int onColors_Levels()
     return D_O_K;
 }
 
-int onColors_Sprites()
+int32_t onColors_Sprites()
 {
-    int index;
+    int32_t index;
     
     do
     {

@@ -83,8 +83,8 @@ namespace // file local
 	{
 		string name;
 		CompileOptionValue defaultValue;
-		int defaultqr, type;
-		Entry(string name = "", int defaultQR = 0, int type = 0, long defaultValue = 0L)
+		int32_t defaultqr, type;
+		Entry(string name = "", int32_t defaultQR = 0, int32_t type = 0, int32_t defaultValue = 0L)
 			: name(name), defaultValue(defaultValue), type(type), defaultqr(defaultQR) {}
 	};
 
@@ -115,7 +115,7 @@ void CompileOption::initialize()
 #		undef X
 
 		// Fill nameMap from entries table.
-		for (int i = 0; i < ID_END; ++i)
+		for (int32_t i = 0; i < ID_END; ++i)
 		{
 			nameMap[entries[i].name] = CompileOption(i);
 		}
@@ -128,7 +128,7 @@ void CompileOption::initialize()
 
 void CompileOption::updateDefaults()
 {
-	for (int i = 0; i < ID_END; ++i)
+	for (int32_t i = 0; i < ID_END; ++i)
 	{
 		switch(entries[i].type)
 		{
@@ -138,7 +138,7 @@ void CompileOption::updateDefaults()
 				break;
 			
 			case OPTTYPE_CONFIG:
-				if(int temp = get_config_int("Compiler", entries[i].name.c_str(), 0))
+				if(int32_t temp = get_config_int("Compiler", entries[i].name.c_str(), 0))
 					entries[i].defaultValue = temp * 10000L;
 				break;
 		}

@@ -21,149 +21,149 @@
 extern tiledata     *newundotilebuf;
 extern newcombo     *undocombobuf;
 extern byte cset_reduce_table[PAL_SIZE];
-void calc_cset_reduce_table(PALETTE pal, int cs);
+void calc_cset_reduce_table(PALETTE pal, int32_t cs);
 
 void register_used_tiles();
 
-int readcomboaliasfile(PACKFILE *f);
-int readcomboaliasfile_to_location(PACKFILE *f, int start);
-int writecomboaliasfile(PACKFILE *f, int index, int count);
+int32_t readcomboaliasfile(PACKFILE *f);
+int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start);
+int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count);
 
-int readtilefile(PACKFILE *f);
-int writetilefile(PACKFILE *f, int index, int count);
-int readtilefile_to_location(PACKFILE *f, int start);
-int readtilefile_to_location(PACKFILE *f, int start, int skip);
+int32_t readtilefile(PACKFILE *f);
+int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count);
+int32_t readtilefile_to_location(PACKFILE *f, int32_t start);
+int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip);
 
-int readcombofile(PACKFILE *f, int skip, byte nooverwrite);
-int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip);
-int writecombofile(PACKFILE *f, int index, int count);
+int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite);
+int32_t readcombofile_to_location(PACKFILE *f, int32_t start, byte nooverwrite, int32_t skip);
+int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count);
 
-int d_comboframe_proc(int msg, DIALOG *d, int c);
-int d_combo_proc(int msg,DIALOG *d,int c);
+int32_t d_comboframe_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
 void go_tiles();
-void go_slide_tiles(int columns, int rows, int top, int left);
+void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left);
 void comeback_tiles();
 void go_combos();
 void comeback_combos();
-void little_x(BITMAP *dest, int x, int y, int c, int s);
-void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m);
-void draw_text_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int bg,int fg,int flags,bool jwin);
-void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int flags);
-bool do_layer_button_reset(int x,int y,int w,int h,const char *text, int flags, bool toggleflag=false);
-bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin);
-bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin,bool sel=false);
-void draw_graphics_button(BITMAP *dest,int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,int fg,int flags,bool jwin,bool overlay);
-bool do_graphics_button(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,int fg,bool jwin,bool overlay);
-bool do_graphics_button_reset(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,int fg,bool jwin,bool overlay);
-void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg, int value);
-void do_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int &value);
-void draw_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg, bool value);
-bool do_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg,int &value);
+void little_x(BITMAP *dest, int32_t x, int32_t y, int32_t c, int32_t s);
+void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t m);
+void draw_text_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,int32_t flags,bool jwin);
+void draw_layer_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t flags);
+bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag=false);
+bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin);
+bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin,bool sel=false);
+void draw_graphics_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITMAP *bmp2,int32_t bg,int32_t fg,int32_t flags,bool jwin,bool overlay);
+bool do_graphics_button(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITMAP *bmp2,int32_t bg,int32_t fg,bool jwin,bool overlay);
+bool do_graphics_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITMAP *bmp2,int32_t bg,int32_t fg,bool jwin,bool overlay);
+void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg, int32_t value);
+void do_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_t &value);
+void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg, bool value);
+bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg,int32_t &value);
 
 //*************** tile flood fill stuff **************
 
 //extern byte tf_c;
 //extern byte tf_u;
 
-void tile_floodfill_rec(int x,int y);
-void tile_floodfill(int tile,int x,int y,byte c);
+void tile_floodfill_rec(int32_t x,int32_t y);
+void tile_floodfill(int32_t tile,int32_t x,int32_t y,byte c);
 
 //***************** tile editor  stuff *****************
 
-//extern int c1;
-//extern int c2;
-//extern int bgc;
+//extern int32_t c1;
+//extern int32_t c2;
+//extern int32_t bgc;
 enum { t_pen, t_fill, t_recolor, t_eyedropper, t_move, t_select, t_wand, t_max };
-//extern int tool;
-//extern int tool_cur;
-//extern int drawing;
+//extern int32_t tool;
+//extern int32_t tool_cur;
+//extern int32_t drawing;
 
 void update_tool_cursor();
-void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar);
-void normalize(int tile,int tile2, bool rect_sel, int flip);
-void rotate_tile(int tile, bool backward);
-void wrap_tile(int tile, int offset);
-void shift_tile_colors(int tile, int amount, bool ignore_transparent);
-void edit_tile(int tile,int flip,int &cs);
+void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool create_tbar);
+void normalize(int32_t tile,int32_t tile2, bool rect_sel, int32_t flip);
+void rotate_tile(int32_t tile, bool backward);
+void wrap_tile(int32_t tile, int32_t offset);
+void shift_tile_colors(int32_t tile, int32_t amount, bool ignore_transparent);
+void edit_tile(int32_t tile,int32_t flip,int32_t &cs);
 
 /*  Grab Tile Code  */
 
 //extern void *imagebuf;
-//extern long imagesize;
-//extern int  imagetype;
-//extern int imagex,imagey,selx,sely;
-//extern int bp,grabmode,romofs,romtilemode, romtilecols;
-//extern int grabmask;
+//extern int32_t imagesize;
+//extern int32_t  imagetype;
+//extern int32_t imagex,imagey,selx,sely;
+//extern int32_t bp,grabmode,romofs,romtilemode, romtilecols;
+//extern int32_t grabmask;
 //extern PALETTE imagepal;
 
-void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs);
-void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white,int width, int height, byte *newformat);
+void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs);
+void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t white,int32_t width, int32_t height, byte *newformat);
 void load_imagebuf();
-bool leech_tiles(tiledata *dest,int start,int cs);
-void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *newformat);
-void grab_tile(int tile,int &cs);
-void draw_tiles(int first,int cs, int f);
-void draw_tiles(BITMAP* dest,int first,int cs, int f,bool large,bool true_empty = false);
-int tile_col(int tile);
-int tile_row(int tile);
-int tile_page(int tile);
-int tile_page_row(int tile);
-void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool rect_sel);
-void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int copy,int page, bool always_use_flip=false);
-//void reset_tile(tiledata *buf, int t, int format);
-bool copy_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move);
-bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move);
-bool copy_tiles_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move);
-bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move);
-bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move, int cs, bool backwards);
-bool overlay_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move, int cs, bool backwards);
-bool overlay_tiles_mass(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move, int cs, bool backwards);
-bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move, int cs, bool backwards);
-void copy_combos(int &tile,int &tile2,int &copy,int &copycnt, bool masscopy);
-void move_combos(int &tile,int &tile2,int &copy,int &copycnt);
-void delete_tiles(int &tile,int &tile2,bool rect_sel);
-void overlay_tile2(int dest,int src,int cs,bool backwards);
-void sel_tile(int &tile, int &tile2, int &first, int type, int s);
-int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs, int exnow=0, bool always_use_flip=false);
-int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs, int exnow=0, bool always_use_flip=false);
-int onTiles();
-void draw_combo(BITMAP *dest, int x,int y,int c,int cs);
-void draw_combos(int page,int cs,bool cols);
-void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int buttons);
-void sel_combo(int &tile, int &tile2, int s, bool cols);
+bool leech_tiles(tiledata *dest,int32_t start,int32_t cs);
+void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t oformat, byte *newformat);
+void grab_tile(int32_t tile,int32_t &cs);
+void draw_tiles(int32_t first,int32_t cs, int32_t f);
+void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f,bool large,bool true_empty = false);
+int32_t tile_col(int32_t tile);
+int32_t tile_row(int32_t tile);
+int32_t tile_page(int32_t tile);
+int32_t tile_page_row(int32_t tile);
+void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copycnt,int32_t page,bool rect_sel);
+void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int32_t flip,int32_t cs,int32_t copy,int32_t page, bool always_use_flip=false);
+//void reset_tile(tiledata *buf, int32_t t, int32_t format);
+bool copy_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move);
+bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move);
+bool copy_tiles_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move);
+bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move);
+bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move, int32_t cs, bool backwards);
+bool overlay_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move, int32_t cs, bool backwards);
+bool overlay_tiles_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move, int32_t cs, bool backwards);
+bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move, int32_t cs, bool backwards);
+void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool masscopy);
+void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt);
+void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel);
+void overlay_tile2(int32_t dest,int32_t src,int32_t cs,bool backwards);
+void sel_tile(int32_t &tile, int32_t &tile2, int32_t &first, int32_t type, int32_t s);
+int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs, int32_t exnow=0, bool always_use_flip=false);
+int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs, int32_t exnow=0, bool always_use_flip=false);
+int32_t onTiles();
+void draw_combo(BITMAP *dest, int32_t x,int32_t y,int32_t c,int32_t cs);
+void draw_combos(int32_t page,int32_t cs,bool cols);
+void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copycnt,int32_t page,int32_t buttons);
+void sel_combo(int32_t &tile, int32_t &tile2, int32_t s, bool cols);
 
 //extern word ctable[MAXCOMBOS];
 
-int select_combo_2(int &tile,int &cs);
-int combo_screen(int pg, int tl);
-int onCombos();
+int32_t select_combo_2(int32_t &tile,int32_t &cs);
+int32_t combo_screen(int32_t pg, int32_t tl);
+int32_t onCombos();
 
-//extern int edit_combo_cset;
+//extern int32_t edit_combo_cset;
 
-int d_ctile_proc(int msg,DIALOG *d,int c);
-int d_combo_loader(int msg,DIALOG *d,int c);
+int32_t d_ctile_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_combo_loader(int32_t msg,DIALOG *d,int32_t c);
 
 typedef struct combotype_struct
 {
     char *s;
-    int i;
+    int32_t i;
 } combotype_struct;
 
 //extern combotype_struct bict[cMAX];
-//extern int bict_cnt;
+//extern int32_t bict_cnt;
 
 void build_bict_list();
-const char *combotypelist(int index, int *list_size);
+const char *combotypelist(int32_t index, int32_t *list_size);
 
-int click_d_ctile_proc();
-int onCmb_dlg_h();
-int onCmb_dlg_v();
-int onCmb_dlg_r();
-bool edit_combo(int c,bool freshen,int cs);
-int d_itile_proc(int msg,DIALOG *d,int c);
-int onIcons();
+int32_t click_d_ctile_proc();
+int32_t onCmb_dlg_h();
+int32_t onCmb_dlg_v();
+int32_t onCmb_dlg_r();
+bool edit_combo(int32_t c,bool freshen,int32_t cs);
+int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t onIcons();
 void center_zq_tiles_dialogs();
-int d_combo_proc(int msg,DIALOG *d,int c);
+int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
 void center_zq_tiles_dialog();
 #endif
 

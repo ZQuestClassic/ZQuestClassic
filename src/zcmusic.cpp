@@ -21,12 +21,6 @@
 #include "zc_malloc.h"
 #include "mutex.h"
 
-#undef	int8_t
-#undef	uint8_t
-#undef	int16_t
-#undef	uint16_t
-#undef	int32_t
-#undef	uint32_t
 //short of fixing gme, these warnings will always be there...
 #pragma warning(disable:4512) //assignment operator could not be generated
 #pragma warning(disable:4100) //unreferenced formal parameter
@@ -37,12 +31,6 @@
 #include "Gym_Emu.h"
 #pragma warning(default:4100)
 #pragma warning(default:4512)
-#define int8_t       signed char
-#define uint8_t      unsigned char
-#define int16_t      signed short
-#define uint16_t     unsigned short
-#define int32_t      signed int
-#define uint32_t     unsigned int
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -60,8 +48,8 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define DUH_SAMPLES   44100                                 //Hz
 #define DUH_RESAMPLE  1
 
-int zcmusic_bufsz = 64;
-static int zcmusic_bufsz_private = 64;
+int32_t zcmusic_bufsz = 64;
+static int32_t zcmusic_bufsz_private = 64;
 
 mutex playlistmutex;
 
@@ -76,7 +64,7 @@ typedef struct OGGFILE : public ZCMUSICBASE
     ALOGG_OGGSTREAM *s;
     PACKFILE *f;
     char *fname;
-    int vol;
+    int32_t vol;
 } OGGFILE;
 
 typedef struct OGGEXFILE : public ZCMUSICBASE
@@ -84,7 +72,7 @@ typedef struct OGGEXFILE : public ZCMUSICBASE
     ALOGG_OGG *s;
     FILE *f;
     char *fname;
-    int vol;
+    int32_t vol;
 } OGGEXFILE;
 
 typedef struct MP3FILE : public ZCMUSICBASE
@@ -92,14 +80,14 @@ typedef struct MP3FILE : public ZCMUSICBASE
     ALMP3_MP3STREAM *s;
     PACKFILE *f;
     char *fname;
-    int vol;
+    int32_t vol;
 } MP3FILE;
 
 typedef struct GMEFILE : public ZCMUSICBASE
 {
     AUDIOSTREAM *stream;
     class Music_Emu* emu;
-    int samples;
+    int32_t samples;
 } GMEFILE;
 
 #ifndef __GTHREAD_HIDE_WIN32API
@@ -107,11 +95,11 @@ typedef struct GMEFILE : public ZCMUSICBASE
 #endif                            //prevent indirectly including windows.h
 #include <vector>
 static std::vector<ZCMUSIC*> playlist;                      //yeah, I'm too lazy to do it myself
-static int libflags = 0;
+static int32_t libflags = 0;
 
 // forward declarations
 OGGFILE *load_ogg_file(char *filename);
-int poll_ogg_file(OGGFILE *ogg);
+int32_t poll_ogg_file(OGGFILE *ogg);
 void unload_ogg_file(OGGFILE *ogg);
 bool ogg_pause(OGGFILE *ogg);
 bool ogg_resume(OGGFILE *ogg);
@@ -119,18 +107,18 @@ bool ogg_reset(OGGFILE *ogg);
 void ogg_stop(OGGFILE *ogg);
 
 OGGEXFILE *load_ogg_ex_file(char *filename);
-int poll_ogg_ex_file(OGGEXFILE *ogg);
+int32_t poll_ogg_ex_file(OGGEXFILE *ogg);
 void unload_ogg_ex_file(OGGEXFILE *ogg);
 bool ogg_ex_pause(OGGEXFILE *ogg);
 bool ogg_ex_resume(OGGEXFILE *ogg);
 bool ogg_ex_reset(OGGEXFILE *ogg);
 void ogg_ex_stop(OGGEXFILE *ogg);
-int ogg_ex_getpos(OGGEXFILE *ogg);
-void ogg_ex_setpos(OGGEXFILE *ogg, int msecs);
-void ogg_ex_setspeed(OGGEXFILE *ogg, int speed);
+int32_t ogg_ex_getpos(OGGEXFILE *ogg);
+void ogg_ex_setpos(OGGEXFILE *ogg, int32_t msecs);
+void ogg_ex_setspeed(OGGEXFILE *ogg, int32_t speed);
 
 MP3FILE *load_mp3_file(char *filename);
-int poll_mp3_file(MP3FILE *mp3);
+int32_t poll_mp3_file(MP3FILE *mp3);
 void unload_mp3_file(MP3FILE *mp3);
 bool mp3_pause(MP3FILE *mp3);
 bool mp3_resume(MP3FILE *mp3);
@@ -138,22 +126,22 @@ bool mp3_reset(MP3FILE *mp3);
 void mp3_stop(MP3FILE *mp3);
 
 Music_Emu* gme_load_file(char* filename, char* ext);
-int poll_gme_file(GMEFILE *gme);
-int unload_gme_file(GMEFILE* gme);
-int gme_play(GMEFILE *gme, int vol);
+int32_t poll_gme_file(GMEFILE *gme);
+int32_t unload_gme_file(GMEFILE* gme);
+int32_t gme_play(GMEFILE *gme, int32_t vol);
 
 
 extern "C"
 {
-	void zcm_extract_name(char *path,char *name,int type)
+	void zcm_extract_name(char *path,char *name,int32_t type)
 	{
-		int l=(int)strlen(path);
-		int i=l;
+		int32_t l=(int32_t)strlen(path);
+		int32_t i=l;
 
 		while(i>0 && path[i-1]!='/' && path[i-1]!='\\')
 			--i;
 
-		int n=0;
+		int32_t n=0;
 
 		if(type==FILENAME8__)
 		{
@@ -179,7 +167,7 @@ extern "C"
         zcmusic_poll();
     }
     
-    bool zcmusic_init(int flags)                              /* = -1 */
+    bool zcmusic_init(int32_t flags)                              /* = -1 */
     {
         zcmusic_bufsz_private = zcmusic_bufsz;
         
@@ -216,7 +204,7 @@ extern "C"
         return true;
     }
     
-    bool zcmusic_poll(int flags)                              /* = -1 */
+    bool zcmusic_poll(int32_t flags)                              /* = -1 */
     {
         //lock mutex
         mutex_lock(&playlistmutex);
@@ -329,7 +317,7 @@ extern "C"
         
         if(strlen(filename)>255)
         {
-            al_trace("Music file '%s' not loaded: filename too long\n", filename);
+            al_trace("Music file '%s' not loaded: filename too int32_t\n", filename);
             return NULL;
         }
         
@@ -486,7 +474,7 @@ error:
         
         if(strlen(filename)>255)
         {
-            al_trace("Music file '%s' not loaded: filename too long\n", filename);
+            al_trace("Music file '%s' not loaded: filename too int32_t\n", filename);
             return NULL;
         }
         
@@ -524,7 +512,7 @@ error:
         return NULL;
     }
     
-    bool zcmusic_play(ZCMUSIC* zcm, int vol) /* = FALSE */
+    bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
     {
         // the libraries require polling
         // of individual streams, so here we must keep
@@ -538,7 +526,7 @@ error:
         
         if(zcm == NULL) return FALSE;
         
-        int ret = TRUE;
+        int32_t ret = TRUE;
         
         if(zcm->playing != ZCM_STOPPED)                         // adjust volume
         {
@@ -682,7 +670,7 @@ error:
         return ret!=0;
     }
     
-    bool zcmusic_pause(ZCMUSIC* zcm, int pause = -1)
+    bool zcmusic_pause(ZCMUSIC* zcm, int32_t pause = -1)
     {
         // This function suspends play of the music indicated
         // by 'zcm'. Passing 0 for pause will resume; passing
@@ -694,7 +682,7 @@ error:
         
         if(zcm->playing != ZCM_STOPPED)
         {
-            int p = ZCM_PLAYING;
+            int32_t p = ZCM_PLAYING;
             
             switch(pause)
             {
@@ -890,7 +878,7 @@ error:
         return;
     }
     
-    int zcmusic_get_tracks(ZCMUSIC* zcm)
+    int32_t zcmusic_get_tracks(ZCMUSIC* zcm)
     {
         if(zcm == NULL) return 0;
         
@@ -906,7 +894,7 @@ error:
         case ZCMF_GME:
             if(((GMEFILE*)zcm)->emu != NULL)
             {
-                int t=((GMEFILE*)zcm)->emu->track_count();
+                int32_t t=((GMEFILE*)zcm)->emu->track_count();
                 return (t>1)?t:0;
             }
             else
@@ -920,7 +908,7 @@ error:
         return 0;
     }
     
-    int zcmusic_change_track(ZCMUSIC* zcm, int tracknum)
+    int32_t zcmusic_change_track(ZCMUSIC* zcm, int32_t tracknum)
     {
         if(zcm == NULL) return -1;
         
@@ -937,7 +925,7 @@ error:
             if(((GMEFILE*)zcm)->emu != NULL)
             {
                 mutex_lock(&playlistmutex);
-                int t=((GMEFILE*)zcm)->emu->track_count();
+                int32_t t=((GMEFILE*)zcm)->emu->track_count();
                 
                 if(tracknum<0 || tracknum>=t)
                 {
@@ -959,7 +947,7 @@ error:
         
         return 0;
     }
-    int zcmusic_get_curpos(ZCMUSIC* zcm)
+    int32_t zcmusic_get_curpos(ZCMUSIC* zcm)
     {
 	if(zcm == NULL) return 0;
         
@@ -972,7 +960,7 @@ error:
 	
 	return 0;
     }
-    void zcmusic_set_curpos(ZCMUSIC* zcm, int value)
+    void zcmusic_set_curpos(ZCMUSIC* zcm, int32_t value)
     {
 	if(zcm == NULL) return;
         
@@ -985,7 +973,7 @@ error:
 	
 	return;
     }
-    void zcmusic_set_speed(ZCMUSIC* zcm, int value)
+    void zcmusic_set_speed(ZCMUSIC* zcm, int32_t value)
     {
 	if(zcm == NULL) return;
         
@@ -1006,7 +994,7 @@ MP3FILE *load_mp3_file(char *filename)
     PACKFILE *f = NULL;
     ALMP3_MP3STREAM *s = NULL;
     char *data = new char[(zcmusic_bufsz_private*512)];
-    int len;
+    int32_t len;
     
     if((p = (MP3FILE *)zc_malloc(sizeof(MP3FILE)))==NULL)
         goto error;
@@ -1020,7 +1008,7 @@ MP3FILE *load_mp3_file(char *filename)
     
     if(strncmp(data, "ID3", 3)==0)
     {
-        int id3Size=10;
+        int32_t id3Size=10;
         
         id3Size=((data[6]&0x7F)<<21)|((data[7]&0x7F)<<14)|((data[8]&0x7F)<<7)|(data[9]&0x7F);
         pack_fseek(f, id3Size-10);
@@ -1065,7 +1053,7 @@ error:
     return NULL;
 }
 
-int poll_mp3_file(MP3FILE *mp3)
+int32_t poll_mp3_file(MP3FILE *mp3)
 {
     if(mp3 == NULL) return ALMP3_POLL_NOTPLAYING;
     
@@ -1075,7 +1063,7 @@ int poll_mp3_file(MP3FILE *mp3)
     
     if(data)
     {
-        long len = pack_fread(data, (zcmusic_bufsz_private*512), mp3->f);
+        int32_t len = pack_fread(data, (zcmusic_bufsz_private*512), mp3->f);
         
         if(len < (zcmusic_bufsz_private*512))
             almp3_free_mp3stream_buffer(mp3->s, len);
@@ -1083,7 +1071,7 @@ int poll_mp3_file(MP3FILE *mp3)
             almp3_free_mp3stream_buffer(mp3->s, -1);
     }
     
-    int ret = almp3_poll_mp3stream(mp3->s);
+    int32_t ret = almp3_poll_mp3stream(mp3->s);
     
     if(ret != ALMP3_OK)
     {
@@ -1221,7 +1209,7 @@ OGGFILE *load_ogg_file(char *filename)
     PACKFILE *f = NULL;
     ALOGG_OGGSTREAM *s = NULL;
     char *data = new char[(zcmusic_bufsz_private*512)];
-    int len;
+    int32_t len;
     
     if((p = (OGGFILE *)zc_malloc(sizeof(OGGFILE)))==NULL)
     {
@@ -1270,7 +1258,7 @@ error:
     return NULL;
 }
 
-int poll_ogg_file(OGGFILE *ogg)
+int32_t poll_ogg_file(OGGFILE *ogg)
 {
     if(ogg == NULL) return ALOGG_POLL_NOTPLAYING;
     
@@ -1280,7 +1268,7 @@ int poll_ogg_file(OGGFILE *ogg)
     
     if(data)
     {
-        long len = pack_fread(data, (zcmusic_bufsz_private*512), ogg->f);
+        int32_t len = pack_fread(data, (zcmusic_bufsz_private*512), ogg->f);
         
         if(len < (zcmusic_bufsz_private*512))
             alogg_free_oggstream_buffer(ogg->s, len);
@@ -1288,7 +1276,7 @@ int poll_ogg_file(OGGFILE *ogg)
             alogg_free_oggstream_buffer(ogg->s, -1);
     }
     
-    int ret = alogg_poll_oggstream(ogg->s);
+    int32_t ret = alogg_poll_oggstream(ogg->s);
     
     if(ret != ALOGG_OK)
     {
@@ -1427,7 +1415,7 @@ OGGEXFILE *load_ogg_ex_file(char *filename) //!dimi: Start of og_ex. og_ex allow
     FILE *f = fopen(filename, "rb");
     ALOGG_OGG *s = alogg_create_ogg_from_file(f);
     /*char *data = new char[(zcmusic_bufsz_private*512)];
-    int len;*/
+    int32_t len;*/
     
     /*if((p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE)))==NULL)
     {
@@ -1484,13 +1472,13 @@ error:
     return NULL;
 }
 
-int poll_ogg_ex_file(OGGEXFILE *ogg)
+int32_t poll_ogg_ex_file(OGGEXFILE *ogg)
 {
     if(ogg == NULL) return ALOGG_POLL_NOTPLAYING;
     
     if(ogg->s == NULL) return ALOGG_POLL_NOTPLAYING;
     
-    int ret = alogg_poll_ogg(ogg->s);
+    int32_t ret = alogg_poll_ogg(ogg->s);
     
     if(ret != ALOGG_OK && ret != ALOGG_POLL_PLAYJUSTFINISHED && ret != ALOGG_POLL_NOTPLAYING)
     {
@@ -1629,11 +1617,11 @@ void ogg_ex_stop(OGGEXFILE *ogg)
     }
 }
 
-int ogg_ex_getpos(OGGEXFILE *ogg) //!dimi: both getpos and setpos are in milliseconds. This is so that you can (hopefully) use decimals in zscript to access sub-second values.
+int32_t ogg_ex_getpos(OGGEXFILE *ogg) //!dimi: both getpos and setpos are in milliseconds. This is so that you can (hopefully) use decimals in zscript to access sub-second values.
 {
     if(ogg->s != NULL)
     {
-	int baddebugtimes = alogg_get_pos_msecs_ogg(ogg->s);
+	int32_t baddebugtimes = alogg_get_pos_msecs_ogg(ogg->s);
 	return baddebugtimes;
 	
 	return 0;
@@ -1641,7 +1629,7 @@ int ogg_ex_getpos(OGGEXFILE *ogg) //!dimi: both getpos and setpos are in millise
     return 0; //if it is NULL, we still need to return a value. -Z
 }
 
-void ogg_ex_setpos(OGGEXFILE *ogg, int msecs)
+void ogg_ex_setpos(OGGEXFILE *ogg, int32_t msecs)
 {
     if(ogg->s != NULL)
     {
@@ -1649,7 +1637,7 @@ void ogg_ex_setpos(OGGEXFILE *ogg, int msecs)
     }
 }
 
-void ogg_ex_setspeed(OGGEXFILE *ogg, int speed)
+void ogg_ex_setspeed(OGGEXFILE *ogg, int32_t speed)
 {
     if(ogg->s != NULL)
     {
@@ -1661,20 +1649,20 @@ void ogg_ex_setspeed(OGGEXFILE *ogg, int speed)
 
 //!dimi: End of ogg_ex.
 
-int poll_gme_file(GMEFILE* gme)
+int32_t poll_gme_file(GMEFILE* gme)
 {
-    unsigned char *p;
-    p = (unsigned char*) get_audio_stream_buffer(gme->stream);
+    uint8_t *p;
+    p = (uint8_t*) get_audio_stream_buffer(gme->stream);
     
     if(p)
     {
-        int samples=gme->samples;
+        int32_t samples=gme->samples;
         memset(p,0,4*samples);
-        unsigned short *q=(unsigned short*) p;
-        gme->emu->play((long) 2*samples,(short*)p);
+        uint16_t *q=(uint16_t*) p;
+        gme->emu->play((int32_t) 2*samples,(int16_t*)p);
         
         // Allegro only uses UNSIGNED samples ...
-        for(int j=0; j<2*samples; ++j)
+        for(int32_t j=0; j<2*samples; ++j)
         {
             *q ^= 0x8000;
             q++;
@@ -1721,11 +1709,11 @@ Music_Emu* gme_load_file(char* filename, char* ext)
     return emu;
 }
 
-int gme_play(GMEFILE *gme, int vol)
+int32_t gme_play(GMEFILE *gme, int32_t vol)
 {
     gme->emu->start_track(0);
-    int samples=512;
-    int buf_size=2*DUH_SAMPLES/50;
+    int32_t samples=512;
+    int32_t buf_size=2*DUH_SAMPLES/50;
     
     while(samples < buf_size) samples *= 2;
     
@@ -1737,7 +1725,7 @@ int gme_play(GMEFILE *gme, int vol)
     return true;
 }
 
-int unload_gme_file(GMEFILE* gme)
+int32_t unload_gme_file(GMEFILE* gme)
 {
     if(gme!=NULL)
     {

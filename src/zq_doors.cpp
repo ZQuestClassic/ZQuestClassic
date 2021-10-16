@@ -30,21 +30,21 @@
 #include "zquest.h"
 
 extern void large_dialog(DIALOG *d, float RESIZE_AMT);
-extern int d_dummy_proc(int msg,DIALOG *d,int c);
-extern int d_combo_proc(int msg,DIALOG *d,int c);
-extern void refresh(int flags);
+extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
+extern void refresh(int32_t flags);
 DoorComboSet *DoorComboSets;
 extern void restore_mouse();
 extern std::vector<mapscr> TheMaps;
 extern zquestheader header;
 extern word map_count;
-extern int d_timer_proc(int msg, DIALOG *d, int c);
+extern int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 
 
 extern FONT *lfont;
 
-extern int onHelp();
-extern int jwin_pal[jcMAX];
+extern int32_t onHelp();
+extern int32_t jwin_pal[jcMAX];
 extern bool saved;
 
 word door_combo_set_count;
@@ -53,7 +53,7 @@ word door_combo_set_count;
 
 const char *doors_string[8]= {"Wall","Open","Locked","Shutter","Bombable","Walk-through","1-Way Shutter","Boss"};
 
-const char *doorslist(int index, int *list_size)
+const char *doorslist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -69,7 +69,7 @@ const char *doorslist(int index, int *list_size)
 
 static const char *sidestr[4] = {"Top","Bottom","Left","Right"};
 
-int door_to_index(int door)
+int32_t door_to_index(int32_t door)
 {
     switch(door)
     {
@@ -96,12 +96,12 @@ int door_to_index(int door)
     return 0;
 }
 
-void edit_door(int side)
+void edit_door(int32_t side)
 {
-    int index=door_to_index(Map.CurrScr()->door[side]);
+    int32_t index=door_to_index(Map.CurrScr()->door[side]);
     char sidename[80];
     sprintf(sidename, "Select %s Door Type", sidestr[side]);
-    int ret=select_data(sidename,index,doorslist,lfont);
+    int32_t ret=select_data(sidename,index,doorslist,lfont);
     
     if(ret!=-1)
     {
@@ -144,7 +144,7 @@ void edit_door(int side)
     }
 }
 
-const char *doorcombosetlist(int index, int *list_size);
+const char *doorcombosetlist(int32_t index, int32_t *list_size);
 
 static ListData doorcomboset_list(&doorcombosetlist, &font);
 
@@ -166,7 +166,7 @@ static DIALOG door_select_dlg[] =
 };
 
 
-int onDoors()
+int32_t onDoors()
 {
     restore_mouse();
     door_select_dlg[0].dp2 = lfont;
@@ -179,11 +179,11 @@ int onDoors()
         
     Map.Ugo();
     bool done=false;
-    int ret=0;
+    int32_t ret=0;
     door_select_dlg[9].d1=Map.CurrScr()->door_combo_set;
     
     // Put the names of the door types on the buttons.
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         door_select_dlg[i+2].dp = (void *)doors_string[door_to_index(Map.CurrScr()->door[i])];
     }
@@ -191,7 +191,7 @@ int onDoors()
     // so as not to always override other combos if there was no change in door type
     byte old_door[4];
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         old_door[i] = Map.CurrScr()->door[i];
         
     if(is_large)
@@ -213,7 +213,7 @@ int onDoors()
             break;
             
         case 6:
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 if(old_door[i] != Map.CurrScr()->door[i])
                     Map.putdoor(i,Map.CurrScr()->door[i]);
@@ -224,7 +224,7 @@ int onDoors()
             
         case 0:
         case 7:
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 Map.putdoor(i,Map.CurrScr()->door[i]);
             }
@@ -265,14 +265,14 @@ int onDoors()
 
 DoorComboSet working_dcs;
 
-void fix_dcs(int dir)
+void fix_dcs(int32_t dir)
 {
     switch(dir)
     {
     case up:
     {
         //first combo copying
-        for(int i=0; i<dt_max-2; i++)
+        for(int32_t i=0; i<dt_max-2; i++)
         {
             if(working_dcs.doorcombo_u[i+1][0]==0)     //copy door top
             {
@@ -308,7 +308,7 @@ void fix_dcs(int dir)
         }
         
         //combo matching
-        for(int i=0; i<dt_max-1; i++)
+        for(int32_t i=0; i<dt_max-1; i++)
         {
             if((working_dcs.doorcombo_u[i][0]!=0)&&
                     (working_dcs.doorcombo_u[i][1]==0))      //match top half
@@ -335,7 +335,7 @@ void fix_dcs(int dir)
         }
         
         //local cset fix
-        for(int i=0; i<2; i++)
+        for(int32_t i=0; i<2; i++)
         {
             if(working_dcs.bombdoorcombo_u[i]==0)
             {
@@ -350,9 +350,9 @@ void fix_dcs(int dir)
             }
         }
         
-        for(int i=0; i<dt_max-1; i++)
+        for(int32_t i=0; i<dt_max-1; i++)
         {
-            for(int j=1; j<4; j++)
+            for(int32_t j=1; j<4; j++)
             {
                 if(working_dcs.doorcombo_u[i][j]==0)     //fix cset for doors
                 {
@@ -366,7 +366,7 @@ void fix_dcs(int dir)
     case down:
     {
         //first combo copying
-        for(int i=0; i<dt_max-2; i++)
+        for(int32_t i=0; i<dt_max-2; i++)
         {
             if(working_dcs.doorcombo_d[i+1][2]==0)     //copy door top
             {
@@ -402,7 +402,7 @@ void fix_dcs(int dir)
         }
         
         //combo matching
-        for(int i=0; i<dt_max-1; i++)
+        for(int32_t i=0; i<dt_max-1; i++)
         {
             if((working_dcs.doorcombo_d[i][0]!=0)&&
                     (working_dcs.doorcombo_d[i][1]==0))      //match top half
@@ -429,7 +429,7 @@ void fix_dcs(int dir)
         }
         
         //local cset fix
-        for(int i=0; i<2; i++)
+        for(int32_t i=0; i<2; i++)
         {
             if(working_dcs.bombdoorcombo_d[i]==0)
             {
@@ -444,9 +444,9 @@ void fix_dcs(int dir)
             }
         }
         
-        for(int i=0; i<dt_max-1; i++)
+        for(int32_t i=0; i<dt_max-1; i++)
         {
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             
             {
                 if(working_dcs.doorcombo_d[i][j]==0)     //fix cset for doors
@@ -461,7 +461,7 @@ void fix_dcs(int dir)
     case left:
     {
         //first combo copying
-        for(int i=0; i<dt_max-2; i++)
+        for(int32_t i=0; i<dt_max-2; i++)
         {
             if(working_dcs.doorcombo_l[i+1][0]==0)     //copy door top
             {
@@ -525,7 +525,7 @@ void fix_dcs(int dir)
         }
         
         //combo matching
-        for(int i=0; i<dt_max-1; i++)
+        for(int32_t i=0; i<dt_max-1; i++)
         {
             if((working_dcs.doorcombo_l[i][0]!=0)&&
                     (working_dcs.doorcombo_l[i][2]==0))      //match left half - a
@@ -572,7 +572,7 @@ void fix_dcs(int dir)
         }
         
         //local cset fix
-        for(int i=0; i<3; i++)
+        for(int32_t i=0; i<3; i++)
         {
             if(working_dcs.bombdoorcombo_l[i]==0)
             {
@@ -587,9 +587,9 @@ void fix_dcs(int dir)
             }
         }
         
-        for(int i=0; i<dt_max-1; i++)
+        for(int32_t i=0; i<dt_max-1; i++)
         {
-            for(int j=1; j<6; j++)
+            for(int32_t j=1; j<6; j++)
             {
                 if(working_dcs.doorcombo_l[i][j]==0)     //fix cset for doors
                 {
@@ -603,7 +603,7 @@ void fix_dcs(int dir)
     case right:
     {
         //first combo copying
-        for(int i=0; i<dt_max-2; i++)
+        for(int32_t i=0; i<dt_max-2; i++)
         {
             if(working_dcs.doorcombo_r[i+1][1]==0)     //copy door top
             {
@@ -670,7 +670,7 @@ void fix_dcs(int dir)
         
         
         //combo matching
-        for(int i=0; i<dt_max-1; i++)
+        for(int32_t i=0; i<dt_max-1; i++)
         {
             if((working_dcs.doorcombo_r[i][0]!=0)&&
                     (working_dcs.doorcombo_r[i][2]==0))      //match left half - a
@@ -717,7 +717,7 @@ void fix_dcs(int dir)
         }
         
         //local cset fix
-        for(int i=0; i<3; i++)
+        for(int32_t i=0; i<3; i++)
         {
             if(working_dcs.bombdoorcombo_r[i]==0)
             {
@@ -732,9 +732,9 @@ void fix_dcs(int dir)
             }
         }
         
-        for(int i=0; i<dt_max-1; i++)
+        for(int32_t i=0; i<dt_max-1; i++)
         {
-            for(int j=0; j<6; j++)
+            for(int32_t j=0; j<6; j++)
             {
                 if(working_dcs.doorcombo_r[i][j]==0)     //fix cset for doors
                 {
@@ -747,7 +747,7 @@ void fix_dcs(int dir)
     }
 }
 
-void auto_generate_dcs(int dir)
+void auto_generate_dcs(int32_t dir)
 {
     DoorComboSet & d = working_dcs;
     
@@ -755,8 +755,8 @@ void auto_generate_dcs(int dir)
     {
     case up:
     {
-        for(int i(1); i < 9; ++i)
-            for(int j(0); j < 4; ++j)
+        for(int32_t i(1); i < 9; ++i)
+            for(int32_t j(0); j < 4; ++j)
             {
                 d.doorcombo_u[i][j] = d.doorcombo_u[0][j];
                 d.doorcset_u[i][j] = d.doorcset_u[0][j];
@@ -766,8 +766,8 @@ void auto_generate_dcs(int dir)
     
     case down:
     {
-        for(int i(1); i < 9; ++i)
-            for(int j(0); j < 4; ++j)
+        for(int32_t i(1); i < 9; ++i)
+            for(int32_t j(0); j < 4; ++j)
             {
                 d.doorcombo_d[i][j] = d.doorcombo_d[0][j];
                 d.doorcset_d[i][j] = d.doorcset_d[0][j];
@@ -777,8 +777,8 @@ void auto_generate_dcs(int dir)
     
     case left:
     {
-        for(int i(1); i < 9; ++i)
-            for(int j(0); j < 6; ++j)
+        for(int32_t i(1); i < 9; ++i)
+            for(int32_t j(0); j < 6; ++j)
             {
                 d.doorcombo_l[i][j] = d.doorcombo_l[0][j];
                 d.doorcset_l[i][j] = d.doorcset_l[0][j];
@@ -788,8 +788,8 @@ void auto_generate_dcs(int dir)
     
     case right:
     {
-        for(int i(1); i < 9; ++i)
-            for(int j(0); j < 6; ++j)
+        for(int32_t i(1); i < 9; ++i)
+            for(int32_t j(0); j < 6; ++j)
             {
                 d.doorcombo_r[i][j] = d.doorcombo_r[0][j];
                 d.doorcset_r[i][j] = d.doorcset_r[0][j];
@@ -799,25 +799,25 @@ void auto_generate_dcs(int dir)
     }
 }
 
-static int door_top_list[] =
+static int32_t door_top_list[] =
 {
     // dialog control number
     8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, -1
 };
 
-static int door_bottom_list[] =
+static int32_t door_bottom_list[] =
 {
     // dialog control number
     70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, -1
 };
 
-static int door_left_list[] =
+static int32_t door_left_list[] =
 {
     // dialog control number
     132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, -1
 };
 
-static int door_right_list[] =
+static int32_t door_right_list[] =
 {
     // dialog control number
     213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, -1
@@ -833,7 +833,7 @@ static TABPANEL door_tabs[] =
     { NULL,              0,           NULL,             0, NULL }
 };
 
-int dcs_auto_button_proc(int msg, DIALOG *d, int c);
+int32_t dcs_auto_button_proc(int32_t msg, DIALOG *d, int32_t c);
 
 static DIALOG doorcomboset_dlg[] =
 {
@@ -1262,16 +1262,16 @@ static DIALOG doorcomboset_dlg[] =
 void fill_dcs_dlg()
 {
     //north doors
-    for(int x=0; x<dt_max-1; x++)
+    for(int32_t x=0; x<dt_max-1; x++)
     {
-        for(int y=0; y<4; y++)
+        for(int32_t y=0; y<4; y++)
         {
             doorcomboset_dlg[(x*4)+y+31].d1 = working_dcs.doorcombo_u[x][y];
             doorcomboset_dlg[(x*4)+y+31].fg = working_dcs.doorcset_u[x][y];
         }
     }
     
-    for(int x=0; x<2; x++)
+    for(int32_t x=0; x<2; x++)
     {
         doorcomboset_dlg[x+67].d1 = working_dcs.bombdoorcombo_u[x];
         doorcomboset_dlg[x+67].fg = working_dcs.bombdoorcset_u[x];
@@ -1282,16 +1282,16 @@ void fill_dcs_dlg()
     
     
     //south doors
-    for(int x=0; x<dt_max-1; x++)
+    for(int32_t x=0; x<dt_max-1; x++)
     {
-        for(int y=0; y<4; y++)
+        for(int32_t y=0; y<4; y++)
         {
             doorcomboset_dlg[(x*4)+y+93].d1 = working_dcs.doorcombo_d[x][y];
             doorcomboset_dlg[(x*4)+y+93].fg = working_dcs.doorcset_d[x][y];
         }
     }
     
-    for(int x=0; x<2; x++)
+    for(int32_t x=0; x<2; x++)
     {
         doorcomboset_dlg[x+129].d1 = working_dcs.bombdoorcombo_d[x];
         doorcomboset_dlg[x+129].fg = working_dcs.bombdoorcset_d[x];
@@ -1302,16 +1302,16 @@ void fill_dcs_dlg()
     
     
     //east doors
-    for(int x=0; x<dt_max-1; x++)
+    for(int32_t x=0; x<dt_max-1; x++)
     {
-        for(int y=0; y<6; y++)
+        for(int32_t y=0; y<6; y++)
         {
             doorcomboset_dlg[(x*6)+y+155].d1 = working_dcs.doorcombo_l[x][y];
             doorcomboset_dlg[(x*6)+y+155].fg = working_dcs.doorcset_l[x][y];
         }
     }
     
-    for(int x=0; x<3; x++)
+    for(int32_t x=0; x<3; x++)
     {
         doorcomboset_dlg[x+209].d1 = working_dcs.bombdoorcombo_l[x];
         doorcomboset_dlg[x+209].fg = working_dcs.bombdoorcset_l[x];
@@ -1322,9 +1322,9 @@ void fill_dcs_dlg()
     
     
     //west doors
-    for(int x=0; x<dt_max-1; x++)
+    for(int32_t x=0; x<dt_max-1; x++)
     {
-        for(int y=0; y<6; y++)
+        for(int32_t y=0; y<6; y++)
         {
             doorcomboset_dlg[(x*6)+y+236].d1 = working_dcs.doorcombo_r[x][y];
             doorcomboset_dlg[(x*6)+y+236].fg = working_dcs.doorcset_r[x][y];
@@ -1332,7 +1332,7 @@ void fill_dcs_dlg()
     }
     
     
-    for(int x=0; x<3; x++)
+    for(int32_t x=0; x<3; x++)
     {
         doorcomboset_dlg[x+290].d1 = working_dcs.bombdoorcombo_r[x];
         doorcomboset_dlg[x+290].fg = working_dcs.bombdoorcset_r[x];
@@ -1346,16 +1346,16 @@ void fill_dcs_dlg()
 void extract_dcs_dlg()
 {
     //north doors
-    for(int x=0; x<dt_max-1; x++)
+    for(int32_t x=0; x<dt_max-1; x++)
     {
-        for(int y=0; y<4; y++)
+        for(int32_t y=0; y<4; y++)
         {
             working_dcs.doorcombo_u[x][y] = doorcomboset_dlg[(x*4)+y+31].d1;
             working_dcs.doorcset_u[x][y] = doorcomboset_dlg[(x*4)+y+31].fg;
         }
     }
     
-    for(int x=0; x<2; x++)
+    for(int32_t x=0; x<2; x++)
     {
         working_dcs.bombdoorcombo_u[x] = doorcomboset_dlg[x+67].d1;
         working_dcs.bombdoorcset_u[x] = doorcomboset_dlg[x+67].fg;
@@ -1366,16 +1366,16 @@ void extract_dcs_dlg()
     
     
     //south doors
-    for(int x=0; x<dt_max-1; x++)
+    for(int32_t x=0; x<dt_max-1; x++)
     {
-        for(int y=0; y<4; y++)
+        for(int32_t y=0; y<4; y++)
         {
             working_dcs.doorcombo_d[x][y] = doorcomboset_dlg[(x*4)+y+93].d1;
             working_dcs.doorcset_d[x][y] = doorcomboset_dlg[(x*4)+y+93].fg;
         }
     }
     
-    for(int x=0; x<2; x++)
+    for(int32_t x=0; x<2; x++)
     {
         working_dcs.bombdoorcombo_d[x] = doorcomboset_dlg[x+129].d1;
         working_dcs.bombdoorcset_d[x] = doorcomboset_dlg[x+129].fg;
@@ -1386,16 +1386,16 @@ void extract_dcs_dlg()
     
     
     //east doors
-    for(int x=0; x<dt_max-1; x++)
+    for(int32_t x=0; x<dt_max-1; x++)
     {
-        for(int y=0; y<6; y++)
+        for(int32_t y=0; y<6; y++)
         {
             working_dcs.doorcombo_l[x][y] = doorcomboset_dlg[(x*6)+y+155].d1;
             working_dcs.doorcset_l[x][y] = doorcomboset_dlg[(x*6)+y+155].fg;
         }
     }
     
-    for(int x=0; x<3; x++)
+    for(int32_t x=0; x<3; x++)
     {
         working_dcs.bombdoorcombo_l[x] = doorcomboset_dlg[x+209].d1;
         working_dcs.bombdoorcset_l[x] = doorcomboset_dlg[x+209].fg;
@@ -1406,16 +1406,16 @@ void extract_dcs_dlg()
     
     
     //west doors
-    for(int x=0; x<dt_max-1; x++)
+    for(int32_t x=0; x<dt_max-1; x++)
     {
-        for(int y=0; y<6; y++)
+        for(int32_t y=0; y<6; y++)
         {
             working_dcs.doorcombo_r[x][y] = doorcomboset_dlg[(x*6)+y+236].d1;
             working_dcs.doorcset_r[x][y] = doorcomboset_dlg[(x*6)+y+236].fg;
         }
     }
     
-    for(int x=0; x<3; x++)
+    for(int32_t x=0; x<3; x++)
     {
         working_dcs.bombdoorcombo_r[x] = doorcomboset_dlg[x+290].d1;
         working_dcs.bombdoorcset_r[x] = doorcomboset_dlg[x+290].fg;
@@ -1425,7 +1425,7 @@ void extract_dcs_dlg()
     working_dcs.walkthroughcset[3] = doorcomboset_dlg[293].fg;
 }
 
-int edit_dcs(int index)
+int32_t edit_dcs(int32_t index)
 {
     char door_combo_set_name[sizeof(DoorComboSets[0].name)];
     working_dcs=DoorComboSets[index];
@@ -1442,7 +1442,7 @@ int edit_dcs(int index)
         large_dialog(doorcomboset_dlg, 2.0);
     }
     
-    int ret;
+    int32_t ret;
     
     do
     {
@@ -1451,9 +1451,9 @@ int edit_dcs(int index)
         if(ret==1)
         {
             extract_dcs_dlg();
-            int selected = -1;
+            int32_t selected = -1;
             
-            for(int i=0; door_tabs[i].text; i++)
+            for(int32_t i=0; door_tabs[i].text; i++)
             {
                 if(door_tabs[i].flags&D_SELECTED)
                 {
@@ -1494,7 +1494,7 @@ int edit_dcs(int index)
     return D_O_K;
 }
 
-void editdoorcomboset(int index)
+void editdoorcomboset(int32_t index)
 {
     reset_combo_animations();
     reset_combo_animations2();
@@ -1504,7 +1504,7 @@ void editdoorcomboset(int index)
     return;
 }
 
-const char *doorcombosetlist(int index, int *list_size)
+const char *doorcombosetlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -1518,10 +1518,10 @@ const char *doorcombosetlist(int index, int *list_size)
     return NULL;
 }
 
-int doorcombosetlist_del();
-int copydcs();
-int pastedcs();
-int replacedcs();
+int32_t doorcombosetlist_del();
+int32_t copydcs();
+int32_t pastedcs();
+int32_t replacedcs();
 
 static ListData doorcombosetlist_dlg_list(doorcombosetlist, &font);
 
@@ -1541,7 +1541,7 @@ static DIALOG doorcombosetlist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static int copiedDoor;
+static int32_t copiedDoor;
 static MENU doorlist_rclick_menu[] =
 {
     //{ (char *)"Copy",  NULL, NULL, 0, NULL },
@@ -1551,7 +1551,7 @@ static MENU doorlist_rclick_menu[] =
     { NULL,            NULL, NULL, 0, NULL }
 };
 
-void doorlist_rclick_func(int index, int x, int y)
+void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 {
     //if(bii[index].i<0) // Clicked (none)?
     if(index < 0) // Clicked (none)?
@@ -1562,7 +1562,7 @@ void doorlist_rclick_func(int index, int x, int y)
     //else
     //    doorlist_rclick_menu[1].flags&=~D_DISABLED;
     
-    int ret=popup_menu(doorlist_rclick_menu, x, y);
+    int32_t ret=popup_menu(doorlist_rclick_menu, x, y);
     char name[256] = {0};
     
     if(ret==0) // save
@@ -1571,7 +1571,7 @@ void doorlist_rclick_func(int index, int x, int y)
 	{
                 return;
 	}
-	//int iid = bii[index].i; //the item id is not the sajme as the editor index
+	//int32_t iid = bii[index].i; //the item id is not the sajme as the editor index
 	//the editor index is the position in the current LIST. -Z
 	
 	//al_trace("Saving item index: %d\n",index);
@@ -1583,7 +1583,7 @@ void doorlist_rclick_func(int index, int x, int y)
 		al_trace("Could not write to .zitem packfile %s\n", temppath);
 	}
 	*/
-	int ret = writeonezdoorset(f,index);
+	int32_t ret = writeonezdoorset(f,index);
 	pack_fclose(f);
 	char tmpbuf[512]={0};
 	if ( ret )
@@ -1607,7 +1607,7 @@ void doorlist_rclick_func(int index, int x, int y)
 	extract_name(filepath,name,FILENAMEALL);
 	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 	if(!f) return;
-	int ret = readonezdoorset(f,index);
+	int32_t ret = readonezdoorset(f,index);
 				
 	if (!ret)
 	{
@@ -1631,13 +1631,13 @@ void doorlist_rclick_func(int index, int x, int y)
     }
 }
 
-void reset_doorcomboset(int index);
+void reset_doorcomboset(int32_t index);
 void fix_door_combo_set(word &door_combo_set, byte index);
 
-int doorcombosetlist_del()
+int32_t doorcombosetlist_del()
 {
     char buf[25];
-    int d=doorcombosetlist_dlg[2].d1;
+    int32_t d=doorcombosetlist_dlg[2].d1;
     
     if((d>0 || door_combo_set_count>2) && d<door_combo_set_count-1)
     {
@@ -1647,16 +1647,16 @@ int doorcombosetlist_del()
         {
             saved=false;
             
-            for(int i=d; i<MAXDOORCOMBOSETS-1; i++)
+            for(int32_t i=d; i<MAXDOORCOMBOSETS-1; i++)
             {
                 DoorComboSets[i]=DoorComboSets[i+1];
             }
             
             reset_doorcomboset(MAXDOORCOMBOSETS-1);
             --door_combo_set_count;
-            int sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
+            int32_t sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
             
-            for(int s=0; s<sc; s++)
+            for(int32_t s=0; s<sc; s++)
             {
                 fix_door_combo_set(TheMaps[s].door_combo_set, d);
             }
@@ -1668,13 +1668,13 @@ int doorcombosetlist_del()
     return D_O_K;
 }
 
-int copydcs()
+int32_t copydcs()
 {
     doorcombosetlist_dlg[5].d1=doorcombosetlist_dlg[2].d1;
     return D_O_K;
 }
 
-int pastedcs()
+int32_t pastedcs()
 {
     if(doorcombosetlist_dlg[5].d1==-1)
     {
@@ -1686,7 +1686,7 @@ int pastedcs()
     return D_CLOSE;
 }
 
-int replacedcs()
+int32_t replacedcs()
 {
     if(doorcombosetlist_dlg[5].d1==-1)
     {
@@ -1695,9 +1695,9 @@ int replacedcs()
     }
     
     DoorComboSets[doorcombosetlist_dlg[2].d1]=DoorComboSets[doorcombosetlist_dlg[5].d1];
-    int sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
+    int32_t sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
     
-    for(int s=0; s<sc; s++)
+    for(int32_t s=0; s<sc; s++)
     {
         if(TheMaps[s].door_combo_set==doorcombosetlist_dlg[5].d1)
         {
@@ -1718,7 +1718,7 @@ void fix_door_combo_set(word &door_combo_set, byte index)
 }
 
 
-void reset_doorcomboset(int index)
+void reset_doorcomboset(int32_t index)
 {
     bound(index,0,MAXDOORCOMBOSETS-1);
     memset(&DoorComboSets[index], 0, sizeof(DoorComboSet));
@@ -1726,16 +1726,16 @@ void reset_doorcomboset(int index)
 
 void init_doorcombosets()
 {
-    for(int i=0; i<MAXDOORCOMBOSETS; i++)
+    for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
         reset_doorcomboset(i);
         
     door_combo_set_count=0;
 }
 
-int onDoorCombos()
+int32_t onDoorCombos()
 {
     go();
-    int index=0;
+    int32_t index=0;
     doorcombosetlist_dlg[0].dp2=lfont;
     doorcombosetlist_dlg[2].dp3 = (void *)&doorlist_rclick_func;
     doorcombosetlist_dlg[2].flags|=(D_USER<<1);
@@ -1753,10 +1753,10 @@ int onDoorCombos()
         if(is_large)
             large_dialog(doorcombosetlist_dlg,1.5);
             
-        int ret=zc_popup_dialog(doorcombosetlist_dlg,2);
+        int32_t ret=zc_popup_dialog(doorcombosetlist_dlg,2);
         index=doorcombosetlist_dlg[2].d1;
         
-        int doedit=false;
+        int32_t doedit=false;
         
         switch(ret)
         {

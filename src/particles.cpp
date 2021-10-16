@@ -10,20 +10,20 @@ particle::~particle()
 {
 }
 
-bool particle::animate(int)
+bool particle::animate(int32_t)
 {
 	return true;
 }
 
 void particle::draw(BITMAP *dest)
 {
-	int tcs=cset;
+	int32_t tcs=cset;
 	tcs &= 15;
 	tcs <<= CSET_SHFT;
 	putpixel(dest, x, y+yofs, tcs+color);
 }
 
-particle::particle(zfix X,zfix Y,int L,int CS,int C)
+particle::particle(zfix X,zfix Y,int32_t L,int32_t CS,int32_t C)
 {
     uid = getNextUID();
 	x=X;
@@ -86,19 +86,19 @@ void particle::move(zfix s)
 	}
 }
 
-long particle::getNextUID()
+int32_t particle::getNextUID()
 {
-    static long nextid = 0;
+    static int32_t nextid = 0;
     return nextid++;
 }
 
-pFaroresWindDust::pFaroresWindDust(zfix X,zfix Y,int L,int CS,int C, int T) : particle(X,Y,L,CS,C)
+pFaroresWindDust::pFaroresWindDust(zfix X,zfix Y,int32_t L,int32_t CS,int32_t C, int32_t T) : particle(X,Y,L,CS,C)
 {
 	initialized=false;
 	timer=T;
 }
 
-bool pFaroresWindDust::animate(int)
+bool pFaroresWindDust::animate(int32_t)
 {
 	if(!initialized)
 	{
@@ -118,13 +118,13 @@ bool pFaroresWindDust::animate(int)
 	return (!timer);
 }
 
-pTwilight::pTwilight(zfix X,zfix Y,int L,int CS,int C, int T) : particle(X,Y,L,CS,C)
+pTwilight::pTwilight(zfix X,zfix Y,int32_t L,int32_t CS,int32_t C, int32_t T) : particle(X,Y,L,CS,C)
 {
 	dir = up;
 	delay = T;
 }
 
-bool pTwilight::animate(int)
+bool pTwilight::animate(int32_t)
 {
 	if(delay>0)
 	{
@@ -147,7 +147,7 @@ void particle_list::clear()
 	lastRequested=0;
 }
 
-particle *particle_list::at(int index)
+particle *particle_list::at(int32_t index)
 {
 	if(index<0 || index>=count)
 		return NULL;
@@ -155,7 +155,7 @@ particle *particle_list::at(int index)
 	return particles[index];
 }
 
-bool particle_list::swap(int a,int b)
+bool particle_list::swap(int32_t a,int32_t b)
 {
 	if(a<0 || a>=count || b<0 || b>=count)
 		return false;
@@ -191,12 +191,12 @@ bool particle_list::remove(particle *p)
 		lastRequested=0;
 	}
 	
-	map<long, int>::iterator it = containedUIDs.find(p->getUID());
+	map<int32_t, int32_t>::iterator it = containedUIDs.find(p->getUID());
 	
 	if(it != containedUIDs.end())
 		containedUIDs.erase(it);
 		
-	int j=0;
+	int32_t j=0;
 	
 	for(; j<count; j++)
 		if(particles[j] == p)
@@ -206,7 +206,7 @@ bool particle_list::remove(particle *p)
 	
 gotit:
 
-	for(int i=j; i<count-1; i++)
+	for(int32_t i=j; i<count-1; i++)
 	{
 		particles[i]=particles[i+1];
 		containedUIDs[particles[i]->getUID()] = i;
@@ -217,7 +217,7 @@ gotit:
 	return true;
 }
 
-zfix particle_list::getX(int j)
+zfix particle_list::getX(int32_t j)
 {
 	if((j>=count)||(j<0))
 	{
@@ -227,7 +227,7 @@ zfix particle_list::getX(int j)
 	return particles[j]->x;
 }
 
-zfix particle_list::getY(int j)
+zfix particle_list::getY(int32_t j)
 {
 	if((j>=count)||(j<0))
 	{
@@ -237,12 +237,12 @@ zfix particle_list::getY(int j)
 	return particles[j]->y;
 }
 
-bool particle_list::del(int j)
+bool particle_list::del(int32_t j)
 {
 	if(j<0||j>=count)
 		return false;
 		
-	map<long, int>::iterator it = containedUIDs.find(particles[j]->getUID());
+	map<int32_t, int32_t>::iterator it = containedUIDs.find(particles[j]->getUID());
 	
 	if(it != containedUIDs.end())
 		containedUIDs.erase(it);
@@ -255,7 +255,7 @@ bool particle_list::del(int j)
 	
 	delete particles[j];
 	
-	for(int i=j; i<count-1; i++)
+	for(int32_t i=j; i<count-1; i++)
 	{
 		particles[i]=particles[i+1];
 		containedUIDs[particles[i]->getUID()] = i;
@@ -267,11 +267,11 @@ bool particle_list::del(int j)
 	return true;
 }
 
-void particle_list::draw(BITMAP* dest,bool lowfirst,int lyr)
+void particle_list::draw(BITMAP* dest,bool lowfirst,int32_t lyr)
 {
 	if(lowfirst)
 	{
-		for(int i=0; i<count; i++)
+		for(int32_t i=0; i<count; i++)
 		{
 			if(lyr>-999 && particles[i]->layer != lyr)
 				continue;
@@ -280,7 +280,7 @@ void particle_list::draw(BITMAP* dest,bool lowfirst,int lyr)
 	}
 	else
 	{
-		for(int i=count-1; i>=0; i--)
+		for(int32_t i=count-1; i>=0; i--)
 		{
 			if(lyr>-999 && particles[i]->layer != lyr)
 				continue;
@@ -305,22 +305,22 @@ void particle_list::animate()
 	active_iterator = -1;
 }
 
-int particle_list::Count()
+int32_t particle_list::Count()
 {
 	return count;
 }
 
-bool particle_list::has_space(int space)
+bool particle_list::has_space(int32_t space)
 {
 	return (count+space) <= max_particles;
 }
 
-particle * particle_list::getByUID(long uid)
+particle * particle_list::getByUID(int32_t uid)
 {
 	if(uid==lastUIDRequested)
 		return lastRequested;
 	
-	map<long, int>::iterator it = containedUIDs.find(uid);
+	map<int32_t, int32_t>::iterator it = containedUIDs.find(uid);
 	
 	if(it != containedUIDs.end())
 	{

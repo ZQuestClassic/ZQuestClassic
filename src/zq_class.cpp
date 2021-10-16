@@ -53,7 +53,7 @@ extern FFScript FFCore;
 
 extern ZModule zcm;
 extern zcmodule moduledata;
-extern unsigned char ViewLayer3BG, ViewLayer2BG; 
+extern uint8_t ViewLayer3BG, ViewLayer2BG; 
 
 
 using std::string;
@@ -67,23 +67,23 @@ extern char msgbuf[MSGSIZE*3];
 extern string zScript;
 
 zmap Map;
-int prv_mode=0;
-short ffposx[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
+int32_t prv_mode=0;
+int16_t ffposx[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
                    -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000
                   };
-short ffposy[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
+int16_t ffposy[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
                    -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000
                   };
-long ffprvx[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
+int32_t ffprvx[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
                   -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000
                  };
-long ffprvy[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
+int32_t ffprvy[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
                   -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000
                  };
 
 bool save_warn=true;
 
-void reset_dmap(int index)
+void reset_dmap(int32_t index)
 {
     bound(index,0,MAXDMAPS-1);
     memset(&DMaps[index],0,sizeof(dmap));
@@ -93,7 +93,7 @@ void reset_dmap(int index)
 
 void reset_dmaps()
 {
-    for(int i=0; i<MAXDMAPS; i++)
+    for(int32_t i=0; i<MAXDMAPS; i++)
         reset_dmap(i);
 }
 
@@ -139,33 +139,33 @@ bool zmap::CanPaste()
 {
     return can_paste;
 }
-int  zmap::CopyScr()
+int32_t  zmap::CopyScr()
 {
     return (copymap<<8)+copyscr;
 }
-int zmap::getCopyFFC()
+int32_t zmap::getCopyFFC()
 {
     return copyffc;
 }
-int zmap::getMapCount()
+int32_t zmap::getMapCount()
 {
     return map_count;
 }
-int zmap::getLayerTargetMap()
+int32_t zmap::getLayerTargetMap()
 {
     return layer_target_map;
 }
-int zmap::getLayerTargetScr()
+int32_t zmap::getLayerTargetScr()
 {
     return layer_target_scr;
 }
-int zmap::getLayerTargetMultiple()
+int32_t zmap::getLayerTargetMultiple()
 {
     return layer_target_multiple;
 }
-bool zmap::isDungeon(int scr)
+bool zmap::isDungeon(int32_t scr)
 {
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         if(screens[scr].data[i]!=screens[TEMPLATE].data[i])
         {
@@ -190,7 +190,7 @@ bool zmap::clearall(bool validate)
         }
     }
     
-    for(int i=0; i<map_count; i++)
+    for(int32_t i=0; i<map_count; i++)
     {
         setCurrMap(i);
         sprintf(tbuf, "%d", i);
@@ -213,9 +213,9 @@ bool zmap::reset_templates(bool validate)
     deletefilename=(char *)zc_malloc(1);
     deletefilename[0]=0;
     
-    //int ret;
+    //int32_t ret;
     word version, build, dummy, sversion=0;
-    //long section_size;
+    //int32_t section_size;
     word temp_map_count;
     mapscr temp_mapscr;
     PACKFILE *f=NULL;
@@ -345,7 +345,7 @@ bool zmap::reset_templates(bool validate)
         temp_map.subpTrans = false;
     }
     
-    for(int i=0; i<MAPSCRSNORMAL; ++i)
+    for(int32_t i=0; i<MAPSCRSNORMAL; ++i)
     {
         readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
     }
@@ -353,7 +353,7 @@ bool zmap::reset_templates(bool validate)
     readmapscreen(f, &header, &TheMaps[128], &temp_map, sversion);
     readmapscreen(f, &header, &TheMaps[129], &temp_map, sversion);
     
-    for(int i=0; i<(MAPSCRS-(MAPSCRSNORMAL+2)); ++i)
+    for(int32_t i=0; i<(MAPSCRS-(MAPSCRSNORMAL+2)); ++i)
     {
         readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
     }
@@ -448,7 +448,7 @@ bool zmap::reset_templates(bool validate)
         temp_map.subpTrans = false;
     }
     
-    for(int i=0; i<MAPSCRSNORMAL; ++i)
+    for(int32_t i=0; i<MAPSCRSNORMAL; ++i)
     {
         readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
     }
@@ -468,7 +468,7 @@ bool zmap::reset_templates(bool validate)
     return true;
 }
 
-void zmap::clearzcmap(int map)
+void zmap::clearzcmap(int32_t map)
 {
     ZCMaps[map].scrResWidth = 256;
     ZCMaps[map].scrResHeight = 224;
@@ -492,7 +492,7 @@ bool zmap::clearmap(bool newquest)
     {
         clearzcmap(currmap);
         
-        for(int i=0; i<MAPSCRS-(newquest?0:TEMPLATES); i++)
+        for(int32_t i=0; i<MAPSCRS-(newquest?0:TEMPLATES); i++)
         {
             clearscr(i);
         }
@@ -515,30 +515,30 @@ mapscr* zmap::CurrScr()
 {
     return screens+currscr;
 }
-mapscr* zmap::Scr(int scr)
+mapscr* zmap::Scr(int32_t scr)
 {
     return screens+scr;
 }
-mapscr* zmap::AbsoluteScr(int scr)
+mapscr* zmap::AbsoluteScr(int32_t scr)
 {
     return &TheMaps[scr];
 }
-mapscr* zmap::AbsoluteScr(int map, int scr)
+mapscr* zmap::AbsoluteScr(int32_t map, int32_t scr)
 {
     return &TheMaps[(map*MAPSCRS)+scr];
 }
-void zmap::set_prvscr(int map, int scr)
+void zmap::set_prvscr(int32_t map, int32_t scr)
 {
 
     prvscr=TheMaps[(map*MAPSCRS)+scr];
     
-    const int _mapsSize = ZCMaps[map].tileWidth*ZCMaps[map].tileHeight;
+    const int32_t _mapsSize = ZCMaps[map].tileWidth*ZCMaps[map].tileHeight;
     
     prvscr.data.resize(_mapsSize, 0);
     prvscr.sflag.resize(_mapsSize, 0);
     prvscr.cset.resize(_mapsSize, 0);
     
-    for(int i=0; i<6; i++)
+    for(int32_t i=0; i<6; i++)
     {
         if(prvscr.layermap[i]>0)
         {
@@ -562,7 +562,7 @@ void zmap::set_prvscr(int map, int scr)
     prv_map=map;
     prv_scr=scr;
 }
-int  zmap::getCurrMap()
+int32_t  zmap::getCurrMap()
 {
     return currmap;
 }
@@ -570,9 +570,9 @@ bool zmap::isDark()
 {
     return (screens[currscr].flags&4)!=0;
 }
-void zmap::setCurrMap(int index)
+void zmap::setCurrMap(int32_t index)
 {
-    int oldmap=currmap;
+    int32_t oldmap=currmap;
     scrpos[currmap]=currscr;
     currmap=bound(index,0,map_count);
     screens=&TheMaps[currmap*MAPSCRS];
@@ -588,16 +588,16 @@ void zmap::setCurrMap(int index)
     reset_combo_animations2();
 }
 
-int  zmap::getCurrScr()
+int32_t  zmap::getCurrScr()
 {
     return currscr;
 }
-void zmap::setCurrScr(int scr)
+void zmap::setCurrScr(int32_t scr)
 {
     if(scr==currscr) return;
     
-    int oldscr=currscr;
-    int oldcolor=getcolor();
+    int32_t oldscr=currscr;
+    int32_t oldcolor=getcolor();
     
     if(!(screens[currscr].valid&mVALID))
     {
@@ -605,7 +605,7 @@ void zmap::setCurrScr(int scr)
     }
     
     currscr=bound(scr,0,MAPSCRS-1);
-    int newcolor=getcolor();
+    int32_t newcolor=getcolor();
     loadlvlpal(newcolor);
     
     //setcolor(newcolor);
@@ -633,15 +633,15 @@ void zmap::setlayertarget()
     layer_target_map = 0;
     layer_target_multiple = 0;
     
-    for(int m=0; m<getMapCount(); ++m)
+    for(int32_t m=0; m<getMapCount(); ++m)
     {
-        for(int s=0; s<MAPSCRS; ++s)
+        for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            int i=(m*MAPSCRS+s);
+            int32_t i=(m*MAPSCRS+s);
             mapscr *ts=&TheMaps[i];
             
             // Search through each layer
-            for(int w=0; w<6; ++w)
+            for(int32_t w=0; w<6; ++w)
             {
                 if(ts->layerscreen[w]==currscr && (ts->layermap[w]-1)==currmap)
                 {
@@ -659,7 +659,7 @@ void zmap::setlayertarget()
     }
 }
 
-void zmap::setcolor(int c)
+void zmap::setcolor(int32_t c)
 {
     if(screens[currscr].valid&mVALID)
     {
@@ -673,7 +673,7 @@ void zmap::setcolor(int c)
     }
 }
 
-int zmap::getcolor()
+int32_t zmap::getcolor()
 {
     if(prv_mode)
     {
@@ -687,57 +687,57 @@ void zmap::resetflags()
 {
     byte *di=&(screens[currscr].valid);
     
-    for(int i=1; i<48; i++)
+    for(int32_t i=1; i<48; i++)
     {
         *(di+i)=0;
     }
 }
 
-word zmap::tcmbdat(int pos)
+word zmap::tcmbdat(int32_t pos)
 {
     return screens[TEMPLATE].data[pos];
 }
 
-word zmap::tcmbcset(int pos)
+word zmap::tcmbcset(int32_t pos)
 {
     return screens[TEMPLATE].cset[pos];
 }
 
-int zmap::tcmbflag(int pos)
+int32_t zmap::tcmbflag(int32_t pos)
 {
     return screens[TEMPLATE].sflag[pos];
 }
 
-word zmap::tcmbdat2(int pos)
+word zmap::tcmbdat2(int32_t pos)
 {
     return screens[TEMPLATE2].data[pos];
 }
 
-word zmap::tcmbcset2(int pos)
+word zmap::tcmbcset2(int32_t pos)
 {
     return screens[TEMPLATE2].cset[pos];
 }
 
-int zmap::tcmbflag2(int pos)
+int32_t zmap::tcmbflag2(int32_t pos)
 {
     return screens[TEMPLATE2].sflag[pos];
 }
 
 void zmap::TemplateAll()
 {
-    for(int i=0; i<128; i++)
+    for(int32_t i=0; i<128; i++)
     {
         if((screens[i].valid&mVALID) && isDungeon(i))
             Template(-1,i);
     }
 }
 
-void zmap::Template(int floorcombo, int floorcset)
+void zmap::Template(int32_t floorcombo, int32_t floorcset)
 {
     Template(floorcombo, floorcset, currscr);
 }
 
-void zmap::Template(int floorcombo, int floorcset, int scr)
+void zmap::Template(int32_t floorcombo, int32_t floorcset, int32_t scr)
 {
     if(scr==TEMPLATE)
         return;
@@ -747,23 +747,23 @@ void zmap::Template(int floorcombo, int floorcset, int scr)
         
     screens[scr].valid|=mVALID;
     
-    for(int i=0; i<32; i++)
+    for(int32_t i=0; i<32; i++)
     {
         screens[scr].data[i]=screens[TEMPLATE].data[i];
         screens[scr].cset[i]=screens[TEMPLATE].cset[i];
         screens[scr].sflag[i]=screens[TEMPLATE].sflag[i];
     }
     
-    for(int i=144; i<176; i++)
+    for(int32_t i=144; i<176; i++)
     {
         screens[scr].data[i]=screens[TEMPLATE].data[i];
         screens[scr].cset[i]=screens[TEMPLATE].cset[i];
         screens[scr].sflag[i]=screens[TEMPLATE].sflag[i];
     }
     
-    for(int y=2; y<=9; y++)
+    for(int32_t y=2; y<=9; y++)
     {
-        int j=y<<4;
+        int32_t j=y<<4;
         screens[scr].data[j]=screens[TEMPLATE].data[j];
         screens[scr].cset[j]=screens[TEMPLATE].cset[j];
         screens[scr].sflag[j]=screens[TEMPLATE].sflag[j];
@@ -786,41 +786,41 @@ void zmap::Template(int floorcombo, int floorcset, int scr)
     
     if(floorcombo!=-1)
     {
-        for(int y=2; y<9; y++)
-            for(int x=2; x<14; x++)
+        for(int32_t y=2; y<9; y++)
+            for(int32_t x=2; x<14; x++)
             {
-                int i=(y<<4)+x;
+                int32_t i=(y<<4)+x;
                 screens[scr].data[i] = floorcombo;
                 screens[scr].cset[i] = floorcset;
             }
     }
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         putdoor(scr,i,screens[scr].door[i]);
 }
 
-void zmap::putdoor(int side,int door)
+void zmap::putdoor(int32_t side,int32_t door)
 {
     putdoor(currscr,side,door);
 }
 
-void zmap::putdoor2(int side,int door)
+void zmap::putdoor2(int32_t side,int32_t door)
 {
     putdoor2(currscr,side,door);
 }
 
 
 
-// void putdoor(int scr,int side,int door);
-// void putdoor2(int scr,int side,int door);
-// void dowarp(int type);
-// void dowarp(int ring,int index);
+// void putdoor(int32_t scr,int32_t side,int32_t door);
+// void putdoor2(int32_t scr,int32_t side,int32_t door);
+// void dowarp(int32_t type);
+// void dowarp(int32_t ring,int32_t index);
 
-void zmap::clearscr(int scr)
+void zmap::clearscr(int32_t scr)
 {
     screens[scr].zero_memory();
     
-    for(int i=0; i<6; i++)
+    for(int32_t i=0; i<6; i++)
         screens[scr].layeropacity[i]=255;
         
     screens[scr].valid=mVERSION;
@@ -830,7 +830,7 @@ void zmap::clearscr(int scr)
     screens[scr].secretsfx=27; // WAV_SECRET
     screens[scr].holdupsfx=20; // WAV_HOLDUP
     
-    for(int i=0; i<32; i++)
+    for(int32_t i=0; i<32; i++)
     {
         screens[scr].ffwidth[i]=15;
         screens[scr].ffheight[i]=15;
@@ -845,9 +845,9 @@ const char *loaderror[] =
     
 };
 
-int zmap::load(const char *path)
+int32_t zmap::load(const char *path)
 {
-    // int size=file_size(path);
+    // int32_t size=file_size(path);
     
     PACKFILE *f=pack_fopen_password(path,F_READ, "");
     
@@ -855,7 +855,7 @@ int zmap::load(const char *path)
         return 1;
         
         
-    short version;
+    int16_t version;
     byte build;
     
     //get the version
@@ -886,7 +886,7 @@ int zmap::load(const char *path)
     temp_map.subpHeight = 56;
     temp_map.subpTrans = false;
     
-    for(int i=0; i<MAPSCRS; i++)
+    for(int32_t i=0; i<MAPSCRS; i++)
     {
         mapscr tmpimportscr;
         
@@ -947,14 +947,14 @@ file_error:
     return 2;
 }
 
-int zmap::save(const char *path)
+int32_t zmap::save(const char *path)
 {
     PACKFILE *f=pack_fopen_password(path,F_WRITE, "");
     
     if(!f)
         return 1;
         
-    short version=ZELDA_VERSION;
+    int16_t version=ZELDA_VERSION;
     byte  build=VERSION_BUILD;
     
     if(!p_iputw(version,f))
@@ -969,7 +969,7 @@ int zmap::save(const char *path)
         return 3;
     }
     
-    for(int i=0; i<MAPSCRS; i++)
+    for(int32_t i=0; i<MAPSCRS; i++)
     {
         if(writemapscreen(f,this->getCurrMap(),i) == qe_invalid)
         {
@@ -983,7 +983,7 @@ int zmap::save(const char *path)
 }
 
 
-bool zmap::ishookshottable(int bx, int by, int i)
+bool zmap::ishookshottable(int32_t bx, int32_t by, int32_t i)
 {
     // Hookshots can be blocked by solid combos on all 3 ground layers.
     newcombo c = combobuf[MAPCOMBO(bx,by)];
@@ -993,7 +993,7 @@ bool zmap::ishookshottable(int bx, int by, int i)
         return false;
     }
     
-    for(int k=0; k<2; k++)
+    for(int32_t k=0; k<2; k++)
     {
         c = combobuf[MAPCOMBO2(k+1,bx,by)];
         
@@ -1006,7 +1006,7 @@ bool zmap::ishookshottable(int bx, int by, int i)
     return true;
 }
 
-bool zmap::ishookshottable(int map, int screen, int bx, int by, int i)
+bool zmap::ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by, int32_t i)
 {
 	// Hookshots can be blocked by solid combos on all 3 ground layers.
 	newcombo c = combobuf[MAPCOMBO3(map, screen, -1, bx,by)];
@@ -1016,7 +1016,7 @@ bool zmap::ishookshottable(int map, int screen, int bx, int by, int i)
 		return false;
 	}
 	
-	for(int k=0; k<2; k++)
+	for(int32_t k=0; k<2; k++)
 	{
 		c = combobuf[MAPCOMBO3(map, screen, k+1,bx,by)];
 		
@@ -1029,14 +1029,14 @@ bool zmap::ishookshottable(int map, int screen, int bx, int by, int i)
 	return true;
 }
 
-bool zmap::isstepable(int combo)
+bool zmap::isstepable(int32_t combo)
 {
     // This is kind of odd but it's true to the engine (see maps.cpp)
     return (combo_class_buf[combobuf[combo].type].ladder_pass);
 }
 
 // Returns the letter of the warp combo.
-int zmap::warpindex(int combo)
+int32_t zmap::warpindex(int32_t combo)
 {
     switch(combobuf[combo].type)
     {
@@ -1086,24 +1086,24 @@ int zmap::warpindex(int combo)
     
 }
 
-void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
+void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,int32_t layer)
 {
-    int cx = COMBOX(pos);
-    int cy = COMBOY(pos);
+    int32_t cx = COMBOX(pos);
+    int32_t cy = COMBOY(pos);
     
     newcombo c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
     
     if (c.type == cBRIDGE) return;
     
-    int bridgedetected = 0;
+    int32_t bridgedetected = 0;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
-        int tx=((i&2)<<2)+x;
-        int ty=((i&1)<<3)+y;
-	int tx2=((i&2)<<2)+cx;
-        int ty2=((i&1)<<3)+cy;
-        for (int m = layer; m <= 1; m++)
+        int32_t tx=((i&2)<<2)+x;
+        int32_t ty=((i&1)<<3)+y;
+	int32_t tx2=((i&2)<<2)+cx;
+        int32_t ty2=((i&1)<<3)+cy;
+        for (int32_t m = layer; m <= 1; m++)
 	{
 		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
 		{
@@ -1122,13 +1122,13 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
         {
             if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO(cx,cy)) && ishookshottable(cx,cy,i))
             {
-                for(int k=0; k<8; k+=2)
-                    for(int j=0; j<8; j+=2)
+                for(int32_t k=0; k<8; k+=2)
+                    for(int32_t j=0; j<8; j+=2)
                         rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
             }
             else
             {
-                int color = vc(12);
+                int32_t color = vc(12);
                 
                 if(isstepable(MAPCOMBO(cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || (combo_class_buf[combobuf[MAPCOMBO(cx,cy)].type].water==0 && combo_class_buf[c.type].water==0)))
                     color=vc(6);
@@ -1141,11 +1141,11 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
     }
     
     bridgedetected = 0;
-     for(int i=0; i<4; i++)
+     for(int32_t i=0; i<4; i++)
     {
-	int tx2=((i&2)<<2)+cx;
-        int ty2=((i&1)<<3)+cy;
-	for (int m = 0; m <= 1; m++)
+	int32_t tx2=((i&2)<<2)+cx;
+        int32_t ty2=((i&1)<<3)+cy;
+	for (int32_t m = 0; m <= 1; m++)
 	{
 		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
 		{
@@ -1165,21 +1165,21 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
     {
 	if (bridgedetected <= 0)
 	{
-		for(int k=0; k<16; k+=2)
-		    for(int j=0; j<16; j+=2)
+		for(int32_t k=0; k<16; k+=2)
+		    for(int32_t j=0; j<16; j+=2)
 			if(((k+j)/2)%2)
 			    rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
 	}
 	else
 	{
-		for(int i=0; i<4; i++)
+		for(int32_t i=0; i<4; i++)
 		{
 			if (!(bridgedetected & (1<<i)))
 			{
-				int tx=((i&2)<<2)+x;
-				int ty=((i&1)<<3)+y;
-				for(int k=0; k<8; k+=2)
-				    for(int j=0; j<8; j+=2)
+				int32_t tx=((i&2)<<2)+x;
+				int32_t ty=((i&1)<<3)+y;
+				for(int32_t k=0; k<8; k+=2)
+				    for(int32_t j=0; j<8; j+=2)
 					if(((k+j)/2)%2)
 					    rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(14));
 			}
@@ -1188,10 +1188,10 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
     }
 }
 
-void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int layer, int map, int screen)
+void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32_t pos,int32_t layer, int32_t map, int32_t screen)
 {
-    int cx = COMBOX(pos);
-    int cy = COMBOY(pos);
+    int32_t cx = COMBOX(pos);
+    int32_t cy = COMBOY(pos);
     
     if (screen < 0) return;
     if (map < 0) return;
@@ -1200,14 +1200,14 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
     
     if (c.type == cBRIDGE) return;
     
-    int bridgedetected = 0;
-    for(int i=0; i<4; i++)
+    int32_t bridgedetected = 0;
+    for(int32_t i=0; i<4; i++)
     {
-        int tx=((i&2)<<2)+x;
-        int ty=((i&1)<<3)+y;
-	int tx2=((i&2)<<2)+cx;
-        int ty2=((i&1)<<3)+cy;
-        for (int m = layer; m <= 1; m++)
+        int32_t tx=((i&2)<<2)+x;
+        int32_t ty=((i&1)<<3)+y;
+	int32_t tx2=((i&2)<<2)+cx;
+        int32_t ty2=((i&1)<<3)+cy;
+        for (int32_t m = layer; m <= 1; m++)
 	{
 		newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
 		if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
@@ -1226,13 +1226,13 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
         {
             if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO3(map, screen, layer, cx,cy)) && ishookshottable(map, screen, cx,cy,i) && layer < 0)
             {
-                for(int k=0; k<8; k+=2)
-                    for(int j=0; j<8; j+=2)
+                for(int32_t k=0; k<8; k+=2)
+                    for(int32_t j=0; j<8; j+=2)
                         rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
             }
             else
             {
-                int color = vc(12);
+                int32_t color = vc(12);
                 
                 if(isstepable(MAPCOMBO3(map, screen, -1, cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1, cx,cy)].type].water==0))
                     color=vc(6);
@@ -1245,11 +1245,11 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
     }
     
     bridgedetected = 0;
-     for(int i=0; i<4; i++)
+     for(int32_t i=0; i<4; i++)
     {
-	int tx2=((i&2)<<2)+cx;
-        int ty2=((i&1)<<3)+cy;
-	for (int m = 0; m <= 1; m++)
+	int32_t tx2=((i&2)<<2)+cx;
+        int32_t ty2=((i&1)<<3)+cy;
+	for (int32_t m = 0; m <= 1; m++)
 	{
 		newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
 		if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
@@ -1270,21 +1270,21 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
     {
 	if (bridgedetected <= 0)
 	{
-		for(int k=0; k<16; k+=2)
-		    for(int j=0; j<16; j+=2)
+		for(int32_t k=0; k<16; k+=2)
+		    for(int32_t j=0; j<16; j+=2)
 			if(((k+j)/2)%2)
 			    rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
 	}
 	else
 	{
-		for(int i=0; i<4; i++)
+		for(int32_t i=0; i<4; i++)
 		{
 			if (!(bridgedetected & (1<<i)))
 			{
-				int tx=((i&2)<<2)+x;
-				int ty=((i&1)<<3)+y;
-				for(int k=0; k<8; k+=2)
-				    for(int j=0; j<8; j+=2)
+				int32_t tx=((i&2)<<2)+x;
+				int32_t ty=((i&1)<<3)+y;
+				for(int32_t k=0; k<8; k+=2)
+				    for(int32_t j=0; j<8; j+=2)
 					if(((k+j)/2)%2)
 					    rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(14));
 			}
@@ -1293,20 +1293,20 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int x,int y,int pos,int l
     }
 }
 
-void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
+void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 {
     newcombo c = combobuf[cmbdat];
     
     if (c.type == cBRIDGE) return;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
-        int tx=((i&2)<<2)+x;
-        int ty=((i&1)<<3)+y;
+        int32_t tx=((i&2)<<2)+x;
+        int32_t ty=((i&1)<<3)+y;
         
 	bool bridgedetected = false;
 	/*
-	for (int m = -1; m <= 1; m++)
+	for (int32_t m = -1; m <= 1; m++)
 	{
 		if (combobuf[Map.MAPCOMBO2(m,tx,ty)].type == cBRIDGE && !(combobuf[Map.MAPCOMBO2(m,tx,ty)].walk&(1<<i))) 
 		{
@@ -1338,13 +1338,13 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
         {
             if(c.type==cLADDERHOOKSHOT)
             {
-                for(int k=0; k<8; k+=2)
-                    for(int j=0; j<8; j+=2)
+                for(int32_t k=0; k<8; k+=2)
+                    for(int32_t j=0; j<8; j+=2)
                         rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
             }
             else
             {
-                int color = vc(12);
+                int32_t color = vc(12);
                 
                 if(c.type==cLADDERONLY)
                     color=vc(6);
@@ -1358,19 +1358,19 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
         // Draw damage combos
         if(combo_class_buf[c.type].modify_hp_amount != 0)
         {
-	    for(int k=0; k<8; k+=2)
-		for(int j=0; j<8; j+=2)
+	    for(int32_t k=0; k<8; k+=2)
+		for(int32_t j=0; j<8; j+=2)
 		    if(((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(4));
         }
     }
 }
 
-void put_flag(BITMAP* dest, int x, int y, int flag)
+void put_flag(BITMAP* dest, int32_t x, int32_t y, int32_t flag)
 {
 	rectfill(dest,x,y,x+15,y+15,vc(flag&15));
 	textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-(flag&15)),-1,"%d",flag);
 }
-void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag)
+void put_flags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t flags,int32_t sflag)
 {
 
 	newcombo const& c = combobuf[cmbdat];
@@ -1407,7 +1407,7 @@ void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
 	}
 }
 
-void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag)
+void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t flags,int32_t sflag)
 {
 
 	newcombo c = combobuf[cmbdat];
@@ -1422,10 +1422,10 @@ void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
 	putcombo(dest,x,y,cmbdat,cset);
 	
 	/* moved to put_walkflags
-	  for(int i=0; i<4; i++) {
+	  for(int32_t i=0; i<4; i++) {
 	
-	  int tx=((i&2)<<2)+x;
-	  int ty=((i&1)<<3)+y;
+	  int32_t tx=((i&2)<<2)+x;
+	  int32_t ty=((i&1)<<3)+y;
 	  if((flags&cWALK) && (c.walk&(1<<i)))
 	  rectfill(dest,tx,ty,tx+7,ty+7,vc(12));
 	  }
@@ -1481,13 +1481,13 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->item=src->item;
     dest->hasitem=src->hasitem;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         dest->tilewarptype[i]=src->tilewarptype[i];
         
     dest->tilewarpoverlayflags=src->tilewarpoverlayflags;
     dest->door_combo_set=src->door_combo_set;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         dest->warpreturnx[i]=src->warpreturnx[i];
         dest->warpreturny[i]=src->warpreturny[i];
@@ -1501,10 +1501,10 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->color=src->color;
     dest->enemyflags=src->enemyflags;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         dest->door[i]=src->door[i];
         
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         dest->tilewarpdmap[i]=src->tilewarpdmap[i];
         dest->tilewarpscr[i]=src->tilewarpscr[i];
@@ -1512,22 +1512,22 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     
     dest->exitdir=src->exitdir;
     
-    for(int i=0; i<10; i++)
+    for(int32_t i=0; i<10; i++)
         dest->enemy[i]=src->enemy[i];
         
     dest->pattern=src->pattern;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         dest->sidewarptype[i]=src->sidewarptype[i];
         
     dest->sidewarpoverlayflags=src->sidewarpoverlayflags;
     dest->warparrivalx=src->warparrivalx;
     dest->warparrivaly=src->warparrivaly;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         dest->path[i]=src->path[i];
         
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         dest->sidewarpscr[i]=src->sidewarpscr[i];
         dest->sidewarpdmap[i]=src->sidewarpdmap[i];
@@ -1551,7 +1551,7 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->noreset=src->noreset;
     dest->nocarry=src->nocarry;
     
-    for(int i=0; i<6; i++)
+    for(int32_t i=0; i<6; i++)
     {
         dest->layermap[i]=src->layermap[i];
         dest->layerscreen[i]=src->layerscreen[i];
@@ -1562,7 +1562,7 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->nextmap=src->nextmap;
     dest->nextscr=src->nextscr;
     
-    for(int i=0; i<128; i++)
+    for(int32_t i=0; i<128; i++)
     {
         dest->secretcombo[i]=src->secretcombo[i];
         dest->secretcset[i]=src->secretcset[i];
@@ -1578,15 +1578,15 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->scrHeight=src->scrHeight;
     dest->numff=src->numff;
     
-    for(int i=0; i<32; i++)
+    for(int32_t i=0; i<32; i++)
     {
-        for(int j=0; j<8; j++)
+        for(int32_t j=0; j<8; j++)
         {
             //dest->d[i][j]=src->d[i][j];
             dest->initd[i][j]=src->initd[i][j];
         }
         
-        for(int j=0; j<2; j++)
+        for(int32_t j=0; j<2; j++)
         {
             //dest->a[i][j]=src->a[i][j];
             dest->inita[i][j]=src->inita[i][j];
@@ -1618,9 +1618,9 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
         dest->guyref[i]=src->guyref[i];*/
     }
     
-    /*for(int i=0; i<256; i++)
+    /*for(int32_t i=0; i<256; i++)
       dest->map_stack[i]=src->map_stack[i];
-    for(int i=0; i<8; i++)
+    for(int32_t i=0; i<8; i++)
       dest->map_d[i]=src->map_d[i];
     dest->map_pc=src->map_pc;
     dest->map_scriptflag=src->map_scriptflag;
@@ -1644,14 +1644,14 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->old_cpage=src->old_cpage;
     dest->screen_midi=src->screen_midi;
     dest->lens_layer=src->lens_layer;
-    for ( int q = 0; q < 10; q++ ) dest->npcstrings[q]=src->npcstrings[q];
-    for ( int q = 0; q < 10; q++ ) dest->new_items[q]=src->new_items[q];
-    for ( int q = 0; q < 10; q++ ) dest->new_item_x[q]=src->new_item_x[q];
-    for ( int q = 0; q < 10; q++ ) dest->new_item_y[q]=src->new_item_y[q];
+    for ( int32_t q = 0; q < 10; q++ ) dest->npcstrings[q]=src->npcstrings[q];
+    for ( int32_t q = 0; q < 10; q++ ) dest->new_items[q]=src->new_items[q];
+    for ( int32_t q = 0; q < 10; q++ ) dest->new_item_x[q]=src->new_item_x[q];
+    for ( int32_t q = 0; q < 10; q++ ) dest->new_item_y[q]=src->new_item_y[q];
     
     dest->script=src->script;
     
-    for ( int q = 0; q < 8; q++ ) dest->screeninitd[q]=src->screeninitd[q];
+    for ( int32_t q = 0; q < 8; q++ ) dest->screeninitd[q]=src->screeninitd[q];
     
     dest->screen_waitdraw=src->screen_waitdraw;
     dest->preloadscript=src->preloadscript;
@@ -1662,9 +1662,9 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->doscript=src->doscript;
 }
 
-void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,bool ignorepos, int scr)
+void zmap::put_door(BITMAP *dest,int32_t pos,int32_t side,int32_t type,int32_t xofs,int32_t yofs,bool ignorepos, int32_t scr)
 {
-    int x=0,y=0;
+    int32_t x=0,y=0;
     mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
     
     switch(side)
@@ -1762,10 +1762,10 @@ void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,boo
     }
 }
 
-void zmap::over_door(BITMAP *dest,int pos,int side,int xofs,int yofs,bool, int scr)
+void zmap::over_door(BITMAP *dest,int32_t pos,int32_t side,int32_t xofs,int32_t yofs,bool, int32_t scr)
 {
-    int x=((pos&15)<<4)+xofs;
-    int y=(pos&0xF0)+yofs;
+    int32_t x=((pos&15)<<4)+xofs;
+    int32_t y=(pos&0xF0)+yofs;
     mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
     
     
@@ -1857,7 +1857,7 @@ void zmap::over_door(BITMAP *dest,int pos,int side,int xofs,int yofs,bool, int s
     }
 }
 
-bool zmap::misaligned(int map, int scr, int i, int dir)
+bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 {
     word cmbcheck1, cmbcheck2;
     newcombo combocheck1, combocheck2;
@@ -1866,7 +1866,7 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
     combocheck1.walk = 0;
     combocheck2.walk = 0;
     
-    int layermap, layerscreen;
+    int32_t layermap, layerscreen;
     
     switch(dir)
     {
@@ -2143,9 +2143,9 @@ bool zmap::misaligned(int map, int scr, int i, int dir)
     return false;
 }
 
-void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
+void zmap::check_alignments(BITMAP* dest,int32_t x,int32_t y,int32_t scr)
 {
-    int checkcombo;
+    int32_t checkcombo;
     
     if(alignment_arrow_timer>31)
     {
@@ -2188,7 +2188,7 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
                 }
             }
             
-            int tempalign;
+            int32_t tempalign;
             
             //check top left corner
             checkcombo=0;
@@ -2290,12 +2290,12 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
     }
 }
 
-int zmap::MAPCOMBO3(int map, int screen, int layer, int x,int y)
+int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y)
 {
 	return MAPCOMBO3(map, screen, layer, COMBOPOS(x,y));
 }
 
-int zmap::MAPCOMBO3(int map, int screen, int layer, int pos)
+int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 { 
 	if (map < 0 || screen < 0) return 0;
 	
@@ -2308,7 +2308,7 @@ int zmap::MAPCOMBO3(int map, int screen, int layer, int pos)
     
 	if(m->valid==0) return 0;
 	
-	int mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
+	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
 	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
 	
@@ -2322,7 +2322,7 @@ int zmap::MAPCOMBO3(int map, int screen, int layer, int pos)
 }
 
 // Takes array index layer num., not actual layer num.
-int zmap::MAPCOMBO2(int lyr,int x,int y, int map, int scr)
+int32_t zmap::MAPCOMBO2(int32_t lyr,int32_t x,int32_t y, int32_t map, int32_t scr)
 {
     if(lyr<=-1) return MAPCOMBO(x,y,map,scr);
     
@@ -2343,7 +2343,7 @@ int zmap::MAPCOMBO2(int lyr,int x,int y, int map, int scr)
         screen1=AbsoluteScr(currmap,currscr);
     }
     
-    int layermap;
+    int32_t layermap;
     layermap=screen1->layermap[lyr]-1;
     
     if(layermap<0 || layermap >= map_count) return 0;
@@ -2355,7 +2355,7 @@ int zmap::MAPCOMBO2(int lyr,int x,int y, int map, int scr)
     else
         layer = AbsoluteScr(layermap,screen1->layerscreen[lyr]);
         
-    int combo = COMBOPOS(x,y);
+    int32_t combo = COMBOPOS(x,y);
     
     if(combo>175 || combo < 0)
         return 0;
@@ -2363,7 +2363,7 @@ int zmap::MAPCOMBO2(int lyr,int x,int y, int map, int scr)
     return layer->data[combo];
 }
 
-int zmap::MAPCOMBO(int x,int y, int map, int scr) //map=-1,scr=-1
+int32_t zmap::MAPCOMBO(int32_t x,int32_t y, int32_t map, int32_t scr) //map=-1,scr=-1
 {
     if(map<0)
         map=currmap;
@@ -2384,7 +2384,7 @@ int zmap::MAPCOMBO(int x,int y, int map, int scr) //map=-1,scr=-1
     
     x = vbound(x, 0, 16*16);
     y = vbound(y, 0, 11*16);
-    int combo = COMBOPOS(x,y);
+    int32_t combo = COMBOPOS(x,y);
     
     if(combo>175 || combo < 0)
         return 0;
@@ -2392,9 +2392,9 @@ int zmap::MAPCOMBO(int x,int y, int map, int scr) //map=-1,scr=-1
     return screen1->data[combo];
 }
 
-void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
+void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr)
 {
-    int antiflags=(flags&~cFLAGS)&~cWALK;
+    int32_t antiflags=(flags&~cFLAGS)&~cWALK;
     
     if(map<0)
         map=currmap;
@@ -2413,7 +2413,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         layer=AbsoluteScr(map,scr);
     }
     
-    int layermap, layerscreen;
+    int32_t layermap, layerscreen;
     layermap=layer->layermap[CurrentLayer-1]-1;
     
     if(layermap<0)
@@ -2441,7 +2441,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 	
     resize_mouse_pos=true;
     
-    for(int k=1; k<3; k++)
+    for(int32_t k=1; k<3; k++)
     {
         if(k==1&& (layer->flags7&fLAYER2BG||ViewLayer2BG))
         {
@@ -2455,14 +2455,14 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     
                     if(layer->layeropacity[k]==255)
                     {
-                        for(int i=0; i<176; i++)
+                        for(int32_t i=0; i<176; i++)
                         {
                             put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
                         }
                     }
                     else
                     {
-                        for(int i=0; i<176; i++)
+                        for(int32_t i=0; i<176; i++)
                         {
                             put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
                         }
@@ -2483,7 +2483,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     
                     if(layer->layeropacity[k]==255)
                     {
-                        for(int i=0; i<176; i++)
+                        for(int32_t i=0; i<176; i++)
                         {
                             if(!(layer->flags7&fLAYER2BG)&&!ViewLayer2BG)
                                 put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
@@ -2492,7 +2492,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     }
                     else
                     {
-                        for(int i=0; i<176; i++)
+                        for(int32_t i=0; i<176; i++)
                         {
                             if(!(layer->flags7&fLAYER2BG)&&!ViewLayer2BG)
                                 put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
@@ -2506,11 +2506,11 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     
     if(LayerMaskInt[0]!=0)
     {
-        for(int i=0; i<176; i++)
+        for(int32_t i=0; i<176; i++)
         {
             word cmbdat = layer->data[i];
             byte cmbcset = layer->cset[i];
-            int cmbflag = layer->sflag[i];
+            int32_t cmbflag = layer->sflag[i];
             
             if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG||ViewLayer2BG||ViewLayer3BG)
                 overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset);
@@ -2518,9 +2518,9 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         }
     }
     
-    // int cs=2;
+    // int32_t cs=2;
     
-    for(int k=0; k<2; k++)
+    for(int32_t k=0; k<2; k++)
     {
         if(k==1&& (layer->flags7&fLAYER2BG||ViewLayer2BG)) continue;
         
@@ -2534,14 +2534,14 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                 
                 if(layer->layeropacity[k]==255)
                 {
-                    for(int i=0; i<176; i++)
+                    for(int32_t i=0; i<176; i++)
                     {
                         overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i]);
                     }
                 }
                 else
                 {
-                    for(int i=0; i<176; i++)
+                    for(int32_t i=0; i<176; i++)
                     {
                         overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
                     }
@@ -2551,7 +2551,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         
         if(k==0)
         {
-            for(int i=31; i>=0; i--)
+            for(int32_t i=31; i>=0; i--)
             {
                 if(layer->ffdata[i])
                 {
@@ -2559,8 +2559,8 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     {
                         if(!(layer->ffflags[i]&ffOVERLAY))
                         {
-                            int tx=(layer->ffx[i]/10000)+x;
-                            int ty=(layer->ffy[i]/10000)+y;
+                            int32_t tx=(layer->ffx[i]/10000)+x;
+                            int32_t ty=(layer->ffy[i]/10000)+y;
                             
                             if(layer->ffflags[i]&ffTRANS)
                             {
@@ -2579,9 +2579,9 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         }
     }
     
-    int doortype[4];
+    int32_t doortype[4];
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         switch(layer->door[i])
         {
@@ -2736,7 +2736,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         putitem2(dest,layer->itemx+x,layer->itemy+y+1-(get_bit(quest_rules, qr_NOITEMOFFSET)),layer->item,lens_hint_item[layer->item][0],lens_hint_item[layer->item][1], 0);
     }
     
-    for(int k=2; k<4; k++)
+    for(int32_t k=2; k<4; k++)
     {
         if(k==2&&(layer->flags7&fLAYER3BG||ViewLayer3BG)) continue;
         
@@ -2750,14 +2750,14 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                 
                 if(layer->layeropacity[k]==255)
                 {
-                    for(int i=0; i<176; i++)
+                    for(int32_t i=0; i<176; i++)
                     {
                         overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i]);
                     }
                 }
                 else
                 {
-                    for(int i=0; i<176; i++)
+                    for(int32_t i=0; i<176; i++)
                     {
                         overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
                     }
@@ -2769,11 +2769,11 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
-        for(int i=0; i<176; i++)
+        for(int32_t i=0; i<176; i++)
         {
-            int ct1=layer->data[i];
-            //     int ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
-            int ct3=combobuf[ct1].type;
+            int32_t ct1=layer->data[i];
+            //     int32_t ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
+            int32_t ct3=combobuf[ct1].type;
             
 //      if (ct3==cOLD_OVERHEAD)
             if(combo_class_buf[ct3].overhead)
@@ -2785,7 +2785,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     //Overhead L1/2
 	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 	{
-		for(int k = 0; k < 2; ++k)
+		for(int32_t k = 0; k < 2; ++k)
 		{
 			if(LayerMaskInt[k+1]!=0)
 			{
@@ -2797,7 +2797,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 					mapscr const& tmp = prv_mode?prvlayers[k]:TheMaps[layerscreen];
 					if(layer->layeropacity[k]==255)
 					{
-						for(int i=0; i<176; i++)
+						for(int32_t i=0; i<176; i++)
 						{
 							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
 								overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,tmp.data[i],tmp.cset[i]);
@@ -2805,7 +2805,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 					}
 					else
 					{
-						for(int i=0; i<176; i++)
+						for(int32_t i=0; i<176; i++)
 						{
 							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
 								overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
@@ -2816,7 +2816,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 		}
 	}
 	
-    for(int k=4; k<6; k++)
+    for(int32_t k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
@@ -2828,14 +2828,14 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                 
                 if(layer->layeropacity[k]==255)
                 {
-                    for(int i=0; i<176; i++)
+                    for(int32_t i=0; i<176; i++)
                     {
                         overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i]);
                     }
                 }
                 else
                 {
-                    for(int i=0; i<176; i++)
+                    for(int32_t i=0; i<176; i++)
                     {
                         overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
                     }
@@ -2845,7 +2845,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         
         if(k==4)
         {
-            for(int i=31; i>=0; i--)
+            for(int32_t i=31; i>=0; i--)
             {
                 if(layer->ffdata[i])
                 {
@@ -2853,9 +2853,9 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     {
                         if(layer->ffflags[i]&ffOVERLAY)
                         {
-                            //overcombo(framebuf,(int)layer->ffx[i],(int)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
-                            int tx=(layer->ffx[i]/10000)+x;
-                            int ty=(layer->ffy[i]/10000)+y;
+                            //overcombo(framebuf,(int32_t)layer->ffx[i],(int32_t)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
+                            int32_t tx=(layer->ffx[i]/10000)+x;
+                            int32_t ty=(layer->ffy[i]/10000)+y;
                             
                             if(layer->ffflags[i]&ffTRANS)
                             {
@@ -2875,7 +2875,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         
         if(k==5)
         {
-            for(int i=31; i>=0; i--)
+            for(int32_t i=31; i>=0; i--)
             {
                 if(layer->ffdata[i])
                 {
@@ -2892,14 +2892,14 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     {
         if(LayerMaskInt[0]!=0)
         {
-            for(int i=0; i<176; i++)
+            for(int32_t i=0; i<176; i++)
             {
                 //put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i], 0);
 		put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1);
             }
         }
         
-        for(int k=0; k<2; k++)
+        for(int32_t k=0; k<2; k++)
         {
             if(LayerMaskInt[k+1]!=0)
             {
@@ -2909,7 +2909,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                 {
                     layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
                     
-                    for(int i=0; i<176; i++)
+                    for(int32_t i=0; i<176; i++)
                     {
                         put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k);
                     }
@@ -2922,7 +2922,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     {
         if(LayerMaskInt[CurrentLayer]!=0)
         {
-            for(int i=0; i<176; i++)
+            for(int32_t i=0; i<176; i++)
             {
                 if(CurrentLayer==0)
                 {
@@ -2936,7 +2936,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                     }
                     else
                     {
-                        int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+                        int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
                         
                         if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                         {
@@ -2952,13 +2952,13 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     }
     
     
-    int dark = layer->flags&cDARK;
+    int32_t dark = layer->flags&cDARK;
     
     if(dark && !(flags&cNODARK))
     {
-        for(int j=0; j<80; j++)
+        for(int32_t j=0; j<80; j++)
         {
-            for(int i=0; i<(80)-j; i++)
+            for(int32_t i=0; i<(80)-j; i++)
             {
                 if(((i^j)&1)==0)
                 {
@@ -2977,7 +2977,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     
 }
 
-void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
+void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr)
 {
     if(map<0)
         map=currmap;
@@ -2986,7 +2986,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         scr=currscr;
         
     mapscr* layer=AbsoluteScr(map,scr);
-    int layermap=0, layerscreen=0;
+    int32_t layermap=0, layerscreen=0;
     
     if(!(layer->valid&mVALID))
     {
@@ -2995,7 +2995,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         return;
     }
     
-    int dark = layer->flags&4;
+    int32_t dark = layer->flags&4;
     
     resize_mouse_pos=true;
     
@@ -3004,9 +3004,9 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         rectfill(dest,x,y,x+255,y+15,0);
     }
     
-    // int cs=2;
+    // int32_t cs=2;
     
-    for(int k=1; k<3; k++)
+    for(int32_t k=1; k<3; k++)
     {
         if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
         {
@@ -3016,7 +3016,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
                 
-                for(int i=c; i<(c&0xF0)+16; i++)
+                for(int32_t i=c; i<(c&0xF0)+16; i++)
                 {
                     if(layer->layeropacity[k]<255)
                     {
@@ -3033,18 +3033,18 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 	
 	if(LayerMaskInt[0]!=0)
     {
-        for(int i=c; i<(c&0xF0)+16; i++)
+        for(int32_t i=c; i<(c&0xF0)+16; i++)
         {
-            word cmbdat = (i < (int)layer->data.size() ? layer->data[i] : 0);
-            byte cmbcset = (i < (int)layer->data.size() ? layer->cset[i] : 0);
-            int cmbflag = (i < (int)layer->data.size() ? layer->sflag[i] : 0);
+            word cmbdat = (i < (int32_t)layer->data.size() ? layer->data[i] : 0);
+            byte cmbcset = (i < (int32_t)layer->data.size() ? layer->cset[i] : 0);
+            int32_t cmbflag = (i < (int32_t)layer->data.size() ? layer->sflag[i] : 0);
 			if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
 				overcombo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset);
 			else put_combo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
         }
     }
     
-    for(int k=0; k<2; k++)
+    for(int32_t k=0; k<2; k++)
     {
         if(LayerMaskInt[k+1]!=0 && !(k==1 && layer->flags7&fLAYER2BG))
         {
@@ -3054,7 +3054,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
                 
-                for(int i=c; i<(c&0xF0)+16; i++)
+                for(int32_t i=c; i<(c&0xF0)+16; i++)
                 {
                     if(layer->layeropacity[k]<255)
                     {
@@ -3069,9 +3069,9 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
-    int doortype[4];
+    int32_t doortype[4];
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         switch(layer->door[i])
         {
@@ -3127,7 +3127,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
-    for(int k=2; k<4; k++)
+    for(int32_t k=2; k<4; k++)
     {
         if(LayerMaskInt[k+1]!=0 && !(k==2 && layer->flags7&fLAYER3BG))
         {
@@ -3137,7 +3137,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
                 
-                for(int i=c; i<(c&0xF0)+16; i++)
+                for(int32_t i=c; i<(c&0xF0)+16; i++)
                 {
                     if(layer->layeropacity[k]<255)
                     {
@@ -3155,11 +3155,11 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
-        for(int i=c; i<(c&0xF0)+16; i++)
+        for(int32_t i=c; i<(c&0xF0)+16; i++)
         {
-            int ct1=layer->data[i];
-            //     int ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
-            int ct3=combobuf[ct1].type;
+            int32_t ct1=layer->data[i];
+            //     int32_t ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
+            int32_t ct3=combobuf[ct1].type;
             
 //      if (ct3==cOLD_OVERHEAD)
             if(combo_class_buf[ct3].overhead)
@@ -3172,7 +3172,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     //Overhead L1/2
 	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 	{
-		for(int k = 0; k < 2; ++k)
+		for(int32_t k = 0; k < 2; ++k)
 		{
 			if(LayerMaskInt[k+1]!=0)
 			{
@@ -3184,7 +3184,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 					mapscr const& tmp = TheMaps[layerscreen];
 					if(layer->layeropacity[k]==255)
 					{
-						for(int i=c; i<(c&0xF0)+16; i++)
+						for(int32_t i=c; i<(c&0xF0)+16; i++)
 						{
 							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
 								overcombo(dest,((i&15)<<4)+x,y,tmp.data[i],tmp.cset[i]);
@@ -3192,7 +3192,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 					}
 					else
 					{
-						for(int i=c; i<(c&0xF0)+16; i++)
+						for(int32_t i=c; i<(c&0xF0)+16; i++)
 						{
 							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
 								overcombotranslucent(dest,((i&15)<<4)+x,y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
@@ -3203,7 +3203,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 		}
 	}
 	
-    for(int k=4; k<6; k++)
+    for(int32_t k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
@@ -3213,7 +3213,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
                 
-                for(int i=c; i<(c&0xF0)+16; i++)
+                for(int32_t i=c; i<(c&0xF0)+16; i++)
                 {
                     if(layer->layeropacity[k]<255)
                     {
@@ -3232,17 +3232,17 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     {
         if(LayerMaskInt[0]!=0)
         {
-            for(int i=c; i<(c&0xF0)+16; i++)
+            for(int32_t i=c; i<(c&0xF0)+16; i++)
             {
                 put_walkflags_layered_external(dest,((i&15)<<4)+x,y,i, -1, map,scr);
             }
         }
         
-        for(int k=0; k<2; k++)
+        for(int32_t k=0; k<2; k++)
         {
             if(LayerMaskInt[k+1]!=0)
             { 
-                for(int i=c; i<(c&0xF0)+16; i++)
+                for(int32_t i=c; i<(c&0xF0)+16; i++)
                 {
 			put_walkflags_layered_external(dest,((i&15)<<4)+x,y,i, k, map,scr);
                 }
@@ -3254,7 +3254,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     {
         if(LayerMaskInt[CurrentLayer]!=0)
         {
-            for(int i=c; i<(c&0xF0)+16; i++)
+            for(int32_t i=c; i<(c&0xF0)+16; i++)
             {
                 if(CurrentLayer==0)
                 {
@@ -3262,11 +3262,11 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 }
                 else
                 {
-                    int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+                    int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
                     
                     if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                     {
-                        if(i < (int)TheMaps[_lscr].data.size())
+                        if(i < (int32_t)TheMaps[_lscr].data.size())
                         {
                             put_flags(dest,((i&15)<<4)+x,/*(i&0xF0)+*/y,
                                       TheMaps[_lscr].data[i],
@@ -3284,7 +3284,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         
         /*
           if (LayerMaskInt[0]!=0) {
-          for(int i=c; i<(c&0xF0)+16; i++) {
+          for(int32_t i=c; i<(c&0xF0)+16; i++) {
           put_flags(dest,((i&15)<<4)+x,y,layer->data[i],layer->cset[i],flags|dark,layer->sflag[i]);
           }
           }
@@ -3307,7 +3307,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     
 }
 
-void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
+void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr)
 {
     if(map<0)
         map=currmap;
@@ -3316,7 +3316,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         scr=currscr;
         
     mapscr* layer=AbsoluteScr(map,scr);
-    int layermap=0, layerscreen=0;
+    int32_t layermap=0, layerscreen=0;
     
     if(!(layer->valid&mVALID))
     {
@@ -3325,7 +3325,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         return;
     }
     
-    int dark = layer->flags&4;
+    int32_t dark = layer->flags&4;
     
     resize_mouse_pos=true;
     
@@ -3335,9 +3335,9 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         rectfill(dest,x,y,x+15,y+175,0);
     }
     
-    // int cs=2;
+    // int32_t cs=2;
     
-    for(int k=1; k<3; k++)
+    for(int32_t k=1; k<3; k++)
     {
         if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
         {
@@ -3347,7 +3347,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
                 
-                for(int i=c; i<176; i+=16)
+                for(int32_t i=c; i<176; i+=16)
                 {
                     if(layer->layeropacity[k]<255)
                     {
@@ -3364,18 +3364,18 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     
     if(LayerMaskInt[0]!=0)
     {
-        for(int i=c; i<176; i+=16)
+        for(int32_t i=c; i<176; i+=16)
         {
             word cmbdat = layer->data[i];
             byte cmbcset = layer->cset[i];
-            int cmbflag = layer->sflag[i];
+            int32_t cmbflag = layer->sflag[i];
 			if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
 				overcombo(dest,x,(i&0xF0)+y,cmbdat,cmbcset);
             else put_combo(dest,x,(i&0xF0)+y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
         }
     }
     
-    for(int k=0; k<2; k++)
+    for(int32_t k=0; k<2; k++)
     {
         if(LayerMaskInt[k+1]!=0 && !(k==1 && layer->flags7&fLAYER2BG))
         {
@@ -3385,7 +3385,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
                 
-                for(int i=c; i<176; i+=16)
+                for(int32_t i=c; i<176; i+=16)
                 {
                     if(layer->layeropacity[k]<255)
                     {
@@ -3400,9 +3400,9 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
-    int doortype[4];
+    int32_t doortype[4];
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         switch(layer->door[i])
         {
@@ -3460,7 +3460,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
-    for(int k=2; k<4; k++)
+    for(int32_t k=2; k<4; k++)
     {
         if(LayerMaskInt[k+1]!=0 && !(k==2 && layer->flags7&fLAYER3BG))
         {
@@ -3470,7 +3470,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
                 
-                for(int i=c; i<176; i+=16)
+                for(int32_t i=c; i<176; i+=16)
                 {
                     if(layer->layeropacity[k]<255)
                     {
@@ -3488,11 +3488,11 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
-        for(int i=c; i<176; i+=16)
+        for(int32_t i=c; i<176; i+=16)
         {
-            int ct1=layer->data[i];
-            //     int ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
-            int ct3=combobuf[ct1].type;
+            int32_t ct1=layer->data[i];
+            //     int32_t ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
+            int32_t ct3=combobuf[ct1].type;
             
 //      if (ct3==cOLD_OVERHEAD)
             if(combo_class_buf[ct3].overhead)
@@ -3504,7 +3504,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     //Overhead L1/2
 	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 	{
-		for(int k = 0; k < 2; ++k)
+		for(int32_t k = 0; k < 2; ++k)
 		{
 			if(LayerMaskInt[k+1]!=0)
 			{
@@ -3516,7 +3516,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 					mapscr const& tmp = TheMaps[layerscreen];
 					if(layer->layeropacity[k]==255)
 					{
-						for(int i=c; i<176; i+=16)
+						for(int32_t i=c; i<176; i+=16)
 						{
 							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
 								overcombo(dest,x,(i&0xF0)+y,tmp.data[i],tmp.cset[i]);
@@ -3524,7 +3524,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 					}
 					else
 					{
-						for(int i=c; i<176; i+=16)
+						for(int32_t i=c; i<176; i+=16)
 						{
 							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
 								overcombotranslucent(dest,x,(i&0xF0)+y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
@@ -3536,7 +3536,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 	}
 	
     
-    for(int k=4; k<6; k++)
+    for(int32_t k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
@@ -3546,7 +3546,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
                 
-                for(int i=c; i<176; i+=16)
+                for(int32_t i=c; i<176; i+=16)
                 {
                     if(layer->layeropacity[k]<255)
                     {
@@ -3566,17 +3566,17 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     {
         if(LayerMaskInt[0]!=0)
         {
-            for(int i=c&0xF; i<176; i+=16)
+            for(int32_t i=c&0xF; i<176; i+=16)
             {
                 put_walkflags_layered_external(dest,x,y+(i&0xF0),i, -1, map,scr);
             }
         }
         
-        for(int k=0; k<2; k++)
+        for(int32_t k=0; k<2; k++)
         {
             if(LayerMaskInt[k+1]!=0)
             {
-                for(int i=c&0xF; i<176; i+=16)
+                for(int32_t i=c&0xF; i<176; i+=16)
                 {
 			put_walkflags_layered_external(dest,x,y+(i&0xF0),i, k, map,scr);
                         //put_walkflags_layered(dest,x,(i&0xF0)+y,i, k);
@@ -3589,7 +3589,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     {
         if(LayerMaskInt[CurrentLayer]!=0)
         {
-            for(int i=c; i<176; i+=16)
+            for(int32_t i=c; i<176; i+=16)
             {
                 if(CurrentLayer==0)
                 {
@@ -3597,7 +3597,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 }
                 else
                 {
-                    int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+                    int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
                     
                     if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                     {
@@ -3612,7 +3612,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         
         /*
           if (LayerMaskInt[0]!=0) {
-          for(int i=c; i<176; i+=16) {
+          for(int32_t i=c; i<176; i+=16) {
           put_flags(dest,x,(i&0xF0)+y,layer->data[i],layer->cset[i],flags|dark,layer->sflag[i]);
           }
           }
@@ -3634,7 +3634,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     resize_mouse_pos=false;
 }
 
-void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
+void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr)
 {
     if(map<0)
         map=currmap;
@@ -3643,7 +3643,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         scr=currscr;
         
     mapscr* layer=AbsoluteScr(map,scr);
-    int layermap=0, layerscreen=0;
+    int32_t layermap=0, layerscreen=0;
     
     if(!(layer->valid&mVALID))
     {
@@ -3652,7 +3652,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         return;
     }
     
-    int dark = layer->flags&4;
+    int32_t dark = layer->flags&4;
     
     resize_mouse_pos=true;
     
@@ -3661,7 +3661,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         rectfill(dest,x,y,x+15,y+15,0);
     }
     
-    for(int k=1; k<3; k++)
+    for(int32_t k=1; k<3; k++)
     {
         if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
         {
@@ -3671,7 +3671,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             {
                 layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
                 
-                for(int i=c; i<176; i+=16)
+                for(int32_t i=c; i<176; i+=16)
                 {
                     if(layer->layeropacity[k]<255)
                     {
@@ -3686,19 +3686,19 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
-    // int cs=2;
+    // int32_t cs=2;
     if(LayerMaskInt[0]!=0)
     {
         word cmbdat = layer->data[c];
         byte cmbcset = layer->cset[c];
-        int cmbflag = layer->sflag[c];
+        int32_t cmbflag = layer->sflag[c];
         if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
 			overcombo(dest,x,y,cmbdat,cmbcset);
 		else put_combo(dest,x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
     }
     
     
-    for(int k=0; k<2; k++)
+    for(int32_t k=0; k<2; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
@@ -3720,7 +3720,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
 	
-    for(int k=2; k<4; k++)
+    for(int32_t k=2; k<4; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
@@ -3745,8 +3745,8 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 	//Overhead L0
     if(LayerMaskInt[0]!=0)
     {
-        int ct1=layer->data[c];
-        int ct3=combobuf[ct1].type;
+        int32_t ct1=layer->data[c];
+        int32_t ct3=combobuf[ct1].type;
         
 //    if (ct3==cOLD_OVERHEAD)
         if(combo_class_buf[ct3].overhead)
@@ -3757,7 +3757,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     //Overhead L1/2
 	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 	{
-		for(int k = 0; k < 2; ++k)
+		for(int32_t k = 0; k < 2; ++k)
 		{
 			if(LayerMaskInt[k+1]!=0)
 			{
@@ -3767,7 +3767,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 				{
 					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
 					mapscr const& tmp = TheMaps[layerscreen];
-					int i = c;
+					int32_t i = c;
 					if(layer->layeropacity[k]==255)
 					{
 						if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
@@ -3784,7 +3784,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 	}
 	
     
-    for(int k=4; k<6; k++)
+    for(int32_t k=4; k<6; k++)
     {
         if(LayerMaskInt[k+1]!=0)
         {
@@ -3813,7 +3813,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
             put_walkflags_layered_external(dest,x,y,c,-1, map,scr);
         }
         
-        for(int k=0; k<2; k++)
+        for(int32_t k=0; k<2; k++)
         {
             if(LayerMaskInt[k+1]!=0)
             {
@@ -3827,7 +3827,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     {
         if(LayerMaskInt[CurrentLayer]!=0)
         {
-            for(int i=c; i==c; i++)
+            for(int32_t i=c; i==c; i++)
             {
                 if(CurrentLayer==0)
                 {
@@ -3835,7 +3835,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                 }
                 else
                 {
-                    int _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+                    int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
                     
                     if(_lscr>-1 && _lscr<map_count*MAPSCRS)
                     {
@@ -3881,13 +3881,13 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     
 }
 
-void zmap::drawstaticblock(BITMAP* dest,int x,int y)
+void zmap::drawstaticblock(BITMAP* dest,int32_t x,int32_t y)
 {
     if(InvalidStatic)
     {
-        for(int dy=0; dy<16; dy++)
+        for(int32_t dy=0; dy<16; dy++)
         {
-            for(int dx=0; dx<16; dx++)
+            for(int32_t dx=0; dx<16; dx++)
             {
                 dest->line[y+dy][x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
             }
@@ -3902,13 +3902,13 @@ void zmap::drawstaticblock(BITMAP* dest,int x,int y)
     }
 }
 
-void zmap::drawstaticcolumn(BITMAP* dest,int x,int y)
+void zmap::drawstaticcolumn(BITMAP* dest,int32_t x,int32_t y)
 {
     if(InvalidStatic)
     {
-        for(int dy=0; dy<176; dy++)
+        for(int32_t dy=0; dy<176; dy++)
         {
-            for(int dx=0; dx<16; dx++)
+            for(int32_t dx=0; dx<16; dx++)
             {
                 dest->line[y+dy][x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
             }
@@ -3923,13 +3923,13 @@ void zmap::drawstaticcolumn(BITMAP* dest,int x,int y)
     }
 }
 
-void zmap::drawstaticrow(BITMAP* dest,int x,int y)
+void zmap::drawstaticrow(BITMAP* dest,int32_t x,int32_t y)
 {
     if(InvalidStatic)
     {
-        for(int dy=0; dy<16; dy++)
+        for(int32_t dy=0; dy<16; dy++)
         {
-            for(int dx=0; dx<256; dx++)
+            for(int32_t dx=0; dx<256; dx++)
             {
                 dest->line[y+dy][x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
             }
@@ -3944,37 +3944,37 @@ void zmap::drawstaticrow(BITMAP* dest,int x,int y)
     }
 }
 
-void zmap::draw_template(BITMAP* dest,int x,int y)
+void zmap::draw_template(BITMAP* dest,int32_t x,int32_t y)
 {
-    for(int i=0; i<176; i++)
+    for(int32_t i=0; i<176; i++)
     {
         word cmbdat = screens[TEMPLATE].data[i];
         byte cmbcset = screens[TEMPLATE].cset[i];
-        int cmbflag = screens[TEMPLATE].sflag[i];
+        int32_t cmbflag = screens[TEMPLATE].sflag[i];
         put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,0,cmbflag);
     }
 }
 
-void zmap::draw_template2(BITMAP* dest,int x,int y)
+void zmap::draw_template2(BITMAP* dest,int32_t x,int32_t y)
 {
-    for(int i=0; i<176; i++)
+    for(int32_t i=0; i<176; i++)
     {
         word cmbdat = screens[TEMPLATE2].data[i];
         byte cmbcset = screens[TEMPLATE2].cset[i];
-        int cmbflag = screens[TEMPLATE2].sflag[i];
+        int32_t cmbflag = screens[TEMPLATE2].sflag[i];
         put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,0,cmbflag);
     }
 }
 
-void zmap::draw_secret(BITMAP *dest, int pos)
+void zmap::draw_secret(BITMAP *dest, int32_t pos)
 {
     word cmbdat = screens[TEMPLATE].data[pos];
     byte cmbcset = screens[TEMPLATE].cset[pos];
-    int cmbflag = screens[TEMPLATE].sflag[pos];
+    int32_t cmbflag = screens[TEMPLATE].sflag[pos];
     put_combo(dest,0,0,cmbdat,cmbcset,0,cmbflag);
 }
 
-void zmap::draw_secret2(BITMAP *dest, int scombo)
+void zmap::draw_secret2(BITMAP *dest, int32_t scombo)
 {
     word cmbdat =  screens[currscr].secretcombo[scombo];
     byte cmbcset = screens[currscr].secretcset[scombo];
@@ -3982,7 +3982,7 @@ void zmap::draw_secret2(BITMAP *dest, int scombo)
     put_combo(dest,0,0,cmbdat,cmbcset,0,cmbflag);
 }
 
-void zmap::scroll(int dir)
+void zmap::scroll(int32_t dir)
 {
     if(currmap<map_count)
     {
@@ -4039,7 +4039,7 @@ void zmap::scroll(int dir)
     }
 }
 
-void zmap::putdoor2(int scr,int side,int door)
+void zmap::putdoor2(int32_t scr,int32_t side,int32_t door)
 {
     if(door!=dWALL)
     {
@@ -4047,7 +4047,7 @@ void zmap::putdoor2(int scr,int side,int door)
     }
 }
 
-void zmap::putdoor(int scr,int side,int door)
+void zmap::putdoor(int32_t scr,int32_t side,int32_t door)
 {
     screens[scr].door[side]=door;
     word *di = &screens[scr].data.front();
@@ -4196,15 +4196,15 @@ void zmap::putdoor(int scr,int side,int door)
 void zmap::Ugo()
 {
     mapscr *layer;
-    int layermap, layerscreen;
+    int32_t layermap, layerscreen;
     layer=AbsoluteScr(currmap,currscr);
     
-    for(int x=0; x<MAPSCRS; x++)
+    for(int32_t x=0; x<MAPSCRS; x++)
     {
         copy_mapscr(&undomap[x], &screens[x]);
     }
     
-    for(int k=0; k<6; ++k)
+    for(int32_t k=0; k<6; ++k)
     {
         undomap[MAPSCRS+k].zero_memory();
         layermap=layer->layermap[k]-1;
@@ -4222,17 +4222,17 @@ void zmap::Ugo()
 void zmap::Uhuilai()
 {
     mapscr *layer;
-    int layermap, layerscreen;
+    int32_t layermap, layerscreen;
     layer=AbsoluteScr(currmap,currscr);
     
     if(can_undo)
     {
-        for(int x=0; x<MAPSCRS; x++)
+        for(int32_t x=0; x<MAPSCRS; x++)
         {
             zc_swap(screens[x],undomap[x]);
         }
         
-        for(int k=0; k<6; ++k)
+        for(int32_t k=0; k<6; ++k)
         {
             layermap=layer->layermap[k]-1;
             
@@ -4258,7 +4258,7 @@ void zmap::Copy()
     }
 }
 
-void zmap::CopyFFC(int n)
+void zmap::CopyFFC(int32_t n)
 {
     if(screens[currscr].valid&mVALID)
     {
@@ -4276,7 +4276,7 @@ void zmap::Paste()
     if(can_paste)
     {
         Ugo();
-        int oldcolor=getcolor();
+        int32_t oldcolor=getcolor();
         
         if(!(screens[currscr].valid&mVALID))
         {
@@ -4284,31 +4284,31 @@ void zmap::Paste()
             screens[currscr].color = copymapscr.color;
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             putdoor(currscr,i,0);
         }
         
         screens[currscr].door_combo_set = copymapscr.door_combo_set;
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             screens[currscr].door[i]=copymapscr.door[i];
         }
         
-        for(int i=0; i<176; i++)
+        for(int32_t i=0; i<176; i++)
         {
             screens[currscr].data[i] = copymapscr.data[i];
             screens[currscr].cset[i] = copymapscr.cset[i];
             screens[currscr].sflag[i] = copymapscr.sflag[i];
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             putdoor2(currscr,i,screens[currscr].door[i]);
         }
         
-        int newcolor=getcolor();
+        int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
         
         if(!(screens[currscr].valid&mVALID))
@@ -4342,7 +4342,7 @@ void zmap::PasteSecretCombos()
     {
         Ugo();
         
-        for(int i=0; i<128; i++)
+        for(int32_t i=0; i<128; i++)
         {
             screens[currscr].secretcombo[i] = copymapscr.secretcombo[i];
             screens[currscr].secretcset[i] = copymapscr.secretcset[i];
@@ -4360,7 +4360,7 @@ void zmap::PasteFFCombos()
         Ugo();
         screens[currscr].numff = copymapscr.numff;
         
-        for(int i=0; i<32; i++)
+        for(int32_t i=0; i<32; i++)
         {
             screens[currscr].ffdata[i] = copymapscr.ffdata[i];
             screens[currscr].ffcset[i] = copymapscr.ffcset[i];
@@ -4379,10 +4379,10 @@ void zmap::PasteFFCombos()
             screens[currscr].ffflags[i] = copymapscr.ffflags[i];
             screens[currscr].ffscript[i] = copymapscr.ffscript[i];
             
-            for(int j=0; j<8; j++)
+            for(int32_t j=0; j<8; j++)
                 screens[currscr].initd[i][j] = copymapscr.initd[i][j];
                 
-            for(int j=0; j<2; j++)
+            for(int32_t j=0; j<2; j++)
                 screens[currscr].inita[i][j] = copymapscr.inita[i][j];
         }
         
@@ -4390,7 +4390,7 @@ void zmap::PasteFFCombos()
     }
 }
 
-void zmap::PasteOneFFC(int i) //i - destination ffc slot
+void zmap::PasteOneFFC(int32_t i) //i - destination ffc slot
 {
     if(copyffc < 0)  // Sanity check
         return;
@@ -4412,10 +4412,10 @@ void zmap::PasteOneFFC(int i) //i - destination ffc slot
     screens[currscr].ffflags[i] = copymapscr.ffflags[copyffc];
     screens[currscr].ffscript[i] = copymapscr.ffscript[copyffc];
     
-    for(int j=0; j<8; j++)
+    for(int32_t j=0; j<8; j++)
         screens[currscr].initd[i][j] = copymapscr.initd[copyffc][j];
         
-    for(int j=0; j<2; j++)
+    for(int32_t j=0; j<2; j++)
         screens[currscr].inita[i][j] = copymapscr.inita[copyffc][j];
         
     screens[currscr].numff|=(1<<i);
@@ -4430,7 +4430,7 @@ void zmap::PasteWarps()
         Ugo();
         screens[currscr].sidewarpindex = copymapscr.sidewarpindex;
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             screens[currscr].tilewarptype[i] = copymapscr.tilewarptype[i];
             screens[currscr].tilewarpdmap[i] = copymapscr.tilewarpdmap[i];
@@ -4501,7 +4501,7 @@ void zmap::PasteWarpLocations()
         screens[currscr].warparrivalx = copymapscr.warparrivalx;
         screens[currscr].warparrivaly = copymapscr.warparrivaly;
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             screens[currscr].warpreturnx[i] = copymapscr.warpreturnx[i];
             screens[currscr].warpreturny[i] = copymapscr.warpreturny[i];
@@ -4517,7 +4517,7 @@ void zmap::PasteDoors()
     {
         Ugo();
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
             screens[currscr].door[i] = copymapscr.door[i];
             
         screens[currscr].door_combo_set = copymapscr.door_combo_set;
@@ -4531,7 +4531,7 @@ void zmap::PasteLayers()
     {
         Ugo();
         
-        for(int i=0; i<6; i++)
+        for(int32_t i=0; i<6; i++)
         {
             screens[currscr].layermap[i] = copymapscr.layermap[i];
             screens[currscr].layerscreen[i] = copymapscr.layerscreen[i];
@@ -4569,9 +4569,9 @@ void zmap::PastePalette()
     if(can_paste)
     {
         Ugo();
-        int oldcolor=getcolor();
+        int32_t oldcolor=getcolor();
         screens[currscr].color = copymapscr.color;
-        int newcolor=getcolor();
+        int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
         
         if(!(screens[currscr].valid&mVALID))
@@ -4593,10 +4593,10 @@ void zmap::PasteAll()
     if(can_paste)
     {
         Ugo();
-        int oldcolor=getcolor();
+        int32_t oldcolor=getcolor();
         copy_mapscr(&screens[currscr], &copymapscr);
         //screens[currscr]=copymapscr;
-        int newcolor=getcolor();
+        int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
         
         if(!(screens[currscr].valid&mVALID))
@@ -4619,9 +4619,9 @@ void zmap::PasteToAll()
     if(can_paste)
     {
         Ugo();
-        int oldcolor=getcolor();
+        int32_t oldcolor=getcolor();
         
-        for(int x=0; x<128; x++)
+        for(int32_t x=0; x<128; x++)
         {
             if(!(screens[x].valid&mVALID))
             {
@@ -4629,7 +4629,7 @@ void zmap::PasteToAll()
                 screens[x].color = copymapscr.color;
             }
             
-            for(int i=0; i<176; i++)
+            for(int32_t i=0; i<176; i++)
             {
                 screens[x].data[i] = copymapscr.data[i];
                 screens[x].cset[i] = copymapscr.cset[i];
@@ -4637,12 +4637,12 @@ void zmap::PasteToAll()
             }
             
             if(isDungeon(x))
-                for(int i=0; i<4; i++)
+                for(int32_t i=0; i<4; i++)
                     putdoor(currscr,i,screens[x].door[i]);
                     
         }
         
-        int newcolor=getcolor();
+        int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
         
         if(!(screens[currscr].valid&mVALID))
@@ -4664,15 +4664,15 @@ void zmap::PasteAllToAll()
     if(can_paste)
     {
         Ugo();
-        int oldcolor=getcolor();
+        int32_t oldcolor=getcolor();
         
-        for(int x=0; x<128; x++)
+        for(int32_t x=0; x<128; x++)
         {
             copy_mapscr(&screens[x], &copymapscr);
             //screens[x]=copymapscr;
         }
         
-        int newcolor=getcolor();
+        int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
         
         if(!(screens[currscr].valid&mVALID))
@@ -4693,12 +4693,12 @@ void zmap::PasteEnemies()
 {
     if(can_paste)
     {
-        for(int i=0; i<10; i++)
+        for(int32_t i=0; i<10; i++)
             screens[currscr].enemy[i]=copymapscr.enemy[i];
     }
 }
 
-void zmap::setCopyFFC(int n)
+void zmap::setCopyFFC(int32_t n)
 {
 	copyffc = n;
 }
@@ -4720,16 +4720,16 @@ void zmap::update_combo_cycling()
         return;
     }
     
-    int x;
-    int newdata[176];
-    int newcset[176];
+    int32_t x;
+    int32_t newdata[176];
+    int32_t newcset[176];
     bool restartanim[MAXCOMBOS];
     bool restartanim2[MAXCOMBOS];
     
     memset(restartanim, 0, MAXCOMBOS);
     memset(restartanim2, 0, MAXCOMBOS);
     
-    for(int i=0; i<176; i++)
+    for(int32_t i=0; i<176; i++)
     {
         newdata[i]=-1;
         newcset[i]=-1;
@@ -4745,7 +4745,7 @@ void zmap::update_combo_cycling()
             newdata[i]=combobuf[x].nextcombo;
 			if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 				newcset[i]=combobuf[x].nextcset;
-            int c = newdata[i];
+            int32_t c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
             {
@@ -4754,7 +4754,7 @@ void zmap::update_combo_cycling()
         }
     }
     
-    for(int i=0; i<176; i++)
+    for(int32_t i=0; i<176; i++)
     {
         x=prvscr.data[i];
         //y=animated_combo_table2[x][0];
@@ -4767,7 +4767,7 @@ void zmap::update_combo_cycling()
             newdata[i]=combobuf[x].nextcombo;
             if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 				newcset[i]=combobuf[x].nextcset;
-            int c = newdata[i];
+            int32_t c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
             {
@@ -4776,7 +4776,7 @@ void zmap::update_combo_cycling()
         }
     }
     
-    for(int i=0; i<176; i++)
+    for(int32_t i=0; i<176; i++)
     {
         if(newdata[i]==-1)
             continue;
@@ -4785,7 +4785,7 @@ void zmap::update_combo_cycling()
         prvscr.cset[i]=newcset[i];
     }
     
-    for(int i=0; i<32; i++)
+    for(int32_t i=0; i<32; i++)
     {
         newdata[i]=-1;
         newcset[i]=-1;
@@ -4801,7 +4801,7 @@ void zmap::update_combo_cycling()
             newdata[i]=combobuf[x].nextcombo;
             if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 				newcset[i]=combobuf[x].nextcset;
-            int c = newdata[i];
+            int32_t c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
             {
@@ -4810,7 +4810,7 @@ void zmap::update_combo_cycling()
         }
     }
     
-    for(int i=0; i<32; i++)
+    for(int32_t i=0; i<32; i++)
     {
         x=prvscr.ffdata[i];
         //y=animated_combo_table2[x][0];
@@ -4823,7 +4823,7 @@ void zmap::update_combo_cycling()
             newdata[i]=combobuf[x].nextcombo;
             if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 				newcset[i]=combobuf[x].nextcset;
-            int c = newdata[i];
+            int32_t c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
             {
@@ -4832,7 +4832,7 @@ void zmap::update_combo_cycling()
         }
     }
     
-    for(int i=0; i<32; i++)
+    for(int32_t i=0; i<32; i++)
     {
         if(newdata[i]==-1)
             continue;
@@ -4843,12 +4843,12 @@ void zmap::update_combo_cycling()
     
     if(get_bit(quest_rules,qr_CMBCYCLELAYERS))
     {
-        for(int j=0; j<6; j++)
+        for(int32_t j=0; j<6; j++)
         {
             if(prvlayers[j].data.empty())
                 continue;
                 
-            for(int i=0;	i<176; i++)
+            for(int32_t i=0;	i<176; i++)
             {
                 newdata[i]=-1;
                 newcset[i]=-1;
@@ -4864,7 +4864,7 @@ void zmap::update_combo_cycling()
                     newdata[i]=combobuf[x].nextcombo;
                     if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 						newcset[i]=combobuf[x].nextcset;
-                    int c = newdata[i];
+                    int32_t c = newdata[i];
                     
                     if(combobuf[c].animflags & AF_CYCLE)
                     {
@@ -4873,7 +4873,7 @@ void zmap::update_combo_cycling()
                 }
             }
             
-            for(int i=0; i<176; i++)
+            for(int32_t i=0; i<176; i++)
             {
                 x=(prvlayers[j]).data[i];
                 //y=animated_combo_table2[x][0];
@@ -4886,7 +4886,7 @@ void zmap::update_combo_cycling()
                     newdata[i]=combobuf[x].nextcombo;
                     if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 						newcset[i]=combobuf[x].nextcset;
-                    int c = newdata[i];
+                    int32_t c = newdata[i];
                     
                     if(combobuf[c].animflags & AF_CYCLE)
                     {
@@ -4895,7 +4895,7 @@ void zmap::update_combo_cycling()
                 }
             }
             
-            for(int i=0; i<176; i++)
+            for(int32_t i=0; i<176; i++)
             {
                 if(newdata[i]==-1)
                     continue;
@@ -4906,7 +4906,7 @@ void zmap::update_combo_cycling()
         }
     }
     
-    for(int i=0; i<MAXCOMBOS; i++)
+    for(int32_t i=0; i<MAXCOMBOS; i++)
     {
         if(restartanim[i])
         {
@@ -4933,12 +4933,12 @@ void zmap::update_freeform_combos()
         return;
     }
     
-    for(int i=0; i<32; i++)
+    for(int32_t i=0; i<32; i++)
     {
         if(!(prvscr.ffflags[i]&ffCHANGER) && prvscr.ffdata[i]!=0 && !(prvscr.ffflags[i]&ffSTATIONARY))
         {
         
-            for(int j=0; j<32; j++)
+            for(int32_t j=0; j<32; j++)
             {
                 if(i!=j)
                 {
@@ -4981,8 +4981,8 @@ void zmap::update_freeform_combos()
                                 else prvscr.ffflags[i]=prvscr.ffflags[j];
                                 
                                 prvscr.ffflags[i]&=~ffCHANGER;
-                                ffposx[i]=(short)(prvscr.ffx[j]/10000);
-                                ffposy[i]=(short)(prvscr.ffy[j]/10000);
+                                ffposx[i]=(int16_t)(prvscr.ffx[j]/10000);
+                                ffposy[i]=(int16_t)(prvscr.ffy[j]/10000);
                                 
                                 if(combobuf[prvscr.ffdata[j]].flag>15 && combobuf[prvscr.ffdata[j]].flag<32)
                                 {
@@ -4991,7 +4991,7 @@ void zmap::update_freeform_combos()
                                 
                                 if((prvscr.ffflags[j]&ffSWAPNEXT)||(prvscr.ffflags[j]&ffSWAPPREV))
                                 {
-                                    int k=0;
+                                    int32_t k=0;
                                     
                                     if(prvscr.ffflags[j]&ffSWAPNEXT)
                                         k=j<31?j+1:0;
@@ -5107,13 +5107,13 @@ void zmap::update_freeform_combos()
     }
 }
 
-void zmap::dowarp(int type, int index)
+void zmap::dowarp(int32_t type, int32_t index)
 {
     if(type==0)
     {
     
-        int dmap=screens[currscr].tilewarpdmap[index];
-        int scr=screens[currscr].tilewarpscr[index];
+        int32_t dmap=screens[currscr].tilewarpdmap[index];
+        int32_t scr=screens[currscr].tilewarpscr[index];
         
         switch(screens[currscr].tilewarptype[index])
         {
@@ -5129,8 +5129,8 @@ void zmap::dowarp(int type, int index)
     }
     else if(type==1)
     {
-        int dmap=screens[currscr].sidewarpdmap[index];
-        int scr=screens[currscr].sidewarpscr[index];
+        int32_t dmap=screens[currscr].sidewarpdmap[index];
+        int32_t scr=screens[currscr].sidewarpscr[index];
         
         switch(screens[currscr].sidewarptype[index])
         {
@@ -5146,15 +5146,15 @@ void zmap::dowarp(int type, int index)
     }
 }
 
-extern int prv_twon;
+extern int32_t prv_twon;
 
-void zmap::prv_dowarp(int type, int index)
+void zmap::prv_dowarp(int32_t type, int32_t index)
 {
     if(type==0)
     {
     
-        int dmap=prvscr.tilewarpdmap[index];
-        int scr=prvscr.tilewarpscr[index];
+        int32_t dmap=prvscr.tilewarpdmap[index];
+        int32_t scr=prvscr.tilewarpscr[index];
         
         switch(prvscr.tilewarptype[index])
         {
@@ -5174,8 +5174,8 @@ void zmap::prv_dowarp(int type, int index)
     }
     else if(type==1)
     {
-        int dmap=prvscr.sidewarpdmap[index];
-        int scr=prvscr.sidewarpscr[index];
+        int32_t dmap=prvscr.sidewarpdmap[index];
+        int32_t scr=prvscr.sidewarpscr[index];
         
         switch(prvscr.sidewarptype[index])
         {
@@ -5200,16 +5200,16 @@ void zmap::prv_dowarp(int type, int index)
     }
     
     //also reset FFC information (so that changers will work correctly) -DD
-    memset(ffposx,0xFF,sizeof(short)*32);
-    memset(ffposy,0xFF,sizeof(short)*32);
+    memset(ffposx,0xFF,sizeof(int16_t)*32);
+    memset(ffposy,0xFF,sizeof(int16_t)*32);
     memset(ffprvx,0xFF,sizeof(float)*32);
     memset(ffprvy,0xFF,sizeof(float)*32);
 }
 
-void zmap::dowarp2(int ring,int index)
+void zmap::dowarp2(int32_t ring,int32_t index)
 {
-    int dmap=misc.warp[ring].dmap[index];
-    int scr=misc.warp[ring].scr[index];
+    int32_t dmap=misc.warp[ring].dmap[index];
+    int32_t scr=misc.warp[ring].scr[index];
     setCurrMap(DMaps[dmap].map);
     setCurrScr(scr+DMaps[dmap].xoff);
 }
@@ -5256,7 +5256,7 @@ bool save_msgstrs_text(const char *path)
     return false;
 }
 
-bool load_msgstrs(const char *path, int startstring)
+bool load_msgstrs(const char *path, int32_t startstring)
 {
     //these are here to bypass compiler warnings about unused arguments
     startstring=startstring;
@@ -5311,7 +5311,7 @@ bool save_pals(const char *path)
     return false;
 }
 
-bool load_pals(const char *path, int startcset)
+bool load_pals(const char *path, int32_t startcset)
 {
     dword section_id;
     PACKFILE *f = pack_fopen_password(path,F_READ, "");
@@ -5364,7 +5364,7 @@ bool save_dmaps(const char *path)
     return false;
 }
 
-bool load_dmaps(const char *path, int startdmap)
+bool load_dmaps(const char *path, int32_t startdmap)
 {
     dword section_id;
     PACKFILE *f = pack_fopen_password(path,F_READ, "");
@@ -5418,7 +5418,7 @@ bool save_combos(const char *path)
     return false;
 }
 
-bool load_combos(const char *path, int startcombo)
+bool load_combos(const char *path, int32_t startcombo)
 {
     dword section_id;
     PACKFILE *f = pack_fopen_password(path,F_READ, "");
@@ -5472,7 +5472,7 @@ bool save_tiles(const char *path)
     return false;
 }
 
-bool load_tiles(const char *path, int starttile)
+bool load_tiles(const char *path, int32_t starttile)
 {
     dword section_id;
     PACKFILE *f = pack_fopen_password(path,F_READ, "");
@@ -5506,7 +5506,7 @@ bool load_tiles(const char *path, int starttile)
     return false;
 }
 
-int writeguys(PACKFILE *f, zquestheader *Header);
+int32_t writeguys(PACKFILE *f, zquestheader *Header);
 bool save_guys(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
@@ -5517,7 +5517,7 @@ bool save_guys(const char *path)
     }
     
     /*
-    int id = ID_GUYS;
+    int32_t id = ID_GUYS;
     if(!p_mputl(id,f))
     {
       return false;
@@ -5572,7 +5572,7 @@ bool load_guys(const char *path)
 }
 
 
-//int writeguys(PACKFILE *f, zquestheader *Header);
+//int32_t writeguys(PACKFILE *f, zquestheader *Header);
 bool save_combo_alias(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
@@ -5955,7 +5955,7 @@ bool save_subscreen(const char *path, bool *cancel)
     reset_combo_animations2();
     *cancel = false;
     
-    int ret;
+    int32_t ret;
     sslist_dlg[0].dp2=lfont;
     char *oldtitlestr=(char*)sslist_dlg[0].dp;
     char *editstr=(char*)sslist_dlg[3].dp;
@@ -6028,7 +6028,7 @@ bool save_subscreen(const char *path, bool *cancel)
 
 bool load_subscreen(const char *path)
 {
-    int ret;
+    int32_t ret;
     sslist_dlg[0].dp2=lfont;
     char *oldtitlestr=(char*)sslist_dlg[0].dp;
     char *editstr=(char*)sslist_dlg[3].dp;
@@ -6102,10 +6102,10 @@ bool load_subscreen(const char *path)
     return true;
 }
 
-bool setMapCount2(int c)
+bool setMapCount2(int32_t c)
 {
-    int oldmapcount=map_count;
-    int currmap=Map.getCurrMap();
+    int32_t oldmapcount=map_count;
+    int32_t currmap=Map.getCurrMap();
     
     bound(c,1,MAXMAPS2);
     map_count=c;
@@ -6122,12 +6122,12 @@ bool setMapCount2(int c)
     
     if(map_count>oldmapcount)
     {
-        for(int mc=oldmapcount; mc<map_count; mc++)
+        for(int32_t mc=oldmapcount; mc<map_count; mc++)
         {
             Map.setCurrMap(mc);
             Map.clearzcmap(mc);
             
-            for(int ms=0; ms<MAPSCRS; ms++)
+            for(int32_t ms=0; ms<MAPSCRS; ms++)
             {
                 Map.clearscr(ms);
             }
@@ -6138,7 +6138,7 @@ bool setMapCount2(int c)
         if(!layers_valid(Map.CurrScr()))
             fix_layers(Map.CurrScr(), false);
             
-        for(int i=0; i<MAXDMAPS; i++)
+        for(int32_t i=0; i<MAXDMAPS; i++)
         {
             if(DMaps[i].map>=map_count)
             {
@@ -6154,7 +6154,7 @@ bool setMapCount2(int c)
 
 extern BITMAP *bmap;
 
-int init_quest(const char *templatefile)
+int32_t init_quest(const char *templatefile)
 {
 	char qstdat_string[2048];
 	sprintf(qstdat_string,moduledata.datafiles[qst_dat]);
@@ -6190,19 +6190,19 @@ void set_questpwd(std::string_view pwd, bool use_keyfile)
 
 	cvs_MD5Context ctx;
 	cvs_MD5Init(&ctx);
-	cvs_MD5Update(&ctx, (const unsigned char*)header.password, strlen(header.password));
+	cvs_MD5Update(&ctx, (const uint8_t*)header.password, strlen(header.password));
 	cvs_MD5Final(header.pwd_hash, &ctx);
 }
 
 
-bool is_null_pwd_hash(unsigned char *pwd_hash)
+bool is_null_pwd_hash(uint8_t *pwd_hash)
 {
     cvs_MD5Context ctx;
-    unsigned char md5sum[16];
+    uint8_t md5sum[16];
     char pwd[2]="";
     
     cvs_MD5Init(&ctx);
-    cvs_MD5Update(&ctx, (const unsigned char*)pwd, (unsigned)strlen(pwd));
+    cvs_MD5Update(&ctx, (const uint8_t*)pwd, (unsigned)strlen(pwd));
     cvs_MD5Final(md5sum, &ctx);
     
     return (memcmp(md5sum,pwd_hash,16)==0);
@@ -6227,7 +6227,7 @@ static DIALOG pwd_dlg[] =
     { NULL,                 0,    0,      0,    0,    0,       0,      0,       0,          0,             0,       NULL, NULL, NULL }
 };
 
-int reverse_string(char* str)
+int32_t reverse_string(char* str)
 {
 
     if(NULL==str)
@@ -6235,7 +6235,7 @@ int reverse_string(char* str)
         return -1; //no string
     }
     
-    int l=(int)strlen(str)-1; //get the string length
+    int32_t l=(int32_t)strlen(str)-1; //get the string length
     
     if(1==l)
     {
@@ -6244,7 +6244,7 @@ int reverse_string(char* str)
     
     char c;
     
-    for(int x=0; x < l; x++,l--)
+    for(int32_t x=0; x < l; x++,l--)
     {
         c = str[x];
         str[x] = str[l];
@@ -6255,7 +6255,7 @@ int reverse_string(char* str)
 }
 
 
-int quest_access(const char *filename, zquestheader *hdr, bool compressed)
+int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
 {
     //Protection against compiling a release version with password protection off.
     static bool passguard = false;
@@ -6310,9 +6310,9 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
         
         if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
         {
-            short ver = 0;
+            int16_t ver = 0;
             byte  bld = 0;
-            short pwd_len;
+            int16_t pwd_len;
             p_igetw(&ver,fp,true);
             p_getc(&bld,fp,true);
             memset(password,0,256);
@@ -6345,9 +6345,9 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
         
         if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
         {
-            short ver = 0;
+            int16_t ver = 0;
             byte  bld = 0;
-            short pwd_len;
+            int16_t pwd_len;
             p_igetw(&ver,fp,true);
             p_getc(&bld,fp,true);
             memset(password,0,256);
@@ -6383,14 +6383,14 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
     pwd_dlg[0].dp2=lfont;
     pwd_dlg[2].dp=get_filename(filename);
     cvs_MD5Context ctx;
-    unsigned char md5sum[16];
+    uint8_t md5sum[16];
     char response[33];
     
     memcpy(md5sum, hdr->pwd_hash, 16);
     
-    for(int i=0; i<300; ++i)
+    for(int32_t i=0; i<300; ++i)
     {
-        for(int j=0; j<16; ++j)
+        for(int32_t j=0; j<16; ++j)
         {
             sprintf(response+j*2, "%02x", md5sum[j]);
         }
@@ -6406,7 +6406,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
         }
         
         cvs_MD5Init(&ctx);
-        cvs_MD5Update(&ctx, (const unsigned char*)response, (unsigned)strlen(response));
+        cvs_MD5Update(&ctx, (const uint8_t*)response, (unsigned)strlen(response));
         cvs_MD5Final(md5sum, &ctx);
     }
     
@@ -6422,7 +6422,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
     if(is_large)
         large_dialog(pwd_dlg);
         
-    int cancel = zc_popup_dialog(pwd_dlg,6);
+    int32_t cancel = zc_popup_dialog(pwd_dlg,6);
     
     if(cancel == 8)
         return 2;
@@ -6439,20 +6439,20 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
 }
 
 // wrapper to reinitialize everything on an error
-int load_quest(const char *filename, bool compressed, bool encrypted)
+int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 {
     char buf[2048];
 //  if(encrypted)
 //	  setPackfilePassword(datapwd);
     byte skip_flags[4];
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
     {
         skip_flags[i]=0;
     }
-    for(int i=0; i<qr_MAX; i++)
+    for(int32_t i=0; i<qr_MAX; i++)
                 set_bit(quest_rules,i,0);
-    int ret=loadquest(filename,&header,&misc,customtunes,true,compressed,encrypted,true,skip_flags);
+    int32_t ret=loadquest(filename,&header,&misc,customtunes,true,compressed,encrypted,true,skip_flags);
 //  setPackfilePassword(NULL);
 
     if(ret!=qe_OK)
@@ -6461,7 +6461,7 @@ int load_quest(const char *filename, bool compressed, bool encrypted)
     }
     else
     {
-        int accessret = quest_access(filename, &header, compressed);
+        int32_t accessret = quest_access(filename, &header, compressed);
         
         if(accessret != 1)
         {
@@ -6497,7 +6497,7 @@ int load_quest(const char *filename, bool compressed, bool encrypted)
 
 bool write_midi(MIDI *m,PACKFILE *f)
 {
-    int c;
+    int32_t c;
     
     if(!p_mputw(m->divisions,f)) return false;
     
@@ -6515,12 +6515,12 @@ bool write_midi(MIDI *m,PACKFILE *f)
     return true;
 }
 
-bool write_music(int format, MIDI* m, PACKFILE *f)
+bool write_music(int32_t format, MIDI* m, PACKFILE *f)
 {
     // format - data format (midi, nsf, ...)
     // m - pointer to data.
     
-    int c;
+    int32_t c;
     
     switch(format)
     {
@@ -6553,7 +6553,7 @@ bool write_music(int format, MIDI* m, PACKFILE *f)
     return true;
 }
 
-int writeheader(PACKFILE *f, zquestheader *Header)
+int32_t writeheader(PACKFILE *f, zquestheader *Header)
 {
     dword section_id=ID_HEADER;
     dword section_version=V_HEADER;
@@ -6583,7 +6583,7 @@ int writeheader(PACKFILE *f, zquestheader *Header)
         new_return(4);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -6866,17 +6866,17 @@ int writeheader(PACKFILE *f, zquestheader *Header)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writeheader()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writerules(PACKFILE *f, zquestheader *Header)
+int32_t writerules(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -6908,7 +6908,7 @@ int writerules(PACKFILE *f, zquestheader *Header)
 		new_return(6);
 	}
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -6932,10 +6932,10 @@ int writerules(PACKFILE *f, zquestheader *Header)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writerules()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
@@ -6943,7 +6943,7 @@ int writerules(PACKFILE *f, zquestheader *Header)
 }
 
 
-int writedoorcombosets(PACKFILE *f, zquestheader *Header)
+int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -6970,7 +6970,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -6988,7 +6988,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             new_return(5);
         }
         
-        for(int i=0; i<door_combo_set_count; i++)
+        for(int32_t i=0; i<door_combo_set_count; i++)
         {
             //name
             if(!pfwrite(&DoorComboSets[i].name,sizeof(DoorComboSets[0].name),f))
@@ -6997,9 +6997,9 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             }
             
             //up door
-            for(int j=0; j<9; j++)
+            for(int32_t j=0; j<9; j++)
             {
-                for(int k=0; k<4; k++)
+                for(int32_t k=0; k<4; k++)
                 {
                     if(!p_iputw(DoorComboSets[i].doorcombo_u[j][k],f))
                     {
@@ -7008,9 +7008,9 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                 }
             }
             
-            for(int j=0; j<9; j++)
+            for(int32_t j=0; j<9; j++)
             {
-                for(int k=0; k<4; k++)
+                for(int32_t k=0; k<4; k++)
                 {
                     if(!p_putc(DoorComboSets[i].doorcset_u[j][k],f))
                     {
@@ -7020,9 +7020,9 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             }
             
             //down door
-            for(int j=0; j<9; j++)
+            for(int32_t j=0; j<9; j++)
             {
-                for(int k=0; k<4; k++)
+                for(int32_t k=0; k<4; k++)
                 {
                     if(!p_iputw(DoorComboSets[i].doorcombo_d[j][k],f))
                     {
@@ -7031,9 +7031,9 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                 }
             }
             
-            for(int j=0; j<9; j++)
+            for(int32_t j=0; j<9; j++)
             {
-                for(int k=0; k<4; k++)
+                for(int32_t k=0; k<4; k++)
                 {
                     if(!p_putc(DoorComboSets[i].doorcset_d[j][k],f))
                     {
@@ -7044,9 +7044,9 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             
             
             //left door
-            for(int j=0; j<9; j++)
+            for(int32_t j=0; j<9; j++)
             {
-                for(int k=0; k<6; k++)
+                for(int32_t k=0; k<6; k++)
                 {
                     if(!p_iputw(DoorComboSets[i].doorcombo_l[j][k],f))
                     
@@ -7056,9 +7056,9 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                 }
             }
             
-            for(int j=0; j<9; j++)
+            for(int32_t j=0; j<9; j++)
             {
-                for(int k=0; k<6; k++)
+                for(int32_t k=0; k<6; k++)
                 {
                     if(!p_putc(DoorComboSets[i].doorcset_l[j][k],f))
                     {
@@ -7068,9 +7068,9 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             }
             
             //right door
-            for(int j=0; j<9; j++)
+            for(int32_t j=0; j<9; j++)
             {
-                for(int k=0; k<6; k++)
+                for(int32_t k=0; k<6; k++)
                 {
                     if(!p_iputw(DoorComboSets[i].doorcombo_r[j][k],f))
                     {
@@ -7079,9 +7079,9 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                 }
             }
             
-            for(int j=0; j<9; j++)
+            for(int32_t j=0; j<9; j++)
             {
-                for(int k=0; k<6; k++)
+                for(int32_t k=0; k<6; k++)
                 {
                     if(!p_putc(DoorComboSets[i].doorcset_r[j][k],f))
                     {
@@ -7092,7 +7092,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             
             
             //up bomb rubble
-            for(int j=0; j<2; j++)
+            for(int32_t j=0; j<2; j++)
             {
                 if(!p_iputw(DoorComboSets[i].bombdoorcombo_u[j],f))
                 {
@@ -7100,7 +7100,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                 }
             }
             
-            for(int j=0; j<2; j++)
+            for(int32_t j=0; j<2; j++)
             {
                 if(!p_putc(DoorComboSets[i].bombdoorcset_u[j],f))
                 {
@@ -7109,7 +7109,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             }
             
             //down bomb rubble
-            for(int j=0; j<2; j++)
+            for(int32_t j=0; j<2; j++)
             {
                 if(!p_iputw(DoorComboSets[i].bombdoorcombo_d[j],f))
                 {
@@ -7117,7 +7117,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                 }
             }
             
-            for(int j=0; j<2; j++)
+            for(int32_t j=0; j<2; j++)
             {
                 if(!p_putc(DoorComboSets[i].bombdoorcset_d[j],f))
                 {
@@ -7126,7 +7126,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             }
             
             //left bomb rubble
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_iputw(DoorComboSets[i].bombdoorcombo_l[j],f))
                 {
@@ -7134,7 +7134,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                 }
             }
             
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_putc(DoorComboSets[i].bombdoorcset_l[j],f))
                 {
@@ -7143,7 +7143,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             }
             
             //right bomb rubble
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_iputw(DoorComboSets[i].bombdoorcombo_r[j],f))
                 {
@@ -7151,7 +7151,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                 }
             }
             
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_putc(DoorComboSets[i].bombdoorcset_r[j],f))
                 {
@@ -7160,7 +7160,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             }
             
             //walkthrough stuff
-            for(int j=0; j<4; j++)
+            for(int32_t j=0; j<4; j++)
             {
                 if(!p_iputw(DoorComboSets[i].walkthroughcombo[j],f))
                 {
@@ -7168,7 +7168,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
                 }
             }
             
-            for(int j=0; j<4; j++)
+            for(int32_t j=0; j<4; j++)
             {
                 if(!p_putc(DoorComboSets[i].walkthroughcset[j],f))
                 {
@@ -7177,7 +7177,7 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
             }
             
             //flags
-            for(int j=0; j<2; j++)
+            for(int32_t j=0; j<2; j++)
             {
                 if(!p_putc(DoorComboSets[i].flags[j],f))
                 {
@@ -7192,17 +7192,17 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writedoorcombosets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_dmaps)
+int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_dmaps)
 {
     //these are here to bypass compiler warnings about unused arguments
     version=version;
@@ -7231,7 +7231,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -7253,7 +7253,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
         }
         
         
-        for(int i=start_dmap; i<start_dmap+dmap_count; i++)
+        for(int32_t i=start_dmap; i<start_dmap+dmap_count; i++)
         {
             if(!p_putc(DMaps[i].map,f))
             {
@@ -7295,7 +7295,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                 new_return(13);
             }
             
-            for(int j=0; j<8; j++)
+            for(int32_t j=0; j<8; j++)
             {
                 if(!p_putc(DMaps[i].grid[j],f))
                 {
@@ -7382,7 +7382,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
             byte disabled[32];
             memset(disabled,0,32);
             
-            for(int j=0; j<MAXITEMS; j++)
+            for(int32_t j=0; j<MAXITEMS; j++)
             {
                 if(DMaps[i].disableditems[j])
                 {
@@ -7407,7 +7407,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
             {
                 new_return(31);
             }
-	    for ( int q = 0; q < 8; q++ )
+	    for ( int32_t q = 0; q < 8; q++ )
 	    {
 		if(!p_iputl(DMaps[i].initD[q],f))
 	        {
@@ -7415,9 +7415,9 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
 		}
 		    
 	    }
-	    for ( int q = 0; q < 8; q++ )
+	    for ( int32_t q = 0; q < 8; q++ )
 	    {
-		    for ( int w = 0; w < 65; w++ )
+		    for ( int32_t w = 0; w < 65; w++ )
 		    {
 			if (!p_putc(DMaps[i].initD_label[q][w],f))
 			{
@@ -7433,16 +7433,16 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
 			{
 				new_return(35);
 			}
-			for(int q = 0; q < 8; ++q)
+			for(int32_t q = 0; q < 8; ++q)
 			{
 				if(!p_iputl(DMaps[i].sub_initD[q],f))
 				{
 					new_return(36);
 				}
 			}
-			for(int q = 0; q < 8; ++q)
+			for(int32_t q = 0; q < 8; ++q)
 			{
-				for(int w = 0; w < 65; ++w)
+				for(int32_t w = 0; w < 65; ++w)
 				{
 					if(!p_putc(DMaps[i].sub_initD_label[q][w],f))
 					{
@@ -7454,16 +7454,16 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
 			{
 				new_return(38);
 			}
-			for(int q = 0; q < 8; ++q)
+			for(int32_t q = 0; q < 8; ++q)
 			{
 				if(!p_iputl(DMaps[i].onmap_initD[q],f))
 				{
 					new_return(39);
 				}
 			}
-			for(int q = 0; q < 8; ++q)
+			for(int32_t q = 0; q < 8; ++q)
 			{
-				for(int w = 0; w < 65; ++w)
+				for(int32_t w = 0; w < 65; ++w)
 				{
 					if(!p_putc(DMaps[i].onmap_initD_label[q][w],f))
 					{
@@ -7479,17 +7479,17 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writedmaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
+int32_t writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -7517,7 +7517,7 @@ int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -7726,17 +7726,17 @@ int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writemisccolors()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
+int32_t writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -7763,7 +7763,7 @@ int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -7775,7 +7775,7 @@ int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         
         writesize=0;
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_iputl(Misc->icons[i],f))
             {
@@ -7789,17 +7789,17 @@ int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writegameicons()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
+int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -7831,7 +7831,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -7849,14 +7849,14 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
             new_return(5);
         }
         
-        for(int i=0; i<shops; i++)
+        for(int32_t i=0; i<shops; i++)
         {
             if(!pfwrite(Misc->shop[i].name,sizeof(Misc->shop[i].name),f))
             {
                 new_return(6);
             }
             
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_putc(Misc->shop[i].item[j],f))
                 {
@@ -7864,7 +7864,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                 }
             }
             
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_iputw(Misc->shop[i].price[j],f))
                 {
@@ -7872,7 +7872,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                 }
             }
             
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_putc(Misc->shop[i].hasitem[j],f))
                 {
@@ -7888,14 +7888,14 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
             new_return(10);
         }
         
-        for(int i=0; i<infos; i++)
+        for(int32_t i=0; i<infos; i++)
         {
             if(!pfwrite(Misc->info[i].name,sizeof(Misc->info[i].name),f))
             {
                 new_return(11);
             }
             
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_iputw(Misc->info[i].str[j],f))
                 {
@@ -7903,7 +7903,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                 }
             }
             
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_iputw(Misc->info[i].price[j],f))
                 {
@@ -7918,9 +7918,9 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
             new_return(14);
         }
         
-        for(int i=0; i<warprings; i++)
+        for(int32_t i=0; i<warprings; i++)
         {
-            for(int j=0; j<9; j++)
+            for(int32_t j=0; j<9; j++)
             {
                 if(!p_iputw(Misc->warp[i].dmap[j],f))
                 {
@@ -7928,7 +7928,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                 }
             }
             
-            for(int j=0; j<9; j++)
+            for(int32_t j=0; j<9; j++)
             {
                 if(!p_putc(Misc->warp[i].scr[j],f))
                 {
@@ -7943,7 +7943,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         }
         
         //triforce pieces
-        for(int i=0; i<triforces; i++)
+        for(int32_t i=0; i<triforces; i++)
         {
             if(!p_putc(Misc->triforce[i],f))
             {
@@ -7958,9 +7958,9 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         }
 	
 	//V_MISC >= 8
-	for(int i=0; i<shops; i++)
+	for(int32_t i=0; i<shops; i++)
 	{
-	    for(int j=0; j<3; j++)
+	    for(int32_t j=0; j<3; j++)
             {
                 if(!p_iputw(Misc->shop[i].str[j],f))
                 {
@@ -7969,14 +7969,14 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
             }
         }
 	//V_MISC >= 9
-	for ( int q = 0; q < 32; q++ ) 
+	for ( int32_t q = 0; q < 32; q++ ) 
 	{
 		if(!p_iputl(Misc->questmisc[q],f))
                     new_return(21);
 	}
-	for ( int q = 0; q < 32; q++ ) 
+	for ( int32_t q = 0; q < 32; q++ ) 
 	{
-		for ( int j = 0; j < 128; j++ )
+		for ( int32_t j = 0; j < 128; j++ )
 		if(!p_putc(Misc->questmisc_strings[q][j],f))
                      new_return(22);
 	}
@@ -7985,7 +7985,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                      new_return(23);
 		
 		//V_MISC >= 12
-		for(int q = 0; q < sprMAX; ++q)
+		for(int32_t q = 0; q < sprMAX; ++q)
 		{
 			if(!p_putc(Misc->sprites[q],f))
 				new_return(24);
@@ -7997,17 +7997,17 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writemisc()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writeitems(PACKFILE *f, zquestheader *Header)
+int32_t writeitems(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -8035,7 +8035,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -8053,7 +8053,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
             new_return(5);
         }
         
-        for(int i=0; i<iMax; i++)
+        for(int32_t i=0; i<iMax; i++)
         {
             if(!pfwrite(item_string[i], 64, f))
             {
@@ -8061,7 +8061,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<iMax; i++)
+        for(int32_t i=0; i<iMax; i++)
         {
             if(!p_iputl(itemsbuf[i].tile,f))
             {
@@ -8153,7 +8153,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(23);
             }
             
-            for(int j=0; j<8; j++)
+            for(int32_t j=0; j<8; j++)
             {
                 if(!p_iputl(itemsbuf[i].initiald[j],f))
                 {
@@ -8161,7 +8161,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
                 }
             }
             
-            for(int j=0; j<2; j++)
+            for(int32_t j=0; j<2; j++)
             {
                 if(!p_putc(itemsbuf[i].initiala[j],f))
                 {
@@ -8303,7 +8303,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
             {
                 new_return(52);
             }
-	    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+	    for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
 		    if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
 		    {
 			new_return(53);
@@ -8314,14 +8314,14 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		{
 		    new_return(54);
 		}
-		for ( int q = 0; q < INITIAL_D; q++ )
+		for ( int32_t q = 0; q < INITIAL_D; q++ )
 		{
 			if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
 			{
 				new_return(55);
 			}
 		}
-		for ( int q = 0; q < INITIAL_A; q++ )
+		for ( int32_t q = 0; q < INITIAL_A; q++ )
 		{
 			if(!p_putc(itemsbuf[i].weap_initiala[q],f))
 			{
@@ -8446,23 +8446,23 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		}
 		
 		//InitD[] labels
-		for ( int q = 0; q < 8; q++ )
+		for ( int32_t q = 0; q < 8; q++ )
 		{
-			for ( int w = 0; w < 65; w++ )
+			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
 				{
 					new_return(85);
 				} 
 			}
-			for ( int w = 0; w < 65; w++ )
+			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
 				{
 					new_return(86);
 				} 
 			}
-			for ( int w = 0; w < 65; w++ )
+			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
 				{
@@ -8474,7 +8474,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 				new_return(88);
 			} 
 		}
-		for ( int q = 0; q < 2; q++ )
+		for ( int32_t q = 0; q < 2; q++ )
 		{
 			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
 			{
@@ -8500,17 +8500,17 @@ int writeitems(PACKFILE *f, zquestheader *Header)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writeitems()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writeweapons(PACKFILE *f, zquestheader *Header)
+int32_t writeweapons(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -8537,7 +8537,7 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -8555,7 +8555,7 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
             new_return(5);
         }
         
-        for(int i=0; i<wMAX; i++)
+        for(int32_t i=0; i<wMAX; i++)
         {
             if(!pfwrite((char *)weapon_string[i], 64, f))
             {
@@ -8563,7 +8563,7 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<wMAX; i++)
+        for(int32_t i=0; i<wMAX; i++)
         {
             if(!p_iputw(wpnsbuf[i].tile,f))
             {
@@ -8612,19 +8612,19 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writeweapons()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writemapscreen(PACKFILE *f, int i, int j)
+int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 {
-    if((i*MAPSCRS+j)>=int(TheMaps.size()))
+    if((i*MAPSCRS+j)>=int32_t(TheMaps.size()))
     {
         return qe_invalid;
     }
@@ -8663,7 +8663,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_putc(screen.tilewarptype[k],f))
         {
@@ -8676,7 +8676,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_putc(screen.warpreturnx[k],f))
         {
@@ -8684,7 +8684,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_putc(screen.warpreturny[k],f))
         {
@@ -8727,7 +8727,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_putc(screen.door[k],f))
         {
@@ -8735,7 +8735,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_iputw(screen.tilewarpdmap[k],f))
         {
@@ -8743,7 +8743,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_putc(screen.tilewarpscr[k],f))
         {
@@ -8761,7 +8761,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    for(int k=0; k<10; k++)
+    for(int32_t k=0; k<10; k++)
     {
         {
             if(!p_iputw(screen.enemy[k],f))
@@ -8776,7 +8776,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_putc(screen.sidewarptype[k],f))
         {
@@ -8799,7 +8799,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_putc(screen.path[k],f))
         {
@@ -8807,7 +8807,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_putc(screen.sidewarpscr[k],f))
         {
@@ -8815,7 +8815,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_iputw(screen.sidewarpdmap[k],f))
         {
@@ -8928,7 +8928,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    for(int k=0; k<6; k++)
+    for(int32_t k=0; k<6; k++)
     {
         if(!p_putc(screen.layermap[k],f))
         {
@@ -8936,7 +8936,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<6; k++)
+    for(int32_t k=0; k<6; k++)
     {
         if(!p_putc(screen.layerscreen[k],f))
         {
@@ -8944,7 +8944,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<6; k++)
+    for(int32_t k=0; k<6; k++)
     {
         if(!p_putc(screen.layeropacity[k],f))
         {
@@ -8967,7 +8967,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    for(int k=0; k<128; k++)
+    for(int32_t k=0; k<128; k++)
     {
         if(!p_iputw(screen.secretcombo[k],f))
         {
@@ -8975,7 +8975,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<128; k++)
+    for(int32_t k=0; k<128; k++)
     {
         if(!p_putc(screen.secretcset[k],f))
         {
@@ -8983,7 +8983,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<128; k++)
+    for(int32_t k=0; k<128; k++)
     {
         if(!p_putc(screen.secretflag[k],f))
         {
@@ -8991,7 +8991,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+    for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
     {
         try
         {
@@ -9006,7 +9006,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+    for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
     {
         try
         {
@@ -9021,7 +9021,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+    for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
     {
         try
         {
@@ -9051,7 +9051,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    for(int k=0; k<32; k++)
+    for(int32_t k=0; k<32; k++)
     {
         if((screen.numff>>k)&1)
         {
@@ -9177,28 +9177,28 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
-    for ( int q = 0; q < 10; q++ ) 
+    for ( int32_t q = 0; q < 10; q++ ) 
     {
 	if(!p_iputl(screen.npcstrings[q],f))
 	{
 		return qe_invalid;
 	} 
     }
-    for ( int q = 0; q < 10; q++ ) 
+    for ( int32_t q = 0; q < 10; q++ ) 
     {
 	if(!p_iputw(screen.new_items[q],f))
 	{
 		return qe_invalid;
 	} 
     }
-    for ( int q = 0; q < 10; q++ ) 
+    for ( int32_t q = 0; q < 10; q++ ) 
     {
 	if(!p_iputw(screen.new_item_x[q],f))
 	{
 		return qe_invalid;
 	} 
     }
-    for ( int q = 0; q < 10; q++ ) 
+    for ( int32_t q = 0; q < 10; q++ ) 
     {
 	if(!p_iputw(screen.new_item_y[q],f))
 	{
@@ -9209,7 +9209,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
     {
 		return qe_invalid;
     } 
-    for ( int q = 0; q < 8; q++ )
+    for ( int32_t q = 0; q < 8; q++ )
     {
 	if(!p_iputl(screen.screeninitd[q],f))
 	{
@@ -9232,7 +9232,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
     return qe_OK;
 }
 
-int writemaps(PACKFILE *f, zquestheader *)
+int32_t writemaps(PACKFILE *f, zquestheader *)
 {
     dword section_id=ID_MAPS;
     dword section_version=V_MAPS;
@@ -9256,7 +9256,7 @@ int writemaps(PACKFILE *f, zquestheader *)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -9274,9 +9274,9 @@ int writemaps(PACKFILE *f, zquestheader *)
             new_return(5);
         }
         
-        for(int i=0; i<map_count && i<MAXMAPS2; i++)
+        for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
         {
-            for(int j=0; j<MAPSCRS; j++)
+            for(int32_t j=0; j<MAPSCRS; j++)
                 writemapscreen(f,i,j);
         }
         
@@ -9286,17 +9286,17 @@ int writemaps(PACKFILE *f, zquestheader *)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writemaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writecombos(PACKFILE *f, word version, word build, word start_combo, word max_combos)
+int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, word max_combos)
 {
     //these are here to bypass compiler warnings about unused arguments
     version=version;
@@ -9329,7 +9329,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -9351,7 +9351,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
             new_return(5);
         }
         
-        for(int i=start_combo; i<start_combo+combos_used; i++)
+        for(int32_t i=start_combo; i<start_combo+combos_used; i++)
         {
             if(!p_iputl(combobuf[i].tile,f))
             {
@@ -9423,7 +9423,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
                 new_return(19);
             }
 	    
-	    for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+	    for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 	    {
 		if(!p_iputl(combobuf[i].attributes[q],f))
 		{
@@ -9434,7 +9434,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 	    {
 			new_return(21);
 	    }	 
-	    for ( int q = 0; q < 3; q++ ) 
+	    for ( int32_t q = 0; q < 3; q++ ) 
 	    {
 	        if(!p_iputl(combobuf[i].triggerflags[q],f))
 	        {
@@ -9446,14 +9446,14 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 	    {
 			new_return(23);
 	    }	
-	    for ( int q = 0; q < 11; q++ ) 
+	    for ( int32_t q = 0; q < 11; q++ ) 
 	    {
 	        if(!p_putc(combobuf[i].label[q],f))
 	        {
 			new_return(24);
 	        }
 	    }
-	    for ( int q = 0; q < 4; q++ ) //attribytes were sized 4 in this version, I bumped them up.
+	    for ( int32_t q = 0; q < 4; q++ ) //attribytes were sized 4 in this version, I bumped them up.
 	    {
 		if(!p_putc(combobuf[i].attribytes[q],f))
 		{
@@ -9464,7 +9464,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 		{
 			new_return(26);
 		}
-	    for ( int q = 0; q < 2; q++ )
+	    for ( int32_t q = 0; q < 2; q++ )
 	    {
 		if(!p_iputl(combobuf[i].initd[q],f))
 		{
@@ -9483,14 +9483,14 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 		{
 			new_return(30);
 		}
-	    for ( int q = 4; q < 8; q++ ) //I bumped up attribytes -Dimi
+	    for ( int32_t q = 4; q < 8; q++ ) //I bumped up attribytes -Dimi
 	    {
 		if(!p_putc(combobuf[i].attribytes[q],f))
 		{
 			new_return(31);
 		}
 	    }
-	    for ( int q = 0; q < 8; q++ ) //I also added attrishorts -Dimi
+	    for ( int32_t q = 0; q < 8; q++ ) //I also added attrishorts -Dimi
 	    {
 		if(!p_iputw(combobuf[i].attrishorts[q],f))
 		{
@@ -9507,17 +9507,17 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writecombos()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writecomboaliases(PACKFILE *f, word version, word build)
+int32_t writecomboaliases(PACKFILE *f, word version, word build)
 {
     //these are here to bypass compiler warnings about unused arguments
     version=version;
@@ -9545,7 +9545,7 @@ int writecomboaliases(PACKFILE *f, word version, word build)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -9558,7 +9558,7 @@ int writecomboaliases(PACKFILE *f, word version, word build)
         writesize=0;
         
         //finally...  section data
-        for(int j=0; j<MAXCOMBOALIASES; j++)
+        for(int32_t j=0; j<MAXCOMBOALIASES; j++)
         {
             if(!p_iputw(combo_aliases[j].combo,f))
             {
@@ -9570,7 +9570,7 @@ int writecomboaliases(PACKFILE *f, word version, word build)
                 new_return(6);
             }
             
-            int count = ((combo_aliases[j].width+1)*(combo_aliases[j].height+1))*(comboa_lmasktotal(combo_aliases[j].layermask)+1);
+            int32_t count = ((combo_aliases[j].width+1)*(combo_aliases[j].height+1))*(comboa_lmasktotal(combo_aliases[j].layermask)+1);
             
             if(!p_putc(combo_aliases[j].width,f))
             {
@@ -9587,7 +9587,7 @@ int writecomboaliases(PACKFILE *f, word version, word build)
                 new_return(9);
             }
             
-            for(int k=0; k<count; k++)
+            for(int32_t k=0; k<count; k++)
             {
                 if(!p_iputw(combo_aliases[j].combos[k],f))
                 {
@@ -9595,7 +9595,7 @@ int writecomboaliases(PACKFILE *f, word version, word build)
                 }
             }
             
-            for(int k=0; k<count; k++)
+            for(int32_t k=0; k<count; k++)
             {
                 if(!p_putc(combo_aliases[j].csets[k],f))
                 {
@@ -9611,17 +9611,17 @@ int writecomboaliases(PACKFILE *f, word version, word build)
     }
     
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writecomboaliases()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
+int32_t writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
 {
     //these are here to bypass compiler warnings about unused arguments
     version=version;
@@ -9632,8 +9632,8 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
     dword section_id=ID_CSETS;
     dword section_version=V_CSETS;
     dword section_cversion=CV_CSETS;
-    int palcycles = count_palcycles(Misc);
-// int palcyccount = count_palcycles(Misc);
+    int32_t palcycles = count_palcycles(Misc);
+// int32_t palcyccount = count_palcycles(Misc);
     dword section_size = 0;
     
     //section id
@@ -9654,7 +9654,7 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -9682,9 +9682,9 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
             new_return(15);
         }
         
-        for(int i=0; i<palcycles; i++)
+        for(int32_t i=0; i<palcycles; i++)
         {
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_putc(Misc->cycles[i][j].first,f))
                 {
@@ -9692,7 +9692,7 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
                 }
             }
             
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_putc(Misc->cycles[i][j].count,f))
                 {
@@ -9700,7 +9700,7 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
                 }
             }
             
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_putc(Misc->cycles[i][j].speed,f))
                 {
@@ -9715,17 +9715,17 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writecolordata()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word max_msgstrs)
+int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, word max_msgstrs)
 {
     //these are here to bypass compiler warnings about unused arguments
     version=version;
@@ -9755,7 +9755,7 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -9773,7 +9773,7 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
             return qe_invalid;
         }
         
-        for(int i=0; i<msg_count; i++)
+        for(int32_t i=0; i<msg_count; i++)
         {
             if(!pfwrite(MsgStrings[i].s,sizeof(MsgStrings[i].s),f))
             {
@@ -9840,7 +9840,7 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
                 return qe_invalid;
             }
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_putc(MsgStrings[i].margins[q],f))
 				{
@@ -9905,23 +9905,23 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writestrings()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writestrings_text(PACKFILE *f)
+int32_t writestrings_text(PACKFILE *f)
 {
-    std::map<int, int> msglistcache;
+    std::map<int32_t, int32_t> msglistcache;
     
-    for(int index = 1; index<msg_count; index++)
+    for(int32_t index = 1; index<msg_count; index++)
     {
-        for(int i=1; i<msg_count; i++)
+        for(int32_t i=1; i<msg_count; i++)
         {
             if(MsgStrings[i].listpos==index)
             {
@@ -9931,21 +9931,21 @@ int writestrings_text(PACKFILE *f)
         }
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         char ebuf[32];
         
         sprintf(ebuf,"Total strings: %d\n", msg_count-1);
         
-        if(!pfwrite(&ebuf,(long)strlen(ebuf),f))
+        if(!pfwrite(&ebuf,(int32_t)strlen(ebuf),f))
         {
             return qe_invalid;
         }
         
-        for(int i=1; i<msg_count; i++)
+        for(int32_t i=1; i<msg_count; i++)
         {
-            int str = msglistcache[i-1];
+            int32_t str = msglistcache[i-1];
             
             if(!str)
                 continue;
@@ -9955,14 +9955,14 @@ int writestrings_text(PACKFILE *f)
             else
                 sprintf(ebuf,"\n\n___%d___\n", str);
                 
-            if(!pfwrite(&ebuf,(long)strlen(ebuf),f))
+            if(!pfwrite(&ebuf,(int32_t)strlen(ebuf),f))
             {
                 return qe_invalid;
             }
             
             encode_msg_str(str);
             
-            if(!pfwrite(&msgbuf,(int)strlen(msgbuf),f))
+            if(!pfwrite(&msgbuf,(int32_t)strlen(msgbuf),f))
             {
                 return qe_invalid;
             }
@@ -9973,13 +9973,13 @@ int writestrings_text(PACKFILE *f)
 }
 
 
-int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_tiles)
+int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, int32_t max_tiles)
 {
     //these are here to bypass compiler warnings about unused arguments
     version=version;
     build=build;
     
-    int tiles_used;
+    int32_t tiles_used;
     dword section_id=ID_TILES;
     dword section_version=V_TILES;
     dword section_cversion=CV_TILES;
@@ -10007,7 +10007,7 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -10029,8 +10029,8 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
             new_return(5);
         }
         
-        for(int i=0; i<tiles_used; ++i)
-        //for(int i=0; i<NEWMAXTILES; ++i)
+        for(int32_t i=0; i<tiles_used; ++i)
+        //for(int32_t i=0; i<NEWMAXTILES; ++i)
         {
             if(!p_putc(newtilebuf[start_tile+i].format,f))
             {
@@ -10060,10 +10060,10 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writetiles()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
@@ -10089,7 +10089,7 @@ midi		 *
 
 */
 
-int writemidis(PACKFILE *f)
+int32_t writemidis(PACKFILE *f)
 {
     dword section_id=ID_MIDIS;
     dword section_version=V_MIDIS;
@@ -10113,7 +10113,7 @@ int writemidis(PACKFILE *f)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -10131,7 +10131,7 @@ int writemidis(PACKFILE *f)
             new_return(5);
         }
         
-        for(int i=0; i<MAXCUSTOMMIDIS; i++)
+        for(int32_t i=0; i<MAXCUSTOMMIDIS; i++)
         {
             if(get_bit(midi_flags,i))
             {
@@ -10195,17 +10195,17 @@ int writemidis(PACKFILE *f)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writemidis()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writecheats(PACKFILE *f, zquestheader *Header)
+int32_t writecheats(PACKFILE *f, zquestheader *Header)
 {
     dword section_id=ID_CHEATS;
     dword section_version=V_CHEATS;
@@ -10229,7 +10229,7 @@ int writecheats(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -10266,17 +10266,17 @@ int writecheats(PACKFILE *f, zquestheader *Header)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writecheats()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writeguys(PACKFILE *f, zquestheader *Header)
+int32_t writeguys(PACKFILE *f, zquestheader *Header)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	Header=Header;
@@ -10303,7 +10303,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 		new_return(3);
 	}
 	
-	for(int writecycle=0; writecycle<2; ++writecycle)
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
 	{
 		fake_pack_writing=(writecycle==0);
 		
@@ -10316,7 +10316,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 		writesize=0;
 		
 		//finally...  section data
-		for(int i=0; i<MAXGUYS; i++)
+		for(int32_t i=0; i<MAXGUYS; i++)
 		{
 			if(!pfwrite((char *)guy_string[i], 64, f))
 			{
@@ -10324,7 +10324,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			}
 		}
 		
-		for(int i=0; i<MAXGUYS; i++)
+		for(int32_t i=0; i<MAXGUYS; i++)
 		{
 			if(!p_iputl(guysbuf[i].flags,f))
 			{
@@ -10526,7 +10526,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(45);
 			}
 			
-			for(int j=0; j < edefLAST; j++)
+			for(int32_t j=0; j < edefLAST; j++)
 			{
 				if(!p_putc(guysbuf[i].defense[j],f))
 				{
@@ -10563,7 +10563,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			}
 			
 			//New 2.6 defences
-			for(int j=edefLAST; j < edefLAST255; j++)
+			for(int32_t j=edefLAST; j < edefLAST255; j++)
 			{
 				if(!p_putc(guysbuf[i].defense[j],f))
 				{
@@ -10634,7 +10634,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(66);
 			}
 			
-			for ( int q = 0; q < 10; q++ ) 
+			for ( int32_t q = 0; q < 10; q++ ) 
 			{
 				if(!p_iputw(guysbuf[i].frozenmisc[q],f))
 				{
@@ -10714,14 +10714,14 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			{
 				new_return(85);
 			}
-			for ( int q = 0; q < 32; q++ )
+			for ( int32_t q = 0; q < 32; q++ )
 			{
 				if(!p_iputl(guysbuf[i].movement[q],f))
 				{
 					new_return(86);
 				}
 			}
-			for ( int q = 0; q < 32; q++ )
+			for ( int32_t q = 0; q < 32; q++ )
 			{
 				if(!p_iputl(guysbuf[i].new_weapon[q],f))
 				{
@@ -10732,14 +10732,14 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			{
 				new_return(88);
 			}
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
 				if(!p_iputl(guysbuf[i].initD[q],f))
 				{
 					new_return(89);
 				}
 			}
-			for ( int q = 0; q < 2; q++ )
+			for ( int32_t q = 0; q < 2; q++ )
 			{
 				if(!p_iputl(guysbuf[i].initA[q],f))
 				{
@@ -10765,16 +10765,16 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			}
 			
 			//Enemy Editor InitD[] labels
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_putc(guysbuf[i].initD_label[q][w],f))
 					{
 						new_return(95);
 					} 
 				}
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
 					{
@@ -10787,7 +10787,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(97);
 			}
 			//eweapon initD
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
 				if(!p_iputl(guysbuf[i].weap_initiald[q],f))
 				{
@@ -10810,17 +10810,17 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 		}
 	}
 	
-	if(writesize!=int(section_size) && save_warn)
+	if(writesize!=int32_t(section_size) && save_warn)
 	{
 		char ebuf[80];
-		sprintf(ebuf, "%d != %d", writesize, int(section_size));
+		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
 		jwin_alert("Error:  writeguys()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
 	}
 	
 	new_return(0);
 }
 
-int writelinksprites(PACKFILE *f, zquestheader *Header)
+int32_t writelinksprites(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -10847,7 +10847,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -10860,7 +10860,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         writesize=0;
         
         //finally...  section data
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_iputl(walkspr[i][spr_tile],f))
             {
@@ -10878,7 +10878,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_iputl(stabspr[i][spr_tile],f))
             {
@@ -10896,7 +10896,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_iputl(slashspr[i][spr_tile],f))
             {
@@ -10914,7 +10914,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_iputl(floatspr[i][spr_tile],f))
             {
@@ -10932,7 +10932,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_iputl(swimspr[i][spr_tile],f))
             {
@@ -10950,7 +10950,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_iputl(divespr[i][spr_tile],f))
             {
@@ -10968,7 +10968,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_iputl(poundspr[i][spr_tile],f))
             {
@@ -11001,9 +11001,9 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
             new_return(11);
         }
         
-        for(int i=0; i<2; i++)
+        for(int32_t i=0; i<2; i++)
         {
-            for(int j=0; j<spr_holdmax; j++)
+            for(int32_t j=0; j<spr_holdmax; j++)
             {
                 if(!p_iputl(holdspr[i][j][spr_tile],f))
                 {
@@ -11022,7 +11022,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_iputl(jumpspr[i][spr_tile],f))
             {
@@ -11040,7 +11040,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_iputl(chargespr[i][spr_tile],f))
             {
@@ -11064,7 +11064,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
         }
 		
 		//{ V_LINKSPRITES >= 7
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(frozenspr[q][spr_tile],f))
 				new_return(15);
@@ -11073,7 +11073,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)frozenspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(frozen_waterspr[q][spr_tile],f))
 				new_return(15);
@@ -11082,7 +11082,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)frozen_waterspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(onfirespr[q][spr_tile],f))
 				new_return(15);
@@ -11091,7 +11091,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)onfirespr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(onfire_waterspr[q][spr_tile],f))
 				new_return(15);
@@ -11100,7 +11100,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)onfire_waterspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(diggingspr[q][spr_tile],f))
 				new_return(15);
@@ -11109,7 +11109,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)diggingspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(usingrodspr[q][spr_tile],f))
 				new_return(15);
@@ -11118,7 +11118,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)usingrodspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(usingcanespr[q][spr_tile],f))
 				new_return(15);
@@ -11127,7 +11127,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)usingcanespr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(pushingspr[q][spr_tile],f))
 				new_return(15);
@@ -11136,7 +11136,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)pushingspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(liftingspr[q][spr_tile],f))
 				new_return(15);
@@ -11145,7 +11145,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)liftingspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(liftingheavyspr[q][spr_tile],f))
 				new_return(15);
@@ -11154,7 +11154,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)liftingheavyspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(stunnedspr[q][spr_tile],f))
 				new_return(15);
@@ -11163,7 +11163,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)stunnedspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(stunned_waterspr[q][spr_tile],f))
 				new_return(15);
@@ -11172,7 +11172,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)stunned_waterspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(drowningspr[q][spr_tile],f))
 				new_return(15);
@@ -11181,7 +11181,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)drowningspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(drowning_lavaspr[q][spr_tile],f))
 				new_return(15);
@@ -11190,7 +11190,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)drowning_lavaspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(fallingspr[q][spr_tile],f))
 				new_return(15);
@@ -11199,7 +11199,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)fallingspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(shockedspr[q][spr_tile],f))
 				new_return(15);
@@ -11208,7 +11208,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)shockedspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(shocked_waterspr[q][spr_tile],f))
 				new_return(15);
@@ -11217,7 +11217,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)shocked_waterspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(pullswordspr[q][spr_tile],f))
 				new_return(15);
@@ -11226,7 +11226,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)pullswordspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(readingspr[q][spr_tile],f))
 				new_return(15);
@@ -11235,7 +11235,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)readingspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(slash180spr[q][spr_tile],f))
 				new_return(15);
@@ -11244,7 +11244,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)slash180spr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(slashZ4spr[q][spr_tile],f))
 				new_return(15);
@@ -11253,7 +11253,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)slashZ4spr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(dashspr[q][spr_tile],f))
 				new_return(15);
@@ -11262,7 +11262,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)dashspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(bonkspr[q][spr_tile],f))
 				new_return(15);
@@ -11271,7 +11271,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)bonkspr[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 3; ++q) //Not directions; number of medallion sprs
+		for(int32_t q = 0; q < 3; ++q) //Not directions; number of medallion sprs
 		{
 			if(!p_iputl(medallionsprs[q][spr_tile],f))
 				new_return(15);
@@ -11280,7 +11280,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)medallionsprs[q][spr_extend],f))
 				new_return(15);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(sideswimspr[q][spr_tile],f))
 				new_return(16);
@@ -11289,7 +11289,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)sideswimspr[q][spr_extend],f))
 				new_return(16);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(sideswimslashspr[q][spr_tile],f))
 				new_return(17);
@@ -11298,7 +11298,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)sideswimslashspr[q][spr_extend],f))
 				new_return(17);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(sideswimstabspr[q][spr_tile],f))
 				new_return(17);
@@ -11307,7 +11307,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)sideswimstabspr[q][spr_extend],f))
 				new_return(17);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(sideswimpoundspr[q][spr_tile],f))
 				new_return(17);
@@ -11316,7 +11316,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)sideswimpoundspr[q][spr_extend],f))
 				new_return(17);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(sideswimchargespr[q][spr_tile],f))
 				new_return(18);
@@ -11325,12 +11325,12 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)sideswimchargespr[q][spr_extend],f))
 				new_return(18);
 		}
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(hammeroffsets[q],f))
 				new_return(19);
 		}
-		for(int q = 0; q < 3; ++q)
+		for(int32_t q = 0; q < 3; ++q)
 		{
 			if(!p_iputl(sideswimholdspr[q][spr_tile],f))
 				new_return(20);
@@ -11355,7 +11355,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 		    new_return(21);
 		}
 		
-		for(int q = 0; q < 4; ++q)
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(sidedrowningspr[q][spr_tile],f))
 				new_return(22);
@@ -11366,7 +11366,7 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
 		}
         
 		
-        for (int q = 0; q < wMax; q++) // Link defense values
+        for (int32_t q = 0; q < wMax; q++) // Link defense values
         {
             if (!p_putc(link_defence[q], f))
                 new_return(15);
@@ -11381,17 +11381,17 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
     
     //More data will come here
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writelinksprites()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writesubscreens(PACKFILE *f, zquestheader *Header)
+int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 {
     dword section_id=ID_SUBSCREEN;
     dword section_version=V_SUBSCREEN;
@@ -11415,7 +11415,7 @@ int writesubscreens(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -11427,9 +11427,9 @@ int writesubscreens(PACKFILE *f, zquestheader *Header)
         
         writesize=0;
         
-        for(int i=0; i<MAXCUSTOMSUBSCREENS; i++)
+        for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
         {
-            int ret = write_one_subscreen(f, Header, i);
+            int32_t ret = write_one_subscreen(f, Header, i);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11444,22 +11444,22 @@ int writesubscreens(PACKFILE *f, zquestheader *Header)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writesubscreens()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
+int32_t write_one_subscreen(PACKFILE *f, zquestheader *Header, int32_t i)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    int numsub = 0;
+    int32_t numsub = 0;
     
     if(!pfwrite(custom_subscreen[i].name, 64,f))
     {
@@ -11471,7 +11471,7 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
         new_return(29);
     }
     
-    for(int k=0; (k<MAXSUBSCREENITEMS&&(custom_subscreen[i].objects[k].type != ssoNULL)); k++)
+    for(int32_t k=0; (k<MAXSUBSCREENITEMS&&(custom_subscreen[i].objects[k].type != ssoNULL)); k++)
     {
         numsub++;
     }
@@ -11481,7 +11481,7 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
         new_return(4);
     }
     
-    for(int j=0; (j<MAXSUBSCREENITEMS&&j<numsub); j++)
+    for(int32_t j=0; (j<MAXSUBSCREENITEMS&&j<numsub); j++)
     {
         if(!p_putc(custom_subscreen[i].objects[j].type, f))
         {
@@ -11618,12 +11618,12 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
             {
                 if(strlen((char*)custom_subscreen[i].objects[j].dp1))
                 {
-                    if(!p_iputw((int)strlen((char*)custom_subscreen[i].objects[j].dp1), f))
+                    if(!p_iputw((int32_t)strlen((char*)custom_subscreen[i].objects[j].dp1), f))
                     {
                         new_return(27);
                     }
                     
-                    if(!pfwrite(custom_subscreen[i].objects[j].dp1, (long)strlen((char*)custom_subscreen[i].objects[j].dp1)+1,f))
+                    if(!pfwrite(custom_subscreen[i].objects[j].dp1, (int32_t)strlen((char*)custom_subscreen[i].objects[j].dp1)+1,f))
                     {
                         new_return(28);
                     }
@@ -11671,7 +11671,7 @@ extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
-int writeffscript(PACKFILE *f, zquestheader *Header)
+int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 {
     dword section_id       = ID_FFSCRIPT;
     dword section_version  = V_FFSCRIPT;
@@ -11703,7 +11703,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         new_return(4);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -11715,9 +11715,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         writesize=0;
         
-        for(int i=0; i<NUMSCRIPTFFC; i++)
+        for(int32_t i=0; i<NUMSCRIPTFFC; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11726,9 +11726,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<NUMSCRIPTITEM; i++)
+        for(int32_t i=0; i<NUMSCRIPTITEM; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11737,9 +11737,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<NUMSCRIPTGUYS; i++)
+        for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11748,9 +11748,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+        for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11759,9 +11759,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<NUMSCRIPTSCREEN; i++)
+        for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11770,9 +11770,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<NUMSCRIPTGLOBAL; i++)
+        for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11781,9 +11781,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<NUMSCRIPTLINK; i++)
+        for(int32_t i=0; i<NUMSCRIPTLINK; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &linkscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &linkscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11792,9 +11792,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
 	
-        for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+        for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11803,9 +11803,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
 	
-	for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &ewpnscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &ewpnscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11814,9 +11814,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-	for(int i=0; i<NUMSCRIPTSDMAP; i++)
+	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &dmapscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &dmapscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11825,9 +11825,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
 	
-	for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &itemspritescripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &itemspritescripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11836,9 +11836,9 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
 	al_trace("About to write combo script pt 1.\n");
-	for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &comboscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -11847,19 +11847,19 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        if(!p_iputl((long)zScript.size(), f))
+        if(!p_iputl((int32_t)zScript.size(), f))
         {
             new_return(2001);
         }
         
-        if(!pfwrite((void *)zScript.c_str(), (long)zScript.size(), f))
+        if(!pfwrite((void *)zScript.c_str(), (int32_t)zScript.size(), f))
         {
             new_return(2002);
         }
         
         word numffcbindings=0;
         
-        for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -11872,7 +11872,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2003);
         }
         
-        for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -11881,12 +11881,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                     new_return(2004);
                 }
                 
-                if(!p_iputl((long)it->second.scriptname.size(), f))
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
                 {
                     new_return(2005);
                 }
                 
-                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2006);
                 }
@@ -11895,7 +11895,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         word numglobalbindings=0;
         
-        for(std::map<int, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -11908,7 +11908,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2007);
         }
         
-        for(std::map<int, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -11917,12 +11917,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                     new_return(2008);
                 }
                 
-                if(!p_iputl((long)it->second.scriptname.size(), f))
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
                 {
                     new_return(2009);
                 }
                 
-                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2010);
                 }
@@ -11931,7 +11931,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         word numitembindings=0;
         
-        for(std::map<int, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -11944,7 +11944,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2011);
         }
         
-        for(std::map<int, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -11953,12 +11953,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                     new_return(2012);
                 }
                 
-                if(!p_iputl((long)it->second.scriptname.size(), f))
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
                 {
                     new_return(2013);
                 }
                 
-                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2014);
                 }
@@ -11969,7 +11969,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         //npc scripts
         word numnpcbindings=0;
         
-        for(std::map<int, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -11982,7 +11982,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2015);
         }
         
-        for(std::map<int, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -11991,12 +11991,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                     new_return(2016);
                 }
                 
-                if(!p_iputl((long)it->second.scriptname.size(), f))
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
                 {
                     new_return(2017);
                 }
                 
-                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2018);
                 }
@@ -12007,7 +12007,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	
 	word numlwpnbindings=0;
         
-        for(std::map<int, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12020,7 +12020,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2019);
         }
         
-        for(std::map<int, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12029,12 +12029,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                     new_return(2020);
                 }
                 
-                if(!p_iputl((long)it->second.scriptname.size(), f))
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
                 {
                     new_return(2021);
                 }
                 
-                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2022);
                 }
@@ -12048,7 +12048,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	
         word numewpnbindings=0;
         
-        for(std::map<int, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12061,7 +12061,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2023);
         }
         
-        for(std::map<int, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12070,12 +12070,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                     new_return(2024);
                 }
                 
-                if(!p_iputl((long)it->second.scriptname.size(), f))
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
                 {
                     new_return(2025);
                 }
                 
-                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2026);
                 }
@@ -12085,7 +12085,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	//link scripts
 	word numlinkbindings=0;
         
-        for(std::map<int, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12098,7 +12098,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2027);
         }
         
-        for(std::map<int, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12107,12 +12107,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                     new_return(2028);
                 }
                 
-                if(!p_iputl((long)it->second.scriptname.size(), f))
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
                 {
                     new_return(2029);
                 }
                 
-                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2030);
                 }
@@ -12122,7 +12122,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	//dmap scripts
 	word numdmapbindings=0;
         
-        for(std::map<int, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12135,7 +12135,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2031);
         }
         
-        for(std::map<int, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12144,12 +12144,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                     new_return(2032);
                 }
                 
-                if(!p_iputl((long)it->second.scriptname.size(), f))
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
                 {
                     new_return(2033);
                 }
                 
-                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2034);
                 }
@@ -12159,7 +12159,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	//screen scripts
 	word numscreenbindings=0;
         
-        for(std::map<int, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12172,7 +12172,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2035);
         }
         
-        for(std::map<int, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12181,12 +12181,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                     new_return(2036);
                 }
                 
-                if(!p_iputl((long)it->second.scriptname.size(), f))
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
                 {
                     new_return(2037);
                 }
                 
-                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2038);
                 }
@@ -12195,7 +12195,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         //item sprite scripts
 	word numitemspritebindings=0;
         
-        for(std::map<int, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12208,7 +12208,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2039);
         }
         
-        for(std::map<int, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12217,12 +12217,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                     new_return(2040);
                 }
                 
-                if(!p_iputl((long)it->second.scriptname.size(), f))
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
                 {
                     new_return(2041);
                 }
                 
-                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2042);
                 }
@@ -12233,7 +12233,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	al_trace("About to write combo script pt 2.\n");
 	word numcombobindings=0;
         
-        for(std::map<int, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12246,7 +12246,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             new_return(2043);
         }
         al_trace("About to write combo script pt 4.\n");
-        for(std::map<int, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12255,12 +12255,12 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                     new_return(2044);
                 }
                 
-                if(!p_iputl((long)it->second.scriptname.size(), f))
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
                 {
                     new_return(2045);
                 }
                 
-                if(!pfwrite((void *)it->second.scriptname.c_str(), (long)it->second.scriptname.size(),f))
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2046);
                 }
@@ -12275,10 +12275,10 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
     
         
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writeffscript()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
@@ -12287,15 +12287,15 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
     //the irony is that it causes an "unreachable code" warning.
 }
 
-int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **script)
+int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_data **script)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     i=i;
     
-    int num_commands;
+    int32_t num_commands;
     
-    for(int j=0;; j++)
+    for(int32_t j=0;; j++)
     {
         if((*script)->zasm[j].command==0xFFFF)
         {
@@ -12330,9 +12330,9 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 		new_return(10);
 	}
 	
-	for(int q = 0; q < 8; ++q)
+	for(int32_t q = 0; q < 8; ++q)
 	{
-		for(int c = 0; c < 33; ++c)
+		for(int32_t c = 0; c < 33; ++c)
 		{
 			if(!p_putc((*script)->meta.run_idens[q][c],f))
 			{
@@ -12341,7 +12341,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 		}
 	}
 	
-	for(int q = 0; q < 8; ++q)
+	for(int32_t q = 0; q < 8; ++q)
 	{
 		if(!p_putc((*script)->meta.run_types[q],f))
 		{
@@ -12374,7 +12374,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 		new_return(17);
 	}
 	
-	for(int c = 0; c < 33; ++c)
+	for(int32_t c = 0; c < 33; ++c)
 	{
 		if(!p_putc((*script)->meta.script_name[c],f))
 		{
@@ -12382,7 +12382,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 		}
 	}
 	
-	for(int c = 0; c < 33; ++c)
+	for(int32_t c = 0; c < 33; ++c)
 	{
 		if(!p_putc((*script)->meta.author[c],f))
 		{
@@ -12390,7 +12390,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 		}
 	}
 	
-    for(int j=0; j<num_commands; j++)
+    for(int32_t j=0; j<num_commands; j++)
     {
         
         if(!p_iputw((*script)->zasm[j].command,f))
@@ -12421,9 +12421,9 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, script_data **s
 }
 
 extern SAMPLE customsfxdata[WAV_COUNT];
-extern unsigned char customsfxflag[WAV_COUNT>>3];
+extern uint8_t customsfxflag[WAV_COUNT>>3];
 
-int writesfx(PACKFILE *f, zquestheader *Header)
+int32_t writesfx(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -12450,7 +12450,7 @@ int writesfx(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -12462,7 +12462,7 @@ int writesfx(PACKFILE *f, zquestheader *Header)
         
         writesize=0;
         
-        for(int i=0; i<WAV_COUNT>>3; i++)
+        for(int32_t i=0; i<WAV_COUNT>>3; i++)
         {
             if(!p_putc(customsfxflag[i],f))
             {
@@ -12470,7 +12470,7 @@ int writesfx(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=1; i<WAV_COUNT; i++)
+        for(int32_t i=1; i<WAV_COUNT; i++)
         {
             if(get_bit(customsfxflag, i-1) == 0)
                 continue;
@@ -12481,7 +12481,7 @@ int writesfx(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=1; i<WAV_COUNT; i++)
+        for(int32_t i=1; i<WAV_COUNT; i++)
         {
             if(get_bit(customsfxflag, i-1) == 0)
                 continue;
@@ -12527,9 +12527,9 @@ int writesfx(PACKFILE *f, zquestheader *Header)
             }
             
             //de-endianfy the data
-            int wordstowrite = (customsfxdata[i].bits==8?1:2)*(customsfxdata[i].stereo==0?1:2)*customsfxdata[i].len/sizeof(word);
+            int32_t wordstowrite = (customsfxdata[i].bits==8?1:2)*(customsfxdata[i].stereo==0?1:2)*customsfxdata[i].len/sizeof(word);
             
-            for(int j=0; j<wordstowrite; j++)
+            for(int32_t j=0; j<wordstowrite; j++)
             {
                 if(!p_iputw(((word *)customsfxdata[i].data)[j],f))
                 {
@@ -12544,17 +12544,17 @@ int writesfx(PACKFILE *f, zquestheader *Header)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writesfx()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writeinitdata(PACKFILE *f, zquestheader *Header)
+int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	Header=Header;
@@ -12585,7 +12585,7 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 		new_return(3);
 	}
 	
-	for(int writecycle=0; writecycle<2; ++writecycle)
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
 	{
 		fake_pack_writing=(writecycle==0);
 		
@@ -12599,7 +12599,7 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 		
 		//finally...  section data
 		//write the new items
-		for(int i=0; i<MAXITEMS; i++)
+		for(int32_t i=0; i<MAXITEMS; i++)
 		{
 			if(!p_putc(zinit.items[i] ? 1 : 0, f))
 			{
@@ -12663,7 +12663,7 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 			new_return(33);
 		}
 		
-		for(int i=0; i<64; i++)
+		for(int32_t i=0; i<64; i++)
 		{
 			if(!p_putc(zinit.map[i],f))
 			{
@@ -12671,7 +12671,7 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 			}
 		}
 		
-		for(int i=0; i<64; i++)
+		for(int32_t i=0; i<64; i++)
 		{
 			if(!p_putc(zinit.compass[i],f))
 			{
@@ -12679,7 +12679,7 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 			}
 		}
 		
-		for(int i=0; i<64; i++)
+		for(int32_t i=0; i<64; i++)
 		{
 			if(!p_putc(zinit.boss_key[i],f))
 			{
@@ -12687,7 +12687,7 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 			}
 		}
 		
-		for(int i=0; i<16; i++)
+		for(int32_t i=0; i<16; i++)
 		{
 			if(!p_putc(zinit.misc[i],f))
 			{
@@ -12755,7 +12755,7 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 			new_return(48);
 		}
 		
-		for(int i=0; i<MAXLEVELS; i++)
+		for(int32_t i=0; i<MAXLEVELS; i++)
 		{
 			if(!p_putc(zinit.level_keys[i],f))
 			{
@@ -12902,14 +12902,14 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(78);
 		}
-		for(int q = 0; q < 25; ++q)
+		for(int32_t q = 0; q < 25; ++q)
 		{
 			if(!p_iputw(zinit.scrcnt[q],f))
 			{
 				new_return(79);
 			}
 		}
-		for(int q = 0; q < 25; ++q)
+		for(int32_t q = 0; q < 25; ++q)
 		{
 			if(!p_iputw(zinit.scrmaxcnt[q],f))
 			{
@@ -12972,17 +12972,17 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
 		}
 	}
 	
-	if(writesize!=int(section_size) && save_warn)
+	if(writesize!=int32_t(section_size) && save_warn)
 	{
 		char ebuf[80];
-		sprintf(ebuf, "%d != %d", writesize, int(section_size));
+		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
 		jwin_alert("Error:  writeinitdata()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
 	}
 	
 	new_return(0);
 }
 
-int writeitemdropsets(PACKFILE *f, zquestheader *Header)
+int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -13011,7 +13011,7 @@ int writeitemdropsets(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -13029,14 +13029,14 @@ int writeitemdropsets(PACKFILE *f, zquestheader *Header)
             new_return(5);
         }
         
-        for(int i=0; i<num_item_drop_sets; i++)
+        for(int32_t i=0; i<num_item_drop_sets; i++)
         {
             if(!pfwrite(item_drop_sets[i].name, sizeof(item_drop_sets[i].name), f))
             {
                 new_return(6);
             }
             
-            for(int j=0; j<10; ++j)
+            for(int32_t j=0; j<10; ++j)
             {
                 if(!p_iputw(item_drop_sets[i].item[j],f))
                 {
@@ -13044,7 +13044,7 @@ int writeitemdropsets(PACKFILE *f, zquestheader *Header)
                 }
             }
             
-            for(int j=0; j<11; ++j)
+            for(int32_t j=0; j<11; ++j)
             {
                 if(!p_iputw(item_drop_sets[i].chance[j],f))
                 {
@@ -13059,17 +13059,17 @@ int writeitemdropsets(PACKFILE *f, zquestheader *Header)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writeitemdropsets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int writefavorites(PACKFILE *f, zquestheader*)
+int32_t writefavorites(PACKFILE *f, zquestheader*)
 {
     dword section_id=ID_FAVORITES;
     dword section_version=V_FAVORITES;
@@ -13093,7 +13093,7 @@ int writefavorites(PACKFILE *f, zquestheader*)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
         
@@ -13111,7 +13111,7 @@ int writefavorites(PACKFILE *f, zquestheader*)
             new_return(5);
         }
         
-        for(int i=0; i<MAXFAVORITECOMBOS; i++)
+        for(int32_t i=0; i<MAXFAVORITECOMBOS; i++)
         {
             if(!p_iputl(favorite_combos[i],f))
             {
@@ -13124,7 +13124,7 @@ int writefavorites(PACKFILE *f, zquestheader*)
             new_return(7);
         }
         
-        for(int i=0; i<MAXFAVORITECOMBOALIASES; i++)
+        for(int32_t i=0; i<MAXFAVORITECOMBOALIASES; i++)
         {
             if(!p_iputl(favorite_comboaliases[i],f))
             {
@@ -13138,17 +13138,17 @@ int writefavorites(PACKFILE *f, zquestheader*)
         }
     }
     
-    if(writesize!=int(section_size) && save_warn)
+    if(writesize!=int32_t(section_size) && save_warn)
     {
         char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writeitemdropsets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
 }
 
-int save_unencoded_quest(const char *filename, bool compressed)
+int32_t save_unencoded_quest(const char *filename, bool compressed)
 {
     reset_combo_animations();
     reset_combo_animations2();
@@ -13161,9 +13161,9 @@ int save_unencoded_quest(const char *filename, bool compressed)
     header.data_flags[ZQ_CHEATS2] = 1;
     header.build=VERSION_BUILD;
     
-    for(int i=0; i<MAXCUSTOMMIDIS; i++)
+    for(int32_t i=0; i<MAXCUSTOMMIDIS; i++)
     {
-        set_bit(midi_flags,i,int(customtunes[i].data!=NULL));
+        set_bit(midi_flags,i,int32_t(customtunes[i].data!=NULL));
     }
     
     char keyfilename[2048];
@@ -13479,11 +13479,11 @@ int save_unencoded_quest(const char *filename, bool compressed)
         p_iputw(header.zelda_version,fp3);
         p_putc(header.build,fp2);
 	/* no, this writes as bytes
-	long temp_pw[256];
-	for ( int q = 0; q < 256; ++q ) temp_pw[q] = header.password[q];
-	int hash = 0;
-	for ( int q = 0; q < 256 && temp_pw[q] != NULL; ++q ) hash += temp_pw[q]; //silly hash -Z 
-	for ( int q = 0; q < 256; ++q ) temp_pw[q] *= hash;
+	int32_t temp_pw[256];
+	for ( int32_t q = 0; q < 256; ++q ) temp_pw[q] = header.password[q];
+	int32_t hash = 0;
+	for ( int32_t q = 0; q < 256 && temp_pw[q] != NULL; ++q ) hash += temp_pw[q]; //silly hash -Z 
+	for ( int32_t q = 0; q < 256; ++q ) temp_pw[q] *= hash;
 	*/
 	char hashmap = 'Z';
 	hashmap += 'Q';
@@ -13493,7 +13493,7 @@ int save_unencoded_quest(const char *filename, bool compressed)
 	hashmap += 'T';
 	char temp_pw[32];
 	memset(temp_pw,0,32);
-	for ( int q = 0; q < 32; ++q ) 
+	for ( int32_t q = 0; q < 32; ++q ) 
 	{
 		temp_pw[q] = header.password[q];
 		temp_pw[q] += hashmap;
@@ -13506,7 +13506,7 @@ int save_unencoded_quest(const char *filename, bool compressed)
 		
 		//char reversehashpw[32];
 		//memset(reversehashpw,0,32);
-		//for ( int q = 0; q < 30; q++ ) 
+		//for ( int32_t q = 0; q < 30; q++ ) 
 		//{
 		//	reversehashpw[q] = temp_pw[q] - hashmap;
 		//}
@@ -13521,9 +13521,9 @@ int save_unencoded_quest(const char *filename, bool compressed)
     new_return(0);
 }
 
-int save_quest(const char *filename, bool timed_save)
+int32_t save_quest(const char *filename, bool timed_save)
 {
-    int retention=timed_save?AutoSaveRetention:AutoBackupRetention;
+    int32_t retention=timed_save?AutoSaveRetention:AutoBackupRetention;
     bool compress=!(timed_save&&UncompressedAutoSaves);
     char ext1[5];
     ext1[0]=0;
@@ -13543,7 +13543,7 @@ int save_quest(const char *filename, bool timed_save)
         char backupname2[2048];
         char ext[5];
         
-        for(int i=retention-1; i>0; --i)
+        for(int32_t i=retention-1; i>0; --i)
         {
             sprintf(ext, "%s%d", ext1, i-1);
             replace_extension(backupname, filepath, ext, 2047);
@@ -13584,7 +13584,7 @@ int save_quest(const char *filename, bool timed_save)
         tmpfilename=(char *)filename;
     }
     
-    int ret;
+    int32_t ret;
     ret  = save_unencoded_quest(tmpfilename, compress);
     
     if(compress)
@@ -13618,26 +13618,26 @@ void zmap::prv_secrets(bool high16only)
 {
     mapscr *s = &prvscr;
     mapscr *t = prvlayers;
-    int ft=0;
+    int32_t ft=0;
     
-    for(int i=0; i<176; i++)
+    for(int32_t i=0; i<176; i++)
     {
         bool putit;
         
         if(!high16only)
         {
-            for(int j=-1; j<6; j++)
+            for(int32_t j=-1; j<6; j++)
             {
-                int newflag = -1;
+                int32_t newflag = -1;
                 
-                for(int iter=0; iter<2; ++iter)
+                for(int32_t iter=0; iter<2; ++iter)
                 {
                     putit=true;
                     
                     if(t[j].data.empty())
                         continue;
                         
-                    int checkflag=combobuf[t[j].data[i]].flag;
+                    int32_t checkflag=combobuf[t[j].data[i]].flag;
                     
                     if(iter==1)
                     {
@@ -13785,11 +13785,11 @@ void zmap::prv_secrets(bool high16only)
         
         //if(true)
         //{
-        int newflag = -1;
+        int32_t newflag = -1;
         
-        for(int iter=0; iter<2; ++iter)
+        for(int32_t iter=0; iter<2; ++iter)
         {
-            int checkflag=combobuf[s->data[i]].flag;
+            int32_t checkflag=combobuf[s->data[i]].flag;
             
             if(iter==1)
             {
@@ -13807,15 +13807,15 @@ void zmap::prv_secrets(bool high16only)
         
         if(newflag >-1) s->sflag[i] = newflag;
         
-        for(int j=0; j<6; j++)
+        for(int32_t j=0; j<6; j++)
         {
             if(t[j].data.empty()||t[j].cset.empty()) continue;
             
-            int newflag2 = -1;
+            int32_t newflag2 = -1;
             
-            for(int iter=0; iter<2; ++iter)
+            for(int32_t iter=0; iter<2; ++iter)
             {
-                int checkflag=combobuf[t[j].data[i]].flag;
+                int32_t checkflag=combobuf[t[j].data[i]].flag;
                 
                 if(iter==1)
                 {
@@ -13843,16 +13843,16 @@ void zmap::prv_secrets(bool high16only)
     }
     
     //FFCs
-    for(int i=0; i<32; i++)
+    for(int32_t i=0; i<32; i++)
     {
         bool putit;
         
         if(!high16only)
         {
-            for(int iter=0; iter<1; ++iter)
+            for(int32_t iter=0; iter<1; ++iter)
             {
                 putit=true;
-                int checkflag=combobuf[s->ffdata[i]].flag;
+                int32_t checkflag=combobuf[s->ffdata[i]].flag;
                 
                 if(iter==1)
                 {
@@ -13984,9 +13984,9 @@ void zmap::prv_secrets(bool high16only)
         
         if(!(s->flags2&fCLEARSECRET) || high16only || s->flags4&fENEMYSCRTPERM)
         {
-            for(int iter=0; iter<1; ++iter)
+            for(int32_t iter=0; iter<1; ++iter)
             {
-                int checkflag=combobuf[s->ffdata[i]].flag;
+                int32_t checkflag=combobuf[s->ffdata[i]].flag;
                 
                 if(iter==1)
                 {

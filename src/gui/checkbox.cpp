@@ -19,7 +19,7 @@ Checkbox::Checkbox(): checked(false), text(),
 
 void Checkbox::setText(std::string newText)
 {
-	int textWidth = text_length(widgFont, newText.c_str());
+	int32_t textWidth = text_length(widgFont, newText.c_str());
 	setPreferredWidth(Size::pixels(textWidth)+13_lpx);
 	text = newText;
 	if(alDialog)
@@ -74,7 +74,7 @@ void Checkbox::realize(DialogRunner& runner)
 		fgColor, bgColor,
 		getAccelKey(text),
 		getFlags()|(checked ? D_SELECTED : 0),
-		static_cast<int>(placement), 0, // d1, d2,
+		static_cast<int32_t>(placement), 0, // d1, d2,
 		text.data(), widgFont, nullptr // dp, dp2, dp3
 	});
 }
@@ -85,7 +85,7 @@ void Checkbox::calculateSize()
 	setPreferredWidth(9_spx+12_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
 }
 
-int Checkbox::onEvent(int event, MessageDispatcher& sendMessage)
+int32_t Checkbox::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	assert(event == geTOGGLE);
 	if(onToggleFunc)

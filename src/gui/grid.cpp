@@ -45,7 +45,7 @@ void Grid::calculateSize()
 	// Get the size of each row
 	for(size_t row = 0; row < numRows; ++row)
 	{
-		int total = totalColSpacing, max = 0;
+		int32_t total = totalColSpacing, max = 0;
 		for(size_t col = 0; col < numCols; ++col)
 		{
 			size_t index = growthType == type::ROWS ?
@@ -66,7 +66,7 @@ void Grid::calculateSize()
 	// Get the size of each column
 	for(size_t col = 0; col < numCols; ++col)
 	{
-		int total = totalRowSpacing, max = 0;
+		int32_t total = totalRowSpacing, max = 0;
 		for(size_t row = 0; row < numRows; ++row)
 		{
 			size_t index = growthType == type::ROWS ?
@@ -85,7 +85,7 @@ void Grid::calculateSize()
 
 	// Set the width to the longest row's width or the total column width,
 	// whichever is greater.
-	int prefW = 0;
+	int32_t prefW = 0;
 	for(auto& cw: colWidths)
 		prefW += cw;
 	for(auto& rw: rowWidths)
@@ -96,7 +96,7 @@ void Grid::calculateSize()
 	setPreferredWidth(Size::pixels(prefW));
 
 	// Similar deal for height.
-	int prefH = 0;
+	int32_t prefH = 0;
 	for(auto& rh: rowHeights)
 		prefH += rh;
 	for(auto& ch: colHeights)
@@ -108,7 +108,7 @@ void Grid::calculateSize()
 }
 
 
-void Grid::arrange(int contX, int contY, int contW, int contH)
+void Grid::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 {
 	// This currently just assumes there's enough space for everything to be
 	// as big as it wants to be.
@@ -128,11 +128,11 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 		numCols = (children.size()+growthLimit-1)/growthLimit;
 	}
 
-	int cy = y;
+	int32_t cy = y;
 	for(size_t row = 0; row < numRows; ++row)
 	{
-		int cx = x;
-		int c_hei = rowHeights[row];
+		int32_t cx = x;
+		int32_t c_hei = rowHeights[row];
 		for(size_t col = 0; col < numCols; ++col)
 		{
 			size_t index = growthType == type::ROWS ?
@@ -141,7 +141,7 @@ void Grid::arrange(int contX, int contY, int contW, int contH)
 			if(index >= children.size())
 				break;
 
-			int c_wid = colWidths[col];
+			int32_t c_wid = colWidths[col];
 			if(c_hei > (getHeight()-(cy-y)))
 				c_hei = (getHeight()-(cy-y));
 			if(c_wid > (getWidth()-(cx-x)))

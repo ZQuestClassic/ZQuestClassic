@@ -38,10 +38,10 @@
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 //#endif
 
-extern int scheme[];
+extern int32_t scheme[];
 /* d_editbox_proc:
  *  A text box object. The dp field points to a char * which is the text
- *  to be displayed in the text box. If the text is long, there will be
+ *  to be displayed in the text box. If the text is int32_t, there will be
  *  a vertical scrollbar on the right hand side of the object which can
  *  be used to scroll through the text. The default is to print the text
  *  with word wrapping, but if the D_SELECTED flag is set, the text will
@@ -49,10 +49,10 @@ extern int scheme[];
  *  to store the number of lines of text, and d2 is used to store how far
  *  it has scrolled through the text.
  */
-int d_editbox_proc(int msg, DIALOG *d, int c)
+int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	EditboxModel *model= (EditboxModel *)d->dp;
-	int ret = D_O_K;
+	int32_t ret = D_O_K;
 	
 	static clock_t ticks;
 	bool dontredraw=false;
@@ -167,7 +167,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 		case KEY_TAB:
 		{
 			model->clear();
-			int ch = Unicode::getCharAtOffset(uconvert_ascii("\t",NULL),0);
+			int32_t ch = Unicode::getCharAtOffset(uconvert_ascii("\t",NULL),0);
 			model->getCursor().insertChar(ch);
 			ret = D_USED_CHAR;
 			break;

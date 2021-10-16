@@ -38,8 +38,8 @@ subscreen_group *current_subscreen_passive;
 
 subscreen_group custom_subscreen[MAXCUSTOMSUBSCREENS];
 
-static const int notscrolling = sspUP | sspDOWN;
-static const int pos = notscrolling | sspSCROLLING;
+static const int32_t notscrolling = sspUP | sspDOWN;
+static const int32_t pos = notscrolling | sspSCROLLING;
 
 subscreen_object z3_active_a[80]=
 {
@@ -1737,7 +1737,7 @@ subscreen_object default_subscreen_passive[ssdtMAX][2][21]= //[zinit.subscreen][
     }
 };
 
-void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int textstyle, int alignment, int color, int shadow, int bg)
+void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg)
 {
     switch(alignment)
     {
@@ -1897,7 +1897,7 @@ void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int x,
     }
 }
 
-void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int x, int y, int textstyle, int alignment, int color, int shadow, int bg, const char *format, ...)
+void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
 
     char buf[512];
@@ -1914,11 +1914,11 @@ void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int x, int y, int 
 }
 
 
-void draw_textbox(BITMAP *dest, int x, int y, int w, int h, FONT *tempfont, char *thetext, bool wword, int tabsize, int alignment, int textstyle, int color, int shadowcolor, int backcolor)
+void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT *tempfont, char *thetext, bool wword, int32_t tabsize, int32_t alignment, int32_t textstyle, int32_t color, int32_t shadowcolor, int32_t backcolor)
 {
-    int y1 = y;
-    int x1;
-    int len;
+    int32_t y1 = y;
+    int32_t x1;
+    int32_t len;
     char s[16];
     char text[16];
     char space[16];
@@ -1927,9 +1927,9 @@ void draw_textbox(BITMAP *dest, int x, int y, int w, int h, FONT *tempfont, char
     char *oldscan = text;
     char *ignore = NULL;
     char *tmp, *ptmp;
-    int width;
-    int i = 0;
-    int noignore;
+    int32_t width;
+    int32_t i = 0;
+    int32_t noignore;
     
     usetc(s+usetc(s, '.'), 0);
     usetc(text+usetc(text, ' '), 0);
@@ -2040,7 +2040,7 @@ void draw_textbox(BITMAP *dest, int x, int y, int w, int h, FONT *tempfont, char
         /* check if we are to print it */
         if((y1+text_height(tempfont) <= (y+h)))
         {
-            int tempw=0;
+            int32_t tempw=0;
             char *tempprinted=printed;
             
             /* print up to the marked character */
@@ -2152,9 +2152,9 @@ void draw_textbox(BITMAP *dest, int x, int y, int w, int h, FONT *tempfont, char
 
 
 
-//void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int xsize,int ysize,int t,int c)
+//void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t xsize,int32_t ysize,int32_t t,int32_t c)
 //draw_block_flip(dest,x,y,css->objects[i].d1,subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3,css->objects[i].d4);
-void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,int h,int /*flip*/,bool overlay,bool trans)
+void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t /*flip*/,bool overlay,bool trans)
 {
     /*
       /- -- -- -\
@@ -2172,58 +2172,58 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,i
 	tile= FFCore.getQuestHeaderInfo(vZelda) >= 0x250 ? misc->colors.new_blueframe_tile : misc->colors.blueframe_tile;
     }
     
-    int t8 = tile<<2;
+    int32_t t8 = tile<<2;
     
     if(overlay)
     {
         if(trans)
         {
-            for(int dx=0; dx<w; dx++)
+            for(int32_t dx=0; dx<w; dx++)
             {
-                int top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
-                int bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
+                int32_t top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
+                int32_t bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
                 
                 overtiletranslucent8(dest,top,(dx<<3)+x,y,cset,0,128);
                 overtiletranslucent8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0,128);
             }
             
-            for(int dy=1; dy<h-1; dy++)
+            for(int32_t dy=1; dy<h-1; dy++)
             {
-                int left  = (dy >= (h>>1)) ? t8+80 : t8+2;
-                int right = (dy >= (h>>1)) ? t8+85 : t8+7;
+                int32_t left  = (dy >= (h>>1)) ? t8+80 : t8+2;
+                int32_t right = (dy >= (h>>1)) ? t8+85 : t8+7;
                 
                 overtiletranslucent8(dest,left,x,(dy<<3)+y,cset,0,128);
                 overtiletranslucent8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0,128);
                 
-                for(int dx=1; dx<w-1; dx++)
+                for(int32_t dx=1; dx<w-1; dx++)
                 {
-                    int fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
+                    int32_t fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
                     overtiletranslucent8(dest,fill,(dx<<3)+x,(dy<<3)+y,cset,0,128);
                 }
             }
         }
         else
         {
-            for(int dx=0; dx<w; dx++)
+            for(int32_t dx=0; dx<w; dx++)
             {
-                int top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
-                int bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
+                int32_t top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
+                int32_t bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
                 
                 overtile8(dest,top,(dx<<3)+x,y,cset,0);
                 overtile8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0);
             }
             
-            for(int dy=1; dy<h-1; dy++)
+            for(int32_t dy=1; dy<h-1; dy++)
             {
-                int left  = (dy >= (h>>1)) ? t8+80 : t8+2;
-                int right = (dy >= (h>>1)) ? t8+85 : t8+7;
+                int32_t left  = (dy >= (h>>1)) ? t8+80 : t8+2;
+                int32_t right = (dy >= (h>>1)) ? t8+85 : t8+7;
                 
                 overtile8(dest,left,x,(dy<<3)+y,cset,0);
                 overtile8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0);
                 
-                for(int dx=1; dx<w-1; dx++)
+                for(int32_t dx=1; dx<w-1; dx++)
                 {
-                    int fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
+                    int32_t fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
                     overtile8(dest,fill,(dx<<3)+x,(dy<<3)+y,cset,0);
                 }
             }
@@ -2233,52 +2233,52 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,i
     {
         if(trans)
         {
-            for(int dx=0; dx<w; dx++)
+            for(int32_t dx=0; dx<w; dx++)
             {
-                int top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
-                int bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
+                int32_t top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
+                int32_t bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
                 
                 puttiletranslucent8(dest,top,(dx<<3)+x,y,cset,0,128);
                 puttiletranslucent8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0,128);
             }
             
-            for(int dy=1; dy<h-1; dy++)
+            for(int32_t dy=1; dy<h-1; dy++)
             {
-                int left  = (dy >= (h>>1)) ? t8+80 : t8+2;
-                int right = (dy >= (h>>1)) ? t8+85 : t8+7;
+                int32_t left  = (dy >= (h>>1)) ? t8+80 : t8+2;
+                int32_t right = (dy >= (h>>1)) ? t8+85 : t8+7;
                 
                 puttiletranslucent8(dest,left,x,(dy<<3)+y,cset,0,128);
                 puttiletranslucent8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0,128);
                 
-                for(int dx=1; dx<w-1; dx++)
+                for(int32_t dx=1; dx<w-1; dx++)
                 {
-                    int fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
+                    int32_t fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
                     puttiletranslucent8(dest,fill,(dx<<3)+x,(dy<<3)+y,cset,0,128);
                 }
             }
         }
         else
         {
-            for(int dx=0; dx<w; dx++)
+            for(int32_t dx=0; dx<w; dx++)
             {
-                int top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
-                int bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
+                int32_t top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
+                int32_t bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
                 
                 oldputtile8(dest,top,(dx<<3)+x,y,cset,0);
                 oldputtile8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0);
             }
             
-            for(int dy=1; dy<h-1; dy++)
+            for(int32_t dy=1; dy<h-1; dy++)
             {
-                int left  = (dy >= (h>>1)) ? t8+80 : t8+2;
-                int right = (dy >= (h>>1)) ? t8+85 : t8+7;
+                int32_t left  = (dy >= (h>>1)) ? t8+80 : t8+2;
+                int32_t right = (dy >= (h>>1)) ? t8+85 : t8+7;
                 
                 oldputtile8(dest,left,x,(dy<<3)+y,cset,0);
                 oldputtile8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0);
                 
-                for(int dx=1; dx<w-1; dx++)
+                for(int32_t dx=1; dx<w-1; dx++)
                 {
-                    int fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
+                    int32_t fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
                     oldputtile8(dest,fill,(dx<<3)+x,(dy<<3)+y,cset,0);
                 }
             }
@@ -2286,15 +2286,15 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,i
     }
 }
 
-void drawgrid(BITMAP *dest,int x,int y,int c1,int c2)
+void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
 {
-    int si=0;
+    int32_t si=0;
     
-    for(int y2=0; y2<=7; ++y2)
+    for(int32_t y2=0; y2<=7; ++y2)
     {
         byte dl = DMaps[get_currdmap()].grid[si];
         
-        for(int x2=0; x2<=7; ++x2)
+        for(int32_t x2=0; x2<=7; ++x2)
         {
             if(c2==-1)
             {
@@ -2316,14 +2316,14 @@ void drawgrid(BITMAP *dest,int x,int y,int c1,int c2)
     }
 }
 
-void draw_block(BITMAP *dest,int x,int y,int tile,int cset,int w,int h)
+void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h)
 {
-    for(int j=0; j<h; j++)
-        for(int i=0; i<w; i++)
+    for(int32_t j=0; j<h; j++)
+        for(int32_t i=0; i<w; i++)
             overtile16(dest,tile+j*20+i,x+(i<<4),y+(j<<4),cset,0);
 }
 
-void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int flip,bool overlay,bool trans)
+void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t flip,bool overlay,bool trans)
 {
     if(overlay)
     {
@@ -2332,9 +2332,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
         case 0:
             if(trans)
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         overtiletranslucent16(dest,tile+j*20+i,x+(i<<4),y+(j<<4),cset,0,255-trans);
                     }
@@ -2342,9 +2342,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
             }
             else
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         overtile16(dest,tile+j*20+i,x+(i<<4),y+(j<<4),cset,0);
                     }
@@ -2356,9 +2356,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
         case 1: //horizontal
             if(trans)
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         overtiletranslucent16(dest,tile+j*20+(w-i-1),x+(i<<4),y+(j<<4),cset,1,255-trans);
                     }
@@ -2366,9 +2366,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
             }
             else
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         overtile16(dest,tile+j*20+(w-i-1),x+(i<<4),y+(j<<4),cset,1);
                     }
@@ -2380,9 +2380,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
         case 2:
             if(trans)
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         overtiletranslucent16(dest,tile+(h-j-1)*20+i,x+(i<<4),y+(j<<4),cset,2,255-trans);
                     }
@@ -2390,9 +2390,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
             }
             else
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         overtile16(dest,tile+(h-j-1)*20+i,x+(i<<4),y+(j<<4),cset,2);
                     }
@@ -2404,9 +2404,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
         case 3:
             if(trans)
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         overtiletranslucent16(dest,tile+(h-j-1)*20+(w-i-1),x+(i<<4),y+(j<<4),cset,3,255-trans);
                     }
@@ -2414,9 +2414,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
             }
             else
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         overtile16(dest,tile+(h-j-1)*20+(w-i-1),x+(i<<4),y+(j<<4),cset,3);
                     }
@@ -2433,9 +2433,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
         case 0:
             if(trans)
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         puttiletranslucent16(dest,tile+j*20+i,x+(i<<4),y+(j<<4),cset,0,255-trans);
                     }
@@ -2443,9 +2443,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
             }
             else
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         oldputtile16(dest,tile+j*20+i,x+(i<<4),y+(j<<4),cset,0);
                     }
@@ -2457,9 +2457,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
         case 1: //horizontal
             if(trans)
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         puttiletranslucent16(dest,tile+j*20+(w-i-1),x+(i<<4),y+(j<<4),cset,1,255-trans);
                     }
@@ -2467,9 +2467,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
             }
             else
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         oldputtile16(dest,tile+j*20+(w-i-1),x+(i<<4),y+(j<<4),cset,1);
                     }
@@ -2481,9 +2481,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
         case 2:
             if(trans)
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         puttiletranslucent16(dest,tile+(h-j-1)*20+i,x+(i<<4),y+(j<<4),cset,2,255-trans);
                     }
@@ -2491,9 +2491,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
             }
             else
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         oldputtile16(dest,tile+(h-j-1)*20+i,x+(i<<4),y+(j<<4),cset,2);
                     }
@@ -2505,9 +2505,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
         case 3:
             if(trans)
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         puttiletranslucent16(dest,tile+(h-j-1)*20+(w-i-1),x+(i<<4),y+(j<<4),cset,3,255-trans);
                     }
@@ -2515,9 +2515,9 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
             }
             else
             {
-                for(int j=0; j<h; j++)
+                for(int32_t j=0; j<h; j++)
                 {
-                    for(int i=0; i<w; i++)
+                    for(int32_t i=0; i<w; i++)
                     {
                         oldputtile16(dest,tile+(h-j-1)*20+(w-i-1),x+(i<<4),y+(j<<4),cset,3);
                     }
@@ -2529,10 +2529,10 @@ void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int 
     }
 }
 
-void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int showlink, int showcompass, int linkcolor, int lccolor, int dccolor)
+void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap, int32_t showlink, int32_t showcompass, int32_t linkcolor, int32_t lccolor, int32_t dccolor)
 {
     zcolors c=misc->colors;
-    int type = (DMaps[get_currdmap()].type&dmfTYPE);
+    int32_t type = (DMaps[get_currdmap()].type&dmfTYPE);
     
     if(showmap)
     {
@@ -2541,8 +2541,8 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
         case dmOVERW:
         case dmBSOVERW:
 		{
-            int maptile=(!get_bit(quest_rules, qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
-            int mapcset=(!get_bit(quest_rules, qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
+            int32_t maptile=(!get_bit(quest_rules, qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
+            int32_t mapcset=(!get_bit(quest_rules, qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
             //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
             if(maptile)
             {
@@ -2567,8 +2567,8 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
         case dmDNGN:
         case dmCAVE:
 		{
-            int maptile=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
-            int mapcset=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
+            int32_t maptile=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
+            int32_t mapcset=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
             //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
             if(maptile)
             {
@@ -2606,13 +2606,13 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
         {
             if(show_subscreen_dmap_dots&&has_item(itype_compass, get_dlevel()))
             {
-                int c2 = dccolor;
+                int32_t c2 = dccolor;
                 
                 if(!has_item(itype_triforcepiece, get_dlevel()) && (frame&16))
                     c2 = lccolor;
                     
-                int cx = ((DMaps[get_currdmap()].compass&15)<<3)+x+10;
-                int cy = ((DMaps[get_currdmap()].compass&0xF0)>>2)+y+8;
+                int32_t cx = ((DMaps[get_currdmap()].compass&15)<<3)+x+10;
+                int32_t cy = ((DMaps[get_currdmap()].compass&0xF0)>>2)+y+8;
                 putdot(dest,cx,cy,c2);
             }
         }
@@ -2636,7 +2636,7 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
 
 
 
-void lifemeter(BITMAP *dest,int x,int y,int tile,bool bs_style)
+void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t tile,bool bs_style)
 {
     if(!show_subscreen_life)
     {
@@ -2647,10 +2647,10 @@ void lifemeter(BITMAP *dest,int x,int y,int tile,bool bs_style)
     {
         y+=24;
     }
-    const int basetile = FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? (wpnsbuf[iwQuarterHearts].newtile) : (wpnsbuf[iwQuarterHearts].tile);
-    const int max_iter = (game != NULL ? zc_min(game->get_maxlife(),game->get_hp_per_heart()*24) : 1);
-	const int inc = (game != NULL ? game->get_hp_per_heart() : 16);
-	for(int i=0; i<max_iter; i+=inc)
+    const int32_t basetile = FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? (wpnsbuf[iwQuarterHearts].newtile) : (wpnsbuf[iwQuarterHearts].tile);
+    const int32_t max_iter = (game != NULL ? zc_min(game->get_maxlife(),game->get_hp_per_heart()*24) : 1);
+	const int32_t inc = (game != NULL ? game->get_hp_per_heart() : 16);
+	for(int32_t i=0; i<max_iter; i+=inc)
     {
         if(game != NULL)
         {
@@ -2680,8 +2680,8 @@ void lifemeter(BITMAP *dest,int x,int y,int tile,bool bs_style)
     }
 }
 
-void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int notlast_cset, bool notlast_mod, int last_tile, int last_cset, bool last_mod,
-                int cap_tile, int cap_cset, bool cap_mod, int aftercap_tile, int aftercap_cset, bool aftercap_mod, int frames, int speed, int delay, bool unique_last, int show)
+void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
+                int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show)
 {
     //these are here to bypass compiler warnings about unused arguments
     frames=frames;
@@ -2700,8 +2700,8 @@ void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int n
             return;
     }
     
-    int containers=game->get_maxmagic()/game->get_mp_per_block();
-    int tile=zc_oldrand()%32767, cset=zc_oldrand()%15;
+    int32_t containers=game->get_maxmagic()/game->get_mp_per_block();
+    int32_t tile=zc_oldrand()%32767, cset=zc_oldrand()%15;
     bool mod_value=(zc_oldrand()%2)!=0;
     
     if(container<containers)
@@ -2760,16 +2760,16 @@ void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int n
     
 }
 
-void lifegauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int notlast_cset, bool notlast_mod, int last_tile, int last_cset, bool last_mod,
-               int cap_tile, int cap_cset, bool cap_mod, int aftercap_tile, int aftercap_cset, bool aftercap_mod, int frames, int speed, int delay, bool unique_last)
+void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
+               int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last)
 {
     //these are here to bypass compiler warnings about unused arguments
     frames=frames;
     speed=speed;
     delay=delay;
     
-    int containers=game->get_maxlife()/game->get_hp_per_heart();
-    int tile=zc_oldrand()%32767, cset=zc_oldrand()%15;
+    int32_t containers=game->get_maxlife()/game->get_hp_per_heart();
+    int32_t tile=zc_oldrand()%32767, cset=zc_oldrand()%15;
     bool mod_value=(zc_oldrand()%2)!=0;
     
     if(container<containers)
@@ -2828,15 +2828,15 @@ void lifegauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int no
 }
 
 
-void magicmeter(BITMAP *dest,int x,int y)
+void magicmeter(BITMAP *dest,int32_t x,int32_t y)
 {
     if(!get_bit(quest_rules,qr_ENABLEMAGIC)) return;
     
     if(game->get_maxmagic()==0) return;
     
-    int tile;
-    int mmtile=FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? wpnsbuf[iwMMeter].newtile : wpnsbuf[iwMMeter].tile;
-    int mmcset=wpnsbuf[iwMMeter].csets&15;
+    int32_t tile;
+    int32_t mmtile=FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? wpnsbuf[iwMMeter].newtile : wpnsbuf[iwMMeter].tile;
+    int32_t mmcset=wpnsbuf[iwMMeter].csets&15;
     overtile8(dest,(mmtile*4)+2,x-8,y,mmcset,0);
     
     if(game->get_magicdrainrate()==1)
@@ -2844,7 +2844,7 @@ void magicmeter(BITMAP *dest,int x,int y)
         overtile8(dest,(mmtile*4)+1,x-10,y,mmcset,0);
     }
     
-    for(int i=0; i<game->get_maxmagic(); i+=game->get_mp_per_block())
+    for(int32_t i=0; i<game->get_maxmagic(); i+=game->get_mp_per_block())
     {
         if(game->get_magic()>=i+game->get_mp_per_block())
         {
@@ -2870,14 +2870,14 @@ void magicmeter(BITMAP *dest,int x,int y)
     
 }
 
-void putxnum(BITMAP *dest,int x,int y,int num,FONT *tempfont,int color,int shadowcolor,int bgcolor,int textstyle,bool usex,int digits,bool infinite,char idigit)
+void putxnum(BITMAP *dest,int32_t x,int32_t y,int32_t num,FONT *tempfont,int32_t color,int32_t shadowcolor,int32_t bgcolor,int32_t textstyle,bool usex,int32_t digits,bool infinite,char idigit)
 {
     if(!show_subscreen_numbers)
     {
         return;
     }
     
-    int found_digits=5;
+    int32_t found_digits=5;
     
     if(num<10000)
     {
@@ -2910,7 +2910,7 @@ void putxnum(BITMAP *dest,int x,int y,int num,FONT *tempfont,int color,int shado
 }
 
 /*
-  INLINE void putdot(BITMAP *dest,int x,int y,int c)
+  INLINE void putdot(BITMAP *dest,int32_t x,int32_t y,int32_t c)
   {
   rectfill(dest,x,y,x+2,y+2,c);
   }
@@ -2919,7 +2919,7 @@ void putxnum(BITMAP *dest,int x,int y,int num,FONT *tempfont,int color,int shado
 /****  Subscr items code  ****/
 
 item *Bitem = NULL, *Aitem = NULL, *Yitem = NULL, *Xitem = NULL;
-int   Bid = 0, Aid = 0, Xid = 0, Yid = 0;
+int32_t   Bid = 0, Aid = 0, Xid = 0, Yid = 0;
 
 void reset_subscr_items()
 {
@@ -3115,9 +3115,9 @@ void add_subscr_item(item *newItem)
 }
 
 /****/
-int stripspaces(char *source, char *target, int stop)
+int32_t stripspaces(char *source, char *target, int32_t stop)
 {
-    int begin, end;
+    int32_t begin, end;
     
     for(begin=0; ((begin<stop)&&(source[begin]==' ')); ++begin)
     {
@@ -3138,9 +3138,9 @@ int stripspaces(char *source, char *target, int stop)
     return (end-begin+1);
 }
 
-bool findWeaponWithParent(int id, int type)
+bool findWeaponWithParent(int32_t id, int32_t type)
 {
-	for (int q = Lwpns.Count()-1; q >= 0; --q)
+	for (int32_t q = Lwpns.Count()-1; q >= 0; --q)
 	{
 		weapon *ew = (weapon*)(Lwpns.spr(q));
 		if (ew->id != type || ew->parentitem != id) continue;
@@ -3149,10 +3149,10 @@ bool findWeaponWithParent(int id, int type)
 	return false;
 }
 
-int countWeaponWithParent(int id, int type)
+int32_t countWeaponWithParent(int32_t id, int32_t type)
 {
-	int count = 0;
-	for (int q = Lwpns.Count()-1; q >= 0; --q)
+	int32_t count = 0;
+	for (int32_t q = Lwpns.Count()-1; q >= 0; --q)
 	{
 		weapon *ew = (weapon*)(Lwpns.spr(q));
 		if (ew->id != type || ew->parentitem != id) continue;
@@ -3162,7 +3162,7 @@ int countWeaponWithParent(int id, int type)
 }
 
 // The conditions on which a subcreen item should be displayed.
-bool displaysubscreenitem(int itemtype, int d, int id)
+bool displaysubscreenitem(int32_t itemtype, int32_t d, int32_t id)
 {
 	if(game==NULL)  //ZQuest
 		return true;
@@ -3216,12 +3216,12 @@ bool displaysubscreenitem(int itemtype, int d, int id)
 	}
 }
 
-void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
+void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
 {
     // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
-    int overridecheck = 0xFFFF;
+    int32_t overridecheck = 0xFFFF;
     
-    for(int i=Sitems.Count()-1; i>=0; i--)
+    for(int32_t i=Sitems.Count()-1; i>=0; i--)
     {
         if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
         {
@@ -3234,7 +3234,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
         }
         else if(Sitems.spr(i)->misc!=-1)
         {
-            int d= itemsbuf[Sitems.spr(i)->id].family;
+            int32_t d= itemsbuf[Sitems.spr(i)->id].family;
             
             if((d==itemtype)||
                     (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
@@ -3279,9 +3279,9 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
     }
 }
 
-int subscreen_color(miscQdata *misc, int c1, int c2)
+int32_t subscreen_color(miscQdata *misc, int32_t c1, int32_t c2)
 {
-    int ret;
+    int32_t ret;
     
     switch(c1)
     {
@@ -3372,9 +3372,9 @@ int subscreen_color(miscQdata *misc, int c1, int c2)
 
 
 
-int subscreen_cset(miscQdata *misc,int c1, int c2)
+int32_t subscreen_cset(miscQdata *misc,int32_t c1, int32_t c2)
 {
-    int ret=c1;
+    int32_t ret=c1;
     
     switch(c1)
     {
@@ -3423,7 +3423,7 @@ int subscreen_cset(miscQdata *misc,int c1, int c2)
     return ret;
 }
 
-FONT *ss_font(int fontnum)
+FONT *ss_font(int32_t fontnum)
 {
     FONT *tempfont;
     
@@ -3611,7 +3611,7 @@ void animate_selectors()
     sel_b->animate(0);
 }
 
-void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, int xofs, int yofs, bool showtime, int pos2)
+void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2)
 {
     //this is not a good place to be clearing the bitmap
     //other stuff might already have been drawn on it that needs to be kept
@@ -3636,15 +3636,15 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
     if(!sel_a || !sel_b)
         animate_selectors();
         
-    for(int i=0; i<MAXSUBSCREENITEMS&&css->objects[i].type>ssoNULL; ++i)
+    for(int32_t i=0; i<MAXSUBSCREENITEMS&&css->objects[i].type>ssoNULL; ++i)
     {
         if((css->objects[i].pos & pos2) != 0)
         {
             FONT *tempfont=zfont;
-            int fontnum=css->objects[i].d1;
+            int32_t fontnum=css->objects[i].d1;
             tempfont=ss_font(fontnum);
-            int x=css->objects[i].x+xofs;
-            int y=css->objects[i].y+yofs;
+            int32_t x=css->objects[i].x+xofs;
+            int32_t y=css->objects[i].y+yofs;
             
             switch(css->objects[i].type)
             {
@@ -3823,7 +3823,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
             
             case ssoSELECTEDITEMNAME:
             {
-                int itemid=Bweapon(Bpos);
+                int32_t itemid=Bweapon(Bpos);
                 
                 // If it's a combined bow and arrow, the item ID will have 0xF000 added.
                 if(itemid>=0xF000)
@@ -3887,7 +3887,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
             
             case ssoMINITILE:
             {
-                int t=css->objects[i].d1;
+                int32_t t=css->objects[i].d1;
                 
                 if(t==-1)
                 {
@@ -3937,13 +3937,13 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
             case ssoSELECTOR1:
             case ssoSELECTOR2:
             {
-                int p=-1;
+                int32_t p=-1;
                 
-                for(int j=0; j<MAXSUBSCREENITEMS&&css->objects[j].type!=ssoNULL; ++j)
+                for(int32_t j=0; j<MAXSUBSCREENITEMS&&css->objects[j].type!=ssoNULL; ++j)
                 {
                     if(css->objects[j].type==ssoCURRENTITEM)
                     {
-                        if(css->objects[j].d3==(int)Bpos)
+                        if(css->objects[j].d3==(int32_t)Bpos)
                         {
                             p=j;
                             break;
@@ -3953,7 +3953,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                 
                 bool big_sel=css->objects[i].d5 != 0;
                 item *tempsel=(css->objects[i].type==ssoSELECTOR1)?sel_a:sel_b;
-                int temptile=tempsel->tile;
+                int32_t temptile=tempsel->tile;
                 tempsel->drawstyle=0;
                 
                 if(css->objects[i].d4)
@@ -3961,7 +3961,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                     tempsel->drawstyle=1;
                 }
                 
-                for(int j=0; j<4; ++j)
+                for(int32_t j=0; j<4; ++j)
                 {
                     if(p!=-1)
                     {
@@ -3987,9 +3987,9 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
             
             case ssoMAGICGAUGE:
             {
-                //          void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int notlast_cset, bool notlast_mod, int last_tile, int last_cset, bool last_mod,
-                //                          int cap_tile, int cap_cset, bool cap_mod, int aftercap_tile, int aftercap_cset, bool aftercap_mod, int frames, int speed, int delay, bool unique_last,
-                //                          int show)
+                //          void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
+                //                          int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last,
+                //                          int32_t show)
                 magicgauge(dest,x,y, css->objects[i].d1, css->objects[i].d2, css->objects[i].colortype1, ((css->objects[i].d10&1)?1:0), css->objects[i].d3, css->objects[i].color1, ((css->objects[i].d10&2)?1:0),
                            css->objects[i].d4, css->objects[i].colortype2, ((css->objects[i].d10&4)?1:0), css->objects[i].d5, css->objects[i].color2, ((css->objects[i].d10&8)?1:0), css->objects[i].d6, css->objects[i].d7, css->objects[i].d8, ((css->objects[i].d10&16)?1:0),
                            css->objects[i].d9);
@@ -4015,7 +4015,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 }
 
 
-void buttonitem(BITMAP *dest, int button, int x, int y)
+void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
 {
     switch(button)
     {
@@ -4158,9 +4158,9 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
     }
 }
 
-void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, bool usex, int textstyle, int digits, char idigit)
+void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, bool usex, int32_t textstyle, int32_t digits, char idigit)
 {
-    int yofs = (game==NULL || (game->get_sbombs() && current_item_id(itype_sbomb)>-1)) ? 8 : 0;
+    int32_t yofs = (game==NULL || (game->get_sbombs() && current_item_id(itype_sbomb)>-1)) ? 8 : 0;
     
     //88, 16
     overtile8(dest,5,x,y,1,0);
@@ -4170,7 +4170,7 @@ void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int 
     if(game)
     {
         bool magickey = false;
-        int itemid = current_item_id(itype_magickey);
+        int32_t itemid = current_item_id(itype_magickey);
         
         if(itemid>-1)
         {
@@ -4191,7 +4191,7 @@ void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int 
         
         if(game)
         {
-            int itemid = current_item_id(itype_bombbag);
+            int32_t itemid = current_item_id(itype_bombbag);
             bool superbomb = (itemid>=0 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1);
             
             putxnum(dest,x+8,y+24,game->get_sbombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,superbomb,idigit);
@@ -4199,7 +4199,7 @@ void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int 
     }
 }
 
-bool is_counter_item(int itemtype, int countertype)
+bool is_counter_item(int32_t itemtype, int32_t countertype)
 {
     switch(countertype)
     {
@@ -4236,11 +4236,11 @@ bool is_counter_item(int itemtype, int countertype)
 // may have used this and we'd need to edit the uest to fix it as-is, so perrhaps hide them only conditionally?
 // or make them flipping work?
 // It seems that the original intent was to be able  to display a sum of multipe counters as one value. -Z (26th Jan, 2020).
-void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, int alignment, int textstyle, int digits, char idigit, bool showzero, int itemtype1, int itemtype2, int itemtype3, int infiniteitem, bool onlyselected)
+void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, int32_t alignment, int32_t textstyle, int32_t digits, char idigit, bool showzero, int32_t itemtype1, int32_t itemtype2, int32_t itemtype3, int32_t infiniteitem, bool onlyselected)
 {
-    int value=0;
+    int32_t value=0;
     bool infinite=false;
-	int itemtypes[3]={itemtype1, itemtype2, itemtype3};
+	int32_t itemtypes[3]={itemtype1, itemtype2, itemtype3};
     
     if(game != NULL && game->get_item(infiniteitem) && !item_disabled(infiniteitem))
     {
@@ -4257,9 +4257,9 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
         return;
     }
     
-    int itemtype;
+    int32_t itemtype;
     /*
-    for (int i=0; i<3; ++i)
+    for (int32_t i=0; i<3; ++i)
     {
       switch (i)
       {
@@ -4303,7 +4303,7 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
         
     case sscSBOMBS:
     {
-        int itemid = current_item_id(itype_bombbag);
+        int32_t itemid = current_item_id(itype_bombbag);
         
         if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
             infinite=true;
@@ -4358,7 +4358,7 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
     case sscLEVKEYMAGIC:
     case sscANYKEYMAGIC:
     {
-        int itemid = current_item_id(itype_magickey);
+        int32_t itemid = current_item_id(itype_magickey);
         
         if(itemid>-1 && !infinite)
         {
@@ -4421,7 +4421,7 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
     
 	{
 		//add item2 and item3 values to item1 values
-		for (int i=1; i<3; ++i)
+		for (int32_t i=1; i<3; ++i)
 		{
 		    
 			switch (i)
@@ -4482,7 +4482,7 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
 				}
 				case sscSBOMBS:
 				{
-					int itemid = current_item_id(itype_bombbag);
+					int32_t itemid = current_item_id(itype_bombbag);
 					if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
 					infinite=true;
 					value+=game->get_sbombs();
@@ -4527,7 +4527,7 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
 				case sscLEVKEYMAGIC:
 				case sscANYKEYMAGIC:
 				{
-					int itemid = current_item_id(itype_magickey);	
+					int32_t itemid = current_item_id(itype_magickey);	
 					if(itemid>-1 && !infinite)
 					{
 						if(itemsbuf[itemid].flags&ITEM_FLAG1)
@@ -4617,15 +4617,15 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
     //  putxnum(dest,x+8,y,game->get_rupies(),tempfont,color,shadowcolor,bgcolor,shadowed,usex,digits,0,idigit);
 }
 
-void minimaptitle(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, int alignment, int textstyle)
+void minimaptitle(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, int32_t alignment, int32_t textstyle)
 {
     char dmaptitlesource[2][11];
     char dmaptitle[2][11];
     sprintf(dmaptitlesource[0], "%.10s", DMaps[get_currdmap()].title);
     sprintf(dmaptitlesource[1], "%.10s", DMaps[get_currdmap()].title+10);
     
-    int title_len1=stripspaces(dmaptitlesource[0], dmaptitle[0], 10);
-    int title_len2=stripspaces(dmaptitlesource[1], dmaptitle[1], 10);
+    int32_t title_len1=stripspaces(dmaptitlesource[0], dmaptitle[0], 10);
+    int32_t title_len2=stripspaces(dmaptitlesource[1], dmaptitle[1], 10);
     
     if((title_len1>0)||(title_len2>0))
     {
@@ -4648,7 +4648,7 @@ void minimaptitle(BITMAP *dest, int x, int y, FONT *tempfont, int color, int sha
     }
 }
 
-void put_passive_subscr(BITMAP *dest,miscQdata *misc,int x,int y,bool showtime,int pos2)
+void put_passive_subscr(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,bool showtime,int32_t pos2)
 {
     // uncomment this?
     //  load_Sitems();
@@ -4675,7 +4675,7 @@ void put_passive_subscr(BITMAP *dest,miscQdata *misc,int x,int y,bool showtime,i
   };
   */
 
-void puttriframe(BITMAP *dest, miscQdata *misc, int x, int y, int triframecolor, int numbercolor, int triframetile, int triframecset, int triforcetile, int triforcecset, bool showframe, bool showpieces, bool largepieces)
+void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t triframecolor, int32_t numbercolor, int32_t triframetile, int32_t triframecset, int32_t triforcetile, int32_t triforcecset, bool showframe, bool showpieces, bool largepieces)
 {
     if(triframetile==0)
     {
@@ -4712,16 +4712,16 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int x, int y, int triframecolor,
         
         if(showpieces)
         {
-            for(int i=0; i<8; i++)
+            for(int32_t i=0; i<8; i++)
             {
-                int lvl = i+1;
+                int32_t lvl = i+1;
                 
                 if(get_bit(quest_rules,qr_4TRI) && lvl>4)
                     lvl -= 4;
                     
                 if(has_item(itype_triforcepiece, lvl))
                 {
-                    int tp=0;
+                    int32_t tp=0;
                     
                     for(; tp<8; tp++)
                         if(misc->triforce[tp] == i+1)
@@ -4789,16 +4789,16 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int x, int y, int triframecolor,
                 line(dest,x+57,y+102,x+79,y+57,triframecolor);
                 line(dest,x+56,y+102,x+79,y+55,triframecolor);
                 
-                for(int i=0; i<8; i++)
+                for(int32_t i=0; i<8; i++)
                 {
-                    int lvl = i+1;
+                    int32_t lvl = i+1;
                     
                     if(get_bit(quest_rules,qr_4TRI) && lvl>4)
                     {
                         lvl -= 4;
                     }
                     
-                    int tp=0;
+                    int32_t tp=0;
                     
                     for(; tp<8; tp++)
                     {
@@ -4818,16 +4818,16 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int x, int y, int triframecolor,
         
         if(showpieces)
         {
-            for(int i=0; i<8; i++)
+            for(int32_t i=0; i<8; i++)
             {
-                int lvl = i+1;
+                int32_t lvl = i+1;
                 
                 if(get_bit(quest_rules,qr_4TRI) && lvl>4)
                 {
                     lvl -= 4;
                 }
                 
-                int tp=0;
+                int32_t tp=0;
                 
                 for(; tp<8; tp++)
                 {
@@ -4847,7 +4847,7 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int x, int y, int triframecolor,
 }
 
 
-void puttriforce(BITMAP *dest, miscQdata *misc, int x, int y, int tile, int cset, int w, int h, int flip, bool overlay, bool trans, int trinum)
+void puttriforce(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tile, int32_t cset, int32_t w, int32_t h, int32_t flip, bool overlay, bool trans, int32_t trinum)
 {
     if(tile==0)
     {
@@ -4855,16 +4855,16 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int x, int y, int tile, int cset
 	if (tile == 0) tile=misc->colors.triforce_tile;
     }
     
-    for(int i=0; i<8; i++)
+    for(int32_t i=0; i<8; i++)
     {
-        int lvl = i+1;
+        int32_t lvl = i+1;
         
         if(get_bit(quest_rules,qr_4TRI) && lvl>4)
             lvl -= 4;
             
         if(lvl==trinum && has_item(itype_triforcepiece, lvl))
         {
-            int tp=0;
+            int32_t tp=0;
             
             for(; tp<8; tp++)
                 if(misc->triforce[tp] == i+1)
@@ -4880,7 +4880,7 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int x, int y, int tile, int cset
   0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,0,
   0,3,0,0,0,3,0,0,0,0,3,0,0,0,3,0 };
 
-  const int fringe[8] = { 6,2,4,7,6,8,7,5 };
+  const int32_t fringe[8] = { 6,2,4,7,6,8,7,5 };
 
   const byte bmaptiles[8*5] = {
   0, 1, 2, 3, 2, 3, 3, 4,
@@ -4890,13 +4890,13 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int x, int y, int tile, int cset
   40,41,42,43,42,43,43,44 };
   */
 
-void draw_block(BITMAP *dest,int x,int y,int tile,int cset,int w,int h);
-void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool showrooms, bool showlink, int roomcolor, int linkcolor, bool large)
+void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h);
+void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, bool showrooms, bool showlink, int32_t roomcolor, int32_t linkcolor, bool large)
 {
-    int si=0;
+    int32_t si=0;
     
-    int maptile=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].largemap_2_tile:DMaps[get_currdmap()].largemap_1_tile;
-    int mapcset=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].largemap_2_cset:DMaps[get_currdmap()].largemap_1_cset;
+    int32_t maptile=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].largemap_2_tile:DMaps[get_currdmap()].largemap_1_tile;
+    int32_t mapcset=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].largemap_2_cset:DMaps[get_currdmap()].largemap_1_cset;
     
     if(showmap)
     {
@@ -4906,9 +4906,9 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
         }
         else if(misc->colors.new_dungeon_map_tile||misc->colors.dungeon_map_tile)
         {
-            for(int y2=0; y2<5; y2++)
+            for(int32_t y2=0; y2<5; y2++)
             {
-                for(int x2=0; x2<(large?8:6); x2++)
+                for(int32_t x2=0; x2<(large?8:6); x2++)
                 {
                     overtile16(dest,(misc->colors.new_dungeon_map_tile!=0?misc->colors.new_dungeon_map_tile:misc->colors.dungeon_map_tile)+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),misc->colors.dungeon_map_cset,0);
                     //++si;
@@ -4924,9 +4924,9 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
                 
             clear_bitmap(bmp);
             
-            for(int x2=0; x2<8; x2++)
+            for(int32_t x2=0; x2<8; x2++)
             {
-                for(int y2=8-fringe[x2]; y2<8; y2++)
+                for(int32_t y2=8-fringe[x2]; y2<8; y2++)
                 {
                     putpixel(bmp,x2,y2,misc->colors.bmap_bg);
                 }
@@ -4934,9 +4934,9 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
             
             rectfill(dest,x,y,x+(large?127:95),y+79,misc->colors.bmap_bg);
             
-            for(int y2=0; y2<2; ++y2)
+            for(int32_t y2=0; y2<2; ++y2)
             {
-                for(int x2=0; x2<(large?16:12); ++x2)
+                for(int32_t x2=0; x2<(large?16:12); ++x2)
                 {
                     if((large?bmap_original[y2][x2]:bmap_bs[y2][x2]))
                     {
@@ -4970,9 +4970,9 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
         
         si=(get_currdmap() << 7);
         
-        for(int y2=y+8; y2<y+72; y2+=8)
+        for(int32_t y2=y+8; y2<y+72; y2+=8)
         {
-            for(int x2=x+(large?32:16)+(maptile?8:0); x2<x+(large?96:80)+(maptile?8:0); x2+=8)
+            for(int32_t x2=x+(large?32:16)+(maptile?8:0); x2<x+(large?96:80)+(maptile?8:0); x2+=8)
             {
 		while(/*DMaps[get_currdmap()].type!=dmOVERW &&*/ ((unsigned)((si&0xF)-DMaps[get_currdmap()].xoff))>7)
 			++si;
@@ -5003,7 +5003,7 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
                 linkcolor=misc->colors.link_dot;
             }
             
-            int xoff = (((DMaps[get_currdmap()].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[get_currdmap()].xoff);
+            int32_t xoff = (((DMaps[get_currdmap()].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[get_currdmap()].xoff);
             putdot(dest,(((get_homescr()&15)-xoff)<<3)+x+(large?34:18)+(maptile?8:0),((get_homescr()&0xF0)>>1)+y+11,linkcolor);
         }
     }
@@ -5022,7 +5022,7 @@ void load_Sitems(miscQdata *misc)
         
         if(HCP)
         {
-            int hcpphc =  game->get_hcp_per_hc();
+            int32_t hcpphc =  game->get_hcp_per_hc();
             HCP->tile   = (misc->colors.new_HCpieces_tile != 0 ? misc->colors.new_HCpieces_tile : misc->colors.HCpieces_tile) + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
             HCP->o_tile = HCP->tile;
             HCP->cs     = misc->colors.HCpieces_cset;
@@ -5046,7 +5046,7 @@ void load_Sitems(miscQdata *misc)
         add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iBossKey,0,0));
     }
     
-    for(int i=0; i<itype_max; i++)
+    for(int32_t i=0; i<itype_max; i++)
     {
         //special case: ignore the dmap-specific items processed above. -DD
         if(i == itype_map || i == itype_compass || i == itype_bosskey)
@@ -5055,7 +5055,7 @@ void load_Sitems(miscQdata *misc)
         // Display the ring even if it has run out of magic.
         if(current_item_id(i,false)>-1)
         {
-            int j = current_item_id(i,false);
+            int32_t j = current_item_id(i,false);
             //al_trace("About to check itemsbuf[j].tile in subscreen.cpp, line 4634, loop[%d]\n",j);
             if(itemsbuf[j].tile)
                 add_subscr_item(new item((zfix)0, (zfix)0,(zfix)0,j,0,0));
@@ -5066,14 +5066,14 @@ void load_Sitems(miscQdata *misc)
     new_sel=true;
 }
 
-void update_subscreens(int dmap)
+void update_subscreens(int32_t dmap)
 {
     if(dmap<0)
         dmap=get_currdmap();
         
-    int index=DMaps[dmap].active_subscreen;
+    int32_t index=DMaps[dmap].active_subscreen;
     
-    int i=-1, j=0;
+    int32_t i=-1, j=0;
     
     while(custom_subscreen[j].objects[0].type!=ssoNULL&&i!=index)
     {
@@ -5104,9 +5104,9 @@ void update_subscreens(int dmap)
     current_subscreen_passive=&custom_subscreen[j-1];
 }
 
-int ss_objects(subscreen_group *tempss)
+int32_t ss_objects(subscreen_group *tempss)
 {
-    int i=0;
+    int32_t i=0;
     
     while(i<MAXSUBSCREENITEMS&&tempss->objects[i].type!=ssoNULL)
     {
@@ -5119,13 +5119,13 @@ int ss_objects(subscreen_group *tempss)
 
 void purge_blank_subscreen_objects(subscreen_group *tempss)
 {
-    int objects=ss_objects(tempss);
+    int32_t objects=ss_objects(tempss);
     subscreen_object tempsso;
     
     //filter all the ssoNONE items to the end (yeah, bubble sort; sue me)
-    for(int j=0; j<objects-1; j++)
+    for(int32_t j=0; j<objects-1; j++)
     {
-        for(int k=0; k<objects-1-j; k++)
+        for(int32_t k=0; k<objects-1-j; k++)
         {
             if(tempss->objects[k].type==ssoNONE)
             {
@@ -5137,7 +5137,7 @@ void purge_blank_subscreen_objects(subscreen_group *tempss)
     }
     
     //NULL out the ssoNONE items
-    for(int j=0; j<objects; j++)
+    for(int32_t j=0; j<objects; j++)
     {
         if(tempss->objects[j].type==ssoNONE)
         {
@@ -5148,7 +5148,7 @@ void purge_blank_subscreen_objects(subscreen_group *tempss)
 
 
 
-int get_alignment(subscreen_object *tempsso)
+int32_t get_alignment(subscreen_object *tempsso)
 {
     switch(tempsso->type)
     {
@@ -5229,9 +5229,9 @@ int get_alignment(subscreen_object *tempsso)
 //h+1
 //sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS, sstsOUTLINEX, sstsSHADOWED, sstsSHADOWEDU, sstsOUTLINED8, sstsOUTLINEDPLUS, sstsOUTLINEDX
 
-int sso_y(subscreen_object *tempsso)
+int32_t sso_y(subscreen_object *tempsso)
 {
-    int y=0;
+    int32_t y=0;
     
     switch(tempsso->type)
     {
@@ -5309,9 +5309,9 @@ int sso_y(subscreen_object *tempsso)
     return y;
 }
 
-int sso_x(subscreen_object *tempsso)
+int32_t sso_x(subscreen_object *tempsso)
 {
-    int x=0;
+    int32_t x=0;
     
     switch(tempsso->type)
     {
@@ -5393,9 +5393,9 @@ int sso_x(subscreen_object *tempsso)
 
 
 
-int sso_h(subscreen_object *tempsso)
+int32_t sso_h(subscreen_object *tempsso)
 {
-    int h=0;
+    int32_t h=0;
     
     switch(tempsso->type)
     {
@@ -5579,9 +5579,9 @@ int sso_h(subscreen_object *tempsso)
     return h;
 }
 
-int sso_w(subscreen_object *tempsso)
+int32_t sso_w(subscreen_object *tempsso)
 {
-    int w=0;
+    int32_t w=0;
     
     switch(tempsso->type)
     {
@@ -5765,17 +5765,17 @@ int sso_w(subscreen_object *tempsso)
     return w;
 }
 
-void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int index, int color)
+void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32_t color)
 {
     if(index<0)
     {
         return;
     }
     
-    int x=sso_x(&tempss->objects[index]);
-    int y=sso_y(&tempss->objects[index]);
-    int w=sso_w(&tempss->objects[index]);
-    int h=sso_h(&tempss->objects[index]);
+    int32_t x=sso_x(&tempss->objects[index]);
+    int32_t y=sso_y(&tempss->objects[index]);
+    int32_t w=sso_w(&tempss->objects[index]);
+    int32_t h=sso_h(&tempss->objects[index]);
     
     switch(get_alignment(&tempss->objects[index]))
     {
@@ -5792,8 +5792,8 @@ void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int index, int color
         break;
     }
     
-    int c=x+w/2;
-    int m=y+h/2;
+    int32_t c=x+w/2;
+    int32_t m=y+h/2;
     bool normalrect=true;
     
     if(color==-1)

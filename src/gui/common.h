@@ -2,6 +2,7 @@
 #define ZC_GUI_COMMON_H
 
 #include <string_view>
+#include <cstdint>
 
 struct DIALOG;
 
@@ -11,10 +12,10 @@ namespace GUI
 {
 
 
-int newGUIProcImpl(int msg, DIALOG* d, int c, int (*base)(int, DIALOG*, int));
+int32_t newGUIProcImpl(int32_t msg, DIALOG* d, int32_t c, int32_t (*base)(int32_t, DIALOG*, int32_t));
 
-template<int (*PROC)(int, DIALOG*, int)>
-int newGUIProc(int msg, DIALOG* d, int c)
+template<int32_t (*PROC)(int32_t, DIALOG*, int32_t)>
+int32_t newGUIProc(int32_t msg, DIALOG* d, int32_t c)
 {
 	return newGUIProcImpl(msg, d, c, PROC);
 }
@@ -22,7 +23,7 @@ int newGUIProc(int msg, DIALOG* d, int c)
 /* Finds the first character preceded by & and returns it. && is ignored.
  * Returns 0 if no character was found.
  */
-int getAccelKey(const std::string_view text);
+int32_t getAccelKey(const std::string_view text);
 
 /* Returns a in small mode, b in large mode. */
 template<typename T>

@@ -8,8 +8,8 @@ namespace GUI
 
 struct KeyboardShortcut
 {
-	int key;
-	int message;
+	int32_t key;
+	int32_t message;
 };
 
 /* Just a class to put keys for shortcuts into a convenient form. */
@@ -22,13 +22,13 @@ public:
 	/* This is used when converting 0-9 to a ShortcutKey.
 	 * 27 is __allegro_KEY_0.
 	 */
-	constexpr ShortcutKey(int value) noexcept: value((value+27)<<8)
+	constexpr ShortcutKey(int32_t value) noexcept: value((value+27)<<8)
 	{}
 
 	/* This one is used for constants. It just has a second argument
 	* to distinguish it from the one above.
 	*/
-	inline constexpr ShortcutKey(unsigned short value, DummyType) noexcept:
+	inline constexpr ShortcutKey(uint16_t value, DummyType) noexcept:
 		value(value)
 	{}
 
@@ -45,7 +45,7 @@ public:
 	}
 
 	/* Used for number keys, e.g. Ctrl+9. */
-	inline constexpr ShortcutKey operator+(int rhs) const noexcept
+	inline constexpr ShortcutKey operator+(int32_t rhs) const noexcept
 	{
 		return this->operator+(ShortcutKey(rhs));
 	}
@@ -53,20 +53,20 @@ public:
 	template<typename T>
 	inline constexpr KeyboardShortcut operator=(T t) const noexcept
 	{
-		return KeyboardShortcut { value, static_cast<int>(t) };
+		return KeyboardShortcut { value, static_cast<int32_t>(t) };
 	}
 
-	inline constexpr unsigned short get() const noexcept
+	inline constexpr uint16_t get() const noexcept
 	{
 		return value;
 	}
 
 private:
-	unsigned short value;
+	uint16_t value;
 };
 
 /* I don't know why you're writing 1+Ctrl instead of Ctrl+1, but it'll work. */
-inline constexpr ShortcutKey operator+(int lhs, ShortcutKey rhs)
+inline constexpr ShortcutKey operator+(int32_t lhs, ShortcutKey rhs)
 {
 	return rhs+ShortcutKey(lhs);
 }
@@ -158,9 +158,9 @@ static constexpr ShortcutKey
 #undef KEY
 #undef MOD_KEY
 
-inline constexpr ShortcutKey operator ""_key(unsigned long long num)
+inline constexpr ShortcutKey operator ""_key(uint64_t num)
 {
-	return ShortcutKey((int)num);
+	return ShortcutKey((int32_t)num);
 }
 
 }} // namespace GUI::Key

@@ -12,7 +12,7 @@
 #include <map>
 #include <stdio.h>
 
-extern int scheme[];
+extern int32_t scheme[];
 
 //#ifndef _MSC_VER
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
@@ -20,8 +20,8 @@ extern int scheme[];
 //#endif
 
 //#ifdef _ZQUEST_SCALE_
-extern volatile int myvsync;
-extern int zqwin_scale;
+extern volatile int32_t myvsync;
+extern int32_t zqwin_scale;
 extern BITMAP *hw_screen;
 //#endif
 
@@ -40,7 +40,7 @@ void EditboxView::initialize(EditboxModel *new_model)
 	
 	string nl = "";
 	Unicode::insertAtIndex(nl,'\n',0);
-	unsigned int nlsize = (unsigned int)nl.size();
+	uint32_t nlsize = (uint32_t)nl.size();
 	
 	if(model->getBuffer().size() < nlsize || model->getBuffer().substr(model->getBuffer().size()-nlsize,nlsize) != nl)
 		model->getBuffer() += nl;
@@ -69,8 +69,8 @@ void EditboxView::lineUp()
 	
 	if(it != model->getLines().rend())
 	{
-		int startindex = model->getCursor().getPosition()-it->numchars-cp.index;
-		int index = Unicode::getIndexOfWidth(it->line, model->getCursor().getPreferredX(), textfont);
+		int32_t startindex = model->getCursor().getPosition()-it->numchars-cp.index;
+		int32_t index = Unicode::getIndexOfWidth(it->line, model->getCursor().getPreferredX(), textfont);
 		model->getCursor().updateCursor(startindex+index);
 	}
 }
@@ -80,11 +80,11 @@ void EditboxView::lineDown()
 	CursorPos cp = model->findCursor();
 	list<LineData>::iterator it = cp.it;
 	it++;
-	int startindex = model->getCursor().getPosition()+cp.it->numchars-cp.index;
+	int32_t startindex = model->getCursor().getPosition()+cp.it->numchars-cp.index;
 	
 	if(it != model->getLines().end())
 	{
-		int index = Unicode::getIndexOfWidth(it->line, model->getCursor().getPreferredX(), textfont);
+		int32_t index = Unicode::getIndexOfWidth(it->line, model->getCursor().getPreferredX(), textfont);
 		model->getCursor().updateCursor(startindex+index);
 	}
 }
@@ -92,7 +92,7 @@ void EditboxView::lineDown()
 void EditboxView::lineHome()
 {
 	CursorPos cp = model->findCursor();
-	int newindex = model->getCursor().getPosition()-cp.index;
+	int32_t newindex = model->getCursor().getPosition()-cp.index;
 	model->getCursor().updateCursor(newindex);
 	model->getCursor().setPreferredX();
 }
@@ -100,18 +100,18 @@ void EditboxView::lineHome()
 void EditboxView::lineEnd()
 {
 	CursorPos cp = model->findCursor();
-	int newindex = model->getCursor().getPosition()-cp.index+cp.it->numchars-1;
+	int32_t newindex = model->getCursor().getPosition()-cp.index+cp.it->numchars-1;
 	model->getCursor().updateCursor(newindex);
 	model->getCursor().setPreferredX();
 }
 
 void EditboxView::pageDown()
 {
-	int textheight = text_height(textfont);
-	int height = getAreaHeight();
-	int numlines = height/textheight;
+	int32_t textheight = text_height(textfont);
+	int32_t height = getAreaHeight();
+	int32_t numlines = height/textheight;
 	
-	for(int i=0; i<int(numlines); i++)
+	for(int32_t i=0; i<int32_t(numlines); i++)
 	{
 		lineDown();
 	}
@@ -119,21 +119,21 @@ void EditboxView::pageDown()
 
 void EditboxView::pageUp()
 {
-	int textheight = text_height(textfont);
-	int height = getAreaHeight();
-	int numlines = height/textheight;
+	int32_t textheight = text_height(textfont);
+	int32_t height = getAreaHeight();
+	int32_t numlines = height/textheight;
 	
-	for(int i=0; i<numlines; i++)
+	for(int32_t i=0; i<numlines; i++)
 	{
 		lineUp();
 	}
 }
 
-void EditboxView::invertRectangle(int x1, int y1, int x2, int y2)
+void EditboxView::invertRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
 	//I don't feel like dicking around with colormaps right now
 	//this method is SLOOOW, big efficiency opportunity here
-	static std::map<int, int> invmap;
+	static std::map<int32_t, int32_t> invmap;
 	RGB color;
 	//don't wast time drawing in stupid places
 	x1 = zc_max(x1, 0);
@@ -145,23 +145,23 @@ void EditboxView::invertRectangle(int x1, int y1, int x2, int y2)
 	y2 = zc_max(y2, 0);
 	y2 = zc_min(y2, host->h);
 	
-	for(int i=x1; i<x2; i++)
+	for(int32_t i=x1; i<x2; i++)
 	{
-		for(int j=y1; j<y2; j++)
+		for(int32_t j=y1; j<y2; j++)
 		{
-			int c = getpixel(dbuf, i,j);
+			int32_t c = getpixel(dbuf, i,j);
 			
 			if(c != -1)
 			{
-				std::map<int, int>::iterator it = invmap.find(c);
-				int invcolor;
+				std::map<int32_t, int32_t>::iterator it = invmap.find(c);
+				int32_t invcolor;
 				
 				if(it == invmap.end())
 				{
 					get_color(c, &color);
-					unsigned char r = 4*(((~color.r)&0x3F)+1)-1;
-					unsigned char g = 4*(((~color.g)&0x3F)+1)-1;
-					unsigned char b = 4*(((~color.b)&0x3F)+1)-1;
+					uint8_t r = 4*(((~color.r)&0x3F)+1)-1;
+					uint8_t g = 4*(((~color.g)&0x3F)+1)-1;
+					uint8_t b = 4*(((~color.b)&0x3F)+1)-1;
 					invcolor = makecol(r,g,b);
 					invmap[c] = invcolor;
 				}
@@ -191,9 +191,9 @@ void BasicEditboxView::init()
 void BasicEditboxView::ensureCursorOnScreen()
 {
 	CursorPos cp = model->findCursor();
-	int textheight = text_height(textfont);
-	int cystart = cp.lineno*textheight;
-	int cyend	= cystart+textheight;
+	int32_t textheight = text_height(textfont);
+	int32_t cystart = cp.lineno*textheight;
+	int32_t cyend	= cystart+textheight;
 	view_y = zc_min(view_y, cystart);
 	view_y = zc_max(view_y, cyend-area_height);
 	view_x = zc_min(view_x, cp.x);
@@ -204,11 +204,11 @@ void BasicEditboxView::ensureCursorOnScreen()
 
 void BasicEditboxView::enforceHardLimits()
 {
-	int textheight = text_height(textfont);
-	int ymost = zc_max(area_height, (int)model->getLines().size()*textheight);
+	int32_t textheight = text_height(textfont);
+	int32_t ymost = zc_max(area_height, (int32_t)model->getLines().size()*textheight);
 	view_y = zc_max(view_y, 0);
 	view_y = zc_min(view_y, ymost-area_height);
-	int xmost = zc_max(area_width, view_width);
+	int32_t xmost = zc_max(area_width, view_width);
 	view_x = zc_max(view_x, 0);
 	view_x = zc_min(view_x, xmost-area_width);
 }
@@ -223,18 +223,18 @@ BasicEditboxView::~BasicEditboxView()
 	model->getLines().clear();
 }
 
-CharPos BasicEditboxView::findCharacter(int x, int y)
+CharPos BasicEditboxView::findCharacter(int32_t x, int32_t y)
 {
-	int absolutey = y-area_ystart+view_y;
-	int textheight = text_height(textfont);
-	int lineno = absolutey/textheight;
+	int32_t absolutey = y-area_ystart+view_y;
+	int32_t textheight = text_height(textfont);
+	int32_t lineno = absolutey/textheight;
 	lineno = zc_max(lineno, 0);
-	lineno = zc_min(lineno, (int)(model->getLines().size())-1);
-	int totalindex = 0;
+	lineno = zc_min(lineno, (int32_t)(model->getLines().size())-1);
+	int32_t totalindex = 0;
 	//NOTE: future optimization opportunity
 	list<LineData>::iterator it = model->getLines().begin();
 	
-	for(int i=0; i<lineno; i++)
+	for(int32_t i=0; i<lineno; i++)
 	{
 		totalindex += it->numchars;
 		it++;
@@ -249,14 +249,14 @@ CharPos BasicEditboxView::findCharacter(int x, int y)
 
 void BasicEditboxView::scrollDown()
 {
-	int textheight = text_height(textfont);
+	int32_t textheight = text_height(textfont);
 	view_y += textheight;
 	enforceHardLimits();
 }
 
 void BasicEditboxView::scrollUp()
 {
-	int textheight = text_height(textfont);
+	int32_t textheight = text_height(textfont);
 	view_y -= textheight;
 	enforceHardLimits();
 }
@@ -278,8 +278,8 @@ void BasicEditboxView::draw()
 	rectfill(dbuf, 0, 0, host->w, host->h, bgcolor);
 	set_clip_rect(dbuf, area_xstart-host->x, area_ystart-host->y, area_xstart-host->x+area_width-1, area_ystart-host->y+area_height-1);
 	
-	int textheight = text_height(textfont);
-	int y = -view_y;
+	int32_t textheight = text_height(textfont);
+	int32_t y = -view_y;
 	
 	for(list<LineData>::iterator it = model->getLines().begin(); it != model->getLines().end(); it++)
 	{
@@ -295,8 +295,8 @@ void BasicEditboxView::draw()
 	if(model->getCursor().isVisible())
 	{
 		CursorPos cp = model->findCursor();
-		//int textheight = text_height(textfont);
-		int cursory = cp.lineno*text_height(textfont);
+		//int32_t textheight = text_height(textfont);
+		int32_t cursory = cp.lineno*text_height(textfont);
 		//GAH, too many damn coordinate offsets :-/
 		vline(dbuf, area_xstart-host->x+cp.x-view_x-1, area_ystart-host->y+cursory-view_y-1, area_ystart-host->y+cursory-view_y+textheight, fgcolor);
 	}
@@ -306,24 +306,24 @@ void BasicEditboxView::draw()
 	
 	if(model->getSelection().hasSelection())
 	{
-		pair<int, int> selection = model->getSelection().getSelection();
+		pair<int32_t, int32_t> selection = model->getSelection().getSelection();
 		CursorPos selstart = model->findIndex(selection.first);
 		CursorPos selend = model->findIndex(selection.second);
 		
 		if(selstart.lineno == selend.lineno)
 		{
 			//invert the selection rectangle
-			int starty = area_ystart-host->y-view_y+selstart.lineno*textheight;
-			int startx = area_xstart-host->x+selstart.x-view_x;
-			int endx = area_xstart-host->x+selend.x-view_x;
+			int32_t starty = area_ystart-host->y-view_y+selstart.lineno*textheight;
+			int32_t startx = area_xstart-host->x+selstart.x-view_x;
+			int32_t endx = area_xstart-host->x+selend.x-view_x;
 			invertRectangle(startx, starty, endx, starty+textheight);
 		}
 		else
 		{
 			//do the starting line
-			int starty = area_ystart-host->y-view_y + selstart.lineno*textheight;
-			int startx = area_xstart-host->x+selstart.x-view_x;
-			int endx;
+			int32_t starty = area_ystart-host->y-view_y + selstart.lineno*textheight;
+			int32_t startx = area_xstart-host->x+selstart.x-view_x;
+			int32_t endx;
 			
 			if(hstyle == HSTYLE_EOLINE)
 			{
@@ -339,9 +339,9 @@ void BasicEditboxView::draw()
 			list<LineData>::iterator it = selstart.it;
 			it++;
 			
-			for(int line = selstart.lineno+1; line < selend.lineno; line++,it++)
+			for(int32_t line = selstart.lineno+1; line < selend.lineno; line++,it++)
 			{
-				int endx2;
+				int32_t endx2;
 				
 				if(hstyle == HSTYLE_EOLINE)
 				{
@@ -388,7 +388,7 @@ void BasicEditboxView::draw()
 	//	#endif
 }
 
-bool BasicEditboxView::mouseClick(int x, int y)
+bool BasicEditboxView::mouseClick(int32_t x, int32_t y)
 {
 	//set the cursor
 	CharPos cp = findCharacter(x,y);
@@ -398,13 +398,13 @@ bool BasicEditboxView::mouseClick(int x, int y)
 	return true;
 }
 
-bool BasicEditboxView::mouseDrag(int x, int y)
+bool BasicEditboxView::mouseDrag(int32_t x, int32_t y)
 {
-	int textheight = text_height(textfont);
+	int32_t textheight = text_height(textfont);
 	
 	if(model->getSelection().isSelecting())
 	{
-		pair<int, int> oldsel = model->getSelection().getSelection();
+		pair<int32_t, int32_t> oldsel = model->getSelection().getSelection();
 		CharPos cp = findCharacter(x,y);
 		model->getCursor().updateCursor(cp.totalIndex);
 		model->getSelection().adjustSelection(model->getCursor());
@@ -416,7 +416,7 @@ bool BasicEditboxView::mouseDrag(int x, int y)
 		
 		if(y > area_ystart+area_height)
 		{
-			int ymost = zc_max(area_height, (int)model->getLines().size()*textheight);
+			int32_t ymost = zc_max(area_height, (int32_t)model->getLines().size()*textheight);
 			view_y = zc_min(ymost-area_height, view_y+1);
 		}
 		
@@ -425,7 +425,7 @@ bool BasicEditboxView::mouseDrag(int x, int y)
 			
 		if(x > area_xstart+area_width)
 		{
-			int xmost = zc_max(area_width, view_width);
+			int32_t xmost = zc_max(area_width, view_width);
 			view_x = zc_min(xmost-area_width, view_x+1);
 		}
 		
@@ -438,7 +438,7 @@ bool BasicEditboxView::mouseDrag(int x, int y)
 	return false;
 }
 
-bool BasicEditboxView::mouseRelease(int x, int y)
+bool BasicEditboxView::mouseRelease(int32_t x, int32_t y)
 {
 	x=x;
 	y=y; //these are here to bypass compiler warnings about unused arguments
@@ -446,10 +446,10 @@ bool BasicEditboxView::mouseRelease(int x, int y)
 	return false;
 }
 
-void BasicEditboxView::createStripBitmap(list<LineData>::iterator it, int width)
+void BasicEditboxView::createStripBitmap(list<LineData>::iterator it, int32_t width)
 {
 	//now create the bitmap
-	int textheight = text_height(textfont);
+	int32_t textheight = text_height(textfont);
 	
 	if(it->strip)
 		destroy_bitmap(it->strip);
@@ -475,7 +475,7 @@ void EditboxVScrollView::init()
 
 void EditboxVScrollView::drawExtraComponents()
 {
-	int textheight = text_height(textfont);
+	int32_t textheight = text_height(textfont);
 	//draw the scrollbar
 	draw_arrow_button(dbuf, toparrow_x-host->x, toparrow_y-host->y, 16, 16, true, toparrow_state*3);
 	draw_arrow_button(dbuf, bottomarrow_x-host->x, bottomarrow_y-host->y, 16, 16, false, bottomarrow_state*3);
@@ -490,16 +490,16 @@ void EditboxVScrollView::drawExtraComponents()
 	}
 	
 	drawing_mode(DRAW_MODE_COPY_PATTERN, sbarpattern, 0, 0);
-	int barstart = toparrow_y + 16 - host->y;
-	int barend = bottomarrow_y - host->y-1;
+	int32_t barstart = toparrow_y + 16 - host->y;
+	int32_t barend = bottomarrow_y - host->y-1;
 	
 	if(barstart < barend)
 		rectfill(dbuf, toparrow_x-host->x, barstart, toparrow_x-host->x+15, barend, 0);
 	
 	solid_mode();
 	//compute the bar button, based on view_y
-	int totallen = (int)model->getLines().size()*textheight;
-	int available = bottomarrow_y-(toparrow_y+16);
+	int32_t totallen = (int32_t)model->getLines().size()*textheight;
+	int32_t available = bottomarrow_y-(toparrow_y+16);
 	
 	if(available < 0)
 	{
@@ -532,7 +532,7 @@ EditboxVScrollView::~EditboxVScrollView()
 	destroy_bitmap(sbarpattern);
 }
 
-bool EditboxVScrollView::mouseClick(int x, int y)
+bool EditboxVScrollView::mouseClick(int32_t x, int32_t y)
 {
 	//check if in text area
 	if(area_ystart <= y && y <= area_ystart+area_height)
@@ -548,12 +548,12 @@ bool EditboxVScrollView::mouseClick(int x, int y)
 			if(barstate == 1)
 			{
 				//adjust
-				int deltay = barstarty-y;
+				int32_t deltay = barstarty-y;
 				barstarty = y;
 				//deltay:(available-barlen) = dealtaview_y:(totallen-area_height)
-				int available = bottomarrow_y-(toparrow_y+16);
-				int textheight = text_height(textfont);
-				int totallen = (int)model->getLines().size()*textheight;
+				int32_t available = bottomarrow_y-(toparrow_y+16);
+				int32_t textheight = text_height(textfont);
+				int32_t totallen = (int32_t)model->getLines().size()*textheight;
 				
 				if(available > barlen)
 					view_y -= ((totallen-area_height)*deltay)/(available-barlen);
@@ -591,9 +591,9 @@ bool EditboxVScrollView::mouseClick(int x, int y)
 					//"teleport"
 					//adjust click by half of length of slider
 					y -= toparrow_y+16+barlen/2;
-					int available = bottomarrow_y-(toparrow_y+16);
-					int textheight = text_height(textfont);
-					int totallen = (int)model->getLines().size()*textheight;
+					int32_t available = bottomarrow_y-(toparrow_y+16);
+					int32_t textheight = text_height(textfont);
+					int32_t totallen = (int32_t)model->getLines().size()*textheight;
 					
 					//y:(available-barlen)= view_y:(totallen-area_height)
 					if(available <= barlen)
@@ -611,9 +611,9 @@ bool EditboxVScrollView::mouseClick(int x, int y)
 	return mouseClickOther(x,y);
 }
 
-bool EditboxVScrollView::mouseDrag(int x, int  y)
+bool EditboxVScrollView::mouseDrag(int32_t x, int32_t  y)
 {
-	int textheight;
+	int32_t textheight;
 	textheight = text_height(textfont);
 	
 	if(model->getSelection().isSelecting())
@@ -639,7 +639,7 @@ bool EditboxVScrollView::mouseDrag(int x, int  y)
 		{
 			//fake a click
 			//first, clip the coords
-			int fakex = toparrow_x+1;
+			int32_t fakex = toparrow_x+1;
 			return mouseClick(fakex,y);
 		}
 		
@@ -647,7 +647,7 @@ bool EditboxVScrollView::mouseDrag(int x, int  y)
 	}
 }
 
-bool EditboxVScrollView::mouseRelease(int x, int y)
+bool EditboxVScrollView::mouseRelease(int32_t x, int32_t y)
 {
 	BasicEditboxView::mouseRelease(x,y);
 	toparrow_state = 0;
@@ -665,11 +665,11 @@ void EditboxWordWrapView::layoutPage()
 		if(!it->dirtyflag)
 			continue;
 		
-		int numchars = (*it).numchars;
+		int32_t numchars = (*it).numchars;
 		string &s = (*it).line;
 		//accumulate up until the maximum line width
-		int totalwidth=0;
-		int i;
+		int32_t totalwidth=0;
+		int32_t i;
 		
 		for(i=0; i<numchars; i++)
 		{
@@ -677,7 +677,7 @@ void EditboxWordWrapView::layoutPage()
 			{
 				//we must be more accepting of the first character/word since the box
 				//might not be wide enough.
-				int c = Unicode::getCharAtIndex(s,0);
+				int32_t c = Unicode::getCharAtIndex(s,0);
 				
 				if(c == ' ' || c == '\t' || c == '\n')
 				{
@@ -689,7 +689,7 @@ void EditboxWordWrapView::layoutPage()
 				else
 				{
 					//word
-					pair<int, int> offandwidth = Unicode::munchWord(s,i,textfont);
+					pair<int32_t, int32_t> offandwidth = Unicode::munchWord(s,i,textfont);
 					totalwidth += offandwidth.second;
 					i += offandwidth.first-1;
 					continue;
@@ -697,7 +697,7 @@ void EditboxWordWrapView::layoutPage()
 			}
 			else
 			{
-				int c = Unicode::getCharAtIndex(s,i);
+				int32_t c = Unicode::getCharAtIndex(s,i);
 				
 				if(c == ' ' || c == '\t' || c == '\n')
 				{
@@ -709,7 +709,7 @@ void EditboxWordWrapView::layoutPage()
 				}
 				else
 				{
-					pair<int, int> offandwidth = Unicode::munchWord(s,i,textfont);
+					pair<int32_t, int32_t> offandwidth = Unicode::munchWord(s,i,textfont);
 					totalwidth += offandwidth.second;
 					
 					if(totalwidth > area_width)
@@ -735,9 +735,9 @@ void EditboxWordWrapView::layoutPage()
 		
 		totalwidth=0;
 		//efficiency opportunity
-		int length = Unicode::getLength(it->line);
+		int32_t length = Unicode::getLength(it->line);
 		
-		for(int j=0; j<length; j++)
+		for(int32_t j=0; j<length; j++)
 		{
 			totalwidth += Unicode::getCharWidth(Unicode::getCharAtIndex(it->line,j),textfont);
 		}
@@ -755,11 +755,11 @@ void EditboxNoWrapView::layoutPage()
 	
 	for(list<LineData>::iterator it = model->getLines().begin(); it != model->getLines().end(); it++)
 	{
-		int length = Unicode::getLength(it->line);
-		int totalwidth=0;
+		int32_t length = Unicode::getLength(it->line);
+		int32_t totalwidth=0;
 		
 		//efficiency opportunity
-		for(int i=0; i<length; i++)
+		for(int32_t i=0; i<length; i++)
 		{
 			totalwidth += Unicode::getCharWidth(Unicode::getCharAtIndex(it->line,i),textfont);
 		}
@@ -792,22 +792,22 @@ void EditboxNoWrapView::init()
 void EditboxNoWrapView::drawExtraComponents()
 {
 	EditboxVScrollView::drawExtraComponents();
-	int textheight;
+	int32_t textheight;
 	textheight = text_height(textfont);
 	//draw the scrollbar
 	draw_arrow_button_horiz(dbuf, leftarrow_x-host->x, leftarrow_y-host->y, 16, 16, true, leftarrow_state*3);
 	draw_arrow_button_horiz(dbuf, rightarrow_x-host->x, rightarrow_y-host->y, 16, 16, false, rightarrow_state*3);
 	drawing_mode(DRAW_MODE_COPY_PATTERN, sbarpattern, 0, 0);
-	int hbarstart = leftarrow_x + 16 - host->x;
-	int hbarend = rightarrow_x - host->x-1;
+	int32_t hbarstart = leftarrow_x + 16 - host->x;
+	int32_t hbarend = rightarrow_x - host->x-1;
 	
 	if(hbarstart < hbarend)
 		rectfill(dbuf, hbarstart, leftarrow_y-host->y, hbarend, leftarrow_y-host->y+15, 0);
 	
 	solid_mode();
 	//compute the bar button, based on view_y
-	int totallen = view_width;
-	int available = rightarrow_x-(leftarrow_x+16);
+	int32_t totallen = view_width;
+	int32_t available = rightarrow_x-(leftarrow_x+16);
 	
 	if(available < 0)
 	{
@@ -834,7 +834,7 @@ void EditboxNoWrapView::drawExtraComponents()
 	}
 }
 
-bool EditboxNoWrapView::mouseRelease(int x, int y)
+bool EditboxNoWrapView::mouseRelease(int32_t x, int32_t y)
 {
 	leftarrow_state = 0;
 	rightarrow_state = 0;
@@ -842,7 +842,7 @@ bool EditboxNoWrapView::mouseRelease(int x, int y)
 	return EditboxVScrollView::mouseRelease(x,y);
 }
 
-bool EditboxNoWrapView::mouseDragOther(int x, int)
+bool EditboxNoWrapView::mouseDragOther(int32_t x, int32_t)
 {
 	//maybe pressing arrow, or sliding?
 	if(leftarrow_state == 1)
@@ -861,14 +861,14 @@ bool EditboxNoWrapView::mouseDragOther(int x, int)
 	{
 		//fake a click
 		//first, clip the coords
-		int fakey = leftarrow_y+1;
+		int32_t fakey = leftarrow_y+1;
 		return mouseClick(x,fakey);
 	}
 	
 	return false;
 }
 
-bool EditboxNoWrapView::mouseClickOther(int x, int y)
+bool EditboxNoWrapView::mouseClickOther(int32_t x, int32_t y)
 {
 	if(leftarrow_x <= x && x <= rightarrow_x+16)
 	{
@@ -878,11 +878,11 @@ bool EditboxNoWrapView::mouseClickOther(int x, int y)
 			if(hbarstate == 1)
 			{
 				//adjust
-				int deltax = hbarstartx-x;
+				int32_t deltax = hbarstartx-x;
 				hbarstartx = x;
 				//deltax:(available-hbarlen) = dealtaview_x:(totallen-area_width)
-				int available = rightarrow_x-(leftarrow_x+16);
-				int totallen = view_width;
+				int32_t available = rightarrow_x-(leftarrow_x+16);
+				int32_t totallen = view_width;
 				
 				if(available > hbarlen)
 					view_x -= ((totallen-area_width)*deltax)/(available-hbarlen);
@@ -920,8 +920,8 @@ bool EditboxNoWrapView::mouseClickOther(int x, int y)
 					//"teleport"
 					//adjust click by half of length of slider
 					x -= leftarrow_x+16+hbarlen/2;
-					int available = rightarrow_x-(leftarrow_x+16);
-					int totallen = view_width;
+					int32_t available = rightarrow_x-(leftarrow_x+16);
+					int32_t totallen = view_width;
 					
 					//x:(available-hbarlen)= view_x:(totallen-area_width)
 					if(available <= hbarlen)
@@ -962,9 +962,9 @@ void EditboxScriptView::drawExtraComponents()
 	char temp[60];
 	sprintf(temp, "Line %d", cp.lineno+1);
 	//center text
-	int textheight = text_height(textfont);
-	int padding = 16-textheight;
-	int offset = padding/2;
+	int32_t textheight = text_height(textfont);
+	int32_t padding = 16-textheight;
+	int32_t offset = padding/2;
 	textout_ex(linetext, textfont, temp, 2,offset,fgcolor, -1);
 	blit(linetext, dbuf, 0,0, 0, leftarrow_y-host->y+16,linetext->w,linetext->h);
 }

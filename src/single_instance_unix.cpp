@@ -12,9 +12,9 @@
 
 bool is_only_instance(const char* name)
 {
-    unsigned int fd;
+    uint32_t fd;
     sockaddr_un sun;
-    unsigned int length;
+    uint32_t length;
     
     fd=socket(AF_UNIX, SOCK_STREAM, 0);
     if(fd==-1)

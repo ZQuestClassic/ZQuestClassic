@@ -28,15 +28,15 @@ public:
 	 * a matching value, the closest possible will be selected. If there are
 	 * multiple equally good matches, it is unspecified which will be selected.
 	 */
-	void setSelectedValue(int value);
+	void setSelectedValue(int32_t value);
 
 	/* Selects the list item with the given index. */
-	void setSelectedIndex(int index);
+	void setSelectedIndex(int32_t index);
 
 	/* Returns the value of the currently selected item. */
-	int getSelectedValue() const;
+	int32_t getSelectedValue() const;
 
-	void setOnSelectFunc(std::function<void(int)> newOnSelect)
+	void setOnSelectFunc(std::function<void(int32_t)> newOnSelect)
 	{
 		onSelectFunc = newOnSelect;
 	}
@@ -46,24 +46,24 @@ public:
 	template<typename T>
 	RequireMessage<T> onSelectionChanged(T m)
 	{
-		message = static_cast<int>(m);
+		message = static_cast<int32_t>(m);
 	}
 
 private:
 	// A bit ugly because there was already a ListData struct in jwin
 	::ListData jwinListData;
 	const ::GUI::ListData* listData;
-	int selectedIndex, selectedValue;
+	int32_t selectedIndex, selectedValue;
 	DialogRef alDialog;
-	int message;
-	std::function<void(int)> onSelectFunc;
+	int32_t message;
+	std::function<void(int32_t)> onSelectFunc;
 	bool isABC;
 
 	/* If a value was set rather than an index, find an index to select. */
 	void setIndex();
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
-	int onEvent(int event, MessageDispatcher& sendMessage) override;
+	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 };
 
 }

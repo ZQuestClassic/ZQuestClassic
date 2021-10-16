@@ -23,8 +23,8 @@
 
 extern LinkClass Link;
 
-int CSET_SIZE = 16;                                         // this is only changed to 4 in the NES title screen
-int CSET_SHFT = 4;                                          // log2 of CSET_SIZE
+int32_t CSET_SIZE = 16;                                         // this is only changed to 4 in the NES title screen
+int32_t CSET_SHFT = 4;                                          // log2 of CSET_SIZE
 
 bool stayLit = false;
 
@@ -41,7 +41,7 @@ RGB _RGB(byte *si)
     return x;
 }
 
-RGB _RGB(int r,int g,int b)
+RGB _RGB(int32_t r,int32_t g,int32_t b)
 {
     RGB x;
     x.r = r;
@@ -61,7 +61,7 @@ RGB invRGB(RGB s)
     return x;
 }
 
-RGB mixRGB(int r1,int g1,int b1,int r2,int g2,int b2,int ratio)
+RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int32_t ratio)
 {
     RGB x;
     x.r = (r1*(64-ratio) + r2*ratio) >> 6;
@@ -73,40 +73,40 @@ RGB mixRGB(int r1,int g1,int b1,int r2,int g2,int b2,int ratio)
 
 void copy_pal(RGB *src,RGB *dest)
 {
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
         dest[i]=src[i];
 }
 
 void loadfullpal()
 {
-    for(int i=0; i<240; i++)
+    for(int32_t i=0; i<240; i++)
         RAMpal[i]=_RGB(colordata+i*3);
         
-    for(int i=240; i<255; i++)
+    for(int32_t i=240; i<255; i++)
         RAMpal[i]=((RGB*)data[PAL_GUI].dat)[i];
         
     refreshpal=true;
 }
 
-/*void loadlvlpal256(int level)
+/*void loadlvlpal256(int32_t level)
   {
   byte *si = colordata + */
 
 extern PALETTE tempgreypal;
 extern PALETTE userPALETTE[256];
 
-void loadlvlpal(int level)
+void loadlvlpal(int32_t level)
 {
     byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
     
-    for(int i=0; i<16*3; i++)
+    for(int32_t i=0; i<16*3; i++)
     {
         RAMpal[CSET(2)+i] = _RGB(si);
 	    tempgreypal[CSET(2)+i] = _RGB(si); //preserve monochrome
         si+=3;
     }
     
-    for(int i=0; i<16; i++)
+    for(int32_t i=0; i<16; i++)
     {
         RAMpal[CSET(9)+i] = _RGB(si);
 	    tempgreypal[CSET(9)+i] = _RGB(si); //preserve monochrome
@@ -122,7 +122,7 @@ void loadlvlpal(int level)
     create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
     memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
     
-    for(int q=0; q<PAL_SIZE; q++)
+    for(int32_t q=0; q<PAL_SIZE; q++)
     {
         trans_table2.data[0][q] = q;
         trans_table2.data[q][q] = q;
@@ -158,11 +158,11 @@ void loadlvlpal(int level)
     refreshpal=true;
 }
 
-void loadpalset(int cset,int dataset)
+void loadpalset(int32_t cset,int32_t dataset)
 {
-    int j = CSET(dataset)*3;
+    int32_t j = CSET(dataset)*3;
     
-    for(int i=0; i<16; i++,j+=3)
+    for(int32_t i=0; i<16; i++,j+=3)
     {
 	   // if ( isMonochrome() ) tempgreypal[CSET(2)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Link pal... 
 	    if ( isMonochrome() || isUserTinted() ) tempgreypal[CSET(cset)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Link pal... 
@@ -192,7 +192,7 @@ void loadpalset(int cset,int dataset)
 
 void ringcolor(bool forceDefault)
 {
-    int itemid = current_item_id(itype_ring);
+    int32_t itemid = current_item_id(itype_ring);
     
     if(!forceDefault && itemid>-1)
     {
@@ -206,11 +206,11 @@ void ringcolor(bool forceDefault)
     refreshpal=true;
 }
 
-void loadfadepal(int dataset)
+void loadfadepal(int32_t dataset)
 {
     byte *si = colordata + CSET(dataset)*3;
     
-    for(int i=0; i<pdFADE*16; i++)
+    for(int32_t i=0; i<pdFADE*16; i++)
     {
         if(isMonochrome() || isUserTinted())tempgreypal[CSET(2)+i] = _RGB(si);
 		else RAMpal[CSET(2)+i] = _RGB(si);
@@ -235,9 +235,9 @@ void loadfadepal(int dataset)
 
 void interpolatedfade()
 {
-    int dpos = 64;
-    int lpos = 32;
-    int last = CSET(5)-1;
+    int32_t dpos = 64;
+    int32_t lpos = 32;
+    int32_t last = CSET(5)-1;
     
     if(get_bit(quest_rules,qr_FADECS5))
     {
@@ -248,9 +248,9 @@ void interpolatedfade()
     loadlvlpal(DMaps[currdmap].color);
     byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poFADE1)*3;
     
-    for(int i=0; i<16; i++)
+    for(int32_t i=0; i<16; i++)
     {
-        int light = si[0]+si[1]+si[2];
+        int32_t light = si[0]+si[1]+si[2];
         si+=3;
         fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+i,CSET(2)+i);
     }
@@ -259,17 +259,17 @@ void interpolatedfade()
     refreshpal=true;
 }
 
-void fade(int level,bool blackall,bool fromblack)
+void fade(int32_t level,bool blackall,bool fromblack)
 {
-    int cx = fromblack ? 30 : 0;
+    int32_t cx = fromblack ? 30 : 0;
     
-    for(int i=0; i<=30; i+=(get_bit(quest_rules,qr_FADE))?2:1)
+    for(int32_t i=0; i<=30; i+=(get_bit(quest_rules,qr_FADE))?2:1)
     {
         if(get_bit(quest_rules,qr_FADE))
         {
-            int dpos = (cx<<6)/30;
-            int lpos = zc_min(dpos,blackall?64:32);
-            int last = CSET(5)-1;
+            int32_t dpos = (cx<<6)/30;
+            int32_t lpos = zc_min(dpos,blackall?64:32);
+            int32_t last = CSET(5)-1;
             
             if(get_bit(quest_rules,qr_FADECS5))
             {
@@ -280,9 +280,9 @@ void fade(int level,bool blackall,bool fromblack)
             loadlvlpal(level);
             byte *si = colordata + CSET(level*pdLEVEL+poFADE1)*3;
             
-            for(int j=0; j<16; ++j)
+            for(int32_t j=0; j<16; ++j)
             {
-                int light = si[0]+si[1]+si[2];
+                int32_t light = si[0]+si[1]+si[2];
                 si+=3;
                 fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+j,CSET(2)+j);
             }
@@ -309,7 +309,7 @@ void fade(int level,bool blackall,bool fromblack)
             case 30:
                 if(blackall)
                 {
-                    for(int j=0; j<pdFADE*16; j++)
+                    for(int32_t j=0; j<pdFADE*16; j++)
                         RAMpal[CSET(2)+j]=black_palette[0];
                         
                     refreshpal=true;
@@ -346,7 +346,7 @@ void fade(int level,bool blackall,bool fromblack)
 
 // false: change screen lighting to naturaldark
 // true: lighten room
-void lighting(bool existslight, bool setnaturaldark, int specialstate)
+void lighting(bool existslight, bool setnaturaldark, int32_t specialstate)
 {
 	switch(specialstate){
 		case pal_litOVERRIDE:
@@ -386,7 +386,7 @@ void lightingInstant()
     if(get_bit(quest_rules, qr_NEW_DARKROOM)) newstate = false;
     if(darkroom != newstate)
     {
-int level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
+int32_t level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
 
         if(darkroom) // Old room dark, new room lit
         {
@@ -399,8 +399,8 @@ int level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 
         {
             if(get_bit(quest_rules,qr_FADE))
             {
-                int last = CSET(5)-1;
-                int light;
+                int32_t last = CSET(5)-1;
+                int32_t light;
                 
                 if(get_bit(quest_rules,qr_FADECS5))
                 {
@@ -410,7 +410,7 @@ int level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 
                 
                 byte *si = colordata + CSET(level*pdLEVEL+poFADE1)*3;
                 
-                for(int j=0; j<16; ++j)
+                for(int32_t j=0; j<16; ++j)
                 {
                     light = si[0]+si[1]+si[2];
                     si+=3;
@@ -430,7 +430,7 @@ int level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 
         create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
         memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
         
-        for(int q=0; q<PAL_SIZE; q++)
+        for(int32_t q=0; q<PAL_SIZE; q++)
         {
             trans_table2.data[0][q] = q;
             trans_table2.data[q][q] = q;
@@ -507,7 +507,7 @@ void rehydratelake(bool instant)
         advanceframe(true);
         
         if(((whistleclk>>3)&3) == 1)
-            for(int i=0; i<4 && !Quit; i++)
+            for(int32_t i=0; i<4 && !Quit; i++)
                 advanceframe(true);
     }
     while(whistleclk!=0 && !Quit);
@@ -522,12 +522,12 @@ void rehydratelake(bool instant)
     }
 }
 
-static int palclk[3];
-static int palpos[3];
+static int32_t palclk[3];
+static int32_t palpos[3];
 
 void reset_pal_cycling()
 {
-    for(int i=0; i<3; i++)
+    for(int32_t i=0; i<3; i++)
         palclk[i]=palpos[i]=0;
 }
 
@@ -536,10 +536,10 @@ void cycle_palette()
     if(!get_bit(quest_rules,qr_FADE) || darkroom)
         return;
         
-    int level = (Link.getSpecialCave()==0) ? DMaps[currdmap].color : (Link.getSpecialCave()<GUYCAVE ? 11 : 10);
+    int32_t level = (Link.getSpecialCave()==0) ? DMaps[currdmap].color : (Link.getSpecialCave()<GUYCAVE ? 11 : 10);
     palcycle cycle_none[1][3];  //create a null palette cycle here. -Z
 	memset(cycle_none, 0, sizeof(cycle_none)); 
-    for(int i=0; i<3; i++)
+    for(int32_t i=0; i<3; i++)
     {
         palcycle c = ( level < 256 ) ? QMisc.cycles[level][i] : cycle_none[0][i]; //Only 0 through 255 have valid data in 2.50.x. -Z
         
@@ -555,7 +555,7 @@ void cycle_palette()
                 byte *si = colordata + CSET(level*pdLEVEL+poFADE1+1+palpos[i])*3;
                 si += (c.first&15)*3;
                 
-                for(int col=c.first&15; col<=(c.count&15); col++)
+                for(int32_t col=c.first&15; col<=(c.count&15); col++)
                 {
                     RAMpal[CSET(c.first>>4)+col] = _RGB(si);
                     si+=3;
@@ -569,17 +569,17 @@ void cycle_palette()
     // No need to do handle refreshpal here; it's done in updatescr().
 }
 
-int reverse_NESpal(RGB c)
+int32_t reverse_NESpal(RGB c)
 {
-    int dist = 12000;
-    int index = 0;
+    int32_t dist = 12000;
+    int32_t index = 0;
     
-    for(int i = 0; (i < 64) && (dist != 0); i++)
+    for(int32_t i = 0; (i < 64) && (dist != 0); i++)
     {
-        int r = (c.r - NESpal(i).r);
-        int g = (c.g - NESpal(i).g);
-        int b = (c.b - NESpal(i).b);
-        int d = r*r + g*g + b*b;
+        int32_t r = (c.r - NESpal(i).r);
+        int32_t g = (c.g - NESpal(i).g);
+        int32_t b = (c.b - NESpal(i).b);
+        int32_t d = r*r + g*g + b*b;
         
         if(d < dist)
         {

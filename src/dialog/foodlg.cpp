@@ -6,7 +6,7 @@
 void call_foo_dlg()
 {
 	return; //This dialog for testing purposes only
-	FooDialog(false, [&](int v, int v2)
+	FooDialog(false, [&](int32_t v, int32_t v2)
 	{
 		return;
 		char buf[32]={0};
@@ -15,7 +15,7 @@ void call_foo_dlg()
 	}).show();
 }
 
-FooDialog::FooDialog(int v, std::function<void(int,bool)> setVal):
+FooDialog::FooDialog(int32_t v, std::function<void(int32_t,bool)> setVal):
 	v(v), setVal(setVal)
 {}
 
@@ -37,7 +37,7 @@ std::shared_ptr<GUI::Widget> FooDialog::view()
 					val = v,
 					focused = true),
 				SelTileSwatch(tile = 1, cset = 8,
-					onSelectFunc = [&](int t, int c)
+					onSelectFunc = [&](int32_t t, int32_t c)
 					{
 						setVal(t,c);
 					})

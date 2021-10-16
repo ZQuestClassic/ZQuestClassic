@@ -35,7 +35,7 @@
 
 extern LinkClass Link;
 extern zinitdata zinit;
-extern int directWpn;
+extern int32_t directWpn;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern enemy Enemy;
@@ -55,10 +55,10 @@ static double DegreesToRadians(double d)
 	
 }
 
-static void weapon_triggersecret(int pos, int flag)
+static void weapon_triggersecret(int32_t pos, int32_t flag)
 {
 	mapscr *s = tmpscr;
-	int ft=0, checkflag; //Flag trigger, checked flag temp. 
+	int32_t ft=0, checkflag; //Flag trigger, checked flag temp. 
 	bool putit = true;  //Is set false with a mismatch (illegal value input).
 	//Convert a flag type to a secret type. -Z
 	switch(flag)
@@ -177,9 +177,9 @@ static void weapon_triggersecret(int pos, int flag)
 	}
 	if ( putit )
 	{		
-		for(int iter=0; iter<2; ++iter)
+		for(int32_t iter=0; iter<2; ++iter)
 		{
-			//for ( int pos = 0; pos < 176; pos++ ) 
+			//for ( int32_t pos = 0; pos < 176; pos++ ) 
 			//{		
 				if(iter==1) checkflag=s->sflag[pos]; //Placed
 				else checkflag=combobuf[s->data[pos]].flag; //Inherent
@@ -221,15 +221,15 @@ static void weapon_triggersecret(int pos, int flag)
 	
 }
 
-static void MatchComboTrigger(weapon *w, int bx, int by, newcombo *c/*, int comboid, int flag*/)
+static void MatchComboTrigger(weapon *w, int32_t bx, int32_t by, newcombo *c/*, int32_t comboid, int32_t flag*/)
 {
 	if(screenIsScrolling()) return;
-	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
-	int cid = MAPCOMBO(bx,by);
-	int flag = MAPFLAG(bx,by);
-	int flag2 = MAPCOMBOFLAG(bx,by);
-	int ft = 0;
-	int scombo=COMBOPOS(bx,by);
+	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int32_t cid = MAPCOMBO(bx,by);
+	int32_t flag = MAPFLAG(bx,by);
+	int32_t flag2 = MAPCOMBOFLAG(bx,by);
+	int32_t ft = 0;
+	int32_t scombo=COMBOPOS(bx,by);
 	bool single16 = false;
 	switch(flag)
 	{
@@ -948,10 +948,10 @@ static void MatchComboTrigger(weapon *w, int bx, int by, newcombo *c/*, int comb
 	
 }
 
-static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
+static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 {
 	if(screenIsScrolling()) return 0;
-	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	
 		if ( ( wid == wSword && c[comboid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
 		
@@ -1028,7 +1028,7 @@ static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
 		else return 0;
 }
 
-static int COMBOAT(int x, int y) 
+static int32_t COMBOAT(int32_t x, int32_t y) 
 {
 	x = vbound(x,255,0);
 	y = vbound(y,175,0);
@@ -1053,18 +1053,18 @@ static void killgenwpn(weapon* w)
 #define ComboY(pos) ((pos)&0xF0)
 #define minSECRET_TYPE 0
 #define maxSECRET_TYPE 43
-static void do_generic_combo(weapon *w, int bx, int by, newcombo *c, int wid, 
-	int cid, int flag, int flag2, int ft, int scombo, bool single16, int layer) //WID currently is unused; if you add code relating to it, make sure to check if it's greater than 0
+static void do_generic_combo(weapon *w, int32_t bx, int32_t by, newcombo *c, int32_t wid, 
+	int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer) //WID currently is unused; if you add code relating to it, make sure to check if it's greater than 0
 
 /*
-int wid = (w->useweapon > 0) ? w->useweapon : w->id;
-	int cid = MAPCOMBO(bx,by);
-	int flag = MAPFLAG(bx,by);
-	int flag2 = MAPCOMBOFLAG(bx,by);
-	int ft = c[cid].attributes[3] / 10000L;
+int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int32_t cid = MAPCOMBO(bx,by);
+	int32_t flag = MAPFLAG(bx,by);
+	int32_t flag2 = MAPCOMBOFLAG(bx,by);
+	int32_t ft = c[cid].attributes[3] / 10000L;
 	//if (!ft) return;
 	//zprint("ft: %d\n", ft);
-	int scombo=COMBOPOS(bx,by);
+	int32_t scombo=COMBOPOS(bx,by);
 	bool single16 = false;
 
 */
@@ -1094,7 +1094,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			else if ( c[cid].attribytes[0] > 0 )
 				decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 		}
-		int it = -1; 
+		int32_t it = -1; 
 		if ( (c[cid].usrflags&cflag2) )
 		{
 			
@@ -1136,7 +1136,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			// newflag = s->secretflag[ft];
 			screen_combo_modify_postroutine(tmpscr,scombo);
 			if ( c[cid].attribytes[2] > 0 )
-				sfx(c[cid].attribytes[2],int(bx));
+				sfx(c[cid].attribytes[2],int32_t(bx));
 		}
 		
 		//loop next combo
@@ -1195,7 +1195,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				//zprint("++comboD\n");
 			} while((c[cid].usrflags&cflag5) && (c[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (c[cid].attribytes[2]) > 0 )
-				sfx(c[cid].attribytes[2],int(bx));
+				sfx(c[cid].attribytes[2],int32_t(bx));
 			
 			
 		}
@@ -1211,17 +1211,17 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	if ( c[cid].usrflags&cflag8 ) killgenwpn(w);
 }
 
-void do_generic_combo2(int bx, int by, int cid, int flag, int flag2, int ft, int scombo, bool single16, int layer)
+void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer)
 {
 /*
-int wid = (w->useweapon > 0) ? w->useweapon : w->id;
-	int cid = MAPCOMBO(bx,by);
-	int flag = MAPFLAG(bx,by);
-	int flag2 = MAPCOMBOFLAG(bx,by);
-	int ft = c[cid].attributes[3] / 10000L;
+int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int32_t cid = MAPCOMBO(bx,by);
+	int32_t flag = MAPFLAG(bx,by);
+	int32_t flag2 = MAPCOMBOFLAG(bx,by);
+	int32_t ft = c[cid].attributes[3] / 10000L;
 	//if (!ft) return;
 	//zprint("ft: %d\n", ft);
-	int scombo=COMBOPOS(bx,by);
+	int32_t scombo=COMBOPOS(bx,by);
 	bool single16 = false;
 
 */
@@ -1252,7 +1252,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			else if ( combobuf[cid].attribytes[0] > 0 )
 				decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
 		}
-		int it = -1; 
+		int32_t it = -1; 
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 			
@@ -1294,7 +1294,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			// newflag = s->secretflag[ft];
 			screen_combo_modify_postroutine(tmpscr,scombo);
 			if ( combobuf[cid].attribytes[2] > 0 )
-				sfx(combobuf[cid].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 		}
 		
 		//loop next combo
@@ -1353,7 +1353,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				//zprint("++comboD\n");
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
-				sfx(combobuf[cid].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			
 			
 		}
@@ -1369,7 +1369,7 @@ int wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	//if ( c[cid].usrflags&cflag8 ) killgenwpn(w);
 }
 
-static void do_cswitch_combo(weapon* w, newcombo const& cmb, int layer, int cpos)
+static void do_cswitch_combo(weapon* w, newcombo const& cmb, int32_t layer, int32_t cpos)
 {
 	mapscr* scr = (layer ? &tmpscr2[layer] : tmpscr);
 	byte pair = cmb.attribytes[0];
@@ -1380,7 +1380,7 @@ static void do_cswitch_combo(weapon* w, newcombo const& cmb, int layer, int cpos
 	if(cmb.attribytes[1]) sfx(cmb.attribytes[1]);
 }
 
-void do_cswitch_combo2(newcombo const& cmb, int layer, int cpos)
+void do_cswitch_combo2(newcombo const& cmb, int32_t layer, int32_t cpos)
 {
 	mapscr* scr = (layer ? &tmpscr2[layer] : tmpscr);
 	byte pair = cmb.attribytes[0];
@@ -1390,20 +1390,20 @@ void do_cswitch_combo2(newcombo const& cmb, int layer, int cpos)
 	if(cmb.attribytes[1]) sfx(cmb.attribytes[1]);
 }
 
-static void MatchComboTrigger2(weapon *w, int bx, int by, newcombo *c, int layer = 0/*, int comboid, int flag*/)
+static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
 {
     //find out which combo row/column the coordinates are in
     bx=vbound(bx, 0, 255) & 0xF0;
     by=vbound(by, 0, 175) & 0xF0;
 	if(screenIsScrolling()) return;
-	int cid = ( layer ) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
+	int32_t cid = ( layer ) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
 	if(!MatchComboTrigger(w, c, cid)) return;
 	newcombo const& cmb = c[cid];
-	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
-	int flag = ( layer ) ? MAPFLAGL(layer, bx,by) : MAPFLAG(bx,by);
-	int flag2 = ( layer ) ? MAPCOMBOFLAGL(layer,bx,by): MAPCOMBOFLAG(bx,by);
-	int ft = cmb.attribytes[3];
-	int scombo=COMBOPOS(bx,by);
+	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int32_t flag = ( layer ) ? MAPFLAGL(layer, bx,by) : MAPFLAG(bx,by);
+	int32_t flag2 = ( layer ) ? MAPCOMBOFLAGL(layer,bx,by): MAPCOMBOFLAG(bx,by);
+	int32_t ft = cmb.attribytes[3];
+	int32_t scombo=COMBOPOS(bx,by);
 	bool single16 = false;
 	if ( cmb.type >= cSCRIPT1 && cmb.type <= cTRIGGERGENERIC )
 	{
@@ -1437,9 +1437,9 @@ byte bszboomflip[4] = {0,2,3,1};
 //otherwise darken the screen
 void checkLightSources(bool perm = false)
 {
-	int isPerm = 0;
+	int32_t isPerm = 0;
 	if(perm)isPerm=3;
-    for(int i=0; i<Lwpns.Count(); i++)
+    for(int32_t i=0; i<Lwpns.Count(); i++)
     {
         if(((weapon *)Lwpns.spr(i))->isLit)
         {
@@ -1448,7 +1448,7 @@ void checkLightSources(bool perm = false)
         }
     }
     
-    for(int i=0; i<Ewpns.Count(); i++)
+    for(int32_t i=0; i<Ewpns.Count(); i++)
     {
         if(((weapon *)Ewpns.spr(i))->isLit)
         {
@@ -1460,7 +1460,7 @@ void checkLightSources(bool perm = false)
     lighting(false,false,isPerm);
 }
 
-void getdraggeditem(int j)
+void getdraggeditem(int32_t j)
 {
     item *it=(item*)items.spr(j);
     
@@ -1491,7 +1491,7 @@ void weapon::seekLink()
     else if(z<LinkZ()) z++;
 }
 
-void weapon::seekEnemy(int j)
+void weapon::seekEnemy(int32_t j)
 {
     angular = true;
     zfix mindistance=(zfix)1000000;
@@ -1501,7 +1501,7 @@ void weapon::seekEnemy(int j)
     {
         j=-1;
         
-        for(int i=0; i<GuyCount(); i++)
+        for(int32_t i=0; i<GuyCount(); i++)
         {
             //        tempdistance=sqrt(pow(abs(x-GuyX(i)),2)+pow(abs(y-GuyY(i)),2));
             tempdistance=distance(x,y,GuyX(i),GuyY(i));
@@ -1531,7 +1531,7 @@ void weapon::seekEnemy(int j)
     else                  dir=r_down;
 }
 
-int weapon::seekEnemy2(int j)
+int32_t weapon::seekEnemy2(int32_t j)
 {
     angular = true;
     zfix mindistance=(zfix)1000000;
@@ -1541,7 +1541,7 @@ int weapon::seekEnemy2(int j)
     {
         j=-1;
         
-        for(int i=0; i<GuyCount(); i++)
+        for(int32_t i=0; i<GuyCount(); i++)
         {
             //        tempdistance=sqrt(pow(abs(x-GuyX(i)),2)+pow(abs(y-GuyY(i)),2));
             tempdistance=distance(dummy_fix[0],dummy_fix[1],GuyX(i),GuyY(i));
@@ -1581,7 +1581,7 @@ void weapon::convertType(bool toLW)
 	weaponscript = 0;
 	doscript = 0;
 	initialised = 0;
-	for(int q = 0; q < 8; ++q)
+	for(int32_t q = 0; q < 8; ++q)
 	{
 		weap_initd[q] = 0;
 	}
@@ -1590,16 +1590,16 @@ void weapon::convertType(bool toLW)
 weapon::weapon(weapon const & other):
      //Struct Element			Type		Purpose
     sprite(other),
-    power(other.power), 		//int
-    type(other.type), 			//int
-    dead(other.dead),			//int
-    clk2(other.clk2),			//int
-    misc2(other.misc2),			//int
-    ignorecombo(other.ignorecombo),	//int
+    power(other.power), 		//int32_t
+    type(other.type), 			//int32_t
+    dead(other.dead),			//int32_t
+    clk2(other.clk2),			//int32_t
+    misc2(other.misc2),			//int32_t
+    ignorecombo(other.ignorecombo),	//int32_t
     isLit(other.isLit),			//bool		Does it light the screen?
-    parentid(other.parentid),		//int		Enemy that created it. -1 for none. This is the Enemy POINTER, not the Enemy ID. 
-    parentitem(other.parentitem),	//int		Item that created it. -1 for none. 
-    dragging(other.dragging),		//int draggong		?
+    parentid(other.parentid),		//int32_t		Enemy that created it. -1 for none. This is the Enemy POINTER, not the Enemy ID. 
+    parentitem(other.parentitem),	//int32_t		Item that created it. -1 for none. 
+    dragging(other.dragging),		//int32_t draggong		?
     step(other.step),			//zfix		Speed of movement
     bounce(other.bounce),		//bool		Boomerang, or hookshot bounce. 
     ignoreLink(other.ignoreLink),	//bool		?
@@ -1607,45 +1607,45 @@ weapon::weapon(weapon const & other):
     wid(other.wid),			//word		ID
     aframe(other.aframe),		//word		Anim frame
     csclk(other.csclk),			//word		CSet flash clk (?)
-    o_tile(other.o_tile),		//int		The base item tile
-    o_cset(other.o_cset),		//int		The CSet		
-    o_speed(other.o_speed),		//int		Original anim (?) speed.
-    o_type(other.o_type),		//int		The weapon ID (type)
-    frames(other.frames),		//int		Frames of the anim cycle
-    o_flip(other.o_flip),		//int		The original flip/orientationn
-    temp1(other.temp1),			//int		Misc var.
+    o_tile(other.o_tile),		//int32_t		The base item tile
+    o_cset(other.o_cset),		//int32_t		The CSet		
+    o_speed(other.o_speed),		//int32_t		Original anim (?) speed.
+    o_type(other.o_type),		//int32_t		The weapon ID (type)
+    frames(other.frames),		//int32_t		Frames of the anim cycle
+    o_flip(other.o_flip),		//int32_t		The original flip/orientationn
+    temp1(other.temp1),			//int32_t		Misc var.
     behind(other.behind),		//bool		Should it be drawn behind Link, NPC, and other sprites?
-    minX(other.minX),			//int		How close can the weapon get tot he edge of the screen
-    maxX(other.maxX),			//int		...before being deleted or bouncing
-    minY(other.minY),			//int		...
-    maxY(other.maxY),			//int		...
+    minX(other.minX),			//int32_t		How close can the weapon get tot he edge of the screen
+    maxX(other.maxX),			//int32_t		...before being deleted or bouncing
+    minY(other.minY),			//int32_t		...
+    maxY(other.maxY),			//int32_t		...
 	
     //! dimi Wand
     /*
     //!dimi: These 5 exist both here and in the header file. If you remove these, don't forget to
     remove them over there as well.
     */
-    count1(other.count1), 		//int		dimi Wand 
-    count2(other.count2), 		//int		dimi Wand 
-    count3(other.count3), 		//int		dimi Wand
-    count4(other.count4), 		//int		dimi Wand
-    count5(other.count5), 		//int		dimi Wand
+    count1(other.count1), 		//int32_t		dimi Wand 
+    count2(other.count2), 		//int32_t		dimi Wand 
+    count3(other.count3), 		//int32_t		dimi Wand
+    count4(other.count4), 		//int32_t		dimi Wand
+    count5(other.count5), 		//int32_t		dimi Wand
 	
     //Weapon Editor -Z
     useweapon(other.useweapon),		//byte		The weapon editor weapon type.
     usedefence(other.usedefence),	//byte		The defence type to evaluate in do_enemy_hit()
-    weaprange(other.weaprange),		//int		The range or distance of the weapon before removing it. 
-    weapduration(other.weapduration),	//int		The number of frames that must elapse before removing it
+    weaprange(other.weaprange),		//int32_t		The range or distance of the weapon before removing it. 
+    weapduration(other.weapduration),	//int32_t		The number of frames that must elapse before removing it
    	//word		The weapon action script. 
-    tilemod(other.tilemod),		//long		The LTM to use when the weapon is active. 
+    tilemod(other.tilemod),		//int32_t		The LTM to use when the weapon is active. 
     drawlayer(other.drawlayer),		//byte		The layer onto which we draw the weapon.
     family_class(other.family_class),	//byte		Item Class
     family_level(other.family_level),	//byte		Item Level
     flags(other.flags),			//word		A misc flagset. 
-    collectflags(other.collectflags),	//long		A flagset that determines of the weapon can collect an item.
-    duplicates(other.duplicates),	//long		A flagset that determines of the weapon can collect an item.
-    linked_parent(other.linked_parent),	//long		A flagset that determines of the weapon can collect an item.
-    quantity_iterator(other.quantity_iterator),	//long		A flagset that determines of the weapon can collect an item.
+    collectflags(other.collectflags),	//int32_t		A flagset that determines of the weapon can collect an item.
+    duplicates(other.duplicates),	//int32_t		A flagset that determines of the weapon can collect an item.
+    linked_parent(other.linked_parent),	//int32_t		A flagset that determines of the weapon can collect an item.
+    quantity_iterator(other.quantity_iterator),	//int32_t		A flagset that determines of the weapon can collect an item.
     script_UID(FFCore.GetScriptObjectUID(UID_TYPE_WEAPON)),
 //Enemy Editor Weapon Sprite
     wpnsprite(other.wpnsprite),
@@ -1679,7 +1679,7 @@ weapon::weapon(weapon const & other):
 	//
 	//	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
 	//	parent_script_UID = s->script_UID;
-	//	for ( int q = 0; q < INITIAL_D; q++ ) 
+	//	for ( int32_t q = 0; q < INITIAL_D; q++ ) 
 	//	{
 	//		//Z_scripterrlog("(weapon::weapon(weapon const & other)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
 	//	
@@ -1693,20 +1693,20 @@ weapon::weapon(weapon const & other):
 	//{
 	//	
 	//	weaponscript = itemsbuf[parentitem].weaponscript; //Set the weapon script based on the item editor data.
-	//	for ( int q = 0; q < INITIAL_D; q++ ) 
+	//	for ( int32_t q = 0; q < INITIAL_D; q++ ) 
 	//	{
 	//		weap_initd[q] = itemsbuf[parentitem].weap_initiald[q];
 	//		
 	//	}
 		
 	//}
-	for ( int q = 0; q < 22; q++ ) wscreengrid[q] = 0;
+	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
-	for( int q = 0; q < 8; q++ ) 
+	for( int32_t q = 0; q < 8; q++ ) 
 	{
 		weap_initd[q] = other.weap_initd[q];
 	}
-	for(int i=0; i<10; ++i)
+	for(int32_t i=0; i<10; ++i)
 	{
 		dummy_int[i]=other.dummy_int[i];
 		dummy_fix[i]=other.dummy_fix[i];
@@ -1716,36 +1716,36 @@ weapon::weapon(weapon const & other):
     
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
     //memset(stack,0,sizeof(stack));
-    //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+    //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
     
     //Weapon Editor Arrays
-    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
+    for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
     {
-	weap_pattern[q] = other.weap_pattern[q];	//int	The movement pattern and args.
+	weap_pattern[q] = other.weap_pattern[q];	//int32_t	The movement pattern and args.
     }
-    for ( int q = 0; q < WEAPON_CLOCKS; q++ ) 
+    for ( int32_t q = 0; q < WEAPON_CLOCKS; q++ ) 
     {
-	clocks[q] = other.clocks[q];		//long	An array of misc clocks. 
+	clocks[q] = other.clocks[q];		//int32_t	An array of misc clocks. 
     }
-   // for ( int q = 0; q < INITIAL_A; q++ )
+   // for ( int32_t q = 0; q < INITIAL_A; q++ )
     //{
 	//initiala[q] = other.initiala[q];		//byte	InitA[]
     //}
-    //for ( int q = 0; q < INITIAL_D; q++ ) 
+    //for ( int32_t q = 0; q < INITIAL_D; q++ ) 
     //{
-//	initiald[q] = other.initiald[q];		//long	InitD[]
+//	initiald[q] = other.initiald[q];		//int32_t	InitD[]
     //}
-    for ( int q = 0; q < FFSCRIPT_MISC; q++ ) 
+    for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) 
     {
-	ffmisc[q] = other.ffmisc[q];		//long -The base wpn->Misc[32] set from the editor
+	ffmisc[q] = other.ffmisc[q];		//int32_t -The base wpn->Misc[32] set from the editor
     }
-    for ( int q = 0; q < FFSCRIPT_MISC; q++ ) 
+    for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) 
     {
-	wpn_misc_d[q] = other.wpn_misc_d[q];		//long -The base wpn->Misc[32] set from the editor
+	wpn_misc_d[q] = other.wpn_misc_d[q];		//int32_t -The base wpn->Misc[32] set from the editor
     }
-    for ( int q = 0; q < 128; q++ ) 
+    for ( int32_t q = 0; q < 128; q++ ) 
     {
-	weapname[q] = 0;		//long -The base wpn->Misc[32] set from the editor
+	weapname[q] = 0;		//int32_t -The base wpn->Misc[32] set from the editor
     }
     script_wrote_otile = 0;
     
@@ -1756,11 +1756,11 @@ weapon::weapon(weapon const & other):
     
 	//! END Weapon Editor
     
-    /*for (int i=0; i<8; ++i)
+    /*for (int32_t i=0; i<8; ++i)
     {
       d[i]=other.d[i];
     }
-    for (int i=0; i<2; ++i)
+    for (int32_t i=0; i<2; ++i)
     {
       a[i]=other.a[i];
     }*/
@@ -1802,7 +1802,7 @@ void weapon::cleanup_sfx()
     }
     
     // Check each Lwpn to see if this weapon's sound is also allocated by it.
-	int use_sfx = 0;
+	int32_t use_sfx = 0;
 	if(parentitem >= 0) use_sfx = itemsbuf[parentitem].usesound;
 	else switch(id)
 	{
@@ -1822,7 +1822,7 @@ void weapon::cleanup_sfx()
 	
     if(use_sfx)
     {
-        for(int i=0; i<Lwpns.Count(); i++)
+        for(int32_t i=0; i<Lwpns.Count(); i++)
         {
             weapon *w = ((weapon *)Lwpns.spr(i));
             
@@ -1831,7 +1831,7 @@ void weapon::cleanup_sfx()
                 continue;
             }
             
-            int wparent = w->parentitem;
+            int32_t wparent = w->parentitem;
             
             if(wparent>=0 && (itemsbuf[wparent].family == itype_brang || itemsbuf[wparent].family == itype_nayruslove
                               || itemsbuf[wparent].family == itype_hookshot || itemsbuf[wparent].family == itype_cbyrna))
@@ -1879,7 +1879,7 @@ weapon::~weapon()
 	cleanup_sfx();
 }
 
-weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special, int Linked_Parent) : sprite(), parentid(prntid)
+weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special, int32_t Linked_Parent) : sprite(), parentid(prntid)
 {
     x=X;
     y=Y;
@@ -1920,7 +1920,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 	    // Note: wInd uses type for special properties.
 	    //Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
 	//load initd
-	for ( int q = 0; q < 8; q++ )
+	for ( int32_t q = 0; q < 8; q++ )
 	{
 		//load InitD
 		weap_initd[q] = itemsbuf[Parentitem].weap_initiald[q];
@@ -1934,14 +1934,14 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 	    
 	//Z_scripterrlog("Eweapon created with a prntid of: %d\n",prntid);
 	enemy *s = (enemy *)guys.getByUID(prntid);
-	//int parent_enemy_id = 0;
+	//int32_t parent_enemy_id = 0;
 	//parent_enemy_id = s->id & 0xFFF;
 	//Z_scripterrlog("The enemy ID that created it was: %d\n",s->id & 0xFFF);
 	//weaponscript = guysbuf[prntid].weaponscript;
 	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
 	parent_script_UID = s->script_UID;
 	    //Z_scripterrlog("parentUID %d\n", parent_script_UID);
-	for ( int q = 0; q < 8; q++ )
+	for ( int32_t q = 0; q < 8; q++ )
 	{
 		//load InitD
 		//Z_scripterrlog("(weapon::weapon(zfix)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
@@ -1959,19 +1959,19 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
     count1 = count2 = count3 = count4 = count5 = 0;
     temp1 = 0;
     scriptrange = blastsfx = wpnsprite = magiccosttimer = 0;
-    for ( int q = 0; q < FFSCRIPT_MISC; q++ ) ffmisc[q] = 0;
-    for ( int q = 0; q < 128; q++ ) weapname[q] = 0;
+    for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) ffmisc[q] = 0;
+    for ( int32_t q = 0; q < 128; q++ ) weapname[q] = 0;
     
-    for ( int q = 0; q < FFSCRIPT_MISC; q++ ) wpn_misc_d[q] = 0;
-    //for ( int q = 0; q < 2; q++ ) initiala[q] = 0;
-    for ( int q = 0; q < WEAPON_CLOCKS; q++ ) clocks[q] = 0;
-    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
+    for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) wpn_misc_d[q] = 0;
+    //for ( int32_t q = 0; q < 2; q++ ) initiala[q] = 0;
+    for ( int32_t q = 0; q < WEAPON_CLOCKS; q++ ) clocks[q] = 0;
+    for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
     {
-	weap_pattern[q] = 0; //int	The movement pattern and args.
+	weap_pattern[q] = 0; //int32_t	The movement pattern and args.
     }
     isLit = false;
 	linkedItem = 0;
-	for ( int q = 0; q < 22; q++ ) wscreengrid[q] = 0;
+	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
         memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
         
@@ -1981,9 +1981,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 	isLWeapon = isLW;
     minX = minY = maxX = maxY = 0;
     //memset(stack,0,sizeof(stack));
-    //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+    //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
     
-    int defaultw, itemid = parentitem;
+    int32_t defaultw, itemid = parentitem;
     
     if(id>wEnemyWeapons)
     {
@@ -2301,10 +2301,10 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             defaultw = wCBYRNA;
             
         LOADGFX(defaultw);
-        int speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
-        int qty = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc3,1) : 1;
+        int32_t speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
+        int32_t qty = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc3,1) : 1;
 	//zprint("byrna quantity_iterator: %d\n", quantity_iterator);
-        clk = (int)((((2*quantity_iterator*PI)/qty)
+        clk = (int32_t)((((2*quantity_iterator*PI)/qty)
                      // Appear on top of the cane's hook
                      + (dir==right? 3*PI/2 : dir==left? PI/2 : dir==down ? 0 : PI))*speed);
         quantity_iterator = 0;
@@ -2447,7 +2447,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 	}
 	if(id==wRefBeam)
         {
-            ignorecombo=(((int)y&0xF0)+((int)x>>4));
+            ignorecombo=(((int32_t)y&0xF0)+((int32_t)x>>4));
         }
         
         break;
@@ -2917,8 +2917,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 	Z_message("HitHeight: %d\n",hysz);
 	Z_message("HitZHeight: %d\n",hzsz);
 	Z_message("HitXOffset: %d\n",hxofs);
-	Z_message("HitYOffset: %d\n",(int)xofs);
-	Z_message("DrawYOffset: %d\n",(int)yofs);
+	Z_message("HitYOffset: %d\n",(int32_t)xofs);
+	Z_message("DrawYOffset: %d\n",(int32_t)yofs);
 	
 	
         if(itemid >-1)
@@ -3227,7 +3227,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         if ( parentid > -1 )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
-		int enemy_wpnsprite = e->wpnsprite;
+		int32_t enemy_wpnsprite = e->wpnsprite;
 		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 		
 		else LOADGFX(ewBOMB);
@@ -3277,7 +3277,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         if ( parentid > -1 )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
-		int enemy_wpnsprite = e->wpnsprite; if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+		int32_t enemy_wpnsprite = e->wpnsprite; if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 		else LOADGFX(ewSBOMB);
 	}
 	else LOADGFX(ewSBOMB);
@@ -3337,7 +3337,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         if ( parentid > -1 )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
-		int enemy_wpnsprite = e->wpnsprite; 
+		int32_t enemy_wpnsprite = e->wpnsprite; 
 		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 		else LOADGFX(wid);
 	}
@@ -3358,7 +3358,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
-		int enemy_wpnsprite = e->wpnsprite; 
+		int32_t enemy_wpnsprite = e->wpnsprite; 
 		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 		else LOADGFX(ewFIREBALL);
 	}
@@ -3391,7 +3391,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
-		int enemy_wpnsprite = e->wpnsprite; 
+		int32_t enemy_wpnsprite = e->wpnsprite; 
 		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 		else LOADGFX(ewROCK);
 	}
@@ -3417,7 +3417,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
-		int enemy_wpnsprite = e->wpnsprite; 
+		int32_t enemy_wpnsprite = e->wpnsprite; 
 		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 		else LOADGFX(ewARROW);
 	}
@@ -3456,7 +3456,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
-		int enemy_wpnsprite = e->wpnsprite; 
+		int32_t enemy_wpnsprite = e->wpnsprite; 
 		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 		else LOADGFX(ewSWORD);
 	}
@@ -3511,7 +3511,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         if ( parentid > -1 && !script_gen && (!(id == ewMagic && isLWeapon)) )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
-		int enemy_wpnsprite = e->wpnsprite; 
+		int32_t enemy_wpnsprite = e->wpnsprite; 
 		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 		else LOADGFX(ewMAGIC);
 	}
@@ -3559,7 +3559,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 	if(id==wRefMagic)
         {
             //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",1779);
-            ignorecombo=(((int)y&0xF0)+((int)x>>4));
+            ignorecombo=(((int32_t)y&0xF0)+((int32_t)x>>4));
         }
         
         break;
@@ -3571,7 +3571,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		if ( parentid > -1  && !script_gen && !isLWeapon)
 		{
 			enemy *e = (enemy*)guys.getByUID(parentid);
-			int enemy_wpnsprite = e->wpnsprite; 
+			int32_t enemy_wpnsprite = e->wpnsprite; 
 			if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 			else LOADGFX(ewFLAME);
 		}
@@ -3582,7 +3582,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
 		if ( parentid > -1 && !script_gen &&!isLWeapon )
 		{
 			enemy *e = (enemy*)guys.getByUID(parentid);
-			int enemy_wpnsprite = e->wpnsprite; 
+			int32_t enemy_wpnsprite = e->wpnsprite; 
 			if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 			else LOADGFX(ewFLAME2);
 		}
@@ -3629,7 +3629,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         if ( parentid > -1 && !script_gen &&!isLWeapon)
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
-		int enemy_wpnsprite = e->wpnsprite; 
+		int32_t enemy_wpnsprite = e->wpnsprite; 
 		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 		else LOADGFX(ewFIRETRAIL);
 	}
@@ -3663,7 +3663,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         if ( parentid > -1 && !script_gen &&!isLWeapon)
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
-		int enemy_wpnsprite = e->wpnsprite;
+		int32_t enemy_wpnsprite = e->wpnsprite;
 		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
 		else LOADGFX(ewWIND);
 	}
@@ -3677,7 +3677,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
         {
         case pDINSFIREROCKET:
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETUP,(int)x);
+                sfx(WAV_ZN1ROCKETUP,(int32_t)x);
                 
             LOADGFX(itemsbuf[parentitem].wpn);
             step = 4;
@@ -3685,7 +3685,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             
         case pDINSFIREROCKETRETURN:
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETDOWN,(int)x);
+                sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
                 
             LOADGFX(itemsbuf[parentitem].wpn2);
             step = 4;
@@ -3707,7 +3707,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             LOADGFX(itemsbuf[parentitem].wpn);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETUP,(int)x);
+                sfx(WAV_ZN1ROCKETUP,(int32_t)x);
                 
             step = 4;
             drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
@@ -3717,7 +3717,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
             LOADGFX(itemsbuf[parentitem].wpn2);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETDOWN,(int)x);
+                sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
                 
             step = 4;
             drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
@@ -3789,11 +3789,11 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parenti
     }
 }
 
-int weapon::getScriptUID() { return script_UID; }
-void weapon::setScriptUID(int new_id) { script_UID = new_id; }
+int32_t weapon::getScriptUID() { return script_UID; }
+void weapon::setScriptUID(int32_t new_id) { script_UID = new_id; }
 
-int weapon::getParentScriptUID() { return parent_script_UID; }
-void weapon::setParentScriptUID(int new_id) { parent_script_UID = new_id; }
+int32_t weapon::getParentScriptUID() { return parent_script_UID; }
+void weapon::setParentScriptUID(int32_t new_id) { parent_script_UID = new_id; }
 
 
 bool weapon::isLinkWeapon()
@@ -3805,14 +3805,14 @@ bool weapon::isLinkWeapon()
 }
 bool weapon::isLinkMelee()
 {
-	int family = itemsbuf[parentitem].family;
+	int32_t family = itemsbuf[parentitem].family;
 	if ( family == itype_sword && id != wBeam ) return true;
 	//if ( id == wBeam )  return true;
 	return false;
 }
 
 
-void weapon::LOADGFX(int wpn)
+void weapon::LOADGFX(int32_t wpn)
 {
     if(wpn<0)
         return;
@@ -3843,10 +3843,10 @@ bool weapon::isScriptGenerated()
 
 bool weapon::clip()
 {
-    int c[4];
-    int d2=isdungeon();
-    int nb1 = get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
-    int nb2 = get_bit(quest_rules,qr_NOBORDER) ? 8 : 0;
+    int32_t c[4];
+    int32_t d2=isdungeon();
+    int32_t nb1 = get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
+    int32_t nb2 = get_bit(quest_rules,qr_NOBORDER) ? 8 : 0;
     
     if(id>wEnemyWeapons && id!=ewBrang)
     {
@@ -3938,10 +3938,10 @@ bool weapon::blocked()
     return blocked(8, 8);
 }
 
-bool weapon::blocked(int xOffset, int yOffset)
+bool weapon::blocked(int32_t xOffset, int32_t yOffset)
 {
-    int wx = x+xOffset;
-    int wy = y+yOffset;
+    int32_t wx = x+xOffset;
+    int32_t wy = y+yOffset;
     
     if(id == wPhantom || id == wHSHandle || id == wHSChain)  // Sanity check
     {
@@ -3991,7 +3991,7 @@ bool weapon::blocked(int xOffset, int yOffset)
     return false;
 }
 
-bool weapon::animate(int index)
+bool weapon::animate(int32_t index)
 {
 	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
 	if(fallclk > 0)
@@ -4018,9 +4018,9 @@ bool weapon::animate(int index)
 		
 		wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
 		cs = spr.csets & 0xF;
-		int fr = spr.frames ? spr.frames : 1;
-		int spd = spr.speed ? spr.speed : 1;
-		int animclk = (PITFALL_FALL_FRAMES-fallclk);
+		int32_t fr = spr.frames ? spr.frames : 1;
+		int32_t spd = spr.speed ? spr.speed : 1;
+		int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
 		tile = spr.newtile + zc_min(animclk / spd, fr-1);
 		
 		run_script(MODE_NORMAL);
@@ -4054,18 +4054,18 @@ bool weapon::animate(int index)
 		{
 			wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];
 			cs = spr.csets & 0xF;
-			int fr = spr.frames ? spr.frames : 1;
-			int spd = spr.speed ? spr.speed : 1;
-			int animclk = (WATER_DROWN_FRAMES-drownclk);
+			int32_t fr = spr.frames ? spr.frames : 1;
+			int32_t spd = spr.speed ? spr.speed : 1;
+			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
 			tile = spr.newtile + zc_min(animclk / spd, fr-1);
 		}
 		else 
 		{
 			wpndata &spr = wpnsbuf[QMisc.sprites[sprDROWN]];
 			cs = spr.csets & 0xF;
-			int fr = spr.frames ? spr.frames : 1;
-			int spd = spr.speed ? spr.speed : 1;
-			int animclk = (WATER_DROWN_FRAMES-drownclk);
+			int32_t fr = spr.frames ? spr.frames : 1;
+			int32_t spd = spr.speed ? spr.speed : 1;
+			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
 			tile = spr.newtile + zc_min(animclk / spd, fr-1);
 		}
 		
@@ -4083,93 +4083,93 @@ bool weapon::animate(int index)
 		/*
 		if ( useweapon == wSword )
 		{
-		if(dir==up && ((int(x)&15)==0))
+		if(dir==up && ((int32_t(x)&15)==0))
 		{
-			Link.check_slash_block2((int)x,(int)y);
-			Link.check_slash_block2((int)x,(int)y+8);
+			Link.check_slash_block2((int32_t)x,(int32_t)y);
+			Link.check_slash_block2((int32_t)x,(int32_t)y+8);
 		}
-		else if(dir==up && ((int(x)&15)==8||Link.diagonalMovement))
+		else if(dir==up && ((int32_t(x)&15)==8||Link.diagonalMovement))
 		{
-			Link.check_slash_block2((int)x,(int)y);
-			Link.check_slash_block2((int)x,(int)y+8);
-			Link.check_slash_block2((int)x+8,(int)y);
-			Link.check_slash_block2((int)x+8,(int)y+8);
+			Link.check_slash_block2((int32_t)x,(int32_t)y);
+			Link.check_slash_block2((int32_t)x,(int32_t)y+8);
+			Link.check_slash_block2((int32_t)x+8,(int32_t)y);
+			Link.check_slash_block2((int32_t)x+8,(int32_t)y+8);
 		}
 		
-		if(dir==down && ((int(x)&15)==0))
+		if(dir==down && ((int32_t(x)&15)==0))
 		{
-			Link.check_slash_block2((int)x,(int)y+(int)hysz-8);
-			Link.check_slash_block2((int)x,(int)y+(int)hysz);
+			Link.check_slash_block2((int32_t)x,(int32_t)y+(int32_t)hysz-8);
+			Link.check_slash_block2((int32_t)x,(int32_t)y+(int32_t)hysz);
 		}
-		else if(dir==down && ((int(x)&15)==8||Link.diagonalMovement))
+		else if(dir==down && ((int32_t(x)&15)==8||Link.diagonalMovement))
 		{
-			Link.check_slash_block2((int)x,(int)y+hysz-8);
-			Link.check_slash_block2((int)x,(int)y+hysz);
-			Link.check_slash_block2((int)x+8,(int)y+hysz-8);
-			Link.check_slash_block2((int)x+8,(int)y+hysz);
+			Link.check_slash_block2((int32_t)x,(int32_t)y+hysz-8);
+			Link.check_slash_block2((int32_t)x,(int32_t)y+hysz);
+			Link.check_slash_block2((int32_t)x+8,(int32_t)y+hysz-8);
+			Link.check_slash_block2((int32_t)x+8,(int32_t)y+hysz);
 		}
 		
 		if(dir==left)
 		{
-			Link.check_slash_block2((int)x,(int)y+8);
-			Link.check_slash_block2((int)x+8,(int)y+8);
+			Link.check_slash_block2((int32_t)x,(int32_t)y+8);
+			Link.check_slash_block2((int32_t)x+8,(int32_t)y+8);
 		}
 		
 		if(dir==right)
 		{
-			Link.check_slash_block2((int)x+hxsz,(int)y+8);
-			Link.check_slash_block2((int)x+hxsz-8,(int)y+8);
+			Link.check_slash_block2((int32_t)x+hxsz,(int32_t)y+8);
+			Link.check_slash_block2((int32_t)x+hxsz-8,(int32_t)y+8);
 		}
 		
 		}*/
 		
-		for(int dx = 0; dx < hxsz; dx += 16)
+		for(int32_t dx = 0; dx < hxsz; dx += 16)
 		{
-			for(int dy = 0; dy < hysz; dy += 16)
+			for(int32_t dy = 0; dy < hysz; dy += 16)
 			{
-				Link.check_slash_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
+				Link.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
 				//Layers
 				//1
-				Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+dy+hyofs, this,1);
+				Link.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this,1);
 				//2
-				Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+dy+hyofs, this,2);
+				Link.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this,2);
 				
-				Link.check_wand_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
-				Link.check_pound_block2((int)x+dx+hxofs, (int)y+dy+hyofs, this);
-				Link.check_wpn_triggers((int)x+dx+hxofs, (int)y+dy+hyofs, this);
+				Link.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
+				Link.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
+				Link.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
 			}
-			Link.check_slash_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
-			Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this,1);
-			Link.check_slash_block_layer2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this,2);
-			Link.check_wand_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
-			Link.check_pound_block2((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
-			Link.check_wpn_triggers((int)x+dx+hxofs, (int)y+hyofs+(hysz-1), this);
+			Link.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
+			Link.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this,1);
+			Link.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this,2);
+			Link.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
+			Link.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
+			Link.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
 		}
-		for(int dy = 0; dy < hysz; dy += 16)
+		for(int32_t dy = 0; dy < hysz; dy += 16)
 		{
-			Link.check_slash_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
-			Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this,1);
-			Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this,2);
-			Link.check_wand_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
-			Link.check_pound_block2((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
-			Link.check_wpn_triggers((int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, this);
+			Link.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
+			Link.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this,1);
+			Link.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this,2);
+			Link.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
+			Link.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
+			Link.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
 		}
-		Link.check_slash_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
-		Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this,1);
-		Link.check_slash_block_layer2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this,2);
-		Link.check_wand_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
-		Link.check_pound_block2((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
-		Link.check_wpn_triggers((int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), this);
+		Link.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
+		Link.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this,1);
+		Link.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this,2);
+		Link.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
+		Link.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
+		Link.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
 		findcombotriggers();
 		/* Don't check every single pixel.
-		for ( int w = 0; q < hysz; q++ )
+		for ( int32_t w = 0; q < hysz; q++ )
 		{
-			for ( int q = 0; w < hxsz; w++ )
+			for ( int32_t q = 0; w < hxsz; w++ )
 			{
-				Link.check_slash_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
-				Link.check_wand_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
-				Link.check_pound_block2((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
-				Link.check_wpn_triggers((int)x+(int)hxofs+q,(int)y+(int)hyofs+w, this);
+				Link.check_slash_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
+				Link.check_wand_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
+				Link.check_pound_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
+				Link.check_wpn_triggers((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
 			}
 		}
 		*/
@@ -4189,7 +4189,7 @@ bool weapon::animate(int index)
 			{
 				y+=fall/100;
 				
-				if(fall <= (int)zinit.terminalv)
+				if(fall <= (int32_t)zinit.terminalv)
 				{
 					fall += zinit.gravity;
 				}
@@ -4197,7 +4197,7 @@ bool weapon::animate(int index)
 			else
 			{
 				if(fall!=0 && !(step>0 && dir==up))  // Don't fix pos if still moving through solidness
-					y-=(int)y%8; // Fix position
+					y-=(int32_t)y%8; // Fix position
 					
 				fall = 0;
 			}
@@ -4212,7 +4212,7 @@ bool weapon::animate(int index)
 			{
 				z = fall = 0;
 			}
-			else if(fall <= (int)zinit.terminalv)
+			else if(fall <= (int32_t)zinit.terminalv)
 			{
 				fall += zinit.gravity;
 			}
@@ -4353,8 +4353,8 @@ bool weapon::animate(int index)
 				dead=0;
 			}
 			
-			int speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
-			int radius = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc2,8) : 8;
+			int32_t speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
+			int32_t radius = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc2,8) : 8;
 			double xdiff = -(sin((double)clk/speed) * radius);
 			double ydiff = (cos((double)clk/speed) * radius);
 			
@@ -4383,7 +4383,7 @@ bool weapon::animate(int index)
 			
 			if(parentitem>-1 && dead != 1) //Perhaps don't play the sound if the weapon is dead?
 			{
-				sfx(itemsbuf[parentitem].usesound,pan(int(x)),true,false);
+				sfx(itemsbuf[parentitem].usesound,pan(int32_t(x)),true,false);
 			}
 			if ( doscript )
 			{
@@ -4396,7 +4396,7 @@ bool weapon::animate(int index)
 		case wBeam:
 		case wRefBeam:
 		{
-			for(int i2=0; i2<=zc_min(type-1,3) && dead!=23; i2++)
+			for(int32_t i2=0; i2<=zc_min(type-1,3) && dead!=23; i2++)
 			{
 				if(findentrance(x,y,mfSWORDBEAM+i2,true)) dead=23;
 			}
@@ -4415,7 +4415,7 @@ bool weapon::animate(int index)
 			
 			if(id==ewSword && get_bit(quest_rules,qr_SWORDMIRROR) || id!=ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & ITEM_FLAG9 : get_bit(quest_rules,qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
 			{
-				int checkx=0, checky=0;
+				int32_t checkx=0, checky=0;
 				
 				switch(dir)
 				{
@@ -4440,10 +4440,10 @@ bool weapon::animate(int index)
 						break;
 				}
 				
-				if(ignorecombo==(((int)checky&0xF0)+((int)checkx>>4)))
+				if(ignorecombo==(((int32_t)checky&0xF0)+((int32_t)checkx>>4)))
 					break;
 					
-				int posx, posy;
+				int32_t posx, posy;
 				if(get_bit(quest_rules,qr_OLDMIRRORCOMBOS))//Replace this conditional with an ER; true if the ER is checked. This will use the old (glitchy) behavior for sword beams.
 				{
 					posx=x;
@@ -4465,9 +4465,9 @@ bool weapon::animate(int index)
 						flip ^= 2;
 						
 					ignoreLink=false;
-					ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-					y=(int)posy&0xF0;
-					x=(int)posx&0xF0;
+					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+					y=(int32_t)posy&0xF0;
+					x=(int32_t)posx&0xF0;
 				}
 				
 				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
@@ -4501,9 +4501,9 @@ bool weapon::animate(int index)
 						}
 					}
 					ignoreLink=false;
-					ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-					y=(int)posy&0xF0;
-					x=(int)posx&0xF0;
+					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+					y=(int32_t)posy&0xF0;
+					x=(int32_t)posx&0xF0;
 				}
 				
 				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
@@ -4540,18 +4540,18 @@ bool weapon::animate(int index)
 						}
 					}
 					ignoreLink=false;
-					ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-					y=(int)posy&0xF0;
-					x=(int)posx&0xF0;
+					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+					y=(int32_t)posy&0xF0;
+					x=(int32_t)posx&0xF0;
 				}
 				
 				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM))
 				{
-					int newx, newy;
-					newy=(int)posy&0xF0;
-					newx=(int)posx&0xF0;
+					int32_t newx, newy;
+					newy=(int32_t)posy&0xF0;
+					newx=(int32_t)posx&0xF0;
 					
-					for(int tdir=0; tdir<4; tdir++)
+					for(int32_t tdir=0; tdir<4; tdir++)
 					{
 						if(dir!=(tdir^1))
 						{
@@ -4568,7 +4568,7 @@ bool weapon::animate(int index)
 							w->id=wRefBeam;
 							w->parentid=parentid;
 							w->parentitem=parentitem;
-							w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+							w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 							w->hyofs = w->hxofs = 0;
 							//also set up the magic's correct animation -DD
 							w->flip=0;
@@ -4606,11 +4606,11 @@ bool weapon::animate(int index)
 				
 				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4))
 				{
-					int newx, newy;
-					newy=(int)posy&0xF0;
-					newx=(int)posx&0xF0;
+					int32_t newx, newy;
+					newy=(int32_t)posy&0xF0;
+					newx=(int32_t)posx&0xF0;
 					
-					for(int tdir=0; tdir<4; tdir++)
+					for(int32_t tdir=0; tdir<4; tdir++)
 					{
 						weapon *w=new weapon(*this);
 						w->dir=tdir;
@@ -4626,7 +4626,7 @@ bool weapon::animate(int index)
 						w->parentid=parentid;
 						w->parentitem=parentitem;
 						w->hyofs = w->hxofs = 0;
-						w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+						w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 						//also set up the magic's correct animation -DD
 						w->flip=0;
 						if ( do_animation ) 
@@ -4698,19 +4698,19 @@ bool weapon::animate(int index)
 				dead=1;
 			}
 			
-			int wrx;
+			int32_t wrx;
 			
 			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
 				wrx=tmpscr->warpreturnx[0];
 			else wrx=tmpscr->warparrivalx;
 			
-			int wry;
+			int32_t wry;
 			
 			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
 				wry=tmpscr->warpreturny[0];
 			else wry=tmpscr->warparrivaly;
 			
-			if(specialinfo==1 && dead==-1 && x==(int)wrx && y==(int)wry)
+			if(specialinfo==1 && dead==-1 && x==(int32_t)wrx && y==(int32_t)wry)
 			{
 				stop_sfx(WAV_ZN1WHIRLWIND);
 				dead=2;
@@ -4721,7 +4721,7 @@ bool weapon::animate(int index)
 				dead=1;
 			}
 			else if(get_bit(quest_rules,qr_MORESOUNDS) && dead < 1)
-				sfx(WAV_ZN1WHIRLWIND,pan(int(x)),true,false);
+				sfx(WAV_ZN1WHIRLWIND,pan(int32_t(x)),true,false);
 				
 			if((parentitem==-1 && get_bit(quest_rules,qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & ITEM_FLAG3))
 				goto mirrors;
@@ -4861,7 +4861,7 @@ bool weapon::animate(int index)
 			if(clk==(misc-1) && step==0)
 			{
 				sfx((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
-					itemsbuf[parentitem].usesound,pan(int(x)));
+					itemsbuf[parentitem].usesound,pan(int32_t(x)));
 					
 				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
 				{
@@ -4877,7 +4877,7 @@ bool weapon::animate(int index)
 				hzsz=16;
 			}
 			
-			int boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
+			int32_t boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
 								  (parentitem>-1 && itemsbuf[parentitem].flags & ITEM_FLAG1)) ? 35 : 31));
 								  
 			if(clk==boomend && step==0)
@@ -4889,16 +4889,16 @@ bool weapon::animate(int index)
 			{
 				if(clk==(misc-1))
 				{
-					int f1 = (id==wSBomb || id==wLitSBomb) ? 16 : 0; // Large SBomb triggerbox
+					int32_t f1 = (id==wSBomb || id==wLitSBomb) ? 16 : 0; // Large SBomb triggerbox
 					
-					for(int tx=-f1; tx<=f1; tx+=8)  // -16,-8,0,8,16
+					for(int32_t tx=-f1; tx<=f1; tx+=8)  // -16,-8,0,8,16
 					{
-						int f2 = 0;
+						int32_t f2 = 0;
 						
 						if(tx==-8 || tx==8)
 							f2 = f1;
 							
-						for(int ty=-f2; ty<=f2; ty+=32)
+						for(int32_t ty=-f2; ty<=f2; ty+=32)
 						{
 							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
 							
@@ -4925,9 +4925,9 @@ bool weapon::animate(int index)
 							//grayscale entire screen
 							if(get_bit(quest_rules,qr_FADE))
 							{
-								for(int i=CSET(0); i < CSET(15); i++)
+								for(int32_t i=CSET(0); i < CSET(15); i++)
 								{
-									int g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
+									int32_t g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
 									g = (g >> 1) + 32;
 									RAMpal[i] = _RGB(g,g,g);
 								}
@@ -4937,7 +4937,7 @@ bool weapon::animate(int index)
 							{
 								// this is awkward. NES Z1 converts colors based on the global
 								// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-								for(int i=CSET(0); i < CSET(15); i++)
+								for(int32_t i=CSET(0); i < CSET(15); i++)
 								{
 									RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
 								}
@@ -4997,7 +4997,7 @@ bool weapon::animate(int index)
 			if(clk==(misc-1) && step==0)
 			{
 				sfx((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
-					itemsbuf[parentitem].usesound,pan(int(x)));
+					itemsbuf[parentitem].usesound,pan(int32_t(x)));
 					
 				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
 				{
@@ -5013,7 +5013,7 @@ bool weapon::animate(int index)
 				hzsz=16;
 			}
 			
-			int boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
+			int32_t boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
 								  (parentitem>-1 && itemsbuf[parentitem].flags & ITEM_FLAG1)) ? 35 : 31));
 								  
 			if(clk==boomend && step==0)
@@ -5025,16 +5025,16 @@ bool weapon::animate(int index)
 			{
 				if(clk==(misc-1))
 				{
-					int f1 = (id==wSBomb || id==wLitSBomb) ? 16 : 0; // Large SBomb triggerbox
+					int32_t f1 = (id==wSBomb || id==wLitSBomb) ? 16 : 0; // Large SBomb triggerbox
 					
-					for(int tx=-f1; tx<=f1; tx+=8)  // -16,-8,0,8,16
+					for(int32_t tx=-f1; tx<=f1; tx+=8)  // -16,-8,0,8,16
 					{
-						int f2 = 0;
+						int32_t f2 = 0;
 						
 						if(tx==-8 || tx==8)
 							f2 = f1;
 							
-						for(int ty=-f2; ty<=f2; ty+=32)
+						for(int32_t ty=-f2; ty<=f2; ty+=32)
 						{
 							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
 							
@@ -5061,9 +5061,9 @@ bool weapon::animate(int index)
 							//grayscale entire screen
 							if(get_bit(quest_rules,qr_FADE))
 							{
-								for(int i=CSET(0); i < CSET(15); i++)
+								for(int32_t i=CSET(0); i < CSET(15); i++)
 								{
-									int g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
+									int32_t g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
 									g = (g >> 1) + 32;
 									RAMpal[i] = _RGB(g,g,g);
 								}
@@ -5073,7 +5073,7 @@ bool weapon::animate(int index)
 							{
 								// this is awkward. NES Z1 converts colors based on the global
 								// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-								for(int i=CSET(0); i < CSET(15); i++)
+								for(int32_t i=CSET(0); i < CSET(15); i++)
 								{
 									RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
 								}
@@ -5252,17 +5252,17 @@ bool weapon::animate(int index)
 			}
 			
 			
-			int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:1;
+			int32_t deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:1;
 			
 			/* This causes brang weapons with a level > 3 to hit OTHER flags. 
 			// e.g., a brang with a level of 5 would trigger mfBRANG through mfGARROW! -Z
-				for(int i=0; i<current_item(itype_brang); i++)
+				for(int32_t i=0; i<current_item(itype_brang); i++)
 				{
 					if(findentrance(x,y,mfBRANG+i,true)) dead=deadval;
 				}
 			*/
 			
-			int branglevel = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].fam_type;
+			int32_t branglevel = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].fam_type;
 			
 			switch ( branglevel )
 			{
@@ -5305,7 +5305,7 @@ bool weapon::animate(int index)
 			}
 			
 			++clk2;
-			int range = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].misc1;
+			int32_t range = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].misc1;
 			
 			if(range && clk2>=range)
 			{
@@ -5335,7 +5335,7 @@ bool weapon::animate(int index)
 			if(clk==0)                                            // delay a frame
 			{
 				++clk;
-				sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true);
+				sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int32_t(x)),true);
 				return false;
 			}
 			
@@ -5405,7 +5405,7 @@ bool weapon::animate(int index)
 				
 				seekLink();
 			}
-			sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true,false);
+			sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int32_t(x)),true,false);
 			
 			break;
 		}
@@ -5416,7 +5416,7 @@ bool weapon::animate(int index)
 			{
 				hookshot_used = false;
 				
-				for(int i=0; i<chainlinks.Count(); i++)
+				for(int32_t i=0; i<chainlinks.Count(); i++)
 				{
 					chainlinks.del(chainlinks.idFirst(wHSChain));
 				}
@@ -5437,7 +5437,7 @@ bool weapon::animate(int index)
 			//This sets the direction for digaonals based on controller input. 
 			if(clk==1 && allow_diagonal)    
 			{
-				//zprint2("(int)(Link.dir): %d\n", (int)(Link.dir));
+				//zprint2("(int32_t)(Link.dir): %d\n", (int32_t)(Link.dir));
 				//zprint2("clk is 1\n");
 				if(Up())
 				{
@@ -5450,7 +5450,7 @@ bool weapon::animate(int index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=0;
-						switch((int)(Link.dir))
+						switch((int32_t)(Link.dir))
 						{
 							case up:
 								yofs += 7;
@@ -5473,7 +5473,7 @@ bool weapon::animate(int index)
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=1;
 						
-						switch((int)(Link.dir))
+						switch((int32_t)(Link.dir))
 						{
 							case up:
 								yofs += 7;
@@ -5502,7 +5502,7 @@ bool weapon::animate(int index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=2;
-						switch((int)(Link.dir))
+						switch((int32_t)(Link.dir))
 						{
 							case down:
 								yofs -= 5;
@@ -5524,7 +5524,7 @@ bool weapon::animate(int index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=3;
-						switch((int)(Link.dir))
+						switch((int32_t)(Link.dir))
 						{
 							case down:
 								yofs -= 8;
@@ -5547,7 +5547,7 @@ bool weapon::animate(int index)
 		
 			if(misc==0)
 			{
-				int maxlength=parentitem>-1 ? 16*itemsbuf[parentitem].misc1 : 0;
+				int32_t maxlength=parentitem>-1 ? 16*itemsbuf[parentitem].misc1 : 0;
 				//If the hookshot has extended to maxlength, retract it.
 				//Needa an option to measure in pixels, instead of tiles. -Z
 				if((abs(LinkX()-x)>maxlength)||(abs(LinkY()-y)>maxlength))
@@ -5570,7 +5570,7 @@ bool weapon::animate(int index)
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
 						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
 						
-					if(!hooked && _walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7))
+					if(!hooked && _walkflag(x+2,y+7,1) && !ishookshottable((int32_t)x+2,(int32_t)y+7))
 					{
 						dead=1;
 					}
@@ -5586,7 +5586,7 @@ bool weapon::animate(int index)
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
 						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
 						
-					if(!hooked && _walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12))
+					if(!hooked && _walkflag(x+12,y+12,1) && !ishookshottable((int32_t)x+12,(int32_t)y+12))
 					{
 						dead=1;
 					}
@@ -5609,7 +5609,7 @@ bool weapon::animate(int index)
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
 						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]);
 						
-					if(!hooked && _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13))
+					if(!hooked && _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13))
 					{
 						dead=1;
 					}
@@ -5632,7 +5632,7 @@ bool weapon::animate(int index)
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
 						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]);
 						
-					if(!hooked && _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13))
+					if(!hooked && _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13))
 					{
 						dead=1;
 					}
@@ -5662,9 +5662,9 @@ bool weapon::animate(int index)
 					}
 					
 					//right
-					if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
+					if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13)) ) ||
 						//down
-						(_walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12)) ) )
+						(_walkflag(x+12,y+12,1) && !ishookshottable((int32_t)x+12,(int32_t)y+12)) ) )
 					{
 						dead=1;
 					}
@@ -5694,9 +5694,9 @@ bool weapon::animate(int index)
 						isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
 					}
 					//left
-					if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
+					if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13)) ) ||
 						//down
-						(_walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12)) ) )
+						(_walkflag(x+12,y+12,1) && !ishookshottable((int32_t)x+12,(int32_t)y+12)) ) )
 					{
 						dead=1;
 					}
@@ -5726,9 +5726,9 @@ bool weapon::animate(int index)
 						isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
 					}
 					//right
-					if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
+					if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13)) ) ||
 						//up
-						(_walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7)) ) )
+						(_walkflag(x+2,y+7,1) && !ishookshottable((int32_t)x+2,(int32_t)y+7)) ) )
 					{
 						dead=1;
 					}
@@ -5756,9 +5756,9 @@ bool weapon::animate(int index)
 						isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
 					}
 									//left
-					if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
+					if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13)) ) ||
 						//up
-						(_walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7)) ) )
+						(_walkflag(x+2,y+7,1) && !ishookshottable((int32_t)x+2,(int32_t)y+7)) ) )
 					{
 						dead=1;
 					}
@@ -5780,7 +5780,7 @@ bool weapon::animate(int index)
 				
 				if(parentitem>-1)
 				{
-					sfx(itemsbuf[parentitem].usesound,pan(int(x)),true);
+					sfx(itemsbuf[parentitem].usesound,pan(int32_t(x)),true);
 				}
 				if ( doscript )
 				{
@@ -5833,7 +5833,7 @@ bool weapon::animate(int index)
 			
 			if(parentitem>-1)
 			{
-				sfx(itemsbuf[parentitem].usesound,pan(int(x)),true,false);
+				sfx(itemsbuf[parentitem].usesound,pan(int32_t(x)),true,false);
 			}
 			
 			if(blocked())
@@ -5883,7 +5883,7 @@ bool weapon::animate(int index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=0;
-						switch((int)(Link.dir))
+						switch((int32_t)(Link.dir))
 						{
 							case up:
 								yofs += 7;
@@ -5906,7 +5906,7 @@ bool weapon::animate(int index)
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=1;
 						
-						switch((int)(Link.dir))
+						switch((int32_t)(Link.dir))
 						{
 							case up:
 								yofs += 5;
@@ -5936,7 +5936,7 @@ bool weapon::animate(int index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=2;
-						switch((int)(Link.dir))
+						switch((int32_t)(Link.dir))
 						{
 							case down:
 								yofs -= 8;
@@ -5958,7 +5958,7 @@ bool weapon::animate(int index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=3;
-						switch((int)(Link.dir))
+						switch((int32_t)(Link.dir))
 						{
 							case down:
 								yofs -= 8;
@@ -6004,7 +6004,7 @@ bool weapon::animate(int index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=0;
-						//switch((int)(Link.dir))
+						//switch((int32_t)(Link.dir))
 						//{
 						//	case up:
 						//		yofs += 7;
@@ -6027,7 +6027,7 @@ bool weapon::animate(int index)
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=1;
 						
-						//switch((int)(Link.dir))
+						//switch((int32_t)(Link.dir))
 						//{
 						//	case up:
 						//		yofs += 5;
@@ -6057,7 +6057,7 @@ bool weapon::animate(int index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=2;
-						//switch((int)(Link.dir))
+						//switch((int32_t)(Link.dir))
 						//{
 						//	case down:
 						//		yofs -= 8;
@@ -6079,7 +6079,7 @@ bool weapon::animate(int index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=3;
-						//switch((int)(Link.dir))
+						//switch((int32_t)(Link.dir))
 						//{
 						///	case down:
 						//		yofs -= 8;
@@ -6204,7 +6204,7 @@ bool weapon::animate(int index)
 					//change id
 					this->id = itemsbuf[linkedItem].useweapon;
 					//Step Speed
-					int tmpstep = (itemsbuf[linkedItem].misc3);
+					int32_t tmpstep = (itemsbuf[linkedItem].misc3);
 					//zprint2("initial step: %d\n", tmpstep);
 					this->step =  zslongToFix(tmpstep*100);
 					//zprint2("true step: %d\n", this->step);
@@ -6247,7 +6247,7 @@ bool weapon::animate(int index)
 			
 			
 			//mirrors: //the latter instance should suffice
-			int checkx=0, checky=0;
+			int32_t checkx=0, checky=0;
 			
 			switch(dir)
 			{
@@ -6272,7 +6272,7 @@ bool weapon::animate(int index)
 					break;
 			}
 			
-			if(ignorecombo!=(((int)checky&0xF0)+((int)checkx>>4)))
+			if(ignorecombo!=(((int32_t)checky&0xF0)+((int32_t)checkx>>4)))
 			{
 				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
 				{
@@ -6303,7 +6303,7 @@ bool weapon::animate(int index)
 					}
 					
 					w->ignoreLink=false;
-					w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
 				}
@@ -6351,7 +6351,7 @@ bool weapon::animate(int index)
 						}
 					}
 					w->ignoreLink=false;
-					w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
 				}
@@ -6402,18 +6402,18 @@ bool weapon::animate(int index)
 					}
 					
 					w->ignoreLink=false;
-					w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
 				}
 				
 				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM) && (id != wWind))
 				{
-					int newx, newy;
+					int32_t newx, newy;
 					newy=checky&0xF0;
 					newx=checkx&0xF0;
 					
-					for(int tdir=0; tdir<4; tdir++)
+					for(int32_t tdir=0; tdir<4; tdir++)
 					{
 						if(dir!=(tdir^1))
 						{
@@ -6433,7 +6433,7 @@ bool weapon::animate(int index)
 							w->flip = 0;
 							w->ignoreLink = false;
 							w->hyofs = w->hxofs = 0;
-							w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+							w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 							if ( do_animation ) 
 							{
 								//also set up the magic's correct animation -DD
@@ -6469,11 +6469,11 @@ bool weapon::animate(int index)
 				
 				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4) && (id != wWind))
 				{
-					int newx, newy;
+					int32_t newx, newy;
 					newy=checky&0xF0;
 					newx=checkx&0xF0;
 					
-					for(int tdir=0; tdir<4; tdir++)
+					for(int32_t tdir=0; tdir<4; tdir++)
 					{
 						weapon *w=new weapon(*this);
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
@@ -6491,7 +6491,7 @@ bool weapon::animate(int index)
 						w->flip = 0;
 						w->ignoreLink = false;
 						w->hyofs = w->hxofs = 0;
-						w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+						w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 						
 						if ( do_animation ) 
 						{
@@ -6572,7 +6572,7 @@ bool weapon::animate(int index)
 			
 			
 		mirrors:
-			int checkx=0, checky=0;
+			int32_t checkx=0, checky=0;
 			
 			switch(dir)
 			{
@@ -6597,7 +6597,7 @@ bool weapon::animate(int index)
 					break;
 			}
 			
-			if(ignorecombo!=(((int)checky&0xF0)+((int)checkx>>4)))
+			if(ignorecombo!=(((int32_t)checky&0xF0)+((int32_t)checkx>>4)))
 			{
 				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
 				{
@@ -6628,7 +6628,7 @@ bool weapon::animate(int index)
 					}
 					
 					w->ignoreLink=false;
-					w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
 				}
@@ -6676,7 +6676,7 @@ bool weapon::animate(int index)
 						}
 					}
 					w->ignoreLink=false;
-					w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
 				}
@@ -6727,18 +6727,18 @@ bool weapon::animate(int index)
 					}
 					
 					w->ignoreLink=false;
-					w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
 				}
 				
 				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM) && (id != wWind))
 				{
-					int newx, newy;
+					int32_t newx, newy;
 					newy=checky&0xF0;
 					newx=checkx&0xF0;
 					
-					for(int tdir=0; tdir<4; tdir++)
+					for(int32_t tdir=0; tdir<4; tdir++)
 					{
 						if(dir!=(tdir^1))
 						{
@@ -6758,7 +6758,7 @@ bool weapon::animate(int index)
 							w->flip = 0;
 							w->ignoreLink = false;
 							w->hyofs = w->hxofs = 0;
-							w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+							w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 							if ( do_animation ) 
 							{
 								//also set up the magic's correct animation -DD
@@ -6794,11 +6794,11 @@ bool weapon::animate(int index)
 				
 				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4) && (id != wWind))
 				{
-					int newx, newy;
+					int32_t newx, newy;
 					newy=checky&0xF0;
 					newx=checkx&0xF0;
 					
-					for(int tdir=0; tdir<4; tdir++)
+					for(int32_t tdir=0; tdir<4; tdir++)
 					{
 						weapon *w=new weapon(*this);
 						w->dir=tdir;
@@ -6816,7 +6816,7 @@ bool weapon::animate(int index)
 						w->flip = 0;
 						w->ignoreLink = false;
 						w->hyofs = w->hxofs = 0;
-						w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+						w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 						
 						if ( do_animation ) 
 						{
@@ -7029,7 +7029,7 @@ bool weapon::animate(int index)
 				if(get_bit(quest_rules,qr_MORESOUNDS))
 				{
 					//if (step!=0)
-					sfx(WAV_BRANG, pan(int(x)), true);
+					sfx(WAV_BRANG, pan(int32_t(x)), true);
 					//else
 					;//stop_sfx(WAV_BRANG);
 				}
@@ -7074,9 +7074,9 @@ bool weapon::animate(int index)
 						return true;
 						
 					//find parent
-					int index = -1;
+					int32_t index = -1;
 					
-					for(int i=0; i<guys.Count(); i++)
+					for(int32_t i=0; i<guys.Count(); i++)
 						if(guys.spr(i)->getUID()==parentid)
 						{
 							index = i;
@@ -7230,7 +7230,7 @@ void weapon::onhit(bool clipped)
     onhit(clipped, 0, -1);
 }
 
-void weapon::onhit(bool clipped, int special, int linkdir)
+void weapon::onhit(bool clipped, int32_t special, int32_t linkdir)
 {
     if((scriptcoldet&1) == 0 || fallclk || drownclk)
     {
@@ -7425,7 +7425,7 @@ offscreenCheck:
         if(misc==0)
         {
             clk2=256;
-            int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
+            int32_t deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
 	    if(clipped)
             {
                 dead=deadval;
@@ -7557,7 +7557,7 @@ bool weapon::hit(sprite *s)
     return (Dead()&&dead!=-10) ? false : sprite::hit(s);
 }
 
-bool weapon::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
+bool weapon::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
 {
     if(!(scriptcoldet&1) || fallclk || drownclk) return false;
     
@@ -7567,7 +7567,7 @@ bool weapon::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
     return (Dead()&&dead!=-10) ? false : sprite::hit(tx,ty,tz,txsz2,tysz2,tzsz2);
 }
 
-void weapon::update_weapon_frame(int change, int orig)
+void weapon::update_weapon_frame(int32_t change, int32_t orig)
 {
     if(extend > 2)
     {
@@ -7667,9 +7667,9 @@ void weapon::draw(BITMAP *dest)
         if(dead==-1) break;
         
         // draw the beam shards
-        int ofs=23-dead;
-        int f = frame&3;
-        int type2 = o_type;
+        int32_t ofs=23-dead;
+        int32_t f = frame&3;
+        int32_t type2 = o_type;
         //tile = o_tile+((frames?frames:1)*2);
         update_weapon_frame(((frames?frames:1)*2),o_tile);
         
@@ -7699,8 +7699,8 @@ void weapon::draw(BITMAP *dest)
         if(!misc || clk<misc-2) break;
         
         // draw the explosion
-        int id2=0;
-        int boomframes = 0;
+        int32_t id2=0;
+        int32_t boomframes = 0;
         
         switch(id)
         {
@@ -7744,7 +7744,7 @@ void weapon::draw(BITMAP *dest)
         if(boomframes != 0)
         {
             //equally divide up the explosion time among the frames
-            int perframe = (boomframes >= 34 ? 1 : (boomframes + 34)/boomframes);
+            int32_t perframe = (boomframes >= 34 ? 1 : (boomframes + 34)/boomframes);
             if ( do_animation ) 
 	    {
 		if(clk > misc)
@@ -7963,7 +7963,7 @@ void weapon::draw(BITMAP *dest)
     sprite::draw(dest);
 }
 
-void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &aclk, int &aframe, int parentid)
+void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type, int32_t dir, int32_t &aclk, int32_t &aframe, int32_t parentid)
 {
     weapon temp((zfix)x,(zfix)y,(zfix)0,weapon_id,type,0,dir,-1,parentid,true);
     temp.ignorecombo=((dir==up?y+8:y)&0xF0)+((dir==left?x+8:x)>>4); // Lens hints can sometimes create real weapons without this
@@ -7982,52 +7982,52 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
 
 void weapon::findcombotriggers()
 {
-	for(int dx = 0; dx < hxsz; dx += 16)
+	for(int32_t dx = 0; dx < hxsz; dx += 16)
 	{
-		for(int dy = 0; dy < hysz; dy += 16)
+		for(int32_t dy = 0; dy < hysz; dy += 16)
 		{
-			for (int ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+			for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
 			{
-				MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf, ly);
-				MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf, ly);
-				MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf, ly);
-				MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+dy+hyofs, combobuf, ly);
+				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, combobuf, ly);
+				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, combobuf, ly);
+				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, combobuf, ly);
+				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, combobuf, ly);
 			}
 		}
-		for (int ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+		for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
 		{
-			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf, ly);
-			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf, ly);
-			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf, ly);
-			MatchComboTrigger2(this, (int)x+dx+hxofs, (int)y+hyofs+(hysz-1), combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), combobuf, ly);
 		}
 		
 	}
-	for(int dy = 0; dy < hysz; dy += 16)
+	for(int32_t dy = 0; dy < hysz; dy += 16)
 	{
-		for (int ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+		for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
 		{
-			MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf, ly);
-			MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf, ly);
-			MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf, ly);
-			MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+dy+hyofs, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, combobuf, ly);
 		}
 		
 	}
-	for (int ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+	for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
 	{
-		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf, ly);
-		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf, ly);
-		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf, ly);
-		MatchComboTrigger2(this, (int)x+hxofs+(hxsz-1), (int)y+hyofs+(hysz-1), combobuf, ly);
+		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), combobuf, ly);
+		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), combobuf, ly);
+		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), combobuf, ly);
+		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), combobuf, ly);
 	}
 }
 
-int weapon::run_script(int mode)
+int32_t weapon::run_script(int32_t mode)
 {
 	if (weaponscript <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
 		return RUNSCRIPT_OK;
-	int ret = RUNSCRIPT_OK;
+	int32_t ret = RUNSCRIPT_OK;
 	alloc_scriptmem();
 	switch(mode)
 	{
@@ -8045,11 +8045,11 @@ int weapon::run_script(int mode)
 }
 
 //Dummy weapon for visual effects.
-weapon::weapon(zfix X,zfix Y,zfix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width, int a, int b, int c, int d, int e, int f, int g) : sprite(), parentid(prntid)
+weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, int32_t step, int32_t prntid, int32_t height, int32_t width, int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, int32_t f, int32_t g) : sprite(), parentid(prntid)
 {
-	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "X", (int)X);
-	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Y", (int)Y);
-	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Z", (int)Z);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "X", (int32_t)X);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Y", (int32_t)Y);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Z", (int32_t)Z);
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Id", Id);
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "usesprite", usesprite);
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Dir", Dir);

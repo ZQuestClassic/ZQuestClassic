@@ -29,19 +29,19 @@
 
 extern FONT* create_font();
 
-typedef unsigned char   byte;                               //0-255         ( 8 bits)
-typedef unsigned short  word;                               //0-65535       (16 bits)
-typedef unsigned long   dword;                              //0-4294967295  (32 bits)
+typedef uint8_t   byte;                               //0-255         ( 8 bits)
+typedef uint16_t  word;                               //0-65535       (16 bits)
+typedef uint32_t   dword;                              //0-4294967295  (32 bits)
 
 extern byte *tilebuf;
 
 // in tiles.cc
 byte unpackbuf[256];
 
-void unpack_tile(int tile)
+void unpack_tile(int32_t tile)
 {
     byte *si = tilebuf+((tile+1)<<7);
-    int di;
+    int32_t di;
     
     for(di=254; di>=0; di-=2)
     {
@@ -51,13 +51,13 @@ void unpack_tile(int tile)
     }
 }
 
-static int convert_8x8_tiles_to_mono_font(FONT_GLYPH** gl, int start, int num)
+static int32_t convert_8x8_tiles_to_mono_font(FONT_GLYPH** gl, int32_t start, int32_t num)
 {
-    int w = 8, h = 8, i;
+    int32_t w = 8, h = 8, i;
     
     for(i = 0; i < 32; i++)
     {
-        int sx = ((w + 7) / 8), j;
+        int32_t sx = ((w + 7) / 8), j;
         gl[i] = _al_malloc(sizeof(FONT_GLYPH) + sx * h);
         gl[i]->w = w;
         gl[i]->h = h;
@@ -67,9 +67,9 @@ static int convert_8x8_tiles_to_mono_font(FONT_GLYPH** gl, int start, int num)
     
     for(i = 32; i < num+32; i++)
     {
-        int tile=(((i-32)/16)*20)+((i-32)%16);
+        int32_t tile=(((i-32)/16)*20)+((i-32)%16);
         
-        int sx = ((w + 7) / 8), j, k;
+        int32_t sx = ((w + 7) / 8), j, k;
         
         unpack_tile(start+tile);
         gl[i] = _al_malloc(sizeof(FONT_GLYPH) + sx * h);
@@ -93,13 +93,13 @@ static int convert_8x8_tiles_to_mono_font(FONT_GLYPH** gl, int start, int num)
     return 0;
 }
 
-static int convert_16x16_tiles_to_mono_font(FONT_GLYPH** gl, int start, int num)
+static int32_t convert_16x16_tiles_to_mono_font(FONT_GLYPH** gl, int32_t start, int32_t num)
 {
-    int w = 8, h = 8, i;
+    int32_t w = 8, h = 8, i;
     
     for(i = 0; i < 32; i++)
     {
-        int sx = ((w + 7) / 8), j;
+        int32_t sx = ((w + 7) / 8), j;
         gl[i] = _al_malloc(sizeof(FONT_GLYPH) + sx * h);
         gl[i]->w = w;
         gl[i]->h = h;
@@ -109,9 +109,9 @@ static int convert_16x16_tiles_to_mono_font(FONT_GLYPH** gl, int start, int num)
     
     for(i = 32; i < num+32; i++)
     {
-        int tile=(((i-32)/16)*20)+((i-32)%16);
+        int32_t tile=(((i-32)/16)*20)+((i-32)%16);
         
-        int sx = ((w + 7) / 8), j, k;
+        int32_t sx = ((w + 7) / 8), j, k;
         
         unpack_tile(start+tile);
         gl[i] = _al_malloc(sizeof(FONT_GLYPH) + sx * h);

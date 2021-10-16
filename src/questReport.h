@@ -7,19 +7,19 @@ struct mapscr;
 
 void enlargeIntegrityReportDialog();
 
-void showQuestReport(int bg,int fg);
+void showQuestReport(int32_t bg,int32_t fg);
 
-int onIntegrityCheckRooms();
-int onIntegrityCheckWarps();
-int onIntegrityCheckAll();
-int onItemLocationReport();
-int onEnemyLocationReport();
-int onScriptLocationReport();
-int onComboLocationReport();
-int onComboTypeLocationReport();
-int onBuggedNextComboLocationReport();
+int32_t onIntegrityCheckRooms();
+int32_t onIntegrityCheckWarps();
+int32_t onIntegrityCheckAll();
+int32_t onItemLocationReport();
+int32_t onEnemyLocationReport();
+int32_t onScriptLocationReport();
+int32_t onComboLocationReport();
+int32_t onComboTypeLocationReport();
+int32_t onBuggedNextComboLocationReport();
 void BuggedNextComboLocationReport();
-int onWhatWarpsReport();
+int32_t onWhatWarpsReport();
 
 //Integrity booleans
 bool integrityBoolSpecialItem(mapscr* ts);
@@ -30,7 +30,7 @@ bool integrityBoolGuyNoString(mapscr* ts);
 bool integrityBoolRoomNoGuy(mapscr* ts);
 bool integrityBoolRoomNoString(mapscr* ts);
 bool integrityBoolRoomNoGuyNoString(mapscr* ts);
-bool integrityBoolSaveCombo(mapscr* ts, int ctype);
-bool integrityBoolUnderCombo(mapscr* ts, int ctype);
+bool integrityBoolSaveCombo(mapscr* ts, int32_t ctype);
+bool integrityBoolUnderCombo(mapscr* ts, int32_t ctype);
 
 #endif

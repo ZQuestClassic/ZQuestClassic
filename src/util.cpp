@@ -9,13 +9,13 @@ namespace util
 {
 	void upperstr(string& str)
 	{
-		for(int q = str.size() - 1; q >= 0; --q)
+		for(int32_t q = str.size() - 1; q >= 0; --q)
 			str[q] = toupper(str[q]);
 	}
 
 	void lowerstr(string& str)
 	{
-		for(int q = str.size() - 1; q >= 0; --q)
+		for(int32_t q = str.size() - 1; q >= 0; --q)
 			str[q] = tolower(str[q]);
 	}
 	
@@ -30,7 +30,7 @@ namespace util
 	
 	void replchar(std::string& str, char from, char to)
 	{
-		for(int q = str.size() - 1; q >= 0; --q)
+		for(int32_t q = str.size() - 1; q >= 0; --q)
 		{
 			if(str.at(q)==from)
 				str[q] = to;
@@ -39,7 +39,7 @@ namespace util
 	
 	void replchar(char* buf, char from, char to)
 	{
-		for(int i = 0; buf[i]!=0; ++i)
+		for(int32_t i = 0; buf[i]!=0; ++i)
 		{
 			if(buf[i]==from)
 				buf[i] = to;
@@ -104,7 +104,7 @@ namespace util
 	
 	void regulate_path(char* buf)
 	{
-		for(int q = 0; buf[q]; ++q)
+		for(int32_t q = 0; buf[q]; ++q)
 		{
 			if (buf[q] == WRONG_PATH_SLASH) buf[q] = PATH_SLASH;
 		}
@@ -112,7 +112,7 @@ namespace util
 	
 	void regulate_path(string& buf)
 	{
-		for(int q = 0; buf[q]; ++q)
+		for(int32_t q = 0; buf[q]; ++q)
 		{
 #ifdef _WIN32
 			if (buf[q] == '/') buf[q] = '\\';
@@ -122,7 +122,7 @@ namespace util
 		}
 	}
 	
-	int do_mkdir(const char* path, int mode)
+	int32_t do_mkdir(const char* path, int32_t mode)
 	{
 #ifdef _WIN32
 		return _mkdir(path);
@@ -135,8 +135,8 @@ namespace util
 	{
 		while((path[0] == '/' || path[0] == '\\') && path[0]) ++path; //trim leading slashes
 		char buf[2048] = {0};
-		int q = 0;
-		int last_slash = -1;
+		int32_t q = 0;
+		int32_t last_slash = -1;
 		for(; path[q] && q < 2048; ++q)
 		{
 			buf[q] = path[q];
@@ -164,7 +164,7 @@ namespace util
 		return q < 2048;
 	}
 	
-	char* zc_itoa(int value, char* str, int base)
+	char* zc_itoa(int32_t value, char* str, int32_t base)
 	{
 #ifdef _WIN32
 		return _itoa(value, str, base);
@@ -172,8 +172,8 @@ namespace util
 		static char dig[] =
 			"0123456789"
 			"abcdefghijklmnopqrstuvwxyz";
-		int n = 0, neg = 0;
-		unsigned int v;
+		int32_t n = 0, neg = 0;
+		uint32_t v;
 		char* p, *q;
 		char c;
 		if (base == 10 && value < 0) 
@@ -200,9 +200,9 @@ namespace util
 #endif
 	}
 	
-	long long zc_atoi64(const char *str)
+	int64_t zc_atoi64(const char *str)
 	{
-		long long val=0;
+		int64_t val=0;
 		bool neg = false;
 		if(*str == '-')
 		{
@@ -220,9 +220,9 @@ namespace util
 		
 		return neg ? -val : val;
 	}
-	long long zc_xtoi64(const char *hexstr)
+	int64_t zc_xtoi64(const char *hexstr)
 	{
-		long long val=0;
+		int64_t val=0;
 		bool neg = false;
 		if(*hexstr == '-')
 		{
@@ -243,9 +243,9 @@ namespace util
 		return neg ? -val : val;
 	}
 	
-	int zc_xtoi(const char *hexstr)
+	int32_t zc_xtoi(const char *hexstr)
 	{
-		int val=0;
+		int32_t val=0;
 		bool neg = false;
 		if(*hexstr == '-')
 		{
@@ -266,7 +266,7 @@ namespace util
 		return neg ? -val : val;
 	}
 	
-	long ffparse2(const char *string) //bounds result safely between -214748.3648 and +214748.3647
+	int32_t ffparse2(const char *string) //bounds result safely between -214748.3648 and +214748.3647
 	{
 		char tempstring1[32] = {0};
 		sprintf(tempstring1, string);
@@ -277,9 +277,9 @@ namespace util
 			return vbound(atoi(tempstring1),-214748,214748)*10000;
 		}
 		
-		long ret=0;
+		int32_t ret=0;
 		
-		for(int i=0; i<4; ++i)
+		for(int32_t i=0; i<4; ++i)
 		{
 			tempstring1[strlen(string)+i]='0';
 		}
@@ -293,7 +293,7 @@ namespace util
 		ptr2+=4;
 		*ptr2=0;
 		
-		int decval = atoi(ptr);
+		int32_t decval = atoi(ptr);
 		if(ret<0)
 		{
 			if(ret == -2147480000)
@@ -309,7 +309,7 @@ namespace util
 		
 		return ret;
 	}
-	long ffparseX(const char *string) //hex before '.', bounds result safely between -214748.3648 and +214748.3647
+	int32_t ffparseX(const char *string) //hex before '.', bounds result safely between -214748.3648 and +214748.3647
 	{
 		char tempstring1[32] = {0};
 		sprintf(tempstring1, string);
@@ -320,11 +320,11 @@ namespace util
 			return vbound(zc_xtoi(tempstring1),-214748,214748)*10000;
 		}
 		
-		long ret=0;
+		int32_t ret=0;
 
 		sprintf(tempstring1, string);
 		
-		for(int i=0; i<4; ++i)
+		for(int32_t i=0; i<4; ++i)
 		{
 			tempstring1[strlen(string)+i]='0';
 		}
@@ -338,7 +338,7 @@ namespace util
 		ptr2+=4;
 		*ptr2=0;
 		
-		int decval = atoi(ptr);
+		int32_t decval = atoi(ptr);
 		if(ret<0)
 		{
 			if(ret == -2147480000)
@@ -355,7 +355,7 @@ namespace util
 		return ret;
 	}
 	
-	int zc_chmod(const char* path, mode_t mode)
+	int32_t zc_chmod(const char* path, mode_t mode)
 	{
 #ifdef _WIN32
 		return _chmod(path,mode);
@@ -402,7 +402,7 @@ namespace util
 	}
 }
 
-int vbound(int val, int low, int high)
+int32_t vbound(int32_t val, int32_t low, int32_t high)
 {
 	ASSERT(low <= high);
 	if(val <= low)

@@ -29,7 +29,7 @@ extern FONT *deffont, *mfont;
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 //#endif
 
-typedef unsigned char byte;
+typedef uint8_t byte;
 
 typedef struct zcMatrixTRACER
 {
@@ -40,7 +40,7 @@ typedef struct zcMatrixTRACER
 
 typedef struct zcMatrixCOLUMN
 {
-    short speed, cnt;
+    int16_t speed, cnt;
 } zcMatrixCOLUMN;
 
 static BITMAP *linebmp = NULL;
@@ -48,21 +48,21 @@ static zcMatrixTRACER tracer[MAX_TRACERS];
 static zcMatrixTRACER eraser[MAX_TRACERS];
 static zcMatrixCOLUMN column[MAX_COLS];
 static byte   activecol[MAX_COLS];
-static int cols, rows, maxtracers, _speed, _density;
+static int32_t cols, rows, maxtracers, _speed, _density;
 
 static void InitMatrix();
 static void AddTracer();
-static void AddEraser(int col);
+static void AddEraser(int32_t col);
 static void UpdateTracers();
 static void UpdateErasers();
 static void UpdateColumns();
-static void DrawLetter(int x, int y, int color);
-static void DrawEraser(int x, int y, int type);
+static void DrawLetter(int32_t x, int32_t y, int32_t color);
+static void DrawEraser(int32_t x, int32_t y, int32_t type);
 
 extern void throttleFPS();
 
 
-void Matrix(int speed, int density, int mousedelay)
+void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
 {
     // speed 0-6, density 0-6
     _density = zc_max(zc_min(density, 6), 0);
@@ -83,7 +83,7 @@ void Matrix(int speed, int density, int mousedelay)
         
         poll_joystick();
         
-        int idle;
+        int32_t idle;
         
         if(mousedelay > 0)
         {
@@ -126,13 +126,13 @@ static void InitMatrix()
     
     maxtracers = ((_density + 2) * cols) / 4;
     
-    for(int i=0; i<maxtracers; i++)
+    for(int32_t i=0; i<maxtracers; i++)
     {
         tracer[i].speed = 0;
         eraser[i].speed = 0;
     }
     
-    for(int i=0; i<cols; i++)
+    for(int32_t i=0; i<cols; i++)
     {
         column[i].speed = ((zc_oldrand() % (_speed + 8)) * (7 - _speed)) + (7 - _speed) * 6;
         column[i].cnt = 0;
@@ -144,13 +144,13 @@ static void InitMatrix()
 
 static void AddTracer()
 {
-    static int delay = 0;
+    static int32_t delay = 0;
     
     if(--delay <= 0)
     {
         delay = zc_oldrand() % (32 - _density*3 - _speed*2);
         
-        for(int i=0; i<maxtracers; i++)
+        for(int32_t i=0; i<maxtracers; i++)
         {
             if(tracer[i].speed == 0)
             {
@@ -166,9 +166,9 @@ static void AddTracer()
     }
 }
 
-static void AddEraser(int col = -1)
+static void AddEraser(int32_t col = -1)
 {
-    for(int i=0; i<maxtracers; i++)
+    for(int32_t i=0; i<maxtracers; i++)
     {
         if(eraser[i].speed == 0 && (col>=0 || (tracer[i].speed
                                                && tracer[i].y > 5 + (_density - _speed)/2
@@ -187,7 +187,7 @@ static void AddEraser(int col = -1)
 
 static void UpdateTracers()
 {
-    for(int i=0; i<maxtracers; i++)
+    for(int32_t i=0; i<maxtracers; i++)
     {
         if(tracer[i].speed)
         {
@@ -209,7 +209,7 @@ static void UpdateTracers()
 
 static void UpdateErasers()
 {
-    for(int i=0; i<maxtracers; i++)
+    for(int32_t i=0; i<maxtracers; i++)
     {
         if(eraser[i].speed)
         {
@@ -229,10 +229,10 @@ static void UpdateErasers()
     }
 }
 
-static void DrawLetter(int x, int y, int color)
+static void DrawLetter(int32_t x, int32_t y, int32_t color)
 {
-    int r = zc_oldrand();
-    int letter = r & 255;
+    int32_t r = zc_oldrand();
+    int32_t letter = r & 255;
     
     if(letter < 32)
         letter += (r>>10) % 224;
@@ -242,7 +242,7 @@ static void DrawLetter(int x, int y, int color)
     textprintf_ex(screen, fnt, x<<3, y<<3, color, BLACK, "%c", letter);
 }
 
-static void DrawEraser(int x, int y, int type)
+static void DrawEraser(int32_t x, int32_t y, int32_t type)
 {
     x <<= 3;
     y <<= 3;
@@ -253,10 +253,10 @@ static void DrawEraser(int x, int y, int type)
     }
     else
     {
-        for(int i=0; i<8; i++)
-            for(int j=0; j<8; j++)
+        for(int32_t i=0; i<8; i++)
+            for(int32_t j=0; j<8; j++)
             {
-                int pix = getpixel(screen, x+i, y+j);
+                int32_t pix = getpixel(screen, x+i, y+j);
                 
                 if(pix == LIGHT_GREEN || pix == MED_GREEN)
                     putpixel(screen, x+i, y+j, DARK_GREEN);
@@ -266,13 +266,13 @@ static void DrawEraser(int x, int y, int type)
 
 static void UpdateColumns()
 {
-    for(int i=0; i<cols; i++)
+    for(int32_t i=0; i<cols; i++)
     {
         if(++column[i].cnt >= column[i].speed)
         {
             column[i].cnt = 0;
             
-            for(int j=0; j<maxtracers; j++)
+            for(int32_t j=0; j<maxtracers; j++)
             {
                 if(tracer[j].x == i)
                 {

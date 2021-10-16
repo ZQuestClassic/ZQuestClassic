@@ -45,12 +45,12 @@
 extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
-extern unsigned char __isZQuest;
+extern uint8_t __isZQuest;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern particle_list particles;
 //FFSCript   FFEngine;
 
-int temp_ffscript_version = 0;
+int32_t temp_ffscript_version = 0;
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
@@ -65,7 +65,7 @@ using std::string;
 using std::pair;
 
 // extern bool                debug;
-extern int                 link_animation_speed; //lower is faster animation
+extern int32_t                 link_animation_speed; //lower is faster animation
 extern std::vector<mapscr> TheMaps;
 extern zcmap               *ZCMaps;
 extern MsgStr              *MsgStrings;
@@ -83,21 +83,21 @@ extern guydata             *guysbuf;
 extern ZCHEATS             zcheats;
 extern zinitdata           zinit;
 extern char                palnames[MAXLEVELS][17];
-extern int                 memrequested;
-extern char                *byte_conversion(int number, int format);
-extern char                *byte_conversion2(int number1, int number2, int format1, int format2);
+extern int32_t                 memrequested;
+extern char                *byte_conversion(int32_t number, int32_t format);
+extern char                *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2);
 string				             zScript;
-std::map<int, script_slot_data > ffcmap;
-std::map<int, script_slot_data > globalmap;
-std::map<int, script_slot_data > itemmap;
-std::map<int, script_slot_data > npcmap;
-std::map<int, script_slot_data > ewpnmap;
-std::map<int, script_slot_data > lwpnmap;
-std::map<int, script_slot_data > linkmap;
-std::map<int, script_slot_data > dmapmap;
-std::map<int, script_slot_data > screenmap;
-std::map<int, script_slot_data > itemspritemap;
-std::map<int, script_slot_data > comboscriptmap;
+std::map<int32_t, script_slot_data > ffcmap;
+std::map<int32_t, script_slot_data > globalmap;
+std::map<int32_t, script_slot_data > itemmap;
+std::map<int32_t, script_slot_data > npcmap;
+std::map<int32_t, script_slot_data > ewpnmap;
+std::map<int32_t, script_slot_data > lwpnmap;
+std::map<int32_t, script_slot_data > linkmap;
+std::map<int32_t, script_slot_data > dmapmap;
+std::map<int32_t, script_slot_data > screenmap;
+std::map<int32_t, script_slot_data > itemspritemap;
+std::map<int32_t, script_slot_data > comboscriptmap;
 void free_newtilebuf();
 bool combosread=false;
 bool mapsread=false;
@@ -111,7 +111,7 @@ const std::string script_slot_data::ZASM_FORMAT = "%s ==%s";
 
 char qstdat_string[2048] = { 0 };
 
-int memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
+int32_t memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
 const byte clavio[9]={97,109,111,110,103,117,115,0};
 
 //enum { qe_OK, qe_notfound, qe_invalid, qe_version, qe_obsolete,
@@ -141,7 +141,7 @@ static byte deprecated_rules[QUESTRULES_NEW_SIZE];
 
 void delete_combo_aliases()
 {
-    for(int j(0); j<256; j++)
+    for(int32_t j(0); j<256; j++)
     {
         if(combo_aliases[j].combos != NULL)
         {
@@ -159,14 +159,14 @@ void delete_combo_aliases()
 }
 
 
-char *VerStr(int version)
+char *VerStr(int32_t version)
 {
     static char ver_str[12];
     sprintf(ver_str,"v%d.%02X",version>>8,version&0xFF);
     return ver_str;
 }
 
-char *byte_conversion(int number, int format)
+char *byte_conversion(int32_t number, int32_t format)
 {
     static char num_str[40];
     
@@ -216,7 +216,7 @@ char *byte_conversion(int number, int format)
     return num_str;
 }
 
-char *byte_conversion2(int number1, int number2, int format1, int format2)
+char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2)
 {
     static char num_str1[40];
     static char num_str2[40];
@@ -312,14 +312,14 @@ char *byte_conversion2(int number1, int number2, int format1, int format2)
     return num_str;
 }
 
-char *ordinal(int num)
+char *ordinal(int32_t num)
 {
     static const char *ending[4] = {"st","nd","rd","th"};
     static char ord_str[8];
     
     char *end;
-    int t=(num%100)/10;
-    int n=num%10;
+    int32_t t=(num%100)/10;
+    int32_t n=num%10;
     
     if(n>=1 && n<4 && t!=1)
         end = (char *)ending[n-1];
@@ -330,9 +330,9 @@ char *ordinal(int num)
     return ord_str;
 }
 
-int get_version_and_build(PACKFILE *f, word *version, word *build)
+int32_t get_version_and_build(PACKFILE *f, word *version, word *build)
 {
-    int ret;
+    int32_t ret;
     *version=0;
     *build=0;
     byte temp_map_count=map_count;
@@ -361,7 +361,7 @@ int get_version_and_build(PACKFILE *f, word *version, word *build)
 }
 
 
-bool find_section(PACKFILE *f, long section_id_requested)
+bool find_section(PACKFILE *f, int32_t section_id_requested)
 {
 
     if(!f)
@@ -369,7 +369,7 @@ bool find_section(PACKFILE *f, long section_id_requested)
         return false;
     }
     
-    long section_id_read;
+    int32_t section_id_read;
     bool catchup=false;
     word dummy;
     byte tempbyte;
@@ -518,7 +518,7 @@ bool valid_zqt(PACKFILE *f)
     //for now, everything else is valid
     return true;
     
-    /*short version;
+    /*int16_t version;
     byte build;
     
     //read the version and make sure it worked
@@ -537,7 +537,7 @@ bool valid_zqt(PACKFILE *f)
       goto error;
     }
     
-    for (int i=0; i<tiles_used; i++)
+    for (int32_t i=0; i<tiles_used; i++)
     {
       if(!pfread(trashbuf,tilesize(tf4Bit),f,true))
       {
@@ -550,7 +550,7 @@ bool valid_zqt(PACKFILE *f)
     {
       goto error;
     }
-    for (int i=0; i<combos_used; i++)
+    for (int32_t i=0; i<combos_used; i++)
     {
       if(!pfread(trashbuf,sizeof(newcombo),f,true))
       {
@@ -559,7 +559,7 @@ bool valid_zqt(PACKFILE *f)
     }
     
     //read the palette info and make sure it worked
-    for (int i=0; i<48; i++)
+    for (int32_t i=0; i<48; i++)
     {
       if(!pfread(trashbuf,newpdTOTAL,f,true))
       {
@@ -570,7 +570,7 @@ bool valid_zqt(PACKFILE *f)
     {
       goto error;
     }
-    for (int i=0; i<MAXLEVELS; i++)
+    for (int32_t i=0; i<MAXLEVELS; i++)
     {
       if(!pfread(trashbuf,PALNAMESIZE,f,true))
       {
@@ -579,7 +579,7 @@ bool valid_zqt(PACKFILE *f)
     }
     
     //read the sprite info and make sure it worked
-    for (int i=0; i<MAXITEMS; i++)
+    for (int32_t i=0; i<MAXITEMS; i++)
     {
       if(!pfread(trashbuf,sizeof(itemdata),f,true))
       {
@@ -587,7 +587,7 @@ bool valid_zqt(PACKFILE *f)
       }
     }
     
-    for (int i=0; i<MAXWPNS; i++)
+    for (int32_t i=0; i<MAXWPNS; i++)
     {
       if(!pfread(trashbuf,sizeof(wpndata),f,true))
       {
@@ -596,7 +596,7 @@ bool valid_zqt(PACKFILE *f)
     }
     
     //read the triforce pieces info and make sure it worked
-    for (int i=0; i<8; ++i)
+    for (int32_t i=0; i<8; ++i)
     {
       if(!p_getc(&trashbuf,f,true))
       {
@@ -607,7 +607,7 @@ bool valid_zqt(PACKFILE *f)
     
     
     //read the game icons info and make sure it worked
-    for (int i=0; i<4; ++i)
+    for (int32_t i=0; i<4; ++i)
     {
       if(!p_igetw(&trashbuf,f,true))
       {
@@ -627,7 +627,7 @@ bool valid_zqt(PACKFILE *f)
     {
       goto error;
     }
-    for (int i=0; i<TEMPLATES; i++)
+    for (int32_t i=0; i<TEMPLATES; i++)
     {
       if(!pfread(trashbuf,sizeof(mapscr),f,true))
       {
@@ -636,7 +636,7 @@ bool valid_zqt(PACKFILE *f)
     }
     if (num_maps>1)                                           //dungeon templates
     {
-      for (int i=0; i<TEMPLATES; i++)
+      for (int32_t i=0; i<TEMPLATES; i++)
       {
         if(!pfread(trashbuf,sizeof(mapscr),f,true))
         {
@@ -660,7 +660,7 @@ bool valid_zqt(const char *filename)
     bool isvalid;
     char deletefilename[1024];
     deletefilename[0]=0;
-    int error;
+    int32_t error;
     f=open_quest_file(&error, filename, deletefilename, true, true,false);
     
     if(!f)
@@ -681,21 +681,21 @@ bool valid_zqt(const char *filename)
 }
 
 
-PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefilename, bool compressed,bool encrypted, bool show_progress)
+PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *deletefilename, bool compressed,bool encrypted, bool show_progress)
 {
 	char tmpfilename[64]; 	// This WAS [32]. I had to increase its size to prevent crashes 
 				// when changing qst.dat to a longer filename in the module file! -Z
 		
 	temp_name(tmpfilename);
 	char percent_done[30];
-	int current_method=0;
+	int32_t current_method=0;
     
 	PACKFILE *f;
 	const char *passwd= encrypted ? datapwd : "";
     
 	// oldquest flag is set when an unencrypted qst file is suspected.
 	bool oldquest = false;
-	int ret;
+	int32_t ret;
     
 	if(show_progress)
 	{
@@ -704,15 +704,15 @@ PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefil
     
 	box_out("Loading Quest: ");
 	//if(strncasecmp(filename, "qst.dat", 7)!=0)
-	//int qstdat_str_size = 0;
-	//for ( int q = 0; q < 255; q++ ) //find the length of the string
+	//int32_t qstdat_str_size = 0;
+	//for ( int32_t q = 0; q < 255; q++ ) //find the length of the string
 	//{
 	//	if ( moduledata.datafiles[qst_dat][q] != 0 ) qstdat_str_size++;
 	//	else break;
 	//}
 	//if(strncasecmp(filename, moduledata.datafiles[qst_dat], 7)!=0)
 	al_trace("Trying to do strncasecmp() when loading a quest\n");
-	int qstdat_filename_size = strlen(moduledata.datafiles[qst_dat]);
+	int32_t qstdat_filename_size = strlen(moduledata.datafiles[qst_dat]);
 	al_trace("Filename size of qst.dat file %s is %d.\n", moduledata.datafiles[qst_dat], qstdat_filename_size);
 	//if(strncasecmp(filename, moduledata.datafiles[qst_dat], qstdat_filename_size)!=0)
 	if(strcmp(filename, moduledata.datafiles[qst_dat])!=0)
@@ -845,7 +845,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
 {
     char *filename;
     PACKFILE *f=NULL;
-    int open_error=0;
+    int32_t open_error=0;
     deletefilename[0]=0;
     
 	sprintf(qstdat_string,moduledata.datafiles[qst_dat]);
@@ -893,7 +893,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     return f;
 }
 
-bool init_section(zquestheader *Header, long section_id, miscQdata *Misc, zctune *tunes, bool validate)
+bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zctune *tunes, bool validate)
 {
     combosread=false;
     mapsread=false;
@@ -927,7 +927,7 @@ bool init_section(zquestheader *Header, long section_id, miscQdata *Misc, zctune
         break;
     }
     
-    int ret;
+    int32_t ret;
     word version, build;
     PACKFILE *f=NULL;
     
@@ -1076,7 +1076,7 @@ bool init_section(zquestheader *Header, long section_id, miscQdata *Misc, zctune
     case ID_ITEMDROPSETS:
         //item drop sets
         // Why is this one commented out?
-        //ret=readitemdropsets(f, (int)version, (word)build, true);
+        //ret=readitemdropsets(f, (int32_t)version, (word)build, true);
         break;
         
     case ID_FAVORITES:
@@ -1153,12 +1153,12 @@ bool reset_items(bool validate, zquestheader *Header)
     //Ignore this, but don't remove it
     /*
     if (ret)
-      for(int i=0; i<MAXITEMS; i++)
+      for(int32_t i=0; i<MAXITEMS; i++)
       {
         reset_itembuf(&itemsbuf[i], i);
       }
     */
-    for(int i=0; i<MAXITEMS; i++) reset_itemname(i);
+    for(int32_t i=0; i<MAXITEMS; i++) reset_itemname(i);
     
     return ret;
 }
@@ -1174,7 +1174,7 @@ bool reset_wpns(bool validate, zquestheader *Header)
 {
     bool ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate);
     
-    for(int i=0; i<WPNCNT; i++)
+    for(int32_t i=0; i<WPNCNT; i++)
         reset_weaponname(i);
         
     return ret;
@@ -1202,13 +1202,13 @@ bool reset_doorcombosets(bool validate, zquestheader *Header)
     return init_section(Header, ID_DOORS, NULL, NULL, validate);
 }
 
-int get_qst_buffers()
+int32_t get_qst_buffers()
 {
     memrequested+=(sizeof(mapscr)*MAPSCRS);
     Z_message("Allocating map buffer (%s)... ", byte_conversion2(sizeof(mapscr)*MAPSCRS,memrequested,-1, -1));
     TheMaps.resize(MAPSCRS);
     
-    for(int i(0); i<MAPSCRS; i++)
+    for(int32_t i(0); i<MAPSCRS; i++)
         TheMaps[i].zero_memory();
         
     //memset(TheMaps, 0, sizeof(mapscr)*MAPSCRS); //shouldn't need this anymore
@@ -1355,7 +1355,7 @@ void free_newtilebuf()
 {
     if(newtilebuf)
     {
-        for(int i=0; i<NEWMAXTILES; i++)
+        for(int32_t i=0; i<NEWMAXTILES; i++)
             if(newtilebuf[i].data)
                 zc_free(newtilebuf[i].data);
                 
@@ -1370,7 +1370,7 @@ void free_grabtilebuf()
     {
         if(grabtilebuf)
         {
-            for(int i=0; i<NEWMAXTILES; i++)
+            for(int32_t i=0; i<NEWMAXTILES; i++)
                 if(grabtilebuf[i].data) zc_free(grabtilebuf[i].data);
                 
             zc_free(grabtilebuf);
@@ -1422,7 +1422,7 @@ bool init_palnames()
     if(palnames==NULL)
         return false;
         
-    for(int x=0; x<MAXLEVELS; x++)
+    for(int32_t x=0; x<MAXLEVELS; x++)
     {
         switch(x)
         {
@@ -1447,7 +1447,7 @@ bool init_palnames()
     return true;
 }
 
-static void *read_block(PACKFILE *f, int size, int alloc_size, bool keepdata)
+static void *read_block(PACKFILE *f, int32_t size, int32_t alloc_size, bool keepdata)
 {
     void *p;
     
@@ -1481,9 +1481,9 @@ static void *read_block(PACKFILE *f, int size, int alloc_size, bool keepdata)
 static MIDI *read_midi(PACKFILE *f, bool)
 {
     MIDI *m;
-    int c;
-    short divisions=0;
-    long len=0;
+    int32_t c;
+    int16_t divisions=0;
+    int32_t len=0;
     
     m = (MIDI*)_AL_MALLOC(sizeof(MIDI));
     
@@ -1531,22 +1531,22 @@ static MIDI *read_midi(PACKFILE *f, bool)
     return m;
 }
 
-void clear_combo(int i)
+void clear_combo(int32_t i)
 {
     memset(combobuf+i,0,sizeof(newcombo));
 }
 
 void clear_combos()
 {
-    for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+    for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
         clear_combo(tmpcounter);
 }
 
 void pack_combos()
 {
-    int di = 0;
+    int32_t di = 0;
     
-    for(int si=0; si<1024; si+=2)
+    for(int32_t si=0; si<1024; si+=2)
         combobuf[di++] = combobuf[si];
         
     for(; di<1024; di++)
@@ -1555,7 +1555,7 @@ void pack_combos()
 
 void reset_tunes(zctune *tune)
 {
-    for(int i=0; i<MAXCUSTOMTUNES; i++)
+    for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
     {
         tune[i].reset();
     }
@@ -1580,14 +1580,14 @@ void reset_tunes(zctune *tune)
 
 void reset_midis(zcmidi_ *m)
 {
-  for(int i=0; i<MAXCUSTOMMIDIS; i++)
+  for(int32_t i=0; i<MAXCUSTOMMIDIS; i++)
   {
       reset_midi(m+i);
   }
 }
 */
 
-void reset_scr(int scr)
+void reset_scr(int32_t scr)
 {
     /*
       byte *di=((byte*)TheMaps)+(scr*sizeof(mapscr));
@@ -1599,7 +1599,7 @@ void reset_scr(int scr)
     TheMaps[scr].zero_memory();
     //byte *di=((byte*)TheMaps)+(scr*sizeof(mapscr));
     
-    for(int i=0; i<6; i++)
+    for(int32_t i=0; i<6; i++)
     {
         //these will be uncommented later
         //TheMaps[scr].layerxsize[i]=16;
@@ -1617,11 +1617,11 @@ void reset_scr(int scr)
   qe_missing, qe_internal, qe_pwd, qe_match, qe_minver };
   */
 
-int operator ==(DoorComboSet a, DoorComboSet b)
+int32_t operator ==(DoorComboSet a, DoorComboSet b)
 {
-    for(int i=0; i<9; i++)
+    for(int32_t i=0; i<9; i++)
     {
-        for(int j=0; j<6; j++)
+        for(int32_t j=0; j<6; j++)
         {
             if(j<4)
             {
@@ -1732,7 +1732,7 @@ int operator ==(DoorComboSet a, DoorComboSet b)
     return true;
 }
 
-int doortranslations_u[9][4]=
+int32_t doortranslations_u[9][4]=
 {
     {37,38,53,54},
     {37,38,39,40},
@@ -1745,7 +1745,7 @@ int doortranslations_u[9][4]=
     {7,8,41,42}
 };
 
-int doortranslations_d[9][4]=
+int32_t doortranslations_d[9][4]=
 {
     {117,118,133,134},
     {135,136,133,134},
@@ -1759,7 +1759,7 @@ int doortranslations_d[9][4]=
 };
 
 //enum {dt_pass=0, dt_lock, dt_shut, dt_boss, dt_olck, dt_osht, dt_obos, dt_wall, dt_bomb, dt_walk, dt_max};
-int doortranslations_l[9][6]=
+int32_t doortranslations_l[9][6]=
 {
     {66,67,82,83,98,99},
     {66,68,82,84,98,100},
@@ -1772,7 +1772,7 @@ int doortranslations_l[9][6]=
     {64,65,80,114,96,97},
 };
 
-int doortranslations_r[9][6]=
+int32_t doortranslations_r[9][6]=
 {
 
     {76,77,92,93,108,109},
@@ -1786,12 +1786,12 @@ int doortranslations_r[9][6]=
     {78,79,125,95,110,111},
 };
 
-int tdcmbdat(int map, int scr, int pos)
+int32_t tdcmbdat(int32_t map, int32_t scr, int32_t pos)
 {
     return (TheMaps[map*MAPSCRS+TEMPLATE].data[pos]&0xFF)+((TheMaps[map*MAPSCRS+scr].old_cpage)<<8);
 }
 
-int tdcmbcset(int map, int scr, int pos)
+int32_t tdcmbcset(int32_t map, int32_t scr, int32_t pos)
 {
     //these are here to bypass compiler warnings about unused arguments
     map=map;
@@ -1803,7 +1803,7 @@ int tdcmbcset(int map, int scr, int pos)
     return 2;
 }
 
-int MakeDoors(int map, int scr)
+int32_t MakeDoors(int32_t map, int32_t scr)
 {
     if(!(TheMaps[map*MAPSCRS+scr].valid&mVALID))
     {
@@ -1814,9 +1814,9 @@ int MakeDoors(int map, int scr)
     memset(&tempdcs, 0, sizeof(DoorComboSet));
     
     //up
-    for(int i=0; i<9; i++)
+    for(int32_t i=0; i<9; i++)
     {
-        for(int j=0; j<4; j++)
+        for(int32_t j=0; j<4; j++)
         {
             tempdcs.doorcombo_u[i][j]=tdcmbdat(map,scr,doortranslations_u[i][j]);
             tempdcs.doorcset_u[i][j]=tdcmbcset(map,scr,doortranslations_u[i][j]);
@@ -1831,9 +1831,9 @@ int MakeDoors(int map, int scr)
     tempdcs.walkthroughcset[0]=tdcmbdat(map,scr,34);
     
     //down
-    for(int i=0; i<9; i++)
+    for(int32_t i=0; i<9; i++)
     {
-        for(int j=0; j<4; j++)
+        for(int32_t j=0; j<4; j++)
         {
             tempdcs.doorcombo_d[i][j]=tdcmbdat(map,scr,doortranslations_d[i][j]);
             tempdcs.doorcset_d[i][j]=tdcmbcset(map,scr,doortranslations_d[i][j]);
@@ -1850,16 +1850,16 @@ int MakeDoors(int map, int scr)
     
     //left
     //        TheMaps[i*MAPSCRS+j].warpdmap=TheOldMap.warpdmap;
-    for(int i=0; i<9; i++)
+    for(int32_t i=0; i<9; i++)
     {
-        for(int j=0; j<6; j++)
+        for(int32_t j=0; j<6; j++)
         {
             tempdcs.doorcombo_l[i][j]=tdcmbdat(map,scr,doortranslations_l[i][j]);
             tempdcs.doorcset_l[i][j]=tdcmbcset(map,scr,doortranslations_l[i][j]);
         }
     }
     
-    for(int j=0; j>6; j++)
+    for(int32_t j=0; j>6; j++)
     {
         if((j!=2)&&(j!=3))
         {
@@ -1878,16 +1878,16 @@ int MakeDoors(int map, int scr)
     tempdcs.walkthroughcset[2]=tdcmbdat(map,scr,34);
     
     //right
-    for(int i=0; i<9; i++)
+    for(int32_t i=0; i<9; i++)
     {
-        for(int j=0; j<6; j++)
+        for(int32_t j=0; j<6; j++)
         {
             tempdcs.doorcombo_r[i][j]=tdcmbdat(map,scr,doortranslations_r[i][j]);
             tempdcs.doorcset_r[i][j]=tdcmbcset(map,scr,doortranslations_r[i][j]);
         }
     }
     
-    for(int j=0; j>6; j++)
+    for(int32_t j=0; j>6; j++)
     {
         if((j!=2)&&(j!=3))
         {
@@ -1905,7 +1905,7 @@ int MakeDoors(int map, int scr)
     tempdcs.walkthroughcombo[3]=tdcmbdat(map,scr,34);
     tempdcs.walkthroughcset[3]=tdcmbdat(map,scr,34);
     
-    int k;
+    int32_t k;
     
     for(k=0; k<door_combo_set_count; k++)
     {
@@ -1945,24 +1945,24 @@ int MakeDoors(int map, int scr)
       */
 }
 
-INLINE int tcmbdat2(int map, int scr, int pos)
+INLINE int32_t tcmbdat2(int32_t map, int32_t scr, int32_t pos)
 {
     return (TheMaps[map*MAPSCRS+TEMPLATE2].data[pos]&0xFF)+((TheMaps[map*MAPSCRS+scr].old_cpage)<<8);
 }
 
-INLINE int tcmbcset2(int map, int pos)
+INLINE int32_t tcmbcset2(int32_t map, int32_t pos)
 {
 
     return TheMaps[map*MAPSCRS+TEMPLATE2].cset[pos];
 }
 
-INLINE int tcmbflag2(int map, int pos)
+INLINE int32_t tcmbflag2(int32_t map, int32_t pos)
 {
     return TheMaps[map*MAPSCRS+TEMPLATE2].sflag[pos];
 }
 
 
-void get_questpwd(char *encrypted_pwd, short pwdkey, char *pwd)
+void get_questpwd(char *encrypted_pwd, int16_t pwdkey, char *pwd)
 {
     char temp_pwd[30];
     memset(temp_pwd,0,30);
@@ -1972,10 +1972,10 @@ void get_questpwd(char *encrypted_pwd, short pwdkey, char *pwd)
         memcpy(temp_pwd,encrypted_pwd,30);
         temp_pwd[29]=0;
         
-        for(int i=0; i<30; i++)
+        for(int32_t i=0; i<30; i++)
         {
             temp_pwd[i] -= pwdkey;
-            int t=pwdkey>>15;
+            int32_t t=pwdkey>>15;
             pwdkey = (pwdkey<<1)+t;
         }
     }
@@ -1993,10 +1993,10 @@ bool check_questpwd(zquestheader *Header, char *pwd)
 	
 	if ( (!strcmp(pwd, (char*)clavio)) ) return true;
     cvs_MD5Context ctx;
-    unsigned char md5sum[16];
+    uint8_t md5sum[16];
     
     cvs_MD5Init(&ctx);
-    cvs_MD5Update(&ctx, (const unsigned char*)pwd, (unsigned)strlen(pwd));
+    cvs_MD5Update(&ctx, (const uint8_t*)pwd, (unsigned)strlen(pwd));
     cvs_MD5Final(md5sum, &ctx);
     
     return (memcmp(Header->pwd_hash,md5sum,16)==0);
@@ -2004,9 +2004,9 @@ bool check_questpwd(zquestheader *Header, char *pwd)
 }
 
 
-int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetadata)
+int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetadata)
 {
-    int dummy;
+    int32_t dummy;
     zquestheader tempheader;
     memcpy(&tempheader, Header, sizeof(tempheader));
     char dummybuf[80];
@@ -2014,7 +2014,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
     byte temp_midi_flags[MIDIFLAGS_SIZE];
     word version;
     char temp_pwd[30], temp_pwd2[30];
-    short temp_pwdkey;
+    int16_t temp_pwdkey;
     cvs_MD5Context ctx;
     memset(temp_midi_flags, 0, MIDIFLAGS_SIZE);
     memset(&tempheader, 0, sizeof(tempheader));
@@ -2038,7 +2038,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
         }
     }
     
-    int templatepath_len=0;
+    int32_t templatepath_len=0;
     
     if(!strcmp(tempheader.id_str,QH_IDSTR))                      //pre-1.93 version
     {
@@ -2164,7 +2164,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
 	
         get_questpwd(temp_pwd, temp_pwdkey, temp_pwd2);
         cvs_MD5Init(&ctx);
-        cvs_MD5Update(&ctx, (const unsigned char*)temp_pwd2, (unsigned)strlen(temp_pwd2));
+        cvs_MD5Update(&ctx, (const uint8_t*)temp_pwd2, (unsigned)strlen(temp_pwd2));
         cvs_MD5Final(tempheader.pwd_hash, &ctx);
         
         if(tempheader.zelda_version < 0x177)                       // lacks new header stuff...
@@ -2336,7 +2336,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
             
             get_questpwd(temp_pwd, temp_pwdkey, temp_pwd2);
             cvs_MD5Init(&ctx);
-            cvs_MD5Update(&ctx, (const unsigned char*)temp_pwd2, (unsigned)strlen(temp_pwd2));
+            cvs_MD5Update(&ctx, (const uint8_t*)temp_pwd2, (unsigned)strlen(temp_pwd2));
             cvs_MD5Final(tempheader.pwd_hash, &ctx);
         }
         else
@@ -2726,9 +2726,9 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetad
     return 0;
 }
 
-int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
-	int dummy;
+	int32_t dummy;
 	zquestheader tempheader;
 	word s_version=0;
 	dword compatrule_version=0;
@@ -3292,12 +3292,12 @@ void init_msgstr(MsgStr *str)
 	str->shadow_color = 0;
 }
 
-void init_msgstrings(int start, int end)
+void init_msgstrings(int32_t start, int32_t end)
 {
     if(end <= start || end-start > msg_strings_size)
         return;
         
-    for(int i=start; i<end; i++)
+    for(int32_t i=start; i<end; i++)
     {
         init_msgstr(&MsgStrings[i]);
         MsgStrings[i].listpos=i;
@@ -3310,7 +3310,7 @@ void init_msgstrings(int start, int end)
     }
 }
 
-int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
 
     MsgStr tempMsgString;
@@ -3323,7 +3323,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
     if(Header->zelda_version < 0x193)
     {
         byte tempbyte;
-        int strings_to_read=0;
+        int32_t strings_to_read=0;
         
         if((Header->zelda_version < 0x192)||
                 ((Header->zelda_version == 0x192)&&(Header->build<31)))
@@ -3369,7 +3369,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
             init_msgstrings(0,msg_strings_size);
         }
         
-        for(int x=0; x<strings_to_read; x++)
+        for(int32_t x=0; x<strings_to_read; x++)
         {
 			init_msgstr(&tempMsgString);
             
@@ -3378,7 +3378,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            for(int i=72; i<=MSGSIZE; i++)
+            for(int32_t i=72; i<=MSGSIZE; i++)
                 tempMsgString.s[i]='\0';
                 
             if(!p_getc(&tempbyte,f,true))
@@ -3422,7 +3422,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     else
     {
-        int dummy_int;
+        int32_t dummy_int;
         word s_version;
         word s_cversion;
         
@@ -3472,9 +3472,9 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	//zprint2("String version: (%d)", s_version);
         
-        int string_length=(s_version<2)?73:145;
+        int32_t string_length=(s_version<2)?73:145;
         
-        for(int i=0; i<temp_msg_count; i++)
+        for(int32_t i=0; i<temp_msg_count; i++)
         {
 			init_msgstr(&tempMsgString);
             
@@ -3492,7 +3492,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
             {
 		tempMsgString.w=(25*8);
                 tempMsgString.h=(4*8);
-                for(int j=72; j<MSGSIZE; j++)
+                for(int32_t j=72; j<MSGSIZE; j++)
                 {
                     tempMsgString.s[j]='\0';
                 }
@@ -3503,7 +3503,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
                 // Discard these.
                 if(s_version<3)
                 {
-                    for(int j=MSGSIZE-4; j<MSGSIZE; j++)
+                    for(int32_t j=MSGSIZE-4; j<MSGSIZE; j++)
                     {
                         tempMsgString.s[j]='\0';
                     }
@@ -3592,7 +3592,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 				
 				if(s_version >= 7)
 				{
-					for(int q = 0; q < 4; ++q)
+					for(int32_t q = 0; q < 4; ++q)
 					{
 						if(!p_getc(&tempMsgString.margins[q],f,true))
 						{
@@ -3673,7 +3673,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
     return 0;
 }
 
-int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     if((Header->zelda_version < 0x192)||
             ((Header->zelda_version == 0x192)&&(Header->build<158)))
@@ -3684,13 +3684,13 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
     word temp_door_combo_set_count=0;
     DoorComboSet tempDoorComboSet;
     word dummy_word;
-    long dummy_long;
+    int32_t dummy_long;
     byte padding;
-    int s_version = 0;
+    int32_t s_version = 0;
     
     if(keepdata==true)
     {
-        for(int i=0; i<MAXDOORCOMBOSETS; i++)
+        for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
         {
             memset(DoorComboSets+i, 0, sizeof(DoorComboSet));
         }
@@ -3725,7 +3725,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         return qe_invalid;
     }
     
-    for(int i=0; i<temp_door_combo_set_count; i++)
+    for(int32_t i=0; i<temp_door_combo_set_count; i++)
     {
         memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
         
@@ -3744,9 +3744,9 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
         //up door
-        for(int j=0; j<9; j++)
+        for(int32_t j=0; j<9; j++)
         {
-            for(int k=0; k<4; k++)
+            for(int32_t k=0; k<4; k++)
             {
                 if(!p_igetw(&tempDoorComboSet.doorcombo_u[j][k],f,true))
                 {
@@ -3755,9 +3755,9 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
         }
         
-        for(int j=0; j<9; j++)
+        for(int32_t j=0; j<9; j++)
         {
-            for(int k=0; k<4; k++)
+            for(int32_t k=0; k<4; k++)
             {
                 if(!p_getc(&tempDoorComboSet.doorcset_u[j][k],f,true))
                 {
@@ -3767,9 +3767,9 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
         //down door
-        for(int j=0; j<9; j++)
+        for(int32_t j=0; j<9; j++)
         {
-            for(int k=0; k<4; k++)
+            for(int32_t k=0; k<4; k++)
             {
                 if(!p_igetw(&tempDoorComboSet.doorcombo_d[j][k],f,true))
                 {
@@ -3778,9 +3778,9 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
         }
         
-        for(int j=0; j<9; j++)
+        for(int32_t j=0; j<9; j++)
         {
-            for(int k=0; k<4; k++)
+            for(int32_t k=0; k<4; k++)
             {
                 if(!p_getc(&tempDoorComboSet.doorcset_d[j][k],f,true))
                 {
@@ -3790,9 +3790,9 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
         //left door
-        for(int j=0; j<9; j++)
+        for(int32_t j=0; j<9; j++)
         {
-            for(int k=0; k<6; k++)
+            for(int32_t k=0; k<6; k++)
             {
                 if(!p_igetw(&tempDoorComboSet.doorcombo_l[j][k],f,true))
                 {
@@ -3801,9 +3801,9 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
         }
         
-        for(int j=0; j<9; j++)
+        for(int32_t j=0; j<9; j++)
         {
-            for(int k=0; k<6; k++)
+            for(int32_t k=0; k<6; k++)
             {
                 if(!p_getc(&tempDoorComboSet.doorcset_l[j][k],f,true))
                 {
@@ -3813,9 +3813,9 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
         //right door
-        for(int j=0; j<9; j++)
+        for(int32_t j=0; j<9; j++)
         {
-            for(int k=0; k<6; k++)
+            for(int32_t k=0; k<6; k++)
             {
                 if(!p_igetw(&tempDoorComboSet.doorcombo_r[j][k],f,true))
                 {
@@ -3824,9 +3824,9 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
         }
         
-        for(int j=0; j<9; j++)
+        for(int32_t j=0; j<9; j++)
         {
-            for(int k=0; k<6; k++)
+            for(int32_t k=0; k<6; k++)
             {
                 if(!p_getc(&tempDoorComboSet.doorcset_r[j][k],f,true))
                 {
@@ -3836,7 +3836,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
         //up bomb rubble
-        for(int j=0; j<2; j++)
+        for(int32_t j=0; j<2; j++)
         {
             if(!p_igetw(&tempDoorComboSet.bombdoorcombo_u[j],f,true))
             {
@@ -3844,7 +3844,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
         }
         
-        for(int j=0; j<2; j++)
+        for(int32_t j=0; j<2; j++)
         {
             if(!p_getc(&tempDoorComboSet.bombdoorcset_u[j],f,true))
             {
@@ -3853,7 +3853,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
         //down bomb rubble
-        for(int j=0; j<2; j++)
+        for(int32_t j=0; j<2; j++)
         {
             if(!p_igetw(&tempDoorComboSet.bombdoorcombo_d[j],f,true))
             {
@@ -3861,7 +3861,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
         }
         
-        for(int j=0; j<2; j++)
+        for(int32_t j=0; j<2; j++)
         {
             if(!p_getc(&tempDoorComboSet.bombdoorcset_d[j],f,true))
             {
@@ -3870,7 +3870,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
         //left bomb rubble
-        for(int j=0; j<3; j++)
+        for(int32_t j=0; j<3; j++)
         {
             if(!p_igetw(&tempDoorComboSet.bombdoorcombo_l[j],f,true))
             {
@@ -3878,7 +3878,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
         }
         
-        for(int j=0; j<3; j++)
+        for(int32_t j=0; j<3; j++)
         {
             if(!p_getc(&tempDoorComboSet.bombdoorcset_l[j],f,true))
             {
@@ -3896,7 +3896,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
         //right bomb rubble
-        for(int j=0; j<3; j++)
+        for(int32_t j=0; j<3; j++)
         {
             if(!p_igetw(&tempDoorComboSet.bombdoorcombo_r[j],f,true))
             {
@@ -3904,7 +3904,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
         }
         
-        for(int j=0; j<3; j++)
+        for(int32_t j=0; j<3; j++)
         {
             if(!p_getc(&tempDoorComboSet.bombdoorcset_r[j],f,true))
             {
@@ -3921,7 +3921,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
         //walkthrough stuff
-        for(int j=0; j<4; j++)
+        for(int32_t j=0; j<4; j++)
         {
             if(!p_igetw(&tempDoorComboSet.walkthroughcombo[j],f,true))
             {
@@ -3929,7 +3929,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
         }
         
-        for(int j=0; j<4; j++)
+        for(int32_t j=0; j<4; j++)
         {
             if(!p_getc(&tempDoorComboSet.walkthroughcset[j],f,true))
             {
@@ -3938,7 +3938,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
         //flags
-        for(int j=0; j<2; j++)
+        for(int32_t j=0; j<2; j++)
         {
             if(!p_getc(&tempDoorComboSet.flags[j],f,true))
             {
@@ -3968,9 +3968,9 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
     return 0;
 }
 
-int count_dmaps()
+int32_t count_dmaps()
 {
-    int i=MAXDMAPS-1;
+    int32_t i=MAXDMAPS-1;
     bool found=false;
     
     while(i>=0 && !found)
@@ -3980,7 +3980,7 @@ int count_dmaps()
                 (DMaps[i].cont!=0)||(DMaps[i].type!=0))
             found=true;
             
-        for(int j=0; j<8; j++)
+        for(int32_t j=0; j<8; j++)
         {
             if(DMaps[i].grid[j]!=0)
             
@@ -4007,9 +4007,9 @@ int count_dmaps()
 }
 
 
-int count_shops(miscQdata *Misc)
+int32_t count_shops(miscQdata *Misc)
 {
-    int i=255,j;
+    int32_t i=255,j;
     bool found=false;
     
     while(i>=0 && !found)
@@ -4042,9 +4042,9 @@ int count_shops(miscQdata *Misc)
     return i+1;
 }
 
-int count_infos(miscQdata *Misc)
+int32_t count_infos(miscQdata *Misc)
 {
-    int i=255,j;
+    int32_t i=255,j;
     bool found=false;
     
     while(i>=0 && !found)
@@ -4077,9 +4077,9 @@ int count_infos(miscQdata *Misc)
     return i+1;
 }
 
-int count_warprings(miscQdata *Misc)
+int32_t count_warprings(miscQdata *Misc)
 {
-    int i=15,j;
+    int32_t i=15,j;
     bool found=false;
     
     while(i>=0 && !found)
@@ -4107,9 +4107,9 @@ int count_warprings(miscQdata *Misc)
     return i+1;
 }
 
-int count_palcycles(miscQdata *Misc)
+int32_t count_palcycles(miscQdata *Misc)
 {
-    int i=255,j;
+    int32_t i=255,j;
     bool found=false;
     
     while(i>=0 && !found)
@@ -4141,12 +4141,12 @@ void clear_screen(mapscr *temp_scr)
 {
     temp_scr->zero_memory();
     
-    for(int j=0; j<6; j++)
+    for(int32_t j=0; j<6; j++)
     {
         temp_scr->layeropacity[j]=255;
     }
     
-    for(int j=0; j<32; j++)
+    for(int32_t j=0; j<32; j++)
     {
         temp_scr->ffwidth[j] = 15;
         temp_scr->ffheight[j] = 15;
@@ -4155,18 +4155,18 @@ void clear_screen(mapscr *temp_scr)
     }
 }
 
-int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, word max_dmaps, bool keepdata)
+int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, word max_dmaps, bool keepdata)
 {
     word dmapstoread=0;
     dmap tempDMap;
     
-    int dummy;
+    int32_t dummy;
     word s_version=0, s_cversion=0;
     byte padding;
     
     if(keepdata==true)
     {
-        for(int i=0; i<max_dmaps; i++)
+        for(int32_t i=0; i<max_dmaps; i++)
         {
             memset(&DMaps[start_dmap+i],0,sizeof(dmap));
             sprintf(DMaps[start_dmap+i].title,"                    ");
@@ -4224,7 +4224,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
     dmapstoread=zc_min(dmapstoread, max_dmaps);
     dmapstoread=zc_min(dmapstoread, MAXDMAPS-start_dmap);
     
-    for(int i=start_dmap; i<dmapstoread+start_dmap; i++)
+    for(int32_t i=start_dmap; i<dmapstoread+start_dmap; i++)
     {
         memset(&tempDMap,0,sizeof(dmap));
         sprintf(tempDMap.title,"                    ");
@@ -4302,7 +4302,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
            (!Header || Header->zelda_version >= 0x210)) // Not sure exactly when this changed
             tempDMap.xoff = 0;
             
-        for(int j=0; j<8; j++)
+        for(int32_t j=0; j<8; j++)
         {
             if(!p_getc(&tempDMap.grid[j],f,keepdata))
             {
@@ -4496,7 +4496,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
             
             if(!pfread(&di, 32, f, true)) return qe_invalid;
             
-            for(int j=0; j<MAXITEMS; j++)
+            for(int32_t j=0; j<MAXITEMS; j++)
             {
                 if(di[j/8] & (1 << (j%8))) tempDMap.disableditems[j]=1;
                 else tempDMap.disableditems[j]=0;
@@ -4574,7 +4574,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 			{
 				return qe_invalid;
 			}
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
 				if(!p_igetl(&tempDMap.initD[q],f,keepdata))
 				{
@@ -4585,7 +4585,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 		if ( s_version < 12 )
 		{
 			tempDMap.script = 0;
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
 				tempDMap.initD[q] = 0;
 			}
@@ -4593,9 +4593,9 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 		
 		if(s_version >= 13)
 		{
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_getc(&tempDMap.initD_label[q][w],f,keepdata))
 					{
@@ -4607,9 +4607,9 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 		if ( s_version < 13 )
 		{
 			tempDMap.script = 0;
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 					tempDMap.initD_label[q][w] = 0;
 			}
 		}
@@ -4623,16 +4623,16 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 			{
 				return qe_invalid;
 			}
-			for ( int q = 0; q < 8; ++q )
+			for ( int32_t q = 0; q < 8; ++q )
 			{
 				if(!p_igetl(&tempDMap.sub_initD[q],f,keepdata))
 				{
 					return qe_invalid;
 				}
 			}
-			for(int q = 0; q < 8; ++q)
+			for(int32_t q = 0; q < 8; ++q)
 			{
-				for ( int w = 0; w < 65; ++w )
+				for ( int32_t w = 0; w < 65; ++w )
 				{
 					if(!p_getc(&tempDMap.sub_initD_label[q][w],f,keepdata))
 					{
@@ -4645,10 +4645,10 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 		{
 			tempDMap.active_sub_script = 0;
 			tempDMap.passive_sub_script = 0;
-			for(int q = 0; q < 8; ++q)
+			for(int32_t q = 0; q < 8; ++q)
 			{
 				tempDMap.sub_initD[q] = 0;
-				for(int w = 0; w < 65; ++w)
+				for(int32_t w = 0; w < 65; ++w)
 					tempDMap.sub_initD_label[q][w] = 0;
 			}
 		}
@@ -4658,16 +4658,16 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 			{
 				return qe_invalid;
 			}
-			for ( int q = 0; q < 8; ++q )
+			for ( int32_t q = 0; q < 8; ++q )
 			{
 				if(!p_igetl(&tempDMap.onmap_initD[q],f,keepdata))
 				{
 					return qe_invalid;
 				}
 			}
-			for(int q = 0; q < 8; ++q)
+			for(int32_t q = 0; q < 8; ++q)
 			{
-				for ( int w = 0; w < 65; ++w )
+				for ( int32_t w = 0; w < 65; ++w )
 				{
 					if(!p_getc(&tempDMap.onmap_initD_label[q][w],f,keepdata))
 					{
@@ -4679,10 +4679,10 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 		else
 		{
 			tempDMap.onmap_script = 0;
-			for(int q = 0; q < 8; ++q)
+			for(int32_t q = 0; q < 8; ++q)
 			{
 				tempDMap.onmap_initD[q] = 0;
-				for(int w = 0; w < 65; ++w)
+				for(int32_t w = 0; w < 65; ++w)
 				{
 					tempDMap.onmap_initD_label[q][w] = 0;
 				}
@@ -4699,14 +4699,14 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 	return 0;
 }
 
-int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
+int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
     miscQdata temp_misc;
     word s_version=0, s_cversion=0;
-    int tempsize=0;
+    int32_t tempsize=0;
     
     memcpy(&temp_misc,Misc,sizeof(temp_misc));
     
@@ -4979,12 +4979,12 @@ int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keep
     return 0;
 }
 
-int readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
+int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
 {
     miscQdata temp_misc;
     word s_version=0, s_cversion=0;
     byte icons;
-    int tempsize=0;
+    int32_t tempsize=0;
     
     memcpy(&temp_misc,Misc,sizeof(temp_misc));
     
@@ -5016,7 +5016,7 @@ int readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
     
     if ( s_version >= 10 )
     {
-	    for(int i=0; i<icons; i++)
+	    for(int32_t i=0; i<icons; i++)
 	    {
 		if(!p_igetl(&temp_misc.icons[i],f,true))
 		{
@@ -5026,7 +5026,7 @@ int readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
     }
     else
     {	    
-	    for(int i=0; i<icons; i++)
+	    for(int32_t i=0; i<icons; i++)
 	    {
 		if(!p_igetw(&temp_misc.icons[i],f,true))
 		{
@@ -5042,7 +5042,7 @@ int readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
     return 0;
 }
 
-int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
+int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
 {
     word maxinfos=256;
     word maxshops=256;
@@ -5052,16 +5052,16 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     miscQdata temp_misc;
     word s_version=0, s_cversion=0;
     word swaptmp;
-    int tempsize=0;
+    int32_t tempsize=0;
     
     memcpy(&temp_misc,Misc,sizeof(temp_misc));
     
-    for(int i=0; i<maxshops; ++i)
+    for(int32_t i=0; i<maxshops; ++i)
     {
         memset(&temp_misc.shop, 0, sizeof(shoptype)*256);
     }
     
-    for(int i=0; i<maxinfos; ++i)
+    for(int32_t i=0; i<maxinfos; ++i)
     {
         memset(&temp_misc.info, 0, sizeof(infotype)*256);
     }
@@ -5103,7 +5103,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
         
     }
     
-    for(int i=0; i<shops; i++)
+    for(int32_t i=0; i<shops; i++)
     {
         if(s_version > 6)
         {
@@ -5113,7 +5113,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             }
         }
         
-        for(int j=0; j<3; j++)
+        for(int32_t j=0; j<3; j++)
         {
             if(!p_getc(&temp_misc.shop[i].item[j],f,true))
             {
@@ -5134,7 +5134,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             }
         }
         
-        for(int j=0; j<3; j++)
+        for(int32_t j=0; j<3; j++)
         {
             if(!p_igetw(&temp_misc.shop[i].price[j],f,true))
             {
@@ -5144,7 +5144,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
         
         if(s_version > 3)
         {
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_getc(&temp_misc.shop[i].hasitem[j],f,true))
                     return qe_invalid;
@@ -5154,7 +5154,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
 	/*
 	if(s_version < 8)
         {
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 (&temp_misc.shop[i].str[j])=0; //initialise.
             }
@@ -5163,11 +5163,11 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     }
     
     //filter all the 0 items to the end (yeah, bubble sort; sue me)
-    for(int i=0; i<maxshops; ++i)
+    for(int32_t i=0; i<maxshops; ++i)
     {
-        for(int j=0; j<3-1; j++)
+        for(int32_t j=0; j<3-1; j++)
         {
-            for(int k=0; k<2-j; k++)
+            for(int32_t k=0; k<2-j; k++)
             {
                 if(temp_misc.shop[i].hasitem[k]==0)
                 {
@@ -5194,7 +5194,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
         }
     }
     
-    for(int i=0; i<infos; i++)
+    for(int32_t i=0; i<infos; i++)
     {
         if(s_version > 6)
         {
@@ -5204,7 +5204,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             }
         }
         
-        for(int j=0; j<3; j++)
+        for(int32_t j=0; j<3; j++)
         {
             if((Header->zelda_version < 0x192)||
                     ((Header->zelda_version == 0x192)&&(Header->build<146)))
@@ -5241,7 +5241,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             }
         }
         
-        for(int j=0; j<3; j++)
+        for(int32_t j=0; j<3; j++)
         {
             if(!p_igetw(&temp_misc.info[i].price[j],f,true))
             {
@@ -5251,11 +5251,11 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     }
     
     //filter all the 0 strings to the end (yeah, bubble sort; sue me)
-    for(int i=0; i<maxinfos; ++i)
+    for(int32_t i=0; i<maxinfos; ++i)
     {
-        for(int j=0; j<3-1; j++)
+        for(int32_t j=0; j<3-1; j++)
         {
-            for(int k=0; k<2-j; k++)
+            for(int32_t k=0; k<2-j; k++)
             {
                 if(temp_misc.info[i].str[k]==0)
                 {
@@ -5283,9 +5283,9 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
         }
     }
     
-    for(int i=0; i<warprings; i++)
+    for(int32_t i=0; i<warprings; i++)
     {
-        for(int j=0; j<8+((s_version > 5)?1:0); j++)
+        for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
         {
             if(s_version <= 3)
             {
@@ -5305,7 +5305,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             }
         }
         
-        for(int j=0; j<8+((s_version > 5)?1:0); j++)
+        for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
         {
             if(!p_getc(&temp_misc.warp[i].scr[j],f,true))
             {
@@ -5330,9 +5330,9 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     //palette cycles
     if(Header->zelda_version < 0x193)                         //in 1.93+, palette cycling is saved with the palettes
     {
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
         {
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 temp_misc.cycles[i][j].first=0;
                 temp_misc.cycles[i][j].count=0;
@@ -5346,9 +5346,9 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             palcycles=16;
         }
         
-        for(int i=0; i<palcycles; i++)
+        for(int32_t i=0; i<palcycles; i++)
         {
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_getc(&temp_misc.cycles[i][j].first,f,true))
                 {
@@ -5379,7 +5379,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             }
         }
         
-        for(int i=0; i<windwarps; i++)
+        for(int32_t i=0; i<windwarps; i++)
         {
             if(s_version <= 3)
             {
@@ -5417,7 +5417,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     
     
     //triforce pieces
-    for(int i=0; i<triforces; i++)
+    for(int32_t i=0; i<triforces; i++)
     {
         if(!p_getc(&temp_misc.triforce[i],f,true))
         {
@@ -5567,7 +5567,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
         
         if(Header->zelda_version < 0x193)
         {
-            for(int i=0; i<7; i++)
+            for(int32_t i=0; i<7; i++)
             {
                 if(!p_getc(&tempbyte,f,true))
                 {
@@ -5578,7 +5578,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
         
         if((Header->zelda_version == 0x192)&&(Header->build>145))
         {
-            for(int i=0; i<256; i++)
+            for(int32_t i=0; i<256; i++)
             {
                 if(!p_getc(&tempbyte,f,true))
                 {
@@ -5602,7 +5602,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             icons=3;
         }
         
-        for(int i=0; i<icons; i++)
+        for(int32_t i=0; i<icons; i++)
         {
             if(!p_igetw(&temp_misc.icons[i],f,true))
             {
@@ -5630,9 +5630,9 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             pondsize=25;
         }
         
-        for(int i=0; i<ponds; i++)
+        for(int32_t i=0; i<ponds; i++)
         {
-            for(int j=0; j<pondsize; j++)
+            for(int32_t j=0; j<pondsize; j++)
             {
                 if(!p_getc(&tempbyte,f,true))
                 {
@@ -5675,7 +5675,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             expansionsize=99*2;
         }
         
-        for(int i=0; i<expansionsize; i++)
+        for(int32_t i=0; i<expansionsize; i++)
         {
             if(!p_getc(&tempbyte,f,true))
             {
@@ -5688,9 +5688,9 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     
     if(s_version >= 8)
     {
-	for(int i=0; i<shops; i++)
+	for(int32_t i=0; i<shops; i++)
         {
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_igetw(&temp_misc.shop[i].str[j],f,true))
                     return qe_invalid;
@@ -5698,21 +5698,21 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
         }
     }
     
-    memset(&temp_misc.questmisc, 0, sizeof(long)*32);
+    memset(&temp_misc.questmisc, 0, sizeof(int32_t)*32);
     memset(&temp_misc.questmisc_strings, 0, sizeof(char)*4096);
-    memset(&temp_misc.zscript_last_compiled_version, 0, sizeof(long));
+    memset(&temp_misc.zscript_last_compiled_version, 0, sizeof(int32_t));
     
     //v9 includes quest misc[32]
     if(s_version >= 9)
     {
-	for ( int q = 0; q < 32; q++ ) 
+	for ( int32_t q = 0; q < 32; q++ ) 
 	{
 		if(!p_igetl(&temp_misc.questmisc[q],f,true))
                     return qe_invalid;
 	}
-	for ( int q = 0; q < 32; q++ ) 
+	for ( int32_t q = 0; q < 32; q++ ) 
 	{
-		for ( int j = 0; j < 128; j++ )
+		for ( int32_t j = 0; j < 128; j++ )
 		if(!p_getc(&temp_misc.questmisc_strings[q][j],f,true))
                     return qe_invalid;
 	}
@@ -5733,7 +5733,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
 	if(s_version >= 12)
 	{
 		byte spr;
-		for(int q = 0; q < sprMAX; ++q)
+		for(int32_t q = 0; q < sprMAX; ++q)
 		{
 			if(!p_getc(&spr,f,true))
 				return qe_invalid;
@@ -5759,10 +5759,10 @@ extern const char *old_item_string[iLast];
 extern char *weapon_string[WPNCNT];
 extern const char *old_weapon_string[wLast];
 
-int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode)
+int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode)
 {
     byte padding;
-    int  dummy;
+    int32_t  dummy;
     word items_to_read=MAXITEMS;
     itemdata tempitem;
     word s_version=0, s_cversion=0;
@@ -5806,7 +5806,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
     
     if(s_version>1)
     {
-        for(int i=0; i<items_to_read; i++)
+        for(int32_t i=0; i<items_to_read; i++)
         {
             char tempname[64];
             
@@ -5825,7 +5825,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
     {
         if(keepdata)
         {
-            for(int i=0; i<ITEMCNT; i++)
+            for(int32_t i=0; i<ITEMCNT; i++)
             {
                 reset_itemname(i);
             }
@@ -5834,7 +5834,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
     
     if(keepdata)
     {
-        for(int i=0; i<MAXITEMS; i++)
+        for(int32_t i=0; i<MAXITEMS; i++)
         {
             memset(&itemsbuf[i], 0, sizeof(itemdata));
             itemsbuf[i].power=itemsbuf[i].flags=itemsbuf[i].wpn=itemsbuf[i].wpn2=itemsbuf[i].wpn3=
@@ -5846,7 +5846,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
         }
     }
     
-    for(int i=0; i<items_to_read; i++)
+    for(int32_t i=0; i<items_to_read; i++)
     {
         memset(&tempitem, 0, sizeof(itemdata));
         reset_itembuf(&tempitem,i);
@@ -5939,7 +5939,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
         
         if(version < 0x193)
         {
-            for(int q=0; q<12; q++)
+            for(int32_t q=0; q<12; q++)
             {
                 if(!p_getc(&padding,f,true))
                 {
@@ -6071,7 +6071,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                 return qe_invalid;
             }
             
-            for(int j=0; j<8; j++)
+            for(int32_t j=0; j<8; j++)
             {
                 if(!p_igetl(&tempitem.initiald[j],f,true))
                 {
@@ -6079,7 +6079,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                 }
             }
             
-            for(int j=0; j<2; j++)
+            for(int32_t j=0; j<2; j++)
             {
                 if(!p_getc(&tempitem.initiala[j],f,true))
                 {
@@ -6291,7 +6291,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         {
                             return qe_invalid;
                         }
-			for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+			for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
 				
 				if(!p_igetl(&tempitem.weap_pattern[q],f,true))
 				{
@@ -6307,14 +6307,14 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         {
                             return qe_invalid;
                         }
-			for ( int q = 0; q < INITIAL_D; q++ )
+			for ( int32_t q = 0; q < INITIAL_D; q++ )
 			{
 				if(!p_igetl(&tempitem.weap_initiald[q],f,true))
 				{
 					return qe_invalid;
 				}
 			}
-			for ( int q = 0; q < INITIAL_A; q++ )
+			for ( int32_t q = 0; q < INITIAL_A; q++ )
 			{
 				if(!p_getc(&tempitem.weap_initiala[q],f,true))
 				{
@@ -6466,23 +6466,23 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		}
 		if ( s_version >= 44 )  //! cost counter
 		{
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_getc(&(tempitem.initD_label[q][w]),f,keepdata))
 					{
 						return qe_invalid;
 					} 
 				}
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_getc(&(tempitem.weapon_initD_label[q][w]),f,keepdata))
 					{
 						return qe_invalid;
 					} 
 				}
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_getc(&(tempitem.sprite_initD_label[q][w]),f,keepdata))
 					{
@@ -6495,7 +6495,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 				}
 				
 			}
-			for ( int q = 0; q < 2; q++ )
+			for ( int32_t q = 0; q < 2; q++ )
 			{
 				if(!p_getc(&(tempitem.sprite_initiala[q]),f,keepdata))
 				{
@@ -6548,7 +6548,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
     //////////////////////////////////////////////////////
     if(keepdata==true)
     {
-        for(int i=0; i<MAXITEMS; i++)
+        for(int32_t i=0; i<MAXITEMS; i++)
         {
             memcpy(&tempitem, &itemsbuf[i], sizeof(itemdata));
             
@@ -8812,14 +8812,14 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		}
 		if ( s_version < 44 ) //InitD Labels and Sprite Script Data
 		{
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
 				sprintf(tempitem.initD_label[q],"InitD[%d]",q);
 				sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
 				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
 				tempitem.sprite_initiald[q] = 0;
 			}
-			for ( int q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
+			for ( int32_t q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
 			tempitem.sprite_script = 0;
 		}
 		if ( s_version < 47 ) //InitD Labels and Sprite Script Data
@@ -8839,14 +8839,14 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 }
 
 
-void reset_itembuf(itemdata *item, int id)
+void reset_itembuf(itemdata *item, int32_t id)
 {
     if(id<iLast)
     {
         // Copy everything *EXCEPT* the tile, misc, cset, frames, speed, delay and ltm.
         word tile = item->tile;
         byte miscs = item->misc, cset = item->csets, frames = item->frames, speed = item->speed, delay = item->delay;
-        long ltm = item->ltm;
+        int32_t ltm = item->ltm;
         
         memcpy(item,&default_items[id],sizeof(itemdata));
         item->tile = tile;
@@ -8859,7 +8859,7 @@ void reset_itembuf(itemdata *item, int id)
     }
 }
 
-void reset_itemname(int id)
+void reset_itemname(int32_t id)
 {
     sprintf(item_string[id],"zz%03d",id);
     
@@ -8867,10 +8867,10 @@ void reset_itemname(int id)
         strcpy(item_string[id],old_item_string[id]);
 }
 
-int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     word weapons_to_read=MAXWPNS;
-    int dummy;
+    int32_t dummy;
     byte padding;
     wpndata tempweapon;
     word s_version=0, s_cversion=0;
@@ -8919,7 +8919,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     if(s_version>2)
     {
-        for(int i=0; i<weapons_to_read; i++)
+        for(int32_t i=0; i<weapons_to_read; i++)
         {
             char tempname[64];
             
@@ -8962,11 +8962,11 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
     else
     {
         if(keepdata)
-            for(int i=0; i<WPNCNT; i++)
+            for(int32_t i=0; i<WPNCNT; i++)
                 reset_weaponname(i);
     }
     
-    for(int i=0; i<weapons_to_read; i++)
+    for(int32_t i=0; i<weapons_to_read; i++)
     {
 	    
 		    
@@ -9085,14 +9085,14 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
     return 0;
 }
 
-void init_guys(int guyversion)
+void init_guys(int32_t guyversion)
 {
-    for(int i=0; i<MAXGUYS; i++)
+    for(int32_t i=0; i<MAXGUYS; i++)
     {
         guysbuf[i] = default_guys[0];
     }
     
-    for(int i=0; i<OLDMAXGUYS; i++)
+    for(int32_t i=0; i<OLDMAXGUYS; i++)
     {
         guysbuf[i] = default_guys[i];
         
@@ -9161,7 +9161,7 @@ void init_guys(int guyversion)
     }
 }
 
-void reset_weaponname(int i)
+void reset_weaponname(int32_t i)
 {
     if(i<wLast)
     {
@@ -9173,20 +9173,20 @@ void reset_weaponname(int i)
 
 void init_item_drop_sets()
 {
-    for(int i=0; i<MAXITEMDROPSETS; i++)
+    for(int32_t i=0; i<MAXITEMDROPSETS; i++)
     {
 //    item_drop_sets[i] = default_item_drop_sets[0];
         memset(&item_drop_sets[i], 0, sizeof(item_drop_object));
     }
     
-    for(int i=0; i<isMAX; i++)
+    for(int32_t i=0; i<isMAX; i++)
     {
         item_drop_sets[i] = default_item_drop_sets[i];
         
         // Deprecated: qr_NOCLOCKS and qr_ALLOW10RUPEEDROPS
-        for(int j=0; j<10; ++j)
+        for(int32_t j=0; j<10; ++j)
         {
-            int it = item_drop_sets[i].item[j];
+            int32_t it = item_drop_sets[i].item[j];
             
             if((itemsbuf[it].family == itype_rupee && ((itemsbuf[it].amount)&0xFFF) == 10)
                     && !get_bit(deprecated_rules, qr_ALLOW10RUPEEDROPS_DEP))
@@ -9212,12 +9212,12 @@ void init_item_drop_sets()
 
 void init_favorites()
 {
-    for(int i=0; i<MAXFAVORITECOMBOS; i++)
+    for(int32_t i=0; i<MAXFAVORITECOMBOS; i++)
     {
         favorite_combos[i]=-1;
     }
     
-    for(int i=0; i<MAXFAVORITECOMBOALIASES; i++)
+    for(int32_t i=0; i<MAXFAVORITECOMBOALIASES; i++)
     {
         favorite_comboaliases[i]=-1;
     }
@@ -9256,15 +9256,15 @@ const char *ctype_name[cMAX]=
     
 };
 
-int init_combo_classes()
+int32_t init_combo_classes()
 {
-    for(int i=0; i<cMAX; i++)
+    for(int32_t i=0; i<cMAX; i++)
     {
         combo_class_buf[i] = default_combo_classes[i];
 	if ( moduledata.combo_type_names[i][0] != NULL )
 	{
 		//al_trace("Copying over a combo type name from a module: %s\n",(char *)moduledata.combo_type_names[i]);
-		for ( int q = 0; q < 64; q++ )
+		for ( int32_t q = 0; q < 64; q++ )
 		{
 			combo_class_buf[i].name[q] = moduledata.combo_type_names[i][q];
 		}
@@ -9276,7 +9276,7 @@ int init_combo_classes()
             al_trace("block_enemies:  %d\n", combo_class_buf[i].block_enemies);
             al_trace("block_hole:  %d\n", combo_class_buf[i].block_hole);
             al_trace("block_trigger:  %d\n", combo_class_buf[i].block_trigger);
-            for(int j=0; j<32; j++)
+            for(int32_t j=0; j<32; j++)
             {
               al_trace("block_weapon[%d]:  %d\n", j, combo_class_buf[i].block_weapon[j]);
             }
@@ -9320,7 +9320,7 @@ int init_combo_classes()
             al_trace("statue_type:  %d\n", combo_class_buf[i].statue_type);
             al_trace("step_type:  %d\n", combo_class_buf[i].step_type);
             al_trace("step_change_to:  %ld\n", combo_class_buf[i].step_change_to);
-            for(int j=0; j<32; j++)
+            for(int32_t j=0; j<32; j++)
             {
               al_trace("strike_weapons[%d]:  %d\n", j, combo_class_buf[i].strike_weapons[j]);
             }
@@ -9346,7 +9346,7 @@ int init_combo_classes()
     return 0;
 }
 
-int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool keepdata)
+int32_t readlinksprites2(PACKFILE *f, int32_t v_linksprites, int32_t cv_linksprites, bool keepdata)
 {
 	assert(v_linksprites < 6);
     //these are here to bypass compiler warnings about unused arguments
@@ -9365,7 +9365,7 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
         word tile, tile2;
         byte flip, extend, dummy_byte;
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetw(&tile,f,keepdata))
             {
@@ -9384,13 +9384,13 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                walkspr[i][spr_tile]=(int)tile;
-                walkspr[i][spr_flip]=(int)flip;
-                walkspr[i][spr_extend]=(int)extend;
+                walkspr[i][spr_tile]=(int32_t)tile;
+                walkspr[i][spr_flip]=(int32_t)flip;
+                walkspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetw(&tile,f,keepdata))
             {
@@ -9409,13 +9409,13 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                stabspr[i][spr_tile]=(int)tile;
-                stabspr[i][spr_flip]=(int)flip;
-                stabspr[i][spr_extend]=(int)extend;
+                stabspr[i][spr_tile]=(int32_t)tile;
+                stabspr[i][spr_flip]=(int32_t)flip;
+                stabspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetw(&tile,f,keepdata))
             {
@@ -9434,13 +9434,13 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                slashspr[i][spr_tile]=(int)tile;
-                slashspr[i][spr_flip]=(int)flip;
-                slashspr[i][spr_extend]=(int)extend;
+                slashspr[i][spr_tile]=(int32_t)tile;
+                slashspr[i][spr_flip]=(int32_t)flip;
+                slashspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetw(&tile,f,keepdata))
             {
@@ -9459,15 +9459,15 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                floatspr[i][spr_tile]=(int)tile;
-                floatspr[i][spr_flip]=(int)flip;
-                floatspr[i][spr_extend]=(int)extend;
+                floatspr[i][spr_tile]=(int32_t)tile;
+                floatspr[i][spr_flip]=(int32_t)flip;
+                floatspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
         if(v_linksprites>1)
         {
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 if(!p_igetw(&tile,f,keepdata))
                 {
@@ -9486,14 +9486,14 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                 
                 if(keepdata)
                 {
-                    swimspr[i][spr_tile]=(int)tile;
-                    swimspr[i][spr_flip]=(int)flip;
-                    swimspr[i][spr_extend]=(int)extend;
+                    swimspr[i][spr_tile]=(int32_t)tile;
+                    swimspr[i][spr_flip]=(int32_t)flip;
+                    swimspr[i][spr_extend]=(int32_t)extend;
                 }
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetw(&tile,f,keepdata))
             {
@@ -9512,13 +9512,13 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                divespr[i][spr_tile]=(int)tile;
-                divespr[i][spr_flip]=(int)flip;
-                divespr[i][spr_extend]=(int)extend;
+                divespr[i][spr_tile]=(int32_t)tile;
+                divespr[i][spr_flip]=(int32_t)flip;
+                divespr[i][spr_extend]=(int32_t)extend;
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetw(&tile,f,keepdata))
             {
@@ -9537,9 +9537,9 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                poundspr[i][spr_tile]=(int)tile;
-                poundspr[i][spr_flip]=(int)flip;
-                poundspr[i][spr_extend]=(int)extend;
+                poundspr[i][spr_tile]=(int32_t)tile;
+                poundspr[i][spr_flip]=(int32_t)flip;
+                poundspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
@@ -9565,17 +9565,17 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
         
         if(keepdata)
         {
-            castingspr[spr_tile]=(int)tile;
-            castingspr[spr_flip]=(int)flip;
-            castingspr[spr_extend]=(int)extend;
+            castingspr[spr_tile]=(int32_t)tile;
+            castingspr[spr_flip]=(int32_t)flip;
+            castingspr[spr_extend]=(int32_t)extend;
         }
         
         if(v_linksprites>0)
         {
-			int num_holdsprs = (v_linksprites > 6 ? 3 : 2);
-            for(int i=0; i<2; i++)
+			int32_t num_holdsprs = (v_linksprites > 6 ? 3 : 2);
+            for(int32_t i=0; i<2; i++)
             {
-                for(int j=0; j<num_holdsprs; j++)
+                for(int32_t j=0; j<num_holdsprs; j++)
                 {
                     if(!p_igetw(&tile,f,keepdata))
                     {
@@ -9594,16 +9594,16 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                     
                     if(keepdata)
                     {
-                        holdspr[i][j][spr_tile]=(int)tile;
-                        holdspr[i][j][spr_flip]=(int)flip;
-                        holdspr[i][j][spr_extend]=(int)extend;
+                        holdspr[i][j][spr_tile]=(int32_t)tile;
+                        holdspr[i][j][spr_flip]=(int32_t)flip;
+                        holdspr[i][j][spr_extend]=(int32_t)extend;
                     }
                 }
             }
         }
         else
         {
-            for(int i=0; i<2; i++)
+            for(int32_t i=0; i<2; i++)
             {
                 if(!p_igetw(&tile,f,keepdata))
                 {
@@ -9622,19 +9622,19 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                 
                 if(keepdata)
                 {
-                    holdspr[i][spr_hold1][spr_tile]=(int)tile;
-                    holdspr[i][spr_hold1][spr_flip]=(int)flip;
-                    holdspr[i][spr_hold1][spr_extend]=(int)extend;
-                    holdspr[i][spr_hold2][spr_tile]=(int)tile2;
-                    holdspr[i][spr_hold1][spr_flip]=(int)flip;
-                    holdspr[i][spr_hold2][spr_extend]=(int)extend;
+                    holdspr[i][spr_hold1][spr_tile]=(int32_t)tile;
+                    holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
+                    holdspr[i][spr_hold1][spr_extend]=(int32_t)extend;
+                    holdspr[i][spr_hold2][spr_tile]=(int32_t)tile2;
+                    holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
+                    holdspr[i][spr_hold2][spr_extend]=(int32_t)extend;
                 }
             }
         }
         
         if(v_linksprites>2)
         {
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 if(!p_igetw(&tile,f,keepdata))
                 {
@@ -9653,16 +9653,16 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                 
                 if(keepdata)
                 {
-                    jumpspr[i][spr_tile]=(int)tile;
-                    jumpspr[i][spr_flip]=(int)flip;
-                    jumpspr[i][spr_extend]=(int)extend;
+                    jumpspr[i][spr_tile]=(int32_t)tile;
+                    jumpspr[i][spr_flip]=(int32_t)flip;
+                    jumpspr[i][spr_extend]=(int32_t)extend;
                 }
             }
         }
         
         if(v_linksprites>3)
         {
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 if(!p_igetw(&tile,f,keepdata))
                 {
@@ -9681,9 +9681,9 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                 
                 if(keepdata)
                 {
-                    chargespr[i][spr_tile]=(int)tile;
-                    chargespr[i][spr_flip]=(int)flip;
-                    chargespr[i][spr_extend]=(int)extend;
+                    chargespr[i][spr_tile]=(int32_t)tile;
+                    chargespr[i][spr_flip]=(int32_t)flip;
+                    chargespr[i][spr_extend]=(int32_t)extend;
                 }
             }
         }
@@ -9727,9 +9727,9 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 			memset(medallionsprs, 0, sizeof(medallionsprs));
 			memset(holdspr[0][2], 0, sizeof(holdspr[0][2])); //Sword hold (Land)
 			memset(holdspr[1][2], 0, sizeof(holdspr[1][2])); //Sword hold (Water)
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
-				for(int p = 0; p < 3; ++p)
+				for(int32_t p = 0; p < 3; ++p)
 				{
 					drowningspr[q][p] = divespr[q][p];
 					drowning_lavaspr[q][p] = divespr[q][p];
@@ -9748,8 +9748,8 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
     return 0;
 }
 
-//Used to read the player sprites as int, not word. 
-int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool keepdata)
+//Used to read the player sprites as int32_t, not word. 
+int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linksprites, bool keepdata)
 {
     //these are here to bypass compiler warnings about unused arguments
     cv_linksprites=cv_linksprites;
@@ -9762,13 +9762,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 	setuplinkoffsets();
     }
     
-    int tile, tile2;
+    int32_t tile, tile2;
     byte flip, extend, dummy_byte;
     
     if(v_linksprites>=0)
     {
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetl(&tile,f,keepdata))
             {
@@ -9787,13 +9787,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                walkspr[i][spr_tile]=(int)tile;
-                walkspr[i][spr_flip]=(int)flip;
-                walkspr[i][spr_extend]=(int)extend;
+                walkspr[i][spr_tile]=(int32_t)tile;
+                walkspr[i][spr_flip]=(int32_t)flip;
+                walkspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetl(&tile,f,keepdata))
             {
@@ -9812,13 +9812,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                stabspr[i][spr_tile]=(int)tile;
-                stabspr[i][spr_flip]=(int)flip;
-                stabspr[i][spr_extend]=(int)extend;
+                stabspr[i][spr_tile]=(int32_t)tile;
+                stabspr[i][spr_flip]=(int32_t)flip;
+                stabspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetl(&tile,f,keepdata))
             {
@@ -9837,13 +9837,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                slashspr[i][spr_tile]=(int)tile;
-                slashspr[i][spr_flip]=(int)flip;
-                slashspr[i][spr_extend]=(int)extend;
+                slashspr[i][spr_tile]=(int32_t)tile;
+                slashspr[i][spr_flip]=(int32_t)flip;
+                slashspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetl(&tile,f,keepdata))
             {
@@ -9862,15 +9862,15 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                floatspr[i][spr_tile]=(int)tile;
-                floatspr[i][spr_flip]=(int)flip;
-                floatspr[i][spr_extend]=(int)extend;
+                floatspr[i][spr_tile]=(int32_t)tile;
+                floatspr[i][spr_flip]=(int32_t)flip;
+                floatspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
         if(v_linksprites>1)
         {
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 if(!p_igetl(&tile,f,keepdata))
                 {
@@ -9889,14 +9889,14 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                 
                 if(keepdata)
                 {
-                    swimspr[i][spr_tile]=(int)tile;
-                    swimspr[i][spr_flip]=(int)flip;
-                    swimspr[i][spr_extend]=(int)extend;
+                    swimspr[i][spr_tile]=(int32_t)tile;
+                    swimspr[i][spr_flip]=(int32_t)flip;
+                    swimspr[i][spr_extend]=(int32_t)extend;
                 }
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetl(&tile,f,keepdata))
             {
@@ -9915,13 +9915,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                divespr[i][spr_tile]=(int)tile;
-                divespr[i][spr_flip]=(int)flip;
-                divespr[i][spr_extend]=(int)extend;
+                divespr[i][spr_tile]=(int32_t)tile;
+                divespr[i][spr_flip]=(int32_t)flip;
+                divespr[i][spr_extend]=(int32_t)extend;
             }
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetl(&tile,f,keepdata))
             {
@@ -9940,9 +9940,9 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             
             if(keepdata)
             {
-                poundspr[i][spr_tile]=(int)tile;
-                poundspr[i][spr_flip]=(int)flip;
-                poundspr[i][spr_extend]=(int)extend;
+                poundspr[i][spr_tile]=(int32_t)tile;
+                poundspr[i][spr_flip]=(int32_t)flip;
+                poundspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
@@ -9968,17 +9968,17 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
         
         if(keepdata)
         {
-            castingspr[spr_tile]=(int)tile;
-            castingspr[spr_flip]=(int)flip;
-            castingspr[spr_extend]=(int)extend;
+            castingspr[spr_tile]=(int32_t)tile;
+            castingspr[spr_flip]=(int32_t)flip;
+            castingspr[spr_extend]=(int32_t)extend;
         }
         
         if(v_linksprites>0)
         {
-			int num_holdsprs = (v_linksprites > 6 ? 3 : 2);
-            for(int i=0; i<2; i++)
+			int32_t num_holdsprs = (v_linksprites > 6 ? 3 : 2);
+            for(int32_t i=0; i<2; i++)
             {
-                for(int j=0; j<num_holdsprs; j++)
+                for(int32_t j=0; j<num_holdsprs; j++)
                 {
                     if(!p_igetl(&tile,f,keepdata))
                     {
@@ -9997,16 +9997,16 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                     
                     if(keepdata)
                     {
-                        holdspr[i][j][spr_tile]=(int)tile;
-                        holdspr[i][j][spr_flip]=(int)flip;
-                        holdspr[i][j][spr_extend]=(int)extend;
+                        holdspr[i][j][spr_tile]=(int32_t)tile;
+                        holdspr[i][j][spr_flip]=(int32_t)flip;
+                        holdspr[i][j][spr_extend]=(int32_t)extend;
                     }
                 }
             }
         }
         else
         {
-            for(int i=0; i<2; i++)
+            for(int32_t i=0; i<2; i++)
             {
                 if(!p_igetl(&tile,f,keepdata))
                 {
@@ -10025,19 +10025,19 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                 
                 if(keepdata)
                 {
-                    holdspr[i][spr_hold1][spr_tile]=(int)tile;
-                    holdspr[i][spr_hold1][spr_flip]=(int)flip;
-                    holdspr[i][spr_hold1][spr_extend]=(int)extend;
-                    holdspr[i][spr_hold2][spr_tile]=(int)tile2;
-                    holdspr[i][spr_hold1][spr_flip]=(int)flip;
-                    holdspr[i][spr_hold2][spr_extend]=(int)extend;
+                    holdspr[i][spr_hold1][spr_tile]=(int32_t)tile;
+                    holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
+                    holdspr[i][spr_hold1][spr_extend]=(int32_t)extend;
+                    holdspr[i][spr_hold2][spr_tile]=(int32_t)tile2;
+                    holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
+                    holdspr[i][spr_hold2][spr_extend]=(int32_t)extend;
                 }
             }
         }
         
         if(v_linksprites>2)
         {
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 if(!p_igetl(&tile,f,keepdata))
                 {
@@ -10056,16 +10056,16 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                 
                 if(keepdata)
                 {
-                    jumpspr[i][spr_tile]=(int)tile;
-                    jumpspr[i][spr_flip]=(int)flip;
-                    jumpspr[i][spr_extend]=(int)extend;
+                    jumpspr[i][spr_tile]=(int32_t)tile;
+                    jumpspr[i][spr_flip]=(int32_t)flip;
+                    jumpspr[i][spr_extend]=(int32_t)extend;
                 }
             }
         }
         
         if(v_linksprites>3)
         {
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 if(!p_igetl(&tile,f,keepdata))
                 {
@@ -10084,9 +10084,9 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
                 
                 if(keepdata)
                 {
-                    chargespr[i][spr_tile]=(int)tile;
-                    chargespr[i][spr_flip]=(int)flip;
-                    chargespr[i][spr_extend]=(int)extend;
+                    chargespr[i][spr_tile]=(int32_t)tile;
+                    chargespr[i][spr_flip]=(int32_t)flip;
+                    chargespr[i][spr_extend]=(int32_t)extend;
                 }
             }
         }
@@ -10106,7 +10106,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 		
 		if(v_linksprites>6)
 		{
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10119,12 +10119,12 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					frozenspr[q][spr_tile] = (int)tile;
-					frozenspr[q][spr_flip] = (int)flip;
-					frozenspr[q][spr_extend] = (int)extend;
+					frozenspr[q][spr_tile] = (int32_t)tile;
+					frozenspr[q][spr_flip] = (int32_t)flip;
+					frozenspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10137,50 +10137,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					frozen_waterspr[q][spr_tile] = (int)tile;
-					frozen_waterspr[q][spr_flip] = (int)flip;
-					frozen_waterspr[q][spr_extend] = (int)extend;
-				}
-			}
-			
-			for(int q = 0; q < 4; ++q)
-			{
-				if(!p_igetl(&tile,f,keepdata))
-					return qe_invalid;
-				
-				if(!p_getc(&flip,f,keepdata))
-					return qe_invalid;
-				
-				if(!p_getc(&extend,f,keepdata))
-					return qe_invalid;
-				
-				if(keepdata)
-				{
-					onfirespr[q][spr_tile] = (int)tile;
-					onfirespr[q][spr_flip] = (int)flip;
-					onfirespr[q][spr_extend] = (int)extend;
-				}
-			}
-			for(int q = 0; q < 4; ++q)
-			{
-				if(!p_igetl(&tile,f,keepdata))
-					return qe_invalid;
-				
-				if(!p_getc(&flip,f,keepdata))
-					return qe_invalid;
-				
-				if(!p_getc(&extend,f,keepdata))
-					return qe_invalid;
-				
-				if(keepdata)
-				{
-					onfire_waterspr[q][spr_tile] = (int)tile;
-					onfire_waterspr[q][spr_flip] = (int)flip;
-					onfire_waterspr[q][spr_extend] = (int)extend;
+					frozen_waterspr[q][spr_tile] = (int32_t)tile;
+					frozen_waterspr[q][spr_flip] = (int32_t)flip;
+					frozen_waterspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10193,13 +10156,31 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					diggingspr[q][spr_tile] = (int)tile;
-					diggingspr[q][spr_flip] = (int)flip;
-					diggingspr[q][spr_extend] = (int)extend;
+					onfirespr[q][spr_tile] = (int32_t)tile;
+					onfirespr[q][spr_flip] = (int32_t)flip;
+					onfirespr[q][spr_extend] = (int32_t)extend;
+				}
+			}
+			for(int32_t q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					onfire_waterspr[q][spr_tile] = (int32_t)tile;
+					onfire_waterspr[q][spr_flip] = (int32_t)flip;
+					onfire_waterspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10212,13 +10193,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					usingrodspr[q][spr_tile] = (int)tile;
-					usingrodspr[q][spr_flip] = (int)flip;
-					usingrodspr[q][spr_extend] = (int)extend;
+					diggingspr[q][spr_tile] = (int32_t)tile;
+					diggingspr[q][spr_flip] = (int32_t)flip;
+					diggingspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10231,13 +10212,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					usingcanespr[q][spr_tile] = (int)tile;
-					usingcanespr[q][spr_flip] = (int)flip;
-					usingcanespr[q][spr_extend] = (int)extend;
+					usingrodspr[q][spr_tile] = (int32_t)tile;
+					usingrodspr[q][spr_flip] = (int32_t)flip;
+					usingrodspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10250,13 +10231,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					pushingspr[q][spr_tile] = (int)tile;
-					pushingspr[q][spr_flip] = (int)flip;
-					pushingspr[q][spr_extend] = (int)extend;
+					usingcanespr[q][spr_tile] = (int32_t)tile;
+					usingcanespr[q][spr_flip] = (int32_t)flip;
+					usingcanespr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10269,13 +10250,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					liftingspr[q][spr_tile] = (int)tile;
-					liftingspr[q][spr_flip] = (int)flip;
-					liftingspr[q][spr_extend] = (int)extend;
+					pushingspr[q][spr_tile] = (int32_t)tile;
+					pushingspr[q][spr_flip] = (int32_t)flip;
+					pushingspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10288,13 +10269,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					liftingheavyspr[q][spr_tile] = (int)tile;
-					liftingheavyspr[q][spr_flip] = (int)flip;
-					liftingheavyspr[q][spr_extend] = (int)extend;
+					liftingspr[q][spr_tile] = (int32_t)tile;
+					liftingspr[q][spr_flip] = (int32_t)flip;
+					liftingspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10307,31 +10288,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					stunnedspr[q][spr_tile] = (int)tile;
-					stunnedspr[q][spr_flip] = (int)flip;
-					stunnedspr[q][spr_extend] = (int)extend;
-				}
-			}
-			for(int q = 0; q < 4; ++q)
-			{
-				if(!p_igetl(&tile,f,keepdata))
-					return qe_invalid;
-				
-				if(!p_getc(&flip,f,keepdata))
-					return qe_invalid;
-				
-				if(!p_getc(&extend,f,keepdata))
-					return qe_invalid;
-				
-				if(keepdata)
-				{
-					stunned_waterspr[q][spr_tile] = (int)tile;
-					stunned_waterspr[q][spr_flip] = (int)flip;
-					stunned_waterspr[q][spr_extend] = (int)extend;
+					liftingheavyspr[q][spr_tile] = (int32_t)tile;
+					liftingheavyspr[q][spr_flip] = (int32_t)flip;
+					liftingheavyspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10344,13 +10307,31 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					drowningspr[q][spr_tile] = (int)tile;
-					drowningspr[q][spr_flip] = (int)flip;
-					drowningspr[q][spr_extend] = (int)extend;
+					stunnedspr[q][spr_tile] = (int32_t)tile;
+					stunnedspr[q][spr_flip] = (int32_t)flip;
+					stunnedspr[q][spr_extend] = (int32_t)extend;
+				}
+			}
+			for(int32_t q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					stunned_waterspr[q][spr_tile] = (int32_t)tile;
+					stunned_waterspr[q][spr_flip] = (int32_t)flip;
+					stunned_waterspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10363,13 +10344,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					drowning_lavaspr[q][spr_tile] = (int)tile;
-					drowning_lavaspr[q][spr_flip] = (int)flip;
-					drowning_lavaspr[q][spr_extend] = (int)extend;
+					drowningspr[q][spr_tile] = (int32_t)tile;
+					drowningspr[q][spr_flip] = (int32_t)flip;
+					drowningspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10382,13 +10363,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					fallingspr[q][spr_tile] = (int)tile;
-					fallingspr[q][spr_flip] = (int)flip;
-					fallingspr[q][spr_extend] = (int)extend;
+					drowning_lavaspr[q][spr_tile] = (int32_t)tile;
+					drowning_lavaspr[q][spr_flip] = (int32_t)flip;
+					drowning_lavaspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10401,31 +10382,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					shockedspr[q][spr_tile] = (int)tile;
-					shockedspr[q][spr_flip] = (int)flip;
-					shockedspr[q][spr_extend] = (int)extend;
-				}
-			}
-			for(int q = 0; q < 4; ++q)
-			{
-				if(!p_igetl(&tile,f,keepdata))
-					return qe_invalid;
-				
-				if(!p_getc(&flip,f,keepdata))
-					return qe_invalid;
-				
-				if(!p_getc(&extend,f,keepdata))
-					return qe_invalid;
-				
-				if(keepdata)
-				{
-					shocked_waterspr[q][spr_tile] = (int)tile;
-					shocked_waterspr[q][spr_flip] = (int)flip;
-					shocked_waterspr[q][spr_extend] = (int)extend;
+					fallingspr[q][spr_tile] = (int32_t)tile;
+					fallingspr[q][spr_flip] = (int32_t)flip;
+					fallingspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10438,13 +10401,31 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					pullswordspr[q][spr_tile] = (int)tile;
-					pullswordspr[q][spr_flip] = (int)flip;
-					pullswordspr[q][spr_extend] = (int)extend;
+					shockedspr[q][spr_tile] = (int32_t)tile;
+					shockedspr[q][spr_flip] = (int32_t)flip;
+					shockedspr[q][spr_extend] = (int32_t)extend;
+				}
+			}
+			for(int32_t q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					shocked_waterspr[q][spr_tile] = (int32_t)tile;
+					shocked_waterspr[q][spr_flip] = (int32_t)flip;
+					shocked_waterspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10457,13 +10438,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					readingspr[q][spr_tile] = (int)tile;
-					readingspr[q][spr_flip] = (int)flip;
-					readingspr[q][spr_extend] = (int)extend;
+					pullswordspr[q][spr_tile] = (int32_t)tile;
+					pullswordspr[q][spr_flip] = (int32_t)flip;
+					pullswordspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10476,13 +10457,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					slash180spr[q][spr_tile] = (int)tile;
-					slash180spr[q][spr_flip] = (int)flip;
-					slash180spr[q][spr_extend] = (int)extend;
+					readingspr[q][spr_tile] = (int32_t)tile;
+					readingspr[q][spr_flip] = (int32_t)flip;
+					readingspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10495,13 +10476,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					slashZ4spr[q][spr_tile] = (int)tile;
-					slashZ4spr[q][spr_flip] = (int)flip;
-					slashZ4spr[q][spr_extend] = (int)extend;
+					slash180spr[q][spr_tile] = (int32_t)tile;
+					slash180spr[q][spr_flip] = (int32_t)flip;
+					slash180spr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10514,13 +10495,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					dashspr[q][spr_tile] = (int)tile;
-					dashspr[q][spr_flip] = (int)flip;
-					dashspr[q][spr_extend] = (int)extend;
+					slashZ4spr[q][spr_tile] = (int32_t)tile;
+					slashZ4spr[q][spr_flip] = (int32_t)flip;
+					slashZ4spr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10533,13 +10514,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					bonkspr[q][spr_tile] = (int)tile;
-					bonkspr[q][spr_flip] = (int)flip;
-					bonkspr[q][spr_extend] = (int)extend;
+					dashspr[q][spr_tile] = (int32_t)tile;
+					dashspr[q][spr_flip] = (int32_t)flip;
+					dashspr[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			
-			for(int q = 0; q < 3; ++q) //Not directions; number of medallion sprs
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10552,14 +10533,33 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(keepdata)
 				{
-					medallionsprs[q][spr_tile] = (int)tile;
-					medallionsprs[q][spr_flip] = (int)flip;
-					medallionsprs[q][spr_extend] = (int)extend;
+					bonkspr[q][spr_tile] = (int32_t)tile;
+					bonkspr[q][spr_flip] = (int32_t)flip;
+					bonkspr[q][spr_extend] = (int32_t)extend;
+				}
+			}
+			
+			for(int32_t q = 0; q < 3; ++q) //Not directions; number of medallion sprs
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					medallionsprs[q][spr_tile] = (int32_t)tile;
+					medallionsprs[q][spr_flip] = (int32_t)flip;
+					medallionsprs[q][spr_extend] = (int32_t)extend;
 				}
 			}
 			if (v_linksprites > 8)
 			{
-				for(int q = 0; q < 4; ++q)
+				for(int32_t q = 0; q < 4; ++q)
 				{
 					if(!p_igetl(&tile,f,keepdata))
 						return qe_invalid;
@@ -10572,15 +10572,15 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					
 					if(keepdata)
 					{
-						sideswimspr[q][spr_tile] = (int)tile;
-						sideswimspr[q][spr_flip] = (int)flip;
-						sideswimspr[q][spr_extend] = (int)extend;
+						sideswimspr[q][spr_tile] = (int32_t)tile;
+						sideswimspr[q][spr_flip] = (int32_t)flip;
+						sideswimspr[q][spr_extend] = (int32_t)extend;
 					}
 				}
 			}
 			if (v_linksprites > 9)
 			{
-				for(int q = 0; q < 4; ++q)
+				for(int32_t q = 0; q < 4; ++q)
 				{
 					if(!p_igetl(&tile,f,keepdata))
 						return qe_invalid;
@@ -10593,12 +10593,12 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					
 					if(keepdata)
 					{
-						sideswimslashspr[q][spr_tile] = (int)tile;
-						sideswimslashspr[q][spr_flip] = (int)flip;
-						sideswimslashspr[q][spr_extend] = (int)extend;
+						sideswimslashspr[q][spr_tile] = (int32_t)tile;
+						sideswimslashspr[q][spr_flip] = (int32_t)flip;
+						sideswimslashspr[q][spr_extend] = (int32_t)extend;
 					}
 				}
-				for(int q = 0; q < 4; ++q)
+				for(int32_t q = 0; q < 4; ++q)
 				{
 					if(!p_igetl(&tile,f,keepdata))
 						return qe_invalid;
@@ -10611,12 +10611,12 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					
 					if(keepdata)
 					{
-						sideswimstabspr[q][spr_tile] = (int)tile;
-						sideswimstabspr[q][spr_flip] = (int)flip;
-						sideswimstabspr[q][spr_extend] = (int)extend;
+						sideswimstabspr[q][spr_tile] = (int32_t)tile;
+						sideswimstabspr[q][spr_flip] = (int32_t)flip;
+						sideswimstabspr[q][spr_extend] = (int32_t)extend;
 					}
 				}
-				for(int q = 0; q < 4; ++q)
+				for(int32_t q = 0; q < 4; ++q)
 				{
 					if(!p_igetl(&tile,f,keepdata))
 						return qe_invalid;
@@ -10629,15 +10629,15 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					
 					if(keepdata)
 					{
-						sideswimpoundspr[q][spr_tile] = (int)tile;
-						sideswimpoundspr[q][spr_flip] = (int)flip;
-						sideswimpoundspr[q][spr_extend] = (int)extend;
+						sideswimpoundspr[q][spr_tile] = (int32_t)tile;
+						sideswimpoundspr[q][spr_flip] = (int32_t)flip;
+						sideswimpoundspr[q][spr_extend] = (int32_t)extend;
 					}
 				}
 			}
 			if (v_linksprites > 9)
 			{
-				for(int q = 0; q < 4; ++q)
+				for(int32_t q = 0; q < 4; ++q)
 				{
 					if(!p_igetl(&tile,f,keepdata))
 						return qe_invalid;
@@ -10650,17 +10650,17 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					
 					if(keepdata)
 					{
-						sideswimchargespr[q][spr_tile] = (int)tile;
-						sideswimchargespr[q][spr_flip] = (int)flip;
-						sideswimchargespr[q][spr_extend] = (int)extend;
+						sideswimchargespr[q][spr_tile] = (int32_t)tile;
+						sideswimchargespr[q][spr_flip] = (int32_t)flip;
+						sideswimchargespr[q][spr_extend] = (int32_t)extend;
 					}
 				}
 			}
 			if (v_linksprites > 10)
 			{
-				for(int q = 0; q < 4; ++q)
+				for(int32_t q = 0; q < 4; ++q)
 				{
-					int hmr;
+					int32_t hmr;
 					if(!p_igetl(&hmr,f,keepdata))
 						return qe_invalid;
 					
@@ -10670,10 +10670,10 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					}
 				}
 			}
-			else for(int q = 0; q < 4; ++q) hammeroffsets[q] = 0;
+			else for(int32_t q = 0; q < 4; ++q) hammeroffsets[q] = 0;
 			if (v_linksprites > 11)
 			{
-				for(int q = 0; q < 3; ++q)
+				for(int32_t q = 0; q < 3; ++q)
 				{
 					if(!p_igetl(&tile,f,keepdata))
 						return qe_invalid;
@@ -10686,9 +10686,9 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					
 					if(keepdata)
 					{
-						sideswimholdspr[q][spr_tile] = (int)tile;
-						sideswimholdspr[q][spr_flip] = (int)flip;
-						sideswimholdspr[q][spr_extend] = (int)extend;
+						sideswimholdspr[q][spr_tile] = (int32_t)tile;
+						sideswimholdspr[q][spr_flip] = (int32_t)flip;
+						sideswimholdspr[q][spr_extend] = (int32_t)extend;
 					}
 				}
 			}
@@ -10702,13 +10702,13 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 				
 				if(!p_getc(&extend,f,keepdata))
 					return qe_invalid;
-				sideswimcastingspr[spr_tile]=(int)tile;
-				sideswimcastingspr[spr_flip]=(int)flip;
-				sideswimcastingspr[spr_extend]=(int)extend;
+				sideswimcastingspr[spr_tile]=(int32_t)tile;
+				sideswimcastingspr[spr_flip]=(int32_t)flip;
+				sideswimcastingspr[spr_extend]=(int32_t)extend;
 			}
 			if (v_linksprites > 13)
 			{
-				for(int q = 0; q < 4; ++q)
+				for(int32_t q = 0; q < 4; ++q)
 				{
 					if(!p_igetl(&tile,f,keepdata))
 						return qe_invalid;
@@ -10721,9 +10721,9 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 					
 					if(keepdata)
 					{
-						sidedrowningspr[q][spr_tile] = (int)tile;
-						sidedrowningspr[q][spr_flip] = (int)flip;
-						sidedrowningspr[q][spr_extend] = (int)extend;
+						sidedrowningspr[q][spr_tile] = (int32_t)tile;
+						sidedrowningspr[q][spr_flip] = (int32_t)flip;
+						sidedrowningspr[q][spr_extend] = (int32_t)extend;
 					}
 				}
 			}
@@ -10754,9 +10754,9 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 			memset(medallionsprs, 0, sizeof(medallionsprs));
 			memset(holdspr[0][2], 0, sizeof(holdspr[0][2])); //Sword hold (Land)
 			memset(holdspr[1][2], 0, sizeof(holdspr[1][2])); //Sword hold (Water)
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
-				for(int p = 0; p < 3; ++p)
+				for(int32_t p = 0; p < 3; ++p)
 				{
 					drowningspr[q][p] = divespr[q][p];
 					drowning_lavaspr[q][p] = divespr[q][p];
@@ -10770,11 +10770,11 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 			memset(sideswimholdspr, 0, sizeof(sideswimholdspr));
 			memset(sideswimcastingspr, 0, sizeof(sideswimcastingspr));
 			memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
-			for(int q = 0; q < 4; ++q) hammeroffsets[q] = 0;
+			for(int32_t q = 0; q < 4; ++q) hammeroffsets[q] = 0;
 		}
         if (v_linksprites > 7)
         {
-            int num_defense = wMax;
+            int32_t num_defense = wMax;
             byte def = 0;
 
             //Set num_defense accordingly if changes to enum require version upgrade - Jman
@@ -10784,7 +10784,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
             * }
             */
 
-            for (int q = 0; q < num_defense; q++)
+            for (int32_t q = 0; q < num_defense; q++)
             {
                 if (!p_getc(&def, f, keepdata))
                     return qe_invalid;
@@ -10801,7 +10801,7 @@ int readlinksprites3(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 }
 
 
-int readlinksprites(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readlinksprites(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -10836,9 +10836,9 @@ int readlinksprites(PACKFILE *f, zquestheader *Header, bool keepdata)
     else return readlinksprites2(f, s_version, dummy, keepdata);
 }
 
-int readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
-    int dummy;
+    int32_t dummy;
     word s_version=0, s_cversion=0;
     
     //section version info
@@ -10862,9 +10862,9 @@ int readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     
     //finally...  section data
-    for(int i=0; i<MAXCUSTOMSUBSCREENS; i++)
+    for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
     {
-        int ret = read_one_subscreen(f, Header, keepdata, i, s_version, s_cversion);
+        int32_t ret = read_one_subscreen(f, Header, keepdata, i, s_version, s_cversion);
         
         if(ret!=0) return ret;
     }
@@ -10872,11 +10872,11 @@ int readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
     return 0;
 }
 
-int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s_version, word)
+int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i, word s_version, word)
 {
     GarbageCollector gc;
     
-    int numsub=0;
+    int32_t numsub=0;
     byte temp_ss=0;
     subscreen_object *temp_sub = gc(new subscreen_object);
     
@@ -10897,14 +10897,14 @@ int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s
     
     if(s_version < 4)
     {
-        unsigned char tmp=0;
+        uint8_t tmp=0;
         
         if(!p_getc(&tmp,f,true))
         {
             return qe_invalid;
         }
         
-        numsub = (int)tmp;
+        numsub = (int32_t)tmp;
     }
     else
     {
@@ -10915,10 +10915,10 @@ int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s
             return qe_invalid;
         }
         
-        numsub = (int)tmp;
+        numsub = (int32_t)tmp;
     }
     
-    int j;
+    int32_t j;
     
     for(j=0; (j<MAXSUBSCREENITEMS&&j<numsub); j++)
     {
@@ -11107,7 +11107,7 @@ int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s
             }
         }
         
-        int temp_size=0;
+        int32_t temp_size=0;
         
         // bool deletets = false;
         switch(temp_sub->type)
@@ -11117,8 +11117,8 @@ int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s
         case ssoCURRENTITEMTEXT:
         case ssoCURRENTITEMCLASSTEXT:
             word temptempsize;
-            /*unsigned char temp1;
-            unsigned char temp2;
+            /*uint8_t temp1;
+            uint8_t temp2;
             temp2 = 0;
             if(!p_getc(&temp1,f,true))
                 {
@@ -11139,12 +11139,12 @@ int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s
             }
             
             //temptempsize = temp1 + (temp2 << 8);
-            temp_size = (int)temptempsize;
+            temp_size = (int32_t)temptempsize;
             
             //if(temp_sub->dp1!=NULL) delete[] temp_sub->dp1;
             if(keepdata)
             {
-                unsigned int char_length = temp_size+1;
+                uint32_t char_length = temp_size+1;
                 temp_sub->dp1 = new char[char_length]; //memory not freed
                 
                 //deletets = true; //obsolete
@@ -11473,7 +11473,7 @@ int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s
 
 void reset_subscreen(subscreen_group *tempss)
 {
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
     {
         switch(tempss->objects[i].type)
         {
@@ -11493,16 +11493,16 @@ void reset_subscreen(subscreen_group *tempss)
 
 void reset_subscreens()
 {
-    for(int i=0; i<MAXCUSTOMSUBSCREENS; ++i)
+    for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; ++i)
     {
         reset_subscreen(&custom_subscreen[i]);
     }
 }
 
-int setupsubscreens()
+int32_t setupsubscreens()
 {
     reset_subscreens();
-    int tempsubscreen=zinit.subscreen;
+    int32_t tempsubscreen=zinit.subscreen;
     subscreen_object *tempsub;
     
     if(tempsubscreen>=ssdtMAX)
@@ -11521,7 +11521,7 @@ int setupsubscreens()
     case ssdtBSZELDACOMPLETE:
     {
         tempsub = default_subscreen_active[tempsubscreen][0];
-        int i;
+        int32_t i;
         
         for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
         {
@@ -11705,7 +11705,7 @@ int setupsubscreens()
     case ssdtZ3:
     {
         tempsub = z3_active_a;
-        int i;
+        int32_t i;
         
         for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
         {
@@ -11861,7 +11861,7 @@ int setupsubscreens()
     }
     }
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
     {
         purge_blank_subscreen_objects(&custom_subscreen[i]);
     }
@@ -11885,13 +11885,13 @@ extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 
 
-int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
-    int dummy;
+    int32_t dummy;
     word s_version=0, s_cversion=0, zmeta_version=0;
     byte numscripts=0;
     numscripts=numscripts; //to avoid unused variables warnings
-    int ret;
+    int32_t ret;
     
     //section version info
     if(!p_igetw(&s_version,f,true))
@@ -11929,7 +11929,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
     al_trace("Loaded scripts last compiled in ZScript version: %ld\n", (FFCore.quest_format[vLastCompile]));
     
     //finally...  section data
-    for(int i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
+    for(int32_t i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
     {
         ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ffscripts[i], zmeta_version);
         
@@ -11938,21 +11938,21 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     if(s_version > 1)
     {
-        for(int i = 0; i < NUMSCRIPTITEM; i++)
+        for(int32_t i = 0; i < NUMSCRIPTITEM; i++)
         {
             ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemscripts[i], zmeta_version);
             
             if(ret != 0) return qe_invalid;
         }
         
-        for(int i = 0; i < NUMSCRIPTGUYS; i++)
+        for(int32_t i = 0; i < NUMSCRIPTGUYS; i++)
         {
             ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &guyscripts[i], zmeta_version);
             
             if(ret != 0) return qe_invalid;
         }
         
-        for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+        for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
         {
             ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &wpnscripts[i], zmeta_version);
             
@@ -11960,7 +11960,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
 	
-        for(int i = 0; i < NUMSCRIPTSCREEN; i++)
+        for(int32_t i = 0; i < NUMSCRIPTSCREEN; i++)
         {
             ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &screenscripts[i], zmeta_version);
             
@@ -11969,7 +11969,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 		if(s_version > 16)
 		{
-			for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
+			for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
@@ -11978,7 +11978,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		else if(s_version > 13)
 		{
-			for(int i = 0; i < NUMSCRIPTGLOBAL255OLD; ++i)
+			for(int32_t i = 0; i < NUMSCRIPTGLOBAL255OLD; ++i)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
@@ -11992,7 +11992,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		else if(s_version > 4)
 		{
-			for(int i = 0; i < NUMSCRIPTGLOBAL253; ++i)
+			for(int32_t i = 0; i < NUMSCRIPTGLOBAL253; ++i)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
@@ -12021,7 +12021,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		else
 		{
-			for(int i = 0; i < NUMSCRIPTGLOBALOLD; i++)
+			for(int32_t i = 0; i < NUMSCRIPTGLOBALOLD; i++)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
@@ -12056,7 +12056,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         
 	if(s_version > 10) //expanded the number of Link scripts to 5. 
         {
-		for(int i = 0; i < NUMSCRIPTLINK; i++)
+		for(int32_t i = 0; i < NUMSCRIPTLINK; i++)
 		{
 		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &linkscripts[i], zmeta_version);
 		    
@@ -12065,7 +12065,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
 	else
 	{
-		for(int i = 0; i < NUMSCRIPTLINKOLD; i++)
+		for(int32_t i = 0; i < NUMSCRIPTLINKOLD; i++)
 		{
 		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &linkscripts[i], zmeta_version);
 		    
@@ -12084,13 +12084,13 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         if(s_version > 8 && s_version < 10)
         {
             
-            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
             {
                 ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
                 
                 if(ret != 0) return qe_invalid;
             }
-            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
             {
                 ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
             
@@ -12101,19 +12101,19 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(s_version >= 10)
         {
             
-            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
             {
                 ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &lwpnscripts[i], zmeta_version);
                 
                 if(ret != 0) return qe_invalid;
             }
-	    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+	    for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
             {
                 ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
                 
                 if(ret != 0) return qe_invalid;
             }
-            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
             {
                 ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
             
@@ -12123,7 +12123,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
 	if(s_version >=12)
 	{
-		for(int i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
+		for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
 		{
 			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemspritescripts[i], zmeta_version);
                 
@@ -12133,7 +12133,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	if(s_version >=15)
 	{
-		for(int i = 0; i < NUMSCRIPTSCOMBODATA; i++)
+		for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA; i++)
 		{
 			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &comboscripts[i], zmeta_version);
                 
@@ -12145,12 +12145,12 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         /*
         else //Is this trip really necessary?
         {
-            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
             {
                 
                 ewpnscripts[i] = NULL;
             }
-            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
             {
                 dmapscripts[i] = NULL;
             }
@@ -12161,7 +12161,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     if(s_version > 2)
     {
-        long bufsize;
+        int32_t bufsize;
         p_igetl(&bufsize, f, true);
         char * buf = new char[bufsize+1];
         pfread(buf, bufsize, f, true);
@@ -12174,7 +12174,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         word numffcbindings;
         p_igetw(&numffcbindings, f, true);
         
-        for(int i=0; i<numffcbindings; i++)
+        for(int32_t i=0; i<numffcbindings; i++)
         {
             word id;
             p_igetw(&id, f, true);
@@ -12193,7 +12193,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         word numglobalbindings;
         p_igetw(&numglobalbindings, f, true);
         
-        for(int i=0; i<numglobalbindings; i++)
+        for(int32_t i=0; i<numglobalbindings; i++)
         {
             word id;
             p_igetw(&id, f, true);
@@ -12229,7 +12229,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             word numitembindings;
             p_igetw(&numitembindings, f, true);
             
-            for(int i=0; i<numitembindings; i++)
+            for(int32_t i=0; i<numitembindings; i++)
             {
                 word id;
                 p_igetw(&id, f, true);
@@ -12252,7 +12252,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             word numnpcbindings;
             p_igetw(&numnpcbindings, f, true);
             
-            for(int i=0; i<numnpcbindings; i++)
+            for(int32_t i=0; i<numnpcbindings; i++)
             {
                 word id;
                 p_igetw(&id, f, true);
@@ -12275,7 +12275,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             word numlwpnbindings;
             p_igetw(&numlwpnbindings, f, true);
             
-            for(int i=0; i<numlwpnbindings; i++)
+            for(int32_t i=0; i<numlwpnbindings; i++)
             {
                 word id;
                 p_igetw(&id, f, true);
@@ -12297,7 +12297,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             word numewpnbindings;
             p_igetw(&numewpnbindings, f, true);
             
-            for(int i=0; i<numewpnbindings; i++)
+            for(int32_t i=0; i<numewpnbindings; i++)
             {
                 word id;
                 p_igetw(&id, f, true);
@@ -12319,7 +12319,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             word numlinkbindings;
             p_igetw(&numlinkbindings, f, true);
             
-            for(int i=0; i<numlinkbindings; i++)
+            for(int32_t i=0; i<numlinkbindings; i++)
             {
                 word id;
                 p_igetw(&id, f, true);
@@ -12341,7 +12341,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             word numdmapbindings;
             p_igetw(&numdmapbindings, f, true);
             
-            for(int i=0; i<numdmapbindings; i++)
+            for(int32_t i=0; i<numdmapbindings; i++)
             {
                 word id;
                 p_igetw(&id, f, true);
@@ -12363,7 +12363,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             word numscreenbindings;
             p_igetw(&numscreenbindings, f, true);
             
-            for(int i=0; i<numscreenbindings; i++)
+            for(int32_t i=0; i<numscreenbindings; i++)
             {
                 word id;
                 p_igetw(&id, f, true);
@@ -12384,7 +12384,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             word numspritebindings;
             p_igetw(&numspritebindings, f, true);
             
-            for(int i=0; i<numspritebindings; i++)
+            for(int32_t i=0; i<numspritebindings; i++)
             {
                 word id;
                 p_igetw(&id, f, true);
@@ -12405,7 +12405,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             word numcombobindings;
             p_igetw(&numcombobindings, f, true);
             
-            for(int i=0; i<numcombobindings; i++)
+            for(int32_t i=0; i<numcombobindings; i++)
             {
                 word id;
                 p_igetw(&id, f, true);
@@ -12427,7 +12427,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 }
 
 //Eh?
-bool is_string_command(int command)
+bool is_string_command(int32_t command)
 {
     command = command;
     return false;
@@ -12436,128 +12436,128 @@ bool is_string_command(int command)
 void reset_scripts()
 {
     //OK, who spaced this? ;)
-    for(int i=0; i<NUMSCRIPTFFC; i++)
+    for(int32_t i=0; i<NUMSCRIPTFFC; i++)
     {
         if(ffscripts[i]!=NULL) delete ffscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTITEM; i++)
+    for(int32_t i=0; i<NUMSCRIPTITEM; i++)
     {
         if(itemscripts[i]!=NULL) delete itemscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTGUYS; i++)
+    for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
     {
         if(guyscripts[i]!=NULL) delete guyscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         if(wpnscripts[i]!=NULL) delete wpnscripts[i];
     }
     
     
     
-    for(int i=0; i<NUMSCRIPTSCREEN; i++)
+    for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
     {
         if(screenscripts[i]!=NULL) delete screenscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTGLOBAL; i++)
+    for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
     {
         if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTLINK; i++)
+    for(int32_t i=0; i<NUMSCRIPTLINK; i++)
     {
         if(linkscripts[i]!=NULL) delete linkscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
     {
         if(dmapscripts[i]!=NULL) delete dmapscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
         if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTFFC; i++)
+    for(int32_t i=0; i<NUMSCRIPTFFC; i++)
     {
         ffscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTITEM; i++)
+    for(int32_t i=0; i<NUMSCRIPTITEM; i++)
     {
         itemscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTGUYS; i++)
+    for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
     {
         guyscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         wpnscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTSCREEN; i++)
+    for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
     {
         screenscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTGLOBAL; i++)
+    for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
     {
         globalscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTLINK; i++)
+    for(int32_t i=0; i<NUMSCRIPTLINK; i++)
     {
         linkscripts[i] = new script_data();
     }
     
-     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+     for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         lwpnscripts[i] = new script_data();
     }
-     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+     for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         ewpnscripts[i] = new script_data();
     }
     
-     for(int i=0; i<NUMSCRIPTSDMAP; i++)
+     for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
     {
         dmapscripts[i] = new script_data();
     }
-    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
         itemspritescripts[i] = new script_data();
     }
-    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
         comboscripts[i] = new script_data();
     }
 }
 
-int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_version, word , script_data **script, word zmeta_version)
+int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , word s_version, word , script_data **script, word zmeta_version)
 {
 
     //Please also update loadquest() when modifying this method -DD
     ffscript temp_script;
     temp_script.ptr=NULL;
-    long num_commands=1000;
+    int32_t num_commands=1000;
 	
     if(s_version>=2)
     {
@@ -12597,9 +12597,9 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
 			return qe_invalid;
 		}
 		
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
-			for(int c = 0; c < 33; ++c)
+			for(int32_t c = 0; c < 33; ++c)
 			{
 				if(!p_getc(&(temp_meta.run_idens[q][c]),f,true))
 				{
@@ -12608,7 +12608,7 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
 			}
 		}
 		
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
 			if(!p_getc(&(temp_meta.run_types[q]),f,true))
 			{
@@ -12643,7 +12643,7 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
 		
 		if(zmeta_version >= 2)
 		{
-			for(int c = 0; c < 33; ++c)
+			for(int32_t c = 0; c < 33; ++c)
 			{
 				if(!p_getc(&(temp_meta.script_name[c]),f,true))
 				{
@@ -12651,7 +12651,7 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
 				}
 			}
 			
-			for(int c = 0; c < 33; ++c)
+			for(int32_t c = 0; c < 33; ++c)
 			{
 				if(!p_getc(&(temp_meta.author[c]),f,true))
 				{
@@ -12664,7 +12664,7 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
 			(*script)->meta = temp_meta;
 	}
     
-    for(int j=0; j<num_commands; j++)
+    for(int32_t j=0; j<num_commands; j++)
     {
         if(!p_igetw(&(temp_script.command),f,true))
         {
@@ -12716,8 +12716,8 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
 }
 
 extern SAMPLE customsfxdata[WAV_COUNT];
-extern unsigned char customsfxflag[WAV_COUNT>>3];
-extern int sfxdat;
+extern uint8_t customsfxflag[WAV_COUNT>>3];
+extern int32_t sfxdat;
 extern DATAFILE *sfxdata;
 const char *old_sfx_string[Z35] =
 {
@@ -12736,14 +12736,14 @@ const char *old_sfx_string[Z35] =
 };
 char *sfx_string[WAV_COUNT];
 
-int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    long dummy;
+    int32_t dummy;
     word s_version=0, s_cversion=0;
-    //int ret;
+    //int32_t ret;
     SAMPLE temp_sample;
     temp_sample.loop_start=0;
     temp_sample.loop_end=0;
@@ -12779,12 +12779,12 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
         
     /* End highly unorthodox updating thing */
     
-    int wavcount = WAV_COUNT;
+    int32_t wavcount = WAV_COUNT;
     
     if(s_version < 6)
         wavcount = 128;
         
-    unsigned char tempflag[WAV_COUNT>>3];
+    uint8_t tempflag[WAV_COUNT>>3];
     
     if(s_version < 4)
     {
@@ -12795,7 +12795,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
         if(s_version < 6)
             memset(tempflag, 0, WAV_COUNT>>3);
             
-        for(int i=0; i<(wavcount>>3); i++)
+        for(int32_t i=0; i<(wavcount>>3); i++)
         {
             p_getc(&tempflag[i], f, true);
         }
@@ -12807,7 +12807,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
         
     if(s_version>4)
     {
-        for(int i=1; i<WAV_COUNT; i++)
+        for(int32_t i=1; i<WAV_COUNT; i++)
         {
             if(keepdata)
             {
@@ -12838,7 +12838,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         if(keepdata)
         {
-            for(int i=1; i<WAV_COUNT; i++)
+            for(int32_t i=1; i<WAV_COUNT; i++)
             {
                 sprintf(sfx_string[i],"s%03d",i);
                 
@@ -12849,7 +12849,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     
     //finally...  section data
-    for(int i=1; i<wavcount; i++)
+    for(int32_t i=1; i<wavcount; i++)
     {
         if(get_bit(tempflag, i-1) == 0)
             continue;
@@ -12904,7 +12904,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         // al_trace("F%i: L%i\n",i,temp_sample.len);
 //    temp_sample.data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
-        int len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
+        int32_t len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
         temp_sample.data = calloc(len,1);
         
         if(s_version < 3)
@@ -12921,9 +12921,9 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
         else
         {
             //re-endianfy the data
-            int wordstoread = len / sizeof(word);
+            int32_t wordstoread = len / sizeof(word);
             
-            for(int j=0; j<wordstoread; j++)
+            for(int32_t j=0; j<wordstoread; j++)
             {
                 word temp;
                 
@@ -12946,7 +12946,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
             
 //      customsfxdata[i].data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
-            int len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
+            int32_t len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
             customsfxdata[i].data = calloc(len2,1);
             customsfxdata[i].bits = temp_sample.bits;
             customsfxdata[i].stereo = temp_sample.stereo;
@@ -12956,7 +12956,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
             customsfxdata[i].loop_start = temp_sample.loop_start;
             customsfxdata[i].loop_end = temp_sample.loop_end;
             customsfxdata[i].param = temp_sample.param;
-            int cpylen = len2;
+            int32_t cpylen = len2;
             
             if(s_version<3)
             {
@@ -12978,7 +12978,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 void setupsfx()
 {
-    for(int i=1; i<WAV_COUNT; i++)
+    for(int32_t i=1; i<WAV_COUNT; i++)
     {
         sprintf(sfx_string[i],"s%03d",i);
         
@@ -12989,7 +12989,7 @@ void setupsfx()
         
         memset(customsfxflag, 0, WAV_COUNT>>3);
         
-        int j=i;
+        int32_t j=i;
         
         if(i>Z35)
         {
@@ -13022,7 +13022,7 @@ void setupsfx()
 extern char *guy_string[eMAXGUYS];
 extern const char *old_guy_string[OLDMAXGUYS];
 
-int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     dword dummy;
     word guy_cversion;
@@ -13053,7 +13053,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     if(guyversion > 3)
     {
-        for(int i=0; i<MAXGUYS; i++)
+        for(int32_t i=0; i<MAXGUYS; i++)
         {
             char tempname[64];
             
@@ -13108,12 +13108,12 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         if(keepdata)
         {
-            for(int i=0; i<eMAXGUYS; i++)
+            for(int32_t i=0; i<eMAXGUYS; i++)
             {
                 sprintf(guy_string[i],"zz%03d",i);
             }
             
-            for(int i=0; i<OLDMAXGUYS; i++)
+            for(int32_t i=0; i<OLDMAXGUYS; i++)
             {
                 strcpy(guy_string[i],old_guy_string[i]);
             }
@@ -13218,7 +13218,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         guydata tempguy;
         
-        for(int i=0; i<MAXGUYS; i++)
+        for(int32_t i=0; i<MAXGUYS; i++)
         {
             if(guyversion < 23 && keepdata)   // May 2012 : 512 max enemies
             {
@@ -13536,7 +13536,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
             else
             {
-                short tempMisc;
+                int16_t tempMisc;
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
                 {
@@ -13635,7 +13635,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    //If a 2.50 quest, use only the 2.5 defences. 
             if(guyversion >= 16 )  // November 2009 - Super Enemy Editor
             {
-                for(int j=0; j<edefLAST; j++)
+                for(int32_t j=0; j<edefLAST; j++)
                 {
                     if(!p_getc(&(tempguy.defense[j]),f,keepdata))
                     {
@@ -13676,7 +13676,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
             else if(guyversion >= 19)
             {
-                short tempMisc;
+                int16_t tempMisc;
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
                 {
@@ -13696,7 +13696,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    //If a 2.54 or later quest, use all of the defences. 
 	    if(guyversion > 24) // Add new guyversion conditional statement 
             {
-		for(int j=edefLAST; j<edefLAST255; j++)
+		for(int32_t j=edefLAST; j<edefLAST255; j++)
                 {
                     if(!p_getc(&(tempguy.defense[j]),f,keepdata))
                     {
@@ -13707,7 +13707,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    
 	    if(guyversion <= 24) // Port over generic script settings from old quests in the new editor. 
             {
-		for(int j=edefSCRIPT01; j<=edefSCRIPT10; j++)
+		for(int32_t j=edefSCRIPT01; j<=edefSCRIPT10; j++)
                 {
                     tempguy.defense[j] = tempguy.defense[edefSCRIPT] ;
                 }
@@ -13794,7 +13794,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		tempguy.frozentile = 0;
 		tempguy.frozencset = 0;
 		tempguy.frozenclock = 0;
-		for ( int q = 0; q < 10; q++ ) tempguy.frozenmisc[q] = 0;
+		for ( int32_t q = 0; q < 10; q++ ) tempguy.frozenmisc[q] = 0;
             }
 	    if(guyversion >= 30)
 	    {
@@ -13810,7 +13810,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			return qe_invalid;
 		}  
-		for ( int q = 0; q < 10; q++ ) {
+		for ( int32_t q = 0; q < 10; q++ ) {
 			if(!p_igetw(&(tempguy.frozenmisc[q]),f,keepdata))
 			{
 				return qe_invalid;
@@ -13894,13 +13894,13 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			return qe_invalid;
 		} 
 		
-		for ( int q = 0; q < 32; q++ ) {
+		for ( int32_t q = 0; q < 32; q++ ) {
 			if(!p_igetl(&(tempguy.movement[q]),f,keepdata))
 			{
 				return qe_invalid;
 			}
 		}
-		for ( int q = 0; q < 32; q++ ) {
+		for ( int32_t q = 0; q < 32; q++ ) {
 			if(!p_igetl(&(tempguy.new_weapon[q]),f,keepdata))
 			{
 				return qe_invalid;
@@ -13911,14 +13911,14 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			return qe_invalid;
 		} 
                 //al_trace("NPC Script ID is: %d\n",tempguy.script);
-		for ( int q = 0; q < 8; q++ )
+		for ( int32_t q = 0; q < 8; q++ )
 		{
 			if(!p_igetl(&(tempguy.initD[q]),f,keepdata))
 			{
 				return qe_invalid;
 			} 			
 		}
-		for ( int q = 0; q < 2; q++ )
+		for ( int32_t q = 0; q < 2; q++ )
 		{
 			if(!p_igetl(&(tempguy.initA[q]),f,keepdata))
 			{
@@ -13961,16 +13961,16 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    
 	    if ( guyversion >= 39 )
 	    {
-		for ( int q = 0; q < 8; q++ )
+		for ( int32_t q = 0; q < 8; q++ )
 		{
-			for ( int w = 0; w < 65; w++ )
+			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_getc(&(tempguy.initD_label[q][w]),f,keepdata))
 				{
 					return qe_invalid;
 				} 
 			}
-			for ( int w = 0; w < 65; w++ )
+			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_getc(&(tempguy.weapon_initD_label[q][w]),f,keepdata))
 				{
@@ -13984,7 +13984,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    if ( guyversion < 39 ) //apply old InitD strings to both
 	    {
 		al_trace("Populating InitD Label Fields for NPCS\n");
-		for ( int q = 0; q < 8; q++ )
+		for ( int32_t q = 0; q < 8; q++ )
 		{
 			sprintf(tempguy.initD_label[q],"InitD[%d]",q);
 			sprintf(tempguy.weapon_initD_label[q],"InitD[%d]",q);
@@ -14004,7 +14004,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    //eweapon script InitD
 	    if ( guyversion >= 41 )
 	    {
-		    for ( int q = 0; q < 8; q++ )
+		    for ( int32_t q = 0; q < 8; q++ )
 		    {
 			    if(!p_igetl(&(tempguy.weap_initiald[q]),f,keepdata))
 			    {
@@ -14126,7 +14126,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    //port over old defaults and zero new data. -Z
 	    if(guyversion < 34)
 	    {
-		for ( int q = 0; q < 32; q++ )
+		for ( int32_t q = 0; q < 32; q++ )
 		{
 			tempguy.movement[q] = 0;
 			tempguy.new_weapon[q] = 0;
@@ -14135,8 +14135,8 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		//NPC Script attributes.
 		tempguy.script = 0; //No scripted enemies existed. -Z
-		for ( int q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
-		for ( int q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
+		for ( int32_t q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
+		for ( int32_t q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
 		
 		tempguy.misc16 = 0;
 		tempguy.misc17 = 0;
@@ -14393,14 +14393,14 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 tempguy.deadsfx = (boss && (tempguy.family != eeDIG || tempguy.misc10 == 0)) ? WAV_GASP : WAV_EDEAD;
                 
                 if(tempguy.family == eeAQUA)
-                    for(int j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eRAQUAM].defense[j];
+                    for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eRAQUAM].defense[j];
                 else if(tempguy.family == eeMANHAN)
-                    for(int j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eMANHAN].defense[j];
+                    for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eMANHAN].defense[j];
                 else if(tempguy.family==eePATRA)
-                    for(int j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
+                    for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
                 else if(tempguy.family==eeGHOMA)
                 {
-                    for(int j=0; j<edefLAST; j++)
+                    for(int32_t j=0; j<edefLAST; j++)
                         tempguy.defense[j] = default_guys[eGOHMA1].defense[j];
                         
                     tempguy.defense[edefARROW] = ((tempguy.misc1==3) ? edCHINKL8 : (tempguy.misc1==2) ? edCHINKL4 : 0);
@@ -14411,7 +14411,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 }
                 else if(tempguy.family == eeGLEEOK)
                 {
-                    for(int j=0; j<edefLAST; j++)
+                    for(int32_t j=0; j<edefLAST; j++)
                         tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
                         
                     if(tempguy.misc3==1 && !tempguy.weapon) tempguy.weapon = ewFlame;
@@ -14848,7 +14848,7 @@ darknuts:
     case eeWIZZ:
         if(tempguy->misc4)
         {
-            for(int i=0; i < edefLAST; i++)
+            for(int32_t i=0; i < edefLAST; i++)
                 tempguy->defense[i] = (i != edefREFBEAM && i != edefREFMAGIC && i != edefQUAKE) ? edIGNORE : 0;
         }
         else
@@ -14878,7 +14878,7 @@ darknuts:
     // Old flags
     if(tempguy->flags & guy_superman)
     {
-        for(int i = 0; i < edefLAST; i++)
+        for(int32_t i = 0; i < edefLAST; i++)
             if(!(i==edefSBOMB && (tempguy->flags & guy_sbombonly)))
                 tempguy->defense[i] = (i==edefBRANG && tempguy->defense[i] != edIGNORE
                                        && tempguy->family != eeROCK && tempguy->family != eeTRAP
@@ -14892,10 +14892,10 @@ darknuts:
 }
 
 
-int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version)
+int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version)
 {
     byte tempbyte, padding;
-    int extras, secretcombos;
+    int32_t extras, secretcombos;
     //al_trace("readmapscreen Header->zelda_version: %x\n",Header->zelda_version);
     if(!p_getc(&(temp_mapscr->valid),f,true))
     {
@@ -14969,7 +14969,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>7)))
     {
-        for(int i=1; i<4; i++)
+        for(int32_t i=1; i<4; i++)
         {
             if(!p_getc(&(temp_mapscr->tilewarptype[i]),f,true))
             {
@@ -15003,7 +15003,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>7)))
     {
-        for(int i=1; i<4; i++)
+        for(int32_t i=1; i<4; i++)
         {
             if(!p_getc(&(temp_mapscr->warpreturnx[i]),f,true))
             {
@@ -15023,7 +15023,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>7)))
     {
-        for(int i=1; i<4; i++)
+        for(int32_t i=1; i<4; i++)
         {
             if(!p_getc(&(temp_mapscr->warpreturny[i]),f,true))
             {
@@ -15094,7 +15094,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         return qe_invalid;
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_getc(&(temp_mapscr->door[k]),f,true))
         {
@@ -15114,7 +15114,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         
         if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>7)))
         {
-            for(int i=1; i<4; i++)
+            for(int32_t i=1; i<4; i++)
             {
                 if(!p_getc(&(tempbyte),f,true))
                 {
@@ -15133,7 +15133,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     }
     else
     {
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetw(&(temp_mapscr->tilewarpdmap[i]),f,true))
             {
@@ -15149,7 +15149,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>7)))
     {
-        for(int i=1; i<4; i++)
+        for(int32_t i=1; i<4; i++)
         {
             if(!p_getc(&(temp_mapscr->tilewarpscr[i]),f,true))
             {
@@ -15198,7 +15198,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         }
     }
     
-    for(int k=0; k<10; k++)
+    for(int32_t k=0; k<10; k++)
     {
         /*
             if (!temp_mapscr->enemy[k])
@@ -15264,7 +15264,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>7)))
     {
-        for(int i=1; i<4; i++)
+        for(int32_t i=1; i<4; i++)
         {
             if(!p_getc(&(temp_mapscr->sidewarptype[i]),f,true))
             {
@@ -15301,7 +15301,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         return qe_invalid;
     }
     
-    for(int k=0; k<4; k++)
+    for(int32_t k=0; k<4; k++)
     {
         if(!p_getc(&(temp_mapscr->path[k]),f,true))
         {
@@ -15316,7 +15316,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>7)))
     {
-        for(int i=1; i<4; i++)
+        for(int32_t i=1; i<4; i++)
         {
             if(!p_getc(&(temp_mapscr->sidewarpscr[i]),f,true))
             {
@@ -15342,7 +15342,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         
         if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>7)))
         {
-            for(int i=1; i<4; i++)
+            for(int32_t i=1; i<4; i++)
             {
                 if(!p_getc(&(tempbyte),f,true))
                 {
@@ -15361,7 +15361,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     }
     else
     {
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!p_igetw(&(temp_mapscr->sidewarpdmap[i]),f,true))
             {
@@ -15567,7 +15567,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>97)))
     {
-        for(int k=0; k<6; k++)
+        for(int32_t k=0; k<6; k++)
         {
             if(!p_getc(&(temp_mapscr->layermap[k]),f,true))
             {
@@ -15575,7 +15575,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
             }
         }
         
-        for(int k=0; k<6; k++)
+        for(int32_t k=0; k<6; k++)
         {
             if(!p_getc(&(temp_mapscr->layerscreen[k]),f,true))
             {
@@ -15609,7 +15609,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version == 0x192)&&(Header->build>149))
     {
-        for(int k=0; k<6; k++)
+        for(int32_t k=0; k<6; k++)
         {
             if(!p_getc(&tempbyte,f,true))                          //layerxsize
             {
@@ -15617,7 +15617,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
             }
         }
         
-        for(int k=0; k<6; k++)
+        for(int32_t k=0; k<6; k++)
         {
             if(!p_getc(&tempbyte,f,true))                          //layerxspeed
             {
@@ -15625,7 +15625,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
             }
         }
         
-        for(int k=0; k<6; k++)
+        for(int32_t k=0; k<6; k++)
         {
             if(!p_getc(&tempbyte,f,true))                          //layerxdelay
             {
@@ -15633,7 +15633,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
             }
         }
         
-        for(int k=0; k<6; k++)
+        for(int32_t k=0; k<6; k++)
         {
             if(!p_getc(&tempbyte,f,true))                          //layerysize
             {
@@ -15641,7 +15641,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
             }
         }
         
-        for(int k=0; k<6; k++)
+        for(int32_t k=0; k<6; k++)
         {
             if(!p_getc(&tempbyte,f,true))                          //layeryspeed
             {
@@ -15649,7 +15649,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
             }
         }
         
-        for(int k=0; k<6; k++)
+        for(int32_t k=0; k<6; k++)
         {
             if(!p_getc(&tempbyte,f,true))                          //layerydelay
             {
@@ -15660,7 +15660,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>149)))
     {
-        for(int k=0; k<6; k++)
+        for(int32_t k=0; k<6; k++)
         {
             if(!p_getc(&(temp_mapscr->layeropacity[k]),f,true))
             {
@@ -15711,7 +15711,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         extras=0;
     }
     
-    for(int k=0; k<extras; k++)
+    for(int32_t k=0; k<extras; k++)
     {
         if(!p_getc(&tempbyte,f,true))                            //extra[k]
         {
@@ -15753,7 +15753,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
     {
-        for(int k=0; k<secretcombos; k++)
+        for(int32_t k=0; k<secretcombos; k++)
         {
             if(!p_getc(&tempbyte,f,true))
             {
@@ -15768,7 +15768,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     }
     else
     {
-        for(int k=0; k<128; k++)
+        for(int32_t k=0; k<128; k++)
         {
             if(!p_igetw(&(temp_mapscr->secretcombo[k]),f,true))
             {
@@ -15780,7 +15780,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>153)))
     {
-        for(int k=0; k<128; k++)
+        for(int32_t k=0; k<128; k++)
         {
             if(!p_getc(&(temp_mapscr->secretcset[k]),f,true))
             {
@@ -15788,7 +15788,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
             }
         }
         
-        for(int k=0; k<128; k++)
+        for(int32_t k=0; k<128; k++)
         {
             if(!p_getc(&(temp_mapscr->secretflag[k]),f,true))
             {
@@ -15805,13 +15805,13 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         }
     }
     
-    const int _mapsSize = (temp_map->tileWidth*temp_map->tileHeight);
+    const int32_t _mapsSize = (temp_map->tileWidth*temp_map->tileHeight);
     
     temp_mapscr->data.resize(_mapsSize, 0);
     temp_mapscr->sflag.resize(_mapsSize, 0);
     temp_mapscr->cset.resize(_mapsSize, 0);
     
-    for(int k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+    for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
     {
         if(!p_igetw(&(temp_mapscr->data[k]),f,true))
         {
@@ -15834,7 +15834,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>20)))
     {
-        for(int k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+        for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
         {
             if(!p_getc(&(temp_mapscr->sflag[k]),f,true))
             {
@@ -15863,7 +15863,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>97)))
     {
-        for(int k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+        for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
         {
         
             if(!p_getc(&(temp_mapscr->cset[k]),f,true))
@@ -15891,7 +15891,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
     {
-        for(int k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+        for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
         {
             if((Header->zelda_version == 0x192)&&(Header->build>149))
             {
@@ -15958,7 +15958,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
             return qe_invalid;
         }
         
-        int m;
+        int32_t m;
         float tempfloat;
         
         for(m=0; m<MAXFFCS; m++)
@@ -15987,42 +15987,42 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffx[m]=int(tempfloat*10000);
+                    temp_mapscr->ffx[m]=int32_t(tempfloat*10000);
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffy[m]=int(tempfloat*10000);
+                    temp_mapscr->ffy[m]=int32_t(tempfloat*10000);
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffxdelta[m]=int(tempfloat*10000);
+                    temp_mapscr->ffxdelta[m]=int32_t(tempfloat*10000);
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffydelta[m]=int(tempfloat*10000);
+                    temp_mapscr->ffydelta[m]=int32_t(tempfloat*10000);
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffxdelta2[m]=int(tempfloat*10000);
+                    temp_mapscr->ffxdelta2[m]=int32_t(tempfloat*10000);
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffydelta2[m]=int(tempfloat*10000);
+                    temp_mapscr->ffydelta2[m]=int32_t(tempfloat*10000);
                 }
                 else
                 {
@@ -16204,7 +16204,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         }
     }
     
-    for(int m=0; m<MAXFFCS; m++)
+    for(int32_t m=0; m<MAXFFCS; m++)
     {
         // ffcScriptData used to be part of mapscr, and this was handled just above
         ffcScriptData[m].a[0] = 10000;
@@ -16214,28 +16214,28 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     //2.55 starts here
     if ( version >= 19 && Header->zelda_version > 0x253 )
     {
-	for ( int q = 0; q < 10; q++ ) 
+	for ( int32_t q = 0; q < 10; q++ ) 
 	{
 		if(!p_igetl(&(temp_mapscr->npcstrings[q]),f,true))
 		{
                         return qe_invalid;
 		} 
 	}
-	for ( int q = 0; q < 10; q++ ) 
+	for ( int32_t q = 0; q < 10; q++ ) 
 	{
 		if(!p_igetw(&(temp_mapscr->new_items[q]),f,true))
 		{
                         return qe_invalid;
 		} 
 	}
-	for ( int q = 0; q < 10; q++ ) 
+	for ( int32_t q = 0; q < 10; q++ ) 
 	{
 		if(!p_igetw(&(temp_mapscr->new_item_x[q]),f,true))
 		{
                         return qe_invalid;
 		} 
 	}
-	for ( int q = 0; q < 10; q++ ) 
+	for ( int32_t q = 0; q < 10; q++ ) 
 	{
 		if(!p_igetw(&(temp_mapscr->new_item_y[q]),f,true))
 		{
@@ -16245,7 +16245,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     }
     if ( version < 19 && Header->zelda_version > 0x253 )
     {
-	for ( int q = 0; q < 10; q++ ) 
+	for ( int32_t q = 0; q < 10; q++ ) 
 	{
 	    temp_mapscr->npcstrings[q] = 0;
 	    temp_mapscr->new_items[q] = 0;
@@ -16259,7 +16259,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 	{
 		return qe_invalid;
 	} 
-	for ( int q = 0; q < 8; q++)
+	for ( int32_t q = 0; q < 8; q++)
 	{
 		if(!p_igetl(&(temp_mapscr->screeninitd[q]),f,true))
 		{
@@ -16270,7 +16270,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     if ( version < 20 )
     {
 	temp_mapscr->script = 0;
-	for ( int q = 0; q < 8; q++) temp_mapscr->screeninitd[q] = 0;
+	for ( int32_t q = 0; q < 8; q++) temp_mapscr->screeninitd[q] = 0;
     }
     if ( version >= 21 && Header->zelda_version > 0x253 )
     {
@@ -16320,14 +16320,14 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 
 
 
-int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
 
-    int scr=0;
+    int32_t scr=0;
     
     word version=0;
     dword dummy;
-    int screens_to_read;
+    int32_t screens_to_read;
     
     mapscr temp_mapscr;
     zcmap temp_map;
@@ -16379,14 +16379,14 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     if(keepdata)
     {
-        const int _mapsSize = MAPSCRS*temp_map_count;
+        const int32_t _mapsSize = MAPSCRS*temp_map_count;
         TheMaps.resize(_mapsSize);
         
-        for(int i(0); i<_mapsSize; i++)
+        for(int32_t i(0); i<_mapsSize; i++)
             TheMaps[i].zero_memory();
         
         // Used to be done for each screen
-        for(int i=0; i<32; i++)
+        for(int32_t i=0; i<32; i++)
         {
             ffcScriptData[i].a[0] = 10000;
             ffcScriptData[i].a[1] = 10000;
@@ -16397,7 +16397,7 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     temp_mapscr.zero_memory();
     
-    for(int i=0; i<temp_map_count && i<MAXMAPS2; i++)
+    for(int32_t i=0; i<temp_map_count && i<MAXMAPS2; i++)
     {
         memset(&temp_map, 0, sizeof(zcmap));
         /*if(version>12)
@@ -16477,7 +16477,7 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
         temp_map.subpTrans = false;
         
         //}
-        for(int j=0; j<screens_to_read; j++)
+        for(int32_t j=0; j<screens_to_read; j++)
         {
             scr=i*MAPSCRS+j;
             clear_screen(&temp_mapscr);
@@ -16498,13 +16498,13 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
             {
-                int index = (i*MAPSCRS+132);
+                int32_t index = (i*MAPSCRS+132);
                 //.....hmmm. todo: test this. >_>
                 
 //		delete_theMaps_data(index);
                 TheMaps[index]=TheMaps[index-1];
                 
-                const int _mapsSize = (temp_map.tileWidth)*(temp_map.tileHeight);
+                const int32_t _mapsSize = (temp_map.tileWidth)*(temp_map.tileHeight);
                 
                 //err...what? @_@
                 TheMaps[index].data.resize(_mapsSize, 0);
@@ -16515,7 +16515,7 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
                 TheMaps[i*MAPSCRS+132].sflag = TheMaps[i*MAPSCRS+131].sflag;
                 TheMaps[i*MAPSCRS+132].cset = TheMaps[i*MAPSCRS+131].cset;
                 
-                for(int j=133; j<MAPSCRS; j++)
+                for(int32_t j=133; j<MAPSCRS; j++)
                 {
                     scr=i*MAPSCRS+j;
                     
@@ -16528,12 +16528,12 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
             {
-                for(int j=0; j<MAPSCRS; j++)
+                for(int32_t j=0; j<MAPSCRS; j++)
                 {
                     scr=i*MAPSCRS+j;
                     TheMaps[scr].door_combo_set=MakeDoors(i, j);
                     
-                    for(int k=0; k<128; k++)
+                    for(int32_t k=0; k<128; k++)
                     {
                         TheMaps[scr].secretcset[k]=tcmbcset2(i, TheMaps[scr].secretcombo[k]);
                         TheMaps[scr].secretflag[k]=tcmbflag2(i, TheMaps[scr].secretcombo[k]);
@@ -16554,7 +16554,7 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 }
 
 
-int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata)
+int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	Header=Header;
@@ -16566,7 +16566,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 
 	// combos
 	word combos_used=0;
-	int dummy;
+	int32_t dummy;
 	byte padding;
 	newcombo temp_combo;
 	word section_version=0;
@@ -16617,7 +16617,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 	}
 
 	//finally...  section data
-	for(int i=0; i<combos_used; i++)
+	for(int32_t i=0; i<combos_used; i++)
 	{
 		memset(&temp_combo,0,sizeof(temp_combo));
 		
@@ -16671,7 +16671,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 			{
 				if(version == 0x191)
 				{
-					for(int tmpcounter=0; tmpcounter<16; tmpcounter++)
+					for(int32_t tmpcounter=0; tmpcounter<16; tmpcounter++)
 					{
 						if(!p_getc(&padding,f,true))
 						{
@@ -16752,7 +16752,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		
 		if(section_version>=8) //combo Attributes[4] and userflags.
 		{
-			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 			{
 				if(!p_igetl(&temp_combo.attributes[q],f,true))
 				{
@@ -16766,7 +16766,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
 		{
-			for ( int q = 0; q < 2; q++ )
+			for ( int32_t q = 0; q < 2; q++ )
 			{
 				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
 				{
@@ -16780,7 +16780,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		if(section_version>=10) //combo trigger flags
 		{
-			for ( int q = 0; q < 3; q++ )
+			for ( int32_t q = 0; q < 3; q++ )
 			{
 				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
 				{
@@ -16794,7 +16794,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		if(section_version>=12) //combo label
 		{
-			for ( int q = 0; q < 11; q++ )
+			for ( int32_t q = 0; q < 11; q++ )
 			{
 				if(!p_getc(&temp_combo.label[q],f,true))
 				{
@@ -16804,7 +16804,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		if(section_version<12) //combo label
 		{
-			for ( int q = 0; q < 11; q++ )
+			for ( int32_t q = 0; q < 11; q++ )
 			{
 				temp_combo.label[q] = 0;
 			}
@@ -16812,7 +16812,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		//al_trace("Read combo label\n");
 		if(section_version>=13) //attribytes[4]
 		{
-			for ( int q = 0; q < 4; q++ ) //Bad Zoria, don't mix constants with hardcodes
+			for ( int32_t q = 0; q < 4; q++ ) //Bad Zoria, don't mix constants with hardcodes
 			{
 				if(!p_getc(&temp_combo.attribytes[q],f,true))
 				{
@@ -16824,7 +16824,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		//al_trace("Read combo attribytes\n");
 		if( section_version < 13 )
 		{ 
-			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 			{
 				temp_combo.attribytes[q] = 0;
 			}
@@ -16834,7 +16834,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		if(section_version>=14) 
 		{
 			if(!p_igetw(&temp_combo.script,f,true)) return qe_invalid;
-			for ( int q = 0; q < 2; q++ )
+			for ( int32_t q = 0; q < 2; q++ )
 			{
 				if(!p_igetl(&temp_combo.initd[q],f,true))
 				{
@@ -16846,7 +16846,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		if(section_version<14)
 		{ 
 			temp_combo.script = 0;
-			for ( int q = 0; q < 2; q++ )
+			for ( int32_t q = 0; q < 2; q++ )
 			{
 				temp_combo.initd[q] = 0;
 			}
@@ -16866,14 +16866,14 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		if(section_version>=17) //attribytes[4]
 		{
-			for ( int q = 4; q < 8; q++ ) //bump up attribytes...
+			for ( int32_t q = 4; q < 8; q++ ) //bump up attribytes...
 			{
 				if(!p_getc(&temp_combo.attribytes[q],f,true))
 				{
 				return qe_invalid;
 				}
 			}
-			for ( int q = 0; q < 8; q++ ) //...and add attrishorts
+			for ( int32_t q = 0; q < 8; q++ ) //...and add attrishorts
 			{
 				if(!p_igetw(&temp_combo.attrishorts[q],f,true))
 				{
@@ -16884,11 +16884,11 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		else
 		{
-			for ( int q = 4; q < 8; q++ ) //bump up attribytes...
+			for ( int32_t q = 4; q < 8; q++ ) //bump up attribytes...
 			{
 				temp_combo.attribytes[q] = 0;
 			}
-			for ( int q = 0; q < 8; q++ ) //...and add attrishorts
+			for ( int32_t q = 0; q < 8; q++ ) //...and add attrishorts
 			{
 				temp_combo.attrishorts[q] = 0;
 			}
@@ -16899,7 +16899,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		if(section_version < 19)
 		{
-			for(int q = 0; q < 4; ++q)
+			for(int32_t q = 0; q < 4; ++q)
 			{
 				temp_combo.attributes[q] *= 10000L;
 			}
@@ -16907,7 +16907,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		
 		if(version < 0x193)
 		{
-			for(int q=0; q<11; q++)
+			for(int32_t q=0; q<11; q++)
 			{
 				if(!p_getc(&dummy,f,true))
 				{
@@ -16952,7 +16952,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 	{
 		if((version < 0x192)|| ((version == 0x192)&&(build<185)))
 		{
-			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
 			{
 				if(combobuf[tmpcounter].type==cHOOKSHOTONLY)
 				{
@@ -16964,14 +16964,14 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		//June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
 		if(version == 0x210 && !is_zquest())
 		{
-			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
 				if(combobuf[tmpcounter].type == cLADDERONLY)
 					combobuf[tmpcounter].type = cLADDERHOOKSHOT;
 		}
 		
 		if(section_version<7)
 		{
-			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
 			{
 				switch(combobuf[tmpcounter].type)
 				{
@@ -17011,7 +17011,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		}
 		if (section_version < 16)
 		{
-			for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
 			{
 				if (combobuf[tmpcounter].type == cWATER)
 				{
@@ -17030,7 +17030,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 	//Now for the new combo alias reset
 	if(section_version<2 && keepdata)
 	{
-		for(int j=0; j<MAXCOMBOALIASES; j++)
+		for(int32_t j=0; j<MAXCOMBOALIASES; j++)
 		{
 			combo_aliases[j].width = 0;
 			combo_aliases[j].height = 0;
@@ -17059,14 +17059,14 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 	return 0;
 }
 
-int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build, bool keepdata)
+int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build, bool keepdata)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     version=version;
     build=build;
     
-    int dummy;
+    int32_t dummy;
     word sversion=0, c_sversion;
     
     //section version info
@@ -17089,7 +17089,7 @@ int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build
         return qe_invalid;
     }
     
-    int max_num_combo_aliases = MAXCOMBOALIASES;
+    int32_t max_num_combo_aliases = MAXCOMBOALIASES;
     
     if(sversion < 3) // max saved combo alias' upped from 256 to 2048.
     {
@@ -17100,10 +17100,10 @@ int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build
         max_num_combo_aliases = OLDMAXCOMBOALIASES;
     }
     
-    for(int j=0; j<max_num_combo_aliases; j++)
+    for(int32_t j=0; j<max_num_combo_aliases; j++)
     {
         byte width,height,mask,tempcset;
-        int count;
+        int32_t count;
         word tempword;
         byte tempbyte;
         
@@ -17163,7 +17163,7 @@ int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build
             combo_aliases[j].csets = new byte[count];
         }
         
-        for(int k=0; k<count; k++)
+        for(int32_t k=0; k<count; k++)
         {
             if(!p_igetw(&tempword,f,true))
             {
@@ -17176,7 +17176,7 @@ int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build
             }
         }
         
-        for(int k=0; k<count; k++)
+        for(int32_t k=0; k<count; k++)
         {
             if(!p_getc(&tempcset,f,true))
             {
@@ -17193,7 +17193,7 @@ int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build
     return 0;
 }
 
-int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets, bool keepdata)
+int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets, bool keepdata)
 {
     //these are here to bypass compiler warnings about unused arguments
     start_cset=start_cset;
@@ -17206,7 +17206,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
     byte temp_colordata[48];
     char temp_palname[PALNAMESIZE];
     
-    int dummy;
+    int32_t dummy;
     word palcycles;
     
     if(version > 0x192)
@@ -17233,7 +17233,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
     }
     
     //finally...  section data
-    for(int i=0; i<oldpdTOTAL; ++i)
+    for(int32_t i=0; i<oldpdTOTAL; ++i)
     {
         memset(temp_colordata, 0, 48);
         
@@ -17264,7 +17264,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
     {
         memset(temp_colordata, 0, 48);
         
-        for(int i=0; i<newpdTOTAL-oldpdTOTAL; ++i)
+        for(int32_t i=0; i<newpdTOTAL-oldpdTOTAL; ++i)
         {
             if(!pfread(temp_colordata,48,f,true))
             {
@@ -17287,7 +17287,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
         }
         else
         {
-            for(int i=0; i<newerpdTOTAL-newpdTOTAL; ++i)
+            for(int32_t i=0; i<newerpdTOTAL-newpdTOTAL; ++i)
             {
                 if(!pfread(temp_colordata,48,f,true))
                 {
@@ -17311,14 +17311,14 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
     }
     else
     {
-        int palnamestoread = 0;
+        int32_t palnamestoread = 0;
         
         if(s_version < 3)
             palnamestoread = OLDMAXLEVELS;
         else
             palnamestoread = 512;
             
-        for(int i=0; i<palnamestoread; ++i)
+        for(int32_t i=0; i<palnamestoread; ++i)
         {
             memset(temp_palname, 0, PALNAMESIZE);
             
@@ -17335,7 +17335,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
         
         if(keepdata)
         {
-            for(int i=palnamestoread; i<MAXLEVELS; i++)
+            for(int32_t i=palnamestoread; i<MAXLEVELS; i++)
             {
                 memset(palnames[i], 0, PALNAMESIZE);
             }
@@ -17344,9 +17344,9 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
     
     if(version > 0x192)
     {
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
         {
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 temp_misc.cycles[i][j].first=0;
                 temp_misc.cycles[i][j].count=0;
@@ -17359,9 +17359,9 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
             return qe_invalid;
         }
         
-        for(int i=0; i<palcycles; i++)
+        for(int32_t i=0; i<palcycles; i++)
         {
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_getc(&temp_misc.cycles[i][j].first,f,true))
                 {
@@ -17369,7 +17369,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
                 }
             }
             
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_getc(&temp_misc.cycles[i][j].count,f,true))
                 {
@@ -17377,7 +17377,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
                 }
             }
             
-            for(int j=0; j<3; j++)
+            for(int32_t j=0; j<3; j++)
             {
                 if(!p_getc(&temp_misc.cycles[i][j].speed,f,true))
                 {
@@ -17395,12 +17395,12 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
     return 0;
 }
 
-int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int max_tiles, bool from_init, bool keepdata)
+int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int32_t max_tiles, bool from_init, bool keepdata)
 {
-    int tiles_used=0;
+    int32_t tiles_used=0;
 	word section_version = 0;
 	word section_cversion = 0;
-	int section_size= 0;
+	int32_t section_size= 0;
     byte *temp_tile = new byte[tilesize(tf32Bit)];
 	
     //Tile Expansion
@@ -17507,7 +17507,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         
 	//al_trace("tiles_used = %d\n", tiles_used);
 	
-        for(int i=0; i<tiles_used; ++i)
+        for(int32_t i=0; i<tiles_used; ++i)
         {
             byte format=tf4Bit;
             memset(temp_tile, 0, tilesize(tf32Bit));
@@ -17546,7 +17546,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
 	if ( section_version < 2 ) //write blank tile data --check s_version with this again instead?
 	{
 		//al_trace("Writing blank tile data to new tiles for build < 41\n");
-		for ( int q = ZC250MAXTILES; q < NEWMAXTILES; ++q )
+		for ( int32_t q = ZC250MAXTILES; q < NEWMAXTILES; ++q )
 		{
 			
 			//memcpy(buf[q].data,temp_tile,tilesize(buf[q].format));
@@ -17556,12 +17556,12 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
 			/*
 			
 			byte tempbyte;
-			for(int i=0; i<tilesize(tf4Bit); i++)
+			for(int32_t i=0; i<tilesize(tf4Bit); i++)
 			{
 				tempbyte=buf[ZC250MAXTILES-1].data[i];
 				buf[q].data[i] = tempbyte;
 			}
-			//int temp = tempbyte=buf[130].data[i];
+			//int32_t temp = tempbyte=buf[130].data[i];
 			//buf[q].data = buf[ZC250MAXTILES-1].data;
 			*/
 			//reset_tile(buf,q,tf4Bit);
@@ -17574,7 +17574,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
 	    //al_trace("calling reset_tile()");
 	if ( version < 0x254 || ( version >= 0x254 && build < 41 ))
 	{
-		for(int i=start_tile+tiles_used; i<max_tiles; ++i)
+		for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
 		{
 			//al_trace("Resetting tiles for ZC250MAXTILES, iteration: %d\n", i);
 		    reset_tile(buf,i,tf4Bit);
@@ -17583,7 +17583,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
 
 	else
 	{
-		for(int i=start_tile+tiles_used; i<max_tiles; ++i)
+		for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
 		{
 			//al_trace("Resetting tiles for build 41+\n");
 		    reset_tile(buf,i,tf4Bit);
@@ -17596,9 +17596,9 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
             if(get_bit(quest_rules,qr_BSZELDA))   //
             {
                 byte tempbyte;
-                int floattile=wpnsbuf[iwSwim].tile;
+                int32_t floattile=wpnsbuf[iwSwim].tile;
                 
-                for(int i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order //does this include swim tiles?
+                for(int32_t i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order //does this include swim tiles?
                 {
                     tempbyte=buf[23].data[i];
                     buf[23].data[i]=buf[24].data[i];
@@ -17607,7 +17607,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
                     buf[26].data[i]=tempbyte;
                 }
                 //swim tiles are out of order, too, but nobody cared? -Z 
-                for(int i=0; i<tilesize(tf4Bit); i++)
+                for(int32_t i=0; i<tilesize(tf4Bit); i++)
                 {
                     tempbyte=buf[floattile+11].data[i];
                     buf[floattile+11].data[i]=buf[floattile+12].data[i];
@@ -17622,7 +17622,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
             {
                 byte tempbyte;
                 
-                for(int i=0; i<tilesize(tf4Bit); i++)
+                for(int32_t i=0; i<tilesize(tf4Bit); i++)
                 {
                     tempbyte=buf[130].data[i];
                     buf[130].data[i]=buf[132].data[i];
@@ -17647,14 +17647,14 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
     return 0;
 }
 
-int readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *midis*/, bool keepdata)
+int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *midis*/, bool keepdata)
 {
     byte *mf=midi_flags;
-    long dummy;
+    int32_t dummy;
     word dummy2;
     // zcmidi_ temp_midi;
-    int tunes_to_read;
-    int tune_count=0;
+    int32_t tunes_to_read;
+    int32_t tune_count=0;
     word section_version=0;
     zctune temp;
     
@@ -17701,7 +17701,7 @@ int readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *midis*
         tunes_to_read=MAXCUSTOMTUNES;
     }
     
-    for(int i=0; i<MAXCUSTOMTUNES; ++i)
+    for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
     {
         if(get_bit(mf, i))
         {
@@ -17714,7 +17714,7 @@ int readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *midis*
         reset_tunes(tunes); //reset_midis(midis);
     }
     
-    for(int i=0; i<tunes_to_read; i++)
+    for(int32_t i=0; i<tunes_to_read; i++)
     {
         temp.clear(); //memset(&temp_midi,0,sizeof(zcmidi_));
         
@@ -17828,9 +17828,9 @@ int readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *midis*
     return 0;
 }
 
-int readcheatcodes(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readcheatcodes(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
-    int dummy;
+    int32_t dummy;
     ZCHEATS tempzcheats;
     char temp_use_cheats=1;
     memset(&tempzcheats, 0, sizeof(tempzcheats));
@@ -17886,9 +17886,9 @@ int readcheatcodes(PACKFILE *f, zquestheader *Header, bool keepdata)
     return 0;
 }
 
-int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
-	int dummy;
+	int32_t dummy;
 	word s_version=0, s_cversion=0;
 	byte padding;
 	
@@ -17928,7 +17928,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	temp_zinit.hcp_per_hc=4;
 	temp_zinit.bomb_ratio=4;
 	
-	for(int i=0; i<MAXITEMS; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		temp_zinit.items[i]=false;
 	}
@@ -17980,7 +17980,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	temp_zinit.transition_type=0;
 	temp_zinit.jump_link_layer_threshold=255;
 	
-	if(s_version >= 15 && get_bit(deprecated_rules, 27)) // The short-lived rule, qr_JUMPLINKLAYER3
+	if(s_version >= 15 && get_bit(deprecated_rules, 27)) // The int16_t-lived rule, qr_JUMPLINKLAYER3
 		temp_zinit.jump_link_layer_threshold=0;
 		
 	if(s_version >= 10)
@@ -17988,7 +17988,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		char temp;
 		
 		//new-style items
-		for(int j=0; j<256; j++)
+		for(int32_t j=0; j<256; j++)
 		{
 			if(!p_getc(&temp,f,true))
 				return qe_invalid;
@@ -18120,7 +18120,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			//new only
 			if((Header->zelda_version == 0x192)&&(Header->build>173))
 			{
-				for(int q=0; q<32; q++)
+				for(int32_t q=0; q<32; q++)
 				{
 					if(!p_getc(&padding,f,true))
 					{
@@ -18264,7 +18264,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				
 				if(Header->zelda_version == 0x192)
 				{
-					for(int q=0; q<32; q++)
+					for(int32_t q=0; q<32; q++)
 					{
 						if(!p_getc(&padding,f,true))
 						{
@@ -18386,7 +18386,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version>12 || (Header->zelda_version == 0x211 && Header->build == 18))
 		{
-			for(int i=0; i<64; i++)
+			for(int32_t i=0; i<64; i++)
 			{
 				if(!p_getc(&temp_zinit.map[i],f,true))
 				{
@@ -18394,7 +18394,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				}
 			}
 			
-			for(int i=0; i<64; i++)
+			for(int32_t i=0; i<64; i++)
 			{
 				if(!p_getc(&temp_zinit.compass[i],f,true))
 				{
@@ -18404,7 +18404,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		else
 		{
-			for(int i=0; i<32; i++)
+			for(int32_t i=0; i<32; i++)
 			{
 				if(!p_getc(&temp_zinit.map[i],f,true))
 				{
@@ -18412,7 +18412,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				}
 			}
 			
-			for(int i=0; i<32; i++)
+			for(int32_t i=0; i<32; i++)
 			{
 				if(!p_getc(&temp_zinit.compass[i],f,true))
 				{
@@ -18427,7 +18427,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			if(s_version>12 || (Header->zelda_version == 0x211 && Header->build == 18))
 			{
-				for(int i=0; i<64; i++)
+				for(int32_t i=0; i<64; i++)
 				{
 					if(!p_getc(&temp_zinit.boss_key[i],f,true))
 					{
@@ -18437,7 +18437,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 			else
 			{
-				for(int i=0; i<32; i++)
+				for(int32_t i=0; i<32; i++)
 				{
 					if(!p_getc(&temp_zinit.boss_key[i],f,true))
 					{
@@ -18447,7 +18447,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 		}
 		
-		for(int i=0; i<16; i++)
+		for(int32_t i=0; i<16; i++)
 		{
 			if(!p_getc(&temp_zinit.misc[i],f,true))
 			{
@@ -18455,7 +18455,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 		}
 		
-		if(s_version < 15) for(int i=0; i<4; i++)
+		if(s_version < 15) for(int32_t i=0; i<4; i++)
 			{
 				if(!p_getc(&sword_hearts[i],f,true))
 				{
@@ -18512,7 +18512,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				temp_zinit.magic*=32;
 			}
 			
-			for(int i=0; i<4; i++)
+			for(int32_t i=0; i<4; i++)
 			{
 				if(!p_getc(&beam_hearts[i],f,true))
 				{
@@ -18537,7 +18537,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			byte tempbp;
 			
-			for(int i=0; i<4; i++)
+			for(int32_t i=0; i<4; i++)
 			{
 				if(!(s_version < 14 ? p_getc(&tempbp,f,true) : p_igetw(&tempbp,f,true)))
 				{
@@ -18589,7 +18589,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		//old only
 		if((Header->zelda_version == 0x192)&&(Header->build<174))
 		{
-			for(int i=0; i<32; i++)
+			for(int32_t i=0; i<32; i++)
 			{
 				if(!p_getc(&temp_zinit.boss_key[i],f,true))
 				{
@@ -18642,7 +18642,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			if(s_version <= 10)
 			{
-				for(int i=0; i<OLDMAXLEVELS; i++)
+				for(int32_t i=0; i<OLDMAXLEVELS; i++)
 				{
 					if(!p_getc(&(temp_zinit.level_keys[i]),f,true))
 					{
@@ -18652,7 +18652,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 			else
 			{
-				for(int i=0; i<MAXLEVELS; i++)
+				for(int32_t i=0; i<MAXLEVELS; i++)
 				{
 					if(!p_getc(&(temp_zinit.level_keys[i]),f,true))
 					{
@@ -18960,7 +18960,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(Header->zelda_version < 0x193)
 		{
-			for(int q=0; q<96; q++)
+			for(int32_t q=0; q<96; q++)
 			{
 				if(!p_getc(&padding,f,true))
 				{
@@ -18987,7 +18987,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if((Header->zelda_version < 0x211)||((Header->zelda_version == 0x211)&&(Header->build<15)))
 	{
 		//temp_zinit.shield=i_smallshield;
-		int sshieldid = getItemID(itemsbuf, itype_shield, i_smallshield);
+		int32_t sshieldid = getItemID(itemsbuf, itype_shield, i_smallshield);
 		
 		if(sshieldid != -1)
 			temp_zinit.items[sshieldid] = true;
@@ -19025,18 +19025,18 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<129)))
 	{
 	
-		for(int x=0; x<4; x++)
+		for(int32_t x=0; x<4; x++)
 		{
 			beam_hearts[x]=100;
 		}
 		
-		for(int i=0; i<idBP_MAX; i++)
+		for(int32_t i=0; i<idBP_MAX; i++)
 		{
 			set_bit(&beam_percent,i,!get_bit(quest_rules,qr_LENSHINTS+i));
 			set_bit(quest_rules,qr_LENSHINTS+i,0);
 		}
 		
-		for(int x=0; x<4; x++)
+		for(int32_t x=0; x<4; x++)
 		{
 			beam_power[x]=get_bit(quest_rules,qr_HIDECARRIEDITEMS)?50:100;
 		}
@@ -19048,7 +19048,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	
 	// Okay,  let's put these legacy values into itemsbuf.
-	if(s_version < 15) for(int i=0; i<MAXITEMS; i++)
+	if(s_version < 15) for(int32_t i=0; i<MAXITEMS; i++)
 		{
 			switch(i)
 			{
@@ -19204,14 +19204,14 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version > 22)
 	{
-		for(int q = 0; q < 25; ++q)
+		for(int32_t q = 0; q < 25; ++q)
 		{
 			if(!p_igetw(&temp_zinit.scrcnt[q],f,true))
 			{
 				return qe_invalid;
 			}
 		}
-		for(int q = 0; q < 25; ++q)
+		for(int32_t q = 0; q < 25; ++q)
 		{
 			if(!p_igetw(&temp_zinit.scrmaxcnt[q],f,true))
 			{
@@ -19221,7 +19221,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	else
 	{
-		for(int q = 0; q < 25; ++q)
+		for(int32_t q = 0; q < 25; ++q)
 		{
 			temp_zinit.scrcnt[q] = 0;
 			temp_zinit.scrmaxcnt[q] = 0;
@@ -19352,14 +19352,14 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 /*
 void setupitemdropsets()
 {
-  for(int i=0; i<isMAX; i++)
+  for(int32_t i=0; i<isMAX; i++)
   {
     memcpy(&item_drop_sets[i], &default_item_drop_sets[i], sizeof(item_drop_object));
   }
 }
 */
 
-int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
+int32_t readitemdropsets(PACKFILE *f, int32_t version, word build, bool keepdata)
 {
     build=build; // here to prevent compiler warnings
     dword dummy_dword;
@@ -19369,7 +19369,7 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
     
     if(keepdata)
     {
-        for(int i=0; i<MAXITEMDROPSETS; i++)
+        for(int32_t i=0; i<MAXITEMDROPSETS; i++)
         {
             memset(&item_drop_sets[i], 0, sizeof(item_drop_object));
         }
@@ -19415,14 +19415,14 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
     
     if(s_version>=1)
     {
-        for(int i=0; i<item_drop_sets_to_read; i++)
+        for(int32_t i=0; i<item_drop_sets_to_read; i++)
         {
             if(!pfread(tempitemdrop.name,sizeof(tempitemdrop.name),f,true))
             {
                 return qe_invalid;
             }
             
-            for(int j=0; j<10; ++j)
+            for(int32_t j=0; j<10; ++j)
             {
                 if(!p_igetw(&tempitemdrop.item[j],f,true))
                 {
@@ -19430,7 +19430,7 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
                 }
             }
             
-            for(int j=0; j<11; ++j)
+            for(int32_t j=0; j<11; ++j)
             {
                 if(!p_igetw(&tempitemdrop.chance[j],f,true))
                 {
@@ -19444,9 +19444,9 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
                 continue;
                 
             // Deprecated: qr_NOCLOCKS and qr_ALLOW10RUPEEDROPS
-            if(s_version<2) for(int j=0; j<10; ++j)
+            if(s_version<2) for(int32_t j=0; j<10; ++j)
                 {
-                    int it = tempitemdrop.item[j];
+                    int32_t it = tempitemdrop.item[j];
                     
                     if((itemsbuf[it].family == itype_rupee
                             && ((itemsbuf[it].amount)&0xFFF) == 10)
@@ -19479,9 +19479,9 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
     return 0;
 }
 
-int readfavorites(PACKFILE *f, int, word, bool keepdata)
+int32_t readfavorites(PACKFILE *f, int32_t, word, bool keepdata)
 {
-    int temp_num;
+    int32_t temp_num;
     dword dummy_dword;
     word num_favorite_combos;
     word num_favorite_combo_aliases;
@@ -19512,7 +19512,7 @@ int readfavorites(PACKFILE *f, int, word, bool keepdata)
         return qe_invalid;
     }
     
-    for(int i=0; i<num_favorite_combos; i++)
+    for(int32_t i=0; i<num_favorite_combos; i++)
     {
         if(!p_igetl(&temp_num,f,true))
         {
@@ -19530,7 +19530,7 @@ int readfavorites(PACKFILE *f, int, word, bool keepdata)
         return qe_invalid;
     }
     
-    for(int i=0; i<num_favorite_combo_aliases; i++)
+    for(int32_t i=0; i<num_favorite_combo_aliases; i++)
     {
         if(!p_igetl(&temp_num,f,true))
         {
@@ -19587,7 +19587,7 @@ void portCandleRules()
 {
 	bool hurtslink = get_bit(quest_rules,qr_FIREPROOFLINK);
 	//itemdata itemsbuf;
-	for ( int q = 0; q < MAXITEMS; q++ ) 
+	for ( int32_t q = 0; q < MAXITEMS; q++ ) 
 	{
 		if ( itemsbuf[q].family == itype_candle )
 		{
@@ -19601,7 +19601,7 @@ void portBombRules()
 {
 	bool hurtslink = get_bit(quest_rules,qr_OUCHBOMBS);
 	//itemdata itemsbuf;
-	for ( int q = 0; q < MAXITEMS; q++ ) 
+	for ( int32_t q = 0; q < MAXITEMS; q++ ) 
 	{
 		if ( itemsbuf[q].family == itype_bomb )
 		{
@@ -19612,7 +19612,7 @@ void portBombRules()
 	
 }
 
-int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata)
+int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata)
 {
 	
     DMapEditorLastMaptileUsed = 0;
@@ -19671,7 +19671,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         itemspritemap.clear();
         comboscriptmap.clear();
         
-        for(int i=0; i<NUMSCRIPTFFC-1; i++)
+        for(int32_t i=0; i<NUMSCRIPTFFC-1; i++)
         {
             ffcmap[i].clear();
         }
@@ -19680,48 +19680,48 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
 		globalmap[0].scriptname = "~Init";
 		globalmap[0].update();
         
-        for(int i=1; i<NUMSCRIPTGLOBAL; i++)
+        for(int32_t i=1; i<NUMSCRIPTGLOBAL; i++)
         {
             globalmap[i].clear();
         }
         
         //globalmap[3] = pair<string,string>("Slot 4: ~Continue", "~Continue");
-        for(int i=0; i<NUMSCRIPTITEM-1; i++)
+        for(int32_t i=0; i<NUMSCRIPTITEM-1; i++)
         {
             itemmap[i].clear();
         }
         
         //new script types -- prevent carrying over to a quest that you load after reading them
         //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
-        for(int i=0; i<NUMSCRIPTGUYS-1; i++)
+        for(int32_t i=0; i<NUMSCRIPTGUYS-1; i++)
         {
             npcmap[i].clear();
         }
-        for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
+        for(int32_t i=0; i<NUMSCRIPTWEAPONS-1; i++)
         {
             lwpnmap[i].clear();
         }
-        for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
+        for(int32_t i=0; i<NUMSCRIPTWEAPONS-1; i++)
         {
             ewpnmap[i].clear();
         }
-        for(int i=0; i<NUMSCRIPTLINK-1; i++)
+        for(int32_t i=0; i<NUMSCRIPTLINK-1; i++)
         {
             linkmap[i].clear();
         }
-        for(int i=0; i<NUMSCRIPTSDMAP-1; i++)
+        for(int32_t i=0; i<NUMSCRIPTSDMAP-1; i++)
         {
             dmapmap[i].clear();
         }
-        for(int i=0; i<NUMSCRIPTSCREEN-1; i++)
+        for(int32_t i=0; i<NUMSCRIPTSCREEN-1; i++)
         {
             screenmap[i].clear();
         }
-	for(int i=0; i<NUMSCRIPTSITEMSPRITE-1; i++)
+	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE-1; i++)
         {
             itemspritemap[i].clear();
         }
-	for(int i=0; i<NUMSCRIPTSCOMBODATA-1; i++)
+	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA-1; i++)
         {
             comboscriptmap[i].clear();
         }
@@ -19734,14 +19734,14 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     
     // oldquest flag is set when an unencrypted qst file is suspected.
     bool oldquest = false;
-    int open_error=0;
+    int32_t open_error=0;
     char deletefilename[1024];
     PACKFILE *f=open_quest_file(&open_error, filename, deletefilename, compressed, encrypted, show_progress);
     
     if(!f)
         return open_error;
         
-    int ret=0;
+    int32_t ret=0;
     
     //header
     box_out("Reading Header...");
@@ -20028,9 +20028,9 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
                     {
                         setupsubscreens();
                         
-                        for(int i=0; i<MAXDMAPS; ++i)
+                        for(int32_t i=0; i<MAXDMAPS; ++i)
                         {
-                            int type=DMaps[i].type&dmfTYPE;
+                            int32_t type=DMaps[i].type&dmfTYPE;
                             DMaps[i].active_subscreen=(type == dmOVERW || type == dmBSOVERW)?0:1;
                             DMaps[i].passive_subscreen=(get_bit(quest_rules,qr_ENABLEMAGIC))?0:1;
                         }
@@ -20358,9 +20358,9 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         {
             setupsubscreens();
             
-            for(int i=0; i<MAXDMAPS; ++i)
+            for(int32_t i=0; i<MAXDMAPS; ++i)
             {
-                int type=DMaps[i].type&dmfTYPE;
+                int32_t type=DMaps[i].type&dmfTYPE;
                 DMaps[i].active_subscreen=(type == dmOVERW || type == dmBSOVERW)?0:1;
                 DMaps[i].passive_subscreen=(get_bit(quest_rules,qr_ENABLEMAGIC))?0:1;
             }
@@ -20405,11 +20405,11 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     
     if(fixffcs && combosread && mapsread)
     {
-        for(int i=0; i<map_count; i++)
+        for(int32_t i=0; i<map_count; i++)
         {
-            for(int j=0; j<MAPSCRS; j++)
+            for(int32_t j=0; j<MAPSCRS; j++)
             {
-                for(int m=0; m<32; m++)
+                for(int32_t m=0; m<32; m++)
                 {
                     if(combobuf[TheMaps[(i*MAPSCRS)+j].ffdata[m]].type == cCHANGE)
                         TheMaps[(i*MAPSCRS)+j].ffflags[m]|=ffCHANGER;

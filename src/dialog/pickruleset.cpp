@@ -7,7 +7,7 @@
 
 void call_ruleset_dlg()
 {
-	PickRulesetDialog([](int ruleset)
+	PickRulesetDialog([](int32_t ruleset)
 	{
 		applyRuleset(ruleset);
 	}).show();
@@ -42,7 +42,7 @@ static const GUI::ListData rulesetsList
 		"All but a few rules are off.\n" }
 };
 
-PickRulesetDialog::PickRulesetDialog(std::function<void(int)> setRuleset):
+PickRulesetDialog::PickRulesetDialog(std::function<void(int32_t)> setRuleset):
 	setRuleset(setRuleset)
 {}
 

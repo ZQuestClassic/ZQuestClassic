@@ -1,6 +1,6 @@
 ## Implementing a dialog
 
-Every dialog should be a subclass of `gui::Dialog` (from `gui/dialog.h`) with itself as the template parameter. It needs an inner type called `message` that can safely be cast to an int and back. Generally, this is an enum. It must not use negative values; these are used to represent no value internally. An extremely simple dialog that needs no messages can simply typedef `int`.
+Every dialog should be a subclass of `gui::Dialog` (from `gui/dialog.h`) with itself as the template parameter. It needs an inner type called `message` that can safely be cast to an int32_t and back. Generally, this is an enum. It must not use negative values; these are used to represent no value internally. An extremely simple dialog that needs no messages can simply typedef `int32_t`.
 
 A minimal dialog looks like this:
 ```
@@ -98,7 +98,7 @@ bool WhateverDialog::handleMessage(const GUI::DialogMessage<message>& msg)
     switch(msg.message)
     {
     case message::SET_VALUE:
-        // A numeric TextField sends its argument as an int;
+        // A numeric TextField sends its argument as an int32_t;
         // this will be implicitly cast.
         value=msg.argument;
         warningLabel->setVisible(value<0);

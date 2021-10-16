@@ -44,7 +44,7 @@ WNDPROC hAllegroProc = 0;
 #define Z_WIN32NOUPDATE
 
 
-void Win32Data::Update(int frameskip)
+void Win32Data::Update(int32_t frameskip)
 {
     if(!win32data.isValid)
         return;
@@ -61,7 +61,7 @@ void Win32Data::Update(int frameskip)
 
 
 // Should be called from winmain, and alleg-event threads.
-int Win32Data::zqSetDefaultThreadPriority(HANDLE _thread)
+int32_t Win32Data::zqSetDefaultThreadPriority(HANDLE _thread)
 {
     (void*)_thread;
     /*
@@ -86,7 +86,7 @@ int Win32Data::zqSetDefaultThreadPriority(HANDLE _thread)
 }
 
 
-int Win32Data::zqSetCustomCallbackProc(HWND hWnd)
+int32_t Win32Data::zqSetCustomCallbackProc(HWND hWnd)
 {
     Win32Mutex mutex;
     mutex.Lock();
@@ -169,7 +169,7 @@ LRESULT CALLBACK Win32Data::zqWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
 
 
 
-int Win32Data::zcSetCustomCallbackProc(HWND hWnd)
+int32_t Win32Data::zcSetCustomCallbackProc(HWND hWnd)
 {
     Win32Mutex mutex;
     mutex.Lock();

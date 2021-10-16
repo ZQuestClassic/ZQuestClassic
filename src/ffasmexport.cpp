@@ -9,17 +9,17 @@
 
 using namespace std;
 
-std::string varToString(long arg)
+std::string varToString(int32_t arg)
 {
-	for(int q = 0; variable_list[q].id != -1; ++q)
+	for(int32_t q = 0; variable_list[q].id != -1; ++q)
 	{
 		if(variable_list[q].maxcount>0)
 		{
-			long start = variable_list[q].id;
-			int mult = zc_max(1,variable_list[q].multiple);
+			int32_t start = variable_list[q].id;
+			int32_t mult = zc_max(1,variable_list[q].multiple);
 			if(arg >= start && arg < start+(variable_list[q].maxcount*mult))
 			{
-				for(int w = 0; w < variable_list[q].maxcount; ++w)
+				for(int32_t w = 0; w < variable_list[q].maxcount; ++w)
 				{
 					if(arg!=start+(w*mult)) continue;
 					
@@ -100,7 +100,7 @@ disassembled_script_data disassemble_script(script_data const* script)
 	ffscript const* zasm = script->zasm;
 	disassembled_script_data data;
 	data.first = script->meta;
-	for(long lineCount = 0; zasm[lineCount].command != 0xFFFF; ++lineCount)
+	for(int32_t lineCount = 0; zasm[lineCount].command != 0xFFFF; ++lineCount)
 	{
 		data.second.push_back(new ZScript::ArbitraryOpcode(getOpcodeString(&zasm[lineCount])));
 	}

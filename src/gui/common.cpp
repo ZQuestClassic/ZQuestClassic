@@ -4,11 +4,11 @@
 namespace GUI
 {
 
-int scrollProc(int msg, DIALOG* d, int c);
+int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c);
 
-void findScrollingPane(DIALOG* d, DIALOG** sp, int* index)
+void findScrollingPane(DIALOG* d, DIALOG** sp, int32_t* index)
 {
-	int i=0;
+	int32_t i=0;
 	do
 	{
 		--d;
@@ -18,13 +18,13 @@ void findScrollingPane(DIALOG* d, DIALOG** sp, int* index)
 	*index=i;
 }
 
-int newGUIProcImpl(int msg, DIALOG* d, int c, int (*base)(int, DIALOG*, int))
+int32_t newGUIProcImpl(int32_t msg, DIALOG* d, int32_t c, int32_t (*base)(int32_t, DIALOG*, int32_t))
 {
 	if(d->flags&D_SCROLLING)
 	{
 		// This widget is in a scrolling pane and needs some special handling.
 		DIALOG* sp;
-		int index;
+		int32_t index;
 
 		switch(msg)
 		{
@@ -42,7 +42,7 @@ int newGUIProcImpl(int msg, DIALOG* d, int c, int (*base)(int, DIALOG*, int))
 		case MSG_CLICK:
 		{
 			findScrollingPane(d, &sp, &index);
-			int ret=sp->proc(MSG_CHILDFOCUSED, sp, index); // MSG_CHILDFOCUSED
+			int32_t ret=sp->proc(MSG_CHILDFOCUSED, sp, index); // MSG_CHILDFOCUSED
 			return base(msg, d, c)|ret;                    // should be first
 		}
 
@@ -63,7 +63,7 @@ int newGUIProcImpl(int msg, DIALOG* d, int c, int (*base)(int, DIALOG*, int))
 	return base(msg, d, c);
 }
 
-int getAccelKey(const std::string_view text)
+int32_t getAccelKey(const std::string_view text)
 {
 	bool lastWasAmpersand = false;
 	for(auto& c: text)

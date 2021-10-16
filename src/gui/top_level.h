@@ -23,7 +23,7 @@ public:
 	inline RequireMessage<T> onKey(ShortcutKey k, T message)
 	{
 		shortcuts.emplace_back(KeyboardShortcut {
-			k.get(), static_cast<int>(message)
+			k.get(), static_cast<int32_t>(message)
 		});
 	}
 
@@ -34,7 +34,7 @@ public:
 	inline RequireMessage<T> onEnter(T message)
 	{
 		shortcuts.emplace_back(KeyboardShortcut {
-			Key::Enter.get(), static_cast<int>(message)
+			Key::Enter.get(), static_cast<int32_t>(message)
 		});
 	}
 
@@ -48,12 +48,12 @@ protected:
 	 * by subclasses after inserting their own and their children's DIALOGs.
 	 */
 	void realizeKeys(DialogRunner& runner);
-	int onEvent(int event, MessageDispatcher& sendMessage) override;
+	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 
 private:
 	std::vector<KeyboardShortcut> shortcuts;
 
-	static int proc(int msg, DIALOG* d, int c);
+	static int32_t proc(int32_t msg, DIALOG* d, int32_t c);
 };
 
 }

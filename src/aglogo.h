@@ -16,6 +16,6 @@
 
 extern DATAFILE* data;
 
-int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy);
+int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy);
 #endif
  

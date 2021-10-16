@@ -6,7 +6,7 @@ FFScript FFCore;
 std::vector<std::string> ZQincludePaths;
 byte quest_rules[QUESTRULES_NEW_SIZE];
 
-int get_bit(byte const* bitstr,int bit)
+int32_t get_bit(byte const* bitstr,int32_t bit)
 {
     bitstr += bit>>3;
     return ((*bitstr) >> (bit&7))&1;
@@ -15,17 +15,17 @@ void box_out(const char *msg) {}
 void box_out_nl(const char *msg) {}
 void box_eol() {}
 
-int used_switch(int argc,char *argv[],const char *s)
+int32_t used_switch(int32_t argc,char *argv[],const char *s)
 {
     // assumes a switch won't be in argv[0]
-    for(int i=1; i<argc; i++)
+    for(int32_t i=1; i<argc; i++)
         if(stricmp(argv[i],s)==0)
             return i;
 
     return 0;
 }
 
-int compile(std::string script_path)
+int32_t compile(std::string script_path)
 {
     printf("compiling %s\n", script_path.c_str());
 
@@ -55,7 +55,7 @@ int compile(std::string script_path)
     fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
     fclose(tempfile);
 
-    boost::movelib::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
+    std::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
     unlink("tmp");
 
     return 0;
@@ -67,8 +67,8 @@ void updateIncludePaths()
 	char includePathString[MAX_INCLUDE_PATH_CHARS] = {0};
 	if(f)
 	{
-		int pos = 0;
-		int c;
+		int32_t pos = 0;
+		int32_t c;
 		do
 		{
 			c = fgetc(f);
@@ -83,10 +83,10 @@ void updateIncludePaths()
 	}
 	else strcpy(includePathString, "include/;headers/;scripts/;");
 	ZQincludePaths.clear();
-	int pos = 0; int pathnumber = 0;
-	for ( int q = 0; includePathString[pos]; ++q )
+	int32_t pos = 0; int32_t pathnumber = 0;
+	for ( int32_t q = 0; includePathString[pos]; ++q )
 	{
-		int dest = 0;
+		int32_t dest = 0;
 		char buf[2048] = {0};
 		while(includePathString[pos] != ';' && includePathString[pos])
 		{
@@ -100,9 +100,9 @@ void updateIncludePaths()
 	}
 }
 
-int main(int argc, char **argv)
+int32_t main(int32_t argc, char **argv)
 {
-    int script_path_index = used_switch(argc, argv, "-input");
+    int32_t script_path_index = used_switch(argc, argv, "-input");
     if (!script_path_index) {
         printf("Error: missing required flag: -input\n");
         return 1;
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 	strcpy(FFCore.scriptRunString, get_config_string("Compiler","run_string","run"));
 	updateIncludePaths();
     // Any errors will be printed to stdout.
-    int res = compile(script_path);
+    int32_t res = compile(script_path);
     allegro_exit();
     return res;
 }

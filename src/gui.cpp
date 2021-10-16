@@ -46,26 +46,26 @@
 // make it global so the joystick button routine can set joy_on=TRUE
 DIALOG_PLAYER *player = NULL;
 
-int zc_do_dialog(DIALOG *d, int f)
+int32_t zc_do_dialog(DIALOG *d, int32_t f)
 {
-    int ret=do_zqdialog(d,f);
+    int32_t ret=do_zqdialog(d,f);
     position_mouse_z(0);
     return ret;
 }
 
-int zc_popup_dialog(DIALOG *d, int f)
+int32_t zc_popup_dialog(DIALOG *d, int32_t f)
 {
-    int ret=popup_zqdialog(d,f);
+    int32_t ret=popup_zqdialog(d,f);
     position_mouse_z(0);
     return ret;
 }
 
-int do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj)
+int32_t do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int32_t focus_obj)
 {
     BITMAP* orig_screen = screen;
     screen = buffer;
     
-    int ret=do_dialog(dialog, focus_obj);
+    int32_t ret=do_dialog(dialog, focus_obj);
     
     screen = orig_screen;
     blit(buffer, screen, 0, 0, 0, 0, screen->w, screen->h);
@@ -74,13 +74,13 @@ int do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj)
     return ret;
 }
 
-int zc_popup_dialog_dbuf(DIALOG *dialog, int focus_obj)
+int32_t zc_popup_dialog_dbuf(DIALOG *dialog, int32_t focus_obj)
 {
     BITMAP* buffer = create_bitmap_ex(get_color_depth(),SCREEN_H,SCREEN_W);
     blit(screen, buffer, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
     
     gui_set_screen(buffer);
-    int ret=popup_dialog(dialog, focus_obj);
+    int32_t ret=popup_dialog(dialog, focus_obj);
     gui_set_screen(NULL);
     
     blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
@@ -88,7 +88,7 @@ int zc_popup_dialog_dbuf(DIALOG *dialog, int focus_obj)
     return ret;
 }
 
-int PopUp_dialog(DIALOG *d,int f)
+int32_t PopUp_dialog(DIALOG *d,int32_t f)
 {
     // uses the bitmap that's already allocated
     go();
@@ -99,19 +99,19 @@ int PopUp_dialog(DIALOG *d,int f)
         /* do nothing */
     }
     
-    int ret = shutdown_dialog(player);
+    int32_t ret = shutdown_dialog(player);
     comeback();
     position_mouse_z(0);
     return ret;
 }
 
-int popup_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj)
+int32_t popup_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int32_t focus_obj)
 {
     //these are here to bypass compiler warnings about unused arguments
     buffer=buffer;
     
     BITMAP *bmp;
-    int ret;
+    int32_t ret;
     
     bmp = create_bitmap_ex(bitmap_color_depth(screen),dialog->w+1, dialog->h+1);
     
@@ -139,7 +139,7 @@ int popup_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj)
     return ret;
 }
 
-int PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int f)
+int32_t PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f)
 {
     // uses the bitmap that's already allocated
     go();
@@ -150,16 +150,16 @@ int PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int f)
         /* do nothing */
     }
     
-    int ret = shutdown_dialog(player);
+    int32_t ret = shutdown_dialog(player);
     comeback();
     position_mouse_z(0);
     return ret;
 }
 
-int update_dialog_through_bitmap(BITMAP* buffer, DIALOG_PLAYER *the_player)
+int32_t update_dialog_through_bitmap(BITMAP* buffer, DIALOG_PLAYER *the_player)
 {
     BITMAP* orig_screen = screen;
-    int result;
+    int32_t result;
     screen = buffer;
     result = update_dialog(the_player);
     screen = orig_screen;
@@ -168,13 +168,13 @@ int update_dialog_through_bitmap(BITMAP* buffer, DIALOG_PLAYER *the_player)
     return result;
 }
 
-extern int zqwin_scale;
+extern int32_t zqwin_scale;
 
-int do_zqdialog(DIALOG *dialog, int focus_obj)
+int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj)
 {
     BITMAP *mouse_screen = _mouse_screen;
     BITMAP *gui_bmp = screen;
-    int screen_count = _gfx_mode_set_count;
+    int32_t screen_count = _gfx_mode_set_count;
     DIALOG_PLAYER *player2;
     ASSERT(dialog);
     
@@ -224,11 +224,11 @@ int do_zqdialog(DIALOG *dialog, int focus_obj)
  *  to be stored is calculated from the dimensions of the first object in
  *  the dialog, so all the other objects should lie within this one.
  */
-int popup_zqdialog(DIALOG *dialog, int focus_obj)
+int32_t popup_zqdialog(DIALOG *dialog, int32_t focus_obj)
 {
     BITMAP *bmp;
     BITMAP *gui_bmp;
-    int ret;
+    int32_t ret;
     ASSERT(dialog);
     
     bmp = create_bitmap_ex(8, dialog->w, dialog->h);
@@ -262,13 +262,13 @@ int popup_zqdialog(DIALOG *dialog, int focus_obj)
  * afterward, but uses dialog[1] for the size and position. It also doesn't
  * return a value.
  */
-void new_gui_popup_dialog(DIALOG* dialog, int focus_obj, bool& done, bool& running)
+void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& running)
 {
 	ASSERT(dialog);
-	int x=dialog[1].x;
-	int y=dialog[1].y;
-	int w=dialog[1].w;
-	int h=dialog[1].h;
+	int32_t x=dialog[1].x;
+	int32_t y=dialog[1].y;
+	int32_t w=dialog[1].w;
+	int32_t h=dialog[1].h;
 	BITMAP* backup=create_bitmap_ex(8, w, h);
 	BITMAP* scr=screen;
 
@@ -281,7 +281,7 @@ void new_gui_popup_dialog(DIALOG* dialog, int focus_obj, bool& done, bool& runni
 	else
 		*allegro_errno=ENOMEM;
 	running=true;
-	int ret=0;
+	int32_t ret=0;
 	while(!done && ret>=0)
 		// Not quite sure which one of these to use...
 		ret=do_zqdialog(dialog, focus_obj);

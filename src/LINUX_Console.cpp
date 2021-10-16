@@ -5,7 +5,7 @@
 	#include <unistd.h>
 	#include <iostream>
 	#include <sstream>
-	int pt = 0;
+	int32_t pt = 0;
 	char* ptname = NULL;
 	std::ostringstream lxconsole_oss;
 #endif
@@ -45,9 +45,9 @@
 	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
 	system(lxconsole_oss.str().c_str());
 
-	int xterm_fd = open(ptname,O_RDWR);
+	int32_t xterm_fd = open(ptname,O_RDWR);
 	{
-		char c = 0; int tries = 10000; 
+		char c = 0; int32_t tries = 10000; 
 		do 
 		{
 			read(xterm_fd, &c, 1); 

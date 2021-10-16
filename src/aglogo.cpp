@@ -21,9 +21,9 @@
 extern DATAFILE* data;
 
 extern bool sbig;
-extern int screen_scale;
-extern int joystick_index;
-int logovolume = 0;
+extern int32_t screen_scale;
+extern int32_t joystick_index;
+int32_t logovolume = 0;
 
 extern FONT* dsphantompfont;
 
@@ -67,7 +67,7 @@ static void SetCols(RGB* pal)
 	firepal[255*3+2]=0;
 	DI=0;
 	
-	for(int i=0; i<256; i++)
+	for(int32_t i=0; i<256; i++)
 	{
 		pal[i].r = firepal[DI++];
 		pal[i].g = firepal[DI++];
@@ -79,8 +79,8 @@ static void AddFire(BITMAP* firebuf,word N)
 {
 	while(N)
 	{
-		int cx = (zc_oldrand()%10+1)<<1;
-		int x = zc_oldrand()%314;
+		int32_t cx = (zc_oldrand()%10+1)<<1;
+		int32_t x = zc_oldrand()%314;
 		byte color = (zc_oldrand()&127) + 128;
 		
 		while(cx)
@@ -97,12 +97,12 @@ static void AddFire(BITMAP* firebuf,word N)
 
 static void CopyAvg(BITMAP* fire)
 {
-	for(int y=4; y<204; y+=2)
+	for(int32_t y=4; y<204; y+=2)
 	{
-		for(int x=2; x<336; x+=2)
+		for(int32_t x=2; x<336; x+=2)
 		{
 			byte* si=&(fire->line[y][x-2]);
-			int AX = (*si + *(si+2) + *(si+4) + fire->line[y+2][x]) >> 2;
+			int32_t AX = (*si + *(si+2) + *(si+4) + fire->line[y+2][x]) >> 2;
 			AX = (AX + fire->line[y-2][x]) >> 1;
 			
 			if(AX>128)
@@ -121,7 +121,7 @@ static void CopyAvg(BITMAP* fire)
 	}
 }
 
-int aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
+int32_t aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
 {
     // frame should be 320x200, firebuf at least 340x206
     PALETTE pal;
@@ -132,13 +132,13 @@ int aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
     clear_bitmap(firebuf);
     clear_bitmap(screen);
     
-    //for(int f=0; f<128; f++)
+    //for(int32_t f=0; f<128; f++)
     //{
     //    AddFire(firebuf,(f>>3)+1);
     //    CopyAvg(firebuf);
     //}
     
-    int fadecnt=0;
+    int32_t fadecnt=0;
     bool blackout=false;
     logovolume = get_config_int("zeldadx","logo_volume",255);
     play_sample((SAMPLE*)data[WAV_00_AGFIRE].dat,logovolume,128,1000,true);
@@ -197,7 +197,7 @@ int aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
 
 COLOR_MAP aglogo_trans_table;
 
-int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
+int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
 {
     // frame should be 320x200, firebuf at least 340x206
     PALETTE pal;
@@ -208,13 +208,13 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
     clear_bitmap(firebuf);
     clear_bitmap(screen);
     
-    for(int f=0; f<128; f++)
+    for(int32_t f=0; f<128; f++)
     {
         AddFire(firebuf,(f>>3)+1);
         CopyAvg(firebuf);
     }
     
-    int fadecnt=0;
+    int32_t fadecnt=0;
     bool blackout=false;
     logovolume = get_config_int("zeldadx","logo_volume",255);
     play_sample((SAMPLE*)data[WAV_00_AGFIRE].dat,logovolume,128,1000,true);
@@ -280,7 +280,7 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
 }
 
 
-int aglogo_old(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
+int32_t aglogo_old(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
 {
 	// frame should be 320x200, firebuf at least 340x206
 	PALETTE pal;
@@ -291,13 +291,13 @@ int aglogo_old(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
 	clear_bitmap(firebuf);
 	clear_bitmap(screen);
 	
-	for(int f=0; f<128; f++)
+	for(int32_t f=0; f<128; f++)
 	{
 		AddFire(firebuf,(f>>3)+1);
 		CopyAvg(firebuf);
 	}
 	
-	int fadecnt=0;
+	int32_t fadecnt=0;
 	bool blackout=false;
 	logovolume = get_config_int("zeldadx","logo_volume",255);
 	play_sample((SAMPLE*)data[WAV_00_AGFIRE].dat,logovolume,128,1000,true);

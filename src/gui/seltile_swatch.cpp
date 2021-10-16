@@ -9,7 +9,7 @@
 #include <utility>
 #include "tiles.h"
 
-int newg_seltile_proc(int msg,DIALOG *d,int c);
+int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t c);
 
 namespace GUI
 {
@@ -22,7 +22,7 @@ SelTileSwatch::SelTileSwatch(): tile(0), cset(0),
 	setPreferredHeight(s);
 }
 
-void SelTileSwatch::setTile(int value)
+void SelTileSwatch::setTile(int32_t value)
 {
 	tile = value;
 	if(alDialog)
@@ -32,7 +32,7 @@ void SelTileSwatch::setTile(int value)
 	}
 }
 
-void SelTileSwatch::setCSet(int value)
+void SelTileSwatch::setCSet(int32_t value)
 {
 	cset = value;
 	if(alDialog)
@@ -42,12 +42,12 @@ void SelTileSwatch::setCSet(int value)
 	}
 }
 
-int SelTileSwatch::getTile()
+int32_t SelTileSwatch::getTile()
 {
 	return alDialog ? alDialog->d1 : tile;
 }
 
-int SelTileSwatch::getCSet()
+int32_t SelTileSwatch::getCSet()
 {
 	return alDialog ? alDialog->d2 : cset;
 }
@@ -89,7 +89,7 @@ void SelTileSwatch::calculateSize()
 	setPreferredHeight(s);
 }
 
-int SelTileSwatch::onEvent(int event, MessageDispatcher& sendMessage)
+int32_t SelTileSwatch::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	assert(event == geCHANGE_SELECTION);
 	if(onSelectFunc)

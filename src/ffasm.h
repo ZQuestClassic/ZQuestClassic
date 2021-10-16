@@ -16,14 +16,14 @@
 extern script_command command_list[];
 extern script_variable variable_list[];
 
-int set_argument(char *argbuf, script_data **script, int com, int argument);
-int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data **script, int com, int &retcode);
-int parse_script(script_data **script);
-int parse_script_file(script_data **script, const char *path, bool report_success);
-int parse_script_file(script_data **script, FILE* fscript, bool report_success);
-long ffparse(char *string);
+int32_t set_argument(char *argbuf, script_data **script, int32_t com, int32_t argument);
+int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data **script, int32_t com, int32_t &retcode);
+int32_t parse_script(script_data **script);
+int32_t parse_script_file(script_data **script, const char *path, bool report_success);
+int32_t parse_script_file(script_data **script, FILE* fscript, bool report_success);
+int32_t ffparse(char *string);
 std::string get_meta(zasm_meta const& meta);
-std::string get_script_name(int type);
+std::string get_script_name(int32_t type);
 
 #endif
 

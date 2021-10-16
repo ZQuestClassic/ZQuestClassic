@@ -4,7 +4,7 @@
 #include "../zsys.h"
 #include <gui/builder.h>
 
-void reset_itembuf(itemdata *item, int id);
+void reset_itembuf(itemdata *item, int32_t id);
 extern zquestheader header;
 extern bool saved;
 extern char *item_string[];
@@ -13,7 +13,7 @@ extern zcmodule moduledata;
 static bool _reset_default;
 static itemdata reset_ref;
 static std::string reset_name;
-void call_item_editor(int index)
+void call_item_editor(int32_t index)
 {
 	_reset_default = false;
 	ItemEditorDialog(index).show();
@@ -143,15 +143,15 @@ ItemNameInfo defInfo =
 	"Flags[11]","Flags[12]","Flags[13]", "Flags[14]","Constant Script"
 };
 
-std::map<int, ItemNameInfo *> *inamemap = NULL;
+std::map<int32_t, ItemNameInfo *> *inamemap = NULL;
 
-std::map<int, ItemNameInfo *> *getItemNameMap()
+std::map<int32_t, ItemNameInfo *> *getItemNameMap()
 {
 	if(inamemap == NULL)
 	{
-		inamemap = new std::map<int, ItemNameInfo *>();
+		inamemap = new std::map<int32_t, ItemNameInfo *>();
 		
-		for(int i=0;; i++)
+		for(int32_t i=0;; i++)
 		{
 			ItemNameInfo *inf = &inameinf[i];
 			
@@ -165,7 +165,7 @@ std::map<int, ItemNameInfo *> *getItemNameMap()
 	return inamemap;
 }
 
-ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int index):
+ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t index):
 	local_itemref(ref), itemname(str), index(index),
 	list_items(GUI::ListData::itemclass(true)),
 	list_counters(GUI::ListData::counters()),
@@ -177,7 +177,7 @@ ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int ind
 	list_deftypes(GUI::ListData::deftypes())
 {}
 
-ItemEditorDialog::ItemEditorDialog(int index):
+ItemEditorDialog::ItemEditorDialog(int32_t index):
 	ItemEditorDialog(itemsbuf[index], item_string[index], index)
 {}
 
@@ -195,7 +195,7 @@ ItemEditorDialog::ItemEditorDialog(int index):
 TextField( \
 	type = GUI::TextField::type::INT_DECIMAL, width = wid, \
 	low = _min, high = _max, val = local_itemref.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_itemref.member = val; \
 	})
@@ -206,7 +206,7 @@ Row(vPadding = 0_px, \
 	TextField(maxLength = 11, \
 		type = GUI::TextField::type::INT_DECIMAL, width = ATTR_WID, \
 		val = local_itemref.member, \
-		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
+		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 		{ \
 			local_itemref.member = val; \
 		}) \
@@ -229,7 +229,7 @@ Rows<2>(vPadding = 0_px, \
 		maxwidth = sized(18_em, 14_em), \
 		data = list_sprites, \
 		selectedValue = local_itemref.mem, \
-		onSelectFunc = [&](int val) \
+		onSelectFunc = [&](int32_t val) \
 		{ \
 			local_itemref.mem = val; \
 		} \
@@ -260,7 +260,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							fitParent = true,
 							maxLength = 63,
 							text = itemname,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int)
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
 							{
 								itemname = str;
 								char buf[256];
@@ -367,7 +367,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.magic,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.magic = val;
 									}
@@ -377,7 +377,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								hAlign = 1.0,
 								data = list_counters,
 								selectedValue = local_itemref.cost_counter,
-								onSelectFunc = [&](int val)
+								onSelectFunc = [&](int32_t val)
 								{
 									local_itemref.cost_counter = val;
 								}
@@ -388,7 +388,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.magiccosttimer,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.magiccosttimer = val;
 									}
@@ -400,7 +400,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.usesound,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.usesound = val;
 									}
@@ -433,7 +433,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									fitParent = true,
 									data = list_counters,
 									selectedValue = local_itemref.count,
-									onSelectFunc = [&](int val)
+									onSelectFunc = [&](int32_t val)
 									{
 										local_itemref.count = val;
 									}
@@ -444,7 +444,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;
 										local_itemref.amount |= ((val&0x3FFF)|(val<0?0x4000:0));
@@ -465,7 +465,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.setmax,
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, low = -32768, high = 32767,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.setmax = val;
 									}
@@ -475,7 +475,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.max,
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.max = val;
 									}
@@ -486,7 +486,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.playsound,
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.playsound = val;
 									}
@@ -497,7 +497,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.pickup_hearts,
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.pickup_hearts = val;
 									}
@@ -538,7 +538,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.pstring,
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.pstring = val;
 									}
@@ -570,7 +570,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									maxwidth = 10_em,
 									data = PFlagTypeList,
 									selectedValue = local_itemref.pickupflag,
-									onSelectFunc = [&](int val)
+									onSelectFunc = [&](int32_t val)
 									{
 										local_itemref.pickupflag = val;
 									}
@@ -734,7 +734,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										fitParent = true,
 										data = list_weaptype,
 										selectedValue = local_itemref.useweapon,
-										onSelectFunc = [&](int val)
+										onSelectFunc = [&](int32_t val)
 										{
 											local_itemref.useweapon = val;
 										}
@@ -744,7 +744,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										fitParent = true,
 										data = list_deftypes,
 										selectedValue = local_itemref.usedefence,
-										onSelectFunc = [&](int val)
+										onSelectFunc = [&](int32_t val)
 										{
 											local_itemref.usedefence = val;
 										}
@@ -755,7 +755,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										fitParent = true,
 										data = WeapMoveTypeList,
 										selectedValue = local_itemref.weap_pattern[0],
-										onSelectFunc = [&](int val)
+										onSelectFunc = [&](int32_t val)
 										{
 											local_itemref.weap_pattern[0] = val;
 										}
@@ -765,7 +765,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[1],
 										type = GUI::TextField::type::INT_DECIMAL,
 										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[1] = val;
 										}
@@ -775,7 +775,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weaprange,
 										type = GUI::TextField::type::INT_DECIMAL,
 										fitParent = true, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weaprange = val;
 										}
@@ -785,7 +785,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[2],
 										type = GUI::TextField::type::INT_DECIMAL,
 										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[2] = val;
 										}
@@ -795,7 +795,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weapduration,
 										type = GUI::TextField::type::INT_DECIMAL,
 										fitParent = true, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weapduration = val;
 										}
@@ -805,7 +805,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[3],
 										type = GUI::TextField::type::INT_DECIMAL,
 										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[3] = val;
 										}
@@ -815,7 +815,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[5],
 										type = GUI::TextField::type::INT_DECIMAL,
 										fitParent = true, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[5] = val;
 										}
@@ -825,7 +825,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[4],
 										type = GUI::TextField::type::INT_DECIMAL,
 										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[4] = val;
 										}
@@ -835,7 +835,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[6],
 										type = GUI::TextField::type::INT_DECIMAL,
 										fitParent = true, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[6] = val;
 										}
@@ -852,7 +852,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = (local_itemref.csets>>4),
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 16,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.csets &= 0x0F;
 										local_itemref.csets |= val<<4;
@@ -863,7 +863,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.frames,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.frames = val;
 										animFrame->setFrames(val);
@@ -874,7 +874,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.speed,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.speed = val;
 										animFrame->setSpeed(val);
@@ -885,7 +885,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.delay,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.delay = val;
 										animFrame->setDelay(val);
@@ -896,7 +896,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.ltm,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = (0-(NEWMAXTILES-1)), high = (NEWMAXTILES-1),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.ltm = val;
 									}
@@ -906,7 +906,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								SelTileSwatch(
 									tile = local_itemref.tile,
 									cset = (local_itemref.csets & 0x0F),
-									onSelectFunc = [&](int t, int c)
+									onSelectFunc = [&](int32_t t, int32_t c)
 									{
 										local_itemref.tile = t;
 										local_itemref.csets &= 0xF0;
@@ -964,7 +964,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.tilew,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.tilew = val;
 										}
@@ -985,7 +985,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.tileh,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.tileh = val;
 										}
@@ -1006,7 +1006,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.hxofs,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.hxofs = val;
 										}
@@ -1027,7 +1027,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.hyofs,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.hyofs = val;
 										}
@@ -1049,7 +1049,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.hxsz,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.hxsz = val;
 										}
@@ -1070,7 +1070,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.hysz,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.hysz = val;
 										}
@@ -1091,7 +1091,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.hzsz,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.hzsz = val;
 										}
@@ -1112,7 +1112,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.xofs,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.xofs = val;
 										}
@@ -1133,7 +1133,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.yofs,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.yofs = val;
 										}
@@ -1159,7 +1159,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_tilew,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_tilew = val;
 										}
@@ -1180,7 +1180,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_tileh,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_tileh = val;
 										}
@@ -1201,7 +1201,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_hxofs,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_hxofs = val;
 										}
@@ -1222,7 +1222,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_hyofs,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_hyofs = val;
 										}
@@ -1244,7 +1244,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_hxsz,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_hxsz = val;
 										}
@@ -1265,7 +1265,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_hysz,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_hysz = val;
 										}
@@ -1286,7 +1286,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_hzsz,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_hzsz = val;
 										}
@@ -1307,7 +1307,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_xofs,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_xofs = val;
 										}
@@ -1328,7 +1328,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_yofs,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_yofs = val;
 										}
@@ -1371,7 +1371,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.initiala[0],
 										type = GUI::TextField::type::INT_DECIMAL,
 										high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.initiala[0] = val;
 										}
@@ -1381,7 +1381,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.initiala[1],
 										type = GUI::TextField::type::INT_DECIMAL,
 										high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.initiala[1] = val;
 										}
@@ -1439,7 +1439,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								fitParent = true,
 								maxLength = 63,
 								text = itemname,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int)
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
 								{
 									itemname = str;
 									char buf[256];
@@ -1545,7 +1545,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.magic,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.magic = val;
 									}
@@ -1555,7 +1555,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								hAlign = 1.0,
 								data = list_counters,
 								selectedValue = local_itemref.cost_counter,
-								onSelectFunc = [&](int val)
+								onSelectFunc = [&](int32_t val)
 								{
 									local_itemref.cost_counter = val;
 								}
@@ -1566,7 +1566,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.magiccosttimer,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.magiccosttimer = val;
 									}
@@ -1578,7 +1578,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.usesound,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.usesound = val;
 									}
@@ -1611,7 +1611,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									fitParent = true,
 									data = list_counters,
 									selectedValue = local_itemref.count,
-									onSelectFunc = [&](int val)
+									onSelectFunc = [&](int32_t val)
 									{
 										local_itemref.count = val;
 									}
@@ -1622,7 +1622,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;
 										local_itemref.amount |= ((val&0x3FFF)|(val<0?0x4000:0));
@@ -1643,7 +1643,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.setmax,
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, low = -32768, high = 32767,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.setmax = val;
 									}
@@ -1653,7 +1653,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.max,
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.max = val;
 									}
@@ -1664,7 +1664,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.playsound,
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.playsound = val;
 									}
@@ -1675,7 +1675,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.pickup_hearts,
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.pickup_hearts = val;
 									}
@@ -1716,7 +1716,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.pstring,
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.pstring = val;
 									}
@@ -1748,7 +1748,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									maxwidth = 10_em,
 									data = PFlagTypeList,
 									selectedValue = local_itemref.pickupflag,
-									onSelectFunc = [&](int val)
+									onSelectFunc = [&](int32_t val)
 									{
 										local_itemref.pickupflag = val;
 									}
@@ -1900,7 +1900,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										fitParent = true,
 										data = list_weaptype,
 										selectedValue = local_itemref.useweapon,
-										onSelectFunc = [&](int val)
+										onSelectFunc = [&](int32_t val)
 										{
 											local_itemref.useweapon = val;
 										}
@@ -1910,7 +1910,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										fitParent = true,
 										data = list_deftypes,
 										selectedValue = local_itemref.usedefence,
-										onSelectFunc = [&](int val)
+										onSelectFunc = [&](int32_t val)
 										{
 											local_itemref.usedefence = val;
 										}
@@ -1921,7 +1921,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										fitParent = true,
 										data = WeapMoveTypeList,
 										selectedValue = local_itemref.weap_pattern[0],
-										onSelectFunc = [&](int val)
+										onSelectFunc = [&](int32_t val)
 										{
 											local_itemref.weap_pattern[0] = val;
 										}
@@ -1933,7 +1933,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[1],
 										type = GUI::TextField::type::INT_DECIMAL,
 										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[1] = val;
 										}
@@ -1943,7 +1943,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weaprange,
 										type = GUI::TextField::type::INT_DECIMAL,
 										fitParent = true, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weaprange = val;
 										}
@@ -1953,7 +1953,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[2],
 										type = GUI::TextField::type::INT_DECIMAL,
 										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[2] = val;
 										}
@@ -1963,7 +1963,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weapduration,
 										type = GUI::TextField::type::INT_DECIMAL,
 										fitParent = true, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weapduration = val;
 										}
@@ -1973,7 +1973,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[3],
 										type = GUI::TextField::type::INT_DECIMAL,
 										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[3] = val;
 										}
@@ -1983,7 +1983,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[5],
 										type = GUI::TextField::type::INT_DECIMAL,
 										fitParent = true, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[5] = val;
 										}
@@ -1993,7 +1993,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[4],
 										type = GUI::TextField::type::INT_DECIMAL,
 										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[4] = val;
 										}
@@ -2003,7 +2003,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_pattern[6],
 										type = GUI::TextField::type::INT_DECIMAL,
 										fitParent = true, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_pattern[6] = val;
 										}
@@ -2020,7 +2020,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = (local_itemref.csets>>4),
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 16,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.csets &= 0x0F;
 										local_itemref.csets |= val<<4;
@@ -2031,7 +2031,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.frames,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.frames = val;
 										animFrame->setFrames(val);
@@ -2042,7 +2042,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.speed,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.speed = val;
 										animFrame->setSpeed(val);
@@ -2053,7 +2053,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.delay,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.delay = val;
 										animFrame->setDelay(val);
@@ -2064,7 +2064,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.ltm,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = (0-(NEWMAXTILES-1)), high = (NEWMAXTILES-1),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.ltm = val;
 									}
@@ -2074,7 +2074,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								SelTileSwatch(
 									tile = local_itemref.tile,
 									cset = (local_itemref.csets & 0x0F),
-									onSelectFunc = [&](int t, int c)
+									onSelectFunc = [&](int32_t t, int32_t c)
 									{
 										local_itemref.tile = t;
 										local_itemref.csets &= 0xF0;
@@ -2137,7 +2137,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.tilew,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 32,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.tilew = val;
 									}
@@ -2156,7 +2156,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.tileh,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 32,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.tileh = val;
 									}
@@ -2175,7 +2175,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.hxofs,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.hxofs = val;
 									}
@@ -2194,7 +2194,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.hyofs,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.hyofs = val;
 									}
@@ -2216,7 +2216,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.hxsz,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.hxsz = val;
 									}
@@ -2235,7 +2235,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.hysz,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.hysz = val;
 									}
@@ -2254,7 +2254,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.hzsz,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.hzsz = val;
 									}
@@ -2273,7 +2273,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.xofs,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.xofs = val;
 									}
@@ -2292,7 +2292,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.yofs,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.yofs = val;
 									}
@@ -2316,7 +2316,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.weap_tilew,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 32,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.weap_tilew = val;
 									}
@@ -2335,7 +2335,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.weap_tileh,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 32,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.weap_tileh = val;
 									}
@@ -2354,7 +2354,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.weap_hxofs,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.weap_hxofs = val;
 									}
@@ -2373,7 +2373,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.weap_hyofs,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.weap_hyofs = val;
 									}
@@ -2395,7 +2395,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.weap_hxsz,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.weap_hxsz = val;
 									}
@@ -2414,7 +2414,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.weap_hysz,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.weap_hysz = val;
 									}
@@ -2433,7 +2433,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.weap_hzsz,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.weap_hzsz = val;
 									}
@@ -2452,7 +2452,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.weap_xofs,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.weap_xofs = val;
 									}
@@ -2471,7 +2471,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									val = local_itemref.weap_yofs,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = -214748, high = 214748,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.weap_yofs = val;
 									}
@@ -2513,7 +2513,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.initiala[0],
 										type = GUI::TextField::type::INT_DECIMAL,
 										high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.initiala[0] = val;
 										}
@@ -2523,7 +2523,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.initiala[1],
 										type = GUI::TextField::type::INT_DECIMAL,
 										high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.initiala[1] = val;
 										}
@@ -2571,8 +2571,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 
 void ItemEditorDialog::loadItemClass()
 {
-	std::map<int, ItemNameInfo *> *nmap = getItemNameMap();
-	std::map<int, ItemNameInfo *>::iterator it = nmap->find(local_itemref.family);
+	std::map<int32_t, ItemNameInfo *> *nmap = getItemNameMap();
+	std::map<int32_t, ItemNameInfo *>::iterator it = nmap->find(local_itemref.family);
 	ItemNameInfo *inf = NULL;
 	
 	if(it != nmap->end())
@@ -2631,7 +2631,7 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::ITEMCLASS:
 		{
-			local_itemref.family = int(msg.argument);
+			local_itemref.family = int32_t(msg.argument);
 			loadItemClass();
 			return false;
 		}

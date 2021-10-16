@@ -56,12 +56,12 @@ public:
 
 	void applyVisibility(bool visible) override;
 	void calculateSize() override;
-	void arrange(int contX, int contY, int contW, int contH) override;
+	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;
 private:
 	std::vector<std::shared_ptr<Widget>> children;
-	std::vector<int> rowWidths, colWidths, rowHeights, colHeights;
-	unsigned short rowSpacing, colSpacing;
+	std::vector<int32_t> rowWidths, colWidths, rowHeights, colHeights;
+	uint16_t rowSpacing, colSpacing;
 	type growthType;
 	size_t growthLimit;
 };
