@@ -14,8 +14,8 @@
 #include "zc_alleg.h"
 #include "zc_sys.h"
 
-extern int  input_idle(bool checkmouse);
+extern int32_t  input_idle(bool checkmouse);
 
-void Matrix(int speed, int density, int mousedelay);
+void Matrix(int32_t speed, int32_t density, int32_t mousedelay);
 #endif
  

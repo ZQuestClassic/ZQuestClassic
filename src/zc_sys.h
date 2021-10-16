@@ -22,14 +22,14 @@ extern MENU the_player_menu_zc_on_left2[];
 void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);
 
-bool game_vid_mode(int mode,int wait);
-int Z_init_timers();
+bool game_vid_mode(int32_t mode,int32_t wait);
+int32_t Z_init_timers();
 void Z_remove_timers();
 void Z_init_sound();
 
 void load_game_configs();
 void save_game_configs();
-int zc_load_zmod_module_file();
+int32_t zc_load_zmod_module_file();
 bool zc_getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 
@@ -41,8 +41,8 @@ void do_DwmFlush();
 void draw_lens_under(BITMAP *dest, bool layer);
 void draw_lens_over();
 void fix_menu();
-int onFullscreenMenu();
-void f_Quit(int type);
+int32_t onFullscreenMenu();
+void f_Quit(int32_t type);
 void advanceframe(bool allowwavy, bool sfxcleaup = true, bool allowF6Script = true);
 void updatescr(bool allowwavy);
 void syskeys();
@@ -53,27 +53,27 @@ void system_pal();
 void switch_out_callback();
 void switch_in_callback();
 void game_pal();
-int  onSave();
-int  onQuit();
-int  onTryQuitMenu();
-int  onTryQuit(bool inMenu = false);
-int  onReset();
-int  onExit();
+int32_t  onSave();
+int32_t  onQuit();
+int32_t  onTryQuitMenu();
+int32_t  onTryQuit(bool inMenu = false);
+int32_t  onReset();
+int32_t  onExit();
 void fix_dialogs();
-int onMIDIPatch();
+int32_t onMIDIPatch();
 
-int onCheatBombs();
-int onCheatArrows();
+int32_t onCheatBombs();
+int32_t onCheatArrows();
 
-int  next_press_key();
-int  next_press_btn();
-bool joybtn(int b);
-bool zc_readkey(int k, bool ignoreDisable = false);
-bool zc_getkey(int k, bool ignoreDisable = false);
-bool zc_readrawkey(int k, bool ignoreDisable = false);
-bool zc_getrawkey(int k, bool ignoreDisable = false);
+int32_t  next_press_key();
+int32_t  next_press_btn();
+bool joybtn(int32_t b);
+bool zc_readkey(int32_t k, bool ignoreDisable = false);
+bool zc_getkey(int32_t k, bool ignoreDisable = false);
+bool zc_readrawkey(int32_t k, bool ignoreDisable = false);
+bool zc_getrawkey(int32_t k, bool ignoreDisable = false);
 void update_keys();
-bool zc_disablekey(int k, bool val);
+bool zc_disablekey(int32_t k, bool val);
 void eat_buttons();
 
 extern bool control_state[18];
@@ -84,16 +84,16 @@ extern bool KeyInput[127]; //ZScript 'Input->Key[]'
 extern bool KeyPress[127]; //ZScript 'Input->KeyPress[]'
 extern bool key_truestate[127]; //Internal, used for ZScript 'Input->KeyPress[]'
 extern bool button_press[18];
-extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
+extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 extern const char *qst_dir_name;
 extern char qst_files_path[2048];
 
 extern bool button_hold[18];
 
 void load_control_state();
-extern int sfx_voice[WAV_COUNT];
+extern int32_t sfx_voice[WAV_COUNT];
 
-bool getInput(int btn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false);
+bool getInput(int32_t btn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false);
 bool getIntBtnInput(byte intbtn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false);
 bool Up();
 bool Down();
@@ -165,7 +165,7 @@ bool DrunkrEx2btn();
 bool DrunkrEx3btn();
 bool DrunkrEx4btn();
 
-int after_time();
+int32_t after_time();
 
 enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
 
@@ -175,77 +175,77 @@ void dump_pal(BITMAP *dest);
 void show_paused(BITMAP *target);
 void show_fps(BITMAP *target);
 void show_saving(BITMAP *target);
-bool game_vid_mode(int mode,int wait);
+bool game_vid_mode(int32_t mode,int32_t wait);
 void init_NES_mode();
 
-extern int black_opening_count;
-extern int black_opening_x,black_opening_y;
-extern int black_opening_shape;
+extern int32_t black_opening_count;
+extern int32_t black_opening_x,black_opening_y;
+extern int32_t black_opening_shape;
 
 void zapout();
 void zapin();
 void wavyout(bool showlink);
 void wavyin();
-void blackscr(int fcnt,bool showsubscr);
-void black_opening(BITMAP *dest,int x,int y,int a,int max_a);
-void black_fade(int fadeamnt);
-void close_black_opening(int x, int y, bool wait, int shape = -1);
-void open_black_opening(int x, int y, bool wait, int shape = -1);
-void openscreen(int shape = -1);
-void closescreen(int shape = -1);
-int  TriforceCount();
+void blackscr(int32_t fcnt,bool showsubscr);
+void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a);
+void black_fade(int32_t fadeamnt);
+void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape = -1);
+void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape = -1);
+void openscreen(int32_t shape = -1);
+void closescreen(int32_t shape = -1);
+int32_t  TriforceCount();
 
-bool item_disabled(int item);
-bool can_use_item(int item_type, int item);
-bool has_item(int item_type, int item);
-//int high_item(int jmax, int item_type, bool consecutive, int itemcluster, bool usecluster);
-int current_item(int item_type);
-int current_item(int item_type, bool checkenabled);
-int current_item_power(int item_type);
-int current_item_id(int item_type, bool checkmagic = true);
-int high_flag(int i, int item_type, bool consecutive);
-int item_tile_mod(bool);
-int dmap_tile_mod();
+bool item_disabled(int32_t item);
+bool can_use_item(int32_t item_type, int32_t item);
+bool has_item(int32_t item_type, int32_t item);
+//int32_t high_item(int32_t jmax, int32_t item_type, bool consecutive, int32_t itemcluster, bool usecluster);
+int32_t current_item(int32_t item_type);
+int32_t current_item(int32_t item_type, bool checkenabled);
+int32_t current_item_power(int32_t item_type);
+int32_t current_item_id(int32_t item_type, bool checkmagic = true);
+int32_t high_flag(int32_t i, int32_t item_type, bool consecutive);
+int32_t item_tile_mod(bool);
+int32_t dmap_tile_mod();
 
-bool try_zcmusic(char *filename, int track, int midi);
-bool try_zcmusic_ex(char *filename, int track, int midi);
-int get_zcmusicpos();
-void set_zcmusicpos(int position);
-void set_zcmusicspeed(int speed);
-void jukebox(int index);
-void jukebox(int index,int loop);
+bool try_zcmusic(char *filename, int32_t track, int32_t midi);
+bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi);
+int32_t get_zcmusicpos();
+void set_zcmusicpos(int32_t position);
+void set_zcmusicspeed(int32_t speed);
+void jukebox(int32_t index);
+void jukebox(int32_t index,int32_t loop);
 void play_DmapMusic();
 void music_pause();
 void music_resume();
 void music_stop();
-void master_volume(int dv,int mv);
-int  sfx_count();
+void master_volume(int32_t dv,int32_t mv);
+int32_t  sfx_count();
 void sfx_cleanup();
-bool sfx_init(int index);
-void sfx(int index,int pan,bool loop, bool restart = true);
-bool sfx_allocated(int index);
-void cont_sfx(int index);
-void stop_sfx(int index);
-void adjust_sfx(int index,int pan,bool loop);
-void pause_sfx(int index);
-void resume_sfx(int index);
+bool sfx_init(int32_t index);
+void sfx(int32_t index,int32_t pan,bool loop, bool restart = true);
+bool sfx_allocated(int32_t index);
+void cont_sfx(int32_t index);
+void stop_sfx(int32_t index);
+void adjust_sfx(int32_t index,int32_t pan,bool loop);
+void pause_sfx(int32_t index);
+void resume_sfx(int32_t index);
 void pause_all_sfx();
 void resume_all_sfx();
-void stop_sfx(int index);
-void stop_item_sfx(int family);
+void stop_sfx(int32_t index);
+void stop_item_sfx(int32_t family);
 void kill_sfx();
-int  pan(int x);
-int  onSetSnapshotFormat();
-void zc_putpixel(int layer, int x, int y, int cset, int color, int timer);
-int onKeyboardEntry();
-int onLetterGridEntry();
-int onExtLetterGridEntry();
+int32_t  pan(int32_t x);
+int32_t  onSetSnapshotFormat();
+void zc_putpixel(int32_t layer, int32_t x, int32_t y, int32_t cset, int32_t color, int32_t timer);
+int32_t onKeyboardEntry();
+int32_t onLetterGridEntry();
+int32_t onExtLetterGridEntry();
 
 #ifdef ALLEGRO_LINUX_GP2X
-extern int midi_strict;
+extern int32_t midi_strict;
 #endif
 #ifdef ALLEGRO_MACOSX
-extern int midi_strict; //L
+extern int32_t midi_strict; //L
 #endif
 #endif                                                      // _ZC_SYS_H_
 

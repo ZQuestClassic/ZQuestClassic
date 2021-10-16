@@ -29,14 +29,14 @@
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 //#endif
 
-extern int dmap_list_size;
+extern int32_t dmap_list_size;
 extern bool dmap_list_zero;
 extern char *item_string[];
 extern const char *itype_names[];
 
-extern int doInit(zinitdata *zinit);
+extern int32_t doInit(zinitdata *zinit);
 
-int onInit()
+int32_t onInit()
 {
     char init_title[80];
     sprintf(init_title, "Initialization Data");

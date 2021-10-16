@@ -21,9 +21,9 @@ public:
 	/* Returns true if the radio is checked. */
 	bool getChecked();
 
-	void setProcSet(int newProcSet);
+	void setProcSet(int32_t newProcSet);
 	
-	int getProcSet() const {return procset;}
+	int32_t getProcSet() const {return procset;}
 	
 	void setIndex(size_t newIndex);
 	
@@ -32,21 +32,21 @@ public:
 	template<typename T>
 	RequireMessage<T> onToggle(T m)
 	{
-		message = static_cast<int>(m);
+		message = static_cast<int32_t>(m);
 	}
 protected:
-	int message;
+	int32_t message;
 private:
 	bool checked;
 	std::string text;
-	int procset;
+	int32_t procset;
 	size_t index;
 	DialogRef alDialog;
 
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
 	void calculateSize() override;
-	int onEvent(int event, MessageDispatcher& sendMessage) override;
+	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 	void applyFont(FONT* newFont) override;
 };
 

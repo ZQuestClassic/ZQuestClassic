@@ -160,13 +160,13 @@ void Widget::setExposed(bool exposed)
 	}
 }
 
-int Widget::onEvent(int, MessageDispatcher&)
+int32_t Widget::onEvent(int32_t, MessageDispatcher&)
 {
 	assert(false); // This function should have been overridden
 	return -1;
 }
 
-void Widget::arrange(int contX, int contY, int contW, int contH)
+void Widget::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 {
 	contX += leftMargin+leftPadding;
 	contW -= leftMargin+rightMargin+leftPadding+rightPadding;
@@ -283,9 +283,9 @@ void Widget::applyFont(FONT* newfont)
 	}
 }
 
-int Widget::getFlags() const noexcept
+int32_t Widget::getFlags() const noexcept
 {
-	int ret = D_NEW_GUI;
+	int32_t ret = D_NEW_GUI;
 	if(hideCount > 0 || (flags&f_INVISIBLE) != 0)
 		ret |= D_HIDDEN;
 	if(flags&f_DISABLED)

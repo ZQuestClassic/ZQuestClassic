@@ -11,12 +11,11 @@
 #include "parserDefs.h"
 #include "../ffasmexport.h"
 
-#include <boost/move/unique_ptr.hpp>
-
 #include <cstdio>
 #include <map>
 #include <vector>
 #include <string>
+using std::unique_ptr;
 
 namespace ZScript
 {
@@ -45,11 +44,11 @@ namespace ZScript
 		Opcode() : label(-1) {}
 		virtual ~Opcode() {}
 		virtual std::string toString()=0;
-		int getLabel()
+		int32_t getLabel()
 		{
 			return label;
 		}
-		void setLabel(int l)
+		void setLabel(int32_t l)
 		{
 			label=l;
 		}
@@ -73,7 +72,7 @@ namespace ZScript
 	protected:
 		virtual Opcode *clone()=0;
 	private:
-		int label;
+		int32_t label;
 	};
 
 	class ArbitraryOpcode : public Opcode
@@ -124,45 +123,45 @@ namespace ZScript
 		std::map<std::string, ScriptType> scriptTypes;
 	};
 
-	boost::movelib::unique_ptr<ScriptsData> compile(std::string const& filename);
+	unique_ptr<ScriptsData> compile(std::string const& filename);
 
 	class ScriptParser
 	{
 	public:
-		static int getUniqueVarID()
+		static int32_t getUniqueVarID()
 		{
 			return vid++;
 		}
-		static int getUniqueFuncID()
+		static int32_t getUniqueFuncID()
 		{
 			return fid++;
 		}
-		static int getUniqueLabelID()
+		static int32_t getUniqueLabelID()
 		{
 			return lid++;
 		}
-		static int getUniqueGlobalID()
+		static int32_t getUniqueGlobalID()
 		{
 			return gid++;
 		}
-		static bool preprocess_one(ASTImportDecl& decl, int reclevel);
-		static bool preprocess(ASTFile* root, int reclevel);
-		static boost::movelib::unique_ptr<IntermediateData> generateOCode(FunctionData& fdata);
+		static bool preprocess_one(ASTImportDecl& decl, int32_t reclevel);
+		static bool preprocess(ASTFile* root, int32_t reclevel);
+		static unique_ptr<IntermediateData> generateOCode(FunctionData& fdata);
 		static void assemble(IntermediateData* id);
 		static void initialize();
-		static std::pair<long,bool> parseLong(
+		static std::pair<int32_t,bool> parseLong(
 				std::pair<std::string,std::string> parts, Scope* scope);
 
-		static int const recursionLimit = 30;
+		static int32_t const recursionLimit = 30;
 	private:
 		static std::string prepareFilename(std::string const& filename);
 		static std::vector<Opcode *> assembleOne(
 				Program& program, std::vector<Opcode*> script,
-				int numparams);
-		static int vid;
-		static int fid;
-		static int gid;
-		static int lid;
+				int32_t numparams);
+		static int32_t vid;
+		static int32_t fid;
+		static int32_t gid;
+		static int32_t lid;
 	};
 }
 

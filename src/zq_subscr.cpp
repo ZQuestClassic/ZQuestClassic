@@ -39,20 +39,20 @@
 extern void large_dialog(DIALOG *d);
 extern void large_dialog(DIALOG *d, float RESIZE_AMT);
 
-int curr_subscreen_object;
+int32_t curr_subscreen_object;
 char *str_oname;
 subscreen_group *css;
 bool sso_selection[MAXSUBSCREENITEMS];
-static int ss_propCopySrc=-1;
+static int32_t ss_propCopySrc=-1;
 
 void replacedp(DIALOG &d, const char *newdp, size_t size=256);
 
 gamedata *game;
 
-//extern char *itemlist(int index, int *list_size)
-extern int bii_cnt;
+//extern char *itemlist(int32_t index, int32_t *list_size)
+extern int32_t bii_cnt;
 
-void delete_subscreen(int subscreenidx);
+void delete_subscreen(int32_t subscreenidx);
 
 
 const char *colortype_str[14] =
@@ -60,7 +60,7 @@ const char *colortype_str[14] =
     "Misc. Color", "Sys. Color", "CSet 0", "CSet 1", "CSet 2", "CSet 3", "CSet 4", "CSet 5", "CSet 6", "CSet 7", "CSet 8", "CSet 9", "CSet 10", "CSet 11"
 };
 
-const char *colortypelist(int index, int *list_size)
+const char *colortypelist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -71,12 +71,12 @@ const char *colortypelist(int index, int *list_size)
     return colortype_str[index];
 }
 
-int d_cs_color_proc(int msg,DIALOG *d,int c)
+int32_t d_cs_color_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
     
-    int w=(d->w-4)/16;
+    int32_t w=(d->w-4)/16;
     
     switch(msg)
     {
@@ -86,7 +86,7 @@ int d_cs_color_proc(int msg,DIALOG *d,int c)
         rectfill(screen, d->x, d->y, d->x+(w*16)+3, d->y+1, jwin_pal[jcBOX]);
         jwin_draw_frame(screen,d->x,d->y+2,w*16+4, d->h-4, FR_DEEP);
         
-        for(int i=0; i<16; ++i)
+        for(int32_t i=0; i<16; ++i)
         {
             rectfill(screen, d->x+2+(w*i), d->y+4, d->x+2+(w*(i+1))-1, d->y+d->h-5, ((d-2)->d1-2)*16+i);
         }
@@ -111,12 +111,12 @@ int d_cs_color_proc(int msg,DIALOG *d,int c)
     return D_O_K;
 }
 
-int d_sys_color_proc(int msg,DIALOG *d,int c)
+int32_t d_sys_color_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
     
-    int w=(d->w-4)/17;
+    int32_t w=(d->w-4)/17;
     
     switch(msg)
     {
@@ -126,7 +126,7 @@ int d_sys_color_proc(int msg,DIALOG *d,int c)
         rectfill(screen, d->x, d->y, d->x+(w*17)+3, d->y+1, jwin_pal[jcBOX]);
         jwin_draw_frame(screen,d->x,d->y+2,w*17+4, d->h-4, FR_DEEP);
         
-        for(int i=0; i<17; ++i)
+        for(int32_t i=0; i<17; ++i)
         {
             rectfill(screen, d->x+2+(w*i), d->y+4, d->x+2+(w*(i+1))-1, d->y+d->h-5, vc(zc_max(0,i-1)));
         }
@@ -153,7 +153,7 @@ int d_sys_color_proc(int msg,DIALOG *d,int c)
     return D_O_K;
 }
 
-void update_ctl_proc(DIALOG *d, int ct)
+void update_ctl_proc(DIALOG *d, int32_t ct)
 {
     switch(ct)
     {
@@ -173,10 +173,10 @@ void update_ctl_proc(DIALOG *d, int ct)
     d->flags|=D_DIRTY;
 }
 
-int d_ctl_proc(int msg,DIALOG *d,int c)
+int32_t d_ctl_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int old_d1=d->d1;
-    int ret=jwin_droplist_proc(msg, d, c);
+    int32_t old_d1=d->d1;
+    int32_t ret=jwin_droplist_proc(msg, d, c);
     
     if(d->d1!=old_d1)
     {
@@ -186,9 +186,9 @@ int d_ctl_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_csl2_proc(int msg,DIALOG *d,int c);
+int32_t d_csl2_proc(int32_t msg,DIALOG *d,int32_t c);
 
-void update_csl_proc(DIALOG *d, int cs)
+void update_csl_proc(DIALOG *d, int32_t cs)
 {
     switch(cs)
     {
@@ -216,10 +216,10 @@ void update_csl_proc(DIALOG *d, int cs)
     (d+1)->flags|=D_DIRTY;
 }
 
-int d_csl_proc(int msg,DIALOG *d,int c)
+int32_t d_csl_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int old_d1=d->d1;
-    int ret=jwin_droplist_proc(msg, d, c);
+    int32_t old_d1=d->d1;
+    int32_t ret=jwin_droplist_proc(msg, d, c);
     
     if(d->d1!=old_d1)
     {
@@ -230,10 +230,10 @@ int d_csl_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_csl2_proc(int msg,DIALOG *d,int c)
+int32_t d_csl2_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int old_d1=d->d1;
-    int ret=jwin_droplist_proc(msg, d, c);
+    int32_t old_d1=d->d1;
+    int32_t ret=jwin_droplist_proc(msg, d, c);
     
     if(d->d1!=old_d1)
     {
@@ -243,10 +243,10 @@ int d_csl2_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int jwin_fontdrop_proc(int msg,DIALOG *d,int c)
+int32_t jwin_fontdrop_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int old_d1=d->d1;
-    int ret=jwin_droplist_proc(msg, d, c);
+    int32_t old_d1=d->d1;
+    int32_t ret=jwin_droplist_proc(msg, d, c);
     
     if(d->d1!=old_d1)
     {
@@ -279,7 +279,7 @@ const char *misccolor_str[ssctMAX] =
     "SS BG", "SS Shadow", "Tri. Frame", "Big Map BG", "Big Map FG", "Link's Pos", "Message Text"
 };
 
-const char *misccolorlist(int index, int *list_size)
+const char *misccolorlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -295,7 +295,7 @@ const char *csettype_str[13] =
     "Misc. CSet", "CSet 0", "CSet 1", "CSet 2", "CSet 3", "CSet 4", "CSet 5", "CSet 6", "CSet 7", "CSet 8", "CSet 9", "CSet 10", "CSet 11"
 };
 
-const char *csettypelist(int index, int *list_size)
+const char *csettypelist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -311,7 +311,7 @@ const char *misccset_str[sscsMAX] =
     "Triforce", "Tri. Frame", "Overworld Map", "Dungeon Map", "Blue Frame", "HC Piece", "SS Vine"
 };
 
-const char *misccsetlist(int index, int *list_size)
+const char *misccsetlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -327,7 +327,7 @@ const char *spectile_str[ssmstMAX+1] =
     "None", "SS Vine", "Magic Meter"
 };
 
-const char *spectilelist(int index, int *list_size)
+const char *spectilelist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -389,7 +389,7 @@ const char *ssfont_str[ssfMAX] =
 	"Lisa"
 };
 
-const char *ssfontlist(int index, int *list_size)
+const char *ssfontlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -405,7 +405,7 @@ const char *shadowstyle_str[sstsMAX] =
     "None", "Shadow", "Shadow (U)", "Shadow (O)", "Shadow (+)", "Shadow (X)", "Shadowed", "Shadowed (U)", "Shadowed (O)", "Shadowed (+)", "Shadowed (X)"
 };
 
-const char *shadowstylelist(int index, int *list_size)
+const char *shadowstylelist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -421,7 +421,7 @@ const char *alignment_str[3] =
     "Left", "Center", "Right"
 };
 
-const char *alignmentlist(int index, int *list_size)
+const char *alignmentlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -437,7 +437,7 @@ const char *wrapping_str[2] =
     "Character", "Word"
 };
 
-const char *wrappinglist(int index, int *list_size)
+const char *wrappinglist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -458,7 +458,7 @@ const char *rows_str[2] =
     "Two", "Three"
 };
 
-const char *gaugeshowlist(int index, int *list_size)
+const char *gaugeshowlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -469,7 +469,7 @@ const char *gaugeshowlist(int index, int *list_size)
     return gaugeshow_str[index];
 }
 
-const char *rowslist(int index, int *list_size)
+const char *rowslist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -485,7 +485,7 @@ const char *button_str[4] =
     "A", "B", "X", "Y"
 };
 
-const char *buttonlist(int index, int *list_size)
+const char *buttonlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -505,7 +505,7 @@ const char *icounter_str[sscMAX] =
     "Script 22", "Script 23", "Script 24", "Script 25", "Life", "Magic", "Max Life", "Max Magic"
 };
 
-const char *icounterlist(int index, int *list_size)
+const char *icounterlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -517,10 +517,10 @@ const char *icounterlist(int index, int *list_size)
 }
 
 
-int d_stilelist_proc(int msg,DIALOG *d,int c)
+int32_t d_stilelist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int old_d1=d->d1;
-    int ret=jwin_droplist_proc(msg, d, c);
+    int32_t old_d1=d->d1;
+    int32_t ret=jwin_droplist_proc(msg, d, c);
     
     if(d->d1!=old_d1)
     {
@@ -563,19 +563,19 @@ int d_stilelist_proc(int msg,DIALOG *d,int c)
 
 
 
-static int ssop_location_list[] =
+static int32_t ssop_location_list[] =
 {
     // dialog control number
     5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34,212,213, -1
 };
 
-static int ssop_color_list[] =
+static int32_t ssop_color_list[] =
 {
     // dialog control number
     35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, -1
 };
 
-static int ssop_attributes_list[] =
+static int32_t ssop_attributes_list[] =
 {
     // dialog control number
     95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, -1
@@ -592,10 +592,10 @@ static TABPANEL sso_properties_tabs[] =
 
 DIALOG *sso_properties_dlg;
 
-int jwin_tflpcheck_proc(int msg,DIALOG *d,int c)
+int32_t jwin_tflpcheck_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     bool selected=(d->flags&D_SELECTED)!=0;
-    int ret= is_large ? jwin_checkfont_proc(msg,d,c) : jwin_check_proc(msg, d, c);
+    int32_t ret= is_large ? jwin_checkfont_proc(msg,d,c) : jwin_check_proc(msg, d, c);
     bool new_selected=(d->flags&D_SELECTED)!=0;
     
     if(new_selected!=selected)
@@ -622,10 +622,10 @@ int jwin_tflpcheck_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int jwin_lscheck_proc(int msg,DIALOG *d,int c)
+int32_t jwin_lscheck_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     bool selected=(d->flags&D_SELECTED)!=0;
-    int ret=is_large ? jwin_checkfont_proc(msg,d,c) : jwin_check_proc(msg, d, c);
+    int32_t ret=is_large ? jwin_checkfont_proc(msg,d,c) : jwin_check_proc(msg, d, c);
     bool new_selected=(d->flags&D_SELECTED)!=0;
     
     if(new_selected!=selected || msg==MSG_START)
@@ -643,14 +643,14 @@ int jwin_lscheck_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_qtile_proc(int msg,DIALOG *d,int c)
+int32_t d_qtile_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
     case MSG_DRAW:
     {
-        int dw = d->w;
-        int dh = d->h;
+        int32_t dw = d->w;
+        int32_t dh = d->h;
         
         if(is_large)
         {
@@ -664,16 +664,16 @@ int d_qtile_proc(int msg,DIALOG *d,int c)
         {
             clear_bitmap(buf);
             
-            for(int y=0; y<dh; y+=16)
+            for(int32_t y=0; y<dh; y+=16)
             {
-                for(int x=0; x<dw; x+=16)
+                for(int32_t x=0; x<dw; x+=16)
                 {
                     puttile16(buf,d->d1+(y>>4)*20+(x>>4),x,y,d->fg,d->d2);
                 }
             }
             
-            int t=d->bg>>2;
-            int t2=d->bg-(t<<2);
+            int32_t t=d->bg>>2;
+            int32_t t2=d->bg-(t<<2);
             rect(buf,
                  (t<<4)+((t2&1)<<3) ,
                  ((t2&2)<<2),
@@ -690,13 +690,13 @@ int d_qtile_proc(int msg,DIALOG *d,int c)
     
     case MSG_CLICK:
     {
-        int old_fg=d->fg;
+        int32_t old_fg=d->fg;
         
         if(gui_mouse_b()&2)  //right mouse button
         {
-            int old_bg=d->bg;
-            int mx=vbound(gui_mouse_x()-d->x,0,d->w-1);
-            int my=vbound(gui_mouse_y()-d->y,0,d->h-1);
+            int32_t old_bg=d->bg;
+            int32_t mx=vbound(gui_mouse_x()-d->x,0,d->w-1);
+            int32_t my=vbound(gui_mouse_y()-d->y,0,d->h-1);
             
             if(is_large)
             {
@@ -704,7 +704,7 @@ int d_qtile_proc(int msg,DIALOG *d,int c)
                 my/=2;
             }
             
-            int t=mx>>4;
+            int32_t t=mx>>4;
             d->bg=(t<<2)+((my>>3)<<1)+((mx-(t<<4))>>3);
             
             if(d->bg!=old_bg)
@@ -715,7 +715,7 @@ int d_qtile_proc(int msg,DIALOG *d,int c)
             return D_O_K;
         }
         
-        int ret=d_maptile_proc(msg, d, c);
+        int32_t ret=d_maptile_proc(msg, d, c);
         
         if(d->fg!=old_fg)
         {
@@ -733,10 +733,10 @@ int d_qtile_proc(int msg,DIALOG *d,int c)
     return d_maptile_proc(msg, d, c);
 }
 
-int d_spectile_proc(int msg,DIALOG *d,int c)
+int32_t d_spectile_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int d1=d->d1;
-    int ret=d_qtile_proc(msg,d,c);
+    int32_t d1=d->d1;
+    int32_t ret=d_qtile_proc(msg,d,c);
     
     if(d1!=d->d1)
     {
@@ -753,10 +753,10 @@ int d_spectile_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_tileblock_proc(int msg,DIALOG *d,int c)
+int32_t d_tileblock_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int old_fg=d->fg;
-    int ret=d_maptile_proc(msg, d, c);
+    int32_t old_fg=d->fg;
+    int32_t ret=d_maptile_proc(msg, d, c);
     
     switch(msg)
     {
@@ -776,30 +776,30 @@ int d_tileblock_proc(int msg,DIALOG *d,int c)
 }
 
 
-extern int d_alltriggerbutton_proc(int msg,DIALOG *d,int c);
-extern int d_comboa_radio_proc(int msg,DIALOG *d,int c);
-extern int d_comboabutton_proc(int msg,DIALOG *d,int c);
-extern int d_jbutton_proc(int msg,DIALOG *d,int c);
-extern int d_kbutton_proc(int msg,DIALOG *d,int c);
-extern int d_listen_proc(int msg,DIALOG *d,int c);
-extern int d_savemidi_proc(int msg,DIALOG *d,int c);
-extern int d_ssdn_btn_proc(int msg,DIALOG *d,int c);
-extern int d_ssdn_btn2_proc(int msg,DIALOG *d,int c);
-extern int d_ssdn_btn3_proc(int msg,DIALOG *d,int c);
-extern int d_ssdn_btn4_proc(int msg,DIALOG *d,int c);
-extern int d_sslt_btn_proc(int msg,DIALOG *d,int c);
-extern int d_sslt_btn2_proc(int msg,DIALOG *d,int c);
-extern int d_sslt_btn3_proc(int msg,DIALOG *d,int c);
-extern int d_sslt_btn4_proc(int msg,DIALOG *d,int c);
-extern int d_ssrt_btn_proc(int msg,DIALOG *d,int c);
-extern int d_ssrt_btn2_proc(int msg,DIALOG *d,int c);
-extern int d_ssrt_btn3_proc(int msg,DIALOG *d,int c);
-extern int d_ssrt_btn4_proc(int msg,DIALOG *d,int c);
-extern int d_ssup_btn_proc(int msg,DIALOG *d,int c);
-extern int d_ssup_btn2_proc(int msg,DIALOG *d,int c);
-extern int d_ssup_btn3_proc(int msg,DIALOG *d,int c);
-extern int d_ssup_btn4_proc(int msg,DIALOG *d,int c);
-extern int d_triggerbutton_proc(int msg,DIALOG *d,int c);
+extern int32_t d_alltriggerbutton_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_comboa_radio_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_comboabutton_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_listen_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_savemidi_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssdn_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssdn_btn4_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_sslt_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_sslt_btn4_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssup_btn_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssup_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssup_btn4_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_triggerbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 
 void dummy_dialog_proc(DIALOG *d)
 {
@@ -812,7 +812,7 @@ void dummy_dialog_proc(DIALOG *d)
 }
 
 
-void extract_colortype(DIALOG *d, subscreen_object *tempsso, int ct)
+void extract_colortype(DIALOG *d, subscreen_object *tempsso, int32_t ct)
 {
     switch(ct)
     {
@@ -873,7 +873,7 @@ void extract_colortype(DIALOG *d, subscreen_object *tempsso, int ct)
     }
 }
 
-void insert_colortype(DIALOG *d, subscreen_object *tempsso, int ct)
+void insert_colortype(DIALOG *d, subscreen_object *tempsso, int32_t ct)
 {
     switch(ct)
     {
@@ -934,7 +934,7 @@ void insert_colortype(DIALOG *d, subscreen_object *tempsso, int ct)
     }
 }
 
-void extract_cset(DIALOG *d, subscreen_object *tempsso, int ct)
+void extract_cset(DIALOG *d, subscreen_object *tempsso, int32_t ct)
 {
     switch(ct)
     {
@@ -983,7 +983,7 @@ void extract_cset(DIALOG *d, subscreen_object *tempsso, int ct)
     }
 }
 
-void insert_cset(DIALOG *d, subscreen_object *tempsso, int ct)
+void insert_cset(DIALOG *d, subscreen_object *tempsso, int32_t ct)
 {
     switch(ct)
     {
@@ -1046,7 +1046,7 @@ static ListData gaugeshow_list(gaugeshowlist, &font);
 static ListData rows_list(rowslist, &font);
 static ListData itemclass_list(item_class_list, &font);
 
-int sso_raw_data(subscreen_object *tempsso)
+int32_t sso_raw_data(subscreen_object *tempsso)
 {
     char raw_text[65535];
     char title[80];
@@ -1400,13 +1400,13 @@ void replacedp(DIALOG &d, const char *newdp, size_t size)
     }
 }
 
-int sso_properties(subscreen_object *tempsso)
+int32_t sso_properties(subscreen_object *tempsso)
 {
     copy_dialog(&sso_properties_dlg, sso_master_properties_dlg);
     char title[256], x_str[256],y_str[256],w_str[256],h_str[256],f_str[256],s_str[256],d_str[256];
-    int x_stri=0, y_stri=0, w_stri=0, h_stri=0,f_stri=0,s_stri=0,d_stri=0;
+    int32_t x_stri=0, y_stri=0, w_stri=0, h_stri=0,f_stri=0,s_stri=0,d_stri=0;
     char buf[256], buf2[256], buf3[256], buf4[256], buf5[256];
-    int bufi=0, buf2i=0, buf3i=0,buf4i=0,buf5i=0;
+    int32_t bufi=0, buf2i=0, buf3i=0,buf4i=0,buf5i=0;
     memset(title, 0, 256);
     memset(x_str, 0, 256);
     memset(y_str, 0, 256);
@@ -1425,7 +1425,7 @@ int sso_properties(subscreen_object *tempsso)
     sprintf(y_str, "invalid");
     sprintf(w_str, "invalid");
     sprintf(h_str, "invalid");
-    int ret=-1;
+    int32_t ret=-1;
     
     replacedp(sso_properties_dlg[0],title);
     sso_properties_dlg[0].dp2=lfont;
@@ -1505,10 +1505,10 @@ int sso_properties(subscreen_object *tempsso)
         sso_properties_dlg[97].x = sso_properties_dlg[98].x-2; // d_frame_proc
         sso_properties_dlg[97].y = sso_properties_dlg[98].y-2;
         
-        for(int i = 99; i <= 104; i++)
+        for(int32_t i = 99; i <= 104; i++)
             sso_properties_dlg[i].x += (i >=102 ? 80:64);
             
-        for(int i = 158; i <= 162; i++)
+        for(int32_t i = 158; i <= 162; i++)
             sso_properties_dlg[i].y += 8;
             
         sso_properties_dlg[100].x = sso_properties_dlg[101].x-2; // d_frame_proc
@@ -1523,7 +1523,7 @@ int sso_properties(subscreen_object *tempsso)
         // I'd just disable it entirely if I knew how...
         dummy_dialog_proc(sso_properties_dlg+6);
         
-        for(int i=11; i<=213; ++i)
+        for(int32_t i=11; i<=213; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -1532,22 +1532,22 @@ int sso_properties(subscreen_object *tempsso)
     
     case sso2X2FRAME:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=41; i<=94; ++i)
+        for(int32_t i=41; i<=94; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=99; i<=101; ++i)
+        for(int32_t i=99; i<=101; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=104; i<=210; ++i)
+        for(int32_t i=104; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -1606,17 +1606,17 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoTEXT:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=53; i<=114; ++i)
+        for(int32_t i=53; i<=114; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=123; i<=210; ++i)
+        for(int32_t i=123; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -1675,17 +1675,17 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoLINE:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=41; i<=101; ++i)
+        for(int32_t i=41; i<=101; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=104; i<=210; ++i)
+        for(int32_t i=104; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -1718,17 +1718,17 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoRECT:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=47; i<=101; ++i)
+        for(int32_t i=47; i<=101; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=104; i<=210; ++i)
+        for(int32_t i=104; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -1771,19 +1771,19 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoBSTIME:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=53; i<=114; ++i)
+        for(int32_t i=53; i<=114; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
         dummy_dialog_proc(sso_properties_dlg+118);
         
-        for(int i=122; i<=210; ++i)
+        for(int32_t i=122; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -1831,19 +1831,19 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoTIME:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=53; i<=114; ++i)
+        for(int32_t i=53; i<=114; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
         dummy_dialog_proc(sso_properties_dlg+118);
         
-        for(int i=122; i<=210; ++i)
+        for(int32_t i=122; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -1891,19 +1891,19 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoSSTIME:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=53; i<=114; ++i)
+        for(int32_t i=53; i<=114; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
         dummy_dialog_proc(sso_properties_dlg+118);
         
-        for(int i=122; i<=210; ++i)
+        for(int32_t i=122; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -1950,17 +1950,17 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoMAGICMETER:
     {
-        for(int i=11; i<=93; ++i)
+        for(int32_t i=11; i<=93; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=95; i<=169; ++i)
+        for(int32_t i=95; i<=169; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=171; i<=210; ++i)
+        for(int32_t i=171; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -1987,22 +1987,22 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoLIFEMETER:
     {
-        for(int i=11; i<=93; ++i)
+        for(int32_t i=11; i<=93; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=95; i<=138; ++i)
+        for(int32_t i=95; i<=138; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=140; i<=173; ++i)
+        for(int32_t i=140; i<=173; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=176; i<=210; i++)
+        for(int32_t i=176; i<=210; i++)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2023,22 +2023,22 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoBUTTONITEM:
     {
-        for(int i=15; i<=102; ++i)
+        for(int32_t i=15; i<=102; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=104; i<=114; ++i)
+        for(int32_t i=104; i<=114; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=116; i<=118; ++i)
+        for(int32_t i=116; i<=118; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=120; i<=210; ++i)
+        for(int32_t i=120; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2075,12 +2075,12 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoCOUNTER:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=53; i<=114; ++i)
+        for(int32_t i=53; i<=114; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2088,24 +2088,24 @@ int sso_properties(subscreen_object *tempsso)
         dummy_dialog_proc(sso_properties_dlg+118);
         dummy_dialog_proc(sso_properties_dlg+122);
         
-        for(int i=127; i<=129; ++i)
+        for(int32_t i=127; i<=129; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=133; i<=135; ++i)
+        for(int32_t i=133; i<=135; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
         dummy_dialog_proc(sso_properties_dlg+139);
         
-        for(int i=142; i<=166; ++i)
+        for(int32_t i=142; i<=166; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=169; i<=210; ++i)
+        for(int32_t i=169; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2186,10 +2186,10 @@ int sso_properties(subscreen_object *tempsso)
             build_bii_list(true);
         }
         
-        int index=tempsso->d10;
-        int itemid = 0;
+        int32_t index=tempsso->d10;
+        int32_t itemid = 0;
         
-        for(int i=0; i<bii_cnt; i++)
+        for(int32_t i=0; i<bii_cnt; i++)
         {
             if(bii[i].i == index)
             {
@@ -2239,12 +2239,12 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoCOUNTERS:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=53; i<=114; ++i)
+        for(int32_t i=53; i<=114; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2256,17 +2256,17 @@ int sso_properties(subscreen_object *tempsso)
         dummy_dialog_proc(sso_properties_dlg+123);
         dummy_dialog_proc(sso_properties_dlg+125);
         
-        for(int i=127; i<=139; ++i)
+        for(int32_t i=127; i<=139; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=141; i<=166; ++i)
+        for(int32_t i=141; i<=166; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=169; i<=210; ++i)
+        for(int32_t i=169; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2337,19 +2337,19 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoMINIMAPTITLE:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=53; i<=114; ++i)
+        for(int32_t i=53; i<=114; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
         dummy_dialog_proc(sso_properties_dlg+118);
         
-        for(int i=122; i<=210; ++i)
+        for(int32_t i=122; i<=210; ++i)
         {
             if(i!=139) dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2400,17 +2400,17 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoMINIMAP:
     {
-        for(int i=11; i<=34; ++i)
+        for(int32_t i=11; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=53; i<=170; ++i)
+        for(int32_t i=53; i<=170; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=174; i<=210; ++i)
+        for(int32_t i=174; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2460,22 +2460,22 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoLARGEMAP:
     {
-        for(int i=11; i<=34; ++i)
+        for(int32_t i=11; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=47; i<=138; ++i)
+        for(int32_t i=47; i<=138; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=140; i<=170; ++i)
+        for(int32_t i=140; i<=170; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=174; i<=210; ++i)
+        for(int32_t i=174; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2523,12 +2523,12 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoCLEAR:
     {
-        for(int i=7; i<=34; ++i)
+        for(int32_t i=7; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=41; i<=210; ++i)
+        for(int32_t i=41; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2544,22 +2544,22 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoCURRENTITEM:
     {
-        for(int i=15; i<=93; ++i)
+        for(int32_t i=15; i<=93; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=95; i<=126; ++i)
+        for(int32_t i=95; i<=126; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=140; i<=175; ++i)
+        for(int32_t i=140; i<=175; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=178; i<=210; ++i)
+        for(int32_t i=178; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2597,10 +2597,10 @@ int sso_properties(subscreen_object *tempsso)
         // Item Override droplist
         
         build_bii_list(true);
-        int index=tempsso->d8-1;
-        int itemid = 0;
+        int32_t index=tempsso->d8-1;
+        int32_t itemid = 0;
         
-        for(int i=0; i<bii_cnt; i++)
+        for(int32_t i=0; i<bii_cnt; i++)
         {
             if(bii[i].i == index)
             {
@@ -2613,7 +2613,7 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_dlg[176],(char *)&item_list);
         sso_properties_dlg[176].d1 = itemid;
         
-        for(int j=0; j<biic_cnt; j++)
+        for(int32_t j=0; j<biic_cnt; j++)
         {
             if(biic[j].i == tempsso->d1)
                 sso_properties_dlg[133].d1 = j;
@@ -2630,17 +2630,17 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoTRIFRAME:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=47; i<=94; ++i)
+        for(int32_t i=47; i<=94; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=105; i<=210; ++i)
+        for(int32_t i=105; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2698,27 +2698,27 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoTRIFORCE:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=41; i<=94; ++i)
+        for(int32_t i=41; i<=94; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=99; i<=101; ++i)
+        for(int32_t i=99; i<=101; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=104; i<=163; ++i)
+        for(int32_t i=104; i<=163; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=166; i<=210; ++i)
+        for(int32_t i=166; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2778,22 +2778,22 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoTILEBLOCK:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=41; i<=94; ++i)
+        for(int32_t i=41; i<=94; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=99; i<=101; ++i)
+        for(int32_t i=99; i<=101; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=104; i<=210; ++i)
+        for(int32_t i=104; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2847,27 +2847,27 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoMINITILE:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=41; i<=94; ++i)
+        for(int32_t i=41; i<=94; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=99; i<=101; ++i)
+        for(int32_t i=99; i<=101; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=104; i<=110; ++i)
+        for(int32_t i=104; i<=110; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=113; i<=210; ++i)
+        for(int32_t i=113; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -2958,22 +2958,22 @@ int sso_properties(subscreen_object *tempsso)
     case ssoSELECTOR1:
     case ssoSELECTOR2:
     {
-        for(int i=11; i<=34; ++i)
+        for(int32_t i=11; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=41; i<=94; ++i)
+        for(int32_t i=41; i<=94; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=99; i<=101; ++i)
+        for(int32_t i=99; i<=101; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=105; i<=210; ++i)
+        for(int32_t i=105; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -3027,22 +3027,22 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoMAGICGAUGE:
     {
-        for(int i=15; i<=93; ++i)
+        for(int32_t i=15; i<=93; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=95; i<=104; ++i)
+        for(int32_t i=95; i<=104; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=111; i<=141; ++i)
+        for(int32_t i=111; i<=141; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=167; i<=210; ++i)
+        for(int32_t i=167; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -3123,22 +3123,22 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoLIFEGAUGE:
     {
-        for(int i=15; i<=93; ++i)
+        for(int32_t i=15; i<=93; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=95; i<=104; ++i)
+        for(int32_t i=95; i<=104; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=111; i<=141; ++i)
+        for(int32_t i=111; i<=141; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=167; i<=210; ++i)
+        for(int32_t i=167; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -3219,17 +3219,17 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoTEXTBOX:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=53; i<=114; ++i)
+        for(int32_t i=53; i<=114; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=127; i<=210; ++i)
+        for(int32_t i=127; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -3305,17 +3305,17 @@ int sso_properties(subscreen_object *tempsso)
     
     case ssoSELECTEDITEMNAME:
     {
-        for(int i=15; i<=34; ++i)
+        for(int32_t i=15; i<=34; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=53; i<=114; ++i)
+        for(int32_t i=53; i<=114; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
         
-        for(int i=127; i<=210; ++i)
+        for(int32_t i=127; i<=210; ++i)
         {
             dummy_dialog_proc(sso_properties_dlg+i);
         }
@@ -4029,44 +4029,44 @@ int sso_properties(subscreen_object *tempsso)
     }
     
     free_dialog(&sso_properties_dlg);
-    //for(map<int, char *>::iterator it = itemclassnames.begin(); it != itemclassnames.end(); it++)
+    //for(map<int32_t, char *>::iterator it = itemclassnames.begin(); it != itemclassnames.end(); it++)
     //  delete[] it->second;
     //itemclassnames.clear();
     return (ret==2) ? -1 : 0;
 }
 
-int onBringToFront();
-int onBringForward();
-int onSendBackward();
-int onSendToBack();
-int onReverseArrangement();
-int onAlignLeft();
-int onAlignCenter();
-int onAlignRight();
-int onAlignTop();
-int onAlignMiddle();
-int onAlignBottom();
-int onDistributeLeft();
-int onDistributeCenter();
-int onDistributeRight();
-int onDistributeTop();
-int onDistributeMiddle();
-int onDistributeBottom();
-int onGridSnapLeft();
-int onGridSnapCenter();
-int onGridSnapRight();
-int onGridSnapTop();
-int onGridSnapMiddle();
-int onGridSnapBottom();
+int32_t onBringToFront();
+int32_t onBringForward();
+int32_t onSendBackward();
+int32_t onSendToBack();
+int32_t onReverseArrangement();
+int32_t onAlignLeft();
+int32_t onAlignCenter();
+int32_t onAlignRight();
+int32_t onAlignTop();
+int32_t onAlignMiddle();
+int32_t onAlignBottom();
+int32_t onDistributeLeft();
+int32_t onDistributeCenter();
+int32_t onDistributeRight();
+int32_t onDistributeTop();
+int32_t onDistributeMiddle();
+int32_t onDistributeBottom();
+int32_t onGridSnapLeft();
+int32_t onGridSnapCenter();
+int32_t onGridSnapRight();
+int32_t onGridSnapTop();
+int32_t onGridSnapMiddle();
+int32_t onGridSnapBottom();
 void copySSOProperties(subscreen_object& src, subscreen_object& dest);
 
-int onSubscreenObjectProperties()
+int32_t onSubscreenObjectProperties()
 {
     if(curr_subscreen_object >= 0)
     {
         if(sso_properties(&(css->objects[curr_subscreen_object]))!=-1)
         {
-            for(int i=0; i<MAXSUBSCREENITEMS; i++)
+            for(int32_t i=0; i<MAXSUBSCREENITEMS; i++)
             {
                 if(!sso_selection[i])
                     continue;
@@ -4079,7 +4079,7 @@ int onSubscreenObjectProperties()
     return D_O_K;
 }
 
-int onSubscreenObjectRawProperties()
+int32_t onSubscreenObjectRawProperties()
 {
     if(curr_subscreen_object >= 0)
     {
@@ -4089,18 +4089,18 @@ int onSubscreenObjectRawProperties()
     return D_O_K;
 }
 
-int onNewSubscreenObject();
+int32_t onNewSubscreenObject();
 
-int onDeleteSubscreenObject()
+int32_t onDeleteSubscreenObject()
 {
-    int objs=ss_objects(css);
+    int32_t objs=ss_objects(css);
     
     if(objs==0)
     {
         return D_O_K;
     }
     
-    for(int i=curr_subscreen_object; i<objs-1; ++i)
+    for(int32_t i=curr_subscreen_object; i<objs-1; ++i)
     {
         css->objects[i]=css->objects[i+1];
         sso_selection[i]=sso_selection[i+1];
@@ -4132,7 +4132,7 @@ int onDeleteSubscreenObject()
     return D_O_K;
 }
 
-int onAddToSelection()
+int32_t onAddToSelection()
 {
     if(curr_subscreen_object >= 0)
     {
@@ -4142,7 +4142,7 @@ int onAddToSelection()
     return D_O_K;
 }
 
-int onRemoveFromSelection()
+int32_t onRemoveFromSelection()
 {
     if(curr_subscreen_object >= 0)
     {
@@ -4152,9 +4152,9 @@ int onRemoveFromSelection()
     return D_O_K;
 }
 
-int onInvertSelection()
+int32_t onInvertSelection()
 {
-    for(int i=0; i<ss_objects(css); ++i)
+    for(int32_t i=0; i<ss_objects(css); ++i)
     {
         sso_selection[i]=!sso_selection[i];
     }
@@ -4162,9 +4162,9 @@ int onInvertSelection()
     return D_O_K;
 }
 
-int onClearSelection()
+int32_t onClearSelection()
 {
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
     {
         sso_selection[i]=false;
     }
@@ -4172,20 +4172,20 @@ int onClearSelection()
     return D_O_K;
 }
 
-int onDuplicateSubscreenObject()
+int32_t onDuplicateSubscreenObject()
 {
-    int objs=ss_objects(css);
+    int32_t objs=ss_objects(css);
     
     if(objs==0)
     {
         return D_O_K;
     }
     
-    int counter=0;
+    int32_t counter=0;
     
-    for(int i=0; i<objs; ++i)
+    for(int32_t i=0; i<objs; ++i)
     {
-        int c=objs+counter;
+        int32_t c=objs+counter;
         
         if(sso_selection[i]||i==curr_subscreen_object)
         {
@@ -4228,10 +4228,10 @@ int onDuplicateSubscreenObject()
     return D_O_K;
 }
 
-static int onToggleInvis();
-static int onEditGrid();
-static int onSelectionOptions();
-static int onShowHideGrid();
+static int32_t onToggleInvis();
+static int32_t onEditGrid();
+static int32_t onSelectionOptions();
+static int32_t onShowHideGrid();
 
 
 static MENU subscreen_rc_menu[] =
@@ -4244,18 +4244,18 @@ static MENU subscreen_rc_menu[] =
 };
 
 
-int d_subscreen_proc(int msg,DIALOG *d,int)
+int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 {
     switch(msg)
     {
     case MSG_CLICK:
     {
-        for(int i=ss_objects(css)-1; i>=0; --i)
+        for(int32_t i=ss_objects(css)-1; i>=0; --i)
         {
-            int x=sso_x(&css->objects[i])*(1+is_large);
-            int y=sso_y(&css->objects[i])*(1+is_large);
-            int w=sso_w(&css->objects[i])*(1+is_large);
-            int h=sso_h(&css->objects[i])*(1+is_large);
+            int32_t x=sso_x(&css->objects[i])*(1+is_large);
+            int32_t y=sso_y(&css->objects[i])*(1+is_large);
+            int32_t w=sso_w(&css->objects[i])*(1+is_large);
+            int32_t h=sso_h(&css->objects[i])*(1+is_large);
             
             switch(get_alignment(&css->objects[i]))
             {
@@ -4310,7 +4310,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             else
                 subscreen_rc_menu[3].flags&=~D_DISABLED;
             
-            int m = popup_menu(subscreen_rc_menu,gui_mouse_x(),gui_mouse_y());
+            int32_t m = popup_menu(subscreen_rc_menu,gui_mouse_x(),gui_mouse_y());
             
             switch(m)
             {
@@ -4330,7 +4330,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
                 if(ss_propCopySrc>=0) // Hopefully unnecessary)
                 {
                     copySSOProperties(css->objects[ss_propCopySrc], css->objects[curr_subscreen_object]);
-                    for(int i=0; i<MAXSUBSCREENITEMS; i++)
+                    for(int32_t i=0; i<MAXSUBSCREENITEMS; i++)
                     {
                         if(!sso_selection[i])
                             continue;
@@ -4360,7 +4360,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             clear_bitmap(buf);
             show_custom_subscreen(buf, &misc, (subscreen_group *)(d->dp), 0, 0, true, sspUP | sspDOWN | sspSCROLLING);
             
-            for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+            for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
             {
                 if(sso_selection[i])
                 {
@@ -4372,9 +4372,9 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             
             if(zinit.ss_flags&ssflagSHOWGRID)
             {
-                for(int x=zinit.ss_grid_xofs; x<d->w; x+=zinit.ss_grid_x)
+                for(int32_t x=zinit.ss_grid_xofs; x<d->w; x+=zinit.ss_grid_x)
                 {
-                    for(int y=zinit.ss_grid_yofs; y<d->h; y+=zinit.ss_grid_y)
+                    for(int32_t y=zinit.ss_grid_yofs; y<d->h; y+=zinit.ss_grid_y)
                     {
                         buf->line[y][x]=vc(zinit.ss_grid_color);
                     }
@@ -4403,23 +4403,23 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
     return D_O_K;
 }
 
-int onSSUp();
-int onSSDown();
-int onSSLeft();
-int onSSRight();
-int onSSPgDn();
-int onSSPgUp();
+int32_t onSSUp();
+int32_t onSSDown();
+int32_t onSSLeft();
+int32_t onSSRight();
+int32_t onSSPgDn();
+int32_t onSSPgUp();
 
-int d_ssup_btn_proc(int msg,DIALOG *d,int c);
-int d_ssdn_btn_proc(int msg,DIALOG *d,int c);
-int d_sslt_btn_proc(int msg,DIALOG *d,int c);
-int d_ssrt_btn_proc(int msg,DIALOG *d,int c);
+int32_t d_ssup_btn_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c);
 
-int onSSUp()
+int32_t onSSUp()
 {
-    int delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?-zinit.ss_grid_y:-1;
+    int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?-zinit.ss_grid_y:-1;
     
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
     {
         if(sso_selection[i]&&i!=curr_subscreen_object)
         {
@@ -4446,11 +4446,11 @@ int onSSUp()
     return D_O_K;
 }
 
-int onSSDown()
+int32_t onSSDown()
 {
-    int delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?zinit.ss_grid_y:1;
+    int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?zinit.ss_grid_y:1;
     
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
     {
         if(sso_selection[i]&&i!=curr_subscreen_object)
         {
@@ -4477,11 +4477,11 @@ int onSSDown()
     return D_O_K;
 }
 
-int onSSLeft()
+int32_t onSSLeft()
 {
-    int delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?-zinit.ss_grid_x:-1;
+    int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?-zinit.ss_grid_x:-1;
     
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
     {
         if(sso_selection[i]&&i!=curr_subscreen_object)
         {
@@ -4508,11 +4508,11 @@ int onSSLeft()
     return D_O_K;
 }
 
-int onSSRight()
+int32_t onSSRight()
 {
-    int delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?zinit.ss_grid_x:1;
+    int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?zinit.ss_grid_x:1;
     
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
     {
         if(sso_selection[i]&&i!=curr_subscreen_object)
         {
@@ -4539,7 +4539,7 @@ int onSSRight()
     return D_O_K;
 }
 
-int d_ssup_btn2_proc(int msg,DIALOG *d,int c)
+int32_t d_ssup_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4555,7 +4555,7 @@ int d_ssup_btn2_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_ssdn_btn2_proc(int msg,DIALOG *d,int c)
+int32_t d_ssdn_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4571,7 +4571,7 @@ int d_ssdn_btn2_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_sslt_btn2_proc(int msg,DIALOG *d,int c)
+int32_t d_sslt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4587,7 +4587,7 @@ int d_sslt_btn2_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_ssrt_btn2_proc(int msg,DIALOG *d,int c)
+int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4603,7 +4603,7 @@ int d_ssrt_btn2_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_ssup_btn3_proc(int msg,DIALOG *d,int c)
+int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4611,7 +4611,7 @@ int d_ssup_btn3_proc(int msg,DIALOG *d,int c)
     {
         jwin_button_proc(msg, d, c);
         
-        for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+        for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
             if(sso_selection[i]&&i!=curr_subscreen_object)
             {
@@ -4628,7 +4628,7 @@ int d_ssup_btn3_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_ssdn_btn3_proc(int msg,DIALOG *d,int c)
+int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4636,7 +4636,7 @@ int d_ssdn_btn3_proc(int msg,DIALOG *d,int c)
     {
         jwin_button_proc(msg, d, c);
         
-        for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+        for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
             if(sso_selection[i]&&i!=curr_subscreen_object)
             {
@@ -4653,7 +4653,7 @@ int d_ssdn_btn3_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_sslt_btn3_proc(int msg,DIALOG *d,int c)
+int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4661,7 +4661,7 @@ int d_sslt_btn3_proc(int msg,DIALOG *d,int c)
     {
         jwin_button_proc(msg, d, c);
         
-        for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+        for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
             if(sso_selection[i]&&i!=curr_subscreen_object)
             {
@@ -4678,7 +4678,7 @@ int d_sslt_btn3_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_ssrt_btn3_proc(int msg,DIALOG *d,int c)
+int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4686,7 +4686,7 @@ int d_ssrt_btn3_proc(int msg,DIALOG *d,int c)
     {
         jwin_button_proc(msg, d, c);
         
-        for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+        for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
             if(sso_selection[i]&&i!=curr_subscreen_object)
             {
@@ -4703,11 +4703,11 @@ int d_ssrt_btn3_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int Bweapon(int pos)
+int32_t Bweapon(int32_t pos)
 {
-    int p=-1;
+    int32_t p=-1;
     
-    for(int i=0; css->objects[i].type!=ssoNULL; ++i)
+    for(int32_t i=0; css->objects[i].type!=ssoNULL; ++i)
     {
         if(css->objects[i].type==ssoCURRENTITEM && css->objects[i].d3==pos)
         {
@@ -4721,7 +4721,7 @@ int Bweapon(int pos)
         return 0;
     }
     
-    int family = 0;
+    int32_t family = 0;
     bool bow = false;
     
     switch(css->objects[p].d1)
@@ -4757,7 +4757,7 @@ int Bweapon(int pos)
         family=css->objects[p].d1;
     }
     
-    for(int i=0; i<MAXITEMS; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         if(itemsbuf[i].family==family) return i+(bow ? 0xF000 : 0);
     }
@@ -4765,7 +4765,7 @@ int Bweapon(int pos)
     return 0;
 }
 
-void selectBwpn(int xstep, int ystep)
+void selectBwpn(int32_t xstep, int32_t ystep)
 {
     if((xstep==0)&&(ystep==0))
     {
@@ -4793,14 +4793,14 @@ void selectBwpn(int xstep, int ystep)
         xstep=-1;
     }
     
-    int pos = Bpos;
-    int tries=0;
+    int32_t pos = Bpos;
+    int32_t tries=0;
     
     do
     {
-        int p=-1;
+        int32_t p=-1;
         
-        for(int i=0; css->objects[i].type!=ssoNULL; ++i)
+        for(int32_t i=0; css->objects[i].type!=ssoNULL; ++i)
         {
             if(css->objects[i].type==ssoCURRENTITEM)
             {
@@ -4839,7 +4839,7 @@ void selectBwpn(int xstep, int ystep)
 }
 
 
-int d_ssup_btn4_proc(int msg,DIALOG *d,int c)
+int32_t d_ssup_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4855,7 +4855,7 @@ int d_ssup_btn4_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_ssdn_btn4_proc(int msg,DIALOG *d,int c)
+int32_t d_ssdn_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4871,7 +4871,7 @@ int d_ssdn_btn4_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_sslt_btn4_proc(int msg,DIALOG *d,int c)
+int32_t d_sslt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4887,7 +4887,7 @@ int d_sslt_btn4_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_ssrt_btn4_proc(int msg,DIALOG *d,int c)
+int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -4972,7 +4972,7 @@ bool save_subscreen_code(char *path)
         return false;
     }
     
-    int ssobjs=ss_objects(css);
+    int32_t ssobjs=ss_objects(css);
     char buf[512];
     memset(buf,0,512);
     sprintf(buf, "subscreen_object exported_subscreen[%d]=\n", ssobjs);
@@ -4992,7 +4992,7 @@ bool save_subscreen_code(char *path)
         return false;
     }
     
-    for(int i=0; i<ssobjs; ++i)
+    for(int32_t i=0; i<ssobjs; ++i)
     {
 //    pack_fputs("{\n", f);
         sprintf(buf, "  { %s, %d, %d, %d, %d, %d, ",
@@ -5018,7 +5018,7 @@ bool save_subscreen_code(char *path)
             
             if(css->objects[i].colortype1==ssctMISC)
             {
-                int t=css->objects[i].type;
+                int32_t t=css->objects[i].type;
                 
                 if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoTRIFORCE||t==ssoTILEBLOCK)
                 {
@@ -5080,7 +5080,7 @@ bool save_subscreen_code(char *path)
             
             if(css->objects[i].colortype2==ssctMISC)
             {
-                int t=css->objects[i].type;
+                int32_t t=css->objects[i].type;
                 
                 if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoTRIFORCE||t==ssoTILEBLOCK)
                 {
@@ -5142,7 +5142,7 @@ bool save_subscreen_code(char *path)
             
             if(css->objects[i].colortype3==ssctMISC)
             {
-                int t=css->objects[i].type;
+                int32_t t=css->objects[i].type;
                 
                 if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoTRIFORCE||t==ssoTILEBLOCK)
                 {
@@ -5476,7 +5476,7 @@ bool save_subscreen_code(char *path)
 
 
 
-int onExport_Subscreen_Code()
+int32_t onExport_Subscreen_Code()
 {
     if(!getname("Export Subscreen Code (.zss)","zss",NULL,datapath,false))
         return D_O_K;
@@ -5499,7 +5499,7 @@ int onExport_Subscreen_Code()
     return D_O_K;
 }
 
-int onActivePassive();
+int32_t onActivePassive();
 
 static MENU ss_arrange_menu[] =
 {
@@ -5654,7 +5654,7 @@ static DIALOG subscreen_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onActivePassive()
+int32_t onActivePassive()
 {
     if(css->ss_type == sstACTIVE)
     {
@@ -5679,7 +5679,7 @@ const char *color_str[16] =
     "Dark Gray", "Light Blue", "Light Green", "Light Cyan", "Light Red", "Light Magenta", "Yellow", "White"
 };
 
-const char *colorlist(int index, int *list_size)
+const char *colorlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -5740,7 +5740,7 @@ const char *sso_str[ssoMAX]=
     "-Current Item Class -> Text (Not Implemented)", "-Current Item Class Name (Not Implemented)", "-Selected Item Class Name (Not Implemented)"
 };
 
-char *sso_name(int type)
+char *sso_name(int32_t type)
 {
     char *tempname;
     tempname=(char*)zc_malloc(255);
@@ -5757,20 +5757,20 @@ char *sso_name(int type)
     return tempname;
 }
 
-char *sso_name(subscreen_object *tempss, int id)
+char *sso_name(subscreen_object *tempss, int32_t id)
 {
     return sso_name(tempss[id].type);
 }
 
 sso_struct bisso[ssoMAX];
-int bisso_cnt=-1;
+int32_t bisso_cnt=-1;
 
 void build_bisso_list()
 {
-    int start=1;
+    int32_t start=1;
     bisso_cnt=0;
     
-    for(int i=start; i<ssoMAX; i++)
+    for(int32_t i=start; i<ssoMAX; i++)
     {
         if(sso_str[i][0]!='-')
         {
@@ -5780,9 +5780,9 @@ void build_bisso_list()
         }
     }
     
-    for(int i=start; i<bisso_cnt-1; i++)
+    for(int32_t i=start; i<bisso_cnt-1; i++)
     {
-        for(int j=i+1; j<bisso_cnt; j++)
+        for(int32_t j=i+1; j<bisso_cnt; j++)
         {
             if(stricmp(bisso[i].s,bisso[j].s)>0)
             {
@@ -5792,7 +5792,7 @@ void build_bisso_list()
     }
 }
 
-const char *ssolist(int index, int *list_size)
+const char *ssolist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -5816,10 +5816,10 @@ static DIALOG ssolist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onNewSubscreenObject()
+int32_t onNewSubscreenObject()
 {
     subscreen_object tempsso;
-    int ret=-1;
+    int32_t ret=-1;
     ssolist_dlg[0].dp2=lfont;
     build_bisso_list();
     
@@ -5842,7 +5842,7 @@ int onNewSubscreenObject()
         if(tempsso.type==ssoCURRENTITEM)  // Should not be invisible!
             tempsso.d2 = 1;
             
-        int temp_cso=curr_subscreen_object;
+        int32_t temp_cso=curr_subscreen_object;
         curr_subscreen_object=ss_objects(css);
         
         if(sso_properties(&tempsso)!=-1)
@@ -5867,12 +5867,12 @@ int onNewSubscreenObject()
 }
 
 
-void align_objects(subscreen_group *tempss, bool *selection, int align_type)
+void align_objects(subscreen_group *tempss, bool *selection, int32_t align_type)
 {
-    int l=sso_x(&tempss->objects[curr_subscreen_object]);
-    int t=sso_y(&tempss->objects[curr_subscreen_object]);
-    int w=sso_w(&tempss->objects[curr_subscreen_object]);
-    int h=sso_h(&tempss->objects[curr_subscreen_object]);
+    int32_t l=sso_x(&tempss->objects[curr_subscreen_object]);
+    int32_t t=sso_y(&tempss->objects[curr_subscreen_object]);
+    int32_t w=sso_w(&tempss->objects[curr_subscreen_object]);
+    int32_t h=sso_h(&tempss->objects[curr_subscreen_object]);
     
     switch(get_alignment(&tempss->objects[curr_subscreen_object]))
     {
@@ -5889,19 +5889,19 @@ void align_objects(subscreen_group *tempss, bool *selection, int align_type)
         break;
     }
     
-    int r=l+w-1;
-    int b=t+h-1;
-    int c=l+w/2;
-    int m=t+h/2;
+    int32_t r=l+w-1;
+    int32_t b=t+h-1;
+    int32_t c=l+w/2;
+    int32_t m=t+h/2;
     
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
     {
         if(selection[i]&&i!=curr_subscreen_object)
         {
-            int tl=sso_x(&tempss->objects[i]);
-            int tt=sso_y(&tempss->objects[i]);
-            int tw=sso_w(&tempss->objects[i]);
-            int th=sso_h(&tempss->objects[i]);
+            int32_t tl=sso_x(&tempss->objects[i]);
+            int32_t tt=sso_y(&tempss->objects[i]);
+            int32_t tw=sso_w(&tempss->objects[i]);
+            int32_t th=sso_h(&tempss->objects[i]);
             
             switch(get_alignment(&tempss->objects[i]))
             {
@@ -5918,10 +5918,10 @@ void align_objects(subscreen_group *tempss, bool *selection, int align_type)
                 break;
             }
             
-            int tr=tl+tw-1;
-            int tb=tt+th-1;
-            int tc=tl+tw/2;
-            int tm=tt+th/2;
+            int32_t tr=tl+tw-1;
+            int32_t tb=tt+th-1;
+            int32_t tc=tl+tw/2;
+            int32_t tm=tt+th/2;
             
             switch(align_type)
             {
@@ -5954,16 +5954,16 @@ void align_objects(subscreen_group *tempss, bool *selection, int align_type)
     }
 }
 
-void grid_snap_objects(subscreen_group *tempss, bool *selection, int snap_type)
+void grid_snap_objects(subscreen_group *tempss, bool *selection, int32_t snap_type)
 {
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
     {
         if(selection[i]||i==curr_subscreen_object)
         {
-            int tl=sso_x(&tempss->objects[i]);
-            int tt=sso_y(&tempss->objects[i]);
-            int tw=sso_w(&tempss->objects[i]);
-            int th=sso_h(&tempss->objects[i]);
+            int32_t tl=sso_x(&tempss->objects[i]);
+            int32_t tt=sso_y(&tempss->objects[i]);
+            int32_t tw=sso_w(&tempss->objects[i]);
+            int32_t th=sso_h(&tempss->objects[i]);
             
             switch(get_alignment(&tempss->objects[i]))
             {
@@ -5980,23 +5980,23 @@ void grid_snap_objects(subscreen_group *tempss, bool *selection, int snap_type)
                 break;
             }
             
-            int tr=tl+tw-1;
-            int tb=tt+th-1;
-            int tc=tl+tw/2;
-            int tm=tt+th/2;
-            int l1=(tl-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
-            int l2=l1+zinit.ss_grid_x;
-            int c1=(tc-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
-            int c2=c1+zinit.ss_grid_x;
-            int r1=(tr-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
-            int r2=r1+zinit.ss_grid_x;
+            int32_t tr=tl+tw-1;
+            int32_t tb=tt+th-1;
+            int32_t tc=tl+tw/2;
+            int32_t tm=tt+th/2;
+            int32_t l1=(tl-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
+            int32_t l2=l1+zinit.ss_grid_x;
+            int32_t c1=(tc-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
+            int32_t c2=c1+zinit.ss_grid_x;
+            int32_t r1=(tr-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
+            int32_t r2=r1+zinit.ss_grid_x;
             
-            int t1=(tt-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
-            int t2=t1+zinit.ss_grid_y;
-            int m1=(tm-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
-            int m2=m1+zinit.ss_grid_y;
-            int b1=(tb-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
-            int b2=b1+zinit.ss_grid_y;
+            int32_t t1=(tt-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
+            int32_t t2=t1+zinit.ss_grid_y;
+            int32_t m1=(tm-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
+            int32_t m2=m1+zinit.ss_grid_y;
+            int32_t b1=(tb-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
+            int32_t b2=b1+zinit.ss_grid_y;
             
             switch(snap_type)
             {
@@ -6031,26 +6031,26 @@ void grid_snap_objects(subscreen_group *tempss, bool *selection, int snap_type)
 
 typedef struct dist_obj
 {
-    int index;
-    int l;
-    int t;
-    int w;
-    int h;
-    int r;
-    int b;
-    int c;
-    int m;
+    int32_t index;
+    int32_t l;
+    int32_t t;
+    int32_t w;
+    int32_t h;
+    int32_t r;
+    int32_t b;
+    int32_t c;
+    int32_t m;
 } dist_obj;
 
-void distribute_objects(subscreen_group *tempss, bool *selection, int distribute_type)
+void distribute_objects(subscreen_group *tempss, bool *selection, int32_t distribute_type)
 {
     //these are here to bypass compiler warnings about unused arguments
     selection=selection;
     
-    int count=0;
+    int32_t count=0;
     dist_obj temp_do[MAXSUBSCREENITEMS];
     
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
     {
         if(sso_selection[i]==true||i==curr_subscreen_object)
         {
@@ -6091,9 +6091,9 @@ void distribute_objects(subscreen_group *tempss, bool *selection, int distribute
     //sort all objects in order of position, then index (yeah, bubble sort; sue me)
     dist_obj tempdo2;
     
-    for(int j=0; j<count-1; j++)
+    for(int32_t j=0; j<count-1; j++)
     {
-        for(int k=0; k<count-1-j; k++)
+        for(int32_t k=0; k<count-1-j; k++)
         {
             switch(distribute_type)
             {
@@ -6161,14 +6161,14 @@ void distribute_objects(subscreen_group *tempss, bool *selection, int distribute
         }
     }
     
-    int ld=temp_do[count-1].l-temp_do[0].l;
-    int td=temp_do[count-1].t-temp_do[0].t;
-    int rd=temp_do[count-1].r-temp_do[0].r;
-    int bd=temp_do[count-1].b-temp_do[0].b;
-    int cd=temp_do[count-1].c-temp_do[0].c;
-    int md=temp_do[count-1].m-temp_do[0].m;
+    int32_t ld=temp_do[count-1].l-temp_do[0].l;
+    int32_t td=temp_do[count-1].t-temp_do[0].t;
+    int32_t rd=temp_do[count-1].r-temp_do[0].r;
+    int32_t bd=temp_do[count-1].b-temp_do[0].b;
+    int32_t cd=temp_do[count-1].c-temp_do[0].c;
+    int32_t md=temp_do[count-1].m-temp_do[0].m;
     
-    for(int i=1; i<count-1; ++i)
+    for(int32_t i=1; i<count-1; ++i)
     {
         switch(distribute_type)
         {
@@ -6201,7 +6201,7 @@ void distribute_objects(subscreen_group *tempss, bool *selection, int distribute
     
 }
 
-int onBringToFront()
+int32_t onBringToFront()
 {
     while(curr_subscreen_object<ss_objects(css)-1)
     {
@@ -6211,7 +6211,7 @@ int onBringToFront()
     return D_O_K;
 }
 
-int onSendToBack()
+int32_t onSendToBack()
 {
     while(curr_subscreen_object>0)
     {
@@ -6221,10 +6221,10 @@ int onSendToBack()
     return D_O_K;
 }
 
-int onReverseArrangement()
+int32_t onReverseArrangement()
 {
-    int i=0;
-    int j=MAXSUBSCREENITEMS-1;
+    int32_t i=0;
+    int32_t j=MAXSUBSCREENITEMS-1;
     subscreen_object tempsso;
     
     sso_selection[curr_subscreen_object]=true;
@@ -6257,115 +6257,115 @@ int onReverseArrangement()
     }
 }
 
-int onAlignLeft()
+int32_t onAlignLeft()
 {
     align_objects(css, sso_selection, ssoaLEFT);
     return D_O_K;
 }
 
-int onAlignCenter()
+int32_t onAlignCenter()
 {
     align_objects(css, sso_selection, ssoaCENTER);
     return D_O_K;
 }
 
-int onAlignRight()
+int32_t onAlignRight()
 {
     align_objects(css, sso_selection, ssoaRIGHT);
     return D_O_K;
 }
 
-int onAlignTop()
+int32_t onAlignTop()
 {
     align_objects(css, sso_selection, ssoaTOP);
     return D_O_K;
 }
 
-int onAlignMiddle()
+int32_t onAlignMiddle()
 {
     align_objects(css, sso_selection, ssoaMIDDLE);
     return D_O_K;
 }
 
-int onAlignBottom()
+int32_t onAlignBottom()
 {
     align_objects(css, sso_selection, ssoaBOTTOM);
     return D_O_K;
 }
 
-int onDistributeLeft()
+int32_t onDistributeLeft()
 {
     distribute_objects(css, sso_selection, ssodLEFT);
     return D_O_K;
 }
 
-int onDistributeCenter()
+int32_t onDistributeCenter()
 {
     distribute_objects(css, sso_selection, ssodCENTER);
     return D_O_K;
 }
 
-int onDistributeRight()
+int32_t onDistributeRight()
 {
     distribute_objects(css, sso_selection, ssodRIGHT);
     return D_O_K;
 }
 
-int onDistributeTop()
+int32_t onDistributeTop()
 {
     distribute_objects(css, sso_selection, ssodTOP);
     return D_O_K;
 }
 
-int onDistributeMiddle()
+int32_t onDistributeMiddle()
 {
     distribute_objects(css, sso_selection, ssodMIDDLE);
     return D_O_K;
 }
 
-int onDistributeBottom()
+int32_t onDistributeBottom()
 {
     distribute_objects(css, sso_selection, ssodBOTTOM);
     return D_O_K;
 }
 
-int onGridSnapLeft()
+int32_t onGridSnapLeft()
 {
     grid_snap_objects(css, sso_selection, ssosLEFT);
     return D_O_K;
 }
 
-int onGridSnapCenter()
+int32_t onGridSnapCenter()
 {
     grid_snap_objects(css, sso_selection, ssosCENTER);
     return D_O_K;
 }
 
-int onGridSnapRight()
+int32_t onGridSnapRight()
 {
     grid_snap_objects(css, sso_selection, ssosRIGHT);
     return D_O_K;
 }
 
-int onGridSnapTop()
+int32_t onGridSnapTop()
 {
     grid_snap_objects(css, sso_selection, ssosTOP);
     return D_O_K;
 }
 
-int onGridSnapMiddle()
+int32_t onGridSnapMiddle()
 {
     grid_snap_objects(css, sso_selection, ssosMIDDLE);
     return D_O_K;
 }
 
-int onGridSnapBottom()
+int32_t onGridSnapBottom()
 {
     grid_snap_objects(css, sso_selection, ssosBOTTOM);
     return D_O_K;
 }
 
-static int onToggleInvis()
+static int32_t onToggleInvis()
 {
     bool show=!(zinit.ss_flags&ssflagSHOWINVIS);
     zinit.ss_flags&=~ssflagSHOWINVIS;
@@ -6374,7 +6374,7 @@ static int onToggleInvis()
     return D_O_K;
 }
 
-static int onEditGrid()
+static int32_t onEditGrid()
 {
     grid_dlg[0].dp2=lfont;
     char xsize[4];
@@ -6394,7 +6394,7 @@ static int onEditGrid()
     if(is_large)
         large_dialog(grid_dlg);
         
-    int ret = zc_popup_dialog(grid_dlg,2);
+    int32_t ret = zc_popup_dialog(grid_dlg,2);
     
     if(ret==1)
     {
@@ -6408,7 +6408,7 @@ static int onEditGrid()
     return D_O_K;
 }
 
-static int onShowHideGrid()
+static int32_t onShowHideGrid()
 {
     bool show=!(zinit.ss_flags&ssflagSHOWGRID);
     zinit.ss_flags&=~ssflagSHOWGRID;
@@ -6417,7 +6417,7 @@ static int onShowHideGrid()
     return D_O_K;
 }
 
-int onSelectionOptions()
+int32_t onSelectionOptions()
 {
     sel_options_dlg[0].dp2=lfont;
     sel_options_dlg[6].d1=zinit.ss_bbox_1_color;
@@ -6426,7 +6426,7 @@ int onSelectionOptions()
     if(is_large)
         large_dialog(sel_options_dlg);
         
-    int ret = zc_popup_dialog(sel_options_dlg,2);
+    int32_t ret = zc_popup_dialog(sel_options_dlg,2);
     
     if(ret==1)
     {
@@ -6462,17 +6462,17 @@ void update_up_dn_btns()
     subscreen_dlg[10].flags|=D_DIRTY;
 }
 
-int onSSCtrlPgUp()
+int32_t onSSCtrlPgUp()
 {
     return onBringForward();
 }
 
-int onSSCtrlPgDn()
+int32_t onSSCtrlPgDn()
 {
     return onSendBackward();
 }
 
-int onSendBackward()
+int32_t onSendBackward()
 {
     subscreen_object tempsso;
     bool tempsel;
@@ -6496,7 +6496,7 @@ int onSendBackward()
     return D_O_K;
 }
 
-int onSSPgDn()
+int32_t onSSPgDn()
 {
     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
@@ -6519,7 +6519,7 @@ int onSSPgDn()
 }
 
 // Send forward
-int onBringForward()
+int32_t onBringForward()
 {
     subscreen_object tempsso;
     bool tempsel;
@@ -6544,7 +6544,7 @@ int onBringForward()
 }
 
 
-int onSSPgUp()
+int32_t onSSPgUp()
 {
     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
@@ -6569,7 +6569,7 @@ int onSSPgUp()
     return D_O_K;
 }
 
-int d_ssup_btn_proc(int msg,DIALOG *d,int c)
+int32_t d_ssup_btn_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -6584,7 +6584,7 @@ int d_ssup_btn_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_ssdn_btn_proc(int msg,DIALOG *d,int c)
+int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -6599,7 +6599,7 @@ int d_ssdn_btn_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_sslt_btn_proc(int msg,DIALOG *d,int c)
+int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -6615,7 +6615,7 @@ int d_sslt_btn_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int d_ssrt_btn_proc(int msg,DIALOG *d,int c)
+int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -6656,7 +6656,7 @@ void edit_subscreen()
     ss_propCopySrc=-1;
     subscreen_group tempss;
     memset(&tempss, 0, sizeof(subscreen_group));
-    int i;
+    int32_t i;
     
     for(i=0; i<MAXSUBSCREENITEMS; i++)
     {
@@ -6741,7 +6741,7 @@ void edit_subscreen()
         }
     }
     
-    int ret = zc_popup_dialog(subscreen_dlg,2);
+    int32_t ret = zc_popup_dialog(subscreen_dlg,2);
     
     if(ret==1)
     {
@@ -6751,7 +6751,7 @@ void edit_subscreen()
     else
     {
         reset_subscreen(css);
-        int j;
+        int32_t j;
         
         for(j=0; j<MAXSUBSCREENITEMS; j++)
         {
@@ -6815,7 +6815,7 @@ const char *activesubscrtype_str[16] =
     "Zelda 3 (Top)"
 };
 
-const char *activelist(int index, int *list_size)
+const char *activelist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -6839,7 +6839,7 @@ const char *passivesubscrtype_str[16] =
     "Zelda 3 (Bottom)"
 };
 
-const char *passivelist(int index, int *list_size)
+const char *passivelist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -6855,7 +6855,7 @@ const char *activepassive_str[sstMAX] =
     "Active", "Passive"
 };
 
-const char *activepassivelist(int index, int *list_size)
+const char *activepassivelist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -6869,10 +6869,10 @@ const char *activepassivelist(int index, int *list_size)
 static ListData passive_list(passivelist, &font);
 static ListData active_list(activelist, &font);
 
-int sstype_drop_proc(int msg,DIALOG *d,int c)
+int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int tempd1=d->d1;
-    int ret=jwin_droplist_proc(msg,d,c);
+    int32_t tempd1=d->d1;
+    int32_t ret=jwin_droplist_proc(msg,d,c);
     
     if(tempd1!=d->d1)
     {
@@ -6902,11 +6902,11 @@ static DIALOG sstemplatelist_dlg[] =
 
 bool show_new_ss=true;
 
-const char *subscreenlist(int index, int *list_size)
+const char *subscreenlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        int j=0;
+        int32_t j=0;
         
         while(custom_subscreen[j].objects[0].type!=ssoNULL)
         {
@@ -6921,11 +6921,11 @@ const char *subscreenlist(int index, int *list_size)
     return custom_subscreen[index].name;
 }
 
-const char *subscreenlist_a(int index, int *list_size)
+const char *subscreenlist_a(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        int i=0, j=0;
+        int32_t i=0, j=0;
         
         while(custom_subscreen[j].objects[0].type!=ssoNULL)
         {
@@ -6942,7 +6942,7 @@ const char *subscreenlist_a(int index, int *list_size)
     }
     
 //  return custsubscrtype_str[index];
-    int i=-1, j=0;
+    int32_t i=-1, j=0;
     
     while(custom_subscreen[j].objects[0].type!=ssoNULL&&i!=index)
     {
@@ -6957,11 +6957,11 @@ const char *subscreenlist_a(int index, int *list_size)
     return custom_subscreen[j-1].name;
 }
 
-const char *subscreenlist_b(int index, int *list_size)
+const char *subscreenlist_b(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        int i=0, j=0;
+        int32_t i=0, j=0;
         
         while(custom_subscreen[j].objects[0].type!=ssoNULL)
         {
@@ -6978,7 +6978,7 @@ const char *subscreenlist_b(int index, int *list_size)
     }
     
 //  return custsubscrtype_str[index];
-    int i=-1, j=0;
+    int32_t i=-1, j=0;
     
     while(custom_subscreen[j].name[0]&&i!=index)
     {
@@ -7007,9 +7007,9 @@ DIALOG sslist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onEditSubscreens()
+int32_t onEditSubscreens()
 {
-    int ret=-1;
+    int32_t ret=-1;
     sslist_dlg[0].dp2=lfont;
     sstemplatelist_dlg[0].dp2=lfont;
     
@@ -7022,7 +7022,7 @@ int onEditSubscreens()
         
         if(ret==4)
         {
-            int confirm = jwin_alert("Confirm Delete", "You are about to delete the selected subscreen!", "Are you sure?", NULL, "OK", "Cancel", KEY_ENTER, KEY_ESC, lfont);
+            int32_t confirm = jwin_alert("Confirm Delete", "You are about to delete the selected subscreen!", "Are you sure?", NULL, "OK", "Cancel", KEY_ENTER, KEY_ESC, lfont);
             
             if(confirm==1)
             {
@@ -7076,7 +7076,7 @@ int onEditSubscreens()
                                 tempsub = default_subscreen_passive[(sstemplatelist_dlg[5].d1-1)/2][(sstemplatelist_dlg[5].d1-1)&1];
                             }
                             
-                            int i;
+                            int32_t i;
                             
                             for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
                             {
@@ -7129,7 +7129,7 @@ int onEditSubscreens()
                             tempsub = z3_passive_a;
                         }
                         
-                        int i;
+                        int32_t i;
                         
                         for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
                         {
@@ -7213,7 +7213,7 @@ void center_zq_subscreen_dialogs()
     jwin_center_dialog(subscreen_dlg);
 }
 
-void delete_subscreen(int subscreenidx)
+void delete_subscreen(int32_t subscreenidx)
 {
     if(custom_subscreen[subscreenidx].objects[0].type == ssoNULL)
         return;
@@ -7222,15 +7222,15 @@ void delete_subscreen(int subscreenidx)
     reset_subscreen(&custom_subscreen[subscreenidx]);
     
     //and move all other subscreens up
-    for(int i=subscreenidx+1; i<MAXCUSTOMSUBSCREENS; i++)
+    for(int32_t i=subscreenidx+1; i<MAXCUSTOMSUBSCREENS; i++)
     {
         memcpy(&custom_subscreen[i-1], &custom_subscreen[i], sizeof(subscreen_group));
     }
     
     //fix dmaps
-    int dmap_count=count_dmaps();
+    int32_t dmap_count=count_dmaps();
     
-    for(int i=0; i<dmap_count; i++)
+    for(int32_t i=0; i<dmap_count; i++)
     {
         //decrement
         if(DMaps[i].active_subscreen > subscreenidx)
@@ -7271,7 +7271,7 @@ void delete_subscreen(int subscreenidx)
 // what controls which properties are copied. Type, x, y, and dp1
 // are never copied. The active up/down/scrolling flags from pos
 // are always copied, but the rest of it is not.
-void doCopySSOProperties(subscreen_object& src, subscreen_object& dest, int what)
+void doCopySSOProperties(subscreen_object& src, subscreen_object& dest, int32_t what)
 {
     dest.pos&=~(sspUP|sspDOWN|sspSCROLLING);
     dest.pos|=src.pos&(sspUP|sspDOWN|sspSCROLLING);

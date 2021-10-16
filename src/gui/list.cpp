@@ -25,7 +25,7 @@ void List::setListData(const ::GUI::ListData& newListData)
 	jwinListData = newListData.getJWin(&widgFont);
 }
 
-void List::setSelectedValue(int value)
+void List::setSelectedValue(int32_t value)
 {
 	selectedValue = value;
 	selectedIndex = -1;
@@ -36,7 +36,7 @@ void List::setSelectedValue(int value)
 	}
 }
 
-void List::setSelectedIndex(int index)
+void List::setSelectedIndex(int32_t index)
 {
 	selectedIndex = index;
 	if(alDialog)
@@ -46,11 +46,11 @@ void List::setSelectedIndex(int index)
 	}
 }
 
-int List::getSelectedValue() const
+int32_t List::getSelectedValue() const
 {
 	if(alDialog)
 	{
-		int index = alDialog->d1;
+		int32_t index = alDialog->d1;
 		return listData->getValue(index);
 	}
 	else
@@ -63,10 +63,10 @@ void List::setIndex()
 	// value. If nothing matches exactly, take the one that's closest to
 	// the selected value.
 	selectedIndex = 0;
-	int minDiff = std::abs(selectedValue-listData->getValue(0));
+	int32_t minDiff = std::abs(selectedValue-listData->getValue(0));
 	for(size_t i = 1; i < listData->size(); ++i)
 	{
-		int value = listData->getValue(i);
+		int32_t value = listData->getValue(i);
 		if(value == selectedValue)
 		{
 			selectedIndex = i;
@@ -74,7 +74,7 @@ void List::setIndex()
 		}
 		else
 		{
-			int diff = std::abs(selectedValue-value);
+			int32_t diff = std::abs(selectedValue-value);
 			if(diff < minDiff)
 			{
 				selectedIndex = i;
@@ -119,7 +119,7 @@ void List::realize(DialogRunner& runner)
 	});
 }
 
-int List::onEvent(int event, MessageDispatcher& sendMessage)
+int32_t List::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	assert(event == geCHANGE_SELECTION);
 	if(onSelectFunc)

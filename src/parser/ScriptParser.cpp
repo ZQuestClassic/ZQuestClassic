@@ -12,7 +12,6 @@
 #include <cstdlib>
 #include <string>
 #include <memory>
-#include <boost/move/unique_ptr.hpp>
 
 #include "ASTVisitors.h"
 #include "DataStructs.h"
@@ -21,7 +20,7 @@
 #include "BuildVisitors.h"
 #include "RegistrationVisitor.h"
 #include "ZScript.h"
-using boost::movelib::unique_ptr;
+using std::unique_ptr;
 using namespace ZScript;
 
 extern std::vector<string> ZQincludePaths;
@@ -30,7 +29,7 @@ extern std::vector<string> ZQincludePaths;
 ScriptsData* compile(string const& filename);
 
 #if PARSER_DEBUG < 0
-int main(int argc, char *argv[])
+int32_t main(int32_t argc, char *argv[])
 {
 	if (argc < 2) return -1;
 	compile(string(argv[1]));
@@ -58,38 +57,38 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	if (!root.get())
 	{
 		box_out_err(CompileError::CantOpenSource(NULL));
-		return boost::movelib::unique_ptr<ScriptsData>(NULL);
+		return nullptr;
 	}
 
 	box_out("Pass 2: Preprocessing");
 	box_eol();
 
 	if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
-		return boost::movelib::unique_ptr<ScriptsData>(NULL);
+		return nullptr;
 
 	SimpleCompileErrorHandler handler;
 	Program program(*root, &handler);
 	if (handler.hasError())
-		return boost::movelib::unique_ptr<ScriptsData>(NULL);
+		return nullptr;
 
 	box_out("Pass 3: Registration");
 	box_eol();
 
 	RegistrationVisitor regVisitor(program);
-	if(regVisitor.hasFailed()) return boost::movelib::unique_ptr<ScriptsData>(NULL);
+	if(regVisitor.hasFailed()) return nullptr;
 
 	box_out("Pass 4: Analyzing Code");
 	box_eol();
 
 	SemanticAnalyzer semanticAnalyzer(program);
 	if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
-		return boost::movelib::unique_ptr<ScriptsData>(NULL);
+		return nullptr;
 
 	FunctionData fd(program);
 	if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
 	{
 		box_out_err(CompileError::TooManyGlobal(NULL));
-		return boost::movelib::unique_ptr<ScriptsData>(NULL);
+		return nullptr;
 	}
 
 	box_out("Pass 5: Generating object code");
@@ -97,7 +96,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 
 	unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
 	if (!id.get())
-		return boost::movelib::unique_ptr<ScriptsData>(NULL);
+		return nullptr;
 
 	box_out("Pass 6: Assembling");
 	box_eol();
@@ -112,10 +111,10 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	return unique_ptr<ScriptsData>(result.release());
 }
 
-int ScriptParser::vid = 0;
-int ScriptParser::fid = 0;
-int ScriptParser::gid = 1;
-int ScriptParser::lid = 0;
+int32_t ScriptParser::vid = 0;
+int32_t ScriptParser::fid = 0;
+int32_t ScriptParser::gid = 1;
+int32_t ScriptParser::lid = 0;
 
 string ScriptParser::prepareFilename(string const& filename)
 {
@@ -125,7 +124,7 @@ string ScriptParser::prepareFilename(string const& filename)
 	return retval;
 }
 
-bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int reclimit)
+bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 {
 	// Parse the imported file.
 	string* fname = NULL;
@@ -143,7 +142,7 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int reclimit)
 	if(!fname)
 	{
 		// Scan include paths
-		int importfound = importname.find_first_not_of("/\\");
+		int32_t importfound = importname.find_first_not_of("/\\");
 		if(importfound != string::npos) //If the import is not just `/`'s and `\`'s...
 		{
 			if(importfound != 0)
@@ -153,8 +152,8 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int reclimit)
 			{
 				includePath = ZQincludePaths.at(q);
 				//Add a `/` to the end of the include path, if it is missing
-				int lastnot = includePath.find_last_not_of("/\\");
-				int last = includePath.find_last_of("/\\");
+				int32_t lastnot = includePath.find_last_not_of("/\\");
+				int32_t last = includePath.find_last_of("/\\");
 				if(lastnot != string::npos)
 				{
 					if(last == string::npos || last < lastnot)
@@ -197,7 +196,7 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int reclimit)
 	return true;
 }
 
-bool ScriptParser::preprocess(ASTFile* root, int reclimit)
+bool ScriptParser::preprocess(ASTFile* root, int32_t reclimit)
 {
 	assert(root);
 
@@ -236,8 +235,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	rval->globalsInit.push_back(
 			new OSetImmediate(new VarArgument(EXP1),
 			                  new LiteralArgument(0)));
-	int globalStackSize = *program.getScope().getRootStackSize();
-	for (int i = 0; i < globalStackSize; ++i)
+	int32_t globalStackSize = *program.getScope().getRootStackSize();
+	for (int32_t i = 0; i < globalStackSize; ++i)
 		rval->globalsInit.push_back(
 				new OPushRegister(new VarArgument(EXP1)));*/
 
@@ -259,7 +258,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 
 	// Pop off everything.
 	/* See above; why push this in the first place?
-	for (int i = 0; i < globalStackSize; ++i)
+	for (int32_t i = 0; i < globalStackSize; ++i)
 		rval->globalsInit.push_back(
 				new OPopRegister(new VarArgument(EXP2)));*/
 
@@ -284,7 +283,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 
 		vector<Opcode *> funccode;
 
-		int stackSize = getStackSize(function);
+		int32_t stackSize = getStackSize(function);
 
 		// Start of the function.
 		unique_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
@@ -389,7 +388,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		}
 
 		// Push 0s for the local variables.
-		for (int i = stackSize - getParameterCount(function); i > 0; --i)
+		for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
 			funccode.push_back(new OPushRegister(new VarArgument(EXP1)));
 
 		// Set up the stack frame register
@@ -410,7 +409,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		funccode.push_back(next.release());
 
 		// Pop off everything.
-		for (int i = 0; i < stackSize; ++i)
+		for (int32_t i = 0; i < stackSize; ++i)
 		{
 			funccode.push_back(new OPopRegister(new VarArgument(EXP2)));
 		}
@@ -467,7 +466,7 @@ void ScriptParser::assemble(IntermediateData *id)
 	if (userInit && userInit->getType() == ScriptType::global
 		&& !userInit->isPrototypeRun()) //Prototype run function can be ignored, as it is empty.
 	{
-		int label = *getLabel(*userInit);
+		int32_t label = *getLabel(*userInit);
 		ginit.push_back(new OGotoImmediate(new LabelArgument(label)));
 	}
 
@@ -487,19 +486,19 @@ void ScriptParser::assemble(IntermediateData *id)
 		}
 		else
 		{
-			int numparams = script.getRun()->paramTypes.size();
+			int32_t numparams = script.getRun()->paramTypes.size();
 			script.code = assembleOne(program, run.getCode(), numparams);
 		}
 	}
 }
 
 vector<Opcode*> ScriptParser::assembleOne(
-		Program& program, vector<Opcode*> runCode, int numparams)
+		Program& program, vector<Opcode*> runCode, int32_t numparams)
 {
 	vector<Opcode *> rval;
 
 	// Push on the params to the run.
-	int i;
+	int32_t i;
 	for (i = 0; i < numparams && i < 9; ++i)
 		rval.push_back(new OPushRegister(new VarArgument(i)));
 	for (; i < numparams; ++i)
@@ -507,7 +506,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 
 	// Generate a map of labels to functions.
 	vector<Function*> allFunctions = getFunctions(program);
-	map<int, Function*> functionsByLabel;
+	map<int32_t, Function*> functionsByLabel;
 	for (vector<Function*>::iterator it = allFunctions.begin();
 	     it != allFunctions.end(); ++it)
 	{
@@ -516,19 +515,19 @@ vector<Opcode*> ScriptParser::assembleOne(
 	}
 
 	// Grab all labels directly jumped to.
-	std::set<int> usedLabels;
+	std::set<int32_t> usedLabels;
 	for (vector<Opcode*>::iterator it = runCode.begin();
 	     it != runCode.end(); ++it)
 	{
 		GetLabels temp(usedLabels);
 		(*it)->execute(temp, NULL);
 	}
-	std::set<int> unprocessedLabels(usedLabels);
+	std::set<int32_t> unprocessedLabels(usedLabels);
 
 	// Grab labels used by each function until we run out of functions.
 	while (!unprocessedLabels.empty())
 	{
-		int label = *unprocessedLabels.begin();
+		int32_t label = *unprocessedLabels.begin();
 		Function* function =
 			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
 		if (function)
@@ -551,10 +550,10 @@ vector<Opcode*> ScriptParser::assembleOne(
 	     it != runCode.end(); ++it)
 		rval.push_back((*it)->makeClone());
 
-	for (std::set<int>::iterator it = usedLabels.begin();
+	for (std::set<int32_t>::iterator it = usedLabels.begin();
 	     it != usedLabels.end(); ++it)
 	{
-		int label = *it;
+		int32_t label = *it;
 		Function* function =
 			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
 		if (!function) continue;
@@ -566,8 +565,8 @@ vector<Opcode*> ScriptParser::assembleOne(
 	}
 
 	// Set the label line numbers.
-	map<int, int> linenos;
-	int lineno = 1;
+	map<int32_t, int32_t> linenos;
+	int32_t lineno = 1;
 
 	for (vector<Opcode*>::iterator it = rval.begin();
 	     it != rval.end(); ++it)
@@ -588,13 +587,13 @@ vector<Opcode*> ScriptParser::assembleOne(
 	return rval;
 }
 
-std::pair<long,bool> ScriptParser::parseLong(std::pair<string, string> parts, Scope* scope)
+std::pair<int32_t,bool> ScriptParser::parseLong(std::pair<string, string> parts, Scope* scope)
 {
 	// Not sure if this should really check for negative numbers;
 	// in most contexts, that's checked beforehand. parts only
 	// includes the minus if this is a constant. - Saf
 	bool negative=false;
-	std::pair<long, bool> rval;
+	std::pair<int32_t, bool> rval;
 	rval.second=true;
 	bool intOneLarger = *lookupOption(*scope, CompileOption::OPT_TRUE_INT_SIZE) != 0;
 
@@ -616,7 +615,7 @@ std::pair<long,bool> ScriptParser::parseLong(std::pair<string, string> parts, Sc
 		parts.first = parts.first.substr(0,6);
 	}
 
-	int firstpart = atoi(parts.first.c_str());
+	int32_t firstpart = atoi(parts.first.c_str());
 	if(intOneLarger) //MAX_INT should be 214748, but if that is the value, there should be no float component. -V
 	{
 		if(firstpart > 214748)
@@ -631,21 +630,21 @@ std::pair<long,bool> ScriptParser::parseLong(std::pair<string, string> parts, Sc
 		rval.second = false;
 	}
 
-	long intval = ((long)(firstpart))*10000;
+	int32_t intval = ((int32_t)(firstpart))*10000;
 	//add fractional part; tricky!
-	int fpart = 0;
+	int32_t fpart = 0;
 
 
 	while(parts.second.length() < 4)
 		parts.second += "0";
 
-	for(unsigned int i = 0; i < 4; i++)
+	for(uint32_t i = 0; i < 4; i++)
 	{
 		fpart *= 10;
 		fpart += parts.second[i] - '0';
 	}
 
-	/*for(unsigned int i=0; i<4; i++)
+	/*for(uint32_t i=0; i<4; i++)
 	  {
 	  fpart*=10;
 	  char tmp[2];
@@ -687,7 +686,7 @@ ScriptsData::ScriptsData(Program& program)
 		al_trace(author.c_str());
 		if(Function* run = script.getRun())
 		{
-			int ind = 0;
+			int32_t ind = 0;
 			for(vector<string const*>::const_iterator it = run->paramNames.begin();
 				it != run->paramNames.end(); ++it)
 			{

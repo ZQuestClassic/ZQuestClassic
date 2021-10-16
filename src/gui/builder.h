@@ -218,7 +218,7 @@ ZCGUI_BUILDER_FUNCTION(Checkbox, Checkbox, makeCheckbox)
 ZCGUI_BUILDER_START(Radio)
 	ZCGUI_ACCEPT_PROP(checked, setChecked, bool)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
-	ZCGUI_ACCEPT_PROP(set, setProcSet, int)
+	ZCGUI_ACCEPT_PROP(set, setProcSet, int32_t)
 	ZCGUI_ACCEPT_PROP(index, setIndex, size_t)
 	ZCGUI_ACCEPT_PROP(onToggle, onToggle, Dialog::message)
 
@@ -228,8 +228,8 @@ ZCGUI_BUILDER_FUNCTION(Radio, Radio, makeRadio)
 
 
 ZCGUI_BUILDER_START(RadioSet)
-	ZCGUI_ACCEPT_PROP(checked, setChecked, int)
-	ZCGUI_ACCEPT_PROP(set, setProcSet, int)
+	ZCGUI_ACCEPT_PROP(checked, setChecked, int32_t)
+	ZCGUI_ACCEPT_PROP(set, setProcSet, int32_t)
 	ZCGUI_ACCEPT_PROP(onToggle, onToggle, Dialog::message)
 	
 	ZCGUI_ACCEPT_PROP(data, loadList, const ::GUI::ListData&)
@@ -239,9 +239,9 @@ ZCGUI_BUILDER_FUNCTION(RadioSet, RadioSet, makeRadioSet)
 
 ZCGUI_BUILDER_START(DropDownList)
 	ZCGUI_ACCEPT_PROP(data, setListData, const ::GUI::ListData&)
-	ZCGUI_ACCEPT_PROP(selectedValue, setSelectedValue, int)
+	ZCGUI_ACCEPT_PROP(selectedValue, setSelectedValue, int32_t)
 	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
-	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int)>)
+	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t)>)
 
 	ZCGUI_SUGGEST_PROP(onClick, onSelectionChanged)
 ZCGUI_BUILDER_END()
@@ -261,7 +261,7 @@ ZCGUI_BUILDER_FUNCTION(Frame, Frame, makeFrame)
 ZCGUI_BUILDER_START(Label)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 	ZCGUI_ACCEPT_PROP(maxLines, setMaxLines, std::size_t)
-	ZCGUI_ACCEPT_PROP(textAlign, setAlign, int)
+	ZCGUI_ACCEPT_PROP(textAlign, setAlign, int32_t)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()
@@ -270,10 +270,10 @@ ZCGUI_BUILDER_FUNCTION(Label, Label, makeLabel)
 
 ZCGUI_BUILDER_START(List)
 	ZCGUI_ACCEPT_PROP(data, setListData, GUI::ListData)
-	ZCGUI_ACCEPT_PROP(selectedValue, setSelectedValue, int)
-	ZCGUI_ACCEPT_PROP(selectedIndex, setSelectedIndex, int)
+	ZCGUI_ACCEPT_PROP(selectedValue, setSelectedValue, int32_t)
+	ZCGUI_ACCEPT_PROP(selectedIndex, setSelectedIndex, int32_t)
 	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
-	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int)>)
+	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t)>)
 	ZCGUI_ACCEPT_PROP(isABC, setIsABC, bool)
 
 	ZCGUI_SUGGEST_PROP(onClick, onSelectionChanged)
@@ -329,11 +329,11 @@ ZCGUI_BUILDER_START(TextField)
 	ZCGUI_ACCEPT_PROP(onEnter, onEnter, Dialog::message)
 	ZCGUI_ACCEPT_PROP(onValueChanged, onValueChanged, Dialog::message)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string_view)
-	ZCGUI_ACCEPT_PROP(val, setVal, int)
+	ZCGUI_ACCEPT_PROP(val, setVal, int32_t)
 	ZCGUI_ACCEPT_PROP(type, setType, TextField::type)
-	ZCGUI_ACCEPT_PROP(low, setLowBound, int)
-	ZCGUI_ACCEPT_PROP(high, setHighBound, int)
-	ZCGUI_ACCEPT_PROP(onValChangedFunc, setOnValChanged, std::function<void(TextField::type,std::string_view,int)>)
+	ZCGUI_ACCEPT_PROP(low, setLowBound, int32_t)
+	ZCGUI_ACCEPT_PROP(high, setHighBound, int32_t)
+	ZCGUI_ACCEPT_PROP(onValChangedFunc, setOnValChanged, std::function<void(TextField::type,std::string_view,int32_t)>)
 	ZCGUI_ACCEPT_PROP(places, setFixedPlaces, size_t)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TextField, TextField, makeTextField)
@@ -364,19 +364,19 @@ ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DummyWidget, DummyWidget, makeDummyWidget)
 
 ZCGUI_BUILDER_START(SelTileSwatch)
-	ZCGUI_ACCEPT_PROP(tile, setTile, int)
-	ZCGUI_ACCEPT_PROP(cset, setCSet, int)
+	ZCGUI_ACCEPT_PROP(tile, setTile, int32_t)
+	ZCGUI_ACCEPT_PROP(cset, setCSet, int32_t)
 	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
-	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int,int)>)
+	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t,int32_t)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(SelTileSwatch, SelTileSwatch, makeSelTileSwatch)
 
 ZCGUI_BUILDER_START(TileFrame)
-	ZCGUI_ACCEPT_PROP(tile, setTile, int)
-	ZCGUI_ACCEPT_PROP(cset, setCSet, int)
-	ZCGUI_ACCEPT_PROP(speed, setSpeed, int)
-	ZCGUI_ACCEPT_PROP(frames, setFrames, int)
-	ZCGUI_ACCEPT_PROP(delay, setDelay, int)
+	ZCGUI_ACCEPT_PROP(tile, setTile, int32_t)
+	ZCGUI_ACCEPT_PROP(cset, setCSet, int32_t)
+	ZCGUI_ACCEPT_PROP(speed, setSpeed, int32_t)
+	ZCGUI_ACCEPT_PROP(frames, setFrames, int32_t)
+	ZCGUI_ACCEPT_PROP(delay, setDelay, int32_t)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TileFrame, TileFrame, makeTileFrame)
 
@@ -403,7 +403,7 @@ using ::GUI::operator ""_spx;
 		type = GUI::TextField::type::TEXT, \
 		width = 8_em, \
 		rightPadding = 0_px, \
-		onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int) \
+		onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t) \
 		{ \
 			for(size_t q = 0; q < 65; ++q) \
 			{ \
@@ -419,7 +419,7 @@ using ::GUI::operator ""_spx;
 		val = d_mem[ind], \
 		width = 6.5_em+16_px, \
 		leftPadding = 0_px, \
-		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
+		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 		{ \
 			d_mem[ind] = val; \
 		} \
@@ -432,7 +432,7 @@ DropDownList( \
 	fitParent = true, \
 	data = list, \
 	selectedValue = mem, \
-	onSelectFunc = [&](int val) \
+	onSelectFunc = [&](int32_t val) \
 	{ \
 		mem = val; \
 	} \

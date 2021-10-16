@@ -13,29 +13,29 @@
 
 typedef struct
 {
-    short base;
-    unsigned char new_str;
+    int16_t base;
+    uint8_t new_str;
 } LZW_STRING;
 
 typedef struct
 {
-    int pos;
-    int bit_pos;
-    unsigned char data[255];
+    int32_t pos;
+    int32_t bit_pos;
+    uint8_t data[255];
 } BUFFER;
 
-void clear_speed_buffer(short *speed_buffer);
+void clear_speed_buffer(int16_t *speed_buffer);
 void dump_buffer(BUFFER *b, PACKFILE *f);
-void output(BUFFER *b, int bit_size, int code, PACKFILE *f);
+void output(BUFFER *b, int32_t bit_size, int32_t code, PACKFILE *f);
 
-void clear_speed_buffer(short *speed_buffer)
+void clear_speed_buffer(int16_t *speed_buffer)
 {
 //#if defined(ALLEGRO_MACOSX) || defined(_MSC_VER)
     //OSX doesn't like the assembly below.  *shrug*
     //this is basically the same as memset(speed_buffer,-1,256*4096*2)
     //but is filling speed_buffer 4 bytes at a time instead of 1.
-    int b=(256*4096/2);
-    long *a=(long*)speed_buffer;
+    int32_t b=(256*4096/2);
+    int32_t *a=(int32_t*)speed_buffer;
     
     while(--b>=0)
     {
@@ -60,7 +60,7 @@ void clear_speed_buffer(short *speed_buffer)
 
 void dump_buffer(BUFFER *b, PACKFILE *f)
 {
-    int size;
+    int32_t size;
     
     size = b->pos;
     
@@ -71,9 +71,9 @@ void dump_buffer(BUFFER *b, PACKFILE *f)
     pack_fwrite(b->data, size, f);
 }
 
-void output(BUFFER *b, int bit_size, int code, PACKFILE *f)
+void output(BUFFER *b, int32_t bit_size, int32_t code, PACKFILE *f)
 {
-    int shift;
+    int32_t shift;
     
     /* pack the code into the buffer */
     shift = b->bit_pos;
@@ -83,16 +83,16 @@ void output(BUFFER *b, int bit_size, int code, PACKFILE *f)
         if(shift >= 0)
         {
             if(b->bit_pos != 0)
-                b->data[b->pos] = (unsigned char)((code << shift) | b->data[b->pos]);
+                b->data[b->pos] = (uint8_t)((code << shift) | b->data[b->pos]);
             else
-                b->data[b->pos] = (unsigned char)(code << shift);
+                b->data[b->pos] = (uint8_t)(code << shift);
         }
         else
         {
             if(b->bit_pos != 0)
-                b->data[b->pos] = (unsigned char)((code >> -shift) | b->data[b->pos]);
+                b->data[b->pos] = (uint8_t)((code >> -shift) | b->data[b->pos]);
             else
-                b->data[b->pos] = (unsigned char)(code >> -shift);
+                b->data[b->pos] = (uint8_t)(code >> -shift);
         }
         
         if(bit_size + shift > 7)
@@ -119,17 +119,17 @@ void output(BUFFER *b, int bit_size, int code, PACKFILE *f)
     }
 }
 
-int save_gif(const char *filename, BITMAP *bmp, const RGB *pal)
+int32_t save_gif(const char *filename, BITMAP *bmp, const RGB *pal)
 {
     PACKFILE *f;
-    int i, bpp, bit_size;
+    int32_t i, bpp, bit_size;
     LZW_STRING string_table[4096];
-    int prefix;
-    int input_pos = 0;
-    int c;                                                    /* current character */
-    int empty_str;
+    int32_t prefix;
+    int32_t input_pos = 0;
+    int32_t c;                                                    /* current character */
+    int32_t empty_str;
     BUFFER buffer;
-    short *speed_buffer;
+    int16_t *speed_buffer;
     
     f = pack_fopen_password(filename, F_WRITE,"");
     
@@ -188,7 +188,7 @@ int save_gif(const char *filename, BITMAP *bmp, const RGB *pal)
     
     output(&buffer, bit_size, 1 << bpp, f);                   /* clear code */
     
-    speed_buffer = (short*)zc_malloc(256 * 4096 * 2);
+    speed_buffer = (int16_t*)zc_malloc(256 * 4096 * 2);
     clear_speed_buffer(speed_buffer);
     
     for(;;)

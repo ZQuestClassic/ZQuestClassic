@@ -922,19 +922,19 @@
 #define DMAPDATASUBSCRA 	867	//byte, active subscreen
 #define DMAPDATASUBSCRP 	868	//byte, passive subscreen
 #define DMAPDATADISABLEDITEMS 	869	//byte[iMax]
-#define DMAPDATAFLAGS 		870	//long
-#define NPCFROZEN 		871	//long
-#define NPCFROZENTILE 		872	//long
-#define NPCFROZENCSET 		873	//long
+#define DMAPDATAFLAGS 		870	//int32_t
+#define NPCFROZEN 		871	//int32_t
+#define NPCFROZENTILE 		872	//int32_t
+#define NPCFROZENCSET 		873	//int32_t
 #define IDATAPSTRING 		874	//word
 
 #define ITEMPSTRING 		875	//word
 #define ITEMPSTRINGFLAGS 	876	//word
-#define ITEMOVERRIDEFLAGS 	877	//long
+#define ITEMOVERRIDEFLAGS 	877	//int32_t
 
 #define LINKPUSH 		878	
-#define GAMEMISC 		879	//long
-#define LINKSTUN 		880	//int (32b)
+#define GAMEMISC 		879	//int32_t
+#define LINKSTUN 		880	//int32_t (32b)
 #define TYPINGMODE 		881	//bool, ffcore
 //#define DMAPDATAGRAVITY 	871	//unimplemented
 //#define DMAPDATAJUMPLAYER 	872	//unimplemented
@@ -1353,7 +1353,7 @@ namespace ZScript
 	class LiteralArgument : public Argument
 	{
 	public:
-		LiteralArgument(long Value) : value(Value) {}
+		LiteralArgument(int32_t Value) : value(Value) {}
 		std::string toString();
 		void execute(ArgumentVisitor &host, void *param)
 		{
@@ -1364,15 +1364,15 @@ namespace ZScript
 			return new LiteralArgument(value);
 		}
 	private:
-		long value;
+		int32_t value;
 	};
 
-	std::string VarToString(long ID);
+	std::string VarToString(int32_t ID);
 
 	class VarArgument : public Argument
 	{
 	public:
-		VarArgument(int id) : ID(id) {}
+		VarArgument(int32_t id) : ID(id) {}
 		std::string toString();
 		void execute(ArgumentVisitor &host, void *param)
 		{
@@ -1383,13 +1383,13 @@ namespace ZScript
 			return new VarArgument(ID);
 		}
 	private:
-		int ID;
+		int32_t ID;
 	};
 
 	class GlobalArgument : public Argument
 	{
 	public:
-		GlobalArgument(int id) : ID(id) {}
+		GlobalArgument(int32_t id) : ID(id) {}
 		std::string toString();
 		void execute(ArgumentVisitor &host, void *param)
 		{
@@ -1400,13 +1400,13 @@ namespace ZScript
 			return new GlobalArgument(ID);
 		}
 	private:
-		int ID;
+		int32_t ID;
 	};
 
 	class LabelArgument : public Argument
 	{
 	public:
-		LabelArgument(int id) : ID(id), haslineno(false) {}
+		LabelArgument(int32_t id) : ID(id), haslineno(false) {}
 		std::string toString();
 		std::string toStringSetV();
 		void execute(ArgumentVisitor &host, void *param)
@@ -1417,18 +1417,18 @@ namespace ZScript
 		{
 			return new LabelArgument(ID);
 		}
-		int getID()
+		int32_t getID()
 		{
 			return ID;
 		}
-		void setLineNo(int l)
+		void setLineNo(int32_t l)
 		{
 			haslineno=true;
 			lineno=l;
 		}
 	private:
-		int ID;
-		int lineno;
+		int32_t ID;
+		int32_t lineno;
 		bool haslineno;
 	};
 

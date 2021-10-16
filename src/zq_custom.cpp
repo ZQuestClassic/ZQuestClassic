@@ -37,24 +37,24 @@
 #include "dialog/itemeditor.h"
 extern FFScript FFCore;
 
-extern int ex;
-extern void reset_itembuf(itemdata *item, int id);
-extern const char *item_class_list(int index, int *list_size);
-extern const char *sfxlist(int index, int *list_size);
+extern int32_t ex;
+extern void reset_itembuf(itemdata *item, int32_t id);
+extern const char *item_class_list(int32_t index, int32_t *list_size);
+extern const char *sfxlist(int32_t index, int32_t *list_size);
 // zq_subscr.cpp
-extern int d_qtile_proc(int msg,DIALOG *d,int c);
-extern int d_ctl_proc(int msg,DIALOG *d,int c);
-extern int d_csl_proc(int msg,DIALOG *d,int c);
-extern int d_csl2_proc(int msg,DIALOG *d,int c);
-extern int d_tileblock_proc(int msg,DIALOG *d,int c);
-extern int d_stilelist_proc(int msg,DIALOG *d,int c);
-extern int sstype_drop_proc(int msg,DIALOG *d,int c);
-extern int jwin_fontdrop_proc(int msg,DIALOG *d,int c);
-extern int jwin_tflpcheck_proc(int msg,DIALOG *d,int c);
-extern int jwin_lscheck_proc(int msg,DIALOG *d,int c);
+extern int32_t d_qtile_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ctl_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_csl_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_csl2_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_tileblock_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_stilelist_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t jwin_fontdrop_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t jwin_tflpcheck_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t jwin_lscheck_proc(int32_t msg,DIALOG *d,int32_t c);
 
-extern int biw_cnt;
-extern int biic_cnt;
+extern int32_t biw_cnt;
+extern int32_t biic_cnt;
 
 extern ZModule zcm;
 extern zcmodule moduledata;
@@ -65,11 +65,11 @@ extern zcmodule moduledata;
 #endif
 
 
-int link_animation_speed = 1; //lower is faster animation
+int32_t link_animation_speed = 1; //lower is faster animation
 
-int d_ecstile_proc(int msg,DIALOG *d,int c);
+int32_t d_ecstile_proc(int32_t msg,DIALOG *d,int32_t c);
 
-int d_cstile_proc(int msg,DIALOG *d,int c)
+int32_t d_cstile_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
@@ -78,9 +78,9 @@ int d_cstile_proc(int msg,DIALOG *d,int c)
 	{
 	case MSG_CLICK:
 	{
-		int f = 0;
-		int t = d->d1;
-		int cs = d->d2;
+		int32_t f = 0;
+		int32_t t = d->d1;
+		int32_t cs = d->d2;
 		
 		if(select_tile(t,f,1,cs,true))
 		{
@@ -125,7 +125,7 @@ int d_cstile_proc(int msg,DIALOG *d,int c)
 	return D_O_K;
 }
 
-int newg_seltile_proc(int msg,DIALOG *d,int c)
+int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
@@ -134,9 +134,9 @@ int newg_seltile_proc(int msg,DIALOG *d,int c)
 	{
 		case MSG_CLICK:
 		{
-			int f = 0;
-			int t = d->d1;
-			int cs = d->d2;
+			int32_t f = 0;
+			int32_t t = d->d1;
+			int32_t cs = d->d2;
 			
 			if(select_tile(t,f,1,cs,true))
 			{
@@ -182,31 +182,31 @@ void large_dialog(DIALOG *d)
 	large_dialog(d, 1.5f);
 }
 
-extern int d_msg_edit_proc(int,DIALOG*,int);
+extern int32_t d_msg_edit_proc(int32_t,DIALOG*,int32_t);
 void large_dialog(DIALOG *d, float RESIZE_AMT)
 {
 	if(d[0].d1 == 0)
 	{
 		d[0].d1 = 1;
-		int oldwidth = d[0].w;
-		int oldheight = d[0].h;
-		int oldx = d[0].x;
-		int oldy = d[0].y;
-		d[0].x -= int(float(d[0].w)/RESIZE_AMT);
-		d[0].y -= int(float(d[0].h)/RESIZE_AMT);
-		d[0].w = int(float(d[0].w)*RESIZE_AMT);
-		d[0].h = int(float(d[0].h)*RESIZE_AMT);
+		int32_t oldwidth = d[0].w;
+		int32_t oldheight = d[0].h;
+		int32_t oldx = d[0].x;
+		int32_t oldy = d[0].y;
+		d[0].x -= int32_t(float(d[0].w)/RESIZE_AMT);
+		d[0].y -= int32_t(float(d[0].h)/RESIZE_AMT);
+		d[0].w = int32_t(float(d[0].w)*RESIZE_AMT);
+		d[0].h = int32_t(float(d[0].h)*RESIZE_AMT);
 		
-		for(int i=1; d[i].proc!=NULL; i++)
+		for(int32_t i=1; d[i].proc!=NULL; i++)
 		{
 			// Place elements horizontally
 			double xpc = ((double)(d[i].x - oldx) / (double)oldwidth);
-			d[i].x = int(d[0].x + (xpc*double(d[0].w)));
+			d[i].x = int32_t(d[0].x + (xpc*double(d[0].w)));
 			
 			// Horizontally resize elements
 			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc==d_intro_edit_proc || d[i].proc==d_title_edit_proc)
 			{
-				d[i].x += (int)(float(d[i].w)/4.f);
+				d[i].x += (int32_t)(float(d[i].w)/4.f);
 			}
 			else if(d[i].proc == d_comboframe_proc)
 			{
@@ -218,12 +218,12 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 				d[i].w *= 2;
 			}
 			else if(d[i].proc == jwin_button_proc || d[i].proc == jwin_swapbtn_proc)
-				d[i].w = int(d[i].w*1.5);
-			else d[i].w = int(float(d[i].w)*RESIZE_AMT);
+				d[i].w = int32_t(d[i].w*1.5);
+			else d[i].w = int32_t(float(d[i].w)*RESIZE_AMT);
 			
 			// Place elements vertically
 			double ypc = ((double)(d[i].y - oldy) / (double)oldheight);
-			d[i].y = int(d[0].y + (ypc*double(d[0].h)));
+			d[i].y = int32_t(d[0].y + (ypc*double(d[0].h)));
 			
 			// Vertically resize elements
 			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc==d_intro_edit_proc || d[i].proc==d_title_edit_proc)
@@ -231,14 +231,14 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			}
 			else if(d[i].proc == jwin_edit_proc || d[i].proc == d_msg_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc || d[i].proc == jwin_tflpcheck_proc || d[i].proc == jwin_lscheck_proc)
 			{
-				d[i].h = int((double)d[i].h*1.5);
+				d[i].h = int32_t((double)d[i].h*1.5);
 			}
 			else if(d[i].proc == jwin_droplist_proc || d[i].proc == d_ndroplist_proc || d[i].proc == d_idroplist_proc || d[i].proc == d_nidroplist_proc || d[i].proc == d_dropdmaplist_proc
 					|| d[i].proc == d_dropdmaptypelist_proc || d[i].proc == jwin_as_droplist_proc  || d[i].proc == d_ffcombolist_proc || d[i].proc == sstype_drop_proc || d[i].proc == d_ctl_proc
 					|| d[i].proc == jwin_fontdrop_proc || d[i].proc == d_csl_proc || d[i].proc == d_csl2_proc || d[i].proc == d_stilelist_proc || d[i].proc == d_comboalist_proc)
 			{
-				d[i].y += int((double)d[i].h*0.25);
-				d[i].h = int((double)d[i].h*1.25);
+				d[i].y += int32_t((double)d[i].h*0.25);
+				d[i].h = int32_t((double)d[i].h*1.25);
 			}
 			else if(d[i].proc == d_comboframe_proc)
 			{
@@ -250,8 +250,8 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 				d[i].h *= 2;
 			}
 			else if(d[i].proc == jwin_button_proc || d[i].proc == jwin_swapbtn_proc)
-				d[i].h = int(d[i].h*1.5);
-			else d[i].h = int(float(d[i].h)*RESIZE_AMT);
+				d[i].h = int32_t(d[i].h*1.5);
+			else d[i].h = int32_t(float(d[i].h)*RESIZE_AMT);
 			
 			// Fix frames
 			if(d[i].proc == jwin_frame_proc)
@@ -271,7 +271,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 		}
 	}
 	
-	for(int i=1; d[i].proc != NULL; i++)
+	for(int32_t i=1; d[i].proc != NULL; i++)
 	{
 		if(d[i].proc==jwin_slider_proc)
 			continue;
@@ -309,7 +309,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 
 static ListData weapon_list(weaponlist, &pfont);
 
-const char *defenselist(int index, int *list_size)
+const char *defenselist(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -413,7 +413,7 @@ const char *defenselist(int index, int *list_size)
 
 static ListData defense_list(defenselist, &font);
 
-const char *itemscriptdroplist(int index, int *list_size)
+const char *itemscriptdroplist(int32_t index, int32_t *list_size)
 {
 	if(index<0)
 	{
@@ -426,7 +426,7 @@ const char *itemscriptdroplist(int index, int *list_size)
 
 ListData itemscript_list(itemscriptdroplist, &pfont);
 
-const char *itemspritescriptdroplist(int index, int *list_size)
+const char *itemspritescriptdroplist(int32_t index, int32_t *list_size)
 {
 	if(index<0)
 	{
@@ -439,7 +439,7 @@ const char *itemspritescriptdroplist(int index, int *list_size)
 
 ListData itemspritescript_list(itemspritescriptdroplist, &pfont);
 
-const char *lweaponscriptdroplist(int index, int *list_size)
+const char *lweaponscriptdroplist(int32_t index, int32_t *list_size)
 {
 	if(index<0)
 	{
@@ -452,12 +452,12 @@ const char *lweaponscriptdroplist(int index, int *list_size)
 
 ListData lweaponscript_list(lweaponscriptdroplist, &pfont);
 
-void edit_itemdata(int index)
+void edit_itemdata(int32_t index)
 {
 	call_item_editor(index);
 }
 extern DIALOG ilist_dlg[];
-static int copiedItem;
+static int32_t copiedItem;
 static MENU ilist_rclick_menu[] =
 {
 	{ (char *)"Copy",  NULL, NULL, 0, NULL },
@@ -467,12 +467,12 @@ static MENU ilist_rclick_menu[] =
 	{ NULL,            NULL, NULL, 0, NULL }
 };
 
-int readoneitem(PACKFILE *f, int index)
+int32_t readoneitem(PACKFILE *f, int32_t index)
 {
 	dword section_version = 0;
 	dword section_cversion = 0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	itemdata tempitem;
 	memset(&tempitem, 0, sizeof(itemdata));
 		//reset_itembuf(&tempitem,i);
@@ -612,7 +612,7 @@ int readoneitem(PACKFILE *f, int index)
 		return 0;
 	}
 	
-	for(int j=0; j<8; j++)
+	for(int32_t j=0; j<8; j++)
 	{
 		if(!p_igetl(&tempitem.initiald[j],f,true))
 		{
@@ -620,7 +620,7 @@ int readoneitem(PACKFILE *f, int index)
 		}
 	}
 	
-	for(int j=0; j<2; j++)
+	for(int32_t j=0; j<2; j++)
 	{
 		if(!p_getc(&tempitem.initiala[j],f,true))
 		{
@@ -766,7 +766,7 @@ int readoneitem(PACKFILE *f, int index)
 			{
 			return 0;
 			}
-			for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+			for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
 				if(!p_igetl(&tempitem.weap_pattern[q],f,true))
 				{
 				return 0;
@@ -777,14 +777,14 @@ int readoneitem(PACKFILE *f, int index)
 			{
 				return 0;
 			}
-			for ( int q = 0; q < INITIAL_D; q++ )
+			for ( int32_t q = 0; q < INITIAL_D; q++ )
 			{
 				if(!p_igetl(&tempitem.weap_initiald[q],f,true))
 				{
 					return 0;
 				}
 			}
-			for ( int q = 0; q < INITIAL_A; q++ )
+			for ( int32_t q = 0; q < INITIAL_A; q++ )
 			{
 				if(!p_getc(&tempitem.weap_initiala[q],f,true))
 				{
@@ -909,23 +909,23 @@ int readoneitem(PACKFILE *f, int index)
 			}
 			
 			//InitD[] labels
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_getc(&tempitem.initD_label[q][w],f,true))
 					{
 						return 0;
 					} 
 				}
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_getc(&tempitem.weapon_initD_label[q][w],f,true))
 					{
 						return 0;
 					} 
 				}
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_getc(&tempitem.sprite_initD_label[q][w],f,true))
 					{
@@ -937,7 +937,7 @@ int readoneitem(PACKFILE *f, int index)
 					return 0;
 				} 
 			}
-			for ( int q = 0; q < 2; q++ )
+			for ( int32_t q = 0; q < 2; q++ )
 			{
 				if(!p_getc(&tempitem.sprite_initiala[q],f,true))
 				{
@@ -968,13 +968,13 @@ int readoneitem(PACKFILE *f, int index)
 	return 1;
 }
 
-int writeoneitem(PACKFILE *f, int i)
+int32_t writeoneitem(PACKFILE *f, int32_t i)
 {
 	
 	dword section_version=V_ITEMS;
 	dword section_cversion=CV_ITEMS;
-	int zversion = ZELDA_VERSION;
-	int zbuild = VERSION_BUILD;
+	int32_t zversion = ZELDA_VERSION;
+	int32_t zbuild = VERSION_BUILD;
 	
   
 	//section version info
@@ -1095,7 +1095,7 @@ int writeoneitem(PACKFILE *f, int i)
 				new_return(23);
 			}
 			
-			for(int j=0; j<8; j++)
+			for(int32_t j=0; j<8; j++)
 			{
 				if(!p_iputl(itemsbuf[i].initiald[j],f))
 				{
@@ -1103,7 +1103,7 @@ int writeoneitem(PACKFILE *f, int i)
 				}
 			}
 			
-			for(int j=0; j<2; j++)
+			for(int32_t j=0; j<2; j++)
 			{
 				if(!p_putc(itemsbuf[i].initiala[j],f))
 				{
@@ -1245,7 +1245,7 @@ int writeoneitem(PACKFILE *f, int i)
 			{
 				new_return(52);
 			}
-		for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+		for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
 			if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
 			{
 			new_return(53);
@@ -1256,14 +1256,14 @@ int writeoneitem(PACKFILE *f, int i)
 		{
 			new_return(54);
 		}
-		for ( int q = 0; q < INITIAL_D; q++ )
+		for ( int32_t q = 0; q < INITIAL_D; q++ )
 		{
 			if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
 			{
 				new_return(55);
 			}
 		}
-		for ( int q = 0; q < INITIAL_A; q++ )
+		for ( int32_t q = 0; q < INITIAL_A; q++ )
 		{
 			if(!p_putc(itemsbuf[i].weap_initiala[q],f))
 			{
@@ -1388,23 +1388,23 @@ int writeoneitem(PACKFILE *f, int i)
 		}
 		
 		//InitD[] labels
-		for ( int q = 0; q < 8; q++ )
+		for ( int32_t q = 0; q < 8; q++ )
 		{
-			for ( int w = 0; w < 65; w++ )
+			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
 				{
 					new_return(85);
 				} 
 			}
-			for ( int w = 0; w < 65; w++ )
+			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
 				{
 					new_return(86);
 				} 
 			}
-			for ( int w = 0; w < 65; w++ )
+			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
 				{
@@ -1416,7 +1416,7 @@ int writeoneitem(PACKFILE *f, int i)
 				new_return(88);
 			} 
 		}
-		for ( int q = 0; q < 2; q++ )
+		for ( int32_t q = 0; q < 2; q++ )
 		{
 			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
 			{
@@ -1435,7 +1435,7 @@ int writeoneitem(PACKFILE *f, int i)
 		return 1;
 }
 
-void ilist_rclick_func(int index, int x, int y)
+void ilist_rclick_func(int32_t index, int32_t x, int32_t y)
 {
 	if(bii[index].i<0) // Clicked (none)?
 		return;
@@ -1445,7 +1445,7 @@ void ilist_rclick_func(int index, int x, int y)
 	else
 		ilist_rclick_menu[1].flags&=~D_DISABLED;
 	
-	int ret=popup_menu(ilist_rclick_menu, x, y);
+	int32_t ret=popup_menu(ilist_rclick_menu, x, y);
 	
 	if(ret==0) // copy
 		copiedItem=bii[index].i;
@@ -1459,7 +1459,7 @@ void ilist_rclick_func(int index, int x, int y)
 	{
 	if(!getname("Save Item(.zitem)", "zitem", NULL,datapath,false))
 				return;
-	int iid = bii[index].i; //the item id is not the sajme as the editor index
+	int32_t iid = bii[index].i; //the item id is not the sajme as the editor index
 	//the editor index is the position in the current LIST. -Z
 	
 	//al_trace("Saving item index: %d\n",index);
@@ -1496,7 +1496,7 @@ void ilist_rclick_func(int index, int x, int y)
 	}
 }
 
-int onCustomItems()
+int32_t onCustomItems()
 {
 	/*
 	  char *hold = item_string[0];
@@ -1504,8 +1504,8 @@ int onCustomItems()
 	  */
 	
 	build_bii_list(false);
-	int foo;
-	int index = select_item("Select Item",bii[0].i,true,foo);
+	int32_t foo;
+	int32_t index = select_item("Select Item",bii[0].i,true,foo);
 	copiedItem=-1;
 	
 	while(index >= 0)
@@ -1554,7 +1554,7 @@ static DIALOG wpndata_dlg[] =
 
 
 
-void edit_weapondata(int index)
+void edit_weapondata(int32_t index)
 {
 	char frm[8], spd[8], fcs[8], typ[8];
 	char name[64];
@@ -1566,7 +1566,7 @@ void edit_weapondata(int index)
 	wpndata_dlg[2].d1  = wpnsbuf[index].newtile;
 	wpndata_dlg[2].d2  = wpnsbuf[index].csets&15;
 	
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 		wpndata_dlg[i+5].flags = (wpnsbuf[index].misc&(1<<i)) ? D_SELECTED : 0;
 		
 	wpndata_dlg[17].flags = (wpnsbuf[index].misc & WF_BEHIND) ? D_SELECTED : 0;
@@ -1587,7 +1587,7 @@ void edit_weapondata(int index)
 		large_dialog(wpndata_dlg);
 	}
 	
-	int ret;
+	int32_t ret;
 	wpndata test;
 	
 	do
@@ -1599,7 +1599,7 @@ void edit_weapondata(int index)
 		
 		test.misc  = 0;
 		
-		for(int i=0; i<4; i++)
+		for(int32_t i=0; i<4; i++)
 			if(wpndata_dlg[i+5].flags & D_SELECTED)
 				test.misc |= 1<<i;
 				
@@ -1621,7 +1621,7 @@ void edit_weapondata(int index)
 	}
 }
 
-int onCustomWpns()
+int32_t onCustomWpns()
 {
 	/*
 	  char *hold = item_string[0];
@@ -1630,7 +1630,7 @@ int onCustomWpns()
 	
 	build_biw_list();
 	
-	int index = select_weapon("Select Weapon",biw[0].i);
+	int32_t index = select_weapon("Select Weapon",biw[0].i);
 	
 	while(index >= 0)
 	{
@@ -1646,7 +1646,7 @@ int onCustomWpns()
 /******  onMiscSprites ******/
 /****************************/
 
-static int miscspr_tab_1[] =
+static int32_t miscspr_tab_1[] =
 {
 	// dialog control number
 	5, 6,
@@ -1682,7 +1682,7 @@ static DIALOG miscspr_dlg[] =
 	{ NULL,                     0,      0,      0,      0,    0,                     0,                       0,       0,            0,       0,     NULL,                                          NULL,   NULL                  }
 };
 
-int onMiscSprites()
+int32_t onMiscSprites()
 {
 	al_trace("Starting misc sprites...\n");
 	if(biw_cnt==-1)
@@ -1692,7 +1692,7 @@ int onMiscSprites()
 		al_trace("Built biw_list.\n");
 	}
 	al_trace("Looping biw_cnt...\n");
-	for(int j=0; j<biw_cnt; j++)
+	for(int32_t j=0; j<biw_cnt; j++)
 	{
 		al_trace("%d ", j);
 		if(biw[j].i == misc.sprites[sprFALL]){ al_trace("\nFound 'sprFALL' val %d\n",j);
@@ -1710,14 +1710,14 @@ int onMiscSprites()
 		large_dialog(miscspr_dlg);
 	}
 	
-	int ret;
+	int32_t ret;
 	al_trace("Popping up dlg...\n");
 	ret = zc_popup_dialog(miscspr_dlg,3);
 	al_trace("Returned %d\n",ret);
 	if(ret == 3)
 	{
 		saved = false;
-		for(int j=0; j<biw_cnt; j++)
+		for(int32_t j=0; j<biw_cnt; j++)
 		{
 			if(miscspr_dlg[6].d1 == j)
 				misc.sprites[sprFALL] = biw[j].i;
@@ -1735,97 +1735,97 @@ int onMiscSprites()
 /****************************/
 
 
-static int enedata_data_list[] =
+static int32_t enedata_data_list[] =
 {
 	//2,3,4 --moved to EOL  as 247,248,249, to make room for tabs. -Z
 	247,248,249,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,
 	31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,138,139,140,141,143,-1
 };
 
-static int enedata_data2_list[] =
+static int32_t enedata_data2_list[] =
 {
 	54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,179,180,181,182,183,184,187,188,189,190,-1
 };
 
-static int enedata_flags_list[] =
+static int32_t enedata_flags_list[] =
 {
 	74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,98,99,100,101,102,103,104,105,106,120,121,-1
 };
 
-static int enedata_flags2_list[] =
+static int32_t enedata_flags2_list[] =
 {
 	90,91,92,93,94,95,96,97,-1
 };
 
-static int enedata_editorflags_list[]=
+static int32_t enedata_editorflags_list[]=
 {
 	254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,
 	-1
 };
 
-static int enedata_flags3_list[] =
+static int32_t enedata_flags3_list[] =
 {
 	107,108,109,110,111,112,113,114,115,116,117,118,119,185,186,-1
 };
 
-static int enedata_defense_list[] =
+static int32_t enedata_defense_list[] =
 {
 	144,145,146,147,148,149,150,151,152,161,162,163,164,165,166,167,168,169,178,-1
 };
 
-static int enedata_defense2_list[] =
+static int32_t enedata_defense2_list[] =
 {
 	153,154,155,156,157,158,159,160,170,171,172,173,174,175,176,177,191,192,-1
 };
 
-static int enedata_defense3_list[] =
+static int32_t enedata_defense3_list[] =
 {
 	193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,-1
 };
 
-static int enedata_spritesize_list[] =
+static int32_t enedata_spritesize_list[] =
 {
 	213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,237,238,239,240,241,242,243,244,245,246,-1
 };
 
-static int enemy_defence_tabs_list[] =
+static int32_t enemy_defence_tabs_list[] =
 {
 	2,-1
 };
 
-static int enemy_basic_tabs_list[] =
+static int32_t enemy_basic_tabs_list[] =
 {
 	3,-1
 };
 
-static int enemy_flags_tabs_list[] =
+static int32_t enemy_flags_tabs_list[] =
 {
 	4,-1
 };
 
 
-static int enemy_attributes_tabs_list[] =
+static int32_t enemy_attributes_tabs_list[] =
 {
 	5,-1
 };
 
-static int enemy_graphics_tabs_list[] =
+static int32_t enemy_graphics_tabs_list[] =
 {
 	6,-1
 };
 
-static int enemy_movement_tabs_list[] =
+static int32_t enemy_movement_tabs_list[] =
 {
 	250,-1
 };
 
-static int enemy_script_tabs_list[] =
+static int32_t enemy_script_tabs_list[] =
 {
 	251,-1
 };
 
 
-static int enemy_scripts_list[] =
+static int32_t enemy_scripts_list[] =
 {
 	
 	334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,
@@ -1833,7 +1833,7 @@ static int enemy_scripts_list[] =
 	-1
 };
 
-static int enemy_weapon_scripts_list[] =
+static int32_t enemy_weapon_scripts_list[] =
 {
 	353,354,355,356,357,358,359,360,
 	361,362,363,364,365,366,367,368,
@@ -1841,21 +1841,21 @@ static int enemy_weapon_scripts_list[] =
 	385,386,387,388,389,390,391,392,
 	-1
 };
-static int enemy_moveflag_list[] =
+static int32_t enemy_moveflag_list[] =
 {
 	371, 372, 373, 374, 375,
 	-1
 };
-static int enemy_movement_list[] =
+static int32_t enemy_movement_list[] =
 {
 	-1
 };
 
-static int enemy_attribs_1_list[] =
+static int32_t enemy_attribs_1_list[] =
 {
 	-1
 };
-static int enemy_attribs_2_list[] =
+static int32_t enemy_attribs_2_list[] =
 {
 	// d_dummy_proc entries still must be somewhere on the editor.
 	// They will be hidden, but if ther are not referenced, this causes objects
@@ -1865,19 +1865,19 @@ static int enemy_attribs_2_list[] =
 	286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,
 	-1
 };
-static int enemy_attribs_3_list[] =
+static int32_t enemy_attribs_3_list[] =
 {
 	302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,
 	-1
 };
 
-static int enemy_attribs_4_list[] =
+static int32_t enemy_attribs_4_list[] =
 {
 	318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,
 	-1
 };
 
-static int enemy_gfx_sprites_list[] =
+static int32_t enemy_gfx_sprites_list[] =
 {
 	235,236,393,394,395,396,397,398,
 	-1
@@ -1906,32 +1906,32 @@ static TABPANEL enemy_graphics_tabs[] =
 
 
 
-static int enemy_sounds_tabs_list[] =
+static int32_t enemy_sounds_tabs_list[] =
 {
 	250,-1
 };
 
 
-static int enemy_attacks_tabs_list[] =
+static int32_t enemy_attacks_tabs_list[] =
 {
 	5,-1
 };
 
-static int enemy_sfx_sounds_list[] =
+static int32_t enemy_sfx_sounds_list[] =
 {
 	-1
 };
 
-static int enemy_sfx_bgsounds_list[] =
+static int32_t enemy_sfx_bgsounds_list[] =
 {
 	-1
 };
 
-static int enemy_attacks_list[] =
+static int32_t enemy_attacks_list[] =
 {
 	-1
 };
-static int enemy_attacks_Wmove_list[] =
+static int32_t enemy_attacks_Wmove_list[] =
 {
 	-1
 };
@@ -1966,7 +1966,7 @@ static TABPANEL enemy_attacks_tabs[] =
 */
 
 
-static int enedata_defense_ranged_list[] =
+static int32_t enedata_defense_ranged_list[] =
 {
 	//ranged 1
 	//brang,	arrow, 		magic, 		fire, 		byrna, 		whistle
@@ -1976,12 +1976,12 @@ static int enedata_defense_ranged_list[] =
 
 
 //193 == text; 203 == lister
-static int enedata_defense_script_list[] =
+static int32_t enedata_defense_script_list[] =
 {
 	193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,-1
 };
 
-static int enedata_defense_melee_list[] =
+static int32_t enedata_defense_melee_list[] =
 {
 	//melee
 	//sword, 	bomb, 		sbomb, 		wand, 
@@ -1992,7 +1992,7 @@ static int enedata_defense_melee_list[] =
 	178, 
 };
 
-static int enedata_defense_reflected_list[] =
+static int32_t enedata_defense_reflected_list[] =
 {
 	//reflected
 	//ref beam, 	ref magic, 	ref fireball, 	refl rock, 
@@ -2074,13 +2074,13 @@ static TABPANEL enedata_tabs[] =
 
 
 list_data_struct bief[eeMAX];
-int bief_cnt=-1;
+int32_t bief_cnt=-1;
 
 void build_bief_list()
 {
-	int start=bief_cnt=0;
+	int32_t start=bief_cnt=0;
 	
-	for(int i=start; i<eeMAX; i++)
+	for(int32_t i=start; i<eeMAX; i++)
 	{
 	//Load enemy names from the module
 		//if(moduledata.enem_type_names[i][0]!='-')
@@ -2113,11 +2113,11 @@ void build_bief_list()
 	}
 	
 	// No alphabetic sorting for this list
-	for(int j=start+1; j<bief_cnt-1; j++)
+	for(int32_t j=start+1; j<bief_cnt-1; j++)
 	{
 		if(!strcmp(bief[j].s,"(None)"))
 		{
-			for(int i=j; i>0; i--)
+			for(int32_t i=j; i>0; i--)
 				zc_swap(bief[i],bief[i-1]);
 				
 			break;
@@ -2125,7 +2125,7 @@ void build_bief_list()
 	}
 }
 
-const char *enetypelist(int index, int *list_size)
+const char *enetypelist(int32_t index, int32_t *list_size)
 {
 	if(index<0)
 	{
@@ -2137,13 +2137,13 @@ const char *enetypelist(int index, int *list_size)
 }
 
 list_data_struct biea[aMAX];
-int biea_cnt=-1;
+int32_t biea_cnt=-1;
 
 void build_biea_list()
 {
-	int start=biea_cnt=0;
+	int32_t start=biea_cnt=0;
 	
-	for(int i=start; i<aMAX; i++)
+	for(int32_t i=start; i<aMAX; i++)
 	{
 		
 	if ( moduledata.enem_anim_type_names[1][0] != NULL )
@@ -2166,14 +2166,14 @@ void build_biea_list()
 	}
 	}
 	
-	for(int i=start; i<biea_cnt-1; i++)
-		for(int j=i+1; j<biea_cnt; j++)
+	for(int32_t i=start; i<biea_cnt-1; i++)
+		for(int32_t j=i+1; j<biea_cnt; j++)
 			if(stricmp(biea[i].s,biea[j].s)>0 && strcmp(biea[j].s,""))
 				zc_swap(biea[i],biea[j]);
 }
 
 
-const char *eneanimlist(int index, int *list_size)
+const char *eneanimlist(int32_t index, int32_t *list_size)
 {
 	if(index<0)
 	{
@@ -2184,7 +2184,7 @@ const char *eneanimlist(int index, int *list_size)
 	return biea[index].s;
 }
 
-const char *itemsetlist(int index, int *list_size)
+const char *itemsetlist(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2198,11 +2198,11 @@ const char *itemsetlist(int index, int *list_size)
 }
 
 list_data_struct biew[wMAX];
-int biew_cnt=-1;
+int32_t biew_cnt=-1;
 
 char temp_custom_ew_strings[10][40];
 
-static int enemy_weapon_types[]=
+static int32_t enemy_weapon_types[]=
 {
 	128, ewFireball,ewArrow,ewBrang,ewSword,
 	ewRock,ewMagic,ewBomb,ewSBomb,
@@ -2214,7 +2214,7 @@ static int enemy_weapon_types[]=
 	
 };
 
-static int enemy_script_weapon_types[]=
+static int32_t enemy_script_weapon_types[]=
 {
 	wScript1, wScript2, wScript3, wScript4,
 	//35
@@ -2230,7 +2230,7 @@ void build_biew_list()
 
 	memset(temp_custom_ew_strings, 0, sizeof(temp_custom_ew_strings));
 	
-	for(int i=0; i<wMax-wEnemyWeapons; i++)
+	for(int32_t i=0; i<wMax-wEnemyWeapons; i++)
 	{
 		//if(eweapon_string[i][0]!='-')
 		if(moduledata.enemy_weapon_names[i][0]!='-')
@@ -2241,14 +2241,14 @@ void build_biew_list()
 			++biew_cnt;
 		}
 	}
-	for(int i = 0; i < 10; i++)
+	for(int32_t i = 0; i < 10; i++)
 	{
 		biew[biew_cnt].s = (char *)moduledata.enemy_scriptweaponweapon_names[i];
 	biew[biew_cnt].i = enemy_script_weapon_types[i];
 	++biew_cnt;
 	}
 	al_trace("biew_cnt is: %d\n", biew_cnt);
-	for ( int i = 0; i < biew_cnt; i++ )
+	for ( int32_t i = 0; i < biew_cnt; i++ )
 	{
 	al_trace("biew[%d] id is (%d) and string is (%s)\n", i, biew[i].i, biew[i].s);
 		
@@ -2256,7 +2256,7 @@ void build_biew_list()
 	
 }
 
-const char *eweaponlist(int index, int *list_size)
+const char *eweaponlist(int32_t index, int32_t *list_size)
 {
 	if(biew_cnt==-1)
 		build_biew_list();
@@ -2277,7 +2277,7 @@ const char *eweaponlist(int index, int *list_size)
 //
 struct EnemyNameInfo
 {
-	int family;
+	int32_t family;
 	char const* misc[10];
 	void* list[10];
 	char *flags[16];
@@ -2285,7 +2285,7 @@ struct EnemyNameInfo
   
 };
 
-const char *walkmisc1list(int index, int *list_size)
+const char *walkmisc1list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2297,7 +2297,7 @@ const char *walkmisc1list(int index, int *list_size)
 	return NULL;
 }
 
-const char *walkmisc2list(int index, int *list_size)
+const char *walkmisc2list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2309,7 +2309,7 @@ const char *walkmisc2list(int index, int *list_size)
 	return NULL;
 }
 
-const char *walkmisc7list(int index, int *list_size)
+const char *walkmisc7list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2321,7 +2321,7 @@ const char *walkmisc7list(int index, int *list_size)
 	return NULL;
 }
 
-const char *walkmisc9list(int index, int *list_size)
+const char *walkmisc9list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2334,7 +2334,7 @@ const char *walkmisc9list(int index, int *list_size)
 	return NULL;
 }
 
-const char *gleeokmisc3list(int index, int *list_size)
+const char *gleeokmisc3list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2345,7 +2345,7 @@ const char *gleeokmisc3list(int index, int *list_size)
 	return NULL;
 }
 
-const char *gohmamisc1list(int index, int *list_size)
+const char *gohmamisc1list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2356,7 +2356,7 @@ const char *gohmamisc1list(int index, int *list_size)
 	return NULL;
 }
 
-const char *manhandlamisc2list(int index, int *list_size)
+const char *manhandlamisc2list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2367,7 +2367,7 @@ const char *manhandlamisc2list(int index, int *list_size)
 	return NULL;
 }
 
-const char *aquamisc1list(int index, int *list_size)
+const char *aquamisc1list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2378,7 +2378,7 @@ const char *aquamisc1list(int index, int *list_size)
 	return NULL;
 }
 
-const char *patramisc4list(int index, int *list_size)
+const char *patramisc4list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2389,7 +2389,7 @@ const char *patramisc4list(int index, int *list_size)
 	return NULL;
 }
 
-const char *patramisc5list(int index, int *list_size)
+const char *patramisc5list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2400,7 +2400,7 @@ const char *patramisc5list(int index, int *list_size)
 	return NULL;
 }
 
-const char *patramisc10list(int index, int *list_size)
+const char *patramisc10list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2411,7 +2411,7 @@ const char *patramisc10list(int index, int *list_size)
 	return NULL;
 }
 
-const char *dodongomisc10list(int index, int *list_size)
+const char *dodongomisc10list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2422,7 +2422,7 @@ const char *dodongomisc10list(int index, int *list_size)
 	return NULL;
 }
 
-const char *digdoggermisc10list(int index, int *list_size)
+const char *digdoggermisc10list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2433,7 +2433,7 @@ const char *digdoggermisc10list(int index, int *list_size)
 	return NULL;
 }
 
-const char *walkerspawnlist(int index, int *list_size)
+const char *walkerspawnlist(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2444,7 +2444,7 @@ const char *walkerspawnlist(int index, int *list_size)
 	return NULL;
 }
 
-const char *wizzrobemisc1list(int index, int *list_size)
+const char *wizzrobemisc1list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2455,7 +2455,7 @@ const char *wizzrobemisc1list(int index, int *list_size)
 	return NULL;
 }
 
-const char *wizzrobemisc2list(int index, int *list_size)
+const char *wizzrobemisc2list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2466,7 +2466,7 @@ const char *wizzrobemisc2list(int index, int *list_size)
 	return NULL;
 }
 
-const char *keesemisc1list(int index, int *list_size)
+const char *keesemisc1list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2477,7 +2477,7 @@ const char *keesemisc1list(int index, int *list_size)
 	return NULL;
 }
 
-const char *keesemisc2list(int index, int *list_size)
+const char *keesemisc2list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2488,7 +2488,7 @@ const char *keesemisc2list(int index, int *list_size)
 	return NULL;
 }
 
-const char *trapmisc2list(int index, int *list_size)
+const char *trapmisc2list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2499,7 +2499,7 @@ const char *trapmisc2list(int index, int *list_size)
 	return NULL;
 }
 
-const char *trapmisc1list(int index, int *list_size)
+const char *trapmisc1list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2510,7 +2510,7 @@ const char *trapmisc1list(int index, int *list_size)
 	return NULL;
 }
 
-const char *leevermisc1list(int index, int *list_size)
+const char *leevermisc1list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2526,7 +2526,7 @@ const char *leevermisc1list(int index, int *list_size)
 	return NULL;
 }
 
-const char *rockmisc1list(int index, int *list_size)
+const char *rockmisc1list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2538,7 +2538,7 @@ const char *rockmisc1list(int index, int *list_size)
 }
 
 // 0: no, 1: yes
-const char *yesnomisclist(int index, int *list_size)
+const char *yesnomisclist(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -2550,7 +2550,7 @@ const char *yesnomisclist(int index, int *list_size)
 }
 
 // 0: yes, 1: no
-const char *noyesmisclist(int index, int *list_size)
+const char *noyesmisclist(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -3413,15 +3413,15 @@ static EnemyNameInfo enameinf[]=
 	}
 };
 
-static std::map<int, EnemyNameInfo *> *enamemap = NULL;
+static std::map<int32_t, EnemyNameInfo *> *enamemap = NULL;
 
-std::map<int, EnemyNameInfo *> *getEnemyNameMap()
+std::map<int32_t, EnemyNameInfo *> *getEnemyNameMap()
 {
 	if(enamemap == NULL)
 	{
-		enamemap = new std::map<int, EnemyNameInfo *>();
+		enamemap = new std::map<int32_t, EnemyNameInfo *>();
 		
-		for(int i=0;; i++)
+		for(int32_t i=0;; i++)
 		{
 			EnemyNameInfo *inf = &enameinf[i];
 			
@@ -3435,7 +3435,7 @@ std::map<int, EnemyNameInfo *> *getEnemyNameMap()
 	return enamemap;
 }
 
-const char *npcscriptdroplist(int index, int *list_size)
+const char *npcscriptdroplist(int32_t index, int32_t *list_size)
 {
 	if(index<0)
 	{
@@ -3453,7 +3453,7 @@ static ListData enetype_list(enetypelist, &font);
 static ListData eweapon_list(eweaponlist, &font);
 
 
-const char *eweaponscriptdroplist(int index, int *list_size)
+const char *eweaponscriptdroplist(int32_t index, int32_t *list_size)
 {
 	if(index<0)
 	{
@@ -4248,10 +4248,10 @@ static DIALOG enedata_dlg[] =
 };
 
 
-void setEnemyLabels(int family)
+void setEnemyLabels(int32_t family)
 {
-	std::map<int, EnemyNameInfo *> *nmap = getEnemyNameMap();
-	std::map<int, EnemyNameInfo *>::iterator it = nmap->find(family);
+	std::map<int32_t, EnemyNameInfo *> *nmap = getEnemyNameMap();
+	std::map<int32_t, EnemyNameInfo *>::iterator it = nmap->find(family);
 	EnemyNameInfo *inf = NULL;
 	
 	if(it != nmap->end())
@@ -4276,7 +4276,7 @@ void setEnemyLabels(int family)
 		enedata_dlg[22].dp = (void*)"Halt Rate:";
 		
 	//set enemy editor new 2.55 flags 1 to 16 label
-	for(int i = 0; i < 16; i++)
+	for(int32_t i = 0; i < 16; i++)
 	{
 		if(inf != NULL)
 		{
@@ -4293,22 +4293,22 @@ void setEnemyLabels(int family)
 	}
 	
 	//Enemy Attribute Labels, starting at 11
-	for ( int q = 10; q < 16; q++ ) //check these numbers! -Z
+	for ( int32_t q = 10; q < 16; q++ ) //check these numbers! -Z
 	{
 	if(inf->attributes[q]!=NULL)
 			{
 				enedata_dlg[288+(q-10)].dp = (char*)inf->attributes[q];
 			}
 	}
-	for ( int q = 16; q < 24; q++ ) //check these numbers! -Z
+	for ( int32_t q = 16; q < 24; q++ ) //check these numbers! -Z
 	{
-	int w = 0;
+	int32_t w = 0;
 	if(inf->attributes[q]!=NULL)
 			{
 				enedata_dlg[302+(q-16)].dp = (char*)inf->attributes[q];
 			}
 	}
-	for ( int q = 24; q < 32; q++ ) //check these numbers! -Z
+	for ( int32_t q = 24; q < 32; q++ ) //check these numbers! -Z
 	{
 	if(inf->attributes[q]!=NULL)
 			{
@@ -4316,7 +4316,7 @@ void setEnemyLabels(int family)
 			}
 	}
 	
-	for(int i = 0; i < 10; i++)
+	for(int32_t i = 0; i < 10; i++)
 	{
 		if(inf != NULL)
 		{
@@ -4348,7 +4348,7 @@ void setEnemyLabels(int family)
 			enedata_dlg[64+i].bg = vc(1);
 			enedata_dlg[64+i].dp = NULL;
 			enedata_dlg[64+i].d1 = 6;
-			enedata_dlg[64+i].h = int(16 * (is_large ? 1.5 : 1));
+			enedata_dlg[64+i].h = int32_t(16 * (is_large ? 1.5 : 1));
 			enedata_dlg[64+i].dp2 = (is_large ? lfont_l : font);
 		}
 	}
@@ -4361,7 +4361,7 @@ void setEnemyLabels(int family)
 	
 	if(family==eeTRAP || family==eeROCK || family==eeDONGO ) //|| family==eeGANON)
 	{
-		for(int j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags |= D_DISABLED;
+		for(int32_t j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags |= D_DISABLED;
 		
 		enedata_dlg[192].flags |= D_DISABLED; //Defenses disabled for Traps. rocks,. Dodongos and Ganon. 
 		//We will need to remove Ganon from this list once we give him defence properties in the EE. -Z
@@ -4379,7 +4379,7 @@ void setEnemyLabels(int family)
 	}
 	else
 	{
-		for(int j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags &= ~D_DISABLED;
+		for(int32_t j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags &= ~D_DISABLED;
 		
 		enedata_dlg[192].flags &= ~D_DISABLED;
 		enedata_dlg[203].d1 &= ~D_DISABLED;
@@ -4414,20 +4414,20 @@ void setEnemyLabels(int family)
 	}
 }
 
-int d_ecstile_proc(int msg,DIALOG *d,int c)
+int32_t d_ecstile_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
-	int *tempint=enedata_flags2_list;
+	int32_t *tempint=enedata_flags2_list;
 	tempint=tempint;
 	
 	switch(msg)
 	{
 	case MSG_CLICK:
 	{
-		int f = -8; // Suppress Flip, but in a way that the lowest 3 bits are 0. (Trust me here.) -L
-		int t = d->d1;
-		int cs = d->d2;
+		int32_t f = -8; // Suppress Flip, but in a way that the lowest 3 bits are 0. (Trust me here.) -L
+		int32_t t = d->d1;
+		int32_t cs = d->d2;
 		
 		if(select_tile(t,f,1,cs,true))
 		{
@@ -4471,7 +4471,7 @@ int d_ecstile_proc(int msg,DIALOG *d,int c)
 	return D_O_K;
 }
 
-void edit_enemydata(int index)
+void edit_enemydata(int32_t index)
 {
 	//guysbuf[index].script = 1;
 	char hp[8], dp[8], wdp[8], rat[8], hrt[8], hom[8], grm[8], spd[8],
@@ -4488,7 +4488,7 @@ void edit_enemydata(int index)
 	
 	char initdvals[8][13];
 	//begin npc script
-	int j = 0; build_binpcs_list(); //npc scripts lister
+	int32_t j = 0; build_binpcs_list(); //npc scripts lister
 	for(j = 0; j < binpcs_cnt; j++)
 	{
 		if(binpcs[j].second == guysbuf[index].script -1)
@@ -4498,7 +4498,7 @@ void edit_enemydata(int index)
 		} 
 	}
 	
-	int j2 = 0; 
+	int32_t j2 = 0; 
 	build_bieweapons_list(); //lweapon scripts lister
 	for(j2 = 0; j2 < bieweapons_cnt; j2++)
 	{
@@ -4509,7 +4509,7 @@ void edit_enemydata(int index)
 		}
 	}
 	
-	for ( int q = 0; q < 8; q++ )
+	for ( int32_t q = 0; q < 8; q++ )
 	{
 		//NPC InitD / WeaponInitD
 		enedata_dlg[345+q].dp = initdvals[q];
@@ -4534,7 +4534,7 @@ void edit_enemydata(int index)
 	//disable the missing dialog items!
 	//else they will lurk in the background
 	//stealing mouse focus -DD
-	for(int i=0; enedata_flags2_list[i] != -1; i++)
+	for(int32_t i=0; enedata_flags2_list[i] != -1; i++)
 	{
 		enedata_dlg[enedata_flags2_list[i]].proc = d_dummy_proc;
 		enedata_dlg[enedata_flags2_list[i]].x = 0;
@@ -4565,7 +4565,7 @@ void edit_enemydata(int index)
 			build_biew_list();
 		}
 		
-		for(int j=0; j<biew_cnt; j++)
+		for(int32_t j=0; j<biew_cnt; j++)
 		{
 			if(biew[j].i == guysbuf[index].weapon /*- wEnemyWeapons*/)
 				enedata_dlg[45].d1 = j;
@@ -4578,7 +4578,7 @@ void edit_enemydata(int index)
 		build_bief_list();
 	}
 	
-	for(int j=0; j<bief_cnt; j++)
+	for(int32_t j=0; j<bief_cnt; j++)
 	{
 		if(bief[j].i == guysbuf[index].family)
 			enedata_dlg[46].d1 = j;
@@ -4590,7 +4590,7 @@ void edit_enemydata(int index)
 		build_biea_list();
 	}
 	
-	for(int j=0; j<biea_cnt; j++)
+	for(int32_t j=0; j<biea_cnt; j++)
 	{
 		if(biea[j].i == guysbuf[index].anim)
 			enedata_dlg[47].d1 = j;
@@ -4683,7 +4683,7 @@ void edit_enemydata(int index)
 	sprintf(attribs[30],"%ld",guysbuf[index].misc31);
 	sprintf(attribs[31],"%ld",guysbuf[index].misc32);
 	
-	for(int j=0; j <= edefBYRNA; j++)
+	for(int32_t j=0; j <= edefBYRNA; j++)
 	{
 		enedata_dlg[j+161].d1 = guysbuf[index].defense[j];
 	}
@@ -4766,8 +4766,8 @@ void edit_enemydata(int index)
 	enedata_dlg[141].dp = efr;
 	
 	//sprintf(sfx,"%d",guysbuf[index].bgsfx);
-	enedata_dlg[182].d1= (int)guysbuf[index].bgsfx;
-	enedata_dlg[183].d1= (int)guysbuf[index].hitsfx;
+	enedata_dlg[182].d1= (int32_t)guysbuf[index].bgsfx;
+	enedata_dlg[183].d1= (int32_t)guysbuf[index].hitsfx;
 	if ( ( enedata_dlg[183].d1 == 0 ) && FFCore.getQuestHeaderInfo(vZelda) < 0x250 || (( FFCore.getQuestHeaderInfo(vZelda) == 0x250 ) && FFCore.getQuestHeaderInfo(vBuild) < 32 ) )
 	{
 		//If no user-set hit sound was in place, and the quest was made in a version before 2.53.0 Gamma 2:
@@ -4775,14 +4775,14 @@ void edit_enemydata(int index)
 		//Force SFX_HIT here. 
 		
 	}
-	enedata_dlg[184].d1= (int)guysbuf[index].deadsfx;
+	enedata_dlg[184].d1= (int32_t)guysbuf[index].deadsfx;
 	
 	// Sprites
 	if(biw_cnt==-1)
 	{
 		build_biw_list();
 	}
-	for(int j=0; j<biw_cnt; j++)
+	for(int32_t j=0; j<biw_cnt; j++)
 	{
 		if(biw[j].i == guysbuf[index].wpnsprite)
 			enedata_dlg[236].d1  = j;
@@ -4807,13 +4807,13 @@ void edit_enemydata(int index)
 	
 	enedata_dlg[53].dp = bsp;
 	
-	for(int i=0; i<32; i++)
+	for(int32_t i=0; i<32; i++)
 		enedata_dlg[74+i].flags = (guysbuf[index].flags & (1<<i)) ? D_SELECTED : 0;
 		
 	enedata_dlg[186].d1 = (guysbuf[index].flags & guy_fadeinstant ? 2
 						   : guysbuf[index].flags & guy_fadeflicker ? 1 : 0);
 						   
-	for(int i=0; i<16; i++)
+	for(int32_t i=0; i<16; i++)
 		enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
 	
 	enedata_dlg[371].flags = (guysbuf[index].moveflags & FLAG_OBEYS_GRAV) ? D_SELECTED : 0;
@@ -4822,7 +4822,7 @@ void edit_enemydata(int index)
 	enedata_dlg[374].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERDROWN) ? D_SELECTED : 0;
 	enedata_dlg[375].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERWALK) ? D_SELECTED : 0;
 	
-	int ret;
+	int32_t ret;
 	guydata test;
 	memset(&test, 0, sizeof(guydata));
 	
@@ -4835,11 +4835,11 @@ void edit_enemydata(int index)
 	
 	do
 	{
-		for(int i=0; i<10; i++)
+		for(int32_t i=0; i<10; i++)
 		{
 			if(enedata_dlg[64+i].proc==jwin_droplist_proc)
 			{
-				int size = 0;
+				int32_t size = 0;
 				((ListData*)enedata_dlg[64+i].dp)->listFunc(-1,&size);
 				// Bound ms[i] as well as enedata_dlg[64+i].d1
 				sprintf(ms[i],"%d",vbound(atoi(ms[i]), 0, size));
@@ -4929,7 +4929,7 @@ void edit_enemydata(int index)
 		test.deadsfx = enedata_dlg[184].d1;
 		
 		// Sprites
-		for(int j=0; j<biw_cnt; j++)
+		for(int32_t j=0; j<biw_cnt; j++)
 		{
 			if(enedata_dlg[236].d1 == j)
 				test.wpnsprite = biw[j].i;
@@ -4976,7 +4976,7 @@ void edit_enemydata(int index)
 		
 	
 	
-		for(int j=0; j <= edefBYRNA; j++)
+		for(int32_t j=0; j <= edefBYRNA; j++)
 		{
 			test.defense[j] = enedata_dlg[j+161].d1;
 		}
@@ -4985,13 +4985,13 @@ void edit_enemydata(int index)
 		//Are the new defs missing here? -Z
 		
 		
-		for(int i=0; i<32; i++)
+		for(int32_t i=0; i<32; i++)
 			test.flags |= (enedata_dlg[74+i].flags & D_SELECTED) ? (1<<i) : 0;
 			
 		test.flags &= ~(guy_fadeinstant|guy_fadeflicker);
 		test.flags |= (enedata_dlg[186].d1==2 ? guy_fadeinstant : enedata_dlg[186].d1==1 ? guy_fadeflicker : 0);
 		
-		for(int i=0; i<16; i++)
+		for(int32_t i=0; i<16; i++)
 			test.flags2 |= (enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0;
 			
 		if(enedata_dlg[143].flags & D_SELECTED)
@@ -5090,7 +5090,7 @@ void edit_enemydata(int index)
 		
 		//begin npc scripts
 		test.script = binpcs[enedata_dlg[335].d1].second + 1; 
-		for ( int q = 0; q < 8; q++ )
+		for ( int32_t q = 0; q < 8; q++ )
 		{
 			test.initD[q] = enedata_dlg[345+q].fg;
 			test.weap_initiald[q] = enedata_dlg[361+q].fg;
@@ -5127,7 +5127,7 @@ void edit_enemydata(int index)
 		}
 		else if(ret==178)
 		{
-			for(int j=1; j <= edefBYRNA; j++)
+			for(int32_t j=1; j <= edefBYRNA; j++)
 			{
 				enedata_dlg[j+161].d1 = enedata_dlg[161].d1;
 			}
@@ -5152,7 +5152,7 @@ void edit_enemydata(int index)
 }
 
 extern DIALOG elist_dlg[];
-static int copiedGuy;
+static int32_t copiedGuy;
 static MENU elist_rclick_menu[] =
 {
 	{ (char *)"Copy",  NULL, NULL, 0, NULL },
@@ -5162,12 +5162,12 @@ static MENU elist_rclick_menu[] =
 	{ NULL,            NULL, NULL, 0, NULL }
 };
 
-int readonenpc(PACKFILE *f, int index)
+int32_t readonenpc(PACKFILE *f, int32_t index)
 {
 	dword section_version = 0;
 	dword section_cversion = 0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	guydata tempguy;
 	memset(&tempguy, 0, sizeof(guydata));
 		//reset_itembuf(&tempitem,i);
@@ -5418,7 +5418,7 @@ int readonenpc(PACKFILE *f, int index)
 			return 0;
 			}
 			
-			for(int j=0; j < edefLAST; j++)
+			for(int32_t j=0; j < edefLAST; j++)
 			{
 			if(!p_getc(&tempguy.defense[j],f,true))
 			{
@@ -5455,7 +5455,7 @@ int readonenpc(PACKFILE *f, int index)
 			//! version 27
 			
 			//2.55 starts here
-			for(int j=edefLAST; j < edefLAST255; j++)
+			for(int32_t j=edefLAST; j < edefLAST255; j++)
 			{
 			if(!p_getc(&tempguy.defense[j],f,true))
 			{
@@ -5526,7 +5526,7 @@ int readonenpc(PACKFILE *f, int index)
 			return 0;
 			}
 			
-			for ( int q = 0; q < 10; q++ ) 
+			for ( int32_t q = 0; q < 10; q++ ) 
 			{
 			if(!p_igetw(&tempguy.frozenmisc[q],f,true))
 			{
@@ -5606,14 +5606,14 @@ int readonenpc(PACKFILE *f, int index)
 			{
 			return 0;
 			}
-			for ( int q = 0; q < 32; q++ )
+			for ( int32_t q = 0; q < 32; q++ )
 			{
 			if(!p_igetl(&tempguy.movement[q],f,true))
 			{
 				return 0;
 			}
 			}
-			for ( int q = 0; q < 32; q++ )
+			for ( int32_t q = 0; q < 32; q++ )
 			{
 				if(!p_igetl(&tempguy.new_weapon[q],f,true))
 				{
@@ -5624,14 +5624,14 @@ int readonenpc(PACKFILE *f, int index)
 			{
 			return 0;
 			}
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
 			if(!p_igetl(&tempguy.initD[q],f,true))
 			{
 				return 0;
 			}
 			}
-			for ( int q = 0; q < 2; q++ )
+			for ( int32_t q = 0; q < 2; q++ )
 			{
 			if(!p_igetl(&tempguy.initA[q],f,true))
 			{
@@ -5657,16 +5657,16 @@ int readonenpc(PACKFILE *f, int index)
 			}
 			
 			//Enemy Editor InitD[] labels
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_getc(&tempguy.initD_label[q][w],f,true))
 					{
 						return 0;
 					}
 				}
-				for ( int w = 0; w < 65; w++ )
+				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_getc(&tempguy.weapon_initD_label[q][w],f,true))
 					{
@@ -5679,7 +5679,7 @@ int readonenpc(PACKFILE *f, int index)
 			return 0;
 			}
 			//eweapon initD
-			for ( int q = 0; q < 8; q++ )
+			for ( int32_t q = 0; q < 8; q++ )
 			{
 			if(!p_igetl(&tempguy.weap_initiald[q],f,true))
 			{
@@ -5696,13 +5696,13 @@ int readonenpc(PACKFILE *f, int index)
 	return 1;
 }
 
-int writeonenpc(PACKFILE *f, int i)
+int32_t writeonenpc(PACKFILE *f, int32_t i)
 {
 	
 	dword section_version=V_GUYS;
 	dword section_cversion=CV_GUYS;
-	int zversion = ZELDA_VERSION;
-	int zbuild = VERSION_BUILD;
+	int32_t zversion = ZELDA_VERSION;
+	int32_t zbuild = VERSION_BUILD;
 	
   
 	//section version info
@@ -5929,7 +5929,7 @@ int writeonenpc(PACKFILE *f, int i)
 		return 0;
 		}
 		
-		for(int j=0; j < edefLAST; j++)
+		for(int32_t j=0; j < edefLAST; j++)
 		{
 		if(!p_putc(guysbuf[i].defense[j],f))
 		{
@@ -5958,7 +5958,7 @@ int writeonenpc(PACKFILE *f, int i)
 		}
 		
 		//2.55 starts here
-		for(int j=edefLAST; j < edefLAST255; j++)
+		for(int32_t j=edefLAST; j < edefLAST255; j++)
 		{
 		if(!p_putc(guysbuf[i].defense[j],f))
 		{
@@ -6029,7 +6029,7 @@ int writeonenpc(PACKFILE *f, int i)
 		return 0;
 		}
 		
-		for ( int q = 0; q < 10; q++ ) 
+		for ( int32_t q = 0; q < 10; q++ ) 
 		{
 		if(!p_iputw(guysbuf[i].frozenmisc[q],f))
 		{
@@ -6109,14 +6109,14 @@ int writeonenpc(PACKFILE *f, int i)
 		{
 		return 0;
 		}
-		for ( int q = 0; q < 32; q++ )
+		for ( int32_t q = 0; q < 32; q++ )
 		{
 			if(!p_iputl(guysbuf[i].movement[q],f))
 			{
 			return 0;
 			}
 		}
-		for ( int q = 0; q < 32; q++ )
+		for ( int32_t q = 0; q < 32; q++ )
 		{
 			if(!p_iputl(guysbuf[i].new_weapon[q],f))
 			{
@@ -6127,14 +6127,14 @@ int writeonenpc(PACKFILE *f, int i)
 		{
 		return 0;
 		}
-		for ( int q = 0; q < 8; q++ )
+		for ( int32_t q = 0; q < 8; q++ )
 		{
 		if(!p_iputl(guysbuf[i].initD[q],f))
 		{
 			return 0;
 		}
 		}
-		for ( int q = 0; q < 2; q++ )
+		for ( int32_t q = 0; q < 2; q++ )
 		{
 		if(!p_iputl(guysbuf[i].initA[q],f))
 		{
@@ -6160,16 +6160,16 @@ int writeonenpc(PACKFILE *f, int i)
 		}
 		
 		//Enemy Editor InitD[] labels
-		for ( int q = 0; q < 8; q++ )
+		for ( int32_t q = 0; q < 8; q++ )
 		{
-			for ( int w = 0; w < 65; w++ )
+			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_putc(guysbuf[i].initD_label[q][w],f))
 				{
 					return 0;
 				}
 			}
-			for ( int w = 0; w < 65; w++ )
+			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
 				{
@@ -6182,7 +6182,7 @@ int writeonenpc(PACKFILE *f, int i)
 		return 0;
 		}
 		//eweapon initD
-		for ( int q = 0; q < 8; q++ )
+		for ( int32_t q = 0; q < 8; q++ )
 		{
 		if(!p_iputl(guysbuf[i].weap_initiald[q],f))
 		{
@@ -6198,7 +6198,7 @@ int writeonenpc(PACKFILE *f, int i)
 
 
 
-void elist_rclick_func(int index, int x, int y)
+void elist_rclick_func(int32_t index, int32_t x, int32_t y)
 {
 	if(index==0)
 		return;
@@ -6208,7 +6208,7 @@ void elist_rclick_func(int index, int x, int y)
 	else
 		elist_rclick_menu[1].flags&=~D_DISABLED;
 	
-	int ret=popup_menu(elist_rclick_menu, x, y);
+	int32_t ret=popup_menu(elist_rclick_menu, x, y);
 	
 	if(ret==0) // copy
 		copiedGuy=bie[index].i;
@@ -6222,7 +6222,7 @@ void elist_rclick_func(int index, int x, int y)
 	{
 		if(!getname("Save NPC(.znpc)", "znpc", NULL,datapath,false))
 			return;
-		int iid = bie[index].i; //the item id is not the sajme as the editor index
+		int32_t iid = bie[index].i; //the item id is not the sajme as the editor index
 		//the editor index is the position in the current LIST. -Z
 		
 		//al_trace("Saving item index: %d\n",index);
@@ -6259,21 +6259,21 @@ void elist_rclick_func(int index, int x, int y)
 	}
 }
 
-int onCustomEnemies()
+int32_t onCustomEnemies()
 {
 	/*
 	  char *hold = item_string[0];
 	  item_string[0] = "rupee (1)";
 	  */
 	
-	int foo;
-	int index = select_enemy("Select Enemy",bie[0].i,true,true,foo);
+	int32_t foo;
+	int32_t index = select_enemy("Select Enemy",bie[0].i,true,true,foo);
 	
 	while(index >= 0)
 	{
 		//I can't get the fucking dialog to handle a simple copy paste so I stuck it here else I'm going to rage kill something.
 		//,,.Someone feel free to fix the thing properly later on.
-		//Right now creating custom enemies remains a long painful process, but it shouldn't be this hard for users to use.
+		//Right now creating custom enemies remains a int32_t painful process, but it shouldn't be this hard for users to use.
 		//-Two cents worth. -Gleeok
 		if(key[KEY_OPENBRACE])   //copy
 		{
@@ -6304,12 +6304,12 @@ int onCustomEnemies()
 }
 
 
-int onCustomGuys()
+int32_t onCustomGuys()
 {
 	return D_O_K;
 }
 
-int d_ltile_proc(int msg,DIALOG *d,int c)
+int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
@@ -6318,17 +6318,17 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 	//d2=type (determines how to animate)
 	//fg=cset (6)
 	enum {lt_clock, lt_tile, lt_flip, lt_extend};
-	static int bg=makecol(0, 0, 0);
-	int *p=(int*)d->dp3;
-	int oldtile=0;
-	int oldflip=0;
+	static int32_t bg=makecol(0, 0, 0);
+	int32_t *p=(int32_t*)d->dp3;
+	int32_t oldtile=0;
+	int32_t oldflip=0;
 	
 	switch(msg)
 	{
 	case MSG_START:
 	{
-		d->dp3=(int*)zc_malloc(sizeof(int)*4);
-		p=(int*)d->dp3;
+		d->dp3=(int32_t*)zc_malloc(sizeof(int32_t)*4);
+		p=(int32_t*)d->dp3;
 		p[lt_clock]=0;
 		p[lt_tile]=0;
 		p[lt_flip]=0;
@@ -6339,10 +6339,10 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 	
 	case MSG_CLICK:
 	{
-		int t;
-		int f;
-		int extend;
-		int cs = 6;
+		int32_t t;
+		int32_t f;
+		int32_t extend;
+		int32_t cs = 6;
 		linktile(&t, &f, &extend, d->d2, d->d1, zinit.linkanimationstyle);
 		
 		switch(extend)
@@ -6519,7 +6519,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				else
 				{
 					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.linkanimationstyle);
-					p[lt_tile]+=p[lt_extend]==2?((int)p[lt_clock]/8)*2:((int)p[lt_clock]/8);
+					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
 				}
 				
 				break;
@@ -6679,7 +6679,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				if(p[lt_clock]<=4)
 				{
 					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.linkanimationstyle);
-					p[lt_tile]+=p[lt_extend]==2?((int)p[lt_clock]/8)*2:((int)p[lt_clock]/8);
+					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
 				};
 				break;
 		
@@ -6877,7 +6877,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				else
 				{
 					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.linkanimationstyle);
-					p[lt_tile]+=p[lt_extend]==2?((int)p[lt_clock]/8)*2:((int)p[lt_clock]/8);
+					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
 				}
 				
 				break;
@@ -7014,7 +7014,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				if(p[lt_clock]<=4)
 				{
 					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.linkanimationstyle);
-					p[lt_tile]+=p[lt_extend]==2?((int)p[lt_clock]/8)*2:((int)p[lt_clock]/8);
+					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
 				};
 				
 				
@@ -7119,7 +7119,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				{
 					p[lt_tile]+=(p[lt_extend]==2?2:1);
 					
-					int l=((p[lt_clock]/link_animation_speed)&15);
+					int32_t l=((p[lt_clock]/link_animation_speed)&15);
 					l-=((l>3)?1:0)+((l>12)?1:0);
 					p[lt_tile]+=(l/2)*(p[lt_extend]==2?2:1);
 					
@@ -7139,7 +7139,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				{
 					p[lt_tile]+=(p[lt_extend]==2?2:1);
 					
-					int l=((p[lt_clock]/link_animation_speed)&15);
+					int32_t l=((p[lt_clock]/link_animation_speed)&15);
 					l-=((l>3)?1:0)+((l>12)?1:0);
 					p[lt_tile]+=(l/2)*(p[lt_extend]==2?2:1);
 					
@@ -7219,7 +7219,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				else
 				{
 					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.linkanimationstyle);
-					p[lt_tile]+=p[lt_extend]==2?((int)p[lt_clock]/8)*2:((int)p[lt_clock]/8);
+					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
 				}
 				
 				break;
@@ -7341,7 +7341,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 				if(p[lt_clock]<=4)
 				{
 					linktile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.linkanimationstyle);
-					p[lt_tile]+=p[lt_extend]==2?((int)p[lt_clock]/8)*2:((int)p[lt_clock]/8);
+					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
 				};
 				
 				
@@ -7449,11 +7449,11 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 	{
 		BITMAP *buf=create_bitmap_ex(8,1,1);
 		BITMAP *buf2=buf;
-		int dummy1, dummy2;
-		int extend;
+		int32_t dummy1, dummy2;
+		int32_t extend;
 		linktile(&dummy1, &dummy2, &extend, d->d2, d->d1, zinit.linkanimationstyle);
-		int w = 16;
-		int h = 16;
+		int32_t w = 16;
+		int32_t h = 16;
 		
 		switch(extend)
 		{
@@ -7538,55 +7538,55 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 	return D_O_K;
 }
 
-static int linktile_land_walk_list[] =
+static int32_t linktile_land_walk_list[] =
 {
 	// dialog control number
 	11, 12, 13, 14, 15, 16, 17, 18, -1
 };
 
-static int linktile_land_slash_list[] =
+static int32_t linktile_land_slash_list[] =
 {
 	// dialog control number
 	19, 20, 21, 22, 23, 24, 25, 26, -1
 };
 
-static int linktile_land_stab_list[] =
+static int32_t linktile_land_stab_list[] =
 {
 	// dialog control number
 	27, 28, 29, 30, 31, 32, 33, 34,  -1
 };
 
-static int linktile_land_pound_list[] =
+static int32_t linktile_land_pound_list[] =
 {
 	// dialog control number
 	35, 36, 37, 38, 39, 40, 41, 42, -1
 };
 
-static int linktile_land_hold_list[] =
+static int32_t linktile_land_hold_list[] =
 {
 	// dialog control number
 	43, 44, 45, 46, -1
 };
 
-static int linktile_land_cast_list[] =
+static int32_t linktile_land_cast_list[] =
 {
 	// dialog control number
 	47, -1
 };
 
-static int linktile_land_fall_list[] =
+static int32_t linktile_land_fall_list[] =
 {
 	// dialog control number
 	105, 106, 107, 108, 109, 110, 111, 112, -1
 };
 
-static int linktile_land_jump_list[] =
+static int32_t linktile_land_jump_list[] =
 {
 	// dialog control number
 	77, 78, 79, 80, 81, 82, 83, 84, -1
 };
 
-static int linktile_land_charge_list[] =
+static int32_t linktile_land_charge_list[] =
 {
 	// dialog control number
 	85, 86, 87, 88, 89, 90, 91, 92, -1
@@ -7607,37 +7607,37 @@ static TABPANEL linktile_land_tabs[] =
 	{ NULL,                    0,           NULL,                   0, NULL }
 };
 
-static int linktile_water_float_list[] =
+static int32_t linktile_water_float_list[] =
 {
 	// dialog control number
 	48, 49, 50, 51, 52, 53, 54, 55, -1
 };
 
-static int linktile_water_swim_list[] =
+static int32_t linktile_water_swim_list[] =
 {
 	// dialog control number
 	56, 57, 58, 59, 60, 61, 62, 63, -1
 };
 
-static int linktile_water_dive_list[] =
+static int32_t linktile_water_dive_list[] =
 {
 	// dialog control number
 	64, 65, 66, 67, 68, 69, 70, 71, -1
 };
 
-static int linktile_water_hold_list[] =
+static int32_t linktile_water_hold_list[] =
 {
 	// dialog control number
 	72, 73, 74, 75, -1
 };
 
-static int linktile_water_drown_list[] =
+static int32_t linktile_water_drown_list[] =
 {
 	// dialog control number
 	97, 98, 99, 100, 101, 102, 103, 104, -1
 };
 
-static int linktile_lava_drown_list[] =
+static int32_t linktile_lava_drown_list[] =
 {
 	// dialog control number
 	113, 114, 115, 116, 117, 118, 119, 120, -1
@@ -7655,37 +7655,37 @@ static TABPANEL linktile_water_tabs[] =
 	{ NULL,                 0,           NULL,                     0, NULL }
 };
 
-static int linktile_sidewater_swim_list[] =
+static int32_t linktile_sidewater_swim_list[] =
 {
 	// dialog control number
 	196, 197, 198, 199, 200, 201, 202, 203, -1
 };
 
-static int linktile_sidewater_slash_list[] =
+static int32_t linktile_sidewater_slash_list[] =
 {
 	// dialog control number
 	204, 205, 206, 207, 208, 209, 210, 211, -1
 };
 
-static int linktile_sidewater_stab_list[] =
+static int32_t linktile_sidewater_stab_list[] =
 {
 	// dialog control number
 	212, 213, 214, 215, 216, 217, 218, 219, -1
 };
 
-static int linktile_sidewater_pound_list[] =
+static int32_t linktile_sidewater_pound_list[] =
 {
 	// dialog control number
 	220, 221, 222, 223, 224, 225, 226, 227, 236, 237, 238, 239, 240, 241, 242, 243,-1
 };
 
-static int linktile_sidewater_charge_list[] =
+static int32_t linktile_sidewater_charge_list[] =
 {
 	// dialog control number
 	228, 229, 230, 231, 232, 233, 234, 235, -1
 };
 
-static int linktile_sidewater_hold_list[] =
+static int32_t linktile_sidewater_hold_list[] =
 {
 	// dialog control number
 	244,245,246,247,248,249,250,251, -1
@@ -7703,25 +7703,25 @@ static TABPANEL linktile_sidewater_tabs[] =
 	{ NULL,                 0,           NULL,                     0, NULL }
 };
 
-static int linktile_defense_enemy1_list[] =
+static int32_t linktile_defense_enemy1_list[] =
 {
 	//dialog control number
 	122, 123, 124, 125, 126, 127, 128, 129, 130, 145, 146, 147, 148, 149, 150, 151, 152, 153, 168, -1
 };
 
-static int linktile_defense_enemy2_list[] =
+static int32_t linktile_defense_enemy2_list[] =
 {
 	//dialog control number
 	131, 132, 133, 134, 135, 136, 137, 138, 154, 155, 156, 157, 158, 159, 160, 161, -1
 };
 
-static int linktile_defense_other1_list[] =
+static int32_t linktile_defense_other1_list[] =
 {
 	//dialog control number
 	139, 140, 141, 142, 143, 144, 162, 163, 164, 165, 166, 167, -1
 };
 
-static int linktile_defense_script_list[] =
+static int32_t linktile_defense_script_list[] =
 {
 	//dialog control number
 	169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, -1
@@ -7738,31 +7738,31 @@ static TABPANEL linktile_defense_tabs[] =
 };
 
 
-static int linktile_land_list[] =
+static int32_t linktile_land_list[] =
 {
 	// dialog control number
 	9, -1
 };
 
-static int linktile_water_list[] =
+static int32_t linktile_water_list[] =
 {
 	// dialog control number
 	10, -1
 };
 
-static int linktile_sidewater_list[] =
+static int32_t linktile_sidewater_list[] =
 {
 	// dialog control number
 	195, -1
 };
 
-static int linktile_defense_list[] =
+static int32_t linktile_defense_list[] =
 {
 	// dialog control number
 	121, -1
 };
 
-static int linktile_option_list[] =
+static int32_t linktile_option_list[] =
 {
 	// dialog control number
 	189, 190, 191, 192, 193, 194, -1
@@ -7781,7 +7781,7 @@ static TABPANEL linktile_tabs[] =
 
 const char *animationstyles[las_max]= { "Original", "BS-Zelda", "Zelda 3", "Zelda 3 (Slow Walk)" };
 
-const char *animationstylelist(int index, int *list_size)
+const char *animationstylelist(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -7794,7 +7794,7 @@ const char *animationstylelist(int index, int *list_size)
 
 const char *swimspeeds[2]= { "Slow", "Fast" };
 
-const char *swimspeedlist(int index, int *list_size)
+const char *swimspeedlist(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
@@ -7805,9 +7805,9 @@ const char *swimspeedlist(int index, int *list_size)
 	return NULL;
 }
 
-int jwin_as_droplist_proc(int msg,DIALOG *d,int c)
+int32_t jwin_as_droplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-	int ret = jwin_droplist_proc(msg,d,c);
+	int32_t ret = jwin_droplist_proc(msg,d,c);
 	
 	switch(msg)
 	{
@@ -8158,7 +8158,7 @@ static DIALOG linktile_dlg[] =
 
 
 
-int onCustomLink()
+int32_t onCustomLink()
 {
 	//setuplinktiles(zinit.linkanimationstyle);
 	if(zinit.linkanimationstyle==las_zelda3slow)
@@ -8179,28 +8179,28 @@ int onCustomLink()
 	if(is_large)
 		large_dialog(linktile_dlg, 2.0);
 		
-	int oldWalkSpr[4][3];
-	int oldStabSpr[4][3];
-	int oldSlashSpr[4][3];
-	int oldFloatSpr[4][3];
-	int oldSwimSpr[4][3];
-	int oldDiveSpr[4][3];
-	int oldPoundSpr[4][3];
-	int oldJumpSpr[4][3];
-	int oldChargeSpr[4][3];
-	int oldCastSpr[3];
-	int oldsideswimCastSpr[3];
-	int oldHoldSpr[2][2][3];
-	int oldDrownSpr[4][3];
-	int oldSideDrownSpr[4][3];
-	int oldFallSpr[4][3];
-	int oldLavaDrownSpr[4][3];
-	int oldSideSwimSpr[4][3];
-	int oldSideSwimSlashSpr[4][3];
-	int oldSideSwimStabSpr[4][3];
-	int oldSideSwimPoundSpr[4][3];
-	int oldSideSwimChargeSpr[4][3];
-	int oldSideSwimHoldSpr[3][3];
+	int32_t oldWalkSpr[4][3];
+	int32_t oldStabSpr[4][3];
+	int32_t oldSlashSpr[4][3];
+	int32_t oldFloatSpr[4][3];
+	int32_t oldSwimSpr[4][3];
+	int32_t oldDiveSpr[4][3];
+	int32_t oldPoundSpr[4][3];
+	int32_t oldJumpSpr[4][3];
+	int32_t oldChargeSpr[4][3];
+	int32_t oldCastSpr[3];
+	int32_t oldsideswimCastSpr[3];
+	int32_t oldHoldSpr[2][2][3];
+	int32_t oldDrownSpr[4][3];
+	int32_t oldSideDrownSpr[4][3];
+	int32_t oldFallSpr[4][3];
+	int32_t oldLavaDrownSpr[4][3];
+	int32_t oldSideSwimSpr[4][3];
+	int32_t oldSideSwimSlashSpr[4][3];
+	int32_t oldSideSwimStabSpr[4][3];
+	int32_t oldSideSwimPoundSpr[4][3];
+	int32_t oldSideSwimChargeSpr[4][3];
+	int32_t oldSideSwimHoldSpr[3][3];
 	char hmr1[8];
 	char hmr2[8];
 	char hmr3[8];
@@ -8213,31 +8213,31 @@ int onCustomLink()
 	linktile_dlg[241].dp = hmr2;
 	linktile_dlg[242].dp = hmr3;
 	linktile_dlg[243].dp = hmr4;
-	memcpy(oldWalkSpr, walkspr, 4*3*sizeof(int));
-	memcpy(oldStabSpr, stabspr, 4*3*sizeof(int));
-	memcpy(oldSlashSpr, slashspr, 4*3*sizeof(int));
-	memcpy(oldFloatSpr, floatspr, 4*3*sizeof(int));
-	memcpy(oldSwimSpr, swimspr, 4*3*sizeof(int));
-	memcpy(oldDiveSpr, divespr, 4*3*sizeof(int));
-	memcpy(oldPoundSpr, poundspr, 4*3*sizeof(int));
-	memcpy(oldJumpSpr, jumpspr, 4*3*sizeof(int));
-	memcpy(oldChargeSpr, chargespr, 4*3*sizeof(int));
-	memcpy(oldCastSpr, castingspr, 3*sizeof(int));
-	memcpy(oldsideswimCastSpr, sideswimcastingspr, 3*sizeof(int));
-	memcpy(oldHoldSpr, holdspr, 2*2*3*sizeof(int));
-	memcpy(oldDrownSpr, drowningspr, 4*3*sizeof(int));
-	memcpy(oldSideDrownSpr, sidedrowningspr, 4*3*sizeof(int));
-	memcpy(oldFallSpr, fallingspr, 4*3*sizeof(int));
-	memcpy(oldLavaDrownSpr, drowning_lavaspr, 4*3*sizeof(int));
-	memcpy(oldSideSwimSpr, sideswimspr, 4*3*sizeof(int));
-	memcpy(oldSideSwimSlashSpr, sideswimslashspr, 4*3*sizeof(int));
-	memcpy(oldSideSwimStabSpr, sideswimstabspr, 4*3*sizeof(int));
-	memcpy(oldSideSwimPoundSpr, sideswimpoundspr, 4*3*sizeof(int));
-	memcpy(oldSideSwimChargeSpr, sideswimchargespr, 4*3*sizeof(int));
-	memcpy(oldSideSwimHoldSpr, sideswimholdspr, 3*3*sizeof(int));
+	memcpy(oldWalkSpr, walkspr, 4*3*sizeof(int32_t));
+	memcpy(oldStabSpr, stabspr, 4*3*sizeof(int32_t));
+	memcpy(oldSlashSpr, slashspr, 4*3*sizeof(int32_t));
+	memcpy(oldFloatSpr, floatspr, 4*3*sizeof(int32_t));
+	memcpy(oldSwimSpr, swimspr, 4*3*sizeof(int32_t));
+	memcpy(oldDiveSpr, divespr, 4*3*sizeof(int32_t));
+	memcpy(oldPoundSpr, poundspr, 4*3*sizeof(int32_t));
+	memcpy(oldJumpSpr, jumpspr, 4*3*sizeof(int32_t));
+	memcpy(oldChargeSpr, chargespr, 4*3*sizeof(int32_t));
+	memcpy(oldCastSpr, castingspr, 3*sizeof(int32_t));
+	memcpy(oldsideswimCastSpr, sideswimcastingspr, 3*sizeof(int32_t));
+	memcpy(oldHoldSpr, holdspr, 2*2*3*sizeof(int32_t));
+	memcpy(oldDrownSpr, drowningspr, 4*3*sizeof(int32_t));
+	memcpy(oldSideDrownSpr, sidedrowningspr, 4*3*sizeof(int32_t));
+	memcpy(oldFallSpr, fallingspr, 4*3*sizeof(int32_t));
+	memcpy(oldLavaDrownSpr, drowning_lavaspr, 4*3*sizeof(int32_t));
+	memcpy(oldSideSwimSpr, sideswimspr, 4*3*sizeof(int32_t));
+	memcpy(oldSideSwimSlashSpr, sideswimslashspr, 4*3*sizeof(int32_t));
+	memcpy(oldSideSwimStabSpr, sideswimstabspr, 4*3*sizeof(int32_t));
+	memcpy(oldSideSwimPoundSpr, sideswimpoundspr, 4*3*sizeof(int32_t));
+	memcpy(oldSideSwimChargeSpr, sideswimchargespr, 4*3*sizeof(int32_t));
+	memcpy(oldSideSwimHoldSpr, sideswimholdspr, 3*3*sizeof(int32_t));
 	
 	//Populate Link defenses
-	for (int i = 0; i < wMax - wEnemyWeapons - 1; i++)
+	for (int32_t i = 0; i < wMax - wEnemyWeapons - 1; i++)
 	{
 		linktile_dlg[144 + i].d1 = link_defence[wEnemyWeapons+i];
 	}
@@ -8259,7 +8259,7 @@ int onCustomLink()
 	linktile_dlg[179+8].d1 = link_defence[wScript9];
 	linktile_dlg[180+8].d1 = link_defence[wScript10];
 
-	int ret = 0;
+	int32_t ret = 0;
 	do
 	{
 		ret = popup_dialog_through_bitmap(screen2, linktile_dlg, 3);
@@ -8272,7 +8272,7 @@ int onCustomLink()
 			zinit.link_swim_speed = (linktile_dlg[186+8].d1 == 0) ? 50 : 67;
 
 			//Save Link defenses
-			for (int i = 0; i < wMax - wEnemyWeapons - 1; i++)
+			for (int32_t i = 0; i < wMax - wEnemyWeapons - 1; i++)
 			{
 				link_defence[wEnemyWeapons + i] = linktile_dlg[137 + 7 + i].d1;
 			}
@@ -8300,39 +8300,39 @@ int onCustomLink()
 		}
 		else if (ret == 168)
 		{
-			for (int i = 146; i < 168; i++)
+			for (int32_t i = 146; i < 168; i++)
 			{
 				linktile_dlg[i].d1 = linktile_dlg[145].d1;
 			}
-			for (int i = 179; i < 189; i++)
+			for (int32_t i = 179; i < 189; i++)
 			{
 				linktile_dlg[i].d1 = linktile_dlg[145].d1;
 			}
 		}
 		else
 		{
-			memcpy(walkspr, oldWalkSpr, 4 * 3 * sizeof(int));
-			memcpy(stabspr, oldStabSpr, 4 * 3 * sizeof(int));
-			memcpy(slashspr, oldSlashSpr, 4 * 3 * sizeof(int));
-			memcpy(floatspr, oldFloatSpr, 4 * 3 * sizeof(int));
-			memcpy(swimspr, oldSwimSpr, 4 * 3 * sizeof(int));
-			memcpy(divespr, oldDiveSpr, 4 * 3 * sizeof(int));
-			memcpy(poundspr, oldPoundSpr, 4 * 3 * sizeof(int));
-			memcpy(jumpspr, oldJumpSpr, 4 * 3 * sizeof(int));
-			memcpy(chargespr, oldChargeSpr, 4 * 3 * sizeof(int));
-			memcpy(castingspr, oldCastSpr, 3 * sizeof(int));
-			memcpy(sideswimcastingspr, oldsideswimCastSpr, 3 * sizeof(int));
-			memcpy(holdspr, oldHoldSpr, 2 * 2 * 3 * sizeof(int));
-			memcpy(drowningspr, oldDrownSpr, 4 * 3 * sizeof(int));
-			memcpy(sidedrowningspr, oldSideDrownSpr, 4 * 3 * sizeof(int));
-			memcpy(fallingspr, oldFallSpr, 4 * 3 * sizeof(int));
-			memcpy(drowning_lavaspr, oldLavaDrownSpr, 4 * 3 * sizeof(int));
-			memcpy(sideswimspr, oldSideSwimSpr, 4 * 3 * sizeof(int));
-			memcpy(sideswimslashspr, oldSideSwimSlashSpr, 4 * 3 * sizeof(int));
-			memcpy(sideswimstabspr, oldSideSwimStabSpr, 4 * 3 * sizeof(int));
-			memcpy(sideswimpoundspr, oldSideSwimPoundSpr, 4 * 3 * sizeof(int));
-			memcpy(sideswimchargespr, oldSideSwimChargeSpr, 4 * 3 * sizeof(int));
-			memcpy(sideswimholdspr, oldSideSwimHoldSpr, 4 * 3 * sizeof(int));
+			memcpy(walkspr, oldWalkSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(stabspr, oldStabSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(slashspr, oldSlashSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(floatspr, oldFloatSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(swimspr, oldSwimSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(divespr, oldDiveSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(poundspr, oldPoundSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(jumpspr, oldJumpSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(chargespr, oldChargeSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(castingspr, oldCastSpr, 3 * sizeof(int32_t));
+			memcpy(sideswimcastingspr, oldsideswimCastSpr, 3 * sizeof(int32_t));
+			memcpy(holdspr, oldHoldSpr, 2 * 2 * 3 * sizeof(int32_t));
+			memcpy(drowningspr, oldDrownSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(sidedrowningspr, oldSideDrownSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(fallingspr, oldFallSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(drowning_lavaspr, oldLavaDrownSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(sideswimspr, oldSideSwimSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(sideswimslashspr, oldSideSwimSlashSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(sideswimstabspr, oldSideSwimStabSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(sideswimpoundspr, oldSideSwimPoundSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(sideswimchargespr, oldSideSwimChargeSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(sideswimholdspr, oldSideSwimHoldSpr, 4 * 3 * sizeof(int32_t));
 		}
 	} while (ret == 168);
 	

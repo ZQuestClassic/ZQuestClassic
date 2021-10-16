@@ -34,7 +34,7 @@ public:
 	inline constexpr MessageArg(bool value) noexcept: value(value)
 	{}
 
-	inline constexpr MessageArg(int value) noexcept: value(value)
+	inline constexpr MessageArg(int32_t value) noexcept: value(value)
 	{}
 
 	inline constexpr MessageArg(std::string_view value) noexcept: value(value)
@@ -52,9 +52,9 @@ public:
 		return std::get<bool>(value);
 	}
 
-	inline constexpr operator int() const
+	inline constexpr operator int32_t() const
 	{
-		return std::get<int>(value);
+		return std::get<int32_t>(value);
 	}
 
 	inline constexpr operator std::string_view() const
@@ -66,7 +66,7 @@ private:
 	std::variant<
 		std::monostate,
 		bool,
-		int,
+		int32_t,
 		std::string_view
 	> value;
 };
@@ -84,19 +84,19 @@ class MessageDispatcher
 public:
 	MessageDispatcher(
 		std::shared_ptr<Widget> sender,
-		std::function<void(int, MessageArg, std::shared_ptr<Widget>)> send):
+		std::function<void(int32_t, MessageArg, std::shared_ptr<Widget>)> send):
 			sender(sender),
 			send(send)
 	{}
 
-	inline void operator()(int msg, MessageArg arg)
+	inline void operator()(int32_t msg, MessageArg arg)
 	{
 		send(msg, arg, sender);
 	}
 
 private:
 	std::shared_ptr<Widget> sender;
-	std::function<void(int, MessageArg, std::shared_ptr<Widget>)> send;
+	std::function<void(int32_t, MessageArg, std::shared_ptr<Widget>)> send;
 };
 
 }

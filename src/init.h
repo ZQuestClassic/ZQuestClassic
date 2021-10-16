@@ -18,25 +18,25 @@
 typedef struct item_class_struct
 {
     char *s;
-    int i;
+    int32_t i;
 } item_class_struct;
 
 extern item_class_struct biic[itype_max];
 extern const char *itype_names[itype_max];
 extern const char *itype_new_names[itype_max];
 
-extern int biic_cnt;
+extern int32_t biic_cnt;
 void build_biic_list();
 void deallocate_biic_list();
-const char *item_class_list(int index, int *list_size);
+const char *item_class_list(int32_t index, int32_t *list_size);
 
-int jwin_initlist_proc(int msg,DIALOG *d,int c);
-int d_line_proc(int msg, DIALOG *d, int c);
-int d_maxbombsedit_proc(int msg,DIALOG *d,int c);
-int d_bombratio_proc(int msg,DIALOG *d,int c);
+int32_t jwin_initlist_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_line_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t d_maxbombsedit_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_bombratio_proc(int32_t msg,DIALOG *d,int32_t c);
 extern DIALOG init_dlg[];
 extern TABPANEL init_tabs[];
-int doInit(zinitdata *zinit, bool isZC);
+int32_t doInit(zinitdata *zinit, bool isZC);
 void resetItems(gamedata *data, zinitdata *zinit, bool lvlitems);
 #endif
 

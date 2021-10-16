@@ -50,11 +50,11 @@ public:
             
         singleton.isOpen = true;
         
-        const int MAX_CONSOLE_LINES = 512;
+        const int32_t MAX_CONSOLE_LINES = 512;
         
         CONSOLE_SCREEN_BUFFER_INFO console_info;
-        int hConHandle;
-        long lStdHandle;
+        int32_t hConHandle;
+        int32_t lStdHandle;
         
         ::AllocConsole();
         ::SetConsoleTitle("zconsole");
@@ -67,21 +67,21 @@ public:
         
         
         // redirect unbuffered STDOUT to the console
-        lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
+        lStdHandle = (int32_t)GetStdHandle(STD_OUTPUT_HANDLE);
         hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
         *stdout = *_fdopen(hConHandle, "w");
         setvbuf(stdout, NULL, _IONBF, 0);
         
         
         // redirect unbuffered STDIN to the console
-        lStdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
+        lStdHandle = (int32_t)GetStdHandle(STD_INPUT_HANDLE);
         hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
         *stdin = *_fdopen(hConHandle, "r");
         setvbuf(stdin, NULL, _IONBF, 0);
         
         
         // redirect unbuffered STDERR to the console
-        lStdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
+        lStdHandle = (int32_t)GetStdHandle(STD_ERROR_HANDLE);
         hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
         *stderr = *_fdopen(hConHandle, "w");
         setvbuf(stderr, NULL, _IONBF, 0);
@@ -124,11 +124,11 @@ public:
             
         singleton.isOpen = true;
         
-        const int MAX_ZASM_LINES = 32767;
+        const int32_t MAX_ZASM_LINES = 32767;
         
         CONSOLE_SCREEN_BUFFER_INFO console_info;
-        int hConHandle;
-        long lStdHandle;
+        int32_t hConHandle;
+        int32_t lStdHandle;
         
         ::AllocConsole();
         ::SetConsoleTitle("ZASM Stack");
@@ -141,21 +141,21 @@ public:
         
         
         // redirect unbuffered STDOUT to the console
-        lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
+        lStdHandle = (int32_t)GetStdHandle(STD_OUTPUT_HANDLE);
         hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
         *stdout = *_fdopen(hConHandle, "w");
         setvbuf(stdout, NULL, _IONBF, 0);
         
         
         // redirect unbuffered STDIN to the console
-        lStdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
+        lStdHandle = (int32_t)GetStdHandle(STD_INPUT_HANDLE);
         hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
         *stdin = *_fdopen(hConHandle, "r");
         setvbuf(stdin, NULL, _IONBF, 0);
         
         
         // redirect unbuffered STDERR to the console
-        lStdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
+        lStdHandle = (int32_t)GetStdHandle(STD_ERROR_HANDLE);
         hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
         *stderr = *_fdopen(hConHandle, "w");
         setvbuf(stderr, NULL, _IONBF, 0);

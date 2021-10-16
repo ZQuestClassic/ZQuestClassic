@@ -58,8 +58,8 @@
 #include "ffscript.h"
 extern FFScript FFCore;
 extern bool Playing;
-int sfx_voice[WAV_COUNT];
-int d_stringloader(int msg,DIALOG *d,int c);
+int32_t sfx_voice[WAV_COUNT];
+int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c);
 
 byte monochrome_console = 0;
 
@@ -70,7 +70,7 @@ extern ZModule zcm;
 extern zcmodule moduledata;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern particle_list particles;
-extern int loadlast;
+extern int32_t loadlast;
 extern word passive_subscreen_doscript;
 extern bool passive_subscreen_waitdraw;
 byte disable_direct_updating;
@@ -78,7 +78,7 @@ byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
 bool midi_paused=false;
-int paused_midi_pos = 0;
+int32_t paused_midi_pos = 0;
 byte midi_suspended = 0;
 byte callback_switchin = 0;
 byte zc_192b163_warp_compatibility;
@@ -88,10 +88,10 @@ signed char pause_in_background_menu_init = 0;
 byte pause_in_background = 0;
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Link, etc. 
-extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
+extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 //extern byte refresh_select_screen;
 //extern movingblock mblock2; //mblock[4]?
-//extern int db;
+//extern int32_t db;
 
 static const char *ZC_str = "Zelda Classic";
 extern char save_file_name[1024];
@@ -162,20 +162,20 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
     if(!d[0].d1)
     {
         d[0].d1 = 1;
-        int oldwidth = d[0].w;
-        int oldheight = d[0].h;
-        int oldx = d[0].x;
-        int oldy = d[0].y;
-        d[0].x -= int(d[0].w/RESIZE_AMT);
-        d[0].y -= int(d[0].h/RESIZE_AMT);
-        d[0].w = int(d[0].w*RESIZE_AMT);
-        d[0].h = int(d[0].h*RESIZE_AMT);
+        int32_t oldwidth = d[0].w;
+        int32_t oldheight = d[0].h;
+        int32_t oldx = d[0].x;
+        int32_t oldy = d[0].y;
+        d[0].x -= int32_t(d[0].w/RESIZE_AMT);
+        d[0].y -= int32_t(d[0].h/RESIZE_AMT);
+        d[0].w = int32_t(d[0].w*RESIZE_AMT);
+        d[0].h = int32_t(d[0].h*RESIZE_AMT);
         
-        for(int i=1; d[i].proc !=NULL; i++)
+        for(int32_t i=1; d[i].proc !=NULL; i++)
         {
             // Place elements horizontally
             double xpc = ((double)(d[i].x - oldx) / (double)oldwidth);
-            d[i].x = int(d[0].x + (xpc*d[0].w));
+            d[i].x = int32_t(d[0].x + (xpc*d[0].w));
             
             if(d[i].proc != d_stringloader)
             {
@@ -183,28 +183,28 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
                 {
                     d[i].w *= 2;
                 }
-                else d[i].w = int(d[i].w*RESIZE_AMT);
+                else d[i].w = int32_t(d[i].w*RESIZE_AMT);
             }
             
             // Place elements vertically
             double ypc = ((double)(d[i].y - oldy) / (double)oldheight);
-            d[i].y = int(d[0].y + (ypc*d[0].h));
+            d[i].y = int32_t(d[0].y + (ypc*d[0].h));
             
             // Vertically resize elements
             if(d[i].proc == jwin_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc)
             {
-                d[i].h = int((double)d[i].h*1.5);
+                d[i].h = int32_t((double)d[i].h*1.5);
             }
             else if(d[i].proc == jwin_droplist_proc)
             {
-                d[i].y += int((double)d[i].h*0.25);
-                d[i].h = int((double)d[i].h*1.25);
+                d[i].y += int32_t((double)d[i].h*0.25);
+                d[i].h = int32_t((double)d[i].h*1.25);
             }
             else if(d[i].proc==d_bitmap_proc)
             {
                 d[i].h *= 2;
             }
-            else d[i].h = int(d[i].h*RESIZE_AMT);
+            else d[i].h = int32_t(d[i].h*RESIZE_AMT);
             
             // Fix frames
             if(d[i].proc == jwin_frame_proc)
@@ -217,7 +217,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
         }
     }
     
-    for(int i=1; d[i].proc!=NULL; i++)
+    for(int32_t i=1; d[i].proc!=NULL; i++)
     {
         if(d[i].proc==jwin_slider_proc)
             continue;
@@ -253,7 +253,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 
 static char cfg_sect[] = "zeldadx"; //We need to rename this.
 
-int d_dummy_proc(int,DIALOG *,int)
+int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 {
 	return D_O_K;
 }
@@ -284,7 +284,7 @@ void load_game_configs()
     cheat_modifier_keys[2] = get_config_int(cfg_sect,"key_cheatmod_b1",KEY_RSHIFT);
     cheat_modifier_keys[3] = get_config_int(cfg_sect,"key_cheatmod_b2",0);
    
-    if((unsigned int)joystick_index >= MAX_JOYSTICKS)
+    if((uint32_t)joystick_index >= MAX_JOYSTICKS)
         joystick_index = 0;
        
     Akey = get_config_int(cfg_sect,"key_a",KEY_ALT);
@@ -503,15 +503,15 @@ void save_game_configs()
     set_config_int(cfg_sect,"emusic",emusic_volume);
     set_config_int(cfg_sect,"pan",pan_style);
     set_config_int(cfg_sect,"zcmusic_bufsz",zcmusic_bufsz);
-    set_config_int(cfg_sect,"volkeys",(int)volkeys);
+    set_config_int(cfg_sect,"volkeys",(int32_t)volkeys);
     set_config_int(cfg_sect,"vsync",zc_vsync);
-    set_config_int(cfg_sect,"throttlefps", (int)Throttlefps);
-    set_config_int(cfg_sect,"translayers",(int)TransLayers);
+    set_config_int(cfg_sect,"throttlefps", (int32_t)Throttlefps);
+    set_config_int(cfg_sect,"translayers",(int32_t)TransLayers);
     set_config_int(cfg_sect,"snapshot_format",SnapshotFormat);
     set_config_int(cfg_sect,"name_entry_mode",NameEntryMode);
-    set_config_int(cfg_sect,"showfps",(int)ShowFPS);
-    set_config_int(cfg_sect,"fastquit",(int)NESquit);
-    set_config_int(cfg_sect,"clicktofreeze", (int)ClickToFreeze);
+    set_config_int(cfg_sect,"showfps",(int32_t)ShowFPS);
+    set_config_int(cfg_sect,"fastquit",(int32_t)NESquit);
+    set_config_int(cfg_sect,"clicktofreeze", (int32_t)ClickToFreeze);
     set_config_int(cfg_sect,"title",title_version);
     //set_config_int(cfg_sect,"lister_pattern_matching",abc_patternmatch);  //Enable once there is a GUI way to toggle this. 
    
@@ -587,7 +587,7 @@ void fps_callback()
 
 END_OF_FUNCTION(fps_callback)
 
-int Z_init_timers()
+int32_t Z_init_timers()
 {
     static bool didit = false;
     const static char *err_str = "Couldn't allocate timer";
@@ -631,7 +631,7 @@ void comeback()
 
 void dump_pal(BITMAP *dest)
 {
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
         rectfill(dest,(i&63)<<2,(i&0xFC0)>>4,((i&63)<<2)+3,((i&0xFC0)>>4)+3,i);
 }
 
@@ -640,14 +640,14 @@ void show_paused(BITMAP *target)
     //  return;
     char buf[7] = "PAUSED";
     
-    for(int i=0; buf[i]!=0; i++)
+    for(int32_t i=0; buf[i]!=0; i++)
         buf[i]+=0x60;
         
     //  text_mode(-1);
     if(sbig)
     {
-        int x = scrx+40-((screen_scale-1)*120);
-        int y = scry+224+((screen_scale-1)*104);
+        int32_t x = scrx+40-((screen_scale-1)*120);
+        int32_t y = scry+224+((screen_scale-1)*104);
         textout_ex(target,zfont,buf,x,y,-1,-1);
     }
     else
@@ -661,15 +661,15 @@ void show_fps(BITMAP *target)
     //  text_mode(-1);
     sprintf(buf,"%2d/60",lastfps);
     
-    //  sprintf(buf,"%d/%u/%f/%u",lastfps,int(avgfps),avgfps,fps_secs);
-    for(int i=0; buf[i]!=0; i++)
+    //  sprintf(buf,"%d/%u/%f/%u",lastfps,int32_t(avgfps),avgfps,fps_secs);
+    for(int32_t i=0; buf[i]!=0; i++)
         if(buf[i]!=' ')
             buf[i]+=0x60;
             
     if(sbig)
     {
-        int x = scrx+40-((screen_scale-1)*120);
-        int y = scry+216+((screen_scale-1)*104);
+        int32_t x = scrx+40-((screen_scale-1)*120);
+        int32_t y = scry+216+((screen_scale-1)*104);
         textout_ex(target,zfont,buf,x,y,-1,-1);
         // textout_ex(target,zfont,buf,scrx+40-120,scry+216+104,-1,-1);
     }
@@ -686,13 +686,13 @@ void show_saving(BITMAP *target)
     
     char buf[10] = "SAVING...";
     
-    for(int i=0; buf[i]!=0; i++)
+    for(int32_t i=0; buf[i]!=0; i++)
         buf[i]+=0x60;
         
     if(sbig)
     {
-        int x = scrx+200+((screen_scale-1)*120);
-        int y = scry+224+((screen_scale-1)*104);
+        int32_t x = scrx+200+((screen_scale-1)*120);
+        int32_t y = scry+224+((screen_scale-1)*104);
         textout_ex(target,zfont,buf,x,y,-1,-1);
     }
     else
@@ -707,8 +707,8 @@ void load_mouse()
 	system_pal();
 	scare_mouse();
 	set_mouse_sprite(NULL);
-	int sz = vbound(int(16*(is_large ? get_config_float("zeldadx","cursor_scale_large",1) : get_config_float("zeldadx","cursor_scale_small",1))),16,80);
-	for(int j = 0; j < 4; ++j)
+	int32_t sz = vbound(int32_t(16*(is_large ? get_config_float("zeldadx","cursor_scale_large",1) : get_config_float("zeldadx","cursor_scale_small",1))),16,80);
+	for(int32_t j = 0; j < 4; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
 		BITMAP* subbmp = create_bitmap_ex(8,16,16);
@@ -719,11 +719,11 @@ void load_mouse()
 		clear_bitmap(tmpbmp);
 		clear_bitmap(subbmp);
 		blit((BITMAP*)data[BMP_MOUSE].dat,tmpbmp,1,j*17+1,0,0,16,16);
-		for(int x = 0; x < 16; ++x)
+		for(int32_t x = 0; x < 16; ++x)
 		{
-			for(int y = 0; y < 16; ++y)
+			for(int32_t y = 0; y < 16; ++y)
 			{
-				int color = getpixel(tmpbmp, x, y);
+				int32_t color = getpixel(tmpbmp, x, y);
 				switch(color)
 				{
 					case dvc(1):
@@ -755,7 +755,7 @@ void load_mouse()
 }
 
 // sets the video mode and initializes the palette and mouse sprite
-bool game_vid_mode(int mode,int wait)
+bool game_vid_mode(int32_t mode,int32_t wait)
 {
     if(set_gfx_mode(mode,resx,resy,0,0)!=0)
     {
@@ -764,12 +764,12 @@ bool game_vid_mode(int mode,int wait)
     
     scrx = (resx-320)>>1;
     scry = (resy-240)>>1;
-    for(int q = 0; q < 4; ++q)
+    for(int32_t q = 0; q < 4; ++q)
 		zcmouse[q] = NULL;
 	load_mouse();
     set_mouse_sprite(zcmouse[0]);
     
-    for(int i=240; i<256; i++)
+    for(int32_t i=240; i<256; i++)
         RAMpal[i]=((RGB*)data[PAL_GUI].dat)[i];
         
     set_palette(RAMpal);
@@ -1044,12 +1044,12 @@ word screen_triangles[28][32];
 
 
 /*
-  for (int blockrow=0; blockrow<30; ++i)
+  for (int32_t blockrow=0; blockrow<30; ++i)
   {
-  for (int linerow=0; linerow<8; ++i)
+  for (int32_t linerow=0; linerow<8; ++i)
   {
   qword *triangleline=(qword*)(tmp_scr->line[(blockrow*8+linerow)]);
-  for (int blockcolumn=0; blockcolumn<40; ++i)
+  for (int32_t blockcolumn=0; blockcolumn<40; ++i)
   {
   triangleline=triangles[0][screen_triangles[blockrow][blockcolumn]][linerow];
   ++triangleline;
@@ -1059,7 +1059,7 @@ word screen_triangles[28][32];
   */
 
 // the ULL suffixes are to prevent this warning:
-// warning: integer constant is too large for "long" type
+// warning: integer constant is too large for "int32_t" type
 
 qword triangles[4][16][8]= //[direction][value][line]
 {
@@ -1713,17 +1713,17 @@ qword triangles[4][16][8]= //[direction][value][line]
     }
 };
 
-int black_opening_count=0;
-int black_opening_x,black_opening_y;
-int black_opening_shape;
+int32_t black_opening_count=0;
+int32_t black_opening_x,black_opening_y;
+int32_t black_opening_shape;
 
-int choose_opening_shape()
+int32_t choose_opening_shape()
 {
     // First, count how many bits are set
-    int numBits=0;
-    int bitCounter;
+    int32_t numBits=0;
+    int32_t bitCounter;
     
-    for(int i=0; i<bosMAX; i++)
+    for(int32_t i=0; i<bosMAX; i++)
     {
         if(COOLSCROLL&(1<<i))
             numBits++;
@@ -1736,7 +1736,7 @@ int choose_opening_shape()
     // Pick a bit
     bitCounter=zc_rand()%numBits+1;
     
-    for(int i=0; i<bosMAX; i++)
+    for(int32_t i=0; i<bosMAX; i++)
     {
         // If this bit is set, decrement the bit counter
         if(COOLSCROLL&(1<<i))
@@ -1753,19 +1753,19 @@ int choose_opening_shape()
     return bosCIRCLE;
 }
 
-void close_black_opening(int x, int y, bool wait, int shape)
+void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 {
     black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
     
-    int w=256, h=224;
-    int blockrows=28, blockcolumns=32;
-    int xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
+    int32_t w=256, h=224;
+    int32_t blockrows=28, blockcolumns=32;
+    int32_t xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
     
-    for(int blockrow=0; blockrow<blockrows; ++blockrow)  //30
+    for(int32_t blockrow=0; blockrow<blockrows; ++blockrow)  //30
     {
-        for(int blockcolumn=0; blockcolumn<blockcolumns; ++blockcolumn)  //40
+        for(int32_t blockcolumn=0; blockcolumn<blockcolumns; ++blockcolumn)  //40
         {
-            screen_triangles[blockrow][blockcolumn]=zc_max(abs(int(double(blockcolumns-1)/2-blockcolumn+xoffset)),abs(int(double(blockrows-1)/2-blockrow+yoffset)))|0x0100|((blockrow-yoffset<blockrows/2)?0:0x8000)|((blockcolumn-xoffset<blockcolumns/2)?0x4000:0);
+            screen_triangles[blockrow][blockcolumn]=zc_max(abs(int32_t(double(blockcolumns-1)/2-blockcolumn+xoffset)),abs(int32_t(double(blockrows-1)/2-blockrow+yoffset)))|0x0100|((blockrow-yoffset<blockrows/2)?0:0x8000)|((blockcolumn-xoffset<blockcolumns/2)?0x4000:0);
         }
     }
     
@@ -1784,7 +1784,7 @@ void close_black_opening(int x, int y, bool wait, int shape)
     if(wait)
     {
 		FFCore.warpScriptCheck();
-        for(int i=0; i<66; i++)
+        for(int32_t i=0; i<66; i++)
         {
             draw_screen(tmpscr);
             //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
@@ -1799,19 +1799,19 @@ void close_black_opening(int x, int y, bool wait, int shape)
     }
 }
 
-void open_black_opening(int x, int y, bool wait, int shape)
+void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 {
     black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
     
-    int w=256, h=224;
-    int blockrows=28, blockcolumns=32;
-    int xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
+    int32_t w=256, h=224;
+    int32_t blockrows=28, blockcolumns=32;
+    int32_t xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
     
-    for(int blockrow=0; blockrow<blockrows; ++blockrow)  //30
+    for(int32_t blockrow=0; blockrow<blockrows; ++blockrow)  //30
     {
-        for(int blockcolumn=0; blockcolumn<blockcolumns; ++blockcolumn)  //40
+        for(int32_t blockcolumn=0; blockcolumn<blockcolumns; ++blockcolumn)  //40
         {
-            screen_triangles[blockrow][blockcolumn]=zc_max(abs(int(double(blockcolumns-1)/2-blockcolumn+xoffset)),abs(int(double(blockrows-1)/2-blockrow+yoffset)))|0x0100|((blockrow-yoffset<blockrows/2)?0:0x8000)|((blockcolumn-xoffset<blockcolumns/2)?0x4000:0);
+            screen_triangles[blockrow][blockcolumn]=zc_max(abs(int32_t(double(blockcolumns-1)/2-blockcolumn+xoffset)),abs(int32_t(double(blockrows-1)/2-blockrow+yoffset)))|0x0100|((blockrow-yoffset<blockrows/2)?0:0x8000)|((blockcolumn-xoffset<blockcolumns/2)?0x4000:0);
         }
     }
     
@@ -1827,7 +1827,7 @@ void open_black_opening(int x, int y, bool wait, int shape)
     if(wait)
     {
 		FFCore.warpScriptCheck();
-        for(int i=0; i<66; i++)
+        for(int32_t i=0; i<66; i++)
         {
             draw_screen(tmpscr);
             //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
@@ -1842,10 +1842,10 @@ void open_black_opening(int x, int y, bool wait, int shape)
     }
 }
 
-void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
+void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a)
 {
     clear_to_color(tmp_scr,BLACK);
-    int w=256, h=224;
+    int32_t w=256, h=224;
     
     switch(black_opening_shape)
     {
@@ -1854,7 +1854,7 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
         double new_w=(w/2)+abs(w/2-x);
         double new_h=(h/2)+abs(h/2-y);
         double b=sqrt(((new_w*new_w)/4)+(new_h*new_h));
-        ellipsefill(tmp_scr,x,y,int(2*a*b/max_a)/8*8,int(a*b/max_a)/8*8,0);
+        ellipsefill(tmp_scr,x,y,int32_t(2*a*b/max_a)/8*8,int32_t(a*b/max_a)/8*8,0);
         break;
     }
     
@@ -1871,24 +1871,24 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
         double a0=angle;
         double a2=angle+P23;
         double a4=angle+P43;
-        triangle(tmp_scr, x+int(cos(a0)*r), y-int(sin(a0)*r),
-                 x+int(cos(a2)*r), y-int(sin(a2)*r),
-                 x+int(cos(a4)*r), y-int(sin(a4)*r),
+        triangle(tmp_scr, x+int32_t(cos(a0)*r), y-int32_t(sin(a0)*r),
+                 x+int32_t(cos(a2)*r), y-int32_t(sin(a2)*r),
+                 x+int32_t(cos(a4)*r), y-int32_t(sin(a4)*r),
                  0);
         break;
     }
     
     case bosSMAS:
     {
-        int distance=zc_max(abs(w/2-x),abs(h/2-y))/8;
+        int32_t distance=zc_max(abs(w/2-x),abs(h/2-y))/8;
         
-        for(int blockrow=0; blockrow<28; ++blockrow)  //30
+        for(int32_t blockrow=0; blockrow<28; ++blockrow)  //30
         {
-            for(int linerow=0; linerow<8; ++linerow)
+            for(int32_t linerow=0; linerow<8; ++linerow)
             {
                 qword *triangleline=(qword*)(tmp_scr->line[(blockrow*8+linerow)]);
                 
-                for(int blockcolumn=0; blockcolumn<32; ++blockcolumn)  //40
+                for(int32_t blockcolumn=0; blockcolumn<32; ++blockcolumn)  //40
                 {
                     *triangleline=triangles[(screen_triangles[blockrow][blockcolumn]&0xC000)>>14]
                                   [zc_min(zc_max((((31+distance)*(max_a-a)/max_a)+((screen_triangles[blockrow][blockcolumn]&0x0FFF)-0x0100)-(15+distance)),0),15)]
@@ -1924,7 +1924,7 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
     {
         double new_w=(w/2)+abs(w/2-x);
         double new_h=(h/2)+abs(h/2-y);
-        int r=int(sqrt((new_w*new_w)+(new_h*new_h))*a/max_a);
+        int32_t r=int32_t(sqrt((new_w*new_w)+(new_h*new_h))*a/max_a);
         //circlefill(tmp_scr,x,y,a<<3,0);
         circlefill(tmp_scr,x,y,r,0);
         break;
@@ -1935,9 +1935,9 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
 }
 
 
-void black_fade(int fadeamnt)
+void black_fade(int32_t fadeamnt)
 {
-    for(int i=0; i < 0xEF; i++)
+    for(int32_t i=0; i < 0xEF; i++)
     {
         RAMpal[i].r = vbound(tempblackpal[i].r-fadeamnt,0,63);
         RAMpal[i].g = vbound(tempblackpal[i].g-fadeamnt,0,63);
@@ -1949,12 +1949,12 @@ void black_fade(int fadeamnt)
 
 //----------------------------------------------------------------
 
-bool item_disabled(int item)                 //is this item disabled?
+bool item_disabled(int32_t item)                 //is this item disabled?
 {
     return (item>=0 && game->items_off[item] != 0);
 }
 
-bool can_use_item(int item_type, int item)                  //can Link use this item?
+bool can_use_item(int32_t item_type, int32_t item)                  //can Link use this item?
 {
     if(current_item(item_type, true) >=item)
     {
@@ -1964,14 +1964,14 @@ bool can_use_item(int item_type, int item)                  //can Link use this 
     return false;
 }
 
-bool has_item(int item_type, int it)                        //does Link possess this item?
+bool has_item(int32_t item_type, int32_t it)                        //does Link possess this item?
 {
     switch(item_type)
     {
     case itype_bomb:
     case itype_sbomb:
     {
-        int itemid = getItemID(itemsbuf, item_type, it);
+        int32_t itemid = getItemID(itemsbuf, item_type, it);
         
         if(itemid == -1)
             return false;
@@ -1994,7 +1994,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
         {
         case -2:
         {
-            for(int i=0; i<MAXLEVELS; i++)
+            for(int32_t i=0; i<MAXLEVELS; i++)
             {
                 if(game->lvlitems[i]&liTRIFORCE)
                 {
@@ -2028,7 +2028,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
         {
         case -2:
         {
-            for(int i=0; i<MAXLEVELS; i++)
+            for(int32_t i=0; i<MAXLEVELS; i++)
             {
                 if(game->lvlitems[i]&liMAP)
                 {
@@ -2062,7 +2062,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
         {
         case -2:
         {
-            for(int i=0; i<MAXLEVELS; i++)
+            for(int32_t i=0; i<MAXLEVELS; i++)
             {
                 if(game->lvlitems[i]&liCOMPASS)
                 {
@@ -2096,7 +2096,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
         {
         case -2:
         {
-            for(int i=0; i<MAXLEVELS; i++)
+            for(int32_t i=0; i<MAXLEVELS; i++)
             {
                 if(game->lvlitems[i]&liBOSSKEY)
                 {
@@ -2134,7 +2134,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
         
           return false;
         }*/
-        int itemid = getItemID(itemsbuf, item_type, it);
+        int32_t itemid = getItemID(itemsbuf, item_type, it);
         
         if(itemid == -1)
             return false;
@@ -2145,7 +2145,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
 }
 
 
-int current_item(int item_type, bool checkenabled)           //item currently being used
+int32_t current_item(int32_t item_type, bool checkenabled)           //item currently being used
 {
     switch(item_type)
     {
@@ -2164,9 +2164,9 @@ int current_item(int item_type, bool checkenabled)           //item currently be
         
     case itype_triforcepiece:
     {
-        int count=0;
+        int32_t count=0;
         
-        for(int i=0; i<MAXLEVELS; i++)
+        for(int32_t i=0; i<MAXLEVELS; i++)
         {
             count+=(game->lvlitems[i]&liTRIFORCE)?1:0;
         }
@@ -2177,9 +2177,9 @@ int current_item(int item_type, bool checkenabled)           //item currently be
     
     case itype_map:
     {
-        int count=0;
+        int32_t count=0;
         
-        for(int i=0; i<MAXLEVELS; i++)
+        for(int32_t i=0; i<MAXLEVELS; i++)
         {
             count+=(game->lvlitems[i]&liMAP)?1:0;
         }
@@ -2190,9 +2190,9 @@ int current_item(int item_type, bool checkenabled)           //item currently be
     
     case itype_compass:
     {
-        int count=0;
+        int32_t count=0;
         
-        for(int i=0; i<MAXLEVELS; i++)
+        for(int32_t i=0; i<MAXLEVELS; i++)
         {
             count+=(game->lvlitems[i]&liCOMPASS)?1:0;
         }
@@ -2203,9 +2203,9 @@ int current_item(int item_type, bool checkenabled)           //item currently be
     
     case itype_bosskey:
     {
-        int count=0;
+        int32_t count=0;
         
-        for(int i=0; i<MAXLEVELS; i++)
+        for(int32_t i=0; i<MAXLEVELS; i++)
         {
             count+=(game->lvlitems[i]&liBOSSKEY)?1:0;
         }
@@ -2215,7 +2215,7 @@ int current_item(int item_type, bool checkenabled)           //item currently be
     }
     
     default:
-        int maxid = getHighestLevelOfFamily(game, itemsbuf, item_type, checkenabled);
+        int32_t maxid = getHighestLevelOfFamily(game, itemsbuf, item_type, checkenabled);
         
         if(maxid == -1)
             return 0;
@@ -2225,15 +2225,15 @@ int current_item(int item_type, bool checkenabled)           //item currently be
     }
 }
 
-int current_item(int item_type)           //item currently being used
+int32_t current_item(int32_t item_type)           //item currently being used
 {
     return current_item(item_type, true);
 }
 
-std::map<int, int> itemcache;
+std::map<int32_t, int32_t> itemcache;
 
 // Not actually used by anything at the moment...
-void removeFromItemCache(int itemid)
+void removeFromItemCache(int32_t itemid)
 {
     itemcache.erase(itemid);
 }
@@ -2251,20 +2251,20 @@ void flushItemCache()
 }
 
 // This is used often, so it should be as direct as possible.
-int current_item_id(int itemtype, bool checkmagic)
+int32_t current_item_id(int32_t itemtype, bool checkmagic)
 {
     if(itemtype!=itype_ring)  // Rings must always be checked.
     {
-        std::map<int,int>::iterator res = itemcache.find(itemtype);
+        std::map<int32_t,int32_t>::iterator res = itemcache.find(itemtype);
         
         if(res != itemcache.end())
             return res->second;
     }
     
-    int result = -1;
-    int highestlevel = -1;
+    int32_t result = -1;
+    int32_t highestlevel = -1;
     
-    for(int i=0; i<MAXITEMS; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         if(game->get_item(i) && itemsbuf[i].family==itemtype && !item_disabled(i))
         {
@@ -2289,16 +2289,16 @@ int current_item_id(int itemtype, bool checkmagic)
     return result;
 }
 
-int current_item_power(int itemtype)
+int32_t current_item_power(int32_t itemtype)
 {
-    int result = current_item_id(itemtype,true);
+    int32_t result = current_item_id(itemtype,true);
     return (result<0) ? 0 : itemsbuf[result].power;
 }
 
-int item_tile_mod(bool)
+int32_t item_tile_mod(bool)
 {
-    long tile=0;
-    int ret=0;
+    int32_t tile=0;
+    int32_t ret=0;
     
     ret=game->get_bombs();
     
@@ -2459,7 +2459,7 @@ int item_tile_mod(bool)
     
     tile+=ret;
     
-    for(int i=0; i<itype_max; i++)
+    for(int32_t i=0; i<itype_max; i++)
     {
         ret=current_item_id(i,false);
         
@@ -2470,7 +2470,7 @@ int item_tile_mod(bool)
     return tile;
 }
 
-int dmap_tile_mod()
+int32_t dmap_tile_mod()
 {
     return 0;
 }
@@ -2485,18 +2485,18 @@ void draw_lens_under(BITMAP *dest, bool layer)
 	//Lens flag 5: Show Invisible Enemies
 	bool hints = (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2) ? false : (layer && (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1));
 	
-	int strike_hint_table[11]=
+	int32_t strike_hint_table[11]=
 	{
 		mfARROW, mfBOMB, mfBRANG, mfWANDMAGIC,
 		mfSWORD, mfREFMAGIC, mfHOOKSHOT,
 		mfREFFIREBALL, mfHAMMER, mfSWORDBEAM, mfWAND
 	};
 	
-	//  int page = tmpscr->cpage;
+	//  int32_t page = tmpscr->cpage;
 	{
-		int blink_rate=((get_bit(quest_rules,qr_EPILEPSY) || epilepsyFlashReduction)?6:1);
-		//    int temptimer=0;
-		int tempitem, tempweapon=0;
+		int32_t blink_rate=((get_bit(quest_rules,qr_EPILEPSY) || epilepsyFlashReduction)?6:1);
+		//    int32_t temptimer=0;
+		int32_t tempitem, tempweapon=0;
 		strike_hint=strike_hint_table[strike_hint_counter];
 		
 		if(strike_hint_timer>32)
@@ -2507,16 +2507,16 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		
 		++strike_hint_timer;
 		
-		for(int i=0; i<176; i++)
+		for(int32_t i=0; i<176; i++)
 		{
-			int x = (i & 15) << 4;
-			int y = (i & 0xF0) + playing_field_offset;
-			int tempitemx=-16, tempitemy=-16;
-			int tempweaponx=-16, tempweapony=-16;
+			int32_t x = (i & 15) << 4;
+			int32_t y = (i & 0xF0) + playing_field_offset;
+			int32_t tempitemx=-16, tempitemy=-16;
+			int32_t tempweaponx=-16, tempweapony=-16;
 			
-			for(int iter=0; iter<2; ++iter)
+			for(int32_t iter=0; iter<2; ++iter)
 			{
-				int checkflag=0;
+				int32_t checkflag=0;
 				
 				if(iter==0)
 				{
@@ -3602,8 +3602,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
 				if(tmpscr->flags&fWHISTLE)
 				{
 					tempitem=getItemID(itemsbuf,itype_whistle,1);
-					int tempitemx=-16;
-					int tempitemy=-16;
+					int32_t tempitemx=-16;
+					int32_t tempitemy=-16;
 					
 					if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&(blink_rate/4)))
 							|| ((get_debug() && zc_getkey(KEY_N)) && (frame&(blink_rate/4))))
@@ -3625,8 +3625,8 @@ void draw_lens_over()
 {
     // Oh, what the heck.
     static BITMAP *lens_scr = NULL;
-    static int last_width = -1;
-    int width = itemsbuf[current_item_id(itype_lens,true)].misc1;
+    static int32_t last_width = -1;
+    int32_t width = itemsbuf[current_item_id(itype_lens,true)].misc1;
     
     // Only redraw the circle if the size has changed
     if(width != last_width)
@@ -3648,7 +3648,7 @@ void draw_lens_over()
 
 //----------------------------------------------------------------
 
-void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
+void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 {
     //recreating a big bitmap every frame is highly sluggish.
     static BITMAP *wavebuf = create_bitmap_ex(8,288,240-original_playing_field_offset);
@@ -3656,29 +3656,29 @@ void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
     clear_to_color(wavebuf, BLACK);
     blit(source,wavebuf,0,original_playing_field_offset,16,0,256,224-original_playing_field_offset);
     
-    int ofs;
-    //  int amplitude=8;
-    //  int wavelength=4;
+    int32_t ofs;
+    //  int32_t amplitude=8;
+    //  int32_t wavelength=4;
     amplitude = zc_min(2048,amplitude); // some arbitrary limit to prevent crashing
-    int amp2=168;
+    int32_t amp2=168;
     if(epilepsyFlashReduction) amp2*=2;
-    int i=frame%amp2;
+    int32_t i=frame%amp2;
     
-    for(int j=0; j<168; j++)
+    for(int32_t j=0; j<168; j++)
     {
         if(j&1 && interpol)
         {
             // Add 288*2048 to ensure it's never negative. It'll get modded out.
-            ofs=288*2048+int(sin((double(i+j)*2*PI/amp2))*amplitude);
+            ofs=288*2048+int32_t(sin((double(i+j)*2*PI/amp2))*amplitude);
         }
         else
         {
-            ofs=288*2048-int(sin((double(i+j)*2*PI/amp2))*amplitude);
+            ofs=288*2048-int32_t(sin((double(i+j)*2*PI/amp2))*amplitude);
         }
         
         if(ofs)
         {
-            for(int k=0; k<256; k++)
+            for(int32_t k=0; k<256; k++)
             {
                 target->line[j+original_playing_field_offset][k]=wavebuf->line[j][(k+ofs+16)%288];
             }
@@ -3686,10 +3686,10 @@ void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
     }
 }
 
-void draw_fuzzy(int fuzz)
+void draw_fuzzy(int32_t fuzz)
 // draws from right half of scrollbuf to framebuf
 {
-    int firstx, firsty, xstep, ystep, i, y, dx, dy;
+    int32_t firstx, firsty, xstep, ystep, i, y, dx, dy;
     byte *start, *si, *di;
     
     if(fuzz<1)
@@ -3801,7 +3801,7 @@ void updatescr(bool allowwavy)
         create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
         memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
         
-        for(int q=0; q<PAL_SIZE; q++)
+        for(int32_t q=0; q<PAL_SIZE; q++)
         {
             trans_table2.data[0][q] = q;
             trans_table2.data[q][q] = q;
@@ -3851,9 +3851,9 @@ void updatescr(bool allowwavy)
 	    // masked_blit(msg_txt_display_buf,subBmp,0,playing_field_offset,256,168);
 	     draw_trans_sprite(framebuf, subBmp, 0, playing_field_offset);
 	    destroy_bitmap(subBmp);
-	    //void draw_sprite_ex(BITMAP *bmp, BITMAP *sprite, int x, int y, int mode, int flip);
+	    //void draw_sprite_ex(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t mode, int32_t flip);
        // masked_blit(msg_txt_display_buf,framebuf,0,0,0,playing_field_offset,256,168);
-	    //void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+	    //void masked_blit(BITMAP *source, BITMAP *dest, int32_t source_x, int32_t source_y, int32_t dest_x, int32_t dest_y, int32_t width, int32_t height);
     }
     */
     
@@ -3892,11 +3892,11 @@ void updatescr(bool allowwavy)
     if(!sbig && screen_scale > 1)
         sbig = true;
         
-    const int sx = 256 * screen_scale;
-    const int sy = 224 * screen_scale;
-    const int scale_mul = screen_scale - 1;
-    const int mx = scale_mul * 128;
-    const int my = scale_mul * 112;
+    const int32_t sx = 256 * screen_scale;
+    const int32_t sy = 224 * screen_scale;
+    const int32_t scale_mul = screen_scale - 1;
+    const int32_t mx = scale_mul * 128;
+    const int32_t my = scale_mul * 112;
     
     if(sbig)
     {
@@ -3907,7 +3907,7 @@ void updatescr(bool allowwavy)
                 
             stretch_blit(source, scanlinesbmp, 0, 0, 256, 224, 0, 0, sx, sy);
             
-            for(int i=0; i<224; ++i)
+            for(int32_t i=0; i<224; ++i)
                 _allegro_hline(scanlinesbmp, 0, (i*screen_scale)+1, sx, BLACK);
                 
             blit(scanlinesbmp, target, 0, 0, scrx+32-mx, scry+8-my, sx, sy);
@@ -3965,10 +3965,10 @@ void updatescr(bool allowwavy)
 
 PALETTE sys_pal;
 
-int onGUISnapshot()
+int32_t onGUISnapshot()
 {
     char buf[200];
-    int num=0;
+    int32_t num=0;
     bool realpal=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
     
     do
@@ -3999,7 +3999,7 @@ int onGUISnapshot()
 		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
 		memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
 		
-		for(int q=0; q<PAL_SIZE; q++)
+		for(int32_t q=0; q<PAL_SIZE; q++)
 		{
 		    trans_table2.data[0][q] = q;
 		    trans_table2.data[q][q] = q;
@@ -4028,14 +4028,14 @@ int onGUISnapshot()
     return D_O_K;
 }
 
-int onNonGUISnapshot()
+int32_t onNonGUISnapshot()
 {
     PALETTE temppal;
     get_palette(temppal);
     bool realpal=(zc_getkey(KEY_ZC_LCONTROL, true) || zc_getkey(KEY_ZC_RCONTROL, true));
     
     char buf[200];
-    int num=0;
+    int32_t num=0;
     
     do
     {
@@ -4077,7 +4077,7 @@ int onNonGUISnapshot()
     return D_O_K;
 }
 
-int onSnapshot()
+int32_t onSnapshot()
 {
     if(zc_getkey(KEY_LSHIFT, true)||zc_getkey(KEY_RSHIFT, true))
     {
@@ -4091,18 +4091,18 @@ int onSnapshot()
     return D_O_K;
 }
 
-int onSaveMapPic()
+int32_t onSaveMapPic()
 {
-    int mapres2 = 0;
+    int32_t mapres2 = 0;
     char buf[200];
-    int num=0;
+    int32_t num=0;
     mapscr tmpscr_b[2];
     mapscr tmpscr_c[6];
     BITMAP* _screen_draw_buffer = NULL;
     _screen_draw_buffer = create_bitmap_ex(8,256,224);
     set_clip_state(_screen_draw_buffer,1);
     
-    for(int i=0; i<6; ++i)
+    for(int32_t i=0; i<6; ++i)
     {
         tmpscr_c[i] = tmpscr2[i];
         tmpscr2[i].zero_memory();
@@ -4144,9 +4144,9 @@ int onSaveMapPic()
     // draw the map
     set_clip_rect(_screen_draw_buffer, 0, 0, _screen_draw_buffer->w, _screen_draw_buffer->h);
     
-    for(int y=0; y<8; y++)
+    for(int32_t y=0; y<8; y++)
     {
-        for(int x=0; x<16; x++)
+        for(int32_t x=0; x<16; x++)
         {
             if(!displayOnMap(x, y))
             {
@@ -4154,10 +4154,10 @@ int onSaveMapPic()
             }
             else
             {
-                int s = (y<<4) + x;
+                int32_t s = (y<<4) + x;
                 loadscr2(1,s,-1);
                 
-                for(int i=0; i<6; i++)
+                for(int32_t i=0; i<6; i++)
                 {
                     if(tmpscr[1].layermap[i]<=0)
                         continue;
@@ -4165,7 +4165,7 @@ int onSaveMapPic()
                     if((ZCMaps[tmpscr[1].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
                        (ZCMaps[tmpscr[1].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
                     {
-                        const int _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
+                        const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
                         
                         tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
                         
@@ -4201,7 +4201,7 @@ int onSaveMapPic()
         }
     }
     
-    for(int i=0; i<6; ++i)
+    for(int32_t i=0; i<6; ++i)
     {
         tmpscr2[i]=tmpscr_c[i];
         
@@ -4222,14 +4222,14 @@ int onSaveMapPic()
 }
 
 /*
-int onSaveMapPic()
+int32_t onSaveMapPic()
 {
     BITMAP* mappic = NULL;
     BITMAP* _screen_draw_buffer = NULL;
     _screen_draw_buffer = create_bitmap_ex(8,256,224);
-    int mapres2 = 0;
+    int32_t mapres2 = 0;
     char buf[20];
-    int num=0;
+    int32_t num=0;
     set_clip_state(_screen_draw_buffer,1);
     set_clip_rect(_screen_draw_buffer,0,0,_screen_draw_buffer->w, _screen_draw_buffer->h);
     
@@ -4256,15 +4256,15 @@ int onSaveMapPic()
     
     //  }
     
-    int layermap, layerscreen;
-    int x2=0;
+    int32_t layermap, layerscreen;
+    int32_t x2=0;
     
     // draw the map
-    for(int y=0; y<8; y++)
+    for(int32_t y=0; y<8; y++)
     {
-        for(int x=0; x<16; x++)
+        for(int32_t x=0; x<16; x++)
         {
-            int s = (y<<4) + x;
+            int32_t s = (y<<4) + x;
             
             if(!displayOnMap(x, y))
             {
@@ -4275,7 +4275,7 @@ int onSaveMapPic()
                 loadscr(TEMPSCR_FUNCTION_SWAP_SPACE,currdmap,s,-1,false);
                 putscr(_screen_draw_buffer, 0, 0, tmpscr+1);
                 
-                for(int k=0; k<4; k++)
+                for(int32_t k=0; k<4; k++)
                 {
                     if(k==2)
                     {
@@ -4290,14 +4290,14 @@ int onSaveMapPic()
                         
                         if(TheMaps[currmap*MAPSCRS+s].layeropacity[k]==255)
                         {
-                            for(int i=0; i<176; i++)
+                            for(int32_t i=0; i<176; i++)
                             {
                                 overcombo(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
                             }
                         }
                         else
                         {
-                            for(int i=0; i<176; i++)
+                            for(int32_t i=0; i<176; i++)
                             {
                                 overcombotranslucent(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
                             }
@@ -4305,7 +4305,7 @@ int onSaveMapPic()
                     }
                 }
                 
-                for(int i=0; i<176; i++)
+                for(int32_t i=0; i<176; i++)
                 {
 //          if (COMBOTYPE((i&15)<<4,i&0xF0)==cOLD_OVERHEAD)
                     if(combo_class_buf[COMBOTYPE((i&15)<<4,i&0xF0)].overhead)
@@ -4314,7 +4314,7 @@ int onSaveMapPic()
                     }
                 }
                 
-                for(int k=4; k<6; k++)
+                for(int32_t k=4; k<6; k++)
                 {
                     layermap=TheMaps[currmap*MAPSCRS+s].layermap[k]-1;
                     
@@ -4324,14 +4324,14 @@ int onSaveMapPic()
                         
                         if(TheMaps[currmap*MAPSCRS+s].layeropacity[k]==255)
                         {
-                            for(int i=0; i<176; i++)
+                            for(int32_t i=0; i<176; i++)
                             {
                                 overcombo(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
                             }
                         }
                         else
                         {
-                            for(int i=0; i<176; i++)
+                            for(int32_t i=0; i<176; i++)
                             {
                                 overcombotranslucent(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
                             }
@@ -4353,7 +4353,7 @@ int onSaveMapPic()
 }
 */
 
-void f_Quit(int type)
+void f_Quit(int32_t type)
 {
     if(type==qQUIT && !Playing)
         return;
@@ -4401,7 +4401,7 @@ void f_Quit(int type)
 
 //----------------------------------------------------------------
 
-int onNoWalls()
+int32_t onNoWalls()
 {
     toogam = !toogam;
     
@@ -4414,15 +4414,15 @@ int onNoWalls()
     return D_O_K;
 }
 
-int onIgnoreSideview()
+int32_t onIgnoreSideview()
 {
     ignoreSideview = !ignoreSideview;
     return D_O_K;
 }
 
-int input_idle(bool checkmouse)
+int32_t input_idle(bool checkmouse)
 {
-    static int mx, my, mz, mb;
+    static int32_t mx, my, mz, mb;
     
     if(keypressed() || zc_key_pressed() ||
        (checkmouse && (mx != gui_mouse_x() || my != gui_mouse_y() || mz != gui_mouse_z() || mb != gui_mouse_b())))
@@ -4448,15 +4448,15 @@ int input_idle(bool checkmouse)
     return idle_count;
 }
 
-int onGoFast()
+int32_t onGoFast()
 {
     gofast=gofast?false:true;
     return D_O_K;
 }
 
-int onKillCheat()
+int32_t onKillCheat()
 {
-    for(int i=0; i<guys.Count(); i++)
+    for(int32_t i=0; i<guys.Count(); i++)
     {
         if(!(((enemy*)guys.spr(i))->flags & guy_doesntcount))((enemy*)guys.spr(i))->kickbucket();
     }
@@ -4464,93 +4464,93 @@ int onKillCheat()
     return D_O_K;
 }
 
-int onShowLayer0()
+int32_t onShowLayer0()
 {
     show_layer_0 = !show_layer_0;
     return D_O_K;
 }
-int onShowLayer1()
+int32_t onShowLayer1()
 {
     show_layer_1 = !show_layer_1;
     return D_O_K;
 }
-int onShowLayer2()
+int32_t onShowLayer2()
 {
     show_layer_2 = !show_layer_2;
     return D_O_K;
 }
-int onShowLayer3()
+int32_t onShowLayer3()
 {
     show_layer_3 = !show_layer_3;
     return D_O_K;
 }
-int onShowLayer4()
+int32_t onShowLayer4()
 {
     show_layer_4 = !show_layer_4;
     return D_O_K;
 }
-int onShowLayer5()
+int32_t onShowLayer5()
 {
     show_layer_5 = !show_layer_5;
     return D_O_K;
 }
-int onShowLayer6()
+int32_t onShowLayer6()
 {
     show_layer_6 = !show_layer_6;
     return D_O_K;
 }
-int onShowLayerO()
+int32_t onShowLayerO()
 {
     show_layer_over=!show_layer_over;
     return D_O_K;
 }
-int onShowLayerP()
+int32_t onShowLayerP()
 {
     show_layer_push=!show_layer_push;
     return D_O_K;
 }
-int onShowLayerS()
+int32_t onShowLayerS()
 {
     show_sprites=!show_sprites;
     return D_O_K;
 }
-int onShowLayerF()
+int32_t onShowLayerF()
 {
     show_ffcs=!show_ffcs;
     return D_O_K;
 }
-int onShowLayerW()
+int32_t onShowLayerW()
 {
     show_walkflags=!show_walkflags;
     return D_O_K;
 }
-int onShowLayerE()
+int32_t onShowLayerE()
 {
     show_effectflags=!show_effectflags;
     return D_O_K;
 }
-int onShowFFScripts()
+int32_t onShowFFScripts()
 {
     show_ff_scripts=!show_ff_scripts;
     return D_O_K;
 }
-int onShowHitboxes()
+int32_t onShowHitboxes()
 {
     show_hitboxes=!show_hitboxes;
     return D_O_K;
 }
 
-int onLightSwitch()
+int32_t onLightSwitch()
 {
     do_cheat_light=true;
     return D_O_K;
 }
 
-int onGoTo();
-int onGoToComplete();
+int32_t onGoTo();
+int32_t onGoToComplete();
 
 // Used in syskeys() to prevent keys from being read as both game and system input
-/*static int storedInput[14];
+/*static int32_t storedInput[14];
 static void backupAndClearInput()
 {
     storedInput[0]=key[DUkey];
@@ -4606,7 +4606,7 @@ void syskeys()
 	  //Saffith's method of separating system and game key bindings. Can't do this!!
     //backupAndClearInput(); //This caused input to become randomly 'stuck'. -Z
     
-    int oldtitle_version;
+    int32_t oldtitle_version;
     
     if(close_button_quit)
     {
@@ -5023,7 +5023,7 @@ void zapout()
     script_drawing_commands.Clear();
     
     // zap out
-    for(int i=1; i<=24; i++)
+    for(int32_t i=1; i<=24; i++)
     {
         draw_fuzzy(i);
         syskeys();
@@ -5045,7 +5045,7 @@ void zapin()
     blit(framebuf,scrollbuf,0,0,256,0,256,224);
     
     // zap out
-    for(int i=24; i>=1; i--)
+    for(int32_t i=24; i>=1; i--)
     {
         draw_fuzzy(i);
         syskeys();
@@ -5070,19 +5070,19 @@ void wavyout(bool showlink)
     
     PALETTE wavepal;
     
-    int ofs;
-    int amplitude=8;
+    int32_t ofs;
+    int32_t amplitude=8;
     
-    int wavelength=4;
+    int32_t wavelength=4;
     double palpos=0, palstep=4, palstop=126;
     
-    for(int i=0; i<168; i+=wavelength)
+    for(int32_t i=0; i<168; i+=wavelength)
     {
-        for(int l=0; l<256; l++)
+        for(int32_t l=0; l<256; l++)
         {
-            wavepal[l].r=vbound(int(RAMpal[l].r+((palpos/palstop)*(63-RAMpal[l].r))),0,63);
-            wavepal[l].g=vbound(int(RAMpal[l].g+((palpos/palstop)*(63-RAMpal[l].g))),0,63);
-            wavepal[l].b=vbound(int(RAMpal[l].b+((palpos/palstop)*(63-RAMpal[l].b))),0,63);
+            wavepal[l].r=vbound(int32_t(RAMpal[l].r+((palpos/palstop)*(63-RAMpal[l].r))),0,63);
+            wavepal[l].g=vbound(int32_t(RAMpal[l].g+((palpos/palstop)*(63-RAMpal[l].g))),0,63);
+            wavepal[l].b=vbound(int32_t(RAMpal[l].b+((palpos/palstop)*(63-RAMpal[l].b))),0,63);
         }
         
         palpos+=palstep;
@@ -5096,15 +5096,15 @@ void wavyout(bool showlink)
             set_palette(RAMpal);
         }
         
-        for(int j=0; j+playing_field_offset<224; j++)
+        for(int32_t j=0; j+playing_field_offset<224; j++)
         {
-            for(int k=0; k<256; k++)
+            for(int32_t k=0; k<256; k++)
             {
                 ofs=0;
                 
                 if((j<i)&&(j&1))
                 {
-                    ofs=int(sin((double(i+j)*2*PI/168.0))*amplitude);
+                    ofs=int32_t(sin((double(i+j)*2*PI/168.0))*amplitude);
                 }
                 
                 framebuf->line[j+playing_field_offset][k]=wavebuf->line[j+playing_field_offset][k+ofs+16];
@@ -5141,18 +5141,18 @@ void wavyin()
       ringcolor(false);
     */
     refreshpal=false;
-    int ofs;
-    int amplitude=8;
-    int wavelength=4;
+    int32_t ofs;
+    int32_t amplitude=8;
+    int32_t wavelength=4;
     double palpos=168, palstep=4, palstop=126;
     
-    for(int i=0; i<168; i+=wavelength)
+    for(int32_t i=0; i<168; i+=wavelength)
     {
-        for(int l=0; l<256; l++)
+        for(int32_t l=0; l<256; l++)
         {
-            wavepal[l].r=vbound(int(RAMpal[l].r+((palpos/palstop)*(63-RAMpal[l].r))),0,63);
-            wavepal[l].g=vbound(int(RAMpal[l].g+((palpos/palstop)*(63-RAMpal[l].g))),0,63);
-            wavepal[l].b=vbound(int(RAMpal[l].b+((palpos/palstop)*(63-RAMpal[l].b))),0,63);
+            wavepal[l].r=vbound(int32_t(RAMpal[l].r+((palpos/palstop)*(63-RAMpal[l].r))),0,63);
+            wavepal[l].g=vbound(int32_t(RAMpal[l].g+((palpos/palstop)*(63-RAMpal[l].g))),0,63);
+            wavepal[l].b=vbound(int32_t(RAMpal[l].b+((palpos/palstop)*(63-RAMpal[l].b))),0,63);
         }
         
         palpos-=palstep;
@@ -5166,15 +5166,15 @@ void wavyin()
             set_palette(RAMpal);
         }
         
-        for(int j=0; j+playing_field_offset<224; j++)
+        for(int32_t j=0; j+playing_field_offset<224; j++)
         {
-            for(int k=0; k<256; k++)
+            for(int32_t k=0; k<256; k++)
             {
                 ofs=0;
                 
                 if((j<(167-i))&&(j&1))
                 {
-                    ofs=int(sin((double(i+j)*2*PI/168.0))*amplitude);
+                    ofs=int32_t(sin((double(i+j)*2*PI/168.0))*amplitude);
                 }
                 
                 framebuf->line[j+playing_field_offset][k]=wavebuf->line[j+playing_field_offset][k+ofs+16];
@@ -5192,7 +5192,7 @@ void wavyin()
     destroy_bitmap(wavebuf);
 }
 
-void blackscr(int fcnt,bool showsubscr)
+void blackscr(int32_t fcnt,bool showsubscr)
 {
     reset_pal_cycling();
     script_drawing_commands.Clear();
@@ -5221,7 +5221,7 @@ void blackscr(int fcnt,bool showsubscr)
     }
 }
 
-void openscreen(int shape)
+void openscreen(int32_t shape)
 {
     reset_pal_cycling();
     black_opening_count=0;
@@ -5240,10 +5240,10 @@ void openscreen(int shape)
         show_subscreen_life=false;
     }
     
-    int x=128;
+    int32_t x=128;
     
 	FFCore.warpScriptCheck();
-    for(int i=0; i<80; i++)
+    for(int32_t i=0; i<80; i++)
     {
         draw_screen(tmpscr);
         //? draw_screen already draws the subscreen -DD
@@ -5281,7 +5281,7 @@ void openscreen(int shape)
     show_subscreen_dmap_dots=true;
 }
 
-void closescreen(int shape)
+void closescreen(int32_t shape)
 {
     reset_pal_cycling();
     black_opening_count=0;
@@ -5300,10 +5300,10 @@ void closescreen(int shape)
         show_subscreen_life=false;
     }
     
-    int x=128;
+    int32_t x=128;
     
 	FFCore.warpScriptCheck();
-    for(int i=79; i>=0; --i)
+    for(int32_t i=79; i>=0; --i)
     {
         draw_screen(tmpscr);
         //? draw_screen already draws the subscreen -DD
@@ -5341,20 +5341,20 @@ void closescreen(int shape)
     show_subscreen_dmap_dots=true;
 }
 
-int TriforceCount()
+int32_t TriforceCount()
 {
-    int c=0;
+    int32_t c=0;
     
-    for(int i=1; i<=8; i++)
+    for(int32_t i=1; i<=8; i++)
         if(game->lvlitems[i]&liTRIFORCE)
             ++c;
             
     return c;
 }
 
-int onCustomGame()
+int32_t onCustomGame()
 {
-    int file =  getsaveslot();
+    int32_t file =  getsaveslot();
     
     if(file < 0)
         return D_O_K;
@@ -5363,29 +5363,29 @@ int onCustomGame()
     return ret ? D_CLOSE : D_O_K;
 }
 
-int onContinue()
+int32_t onContinue()
 {
     return D_CLOSE;
 }
 
-int onEsc() // Unused?? -L
+int32_t onEsc() // Unused?? -L
 {
     return zc_getrawkey(KEY_ESC, true)?D_CLOSE:D_O_K;
 }
 
-int onVsync()
+int32_t onVsync()
 {
     Throttlefps = !Throttlefps;
     return D_O_K;
 }
 
-int onClickToFreeze()
+int32_t onClickToFreeze()
 {
     ClickToFreeze = !ClickToFreeze;
     return D_O_K;
 }
 
-int OnSaveZCConfig()
+int32_t OnSaveZCConfig()
 {
 	if(jwin_alert3(
 			"Save Configuration", 
@@ -5406,7 +5406,7 @@ int OnSaveZCConfig()
 	else return D_O_K;
 }
 
-int OnnClearQuestDir()
+int32_t OnnClearQuestDir()
 {
 	if(jwin_alert3(
 			"Clear Current Directory Cache", 
@@ -5431,7 +5431,7 @@ int OnnClearQuestDir()
 	else return D_O_K;
 }
 
-int onDebugConsole()
+int32_t onDebugConsole()
 {
 	if ( !zconsole ) {
 		if(jwin_alert3(
@@ -5468,7 +5468,7 @@ int onDebugConsole()
 }
 
 
-int onConsoleZASM()
+int32_t onConsoleZASM()
 {
 	if ( !zasm_debugger ) {
 		if(jwin_alert3(
@@ -5503,7 +5503,7 @@ int onConsoleZASM()
 }
 
 
-int onConsoleZScript()
+int32_t onConsoleZScript()
 {
 	if ( !zscript_debugger ) {
 		if(jwin_alert3(
@@ -5538,31 +5538,31 @@ int onConsoleZScript()
 }
 
 
-int onFrameSkip()
+int32_t onFrameSkip()
 {
     FrameSkip = !FrameSkip;
     return D_O_K;
 }
 
-int onTransLayers()
+int32_t onTransLayers()
 {
     TransLayers = !TransLayers;
     return D_O_K;
 }
 
-int onNESquit()
+int32_t onNESquit()
 {
     NESquit = !NESquit;
     return D_O_K;
 }
 
-int onVolKeys()
+int32_t onVolKeys()
 {
     volkeys = !volkeys;
     return D_O_K;
 }
 
-int onShowFPS()
+int32_t onShowFPS()
 {
     ShowFPS = !ShowFPS;
     scare_mouse();
@@ -5582,7 +5582,7 @@ int onShowFPS()
     return D_O_K;
 }
 
-bool is_Fkey(int k)
+bool is_Fkey(int32_t k)
 {
     switch(k)
     {
@@ -5617,14 +5617,14 @@ void kb_getkey(DIALOG *d)
     unscare_mouse();
     
     clear_keybuf();
-    int k = next_press_key();
+    int32_t k = next_press_key();
     clear_keybuf();
     
     //shnarf
     //47=f1
     //59=esc
     if(k>0 && k<123 && !((k>46)&&(k<60)))
-        *((int*)d->dp3) = k;
+        *((int32_t*)d->dp3) = k;
         
         
     d->flags&=~D_SELECTED;
@@ -5645,15 +5645,15 @@ void kb_clearjoystick(DIALOG *d)
     unscare_mouse();
     
     clear_keybuf();
-    int k = next_press_key();
+    int32_t k = next_press_key();
     clear_keybuf();
     
     //shnarf
     //47=f1
     //59=esc
 //    if(k>0 && k<123 && !((k>46)&&(k<60)))
-//        *((int*)d->dp3) = k;
-	if ( k != 59 ) *((int*)d->dp3) = 0;
+//        *((int32_t*)d->dp3) = k;
+	if ( k != 59 ) *((int32_t*)d->dp3) = 0;
         
         
     d->flags&=~D_SELECTED;
@@ -5674,22 +5674,22 @@ void kb_clearkey(DIALOG *d)
     unscare_mouse();
     
     clear_keybuf();
-    int k = next_press_key();
+    int32_t k = next_press_key();
     clear_keybuf();
     
     //shnarf
     //47=f1
     //59=esc
 //    if(k>0 && k<123 && !((k>46)&&(k<60)))
-//        *((int*)d->dp3) = k;
-	if ( k != 59 ) *((int*)d->dp3) = 0;
+//        *((int32_t*)d->dp3) = k;
+	if ( k != 59 ) *((int32_t*)d->dp3) = 0;
         
         
     d->flags&=~D_SELECTED;
 }
 
 
-int d_j_clearbutton_proc(int msg,DIALOG *d,int c)
+int32_t d_j_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -5707,7 +5707,7 @@ int d_j_clearbutton_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg,d,c);
 }
 
-int d_kbutton_proc(int msg,DIALOG *d,int c)
+int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -5726,7 +5726,7 @@ int d_kbutton_proc(int msg,DIALOG *d,int c)
 }
 
 //Only used in keyboard settings dialogues to clear keys. 
-int d_k_clearbutton_proc(int msg,DIALOG *d,int c)
+int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -5751,16 +5751,16 @@ void j_getbtn(DIALOG *d)
     jwin_button_proc(MSG_DRAW,d,0);
     jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 160, 48, FR_WIN);
     //  text_mode(vc(11));
-    int y = resy/2 - 12;
+    int32_t y = resy/2 - 12;
     textout_centre_ex(screen, font, "Press a button", resx/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     textout_centre_ex(screen, font, "ESC to cancel", resx/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     textout_centre_ex(screen, font, "SPACE to disable", resx/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
     
-    int b = next_press_btn();
+    int32_t b = next_press_btn();
     
     if(b>=0)
-        *((int*)d->dp3) = b;
+        *((int32_t*)d->dp3) = b;
         
     d->flags&=~D_SELECTED;
     
@@ -5770,7 +5770,7 @@ void j_getbtn(DIALOG *d)
     player->joy_on = TRUE;
 }
 
-int d_jbutton_proc(int msg,DIALOG *d,int c)
+int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -5827,12 +5827,12 @@ const char *key_str[] =
 
 
 const char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
-//extern int zcmusic_bufsz;
+//extern int32_t zcmusic_bufsz;
 
 static char str_a[80],str_b[80],str_s[80],str_m[80],str_l[80],str_r[80],str_p[80],str_ex1[80],str_ex2[80],str_ex3[80],str_ex4[80],
 	str_leftmod1[80],str_leftmod2[80],str_rightmod1[80],str_rightmod2[80], str_left[80], str_right[80], str_up[80], str_down[80];
 
-int d_stringloader(int msg,DIALOG *d,int c)
+int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
@@ -5902,9 +5902,9 @@ int d_stringloader(int msg,DIALOG *d,int c)
 	return D_O_K;
 }
 
-int set_vol(void *dp3, int d2)
+int32_t set_vol(void *dp3, int32_t d2)
 {
-    switch(((int*)dp3)[0])
+    switch(((int32_t*)dp3)[0])
     {
     case 0:
         midi_volume   = zc_min(d2<<3,255);
@@ -5925,32 +5925,32 @@ int set_vol(void *dp3, int d2)
     
     scare_mouse();
     // text_mode(vc(11));
-    textprintf_right_ex(screen,is_large ? lfont_l : font, ((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
+    textprintf_right_ex(screen,is_large ? lfont_l : font, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
     unscare_mouse();
     return D_O_K;
 }
 
-int set_pan(void *dp3, int d2)
+int32_t set_pan(void *dp3, int32_t d2)
 {
     pan_style = vbound(d2,0,3);
     scare_mouse();
     // text_mode(vc(11));
-    textout_right_ex(screen,is_large ? lfont_l : font, pan_str[pan_style],((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_right_ex(screen,is_large ? lfont_l : font, pan_str[pan_style],((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
     return D_O_K;
 }
 
-int set_buf(void *dp3, int d2)
+int32_t set_buf(void *dp3, int32_t d2)
 {
     scare_mouse();
     // text_mode(vc(11));
     zcmusic_bufsz = d2 + 1;
-    textprintf_right_ex(screen,is_large ? lfont_l : font, ((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
+    textprintf_right_ex(screen,is_large ? lfont_l : font, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
     unscare_mouse();
     return D_O_K;
 }
 
-static int gamepad_btn_list[] =
+static int32_t gamepad_btn_list[] =
 {
     6,
 	7,8,9,10,11,12,13,14,15,16,17,
@@ -5959,7 +5959,7 @@ static int gamepad_btn_list[] =
 	-1
 };
 
-static int gamepad_dirs_list[] =
+static int32_t gamepad_dirs_list[] =
 {
     40,41,42,43,
 	44,45,46,47,
@@ -6049,7 +6049,7 @@ static DIALOG gamepad_dlg[] =
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static int keyboard_keys_list[] =
+static int32_t keyboard_keys_list[] =
 {
     6,7,8,9,10,
 	11,12,13,14,15,16,17,18,19,20,
@@ -6058,7 +6058,7 @@ static int keyboard_keys_list[] =
 	-1
 };
 
-static int keyboard_dirs_list[] =
+static int32_t keyboard_dirs_list[] =
 {
     41,42,43,44,
 	45,46,47,48,
@@ -6067,7 +6067,7 @@ static int keyboard_dirs_list[] =
 	-1
 };
 
-static int keyboard_mods_list[] =
+static int32_t keyboard_mods_list[] =
 {
     57,58,59,60,
 	61,62,63,64,
@@ -6181,17 +6181,17 @@ static DIALOG keyboard_control_dlg[] =
 };
 
 /*
-int midi_dp[3] = {0,147,104};
-int digi_dp[3] = {1,147,120};
-int pan_dp[3]  = {0,147,136};
-int buf_dp[3]  = {0,147,152};
+int32_t midi_dp[3] = {0,147,104};
+int32_t digi_dp[3] = {1,147,120};
+int32_t pan_dp[3]  = {0,147,136};
+int32_t buf_dp[3]  = {0,147,152};
 */
-int midi_dp[3] = {0,0,0};
-int digi_dp[3] = {1,0,0};
-int emus_dp[3] = {2,0,0};
-int buf_dp[3]  = {0,0,0};
-int sfx_dp[3]  = {3,0,0};
-int pan_dp[3]  = {0,0,0};
+int32_t midi_dp[3] = {0,0,0};
+int32_t digi_dp[3] = {1,0,0};
+int32_t emus_dp[3] = {2,0,0};
+int32_t buf_dp[3]  = {0,0,0};
+int32_t sfx_dp[3]  = {3,0,0};
+int32_t pan_dp[3]  = {0,0,0};
 
 static DIALOG sound_dlg[] =
 {
@@ -6423,7 +6423,7 @@ static DIALOG items_dlg[] =
 bool zc_getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
 {
     go();
-    int ret=0;
+    int32_t ret=0;
     ret = zc_getname_nogo(prompt,ext,list,def,usefilename);
     comeback();
     return ret != 0;
@@ -6437,15 +6437,15 @@ bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const cha
         
     if(!usefilename)
     {
-        int i=(int)strlen(modulepath);
+        int32_t i=(int32_t)strlen(modulepath);
         
         while(i>=0 && modulepath[i]!='\\' && modulepath[i]!='/')
             modulepath[i--]=0;
     }
     
-    //  int ret = file_select_ex(prompt,modulepath,ext,255,-1,-1);
-    int ret=0;
-    int sel=0;
+    //  int32_t ret = file_select_ex(prompt,modulepath,ext,255,-1,-1);
+    int32_t ret=0;
+    int32_t sel=0;
     
     if(list==NULL)
     {
@@ -6459,7 +6459,7 @@ bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const cha
     return ret!=0;
 }
 
-int onIgnore_Module()
+int32_t onIgnore_Module()
 {
 	if(jwin_alert3(
 			"Ignore Module", 
@@ -6482,7 +6482,7 @@ int onIgnore_Module()
 }
 
 //The Dialogue that loads a ZMOD Module File
-int zc_load_zmod_module_file()
+int32_t zc_load_zmod_module_file()
 {
     if ( Playing )
     {
@@ -6551,7 +6551,7 @@ static const char months[13][13] =
 	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
 };
 
-static std::string dayextension(int dy)
+static std::string dayextension(int32_t dy)
 { 
 	char temp[6]; 
 	switch(dy)
@@ -6584,7 +6584,7 @@ static std::string dayextension(int dy)
 } 
 
 
-void about_zcplayer_module(const char *prompt,int initialval)
+void about_zcplayer_module(const char *prompt,int32_t initialval)
 {	
 	
 	module_info_dlg[0].dp2 = lfont;
@@ -6633,13 +6633,13 @@ void about_zcplayer_module(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(module_info_dlg);
 	
-	int ret = zc_popup_dialog(module_info_dlg,-1);
+	int32_t ret = zc_popup_dialog(module_info_dlg,-1);
 	jwin_center_dialog(module_info_dlg);
 	
 	
 }
 
-int onAbout_ZCP_Module()
+int32_t onAbout_ZCP_Module()
 {
 	about_zcplayer_module("About Module (.zmod)", 0);
 	return D_O_K;
@@ -6683,7 +6683,7 @@ static DIALOG goto_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onGoTo()
+int32_t onGoTo()
 {
     bool music = false;
     music = music;
@@ -6708,7 +6708,7 @@ int onGoTo()
     return D_O_K;
 }
 
-int onGoToComplete()
+int32_t onGoToComplete()
 {
     if(!Playing)
     {
@@ -6731,7 +6731,7 @@ int onGoToComplete()
     return D_O_K;
 }
 
-int onCredits()
+int32_t onCredits()
 {
     go();
     
@@ -6740,9 +6740,9 @@ int onCredits()
     if(!win)
         return D_O_K;
         
-    int c=0;
-    int l=0;
-    int ol=-1;
+    int32_t c=0;
+    int32_t l=0;
+    int32_t ol=-1;
     RLE_SPRITE *rle = (RLE_SPRITE*)(data[RLE_CREDITS].dat);
     RGB *pal = (RGB*)(data[PAL_CREDITS].dat);
     PALETTE tmppal;
@@ -6792,20 +6792,20 @@ int onCredits()
     return D_O_K;
 }
 
-const char *midilist(int index, int *list_size)
+const char *midilist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
         *list_size=0;
         
-        for(int i=0; i<MAXMIDIS; i++)
+        for(int32_t i=0; i<MAXMIDIS; i++)
             if(tunes[i].data)
                 ++(*list_size);
                 
         return NULL;
     }
     
-    int i=0,m=0;
+    int32_t i=0,m=0;
     
     while(m<=index && i<=MAXMIDIS)
     {
@@ -6830,12 +6830,12 @@ midi_info *zmi;
 bool dialog_running;
 bool listening;
 
-void get_info(int index);
+void get_info(int32_t index);
 
-int d_midilist_proc(int msg,DIALOG *d,int c)
+int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int d2 = d->d2;
-    int ret = jwin_droplist_proc(msg,d,c);
+    int32_t d2 = d->d2;
+    int32_t ret = jwin_droplist_proc(msg,d,c);
     
     if(d2!=d->d2)
     {
@@ -6845,17 +6845,17 @@ int d_midilist_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_listen_proc(int msg,DIALOG *d,int c)
+int32_t d_listen_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     /* 'd->d1' is offset from 'd' in DIALOG array to midilist proc */
     
-    int ret = jwin_button_proc(msg,d,c);
+    int32_t ret = jwin_button_proc(msg,d,c);
     
     if(ret == D_CLOSE)
     {
         // get current midi index
-        int index = (d+(d->d1))->d2;
-        int i=0, m=0;
+        int32_t index = (d+(d->d1))->d2;
+        int32_t i=0, m=0;
         
         while(m<=index && i<=MAXMIDIS)
         {
@@ -6874,17 +6874,17 @@ int d_listen_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_savemidi_proc(int msg,DIALOG *d,int c)
+int32_t d_savemidi_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     /* 'd->d1' is offset from 'd' in DIALOG array to midilist proc */
     
-    int ret = jwin_button_proc(msg,d,c);
+    int32_t ret = jwin_button_proc(msg,d,c);
     
     if(ret == D_CLOSE)
     {
         // get current midi index
-        int index = (d+(d->d1))->d2;
-        int i=0, m=0;
+        int32_t index = (d+(d->d1))->d2;
+        int32_t i=0, m=0;
         
         while(m<=index && i<=MAXMIDIS)
         {
@@ -6898,7 +6898,7 @@ int d_savemidi_proc(int msg,DIALOG *d,int c)
         
         // get file name
         
-        int  sel=0;
+        int32_t  sel=0;
         //struct ffblk f;
         char title[40] = "Save MIDI: ";
         char fname[2048];
@@ -6951,9 +6951,9 @@ static DIALOG midi_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void get_info(int index)
+void get_info(int32_t index)
 {
-    int i=0, m=0;
+    int32_t i=0, m=0;
     
     while(m<=index && i<=MAXMIDIS)
     {
@@ -6987,7 +6987,7 @@ void get_info(int index)
     }
 }
 
-int onMIDICredits()
+int32_t onMIDICredits()
 {
     text = (char*)zc_malloc(4096);
     zmi = (midi_info*)zc_malloc(sizeof(midi_info));
@@ -7025,7 +7025,7 @@ int onMIDICredits()
 }
 
 #include "dialog/info.h"
-int onAbout()
+int32_t onAbout()
 {
 	char buf1[80]={0};
 	std::ostringstream oss;
@@ -7066,7 +7066,7 @@ int onAbout()
     return D_O_K;
 }
 
-int onQuest()
+int32_t onQuest()
 {
     char fname[100];
     strcpy(fname, get_filename(qstpath));
@@ -7090,9 +7090,9 @@ int onQuest()
     return D_O_K;
 }
 
-int onVidMode()
+int32_t onVidMode()
 {
-    int VidMode=gfx_driver->id;
+    int32_t VidMode=gfx_driver->id;
 #ifdef ALLEGRO_DOS
     
     switch(VidMode)
@@ -7204,7 +7204,7 @@ enum uKey
 	num_ukey
 };
 
-static void load_ukeys(int* arr)
+static void load_ukeys(int32_t* arr)
 {
 	arr[ukey_a] = Akey;
 	arr[ukey_b] = Bkey;
@@ -7226,7 +7226,7 @@ static void load_ukeys(int* arr)
 	arr[ukey_mod2b] = cheat_modifier_keys[3];
 };
 
-static std::string get_ukey_name(int k)
+static std::string get_ukey_name(int32_t k)
 {
 	switch(k)
 	{
@@ -7288,28 +7288,28 @@ static std::string get_ukey_name(int k)
 	return "";
 }
 
-int onKeyboard()
+int32_t onKeyboard()
 {
-	int a = Akey;
-	int b = Bkey;
-	int s = Skey;
-	int l = Lkey;
-	int r = Rkey;
-	int p = Pkey;
-	int ex1 = Exkey1;
-	int ex2 = Exkey2;
-	int ex3 = Exkey3;
-	int ex4 = Exkey4;
-    int du = DUkey;
-    int dd = DDkey;
-    int dl = DLkey;
-    int dr = DRkey;
-    int mod1a = cheat_modifier_keys[0];
-    int mod1b = cheat_modifier_keys[1];
-    int mod2a = cheat_modifier_keys[2];
-    int mod2b = cheat_modifier_keys[3];
+	int32_t a = Akey;
+	int32_t b = Bkey;
+	int32_t s = Skey;
+	int32_t l = Lkey;
+	int32_t r = Rkey;
+	int32_t p = Pkey;
+	int32_t ex1 = Exkey1;
+	int32_t ex2 = Exkey2;
+	int32_t ex3 = Exkey3;
+	int32_t ex4 = Exkey4;
+    int32_t du = DUkey;
+    int32_t dd = DDkey;
+    int32_t dl = DLkey;
+    int32_t dr = DRkey;
+    int32_t mod1a = cheat_modifier_keys[0];
+    int32_t mod1b = cheat_modifier_keys[1];
+    int32_t mod2a = cheat_modifier_keys[2];
+    int32_t mod2b = cheat_modifier_keys[3];
 	bool done=false;
-	int ret;
+	int32_t ret;
 	
 	keyboard_control_dlg[0].dp2=lfont;
 	
@@ -7322,12 +7322,12 @@ int onKeyboard()
 		
 		if(ret==3) // OK
 		{
-			int ukeys[num_ukey];
+			int32_t ukeys[num_ukey];
 			load_ukeys(ukeys);
 			std::vector<std::string> uniqueError;
-			for(int q = 0; q < num_ukey; ++q)
+			for(int32_t q = 0; q < num_ukey; ++q)
 			{
-				for(int p = q+1; p < num_ukey; ++p)
+				for(int32_t p = q+1; p < num_ukey; ++p)
 				{
 					if(ukeys[q] == ukeys[p] && ukeys[q] != 0)
 					{
@@ -7352,7 +7352,7 @@ int onKeyboard()
 				box_end(true);
 			}
 			/* Old uniqueness check
-			std::map<int,bool> *keyhash = new std::map<int,bool>();
+			std::map<int32_t,bool> *keyhash = new std::map<int32_t,bool>();
 			bool unique = true;
 			addToHash(A,unique,keyhash);
 			addToHash(B,unique,keyhash);
@@ -7471,23 +7471,23 @@ int onKeyboard()
 	return D_O_K;
 }
 
-int onGamepad()
+int32_t onGamepad()
 {
-    int a = Abtn;
-    int b = Bbtn;
-    int s = Sbtn;
-    int l = Lbtn;
-    int r = Rbtn;
-    int m = Mbtn;
-    int p = Pbtn;
-    int ex1 = Exbtn1;
-    int ex2 = Exbtn2;
-    int ex3 = Exbtn3;
-    int ex4 = Exbtn4;
-    int up = DUbtn;
-    int down = DDbtn;
-    int left = DLbtn;
-    int right = DRbtn;
+    int32_t a = Abtn;
+    int32_t b = Bbtn;
+    int32_t s = Sbtn;
+    int32_t l = Lbtn;
+    int32_t r = Rbtn;
+    int32_t m = Mbtn;
+    int32_t p = Pbtn;
+    int32_t ex1 = Exbtn1;
+    int32_t ex2 = Exbtn2;
+    int32_t ex3 = Exbtn3;
+    int32_t ex4 = Exbtn4;
+    int32_t up = DUbtn;
+    int32_t down = DDbtn;
+    int32_t left = DLbtn;
+    int32_t right = DRbtn;
     
     gamepad_dlg[0].dp2=lfont;
     if(analog_movement)
@@ -7498,7 +7498,7 @@ int onGamepad()
     if(is_large)
         large_dialog(gamepad_dlg);
         
-    int ret = zc_popup_dialog(gamepad_dlg,4);
+    int32_t ret = zc_popup_dialog(gamepad_dlg,4);
     
     if(ret == 4) //OK
 		analog_movement = gamepad_dlg[56].flags&D_SELECTED;
@@ -7525,38 +7525,38 @@ int onGamepad()
     return D_O_K;
 }
 
-int onSound()
+int32_t onSound()
 {
 	//if out of beta, we cmight want to clear the settings from scripts:
 	//#ifndef IS_BETA
 	
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
-		master_volume(-1,((long)FFCore.usr_midi_volume));
+		master_volume(-1,((int32_t)FFCore.usr_midi_volume));
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
-		master_volume((long)(FFCore.usr_digi_volume),1);
+		master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-		emusic_volume = (long)FFCore.usr_music_volume;
+		emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-		sfx_volume = (long)FFCore.usr_sfx_volume;
+		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-		pan_style = (long)FFCore.usr_panstyle;
+		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
     //#endif
-    int m = midi_volume;
-    int d = digi_volume;
-    int e = emusic_volume;
-    int b = zcmusic_bufsz;
-    int s = sfx_volume;
-    int p = pan_style;
+    int32_t m = midi_volume;
+    int32_t d = digi_volume;
+    int32_t e = emusic_volume;
+    int32_t b = zcmusic_bufsz;
+    int32_t s = sfx_volume;
+    int32_t p = pan_style;
     pan_style = vbound(pan_style,0,3);
     
     sound_dlg[0].dp2=lfont;
@@ -7583,13 +7583,13 @@ int onSound()
     sound_dlg[19].d2 = (sfx_volume==255) ? 32 : sfx_volume>>3;
     sound_dlg[20].d2 = pan_style;
     
-    int ret = zc_popup_dialog(sound_dlg,1);
+    int32_t ret = zc_popup_dialog(sound_dlg,1);
     
     if(ret==2)
     {
         master_volume(digi_volume,midi_volume);
         
-        for(int i=0; i<WAV_COUNT; ++i)
+        for(int32_t i=0; i<WAV_COUNT; ++i)
         {
             //allegro assertion fails when passing in -1 as voice -DD
             if(sfx_voice[i] > 0)
@@ -7609,16 +7609,16 @@ int onSound()
     return D_O_K;
 }
 
-int queding(char const* s1, char const* s2, char const* s3)
+int32_t queding(char const* s1, char const* s2, char const* s3)
 {
     return jwin_alert(ZC_str,s1,s2,s3,"&Yes","&No",'y','n',lfont);
 }
 
-int onQuit()
+int32_t onQuit()
 {
     if(Playing)
     {
-        int ret=0;
+        int32_t ret=0;
         
         if(get_bit(quest_rules, qr_NOCONTINUE))
         {
@@ -7657,12 +7657,12 @@ int onQuit()
     return D_O_K;
 }
 
-int onTryQuitMenu()
+int32_t onTryQuitMenu()
 {
 	return onTryQuit(true);
 }
 
-int onTryQuit(bool inMenu)
+int32_t onTryQuit(bool inMenu)
 {
 	if(Playing)
 	{
@@ -7682,7 +7682,7 @@ int onTryQuit(bool inMenu)
 	return D_O_K;
 }
 
-int onReset()
+int32_t onReset()
 {
     if(queding("  Reset system?  ",NULL,NULL)==1)
     {
@@ -7694,7 +7694,7 @@ int onReset()
     return D_O_K;
 }
 
-int onExit()
+int32_t onExit()
 {
     if(queding(" Quit Zelda Classic? ",NULL,NULL)==1)
     {
@@ -7705,23 +7705,23 @@ int onExit()
     return D_O_K;
 }
 
-int onTitle_NES()
+int32_t onTitle_NES()
 {
     title_version=0;
     return D_O_K;
 }
-int onTitle_DX()
+int32_t onTitle_DX()
 {
     title_version=1;
     return D_O_K;
 }
-int onTitle_25()
+int32_t onTitle_25()
 {
     title_version=2;
     return D_O_K;
 }
 
-int onDebug()
+int32_t onDebug()
 {
     if(debug_enabled)
         set_debug(!get_debug());
@@ -7729,19 +7729,19 @@ int onDebug()
     return D_O_K;
 }
 
-int onHeartBeep()
+int32_t onHeartBeep()
 {
     heart_beep=!heart_beep;
     return D_O_K;
 }
 
-int onSaveIndicator()
+int32_t onSaveIndicator()
 {
     use_save_indicator=!use_save_indicator;
     return D_O_K;
 }
 
-int onEpilepsy()
+int32_t onEpilepsy()
 {
 	if(jwin_alert3(
 			"Epilepsy Flash Reduction", 
@@ -7764,9 +7764,9 @@ int onEpilepsy()
     return D_O_K;
 }
 
-int onTriforce()
+int32_t onTriforce()
 {
-    for(int i=0; i<MAXINITTABS; ++i)
+    for(int32_t i=0; i<MAXINITTABS; ++i)
     {
         init_tabs[i].flags&=~D_SELECTED;
     }
@@ -7774,12 +7774,12 @@ int onTriforce()
     init_tabs[3].flags=D_SELECTED;
     return onCheatConsole();
     /*triforce_dlg[0].dp2=lfont;
-    for(int i=1; i<=8; i++)
+    for(int32_t i=1; i<=8; i++)
       triforce_dlg[i].flags = (game->lvlitems[i] & liTRIFORCE) ? D_SELECTED : 0;
     
     if(zc_popup_dialog (triforce_dlg,-1)==9)
     {
-      for(int i=1; i<=8; i++)
+      for(int32_t i=1; i<=8; i++)
       {
         game->lvlitems[i] &= ~liTRIFORCE;
         game->lvlitems[i] |= (triforce_dlg[i].flags & D_SELECTED) ? liTRIFORCE : 0;
@@ -7790,9 +7790,9 @@ int onTriforce()
 
 bool rc = false;
 /*
-int onEquipment()
+int32_t onEquipment()
 {
-  for (int i=0; i<MAXINITTABS; ++i)
+  for (int32_t i=0; i<MAXINITTABS; ++i)
   {
     init_tabs[i].flags&=~D_SELECTED;
   }
@@ -7801,9 +7801,9 @@ int onEquipment()
 }
 */
 
-int onItems()
+int32_t onItems()
 {
-    for(int i=0; i<MAXINITTABS; ++i)
+    for(int32_t i=0; i<MAXINITTABS; ++i)
     {
         init_tabs[i].flags&=~D_SELECTED;
     }
@@ -7824,7 +7824,7 @@ static DIALOG getnum_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int getnumber(const char *prompt,int initialval)
+int32_t getnumber(const char *prompt,int32_t initialval)
 {
     char buf[20];
     sprintf(buf,"%d",initialval);
@@ -7841,58 +7841,58 @@ int getnumber(const char *prompt,int initialval)
     return initialval;
 }
 
-int onLife()
+int32_t onLife()
 {
     //this used to be a 0 instead of a 1.
     game->set_life(vbound(getnumber("Life",game->get_life()),1,game->get_maxlife()));
     return D_O_K;
 }
 
-int onHeartC()
+int32_t onHeartC()
 {
     game->set_maxlife(vbound(getnumber("Heart Containers",game->get_maxlife()/game->get_hp_per_heart()),1,4095) * game->get_hp_per_heart());
     game->set_life(vbound(getnumber("Life",game->get_life()/game->get_hp_per_heart()),1,game->get_maxlife()/game->get_hp_per_heart())*game->get_hp_per_heart());
     return D_O_K;
 }
 
-int onMagicC()
+int32_t onMagicC()
 {
     game->set_maxmagic(vbound(getnumber("Magic Containers",game->get_maxmagic()/game->get_mp_per_block()),0,2047) * game->get_mp_per_block());
     game->set_magic(vbound(getnumber("Magic",game->get_magic()/game->get_mp_per_block()),0,game->get_maxmagic()/game->get_mp_per_block())*game->get_mp_per_block());
     return D_O_K;
 }
 
-int onRupies()
+int32_t onRupies()
 {
     game->set_rupies(vbound(getnumber("Rupees",game->get_rupies()),0,game->get_maxcounter(1)));
     return D_O_K;
 }
 
-int onMaxBombs()
+int32_t onMaxBombs()
 {
     game->set_maxbombs(vbound(getnumber("Max Bombs",game->get_maxbombs()),0,0xFFFF));
     game->set_bombs(game->get_maxbombs());
     return D_O_K;
 }
 
-int onRefillLife()
+int32_t onRefillLife()
 {
     game->set_life(game->get_maxlife());
     return D_O_K;
 }
-int onRefillMagic()
+int32_t onRefillMagic()
 {
     game->set_magic(game->get_maxmagic());
     return D_O_K;
 }
-int onClock()
+int32_t onClock()
 {
 	setClock(!getClock());
 	cheat_superman=getClock();
 	return D_O_K;
 }
 
-int onQstPath()
+int32_t onQstPath()
 {
     char path[2048];
     
@@ -7924,7 +7924,7 @@ static DIALOG cheat_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onCheat()
+int32_t onCheat()
 {
     if(!zcheats.flags && !get_debug() && DEVLEVEL < 2)
         return D_O_K;
@@ -7936,13 +7936,13 @@ int onCheat()
     if(is_large)
         large_dialog(cheat_dlg);
         
-    int ret=zc_popup_dialog(cheat_dlg,1);
+    int32_t ret=zc_popup_dialog(cheat_dlg,1);
     
     if((ret==2) && strlen(str_a))
     {
         char str[80];
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(!strcmp(str_a, zcheats.codes[i]))
             {
@@ -7961,22 +7961,22 @@ done:
     return D_O_K;
 }
 
-int onCheatRupies()
+int32_t onCheatRupies()
 {
     game->set_drupy(game->get_maxcounter(1));
     return D_O_K;
 }
 
-int onCheatArrows()
+int32_t onCheatArrows()
 {
     game->set_arrows(game->get_maxarrows());
     return D_O_K;
 }
 
-int onCheatBombs()
+int32_t onCheatBombs()
 {
     //getitem(iBombs,true);
-    for(int i=0; i<MAXITEMS; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         if(itemsbuf[i].family == itype_bomb
                 || itemsbuf[i].family == itype_sbomb)
@@ -7990,7 +7990,7 @@ int onCheatBombs()
 
 // *** screen saver
 
-int after_time()
+int32_t after_time()
 {
 	if(ss_enable == 0)
 		return INT_MAX;
@@ -8014,7 +8014,7 @@ static const char *after_str[15] =
     "Never"
 };
 
-const char *after_list(int index, int *list_size)
+const char *after_list(int32_t index, int32_t *list_size)
 {
     if(index < 0)
     {
@@ -8045,7 +8045,7 @@ static DIALOG scrsaver_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onScreenSaver()
+int32_t onScreenSaver()
 {
     scrsaver_dlg[0].dp2=lfont;
     scrsaver_dlg[5].d1 = scrsaver_dlg[5].d2 = ss_after;
@@ -8055,7 +8055,7 @@ int onScreenSaver()
     if(is_large)
         large_dialog(scrsaver_dlg);
         
-    int ret = zc_popup_dialog(scrsaver_dlg,-1);
+    int32_t ret = zc_popup_dialog(scrsaver_dlg,-1);
     
     if(ret == 8 || ret == 9)
     {
@@ -8154,7 +8154,7 @@ static MENU settings_menu[] =
 };
 
 
-int on192b163compatibility()
+int32_t on192b163compatibility()
 {
 	if(jwin_alert3(
 			"EMULATION: Warp Compatibility Patch", 
@@ -8175,7 +8175,7 @@ int on192b163compatibility()
     return D_O_K;
 }
 
-int v250_dmap_intro_repeat()
+int32_t v250_dmap_intro_repeat()
 {
 	if(jwin_alert3(
 			"EMULATION: Repeat DMap Intros", 
@@ -8196,7 +8196,7 @@ int v250_dmap_intro_repeat()
     return D_O_K;
 }
 
-int old_210_water_emulation()
+int32_t old_210_water_emulation()
 {
 	if(jwin_alert3(
 			"EMULATION: Strict 2.10 Ladder/Flippers", 
@@ -8218,7 +8218,7 @@ int old_210_water_emulation()
 	
 }
 
-int buggy_next_combo_secrets_emulation()
+int32_t buggy_next_combo_secrets_emulation()
 {
 	if(jwin_alert3(
 			"EMULATION: Buggy ->Next Combos", 
@@ -8240,7 +8240,7 @@ int buggy_next_combo_secrets_emulation()
 	
 }
 
-int v210_segment_drops()
+int32_t v210_segment_drops()
 {
 	if(jwin_alert3(
 			"EMULATION: Drop-Per-Segment", 
@@ -8261,14 +8261,14 @@ int v210_segment_drops()
     return D_O_K;
 }
 
-int v210_fix_triforce_cellar()
+int32_t v210_fix_triforce_cellar()
 {
     if (FFCore.emulation[emuFIXTRIFORCECELLAR] ) FFCore.emulation[emuFIXTRIFORCECELLAR] = 0;
     else FFCore.emulation[emuFIXTRIFORCECELLAR] = 1;
     return D_O_K;
 }
 
-int v210_windrobes()
+int32_t v210_windrobes()
 {
 	if(jwin_alert3(
 			"EMULATION: Toggle v2.10 Windrobes", 
@@ -8289,7 +8289,7 @@ int v210_windrobes()
     return D_O_K;
 }
 
-int v210_grid_collision()
+int32_t v210_grid_collision()
 {
 	if(jwin_alert3(
 			"EMULATION: v2.10 Style Link Collision", 
@@ -8313,7 +8313,7 @@ int v210_grid_collision()
     return D_O_K;
 }
 
-int v192_tribbles()
+int32_t v192_tribbles()
 {
     if(jwin_alert3(
 			"EMULATION: Old Tribbles", 
@@ -8341,7 +8341,7 @@ int v192_tribbles()
 	
 }
 
-int continuous_sword_triggers()
+int32_t continuous_sword_triggers()
 {
 	if(jwin_alert3(
 			"EMULATION: Continuous Sword Triggers", 
@@ -8364,7 +8364,7 @@ int continuous_sword_triggers()
 	
 }
 
-int eight_way_shot_sfx_fix()
+int32_t eight_way_shot_sfx_fix()
 {
 	if(jwin_alert3(
 			"EMULATION: Eight-Way-Shot Sound Fix", 
@@ -8388,7 +8388,7 @@ int eight_way_shot_sfx_fix()
 }
 
 
-int v210_bombchus()
+int32_t v210_bombchus()
 {
 	if(jwin_alert3(
 			"EMULATION: Restore Large Bombchu Blast Radius",
@@ -8418,7 +8418,7 @@ int v210_bombchus()
 	
 }
 
-int v190_linksprites()
+int32_t v190_linksprites()
 {
 	
 	if(jwin_alert3(
@@ -8452,7 +8452,7 @@ int v190_linksprites()
 	
 }
 
-int v190_swimsprites()
+int32_t v190_swimsprites()
 {
 	//if ( FFCore.getQuestHeaderInfo(vZelda) == 0x190 )
     //{
@@ -8471,9 +8471,9 @@ int v190_swimsprites()
 		lfont) == 1)
 	{
 	
-		for ( int q = 0; q < 4; q++ ) //dir
+		for ( int32_t q = 0; q < 4; q++ ) //dir
 		{
-			for ( int w = 0; w < 3; w++ )
+			for ( int32_t w = 0; w < 3; w++ )
 			{
 				swimspr[q][w] = walkspr[q][w];
 				divespr[q][w] = walkspr[q][w];
@@ -8488,7 +8488,7 @@ int v190_swimsprites()
 	
 }
 
-int v210_brang_firetrail()
+int32_t v210_brang_firetrail()
 {
 	if(jwin_alert3(
 			"EMULATION: Toggle v2.10 Brang Firetrail", 
@@ -8613,10 +8613,10 @@ static MENU fixes_menu[] =
 };
 
 #if DEVLEVEL > 0
-int devLogging();
-int devDebug();
+int32_t devLogging();
+int32_t devDebug();
 #if DEVLEVEL > 1
-int setCheat();
+int32_t setCheat();
 #endif //DEVLEVEL > 1
 static MENU dev_menu[] =
 {
@@ -8629,26 +8629,26 @@ static MENU dev_menu[] =
 	#endif //DEVLEVEL > 1
 	{ NULL,                                 NULL,                    NULL,             0,          NULL }
 };
-int devLogging()
+int32_t devLogging()
 {
 	dev_logging = !dev_logging;
 	dev_menu[0].flags = dev_logging ? D_SELECTED : 0;
 	return D_O_K;
 }
-int devDebug()
+int32_t devDebug()
 {
 	dev_debug = !dev_debug;
 	dev_menu[1].flags = dev_debug ? D_SELECTED : 0;
 	return D_O_K;
 }
-int devTimestmp()
+int32_t devTimestmp()
 {
 	dev_timestmp = !dev_timestmp;
 	dev_menu[2].flags = dev_timestmp ? D_SELECTED : 0;
 	return D_O_K;
 }
 #if DEVLEVEL > 1
-int setCheat()
+int32_t setCheat()
 {
 	cheat = (vbound(getnumber("Cheat Level",cheat), 0, 4));
 	return D_O_K;
@@ -8733,7 +8733,7 @@ MENU the_player_menu_zc_on_left2[] =
     #endif
 };
 
-int onMIDIPatch()
+int32_t onMIDIPatch()
 {
 	if(jwin_alert3(
 			"Toggle Windows MIDI Fix", 
@@ -8758,25 +8758,25 @@ int onMIDIPatch()
     return D_O_K;
 }
 
-int onKeyboardEntry()
+int32_t onKeyboardEntry()
 {
     NameEntryMode=0;
     return D_O_K;
 }
 
-int onLetterGridEntry()
+int32_t onLetterGridEntry()
 {
     NameEntryMode=1;
     return D_O_K;
 }
 
-int onExtLetterGridEntry()
+int32_t onExtLetterGridEntry()
 {
     NameEntryMode=2;
     return D_O_K;
 }
 
-int onFullscreenMenu()
+int32_t onFullscreenMenu()
 {
     onFullscreen();
     misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
@@ -8831,13 +8831,13 @@ static DIALOG system_dlg2[] =
 
 void reset_snapshot_format_menu()
 {
-    for(int i=0; i<ssfmtMAX; ++i)
+    for(int32_t i=0; i<ssfmtMAX; ++i)
     {
         snapshot_format_menu[i].flags=0;
     }
 }
 
-int onSetSnapshotFormat()
+int32_t onSetSnapshotFormat()
 {
     switch(active_menu->text[1])
     {
@@ -8875,11 +8875,11 @@ int onSetSnapshotFormat()
 }
 
 
-void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int from,int to)
+void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int32_t from,int32_t to)
 {
     PALETTE tmp;
     
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
     {
         tmp[i].r=r;
         tmp[i].g=g;
@@ -8896,7 +8896,7 @@ void system_pal()
     copy_pal((RGB*)data[PAL_GUI].dat, pal);
     
     // set up the grayscale palette
-    for(int i=128; i<192; i++)
+    for(int32_t i=128; i<192; i++)
     {
         pal[i].r = i-128;
         pal[i].g = i-128;
@@ -8930,7 +8930,7 @@ void system_pal()
              palbstart=128*63/255, palbend=240*63/255,
              paldivs=7;
              
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -8975,7 +8975,7 @@ void system_pal()
              palbstart=128*63/255, palbend=240*63/255,
              paldivs=6;
              
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9018,7 +9018,7 @@ void system_pal()
              palbstart= 80*63/255, palbend=250*63/255,
              paldivs=7;
              
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9062,7 +9062,7 @@ void system_pal()
              palbstart=  0*63/255, palbend=166*63/255,
              paldivs=6;
              
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9105,7 +9105,7 @@ void system_pal()
              palbstart=161*63/255, palbend=227*63/255,
              paldivs=7;
              
-        for(int i=0; i < paldivs; i++)
+        for(int32_t i=0; i < paldivs; i++)
         {
             pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9272,7 +9272,7 @@ void system_pal()
              palbstart=106*63/255, palbend=240*63/255,
              paldivs=7;
         /*     
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9315,7 +9315,7 @@ void system_pal()
              palbstart=106*63/255, palbend=240*63/255,
              paldivs=7;
              
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9351,10 +9351,10 @@ void system_pal()
     
     color_layer(pal, pal, 24,16,16, 28, 128,191);
     
-    for(int i=0; i<256; i+=2)
+    for(int32_t i=0; i<256; i+=2)
     {
-        int v = (i>>3)+2;
-        int c = (i>>3)+192;
+        int32_t v = (i>>3)+2;
+        int32_t c = (i>>3)+192;
         pal[c] = _RGB(v,v,v+(v>>1));
         /*
           if(i<240)
@@ -9366,7 +9366,7 @@ void system_pal()
     }
     
     // draw the vertical screen gradient
-    for(int i=0; i<240; ++i)
+    for(int32_t i=0; i<240; ++i)
     {
         _allegro_hline(tmp_scr,0,i,319,192+(i*31/239));
     }
@@ -9376,7 +9376,7 @@ void system_pal()
       palgstart= 36*63/255; palgend=202*63/255;
       palbstart=106*63/255; palbend=240*63/255;
       paldivs=32;
-      for(int i=0; i<paldivs; i++)
+      for(int32_t i=0; i<paldivs; i++)
       {
       pal[223-paldivs+1+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
       pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9384,7 +9384,7 @@ void system_pal()
       }
       */
     BITMAP *panorama = create_bitmap_ex(8,256,224);
-    int ts_height, ts_start;
+    int32_t ts_height, ts_start;
     
     if(tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET))
     {
@@ -9401,12 +9401,12 @@ void system_pal()
     }
     
     // gray scale the current frame
-    for(int y=0; y<ts_height; y++)
+    for(int32_t y=0; y<ts_height; y++)
     {
-        for(int x=0; x<256; x++)
+        for(int32_t x=0; x<256; x++)
         {
-            int c = panorama->line[y+ts_start][x];
-            int gray = zc_min((RAMpal[c].r*42 + RAMpal[c].g*75 + RAMpal[c].b*14) >> 7, 63);
+            int32_t c = panorama->line[y+ts_start][x];
+            int32_t gray = zc_min((RAMpal[c].r*42 + RAMpal[c].g*75 + RAMpal[c].b*14) >> 7, 63);
             tmp_scr->line[y+8+ts_start][x+32] = gray+128;
         }
     }
@@ -9455,7 +9455,7 @@ void system_pal2()
       palgstart= 36*63/255, palgend=202*63/255,
       palbstart=106*63/255, palbend=240*63/255,
       paldivs=7;
-      for(int i=0; i<paldivs; i++)
+      for(int32_t i=0; i<paldivs; i++)
       {
       RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
       RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9477,7 +9477,7 @@ void system_pal2()
       palgstart=  0*63/255, palgend=202*63/255,
       palbstart=128*63/255, palbend=240*63/255,
       paldivs=7;
-      for(int i=0; i<paldivs; i++)
+      for(int32_t i=0; i<paldivs; i++)
       {
       RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
       RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9501,7 +9501,7 @@ void system_pal2()
     
       palbstart=128*63/255, palbend=240*63/255,
       paldivs=6;
-      for(int i=0; i<paldivs; i++)
+      for(int32_t i=0; i<paldivs; i++)
       {
       RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
       RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9526,7 +9526,7 @@ void system_pal2()
          palbstart=128*63/255, palbend=240*63/255,
          paldivs=6;
          
-    for(int i=0; i<paldivs; i++)
+    for(int32_t i=0; i<paldivs; i++)
     {
         RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
         RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9541,7 +9541,7 @@ void system_pal2()
     
     
     // set up the new palette
-    for(int i=128; i<192; i++)
+    for(int32_t i=128; i<192; i++)
     {
         RAMpal2[i].r = i-128;
         RAMpal2[i].g = i-128;
@@ -9549,7 +9549,7 @@ void system_pal2()
     }
     
     /*
-      for(int i=0; i<64; i++)
+      for(int32_t i=0; i<64; i++)
       {
       RAMpal2[128+i] = _RGB(i,i,i)1));
       }
@@ -9575,10 +9575,10 @@ void system_pal2()
     //  color_layer(RAMpal2, RAMpal2, 24,16,16, 28, 128,191);
     
     // set up the colors for the vertical screen gradient
-    for(int i=0; i<256; i+=2)
+    for(int32_t i=0; i<256; i+=2)
     {
-        int v = (i>>3)+2;
-        int c = (i>>3)+192;
+        int32_t v = (i>>3)+2;
+        int32_t c = (i>>3)+192;
         RAMpal2[c] = _RGB(v,v,v+(v>>1));
         
         /*
@@ -9592,7 +9592,7 @@ void system_pal2()
     
     set_palette(RAMpal2);
     
-    for(int i=0; i<240; ++i)
+    for(int32_t i=0; i<240; ++i)
     {
         _allegro_hline(tmp_scr,0,i,319,192+(i*31/239));
     }
@@ -9602,7 +9602,7 @@ void system_pal2()
       palgstart= 36*63/255, palgend=202*63/255,
       palbstart=106*63/255, palbend=240*63/255,
       paldivs=32;
-      for(int i=0; i<paldivs; i++)
+      for(int32_t i=0; i<paldivs; i++)
       {
       pal[223-paldivs+1+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
       pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -9610,7 +9610,7 @@ void system_pal2()
       }
       */
     BITMAP *panorama = create_bitmap_ex(8,256,224);
-    int ts_height, ts_start;
+    int32_t ts_height, ts_start;
     
     if(tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET))
     {
@@ -9627,12 +9627,12 @@ void system_pal2()
     }
     
     // gray scale the current frame
-    for(int y=0; y<ts_height; y++)
+    for(int32_t y=0; y<ts_height; y++)
     {
-        for(int x=0; x<256; x++)
+        for(int32_t x=0; x<256; x++)
         {
-            int c = panorama->line[y+ts_start][x];
-            int gray = zc_min((RAMpal2[c].r*42 + RAMpal2[c].g*75 + RAMpal2[c].b*14) >> 7, 63);
+            int32_t c = panorama->line[y+ts_start][x];
+            int32_t gray = zc_min((RAMpal2[c].r*42 + RAMpal2[c].g*75 + RAMpal2[c].b*14) >> 7, 63);
             tmp_scr->line[y+8+ts_start][x+32] = gray+128;
         }
     }
@@ -9952,8 +9952,8 @@ void fix_dialog(DIALOG *d)
 void fix_dialogs()
 {
     /*
-      int x = scrx-(sbig?160:0);
-      int y = scry-(sbig?120:0);
+      int32_t x = scrx-(sbig?160:0);
+      int32_t y = scry-(sbig?120:0);
       if(x>0) x+=3;
       if(y>0) y+=3;
       if(x<0) x=0;
@@ -9998,13 +9998,13 @@ void fix_dialogs()
 /**** Custom Sound System ****/
 /*****************************/
 
-INLINE int mixvol(int v1,int v2)
+INLINE int32_t mixvol(int32_t v1,int32_t v2)
 {
     return (zc_min(v1,255)*zc_min(v2,255)) >> 8;
 }
 
 // Run an NSF, or a MIDI if the NSF is missing somehow.
-bool try_zcmusic(char *filename, int track, int midi)
+bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 {
     ZCMUSIC *newzcmusic = NULL;
     
@@ -10048,7 +10048,7 @@ bool try_zcmusic(char *filename, int track, int midi)
     return false;
 }
 
-bool try_zcmusic_ex(char *filename, int track, int midi)
+bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi)
 {
     ZCMUSIC *newzcmusic = NULL;
     
@@ -10092,25 +10092,25 @@ bool try_zcmusic_ex(char *filename, int track, int midi)
     return false;
 }
 
-int get_zcmusicpos()
+int32_t get_zcmusicpos()
 {
-    int debugtracething = zcmusic_get_curpos(zcmusic);
+    int32_t debugtracething = zcmusic_get_curpos(zcmusic);
     return debugtracething;
     return 0;
 }
 
-void set_zcmusicpos(int position)
+void set_zcmusicpos(int32_t position)
 {
     zcmusic_set_curpos(zcmusic, position);
 }
 
-void set_zcmusicspeed(int speed)
+void set_zcmusicspeed(int32_t speed)
 {
-    int newspeed = vbound(speed, 0, 10000);
+    int32_t newspeed = vbound(speed, 0, 10000);
     zcmusic_set_speed(zcmusic, newspeed);
 }
 
-void jukebox(int index,int loop)
+void jukebox(int32_t index,int32_t loop)
 {
     music_stop();
     
@@ -10139,7 +10139,7 @@ void jukebox(int index,int loop)
     midi_paused=false;
 }
 
-void jukebox(int index)
+void jukebox(int32_t index)
 {
     if(index<0)         index=MAXMIDIS-1;
     
@@ -10158,7 +10158,7 @@ void jukebox(int index)
 void play_DmapMusic()
 {
     static char tfile[2048];
-    static int ttrack=0;
+    static int32_t ttrack=0;
     bool domidi=false;
     
     // Seems like this ought to call try_zcmusic()...
@@ -10198,7 +10198,7 @@ void play_DmapMusic()
                 stop_midi();
                 strcpy(tfile,DMaps[currdmap].tmusic);
                 zcmusic_play(zcmusic, emusic_volume);
-                int temptracks=0;
+                int32_t temptracks=0;
                 temptracks=zcmusic_get_tracks(zcmusic);
                 temptracks=(temptracks<2)?1:temptracks;
                 ttrack = vbound(DMaps[currdmap].tmusictrack,0,temptracks-1);
@@ -10218,7 +10218,7 @@ void play_DmapMusic()
     
     if(domidi)
     {
-        int m=DMaps[currdmap].midi;
+        int32_t m=DMaps[currdmap].midi;
         
         switch(m)
         {
@@ -10245,7 +10245,7 @@ void play_DmapMusic()
 
 void playLevelMusic()
 {
-    int m=tmpscr->screen_midi;
+    int32_t m=tmpscr->screen_midi;
     
     switch(m)
     {
@@ -10277,13 +10277,13 @@ void playLevelMusic()
     }
 }
 
-void master_volume(int dv,int mv)
+void master_volume(int32_t dv,int32_t mv)
 {
     if(dv>=0) digi_volume=zc_max(zc_min(dv,255),0);
     
     if(mv>=0) midi_volume=zc_max(zc_min(mv,255),0);
     
-    int i = zc_min(zc_max(currmidi,0),MAXMIDIS-1);
+    int32_t i = zc_min(zc_max(currmidi,0),MAXMIDIS-1);
     set_volume(digi_volume,mixvol(tunes[i].volume,midi_volume));
 }
 
@@ -10296,24 +10296,24 @@ void master_volume(int dv,int mv)
 // -1 = voice not allocated
 void Z_init_sound()
 {
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         sfx_voice[i]=-1;
         
-    for(int i=0; i<ZC_MIDI_COUNT; i++)
+    for(int32_t i=0; i<ZC_MIDI_COUNT; i++)
         tunes[i].data = (MIDI*)mididata[i].dat;
         
-    for(int j=0; j<MAXCUSTOMMIDIS; j++)
+    for(int32_t j=0; j<MAXCUSTOMMIDIS; j++)
         tunes[ZC_MIDI_COUNT+j].data=NULL;
         
     master_volume(digi_volume,midi_volume);
 }
 
 // returns number of voices currently allocated
-int sfx_count()
+int32_t sfx_count()
 {
-    int c=0;
+    int32_t c=0;
     
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         if(sfx_voice[i]!=-1)
             ++c;
             
@@ -10323,7 +10323,7 @@ int sfx_count()
 // clean up finished samples
 void sfx_cleanup()
 {
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         if(sfx_voice[i]!=-1 && voice_get_position(sfx_voice[i])<0)
         {
             deallocate_voice(sfx_voice[i]);
@@ -10335,7 +10335,7 @@ void sfx_cleanup()
 // if a voice is already allocated (and/or playing), then it just returns true
 // Returns true:  voice is allocated
 //         false: unsuccessful
-bool sfx_init(int index)
+bool sfx_init(int32_t index)
 {
     // check index
     if(index<=0 || index>=WAV_COUNT)
@@ -10366,7 +10366,7 @@ bool sfx_init(int index)
 }
 
 // plays an sfx sample
-void sfx(int index,int pan,bool loop, bool restart)
+void sfx(int32_t index,int32_t pan,bool loop, bool restart)
 {
     if(!sfx_init(index))
         return;
@@ -10374,7 +10374,7 @@ void sfx(int index,int pan,bool loop, bool restart)
     voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
     voice_set_pan(sfx_voice[index],pan);
     
-    int pos = voice_get_position(sfx_voice[index]);
+    int32_t pos = voice_get_position(sfx_voice[index]);
     
     if(restart) voice_set_position(sfx_voice[index],0);
     
@@ -10383,14 +10383,14 @@ void sfx(int index,int pan,bool loop, bool restart)
 }
 
 // true if sfx is allocated
-bool sfx_allocated(int index)
+bool sfx_allocated(int32_t index)
 {
     return (index>0 && index<WAV_COUNT && sfx_voice[index]!=-1);
 }
 
 // start it (in loop mode) if it's not already playing,
 // otherwise adjust it to play in loop mode -DD
-void cont_sfx(int index)
+void cont_sfx(int32_t index)
 {
     if(!sfx_init(index))
     {
@@ -10410,7 +10410,7 @@ void cont_sfx(int index)
 }
 
 // adjust parameters while playing
-void adjust_sfx(int index,int pan,bool loop)
+void adjust_sfx(int32_t index,int32_t pan,bool loop)
 {
     if(index<=0 || index>=WAV_COUNT || sfx_voice[index]==-1)
         return;
@@ -10420,14 +10420,14 @@ void adjust_sfx(int index,int pan,bool loop)
 }
 
 // pauses a voice
-void pause_sfx(int index)
+void pause_sfx(int32_t index)
 {
     if(index>0 && index<WAV_COUNT && sfx_voice[index]!=-1)
         voice_stop(sfx_voice[index]);
 }
 
 // resumes a voice
-void resume_sfx(int index)
+void resume_sfx(int32_t index)
 {
     if(index>0 && index<WAV_COUNT && sfx_voice[index]!=-1)
         voice_start(sfx_voice[index]);
@@ -10436,7 +10436,7 @@ void resume_sfx(int index)
 // pauses all active voices
 void pause_all_sfx()
 {
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         if(sfx_voice[i]!=-1)
             voice_stop(sfx_voice[i]);
 }
@@ -10444,13 +10444,13 @@ void pause_all_sfx()
 // resumes all paused voices
 void resume_all_sfx()
 {
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         if(sfx_voice[i]!=-1)
             voice_start(sfx_voice[i]);
 }
 
 // stops an sfx and deallocates the voice
-void stop_sfx(int index)
+void stop_sfx(int32_t index)
 {
     if(index<=0 || index>=WAV_COUNT)
         return;
@@ -10463,9 +10463,9 @@ void stop_sfx(int index)
 }
 
 // Stops SFX played by Link's item of the given family
-void stop_item_sfx(int family)
+void stop_item_sfx(int32_t family)
 {
-    int id=current_item_id(family);
+    int32_t id=current_item_id(family);
     
     if(id<0)
         return;
@@ -10475,7 +10475,7 @@ void stop_item_sfx(int family)
 
 void kill_sfx()
 {
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         if(sfx_voice[i]!=-1)
         {
             deallocate_voice(sfx_voice[i]);
@@ -10483,7 +10483,7 @@ void kill_sfx()
         }
 }
 
-int pan(int x)
+int32_t pan(int32_t x)
 {
     switch(pan_style)
     {
@@ -10504,7 +10504,7 @@ int pan(int x)
 /******* Input Handlers ********/
 /*******************************/
 
-bool joybtn(int b)
+bool joybtn(int32_t b)
 {
     if(b == 0)
         return false;
@@ -10512,16 +10512,16 @@ bool joybtn(int b)
     return joy[joystick_index].button[b-1].b !=0;
 }
 
-int next_press_key()
+int32_t next_press_key()
 {
     char k[128];
     
-    for(int i=0; i<128; i++)
+    for(int32_t i=0; i<128; i++)
         k[i]=key[i];
         
     for(;;)
     {
-        for(int i=0; i<128; i++)
+        for(int32_t i=0; i<128; i++)
             if(key[i]!=k[i])
                 return i;
     }
@@ -10529,12 +10529,12 @@ int next_press_key()
     //	return (readkey()>>8);
 }
 
-int next_press_btn()
+int32_t next_press_btn()
 {
     clear_keybuf();
     /*bool b[joy[joystick_index].num_buttons+1];
     
-    for(int i=1; i<=joy[joystick_index].num_buttons; i++)
+    for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
         b[i]=joybtn(i);*/
         
     //first, we need to wait until they're pressing no buttons
@@ -10555,7 +10555,7 @@ int next_press_btn()
         poll_joystick();
         bool done = true;
         
-        for(int i=1; i<=joy[joystick_index].num_buttons; i++)
+        for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
         {
             if(joybtn(i)) done = false;
         }
@@ -10580,7 +10580,7 @@ int next_press_btn()
         
         poll_joystick();
         
-        for(int i=1; i<=joy[joystick_index].num_buttons; i++)
+        for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
         {
             if(joybtn(i)) return i;
         }
@@ -10750,7 +10750,7 @@ bool zc_key_pressed()
     return false;
 }
 
-bool getInput(int btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely)
+bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely)
 {
 	bool ret = false, drunkstate = false;
 	bool* flag = NULL;
@@ -11165,7 +11165,7 @@ void eat_buttons()
 	getInput(btnEx4, true, false, true);
 }
 
-bool zc_readkey(int k, bool ignoreDisable)
+bool zc_readkey(int32_t k, bool ignoreDisable)
 {
     if(ignoreDisable) return KeyPress[k];
 	switch(k)
@@ -11180,7 +11180,7 @@ bool zc_readkey(int k, bool ignoreDisable)
 	}
 }
 
-bool zc_getkey(int k, bool ignoreDisable)
+bool zc_getkey(int32_t k, bool ignoreDisable)
 {
 	if(ignoreDisable) return KeyInput[k];
 	switch(k)
@@ -11195,7 +11195,7 @@ bool zc_getkey(int k, bool ignoreDisable)
 	}
 }
 
-bool zc_readrawkey(int k, bool ignoreDisable)
+bool zc_readrawkey(int32_t k, bool ignoreDisable)
 {
     if(zc_getrawkey(k, ignoreDisable))
     {
@@ -11206,7 +11206,7 @@ bool zc_readrawkey(int k, bool ignoreDisable)
     return false;
 }
 
-bool zc_getrawkey(int k, bool ignoreDisable)
+bool zc_getrawkey(int32_t k, bool ignoreDisable)
 {
 	if(ignoreDisable) return key[k];
 	switch(k)
@@ -11223,7 +11223,7 @@ bool zc_getrawkey(int k, bool ignoreDisable)
 
 void update_keys()
 {
-	for(int q = 0; q < 128; ++q)
+	for(int32_t q = 0; q < 128; ++q)
 	{
 		KeyPress[q] = key[q] && !key_truestate[q];
 		KeyInput[q] = key[q];
@@ -11231,7 +11231,7 @@ void update_keys()
 	}
 }
 
-bool zc_disablekey(int k, bool val)
+bool zc_disablekey(int32_t k, bool val)
 {
 	switch(k)
 	{
@@ -11246,114 +11246,114 @@ bool zc_disablekey(int k, bool val)
 	}
 }
 
-void zc_putpixel(int layer, int x, int y, int cset, int color, int timer)
+void zc_putpixel(int32_t layer, int32_t x, int32_t y, int32_t cset, int32_t color, int32_t timer)
 {
     timer=timer;
     particles.add(new particle(zfix(x), zfix(y), layer, cset, color));
 }
 
 // these are here so that copy_dialog won't choke when compiling zelda
-int d_alltriggerbutton_proc(int, DIALOG*, int)
+int32_t d_alltriggerbutton_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_comboa_radio_proc(int, DIALOG*, int)
+int32_t d_comboa_radio_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_comboabutton_proc(int, DIALOG*, int)
+int32_t d_comboabutton_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssdn_btn_proc(int, DIALOG*, int)
+int32_t d_ssdn_btn_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssdn_btn2_proc(int, DIALOG*, int)
+int32_t d_ssdn_btn2_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssdn_btn3_proc(int, DIALOG*, int)
+int32_t d_ssdn_btn3_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssdn_btn4_proc(int, DIALOG*, int)
+int32_t d_ssdn_btn4_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_sslt_btn_proc(int, DIALOG*, int)
+int32_t d_sslt_btn_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_sslt_btn2_proc(int, DIALOG*, int)
+int32_t d_sslt_btn2_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_sslt_btn3_proc(int, DIALOG*, int)
+int32_t d_sslt_btn3_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_sslt_btn4_proc(int, DIALOG*, int)
+int32_t d_sslt_btn4_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssrt_btn_proc(int, DIALOG*, int)
+int32_t d_ssrt_btn_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssrt_btn2_proc(int, DIALOG*, int)
+int32_t d_ssrt_btn2_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssrt_btn3_proc(int, DIALOG*, int)
+int32_t d_ssrt_btn3_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssrt_btn4_proc(int, DIALOG*, int)
+int32_t d_ssrt_btn4_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssup_btn_proc(int, DIALOG*, int)
+int32_t d_ssup_btn_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssup_btn2_proc(int, DIALOG*, int)
+int32_t d_ssup_btn2_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssup_btn3_proc(int, DIALOG*, int)
+int32_t d_ssup_btn3_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssup_btn4_proc(int, DIALOG*, int)
+int32_t d_ssup_btn4_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_tri_edit_proc(int, DIALOG*, int)
+int32_t d_tri_edit_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_triggerbutton_proc(int, DIALOG*, int)
+int32_t d_triggerbutton_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }

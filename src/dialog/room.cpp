@@ -132,8 +132,8 @@ static const auto defaultDesc =
 	"Select a Room Type, then click the \"Info\" button "
 	"to find out what it does.";
 
-RoomDialog::RoomDialog(int room, int argument, int guy, int string,
-	std::function<void(int, int, int, int)> setRoomVars):
+RoomDialog::RoomDialog(int32_t room, int32_t argument, int32_t guy, int32_t string,
+	std::function<void(int32_t, int32_t, int32_t, int32_t)> setRoomVars):
 		itemListData(getItemListData(false)),
 		shopListData(getShopListData()),
 		infoShopListData(getInfoShopListData()),
@@ -295,7 +295,7 @@ void RoomDialog::setArgField()
 	}
 }
 
-int RoomDialog::getArgument() const
+int32_t RoomDialog::getArgument() const
 {
 	switch(argSwitcher->getCurrentIndex())
 	{

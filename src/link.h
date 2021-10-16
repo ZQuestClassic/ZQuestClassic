@@ -86,42 +86,42 @@ class LinkClass : public sprite
     public:
         WalkflagInfo() : flags(0), newhopclk(0), newhopdir(0), newdir(0), newladderdir(0),
             newladderx(0), newladdery(0), newladderstart(0) {}
-        static const int UNWALKABLE = 1;
-        static const int SETILSWIM = 2;
-        static const int CLEARILSWIM = 4;
-        static const int SETHOPCLK = 8;
-        static const int SETDIR = 16;
-        static const int CLEARCHARGEATTACK = 32;
-        static const int SETHOPDIR = 64;
+        static const int32_t UNWALKABLE = 1;
+        static const int32_t SETILSWIM = 2;
+        static const int32_t CLEARILSWIM = 4;
+        static const int32_t SETHOPCLK = 8;
+        static const int32_t SETDIR = 16;
+        static const int32_t CLEARCHARGEATTACK = 32;
+        static const int32_t SETHOPDIR = 64;
         
-        int getHopClk()
+        int32_t getHopClk()
         {
             return newhopclk;
         }
 	
 	
 	
-        int getHopDir()
+        int32_t getHopDir()
         {
             return newhopdir;
         }
-        int getDir()
+        int32_t getDir()
         {
             return newdir;
         }
-        int getLadderdir()
+        int32_t getLadderdir()
         {
             return newladderdir;
         }
-        int getLadderx()
+        int32_t getLadderx()
         {
             return newladderx;
         }
-        int getLaddery()
+        int32_t getLaddery()
         {
             return newladdery;
         }
-        int getLadderstart()
+        int32_t getLadderstart()
         {
             return newladderstart;
         }
@@ -138,19 +138,19 @@ class LinkClass : public sprite
             else flags |= CLEARILSWIM;
         }
         
-        void setHopClk(int val)
+        void setHopClk(int32_t val)
         {
             flags |= SETHOPCLK;
             newhopclk = val;
         }
         
-        void setHopDir(int val)
+        void setHopDir(int32_t val)
         {
             flags |= SETHOPDIR;
             newhopdir = val;
         }
         
-        void setDir(int val)
+        void setDir(int32_t val)
         {
             flags |= SETDIR;
             newdir = val;
@@ -161,7 +161,7 @@ class LinkClass : public sprite
             flags |= CLEARCHARGEATTACK;
         }
         
-        int getFlags()
+        int32_t getFlags()
         {
             return flags;
         }
@@ -176,14 +176,14 @@ class LinkClass : public sprite
         WalkflagInfo operator!();
         
     private:
-        int flags;
-        int newhopclk;
-        int newhopdir;
-        int newdir;
-        int newladderdir;
-        int newladderx;
-        int newladdery;
-        int newladderstart;
+        int32_t flags;
+        int32_t newhopclk;
+        int32_t newhopdir;
+        int32_t newdir;
+        int32_t newladderdir;
+        int32_t newladderx;
+        int32_t newladdery;
+        int32_t newladderstart;
     };
     
     void execute(WalkflagInfo info);
@@ -191,7 +191,7 @@ class LinkClass : public sprite
     
 public:
 	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg;
-    int refilling,
+    int32_t refilling,
         ladderx,
         laddery,
         stepnext,  //location of step->next just triggered (don't recursively trigger it)
@@ -222,7 +222,7 @@ public:
         stepoutdmap, // which dmap the passageway exits to
         stepoutscr, // which screen the passageway exits to
         slashxofs, slashyofs; // used by positionSword() and draw()
-	//spacing so no confusion between byte and int
+	//spacing so no confusion between byte and int32_t
     byte skipstep,lstep, 
 	hopclk, // hopping into water timeout.
 	diveclk, // diving timeout.
@@ -235,22 +235,22 @@ public:
 	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
 	damageovertimeclk, // clock for determining when Link takes passive damage from combos beneath him.
 	newconveyorclk; // clock for determining when Link gets moved by a conveyor
-    int shiftdir, // shift direction when walking into corners of solid combos
+    int32_t shiftdir, // shift direction when walking into corners of solid combos
     link_is_stunned, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
     sdir, // scrolling direction
     sideswimdir;  //for forcing link to face left or right in sideview
-    int hammer_swim_up_offset,
+    int32_t hammer_swim_up_offset,
 	hammer_swim_down_offset,
 	hammer_swim_left_offset,
 	hammer_swim_right_offset,
 	swimjump; //jump amount when leaving sideview water from the top
-    int hopdir;  // direction to hop out of water (diagonal movement only)
-    int holddir;
-    int landswim; // incremental time spent swimming against land
+    int32_t hopdir;  // direction to hop out of water (diagonal movement only)
+    int32_t holddir;
+    int32_t landswim; // incremental time spent swimming against land
     bool ilswim; // is land swimming?
     bool walkable;
     actiontype action, tempaction; // current action, cached action.
-    int hshandle_id, hshead_id;
+    int32_t hshandle_id, hshead_id;
     byte conveyor_flags;
 	byte raftclk; // for slow rafting movement
     zfix climb_cover_x, climb_cover_y;
@@ -260,21 +260,21 @@ public:
     byte warp_sound;
     bool diagonalMovement;
     bool bigHitbox;
-	int steprate;
-	int swimuprate;
-	int swimsiderate;
-	int swimdownrate;
+	int32_t steprate;
+	int32_t swimuprate;
+	int32_t swimsiderate;
+	int32_t swimdownrate;
     byte defence[wMax];
-	int subscr_speed;
+	int32_t subscr_speed;
 	bool is_warping;
 	
 	bool can_pitfall(bool ignore_hover = false);
 	
     void check_slash_block(weapon *w);
-    void check_slash_block_layer2(int bx, int by, weapon *w, int layer);
+    void check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int32_t layer);
     void check_pound_block(weapon *w);
     void check_wand_block(weapon *w);
-    void check_slash_block_layer(int bx, int by, int layer);
+    void check_slash_block_layer(int32_t bx, int32_t by, int32_t layer);
     
     void SetSwim();
     void SetAttack();
@@ -282,75 +282,75 @@ public:
     bool CanSideSwim();
     
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
-    int hurtsfx; //Link's Hurt SOund
-    int walkspeed; //Link's walking speed.
-    int lastHitBy[NUM_HIT_TYPES_USED][2]; //[enemy, eweapon, combo, flag
+    int32_t hurtsfx; //Link's Hurt SOund
+    int32_t walkspeed; //Link's walking speed.
+    int32_t lastHitBy[NUM_HIT_TYPES_USED][2]; //[enemy, eweapon, combo, flag
 	
-	int last_lens_id;// The item ID of the last Lens of Truth type item used
+	int32_t last_lens_id;// The item ID of the last Lens of Truth type item used
     
-	long misc_internal_link_flags;// Flags to hold data temporarily for misc handling
-	int last_cane_of_byrna_item_id;
+	int32_t misc_internal_link_flags;// Flags to hold data temporarily for misc handling
+	int32_t last_cane_of_byrna_item_id;
 	bool on_sideview_ladder;
 	zfix switchblock_z;
 	bool switchblock_offset;
 	byte hoverflags;
-	long extra_jump_count;
+	int32_t extra_jump_count;
     // Methods below here.
 	bool isStanding(bool forJump = false);
-    void explode(int type);
-    int getTileModifier();
-    void setTileModifier(int ntemod);
+    void explode(int32_t type);
+    int32_t getTileModifier();
+    void setTileModifier(int32_t ntemod);
 	bool try_hover();
-	int check_pitslide(bool ignore_hover = false);
+	int32_t check_pitslide(bool ignore_hover = false);
 	bool pitslide();
 	void pitfall();
     void movelink();
-    void move(int d, int forceRate = -1);
-	void moveOld(int d2);
-    void hitlink(int hit);
-    int  nextcombo(int cx,int cy,int cdir);
-    int  nextflag(int cx,int cy,int cdir, bool comboflag);
-    bool nextcombo_wf(int d);
-    bool nextcombo_solid(int d);
-    int  lookahead(int d);
-    int  lookaheadflag(int d);
-    bool  lookaheadraftflag(int d);
+    void move(int32_t d, int32_t forceRate = -1);
+	void moveOld(int32_t d2);
+    void hitlink(int32_t hit);
+    int32_t  nextcombo(int32_t cx,int32_t cy,int32_t cdir);
+    int32_t  nextflag(int32_t cx,int32_t cy,int32_t cdir, bool comboflag);
+    bool nextcombo_wf(int32_t d);
+    bool nextcombo_solid(int32_t d);
+    int32_t  lookahead(int32_t d);
+    int32_t  lookaheadflag(int32_t d);
+    bool  lookaheadraftflag(int32_t d);
     void checkhit();
-    bool checkdamagecombos(int dx, int dy);
-    bool checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer = -1, bool solid = false);
+    bool checkdamagecombos(int32_t dx, int32_t dy);
+    bool checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer = -1, bool solid = false);
     void checkscroll();
     void checkspecial();
-    void checkspecial2(int *ls);
+    void checkspecial2(int32_t *ls);
     void checkspecial3();
     void checkpushblock();
     bool checksoliddamage();
     void checkbosslockblock();
     void checklockblock();
     void checkswordtap();
-    void oldcheckchest(int type);
-    void checkchest(int type);
+    void oldcheckchest(int32_t type);
+    void checkchest(int32_t type);
     void checksigns();
     void checktouchblk();
     void checklocked();
-    void deselectbombs(int super); // switch Link's weapon if his current weapon (bombs) was depleted.
-    bool startwpn(int itemid);
+    void deselectbombs(int32_t super); // switch Link's weapon if his current weapon (bombs) was depleted.
+    bool startwpn(int32_t itemid);
     bool doattack();
     bool can_attack();
     void do_rafting();
     void do_hopping();
-    WalkflagInfo walkflag(zfix fx,zfix fy,int cnt,byte d);
-    WalkflagInfo walkflag(int wx,int wy,int cnt,byte d);
-    WalkflagInfo walkflagMBlock(int wx,int wy);
-    bool edge_of_dmap(int side);
+    WalkflagInfo walkflag(zfix fx,zfix fy,int32_t cnt,byte d);
+    WalkflagInfo walkflag(int32_t wx,int32_t wy,int32_t cnt,byte d);
+    WalkflagInfo walkflagMBlock(int32_t wx,int32_t wy);
+    bool edge_of_dmap(int32_t side);
     bool checkmaze(mapscr *scr, bool sound);
-    bool maze_enabled_sizewarp(int scrolldir);
+    bool maze_enabled_sizewarp(int32_t scrolldir);
     bool HasHeavyBoots();
-    int get_scroll_step(int scrolldir);
-    int get_scroll_delay(int scrolldir);
-    void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw);
-    void calc_darkroom_link(int x1 = 0, int y1 = 0, int x2 = 0, int y2 = 0);
-	void scrollscr(int dir,int destscr = -1, int destdmap = -1);
-    int defend(weapon *w);
+    int32_t get_scroll_step(int32_t scrolldir);
+    int32_t get_scroll_delay(int32_t scrolldir);
+    void run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw);
+    void calc_darkroom_link(int32_t x1 = 0, int32_t y1 = 0, int32_t x2 = 0, int32_t y2 = 0);
+	void scrollscr(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
+    int32_t defend(weapon *w);
     
 private:
     void walkdown(bool opening);
@@ -360,106 +360,106 @@ private:
     void exitcave();
     void stepout();
     void masked_draw(BITMAP *dest);
-    void getTriforce(int id);
-    int weaponattackpower();
-    void positionSword(weapon* w,int itemid);
+    void getTriforce(int32_t id);
+    int32_t weaponattackpower();
+    void positionSword(weapon* w,int32_t itemid);
     bool checkstab();
-    void fairycircle(int type);
-    void StartRefill(int refillWhat);
-    void Start250Refill(int refillWhat);
-    int  EwpnHit();
-    int  LwpnHit();
+    void fairycircle(int32_t type);
+    void StartRefill(int32_t refillWhat);
+    void Start250Refill(int32_t refillWhat);
+    int32_t  EwpnHit();
+    int32_t  LwpnHit();
     void heroDeathAnimation();
     void ganon_intro();
     void saved_Zelda();
    
     void check_conveyor();
     bool sideviewhammerpound();
-    bool agonyflag(int flag);
-    int ringpower(int dmg);
-    void addsparkle(int wpn);
-    void addsparkle2(int type1, int type2);
+    bool agonyflag(int32_t flag);
+    int32_t ringpower(int32_t dmg);
+    void addsparkle(int32_t wpn);
+    void addsparkle2(int32_t type1, int32_t type2);
     void PhantomsCleanup();
     
 public:
 
-    void checkitems(int index = -1);
-    int DrunkClock();
-    void setDrunkClock(int newdrunkclk);
-    int StunClock();
-    void setStunClock(int v);
-    void setEntryPoints(int x, int y);
+    void checkitems(int32_t index = -1);
+    int32_t DrunkClock();
+    void setDrunkClock(int32_t newdrunkclk);
+    int32_t StunClock();
+    void setStunClock(int32_t v);
+    void setEntryPoints(int32_t x, int32_t y);
     LinkClass();
     void init();
     virtual void drawshadow(BITMAP* dest, bool translucent);
     virtual void draw(BITMAP* dest);
-    virtual bool animate(int index);
-    bool dowarp(int type, int index, int warpsfx=0);
+    virtual bool animate(int32_t index);
+    bool dowarp(int32_t type, int32_t index, int32_t warpsfx=0);
     
     void linkstep();
-    void stepforward(int steps, bool adjust);
+    void stepforward(int32_t steps, bool adjust);
     void draw_under(BITMAP* dest);
-    void check_slash_block(int bx, int by);
-    void check_wpn_triggers(int bx, int by, weapon *w);
-    void check_slash_block2(int bx, int by, weapon *w);
-    void check_wand_block2(int bx, int by, weapon *w);
-    void check_pound_block2(int bx, int by, weapon *w);
+    void check_slash_block(int32_t bx, int32_t by);
+    void check_wpn_triggers(int32_t bx, int32_t by, weapon *w);
+    void check_slash_block2(int32_t bx, int32_t by, weapon *w);
+    void check_wand_block2(int32_t bx, int32_t by, weapon *w);
+    void check_pound_block2(int32_t bx, int32_t by, weapon *w);
     
-    void check_wand_block(int bx, int by);
-    void check_pound_block(int bx, int by);
+    void check_wand_block(int32_t bx, int32_t by);
+    void check_pound_block(int32_t bx, int32_t by);
     
     // called by ALLOFF()
     void resetflags(bool all);
     void Freeze();
     void unfreeze();
     void finishedmsg();
-    void Drown(int state = 0);
-    int getEaten();
-    void setEaten(int i);
+    void Drown(int32_t state = 0);
+    int32_t getEaten();
+    void setEaten(int32_t i);
     zfix  getX();
     zfix  getY();
     zfix  getZ();
     zfix  getFall();
     zfix  getXOfs();
     zfix  getYOfs();
-    void setXOfs(int newxofs);
-    void setYOfs(int newyofs);
-    int  getHXOfs();
-    int  getHYOfs();
-    int  getHXSz();
-    int  getHYSz();
+    void setXOfs(int32_t newxofs);
+    void setYOfs(int32_t newyofs);
+    int32_t  getHXOfs();
+    int32_t  getHYOfs();
+    int32_t  getHXSz();
+    int32_t  getHYSz();
     zfix  getClimbCoverX();
     zfix  getClimbCoverY();
-    int  getLadderX();
-    int  getLadderY();
-    void setX(int new_x);
-    void setY(int new_y);
-    void setZ(int new_Z);
+    int32_t  getLadderX();
+    int32_t  getLadderY();
+    void setX(int32_t new_x);
+    void setY(int32_t new_y);
+    void setZ(int32_t new_Z);
     
     void setXfix(zfix new_x);
     void setYfix(zfix new_y);
     void setZfix(zfix new_Z);
     void setFall(zfix new_fall);
-    void setClimbCoverX(int new_x);
-    void setClimbCoverY(int new_y);
-    int  getLStep();
-    int  getCharging();
-    void setCharging(int new_charging);
+    void setClimbCoverX(int32_t new_x);
+    void setClimbCoverY(int32_t new_y);
+    int32_t  getLStep();
+    int32_t  getCharging();
+    void setCharging(int32_t new_charging);
     bool isCharged();
-    int  getAttackClk();
-    void  setAttackClk(int new_clk);
-    int  getSwordClk();
-    int  getItemClk();
-    void  setSwordClk(int newclk);
-    void  setItemClk(int newclk);
+    int32_t  getAttackClk();
+    void  setAttackClk(int32_t new_clk);
+    int32_t  getSwordClk();
+    int32_t  getItemClk();
+    void  setSwordClk(int32_t newclk);
+    void  setItemClk(int32_t newclk);
     zfix  getModifiedX();
     zfix  getModifiedY();
-    int  getDir();
-    void setDir(int new_dir);
-    int  getHitDir();
-    void setHitDir(int new_dir);
-    int  getClk();
-    int  getPushing();
+    int32_t  getDir();
+    void setDir(int32_t new_dir);
+    int32_t  getHitDir();
+    void setHitDir(int32_t new_dir);
+    int32_t  getClk();
+    int32_t  getPushing();
     void reset_swordcharge();
     void reset_hookshot();
     bool can_deploy_ladder();
@@ -468,22 +468,22 @@ public:
     void Catch();
     bool getClock();
     void setClock(bool state);
-    int  getAction();
-    int  getAction2(); //used by the new ffcore.actions
+    int32_t  getAction();
+    int32_t  getAction2(); //used by the new ffcore.actions
     void setAction(actiontype new_action);
-    int getHeldItem();
-    void setHeldItem(int newitem);
+    int32_t getHeldItem();
+    void setHeldItem(int32_t newitem);
     bool isDiving();
     bool isSwimming();
     void setDontDraw(byte new_dontdraw);
     byte getDontDraw();
-    void setHClk(int newhclk);
-    int getHClk();
-    void setNayrusLoveShieldClk(int newclk);
-    int getNayrusLoveShieldClk();
-    int getHoverClk();
-    int getHoldClk();
-    int getSpecialCave(); // used only by maps.cpp
+    void setHClk(int32_t newhclk);
+    int32_t getHClk();
+    void setNayrusLoveShieldClk(int32_t newclk);
+    int32_t getNayrusLoveShieldClk();
+    int32_t getHoverClk();
+    int32_t getHoldClk();
+    int32_t getSpecialCave(); // used only by maps.cpp
     bool ffwarp;
     bool ffpit;
     void setscriptnohit(bool);
@@ -492,89 +492,89 @@ public:
      bool getCanLinkFlicker(); //enable or disable flicker or flash
     void setCanLinkFlicker(bool v);
     
-    void sethitLinkUID(int type, int screen_index);
+    void sethitLinkUID(int32_t type, int32_t screen_index);
     void ClearhitLinkUIDs();
-    void set_defence(int def, int v);
-    int get_defence(int def);
-    int gethitLinkUID(int type);
+    void set_defence(int32_t def, int32_t v);
+    int32_t get_defence(int32_t def);
+    int32_t gethitLinkUID(int32_t type);
     
-    void setHurtSFX(int sfx); //Set Link;s hurt sfx
-    int getHurtSFX();
+    void setHurtSFX(int32_t sfx); //Set Link;s hurt sfx
+    int32_t getHurtSFX();
     
       //Prevent the subscreen from falling by script.
     bool stopSubscreenFalling();
     void stopSubscreenFalling(bool v);
     
     //Set the button items by brute force
-    void setAButtonItem(int subscreenslot);
-    void setBButtonItem(int subscreenslot);
+    void setAButtonItem(int32_t subscreenslot);
+    void setBButtonItem(int32_t subscreenslot);
     
     bool getDiagMove(); //Diagonal movement.
     void setDiagMove(bool newdiag);
     bool getBigHitbox(); //Large H-itbox
     void setBigHitbox(bool newbighitbox);
-	int getStepRate();
-	void setStepRate(int newrate);
-	int getSwimUpRate();
-	void setSwimUpRate(int newrate);
-	int getSwimSideRate();
-	void setSwimSideRate(int newrate);
-	int getSwimDownRate();
-	void setSwimDownRate(int newrate);
+	int32_t getStepRate();
+	void setStepRate(int32_t newrate);
+	int32_t getSwimUpRate();
+	void setSwimUpRate(int32_t newrate);
+	int32_t getSwimSideRate();
+	void setSwimSideRate(int32_t newrate);
+	int32_t getSwimDownRate();
+	void setSwimDownRate(int32_t newrate);
 
 	
 	
-	int getLastLensID();	
-	void setLastLensID(int p_item);
+	int32_t getLastLensID();	
+	void setLastLensID(int32_t p_item);
 	void cleanupByrna();
 	bool getOnSideviewLadder();
 	void setOnSideviewLadder(bool val);
 	bool canSideviewLadder(bool down = false);
-	bool canSideviewLadderRemote(int wx, int wy, bool down = false);
+	bool canSideviewLadderRemote(int32_t wx, int32_t wy, bool down = false);
 };
 
-bool isRaftFlag(int flag);
+bool isRaftFlag(int32_t flag);
 void do_lens();
 void do_210_lens();
-int touchcombo(int x,int y);
+int32_t touchcombo(int32_t x,int32_t y);
 extern bool did_secret;
-int selectWlevel(int d);
+int32_t selectWlevel(int32_t d);
 void computeMaxArrows();
 
 /************************************/
 /********  More Items Code  *********/
 /************************************/
 
-int enemy_dp(int index);
-int ewpn_dp(int index);
-int lwpn_dp(int index);
-bool checkmagiccost(int itemid);
-void paymagiccost(int itemid, bool ignoreTimer = false);
-int Bweapon(int pos);
+int32_t enemy_dp(int32_t index);
+int32_t ewpn_dp(int32_t index);
+int32_t lwpn_dp(int32_t index);
+bool checkmagiccost(int32_t itemid);
+void paymagiccost(int32_t itemid, bool ignoreTimer = false);
+int32_t Bweapon(int32_t pos);
 void stopCaneOfByrna();
-//void selectWpn(int xstep, int ystep, bool b);
-const int SEL_UP = 0;
-const int SEL_LEFT = 1;
-const int SEL_DOWN = 2;
-const int SEL_RIGHT = 3;
-const int SEL_VERIFY_LEFT = 4;
-const int SEL_VERIFY_RIGHT = 5;
-int selectWpn_new(int type, int startpos, int forbiddenpos = -1, int fp2 = -1, int fp3 = -1);
-bool isWpnPressed(int wpn);
-int getWpnPressed(int wpn);
-int selectSword();
-void selectNextAWpn(int type);
-void selectNextBWpn(int type);
+//void selectWpn(int32_t xstep, int32_t ystep, bool b);
+const int32_t SEL_UP = 0;
+const int32_t SEL_LEFT = 1;
+const int32_t SEL_DOWN = 2;
+const int32_t SEL_RIGHT = 3;
+const int32_t SEL_VERIFY_LEFT = 4;
+const int32_t SEL_VERIFY_RIGHT = 5;
+int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos = -1, int32_t fp2 = -1, int32_t fp3 = -1);
+bool isWpnPressed(int32_t wpn);
+int32_t getWpnPressed(int32_t wpn);
+int32_t selectSword();
+void selectNextAWpn(int32_t type);
+void selectNextBWpn(int32_t type);
 void verifyBothWeapons();
 void verifyAWpn();
 void verifyBWpn();
 void verifyXWpn();
 void verifyYWpn();
-bool canget(int id);
-void dospecialmoney(int index);
-void getitem(int id, bool nosound=false);
-void takeitem(int id);
+bool canget(int32_t id);
+void dospecialmoney(int32_t index);
+void getitem(int32_t id, bool nosound=false);
+void takeitem(int32_t id);
 void red_shift();
-void slide_in_color(int color);
+void slide_in_color(int32_t color);
 #endif
 /*** end of link.cc ***/

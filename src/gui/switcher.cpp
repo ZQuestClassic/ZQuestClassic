@@ -35,14 +35,14 @@ void Switcher::applyVisibility(bool visible)
 void Switcher::calculateSize()
 {
 	// The switcher is as large as its largest child.
-	int maxW = 0, maxH = 0;
+	int32_t maxW = 0, maxH = 0;
 	for(auto& child: children)
 	{
 		child->calculateSize();
-		int w = child->getWidth(); // Should this be getTotalWidth()?
+		int32_t w = child->getWidth(); // Should this be getTotalWidth()?
 		if(w > maxW)
 			maxW = w;
-		int h = child->getHeight(); // getTotalHeight()?
+		int32_t h = child->getHeight(); // getTotalHeight()?
 		if(w > maxH)
 			maxH = h;
 	}
@@ -50,7 +50,7 @@ void Switcher::calculateSize()
 	setPreferredHeight(Size::pixels(maxH));
 }
 
-void Switcher::arrange(int contX, int contY, int contW, int contH)
+void Switcher::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 {
 	for(auto& child: children)
 		child->arrange(contX, contY, contW, contH);

@@ -26,7 +26,7 @@
 /*******  Decoration Base Class  *******/
 /***************************************/
 
-decoration::decoration(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : sprite()
+decoration::decoration(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : sprite()
 {
 	x=X;
 	y=Y;
@@ -43,12 +43,12 @@ decoration::~decoration() {}
 /*******   Decorations   *******/
 /*******************************/
 
-int dBushLeaves::ft[4][8][3];
-int dFlowerClippings::ft[4][8][3];
-int dGrassClippings::ft[3][4][4];
-int dHammerSmack::ft[2][4][3];
+int32_t dBushLeaves::ft[4][8][3];
+int32_t dFlowerClippings::ft[4][8][3];
+int32_t dGrassClippings::ft[3][4][4];
+int32_t dHammerSmack::ft[2][4][3];
 
-dBushLeaves::dBushLeaves(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dBushLeaves::dBushLeaves(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
@@ -162,7 +162,7 @@ dBushLeaves::dBushLeaves(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(
 	}
 }
 
-bool dBushLeaves::animate(int index)
+bool dBushLeaves::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	return (clk++>=24);
@@ -175,7 +175,7 @@ void dBushLeaves::draw(BITMAP *dest)
 		clk=128;
 		return;
 	}
-	int t=0;
+	int32_t t=0;
 	if ( the_deco_sprite )
 	{
 		t=wpnsbuf[the_deco_sprite].newtile;
@@ -189,18 +189,18 @@ void dBushLeaves::draw(BITMAP *dest)
 		
 	}
 	
-	for(int i=0; i<4; ++i)
+	for(int32_t i=0; i<4; ++i)
 	{
-		x=ox+ft[i][int(float(clk-1)/3)][0];
-		y=oy+ft[i][int(float(clk-1)/3)][1];
-		flip=ft[i][int(float(clk-1)/3)][2];
+		x=ox+ft[i][int32_t(float(clk-1)/3)][0];
+		y=oy+ft[i][int32_t(float(clk-1)/3)][1];
+		flip=ft[i][int32_t(float(clk-1)/3)][2];
 		tile=t*4+i;
 		decoration::draw8(dest);
 	}
 }
 
 
-comboSprite::comboSprite(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+comboSprite::comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
@@ -210,7 +210,7 @@ comboSprite::comboSprite(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(
 	spd = wpnsbuf[the_deco_sprite].speed;
 }
 
-bool comboSprite::animate(int index)
+bool comboSprite::animate(int32_t index)
 {
 	/*
 	clk++;
@@ -219,7 +219,7 @@ bool comboSprite::animate(int index)
 	//if ( clk > tframes ) dead=1;
 	return clk()<=0;
 	*/
-	int dur = wpnsbuf[the_deco_sprite].frames * wpnsbuf[the_deco_sprite].speed;
+	int32_t dur = wpnsbuf[the_deco_sprite].frames * wpnsbuf[the_deco_sprite].speed;
 	//al_trace("dur: %d\n", dur);
 	//al_trace("clk: %d\n", clk);
 	return (clk++>=dur);
@@ -238,17 +238,17 @@ void comboSprite::draw(BITMAP *dest)
 	sprite::draw(dest);
 }
 */
-void comboSprite::realdraw(BITMAP *dest, int draw_what)
+void comboSprite::realdraw(BITMAP *dest, int32_t draw_what)
 {
 	if(misc!=draw_what)
 	{
 		return;
 	}
 	
-	int fb=the_deco_sprite;
-	int t=wpnsbuf[fb].newtile;
-	int fr=wpnsbuf[fb].frames;
-	int spd=wpnsbuf[fb].speed;
+	int32_t fb=the_deco_sprite;
+	int32_t t=wpnsbuf[fb].newtile;
+	int32_t fr=wpnsbuf[fb].frames;
+	int32_t spd=wpnsbuf[fb].speed;
 	cs=wpnsbuf[fb].csets&15;
 	flip=0;
 	
@@ -273,7 +273,7 @@ void comboSprite::draw2(BITMAP *dest)
 	realdraw(dest,1);
 }
 
-dFlowerClippings::dFlowerClippings(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dFlowerClippings::dFlowerClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
@@ -387,7 +387,7 @@ dFlowerClippings::dFlowerClippings(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : d
 	}
 }
 
-bool dFlowerClippings::animate(int index)
+bool dFlowerClippings::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	return (clk++>=24);
@@ -401,7 +401,7 @@ void dFlowerClippings::draw(BITMAP *dest)
 		return;
 	}
 	
-	int t=0;
+	int32_t t=0;
 	
 	if ( the_deco_sprite )
 	{
@@ -417,17 +417,17 @@ void dFlowerClippings::draw(BITMAP *dest)
 	}
 	
 	
-	for(int i=0; i<4; ++i)
+	for(int32_t i=0; i<4; ++i)
 	{
-		x=ox+ft[i][int(float(clk-1)/3)][0];
-		y=oy+ft[i][int(float(clk-1)/3)][1];
-		flip=ft[i][int(float(clk-1)/3)][2];
+		x=ox+ft[i][int32_t(float(clk-1)/3)][0];
+		y=oy+ft[i][int32_t(float(clk-1)/3)][1];
+		flip=ft[i][int32_t(float(clk-1)/3)][2];
 		tile=t*4+i;
 		decoration::draw8(dest);
 	}
 }
 
-dGrassClippings::dGrassClippings(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dGrassClippings::dGrassClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
@@ -492,7 +492,7 @@ dGrassClippings::dGrassClippings(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : dec
 	}
 }
 
-bool dGrassClippings::animate(int index)
+bool dGrassClippings::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	return (clk++>=12);
@@ -506,7 +506,7 @@ void dGrassClippings::draw(BITMAP *dest)
 		return;
 	}
 	
-	int t=0;
+	int32_t t=0;
 	
 	if ( the_deco_sprite )
 	{
@@ -521,17 +521,17 @@ void dGrassClippings::draw(BITMAP *dest)
 		
 	}
 	
-	for(int i=0; i<3; ++i)
+	for(int32_t i=0; i<3; ++i)
 	{
-		x=ox+ft[i][int(float(clk-1)/3)][0];
-		y=oy+ft[i][int(float(clk-1)/3)][1];
-		flip=ft[i][int(float(clk-1)/3)][2];
-		tile=(t+(ft[i][int(float(clk-1)/3)][3]))*4+i;
+		x=ox+ft[i][int32_t(float(clk-1)/3)][0];
+		y=oy+ft[i][int32_t(float(clk-1)/3)][1];
+		flip=ft[i][int32_t(float(clk-1)/3)][2];
+		tile=(t+(ft[i][int32_t(float(clk-1)/3)][3]))*4+i;
 		decoration::draw8(dest);
 	}
 }
 
-dHammerSmack::dHammerSmack(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dHammerSmack::dHammerSmack(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
@@ -573,7 +573,7 @@ dHammerSmack::dHammerSmack(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoratio
 	wpnid=itemsbuf[current_item_id(itype_hammer)].wpn2;
 }
 
-bool dHammerSmack::animate(int index)
+bool dHammerSmack::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	return (clk++>=12);
@@ -587,26 +587,26 @@ void dHammerSmack::draw(BITMAP *dest)
 		return;
 	}
 	
-	int t=wpnsbuf[wpnid].newtile;
+	int32_t t=wpnsbuf[wpnid].newtile;
 	cs=wpnsbuf[wpnid].csets&15;
 	flip=0;
 	
-	for(int i=0; i<2; ++i)
+	for(int32_t i=0; i<2; ++i)
 	{
-		x=ox+ft[i][int(float(clk-1)/3)][0];
-		y=oy+ft[i][int(float(clk-1)/3)][1];
-		tile=t*4+i+(ft[i][int(float(clk-1)/3)][2]*2);
+		x=ox+ft[i][int32_t(float(clk-1)/3)][0];
+		y=oy+ft[i][int32_t(float(clk-1)/3)][1];
+		tile=t*4+i+(ft[i][int32_t(float(clk-1)/3)][2]*2);
 		decoration::draw8(dest);
 	}
 }
 
-dTallGrass::dTallGrass(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dTallGrass::dTallGrass(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
 }
 
-bool dTallGrass::animate(int index)
+bool dTallGrass::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	return (!isGrassType(COMBOTYPE(LinkX(),LinkY()+15)) || !isGrassType(COMBOTYPE(LinkX()+15,LinkY()+15)) || LinkZ()>8);
@@ -617,7 +617,7 @@ void dTallGrass::draw(BITMAP *dest)
 	if(LinkGetDontDraw())
 		return;
 		
-	int t=0;
+	int32_t t=0;
 	if ( the_deco_sprite )
 	{
 		t=wpnsbuf[the_deco_sprite].newtile*4;
@@ -651,13 +651,13 @@ void dTallGrass::draw(BITMAP *dest)
 	decoration::draw8(dest);
 }
 
-dRipples::dRipples(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dRipples::dRipples(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
 }
 
-bool dRipples::animate(int index)
+bool dRipples::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	clk++;
@@ -691,7 +691,7 @@ void dRipples::draw(BITMAP *dest)
 	if(LinkGetDontDraw())
 		return;
 	
-	int t=0;
+	int32_t t=0;
 	
 	if ( the_deco_sprite )
 	{
@@ -716,7 +716,7 @@ void dRipples::draw(BITMAP *dest)
 	decoration::draw8(dest);
 }
 
-dHover::dHover(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk)
+dHover::dHover(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
@@ -725,7 +725,7 @@ dHover::dHover(zfix X,zfix Y,int Id,int Clk, int wpnSpr) : decoration(X,Y,Id,Clk
 
 void dHover::draw(BITMAP *dest)
 {
-	int t=wpnsbuf[wpnid].newtile*4;
+	int32_t t=wpnsbuf[wpnid].newtile*4;
 	cs=wpnsbuf[wpnid].csets&15;
 	flip=0;
 	x=LinkX();
@@ -737,41 +737,41 @@ void dHover::draw(BITMAP *dest)
 	decoration::draw8(dest);
 }
 
-bool dHover::animate(int index)
+bool dHover::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	clk++;
 	return LinkHoverClk()<=0;
 }
 
-dNayrusLoveShield::dNayrusLoveShield(zfix X,zfix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+dNayrusLoveShield::dNayrusLoveShield(zfix X,zfix Y,int32_t Id,int32_t Clk) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
 }
 
-bool dNayrusLoveShield::animate(int index)
+bool dNayrusLoveShield::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	clk++;
 	return LinkNayrusLoveShieldClk()<=0;
 }
 
-void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
+void dNayrusLoveShield::realdraw(BITMAP *dest, int32_t draw_what)
 {
 	if(misc!=draw_what)
 	{
 		return;
 	}
 	
-	int fb=(misc==0?
+	int32_t fb=(misc==0?
 	        (itemsbuf[current_item_id(itype_nayruslove)].wpn5 ?
 	         itemsbuf[current_item_id(itype_nayruslove)].wpn5 : (byte) iwNayrusLoveShieldFront) :
 	            (itemsbuf[current_item_id(itype_nayruslove)].wpn10 ?
 	             itemsbuf[current_item_id(itype_nayruslove)].wpn10 : (byte) iwNayrusLoveShieldBack));
-	int t=wpnsbuf[fb].newtile;
-	int fr=wpnsbuf[fb].frames;
-	int spd=wpnsbuf[fb].speed;
+	int32_t t=wpnsbuf[fb].newtile;
+	int32_t fr=wpnsbuf[fb].frames;
+	int32_t spd=wpnsbuf[fb].speed;
 	cs=wpnsbuf[fb].csets&15;
 	flip=0;
 	bool flickering = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG4) != 0;

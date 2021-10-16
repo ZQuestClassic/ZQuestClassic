@@ -36,7 +36,7 @@ size_t RadioSet::getChecked()
 	return checked;
 }
 
-void RadioSet::setProcSet(int newProcSet)
+void RadioSet::setProcSet(int32_t newProcSet)
 {
 	procset = newProcSet;
 	for(auto& child : children)
@@ -82,7 +82,7 @@ void RadioSet::calculateSize()
 	setPreferredHeight(Size::pixels(content->getHeight()));
 }
 
-void RadioSet::arrange(int contX, int contY, int contW, int contH)
+void RadioSet::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 {
 	Widget::arrange(contX, contY, contW, contH);
 	content->arrange(contX, contY, contW, contH);

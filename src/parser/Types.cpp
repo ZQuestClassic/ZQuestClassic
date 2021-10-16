@@ -22,7 +22,7 @@ TypeStore::TypeStore()
 		assignTypeId(*DataType::get(id));
 
 	// Assign builtin classes.
-	for (int id = ZVARTYPEID_CLASS_START; id < ZVARTYPEID_CLASS_END; ++id)
+	for (int32_t id = ZVARTYPEID_CLASS_START; id < ZVARTYPEID_CLASS_END; ++id)
 	{
 		DataTypeClass& type = *(DataTypeClass*)DataType::get(id);
 		assert(type.getClassId() == ownedClasses.size());
@@ -41,7 +41,7 @@ TypeStore::~TypeStore()
 
 DataType const* TypeStore::getType(DataTypeId typeId) const
 {
-	if (typeId < 0 || typeId > (int)ownedTypes.size()) return NULL;
+	if (typeId < 0 || typeId > (int32_t)ownedTypes.size()) return NULL;
 	return ownedTypes[typeId];
 }
 
@@ -87,9 +87,9 @@ optional<DataTypeId> TypeStore::getOrAssignTypeId(DataType const& type)
 
 // Classes
 
-ZClass* TypeStore::getClass(int classId) const
+ZClass* TypeStore::getClass(int32_t classId) const
 {
-	if (classId < 0 || classId > int(ownedClasses.size())) return NULL;
+	if (classId < 0 || classId > int32_t(ownedClasses.size())) return NULL;
 	return ownedClasses[classId];
 }
 
@@ -130,13 +130,13 @@ bool TypeStore::TypeIdMapComparator::operator()(
 DataTypeSimpleConst DataType::CUNTYPED(ZVARTYPEID_UNTYPED, "const untyped");
 DataTypeSimpleConst DataType::CFLOAT(ZVARTYPEID_FLOAT, "const float");
 DataTypeSimpleConst DataType::CCHAR(ZVARTYPEID_CHAR, "const char32");
-DataTypeSimpleConst DataType::CLONG(ZVARTYPEID_LONG, "const long");
+DataTypeSimpleConst DataType::CLONG(ZVARTYPEID_LONG, "const int32_t");
 DataTypeSimpleConst DataType::CBOOL(ZVARTYPEID_BOOL, "const bool");
 DataTypeSimple DataType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", &CUNTYPED);
 DataTypeSimple DataType::ZVOID(ZVARTYPEID_VOID, "void", NULL);
 DataTypeSimple DataType::FLOAT(ZVARTYPEID_FLOAT, "float", &CFLOAT);
 DataTypeSimple DataType::CHAR(ZVARTYPEID_CHAR, "char32", &CCHAR);
-DataTypeSimple DataType::LONG(ZVARTYPEID_LONG, "long", &CLONG);
+DataTypeSimple DataType::LONG(ZVARTYPEID_LONG, "int32_t", &CLONG);
 DataTypeSimple DataType::BOOL(ZVARTYPEID_BOOL, "bool", &CBOOL);
 DataTypeArray DataType::STRING(CHAR);
 //Classes: Global Pointer
@@ -214,7 +214,7 @@ DataTypeClass DataType::RNG(ZCLASSID_RNG, "RNG", &CRNG);
 ////////////////////////////////////////////////////////////////
 // DataType
 
-int DataType::compare(DataType const& rhs) const
+int32_t DataType::compare(DataType const& rhs) const
 {
 	std::type_info const& lhsType = typeid(*this);
 	std::type_info const& rhsType = typeid(rhs);
@@ -276,7 +276,7 @@ DataType const* DataType::get(DataTypeId id)
 	}
 }
 
-DataTypeClass const* DataType::getClass(int classId)
+DataTypeClass const* DataType::getClass(int32_t classId)
 {
 	switch (classId)
 	{
@@ -328,8 +328,8 @@ void DataType::addCustom(DataTypeCustom* custom)
 	customTypes[custom->getCustomId()] = custom;
 }
 
-int DataType::nextCustomId_;
-std::map<int, DataTypeCustom*> DataType::customTypes;
+int32_t DataType::nextCustomId_;
+std::map<int32_t, DataTypeCustom*> DataType::customTypes;
 
 bool ZScript::operator==(DataType const& lhs, DataType const& rhs)
 {
@@ -393,10 +393,10 @@ DataType const& ZScript::getNaiveType(DataType const& type, Scope* scope)
 	return *t;
 }
 
-int ZScript::getArrayDepth(DataType const& type)
+int32_t ZScript::getArrayDepth(DataType const& type)
 {
 	DataType const* ptype = &type;
-	int depth = 0;
+	int32_t depth = 0;
 	while (DataTypeArray const* t = dynamic_cast<DataTypeArray const*>(ptype))
 	{
 		++depth;
@@ -438,7 +438,7 @@ std::string DataTypeUnresolved::getName() const
 	return name;
 }
 
-int DataTypeUnresolved::selfCompare(DataType const& rhs) const
+int32_t DataTypeUnresolved::selfCompare(DataType const& rhs) const
 {
 	DataTypeUnresolved const& o = static_cast<DataTypeUnresolved const&>(rhs);
 	return name.compare(name);
@@ -447,11 +447,11 @@ int DataTypeUnresolved::selfCompare(DataType const& rhs) const
 ////////////////////////////////////////////////////////////////
 // DataTypeSimple
 
-DataTypeSimple::DataTypeSimple(int simpleId, string const& name, DataType* constType)
+DataTypeSimple::DataTypeSimple(int32_t simpleId, string const& name, DataType* constType)
 	: DataType(constType), simpleId(simpleId), name(name)
 {}
 
-int DataTypeSimple::selfCompare(DataType const& rhs) const
+int32_t DataTypeSimple::selfCompare(DataType const& rhs) const
 {
 	DataTypeSimple const& o = static_cast<DataTypeSimple const&>(rhs);
 	return simpleId - o.simpleId;
@@ -495,18 +495,18 @@ bool DataTypeSimple::canBeGlobal() const
 ////////////////////////////////////////////////////////////////
 // DataTypeSimpleConst
 
-DataTypeSimpleConst::DataTypeSimpleConst(int simpleId, string const& name)
+DataTypeSimpleConst::DataTypeSimpleConst(int32_t simpleId, string const& name)
 	: DataTypeSimple(simpleId, name, NULL)
 {}
 
 ////////////////////////////////////////////////////////////////
 // DataTypeClass
 
-DataTypeClass::DataTypeClass(int classId, DataType* constType)
+DataTypeClass::DataTypeClass(int32_t classId, DataType* constType)
 	: DataType(constType), classId(classId), className("")
 {}
 
-DataTypeClass::DataTypeClass(int classId, string const& className, DataType* constType)
+DataTypeClass::DataTypeClass(int32_t classId, string const& className, DataType* constType)
 	: DataType(constType), classId(classId), className(className)
 {}
 
@@ -545,7 +545,7 @@ bool DataTypeClass::canCastTo(DataType const& target) const
 	return false;
 }
 
-int DataTypeClass::selfCompare(DataType const& rhs) const
+int32_t DataTypeClass::selfCompare(DataType const& rhs) const
 {
 	DataTypeClass const& o = static_cast<DataTypeClass const&>(rhs);
 	return classId - o.classId;
@@ -554,7 +554,7 @@ int DataTypeClass::selfCompare(DataType const& rhs) const
 ////////////////////////////////////////////////////////////////
 // DataTypeClassConst
 
-DataTypeClassConst::DataTypeClassConst(int classId, string const& name)
+DataTypeClassConst::DataTypeClassConst(int32_t classId, string const& name)
 	: DataTypeClass(classId, name, NULL)
 {}
 
@@ -573,7 +573,7 @@ bool DataTypeArray::canCastTo(DataType const& target) const
 	return getBaseType(*this).canCastTo(target);
 }
 
-int DataTypeArray::selfCompare(DataType const& rhs) const
+int32_t DataTypeArray::selfCompare(DataType const& rhs) const
 {
 	DataTypeArray const& o = static_cast<DataTypeArray const&>(rhs);
 	return elementType.compare(o.elementType);
@@ -620,7 +620,7 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 	return false;
 }
 
-int DataTypeCustom::selfCompare(DataType const& other) const
+int32_t DataTypeCustom::selfCompare(DataType const& other) const
 {
 	DataTypeCustom const& o = static_cast<DataTypeCustom const&>(other);
 	return id - o.id;

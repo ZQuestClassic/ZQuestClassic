@@ -13,15 +13,15 @@ class FooDialog: public GUI::Dialog<FooDialog>
 public:
 	enum class message { OK, CANCEL };
 
-	FooDialog(int v, std::function<void(int,bool)> setVal);
+	FooDialog(int32_t v, std::function<void(int32_t,bool)> setVal);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	std::shared_ptr<GUI::TextField> datafield;
-	std::function<void(int,bool)> setVal;
-	int v;
+	std::function<void(int32_t,bool)> setVal;
+	int32_t v;
 };
 
 #endif

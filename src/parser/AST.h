@@ -148,10 +148,10 @@ namespace ZScript
 	class LocationData
 	{
 	public:
-		int first_line;
-		int last_line;
-		int first_column;
-		int last_column;
+		int32_t first_line;
+		int32_t last_line;
+		int32_t first_column;
+		int32_t last_column;
 		std::string fname;
 
 		LocationData()
@@ -312,9 +312,9 @@ namespace ZScript
 		         LocationData const& location = LOC_NONE);
 		ASTFloat(std::string const& value, Type type,
 		         LocationData const& location = LOC_NONE);
-		ASTFloat(long value, Type type,
+		ASTFloat(int32_t value, Type type,
 		         LocationData const& location = LOC_NONE);
-		ASTFloat(long ipart, long dpart,
+		ASTFloat(int32_t ipart, int32_t dpart,
 		         LocationData const& location = LOC_NONE);
 		ASTFloat* clone() const {return new ASTFloat(*this);}
 	
@@ -776,9 +776,9 @@ namespace ZScript
 
 		Type getDeclarationType() const /*override*/ {return TYPE_FUNCTION;}
 		
-		bool getFlag(int flag) const {return (flags & flag) != 0;}
-		void setFlag(int flag, bool state = true);
-		int getFlags() const {return flags;}
+		bool getFlag(int32_t flag) const {return (flags & flag) != 0;}
+		void setFlag(int32_t flag, bool state = true);
+		int32_t getFlags() const {return flags;}
 		bool isRun() const;
 
 		owning_ptr<ASTDataType> returnType;
@@ -792,12 +792,12 @@ namespace ZScript
 		bool prototype;
 		owning_ptr<ASTExprConst> defaultReturn;
 	private:
-		int flags;
+		int32_t flags;
 		friend class Function;
 	};
 
 	// A line of variable/constant declarations:
-	// int a, b, c[];
+	// int32_t a, b, c[];
 	class ASTDataDeclList : public ASTDecl
 	{
 	public:
@@ -833,7 +833,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		virtual bool isEnum() const {return true;}
 	private:
-		long nextVal;
+		int32_t nextVal;
 	};
 
 	// Declares a single variable or constant. May or may not be inside an
@@ -902,7 +902,7 @@ namespace ZScript
 		bool hasSize() const {return (dimensions.size()>0);}
 
 		// Get the total size of this array at compile time.
-		optional<int> getCompileTimeSize(
+		optional<int32_t> getCompileTimeSize(
 				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
@@ -1005,7 +1005,7 @@ namespace ZScript
 
 		// Return this expression's value if it has already been resolved at
 		// compile time.
-		virtual optional<long> getCompileTimeValue(
+		virtual optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope)
 		{return nullopt;}
 
@@ -1036,7 +1036,7 @@ namespace ZScript
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return false;}
 
-		virtual optional<long> getCompileTimeValue(
+		virtual optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
 			return content ? content->getReadType(scope, errorHandler) : NULL;}
@@ -1054,11 +1054,11 @@ namespace ZScript
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		
 		bool valueIsArray(Scope* scope, CompileErrorHandler* errorHandler);
-		optional<long> value;
+		optional<int32_t> value;
 	};
 
 	class ASTExprAssign : public ASTExpr
@@ -1074,7 +1074,7 @@ namespace ZScript
 		bool isConstant() const {return right && right->isConstant();}
 		bool isLiteral() const {return right && right->isLiteral();}
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
 			return right ? right->getReadType(scope, errorHandler) : NULL;}
@@ -1100,7 +1100,7 @@ namespace ZScript
 		void markConstant() {constant_ = true;}
 		bool isLiteral() const {return false;}
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
@@ -1214,7 +1214,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
@@ -1235,7 +1235,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
@@ -1249,7 +1249,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
@@ -1353,7 +1353,7 @@ namespace ZScript
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
@@ -1403,7 +1403,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1417,7 +1417,7 @@ namespace ZScript
     
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1444,7 +1444,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1458,7 +1458,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1472,7 +1472,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1486,7 +1486,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1500,7 +1500,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1514,7 +1514,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 	
@@ -1528,7 +1528,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1542,7 +1542,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1574,7 +1574,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1588,7 +1588,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1620,7 +1620,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1634,7 +1634,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1648,7 +1648,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1678,7 +1678,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1691,7 +1691,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1704,7 +1704,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1735,7 +1735,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
@@ -1748,7 +1748,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 	
@@ -1766,7 +1766,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 
 		owning_ptr<ASTExpr> left;
@@ -1804,7 +1804,7 @@ namespace ZScript
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
 		
@@ -1837,7 +1837,7 @@ namespace ZScript
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::CHAR;}
 	
@@ -1857,7 +1857,7 @@ namespace ZScript
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
 
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope)
 				{return value ? (*ZScript::lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;}
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
@@ -1944,14 +1944,14 @@ namespace ZScript
 		bool isLiteral() const {return false;} //Not actually a literal, despite being under 'ASTLiteral'
 
 		
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
 			return &DataType::FLOAT;}
 
 		std::string name;
 		CompileOption option;
-		optional<long> value;
+		optional<int32_t> value;
 	};
 	
 	class ASTIsIncluded : public ASTLiteral
@@ -1966,7 +1966,7 @@ namespace ZScript
 		virtual bool isConstant() const {return true;}
 		bool isLiteral() const {return false;} //Not actually a literal, despite being under 'ASTLiteral'
 		
-		optional<long> getCompileTimeValue(
+		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
 			return &DataType::BOOL;}
@@ -2009,7 +2009,7 @@ namespace ZScript
 		DataType const& resolve(Scope& scope, CompileErrorHandler* errorHandler);
 
 		owning_ptr<DataType> type;
-		int constant_;
+		int32_t constant_;
 	private:
 		bool wasResolved;
 	};

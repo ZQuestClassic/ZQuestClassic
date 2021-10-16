@@ -12,13 +12,13 @@ namespace GUI
  * d->d1 is the index of the child responsible.
  * c is the event.
  */
-int dialog_proc(int msg, DIALOG *d, int c)
+int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	auto* dr = static_cast<DialogRunner*>(d->dp);
 	if(msg == MSG_GUI_EVENT)
 	{
 		MessageDispatcher md(dr->widgets[d->d1], dr->sendMessage);
-		int ret = dr->widgets[d->d1]->onEvent(c, md);
+		int32_t ret = dr->widgets[d->d1]->onEvent(c, md);
 		if(dr->done)
 			return D_EXIT;
 		else

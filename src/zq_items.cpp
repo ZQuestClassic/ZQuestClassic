@@ -26,12 +26,12 @@
 #include "zdefs.h"
 #include "items.h"
 
-void movefairy(zfix&,zfix&,int)
+void movefairy(zfix&,zfix&,int32_t)
 {
     return;
 }
 
-void killfairy(int)
+void killfairy(int32_t)
 {
     return;
 }
@@ -46,12 +46,12 @@ void movefairynew(zfix&, zfix&, item const&)
     return;
 }
 
-bool addfairy(zfix, zfix, int, int)
+bool addfairy(zfix, zfix, int32_t, int32_t)
 {
     return false;
 }
 
-bool addfairynew(zfix x, zfix y, int misc3, item&)
+bool addfairynew(zfix x, zfix y, int32_t misc3, item&)
 {
 	return false;
 }
@@ -66,27 +66,27 @@ void item_fall(zfix&, zfix&, zfix&)
 	return;
 }
 
-int item_pits(zfix&, zfix&, int&)
+int32_t item_pits(zfix&, zfix&, int32_t&)
 {
 	return 0;
 }
 
-int select_dropitem(int)
+int32_t select_dropitem(int32_t)
 {
     return 0;
 }
 
-int select_dropitem(int, int, int)
+int32_t select_dropitem(int32_t, int32_t, int32_t)
 {
     return 0;
 }
 
-void getitem(int, bool)
+void getitem(int32_t, bool)
 {
     return;
 }
 
-int item::run_script(int)
+int32_t item::run_script(int32_t)
 {
 	return RUNSCRIPT_OK;
 }

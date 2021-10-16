@@ -46,7 +46,7 @@ private:
 
 	void applyVisibility(bool visible) override;
 	void calculateSize() override;
-	void arrange(int contX, int contY, int contW, int contH) override;
+	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;
 };
 

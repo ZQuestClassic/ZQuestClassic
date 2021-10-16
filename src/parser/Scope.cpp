@@ -8,12 +8,10 @@
 #include "Types.h"
 #include "ZScript.h"
 
-#include <boost/move/unique_ptr.hpp>
-
 using namespace ZScript;
 using namespace util;
 using std::set;
-using boost::movelib::unique_ptr;
+using std::unique_ptr;
 ////////////////////////////////////////////////////////////////
 // Scope
 
@@ -434,7 +432,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 	}
 }
 
-optional<long> ZScript::lookupOption(Scope const& scope, CompileOption option)
+optional<int32_t> ZScript::lookupOption(Scope const& scope, CompileOption option)
 {
 	if (!option.isValid()) return nullopt;
 	for (Scope const* current = &scope;
@@ -485,13 +483,13 @@ bool ZScript::isStackRoot(Scope const& scope)
 	return scope.getRootStackSize();
 }
 
-optional<int> ZScript::lookupStackOffset(
+optional<int32_t> ZScript::lookupStackOffset(
 		Scope const& scope, Datum const& datum)
 {
 	Scope* s = const_cast<Scope*>(&scope);
 	while (s)
 	{
-		if (optional<int> offset = s->getLocalStackOffset(datum))
+		if (optional<int32_t> offset = s->getLocalStackOffset(datum))
 			return offset;
 
 		if (isStackRoot(*s)) return nullopt;
@@ -501,12 +499,12 @@ optional<int> ZScript::lookupStackOffset(
 	return nullopt;
 }
 
-optional<int> ZScript::lookupStackSize(Scope const& scope)
+optional<int32_t> ZScript::lookupStackSize(Scope const& scope)
 {
 	Scope* s = const_cast<Scope*>(&scope);
 	while (s)
 	{
-		if (optional<int> size = s->getRootStackSize())
+		if (optional<int32_t> size = s->getRootStackSize())
 			return size;
 
 		s = s->getParent();
@@ -514,11 +512,11 @@ optional<int> ZScript::lookupStackSize(Scope const& scope)
 	return nullopt;
 }
 
-optional<int> ZScript::lookupStackPosition(
+optional<int32_t> ZScript::lookupStackPosition(
 		Scope const& scope, Datum const& datum)
 {
-	optional<int> offset = lookupStackOffset(scope, datum);
-	optional<int> size = lookupStackSize(scope);
+	optional<int32_t> offset = lookupStackOffset(scope, datum);
+	optional<int32_t> size = lookupStackSize(scope);
 	if (offset && size)
 		return *size - 1 - *offset;
 	return nullopt;
@@ -597,12 +595,12 @@ ScriptScope* BasicScope::getScript()
 	return NULL;
 }
 
-int BasicScope::useNamespace(vector<std::string> names, vector<std::string> delimiters, bool noUsing)
+int32_t BasicScope::useNamespace(vector<std::string> names, vector<std::string> delimiters, bool noUsing)
 {
 	if (names.size() == 1)
 		return useNamespace(names[0], noUsing);
 	NamespaceScope* namesp = NULL;
-	int numMatches = 0;
+	int32_t numMatches = 0;
 
 	string const& name = names.back();
 
@@ -633,10 +631,10 @@ int BasicScope::useNamespace(vector<std::string> names, vector<std::string> deli
 	return numMatches;
 }
 
-int BasicScope::useNamespace(std::string name, bool noUsing)
+int32_t BasicScope::useNamespace(std::string name, bool noUsing)
 {
 	NamespaceScope* namesp = NULL;
-	int numMatches = 0;
+	int32_t numMatches = 0;
 	if(Scope* scope = getRoot(*this)->getChild(name))
 	{
 		if(scope->isNamespace())
@@ -842,7 +840,7 @@ bool BasicScope::addScriptType(
 
 Function* BasicScope::addGetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
 {
 	if (find<Function*>(getters_, name)) return NULL;
 
@@ -854,7 +852,7 @@ Function* BasicScope::addGetter(
 
 Function* BasicScope::addSetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
 {
 	if (find<Function*>(setters_, name)) return NULL;
 
@@ -866,7 +864,7 @@ Function* BasicScope::addSetter(
 
 Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
 {
 	bool prototype = false;
 	ASTExprConst* defRet = NULL;
@@ -896,8 +894,8 @@ Function* BasicScope::addFunction(
 			if(prototype) //Another identical prototype being declared
 			{
 				//Check default returns
-				optional<long> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
-				optional<long> val2 = node->defaultReturn.get()->getCompileTimeValue(handler, this);
+				optional<int32_t> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
+				optional<int32_t> val2 = node->defaultReturn.get()->getCompileTimeValue(handler, this);
 				if(!val || !val2 || (*val != *val2)) //Different or erroring default returns
 				{
 					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
@@ -996,10 +994,10 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 
 // Stack
 
-optional<int> BasicScope::getLocalStackOffset(Datum const& datum) const
+optional<int32_t> BasicScope::getLocalStackOffset(Datum const& datum) const
 {
 	Datum* key = const_cast<Datum*>(&datum);
-	return find<int>(stackOffsets_, key);
+	return find<int32_t>(stackOffsets_, key);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1076,7 +1074,7 @@ bool FileScope::addScriptType(string const& name, ScriptType type, AST* node)
 
 Function* FileScope::addGetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
 {
 	Function* result = BasicScope::addGetter(
 			returnType, name, paramTypes, paramNames, flags, node);
@@ -1088,7 +1086,7 @@ Function* FileScope::addGetter(
 
 Function* FileScope::addSetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
 {
 	Function* result = BasicScope::addSetter(
 			returnType, name, paramTypes, paramNames, flags, node);
@@ -1100,7 +1098,7 @@ Function* FileScope::addSetter(
 
 Function* FileScope::addFunction(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
 {
 	Function* result = BasicScope::addFunction(
 			returnType, name, paramTypes, paramNames, flags, node, handler);
@@ -1145,14 +1143,14 @@ bool FileScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 
 namespace // file local
 {
-	int calculateStackSize(Scope* scope)
+	int32_t calculateStackSize(Scope* scope)
 	{
-		int greatestSize = scope->getLocalStackDepth();
+		int32_t greatestSize = scope->getLocalStackDepth();
 		vector<Scope*> children = scope->getChildren();
 		for (vector<Scope*>::const_iterator it = children.begin();
 		     it != children.end(); ++it)
 		{
-			int size = calculateStackSize(*it);
+			int32_t size = calculateStackSize(*it);
 			if (greatestSize < size) greatestSize = size;
 		}
 		return greatestSize;
@@ -1210,7 +1208,7 @@ RootScope::RootScope(TypeStore& typeStore)
 	BuiltinConstant::create(*this, DataType::CRNG, "RandGen", 0); //Nullptr is valid for engine RNG
 }
 
-optional<int> RootScope::getRootStackSize() const
+optional<int32_t> RootScope::getRootStackSize() const
 {
 	if (!stackSize_)
 	{
@@ -1422,7 +1420,7 @@ optional<Function*> RootScope::getDescFuncBySig(FunctionSignature& sig)
 	return find<Function*>(descFunctionsBySignature_, sig);
 }
 
-bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler)
+bool RootScope::checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErrorHandler* errorHandler)
 {
 	if(node->wasChecked()) return true;
 	node->check();
@@ -1481,7 +1479,7 @@ FunctionScope::FunctionScope(Scope* parent, FileScope* parentFile, Function& fun
 	stackDepth_ = 0;
 }
 
-optional<int> FunctionScope::getRootStackSize() const
+optional<int32_t> FunctionScope::getRootStackSize() const
 {
 	if (!stackSize)
 	{
@@ -1508,6 +1506,6 @@ InlineScope::InlineScope(Scope* parent, FileScope* parentFile, ASTExprCall* node
 ////////////////////////////////////////////////////////////////
 // ZClass
 
-ZClass::ZClass(TypeStore& typeStore, string const& name, int id)
+ZClass::ZClass(TypeStore& typeStore, string const& name, int32_t id)
 	: BasicScope(typeStore), name(name), id(id)
 {}

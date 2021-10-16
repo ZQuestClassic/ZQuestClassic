@@ -11,8 +11,8 @@
 #ifndef _ZQ_INIT_H_
 #define _ZQ_INIT_H_
 
-int onInit();
+int32_t onInit();
 void center_zq_init_dialog();
-const char *familylist(int index, int *list_size);
+const char *familylist(int32_t index, int32_t *list_size);
 #endif
  

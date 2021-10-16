@@ -17,145 +17,145 @@
 
 extern bool triggered_screen_secrets;
 
-void debugging_box(int x1, int y1, int x2, int y2);
+void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void clear_dmap(word i);
 void clear_dmaps();
-int count_dmaps();
-int isdungeon(int dmap = -1, int scr = -1);
-bool canPermSecret(int dmap = -1, int scr = -1);
-int MAPCOMBO(int x,int y);
-int MAPCOMBOzq(int x,int y);
-int MAPFFCOMBO(int x,int y);
-int MAPCSET(int x,int y);
-int MAPFLAG(int x,int y);
-int MAPCOMBOFLAG(int x,int y);
-int MAPFFCOMBOFLAG(int x,int y);
-int COMBOTYPE(int x,int y);
-int FFCOMBOTYPE(int x, int y);
-int FFORCOMBO(int x, int y);
-int FFORCOMBOTYPE(int x, int y);
-int FFORCOMBO_L(int layer, int x, int y);
-int FFORCOMBOTYPE_L(int layer, int x, int y);
-int MAPCOMBO2(int layer,int x,int y);
-int MAPCOMBOX(int pos);
-int MAPCOMBOY(int pos);
-int MAPCOMBO3(int map, int screen, int layer,int x,int y, bool secrets = false);
-int MAPCOMBO3(int map, int screen, int layer,int pos, bool secrets = false);
-int MAPCSET2(int layer,int x,int y);
-int MAPFLAG2(int layer,int x,int y);
-int MAPCOMBOFLAG2(int layer,int x,int y);
-int COMBOTYPE2(int layer,int x,int y);
+int32_t count_dmaps();
+int32_t isdungeon(int32_t dmap = -1, int32_t scr = -1);
+bool canPermSecret(int32_t dmap = -1, int32_t scr = -1);
+int32_t MAPCOMBO(int32_t x,int32_t y);
+int32_t MAPCOMBOzq(int32_t x,int32_t y);
+int32_t MAPFFCOMBO(int32_t x,int32_t y);
+int32_t MAPCSET(int32_t x,int32_t y);
+int32_t MAPFLAG(int32_t x,int32_t y);
+int32_t MAPCOMBOFLAG(int32_t x,int32_t y);
+int32_t MAPFFCOMBOFLAG(int32_t x,int32_t y);
+int32_t COMBOTYPE(int32_t x,int32_t y);
+int32_t FFCOMBOTYPE(int32_t x, int32_t y);
+int32_t FFORCOMBO(int32_t x, int32_t y);
+int32_t FFORCOMBOTYPE(int32_t x, int32_t y);
+int32_t FFORCOMBO_L(int32_t layer, int32_t x, int32_t y);
+int32_t FFORCOMBOTYPE_L(int32_t layer, int32_t x, int32_t y);
+int32_t MAPCOMBO2(int32_t layer,int32_t x,int32_t y);
+int32_t MAPCOMBOX(int32_t pos);
+int32_t MAPCOMBOY(int32_t pos);
+int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer,int32_t x,int32_t y, bool secrets = false);
+int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer,int32_t pos, bool secrets = false);
+int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y);
+int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y);
+int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y);
+int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y);
 
 //specific layers 1 to 6 -Z
-int MAPCOMBOL(int layer,int x,int y);
-int MAPCSETL(int layer,int x,int y);
-int MAPFLAGL(int layer,int x,int y);
-int COMBOTYPEL(int layer,int x,int y);
-int MAPCOMBOFLAGL(int layer,int x,int y);
+int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y);
+int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y);
+int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y);
+int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y);
+int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y);
 
-int getFFCAt(int x, int y);
+int32_t getFFCAt(int32_t x, int32_t y);
 void eventlog_mapflags();
-void setmapflag(int mi2, int flag);
-void setmapflag(int flag = 32); // 32 = mBELOW
-void unsetmapflag(int mi2, int flag, bool anyflag=false);
-void unsetmapflag(int flag = 32);
-bool getmapflag(int flag = 32); // 32 = mBELOW
-int WARPCODE(int dmap,int scr,int dw);
+void setmapflag(int32_t mi2, int32_t flag);
+void setmapflag(int32_t flag = 32); // 32 = mBELOW
+void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag=false);
+void unsetmapflag(int32_t flag = 32);
+bool getmapflag(int32_t flag = 32); // 32 = mBELOW
+int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw);
 void update_combo_cycling();
-bool isSVLadder(int x, int y);
-bool isSVPlatform(int x, int y);
-bool checkSVLadderPlatform(int x, int y);
-bool iswater(int combo);
-int iswaterex(int combo, int map, int screen, int layer, int x, int y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true, bool ShallowCheck = false);
-int iswaterexzq(int combo, int map, int screen, int layer, int x, int y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true);
-bool iswater_type(int type);
-bool ispitfall(int combo);
-bool ispitfall_type(int type);
-bool ispitfall(int x, int y);
-int getpitfall(int x, int y);
-bool isGrassType(int type);
-bool isFlowersType(int type);
-bool isBushType(int type);
-bool isGenericType(int type);
-bool isSlashType(int type);
-bool isCuttableNextType(int type);
-bool isTouchyType(int type);
-bool isCuttableType(int type);
-bool isCuttableItemType(int type);
-bool isstepable(int combo);                                 //can use ladder on it
+bool isSVLadder(int32_t x, int32_t y);
+bool isSVPlatform(int32_t x, int32_t y);
+bool checkSVLadderPlatform(int32_t x, int32_t y);
+bool iswater(int32_t combo);
+int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true, bool ShallowCheck = false);
+int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true);
+bool iswater_type(int32_t type);
+bool ispitfall(int32_t combo);
+bool ispitfall_type(int32_t type);
+bool ispitfall(int32_t x, int32_t y);
+int32_t getpitfall(int32_t x, int32_t y);
+bool isGrassType(int32_t type);
+bool isFlowersType(int32_t type);
+bool isBushType(int32_t type);
+bool isGenericType(int32_t type);
+bool isSlashType(int32_t type);
+bool isCuttableNextType(int32_t type);
+bool isTouchyType(int32_t type);
+bool isCuttableType(int32_t type);
+bool isCuttableItemType(int32_t type);
+bool isstepable(int32_t combo);                                 //can use ladder on it
 bool isHSGrabbable(newcombo const& cmb);
-bool ishookshottable(int bx, int by);
-bool ishookshottable(int map, int screen, int bx, int by);
-bool hiddenstair(int tmp, bool redraw);                      // tmp = index of tmpscr[]
+bool ishookshottable(int32_t bx, int32_t by);
+bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by);
+bool hiddenstair(int32_t tmp, bool redraw);                      // tmp = index of tmpscr[]
 bool hiddenstair2(mapscr *s, bool redraw);                      
-bool remove_screenstatecombos2(mapscr *s, mapscr *t, int what1, int what2);
-bool remove_lockblocks(int tmp);                // tmp = index of tmpscr[]
-bool remove_bosslockblocks(int tmp);            // tmp = index of tmpscr[]
-bool remove_chests(int tmp);                    // tmp = index of tmpscr[]
-bool remove_lockedchests(int tmp);              // tmp = index of tmpscr[]
-bool remove_bosschests(int tmp);                // tmp = index of tmpscr[]
+bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what2);
+bool remove_lockblocks(int32_t tmp);                // tmp = index of tmpscr[]
+bool remove_bosslockblocks(int32_t tmp);            // tmp = index of tmpscr[]
+bool remove_chests(int32_t tmp);                    // tmp = index of tmpscr[]
+bool remove_lockedchests(int32_t tmp);              // tmp = index of tmpscr[]
+bool remove_bosschests(int32_t tmp);                // tmp = index of tmpscr[]
 bool overheadcombos(mapscr *s);
-void delete_fireball_shooter(mapscr *s, int i);
-void hidden_entrance(int tmp,bool refresh, bool high16only=false,int single=-1);
-void hidden_entrance2(mapscr *s, mapscr *t, bool high16only=false,int single=-1);
+void delete_fireball_shooter(mapscr *s, int32_t i);
+void hidden_entrance(int32_t tmp,bool refresh, bool high16only=false,int32_t single=-1);
+void hidden_entrance2(mapscr *s, mapscr *t, bool high16only=false,int32_t single=-1);
 void update_freeform_combos();
-bool findentrance(int x, int y, int flag, bool setflag);
-bool hitcombo(int x, int y, int combotype);
-bool hitflag(int x, int y, int flagtype);
-int nextscr(int dir);
-void bombdoor(int x,int y);
-void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen);
-void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen, bool scrolling = false, bool drawprimitives=false);
-void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int lyr);
-void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen);
-void do_effectflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen);
-void do_primitives(BITMAP *bmp, int type, mapscr *layer, int x, int y);
-void do_script_draws(BITMAP *bmp, mapscr *layer, int x, int y, bool hideLayer7 = false);
+bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag);
+bool hitcombo(int32_t x, int32_t y, int32_t combotype);
+bool hitflag(int32_t x, int32_t y, int32_t flagtype);
+int32_t nextscr(int32_t dir);
+void bombdoor(int32_t x,int32_t y);
+void do_scrolling_layer(BITMAP *bmp, int32_t type, mapscr* layer, int32_t x, int32_t y, bool scrolling, int32_t tempscreen);
+void do_layer(BITMAP *bmp, int32_t type, mapscr* layer, int32_t x, int32_t y, int32_t tempscreen, bool scrolling = false, bool drawprimitives=false);
+void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr);
+void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
+void do_effectflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
+void do_primitives(BITMAP *bmp, int32_t type, mapscr *layer, int32_t x, int32_t y);
+void do_script_draws(BITMAP *bmp, mapscr *layer, int32_t x, int32_t y, bool hideLayer7 = false);
 void calc_darkroom_combos(bool scrolling = false);
 void draw_screen(mapscr* this_screen, bool showlink=true);
 /*
-  INLINE void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen)
+  INLINE void do_scrolling_layer(int32_t type, mapscr* layer, int32_t x, int32_t y, bool scrolling, int32_t tempscreen)
   {
   do_scrolling_layer(framebuf, type, layer, x, y, scrolling, tempscreen);
   }
 
-  INLINE void do_layer(int type, mapscr* layer, int x, int y, int tempscreen)
+  INLINE void do_layer(int32_t type, mapscr* layer, int32_t x, int32_t y, int32_t tempscreen)
   {
   do_layer(framebuf, type, layer, x, y, tempscreen);
   }
   */
-void put_door(BITMAP *dest,int t,int pos,int side,int type,bool redraw,bool even_walls=false);
-void over_door(BITMAP *dest,int t, int pos,int side);
-void putdoor(BITMAP *dest,int t,int side,int door,bool redraw=true,bool even_walls=false);
-void showbombeddoor(BITMAP *dest, int side);
+void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls=false);
+void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side);
+void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw=true,bool even_walls=false);
+void showbombeddoor(BITMAP *dest, int32_t side);
 void openshutters();
-void loadscr2(int tmp,int scr,int);
-void loadscr(int tmp,int destdmap,int scr,int ldir,bool overlay);
-void putscr(BITMAP* dest,int x,int y,mapscr* screen);
-void putscrdoors(BITMAP *dest,int x,int y,mapscr* screen);
-bool _walkflag(int x,int y,int cnt);
-bool _walkflag(int x,int y,int cnt,zfix const& switchblockstate);
-bool _effectflag(int x,int y,int cnt, int layer = -1);
-bool _walkflag(int x,int y,int cnt, mapscr* m);
-bool _walkflag(int x,int y,int cnt, mapscr* m, mapscr* s1, mapscr* s2);
-bool _walkflag_layer(int x,int y,int cnt, mapscr* m);
-bool _effectflag_layer(int x,int y,int cnt, mapscr* m);
-bool water_walkflag(int x,int y,int cnt);
-bool hit_walkflag(int x,int y,int cnt);
+void loadscr2(int32_t tmp,int32_t scr,int32_t);
+void loadscr(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool overlay);
+void putscr(BITMAP* dest,int32_t x,int32_t y,mapscr* screen);
+void putscrdoors(BITMAP *dest,int32_t x,int32_t y,mapscr* screen);
+bool _walkflag(int32_t x,int32_t y,int32_t cnt);
+bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate);
+bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer = -1);
+bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m);
+bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2);
+bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m);
+bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m);
+bool water_walkflag(int32_t x,int32_t y,int32_t cnt);
+bool hit_walkflag(int32_t x,int32_t y,int32_t cnt);
 void map_bkgsfx(bool on);
 void toggle_switches(dword flags, bool entry);
 void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t);
 
 //
-void doDarkroomCircle(int cx, int cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL);
-void doDarkroomCone(int sx, int sy, byte glowRad, int dir, BITMAP* dest=NULL,BITMAP* transdest=NULL);
+void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL);
+void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest=NULL,BITMAP* transdest=NULL);
 
 //extern FONT *lfont;
 /****  View Map  ****/
-extern int mapres;
-bool displayOnMap(int x, int y);
+extern int32_t mapres;
+bool displayOnMap(int32_t x, int32_t y);
 void ViewMap();
-int onViewMap();
+int32_t onViewMap();
 
 //extern bool FuckIAlreadyDrewThatAlready[ 7 ];
 #endif

@@ -432,11 +432,11 @@ extern byte *colordata;
   *  callback function is not NULL, it will be called 256 times during the
   *  calculation, allowing you to display a progress indicator.
   */
-void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, int b)
+void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_t r, int32_t g, int32_t b)
 {
-	int tmp[768], *q;
-	int x, y, i, j, k;
-	unsigned char *p;
+	int32_t tmp[768], *q;
+	int32_t x, y, i, j, k;
+	uint8_t *p;
 	RGB c;
 	
 	for(x=0; x<256; x++)

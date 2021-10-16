@@ -14,16 +14,16 @@
 
 extern DIALOG gamemode_dlg[];
 
-int  load_savedgames();
-int  save_savedgames();
-int custom_game(int file);
-int getsaveslot();
-void load_game_icon(gamedata *g, bool forceDefault, int index);
-void load_game_icon_to_buffer(bool forceDefault, int index);
-void reload_icon_buffer(int index);
-void titlescreen(int lsave);
-void game_over(int type);
+int32_t  load_savedgames();
+int32_t  save_savedgames();
+int32_t custom_game(int32_t file);
+int32_t getsaveslot();
+void load_game_icon(gamedata *g, bool forceDefault, int32_t index);
+void load_game_icon_to_buffer(bool forceDefault, int32_t index);
+void reload_icon_buffer(int32_t index);
+void titlescreen(int32_t lsave);
+void game_over(int32_t type);
 void save_game(bool savepoint);
-bool save_game(bool savepoint, int type);
+bool save_game(bool savepoint, int32_t type);
 #endif
 

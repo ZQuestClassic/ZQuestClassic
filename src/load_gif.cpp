@@ -19,24 +19,24 @@
   * such ugly things, the best would be to #include <allegro/aintern.h>, but
   * since that's just a wip, it's left like this for Allegro 3.0 compatibility
   */
-//int _color_load_depth(int depth);
+//int32_t _color_load_depth(int32_t depth);
 
 struct LZW_STRING
 {
-    short base;
+    int16_t base;
     char new_char;
-    short length;
+    int16_t length;
 };
 
 PACKFILE *f;
-int gif_empty_string, curr_bit_size, bit_overflow;
-int bit_pos, data_pos, data_len, entire, code;
-int cc, string_length, i, bit_size;
-unsigned char lg_string[4096];
+int32_t gif_empty_string, curr_bit_size, bit_overflow;
+int32_t bit_pos, data_pos, data_len, entire, code;
+int32_t cc, string_length, i, bit_size;
+uint8_t lg_string[4096];
 struct LZW_STRING str[4096];
 BITMAP *bmp;
-int image_x, image_y, image_w, image_h, x, y;
-int interlace;
+int32_t image_x, image_y, image_w, image_h, x, y;
+int32_t interlace;
 
 void clear_table(void)
 {
@@ -94,7 +94,7 @@ void get_code(void)
     }
 }
 
-void get_string(int num)
+void get_string(int32_t num)
 {
     if(num < cc)
     {
@@ -161,10 +161,10 @@ void output_string(void)
   */
 BITMAP *load_gif(const char *filename, RGB *pal)
 {
-    int width, height, depth;
-    int old;
+    int32_t width, height, depth;
+    int32_t old;
     BITMAP *bmp2;
-    int dest_depth;
+    int32_t dest_depth;
     
     f = pack_fopen_password(filename, F_READ,"");
     

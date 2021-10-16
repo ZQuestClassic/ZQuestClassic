@@ -16,10 +16,10 @@
 
 #include "sprite.h"
 
-int fadeclk=-1;
-int frame=8;
+int32_t fadeclk=-1;
+int32_t frame=8;
 bool BSZ=false;
-int conveyclk=0;
+int32_t conveyclk=0;
 bool freeze_guys=false;
 
 void sprite::handle_sprlighting()
@@ -32,7 +32,7 @@ void sprite::check_conveyor()
     return;
 }
 
-void movingblock::push(zfix bx,zfix by,int d2,int f)
+void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 {
     //these are here to bypass compiler warnings about unused arguments
     bx=bx;
@@ -43,7 +43,7 @@ void movingblock::push(zfix bx,zfix by,int d2,int f)
     return;
 }
 
-bool movingblock::animate(int index)
+bool movingblock::animate(int32_t index)
 {
     //these are here to bypass compiler warnings about unused arguments
     index=index;

@@ -30,7 +30,7 @@
 #include "link.h"
 #include "zc_init.h"
 
-int onCheatConsole()
+int32_t onCheatConsole()
 {
     char init_title[80];
     sprintf(init_title, "Current Data");
@@ -54,7 +54,7 @@ int onCheatConsole()
     init_dlg[1705].flags |= D_DISABLED;
 //  the following statement has no effect, as the D_DISABLED flag is ignored by the jwin_tab_proc
 //  init_tabs[4].flags |= D_DISABLED;
-    int rval = doInit(zinit2, true);
+    int32_t rval = doInit(zinit2, true);
     resetItems(game, zinit2, false);
     delete zinit2;
     ringcolor(false);
@@ -113,7 +113,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->heroSideswimDownStep = gdata->get_sideswim_down();
 	zinit2->exitWaterJump = gdata->get_sideswim_jump();
 	
-	for(int q = 0; q < 25; ++q)
+	for(int32_t q = 0; q < 25; ++q)
 	{
 		zinit2->scrcnt[q] = gdata->get_counter(q+7);
 		zinit2->scrmaxcnt[q] = gdata->get_maxcounter(q+7);
@@ -121,7 +121,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	
 	
     
-    for(int i=0; i<MAXLEVELS; i++)
+    for(int32_t i=0; i<MAXLEVELS; i++)
     {
         set_bit(zinit2->map, i, (gdata->lvlitems[i] & liMAP) ? 1 : 0);
         set_bit(zinit2->compass, i, (gdata->lvlitems[i] & liCOMPASS) ? 1 : 0);
@@ -129,7 +129,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
         zinit2->level_keys[i] = gdata->lvlkeys[i];
     }
     
-    for(int i=0; i<8; i++)
+    for(int32_t i=0; i<8; i++)
     {
         set_bit(&zinit2->triforce,i,(gdata->lvlitems[i+1]&liTRIFORCE) ? 1 : 0);
     }
@@ -137,7 +137,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->max_magic = gdata->get_maxmagic();
     zinit2->magic = gdata->get_magic();
     
-    int drain = vbound(2-gdata->get_magicdrainrate(), 0, 1);
+    int32_t drain = vbound(2-gdata->get_magicdrainrate(), 0, 1);
     set_bit(zinit2->misc, idM_DOUBLEMAGIC, drain);
     set_bit(zinit2->misc, idM_CANSLASH, gdata->get_canslash());
     
@@ -153,7 +153,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     set_bit(zinit2->misc,idM_CONTPERCENT,gdata->get_cont_percent() ? 1 : 0);
     
     //now set up the items!
-    for(int i=0; i<MAXITEMS; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         zinit2->items[i] = gdata->get_item(i);
     }

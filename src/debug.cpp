@@ -14,7 +14,7 @@
 #include <stdarg.h>
 #include "zc_alleg.h"
 
-static int trace_y=0;
+static int32_t trace_y=0;
 
 void trace_reset()
 {

@@ -14,11 +14,7 @@ inline ZLong toZLong(double val)
 {
 	return ZLong(val * 10000);
 }
-inline ZLong toZLong(int val)
-{
-	return ZLong(val * 10000);
-}
-inline ZLong toZLong(long val)
+inline ZLong toZLong(int32_t val)
 {
 	return ZLong(val * 10000);
 }
@@ -47,25 +43,13 @@ inline zfix operator +  (const zfix fx, const zfix fx2)
 	t += fx2;
 	return t;
 }
-inline zfix operator +  (const zfix fx, const int v)
+inline zfix operator +  (const zfix fx, const int32_t v)
 {
 	zfix t = fx.copy();
 	t += v;
 	return t;
 }
-inline zfix operator +  (const int v, const zfix fx)
-{
-	zfix t = fx.copy();
-	t += v;
-	return t;
-}
-inline zfix operator +  (const zfix fx, const long v)
-{
-	zfix t = fx.copy();
-	t += v;
-	return t;
-}
-inline zfix operator +  (const long v, const zfix fx)
+inline zfix operator +  (const int32_t v, const zfix fx)
 {
 	zfix t = fx.copy();
 	t += v;
@@ -102,25 +86,13 @@ inline zfix operator -  (const zfix fx, const zfix fx2)
 	t -= fx2;
 	return t;
 }
-inline zfix operator -  (const zfix fx, const int v)
+inline zfix operator -  (const zfix fx, const int32_t v)
 {
 	zfix t = fx.copy();
 	t -= v;
 	return t;
 }
-inline zfix operator -  (const int v, const zfix fx)
-{
-	zfix t(v);
-	t -= fx;
-	return t;
-}
-inline zfix operator -  (const zfix fx, const long v)
-{
-	zfix t = fx.copy();
-	t -= v;
-	return t;
-}
-inline zfix operator -  (const long v, const zfix fx)
+inline zfix operator -  (const int32_t v, const zfix fx)
 {
 	zfix t(v);
 	t -= fx;
@@ -158,28 +130,14 @@ inline zfix operator *  (const zfix fx, const zfix fx2)
 	return t;
 }
 
-inline zfix operator *  (const zfix fx, const int v)
+inline zfix operator *  (const zfix fx, const int32_t v)
 {
 	zfix t = fx.copy();
 	t *= v;
 	return t;
 }
 
-inline zfix operator *  (const int v, const zfix fx)
-{
-	zfix t = fx.copy();
-	t *= v;
-	return t;
-}
-
-inline zfix operator *  (const zfix fx, const long v)
-{
-	zfix t = fx.copy();
-	t *= v;
-	return t;
-}
-
-inline zfix operator *  (const long v, const zfix fx)
+inline zfix operator *  (const int32_t v, const zfix fx)
 {
 	zfix t = fx.copy();
 	t *= v;
@@ -221,28 +179,14 @@ inline zfix operator /  (const zfix fx, const zfix fx2)
 	return t;
 }
 
-inline zfix operator /  (const zfix fx, const int v)
+inline zfix operator /  (const zfix fx, const int32_t v)
 {
 	zfix t = fx.copy();
 	t /= v;
 	return t;
 }
 
-inline zfix operator /  (const int v, const zfix fx)
-{
-	zfix t(v);
-	t /= fx;
-	return t;
-}
-
-inline zfix operator /  (const zfix fx, const long v)
-{
-	zfix t = fx.copy();
-	t /= v;
-	return t;
-}
-
-inline zfix operator /  (const long v, const zfix fx)
+inline zfix operator /  (const int32_t v, const zfix fx)
 {
 	zfix t(v);
 	t /= fx;
@@ -277,238 +221,190 @@ inline zfix operator /  (const double v, const zfix fx)
 	return t;
 }
 
-inline zfix operator << (const zfix fx, const int v)
+inline zfix operator << (const zfix fx, const int32_t v)
 {
 	zfix t = fx.copy();
 	t <<= v;
 	return t;
 }
 
-inline zfix operator >> (const zfix fx, const int v)
+inline zfix operator >> (const zfix fx, const int32_t v)
 {
 	zfix t = fx.copy();
 	t >>= v;
 	return t;
 }
 
-inline int operator == (const zfix fx, const zfix fx2)
+inline int32_t operator == (const zfix fx, const zfix fx2)
 {
 	return fx.val == fx2.val;
 }
-inline int operator == (const zfix fx, const int v)
+inline int32_t operator == (const zfix fx, const int32_t v)
 {
 	return fx.val == toZLong(v);
 }
-inline int operator == (const int v, const zfix fx)
+inline int32_t operator == (const int32_t v, const zfix fx)
 {
 	return fx.val == toZLong(v);
 }
-inline int operator == (const zfix fx, const long v)
+inline int32_t operator == (const zfix fx, const float v)
 {
 	return fx.val == toZLong(v);
 }
-inline int operator == (const long v, const zfix fx)
+inline int32_t operator == (const float v, const zfix fx)
 {
 	return fx.val == toZLong(v);
 }
-inline int operator == (const zfix fx, const float v)
+inline int32_t operator == (const zfix fx, const double v)
 {
 	return fx.val == toZLong(v);
 }
-inline int operator == (const float v, const zfix fx)
-{
-	return fx.val == toZLong(v);
-}
-inline int operator == (const zfix fx, const double v)
-{
-	return fx.val == toZLong(v);
-}
-inline int operator == (const double v, const zfix fx)
+inline int32_t operator == (const double v, const zfix fx)
 {
 	return fx.val == toZLong(v);
 }
 
-inline int operator != (const zfix fx, const zfix fx2)
+inline int32_t operator != (const zfix fx, const zfix fx2)
 {
 	return fx.val != fx2.val;
 }
-inline int operator != (const zfix fx, const int v)
+inline int32_t operator != (const zfix fx, const int32_t v)
 {
 	return fx.val != toZLong(v);
 }
-inline int operator != (const int v, const zfix fx)
+inline int32_t operator != (const int32_t v, const zfix fx)
 {
 	return fx.val != toZLong(v);
 }
-inline int operator != (const zfix fx, const long v)
+inline int32_t operator != (const zfix fx, const float v)
 {
 	return fx.val != toZLong(v);
 }
-inline int operator != (const long v, const zfix fx)
+inline int32_t operator != (const float v, const zfix fx)
 {
 	return fx.val != toZLong(v);
 }
-inline int operator != (const zfix fx, const float v)
+inline int32_t operator != (const zfix fx, const double v)
 {
 	return fx.val != toZLong(v);
 }
-inline int operator != (const float v, const zfix fx)
-{
-	return fx.val != toZLong(v);
-}
-inline int operator != (const zfix fx, const double v)
-{
-	return fx.val != toZLong(v);
-}
-inline int operator != (const double v, const zfix fx)
+inline int32_t operator != (const double v, const zfix fx)
 {
 	return fx.val != toZLong(v);
 }
 
-inline int operator <  (const zfix fx, const zfix fx2)
+inline int32_t operator <  (const zfix fx, const zfix fx2)
 {
 	return fx.val < fx2.val;
 }
-inline int operator <  (const zfix fx, const int v)
+inline int32_t operator <  (const zfix fx, const int32_t v)
 {
 	return fx.val < toZLong(v);
 }
-inline int operator <  (const int v, const zfix fx)
+inline int32_t operator <  (const int32_t v, const zfix fx)
 {
 	return toZLong(v) < fx.val;
 }
-inline int operator <  (const zfix fx, const long v)
+inline int32_t operator <  (const zfix fx, const float v)
 {
 	return fx.val < toZLong(v);
 }
-inline int operator <  (const long v, const zfix fx)
+inline int32_t operator <  (const float v, const zfix fx)
 {
 	return toZLong(v) < fx.val;
 }
-inline int operator <  (const zfix fx, const float v)
+inline int32_t operator <  (const zfix fx, const double v)
 {
 	return fx.val < toZLong(v);
 }
-inline int operator <  (const float v, const zfix fx)
-{
-	return toZLong(v) < fx.val;
-}
-inline int operator <  (const zfix fx, const double v)
-{
-	return fx.val < toZLong(v);
-}
-inline int operator <  (const double v, const zfix fx)
+inline int32_t operator <  (const double v, const zfix fx)
 {
 	return toZLong(v) < fx.val;
 }
 
-inline int operator >  (const zfix fx, const zfix fx2)
+inline int32_t operator >  (const zfix fx, const zfix fx2)
 {
 	return fx.val > fx2.val;
 }
-inline int operator >  (const zfix fx, const int v)
+inline int32_t operator >  (const zfix fx, const int32_t v)
 {
 	return fx.val > toZLong(v);
 }
-inline int operator >  (const int v, const zfix fx)
+inline int32_t operator >  (const int32_t v, const zfix fx)
 {
 	return toZLong(v) > fx.val;
 }
-inline int operator >  (const zfix fx, const long v)
+inline int32_t operator >  (const zfix fx, const float v)
 {
 	return fx.val > toZLong(v);
 }
-inline int operator >  (const long v, const zfix fx)
+inline int32_t operator >  (const float v, const zfix fx)
 {
 	return toZLong(v) > fx.val;
 }
-inline int operator >  (const zfix fx, const float v)
+inline int32_t operator >  (const zfix fx, const double v)
 {
 	return fx.val > toZLong(v);
 }
-inline int operator >  (const float v, const zfix fx)
-{
-	return toZLong(v) > fx.val;
-}
-inline int operator >  (const zfix fx, const double v)
-{
-	return fx.val > toZLong(v);
-}
-inline int operator >  (const double v, const zfix fx)
+inline int32_t operator >  (const double v, const zfix fx)
 {
 	return toZLong(v) > fx.val;
 }
 
-inline int operator <=  (const zfix fx, const zfix fx2)
+inline int32_t operator <=  (const zfix fx, const zfix fx2)
 {
 	return fx.val <= fx2.val;
 }
-inline int operator <=  (const zfix fx, const int v)
+inline int32_t operator <=  (const zfix fx, const int32_t v)
 {
 	return fx.val <= toZLong(v);
 }
-inline int operator <=  (const int v, const zfix fx)
+inline int32_t operator <=  (const int32_t v, const zfix fx)
 {
 	return toZLong(v) <= fx.val;
 }
-inline int operator <=  (const zfix fx, const long v)
+inline int32_t operator <=  (const zfix fx, const float v)
 {
 	return fx.val <= toZLong(v);
 }
-inline int operator <=  (const long v, const zfix fx)
+inline int32_t operator <=  (const float v, const zfix fx)
 {
 	return toZLong(v) <= fx.val;
 }
-inline int operator <=  (const zfix fx, const float v)
+inline int32_t operator <=  (const zfix fx, const double v)
 {
 	return fx.val <= toZLong(v);
 }
-inline int operator <=  (const float v, const zfix fx)
-{
-	return toZLong(v) <= fx.val;
-}
-inline int operator <=  (const zfix fx, const double v)
-{
-	return fx.val <= toZLong(v);
-}
-inline int operator <=  (const double v, const zfix fx)
+inline int32_t operator <=  (const double v, const zfix fx)
 {
 	return toZLong(v) <= fx.val;
 }
 
-inline int operator >=  (const zfix fx, const zfix fx2)
+inline int32_t operator >=  (const zfix fx, const zfix fx2)
 {
 	return fx.val >= fx2.val;
 }
-inline int operator >=  (const zfix fx, const int v)
+inline int32_t operator >=  (const zfix fx, const int32_t v)
 {
 	return fx.val >= toZLong(v);
 }
-inline int operator >=  (const int v, const zfix fx)
+inline int32_t operator >=  (const int32_t v, const zfix fx)
 {
 	return toZLong(v) >= fx.val;
 }
-inline int operator >=  (const zfix fx, const long v)
+inline int32_t operator >=  (const zfix fx, const float v)
 {
 	return fx.val >= toZLong(v);
 }
-inline int operator >=  (const long v, const zfix fx)
+inline int32_t operator >=  (const float v, const zfix fx)
 {
 	return toZLong(v) >= fx.val;
 }
-inline int operator >=  (const zfix fx, const float v)
+inline int32_t operator >=  (const zfix fx, const double v)
 {
 	return fx.val >= toZLong(v);
 }
-inline int operator >=  (const float v, const zfix fx)
-{
-	return toZLong(v) >= fx.val;
-}
-inline int operator >=  (const zfix fx, const double v)
-{
-	return fx.val >= toZLong(v);
-}
-inline int operator >=  (const double v, const zfix fx)
+inline int32_t operator >=  (const double v, const zfix fx)
 {
 	return toZLong(v) >= fx.val;
 }

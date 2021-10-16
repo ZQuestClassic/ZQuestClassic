@@ -15,27 +15,27 @@ static bool skipchar(char c)
 
 ListData::ListData(size_t numItems,
 	function<string(size_t)> getString,
-	function<int(size_t)> getValue)
+	function<int32_t(size_t)> getValue)
 {
 	listItems.reserve(numItems);
 	for(size_t index = 0; index < numItems; ++index)
 		listItems.emplace_back(move(getString(index)), getValue(index));
 }
 
-ListData::ListData(::ListData const& jwinldata, int valoffs)
+ListData::ListData(::ListData const& jwinldata, int32_t valoffs)
 {
-	int sz;
+	int32_t sz;
 	jwinldata.listFunc(-1, &sz);
 	listItems.reserve(size_t(sz));
 	if (sz < 1) return;
 	for(size_t index = 0; index < size_t(sz); ++index)
 	{
 		string str(jwinldata.listFunc(index, NULL));
-		listItems.emplace_back(move(str), int(index)+valoffs);
+		listItems.emplace_back(move(str), int32_t(index)+valoffs);
 	}
 }
 
-const char* ListData::jwinWrapper(int index, int* size, void* owner)
+const char* ListData::jwinWrapper(int32_t index, int32_t* size, void* owner)
 {
 	ListData* cb=static_cast<ListData*>(owner);
 	
@@ -50,10 +50,10 @@ const char* ListData::jwinWrapper(int index, int* size, void* owner)
 
 ListData ListData::itemclass(bool numbered)
 {
-	map<string, int> fams;
+	map<string, int32_t> fams;
 	set<string> famnames;
 	
-	for(int i=0; i<itype_max; ++i)
+	for(int32_t i=0; i<itype_max; ++i)
 	{
         if(i < itype_last || moduledata.item_editor_type_names[i][0] != NULL )
 		{
@@ -95,7 +95,7 @@ ListData ListData::counters()
 {
 	ListData ls;
 	
-	for(int q = -1; q < MAX_COUNTERS; ++q)
+	for(int32_t q = -1; q < MAX_COUNTERS; ++q)
 	{
 		ls.add(moduledata.counter_names[q+1], q);
 	}
@@ -105,10 +105,10 @@ ListData ListData::counters()
 
 ListData ListData::miscsprites()
 {
-	map<string, int> ids;
+	map<string, int32_t> ids;
 	set<string> sprnames;
 	
-	for(int i=0; i<wMAX; ++i)
+	for(int32_t i=0; i<wMAX; ++i)
 	{
 		string sname(weapon_string[i]);
 		
@@ -127,7 +127,7 @@ ListData ListData::miscsprites()
 
 ListData ListData::lweaptypes()
 {
-	map<string, int> vals;
+	map<string, int32_t> vals;
 	set<string> sprnames;
 	
 	string none(moduledata.player_weapon_names[0]);
@@ -136,7 +136,7 @@ ListData ListData::lweaptypes()
 	
 	ListData ls;
 	ls.add(none, 0);
-	for(int i=1; i<41; ++i)
+	for(int32_t i=1; i<41; ++i)
 	{
 		if(skipchar(moduledata.player_weapon_names[i][0]))
 			continue;
@@ -150,10 +150,10 @@ ListData ListData::lweaptypes()
 
 
 
-static void load_scriptnames(set<string> &names, map<string, int> &vals,
-	map<int, script_slot_data> scrmap, int count)
+static void load_scriptnames(set<string> &names, map<string, int32_t> &vals,
+	map<int32_t, script_slot_data> scrmap, int32_t count)
 {
-	for(int i = 0; i < count; ++i)
+	for(int32_t i = 0; i < count; ++i)
 	{
 		if(!scrmap[i].scriptname[0])
 			continue;
@@ -167,7 +167,7 @@ static void load_scriptnames(set<string> &names, map<string, int> &vals,
 
 ListData ListData::itemdata_script()
 {
-	map<string, int> vals;
+	map<string, int32_t> vals;
 	set<string> names;
 	
 	load_scriptnames(names,vals,itemmap,NUMSCRIPTITEM-1);
@@ -180,7 +180,7 @@ ListData ListData::itemdata_script()
 
 ListData ListData::itemsprite_script()
 {
-	map<string, int> vals;
+	map<string, int32_t> vals;
 	set<string> names;
 	
 	load_scriptnames(names,vals,itemspritemap,NUMSCRIPTSITEMSPRITE-1);
@@ -193,7 +193,7 @@ ListData ListData::itemsprite_script()
 
 ListData ListData::lweapon_script()
 {
-	map<string, int> vals;
+	map<string, int32_t> vals;
 	set<string> names;
 	
 	load_scriptnames(names,vals,lwpnmap,NUMSCRIPTWEAPONS-1);
@@ -204,7 +204,7 @@ ListData ListData::lweapon_script()
 	return ls;
 }
 
-void ListData::add(set<string> names, map<string, int> vals)
+void ListData::add(set<string> names, map<string, int32_t> vals)
 {
 	for(set<string>::iterator it = names.begin(); it != names.end(); ++it)
 	{

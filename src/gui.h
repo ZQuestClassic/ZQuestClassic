@@ -16,16 +16,16 @@
 
 extern DIALOG_PLAYER *player;
 
-int  zc_do_dialog(DIALOG *d, int f);
-int  zc_popup_dialog(DIALOG *d, int f);
-int  PopUp_dialog(DIALOG *d,int f);
-int  update_dialog_through_bitmap(BITMAP* buffer, DIALOG_PLAYER *player);
-int  do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj);
-int  popup_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int f);
-int  zc_popup_dialog_dbuf(DIALOG* , int);
-int  PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int f);
-void new_gui_popup_dialog(DIALOG* dialog, int focus_obj, bool& done, bool& running);
-//int  popup_zqdialog(DIALOG *dialog, int focus_obj);
-//int  do_zqdialog(DIALOG *dialog, int focus_obj);
+int32_t  zc_do_dialog(DIALOG *d, int32_t f);
+int32_t  zc_popup_dialog(DIALOG *d, int32_t f);
+int32_t  PopUp_dialog(DIALOG *d,int32_t f);
+int32_t  update_dialog_through_bitmap(BITMAP* buffer, DIALOG_PLAYER *player);
+int32_t  do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int32_t focus_obj);
+int32_t  popup_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
+int32_t  zc_popup_dialog_dbuf(DIALOG* , int32_t);
+int32_t  PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
+void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& running);
+//int32_t  popup_zqdialog(DIALOG *dialog, int32_t focus_obj);
+//int32_t  do_zqdialog(DIALOG *dialog, int32_t focus_obj);
 #endif                                                      // _GUI_H_
 

@@ -6,13 +6,13 @@
 namespace GUI
 {
 
-int Size::emSize()
+int32_t Size::emSize()
 {
-	static const int em = text_height(is_large ? lfont_l : nfont);
+	static const int32_t em = text_height(is_large ? lfont_l : nfont);
 	return em;
 }
 
-Size Size::sized(int size) noexcept
+Size Size::sized(int32_t size) noexcept
 {
 	return Size(is_large ? size : (size*2/3));
 }

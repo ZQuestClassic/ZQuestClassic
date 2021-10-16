@@ -2238,15 +2238,15 @@ script_variable variable_list[]=
 
 
 
-long ffparse(char *string)
+int32_t ffparse(char *string)
 {
-	//return int(atof(string)*10000);
+	//return int32_t(atof(string)*10000);
 	
 	//this function below isn't working too well yet
 	//clean_numeric_string(string);
 	double negcheck = atof(string);
 	
-	//if no decimal point, ascii to int conversion
+	//if no decimal point, ascii to int32_t conversion
 	char *ptr=strchr(string, '.');
 	
 	if(!ptr)
@@ -2254,12 +2254,12 @@ long ffparse(char *string)
 		return atoi(string)*10000;
 	}
 	
-	long ret=0;
+	int32_t ret=0;
 	char *tempstring1;
 	tempstring1=(char *)zc_malloc(strlen(string)+5);
 	sprintf(tempstring1, string);
 	
-	for(int i=0; i<4; ++i)
+	for(int32_t i=0; i<4; ++i)
 	{
 		tempstring1[strlen(string)+i]='0';
 	}
@@ -2284,7 +2284,7 @@ long ffparse(char *string)
 bool ffcheck(char *arg)
 {
 
-	for(int i=0; i<0x100; i++)
+	for(int32_t i=0; i<0x100; i++)
 	{
 		if(arg[i]!='\0')
 		{
@@ -2308,10 +2308,10 @@ bool ffcheck(char *arg)
 	return true;
 }
 
-std::map<std::string, int> labels;
+std::map<std::string, int32_t> labels;
 
 //The Dialogue that loads an ASM Script filename.
-int parse_script(script_data **script)
+int32_t parse_script(script_data **script)
 {
 	if(!getname("Import Script (.txt, .asm, .zasm)","txt,asm,zasm",NULL,datapath,false))
 		return D_CLOSE;
@@ -2326,7 +2326,7 @@ int parse_script(script_data **script)
 	else return parse_script_file(script,temppath, true);
 }
 
-int get_script_type(string const& name)
+int32_t get_script_type(string const& name)
 {
 	if(name=="GLOBAL")
 		return SCRIPT_GLOBAL;
@@ -2354,7 +2354,7 @@ int get_script_type(string const& name)
 	return SCRIPT_NONE;
 }
 
-string get_script_name(int type)
+string get_script_name(int32_t type)
 {
 	switch(type)
 	{
@@ -2584,12 +2584,12 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	return true;
 }
 
-int parse_script_file(script_data **script, const char *path, bool report_success)
+int32_t parse_script_file(script_data **script, const char *path, bool report_success)
 {
 	FILE *fscript = fopen(path,"rb");
 	return parse_script_file(script, fscript, report_success);
 }
-int parse_script_file(script_data **script, FILE* fscript, bool report_success)
+int32_t parse_script_file(script_data **script, FILE* fscript, bool report_success)
 {
 	saved=false;
 	char *buffer = new char[0x400];
@@ -2599,9 +2599,9 @@ int parse_script_file(script_data **script, FILE* fscript, bool report_success)
 	bool stop=false;
 	bool success=true;
 	bool meta_done=false;
-	int num_commands;
+	int32_t num_commands;
 	
-	for(int i=0;; i++)
+	for(int32_t i=0;; i++)
 	{
 		buffer[0]=0;
 		
@@ -2612,7 +2612,7 @@ int parse_script_file(script_data **script, FILE* fscript, bool report_success)
 		}
 		
 		bool meta = false;
-		for(int j=0; j<0x400; j++)
+		for(int32_t j=0; j<0x400; j++)
 		{
 			char temp;
 			temp = getc(fscript);
@@ -2671,7 +2671,7 @@ int parse_script_file(script_data **script, FILE* fscript, bool report_success)
 		}
 		if(meta) continue;
 		else meta_done = true;
-		int k=0;
+		int32_t k=0;
 		
 		while(buffer[k] == ' ' || buffer[k] == '\t') k++;
 		
@@ -2692,7 +2692,7 @@ int parse_script_file(script_data **script, FILE* fscript, bool report_success)
 				k++;
 			}
 			string lbl(lbuf);
-			map<string,int>::iterator it = labels.find(lbl);
+			map<string,int32_t>::iterator it = labels.find(lbl);
 			if(it != labels.end())
 			{
 				char buf[80],buf2[80],buf3[80],name[13];
@@ -2728,7 +2728,7 @@ int parse_script_file(script_data **script, FILE* fscript, bool report_success)
 	
 	//(*script) = new ffscript[num_commands];
 	
-	for(int i=0; i<num_commands; i++)
+	for(int32_t i=0; i<num_commands; i++)
 	{
 		if(stop)
 		{
@@ -2749,7 +2749,7 @@ int parse_script_file(script_data **script, FILE* fscript, bool report_success)
 			arg2buf[0]=0;
 			bool meta_mode = false;
 			
-			for(int j=0; j<0x400; j++)
+			for(int32_t j=0; j<0x400; j++)
 			{
 				char temp;
 				temp = getc(fscript);
@@ -2826,7 +2826,7 @@ int parse_script_file(script_data **script, FILE* fscript, bool report_success)
 			}
 			meta_done = true;
 			
-			int k=0, l=0;
+			int32_t k=0, l=0;
 			
 			while(buffer[k] == ' ' || buffer[k] == '\t') k++;
 			
@@ -2880,7 +2880,7 @@ int parse_script_file(script_data **script, FILE* fscript, bool report_success)
 			}
 			
 			arg2buf[l] = '\0';
-			int parse_err;
+			int32_t parse_err;
 			
 			if(!(parse_script_section(combuf, arg1buf, arg2buf, script, i, parse_err)))
 			{
@@ -2919,9 +2919,9 @@ zasmfile_fail:
 	return success?D_O_K:D_CLOSE;
 }
 
-int set_argument(char *argbuf, script_data **script, int com, int argument)
+int32_t set_argument(char *argbuf, script_data **script, int32_t com, int32_t argument)
 {
-	long *arg;
+	int32_t *arg;
 	
 	if(argument)
 	{
@@ -2932,14 +2932,14 @@ int set_argument(char *argbuf, script_data **script, int com, int argument)
 		arg = &((*script)->zasm[com].arg1);
 	}
 	
-	int i=0;
+	int32_t i=0;
 	char tempvar[80];
 	
 	while(variable_list[i].id>-1)
 	{
 		if(variable_list[i].maxcount>1)
 		{
-			for(int j=0; j<variable_list[i].maxcount; ++j)
+			for(int32_t j=0; j<variable_list[i].maxcount; ++j)
 			{
 				if(strcmp(variable_list[i].name,"A")==0)
 					sprintf(tempvar, "%s%d", variable_list[i].name, j+1);
@@ -2947,7 +2947,7 @@ int set_argument(char *argbuf, script_data **script, int com, int argument)
 				
 				if(stricmp(argbuf,tempvar)==0)
 				{
-					long temp = variable_list[i].id+(j*zc_max(1,variable_list[i].multiple));
+					int32_t temp = variable_list[i].id+(j*zc_max(1,variable_list[i].multiple));
 					*arg = temp;
 					return 1;
 				}
@@ -2972,13 +2972,13 @@ int set_argument(char *argbuf, script_data **script, int com, int argument)
 #define ERR_PARAM1 1
 #define ERR_PARAM2 2
 
-int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data **script, int com, int &retcode)
+int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data **script, int32_t com, int32_t &retcode)
 {
 	(*script)->zasm[com].arg1 = 0;
 	(*script)->zasm[com].arg2 = 0;
 	bool found_command=false;	
 	
-	for(int i=0; i<NUMCOMMANDS&&!found_command; ++i)
+	for(int32_t i=0; i<NUMCOMMANDS&&!found_command; ++i)
 	{
 		if(strcmp(combuf,command_list[i].name)==0)
 		{
@@ -2988,7 +2988,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data
 			if(((strnicmp(combuf,"GOTO",4)==0)||(strnicmp(combuf,"LOOP",4)==0)) && stricmp(combuf, "GOTOR"))
 			{
 				string lbl(arg1buf);
-				map<string,int>::iterator it = labels.find(lbl);
+				map<string,int32_t>::iterator it = labels.find(lbl);
 				if(it != labels.end())
 				{
 					(*script)->zasm[com].arg1 = (*it).second;

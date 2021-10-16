@@ -34,17 +34,17 @@ void BuildOpcodes::visit(AST& node, void* param)
 		 it != node.compileErrorCatches.end(); ++it)
 	{
 		ASTExprConst& idNode = **it;
-		optional<long> errorId = idNode.getCompileTimeValue(NULL, scope);
+		optional<int32_t> errorId = idNode.getCompileTimeValue(NULL, scope);
 		assert(errorId);
 		handleError(CompileError::MissingCompileError(
-				            &node, int(*errorId / 10000L)));
+				            &node, int32_t(*errorId / 10000L)));
 	}
 }
 
 void BuildOpcodes::literalVisit(AST& node, void* param)
 {
 	if(node.isDisabled()) return; //Don't visit disabled nodes.
-	int initIndex = result.size();
+	int32_t initIndex = result.size();
 	visit(node, param);
 	//Handle literals
 	OpcodeContext *c = (OpcodeContext *)param;
@@ -76,7 +76,7 @@ void BuildOpcodes::addOpcodes(Container const& container)
 		addOpcode(*it);
 }
 
-void BuildOpcodes::deallocateArrayRef(long arrayRef)
+void BuildOpcodes::deallocateArrayRef(int32_t arrayRef)
 {
 	addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
 	addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(arrayRef)));
@@ -84,10 +84,10 @@ void BuildOpcodes::deallocateArrayRef(long arrayRef)
 	addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::deallocateRefsUntilCount(int count)
+void BuildOpcodes::deallocateRefsUntilCount(int32_t count)
 {
 	count = arrayRefs.size() - count;
-    for (list<long>::reverse_iterator it = arrayRefs.rbegin();
+    for (list<int32_t>::reverse_iterator it = arrayRefs.rbegin();
 		 it != arrayRefs.rend() && count > 0;
 		 it++, count--)
 	{
@@ -117,7 +117,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	
 	OpcodeContext *c = (OpcodeContext *)param;
 
-	int startRefCount = arrayRefs.size();
+	int32_t startRefCount = arrayRefs.size();
 
     for (vector<ASTStmt*>::iterator it = host.statements.begin();
 		 it != host.statements.end(); ++it)
@@ -126,7 +126,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	}
 
 	deallocateRefsUntilCount(startRefCount);
-	while ((int)arrayRefs.size() > startRefCount)
+	while ((int32_t)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
 	
 	scope = scope->getParent();
@@ -141,9 +141,9 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 			host.setScope(scope->makeChild());
 		}
 		scope = host.getScope();
-		int startRefCount = arrayRefs.size();
+		int32_t startRefCount = arrayRefs.size();
 		
-		if(optional<long> val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
+		if(optional<int32_t> val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
 		{
 			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
 			{
@@ -151,7 +151,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 				visit(host.thenStatement.get(), param);
 				deallocateRefsUntilCount(startRefCount);
 				
-				while ((int)arrayRefs.size() > startRefCount)
+				while ((int32_t)arrayRefs.size() > startRefCount)
 					arrayRefs.pop_back();
 				
 				scope = scope->getParent();
@@ -159,7 +159,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 			return;
 		}
 		
-		int endif = ScriptParser::getUniqueLabelID();
+		int32_t endif = ScriptParser::getUniqueLabelID();
 		literalVisit(host.declaration.get(), param);
 		
 		//The condition should be reading the value just processed from the initializer
@@ -179,14 +179,14 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		
 		deallocateRefsUntilCount(startRefCount);
 		
-		while ((int)arrayRefs.size() > startRefCount)
+		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 		
 		scope = scope->getParent();
 	}
 	else
 	{
-		if(optional<long> val = host.condition->getCompileTimeValue(this, scope))
+		if(optional<int32_t> val = host.condition->getCompileTimeValue(this, scope))
 		{
 			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
 			{
@@ -195,14 +195,14 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 			return;
 		}
 		//run the test
-		int startRefCount = arrayRefs.size(); //Store ref count
+		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		literalVisit(host.condition.get(), param);
 		//Deallocate string/array literals from within the condition
 		deallocateRefsUntilCount(startRefCount);
-		while ((int)arrayRefs.size() > startRefCount)
+		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 		//Continue
-		int endif = ScriptParser::getUniqueLabelID();
+		int32_t endif = ScriptParser::getUniqueLabelID();
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		if(host.isInverted())
 			addOpcode(new OGotoFalseImmediate(new LabelArgument(endif)));
@@ -226,9 +226,9 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 			host.setScope(scope->makeChild());
 		}
 		scope = host.getScope();
-		int startRefCount = arrayRefs.size();
+		int32_t startRefCount = arrayRefs.size();
 		
-		if(optional<long> val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
+		if(optional<int32_t> val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
 		{
 			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
 			{
@@ -237,7 +237,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 				//Deallocate after then block
 				deallocateRefsUntilCount(startRefCount);
 				
-				while ((int)arrayRefs.size() > startRefCount)
+				while ((int32_t)arrayRefs.size() > startRefCount)
 					arrayRefs.pop_back();
 				
 				scope = scope->getParent();
@@ -247,7 +247,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 				//Deallocate before else block
 				deallocateRefsUntilCount(startRefCount);
 				
-				while ((int)arrayRefs.size() > startRefCount)
+				while ((int32_t)arrayRefs.size() > startRefCount)
 					arrayRefs.pop_back();
 				
 				scope = scope->getParent();
@@ -258,8 +258,8 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 			return;
 		}
 		
-		int endif = ScriptParser::getUniqueLabelID();
-		int elseif = ScriptParser::getUniqueLabelID();
+		int32_t endif = ScriptParser::getUniqueLabelID();
+		int32_t elseif = ScriptParser::getUniqueLabelID();
 		literalVisit(host.declaration.get(), param);
 		
 		//The condition should be reading the value just processed from the initializer
@@ -281,7 +281,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		
 		deallocateRefsUntilCount(startRefCount);
 		
-		while ((int)arrayRefs.size() > startRefCount)
+		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 		
 		scope = scope->getParent();
@@ -295,7 +295,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 	}
 	else
 	{
-		if(optional<long> val = host.condition->getCompileTimeValue(this, scope))
+		if(optional<int32_t> val = host.condition->getCompileTimeValue(this, scope))
 		{
 			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
 			{
@@ -309,15 +309,15 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 			return;
 		}
 		//run the test
-		int startRefCount = arrayRefs.size(); //Store ref count
+		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		literalVisit(host.condition.get(), param);
 		//Deallocate string/array literals from within the condition
 		deallocateRefsUntilCount(startRefCount);
-		while ((int)arrayRefs.size() > startRefCount)
+		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 		//Continue
-		int elseif = ScriptParser::getUniqueLabelID();
-		int endif = ScriptParser::getUniqueLabelID();
+		int32_t elseif = ScriptParser::getUniqueLabelID();
+		int32_t endif = ScriptParser::getUniqueLabelID();
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		if(host.isInverted())
 			addOpcode(new OGotoFalseImmediate(new LabelArgument(elseif)));
@@ -344,24 +344,24 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 		return;
 	}
 	
-	map<ASTSwitchCases*, int> labels;
+	map<ASTSwitchCases*, int32_t> labels;
 	vector<ASTSwitchCases*> cases = host.cases.data();
 	
-	int end_label = ScriptParser::getUniqueLabelID();;
-	int default_label = end_label;
+	int32_t end_label = ScriptParser::getUniqueLabelID();;
+	int32_t default_label = end_label;
 
 	// save and override break label.
-	int old_break_label = breaklabelid;
-	int oldBreakRefCount = breakRefCount;
+	int32_t old_break_label = breaklabelid;
+	int32_t oldBreakRefCount = breakRefCount;
 	breaklabelid = end_label;
 	breakRefCount = arrayRefs.size();
 
 	// Evaluate the key.
-	int startRefCount = arrayRefs.size(); //Store ref count
+	int32_t startRefCount = arrayRefs.size(); //Store ref count
 	literalVisit(host.key.get(), param);
 	//Deallocate string/array literals from within the key
 	deallocateRefsUntilCount(startRefCount);
-	while ((int)arrayRefs.size() > startRefCount)
+	while ((int32_t)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
 	
 	if(cases.size() == 1 && cases.back()->isDefault) //Only default case
@@ -383,7 +383,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 		ASTSwitchCases* cases = *it;
 
 		// Make the target label.
-		int label = ScriptParser::getUniqueLabelID();
+		int32_t label = ScriptParser::getUniqueLabelID();
 		labels[cases] = label;
 
 		// Run the tests for these cases.
@@ -392,7 +392,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			 ++it)
 		{
 			// Test this individual case.
-			if(optional<long> val = (*it)->getCompileTimeValue(this, scope))
+			if(optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 			{
 				result.push_back(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
 			}
@@ -409,9 +409,9 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			++it)
 		{
 			ASTRange& range = **it;
-			int skipLabel = ScriptParser::getUniqueLabelID();
+			int32_t skipLabel = ScriptParser::getUniqueLabelID();
 			//Test each full range
-			if(optional<long> val = (*range.start).getCompileTimeValue(this, scope))  //Compare key to lower bound
+			if(optional<int32_t> val = (*range.start).getCompileTimeValue(this, scope))  //Compare key to lower bound
 			{
 				result.push_back(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
 			}
@@ -424,7 +424,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
 			result.push_back(new OGotoTrueImmediate(new LabelArgument(skipLabel))); //Skip if key is OUT of the bound
 			
-			if(optional<long> val = (*range.end).getCompileTimeValue(this, scope))  //Compare key to upper bound
+			if(optional<int32_t> val = (*range.end).getCompileTimeValue(this, scope))  //Compare key to upper bound
 			{
 				result.push_back(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
 			}
@@ -455,7 +455,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 		ASTSwitchCases* cases = *it;
 
 		// Mark start of the block we're adding.
-		int block_start_index = result.size();
+		int32_t block_start_index = result.size();
 		// Make a nop for starting the block.
 		result.push_back(new ONoOp());
 		result[block_start_index]->setLabel(labels[cases]);
@@ -475,24 +475,24 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 
 void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 {
-	map<ASTSwitchCases*, int> labels;
+	map<ASTSwitchCases*, int32_t> labels;
 	vector<ASTSwitchCases*> cases = host.cases.data();
 
-	int end_label = ScriptParser::getUniqueLabelID();;
-	int default_label = end_label;
+	int32_t end_label = ScriptParser::getUniqueLabelID();;
+	int32_t default_label = end_label;
 
 	// save and override break label.
-	int old_break_label = breaklabelid;
-	int oldBreakRefCount = breakRefCount;
+	int32_t old_break_label = breaklabelid;
+	int32_t oldBreakRefCount = breakRefCount;
 	breaklabelid = end_label;
 	breakRefCount = arrayRefs.size();
 
 	// Evaluate the key.
-	int startRefCount = arrayRefs.size(); //Store ref count
+	int32_t startRefCount = arrayRefs.size(); //Store ref count
 	literalVisit(host.key.get(), param);
 	//Deallocate string/array literals from within the key
 	deallocateRefsUntilCount(startRefCount);
-	while ((int)arrayRefs.size() > startRefCount)
+	while ((int32_t)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
 	
 	if(cases.size() == 1 && cases.back()->isDefault) //Only default case
@@ -514,7 +514,7 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 		ASTSwitchCases* cases = *it;
 
 		// Make the target label.
-		int label = ScriptParser::getUniqueLabelID();
+		int32_t label = ScriptParser::getUniqueLabelID();
 		labels[cases] = label;
 
 		// Run the tests for these cases.
@@ -524,7 +524,7 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 		{
 			// Test this individual case.
 			//Allocate the string literal
-			int litRefCount = arrayRefs.size(); //Store ref count
+			int32_t litRefCount = arrayRefs.size(); //Store ref count
 			literalVisit(*it, param);
 			
 			// Compare the strings
@@ -535,7 +535,7 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 			
 			//Deallocate string literal
 			deallocateRefsUntilCount(litRefCount);
-			while ((int)arrayRefs.size() > litRefCount)
+			while ((int32_t)arrayRefs.size() > litRefCount)
 				arrayRefs.pop_back();
 			
 			//
@@ -556,7 +556,7 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 		ASTSwitchCases* cases = *it;
 
 		// Mark start of the block we're adding.
-		int block_start_index = result.size();
+		int32_t block_start_index = result.size();
 		// Make a nop for starting the block.
 		result.push_back(new ONoOp());
 		result[block_start_index]->setLabel(labels[cases]);
@@ -582,14 +582,14 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	}
 	scope = host.getScope();
     //run the precondition
-	int setupRefCount = arrayRefs.size(); //Store ref count
+	int32_t setupRefCount = arrayRefs.size(); //Store ref count
 	literalVisit(host.setup.get(), param);
 	//Deallocate string/array literals from within the setup
 	deallocateRefsUntilCount(setupRefCount);
-	while ((int)arrayRefs.size() > setupRefCount)
+	while ((int32_t)arrayRefs.size() > setupRefCount)
 		arrayRefs.pop_back();
 	//Check for a constant FALSE condition
-	if(optional<long> val = host.test->getCompileTimeValue(this, scope))
+	if(optional<int32_t> val = host.test->getCompileTimeValue(this, scope))
 	{
 		if(*val == 0) //False, so restore scope and exit
 		{
@@ -598,19 +598,19 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 		}
 	}
 	//Continue
-    int loopstart = ScriptParser::getUniqueLabelID();
-    int loopend = ScriptParser::getUniqueLabelID();
-    int loopincr = ScriptParser::getUniqueLabelID();
+    int32_t loopstart = ScriptParser::getUniqueLabelID();
+    int32_t loopend = ScriptParser::getUniqueLabelID();
+    int32_t loopincr = ScriptParser::getUniqueLabelID();
     //nop
     Opcode *next = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
     next->setLabel(loopstart);
     addOpcode(next);
     //test the termination condition
-    int testRefCount = arrayRefs.size(); //Store ref count
+    int32_t testRefCount = arrayRefs.size(); //Store ref count
 	literalVisit(host.test.get(), param);
 	//Deallocate string/array literals from within the test
 	deallocateRefsUntilCount(testRefCount);
-	while ((int)arrayRefs.size() > testRefCount)
+	while ((int32_t)arrayRefs.size() > testRefCount)
 		arrayRefs.pop_back();
 	//Continue
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
@@ -618,12 +618,12 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     //run the loop body
     //save the old break and continue values
 
-    int oldbreak = breaklabelid;
-	int oldBreakRefCount = breakRefCount;
+    int32_t oldbreak = breaklabelid;
+	int32_t oldBreakRefCount = breakRefCount;
     breaklabelid = loopend;
 	breakRefCount = arrayRefs.size();
-    int oldcontinue = continuelabelid;
-	int oldContinueRefCount = continueRefCount;
+    int32_t oldcontinue = continuelabelid;
+	int32_t oldContinueRefCount = continueRefCount;
     continuelabelid = loopincr;
 	continueRefCount = arrayRefs.size();
 
@@ -639,11 +639,11 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
     next->setLabel(loopincr);
     addOpcode(next);
-    int incRefCount = arrayRefs.size(); //Store ref count
+    int32_t incRefCount = arrayRefs.size(); //Store ref count
 	literalVisit(host.increment.get(), param);
 	//Deallocate string/array literals from within the increment
 	deallocateRefsUntilCount(incRefCount);
-	while ((int)arrayRefs.size() > incRefCount)
+	while ((int32_t)arrayRefs.size() > incRefCount)
 		arrayRefs.pop_back();
 	//Continue
     addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
@@ -656,25 +656,25 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 {
-	if(optional<long> val = host.test->getCompileTimeValue(this, scope))
+	if(optional<int32_t> val = host.test->getCompileTimeValue(this, scope))
 	{
 		if((host.isInverted()) != (*val==0)) //False, so ignore this all.
 		{
 			return;
 		}
 	}
-    int startlabel = ScriptParser::getUniqueLabelID();
-    int endlabel = ScriptParser::getUniqueLabelID();
+    int32_t startlabel = ScriptParser::getUniqueLabelID();
+    int32_t endlabel = ScriptParser::getUniqueLabelID();
     //run the test
     //nop to label start
     Opcode *start = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
     start->setLabel(startlabel);
     addOpcode(start);
-	int startRefCount = arrayRefs.size(); //Store ref count
+	int32_t startRefCount = arrayRefs.size(); //Store ref count
 	literalVisit(host.test.get(), param);
 	//Deallocate string/array literals from within the test
 	deallocateRefsUntilCount(startRefCount);
-	while ((int)arrayRefs.size() > startRefCount)
+	while ((int32_t)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
 	//Continue
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
@@ -687,12 +687,12 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
 	}
 
-    int oldbreak = breaklabelid;
-	int oldBreakRefCount = breakRefCount;
+    int32_t oldbreak = breaklabelid;
+	int32_t oldBreakRefCount = breakRefCount;
     breaklabelid = endlabel;
 	breakRefCount = arrayRefs.size();
-    int oldcontinue = continuelabelid;
-	int oldContinueRefCount = continueRefCount;
+    int32_t oldcontinue = continuelabelid;
+	int32_t oldContinueRefCount = continueRefCount;
     continuelabelid = startlabel;
 	continueRefCount = arrayRefs.size();
 
@@ -712,20 +712,20 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 
 void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 {
-    int startlabel = ScriptParser::getUniqueLabelID();
-    int endlabel = ScriptParser::getUniqueLabelID();
-    int continuelabel = ScriptParser::getUniqueLabelID();
+    int32_t startlabel = ScriptParser::getUniqueLabelID();
+    int32_t endlabel = ScriptParser::getUniqueLabelID();
+    int32_t continuelabel = ScriptParser::getUniqueLabelID();
     //nop to label start
     Opcode *start = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
     start->setLabel(startlabel);
     addOpcode(start);
 
-    int oldbreak = breaklabelid;
-	int oldBreakRefCount = breakRefCount;
+    int32_t oldbreak = breaklabelid;
+	int32_t oldBreakRefCount = breakRefCount;
     breaklabelid = endlabel;
 	breakRefCount = arrayRefs.size();
-    int oldcontinue = continuelabelid;
-	int oldContinueRefCount = continueRefCount;
+    int32_t oldcontinue = continuelabelid;
+	int32_t oldContinueRefCount = continueRefCount;
     continuelabelid = continuelabel;
 	continueRefCount = arrayRefs.size();
 
@@ -739,11 +739,11 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     start = new OSetImmediate(new VarArgument(NUL), new LiteralArgument(0));
     start->setLabel(continuelabel);
     addOpcode(start);
-    int startRefCount = arrayRefs.size(); //Store ref count
+    int32_t startRefCount = arrayRefs.size(); //Store ref count
 	literalVisit(host.test.get(), param);
 	//Deallocate string/array literals from within the test
 	deallocateRefsUntilCount(startRefCount);
-	while ((int)arrayRefs.size() > startRefCount)
+	while ((int32_t)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
 	//Continue
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
@@ -810,8 +810,8 @@ void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
 	if(host.getFlag(FUNCFLAG_INLINE)) return; //Skip inline func decls, they are handled at call location -V
 	if(host.prototype) return; //Same for prototypes
-	int oldreturnlabelid = returnlabelid;
-	int oldReturnRefCount = returnRefCount;
+	int32_t oldreturnlabelid = returnlabelid;
+	int32_t oldReturnRefCount = returnRefCount;
     returnlabelid = ScriptParser::getUniqueLabelID();
 	returnRefCount = arrayRefs.size();
 
@@ -846,7 +846,7 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	visit(host.getInitializer(), &context);
 
 	// Set variable to EXP1 or 0, depending on the initializer.
-	if (optional<int> globalId = manager.getGlobalId())
+	if (optional<int32_t> globalId = manager.getGlobalId())
 	{
 		if (host.getInitializer())
 			addOpcode(new OSetRegister(new GlobalArgument(*globalId),
@@ -857,7 +857,7 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	}
 	else
 	{
-		int offset = 10000L * *getStackOffset(manager);
+		int32_t offset = 10000L * *getStackOffset(manager);
 		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
 		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
 		if (!host.getInitializer())
@@ -887,8 +887,8 @@ void BuildOpcodes::buildArrayUninit(
 	}
 
 	// Get size of the array.
-	long totalSize;
-	if (optional<int> size = host.extraArrays[0]->getCompileTimeSize(this, scope))
+	int32_t totalSize;
+	if (optional<int32_t> size = host.extraArrays[0]->getCompileTimeSize(this, scope))
 		totalSize = *size * 10000L;
 	else
 	{
@@ -898,7 +898,7 @@ void BuildOpcodes::buildArrayUninit(
 	}
 
 	// Allocate the array.
-	if (optional<int> globalId = manager.getGlobalId())
+	if (optional<int32_t> globalId = manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 				          new VarArgument(EXP1),
@@ -909,7 +909,7 @@ void BuildOpcodes::buildArrayUninit(
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize)));
-		int offset = 10000L * *getStackOffset(manager);
+		int32_t offset = 10000L * *getStackOffset(manager);
 		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
 		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
 		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
@@ -939,7 +939,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
     OpcodeContext* c = (OpcodeContext*)param;
 
 	// If a constant, just load its value.
-    if (optional<long> value = host.binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()))
+    if (optional<int32_t> value = host.binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()))
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1),
                                     new LiteralArgument(*value)));
@@ -947,9 +947,9 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
         return;
     }
 
-    int vid = host.binding->id;
+    int32_t vid = host.binding->id;
 
-    if (optional<int> globalId = host.binding->getGlobalId())
+    if (optional<int32_t> globalId = host.binding->getGlobalId())
     {
         // Global variable, so just get its value.
         addOpcode(new OSetRegister(new VarArgument(EXP1),
@@ -958,7 +958,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
     }
 
     // Local variable, get its value from the stack.
-    int offset = 10000L * *getStackOffset(*host.binding);
+    int32_t offset = 10000L * *getStackOffset(*host.binding);
     addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
     addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
     addOpcode(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
@@ -967,7 +967,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 {
     OpcodeContext *c = (OpcodeContext *)param;
-    int isIndexed = (host.index != NULL);
+    int32_t isIndexed = (host.index != NULL);
 	assert(host.readFunction->isInternal());
 	
 	if(host.readFunction->getFlag(FUNCFLAG_INLINE))
@@ -999,7 +999,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		//so, set that up:
 		//push the stack frame
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-		int returnlabel = ScriptParser::getUniqueLabelID();
+		int32_t returnlabel = ScriptParser::getUniqueLabelID();
 		//push the return address
 		addOpcode(new OPushImmediate(new LabelArgument(returnlabel)));
 		if (!(host.readFunction->internal_flags & IFUNCFLAG_SKIPPOINTER))
@@ -1017,7 +1017,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		}
 
 		//call the function
-		int label = host.readFunction->getLabel();
+		int32_t label = host.readFunction->getLabel();
 		addOpcode(new OGotoImmediate(new LabelArgument(label)));
 		//pop the stack frame
 		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
@@ -1034,8 +1034,8 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 		return;
 	}
-	optional<long> arrVal = host.array->getCompileTimeValue(this,scope);
-	optional<long> indxVal = host.index->getCompileTimeValue(this,scope);
+	optional<int32_t> arrVal = host.array->getCompileTimeValue(this,scope);
+	optional<int32_t> indxVal = host.index->getCompileTimeValue(this,scope);
 	
 	if(!arrVal)
 	{
@@ -1063,7 +1063,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
     OpcodeContext* c = (OpcodeContext*)param;
 	if(host.binding->prototype) //Prototype function
 	{
-		int startRefCount = arrayRefs.size(); //Store ref count
+		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.
 		for (vector<ASTExpr*>::iterator it = host.parameters.begin();
 			it != host.parameters.end(); ++it)
@@ -1075,7 +1075,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		DataType const& retType = *host.binding->returnType;
 		if(retType != DataType::ZVOID)
 		{
-			if (optional<long> val = host.binding->defaultReturn->getCompileTimeValue(NULL, scope))
+			if (optional<int32_t> val = host.binding->defaultReturn->getCompileTimeValue(NULL, scope))
 			{
 				addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
 			}
@@ -1083,14 +1083,14 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 
 		//Deallocate string/array literals from within the parameters
 		deallocateRefsUntilCount(startRefCount);
-		while ((int)arrayRefs.size() > startRefCount)
+		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 	}
 	else if(host.binding->getFlag(FUNCFLAG_INLINE)) //Inline function
 	{
 		if(host.binding->isInternal())
 		{
-			int startRefCount = arrayRefs.size(); //Store ref count
+			int32_t startRefCount = arrayRefs.size(); //Store ref count
 			
 			if (host.left->isTypeArrow() && !(host.binding->internal_flags & IFUNCFLAG_SKIPPOINTER))
 			{
@@ -1138,7 +1138,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 			//Deallocate string/array literals from within the parameters
 			deallocateRefsUntilCount(startRefCount);
-			while ((int)arrayRefs.size() > startRefCount)
+			while ((int32_t)arrayRefs.size() > startRefCount)
 				arrayRefs.pop_back();
 		}
 		else
@@ -1165,8 +1165,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			//Inline-specific:
 			ASTFuncDecl& decl = *(host.binding->node);
 			//Set the inline flag, process the function block, then reset flags to prior state.
-			int oldreturnlabelid = returnlabelid;
-			int oldReturnRefCount = returnRefCount;
+			int32_t oldreturnlabelid = returnlabelid;
+			int32_t oldReturnRefCount = returnRefCount;
 			returnlabelid = ScriptParser::getUniqueLabelID();
 			returnRefCount = arrayRefs.size();
 			
@@ -1182,12 +1182,12 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	}
 	else //Non-inline function
 	{
-		int funclabel = host.binding->getLabel();
+		int32_t funclabel = host.binding->getLabel();
 		//push the stack frame pointer
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
-		int returnaddr = ScriptParser::getUniqueLabelID();
-		int startRefCount = arrayRefs.size(); //Store ref count
+		int32_t returnaddr = ScriptParser::getUniqueLabelID();
+		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		//addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnaddr)));
 		//addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
@@ -1242,14 +1242,14 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		
 		//Deallocate string/array literals from within the parameters
 		deallocateRefsUntilCount(startRefCount);
-		while ((int)arrayRefs.size() > startRefCount)
+		while ((int32_t)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
 	}
 }
 
 void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 {
-    if (optional<long> val = host.getCompileTimeValue(NULL, scope))
+    if (optional<int32_t> val = host.getCompileTimeValue(NULL, scope))
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
         return;
@@ -1378,7 +1378,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
     if(short_circuit)
 	{
-		int skip = ScriptParser::getUniqueLabelID();
+		int32_t skip = ScriptParser::getUniqueLabelID();
 		//Get left
 		visit(host.left.get(), param);
 		//Check left, skip if false
@@ -1422,7 +1422,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
 	if(short_circuit)
 	{
-		int skip = ScriptParser::getUniqueLabelID();
+		int32_t skip = ScriptParser::getUniqueLabelID();
 		//Get left
 		visit(host.left.get(), param);
 		//Check left, skip if true
@@ -1559,7 +1559,7 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 	{
 		if(ASTExpr* lhs = host.left.get())
 		{
-			if(optional<long> val = lhs->getCompileTimeValue(NULL, scope))
+			if(optional<int32_t> val = lhs->getCompileTimeValue(NULL, scope))
 			{
 				if((*val)==0)
 				{
@@ -1575,7 +1575,7 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 		}
 		if(ASTExpr* rhs = host.right.get())
 		{
-			if(optional<long> val = rhs->getCompileTimeValue(NULL, scope))
+			if(optional<int32_t> val = rhs->getCompileTimeValue(NULL, scope))
 			{
 				if((*val)==0)
 				{
@@ -1626,7 +1626,7 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 	{
 		if(ASTExpr* lhs = host.left.get())
 		{
-			if(optional<long> val = lhs->getCompileTimeValue(NULL, scope))
+			if(optional<int32_t> val = lhs->getCompileTimeValue(NULL, scope))
 			{
 				if((*val)==0)
 				{
@@ -1641,7 +1641,7 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 		}
 		if(ASTExpr* rhs = host.right.get())
 		{
-			if(optional<long> val = rhs->getCompileTimeValue(NULL, scope))
+			if(optional<int32_t> val = rhs->getCompileTimeValue(NULL, scope))
 			{
 				if((*val)==0)
 				{
@@ -1733,7 +1733,7 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 	{
 		if(ASTExpr* lhs = host.left.get())
 		{
-			if(optional<long> val = lhs->getCompileTimeValue(NULL, scope))
+			if(optional<int32_t> val = lhs->getCompileTimeValue(NULL, scope))
 			{
 				if((*val)==0) // 0 + y? Just do y!
 				{
@@ -1744,7 +1744,7 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 		}
 		if(ASTExpr* rhs = host.right.get())
 		{
-			if(optional<long> val = rhs->getCompileTimeValue(NULL, scope))
+			if(optional<int32_t> val = rhs->getCompileTimeValue(NULL, scope))
 			{
 				if((*val)==0) // x + 0? Just do x!
 				{
@@ -1774,7 +1774,7 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 	{
 		if(ASTExpr* rhs = host.right.get())
 		{
-			if(optional<long> val = rhs->getCompileTimeValue(NULL, scope))
+			if(optional<int32_t> val = rhs->getCompileTimeValue(NULL, scope))
 			{
 				if((*val)==0) // x - 0? Just do x!
 				{
@@ -1805,7 +1805,7 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 	{
 		if(ASTExpr* lhs = host.left.get())
 		{
-			if(optional<long> val = lhs->getCompileTimeValue(NULL, scope))
+			if(optional<int32_t> val = lhs->getCompileTimeValue(NULL, scope))
 			{
 				if((*val)==10000L)
 				{
@@ -1816,7 +1816,7 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 		}
 		if(ASTExpr* rhs = host.right.get())
 		{
-			if(optional<long> val = rhs->getCompileTimeValue(NULL, scope))
+			if(optional<int32_t> val = rhs->getCompileTimeValue(NULL, scope))
 			{
 				if((*val)==10000L)
 				{
@@ -1984,8 +1984,8 @@ void BuildOpcodes::caseExprTernary(ASTTernaryExpr& host, void* param)
 
 	// Works just like an if/else, except for the "getCompileTimeValue(NULL, scope)" above!
 	visit(host.left.get(), param);
-	int elseif = ScriptParser::getUniqueLabelID();
-	int endif = ScriptParser::getUniqueLabelID();
+	int32_t elseif = ScriptParser::getUniqueLabelID();
+	int32_t endif = ScriptParser::getUniqueLabelID();
 	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 	addOpcode(new OGotoTrueImmediate(new LabelArgument(elseif)));
 	visit(host.middle.get(), param); //Use middle section
@@ -2007,7 +2007,7 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
     else
     {
-        pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue(this, scope), scope);
+        pair<int32_t, bool> val = ScriptParser::parseLong(host.value->parseValue(this, scope), scope);
 
         if (!val.second)
 	        handleError(CompileError::ConstTrunc(
@@ -2023,7 +2023,7 @@ void BuildOpcodes::caseCharLiteral(ASTCharLiteral& host, void*)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
     else
     {
-        pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue(this, scope), scope);
+        pair<int32_t, bool> val = ScriptParser::parseLong(host.value->parseValue(this, scope), scope);
 
         if (!val.second)
 	        handleError(CompileError::ConstTrunc(
@@ -2053,11 +2053,11 @@ void BuildOpcodes::stringLiteralDeclaration(
 	string const& data = host.value;
 
 	// Grab the size from the declaration.
-	int size = -1;
+	int32_t size = -1;
 	if (declaration.extraArrays.size() == 1)
 	{
 		ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
-		if (optional<int> totalSize = extraArray.getCompileTimeSize(this, scope))
+		if (optional<int32_t> totalSize = extraArray.getCompileTimeSize(this, scope))
 			size = *totalSize;
 		else if (extraArray.hasSize())
 		{
@@ -2070,14 +2070,14 @@ void BuildOpcodes::stringLiteralDeclaration(
 	if (size == -1) size = data.size() + 1;
 
 	// Make sure the chosen size has enough space.
-	if (size < int(data.size() + 1))
+	if (size < int32_t(data.size() + 1))
 	{
 		handleError(CompileError::ArrayListStringTooLarge(&host));
 		return;
 	}
 
 	// Create the array and store its id.
-	if (optional<int> globalId = manager.getGlobalId())
+	if (optional<int32_t> globalId = manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 				          new VarArgument(EXP1),
@@ -2089,7 +2089,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 		                                    new LiteralArgument(size * 10000L)));
-		int offset = 10000L * *getStackOffset(manager);
+		int32_t offset = 10000L * *getStackOffset(manager);
 		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
 		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
 		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
@@ -2100,7 +2100,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 	// Initialize array.
 	addOpcode(new OSetRegister(new VarArgument(INDEX),
 	                           new VarArgument(EXP1)));
-	for (int i = 0; i < (int)data.size(); ++i)
+	for (int32_t i = 0; i < (int32_t)data.size(); ++i)
 	{
 		addOpcode(new OWritePODArrayII(
 				          new LiteralArgument(i * 10000L),
@@ -2117,8 +2117,8 @@ void BuildOpcodes::stringLiteralFree(
 {
 	Literal& manager = *host.manager;
 	string data = host.value;
-	long size = data.size() + 1;
-	int offset = *getStackOffset(manager) * 10000L;
+	int32_t size = data.size() + 1;
+	int32_t offset = *getStackOffset(manager) * 10000L;
 	vector<Opcode*>& init = context.initCode;
 
 	////////////////////////////////////////////////////////////////
@@ -2138,7 +2138,7 @@ void BuildOpcodes::stringLiteralFree(
 	// Initialize.
 	init.push_back(new OSetRegister(new VarArgument(INDEX),
 	                                new VarArgument(EXP1)));
-	for (int i = 0; i < (int)data.size(); ++i)
+	for (int32_t i = 0; i < (int32_t)data.size(); ++i)
 	{
 		init.push_back(new OWritePODArrayII(
 				               new LiteralArgument(i * 10000L),
@@ -2180,16 +2180,16 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	Datum& manager = *declaration.manager;
 
 	// Find the size.
-	int size = -1;
+	int32_t size = -1;
 	// From this literal?
 	if (host.size)
-		if (optional<long> s = host.size->getCompileTimeValue(this, scope))
+		if (optional<int32_t> s = host.size->getCompileTimeValue(this, scope))
 			size = *s / 10000L;
 	// From the declaration?
 	if (size == -1 && declaration.extraArrays.size() == 1)
 	{
 		ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
-		if (optional<int> totalSize = extraArray.getCompileTimeSize(this, scope))
+		if (optional<int32_t> totalSize = extraArray.getCompileTimeSize(this, scope))
 			size = *totalSize;
 		else if (extraArray.hasSize())
 		{
@@ -2208,14 +2208,14 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	}
 	
 	// Make sure the chosen size has enough space.
-	if (size < int(host.elements.size()))
+	if (size < int32_t(host.elements.size()))
 	{
 		handleError(CompileError::ArrayListTooLarge(&host));
 		return;
 	}
 
 	// Create the array and store its id.
-	if (optional<int> globalId = manager.getGlobalId())
+	if (optional<int32_t> globalId = manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 				          new VarArgument(EXP1),
@@ -2227,7 +2227,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 		                                    new LiteralArgument(size * 10000L)));
-		int offset = 10000L * *getStackOffset(manager);
+		int32_t offset = 10000L * *getStackOffset(manager);
 		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
 		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
 		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
@@ -2238,11 +2238,11 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	// Initialize array.
 	addOpcode(new OSetRegister(new VarArgument(INDEX),
 	                           new VarArgument(EXP1)));
-	long i = 0;
+	int32_t i = 0;
 	for (vector<ASTExpr*>::const_iterator it = host.elements.begin();
 		 it != host.elements.end(); ++it, i += 10000L)
 	{
-		if (optional<long> val = (*it)->getCompileTimeValue(this, scope))
+		if (optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 		{
 			addOpcode(new OWritePODArrayII(new LiteralArgument(i),
 			                               new LiteralArgument(*val)));
@@ -2262,7 +2262,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 /* I added this because calling an 'internal function with an array literal, inside a user
 	created function is using SETV with bizarre values. -ZScript
 	//Didn't work.
-	int offset = *getStackOffset(manager) * 10000L;
+	int32_t offset = *getStackOffset(manager) * 10000L;
 	// Local variable, get its value from the stack.
 	addOpcode(new OSetRegister(new VarArgument(SFTEMP),
 	                           new VarArgument(SFRAME)));
@@ -2278,12 +2278,12 @@ void BuildOpcodes::arrayLiteralFree(
 {
 	Literal& manager = *host.manager;
 
-	int size = -1;
+	int32_t size = -1;
 
 	// If there's an explicit size, grab it.
 	if (host.size)
 	{
-		if (optional<long> s = host.size->getCompileTimeValue(this, scope))
+		if (optional<int32_t> s = host.size->getCompileTimeValue(this, scope))
 			size = *s / 10000L;
 		else
 		{
@@ -2296,13 +2296,13 @@ void BuildOpcodes::arrayLiteralFree(
 	if (size == -1) size = host.elements.size();
 
 	// Make sure the chosen size has enough space.
-	if (size < int(host.elements.size()))
+	if (size < int32_t(host.elements.size()))
 	{
 		handleError(CompileError::ArrayListTooLarge(&host));
 		return;
 	}
 
-	int offset = 10000L * *getStackOffset(manager);
+	int32_t offset = 10000L * *getStackOffset(manager);
 	
 	////////////////////////////////////////////////////////////////
 	// Initialization Code.
@@ -2324,11 +2324,11 @@ void BuildOpcodes::arrayLiteralFree(
 	// Initialize.
 	context.initCode.push_back(new OSetRegister(new VarArgument(INDEX),
 	                                            new VarArgument(EXP1)));
-	long i = 0;
+	int32_t i = 0;
 	for (vector<ASTExpr*>::iterator it = host.elements.begin();
 		 it != host.elements.end(); ++it, i += 10000L)
 	{
-		if (optional<long> val = (*it)->getCompileTimeValue(this, scope))
+		if (optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 		{
 			context.initCode.push_back(new OWritePODArrayII(new LiteralArgument(i),
 			                                                new LiteralArgument(*val)));
@@ -2406,8 +2406,8 @@ void LValBOHelper::caseDataDecl(ASTDataDecl& host, void* param)
 {
     // Cannot be a global variable, so just stuff it in the stack
     OpcodeContext* c = (OpcodeContext*)param;
-    int vid = host.manager->id;
-    int offset = c->stackframe->getOffset(vid);
+    int32_t vid = host.manager->id;
+    int32_t offset = c->stackframe->getOffset(vid);
     addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
     addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
     addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
@@ -2417,9 +2417,9 @@ void LValBOHelper::caseDataDecl(ASTDataDecl& host, void* param)
 void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
-    int vid = host.binding->id;
+    int32_t vid = host.binding->id;
 
-    if (optional<int> globalId = host.binding->getGlobalId())
+    if (optional<int32_t> globalId = host.binding->getGlobalId())
     {
         // Global variable.
         addOpcode(new OSetRegister(new GlobalArgument(*globalId),
@@ -2428,7 +2428,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
     }
 
     // Set the stack.
-    int offset = 10000L * *getStackOffset(*host.binding);
+    int32_t offset = 10000L * *getStackOffset(*host.binding);
 
     addOpcode(new OSetRegister(new VarArgument(SFTEMP),
                                new VarArgument(SFRAME)));
@@ -2441,7 +2441,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
     OpcodeContext *c = (OpcodeContext *)param;
-    int isIndexed = (host.index != NULL);
+    int32_t isIndexed = (host.index != NULL);
 	assert(host.writeFunction->isInternal());
 	
 	if(host.writeFunction->getFlag(FUNCFLAG_INLINE))
@@ -2489,7 +2489,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		// Push the stack frame.
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 
-		int returnlabel = ScriptParser::getUniqueLabelID();
+		int32_t returnlabel = ScriptParser::getUniqueLabelID();
 		//push the return address
 		addOpcode(new OPushImmediate(new LabelArgument(returnlabel)));
 		
@@ -2524,7 +2524,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		}
 		
 		//finally, goto!
-		int label = host.writeFunction->getLabel();
+		int32_t label = host.writeFunction->getLabel();
 		addOpcode(new OGotoImmediate(new LabelArgument(label)));
 
 		// Pop the stack frame
@@ -2545,8 +2545,8 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 
 	vector<Opcode*> opcodes;
 	BuildOpcodes bo(scope);
-	optional<long> arrVal = host.array->getCompileTimeValue(&bo, scope);
-	optional<long> indxVal = host.index->getCompileTimeValue(&bo, scope);
+	optional<int32_t> arrVal = host.array->getCompileTimeValue(&bo, scope);
+	optional<int32_t> indxVal = host.index->getCompileTimeValue(&bo, scope);
 	if(!arrVal || !indxVal)
 	{
 		// Push the value.

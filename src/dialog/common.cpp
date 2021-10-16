@@ -13,7 +13,7 @@ GUI::ListData getItemListData(bool includeNone)
 
 	if(includeNone)
 		listItems.emplace_back("(None)", -1);
-	for(int i = 0; i < ITEMCNT; ++i)
+	for(int32_t i = 0; i < ITEMCNT; ++i)
 		listItems.emplace_back(item_string[i], i);
 
 	auto sortBegin = listItems.begin();

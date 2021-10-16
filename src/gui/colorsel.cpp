@@ -60,9 +60,9 @@ void ColorSel::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
-int ColorSel::onEvent(int event, MessageDispatcher& sendMessage)
+int32_t ColorSel::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
-	int message = -1;
+	int32_t message = -1;
 	switch(event)
 	{
 		case geCHANGE_VALUE:

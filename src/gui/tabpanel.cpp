@@ -69,15 +69,15 @@ void TabPanel::calculateSize()
 	else
 	{
 		// The switcher is as large as its largest child, or large enough to fit its' tabs without using arrows
-		int maxW = 64, maxH = 0, tabwid = 0;
+		int32_t maxW = 64, maxH = 0, tabwid = 0;
 		for(auto& child: children)
 		{
 			child->calculateSize();
 			tabwid+=text_length(widgFont, child->getName().c_str())+15;
-			int w = child->getTotalWidth(); // Should this be getTotalWidth()?
+			int32_t w = child->getTotalWidth(); // Should this be getTotalWidth()?
 			if(w > maxW)
 				maxW = w;
-			int h = child->getTotalHeight(); // getTotalHeight()?
+			int32_t h = child->getTotalHeight(); // getTotalHeight()?
 			if(h > maxH)
 				maxH = h;
 		}
@@ -88,7 +88,7 @@ void TabPanel::calculateSize()
 	}
 }
 
-void TabPanel::arrange(int contX, int contY, int contW, int contH)
+void TabPanel::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 {
 	if(children.size() == 1)
 	{

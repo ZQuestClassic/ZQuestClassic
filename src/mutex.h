@@ -36,22 +36,22 @@ inline void mutex_unlock(CRITICAL_SECTION* m)
 
 typedef pthread_mutex_t mutex;
 
-inline int mutex_init(pthread_mutex_t* m)
+inline int32_t mutex_init(pthread_mutex_t* m)
 {
     return pthread_mutex_init(m, 0);
 }
 
-inline int mutex_destroy(pthread_mutex_t* m)
+inline int32_t mutex_destroy(pthread_mutex_t* m)
 {
     return pthread_mutex_destroy(m);
 }
 
-inline int mutex_lock(pthread_mutex_t* m)
+inline int32_t mutex_lock(pthread_mutex_t* m)
 {
     return pthread_mutex_lock(m);
 }
 
-inline int mutex_unlock(pthread_mutex_t* m)
+inline int32_t mutex_unlock(pthread_mutex_t* m)
 {
     return pthread_mutex_unlock(m);
 }

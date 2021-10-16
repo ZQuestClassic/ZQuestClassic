@@ -34,23 +34,23 @@
 extern "C"
 {
 #endif
-int vc2(int x);
+int32_t vc2(int32_t x);
 /* a tab panel */
 typedef struct TABPANEL
 {
     char *text;                   /* menu item text */
-    // AL_METHOD(int, proc, (void)); /* callback function */
+    // AL_METHOD(int32_t, proc, (void)); /* callback function */
     // struct MENU *child;           /* to allow nested menus */
-    int flags;                    /* flags about the menu state */
-    int *dialog;                  /* pointer to group of dialog objects that this tab contains */
-    int objects;                  /* count of number of objects this tab handles; auto-calculated */
-    int *xy;                      /* x and y coords of those dialog objects. */
+    int32_t flags;                    /* flags about the menu state */
+    int32_t *dialog;                  /* pointer to group of dialog objects that this tab contains */
+    int32_t objects;                  /* count of number of objects this tab handles; auto-calculated */
+    int32_t *xy;                      /* x and y coords of those dialog objects. */
 } TABPANEL;
 
-bool uses_tab_arrows(TABPANEL *panel, int maxwidth);
-int tab_count(TABPANEL *panel);
-int last_visible_tab(TABPANEL *panel, int first_tab, int maxwidth);
-int d_tab_proc(int msg, DIALOG *d, int c);
+bool uses_tab_arrows(TABPANEL *panel, int32_t maxwidth);
+int32_t tab_count(TABPANEL *panel);
+int32_t last_visible_tab(TABPANEL *panel, int32_t first_tab, int32_t maxwidth);
+int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c);
 #ifdef __cplusplus
 }
 #endif

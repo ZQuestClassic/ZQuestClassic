@@ -52,17 +52,17 @@ public:
 	 */
 	std::string_view getText();
 	
-	/* Set the int value, unused for type::TEXT
+	/* Set the int32_t value, unused for type::TEXT
 	 */
-	void setVal(int val);
+	void setVal(int32_t val);
 	
 	/* Gets the value as an integer.
-	 * Attempts to read 'type::TEXT' as a decimal int value.
+	 * Attempts to read 'type::TEXT' as a decimal int32_t value.
 	 */
-	int getVal();
+	int32_t getVal();
 	
-	void setLowBound(int low);
-	void setHighBound(int high);
+	void setLowBound(int32_t low);
+	void setHighBound(int32_t high);
 	
 	/* Set the maximum length of the text, not including the null terminator.
 	 */
@@ -71,12 +71,12 @@ public:
 	/* Sets the message to send when the enter key is pressed. Note that
 	 * the type of the argument varies depending on the text field's type.
 	 * If set to Text, the argument will be a std::string_view. If set to
-	 * IntDecimal or IntHex, it will be an int.
+	 * IntDecimal or IntHex, it will be an int32_t.
 	 */
 	template<typename T>
 	RequireMessage<T> onEnter(T m)
 	{
-		onEnterMsg = static_cast<int>(m);
+		onEnterMsg = static_cast<int32_t>(m);
 	}
 
 	/* Sets the message to send whenever the text changes. Like onEnter,
@@ -85,30 +85,30 @@ public:
 	template<typename T>
 	RequireMessage<T> onValueChanged(T m)
 	{
-		onValueChangedMsg = static_cast<int>(m);
+		onValueChangedMsg = static_cast<int32_t>(m);
 	}
 
 	/* Sets a function to be called on value change. */
-	void setOnValChanged(std::function<void(type,std::string_view,int)> newOnValChanged);
+	void setOnValChanged(std::function<void(type,std::string_view,int32_t)> newOnValChanged);
 	
 	void setFixedPlaces(size_t places);
 private:
 	std::unique_ptr<char[]> buffer;
-	int startVal;
-	int fixedPlaces;
-	int lbound, ubound;
+	int32_t startVal;
+	int32_t fixedPlaces;
+	int32_t lbound, ubound;
 	type tfType;
 	size_t maxLength;
 	bool forced_length;
 	DialogRef alDialog;
 	DialogRef swapBtnDialog;
-	int onEnterMsg, onValueChangedMsg;
+	int32_t onEnterMsg, onValueChangedMsg;
 	bool valSet;
-	std::function<void(type,std::string_view,int)> onValChanged;
+	std::function<void(type,std::string_view,int32_t)> onValChanged;
 
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
-	int onEvent(int event, MessageDispatcher& sendMessage) override;
+	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 	void applyFont(FONT* newFont) override;
 	
 	void _updateBuf(size_t sz);

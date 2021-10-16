@@ -15,16 +15,16 @@
 
   typedef struct MIDI                    // a midi file
   {
-  int divisions;                      // number of ticks per quarter note
+  int32_t divisions;                      // number of ticks per quarter note
   struct {
-  unsigned char *data;             // MIDI message stream
-  int len;                         // length of the track data
+  uint8_t *data;             // MIDI message stream
+  int32_t len;                         // length of the track data
   } track[MIDI_TRACKS];
   } MIDI;
 
   */
 
-int save_midi(char *filename, MIDI *midi);
+int32_t save_midi(char *filename, MIDI *midi);
 
 /* ---  All this code just to calculate the length of a MIDI song.  --- */
 
@@ -32,12 +32,12 @@ int save_midi(char *filename, MIDI *midi);
 typedef struct midi_info
 {
     // midi info
-    int format;
-    int num_tracks;
-    int divisions;
-    int len_beats;
+    int32_t format;
+    int32_t num_tracks;
+    int32_t divisions;
+    int32_t len_beats;
     double len_sec;
-    int tempo_changes;
+    int32_t tempo_changes;
     double tempo[MAX_TEMPO_CHANGES];                          // tempo can change during song
     dword  tempo_c[MAX_TEMPO_CHANGES];                        // store the total delta time before each change in tempo
     
@@ -62,15 +62,15 @@ typedef struct mtrkevent
     byte byte2;                                               // byte 2 or note on velocity
 } mtrkevent;
 
-dword getval(byte *buf,int nbytes);
+dword getval(byte *buf,int32_t nbytes);
 dword parse_var_len(byte **data);
 // returns length of the <MTrk event>
 dword parse_mtrk(byte **data, midi_info *mi);
 bool eot(midi_info *mi);
-int beats(dword dt,int divs);
+int32_t beats(dword dt,int32_t divs);
 double tempo(byte *buf);
-double _runtime(int beats,double tempo);
-double runtime(int beats,midi_info *mi);
+double _runtime(int32_t beats,double tempo);
+double runtime(int32_t beats,midi_info *mi);
 void get_midi_info(MIDI *midi, midi_info *mi);
 char *timestr(double sec);
 bool decode_text_event(char *s,byte type,byte *buf);

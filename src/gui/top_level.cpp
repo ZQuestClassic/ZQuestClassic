@@ -8,11 +8,11 @@
 namespace GUI
 {
 
-int TopLevelWidget::proc(int msg, DIALOG* d, int c)
+int32_t TopLevelWidget::proc(int32_t msg, DIALOG* d, int32_t c)
 {
 	if(msg == MSG_XCHAR)
 	{
-		unsigned short actual = (key_shifts&0x07)|(c&0xFF00);
+		uint16_t actual = (key_shifts&0x07)|(c&0xFF00);
 		if(actual == d->d1)
 			// Abusing the mechanism here slightly...
 			GUI_EVENT(d, (guiEvent)d->d2);
@@ -46,13 +46,13 @@ void TopLevelWidget::realizeKeys(DialogRunner& runner)
 			0, 0, // fg, bg
 			0, // key - MSG_CHAR ignores shift, so we're using MSG_XCHAR
 			D_NEW_GUI, // flags
-			shortcuts[i].key, -int(i+1), // d1, d2
+			shortcuts[i].key, -int32_t(i+1), // d1, d2
 			this, nullptr, nullptr // dp, dp2, dp3
 		});
 	}
 }
 
-int TopLevelWidget::onEvent(int event, MessageDispatcher& sendMessage)
+int32_t TopLevelWidget::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	if(event<0)
 	{

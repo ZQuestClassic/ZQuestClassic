@@ -10,23 +10,23 @@ using std::map;
 class particle
 {
 private:
-    static long getNextUID();
-    long uid;
+    static int32_t getNextUID();
+    int32_t uid;
     
 public:
-    long getUID()
+    int32_t getUID()
     {
         return uid;
     }
 	zfix x, y, yofs;
-	int layer, cset, color;
+	int32_t layer, cset, color;
 	zfix step;
-	int dir;
+	int32_t dir;
 	bool angular;
 	double angle;
-	particle(zfix X,zfix Y,int layer,int cset,int color);
+	particle(zfix X,zfix Y,int32_t layer,int32_t cset,int32_t color);
 	virtual ~particle();
-	virtual bool animate(int index);
+	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
 	virtual void move(zfix s);
 };
@@ -35,19 +35,19 @@ class pFaroresWindDust : public particle
 {
 public:
 	zfix os;
-	int ot;
-	int timer;
+	int32_t ot;
+	int32_t timer;
 	bool initialized;
-	pFaroresWindDust(zfix X,zfix Y,int layer,int cset,int color,int timer);
-	virtual bool animate(int index);
+	pFaroresWindDust(zfix X,zfix Y,int32_t layer,int32_t cset,int32_t color,int32_t timer);
+	virtual bool animate(int32_t index);
 };
 
 class pTwilight : public particle
 {
 public:
-	int delay;
-	pTwilight(zfix X,zfix Y,int layer,int cset,int color, int delay);
-	virtual bool animate(int index);
+	int32_t delay;
+	pTwilight(zfix X,zfix Y,int32_t layer,int32_t cset,int32_t color, int32_t delay);
+	virtual bool animate(int32_t index);
 };
 
 #define PARTLIST_MAX (65535)
@@ -55,31 +55,31 @@ public:
 class particle_list
 {
 	particle *particles[PARTLIST_MAX];
-	int count;
-	int active_iterator;
-	long max_particles;
-	map<long, int> containedUIDs;
+	int32_t count;
+	int32_t active_iterator;
+	int32_t max_particles;
+	map<int32_t, int32_t> containedUIDs;
 	// Cache requests from scripts
-	mutable long lastUIDRequested;
+	mutable int32_t lastUIDRequested;
 	mutable particle* lastRequested;
 public:
 	particle_list();
-	particle *getByUID(long uid);
+	particle *getByUID(int32_t uid);
 	void clear();
-	particle *at(int index);
-	bool swap(int a, int b);
+	particle *at(int32_t index);
+	bool swap(int32_t a, int32_t b);
 	bool add(particle *p);
 	bool remove(particle *p);
-	zfix getX(int j);
-	zfix getY(int j);
-	int getID(int j);
-	long getMax() {return max_particles;}
-	void setMax(long max) {max_particles = (max < PARTLIST_MAX ? max : PARTLIST_MAX);}
-	bool del(int j);
-	void draw(BITMAP* dest,bool lowfirst,int lyr=-999);
+	zfix getX(int32_t j);
+	zfix getY(int32_t j);
+	int32_t getID(int32_t j);
+	int32_t getMax() {return max_particles;}
+	void setMax(int32_t max) {max_particles = (max < PARTLIST_MAX ? max : PARTLIST_MAX);}
+	bool del(int32_t j);
+	void draw(BITMAP* dest,bool lowfirst,int32_t lyr=-999);
 	void animate();
-	bool has_space(int space);
-	int Count();
+	bool has_space(int32_t space);
+	int32_t Count();
 };
 
 

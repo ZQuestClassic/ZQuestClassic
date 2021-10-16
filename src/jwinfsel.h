@@ -35,17 +35,17 @@
 typedef struct FLIST
 {
 	char dir[1024];
-	int size;
+	int32_t size;
 	char *name[FLIST_SIZE];
 	
 	void load(const char* path);
-	bool get(int index, char* buf);
+	bool get(int32_t index, char* buf);
 	void clear();
 } FLIST;
 
 void init_fs_flist(FLIST* list, char* dir);
-int get_fs_size(FLIST* list);
-bool get_fs_file(FLIST* list, int index, char* buf);
+int32_t get_fs_size(FLIST* list);
+bool get_fs_file(FLIST* list, int32_t index, char* buf);
 void destroy_fs_flist(FLIST* list);
 
 #ifdef __cplusplus
@@ -62,15 +62,15 @@ extern "C"
   *  extensions. Returns zero if it was closed with the Cancel button or
   *  if the path has no file name, or non-zero if it was OK'd.
   */
-//int jwin_file_select(char *message, char *path, char *ext);
-int jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int size, int width, int height, FONT *title_font);
+//int32_t jwin_file_select(char *message, char *path, char *ext);
+int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int32_t size, int32_t width, int32_t height, FONT *title_font);
 
 /* jwin_dfile_select:
   *  Same as jwin_file_select except that it returns TRUE on OK even
   *  if the selected path doesn't include a file name.
   */
-//int jwin_dfile_select(char *message, char *path, char *ext);
-int jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int size, int width, int height, FONT *title_font);
+//int32_t jwin_dfile_select(char *message, char *path, char *ext);
+int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int32_t size, int32_t width, int32_t height, FONT *title_font);
 
 typedef struct EXT_LIST
 {
@@ -84,8 +84,8 @@ typedef struct EXT_LIST
   *  an array of EXT_LIST structures terminated by one with text==NULL.
   *  list_sel is the index of the current selection in the EXT_LIST.
   */
-//int jwin_file_browse(char *message, char *path, EXT_LIST *list, int *list_sel);
-int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int *list_sel, int size, int width, int height, FONT *title_font);
+//int32_t jwin_file_browse(char *message, char *path, EXT_LIST *list, int32_t *list_sel);
+int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int32_t *list_sel, int32_t size, int32_t width, int32_t height, FONT *title_font);
 
 #ifdef __cplusplus
 }

@@ -5,7 +5,7 @@
 
 // prevent compiler errors
 #ifdef ASTDINT_H
-#undef int8_t
+#undef char
 #undef uint8_t
 #undef int16_t
 #undef uint16_t
@@ -61,13 +61,13 @@ std::string to_string(Type val)
 	return oss.str();
 }
 
-int const formatBufferSize = 4096;
+int32_t const formatBufferSize = 4096;
 
 /*
 namespace ZScript
 {
 	// as sprintf, but for strings.
-	int const formatBufferSize = 4096;
+	int32_t const formatBufferSize = 4096;
 	std::string formatStr(std::string const* format, ...);
 }
 */

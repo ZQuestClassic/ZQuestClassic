@@ -13,12 +13,12 @@ class QRCheckbox: public Checkbox
 public:
 	QRCheckbox();
 	
-	void setQR(int newqr);
+	void setQR(int32_t newqr);
 	
 private:
-	int qr;
+	int32_t qr;
 
-	int onEvent(int event, MessageDispatcher& sendMessage) override;
+	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 };
 
 }

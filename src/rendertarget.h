@@ -19,21 +19,21 @@
 class ZScriptDrawingRenderTarget
 {
 public:
-    static const int MaxBuffers = 7;
+    static const int32_t MaxBuffers = 7;
     
     //These aren't allocated unless requested by the user,
     //so we can handle sizes up to 512x512 with script drawing.
-    static const int BitmapWidth = 512;
-    static const int BitmapHeight = 512;
+    static const int32_t BitmapWidth = 512;
+    static const int32_t BitmapHeight = 512;
     
 protected:
     BITMAP* _bitmap[ MaxBuffers ];
-    int _current_target;
+    int32_t _current_target;
     
 public:
     ZScriptDrawingRenderTarget() : _current_target(-1)
     {
-        for(int i(0); i < MaxBuffers; ++i)
+        for(int32_t i(0); i < MaxBuffers; ++i)
         {
             _bitmap[i] = 0;
         }
@@ -41,24 +41,24 @@ public:
     
     ~ZScriptDrawingRenderTarget()
     {
-        for(int i(0); i < MaxBuffers; ++i)
+        for(int32_t i(0); i < MaxBuffers; ++i)
         {
             if(_bitmap[i])
                 destroy_bitmap(_bitmap[i]);
         }
     }
     
-    _FORCE_INLINE void SetCurrentRenderTarget(int target)
+    _FORCE_INLINE void SetCurrentRenderTarget(int32_t target)
     {
         _current_target = target;
     }
     
-    _FORCE_INLINE int GetCurrentRenderTarget()
+    _FORCE_INLINE int32_t GetCurrentRenderTarget()
     {
         return _current_target;
     }
     
-    _FORCE_INLINE BITMAP* GetTargetBitmap(int target)
+    _FORCE_INLINE BITMAP* GetTargetBitmap(int32_t target)
     {
         if(target < 0 || target >= MaxBuffers)
             return 0;
@@ -69,7 +69,7 @@ public:
         return _bitmap[target];
     }
     
-    BITMAP* GetBitmapPtr(int target)
+    BITMAP* GetBitmapPtr(int32_t target)
     {
         if(target < 0 || target >= MaxBuffers)
             return 0;
@@ -86,7 +86,7 @@ extern ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
 
 
 
-//void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoffset, int yoffset);
+//void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr *, int32_t xoffset, int32_t yoffset);
 
 
 #endif

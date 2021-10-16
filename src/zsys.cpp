@@ -39,8 +39,8 @@ using std::getline;
 #endif
 
 //#ifdef _ZQUEST_SCALE_
-extern volatile int myvsync;
-extern int zqwin_scale;
+extern volatile int32_t myvsync;
+extern int32_t zqwin_scale;
 extern BITMAP *hw_screen;
 //#endif
 
@@ -94,15 +94,15 @@ char *time_str_short2(dword time)
     return s;
 }
 
-void extract_name(char *path,char *name,int type)
+void extract_name(char *path,char *name,int32_t type)
 {
-    int l=(int)strlen(path);
-    int i=l;
+    int32_t l=(int32_t)strlen(path);
+    int32_t i=l;
     
     while(i>0 && path[i-1]!='/' && path[i-1]!='\\')
         --i;
         
-    int n=0;
+    int32_t n=0;
     
     if(type==FILENAME8__)
     {
@@ -125,13 +125,13 @@ void extract_name(char *path,char *name,int type)
 
 void temp_name(char temporaryname[])
 {
-    int tempnum;
+    int32_t tempnum;
     
-    for(int i=0; i<1000; ++i)
+    for(int32_t i=0; i<1000; ++i)
     {
         sprintf(temporaryname, "%s", "00000000.tmp");
         
-        for(int j=0; j<8; ++j)
+        for(int32_t j=0; j<8; ++j)
         {
             tempnum=zc_rand(61);
             
@@ -156,7 +156,7 @@ void temp_name(char temporaryname[])
     }
 }
 
-int bound(int &x,int low,int high)
+int32_t bound(int32_t &x,int32_t low,int32_t high)
 {
     if(x<low) x=low;
     
@@ -175,7 +175,7 @@ char *snapshotformat_str[ssfmtMAX][2]=
     { (char *)"TGA", (char *)"tga"},
 };
 
-const char *snapshotformatlist(int index, int *list_size)
+const char *snapshotformatlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -189,7 +189,7 @@ const char *snapshotformatlist(int index, int *list_size)
 
 
 //Allegro's make_relative_filename doesn't handle uppercase/lowercase too well for drive letters
-char *zc_make_relative_filename(char *dest, const char *path, const char *filename, int size)
+char *zc_make_relative_filename(char *dest, const char *path, const char *filename, int32_t size)
 {
 #ifdef ALLEGRO_LINUX
     return make_relative_filename(dest, path, filename, size);
@@ -202,7 +202,7 @@ char *zc_make_relative_filename(char *dest, const char *path, const char *filena
     if(dest[0]==0) //can't make relative path
     {
         sprintf(tpath, "%s", path);
-        int temp = ugetc(tpath);
+        int32_t temp = ugetc(tpath);
     
         if(ugetat(tpath, 1) == DEVICE_SEPARATOR)
         {
@@ -228,17 +228,17 @@ char *zc_make_relative_filename(char *dest, const char *path, const char *filena
 
 void chop_path(char *path)
 {
-    int p = (int)strlen(path);
-    int f = (int)strlen(get_filename(path));
+    int32_t p = (int32_t)strlen(path);
+    int32_t f = (int32_t)strlen(get_filename(path));
     
     if(f<p)
         path[p-f]=0;
 }
 
-int used_switch(int argc,char *argv[],const char *s)
+int32_t used_switch(int32_t argc,char *argv[],const char *s)
 {
     // assumes a switch won't be in argv[0]
-    for(int i=1; i<argc; i++)
+    for(int32_t i=1; i<argc; i++)
         if(stricmp(argv[i],s)==0)
             return i;
             
@@ -264,11 +264,11 @@ char datapwd[8]   = { char('l'+11),char('o'+22),char('n'+33),char('g'+44),char('
 
 void resolve_password(char *pwd)
 {
-    for(int i=0; i<8; i++)
+    for(int32_t i=0; i<8; i++)
         pwd[i]-=(i+1)*11;
 }
 
-void set_bit(byte *bitstr,int bit,byte val)
+void set_bit(byte *bitstr,int32_t bit,byte val)
 {
     bitstr += bit>>3;
     byte mask = 1 << (bit&7);
@@ -279,13 +279,13 @@ void set_bit(byte *bitstr,int bit,byte val)
         *bitstr &= ~mask;
 }
 
-int get_bit(byte const *bitstr,int bit)
+int32_t get_bit(byte const *bitstr,int32_t bit)
 {
     bitstr += bit>>3;
     return ((*bitstr) >> (bit&7))&1;
 }
 
-bool toggle_bit(byte *bitstr,int bit)
+bool toggle_bit(byte *bitstr,int32_t bit)
 {
 	bitstr += bit>>3;
     byte mask = 1 << (bit&7);
@@ -294,7 +294,7 @@ bool toggle_bit(byte *bitstr,int bit)
 }
 
 
-void set_bitl(long bitstr,int bit,byte val)
+void set_bitl(int32_t bitstr,int32_t bit,byte val)
 {
 	if ( val ) //intel u32
 	{
@@ -303,7 +303,7 @@ void set_bitl(long bitstr,int bit,byte val)
 	else bitstr &= ~(1<<bit);
 }
 
-int get_bitl(long bitstr,int bit)
+int32_t get_bitl(int32_t bitstr,int32_t bit)
 {
     return bitstr&(1<<bit); //intel u32
     //bitstr += bit>>3;
@@ -356,9 +356,9 @@ void Z_title(const char *format,...)
 #ifdef ALLEGRO_DOS
     text_info ti;
     gettextinfo(&ti);
-    int w = ti.screenwidth;
+    int32_t w = ti.screenwidth;
     
-    int len = strlen(buf);
+    int32_t len = strlen(buf);
     
     if(len>w)
         printf("%s\n",buf);
@@ -366,12 +366,12 @@ void Z_title(const char *format,...)
     {
         char title[81];
         
-        for(int i=0; i<w; i++)
+        for(int32_t i=0; i<w; i++)
             title[i]=' ';
             
         title[w]=0;
         
-        int center = (w - len) >> 1;
+        int32_t center = (w - len) >> 1;
         memcpy(title+center,buf,len);
         
         printf("\n");
@@ -379,7 +379,7 @@ void Z_title(const char *format,...)
         cprintf("%s",title);
         textattr(0x07);
         
-        for(int i=0; i<w; i++)
+        for(int32_t i=0; i<w; i++)
             cprintf(" ");
     }
     
@@ -392,7 +392,7 @@ void Z_title(const char *format,...)
 #endif
 }
 
-int anim_3_4(int clk, int speed)
+int32_t anim_3_4(int32_t clk, int32_t speed)
 {
     clk /= speed;
     
@@ -418,17 +418,17 @@ int anim_3_4(int clk, int speed)
 /**********  Encryption Stuff  *****************/
 
 //#define MASK 0x4C358938
-static int enc_seed = 0;
+static int32_t enc_seed = 0;
 //#define MASK 0x91B2A2D1
-//static int enc_seed = 7351962;
-static int enc_mask[ENC_METHOD_MAX]= {(int)0x4C358938,(int)0x91B2A2D1,(int)0x4A7C1B87,(int)0xF93941E6,(int)0xFD095E94};
-static int pvalue[ENC_METHOD_MAX]= {0x62E9,0x7D14,0x1A82,0x02BB,0xE09C};
-static int qvalue[ENC_METHOD_MAX]= {0x3619,0xA26B,0xF03C,0x7B12,0x4E8F};
+//static int32_t enc_seed = 7351962;
+static int32_t enc_mask[ENC_METHOD_MAX]= {(int32_t)0x4C358938,(int32_t)0x91B2A2D1,(int32_t)0x4A7C1B87,(int32_t)0xF93941E6,(int32_t)0xFD095E94};
+static int32_t pvalue[ENC_METHOD_MAX]= {0x62E9,0x7D14,0x1A82,0x02BB,0xE09C};
+static int32_t qvalue[ENC_METHOD_MAX]= {0x3619,0xA26B,0xF03C,0x7B12,0x4E8F};
 
-static int rand_007(int method)
+static int32_t rand_007(int32_t method)
 {
-    short BX = enc_seed >> 8;
-    short CX = (enc_seed & 0xFF) << 8;
+    int16_t BX = enc_seed >> 8;
+    int16_t CX = (enc_seed & 0xFF) << 8;
     signed char AL = enc_seed >> 24;
     signed char C = AL >> 7;
     signed char D = BX >> 15;
@@ -445,7 +445,7 @@ static int rand_007(int method)
     return (CX << 16) + BX;
 }
 
-void encode_007(byte *buf, dword size, dword key2, word *check1, word *check2, int method)
+void encode_007(byte *buf, dword size, dword key2, word *check1, word *check2, int32_t method)
 {
     dword i;
     byte *p;
@@ -479,7 +479,7 @@ void encode_007(byte *buf, dword size, dword key2, word *check1, word *check2, i
     }
 }
 
-bool decode_007(byte *buf, dword size, dword key2, word check1, word check2, int method)
+bool decode_007(byte *buf, dword size, dword key2, word check1, word check2, int32_t method)
 {
     dword i;
     word c1 = 0, c2 = 0;
@@ -490,7 +490,7 @@ bool decode_007(byte *buf, dword size, dword key2, word check1, word check2, int
     
     for(i=0; i<size; i+=2)
     {
-        unsigned char q = rand_007(method);
+        uint8_t q = rand_007(method);
         *p ^= q;
         ++p;
         
@@ -519,11 +519,11 @@ bool decode_007(byte *buf, dword size, dword key2, word check1, word check2, int
 //   1 - srcfile not opened
 //   2 - destfile not opened
 //
-int encode_file_007(const char *srcfile, const char *destfile, int key2, const char *header, int method)
+int32_t encode_file_007(const char *srcfile, const char *destfile, int32_t key2, const char *header, int32_t method)
 {
     FILE *src, *dest;
-    int tog = 0, c, r=0;
-    short c1 = 0, c2 = 0;
+    int32_t tog = 0, c, r=0;
+    int16_t c1 = 0, c2 = 0;
     
     enc_seed = key2;
     src = fopen(srcfile, "rb");
@@ -597,13 +597,13 @@ int encode_file_007(const char *srcfile, const char *destfile, int key2, const c
 //   5 - checksum mismatch
 //   6 - header mismatch
 //
-int decode_file_007(const char *srcfile, const char *destfile, const char *header, int method, bool packed, const char *password)
+int32_t decode_file_007(const char *srcfile, const char *destfile, const char *header, int32_t method, bool packed, const char *password)
 {
     FILE *normal_src=NULL, *dest=NULL;
     PACKFILE *packed_src=NULL;
-    int tog = 0, c, r=0, err;
-    long size, i;
-    short c1 = 0, c2 = 0, check1, check2;
+    int32_t tog = 0, c, r=0, err;
+    int32_t size, i;
+    int16_t c1 = 0, c2 = 0, check1, check2;
     
     // open files
     size = file_size_ex_password(srcfile, password);
@@ -911,7 +911,7 @@ error:
 
 void copy_file(const char *src, const char *dest)
 {
-    int c;
+    int32_t c;
     FILE *fin, *fout;
     fin = fopen(src, "rb");
     fout = fopen(dest, "wb");
@@ -931,38 +931,38 @@ void copy_file(const char *src, const char *dest)
 #define BOX_T     ((SCREEN_H - BOX_H) / 2)
 #define BOX_B     ((SCREEN_H + BOX_H) / 2)
 */
-static int box_x = 0;
-static int box_y = 0;
+static int32_t box_x = 0;
+static int32_t box_y = 0;
 static bool box_active=false;
-static int box_store_x = 0;
+static int32_t box_store_x = 0;
 static FONT *box_title_font=font;
 static FONT *box_message_font=font;
-static int box_style=0;
-static int box_titlebar_height=0;
-static int box_message_height=0;
-static unsigned char box_text_scale=1;
-static int box_w=304;
-static int box_h=176;
-static int box_l=8;
-static int box_r=312;
-static int box_t=32;
-static int box_b=208;
+static int32_t box_style=0;
+static int32_t box_titlebar_height=0;
+static int32_t box_message_height=0;
+static uint8_t box_text_scale=1;
+static int32_t box_w=304;
+static int32_t box_h=176;
+static int32_t box_l=8;
+static int32_t box_r=312;
+static int32_t box_t=32;
+static int32_t box_b=208;
 static bool box_log=true;
 static char box_log_msg[480];
-static int box_msg_pos=0;
-static int box_store_pos=0;
+static int32_t box_msg_pos=0;
+static int32_t box_store_pos=0;
 static BITMAP* box_bg=NULL;
 /*
-  static int jwin_pal[jcMAX] =
+  static int32_t jwin_pal[jcMAX] =
   {
   vc(11),vc(15),vc(4),vc(7),vc(6),vc(0),
   192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
   };
   */
-int onSnapshot2()
+int32_t onSnapshot2()
 {
     char buf[20];
-    int num=0;
+    int32_t num=0;
     
     do
     {
@@ -981,8 +981,8 @@ int onSnapshot2()
 
 void set_default_box_size()
 {
-    int screen_w=SCREEN_W;
-    int screen_h=SCREEN_H;
+    int32_t screen_w=SCREEN_W;
+    int32_t screen_h=SCREEN_H;
     
     if(zqwin_scale>1)
     {
@@ -999,10 +999,10 @@ void set_default_box_size()
     box_b=box_t+box_h;
 }
 /* resizes the box */
-void set_box_size(int w, int h)
+void set_box_size(int32_t w, int32_t h)
 {
-	int screen_w=SCREEN_W;
-	int screen_h=SCREEN_H;
+	int32_t screen_w=SCREEN_W;
+	int32_t screen_h=SCREEN_H;
 	
 	if(zqwin_scale>1)
 	{
@@ -1021,7 +1021,7 @@ void set_box_size(int w, int h)
 }
 
 /* starts outputting a progress message */
-void box_start(int style, const char *title, FONT *title_font, FONT *message_font, bool log, int w, int h, unsigned char scale)
+void box_start(int32_t style, const char *title, FONT *title_font, FONT *message_font, bool log, int32_t w, int32_t h, uint8_t scale)
 {
     box_text_scale=scale;
     box_style=style;
@@ -1082,10 +1082,10 @@ void box_out(const char *msg)
     {
         scare_mouse();
         //do primitive text wrapping
-        unsigned int i;
+        uint32_t i;
         for(i=0; i<temp.size(); i++)
         {
-            int length = text_length(box_message_font,temp.substr(0,i).c_str())*box_text_scale;
+            int32_t length = text_length(box_message_font,temp.substr(0,i).c_str())*box_text_scale;
             
             if(length > box_r-box_l-16)
             {
@@ -1099,7 +1099,7 @@ void box_out(const char *msg)
             textout_ex(screen, box_message_font, temp.substr(0,i).c_str(), box_l+8+box_x, box_t+(box_y+1)*box_message_height, gui_fg_color, gui_bg_color);
         else
         {
-            int length = text_length(box_message_font,temp.substr(0,i).c_str());
+            int32_t length = text_length(box_message_font,temp.substr(0,i).c_str());
             BITMAP* tempbit = create_bitmap_ex(8, length, box_message_height);
             clear_bitmap(tempbit);
             textout_ex(tempbit, box_message_font, temp.substr(0,i).c_str(), 0, 0, gui_fg_color, gui_bg_color);
@@ -1117,7 +1117,7 @@ void box_out(const char *msg)
     }
     
     box_x += text_length(box_message_font, msg);
-    box_msg_pos+=(int)strlen(msg);
+    box_msg_pos+=(int32_t)strlen(msg);
     
     if(remainder != "")
     {
@@ -1313,7 +1313,7 @@ void box_pause()
 // To get around this I install a timer routine to do the checking for me,
 // so it will notice double clicks whenever they happen.
 
-volatile int dclick_status, dclick_time;
+volatile int32_t dclick_status, dclick_time;
 
 // dclick_check:
 //  Double click checking user timer routine.
@@ -1367,7 +1367,7 @@ void lock_dclick_function()
 }
 
 
-void textout_shadow_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     if(bg!=-1)
     {
@@ -1379,17 +1379,17 @@ void textout_shadow_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, 
     textout_ex(bmp, f, s, x, y+1, shadow, -1);
 }
 
-void textout_shadow_centre_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_centre_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_ex(bmp, f, s, x-(text_length(f, s)/2), y, shadow, bg);
 }
 
-void textout_shadow_right_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_right_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_ex(bmp, f, s, x-text_length(f, s), y, shadow, bg);
 }
 
-void textout_shadow_u_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     if(bg!=-1)
     {
@@ -1403,17 +1403,17 @@ void textout_shadow_u_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y
     textout_ex(bmp, f, s, x-1, y, shadow, -1);
 }
 
-void textout_shadow_centre_u_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_centre_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_u_ex(bmp, f, s, x-(text_length(f, s)/2), y, shadow, bg);
 }
 
-void textout_shadow_right_u_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_right_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_u_ex(bmp, f, s, x-text_length(f, s), y, shadow, bg);
 }
 
-void textout_shadow_o_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     if(bg!=-1)
     {
@@ -1430,17 +1430,17 @@ void textout_shadow_o_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y
     textout_ex(bmp, f, s, x, y-1, shadow, -1);
 }
 
-void textout_shadow_centre_o_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_centre_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_o_ex(bmp, f, s, x-(text_length(f, s)/2), y, shadow, bg);
 }
 
-void textout_shadow_right_o_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_right_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_o_ex(bmp, f, s, x-text_length(f, s), y, shadow, bg);
 }
 
-void textout_shadow_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     if(bg!=-1)
     {
@@ -1453,17 +1453,17 @@ void textout_shadow_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int x, in
     textout_ex(bmp, f, s, x, y-1, shadow, -1);
 }
 
-void textout_shadow_centre_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_centre_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_plus_ex(bmp, f, s, x-(text_length(f, s)/2), y, shadow, bg);
 }
 
-void textout_shadow_right_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_right_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_plus_ex(bmp, f, s, x-text_length(f, s), y, shadow, bg);
 }
 
-void textout_shadow_x_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     if(bg!=-1)
     {
@@ -1476,97 +1476,97 @@ void textout_shadow_x_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y
     textout_ex(bmp, f, s, x-1, y-1, shadow, -1);
 }
 
-void textout_shadow_centre_x_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_centre_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_x_ex(bmp, f, s, x-(text_length(f, s)/2), y, shadow, bg);
 }
 
-void textout_shadow_right_x_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int shadow, int bg)
+void textout_shadow_right_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_x_ex(bmp, f, s, x-text_length(f, s), y, shadow, bg);
 }
 
-void textout_shadowed_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadow_ex(bmp, f, s, x, y, shadow, bg);
     textout_ex(bmp, f, s, x, y, color, -1);
 }
 
-void textout_shadowed_centre_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_centre_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_ex(bmp, f, s, x-(text_length(f, s)/2), y, color, shadow, bg);
 }
 
-void textout_shadowed_right_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_right_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_ex(bmp, f, s, x-text_length(f, s), y, color, shadow, bg);
 }
 
-void textout_shadowed_u_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadow_u_ex(bmp, f, s, x, y, shadow, bg);
     textout_ex(bmp, f, s, x, y, color, -1);
 }
 
-void textout_shadowed_centre_u_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_centre_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_u_ex(bmp, f, s, x-(text_length(f, s)/2), y, color, shadow, bg);
 }
 
-void textout_shadowed_right_u_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_right_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_u_ex(bmp, f, s, x-text_length(f, s), y, color, shadow, bg);
 }
 
-void textout_shadowed_o_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadow_o_ex(bmp, f, s, x, y, shadow, bg);
     textout_ex(bmp, f, s, x, y, color, -1);
 }
 
-void textout_shadowed_centre_o_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_centre_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_o_ex(bmp, f, s, x-(text_length(f, s)/2), y, color, shadow, bg);
 }
 
-void textout_shadowed_right_o_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_right_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_o_ex(bmp, f, s, x-text_length(f, s), y, color, shadow, bg);
 }
 
-void textout_shadowed_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadow_plus_ex(bmp, f, s, x, y, shadow, bg);
     textout_ex(bmp, f, s, x, y, color, -1);
 }
 
-void textout_shadowed_centre_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_centre_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_plus_ex(bmp, f, s, x-(text_length(f, s)/2), y, color, shadow, bg);
 }
 
-void textout_shadowed_right_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_right_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_plus_ex(bmp, f, s, x-text_length(f, s), y, color, shadow, bg);
 }
 
-void textout_shadowed_x_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadow_x_ex(bmp, f, s, x, y, shadow, bg);
     textout_ex(bmp, f, s, x, y, color, -1);
 }
 
-void textout_shadowed_centre_x_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_centre_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_x_ex(bmp, f, s, x-(text_length(f, s)/2), y, color, shadow, bg);
 }
 
-void textout_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int color, int shadow, int bg)
+void textout_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_x_ex(bmp, f, s, x-text_length(f, s), y, color, shadow, bg);
 }
 
-void textprintf_shadow_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1581,7 +1581,7 @@ void textprintf_shadow_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, 
     textout_shadow_ex(bmp, f, buf, x, y, shadow, bg);
 }
 
-void textprintf_shadow_centre_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_centre_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1596,7 +1596,7 @@ void textprintf_shadow_centre_ex(BITMAP *bmp, const FONT *f, int x, int y, int s
     textout_shadow_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, shadow, bg);
 }
 
-void textprintf_shadow_right_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_right_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1612,7 +1612,7 @@ void textprintf_shadow_right_ex(BITMAP *bmp, const FONT *f, int x, int y, int sh
 }
 
 
-void textprintf_shadow_u_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1627,7 +1627,7 @@ void textprintf_shadow_u_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow
     textout_shadow_u_ex(bmp, f, buf, x, y, shadow, bg);
 }
 
-void textprintf_shadow_centre_u_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_centre_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1642,7 +1642,7 @@ void textprintf_shadow_centre_u_ex(BITMAP *bmp, const FONT *f, int x, int y, int
     textout_shadow_u_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, shadow, bg);
 }
 
-void textprintf_shadow_right_u_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_right_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1658,7 +1658,7 @@ void textprintf_shadow_right_u_ex(BITMAP *bmp, const FONT *f, int x, int y, int 
 }
 
 
-void textprintf_shadow_o_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1673,7 +1673,7 @@ void textprintf_shadow_o_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow
     textout_shadow_o_ex(bmp, f, buf, x, y, shadow, bg);
 }
 
-void textprintf_shadow_centre_o_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_centre_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1688,7 +1688,7 @@ void textprintf_shadow_centre_o_ex(BITMAP *bmp, const FONT *f, int x, int y, int
     textout_shadow_o_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, shadow, bg);
 }
 
-void textprintf_shadow_right_o_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_right_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1709,7 +1709,7 @@ void textprintf_shadow_right_o_ex(BITMAP *bmp, const FONT *f, int x, int y, int 
 
 
 
-void textprintf_shadow_plus_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1724,7 +1724,7 @@ void textprintf_shadow_plus_ex(BITMAP *bmp, const FONT *f, int x, int y, int sha
     textout_shadow_plus_ex(bmp, f, buf, x, y, shadow, bg);
 }
 
-void textprintf_shadow_centre_plus_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_centre_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1739,7 +1739,7 @@ void textprintf_shadow_centre_plus_ex(BITMAP *bmp, const FONT *f, int x, int y, 
     textout_shadow_plus_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, shadow, bg);
 }
 
-void textprintf_shadow_right_plus_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_right_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1754,7 +1754,7 @@ void textprintf_shadow_right_plus_ex(BITMAP *bmp, const FONT *f, int x, int y, i
     textout_shadow_plus_ex(bmp, f, buf, x-text_length(f, buf), y, shadow, bg);
 }
 
-void textprintf_shadow_x_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1769,7 +1769,7 @@ void textprintf_shadow_x_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow
     textout_shadow_x_ex(bmp, f, buf, x, y, shadow, bg);
 }
 
-void textprintf_shadow_centre_x_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_centre_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1784,7 +1784,7 @@ void textprintf_shadow_centre_x_ex(BITMAP *bmp, const FONT *f, int x, int y, int
     textout_shadow_x_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, shadow, bg);
 }
 
-void textprintf_shadow_right_x_ex(BITMAP *bmp, const FONT *f, int x, int y, int shadow, int bg, const char *format, ...)
+void textprintf_shadow_right_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1813,7 +1813,7 @@ void textprintf_shadow_right_x_ex(BITMAP *bmp, const FONT *f, int x, int y, int 
 
 
 
-void textprintf_shadowed_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1828,7 +1828,7 @@ void textprintf_shadowed_ex(BITMAP *bmp, const FONT *f, int x, int y, int color,
     textout_shadowed_ex(bmp, f, buf, x, y, color, shadow, bg);
 }
 
-void textprintf_shadowed_centre_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_centre_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1843,7 +1843,7 @@ void textprintf_shadowed_centre_ex(BITMAP *bmp, const FONT *f, int x, int y, int
     textout_shadowed_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, color, shadow, bg);
 }
 
-void textprintf_shadowed_right_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_right_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1858,7 +1858,7 @@ void textprintf_shadowed_right_ex(BITMAP *bmp, const FONT *f, int x, int y, int 
     textout_shadowed_ex(bmp, f, buf, x-text_length(f, buf), y, color, shadow, bg);
 }
 
-void textprintf_shadowed_u_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1873,7 +1873,7 @@ void textprintf_shadowed_u_ex(BITMAP *bmp, const FONT *f, int x, int y, int colo
     textout_shadowed_u_ex(bmp, f, buf, x, y, color, shadow, bg);
 }
 
-void textprintf_shadowed_centre_u_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_centre_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1888,7 +1888,7 @@ void textprintf_shadowed_centre_u_ex(BITMAP *bmp, const FONT *f, int x, int y, i
     textout_shadowed_u_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, color, shadow, bg);
 }
 
-void textprintf_shadowed_right_u_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_right_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1903,7 +1903,7 @@ void textprintf_shadowed_right_u_ex(BITMAP *bmp, const FONT *f, int x, int y, in
     textout_shadowed_u_ex(bmp, f, buf, x-text_length(f, buf), y, color, shadow, bg);
 }
 
-void textprintf_shadowed_o_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1918,7 +1918,7 @@ void textprintf_shadowed_o_ex(BITMAP *bmp, const FONT *f, int x, int y, int colo
     textout_shadowed_o_ex(bmp, f, buf, x, y, color, shadow, bg);
 }
 
-void textprintf_shadowed_centre_o_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_centre_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1933,7 +1933,7 @@ void textprintf_shadowed_centre_o_ex(BITMAP *bmp, const FONT *f, int x, int y, i
     textout_shadowed_o_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, color, shadow, bg);
 }
 
-void textprintf_shadowed_right_o_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_right_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1948,7 +1948,7 @@ void textprintf_shadowed_right_o_ex(BITMAP *bmp, const FONT *f, int x, int y, in
     textout_shadowed_o_ex(bmp, f, buf, x-text_length(f, buf), y, color, shadow, bg);
 }
 
-void textprintf_shadowed_plus_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1963,7 +1963,7 @@ void textprintf_shadowed_plus_ex(BITMAP *bmp, const FONT *f, int x, int y, int c
     textout_shadowed_plus_ex(bmp, f, buf, x, y, color, shadow, bg);
 }
 
-void textprintf_shadowed_centre_plus_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_centre_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1978,7 +1978,7 @@ void textprintf_shadowed_centre_plus_ex(BITMAP *bmp, const FONT *f, int x, int y
     textout_shadowed_plus_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, color, shadow, bg);
 }
 
-void textprintf_shadowed_right_plus_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_right_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1994,7 +1994,7 @@ void textprintf_shadowed_right_plus_ex(BITMAP *bmp, const FONT *f, int x, int y,
 }
 
 
-void textprintf_shadowed_x_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -2009,7 +2009,7 @@ void textprintf_shadowed_x_ex(BITMAP *bmp, const FONT *f, int x, int y, int colo
     textout_shadowed_x_ex(bmp, f, buf, x, y, color, shadow, bg);
 }
 
-void textprintf_shadowed_centre_x_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_centre_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -2024,7 +2024,7 @@ void textprintf_shadowed_centre_x_ex(BITMAP *bmp, const FONT *f, int x, int y, i
     textout_shadowed_x_ex(bmp, f, buf, x-(text_length(f, buf)/2), y, color, shadow, bg);
 }
 
-void textprintf_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, int x, int y, int color, int shadow, int bg, const char *format, ...)
+void textprintf_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -2069,48 +2069,48 @@ void textprintf_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, int x, int y, in
   */
 
 
-extern int d_alltriggerbutton_proc(int msg,DIALOG *d,int c);
+extern int32_t d_alltriggerbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 #ifndef _MSC_VER
 //Inconsistent DLL linkage... what the fuck
-extern int d_button_proc(int msg,DIALOG *d,int c);
-extern int d_check_proc(int msg,DIALOG *d,int c);
-extern int d_ctext_proc(int msg,DIALOG *d,int c);
-extern int d_text_proc(int msg,DIALOG *d,int c);
+extern int32_t d_button_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_check_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ctext_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_text_proc(int32_t msg,DIALOG *d,int32_t c);
 #endif
-extern int d_comboa_radio_proc(int msg,DIALOG *d,int c);
-extern int d_comboabutton_proc(int msg,DIALOG *d,int c);
-extern int d_dummy_proc(int msg,DIALOG *d,int c);
-extern int d_jbutton_proc(int msg,DIALOG *d,int c);
-extern int d_kbutton_proc(int msg,DIALOG *d,int c);
-extern int d_listen_proc(int msg,DIALOG *d,int c);
-extern int d_savemidi_proc(int msg,DIALOG *d,int c);
-extern int d_ssdn_btn_proc(int msg,DIALOG *d,int c);
-extern int d_ssdn_btn2_proc(int msg,DIALOG *d,int c);
-extern int d_ssdn_btn3_proc(int msg,DIALOG *d,int c);
-extern int d_sslt_btn_proc(int msg,DIALOG *d,int c);
-extern int d_sslt_btn2_proc(int msg,DIALOG *d,int c);
-extern int d_sslt_btn3_proc(int msg,DIALOG *d,int c);
-extern int d_ssrt_btn_proc(int msg,DIALOG *d,int c);
-extern int d_ssrt_btn2_proc(int msg,DIALOG *d,int c);
-extern int d_ssrt_btn3_proc(int msg,DIALOG *d,int c);
-extern int d_ssup_btn_proc(int msg,DIALOG *d,int c);
-extern int d_ssup_btn2_proc(int msg,DIALOG *d,int c);
-extern int d_ssup_btn3_proc(int msg,DIALOG *d,int c);
-extern int d_tri_edit_proc(int msg,DIALOG *d,int c);
-extern int d_triggerbutton_proc(int msg,DIALOG *d,int c);
-extern int jwin_button_proc(int msg,DIALOG *d,int c);
-extern int jwin_check_proc(int msg,DIALOG *d,int c);
-extern int jwin_ctext_proc(int msg,DIALOG *d,int c);
-extern int jwin_radio_proc(int msg,DIALOG *d,int c);
-extern int jwin_rtext_proc(int msg,DIALOG *d,int c);
-extern int jwin_text_proc(int msg,DIALOG *d,int c);
-extern int jwin_win_proc(int msg,DIALOG *d,int c);
+extern int32_t d_comboa_radio_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_comboabutton_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_listen_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_savemidi_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssdn_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_sslt_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssup_btn_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssup_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_tri_edit_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_triggerbutton_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t jwin_button_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t jwin_check_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t jwin_ctext_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t jwin_radio_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t jwin_rtext_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t jwin_text_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t jwin_win_proc(int32_t msg,DIALOG *d,int32_t c);
 
 //extern DIALOG *sso_properties_dlg;
 
 void copy_dialog(DIALOG **to, DIALOG *from)
 {
-    int count=0;
+    int32_t count=0;
     
     for(count=1; from[count].proc!=NULL; ++count)
     {
@@ -2120,7 +2120,7 @@ void copy_dialog(DIALOG **to, DIALOG *from)
     (*to)=(DIALOG*)zc_malloc((count+1)*sizeof(DIALOG));
     memcpy((*to),from,sizeof(DIALOG)*(count+1));
     
-    for(int i=0; i<count; ++i)
+    for(int32_t i=0; i<count; ++i)
     {
         if((from[i].dp!=NULL)&&
                 ((from[i].proc==d_alltriggerbutton_proc)||
@@ -2246,14 +2246,14 @@ void copy_dialog(DIALOG **to, DIALOG *from)
 
 void free_dialog(DIALOG **dlg)
 {
-    int count=0;
+    int32_t count=0;
     
     for(count=1; (*dlg)[count].proc!=NULL; ++count)
     {
         /* do nothing */
     }
     
-    for(int i=0; i<count+1; ++i)
+    for(int32_t i=0; i<count+1; ++i)
     {
         if(((*dlg)[i].dp!=NULL)&&
                 (((*dlg)[i].proc==d_alltriggerbutton_proc)||
@@ -2379,7 +2379,7 @@ void setPackfilePassword(const char *newpwd)
 		packpasswrd = NULL;
 	else
 	{
-		int len = (int)strlen(newpwd);
+		int32_t len = (int32_t)strlen(newpwd);
 		if(packpasswrd != NULL)
 			delete[] packpasswrd;
 		packpasswrd = new char[len+1];
@@ -2392,21 +2392,21 @@ char * getCurPackfilePassword()
 {
 	if(packpasswrd == NULL)
 		return NULL;
-	int len = (int)strlen(packpasswrd);
+	int32_t len = (int32_t)strlen(packpasswrd);
 	char *ret = new char[len+1];
 	strcpy(ret, packpasswrd);
 	return ret;
 }*/
 
 // A lot of crashes in ZQuest can be traced to rect(). Hopefully, this will help.
-void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
+void safe_rect(BITMAP *bmp, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color)
 {
     rect(bmp, vbound(x1, 0, bmp->w-1), vbound(y1, 0, bmp->h-1), vbound(x2, 0, bmp->w-1), vbound(y2, 0, bmp->h-1), color);
 }
 
 //computes the positive gcd of two integers (using Euclid's algorithm)
 
-int gcd(int a, int b)
+int32_t gcd(int32_t a, int32_t b)
 {
     a = abs(a);
     b = abs(b);
@@ -2414,7 +2414,7 @@ int gcd(int a, int b)
     if(b == 0)
         return a;
         
-    int res = a%b;
+    int32_t res = a%b;
     
     while(res != 0)
     {
@@ -2427,12 +2427,12 @@ int gcd(int a, int b)
 }
 
 //computes the positive lcm of two integers
-int lcm(int a, int b)
+int32_t lcm(int32_t a, int32_t b)
 {
     return a*b/gcd(a,b);
 }
 
-size_t count_digits(int n)
+size_t count_digits(int32_t n)
 {
     return std::to_string(n).size();
 }
@@ -2447,7 +2447,7 @@ size_t count_digits(int n)
 
 FILE * trace_file;
 
-int zc_trace_handler(const char * msg)
+int32_t zc_trace_handler(const char * msg)
 {
     if(trace_file == 0)
     {

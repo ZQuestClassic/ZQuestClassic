@@ -216,7 +216,7 @@ BuiltinScript* ZScript::createScript(
 	return script;
 }
 
-optional<int> ZScript::getLabel(Script const& script)
+optional<int32_t> ZScript::getLabel(Script const& script)
 {
 	if (Function* run = script.getRun())
 		return run->getLabel();
@@ -258,7 +258,7 @@ bool ZScript::isGlobal(Datum const& datum)
 		&& datum.getName();
 }
 
-optional<int> ZScript::getStackOffset(Datum const& datum)
+optional<int32_t> ZScript::getStackOffset(Datum const& datum)
 {
 	return lookupStackPosition(datum.scope, datum);
 }
@@ -298,13 +298,13 @@ Variable::Variable(
 	: Datum(scope, type),
 	  node(node),
 	  globalId((scope.isGlobal() || scope.isScript())
-	           ? optional<int>(ScriptParser::getUniqueGlobalID())
+	           ? optional<int32_t>(ScriptParser::getUniqueGlobalID())
 	           : nullopt)
 {
 	node.manager = this;
 }
 
-optional<long> Variable::getCompileTimeValue(bool getinitvalue) const
+optional<int32_t> Variable::getCompileTimeValue(bool getinitvalue) const
 {
 	if(getinitvalue)
 	{
@@ -331,14 +331,14 @@ BuiltinVariable::BuiltinVariable(
 	: Datum(scope, type),
 	  name(name),
 	  globalId((scope.isGlobal() || scope.isScript())
-	           ? optional<int>(ScriptParser::getUniqueGlobalID())
+	           ? optional<int32_t>(ScriptParser::getUniqueGlobalID())
 	           : nullopt)
 {}
 
 // ZScript::Constant
 
 Constant* Constant::create(
-		Scope& scope, ASTDataDecl& node, DataType const& type, long value,
+		Scope& scope, ASTDataDecl& node, DataType const& type, int32_t value,
 		CompileErrorHandler* errorHandler)
 {
 	Constant* constant = new Constant(scope, node, type, value);
@@ -348,7 +348,7 @@ Constant* Constant::create(
 }
 
 Constant::Constant(
-		Scope& scope, ASTDataDecl& node, DataType const& type, long value)
+		Scope& scope, ASTDataDecl& node, DataType const& type, int32_t value)
 	: Datum(scope, type), node(node), value(value)
 {
 	node.manager = this;
@@ -360,7 +360,7 @@ optional<string> Constant::getName() const {return node.name;}
 
 
 BuiltinConstant* BuiltinConstant::create(
-		Scope& scope, DataType const& type, string const& name, long value,
+		Scope& scope, DataType const& type, string const& name, int32_t value,
 		CompileErrorHandler* errorHandler)
 {
 	BuiltinConstant* builtin = new BuiltinConstant(scope, type, name, value);
@@ -370,7 +370,7 @@ BuiltinConstant* BuiltinConstant::create(
 }
 
 BuiltinConstant::BuiltinConstant(
-		Scope& scope, DataType const& type, string const& name, long value)
+		Scope& scope, DataType const& type, string const& name, int32_t value)
 	: Datum(scope, type), name(name), value(value)
 {}
 
@@ -385,13 +385,13 @@ FunctionSignature::FunctionSignature(Function const& function)
 	: name(function.name), parameterTypes(function.paramTypes), prefix(function.hasPrefixType)
 {}
 		
-int FunctionSignature::compare(FunctionSignature const& other) const
+int32_t FunctionSignature::compare(FunctionSignature const& other) const
 {
-	int c = name.compare(other.name);
+	int32_t c = name.compare(other.name);
 	if (c) return c;
 	c = parameterTypes.size() - other.parameterTypes.size();
 	if (c) return c;
-	for (int i = 0; i < (int)parameterTypes.size(); ++i)
+	for (int32_t i = 0; i < (int32_t)parameterTypes.size(); ++i)
 	{
 		c = parameterTypes[i]->compare(*other.parameterTypes[i]);
 		if (c) return c;
@@ -437,8 +437,8 @@ string FunctionSignature::asString() const
 // ZScript::Function
 
 Function::Function(DataType const* returnType, string const& name,
-				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int id,
-				   int flags, int internal_flags, bool prototype, ASTExprConst* defaultReturn)
+				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int32_t id,
+				   int32_t flags, int32_t internal_flags, bool prototype, ASTExprConst* defaultReturn)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames),
 	  id(id), label(nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false),
@@ -475,7 +475,7 @@ Script* Function::getScript() const
 	return &scriptScope->script;
 }
 
-int Function::getLabel() const
+int32_t Function::getLabel() const
 {
 	if (!label) label = ScriptParser::getUniqueLabelID();
 	return *label;
@@ -497,12 +497,12 @@ bool ZScript::isRun(Function const& function)
 		&& (!(function.getFlag(FUNCFLAG_INLINE))) ;
 }
 
-int ZScript::getStackSize(Function const& function)
+int32_t ZScript::getStackSize(Function const& function)
 {
 	return *lookupStackSize(*function.internalScope);
 }
 
-int ZScript::getParameterCount(Function const& function)
+int32_t ZScript::getParameterCount(Function const& function)
 {
 	return function.paramTypes.size() + (isRun(function) ? 1 : 0);
 }

@@ -28,63 +28,63 @@ enum {spr_landhold, spr_waterhold};
 enum {spr_hold1, spr_hold2, spr_holdsword, spr_holdmax};
 enum { las_original, las_bszelda, las_zelda3, las_zelda3slow, las_max };
 
-extern int script_link_sprite;
-extern int script_link_cset;
-extern int script_link_flip;
+extern int32_t script_link_sprite;
+extern int32_t script_link_cset;
+extern int32_t script_link_flip;
 
 extern byte link_defence[wMax];
 
-extern int hammeroffsets[4];
+extern int32_t hammeroffsets[4];
 
-extern int old_floatspr, old_slashspr, linkspr;
-extern int walkspr[4][3];                                   //dir,                           tile/flip/extend
-extern int stabspr[4][3];                                   //dir,                           tile/flip/extend
-extern int slashspr[4][3];                                  //dir,                           tile/flip/extend
-extern int floatspr[4][3];                                  //dir,                           tile/flip/extend
-extern int swimspr[4][3];                                   //dir,                           tile/flip/extend
-extern int divespr[4][3];                                   //dir,                           tile/flip/extend
-extern int poundspr[4][3];                                  //dir,                           tile/flip/extend
-extern int jumpspr[4][3];                                   //dir,                           tile/flip/extend
-extern int chargespr[4][3];                                 //dir,                           tile/flip/extend
-extern int castingspr[3];                                   //                               tile/flip/extend
-extern int sideswimcastingspr[3];                           //                               tile/flip/extend
-extern int holdspr[2][3][3];                                //land/water, 1hand/2hand/sword, tile/flip/extend
-extern int frozenspr[4][3];                                 //dir,                           tile/flip/extend
-extern int frozen_waterspr[4][3];                           //dir,                           tile/flip/extend
-extern int onfirespr[4][3];                                 //dir,                           tile/flip/extend
-extern int onfire_waterspr[4][3];                           //dir,                           tile/flip/extend
-extern int diggingspr[4][3];                                //dir,                           tile/flip/extend
-extern int usingrodspr[4][3];                               //dir,                           tile/flip/extend
-extern int usingcanespr[4][3];                              //dir,                           tile/flip/extend
-extern int pushingspr[4][3];                                //dir,                           tile/flip/extend
-extern int liftingspr[4][3];                                //dir,                           tile/flip/extend
-extern int liftingheavyspr[4][3];                           //dir,                           tile/flip/extend
-extern int stunnedspr[4][3];                                //dir,                           tile/flip/extend
-extern int stunned_waterspr[4][3];                          //dir,                           tile/flip/extend
-extern int drowningspr[4][3];                               //dir,                           tile/flip/extend
-extern int sidedrowningspr[4][3];                               //dir,                           tile/flip/extend
-extern int drowning_lavaspr[4][3];                          //dir,                           tile/flip/extend
-extern int sideswimspr[4][3];                               //dir,                           tile/flip/extend
-extern int sideswimslashspr[4][3];                          //dir,                           tile/flip/extend
-extern int sideswimstabspr[4][3];                           //dir,                           tile/flip/extend
-extern int sideswimpoundspr[4][3];                          //dir,                           tile/flip/extend
-extern int sideswimchargespr[4][3];                         //dir,                           tile/flip/extend
-extern int sideswimholdspr[3][3];                           //1hand/2hand/sword,             tile/flip/extend
-extern int fallingspr[4][3];                                //dir,                           tile/flip/extend
-extern int shockedspr[4][3];                                //dir,                           tile/flip/extend
-extern int shocked_waterspr[4][3];                          //dir,                           tile/flip/extend
-extern int pullswordspr[4][3];                              //dir,                           tile/flip/extend
-extern int readingspr[4][3];                                //dir,                           tile/flip/extend
-extern int slash180spr[4][3];                               //dir,                           tile/flip/extend
-extern int slashZ4spr[4][3];                                //dir,                           tile/flip/extend
-extern int dashspr[4][3];                                   //dir,                           tile/flip/extend
-extern int bonkspr[4][3];                                   //dir,                           tile/flip/extend
-extern int medallionsprs[3][3];                             //medallion,                     tile/flip/extend
+extern int32_t old_floatspr, old_slashspr, linkspr;
+extern int32_t walkspr[4][3];                                   //dir,                           tile/flip/extend
+extern int32_t stabspr[4][3];                                   //dir,                           tile/flip/extend
+extern int32_t slashspr[4][3];                                  //dir,                           tile/flip/extend
+extern int32_t floatspr[4][3];                                  //dir,                           tile/flip/extend
+extern int32_t swimspr[4][3];                                   //dir,                           tile/flip/extend
+extern int32_t divespr[4][3];                                   //dir,                           tile/flip/extend
+extern int32_t poundspr[4][3];                                  //dir,                           tile/flip/extend
+extern int32_t jumpspr[4][3];                                   //dir,                           tile/flip/extend
+extern int32_t chargespr[4][3];                                 //dir,                           tile/flip/extend
+extern int32_t castingspr[3];                                   //                               tile/flip/extend
+extern int32_t sideswimcastingspr[3];                           //                               tile/flip/extend
+extern int32_t holdspr[2][3][3];                                //land/water, 1hand/2hand/sword, tile/flip/extend
+extern int32_t frozenspr[4][3];                                 //dir,                           tile/flip/extend
+extern int32_t frozen_waterspr[4][3];                           //dir,                           tile/flip/extend
+extern int32_t onfirespr[4][3];                                 //dir,                           tile/flip/extend
+extern int32_t onfire_waterspr[4][3];                           //dir,                           tile/flip/extend
+extern int32_t diggingspr[4][3];                                //dir,                           tile/flip/extend
+extern int32_t usingrodspr[4][3];                               //dir,                           tile/flip/extend
+extern int32_t usingcanespr[4][3];                              //dir,                           tile/flip/extend
+extern int32_t pushingspr[4][3];                                //dir,                           tile/flip/extend
+extern int32_t liftingspr[4][3];                                //dir,                           tile/flip/extend
+extern int32_t liftingheavyspr[4][3];                           //dir,                           tile/flip/extend
+extern int32_t stunnedspr[4][3];                                //dir,                           tile/flip/extend
+extern int32_t stunned_waterspr[4][3];                          //dir,                           tile/flip/extend
+extern int32_t drowningspr[4][3];                               //dir,                           tile/flip/extend
+extern int32_t sidedrowningspr[4][3];                               //dir,                           tile/flip/extend
+extern int32_t drowning_lavaspr[4][3];                          //dir,                           tile/flip/extend
+extern int32_t sideswimspr[4][3];                               //dir,                           tile/flip/extend
+extern int32_t sideswimslashspr[4][3];                          //dir,                           tile/flip/extend
+extern int32_t sideswimstabspr[4][3];                           //dir,                           tile/flip/extend
+extern int32_t sideswimpoundspr[4][3];                          //dir,                           tile/flip/extend
+extern int32_t sideswimchargespr[4][3];                         //dir,                           tile/flip/extend
+extern int32_t sideswimholdspr[3][3];                           //1hand/2hand/sword,             tile/flip/extend
+extern int32_t fallingspr[4][3];                                //dir,                           tile/flip/extend
+extern int32_t shockedspr[4][3];                                //dir,                           tile/flip/extend
+extern int32_t shocked_waterspr[4][3];                          //dir,                           tile/flip/extend
+extern int32_t pullswordspr[4][3];                              //dir,                           tile/flip/extend
+extern int32_t readingspr[4][3];                                //dir,                           tile/flip/extend
+extern int32_t slash180spr[4][3];                               //dir,                           tile/flip/extend
+extern int32_t slashZ4spr[4][3];                                //dir,                           tile/flip/extend
+extern int32_t dashspr[4][3];                                   //dir,                           tile/flip/extend
+extern int32_t bonkspr[4][3];                                   //dir,                           tile/flip/extend
+extern int32_t medallionsprs[3][3];                             //medallion,                     tile/flip/extend
 
-void linktile(int *tile, int *flip, int state, int dir, int style);
-void linktile(int *tile, int *flip, int *extend, int state, int dir, int style);
-void setuplinktiles(int style);
-void setlinktile(int tile, int flip, int extend, int state, int dir);
+void linktile(int32_t *tile, int32_t *flip, int32_t state, int32_t dir, int32_t style);
+void linktile(int32_t *tile, int32_t *flip, int32_t *extend, int32_t state, int32_t dir, int32_t style);
+void setuplinktiles(int32_t style);
+void setlinktile(int32_t tile, int32_t flip, int32_t extend, int32_t state, int32_t dir);
 void setuplinkdefenses();
 void setuplinkoffsets();
 #endif

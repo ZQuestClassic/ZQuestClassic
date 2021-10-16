@@ -7,7 +7,7 @@
 
 namespace ZScript
 {
-	typedef long CompileOptionValue;
+	typedef int32_t CompileOptionValue;
 	
 	class CompileOptionSetting : public SafeBool<CompileOptionSetting>
 	{
@@ -80,9 +80,9 @@ namespace ZScript
 		void setDefault(CompileOptionValue value);
 	
 	private:
-		int id_;
+		int32_t id_;
 
-		CompileOption(int id) : id_(id) {}
+		CompileOption(int32_t id) : id_(id) {}
 	};
 };
 

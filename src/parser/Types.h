@@ -21,7 +21,7 @@ namespace ZScript
 	//AST
 	class ASTExprIdentifier;
 
-	typedef int DataTypeId;
+	typedef int32_t DataTypeId;
 
 	////////////////////////////////////////////////////////////////
 	// Stores and lookup types and classes.
@@ -47,7 +47,7 @@ namespace ZScript
 		// Classes
 		std::vector<ZScript::ZClass*> getClasses() const {
 			return ownedClasses;}
-		ZScript::ZClass* getClass(int classId) const;
+		ZScript::ZClass* getClass(int32_t classId) const;
 		ZScript::ZClass* createClass(std::string const& name);
 
 	private:
@@ -231,7 +231,7 @@ namespace ZScript
 	
 	static DataTypeId getTypeId(std::string name)
 	{
-		if(int v = atoi(name.c_str()))
+		if(int32_t v = atoi(name.c_str()))
 			return v;
 		else if(name == "UNTYPED")
 			return ZVARTYPEID_UNTYPED;
@@ -365,25 +365,25 @@ namespace ZScript
 		virtual bool isLong() const {return false;}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
-		int compare(DataType const& rhs) const;
+		int32_t compare(DataType const& rhs) const;
 		
 		//Static functions
 		static DataType const* get(DataTypeId id);
-		static DataTypeClass const* getClass(int classId);
-		static DataTypeCustom const* getCustom(int customId) {
+		static DataTypeClass const* getClass(int32_t classId);
+		static DataTypeCustom const* getCustom(int32_t customId) {
 			return find<DataTypeCustom*>(customTypes, customId).value_or(boost::add_pointer<DataTypeCustom>::type());
 		};
 		static void addCustom(DataTypeCustom* custom);
-		static int getUniqueCustomId() {return nextCustomId_++;}
+		static int32_t getUniqueCustomId() {return nextCustomId_++;}
 		
 	private:
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		// rhs is guaranteed to be the same class as the derived type.
-		virtual int selfCompare(DataType const& rhs) const = 0;
+		virtual int32_t selfCompare(DataType const& rhs) const = 0;
 
 		//Static variables
-		static int nextCustomId_;
-		static std::map<int, DataTypeCustom*> customTypes;
+		static int32_t nextCustomId_;
+		static std::map<int32_t, DataTypeCustom*> customTypes;
 		
 		DataType* constType;
 		// Standard Types.
@@ -484,7 +484,7 @@ namespace ZScript
 	DataType const& getNaiveType(DataType const& type, Scope* scope);
 	
 	// Get the number of nested arrays at top level.
-	int getArrayDepth(DataType const&);
+	int32_t getArrayDepth(DataType const&);
 
 	class DataTypeUnresolved : public DataType
 	{
@@ -504,13 +504,13 @@ namespace ZScript
 		ASTExprIdentifier* iden;
 		std::string name;
 
-		int selfCompare(DataType const& rhs) const;
+		int32_t selfCompare(DataType const& rhs) const;
 	};
 
 	class DataTypeSimple : public DataType
 	{
 	public:
-		DataTypeSimple(int simpleId, std::string const& name, DataType* constType);
+		DataTypeSimple(int32_t simpleId, std::string const& name, DataType* constType);
 		DataTypeSimple* clone() const {return new DataTypeSimple(*this);}
 
 		virtual DataTypeSimple* resolve(ZScript::Scope&, CompileErrorHandler* errorHandler) {return this;}
@@ -523,19 +523,19 @@ namespace ZScript
 		virtual bool isVoid() const {return simpleId == ZVARTYPEID_VOID;}
 		virtual bool isLong() const {return simpleId == ZVARTYPEID_LONG;}
 
-		int getId() const {return simpleId;}
+		int32_t getId() const {return simpleId;}
 
 	protected:
-		int simpleId;
+		int32_t simpleId;
 		std::string name;
 
-		int selfCompare(DataType const& rhs) const;
+		int32_t selfCompare(DataType const& rhs) const;
 	};
 	
 	class DataTypeSimpleConst : public DataTypeSimple
 	{
 	public:
-		DataTypeSimpleConst(int simpleId, std::string const& name);
+		DataTypeSimpleConst(int32_t simpleId, std::string const& name);
 		DataTypeSimpleConst* clone() const {return new DataTypeSimpleConst(*this);}
 		
 		virtual DataTypeSimpleConst* resolve(ZScript::Scope&, CompileErrorHandler* errorHandler) {return this;}
@@ -546,8 +546,8 @@ namespace ZScript
 	class DataTypeClass : public DataType
 	{
 	public:
-		DataTypeClass(int classId, DataType* constType);
-		DataTypeClass(int classId, std::string const& className, DataType* constType);
+		DataTypeClass(int32_t classId, DataType* constType);
+		DataTypeClass(int32_t classId, std::string const& className, DataType* constType);
 		DataTypeClass* clone() const {return new DataTypeClass(*this);}
 
 		virtual DataTypeClass* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
@@ -559,19 +559,19 @@ namespace ZScript
 		virtual bool isConstant() const {return false;}
 
 		std::string getClassName() const {return className;}
-		int getClassId() const {return classId;}
+		int32_t getClassId() const {return classId;}
 		
 	protected:
-		int classId;
+		int32_t classId;
 		std::string className;
 
-		int selfCompare(DataType const& other) const;
+		int32_t selfCompare(DataType const& other) const;
 	};
 	
 	class DataTypeClassConst : public DataTypeClass
 	{
 	public:
-		DataTypeClassConst(int classId, std::string const& name);
+		DataTypeClassConst(int32_t classId, std::string const& name);
 		DataTypeClassConst* clone() const {return new DataTypeClassConst(*this);}
 		
 		virtual DataTypeClassConst* resolve(ZScript::Scope&, CompileErrorHandler* errorHandler) {return this;}
@@ -599,13 +599,13 @@ namespace ZScript
 	private:
 		DataType const& elementType;
 
-		int selfCompare(DataType const& other) const;
+		int32_t selfCompare(DataType const& other) const;
 	};
 	
 	class DataTypeCustom : public DataType
 	{
 	public:
-		DataTypeCustom(std::string name, DataType* constType, int id = getUniqueCustomId())
+		DataTypeCustom(std::string name, DataType* constType, int32_t id = getUniqueCustomId())
 			: DataType(constType), name(name), id(id)
 		{}
 		DataTypeCustom* clone() const {return new DataTypeCustom(*this);}
@@ -617,13 +617,13 @@ namespace ZScript
 		virtual bool canBeGlobal() const {return true;}
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target) const;
-		int getCustomId() const {return id;}
+		int32_t getCustomId() const {return id;}
 		
 	protected:
-		int id;
+		int32_t id;
 		std::string name;
 
-		int selfCompare(DataType const& other) const;
+		int32_t selfCompare(DataType const& other) const;
 	};
 	
 	class DataTypeCustomConst : public DataTypeCustom
@@ -676,7 +676,7 @@ namespace ZScript
 		ScriptType() : id_(idInvalid) {}
 		
 		std::string const& getName() const;
-		int getTrueId() const
+		int32_t getTrueId() const
 		{
 			switch(id_)
 			{

@@ -25,15 +25,15 @@
 #include "ffscript.h"
 
 extern LinkClass   Link;
-extern int directItem;
-extern int directItemA;
-extern int directItemB;
-extern int directItemY;
-extern int directItemX;
+extern int32_t directItem;
+extern int32_t directItemA;
+extern int32_t directItemB;
+extern int32_t directItemY;
+extern int32_t directItemX;
 
 //DIALOG *sso_properties_dlg;
 
-void put_active_subscr(miscQdata *misc, int y, int pos)
+void put_active_subscr(miscQdata *misc, int32_t y, int32_t pos)
 {
     //Don't call Sitems.animate() - that gets called somewhere else, somehow. -L
     animate_selectors();
@@ -57,7 +57,7 @@ void dosubscr(miscQdata *misc)
         refreshpal=true;
     }
     
-    int miny;
+    int32_t miny;
     bool showtime = game->get_timevalid() && !game->get_cheat() && get_bit(quest_rules,qr_TIME);
     load_Sitems(misc);
     
@@ -98,7 +98,7 @@ void dosubscr(miscQdata *misc)
 		else Bpos = 0;
 	}
         
-    for(int y=176-2; y>=6; y-=3*Link.subscr_speed)
+    for(int32_t y=176-2; y>=6; y-=3*Link.subscr_speed)
     {
         do_dcounters();
         Link.refill();
@@ -132,7 +132,7 @@ void dosubscr(miscQdata *misc)
     do
     {
 		load_control_state();
-		int pos = Bpos;
+		int32_t pos = Bpos;
 		
 		if(rUp())         Bpos = selectWpn_new(SEL_UP, pos);
 		else if(rDown())  Bpos = selectWpn_new(SEL_DOWN, pos);
@@ -169,7 +169,7 @@ void dosubscr(miscQdata *misc)
 		//Assign items to buttons
 		if(rBbtn() || b_only)
 		{
-			int t = Bweapon(Bpos);
+			int32_t t = Bweapon(Bpos);
 			if(use_a && t == Awpn)
 			{
 				Awpn = Bwpn;
@@ -198,7 +198,7 @@ void dosubscr(miscQdata *misc)
 		}
 		else if(use_a && rAbtn())
 		{
-			int t = Bweapon(Bpos);
+			int32_t t = Bweapon(Bpos);
 			if(t == Bwpn)
 			{
 				Bwpn = Awpn;
@@ -226,7 +226,7 @@ void dosubscr(miscQdata *misc)
 		}
 		else if(use_x && rEx1btn())
 		{
-			int t = Bweapon(Bpos);
+			int32_t t = Bweapon(Bpos);
 			if(t == Bwpn)
 			{
 				Bwpn = Xwpn;
@@ -254,7 +254,7 @@ void dosubscr(miscQdata *misc)
 		}
 		else if(use_y && rEx2btn())
 		{
-			int t = Bweapon(Bpos);
+			int32_t t = Bweapon(Bpos);
 			if(t == Bwpn)
 			{
 				Bwpn = Ywpn;
@@ -326,7 +326,7 @@ void dosubscr(miscQdata *misc)
     }
     while(!done);
     
-    for(int y=6; y<=174; y+=3*Link.subscr_speed)
+    for(int32_t y=6; y<=174; y+=3*Link.subscr_speed)
     {
         do_dcounters();
         Link.refill();
@@ -363,7 +363,7 @@ void dosubscr(miscQdata *misc)
     resume_sfx(WAV_BRANG);
 }
 
-void markBmap(int dir, int sc)
+void markBmap(int32_t dir, int32_t sc)
 {
     /*
       if((DMaps[get_currdmap()].type&dmfTYPE)==dmOVERW)
@@ -376,8 +376,8 @@ void markBmap(int dir, int sc)
     
     byte drow = DMaps[get_currdmap()].grid[sc>>4];
     byte mask = 1 << (7-((sc&15)-DMaps[get_currdmap()].xoff));
-    int di = (get_currdmap() << 7) + (sc & 0x7F); //+ ((sc&0xF)-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff));
-    int code = 0;
+    int32_t di = (get_currdmap() << 7) + (sc & 0x7F); //+ ((sc&0xF)-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff));
+    int32_t code = 0;
     
     
     switch((DMaps[get_currdmap()].type&dmfTYPE))
@@ -390,7 +390,7 @@ void markBmap(int dir, int sc)
 				return;
 				
 			// calculate code
-			for(int i=3; i>=0; i--)
+			for(int32_t i=3; i>=0; i--)
 			{
 				code <<= 1;
 				code += tmpscr->door[i]&1; //Mark directions only for sides that have the door state set
@@ -417,7 +417,7 @@ void markBmap(int dir, int sc)
     }
 }
 
-void markBmap(int dir)
+void markBmap(int32_t dir)
 {
     markBmap(dir, get_currscr());
 }

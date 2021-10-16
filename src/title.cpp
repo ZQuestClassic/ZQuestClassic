@@ -40,15 +40,15 @@
 #define snprintf _snprintf
 #endif
 
-extern int loadlast;
-extern int skipcont;
-extern int skipicon;
+extern int32_t loadlast;
+extern int32_t skipcont;
+extern int32_t skipicon;
 extern FFScript FFCore;
 extern byte itemscriptInitialised[256];
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
 //extern byte refresh_select_screen;
-bool load_custom_game(int file);
+bool load_custom_game(int32_t file);
 
 struct savedicon
 {
@@ -64,7 +64,7 @@ static bool chosecustomquest = false;
 
 extern char runningItemScripts[256];
 
-FONT *get_zcfont(int index)
+FONT *get_zcfont(int32_t index)
 {
 	//return getfont(index);
 	switch(index)
@@ -233,21 +233,21 @@ static byte itemspal[24] =
 	0x29,0x37,0x17, 0x02,0x22,0x30, 0x16,0x27,0x30, 0x0B,0x1B,0x2B
 };
 
-static void loadtitlepal(int clear,byte *dataofs,int shift)
+static void loadtitlepal(int32_t clear,byte *dataofs,int32_t shift)
 {
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 	{
 		RAMpal[CSET(i)+shift] = NESpal(clear);
 		
-		for(int c=1; c<4; c++)
+		for(int32_t c=1; c<4; c++)
 			RAMpal[CSET(i)+c+shift] = NESpal(*dataofs++);
 	}
 	
-	for(int i=6; i<10; i++)
+	for(int32_t i=6; i<10; i++)
 	{
 		RAMpal[CSET(i)+shift] = NESpal(clear);
 		
-		for(int c=1; c<4; c++)
+		for(int32_t c=1; c<4; c++)
 			RAMpal[CSET(i)+c+shift] = NESpal(*dataofs++);
 	}
 	
@@ -262,14 +262,14 @@ static byte wave[3]= {};
 
 static void cyclewaves()
 {
-	for(int i=0; i<3; i++)
+	for(int32_t i=0; i<3; i++)
 	{
 		wave[i]+=2;
 		
 		if(wave[i]==50)
 			wave[i]=0;
 			
-		int y=wave[i]+170;
+		int32_t y=wave[i]+170;
 		
 		if(wave[i]<8)
 		{
@@ -293,7 +293,7 @@ static void cyclewaves()
 
 static byte tri,fcnt;
 
-static void mainscreen(int f)
+static void mainscreen(int32_t f)
 {
 	if(f>=1010)
 		return;
@@ -375,7 +375,7 @@ static void mainscreen(int f)
 		refreshpal=true;
 		}
 		
-		for(int i=0; i<8; i++)
+		for(int32_t i=0; i<8; i++)
 		{
 		if(f==dusktime[i])
 			loadtitlepal(duskcolor[i],titlepal,4);
@@ -401,7 +401,7 @@ static void mainscreen(int f)
 	}
 }
 
-void putstring(int x,int y,const char* str,int cset)
+void putstring(int32_t x,int32_t y,const char* str,int32_t cset)
 {
 	textout_ex(scrollbuf,zfont,str,x,y,(cset<<CSET_SHFT)+1,0);
 }
@@ -411,7 +411,7 @@ void putstring(int x,int y,const char* str,int cset)
 //static byte vine[5] = { 2,3,6,7,10 };
 static byte vine[5] = { 3,6,7,10,11 };
 
-static void storyscreen(int f)
+static void storyscreen(int32_t f)
 {
 	if(f<1010)  return;
 	
@@ -520,7 +520,7 @@ static void storyscreen(int f)
 	{
 		puttile8(scrollbuf,vine[4],16,232,3,1);
 		
-		for(int x=24; x<232; x+=16)
+		for(int32_t x=24; x<232; x+=16)
 		{
 			puttile8(scrollbuf,vine[2],x,232,3,0);
 			puttile8(scrollbuf,vine[3],x+8,232,3,0);
@@ -555,7 +555,7 @@ static void storyscreen(int f)
 }
 
 
-static int trstr;
+static int32_t trstr;
 static byte tr_items[] =
 {
 	iHeart,iHeartC,iFairyMoving,iClock,iRupy,i5Rupies,iBPotion,iRPotion,iLetter,iBait,iSword,iWSword,iMSword,iShield,iBrang,iMBrang,iBombs,iBow,iArrow,iSArrow,iBCandle,iRCandle,
@@ -603,7 +603,7 @@ static const char* treasure_str[] =
 	"        TRIFORCE           "
 };
 
-static void treasures(int f)
+static void treasures(int32_t f)
 {
 	if(f<1804) return;
 	
@@ -612,7 +612,7 @@ static void treasures(int f)
 	if(f == 1804)
 	
 	{
-		for(int x=0; x<48; x+=16)
+		for(int32_t x=0; x<48; x+=16)
 		{
 			puttile8(scrollbuf,vine[2],x,232,3,0);
 			puttile8(scrollbuf,vine[3],x+8,232,3,0);
@@ -625,10 +625,10 @@ static void treasures(int f)
 		putstring(64,232,treasure_str[trstr++],0);
 	}
 	
-	int y = (1820 + 96 + 448 - f) >>1;
+	int32_t y = (1820 + 96 + 448 - f) >>1;
 	y += f&1;
 	
-	for(int i=0; i<34; i+=2)
+	for(int32_t i=0; i<34; i+=2)
 	{
 		if((y>=0)&&(y<240))
 		{
@@ -653,7 +653,7 @@ static void treasures(int f)
 	y+=80;
 	
 	if(y>=0)
-		for(int i=177; i<=217; i+=20)
+		for(int32_t i=177; i<=217; i+=20)
 		{
 			if(y<240)
 			{
@@ -672,7 +672,7 @@ static void treasures(int f)
 	{
 		if(((f-1820)&15)==0)
 		{
-			int ax=(f-1820)>>4;
+			int32_t ax=(f-1820)>>4;
 			
 			if((ax&0xF8) && ((ax&7)<2))
 				putstring(32,232,treasure_str[trstr++],0);
@@ -697,24 +697,24 @@ static void NES_titlescreen()
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((long)(FFCore.usr_digi_volume),1);
+	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (long)FFCore.usr_music_volume;
+	emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (long)FFCore.usr_sfx_volume;
+	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (long)FFCore.usr_panstyle;
+	pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	*/
-	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
-	int f=0;
+	int32_t f=0;
 	bool done=false;
 	wave[0]=0;
 	wave[1]=16;
@@ -779,7 +779,7 @@ static void NES_titlescreen()
 /********  DX title screen  *********/
 /************************************/
 
-static void DX_mainscreen(int f)
+static void DX_mainscreen(int32_t f)
 {
 	memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
@@ -793,27 +793,27 @@ static void DX_mainscreen(int f)
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((long)(FFCore.usr_digi_volume),1);
+	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (long)FFCore.usr_music_volume;
+	emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (long)FFCore.usr_sfx_volume;
+	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (long)FFCore.usr_panstyle;
+	pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	*/
 	FFCore.skip_ending_credits = 0;
-	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 	
 	set_uformat(U_ASCII);
 	
-	static int pic=0;
+	static int32_t pic=0;
 	//char tbuf[80];
 	char tbuf[2048] = {0}; char tbuf2[2048] = {0};
 	char copyrbuf[2][2048] = { {NULL }, {NULL} };
@@ -931,25 +931,25 @@ static void DX_titlescreen()
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((long)(FFCore.usr_digi_volume),1);
+	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (long)FFCore.usr_music_volume;
+	emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (long)FFCore.usr_sfx_volume;
+	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (long)FFCore.usr_panstyle;
+	pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	*/
 	FFCore.skip_ending_credits = 0;
-	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
-	int f=0;
+	int32_t f=0;
 	bool done=false;
 	trstr=0;
 	set_palette(black_palette);
@@ -1006,7 +1006,7 @@ static void DX_titlescreen()
 /********  2.5 title screen  *********/
 /*************************************/
 
-static void v25_mainscreen(int f)
+static void v25_mainscreen(int32_t f)
 {
 	memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
@@ -1021,27 +1021,27 @@ static void v25_mainscreen(int f)
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((long)(FFCore.usr_digi_volume),1);
+	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (long)FFCore.usr_music_volume;
+	emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (long)FFCore.usr_sfx_volume;
+	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (long)FFCore.usr_panstyle;
+	pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	*/
 	FFCore.skip_ending_credits = 0;
-	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 	
 	set_uformat(U_ASCII);
 	
-	static int pic=0;
+	static int32_t pic=0;
 	//char tbuf[80];
 	char tbuf[2048] = {0}; char tbuf2[2048] = {0};
 	char copyrbuf[2][2048] = { {NULL }, {NULL} };
@@ -1158,26 +1158,26 @@ static void v25_titlescreen()
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((long)(FFCore.usr_digi_volume),1);
+	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (long)FFCore.usr_music_volume;
+	emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (long)FFCore.usr_sfx_volume;
+	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (long)FFCore.usr_panstyle;
+	pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	*/
 	FFCore.skip_ending_credits = 0;
-	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
 	//  JGMOD *yea;
-	int f=0;
+	int32_t f=0;
 	bool done=false;
 	trstr=0;
 	set_palette(black_palette);
@@ -1239,7 +1239,7 @@ static void v25_titlescreen()
 static const char *SAVE_HEADER = "Zelda Classic Save File";
 extern char *SAVE_FILE;
 
-int readsaves(gamedata *savedata, PACKFILE *f)
+int32_t readsaves(gamedata *savedata, PACKFILE *f)
 {
 	memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
@@ -1253,19 +1253,19 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((long)(FFCore.usr_digi_volume),1);
+	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (long)FFCore.usr_music_volume;
+	emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (long)FFCore.usr_sfx_volume;
+	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (long)FFCore.usr_panstyle;
+	pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	FFCore.skip_ending_credits = 0;
 	//word item_count;
@@ -1273,16 +1273,16 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 	word save_count=0;
 	char name[9]={0};
 	byte tempbyte = 0;
-	short tempshort = 0;
-	//  long templong;
+	int16_t tempshort = 0;
+	//  int32_t templong;
 	word tempword = 0;
 	word tempword2 = 0;
 	word tempword3 = 0;
 	word tempword4 = 0;
 	word tempword5 = 0;
 	dword tempdword = 0;
-	long templong = 0;
-	long section_id=0;
+	int32_t templong = 0;
+	int32_t section_id=0;
 	word section_version=0;
 	word section_cversion=0;
 	dword section_size = 0;
@@ -1346,7 +1346,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		}
 	}
 	
-	for(int i=0; i<save_count; i++)
+	for(int32_t i=0; i<save_count; i++)
 	{
 		if(!pfread(name,9,f,true))
 		{
@@ -1445,7 +1445,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		savedata[i].set_cheat(tempbyte);
 		char temp;
 		
-		for(int j=0; j<256; j++) // why not MAXITEMS ?
+		for(int32_t j=0; j<256; j++) // why not MAXITEMS ?
 		{
 			if(!p_getc(&temp, f, true))
 				return 18;
@@ -1486,7 +1486,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		
 		if(section_version <= 5)
 		{
-			for(int j=0; j<OLDMAXLEVELS; ++j)
+			for(int32_t j=0; j<OLDMAXLEVELS; ++j)
 			{
 				if(!p_getc(&(savedata[i].lvlitems[j]),f,true))
 				{
@@ -1496,7 +1496,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		}
 		else
 		{
-			for(int j=0; j<MAXLEVELS; ++j)
+			for(int32_t j=0; j<MAXLEVELS; ++j)
 			{
 				if(!p_getc(&(savedata[i].lvlitems[j]),f,true))
 				{
@@ -1584,7 +1584,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		
 		if(section_version <= 5)
 		{
-			for(int j=0; j<OLDMAXDMAPS; ++j)
+			for(int32_t j=0; j<OLDMAXDMAPS; ++j)
 			{
 				if(!p_getc(&(savedata[i].visited[j]),f,true))
 				{
@@ -1592,10 +1592,10 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 				}
 			}
 			
-			for(int j=0; j<OLDMAXDMAPS*64; ++j)
+			for(int32_t j=0; j<OLDMAXDMAPS*64; ++j)
 			{
 				byte tempBMaps[OLDMAXDMAPS*64] = {0};
-				for(int j=0; j<OLDMAXDMAPS*64; ++j)
+				for(int32_t j=0; j<OLDMAXDMAPS*64; ++j)
 				{
 					if(!p_getc(&(tempBMaps[j]),f,true))
 					{
@@ -1603,14 +1603,14 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 					}
 				}
 				std::fill(savedata[i].bmaps, savedata[i].bmaps + MAXDMAPS*128, 0);
-				for(int dm = 0; dm < OLDMAXDMAPS; ++dm)
+				for(int32_t dm = 0; dm < OLDMAXDMAPS; ++dm)
 				{
-					for(int scr = 0; scr < 128; ++scr)
+					for(int32_t scr = 0; scr < 128; ++scr)
 					{
-						int di = (dm<<7) + (scr & 0x70) + (scr&15)-(DMaps[dm].type==dmOVERW ? 0 : DMaps[dm].xoff); //New Calculation
+						int32_t di = (dm<<7) + (scr & 0x70) + (scr&15)-(DMaps[dm].type==dmOVERW ? 0 : DMaps[dm].xoff); //New Calculation
 						if(((unsigned)((scr&15)-DMaps[dm].xoff)) > 7) 
 							continue;
-						int si = ((dm-1)<<6) + ((scr>>4)<<3) + ((scr&15)-DMaps[dm].xoff); //Old Calculation
+						int32_t si = ((dm-1)<<6) + ((scr>>4)<<3) + ((scr&15)-DMaps[dm].xoff); //Old Calculation
 						if(si < 0)
 						{
 							savedata[i].bmaps[di] = savedata[i].visited[512+si]&0x8F; //Replicate bug; OOB indexes
@@ -1623,7 +1623,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		}
 		else
 		{
-			for(int j=0; j<MAXDMAPS; ++j)
+			for(int32_t j=0; j<MAXDMAPS; ++j)
 			{
 				if(!p_getc(&(savedata[i].visited[j]),f,true))
 				{
@@ -1634,7 +1634,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			if(section_version < 17)
 			{
 				byte tempBMaps[MAXDMAPS*64] = {0};
-				for(int j=0; j<MAXDMAPS*64; ++j)
+				for(int32_t j=0; j<MAXDMAPS*64; ++j)
 				{
 					if(!p_getc(&(tempBMaps[j]),f,true))
 					{
@@ -1642,14 +1642,14 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 					}
 				}
 				std::fill(savedata[i].bmaps, savedata[i].bmaps + MAXDMAPS*128, 0);
-				for(int dm = 0; dm < MAXDMAPS; ++dm)
+				for(int32_t dm = 0; dm < MAXDMAPS; ++dm)
 				{
-					for(int scr = 0; scr < 128; ++scr)
+					for(int32_t scr = 0; scr < 128; ++scr)
 					{
-						int di = (dm<<7) + (scr & 0x70) + (scr&15)-(DMaps[dm].type==dmOVERW ? 0 : DMaps[dm].xoff); //New Calculation
+						int32_t di = (dm<<7) + (scr & 0x70) + (scr&15)-(DMaps[dm].type==dmOVERW ? 0 : DMaps[dm].xoff); //New Calculation
 						if(((unsigned)((scr&15)-DMaps[dm].xoff)) > 7) 
 							continue;
-						int si = ((dm-1)<<6) + ((scr>>4)<<3) + ((scr&15)-DMaps[dm].xoff); //Old Calculation
+						int32_t si = ((dm-1)<<6) + ((scr>>4)<<3) + ((scr&15)-DMaps[dm].xoff); //Old Calculation
 						if(si < 0)
 						{
 							savedata[i].bmaps[di] = savedata[i].visited[512+si]&0x8F; //Replicate bug; OOB indexes
@@ -1661,7 +1661,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			}
 			else
 			{
-				for(int j=0; j<MAXDMAPS*128; ++j)
+				for(int32_t j=0; j<MAXDMAPS*128; ++j)
 				{
 					if(!p_getc(&(savedata[i].bmaps[j]),f,true))
 					{
@@ -1671,7 +1671,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			}
 		}
 		
-		for(int j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
+		for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
 		{
 			if(!p_igetw(&savedata[i].maps[j],f,true))
 			{
@@ -1679,7 +1679,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			}
 		}
 		
-		for(int j=0; j<MAXMAPS2*MAPSCRSNORMAL; ++j)
+		for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; ++j)
 		{
 			if(!p_getc(&(savedata[i].guys[j]),f,true))
 			{
@@ -1725,7 +1725,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		
 		if(section_version <= 5)
 		{
-			for(int j=0; j<OLDMAXLEVELS; ++j)
+			for(int32_t j=0; j<OLDMAXLEVELS; ++j)
 			{
 				if(!p_getc(&(savedata[i].lvlkeys[j]),f,true))
 				{
@@ -1735,7 +1735,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		}
 		else
 		{
-			for(int j=0; j<MAXLEVELS; ++j)
+			for(int32_t j=0; j<MAXLEVELS; ++j)
 			{
 				if(!p_getc(&(savedata[i].lvlkeys[j]),f,true))
 				{
@@ -1748,9 +1748,9 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		{
 			if(section_version <= 5)
 			{
-				for(int j=0; j<OLDMAXDMAPS*64; j++)
+				for(int32_t j=0; j<OLDMAXDMAPS*64; j++)
 				{
-					for(int k=0; k<8; k++)
+					for(int32_t k=0; k<8; k++)
 					{
 						if(!p_igetl(&savedata[i].screen_d[j][k],f,true))
 						{
@@ -1761,9 +1761,9 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			}
 			else if(section_version < 10)
 			{
-				for(int j=0; j<MAXDMAPS*64; j++)
+				for(int32_t j=0; j<MAXDMAPS*64; j++)
 				{
-					for(int k=0; k<8; k++)
+					for(int32_t k=0; k<8; k++)
 					{
 						if(!p_igetl(&savedata[i].screen_d[j][k],f,true))
 						{
@@ -1774,9 +1774,9 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			}
 			else
 			{
-				for(int j=0; j<MAXDMAPS*MAPSCRSNORMAL; j++)
+				for(int32_t j=0; j<MAXDMAPS*MAPSCRSNORMAL; j++)
 				{
-					for(int k=0; k<8; k++)
+					for(int32_t k=0; k<8; k++)
 					{
 						if(!p_igetl(&savedata[i].screen_d[j][k],f,true))
 						{
@@ -1791,7 +1791,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 			I also skipped 13 to 15 so that 2.53.1 an use these if needed with the current patch. -Z
 			*/
 		{
-			for(int j=0; j<MAX_SCRIPT_REGISTERS; j++)
+			for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
 			{
 			if(!p_igetl(&savedata[i].global_d[j],f,true))
 			{
@@ -1801,7 +1801,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		}
 		else
 		{
-		for(int j=0; j<256; j++)
+		for(int32_t j=0; j<256; j++)
 		{
 			if(!p_igetl(&savedata[i].global_d[j],f,true))
 			{
@@ -1814,7 +1814,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		
 		if(section_version>2)
 		{
-			for(int j=0; j<32; j++)
+			for(int32_t j=0; j<32; j++)
 			{
 				if(!p_igetw(&tempword,f,true))
 				{
@@ -1841,7 +1841,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		
 		if(section_version>19)
 		{
-			for(int j=0; j<256; j++)
+			for(int32_t j=0; j<256; j++)
 			{
 				if(!p_igetl(&templong,f,true))
 				{
@@ -1853,7 +1853,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		}
 		else if(section_version>3)
 		{
-			for(int j=0; j<256; j++)
+			for(int32_t j=0; j<256; j++)
 			{
 				if(!p_getc(&tempbyte,f,true))
 				{
@@ -1975,7 +1975,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		
 		if(section_version >= 19)
 		{
-			for(int j=0; j<MAXLEVELS; ++j)
+			for(int32_t j=0; j<MAXLEVELS; ++j)
 			{
 				if(!p_igetl(&(savedata[i].lvlswitches[j]),f,true))
 				{
@@ -1989,7 +1989,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 		}
 		if(section_version >= 21)
 		{
-			for(int j=0; j<MAXITEMS; ++j)
+			for(int32_t j=0; j<MAXITEMS; ++j)
 			{
 				if(!p_getc(&(savedata[i].item_messages_played[j]),f,true))
 				{
@@ -2029,7 +2029,7 @@ void set_up_standalone_save()
 }
 
 // call once at startup
-int load_savedgames()
+int32_t load_savedgames()
 {
 	memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
@@ -2044,25 +2044,25 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((long)(FFCore.usr_digi_volume),1);
+	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (long)FFCore.usr_music_volume;
+	emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (long)FFCore.usr_sfx_volume;
+	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (long)FFCore.usr_panstyle;
+	pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	*/
 	FFCore.skip_ending_credits = 0;
 	char *fname = SAVE_FILE;
 	char *iname = (char *)zc_malloc(2048);
-	int ret;
+	int32_t ret;
 	PACKFILE *f=NULL;
 	FILE *f2=NULL;
 	char tmpfilename[32];
@@ -2116,7 +2116,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 		
 		strcpy(iname, get_config_string("SAVEFILE","save_filename","zc.sav"));
 	
-	for(int i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
+	for(int32_t i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
 	{
 		/* do nothing */
 	}
@@ -2142,7 +2142,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	}
 	
 	//Load game icons
-	for(int i=0; i<MAXSAVES; i++)
+	for(int32_t i=0; i<MAXSAVES; i++)
 	{
 		byte showmetadata = get_config_int("zeldadx","print_metadata_for_each_save_slot",0);
 		zprint2("Reading Save Slot %d\n", i);
@@ -2151,12 +2151,12 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 		{
 			if(skipicon)
 			{
-				for(int j=0; j<128; j++)
+				for(int32_t j=0; j<128; j++)
 				{
 					saves[i].icon[j]=0;
 				}
 				
-				for(int j=0; j<48; j++)
+				for(int32_t j=0; j<48; j++)
 				{
 					saves[i].pal[j]=0;
 				}
@@ -2165,13 +2165,13 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 			{
 				if(!iconbuffer[i].loaded || get_config_int("zeldadx","reload_game_icons",0))
 				{
-					int ret2 = load_quest(saves+i, false, showmetadata);
+					int32_t ret2 = load_quest(saves+i, false, showmetadata);
 					
 					if(ret2 == qe_OK)
 					{
-						int ring=0;
+						int32_t ring=0;
 						flushItemCache();
-						int maxringid = getHighestLevelOfFamily(saves+i, itemsbuf, itype_ring);
+						int32_t maxringid = getHighestLevelOfFamily(saves+i, itemsbuf, itype_ring);
 						
 						if(maxringid != -1)
 						{
@@ -2248,7 +2248,7 @@ reset:
 	
 init:
 
-	for(int i=0; i<MAXSAVES; i++)
+	for(int32_t i=0; i<MAXSAVES; i++)
 		saves[i].Clear();
 		
 	memset(iconbuffer, 0, sizeof(savedicon)*MAXSAVES);
@@ -2262,12 +2262,12 @@ init:
 }
 
 
-int writesaves(gamedata *savedata, PACKFILE *f)
+int32_t writesaves(gamedata *savedata, PACKFILE *f)
 {
-	int section_id=ID_SAVEGAME;
-	int section_version=V_SAVEGAME;
-	int section_cversion=CV_SAVEGAME;
-	int section_size=0;
+	int32_t section_id=ID_SAVEGAME;
+	int32_t section_version=V_SAVEGAME;
+	int32_t section_cversion=CV_SAVEGAME;
+	int32_t section_size=0;
 	
 	//section id
 	if(!p_mputl(section_id,f))
@@ -2300,7 +2300,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 		return 5;
 	}
 	
-	for(int i=0; i<MAXSAVES; i++)
+	for(int32_t i=0; i<MAXSAVES; i++)
 	{
 		qstpath_len=(word)strlen(savedata[i].qstpath);
 		
@@ -2324,7 +2324,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 			return 17;
 		}
 		
-		for(int j=0; j<MAXITEMS; j++)
+		for(int32_t j=0; j<MAXITEMS; j++)
 		{
 			if(!p_putc(savedata[i].get_item(j) ? 1 : 0,f))
 				return 18;
@@ -2380,7 +2380,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 			return 35;
 		}
 		
-		for(int j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
+		for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
 		{
 			if(!p_iputw(savedata[i].maps[j],f))
 			{
@@ -2418,9 +2418,9 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 			return 42;
 		}
 		
-		for(int j=0; j<MAXDMAPS*MAPSCRSNORMAL; j++)
+		for(int32_t j=0; j<MAXDMAPS*MAPSCRSNORMAL; j++)
 		{
-			for(int k=0; k<8; k++)
+			for(int32_t k=0; k<8; k++)
 			{
 				if(!p_iputl(savedata[i].screen_d[j][k],f))
 				{
@@ -2429,7 +2429,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 			}
 		}
 		
-		for(int j=0; j<MAX_SCRIPT_REGISTERS; j++)
+		for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
 		{
 			if(!p_iputl(savedata[i].global_d[j],f))
 			{
@@ -2437,7 +2437,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 			}
 		}
 		
-		for(int j=0; j<32; j++)
+		for(int32_t j=0; j<32; j++)
 		{
 			if(!p_iputw(savedata[i].get_counter(j), f))
 			{
@@ -2455,7 +2455,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 			}
 		}
 		
-		for(int j=0; j<256; j++)
+		for(int32_t j=0; j<256; j++)
 		{
 			if(!p_iputl(savedata[i].get_generic(j), f))
 			{
@@ -2517,7 +2517,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 		{
 			return 59;
 		}
-		if(!pfwrite(savedata[i].lvlswitches,MAXLEVELS*sizeof(long),f))
+		if(!pfwrite(savedata[i].lvlswitches,MAXLEVELS*sizeof(int32_t),f))
 		{
 			return 60;
 		}
@@ -2530,15 +2530,15 @@ int writesaves(gamedata *savedata, PACKFILE *f)
 	return 0;
 }
 
-int save_savedgames()
+int32_t save_savedgames()
 {
 	if(saves==NULL)
 		return 1;
 	
 	// Not sure why this happens, but apparently it does...
-	for(int i=0; i<MAXSAVES; i++)
+	for(int32_t i=0; i<MAXSAVES; i++)
 	{
-		for(int j=0; j<48; j++)
+		for(int32_t j=0; j<48; j++)
 		{
 			saves[i].pal[j]&=63;
 		}
@@ -2563,7 +2563,7 @@ int save_savedgames()
 	}
 	
 	pack_fclose(f);
-	int ret = encode_file_007(tmpfilename, SAVE_FILE, 0x413F0000 + (frame&0xffff), SAVE_HEADER, ENC_METHOD_MAX-1);
+	int32_t ret = encode_file_007(tmpfilename, SAVE_FILE, 0x413F0000 + (frame&0xffff), SAVE_HEADER, ENC_METHOD_MAX-1);
 	
 	if(ret)
 		ret += 100;
@@ -2574,7 +2574,7 @@ int save_savedgames()
 	char *iname = (char *)zc_malloc(2048);
 	strcpy(iname, SAVE_FILE);
 	
-	for(int i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
+	for(int32_t i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
 	{
 		/* do nothing */
 	}
@@ -2592,31 +2592,31 @@ int save_savedgames()
 	return ret;
 }
 
-void load_game_icon(gamedata *g, bool, int index)
+void load_game_icon(gamedata *g, bool, int32_t index)
 {
 	//We need an override that fixes the palette here to prevent monochrome overwriting it. -Z
-	int i=iconbuffer[index].ring; //
+	int32_t i=iconbuffer[index].ring; //
 	
 	byte *si = iconbuffer[index].icon[i];
 	
-	for(int j=0; j<128; j++)
+	for(int32_t j=0; j<128; j++)
 	{
 		g->icon[j] = *(si++);
 	}
 	
 	si = iconbuffer[index].pal[i];
 	
-	for(int j=0; j<48; j++)
+	for(int32_t j=0; j<48; j++)
 	{
 		g->pal[j] = *(si++);
 	}
 }
 
-void reload_icon_buffer(int index)
+void reload_icon_buffer(int32_t index)
 {
-	int t=0;
+	int32_t t=0;
 	
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 	{
 		t = QMisc.icons[i];
 		
@@ -2625,20 +2625,20 @@ void reload_icon_buffer(int index)
 			t=0;
 		}
 		
-		int tileind = t ? t : 28;
+		int32_t tileind = t ? t : 28;
 		
 		byte *si = newtilebuf[tileind].data;
 		
 		if(newtilebuf[tileind].format==tf8Bit)
 		{
-			for(int j=0; j<128; j++)
+			for(int32_t j=0; j<128; j++)
 			{
 				iconbuffer[index].icon[i][j] =0;
 			}
 		}
 		else
 		{
-			for(int j=0; j<128; j++)
+			for(int32_t j=0; j<128; j++)
 			{
 				iconbuffer[index].icon[i][j] = *(si++);
 			}
@@ -2662,14 +2662,14 @@ void reload_icon_buffer(int index)
 		
 		if(newtilebuf[tileind].format==tf8Bit)
 		{
-			for(int j=0; j<48; j++)
+			for(int32_t j=0; j<48; j++)
 			{
 				iconbuffer[index].pal[i][j] = 0;
 			}
 		}
 		else
 		{
-			for(int j=0; j<48; j++)
+			for(int32_t j=0; j<48; j++)
 			{
 				iconbuffer[index].pal[i][j] = *(si++);
 			}
@@ -2679,14 +2679,14 @@ void reload_icon_buffer(int index)
 	iconbuffer[index].loaded=1;
 }
 
-void load_game_icon_to_buffer(bool forceDefault, int index)
+void load_game_icon_to_buffer(bool forceDefault, int32_t index)
 {
-	int ring=0;
+	int32_t ring=0;
 	
 	if(!forceDefault)
 	{
 		flushItemCache();
-		int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+		int32_t maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
 		
 		if(maxringid != -1)
 		{
@@ -2736,19 +2736,19 @@ static void selectscreen()
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((long)(FFCore.usr_digi_volume),1);
+	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (long)FFCore.usr_music_volume;
+	emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (long)FFCore.usr_sfx_volume;
+	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (long)FFCore.usr_panstyle;
+	pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	FFCore.skip_ending_credits = 0;
 	//  text_mode(0);
@@ -2776,9 +2776,9 @@ static void selectscreen()
 static byte left_arrow_str[] = {132,0};
 static byte right_arrow_str[] = {133,0};
 
-static int savecnt;
+static int32_t savecnt;
 
-static void list_save(int save_num, int ypos)
+static void list_save(int32_t save_num, int32_t ypos)
 {
 	bool r = refreshpal;
 	
@@ -2931,13 +2931,13 @@ static void list_saves()
 	// Fourth Quest turns the menu red.
 	bool red = false;
 	
-	for(int i=0; i<savecnt; i++)
+	for(int32_t i=0; i<savecnt; i++)
 		if(saves[i].get_quest()==4)
 			red = true;
 			
 	loadpalset(0,red ? pSprite(spPILE) : 0);
 	
-	for(int i=0; i<3; i++)
+	for(int32_t i=0; i<3; i++)
 	{
 		list_save(listpos+i,i*24+56);
 	}
@@ -2957,9 +2957,9 @@ static void list_saves()
 	
 }
 
-static void draw_cursor(int pos,int mode)
+static void draw_cursor(int32_t pos,int32_t mode)
 {
-	int cs = 0;
+	int32_t cs = 0;
 	//al_trace( "moduledata.select_screen_tile_csets[sels_cusror_cset] is: %d\n", moduledata.select_screen_tile_csets[sels_cusror_cset]);
 	if ( (unsigned)moduledata.select_screen_tile_csets[sels_cusror_cset] < 15 ) cs = moduledata.select_screen_tile_csets[sels_cusror_cset];
 	else cs = (mode==3)?13:9;
@@ -2981,7 +2981,7 @@ static bool register_name()
 	selectscreen();
 	moduledata.refresh_title_screen = 0;
 	}
-	int NameEntryMode2=NameEntryMode;
+	int32_t NameEntryMode2=NameEntryMode;
 	
 	saves[savecnt].set_maxlife(3*16);
 	saves[savecnt].set_life(3*16);
@@ -2989,7 +2989,7 @@ static bool register_name()
 	saves[savecnt].set_continue_dmap(0);
 	saves[savecnt].set_continue_scrn(0xFF);
 	
-	int s=savecnt;
+	int32_t s=savecnt;
 	++savecnt;
 	listpos=(s/3)*3;
 //  clear_bitmap(framebuf);
@@ -2997,10 +2997,10 @@ static bool register_name()
 	list_saves();
 	blit(framebuf,scrollbuf,0,0,0,0,256,224);
 	
-	int pos=s%3;
-	int y=((NameEntryMode2>0)?0:(pos*24))+72;
-	int x=0;
-	int spos=0;
+	int32_t pos=s%3;
+	int32_t y=((NameEntryMode2>0)?0:(pos*24))+72;
+	int32_t x=0;
+	int32_t spos=0;
 	char name[9];
 	
 	memset(name,0,9);
@@ -3011,19 +3011,19 @@ static bool register_name()
 	bool done=false;
 	bool cancel=false;
 	
-	int letter_grid_x=(NameEntryMode2==2)?34:44;
-	int letter_grid_y=120;
-	int letter_grid_offset=(NameEntryMode2==2)?10:8;
-	int letter_grid_width=(NameEntryMode2==2)?16:11;
-	int letter_grid_height=(NameEntryMode2==2)?6:4;
-	int letter_grid_spacing=(NameEntryMode2==2)?12:16;
+	int32_t letter_grid_x=(NameEntryMode2==2)?34:44;
+	int32_t letter_grid_y=120;
+	int32_t letter_grid_offset=(NameEntryMode2==2)?10:8;
+	int32_t letter_grid_width=(NameEntryMode2==2)?16:11;
+	int32_t letter_grid_height=(NameEntryMode2==2)?6:4;
+	int32_t letter_grid_spacing=(NameEntryMode2==2)?12:16;
 	
 	const char *simple_grid="ABCDEFGHIJKLMNOPQRSTUVWXYZ-.,!'&.0123456789 ";
 	const char *complete_grid=" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 	
 	if(NameEntryMode2>0)
 	{
-		//int pos=file%3;
+		//int32_t pos=file%3;
 		BITMAP *info = create_bitmap_ex(8,168,32);
 		clear_bitmap(info);
 		blit(framebuf,info,40,pos*24+70,0,0,168,26);
@@ -3033,7 +3033,7 @@ static bool register_name()
 		rectfill(framebuf,40,64,216,192,0);
 		rectfill(framebuf,96,60,183,67,0);
 		
-		int i=pos*24+70;
+		int32_t i=pos*24+70;
 		
 		do
 		{
@@ -3081,8 +3081,8 @@ static bool register_name()
 		
 	}
 	
-	int grid_x=0;
-	int grid_y=0;
+	int32_t grid_x=0;
+	int32_t grid_y=0;
 	
 	
 	do
@@ -3172,9 +3172,9 @@ static bool register_name()
 			else if(rSbtn())
 			{
 				done=true;
-				int ltrs=0;
+				int32_t ltrs=0;
 				
-				for(int i=0; i<8; i++)
+				for(int32_t i=0; i<8; i++)
 				{
 					if(name[i]!=' ' && name[i]!=0)
 					{
@@ -3193,7 +3193,7 @@ static bool register_name()
 		{
 			if(keypressed())
 			{
-				int k=readkey();
+				int32_t k=readkey();
 				
 				if(isprint(k&255))
 				{
@@ -3240,9 +3240,9 @@ static bool register_name()
 					case KEY_ENTER_PAD:
 					{
 						done=true;
-						int ltrs=0;
+						int32_t ltrs=0;
 						
-						for(int i=0; i<8; i++)
+						for(int32_t i=0; i<8; i++)
 						{
 							if(name[i]!=' ' && name[i]!=0)
 							{
@@ -3262,7 +3262,7 @@ static bool register_name()
 						{
 							--x;
 							
-							for(int i=zc_min(x,7); i<8; i++)
+							for(int32_t i=zc_min(x,7); i<8; i++)
 							{
 								name[i]=name[i+1];
 							}
@@ -3273,7 +3273,7 @@ static bool register_name()
 						break;
 						
 					case KEY_DEL:
-						for(int i=zc_min(x,7); i<8; i++)
+						for(int32_t i=zc_min(x,7); i<8; i++)
 						{
 							name[i]=name[i+1];
 						}
@@ -3301,16 +3301,16 @@ static bool register_name()
 //    list_saves();
 		list_save(s,56+((NameEntryMode2>0)?0:(pos*24)));
 		
-		int x2=letter_grid_x + grid_x*letter_grid_spacing;
-		int y2=letter_grid_y + grid_y*letter_grid_spacing;
+		int32_t x2=letter_grid_x + grid_x*letter_grid_spacing;
+		int32_t y2=letter_grid_y + grid_y*letter_grid_spacing;
 		
 		if(frame&8)
 		{
-			int tx=(zc_min(x,7)<<3)+72;
+			int32_t tx=(zc_min(x,7)<<3)+72;
 			
-			for(int dy=0; dy<8; dy++)
+			for(int32_t dy=0; dy<8; dy++)
 			{
-				for(int dx=0; dx<8; dx++)
+				for(int32_t dx=0; dx<8; dx++)
 				{
 					if(framebuf->line[y+dy][tx+dx]==0)
 					{
@@ -3347,12 +3347,12 @@ static bool register_name()
 	
 	if(done)
 	{
-		int quest=1;
+		int32_t quest=1;
 		char buf[9];
 		strcpy(buf,name);
 		strupr(buf);
 		
-	for ( int q = 2; q < moduledata.max_quest_files+1; q++)
+	for ( int32_t q = 2; q < moduledata.max_quest_files+1; q++)
 	{
 		al_trace("Quest number is: %d\n",q);
 		al_trace("Quest skip string is: %s",moduledata.skipnames[q-1]);
@@ -3379,7 +3379,7 @@ static bool register_name()
 		
 //	setPackfilePassword(datapwd);
 		//0 is success
-		int ret = load_quest(saves+s);
+		int32_t ret = load_quest(saves+s);
 		
 		if(ret==qe_OK)
 		{
@@ -3392,7 +3392,7 @@ static bool register_name()
 			saves[s].set_hp_per_heart(zinit.hp_per_heart);
 			//saves[s].items[itype_ring]=0;
 			removeItemsOfFamily(&saves[s], itemsbuf, itype_ring);
-			int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+			int32_t maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
 			
 			if(maxringid != -1)
 				getitem(maxringid, true);
@@ -3416,7 +3416,7 @@ static bool register_name()
 	
 	if(x<0 || cancel)
 	{
-		for(int i=s; i<MAXSAVES-1; i++)
+		for(int32_t i=s; i<MAXSAVES-1; i++)
 			saves[i]=saves[i+1];
 			
 		saves[MAXSAVES-1].Clear();
@@ -3433,7 +3433,7 @@ static bool register_name()
 	return done;
 }
 
-static bool copy_file(int file)
+static bool copy_file(int32_t file)
 {
 	if(savecnt<MAXSAVES && file<savecnt)
 	{
@@ -3449,11 +3449,11 @@ static bool copy_file(int file)
 	return false;
 }
 
-static bool delete_save(int file)
+static bool delete_save(int32_t file)
 {
 	if(file<savecnt)
 	{
-		for(int i=file; i<MAXSAVES-1; i++)
+		for(int32_t i=file; i<MAXSAVES-1; i++)
 		{
 			saves[i]=saves[i+1];
 			iconbuffer[i]=iconbuffer[i+1];
@@ -3492,7 +3492,7 @@ DIALOG gamemode_dlg[] =
 };
 
 
-static int get_quest_info(zquestheader *header,char *str)
+static int32_t get_quest_info(zquestheader *header,char *str)
 {
 	if(strlen(get_filename(qstpath)) == 0)
 	{
@@ -3507,7 +3507,7 @@ static int get_quest_info(zquestheader *header,char *str)
 	
 	char tmpfilename[32];
 	temp_name(tmpfilename);
-	int ret;
+	int32_t ret;
 	PACKFILE *f;
 	
 	const char *passwd = datapwd;
@@ -3627,7 +3627,7 @@ static int get_quest_info(zquestheader *header,char *str)
 	return 1;
 }
 
-bool load_custom_game(int file)
+bool load_custom_game(int32_t file)
 {
 	if(!saves[file].get_hasplayed())
 	{
@@ -3658,7 +3658,7 @@ bool load_custom_game(int file)
 			//messy hack to get this to work properly since game is not initialized -DD
 			gamedata *oldgame = game;
 			game = saves+file;
-			int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+			int32_t maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
 			
 			if(maxringid != -1)
 				getitem(maxringid, true);
@@ -3676,13 +3676,13 @@ bool load_custom_game(int file)
 	return false;
 }
 
-int custom_game(int file)
+int32_t custom_game(int32_t file)
 {
 	zquestheader h;
 	char infostr[200];
 	char path[2048];
-	int ret=0; 
-	 int focus_obj = 1; //Fixes the issue where the button tied to the enter key is stuck on 'browse'.
+	int32_t ret=0; 
+	 int32_t focus_obj = 1; //Fixes the issue where the button tied to the enter key is stuck on 'browse'.
 	
 	if(is_relative_filename(saves[file].qstpath))
 	{
@@ -3724,7 +3724,7 @@ int custom_game(int file)
 		blit(screen,tmp_scr,scrx,scry,0,0,320,240);
 		unscare_mouse();
 		
-		int  sel=0;
+		int32_t  sel=0;
 		static EXT_LIST list[] =
 		{
 			{ (char *)"ZC Quests (*.qst)", (char *)"qst" },
@@ -3765,14 +3765,14 @@ int custom_game(int file)
 	game_pal();
 	key[KEY_ESC]=0;
 	chosecustomquest = (ret==5);
-	return (int)chosecustomquest;
+	return (int32_t)chosecustomquest;
 }
 
-static int game_details(int file)
+static int32_t game_details(int32_t file)
 {
 
-	al_trace("Running game_details(int file)\n");
-	int pos=file%3;
+	al_trace("Running game_details(int32_t file)\n");
+	int32_t pos=file%3;
 	
 	if(saves[file].get_quest()==0)
 		return 0;
@@ -3786,7 +3786,7 @@ static int game_details(int file)
 	rectfill(framebuf,40,64,216,192,0);
 	rectfill(framebuf,96,60,183,67,0);
 	
-	int i=pos*24+70;
+	int32_t i=pos*24+70;
 	
 	do
 	{
@@ -3863,9 +3863,9 @@ static int game_details(int file)
 	return 0;
 }
 
-static int saveslot = -1;
+static int32_t saveslot = -1;
 
-int getsaveslot()
+int32_t getsaveslot()
 {
 	if(saveslot >= 0 && (!saves[saveslot].get_quest() || saves[saveslot].get_hasplayed()))
 	{
@@ -3880,8 +3880,8 @@ static void select_game(bool skip = false)
 	if(standalone_mode || skip)
 		return;
 		
-	int pos = zc_max(zc_min(currgame-listpos,3),0);
-	int mode = 0;
+	int32_t pos = zc_max(zc_min(currgame-listpos,3),0);
+	int32_t mode = 0;
 	
 	//kill_sfx();
 	
@@ -4061,9 +4061,9 @@ static void select_game(bool skip = false)
 /****  Main title screen routine  *****/
 /**************************************/
 
-void titlescreen(int lsave)
+void titlescreen(int32_t lsave)
 {
-	int q=Quit;
+	int32_t q=Quit;
 	
 	Quit=0;
 	Playing=Paused=false;
@@ -4079,19 +4079,19 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((long)(FFCore.usr_digi_volume),1);
+	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (long)FFCore.usr_music_volume;
+	emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (long)FFCore.usr_sfx_volume;
+	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (long)FFCore.usr_panstyle;
+	pan_style = (int32_t)FFCore.usr_panstyle;
 	}	
 	*/
 	FFCore.skip_ending_credits = 0;
@@ -4171,7 +4171,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	}
 }
 
-void game_over(int type)
+void game_over(int32_t type)
 {
 
 	FFCore.kb_typing_mode = false; 
@@ -4186,19 +4186,19 @@ void game_over(int type)
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((long)(FFCore.usr_digi_volume),1);
+	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (long)FFCore.usr_music_volume;
+	emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (long)FFCore.usr_sfx_volume;
+	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (long)FFCore.usr_panstyle;
+	pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	*/
 	FFCore.skip_ending_credits = 0;
@@ -4233,11 +4233,11 @@ void game_over(int type)
 	else
 		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_RETRY],88,96,( SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] : QMisc.colors.msgtext),-1);
 		
-	int pos = 0;
-	int f=-1;
-	//  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
-	int htile = SaveScreenSettings[SAVESC_USETILE];
-	int curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
+	int32_t pos = 0;
+	int32_t f=-1;
+	//  int32_t htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
+	int32_t htile = SaveScreenSettings[SAVESC_USETILE];
+	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
 	
 	do load_control_state();
@@ -4354,9 +4354,9 @@ void game_over(int type)
 			
 			saves[currgame]=*game;
 			
-			int ring=0;
+			int32_t ring=0;
 			flushItemCache();
-			int maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+			int32_t maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
 			
 			if(maxringid != -1)
 			{
@@ -4389,9 +4389,9 @@ void save_game(bool savepoint)
 	
 	saves[currgame]=*game;
 	
-	int ring=0;
+	int32_t ring=0;
 	flushItemCache();
-	int maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+	int32_t maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
 	
 	if(maxringid != -1)
 	{
@@ -4405,7 +4405,7 @@ void save_game(bool savepoint)
 	save_savedgames();
 }
 
-bool save_game(bool savepoint, int type)
+bool save_game(bool savepoint, int32_t type)
 {
 	kill_sfx();
 	//music_stop();
@@ -4413,17 +4413,17 @@ bool save_game(bool savepoint, int type)
 	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	
-	//  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
-	int htile = SaveScreenSettings[SAVESC_USETILE];
-	int curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
+	//  int32_t htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
+	int32_t htile = SaveScreenSettings[SAVESC_USETILE];
+	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
 	bool saved=false;
 	FFCore.kb_typing_mode = false;
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	do
 	{
-		int pos = 0;
-		int f=-1;
+		int32_t pos = 0;
+		int32_t f=-1;
 		bool done2=false;
 		clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 		
@@ -4532,9 +4532,9 @@ bool save_game(bool savepoint, int type)
 				
 				saves[currgame]=*game;
 				
-				int ring=0;
+				int32_t ring=0;
 				flushItemCache();
-				int maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+				int32_t maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
 				
 				if(maxringid != -1)
 				{
@@ -4563,8 +4563,8 @@ bool save_game(bool savepoint, int type)
 				textout_ex(framebuf,zfont,"ARE YOU SURE?",88,72,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 				textout_ex(framebuf,zfont,"YES",88,96,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 				textout_ex(framebuf,zfont,"NO",88,120,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
-				int pos2=0;
-				int g=-1;
+				int32_t pos2=0;
+				int32_t g=-1;
 				bool done3=false;
 				
 				do
@@ -4668,7 +4668,7 @@ static void list_saves2()
 
   bool r = refreshpal;
 
-  for(int i=0; i<3; i++)
+  for(int32_t i=0; i<3; i++)
   {
 	if(listpos+i<savecnt)
 	{

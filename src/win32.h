@@ -19,17 +19,17 @@ public:
     volatile LONG_PTR hId;
     
     static LRESULT CALLBACK zqWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    static int zqSetDefaultThreadPriority(HANDLE _thread);
-    static int zqSetCustomCallbackProc(HWND hWnd);
+    static int32_t zqSetDefaultThreadPriority(HANDLE _thread);
+    static int32_t zqSetCustomCallbackProc(HWND hWnd);
     
     static LRESULT CALLBACK zcWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    static int zcSetCustomCallbackProc(HWND hWnd);
+    static int32_t zcSetCustomCallbackProc(HWND hWnd);
     
     volatile bool hasFocus;
     volatile bool isValid;
     
     //call from main thread.
-    void Update(int frameskip);
+    void Update(int32_t frameskip);
 };
 extern Win32Data win32data;
 

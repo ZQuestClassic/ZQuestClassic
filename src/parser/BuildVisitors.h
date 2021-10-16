@@ -89,9 +89,9 @@ namespace ZScript
 		void caseDataType(ASTDataType& host, void* param) {}
 
 		std::vector<Opcode *> getResult() const {return result;}
-		int getReturnLabelID() const {return returnlabelid;}
-		std::list<long> *getArrayRefs() {return &arrayRefs;}
-		std::list<long> const *getArrayRefs() const {return &arrayRefs;}
+		int32_t getReturnLabelID() const {return returnlabelid;}
+		std::list<int32_t> *getArrayRefs() {return &arrayRefs;}
+		std::list<int32_t> const *getArrayRefs() const {return &arrayRefs;}
 
 	private:
 		void addOpcode(Opcode* code);
@@ -99,17 +99,17 @@ namespace ZScript
 		template <class Container>
 		void addOpcodes(Container const& container);
 	
-		void deallocateArrayRef(long arrayRef);
-		void deallocateRefsUntilCount(int count);
+		void deallocateArrayRef(int32_t arrayRef);
+		void deallocateRefsUntilCount(int32_t count);
 		
 		std::vector<Opcode *> result;
-		int returnlabelid;
-		int returnRefCount;
-		int continuelabelid;
-		int continueRefCount;
-		int breaklabelid;
-		int breakRefCount;
-		std::list<long> arrayRefs;
+		int32_t returnlabelid;
+		int32_t returnRefCount;
+		int32_t continuelabelid;
+		int32_t continueRefCount;
+		int32_t breaklabelid;
+		int32_t breakRefCount;
+		std::list<int32_t> arrayRefs;
 		// Stack of opcode targets. Only the latest is used.
 		std::vector<std::vector<Opcode*>*> opcodeTargets;
 
@@ -157,15 +157,15 @@ namespace ZScript
 	class GetLabels : public ArgumentVisitor
 	{
 	public:
-		GetLabels(std::set<int>& usedLabels) : usedLabels(usedLabels) {}
+		GetLabels(std::set<int32_t>& usedLabels) : usedLabels(usedLabels) {}
 
-		std::set<int>& usedLabels;
-		std::vector<int> newLabels;
+		std::set<int32_t>& usedLabels;
+		std::vector<int32_t> newLabels;
 			
 		void caseLabel(LabelArgument& host, void*)
 		{
-			int id = host.getID();
-			if (find<int>(usedLabels, id)) return;
+			int32_t id = host.getID();
+			if (find<int32_t>(usedLabels, id)) return;
 			usedLabels.insert(id);
 			newLabels.push_back(id);
 		}
@@ -176,8 +176,8 @@ namespace ZScript
 	public:
 		void caseLabel(LabelArgument &host, void *param)
 		{
-			std::map<int, int> *labels = (std::map<int, int> *)param;
-			int lineno = (*labels)[host.getID()];
+			std::map<int32_t, int32_t> *labels = (std::map<int32_t, int32_t> *)param;
+			int32_t lineno = (*labels)[host.getID()];
         
 			if(lineno==0)
 			{

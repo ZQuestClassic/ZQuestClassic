@@ -34,7 +34,7 @@
 #include "particles.h"
 #include "metadata/versionsig.h"
 particle_list particles;
-void setZScriptVersion(int) { } //bleh...
+void setZScriptVersion(int32_t) { } //bleh...
 
 #include <png.h>
 #include <pngconf.h>
@@ -178,21 +178,21 @@ public:
 	virtual ~CConsoleLogger();
 	
 	// create a logger: starts a pipe+create the child process
-	long Create(const char *lpszWindowTitle=NULL,
-				int buffer_size_x=-1,int buffer_size_y=-1,
+	int32_t Create(const char *lpszWindowTitle=NULL,
+				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
 				const char *logger_name=NULL,
 				const char *helper_executable=NULL);
 
 	// close everything
-	long Close(void);
+	int32_t Close(void);
 	
 	// output functions
-	inline int print(const char *lpszText,int iSize=-1);
-	int printf(const char *format,...);
+	inline int32_t print(const char *lpszText,int32_t iSize=-1);
+	int32_t printf(const char *format,...);
 	
 	// play with the CRT output functions
-	int SetAsDefaultOutput(void);
-	static int ResetDefaultOutput(void);
+	int32_t SetAsDefaultOutput(void);
+	static int32_t ResetDefaultOutput(void);
 
 protected:
 	char	m_name[64];
@@ -202,7 +202,7 @@ protected:
 	// * "Understand the Impact of Low-Lock Techniques in Multithreaded Apps"
 	//		Vance Morrison , MSDN Magazine  October 2005
 	// * "Performance-Conscious Thread Synchronization" , Jeffrey Richter , MSDN Magazine  October 2005
-	volatile long m_fast_critical_section;
+	volatile int32_t m_fast_critical_section;
 
 	inline void InitializeCriticalSection(void)
 	{  }
@@ -235,22 +235,22 @@ protected:
 #endif
 
 	// you can extend this class by overriding the function
-	virtual long	AddHeaders(void)
+	virtual int32_t	AddHeaders(void)
 	{ return 0;}
 
 	// the _print() helper function
-	virtual int _print(const char *lpszText,int iSize);
+	virtual int32_t _print(const char *lpszText,int32_t iSize);
 
 	
 
 
 	// SafeWriteFile : write safely to the pipe
 	inline bool SafeWriteFile(
-		/*__in*/ long hFile,
-		/*__in_bcount(nNumberOfBytesToWrite)*/	long lpBuffer,
-		/*__in        */ long nNumberOfBytesToWrite,
-		/*__out_opt   */ long lpNumberOfBytesWritten,
-		/*__inout_opt */ long lpOverlapped
+		/*__in*/ int32_t hFile,
+		/*__in_bcount(nNumberOfBytesToWrite)*/	int32_t lpBuffer,
+		/*__in        */ int32_t nNumberOfBytesToWrite,
+		/*__out_opt   */ int32_t lpNumberOfBytesWritten,
+		/*__inout_opt */ int32_t lpOverlapped
 		)
 	{
 		return false;
@@ -261,7 +261,7 @@ protected:
 
 class CConsoleLoggerEx : public CConsoleLogger
 {
-	long	m_dwCurrentAttributes;
+	int32_t	m_dwCurrentAttributes;
 	enum enumCommands
 	{
 		COMMAND_PRINT,
@@ -312,13 +312,13 @@ public:
 	void clear_eol(word color);
 	
 	// write string , use specified color
-	int cprintf(int attributes,const char *format,...);
+	int32_t cprintf(int32_t attributes,const char *format,...);
 	
 	// write string , use current color
-	int cprintf(const char *format,...);
+	int32_t cprintf(const char *format,...);
 	
 	// goto(x,y)
-	void gotoxy(int x,int y);
+	void gotoxy(int32_t x,int32_t y);
 
 
 
@@ -330,13 +330,13 @@ public:
 	
 
 protected:
-	virtual long	AddHeaders(void)
+	virtual int32_t	AddHeaders(void)
 	{	
 		return  0;
 	}
 	
-	virtual int _print(const char *lpszText,int iSize);
-	virtual int _cprint(int attributes,const char *lpszText,int iSize);
+	virtual int32_t _print(const char *lpszText,int32_t iSize);
+	virtual int32_t _cprint(int32_t attributes,const char *lpszText,int32_t iSize);
 
 
 };
@@ -385,8 +385,8 @@ CConsoleLogger::~CConsoleLogger()
 // logger_name     : pipe name . the default is f(this,time)
 // helper_executable: which (and where) is the EXE that will write the pipe's output
 //////////////////////////////////////////////////////////////////////////
-long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
-							int			buffer_size_x/*=-1*/,int buffer_size_y/*=-1*/,
+int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
+							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
 							const char	*logger_name/*=NULL*/,
 							const char	*helper_executable/*=NULL*/)
 {
@@ -403,9 +403,9 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	if (!logger_name)
 	{	// no name was give , create name based on the current address+time
 		// (you can modify it to use PID , zc_oldrand() ,...
-		unsigned long now = GetTickCount();
+		uint32_t now = GetTickCount();
 		logger_name = m_name+ strlen(m_name);
-		sprintf((char*)logger_name,"logger%d_%lu",(int)this,now);
+		sprintf((char*)logger_name,"logger%d_%lu",(int32_t)this,now);
 	}
 	else
 	{	// just use the given name
@@ -539,7 +539,7 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 
 
 // Close and disconnect
-long CConsoleLogger::Close(void)
+int32_t CConsoleLogger::Close(void)
 {
 	if (m_hPipe==INVALID_HANDLE_VALUE || m_hPipe==NULL)
 		return -1;
@@ -554,7 +554,7 @@ long CConsoleLogger::Close(void)
 // 
 // this is the fastest way to print a simple (not formatted) string
 //////////////////////////////////////////////////////////////////////////
-inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
+inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
 {
 	if (m_hPipe==INVALID_HANDLE_VALUE)
 		return -1;
@@ -564,11 +564,11 @@ inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
 //////////////////////////////////////////////////////////////////////////
 // printf: print a formatted string
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLogger::printf(const char *format,...)
+int32_t CConsoleLogger::printf(const char *format,...)
 {
 	if (m_hPipe==INVALID_HANDLE_VALUE)
 		return -1;
-	int ret;
+	int32_t ret;
 	char tmp[1024];
 
 	va_list argList;
@@ -590,9 +590,9 @@ int CConsoleLogger::printf(const char *format,...)
 //////////////////////////////////////////////////////////////////////////
 // set the default (CRT) printf() to use this logger
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLogger::SetAsDefaultOutput(void)
+int32_t CConsoleLogger::SetAsDefaultOutput(void)
 {
-	int hConHandle = _open_osfhandle(/*lStdHandle*/ (long)m_hPipe, _O_TEXT);
+	int32_t hConHandle = _open_osfhandle(/*lStdHandle*/ (int32_t)m_hPipe, _O_TEXT);
 	if (hConHandle==-1)
 		return -2;
 	FILE *fp = _fdopen( hConHandle, "w" );
@@ -605,12 +605,12 @@ int CConsoleLogger::SetAsDefaultOutput(void)
 ///////////////////////////////////////////////////////////////////////////
 // Reset the CRT printf() to it's default
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLogger::ResetDefaultOutput(void)
+int32_t CConsoleLogger::ResetDefaultOutput(void)
 {
-	long lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
-	if (lStdHandle ==  (long)INVALID_HANDLE_VALUE)
+	int32_t lStdHandle = (int32_t)GetStdHandle(STD_OUTPUT_HANDLE);
+	if (lStdHandle ==  (int32_t)INVALID_HANDLE_VALUE)
 		return -1;
-	int hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+	int32_t hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
 	if (hConHandle==-1)
 		return -2;
 	FILE *fp = _fdopen( hConHandle, "w" );
@@ -625,12 +625,12 @@ int CConsoleLogger::ResetDefaultOutput(void)
 // _print: print helper
 // we use the thread-safe funtion "SafeWriteFile()" to output the data
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLogger::_print(const char *lpszText,int iSize)
+int32_t CConsoleLogger::_print(const char *lpszText,int32_t iSize)
 {
 	DWORD dwWritten=(DWORD)-1;
 	
 	return (!SafeWriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
-		|| (int)dwWritten!=iSize) ? -1 : (int)dwWritten;
+		|| (int32_t)dwWritten!=iSize) ? -1 : (int32_t)dwWritten;
 }
 
 
@@ -653,7 +653,7 @@ CConsoleLoggerEx::CConsoleLoggerEx()
 // first output the "command" (which is COMMAND_PRINT) and the size,
 // and than output the string itself	
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLoggerEx::_print(const char *lpszText,int iSize)
+int32_t CConsoleLoggerEx::_print(const char *lpszText,int32_t iSize)
 {
 	DWORD dwWritten=(DWORD)-1;
 	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
@@ -668,8 +668,8 @@ int CConsoleLoggerEx::_print(const char *lpszText,int iSize)
 		return -1;
 	}
 	
-	int iRet = (!WriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
-		|| (int)dwWritten!=iSize) ? -1 : (int)dwWritten;
+	int32_t iRet = (!WriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
+		|| (int32_t)dwWritten!=iSize) ? -1 : (int32_t)dwWritten;
 	LeaveCriticalSection();
 	return iRet;
 }
@@ -734,7 +734,7 @@ void CConsoleLoggerEx::clear_eol(DWORD color)
 //////////////////////////////////////////////////////////////////////////
 // gotoxy(x,y) : sets the cursor to x,y location
 //////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::gotoxy(int x,int y)
+void CConsoleLoggerEx::gotoxy(int32_t x,int32_t y)
 {
 	DWORD dwWritten=(DWORD)-1;
 	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
@@ -751,11 +751,11 @@ void CConsoleLoggerEx::gotoxy(int x,int y)
 //////////////////////////////////////////////////////////////////////////
 // cprintf(attr,str,...) : prints a formatted string with the "attributes" color
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
+int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 {
 	if (m_hPipe==INVALID_HANDLE_VALUE)
 		return -1;
-	int ret;
+	int32_t ret;
 	char tmp[1024];
 
 	va_list argList;
@@ -777,12 +777,12 @@ int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
 //////////////////////////////////////////////////////////////////////////
 // cprintf(str,...) : prints a formatted string with current color
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLoggerEx::cprintf(const char *format,...)
+int32_t CConsoleLoggerEx::cprintf(const char *format,...)
 {
 	if (m_hPipe==INVALID_HANDLE_VALUE)
 		return -1;
 
-	int ret;
+	int32_t ret;
 	char tmp[1024];
 
 	va_list argList;
@@ -804,7 +804,7 @@ int CConsoleLoggerEx::cprintf(const char *format,...)
 //////////////////////////////////////////////////////////////////////////
 // the _cprintf() helper . do the actual output
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
+int32_t CConsoleLoggerEx::_cprint(int32_t attributes,const char *lpszText,int32_t iSize)
 {
 	DWORD dwWritten=(DWORD)-1;
 	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
@@ -826,8 +826,8 @@ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 		return -1;
 	}
 	
-	int iRet = (!WriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
-		|| (int)dwWritten!=iSize) ? -1 : (int)dwWritten;
+	int32_t iRet = (!WriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
+		|| (int32_t)dwWritten!=iSize) ? -1 : (int32_t)dwWritten;
 	LeaveCriticalSection();
 	return iRet;
 }
@@ -864,8 +864,8 @@ CConsoleLogger::~CConsoleLogger()
 // logger_name     : pipe name . the default is f(this,time)
 // helper_executable: which (and where) is the EXE that will write the pipe's output
 //////////////////////////////////////////////////////////////////////////
-long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
-							int			buffer_size_x/*=-1*/,int buffer_size_y/*=-1*/,
+int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
+							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
 							const char	*logger_name/*=NULL*/,
 							const char	*helper_executable/*=NULL*/)
 {
@@ -874,7 +874,7 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 
 
 // Close and disconnect
-long CConsoleLogger::Close(void)
+int32_t CConsoleLogger::Close(void)
 {
 	return 0;
 }
@@ -886,7 +886,7 @@ long CConsoleLogger::Close(void)
 // 
 // this is the fastest way to print a simple (not formatted) string
 //////////////////////////////////////////////////////////////////////////
-inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
+inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
 {
 	return 0;
 }
@@ -894,7 +894,7 @@ inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
 //////////////////////////////////////////////////////////////////////////
 // printf: print a formatted string
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLogger::printf(const char *format,...)
+int32_t CConsoleLogger::printf(const char *format,...)
 {
 	return 0;
 
@@ -905,7 +905,7 @@ int CConsoleLogger::printf(const char *format,...)
 //////////////////////////////////////////////////////////////////////////
 // set the default (CRT) printf() to use this logger
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLogger::SetAsDefaultOutput(void)
+int32_t CConsoleLogger::SetAsDefaultOutput(void)
 {
 	return 0;
 }
@@ -913,7 +913,7 @@ int CConsoleLogger::SetAsDefaultOutput(void)
 ///////////////////////////////////////////////////////////////////////////
 // Reset the CRT printf() to it's default
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLogger::ResetDefaultOutput(void)
+int32_t CConsoleLogger::ResetDefaultOutput(void)
 {
 	return 0;
 }
@@ -923,7 +923,7 @@ int CConsoleLogger::ResetDefaultOutput(void)
 // _print: print helper
 // we use the thread-safe funtion "SafeWriteFile()" to output the data
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLogger::_print(const char *lpszText,int iSize)
+int32_t CConsoleLogger::_print(const char *lpszText,int32_t iSize)
 {
 	return 0;
 }
@@ -947,7 +947,7 @@ CConsoleLoggerEx::CConsoleLoggerEx()
 // first output the "command" (which is COMMAND_PRINT) and the size,
 // and than output the string itself	
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLoggerEx::_print(const char *lpszText,int iSize)
+int32_t CConsoleLoggerEx::_print(const char *lpszText,int32_t iSize)
 {
 	return 0;
 }
@@ -990,7 +990,7 @@ void CConsoleLoggerEx::clear_eol(word color)
 //////////////////////////////////////////////////////////////////////////
 // gotoxy(x,y) : sets the cursor to x,y location
 //////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::gotoxy(int x,int y)
+void CConsoleLoggerEx::gotoxy(int32_t x,int32_t y)
 {
 
 }	
@@ -999,7 +999,7 @@ void CConsoleLoggerEx::gotoxy(int x,int y)
 //////////////////////////////////////////////////////////////////////////
 // cprintf(attr,str,...) : prints a formatted string with the "attributes" color
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
+int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 {
 	return 0;
 }
@@ -1008,7 +1008,7 @@ int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
 //////////////////////////////////////////////////////////////////////////
 // cprintf(str,...) : prints a formatted string with current color
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLoggerEx::cprintf(const char *format,...)
+int32_t CConsoleLoggerEx::cprintf(const char *format,...)
 {
 	return 0;
 }
@@ -1017,7 +1017,7 @@ int CConsoleLoggerEx::cprintf(const char *format,...)
 //////////////////////////////////////////////////////////////////////////
 // the _cprintf() helper . do the actual output
 //////////////////////////////////////////////////////////////////////////
-int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
+int32_t CConsoleLoggerEx::_cprint(int32_t attributes,const char *lpszText,int32_t iSize)
 {
 	return 0;
 }
@@ -1028,8 +1028,8 @@ int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
 CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
 //#endif
-unsigned char console_is_open = 0;
-unsigned char __isZQuest = 1; //Shared functionscan reference this. -Z
+uint8_t console_is_open = 0;
+uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 
 #include "zqscale.h"
 #include "util.h"
@@ -1045,20 +1045,20 @@ void do_previewtext();
 bool do_slots(std::map<std::string, disassembled_script_data> &scripts);
 void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, bool fromCompile);
 
-int startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
+int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
 
-int tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_combo=0, tooltip_current_ffc=0;
-int mousecomboposition;
+int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_combo=0, tooltip_current_ffc=0;
+int32_t mousecomboposition;
 
-int original_playing_field_offset=0;
-int playing_field_offset=original_playing_field_offset;
-int passive_subscreen_height=56;
-int passive_subscreen_offset=0;
+int32_t original_playing_field_offset=0;
+int32_t playing_field_offset=original_playing_field_offset;
+int32_t passive_subscreen_height=56;
+int32_t passive_subscreen_offset=0;
 
 bool disable_saving=false, OverwriteProtection;
-int scale_arg;
-int zq_scale_small, zq_scale_large, zq_scale;
+int32_t scale_arg;
+int32_t zq_scale_small, zq_scale_large, zq_scale;
 bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
@@ -1084,8 +1084,8 @@ std::vector<string> ascomboscripts;
 
 std::vector<string> ZQincludePaths;
 
-int CSET_SIZE = 16;
-int CSET_SHFT = 4;
+int32_t CSET_SIZE = 16;
+int32_t CSET_SHFT = 4;
 //editbox_data temp_eb_data;
 /*
   #define CSET(x)         ((x)<<CSET_SHFT)
@@ -1104,9 +1104,9 @@ void update_freeform_combos();
   #define MAXARROWS 8
   #define SHADOW_DEPTH 2
   */
-int coord_timer=0, coord_frame=0;
-int blackout_color, zq_screen_w, zq_screen_h;
-int draw_mode=0;
+int32_t coord_timer=0, coord_frame=0;
+int32_t blackout_color, zq_screen_w, zq_screen_h;
+int32_t draw_mode=0;
 
 size_and_pos minimap;
 
@@ -1130,47 +1130,47 @@ size_and_pos layer_panel;
 size_and_pos tooltip_box;
 size_and_pos tooltip_trigger;
 
-int command_buttonwidth = 88;
-int command_buttonheight = 19;
+int32_t command_buttonwidth = 88;
+int32_t command_buttonheight = 19;
 
-int layerpanel_buttonwidth = 58;
-int layerpanel_buttonheight = 16;
+int32_t layerpanel_buttonwidth = 58;
+int32_t layerpanel_buttonheight = 16;
 
-int layerpanel_checkbox_sz = 13;
+int32_t layerpanel_checkbox_sz = 13;
 
-int favorite_combos[MAXFAVORITECOMBOS];
-int favorite_comboaliases[MAXFAVORITECOMBOALIASES];
-int favorite_commands[MAXFAVORITECOMMANDS];
+int32_t favorite_combos[MAXFAVORITECOMBOS];
+int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
+int32_t favorite_commands[MAXFAVORITECOMMANDS];
 
-int mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
-int mouse_scroll_h;
+int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
+int32_t mouse_scroll_h;
 
 
-int readsize, writesize;
+int32_t readsize, writesize;
 bool fake_pack_writing=false;
 
-int showxypos_x;
-int showxypos_y;
-int showxypos_w;
-int showxypos_h;
-int showxypos_color;
-int showxypos_ffc=-1000;
+int32_t showxypos_x;
+int32_t showxypos_y;
+int32_t showxypos_w;
+int32_t showxypos_h;
+int32_t showxypos_color;
+int32_t showxypos_ffc=-1000;
 bool showxypos_icon=false;
 
-int showxypos_cursor_x;
-int showxypos_cursor_y;
+int32_t showxypos_cursor_x;
+int32_t showxypos_cursor_y;
 bool showxypos_cursor_icon=false;
 
 bool close_button_quit=false;
 bool canfill=true;                                          //to prevent double-filling (which stops undos)
 bool resize_mouse_pos=false;                                //for eyeball combos
-int lens_hint_item[MAXITEMS][2];                            //aclk, aframe
-int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
-//int mode, switch_mode, orig_mode;
+int32_t lens_hint_item[MAXITEMS][2];                            //aclk, aframe
+int32_t lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
+//int32_t mode, switch_mode, orig_mode;
 #ifdef ALLEGRO_MACOSX
-int tempmode=GFX_AUTODETECT_FULLSCREEN;
+int32_t tempmode=GFX_AUTODETECT_FULLSCREEN;
 #else
-int tempmode=GFX_AUTODETECT;
+int32_t tempmode=GFX_AUTODETECT;
 #endif
 RGB_MAP zq_rgb_table;
 COLOR_MAP trans_table, trans_table2;
@@ -1214,15 +1214,15 @@ extern std::string zScript;
 char zScriptBytes[512];
 char zLastVer[512] = { 0 };
 SAMPLE customsfxdata[WAV_COUNT];
-unsigned char customsfxflag[WAV_COUNT>>3];
-int sfxdat=1;
+uint8_t customsfxflag[WAV_COUNT>>3];
+int32_t sfxdat=1;
 
 extern void deallocate_biic_list();
 
 zinitdata zinit;
 
-int onImport_ComboAlias();
-int onExport_ComboAlias();
+int32_t onImport_ComboAlias();
+int32_t onExport_ComboAlias();
 
 static inline bool fileexists(const char *filename) 
 {
@@ -1235,7 +1235,7 @@ static const char months[13][13] =
 	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
 };
 
-static std::string dayextension(int dy)
+static std::string dayextension(int32_t dy)
 { 
 	char temp[6]; 
 	switch(dy)
@@ -1269,15 +1269,15 @@ static std::string dayextension(int dy)
 
 typedef struct map_and_screen
 {
-    int map;
-    int screen;
+    int32_t map;
+    int32_t screen;
 } map_and_screen;
 
-typedef int (*intF)();
+typedef int32_t (*intF)();
 typedef struct command_pair
 {
     char name[80];
-    int flags;
+    int32_t flags;
     intF command;
 } command_pair;
 
@@ -1285,10 +1285,10 @@ extern command_pair commands[cmdMAX];
 
 map_and_screen map_page[9]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
 
-static int do_OpenQuest()
+static int32_t do_OpenQuest()
 {
     //clear the panel recent screen buttons to prevent crashes from invalid maps
-    for ( int q = 0; q < 9; q++ )
+    for ( int32_t q = 0; q < 9; q++ )
     {
 	map_page[q].map = 0;
 	map_page[q].screen = 0;
@@ -1296,10 +1296,10 @@ static int do_OpenQuest()
     return onOpen();
 }
 
-static int do_NewQuest()
+static int32_t do_NewQuest()
 {
     //clear the panel recent screen buttons to prevent crashes from invalid maps
-    for ( int q = 0; q < 9; q++ )
+    for ( int32_t q = 0; q < 9; q++ )
     {
 	map_page[q].map = 0;
 	map_page[q].screen = 0;
@@ -1307,72 +1307,72 @@ static int do_NewQuest()
     return onNew();
 }
 
-int alignment_arrow_timer=0;
-int  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
-int  Flags=0,Flag=1,menutype=(m_block);
-int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
+int32_t alignment_arrow_timer=0;
+int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
+int32_t  Flags=0,Flag=1,menutype=(m_block);
+int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
 	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0;
-int FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
-unsigned char ViewLayer3BG = 0, ViewLayer2BG = 0; 
+int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
+uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 bool Vsync = false, ShowFPS = false;
-int ComboBrush = 0;                                             //show the brush instead of the normal mouse
-int ComboBrushPause = 0;                                        //temporarily disable the combo brush
-int BrushPosition = 0;                                          //top left, middle, bottom right, etc.
-int FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
+int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
+int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
+int32_t BrushPosition = 0;                                          //top left, middle, bottom right, etc.
+int32_t FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
 //complete with shadow
-int OpenLastQuest = 0;                                          //makes the program reopen the quest that was
+int32_t OpenLastQuest = 0;                                          //makes the program reopen the quest that was
 //open at the time you quit
-int ShowMisalignments = 0;                                      //makes the program display arrows over combos that are
+int32_t ShowMisalignments = 0;                                      //makes the program display arrows over combos that are
 //not aligned with the next screen.
-int AnimationOn = 0;                                            //animate the combos in zquest?
-int AutoBackupRetention = 0;                                    //use auto-backup feature?  if so, how many backups (1-10) to keep
-int AutoSaveInterval = 0;                                       //how often a timed autosave is made (not overwriting the current file)
-int UncompressedAutoSaves = 0;                                  //should timed saves be uncompressed/encrypted?
-int KeyboardRepeatDelay = 0;                                    //the time in milliseconds after holding down a key that the key starts to repeat
-int KeyboardRepeatRate = 0;                                     //the time in milliseconds between each repetition of a repeated key
+int32_t AnimationOn = 0;                                            //animate the combos in zquest?
+int32_t AutoBackupRetention = 0;                                    //use auto-backup feature?  if so, how many backups (1-10) to keep
+int32_t AutoSaveInterval = 0;                                       //how often a timed autosave is made (not overwriting the current file)
+int32_t UncompressedAutoSaves = 0;                                  //should timed saves be uncompressed/encrypted?
+int32_t KeyboardRepeatDelay = 0;                                    //the time in milliseconds after holding down a key that the key starts to repeat
+int32_t KeyboardRepeatRate = 0;                                     //the time in milliseconds between each repetition of a repeated key
 
 time_t auto_save_time_start, auto_save_time_current;
 double auto_save_time_diff = 0;
-int AutoSaveRetention = 0;                                      //how many autosaves of a quest to keep
-int ImportMapBias = 0;                                          //tells what has precedence on map importing
-int BrushWidth=1, BrushHeight=1;
+int32_t AutoSaveRetention = 0;                                      //how many autosaves of a quest to keep
+int32_t ImportMapBias = 0;                                          //tells what has precedence on map importing
+int32_t BrushWidth=1, BrushHeight=1;
 bool quit=false,saved=true;
 bool __debug=false;
 //bool usetiles=true;
 byte LayerMask[2]={0};                                          //determines which layers are on or off.  0-15
-int LayerMaskInt[7]={0};
-int CurrentLayer=0;
-int DuplicateAction[4]={0};
-int OnlyCheckNewTilesForDuplicates = 0;
-int try_recovering_missing_scripts = 0;
-int zc_menu_on_left = 0;
+int32_t LayerMaskInt[7]={0};
+int32_t CurrentLayer=0;
+int32_t DuplicateAction[4]={0};
+int32_t OnlyCheckNewTilesForDuplicates = 0;
+int32_t try_recovering_missing_scripts = 0;
+int32_t zc_menu_on_left = 0;
 
-unsigned char PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0;
-int DMapEditorLastMaptileUsed = 0;
+uint8_t PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0;
+int32_t DMapEditorLastMaptileUsed = 0;
 
 /*
   , HorizontalDuplicateAction;
-  int VerticalDuplicateAction, BothDuplicateAction;
+  int32_t VerticalDuplicateAction, BothDuplicateAction;
   */
 word msg_count = 0, qt_count = 0;
-int LeechUpdate = 0;
-int LeechUpdateTiles = 0;
-int SnapshotFormat = 0;
+int32_t LeechUpdate = 0;
+int32_t LeechUpdateTiles = 0;
+int32_t SnapshotFormat = 0;
 
-int memrequested = 0;
+int32_t memrequested = 0;
 byte Color = 0;
-extern int jwin_pal[jcMAX];
-int gui_colorset=0;
+extern int32_t jwin_pal[jcMAX];
+int32_t gui_colorset=0;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
-static int combo_apos=0; //currently selected combo
-static int combo_alistpos[3]= {0,0,0}; //first displayed combo alias
-int alias_origin=0;
-int alias_cset_mod=0;
+static int32_t combo_apos=0; //currently selected combo
+static int32_t combo_alistpos[3]= {0,0,0}; //first displayed combo alias
+int32_t alias_origin=0;
+int32_t alias_cset_mod=0;
 
 bool trip=false;
 
-int fill_type=1;
+int32_t fill_type=1;
 
 bool first_save=false;
 char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
@@ -1380,21 +1380,21 @@ char *helpbuf, *shieldblockhelpbuf, *zscripthelpbuf, *zstringshelpbuf;
 string helpstr, shieldblockhelpstr, zscripthelpstr, zstringshelpstr;
 
 ZCMUSIC *zcmusic = NULL;
-int midi_volume = 255;
-extern int prv_mode;
-int prv_warp = 0;
-int prv_twon = 0;
-int ff_combo = 0;
+int32_t midi_volume = 255;
+extern int32_t prv_mode;
+int32_t prv_warp = 0;
+int32_t prv_twon = 0;
+int32_t ff_combo = 0;
 
-int Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1, ForceExit = 0;
-int zqColorDepth = 8;
+int32_t Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1, ForceExit = 0;
+int32_t zqColorDepth = 8;
 byte disable_direct_updating = 0;
-int joystick_index=0;
+int32_t joystick_index=0;
 
 char *getBetaControlString();
 
 
-void loadlvlpal(int level);
+void loadlvlpal(int32_t level);
 bool get_debug()
 {
     return __debug;
@@ -1409,9 +1409,9 @@ void set_debug(bool d)
 
 // **** Timers ****
 
-volatile int lastfps=0;
-volatile int framecnt=0;
-volatile int myvsync = 0;
+volatile int32_t lastfps=0;
+volatile int32_t framecnt=0;
+volatile int32_t myvsync = 0;
 
 void myvsync_callback()
 {
@@ -1433,7 +1433,7 @@ zcmap               *ZCMaps;
 byte                *quest_file;
 dmap                *DMaps;
 MsgStr              *MsgStrings;
-int					msg_strings_size;
+int32_t					msg_strings_size;
 //DoorComboSet      *DoorComboSets;
 zctune              *customtunes;
 //emusic            *enhancedMusic;
@@ -1450,13 +1450,13 @@ char                sfxdat_sig[52];
 char		    qstdat_str[2048];
 miscQdata           QMisc;
 
-int gme_track=0;
+int32_t gme_track=0;
 
-int dlevel; // just here until gamedata is properly done
+int32_t dlevel; // just here until gamedata is properly done
 
 bool gotoless_not_equal;  // Used by BuildVisitors.cpp
 
-bool bad_version(int ver)
+bool bad_version(int32_t ver)
 {
     if(ver < 0x170)
         return true;
@@ -1672,7 +1672,7 @@ static MENU defs_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-int onEditComboAlias();
+int32_t onEditComboAlias();
 
 static MENU graphics_menu[] =
 {
@@ -1702,7 +1702,7 @@ static MENU script_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-int onRulesDlg()
+int32_t onRulesDlg()
 {
 	QRDialog(quest_rules, (is_large?20:13), [](byte* newrules)
 	{
@@ -1725,7 +1725,7 @@ int onRulesDlg()
 	return D_O_K;
 }
 
-int onZScriptSettings()
+int32_t onZScriptSettings()
 {
 	ScriptRulesDialog(quest_rules, (is_large?17:13), [](byte* newrules)
 	{
@@ -1838,13 +1838,13 @@ static MENU tool_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-int onLayer3BG()
+int32_t onLayer3BG()
 {
 	if ( ViewLayer3BG ) ViewLayer3BG = 0;
 	else ViewLayer3BG = 1;
 	return D_O_K;
 }
-int onLayer2BG()
+int32_t onLayer2BG()
 {
 	if ( ViewLayer2BG ) ViewLayer2BG = 0;
 	else ViewLayer2BG = 1;
@@ -1869,7 +1869,7 @@ static MENU view_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-int onSelectFFCombo();
+int32_t onSelectFFCombo();
 
 static MENU data_menu[] =
 {
@@ -2096,10 +2096,10 @@ MENU the_menu_small_zcleft[] =
 };
 
 void rebuild_trans_table();
-int launchPicViewer(BITMAP **pictoview, PALETTE pal,
-                    int *px2, int *py2, double *scale, bool isviewingmap);
+int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal,
+                    int32_t *px2, int32_t *py2, double *scale, bool isviewingmap);
 
-int onResetTransparency()
+int32_t onResetTransparency()
 {
     restore_mouse();
     rebuild_trans_table();
@@ -2109,9 +2109,9 @@ int onResetTransparency()
     return D_O_K;
 }
 
-extern int zqwin_scale;
+extern int32_t zqwin_scale;
 
-int onFullScreen()
+int32_t onFullScreen()
 {
 	
     if(jwin_alert3(
@@ -2127,7 +2127,7 @@ int onFullScreen()
 		0, 
 		lfont) == 1)	
     {
-	    int old_scale = zqwin_scale;
+	    int32_t old_scale = zqwin_scale;
 	#ifdef ALLEGRO_DOS
 	    return D_O_K;
 	#endif
@@ -2147,7 +2147,7 @@ int onFullScreen()
 		zqwin_set_scale(scale_arg);
 	    }
 	    
-	    int ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
 	    
 	    if(ret!=0)
 	    {
@@ -2218,7 +2218,7 @@ int onFullScreen()
     else return D_O_K;
 }
 
-int onEnter()
+int32_t onEnter()
 {
 #ifdef ALLEGRO_DOS
 #else
@@ -2236,15 +2236,15 @@ int onEnter()
 
 //*text, (*proc), *child, flags, *dp
 
-int d_nbmenu_proc(int msg,DIALOG *d,int c);
+int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
 
 
-/*int onY()
+/*int32_t onY()
 {
   return D_O_K;
 }*/
 
-int onToggleGrid()
+int32_t onToggleGrid()
 {
     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
@@ -2258,19 +2258,19 @@ int onToggleGrid()
     return D_O_K;
 }
 
-int onToggleShowScripts()
+int32_t onToggleShowScripts()
 {
     ShowFFScripts=!ShowFFScripts;
     return D_O_K;
 }
 
-int onToggleShowSquares()
+int32_t onToggleShowSquares()
 {
     ShowSquares=!ShowSquares;
     return D_O_K;
 }
 
-int onToggleShowInfo()
+int32_t onToggleShowInfo()
 {
     ShowInfo=!ShowInfo;
     return D_O_K;
@@ -2440,7 +2440,7 @@ static DIALOG dialogs[] =
 };
 
 
-int onDecColour()
+int32_t onDecColour()
 {
 	if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] )
 	{
@@ -2458,7 +2458,7 @@ int onDecColour()
 	}
 }
 
-int onIncColour()
+int32_t onIncColour()
 {
 	
 	if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] )
@@ -2489,7 +2489,7 @@ static DIALOG getnum_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int getnumber(const char *prompt,int initialval)
+int32_t getnumber(const char *prompt,int32_t initialval)
 {
     cancelgetnum=true;
     char buf[20];
@@ -2501,7 +2501,7 @@ int getnumber(const char *prompt,int initialval)
     if(is_large)
         large_dialog(getnum_dlg);
         
-    int ret=zc_popup_dialog(getnum_dlg,2);
+    int32_t ret=zc_popup_dialog(getnum_dlg,2);
     
     if(ret!=0&&ret!=4)
     {
@@ -2537,14 +2537,14 @@ static DIALOG save_tiles_dlg[] =
 };
 
 
-void savesometiles(const char *prompt,int initialval)
+void savesometiles(const char *prompt,int32_t initialval)
 {
 	
 	char firsttile[8], tilecount[8];
-	int first_tile_id = 0; int the_tile_count = 1;
+	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
 	sprintf(firsttile,"%d",0);
 	sprintf(tilecount,"%d",1);
-	//int ret;
+	//int32_t ret;
 	
 	
 	
@@ -2559,7 +2559,7 @@ void savesometiles(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(save_tiles_dlg);
 	
-	int ret = zc_popup_dialog(save_tiles_dlg,-1);
+	int32_t ret = zc_popup_dialog(save_tiles_dlg,-1);
 	jwin_center_dialog(save_tiles_dlg);
 	
 	if(ret == 8)
@@ -2618,7 +2618,7 @@ static DIALOG module_info_dlg[] =
 
 
 
-void about_module(const char *prompt,int initialval)
+void about_module(const char *prompt,int32_t initialval)
 {	
 	
 	module_info_dlg[0].dp2 = lfont;
@@ -2667,7 +2667,7 @@ void about_module(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(module_info_dlg);
 	
-	int ret = zc_popup_dialog(module_info_dlg,-1);
+	int32_t ret = zc_popup_dialog(module_info_dlg,-1);
 	jwin_center_dialog(module_info_dlg);
 	
 	
@@ -2700,13 +2700,13 @@ static DIALOG read_tiles_dlg[] =
 };
 
 
-void writesometiles_to(const char *prompt,int initialval)
+void writesometiles_to(const char *prompt,int32_t initialval)
 {
 	
 	char firsttile[8];;
-	int first_tile_id = 0; int the_tile_count = 1;
+	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
 	sprintf(firsttile,"%d",0);
-		//int ret;
+		//int32_t ret;
 	
 	
 	
@@ -2720,7 +2720,7 @@ void writesometiles_to(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(read_tiles_dlg);
 	
-	int ret = zc_popup_dialog(read_tiles_dlg,-1);
+	int32_t ret = zc_popup_dialog(read_tiles_dlg,-1);
 	jwin_center_dialog(read_tiles_dlg);
 	
 	if(ret == 8)
@@ -2775,14 +2775,14 @@ static DIALOG save_combofiles_dlg[] =
 };
 
 
-void savesomecombos(const char *prompt,int initialval)
+void savesomecombos(const char *prompt,int32_t initialval)
 {
 	
 	char firsttile[8], tilecount[8];
-	int first_tile_id = 0; int the_tile_count = 1;
+	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
 	sprintf(firsttile,"%d",0);
 	sprintf(tilecount,"%d",1);
-	//int ret;
+	//int32_t ret;
 	
 	
 	
@@ -2797,7 +2797,7 @@ void savesomecombos(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(save_combofiles_dlg);
 	
-	int ret = zc_popup_dialog(save_combofiles_dlg,-1);
+	int32_t ret = zc_popup_dialog(save_combofiles_dlg,-1);
 	jwin_center_dialog(save_combofiles_dlg);
 	
 	if(ret == 8)
@@ -2847,13 +2847,13 @@ static DIALOG load_comboset_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void writesomecombos(const char *prompt,int initialval)
+void writesomecombos(const char *prompt,int32_t initialval)
 {
 	
 	char firsttile[8];
-	int first_tile_id = 0; int the_tile_count = 1;
+	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
 	sprintf(firsttile,"%d",0);
-		//int ret;
+		//int32_t ret;
 	
 	
 	
@@ -2870,7 +2870,7 @@ void writesomecombos(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(load_comboset_dlg);
 	
-	int ret = zc_popup_dialog(load_comboset_dlg,-1);
+	int32_t ret = zc_popup_dialog(load_comboset_dlg,-1);
 	jwin_center_dialog(load_comboset_dlg);
 	
 	if(ret == 8)
@@ -2929,13 +2929,13 @@ static DIALOG load_combopack_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void loadcombopack(const char *prompt,int initialval)
+void loadcombopack(const char *prompt,int32_t initialval)
 {
 	
 	char firsttile[8];
-	int first_tile_id = 0; int the_tile_count = 1;
+	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
 	sprintf(firsttile,"%d",0);
-		//int ret;
+		//int32_t ret;
 	
 	
 	
@@ -2952,7 +2952,7 @@ void loadcombopack(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(load_combopack_dlg);
 	
-	int ret = zc_popup_dialog(load_combopack_dlg,-1);
+	int32_t ret = zc_popup_dialog(load_combopack_dlg,-1);
 	jwin_center_dialog(load_combopack_dlg);
 	
 	if(ret == 8)
@@ -3019,14 +3019,14 @@ static DIALOG read_combopack_dlg[] =
 
 
 
-void writesomecombos_to(const char *prompt,int initialval)
+void writesomecombos_to(const char *prompt,int32_t initialval)
 {
 	
 	char firsttile[8];
 	char skiptile[8];
-	int first_tile_id = 0; int the_tile_count = 1;
+	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
 	sprintf(firsttile,"%d",0);
-		//int ret;
+		//int32_t ret;
 	
 	
 	
@@ -3038,7 +3038,7 @@ void writesomecombos_to(const char *prompt,int initialval)
 	read_combopack_dlg[5].dp = firsttile;
 	
 	byte nooverwrite = 0;
-	int skipover = 0;
+	int32_t skipover = 0;
 	
 	sprintf(skiptile,"%d",0);
 	//sprintf(tilecount,"%d",1);
@@ -3048,7 +3048,7 @@ void writesomecombos_to(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(read_combopack_dlg);
 	
-	int ret = zc_popup_dialog(read_combopack_dlg,-1);
+	int32_t ret = zc_popup_dialog(read_combopack_dlg,-1);
 	jwin_center_dialog(read_combopack_dlg);
 	
 	if(ret == 8)
@@ -3110,14 +3110,14 @@ static DIALOG save_dmaps_dlg[] =
 };
 
 
-void savesomedmaps(const char *prompt,int initialval)
+void savesomedmaps(const char *prompt,int32_t initialval)
 {
 	
 	char firstdmap[8], lastdmap[8];
-	int first_dmap_id = 0; int last_dmap_id = 0;
+	int32_t first_dmap_id = 0; int32_t last_dmap_id = 0;
 	sprintf(firstdmap,"%d",0);
 	sprintf(lastdmap,"%d",1);
-	//int ret;
+	//int32_t ret;
 	
 	
 	
@@ -3132,7 +3132,7 @@ void savesomedmaps(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(save_dmaps_dlg);
 	
-	int ret = zc_popup_dialog(save_dmaps_dlg,-1);
+	int32_t ret = zc_popup_dialog(save_dmaps_dlg,-1);
 	jwin_center_dialog(save_dmaps_dlg);
 	
 	if(ret == 8)
@@ -3142,7 +3142,7 @@ void savesomedmaps(const char *prompt,int initialval)
 		
 		if ( last_dmap_id < first_dmap_id )
 		{
-			int swap = last_dmap_id;
+			int32_t swap = last_dmap_id;
 			last_dmap_id = first_dmap_id;
 			first_dmap_id = swap;			
 		}
@@ -3197,14 +3197,14 @@ static DIALOG save_comboaliasfiles_dlg[] =
 };
 
 
-void savesomecomboaliases(const char *prompt,int initialval)
+void savesomecomboaliases(const char *prompt,int32_t initialval)
 {
 	
 	char firsttile[8], tilecount[8];
-	int first_tile_id = 0; int the_tile_count = 1;
+	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
 	sprintf(firsttile,"%d",0);
 	sprintf(tilecount,"%d",1);
-	//int ret;
+	//int32_t ret;
 	
 	
 	
@@ -3219,7 +3219,7 @@ void savesomecomboaliases(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(save_comboaliasfiles_dlg);
 	
-	int ret = zc_popup_dialog(save_comboaliasfiles_dlg,-1);
+	int32_t ret = zc_popup_dialog(save_comboaliasfiles_dlg,-1);
 	jwin_center_dialog(save_comboaliasfiles_dlg);
 	
 	if(ret == 8)
@@ -3268,13 +3268,13 @@ static DIALOG read_comboaliaspack_dlg[] =
 };
 
 
-void writesomecomboaliases_to(const char *prompt,int initialval)
+void writesomecomboaliases_to(const char *prompt,int32_t initialval)
 {
 	
 	char firsttile[8];;
-	int first_tile_id = 0; int the_tile_count = 1;
+	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
 	sprintf(firsttile,"%d",0);
-		//int ret;
+		//int32_t ret;
 	
 	
 	
@@ -3288,7 +3288,7 @@ void writesomecomboaliases_to(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(read_comboaliaspack_dlg);
 	
-	int ret = zc_popup_dialog(read_comboaliaspack_dlg,-1);
+	int32_t ret = zc_popup_dialog(read_comboaliaspack_dlg,-1);
 	jwin_center_dialog(read_comboaliaspack_dlg);
 	
 	if(ret == 8)
@@ -3345,13 +3345,13 @@ static DIALOG save_doorset_dlg[] =
 };
 
 
-void do_exportdoorset(const char *prompt,int initialval)
+void do_exportdoorset(const char *prompt,int32_t initialval)
 {
 	char firstdoor[8], doorct[8];
-	int first_doorset_id = 0; int the_doorset_count = 1;
+	int32_t first_doorset_id = 0; int32_t the_doorset_count = 1;
 	sprintf(firstdoor,"%d",0);
 	sprintf(doorct,"%d",1);
-	//int ret;
+	//int32_t ret;
 	save_doorset_dlg[0].dp2 = lfont;
 	
 	sprintf(firstdoor,"%d",0);
@@ -3363,7 +3363,7 @@ void do_exportdoorset(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(save_doorset_dlg);
 	
-	int ret = zc_popup_dialog(save_doorset_dlg,-1);
+	int32_t ret = zc_popup_dialog(save_doorset_dlg,-1);
 	jwin_center_dialog(save_doorset_dlg);
 	
 	if(ret == 8) //OK
@@ -3417,16 +3417,16 @@ static DIALOG load_doorset_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void do_importdoorset(const char *prompt,int initialval)
+void do_importdoorset(const char *prompt,int32_t initialval)
 {
 	
 	char firstdoor[8], doorct[8], destid[8];
-	int first_doorset_id = 0; int the_doorset_count = 1;
-	int the_dest_id = 0;
+	int32_t first_doorset_id = 0; int32_t the_doorset_count = 1;
+	int32_t the_dest_id = 0;
 	sprintf(firstdoor,"%d",0);
 	sprintf(doorct,"%d",1);
 	sprintf(destid,"%d",0);
-		//int ret;
+		//int32_t ret;
 	
 	save_doorset_dlg[0].dp2 = lfont;
 	
@@ -3439,7 +3439,7 @@ void do_importdoorset(const char *prompt,int initialval)
 	if(is_large)
 		large_dialog(load_doorset_dlg);
 	
-	int ret = zc_popup_dialog(load_doorset_dlg,-1);
+	int32_t ret = zc_popup_dialog(load_doorset_dlg,-1);
 	jwin_center_dialog(load_doorset_dlg);
 	
 	if(ret == 8) //OK
@@ -3458,7 +3458,7 @@ void do_importdoorset(const char *prompt,int initialval)
 			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 			if(f)
 			{
-				int ret = readzdoorsets(f,first_doorset_id,the_doorset_count, the_dest_id);
+				int32_t ret = readzdoorsets(f,first_doorset_id,the_doorset_count, the_dest_id);
 				
 				if (!ret)
 				{
@@ -3481,7 +3481,7 @@ void do_importdoorset(const char *prompt,int initialval)
 	}
 }
 
-int gettilepagenumber(const char *prompt, int initialval)
+int32_t gettilepagenumber(const char *prompt, int32_t initialval)
 {
     char buf[20];
     sprintf(buf,"%d",initialval);
@@ -3492,7 +3492,7 @@ int gettilepagenumber(const char *prompt, int initialval)
     if(is_large)
         large_dialog(getnum_dlg);
         
-    int ret = zc_popup_dialog(getnum_dlg,2);
+    int32_t ret = zc_popup_dialog(getnum_dlg,2);
     
     if(ret==3)
         return atoi(buf);
@@ -3500,7 +3500,7 @@ int gettilepagenumber(const char *prompt, int initialval)
     return -1;
 }
 
-int gethexnumber(const char *prompt,int initialval)
+int32_t gethexnumber(const char *prompt,int32_t initialval)
 {
     cancelgetnum=true;
     char buf[20];
@@ -3512,7 +3512,7 @@ int gethexnumber(const char *prompt,int initialval)
     if(is_large)
         large_dialog(getnum_dlg);
         
-    int ret=zc_popup_dialog(getnum_dlg,2);
+    int32_t ret=zc_popup_dialog(getnum_dlg,2);
     
     if(ret!=0&&ret!=4)
     {
@@ -3537,7 +3537,7 @@ void update_freeform_combos()
 
 bool layers_valid(mapscr *tempscr)
 {
-    for(int i=0; i<6; i++)
+    for(int32_t i=0; i<6; i++)
     {
         if(tempscr->layermap[i]>map_count)
         {
@@ -3552,7 +3552,7 @@ void fix_layers(mapscr *tempscr, bool showwarning)
 {
     char buf[80]="layers have been changed: ";
     
-    for(int i=0; i<6; i++)
+    for(int32_t i=0; i<6; i++)
     {
         if(tempscr->layermap[i]>map_count)
         {
@@ -3575,10 +3575,10 @@ void fix_layers(mapscr *tempscr, bool showwarning)
 /*** dialog handlers ***/
 /***********************/
 
-extern const char *colorlist(int index, int *list_size);
+extern const char *colorlist(int32_t index, int32_t *list_size);
 
 static char autobackup_str_buf[32];
-const char *autobackuplist(int index, int *list_size)
+const char *autobackuplist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -3601,7 +3601,7 @@ const char *autobackuplist(int index, int *list_size)
 }
 
 static char autosave_str_buf[32];
-const char *autosavelist(int index, int *list_size)
+const char *autosavelist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -3623,7 +3623,7 @@ const char *autosavelist(int index, int *list_size)
     return NULL;
 }
 
-const char *autosavelist2(int index, int *list_size)
+const char *autosavelist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -3637,24 +3637,24 @@ const char *autosavelist2(int index, int *list_size)
 }
 
 
-static int options_1_list[] =
+static int32_t options_1_list[] =
 {
     // dialog control number
     4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, -1
 };
 
-static int options_2_list[] =
+static int32_t options_2_list[] =
 {
     // dialog control number
 	50, 51, -1
 };
 
-static int options_3_list[] =
+static int32_t options_3_list[] =
 {
     // dialog control number
     31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, -1
 };
-static int options_4_list[] =
+static int32_t options_4_list[] =
 {
 	57, 58, 59, 60,
 	-1
@@ -3761,15 +3761,15 @@ static DIALOG options_dlg[] =
     { NULL,                     0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                }
 };
 
-int onOptions()
+int32_t onOptions()
 {
-    int OldAutoSaveInterval=AutoSaveInterval;
+    int32_t OldAutoSaveInterval=AutoSaveInterval;
     char kbdelay[80], kbrate[80], cur_large[16]={0}, cur_small[16]={0};
     sprintf(kbdelay, "%d", KeyboardRepeatDelay);
     sprintf(kbrate, "%d", KeyboardRepeatRate);
 	sprintf(cur_large, "%f", get_config_float("zquest","cursor_scale_large",1.5));
 	sprintf(cur_small, "%f", get_config_float("zquest","cursor_scale_small",1.0));
-	for(int q = 15; q >= 0; --q) //trim trailing 0s
+	for(int32_t q = 15; q >= 0; --q) //trim trailing 0s
 	{
 		if(cur_large[q] && cur_large[q] != '0')
 		{
@@ -3778,7 +3778,7 @@ int onOptions()
 		}
 		cur_large[q] = 0;
 	}
-	for(int q = 15; q >= 0; --q) //trim trailing 0s
+	for(int32_t q = 15; q >= 0; --q) //trim trailing 0s
 	{
 		if(cur_small[q] && cur_small[q] != '0')
 		{
@@ -3885,7 +3885,7 @@ byte relational_tile_grid[11+(rtgyo*2)][16+(rtgxo*2)];
 
 void fix_drawing_mode_menu()
 {
-    for(int i=0; i<dm_max; ++i)
+    for(int32_t i=0; i<dm_max; ++i)
     {
         drawing_mode_menu[i].flags=0;
     }
@@ -3893,7 +3893,7 @@ void fix_drawing_mode_menu()
     drawing_mode_menu[draw_mode].flags=D_SELECTED;
 }
 
-int onDrawingMode()
+int32_t onDrawingMode()
 {
     draw_mode=(draw_mode+1)%dm_max;
     memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
@@ -3902,7 +3902,7 @@ int onDrawingMode()
     return D_O_K;
 }
 
-int onDrawingModeNormal()
+int32_t onDrawingModeNormal()
 {
     draw_mode=dm_normal;
     memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
@@ -3911,7 +3911,7 @@ int onDrawingModeNormal()
     return D_O_K;
 }
 
-int onDrawingModeRelational()
+int32_t onDrawingModeRelational()
 {
     if(draw_mode==dm_relational)
     {
@@ -3925,7 +3925,7 @@ int onDrawingModeRelational()
     return D_O_K;
 }
 
-int onDrawingModeDungeon()
+int32_t onDrawingModeDungeon()
 {
     if(draw_mode==dm_dungeon)
     {
@@ -3939,7 +3939,7 @@ int onDrawingModeDungeon()
     return D_O_K;
 }
 
-int onDrawingModeAlias()
+int32_t onDrawingModeAlias()
 {
     if(draw_mode==dm_alias)
     {
@@ -3954,7 +3954,7 @@ int onDrawingModeAlias()
     return D_O_K;
 }
 
-int onReTemplate()
+int32_t onReTemplate()
 {
     if(jwin_alert("Confirm Overwrite","Apply NES Dungeon template to","all screens on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
     {
@@ -3965,25 +3965,25 @@ int onReTemplate()
     return D_O_K;
 }
 
-int onUndo()
+int32_t onUndo()
 {
     Map.Uhuilai();
     refresh(rALL);
     return D_O_K;
 }
 
-extern short ffposx[32];
-extern short ffposy[32];
-extern long ffprvx[32];
-extern long ffprvy[32];
+extern int16_t ffposx[32];
+extern int16_t ffposy[32];
+extern int32_t ffprvx[32];
+extern int32_t ffprvy[32];
 
-int onCopy()
+int32_t onCopy()
 {
     if(prv_mode)
     {
         Map.set_prvcmb(Map.get_prvcmb()==0?1:0);
         
-        for(int i=0; i<32; i++)
+        for(int32_t i=0; i<32; i++)
         {
             ffposx[i]=-1000;
             ffposy[i]=-1000;
@@ -3998,12 +3998,12 @@ int onCopy()
     return D_O_K;
 }
 
-int onH()
+int32_t onH()
 {
     return D_O_K;
 }
 
-int onPaste()
+int32_t onPaste()
 {
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 	{
@@ -4021,14 +4021,14 @@ int onPaste()
 	return D_O_K;
 }
 
-int onPasteAll()
+int32_t onPasteAll()
 {
 	Map.PasteAll();
 	refresh(rALL);
 	return D_O_K;
 }
 
-int onPasteToAll()
+int32_t onPasteToAll()
 {
 	if(confirmBox("You are about to paste to all screens on the current map."))
 	{
@@ -4038,7 +4038,7 @@ int onPasteToAll()
 	return D_O_K;
 }
 
-int onPasteAllToAll()
+int32_t onPasteAllToAll()
 {
 	if(confirmBox("You are about to paste to all screens on the current map."))
 	{
@@ -4048,91 +4048,91 @@ int onPasteAllToAll()
 	return D_O_K;
 }
 
-int onPasteUnderCombo()
+int32_t onPasteUnderCombo()
 {
     Map.PasteUnderCombo();
     refresh(rALL);
     return D_O_K;
 }
 
-int onPasteSecretCombos()
+int32_t onPasteSecretCombos()
 {
     Map.PasteSecretCombos();
     refresh(rALL);
     return D_O_K;
 }
 
-int onPasteFFCombos()
+int32_t onPasteFFCombos()
 {
     Map.PasteFFCombos();
     refresh(rALL);
     return D_O_K;
 }
 
-int onPasteWarps()
+int32_t onPasteWarps()
 {
     Map.PasteWarps();
     refresh(rALL);
     return D_O_K;
 }
 
-int onPasteScreenData()
+int32_t onPasteScreenData()
 {
     Map.PasteScreenData();
     refresh(rALL);
     return D_O_K;
 }
 
-int onPasteWarpLocations()
+int32_t onPasteWarpLocations()
 {
     Map.PasteWarpLocations();
     refresh(rALL);
     return D_O_K;
 }
 
-int onPasteDoors()
+int32_t onPasteDoors()
 {
     Map.PasteDoors();
     refresh(rALL);
     return D_O_K;
 }
 
-int onPasteLayers()
+int32_t onPasteLayers()
 {
     Map.PasteLayers();
     refresh(rALL);
     return D_O_K;
 }
 
-int onPastePalette()
+int32_t onPastePalette()
 {
     Map.PastePalette();
     refresh(rALL);
     return D_O_K;
 }
 
-int onPasteRoom()
+int32_t onPasteRoom()
 {
     Map.PasteRoom();
     refresh(rALL);
     return D_O_K;
 }
 
-int onPasteGuy()
+int32_t onPasteGuy()
 {
     Map.PasteGuy();
     refresh(rALL);
     return D_O_K;
 }
 
-int onPasteEnemies()
+int32_t onPasteEnemies()
 {
     Map.PasteEnemies();
     refresh(rALL);
     return D_O_K;
 }
 
-int onDelete()
+int32_t onDelete()
 {
     restore_mouse();
     
@@ -4152,7 +4152,7 @@ int onDelete()
     
 }
 
-int onDeleteMap()
+int32_t onDeleteMap()
 {
     if(jwin_alert("Confirm Delete","Clear this entire map?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
@@ -4164,7 +4164,7 @@ int onDeleteMap()
     return D_O_K;
 }
 
-int onToggleDarkness()
+int32_t onToggleDarkness()
 {
     Map.CurrScr()->flags^=4;
     refresh(rMAP+rMENU);
@@ -4172,10 +4172,10 @@ int onToggleDarkness()
     return D_O_K;
 }
 
-int onIncMap()
+int32_t onIncMap()
 {
-    int m=Map.getCurrMap();
-    int oldcolor=Map.getcolor();
+    int32_t m=Map.getCurrMap();
+    int32_t oldcolor=Map.getcolor();
     Map.setCurrMap(m+1>=map_count?0:m+1);
     Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
@@ -4184,7 +4184,7 @@ int onIncMap()
         memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
     }
     
-    int newcolor=Map.getcolor();
+    int32_t newcolor=Map.getcolor();
     
     if(newcolor!=oldcolor)
     {
@@ -4195,10 +4195,10 @@ int onIncMap()
     return D_O_K;
 }
 
-int onDecMap()
+int32_t onDecMap()
 {
-    int m=Map.getCurrMap();
-    int oldcolor=Map.getcolor();
+    int32_t m=Map.getCurrMap();
+    int32_t oldcolor=Map.getcolor();
     Map.setCurrMap((m-1<0)?map_count-1:zc_min(m-1,map_count-1));
     Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
@@ -4208,7 +4208,7 @@ int onDecMap()
         memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
     }
     
-    int newcolor=Map.getcolor();
+    int32_t newcolor=Map.getcolor();
     
     if(newcolor!=oldcolor)
     {
@@ -4220,7 +4220,7 @@ int onDecMap()
 }
 
 
-int onDefault_Pals()
+int32_t onDefault_Pals()
 {
     if(jwin_alert("Confirm Reset","Reset all palette data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
@@ -4237,7 +4237,7 @@ int onDefault_Pals()
     return D_O_K;
 }
 
-int onDefault_Combos()
+int32_t onDefault_Combos()
 {
     if(jwin_alert("Confirm Reset","Reset combo data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
@@ -4254,7 +4254,7 @@ int onDefault_Combos()
     return D_O_K;
 }
 
-int onDefault_Items()
+int32_t onDefault_Items()
 {
     if(jwin_alert("Confirm Reset","Reset all items?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
@@ -4265,7 +4265,7 @@ int onDefault_Items()
     return D_O_K;
 }
 
-int onDefault_Weapons()
+int32_t onDefault_Weapons()
 {
     if(jwin_alert("Confirm Reset","Reset weapon/misc. sprite data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
@@ -4276,7 +4276,7 @@ int onDefault_Weapons()
     return D_O_K;
 }
 
-int onDefault_Guys()
+int32_t onDefault_Guys()
 {
     if(jwin_alert("Confirm Reset","Reset all enemy/NPC data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
@@ -4288,7 +4288,7 @@ int onDefault_Guys()
 }
 
 
-int onDefault_Tiles()
+int32_t onDefault_Tiles()
 {
     if(jwin_alert("Confirm Reset","Reset all tiles?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
@@ -4307,14 +4307,14 @@ int onDefault_Tiles()
 
 void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2);
 
-int onDefault_SFX()
+int32_t onDefault_SFX()
 {
     if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
         saved=false;
         SAMPLE *temp_sample;
         
-        for(int i=1; i<WAV_COUNT; i++)
+        for(int32_t i=1; i<WAV_COUNT; i++)
         {
             temp_sample = (SAMPLE *)sfxdata[zc_min(i,Z35)].dat;
             change_sfx(&customsfxdata[i], temp_sample);
@@ -4331,7 +4331,7 @@ int onDefault_SFX()
 }
 
 
-int onDefault_MapStyles()
+int32_t onDefault_MapStyles()
 {
     if(jwin_alert("Confirm Reset","Reset all map styles?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
@@ -4342,7 +4342,7 @@ int onDefault_MapStyles()
     return D_O_K;
 }
 
-int on0()
+int32_t on0()
 {
     saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -4361,7 +4361,7 @@ int on0()
     }
 	return D_O_K;
 }
-int on1()
+int32_t on1()
 {
     saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -4383,7 +4383,7 @@ int on1()
     }
 	return D_O_K;
 }
-int on2()
+int32_t on2()
 {
     saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -4405,7 +4405,7 @@ int on2()
     }
 	return D_O_K;
 }
-int on3()
+int32_t on3()
 {
     saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -4427,7 +4427,7 @@ int on3()
     }
 	return D_O_K;
 }
-int on4()
+int32_t on4()
 {
     saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -4449,7 +4449,7 @@ int on4()
     }
 	return D_O_K;
 }
-int on5()
+int32_t on5()
 {
     saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -4472,7 +4472,7 @@ int on5()
 	return D_O_K;
 }
 
-int on6()
+int32_t on6()
 {
     saved=false;
 	if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
@@ -4491,21 +4491,21 @@ int on6()
     }
 	return D_O_K;
 }
-int on7()
+int32_t on7()
 {
     saved=false;
     Map.setcolor(7);
     refresh(rSCRMAP);
     return D_O_K;
 }
-int on8()
+int32_t on8()
 {
     saved=false;
     Map.setcolor(8);
     refresh(rSCRMAP);
     return D_O_K;
 }
-int on9()
+int32_t on9()
 {
     saved=false;
     Map.setcolor(9);
@@ -4513,42 +4513,42 @@ int on9()
     return D_O_K;
 }
 
-int on10()
+int32_t on10()
 {
     saved=false;
     Map.setcolor(10);
     refresh(rSCRMAP);
     return D_O_K;
 }
-int on11()
+int32_t on11()
 {
     saved=false;
     Map.setcolor(11);
     refresh(rSCRMAP);
     return D_O_K;
 }
-int on12()
+int32_t on12()
 {
     saved=false;
     Map.setcolor(12);
     refresh(rSCRMAP);
     return D_O_K;
 }
-int on13()
+int32_t on13()
 {
     saved=false;
     Map.setcolor(13);
     refresh(rSCRMAP);
     return D_O_K;
 }
-int on14()
+int32_t on14()
 {
     saved=false;
     Map.setcolor(14);
     refresh(rSCRMAP);
     return D_O_K;
 }
-int on15()
+int32_t on15()
 {
     saved=false;
     Map.setcolor(15);
@@ -4556,9 +4556,9 @@ int on15()
     return D_O_K;
 }
 
-int onLeft()
+int32_t onLeft()
 {
-    int tempcurrscr=Map.getCurrScr();
+    int32_t tempcurrscr=Map.getCurrScr();
     
     if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
     {
@@ -4588,9 +4588,9 @@ int onLeft()
     return D_O_K;
 }
 
-int onRight()
+int32_t onRight()
 {
-    int tempcurrscr=Map.getCurrScr();
+    int32_t tempcurrscr=Map.getCurrScr();
     
     if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
     {
@@ -4620,9 +4620,9 @@ int onRight()
     return D_O_K;
 }
 
-int onUp()
+int32_t onUp()
 {
-    int tempcurrscr=Map.getCurrScr();
+    int32_t tempcurrscr=Map.getCurrScr();
     
     if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
     {
@@ -4653,9 +4653,9 @@ int onUp()
     return D_O_K;
 }
 
-int onDown()
+int32_t onDown()
 {
-    int tempcurrscr=Map.getCurrScr();
+    int32_t tempcurrscr=Map.getCurrScr();
     
     if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
     {
@@ -4685,7 +4685,7 @@ int onDown()
     return D_O_K;
 }
 
-int onPgUp()
+int32_t onPgUp()
 {
     if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
             !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] && !is_large)
@@ -4727,7 +4727,7 @@ int onPgUp()
     return D_O_K;
 }
 
-int onPgDn()
+int32_t onPgDn()
 {
     if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
             !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] && !is_large)
@@ -4769,7 +4769,7 @@ int onPgDn()
     return D_O_K;
 }
 
-int onIncreaseCSet()
+int32_t onIncreaseCSet()
 {
     /*if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
             !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
@@ -4787,7 +4787,7 @@ int onIncreaseCSet()
     /*}
     else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
-        int drawmap, drawscr;
+        int32_t drawmap, drawscr;
         
         if(CurrentLayer==0)
         {
@@ -4812,7 +4812,7 @@ int onIncreaseCSet()
         
         saved=false;
         Map.Ugo();
-        int changeby=1;
+        int32_t changeby=1;
         
         if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
         {
@@ -4824,9 +4824,9 @@ int onIncreaseCSet()
             changeby*=256;
         }
         
-        for(int i=0; i<176; i++)
+        for(int32_t i=0; i<176; i++)
         {
-            int temp=Map.AbsoluteScr(drawmap, drawscr)->data[i];
+            int32_t temp=Map.AbsoluteScr(drawmap, drawscr)->data[i];
             
             temp+=changeby;
             
@@ -4844,7 +4844,7 @@ int onIncreaseCSet()
     return D_O_K;
 }
 
-int onDecreaseCSet()
+int32_t onDecreaseCSet()
 {
     /*if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
             !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
@@ -4862,7 +4862,7 @@ int onDecreaseCSet()
     /*}
     else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
-        int drawmap, drawscr;
+        int32_t drawmap, drawscr;
         
         if(CurrentLayer==0)
         {
@@ -4887,7 +4887,7 @@ int onDecreaseCSet()
         
         saved=false;
         Map.Ugo();
-        int changeby=1;
+        int32_t changeby=1;
         
         if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
         {
@@ -4899,9 +4899,9 @@ int onDecreaseCSet()
             changeby*=256;
         }
         
-        for(int i=0; i<176; i++)
+        for(int32_t i=0; i<176; i++)
         {
-            int temp=Map.AbsoluteScr(drawmap, drawscr)->data[i];
+            int32_t temp=Map.AbsoluteScr(drawmap, drawscr)->data[i];
             temp-=changeby;
             
             if(temp<0)
@@ -4918,21 +4918,21 @@ int onDecreaseCSet()
     return D_O_K;
 }
 
-int onGotoPage()
+int32_t onGotoPage()
 {
-    int choosepage=getnumber("Scroll to Combo Page", 0);
+    int32_t choosepage=getnumber("Scroll to Combo Page", 0);
     
     if(!cancelgetnum)
     {
 	if (draw_mode==dm_alias) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
 	{
-		int page=(vbound(choosepage,0,((MAXCOMBOALIASES/96))));
+		int32_t page=(vbound(choosepage,0,((MAXCOMBOALIASES/96))));
 		//First[current_comboalist]=page<<8;
 		combo_alistpos[current_comboalist] = vbound(page*96, 0, MAXCOMBOALIASES-97);
 	}
 	else
 	{
-		int page=(zc_min(choosepage,COMBO_PAGES-1));
+		int32_t page=(zc_min(choosepage,COMBO_PAGES-1));
 		First[current_combolist]=page<<8;
 	}
     }
@@ -4943,7 +4943,7 @@ int onGotoPage()
 bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
 {
     go();
-    int ret=0;
+    int32_t ret=0;
     ret = getname_nogo(prompt,ext,list,def,usefilename);
     comeback();
     return ret != 0;
@@ -4957,15 +4957,15 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
         
     if(!usefilename)
     {
-        int i=(int)strlen(temppath);
+        int32_t i=(int32_t)strlen(temppath);
         
         while(i>=0 && temppath[i]!='\\' && temppath[i]!='/')
             temppath[i--]=0;
     }
     
-    //  int ret = file_select_ex(prompt,temppath,ext,255,-1,-1);
-    int ret=0;
-    int sel=0;
+    //  int32_t ret = file_select_ex(prompt,temppath,ext,255,-1,-1);
+    int32_t ret=0;
+    int32_t sel=0;
     
     if(list==NULL)
     {
@@ -4981,7 +4981,7 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
 
 
 static char track_number_str_buf[MIDI_TRACK_BUFFER_SIZE] = {0};
-const char *tracknumlist(int index, int *list_size)
+const char *tracknumlist(int32_t index, int32_t *list_size)
 {
     //memset(track_number_str_buf,0,50);
     if(index>=0)
@@ -5009,7 +5009,7 @@ static DIALOG change_track_dlg[] =
 };
 //  return list_dlg[2].d1;
 
-int changeTrack()
+int32_t changeTrack()
 {
     restore_mouse();
     change_track_dlg[0].dp2=lfont;
@@ -5027,7 +5027,7 @@ int changeTrack()
 }
 
 
-int playMusic()
+int32_t playMusic()
 {
     char *ext;
     bool ismidi=false;
@@ -5117,84 +5117,84 @@ int playMusic()
 }
 
 // It took awhile to get these values right, so no meddlin'!
-int playTune1()
+int32_t playTune1()
 {
     return playTune(0);
 }
-int playTune2()
+int32_t playTune2()
 {
     return playTune(81);
 }
-int playTune3()
+int32_t playTune3()
 {
     return playTune(233);
 }
-int playTune4()
+int32_t playTune4()
 {
     return playTune(553);
 }
-int playTune5()
+int32_t playTune5()
 {
     return playTune(814);
 }
-int playTune6()
+int32_t playTune6()
 {
     return playTune(985);
 }
-int playTune7()
+int32_t playTune7()
 {
     return playTune(1153);
 }
-int playTune8()
+int32_t playTune8()
 {
     return playTune(1333);
 }
-int playTune9()
+int32_t playTune9()
 {
     return playTune(1556);
 }
-int playTune10()
+int32_t playTune10()
 {
     return playTune(1801);
 }
-int playTune11()
+int32_t playTune11()
 {
     return playTune(2069);
 }
-int playTune12()
+int32_t playTune12()
 {
     return playTune(2189);
 }
-int playTune13()
+int32_t playTune13()
 {
     return playTune(2569);
 }
-int playTune14()
+int32_t playTune14()
 {
     return playTune(2753);
 }
-int playTune15()
+int32_t playTune15()
 {
     return playTune(2856);
 }
-int playTune16()
+int32_t playTune16()
 {
     return playTune(3042);
 }
-int playTune17()
+int32_t playTune17()
 {
     return playTune(3125);
 }
-int playTune18()
+int32_t playTune18()
 {
     return playTune(3217);
 }
-int playTune19()
+int32_t playTune19()
 {
     return playTune(3296);
 }
 
-int playTune(int pos)
+int32_t playTune(int32_t pos)
 {
     stop_midi();
     
@@ -5222,7 +5222,7 @@ int playTune(int pos)
     return D_O_K;
 }
 
-int stopMusic()
+int32_t stopMusic()
 {
     stop_midi();
     
@@ -5243,7 +5243,7 @@ int stopMusic()
     return D_O_K;
 }
 
-static int gamemisc1_list[] =
+static int32_t gamemisc1_list[] =
 {
 	5,6,7,8,
 	9,10,11,12,
@@ -5257,7 +5257,7 @@ static int gamemisc1_list[] =
 	-1
 };
 
-static int gamemisc2_list[] =
+static int32_t gamemisc2_list[] =
 {
 	13,14,15,16,
 	17,18,19,20,
@@ -5271,7 +5271,7 @@ static int gamemisc2_list[] =
 	-1
 };
 
-static int gamemisc3_list[] =
+static int32_t gamemisc3_list[] =
 {
     21,22,23,24,
 	25,26,27,28,
@@ -5285,7 +5285,7 @@ static int gamemisc3_list[] =
 	-1
 };
 
-static int gamemisc4_list[] =
+static int32_t gamemisc4_list[] =
 {
 	29,30,31,32,
 	33,34,35,36,
@@ -5452,7 +5452,7 @@ void EditGameMiscArray()
 	char miscvalue_labels[32][65];
 	memset(miscvalue, 0, sizeof(miscvalue));
 	memset(miscvalue_labels, 0, sizeof(miscvalue_labels));
-	for ( int q = 0; q < 32; q++ )
+	for ( int32_t q = 0; q < 32; q++ )
 	{
 		gamemiscarray_dlg[37+q].dp = miscvalue[q];
 		gamemiscarray_dlg[37+q].fg = misc.questmisc[q];
@@ -5464,14 +5464,14 @@ void EditGameMiscArray()
 		
 	}
 	//also questmisc_strings
-	int ret;
+	int32_t ret;
 	if(is_large)
 		large_dialog(gamemiscarray_dlg);
         
 	do
 	{
 		ret = zc_popup_dialog(gamemiscarray_dlg,65);
-		for ( int q = 0; q < 32; q++ )
+		for ( int32_t q = 0; q < 32; q++ )
 		{
 			
 			misc.questmisc[q] = gamemiscarray_dlg[37+q].fg;
@@ -5482,7 +5482,7 @@ void EditGameMiscArray()
 	while(ret==68);
 }
 
-int onQMiscValues()
+int32_t onQMiscValues()
 {
     EditGameMiscArray();
     saved=false;
@@ -5490,7 +5490,7 @@ int onQMiscValues()
 }
 
 
-int onTemplates()
+int32_t onTemplates()
 {
     edit_qt();
     return D_O_K;
@@ -5508,18 +5508,18 @@ BITMAP *pic=NULL;
 BITMAP *bmap=NULL;
 PALETTE picpal;
 PALETTE mappal;
-int  picx=0,picy=0,mapx=0,mapy=0,pblack,pwhite;
+int32_t  picx=0,picy=0,mapx=0,mapy=0,pblack,pwhite;
 
 double picscale=1.0,mapscale=1.0;
 bool vp_showpal=true, vp_showsize=true, vp_center=true;
 
-//INLINE int pal_sum(RGB p) { return p.r + p.g + p.b; }
+//INLINE int32_t pal_sum(RGB p) { return p.r + p.g + p.b; }
 
-void get_bw(RGB *pal,int &black,int &white)
+void get_bw(RGB *pal,int32_t &black,int32_t &white)
 {
     black=white=1;
     
-    for(int i=1; i<256; i++)
+    for(int32_t i=1; i<256; i++)
     {
         if(pal_sum(pal[i])<pal_sum(pal[black]))
             black=i;
@@ -5529,13 +5529,13 @@ void get_bw(RGB *pal,int &black,int &white)
     }
 }
 
-void draw_bw_mouse(int white, int old_mouse, int new_mouse)
+void draw_bw_mouse(int32_t white, int32_t old_mouse, int32_t new_mouse)
 {
     blit(mouse_bmp[old_mouse][0],mouse_bmp[new_mouse][0],0,0,0,0,16,16);
     
-    for(int y=0; y<16; y++)
+    for(int32_t y=0; y<16; y++)
     {
-        for(int x=0; x<16; x++)
+        for(int32_t x=0; x<16; x++)
         {
             if(getpixel(mouse_bmp[new_mouse][0],x,y)!=0)
             {
@@ -5545,18 +5545,18 @@ void draw_bw_mouse(int white, int old_mouse, int new_mouse)
     }
 }
 
-int load_the_pic(BITMAP **dst, PALETTE dstpal)
+int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
 {
     PALETTE temppal;
     
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
     {
         temppal[i]=dstpal[i];
         dstpal[i]=RAMpal[i];
     }
     
     // set up the new palette
-    for(int i=0; i<64; i++)
+    for(int32_t i=0; i<64; i++)
     {
         dstpal[i].r = i;
         dstpal[i].g = i;
@@ -5566,16 +5566,16 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
     set_palette(dstpal);
     
     BITMAP *graypic = create_bitmap_ex(8,SCREEN_W,SCREEN_H);
-    int _w = screen->w-1;
-    int _h = screen->h-1;
+    int32_t _w = screen->w-1;
+    int32_t _h = screen->h-1;
     
     // gray scale the current frame
-    for(int y=0; y<_h; y++)
+    for(int32_t y=0; y<_h; y++)
     {
-        for(int x=0; x<_w; x++)
+        for(int32_t x=0; x<_w; x++)
         {
-            int c = screen->line[y][x];
-            int gray = zc_min((temppal[c].r*42 + temppal[c].g*75 + temppal[c].b*14) >> 7, 63);
+            int32_t c = screen->line[y][x];
+            int32_t gray = zc_min((temppal[c].r*42 + temppal[c].g*75 + temppal[c].b*14) >> 7, 63);
             graypic->line[y][x] = gray;
         }
     }
@@ -5588,7 +5588,7 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
     sprintf(extbuf[0], "View Image (%s", snapshotformat_str[0][1]);
     strcpy(extbuf[1], snapshotformat_str[0][1]);
     
-    for(int i=1; i<ssfmtMAX; ++i)
+    for(int32_t i=1; i<ssfmtMAX; ++i)
     {
         sprintf(extbuf[0], "%s, %s", extbuf[0], snapshotformat_str[i][1]);
         sprintf(extbuf[1], "%s;%s", extbuf[1], snapshotformat_str[i][1]);
@@ -5596,7 +5596,7 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
     
     sprintf(extbuf[0], "%s)", extbuf[0]);
     
-    int gotit = getname(extbuf[0],extbuf[1],NULL,imagepath,true);
+    int32_t gotit = getname(extbuf[0],extbuf[1],NULL,imagepath,true);
     
     if(!gotit)
     {
@@ -5612,7 +5612,7 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
         destroy_bitmap(*dst);
     }
     
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
     {
         dstpal[i].r = 0;
         dstpal[i].g = 0;
@@ -5645,10 +5645,10 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
     return 0;
 }
 
-int mapMaker(BITMAP * _map, PALETTE _mappal)
+int32_t mapMaker(BITMAP * _map, PALETTE _mappal)
 {
     char buf[200];
-    int num=0;
+    int32_t num=0;
     
     do
     {
@@ -5666,12 +5666,12 @@ int mapMaker(BITMAP * _map, PALETTE _mappal)
     return D_O_K;
 }
 
-int onViewPic()
+int32_t onViewPic()
 {
     return launchPicViewer(&pic,picpal,&picx,&picy,&picscale,false);
 }
 
-int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double *scale2, bool isviewingmap)
+int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *py2, double *scale2, bool isviewingmap)
 {
     restore_mouse();
     BITMAP *buf;
@@ -5692,8 +5692,8 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
     
     get_bw(pal,pblack,pwhite);
     
-    int oldfgcolor = gui_fg_color;
-    int oldbgcolor = gui_bg_color;
+    int32_t oldfgcolor = gui_fg_color;
+    int32_t oldbgcolor = gui_bg_color;
     
     buf = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
     
@@ -5714,11 +5714,11 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
         {
             clear_to_color(buf,pblack);
             stretch_blit(*pictoview,buf,0,0,(*pictoview)->w,(*pictoview)->h,
-                         int(zq_screen_w+(*px2-(*pictoview)->w)* *scale2)/2,int(zq_screen_h+(*py2-(*pictoview)->h)* *scale2)/2,
-                         int((*pictoview)->w* *scale2),int((*pictoview)->h* *scale2));
+                         int32_t(zq_screen_w+(*px2-(*pictoview)->w)* *scale2)/2,int32_t(zq_screen_h+(*py2-(*pictoview)->h)* *scale2)/2,
+                         int32_t((*pictoview)->w* *scale2),int32_t((*pictoview)->h* *scale2));
                          
             if(vp_showpal)
-                for(int i=0; i<256; i++)
+                for(int32_t i=0; i<256; i++)
                     rectfill(buf,((i&15)<<2)+zq_screen_w-64,((i>>4)<<2)+zq_screen_h-64,((i&15)<<2)+zq_screen_w-64+3,((i>>4)<<2)+zq_screen_h-64+3,i);
                     
             if(vp_showsize)
@@ -5741,10 +5741,10 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
         
         custom_vsync();
         
-        int step = 4;
+        int32_t step = 4;
         
         if(*scale2 < 1.0)
-            step = int(4.0/ *scale2);
+            step = int32_t(4.0/ *scale2);
             
         if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
             step <<= 2;
@@ -5924,10 +5924,10 @@ static DIALOG loadmap_dlg[] =
     {  NULL,                   0,     0,      0,      0,    0,          0,          0,    0,          0,    0,  NULL,                                NULL,   NULL  }
 };
 
-int load_the_map()
+int32_t load_the_map()
 {
-    static int res = 1;
-    static int flags = cDEBUG;
+    static int32_t res = 1;
+    static int32_t flags = cDEBUG;
     
     loadmap_dlg[0].dp2    = lfont;
     loadmap_dlg[3].flags  = (res==2) ? D_SELECTED : 0;
@@ -5977,9 +5977,9 @@ int load_the_map()
         return 2;
     }
     
-    for(int y=0; y<8; y++)
+    for(int32_t y=0; y<8; y++)
     {
-        for(int x=0; x<16; x++)
+        for(int32_t x=0; x<16; x++)
         {
             Map.draw(screen2, 0, 0, flags, -1, y*16+x);
             stretch_blit(screen2, bmap, 0, 0, 256, 176, x<<(8-res), (y*176)>>res, 256>>res,176>>res);
@@ -5998,9 +5998,9 @@ int load_the_map()
     return 0;
 }
 
-int onViewMap()
+int32_t onViewMap()
 {
-    int temp_aligns=ShowMisalignments;
+    int32_t temp_aligns=ShowMisalignments;
     ShowMisalignments=0;
     //if(load_the_map()==0)
     //{
@@ -6022,11 +6022,11 @@ char *pathstr(byte path[])
 
 char _ticksstr[32]="99.99 seconds";
 
-char *ticksstr(int tics)
+char *ticksstr(int32_t tics)
 {
-    int mins=tics/(60*60);
+    int32_t mins=tics/(60*60);
     tics=tics-(mins*60*60);
-    int secs=tics/60;
+    int32_t secs=tics/60;
     tics=tics-(secs*60);
     tics=tics*100/60;
     
@@ -6041,7 +6041,7 @@ char *ticksstr(int tics)
     
     return _ticksstr;
 }
-void textprintf_disabled(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color_hl, int color_sh, AL_CONST char *format, ...)
+void textprintf_disabled(BITMAP *bmp, AL_CONST FONT *f, int32_t x, int32_t y, int32_t color_hl, int32_t color_sh, AL_CONST char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -6059,7 +6059,7 @@ void textprintf_disabled(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color_
     textout_ex(bmp, f, buf, x, y, color_sh, -1);
 }
 
-void textprintf_centre_disabled(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color_hl, int color_sh, AL_CONST char *format, ...)
+void textprintf_centre_disabled(BITMAP *bmp, AL_CONST FONT *f, int32_t x, int32_t y, int32_t color_hl, int32_t color_sh, AL_CONST char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -6075,11 +6075,11 @@ void textprintf_centre_disabled(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int
     textout_centre_ex(bmp, f, buf, x, y, color_sh, -1);
 }
 
-void drawpanel(int pnl)
+void drawpanel(int32_t pnl)
 {
     mapscr *scr=Map.CurrScr();
-    int NextCombo=combobuf[Combo].nextcombo;
-    int NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
+    int32_t NextCombo=combobuf[Combo].nextcombo;
+    int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
     
     if(prv_mode)
     {
@@ -6095,14 +6095,14 @@ void drawpanel(int pnl)
         {
             jwin_draw_frame(menu1,combolistscrollers[0].x,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
             
-            for(int i=0; i<3; i++)
+            for(int32_t i=0; i<3; i++)
             {
                 _allegro_hline(menu1,combolistscrollers[0].x+5-i,combolistscrollers[0].y+4+i, combolistscrollers[0].x+5+i, vc(0));
             }
             
             jwin_draw_frame(menu1,combolistscrollers[0].x,combolistscrollers[0].y+combolistscrollers[0].h-2,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
             
-            for(int i=0; i<3; i++)
+            for(int32_t i=0; i<3; i++)
             {
                 _allegro_hline(menu1,combolistscrollers[0].x+5-i,combolistscrollers[0].y+combolistscrollers[0].h+4-i, combolistscrollers[0].x+5+i, vc(0));
             }
@@ -6118,7 +6118,7 @@ void drawpanel(int pnl)
             // Coords1
             set_clip_rect(menu1,panel[8].x,panel[8].y,panel[8].x+panel[8].w-5,panel[8].y+panel[8].h);
             
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 jwin_draw_frame(menu1,panel[8].x+14+(32*i),panel[8].y+12,20,20,FR_DEEP);
                 
@@ -6141,7 +6141,7 @@ void drawpanel(int pnl)
             textprintf_centre_ex(menu1,font,panel[8].x+24+2*32,panel[8].y+42,jwin_pal[jcBOXFG],-1,"%d",scr->warparrivaly);
             
             // Coords2
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 jwin_draw_frame(menu1,panel[8].x+14+(32*i),panel[8].y+54,20,20,FR_DEEP);
                 blit(icon_bmp[ICON_BMP_RETURN_A+i][coord_frame], menu1, 0, 0, panel[8].x+16+(32*i),panel[8].y+56, 16, 16);
@@ -6158,16 +6158,16 @@ void drawpanel(int pnl)
             textprintf_centre_ex(menu1,font,panel[8].x+24+3*32,panel[8].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[3]);
             
             // Enemies
-            int epx = 2+panel[8].x+14+4*32;
-            int epy = 2+panel[8].y+12;
+            int32_t epx = 2+panel[8].x+14+4*32;
+            int32_t epy = 2+panel[8].y+12;
             jwin_draw_frame(menu1, epx-2,epy-2, 16*4+4,16*3+4,FR_DEEP);
             rectfill(menu1, epx, epy, -1+epx+16*4,-1+epy+16*3,vc(0));
             
-            for(int i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
+            for(int32_t i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
             {
-                int id = Map.CurrScr()->enemy[i];
-                int tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
-                int cset = guysbuf[id].cset;
+                int32_t id = Map.CurrScr()->enemy[i];
+                int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
+                int32_t cset = guysbuf[id].cset;
                 
                 if(tile)
                     overtile16(menu1, tile+efrontfacingtile(id),epx+(i%4)*16,epy+((i/4)*16),cset,0);
@@ -6216,9 +6216,9 @@ void drawpanel(int pnl)
             {
                 if(InvalidStatic)
                 {
-                    for(int dy=0; dy<16; dy++)
+                    for(int32_t dy=0; dy<16; dy++)
                     {
-                        for(int dx=0; dx<16; dx++)
+                        for(int32_t dx=0; dx<16; dx++)
                         {
                             menu1->line[dy+panel[0].y+11][dx+panel[0].x+panel[0].w-36]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                         }
@@ -6244,7 +6244,7 @@ void drawpanel(int pnl)
         case m_coords:
             set_clip_rect(menu1,panel[1].x,panel[1].y,panel[1].x+panel[1].w-5,panel[1].y+46);
             
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 jwin_draw_frame(menu1,panel[1].x+14+(32*i),panel[1].y+4,20,20,FR_DEEP);
                 
@@ -6273,7 +6273,7 @@ void drawpanel(int pnl)
         case m_coords2:
             set_clip_rect(menu1,panel[7].x,panel[7].y,panel[7].x+panel[7].w-5,panel[7].y+46);
             
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 jwin_draw_frame(menu1,panel[7].x+14+(32*i),panel[7].y+4,20,20,FR_DEEP);
                 blit(icon_bmp[ICON_BMP_RETURN_A+i][coord_frame], menu1, 0, 0, panel[7].x+16+(32*i),panel[7].y+6, 16, 16);
@@ -6359,12 +6359,12 @@ void drawpanel(int pnl)
             textprintf_ex(menu1,pfont,panel[3].x+40-6,panel[3].y+16,jwin_pal[jcBOXFG],-1,"%s",shortbuf);
             //textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",roomtype_string[scr->room]);
             textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",(char *)moduledata.roomtype_names[scr->room]);
-            int rtype=scr->room;
+            int32_t rtype=scr->room;
             
             if(strcmp(catchall_string[rtype]," "))
             {
                 textprintf_disabled(menu1,pfont,panel[3].x+6,panel[0].y+32,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"%s:",catchall_string[rtype]);
-                int xofs=text_length(pfont,catchall_string[rtype])+5;
+                int32_t xofs=text_length(pfont,catchall_string[rtype])+5;
                 
                 switch(rtype)
                 {
@@ -6462,13 +6462,13 @@ void drawpanel(int pnl)
     }
 }
 
-void show_screen_error(const char *str, int i, int c)
+void show_screen_error(const char *str, int32_t i, int32_t c)
 {
     rectfill(menu1, 575-text_length(lfont_l,str),388-(i*16),575,388-((i-1)*16)-4,vc(0));
     textout_shadowed_ex(menu1,lfont_l, str,575-text_length(lfont_l,str),388-(i*16),c,vc(0),-1);
 }
 
-void tile_warp_notification(int which, char *buf)
+void tile_warp_notification(int32_t which, char *buf)
 {
     char letter = 'A'+which;
     
@@ -6499,7 +6499,7 @@ void tile_warp_notification(int which, char *buf)
     }
 }
 
-void side_warp_notification(int which, int dir, char *buf)
+void side_warp_notification(int32_t which, int32_t dir, char *buf)
 {
     char letter = 'A'+which;
     char buf3[16];
@@ -6538,7 +6538,7 @@ void side_warp_notification(int which, int dir, char *buf)
 
 static bool arrowcursor = true; // Used by combo aliases and Combo Brush cursors. -L
 
-bool isFavCmdSelected(int cmd)
+bool isFavCmdSelected(int32_t cmd)
 {
 	switch(cmd)
 	{
@@ -6550,10 +6550,10 @@ bool isFavCmdSelected(int cmd)
 	return false;
 }
 
-void refresh(int flags)
+void refresh(int32_t flags)
 {
     // CPage = Map.CurrScr()->cpage;
-    int curscr;
+    int32_t curscr;
     
     if(flags&rCLEAR)
         clear_to_color(menu1,vc(0));
@@ -6671,23 +6671,23 @@ void refresh(int flags)
         {
             if(Map.CurrScr()->stairx || Map.CurrScr()->stairy)
             {
-                int x1 = Map.CurrScr()->stairx+(showedges?16:0);
-                int y1 = Map.CurrScr()->stairy+(showedges?16:0);
+                int32_t x1 = Map.CurrScr()->stairx+(showedges?16:0);
+                int32_t y1 = Map.CurrScr()->stairy+(showedges?16:0);
                 safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(14));
             }
             
             if(Map.CurrScr()->warparrivalx || Map.CurrScr()->warparrivaly)
             {
-                int x1 = Map.CurrScr()->warparrivalx +(showedges?16:0);
-                int y1 = Map.CurrScr()->warparrivaly +(showedges?16:0);
+                int32_t x1 = Map.CurrScr()->warparrivalx +(showedges?16:0);
+                int32_t y1 = Map.CurrScr()->warparrivaly +(showedges?16:0);
                 safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(10));
             }
             
-            for(int i=0; i<4; i++) if(Map.CurrScr()->warpreturnx[i] || Map.CurrScr()->warpreturny[i])
+            for(int32_t i=0; i<4; i++) if(Map.CurrScr()->warpreturnx[i] || Map.CurrScr()->warpreturny[i])
                 {
-                    int x1 = Map.CurrScr()->warpreturnx[i]+(showedges?16:0);
-                    int y1 = Map.CurrScr()->warpreturny[i]+(showedges?16:0);
-                    int clr = vc(9);
+                    int32_t x1 = Map.CurrScr()->warpreturnx[i]+(showedges?16:0);
+                    int32_t y1 = Map.CurrScr()->warpreturny[i]+(showedges?16:0);
+                    int32_t clr = vc(9);
                     
                     if(FlashWarpSquare==i)
                     {
@@ -6701,10 +6701,10 @@ void refresh(int flags)
                 }
                 
             /*
-                  for (int i=0; i<4; i++) for (int j=0; j<9; i++)
+                  for (int32_t i=0; i<4; i++) for (int32_t j=0; j<9; i++)
                   {
-                    int x1 = stx[i][j]+(showedges?16:0);
-                    int y1 = sty[i][j]+(showedges?16:0);
+                    int32_t x1 = stx[i][j]+(showedges?16:0);
+                    int32_t y1 = sty[i][j]+(showedges?16:0);
                     rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(15));
                   }
             */
@@ -6717,15 +6717,15 @@ void refresh(int flags)
         }
         else
         {
-            stretch_blit(mapscreenbmp,menu1,0,0,mapscreenbmp->w,mapscreenbmp->h,mapscreen_x,mapscreen_y,int(mapscreensize*mapscreenbmp->w),int(mapscreensize*mapscreenbmp->h));
+            stretch_blit(mapscreenbmp,menu1,0,0,mapscreenbmp->w,mapscreenbmp->h,mapscreen_x,mapscreen_y,int32_t(mapscreensize*mapscreenbmp->w),int32_t(mapscreensize*mapscreenbmp->h));
         }
         
         if(showedges)
         {
             //top preview
-            for(int j=0; j<int(16*mapscreensize); j++)
+            for(int32_t j=0; j<int32_t(16*mapscreensize); j++)
             {
-                for(int i=0; i<288*mapscreensize; i++)
+                for(int32_t i=0; i<288*mapscreensize; i++)
                 {
                     if(((i^j)&1)==0)
                     {
@@ -6735,9 +6735,9 @@ void refresh(int flags)
             }
             
             //bottom preview
-            for(int j=int(192*mapscreensize); j<int(208*mapscreensize); j++)
+            for(int32_t j=int32_t(192*mapscreensize); j<int32_t(208*mapscreensize); j++)
             {
-                for(int i=0; i<288*mapscreensize; i++)
+                for(int32_t i=0; i<288*mapscreensize; i++)
                 {
                     if(((i^j)&1)==0)
                     {
@@ -6747,9 +6747,9 @@ void refresh(int flags)
             }
             
             //left preview
-            for(int j=int(16*mapscreensize); j<int(192*mapscreensize); j++)
+            for(int32_t j=int32_t(16*mapscreensize); j<int32_t(192*mapscreensize); j++)
             {
-                for(int i=0; i<16*mapscreensize; i++)
+                for(int32_t i=0; i<16*mapscreensize; i++)
                 {
                     if(((i^j)&1)==0)
                     {
@@ -6760,9 +6760,9 @@ void refresh(int flags)
             }
             
             //right preview
-            for(int j=int(16*mapscreensize); j<int(192*mapscreensize); j++)
+            for(int32_t j=int32_t(16*mapscreensize); j<int32_t(192*mapscreensize); j++)
             {
-                for(int i=int(272*mapscreensize); i<int(288*mapscreensize); i++)
+                for(int32_t i=int32_t(272*mapscreensize); i<int32_t(288*mapscreensize); i++)
                 {
                     if(((i^j)&1)==0)
                     {
@@ -6774,15 +6774,15 @@ void refresh(int flags)
         
         if(!(Flags&cDEBUG))
         {
-            for(int j=int(168*mapscreensize); j<int(176*mapscreensize); j++)
+            for(int32_t j=int32_t(168*mapscreensize); j<int32_t(176*mapscreensize); j++)
             {
-                for(int i=0; i<int(256*mapscreensize); i++)
+                for(int32_t i=0; i<int32_t(256*mapscreensize); i++)
                 {
                 
                     if(((i^j)&1)==0)
                     {
-                        putpixel(menu1,int(mapscreen_x+(showedges?(16*mapscreensize):0)+i),
-                                 int(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
+                        putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreensize):0)+i),
+                                 int32_t(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
                     }
                 }
             }
@@ -6790,14 +6790,14 @@ void refresh(int flags)
         
         if((Map.isDark()) && !(Flags&cNODARK))
         {
-            for(int j=0; j<80*mapscreensize; j++)
+            for(int32_t j=0; j<80*mapscreensize; j++)
             {
-                for(int i=0; i<(80*mapscreensize)-j; i++)
+                for(int32_t i=0; i<(80*mapscreensize)-j; i++)
                 {
                     if(((i^j)&1)==0)
                     {
-                        putpixel(menu1,int(mapscreen_x+(showedges?(16*mapscreensize):0))+i,
-                                 int(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
+                        putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreensize):0))+i,
+                                 int32_t(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
                     }
                 }
             }
@@ -6805,20 +6805,20 @@ void refresh(int flags)
         
         double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
         double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-        int startxint=mapscreen_x+(showedges?int(16*mapscreensize):0);
-        int startyint=mapscreen_y+(showedges?int(16*mapscreensize):0);
-        bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1));
+        int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
+        int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
+        bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1));
         
         if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect)
         {
             arrowcursor = false;
-            int mgridscale=16*mapscreensize;
+            int32_t mgridscale=16*mapscreensize;
             set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-            int mx=(gui_mouse_x()-(showedges?mgridscale:0))/mgridscale*mgridscale;
-            int my=(gui_mouse_y()-16-(showedges?mgridscale:0))/mgridscale*mgridscale;
+            int32_t mx=(gui_mouse_x()-(showedges?mgridscale:0))/mgridscale*mgridscale;
+            int32_t my=(gui_mouse_y()-16-(showedges?mgridscale:0))/mgridscale*mgridscale;
             clear_bitmap(brushscreen);
-            int tempbw=BrushWidth;
-            int tempbh=BrushHeight;
+            int32_t tempbw=BrushWidth;
+            int32_t tempbh=BrushHeight;
             
             if(draw_mode==dm_alias)
             {
@@ -6838,9 +6838,9 @@ void refresh(int flags)
                 }
                 
                 //shadow
-                for(int i=0; i<SHADOW_DEPTH*mapscreensize; i++)
+                for(int32_t i=0; i<SHADOW_DEPTH*mapscreensize; i++)
                 {
-                    for(int j=0; j<BrushHeight*mgridscale; j++)
+                    for(int32_t j=0; j<BrushHeight*mgridscale; j++)
                     {
                         if((((i^j)&1)==1) && (my+j)<12*mgridscale)
                         {
@@ -6849,9 +6849,9 @@ void refresh(int flags)
                     }
                 }
                 
-                for(int i=0; i<BrushWidth*mgridscale; i++)
+                for(int32_t i=0; i<BrushWidth*mgridscale; i++)
                 {
-                    for(int j=0; j<SHADOW_DEPTH*mapscreensize; j++)
+                    for(int32_t j=0; j<SHADOW_DEPTH*mapscreensize; j++)
                     {
                         if((((i^j)&1)==1) && (mx+i)<16*mgridscale)
                         {
@@ -6937,8 +6937,8 @@ void refresh(int flags)
         
         if(ShowGrid)
         {
-            int w=16;
-            int h=11;
+            int32_t w=16;
+            int32_t h=11;
             
             if(showedges)
             {
@@ -6946,12 +6946,12 @@ void refresh(int flags)
                 h=13;
             }
             
-            for(int x=16; x<w*16; x+=16)
+            for(int32_t x=16; x<w*16; x+=16)
             {
                 _allegro_vline(menu1, (x*mapscreensize)+mapscreen_x, mapscreen_y, mapscreen_y+(h*16*mapscreensize)-1, vc(GridColor));
             }
             
-            for(int y=16; y<h*16; y+=16)
+            for(int32_t y=16; y<h*16; y+=16)
             {
                 _allegro_hline(menu1, mapscreen_x, (y*mapscreensize)+mapscreen_y, mapscreen_x+(w*16*mapscreensize)-1, vc(GridColor));
             }
@@ -6963,7 +6963,7 @@ void refresh(int flags)
             map_page[current_mappage].map=Map.getCurrMap();
             map_page[current_mappage].screen=Map.getCurrScr();
             
-            for(int btn=0; btn<(showedges?9:8); ++btn)
+            for(int32_t btn=0; btn<(showedges?9:8); ++btn)
             {
                 char tbuf[10];
                 sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
@@ -6993,7 +6993,7 @@ void refresh(int flags)
         
 		if(Map.getCurrMap()<Map.getMapCount())
 		{
-			for(int i=0; i<MAPSCRS; i++)
+			for(int32_t i=0; i<MAPSCRS; i++)
 			{
 				if(Map.Scr(i)->valid&mVALID)
 				{
@@ -7010,7 +7010,7 @@ void refresh(int flags)
 					{
 						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
 										 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-										 //(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int)(&(misc.colors.text)));
+										 //(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int32_t)(&(misc.colors.text)));
 					}
 					if(!(is_large || InvalidStatic))
 					{
@@ -7025,9 +7025,9 @@ void refresh(int flags)
 				{
 					if(InvalidStatic)
 					{
-						for(int dy=0; dy<3*BMM; dy++)
+						for(int32_t dy=0; dy<3*BMM; dy++)
 						{
-							for(int dx=0; dx<3*BMM; dx++)
+							for(int32_t dx=0; dx<3*BMM; dx++)
 							{
 								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
 							}
@@ -7037,7 +7037,7 @@ void refresh(int flags)
 					{
 						if(is_large)
 						{
-							int offs = 2;
+							int32_t offs = 2;
 							draw_x(menu1, (i&15)*3*BMM+minimap.x+3+offs, (i/16)*3*BMM+minimap.y+12+offs, (i&15)*3*BMM+minimap.x+2+(BMM*BMM)-offs, (i/16)*3*BMM+minimap.y+11+(BMM*BMM)-offs, vc(15));
 						}
 						else
@@ -7049,9 +7049,9 @@ void refresh(int flags)
 				}
 			}
 			
-			int s=Map.getCurrScr();
+			int32_t s=Map.getCurrScr();
 			// The white marker rect
-			int cursor_color = 0;
+			int32_t cursor_color = 0;
 			switch(MMapCursorStyle)
 			{
 				case 0:
@@ -7069,7 +7069,7 @@ void refresh(int flags)
 			
 			if(is_large)
 			{
-				int space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
+				int32_t space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
 				textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
 				textprintf_ex(menu1,font,minimap.x+spc_m,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
 				
@@ -7095,42 +7095,42 @@ void refresh(int flags)
             rectfill(menu1,combolist_window.x+2,combolist_window.y+2,combolist_window.x+combolist_window.w-3,combolist_window.y+combolist_window.h-3,jwin_pal[jcBOX]);
             jwin_draw_frame(menu1,combolistscrollers[0].x,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
             
-            for(int i=0; i<3; i++)
+            for(int32_t i=0; i<3; i++)
             {
                 _allegro_hline(menu1,combolistscrollers[0].x+5-i,combolistscrollers[0].y+4+i, combolistscrollers[0].x+5+i, vc(0));
             }
             
             jwin_draw_frame(menu1,combolistscrollers[0].x+combolistscrollers[0].w,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
             
-            for(int i=0; i<3; i++)
+            for(int32_t i=0; i<3; i++)
             {
                 _allegro_hline(menu1,combolistscrollers[0].x+combolistscrollers[0].w+5-i,combolistscrollers[0].y+6-i, combolistscrollers[0].x+combolistscrollers[0].w+5+i, vc(0));
             }
             
             jwin_draw_frame(menu1,combolistscrollers[1].x,combolistscrollers[1].y,combolistscrollers[1].w,combolistscrollers[1].h,FR_ETCHED);
             
-            for(int i=0; i<3; i++)
+            for(int32_t i=0; i<3; i++)
             {
                 _allegro_hline(menu1,combolistscrollers[1].x+5-i,combolistscrollers[1].y+4+i, combolistscrollers[1].x+5+i, vc(0));
             }
             
             jwin_draw_frame(menu1,combolistscrollers[1].x+combolistscrollers[1].w,combolistscrollers[1].y,combolistscrollers[1].w,combolistscrollers[1].h,FR_ETCHED);
             
-            for(int i=0; i<3; i++)
+            for(int32_t i=0; i<3; i++)
             {
                 _allegro_hline(menu1,combolistscrollers[1].x+combolistscrollers[1].w+5-i,combolistscrollers[1].y+6-i, combolistscrollers[1].x+combolistscrollers[1].w+5+i, vc(0));
             }
             
             jwin_draw_frame(menu1,combolistscrollers[2].x,combolistscrollers[2].y,combolistscrollers[2].w,combolistscrollers[2].h,FR_ETCHED);
             
-            for(int i=0; i<3; i++)
+            for(int32_t i=0; i<3; i++)
             {
                 _allegro_hline(menu1,combolistscrollers[2].x+5-i,combolistscrollers[2].y+4+i, combolistscrollers[2].x+5+i, vc(0));
             }
             
             jwin_draw_frame(menu1,combolistscrollers[2].x+combolistscrollers[2].w,combolistscrollers[2].y,combolistscrollers[2].w,combolistscrollers[2].h,FR_ETCHED);
             
-            for(int i=0; i<3; i++)
+            for(int32_t i=0; i<3; i++)
             {
                 _allegro_hline(menu1,combolistscrollers[2].x+combolistscrollers[2].w+5-i,combolistscrollers[2].y+6-i, combolistscrollers[2].x+combolistscrollers[2].w+5+i, vc(0));
             }
@@ -7164,22 +7164,22 @@ void refresh(int flags)
                 }
             }
             
-            int drawmap, drawscr;
+            int32_t drawmap, drawscr;
             drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
             drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
             
-            for(int j=0; j<3; ++j)
+            for(int32_t j=0; j<3; ++j)
             {
                 if(j==0||is_large)
                 {
-                    for(int i=0; i<(combolist[j].w*combolist[j].h); i++)
+                    for(int32_t i=0; i<(combolist[j].w*combolist[j].h); i++)
                     {
                         put_combo(menu1,(i%combolist[j].w)*16+combolist[j].x,(i/combolist[j].w)*16+combolist[j].y,i+First[j],CSet,Flags&(cFLAGS|cWALK),0);
                     }
                 }
             }
             
-            int rect_pos=Combo-First[current_combolist];
+            int32_t rect_pos=Combo-First[current_combolist];
             
             if((rect_pos>=0)&&(rect_pos<(First[current_combolist]+(combolist[current_combolist].w*combolist[current_combolist].h))))
                 safe_rect(menu1, (rect_pos&(combolist[current_combolist].w-1))*16+combolist[current_combolist].x, (rect_pos/combolist[current_combolist].w)*16+combolist[current_combolist].y, ((rect_pos&(combolist[current_combolist].w-1))*16+combolist[current_combolist].x)+15, ((rect_pos/combolist[current_combolist].w)*16+combolist[current_combolist].y)+15, 255);
@@ -7218,13 +7218,13 @@ void refresh(int flags)
             
             BITMAP *prv = create_bitmap_ex(8,64,64);
             clear_bitmap(prv);
-            int scalefactor = 1;
+            int32_t scalefactor = 1;
             
-            for(int j=0; j<3; ++j)
+            for(int32_t j=0; j<3; ++j)
             {
                 if(j==0||is_large)
                 {
-                    for(int i=0; i<(comboaliaslist[j].w*comboaliaslist[j].h); i++)
+                    for(int32_t i=0; i<(comboaliaslist[j].w*comboaliaslist[j].h); i++)
                     {
                         draw_combo_alias_thumbnail(menu1, &combo_aliases[combo_alistpos[j]+i], (i%comboaliaslist[j].w)*16+comboaliaslist[j].x,(i/comboaliaslist[j].w)*16+comboaliaslist[j].y,1);
                     }
@@ -7242,7 +7242,7 @@ void refresh(int flags)
                     blit(prv,menu1,0,0,comboalias_preview[j].x,comboalias_preview[j].y,comboalias_preview[j].w,comboalias_preview[j].h);
                 }
                 
-                int rect_pos=combo_apos-combo_alistpos[current_comboalist];
+                int32_t rect_pos=combo_apos-combo_alistpos[current_comboalist];
                 
                 if((rect_pos>=0)&&(rect_pos<(combo_alistpos[current_comboalist]+(comboaliaslist[current_comboalist].w*comboaliaslist[current_comboalist].h))))
                     safe_rect(menu1,(rect_pos&(combolist[current_comboalist].w-1))*16+combolist[current_comboalist].x,(rect_pos/combolist[current_comboalist].w)*16+combolist[current_comboalist].y,((rect_pos&(combolist[current_comboalist].w-1))*16+combolist[current_comboalist].x)+15,((rect_pos/combolist[current_comboalist].w)*16+combolist[current_comboalist].y)+15,255);
@@ -7254,7 +7254,7 @@ void refresh(int flags)
     
     if(flags&rCOMBO)
     {
-        int drawmap, drawscr;
+        int32_t drawmap, drawscr;
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
         
@@ -7274,7 +7274,7 @@ void refresh(int flags)
                 sprintf(buf,"Combo: %d",Combo);
                 textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-8,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
                 sprintf(buf,"CSet: %d",CSet);
-                int offs = 8;
+                int32_t offs = 8;
                 textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-8,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
                 strncpy(buf,combo_class_buf[combobuf[Combo].type].name,16);
                 
@@ -7291,9 +7291,9 @@ void refresh(int flags)
             }
             
             // Cycle
-            int NextCombo=combobuf[Combo].nextcombo;
-            int NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
-            jwin_draw_frame(menu1,combo_preview.x+int(combo_preview.w*1.5)-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
+            int32_t NextCombo=combobuf[Combo].nextcombo;
+            int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
+            jwin_draw_frame(menu1,combo_preview.x+int32_t(combo_preview.w*1.5)-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
             
             if(NextCombo>0 && draw_mode != dm_alias)
             {
@@ -7303,36 +7303,36 @@ void refresh(int flags)
                 
                 if(Flags&cFLAGS) put_flags(cycle_preview_bmp,0,0,NextCombo,0,cFLAGS,0);
                 
-                stretch_blit(cycle_preview_bmp, menu1, 0, 0, 16, 16, combo_preview.x+int(combo_preview.w*1.5), combo_preview.y, combo_preview.w, combo_preview.h);
+                stretch_blit(cycle_preview_bmp, menu1, 0, 0, 16, 16, combo_preview.x+int32_t(combo_preview.w*1.5), combo_preview.y, combo_preview.w, combo_preview.h);
             }
             else
             {
                 if(InvalidStatic)
                 {
-                    for(int dy=0; dy<32; dy++)
+                    for(int32_t dy=0; dy<32; dy++)
                     {
-                        for(int dx=0; dx<32; dx++)
+                        for(int32_t dx=0; dx<32; dx++)
                         {
-                            menu1->line[dy+combo_preview.y][dx+combo_preview.x+int(combo_preview.w*1.5)]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+                            menu1->line[dy+combo_preview.y][dx+combo_preview.x+int32_t(combo_preview.w*1.5)]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                         }
                     }
                 }
                 else
                 {
-                    rectfill(menu1, combo_preview.x+int(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(0));
-                    safe_rect(menu1, combo_preview.x+int(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
-                    line(menu1, combo_preview.x+int(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
-                    line(menu1, combo_preview.x+int(combo_preview.w*1.5),combo_preview.y+combo_preview.h, combo_preview.x+int(combo_preview.w*2.5),combo_preview.y,vc(15));
+                    rectfill(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(0));
+                    safe_rect(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
+                    line(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
+                    line(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y+combo_preview.h, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y,vc(15));
                 }
             }
             
             if(draw_mode!=dm_alias)
             {
             
-                textprintf_ex(menu1,pfont,combo_preview.x+int(combo_preview.w*2.5)+6,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Cycle: %d",NextCombo);
-                textprintf_ex(menu1,pfont,combo_preview.x+int(combo_preview.w*2.5)+6,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",NextCSet);
+                textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Cycle: %d",NextCombo);
+                textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",NextCSet);
                 char buf[17];
-                int offs = 8;
+                int32_t offs = 8;
                 strncpy(buf,combo_class_buf[combobuf[NextCombo].type].name,16);
                 
                 if(strlen(combo_class_buf[combobuf[NextCombo].type].name) > 15)
@@ -7343,7 +7343,7 @@ void refresh(int flags)
                 }
                 
                 buf[16]='\0';
-                textprintf_ex(menu1,pfont,combo_preview.x+int(combo_preview.w*2.5)+6,combo_preview.y+20,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+                textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+20,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
             }
             
         }
@@ -7371,15 +7371,15 @@ void refresh(int flags)
             
             if(draw_mode!=dm_alias)
             {
-                for(int i=0; i<(favorites_list.w*favorites_list.h); i++)
+                for(int32_t i=0; i<(favorites_list.w*favorites_list.h); i++)
                 {
                     if(favorite_combos[i]==-1)
                     {
                         if(InvalidStatic)
                         {
-                            for(int dy=0; dy<16; dy++)
+                            for(int32_t dy=0; dy<16; dy++)
                             {
-                                for(int dx=0; dx<16; dx++)
+                                for(int32_t dx=0; dx<16; dx++)
                                 {
                                     menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                                 }
@@ -7401,15 +7401,15 @@ void refresh(int flags)
             }
             else
             {
-                for(int i=0; i<(favorites_list.w*favorites_list.h); i++)
+                for(int32_t i=0; i<(favorites_list.w*favorites_list.h); i++)
                 {
                     if(favorite_comboaliases[i]==-1)
                     {
                         if(InvalidStatic)
                         {
-                            for(int dy=0; dy<16; dy++)
+                            for(int32_t dy=0; dy<16; dy++)
                             {
-                                for(int dx=0; dx<16; dx++)
+                                for(int32_t dx=0; dx<16; dx++)
                                 {
                                     menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                                 }
@@ -7444,7 +7444,7 @@ void refresh(int flags)
             FONT *tfont=font;
             font=pfont;
             
-            for(int cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
+            for(int32_t cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
             {
 				draw_layer_button(menu1,
                                  (cmd%commands_list.w)*command_buttonwidth+commands_list.x,
@@ -7478,7 +7478,7 @@ void refresh(int flags)
         bool overheadlayers = false;
         bool flyinglayers = false;
         
-        for(int i=0; i<=6; ++i)
+        for(int32_t i=0; i<=6; ++i)
         {
             char tbuf[15];
             
@@ -7495,8 +7495,8 @@ void refresh(int flags)
                 sprintf(tbuf, "%s%d", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i);
             }
             
-            int rx = (i * (layerpanel_buttonwidth+23)) + layer_panel.x+6;
-            int ry = layer_panel.y+16;
+            int32_t rx = (i * (layerpanel_buttonwidth+23)) + layer_panel.x+6;
+            int32_t ry = layer_panel.y+16;
             //draw_text_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14), CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0,true);
             draw_layer_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
             draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+2,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[i]!=0);
@@ -7530,7 +7530,7 @@ void refresh(int flags)
     // } //if(true)
     if(zq_showpal)
     {
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
         {
             rectfill(menu1,((i&15)<<2)+256,((i>>4)<<2)+176,((i&15)<<2)+259,((i>>4)<<2)+179,i);
         }
@@ -7556,9 +7556,9 @@ void refresh(int flags)
     
     if(ShowFFScripts && !prv_mode)
     {
-        int ypos = ShowFPS ? 28 : 18;
+        int32_t ypos = ShowFPS ? 28 : 18;
         
-        for(int i=0; i< MAXFFCS; i++)
+        for(int32_t i=0; i< MAXFFCS; i++)
             if(Map.CurrScr()->ffscript[i] && Map.CurrScr()->ffdata[i])
             {
                 textout_shadowed_ex(menu1,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.c_str(),2,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
@@ -7572,7 +7572,7 @@ void refresh(int flags)
     // the String, every Room Type and Catch All, and all four Tile and Side Warps.
     if(is_large && !prv_mode && ShowInfo)
     {
-        int i=0;
+        int32_t i=0;
         char buf[2048];
         
         // Start with general information
@@ -7588,7 +7588,7 @@ void refresh(int flags)
                 //It was also required to set some updates in onDecMap and onIncMap. #
 		//This fixes Screen Info not displaying properly when changing maps. -Z 
 		//Needed to refresh the screen info. -Z ( 26th March, 2019 )
-            int m = Map.getLayerTargetMultiple();
+            int32_t m = Map.getLayerTargetMultiple();
             sprintf(buf,"Used as a layer by screen %d:%02X",Map.getLayerTargetMap(),Map.getLayerTargetScr());
             char buf2[16];
             
@@ -7688,7 +7688,7 @@ void refresh(int flags)
             
         case rINFO:
         {
-            int shop = Map.CurrScr()->catchall;
+            int32_t shop = Map.CurrScr()->catchall;
             sprintf(buf,"Pay For Info: -%d, -%d, -%d",
                     misc.info[shop].price[0],misc.info[shop].price[1],misc.info[shop].price[2]);
             show_screen_error(buf,i++, vc(15));
@@ -7725,11 +7725,11 @@ void refresh(int flags)
         case rP_SHOP:
         case rSHOP:
         {
-            int shop = Map.CurrScr()->catchall;
+            int32_t shop = Map.CurrScr()->catchall;
             sprintf(buf,"%sShop: ",
                     Map.CurrScr()->room==rP_SHOP ? "Potion ":"");
                     
-            for(int j=0; j<3; j++) if(misc.shop[shop].item[j]>0)  // Print the 3 items and prices
+            for(int32_t j=0; j<3; j++) if(misc.shop[shop].item[j]>0)  // Print the 3 items and prices
                 {
                     strcat(buf,item_string[misc.shop[shop].item[j]]);
                     strcat(buf,":");
@@ -7746,7 +7746,7 @@ void refresh(int flags)
         
         case rTAKEONE:
         {
-            int shop = Map.CurrScr()->catchall;
+            int32_t shop = Map.CurrScr()->catchall;
             sprintf(buf,"Take Only One: %s%s%s%s%s",
                     misc.shop[shop].item[0]<1?"":item_string[misc.shop[shop].item[0]],misc.shop[shop].item[0]>0?", ":"",
                     misc.shop[shop].item[1]<1?"":item_string[misc.shop[shop].item[1]],(misc.shop[shop].item[1]>0&&misc.shop[shop].item[2]>0)?", ":"",
@@ -7798,11 +7798,11 @@ void refresh(int flags)
         
         bool undercombo = false, warpa = false, warpb = false, warpc = false, warpd = false, warpr = false;
         
-        for(int c=0; c<176+128+1+MAXFFCS; ++c)
+        for(int32_t c=0; c<176+128+1+MAXFFCS; ++c)
         {
             // Checks both combos, secret combos, undercombos and FFCs
 //Fixme:
-            int ctype =
+            int32_t ctype =
                 combobuf[vbound(
                              (c>=305 ? Map.CurrScr()->ffdata[c-305] :
                               c>=304 ? Map.CurrScr()->undercombo :
@@ -7912,7 +7912,7 @@ void refresh(int flags)
             }
         }
         
-        int sidewarpnotify = 0;
+        int32_t sidewarpnotify = 0;
         
         if(Map.CurrScr()->flags2&wfUP)
         {
@@ -8009,25 +8009,25 @@ void select_scr()
     if(Map.getCurrMap()>=Map.getMapCount())
         return;
         
-    int tempcb=ComboBrush;
+    int32_t tempcb=ComboBrush;
     ComboBrush=0;
     
     //scooby
     while(gui_mouse_b())
     {
         /*
-            int x=gui_mouse_x();
+            int32_t x=gui_mouse_x();
             if(x>minimap.x+(minimap.w-6)*BMM)   x=minimap.x+3+(minimap.w-6)*BMM;
             if(x<minimap.x+3)   x=minimap.x+3;
-            int y=gui_mouse_y();
+            int32_t y=gui_mouse_y();
             if(y>minimap.y+9+3+(minimap.h-6)*BMM) y=minimap.y+9+3+(minimap.h-6)*BMM;
             if(y<minimap.y+9+3) y=minimap.y+9+3;
-            int s=(((y-(minimap.y+9+3))/(3*BMM))<<4)+((x-(minimap.x+3))/(3*BMM));
+            int32_t s=(((y-(minimap.y+9+3))/(3*BMM))<<4)+((x-(minimap.x+3))/(3*BMM));
         */
         
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
-        int s=(vbound(((y-(minimap.y+9+3))/(3*BMM)),0,8)  <<4)+ vbound(((x-(minimap.x+3))/(3*BMM)),0,15);
+        int32_t x=gui_mouse_x();
+        int32_t y=gui_mouse_y();
+        int32_t s=(vbound(((y-(minimap.y+9+3))/(3*BMM)),0,8)  <<4)+ vbound(((x-(minimap.x+3))/(3*BMM)),0,15);
         
         if(s>=MAPSCRS)
             s-=16;
@@ -8048,26 +8048,26 @@ void select_scr()
 
 bool select_favorite()
 {
-    int tempcb=ComboBrush;
+    int32_t tempcb=ComboBrush;
     ComboBrush=0;
     bool valid=false;
     
     while(gui_mouse_b())
     {
         valid=false;
-        int x=gui_mouse_x();
+        int32_t x=gui_mouse_x();
         
         if(x<favorites_list.x) x=favorites_list.x;
         
         if(x>favorites_list.x+(favorites_list.w*16)-1) x=favorites_list.x+(favorites_list.w*16)-1;
         
-        int y=gui_mouse_y();
+        int32_t y=gui_mouse_y();
         
         if(y<favorites_list.y) y=favorites_list.y;
         
         if(y>favorites_list.y+(favorites_list.h*16)-1) y=favorites_list.y+(favorites_list.h*16)-1;
         
-        int tempc=(((y-favorites_list.y)>>4)*favorites_list.w)+((x-favorites_list.x)>>4);
+        int32_t tempc=(((y-favorites_list.y)>>4)*favorites_list.w)+((x-favorites_list.x)>>4);
         
         if(draw_mode!=dm_alias)
         {
@@ -8094,21 +8094,21 @@ bool select_favorite()
     return valid;
 }
 
-void select_combo(int clist)
+void select_combo(int32_t clist)
 {
     current_combolist=clist;
-    int tempcb=ComboBrush;
+    int32_t tempcb=ComboBrush;
     ComboBrush=0;
     
     while(gui_mouse_b())
     {
-        int x=gui_mouse_x();
+        int32_t x=gui_mouse_x();
         
         if(x<combolist[current_combolist].x) x=combolist[current_combolist].x;
         
         if(x>combolist[current_combolist].x+(combolist[current_combolist].w*16)-1) x=combolist[current_combolist].x+(combolist[current_combolist].w*16)-1;
         
-        int y=gui_mouse_y();
+        int32_t y=gui_mouse_y();
         
         if(y<combolist[current_combolist].y) y=combolist[current_combolist].y;
         
@@ -8122,22 +8122,22 @@ void select_combo(int clist)
     ComboBrush=tempcb;
 }
 
-void select_comboa(int clist)
+void select_comboa(int32_t clist)
 {
     current_comboalist=clist;
-    int tempcb=ComboBrush;
+    int32_t tempcb=ComboBrush;
     ComboBrush=0;
     alias_cset_mod=0;
     
     while(gui_mouse_b())
     {
-        int x=gui_mouse_x();
+        int32_t x=gui_mouse_x();
         
         if(x<comboaliaslist[current_comboalist].x) x=comboaliaslist[current_comboalist].x;
         
         if(x>comboaliaslist[current_comboalist].x+(comboaliaslist[current_comboalist].w*16)-1) x=comboaliaslist[current_comboalist].x+(comboaliaslist[current_comboalist].w*16)-1;
         
-        int y=gui_mouse_y();
+        int32_t y=gui_mouse_y();
         
         if(y<comboaliaslist[current_comboalist].y) y=comboaliaslist[current_comboalist].y;
         
@@ -8157,14 +8157,14 @@ void update_combobrush()
     
     if(draw_mode==dm_alias)
     {
-        //int count=(combo_aliases[combo_apos].width+1)*(combo_aliases[combo_apos].height+1)*(comboa_lmasktotal(combo_aliases[combo_apos].layermask));
-        for(int z=0; z<=comboa_lmasktotal(combo_aliases[combo_apos].layermask); z++)
+        //int32_t count=(combo_aliases[combo_apos].width+1)*(combo_aliases[combo_apos].height+1)*(comboa_lmasktotal(combo_aliases[combo_apos].layermask));
+        for(int32_t z=0; z<=comboa_lmasktotal(combo_aliases[combo_apos].layermask); z++)
         {
-            for(int y=0; y<=combo_aliases[combo_apos].height; y++)
+            for(int32_t y=0; y<=combo_aliases[combo_apos].height; y++)
             {
-                for(int x=0; x<=combo_aliases[combo_apos].width; x++)
+                for(int32_t x=0; x<=combo_aliases[combo_apos].width; x++)
                 {
-                    int position = ((y*(combo_aliases[combo_apos].width+1))+x)+((combo_aliases[combo_apos].width+1)*(combo_aliases[combo_apos].height+1)*z);
+                    int32_t position = ((y*(combo_aliases[combo_apos].width+1))+x)+((combo_aliases[combo_apos].width+1)*(combo_aliases[combo_apos].height+1)*z);
                     
                     if(combo_aliases[combo_apos].combos[position])
                     {
@@ -8208,7 +8208,7 @@ void update_combobrush()
     {
         if(combo_cols==false)
         {
-            for(int i=0; i<256; i++)
+            for(int32_t i=0; i<256; i++)
             {
                 if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
                 {
@@ -8218,9 +8218,9 @@ void update_combobrush()
         }
         else
         {
-            int c = 0;
+            int32_t c = 0;
             
-            for(int i=0; i<256; i++)
+            for(int32_t i=0; i<256; i++)
             {
                 if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
                 {
@@ -8264,7 +8264,7 @@ void draw(bool justcset)
 {
     Map.Ugo();
     saved=false;
-    int drawmap, drawscr;
+    int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
     {
@@ -8293,33 +8293,33 @@ void draw(bool justcset)
     
     while(gui_mouse_b())
     {
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
+        int32_t x=gui_mouse_x();
+        int32_t y=gui_mouse_y();
         double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
         double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-        int startxint=mapscreen_x+(showedges?int(16*mapscreensize):0);
-        int startyint=mapscreen_y+(showedges?int(16*mapscreensize):0);
+        int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
+        int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
         
-        if(isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1)))
+        if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
         {
-            int cxstart=(x-startxint)/int(16*mapscreensize);
-            int cystart=(y-startyint)/int(16*mapscreensize);
-            int cstart=(cystart*16)+cxstart;
+            int32_t cxstart=(x-startxint)/int32_t(16*mapscreensize);
+            int32_t cystart=(y-startyint)/int32_t(16*mapscreensize);
+            int32_t cstart=(cystart*16)+cxstart;
             combo_alias *combo = &combo_aliases[combo_apos];
             
             switch(draw_mode)
             {
             case dm_normal:
             {
-                int cc=Combo;
+                int32_t cc=Combo;
                 
                 if(!combo_cols)
                 {
-                    for(int cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
+                    for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
                     {
-                        for(int cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
+                        for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
                         {
-                            int c=cstart+(cy*16)+cx;
+                            int32_t c=cstart+(cy*16)+cx;
                             
                             if(!(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
                             {
@@ -8334,14 +8334,14 @@ void draw(bool justcset)
                 }
                 else
                 {
-                    int p=Combo/256;
-                    int pc=Combo%256;
+                    int32_t p=Combo/256;
+                    int32_t pc=Combo%256;
                     
-                    for(int cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
+                    for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
                     {
-                        for(int cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
+                        for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
                         {
-                            int c=cstart+(cy*16)+cx;
+                            int32_t c=cstart+(cy*16)+cx;
                             cc=((cx/4)*52)+(cy*4)+(cx%4)+pc;
                             
                             if(cc>=0&&cc<256)
@@ -8362,8 +8362,8 @@ void draw(bool justcset)
             
             case dm_relational:
             {
-                int c2,c3;
-                int cx, cy, cx2, cy2;
+                int32_t c2,c3;
+                int32_t cx, cy, cx2, cy2;
                 cy=cstart>>4;
                 cx=cstart&15;
                 
@@ -8378,7 +8378,7 @@ void draw(bool justcset)
                     relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=0;
                 }
                 
-                for(int y2=-1; y2<2; ++y2)
+                for(int32_t y2=-1; y2<2; ++y2)
                 {
                     cy2=cy+y2;
                     
@@ -8387,7 +8387,7 @@ void draw(bool justcset)
                         continue;
                     }
                     
-                    for(int x2=-1; x2<2; ++x2)
+                    for(int32_t x2=-1; x2<2; ++x2)
                     {
                         cx2=cx+x2;
                         
@@ -8418,8 +8418,8 @@ void draw(bool justcset)
             
             case dm_dungeon:
             {
-                int c2,c3,c4;
-                int cx, cy, cx2, cy2;
+                int32_t c2,c3,c4;
+                int32_t cx, cy, cx2, cy2;
                 cy=cstart>>4;
                 cx=cstart&15;
                 
@@ -8427,7 +8427,7 @@ void draw(bool justcset)
                 {
                     relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=0;
                     
-                    for(int y2=-1; y2<2; ++y2)
+                    for(int32_t y2=-1; y2<2; ++y2)
                     {
                         cy2=cy+y2;
                         
@@ -8436,7 +8436,7 @@ void draw(bool justcset)
                             continue;
                         }
                         
-                        for(int x2=-1; x2<2; ++x2)
+                        for(int32_t x2=-1; x2<2; ++x2)
                         {
                             cx2=cx+x2;
                             
@@ -8459,7 +8459,7 @@ void draw(bool justcset)
                 {
                     relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=2;
                     
-                    for(int y2=-1; y2<2; ++y2)
+                    for(int32_t y2=-1; y2<2; ++y2)
                     {
                         cy2=cy+y2;
                         
@@ -8468,7 +8468,7 @@ void draw(bool justcset)
                             continue;
                         }
                         
-                        for(int x2=-1; x2<2; ++x2)
+                        for(int32_t x2=-1; x2<2; ++x2)
                         {
                             cx2=cx+x2;
                             
@@ -8488,9 +8488,9 @@ void draw(bool justcset)
                     Map.AbsoluteScr(drawmap, drawscr)->cset[cstart]=CSet;
                 }
                 
-                for(int y2=0; y2<11; ++y2)
+                for(int32_t y2=0; y2<11; ++y2)
                 {
-                    for(int x2=0; x2<16; ++x2)
+                    for(int32_t x2=0; x2<16; ++x2)
                     {
                         c2=(y2*16)+x2;
                         c4=relational_tile_grid[((y2)+rtgyo)][(x2)+rtgxo];
@@ -8516,7 +8516,7 @@ void draw(bool justcset)
             case dm_alias:
                 if(!combo->layermask)
                 {
-                    int ox=0, oy=0;
+                    int32_t ox=0, oy=0;
                     
                     switch(alias_origin)
                     {
@@ -8541,14 +8541,14 @@ void draw(bool justcset)
                         break;
                     }
                     
-                    for(int cy=0; cy-oy+cystart<11&&cy<=combo->height; cy++)
+                    for(int32_t cy=0; cy-oy+cystart<11&&cy<=combo->height; cy++)
                     {
-                        for(int cx=0; cx-ox+cxstart<16&&cx<=combo->width; cx++)
+                        for(int32_t cx=0; cx-ox+cxstart<16&&cx<=combo->width; cx++)
                         {
                             if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
                             {
-                                int c=cstart+((cy-oy)*16)+cx-ox;
-                                int p=(cy*(combo->width+1))+cx;
+                                int32_t c=cstart+((cy-oy)*16)+cx-ox;
+                                int32_t p=(cy*(combo->width+1))+cx;
                                 
                                 if(combo->combos[p])
                                 {
@@ -8561,10 +8561,10 @@ void draw(bool justcset)
                 }
                 else
                 {
-                    int amap=0, ascr=0;
-                    int lcheck = 1;
-                    int laypos = 0;
-                    int ox=0, oy=0;
+                    int32_t amap=0, ascr=0;
+                    int32_t lcheck = 1;
+                    int32_t laypos = 0;
+                    int32_t ox=0, oy=0;
                     
                     switch(alias_origin)
                     {
@@ -8589,7 +8589,7 @@ void draw(bool justcset)
                         break;
                     }
                     
-                    for(int cz=0; cz<7; cz++, lcheck<<=1)
+                    for(int32_t cz=0; cz<7; cz++, lcheck<<=1)
                     {
                         if(!cz)
                         {
@@ -8608,9 +8608,9 @@ void draw(bool justcset)
                             }
                         }
                         
-                        for(int cy=0; cy-oy+cystart<11&&cy<=combo->height; cy++)
+                        for(int32_t cy=0; cy-oy+cystart<11&&cy<=combo->height; cy++)
                         {
-                            for(int cx=0; cx-ox+cxstart<16&&cx<=combo->width; cx++)
+                            for(int32_t cx=0; cx-ox+cxstart<16&&cx<=combo->width; cx++)
                             {
                                 if((!cz)||/*(Map.CurrScr()->layermap[cz>0?cz-1:0])*/amap>=0)
                                 {
@@ -8618,8 +8618,8 @@ void draw(bool justcset)
                                     {
                                         if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
                                         {
-                                            int c=cstart+((cy-oy)*16)+cx-ox;
-                                            int p=((cy*(combo->width+1))+cx)+((combo->width+1)*(combo->height+1)*laypos);
+                                            int32_t c=cstart+((cy-oy)*16)+cx-ox;
+                                            int32_t p=((cy*(combo->width+1))+cx)+((combo->width+1)*(combo->height+1)*laypos);
                                             
                                             if((combo->combos[p])&&(amap>=0))
                                             {
@@ -8646,11 +8646,11 @@ void draw(bool justcset)
 
 
 
-void replace(int c)
+void replace(int32_t c)
 {
     saved=false;
     Map.Ugo();
-    int drawmap, drawscr;
+    int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
     {
@@ -8668,12 +8668,12 @@ void replace(int c)
         }
     }
     
-    int targetcombo = Map.AbsoluteScr(drawmap, drawscr)->data[c];
-    int targetcset  = Map.AbsoluteScr(drawmap, drawscr)->cset[c];
+    int32_t targetcombo = Map.AbsoluteScr(drawmap, drawscr)->data[c];
+    int32_t targetcset  = Map.AbsoluteScr(drawmap, drawscr)->cset[c];
     
     if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
-        for(int i=0; i<176; i++)
+        for(int32_t i=0; i<176; i++)
         {
             if((Map.AbsoluteScr(drawmap, drawscr)->cset[i])==targetcset)
             {
@@ -8683,7 +8683,7 @@ void replace(int c)
     }
     else
     {
-        for(int i=0; i<176; i++)
+        for(int32_t i=0; i<176; i++)
         {
             if(((Map.AbsoluteScr(drawmap, drawscr)->data[i])==targetcombo) &&
                     ((Map.AbsoluteScr(drawmap, drawscr)->cset[i])==targetcset))
@@ -8697,11 +8697,11 @@ void replace(int c)
     refresh(rMAP);
 }
 
-void draw_block(int start,int w,int h)
+void draw_block(int32_t start,int32_t w,int32_t h)
 {
     saved=false;
     Map.Ugo();
-    int drawmap, drawscr;
+    int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
     {
@@ -8726,8 +8726,8 @@ void draw_block(int start,int w,int h)
         Map.setcolor(Color);
     }
     
-    for(int y=0; y<h && (y<<4)+start < 176; y++)
-        for(int x=0; x<w && (start&15)+x < 16; x++)
+    for(int32_t y=0; y<h && (y<<4)+start < 176; y++)
+        for(int32_t x=0; x<w && (start&15)+x < 16; x++)
         {
             Map.AbsoluteScr(drawmap, drawscr)->data[start+(y<<4)+x]=Combo+(y*4)+x;
             Map.AbsoluteScr(drawmap, drawscr)->cset[start+(y<<4)+x]=CSet;
@@ -8737,7 +8737,7 @@ void draw_block(int start,int w,int h)
     refresh(rMAP+rSCRMAP);
 }
 
-void fill(mapscr* fillscr, int targetcombo, int targetcset, int sx, int sy, int dir, int diagonal, bool only_cset)
+void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
 {
     if(!only_cset)
     {
@@ -8785,7 +8785,7 @@ void fill(mapscr* fillscr, int targetcombo, int targetcset, int sx, int sy, int 
 }
 
 
-void fill2(mapscr* fillscr, int targetcombo, int targetcset, int sx, int sy, int dir, int diagonal, bool only_cset)
+void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
 {
     if(!only_cset)
     {
@@ -8836,24 +8836,24 @@ void fill2(mapscr* fillscr, int targetcombo, int targetcset, int sx, int sy, int
 /*****     Mouse      *****/
 /**************************/
 
-void doxypos(byte &px2,byte &py2,int color,int mask)
+void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask)
 {
     doxypos(px2,py2,color,mask,false,0,0,16,16);
 }
 
-void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int cursoroffx, int cursoroffy, int iconw, int iconh)
+void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, int32_t cursoroffx, int32_t cursoroffy, int32_t iconw, int32_t iconh)
 {
-    int tempcb=ComboBrush;
+    int32_t tempcb=ComboBrush;
     ComboBrush=0;
     scare_mouse();
     set_mouse_sprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
     unscare_mouse();
     
-    int oldpx=px2, oldpy=py2;
+    int32_t oldpx=px2, oldpy=py2;
     double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
     double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-    int startxint=mapscreen_x+(showedges?int(16*mapscreensize):0);
-    int startyint=mapscreen_y+(showedges?int(16*mapscreensize):0);
+    int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
+    int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
     showxypos_x=px2;
     showxypos_y=py2;
     showxypos_w=iconw;
@@ -8865,29 +8865,29 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
     
     while(!done && (!(gui_mouse_b()&2) || immediately))
     {
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
+        int32_t x=gui_mouse_x();
+        int32_t y=gui_mouse_y();
         
         if(!gui_mouse_b() || immediately)
         {
             canedit=true;
         }
         
-        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1)))
+        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
         {
             scare_mouse();
-            zq_set_mouse_range(startxint,startyint,int(startxint+(256*mapscreensize)-1),int(startyint+(176*mapscreensize)-1));
+            zq_set_mouse_range(startxint,startyint,int32_t(startxint+(256*mapscreensize)-1),int32_t(startyint+(176*mapscreensize)-1));
             
             while(gui_mouse_b()==1)
             {
-                x=int((gui_mouse_x()-(showedges?int(16*mapscreensize):0))/mapscreensize)-cursoroffx;
-                y=int((gui_mouse_y()-16-(showedges?int(16*mapscreensize):0))/mapscreensize)-cursoroffy;
+                x=int32_t((gui_mouse_x()-(showedges?int32_t(16*mapscreensize):0))/mapscreensize)-cursoroffx;
+                y=int32_t((gui_mouse_y()-16-(showedges?int32_t(16*mapscreensize):0))/mapscreensize)-cursoroffy;
                 showxypos_cursor_icon=true;
                 showxypos_cursor_x=x&mask;
                 showxypos_cursor_y=y&mask;
                 do_animations();
                 refresh(rALL | rNOCURSOR);
-                int xpos, ypos;
+                int32_t xpos, ypos;
                 
                 if(is_large)
                 {
@@ -8900,7 +8900,7 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
                     ypos = 500;
                 }
                 
-                textprintf_ex(screen,font,xpos,ypos,vc(15),vc(0),"%d %d %d %d",startxint,startyint,int(startxint+(256*mapscreensize)-1),int(startyint+(176*mapscreensize)-1));
+                textprintf_ex(screen,font,xpos,ypos,vc(15),vc(0),"%d %d %d %d",startxint,startyint,int32_t(startxint+(256*mapscreensize)-1),int32_t(startyint+(176*mapscreensize)-1));
                 textprintf_ex(screen,font,xpos,ypos+10,vc(15),vc(0),"%d %d %d %d %d %d",x,y,gui_mouse_x(),gui_mouse_y(),showxypos_cursor_x,showxypos_cursor_y);
             }
             
@@ -8966,7 +8966,7 @@ finished:
 void doflags()
 {
     set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-    int of=Flags;
+    int32_t of=Flags;
     Flags=cFLAGS;
     refresh(rMAP | rNOCURSOR);
     
@@ -8974,20 +8974,20 @@ void doflags()
     
     while(!(gui_mouse_b()&2))
     {
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
+        int32_t x=gui_mouse_x();
+        int32_t y=gui_mouse_y();
         double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
         double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-        int startxint=mapscreen_x+(showedges?int(16*mapscreensize):0);
-        int startyint=mapscreen_y+(showedges?int(16*mapscreensize):0);
-        int cx=(x-startxint)/int(16*mapscreensize);
-        int cy=(y-startyint)/int(16*mapscreensize);
-        int c=(cy*16)+cx;
+        int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
+        int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
+        int32_t cx=(x-startxint)/int32_t(16*mapscreensize);
+        int32_t cy=(y-startyint)/int32_t(16*mapscreensize);
+        int32_t c=(cy*16)+cx;
         
         if(!gui_mouse_b())
             canedit=true;
             
-        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1)))
+        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
         {
             saved=false;
             
@@ -9017,7 +9017,7 @@ void doflags()
         
         if(mouse_z)
         {
-            for(int i=0; i<abs(mouse_z); ++i)
+            for(int32_t i=0; i<abs(mouse_z); ++i)
             {
                 if(mouse_z>0)
                 {
@@ -9111,14 +9111,14 @@ finished:
 }
 
 // Drag FFCs around
-void moveffc(int i, int cx, int cy)
+void moveffc(int32_t i, int32_t cx, int32_t cy)
 {
-    int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
-    int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
+    int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
+    int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
     showxypos_ffc = i;
     doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,((1+(Map.CurrScr()->ffwidth[i]>>6))*16),((1+(Map.CurrScr()->ffheight[i]>>6))*16));
     
-    if((ffx != int(Map.CurrScr()->ffx[i]/10000.0)) || (ffy != int(Map.CurrScr()->ffy[i]/10000.0)))
+    if((ffx != int32_t(Map.CurrScr()->ffx[i]/10000.0)) || (ffy != int32_t(Map.CurrScr()->ffy[i]/10000.0)))
     {
         Map.CurrScr()->ffx[i] = ffx*10000;
         Map.CurrScr()->ffy[i] = ffy*10000;
@@ -9126,141 +9126,141 @@ void moveffc(int i, int cx, int cy)
     }
 }
 
-void set_brush_width(int width);
-void set_brush_height(int height);
+void set_brush_width(int32_t width);
+void set_brush_height(int32_t height);
 
-int set_brush_width_1()
+int32_t set_brush_width_1()
 {
     set_brush_width(1);
     return D_O_K;
 }
-int set_brush_width_2()
+int32_t set_brush_width_2()
 {
     set_brush_width(2);
     return D_O_K;
 }
-int set_brush_width_3()
+int32_t set_brush_width_3()
 {
     set_brush_width(3);
     return D_O_K;
 }
-int set_brush_width_4()
+int32_t set_brush_width_4()
 {
     set_brush_width(4);
     return D_O_K;
 }
-int set_brush_width_5()
+int32_t set_brush_width_5()
 {
     set_brush_width(5);
     return D_O_K;
 }
-int set_brush_width_6()
+int32_t set_brush_width_6()
 {
     set_brush_width(6);
     return D_O_K;
 }
-int set_brush_width_7()
+int32_t set_brush_width_7()
 {
     set_brush_width(7);
     return D_O_K;
 }
-int set_brush_width_8()
+int32_t set_brush_width_8()
 {
     set_brush_width(8);
     return D_O_K;
 }
-int set_brush_width_9()
+int32_t set_brush_width_9()
 {
     set_brush_width(9);
     return D_O_K;
 }
-int set_brush_width_10()
+int32_t set_brush_width_10()
 {
     set_brush_width(10);
     return D_O_K;
 }
-int set_brush_width_11()
+int32_t set_brush_width_11()
 {
     set_brush_width(11);
     return D_O_K;
 }
-int set_brush_width_12()
+int32_t set_brush_width_12()
 {
     set_brush_width(12);
     return D_O_K;
 }
-int set_brush_width_13()
+int32_t set_brush_width_13()
 {
     set_brush_width(13);
     return D_O_K;
 }
-int set_brush_width_14()
+int32_t set_brush_width_14()
 {
     set_brush_width(14);
     return D_O_K;
 }
-int set_brush_width_15()
+int32_t set_brush_width_15()
 {
     set_brush_width(15);
     return D_O_K;
 }
-int set_brush_width_16()
+int32_t set_brush_width_16()
 {
     set_brush_width(16);
     return D_O_K;
 }
 
-int set_brush_height_1()
+int32_t set_brush_height_1()
 {
     set_brush_height(1);
     return D_O_K;
 }
-int set_brush_height_2()
+int32_t set_brush_height_2()
 {
     set_brush_height(2);
     return D_O_K;
 }
-int set_brush_height_3()
+int32_t set_brush_height_3()
 {
     set_brush_height(3);
     return D_O_K;
 }
-int set_brush_height_4()
+int32_t set_brush_height_4()
 {
     set_brush_height(4);
     return D_O_K;
 }
-int set_brush_height_5()
+int32_t set_brush_height_5()
 {
     set_brush_height(5);
     return D_O_K;
 }
-int set_brush_height_6()
+int32_t set_brush_height_6()
 {
     set_brush_height(6);
     return D_O_K;
 }
-int set_brush_height_7()
+int32_t set_brush_height_7()
 {
     set_brush_height(7);
     return D_O_K;
 }
-int set_brush_height_8()
+int32_t set_brush_height_8()
 {
     set_brush_height(8);
     return D_O_K;
 }
-int set_brush_height_9()
+int32_t set_brush_height_9()
 {
     set_brush_height(9);
     return D_O_K;
 }
-int set_brush_height_10()
+int32_t set_brush_height_10()
 {
     set_brush_height(10);
     return D_O_K;
 }
-int set_brush_height_11()
+int32_t set_brush_height_11()
 {
     set_brush_height(11);
     return D_O_K;
@@ -9304,16 +9304,16 @@ static MENU brush_height_menu[] =
     { NULL,                 NULL,                 NULL, 0, NULL }
 };
 
-int set_flood();
-int set_fill_4();
-int set_fill_8();
-int set_fill2_4();
-int set_fill2_8();
+int32_t set_flood();
+int32_t set_fill_4();
+int32_t set_fill_8();
+int32_t set_fill2_4();
+int32_t set_fill2_8();
 
 void flood()
 {
-    // int start=0, w=0, h=0;
-    int drawmap, drawscr;
+    // int32_t start=0, w=0, h=0;
+    int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
     {
@@ -9341,18 +9341,18 @@ void flood()
         Map.setcolor(Color);
     }
     
-    /* for(int y=0; y<h && (y<<4)+start < 176; y++)
-      for(int x=0; x<w && (start&15)+x < 16; x++)
+    /* for(int32_t y=0; y<h && (y<<4)+start < 176; y++)
+      for(int32_t x=0; x<w && (start&15)+x < 16; x++)
       */
     if(!(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
     {
-        for(int i=0; i<176; i++)
+        for(int32_t i=0; i<176; i++)
         {
             Map.AbsoluteScr(drawmap, drawscr)->data[i]=Combo;
         }
     }
     
-    for(int i=0; i<176; i++)
+    for(int32_t i=0; i<176; i++)
     {
         Map.AbsoluteScr(drawmap, drawscr)->cset[i]=CSet;
     }
@@ -9362,7 +9362,7 @@ void flood()
 
 void fill_4()
 {
-    int drawmap, drawscr;
+    int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
     {
@@ -9380,10 +9380,10 @@ void fill_4()
         }
     }
     
-    int x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
-    int y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
-    int by= (y>>4)/(mapscreensize);
-    int bx= (x>>4)/(mapscreensize);
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
+    int32_t by= (y>>4)/(mapscreensize);
+    int32_t bx= (x>>4)/(mapscreensize);
     
     if(Map.AbsoluteScr(drawmap,drawscr)->cset[(by<<4)+bx]!=CSet ||
             (Map.AbsoluteScr(drawmap,drawscr)->data[(by<<4)+bx]!=Combo &&
@@ -9408,7 +9408,7 @@ void fill_4()
 
 void fill_8()
 {
-    int drawmap, drawscr;
+    int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
     {
@@ -9426,10 +9426,10 @@ void fill_8()
         }
     }
     
-    int x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
-    int y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
-    int by= (y>>4)/(mapscreensize);
-    int bx= (x>>4)/(mapscreensize);
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
+    int32_t by= (y>>4)/(mapscreensize);
+    int32_t bx= (x>>4)/(mapscreensize);
     
     if(Map.AbsoluteScr(drawmap,drawscr)->cset[(by<<4)+bx]!=CSet ||
             (Map.AbsoluteScr(drawmap,drawscr)->data[(by<<4)+bx]!=Combo &&
@@ -9454,7 +9454,7 @@ void fill_8()
 
 void fill2_4()
 {
-    int drawmap, drawscr;
+    int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
     {
@@ -9473,10 +9473,10 @@ void fill2_4()
         }
     }
     
-    int x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
-    int y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);;
-    int by= (((y&0xF0))>>4)/(mapscreensize);
-    int bx= (x>>4)/(mapscreensize);
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);;
+    int32_t by= (((y&0xF0))>>4)/(mapscreensize);
+    int32_t bx= (x>>4)/(mapscreensize);
     
     saved=false;
     Map.Ugo();
@@ -9494,7 +9494,7 @@ void fill2_4()
 
 void fill2_8()
 {
-    int drawmap, drawscr;
+    int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
     {
@@ -9512,10 +9512,10 @@ void fill2_8()
         }
     }
     
-    int x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
-    int y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);;
-    int by= (((y&0xF0))>>4)/(mapscreensize);
-    int bx= (x>>4)/(mapscreensize);
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);;
+    int32_t by= (((y&0xF0))>>4)/(mapscreensize);
+    int32_t bx= (x>>4)/(mapscreensize);
     
     saved=false;
     Map.Ugo();
@@ -9541,9 +9541,9 @@ static MENU fill_menu[] =
     { NULL,                              NULL,        NULL, 0, NULL }
 };
 
-int set_flood()
+int32_t set_flood()
 {
-    for(int x=0; x<5; x++)
+    for(int32_t x=0; x<5; x++)
     {
         fill_menu[x].flags=0;
     }
@@ -9553,9 +9553,9 @@ int set_flood()
     return D_O_K;
 }
 
-int set_fill_4()
+int32_t set_fill_4()
 {
-    for(int x=0; x<5; x++)
+    for(int32_t x=0; x<5; x++)
     {
         fill_menu[x].flags=0;
     }
@@ -9565,9 +9565,9 @@ int set_fill_4()
     return D_O_K;
 }
 
-int set_fill_8()
+int32_t set_fill_8()
 {
-    for(int x=0; x<5; x++)
+    for(int32_t x=0; x<5; x++)
     {
         fill_menu[x].flags=0;
     }
@@ -9577,9 +9577,9 @@ int set_fill_8()
     return D_O_K;
 }
 
-int set_fill2_4()
+int32_t set_fill2_4()
 {
-    for(int x=0; x<5; x++)
+    for(int32_t x=0; x<5; x++)
     {
         fill_menu[x].flags=0;
     }
@@ -9589,9 +9589,9 @@ int set_fill2_4()
     return D_O_K;
 }
 
-int set_fill2_8()
+int32_t set_fill2_8()
 {
-    for(int x=0; x<5; x++)
+    for(int32_t x=0; x<5; x++)
     {
         fill_menu[x].flags=0;
     }
@@ -9601,49 +9601,49 @@ int set_fill2_8()
     return D_O_K;
 }
 
-int draw_block_1_2()
+int32_t draw_block_1_2()
 {
     draw_block(mousecomboposition,1,2);
     return D_O_K;
 }
 
-int draw_block_2_1()
+int32_t draw_block_2_1()
 {
     draw_block(mousecomboposition,2,1);
     return D_O_K;
 }
 
-int draw_block_2_2()
+int32_t draw_block_2_2()
 {
     draw_block(mousecomboposition,2,2);
     return D_O_K;
 }
 
-int draw_block_2_3()
+int32_t draw_block_2_3()
 {
     draw_block(mousecomboposition,2,3);
     return D_O_K;
 }
 
-int draw_block_3_2()
+int32_t draw_block_3_2()
 {
     draw_block(mousecomboposition,3,2);
     return D_O_K;
 }
 
-int draw_block_3_3()
+int32_t draw_block_3_3()
 {
     draw_block(mousecomboposition,3,3);
     return D_O_K;
 }
 
-int draw_block_4_2()
+int32_t draw_block_4_2()
 {
     draw_block(mousecomboposition,4,2);
     return D_O_K;
 }
 
-int draw_block_4_4()
+int32_t draw_block_4_4()
 {
     draw_block(mousecomboposition,4,4);
     return D_O_K;
@@ -9670,9 +9670,9 @@ static MENU paste_screen_menu[] =
     { NULL,                              NULL,            NULL,    0, NULL }
 };
 
- void onRCSelectCombo(int c)
+ void onRCSelectCombo(int32_t c)
  {
-	    int drawmap, drawscr;
+	    int32_t drawmap, drawscr;
 	    
 	    if(CurrentLayer==0)
 	    {
@@ -9693,9 +9693,9 @@ static MENU paste_screen_menu[] =
 	   Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
 }
 
- void onRCScrollToombo(int c)
+ void onRCScrollToombo(int32_t c)
  {
-	    int drawmap, drawscr;
+	    int32_t drawmap, drawscr;
 	    
 	    if(CurrentLayer==0)
 	    {
@@ -9817,9 +9817,9 @@ static MENU fav_rc_menu[] =
     { NULL,                              NULL,  NULL, 0, NULL }
 };
 
-void set_brush_width(int width)
+void set_brush_width(int32_t width)
 {
-    for(int x=0; x<16; x++)
+    for(int32_t x=0; x<16; x++)
     {
         brush_width_menu[x].flags=0;
     }
@@ -9829,9 +9829,9 @@ void set_brush_width(int width)
     refresh(rALL);
 }
 
-void set_brush_height(int height)
+void set_brush_height(int32_t height)
 {
-    for(int x=0; x<11; x++)
+    for(int32_t x=0; x<11; x++)
     {
         brush_height_menu[x].flags=0;
     }
@@ -9849,8 +9849,8 @@ void restore_mouse()
     unscare_mouse();
 }
 
-static int comboa_cnt=0;
-static int layer_cnt=0;
+static int32_t comboa_cnt=0;
+static int32_t layer_cnt=0;
 
 static DIALOG clist_dlg[] =
 {
@@ -9865,13 +9865,13 @@ static DIALOG clist_dlg[] =
 
 
 command_struct bic[cmdMAX];
-int bic_cnt=-1;
+int32_t bic_cnt=-1;
 
 void build_bic_list()
 {
-    int start=bic_cnt=0;
+    int32_t start=bic_cnt=0;
     
-    for(int i=start; i<cmdMAX; i++)
+    for(int32_t i=start; i<cmdMAX; i++)
     {
         if(commands[i].name[0]!=' ')
         {
@@ -9881,9 +9881,9 @@ void build_bic_list()
         }
     }
     
-    for(int i=start; i<bic_cnt; i++)
+    for(int32_t i=start; i<bic_cnt; i++)
     {
-        for(int j=i+1; j<bic_cnt; j++)
+        for(int32_t j=i+1; j<bic_cnt; j++)
         {
             if(stricmp(bic[i].s,bic[j].s)>0 && strcmp(bic[j].s,""))
             {
@@ -9893,7 +9893,7 @@ void build_bic_list()
     }
 }
 
-const char *commandlist(int index, int *list_size)
+const char *commandlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -9904,15 +9904,15 @@ const char *commandlist(int index, int *list_size)
     return bic[index].s;
 }
 
-int select_command(const char *prompt,int cmd)
+int32_t select_command(const char *prompt,int32_t cmd)
 {
 	FONT* tfont = font;
     if(bic_cnt==-1)
         build_bic_list();
         
-    int index=0;
+    int32_t index=0;
     
-    for(int j=0; j<bic_cnt; j++)
+    for(int32_t j=0; j<bic_cnt; j++)
     {
         if(bic[j].i == cmd)
         {
@@ -9929,7 +9929,7 @@ int select_command(const char *prompt,int cmd)
     if(is_large)
         large_dialog(clist_dlg);
         
-    int ret=zc_popup_dialog(clist_dlg,2);
+    int32_t ret=zc_popup_dialog(clist_dlg,2);
 	font = tfont;
     
     if(ret==0||ret==4)
@@ -9944,11 +9944,11 @@ int select_command(const char *prompt,int cmd)
 }
 
 
-int onCommand(int cmd)
+int32_t onCommand(int32_t cmd)
 {
     restore_mouse();
     build_bic_list();
-    int ret=select_command("Select Command",cmd);
+    int32_t ret=select_command("Select Command",cmd);
     refresh(rALL);
     
     if(ret>=0)
@@ -9963,7 +9963,7 @@ int onCommand(int cmd)
     return ret;
 }
 
-int onEditFFCombo(int);
+int32_t onEditFFCombo(int32_t);
 
 static char paste_ffc_menu_text[21];
 static char paste_ffc_menu_text2[21];
@@ -9973,19 +9973,19 @@ static char follow_warp_menu_text2[21];
 void domouse()
 {
 	static bool mouse_down = false;
-	static int scrolldelay = 0;
-	int x=gui_mouse_x();
-	int y=gui_mouse_y();
+	static int32_t scrolldelay = 0;
+	int32_t x=gui_mouse_x();
+	int32_t y=gui_mouse_y();
 	double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
 	double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-	int startxint=mapscreen_x+(showedges?int(16*mapscreensize):0);
-	int startyint=mapscreen_y+(showedges?int(16*mapscreensize):0);
-	int cx=(x-startxint)/int(16*mapscreensize);
-	int cy=(y-startyint)/int(16*mapscreensize);
-	int c=(cy*16)+cx;
+	int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
+	int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
+	int32_t cx=(x-startxint)/int32_t(16*mapscreensize);
+	int32_t cy=(y-startyint)/int32_t(16*mapscreensize);
+	int32_t c=(cy*16)+cx;
 	mousecomboposition=c;
 	
-	int redraw=0;
+	int32_t redraw=0;
 	
 	update_combobrush();
 	//  put_combo(brushbmp,0,0,Combo,CSet,0,0);
@@ -9996,7 +9996,7 @@ void domouse()
 	}
 	
 	// For some reason, this causes an invisible cursor in a windowed ZQuest...
-	/*if(!isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1)))
+	/*if(!isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
 	{
 	  restore_mouse();
 	}*/
@@ -10011,7 +10011,7 @@ void domouse()
 		) && (key[KEY_LSHIFT] || key[KEY_RSHIFT] || (scrolldelay&3)==0))
 	{
 	
-		int test_list=0;
+		int32_t test_list=0;
 		
 		for(test_list=0; test_list<3; ++test_list)
 		{
@@ -10047,7 +10047,7 @@ void domouse()
 			
 			if(y>=combolist[test_list].y+(combolist[test_list].h*16)-1 && y<combolist[test_list].y+(combolist[test_list].h*16)+mouse_scroll_h-1 && First[test_list]<(MAXCOMBOS-(combolist[test_list].w*combolist[test_list].h)))
 			{
-				int offset = combolist[test_list].w*combolist[test_list].h;
+				int32_t offset = combolist[test_list].w*combolist[test_list].h;
 				
 				if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])&&(key[KEY_ALT] || key[KEY_ALTGR]))
 				{
@@ -10074,15 +10074,15 @@ void domouse()
 //-------------
 //tooltip stuff
 //-------------
-	if(isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1)))
+	if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
 	{
-		for(int i=MAXFFCS-1; i>=0; i--)
+		for(int32_t i=MAXFFCS-1; i>=0; i--)
 			if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
 			{
-				int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
-				int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
-				int cx2 = (x-startxint)/mapscreensize;
-				int cy2 = (y-startyint)/mapscreensize;
+				int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
+				int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
+				int32_t cx2 = (x-startxint)/mapscreensize;
+				int32_t cy2 = (y-startyint)/mapscreensize;
 				
 				if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
 				{
@@ -10098,13 +10098,13 @@ void domouse()
 							i+1, Map.CurrScr()->ffdata[i],Map.CurrScr()->ffcset[i],
 							combo_class_buf[combobuf[Map.CurrScr()->ffdata[i]].type].name,
 							Map.CurrScr()->ffscript[i]<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.c_str());
-					update_tooltip(x, y, startxint, startyint, int(256*mapscreensize),int(176*mapscreensize), msg);
+					update_tooltip(x, y, startxint, startyint, int32_t(256*mapscreensize),int32_t(176*mapscreensize), msg);
 					break;
 				}
 			}
 			
-		int drawmap;
-		int drawscr;
+		int32_t drawmap;
+		int32_t drawscr;
 		
 		if(CurrentLayer==0)
 		{
@@ -10133,15 +10133,15 @@ void domouse()
 				c, Map.AbsoluteScr(drawmap, drawscr)->data[c],
 				Map.AbsoluteScr(drawmap, drawscr)->cset[c], Map.CurrScr()->sflag[c],combobuf[Map.CurrScr()->data[c]].flag,
 				combo_class_buf[combobuf[(Map.AbsoluteScr(drawmap, drawscr)->data[c])].type].name);
-		update_tooltip(x, y, startxint, startyint, int(256*mapscreensize),int(176*mapscreensize), msg);
+		update_tooltip(x, y, startxint, startyint, int32_t(256*mapscreensize),int32_t(176*mapscreensize), msg);
 	}
 	
 	if(is_large)
 	{
-		for(int j=0; j<4; j++)
+		for(int32_t j=0; j<4; j++)
 		{
-			int xx = panel[8].x+14+(32*j);
-			int yy = panel[8].y+12;
+			int32_t xx = panel[8].x+14+(32*j);
+			int32_t yy = panel[8].y+12;
 			
 			if(isinRect(x,y,xx,yy,xx+20,yy+20))
 			{
@@ -10156,10 +10156,10 @@ void domouse()
 		}
 		
 		// Warp Returns
-		for(int j=0; j<4; j++)
+		for(int32_t j=0; j<4; j++)
 		{
-			int xx = panel[8].x+14+(32*j);
-			int yy = panel[8].y+54;
+			int32_t xx = panel[8].x+14+(32*j);
+			int32_t yy = panel[8].y+54;
 			
 			if(isinRect(x,y,xx,yy,xx+20,yy+20))
 			{
@@ -10170,8 +10170,8 @@ void domouse()
 		}
 		
 		// Enemies
-		int epx = 2+panel[8].x+14+4*32;
-		int epy = 2+panel[8].y+12;
+		int32_t epx = 2+panel[8].x+14+4*32;
+		int32_t epy = 2+panel[8].y+12;
 		
 		if(isinRect(x,y,epx,epy,epx+16*4+4,epy+16*3+4))
 		{
@@ -10183,15 +10183,15 @@ void domouse()
 	
 	if(draw_mode!=dm_alias)
 	{
-		for(int j=0; j<3; ++j)
+		for(int32_t j=0; j<3; ++j)
 		{
 			if(j==0||is_large)
 			{
 				if(isinRect(x,y,combolist[j].x,combolist[j].y,combolist[j].x+(combolist[j].w*16)-1,combolist[j].y+(combolist[j].h*16)-1))
 				{
-					int cc=((x-combolist[j].x)>>4);
-					int cr=((y-combolist[j].y)>>4);
-					int c2=(cr*combolist[j].w)+cc+First[j];
+					int32_t cc=((x-combolist[j].x)>>4);
+					int32_t cr=((y-combolist[j].y)>>4);
+					int32_t c2=(cr*combolist[j].w)+cc+First[j];
 					char msg[160];
 					
 					if(combobuf[c2].flag != 0)
@@ -10206,15 +10206,15 @@ void domouse()
 	}
 	else
 	{
-		for(int j=0; j<3; ++j)
+		for(int32_t j=0; j<3; ++j)
 		{
 			if(j==0||is_large)
 			{
 				if(isinRect(x,y,comboaliaslist[j].x,comboaliaslist[j].y,comboaliaslist[j].x+(comboaliaslist[j].w*16)-1,comboaliaslist[j].y+(comboaliaslist[j].h*16)-1))
 				{
-					int cc=((x-comboaliaslist[j].x)>>4);
-					int cr=((y-comboaliaslist[j].y)>>4);
-					int c2=(cr*comboaliaslist[j].w)+cc+combo_alistpos[j];
+					int32_t cc=((x-comboaliaslist[j].x)>>4);
+					int32_t cr=((y-comboaliaslist[j].y)>>4);
+					int32_t c2=(cr*comboaliaslist[j].w)+cc+combo_alistpos[j];
 					char msg[80];
 					sprintf(msg, "Combo alias %d", c2);
 					update_tooltip(x,y,comboaliaslist[j].x+(cc<<4),comboaliaslist[j].y+(cr<<4),16,16, msg);
@@ -10232,27 +10232,27 @@ void domouse()
 	else if(gui_mouse_b()&1)
 	{
 		//on the map screen
-		if(isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1)))
+		if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
 		{
-			int cx2 = (x-startxint)/mapscreensize;
-			int cy2 = (y-startyint)/mapscreensize;
+			int32_t cx2 = (x-startxint)/mapscreensize;
+			int32_t cy2 = (y-startyint)/mapscreensize;
 			
 			// Move items
 			if(Map.CurrScr()->hasitem)
 			{
-				int ix = Map.CurrScr()->itemx;
-				int iy = Map.CurrScr()->itemy;
+				int32_t ix = Map.CurrScr()->itemx;
+				int32_t iy = Map.CurrScr()->itemy;
 				
 				if(cx2 >= ix && cx2 < ix+16 && cy2 >= iy && cy2 < iy+16)
 					doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8,true,0,0,16,16);
 			}
 			
 			// Move FFCs
-			for(int i=MAXFFCS-1; i>=0; i--)
+			for(int32_t i=MAXFFCS-1; i>=0; i--)
 				if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
 				{
-					int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
-					int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
+					int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
+					int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
 					
 					if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
 					{
@@ -10263,7 +10263,7 @@ void domouse()
 			
 			if(key[KEY_ALT]||key[KEY_ALTGR])
 			{
-				int drawmap, drawscr;
+				int32_t drawmap, drawscr;
 				if(CurrentLayer==0)
 				{
 					drawmap=Map.getCurrMap();
@@ -10322,7 +10322,7 @@ void domouse()
 		//on the map tabs
 		if(is_large)
 		{
-			for(int btn=0; btn<(showedges?9:8); ++btn)
+			for(int32_t btn=0; btn<(showedges?9:8); ++btn)
 			{
 				char tbuf[10];
 				sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
@@ -10409,8 +10409,8 @@ void domouse()
 				doxypos(Map.CurrScr()->warpreturnx[3],Map.CurrScr()->warpreturny[3],9,0xF8);
 			}
 			
-			int epx = 2+panel[8].x+14+4*32;
-			int epy = 2+panel[8].y+12;
+			int32_t epx = 2+panel[8].x+14+4*32;
+			int32_t epy = 2+panel[8].y+12;
 			
 			if(isinRect(x,y,epx,epy,epx+16*4,epy+16*3))
 			{
@@ -10522,17 +10522,17 @@ void domouse()
 	// Up and Down Arrows for Combo Banks
 		if(draw_mode!=dm_alias)
 		{
-			for(int temp_counter=0; temp_counter<3; ++temp_counter)
+			for(int32_t temp_counter=0; temp_counter<3; ++temp_counter)
 			{
-				int temp_x1=combolistscrollers[temp_counter].x;
-				int temp_y1=combolistscrollers[temp_counter].y;
-				int temp_x2=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
-				int temp_y2=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-2;
+				int32_t temp_x1=combolistscrollers[temp_counter].x;
+				int32_t temp_y1=combolistscrollers[temp_counter].y;
+				int32_t temp_x2=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
+				int32_t temp_y2=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-2;
 				
-				int temp_x3=combolistscrollers[temp_counter].x;
-				int temp_y3=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-1;
-				int temp_x4=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
-				int temp_y4=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h*2-3;
+				int32_t temp_x3=combolistscrollers[temp_counter].x;
+				int32_t temp_y3=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-1;
+				int32_t temp_x4=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
+				int32_t temp_y4=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h*2-3;
 				
 				if(is_large)
 				{
@@ -10605,7 +10605,7 @@ void domouse()
 				}
 			}
 			
-			for(int j=0; j<3; ++j)
+			for(int32_t j=0; j<3; ++j)
 			{
 				if(j==0||is_large)
 				{
@@ -10619,17 +10619,17 @@ void domouse()
 		// Up and Down Arrows for Combo Alias Banks
 		else if(draw_mode==dm_alias)
 		{
-			for(int temp_counter=0; temp_counter<3; ++temp_counter)
+			for(int32_t temp_counter=0; temp_counter<3; ++temp_counter)
 			{
-				int temp_x1=combolistscrollers[temp_counter].x;
-				int temp_y1=combolistscrollers[temp_counter].y;
-				int temp_x2=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
-				int temp_y2=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-2;
+				int32_t temp_x1=combolistscrollers[temp_counter].x;
+				int32_t temp_y1=combolistscrollers[temp_counter].y;
+				int32_t temp_x2=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
+				int32_t temp_y2=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-2;
 				
-				int temp_x3=combolistscrollers[temp_counter].x;
-				int temp_y3=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-1;
-				int temp_x4=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
-				int temp_y4=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h*2-3;
+				int32_t temp_x3=combolistscrollers[temp_counter].x;
+				int32_t temp_y3=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-1;
+				int32_t temp_x4=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
+				int32_t temp_y4=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h*2-3;
 				
 				if(is_large)
 				{
@@ -10656,7 +10656,7 @@ void domouse()
 				}
 			}
 		
-		for(int j=0; j<3; ++j)
+		for(int32_t j=0; j<3; ++j)
 			{
 				if(j==0||is_large)
 				{
@@ -10672,14 +10672,14 @@ void domouse()
 		//on the favorites list
 		if(isinRect(x,y,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*16)-1,favorites_list.y+(favorites_list.h*16)-1))
 		{
-			int row=vbound(((y-favorites_list.y)>>4),0,favorites_list.h-1);
-			int col=vbound(((x-favorites_list.x)>>4),0,favorites_list.w-1);
-			int f=(row*favorites_list.w)+col;
+			int32_t row=vbound(((y-favorites_list.y)>>4),0,favorites_list.h-1);
+			int32_t col=vbound(((x-favorites_list.x)>>4),0,favorites_list.w-1);
+			int32_t f=(row*favorites_list.w)+col;
 			
 			if(key[KEY_LSHIFT] || key[KEY_RSHIFT] ||
 			   (draw_mode==dm_alias?favorite_comboaliases:favorite_combos)[f]==-1)
 			{
-				int tempcb=ComboBrush;
+				int32_t tempcb=ComboBrush;
 				ComboBrush=0;
 				
 				while(gui_mouse_b())
@@ -10720,7 +10720,7 @@ void domouse()
 			}
 			else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			{
-				int tempcb=ComboBrush;
+				int32_t tempcb=ComboBrush;
 				ComboBrush=0;
 				
 				while(gui_mouse_b())
@@ -10768,10 +10768,10 @@ void domouse()
 		//on the commands buttons
 		if(is_large /*&& rALL&rCOMMANDS*/) //do we really need to check that?
 		{
-			for(int cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
+			for(int32_t cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
 			{
-				int check_x=(cmd%commands_list.w)*command_buttonwidth+commands_list.x;
-				int check_y=(cmd/commands_list.w)*command_buttonheight+commands_list.y;
+				int32_t check_x=(cmd%commands_list.w)*command_buttonwidth+commands_list.x;
+				int32_t check_y=(cmd/commands_list.w)*command_buttonheight+commands_list.y;
 				bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 				bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
 				
@@ -10812,7 +10812,7 @@ void domouse()
 						}
 						else
 						{
-							int (*pfun)();
+							int32_t (*pfun)();
 							pfun=commands[favorite_commands[cmd]].command;
 							pfun();
 						}
@@ -10826,10 +10826,10 @@ void domouse()
 		// On the layer panel
 		if(is_large)
 		{
-			for(int i=0; i<=6; ++i)
+			for(int32_t i=0; i<=6; ++i)
 			{
-				int rx = (i * (layerpanel_buttonwidth+23)) + layer_panel.x+6;
-				int ry = layer_panel.y+16;
+				int32_t rx = (i * (layerpanel_buttonwidth+23)) + layer_panel.x+6;
+				int32_t ry = layer_panel.y+16;
 				
 				if((i==0 || Map.CurrScr()->layermap[i-1]) && isinRect(x,y,rx,ry,rx+layerpanel_buttonwidth-1,ry+layerpanel_buttonheight-1))
 				{
@@ -10861,7 +10861,7 @@ void domouse()
 	}
 	else if(gui_mouse_b()&2)
 	{
-		if(isinRect(x,y,startxint,startyint, int(startx+(256*mapscreensize)-1), int(starty+(176*mapscreensize)-1)))
+		if(isinRect(x,y,startxint,startyint, int32_t(startx+(256*mapscreensize)-1), int32_t(starty+(176*mapscreensize)-1)))
 		{
 			ComboBrushPause=1;
 			refresh(rMAP);
@@ -10869,11 +10869,11 @@ void domouse()
 			ComboBrushPause=0;
 			
 			bool clickedffc = false;
-			int earliestfreeffc = MAXFFCS;
+			int32_t earliestfreeffc = MAXFFCS;
 			
 			// FFC right-click menu
 			// This loop also serves to find the free ffc with the smallest slot number.
-			for(int i=MAXFFCS-1; i>=0; i--)
+			for(int32_t i=MAXFFCS-1; i>=0; i--)
 			{
 				if(Map.CurrScr()->ffdata[i]==0 && i < earliestfreeffc)
 					earliestfreeffc = i;
@@ -10883,16 +10883,16 @@ void domouse()
 					
 				if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
 				{
-					int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
-					int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
-					int cx2 = (x-startxint)/mapscreensize;
-					int cy2 = (y-startyint)/mapscreensize;
+					int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
+					int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
+					int32_t cx2 = (x-startxint)/mapscreensize;
+					int32_t cy2 = (y-startyint)/mapscreensize;
 					
 					if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
 					{
 						draw_ffc_rc_menu[1].flags = (Map.getCopyFFC()>-1) ? 0 : D_DISABLED;
 						
-						int m = popup_menu(draw_ffc_rc_menu,x,y);
+						int32_t m = popup_menu(draw_ffc_rc_menu,x,y);
 						
 						switch(m)
 						{
@@ -10922,10 +10922,10 @@ void domouse()
 																	   Map.CurrScr()->fflink[i] = Map.CurrScr()->ffdelay[i] = 0;
 								Map.CurrScr()->ffwidth[i] = Map.CurrScr()->ffheight[i] = 15;
 								
-								for(int j=0; j<8; j++)
+								for(int32_t j=0; j<8; j++)
 									Map.CurrScr()->initd[i][j] = 0;
 									
-								for(int j=0; j<2; j++)
+								for(int32_t j=0; j<2; j++)
 									Map.CurrScr()->inita[i][j] = 10000;
 									
 								saved = false;
@@ -10935,11 +10935,11 @@ void domouse()
 				
 				case 4: //snap to grid
 				{
-				int oldffx = Map.CurrScr()->ffx[i]/10000;
-				int oldffy = Map.CurrScr()->ffy[i]/10000;
-				int pos = COMBOPOS(oldffx,oldffy);
-				int newffy = COMBOY(pos)*10000;
-				int newffx = COMBOX(pos)*10000;
+				int32_t oldffx = Map.CurrScr()->ffx[i]/10000;
+				int32_t oldffy = Map.CurrScr()->ffy[i]/10000;
+				int32_t pos = COMBOPOS(oldffx,oldffy);
+				int32_t newffy = COMBOY(pos)*10000;
+				int32_t newffx = COMBOX(pos)*10000;
 				Map.CurrScr()->ffx[i] = newffx;
 				Map.CurrScr()->ffy[i] = newffy;
 				//Map.CurrScr()->ffx[i] = (Map.CurrScr()->ffx[i]-(Map.CurrScr()->ffx[i] % 16));
@@ -10981,7 +10981,7 @@ void domouse()
 					draw_rc_menu[14].flags = draw_rc_menu[13].flags = D_DISABLED;
 				}
 				
-				int warpindex = Map.warpindex(Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->data[c]);
+				int32_t warpindex = Map.warpindex(Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->data[c]);
 				
 				if(warpindex > -1)
 				{
@@ -10998,14 +10998,14 @@ void domouse()
 					draw_rc_menu[11].flags = draw_rc_menu[10].flags = D_DISABLED;
 				}
 				
-				int m = popup_menu(is_large ? draw_rc_menu : draw_rc_menu_truncated,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
+				int32_t m = popup_menu(is_large ? draw_rc_menu : draw_rc_menu_truncated,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
 				
 				switch(m)
 				{
 				case 0:
 				case 1:
 				{
-					int drawmap, drawscr;
+					int32_t drawmap, drawscr;
 					
 					if(CurrentLayer==0)
 					{
@@ -11037,7 +11037,7 @@ void domouse()
 				
 				case 2:
 				{
-					int drawmap, drawscr;
+					int32_t drawmap, drawscr;
 					
 					if(CurrentLayer==0)
 					{
@@ -11072,9 +11072,9 @@ void domouse()
 						warpindex=zc_oldrand()&3;
 					}
 					
-					int tm = Map.getCurrMap();
-					int ts = Map.getCurrScr();
-					int wt = Map.CurrScr()->tilewarptype[warpindex];
+					int32_t tm = Map.getCurrMap();
+					int32_t ts = Map.getCurrScr();
+					int32_t wt = Map.CurrScr()->tilewarptype[warpindex];
 					
 					if(wt==wtCAVE || wt==wtNOWARP)
 					{
@@ -11134,7 +11134,7 @@ void domouse()
 			}
 		}
 		
-		for(int j=0; j<3; ++j)
+		for(int32_t j=0; j<3; ++j)
 		{
 			if(j==0||is_large)
 			{
@@ -11146,7 +11146,7 @@ void domouse()
 						
 						if(isinRect(gui_mouse_x(),gui_mouse_y(),combolist[j].x,combolist[j].y,combolist[j].x+(combolist[j].w*16)-1,combolist[j].y+(combolist[j].h*16)-1))
 						{
-							int m = popup_menu(combosel_rc_menu,x,y);
+							int32_t m = popup_menu(combosel_rc_menu,x,y);
 							
 							switch(m)
 							{
@@ -11166,8 +11166,8 @@ void domouse()
 								
 							case 2:
 							{
-								int t = combobuf[Combo].tile;
-								int f = 0;
+								int32_t t = combobuf[Combo].tile;
+								int32_t f = 0;
 								select_tile(t,f,0,CSet,true);
 								redraw|=rALL;
 								break;
@@ -11250,10 +11250,10 @@ void domouse()
 		
 		if(is_large)
 		{
-			for(int cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
+			for(int32_t cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
 			{
-				int check_x=(cmd%commands_list.w)*command_buttonwidth+commands_list.x;
-				int check_y=(cmd/commands_list.w)*command_buttonheight+commands_list.y;
+				int32_t check_x=(cmd%commands_list.w)*command_buttonwidth+commands_list.x;
+				int32_t check_y=(cmd/commands_list.w)*command_buttonheight+commands_list.y;
 				
 				if(isinRect(x,y,check_x,check_y,check_x+command_buttonwidth,check_y+command_buttonheight))
 				{
@@ -11297,10 +11297,10 @@ void domouse()
 			{
 				if(isinRect(gui_mouse_x(),gui_mouse_y(),favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*16)-1,favorites_list.y+(favorites_list.h*16)-1))
 				{
-					int m = popup_menu(fav_rc_menu,x,y);
-					int row=vbound(((y-favorites_list.y)>>4),0,favorites_list.h-1);
-					int col=vbound(((x-favorites_list.x)>>4),0,favorites_list.w-1);
-					int f=(row*favorites_list.w)+col;
+					int32_t m = popup_menu(fav_rc_menu,x,y);
+					int32_t row=vbound(((y-favorites_list.y)>>4),0,favorites_list.h-1);
+					int32_t col=vbound(((x-favorites_list.x)>>4),0,favorites_list.w-1);
+					int32_t f=(row*favorites_list.w)+col;
 					
 					switch(m)
 					{
@@ -11352,9 +11352,9 @@ void domouse()
 	
 	if(mouse_z!=0)
 	{
-		int z=0;
+		int32_t z=0;
 		
-		for(int j=0; j<3; ++j)
+		for(int32_t j=0; j<3; ++j)
 		{
 			z=abs(mouse_z);
 			
@@ -11415,7 +11415,7 @@ void domouse()
 		if((!is_large && isinRect(x,y,minimap.x,minimap.y+8,minimap.x+63,minimap.y+8+35)) ||
 		   (is_large && isinRect(x,y,minimap.x,minimap.y+8,minimap.x+145,minimap.y+8+85)))
 		{
-			for(int i=0; i<z; ++i)
+			for(int32_t i=0; i<z; ++i)
 			{
 				if(mouse_z>0) onIncMap();
 				else onDecMap();
@@ -11424,7 +11424,7 @@ void domouse()
 		
 		if(isinRect(x,y,panel[0].x,panel[0].y,panel[0].x+191,panel[0].y+47) && !is_large)
 		{
-			for(int i=0; i<z; ++i)
+			for(int32_t i=0; i<z; ++i)
 			{
 				if(mouse_z>0)
 				{
@@ -11441,9 +11441,9 @@ void domouse()
 	}
 }
 
-int d_viewpal_proc(int msg, DIALOG *d, int c)
+int32_t d_viewpal_proc(int32_t msg, DIALOG *d, int32_t c)
 {
-	int ret = d_bitmap_proc(msg, d, c);
+	int32_t ret = d_bitmap_proc(msg, d, c);
 	char* buf = (char*)d->dp2; //buffer to store the color code in
 	DIALOG* d2 = (DIALOG*)d->dp3; //DIALOG* to update the text proc
 	if(!buf)
@@ -11459,13 +11459,13 @@ int d_viewpal_proc(int msg, DIALOG *d, int c)
 	}
 	char t[16];
 	memcpy(t, buf, 16);
-	int x = gui_mouse_x() - d->x;
-	int y = gui_mouse_y() - d->y;
+	int32_t x = gui_mouse_x() - d->x;
+	int32_t y = gui_mouse_y() - d->y;
 	if(msg != MSG_LOSTMOUSE && isinRect(x, y, 0, 0, d->w-1, d->h-1))
 	{
 		float palscale = is_large ? 1.5 : 1;
-		for(int i = 0; i<256; ++i)
-			if(isinRect(x,y,(int)(((i&31)<<3)*palscale),(int)(((i&0xE0)>>2)*palscale), (int)((((i&31)<<3)+7)*palscale),(int)((((i&0xE0)>>2)+7)*palscale)))
+		for(int32_t i = 0; i<256; ++i)
+			if(isinRect(x,y,(int32_t)(((i&31)<<3)*palscale),(int32_t)(((i&0xE0)>>2)*palscale), (int32_t)((((i&31)<<3)+7)*palscale),(int32_t)((((i&0xE0)>>2)+7)*palscale)))
 			{
 				sprintf(buf, "0x%02X (%03d)     ", i, i); //Extra spaces to increase drawn width, so it draws the blank area
 				break;
@@ -11489,19 +11489,19 @@ static DIALOG showpal_dlg[] =
 	{ NULL,               0,       0,    0,    0,       0,      0,      0,         0,        0,             0, NULL,                           NULL,  NULL }
 };
 
-int onShowPal()
+int32_t onShowPal()
 {
 	float palscale = is_large ? 1.5 : 1;
 	
-	BITMAP *palbmp = create_bitmap_ex(8,(int)(256*palscale),(int)(64*palscale));
+	BITMAP *palbmp = create_bitmap_ex(8,(int32_t)(256*palscale),(int32_t)(64*palscale));
 	
 	if(!palbmp)
 		return D_O_K;
 	clear_to_color(palbmp,jwin_pal[jcBOX]); //If not cleared, random static appears between swatches! -E
 	showpal_dlg[0].dp2=lfont;
 	
-	for(int i=0; i<256; i++)
-		rectfill(palbmp,(int)(((i&31)<<3)*palscale),(int)(((i&0xE0)>>2)*palscale), (int)((((i&31)<<3)+7)*palscale),(int)((((i&0xE0)>>2)+7)*palscale),i);
+	for(int32_t i=0; i<256; i++)
+		rectfill(palbmp,(int32_t)(((i&31)<<3)*palscale),(int32_t)(((i&0xE0)>>2)*palscale), (int32_t)((((i&31)<<3)+7)*palscale),(int32_t)((((i&0xE0)>>2)+7)*palscale),i);
 	showpal_dlg[2].dp=(void *)palbmp;
 	char buf[16] = {0};
 	showpal_dlg[2].dp2=(void *)buf;
@@ -11530,11 +11530,11 @@ static DIALOG csetfix_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onCSetFix()
+int32_t onCSetFix()
 {
     restore_mouse();
     csetfix_dlg[0].dp2=lfont;
-    int s=2,x2=14,y2=9;
+    int32_t s=2,x2=14,y2=9;
     
     if(is_large)
         large_dialog(csetfix_dlg);
@@ -11553,7 +11553,7 @@ int onCSetFix()
         if(csetfix_dlg[5].flags&D_SELECTED)
         {
             /*
-              int drawmap, drawscr;
+              int32_t drawmap, drawscr;
               if (CurrentLayer==0)
               {
               drawmap=Map.getCurrMap();
@@ -11578,7 +11578,7 @@ int onCSetFix()
               Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
               Map.setcolor(Color);
               }
-              for(int i=0; i<176; i++)
+              for(int32_t i=0; i<176; i++)
               {
               Map.AbsoluteScr(drawmap, drawscr)->data[i]=Combo;
               Map.AbsoluteScr(drawmap, drawscr)->cset[i]=CSet;
@@ -11587,9 +11587,9 @@ int onCSetFix()
               */
         }
         
-        for(int y=s; y<y2; y++)
+        for(int32_t y=s; y<y2; y++)
         {
-            for(int x=s; x<x2; x++)
+            for(int32_t x=s; x<x2; x++)
             {
                 Map.CurrScr()->cset[(y<<4)+x] = CSet;
             }
@@ -11619,7 +11619,7 @@ static DIALOG template_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onTemplate()
+int32_t onTemplate()
 {
     static bool donethis=false;
     
@@ -11734,16 +11734,16 @@ static DIALOG cpage_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onComboPage()
+int32_t onComboPage()
 {
-    for(int i=0; i<64; i++)
+    for(int32_t i=0; i<64; i++)
         cpage_dlg[i+6].flags = Map.CurrScr()->old_cpage==i?D_SELECTED:0;
         
-    int ret = zc_popup_dialog(cpage_dlg,3);
+    int32_t ret = zc_popup_dialog(cpage_dlg,3);
     
-    int p = 0;
+    int32_t p = 0;
     
-    for(int i=0; i<64; i++)
+    for(int32_t i=0; i<64; i++)
     
         if(cpage_dlg[i+6].flags==D_SELECTED)
             p=i;
@@ -11758,7 +11758,7 @@ int onComboPage()
     {
         saved=false;
         
-        for(int i=0; i<=TEMPLATE; i++)
+        for(int32_t i=0; i<=TEMPLATE; i++)
             Map.Scr(i)->old_cpage = p;
     }
     
@@ -11766,7 +11766,7 @@ int onComboPage()
     return D_O_K;
 }
 
-int d_sel_scombo_proc(int msg, DIALOG *d, int c)
+int32_t d_sel_scombo_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
@@ -11776,8 +11776,8 @@ int d_sel_scombo_proc(int msg, DIALOG *d, int c)
     case MSG_CLICK:
         while(gui_mouse_b())
         {
-            int x = zc_min(zc_max(gui_mouse_x() - d->x,0)>>4, 15);
-            int y = zc_min(zc_max(gui_mouse_y() - d->y,0)&0xF0, 160);
+            int32_t x = zc_min(zc_max(gui_mouse_x() - d->x,0)>>4, 15);
+            int32_t y = zc_min(zc_max(gui_mouse_y() - d->y,0)&0xF0, 160);
             
             if(x+y != d->d1)
             {
@@ -11802,8 +11802,8 @@ int d_sel_scombo_proc(int msg, DIALOG *d, int c)
     case MSG_DRAW:
     {
         blit((BITMAP*)(d->dp),screen,0,0,d->x,d->y,d->w,d->h);
-        int x = d->x + (((d->d1)&15)<<4);
-        int y = d->y + ((d->d1)&0xF0);
+        int32_t x = d->x + (((d->d1)&15)<<4);
+        int32_t y = d->y + ((d->d1)&0xF0);
         rect(screen,x,y,x+15,y+15,vc(15));
     }
     break;
@@ -11824,7 +11824,7 @@ static DIALOG sel_scombo_dlg[] =
   { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void select_scombo(int &pos)
+void select_scombo(int32_t &pos)
 {
   go();
   Map.draw_template2(screen2,0,0);
@@ -11865,15 +11865,15 @@ void questminrev_help()
 	jwin_alert("Help","If a player's saved game was from a revision less than the minimum", "revision, they have to restart from the beginning.", "This is useful if you make major changes to your quest.","O&K",NULL,'k',16,lfont);
 }
 
-void ctype_help(int id)
+void ctype_help(int32_t id)
 {
 	if(id < 0 || id >= cMAX) return;  // Sanity check
 	
 	if((id >= cDAMAGE1 && id <= cDAMAGE4) || (id >= cDAMAGE5 && id <= cDAMAGE7))
 	{
 		char buf[512];
-		int lvl = (id < cDAMAGE5 ? (id - cDAMAGE1 + 1) : (id - cDAMAGE5 + 1));
-		int d = -combo_class_buf[id].modify_hp_amount/8;
+		int32_t lvl = (id < cDAMAGE5 ? (id - cDAMAGE1 + 1) : (id - cDAMAGE5 + 1));
+		int32_t d = -combo_class_buf[id].modify_hp_amount/8;
 		char buf2[80];
 		if(d==1)
 			sprintf(buf2,"1/2 of a heart.");
@@ -11889,7 +11889,7 @@ void ctype_help(int id)
 	}
 }
 
-void cflag_help(int id)
+void cflag_help(int32_t id)
 {
     if(id < 0 || id >= mfMAX) return;  // Sanity check
     
@@ -11912,7 +11912,7 @@ void cflag_help(int id)
     else if(id >= mfPUSHUDNS && id <= mfPUSHRINS)
     {
         char buf1[80];
-        int t = ((id-mfPUSHUDNS) % 7);
+        int32_t t = ((id-mfPUSHUDNS) % 7);
         sprintf(buf1,"Allows Link to push the combo %s %s,",
                 (t == 0) ? "up and down" : (t == 1) ? "left and right" : (t == 2) ? "in any direction" : (t == 3) ? "up" : (t == 4) ? "down" : (t == 5) ? "left" : "right",
                 (id>=mfPUSHUDINS) ? "many times":"once");
@@ -11924,7 +11924,7 @@ void cflag_help(int id)
         jwin_alert(flag_string[id],flag_help_string[id*3],flag_help_string[1+(id*3)],flag_help_string[2+(id*3)],"O&K",NULL,'k',0,lfont);
 }
 
-int select_cflag(const char *prompt,int index)
+int32_t select_cflag(const char *prompt,int32_t index)
 {
     cflag_dlg[0].dp=(void *)prompt;
     cflag_dlg[0].dp2=lfont;
@@ -11935,7 +11935,7 @@ int select_cflag(const char *prompt,int index)
     if(is_large)
         large_dialog(cflag_dlg);
         
-    int ret;
+    int32_t ret;
     
     do
     {
@@ -11943,7 +11943,7 @@ int select_cflag(const char *prompt,int index)
         
         if(ret==5)
         {
-            int id = cflag_dlg[2].d1;
+            int32_t id = cflag_dlg[2].d1;
             cflag_help(id);
         }
     }
@@ -11958,9 +11958,9 @@ int select_cflag(const char *prompt,int index)
     return cflag_dlg[2].d1;
 }
 
-int select_flag(int &f)
+int32_t select_flag(int32_t &f)
 {
-    int ret=select_cflag("Flag Type",f);
+    int32_t ret=select_cflag("Flag Type",f);
     
     if(ret>=0)
     {
@@ -11971,7 +11971,7 @@ int select_flag(int &f)
     return false;
 }
 
-int d_scombo_proc(int msg,DIALOG *d,int c)
+int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
@@ -11980,9 +11980,9 @@ int d_scombo_proc(int msg,DIALOG *d,int c)
     {
     case MSG_CLICK:
     {
-        int c2=d->d1;
-        int cs=d->fg;
-        int f=d->d2;
+        int32_t c2=d->d1;
+        int32_t cs=d->fg;
+        int32_t f=d->d2;
         
         if(d->bg==1 || (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
         {
@@ -12097,7 +12097,7 @@ int d_scombo_proc(int msg,DIALOG *d,int c)
     return D_O_K;
 }
 
-/*int d_scombo2_proc(int msg, DIALOG *d, int c)
+/*int32_t d_scombo2_proc(int32_t msg, DIALOG *d, int32_t c)
 {
   //these are here to bypass compiler warnings about unused arguments
   c=c;
@@ -12134,45 +12134,45 @@ int d_scombo_proc(int msg,DIALOG *d,int c)
   return D_O_K;
 }*/
 
-int onSecretF();
+int32_t onSecretF();
 
-static int secret_burn_list[] =
+static int32_t secret_burn_list[] =
 {
     // dialog control number
     4, 5, 6, 7, 48, 49, 50, 51, 92, 93, 94, 95, -1
 };
 
-static int secret_arrow_list[] =
+static int32_t secret_arrow_list[] =
 {
     // dialog control number
     8, 9, 10, 52, 53, 54, 96, 97, 98, -1
 };
 
-static int secret_bomb_list[] =
+static int32_t secret_bomb_list[] =
 {
     // dialog control number
     11, 12, 55, 56, 99, 100, -1
 };
 
-static int secret_boomerang_list[] =
+static int32_t secret_boomerang_list[] =
 {
     // dialog control number
     13, 14, 15, 57, 58, 59, 101, 102, 103, -1
 };
 
-static int secret_magic_list[] =
+static int32_t secret_magic_list[] =
 {
     // dialog control number
     16, 17, 60, 61, 104, 105, -1
 };
 
-static int secret_sword_list[] =
+static int32_t secret_sword_list[] =
 {
     // dialog control number
     18, 19, 20, 21, 22, 23, 24, 25, 62, 63, 64, 65, 66, 67, 68, 69, 106, 107, 108, 109, 110, 111, 112, 113, -1
 };
 
-static int secret_misc_list[] =
+static int32_t secret_misc_list[] =
 {
     // dialog control number
     26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, -1
@@ -12365,7 +12365,7 @@ static DIALOG secret_dlg[] =
     {  NULL,                      0,      0,      0,      0,    0,          0,          0,       0,          0,           0,  NULL,                            NULL,   NULL                }
 };
 
-int onSecretF()
+int32_t onSecretF()
 {
     Flags^=cFLAGS;
     object_message(secret_dlg+1, MSG_DRAW, 0);
@@ -12373,7 +12373,7 @@ int onSecretF()
 }
 
 
-int onSecretCombo()
+int32_t onSecretCombo()
 {
     secret_dlg[0].dp2=lfont;
     
@@ -12430,21 +12430,21 @@ int onSecretCombo()
     secret_dlg[100].fg = s->secretcset[sSBOMB];
     secret_dlg[100].d2 = s->secretflag[sSBOMB];
     
-    for(int i=0; i<3; i++)
+    for(int32_t i=0; i<3; i++)
     {
         secret_dlg[101+i].d1 = s->secretcombo[sBRANG+i];
         secret_dlg[101+i].fg = s->secretcset[sBRANG+i];
         secret_dlg[101+i].d2 = s->secretflag[sBRANG+i];
     }
     
-    for(int i=0; i<2; i++)
+    for(int32_t i=0; i<2; i++)
     {
         secret_dlg[104+i].d1 = s->secretcombo[sWANDMAGIC+i];
         secret_dlg[104+i].fg = s->secretcset[sWANDMAGIC+i];
         secret_dlg[104+i].d2 = s->secretflag[sWANDMAGIC+i];
     }
     
-    for(int i=0; i<8; i++)
+    for(int32_t i=0; i<8; i++)
     {
         secret_dlg[106+i].d1 = s->secretcombo[sSWORD+i];
         secret_dlg[106+i].fg = s->secretcset[sSWORD+i];
@@ -12459,14 +12459,14 @@ int onSecretCombo()
     secret_dlg[115].fg = s->secretcset[sREFFIREBALL];
     secret_dlg[115].d2 = s->secretflag[sREFFIREBALL];
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         secret_dlg[116+i].d1 = s->secretcombo[sHOOKSHOT+i];
         secret_dlg[116+i].fg = s->secretcset[sHOOKSHOT+i];
         secret_dlg[116+i].d2 = s->secretflag[sHOOKSHOT+i];
     }
     
-    for(int i=0; i<16; i++)
+    for(int32_t i=0; i<16; i++)
     {
         secret_dlg[120+i].d1 = s->secretcombo[sSECRET01+i];
         secret_dlg[120+i].fg = s->secretcset[sSECRET01+i];
@@ -12482,7 +12482,7 @@ int onSecretCombo()
     {
         large_dialog(secret_dlg,1.75);
         
-		for(int q = 0; secret_dlg[q].proc != NULL; ++q)
+		for(int32_t q = 0; secret_dlg[q].proc != NULL; ++q)
         {
 			if(secret_dlg[q].proc == jwin_frame_proc)
 				secret_dlg[q].w = secret_dlg[q].h = 36;
@@ -12530,21 +12530,21 @@ int onSecretCombo()
         s->secretcset[sSBOMB] = secret_dlg[100].fg;
         s->secretflag[sSBOMB] = secret_dlg[100].d2;
         
-        for(int i=0; i<3; i++)
+        for(int32_t i=0; i<3; i++)
         {
             s->secretcombo[sBRANG+i] = secret_dlg[101+i].d1;
             s->secretcset[sBRANG+i] = secret_dlg[101+i].fg;
             s->secretflag[sBRANG+i] = secret_dlg[101+i].d2;
         }
         
-        for(int i=0; i<2; i++)
+        for(int32_t i=0; i<2; i++)
         {
             s->secretcombo[sWANDMAGIC+i] = secret_dlg[104+i].d1;
             s->secretcset[sWANDMAGIC+i] = secret_dlg[104+i].fg;
             s->secretflag[sWANDMAGIC+i] = secret_dlg[104+i].d2;
         }
         
-        for(int i=0; i<8; i++)
+        for(int32_t i=0; i<8; i++)
         {
             s->secretcombo[sSWORD+i] = secret_dlg[106+i].d1;
             s->secretcset[sSWORD+i] = secret_dlg[106+i].fg;
@@ -12559,14 +12559,14 @@ int onSecretCombo()
         s->secretcset[sREFFIREBALL] = secret_dlg[115].fg;
         s->secretflag[sREFFIREBALL] = secret_dlg[115].d2;
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             s->secretcombo[sHOOKSHOT+i] = secret_dlg[116+i].d1;
             s->secretcset[sHOOKSHOT+i] = secret_dlg[116+i].fg;
             s->secretflag[sHOOKSHOT+i] = secret_dlg[116+i].d2;
         }
         
-        for(int i=0; i<16; i++)
+        for(int32_t i=0; i<16; i++)
         {
             s->secretcombo[sSECRET01+i] = secret_dlg[120+i].d1;
             s->secretcset[sSECRET01+i] = secret_dlg[120+i].fg;
@@ -12598,7 +12598,7 @@ static DIALOG under_dlg[] =
     { NULL,              0,    0,    0,    0,    0,       0,      0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onUnderCombo()
+int32_t onUnderCombo()
 {
     under_dlg[0].dp2 = lfont;
     
@@ -12616,7 +12616,7 @@ int onUnderCombo()
         under_dlg[4].x=438;
     }
     
-    int ret = zc_popup_dialog(under_dlg,-1);
+    int32_t ret = zc_popup_dialog(under_dlg,-1);
     
     if(ret==7)
     {
@@ -12629,7 +12629,7 @@ int onUnderCombo()
     {
         saved=false;
         
-        for(int i=0; i<128; i++)
+        for(int32_t i=0; i<128; i++)
         {
             Map.Scr(i)->undercombo = under_dlg[6].d1;
             Map.Scr(i)->undercset = under_dlg[6].fg;
@@ -12650,7 +12650,7 @@ static DIALOG list_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void ilist_rclick_func(int index, int x, int y);
+void ilist_rclick_func(int32_t index, int32_t x, int32_t y);
 DIALOG ilist_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -12678,15 +12678,15 @@ static DIALOG wlist_dlg[] =
 /*
   typedef struct item_struct {
   char *s;
-  int i;
+  int32_t i;
   } item_struct;
   */
 item_struct bii[iMax+1];
-int bii_cnt=-1;
+int32_t bii_cnt=-1;
 
 void build_bii_list(bool usenone)
 {
-    int start=bii_cnt=0;
+    int32_t start=bii_cnt=0;
     
     if(usenone)
     {
@@ -12696,16 +12696,16 @@ void build_bii_list(bool usenone)
         start=1;
     }
     
-    for(int i=0; i<iMax; i++)
+    for(int32_t i=0; i<iMax; i++)
     {
         bii[bii_cnt].s = item_string[i];
         bii[bii_cnt].i = i;
         ++bii_cnt;
     }
     
-    for(int i=start; i<bii_cnt-1; i++)
+    for(int32_t i=start; i<bii_cnt-1; i++)
     {
-        for(int j=i+1; j<bii_cnt; j++)
+        for(int32_t j=i+1; j<bii_cnt; j++)
         {
             if(stricmp(bii[i].s,bii[j].s)>0 && strcmp(bii[j].s,""))
             {
@@ -12715,7 +12715,7 @@ void build_bii_list(bool usenone)
     }
 }
 
-const char *itemlist(int index, int *list_size)
+const char *itemlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -12727,16 +12727,16 @@ const char *itemlist(int index, int *list_size)
 }
 
 // disable items on dmaps stuff
-int DI[iMax];
-int nDI;
+int32_t DI[iMax];
+int32_t nDI;
 
-void initDI(int index)
+void initDI(int32_t index)
 {
-    int j=0;
+    int32_t j=0;
     
-    for(int i=0; i<iMax; i++)
+    for(int32_t i=0; i<iMax; i++)
     {
-        int index1=bii[i].i; // true index of item in dmap's DI list
+        int32_t index1=bii[i].i; // true index of item in dmap's DI list
         
         if(DMaps[index].disableditems[index1])
         {
@@ -12747,29 +12747,29 @@ void initDI(int index)
     
     nDI=j;
     
-    for(int i=j; i<iMax; i++) DI[j]=0;
+    for(int32_t i=j; i<iMax; i++) DI[j]=0;
     
     return;
 }
 
-void insertDI(int id, int index)
+void insertDI(int32_t id, int32_t index)
 {
-    int trueid=bii[id].i;
+    int32_t trueid=bii[id].i;
     DMaps[index].disableditems[trueid] |= 1; //bit set
     initDI(index);
     return;
 }
 
-void deleteDI(int id, int index)
+void deleteDI(int32_t id, int32_t index)
 {
-    int i=DI[id];
-    int trueid=bii[i].i;
+    int32_t i=DI[id];
+    int32_t trueid=bii[i].i;
     DMaps[index].disableditems[trueid] &= (~1); // bit clear
     initDI(index);
     return;
 }
 
-const char *DIlist(int index, int *list_size)
+const char *DIlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -12777,16 +12777,16 @@ const char *DIlist(int index, int *list_size)
         return NULL;
     }
     
-    int i=DI[index];
+    int32_t i=DI[index];
     return bii[i].s;
     
 }
 
-int select_item(const char *prompt,int item,bool is_editor,int &exit_status)
+int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit_status)
 {
-    int index=0;
+    int32_t index=0;
     
-    for(int j=0; j<bii_cnt; j++)
+    for(int32_t j=0; j<bii_cnt; j++)
     {
         if(bii[j].i == item)
         {
@@ -12838,28 +12838,28 @@ int select_item(const char *prompt,int item,bool is_editor,int &exit_status)
 }
 
 weapon_struct biw[wMAX];
-int biw_cnt=-1;
+int32_t biw_cnt=-1;
 
 void build_biw_list()
 {
-    int start=biw_cnt=0;
+    int32_t start=biw_cnt=0;
     
-    for(int i=start; i<wMAX; i++)
+    for(int32_t i=start; i<wMAX; i++)
     {
         biw[biw_cnt].s = (char *)weapon_string[i];
         biw[biw_cnt].i = i;
         ++biw_cnt;
     }
     
-    for(int i=start; i<biw_cnt-1; i++)
+    for(int32_t i=start; i<biw_cnt-1; i++)
     {
-        for(int j=i+1; j<biw_cnt; j++)
+        for(int32_t j=i+1; j<biw_cnt; j++)
             if(stricmp(biw[i].s,biw[j].s)>0 && strcmp(biw[j].s,""))
                 zc_swap(biw[i],biw[j]);
     }
 }
 
-const char *weaponlist(int index, int *list_size)
+const char *weaponlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -12869,14 +12869,14 @@ const char *weaponlist(int index, int *list_size)
     
     return biw[index].s;
 }
-int writeoneweapon(PACKFILE *f, int index)
+int32_t writeoneweapon(PACKFILE *f, int32_t index)
 {
     
     dword section_version=V_WEAPONS;
     dword section_cversion=CV_WEAPONS;
-	int zversion = ZELDA_VERSION;
-	int zbuild = VERSION_BUILD;
-    int iid = biw[index].i;
+	int32_t zversion = ZELDA_VERSION;
+	int32_t zbuild = VERSION_BUILD;
+    int32_t iid = biw[index].i;
 	al_trace("Writing Weapon Sprite .zwpnspr file for weapon id: %d\n", iid);
   
     //section version info
@@ -12951,12 +12951,12 @@ int writeoneweapon(PACKFILE *f, int index)
 }
 
 
-int readoneweapon(PACKFILE *f, int index)
+int32_t readoneweapon(PACKFILE *f, int32_t index)
 {
 	dword section_version = 0;
 	dword section_cversion = 0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	wpndata tempwpnspr;
 	memset(&tempwpnspr, 0, sizeof(wpndata));
      
@@ -13080,11 +13080,11 @@ static MENU wpnsprite_rclick_menu[] =
     { NULL,            NULL, NULL, 0, NULL }
 };
 
-void wpnsprite_rclick_func(int index, int x, int y)
+void wpnsprite_rclick_func(int32_t index, int32_t x, int32_t y)
 {
     if(((unsigned)index)>255)
         return;
-    int ret=popup_menu(wpnsprite_rclick_menu, x, y);
+    int32_t ret=popup_menu(wpnsprite_rclick_menu, x, y);
     if(ret==0) // copy
     {
 	//::memcpy(&copiedSprite, &biw[biw[index].i], sizeof(wpndata));
@@ -13142,14 +13142,14 @@ void wpnsprite_rclick_func(int index, int x, int y)
 }
 
 
-int select_weapon(const char *prompt,int weapon)
+int32_t select_weapon(const char *prompt,int32_t weapon)
 {
     if(biw_cnt==-1)
         build_biw_list();
         
-    int index=0;
+    int32_t index=0;
     
-    for(int j=0; j<biw_cnt; j++)
+    for(int32_t j=0; j<biw_cnt; j++)
     {
         if(biw[j].i == weapon)
         {
@@ -13168,7 +13168,7 @@ int select_weapon(const char *prompt,int weapon)
     if(is_large)
         large_dialog(wlist_dlg);
         
-    int ret=zc_popup_dialog(wlist_dlg,2);
+    int32_t ret=zc_popup_dialog(wlist_dlg,2);
     
     if(ret==0||ret==4)
     {
@@ -13190,17 +13190,17 @@ static MENU seldata_rclick_menu[] =
     { NULL,            NULL, NULL, 0, NULL }
 };
 
-static int seldata_copy;
-static void (*seldata_paste_func)(int, int);
+static int32_t seldata_copy;
+static void (*seldata_paste_func)(int32_t, int32_t);
 
-void seldata_rclick_func(int index, int x, int y)
+void seldata_rclick_func(int32_t index, int32_t x, int32_t y)
 {
     if(seldata_copy<0)
         seldata_rclick_menu[1].flags|=D_DISABLED;
     else
         seldata_rclick_menu[1].flags&=~D_DISABLED;
     
-    int ret=popup_menu(seldata_rclick_menu, x, y);
+    int32_t ret=popup_menu(seldata_rclick_menu, x, y);
     
     if(ret==0) // copy
         seldata_copy=index;
@@ -13211,7 +13211,7 @@ void seldata_rclick_func(int index, int x, int y)
     }
 }
 
-int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT *title_font, void (*copyFunc)(int, int))
+int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,int32_t*), FONT *title_font, void (*copyFunc)(int32_t, int32_t))
 {
     if(proc==NULL)
         return -1;
@@ -13238,7 +13238,7 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT 
         list_dlg[2].dp3=0;
     }
     
-    int ret=zc_popup_dialog(list_dlg,2);
+    int32_t ret=zc_popup_dialog(list_dlg,2);
     
     if(ret==0||ret==4)
     {
@@ -13249,7 +13249,7 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT 
     return list_dlg[2].d1;
 }
 
-int select_data(const char *prompt,int index,const char *(proc)(int,int*), const char *b1, const char *b2, FONT *title_font, void (*copyFunc)(int, int))
+int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,int32_t*), const char *b1, const char *b2, FONT *title_font, void (*copyFunc)(int32_t, int32_t))
 {
     if(proc==NULL)
         return -1;
@@ -13278,7 +13278,7 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), const
         list_dlg[2].dp3=0;
     }
     
-    int ret = zc_popup_dialog(list_dlg,2);
+    int32_t ret = zc_popup_dialog(list_dlg,2);
     list_dlg[3].dp=(void *) "OK";
     list_dlg[4].dp=(void *) "Cancel";
     
@@ -13292,43 +13292,43 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), const
     return list_dlg[2].d1;
 }
 
-static int edit_scrdata1[] = // Flags 1
+static int32_t edit_scrdata1[] = // Flags 1
 {
     //6,8,10,11,12,15,18,19,21,22,24,37,57,59,60,-1
     118,45,46,57,  119,21,58,22,24,54,55,8,141,142, //Ordered as they are on the dialog
     120,6,43,47,50,  121,37,42,12,135,23,  -1
 };
 
-static int edit_scrdata3[] = // Flags 2
+static int32_t edit_scrdata3[] = // Flags 2
 {
     //38,39,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,58,61,-1
     123,15,19,41,51,  124,38,39,48,49, 125,52,53,
     126,10,59,60,  127,11,44,128,129,130,131,132,  -1
 };
 
-static int edit_scrdata5[] = // Enemies
+static int32_t edit_scrdata5[] = // Enemies
 {
     7,16,17,25,36,107,108,109,110,111,112,113,20,114,115,116,-1
 };
 
-static int edit_scrdata2[] = // Data 1
+static int32_t edit_scrdata2[] = // Data 1
 {
     31,32,33,34,35,62,63,64,65,66,67,68,69,70,71,72,73,
     74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,
     93,94,97,98,133,134,-1
 };
 
-static int edit_scrdata4[] = // Data 2
+static int32_t edit_scrdata4[] = // Data 2
 {
     14,95,96,99,100,101,102,103,104,105,106,-1
 };
 
-static int edit_scrdata6[] = // Timed Warp
+static int32_t edit_scrdata6[] = // Timed Warp
 {
     26, 27, 28,29,30,40,117,-1
 };
 
-static int edit_scrdata7[] = // Screen flags 3
+static int32_t edit_scrdata7[] = // Screen flags 3
 {
     122,18,56,136,137,138,139,140,-1
 };
@@ -13348,7 +13348,7 @@ static TABPANEL scrdata_tabs[] =
 
 static char sfx_str_buf[42];
 
-const char *sfxlist(int index, int *list_size)
+const char *sfxlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -13363,7 +13363,7 @@ const char *sfxlist(int index, int *list_size)
 
 static char lenseffect_str_buf[15];
 
-const char *lenseffectlist(int index, int *list_size)
+const char *lenseffectlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -13600,7 +13600,7 @@ static DIALOG scrdata_dlg[] =
 
 
 
-const char *screenscriptdroplist(int index, int *list_size)
+const char *screenscriptdroplist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -13676,13 +13676,13 @@ void EditScreenScript()
 {
 	screenscript_dlg[0].dp2=lfont;
 	char initd[8][16];
-	int script = 0;
+	int32_t script = 0;
 
 	mapscr *theMap = &TheMaps[Map.getCurrMap()*MAPSCRS+Map.getCurrScr()];
 	
 	build_biscreens_list();
 	memset(initd, 0, sizeof(initd));
-	for ( int q = 0; q < biscreens_cnt; q++)
+	for ( int32_t q = 0; q < biscreens_cnt; q++)
 	{
 		if(biscreens[q].second == theMap->script -1)
 		{
@@ -13694,13 +13694,13 @@ void EditScreenScript()
 	screenscript_dlg[22].d1 = script;
 	screenscript_dlg[25].flags = Map.CurrScr()->preloadscript ? D_SELECTED : 0;
 	
-	for ( int q = 0; q < 8; q++ )
+	for ( int32_t q = 0; q < 8; q++ )
 	{
 		screenscript_dlg[13+q].dp = initd[q];
 		screenscript_dlg[13+q].fg = theMap->screeninitd[q];
 		screenscript_dlg[13+q].dp3 = &(screenscript_dlg[26+q]);
 	}
-	int ret;
+	int32_t ret;
 	if(is_large)
 		large_dialog(screenscript_dlg);
         
@@ -13715,21 +13715,21 @@ void EditScreenScript()
 		else 
 			theMap->preloadscript = 0;
 		
-		for(int j=0; j<8; j++)
+		for(int32_t j=0; j<8; j++)
 			theMap->screeninitd[j] = screenscript_dlg[13+j].fg;
 		
 	}
 	while(ret==22);//press OK
 }
 
-int onScreenScript()
+int32_t onScreenScript()
 {
     EditScreenScript();
     saved=false;
     return D_O_K;
 }
 
-int onScrData()
+int32_t onScrData()
 {
 	restore_mouse();
 	char timedstring[6];
@@ -13757,7 +13757,7 @@ int onScrData()
 		bool foundfallrocks = false;
 		bool foundstatues = false;
 		
-		for(int i=0; i<eMAXGUYS && !(foundzora && foundctraps && foundmtraps && foundfallrocks && foundstatues); i++)
+		for(int32_t i=0; i<eMAXGUYS && !(foundzora && foundctraps && foundmtraps && foundfallrocks && foundstatues); i++)
 		{
 			if(!foundzora && guysbuf[i].flags2 & eneflag_zora)
 			{
@@ -13798,13 +13798,13 @@ int onScrData()
 	
 	scrdata_dlg[0].dp2=lfont;
 	sprintf(timedstring,"%d",Map.CurrScr()->timedwarptics);
-	//  sprintf(nmapstring,"%d",(int)Map.CurrScr()->nextmap);
-	// sprintf(nscrstring,"%x",(int)Map.CurrScr()->nextscr);
-	sprintf(csensstring,"%d",(int)Map.CurrScr()->csensitive);
+	//  sprintf(nmapstring,"%d",(int32_t)Map.CurrScr()->nextmap);
+	// sprintf(nscrstring,"%x",(int32_t)Map.CurrScr()->nextscr);
+	sprintf(csensstring,"%d",(int32_t)Map.CurrScr()->csensitive);
 	
 	byte f = Map.CurrScr()->flags;
 	
-	for(int i=0; i<8; i++)
+	for(int32_t i=0; i<8; i++)
 	{
 		scrdata_dlg[i+6].flags = (f&1) ? D_SELECTED : 0;
 		f>>=1;
@@ -13812,7 +13812,7 @@ int onScrData()
 	
 	f = Map.CurrScr()->flags2 >> 4;
 	
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 	{
 		scrdata_dlg[i+14].flags = (f&1) ? D_SELECTED : 0;
 		f>>=1;
@@ -13820,7 +13820,7 @@ int onScrData()
 	
 	f = Map.CurrScr()->flags3;
 	
-	for(int i=0; i<8; i++)
+	for(int32_t i=0; i<8; i++)
 	{
 		scrdata_dlg[i+18].flags = (f&1) ? D_SELECTED : 0;
 		f>>=1;
@@ -13836,10 +13836,10 @@ int onScrData()
 	// scrdata_dlg[35].dp=nscrstring;
 	scrdata_dlg[35].d1 = (Map.CurrScr()->nextscr);
 	scrdata_dlg[96].dp=csensstring;
-	scrdata_dlg[100].d1= (int)Map.CurrScr()->oceansfx;
-	scrdata_dlg[102].d1= (int)Map.CurrScr()->bosssfx;
-	scrdata_dlg[104].d1= (int)Map.CurrScr()->secretsfx;
-	scrdata_dlg[106].d1= (int)Map.CurrScr()->holdupsfx;
+	scrdata_dlg[100].d1= (int32_t)Map.CurrScr()->oceansfx;
+	scrdata_dlg[102].d1= (int32_t)Map.CurrScr()->bosssfx;
+	scrdata_dlg[104].d1= (int32_t)Map.CurrScr()->secretsfx;
+	scrdata_dlg[106].d1= (int32_t)Map.CurrScr()->holdupsfx;
 	scrdata_dlg[36].flags = (f&16) ? D_SELECTED : 0;
 	//scrdata_dlg[37].flags = (f&32) ? D_SELECTED : 0;
 	scrdata_dlg[38].flags = (f&64) ? D_SELECTED : 0;
@@ -13913,7 +13913,7 @@ int onScrData()
 	
 	byte h=Map.CurrScr()->enemyflags;
 	
-	for(int i=0; i<8; i++)
+	for(int32_t i=0; i<8; i++)
 	{
 		scrdata_dlg[i+107].flags = (h&1)?D_SELECTED:0;
 		h>>=1;
@@ -13926,7 +13926,7 @@ int onScrData()
 	{
 		f=0;
 		
-		for(int i=7; i>=0; i--)
+		for(int32_t i=7; i>=0; i--)
 		{
 			f<<=1;
 			f |= scrdata_dlg[i+6].flags & D_SELECTED ? 1:0;
@@ -13936,7 +13936,7 @@ int onScrData()
 		
 		f=0;
 		
-		for(int i=3; i>=0; i--)
+		for(int32_t i=3; i>=0; i--)
 		{
 			f<<=1;
 			f |= scrdata_dlg[i+14].flags & D_SELECTED ? 1:0;
@@ -13947,7 +13947,7 @@ int onScrData()
 		
 		f=0;
 		
-		for(int i=7; i>=0; i--)
+		for(int32_t i=7; i>=0; i--)
 		{
 			f<<=1;
 			f |= scrdata_dlg[i+18].flags & D_SELECTED ? 1:0;
@@ -14055,7 +14055,7 @@ int onScrData()
 		
 		h=0;
 		
-		for(int i=7; i>=0; i--)
+		for(int32_t i=7; i>=0; i--)
 		{
 			h<<=1;
 			h |= scrdata_dlg[107+i].flags & D_SELECTED ? 1:0;
@@ -14069,7 +14069,7 @@ int onScrData()
 	return D_O_K;
 }
 
-const char *nslist(int index, int *list_size)
+const char *nslist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14082,7 +14082,7 @@ const char *nslist(int index, int *list_size)
     return NULL;
 }
 
-const char *flaglist(int index, int *list_size)
+const char *flaglist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14097,7 +14097,7 @@ const char *flaglist(int index, int *list_size)
     return NULL;
 }
 
-const char *roomslist(int index, int *list_size)
+const char *roomslist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14112,10 +14112,10 @@ const char *roomslist(int index, int *list_size)
 }
 
 static char number_str_buf[MIDI_TRACK_BUFFER_SIZE];
-int number_list_size=1;
+int32_t number_list_size=1;
 bool number_list_zero=false;
 
-const char *numberlist(int index, int *list_size)
+const char *numberlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14129,10 +14129,10 @@ const char *numberlist(int index, int *list_size)
 }
 
 static char dmap_str_buf[37];
-int dmap_list_size=1;
+int32_t dmap_list_size=1;
 bool dmap_list_zero=true;
 
-const char *dmaplist(int index, int *list_size)
+const char *dmaplist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14145,7 +14145,7 @@ const char *dmaplist(int index, int *list_size)
     return NULL;
 }
 
-char *hexnumlist(int index, int *list_size)
+char *hexnumlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14158,7 +14158,7 @@ char *hexnumlist(int index, int *list_size)
     return NULL;
 }
 
-const char *maplist(int index, int *list_size)
+const char *maplist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14171,7 +14171,7 @@ const char *maplist(int index, int *list_size)
     return NULL;
 }
 
-const char *gotomaplist(int index, int *list_size)
+const char *gotomaplist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14184,7 +14184,7 @@ const char *gotomaplist(int index, int *list_size)
     return NULL;
 }
 
-const char *nextmaplist(int index, int *list_size)
+const char *nextmaplist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14197,7 +14197,7 @@ const char *nextmaplist(int index, int *list_size)
     return NULL;
 }
 
-const char *midilist(int index, int *list_size)
+const char *midilist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     
@@ -14210,7 +14210,7 @@ const char *midilist(int index, int *list_size)
     return NULL;
 }
 
-const char *screenmidilist(int index, int *list_size)
+const char *screenmidilist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     
@@ -14223,7 +14223,7 @@ const char *screenmidilist(int index, int *list_size)
     return NULL;
 }
 
-const char *custommidilist(int index, int *list_size)
+const char *custommidilist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14236,7 +14236,7 @@ const char *custommidilist(int index, int *list_size)
     return NULL;
 }
 
-const char *enhancedmusiclist(int index, int *list_size)
+const char *enhancedmusiclist(int32_t index, int32_t *list_size)
 {
     index=index; //this is here to prevent unused parameter warnings
     list_size=list_size; //this is here to prevent unused parameter warnings
@@ -14251,7 +14251,7 @@ const char *enhancedmusiclist(int index, int *list_size)
 }
 
 
-const char *levelnumlist(int index, int *list_size)
+const char *levelnumlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14265,9 +14265,9 @@ const char *levelnumlist(int index, int *list_size)
 }
 
 static char shop_str_buf[40];
-int shop_list_size=1;
+int32_t shop_list_size=1;
 
-const char *shoplist(int index, int *list_size)
+const char *shoplist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14281,9 +14281,9 @@ const char *shoplist(int index, int *list_size)
 }
 
 static char info_str_buf[40];
-int info_list_size=1;
+int32_t info_list_size=1;
 
-const char *infolist(int index, int *list_size)
+const char *infolist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -14298,11 +14298,11 @@ const char *infolist(int index, int *list_size)
 
 bool mapcount_will_affect_layers(word newmapcount)
 {
-	for(int i=0; i<(newmapcount)*MAPSCRS; i++)
+	for(int32_t i=0; i<(newmapcount)*MAPSCRS; i++)
 	{
 		mapscr *layerchecker=&TheMaps[i];
 		
-		for(int j=0; j<6; j++)
+		for(int32_t j=0; j<6; j++)
 		{
 			if(layerchecker->layermap[j]>(newmapcount))
 			{
@@ -14320,11 +14320,11 @@ void update_map_count(word newmapcount)
 	setMapCount2(newmapcount);
 	//Prevent the nine 'last mapscreen' buttons from pointing to invlid locations
 	//if the user reduces the mapcount. -Z ( 23rd September, 2019 )
-	for ( int q = 0; q < 9; q++ )
+	for ( int32_t q = 0; q < 9; q++ )
 	{
 		map_page[q].map = ( map_page[q].map > newmapcount-1 ) ? newmapcount-1 : map_page[q].map;
 	}
-	for(int i=0; i<(newmapcount)*MAPSCRS; i++)
+	for(int32_t i=0; i<(newmapcount)*MAPSCRS; i++)
 	{
 		fix_layers(&TheMaps[i], false);
 	}
@@ -14332,13 +14332,13 @@ void update_map_count(word newmapcount)
     refresh(rMAP+rSCRMAP+rMENU);
 }
 
-int onGotoMap()
+int32_t onGotoMap()
 {
-    int ret = select_data("Goto Map",Map.getCurrMap(),gotomaplist,lfont);
+    int32_t ret = select_data("Goto Map",Map.getCurrMap(),gotomaplist,lfont);
     
     if(ret >= 0)
     {
-        int m=Map.getCurrMap();
+        int32_t m=Map.getCurrMap();
         Map.setCurrMap(ret);
         
         if(m!=Map.getCurrMap())
@@ -14351,10 +14351,10 @@ int onGotoMap()
     return D_O_K;
 }
 
-int onFlags()
+int32_t onFlags()
 {
     restore_mouse();
-    int ret=select_cflag("Select Combo Flag",Flag);
+    int32_t ret=select_cflag("Select Combo Flag",Flag);
     position_mouse_z(0);
     
     if(ret>=0)
@@ -14380,20 +14380,20 @@ static DIALOG usedcombo_list_dlg[] =
 
 
 
-int onUsedCombos()
+int32_t onUsedCombos()
 {
     restore_mouse();
     usedcombo_list_dlg[0].dp2=lfont;
     
-    int usedcombos[7][300][2];
+    int32_t usedcombos[7][300][2];
     char combolist_text[65536];
     char temptext[80];
     
-    int drawmap=Map.getCurrMap();
-    int drawscr=Map.getCurrScr();
-    int counter[7];
+    int32_t drawmap=Map.getCurrMap();
+    int32_t drawscr=Map.getCurrScr();
+    int32_t counter[7];
     
-    for(int layer=0; layer<7; ++layer)
+    for(int32_t layer=0; layer<7; ++layer)
     {
         counter[layer]=0;
         
@@ -14419,11 +14419,11 @@ int onUsedCombos()
         usedcombos[layer][0][1]=1;
         counter[layer]=1;
         
-        for(int i=1; i<176; ++i)
+        for(int32_t i=1; i<176; ++i)
         {
             bool used=false;
             
-            for(int j=0; j<counter[layer]; ++j)
+            for(int32_t j=0; j<counter[layer]; ++j)
             {
                 if(usedcombos[layer][j][0]==Map.AbsoluteScr(drawmap, drawscr)->data[i])
                 {
@@ -14441,9 +14441,9 @@ int onUsedCombos()
             }
         }
         
-        for(int i=0; i<counter[layer]-1; i++)
+        for(int32_t i=0; i<counter[layer]-1; i++)
         {
-            for(int j=i+1; j<counter[layer]; j++)
+            for(int32_t j=i+1; j<counter[layer]; j++)
             {
                 if(usedcombos[layer][i][0]>usedcombos[layer][j][0])
                 {
@@ -14456,7 +14456,7 @@ int onUsedCombos()
     
     sprintf(combolist_text, " ");
     
-    for(int layer=0; layer<7; ++layer)
+    for(int32_t layer=0; layer<7; ++layer)
     {
         if(counter[layer]>0)
         {
@@ -14468,7 +14468,7 @@ int onUsedCombos()
             sprintf(temptext, "Combos on layer %d\n-----------------\n", layer);
             strcat(combolist_text, temptext);
             
-            for(int i=0; i<counter[layer]; i++)
+            for(int32_t i=0; i<counter[layer]; i++)
             {
                 if((i<counter[layer]-1) && (((usedcombos[layer][i][1]==usedcombos[layer][i+1][1]&&(usedcombos[layer][i][0]+1==usedcombos[layer][i+1][0])) && ((i==0) || ((usedcombos[layer][i][1]!=usedcombos[layer][i-1][1])||((usedcombos[layer][i][0]-1!=usedcombos[layer][i-1][0])))))))
                 {
@@ -14503,16 +14503,16 @@ int onUsedCombos()
     return D_O_K;
 }
 
-int onItem()
+int32_t onItem()
 {
     restore_mouse();
     build_bii_list(true);
-    int exit_status;
-    int current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->item : -2;
+    int32_t exit_status;
+    int32_t current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->item : -2;
     
     do
     {
-        int ret=select_item("Select Item",current_item,false,exit_status);
+        int32_t ret=select_item("Select Item",current_item,false,exit_status);
         
         if(exit_status == 5)
         {
@@ -14545,12 +14545,12 @@ int onItem()
     return D_O_K;
 }
 
-int onRoom()
+int32_t onRoom()
 {
 	restore_mouse();
 	auto* scr = Map.CurrScr();
 	RoomDialog(scr->room, scr->catchall, scr->guy, scr->str,
-		[scr](int r, int a, int g, int m)
+		[scr](int32_t r, int32_t a, int32_t g, int32_t m)
 		{
 			scr->room = r;
 			scr->guy = g;
@@ -14563,9 +14563,9 @@ int onRoom()
 	return D_O_K;
 }
 
-int onEndString()
+int32_t onEndString()
 {
-    int ret=select_data("Select Ending String",misc.endstring,msgslist,lfont);
+    int32_t ret=select_data("Select Ending String",misc.endstring,msgslist,lfont);
     
     if(ret>=0)
     {
@@ -14593,7 +14593,7 @@ static DIALOG screen_pal_dlg[] =
 };
 //  return list_dlg[2].d1;
 
-int onScreenPalette()
+int32_t onScreenPalette()
 {
     restore_mouse();
     screen_pal_dlg[0].dp2=lfont;
@@ -14614,10 +14614,10 @@ int onScreenPalette()
     return D_O_K;
 }
 
-int onDecScrPal()
+int32_t onDecScrPal()
 {
     restore_mouse();
-    int c=Map.getcolor();
+    int32_t c=Map.getcolor();
     c+=511;
     c=c%512;
     Map.setcolor(c);
@@ -14626,10 +14626,10 @@ int onDecScrPal()
     return D_O_K;
 }
 
-int onIncScrPal()
+int32_t onIncScrPal()
 {
     restore_mouse();
-    int c=Map.getcolor();
+    int32_t c=Map.getcolor();
     c+=1;
     c=c%512;
     Map.setcolor(c);
@@ -14638,9 +14638,9 @@ int onIncScrPal()
     return D_O_K;
 }
 
-int PalWrap(int kX, int const kLowerBound, int const kUpperBound)
+int32_t PalWrap(int32_t kX, int32_t const kLowerBound, int32_t const kUpperBound)
 {
-    int range_size = kUpperBound - kLowerBound + 1;
+    int32_t range_size = kUpperBound - kLowerBound + 1;
 
     if (kX < kLowerBound)
         kX += range_size * ((kLowerBound - kX) / range_size + 1);
@@ -14648,10 +14648,10 @@ int PalWrap(int kX, int const kLowerBound, int const kUpperBound)
     return kLowerBound + (kX - kLowerBound) % range_size;
 }
 
-int onDecScrPal16()
+int32_t onDecScrPal16()
 {
     restore_mouse(); 
-    int c=Map.getcolor();
+    int32_t c=Map.getcolor();
       
     c = PalWrap( ( c-0x10 ), 0, 511 );
      
@@ -14661,10 +14661,10 @@ int onDecScrPal16()
     return D_O_K;
 }
 
-int onIncScrPal16()
+int32_t onIncScrPal16()
 {
     restore_mouse();
-    int c=Map.getcolor();
+    int32_t c=Map.getcolor();
       	    
     c = PalWrap( ( c+0x10 ), 0, 511 );
     Map.setcolor(c);
@@ -14673,14 +14673,14 @@ int onIncScrPal16()
     return D_O_K;
 }
 
-int d_ndroplist_proc(int msg,DIALOG *d,int c)
+int32_t d_ndroplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret = jwin_droplist_proc(msg,d,c);
+    int32_t ret = jwin_droplist_proc(msg,d,c);
     
     // The only place this proc is used is in the info type editor.
     // If it's ever used anywhere else, this will probably need to be changed.
     // Maybe add a flag for it or something.
-    int msgID=msg_at_pos(d->d1);
+    int32_t msgID=msg_at_pos(d->d1);
     
     switch(msg)
     {
@@ -14695,9 +14695,9 @@ int d_ndroplist_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_idroplist_proc(int msg,DIALOG *d,int c)
+int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret = jwin_droplist_proc(msg,d,c);
+    int32_t ret = jwin_droplist_proc(msg,d,c);
     
     switch(msg)
     {
@@ -14705,12 +14705,12 @@ int d_idroplist_proc(int msg,DIALOG *d,int c)
     case MSG_CHAR:
     case MSG_CLICK:
         scare_mouse();
-        int tile = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].tile : 0;
-        int cset = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].csets&15 : 0;
-        int x = d->x + d->w + 4;
-        int y = d->y - 2;
-        int w = 16;
-        int h = 16;
+        int32_t tile = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].tile : 0;
+        int32_t cset = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].csets&15 : 0;
+        int32_t x = d->x + d->w + 4;
+        int32_t y = d->y - 2;
+        int32_t w = 16;
+        int32_t h = 16;
         
         if(is_large)
         {
@@ -14742,9 +14742,9 @@ int d_idroplist_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_nidroplist_proc(int msg,DIALOG *d,int c)
+int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret = d_idroplist_proc(msg,d,c);
+    int32_t ret = d_idroplist_proc(msg,d,c);
     
     switch(msg)
     {
@@ -14759,9 +14759,9 @@ int d_nidroplist_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_ilist_proc(int msg,DIALOG *d,int c)
+int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret = jwin_abclist_proc(msg,d,c);
+    int32_t ret = jwin_abclist_proc(msg,d,c);
     
     switch(msg)
     {
@@ -14770,8 +14770,8 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
     case MSG_CLICK:
         scare_mouse();
         
-        int tile = 0;
-        int cset = 0;
+        int32_t tile = 0;
+        int32_t cset = 0;
         
         if(bii[d->d1].i >-1)
         {
@@ -14779,10 +14779,10 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
             cset= itemsbuf[bii[d->d1].i].csets&15;
         }
         
-        int x = d->x + d->w + 4;
-        int y = d->y;
-        int w = 16;
-        int h = 16;
+        int32_t x = d->x + d->w + 4;
+        int32_t y = d->y;
+        int32_t w = 16;
+        int32_t h = 16;
         
         if(is_large)
         {
@@ -14835,27 +14835,27 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
 		sprintf(pscript, "%03d", itemsbuf[bii[d->d1].i].collect_script); //Give leading zeros so that we don't have graphical corruption in the display. 
 		sprintf(sscript, "%03d", itemsbuf[bii[d->d1].i].sprite_script); //Give leading zeros so that we don't have graphical corruption in the display. 
 		sprintf(wscript, "%03d", itemsbuf[bii[d->d1].i].weaponscript); //Give leading zeros so that we don't have graphical corruption in the display. 
-            //textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
+            //textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
+            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
 	     textprintf_ex(screen,spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"T: %d  ",itemsbuf[bii[d->d1].i].tile);
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itemlvl);
+            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itemlvl);
 	    //textprintf_ex(screen,spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"LV: %d  ",itemsbuf[bii[d->d1].i].family_type);
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmfam);
+            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmfam);
 	    //textprintf_ex(screen,spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"F: %d  ",itemsbuf[bii[d->d1].i].family);
            
-	    //textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmtile);
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmcset);
+	    //textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmtile);
+            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmcset);
 	    //Scripts
-	    textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",ascript);
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",pscript);
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",sscript);
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+80*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",wscript);
+	    textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
+            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",ascript);
+            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",pscript);
+            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",sscript);
+            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+80*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",wscript);
         }
         
         // Might be a bit confusing for new users
         /*textprintf_ex(screen,is_large?font:spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Cost:   ");
-        textprintf_ex(screen,is_large?font:spfont,x+int(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].magic);*/
+        textprintf_ex(screen,is_large?font:spfont,x+int32_t(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].magic);*/
         
         unscare_mouse();
     }
@@ -14863,9 +14863,9 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_wlist_proc(int msg,DIALOG *d,int c)
+int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret = jwin_abclist_proc(msg,d,c);
+    int32_t ret = jwin_abclist_proc(msg,d,c);
     
     switch(msg)
     {
@@ -14874,14 +14874,14 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
     case MSG_CLICK:
         scare_mouse();
         
-        int tile = 0;
-        int cset = 0;
+        int32_t tile = 0;
+        int32_t cset = 0;
         tile= wpnsbuf[biw[d->d1].i].newtile;
         cset= wpnsbuf[biw[d->d1].i].csets&15;
-        int x = d->x + d->w + 4;
-        int y = d->y;
-        int w = 16;
-        int h = 16;
+        int32_t x = d->x + d->w + 4;
+        int32_t y = d->y;
+        int32_t w = 16;
+        int32_t h = 16;
         float temp_scale = 1;
         
         if(is_large)
@@ -14931,14 +14931,14 @@ static byte triframe_points[9*4] =
     1,1,1,2,  1,1,2,2,  3,1,3,2,  3,1,2,2
 };
 
-int d_tri_frame_proc(int msg,DIALOG *d,int c)
+int32_t d_tri_frame_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
     
     if(msg==MSG_DRAW)
     {
-        int x[5],y[3];
+        int32_t x[5],y[3];
         
         x[0]=d->x;
         x[1]=d->x+(d->w>>2);
@@ -14951,7 +14951,7 @@ int d_tri_frame_proc(int msg,DIALOG *d,int c)
         
         byte *p = triframe_points;
         
-        for(int i=0; i<9; i++)
+        for(int32_t i=0; i<9; i++)
         {
             line(screen,x[*p],y[*(p+1)],x[*(p+2)],y[*(p+3)],d->fg);
             p+=4;
@@ -14961,13 +14961,13 @@ int d_tri_frame_proc(int msg,DIALOG *d,int c)
     return D_O_K;
 }
 
-int d_tri_edit_proc(int msg,DIALOG *d,int c)
+int32_t d_tri_edit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     jwin_button_proc(msg,d,c);
     
     if(msg==MSG_CLICK)
     {
-        int v = getnumber("Piece Number",d->d1);
+        int32_t v = getnumber("Piece Number",d->d1);
         scare_mouse();
         
         if(v>=0)
@@ -14978,7 +14978,7 @@ int d_tri_edit_proc(int msg,DIALOG *d,int c)
             {
                 DIALOG *tp = d - d->d2;
                 
-                for(int i=0; i<8; i++)
+                for(int32_t i=0; i<8; i++)
                 {
                     if(tp->d1==v)
                     {
@@ -15025,12 +15025,12 @@ static DIALOG tp_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onTriPieces()
+int32_t onTriPieces()
 {
     tp_dlg[0].dp2=lfont;
     char temptext[8][2];
     
-    for(int i=0; i<8; i++)
+    for(int32_t i=0; i<8; i++)
     {
         tp_dlg[i+3].d1 = misc.triforce[i];
         //    ((char*)(tp_dlg[i+3].dp))[0] = misc.triforce[i]+'0';
@@ -15045,7 +15045,7 @@ int onTriPieces()
     {
         saved=false;
         
-        for(int i=0; i<8; i++)
+        for(int32_t i=0; i<8; i++)
             misc.triforce[i] = tp_dlg[i+3].d1;
     }
     
@@ -15057,7 +15057,7 @@ int onTriPieces()
 /***********  onDMaps  ************/
 /**********************************/
 
-int d_maptile_proc(int msg,DIALOG *d,int c);
+int32_t d_maptile_proc(int32_t msg,DIALOG *d,int32_t c);
 bool small_dmap=false;
 
 static DIALOG dmapmaps_dlg[] =
@@ -15084,17 +15084,17 @@ static DIALOG dmapmaps_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int d_hexedit_proc(int msg,DIALOG *d,int c)
+int32_t d_hexedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     return jwin_hexedit_proc(msg,d,c);
 }
 
-void drawgrid(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div)
+void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t grid,int32_t fg,int32_t bg,int32_t div)
 {
     if(div!=-1)
         rectfill(dest,x-1,y-1,x+63,y+3,div);
         
-    for(int dx=0; dx<64; dx+=8)
+    for(int32_t dx=0; dx<64; dx+=8)
     {
         if(grid&0x80)
             rectfill(dest,x+dx,y,x+dx+6,y+2,fg);
@@ -15105,19 +15105,19 @@ void drawgrid(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div)
     }
 }
 
-void drawovergrid(BITMAP *dest,int x,int y,int grid,int color,int div)
+void drawovergrid(BITMAP *dest,int32_t x,int32_t y,int32_t grid,int32_t color,int32_t div)
 {
     if(div!=-1)
         rectfill(dest,x-1,y-1,x+63,y+3,div);
         
-    for(int dx=0; dx<64; dx+=4)
+    for(int32_t dx=0; dx<64; dx+=4)
     {
         rectfill(dest,x+dx,y,x+dx+2,y+2,color);
         grid<<=1;
     }
 }
 
-void drawgrid(BITMAP *dest,int x,int y,int w, int h, int tw, int th, int *grid,int fg,int bg,int div)
+void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t w, int32_t h, int32_t tw, int32_t th, int32_t *grid,int32_t fg,int32_t bg,int32_t div)
 {
     //these are here to bypass compiler warnings about unused arguments
     w=w;
@@ -15126,9 +15126,9 @@ void drawgrid(BITMAP *dest,int x,int y,int w, int h, int tw, int th, int *grid,i
     
     rectfill(dest,x,y,x+(8*8),y+(1*4),div);
     
-    for(int dy=0; dy<h; dy++)
+    for(int32_t dy=0; dy<h; dy++)
     {
-        for(int dx=0; dx<64; dx+=8)
+        for(int32_t dx=0; dx<64; dx+=8)
         {
             if(grid[0]&0x80)
                 rectfill(dest,x+dx,y,x+dx+6,y+2,fg);
@@ -15140,11 +15140,11 @@ void drawgrid(BITMAP *dest,int x,int y,int w, int h, int tw, int th, int *grid,i
     }
 }
 
-void drawgrid_s(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div)
+void drawgrid_s(BITMAP *dest,int32_t x,int32_t y,int32_t grid,int32_t fg,int32_t bg,int32_t div)
 {
     rectfill(dest,x-1,y-1,x+63,y+3,div);
     
-    for(int dx=0; dx<64; dx+=8)
+    for(int32_t dx=0; dx<64; dx+=8)
     {
         rectfill(dest,x+dx,y,x+dx+6,y+2,bg);
         
@@ -15155,9 +15155,9 @@ void drawgrid_s(BITMAP *dest,int x,int y,int grid,int fg,int bg,int div)
     }
 }
 
-void drawdmap(int dmap)
+void drawdmap(int32_t dmap)
 {
-    int c;
+    int32_t c;
     zcolors mc=misc.colors;
     
     switch((DMaps[dmap].type&dmfTYPE))
@@ -15169,7 +15169,7 @@ void drawdmap(int dmap)
         if(DMaps[dmap].minimap_2_tile)
             ;
         // overworld_map_tile overrides the NES minimap. dungeon_map_tile does not.
-        else for(int y=1; y<33; y+=4)
+        else for(int32_t y=1; y<33; y+=4)
                 drawgrid(dmapbmp_small,1,y,DMaps[dmap].grid[y>>2], DMaps[dmap].flags&dmfMINIMAPCOLORFIX ? mc.cave_fg : mc.dngn_fg, -1, -1);
                 
         c=DMaps[dmap].compass;
@@ -15185,7 +15185,7 @@ void drawdmap(int dmap)
         if(DMaps[dmap].minimap_2_tile)
             ;
         else if(!mc.overworld_map_tile)
-            for(int y=1; y<33; y+=4)
+            for(int32_t y=1; y<33; y+=4)
                 drawovergrid(dmapbmp_small,1,y,DMaps[dmap].grid[y>>2],mc.overw_bg,vc(0));
                 
         c=DMaps[dmap].cont;
@@ -15198,7 +15198,7 @@ void drawdmap(int dmap)
         if(DMaps[dmap].minimap_2_tile)
             ;
         else if(!mc.overworld_map_tile)
-            for(int y=1; y<33; y+=4)
+            for(int32_t y=1; y<33; y+=4)
                 //    drawgrid_s(dmapbmp,1,y,DMaps[dmap].grid[y>>2],dvc(2*4),dvc(2*3),dvc(3+4));
                 drawgrid_s(dmapbmp_small,1,y,DMaps[dmap].grid[y>>2],mc.bs_goal,mc.bs_dk,vc(14));
                 
@@ -15208,7 +15208,7 @@ void drawdmap(int dmap)
     }
 }
 
-void drawdmap_screen(int x, int y, int w, int h, int dmap)
+void drawdmap_screen(int32_t x, int32_t y, int32_t w, int32_t h, int32_t dmap)
 {
     BITMAP *tempbmp = create_bitmap_ex(8,w,h);
     clear_to_color(tempbmp, vc(0));
@@ -15236,13 +15236,13 @@ void drawdmap_screen(int x, int y, int w, int h, int dmap)
     
 }
 
-int d_dmaplist_proc(int msg,DIALOG *d,int c)
+int32_t d_dmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     if(msg==MSG_DRAW)
     {
-        int dmap = d->d1;
-        int xy[6] = {44,92,128,100,128,110};
-        //int *xy = (int*)(d->dp3);
+        int32_t dmap = d->d1;
+        int32_t xy[6] = {44,92,128,100,128,110};
+        //int32_t *xy = (int32_t*)(d->dp3);
         float temp_scale = 1;
         
         if(is_large)
@@ -15254,36 +15254,36 @@ int d_dmaplist_proc(int msg,DIALOG *d,int c)
         
         if(xy[0]>-1000&&xy[1]>-1000)
         {
-            int x = d->x+int((xy[0]-2)*temp_scale);
-            int y = d->y+int((xy[1]-2)*temp_scale);
-//      int w = is_large ? 84 : 71;
-//      int h = is_large ? 52 : 39;
-            int w = 84;
-            int h = 52;
+            int32_t x = d->x+int32_t((xy[0]-2)*temp_scale);
+            int32_t y = d->y+int32_t((xy[1]-2)*temp_scale);
+//      int32_t w = is_large ? 84 : 71;
+//      int32_t h = is_large ? 52 : 39;
+            int32_t w = 84;
+            int32_t h = 52;
             jwin_draw_frame(screen,x,y,w,h,FR_DEEP);
             drawdmap_screen(x+2,y+2,w-4,h-4,dmap);
         }
         
         if(xy[2]>-1000&&xy[3]>-1000)
         {
-            textprintf_ex(screen,is_large ? lfont_l : font,d->x+int((xy[2])*temp_scale),d->y+int((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
+            textprintf_ex(screen,is_large ? lfont_l : font,d->x+int32_t((xy[2])*temp_scale),d->y+int32_t((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
         }
         
         if(xy[4]>-1000&&xy[5]>-1000)
         {
-            textprintf_ex(screen,is_large ? lfont_l : font,d->x+int((xy[4])*temp_scale),d->y+int((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
+            textprintf_ex(screen,is_large ? lfont_l : font,d->x+int32_t((xy[4])*temp_scale),d->y+int32_t((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
         }
     }
     
     return jwin_list_proc(msg,d,c);
 }
 
-int d_dropdmaplist_proc(int msg,DIALOG *d,int c)
+int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     if(msg==MSG_DRAW)
     {
-        int dmap = d->d1;
-        int *xy = (int*)(d->dp3);
+        int32_t dmap = d->d1;
+        int32_t *xy = (int32_t*)(d->dp3);
         float temp_scale = 1;
         
         if(is_large)
@@ -15295,34 +15295,34 @@ int d_dropdmaplist_proc(int msg,DIALOG *d,int c)
         
         if(xy[0]>-1000&&xy[1]>-1000)
         {
-            int x = d->x+int((xy[0]-2)*temp_scale);
-            int y = d->y+int((xy[1]-2)*temp_scale);
-//      int w = is_large ? 84 : 71;
-//      int h = is_large ? 52 : 39;
-            int w = 84;
-            int h = 52;
+            int32_t x = d->x+int32_t((xy[0]-2)*temp_scale);
+            int32_t y = d->y+int32_t((xy[1]-2)*temp_scale);
+//      int32_t w = is_large ? 84 : 71;
+//      int32_t h = is_large ? 52 : 39;
+            int32_t w = 84;
+            int32_t h = 52;
             jwin_draw_frame(screen,x,y,w,h,FR_DEEP);
             drawdmap_screen(x+2,y+2,w-4,h-4,dmap);
         }
         
         if(xy[2]>-1000&&xy[3]>-1000)
         {
-            textprintf_ex(screen,is_large ? lfont_l : font,d->x+int((xy[2])*temp_scale),d->y+int((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
+            textprintf_ex(screen,is_large ? lfont_l : font,d->x+int32_t((xy[2])*temp_scale),d->y+int32_t((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
         }
         
         if(xy[4]>-1000&&xy[5]>-1000)
         {
-            textprintf_ex(screen,is_large ? lfont_l : font,d->x+int((xy[4])*temp_scale),d->y+int((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
+            textprintf_ex(screen,is_large ? lfont_l : font,d->x+int32_t((xy[4])*temp_scale),d->y+int32_t((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
         }
     }
     
     return jwin_droplist_proc(msg,d,c);
 }
 
-int d_dropdmaptypelist_proc(int msg,DIALOG *d,int c)
+int32_t d_dropdmaptypelist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int d1 = d->d1;
-    int ret = jwin_droplist_proc(msg,d,c);
+    int32_t d1 = d->d1;
+    int32_t ret = jwin_droplist_proc(msg,d,c);
     
     if(msg==MSG_DRAW || d->d1!=d1)
     {
@@ -15340,15 +15340,15 @@ int d_dropdmaptypelist_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_grid_proc(int msg,DIALOG *d,int)
+int32_t d_grid_proc(int32_t msg,DIALOG *d,int32_t)
 {
-    int frame_thickness=int(2*(is_large?1.5:1));
-    int button_thickness=2;
-    int header_width=int(4*(is_large?1.5:1));
-    int header_height=int(6*(is_large?1.5:1));
-    int cols=d->d1?8:16;
-int col_width=(is_large ? d->d1 ? 22:11:(d->d1?14:7));
-    int l=(is_large?10:7);
+    int32_t frame_thickness=int32_t(2*(is_large?1.5:1));
+    int32_t button_thickness=2;
+    int32_t header_width=int32_t(4*(is_large?1.5:1));
+    int32_t header_height=int32_t(6*(is_large?1.5:1));
+    int32_t cols=d->d1?8:16;
+int32_t col_width=(is_large ? d->d1 ? 22:11:(d->d1?14:7));
+    int32_t l=(is_large?10:7);
     
     switch(msg)
     {
@@ -15356,9 +15356,9 @@ int col_width=(is_large ? d->d1 ? 22:11:(d->d1?14:7));
     {
         BITMAP *tempbmp = create_bitmap_ex(8,SCREEN_W,SCREEN_H);
         clear_bitmap(tempbmp);
-        int x=d->x;
-        int y=d->y;
-        int j=0, k=0;
+        int32_t x=d->x;
+        int32_t y=d->y;
+        int32_t j=0, k=0;
         rectfill(tempbmp,x,y,x+d->w-1,y+header_height-1,jwin_pal[jcBOX]);
         
         for(j=0; j<8; ++j)
@@ -15390,14 +15390,14 @@ int col_width=(is_large ? d->d1 ? 22:11:(d->d1?14:7));
     
     case MSG_LPRESS:
     {
-        int xx = -1;
-        int yy = -1;
-        int set = -1; // Set or unset
+        int32_t xx = -1;
+        int32_t yy = -1;
+        int32_t set = -1; // Set or unset
         
         while(gui_mouse_b())  // Drag across to select multiple
         {
-            int x=(gui_mouse_x()-(d->x)-frame_thickness-header_width)/col_width;
-            int y=(gui_mouse_y()-(d->y)-frame_thickness-header_height)/l;
+            int32_t x=(gui_mouse_x()-(d->x)-frame_thickness-header_width)/col_width;
+            int32_t y=(gui_mouse_y()-(d->y)-frame_thickness-header_height)/l;
             
             if(xx != x || yy != y)
             {
@@ -15440,18 +15440,18 @@ int col_width=(is_large ? d->d1 ? 22:11:(d->d1?14:7));
     return D_O_K;
 }
 
-void drawxmap(int themap,int xoff,bool large)
+void drawxmap(int32_t themap,int32_t xoff,bool large)
 {
-    int cols=(large?8:16);
-int col_width=(is_large ? large ? 22:11:(large?14:7));
-    int dot_width=int((large?4:3)*(is_large?1.5:1));
-    int dot_offset=int((large?5:2)*(is_large?1.5:1));
-    int l = is_large?10:7;
+    int32_t cols=(large?8:16);
+int32_t col_width=(is_large ? large ? 22:11:(large?14:7));
+    int32_t dot_width=int32_t((large?4:3)*(is_large?1.5:1));
+    int32_t dot_offset=int32_t((large?5:2)*(is_large?1.5:1));
+    int32_t l = is_large?10:7;
     clear_to_color(dmapbmp_large,jwin_pal[jcBOX]);
     
-    for(int y=0; y<8; y++)
+    for(int32_t y=0; y<8; y++)
     {
-        for(int x=0; x<cols; x++)
+        for(int32_t x=0; x<cols; x++)
         {
             if(!large||(x+xoff>=0 && x+xoff<=15))
             {
@@ -15467,29 +15467,29 @@ int col_width=(is_large ? large ? 22:11:(large?14:7));
     }
 }
 
-int d_xmaplist_proc(int msg,DIALOG *d,int c)
+int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int d1 = d->d1;
-    int ret = jwin_droplist_proc(msg,d,c);
+    int32_t d1 = d->d1;
+    int32_t ret = jwin_droplist_proc(msg,d,c);
     
     if(msg==MSG_DRAW || d->d1!=d1)
     {
         scare_mouse();
-        int *xy = (int*)(d->dp3);
+        int32_t *xy = (int32_t*)(d->dp3);
         xy[0]=d->d1;
         drawxmap(xy[0],xy[1],small_dmap);
         
         if(xy[2]||xy[3])
         {
-            int frame_thickness=int(2*(is_large?1.5:1));
-            int header_width=int(4*(is_large?1.5:1));
-            int header_height=int(6*(is_large?1.5:1));
-            int cols=small_dmap?8:16;
-int col_width=(is_large ? small_dmap ? 22:11:(small_dmap?14:7));
-            int x=d->x+xy[2];
-            int y=d->y+xy[3];
-            int j=0;
-            rectfill(screen,x,y-header_height-frame_thickness-is_large,int(x+116*(is_large?1.5:1)-1),y-1,jwin_pal[jcBOX]);
+            int32_t frame_thickness=int32_t(2*(is_large?1.5:1));
+            int32_t header_width=int32_t(4*(is_large?1.5:1));
+            int32_t header_height=int32_t(6*(is_large?1.5:1));
+            int32_t cols=small_dmap?8:16;
+int32_t col_width=(is_large ? small_dmap ? 22:11:(small_dmap?14:7));
+            int32_t x=d->x+xy[2];
+            int32_t y=d->y+xy[3];
+            int32_t j=0;
+            rectfill(screen,x,y-header_height-frame_thickness-is_large,int32_t(x+116*(is_large?1.5:1)-1),y-1,jwin_pal[jcBOX]);
             
             for(j=0; j<8; ++j)
             {
@@ -15515,12 +15515,12 @@ int col_width=(is_large ? small_dmap ? 22:11:(small_dmap?14:7));
     return ret;
 }
 
-int xmapspecs[4] = {0,0,2,26};
+int32_t xmapspecs[4] = {0,0,2,26};
 
-int onXslider(void *dp3,int d2)
+int32_t onXslider(void *dp3,int32_t d2)
 {
-    int *x=(int *)dp3;
-    int *y=x+1;
+    int32_t *x=(int32_t *)dp3;
+    int32_t *y=x+1;
     xmapspecs[1]=d2-7;
     bound(xmapspecs[1],-7,15);
     drawxmap(xmapspecs[0],xmapspecs[1],small_dmap);
@@ -15532,7 +15532,7 @@ int onXslider(void *dp3,int d2)
 
 const char *dmaptype_str[dmMAX] = { "NES Dungeon","Overworld","Interior","BS-Overworld" };
 
-const char *typelist(int index, int *list_size)
+const char *typelist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -15546,13 +15546,13 @@ const char *typelist(int index, int *list_size)
 
 bool edit_ins_mode=true;
 
-void put_title_str(char *s,int x,int y,int fg,int bg,int pos,int lines,int cpl)
+void put_title_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos,int32_t lines,int32_t cpl)
 {
-    int i=0;
+    int32_t i=0;
     
     // text_mode(bg);
-    for(int dy=0; dy<lines; dy++)
-        for(int dx=0; dx<cpl; dx++)
+    for(int32_t dy=0; dy<lines; dy++)
+        for(int32_t dx=0; dx<cpl; dx++)
         {
             if(edit_ins_mode)
             {
@@ -15575,7 +15575,7 @@ void put_title_str(char *s,int x,int y,int fg,int bg,int pos,int lines,int cpl)
     }
 }
 
-int d_title_edit_proc(int msg,DIALOG *d,int c)
+int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     char *s=(char*)(d->dp);
     
@@ -15609,7 +15609,7 @@ int d_title_edit_proc(int msg,DIALOG *d,int c)
         
     case MSG_CHAR:
         bool used=false;
-        int k=c>>8;
+        int32_t k=c>>8;
         
         switch(k)
         {
@@ -15669,7 +15669,7 @@ int d_title_edit_proc(int msg,DIALOG *d,int c)
             {
                 if(edit_ins_mode)
                 {
-                    for(int i=19; i>d->d2; i--)
+                    for(int32_t i=19; i>d->d2; i--)
                         s[i]=s[i-1];
                 }
                 
@@ -15691,13 +15691,13 @@ int d_title_edit_proc(int msg,DIALOG *d,int c)
     return D_O_K;
 }
 
-void put_intro_str(char *s,int x,int y,int fg,int bg,int pos)
+void put_intro_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos)
 {
-    int i=0;
+    int32_t i=0;
     
     // text_mode(bg);
-    for(int dy=0; dy<3; dy++)
-        for(int dx=0; dx<24; dx++)
+    for(int32_t dy=0; dy<3; dy++)
+        for(int32_t dx=0; dx<24; dx++)
         {
             if(edit_ins_mode)
             {
@@ -15719,7 +15719,7 @@ void put_intro_str(char *s,int x,int y,int fg,int bg,int pos)
     }
 }
 
-int d_intro_edit_proc(int msg,DIALOG *d,int c)
+int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     char *s=(char*)(d->dp);
     
@@ -15755,7 +15755,7 @@ int d_intro_edit_proc(int msg,DIALOG *d,int c)
         
     case MSG_CHAR:
         bool used=false;
-        int k=c>>8;
+        int32_t k=c>>8;
         
         switch(k)
         {
@@ -15815,7 +15815,7 @@ int d_intro_edit_proc(int msg,DIALOG *d,int c)
             {
                 if(edit_ins_mode)
                 {
-                    for(int i=71; i>d->d2; i--)
+                    for(int32_t i=71; i>d->d2; i--)
                         s[i]=s[i-1];
                 }
                 
@@ -15842,49 +15842,49 @@ char dmap_name[33];
 char dmap_intro[73];
 
 
-static int editdmap_mechanics_list[] =
+static int32_t editdmap_mechanics_list[] =
 {
     // dialog control number
     19, 20, 21, 22, 23, 24, 25, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, -1
 };
 
 /*
-static int editdmap_continue_list[] =
+static int32_t editdmap_continue_list[] =
 {
   120,-1
 };
 */
 
-static int editdmap_appearance_list[] =
+static int32_t editdmap_appearance_list[] =
 {
     // dialog control number
     64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, -1
 };
 
-static int editdmap_music_list[] =
+static int32_t editdmap_music_list[] =
 {
     // dialog control number
     82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, -1
 };
 
-static int editdmap_subscreenmaps_list[] =
+static int32_t editdmap_subscreenmaps_list[] =
 {
     // dialog control number
     6, -1
 };
 
-static int editdmap_disableitems_list[] =
+static int32_t editdmap_disableitems_list[] =
 {
     // dialog control number
     100,101,102,103,104,105,-1
 };
 
-static int editdmap_flags_list[] =
+static int32_t editdmap_flags_list[] =
 {
     110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,168,-1
 };
 
-static int editdmap_script_active[] =
+static int32_t editdmap_script_active[] =
 {
     // dialog control number
 	130,131,132,133,134,135,136,137,//InitD Labels
@@ -15894,7 +15894,7 @@ static int editdmap_script_active[] =
 	-1
 };
 
-static int editdmap_script_subsc[] =
+static int32_t editdmap_script_subsc[] =
 {
     // dialog control number
 	148,149,150,151,152,153,154,155,//InitD Labels
@@ -15904,7 +15904,7 @@ static int editdmap_script_subsc[] =
 	-1
 };
 
-static int editdmap_script_onmap[] =
+static int32_t editdmap_script_onmap[] =
 {
     // dialog control number
 	169,170,171,172,173,174,175,176,//InitD Labels
@@ -15914,7 +15914,7 @@ static int editdmap_script_onmap[] =
 	-1
 };
 
-static int editdmap_scripts_list[] =
+static int32_t editdmap_scripts_list[] =
 {
     // dialog control number
 	28, -1
@@ -15933,13 +15933,13 @@ static TABPANEL editdmap_tabs[] =
     { NULL,                     0,           NULL,                         0,  NULL }
 };
 
-static int editdmapmap_before_list[] =
+static int32_t editdmapmap_before_list[] =
 {
     // dialog control number
     7, 8, 9, 10, 11, 12, -1
 };
 
-static int editdmapmap_after_list[] =
+static int32_t editdmapmap_after_list[] =
 {
     // dialog control number
     13, 14, 15, 16, 17, 18, 26, 27, -1
@@ -15962,9 +15962,9 @@ static TABPANEL editdmap_script_tabs[] =
     { NULL,                   0,           NULL, 0, NULL }
 };
 
-int dmap_tracks=0;
+int32_t dmap_tracks=0;
 static char dmap_track_number_str_buf[MIDI_TRACK_BUFFER_SIZE] = {0};
-const char *dmaptracknumlist(int index, int *list_size)
+const char *dmaptracknumlist(int32_t index, int32_t *list_size)
 {
 	//memset(dmap_track_number_str_buf,0,50);
     if(index>=0)
@@ -15978,8 +15978,8 @@ const char *dmaptracknumlist(int index, int *list_size)
     return NULL;
 }
 
-extern const char *subscreenlist_a(int index, int *list_size);
-extern const char *subscreenlist_b(int index, int *list_size);
+extern const char *subscreenlist_a(int32_t index, int32_t *list_size);
+extern const char *subscreenlist_b(int32_t index, int32_t *list_size);
 
 static ListData subscreen_list_a(subscreenlist_a, &font);
 static ListData subscreen_list_b(subscreenlist_b, &font);
@@ -15989,7 +15989,7 @@ static ListData type_list(typelist, &font);
 static ListData gotomap_list(gotomaplist, &font);
 
 
-const char *dmapscriptdroplist(int index, int *list_size)
+const char *dmapscriptdroplist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -16277,13 +16277,13 @@ static DIALOG editdmap_dlg[] =
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
-void editdmap(int index)
+void editdmap(int32_t index)
 {
     //DMapEditorLastMaptileUsed = 0;
     char levelstr[4], compassstr[4], contstr[4], tmusicstr[56], dmapnumstr[60];
     char *tmfname;
     byte gridstring[8];
-    static int xy[2];
+    static int32_t xy[2];
 	
 	char initdvals[8][13]; //script
 	char subinitdvals[8][13]; //script
@@ -16292,7 +16292,7 @@ void editdmap(int index)
 	char sub_initd_labels[8][65];
 	char onmap_initd_labels[8][65];
 	
-	for ( int q = 0; q < 8; q++ )
+	for ( int32_t q = 0; q < 8; q++ )
 	{
 		strcpy(initd_labels[q], DMaps[index].initD_label[q]);
 		strcpy(sub_initd_labels[q], DMaps[index].sub_initD_label[q]);
@@ -16319,7 +16319,7 @@ void editdmap(int index)
 	//dmap script
 	build_bidmaps_list(); //dmap scripts lister
 	
-	for(int j = 0; j < bidmaps_cnt; j++)
+	for(int32_t j = 0; j < bidmaps_cnt; j++)
 	{
 		if(bidmaps[j].second == DMaps[index].script -1)
 		{
@@ -16339,7 +16339,7 @@ void editdmap(int index)
 		}
 	}
     
-	for ( int q = 0; q < 8; q++ )
+	for ( int32_t q = 0; q < 8; q++ )
 	{
 		editdmap_dlg[138+q].dp = initdvals[q];
 		editdmap_dlg[156+q].dp = subinitdvals[q];
@@ -16375,9 +16375,9 @@ void editdmap(int index)
     editdmap_dlg[26].dp2=is_large?nfont:spfont;
     editdmap_dlg[27].dp2=is_large?nfont:spfont;
     
-    for(int i=0; i<8; i++)
+    for(int32_t i=0; i<8; i++)
     {
-        for(int j=0; j<8; j++)
+        for(int32_t j=0; j<8; j++)
         {
             set_bit(gridstring,8*i+j,get_bit((byte *)(DMaps[index].grid+i),7-j));
         }
@@ -16449,8 +16449,8 @@ void editdmap(int index)
     {
         if(!editdmap_dlg[0].d1)
         {
-            xmapspecs[2]=int(xmapspecs[2]*1.5);
-            xmapspecs[3]=int(xmapspecs[3]*1.5);
+            xmapspecs[2]=int32_t(xmapspecs[2]*1.5);
+            xmapspecs[3]=int32_t(xmapspecs[3]*1.5);
             editdmap_dlg[7].x+=4;
             editdmap_dlg[13].x+=4;
             editdmap_dlg[26].y-=12;
@@ -16462,10 +16462,10 @@ void editdmap(int index)
         large_dialog(editdmap_dlg);
         xy[0]=editdmap_dlg[20].x;
         xy[1]=editdmap_dlg[20].y;
-        int dest[6] = { 11, 17, 14, 8, 67, 70 };
-        int src[6] = { 12, 12, 9, 9, 68, 71 };
+        int32_t dest[6] = { 11, 17, 14, 8, 67, 70 };
+        int32_t src[6] = { 12, 12, 9, 9, 68, 71 };
         
-        for(int i=0; i<6; i++)
+        for(int32_t i=0; i<6; i++)
         {
             editdmap_dlg[dest[i]].w = editdmap_dlg[src[i]].w+4;
             editdmap_dlg[dest[i]].h = editdmap_dlg[src[i]].h+4;
@@ -16474,7 +16474,7 @@ void editdmap(int index)
         }
     }
     
-    int ret=-1;
+    int32_t ret=-1;
     
     while(ret!=0&&ret!=1&&ret!=2)
     {
@@ -16491,7 +16491,7 @@ void editdmap(int index)
                 
                 if(strlen(tmfname)>55)
                 {
-                    jwin_alert("Error","Filename too long","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
+                    jwin_alert("Error","Filename too int32_t","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
                     temppath[0]=0;
                 }
                 else
@@ -16563,9 +16563,9 @@ void editdmap(int index)
             
         DMaps[index].level=vbound(atoi(levelstr),0,MAXLEVELS-1);
         
-        for(int i=0; i<8; i++)
+        for(int32_t i=0; i<8; i++)
         {
-            for(int j=0; j<8; j++)
+            for(int32_t j=0; j<8; j++)
             {
                 set_bit((byte *)(DMaps[index].grid+i),7-j,get_bit(gridstring,8*i+j));
             }
@@ -16582,7 +16582,7 @@ void editdmap(int index)
         sprintf(DMaps[index].intro,"%s",dmap_intro);
         DMaps[index].tmusictrack = editdmap_dlg[89].d1;
         
-        int f=0;
+        int32_t f=0;
         f |= editdmap_dlg[110].flags & D_SELECTED ? dmfCAVES:0;
         f |= editdmap_dlg[111].flags & D_SELECTED ? dmf3STAIR:0;
         f |= editdmap_dlg[112].flags & D_SELECTED ? dmfWHIRLWIND:0;
@@ -16611,12 +16611,12 @@ void editdmap(int index)
 	DMaps[index].passive_sub_script = bidmaps[editdmap_dlg[167].d1].second + 1;
 	DMaps[index].onmap_script = bidmaps[editdmap_dlg[186].d1].second + 1;
 	
-	//for ( int q = 0; q < 8; ++q )
+	//for ( int32_t q = 0; q < 8; ++q )
 	//{
 	//	strcpy(initd_labels[q], editdmap_dlg[130+q].dp);
 	//}
 	
-	for ( int q = 0; q < 8; q++ )
+	for ( int32_t q = 0; q < 8; q++ )
 	{
 		DMaps[index].initD[q] = editdmap_dlg[138+q].fg;
 		DMaps[index].sub_initD[q] = editdmap_dlg[156+q].fg;
@@ -16631,8 +16631,8 @@ void editdmap(int index)
     }
 }
 
-//int selectdmapxy[6] = {90,142,164,150,164,160};
-int selectdmapxy[6] = {44,92,128,100,128,110};
+//int32_t selectdmapxy[6] = {90,142,164,150,164,160};
+int32_t selectdmapxy[6] = {44,92,128,100,128,110};
 
 static ListData dmap_list(dmaplist, &font);
 
@@ -16653,13 +16653,13 @@ static DIALOG selectdmap_dlg[] =
 static dmap copiedDMap;
 static byte dmapcopied = 0;
 
-int writesomedmaps(PACKFILE *f, int first, int last, int max)
+int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max)
 {
     
     dword section_version=V_DMAPS;
     dword section_cversion=CV_DMAPS;
-	int zversion = ZELDA_VERSION;
-	int zbuild = VERSION_BUILD;
+	int32_t zversion = ZELDA_VERSION;
+	int32_t zbuild = VERSION_BUILD;
 	
 	if(!p_iputl(V_ZDMAP,f))
 	{
@@ -16699,7 +16699,7 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
 	{
 		new_return(6);
 	}
-	int count = last-first;
+	int32_t count = last-first;
 	//number written
 	if(!p_iputl(count,f))
 	{
@@ -16707,7 +16707,7 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
 	}
 	
    
-        for ( int i = first; i <= last; ++i )
+        for ( int32_t i = first; i <= last; ++i )
 	{
 		if ( i > max ) break;
 	
@@ -16751,7 +16751,7 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
                 new_return(15);
             }
             
-            for(int j=0; j<8; j++)
+            for(int32_t j=0; j<8; j++)
             {
                 if(!p_putc(DMaps[i].grid[j],f))
                 {
@@ -16838,7 +16838,7 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
             byte disabled[32];
             memset(disabled,0,32);
             
-            for(int j=0; j<MAXITEMS; j++)
+            for(int32_t j=0; j<MAXITEMS; j++)
             {
                 if(DMaps[i].disableditems[j])
                 {
@@ -16863,7 +16863,7 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
             {
                 new_return(31);
             }
-	    for ( int q = 0; q < 8; q++ )
+	    for ( int32_t q = 0; q < 8; q++ )
 	    {
 		if(!p_iputl(DMaps[i].initD[q],f))
 	        {
@@ -16871,9 +16871,9 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
 		}
 		    
 	    }
-	    for ( int q = 0; q < 8; q++ )
+	    for ( int32_t q = 0; q < 8; q++ )
 	    {
-		    for ( int w = 0; w < 65; w++ )
+		    for ( int32_t w = 0; w < 65; w++ )
 		    {
 			if (!p_putc(DMaps[i].initD_label[q][w],f))
 			{
@@ -16889,16 +16889,16 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
 		{
 			new_return(35);
 		}
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
 			if(!p_iputl(DMaps[i].sub_initD[q],f))
 			{
 				new_return(36);
 			}
 		}
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
-			for(int w = 0; w < 65; ++w)
+			for(int32_t w = 0; w < 65; ++w)
 			{
 				if(!p_putc(DMaps[i].sub_initD_label[q][w],f))
 				{
@@ -16910,16 +16910,16 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
 		{
 			new_return(35);
 		}
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
 			if(!p_iputl(DMaps[i].onmap_initD[q],f))
 			{
 				new_return(36);
 			}
 		}
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
-			for(int w = 0; w < 65; ++w)
+			for(int32_t w = 0; w < 65; ++w)
 			{
 				if(!p_putc(DMaps[i].onmap_initD_label[q][w],f))
 				{
@@ -16933,17 +16933,17 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
 }
 
 
-int readsomedmaps(PACKFILE *f)
+int32_t readsomedmaps(PACKFILE *f)
 {
 	dword section_version = 0;
 	dword section_cversion = 0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	dmap tempdmap;
 	memset(&tempdmap, 0, sizeof(dmap));
 	
-	int first = 0, last = 0, max = 0, count = 0;
-	int datatype_version = 0;
+	int32_t first = 0, last = 0, max = 0, count = 0;
+	int32_t datatype_version = 0;
    
 	//char dmapstring[64]={0};
 	//section version info
@@ -17030,7 +17030,7 @@ int readsomedmaps(PACKFILE *f)
     
     
    
-		for ( int i = first; i <= last; ++i )
+		for ( int32_t i = first; i <= last; ++i )
 		{
 		    if(!p_getc(&tempdmap.map,f,true))
 		    {
@@ -17072,7 +17072,7 @@ int readsomedmaps(PACKFILE *f)
 			return 0;
 		    }
 		    
-		    for(int j=0; j<8; j++)
+		    for(int32_t j=0; j<8; j++)
 		    {
 			if(!p_getc(&tempdmap.grid[j],f,true))
 			{
@@ -17161,7 +17161,7 @@ int readsomedmaps(PACKFILE *f)
 		    
 		    if(!pfread(&disabled, 32, f, true)) return 0;
 		    
-		    for(int j=0; j<MAXITEMS; j++)
+		    for(int32_t j=0; j<MAXITEMS; j++)
 		    {
 			if(disabled[j/8] & (1 << (j%8))) tempdmap.disableditems[j]=1;
 			else tempdmap.disableditems[j]=0;
@@ -17185,7 +17185,7 @@ int readsomedmaps(PACKFILE *f)
 				    {
 					return 0;
 				    }
-				    for ( int q = 0; q < 8; q++ )
+				    for ( int32_t q = 0; q < 8; q++ )
 				    {
 					if(!p_igetl(&tempdmap.initD[q],f,true))
 					{
@@ -17193,9 +17193,9 @@ int readsomedmaps(PACKFILE *f)
 				    }
 					    
 				    }
-				    for ( int q = 0; q < 8; q++ )
+				    for ( int32_t q = 0; q < 8; q++ )
 				    {
-					    for ( int w = 0; w < 65; w++ )
+					    for ( int32_t w = 0; w < 65; w++ )
 					    {
 						if (!p_getc(&tempdmap.initD_label[q][w],f,true))
 						{
@@ -17211,16 +17211,16 @@ int readsomedmaps(PACKFILE *f)
 					{
 						return 0;
 					}
-					for(int q = 0; q < 8; ++q)
+					for(int32_t q = 0; q < 8; ++q)
 					{
 						if(!p_igetl(&tempdmap.sub_initD[q],f,true))
 						{
 							return 0;
 						}
 					}	
-					for(int q = 0; q < 8; ++q)
+					for(int32_t q = 0; q < 8; ++q)
 					{
-						for(int w = 0; w < 65; ++w)
+						for(int32_t w = 0; w < 65; ++w)
 						{
 							if(!p_getc(&tempdmap.sub_initD_label[q][w],f,true))
 							{
@@ -17232,16 +17232,16 @@ int readsomedmaps(PACKFILE *f)
 					{
 						return 0;
 					}
-					for(int q = 0; q < 8; ++q)
+					for(int32_t q = 0; q < 8; ++q)
 					{
 						if(!p_igetl(&tempdmap.onmap_initD[q],f,true))
 						{
 							return 0;
 						}
 					}	
-					for(int q = 0; q < 8; ++q)
+					for(int32_t q = 0; q < 8; ++q)
 					{
-						for(int w = 0; w < 65; ++w)
+						for(int32_t w = 0; w < 65; ++w)
 						{
 							if(!p_getc(&tempdmap.onmap_initD_label[q][w],f,true))
 							{
@@ -17259,13 +17259,13 @@ int readsomedmaps(PACKFILE *f)
 
 
 
-int writeonedmap(PACKFILE *f, int i)
+int32_t writeonedmap(PACKFILE *f, int32_t i)
 {
     
     dword section_version=V_DMAPS;
     dword section_cversion=CV_DMAPS;
-	int zversion = ZELDA_VERSION;
-	int zbuild = VERSION_BUILD;
+	int32_t zversion = ZELDA_VERSION;
+	int32_t zbuild = VERSION_BUILD;
 	
   
     //section version info
@@ -17333,7 +17333,7 @@ int writeonedmap(PACKFILE *f, int i)
                 new_return(13);
             }
             
-            for(int j=0; j<8; j++)
+            for(int32_t j=0; j<8; j++)
             {
                 if(!p_putc(DMaps[i].grid[j],f))
                 {
@@ -17420,7 +17420,7 @@ int writeonedmap(PACKFILE *f, int i)
             byte disabled[32];
             memset(disabled,0,32);
             
-            for(int j=0; j<MAXITEMS; j++)
+            for(int32_t j=0; j<MAXITEMS; j++)
             {
                 if(DMaps[i].disableditems[j])
                 {
@@ -17445,7 +17445,7 @@ int writeonedmap(PACKFILE *f, int i)
             {
                 new_return(31);
             }
-	    for ( int q = 0; q < 8; q++ )
+	    for ( int32_t q = 0; q < 8; q++ )
 	    {
 		if(!p_iputl(DMaps[i].initD[q],f))
 	        {
@@ -17453,9 +17453,9 @@ int writeonedmap(PACKFILE *f, int i)
 		}
 		    
 	    }
-	    for ( int q = 0; q < 8; q++ )
+	    for ( int32_t q = 0; q < 8; q++ )
 	    {
-		    for ( int w = 0; w < 65; w++ )
+		    for ( int32_t w = 0; w < 65; w++ )
 		    {
 			if (!p_putc(DMaps[i].initD_label[q][w],f))
 			{
@@ -17471,16 +17471,16 @@ int writeonedmap(PACKFILE *f, int i)
 		{
 			new_return(35);
 		}
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
 			if(!p_iputl(DMaps[i].sub_initD[q],f))
 			{
 				new_return(36);
 			}
 		}
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
-			for(int w = 0; w < 65; ++w)
+			for(int32_t w = 0; w < 65; ++w)
 			{
 				if(!p_putc(DMaps[i].sub_initD_label[q][w],f))
 				{
@@ -17492,16 +17492,16 @@ int writeonedmap(PACKFILE *f, int i)
 		{
 			new_return(35);
 		}
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
 			if(!p_iputl(DMaps[i].onmap_initD[q],f))
 			{
 				new_return(36);
 			}
 		}
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
-			for(int w = 0; w < 65; ++w)
+			for(int32_t w = 0; w < 65; ++w)
 			{
 				if(!p_putc(DMaps[i].onmap_initD_label[q][w],f))
 				{
@@ -17515,19 +17515,19 @@ int writeonedmap(PACKFILE *f, int i)
 }
 
 
-int readonedmap(PACKFILE *f, int index)
+int32_t readonedmap(PACKFILE *f, int32_t index)
 {
 	dword section_version = 0;
 	dword section_cversion = 0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	dmap tempdmap;
 	memset(&tempdmap, 0, sizeof(dmap));
-	int datatype_version = 0;
-	int first = 0;
-	int last = 0;
-	int max = 0;
-	int count = 0;
+	int32_t datatype_version = 0;
+	int32_t first = 0;
+	int32_t last = 0;
+	int32_t max = 0;
+	int32_t count = 0;
    
 	//char dmapstring[64]={0};
 	//section version info
@@ -17645,7 +17645,7 @@ int readonedmap(PACKFILE *f, int index)
                 return 0;
             }
             
-            for(int j=0; j<8; j++)
+            for(int32_t j=0; j<8; j++)
             {
                 if(!p_getc(&tempdmap.grid[j],f,true))
                 {
@@ -17734,7 +17734,7 @@ int readonedmap(PACKFILE *f, int index)
             
             if(!pfread(&disabled, 32, f, true)) return 0;
             
-            for(int j=0; j<MAXITEMS; j++)
+            for(int32_t j=0; j<MAXITEMS; j++)
             {
                 if(disabled[j/8] & (1 << (j%8))) tempdmap.disableditems[j]=1;
                 else tempdmap.disableditems[j]=0;
@@ -17758,7 +17758,7 @@ int readonedmap(PACKFILE *f, int index)
 			    {
 				return 0;
 			    }
-			    for ( int q = 0; q < 8; q++ )
+			    for ( int32_t q = 0; q < 8; q++ )
 			    {
 				if(!p_igetl(&tempdmap.initD[q],f,true))
 				{
@@ -17766,9 +17766,9 @@ int readonedmap(PACKFILE *f, int index)
 			    }
 				    
 			    }
-			    for ( int q = 0; q < 8; q++ )
+			    for ( int32_t q = 0; q < 8; q++ )
 			    {
-				    for ( int w = 0; w < 65; w++ )
+				    for ( int32_t w = 0; w < 65; w++ )
 				    {
 					if (!p_getc(&tempdmap.initD_label[q][w],f,true))
 					{
@@ -17784,16 +17784,16 @@ int readonedmap(PACKFILE *f, int index)
 				{
 					return 0;
 				}
-				for(int q = 0; q < 8; ++q)
+				for(int32_t q = 0; q < 8; ++q)
 				{
 					if(!p_igetl(&tempdmap.sub_initD[q],f,true))
 					{
 						return 0;
 					}
 				}	
-				for(int q = 0; q < 8; ++q)
+				for(int32_t q = 0; q < 8; ++q)
 				{
-					for(int w = 0; w < 65; ++w)
+					for(int32_t w = 0; w < 65; ++w)
 					{
 						if(!p_getc(&tempdmap.sub_initD_label[q][w],f,true))
 						{
@@ -17805,16 +17805,16 @@ int readonedmap(PACKFILE *f, int index)
 				{
 					return 0;
 				}
-				for(int q = 0; q < 8; ++q)
+				for(int32_t q = 0; q < 8; ++q)
 				{
 					if(!p_igetl(&tempdmap.onmap_initD[q],f,true))
 					{
 						return 0;
 					}
 				}	
-				for(int q = 0; q < 8; ++q)
+				for(int32_t q = 0; q < 8; ++q)
 				{
-					for(int w = 0; w < 65; ++w)
+					for(int32_t w = 0; w < 65; ++w)
 					{
 						if(!p_getc(&tempdmap.onmap_initD_label[q][w],f,true))
 						{
@@ -17838,7 +17838,7 @@ static MENU dmap_rclick_menu[] =
     { NULL,            NULL, NULL, 0, NULL }
 };
 
-void dmap_rclick_func(int index, int x, int y)
+void dmap_rclick_func(int32_t index, int32_t x, int32_t y)
 {
     if(((unsigned)index)>MAXDMAPS)
         return;
@@ -17848,7 +17848,7 @@ void dmap_rclick_func(int index, int x, int y)
     else
         dmap_rclick_menu[1].flags&=~D_DISABLED;
     
-    int ret=popup_menu(dmap_rclick_menu, x, y);
+    int32_t ret=popup_menu(dmap_rclick_menu, x, y);
     
     if(ret==0) // copy
     {
@@ -17900,9 +17900,9 @@ void dmap_rclick_func(int index, int x, int y)
 }
 
 
-int onDmaps()
+int32_t onDmaps()
 {
-    int ret;
+    int32_t ret;
     char buf[40];
     dmapcopied = 0;
     dmap_list_size=MAXDMAPS;
@@ -17923,7 +17923,7 @@ int onDmaps()
     
     while(ret!=4&&ret!=0)
     {
-        int d=selectdmap_dlg[2].d1;
+        int32_t d=selectdmap_dlg[2].d1;
         
         if(ret==6) //copy
 		{
@@ -18005,12 +18005,12 @@ static DIALOG editmidi_dlg[] =
 };
 
 
-void edit_tune(int i)
+void edit_tune(int32_t i)
 {
     // TO DO : adapt for non-midi formats
-    int ret,loop,volume;
+    int32_t ret,loop,volume;
     byte flags;
-    long start,loop_start,loop_end;
+    int32_t start,loop_start,loop_end;
     
     char title[36];
     char volume_str[8];
@@ -18020,7 +18020,7 @@ void edit_tune(int i)
     char len_str[16];
     char pos_str[16];
 //  char format_str[8];
-//  int format;
+//  int32_t format;
 
     void *data = customtunes[i].data;
     
@@ -18078,7 +18078,7 @@ void edit_tune(int i)
             custom_vsync();
             scare_mouse();
             //      text_mode(vc(1));
-            textprintf_ex(screen,is_large? lfont_l : font,editmidi_dlg[0].x+int(193*(is_large?1.5:1)),editmidi_dlg[0].y+int(58*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
+            textprintf_ex(screen,is_large? lfont_l : font,editmidi_dlg[0].x+int32_t(193*(is_large?1.5:1)),editmidi_dlg[0].y+int32_t(58*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
             unscare_mouse();
             //if(zqwin_scale > 1)
             {
@@ -18128,7 +18128,7 @@ void edit_tune(int i)
                 else
                 {
                     char *t = get_filename(temppath);
-                    int j;
+                    int32_t j;
                     
                     for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
                     {
@@ -18150,7 +18150,7 @@ void edit_tune(int i)
         case 12:
             if(midi_pos>0)
             {
-                int pos=midi_pos;
+                int32_t pos=midi_pos;
                 stop_midi();
                 midi_loop_end = -1;
                 midi_loop_start = -1;
@@ -18181,7 +18181,7 @@ void edit_tune(int i)
         case 13:
             if(midi_pos>0)
             {
-                int pos=midi_pos;
+                int32_t pos=midi_pos;
                 stop_midi();
                 midi_loop_end = -1;
                 midi_loop_start = -1;
@@ -18212,7 +18212,7 @@ void edit_tune(int i)
             
         case 11:
         {
-            int pos=midi_pos;
+            int32_t pos=midi_pos;
             stop_midi();
             midi_loop_end = -1;
             midi_loop_start = -1;
@@ -18260,13 +18260,13 @@ void edit_tune(int i)
     }
 }
 
-int d_midilist_proc(int msg,DIALOG *d,int c)
+int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     if(msg==MSG_DRAW)
     {
-        int i = d->d1;
-        int x = d->x+d->w+8;
-        int y = d->y+4;
+        int32_t i = d->d1;
+        int32_t x = d->x+d->w+8;
+        int32_t y = d->y+4;
         
         textout_right_ex(screen,font,"Volume:",x+51,y+8+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
         textout_right_ex(screen,font,"Loop:",x+51,y+16+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
@@ -18303,10 +18303,10 @@ static DIALOG selectmidi_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onMidis()
+int32_t onMidis()
 {
     stopMusic();
-    int ret;
+    int32_t ret;
     char buf[MIDI_TRACK_BUFFER_SIZE];
     number_list_size=MAXCUSTOMTUNES;
     number_list_zero=false;
@@ -18324,7 +18324,7 @@ int onMidis()
     
     while(ret!=4&&ret!=0)
     {
-        int d=selectmidi_dlg[2].d1;
+        int32_t d=selectmidi_dlg[2].d1;
         
         if(ret==5)
         {
@@ -18393,7 +18393,7 @@ static DIALOG editmusic_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int d_musiclist_proc(int msg,DIALOG *d,int c)
+int32_t d_musiclist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     return jwin_list_proc(msg,d,c);
 }
@@ -18412,11 +18412,11 @@ static DIALOG selectmusic_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onEnhancedMusic()
+int32_t onEnhancedMusic()
 {
     // to be taken out - the custom music can all be found in one place
     /*stopMusic();
-    int ret;
+    int32_t ret;
     char buf[40];
     number_list_size=MAXCUSTOMMIDIS;
     number_list_zero=false;
@@ -18426,7 +18426,7 @@ int onEnhancedMusic()
     ret=zc_do_dialog(selectmusic_dlg,2);
     while(ret!=4&&ret!=0)
     {
-      int d=selectmusic_dlg[2].d1;
+      int32_t d=selectmusic_dlg[2].d1;
       if(ret==5)
       {
         sprintf(buf,"Delete MIDI %d?",d+1);
@@ -18451,7 +18451,7 @@ int onEnhancedMusic()
 /**********  onWarp  ***********/
 /*******************************/
 
-const char *warptypelist(int index, int *list_size)
+const char *warptypelist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -18466,7 +18466,7 @@ const char *warptypelist(int index, int *list_size)
     return NULL;
 }
 
-const char *warpeffectlist(int index, int *list_size)
+const char *warpeffectlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -18480,27 +18480,27 @@ const char *warpeffectlist(int index, int *list_size)
     return NULL;
 }
 
-//int warpdmapxy[6] = {188,131,188,111,188,120};
-//int warpdmapxy[6] = {188-68,131-93,188-68,111-93,188-68,120-93};
-int warpdmapxy[6] = {150,38,150,18,150,27};
-//int warpdmapxy[6] = {2,25,0,17,36,17};
+//int32_t warpdmapxy[6] = {188,131,188,111,188,120};
+//int32_t warpdmapxy[6] = {188-68,131-93,188-68,111-93,188-68,120-93};
+int32_t warpdmapxy[6] = {150,38,150,18,150,27};
+//int32_t warpdmapxy[6] = {2,25,0,17,36,17};
 
-static int warp1_list[] =
+static int32_t warp1_list[] =
 {
     2,3,4,5,6,7,8,9,10,11,12,13,53,54,63,67,-1
 };
 
-static int warp2_list[] =
+static int32_t warp2_list[] =
 {
     17,18,19,20,21,22,23,24,25,26,27,28,55,56,64,68,-1
 };
 
-static int warp3_list[] =
+static int32_t warp3_list[] =
 {
     29,30,31,32,33,34,35,36,37,38,39,40,57,58,65,69,-1
 };
 
-static int warp4_list[] =
+static int32_t warp4_list[] =
 {
     41,42,43,44,45,46,47,48,49,50,51,52,59,60,66,70,-1
 };
@@ -18516,22 +18516,22 @@ static TABPANEL warp_tabs[] =
 };
 
 
-static int warpring_warp1_list[] =
+static int32_t warpring_warp1_list[] =
 {
     2,3,4,5,6,7,8,9,10,11,12,13,53,54,63,67,-1
 };
 
-static int warpring_warp2_list[] =
+static int32_t warpring_warp2_list[] =
 {
     17,18,19,20,21,22,23,24,25,26,27,28,55,56,64,68,-1
 };
 
-static int warpring_warp3_list[] =
+static int32_t warpring_warp3_list[] =
 {
     29,30,31,32,33,34,35,36,37,38,39,40,57,58,65,69,-1
 };
 
-static int warpring_warp4_list[] =
+static int32_t warpring_warp4_list[] =
 {
     41,42,43,44,45,46,47,48,49,50,51,52,59,60,66,70,-1
 };
@@ -18545,9 +18545,9 @@ static TABPANEL warpring_warp_tabs[] =
     { NULL,            0,          NULL,       0, NULL }
 };
 
-int onTileWarpIndex(int index)
+int32_t onTileWarpIndex(int32_t index)
 {
-    int i=-1;
+    int32_t i=-1;
     
     while(warp_tabs[++i].text != NULL)
         warp_tabs[i].flags = (i==index ? D_SELECTED : 0);
@@ -18557,7 +18557,7 @@ int onTileWarpIndex(int index)
 }
 
 static char warpr_buf[10];
-const char *warprlist(int index, int *list_size)
+const char *warprlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -18570,25 +18570,25 @@ const char *warprlist(int index, int *list_size)
     return NULL;
 }
 
-int d_wflag_proc(int msg,DIALOG *d,int c);
+int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 
 static ListData warp_dlg_list(warptypelist, &font);
 static ListData warp_ret_list(warprlist, &font);
 
-int d_warpdestscrsel_proc(int msg,DIALOG *d,int)
+int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t)
 {
     DIALOG *td=(DIALOG *)d->dp3;
     
     if(msg==MSG_CLICK)
     {
         bool is_overworld=((DMaps[td[d->d1].d1].type&dmfTYPE)==dmOVERW);
-        int x_clip  = is_overworld?0x0F:0x07;
-        int x_scale = is_overworld?2:3;
+        int32_t x_clip  = is_overworld?0x0F:0x07;
+        int32_t x_scale = is_overworld?2:3;
         
         while(gui_mouse_b())
         {
-            int x = zc_min(zc_max(gui_mouse_x() - d->x,0)>>x_scale, x_clip);
-            int y = zc_min((zc_max(gui_mouse_y() - d->y,0)<<2)&0xF0, 0x70);
+            int32_t x = zc_min(zc_max(gui_mouse_x() - d->x,0)>>x_scale, x_clip);
+            int32_t y = zc_min((zc_max(gui_mouse_y() - d->y,0)<<2)&0xF0, 0x70);
 //      if(x+y != d->d1)
             {
                 custom_vsync();
@@ -18854,7 +18854,7 @@ static DIALOG warpring_warp_dlg[] =
 };
 
 // Side warp flag procedure
-int d_wflag_proc(int msg,DIALOG *d,int c)
+int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
@@ -18863,7 +18863,7 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
     {
     case MSG_DRAW:
     {
-        int c2=(d->flags&D_SELECTED)?d->fg:d->bg;
+        int32_t c2=(d->flags&D_SELECTED)?d->fg:d->bg;
         
         /*if(!(d->d2&0x80))
           {
@@ -18876,7 +18876,7 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
             
             if(d->flags&D_SELECTED)
             {
-                int e=d->d2&3;
+                int32_t e=d->d2&3;
                 
                 if(d->w>d->h)
                     textprintf_centre_ex(screen,is_large ? lfont_l : font, d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
@@ -18902,7 +18902,7 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
             {
                 d->flags|=D_SELECTED;
                 d->d2&=0x80;
-                int g;
+                int32_t g;
                 
                 if(d==&warp_dlg[10]||d==&warp_dlg[25]||d==&warp_dlg[37]||d==&warp_dlg[49]) g=0;
                 else if(d==&warp_dlg[11]||d==&warp_dlg[26]||d==&warp_dlg[38]||d==&warp_dlg[50]) g=1;
@@ -18924,7 +18924,7 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
                 {
                     d->flags^=D_SELECTED;
                     d->d2&=0x80;
-                    int g;
+                    int32_t g;
                     
                     if(d==&warp_dlg[10]||d==&warp_dlg[25]||d==&warp_dlg[37]||d==&warp_dlg[49]) g=0;
                     else if(d==&warp_dlg[11]||d==&warp_dlg[26]||d==&warp_dlg[38]||d==&warp_dlg[50]) g=1;
@@ -18942,11 +18942,11 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
                 }
                 else
                 {
-                    int f=d->d2&3;
+                    int32_t f=d->d2&3;
                     d->d2&=0x80;
                     f++;
                     d->d2|=f;
-                    int g;
+                    int32_t g;
                     
                     if(d==&warp_dlg[10]||d==&warp_dlg[25]||d==&warp_dlg[37]||d==&warp_dlg[49]) g=0;
                     else if(d==&warp_dlg[11]||d==&warp_dlg[26]||d==&warp_dlg[38]||d==&warp_dlg[50]) g=1;
@@ -18969,7 +18969,7 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
             d->flags^=D_SELECTED;
         }
         
-        int c2=(d->flags&D_SELECTED)?d->fg:d->bg;
+        int32_t c2=(d->flags&D_SELECTED)?d->fg:d->bg;
         scare_mouse();
         
         if(d->d1==1)
@@ -18979,7 +18979,7 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
             
             if(d->flags&D_SELECTED)
             {
-                int e=d->d2&3;
+                int32_t e=d->d2&3;
                 
                 if(d->w>d->h)
                     textprintf_centre_ex(screen,is_large? lfont_l: font,d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
@@ -19006,116 +19006,116 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
 }
 
 #if 0
-static int north_side_warp_list[] =
+static int32_t north_side_warp_list[] =
 {
     // dialog control number
     15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, -1
 };
 
-static int south_side_warp_list[] =
+static int32_t south_side_warp_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int west_side_warp_list[] =
+static int32_t west_side_warp_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int east_side_warp_list[] =
+static int32_t east_side_warp_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int wind_warp_1_list[] =
+static int32_t wind_warp_1_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int wind_warp_2_list[] =
+static int32_t wind_warp_2_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int wind_warp_3_list[] =
+static int32_t wind_warp_3_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int wind_warp_4_list[] =
+static int32_t wind_warp_4_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int wind_warp_5_list[] =
+static int32_t wind_warp_5_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int wind_warp_6_list[] =
+static int32_t wind_warp_6_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int wind_warp_7_list[] =
+static int32_t wind_warp_7_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int wind_warp_8_list[] =
+static int32_t wind_warp_8_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int wind_warp_9_list[] =
+static int32_t wind_warp_9_list[] =
 {
     // dialog control number
     80, -1
 };
 
 
-static int tile_warp_list[] =
+static int32_t tile_warp_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int side_warp_list[] =
+static int32_t side_warp_list[] =
 {
     // dialog control number
     6, -1
 };
 
-static int item_warp_list[] =
+static int32_t item_warp_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int wind_warp_list[] =
+static int32_t wind_warp_list[] =
 {
     // dialog control number
     7, -1
 };
 
-static int special_warp_list[] =
+static int32_t special_warp_list[] =
 {
     // dialog control number
     80, -1
 };
 
-static int timed_warp_list[] =
+static int32_t timed_warp_list[] =
 {
     // dialog control number
     80, -1
@@ -19124,12 +19124,12 @@ static int timed_warp_list[] =
 
 #endif
 
-int d_dmapscrsel_proc(int msg,DIALOG *d,int c)
+int32_t d_dmapscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
     
-    int ret = D_O_K;
+    int32_t ret = D_O_K;
     
     switch(msg)
     {
@@ -19142,17 +19142,17 @@ int d_dmapscrsel_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int warpdestsel_x=-1;
-int warpdestsel_y=-1;
-int warpdestmap=-1;
-int warpdestscr=-1;
+int32_t warpdestsel_x=-1;
+int32_t warpdestsel_y=-1;
+int32_t warpdestmap=-1;
+int32_t warpdestscr=-1;
 
-int d_warpdestsel_proc(int msg,DIALOG *d,int c)
+int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
     
-    int ret=D_O_K;
+    int32_t ret=D_O_K;
     static BITMAP *bmp=create_bitmap_ex(8,256,176);
     static bool inrect=false;
     static bool mousedown=false;
@@ -19185,8 +19185,8 @@ int d_warpdestsel_proc(int msg,DIALOG *d,int c)
         animate_coords();
         Map.draw(bmp, 0, 0, 0, warpdestmap, warpdestscr);
         blit(icon_bmp[ICON_BMP_WARPDEST][coord_frame], bmp, 0, 0, Map.AbsoluteScr(warpdestmap,warpdestscr)->warparrivalx, Map.AbsoluteScr(warpdestmap,warpdestscr)->warparrivaly, 16, 16);
-        int px2=((gui_mouse_x()-d->x-2)&0xF8);
-        int py2=((gui_mouse_y()-d->y-2)&0xF8);
+        int32_t px2=((gui_mouse_x()-d->x-2)&0xF8);
+        int32_t py2=((gui_mouse_y()-d->y-2)&0xF8);
         
         if(isinRect(gui_mouse_x(), gui_mouse_y(), d->x+2,d->y+2,d->x+256+1,d->y+176+1))
         {
@@ -19256,9 +19256,9 @@ static DIALOG warpdestsel_dlg[] =
     { NULL,                          0,      0,      0,      0,    0,                      0,                       0,       0,           0,             0,   NULL,                                  NULL,    NULL       }
 };
 
-int d_warpbutton_proc(int msg,DIALOG *d,int c)
+int32_t d_warpbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret=jwin_button_proc(msg,d,c);
+    int32_t ret=jwin_button_proc(msg,d,c);
     
     if(ret==D_EXIT)
     {
@@ -19298,7 +19298,7 @@ int d_warpbutton_proc(int msg,DIALOG *d,int c)
 }
 #endif
 
-int jwin_minibutton_proc(int msg,DIALOG *d,int c)
+int32_t jwin_minibutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
@@ -19311,14 +19311,14 @@ int jwin_minibutton_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg,d,c);
 }
 
-int d_triggerbutton_proc(int msg,DIALOG *d,int c)
+int32_t d_triggerbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     static BITMAP *dummy=create_bitmap_ex(8, 1, 1);
     
     switch(msg)
     {
     case MSG_START:
-        d->w=gui_textout_ln(dummy, font, (unsigned char *)d->dp, 0, 0, jwin_pal[jcMEDDARK], -1, 0)+4;
+        d->w=gui_textout_ln(dummy, font, (uint8_t *)d->dp, 0, 0, jwin_pal[jcMEDDARK], -1, 0)+4;
         d->h=text_height(font)+5;
         break;
         
@@ -19331,10 +19331,10 @@ int d_triggerbutton_proc(int msg,DIALOG *d,int c)
     return jwin_minibutton_proc(msg,d,c);
 }
 
-int d_alltriggerbutton_proc(int msg,DIALOG *d,int c)
+int32_t d_alltriggerbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     DIALOG *temp_d;
-    int ret=d_triggerbutton_proc(msg,d,c);
+    int32_t ret=d_triggerbutton_proc(msg,d,c);
     
     switch(msg)
     {
@@ -19360,14 +19360,14 @@ int d_alltriggerbutton_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_ticsedit_proc(int msg,DIALOG *d,int c)
+int32_t d_ticsedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret = jwin_edit_proc(msg,d,c);
+    int32_t ret = jwin_edit_proc(msg,d,c);
     
     if(msg==MSG_DRAW)
     {
         scare_mouse();
-        int tics=vbound(atoi((char*)d->dp),0,65535);
+        int32_t tics=vbound(atoi((char*)d->dp),0,65535);
         sprintf((char*)(d+1)->dp,"%s %s",ticksstr(tics),tics==0?"(No Timed Warp)":"               ");
         object_message(d+1,MSG_DRAW,c);
         unscare_mouse();
@@ -19505,35 +19505,35 @@ static DIALOG warp_dlg2[] =
 };
 #endif
 
-int onTileWarp()
+int32_t onTileWarp()
 {
-    int tempx5=warp_dlg[5].x;
-    int tempx6=warp_dlg[6].x;
-    int tempx10=warp_dlg[10].x;
-    int tempx11=warp_dlg[11].x;
-    int tempx12=warp_dlg[12].x;
-    int tempx13=warp_dlg[13].x;
+    int32_t tempx5=warp_dlg[5].x;
+    int32_t tempx6=warp_dlg[6].x;
+    int32_t tempx10=warp_dlg[10].x;
+    int32_t tempx11=warp_dlg[11].x;
+    int32_t tempx12=warp_dlg[12].x;
+    int32_t tempx13=warp_dlg[13].x;
     
-    int tempx20=warp_dlg[20].x;
-    int tempx21=warp_dlg[21].x;
-    int tempx25=warp_dlg[25].x;
-    int tempx26=warp_dlg[26].x;
-    int tempx27=warp_dlg[27].x;
-    int tempx28=warp_dlg[28].x;
+    int32_t tempx20=warp_dlg[20].x;
+    int32_t tempx21=warp_dlg[21].x;
+    int32_t tempx25=warp_dlg[25].x;
+    int32_t tempx26=warp_dlg[26].x;
+    int32_t tempx27=warp_dlg[27].x;
+    int32_t tempx28=warp_dlg[28].x;
     
-    int tempx32=warp_dlg[32].x;
-    int tempx33=warp_dlg[33].x;
-    int tempx37=warp_dlg[37].x;
-    int tempx38=warp_dlg[38].x;
-    int tempx39=warp_dlg[39].x;
-    int tempx40=warp_dlg[40].x;
+    int32_t tempx32=warp_dlg[32].x;
+    int32_t tempx33=warp_dlg[33].x;
+    int32_t tempx37=warp_dlg[37].x;
+    int32_t tempx38=warp_dlg[38].x;
+    int32_t tempx39=warp_dlg[39].x;
+    int32_t tempx40=warp_dlg[40].x;
     
-    int tempx44=warp_dlg[44].x;
-    int tempx45=warp_dlg[45].x;
-    int tempx49=warp_dlg[49].x;
-    int tempx50=warp_dlg[50].x;
-    int tempx51=warp_dlg[51].x;
-    int tempx52=warp_dlg[52].x;
+    int32_t tempx44=warp_dlg[44].x;
+    int32_t tempx45=warp_dlg[45].x;
+    int32_t tempx49=warp_dlg[49].x;
+    int32_t tempx50=warp_dlg[50].x;
+    int32_t tempx51=warp_dlg[51].x;
+    int32_t tempx52=warp_dlg[52].x;
     restore_mouse();
     warp_dlg[0].dp=(void *) "Tile Warp";
     warp_dlg[0].dp2=lfont;
@@ -19562,7 +19562,7 @@ int onTileWarp()
     warp_dlg[51].x = SCREEN_W+10;
     warp_dlg[52].x = SCREEN_W+10;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         warp_dlg[10+i].d2 = 0;
         warp_dlg[25+i].d2 = 0;
@@ -19609,7 +19609,7 @@ int onTileWarp()
     warp_dlg[29].fg=vc(14);
     warp_dlg[41].fg=vc(14);
     //warp_dlg[5].fg=vc(7);
-    //for(int i=0; i<4; i++)
+    //for(int32_t i=0; i<4; i++)
     //warp_dlg[10+i].d2 = 0;
     dmap_list_size=MAXDMAPS;
     dmap_list_zero=true;
@@ -19670,7 +19670,7 @@ int onTileWarp()
             warp_dlg[52].y -= 2;
         }
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             warp_dlg[i+67].x=493;
             warp_dlg[i+67].y=329;
@@ -19679,7 +19679,7 @@ int onTileWarp()
         }
     }
     
-    int ret=zc_popup_dialog(warp_dlg,-1);
+    int32_t ret=zc_popup_dialog(warp_dlg,-1);
     
     if(ret==14 || ret==15)
     {
@@ -19720,7 +19720,7 @@ int onTileWarp()
     
     if(ret==15)
     {
-        int index=0;
+        int32_t index=0;
         
         if(warp_tabs[0].flags & D_SELECTED) index = 0;
         
@@ -19731,9 +19731,9 @@ int onTileWarp()
         if(warp_tabs[3].flags & D_SELECTED) index = 3;
         
         FlashWarpSquare = -1;
-        int tm = Map.getCurrMap();
-        int ts = Map.getCurrScr();
-        int thistype = Map.CurrScr()->tilewarptype[index];
+        int32_t tm = Map.getCurrMap();
+        int32_t ts = Map.getCurrScr();
+        int32_t thistype = Map.CurrScr()->tilewarptype[index];
         Map.dowarp(0,index);
         
         if((ts!=Map.getCurrScr() || tm!=Map.getCurrMap()) && thistype != wtCAVE && thistype != wtSCROLL)
@@ -19773,7 +19773,7 @@ int onTileWarp()
     warp_dlg[51].x = tempx51;
     warp_dlg[52].x = tempx52;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         warp_dlg[10+i].d2 = 0x80;
         warp_dlg[25+i].d2 = 0x80;
@@ -19784,7 +19784,7 @@ int onTileWarp()
     return D_O_K;
 }
 
-int onSideWarp()
+int32_t onSideWarp()
 {
     restore_mouse();
     warp_dlg[0].dp=(void *) "Side Warp";
@@ -19837,7 +19837,7 @@ int onSideWarp()
     byte h=Map.CurrScr()->sidewarpindex;
     byte g=f&240;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         warp_dlg[10+i].d2 = 0x80;
         warp_dlg[25+i].d2 = 0x80;
@@ -19927,7 +19927,7 @@ int onSideWarp()
         }
     }
     
-    int ret=zc_popup_dialog(warp_dlg,-1);
+    int32_t ret=zc_popup_dialog(warp_dlg,-1);
     
     if(ret==14 || ret==15)
     {
@@ -19954,7 +19954,7 @@ int onSideWarp()
         f=0;
         h=0;
         
-        for(int i=3; i>=0; i--)
+        for(int32_t i=3; i>=0; i--)
         {
             f<<=1;
             h<<=2;
@@ -19962,7 +19962,7 @@ int onSideWarp()
             //f |= warp_dlg[37+i].flags&D_SELECTED ? 1 : 0;
             //f |= warp_dlg[25+i].flags&D_SELECTED ? 1 : 0;
             f |= warp_dlg[10+i].flags&D_SELECTED ? 1 : 0;
-            int t=0;
+            int32_t t=0;
             /*if(warp_dlg[10+i].flags&D_SELECTED) t=0;
               else if(warp_dlg[25+i].flags&D_SELECTED) t=1;
               else if(warp_dlg[37+i].flags&D_SELECTED) t=2;
@@ -19992,7 +19992,7 @@ int onSideWarp()
     
     if(ret==15)
     {
-        int index=0;
+        int32_t index=0;
         
         if(warp_tabs[0].flags & D_SELECTED) index = 0;
         
@@ -20003,9 +20003,9 @@ int onSideWarp()
         if(warp_tabs[3].flags & D_SELECTED) index = 3;
         
         FlashWarpSquare = -1;
-        int tm = Map.getCurrMap();
-        int ts = Map.getCurrScr();
-        int thistype = Map.CurrScr()->sidewarptype[index];
+        int32_t tm = Map.getCurrMap();
+        int32_t ts = Map.getCurrScr();
+        int32_t thistype = Map.CurrScr()->sidewarptype[index];
         Map.dowarp(1,index);
         
         if((ts!=Map.getCurrScr() || tm!=Map.getCurrMap()) && thistype != wtSCROLL)
@@ -20024,7 +20024,7 @@ int onSideWarp()
 /*********** onPath ************/
 /*******************************/
 
-const char *dirlist(int index, int *list_size)
+const char *dirlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -20063,12 +20063,12 @@ static DIALOG path_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onPath()
+int32_t onPath()
 {
     restore_mouse();
     path_dlg[0].dp2=lfont;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         path_dlg[i+7].d1 = Map.CurrScr()->path[i];
         
     path_dlg[11].d1 = Map.CurrScr()->exitdir;
@@ -20076,13 +20076,13 @@ int onPath()
     if(is_large)
         large_dialog(path_dlg);
         
-    int ret;
+    int32_t ret;
     
     do
     {
         ret=zc_popup_dialog(path_dlg,7);
         
-        if(ret==12) for(int i=0; i<4; i++)
+        if(ret==12) for(int32_t i=0; i<4; i++)
             {
                 if(path_dlg[i+7].d1 == path_dlg[11].d1)
                 {
@@ -20099,7 +20099,7 @@ int onPath()
     {
         saved=false;
         
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
             Map.CurrScr()->path[i] = path_dlg[i+7].d1;
             
         Map.CurrScr()->exitdir = path_dlg[11].d1;
@@ -20143,13 +20143,13 @@ static DIALOG editinfo_dlg[] =
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL,                           NULL,  NULL }
 };
 
-void EditInfoType(int index)
+void EditInfoType(int32_t index)
 {
     char ps1[6],ps2[6],ps3[6];
     char infoname[32];
     char caption[40];
     
-    int str1, str2, str3;
+    int32_t str1, str2, str3;
     
     sprintf(caption,"Info Data %d",index);
     editinfo_dlg[0].dp = caption;
@@ -20178,7 +20178,7 @@ void EditInfoType(int index)
     if(is_large)
         large_dialog(editinfo_dlg);
         
-    int ret = zc_popup_dialog(editinfo_dlg,-1);
+    int32_t ret = zc_popup_dialog(editinfo_dlg,-1);
     
     if(ret==16)
     {
@@ -20237,11 +20237,11 @@ void EditInfoType(int index)
     }
 }
 
-int onInfoTypes()
+int32_t onInfoTypes()
 {
     info_list_size = 256;
     
-    int index = select_data("Info Types",0,infolist,"Edit","Done",lfont);
+    int32_t index = select_data("Info Types",0,infolist,"Edit","Done",lfont);
     
     while(index!=-1)
     {
@@ -20293,7 +20293,7 @@ static DIALOG editshop_dlg[] =
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void EditShopType(int index)
+void EditShopType(int32_t index)
 {
 
     build_bii_list(true);
@@ -20331,11 +20331,11 @@ void EditShopType(int index)
     editshop_dlg[11].dp  = (void *) &item_list;
     editshop_dlg[13].dp  = (void *) &item_list;
     
-    for(int i=0; i<3; ++i)
+    for(int32_t i=0; i<3; ++i)
     {
         if(misc.shop[index].hasitem[i])
         {
-            for(int j=0; j<bii_cnt; j++)
+            for(int32_t j=0; j<bii_cnt; j++)
             {
                 if(bii[j].i == misc.shop[index].item[i])
                 {
@@ -20352,7 +20352,7 @@ void EditShopType(int index)
     if(is_large)
         large_dialog(editshop_dlg);
         
-    int ret = zc_popup_dialog(editshop_dlg,-1);
+    int32_t ret = zc_popup_dialog(editshop_dlg,-1);
     
     if(ret==16)
     {
@@ -20367,7 +20367,7 @@ void EditShopType(int index)
 	    
         snprintf(misc.shop[index].name, 32, "%s",shopname);
         
-        for(int i=0; i<3; ++i)
+        for(int32_t i=0; i<3; ++i)
         {
             if(bii[editshop_dlg[9+(i<<1)].d1].i == -2)
             {
@@ -20385,9 +20385,9 @@ void EditShopType(int index)
         //filter all the 0 items to the end (yeah, bubble sort; sue me)
         word swaptmp;
         
-        for(int j=0; j<3-1; j++)
+        for(int32_t j=0; j<3-1; j++)
         {
-            for(int k=0; k<2-j; k++)
+            for(int32_t k=0; k<2-j; k++)
             {
                 if(misc.shop[index].hasitem[k]==0)
                 {
@@ -20406,11 +20406,11 @@ void EditShopType(int index)
     }
 }
 
-int onShopTypes()
+int32_t onShopTypes()
 {
     shop_list_size = 256;
     
-    int index = select_data("Shop Types",0,shoplist,"Edit","Done",lfont);
+    int32_t index = select_data("Shop Types",0,shoplist,"Edit","Done",lfont);
     
     while(index!=-1)
     {
@@ -20426,9 +20426,9 @@ int onShopTypes()
 /***********************************/
 
 static char item_drop_set_str_buf[40];
-int item_drop_set_list_size=MAXITEMDROPSETS;
+int32_t item_drop_set_list_size=MAXITEMDROPSETS;
 
-const char *itemdropsetlist(int index, int *list_size)
+const char *itemdropsetlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -20441,15 +20441,15 @@ const char *itemdropsetlist(int index, int *list_size)
     return NULL;
 }
 
-int d_itemdropedit_proc(int msg,DIALOG *d,int c);
+int32_t d_itemdropedit_proc(int32_t msg,DIALOG *d,int32_t c);
 
-static int edititemdropset_1_list[] =
+static int32_t edititemdropset_1_list[] =
 {
     // dialog control number
     10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,24,25,26,27,28, -1
 };
 
-static int edititemdropset_2_list[] =
+static int32_t edititemdropset_2_list[] =
 {
     // dialog control number
     12, 13, 29, 30, 31, 32, 33,34,35,36,37,38,39,40,41,42,43, -1
@@ -20522,29 +20522,29 @@ static DIALOG edititemdropset_dlg[] =
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL, NULL,  NULL }
 };
 
-int d_itemdropedit_proc(int msg,DIALOG *d,int c)
+int32_t d_itemdropedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret = jwin_edit_proc(msg,d,c);
+    int32_t ret = jwin_edit_proc(msg,d,c);
     
     if(msg==MSG_DRAW)
     {
-        int t = atoi((char*)edititemdropset_dlg[7].dp);
+        int32_t t = atoi((char*)edititemdropset_dlg[7].dp);
         
-        for(int i=0; i<10; ++i)
+        for(int32_t i=0; i<10; ++i)
         {
             t += atoi((char*)edititemdropset_dlg[14+(i*3)].dp);
         }
         
         scare_mouse();
         {
-            int t2 = (int)(100*atoi((char*)edititemdropset_dlg[7].dp) / zc_max(t,1));
+            int32_t t2 = (int32_t)(100*atoi((char*)edititemdropset_dlg[7].dp) / zc_max(t,1));
             sprintf((char*)edititemdropset_dlg[9].dp,"%d%%%s",t2, is_large && t2 <= 11 ? " ":"");
             object_message(&edititemdropset_dlg[9],MSG_DRAW,c);
         }
         
-        for(int i=0; i<10; ++i)
+        for(int32_t i=0; i<10; ++i)
         {
-            int t2 = (int)(100*atoi((char*)edititemdropset_dlg[14+(i*3)].dp) / zc_max(t,1));
+            int32_t t2 = (int32_t)(100*atoi((char*)edititemdropset_dlg[14+(i*3)].dp) / zc_max(t,1));
             sprintf((char*)edititemdropset_dlg[16+(i*3)].dp,"%d%%%s",t2, is_large && t2 <= 11 ? " ":"");
             object_message(&edititemdropset_dlg[16+(i*3)],MSG_DRAW,c);
         }
@@ -20555,7 +20555,7 @@ int d_itemdropedit_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-void EditItemDropSet(int index)
+void EditItemDropSet(int32_t index)
 {
     build_bii_list(true);
     char chance[11][10];
@@ -20577,7 +20577,7 @@ void EditItemDropSet(int index)
     sprintf(percent_str[0],"    ");
     edititemdropset_dlg[9].dp  = percent_str[0];
     
-    for(int i=0; i<10; ++i)
+    for(int32_t i=0; i<10; ++i)
     {
         sprintf(chance[i+1],"%d",item_drop_sets[index].chance[i+1]);
         edititemdropset_dlg[14+(i*3)].dp  = chance[i+1];
@@ -20591,7 +20591,7 @@ void EditItemDropSet(int index)
         }
         else
         {
-            for(int j=0; j<bii_cnt; j++)
+            for(int32_t j=0; j<bii_cnt; j++)
             {
                 if(bii[j].i == item_drop_sets[index].item[i])
                 {
@@ -20604,7 +20604,7 @@ void EditItemDropSet(int index)
     if(is_large)
         large_dialog(edititemdropset_dlg);
         
-    int ret = zc_popup_dialog(edititemdropset_dlg,-1);
+    int32_t ret = zc_popup_dialog(edititemdropset_dlg,-1);
     
     if(ret==2)
     {
@@ -20614,7 +20614,7 @@ void EditItemDropSet(int index)
         
         item_drop_sets[index].chance[0]=atoi(chance[0]);
         
-        for(int i=0; i<10; ++i)
+        for(int32_t i=0; i<10; ++i)
         {
             item_drop_sets[index].chance[i+1]=atoi(chance[i+1]);
             
@@ -20635,14 +20635,14 @@ void EditItemDropSet(int index)
     }
 }
 
-int count_item_drop_sets()
+int32_t count_item_drop_sets()
 {
-    int count=0;
+    int32_t count=0;
     bool found=false;
     
     for(count=255; (count>0); --count)
     {
-        for(int i=0; (i<11); ++i)
+        for(int32_t i=0; (i<11); ++i)
         {
             if(item_drop_sets[count].chance[i]!=0)
             {
@@ -20660,11 +20660,11 @@ int count_item_drop_sets()
     return count+1;
 }
 
-int onItemDropSets()
+int32_t onItemDropSets()
 {
     item_drop_set_list_size = MAXITEMDROPSETS;
     
-    int index = select_data("Item Drop Sets",0,itemdropsetlist,"Edit","Done",lfont);
+    int32_t index = select_data("Item Drop Sets",0,itemdropsetlist,"Edit","Done",lfont);
     
     while(index!=-1)
     {
@@ -20679,22 +20679,22 @@ int onItemDropSets()
 /********* onWarpRings **********/
 /********************************/
 
-int curr_ring = 0;
+int32_t curr_ring = 0;
 
-void EditWarpRingScr(int ring,int index)
+void EditWarpRingScr(int32_t ring,int32_t index)
 {
     char caption[40],buf[10];
     restore_mouse();
-    int tempx5=warpring_warp_dlg[5].x;
-    int tempx6=warpring_warp_dlg[6].x;
-    int tempx10=warpring_warp_dlg[10].x;
-    int tempx11=warpring_warp_dlg[11].x;
-    int tempx12=warpring_warp_dlg[12].x;
-    int tempx13=warpring_warp_dlg[13].x;
+    int32_t tempx5=warpring_warp_dlg[5].x;
+    int32_t tempx6=warpring_warp_dlg[6].x;
+    int32_t tempx10=warpring_warp_dlg[10].x;
+    int32_t tempx11=warpring_warp_dlg[11].x;
+    int32_t tempx12=warpring_warp_dlg[12].x;
+    int32_t tempx13=warpring_warp_dlg[13].x;
     
-    int tempx[100];
+    int32_t tempx[100];
     
-    for(int m=17; m<100; m++)
+    for(int32_t m=17; m<100; m++)
     {
         tempx[m-17]=warpring_warp_dlg[m].x;
         
@@ -20704,26 +20704,26 @@ void EditWarpRingScr(int ring,int index)
         }
     }
     
-    /*int tempx20=warpring_warp_dlg[20].x;
-      int tempx21=warpring_warp_dlg[21].x;
-      int tempx25=warpring_warp_dlg[25].x;
-      int tempx26=warpring_warp_dlg[26].x;
-      int tempx27=warpring_warp_dlg[27].x;
-      int tempx28=warpring_warp_dlg[28].x;
+    /*int32_t tempx20=warpring_warp_dlg[20].x;
+      int32_t tempx21=warpring_warp_dlg[21].x;
+      int32_t tempx25=warpring_warp_dlg[25].x;
+      int32_t tempx26=warpring_warp_dlg[26].x;
+      int32_t tempx27=warpring_warp_dlg[27].x;
+      int32_t tempx28=warpring_warp_dlg[28].x;
     
-      int tempx32=warpring_warp_dlg[32].x;
-      int tempx33=warpring_warp_dlg[33].x;
-      int tempx37=warpring_warp_dlg[37].x;
-      int tempx38=warpring_warp_dlg[38].x;
-      int tempx39=warpring_warp_dlg[39].x;
-      int tempx40=warpring_warp_dlg[40].x;
+      int32_t tempx32=warpring_warp_dlg[32].x;
+      int32_t tempx33=warpring_warp_dlg[33].x;
+      int32_t tempx37=warpring_warp_dlg[37].x;
+      int32_t tempx38=warpring_warp_dlg[38].x;
+      int32_t tempx39=warpring_warp_dlg[39].x;
+      int32_t tempx40=warpring_warp_dlg[40].x;
     
-      int tempx44=warpring_warp_dlg[44].x;
-      int tempx45=warpring_warp_dlg[45].x;
-      int tempx49=warpring_warp_dlg[49].x;
-      int tempx50=warpring_warp_dlg[50].x;
-      int tempx51=warpring_warp_dlg[51].x;
-      int tempx52=warpring_warp_dlg[52].x;*/
+      int32_t tempx44=warpring_warp_dlg[44].x;
+      int32_t tempx45=warpring_warp_dlg[45].x;
+      int32_t tempx49=warpring_warp_dlg[49].x;
+      int32_t tempx50=warpring_warp_dlg[50].x;
+      int32_t tempx51=warpring_warp_dlg[51].x;
+      int32_t tempx52=warpring_warp_dlg[52].x;*/
     
     warpring_warp_dlg[5].x = SCREEN_W+10;
     warpring_warp_dlg[6].x = SCREEN_W+10;
@@ -20750,7 +20750,7 @@ void EditWarpRingScr(int ring,int index)
       warpring_warp_dlg[50].x = SCREEN_W+10;
       warpring_warp_dlg[51].x = SCREEN_W+10;
       warpring_warp_dlg[52].x = SCREEN_W+10;*/
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         warpring_warp_dlg[10+i].d2 = 0;
         warpring_warp_dlg[25+i].d2 = 0;
@@ -20773,7 +20773,7 @@ void EditWarpRingScr(int ring,int index)
     warpring_warp_dlg[48].dp=buf;
     warpring_warp_dlg[2].fg=warpring_warp_dlg[5].fg=vc(7);
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         warpring_warp_dlg[10+i].d2 = 0;
         
     dmap_list_size=MAXDMAPS;
@@ -20782,7 +20782,7 @@ void EditWarpRingScr(int ring,int index)
     if(is_large)
         large_dialog(warpring_warp_dlg);
         
-    int ret=zc_popup_dialog(warpring_warp_dlg,-1);
+    int32_t ret=zc_popup_dialog(warpring_warp_dlg,-1);
     
     if(ret==14 || ret==15)
     {
@@ -20804,7 +20804,7 @@ void EditWarpRingScr(int ring,int index)
     warpring_warp_dlg[12].x = tempx12;
     warpring_warp_dlg[13].x = tempx13;
     
-    for(int m=17; m<100; m++)
+    for(int32_t m=17; m<100; m++)
     {
         warpring_warp_dlg[m].x=tempx[m-17];
     }
@@ -20829,7 +20829,7 @@ void EditWarpRingScr(int ring,int index)
       warpring_warp_dlg[50].x = tempx50;
       warpring_warp_dlg[51].x = tempx51;
       warpring_warp_dlg[52].x = tempx52;*/
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         warpring_warp_dlg[10+i].d2 = 0x80;
         warpring_warp_dlg[25+i].d2 = 0x80;
@@ -20842,13 +20842,13 @@ void EditWarpRingScr(int ring,int index)
     
 }
 
-int d_warplist_proc(int msg,DIALOG *d,int c)
+int32_t d_warplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     if(msg==MSG_DRAW)
     {
-        int *xy = (int*)(d->dp3);
-        int ring = curr_ring;
-        int dmap = misc.warp[ring].dmap[d->d1];
+        int32_t *xy = (int32_t*)(d->dp3);
+        int32_t ring = curr_ring;
+        int32_t dmap = misc.warp[ring].dmap[d->d1];
         float temp_scale = 1;
         
         if(is_large)
@@ -20860,39 +20860,39 @@ int d_warplist_proc(int msg,DIALOG *d,int c)
         
         if(xy[0]||xy[1])
         {
-            int x = d->x+int((xy[0]-2)*temp_scale);
-            int y = d->y+int((xy[1]-2)*temp_scale);
-//      int w = is_large ? 84 : 71;
-//      int h = is_large ? 52 : 39;
-            int w = 84;
-            int h = 52;
+            int32_t x = d->x+int32_t((xy[0]-2)*temp_scale);
+            int32_t y = d->y+int32_t((xy[1]-2)*temp_scale);
+//      int32_t w = is_large ? 84 : 71;
+//      int32_t h = is_large ? 52 : 39;
+            int32_t w = 84;
+            int32_t h = 52;
             jwin_draw_frame(screen,x,y,w,h,FR_DEEP);
             drawdmap_screen(x+2,y+2,w-4,h-4,dmap);
         }
         
         if(xy[2]||xy[3])
         {
-            textprintf_ex(screen,font,d->x+int(xy[2]*temp_scale),d->y+int(xy[3]*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %d ",DMaps[dmap].map+1);
+            textprintf_ex(screen,font,d->x+int32_t(xy[2]*temp_scale),d->y+int32_t(xy[3]*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %d ",DMaps[dmap].map+1);
         }
         
         if(xy[4]||xy[5])
         {
-            textprintf_ex(screen,font,d->x+int(xy[4]*temp_scale),d->y+int(xy[5]*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level:%2d ",DMaps[dmap].level);
+            textprintf_ex(screen,font,d->x+int32_t(xy[4]*temp_scale),d->y+int32_t(xy[5]*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level:%2d ",DMaps[dmap].level);
         }
         
         if(xy[6]||xy[7])
         {
-            textprintf_ex(screen,font,d->x+int(xy[6]*temp_scale),d->y+int(xy[7]*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Scr: 0x%02X ",misc.warp[ring].scr[d->d1]);
+            textprintf_ex(screen,font,d->x+int32_t(xy[6]*temp_scale),d->y+int32_t(xy[7]*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Scr: 0x%02X ",misc.warp[ring].scr[d->d1]);
         }
     }
     
     return jwin_list_proc(msg,d,c);
 }
 
-int d_wclist_proc(int msg,DIALOG *d,int c)
+int32_t d_wclist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int d1 = d->d1;
-    int ret = jwin_droplist_proc(msg,d,c);
+    int32_t d1 = d->d1;
+    int32_t ret = jwin_droplist_proc(msg,d,c);
     misc.warp[curr_ring].size=d->d1+3;
     
     if(d->d1 != d1)
@@ -20901,7 +20901,7 @@ int d_wclist_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-const char *wclist(int index, int *list_size)
+const char *wclist(int32_t index, int32_t *list_size)
 {
     static char buf[2];
     
@@ -20918,8 +20918,8 @@ const char *wclist(int index, int *list_size)
     return NULL;
 }
 
-//int warpringdmapxy[8] = {160,116,160,90,160,102,160,154};
-int warpringdmapxy[8] = {80,26,80,0,80,12,80,78};
+//int32_t warpringdmapxy[8] = {160,116,160,90,160,102,160,154};
+int32_t warpringdmapxy[8] = {80,26,80,0,80,12,80,78};
 
 static ListData number_list(numberlist, &font);
 static ListData wc_list(wclist, &font);
@@ -20939,12 +20939,12 @@ static DIALOG warpring_dlg[] =
     { NULL,                   0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,  NULL,                    NULL,   NULL            }
 };
 
-int select_warp()
+int32_t select_warp()
 {
     misc.warp[curr_ring].size = vbound(misc.warp[curr_ring].size,3,9);
     number_list_zero = false;
     
-    int ret=4;
+    int32_t ret=4;
     
     if(is_large)
         large_dialog(warpring_dlg);
@@ -20965,7 +20965,7 @@ int select_warp()
     return warpring_dlg[4].d1;
 }
 
-void EditWarpRing(int ring)
+void EditWarpRing(int32_t ring)
 {
     char buf[40];
     sprintf(buf,"Ring %d Warps",ring);
@@ -20973,7 +20973,7 @@ void EditWarpRing(int ring)
     warpring_dlg[0].dp2 = lfont;
     curr_ring = ring;
     
-    int index = select_warp();
+    int32_t index = select_warp();
     
     while(index!=-1)
     {
@@ -20982,12 +20982,12 @@ void EditWarpRing(int ring)
     }
 }
 
-int onWarpRings()
+int32_t onWarpRings()
 {
     number_list_size = 9;
     number_list_zero = true;
     
-    int index = select_data("Warp Rings",0,numberlist,"Edit","Done",lfont);
+    int32_t index = select_data("Warp Rings",0,numberlist,"Edit","Done",lfont);
     
     while(index!=-1)
     {
@@ -21005,7 +21005,7 @@ int onWarpRings()
 /********************************/
 
 
-const char *pattern_list(int index, int *list_size)
+const char *pattern_list(int32_t index, int32_t *list_size)
 {
 
     if(index<0)
@@ -21035,7 +21035,7 @@ static DIALOG pattern_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onPattern()
+int32_t onPattern()
 {
     byte p=Map.CurrScr()->pattern;
     pattern_dlg[0].dp2 = lfont;
@@ -21055,9 +21055,9 @@ int onPattern()
 }
 
 // Now just calls onScrData()
-int onEnemyFlags()
+int32_t onEnemyFlags()
 {
-    int i=-1;
+    int32_t i=-1;
     
     while(scrdata_tabs[++i].text != NULL)
         scrdata_tabs[i].flags = (i==2 ? D_SELECTED : 0);
@@ -21066,7 +21066,7 @@ int onEnemyFlags()
     return D_O_K;
 }
 
-const char *enemy_viewer(int index, int *list_size)
+const char *enemy_viewer(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -21075,17 +21075,17 @@ const char *enemy_viewer(int index, int *list_size)
         return NULL;
     }
     
-    int guy=Map.CurrScr()->enemy[index];
+    int32_t guy=Map.CurrScr()->enemy[index];
     return guy>=eOCTO1S ? guy_string[guy] : (char *) "(None)";
 }
 
 enemy_struct bie[eMAXGUYS];
 enemy_struct ce[100];
-int enemy_type=0,bie_cnt=-1,ce_cnt;
+int32_t enemy_type=0,bie_cnt=-1,ce_cnt;
 
 enemy_struct big[zqMAXGUYS];
 enemy_struct cg[100];
-int guy_type=0,big_cnt=-1,cg_cnt;
+int32_t guy_type=0,big_cnt=-1,cg_cnt;
 
 //Uses old_max_guys[] in zq_misc.cpp to define what are visible if bool hide is set true. -Z
 void build_bie_list(bool hide)
@@ -21094,7 +21094,7 @@ void build_bie_list(bool hide)
     bie[0].i = 0;
     bie_cnt=1;
     
-    for(int i=1; i<eMAXGUYS; i++)
+    for(int32_t i=1; i<eMAXGUYS; i++)
     {
 	if ( i >= 11 && i <= 19 ) continue; //ignore segment components
         if(i >= OLDMAXGUYS || old_guy_string[i][strlen(old_guy_string[i])-1]!=' ' || !hide)
@@ -21105,9 +21105,9 @@ void build_bie_list(bool hide)
         }
     }
     
-    for(int i=1; i<bie_cnt-1; i++) //Start at 1 so '(None)' isn't alphabetized!
+    for(int32_t i=1; i<bie_cnt-1; i++) //Start at 1 so '(None)' isn't alphabetized!
     {
-        for(int j=i+1; j<bie_cnt; j++)
+        for(int32_t j=i+1; j<bie_cnt; j++)
         {
             if(strcmp(bie[i].s,bie[j].s)>0)
             {
@@ -21123,7 +21123,7 @@ void build_big_list(bool hide)
     //big[0].i = 0;
     //big_cnt=1;
     big_cnt=0;
-    for(int i=0; i<gDUMMY1; i++)
+    for(int32_t i=0; i<gDUMMY1; i++)
     {
         if(moduledata.guy_type_names[i][0]!=' ' || !hide)
         {
@@ -21133,9 +21133,9 @@ void build_big_list(bool hide)
         }
     }
     
-    for(int i=1; i<big_cnt-1; i++) //start at 1, so that the none value is not alphabetized.
+    for(int32_t i=1; i<big_cnt-1; i++) //start at 1, so that the none value is not alphabetized.
     {
-        for(int j=i+1; j<big_cnt; j++)
+        for(int32_t j=i+1; j<big_cnt; j++)
         {
             if(strcmp(big[i].s,big[j].s)>0)
             {
@@ -21145,7 +21145,7 @@ void build_big_list(bool hide)
     }
 }
 
-const char *enemylist(int index, int *list_size)
+const char *enemylist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -21156,7 +21156,7 @@ const char *enemylist(int index, int *list_size)
     return enemy_type ? ce[index].s : bie[index].s;
 }
 
-const char *guylist(int index, int *list_size)
+const char *guylist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -21167,7 +21167,7 @@ const char *guylist(int index, int *list_size)
     return guy_type ? cg[index].s : big[index].s;
 }
 
-void elist_rclick_func(int index, int x, int y);
+void elist_rclick_func(int32_t index, int32_t x, int32_t y);
 DIALOG elist_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
@@ -21192,10 +21192,10 @@ static DIALOG glist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int efrontfacingtile(int id)
+int32_t efrontfacingtile(int32_t id)
 {
-    int anim = get_bit(quest_rules,qr_NEWENEMYTILES)?guysbuf[id].e_anim:guysbuf[id].anim;
-    int usetile = 0;
+    int32_t anim = get_bit(quest_rules,qr_NEWENEMYTILES)?guysbuf[id].e_anim:guysbuf[id].anim;
+    int32_t usetile = 0;
     
     switch(anim)
     {
@@ -21274,9 +21274,9 @@ int efrontfacingtile(int id)
 
 static ListData enemy_dlg_list(enemy_viewer, &font);
 
-int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
+int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
 {
-    int ret;
+    int32_t ret;
     
     /* copy/paste enemy dialog bug. -Don't change this unless you test it first! -Gleeok */
     if(use_abc_list)
@@ -21286,7 +21286,7 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
         
     if(msg==MSG_DRAW||msg==MSG_CHAR)
     {
-        int id;
+        int32_t id;
         
         // Conveniently hacking the Select Enemy and Screen Enemy dialogs together -L
         if(d->dp == &enemy_dlg_list)
@@ -21298,13 +21298,13 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
             id = bie[d->d1].i;
         }
         
-        int tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile
+        int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile
                    : guysbuf[id].tile;
-        int cset = guysbuf[id].cset;
-        int x = d->x + int(195 * (is_large ? 1.5:1));
-        int y = d->y + int(2 * (is_large ? 1.5:1));
-        int w = 20;
-        int h = 20;
+        int32_t cset = guysbuf[id].cset;
+        int32_t x = d->x + int32_t(195 * (is_large ? 1.5:1));
+        int32_t y = d->y + int32_t(2 * (is_large ? 1.5:1));
+        int32_t w = 20;
+        int32_t h = 20;
         
         if(is_large)
         {
@@ -21330,7 +21330,7 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
         }
         
         /*
-            rectfill(screen, x, y+20*(is_large?2:1), x+int(w*(is_large?1.5:1))-1, y+32*(is_large?2:1)-1, vc(4));
+            rectfill(screen, x, y+20*(is_large?2:1), x+int32_t(w*(is_large?1.5:1))-1, y+32*(is_large?2:1)-1, vc(4));
         */
         textprintf_ex(screen,is_large?font:spfont,x,y+20*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d   ",id);
 	
@@ -21340,10 +21340,10 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
 	textprintf_ex(screen,is_large?font:spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"eTil: %d   ",guysbuf[id].e_tile);
         
         textprintf_ex(screen,is_large?font:spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP: ");
-        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].hp);
+        textprintf_ex(screen,is_large?font:spfont,x+int32_t(14*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].hp);
         
         textprintf_ex(screen,is_large?font:spfont,x,y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg: ");
-        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].dp);
+        textprintf_ex(screen,is_large?font:spfont,x+int32_t(14*(is_large?1.5:1)),y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].dp);
 	
 	
 	
@@ -21358,15 +21358,15 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
     return ret;
 }
 
-int select_enemy(const char *prompt,int enemy,bool hide,bool is_editor,int &exit_status)
+int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool is_editor,int32_t &exit_status)
 {
     //if(bie_cnt==-1)
     {
         build_bie_list(hide);
     }
-    int index=0;
+    int32_t index=0;
     
-    for(int j=0; j<bie_cnt; j++)
+    for(int32_t j=0; j<bie_cnt; j++)
     {
         if(bie[j].i == enemy)
         {
@@ -21414,16 +21414,16 @@ int select_enemy(const char *prompt,int enemy,bool hide,bool is_editor,int &exit
     return bie[index].i;
 }
 
-int select_guy(const char *prompt,int guy)
+int32_t select_guy(const char *prompt,int32_t guy)
 {
     //  if(bie_cnt==-1)
     {
         build_big_list(true);
     }
     
-    int index=0;
+    int32_t index=0;
     
-    for(int j=0; j<big_cnt; j++)
+    for(int32_t j=0; j<big_cnt; j++)
     {
         if(big[j].i == guy)
         {
@@ -21440,7 +21440,7 @@ int select_guy(const char *prompt,int guy)
     if(is_large)
         large_dialog(glist_dlg);
         
-    int ret;
+    int32_t ret;
     
     do
     {
@@ -21448,7 +21448,7 @@ int select_guy(const char *prompt,int guy)
         
         if(ret==5)
         {
-            int id = big[glist_dlg[2].d1].i;
+            int32_t id = big[glist_dlg[2].d1].i;
             
             switch(id)
             {
@@ -21510,7 +21510,7 @@ int select_guy(const char *prompt,int guy)
     return big[index].i;
 }
 
-unsigned char check[2] = { (unsigned char)'\x81',0 };
+uint8_t check[2] = { (uint8_t)'\x81',0 };
 
 static DIALOG enemy_dlg[] =
 {
@@ -21534,14 +21534,14 @@ static DIALOG enemy_dlg[] =
     { NULL,                   0,      0,      0,      0,    0,                      0,                       0,       0,          0,           0,  NULL,                        NULL,   NULL  }
 };
 
-int onEnemies()
+int32_t onEnemies()
 {
     word oldenemy[10];
     memcpy(oldenemy,Map.CurrScr()->enemy,10*sizeof(word));
     restore_mouse();
     char buf[24] = " ";
-    int ret;
-    int copy=-1;
+    int32_t ret;
+    int32_t copy=-1;
     
     build_bie_list(true);
     
@@ -21569,7 +21569,7 @@ int onEnemies()
         }
         else
         {
-            enemy_dlg[13].y=(int)((copy<<3)*(is_large?1.6:1))+enemy_dlg[2].y+4;
+            enemy_dlg[13].y=(int32_t)((copy<<3)*(is_large?1.6:1))+enemy_dlg[2].y+4;
         }
         
         if(is_large)
@@ -21587,12 +21587,12 @@ int onEnemies()
         {
         case 2:
         {
-            int exit_status;
-            int i = enemy_dlg[2].d1;
+            int32_t exit_status;
+            int32_t i = enemy_dlg[2].d1;
             
             do
             {
-                int enemy = Map.CurrScr()->enemy[i];
+                int32_t enemy = Map.CurrScr()->enemy[i];
                 enemy = select_enemy("Select Enemy",enemy,true,false,exit_status);
                 
                 if(enemy>=0)
@@ -21653,7 +21653,7 @@ int onEnemies()
         {
             bool end = false;
             
-            for(int i=0; i<10; i++)
+            for(int32_t i=0; i<10; i++)
             {
                 if(Map.CurrScr()->enemy[i]==0)
                     end = true;
@@ -21682,9 +21682,9 @@ int onEnemies()
 
 char author[65],title[65],password[32];
 
-int d_showedit_proc(int msg,DIALOG *d,int c)
+int32_t d_showedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret = jwin_edit_proc(msg,d,c);
+    int32_t ret = jwin_edit_proc(msg,d,c);
     
     if(msg==MSG_DRAW)
     {
@@ -21697,14 +21697,14 @@ int d_showedit_proc(int msg,DIALOG *d,int c)
 }
 
 void call_header_dlg();
-int onHeader()
+int32_t onHeader()
 {
 	call_header_dlg();
     return D_O_K;
 }
 
 void call_cheats_dlg();
-int onCheats()
+int32_t onCheats()
 {
 	call_cheats_dlg();
 	return D_O_K;
@@ -21712,7 +21712,7 @@ int onCheats()
 
 const char *subscrtype_str[ssdtMAX+1] = { "Original","New Subscreen","Revision 2","BS Zelda Original","BS Zelda Modified","BS Zelda Enhanced","BS Zelda Complete","Zelda 3","Custom" };
 
-const char *subscrtypelist(int index, int *list_size)
+const char *subscrtypelist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -21737,16 +21737,16 @@ static DIALOG subscreen_type_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onSubscreen()
+int32_t onSubscreen()
 {
-    int tempsubscreen=zinit.subscreen;
+    int32_t tempsubscreen=zinit.subscreen;
     subscreen_type_dlg[0].dp2=lfont;
     subscreen_type_dlg[3].d1=zinit.subscreen;
     
     if(is_large)
         large_dialog(subscreen_type_dlg);
         
-    int ret = zc_popup_dialog(subscreen_type_dlg,2);
+    int32_t ret = zc_popup_dialog(subscreen_type_dlg,2);
     
     if(ret==1)
     {
@@ -21776,7 +21776,7 @@ int onSubscreen()
     return D_O_K;
 }
 
-bool do_x_button(BITMAP *dest, int x, int y)
+bool do_x_button(BITMAP *dest, int32_t x, int32_t y)
 {
     bool over=false;
     
@@ -21819,12 +21819,12 @@ bool do_x_button(BITMAP *dest, int x, int y)
 }
 
 
-int d_dummy_proc(int,DIALOG *,int)
+int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 {
 	return D_O_K;
 }
 
-int d_maptile_proc(int msg, DIALOG *d, int)
+int32_t d_maptile_proc(int32_t msg, DIALOG *d, int32_t)
 {
     switch(msg)
     {
@@ -21844,8 +21844,8 @@ int d_maptile_proc(int msg, DIALOG *d, int)
 	
     case MSG_DRAW:
     {
-        int dw = d->w;
-        int dh = d->h;
+        int32_t dw = d->w;
+        int32_t dh = d->h;
         
         if(is_large && d->dp2==(void*)1)
         {
@@ -21859,8 +21859,8 @@ int d_maptile_proc(int msg, DIALOG *d, int)
         {
             clear_bitmap(buf);
             
-            for(int y=0; y<dh; y+=16)
-                for(int x=0; x<dw; x+=16)
+            for(int32_t y=0; y<dh; y+=16)
+                for(int32_t x=0; x<dw; x+=16)
                 {
                     if(d->d1)
                         puttile16(buf,d->d1+(y>>4)*20+(x>>4),x,y,d->fg,0);
@@ -21879,16 +21879,16 @@ int d_maptile_proc(int msg, DIALOG *d, int)
     return D_O_K;
 }
 
-static int last_combo=0;
-static int last_cset=0;
+static int32_t last_combo=0;
+static int32_t last_cset=0;
 static combo_alias temp_aliases[MAXCOMBOALIASES];
 
 static char comboa_str_buf[32];
 
-int d_comboalist_proc(int msg,DIALOG *d,int c)
+int32_t d_comboalist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int d1 = d->d1;
-    int ret = jwin_droplist_proc(msg,d,c);
+    int32_t d1 = d->d1;
+    int32_t ret = jwin_droplist_proc(msg,d,c);
     comboa_cnt = d->d1;
     
     if(d1!=d->d1)
@@ -21900,7 +21900,7 @@ int d_comboalist_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-const char *comboalist(int index, int *list_size)
+const char *comboalist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -21913,26 +21913,26 @@ const char *comboalist(int index, int *list_size)
     return NULL;
 }
 
-extern int scheme[jcMAX];
+extern int32_t scheme[jcMAX];
 
-int d_comboa_proc(int msg,DIALOG *d,int c)
+int32_t d_comboa_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
     
     combo_alias *combo;
     combo = &temp_aliases[comboa_cnt];
-    int position;
-    int cur_layer, temp_layer;
-    int lay_count=0;
-    int size = 1+is_large;
+    int32_t position;
+    int32_t cur_layer, temp_layer;
+    int32_t lay_count=0;
+    int32_t size = 1+is_large;
     
-    int cx1=(gui_mouse_x()-d->x-(120-(combo->width*8)));
-    int cy1=(gui_mouse_y()-d->y-(80-(combo->height*8)));
-    int cx=cx1/(16*size);
-    int cy=cy1/(16*size);
+    int32_t cx1=(gui_mouse_x()-d->x-(120-(combo->width*8)));
+    int32_t cy1=(gui_mouse_y()-d->y-(80-(combo->height*8)));
+    int32_t cx=cx1/(16*size);
+    int32_t cy=cy1/(16*size);
     
-    int co,cs;
+    int32_t co,cs;
     
     
     switch(msg)
@@ -21946,7 +21946,7 @@ int d_comboa_proc(int msg,DIALOG *d,int c)
         if((cy>combo->height)||(cy1<0))
             return D_O_K;
             
-        for(int j=0; j<layer_cnt; j++)
+        for(int32_t j=0; j<layer_cnt; j++)
         {
             if(combo->layermask&(1<<j))
                 lay_count++;
@@ -21996,9 +21996,9 @@ int d_comboa_proc(int msg,DIALOG *d,int c)
         {
             clear_bitmap(buf);
             
-            for(int z=0; z<=comboa_lmasktotal(combo->layermask); z++)
+            for(int32_t z=0; z<=comboa_lmasktotal(combo->layermask); z++)
             {
-                int k=0;
+                int32_t k=0;
                 cur_layer=0;
                 temp_layer=combo->layermask;
                 
@@ -22013,11 +22013,11 @@ int d_comboa_proc(int msg,DIALOG *d,int c)
                     temp_layer = temp_layer>>1;
                 }
                 
-                for(int y=0; (y<d->h)&&((y/16)<=combo->height); y+=16)
+                for(int32_t y=0; (y<d->h)&&((y/16)<=combo->height); y+=16)
                 {
-                    for(int x=0; (x<d->w)&&((x/16)<=combo->width); x+=16)
+                    for(int32_t x=0; (x<d->w)&&((x/16)<=combo->width); x+=16)
                     {
-                        int cpos = (z*(combo->width+1)*(combo->height+1))+(((y/16)*(combo->width+1))+(x/16));
+                        int32_t cpos = (z*(combo->width+1)*(combo->height+1))+(((y/16)*(combo->width+1))+(x/16));
                         
                         if(combo->combos[cpos])
                         {
@@ -22038,8 +22038,8 @@ int d_comboa_proc(int msg,DIALOG *d,int c)
             }
             
             rectfill(screen, d->x-2,d->y-2,d->x+256+2,d->y+176+2,jwin_pal[jcBOX]);
-            int dx = 120-(combo->width*8)+d->x;
-            int dy = 80-(combo->height*8)+d->y;
+            int32_t dx = 120-(combo->width*8)+d->x;
+            int32_t dy = 80-(combo->height*8)+d->y;
             stretch_blit(buf,screen,0,0,(combo->width+1)*16,(combo->height+1)*16,dx,dy,(combo->width+1)*16*size,(combo->height+1)*16*size);
             //blit(buf,screen,0,0,120-(combo->width*8)+d->x,80-(combo->height*8)+d->y,(combo->width+1)*16,(combo->height+1)*16);
             (d-11)->w = (combo->width+1)*16*size+2+(is_large?0:2);
@@ -22057,17 +22057,17 @@ int d_comboa_proc(int msg,DIALOG *d,int c)
     return D_O_K;
 }
 
-void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y, int size)
+void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int32_t y, int32_t size)
 {
     if(!combo->combo)
     {
-        int cur_layer, temp_layer;
+        int32_t cur_layer, temp_layer;
         
-        int cw=combo->width+1;
-        int ch=combo->height+1;
-        int dw=cw<<4;
-        int dh=ch<<4;
-        int sw=16, sh=16, sx=0, sy=0;
+        int32_t cw=combo->width+1;
+        int32_t ch=combo->height+1;
+        int32_t dw=cw<<4;
+        int32_t dh=ch<<4;
+        int32_t sw=16, sh=16, sx=0, sy=0;
         
         if(cw<ch)
         {
@@ -22089,9 +22089,9 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y, 
         {
             clear_bitmap(buf);
             
-            for(int z=0; z<=comboa_lmasktotal(combo->layermask); z++)
+            for(int32_t z=0; z<=comboa_lmasktotal(combo->layermask); z++)
             {
-                int k=0;
+                int32_t k=0;
                 cur_layer=0;
                 temp_layer=combo->layermask;
                 
@@ -22106,11 +22106,11 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y, 
                     temp_layer = temp_layer>>1;
                 }
                 
-                for(int y2=0; (y2<dh)&&((y2>>4)<=combo->height); y2+=16)
+                for(int32_t y2=0; (y2<dh)&&((y2>>4)<=combo->height); y2+=16)
                 {
-                    for(int x2=0; (x2<dw)&&((x2>>4)<=combo->width); x2+=16)
+                    for(int32_t x2=0; (x2<dw)&&((x2>>4)<=combo->width); x2+=16)
                     {
-                        int cpos = (z*(combo->width+1)*(combo->height+1))+(((y2/16)*(combo->width+1))+(x2/16));
+                        int32_t cpos = (z*(combo->width+1)*(combo->height+1))+(((y2/16)*(combo->width+1))+(x2/16));
                         
                         if(combo->combos[cpos])
                         {
@@ -22156,14 +22156,14 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y, 
     }
 }
 
-int d_comboat_proc(int msg,DIALOG *d,int)
+int32_t d_comboat_proc(int32_t msg,DIALOG *d,int32_t)
 {
     switch(msg)
     {
     case MSG_CLICK:
     {
-        int c2;
-        int cs;
+        int32_t c2;
+        int32_t cs;
         c2=temp_aliases[comboa_cnt].combo;
         cs=temp_aliases[comboa_cnt].cset;
         
@@ -22206,7 +22206,7 @@ int d_comboat_proc(int msg,DIALOG *d,int)
     return D_O_K;
 }
 
-int d_comboa_radio_proc(int msg,DIALOG *d,int c);
+int32_t d_comboa_radio_proc(int32_t msg,DIALOG *d,int32_t c);
 
 static DIALOG orgcomboa_dlg[] =
 {
@@ -22257,7 +22257,7 @@ static DIALOG newcomboa_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-bool swapComboAlias(int source, int dest)
+bool swapComboAlias(int32_t source, int32_t dest)
 {
     if(source==dest) return false;
     
@@ -22295,7 +22295,7 @@ bool swapComboAlias(int source, int dest)
 }
 
 
-bool copyComboAlias(int source, int dest)
+bool copyComboAlias(int32_t source, int32_t dest)
 {
     if(source==dest) return false;
     
@@ -22307,7 +22307,7 @@ bool copyComboAlias(int source, int dest)
     combo = &temp_aliases[source];
     oldcombo = &temp_aliases[dest];
     
-    int new_count=(comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
+    int32_t new_count=(comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
     
     if(oldcombo->combos != NULL) delete[] oldcombo->combos;
     
@@ -22332,23 +22332,23 @@ bool copyComboAlias(int source, int dest)
     return true;
 }
 
-int getcurrentcomboalias();
+int32_t getcurrentcomboalias();
 
-int onOrgComboAliases()
+int32_t onOrgComboAliases()
 {
     char cSrc[8];
     char cDest[8];
 	strcpy(cSrc,"0");
 	strcpy(cDest,"0");
-    int iSrc = 0;
-    int iDest = 0;
+    int32_t iSrc = 0;
+    int32_t iDest = 0;
     
     //sprintf(cSrc,"0");
     //sprintf(cDest,"0");
     orgcomboa_dlg[0].dp2=lfont;
     orgcomboa_dlg[6].dp= cSrc;
     orgcomboa_dlg[7].dp= cDest;
-    int ret = 1;
+    int32_t ret = 1;
     if(is_large)
         large_dialog(orgcomboa_dlg);
     do
@@ -22388,14 +22388,14 @@ int onOrgComboAliases()
 		    // 10,11=ins, del
 		    if(orgcomboa_dlg[10].flags & D_SELECTED)  //insert
 		    {
-			for(int j=MAXCOMBOALIASES-1; j>(atoi((char*) orgcomboa_dlg[6].dp)); --j)  copyComboAlias(j-1,j);
+			for(int32_t j=MAXCOMBOALIASES-1; j>(atoi((char*) orgcomboa_dlg[6].dp)); --j)  copyComboAlias(j-1,j);
 			
 			ret = -1;
 		    }
 		    
 		    if(orgcomboa_dlg[11].flags & D_SELECTED)  //delete
 		    {
-			for(int j=(atoi((char*) orgcomboa_dlg[6].dp)); j<MAXCOMBOALIASES-1; ++j)  copyComboAlias(j+1,j);
+			for(int32_t j=(atoi((char*) orgcomboa_dlg[6].dp)); j<MAXCOMBOALIASES-1; ++j)  copyComboAlias(j+1,j);
 			
 			ret = -1;
 		    }
@@ -22432,7 +22432,7 @@ int onOrgComboAliases()
     return ret;
 }
 
-int onNewComboAlias()
+int32_t onNewComboAlias()
 {
     combo_alias *combo;
     combo = &temp_aliases[comboa_cnt];
@@ -22445,12 +22445,12 @@ int onNewComboAlias()
     byte temp_csets[16*11*7];
     sprintf(cwidth, "%d", combo->width+1);
     sprintf(cheight, "%d", combo->height+1);
-    int old_count = (comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
-    int old_width=combo->width;
-    int old_height=combo->height;
-    int oldlayer=combo->layermask;
+    int32_t old_count = (comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
+    int32_t old_width=combo->width;
+    int32_t old_height=combo->height;
+    int32_t oldlayer=combo->layermask;
     
-    for(int i=0; i<old_count; i++)
+    for(int32_t i=0; i<old_count; i++)
     {
         temp_csets[i] = combo->csets[i];
         temp_combos[i] = combo->combos[i];
@@ -22468,7 +22468,7 @@ int onNewComboAlias()
     
     if(is_large) large_dialog(newcomboa_dlg);
     
-    int ret = zc_popup_dialog(newcomboa_dlg,-1);
+    int32_t ret = zc_popup_dialog(newcomboa_dlg,-1);
     
     if(ret==1)
     {
@@ -22482,7 +22482,7 @@ int onNewComboAlias()
         combo->layermask |= (newcomboa_dlg[12].flags&D_SELECTED)?16:0;
         combo->layermask |= (newcomboa_dlg[13].flags&D_SELECTED)?32:0;
         
-        int new_count = (comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
+        int32_t new_count = (comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
         
         if(combo->combos != NULL)
         {
@@ -22497,9 +22497,9 @@ int onNewComboAlias()
         combo->combos = new word[new_count];
         combo->csets = new byte[new_count];
         
-        int j=1;
-        int old_size=(old_width+1)*(old_height+1);
-        int new_start[7] =
+        int32_t j=1;
+        int32_t old_size=(old_width+1)*(old_height+1);
+        int32_t new_start[7] =
         {
             0,
             ((combo->width+1)*(combo->height+1)*(1)),
@@ -22509,13 +22509,13 @@ int onNewComboAlias()
             ((combo->width+1)*(combo->height+1)*(5)),
             ((combo->width+1)*(combo->height+1)*(6))
         };
-        int new_layers[6] = {0,0,0,0,0,0};
-        int temp_layer = combo->layermask;
-        int temp_old = oldlayer;
-        int old_layers[6] = {0,0,0,0,0,0};
-        int k=1;
+        int32_t new_layers[6] = {0,0,0,0,0,0};
+        int32_t temp_layer = combo->layermask;
+        int32_t temp_old = oldlayer;
+        int32_t old_layers[6] = {0,0,0,0,0,0};
+        int32_t k=1;
         
-        for(int i=0; (i<6)&&(temp_layer!=0); j++,temp_layer>>=1,temp_old>>=1)
+        for(int32_t i=0; (i<6)&&(temp_layer!=0); j++,temp_layer>>=1,temp_old>>=1)
         {
             if(temp_layer&1)
             {
@@ -22535,7 +22535,7 @@ int onNewComboAlias()
             }
         }
         
-        for(int i=0; i<new_count; i++)
+        for(int32_t i=0; i<new_count; i++)
         {
             if(i>=new_start[6])
             {
@@ -22660,14 +22660,14 @@ int onNewComboAlias()
     return ret;
 }
 
-int d_orgcomboa_proc(int msg, DIALOG *d, int c)
+int32_t d_orgcomboa_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
     
-    int down=0;
-    int selected=(d->flags&D_SELECTED)?1:0;
-    int last_draw;
+    int32_t down=0;
+    int32_t selected=(d->flags&D_SELECTED)?1:0;
+    int32_t last_draw;
     
     switch(msg)
     {
@@ -22747,14 +22747,14 @@ int d_orgcomboa_proc(int msg, DIALOG *d, int c)
     return D_O_K;
 }
 
-int d_comboabutton_proc(int msg, DIALOG *d, int c)
+int32_t d_comboabutton_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
     
-    int down=0;
-    int selected=(d->flags&D_SELECTED)?1:0;
-    int last_draw;
+    int32_t down=0;
+    int32_t selected=(d->flags&D_SELECTED)?1:0;
+    int32_t last_draw;
     
     switch(msg)
     {
@@ -22834,10 +22834,10 @@ int d_comboabutton_proc(int msg, DIALOG *d, int c)
     return D_O_K;
 }
 
-int d_comboacheck_proc(int msg, DIALOG *d, int c)
+int32_t d_comboacheck_proc(int32_t msg, DIALOG *d, int32_t c)
 {
-    int temp = d->flags&D_SELECTED;
-    int ret=jwin_checkfont_proc(msg,d,c);
+    int32_t temp = d->flags&D_SELECTED;
+    int32_t ret=jwin_checkfont_proc(msg,d,c);
     
     if(temp != (d->flags&D_SELECTED))
     {
@@ -22881,15 +22881,15 @@ static DIALOG editcomboa_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int getcurrentcomboalias()
+int32_t getcurrentcomboalias()
 {
     return editcomboa_dlg[5].d1;
 }
 
-int d_comboa_radio_proc(int msg,DIALOG *d,int c)
+int32_t d_comboa_radio_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int temp = layer_cnt;
-    int ret = jwin_radiofont_proc(msg,d,c);
+    int32_t temp = layer_cnt;
+    int32_t ret = jwin_radiofont_proc(msg,d,c);
     
     if(editcomboa_dlg[6].flags&D_SELECTED) layer_cnt=0;
     else if(editcomboa_dlg[7].flags&D_SELECTED) layer_cnt=1;
@@ -22907,7 +22907,7 @@ int d_comboa_radio_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int set_comboaradio(byte layermask)
+int32_t set_comboaradio(byte layermask)
 {
     if(editcomboa_dlg[7].flags&D_SELECTED) editcomboa_dlg[7].flags &= ~D_SELECTED;
     
@@ -22944,12 +22944,12 @@ int set_comboaradio(byte layermask)
     return 1;
 }
 
-int onEditComboAlias()
+int32_t onEditComboAlias()
 {
     reset_combo_animations();
     reset_combo_animations2();
     
-    for(int i=0; i<MAXCOMBOALIASES; i++)
+    for(int32_t i=0; i<MAXCOMBOALIASES; i++)
     {
         if(temp_aliases[i].combos != NULL)
         {
@@ -22964,11 +22964,11 @@ int onEditComboAlias()
         temp_aliases[i].width=combo_aliases[i].width;
         temp_aliases[i].height=combo_aliases[i].height;
         temp_aliases[i].layermask=combo_aliases[i].layermask;
-        int tcount = (comboa_lmasktotal(temp_aliases[i].layermask)+1)*(temp_aliases[i].width+1)*(temp_aliases[i].height+1);
+        int32_t tcount = (comboa_lmasktotal(temp_aliases[i].layermask)+1)*(temp_aliases[i].width+1)*(temp_aliases[i].height+1);
         temp_aliases[i].combos = new word[tcount];
         temp_aliases[i].csets = new byte[tcount];
         
-        for(int j=0; j<tcount; j++)
+        for(int32_t j=0; j<tcount; j++)
         {
             temp_aliases[i].combos[j] = combo_aliases[i].combos[j];
             temp_aliases[i].csets[j] = combo_aliases[i].csets[j];
@@ -22991,7 +22991,7 @@ int onEditComboAlias()
         
         if(small_d1)
         {
-            for(int i=6; i<=12; i++)
+            for(int32_t i=6; i<=12; i++)
             {
                 editcomboa_dlg[i].w=30*1.5;
                 editcomboa_dlg[i].h=9*1.5;
@@ -23008,13 +23008,13 @@ int onEditComboAlias()
         }
     }
     
-    int ret=zc_popup_dialog(editcomboa_dlg,-1);
+    int32_t ret=zc_popup_dialog(editcomboa_dlg,-1);
     
     if(ret==1)
     {
         saved=false;
         
-        for(int i=0; i<MAXCOMBOALIASES; i++)
+        for(int32_t i=0; i<MAXCOMBOALIASES; i++)
         {
             if(combo_aliases[i].combos != NULL)
             {
@@ -23029,11 +23029,11 @@ int onEditComboAlias()
             combo_aliases[i].width=temp_aliases[i].width;
             combo_aliases[i].height=temp_aliases[i].height;
             combo_aliases[i].layermask=temp_aliases[i].layermask;
-            int tcount = (comboa_lmasktotal(combo_aliases[i].layermask)+1)*(combo_aliases[i].width+1)*(combo_aliases[i].height+1);
+            int32_t tcount = (comboa_lmasktotal(combo_aliases[i].layermask)+1)*(combo_aliases[i].width+1)*(combo_aliases[i].height+1);
             combo_aliases[i].combos = new word[tcount];
             combo_aliases[i].csets = new byte[tcount];
             
-            for(int j=0; j<tcount; j++)
+            for(int32_t j=0; j<tcount; j++)
             {
                 combo_aliases[i].combos[j] = temp_aliases[i].combos[j];
                 combo_aliases[i].csets[j] = temp_aliases[i].csets[j];
@@ -23056,7 +23056,7 @@ static char fflink_str_buf[32];
 
 BITMAP* ffcur;
 
-const char *ffcombolist(int index, int *list_size)
+const char *ffcombolist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -23069,7 +23069,7 @@ const char *ffcombolist(int index, int *list_size)
     return NULL;
 }
 
-const char *fflinklist(int index, int *list_size)
+const char *fflinklist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -23100,14 +23100,14 @@ static DIALOG ffcombo_sel_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int d_ffcombolist_proc(int msg,DIALOG *d,int c)
+int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret = jwin_droplist_proc(msg,d,c);
-    int d1 = d->d1;
-    int x=ffcombo_sel_dlg[0].x;
-    int y=ffcombo_sel_dlg[0].y;
+    int32_t ret = jwin_droplist_proc(msg,d,c);
+    int32_t d1 = d->d1;
+    int32_t x=ffcombo_sel_dlg[0].x;
+    int32_t y=ffcombo_sel_dlg[0].y;
     FONT *tempfont=(is_large?font:spfont);
-    int x2=text_length(tempfont, "Move Delay:")+4;
+    int32_t x2=text_length(tempfont, "Move Delay:")+4;
     
     switch(msg)
     {
@@ -23126,11 +23126,11 @@ int d_ffcombolist_proc(int msg,DIALOG *d,int c)
         
         object_message(&ffcombo_sel_dlg[5],MSG_DRAW,0);
         
-        int xd = x+int(68*(is_large?1.5:1));
-        int y2 = y+int(55*(is_large?1.5:1));
-        int yd = is_large ? 9 : 6;
+        int32_t xd = x+int32_t(68*(is_large?1.5:1));
+        int32_t y2 = y+int32_t(55*(is_large?1.5:1));
+        int32_t yd = is_large ? 9 : 6;
         
-        rectfill(screen,xd,y2,x+196*int(is_large?1.5:1),y+127*int(is_large?1.5:1),jwin_pal[jcBOX]);
+        rectfill(screen,xd,y2,x+196*int32_t(is_large?1.5:1),y+127*int32_t(is_large?1.5:1),jwin_pal[jcBOX]);
         
         textprintf_ex(screen,tempfont,xd,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo #:");
         textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffdata[d1]);
@@ -23179,7 +23179,7 @@ int d_ffcombolist_proc(int msg,DIALOG *d,int c)
     
     return ret;
 }
-int onSelectFFCombo()
+int32_t onSelectFFCombo()
 {
     ffcombo_sel_dlg[0].dp2 = lfont;
     ffcombo_sel_dlg[3].d1 = ff_combo;
@@ -23202,7 +23202,7 @@ int onSelectFFCombo()
         }
     }
     
-    int ret=zc_popup_dialog(ffcombo_sel_dlg,0);
+    int32_t ret=zc_popup_dialog(ffcombo_sel_dlg,0);
     
     while(ret==1)
     {
@@ -23215,17 +23215,17 @@ int onSelectFFCombo()
     return D_O_K;
 }
 
-static int ffcombo_data_list[] =
+static int32_t ffcombo_data_list[] =
 {
     4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,54,55,-1
 };
 
-static int ffcombo_flag_list[] =
+static int32_t ffcombo_flag_list[] =
 {
     31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,78,79,80,81,-1
 };
 
-static int ffcombo_arg_list[] =
+static int32_t ffcombo_arg_list[] =
 {
     56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,
 	82,83,84,85,86,87,88,89,
@@ -23241,12 +23241,12 @@ static TABPANEL ffcombo_tabs[] =
     { NULL,                  0,           NULL,              0, NULL }
 };
 
-const char *globalscriptlist(int index, int *list_size);
+const char *globalscriptlist(int32_t index, int32_t *list_size);
 static ListData globalscript_list(globalscriptlist, &font);
-const char *linkscriptlist(int index, int *list_size);
+const char *linkscriptlist(int32_t index, int32_t *list_size);
 static ListData linkscript_list(linkscriptlist, &font);
 
-const char *ffscriptlist(int index, int *list_size);
+const char *ffscriptlist(int32_t index, int32_t *list_size);
 
 static ListData fflink_list(fflinklist, &font);
 static ListData ffscript_list(ffscriptlist, &font);
@@ -23367,7 +23367,7 @@ static DIALOG ffcombo_dlg[] =
 
 char *strip_decimals(char *string)
 {
-    int len=(int)strlen(string);
+    int32_t len=(int32_t)strlen(string);
     char *src=(char *)zc_malloc(len+1);
     char *tmpsrc=src;
     memcpy(src,string,len+1);
@@ -23398,7 +23398,7 @@ char *clean_numeric_string(char *string)
 {
     bool found_sign=false;
     bool found_decimal=false;
-    int len=(int)strlen(string);
+    int32_t len=(int32_t)strlen(string);
     char *src=(char *)zc_malloc(len+1);
     char *tmpsrc=src;
     memcpy(src,string,len+1);
@@ -23420,7 +23420,7 @@ char *clean_numeric_string(char *string)
         tmpsrc++;
     }
     
-    len=(int)strlen(src);
+    len=(int32_t)strlen(src);
     char *src2=(char *)zc_malloc(len+1);
     tmpsrc=src2;
     memcpy(src,src2,len+1);
@@ -23467,34 +23467,34 @@ char *clean_numeric_string(char *string)
 }
 
 script_struct biglobal[NUMSCRIPTGLOBAL+1]; //global script
-int biglobal_cnt = -1;
+int32_t biglobal_cnt = -1;
 script_struct biffs[NUMSCRIPTFFC]; //ff script
-int biffs_cnt = -1;
+int32_t biffs_cnt = -1;
 script_struct biitems[NUMSCRIPTITEM]; //item script
-int biitems_cnt = -1;
+int32_t biitems_cnt = -1;
 script_struct binpcs[NUMSCRIPTGUYS]; //npc script
-int binpcs_cnt = -1;
+int32_t binpcs_cnt = -1;
 
 script_struct bilweapons[NUMSCRIPTWEAPONS]; //lweapon script
-int bilweapons_cnt = -1;
+int32_t bilweapons_cnt = -1;
 
 script_struct bieweapons[NUMSCRIPTWEAPONS]; //eweapon script
-int bieweapons_cnt = -1;
+int32_t bieweapons_cnt = -1;
 
 script_struct bilinks[NUMSCRIPTLINK]; //link script
-int bilinks_cnt = -1;
+int32_t bilinks_cnt = -1;
 
 script_struct biscreens[NUMSCRIPTSCREEN]; //screen (screendata) script
-int biscreens_cnt = -1;
+int32_t biscreens_cnt = -1;
 
 script_struct bidmaps[NUMSCRIPTSDMAP]; //dmap (dmapdata) script
-int bidmaps_cnt = -1;
+int32_t bidmaps_cnt = -1;
 
 script_struct biditemsprites[NUMSCRIPTSITEMSPRITE]; //dmap (dmapdata) script
-int biitemsprites_cnt = -1;
+int32_t biitemsprites_cnt = -1;
 
 script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; //dmap (dmapdata) script
-int bidcomboscripts_cnt = -1;
+int32_t bidcomboscripts_cnt = -1;
 //static char ffscript_str_buf[32];
 
 void build_biglobal_list()
@@ -23503,7 +23503,7 @@ void build_biglobal_list()
     biglobal[0].second = -1;
     biglobal_cnt = 1;
     
-    for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
+    for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
     {
         if(globalmap[i].scriptname.length()==0)
             continue;
@@ -23516,16 +23516,16 @@ void build_biglobal_list()
     }
     
     // Blank out the rest of the list
-    for(int i=biglobal_cnt; i<NUMSCRIPTGLOBAL; ++i)
+    for(int32_t i=biglobal_cnt; i<NUMSCRIPTGLOBAL; ++i)
     {
         biglobal[i].first="";
         biglobal[i].second=-1;
     }
     
     //Bubble sort! (doesn't account for gaps between scripts)
-    for(int i = 0; i < biglobal_cnt - 1; i++)
+    for(int32_t i = 0; i < biglobal_cnt - 1; i++)
     {
-        for(int j = i + 1; j < biglobal_cnt; j++)
+        for(int32_t j = i + 1; j < biglobal_cnt; j++)
         {
             if(stricmp(biglobal[i].first.c_str(),biglobal[j].first.c_str()) > 0 && strcmp(biglobal[j].first.c_str(),""))
                 zc_swap(biglobal[i],biglobal[j]);
@@ -23534,7 +23534,7 @@ void build_biglobal_list()
     
     biglobal_cnt = 0;
     
-    for(int i = 0; i < NUMSCRIPTGLOBAL+1; ++i)
+    for(int32_t i = 0; i < NUMSCRIPTGLOBAL+1; ++i)
         if(biglobal[i].first.length() > 0)
             biglobal_cnt = i+1;
 }
@@ -23545,7 +23545,7 @@ void build_biffs_list()
     biffs[0].second = -1;
     biffs_cnt = 1;
     
-    for(int i = 0; i < NUMSCRIPTFFC - 1; i++)
+    for(int32_t i = 0; i < NUMSCRIPTFFC - 1; i++)
     {
         if(ffcmap[i].scriptname.length()==0)
             continue;
@@ -23558,16 +23558,16 @@ void build_biffs_list()
     }
     
     // Blank out the rest of the list
-    for(int i=biffs_cnt; i<NUMSCRIPTFFC; i++)
+    for(int32_t i=biffs_cnt; i<NUMSCRIPTFFC; i++)
     {
         biffs[i].first="";
         biffs[i].second=-1;
     }
     
     //Bubble sort! (doesn't account for gaps between scripts)
-    for(int i = 0; i < biffs_cnt - 1; i++)
+    for(int32_t i = 0; i < biffs_cnt - 1; i++)
     {
-        for(int j = i + 1; j < biffs_cnt; j++)
+        for(int32_t j = i + 1; j < biffs_cnt; j++)
         {
             if(stricmp(biffs[i].first.c_str(),biffs[j].first.c_str()) > 0 && strcmp(biffs[j].first.c_str(),""))
                 zc_swap(biffs[i],biffs[j]);
@@ -23576,7 +23576,7 @@ void build_biffs_list()
     
     biffs_cnt = 0;
     
-    for(int i = 0; i < NUMSCRIPTFFC; i++)
+    for(int32_t i = 0; i < NUMSCRIPTFFC; i++)
         if(biffs[i].first.length() > 0)
             biffs_cnt = i+1;
 }
@@ -23588,7 +23588,7 @@ void build_binpcs_list()
     binpcs[0].second = -1;
     binpcs_cnt = 1;
     
-    for(int i = 0; i < NUMSCRIPTGUYS - 1; i++)
+    for(int32_t i = 0; i < NUMSCRIPTGUYS - 1; i++)
     {
         if(npcmap[i].scriptname.length()==0)
             continue;
@@ -23601,16 +23601,16 @@ void build_binpcs_list()
     }
     
     // Blank out the rest of the list
-    for(int i=binpcs_cnt; i<NUMSCRIPTGUYS; i++)
+    for(int32_t i=binpcs_cnt; i<NUMSCRIPTGUYS; i++)
     {
         binpcs[i].first="";
         binpcs[i].second=-1;
     }
     
     //Bubble sort! (doesn't account for gaps between scripts)
-    for(int i = 0; i < binpcs_cnt - 1; i++)
+    for(int32_t i = 0; i < binpcs_cnt - 1; i++)
     {
-        for(int j = i + 1; j < binpcs_cnt; j++)
+        for(int32_t j = i + 1; j < binpcs_cnt; j++)
         {
             if(stricmp(binpcs[i].first.c_str(),binpcs[j].first.c_str()) > 0 && strcmp(binpcs[j].first.c_str(),""))
                 zc_swap(binpcs[i],binpcs[j]);
@@ -23619,7 +23619,7 @@ void build_binpcs_list()
     
     binpcs_cnt = 0;
     
-    for(int i = 0; i < NUMSCRIPTGUYS; i++)
+    for(int32_t i = 0; i < NUMSCRIPTGUYS; i++)
         if(binpcs[i].first.length() > 0)
             binpcs_cnt = i+1;
 }
@@ -23632,7 +23632,7 @@ void build_bilweapons_list()
     bilweapons[0].second = -1;
     bilweapons_cnt = 1;
     
-    for(int i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
+    for(int32_t i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
     {
         if(lwpnmap[i].scriptname.length()==0)
             continue;
@@ -23645,16 +23645,16 @@ void build_bilweapons_list()
     }
     
     // Blank out the rest of the list
-    for(int i=bilweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=bilweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
     {
         bilweapons[i].first="";
         bilweapons[i].second=-1;
     }
     
     //Bubble sort! (doesn't account for gaps between scripts)
-    for(int i = 0; i < bilweapons_cnt - 1; i++)
+    for(int32_t i = 0; i < bilweapons_cnt - 1; i++)
     {
-        for(int j = i + 1; j < bilweapons_cnt; j++)
+        for(int32_t j = i + 1; j < bilweapons_cnt; j++)
         {
             if(stricmp(bilweapons[i].first.c_str(),bilweapons[j].first.c_str()) > 0 && strcmp(bilweapons[j].first.c_str(),""))
                 zc_swap(bilweapons[i],bilweapons[j]);
@@ -23663,7 +23663,7 @@ void build_bilweapons_list()
     
     bilweapons_cnt = 0;
     
-    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+    for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
         if(bilweapons[i].first.length() > 0)
             bilweapons_cnt = i+1;
 }
@@ -23675,7 +23675,7 @@ void build_bieweapons_list()
     bieweapons[0].second = -1;
     bieweapons_cnt = 1;
     
-    for(int i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
+    for(int32_t i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
     {
         if(ewpnmap[i].scriptname.length()==0)
             continue;
@@ -23688,16 +23688,16 @@ void build_bieweapons_list()
     }
     
     // Blank out the rest of the list
-    for(int i=bieweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=bieweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
     {
         bieweapons[i].first="";
         bieweapons[i].second=-1;
     }
     
     //Bubble sort! (doesn't account for gaps between scripts)
-    for(int i = 0; i < bieweapons_cnt - 1; i++)
+    for(int32_t i = 0; i < bieweapons_cnt - 1; i++)
     {
-        for(int j = i + 1; j < bieweapons_cnt; j++)
+        for(int32_t j = i + 1; j < bieweapons_cnt; j++)
         {
             if(stricmp(bieweapons[i].first.c_str(),bieweapons[j].first.c_str()) > 0 && strcmp(bieweapons[j].first.c_str(),""))
                 zc_swap(bieweapons[i],bieweapons[j]);
@@ -23706,7 +23706,7 @@ void build_bieweapons_list()
     
     bieweapons_cnt = 0;
     
-    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+    for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
         if(bieweapons[i].first.length() > 0)
             bieweapons_cnt = i+1;
 }
@@ -23718,7 +23718,7 @@ void build_bilinks_list()
     bilinks[0].second = -1;
     bilinks_cnt = 1;
     
-    for(int i = 0; i < NUMSCRIPTLINK - 1; i++)
+    for(int32_t i = 0; i < NUMSCRIPTLINK - 1; i++)
     {
         if(linkmap[i].scriptname.length()==0)
             continue;
@@ -23731,16 +23731,16 @@ void build_bilinks_list()
     }
     
     // Blank out the rest of the list
-    for(int i=bilinks_cnt; i<NUMSCRIPTLINK; i++)
+    for(int32_t i=bilinks_cnt; i<NUMSCRIPTLINK; i++)
     {
         bilinks[i].first="";
         bilinks[i].second=-1;
     }
     
     //Bubble sort! (doesn't account for gaps between scripts)
-    for(int i = 0; i < bilinks_cnt - 1; i++)
+    for(int32_t i = 0; i < bilinks_cnt - 1; i++)
     {
-        for(int j = i + 1; j < bilinks_cnt; j++)
+        for(int32_t j = i + 1; j < bilinks_cnt; j++)
         {
             if(stricmp(bilinks[i].first.c_str(),bilinks[j].first.c_str()) > 0 && strcmp(bilinks[j].first.c_str(),""))
                 zc_swap(bilinks[i],bilinks[j]);
@@ -23749,7 +23749,7 @@ void build_bilinks_list()
     
     bilinks_cnt = 0;
     
-    for(int i = 0; i < NUMSCRIPTLINK; i++)
+    for(int32_t i = 0; i < NUMSCRIPTLINK; i++)
         if(bilinks[i].first.length() > 0)
             bilinks_cnt = i+1;
 }
@@ -23761,7 +23761,7 @@ void build_bidmaps_list()
     bidmaps[0].second = -1;
     bidmaps_cnt = 1;
     
-    for(int i = 0; i < NUMSCRIPTSDMAP - 1; i++)
+    for(int32_t i = 0; i < NUMSCRIPTSDMAP - 1; i++)
     {
         if(dmapmap[i].scriptname.length()==0)
             continue;
@@ -23774,16 +23774,16 @@ void build_bidmaps_list()
     }
     
     // Blank out the rest of the list
-    for(int i=bidmaps_cnt; i<NUMSCRIPTSDMAP; i++)
+    for(int32_t i=bidmaps_cnt; i<NUMSCRIPTSDMAP; i++)
     {
         bidmaps[i].first="";
         bidmaps[i].second=-1;
     }
     
     //Bubble sort! (doesn't account for gaps between scripts)
-    for(int i = 0; i < bidmaps_cnt - 1; i++)
+    for(int32_t i = 0; i < bidmaps_cnt - 1; i++)
     {
-        for(int j = i + 1; j < bidmaps_cnt; j++)
+        for(int32_t j = i + 1; j < bidmaps_cnt; j++)
         {
             if(stricmp(bidmaps[i].first.c_str(),bidmaps[j].first.c_str()) > 0 && strcmp(bidmaps[j].first.c_str(),""))
                 zc_swap(bidmaps[i],bidmaps[j]);
@@ -23792,7 +23792,7 @@ void build_bidmaps_list()
     
     bidmaps_cnt = 0;
     
-    for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+    for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
         if(bidmaps[i].first.length() > 0)
             bidmaps_cnt = i+1;
 }
@@ -23804,7 +23804,7 @@ void build_biscreens_list()
     biscreens[0].second = -1;
     biscreens_cnt = 1;
     
-    for(int i = 0; i < NUMSCRIPTSCREEN - 1; i++)
+    for(int32_t i = 0; i < NUMSCRIPTSCREEN - 1; i++)
     {
         if(screenmap[i].scriptname.length()==0)
             continue;
@@ -23817,16 +23817,16 @@ void build_biscreens_list()
     }
     
     // Blank out the rest of the list
-    for(int i=biscreens_cnt; i<NUMSCRIPTSCREEN; i++)
+    for(int32_t i=biscreens_cnt; i<NUMSCRIPTSCREEN; i++)
     {
         biscreens[i].first="";
         biscreens[i].second=-1;
     }
     
     //Bubble sort! (doesn't account for gaps between scripts)
-    for(int i = 0; i < biscreens_cnt - 1; i++)
+    for(int32_t i = 0; i < biscreens_cnt - 1; i++)
     {
-        for(int j = i + 1; j < biscreens_cnt; j++)
+        for(int32_t j = i + 1; j < biscreens_cnt; j++)
         {
             if(stricmp(biscreens[i].first.c_str(),biscreens[j].first.c_str()) > 0 && strcmp(biscreens[j].first.c_str(),""))
                 zc_swap(biscreens[i],biscreens[j]);
@@ -23835,7 +23835,7 @@ void build_biscreens_list()
     
     biscreens_cnt = 0;
     
-    for(int i = 0; i < NUMSCRIPTSCREEN; i++)
+    for(int32_t i = 0; i < NUMSCRIPTSCREEN; i++)
         if(biscreens[i].first.length() > 0)
             biscreens_cnt = i+1;
 }
@@ -23847,7 +23847,7 @@ void build_biitemsprites_list()
     biditemsprites[0].second = -1;
     biitemsprites_cnt = 1;
     
-    for(int i = 0; i < NUMSCRIPTSITEMSPRITE - 1; i++)
+    for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE - 1; i++)
     {
         if(itemspritemap[i].scriptname.length()==0)
             continue;
@@ -23860,16 +23860,16 @@ void build_biitemsprites_list()
     }
     
     // Blank out the rest of the list
-    for(int i=biitemsprites_cnt; i<NUMSCRIPTSITEMSPRITE; i++)
+    for(int32_t i=biitemsprites_cnt; i<NUMSCRIPTSITEMSPRITE; i++)
     {
         biditemsprites[i].first="";
         biditemsprites[i].second=-1;
     }
     
     //Bubble sort! (doesn't account for gaps between scripts)
-    for(int i = 0; i < biitemsprites_cnt - 1; i++)
+    for(int32_t i = 0; i < biitemsprites_cnt - 1; i++)
     {
-        for(int j = i + 1; j < biitemsprites_cnt; j++)
+        for(int32_t j = i + 1; j < biitemsprites_cnt; j++)
         {
             if(stricmp(biditemsprites[i].first.c_str(),biditemsprites[j].first.c_str()) > 0 && strcmp(biditemsprites[j].first.c_str(),""))
                 zc_swap(biditemsprites[i],biditemsprites[j]);
@@ -23878,7 +23878,7 @@ void build_biitemsprites_list()
     
     biitemsprites_cnt = 0;
     
-    for(int i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
+    for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
         if(biditemsprites[i].first.length() > 0)
             biitemsprites_cnt = i+1;
 }
@@ -23889,7 +23889,7 @@ void build_biitems_list()
     biitems[0].second = -1;
     biitems_cnt = 1;
     
-    for(int i = 0; i < NUMSCRIPTITEM - 1; i++, biitems_cnt++)
+    for(int32_t i = 0; i < NUMSCRIPTITEM - 1; i++, biitems_cnt++)
     {
         std::stringstream ss;
         
@@ -23900,9 +23900,9 @@ void build_biitems_list()
         biitems[biitems_cnt].second = i;
     }
     
-    for(int i = 0; i < biitems_cnt - 1; i++)
+    for(int32_t i = 0; i < biitems_cnt - 1; i++)
     {
-        for(int j = i + 1; j < biitems_cnt; j++)
+        for(int32_t j = i + 1; j < biitems_cnt; j++)
         {
             if(stricmp(biitems[i].first.c_str(), biitems[j].first.c_str()) > 0 && strcmp(biitems[j].first.c_str(),""))
                 zc_swap(biitems[i], biitems[j]);
@@ -23911,7 +23911,7 @@ void build_biitems_list()
     
     biitems_cnt = 0;
     
-    for(int i = 0; i < NUMSCRIPTITEM; i++)
+    for(int32_t i = 0; i < NUMSCRIPTITEM; i++)
         if(biitems[i].first.length() > 0)
             biitems_cnt = i+1;
 }
@@ -23924,7 +23924,7 @@ void build_bidcomboscripts_list()
     bidcomboscripts[0].second = -1;
     bidcomboscripts_cnt = 1;
     
-    for(int i = 0; i < NUMSCRIPTSCOMBODATA - 1; i++)
+    for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA - 1; i++)
     {
         if(comboscriptmap[i].scriptname.length()==0)
             continue;
@@ -23937,16 +23937,16 @@ void build_bidcomboscripts_list()
     }
     
     // Blank out the rest of the list
-    for(int i=bidcomboscripts_cnt; i<NUMSCRIPTSCOMBODATA; i++)
+    for(int32_t i=bidcomboscripts_cnt; i<NUMSCRIPTSCOMBODATA; i++)
     {
         bidcomboscripts[i].first="";
         bidcomboscripts[i].second=-1;
     }
     
     //Bubble sort! (doesn't account for gaps between scripts)
-    for(int i = 0; i < bidcomboscripts_cnt - 1; i++)
+    for(int32_t i = 0; i < bidcomboscripts_cnt - 1; i++)
     {
-        for(int j = i + 1; j < bidcomboscripts_cnt; j++)
+        for(int32_t j = i + 1; j < bidcomboscripts_cnt; j++)
         {
             if(stricmp(bidcomboscripts[i].first.c_str(),bidcomboscripts[j].first.c_str()) > 0 && strcmp(bidcomboscripts[j].first.c_str(),""))
                 zc_swap(bidcomboscripts[i],bidcomboscripts[j]);
@@ -23955,13 +23955,13 @@ void build_bidcomboscripts_list()
     
     bidcomboscripts_cnt = 0;
     
-    for(int i = 0; i < NUMSCRIPTSCOMBODATA; i++)
+    for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA; i++)
         if(bidcomboscripts[i].first.length() > 0)
             bidcomboscripts_cnt = i+1;
 }
 
 
-const char *globalscriptlist(int index, int *list_size)
+const char *globalscriptlist(int32_t index, int32_t *list_size)
 {
     if(index < 0)
     {
@@ -23972,7 +23972,7 @@ const char *globalscriptlist(int index, int *list_size)
     return biglobal[index].first.c_str();
 }
 
-const char *ffscriptlist(int index, int *list_size)
+const char *ffscriptlist(int32_t index, int32_t *list_size)
 {
     if(index < 0)
     {
@@ -23983,7 +23983,7 @@ const char *ffscriptlist(int index, int *list_size)
     return biffs[index].first.c_str();
 }
 
-const char *linkscriptlist(int index, int *list_size)
+const char *linkscriptlist(int32_t index, int32_t *list_size)
 {
     if(index < 0)
     {
@@ -23994,7 +23994,7 @@ const char *linkscriptlist(int index, int *list_size)
     return bilinks[index].first.c_str();
 }
 
-const char *lweaponscriptlist(int index, int *list_size)
+const char *lweaponscriptlist(int32_t index, int32_t *list_size)
 {
     if(index < 0)
     {
@@ -24005,7 +24005,7 @@ const char *lweaponscriptlist(int index, int *list_size)
     return bilweapons[index].first.c_str();
 }
 
-const char *npcscriptlist(int index, int *list_size)
+const char *npcscriptlist(int32_t index, int32_t *list_size)
 {
     if(index < 0)
     {
@@ -24018,7 +24018,7 @@ const char *npcscriptlist(int index, int *list_size)
 
 static char itemscript_str_buf[32];
 
-char *itemscriptlist(int index, int *list_size)
+char *itemscriptlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -24033,7 +24033,7 @@ char *itemscriptlist(int index, int *list_size)
 
 static char ffscript_str_buf2[32];
 
-const char *ffscriptlist2(int index, int *list_size)
+const char *ffscriptlist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -24058,7 +24058,7 @@ const char *ffscriptlist2(int index, int *list_size)
 
 static char itemscript_str_buf2[32];
 
-const char *itemscriptlist2(int index, int *list_size)
+const char *itemscriptlist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -24083,7 +24083,7 @@ const char *itemscriptlist2(int index, int *list_size)
 
 
 static char comboscript_str_buf2[32];
-const char *comboscriptlist2(int index, int *list_size)
+const char *comboscriptlist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -24108,7 +24108,7 @@ const char *comboscriptlist2(int index, int *list_size)
 
 static char gscript_str_buf2[32];
 
-const char *gscriptlist2(int index, int *list_size)
+const char *gscriptlist2(int32_t index, int32_t *list_size)
 {
     if(index >= 0)
     {
@@ -24169,17 +24169,17 @@ static DIALOG compile_dlg[] =
 	{ NULL,                 0,      0,      0,      0,      0,      0,      0,           0,  0,  0, NULL, NULL, NULL }
 };
 
-static int as_ffc_list[] = { 4, 5, 6, -1};
-static int as_global_list[] = { 7, 8, 9, -1}; //Why does putting 15 in here not place my message only on the global tab? ~Joe
-static int as_item_list[] = { 10, 11, 12, -1};
-static int as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
-static int as_lweapon_list[] = { 21, 22, 23, -1}; //lweapon scripts TAB
-static int as_eweapon_list[] = { 24, 25, 26, -1}; //eweapon scripts TAB
-static int as_link_list[] = { 27, 28, 29, -1}; //link scripts TAB
-static int as_screen_list[] = { 30, 31, 32, -1}; //screendata scripts TAB
-static int as_dmap_list[] = { 33, 34, 35, -1}; //dmapdata scripts TAB
-static int as_itemsprite_list[] = { 36, 37, 38, -1}; //dmapdata scripts TAB
-static int as_comboscript_list[] = { 39, 40, 41, -1}; //combodata scripts TAB
+static int32_t as_ffc_list[] = { 4, 5, 6, -1};
+static int32_t as_global_list[] = { 7, 8, 9, -1}; //Why does putting 15 in here not place my message only on the global tab? ~Joe
+static int32_t as_item_list[] = { 10, 11, 12, -1};
+static int32_t as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
+static int32_t as_lweapon_list[] = { 21, 22, 23, -1}; //lweapon scripts TAB
+static int32_t as_eweapon_list[] = { 24, 25, 26, -1}; //eweapon scripts TAB
+static int32_t as_link_list[] = { 27, 28, 29, -1}; //link scripts TAB
+static int32_t as_screen_list[] = { 30, 31, 32, -1}; //screendata scripts TAB
+static int32_t as_dmap_list[] = { 33, 34, 35, -1}; //dmapdata scripts TAB
+static int32_t as_itemsprite_list[] = { 36, 37, 38, -1}; //dmapdata scripts TAB
+static int32_t as_comboscript_list[] = { 39, 40, 41, -1}; //combodata scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -24198,241 +24198,241 @@ static TABPANEL assignscript_tabs[] =
     { NULL,                0,           NULL,         0, NULL }
 };
 
-const char *assignffclist(int index, int *list_size)
+const char *assignffclist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)ffcmap.size();
+        *list_size = (int32_t)ffcmap.size();
         return NULL;
     }
     
     return ffcmap[index].output.c_str();
 }
 
-const char *assigngloballist(int index, int *list_size)
+const char *assigngloballist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)globalmap.size();
+        *list_size = (int32_t)globalmap.size();
         return NULL;
     }
     
     return globalmap[index].output.c_str();
 }
 
-const char *assigncombolist(int index, int *list_size)
+const char *assigncombolist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)comboscriptmap.size();
+        *list_size = (int32_t)comboscriptmap.size();
         return NULL;
     }
     
     return comboscriptmap[index].output.c_str();
 }
 
-const char *assignitemlist(int index, int *list_size)
+const char *assignitemlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)itemmap.size();
+        *list_size = (int32_t)itemmap.size();
         return NULL;
     }
     
     return itemmap[index].output.c_str();
 }
-const char *assignnpclist(int index, int *list_size)
+const char *assignnpclist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)npcmap.size();
+        *list_size = (int32_t)npcmap.size();
         return NULL;
     }
     
     return npcmap[index].output.c_str();
 }
 
-const char *assignlweaponlist(int index, int *list_size)
+const char *assignlweaponlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)lwpnmap.size();
+        *list_size = (int32_t)lwpnmap.size();
         return NULL;
     }
     
     return lwpnmap[index].output.c_str();
 }
 
-const char *assigneweaponlist(int index, int *list_size)
+const char *assigneweaponlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)ewpnmap.size();
+        *list_size = (int32_t)ewpnmap.size();
         return NULL;
     }
     
     return ewpnmap[index].output.c_str();
 }
 
-const char *assignlinklist(int index, int *list_size)
+const char *assignlinklist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)linkmap.size();
+        *list_size = (int32_t)linkmap.size();
         return NULL;
     }
     
     return linkmap[index].output.c_str();
 }
 
-const char *assigndmaplist(int index, int *list_size)
+const char *assigndmaplist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)dmapmap.size();
+        *list_size = (int32_t)dmapmap.size();
         return NULL;
     }
     
     return dmapmap[index].output.c_str();
 }
 
-const char *assignscreenlist(int index, int *list_size)
+const char *assignscreenlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)screenmap.size();
+        *list_size = (int32_t)screenmap.size();
         return NULL;
     }
     
     return screenmap[index].output.c_str();
 }
 
-const char *assignitemspritelist(int index, int *list_size)
+const char *assignitemspritelist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)itemspritemap.size();
+        *list_size = (int32_t)itemspritemap.size();
         return NULL;
     }
     
     return itemspritemap[index].output.c_str();
 }
 
-const char *assignffcscriptlist(int index, int *list_size)
+const char *assignffcscriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)asffcscripts.size();
+        *list_size = (int32_t)asffcscripts.size();
         return NULL;
     }
     
     return asffcscripts[index].c_str();
 }
 
-const char *assignglobalscriptlist(int index, int *list_size)
+const char *assignglobalscriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)asglobalscripts.size();
+        *list_size = (int32_t)asglobalscripts.size();
         return NULL;
     }
     
     return asglobalscripts[index].c_str();
 }
 
-const char *assignitemscriptlist(int index, int *list_size)
+const char *assignitemscriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)asitemscripts.size();
+        *list_size = (int32_t)asitemscripts.size();
         return NULL;
     }
     
     return asitemscripts[index].c_str();
 }
 
-const char *assignnpcscriptlist(int index, int *list_size)
+const char *assignnpcscriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)asnpcscripts.size();
+        *list_size = (int32_t)asnpcscripts.size();
         return NULL;
     }
     
     return asnpcscripts[index].c_str();
 }
 
-const char *assignlweaponscriptlist(int index, int *list_size)
+const char *assignlweaponscriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)aslweaponscripts.size();
+        *list_size = (int32_t)aslweaponscripts.size();
         return NULL;
     }
     
     return aslweaponscripts[index].c_str();
 }
 
-const char *assigneweaponscriptlist(int index, int *list_size)
+const char *assigneweaponscriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)aseweaponscripts.size();
+        *list_size = (int32_t)aseweaponscripts.size();
         return NULL;
     }
     
     return aseweaponscripts[index].c_str();
 }
 
-const char *assignlinkscriptlist(int index, int *list_size)
+const char *assignlinkscriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)aslinkscripts.size();
+        *list_size = (int32_t)aslinkscripts.size();
         return NULL;
     }
     
     return aslinkscripts[index].c_str();
 }
 
-const char *assigndmapscriptlist(int index, int *list_size)
+const char *assigndmapscriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)asdmapscripts.size();
+        *list_size = (int32_t)asdmapscripts.size();
         return NULL;
     }
     
     return asdmapscripts[index].c_str();
 }
 
-const char *assignscreenscriptlist(int index, int *list_size)
+const char *assignscreenscriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)asscreenscripts.size();
+        *list_size = (int32_t)asscreenscripts.size();
         return NULL;
     }
     
     return asscreenscripts[index].c_str();
 }
 
-const char *assignitemspritescriptlist(int index, int *list_size)
+const char *assignitemspritescriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)asitemspritescripts.size();
+        *list_size = (int32_t)asitemspritescripts.size();
         return NULL;
     }
     
     return asitemspritescripts[index].c_str();
 }
 
-const char *assigncomboscriptlist(int index, int *list_size)
+const char *assigncomboscriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)ascomboscripts.size();
+        *list_size = (int32_t)ascomboscripts.size();
         return NULL;
     }
     
@@ -24542,22 +24542,22 @@ static DIALOG assignscript_dlg[] =
     
 };
 
-int txtout(BITMAP* dest, char* txt, int x, int y, bool disabled)
+int32_t txtout(BITMAP* dest, char* txt, int32_t x, int32_t y, bool disabled)
 {
 	if(disabled)
 	{
-		gui_textout_ln(dest, font, (unsigned char*)txt, x+1, y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
-		return gui_textout_ln(dest, font, (unsigned char*)txt, x, y, palette_color[scheme[jcMEDDARK]], -1, 0);
+		gui_textout_ln(dest, font, (uint8_t*)txt, x+1, y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
+		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, palette_color[scheme[jcMEDDARK]], -1, 0);
 	}
 	else
 	{
-		return gui_textout_ln(dest, font, (unsigned char*)txt, x, y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 0);
+		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 0);
 	}
 }
 
-int jwin_zmeta_proc(int msg, DIALOG *d, int )
+int32_t jwin_zmeta_proc(int32_t msg, DIALOG *d, int32_t )
 {
-	int ret = D_O_K;
+	int32_t ret = D_O_K;
     ASSERT(d);
     
 	BITMAP* target = (msg==MSG_START ? NULL : screen);
@@ -24577,7 +24577,7 @@ int jwin_zmeta_proc(int msg, DIALOG *d, int )
 			if(d->dp)
 			{
 				zasm_meta const& meta = *((zasm_meta*)d->dp);
-				int ind = -1;
+				int32_t ind = -1;
 				d->w = 0;
 				if(!meta.valid())
 				{
@@ -24585,7 +24585,7 @@ int jwin_zmeta_proc(int msg, DIALOG *d, int )
 					++ind;
 				}
 				
-				int t_w = 0;
+				int32_t t_w = 0;
 				char buf[1024];
 				memset(buf, 0, sizeof(buf));
 				sprintf(buf, "ZASM Version: %d", meta.zasm_v);
@@ -24612,10 +24612,10 @@ int jwin_zmeta_proc(int msg, DIALOG *d, int )
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				bool indentrun = false;
-				int run_indent = txtout(NULL, "void run(", 0, 0, false);
+				int32_t run_indent = txtout(NULL, "void run(", 0, 0, false);
 				std::ostringstream oss;
 				oss << "void run(";
-				for(int q = 0; q < 8; ++q)
+				for(int32_t q = 0; q < 8; ++q)
 				{
 					if(meta.run_idens[q][0] == 0 || meta.run_types[q] == ZMETA_NULL_TYPE) continue;
 					if(q > 0)
@@ -24685,7 +24685,7 @@ static DIALOG scriptinfo_dlg[] =
 void resize_scriptinfo_dlg()
 {
 	DIALOG *meta_proc = &scriptinfo_dlg[3], *window = &scriptinfo_dlg[0], *ok_button = &scriptinfo_dlg[2];
-	int bmargin = 10, hmargins = 20;
+	int32_t bmargin = 10, hmargins = 20;
 	if(is_large)
 	{
 		bmargin *= 1.5;
@@ -24711,13 +24711,13 @@ void showScriptInfo(zasm_meta const* meta)
 	zc_popup_dialog(scriptinfo_dlg,2);
 }
 
-static int compiler_tab_list_global[] =
+static int32_t compiler_tab_list_global[] =
 {
 	10,11,12,13,14,15,16,18,19,20,21,
 	-1
 };
 
-static int compiler_tab_list_quest[] =
+static int32_t compiler_tab_list_quest[] =
 {
     6,7,8,9,17,22,23,24,
 	-1
@@ -24734,7 +24734,7 @@ static TABPANEL compiler_options_tabs[] =
 
 //static char zcompiler_halttype_str_buf[32];
 
-const char *zcompiler_haltlist(int index, int *list_size)
+const char *zcompiler_haltlist(int32_t index, int32_t *list_size)
 {
     if(index >= 0)
     {
@@ -24757,7 +24757,7 @@ const char *zcompiler_haltlist(int index, int *list_size)
 
 static ListData zcompiler_halt_list(zcompiler_haltlist, &pfont);
 
-const char *zcompiler_guardlist(int index, int *list_size)
+const char *zcompiler_guardlist(int32_t index, int32_t *list_size)
 {
     if(index >= 0)
     {
@@ -24840,7 +24840,7 @@ static DIALOG zscript_parser_dlg[] =
 };
 
 
-static int zscripparsertrules[] =
+static int32_t zscripparsertrules[] =
 {
 	qr_PARSER_250DIVISION,
 	qr_PARSER_NO_LOGGING,
@@ -24864,7 +24864,7 @@ static int zscripparsertrules[] =
 	-1
 };
 
-int onZScriptCompilerSettings()
+int32_t onZScriptCompilerSettings()
 {
 	if(is_large)
 		large_dialog(zscript_parser_dlg);
@@ -24884,11 +24884,11 @@ int onZScriptCompilerSettings()
 	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
 	zscript_parser_dlg[20].dp = temprunstring;
    
-	for(int i=0; zscripparsertrules[i]!=-1; i++)
+	for(int32_t i=0; zscripparsertrules[i]!=-1; i++)
 	{
 		//This loop ignores trying to set bits in quest_rules, if the option is on the global settings tab.
 		//These settings are stored in zquest.cfg, not in the quest file. -ZoriaRPG (3rd April, 2019 )
-		for ( int q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
+		for ( int32_t q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
 		{
 		if ( compiler_tab_list_global[q] == i ) continue;
 			
@@ -24898,13 +24898,13 @@ int onZScriptCompilerSettings()
 	
  
 	
-	int ret = zc_popup_dialog(zscript_parser_dlg,4);
+	int32_t ret = zc_popup_dialog(zscript_parser_dlg,4);
 	
 	if(ret==4)
 	{
 		saved=false;
 		
-		for(int i=0; zscripparsertrules[i]!=-1; i++)
+		for(int32_t i=0; zscripparsertrules[i]!=-1; i++)
 		{
 			set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
 		}
@@ -24942,7 +24942,7 @@ static DIALOG edit_zscript_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void doEditZScript(int bg,int fg)
+void doEditZScript(int32_t bg,int32_t fg)
 {
     string old = zScript;
     EditboxModel *em = new EditboxModel(zScript, new EditboxScriptView(&edit_zscript_dlg[2],(is_large?sfont3:sfont2),fg,bg,BasicEditboxView::HSTYLE_EOTEXT), false, (char *)"zscript.txt");
@@ -24966,7 +24966,7 @@ static ListData itemscript_sel_dlg_list(itemscriptlist2, &font);
 static ListData comboscript_sel_dlg_list(comboscriptlist2, &font);
 static ListData gscript_sel_dlg_list(gscriptlist2, &font);
 static char npcscript_str_buf2[32];
-const char *npcscriptlist2(int index, int *list_size)
+const char *npcscriptlist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -24990,7 +24990,7 @@ const char *npcscriptlist2(int index, int *list_size)
 }
 static ListData npcscript_sel_dlg_list(npcscriptlist2, &font);
 static char lweaponscript_str_buf2[32];
-const char *lweaponscriptlist2(int index, int *list_size)
+const char *lweaponscriptlist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -25014,7 +25014,7 @@ const char *lweaponscriptlist2(int index, int *list_size)
 }
 static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font);
 static char eweaponscript_str_buf2[32];
-const char *eweaponscriptlist2(int index, int *list_size)
+const char *eweaponscriptlist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -25038,7 +25038,7 @@ const char *eweaponscriptlist2(int index, int *list_size)
 }
 static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font);
 static char linkscript_str_buf2[32];
-const char *linkscriptlist2(int index, int *list_size)
+const char *linkscriptlist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -25071,7 +25071,7 @@ const char *linkscriptlist2(int index, int *list_size)
     return NULL;
 }
 static char itemspritescript_str_buf2[32];
-const char *itemspritescriptlist2(int index, int *list_size)
+const char *itemspritescriptlist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -25095,7 +25095,7 @@ const char *itemspritescriptlist2(int index, int *list_size)
 }
 static ListData linkscript_sel_dlg_list(linkscriptlist2, &font);
 static char dmapscript_str_buf2[32];
-const char *dmapscriptlist2(int index, int *list_size)
+const char *dmapscriptlist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -25120,7 +25120,7 @@ const char *dmapscriptlist2(int index, int *list_size)
 static ListData dmapscript_sel_dlg_list(dmapscriptlist2, &font);
 static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font);
 static char screenscript_str_buf2[32];
-const char *screenscriptlist2(int index, int *list_size)
+const char *screenscriptlist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -25147,67 +25147,67 @@ static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
 
 void clear_map_states()
 {
-	for(std::map<int, script_slot_data>::iterator it = ffcmap.begin();
+	for(std::map<int32_t, script_slot_data>::iterator it = ffcmap.begin();
 		it != ffcmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int, script_slot_data>::iterator it = globalmap.begin();
+	for(std::map<int32_t, script_slot_data>::iterator it = globalmap.begin();
 		it != globalmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int, script_slot_data>::iterator it = itemmap.begin();
+	for(std::map<int32_t, script_slot_data>::iterator it = itemmap.begin();
 		it != itemmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int, script_slot_data>::iterator it = npcmap.begin();
+	for(std::map<int32_t, script_slot_data>::iterator it = npcmap.begin();
 		it != npcmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int, script_slot_data>::iterator it = ewpnmap.begin();
+	for(std::map<int32_t, script_slot_data>::iterator it = ewpnmap.begin();
 		it != ewpnmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int, script_slot_data>::iterator it = lwpnmap.begin();
+	for(std::map<int32_t, script_slot_data>::iterator it = lwpnmap.begin();
 		it != lwpnmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int, script_slot_data>::iterator it = linkmap.begin();
+	for(std::map<int32_t, script_slot_data>::iterator it = linkmap.begin();
 		it != linkmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int, script_slot_data>::iterator it = dmapmap.begin();
+	for(std::map<int32_t, script_slot_data>::iterator it = dmapmap.begin();
 		it != dmapmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int, script_slot_data>::iterator it = screenmap.begin();
+	for(std::map<int32_t, script_slot_data>::iterator it = screenmap.begin();
 		it != screenmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int, script_slot_data>::iterator it = itemspritemap.begin();
+	for(std::map<int32_t, script_slot_data>::iterator it = itemspritemap.begin();
 		it != itemspritemap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int, script_slot_data>::iterator it = comboscriptmap.begin();
+	for(std::map<int32_t, script_slot_data>::iterator it = comboscriptmap.begin();
 		it != comboscriptmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
 }
 
-int onCompileScript()
+int32_t onCompileScript()
 {
 	compile_dlg[0].dp2 = lfont;
-	int memuse = 0;
+	int32_t memuse = 0;
 	#ifdef _WIN32
 	PROCESS_MEMORY_COUNTERS memCounter;
 	BOOL memresult = false;
@@ -25227,9 +25227,9 @@ int onCompileScript()
 		
 	for(;;) //while(true)
 	{
-		sprintf(zScriptBytes, "%d Bytes in Buffer", (int)(zScript.size()));
+		sprintf(zScriptBytes, "%d Bytes in Buffer", (int32_t)(zScript.size()));
 		sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
-		int ret = zc_popup_dialog(compile_dlg,5);
+		int32_t ret = zc_popup_dialog(compile_dlg,5);
 		try_recovering_missing_scripts = (compile_dlg[9].flags & D_SELECTED) ? 1 : 0;
 		switch(ret)
 		{
@@ -25298,9 +25298,9 @@ int onCompileScript()
 				break;
 			}
 			
-			int written = (int)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
+			int32_t written = (int32_t)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
 			
-			if(written != (int)zScript.size())
+			if(written != (int32_t)zScript.size())
 				jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				
 			fclose(zscript);
@@ -25333,7 +25333,7 @@ int onCompileScript()
 			box_start(1, "Compile Progress", lfont, sfont,true);
 			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
 			clock_t start_compile_time = clock();
-			boost::movelib::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
+			std::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
 			clock_t end_compile_time = clock();
 			char buf[256] = {0};
 			sprintf(buf, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
@@ -25563,7 +25563,7 @@ int onCompileScript()
 // return D_O_K;//unreachable
 }
 
-int onSlotAssign()
+int32_t onSlotAssign()
 {
 	//setup dlg
 	assignscript_dlg[0].dp2 = lfont;
@@ -25618,7 +25618,7 @@ void inc_script_name(string& name)
 	}
 	else
 	{
-		int val = atoi(name.substr(pos).c_str());
+		int32_t val = atoi(name.substr(pos).c_str());
 		oss << name.substr(0,pos) << val+1;
 	}
 	name = oss.str();
@@ -25627,7 +25627,7 @@ void inc_script_name(string& name)
 void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, bool fromCompile)
 {
 	bool skipDisassembled = fromCompile && try_recovering_missing_scripts == 0;
-	for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
 	{
 		if(scripts.find(globalmap[i].scriptname) != scripts.end())
 		{
@@ -25673,7 +25673,7 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 				}
 		}
 	}
-	for(int i = 0; i < NUMSCRIPTFFC-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTFFC-1; ++i)
 	{
 		if(scripts.find(ffcmap[i].scriptname) != scripts.end())
 		{
@@ -25711,7 +25711,7 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			}
 		}
 	}
-	for(int i = 0; i < NUMSCRIPTITEM-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTITEM-1; ++i)
 	{
 		if(scripts.find(itemmap[i].scriptname) != scripts.end())
 		{
@@ -25749,7 +25749,7 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			}
 		}
 	}
-	for(int i = 0; i < NUMSCRIPTGUYS-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTGUYS-1; ++i)
 	{
 		if(scripts.find(npcmap[i].scriptname) != scripts.end())
 		{
@@ -25787,7 +25787,7 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			}
 		}
 	}
-	for(int i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
 	{
 		if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
 		{
@@ -25825,7 +25825,7 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			}
 		}
 	}
-	for(int i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
 	{
 		if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
 		{
@@ -25863,7 +25863,7 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			}
 		}
 	}
-	for(int i = 0; i < NUMSCRIPTLINK-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTLINK-1; ++i)
 	{
 		if(scripts.find(linkmap[i].scriptname) != scripts.end())
 		{
@@ -25901,7 +25901,7 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			}
 		}
 	}
-	for(int i = 0; i < NUMSCRIPTSDMAP-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTSDMAP-1; ++i)
 	{
 		if(scripts.find(dmapmap[i].scriptname) != scripts.end())
 		{
@@ -25939,7 +25939,7 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			}
 		}
 	}
-	for(int i = 0; i < NUMSCRIPTSCREEN-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTSCREEN-1; ++i)
 	{
 		if(scripts.find(screenmap[i].scriptname) != scripts.end())
 		{
@@ -25977,7 +25977,7 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			}
 		}
 	}
-	for(int i = 0; i < NUMSCRIPTSITEMSPRITE-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE-1; ++i)
 	{
 		if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
 		{
@@ -26015,7 +26015,7 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			}
 		}
 	}
-	for(int i = 0; i < NUMSCRIPTSCOMBODATA-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA-1; ++i)
 	{
 		if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
 		{
@@ -26060,7 +26060,7 @@ enum script_slot_type
 	type_ffc, type_global, type_itemdata, type_npc, type_lweapon, type_eweapon,
 	type_hero, type_dmap, type_screen, type_itemsprite, type_combo, num_types
 };
-script_slot_type getType(int type)
+script_slot_type getType(int32_t type)
 {
 	switch(type)
 	{
@@ -26086,7 +26086,7 @@ script_slot_type getType(int type)
 #define SLOTMSGFLAG_PRESERVED	0x02
 #define SLOTMSGFLAG_IMPORTED	0x04
 #define SLOTMSG_SIZE			512
-bool checkSkip(int format, byte flags)
+bool checkSkip(int32_t format, byte flags)
 {
 	switch(format)
 	{
@@ -26101,14 +26101,14 @@ bool checkSkip(int format, byte flags)
 		default: return true;
 	}
 }
-void clearAllSlots(int type, byte flags = 0)
+void clearAllSlots(int32_t type, byte flags = 0)
 {
 	bound(type,0,10);
 	switch(type)
 	{
 		case type_ffc:
 		{
-			for(int q = 0; q < NUMSCRIPTFFC-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTFFC-1; ++q)
 			{
 				if(checkSkip(ffcmap[q].format, flags)) continue;
 				ffcmap[q].scriptname = "";
@@ -26119,7 +26119,7 @@ void clearAllSlots(int type, byte flags = 0)
 		case type_global:
 		{
 			//Start at 1 to not clear Init
-			for(int q = 1; q < NUMSCRIPTGLOBAL; ++q)
+			for(int32_t q = 1; q < NUMSCRIPTGLOBAL; ++q)
 			{
 				if(checkSkip(globalmap[q].format, flags)) continue;
 				globalmap[q].scriptname = "";
@@ -26129,7 +26129,7 @@ void clearAllSlots(int type, byte flags = 0)
 		}
 		case type_itemdata:
 		{
-			for(int q = 0; q < NUMSCRIPTITEM-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTITEM-1; ++q)
 			{
 				if(checkSkip(itemmap[q].format, flags)) continue;
 				itemmap[q].scriptname = "";
@@ -26139,7 +26139,7 @@ void clearAllSlots(int type, byte flags = 0)
 		}
 		case type_npc:
 		{
-			for(int q = 0; q < NUMSCRIPTGUYS-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTGUYS-1; ++q)
 			{
 				if(checkSkip(npcmap[q].format, flags)) continue;
 				npcmap[q].scriptname = "";
@@ -26149,7 +26149,7 @@ void clearAllSlots(int type, byte flags = 0)
 		}
 		case type_lweapon:
 		{
-			for(int q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
 			{
 				if(checkSkip(lwpnmap[q].format, flags)) continue;
 				lwpnmap[q].scriptname = "";
@@ -26159,7 +26159,7 @@ void clearAllSlots(int type, byte flags = 0)
 		}
 		case type_eweapon:
 		{
-			for(int q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTWEAPONS-1; ++q)
 			{
 				if(checkSkip(ewpnmap[q].format, flags)) continue;
 				ewpnmap[q].scriptname = "";
@@ -26169,7 +26169,7 @@ void clearAllSlots(int type, byte flags = 0)
 		}
 		case type_hero:
 		{
-			for(int q = 0; q < NUMSCRIPTLINK-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTLINK-1; ++q)
 			{
 				if(checkSkip(linkmap[q].format, flags)) continue;
 				linkmap[q].scriptname = "";
@@ -26179,7 +26179,7 @@ void clearAllSlots(int type, byte flags = 0)
 		}
 		case type_dmap:
 		{
-			for(int q = 0; q < NUMSCRIPTSDMAP-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTSDMAP-1; ++q)
 			{
 				if(checkSkip(dmapmap[q].format, flags)) continue;
 				dmapmap[q].scriptname = "";
@@ -26189,7 +26189,7 @@ void clearAllSlots(int type, byte flags = 0)
 		}
 		case type_screen:
 		{
-			for(int q = 0; q < NUMSCRIPTSCREEN-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTSCREEN-1; ++q)
 			{
 				if(checkSkip(screenmap[q].format, flags)) continue;
 				screenmap[q].scriptname = "";
@@ -26199,7 +26199,7 @@ void clearAllSlots(int type, byte flags = 0)
 		}
 		case type_itemsprite:
 		{
-			for(int q = 0; q < NUMSCRIPTSITEMSPRITE-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTSITEMSPRITE-1; ++q)
 			{
 				if(checkSkip(itemspritemap[q].format, flags)) continue;
 				itemspritemap[q].scriptname = "";
@@ -26209,7 +26209,7 @@ void clearAllSlots(int type, byte flags = 0)
 		}
 		case type_combo:
 		{
-			for(int q = 0; q < NUMSCRIPTSCOMBODATA-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTSCOMBODATA-1; ++q)
 			{
 				if(checkSkip(comboscriptmap[q].format, flags)) continue;
 				comboscriptmap[q].scriptname = "";
@@ -26223,7 +26223,7 @@ void clearAllSlots(int type, byte flags = 0)
 void setup_scriptslot_dlg(char* buf, byte flags)
 {
 	//{ Set up the textbox at the bottom, and auto-resize height based on it
-	int prev_height = assignscript_dlg[14].h;
+	int32_t prev_height = assignscript_dlg[14].h;
 	memset(buf, 0, SLOTMSG_SIZE);
 	//
 	strcpy(buf, "Slots with matching names have been updated.\n");
@@ -26238,10 +26238,10 @@ void setup_scriptslot_dlg(char* buf, byte flags)
 	//
 	assignscript_dlg[14].dp = buf;
 	object_message(&assignscript_dlg[14], MSG_START, 0); //Set the width/height
-	if(int diff = assignscript_dlg[14].h - prev_height) //resize dlg
+	if(int32_t diff = assignscript_dlg[14].h - prev_height) //resize dlg
 	{
-		int prev_bottom = assignscript_dlg[14].y + prev_height;
-		for(int q = 1; assignscript_dlg[q].proc; ++q)
+		int32_t prev_bottom = assignscript_dlg[14].y + prev_height;
+		for(int32_t q = 1; assignscript_dlg[q].proc; ++q)
 		{
 			if(q==14) continue; //Don't change self
 			if(assignscript_dlg[q].y < prev_bottom) continue; //above proc
@@ -26257,7 +26257,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 {
 	byte slotflags = 0;
 	char temp[100];
-	for(int i = 0; i < NUMSCRIPTFFC-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTFFC-1; i++)
 	{
 		if(ffcmap[i].isEmpty())
 			sprintf(temp, "Slot %d:", i+1);
@@ -26280,7 +26280,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 		ffcmap[i].slotname = temp;
 		ffcmap[i].update();
 	}
-	for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
+	for(int32_t i = 0; i < NUMSCRIPTGLOBAL; i++)
 	{
 		switch(i)
 		{
@@ -26318,7 +26318,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 		}
 		globalmap[i].update();
 	}
-	for(int i = 0; i < NUMSCRIPTITEM-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTITEM-1; i++)
 	{
 		if(itemmap[i].isEmpty())
 			sprintf(temp, "Slot %d:", i+1);
@@ -26341,7 +26341,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 		itemmap[i].slotname = temp;
 		itemmap[i].update();
 	}
-	for(int i = 0; i < NUMSCRIPTGUYS-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTGUYS-1; i++)
 	{
 		if(npcmap[i].isEmpty())
 			sprintf(temp, "Slot %d:", i+1);
@@ -26364,7 +26364,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 		npcmap[i].slotname = temp;
 		npcmap[i].update();
 	} 
-	for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTWEAPONS-1; i++)
 	{
 		if(ewpnmap[i].isEmpty())
 			sprintf(temp, "Slot %d:", i+1);
@@ -26387,7 +26387,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 		ewpnmap[i].slotname = temp;
 		ewpnmap[i].update();
 	}
-	for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTWEAPONS-1; i++)
 	{
 		if(lwpnmap[i].isEmpty())
 			sprintf(temp, "Slot %d:", i+1);
@@ -26410,7 +26410,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 		lwpnmap[i].slotname = temp;
 		lwpnmap[i].update();
 	}
-	for(int i = 0; i < NUMSCRIPTLINK-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTLINK-1; i++)
 	{
 		switch(i)
 		{
@@ -26436,7 +26436,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 		}
 		linkmap[i].update();
 	}
-	for(int i = 0; i < NUMSCRIPTSCREEN-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTSCREEN-1; i++)
 	{
 		if(screenmap[i].isEmpty())
 			sprintf(temp, "Slot %d:", i+1);
@@ -26459,7 +26459,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 		screenmap[i].slotname = temp;
 		screenmap[i].update();
 	}
-	for(int i = 0; i < NUMSCRIPTSDMAP-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTSDMAP-1; i++)
 	{
 		if(dmapmap[i].isEmpty())
 			sprintf(temp, "Slot %d:", i+1);
@@ -26482,7 +26482,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 		dmapmap[i].slotname = temp;
 		dmapmap[i].update();
 	}
-	for(int i = 0; i < NUMSCRIPTSITEMSPRITE-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE-1; i++)
 	{
 		if(itemspritemap[i].isEmpty())
 			sprintf(temp, "Slot %d:", i+1);
@@ -26505,7 +26505,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 		itemspritemap[i].slotname = temp;
 		itemspritemap[i].update();
 	}
-	for(int i = 0; i < NUMSCRIPTSCOMBODATA-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA-1; i++)
 	{
 		if(comboscriptmap[i].isEmpty())
 			sprintf(temp, "Slot %d:", i+1);
@@ -26537,7 +26537,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 {
 	if(is_large)
 		large_dialog(assignscript_dlg);
-	int ret = 3;
+	int32_t ret = 3;
 	char slots_msg[SLOTMSG_SIZE] = {0};
 	byte slotflags = reload_scripts(scripts);
 	setup_scriptslot_dlg(slots_msg, slotflags);
@@ -26567,7 +26567,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				//OK
 				bool output = (assignscript_dlg[13].flags == D_SELECTED);
 				clock_t start_assign_time = clock();
-				for(std::map<int, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26612,7 +26612,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				
-				for(std::map<int, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26656,7 +26656,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				
-				for(std::map<int, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26699,7 +26699,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						itemscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26742,7 +26742,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						guyscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26785,7 +26785,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						lwpnscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26828,7 +26828,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						ewpnscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26871,7 +26871,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						linkscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26914,7 +26914,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						dmapscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26957,7 +26957,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						screenscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -27002,7 +27002,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				
-				for(std::map<int, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -27089,8 +27089,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 6:
 				//<<, FFC
 			{
-				int lind = assignscript_dlg[4].d1;
-				int rind = assignscript_dlg[5].d1;
+				int32_t lind = assignscript_dlg[4].d1;
+				int32_t rind = assignscript_dlg[5].d1;
 				
 				if(lind < 0 || rind < 0)
 					break;
@@ -27111,8 +27111,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 9:
 				//<<, Global
 			{
-				int lind = assignscript_dlg[7].d1;
-				int rind = assignscript_dlg[8].d1;
+				int32_t lind = assignscript_dlg[7].d1;
+				int32_t rind = assignscript_dlg[8].d1;
 				
 				if(lind < 0 || rind < 0)
 					break;
@@ -27139,8 +27139,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 12:
 				//<<, ITEM
 			{
-				int lind = assignscript_dlg[10].d1;
-				int rind = assignscript_dlg[11].d1;
+				int32_t lind = assignscript_dlg[10].d1;
+				int32_t rind = assignscript_dlg[11].d1;
 				
 				if(lind < 0 || rind < 0)
 					break;
@@ -27161,8 +27161,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 20:
 				//<<, NPC
 			{
-				int lind = assignscript_dlg[18].d1;
-				int rind = assignscript_dlg[19].d1;
+				int32_t lind = assignscript_dlg[18].d1;
+				int32_t rind = assignscript_dlg[19].d1;
 				
 				if(lind < 0 || rind < 0)
 					break;
@@ -27183,8 +27183,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 23:
 				//<<, LWeapon
 			{
-				int lind = assignscript_dlg[21].d1;
-				int rind = assignscript_dlg[22].d1;
+				int32_t lind = assignscript_dlg[21].d1;
+				int32_t rind = assignscript_dlg[22].d1;
 				
 				if(lind < 0 || rind < 0)
 					break;
@@ -27205,8 +27205,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 26:
 				//<<, EWeapon
 			{
-				int lind = assignscript_dlg[24].d1;
-				int rind = assignscript_dlg[25].d1;
+				int32_t lind = assignscript_dlg[24].d1;
+				int32_t rind = assignscript_dlg[25].d1;
 				
 				if(lind < 0 || rind < 0)
 					break;
@@ -27227,8 +27227,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 29:
 				//<<, Link
 			{
-				int lind = assignscript_dlg[27].d1;
-				int rind = assignscript_dlg[28].d1;
+				int32_t lind = assignscript_dlg[27].d1;
+				int32_t rind = assignscript_dlg[28].d1;
 				
 				if(lind < 0 || rind < 0)
 					break;
@@ -27249,8 +27249,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 32:
 				//<<, Screendata
 			{
-				int lind = assignscript_dlg[30].d1;
-				int rind = assignscript_dlg[31].d1;
+				int32_t lind = assignscript_dlg[30].d1;
+				int32_t rind = assignscript_dlg[31].d1;
 				
 				if(lind < 0 || rind < 0)
 					break;
@@ -27271,8 +27271,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 35:
 				//<<, dmapdata
 			{
-				int lind = assignscript_dlg[33].d1;
-				int rind = assignscript_dlg[34].d1;
+				int32_t lind = assignscript_dlg[33].d1;
+				int32_t rind = assignscript_dlg[34].d1;
 				
 				if(lind < 0 || rind < 0)
 					break;
@@ -27293,8 +27293,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 38:
 				//<<, itemsprite
 			{
-				int lind = assignscript_dlg[36].d1;
-				int rind = assignscript_dlg[37].d1;
+				int32_t lind = assignscript_dlg[36].d1;
+				int32_t rind = assignscript_dlg[37].d1;
 				
 				if(lind < 0 || rind < 0)
 					break;
@@ -27315,8 +27315,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 41:
 				//<<, comboscript
 			{
-				int lind = assignscript_dlg[39].d1;
-				int rind = assignscript_dlg[40].d1;
+				int32_t lind = assignscript_dlg[39].d1;
+				int32_t rind = assignscript_dlg[40].d1;
 				
 				if(lind < 0 || rind < 0)
 					break;
@@ -27344,7 +27344,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					default:
 					case 0: //FFC
 					{
-						int id = assignscript_dlg[4].d1;
+						int32_t id = assignscript_dlg[4].d1;
 						if(id > -1 && ffcmap[id].hasScriptData())
 						{
 							target = &(scripts[ffcmap[id].scriptname].first);
@@ -27353,7 +27353,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 					case 1: //Global
 					{
-						int id = assignscript_dlg[7].d1;
+						int32_t id = assignscript_dlg[7].d1;
 						if(id > -1 && globalmap[id].hasScriptData())
 						{
 							target = &(scripts[globalmap[id].scriptname].first);
@@ -27362,7 +27362,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 					case 2: //Item
 					{
-						int id = assignscript_dlg[10].d1;
+						int32_t id = assignscript_dlg[10].d1;
 						if(id > -1 && itemmap[id].hasScriptData())
 						{
 							target = &(scripts[itemmap[id].scriptname].first);
@@ -27371,7 +27371,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 					case 3: //npc
 					{
-						int id = assignscript_dlg[19].d1;
+						int32_t id = assignscript_dlg[19].d1;
 						if(id > -1 && npcmap[id].hasScriptData())
 						{
 							target = &(scripts[npcmap[id].scriptname].first);
@@ -27380,7 +27380,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 					case 4: //lweapon
 					{
-						int id = assignscript_dlg[21].d1;
+						int32_t id = assignscript_dlg[21].d1;
 						if(id > -1 && lwpnmap[id].hasScriptData())
 						{
 							target = &(scripts[lwpnmap[id].scriptname].first);
@@ -27389,7 +27389,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 					case 5: //eweapon
 					{
-						int id = assignscript_dlg[24].d1;
+						int32_t id = assignscript_dlg[24].d1;
 						if(id > -1 && ewpnmap[id].hasScriptData())
 						{
 							target = &(scripts[ewpnmap[id].scriptname].first);
@@ -27398,7 +27398,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 					case 6: //hero
 					{
-						int id = assignscript_dlg[27].d1;
+						int32_t id = assignscript_dlg[27].d1;
 						if(id > -1 && linkmap[id].hasScriptData())
 						{
 							target = &(scripts[linkmap[id].scriptname].first);
@@ -27407,7 +27407,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 					case 7: //dmap
 					{
-						int id = assignscript_dlg[33].d1;
+						int32_t id = assignscript_dlg[33].d1;
 						if(id > -1 && dmapmap[id].hasScriptData())
 						{
 							target = &(scripts[dmapmap[id].scriptname].first);
@@ -27416,7 +27416,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 					case 8: //screen
 					{
-						int id = assignscript_dlg[30].d1;
+						int32_t id = assignscript_dlg[30].d1;
 						if(id > -1 && screenmap[id].hasScriptData())
 						{
 							target = &(scripts[screenmap[id].scriptname].first);
@@ -27425,7 +27425,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 					case 9: //itemsprite
 					{
-						int id = assignscript_dlg[36].d1;
+						int32_t id = assignscript_dlg[36].d1;
 						if(id > -1 && itemspritemap[id].hasScriptData())
 						{
 							target = &(scripts[itemspritemap[id].scriptname].first);
@@ -27434,7 +27434,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 					case 10: //combo
 					{
-						int id = assignscript_dlg[39].d1;
+						int32_t id = assignscript_dlg[39].d1;
 						if(id > -1 && comboscriptmap[id].hasScriptData())
 						{
 							target = &(scripts[comboscriptmap[id].scriptname].first);
@@ -27456,77 +27456,77 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					default:
 					case 0: //FFC
 					{
-						int id = assignscript_dlg[5].d1;
+						int32_t id = assignscript_dlg[5].d1;
 						if(id < 0 || asffcscripts[id] == "<none>" || asffcscripts[id].at(0) == '-') break;
 						target = &(scripts[asffcscripts[id]].first);
 						break;
 					}
 					case 1: //Global
 					{
-						int id = assignscript_dlg[8].d1;
+						int32_t id = assignscript_dlg[8].d1;
 						if(id < 0 || asglobalscripts[id] == "<none>" || asglobalscripts[id].at(0) == '-') break;
 						target = &(scripts[asglobalscripts[id]].first);
 						break;
 					}
 					case 2: //Item
 					{
-						int id = assignscript_dlg[11].d1;
+						int32_t id = assignscript_dlg[11].d1;
 						if(id < 0 || asitemscripts[id] == "<none>" || asitemscripts[id].at(0) == '-') break;
 						target = &(scripts[asitemscripts[id]].first);
 						break;
 					}
 					case 3: //npc
 					{
-						int id = assignscript_dlg[20].d1;
+						int32_t id = assignscript_dlg[20].d1;
 						if(id < 0 || asnpcscripts[id] == "<none>" || asnpcscripts[id].at(0) == '-') break;
 						target = &(scripts[asnpcscripts[id]].first);
 						break;
 					}
 					case 4: //lweapon
 					{
-						int id = assignscript_dlg[22].d1;
+						int32_t id = assignscript_dlg[22].d1;
 						if(id < 0 || aslweaponscripts[id] == "<none>" || aslweaponscripts[id].at(0) == '-') break;
 						target = &(scripts[aslweaponscripts[id]].first);
 						break;
 					}
 					case 5: //eweapon
 					{
-						int id = assignscript_dlg[25].d1;
+						int32_t id = assignscript_dlg[25].d1;
 						if(id < 0 || aseweaponscripts[id] == "<none>" || aseweaponscripts[id].at(0) == '-') break;
 						target = &(scripts[aseweaponscripts[id]].first);
 						break;
 					}
 					case 6: //hero
 					{
-						int id = assignscript_dlg[28].d1;
+						int32_t id = assignscript_dlg[28].d1;
 						if(id < 0 || aslinkscripts[id] == "<none>" || aslinkscripts[id].at(0) == '-') break;
 						target = &(scripts[aslinkscripts[id]].first);
 						break;
 					}
 					case 7: //dmap
 					{
-						int id = assignscript_dlg[34].d1;
+						int32_t id = assignscript_dlg[34].d1;
 						if(id < 0 || asdmapscripts[id] == "<none>" || asdmapscripts[id].at(0) == '-') break;
 						target = &(scripts[asdmapscripts[id]].first);
 						break;
 					}
 					case 8: //screen
 					{
-						int id = assignscript_dlg[31].d1;
+						int32_t id = assignscript_dlg[31].d1;
 						if(id < 0 || asscreenscripts[id] == "<none>" || asscreenscripts[id].at(0) == '-') break;
 						target = &(scripts[asscreenscripts[id]].first);
 						break;
 					}
 					case 9: //itemsprite
 					{
-						int id = assignscript_dlg[37].d1;
+						int32_t id = assignscript_dlg[37].d1;
 						if(id < 0 || asitemspritescripts[id] == "<none>" || asitemspritescripts[id].at(0) == '-') break;
 						target = &(scripts[asitemspritescripts[id]].first);
 						break;
 					}
 					case 10: //combo
 					{
-						int id = assignscript_dlg[40].d1;
+						int32_t id = assignscript_dlg[40].d1;
 						if(id < 0 || ascomboscripts[id] == "<none>" || ascomboscripts[id].at(0) == '-') break;
 						target = &(scripts[ascomboscripts[id]].first);
 						break;
@@ -27550,7 +27550,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 
 static char slottype_str_buf[32];
 
-const char *slottype_list(int index, int *list_size)
+const char *slottype_list(int32_t index, int32_t *list_size)
 {
 	if(index >= 0)
 	{
@@ -27644,7 +27644,7 @@ void doClearSlots(byte* flags)
 	
 	if(zc_popup_dialog(clearslots_dlg,2)==1)
 	{
-		int q = 3;
+		int32_t q = 3;
 		while((clearslots_dlg[++q].flags & D_SELECTED) == 0);
 		switch(q)
 		{
@@ -27655,25 +27655,25 @@ void doClearSlots(byte* flags)
 			}
 			case 5: //Clear Missing
 			{
-				for(int q = 0; q <= 10; ++q)
+				for(int32_t q = 0; q <= 10; ++q)
 					clearAllSlots(q,SLOTMSGFLAG_MISSING);
 				break;
 			}
 			case 6: //Clear Preserved
 			{
-				for(int q = 0; q <= 10; ++q)
+				for(int32_t q = 0; q <= 10; ++q)
 					clearAllSlots(q,SLOTMSGFLAG_PRESERVED);
 				break;
 			}
 			case 7: //Clear Imported ZASM
 			{
-				for(int q = 0; q <= 10; ++q)
+				for(int32_t q = 0; q <= 10; ++q)
 					clearAllSlots(q,SLOTMSGFLAG_IMPORTED);
 				break;
 			}
 			case 8: //Clear ALL
 			{
-				for(int q = 0; q <= 10; ++q)
+				for(int32_t q = 0; q <= 10; ++q)
 					clearAllSlots(q);
 				break;
 			}
@@ -27721,7 +27721,7 @@ static EXT_LIST zasm_extlist[] =
 	{ NULL,                                                  NULL                                              }
 };
 
-int onExportZASM()
+int32_t onExportZASM()
 {
 	exportzasm_dlg[0].dp2 = lfont;
 	exportzasm_dlg[3].d1 = type_ffc;
@@ -27740,7 +27740,7 @@ int onExportZASM()
 	build_biitemsprites_list();
 	build_bidcomboscripts_list();
 	//}
-	int indx = 1;
+	int32_t indx = 1;
 	script_data const* scriptChoice = NULL;
 	
 	while(!scriptChoice)
@@ -27753,7 +27753,7 @@ int onExportZASM()
 			case 1: //confirm; exit dlg
 			{
 				//{ Find script choice
-				int scriptInd = -1;
+				int32_t scriptInd = -1;
 				switch(exportzasm_dlg[3].d1)
 				{
 					case type_ffc:
@@ -27906,7 +27906,7 @@ int onExportZASM()
 	return D_O_K;
 }
 
-int onImportZASM()
+int32_t onImportZASM()
 {
 	importzasm_dlg[0].dp2 = lfont;
 	importzasm_dlg[4].dp = (void*)&ffscript_list;
@@ -27979,7 +27979,7 @@ int onImportZASM()
 	}
 	importzasm_dlg[8].dp = (void*)namebuf;
 	bool confirmed = false;
-	int indx = 1;
+	int32_t indx = 1;
 	while(!confirmed)
 	{
 		if(is_large)
@@ -27993,7 +27993,7 @@ int onImportZASM()
 				script_data **slot = NULL;
 				script_slot_data *map = NULL;
 				//{ Find script choice
-				int scriptInd = importzasm_dlg[4].d1;
+				int32_t scriptInd = importzasm_dlg[4].d1;
 				switch(importzasm_dlg[3].d1)
 				{
 					case type_ffc:
@@ -28111,7 +28111,7 @@ void centre_zscript_dialogs()
 }
 
 //The Dialogue that loads a ZMOD Module File
-int load_zmod_module_file()
+int32_t load_zmod_module_file()
 {
 	
     if(!getname("Load Module (.zmod)","zmod",NULL,datapath,false))
@@ -28142,7 +28142,7 @@ int load_zmod_module_file()
 
 
 //FFC Editor FFC_Editor
-int onEditFFCombo(int ffcombo)
+int32_t onEditFFCombo(int32_t ffcombo)
 {
     char xystring[8][10];
     char wstring[4][10];
@@ -28186,7 +28186,7 @@ int onEditFFCombo(int ffcombo)
     ffcombo_dlg[29].dp = wstring[2];
     ffcombo_dlg[30].dp = wstring[3];
     
-	for(int q = 0; q < 8; ++q)
+	for(int32_t q = 0; q < 8; ++q)
     {
 		ffcombo_dlg[64+q].dp = dastring[q];
 		ffcombo_dlg[64+q].fg = Map.CurrScr()->initd[ffcombo][q];
@@ -28197,9 +28197,9 @@ int onEditFFCombo(int ffcombo)
     ffcombo_dlg[75].dp = dastring[9];
     
     build_biffs_list();
-    int index = 0;
+    int32_t index = 0;
     
-    for(int j = 0; j < biffs_cnt; j++)
+    for(int32_t j = 0; j < biffs_cnt; j++)
     {
         if(biffs[j].second == Map.CurrScr()->ffscript[ffcombo] - 1)
         {
@@ -28209,7 +28209,7 @@ int onEditFFCombo(int ffcombo)
     
     ffcombo_dlg[55].d1 = index;
     
-    int f=Map.CurrScr()->ffflags[ffcombo];
+    int32_t f=Map.CurrScr()->ffflags[ffcombo];
     ffcombo_dlg[33].flags = (f&ffOVERLAY) ? D_SELECTED : 0;
     ffcombo_dlg[34].flags = (f&ffTRANS) ? D_SELECTED : 0;
     ffcombo_dlg[35].flags = (f&ffCARRYOVER) ? D_SELECTED : 0;
@@ -28235,7 +28235,7 @@ int onEditFFCombo(int ffcombo)
     if(is_large)
         large_dialog(ffcombo_dlg);
         
-    int ret = -1;
+    int32_t ret = -1;
     
     do
     {
@@ -28263,14 +28263,14 @@ int onEditFFCombo(int ffcombo)
         Map.CurrScr()->ffdelay[ffcombo] = atoi(xystring[6])<10000?zc_max(0,atoi(xystring[6])):9999;
         Map.CurrScr()->ffscript[ffcombo] = biffs[ffcombo_dlg[55].d1].second + 1;
         
-        int cw = atoi(wstring[0])<65?zc_max(1,atoi(wstring[0])):64;
-        int ch = atoi(wstring[1])<65?zc_max(1,atoi(wstring[1])):64;
-        int tw = atoi(wstring[2])<5?zc_max(1,atoi(wstring[2])):4;
-        int th = atoi(wstring[3])<5?zc_max(1,atoi(wstring[3])):4;
+        int32_t cw = atoi(wstring[0])<65?zc_max(1,atoi(wstring[0])):64;
+        int32_t ch = atoi(wstring[1])<65?zc_max(1,atoi(wstring[1])):64;
+        int32_t tw = atoi(wstring[2])<5?zc_max(1,atoi(wstring[2])):4;
+        int32_t th = atoi(wstring[3])<5?zc_max(1,atoi(wstring[3])):4;
         Map.CurrScr()->ffwidth[ffcombo] = (cw-1)+((tw-1)<<6);
         Map.CurrScr()->ffheight[ffcombo] = (ch-1)+((th-1)<<6);
         
-		for(int q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 		{
 			Map.CurrScr()->initd[ffcombo][q] = ffcombo_dlg[64+q].fg;
         }
@@ -28326,7 +28326,7 @@ static DIALOG sfxlist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int select_sfx(const char *prompt,int index)
+int32_t select_sfx(const char *prompt,int32_t index)
 {
     sfxlist_dlg[0].dp=(void *)prompt;
     sfxlist_dlg[0].dp2=lfont;
@@ -28336,7 +28336,7 @@ int select_sfx(const char *prompt,int index)
     if(is_large)
         large_dialog(sfxlist_dlg);
         
-    int ret=zc_popup_dialog(sfxlist_dlg,2);
+    int32_t ret=zc_popup_dialog(sfxlist_dlg,2);
     
     if(ret==0||ret==4)
     {
@@ -28372,22 +28372,22 @@ static DIALOG sfx_edit_dlg[] =
 // array of voices, one for each sfx sample in the data file
 // 0+ = voice #
 // -1 = voice not allocated
-int sfx_voice[WAV_COUNT];
+int32_t sfx_voice[WAV_COUNT];
 
 void Z_init_sound()
 {
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         sfx_voice[i]=-1;
         
 //  master_volume(digi_volume,midi_volume);
 }
 
 // returns number of voices currently allocated
-int sfx_count()
+int32_t sfx_count()
 {
-    int c=0;
+    int32_t c=0;
     
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         if(sfx_voice[i]!=-1)
             ++c;
             
@@ -28397,7 +28397,7 @@ int sfx_count()
 // clean up finished samples
 void sfx_cleanup()
 {
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         if(sfx_voice[i]!=-1 && voice_get_position(sfx_voice[i])<0)
         {
             deallocate_voice(sfx_voice[i]);
@@ -28411,7 +28411,7 @@ void sfx_cleanup()
 //         false: unsuccessful
 SAMPLE templist[WAV_COUNT];
 
-bool sfx_init(int index)
+bool sfx_init(int32_t index)
 {
     // check index
     if(index<0 || index>=WAV_COUNT)
@@ -28426,7 +28426,7 @@ bool sfx_init(int index)
 }
 
 // plays an sfx sample
-void sfx(int index,int pan,bool loop,bool restart)
+void sfx(int32_t index,int32_t pan,bool loop,bool restart)
 {
     if(!sfx_init(index))
         return;
@@ -28434,7 +28434,7 @@ void sfx(int index,int pan,bool loop,bool restart)
     voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
     voice_set_pan(sfx_voice[index],pan);
     
-    int pos = voice_get_position(sfx_voice[index]);
+    int32_t pos = voice_get_position(sfx_voice[index]);
     
     if(restart) voice_set_position(sfx_voice[index],0);
     
@@ -28444,7 +28444,7 @@ void sfx(int index,int pan,bool loop,bool restart)
 
 // start it (in loop mode) if it's not already playing,
 // otherwise just leave it in its current position
-void cont_sfx(int index)
+void cont_sfx(int32_t index)
 {
     if(!sfx_init(index))
         return;
@@ -28458,7 +28458,7 @@ void cont_sfx(int index)
 }
 
 // adjust parameters while playing
-void adjust_sfx(int index,int pan,bool loop)
+void adjust_sfx(int32_t index,int32_t pan,bool loop)
 {
     if(index<0 || index>=WAV_COUNT || sfx_voice[index]==-1)
         return;
@@ -28468,14 +28468,14 @@ void adjust_sfx(int index,int pan,bool loop)
 }
 
 // pauses a voice
-void pause_sfx(int index)
+void pause_sfx(int32_t index)
 {
     if(index>=0 && index<WAV_COUNT && sfx_voice[index]!=-1)
         voice_stop(sfx_voice[index]);
 }
 
 // resumes a voice
-void resume_sfx(int index)
+void resume_sfx(int32_t index)
 {
     if(index>=0 && index<WAV_COUNT && sfx_voice[index]!=-1)
         voice_start(sfx_voice[index]);
@@ -28484,7 +28484,7 @@ void resume_sfx(int index)
 // pauses all active voices
 void pause_all_sfx()
 {
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         if(sfx_voice[i]!=-1)
             voice_stop(sfx_voice[i]);
 }
@@ -28492,13 +28492,13 @@ void pause_all_sfx()
 // resumes all paused voices
 void resume_all_sfx()
 {
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         if(sfx_voice[i]!=-1)
             voice_start(sfx_voice[i]);
 }
 
 // stops an sfx and deallocates the voice
-void stop_sfx(int index)
+void stop_sfx(int32_t index)
 {
     if(index<0 || index>=WAV_COUNT)
         return;
@@ -28512,7 +28512,7 @@ void stop_sfx(int index)
 
 void kill_sfx()
 {
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
         if(sfx_voice[i]!=-1)
         {
             deallocate_voice(sfx_voice[i]);
@@ -28520,7 +28520,7 @@ void kill_sfx()
         }
 }
 
-int pan(int x)
+int32_t pan(int32_t x)
 {
 	return 128;
 	/*switch(pan_style)
@@ -28559,7 +28559,7 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
         // that causes compatibility issues... So we'll cut off
         // the last byte and decrease the length.
         
-        int len = (sfx1->bits==8?1:2)*(sfx1->stereo == 0 ? 1 : 2)*sfx1->len;
+        int32_t len = (sfx1->bits==8?1:2)*(sfx1->stereo == 0 ? 1 : 2)*sfx1->len;
         
         while(len%sizeof(word))
         {
@@ -28584,9 +28584,9 @@ bool confirmBox(const char *m1, const char *m2, const char *m3)
 	return jwin_alert("Confirmation", m1, m2, m3, "Yes", "No", 'y', 'n', lfont) == 1;
 }
 
-int onSelectSFX()
+int32_t onSelectSFX()
 {
-    int index = select_sfx("Select SFX",0);
+    int32_t index = select_sfx("Select SFX",0);
     
     while(index >= 0)
     {
@@ -28600,7 +28600,7 @@ int onSelectSFX()
     return D_O_K;
 }
 
-bool saveWAV(int slot, const char *filename)
+bool saveWAV(int32_t slot, const char *filename)
 {
     if (slot < 1 || slot >= 511 )
         return false;
@@ -28612,30 +28612,30 @@ bool saveWAV(int slot, const char *filename)
     if (!ofs)
         return false;
     ofs.write("RIFF",4);
-    unsigned int samplerate = customsfxdata[slot].freq;
-    unsigned short channels = customsfxdata[slot].stereo ? 2 : 1;
-    unsigned int datalen = customsfxdata[slot].len*channels*customsfxdata[slot].bits / 8;
-    unsigned int size = 36 + datalen;
+    uint32_t samplerate = customsfxdata[slot].freq;
+    uint16_t channels = customsfxdata[slot].stereo ? 2 : 1;
+    uint32_t datalen = customsfxdata[slot].len*channels*customsfxdata[slot].bits / 8;
+    uint32_t size = 36 + datalen;
     ofs.write((char *)&size, 4);
     ofs.write("WAVE", 4);
     ofs.write("fmt ", 4);
-    unsigned int fmtlen = 16;
+    uint32_t fmtlen = 16;
     ofs.write((char *)&fmtlen, 4);
-    unsigned short type = 1;
+    uint16_t type = 1;
     ofs.write((char *)&type, 2);
     ofs.write((char *)&channels, 2);
     ofs.write((char *)&samplerate, 4);
-    unsigned int bytespersec = samplerate*channels*customsfxdata[slot].bits / 8; 
+    uint32_t bytespersec = samplerate*channels*customsfxdata[slot].bits / 8; 
     ofs.write((char *)&bytespersec, 4);
-    unsigned short blockalign = channels*customsfxdata[slot].bits / 8;
+    uint16_t blockalign = channels*customsfxdata[slot].bits / 8;
     ofs.write((char *)&blockalign, 2);
-    unsigned short bitspersample = customsfxdata[slot].bits;
+    uint16_t bitspersample = customsfxdata[slot].bits;
     ofs.write((char *)&bitspersample, 2);
     ofs.write("data", 4);
     ofs.write((char *)&datalen, 4);
     if (bitspersample == 8)
     {
-        for (int i = 0; i < (int)customsfxdata[slot].len*channels; i++)
+        for (int32_t i = 0; i < (int32_t)customsfxdata[slot].len*channels; i++)
         {
             char data = ((char *)customsfxdata[slot].data)[i];
             data ^= 0x80;
@@ -28644,9 +28644,9 @@ bool saveWAV(int slot, const char *filename)
     }
     else if (bitspersample == 16)
     {
-        for (int i = 0; i < (int)customsfxdata[slot].len*channels; i++)
+        for (int32_t i = 0; i < (int32_t)customsfxdata[slot].len*channels; i++)
         {
-            unsigned short data = ((unsigned short *)customsfxdata[slot].data)[i];
+            uint16_t data = ((uint16_t *)customsfxdata[slot].data)[i];
             data ^= 0x8000;
             ofs.write((char *)&data, 2);
         }
@@ -28656,14 +28656,14 @@ bool saveWAV(int slot, const char *filename)
     return !!ofs;
 } 
 
-int onEditSFX(int index)
+int32_t onEditSFX(int32_t index)
 {
     kill_sfx();
     stop_midi();
     set_volume(255,-1);
-    int ret;
+    int32_t ret;
     sfx_edit_dlg[0].dp2=lfont;
-    unsigned char tempflag;
+    uint8_t tempflag;
     tempflag = get_bit(customsfxflag,index-1);
     change_sfx(&templist[index], &customsfxdata[index]);
     
@@ -28696,7 +28696,7 @@ int onEditSFX(int index)
 		    // Fall Through
 		    kill_sfx();
 		    
-		    for(int i=1; i<WAV_COUNT; i++)
+		    for(int32_t i=1; i<WAV_COUNT; i++)
 		    {
 			if(templist[i].data != NULL)
 			{
@@ -28720,7 +28720,7 @@ int onEditSFX(int index)
 			{
 			    char sfxtitle[36];
 			    char *t = get_filename(temppath);
-			    int j;
+			    int32_t j;
 			    
 			    for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
 			    {
@@ -28778,7 +28778,7 @@ int onEditSFX(int index)
 			char tempname[36];
 			strcpy(tempname,sfx_string[index]);
 			//change spaces to dashes for f/s safety
-			for ( int q = 0; q < 36; ++q )
+			for ( int32_t q = 0; q < 36; ++q )
 			{
 				if(tempname[q] == 32 || tempname[q] == 47 || tempname[q] == 92 ) //SPACE, Bslash, Fslash
 					tempname[q] = 45; //becomes hyphen
@@ -28862,7 +28862,7 @@ static DIALOG mapstyles_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onMapStyles()
+int32_t onMapStyles()
 {
     if(mapstyles_dlg[0].d1<1)
     {
@@ -28904,7 +28904,7 @@ int onMapStyles()
         large_dialog(mapstyles_dlg,2);
         
     go();
-    int ret = zc_do_dialog(mapstyles_dlg,-1);
+    int32_t ret = zc_do_dialog(mapstyles_dlg,-1);
     comeback();
     
     if(ret==23)
@@ -28927,7 +28927,7 @@ int onMapStyles()
     return D_O_K;
 }
 
-int d_misccolors_old_proc(int msg,DIALOG *d,int c)
+int32_t d_misccolors_old_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
@@ -28939,16 +28939,16 @@ int d_misccolors_old_proc(int msg,DIALOG *d,int c)
         textout_ex(screen,font,"1",d->x,d->y+16,d->fg,d->bg);
         textout_ex(screen,font,"5",d->x,d->y+24,d->fg,d->bg);
         
-        for(int i=0; i<32; i++)
+        for(int32_t i=0; i<32; i++)
         {
-            int px2 = d->x+((i&15)<<3)+8;
-            int py2 = d->y+((i>>4)<<3)+8;
+            int32_t px2 = d->x+((i&15)<<3)+8;
+            int32_t py2 = d->y+((i>>4)<<3)+8;
             rectfill(screen,px2,py2,px2+7,py2+7,i);
         }
         
-        for(int i=0; i<16; i++)
+        for(int32_t i=0; i<16; i++)
         {
-            int px2 = d->x+(i<<3)+8;
+            int32_t px2 = d->x+(i<<3)+8;
             rectfill(screen,px2,d->y+24,px2+7,d->y+31,i+80);
         }
     }
@@ -28956,14 +28956,14 @@ int d_misccolors_old_proc(int msg,DIALOG *d,int c)
     return D_O_K;
 }
 
-int hexclicked=-1;
+int32_t hexclicked=-1;
 
-int d_misccolors_hexedit_proc(int msg,DIALOG *d,int c)
+int32_t d_misccolors_hexedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
     {
     case MSG_GOTFOCUS:
-        hexclicked=((int)(size_t)(d->dp3))+20;
+        hexclicked=((int32_t)(size_t)(d->dp3))+20;
         break;
         
     case MSG_LOSTFOCUS:
@@ -28975,27 +28975,27 @@ int d_misccolors_hexedit_proc(int msg,DIALOG *d,int c)
 }
 
 
-int d_misccolors_proc(int msg,DIALOG *d,int c);
+int32_t d_misccolors_proc(int32_t msg,DIALOG *d,int32_t c);
 
-static int misccolor1_list[] =
+static int32_t misccolor1_list[] =
 {
     // dialog control number
     4, 5, 6, 7, 8, 20, 21, 22, 23, 24, 36, 37, 38, 39, 40, -1
 };
 
-static int misccolor2_list[] =
+static int32_t misccolor2_list[] =
 {
     // dialog control number
     9, 10, 11, 12, 13, 25, 26, 27, 28, 29, 41, 42, 43, 44, 45, -1
 };
 
-static int misccolor3_list[] =
+static int32_t misccolor3_list[] =
 {
     // dialog control number
     14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 46, 47, 48, 49, 50, -1
 };
 
-static int misccolor4_list[] =
+static int32_t misccolor4_list[] =
 {
     19, 35, 51, 54, 55, 56, -1
 };
@@ -29010,7 +29010,7 @@ static TABPANEL misccolor_tabs[] =
     { NULL,         0,           NULL, 0, NULL }
 };
 
-int d_misccolors_tab_proc(int msg,DIALOG *d,int c);
+int32_t d_misccolors_tab_proc(int32_t msg,DIALOG *d,int32_t c);
 
 static DIALOG misccolors_dlg[] =
 {
@@ -29084,7 +29084,7 @@ static DIALOG misccolors_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int d_misccolors_tab_proc(int msg,DIALOG *d,int c)
+int32_t d_misccolors_tab_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 
     switch(msg)
@@ -29098,22 +29098,22 @@ int d_misccolors_tab_proc(int msg,DIALOG *d,int c)
 }
 
 
-int d_misccolors_proc(int msg,DIALOG *d,int c)
+int32_t d_misccolors_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
-    int mul=8;
+    int32_t mul=8;
     
     if(is_large)
-        mul=(int)(mul*1.5);
+        mul=(int32_t)(mul*1.5);
         
     switch(msg)
     {
     case MSG_CLICK:
         if(hexclicked!=-1)
         {
-            int color_col=vbound(((gui_mouse_x()-d->x-8)/mul),0,15);
-            int color_row=vbound(((gui_mouse_y()-d->y-10)/mul),0,11);
+            int32_t color_col=vbound(((gui_mouse_x()-d->x-8)/mul),0,15);
+            int32_t color_row=vbound(((gui_mouse_y()-d->y-10)/mul),0,11);
             sprintf((char*)misccolors_dlg[hexclicked].dp,"%X%X",color_row,color_col);
             object_message(misccolors_dlg+hexclicked,MSG_DRAW,0);
         }
@@ -29121,32 +29121,32 @@ int d_misccolors_proc(int msg,DIALOG *d,int c)
         break;
         
     case MSG_DRAW:
-        for(int i=0; i<10; i++)
+        for(int32_t i=0; i<10; i++)
         {
             textprintf_centre_ex(screen,font,d->x+8+4+(i*mul),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX], "%d", i);
         }
         
-        for(int i=0; i<6; i++)
+        for(int32_t i=0; i<6; i++)
         {
             textprintf_centre_ex(screen,font,d->x+8+4+((10+i)*mul),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX], "%c", i+'A');
         }
         
-        for(int i=0; i<10; i++)
+        for(int32_t i=0; i<10; i++)
         {
             textprintf_right_ex(screen,font,d->x+6,d->y+(i*mul)+10,jwin_pal[jcBOXFG],jwin_pal[jcBOX], "%d", i);
         }
         
-        for(int i=0; i<2; i++)
+        for(int32_t i=0; i<2; i++)
         {
             textprintf_right_ex(screen,font,d->x+6,d->y+((i+10)*mul)+10,jwin_pal[jcBOXFG],jwin_pal[jcBOX], "%c", i+'A');
         }
         
-        jwin_draw_frame(screen,d->x+6,d->y+8,int(132*(is_large?1.5:1))-(1+is_large),int(100*(is_large?1.5:1))-(1+is_large),FR_DEEP);
+        jwin_draw_frame(screen,d->x+6,d->y+8,int32_t(132*(is_large?1.5:1))-(1+is_large),int32_t(100*(is_large?1.5:1))-(1+is_large),FR_DEEP);
         
-        for(int i=0; i<192; i++)
+        for(int32_t i=0; i<192; i++)
         {
-            int px2 = d->x+int(((i&15)<<3)*(is_large?1.5 : 1))+8;
-            int py2 = d->y+int(((i>>4)<<3)*(is_large?1.5 : 1))+8+2;
+            int32_t px2 = d->x+int32_t(((i&15)<<3)*(is_large?1.5 : 1))+8;
+            int32_t py2 = d->y+int32_t(((i>>4)<<3)*(is_large?1.5 : 1))+8+2;
             rectfill(screen,px2,py2,px2+(mul-1),py2+(mul-1),i);
         }
         
@@ -29157,13 +29157,13 @@ int d_misccolors_proc(int msg,DIALOG *d,int c)
 }
 
 
-int onMiscColors()
+int32_t onMiscColors()
 {
     char buf[17][3];
     byte *si = &(misc.colors.text);
     misccolors_dlg[0].dp2=lfont;
     
-    for(int i=0; i<16; i++)
+    for(int32_t i=0; i<16; i++)
     {
         sprintf(buf[i],"%02X",*(si++));
         sprintf(buf[16], "%02X", misc.colors.msgtext);
@@ -29179,7 +29179,7 @@ int onMiscColors()
         saved=false;
         si = &(misc.colors.text);
         
-        for(int i=0; i<16; i++)
+        for(int32_t i=0; i<16; i++)
         {
             *si = zc_xtoi(buf[i]);
             ++si;
@@ -29193,12 +29193,12 @@ int onMiscColors()
 
 // ****  Palette cycling  ****
 
-static int palclk[3];
-static int palpos[3];
+static int32_t palclk[3];
+static int32_t palpos[3];
 
 void reset_pal_cycling()
 {
-    for(int i=0; i<3; i++)
+    for(int32_t i=0; i<3; i++)
         palclk[i]=palpos[i]=0;
 }
 
@@ -29207,10 +29207,10 @@ void cycle_palette()
     if(!get_bit(quest_rules,qr_FADE))
         return;
         
-    int level = Map.CurrScr()->color;
+    int32_t level = Map.CurrScr()->color;
     bool refreshpal = false;
     
-    for(int i=0; i<3; i++)
+    for(int32_t i=0; i<3; i++)
     {
         palcycle c = misc.cycles[level][i];
         
@@ -29227,7 +29227,7 @@ void cycle_palette()
                 
                 si += (c.first&15)*3;
                 
-                for(int col=c.first&15; col<=(c.count&15); col++)
+                for(int32_t col=c.first&15; col<=(c.count&15); col++)
                 {
                     RAMpal[CSET(c.first>>4)+col] = _RGB(si);
                     si+=3;
@@ -29263,7 +29263,7 @@ static DIALOG help_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void doHelp(int bg,int fg)
+void doHelp(int32_t bg,int32_t fg)
 {
     help_dlg[0].dp2= lfont;
     help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
@@ -29272,7 +29272,7 @@ void doHelp(int bg,int fg)
     delete(EditboxModel*)(help_dlg[2].dp);
 }
 
-int onHelp()
+int32_t onHelp()
 {
     restore_mouse();
     doHelp(vc(15),vc(0));
@@ -29292,7 +29292,7 @@ static DIALOG shieldblockhelp_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void doshieldblockhelp(int bg,int fg)
+void doshieldblockhelp(int32_t bg,int32_t fg)
 {
     shieldblockhelp_dlg[0].dp2= lfont;
     shieldblockhelp_dlg[2].dp = new EditboxModel(shieldblockhelpstr, new EditboxWordWrapView(&shieldblockhelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
@@ -29301,7 +29301,7 @@ void doshieldblockhelp(int bg,int fg)
     delete(EditboxModel*)(shieldblockhelp_dlg[2].dp);
 }
 
-int onshieldblockhelp()
+int32_t onshieldblockhelp()
 {
     restore_mouse();
     doshieldblockhelp(vc(15),vc(0));
@@ -29321,7 +29321,7 @@ static DIALOG zscripthelp_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void dozscripthelp(int bg,int fg)
+void dozscripthelp(int32_t bg,int32_t fg)
 {
     zscripthelp_dlg[0].dp2= lfont;
     zscripthelp_dlg[2].dp = new EditboxModel(zscripthelpstr, new EditboxWordWrapView(&zscripthelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
@@ -29330,7 +29330,7 @@ void dozscripthelp(int bg,int fg)
     delete(EditboxModel*)(zscripthelp_dlg[2].dp);
 }
 
-int onZScripthelp()
+int32_t onZScripthelp()
 {
     restore_mouse();
     dozscripthelp(vc(15),vc(0));
@@ -29350,7 +29350,7 @@ static DIALOG Zstringshelp_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void doZstringshelp(int bg,int fg)
+void doZstringshelp(int32_t bg,int32_t fg)
 {
     Zstringshelp_dlg[0].dp2= lfont;
     Zstringshelp_dlg[2].dp = new EditboxModel(zstringshelpstr, new EditboxWordWrapView(&Zstringshelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
@@ -29359,7 +29359,7 @@ void doZstringshelp(int bg,int fg)
     delete(EditboxModel*)(Zstringshelp_dlg[2].dp);
 }
 
-int onZstringshelp()
+int32_t onZstringshelp()
 {
     restore_mouse();
     doZstringshelp(vc(15),vc(0));
@@ -29421,26 +29421,26 @@ static DIALOG layerdata_dlg[] =
     
 };
 
-int edit_layers(mapscr* tempscr)
+int32_t edit_layers(mapscr* tempscr)
 {
     char buf[6][2][8];
     layerdata_dlg[0].dp2 = lfont;
     
-    for(int x=0; x<6; x++)
+    for(int32_t x=0; x<6; x++)
     {
         sprintf(buf[x][0],"%d",tempscr->layermap[x]);
         sprintf(buf[x][1],"%02X",tempscr->layerscreen[x]);
     }
     
-    for(int x=0; x<6; x++)
+    for(int32_t x=0; x<6; x++)
     {
-        for(int y=0; y<2; y++)
+        for(int32_t y=0; y<2; y++)
         {
             layerdata_dlg[(x*3)+y+12].dp = buf[x][y];
         }
     }
     
-    for(int x=0; x<6; x++)
+    for(int32_t x=0; x<6; x++)
     {
         layerdata_dlg[(x*3)+2+12].flags = (tempscr->layeropacity[x]<255) ? D_SELECTED : 0;
     }
@@ -29448,11 +29448,11 @@ int edit_layers(mapscr* tempscr)
     if(is_large)
         large_dialog(layerdata_dlg);
         
-    int ret=zc_popup_dialog(layerdata_dlg,0);
+    int32_t ret=zc_popup_dialog(layerdata_dlg,0);
     
     if(ret>=2)
     {
-        for(int x=0; x<6; x++)
+        for(int32_t x=0; x<6; x++)
         {
         
             tempscr->layermap[x]=atoi(buf[x][0]);
@@ -29496,7 +29496,7 @@ static DIALOG autolayer_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void autolayer(mapscr* tempscr, int layer, int al[6][3])
+void autolayer(mapscr* tempscr, int32_t layer, int32_t al[6][3])
 {
     char tbuf[80],mlayer[80];
     autolayer_dlg[0].dp2=lfont;
@@ -29508,11 +29508,11 @@ void autolayer(mapscr* tempscr, int layer, int al[6][3])
     if(is_large)
         large_dialog(autolayer_dlg);
         
-    int ret=zc_popup_dialog(autolayer_dlg,0);
+    int32_t ret=zc_popup_dialog(autolayer_dlg,0);
     
     if(ret==4)
     {
-        int lmap=vbound(atoi(mlayer),0,Map.getMapCount());
+        int32_t lmap=vbound(atoi(mlayer),0,Map.getMapCount());
         al[layer][0]=lmap;
         tempscr->layermap[layer]=lmap;
         tempscr->layerscreen[layer]=Map.getCurrScr();
@@ -29521,9 +29521,9 @@ void autolayer(mapscr* tempscr, int layer, int al[6][3])
     }
 }
 
-int findblankcombo()
+int32_t findblankcombo()
 {
-    for(int i=0; i<MAXCOMBOS; i++)
+    for(int32_t i=0; i<MAXCOMBOS; i++)
     {
     
         if(!combobuf[i].flip&&!combobuf[i].walk&&!combobuf[i].type&&
@@ -29538,20 +29538,20 @@ int findblankcombo()
     return 0;
 }
 
-int onLayers()
+int32_t onLayers()
 {
     mapscr tempscr=*Map.CurrScr();
-    int blankcombo=findblankcombo();
-    int al[6][3];                                             //autolayer[layer][0=map, 1=overwrite current][go]
+    int32_t blankcombo=findblankcombo();
+    int32_t al[6][3];                                             //autolayer[layer][0=map, 1=overwrite current][go]
     
-    for(int i=0; i<6; i++)
+    for(int32_t i=0; i<6; i++)
     {
         al[i][0]=tempscr.layermap[i];
         al[i][1]=0;
         al[i][2]=0;
     }
     
-    int ret;
+    int32_t ret;
     
     do
     {
@@ -29569,16 +29569,16 @@ int onLayers()
         saved=false;
         TheMaps[Map.getCurrMap()*MAPSCRS+Map.getCurrScr()]=tempscr;
         
-        for(int i=0; i<6; i++)
+        for(int32_t i=0; i<6; i++)
         {
-            int tm=tempscr.layermap[i]-1;
+            int32_t tm=tempscr.layermap[i]-1;
             
             if(tm!=al[i][0]-1)
             {
                 al[i][2]=0;
             }
             
-            int ts=tempscr.layerscreen[i];
+            int32_t ts=tempscr.layerscreen[i];
             
             if(tm>0)
             {
@@ -29586,7 +29586,7 @@ int onLayers()
                 {
                     TheMaps[tm*MAPSCRS+ts].valid=mVALID+mVERSION;
                     
-                    for(int k=0; k<176; k++)
+                    for(int32_t k=0; k<176; k++)
                     {
                         TheMaps[tm*MAPSCRS+ts].data[k]=blankcombo;
                     }
@@ -29595,7 +29595,7 @@ int onLayers()
             
             if(al[i][2]>0)
             {
-                for(int j=0; j<128; j++)
+                for(int32_t j=0; j<128; j++)
                 {
                     if((TheMaps[Map.getCurrMap()*MAPSCRS+j].layermap[i]==0) || (al[i][1]))
                     {
@@ -29620,7 +29620,7 @@ int onLayers()
                             {
                                 TheMaps[(al[i][0]-1)*MAPSCRS+j].valid=mVALID+mVERSION;
                                 
-                                for(int k=0; k<176; k++)
+                                for(int32_t k=0; k<176; k++)
                                 {
                                     TheMaps[(al[i][0]-1)*MAPSCRS+j].data[k]=blankcombo;
                                 }
@@ -29644,7 +29644,7 @@ int onLayers()
 }
 
 
-char *itoa(int i)
+char *itoa(int32_t i)
 {
     static char itoaret[500];
     sprintf(itoaret, "%d", i);
@@ -29659,23 +29659,23 @@ void fps_callback()
 
 END_OF_FUNCTION(fps_callback)
 
-//unsigned int col_diff[3*128];
+//uint32_t col_diff[3*128];
 /*
   void bestfit_init(void)
   {
-  int i;
+  int32_t i;
 
   for (i=1; i<64; i++)
 
   {
-  int k = i * i;
+  int32_t k = i * i;
   col_diff[0  +i] = col_diff[0  +128-i] = k * (59 * 59);
   col_diff[128+i] = col_diff[128+128-i] = k * (30 * 30);
   col_diff[256+i] = col_diff[256+128-i] = k * (11 * 11);
   }
   }
   */
-void create_rgb_table2(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int pos))
+void create_rgb_table2(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int32_t pos))
 {
 #define UNUSED 65535
 #define LAST 65532
@@ -29706,8 +29706,8 @@ void create_rgb_table2(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(in
     
     /* is current color better than pal1? */
 #define better(r1, g1, b1, pal1) \
-          (((int)dist((r1), (g1), (b1), \
-                      (pal1).r, (pal1).g, (pal1).b)) > (int)dist2)
+          (((int32_t)dist((r1), (g1), (b1), \
+                      (pal1).r, (pal1).g, (pal1).b)) > (int32_t)dist2)
     
     /* checking of position */
 #define dopos(rp, gp, bp, ts) \
@@ -29734,14 +29734,14 @@ void create_rgb_table2(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(in
             }                 \
         }
     
-    int i, curr, r, g, b, val, dist2;
-    unsigned int r2, g2, b2;
-    unsigned short next[32*32*32];
-    unsigned char *data;
-    int first = LAST;
-    int last = LAST;
-    int count = 0;
-    int cbcount = 0;
+    int32_t i, curr, r, g, b, val, dist2;
+    uint32_t r2, g2, b2;
+    uint16_t next[32*32*32];
+    uint8_t *data;
+    int32_t first = LAST;
+    int32_t last = LAST;
+    int32_t count = 0;
+    int32_t cbcount = 0;
     
 #define AVERAGE_COUNT   18000
     
@@ -29752,7 +29752,7 @@ void create_rgb_table2(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(in
     memset(table->data, 0, sizeof(char)*32*32*32);
     
     
-    data = (unsigned char *)table->data;
+    data = (uint8_t *)table->data;
     
     /* add starting seeds for floodfill */
     for(i=1; i<PAL_SIZE; i++)
@@ -29897,14 +29897,14 @@ void rebuild_trans_table()
     create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
     memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
     
-    for(int q=0; q<PAL_SIZE; q++)
+    for(int32_t q=0; q<PAL_SIZE; q++)
     {
         trans_table2.data[0][q] = q;
         trans_table2.data[q][q] = q;
     }
 }
 
-int isFullScreen()
+int32_t isFullScreen()
 {
     return !is_windowed_mode();
 }
@@ -29930,7 +29930,7 @@ void hit_close_button()
   */
 
 /*
-  static int jwin_pal[jcMAX] =
+  static int32_t jwin_pal[jcMAX] =
   {
   vc(11),vc(15),vc(4),vc(7),vc(6),vc(0),
   192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
@@ -30007,32 +30007,32 @@ void Z_eventlog(const char *format,...)
 }
 
 void PopulateInitDialog();
-int get_currdmap()
+int32_t get_currdmap()
 {
     return zinit.start_dmap;
 }
 
-int get_dlevel()
+int32_t get_dlevel()
 {
     return DMaps[zinit.start_dmap].level;
 }
 
-int get_currscr()
+int32_t get_currscr()
 {
     return Map.getCurrScr();
 }
 
-int get_currmap()
+int32_t get_currmap()
 {
     return Map.getCurrMap();
 }
 
-int get_homescr()
+int32_t get_homescr()
 {
     return DMaps[zinit.start_dmap].cont;
 }
 
-int current_item(int item_type)
+int32_t current_item(int32_t item_type)
 {
     //TODO remove as special case?? -DD
     if(item_type==itype_shield)
@@ -30041,10 +30041,10 @@ int current_item(int item_type)
     }
     
     //find lowest item of that class
-    int lowestid = -1;
-    int ret = 0;
+    int32_t lowestid = -1;
+    int32_t ret = 0;
     
-    for(int i=0; i<MAXITEMS; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         if(itemsbuf[i].family == item_type && (lowestid==-1 || itemsbuf[i].fam_type < ret))
         {
@@ -30056,17 +30056,17 @@ int current_item(int item_type)
     return ret;
 }
 
-int current_item_power(int itemtype)
+int32_t current_item_power(int32_t itemtype)
 {
     itemtype=itemtype;
     return 1;
 }
 
-int current_item_id(int itemtype, bool checkmagic)
+int32_t current_item_id(int32_t itemtype, bool checkmagic)
 {
     checkmagic=checkmagic;
     
-    for(int i=0; i<MAXITEMS; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         if(itemsbuf[i].family==itemtype)
             return i;
@@ -30076,7 +30076,7 @@ int current_item_id(int itemtype, bool checkmagic)
 }
 
 
-bool can_use_item(int item_type, int item)
+bool can_use_item(int32_t item_type, int32_t item)
 {
     //these are here to bypass compiler warnings about unused arguments
     item_type=item_type;
@@ -30085,7 +30085,7 @@ bool can_use_item(int item_type, int item)
     return true;
 }
 
-bool has_item(int item_type, int it)
+bool has_item(int32_t item_type, int32_t it)
 {
     //these are here to bypass compiler warnings about unused arguments
     item_type=item_type;
@@ -30094,7 +30094,7 @@ bool has_item(int item_type, int it)
     return true;
 }
 
-int get_bmaps(int si)
+int32_t get_bmaps(int32_t si)
 {
     //these are here to bypass compiler warnings about unused arguments
     si=si;
@@ -30107,11 +30107,11 @@ bool no_subscreen()
     return false;
 }
 
-int Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
+int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
-long exittimer = 10000, exittimer2 = 100;
+int32_t exittimer = 10000, exittimer2 = 100;
 
-int main(int argc,char **argv)
+int32_t main(int32_t argc,char **argv)
 { 
 #if (defined(_DEBUG) && defined(_MSC_VER))
 #if (VLD_FORCE_ENABLE == 0)
@@ -30175,8 +30175,8 @@ int main(int argc,char **argv)
     	}
     
     	// Initialize the display
-    	int w=800, h=600;
-    	int desired_bpp=8;
+    	int32_t w=800, h=600;
+    	int32_t desired_bpp=8;
     	Uint32 video_flags=SDL_HWSURFACE|SDL_HWPALETTE;
     	sdl_screen = SDL_SetVideoMode(w, h, desired_bpp, video_flags);
     	if ( sdl_screen == NULL ) {
@@ -30279,7 +30279,7 @@ int main(int argc,char **argv)
     Z_message("Resetting new tile buffer...");
     newtilebuf = (tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata));
     
-    for(int j=0; j<NEWMAXTILES; j++)
+    for(int32_t j=0; j<NEWMAXTILES; j++)
         newtilebuf[j].data=NULL;
         
     Z_message("OK\n");
@@ -30497,7 +30497,7 @@ int main(int argc,char **argv)
     
     char qstdat_read_sig[52];
     memset(qstdat_read_sig, 0, 52);
-    int pos=0;
+    int32_t pos=0;
     
     while(!pack_feof(f))
     {
@@ -30642,27 +30642,27 @@ int main(int argc,char **argv)
 		 zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat; 
 		 lisafont=(FONT*)fontsdata[FONT_ZZZ_LISA].dat;
     
-    for(int i=0; i<MAXCUSTOMTUNES; i++)
+    for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
     {
         customtunes[i].data=NULL;
         midi_string[i+4]=customtunes[i].title;
     }
     
-    for(int i=0; i<MAXCUSTOMTUNES; i++)
+    for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
     {
         customtunes[i].data=NULL;
         screen_midi_string[i+5]=customtunes[i].title;
     }
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
-        for(int j=0; j<MAXSUBSCREENITEMS; j++)
+        for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
         {
             memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
         }
     }
     
-    int helpsize = file_size_ex_password("docs/zquest.txt","");
+    int32_t helpsize = file_size_ex_password("docs/zquest.txt","");
     
     if(helpsize==0)
     {
@@ -30712,7 +30712,7 @@ int main(int argc,char **argv)
     }
     
     char c = fgetc(hb);
-    int index=0;
+    int32_t index=0;
     
     while(!feof(hb))
     {
@@ -30727,7 +30727,7 @@ int main(int argc,char **argv)
     helpstr = helpbuf;
     Z_message("Found zquest.txt\n");                                      // loading data files...
     
-    int shieldblockhelpsize = file_size_ex_password("docs/shield_block_flags.txt","");
+    int32_t shieldblockhelpsize = file_size_ex_password("docs/shield_block_flags.txt","");
     
     if(shieldblockhelpsize==0)
     {
@@ -30784,7 +30784,7 @@ int main(int argc,char **argv)
     }
     
     char shieldc = fgetc(shieldhb);
-    int shieldhelpindex=0;
+    int32_t shieldhelpindex=0;
     
     while(!feof(shieldhb))
     {
@@ -30799,7 +30799,7 @@ int main(int argc,char **argv)
     shieldblockhelpstr = shieldblockhelpbuf;
     Z_message("Found shield_block_flags.txt\n");    
     
-    int zscripthelpsz = file_size_ex_password("docs/zscript.txt","");
+    int32_t zscripthelpsz = file_size_ex_password("docs/zscript.txt","");
     
     if(zscripthelpsz==0)
     {
@@ -30856,7 +30856,7 @@ int main(int argc,char **argv)
     }
     
     char zscripthelpc = fgetc(zscripthelphb);
-    int zscripthelpindex=0;
+    int32_t zscripthelpindex=0;
     
     while(!feof(zscripthelphb))
     {
@@ -30871,7 +30871,7 @@ int main(int argc,char **argv)
     zscripthelpstr = zscripthelpbuf;
     Z_message("Found zscript.txt\n");    
     
-    int zstringshelpsz = file_size_ex_password("docs/zstrings.txt","");
+    int32_t zstringshelpsz = file_size_ex_password("docs/zstrings.txt","");
     
     if(zstringshelpsz==0)
     {
@@ -30928,7 +30928,7 @@ int main(int argc,char **argv)
     }
     
     char zstringshelpc = fgetc(zstringshelphb);
-    int zstringshelpindex=0;
+    int32_t zstringshelpindex=0;
     
     while(!feof(zstringshelphb))
     {
@@ -31039,13 +31039,13 @@ int main(int argc,char **argv)
     
     // 1 <= zcmusic_bufsz <= 128
     zcmusic_bufsz = vbound(get_config_int("zquest","zqmusic_bufsz",64),1,128);
-    int tempvalue                  = get_config_int("zquest","layer_mask",-1);
-    int usefullscreen				 = get_config_int("zquest","fullscreen",0);
+    int32_t tempvalue                  = get_config_int("zquest","layer_mask",-1);
+    int32_t usefullscreen				 = get_config_int("zquest","fullscreen",0);
     tempmode = (usefullscreen == 0 ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN);
     LayerMask[0]=byte(tempvalue&0xFF);
     LayerMask[1]=byte((tempvalue>>8)&0xFF);
     
-    for(int x=0; x<7; x++)
+    for(int32_t x=0; x<7; x++)
     {
         LayerMaskInt[x]=get_bit(LayerMask,x);
     }
@@ -31154,7 +31154,7 @@ int main(int argc,char **argv)
         showedges=1;
         showallpanels=0;
         
-        for(int i=0; i<=8; i++)
+        for(int32_t i=0; i<=8; i++)
         {
             map_page_bar[i].x = mapscreen_x+(i*16*2*mapscreensize);
             map_page_bar[i].y = mapscreen_y+((showedges?13:11)*16*mapscreensize);
@@ -31170,7 +31170,7 @@ int main(int argc,char **argv)
         layer_panel.w=map_page_bar[8].x+map_page_bar[8].w;
         layer_panel.h=40;
         
-        for(int i=0; i<9; i++)
+        for(int32_t i=0; i<9; i++)
         {
             panel[i].x=10+48*BMM;
             panel[i].y=layer_panel.y+layer_panel.h;
@@ -31321,7 +31321,7 @@ int main(int argc,char **argv)
         showedges=0;
         showallpanels=0;
         
-        for(int i=0; i<9; i++)
+        for(int32_t i=0; i<9; i++)
         {
             panel[i].x=58;
             panel[i].y=192;
@@ -31378,19 +31378,19 @@ int main(int argc,char **argv)
         layer_panel.h=-1;
     }
     
-    for(int i=0; i<MAXFAVORITECOMBOS; ++i)
+    for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
     {
         favorite_combos[i]=-1;
     }
     
-    for(int i=0; i<MAXFAVORITECOMBOALIASES; ++i)
+    for(int32_t i=0; i<MAXFAVORITECOMBOALIASES; ++i)
     {
         favorite_comboaliases[i]=-1;
     }
     
     char cmdnametitle[20];
     
-    for(int x=0; x<MAXFAVORITECOMMANDS; ++x)
+    for(int32_t x=0; x<MAXFAVORITECOMMANDS; ++x)
     {
         sprintf(cmdnametitle, "command%02d", x+1);
         favorite_commands[x]=get_config_int("zquest",cmdnametitle,0);
@@ -31414,7 +31414,7 @@ int main(int argc,char **argv)
     char qtnametitle[20];
     char qtpathtitle[20];
     
-    for(int x=1; x<MAXQTS; ++x)
+    for(int32_t x=1; x<MAXQTS; ++x)
     {
         sprintf(qtnametitle, "%s%d", qtname_name, x);
         sprintf(qtpathtitle, "%s%d", qtpath_name, x);
@@ -31560,7 +31560,7 @@ int main(int argc,char **argv)
       zqwin_set_scale(scale_arg);
     }*/
     
-    int videofail = (set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0));
+    int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0));
     
     if(videofail!=0)
     {
@@ -31686,9 +31686,9 @@ int main(int argc,char **argv)
     }
     //check and log RTC date and time
 
-        for (int q = 0; q < curTimeLAST; q++) 
+        for (int32_t q = 0; q < curTimeLAST; q++) 
         {
-            int t_time_v = FFCore.getTime(q);
+            int32_t t_time_v = FFCore.getTime(q);
         }
     scrtmp = screen;
     hw_screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
@@ -31766,7 +31766,7 @@ int main(int argc,char **argv)
              palbstart=128*63/255, palbend=240*63/255,
              paldivs=7;
              
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -31810,7 +31810,7 @@ int main(int argc,char **argv)
              palbstart=128*63/255, palbend=240*63/255,
              paldivs=6;
              
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -31853,7 +31853,7 @@ int main(int argc,char **argv)
              palbstart= 80*63/255, palbend=250*63/255,
              paldivs=7;
              
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -31897,7 +31897,7 @@ int main(int argc,char **argv)
              palbstart=  0*63/255, palbend=166*63/255,
              paldivs=6;
              
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -31940,7 +31940,7 @@ int main(int argc,char **argv)
              palbstart=161*63/255, palbend=227*63/255,
              paldivs=7;
              
-        for(int i=0; i < paldivs; i++)
+        for(int32_t i=0; i < paldivs; i++)
         {
             RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -32108,7 +32108,7 @@ int main(int argc,char **argv)
              palbstart=106*63/255, palbend=240*63/255,
              paldivs=7;
         /*     
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -32151,7 +32151,7 @@ int main(int argc,char **argv)
              palbstart=106*63/255, palbend=240*63/255,
              paldivs=7;
              
-        for(int i=0; i<paldivs; i++)
+        for(int32_t i=0; i<paldivs; i++)
         {
             RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
             RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
@@ -32188,95 +32188,95 @@ int main(int argc,char **argv)
     clear_to_color(screen,vc(0));
     
     //clear the midis (to keep loadquest from crashing by trying to destroy a garbage midi)
-    for(int i=0; i<MAXCUSTOMMIDIS_ZQ; ++i)
+    for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; ++i)
     {
         customtunes[i].data=NULL;
     }
     
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
     {
         customsfxdata[i].data=NULL;
         sfx_string[i] = new char[36];
         memset(sfx_string[i], 0, 36);
     }
     
-    for(int i=0; i<WPNCNT; i++)
+    for(int32_t i=0; i<WPNCNT; i++)
     {
         weapon_string[i] = new char[64];
         memset(weapon_string[i], 0, 64);
     }
     
-    for(int i=0; i<ITEMCNT; i++)
+    for(int32_t i=0; i<ITEMCNT; i++)
     {
         item_string[i] = new char[64];
         memset(item_string[i], 0, 64);
     }
     
-    for(int i=0; i<eMAXGUYS; i++)
+    for(int32_t i=0; i<eMAXGUYS; i++)
     {
         guy_string[i] = new char[64];
         memset(guy_string[i], 0, 64);
     }
     
-    for(int i=0; i<NUMSCRIPTFFC; i++)
+    for(int32_t i=0; i<NUMSCRIPTFFC; i++)
     {
         ffscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTITEM; i++)
+    for(int32_t i=0; i<NUMSCRIPTITEM; i++)
     {
         itemscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTGUYS; i++)
+    for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
     {
         guyscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         lwpnscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         ewpnscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTSCREEN; i++)
+    for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
     {
         screenscripts[i] = new script_data();
     }
     
-    for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
+    for(int32_t i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
         globalscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTLINK; i++)
+    for(int32_t i=0; i<NUMSCRIPTLINK; i++)
     {
         linkscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
     {
         dmapscripts[i] = new script_data();
     }
     
-    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
         itemspritescripts[i] = new script_data();
     }
-    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
         comboscripts[i] = new script_data();
     }
     
     zScript = std::string();
     strcpy(zScriptBytes, "0 Bytes in Buffer");
-    for(int i=0; i<MOUSE_BMP_MAX; i++)
+    for(int32_t i=0; i<MOUSE_BMP_MAX; i++)
 	{
-		for(int j=0; j<4; j++)
+		for(int32_t j=0; j<4; j++)
 		{
 			mouse_bmp[i][j] = NULL;
 			mouse_bmp_1x[i][j] = NULL;
@@ -32334,7 +32334,7 @@ int main(int argc,char **argv)
     {
         if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',lfont)==1)
         {
-            int ret = load_quest(last_timed_save,true,true);
+            int32_t ret = load_quest(last_timed_save,true,true);
             
             if(ret == qe_OK)
             {
@@ -32356,7 +32356,7 @@ int main(int argc,char **argv)
         if(argc>1 && argv[1][0]!='-')
         {
             replace_extension(temppath,argv[1],"qst",2047);
-            int ret = load_quest(temppath,true,true);
+            int32_t ret = load_quest(temppath,true,true);
             
             if(ret == qe_OK)
             {
@@ -32367,7 +32367,7 @@ int main(int argc,char **argv)
         }
         else if(OpenLastQuest&&filepath[0]&&exists(filepath)&&!used_switch(argc,argv,"-new"))
         {
-            int ret = load_quest(filepath,true,true);
+            int32_t ret = load_quest(filepath,true,true);
             
             if(ret == qe_OK)
             {
@@ -32401,13 +32401,13 @@ int main(int argc,char **argv)
         }
     }
     
-    for(int x=0; x<MAXITEMS; x++)
+    for(int32_t x=0; x<MAXITEMS; x++)
     {
         lens_hint_item[x][0]=0;
         lens_hint_item[x][1]=0;
     }
     
-    for(int x=0; x<MAXWPNS; x++)
+    for(int32_t x=0; x<MAXWPNS; x++)
     {
         lens_hint_weapon[x][0]=0;
         lens_hint_weapon[x][1]=0;
@@ -32667,19 +32667,19 @@ void destroy_bitmaps_on_exit()
     al_trace("...");
     show_mouse(NULL);
     
-    for(int i=0; i<MOUSE_BMP_MAX*4; i++)
+    for(int32_t i=0; i<MOUSE_BMP_MAX*4; i++)
 	{
         destroy_bitmap(mouse_bmp[i/4][i%4]);
         destroy_bitmap(mouse_bmp_1x[i/4][i%4]);
 	}
         
-    for(int i=0; i<ICON_BMP_MAX*4; i++)
+    for(int32_t i=0; i<ICON_BMP_MAX*4; i++)
         destroy_bitmap(icon_bmp[i/4][i%4]);
         
-    for(int i=0; i<2; i++)
+    for(int32_t i=0; i<2; i++)
         destroy_bitmap(select_bmp[i]);
         
-    for(int i=0; i<MAXARROWS; i++)
+    for(int32_t i=0; i<MAXARROWS; i++)
         destroy_bitmap(arrow_bmp[i]);
         
     al_trace(" OK. \n");
@@ -32701,7 +32701,7 @@ void quit_game()
     
     al_trace("Cleaning aliases. \n");
     
-    for(int i=0; i<MAXCOMBOALIASES; i++)
+    for(int32_t i=0; i<MAXCOMBOALIASES; i++)
     {
         if(combo_aliases[i].combos != NULL)
         {
@@ -32726,9 +32726,9 @@ void quit_game()
     
     al_trace("Cleaning subscreens. \n");
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
-        for(int j=0; j<MAXSUBSCREENITEMS; j++)
+        for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
         {
             switch(custom_subscreen[i].objects[j].type)
             {
@@ -32745,7 +32745,7 @@ void quit_game()
     
     al_trace("Cleaning sfx. \n");
     
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
     {
         if(customsfxdata[i].data!=NULL)
         {
@@ -32756,72 +32756,72 @@ void quit_game()
         delete [] sfx_string[i];
     }
     
-    for(int i=0; i<WPNCNT; i++)
+    for(int32_t i=0; i<WPNCNT; i++)
     {
         delete [] weapon_string[i];
     }
     
-    for(int i=0; i<ITEMCNT; i++)
+    for(int32_t i=0; i<ITEMCNT; i++)
     {
         delete [] item_string[i];
     }
     
-    for(int i=0; i<eMAXGUYS; i++)
+    for(int32_t i=0; i<eMAXGUYS; i++)
     {
         delete [] guy_string[i];
     }
     
     al_trace("Cleaning script buffer. \n");
     
-    for(int i=0; i<NUMSCRIPTFFC; i++)
+    for(int32_t i=0; i<NUMSCRIPTFFC; i++)
     {
         if(ffscripts[i]!=NULL) delete ffscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTITEM; i++)
+    for(int32_t i=0; i<NUMSCRIPTITEM; i++)
     {
         if(itemscripts[i]!=NULL) delete itemscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTGUYS; i++)
+    for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
     {
         if(guyscripts[i]!=NULL) delete guyscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTSCREEN; i++)
+    for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
     {
         if(screenscripts[i]!=NULL) delete screenscripts[i];
     }
     
-    for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
+    for(int32_t i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
         if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTLINK; i++)
+    for(int32_t i=0; i<NUMSCRIPTLINK; i++)
     {
         if(linkscripts[i]!=NULL) delete linkscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
     {
         if(dmapscripts[i]!=NULL) delete dmapscripts[i];
     }
-    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
         if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
     }
-    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
         if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
@@ -32834,7 +32834,7 @@ void quit_game()
     
     if(customtunes)
     {
-        for(int i=0; i<MAXCUSTOMMIDIS_ZQ; i++)
+        for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; i++)
             customtunes[i].reset();
             
         zc_free(customtunes);
@@ -32846,7 +32846,7 @@ void quit_game()
     
     if(newundotilebuf)
     {
-        for(int i=0; i<NEWMAXTILES; i++)
+        for(int32_t i=0; i<NEWMAXTILES; i++)
             if(newundotilebuf[i].data) zc_free(newundotilebuf[i].data);
             
         zc_free(newundotilebuf);
@@ -32887,7 +32887,7 @@ void quit_game2()
     
     al_trace("Cleaning aliases. \n");
     
-    for(int i=0; i<MAXCOMBOALIASES; i++)
+    for(int32_t i=0; i<MAXCOMBOALIASES; i++)
     {
         if(combo_aliases[i].combos != NULL)
         {
@@ -32912,9 +32912,9 @@ void quit_game2()
     
     al_trace("Cleaning subscreens. \n");
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
-        for(int j=0; j<MAXSUBSCREENITEMS; j++)
+        for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
         {
             switch(custom_subscreen[i].objects[j].type)
             {
@@ -32931,7 +32931,7 @@ void quit_game2()
     
     al_trace("Cleaning sfx. \n");
     
-    for(int i=0; i<WAV_COUNT; i++)
+    for(int32_t i=0; i<WAV_COUNT; i++)
     {
         if(customsfxdata[i].data!=NULL)
         {
@@ -32942,72 +32942,72 @@ void quit_game2()
         delete [] sfx_string[i];
     }
     
-    for(int i=0; i<WPNCNT; i++)
+    for(int32_t i=0; i<WPNCNT; i++)
     {
         delete [] weapon_string[i];
     }
     
-    for(int i=0; i<ITEMCNT; i++)
+    for(int32_t i=0; i<ITEMCNT; i++)
     {
         delete [] item_string[i];
     }
     
-    for(int i=0; i<eMAXGUYS; i++)
+    for(int32_t i=0; i<eMAXGUYS; i++)
     {
         delete [] guy_string[i];
     }
     
     al_trace("Cleaning script buffer. \n");
     
-    for(int i=0; i<NUMSCRIPTFFC; i++)
+    for(int32_t i=0; i<NUMSCRIPTFFC; i++)
     {
         if(ffscripts[i]!=NULL) delete ffscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTITEM; i++)
+    for(int32_t i=0; i<NUMSCRIPTITEM; i++)
     {
         if(itemscripts[i]!=NULL) delete itemscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTGUYS; i++)
+    for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
     {
         if(guyscripts[i]!=NULL) delete guyscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTSCREEN; i++)
+    for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
     {
         if(screenscripts[i]!=NULL) delete screenscripts[i];
     }
     
-    for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
+    for(int32_t i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
         if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTLINK; i++)
+    for(int32_t i=0; i<NUMSCRIPTLINK; i++)
     {
         if(linkscripts[i]!=NULL) delete linkscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
     {
         if(dmapscripts[i]!=NULL) delete dmapscripts[i];
     }
-    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
     {
         if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
     }
-    for(int i=0; i<NUMSCRIPTSCOMBODATA; i++)
+    for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
         if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
@@ -33020,7 +33020,7 @@ void quit_game2()
     
     if(customtunes)
     {
-        for(int i=0; i<MAXCUSTOMMIDIS_ZQ; i++)
+        for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; i++)
             customtunes[i].reset();
             
         zc_free(customtunes);
@@ -33032,7 +33032,7 @@ void quit_game2()
     
     if(newundotilebuf)
     {
-        for(int i=0; i<NEWMAXTILES; i++)
+        for(int32_t i=0; i<NEWMAXTILES; i++)
             if(newundotilebuf[i].data) zc_free(newundotilebuf[i].data);
             
         zc_free(newundotilebuf);
@@ -33128,7 +33128,7 @@ void animate_coords()
     }
 }
 
-static int help_pos=0;
+static int32_t help_pos=0;
 
 static const char *help_list[] =
 {
@@ -33190,9 +33190,9 @@ void do_previewtext()
 
 
 
-int d_nbmenu_proc(int msg,DIALOG *d,int c)
+int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    static int ret=D_O_K;
+    static int32_t ret=D_O_K;
     domouse();
     do_animations();
     refresh(rALL);
@@ -33214,7 +33214,7 @@ int d_nbmenu_proc(int msg,DIALOG *d,int c)
     ret = jwin_menu_proc(msg,d,c);
     
     /*
-        static int counter=0;
+        static int32_t counter=0;
         // Copy allegro_screen to sdl_screen
     
         if ( SDL_LockSurface(sdl_screen) == 0 )
@@ -33225,7 +33225,7 @@ int d_nbmenu_proc(int msg,DIALOG *d,int c)
     
     //      black = SDL_MapRGB(sdl_screen->format, 0, 0, 0);
           pixels = (Uint8 *)sdl_screen->pixels;
-          for ( int y=0; y<sdl_screen->h; ++y )
+          for ( int32_t y=0; y<sdl_screen->h; ++y )
           {
     //        memset(pixels, black, sdl_screen->w*sdl_screen->format->BytesPerPixel);
             memcpy(pixels, screen->line[y], sdl_screen->w*sdl_screen->format->BytesPerPixel);
@@ -33244,7 +33244,7 @@ int d_nbmenu_proc(int msg,DIALOG *d,int c)
         SDL_Color colors[256];
         PALETTE tp;
         get_palette(tp);
-        int i;
+        int32_t i;
         // Fill colors with color information
         for(i=0;i<256;i++){
           colors[i].r=tp[i].r;
@@ -33476,13 +33476,13 @@ finished:
 }
 
 
-int onZQVidMode()
+int32_t onZQVidMode()
 {
     char str_a[80], str_b[80], str_c[80];
     str_a[0]=0;
     str_b[0]=0;
     str_c[0]=0;
-    int mode=gfx_driver->id;
+    int32_t mode=gfx_driver->id;
 #ifdef ALLEGRO_DOS
     
     switch(mode)
@@ -33636,7 +33636,7 @@ bool screenIsScrolling()
     return false;
 }
 
-int save_config_file()
+int32_t save_config_file()
 {
     //packfile_password("");
 
@@ -33714,12 +33714,12 @@ int save_config_file()
     set_config_int("zquest","rulesetdialog",RulesetDialog);
     set_config_int("zquest","enable_tooltips",EnableTooltips);
     
-    for(int x=0; x<7; x++)
+    for(int32_t x=0; x<7; x++)
     {
         set_bit(LayerMask,x, LayerMaskInt[x]);
     }
     
-    int tempvalue=LayerMask[0]+(LayerMask[1]<<8);
+    int32_t tempvalue=LayerMask[0]+(LayerMask[1]<<8);
     set_config_int("zquest","layer_mask",tempvalue);
     set_config_int("zquest","normal_duplicate_action",DuplicateAction[0]);
     set_config_int("zquest","horizontal_duplicate_action",DuplicateAction[1]);
@@ -33733,13 +33733,13 @@ int save_config_file()
     set_config_int("zquest","no_preview",NoScreenPreview);
 	set_config_int("Compiler","try_recovering_missing_scripts",try_recovering_missing_scripts);
     
-    for(int x=0; x<MAXFAVORITECOMMANDS; ++x)
+    for(int32_t x=0; x<MAXFAVORITECOMMANDS; ++x)
     {
         sprintf(cmdnametitle, "command%02d", x+1);
         set_config_int("zquest",cmdnametitle,favorite_commands[x]);
     }
     
-    for(int x=1; x<qt_count+1; x++)
+    for(int32_t x=1; x<qt_count+1; x++)
     {
         sprintf(qtnametitle, qtname_name, x);
         sprintf(qtpathtitle, qtpath_name, x);
@@ -33790,7 +33790,7 @@ int save_config_file()
     return 0;
 }
 
-int d_timer_proc(int msg, DIALOG *d, int c)
+int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
@@ -33837,7 +33837,7 @@ void check_autosave()
                 return;
             }
             
-            int ret = save_quest(last_timed_save, true);
+            int32_t ret = save_quest(last_timed_save, true);
             
             if(ret)
             {
@@ -33865,10 +33865,10 @@ char *getBetaControlString()
     char *result = new char[11];
     const char *compiledate = __DATE__;
     const char *compiletime = __TIME__;
-    int i=0;
+    int32_t i=0;
     byte tempbyte;
     
-    for(i=0; i<zc_min(10, zc_min((int)strlen(compiledate),(int)strlen(compiletime))); i++)
+    for(i=0; i<zc_min(10, zc_min((int32_t)strlen(compiledate),(int32_t)strlen(compiletime))); i++)
     {
         tempbyte = (compiledate[i]*compiletime[i])^i;
         tempbyte = zc_max(tempbyte, 33);
@@ -33876,7 +33876,7 @@ char *getBetaControlString()
         result[i] = tempbyte;
     }
     
-    for(int j=i; j<11; ++j)
+    for(int32_t j=i; j<11; ++j)
     {
         result[j] = '\0';
     }
@@ -33884,12 +33884,12 @@ char *getBetaControlString()
     return result;
 }
 
-bool item_disabled(int)
+bool item_disabled(int32_t)
 {
     return false;
 }
 
-int onCmdExit()
+int32_t onCmdExit()
 {
     // replaces onExit for the -large button command "Exit"
     close_button_quit = true;
@@ -34073,9 +34073,9 @@ command_pair commands[cmdMAX]=
 /********************************/
 /*****      Tool Tips      ******/
 /********************************/
-int strchrnum(char *str, char c)
+int32_t strchrnum(char *str, char c)
 {
-    for(int i=0; str[i]; ++i)
+    for(int32_t i=0; str[i]; ++i)
     {
         if(str[i]==c)
         {
@@ -34086,15 +34086,15 @@ int strchrnum(char *str, char c)
     return -1;
 }
 
-int get_longest_line_length(FONT *f, char *str)
+int32_t get_longest_line_length(FONT *f, char *str)
 {
-    int maxlen=0;
+    int32_t maxlen=0;
     //char *kill=(char *)calloc(strlen(str),1);
     char *tmpstr=str;
     char temp=0;
     //sprintf(tmpstr, "%s", str);
-    int t=0;
-    int new_t=-1;
+    int32_t t=0;
+    int32_t new_t=-1;
     
     while(tmpstr[t])
     {
@@ -34102,10 +34102,10 @@ int get_longest_line_length(FONT *f, char *str)
         
         if(t==-1)
         {
-            t=(int)strlen(tmpstr);
+            t=(int32_t)strlen(tmpstr);
         }
         
-        if((unsigned int)t!=strlen(tmpstr))
+        if((uint32_t)t!=strlen(tmpstr))
         {
             new_t=t+1;
         }
@@ -34129,9 +34129,9 @@ int get_longest_line_length(FONT *f, char *str)
     return maxlen;
 }
 
-int count_lines(char *str)
+int32_t count_lines(char *str)
 {
-    int count=1;
+    int32_t count=1;
     
     for(word i=0; i<strlen(str); ++i)
     {
@@ -34144,7 +34144,7 @@ int count_lines(char *str)
     return count;
 }
 
-void update_tooltip(int x, int y, int trigger_x, int trigger_y, int trigger_w, int trigger_h, char *tipmsg)
+void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char *tipmsg)
 {
     if(!EnableTooltips)
     {
@@ -34178,7 +34178,7 @@ void update_tooltip(int x, int y, int trigger_x, int trigger_y, int trigger_w, i
     {
         tooltip_box.x=x;
         tooltip_box.y=y;
-        int lines=count_lines(tipmsg);
+        int32_t lines=count_lines(tipmsg);
         tooltip_box.w=get_longest_line_length(font, tipmsg)+8+1;
         tooltip_box.h=(lines*text_height(font))+8+1;
         
@@ -34203,9 +34203,9 @@ void update_tooltip(int x, int y, int trigger_x, int trigger_y, int trigger_w, i
         char *tmpstr=tipmsg;
         char temp = 0;
         //sprintf(tmpstr, "%s", tipmsg);
-        int t=0;
-        int new_t=-1;
-        int i=0;
+        int32_t t=0;
+        int32_t new_t=-1;
+        int32_t i=0;
         
         while(tmpstr[t])
         {
@@ -34213,10 +34213,10 @@ void update_tooltip(int x, int y, int trigger_x, int trigger_y, int trigger_w, i
             
             if(t==-1)
             {
-                t=(int)strlen(tmpstr);
+                t=(int32_t)strlen(tmpstr);
             }
             
-            if((unsigned int)t!=strlen(tmpstr))
+            if((uint32_t)t!=strlen(tmpstr))
             {
                 new_t=t+1;
             }
@@ -34285,7 +34285,7 @@ typedef std::set<void*> debug_malloc_pool_type;
 debug_malloc_pool_type debug_zc_malloc_allocated_pool;
 #endif
 
-void* __zc_debug_malloc(size_t numBytes, const char* file, int line)
+void* __zc_debug_malloc(size_t numBytes, const char* file, int32_t line)
 {
 #ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
     static bool zcDbgMallocInit = false;
@@ -34314,7 +34314,7 @@ void* __zc_debug_malloc(size_t numBytes, const char* file, int line)
     void* p = malloc(numBytes);
     
 #ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("at address %x\n", (int)p);
+    al_trace("at address %x\n", (int32_t)p);
     
     if(!p)
         al_trace("____________ ERROR: __zc_debug_malloc: returned null. out of memory.\n");
@@ -34331,12 +34331,12 @@ void* __zc_debug_malloc(size_t numBytes, const char* file, int line)
 }
 
 
-void __zc_debug_free(void* p, const char* file, int line)
+void __zc_debug_free(void* p, const char* file, int32_t line)
 {
     ZC_MALLOC_ALWAYS_ASSERT(p != 0);
     
 #ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("INFO: %i : %s line %i, freeing memory at address %x\n", 0, file, line, (int)p);
+    al_trace("INFO: %i : %s line %i, freeing memory at address %x\n", 0, file, line, (int32_t)p);
     
     size_t numErased = debug_zc_malloc_allocated_pool.erase(p);
     
@@ -34359,14 +34359,14 @@ void __zc_debug_malloc_free_print_memory_leaks()
             ++it
        )
     {
-        al_trace("block at address %x.\n", (int)*it);
+        al_trace("block at address %x.\n", (int32_t)*it);
     }
     
 #endif
 }
 
 
-void __zc_always_assert(bool e, const char* expression, const char* file, int line)
+void __zc_always_assert(bool e, const char* expression, const char* file, int32_t line)
 {
     //for best results set a breakpoint in here.
     if(!e)
@@ -34383,7 +34383,7 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
 
 //FFCore
 
-int FFScript::GetScriptObjectUID(int type)
+int32_t FFScript::GetScriptObjectUID(int32_t type)
 {
 	++script_UIDs[type];
 	return script_UIDs[type];
@@ -34391,7 +34391,7 @@ int FFScript::GetScriptObjectUID(int type)
 
 void FFScript::init()
 {
-	for ( int q = 0; q < wexLast; q++ ) warpex[q] = 0;
+	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = 0;
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
@@ -34400,12 +34400,12 @@ void FFScript::init()
 	
 	coreflags = 0;
 	skip_ending_credits = 0;
-	for ( int q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
+	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	
-	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
-	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
+	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
+	//for ( int32_t q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	setFFRules(); //copy the quest rules over. 
-	long usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
+	int32_t usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
 	FF_link_tile = 0; FF_link_action = 0;
 	enemy_removal_point[spriteremovalY1] = -32767;
 	enemy_removal_point[spriteremovalY2] = 32767;
@@ -34415,14 +34415,14 @@ void FFScript::init()
 	enemy_removal_point[spriteremovalZ2] = 32767;
 	
 	//Clear internal arrays for use by <std>, <ghost>, <tango>
-	for ( int q = 0; q < 256; ++q )
+	for ( int32_t q = 0; q < 256; ++q )
 	{
 		StdArray[q] = 0;
 		GhostArray[q] = 0;
 		TangoArray[q] = 0;
 	}
 	
-	for ( int q = 0; q < 4; q++ ) 
+	for ( int32_t q = 0; q < 4; q++ ) 
 	{
 		FF_screenbounds[q] = 0;
 		FF_screen_dimensions[q] = 0;
@@ -34430,15 +34430,15 @@ void FFScript::init()
 		FF_eweapon_removal_bounds[q] = 0; 
 		FF_lweapon_removal_bounds[q] = 0;
 	}
-	for ( int q = 0; q < FFSCRIPTCLASS_CLOCKS; q++ )
+	for ( int32_t q = 0; q < FFSCRIPTCLASS_CLOCKS; q++ )
 	{
 		FF_clocks[q] = 0;
 	}
-	for ( int q = 0; q < SCRIPT_DRAWING_RULES; q++ )
+	for ( int32_t q = 0; q < SCRIPT_DRAWING_RULES; q++ )
 	{
 		ScriptDrawingRules[q] = 0;
 	}
-	for ( int q = 0; q < NUM_USER_MIDI_OVERRIDES; q++ ) 
+	for ( int32_t q = 0; q < NUM_USER_MIDI_OVERRIDES; q++ ) 
 	{
 		FF_UserMidis[q] = 0;
 	}
@@ -34447,7 +34447,7 @@ void FFScript::init()
 	FFCore.user_bitmaps_init();
 	initIncludePaths();
 	initRunString();
-	for(int q = 0; q < 7; ++q)
+	for(int32_t q = 0; q < 7; ++q)
 	{
 		tempScreens[q] = NULL;
 		ScrollingScreens[q] = NULL;
@@ -34457,10 +34457,10 @@ void FFScript::init()
 void FFScript::updateIncludePaths()
 {
 	includePaths.clear();
-	int pos = 0; int pathnumber = 0;
-	for ( int q = 0; includePathString[pos]; ++q )
+	int32_t pos = 0; int32_t pathnumber = 0;
+	for ( int32_t q = 0; includePathString[pos]; ++q )
 	{
-		int dest = 0;
+		int32_t dest = 0;
 		char buf[2048] = {0};
 		while(includePathString[pos] != ';' && includePathString[pos])
 		{
@@ -34487,8 +34487,8 @@ void FFScript::initIncludePaths()
 	FILE* f = fopen("includepaths.txt", "r");
 	if(f)
 	{
-		int pos = 0;
-		int c;
+		int32_t pos = 0;
+		int32_t c;
 		do
 		{
 			c = fgetc(f);
@@ -34517,19 +34517,19 @@ void FFScript::initIncludePaths()
 
 void FFScript::setFFRules()
 {
-	for ( int q = 0; q < QUESTRULES_SIZE; q++ )
+	for ( int32_t q = 0; q < QUESTRULES_SIZE; q++ )
 	{
 		FF_rules[q] = getQRBit(q);
 	}
-	for ( int q = QUESTRULES_SIZE; q < QUESTRULES_SIZE+EXTRARULES_SIZE; q++ ) 
+	for ( int32_t q = QUESTRULES_SIZE; q < QUESTRULES_SIZE+EXTRARULES_SIZE; q++ ) 
 	{
 		FF_rules[q] = extra_rules[q-QUESTRULES_SIZE];
 	}
-	for ( int q = QUESTRULES_SIZE+EXTRARULES_SIZE; q < FFRULES_SIZE; q++ )
+	for ( int32_t q = QUESTRULES_SIZE+EXTRARULES_SIZE; q < FFRULES_SIZE; q++ )
 	{
 		FF_rules[q] = 0; //wipe the rest.
 	}
-	for ( int q = 0; q < 2; q++ )
+	for ( int32_t q = 0; q < 2; q++ )
 	{
 		passive_subscreen_offsets[q] = 0;
 	}
@@ -34544,27 +34544,27 @@ void FFScript::setFFRules()
 }
 
 
-void FFScript::setRule(int rule, bool s)
+void FFScript::setRule(int32_t rule, bool s)
 {
 	FF_rules[rule] = ( s ? 1 : 0 );
 }
 
-bool FFScript::getRule(int rule)
+bool FFScript::getRule(int32_t rule)
 {
 	return ( FF_rules[rule] != 0 );
 }
 
-int FFScript::getQRBit(int rule)
+int32_t FFScript::getQRBit(int32_t rule)
 {
 	return ( get_bit(quest_rules,rule) ? 1 : 0 );
 }
 
-void FFScript::setLinkTile(int t)
+void FFScript::setLinkTile(int32_t t)
 {
 	FF_link_tile = vbound(t, 0, NEWMAXTILES);
 }
 
-int FFScript::getTime(int type)
+int32_t FFScript::getTime(int32_t type)
 {
 	//struct tm *tm_struct = localtime(time(NULL));
 	struct tm * tm_struct;
@@ -34576,7 +34576,7 @@ int FFScript::getTime(int type)
 	{
 		case curyear:
 		{
-			int year = tm_struct->tm_year + 1900;        /* year */
+			int32_t year = tm_struct->tm_year + 1900;        /* year */
 			//year format starts at 1900, so we add it to the return
 			//al_trace("The current year is: %d\n",year);
 			return year;
@@ -34584,50 +34584,50 @@ int FFScript::getTime(int type)
 		}
 		case curmonth:
 		{
-			int month = tm_struct->tm_mon +1;         /* month */
+			int32_t month = tm_struct->tm_mon +1;         /* month */
 			//Months start at 0, but we want 1->12
 			//al_trace("The current month is: %d\n",month);
 			return month;
 		}
 		case curday_month:
 		{
-			int day_month = tm_struct->tm_mday;        /* day of the month */
+			int32_t day_month = tm_struct->tm_mday;        /* day of the month */
 			//al_trace("The current day of the month is: %d\n",day_month);
 			return day_month;
 		}
 		case curday_week: 
 		{
-			int day_week = tm_struct->tm_wday;        /* day of the week */
+			int32_t day_week = tm_struct->tm_wday;        /* day of the week */
 			//al_trace("The current day of the week is: %d\n",day_week);
 			return day_week;
 		}
 		case curhour:
 		{
-			int hour = tm_struct->tm_hour;        /* hours */
+			int32_t hour = tm_struct->tm_hour;        /* hours */
 			//al_trace("The current hour is: %d\n",hour);
 			return hour;
 		}
 		case curminute: 
 		{
-			int minutes = tm_struct->tm_min;         /* minutes */
+			int32_t minutes = tm_struct->tm_min;         /* minutes */
 			//al_trace("The current hour is: %d\n",minutes);
 			return minutes;
 		}
 		case cursecond:
 		{
-			int secs = tm_struct->tm_sec;         /* seconds */
+			int32_t secs = tm_struct->tm_sec;         /* seconds */
 			//al_trace("The current second is: %d\n",secs);
 			return secs;
 		}
 		case curdayyear:
 		{
-			int day_year = tm_struct->tm_yday;        /* day in the year */
+			int32_t day_year = tm_struct->tm_yday;        /* day in the year */
 			//al_trace("The current day out of the year is: %d\n",day_year);
 			return day_year;
 		}
 		case curDST:
 		{
-			int isDST = tm_struct->tm_isdst;       /* daylight saving time */
+			int32_t isDST = tm_struct->tm_isdst;       /* daylight saving time */
 			//al_trace("The current DSTis: %d\n",isDST);
 			return isDST;
 		}
@@ -35738,7 +35738,7 @@ bool ZModule::init(bool d) //bool default
 		        "Friendly NPC 05", "Friendly NPC 06", "Friendly NPC 07",
 		        "Friendly NPC 08", "Friendly NPC 09", "Friendly NPC 10"
 		};
-		for ( int q = 0; q < eeMAX; q++ )
+		for ( int32_t q = 0; q < eeMAX; q++ )
 		{
 			strcpy(moduledata.enem_type_names[q],get_config_string("ENEMIES",enemy_family_strings[q],default_enemy_types[q]));
 			//al_trace("Enemy family ID %d is: %s\n", q, moduledata.enem_type_names[q]);
@@ -35771,7 +35771,7 @@ bool ZModule::init(bool d) //bool default
 			"ea_bsdod","ea_fly4f4dT","ea_fly_4f4dF","ea_4f","ea_gan",
 			"ea_2fLG"
 		};
-		for ( int q = 0; q < aMAX; q++ )
+		for ( int32_t q = 0; q < aMAX; q++ )
 		{
 			strcpy(moduledata.enem_anim_type_names[q],get_config_string("ENEMIES",enemy_anim_strings[q],default_enemy_anims[q]));
 			//al_trace("Enemy animation type ID %d is: %s\n", q, moduledata.enem_anim_type_names[q]);
@@ -35840,7 +35840,7 @@ bool ZModule::init(bool d) //bool default
 			"ic_486","ic_487","ic_488","ic_489","ic_490","ic_491","ic_492","ic_493","ic_494","ic_495","ic_496","ic_497","ic_498","ic_499","ic_500","ic_501","ic_502","ic_503","ic_504",
 			"ic_505","ic_506","ic_507","ic_508","ic_509","ic_511"
 		};
-		for ( int q = 0; q < itype_max; q++ )
+		for ( int32_t q = 0; q < itype_max; q++ )
 		{
 			strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
 			//al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
@@ -35903,7 +35903,7 @@ bool ZModule::init(bool d) //bool default
 			"Switch", "Switch Block", "Lantern"
 		};
 		
-		for ( int q = 0; q < cMAX; q++ )
+		for ( int32_t q = 0; q < cMAX; q++ )
 		{
 			strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],default_ctype_strings[q]));
 		}
@@ -35958,7 +35958,7 @@ bool ZModule::init(bool d) //bool default
 		    "240 mf240","241 mf241","242 mf242","243 mf243","244 mf244","245 mf245","246 mf246","247 mf247","248 mf248","249 mf249",    "250 mf250","251 mf251","252 mf252","253 mf253","254 mf254",
 		    "255 Extended (Extended Flag Editor)"
 		};
-		for ( int q = 0; q < mfMAX; q++ )
+		for ( int32_t q = 0; q < mfMAX; q++ )
 		{
 			strcpy(moduledata.combo_flag_names[q],get_config_string("MAPFLAGS",map_flag_cats[q],map_flag_default_string[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.combo_flag_names[q]);
@@ -35976,7 +35976,7 @@ bool ZModule::init(bool d) //bool default
 		    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
 		    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
 		};
-		for ( int q = 0; q < rMAX; q++ )
+		for ( int32_t q = 0; q < rMAX; q++ )
 		{
 			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
@@ -35991,7 +35991,7 @@ bool ZModule::init(bool d) //bool default
 		{
 			"wsNormal","wsCharge","wsHopSplit","wsHop","wsStatue"
 		};
-		for ( int q = 0; q < e9tARMOS+1; q++ )
+		for ( int32_t q = 0; q < e9tARMOS+1; q++ )
 		{
 			strcpy(moduledata.walkmisc9_names[q],get_config_string("ENEMYWALKSTYLE",enemy_walk_style_cats[q],enemy_walk_type_defaults[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.walkmisc9_names[q]);
@@ -36008,7 +36008,7 @@ bool ZModule::init(bool d) //bool default
 			"(None)","Abei","Ama","Merchant","Moblin","Fire",
 			"Fairy","Goriya","Zelda","Abei 2","Empty"
 		};
-		for ( int q = 0; q < gDUMMY1; q++ )
+		for ( int32_t q = 0; q < gDUMMY1; q++ )
 		{
 			strcpy(moduledata.guy_type_names[q],get_config_string("GUYS",guy_types[q],guy_default_names[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.guy_type_names[q]);
@@ -36058,7 +36058,7 @@ bool ZModule::init(bool d) //bool default
 			"Fireball (Rising)"
 		};
 		
-		for ( int q = 0; q < sizeof(enemy_weapon_default_names)/255; q++ )
+		for ( int32_t q = 0; q < sizeof(enemy_weapon_default_names)/255; q++ )
 		{
 			strcpy(moduledata.enemy_weapon_names[q],get_config_string("EWEAPONS",enemy_weapon_cats[q],enemy_weapon_default_names[q]));
 			//al_trace("EWeapon ID %d is: %s\n", q, moduledata.enemy_weapon_names[q]);
@@ -36094,7 +36094,7 @@ bool ZModule::init(bool d) //bool default
 			"Cane of Byrna","Reflected Sword Beam", "-Stomp","-lwmax","Script1", "Script2", "Script3", 
 			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice"
 		};
-		for ( int q = 0; q < wIce+1; q++ )
+		for ( int32_t q = 0; q < wIce+1; q++ )
 		{
 			strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? get_config_string("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
@@ -36108,24 +36108,24 @@ bool ZModule::init(bool d) //bool default
 			"crCUSTOM20","crCUSTOM21","crCUSTOM22","crCUSTOM23","crCUSTOM24","crCUSTOM25"
 		};
 
-		for ( int q = 0; q < 20; q++ )
+		for ( int32_t q = 0; q < 20; q++ )
 		{
-			for ( int w = 0; w < 4; w++ )
+			for ( int32_t w = 0; w < 4; w++ )
 				strcpy(moduledata.combotypeCustomAttributes[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttributeTypes[q][w],defaultCustomComboAttributes[q][w]));
 		}
-		for ( int q = 0; q < 20; q++ )
+		for ( int32_t q = 0; q < 20; q++ )
 		{
-			for ( int w = 0; w < 8; w++ )
+			for ( int32_t w = 0; w < 8; w++ )
 				strcpy(moduledata.combotypeCustomAttribytes[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttribyteTypes[q][w],defaultCustomComboAttribytes[q][w]));
 		}
-		for ( int q = 0; q < 20; q++ )
+		for ( int32_t q = 0; q < 20; q++ )
 		{
-			for ( int w = 0; w < 8; w++ )
+			for ( int32_t w = 0; w < 8; w++ )
 				strcpy(moduledata.combotypeCustomAttrishorts[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttrishortTypes[q][w],defaultCustomComboAttrishorts[q][w]));
 		}
-		for ( int q = 0; q < 20; q++ )
+		for ( int32_t q = 0; q < 20; q++ )
 		{
-			for ( int e = 0; e < 16; e++ )
+			for ( int32_t e = 0; e < 16; e++ )
 				strcpy(moduledata.combotypeCustomFlags[q][e],get_config_string("CUSTOMCOMBOFLAGS",CustomComboAttributeFlags[q][e],defaultCustomComboFlags[q][e]));
 		
 		}
@@ -36140,13 +36140,13 @@ bool ZModule::init(bool d) //bool default
 			"Custom 18","Custom 19","Custom 20","Custom 21","Custom 22"
 			"Custom 23","Custom 24","Custom 25"	
 		};
-		for ( int q = 0; q < 33; q++ )
+		for ( int32_t q = 0; q < 33; q++ )
 		{
 			strcpy(moduledata.counter_names[q],get_config_string("COUNTERS",counter_cats[q],counter_default_names[q]));
 			//al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
 		}
 		
-		for ( int q = 0; q < itype_max*3; q++ )
+		for ( int32_t q = 0; q < itype_max*3; q++ )
 		{
 			char temp_help_str[512];
 			strcpy(temp_help_str,get_config_string("ITEMHELP",itemclass_help_string_cats[q],""));
@@ -36236,7 +36236,7 @@ bool ZModule::load(bool zquest)
 
 /* end */
 
-long FFScript::getQuestHeaderInfo(int type)
+int32_t FFScript::getQuestHeaderInfo(int32_t type)
 {
     return quest_format[type];
 }
@@ -36253,11 +36253,11 @@ void FFScript::user_bitmaps_init()
 void FFScript::user_files_init(){}
 void FFScript::user_dirs_init(){}
 
-void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways){}
+void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, bool requireAlways){}
 
 void FFScript::deallocateAllArrays(){}
 
-bool isSideViewGravity(int t)
+bool isSideViewGravity(int32_t t)
 {
     return (Map.CurrScr()->flags7&fSIDEVIEW) != 0;
 }
@@ -36288,7 +36288,7 @@ void FFScript::ZScriptConsole(bool open)
 
 
 
-void FFScript::ZScriptConsole(int attributes,const char *format,...)
+void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
 {
 	#ifdef _WIN32
 		console_is_open = 1;
@@ -36305,7 +36305,7 @@ void FFScript::ZScriptConsole(int attributes,const char *format,...)
 
 
 
-void FFScript::ZScriptConsolePrint(int attributes,const char *format,...)
+void FFScript::ZScriptConsolePrint(int32_t attributes,const char *format,...)
 {
 	#ifdef _WIN32
 	
@@ -36343,23 +36343,23 @@ void FFScript::ZASMPrintCommand(const word scommand)
 	return;
 }
 
-void FFScript::ZASMPrintVarSet(const long arg, long argval)
+void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
 {
 	//overloaded from class
 	return;
 }
 
-void FFScript::ZASMPrintVarGet(const long arg, long argval)
+void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
 {
 	//overloaded from class
 	return;
 }
 
-int getpitfall(int x, int y){return 0;}
+int32_t getpitfall(int32_t x, int32_t y){return 0;}
 
-int iswaterexzq(int combo, int map, int screen, int layer, int x, int y, bool secrets, bool fullcheck, bool LayerCheck){return 0;}
+int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck){return 0;}
 
-int MAPCOMBOzq(int x, int y){return 0;}
+int32_t MAPCOMBOzq(int32_t x, int32_t y){return 0;}
 
 void zprint(const char * const format,...)
 {
@@ -36404,6 +36404,6 @@ void zprint2(const char * const format,...)
     }
 }
 
-void doDarkroomCircle(int cx, int cy, byte glowRad,BITMAP* dest,BITMAP* transdest){}
-void doDarkroomCone(int sx, int sy, byte glowRad, int dir, BITMAP* dest,BITMAP* transdest){}
+void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* transdest){}
+void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest){}
 

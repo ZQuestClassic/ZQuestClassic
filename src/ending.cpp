@@ -43,19 +43,19 @@ extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 
 namespace
 {
-	const int white = WHITE;
-	const int red   = CSET(csBOSS)+4;
-	const int blue  = CSET(csBOSS)+5;
-	const int green = CSET(csBOSS)+6;
+	const int32_t white = WHITE;
+	const int32_t red   = CSET(csBOSS)+4;
+	const int32_t blue  = CSET(csBOSS)+5;
+	const int32_t green = CSET(csBOSS)+6;
 	
 	struct EndingTextLine
 	{
 		const char* text;
-		int xPos, yPos; // yPos determines when this line appears
-		int color;
+		int32_t xPos, yPos; // yPos determines when this line appears
+		int32_t color;
 	};
 	
-	const int numCreditsLines = 12;
+	const int32_t numCreditsLines = 12;
 	const EndingTextLine credits[]=
 	{
 		{ " STAFF ",                104, 240, white },
@@ -72,7 +72,7 @@ namespace
 		{ "COMPOSER...... KONCHAN", 40,  560, red   }
 	};
 	
-	const int numQuest1EndLines = 4;
+	const int32_t numQuest1EndLines = 4;
 	const EndingTextLine quest1End[]=
 	{
 		{ "ANOTHER QUEST WILL START", 32, 656, white },
@@ -81,7 +81,7 @@ namespace
 		{ "\2731986 NINTENDO",        72, 760, white }
 	};
 	
-	const int numQuest2EndLines = 4;
+	const int32_t numQuest2EndLines = 4;
 	const EndingTextLine quest2End[]=
 	{
 		{ "YOU ARE GREAT.",      72, 768, white },
@@ -91,7 +91,7 @@ namespace
 		{ "\2731986 NINTENDO",   72, 912, blue  }
 	};
 	
-	const int numQuest34EndLines = 6;
+	const int32_t numQuest34EndLines = 6;
 	const EndingTextLine quest34End[]=
 	{
 		{ "YOU ARE GREAT.",            72,  768, white },
@@ -103,7 +103,7 @@ namespace
 		{ "\2731986 NINTENDO",         72,  912, blue  }
 	};
 	
-	const int numCustomQuestEndLines = 6;
+	const int32_t numCustomQuestEndLines = 6;
 	const EndingTextLine customQuestEnd[]=
 	{
 		{ "Congratulations!", 64, 768, white },
@@ -133,12 +133,12 @@ void put_triforce()
 	}
 }
 
-void putendmsg(const char *s,int x,int y,int speed,void(proc)())
+void putendmsg(const char *s,int32_t x,int32_t y,int32_t speed,void(proc)())
 {
-	int i=0;
-	int c=(int)strlen(s)*speed;
+	int32_t i=0;
+	int32_t c=(int32_t)strlen(s)*speed;
 	
-	for(int f=0; f<c && !Quit; f++)
+	for(int32_t f=0; f<c && !Quit; f++)
 	{
 		if((f%speed)==0)
 		{
@@ -154,7 +154,7 @@ void putendmsg(const char *s,int x,int y,int speed,void(proc)())
 	}
 }
 
-void brick(int x,int y)
+void brick(int32_t x,int32_t y)
 {
 	blit(scrollbuf,scrollbuf,256,0,x,y,8,8);
 }
@@ -236,7 +236,7 @@ void ending()
 	//draw_screen_clip_rect_show_link=true;
 	//draw_screen_clip_rect_show_guys=false;
 	
-	for(int f=0; f<365; f++)
+	for(int32_t f=0; f<365; f++)
 	{
 	script_drawing_commands.Clear();
 	if ( link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  ) 
@@ -251,7 +251,7 @@ void ending()
 			QMisc.colors.link_dot = 255;
 			show_subscreen_items = false;
 			
-			for(int i = guys.Count() - 1; i >= 0; i--)
+			for(int32_t i = guys.Count() - 1; i >= 0; i--)
 			{
 				if(guys.spr(i)->id > gDUMMY9)
 				{
@@ -284,12 +284,12 @@ void ending()
 	advanceframe(true);
 	
 	const EndingTextLine* endText;
-	int numEndTextLines=0;
-	int deathsYPos=-1;
-	int timeYPos=-1;
-	int len=600*2;
-	int creditsLine=0;
-	int endTextLine=0;
+	int32_t numEndTextLines=0;
+	int32_t deathsYPos=-1;
+	int32_t timeYPos=-1;
+	int32_t len=600*2;
+	int32_t creditsLine=0;
+	int32_t endTextLine=0;
 	
 	
 	if ( FFCore.skip_ending_credits ) goto credits_skip;
@@ -300,14 +300,14 @@ void ending()
 	
 	char tmpmsg[6][25];
 	
-	for(int x=0; x<3; x++)
+	for(int32_t x=0; x<3; x++)
 	{
 		sprintf(tmpmsg[x], "%.24s", MsgStrings[QMisc.endstring].s+(24*x));
 		//    sprintf(tmpmsg[x], "%.24s", MsgStrings[QMisc.endstring].s+(24*x));
 		//    strncpy(tmpmsg[x], MsgStrings[QMisc.endstring].s+(24*x), 24);
 	}
 	
-	for(int x=0; x<3; x++)
+	for(int32_t x=0; x<3; x++)
 	{
 		sprintf(tmpmsg[x+3], "%.24s", MsgStrings[QMisc.endstring+1].s+(24*x));
 		//    strncpy(tmpmsg[x+3], MsgStrings[QMisc.endstring+1].s+(24*x), 24);
@@ -325,7 +325,7 @@ void ending()
 		putendmsg(tmpmsg[2],32,112,6,noproc);
 	}
 	
-	for(int f=408; f<927; f++)
+	for(int32_t f=408; f<927; f++)
 	{
 		//Z_scripterrlog("f = %d and link_doscript = %d\n", f, link_doscript);
 		//if ( link_doscript ) ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
@@ -361,9 +361,9 @@ void ending()
 		{
 			blit(framebuf,scrollbuf,0,playing_field_offset!=0?168:0,0,0,256,passive_subscreen_height);
 			
-			for(int y=0; y<224; y++)
+			for(int32_t y=0; y<224; y++)
 			{
-				for(int x=0; x<256; x++)
+				for(int32_t x=0; x<256; x++)
 				{
 					if(!(framebuf->line[y][x]&15))
 					{
@@ -385,9 +385,9 @@ void ending()
 			blit(scrollbuf,framebuf,0,0,0,playing_field_offset!=0?168:0,256,passive_subscreen_height);
 			try_zcmusic((char*)moduledata.base_NSF_file, moduledata.ending_track, ZC_MIDI_ENDING);
 			
-			for(int y=0; y<224; y++)
+			for(int32_t y=0; y<224; y++)
 			{
-				for(int x=0; x<256; x++)
+				for(int32_t x=0; x<256; x++)
 				{
 					if(framebuf->line[y][x]==16)
 					{
@@ -423,7 +423,7 @@ void ending()
 		putendmsg(tmpmsg[5],32,200,6,noproc);
 	}
 	
-	for(int f=1336; f<1492; f++)
+	for(int32_t f=1336; f<1492; f++)
 	{
 		if(f<1461)
 		{
@@ -483,11 +483,11 @@ void ending()
 		break;
 	}
 	
-	for(int f=0; f<len; f++)
+	for(int32_t f=0; f<len; f++)
 	{
 		if(!(f&15))
 		{
-			int y=(f>>1)+224;
+			int32_t y=(f>>1)+224;
 			
 			if(y>240 && y<584)
 			{
@@ -497,7 +497,7 @@ void ending()
 			
 			if(y==240 || y==584)
 			{
-				for(int x=24; x<=224; x+=8)
+				for(int32_t x=24; x<=224; x+=8)
 				{
 					brick(x,224);
 				}
@@ -597,7 +597,7 @@ void ending()
 	{
 		inc_quest();
 		removeItemsOfFamily(game, itemsbuf, itype_ring);
-		int maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
+		int32_t maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
 		
 		if(maxring != -1)
 		{
@@ -620,19 +620,19 @@ void ending()
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 		digi_volume = FFCore.usr_digi_volume;
-		//master_volume((long)(FFCore.usr_digi_volume),1);
+		//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-		emusic_volume = (long)FFCore.usr_music_volume;
+		emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-		sfx_volume = (long)FFCore.usr_sfx_volume;
+		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-		pan_style = (long)FFCore.usr_panstyle;
+		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	if(zcmusic != NULL)
 	{
@@ -685,7 +685,7 @@ void ending_scripted()
 	//draw_screen_clip_rect_show_link=true;
 	//draw_screen_clip_rect_show_guys=false;
    
-	for(int f=0; f<77; f++)
+	for(int32_t f=0; f<77; f++)
 	{
         
 		if(f>=0 && ((f-0)%5 == 0))
@@ -716,7 +716,7 @@ void ending_scripted()
     
         inc_quest();
         removeItemsOfFamily(game, itemsbuf, itype_ring);
-        int maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
+        int32_t maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
         
         if(maxring != -1)
         {
@@ -735,19 +735,19 @@ void ending_scripted()
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
 		digi_volume = FFCore.usr_digi_volume;
-		//master_volume((long)(FFCore.usr_digi_volume),1);
+		//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-		emusic_volume = (long)FFCore.usr_music_volume;
+		emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-		sfx_volume = (long)FFCore.usr_sfx_volume;
+		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-		pan_style = (long)FFCore.usr_panstyle;
+		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	if(zcmusic != NULL)
 	{
@@ -779,9 +779,9 @@ void inc_quest()
 	strcpy(name,game->get_name());
 	// Go to quest 3 if you got some heart containers,
 	// or quest 4 if you got them all.
-	int quest = game->get_quest(); //Don't leave uninitialised. 
+	int32_t quest = game->get_quest(); //Don't leave uninitialised. 
 	
-	int deaths = game->get_deaths();
+	int32_t deaths = game->get_deaths();
 	
 	if ( moduledata.old_quest_serial_flow || game->get_quest() >= 5 )
 	{

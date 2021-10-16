@@ -18,20 +18,20 @@ namespace ZScript
 	class Scope;
 }
 
-static const int SETTER = 0;
-static const int GETTER = 1;
-static const int FUNCTION = 2;
+static const int32_t SETTER = 0;
+static const int32_t GETTER = 1;
+static const int32_t FUNCTION = 2;
 
 struct AccessorTable
 {
     string name;
-    int rettype;
-    int setorget;
-    int var;
-    int numindex;
-	int funcFlags;
-	int numParams;
-    int params[20];
+    int32_t rettype;
+    int32_t setorget;
+    int32_t var;
+    int32_t numindex;
+	int32_t funcFlags;
+	int32_t numParams;
+    int32_t params[20];
 };
 
 class LibrarySymbols
@@ -45,13 +45,13 @@ public:
 protected:
     AccessorTable *table;
 	LibrarySymbols() : refVar(0), hasPrefixType(true) {}
-    int refVar;
+    int32_t refVar;
 	bool hasPrefixType;
 
-	ZScript::Function* getFunction(string const& name, int numParams) const;
+	ZScript::Function* getFunction(string const& name, int32_t numParams) const;
 
 private:
-	map<std::pair<string, int>, ZScript::Function*> functions;
+	map<std::pair<string, int32_t>, ZScript::Function*> functions;
 	
 	// Generates the code for functions which can't be auto generated.
 	virtual void generateCode() = 0;

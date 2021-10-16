@@ -31,7 +31,7 @@ void InitDataDialog::setOfs(size_t ofs)
 	if(!(_510 || levelsOffset==510)) return;
 	
 	bool vis = levelsOffset!=510;
-	for(int q = 2; q < 10; ++q)
+	for(int32_t q = 2; q < 10; ++q)
 	{
 		l_lab[q]->setVisible(vis);
 		l_maps[q]->setVisible(vis);
@@ -47,7 +47,7 @@ void InitDataDialog::setOfs(size_t ofs)
 #define BYTE_FIELD(member) \
 TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
 	high = 255, val = local_zinit.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_zinit.member = val; \
 	})
@@ -55,7 +55,7 @@ TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
 #define WORD_FIELD(member) \
 TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL, \
 	high = 65535, val = local_zinit.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_zinit.member = val; \
 	})
@@ -75,7 +75,7 @@ Label(text = name, hAlign = 0.0), \
 TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::INT_DECIMAL, \
 	hAlign = 1.0, low = minval, high = maxval, val = local_zinit.member, \
 	width = 4.5_em, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_zinit.member = val; \
 	})
@@ -85,7 +85,7 @@ Label(text = name, hAlign = 0.0), \
 TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL, \
 	hAlign = 1.0, low = minval, high = maxval, val = local_zinit.member, \
 	width = 4.5_em, places = numPlaces, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_zinit.member = val; \
 	})
@@ -120,7 +120,7 @@ Row( \
 		}), \
 	l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
 		val = local_zinit.level_keys[ind+levelsOffset], high = 255, \
-		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val) \
+		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 		{ \
 			local_zinit.level_keys[ind+levelsOffset] = val; \
 		}) \
@@ -158,32 +158,32 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
-	std::map<int, std::vector<int>> families;
+	std::map<int32_t, std::vector<int32_t>> families;
 	icswitcher = Switcher(fitParent = true, hAlign = 0.0, vAlign = 0.0);
 	
-	for(int q = 0; q < MAXITEMS; ++q)
+	for(int32_t q = 0; q < MAXITEMS; ++q)
 	{
-		int family = itemsbuf[q].family;
+		int32_t family = itemsbuf[q].family;
 		
 		if(family == 0x200 || family == itype_triforcepiece || !(itemsbuf[q].flags & ITEM_GAMEDATA))
 		{
 			continue;
 		}
 		
-		std::map<int,std::vector<int> >::iterator it = families.find(family);
+		std::map<int32_t,std::vector<int32_t> >::iterator it = families.find(family);
 		
         if(it == families.end())
         {
-            families[family] = std::vector<int>();
+            families[family] = std::vector<int32_t>();
         }
         
         families[family].push_back(q);
 	}
 	
-	int fam_ind = 0;
-	for(int q = 0; q < itype_max; ++q)
+	int32_t fam_ind = 0;
+	for(int32_t q = 0; q < itype_max; ++q)
 	{
-		std::map<int,std::vector<int> >::iterator it = families.find(q);
+		std::map<int32_t,std::vector<int32_t> >::iterator it = families.find(q);
 		if(it == families.end())
 		{
 			list_items.removeVal(q); //Remove from the lister
@@ -191,9 +191,9 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		}
 		switchids[q] = fam_ind++;
 		std::shared_ptr<GUI::Grid> grid = Columns<10>(fitParent = true,hAlign=0.0,vAlign=0.0);
-		for(std::vector<int>::iterator itid = (*it).second.begin(); itid != (*it).second.end(); ++itid)
+		for(std::vector<int32_t>::iterator itid = (*it).second.begin(); itid != (*it).second.end(); ++itid)
 		{
-			int id = *itid;
+			int32_t id = *itid;
 			std::shared_ptr<GUI::Checkbox> cb = Checkbox(
 				hAlign=0.0,vAlign=0.0,
 				checked = local_zinit.items[id],
@@ -223,7 +223,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						List(minheight = 160_px,
 							data = list_items, isABC = false,
 							selectedIndex = 0,
-							onSelectFunc = [&](int val)
+							onSelectFunc = [&](int32_t val)
 							{
 								icswitcher->switchTo(switchids[val]);
 								broadcast_dialog_message(MSG_DRAW, 0);
@@ -243,7 +243,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								WORD_FIELD(nBombs),
 								TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
 									high = 65535, val = local_zinit.nBombmax,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_zinit.nBombmax = val;
 										sBombMax->setVal(SBOMB_RATIO);
@@ -264,7 +264,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								),
 								TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
 									high = 255, val = local_zinit.bomb_ratio, disabled = isZC,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_zinit.bomb_ratio = val;
 										sBombMax->setVal(SBOMB_RATIO);
@@ -362,7 +362,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Label(text = "Start DMap:"),
 							DropDownList(disabled = isZC, data = list_dmaps,
 								selectedValue = isZC ? 0 : local_zinit.start_dmap,
-								onSelectFunc = [&](int val)
+								onSelectFunc = [&](int32_t val)
 								{
 									local_zinit.start_dmap = val;
 								}
@@ -520,7 +520,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					List(minheight = 300_px,
 						data = list_items, isABC = false,
 						selectedIndex = 0,
-						onSelectFunc = [&](int val)
+						onSelectFunc = [&](int32_t val)
 						{
 							icswitcher->switchTo(switchids[val]);
 							broadcast_dialog_message(MSG_DRAW, 0);
@@ -540,7 +540,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							WORD_FIELD(nBombs),
 							TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
 								high = 65535, val = local_zinit.nBombmax,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_zinit.nBombmax = val;
 									sBombMax->setVal(SBOMB_RATIO);
@@ -561,7 +561,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							),
 							TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
 								high = 255, val = local_zinit.bomb_ratio, disabled = isZC,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int val)
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
 									local_zinit.bomb_ratio = val;
 									sBombMax->setVal(SBOMB_RATIO);
@@ -655,7 +655,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						Label(text = "Start DMap:"),
 						DropDownList(disabled = isZC, data = list_dmaps,
 							selectedValue = local_zinit.start_dmap,
-							onSelectFunc = [&](int val)
+							onSelectFunc = [&](int32_t val)
 							{
 								local_zinit.start_dmap = val;
 							}
@@ -796,7 +796,7 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::LEVEL:
 		{
-			for(int q = 0; q < 10; ++q)
+			for(int32_t q = 0; q < 10; ++q)
 			{
 				if(q+levelsOffset > 511)
 					break;

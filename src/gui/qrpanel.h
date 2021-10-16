@@ -27,10 +27,10 @@ public:
 	template<typename T>
 	RequireMessage<T> onToggle(T m)
 	{
-		message = static_cast<int>(m);
+		message = static_cast<int32_t>(m);
 	}
 private:
-	int message;
+	int32_t message;
 	byte const* init_qrs;
 	size_t qrCount;
 };

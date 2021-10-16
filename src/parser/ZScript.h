@@ -157,7 +157,7 @@ namespace ZScript
 			Program&, Scope&, ScriptType, std::string const& name,
 			CompileErrorHandler* = NULL);
 	
-	optional<int> getLabel(Script const&);
+	optional<int32_t> getLabel(Script const&);
 
 	
 	////////////////////////////////////////////////////////////////
@@ -196,19 +196,19 @@ namespace ZScript
 		DataType const& type;
 
 		// Id for lookup tables.
-		int const id;
+		int32_t const id;
 
 		// Get the data's name.
 		virtual optional<std::string> getName() const {return nullopt;}
 		
 		// Get the value at compile time.
-		virtual optional<long> getCompileTimeValue(bool getinitvalue = false) const {return nullopt;}
+		virtual optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return nullopt;}
 
 		// Get the declaring node.
 		virtual AST* getNode() const {return NULL;}
 		
 		// Get the global register this uses.
-		virtual optional<int> getGlobalId() const {return nullopt;}
+		virtual optional<int32_t> getGlobalId() const {return nullopt;}
 		
 		virtual bool isBuiltIn() const {return false;}
 		
@@ -223,7 +223,7 @@ namespace ZScript
 	bool isGlobal(Datum const& data);
 
 	// Return the stack offset of the value.
-	optional<int> getStackOffset(Datum const&);
+	optional<int32_t> getStackOffset(Datum const&);
 
 	// A literal value that requires memory management.
 	class Literal : public Datum
@@ -251,13 +251,13 @@ namespace ZScript
 
 		optional<std::string> getName() const {return node.name;}
 		ASTDataDecl* getNode() const {return &node;}
-		optional<int> getGlobalId() const {return globalId;}
-		optional<long> getCompileTimeValue(bool getinitvalue = false) const;
+		optional<int32_t> getGlobalId() const {return globalId;}
+		optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const;
 	private:
 		Variable(Scope& scope, ASTDataDecl& node, DataType const& type);
 
 		ASTDataDecl& node;
-		optional<int> globalId;
+		optional<int32_t> globalId;
 	};
 
 	// A compiler generated variable.
@@ -269,7 +269,7 @@ namespace ZScript
 				CompileErrorHandler* = NULL);
 
 		optional<std::string> getName() const {return name;}
-		optional<int> getGlobalId() const {return globalId;}
+		optional<int32_t> getGlobalId() const {return globalId;}
 
 		virtual bool isBuiltIn() const {return true;}
 		
@@ -277,7 +277,7 @@ namespace ZScript
 		BuiltinVariable(Scope&, DataType const&, std::string const& name);
 
 		std::string const name;
-		optional<int> globalId;
+		optional<int32_t> globalId;
 	};
 
 	// An inlined constant.
@@ -285,20 +285,20 @@ namespace ZScript
 	{
 	public:
 		static Constant* create(
-				Scope&, ASTDataDecl&, DataType const&, long value,
+				Scope&, ASTDataDecl&, DataType const&, int32_t value,
 				CompileErrorHandler* = NULL);
 
 		optional<std::string> getName() const;
 
-		optional<long> getCompileTimeValue(bool getinitvalue = false) const {return value;}
+		optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		ASTDataDecl* getNode() const {return &node;}
 	
 	private:
-		Constant(Scope&, ASTDataDecl&, DataType const&, long value);
+		Constant(Scope&, ASTDataDecl&, DataType const&, int32_t value);
 
 		ASTDataDecl& node;
-		long value;
+		int32_t value;
 	};
 
 	// A builtin data value.
@@ -306,20 +306,20 @@ namespace ZScript
 	{
 	public:
 		static BuiltinConstant* create(
-				Scope&, DataType const&, std::string const& name, long value,
+				Scope&, DataType const&, std::string const& name, int32_t value,
 				CompileErrorHandler* = NULL);
 
 		optional<std::string> getName() const {return name;}
-		optional<long> getCompileTimeValue(bool getinitvalue = false) const {return value;}
+		optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		virtual bool isBuiltIn() const {return true;}
 		
 	private:
 		BuiltinConstant(Scope&, DataType const&,
-		                std::string const& name, long value);
+		                std::string const& name, int32_t value);
 
 		std::string name;
-		long value;
+		int32_t value;
 	};
 
 	////////////////////////////////////////////////////////////////
@@ -334,7 +334,7 @@ namespace ZScript
 				std::vector<DataType const*> const& parameterTypes);
 		FunctionSignature(Function const& function);
 
-		int compare(FunctionSignature const& other) const;
+		int32_t compare(FunctionSignature const& other) const;
 		bool operator==(FunctionSignature const& other) const;
 		bool operator<(FunctionSignature const& other) const;
 		std::string asString() const;
@@ -354,7 +354,7 @@ namespace ZScript
 	public:
 		Function(DataType const* returnType, std::string const& name,
 		         std::vector<DataType const*> paramTypes, std::vector<std::string const*> paramNames,
-		         int id, int flags = 0, int internal_flags = 0, bool prototype = false, ASTExprConst* defaultReturn = NULL);
+		         int32_t id, int32_t flags = 0, int32_t internal_flags = 0, bool prototype = false, ASTExprConst* defaultReturn = NULL);
 		~Function();
 		
 		DataType const* returnType;
@@ -362,7 +362,7 @@ namespace ZScript
 		bool hasPrefixType;
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::string const*> paramNames;
-		int id;
+		int32_t id;
 
 		ASTFuncDecl* node;
 		FunctionScope* internalScope;
@@ -382,26 +382,26 @@ namespace ZScript
 		// If this is a script level function, return that script.
 		Script* getScript() const;
 
-		int numParams() const {return paramTypes.size();}
-		int getLabel() const;
-		void setFlag(int flag, bool state = true)
+		int32_t numParams() const {return paramTypes.size();}
+		int32_t getLabel() const;
+		void setFlag(int32_t flag, bool state = true)
 		{
 			if(node) state ? node->flags |= flag : node->flags &= ~flag;
 			state ? flags |= flag : flags &= ~flag;
 		}
-		bool getFlag(int flag) const {return (flags & flag) != 0;}
+		bool getFlag(int32_t flag) const {return (flags & flag) != 0;}
 		
 		bool isInternal() const {return !node;};
 		
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
-		int internal_flags;
+		int32_t internal_flags;
 		bool prototype;
 		ASTExprConst* defaultReturn;
 		
 	private:
-		mutable optional<int> label;
-		int flags;
+		mutable optional<int32_t> label;
+		int32_t flags;
 
 		// Code implementing this function.
 		std::vector<Opcode*> ownedCode;
@@ -412,10 +412,10 @@ namespace ZScript
 	bool isRun(Function const&);
 
 	// Get the size of the function stack.
-	int getStackSize(Function const&);
+	int32_t getStackSize(Function const&);
 
 	// Get the function's parameter count, including "this" if present.
-	int getParameterCount(Function const&);
+	int32_t getParameterCount(Function const&);
 }
 
 #endif

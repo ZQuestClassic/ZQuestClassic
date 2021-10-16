@@ -12,13 +12,13 @@
 class InfoDialog: public GUI::Dialog<InfoDialog>
 {
 public:
-	using message = int;
+	using message = int32_t;
 
 	InfoDialog(std::string title, std::string text);
 	InfoDialog(std::string title, std::vector<std::string_view> lines);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	virtual bool handleMessage(const GUI::DialogMessage<int>& msg);
+	virtual bool handleMessage(const GUI::DialogMessage<int32_t>& msg);
 
 protected:
 	std::string dlgTitle;

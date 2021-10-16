@@ -247,7 +247,7 @@ struct widgetType##Builder                                                      
 
 
 #define ZCGUI_ACCEPT_ONE_CHILD(function)                                                           \
-    template<int counter = 1, typename ChildType, typename... MoreChildrenType>                    \
+    template<int32_t counter = 1, typename ChildType, typename... MoreChildrenType>                    \
     inline void addChildren(ChildType&&, MoreChildrenType&&... moreChildren)                       \
     {                                                                                              \
         using DecayType = typename std::decay_t<ChildType>;                                        \
@@ -259,7 +259,7 @@ struct widgetType##Builder                                                      
         addChildren<counter+1>(std::forward<MoreChildrenType>(moreChildren)...);                   \
     }                                                                                              \
                                                                                                    \
-    template<int counter = 1, typename ChildType>                                                  \
+    template<int32_t counter = 1, typename ChildType>                                                  \
     inline void addChildren(ChildType&& child)                                                     \
     {                                                                                              \
         using DecayType = typename std::decay_t<ChildType>;                                        \
