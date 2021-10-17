@@ -5674,272 +5674,272 @@ bool displayOnMap(int32_t x, int32_t y)
 
 void ViewMap()
 {
-    mapscr tmpscr_b[2];
-    mapscr tmpscr_c[6];
-    
-    for(int32_t i=0; i<6; ++i)
-    {
-        tmpscr_c[i] = tmpscr2[i];
-        tmpscr2[i].zero_memory();
-        
-        if(i>=2)
-        {
-            continue;
-        }
-        
-        tmpscr_b[i] = tmpscr[i];
-        tmpscr[i].zero_memory();
-    }
-    
-    BITMAP* mappic = NULL;
-    static double scales[17] =
-    {
-        0.03125, 0.04419, 0.0625, 0.08839, 0.125, 0.177, 0.25, 0.3535,
-        0.50, 0.707, 1.0, 1.414, 2.0, 2.828, 4.0, 5.657, 8.0
-    };
-    
-    int32_t px = ((8-(currscr&15)) << 9)  - 256;
-    int32_t py = ((4-(currscr>>4)) * 352) - 176;
-    int32_t lx = ((currscr&15)<<8)  + LinkX()+8;
-    int32_t ly = ((currscr>>4)*176) + LinkY()+8;
-    int32_t sc = 6;
-    
-    bool done=false, redraw=true;
-    
-    mappic = create_bitmap_ex(8,(256*16)>>mapres,(176*8)>>mapres);
-    
-    if(!mappic)
-    {
-        system_pal();
-        jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,lfont);
-        game_pal();
-        return;
-    }
-    
-    // draw the map
-    set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
-    
-    for(int32_t y=0; y<8; y++)
-    {
-        for(int32_t x=0; x<16; x++)
-        {
-            if(!displayOnMap(x, y))
-            {
-                rectfill(scrollbuf, 256, 0, 511, 223, WHITE);
-            }
-            else
-            {
-                int32_t s = (y<<4) + x;
-                loadscr2(1,s,-1);
-                
-                for(int32_t i=0; i<6; i++)
-                {
-                    if(tmpscr[1].layermap[i]<=0)
-                        continue;
-                    
-                    if((ZCMaps[tmpscr[1].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
-                       (ZCMaps[tmpscr[1].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
-                    {
-                        const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
-                        
-                        tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
-                        
-                        tmpscr2[i].data.resize(_mapsSize, 0);
-                        tmpscr2[i].sflag.resize(_mapsSize, 0);
-                        tmpscr2[i].cset.resize(_mapsSize, 0);
-                    }
-                }
-                
-                if((tmpscr+1)->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG) do_layer(scrollbuf, 1, tmpscr+1, -256, playing_field_offset, 2);
-                
-                if((tmpscr+1)->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) do_layer(scrollbuf, 2, tmpscr+1, -256, playing_field_offset, 2);
-                
-                putscr(scrollbuf,256,0,tmpscr+1);
-                do_layer(scrollbuf, 0, tmpscr+1, -256, playing_field_offset, 2);
-                
-                if(!(((tmpscr+1)->flags7&fLAYER2BG) || DMaps[currdmap].flags&dmfLAYER2BG) ) do_layer(scrollbuf, 1, tmpscr+1, -256, playing_field_offset, 2);
-                
-                putscrdoors(scrollbuf,256,0,tmpscr+1);
-                do_layer(scrollbuf,-2, tmpscr+1, -256, playing_field_offset, 2);
-                do_layer(scrollbuf,-3, tmpscr+1, -256, playing_field_offset, 2); // Freeform combos!
-                
-                if(!(((tmpscr+1)->flags7&fLAYER3BG) || DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 2, tmpscr+1, -256, playing_field_offset, 2);
-                
-                do_layer(scrollbuf, 3, tmpscr+1, -256, playing_field_offset, 2);
-                do_layer(scrollbuf,-1, tmpscr+1, -256, playing_field_offset, 2);
-                do_layer(scrollbuf, 4, tmpscr+1, -256, playing_field_offset, 2);
-                do_layer(scrollbuf, 5, tmpscr+1, -256, playing_field_offset, 2);
-                
-            }
-            
-            stretch_blit(scrollbuf, mappic, 256, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
-        }
-    }
-    
-    for(int32_t i=0; i<6; ++i)
-    {
-        tmpscr2[i]=tmpscr_c[i];
-        
-        if(i>=2)
-        {
-            continue;
-        }
-        
-        tmpscr[i]=tmpscr_b[i];
-    }
-    
-    
-    clear_keybuf();
-    pause_all_sfx();
-    
-    // view it
-    int32_t delay = 0;
-    static int32_t show  = 3;
-    
-    do
-    {
-        load_control_state();
-        int32_t step = int32_t(16.0/scales[sc]);
-        step = (step>>1) + (step&1);
-        bool r = cRbtn();
-        
-        if(cLbtn())
-        {
-            step <<= 2;
-            delay = 0;
-        }
-        
-        if(r)
-        {
-            if(rUp())
-            {
-                py+=step;
-                redraw=true;
-            }
-            
-            if(rDown())
-            {
-                py-=step;
-                redraw=true;
-            }
-            
-            if(rLeft())
-            {
-                px+=step;
-                redraw=true;
-            }
-            
-            if(rRight())
-            {
-                px-=step;
-                redraw=true;
-            }
-        }
-        else
-        {
-            if(Up())
-            {
-                py+=step;
-                redraw=true;
-            }
-            
-            if(Down())
-            {
-                py-=step;
-                redraw=true;
-            }
-            
-            if(Left())
-            {
-                px+=step;
-                redraw=true;
-            }
-            
-            if(Right())
-            {
-                px-=step;
-                redraw=true;
-            }
-        }
-        
-        if(delay)
-            --delay;
-        else
-        {
-            bool a = cAbtn();
-            bool b = cBbtn();
-            
-            if(a && !b)
-            {
-                sc=zc_min(sc+1,16);
-                delay=8;
-                redraw=true;
-            }
-            
-            if(b && !a)
-            {
-                sc=zc_max(sc-1,0);
-                delay=8;
-                redraw=true;
-            }
-        }
-        
-        if(rPbtn())
-            --show;
-            
-        px = vbound(px,-4096,4096);
-        py = vbound(py,-1408,1408);
-        
-        double scale = scales[sc];
-        
-        if(!redraw)
-        {
-            blit(scrollbuf,framebuf,256,0,0,0,256,224);
-        }
-        else
-        {
-            clear_to_color(framebuf,BLACK);
-            stretch_blit(mappic,framebuf,0,0,mappic->w,mappic->h,
-                         int32_t(256+(px-mappic->w)*scale)/2,int32_t(224+(py-mappic->h)*scale)/2,
-                         int32_t(mappic->w*scale),int32_t(mappic->h*scale));
-                         
-            blit(framebuf,scrollbuf,0,0,256,0,256,224);
-            redraw=false;
-        }
-        
-        int32_t x = int32_t(256+(px-((2048-lx)*2))*scale)/2;
-        int32_t y = int32_t(224+(py-((704-ly)*2))*scale)/2;
-        
-        if(show&1)
-        {
-            line(framebuf,x-7,y-7,x+7,y+7,(frame&3)+252);
-            line(framebuf,x+7,y-7,x-7,y+7,(frame&3)+252);
-        }
-        
-        //    text_mode(BLACK);
-        
-        if(show&2 || r)
-            textprintf_ex(framebuf,font,224,216,WHITE,BLACK,"%1.2f",scale);
-            
-        if(r)
-        {
-            textprintf_ex(framebuf,font,0,208,WHITE,BLACK,"m: %d %d",px,py);
-            textprintf_ex(framebuf,font,0,216,WHITE,BLACK,"x: %d %d",x,y);
-        }
-        
-        //since stuff in here accesses tmpscr and tmpscr2... -DD
-        advanceframe(false, false);
-        
-        
-        if(getInput(btnS, true, false, true)) //rSbtn
-            done = true;
-            
-    }
-    while(!done && !Quit);
-    
-    destroy_bitmap(mappic);
-    
-    resume_all_sfx();
+	mapscr tmpscr_b[2];
+	mapscr tmpscr_c[6];
+	
+	for(int32_t i=0; i<6; ++i)
+	{
+		tmpscr_c[i] = tmpscr2[i];
+		tmpscr2[i].zero_memory();
+		
+		if(i>=2)
+		{
+			continue;
+		}
+		
+		tmpscr_b[i] = tmpscr[i];
+		tmpscr[i].zero_memory();
+	}
+	
+	BITMAP* mappic = NULL;
+	static double scales[17] =
+	{
+		0.03125, 0.04419, 0.0625, 0.08839, 0.125, 0.177, 0.25, 0.3535,
+		0.50, 0.707, 1.0, 1.414, 2.0, 2.828, 4.0, 5.657, 8.0
+	};
+	
+	int32_t px = ((8-(currscr&15)) << 9)  - 256;
+	int32_t py = ((4-(currscr>>4)) * 352) - 176;
+	int32_t lx = ((currscr&15)<<8)  + LinkX()+8;
+	int32_t ly = ((currscr>>4)*176) + LinkY()+8;
+	int32_t sc = 6;
+	
+	bool done=false, redraw=true;
+	
+	mappic = create_bitmap_ex(8,(256*16)>>mapres,(176*8)>>mapres);
+	
+	if(!mappic)
+	{
+		system_pal();
+		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,lfont);
+		game_pal();
+		return;
+	}
+	
+	// draw the map
+	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
+	
+	for(int32_t y=0; y<8; y++)
+	{
+		for(int32_t x=0; x<16; x++)
+		{
+			rectfill(scrollbuf, 256, 0, 511, 223, WHITE);
+			if(displayOnMap(x, y))
+			{
+				int32_t s = (y<<4) + x;
+				tmpscr[1].zero_memory();
+				loadscr2(1,s,-1);
+				if(tmpscr[1].valid&mVALID)
+				{
+					for(int32_t i=0; i<6; i++)
+					{
+						tmpscr2[i].zero_memory();
+						if(tmpscr[1].layermap[i]<=0)
+							continue;
+						
+						if((ZCMaps[tmpscr[1].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
+						   (ZCMaps[tmpscr[1].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+						{
+							const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
+							
+							tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
+							
+							tmpscr2[i].data.resize(_mapsSize, 0);
+							tmpscr2[i].sflag.resize(_mapsSize, 0);
+							tmpscr2[i].cset.resize(_mapsSize, 0);
+						}
+					}
+					
+					if((tmpscr+1)->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG) do_layer(scrollbuf, 1, tmpscr+1, -256, playing_field_offset, 2);
+					
+					if((tmpscr+1)->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) do_layer(scrollbuf, 2, tmpscr+1, -256, playing_field_offset, 2);
+					
+					putscr(scrollbuf,256,0,tmpscr+1);
+					do_layer(scrollbuf, 0, tmpscr+1, -256, playing_field_offset, 2);
+					
+					if(!(((tmpscr+1)->flags7&fLAYER2BG) || DMaps[currdmap].flags&dmfLAYER2BG) ) do_layer(scrollbuf, 1, tmpscr+1, -256, playing_field_offset, 2);
+					
+					putscrdoors(scrollbuf,256,0,tmpscr+1);
+					do_layer(scrollbuf,-2, tmpscr+1, -256, playing_field_offset, 2);
+					do_layer(scrollbuf,-3, tmpscr+1, -256, playing_field_offset, 2); // Freeform combos!
+					
+					if(!(((tmpscr+1)->flags7&fLAYER3BG) || DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 2, tmpscr+1, -256, playing_field_offset, 2);
+					
+					do_layer(scrollbuf, 3, tmpscr+1, -256, playing_field_offset, 2);
+					do_layer(scrollbuf,-1, tmpscr+1, -256, playing_field_offset, 2);
+					do_layer(scrollbuf, 4, tmpscr+1, -256, playing_field_offset, 2);
+					do_layer(scrollbuf, 5, tmpscr+1, -256, playing_field_offset, 2);
+				}
+			}
+			
+			stretch_blit(scrollbuf, mappic, 256, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
+		}
+	}
+	
+	for(int32_t i=0; i<6; ++i)
+	{
+		tmpscr2[i]=tmpscr_c[i];
+		
+		if(i>=2)
+		{
+			continue;
+		}
+		
+		tmpscr[i]=tmpscr_b[i];
+	}
+	
+	
+	clear_keybuf();
+	pause_all_sfx();
+	
+	// view it
+	int32_t delay = 0;
+	static int32_t show  = 3;
+	
+	do
+	{
+		load_control_state();
+		int32_t step = int32_t(16.0/scales[sc]);
+		step = (step>>1) + (step&1);
+		bool r = cRbtn();
+		
+		if(cLbtn())
+		{
+			step <<= 2;
+			delay = 0;
+		}
+		
+		if(r)
+		{
+			if(rUp())
+			{
+				py+=step;
+				redraw=true;
+			}
+			
+			if(rDown())
+			{
+				py-=step;
+				redraw=true;
+			}
+			
+			if(rLeft())
+			{
+				px+=step;
+				redraw=true;
+			}
+			
+			if(rRight())
+			{
+				px-=step;
+				redraw=true;
+			}
+		}
+		else
+		{
+			if(Up())
+			{
+				py+=step;
+				redraw=true;
+			}
+			
+			if(Down())
+			{
+				py-=step;
+				redraw=true;
+			}
+			
+			if(Left())
+			{
+				px+=step;
+				redraw=true;
+			}
+			
+			if(Right())
+			{
+				px-=step;
+				redraw=true;
+			}
+		}
+		
+		if(delay)
+			--delay;
+		else
+		{
+			bool a = cAbtn();
+			bool b = cBbtn();
+			
+			if(a && !b)
+			{
+				sc=zc_min(sc+1,16);
+				delay=8;
+				redraw=true;
+			}
+			
+			if(b && !a)
+			{
+				sc=zc_max(sc-1,0);
+				delay=8;
+				redraw=true;
+			}
+		}
+		
+		if(rPbtn())
+			--show;
+			
+		px = vbound(px,-4096,4096);
+		py = vbound(py,-1408,1408);
+		
+		double scale = scales[sc];
+		
+		if(!redraw)
+		{
+			blit(scrollbuf,framebuf,256,0,0,0,256,224);
+		}
+		else
+		{
+			clear_to_color(framebuf,BLACK);
+			stretch_blit(mappic,framebuf,0,0,mappic->w,mappic->h,
+						 int32_t(256+(px-mappic->w)*scale)/2,int32_t(224+(py-mappic->h)*scale)/2,
+						 int32_t(mappic->w*scale),int32_t(mappic->h*scale));
+						 
+			blit(framebuf,scrollbuf,0,0,256,0,256,224);
+			redraw=false;
+		}
+		
+		int32_t x = int32_t(256+(px-((2048-lx)*2))*scale)/2;
+		int32_t y = int32_t(224+(py-((704-ly)*2))*scale)/2;
+		
+		if(show&1)
+		{
+			line(framebuf,x-7,y-7,x+7,y+7,(frame&3)+252);
+			line(framebuf,x+7,y-7,x-7,y+7,(frame&3)+252);
+		}
+		
+		//    text_mode(BLACK);
+		
+		if(show&2 || r)
+			textprintf_ex(framebuf,font,224,216,WHITE,BLACK,"%1.2f",scale);
+			
+		if(r)
+		{
+			textprintf_ex(framebuf,font,0,208,WHITE,BLACK,"m: %d %d",px,py);
+			textprintf_ex(framebuf,font,0,216,WHITE,BLACK,"x: %d %d",x,y);
+		}
+		
+		//since stuff in here accesses tmpscr and tmpscr2... -DD
+		advanceframe(false, false);
+		
+		
+		if(getInput(btnS, true, false, true)) //rSbtn
+			done = true;
+			
+	}
+	while(!done && !Quit);
+	
+	destroy_bitmap(mappic);
+	
+	resume_all_sfx();
 }
 
 int32_t onViewMap()
