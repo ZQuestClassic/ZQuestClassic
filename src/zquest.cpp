@@ -9761,29 +9761,6 @@ static MENU draw_rc_menu[] =
     { (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
     { (char *)"",                        NULL,  NULL,              0, NULL },
     { (char *)"Screen",                        NULL,  rc_menu_screen,              0, NULL },
-    { (char *)"ZScript",                        NULL,  zscript_menu,              0, NULL },
-    
-    { NULL,                              NULL,  NULL,              0, NULL }
-};
-
-static MENU draw_rc_menu_truncated[] =
-{
-    { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
-    { (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
-    { (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Replace All",             NULL,  NULL,              0, NULL },
-    { (char *)"Draw Block",		       NULL,  draw_block_menu,	0, NULL },
-    { (char *)"Set Brush Width\t ",      NULL,  brush_width_menu,  0, NULL },
-    { (char *)"Set Brush Height\t ",     NULL,  brush_height_menu, 0, NULL },
-    { (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Follow Tile Warp",        NULL,  NULL,              0, NULL },
-    { (char *)"Edit Tile Warp",          NULL,  NULL,              0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
-    { (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
-    { (char *)"Screen",                        NULL,  rc_menu_screen,              0, NULL },
     
     { NULL,                              NULL,  NULL,              0, NULL }
 };
@@ -10998,7 +10975,7 @@ void domouse()
 					draw_rc_menu[11].flags = draw_rc_menu[10].flags = D_DISABLED;
 				}
 				
-				int32_t m = popup_menu(is_large ? draw_rc_menu : draw_rc_menu_truncated,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
+				int32_t m = popup_menu(draw_rc_menu,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
 				
 				switch(m)
 				{
