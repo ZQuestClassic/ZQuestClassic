@@ -41,8 +41,10 @@ void Grid::calculateSize()
 
 	totalRowSpacing = (numRows-1)*rowSpacing;
 	totalColSpacing = (numCols-1)*colSpacing;
-
-	// Get the size of each row
+	
+	std::vector<int32_t> tempRowWidths, tempRowHeights;
+	std::vector<int32_t> tempColWidths, tempColHeights;
+	// Get the size of each row (first pass)
 	for(size_t row = 0; row < numRows; ++row)
 	{
 		int32_t total = totalColSpacing, max = 0;
@@ -56,14 +58,17 @@ void Grid::calculateSize()
 
 			auto child = children[index];
 			child->calculateSize();
-			total += child->getTotalWidth();
-			max = std::max(max, child->getTotalHeight());
+			if(!child->getForceFitWid())
+				total += child->getTotalWidth();
+			
+			if(!child->getForceFitHei())
+				max = std::max(max, child->getTotalHeight());
 		}
-		rowWidths.push_back(total);
-		rowHeights.push_back(max);
+		tempRowWidths.push_back(total);
+		tempRowHeights.push_back(max);
 	}
 
-	// Get the size of each column
+	// Get the size of each column (first pass)
 	for(size_t col = 0; col < numCols; ++col)
 	{
 		int32_t total = totalRowSpacing, max = 0;
@@ -76,8 +81,68 @@ void Grid::calculateSize()
 				break;
 
 			auto child = children[index];
-			max = std::max(max, child->getTotalWidth());
-			total += child->getTotalHeight();
+			
+			if(!child->getForceFitWid())
+				max = std::max(max, child->getTotalWidth());
+			
+			if(!child->getForceFitHei())
+				total += child->getTotalHeight();
+		}
+		tempColWidths.push_back(max);
+		tempColHeights.push_back(total);
+	}
+
+	// Get the size of each row (second pass)
+	for(size_t row = 0; row < numRows; ++row)
+	{
+		int32_t total = totalColSpacing, max = 0;
+		for(size_t col = 0; col < numCols; ++col)
+		{
+			size_t index = growthType == type::ROWS ?
+				row*growthLimit+col :
+				col*growthLimit+row;
+			if(index >= children.size())
+				break;
+
+			auto child = children[index];
+			
+			if(child->getForceFitWid())
+				total += tempColWidths.at(col);
+			else
+				total += child->getTotalWidth();
+			
+			if(child->getForceFitHei())
+				max = std::max(max, tempRowHeights.at(row));
+			else
+				max = std::max(max, child->getTotalHeight());
+		}
+		rowWidths.push_back(total);
+		rowHeights.push_back(max);
+	}
+	
+	// Get the size of each column (second pass)
+	for(size_t col = 0; col < numCols; ++col)
+	{
+		int32_t total = totalRowSpacing, max = 0;
+		for(size_t row = 0; row < numRows; ++row)
+		{
+			size_t index = growthType == type::ROWS ?
+				row*growthLimit+col :
+				col*growthLimit+row;
+			if(index >= children.size())
+				break;
+
+			auto child = children[index];
+			
+			if(child->getForceFitWid())
+				max = std::max(max, tempColWidths.at(col));
+			else
+				max = std::max(max, child->getTotalWidth());
+			
+			if(child->getForceFitHei())
+				total += tempRowHeights.at(row);
+			else
+				total += child->getTotalHeight();
 		}
 		colWidths.push_back(max);
 		colHeights.push_back(total);

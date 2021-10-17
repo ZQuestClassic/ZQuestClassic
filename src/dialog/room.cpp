@@ -150,21 +150,26 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 
 	argLabel = Label(hAlign = 1.0);
 	argSwitcher = Switcher(
+		forceFitW = true,
 		argTF = TextField(
+			fitParent = true,
 			type=  GUI::TextField::type::INT_DECIMAL,
 			maxLength = 6,
 			text = std::to_string(room.argument),
 			hAlign = 0.0,
 			onValueChanged = message::SET_ARGUMENT),
 		itemDD = DropDownList(
+			fitParent = true,
 			data = itemListData,
 			selectedValue = room.argument,
 			onSelectionChanged = message::SET_ARGUMENT),
 		shopDD = DropDownList(
+			fitParent = true,
 			data = shopListData,
 			selectedValue = room.argument,
 			onSelectionChanged = message::SET_ARGUMENT),
 		infoShopDD = DropDownList(
+			fitParent = true,
 			data = infoShopListData,
 			selectedValue = room.argument,
 			onSelectionChanged = message::SET_ARGUMENT)
@@ -188,16 +193,19 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 				Label(text = "Message:", hAlign=1.0),
 
 				DropDownList(
+					fitParent = true,
 					data = roomListData,
 					onSelectionChanged = message::SET_ROOM,
 					selectedValue = room.type,
 					focused = true),
 				argSwitcher,
 				DropDownList(
+					fitParent = true,
 					data = guyListData,
 					onSelectionChanged = message::SET_GUY,
 					selectedValue = room.guy),
 				DropDownList(
+					forceFitW = true,
 					data = stringListData,
 					onSelectionChanged = message::SET_STRING,
 					selectedValue = room.string),

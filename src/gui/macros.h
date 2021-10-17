@@ -172,6 +172,8 @@ struct widgetType##Builder                                                      
     ZCGUI_ACCEPT_PROP(focused, setFocused, bool)                                                   \
     ZCGUI_ACCEPT_PROP(framed, setFramed, bool)                                                     \
     ZCGUI_ACCEPT_PROP(fitParent, setFitParent, bool)                                               \
+    ZCGUI_ACCEPT_PROP(forceFitW, setForceFitWid, bool)                                             \
+    ZCGUI_ACCEPT_PROP(forceFitH, setForceFitHei, bool)                                             \
     ZCGUI_ACCEPT_PROP(disabled, setDisabled, bool)                                                 \
     ZCGUI_ACCEPT_PROP(useFont, setFont, FONT*)                                                     \
     ZCGUI_ACCEPT_PROP(frameText, setFrameText, std::string const&)                                 \

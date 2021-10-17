@@ -244,6 +244,22 @@ public:
 		return flags&f_FIT_PARENT;
 	}
 	
+	/* If true, widget will fit the parent exactly,
+	 * and will not be accounted for when sizing grids
+	 */
+	void setForceFitWid(bool fit) noexcept;
+	void setForceFitHei(bool fit) noexcept;
+
+	/* Returns true if this widget should forcibly fit it's parent. */
+	inline bool getForceFitWid() const noexcept
+	{
+		return flags&f_FORCE_FIT_W;
+	}
+	inline bool getForceFitHei() const noexcept
+	{
+		return flags&f_FORCE_FIT_H;
+	}
+	
 	//Sets the text that appears inside the frame, if framed
 	void setFrameText(std::string const& newstr);
 	
@@ -310,18 +326,20 @@ protected:
 private:
 	enum
 	{
-		f_WIDTH_OVERRIDDEN =  0b0000001,
-		f_HEIGHT_OVERRIDDEN = 0b0000010,
-		f_INVISIBLE =         0b0000100,
-		f_FOCUSED =           0b0001000,
-		f_DISABLED =          0b0010000,
-		f_FRAMED =            0b0100000,
-		f_FIT_PARENT =        0b1000000,
+		f_WIDTH_OVERRIDDEN =  0b000000001,
+		f_HEIGHT_OVERRIDDEN = 0b000000010,
+		f_INVISIBLE =         0b000000100,
+		f_FOCUSED =           0b000001000,
+		f_DISABLED =          0b000010000,
+		f_FRAMED =            0b000100000,
+		f_FIT_PARENT =        0b001000000,
+		f_FORCE_FIT_W =       0b010000000,
+		f_FORCE_FIT_H =       0b100000000
 	};
 
 	int32_t width, height, maxwidth, maxheight, minwidth, minheight;
 	DialogRunner *owner;
-	uint8_t flags: 7;
+	uint16_t flags : 9;
 
 	/* The number of containers hiding this widget. Shouldn't be too many,
 	 * but there might be, say, a switcher in nested tab containers.
