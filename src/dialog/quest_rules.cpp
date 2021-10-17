@@ -152,7 +152,7 @@ static const GUI::ListData itemRulesList
 	{ "'Hearts Required' Affects Non-Special Items", qr_HEARTSREQUIREDFIX },
 	{ "Big Triforce Pieces", qr_4TRI },
 	{ "3 or 6 Triforce Total", qr_3TRI },
-	{ "Triforce Doesn't Remove Sword Jinxes", qr_NONBUBBLETRIFORCE },
+	{ "Fairy Combos Don't Remove Sword Jinxes", qr_NONBUBBLEFAIRIES },
 	{ "Fairy Combos Remove Item Jinxes", qr_ITEMBUBBLE },
 	{ "Broken Magic Book Costs", qr_BROKENBOOKCOST },
 	{ "Reroll Useless Drops", qr_SMARTDROPS },
