@@ -1443,37 +1443,39 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
         masked_blit(mouse_bmp_1x[i][0],screen2,0,0,tool_buttons_left+(column*23)+3+(tool==(i-MOUSE_BMP_SWORD)?1:0),tool_buttons_top+3+(row*23)+(tool==(i-MOUSE_BMP_SWORD)?1:0),16,16);
     }
     
-    //coordinates
-//  if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158))
-//  if(isinRect(gui_mouse_x(),gui_mouse_y(),zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2)) //inside the zoomed tile window
-    {
-//    int32_t temp_x=(gui_mouse_x()-80)/8;
-//    int32_t temp_y=(gui_mouse_y()-32)/8;
-//    int32_t temp_x=(gui_mouse_x()-zoom_tile_x)/(zoom_tile_scale/zoom_tile_size);
-//    int32_t temp_y=(gui_mouse_y()-zoom_tile_y)/(zoom_tile_scale/zoom_tile_size);
-        int32_t temp_x=zoom_tile_size*(gui_mouse_x()-zoom_tile_x)/zoom_tile_scale;
-        int32_t temp_y=zoom_tile_size*(gui_mouse_y()-zoom_tile_y)/zoom_tile_scale;
-        
-//  if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158))
-        if((temp_x>=0&&temp_x<=(16*zoom_tile_size)-1)&&(temp_y>=0&&temp_y<=(16*zoom_tile_size)-1))
-        {
-            textprintf_ex(screen2,font,status_info_x,status_info_y+24,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"x: %d",temp_x);
-            textprintf_ex(screen2,font,status_info_x+40,status_info_y+24,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"y: %d",temp_y);
-            unpack_tile(newtilebuf, tile, 0, false);
-            byte *si = unpackbuf;
-            si+=(temp_y*16+temp_x);
-            get_palette(tpal);
-            
-            if(newtilebuf[tile].format<=tf4Bit)
-            {
-                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d) (0x%X)",tpal[CSET(cs)+(*si)].r,tpal[CSET(cs)+(*si)].g,tpal[CSET(cs)+(*si)].b,*si,*si);
-            }
-            else
-            {
-                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d) (0x%02X)",tpal[(*si)].r,tpal[(*si)].g,tpal[(*si)].b,*si,*si);
-            }
-        }
-    }
+	//coordinates
+	//if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158))
+	//if(isinRect(gui_mouse_x(),gui_mouse_y(),zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2)) //inside the zoomed tile window
+	{
+		//int32_t temp_x=(gui_mouse_x()-80)/8;
+		//int32_t temp_y=(gui_mouse_y()-32)/8;
+		//int32_t temp_x=(gui_mouse_x()-zoom_tile_x)/(zoom_tile_scale/zoom_tile_size);
+		//int32_t temp_y=(gui_mouse_y()-zoom_tile_y)/(zoom_tile_scale/zoom_tile_size);
+		int32_t temp_x=zoom_tile_size*(gui_mouse_x()-zoom_tile_x)/zoom_tile_scale;
+		int32_t temp_y=zoom_tile_size*(gui_mouse_y()-zoom_tile_y)/zoom_tile_scale;
+		
+		//if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158))
+		if((temp_x>=0&&temp_x<=(16*zoom_tile_size)-1)&&(temp_y>=0&&temp_y<=(16*zoom_tile_size)-1))
+		{
+			textprintf_ex(screen2,font,status_info_x,status_info_y+24,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"x: %d",temp_x);
+			textprintf_ex(screen2,font,status_info_x+40,status_info_y+24,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"y: %d",temp_y);
+			unpack_tile(newtilebuf, tile, 0, false);
+			byte *si = unpackbuf;
+			si+=(temp_y*16+temp_x);
+			get_palette(tpal);
+			char separator = is_large ? ' ' : '\n';
+			char buf[256] = {0};
+			if(newtilebuf[tile].format<=tf4Bit)
+			{
+				sprintf(buf, "%02d %02d %02d %c(%d) (0x%02X)",tpal[CSET(cs)+(*si)].r,tpal[CSET(cs)+(*si)].g,tpal[CSET(cs)+(*si)].b,separator,*si,(*si)+(0x10*cs));
+			}
+			else
+			{
+				sprintf(buf, "%02d %02d %02d %c(%d) (0x%02X)",tpal[(*si)].r,tpal[(*si)].g,tpal[(*si)].b,separator,*si,*si);
+			}
+			gui_textout_ln(screen2,font,(unsigned char*)buf,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+		}
+	}
     
     custom_vsync();
     scare_mouse();
