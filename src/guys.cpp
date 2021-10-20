@@ -26,6 +26,7 @@
 #include "zscriptversion.h"
 #include "particles.h"
 #include "enemy/hive.h"
+#include "enemy/land_worm.h"
 #include "enemy/mage_floating.h"
 #include "enemy/mage_teleporting.h"
 #include "enemy/spin_tile.h"
@@ -3740,12 +3741,15 @@ int enemy::defendNew(int wpnId, int *power, int edef, byte unblockable) //May ne
 				
 				case eeLANM:
 				{
-				enemy *e = new eLanmola(x,y,new_id,zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)));
-				guys.add(e);
-					e->x = x;
-					e->y = y;
+                    int numEnemies = LandWorm::numSegments(guysbuf[new_id&0xFFF])+1;
+                    if(!guys.has_space(numEnemies))
+                        return 0;
+                    enemy *e = new LandWorm(x, y, new_id&0xFFF);
+                    guys.add(e);
+                    e->x = x;
+                    e->y = y;
+                    break;
 				}
-				break;
 				
 				case eeGANON:
 				{
@@ -4021,36 +4025,13 @@ int enemy::defendNew(int wpnId, int *power, int edef, byte unblockable) //May ne
 				
 				case eeLANM:
 				{
-				new_id &= 0xFFF;
-				int shft = guysbuf[new_id].misc2;
-				byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
-				
-				if(!guys.add(new esLanmola((zfix)x,(zfix)y,new_id+0x1000,0)))
-				{
-					al_trace("Lanmola segment 1 could not be created!\n");
-					guys.del(guys.Count()-1);
-					return 0;
+					new_id &= 0xFFF;
+					int numSegments = LandWorm::numSegments(guysbuf[new_id]);
+					auto* landWorm = (LandWorm*)guys.spr(guys.Count()-1);
+					for(int i = 0; i < numSegments; ++i)
+						guys.add(landWorm->createSegment());
+					break;
 				}
-				
-				
-				
-				for(int i=1; i<zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)); i++)
-				{
-					if(!guys.add(new esLanmola((zfix)x,(zfix)y,new_id+0x2000,-(i<<shft))))
-					{
-					al_trace("Lanmola segment %d could not be created!\n",i+1);
-					
-					for(int j=0; j<i+1; j++)
-						guys.del(guys.Count()-1);
-						
-					return 0;
-					}
-					
-					((enemy*)guys.spr(guys.Count()-1))->item_set=is;
-					
-				}
-				}
-				break;
 				
 				case eeMANHAN:
 				new_id &= 0xFFF;
@@ -14671,351 +14652,6 @@ void esMoldorm::draw(BITMAP *dest)
 		enemy::draw(dest);
 }
 
-eLanmola::eLanmola(zfix X,zfix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
-{
-	if( !(editorflags & ENEMY_FLAG5) )
-	{
-		x=64;
-		y=80;
-	}
-	//else { x = X; y = Y; }
-	//zprint2("lanmola index is %d\n", index);
-	//byte legaldirs = 0;
-	int incr = 16;
-	//int possiiblepos = 0;
-	//int positions[8] = {0};
-	
-	//Don't spawn in pits. 
-	if ( m_walkflag_simple(x, y) )
-	{
-		//zprint2("Can't spawn here.\n");
-		for ( ; incr < 240; incr += 16 )
-		{
-			//move if we spawn over a pit
-			//check each direction
-			if ( !m_walkflag_simple(x-incr, y) ) //legaldirs |= 0x1; //left
-			{
-				//zprint2("Spawn adjustment: -x (%d)\n", incr);
-				x-=incr; break;
-			}
-			else if ( !m_walkflag_simple(x+incr, y) ) //legaldirs |= 0x2; //right
-			{
-				//zprint2("Spawn adjustment: +x (%d)\n", incr);
-				x+=incr; break;
-			}
-			else if ( !m_walkflag_simple(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
-			{
-				//zprint2("Spawn adjustment: -x (%d), -y (%d)\n", incr, incr);
-				x-=incr; y-=incr; break;
-			}
-			else if ( !m_walkflag_simple(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
-			{
-				//zprint2("Spawn adjustment: +x (%d), -y (%d)\n", incr, incr);
-				x+=incr; y-=incr; break;
-			}
-			else if ( !m_walkflag_simple(x, y-incr) ) // legaldirs |= 0x10; //up
-			{
-				//zprint2("Spawn adjustment: -y (%d)\n", incr);
-				y -= incr; break;
-			}
-			else if ( !m_walkflag_simple(x, y+incr) ) //legaldirs |= 0x20; //down
-			{
-				//zprint2("Spawn adjustment: +y (%d)\n", incr);
-				y+=incr; break;
-			}
-			else if ( !m_walkflag_simple(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
-			{
-				//zprint2("Spawn adjustment: -x (%d), +y (%d)\n", incr, incr);
-				x-=incr; y+=incr; break;
-			}
-			else if ( !m_walkflag_simple(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
-			{
-				//zprint2("Spawn adjustment: +x (%d), +y (%d)\n", incr, incr);
-				x+=incr; y+=incr; break;
-			}
-			else continue;
-			
-		}
-		
-	}
-	
-	dir=up;
-	superman=1;
-	fading=fade_invisible;
-	hxofs=1000;
-	segcnt=clk;
-	clk=0;
-	//set up move history
-	for(int i=0; i <= (1<<dmisc2); i++)
-		prevState.push_back(std::pair<std::pair<zfix, zfix>, int>(std::pair<zfix,zfix>(x,y), dir));
-}
-
-bool eLanmola::animate(int index)
-{
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	if(clk2)
-	{
-		if(--clk2 == 0)
-		{
-		if(!dmisc3 || ( FFCore.getQuestHeaderInfo(vZelda) >= 0x210 && FFCore.emulation[emuITEMPERSEG]) )
-				leave_item();
-				
-			stop_bgsfx(index);
-			return true;
-		}
-		
-		return false;
-	}
-	
-	
-	//this animation style plays ALL KINDS of havoc on the Lanmola segments, since it causes
-	//the direction AND x,y position of the lanmola to vary in uncertain ways.
-	//I've added a complete movement history to this enemy to compensate -DD
-	constant_walk(rate,homing,spw_none);
-	prevState.pop_front();
-	prevState.push_front(std::pair<std::pair<zfix, zfix>, int>(std::pair<zfix, zfix>(x,y), dir));
-	
-	// This could cause a crash with Moldorms. I didn't see the same problem
-	// with Lanmolas, but it looks like it ought to be possible, so here's
-	// the same solution. - Saf
-	if(index+segcnt>=guys.Count())
-		segcnt=guys.Count()-index-1;
-	
-	for(int i=index+1; i<index+segcnt+1; i++)
-	{
-		enemy* segment=((enemy*)guys.spr(i));
-		
-		// More validation in case segcnt is wrong
-		if((segment->id&0xFFF)!=(id&0xFFF))
-		{
-			segcnt=i-index-1;
-			break;
-		}
-		
-		segment->o_tile=o_tile;
-		segment->parent_script_UID = this->script_UID;
-		if((i==index+segcnt)&&(i!=index+1))
-		{
-			segment->dummy_int[1]=1;                //tail
-		}
-		else
-		{
-			segment->dummy_int[1]=0;
-		}
-		
-		if(segment->hp <= 0)
-		{
-			for(int j=i; j<index+segcnt; j++)
-			{
-				// Triple-check
-				if((((enemy*)guys.spr(j+1))->id&0xFFF)!=(id&0xFFF))
-				{
-					segcnt=j-index+1; // Add 1 because of --segcnt below
-					break;
-				}
-				zc_swap(((enemy*)guys.spr(j))->hp,((enemy*)guys.spr(j+1))->hp);
-				zc_swap(((enemy*)guys.spr(j))->hclk,((enemy*)guys.spr(j+1))->hclk);
-			}
-			
-			((enemy*)guys.spr(i))->hclk=33;
-			--segcnt;
-			--i; // Recheck the same index in case multiple segments died at once
-		}
-	}
-	
-	if(segcnt==0)
-	{
-		clk2=19;
-		x=guys.spr(index+1)->x;
-		y=guys.spr(index+1)->y;
-		setmapflag(mTMPNORET);
-	}
-	
-	//this enemy is invincible.. BUT scripts don't know that, and can "kill" it by setting the hp negative.
-	//which is... disastrous.
-	hp = 1;
-	return enemy::animate(index);
-}
-
-esLanmola::esLanmola(zfix X,zfix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
-{
-	if( !(editorflags & ENEMY_FLAG5) )
-	{
-		x=64;
-		y=80;
-	}
-	int incr = 16;
-	//Don't spawn in pits. 
-	if ( m_walkflag_simple(x, y) )
-	{
-		//zprint2("Can't spawn here.\n");
-		for ( ; incr < 240; incr += 16 )
-		{
-			//move if we spawn over a pit
-			//check each direction
-			if ( !m_walkflag_simple(x-incr, y) ) //legaldirs |= 0x1; //left
-			{
-				//zprint2("Spawn adjustment: -x (%d)\n", incr);
-				x-=incr; break;
-			}
-			else if ( !m_walkflag_simple(x+incr, y) ) //legaldirs |= 0x2; //right
-			{
-				//zprint2("Spawn adjustment: +x (%d)\n", incr);
-				x+=incr; break;
-			}
-			else if ( !m_walkflag_simple(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
-			{
-				//zprint2("Spawn adjustment: -x (%d), -y (%d)\n", incr, incr);
-				x-=incr; y-=incr; break;
-			}
-			else if ( !m_walkflag_simple(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
-			{
-				//zprint2("Spawn adjustment: +x (%d), -y (%d)\n", incr, incr);
-				x+=incr; y-=incr; break;
-			}
-			else if ( !m_walkflag_simple(x, y-incr) ) // legaldirs |= 0x10; //up
-			{
-				//zprint2("Spawn adjustment: -y (%d)\n", incr);
-				y -= incr; break;
-			}
-			else if ( !m_walkflag_simple(x, y+incr) ) //legaldirs |= 0x20; //down
-			{
-				//zprint2("Spawn adjustment: +y (%d)\n", incr);
-				y+=incr; break;
-			}
-			else if ( !m_walkflag_simple(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
-			{
-				//zprint2("Spawn adjustment: -x (%d), +y (%d)\n", incr, incr);
-				x-=incr; y+=incr; break;
-			}
-			else if ( !m_walkflag_simple(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
-			{
-				//zprint2("Spawn adjustment: +x (%d), +y (%d)\n", incr, incr);
-				x+=incr; y+=incr; break;
-			}
-			else continue;
-			
-		}
-		
-	}
-	
-	hxofs=1000;
-	hxsz=8;
-	mainguy=false;
-	count_enemy=(id<0x2000)?true:false;
-	
-	//set up move history
-	for(int i=0; i <= (1<<dmisc2); i++)
-		prevState.push_back(std::pair<std::pair<zfix, zfix>, int>(std::pair<zfix,zfix>(x,y), dir));
-		
-	bgsfx = -1;
-	isCore = false;
-	flags&=~guy_neverret;
-}
-
-bool esLanmola::animate(int index)
-{
-	// Shouldn't be possible, but who knows
-	if(index==0)
-		dying=true;
-	
-	if(dying)
-	{
-		xofs=0;
-		
-		if(!dmisc3)
-			item_set=0;
-			
-		return Dead(index);
-	}
-	
-	if(clk>=0)
-	{
-		hxofs=4;
-		
-		if(!watch)
-		{
-			std::pair<std::pair<zfix, zfix>, int> newstate = ((eBaseLanmola*)guys.spr(index-1))->prevState.front();
-			prevState.pop_front();
-			prevState.push_back(newstate);
-			x = newstate.first.first;
-			y = newstate.first.second;
-			dir = newstate.second;
-		}
-	}
-	
-	return enemy::animate(index);
-}
-
-int esLanmola::takehit(weapon *w)
-{
-	if(enemy::takehit(w))
-		return (w->id==wSBomb) ? 1 : 2;                         // force it to wait a frame before checking sword attacks again
-		
-	return 0;
-}
-
-void esLanmola::draw(BITMAP *dest)
-{
-	tile=o_tile;
-	int fdiv = frate/4;
-	int efrate = fdiv == 0 ? 0 : clk/fdiv;
-	
-	int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
-		   efrate:((clk>=(frate>>1))?1:0);
-		   
-	if(get_bit(quest_rules,qr_NEWENEMYTILES))
-	{
-		if(id>=0x2000)
-		{
-			tile+=20;
-			
-			if(dummy_int[1]==1)
-			{
-				tile+=20;
-			}
-		}
-		
-		switch(dir)
-		{
-		case up:
-			flip=0;
-			break;
-			
-		case down:
-			flip=0;
-			tile+=4;
-			break;
-			
-		case left:
-			flip=0;
-			tile+=8;
-			break;
-			
-		case right:
-			flip=0;
-			tile+=12;
-			break;
-		}
-		
-		tile+=f2;
-	}
-	else
-	{
-		if(id>=0x2000)
-		{
-			tile+=1;
-		}
-	}
-	
-	if(clk>=0)
-		enemy::draw(dest);
-}
-
 eManhandla::eManhandla(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 {
 	//these are here to bypass compiler warnings about unused arguments
@@ -16364,8 +16000,13 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 		break;
 		
 	case eeLANM:
-		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)));
+	{
+        int numEnemies = LandWorm::numSegments(guysbuf[id&0xFFF])+1;
+        if(!guys.has_space(numEnemies))
+            return 0;
+        enemy *e = new LandWorm((zfix)x, (zfix)y, id&0xFFF);
 		break;
+	}
 		
 	case eeGANON:
 		e = new eGanon((zfix)x,(zfix)y,id,clk);
@@ -16600,36 +16241,13 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 	
 	case eeLANM:
 	{
-		id &= 0xFFF;
-		int shft = guysbuf[id].misc2;
-		byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
-		
-		if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x1000,0)))
-		{
-			al_trace("Lanmola segment 1 could not be created!\n");
-			guys.del(guys.Count()-1);
-			return 0;
-		}
-		
-		ret++;
-		
-		for(int i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)); i++)
-		{
-			if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x2000,-(i<<shft))))
-			{
-				al_trace("Lanmola segment %d could not be created!\n",i+1);
-				
-				for(int j=0; j<i+1; j++)
-					guys.del(guys.Count()-1);
-					
-				return 0;
-			}
-			
-			((enemy*)guys.spr(guys.Count()-1))->item_set=is;
-			ret++;
-		}
+		int numSegments = LandWorm::numSegments(guysbuf[id&0xFFF]);
+		auto* landWorm = (LandWorm*)e;
+		for(int i = 0; i < numSegments; ++i)
+			guys.add(landWorm->createSegment());
+		ret += numSegments;
+		break;
 	}
-	break;
 	
 	case eeMANHAN:
 		id &= 0xFFF;
@@ -16779,8 +16397,13 @@ int addenemy(int x,int y,int z,int id,int clk)
 		break;
 		
 	case eeLANM:
-		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)));
+	{
+        int numEnemies = LandWorm::numSegments(guysbuf[id&0xFFF])+1;
+        if(!guys.has_space(numEnemies))
+            return 0;
+        e = new LandWorm((zfix)x, (zfix)y, id&0xFFF);
 		break;
+	}
 		
 	case eeGANON:
 		e = new eGanon((zfix)x,(zfix)y,id,clk);
@@ -17009,36 +16632,13 @@ int addenemy(int x,int y,int z,int id,int clk)
 	
 	case eeLANM:
 	{
-		id &= 0xFFF;
-		int shft = guysbuf[id].misc2;
-		byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
-		
-		if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x1000,0)))
-		{
-			al_trace("Lanmola segment 1 could not be created!\n");
-			guys.del(guys.Count()-1);
-			return 0;
-		}
-		
-		ret++;
-		
-		for(int i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)); i++)
-		{
-			if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x2000,-(i<<shft))))
-			{
-				al_trace("Lanmola segment %d could not be created!\n",i+1);
-				
-				for(int j=0; j<i+1; j++)
-					guys.del(guys.Count()-1);
-					
-				return 0;
-			}
-			
-			((enemy*)guys.spr(guys.Count()-1))->item_set=is;
-			ret++;
-		}
+		int numSegments = LandWorm::numSegments(guysbuf[id&0xFFF]);
+		auto* landWorm = (LandWorm*)e;
+		for(int i = 0; i < numSegments; ++i)
+			guys.add(landWorm->createSegment());
+		ret += numSegments;
+		break;
 	}
-	break;
 	
 	case eeMANHAN:
 		id &= 0xFFF;

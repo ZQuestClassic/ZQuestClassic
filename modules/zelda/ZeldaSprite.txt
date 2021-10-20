@@ -20,6 +20,7 @@ src/enemyProjectileWeapon.cpp
 src/enemySummonWeapon.cpp
 
 src/enemy/hive.cpp
+src/enemy/land_worm.cpp
 src/enemy/mage_floating.cpp
 src/enemy/mage_teleporting.cpp
 src/enemy/spin_tile.cpp

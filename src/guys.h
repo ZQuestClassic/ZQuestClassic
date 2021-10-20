@@ -675,33 +675,6 @@ public:
 	//number of animation frames. -DD
 };
 
-class eBaseLanmola : public enemy
-{
-public:
-	eBaseLanmola(zfix X, zfix Y, int Id, int Clk) : enemy(X, Y, Id, Clk) {}
-	std::list<std::pair< std::pair<zfix, zfix>, int> > prevState;
-};
-
-// segment manager
-class eLanmola : public eBaseLanmola
-{
-public:
-	int segcnt;
-	// tell it the segment count through the clk param
-	eLanmola(zfix X,zfix Y,int Id,int Clk);                   // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
-};
-
-// segment class
-class esLanmola : public eBaseLanmola
-{
-public:
-	esLanmola(zfix X,zfix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
-	virtual int takehit(weapon *w);
-	virtual void draw(BITMAP *dest);
-};
-
 class eManhandla : public enemy
 {
 public:
