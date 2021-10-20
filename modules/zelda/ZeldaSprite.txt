@@ -19,6 +19,7 @@ src/enemyWeapon.cpp
 src/enemyProjectileWeapon.cpp
 src/enemySummonWeapon.cpp
 
+src/enemy/falling_rock.cpp
 src/enemy/hive.cpp
 src/enemy/land_worm.cpp
 src/enemy/mage_floating.cpp

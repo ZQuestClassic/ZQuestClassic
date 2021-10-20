@@ -472,28 +472,6 @@ public:
 	virtual int takehit(weapon *w);
 };
 
-class eRock : public enemy
-{
-public:
-	eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eRock(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
-	virtual void drawshadow(BITMAP *dest, bool translucent);
-	virtual void draw(BITMAP *dest);
-	virtual int takehit(weapon *w);
-};
-
-class eBoulder : public enemy
-{
-public:
-	eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
-	eBoulder(zfix X,zfix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
-	virtual bool animate(int index);
-	virtual void drawshadow(BITMAP *dest, bool translucent);
-	virtual void draw(BITMAP *dest);
-	virtual int takehit(weapon *w);
-};
-
 // Helper for launching fireballs from statues, etc.
 // It's invisible and can't be hit.
 // Pass the range value through the clk variable in the constuctor.

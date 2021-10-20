@@ -25,6 +25,7 @@
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "particles.h"
+#include "enemy/falling_rock.h"
 #include "enemy/hive.h"
 #include "enemy/land_worm.h"
 #include "enemy/mage_floating.h"
@@ -1035,100 +1036,6 @@ eProjectile::eProjectile(enemy const & other, bool new_script_uid, bool clear_pa
 	//sprite(other),
 	enemy(other),
 	minRange(minRange)
-{
-	
-	//arrays
-	
-	if(other.scrmem)
-	{
-		alloc_scriptmem();
-		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-		
-		scrmem->scriptData = other.scrmem->scriptData;
-	}
-	else scrmem = NULL;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eBoulder::eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
-{
-	
-	//arrays
-	
-	if(other.scrmem)
-	{
-		alloc_scriptmem();
-		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
-		
-		scrmem->scriptData = other.scrmem->scriptData;
-	}
-	else scrmem = NULL;
-	//memset((refInfo)scriptData, 0xFFFF, sizeof(refInfo));
-	//memset((refInfo)scriptData, other.scriptData, sizeof(refInfo));
-	
-	for(int i=0; i<edefLAST255; i++)
-		defense[i]=other.defense[i];
-	for ( int q = 0; q < 10; q++ ) frozenmisc[q] = other.frozenmisc[q];
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = other.hitby[q];
-	
-	if(new_script_uid)
-	{
-		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
-	}
-	if(clear_parent_script_UID)
-	{
-		parent_script_UID = 0;
-	}
-	for ( int q = 0; q < 32; q++ ) movement[q] = other.movement[q];
-	for ( int q = 0; q < 32; q++ ) new_weapon[q] = other.new_weapon[q];
-	
-	for ( int q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
-		weap_initiald[q] = other.weap_initiald[q];
-	}
-	for ( int q = 0; q < 2; q++ ) 
-	{
-		initA[q] = other.initA[q];
-		weap_initiala[q] = other.weap_initiala[q];
-	}
-}
-
-eRock::eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
-	 //Struct Element			Type		Purpose
-	//sprite(other),
-	enemy(other)
 {
 	
 	//arrays
@@ -3796,34 +3703,16 @@ int enemy::defendNew(int wpnId, int *power, int edef, byte unblockable) //May ne
 				}
 				break;
 				
-				// and these enemies use the misc10/misc2 value
 				case eeROCK:
 				{
-					switch(guysbuf[new_id&0xFFF].misc10)
-					{
-						case 1:
-						{
-						enemy *e = new eBoulder(x,y,new_id,clk);
-						guys.add(e);
-							e->x = x;
-							e->y = y;
-						}
-						break;
-					
-						case 0:
-						default:
-						{
-						enemy *e = new eRock(x,y,new_id,clk);
-						guys.add(e);
-							e->x = x;
-							e->y = y;
-						}
-						break;
-					}
-				
+					enemy *e = new FallingRock(x, y, new_id);
+					guys.add(e);
+					e->x = x;
+					e->y = y;
 					break;
 				}
 				
+				// and these enemies use the misc10/misc2 value
 				case eeTRAP:
 				{
 					switch(guysbuf[new_id&0xFFF].misc2)
@@ -11043,301 +10932,6 @@ int eTrap2::takehit(weapon*)
 	return 0;
 }
 
-eRock::eRock(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
-{
-	//do not show "enemy appering" anim -DD
-	clk=0;
-	mainguy=false;
-	clk2=-14;
-	//Enemy Editor Size Tab
-	if (  (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
-	else hxofs = -2;
-	if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
-	else hyofs = -2;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
-	else hxsz = 20;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
-	else hysz=20;
-	
-	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-		if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-		if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;    
-		if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int)d->xofs;
-		if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
-		{
-		yofs = (int)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
-		}
-  
-		if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;																
-	//nets+1640;
-}
-
-bool eRock::animate(int index)
-{
-	if(fallclk||drownclk) return enemy::animate(index);
-	if(dying)
-		return Dead(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	if(++clk2==0)                                             // start it
-	{
-		x=zc_oldrand()&0xF0;
-		y=0;
-		clk3=0;
-		clk2=zc_oldrand()&15;
-	}
-	
-	if(clk2>16)                                               // move it
-	{
-		if(clk3<=0)                                             // start bounce
-		{
-			dir=zc_oldrand()&1;
-			
-			if(x<32)  dir=1;
-			
-			if(x>208) dir=0;
-		}
-		
-		if(clk3<13+16)
-		{
-			x += dir ? 1 : -1;                                    //right, left
-			dummy_int[1]=dir;
-			
-			if(clk3<2)
-			{
-				y-=2;    //up
-				dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
-			}
-			else if(clk3<5)
-			{
-				y--;    //up
-				dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
-			}
-			else if(clk3<8)
-			{
-				dummy_int[2]=(dummy_int[1]==1)?right:left;
-			}
-			else if(clk3<11)
-			{
-				y++;   //down
-				dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
-			}
-			else
-			{
-				y+=2; //down
-				dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
-			}
-			
-			++clk3;
-		}
-		else if(y<176)
-			clk3=0;                                               // next bounce
-		else
-			clk2 = -(zc_oldrand()&63);                                  // back to top
-	}
-	
-	return enemy::animate(index);
-}
-
-void eRock::drawshadow(BITMAP *dest, bool translucent)
-{
-	if(clk2>=0)
-	{
-		int tempy=yofs;
-		flip = 0;
-		int fdiv = frate/4;
-		int efrate = fdiv == 0 ? 0 : clk/fdiv;
-		int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
-			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[spr_shadow].newtile+f2;
-		
-		yofs+=8;
-		yofs+=zc_max(0,zc_min(29-clk3,clk3));
-		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
-		yofs=tempy;
-	}
-}
-
-void eRock::draw(BITMAP *dest)
-{
-	if(clk2>=0 || fallclk||drownclk)
-	{
-		int tempdir=dir;
-		dir=dummy_int[2];
-		update_enemy_frame();
-		enemy::draw(dest);
-		dir=tempdir;
-	}
-}
-
-int eRock::takehit(weapon*)
-{
-	return 0;
-}
-
-eBoulder::eBoulder(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
-{
-	clk=0;
-	mainguy=false;
-	clk2=-14;
-	if ( (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
-	else hxofs= -10; 
-	if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
-	else hyofs=-10;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
-	else hxsz=36;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
-	else hysz=36;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
-	else hzsz=16; //can't be jumped
-	
-	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
-	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int)d->xofs;
-	if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
-	{
-		yofs = (int)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
-	}
-  
-	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
-	//nets+1680;
-}
-
-bool eBoulder::animate(int index)
-{
-	if(fallclk||drownclk) return enemy::animate(index);
-	if(dying)
-		return Dead(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y);
-	}
-	
-	zfix *vert;
-	vert = get_bit(quest_rules,qr_ENEMIESZAXIS) ? &z : &y;
-	
-	if(++clk2==0)                                             // start it
-	{
-		x=zc_oldrand()&0xF0;
-		y=-32;
-		clk3=0;
-		clk2=zc_oldrand()&15;
-	}
-	
-	if(clk2>16)                                               // move it
-	{
-		if(clk3<=0)                                             // start bounce
-		{
-			dir=zc_oldrand()&1;
-			
-			if(x<32)  dir=1;
-			
-			if(x>208) dir=0;
-		}
-		
-		if(clk3<13+16)
-		{
-			x += dir ? 1 : -1;                                    //right, left
-			dummy_int[1]=dir;
-			
-			if(clk3<2)
-			{
-				y-=2;    //up
-				dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
-			}
-			else if(clk3<5)
-			{
-				y--;    //up
-				dummy_int[2]=(dummy_int[1]==1)?r_up:l_up;
-			}
-			else if(clk3<8)
-			{
-				dummy_int[2]=(dummy_int[1]==1)?right:left;
-			}
-			else if(clk3<11)
-			{
-				y++;     //down
-				dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
-			}
-			else
-			{
-				y+=2; //down
-				dummy_int[2]=(dummy_int[1]==1)?r_down:l_down;
-			}
-			
-			++clk3;
-		}
-		else if(y<176)
-			clk3=0;                                               // next bounce
-		else
-			clk2 = -(zc_oldrand()&63);                                  // back to top
-	}
-	
-	return enemy::animate(index);
-}
-
-void eBoulder::drawshadow(BITMAP *dest, bool translucent)
-{
-	if(clk2>=0)
-	{
-		int tempy=yofs;
-		flip = 0;
-		int f2=((clk<<2)/frate)<<1;
-		shadowtile = wpnsbuf[spr_shadow].newtile+f2;
-		yofs+=zc_max(0,zc_min(29-clk3,clk3));
-		
-		yofs+=8;
-		xofs-=8;
-		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
-		xofs+=16;
-		++shadowtile;
-		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
-		yofs+=16;
-		shadowtile+=20;
-		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
-		xofs-=16;
-		--shadowtile;
-		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
-		xofs+=8;
-		yofs=tempy;
-	}
-}
-
-void eBoulder::draw(BITMAP *dest)
-{
-	if(clk2>=0 || fallclk||drownclk)
-	{
-		int tempdir=dir;
-		dir=dummy_int[2];
-		update_enemy_frame();
-		dir=tempdir;
-		xofs-=8;
-		yofs-=8;
-		drawblock(dest,15);
-		xofs+=8;
-		yofs+=8;
-		//    enemy::draw(dest);
-	}
-}
-
-int eBoulder::takehit(weapon*)
-{
-	return 0;
-}
-
 eProjectile::eProjectile(zfix X,zfix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
 	minRange(get_bit(quest_rules, qr_BROKENSTATUES) ? 0 : Clk)
 {
@@ -16077,24 +15671,11 @@ int addchild(int x,int y,int z,int id,int clk, int parent_scriptUID)
 		e = new SpinTile((zfix)x,(zfix)y,id,clk);
 		break;
 		
-		// and these enemies use the misc10/misc2 value
 	case eeROCK:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
-		{
-		case 1:
-			e = new eBoulder((zfix)x,(zfix)y,id,clk);
-			break;
-			
-		case 0:
-		default:
-			e = new eRock((zfix)x,(zfix)y,id,clk);
-			break;
-		}
-		
+		e = new FallingRock((zfix)x, (zfix)y, id);
 		break;
-	}
 	
+	// and these enemies use the misc10/misc2 value
 	case eeTRAP:
 	{
 		switch(guysbuf[id&0xFFF].misc2)
@@ -16474,24 +16055,11 @@ int addenemy(int x,int y,int z,int id,int clk)
 		e = new SpinTile((zfix)x,(zfix)y,id,clk);
 		break;
 		
-		// and these enemies use the misc10/misc2 value
 	case eeROCK:
-	{
-		switch(guysbuf[id&0xFFF].misc10)
-		{
-		case 1:
-			e = new eBoulder((zfix)x,(zfix)y,id,clk);
-			break;
-			
-		case 0:
-		default:
-			e = new eRock((zfix)x,(zfix)y,id,clk);
-			break;
-		}
-		
+		e = new FallingRock((zfix)x, (zfix)y, id);
 		break;
-	}
 	
+	// and these enemies use the misc10/misc2 value
 	case eeTRAP:
 	{
 		switch(guysbuf[id&0xFFF].misc2)
