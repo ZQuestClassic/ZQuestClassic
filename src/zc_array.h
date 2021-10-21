@@ -500,6 +500,10 @@ protected:
             
         _Delete(_oldPtr);
         _size = _NewSize;
+		if(_OldSize < _NewSize)
+		{
+			Assign(_OldSize, _NewSize, 0);
+		}
     }
     
     void _Delete()
