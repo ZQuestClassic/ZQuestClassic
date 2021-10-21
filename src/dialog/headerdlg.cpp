@@ -57,49 +57,48 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 			Rows<2>(
 				Column(
 					Rows<6>(
-						Button(width = 2_em, rightPadding = 0_px, forceFitH = true, text = "?",
+						Label(text = "Quest Ver:", rightPadding = 0_px, hAlign = 1.0),
+						questRev = TextField(width = HEADER_TEXTFIELD_WID, rightPadding = 0_px, maxLength = 9, text = vals[0]),
+						Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?",
 							onPressFunc = []()
 							{
 								InfoDialog("Quest Version","The version number of your quest. This is stored in save files, and is used for comparing with 'Min. Ver'").show();
 							}),
-						Label(text = "Quest Ver:", rightPadding = 0_px, hAlign = 1.0),
-						questRev = TextField(width = HEADER_TEXTFIELD_WID, hAlign = 0.0, maxLength = 9, text = vals[0]),
 						//
 						Label(text = "Quest Num:", rightPadding = 0_px, hAlign = 1.0),
-						questNum = TextField(width = HEADER_TEXTFIELD_WID, rightPadding = 0_px, hAlign = 1.0, maxLength = 9, text = vals[4]),
+						questNum = TextField(width = HEADER_TEXTFIELD_WID, rightPadding = 0_px, maxLength = 9, text = vals[4]),
 						Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?",
 							onPressFunc = []()
 							{
 								InfoDialog("Quest Progression Number","This value is used by module-based quests, such as '1st.qst'. Unless you know what you are doing, leave this at '0'!").show();
 							}),
 						//
-						Button(width = 2_em, rightPadding = 0_px, forceFitH = true, text = "?",
+						Label(text = "Min. Ver:", rightPadding = 0_px, hAlign = 1.0),
+						minRev = TextField(width = HEADER_TEXTFIELD_WID, rightPadding = 0_px, maxLength = 9, text = vals[1]),
+						Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?",
 							onPressFunc = []()
 							{
 								InfoDialog("Min Version","If a save file of your quest was saved with a 'Quest Ver' lower than this value, it will not be allowed to load. Useful for preventing loading of saves that would be broken by changes to the quest.").show();
 							}),
-						Label(text = "Min. Ver:", rightPadding = 0_px, hAlign = 1.0),
-						minRev = TextField(width = HEADER_TEXTFIELD_WID, hAlign = 0.0, maxLength = 9, text = vals[1]),
 						//
 						DummyWidget(),
 						DummyWidget(),
 						DummyWidget(),
 						//
-						DummyWidget(),
 						Label(text = "Title:", rightPadding = 0_px, hAlign = 1.0),
 						titlestr = TextField(
 							width = HEADER_TEXTFIELD_WID,
-							hAlign = 1.0,
+							rightPadding = 0_px,
 							maxLength = 64,
 							text = vals[2],
 							onValueChanged = message::TITLE
 						),
+						DummyWidget(),
 						//
 						Label(text = "Author:", rightPadding = 0_px, hAlign = 1.0),
 						author = TextField(
 							width = HEADER_TEXTFIELD_WID,
-							rightPadding = 0_px, 
-							hAlign = 1.0,
+							rightPadding = 0_px,
 							maxLength = 64,
 							text = vals[3],
 							onValueChanged = message::AUTHOR
