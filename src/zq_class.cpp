@@ -12293,16 +12293,7 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
     Header=Header;
     i=i;
     
-    int32_t num_commands;
-    
-    for(int32_t j=0;; j++)
-    {
-        if((*script)->zasm[j].command==0xFFFF)
-        {
-            num_commands = j+1;
-            break;
-        }
-    }
+    int32_t num_commands = (*script)->size();
     
     if(!p_iputl(num_commands,f))
     {

@@ -1678,7 +1678,7 @@ int8_t smart_vercmp(char const* a, char const* b)
 			continue;
 		return strcmp(a, b);
 	}
-	char *cpya = (char*)zc_malloc(strlen(a)), *cpyb = (char*)zc_malloc(strlen(b));
+	char *cpya = (char*)zc_malloc(strlen(a)+1), *cpyb = (char*)zc_malloc(strlen(b)+1);
 	strcpy(cpya, a); strcpy(cpyb, b);
 	char *ptra = cpya, *ptrb = cpyb, *tmpa = cpya, *tmpb = cpyb;
 	std::vector<int32_t> avec, bvec;
@@ -1717,7 +1717,7 @@ int8_t smart_vercmp(char const* a, char const* b)
 		avec.push_back(0);
 	while(bvec.size() < avec.size())
 		bvec.push_back(0);
-	for(int q = 0; q < avec.size(); ++q)
+	for(uint32_t q = 0; q < avec.size(); ++q)
 	{
 		if(avec.at(q) < bvec.at(q))
 			return -1;

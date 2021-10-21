@@ -2674,7 +2674,15 @@ struct script_data
 	ffscript* zasm;
 	zasm_meta meta;
 	
-	bool valid()
+	void null_script()
+	{
+		if(zasm)
+			delete[] zasm;
+		zasm = new ffscript[1];
+		zasm[0].command = 0xFFFF;
+	}
+	
+	bool valid() const
 	{
 		return (zasm && zasm[0].command != 0xFFFF);
 	}
@@ -2685,17 +2693,52 @@ struct script_data
 			zasm[0].command = 0xFFFF;
 	}
 	
-	script_data(int32_t cmds)
+	uint32_t size() const
+	{
+		if(zasm)
+		{
+			for(uint32_t q = 0;;++q)
+			{
+				if(zasm[q].command == 0xFFFF)
+					return q+1;
+			}
+		}
+		return 0;
+	}
+	
+	void set(script_data const& other)
+	{
+		if(zasm)
+			delete[] zasm;
+		if(other.size())
+		{
+            zasm = new ffscript[other.size()];
+			memcpy(zasm, other.zasm, sizeof(ffscript)*other.size());
+		}
+		else
+		{
+			zasm = NULL;
+			null_script();
+		}
+		meta = other.meta;
+	}
+	
+	script_data(int32_t cmds) : zasm(NULL)
 	{
 		if(cmds > 0)
 			zasm = new ffscript[cmds];
-		else zasm = NULL;
+		else
+			null_script();
 	}
 	
-	script_data()
+	script_data() : zasm(NULL)
 	{
-		zasm = new ffscript[1];
-		zasm[0].command = 0xFFFF;
+		null_script();
+	}
+	
+	script_data(script_data const& other) : zasm(NULL)
+	{
+		set(other);
 	}
 	
 	~script_data()
@@ -2709,7 +2752,14 @@ struct script_data
 		other.meta = meta;
 		other.zasm = zasm;
 		zasm = NULL;
+		null_script();
 	}
+	
+	script_data& operator=(script_data const& other)
+	{
+		set(other);
+	}
+	
 };
 
 struct script_command
