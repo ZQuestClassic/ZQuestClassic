@@ -1664,6 +1664,69 @@ void CatchBrang()
 /***** Main Game Code *****/
 /**************************/
 
+int8_t smart_vercmp(char const* a, char const* b)
+{
+	for(int q = 0; a[q]; ++q)
+	{
+		if((a[q] >= '0' && a[q] <= '9') || a[q] == '.')
+			continue;
+		return strcmp(a, b);
+	}
+	for(int q = 0; b[q]; ++q)
+	{
+		if((b[q] >= '0' && b[q] <= '9') || b[q] == '.')
+			continue;
+		return strcmp(a, b);
+	}
+	char *cpya = (char*)zc_malloc(strlen(a)), *cpyb = (char*)zc_malloc(strlen(b));
+	strcpy(cpya, a); strcpy(cpyb, b);
+	char *ptra = cpya, *ptrb = cpyb, *tmpa = cpya, *tmpb = cpyb;
+	std::vector<int32_t> avec, bvec;
+	while(*(ptra++))
+	{
+		if(*ptra == '.')
+		{
+			*ptra = 0;
+			avec.push_back(atoi(tmpa));
+			tmpa = ++ptra;
+			if(!*ptra) break;
+		}
+		if(!*ptra)
+		{
+			avec.push_back(atoi(tmpa));
+			break;
+		}
+	}
+	while(*(ptrb++))
+	{
+		if(*ptrb == '.')
+		{
+			*ptrb = 0;
+			bvec.push_back(atoi(tmpb));
+			tmpb = ++ptrb;
+			if(!*ptrb) break;
+		}
+		if(!*ptrb)
+		{
+			avec.push_back(atoi(tmpb));
+			break;
+		}
+	}
+	zc_free(cpya); zc_free(cpyb);
+	while(avec.size() < bvec.size())
+		avec.push_back(0);
+	while(bvec.size() < avec.size())
+		bvec.push_back(0);
+	for(int q = 0; q < avec.size(); ++q)
+	{
+		if(avec.at(q) < bvec.at(q))
+			return -1;
+		if(avec.at(q) > bvec.at(q))
+			return 1;
+	}
+	return 0;
+}
+
 int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 {
     chop_path(qstpath);
@@ -1807,7 +1870,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
     
     if(QHeader.minver[0])
     {
-        if(strcmp(g->version,QHeader.minver) < 0)
+        if(smart_vercmp(g->version,QHeader.minver) < 0)
             ret = qe_minver;
     }
     
