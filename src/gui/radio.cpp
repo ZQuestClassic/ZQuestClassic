@@ -19,7 +19,7 @@ Radio::Radio(): checked(false), text(),
 
 void Radio::setText(std::string newText)
 {
-	int textWidth = text_length(widgFont, newText.c_str());
+	int32_t textWidth = text_length(widgFont, newText.c_str());
 	setPreferredWidth(Size::pixels(textWidth)+13_lpx);
 	text = std::move(newText);
 }
@@ -41,7 +41,7 @@ bool Radio::getChecked()
 	return alDialog ? alDialog->flags&D_SELECTED : checked;
 }
 
-void Radio::setProcSet(int newProcSet)
+void Radio::setProcSet(int32_t newProcSet)
 {
 	procset = newProcSet;
 	if(alDialog) alDialog->d1 = procset;
@@ -86,11 +86,11 @@ void Radio::calculateSize()
 	setPreferredWidth(9_spx+12_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
 }
 
-int Radio::onEvent(int event, MessageDispatcher& sendMessage)
+int32_t Radio::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	if(event != geRADIO) return -1;
 	if(message >= 0)
-		sendMessage(message, (int)index);
+		sendMessage(message, (int32_t)index);
 	return -1;
 }
 

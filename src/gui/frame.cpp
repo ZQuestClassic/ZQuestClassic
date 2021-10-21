@@ -31,7 +31,7 @@ void Frame::calculateSize()
 	if(content)
 	{
 		content->calculateSize();
-		int extraHeight;
+		int32_t extraHeight;
 		if(!title.empty())
 			extraHeight = sized(8, 10);
 		else
@@ -46,7 +46,7 @@ void Frame::calculateSize()
 	}
 }
 
-void Frame::arrange(int contX, int contY, int contW, int contH)
+void Frame::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 {
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
@@ -76,7 +76,7 @@ void Frame::realize(DialogRunner& runner)
 		fgColor, bgColor,
 		0, // key
 		getFlags(), // flags
-		static_cast<int>(frameStyle), 0, // d1, d2
+		static_cast<int32_t>(frameStyle), 0, // d1, d2
 		nullptr, nullptr, nullptr // dp, dp2, dp3
 	});
 

@@ -11,14 +11,14 @@ namespace math
 {
 
 
-inline bool IsPowerOfTwo(unsigned int x)
+inline bool IsPowerOfTwo(uint32_t x)
 {
     return (x != 0 && !((x-1) & x));
 }
 
-inline unsigned int NextPowerOfTwo(unsigned int x)
+inline uint32_t NextPowerOfTwo(uint32_t x)
 {
-    unsigned int y(1);
+    uint32_t y(1);
     
     while(y < x) y <<= 1;
     

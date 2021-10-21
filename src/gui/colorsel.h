@@ -24,7 +24,7 @@ public:
 	template<typename T>
 	RequireMessage<T> onValueChanged(T m)
 	{
-		onValueChangedMsg = static_cast<int>(m);
+		onValueChangedMsg = static_cast<int32_t>(m);
 	}
 
 	/* Sets a function to be called on value change. */
@@ -32,13 +32,13 @@ public:
 	
 private:
 	DialogRef alDialog;
-	int onValueChangedMsg;
+	int32_t onValueChangedMsg;
 	byte colorVal;
 	std::function<void(byte)> onValChanged;
 
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
-	int onEvent(int event, MessageDispatcher& sendMessage) override;
+	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 };
 
 }

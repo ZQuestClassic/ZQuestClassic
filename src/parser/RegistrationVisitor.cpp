@@ -11,12 +11,11 @@
 #include "CompileError.h"
 
 #include "../ffscript.h"
-#include <boost/move/unique_ptr.hpp>
 extern FFScript FFCore;
 using std::string;
 using std::vector;
 using namespace ZScript;
-using boost::movelib::unique_ptr;
+using std::unique_ptr;
 ////////////////////////////////////////////////////////////////
 // RegistrationVisitor
 
@@ -65,7 +64,7 @@ void RegistrationVisitor::caseDefault(AST& host, void* param)
 //Handle the root file specially!
 void RegistrationVisitor::caseRoot(ASTFile& host, void* param)
 {
-	int recursionLimit = REGISTRATION_REC_LIMIT;
+	int32_t recursionLimit = REGISTRATION_REC_LIMIT;
 	while(--recursionLimit)
 	{
 		caseFile(host, param);
@@ -249,7 +248,7 @@ void RegistrationVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* para
 {
 	visit(*host.cond, param);
 	if(!registered(*host.cond)) return; //Not registered yet
-	optional<long> val = host.cond->getCompileTimeValue(this, scope);
+	optional<int32_t> val = host.cond->getCompileTimeValue(this, scope);
 	if(val && (*val != 0))
 	{
 		if(!host.preprocessed)
@@ -268,7 +267,7 @@ void RegistrationVisitor::caseUsing(ASTUsingDecl& host, void* param)
 	//Handle adding scope
 	ASTExprIdentifier* iden = host.getIdentifier();
 	Scope* temp = host.always ? getRoot(*scope) : scope;
-	int numMatches = temp->useNamespace(iden->components, iden->delimiters, iden->noUsing);
+	int32_t numMatches = temp->useNamespace(iden->components, iden->delimiters, iden->noUsing);
 	if(numMatches == 0) //Quit before registering; check again later
 		return;
 	doRegister(host);
@@ -407,7 +406,7 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 	}
 
 	//Handle initializer assignment
-	long ipart = -1, dpart = 0;
+	int32_t ipart = -1, dpart = 0;
 	std::vector<ASTDataDecl*> decls = host.getDeclarations();
 	for(vector<ASTDataDecl*>::iterator it = decls.begin();
 		it != decls.end(); ++it)
@@ -417,9 +416,9 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 		{
 			visit(init);
 			if(!registered(init)) return;
-			if(optional<long> v = init->getCompileTimeValue(this, scope))
+			if(optional<int32_t> v = init->getCompileTimeValue(this, scope))
 			{
-				long val = *v;
+				int32_t val = *v;
 				ipart = val/10000;
 				dpart = val%10000;
 			}
@@ -505,7 +504,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 			return;
 		}
 		
-		long value = *host.getInitializer()->getCompileTimeValue(this, scope);
+		int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
 		Constant::create(*scope, host, type, value, this);
 	}
 	else
@@ -548,7 +547,7 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 			return;
 		}
 		
-		if(optional<long> theSize = size.getCompileTimeValue(this, scope))
+		if(optional<int32_t> theSize = size.getCompileTimeValue(this, scope))
 		{
 			if(*theSize % 10000)
 			{

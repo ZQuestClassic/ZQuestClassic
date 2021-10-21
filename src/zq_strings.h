@@ -4,19 +4,19 @@
 #include <map>
 struct DIALOG;
 
-int onStrings();
-char *MsgString(int index, bool show_number, bool pad_number);
-const char *msgfontlist(int index, int *list_size);
-const char *msgslist(int index, int *list_size);
-const char *msgslist2(int index, int *list_size);
-int msg_at_pos(int pos);
+int32_t onStrings();
+char *MsgString(int32_t index, bool show_number, bool pad_number);
+const char *msgfontlist(int32_t index, int32_t *list_size);
+const char *msgslist(int32_t index, int32_t *list_size);
+const char *msgslist2(int32_t index, int32_t *list_size);
+int32_t msg_at_pos(int32_t pos);
 char *strip_extra_spaces(char *string);
-void encode_msg_str(int index);
+void encode_msg_str(int32_t index);
 
 extern DIALOG strlist_dlg[];
 extern DIALOG editmsg_dlg[];
 extern DIALOG editmsg_help_dlg[];
 
-extern std::map<int, int> msglistcache;
+extern std::map<int32_t, int32_t> msglistcache;
 
 #endif

@@ -21,8 +21,8 @@ extern "C" {
 
 /* This is defined as a real library function to allow autoconf
    to verify its existence. */
-int ftruncate(int, off_t);
-/*__CRT_INLINE*/inline int ftruncate(int __fd, off_t __length)
+int32_t ftruncate(int32_t, off_t);
+/*__CRT_INLINE*/inline int32_t ftruncate(int32_t __fd, off_t __length)
 {
     return _chsize(__fd, __length);
 }

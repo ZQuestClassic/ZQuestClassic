@@ -5,9 +5,9 @@
 #include "../zquest.h"
 #include <algorithm>
 
-extern int jwin_pal[jcMAX];
+extern int32_t jwin_pal[jcMAX];
 
-int screen_w, screen_h;
+int32_t screen_w, screen_h;
 #define START_CLIP(d) set_clip_rect( \
 	gui_get_screen(), d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4)
 #define END_CLIP() set_clip_rect( \
@@ -16,7 +16,7 @@ int screen_w, screen_h;
 namespace GUI
 {
 
-static int minusOneHundred()
+static int32_t minusOneHundred()
 {
 	return -100;
 }
@@ -28,7 +28,7 @@ static int minusOneHundred()
  * mouse functions.
  */
 
-int ScrollingPane::mouseBreakerProc(int msg, DIALOG* d, int c)
+int32_t ScrollingPane::mouseBreakerProc(int32_t msg, DIALOG* d, int32_t c)
 {
 	switch(msg)
 	{
@@ -37,8 +37,8 @@ int ScrollingPane::mouseBreakerProc(int msg, DIALOG* d, int c)
 		auto* sp=static_cast<ScrollingPane*>(d->dp);
 		sp->oldMouseX=gui_mouse_x;
 		sp->oldMouseY=gui_mouse_y;
-		int mx=gui_mouse_x();
-		int my=gui_mouse_y();
+		int32_t mx=gui_mouse_x();
+		int32_t my=gui_mouse_y();
 		DIALOG& spd=*sp->alDialog;
 		if(mx<spd.x || mx>=spd.x+spd.w || my<spd.y || my>=spd.y+spd.h)
 		{
@@ -52,7 +52,7 @@ int ScrollingPane::mouseBreakerProc(int msg, DIALOG* d, int c)
 	return D_O_K;
 }
 
-int ScrollingPane::mouseFixerProc(int msg, DIALOG* d, int c)
+int32_t ScrollingPane::mouseFixerProc(int32_t msg, DIALOG* d, int32_t c)
 {
 	switch(msg)
 	{
@@ -72,7 +72,7 @@ int ScrollingPane::mouseFixerProc(int msg, DIALOG* d, int c)
 	return D_O_K;
 }
 
-int scrollProc(int msg, DIALOG* d, int c)
+int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 {
 	switch(msg)
 	{
@@ -104,7 +104,7 @@ int scrollProc(int msg, DIALOG* d, int c)
 		{
 			// The scrollbar is being dragged; we need to scroll and redraw
 			// everything in the pane.
-			int scrollAmount=d->d2-sp->scrollPos;
+			int32_t scrollAmount=d->d2-sp->scrollPos;
 			d->d2=sp->scrollPos;
 			for(size_t i = 1; i < sp->childrenEnd; ++i)
 			{
@@ -157,16 +157,16 @@ ScrollingPane::ScrollingPane(): childrenEnd(0), scrollPos(0), maxScrollPos(0),
 	bgColor=jwin_pal[jcBOX];
 }
 
-void ScrollingPane::scroll(int amount) noexcept
+void ScrollingPane::scroll(int32_t amount) noexcept
 {
-	int newPos=std::clamp(scrollPos+amount, 0, maxScrollPos);
+	int32_t newPos=std::clamp(scrollPos+amount, 0, maxScrollPos);
 	amount=newPos-scrollPos;
 	scrollPos=newPos;
 	for(size_t i = 1; i < childrenEnd; ++i)
 		alDialog[i].y-=amount;
 }
 
-bool ScrollingPane::scrollToShowChild(int childPos)
+bool ScrollingPane::scrollToShowChild(int32_t childPos)
 {
 	DIALOG& pane=*alDialog;
 	DIALOG& child=alDialog[childPos];
@@ -208,7 +208,7 @@ void ScrollingPane::calculateSize()
 	}
 }
 
-void ScrollingPane::arrange(int contX, int contY, int contW, int contH)
+void ScrollingPane::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 {
 	// We want to be about as big as possible...
 	setPreferredWidth(Size::pixels(contW));
@@ -235,7 +235,7 @@ void ScrollingPane::realize(DialogRunner& runner)
 	*/
 	runner.push(shared_from_this(), DIALOG {
 		mouseBreakerProc,
-		0, 0, 2000, 2000, // As long as it covers the screen
+		0, 0, 2000, 2000, // As int32_t as it covers the screen
 		0, 0,
 		0, // key
 		getFlags(), // flags

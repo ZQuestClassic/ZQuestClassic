@@ -32,7 +32,7 @@ string LiteralArgument::toString()
     return sign + first + "." + second;
 }
 
-string ZScript::VarToString(long ID)
+string ZScript::VarToString(int32_t ID)
 {
 	char temp[128];
 	
@@ -1615,6 +1615,7 @@ string ZScript::VarToString(long ID)
 	case COMBODEXPANSION: return "COMBODEXPANSION";
 	case COMBODATTRIBUTES: return "COMBODATTRIBUTES";
 	case COMBODATTRIBYTES: return "COMBODATTRIBYTES";
+	case COMBODATTRISHORTS: return "COMBODATTRISHORTS";
 	case COMBODUSRFLAGS: return "COMBODUSRFLAGS";
 	case COMBODTRIGGERFLAGS: return "COMBODTRIGGERFLAGS";
 	case COMBODTRIGGERLEVEL: return "COMBODTRIGGERLEVEL";
@@ -3419,7 +3420,7 @@ string OCloseWipeShape::toString()
     return "CLOSEWIPESHAPE " + getArgument()->toString();
 }
 
-//Game->GetItemScript(int ptr[])
+//Game->GetItemScript(int32_t ptr[])
 string OGetItemScript::toString()
 {
     return "GETITEMSCRIPT " + getArgument()->toString();

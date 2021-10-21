@@ -53,24 +53,24 @@ bool is_zquest()
     return true;
 }
 
-int tempmode=GFX_AUTODETECT_FULLSCREEN;
-int palbmpx=0;
-int palbmpy=0;
+int32_t tempmode=GFX_AUTODETECT_FULLSCREEN;
+int32_t palbmpx=0;
+int32_t palbmpy=0;
 bool is_large=false;
-int joystick_index=0;
+int32_t joystick_index=0;
 
-volatile int myvsync=0;
+volatile int32_t myvsync=0;
 BITMAP *hw_screen;
 
-char *VerStr(int version)
+char *VerStr(int32_t version)
 {
     static char ver_str[12];
     sprintf(ver_str,"v%d.%02X",version>>8,version&0xFF);
     return ver_str;
 }
 
-int scale_arg;
-int zq_scale;
+int32_t scale_arg;
+int32_t zq_scale;
 byte disable_direct_updating=0;
 char temppath[2048];
 bool close_button_quit=false;
@@ -85,12 +85,12 @@ FONT *lfont;
 FONT *lfont_l;
 FONT *sfont3;
 BITMAP *tmp_scr, *scr_buf;
-int scrx=0;
-int scry=0;
+int32_t scrx=0;
+int32_t scry=0;
 DATAFILE *fontsdata=NULL;
 char   fontsdat_sig[52];
-int zq_screen_w=320;
-int zq_screen_h=240;
+int32_t zq_screen_w=320;
+int32_t zq_screen_h=240;
 
 void go()
 {
@@ -119,35 +119,35 @@ void comeback()
 // rows in the window "pane"
 
 
-typedef unsigned char  byte;
-typedef unsigned short word;
+typedef uint8_t  byte;
+typedef uint16_t word;
 
 
 const char *VERSION = "ROMView v4.1";
-const int EXTLEN = 32;
-const int STA_PAL = 0x5907;
-const int ZST_PAL = 0x618;
+const int32_t EXTLEN = 32;
+const int32_t STA_PAL = 0x5907;
+const int32_t ZST_PAL = 0x618;
 
 
 PALETTE pal[4];
 BITMAP  *palbmp;
 byte *sel=NULL, *rombuf=NULL;
 char *helpbuf=NULL;
-int savew=128,saveh=0;
-int bp=4,nes=0,cset=15;
-int black,white,gray,dkgray,ltgray,blue;
-int selsize=0,selcnt=0;
-int currpal=0;
-int ofs=0, fofs=0;      // offset, fine-tuning offset
-long fsize=0;           // romfile size
-long helpsize=0;        // helpbuf size
+int32_t savew=128,saveh=0;
+int32_t bp=4,nes=0,cset=15;
+int32_t black,white,gray,dkgray,ltgray,blue;
+int32_t selsize=0,selcnt=0;
+int32_t currpal=0;
+int32_t ofs=0, fofs=0;      // offset, fine-tuning offset
+int32_t fsize=0;           // romfile size
+int32_t helpsize=0;        // helpbuf size
 bool single=false;      // selection mode
 bool locked=false;
 bool prompt = true;     // auto setup
 
 
 enum { PARTIAL=1, FULL, AUTOMENU };
-int  redraw = FULL;
+int32_t  redraw = FULL;
 
 char romfile[260] = "", palfile[260] = "";
 
@@ -181,7 +181,7 @@ EXT_LIST pal_ext_list[] =
 
 
 
-void redraw_screen(int type);
+void redraw_screen(int32_t type);
 void setup_colors();
 
 
@@ -200,16 +200,16 @@ void byebye()
  *  See the SNES documentation at zophar.net for more info on
  *  the SNES tile format.
  */
-void puttile_SNES(BITMAP *dest,int x,int y,byte *src,int cs)
+void puttile_SNES(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 {
     byte buf[64];
     
-    for(int l=0; l<8; l++)
+    for(int32_t l=0; l<8; l++)
     {
-        int  bx = l<<3;
+        int32_t  bx = l<<3;
         byte b = src[(bp&1)?l:l<<1];
         
-        for(int i=7; i>=0; i--)
+        for(int32_t i=7; i>=0; i--)
         {
             buf[bx+i] = (b&1)+(cs<<4);
             b>>=1;
@@ -218,14 +218,14 @@ void puttile_SNES(BITMAP *dest,int x,int y,byte *src,int cs)
     
     src++;
     
-    for(int p=1; p<bp; p++)
+    for(int32_t p=1; p<bp; p++)
     {
-        for(int l=0; l<8; l++)
+        for(int32_t l=0; l<8; l++)
         {
-            int  bx = l<<3;
+            int32_t  bx = l<<3;
             byte b = src[(bp&1)?l:l<<1];
             
-            for(int i=7; i>=0; i--)
+            for(int32_t i=7; i>=0; i--)
             {
                 buf[bx+i] |= (b&1)<<p;
                 b>>=1;
@@ -240,8 +240,8 @@ void puttile_SNES(BITMAP *dest,int x,int y,byte *src,int cs)
     
     byte *si = buf;
     
-    for(int j=0; j<8; j++)
-        for(int i=0; i<8; i++)
+    for(int32_t j=0; j<8; j++)
+        for(int32_t i=0; i<8; i++)
             putpixel(dest,x+i,y+j,*(si++));
 }
 
@@ -254,30 +254,30 @@ void puttile_SNES(BITMAP *dest,int x,int y,byte *src,int cs)
  *  See the NES documentation at zophar.net for more info on
  *  the NES tile format.
  */
-void puttile_NES(BITMAP *dest,int x,int y,byte *src,int cs)
+void puttile_NES(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 {
     byte buf[64];
     
-    for(int l=0; l<8; l++)
+    for(int32_t l=0; l<8; l++)
     {
-        int  bx = l<<3;
+        int32_t  bx = l<<3;
         byte b = *src;
         src++;
         
-        for(int i=7; i>=0; i--)
+        for(int32_t i=7; i>=0; i--)
         {
             buf[bx+i] = (b&1)+(cs<<4);
             b>>=1;
         }
     }
     
-    for(int l=0; l<8; l++)
+    for(int32_t l=0; l<8; l++)
     {
-        int  bx = l<<3;
+        int32_t  bx = l<<3;
         byte b = *src;
         src++;
         
-        for(int i=7; i>=0; i--)
+        for(int32_t i=7; i>=0; i--)
         {
             buf[bx+i] |= (b&1)<<1;
             b>>=1;
@@ -286,16 +286,16 @@ void puttile_NES(BITMAP *dest,int x,int y,byte *src,int cs)
     
     byte *si = buf;
     
-    for(int j=0; j<8; j++)
-        for(int i=0; i<8; i++)
+    for(int32_t j=0; j<8; j++)
+        for(int32_t i=0; i<8; i++)
             putpixel(dest,x+i,y+j,*(si++));
 }
 
-bool sel_row_is_uniform(int offset)
+bool sel_row_is_uniform(int32_t offset)
 {
     byte val=sel[offset];
     
-    for(int i=1; i<16; i++)
+    for(int32_t i=1; i<16; i++)
         if(sel[offset+i]!=val)
             return false;
             
@@ -303,20 +303,20 @@ bool sel_row_is_uniform(int offset)
 }
 
 
-void draw_pane(byte *buf,byte *s,int px, int py)
+void draw_pane(byte *buf,byte *s,int32_t px, int32_t py)
 {
     // This draws a screen's worth of tiles stored in "buf"
     // using the selection info in "s".
     
-    int bx = ((ofs/128)/bp)*16;
+    int32_t bx = ((ofs/128)/bp)*16;
     
     if(fsize)
     {
-        for(int y=0; y<208; y+=8)
+        for(int32_t y=0; y<208; y+=8)
         {
             if(*s)
             {
-                for(int x=0; x<128; x+=8)
+                for(int32_t x=0; x<128; x+=8)
                 {
                     if(nes)
                         puttile_NES(scr_buf,x+4,y+py+2,buf,s[x>>3]>>4);
@@ -328,7 +328,7 @@ void draw_pane(byte *buf,byte *s,int px, int py)
             }
             else
             {
-                for(int x=0; x<128; x+=8)
+                for(int32_t x=0; x<128; x+=8)
                 {
                     if(nes)
                         puttile_NES(scr_buf,x+px+2,y+py+2,buf,cset);
@@ -353,9 +353,9 @@ void draw_pane(byte *buf,byte *s,int px, int py)
     jwin_draw_frame(scr_buf,132+px,py,10, 212, FR_DEEP);
     
     //locked colors
-    for(int i=0; i<PANE*16 && bx+i<selsize; i+=16)
+    for(int32_t i=0; i<PANE*16 && bx+i<selsize; i+=16)
     {
-        int y = (i>>1) + py+2;
+        int32_t y = (i>>1) + py+2;
         
         if(!sel[bx+i])
         {
@@ -377,9 +377,9 @@ void draw_pane(byte *buf,byte *s,int px, int py)
 }
 
 
-void set_sel_row(int offset, byte val)
+void set_sel_row(int32_t offset, byte val)
 {
-    for(int i=0; i<16; i++)
+    for(int32_t i=0; i<16; i++)
         sel[offset+i]=val;
 }
 
@@ -388,7 +388,7 @@ void calc_selcnt()
 {
     selcnt=0;
     
-    for(int i=0; i<selsize; i+=16)
+    for(int32_t i=0; i<selsize; i+=16)
         if(sel[i])
             selcnt++;
 }
@@ -428,16 +428,16 @@ BITMAP *create_save_bitmap()
         
     clear_bitmap(bmp);
     
-    int y=0;
-    int xofs=0;
+    int32_t y=0;
+    int32_t xofs=0;
     
-    for(int i=0; i<selsize; i+=16)
+    for(int32_t i=0; i<selsize; i+=16)
     {
         if(!sel[i])
             buf += bp<<7;
         else
         {
-            for(int x=0; x<128; x+=8)
+            for(int32_t x=0; x<128; x+=8)
             {
                 if(nes)
                     puttile_NES(bmp,x+xofs,y,buf,sel[i+(x>>3)]>>4);
@@ -462,7 +462,7 @@ BITMAP *create_save_bitmap()
 
 
 
-RGB _RGB(int r,int g,int b)
+RGB _RGB(int32_t r,int32_t g,int32_t b)
 {
     RGB x;
     x.r = r;
@@ -482,12 +482,12 @@ RGB invRGB(RGB c)
 }
 
 
-inline int pal_sum(RGB p)
+inline int32_t pal_sum(RGB p)
 {
     return p.r + p.g + p.b;
 }
 
-int pal_abs(RGB p,RGB q)
+int32_t pal_abs(RGB p,RGB q)
 {
     return abs(p.r-q.r) + abs(p.g-q.g) + abs(p.b-q.b);
 }
@@ -507,7 +507,7 @@ void get_bw(RGB *p)
       // don't use color 0
       black=white=gray=dkgray=ltgray=blue=1;
     
-      for(int i=1; i<256; i++)
+      for(int32_t i=1; i<256; i++)
       {
         if(pal_sum(p[i])<pal_sum(p[black]))
           black=i;
@@ -595,14 +595,14 @@ void do_help()
 
 
 
-long readfile(const char *path,void *buf,int count)
+int32_t readfile(const char *path,void *buf,int32_t count)
 {
     FILE *f=fopen(path,"rb");
     
     if(!f)
         return 0;
         
-    long r=fread(buf,1,count,f);
+    int32_t r=fread(buf,1,count,f);
     fclose(f);
     return r;
 }
@@ -611,16 +611,16 @@ long readfile(const char *path,void *buf,int count)
 
 void setup_palettes()
 {
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
         pal[1][i] = pal[2][i] = pal[0][i];
         
-    for(int i=0; i<256; i+=16)
+    for(int32_t i=0; i<256; i+=16)
         pal[1][i] = black_palette[0];
         
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
         pal[3][i] = invRGB(pal[0][i]);
         
-    for(int i=0; i<256; i+=16)
+    for(int32_t i=0; i<256; i+=16)
         pal[2][i] = pal[3][i];
 }
 
@@ -702,7 +702,7 @@ void load_sta_pal(byte *si)
     memcpy(pal[0], black_palette, sizeof(PALETTE));
     RGB *di = pal[0];
     
-    for(int i=0; i<32; i++)
+    for(int32_t i=0; i<32; i++)
     {
         *di = *(di+128) = nes_palette[(*si)&63];
         si++;
@@ -737,7 +737,7 @@ void load_zst_pal(byte *src)
     word *si = (word*)src;
     RGB *di = pal[0];
     
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
     {
         *di = _RGB((((*si)<<1)&0x3f),(((*si)>>4)&0x3e),(((*si)>>9)&0x3e));
         si++;
@@ -763,7 +763,7 @@ void load_rom(char *path)
     if(!path)
         return;
         
-    long size = file_size_ex_password(path,"");
+    int32_t size = file_size_ex_password(path,"");
     
     if(size==0)
     {
@@ -792,7 +792,7 @@ void load_rom(char *path)
         return;
     }
     
-    for(int i=0; i<selsize; i++)
+    for(int32_t i=0; i<selsize; i++)
         sel[i]=0;
         
     if(readfile(path,rombuf,fsize)!=fsize)
@@ -847,7 +847,7 @@ void load_pal(char *path)
     {
         get_palette(pal[0]);
         
-        for(int i=0; i<16; i++)
+        for(int32_t i=0; i<16; i++)
         {
             pal[0][i+32]  = _RGB(i<<1,i<<1,i<<2);
             pal[0][i+48]  = _RGB(i<<1,i<<2,i<<2);
@@ -858,13 +858,13 @@ void load_pal(char *path)
             pal[0][i+128] = _RGB(i<<2,i<<2,i<<2);
         }
         
-        for(int i=144; i<256; i++)
+        for(int32_t i=144; i<256; i++)
             pal[0][i] = invRGB(pal[0][i-112]);
     }
     else
     {
         char *ext = get_extension(path);
-        long size = file_size_ex_password(path, "");
+        int32_t size = file_size_ex_password(path, "");
         
         if(size==0)
         {
@@ -916,14 +916,14 @@ void load_pal(char *path)
                 return;
             }
             
-            int used[16];
-            int used_cnt = 0;
+            int32_t used[16];
+            int32_t used_cnt = 0;
             
-            for(int r=0; r<16; r++)
+            for(int32_t r=0; r<16; r++)
             {
                 used[r] = 0;
                 
-                for(int i=0; i<16; i++)
+                for(int32_t i=0; i<16; i++)
                     if(pal_sum(p[(r<<4)+i]))
                     {
                         used[r] = 1;
@@ -939,7 +939,7 @@ void load_pal(char *path)
                 RGB *si = p+16;
                 RGB *di = p+128;
                 
-                for(int i=0; i<32; i++)
+                for(int32_t i=0; i<32; i++)
                 {
                     *di = *si;
                     si++;
@@ -999,7 +999,7 @@ DIALOG types_dlg[] =
 
 
 
-int onROMTypes()
+int32_t onROMTypes()
 {
     char buf[EXTLEN];
     strcpy(buf, rom_ext);
@@ -1009,7 +1009,7 @@ int onROMTypes()
     types_dlg[0].dp2 = lfont;
     types_dlg[2].dp = buf;
     
-    int ret = popup_dialog(types_dlg, 0);
+    int32_t ret = popup_dialog(types_dlg, 0);
     
     if(ret==3)
         strcpy(rom_ext,buf);
@@ -1018,13 +1018,13 @@ int onROMTypes()
 }
 
 
-int onLoadROM()
+int32_t onLoadROM()
 {
     char path[260];
     strcpy(path,romfile);
-    static int list_sel = 0;
+    static int32_t list_sel = 0;
     
-    int ret = jwin_file_browse_ex("Load ROM File", path, rom_ext_list, &list_sel, 2048, -1, -1, lfont);
+    int32_t ret = jwin_file_browse_ex("Load ROM File", path, rom_ext_list, &list_sel, 2048, -1, -1, lfont);
     redraw_screen(FULL);
     
     if(ret)
@@ -1034,13 +1034,13 @@ int onLoadROM()
 }
 
 
-int onLoadPal()
+int32_t onLoadPal()
 {
     char path[260];
     strcpy(path,palfile);
-    static int list_sel = 0;
+    static int32_t list_sel = 0;
     
-    int ret = jwin_file_browse_ex("Load Palette", path, pal_ext_list, &list_sel, 2048, -1, -1, lfont);
+    int32_t ret = jwin_file_browse_ex("Load Palette", path, pal_ext_list, &list_sel, 2048, -1, -1, lfont);
     redraw_screen(FULL);
     
     if(ret)
@@ -1051,7 +1051,7 @@ int onLoadPal()
 
 
 
-int onBP1()
+int32_t onBP1()
 {
     if(!locked)
     {
@@ -1062,7 +1062,7 @@ int onBP1()
     
     return D_O_K;
 }
-int onBP2()
+int32_t onBP2()
 {
     if(!locked)
     {
@@ -1073,7 +1073,7 @@ int onBP2()
     
     return D_O_K;
 }
-int onBP4()
+int32_t onBP4()
 {
     if(!locked)
     {
@@ -1084,7 +1084,7 @@ int onBP4()
     
     return D_O_K;
 }
-int onBP8()
+int32_t onBP8()
 {
     if(!locked)
     {
@@ -1095,7 +1095,7 @@ int onBP8()
     
     return D_O_K;
 }
-int onBPNES()
+int32_t onBPNES()
 {
     if(!locked)
     {
@@ -1107,46 +1107,46 @@ int onBPNES()
     return D_O_K;
 }
 
-int onDecCSet()
+int32_t onDecCSet()
 {
     cset=(cset-1)&15;
     redraw=PARTIAL;
     return D_O_K;
 }
-int onIncCSet()
+int32_t onIncCSet()
 {
     cset=(cset+1)&15;
     redraw=PARTIAL;
     return D_O_K;
 }
 
-int onDecOfs()
+int32_t onDecOfs()
 {
     if(fofs>0) fofs--;
     
     redraw=PARTIAL;
     return D_O_K;
 }
-int onIncOfs()
+int32_t onIncOfs()
 {
     fofs++;
     redraw=PARTIAL;
     return D_O_K;
 }
 
-int onUp()
+int32_t onUp()
 {
     ofs -= 8*16*bp;
     redraw=PARTIAL;
     return D_O_K;
 }
-int onDown()
+int32_t onDown()
 {
     ofs += 8*16*bp;
     redraw=PARTIAL;
     return D_O_K;
 }
-int onLeft()
+int32_t onLeft()
 {
     fofs -= 8*bp;
     
@@ -1155,38 +1155,38 @@ int onLeft()
     redraw=PARTIAL;
     return D_O_K;
 }
-int onRight()
+int32_t onRight()
 {
     fofs += 8*bp;
     redraw=PARTIAL;
     return D_O_K;
 }
-int onPgUp()
+int32_t onPgUp()
 {
     ofs -= 8*PANE*16*bp;
     redraw=PARTIAL;
     return D_O_K;
 }
-int onPgDn()
+int32_t onPgDn()
 {
     ofs += 8*PANE*16*bp;
     redraw=PARTIAL;
     return D_O_K;
 }
-int onHome()
+int32_t onHome()
 {
     ofs = 0;
     redraw=PARTIAL;
     return D_O_K;
 }
-int onEnd()
+int32_t onEnd()
 {
     ofs = fsize;
     redraw=PARTIAL;
     return D_O_K;
 }
 
-int onMode()
+int32_t onMode()
 {
     single = !single;
     redraw=PARTIAL;
@@ -1194,7 +1194,7 @@ int onMode()
 }
 
 
-int onWidth()
+int32_t onWidth()
 {
     if(savew==512)
         savew=128;
@@ -1206,7 +1206,7 @@ int onWidth()
 }
 
 
-int onPalette()
+int32_t onPalette()
 {
     currpal++;
     currpal&=3;
@@ -1220,7 +1220,7 @@ int onPalette()
 
 void do_save(bool saveas)
 {
-    static int fnum=1;
+    static int32_t fnum=1;
     
     struct al_ffblk fb;
     BITMAP *bmp;
@@ -1253,7 +1253,7 @@ void do_save(bool saveas)
     // save as ?
     if(saveas)
     {
-        int ret = jwin_file_select_ex("Save Image File (bmp,pcx)", fname, "bmp;pcx", 2048, -1, -1, lfont);
+        int32_t ret = jwin_file_select_ex("Save Image File (bmp,pcx)", fname, "bmp;pcx", 2048, -1, -1, lfont);
         redraw_screen(FULL);
         
         if(ret==0)
@@ -1278,24 +1278,24 @@ clean_up:
 
 
 
-int onSave()
+int32_t onSave()
 {
     do_save(false);
     return D_O_K;
 }
 
 
-int onSaveAs()
+int32_t onSaveAs()
 {
     do_save(true);
     return D_O_K;
 }
 
 
-int onPreview()
+int32_t onPreview()
 {
     BITMAP *bmp,*buf;
-    int  px=0,py=0;
+    int32_t  px=0,py=0;
     double scale=1.0;
     bool done=false, refresh=true;
     
@@ -1331,8 +1331,8 @@ int onPreview()
                 
             clear_to_color(b,black);
             stretch_blit(bmp,b,0,0,bmp->w,bmp->h,
-                         int(320+(px-bmp->w)*scale)/2,int(240+(py-bmp->h)*scale)/2,
-                         int(bmp->w*scale),int(bmp->h*scale));
+                         int32_t(320+(px-bmp->w)*scale)/2,int32_t(240+(py-bmp->h)*scale)/2,
+                         int32_t(bmp->w*scale),int32_t(bmp->h*scale));
                          
             //text_mode(black);
             textprintf_ex(b,font,0,232,white,-1,"%dx%d %.0f%%",bmp->w,bmp->h,scale*100);
@@ -1346,7 +1346,7 @@ int onPreview()
             refresh=false;
         }
         
-        int speed = 5;
+        int32_t speed = 5;
         
         if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
             speed = 25;
@@ -1424,8 +1424,8 @@ int onPreview()
                 break;
                 
             case KEY_Z:
-                px = bmp->w - int(320 / scale);
-                py = bmp->h - int(240 / scale);
+                px = bmp->w - int32_t(320 / scale);
+                py = bmp->h - int32_t(240 / scale);
                 break;
                 
             default:
@@ -1445,13 +1445,13 @@ int onPreview()
 
 
 
-int onSelectAll()
+int32_t onSelectAll()
 {
     if(fsize && jwin_alert("Confirm Select","Select entire ROM?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
     {
         locked=true;
         
-        for(int i=0; i<selsize/bp; i+=16)
+        for(int32_t i=0; i<selsize/bp; i+=16)
             set_sel_row(i,(cset<<4)+1);
     }
     
@@ -1460,13 +1460,13 @@ int onSelectAll()
 }
 
 
-int onClearAll()
+int32_t onClearAll()
 {
     if(fsize && jwin_alert("Confirm Clear","Clear all selections?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
     {
         locked=false;
         
-        for(int i=0; i<selsize; i++)
+        for(int32_t i=0; i<selsize; i++)
             sel[i]=0;
     }
     
@@ -1475,14 +1475,14 @@ int onClearAll()
 }
 
 
-int onSelectPane()
+int32_t onSelectPane()
 {
     if(fsize)
     {
         locked=true;
-        int bx = ((ofs/128)/bp)*16;
+        int32_t bx = ((ofs/128)/bp)*16;
         
-        for(int i=0; i<PANE*16; i+=16)
+        for(int32_t i=0; i<PANE*16; i+=16)
             set_sel_row(bx+i,16*cset+1);
             
         redraw=PARTIAL;
@@ -1492,7 +1492,7 @@ int onSelectPane()
 }
 
 
-int onHelp()
+int32_t onHelp()
 {
     if(helpsize==0)
     {
@@ -1507,7 +1507,7 @@ int onHelp()
 }
 
 
-int onExit()
+int32_t onExit()
 {
     if(jwin_alert("ROMview","Exit?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
         return D_CLOSE;
@@ -1516,20 +1516,20 @@ int onExit()
 }
 
 
-int onAbout()
+int32_t onAbout()
 {
     jwin_alert("About",VERSION,"by Phantom Menace","www.armageddongames.com","OK",NULL,13,27,lfont);
     return D_O_K;
 }
 
 
-int onAutoAlways()
+int32_t onAutoAlways()
 {
     prompt = false;
     redraw = AUTOMENU;
     return D_O_K;
 }
-int onAutoPrompt()
+int32_t onAutoPrompt()
 {
     prompt = true;
     redraw = AUTOMENU;
@@ -1691,12 +1691,12 @@ void setup_colors()
         
     if(mouse)
     {
-        int si=0;
+        int32_t si=0;
         
-        for(int y=0; y<16; y++)
-            for(int x=0; x<16; x++)
+        for(int32_t y=0; y<16; y++)
+            for(int32_t x=0; x<16; x++)
             {
-                int c=mouse_data[si++];
+                int32_t c=mouse_data[si++];
                 
                 switch(c)
                 {
@@ -1727,9 +1727,9 @@ void setup_colors()
 }
 
 
-void redraw_screen(int type)
+void redraw_screen(int32_t type)
 {
-    int bx = ((ofs/128)/bp)*16;
+    int32_t bx = ((ofs/128)/bp)*16;
     calc_saveh();
     
     scare_mouse();
@@ -1752,10 +1752,10 @@ void redraw_screen(int type)
         jwin_draw_frame(scr_buf,146,74,172, 164, FR_DEEP);
         
         //palette
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
         {
-            int x = ((i&15)*3)+160+88;
-            int y = ((i>>4)*3)+76-74;
+            int32_t x = ((i&15)*3)+160+88;
+            int32_t y = ((i>>4)*3)+76-74;
             rectfill(scr_buf,x,y+16,x+2,y+2+16,i);
         }
         
@@ -1795,10 +1795,10 @@ void redraw_screen(int type)
 
 
 
-int log2(const int x)
+int32_t log2(const int32_t x)
 {
-    int log = 0;
-    int a = 1;
+    int32_t log = 0;
+    int32_t a = 1;
     
     while(x > a)
     {
@@ -1809,7 +1809,7 @@ int log2(const int x)
     return log;
 }
 
-int main(int argc, char **argv)
+int32_t main(int32_t argc, char **argv)
 {
 
     /*
@@ -1982,7 +1982,7 @@ int main(int argc, char **argv)
         }
         else if(redraw)
         {
-            int maxofs = (fsize - 128*PANE*bp) & (0xFFFFFF80 << (log2(bp)));
+            int32_t maxofs = (fsize - 128*PANE*bp) & (0xFFFFFF80 << (log2(bp)));
             
             if(ofs > maxofs)
                 ofs = maxofs;
@@ -2032,15 +2032,15 @@ int main(int argc, char **argv)
             if((gui_mouse_b()&1) && fsize)
             {
                 locked=true;
-                int bx = ((ofs/128)/bp)*16;
-                int di = ((gui_mouse_y()-26)/8)*16;
+                int32_t bx = ((ofs/128)/bp)*16;
+                int32_t di = ((gui_mouse_y()-26)/8)*16;
                 
                 if(sel[bx+di]==0 || !single)
                     set_sel_row(bx+di,16*cset+1);
                     
                 if(single)
                 {
-                    int x = zc_min(gui_mouse_x()/8,15);
+                    int32_t x = zc_min(gui_mouse_x()/8,15);
                     sel[bx+di+x] = 16*cset+1;
                 }
                 
@@ -2049,8 +2049,8 @@ int main(int argc, char **argv)
             }
             else if(gui_mouse_b()&2)
             {
-                int bx = ((ofs/128)/bp)*16;
-                int di = ((gui_mouse_y()-26)/8)*16;
+                int32_t bx = ((ofs/128)/bp)*16;
+                int32_t di = ((gui_mouse_y()-26)/8)*16;
                 set_sel_row(bx+di,0);
                 redraw=PARTIAL;
                 calc_selcnt();
@@ -2112,7 +2112,7 @@ int main(int argc, char **argv)
             {
                 while(gui_mouse_b()&1)
                 {
-                    int new_cset = zc_min(zc_max(0, (gui_mouse_y()-18)/3),15);
+                    int32_t new_cset = zc_min(zc_max(0, (gui_mouse_y()-18)/3),15);
                     
                     if(cset != new_cset)
                     {
@@ -2150,13 +2150,13 @@ int main(int argc, char **argv)
             {
                 if(gui_mouse_b()&1)
                 {
-                    int sx=palbmpx+gui_mouse_x();
-                    int sy=palbmpy+gui_mouse_y();
+                    int32_t sx=palbmpx+gui_mouse_x();
+                    int32_t sy=palbmpy+gui_mouse_y();
                     
                     while(gui_mouse_b()&1)
                     {
-                        int newpalbmpx = zc_min(zc_max(0,sx-gui_mouse_x()),zc_max(palbmp->w-168,0));
-                        int newpalbmpy = zc_min(zc_max(0,sy-gui_mouse_y()),zc_max(palbmp->h-160,0));
+                        int32_t newpalbmpx = zc_min(zc_max(0,sx-gui_mouse_x()),zc_max(palbmp->w-168,0));
+                        int32_t newpalbmpy = zc_min(zc_max(0,sy-gui_mouse_y()),zc_max(palbmp->h-160,0));
                         
                         if(palbmpx != newpalbmpx || palbmpy != newpalbmpy)
                         {
@@ -2196,137 +2196,137 @@ int main(int argc, char **argv)
 END_OF_MAIN()
 
 // these are here so that copy_dialog won't choke when compiling romview
-int d_alltriggerbutton_proc(int, DIALOG*, int)
+int32_t d_alltriggerbutton_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_comboa_radio_proc(int, DIALOG*, int)
+int32_t d_comboa_radio_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_comboabutton_proc(int, DIALOG*, int)
+int32_t d_comboabutton_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssdn_btn_proc(int, DIALOG*, int)
+int32_t d_ssdn_btn_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssdn_btn2_proc(int, DIALOG*, int)
+int32_t d_ssdn_btn2_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssdn_btn3_proc(int, DIALOG*, int)
+int32_t d_ssdn_btn3_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssdn_btn4_proc(int, DIALOG*, int)
+int32_t d_ssdn_btn4_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_sslt_btn_proc(int, DIALOG*, int)
+int32_t d_sslt_btn_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_sslt_btn2_proc(int, DIALOG*, int)
+int32_t d_sslt_btn2_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_sslt_btn3_proc(int, DIALOG*, int)
+int32_t d_sslt_btn3_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_sslt_btn4_proc(int, DIALOG*, int)
+int32_t d_sslt_btn4_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssrt_btn_proc(int, DIALOG*, int)
+int32_t d_ssrt_btn_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssrt_btn2_proc(int, DIALOG*, int)
+int32_t d_ssrt_btn2_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssrt_btn3_proc(int, DIALOG*, int)
+int32_t d_ssrt_btn3_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssrt_btn4_proc(int, DIALOG*, int)
+int32_t d_ssrt_btn4_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssup_btn_proc(int, DIALOG*, int)
+int32_t d_ssup_btn_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssup_btn2_proc(int, DIALOG*, int)
+int32_t d_ssup_btn2_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssup_btn3_proc(int, DIALOG*, int)
+int32_t d_ssup_btn3_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_ssup_btn4_proc(int, DIALOG*, int)
+int32_t d_ssup_btn4_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_tri_edit_proc(int, DIALOG*, int)
+int32_t d_tri_edit_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_triggerbutton_proc(int, DIALOG*, int)
+int32_t d_triggerbutton_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int dcs_auto_button_proc(int, DIALOG*, int)
+int32_t dcs_auto_button_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_jbutton_proc(int, DIALOG*, int)
+int32_t d_jbutton_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_kbutton_proc(int, DIALOG*, int)
+int32_t d_kbutton_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_listen_proc(int, DIALOG*, int)
+int32_t d_listen_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_savemidi_proc(int, DIALOG*, int)
+int32_t d_savemidi_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }
 
-int d_dummy_proc(int msg, DIALOG* d, int)
+int32_t d_dummy_proc(int32_t msg, DIALOG* d, int32_t)
 {
 	if(msg == MSG_START)
 	{
@@ -2338,7 +2338,7 @@ int d_dummy_proc(int msg, DIALOG* d, int)
     return D_O_K;
 }
 
-int d_timer_proc(int msg, DIALOG *d, int c)
+int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;

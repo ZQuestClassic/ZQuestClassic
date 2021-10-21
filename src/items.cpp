@@ -37,7 +37,7 @@ extern zinitdata zinit;
 	extern ZModule zcm;
 #endif
 
-int fairy_cnt=0;
+int32_t fairy_cnt=0;
 
 item::~item()
 {
@@ -46,7 +46,7 @@ item::~item()
 	FFCore.deallocateAllArrays(SCRIPT_ITEMSPRITE, getUID());
 }
 
-bool item::animate(int)
+bool item::animate(int32_t)
 {
 	if(!screenIsScrolling()) // Because subscreen items are items, too. :p
 	{
@@ -60,7 +60,7 @@ bool item::animate(int)
 				{
 				y+=fall/100;
 				
-				if(fall <= (int)zinit.terminalv)
+				if(fall <= (int32_t)zinit.terminalv)
 				{
 					fall += (zinit.gravity2 / 100);
 				}
@@ -68,7 +68,7 @@ bool item::animate(int)
 				else
 				{
 				if(fall!=0 && !(step>0 && dir==up))  // Don't fix pos if still moving through solidness
-					y-=(int)y%8; // Fix position
+					y-=(int32_t)y%8; // Fix position
 					
 				fall = 0;
 				}
@@ -83,7 +83,7 @@ bool item::animate(int)
 				{
 				z = fall = 0;
 				}
-				else if(fall <= (int)zinit.terminalv)
+				else if(fall <= (int32_t)zinit.terminalv)
 				{
 				fall += (zinit.gravity2 / 100);
 				}
@@ -97,9 +97,9 @@ bool item::animate(int)
 			
 			wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
 			cs = spr.csets & 0xF;
-			int fr = spr.frames ? spr.frames : 1;
-			int spd = spr.speed ? spr.speed : 1;
-			int animclk = (PITFALL_FALL_FRAMES-fallclk);
+			int32_t fr = spr.frames ? spr.frames : 1;
+			int32_t spd = spr.speed ? spr.speed : 1;
+			int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
 			tile = spr.newtile + zc_min(animclk / spd, fr-1);
 			
 			run_script(MODE_NORMAL);
@@ -116,18 +116,18 @@ bool item::animate(int)
 			{
 				wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];
 				cs = spr.csets & 0xF;
-				int fr = spr.frames ? spr.frames : 1;
-				int spd = spr.speed ? spr.speed : 1;
-				int animclk = (WATER_DROWN_FRAMES-drownclk);
+				int32_t fr = spr.frames ? spr.frames : 1;
+				int32_t spd = spr.speed ? spr.speed : 1;
+				int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
 				tile = spr.newtile + zc_min(animclk / spd, fr-1);
 			}
 			else 
 			{
 				wpndata &spr = wpnsbuf[QMisc.sprites[sprDROWN]];
 				cs = spr.csets & 0xF;
-				int fr = spr.frames ? spr.frames : 1;
-				int spd = spr.speed ? spr.speed : 1;
-				int animclk = (WATER_DROWN_FRAMES-drownclk);
+				int32_t fr = spr.frames ? spr.frames : 1;
+				int32_t spd = spr.speed ? spr.speed : 1;
+				int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
 				tile = spr.newtile + zc_min(animclk / spd, fr-1);
 			}
 			
@@ -152,7 +152,7 @@ bool item::animate(int)
 			{
 				if(fall!=0)
 				{
-					y-=int(y)%8; //Fix coords
+					y-=int32_t(y)%8; //Fix coords
 					fall = 0;
 				}
 				//fall = -fall/2; // LA key bounce. //Is this even working? Doesn't appear to be. -V
@@ -169,12 +169,12 @@ bool item::animate(int)
 					z = 0;
 					fall = -fall/2;
 				}
-				else if(z <= 1 && abs(fall) < (int)(zinit.gravity2 / 100))
+				else if(z <= 1 && abs(fall) < (int32_t)(zinit.gravity2 / 100))
 				{
 					z=0;
 					fall=0;
 				}
-				else if(fall <= (int)zinit.terminalv)
+				else if(fall <= (int32_t)zinit.terminalv)
 				{
 					fall += (zinit.gravity2 / 100);
 				}
@@ -223,7 +223,7 @@ bool item::animate(int)
 	
 	if(do_animation && (get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0)))
 	{
-		int spd = o_speed;
+		int32_t spd = o_speed;
 		
 		if(aframe==0)
 		{
@@ -292,7 +292,7 @@ void item::draw(BITMAP *dest)
 	}
 }
 
-item::item(zfix X,zfix Y,zfix Z,int i,int p,int c, bool isDummy) : sprite()
+item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : sprite()
 {
 	x=X;
 	y=Y;
@@ -331,7 +331,7 @@ item::item(zfix X,zfix Y,zfix Z,int i,int p,int c, bool isDummy) : sprite()
 	pickup_string_flags = itemsbuf[id].pickup_string_flags;
 	linked_parent = 0;
 	moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
-	for ( int q = 0; q < 8; q++ ) initD[q] = itemsbuf[id].initiald[q];
+	for ( int32_t q = 0; q < 8; q++ ) initD[q] = itemsbuf[id].initiald[q];
 	
 	//if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itemsbuf[id].pickup;
 	switch (itemsbuf[id].pickupflag) 
@@ -389,7 +389,7 @@ item::item(zfix X,zfix Y,zfix Z,int i,int p,int c, bool isDummy) : sprite()
 			sfx(itemsbuf[id].usesound);
 	}
 	
-	/*for(int j=0;j<8;j++)
+	/*for(int32_t j=0;j<8;j++)
 	{
 	  if(j<2) a[j]=itemsbuf[id].initiala[j]*10000;
 	  d[j]=itemsbuf[id].initiald[j];
@@ -415,7 +415,7 @@ item::item(zfix X,zfix Y,zfix Z,int i,int p,int c, bool isDummy) : sprite()
 
 // easy way to draw an item
 
-void putitem(BITMAP *dest,int x,int y,int item_id)
+void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id)
 {
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0);
 	temp.yofs=0;
@@ -439,11 +439,11 @@ void putitem(BITMAP *dest,int x,int y,int item_id)
 
 // Linker issues because this is shared with ZQu4est. :( -Z
 #ifndef IS_ZQUEST
-int item::getScriptUID() { return script_UID; }
-void item::setScriptUID(int new_id) { script_UID = new_id; }
+int32_t item::getScriptUID() { return script_UID; }
+void item::setScriptUID(int32_t new_id) { script_UID = new_id; }
 #endif
 
-void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int flash)
+void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, int32_t &aframe, int32_t flash)
 {
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
 	temp.yofs=0;
@@ -474,14 +474,14 @@ void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int 
 }
 
 //some methods for dealing with items
-int getItemFamily(itemdata* items, int item)
+int32_t getItemFamily(itemdata* items, int32_t item)
 {
 	return items[item].family;
 }
 
-void removeItemsOfFamily(gamedata *g, itemdata *items, int family)
+void removeItemsOfFamily(gamedata *g, itemdata *items, int32_t family)
 {
-	for(int i=0; i<MAXITEMS; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family)
 		{
@@ -498,9 +498,9 @@ void removeItemsOfFamily(gamedata *g, itemdata *items, int family)
 	}
 }
 
-void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int family, int level)
+void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int32_t family, int32_t level)
 {
-	for(int i=0; i<MAXITEMS; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && items[i].fam_type < level)
 		{
@@ -517,9 +517,9 @@ void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int family, int
 	}
 }
 
-void removeItemsOfFamily(zinitdata *z, itemdata *items, int family)
+void removeItemsOfFamily(zinitdata *z, itemdata *items, int32_t family)
 {
-	for(int i=0; i<MAXITEMS; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family)
 		{
@@ -544,12 +544,12 @@ void removeItemsOfFamily(zinitdata *z, itemdata *items, int family)
 	}
 }
 
-int getHighestLevelOfFamily(zinitdata *source, itemdata *items, int family)
+int32_t getHighestLevelOfFamily(zinitdata *source, itemdata *items, int32_t family)
 {
-	int result = -1;
-	int highestlevel = -1;
+	int32_t result = -1;
+	int32_t highestlevel = -1;
 	
-	for(int i=0; i<MAXITEMS; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && source->items[i])
 		{
@@ -564,12 +564,12 @@ int getHighestLevelOfFamily(zinitdata *source, itemdata *items, int family)
 	return result;
 }
 
-int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family, bool checkenabled)
+int32_t getHighestLevelOfFamily(gamedata *source, itemdata *items, int32_t family, bool checkenabled)
 {
-	int result = -1;
-	int highestlevel = -1;
+	int32_t result = -1;
+	int32_t highestlevel = -1;
 	
-	for(int i=0; i<MAXITEMS; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && source->get_item(i) && (checkenabled?(!(source->items_off[i])):1))
 		{
@@ -584,11 +584,11 @@ int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family, bool 
 	return result;
 }
 
-int getItemID(itemdata *items, int family, int level)
+int32_t getItemID(itemdata *items, int32_t family, int32_t level)
 {
 	if(level<0) return getCanonicalItemID(items, family);
 	
-	for(int i=0; i<MAXITEMS; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && items[i].fam_type == level)
 			return i;
@@ -597,9 +597,9 @@ int getItemID(itemdata *items, int family, int level)
 	return -1;
 }
 
-int getItemIDPower(itemdata *items, int family, int power)
+int32_t getItemIDPower(itemdata *items, int32_t family, int32_t power)
 {
-	for(int i=0; i<MAXITEMS; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && items[i].power == power)
 			return i;
@@ -609,12 +609,12 @@ int getItemIDPower(itemdata *items, int family, int power)
 }
 
 /* Retrieves the canonical item of a given item family, the item with least non-0 level */
-int getCanonicalItemID(itemdata *items, int family)
+int32_t getCanonicalItemID(itemdata *items, int32_t family)
 {
-	int lowestid = -1;
-	int lowestlevel = -1;
+	int32_t lowestid = -1;
+	int32_t lowestlevel = -1;
 	
-	for(int i=0; i<MAXITEMS; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && (items[i].fam_type < lowestlevel || lowestlevel == -1))
 		{
@@ -626,13 +626,13 @@ int getCanonicalItemID(itemdata *items, int family)
 	return lowestid;
 }
 
-void addOldStyleFamily(zinitdata *dest, itemdata *items, int family, char levels)
+void addOldStyleFamily(zinitdata *dest, itemdata *items, int32_t family, char levels)
 {
-	for(int i=0; i<8; i++)
+	for(int32_t i=0; i<8; i++)
 	{
 		if(levels & (1<<i))
 		{
-			int id = getItemID(items, family, i+1);
+			int32_t id = getItemID(items, family, i+1);
 			
 			if(id != -1)
 				dest->items[id]=true;
@@ -640,11 +640,11 @@ void addOldStyleFamily(zinitdata *dest, itemdata *items, int family, char levels
 	}
 }
 
-int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family)
+int32_t computeOldStyleBitfield(zinitdata *source, itemdata *items, int32_t family)
 {
-	int rval=0;
+	int32_t rval=0;
 	
-	for(int i=0; i<MAXITEMS; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && source->items[i])
 		{

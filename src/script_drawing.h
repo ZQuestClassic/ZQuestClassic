@@ -16,8 +16,8 @@ public:
     {
         is_init = false;
         
-        for(int i(0); i < 4; ++i)
-            for(int j(0); j < 4; ++j)
+        for(int32_t i(0); i < 4; ++i)
+            for(int32_t j(0); j < 4; ++j)
                 _bmp[i][j] = 0;
     }
     
@@ -26,11 +26,11 @@ public:
         if(is_init)
             return;
             
-        int size[4] = { 16, 32, 64, 128 };
+        int32_t size[4] = { 16, 32, 64, 128 };
         
-        for(int i(0); i < 4; ++i)
+        for(int32_t i(0); i < 4; ++i)
         {
-            for(int j(0); j < 4; ++j)
+            for(int32_t j(0); j < 4; ++j)
                 _bmp[i][j] = create_bitmap_ex(8, size[i], size[j]);
         }
         
@@ -44,8 +44,8 @@ public:
     
     void Dispose()
     {
-        for(int i(0); i < 4; ++i)
-            for(int j(0); j < 4; ++j)
+        for(int32_t i(0); i < 4; ++i)
+            for(int32_t j(0); j < 4; ++j)
             {
                 if(_bmp[i][j])
                     destroy_bitmap(_bmp[i][j]);
@@ -56,7 +56,7 @@ public:
         is_init = false;
     }
     
-    inline BITMAP* GetTexture(int bw, int bh)
+    inline BITMAP* GetTexture(int32_t bw, int32_t bh)
     {
         BITMAP* ret = 0;
         
@@ -65,7 +65,7 @@ public:
             
         if(bw == 1 || bw == 2 || bw == 4 || bw == 8)
         {
-            int x = bw >> 1;
+            int32_t x = bw >> 1;
             
             if(x > 3) x = 3;
             
@@ -104,11 +104,11 @@ public:
             destroy_bitmap(_parent_bmp), _parent_bmp = 0;
     }
     
-    inline BITMAP* AquireSubBitmap(int w, int h)
+    inline BITMAP* AquireSubBitmap(int32_t w, int32_t h)
     {
         return AquireSubBitmap(0, 0, w, h);
     }
-    inline BITMAP* AquireSubBitmap(int x, int y, int w, int h)
+    inline BITMAP* AquireSubBitmap(int32_t x, int32_t y, int32_t w, int32_t h)
     {
         //todo: can currently only partition out one bitmap at a time.
         if(!_parent_bmp)
@@ -133,7 +133,7 @@ public:
     
 protected:
     static BITMAP *_parent_bmp;
-    //static int _rc = 0;
+    //static int32_t _rc = 0;
 };
 
 
@@ -190,9 +190,9 @@ public:
         return str;
     }
     
-    std::vector<long>* GetVector()
+    std::vector<int32_t>* GetVector()
     {
-        std::vector<long>* v;
+        std::vector<int32_t>* v;
         
         if(drawdata.size() > current_drawdata_count)
         {
@@ -201,7 +201,7 @@ public:
         }
         else
         {
-            v = new std::vector<long>();
+            v = new std::vector<int32_t>();
             drawdata.push_back(v);
         }
         
@@ -216,7 +216,7 @@ protected:
     size_t current_string_count;
     
     //for other dynamic drawing (quad3d etc..)
-    std::vector<std::vector<long>*> drawdata;
+    std::vector<std::vector<int32_t>*> drawdata;
     size_t current_drawdata_count;
     
 };
@@ -247,7 +247,7 @@ public:
     //    ptr = (void*)aptr;
     //}
     
-    void SetVector(std::vector<long>* v)
+    void SetVector(std::vector<int32_t>* v)
     {
         ptr = (void*)v;
     }
@@ -257,17 +257,17 @@ public:
         return ptr;
     }
     
-    int &operator [](const int i)
+    int32_t &operator [](const int32_t i)
     {
         return data[i];
     }
-    const int &operator [](const int i) const
+    const int32_t &operator [](const int32_t i) const
     {
         return data[i];
     }
     
 protected:
-    int data[ SCRIPT_DRAWING_COMMAND_VARIABLES ];
+    int32_t data[ SCRIPT_DRAWING_COMMAND_VARIABLES ];
     void* ptr; //will be changed later
 };
 
@@ -283,11 +283,11 @@ public:
     typedef vec_type ::iterator vec_type_iter;
     
     // Unlikely people will be using all 1000 commands.
-    const static int DefaultCapacity = 256; //176 + some extra
+    const static int32_t DefaultCapacity = 256; //176 + some extra
     
     CScriptDrawingCommands() : commands(), count(0) {}
     ~CScriptDrawingCommands() {}
-    int GetCount();
+    int32_t GetCount();
     void Dispose()
     {
         bitmap_pool.Dispose();
@@ -306,7 +306,7 @@ public:
     
     void Clear();
     
-    int Count() const
+    int32_t Count() const
     {
         return count;
     }
@@ -314,18 +314,18 @@ public:
     {
         return draw_container.GetString();
     }
-    std::vector<long>* GetVector()
+    std::vector<int32_t>* GetVector()
     {
         return draw_container.GetVector();
     }
     
-    int GetNext()
+    int32_t GetNext()
     {
         if(count>=MAX_SCRIPT_DRAWING_COMMANDS)
             return -1;
         
-        const int next_index = count;
-        const int capacity = commands.capacity();
+        const int32_t next_index = count;
+        const int32_t capacity = commands.capacity();
         
         if(++count > capacity)
         {
@@ -344,17 +344,17 @@ public:
         return next_index;
     }
     
-    reference operator [](const int i)
+    reference operator [](const int32_t i)
     {
         return commands[i];
     }
-    const_reference operator [](const int i) const
+    const_reference operator [](const int32_t i) const
     {
         return commands[i];
     }
     
     
-    inline BITMAP* AquireSubBitmap(int w, int h)
+    inline BITMAP* AquireSubBitmap(int32_t w, int32_t h)
     {
         return bitmap_pool.AquireSubBitmap(w,h);
     }
@@ -364,13 +364,13 @@ public:
         bitmap_pool.ReleaseSubBitmap(b);
     }
     
-    inline BITMAP* GetSmallTextureBitmap(int bw, int bh)
+    inline BITMAP* GetSmallTextureBitmap(int32_t bw, int32_t bh)
     {
         return small_tex_cache.GetTexture(bw, bh);
     }
     
 public: 
-	int count;
+	int32_t count;
 protected:
     vec_type commands;
     

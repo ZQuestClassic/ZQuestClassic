@@ -27,22 +27,22 @@ DIALOG& DialogRef::operator*()
 	return owner->alDialog[index];
 }
 
-DIALOG& DialogRef::operator[](int offset)
+DIALOG& DialogRef::operator[](int32_t offset)
 {
 	return owner->alDialog.at(index+offset);
 }
 
-const DIALOG& DialogRef::operator[](int offset) const
+const DIALOG& DialogRef::operator[](int32_t offset) const
 {
 	return owner->alDialog.at(index+offset);
 }
 
-void DialogRef::message(int msg, int c)
+void DialogRef::message(int32_t msg, int32_t c)
 {
 	object_message(&owner->alDialog[index], msg, c);
 }
 
-void DialogRef::applyVisibility(bool visible, int offs)
+void DialogRef::applyVisibility(bool visible, int32_t offs)
 {
 	if(visible)
 	{

@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 96
-Document Revision: 28th Sept, 2021
+Document for: 2.55, Alpha 99
+Document Revision: 13th Oct, 2021
 
 
  __           _   _                 
@@ -4234,7 +4234,10 @@ int Parent;
 npc Parent;
  * The ID of the item, or pointer of the npc (respectively for lweapon, and for eweapon) that created this weapon.
  * Weapons created by script have a default Parent of -1 (lweapon) and <npc>-0.0001 (eweapon). 
-	
+ * For lweapons, this value determines what item editor index to read item flags from.
+ *     Setting it to an item of a class that does not normally generate the given weapon
+ *     type may have unexpected effects.
+ 
 int Level;
  * LWeapons: The Level value associated with the weapon. 
  * EWeapons: The first bit (Level&1) is used to set a 'boss/unblockable'
@@ -6172,27 +6175,32 @@ int Expansion[6];
  * Reserved for future use by the Combo Editor.
 	
 int Attributes[4]; 
- * Corresponds to Attributes[0] through Attributes[3] on the 'Attributes 2'
+ * Corresponds to Attributes[0] through Attributes[3] on the 'Attributes'
  * 	tab in the Combo Editor.
- * Min value FLOAT_MIN, max value FLOAT_MAX.
+ * Min value MIN_FLOAT, max value MAX_FLOAT.
  
- int Attribytes[4]; 
- * Corresponds to Attribytes[0] through Attribytes[3] on the 'Attributes 1'
+ int Attribytes[8]; 
+ * Corresponds to Attribytes[0] through Attribytes[7] on the 'Attribytes'
  * 	tab in the Combo Editor.
- * Min value BYTE_MIN, max value BYTE_MAX.
+ * Min value MIN_BYTE, max value MAX_BYTE.
+ 
+ int Attrishorts[8]; 
+ * Corresponds to Attrishorts[0] through Attrishorts[7] on the 'Attrishorts'
+ * 	tab in the Combo Editor.
+ * Min value MIN_SHORT, max value MAX_SHORT.
 
 int UserFlags;
- * Corresponds to the 'Misc Flags' on the Attributes tab of the Combo Editor.
+ * Corresponds to the 'Misc Flags' on the Flags tab of the Combo Editor.
  * These values are ORd together.
 
 int TriggerFlags[3]; 
- * Corresponds to the flags on the 'Triggered By' tabs of the Combo Editor
+ * Corresponds to the flags on the 'Triggers' tabs of the Combo Editor
  * 	where the indices and flag values are:
  *	
  *	
 
 int TriggerLevel; 
- * Corresponds to the 'Minimum Level' field on the 'Triggered By (1)' tab of 
+ * Corresponds to the 'Minimum Level' field on the 'Triggers' tab of 
  *	the Combo Editor.
 
 /* Combo Types

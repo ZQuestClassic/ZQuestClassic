@@ -11,18 +11,18 @@ MageFloating::MageFloating(const enemy& other, bool newScriptUID, bool clearPare
 	if(other.scrmem)
 	{
 		alloc_scriptmem();
-		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
 
 		scrmem->scriptData = other.scrmem->scriptData;
 	}
 	else
 		scrmem = nullptr;
 
-	for(int i = 0; i < edefLAST255; ++i)
+	for(int32_t i = 0; i < edefLAST255; ++i)
 		defense[i] = other.defense[i];
-	for(int q = 0; q < 10; ++q)
+	for(int32_t q = 0; q < 10; ++q)
 		frozenmisc[q] = other.frozenmisc[q];
-	for(int q = 0; q < NUM_HIT_TYPES_USED; ++q)
+	for(int32_t q = 0; q < NUM_HIT_TYPES_USED; ++q)
 		hitby[q] = other.hitby[q];
 
 	if(newScriptUID)
@@ -30,24 +30,24 @@ MageFloating::MageFloating(const enemy& other, bool newScriptUID, bool clearPare
 	if(clearParentUID)
 		parent_script_UID = 0;
 
-	for(int q = 0; q < 32; ++q)
+	for(int32_t q = 0; q < 32; ++q)
 		movement[q] = other.movement[q];
-	for(int q = 0; q < 32; ++q)
+	for(int32_t q = 0; q < 32; ++q)
 		new_weapon[q] = other.new_weapon[q];
 
-	for(int q = 0; q < 8; ++q)
+	for(int32_t q = 0; q < 8; ++q)
 	{
 		initD[q] = other.initD[q];
 		weap_initiald[q] = other.weap_initiald[q];
 	}
-	for(int q = 0; q < 2; ++q)
+	for(int32_t q = 0; q < 2; ++q)
 	{
 		initA[q] = other.initA[q];
 		weap_initiala[q] = other.weap_initiala[q];
 	}
 }
 
-MageFloating::MageFloating(zfix x, zfix y, int id, int clk):
+MageFloating::MageFloating(zfix x, zfix y, int32_t id, int32_t clk):
 	enemy(x, y, id, clk),
 	currAction(*((action*)&misc)),
 	actionTimer(clk3),
@@ -92,7 +92,7 @@ MageFloating::MageFloating(zfix x, zfix y, int id, int clk):
 		zofs = d->zofs;
 }
 
-bool MageFloating::animate(int index)
+bool MageFloating::animate(int32_t index)
 {
 	if(fallclk || drownclk)
 		return enemy::animate(index);
@@ -224,7 +224,7 @@ bool MageFloating::readyToFire() const
 	return false;
 }
 
-void MageFloating::turn(int homing)
+void MageFloating::turn(int32_t homing)
 {
 	// Mages shouldn't move to the edge of the screen;
 	// if they're already there, they should move toward the center
@@ -247,9 +247,9 @@ static inline bool canJumpTo(zfix x, zfix y)
 
 bool MageFloating::maybeJump()
 {
-	int jx = x;
-	int jy = y;
-	int jdir = -1;
+	zfix jx = x;
+	zfix jy = y;
+	int32_t jdir = -1;
 
 	switch(rand()&7)
 	{

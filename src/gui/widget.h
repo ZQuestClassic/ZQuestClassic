@@ -149,7 +149,7 @@ public:
 	 * This is very quick and dirty; all of the sizing and positioning stuff
 	 * needs a lot of work.
 	 */
-	virtual void arrange(int contX, int contY, int contW, int contH);
+	virtual void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH);
 
 	/* Creates DIALOGs for this widget and any children. */
 	virtual void realize(DialogRunner& runner);
@@ -162,39 +162,39 @@ public:
 	 * This should not return D_EXIT. Instead, the dialog's message handler
 	 * should return true.
 	 */
-	virtual int onEvent(int event, MessageDispatcher& sendMessage);
+	virtual int32_t onEvent(int32_t event, MessageDispatcher& sendMessage);
 
 	/* Returns the width of the widget. This should only be used by widgets. */
-	int getWidth() const { return width; }
+	int32_t getWidth() const { return width; }
 
 	/* Returns the height of the widget. This should only be used by widgets. */
-	int getHeight() const { return height; }
+	int32_t getHeight() const { return height; }
 	
 	/* Returns the width limit of the widget. This should only be used by widgets. */
-	int getMaxWidth() const { return maxwidth; }
+	int32_t getMaxWidth() const { return maxwidth; }
 
 	/* Returns the height limit of the widget. This should only be used by widgets. */
-	int getMaxHeight() const { return maxheight; }
+	int32_t getMaxHeight() const { return maxheight; }
 
 	/* Returns the width of the widget plus left and right padding.
 	 * This should only be used by widgets.
 	 */
-	int getPaddedWidth() const noexcept { return width+leftPadding+rightPadding; }
+	int32_t getPaddedWidth() const noexcept { return width+leftPadding+rightPadding; }
 
 	/* Returns the height of the widget plus top and bottom padding.
 	 * This should only be used by widgets.
 	 */
-	int getPaddedHeight() const noexcept { return height+topPadding+bottomPadding; }
+	int32_t getPaddedHeight() const noexcept { return height+topPadding+bottomPadding; }
 
 	/* Returns the width of the widget plus left and right margins+padding.
 	 * This should only be used by widgets.
 	 */
-	int getTotalWidth() const noexcept { return width+leftPadding+rightPadding+leftMargin+rightMargin; }
+	int32_t getTotalWidth() const noexcept { return width+leftPadding+rightPadding+leftMargin+rightMargin; }
 
 	/* Returns the height of the widget plus top and bottom margins+padding.
 	 * This should only be used by widgets.
 	 */
-	int getTotalHeight() const noexcept { return height+topPadding+bottomPadding+topMargin+bottomMargin; }
+	int32_t getTotalHeight() const noexcept { return height+topPadding+bottomPadding+topMargin+bottomMargin; }
 
 	/* Called when the widget actually switches from visible to invisible
 	* or vice-versa. This should set or unset DIALOGs' D_HIDDEN flag.
@@ -244,6 +244,22 @@ public:
 		return flags&f_FIT_PARENT;
 	}
 	
+	/* If true, widget will fit the parent exactly,
+	 * and will not be accounted for when sizing grids
+	 */
+	void setForceFitWid(bool fit) noexcept;
+	void setForceFitHei(bool fit) noexcept;
+
+	/* Returns true if this widget should forcibly fit it's parent. */
+	inline bool getForceFitWid() const noexcept
+	{
+		return flags&f_FORCE_FIT_W;
+	}
+	inline bool getForceFitHei() const noexcept
+	{
+		return flags&f_FORCE_FIT_H;
+	}
+	
 	//Sets the text that appears inside the frame, if framed
 	void setFrameText(std::string const& newstr);
 	
@@ -256,7 +272,7 @@ public:
 	template<typename T>
 	inline void setUserData(T&& ud)
 	{
-		// It might be better to have to specify a type, e.g. userData<int>=5.
+		// It might be better to have to specify a type, e.g. userData<int32_t>=5.
 		// But for now, the use cases are simple.
 		userData=std::make_any<std::decay_t<T>>(ud);
 	}
@@ -278,10 +294,10 @@ protected:
 			std::is_enum_v<T> || std::is_integral_v<T>
 		>;
 
-	int x, y;
-	int fgColor, bgColor;
-	unsigned short leftMargin, rightMargin, topMargin, bottomMargin;
-	unsigned short leftPadding, rightPadding, topPadding, bottomPadding;
+	int32_t x, y;
+	int32_t fgColor, bgColor;
+	uint16_t leftMargin, rightMargin, topMargin, bottomMargin;
+	uint16_t leftPadding, rightPadding, topPadding, bottomPadding;
 	float hAlign, vAlign;
 	std::any userData;
 	DialogRef frameDialog, frameTextDialog;
@@ -296,7 +312,7 @@ protected:
 	/* Returns a set of flags with which the DIALOG should be initialized.
 	 * The widget should add its own
 	 */
-	int getFlags() const noexcept;
+	int32_t getFlags() const noexcept;
 	
 	FONT* widgFont;
 	
@@ -310,25 +326,27 @@ protected:
 private:
 	enum
 	{
-		f_WIDTH_OVERRIDDEN =  0b0000001,
-		f_HEIGHT_OVERRIDDEN = 0b0000010,
-		f_INVISIBLE =         0b0000100,
-		f_FOCUSED =           0b0001000,
-		f_DISABLED =          0b0010000,
-		f_FRAMED =            0b0100000,
-		f_FIT_PARENT =        0b1000000,
+		f_WIDTH_OVERRIDDEN =  0b000000001,
+		f_HEIGHT_OVERRIDDEN = 0b000000010,
+		f_INVISIBLE =         0b000000100,
+		f_FOCUSED =           0b000001000,
+		f_DISABLED =          0b000010000,
+		f_FRAMED =            0b000100000,
+		f_FIT_PARENT =        0b001000000,
+		f_FORCE_FIT_W =       0b010000000,
+		f_FORCE_FIT_H =       0b100000000
 	};
 
-	int width, height, maxwidth, maxheight, minwidth, minheight;
+	int32_t width, height, maxwidth, maxheight, minwidth, minheight;
 	DialogRunner *owner;
-	unsigned char flags: 7;
+	uint16_t flags : 9;
 
 	/* The number of containers hiding this widget. Shouldn't be too many,
 	 * but there might be, say, a switcher in nested tab containers.
 	 */
-	unsigned char hideCount: 4;
+	uint8_t hideCount: 4;
 
-	static constexpr unsigned char MAX_HIDE_COUNT = 15;
+	static constexpr uint8_t MAX_HIDE_COUNT = 15;
 };
 
 class DummyWidget : public Widget

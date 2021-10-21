@@ -30,8 +30,8 @@
 #include "util.h"
 #include "fonts.h"
 
-int isFullScreen();
-int onFullscreen();
+int32_t isFullScreen();
+int32_t onFullscreen();
 
 #if DEVLEVEL > 0
 extern bool dev_logging;
@@ -96,19 +96,19 @@ enum
 /*
 
   // aglogo.cc
-  int  aglogo(BITMAP* frame);
+  int32_t  aglogo(BITMAP* frame);
 
 
   // title.cc
   void update_game_icons();
 
   // zc_sys.cc
-  void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int from,int to);
+  void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int32_t from,int32_t to);
   void go();
   void comeback();
   void waitvsync(bool fast);
-  int  input_idle(bool checkmouse);
-  int  after_time();
+  int32_t  input_idle(bool checkmouse);
+  int32_t  after_time();
   void hit_close_button();
   */
 
@@ -123,113 +123,113 @@ void zprint(const char * const format, ...);
 void zprint2(const char * const format, ...);
 
 // zelda.cc
-void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
-void addLwpnEx(int x,int y,int z,int id,int type,int power,int dir, int parentitem, int parentid, byte script_gen);
+void addLwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid);
+void addLwpnEx(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentitem, int32_t parentid, byte script_gen);
 void ALLOFF(bool messagesToo = true, bool decorationsToo = true);
 void centerLink();
 zfix  LinkX();
 zfix  LinkY();
 zfix  LinkZ();
-int  LinkHClk();
-int  LinkNayrusLoveShieldClk();
-int  LinkHoverClk();
-int  LinkSwordClk();
-int  LinkItemClk();
-int  LinkAction();
-int  LinkCharged();
+int32_t  LinkHClk();
+int32_t  LinkNayrusLoveShieldClk();
+int32_t  LinkHoverClk();
+int32_t  LinkSwordClk();
+int32_t  LinkItemClk();
+int32_t  LinkAction();
+int32_t  LinkCharged();
 byte LinkGetDontDraw();
-void setSwordClk(int newclk);
-void setItemClk(int newclk);
-int  LinkLStep();
+void setSwordClk(int32_t newclk);
+void setItemClk(int32_t newclk);
+int32_t  LinkLStep();
 void LinkCheckItems();
 zfix  LinkModifiedX();
 zfix  LinkModifiedY();
-zfix  GuyX(int j);
-zfix  GuyY(int j);
-int  GuyID(int j);
-int  GuyMisc(int j);
-void StunGuy(int j,int stun);
-bool  GuySuperman(int j);
-int  GuyCount();
-int  LinkDir();
-void add_grenade(int wx, int wy, int wz, int size, int parentid);
-zfix distance(int x1, int y1, int x2, int y2);
+zfix  GuyX(int32_t j);
+zfix  GuyY(int32_t j);
+int32_t  GuyID(int32_t j);
+int32_t  GuyMisc(int32_t j);
+void StunGuy(int32_t j,int32_t stun);
+bool  GuySuperman(int32_t j);
+int32_t  GuyCount();
+int32_t  LinkDir();
+void add_grenade(int32_t wx, int32_t wy, int32_t wz, int32_t size, int32_t parentid);
+zfix distance(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 bool getClock();
 void setClock(bool state);
 void CatchBrang();;
-int LinkAction();
+int32_t LinkAction();
 
-extern int DMapEditorLastMaptileUsed;
+extern int32_t DMapEditorLastMaptileUsed;
 
 void do_dcounters();
 void game_loop();
 
-void clearmsgnext(int str);
-void donewmsg(int str);
+void clearmsgnext(int32_t str);
+void donewmsg(int32_t str);
 void msg_bg(MsgStr const& msg);
 void msg_prt();
-void blit_msgstr_bg(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
-void blit_msgstr_fg(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
-void blit_msgstr_prt(BITMAP* dest, int x, int y, int dx, int dy, int w, int h);
+void blit_msgstr_bg(BITMAP* dest, int32_t x, int32_t y, int32_t dx, int32_t dy, int32_t w, int32_t h);
+void blit_msgstr_fg(BITMAP* dest, int32_t x, int32_t y, int32_t dx, int32_t dy, int32_t w, int32_t h);
+void blit_msgstr_prt(BITMAP* dest, int32_t x, int32_t y, int32_t dx, int32_t dy, int32_t w, int32_t h);
 void dismissmsg();
 void dointro();
 void init_dmap();
-int  init_game();
-int  cont_game();
+int32_t  init_game();
+int32_t  cont_game();
 void restart_level();
-int  load_quest(gamedata *g, bool report=true, byte printmetadata = 0);
+int32_t  load_quest(gamedata *g, bool report=true, byte printmetadata = 0);
 void show_details();
 void show_ffscript_names();
-//int  init_palnames();
+//int32_t  init_palnames();
 
-int get_currdmap();
-int get_dlevel();
-int get_currscr();
-int get_currmap();
-int get_homescr();
-int get_bmaps(int si);
+int32_t get_currdmap();
+int32_t get_dlevel();
+int32_t get_currscr();
+int32_t get_currmap();
+int32_t get_homescr();
+int32_t get_bmaps(int32_t si);
 bool no_subscreen();
 bool is_zquest();
 bool screenIsScrolling();
 //void quit_game();
-int d_timer_proc(int msg, DIALOG *d, int c);
+int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 
 /*ZScript
-const int TINT_NONE = 0;
-const int TINT_GREY = 0;
-const int TINT_RED = 0;
-const int TINT_GREEN = 0;
-const int TINT_BLUE = 0;
-const int TINT_VIOLET = 0;
-const int TINT_TEAL = 0;
-const int TINT_AMBER = 0;
-const int TINT_CYAN = 0;
-const int TINT_MODE_UNIFORM = 0;
-const int TINT_MODE_DISTRIBUTED = 10;
+const int32_t TINT_NONE = 0;
+const int32_t TINT_GREY = 0;
+const int32_t TINT_RED = 0;
+const int32_t TINT_GREEN = 0;
+const int32_t TINT_BLUE = 0;
+const int32_t TINT_VIOLET = 0;
+const int32_t TINT_TEAL = 0;
+const int32_t TINT_AMBER = 0;
+const int32_t TINT_CYAN = 0;
+const int32_t TINT_MODE_UNIFORM = 0;
+const int32_t TINT_MODE_DISTRIBUTED = 10;
 
 Graphics->Tint(mode)
 Graphics->Tint(TINT_MODE_DISTRIBUTED+TINT_VIOLET)
 */
 //2.54
-extern short int lastMonoPreset;
-extern short int lastCustomTint[4];
+extern int16_t lastMonoPreset;
+extern int16_t lastCustomTint[4];
 
 //extern byte __isZQuest;
 
-void setMonochromatic(int mode); //GFX are monochrome. 
+void setMonochromatic(int32_t mode); //GFX are monochrome. 
 void setMonochrome(bool state); //GFX are monochrome. 
 bool isMonochrome();
 bool isUserTinted();
 void isUserTinted(bool state);
-void addColour(int radd, int gadd, int badd, int base);
-void shiftColour(int rshift, int gshift, int bshift, int base);
+void addColour(int32_t radd, int32_t gadd, int32_t badd, int32_t base);
+void shiftColour(int32_t rshift, int32_t gshift, int32_t bshift, int32_t base);
 void doClearTint();
 void restoreTint();
 void restoreMonoPreset();
 void refreshTints();
 
-void doGFXMonohue(int _r, int _g, int _b, bool m);
-void doTint(int _r, int _g, int _b);
+void doGFXMonohue(int32_t _r, int32_t _g, int32_t _b, bool m);
+void doTint(int32_t _r, int32_t _g, int32_t _b);
 
 void runDrunkRNG();
 
@@ -244,29 +244,29 @@ enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE,
 	SAVESC_EXTRA1, 			SAVESC_EXTRA2,			SAVESC_EXTRA3,			
 	SAVESC_LAST	};
 
-extern long SaveScreenSettings[24]; //BG, Text, Cursor CSet, MIDI
+extern int32_t SaveScreenSettings[24]; //BG, Text, Cursor CSet, MIDI
 //Save Screen text. 
 enum { SAVESC_CONTINUE, SAVESC_SAVE, SAVESC_RETRY, SAVESC_DONTSAVE, SAVESC_SAVEQUIT, SAVESC_SAVE2, SAVESC_QUIT, SAVESC_END };
 extern char SaveScreenText[7][32]; //(char *) "CONTINUE", (char *) "SAVE", (char*) "RETRY" , 
 					//DON'T SAVE, SAVE AND QUIT, SAVE, QUIT
-extern void SetSaveScreenSetting(int indx, int value);
-extern void ChangeSubscreenText(int index, const char *f);
-INLINE void sfx(int index)
+extern void SetSaveScreenSetting(int32_t indx, int32_t value);
+extern void ChangeSubscreenText(int32_t index, const char *f);
+INLINE void sfx(int32_t index)
 {
     sfx(index,128,false);
 }
-INLINE void sfx(int index,int pan)
+INLINE void sfx(int32_t index,int32_t pan)
 {
 	sfx(index,vbound(pan, 0, 255) ,false);
 }
 
-bool isSideViewGravity(int t = 0);
-bool isSideViewLink(int t = 0);
+bool isSideViewGravity(int32_t t = 0);
+bool isSideViewLink(int32_t t = 0);
 
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 
 //Script Clearing
-void initZScriptGlobalScript(int ID);
+void initZScriptGlobalScript(int32_t ID);
 
 /**********************************/
 /******** Global Variables ********/
@@ -275,15 +275,15 @@ void initZScriptGlobalScript(int ID);
 
 extern ZCMUSIC *zcmusic;
 
-extern int colordepth;
-extern int db;
-extern int detail_int[10];                                  //temporary holder for things you want to detail
+extern int32_t colordepth;
+extern int32_t db;
+extern int32_t detail_int[10];                                  //temporary holder for things you want to detail
 extern zinitdata  zinit;
-extern int lens_hint_item[MAXITEMS][2];                     //aclk, aframe
-extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
-extern int strike_hint_counter;
-extern int strike_hint_timer;
-extern int strike_hint;
+extern int32_t lens_hint_item[MAXITEMS][2];                     //aclk, aframe
+extern int32_t lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
+extern int32_t strike_hint_counter;
+extern int32_t strike_hint_timer;
+extern int32_t strike_hint;
 extern signed char pause_in_background_menu_init;
 
 extern RGB_MAP rgb_table;
@@ -314,10 +314,10 @@ extern bool standalone_mode;
 extern char *standalone_quest;
 extern bool skip_title;
 
-extern int draw_screen_clip_rect_x1; //Used by the ending, bu could be used to change the drawn screen size. 
-extern int draw_screen_clip_rect_x2;
-extern int draw_screen_clip_rect_y1;
-extern int draw_screen_clip_rect_y2;
+extern int32_t draw_screen_clip_rect_x1; //Used by the ending, bu could be used to change the drawn screen size. 
+extern int32_t draw_screen_clip_rect_x2;
+extern int32_t draw_screen_clip_rect_y1;
+extern int32_t draw_screen_clip_rect_y2;
 
 /*
 extern tiledata *newtilebuf, *grabtilebuf;
@@ -341,28 +341,28 @@ extern word     msgclk, msgstr, enqueued_str, msgpos, msgptr, msg_count, msgcolo
        cursor_x,
        cursor_y;
 extern byte msg_margins[4];
-extern int prt_tile;
+extern int32_t prt_tile;
 extern byte prt_cset, prt_x, prt_y, prt_tw, prt_th, msg_shdtype, msg_shdcol;
 extern bool msg_onscreen, msg_active,msgspace;
 extern FONT	*msgfont;
 extern word     door_combo_set_count;
 extern word     introclk, intropos, dmapmsgclk, linkedmsgclk;
-extern short    lensclk;
-extern int     lensid;
-extern int    Bpos;
+extern int16_t    lensclk;
+extern int32_t     lensid;
+extern int32_t    Bpos;
 extern byte screengrid[22];
 extern byte screengrid_layer[2][22];
 extern byte ffcgrid[4];
-extern volatile int logic_counter;
+extern volatile int32_t logic_counter;
 #ifdef _SCRIPT_COUNTER
-extern volatile int script_counter;
+extern volatile int32_t script_counter;
 #endif
 extern bool halt;
 extern bool screenscrolling;
 extern bool close_button_quit;
-extern int jwin_pal[jcMAX];
-extern int gui_colorset;
-extern int fullscreen;
+extern int32_t jwin_pal[jcMAX];
+extern int32_t gui_colorset;
+extern int32_t fullscreen;
 extern byte disable_triplebuffer, can_triplebuffer_in_windowed_mode;
 extern byte frame_rest_suggest, forceExit, zc_vsync;
 extern byte zc_color_depth;
@@ -375,25 +375,25 @@ void update_script_counter();
 extern PALETTE tempbombpal;
 extern bool usebombpal;
 
-extern int slot_arg, slot_arg2;
+extern int32_t slot_arg, slot_arg2;
 extern char *SAVE_FILE;
 
-extern int homescr,currscr,frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map;
-extern int newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
-extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
-extern int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
+extern int32_t homescr,currscr,frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map;
+extern int32_t newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
+extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
+extern int32_t digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 extern bool analog_movement;
-extern int joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
-extern unsigned long GameFlags;
-extern int js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
-extern int js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
-extern int js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
-extern int js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
-extern int DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
-extern int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
-extern int swordhearts[4], currcset, gfc, gfc2, pitx, pity, refill_what, refill_why;
-extern int heart_beep_timer, new_enemy_tile_start, nets, magicitem, nayruitem, title_version;
-extern int magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
+extern int32_t joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
+extern uint32_t GameFlags;
+extern int32_t js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
+extern int32_t js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
+extern int32_t js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
+extern int32_t js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
+extern int32_t DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
+extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
+extern int32_t swordhearts[4], currcset, gfc, gfc2, pitx, pity, refill_what, refill_why;
+extern int32_t heart_beep_timer, new_enemy_tile_start, nets, magicitem, nayruitem, title_version;
+extern int32_t magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
 extern dword fps_secs;
 extern float avgfps;
 
@@ -413,16 +413,16 @@ extern bool is_on_conveyor, activated_timed_warp;
 
 extern byte COOLSCROLL;
 
-extern int SnapshotFormat, NameEntryMode;
+extern int32_t SnapshotFormat, NameEntryMode;
 
-extern int add_asparkle, add_bsparkle;
+extern int32_t add_asparkle, add_bsparkle;
 
 extern bool show_layer_0, show_layer_1, show_layer_2, show_layer_3, show_layer_4, show_layer_5, show_layer_6, show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts, show_effectflags;
 
-extern int    cheat_goto_dmap, cheat_goto_screen;
+extern int32_t    cheat_goto_dmap, cheat_goto_screen;
 extern char   cheat_goto_dmap_str[4];
 extern char   cheat_goto_screen_str[3];
-extern short  visited[6];
+extern int16_t  visited[6];
 extern byte   guygrid[176];
 extern mapscr tmpscr[2];
 extern mapscr tmpscr2[6];
@@ -443,43 +443,43 @@ extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 extern SAMPLE customsfxdata[WAV_COUNT];
-extern int sfxdat;
+extern int32_t sfxdat;
 
 struct ScriptOwner
 {
 	ScriptOwner();
 	byte scriptType;
-	unsigned long ownerUID;
+	uint32_t ownerUID;
 	void clear();
 };
 
 #define NUM_ZSCRIPT_ARRAYS	4096
-typedef ZCArray<long> ZScriptArray;
+typedef ZCArray<int32_t> ZScriptArray;
 extern ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
 extern ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 dword getNumGlobalArrays();
 
-extern int  resx,resy,scrx,scry;
+extern int32_t  resx,resy,scrx,scry;
 extern bool sbig;                                           // big screen
 extern bool sbig2;	//BIGGER SCREEN!!!!
-extern int screen_scale; //user adjustable screen size.
+extern int32_t screen_scale; //user adjustable screen size.
 
 extern bool scanlines;                                      //do scanlines if sbig==1
 extern bool toogam;
 extern bool ignoreSideview;
 
-extern int cheat;                                           // 0 = none; 1,2,3,4 = cheat level
+extern int32_t cheat;                                           // 0 = none; 1,2,3,4 = cheat level
 
-extern int  mouse_down;                                     // used to hold the last reading of 'gui_mouse_b()' status
-extern int idle_count, active_count;
+extern int32_t  mouse_down;                                     // used to hold the last reading of 'gui_mouse_b()' status
+extern int32_t idle_count, active_count;
 extern char *qstpath;
 extern char *qstdir;
 extern gamedata *saves;
 extern gamedata *game;
 
-extern volatile int lastfps;
-extern volatile int framecnt;
+extern volatile int32_t lastfps;
+extern volatile int32_t framecnt;
 extern void throttleFPS();
 
 // quest file data
@@ -490,7 +490,7 @@ extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
 extern word                map_count;
 extern MsgStr              *MsgStrings;
-extern int				   msg_strings_size;
+extern int32_t				   msg_strings_size;
 extern DoorComboSet        *DoorComboSets;
 extern dmap                *DMaps;
 extern miscQdata           QMisc;

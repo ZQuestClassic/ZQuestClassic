@@ -32,7 +32,7 @@ private:
 	std::shared_ptr<GUI::Checkbox> l_bkey[10];
 	std::shared_ptr<GUI::TextField> l_keys[10];
 	std::shared_ptr<GUI::Switcher> icswitcher;
-	std::map<int,int> switchids;
+	std::map<int32_t,int32_t> switchids;
 	zinitdata local_zinit;
 	size_t levelsOffset;
 	GUI::ListData list_dmaps, list_items;

@@ -132,8 +132,8 @@ static const auto defaultDesc =
 	"Select a Room Type, then click the \"Info\" button "
 	"to find out what it does.";
 
-RoomDialog::RoomDialog(int room, int argument, int guy, int string,
-	std::function<void(int, int, int, int)> setRoomVars):
+RoomDialog::RoomDialog(int32_t room, int32_t argument, int32_t guy, int32_t string,
+	std::function<void(int32_t, int32_t, int32_t, int32_t)> setRoomVars):
 		itemListData(getItemListData(false)),
 		shopListData(getShopListData()),
 		infoShopListData(getInfoShopListData()),
@@ -150,21 +150,26 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 
 	argLabel = Label(hAlign = 1.0);
 	argSwitcher = Switcher(
+		forceFitW = true,
 		argTF = TextField(
+			fitParent = true,
 			type=  GUI::TextField::type::INT_DECIMAL,
 			maxLength = 6,
 			text = std::to_string(room.argument),
 			hAlign = 0.0,
 			onValueChanged = message::SET_ARGUMENT),
 		itemDD = DropDownList(
+			fitParent = true,
 			data = itemListData,
 			selectedValue = room.argument,
 			onSelectionChanged = message::SET_ARGUMENT),
 		shopDD = DropDownList(
+			fitParent = true,
 			data = shopListData,
 			selectedValue = room.argument,
 			onSelectionChanged = message::SET_ARGUMENT),
 		infoShopDD = DropDownList(
+			fitParent = true,
 			data = infoShopListData,
 			selectedValue = room.argument,
 			onSelectionChanged = message::SET_ARGUMENT)
@@ -188,16 +193,19 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 				Label(text = "Message:", hAlign=1.0),
 
 				DropDownList(
+					fitParent = true,
 					data = roomListData,
 					onSelectionChanged = message::SET_ROOM,
 					selectedValue = room.type,
 					focused = true),
 				argSwitcher,
 				DropDownList(
+					fitParent = true,
 					data = guyListData,
 					onSelectionChanged = message::SET_GUY,
 					selectedValue = room.guy),
 				DropDownList(
+					forceFitW = true,
 					data = stringListData,
 					onSelectionChanged = message::SET_STRING,
 					selectedValue = room.string),
@@ -295,7 +303,7 @@ void RoomDialog::setArgField()
 	}
 }
 
-int RoomDialog::getArgument() const
+int32_t RoomDialog::getArgument() const
 {
 	switch(argSwitcher->getCurrentIndex())
 	{

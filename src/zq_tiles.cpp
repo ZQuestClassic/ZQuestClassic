@@ -49,14 +49,14 @@ extern zcmodule moduledata;
 extern void large_dialog(DIALOG *d);
 static void massRecolorReset4Bit();
 static void massRecolorReset8Bit();
-static bool massRecolorSetup(int cset);
-static void massRecolorApply(int tile);
-extern int last_droplist_sel;
-extern int zqwin_scale;
+static bool massRecolorSetup(int32_t cset);
+static void massRecolorApply(int32_t tile);
+extern int32_t last_droplist_sel;
+extern int32_t zqwin_scale;
 
-int ex=0;
-int nextcombo_fake_click=0;
-int invcol=0;
+int32_t ex=0;
+int32_t nextcombo_fake_click=0;
+int32_t invcol=0;
 
 tiledata     *newundotilebuf;
 newcombo     *undocombobuf;
@@ -67,9 +67,9 @@ byte selection_anchor=0;
 
 enum {selection_mode_normal, selection_mode_add, selection_mode_subtract, selection_mode_exclude};
 BITMAP *selecting_pattern;
-int selecting_x1, selecting_x2, selecting_y1, selecting_y2;
+int32_t selecting_x1, selecting_x2, selecting_y1, selecting_y2;
 
-extern int bidcomboscripts_cnt;
+extern int32_t bidcomboscripts_cnt;
 extern script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; 
 
 BITMAP *intersection_pattern;
@@ -231,21 +231,21 @@ byte dungeon_carving_template[96][4]=
 /*****    Tiles & Combos    ******/
 /*********************************/
 
-void merge_tiles(int dest_tile, int src_quarter1, int src_quarter2, int src_quarter3, int src_quarter4)
+void merge_tiles(int32_t dest_tile, int32_t src_quarter1, int32_t src_quarter2, int32_t src_quarter3, int32_t src_quarter4)
 {
-    int size=tilesize(newtilebuf[dest_tile].format)>>4;
-    int size2=size>>1;
+    int32_t size=tilesize(newtilebuf[dest_tile].format)>>4;
+    int32_t size2=size>>1;
     
     if(newtilebuf[dest_tile].data==NULL)
     {
         reset_tile(newtilebuf, dest_tile, newtilebuf[src_quarter1>>2].format);
     }
     
-    int i=0;
+    int32_t i=0;
     
     if((dest_tile<<2)+i!=src_quarter1)
     {
-        for(int j=0; j<8; ++j)
+        for(int32_t j=0; j<8; ++j)
         {
             memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter1>>2].data[((j+((src_quarter1&2)<<2))*size)+((src_quarter1&1)*size2)]), size2);
         }
@@ -255,7 +255,7 @@ void merge_tiles(int dest_tile, int src_quarter1, int src_quarter2, int src_quar
     
     if((dest_tile<<2)+i!=src_quarter2)
     {
-        for(int j=0; j<8; ++j)
+        for(int32_t j=0; j<8; ++j)
         {
             memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter2>>2].data[((j+((src_quarter2&2)<<2))*size)+((src_quarter2&1)*size2)]), size2);
         }
@@ -265,7 +265,7 @@ void merge_tiles(int dest_tile, int src_quarter1, int src_quarter2, int src_quar
     
     if((dest_tile<<2)+i!=src_quarter3)
     {
-        for(int j=0; j<8; ++j)
+        for(int32_t j=0; j<8; ++j)
         {
             memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter3>>2].data[((j+((src_quarter3&2)<<2))*size)+((src_quarter3&1)*size2)]), size2);
         }
@@ -275,22 +275,22 @@ void merge_tiles(int dest_tile, int src_quarter1, int src_quarter2, int src_quar
     
     if((dest_tile<<2)+i!=src_quarter4)
     {
-        for(int j=0; j<8; ++j)
+        for(int32_t j=0; j<8; ++j)
         {
             memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter4>>2].data[((j+((src_quarter4&2)<<2))*size)+((src_quarter4&1)*size2)]), size2);
         }
     }
 }
 
-static void make_combos(int startTile, int endTile, int cs)
+static void make_combos(int32_t startTile, int32_t endTile, int32_t cs)
 {
 	 al_trace("inside make_combos()\n");
-    int startCombo=0;
+    int32_t startCombo=0;
     
     if(!select_combo_2(startCombo,cs))
         return;
     
-    int temp=combobuf[startCombo].o_tile;
+    int32_t temp=combobuf[startCombo].o_tile;
     combobuf[startCombo].set_tile(startTile);
     
     if(!edit_combo(startCombo, false, cs))
@@ -301,7 +301,7 @@ static void make_combos(int startTile, int endTile, int cs)
     
     go_combos();
     
-    for(int i=0; i<=endTile-startTile; i++)
+    for(int32_t i=0; i<=endTile-startTile; i++)
     {
         combobuf[startCombo+i]=combobuf[startCombo];
         combobuf[startCombo+i].set_tile(startTile+i);
@@ -311,16 +311,16 @@ static void make_combos(int startTile, int endTile, int cs)
     setup_combo_animations2();
 }
 
-static void make_combos_rect(int top, int left, int numRows, int numCols, int cs)
+static void make_combos_rect(int32_t top, int32_t left, int32_t numRows, int32_t numCols, int32_t cs)
 {
 	//al_trace("inside make_combos_rect()\n");
-    int startCombo=0;
+    int32_t startCombo=0;
     
     if(!select_combo_2(startCombo, cs))
         return;
     
-    int startTile=top*TILES_PER_ROW+left;
-    int temp=combobuf[startCombo].o_tile;
+    int32_t startTile=top*TILES_PER_ROW+left;
+    int32_t temp=combobuf[startCombo].o_tile;
     combobuf[startCombo].set_tile(startTile);
     
     if(!edit_combo(startCombo, false, cs))
@@ -338,19 +338,19 @@ static void make_combos_rect(int top, int left, int numRows, int numCols, int cs
             sprintf(buf, "Limit to %d column%s?", numCols, numCols==1 ? "" : "s");
         else
             sprintf(buf, "Fit to 4 columns?"); // Meh, whatever.
-        int ret=jwin_alert("Wrapping", buf, NULL, NULL, "&Yes", "&No", 'y', 'n', lfont);
+        int32_t ret=jwin_alert("Wrapping", buf, NULL, NULL, "&Yes", "&No", 'y', 'n', lfont);
         if(ret==1)
             smartWrap=true;
     }
         
     go_combos();
     
-    int combo=startCombo-1;
-    for(int row=0; row<numRows; row++)
+    int32_t combo=startCombo-1;
+    for(int32_t row=0; row<numRows; row++)
     {
-        for(int col=0; col<numCols; col++)
+        for(int32_t col=0; col<numCols; col++)
         {
-            int tile=startTile+row*TILES_PER_ROW+col;
+            int32_t tile=startTile+row*TILES_PER_ROW+col;
             if(smartWrap)
                 // Add 4 per row, and another numRows*4 for every 4 columns
                 // (col&0xFC==col/4*4), and then the column %4
@@ -367,11 +367,11 @@ static void make_combos_rect(int top, int left, int numRows, int numCols, int cs
     setup_combo_animations2();
 }
 
-int d_combo_proc(int msg,DIALOG *d,int c);
+int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
 
 void go_tiles()
 {
-    for(int i=0; i<NEWMAXTILES; ++i)
+    for(int32_t i=0; i<NEWMAXTILES; ++i)
     {
         newundotilebuf[i].format=newtilebuf[i].format;
         
@@ -392,20 +392,20 @@ void go_tiles()
     }
     
     /*
-      int *si = (int*)tilebuf;
-      int *di = (int*)undotilebuf;
-      for(int i=0; i<NEWTILE_SIZE2/4; i++)
+      int32_t *si = (int32_t*)tilebuf;
+      int32_t *di = (int32_t*)undotilebuf;
+      for(int32_t i=0; i<NEWTILE_SIZE2/4; i++)
       *(di++) = *(si++);
       */
 }
 
-void go_slide_tiles(int columns, int rows, int top, int left)
+void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left)
 {
-    for(int c=0; c<columns; c++)
+    for(int32_t c=0; c<columns; c++)
     {
-        for(int r=0; r<rows; r++)
+        for(int32_t r=0; r<rows; r++)
         {
-            int t=((top+r)*TILES_PER_ROW)+left+c;
+            int32_t t=((top+r)*TILES_PER_ROW)+left+c;
             newundotilebuf[t].format=newtilebuf[t].format;
             
             if(newundotilebuf[t].data!=NULL)
@@ -449,9 +449,9 @@ void comeback_tiles()
     }
     
     /*
-      int *si = (int*)undotilebuf;
-      int *di = (int*)tilebuf;
-      for(int i=0; i<NEWTILE_SIZE2/4; i++)
+      int32_t *si = (int32_t*)undotilebuf;
+      int32_t *di = (int32_t*)tilebuf;
+      for(int32_t i=0; i<NEWTILE_SIZE2/4; i++)
       *(di++) = *(si++);
       */
     register_blank_tiles();
@@ -463,7 +463,7 @@ void go_combos()
     newcombo *si = combobuf;
     newcombo *di = undocombobuf;
     
-    for(int i=0; i<MAXCOMBOS; i++)
+    for(int32_t i=0; i<MAXCOMBOS; i++)
         *(di++) = *(si++);
 }
 
@@ -472,24 +472,24 @@ void comeback_combos()
     newcombo *si = undocombobuf;
     newcombo *di = combobuf;
     
-    for(int i=0; i<MAXCOMBOS; i++)
+    for(int32_t i=0; i<MAXCOMBOS; i++)
         *(di++) = *(si++);
 }
 
-void little_x(BITMAP *dest, int x, int y, int c, int s)
+void little_x(BITMAP *dest, int32_t x, int32_t y, int32_t c, int32_t s)
 {
     line(dest,x,y,x+s,y+s,c);
     line(dest,x+s,y,x,y+s,c);
 }
 
 enum {gm_light, gm_dark, gm_max};
-int gridmode=gm_light;
+int32_t gridmode=gm_light;
 
 bool has_selection()
 {
-    for(int i=1; i<17; ++i)
+    for(int32_t i=1; i<17; ++i)
     {
-        for(int j=1; j<17; ++j)
+        for(int32_t j=1; j<17; ++j)
         {
             if(selection_grid[i][j])
             {
@@ -501,13 +501,13 @@ bool has_selection()
     return false;
 }
 
-void draw_selection_outline(BITMAP *dest, int x, int y, int scale2)
+void draw_selection_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 {
     drawing_mode(DRAW_MODE_COPY_PATTERN, selection_pattern, selection_anchor>>3, 0);
     
-    for(int i=1; i<18; ++i)
+    for(int32_t i=1; i<18; ++i)
     {
-        for(int j=1; j<18; ++j)
+        for(int32_t j=1; j<18; ++j)
         {
             //  zoomtile16(screen2,tile,79,31,cs,flip,8);
             if(selection_grid[i-1][j]!=selection_grid[i][j])
@@ -531,17 +531,17 @@ bool is_selecting()
     return (selecting_x1>-1&&selecting_x2>-1&&selecting_y1>-1&&selecting_y2>-1);
 }
 
-void draw_selecting_outline(BITMAP *dest, int x, int y, int scale2)
+void draw_selecting_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 {
-    int x1=zc_min(selecting_x1,selecting_x2);
-    int x2=zc_max(selecting_x1,selecting_x2);
-    int y1=zc_min(selecting_y1,selecting_y2);
-    int y2=zc_max(selecting_y1,selecting_y2);
+    int32_t x1=zc_min(selecting_x1,selecting_x2);
+    int32_t x2=zc_max(selecting_x1,selecting_x2);
+    int32_t y1=zc_min(selecting_y1,selecting_y2);
+    int32_t y2=zc_max(selecting_y1,selecting_y2);
     
 //  rect(dest, x+(x1*scale2), y+(y1*scale2), x+((x2+1)*scale2), y+((y2+1)*scale2), 255);
-    for(int i=1; i<18; ++i)
+    for(int32_t i=1; i<18; ++i)
     {
-        for(int j=1; j<18; ++j)
+        for(int32_t j=1; j<18; ++j)
         {
             drawing_mode(DRAW_MODE_COPY_PATTERN, selecting_pattern, selection_anchor>>3, 0);
             
@@ -571,11 +571,11 @@ void draw_selecting_outline(BITMAP *dest, int x, int y, int scale2)
     //  selection_anchor=(selection_anchor+1)%64;
 }
 
-void add_color_to_selection(int color)
+void add_color_to_selection(int32_t color)
 {
-    for(int i=1; i<17; ++i)
+    for(int32_t i=1; i<17; ++i)
     {
-        for(int j=1; j<17; ++j)
+        for(int32_t j=1; j<17; ++j)
         {
             if(unpackbuf[((j-1)<<4)+(i-1)]==color)
             {
@@ -585,11 +585,11 @@ void add_color_to_selection(int color)
     }
 }
 
-void remove_color_from_selection(int color)
+void remove_color_from_selection(int32_t color)
 {
-    for(int i=1; i<17; ++i)
+    for(int32_t i=1; i<17; ++i)
     {
-        for(int j=1; j<17; ++j)
+        for(int32_t j=1; j<17; ++j)
         {
             if(unpackbuf[((j-1)<<4)+(i-1)]==color)
             {
@@ -599,11 +599,11 @@ void remove_color_from_selection(int color)
     }
 }
 
-void intersect_color_with_selection(int color)
+void intersect_color_with_selection(int32_t color)
 {
-    for(int i=1; i<17; ++i)
+    for(int32_t i=1; i<17; ++i)
     {
-        for(int j=1; j<17; ++j)
+        for(int32_t j=1; j<17; ++j)
         {
             if((unpackbuf[((j-1)<<4)+(i-1)]==color)&&(selection_grid[i][j]==1))
             {
@@ -617,12 +617,12 @@ void intersect_color_with_selection(int color)
     }
 }
 
-bool is_in_selection(int x, int y)
+bool is_in_selection(int32_t x, int32_t y)
 {
     return (!has_selection()||(selection_grid[x+1][y+1]!=0));
 }
 
-void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m)
+void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t m)
 {
     //  rectfill(dest,x,y,x+(16*m),y+(16*m),gridmode==gm_light?jwin_pal[jcMEDLT]:jwin_pal[jcDARK]);
     rectfill(dest,x,y,x+(16*m),y+(16*m),gridmode==gm_light?vc(7):vc(8));
@@ -636,12 +636,12 @@ void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m)
     unpack_tile(newtilebuf, tile, 0, false);
     byte *si = unpackbuf;
     
-    for(int cy=0; cy<16; cy++)
+    for(int32_t cy=0; cy<16; cy++)
     {
-        for(int cx=0; cx<16; cx++)
+        for(int32_t cx=0; cx<16; cx++)
         {
-            int dx = ((flip&1)?15-cx:cx)*m;
-            int dy = ((flip&2)?15-cy:cy)*m;
+            int32_t dx = ((flip&1)?15-cx:cx)*m;
+            int32_t dy = ((flip&2)?15-cy:cy)*m;
             rectfill(dest,x+dx+1,y+dy+1,x+dx+m-1,y+dy+m-1,*si+cset);
             
             if(*si==0)
@@ -669,7 +669,7 @@ void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m)
     }
 }
 
-void draw_text_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int bg,int fg,int flags,bool jwin)
+void draw_text_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,int32_t flags,bool jwin)
 {
     if(!jwin)
     {
@@ -689,7 +689,7 @@ void draw_text_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int 
     }
 }
 
-void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int flags)
+void draw_layer_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t flags)
 {
 	if(flags&D_SELECTED)
 	{
@@ -712,7 +712,7 @@ void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int
 		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
 }
 
-bool do_layer_button_reset(int x,int y,int w,int h,const char *text, int flags, bool toggleflag)
+bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag)
 {
     bool over=false;
     
@@ -806,7 +806,7 @@ bool do_layer_button_reset(int x,int y,int w,int h,const char *text, int flags, 
     return over;
 }
 
-bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin)
+bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin)
 {
     bool over=false;
     
@@ -839,7 +839,7 @@ bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool 
     return over;
 }
 
-bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin, bool sel)
+bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin, bool sel)
 {
     bool over=false;
     
@@ -880,7 +880,7 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
     return over;
 }
 
-void draw_graphics_button(BITMAP *dest,int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,int fg,int flags,bool jwin,bool overlay)
+void draw_graphics_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITMAP *bmp2,int32_t bg,int32_t fg,int32_t flags,bool jwin,bool overlay)
 {
     if(!jwin)
     {
@@ -892,7 +892,7 @@ void draw_graphics_button(BITMAP *dest,int x,int y,int w,int h,BITMAP *bmp,BITMA
         rect(dest,x+1,y+1,x+w-1,y+h-1,fg);
         rectfill(dest,x+1,y+1,x+w-3,y+h-3,bg);
         rect(dest,x,y,x+w-2,y+h-2,fg);
-        int g = (flags & D_SELECTED) ? 1 : 0;
+        int32_t g = (flags & D_SELECTED) ? 1 : 0;
         
         if(overlay)
         {
@@ -909,7 +909,7 @@ void draw_graphics_button(BITMAP *dest,int x,int y,int w,int h,BITMAP *bmp,BITMA
     }
 }
 
-bool do_graphics_button(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,int fg,bool jwin,bool overlay)
+bool do_graphics_button(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITMAP *bmp2,int32_t bg,int32_t fg,bool jwin,bool overlay)
 {
     bool over=false;
     
@@ -942,7 +942,7 @@ bool do_graphics_button(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,
     return over;
 }
 
-bool do_graphics_button_reset(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,int fg,bool jwin,bool overlay)
+bool do_graphics_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITMAP *bmp2,int32_t bg,int32_t fg,bool jwin,bool overlay)
 {
     bool over=false;
     
@@ -982,18 +982,18 @@ bool do_graphics_button_reset(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,i
     
     return over;
 }
-//    circle(BITMAP *bmp, int x, int y, int radius, int color);
-//    circlefill(BITMAP *bmp, int x, int y, int radius, int color);
+//    circle(BITMAP *bmp, int32_t x, int32_t y, int32_t radius, int32_t color);
+//    circlefill(BITMAP *bmp, int32_t x, int32_t y, int32_t radius, int32_t color);
 
-void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg, int value)
+void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg, int32_t value)
 {
     //these are here to bypass compiler warnings about unused arguments
     bg=bg;
     fg=fg;
     
-    int r, center;
+    int32_t r, center;
     
-    for(int k=0; k<7; k++)
+    for(int32_t k=0; k<7; k++)
     {
         if((k==0)||(Map.CurrScr()->layermap[k-1]))
         {
@@ -1021,13 +1021,13 @@ void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg, int value)
     }
 }
 
-void do_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int &value)
+void do_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_t &value)
 {
     while(gui_mouse_b())
     {
         custom_vsync();
         
-        for(int k=0; k<7; k++)
+        for(int32_t k=0; k<7; k++)
         {
             if((k==0)||(Map.CurrScr()->layermap[k-1]))
             {
@@ -1045,7 +1045,7 @@ void do_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int &value)
     }
 }
 
-void draw_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg, bool value)
+void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg, bool value)
 {
     //these are here to bypass compiler warnings about unused arguments
     bg=bg;
@@ -1068,7 +1068,7 @@ void draw_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg, bool value)
 
 
 
-bool do_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg,int &value)
+bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg,int32_t &value)
 {
     bool over=false;
     
@@ -1110,7 +1110,7 @@ bool do_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg,int &value)
 byte tf_c;
 byte tf_u;
 
-void tile_floodfill_rec(int x,int y)
+void tile_floodfill_rec(int32_t x,int32_t y)
 {
     if(is_in_selection(x,y))
     {
@@ -1135,7 +1135,7 @@ void tile_floodfill_rec(int x,int y)
     }
 }
 
-void tile_floodfill(int tile,int x,int y,byte c)
+void tile_floodfill(int32_t tile,int32_t x,int32_t y,byte c)
 {
     if(is_in_selection(x,y))
     {
@@ -1151,61 +1151,61 @@ void tile_floodfill(int tile,int x,int y,byte c)
 }
 
 //***************** tile editor  stuff *****************
-int ok_button_x=224;
-int ok_button_y=168;
-int cancel_button_x=224;
-int cancel_button_y=192;
-int edit_button_x=24;
-int edit_button_y=184;
-//int palette_x=104;
-//int palette_y=176;
-int palette_x=94;
-int palette_y=172;
-int palette_scale=4;
-//int fgbg_btn_x=144;
-int fgbg_btn_x=168;
-int fgbg_btn_y=172+14;
-int fgbg_btn_w=42;
-int fgbg_btn_h=39;
-int fgbg_btn_size=25;
-int fgbg_btn_offset=15;
-int mouse_lb_x=5;
-int mouse_lb_y=7;
-int mouse_rb_x=15;
-int mouse_rb_y=4;
-int zoom_tile_x=80;
-int zoom_tile_y=32;
-int zoom_tile_scale=8;
-int zoom_tile_size=1;
-int preview_tiles_x=224;
-int preview_tiles_y=48;
-int preview_tiles_scale=1;
-int status_info_x=224;
-int status_info_y=112;
+int32_t ok_button_x=224;
+int32_t ok_button_y=168;
+int32_t cancel_button_x=224;
+int32_t cancel_button_y=192;
+int32_t edit_button_x=24;
+int32_t edit_button_y=184;
+//int32_t palette_x=104;
+//int32_t palette_y=176;
+int32_t palette_x=94;
+int32_t palette_y=172;
+int32_t palette_scale=4;
+//int32_t fgbg_btn_x=144;
+int32_t fgbg_btn_x=168;
+int32_t fgbg_btn_y=172+14;
+int32_t fgbg_btn_w=42;
+int32_t fgbg_btn_h=39;
+int32_t fgbg_btn_size=25;
+int32_t fgbg_btn_offset=15;
+int32_t mouse_lb_x=5;
+int32_t mouse_lb_y=7;
+int32_t mouse_rb_x=15;
+int32_t mouse_rb_y=4;
+int32_t zoom_tile_x=80;
+int32_t zoom_tile_y=32;
+int32_t zoom_tile_scale=8;
+int32_t zoom_tile_size=1;
+int32_t preview_tiles_x=224;
+int32_t preview_tiles_y=48;
+int32_t preview_tiles_scale=1;
+int32_t status_info_x=224;
+int32_t status_info_y=112;
 
-int c1=1;
-int c2=0;
-//int bgc=dvc(4+5);
-//int bgc=vc(1);
+int32_t c1=1;
+int32_t c2=0;
+//int32_t bgc=dvc(4+5);
+//int32_t bgc=vc(1);
 //enum { t_pen, t_fill, t_recolor, t_eyedropper, t_move, t_select, t_wand, t_max };
-int tool = t_pen;
-int old_tool = -1;
-int tool_cur = -1;
-int select_mode = 0;
-int drawing=0;
+int32_t tool = t_pen;
+int32_t old_tool = -1;
+int32_t tool_cur = -1;
+int32_t select_mode = 0;
+int32_t drawing=0;
 
-int tool_buttons_left=22, tool_buttons_top=29, tool_buttons_columns=2;
+int32_t tool_buttons_left=22, tool_buttons_top=29, tool_buttons_columns=2;
 
 void update_tool_cursor()
 {
-//  int screen_xofs=(zq_screen_w-320)>>1;
-//  int screen_yofs=(zq_screen_h-240)>>1;
-//  int temp_mouse_x=gui_mouse_x()-screen_xofs;
-//  int temp_mouse_y=gui_mouse_y()-screen_yofs;
-    int temp_mouse_x=gui_mouse_x();
-    int temp_mouse_y=gui_mouse_y();
+//  int32_t screen_xofs=(zq_screen_w-320)>>1;
+//  int32_t screen_yofs=(zq_screen_h-240)>>1;
+//  int32_t temp_mouse_x=gui_mouse_x()-screen_xofs;
+//  int32_t temp_mouse_y=gui_mouse_y()-screen_yofs;
+    int32_t temp_mouse_x=gui_mouse_x();
+    int32_t temp_mouse_y=gui_mouse_y();
     
-    int type=0;
+    int32_t type=0;
     
     if(has_selection())
     {
@@ -1250,7 +1250,7 @@ void update_tool_cursor()
     }
 }
 
-void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
+void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool create_tbar)
 {
     if(is_large)
     {
@@ -1287,8 +1287,8 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
     PALETTE tpal;
     static BITMAP *tbar = create_bitmap_ex(8,zq_screen_w-6, 18);
     static BITMAP *preview_bmp = create_bitmap_ex(8, 64, 64);
-//  int screen_xofs=(zq_screen_w-320)>>1;
-//  int screen_yofs=(zq_screen_h-240)>>1;
+//  int32_t screen_xofs=(zq_screen_w-320)>>1;
+//  int32_t screen_yofs=(zq_screen_h-240)>>1;
     jwin_draw_win(screen2, 0, 0, zq_screen_w, zq_screen_h, FR_WIN);
     
     /*
@@ -1377,11 +1377,11 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
         jwin_draw_win(screen2, palette_x-2, palette_y-2, (palette_scale*16)+4, (palette_scale*16)+4, FR_DEEP);
         get_palette(temppal);
         
-        for(int i=0; i<16; i++)
+        for(int32_t i=0; i<16; i++)
         {
-            int x=((i&3)*palette_scale*4)+palette_x;
-            int y=((i>>2)*palette_scale*4)+palette_y;
-            int c=CSET(cs)+i;
+            int32_t x=((i&3)*palette_scale*4)+palette_x;
+            int32_t y=((i>>2)*palette_scale*4)+palette_y;
+            int32_t c=CSET(cs)+i;
             rectfill(screen2,x,y,x+(palette_scale*4)-1,y+(palette_scale*4)-1,c);
         }
         
@@ -1391,10 +1391,10 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
     case tf8Bit:
         jwin_draw_win(screen2, palette_x-2, palette_y-2+palette_scale, (palette_scale*16)+4, (palette_scale*15)+4, FR_DEEP);
         
-        for(int i=0; i<240; i++)
+        for(int32_t i=0; i<240; i++)
         {
-            int x=((i&15)*palette_scale)+palette_x;
-            int y=(((i>>4)+1)*palette_scale)+palette_y;
+            int32_t x=((i&15)*palette_scale)+palette_x;
+            int32_t y=(((i>>4)+1)*palette_scale)+palette_y;
             rectfill(screen2,x,y,x+palette_scale-1,y+palette_scale-1,i);
         }
         
@@ -1434,46 +1434,48 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
     draw_text_button(screen2,edit_button_x,edit_button_y,61,21,"Edit",vc(1),vc(14),0,true);
     
     //tool buttons
-    for(int i=MOUSE_BMP_SWORD; i<MOUSE_BMP_BLANK; i++)
+    for(int32_t i=MOUSE_BMP_SWORD; i<MOUSE_BMP_BLANK; i++)
     {
-        int column=tool_buttons_columns*(i-MOUSE_BMP_SWORD)/(MOUSE_BMP_BLANK-MOUSE_BMP_SWORD+1);
-        int rows=(MOUSE_BMP_BLANK-MOUSE_BMP_SWORD+2)/tool_buttons_columns;
-        int row=(i-MOUSE_BMP_SWORD)-(column*rows);
+        int32_t column=tool_buttons_columns*(i-MOUSE_BMP_SWORD)/(MOUSE_BMP_BLANK-MOUSE_BMP_SWORD+1);
+        int32_t rows=(MOUSE_BMP_BLANK-MOUSE_BMP_SWORD+2)/tool_buttons_columns;
+        int32_t row=(i-MOUSE_BMP_SWORD)-(column*rows);
         jwin_draw_button(screen2,tool_buttons_left+(column*23),tool_buttons_top+(row*23),22,22,tool==(i-MOUSE_BMP_SWORD)?2:0,0);
         masked_blit(mouse_bmp_1x[i][0],screen2,0,0,tool_buttons_left+(column*23)+3+(tool==(i-MOUSE_BMP_SWORD)?1:0),tool_buttons_top+3+(row*23)+(tool==(i-MOUSE_BMP_SWORD)?1:0),16,16);
     }
     
-    //coordinates
-//  if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158))
-//  if(isinRect(gui_mouse_x(),gui_mouse_y(),zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2)) //inside the zoomed tile window
-    {
-//    int temp_x=(gui_mouse_x()-80)/8;
-//    int temp_y=(gui_mouse_y()-32)/8;
-//    int temp_x=(gui_mouse_x()-zoom_tile_x)/(zoom_tile_scale/zoom_tile_size);
-//    int temp_y=(gui_mouse_y()-zoom_tile_y)/(zoom_tile_scale/zoom_tile_size);
-        int temp_x=zoom_tile_size*(gui_mouse_x()-zoom_tile_x)/zoom_tile_scale;
-        int temp_y=zoom_tile_size*(gui_mouse_y()-zoom_tile_y)/zoom_tile_scale;
-        
-//  if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158))
-        if((temp_x>=0&&temp_x<=(16*zoom_tile_size)-1)&&(temp_y>=0&&temp_y<=(16*zoom_tile_size)-1))
-        {
-            textprintf_ex(screen2,font,status_info_x,status_info_y+24,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"x: %d",temp_x);
-            textprintf_ex(screen2,font,status_info_x+40,status_info_y+24,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"y: %d",temp_y);
-            unpack_tile(newtilebuf, tile, 0, false);
-            byte *si = unpackbuf;
-            si+=(temp_y*16+temp_x);
-            get_palette(tpal);
-            
-            if(newtilebuf[tile].format<=tf4Bit)
-            {
-                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d) (0x%X)",tpal[CSET(cs)+(*si)].r,tpal[CSET(cs)+(*si)].g,tpal[CSET(cs)+(*si)].b,*si,*si);
-            }
-            else
-            {
-                textprintf_ex(screen2,font,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02d %02d %02d  (%d) (0x%02X)",tpal[(*si)].r,tpal[(*si)].g,tpal[(*si)].b,*si,*si);
-            }
-        }
-    }
+	//coordinates
+	//if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158))
+	//if(isinRect(gui_mouse_x(),gui_mouse_y(),zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2)) //inside the zoomed tile window
+	{
+		//int32_t temp_x=(gui_mouse_x()-80)/8;
+		//int32_t temp_y=(gui_mouse_y()-32)/8;
+		//int32_t temp_x=(gui_mouse_x()-zoom_tile_x)/(zoom_tile_scale/zoom_tile_size);
+		//int32_t temp_y=(gui_mouse_y()-zoom_tile_y)/(zoom_tile_scale/zoom_tile_size);
+		int32_t temp_x=zoom_tile_size*(gui_mouse_x()-zoom_tile_x)/zoom_tile_scale;
+		int32_t temp_y=zoom_tile_size*(gui_mouse_y()-zoom_tile_y)/zoom_tile_scale;
+		
+		//if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158))
+		if((temp_x>=0&&temp_x<=(16*zoom_tile_size)-1)&&(temp_y>=0&&temp_y<=(16*zoom_tile_size)-1))
+		{
+			textprintf_ex(screen2,font,status_info_x,status_info_y+24,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"x: %d",temp_x);
+			textprintf_ex(screen2,font,status_info_x+40,status_info_y+24,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"y: %d",temp_y);
+			unpack_tile(newtilebuf, tile, 0, false);
+			byte *si = unpackbuf;
+			si+=(temp_y*16+temp_x);
+			get_palette(tpal);
+			char separator = is_large ? ' ' : '\n';
+			char buf[256] = {0};
+			if(newtilebuf[tile].format<=tf4Bit)
+			{
+				sprintf(buf, "%02d %02d %02d %c(%d) (0x%02X)",tpal[CSET(cs)+(*si)].r,tpal[CSET(cs)+(*si)].g,tpal[CSET(cs)+(*si)].b,separator,*si,(*si)+(0x10*cs));
+			}
+			else
+			{
+				sprintf(buf, "%02d %02d %02d %c(%d) (0x%02X)",tpal[(*si)].r,tpal[(*si)].g,tpal[(*si)].b,separator,*si,*si);
+			}
+			gui_textout_ln(screen2,font,(unsigned char*)buf,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+		}
+	}
     
     custom_vsync();
     scare_mouse();
@@ -1484,18 +1486,18 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
     SCRFIX();
 }
 
-void normalize(int tile,int tile2, bool rect_sel, int flip)
+void normalize(int32_t tile,int32_t tile2, bool rect_sel, int32_t flip)
 {
     if(tile>tile2)
     {
         zc_swap(tile, tile2);
     }
     
-    int left=zc_min(TILECOL(tile), TILECOL(tile2));
-    int columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
+    int32_t left=zc_min(TILECOL(tile), TILECOL(tile2));
+    int32_t columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
     
-    int start=tile;
-    int end=tile2;
+    int32_t start=tile;
+    int32_t end=tile2;
     
     // Might have top-right and bottom-left corners selected...
     if(rect_sel && TILECOL(tile)>TILECOL(tile2))
@@ -1504,7 +1506,7 @@ void normalize(int tile,int tile2, bool rect_sel, int flip)
         end=tile2+(TILECOL(tile)-TILECOL(tile2));
     }
     
-    for(int temptile=start; temptile<=end; temptile++)
+    for(int32_t temptile=start; temptile<=end; temptile++)
     {
         if(!rect_sel || ((TILECOL(temptile)>=left) && (TILECOL(temptile)<=left+columns-1)))
         {
@@ -1512,9 +1514,9 @@ void normalize(int tile,int tile2, bool rect_sel, int flip)
             
             if(flip&1)
             {
-                for(int y=0; y<16; y++)
+                for(int32_t y=0; y<16; y++)
                 {
-                    for(int x=0; x<8; x++)
+                    for(int32_t x=0; x<8; x++)
                     {
                         zc_swap(unpackbuf[(y<<4)+x],unpackbuf[(y<<4)+15-x]);
                     }
@@ -1523,9 +1525,9 @@ void normalize(int tile,int tile2, bool rect_sel, int flip)
             
             if(flip&2)
             {
-                for(int y=0; y<8; y++)
+                for(int32_t y=0; y<8; y++)
                 {
-                    for(int x=0; x<16; x++)
+                    for(int32_t x=0; x<16; x++)
                     {
                         zc_swap(unpackbuf[(y<<4)+x],unpackbuf[((15-y)<<4)+x]);
                     }
@@ -1537,7 +1539,7 @@ void normalize(int tile,int tile2, bool rect_sel, int flip)
     }
 }
 
-void rotate_tile(int tile, bool backward)
+void rotate_tile(int32_t tile, bool backward)
 {
     unpack_tile(newtilebuf, tile, 0, false);
     byte tempunpackbuf[256];
@@ -1561,14 +1563,14 @@ void rotate_tile(int tile, bool backward)
     pack_tile(newtilebuf,tempunpackbuf,tile);
 }
 
-static int undocount=128;
+static int32_t undocount=128;
 byte undotile[256];
 
-void wrap_tile(int tile, int vertical, int horizontal, bool clear)
+void wrap_tile(int32_t tile, int32_t vertical, int32_t horizontal, bool clear)
 {
     byte buf[256];
     
-    for(int i=0; i<undocount; i++)
+    for(int32_t i=0; i<undocount; i++)
     {
         newtilebuf[tile].data[i]=undotile[i];
     }
@@ -1583,7 +1585,7 @@ void wrap_tile(int tile, int vertical, int horizontal, bool clear)
     //vertical
     if(vertical)
     {
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
         {
             buf[(i+(vertical*16))&0xFF] = unpackbuf[i];
         }
@@ -1594,7 +1596,7 @@ void wrap_tile(int tile, int vertical, int horizontal, bool clear)
     //horizontal
     if(horizontal)
     {
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
         {
             buf[((i+horizontal)&15)+(i&0xF0)] = unpackbuf[i];
         }
@@ -1602,17 +1604,17 @@ void wrap_tile(int tile, int vertical, int horizontal, bool clear)
     
     if(clear)
     {
-        for(int r=0; r<abs(vertical); r++)
+        for(int32_t r=0; r<abs(vertical); r++)
         {
-            for(int c=0; c<16; c++)
+            for(int32_t c=0; c<16; c++)
             {
                 buf[(vertical>0?r:15-r)*16+c]=0;
             }
         }
         
-        for(int r=0; r<16; r++)
+        for(int32_t r=0; r<16; r++)
         {
-            for(int c=0; c<abs(horizontal); c++)
+            for(int32_t c=0; c<abs(horizontal); c++)
             {
                 buf[r*16+(horizontal>0?c:15-c)]=0;
             }
@@ -1622,13 +1624,13 @@ void wrap_tile(int tile, int vertical, int horizontal, bool clear)
     pack_tile(newtilebuf,buf,tile);
 }
 
-void shift_tile_colors(int tile, int amount, bool ignore_transparent)
+void shift_tile_colors(int32_t tile, int32_t amount, bool ignore_transparent)
 {
     byte buf[256];
     
     unpack_tile(newtilebuf, tile, 0, true);
     
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
     {
         buf[i]=unpackbuf[i];
         
@@ -1651,9 +1653,9 @@ void shift_tile_colors(int tile, int amount, bool ignore_transparent)
 
 void clear_selection_grid()
 {
-    for(int x=0; x<18; ++x)
+    for(int32_t x=0; x<18; ++x)
     {
-        for(int y=0; y<18; ++y)
+        for(int32_t y=0; y<18; ++y)
         {
             selection_grid[x][y]=0;
         }
@@ -1662,16 +1664,16 @@ void clear_selection_grid()
 
 void invert_selection_grid()
 {
-    for(int x=1; x<17; ++x)
+    for(int32_t x=1; x<17; ++x)
     {
-        for(int y=1; y<17; ++y)
+        for(int32_t y=1; y<17; ++y)
         {
             selection_grid[x][y]=selection_grid[x][y]?0:1;
         }
     }
 }
 
-void edit_tile(int tile,int flip,int &cs)
+void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 {
     go();
     undocount = tilesize(newtilebuf[tile].format);
@@ -1684,7 +1686,7 @@ void edit_tile(int tile,int flip,int &cs)
     /*
     //This causes a bug. Why? -L
     get_palette(tpal);
-    for(int i=0; i<15; i++)
+    for(int32_t i=0; i<15; i++)
     {
       load_cset(tpal,i,i);
     }
@@ -1695,15 +1697,15 @@ void edit_tile(int tile,int flip,int &cs)
     memset(&tpal, 0, sizeof(PALETTE));
     memset(oldtile, 0, 256);
     
-    for(int i=0; i<undocount; i++)
+    for(int32_t i=0; i<undocount; i++)
     {
         oldtile[i]=undotile[i]=newtilebuf[tile].data[i];
     }
     
-    int tile_x=-1, tile_y=-1;
-    int temp_x=-1, temp_y=-1;
+    int32_t tile_x=-1, tile_y=-1;
+    int32_t temp_x=-1, temp_y=-1;
     bool bdown=false;
-    int done=0;
+    int32_t done=0;
     drawing=0;
     tool_cur = -1;
     
@@ -1727,8 +1729,8 @@ void edit_tile(int tile,int flip,int &cs)
         /* do nothing */
     }
     
-    int move_origin_x=-1, move_origin_y=-1;
-    int prev_x=-1, prev_y=-1;
+    int32_t move_origin_x=-1, move_origin_y=-1;
+    int32_t prev_x=-1, prev_y=-1;
     
     
     
@@ -1770,9 +1772,9 @@ void edit_tile(int tile,int flip,int &cs)
     
     selection_pattern=create_bitmap_ex(8, 8, 8);
     
-    for(int x=0; x<8; ++x)
+    for(int32_t x=0; x<8; ++x)
     {
-        for(int y=0; y<8; ++y)
+        for(int32_t y=0; y<8; ++y)
         {
             //      rectfill(selection_pattern, x<<2, y<<2, (x<<2)+3, (y<<2)+3, (((x^y)&1)==0)?vc(15):vc(0));
             selection_pattern->line[y][x]=selection_pattern_source[x][y]?vc(0):vc(15);
@@ -1781,9 +1783,9 @@ void edit_tile(int tile,int flip,int &cs)
     
     selecting_pattern=create_bitmap_ex(8, 8, 8);
     
-    for(int x=0; x<8; ++x)
+    for(int32_t x=0; x<8; ++x)
     {
-        for(int y=0; y<8; ++y)
+        for(int32_t y=0; y<8; ++y)
         {
             //      rectfill(selection_pattern, x<<2, y<<2, (x<<2)+3, (y<<2)+3, (((x^y)&1)==0)?vc(15):vc(0));
             selecting_pattern->line[y][x]=selecting_pattern_source[x][y]?vc(0):vc(15);
@@ -1792,24 +1794,24 @@ void edit_tile(int tile,int flip,int &cs)
     
     intersection_pattern=create_bitmap_ex(8, 8, 8);
     
-    for(int x=0; x<8; ++x)
+    for(int32_t x=0; x<8; ++x)
     {
-        for(int y=0; y<8; ++y)
+        for(int32_t y=0; y<8; ++y)
         {
             //      rectfill(selection_pattern, x<<2, y<<2, (x<<2)+3, (y<<2)+3, (((x^y)&1)==0)?vc(15):vc(0));
             intersection_pattern->line[y][x]=intersection_pattern_source[x][y]?vc(0):vc(15);
         }
     }
     
-//  int screen_xofs=(zq_screen_w-320)>>1;
-//  int screen_yofs=(zq_screen_h-240)>>1;
+//  int32_t screen_xofs=(zq_screen_w-320)>>1;
+//  int32_t screen_yofs=(zq_screen_h-240)>>1;
 
     do
     {
-//    int temp_mouse_x=gui_mouse_x()-screen_xofs;
-//    int temp_mouse_y=gui_mouse_y()-screen_yofs;
-        int temp_mouse_x=gui_mouse_x();
-        int temp_mouse_y=gui_mouse_y();
+//    int32_t temp_mouse_x=gui_mouse_x()-screen_xofs;
+//    int32_t temp_mouse_y=gui_mouse_y()-screen_yofs;
+        int32_t temp_mouse_x=gui_mouse_x();
+        int32_t temp_mouse_y=gui_mouse_y();
         rest(4);
         bool redraw=false;
         bool did_wand_select=false;
@@ -1888,7 +1890,7 @@ void edit_tile(int tile,int flip,int &cs)
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
                         key[KEY_ALT] || key[KEY_ALTGR])
                 {
-                    for(int i=0; i<undocount; i++)
+                    for(int32_t i=0; i<undocount; i++)
                         undotile[i]=newtilebuf[tile].data[i];
                         
                     if(key[KEY_ALT] || key[KEY_ALTGR])
@@ -1909,7 +1911,7 @@ void edit_tile(int tile,int flip,int &cs)
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
                         key[KEY_ALT] || key[KEY_ALTGR])
                 {
-                    for(int i=0; i<undocount; i++)
+                    for(int32_t i=0; i<undocount; i++)
                         undotile[i]=newtilebuf[tile].data[i];
                         
                     if(key[KEY_ALT] || key[KEY_ALTGR])
@@ -1930,7 +1932,7 @@ void edit_tile(int tile,int flip,int &cs)
                 break;
                 
             case KEY_U:
-                for(int i=0; i<undocount; i++) zc_swap(undotile[i],newtilebuf[tile].data[i]);
+                for(int32_t i=0; i<undocount; i++) zc_swap(undotile[i],newtilebuf[tile].data[i]);
                 
                 redraw=true;
                 break;
@@ -1938,14 +1940,14 @@ void edit_tile(int tile,int flip,int &cs)
             case KEY_S:
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                 {
-                    for(int i=0; i<undocount; i++)
+                    for(int32_t i=0; i<undocount; i++)
                     {
                         undotile[i]=newtilebuf[tile].data[i];
                     }
                     
                     unpack_tile(newtilebuf, tile, 0, false);
                     
-                    for(int i=0; i<256; i++)
+                    for(int32_t i=0; i<256; i++)
                     {
                         if(unpackbuf[i]==c1)
                         {
@@ -1970,7 +1972,7 @@ void edit_tile(int tile,int flip,int &cs)
                     tile=zc_max(0,tile-TILES_PER_ROW);
                     undocount = tilesize(newtilebuf[tile].format);
                     
-                    for(int i=0; i<undocount; i++)
+                    for(int32_t i=0; i<undocount; i++)
                     {
                         undotile[i]=newtilebuf[tile].data[i];
                         oldtile[i]=undotile[i];
@@ -1980,7 +1982,7 @@ void edit_tile(int tile,int flip,int &cs)
                 }
                 else
                 {
-                    for(int i=0; i<undocount; i++)
+                    for(int32_t i=0; i<undocount; i++)
                     {
                         undotile[i]=newtilebuf[tile].data[i];
                     }
@@ -1997,7 +1999,7 @@ void edit_tile(int tile,int flip,int &cs)
                     tile=zc_min(tile+TILES_PER_ROW,NEWMAXTILES-1);
                     undocount = tilesize(newtilebuf[tile].format);
                     
-                    for(int i=0; i<undocount; i++)
+                    for(int32_t i=0; i<undocount; i++)
                     {
                         undotile[i]=newtilebuf[tile].data[i];
                         oldtile[i]=undotile[i];
@@ -2007,7 +2009,7 @@ void edit_tile(int tile,int flip,int &cs)
                 }
                 else
                 {
-                    for(int i=0; i<undocount; i++)
+                    for(int32_t i=0; i<undocount; i++)
                     {
                         undotile[i]=newtilebuf[tile].data[i];
                     }
@@ -2024,7 +2026,7 @@ void edit_tile(int tile,int flip,int &cs)
                     tile=zc_max(0,tile-1);
                     undocount = tilesize(newtilebuf[tile].format);
                     
-                    for(int i=0; i<undocount; i++)
+                    for(int32_t i=0; i<undocount; i++)
                     {
                         undotile[i]=newtilebuf[tile].data[i];
                         oldtile[i]=undotile[i];
@@ -2034,7 +2036,7 @@ void edit_tile(int tile,int flip,int &cs)
                 }
                 else
                 {
-                    for(int i=0; i<undocount; i++)
+                    for(int32_t i=0; i<undocount; i++)
                     {
                         undotile[i]=newtilebuf[tile].data[i];
                     }
@@ -2051,7 +2053,7 @@ void edit_tile(int tile,int flip,int &cs)
                     tile=zc_min(tile+1, NEWMAXTILES-1);
                     undocount = tilesize(newtilebuf[tile].format);
                     
-                    for(int i=0; i<undocount; i++)
+                    for(int32_t i=0; i<undocount; i++)
                     {
                         undotile[i]=newtilebuf[tile].data[i];
                         oldtile[i]=undotile[i];
@@ -2061,7 +2063,7 @@ void edit_tile(int tile,int flip,int &cs)
                 }
                 else
                 {
-                    for(int i=0; i<undocount; i++)
+                    for(int32_t i=0; i<undocount; i++)
                     {
                         undotile[i]=newtilebuf[tile].data[i];
                     }
@@ -2100,19 +2102,19 @@ void edit_tile(int tile,int flip,int &cs)
         {
             if(is_selecting())
             {
-                int x1=zc_min(selecting_x1,selecting_x2);
-                int x2=zc_max(selecting_x1,selecting_x2);
-                int y1=zc_min(selecting_y1,selecting_y2);
-                int y2=zc_max(selecting_y1,selecting_y2);
+                int32_t x1=zc_min(selecting_x1,selecting_x2);
+                int32_t x2=zc_max(selecting_x1,selecting_x2);
+                int32_t y1=zc_min(selecting_y1,selecting_y2);
+                int32_t y2=zc_max(selecting_y1,selecting_y2);
                 
                 if(select_mode==0)
                 {
                     clear_selection_grid();
                 }
                 
-                for(int x=x1; x<=x2; ++x)
+                for(int32_t x=x1; x<=x2; ++x)
                 {
-                    for(int y=y1; y<=y2; ++y)
+                    for(int32_t y=y1; y<=y2; ++y)
                     {
                         selection_grid[x+1][y+1]=((select_mode<2)?(1):(((select_mode==2)?(0):(selection_grid[x+1][y+1]))));
                     }
@@ -2120,27 +2122,27 @@ void edit_tile(int tile,int flip,int &cs)
                 
                 if(select_mode==3)
                 {
-                    for(int y=0; y<16; ++y)
+                    for(int32_t y=0; y<16; ++y)
                     {
-                        for(int x=0; x<x1; ++x)
+                        for(int32_t x=0; x<x1; ++x)
                         {
                             selection_grid[x+1][y+1]=0;
                         }
                         
-                        for(int x=x2+1; x<16; ++x)
+                        for(int32_t x=x2+1; x<16; ++x)
                         {
                             selection_grid[x+1][y+1]=0;
                         }
                     }
                     
-                    for(int x=x1; x<=x2; ++x)
+                    for(int32_t x=x1; x<=x2; ++x)
                     {
-                        for(int y=0; y<y1; ++y)
+                        for(int32_t y=0; y<y1; ++y)
                         {
                             selection_grid[x+1][y+1]=0;
                         }
                         
-                        for(int y=y2+1; y<16; ++y)
+                        for(int32_t y=y2+1; y<16; ++y)
                         {
                             selection_grid[x+1][y+1]=0;
                         }
@@ -2159,7 +2161,7 @@ void edit_tile(int tile,int flip,int &cs)
         {
             if(!drawing)
             {
-                int type=0;
+                int32_t type=0;
                 
                 if(has_selection())
                 {
@@ -2249,7 +2251,7 @@ void edit_tile(int tile,int flip,int &cs)
 //          move_origin_y=prev_y=(temp_mouse_y-32)>>3;
                 }
                 
-                for(int i=0; i<undocount; i++)
+                for(int32_t i=0; i<undocount; i++)
                 {
                     undotile[i]=newtilebuf[tile].data[i];
                 }
@@ -2304,10 +2306,10 @@ void edit_tile(int tile,int flip,int &cs)
 //        if(isinRect(temp_mouse_x,temp_mouse_y,104,176,135,207))
                 if(isinRect(temp_mouse_x,temp_mouse_y,palette_x,palette_y,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*16)-1))
                 {
-//          int x=(temp_mouse_x-104)>>3;
-//          int y=(temp_mouse_y-176)>>3;
-                    int x=(temp_mouse_x-palette_x)/(palette_scale*4);
-                    int y=(temp_mouse_y-palette_y)/(palette_scale*4);
+//          int32_t x=(temp_mouse_x-104)>>3;
+//          int32_t y=(temp_mouse_y-176)>>3;
+                    int32_t x=(temp_mouse_x-palette_x)/(palette_scale*4);
+                    int32_t y=(temp_mouse_y-palette_y)/(palette_scale*4);
                     c1 = (y<<2)+x;
                     redraw=true;
                 }
@@ -2319,10 +2321,10 @@ void edit_tile(int tile,int flip,int &cs)
 //        if(isinRect(temp_mouse_x,temp_mouse_y,94,172,157,231))
                 if(isinRect(temp_mouse_x,temp_mouse_y,palette_x, palette_y+palette_scale,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*15)-1))
                 {
-//          int x=(temp_mouse_x-94)>>2;
-//          int y=(temp_mouse_y-172)>>2;
-                    int x=(temp_mouse_x-palette_x)/(palette_scale);
-                    int y=(temp_mouse_y-palette_y-palette_scale)/(palette_scale);
+//          int32_t x=(temp_mouse_x-94)>>2;
+//          int32_t y=(temp_mouse_y-172)>>2;
+                    int32_t x=(temp_mouse_x-palette_x)/(palette_scale);
+                    int32_t y=(temp_mouse_y-palette_y-palette_scale)/(palette_scale);
                     c1 = (y<<4)+x;
                     redraw=true;
                 }
@@ -2331,11 +2333,11 @@ void edit_tile(int tile,int flip,int &cs)
             }
             
             
-            for(int i=0; i<t_max; i++)
+            for(int32_t i=0; i<t_max; i++)
             {
-                int column=tool_buttons_columns*i/(t_max+1);
-                int rows=(t_max+2)/tool_buttons_columns;
-                int row=i-(column*rows);
+                int32_t column=tool_buttons_columns*i/(t_max+1);
+                int32_t rows=(t_max+2)/tool_buttons_columns;
+                int32_t row=i-(column*rows);
                 
 //        if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left,(i*23)+tool_buttons_top,tool_buttons_left+21,(i*23)+tool_buttons_top+21))
                 if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left+(column*23),tool_buttons_top+(row*23),tool_buttons_left+(column*23)+21,tool_buttons_top+(row*23)+21))
@@ -2384,7 +2386,7 @@ void edit_tile(int tile,int flip,int &cs)
 //          move_origin_y=prev_y=(temp_mouse_y-32)>>3;
                 }
                 
-                for(int i=0; i<undocount; i++)
+                for(int32_t i=0; i<undocount; i++)
                 {
                     undotile[i]=newtilebuf[tile].data[i];
                 }
@@ -2399,10 +2401,10 @@ void edit_tile(int tile,int flip,int &cs)
 //        if(isinRect(temp_mouse_x,temp_mouse_y,104,176,135,207))
                 if(isinRect(temp_mouse_x,temp_mouse_y,palette_x,palette_y,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*16)-1))
                 {
-//          int x=(temp_mouse_x-104)>>3;
-//          int y=(temp_mouse_y-176)>>3;
-                    int x=(temp_mouse_x-palette_x)/(palette_scale*4);
-                    int y=(temp_mouse_y-palette_y)/(palette_scale*4);
+//          int32_t x=(temp_mouse_x-104)>>3;
+//          int32_t y=(temp_mouse_y-176)>>3;
+                    int32_t x=(temp_mouse_x-palette_x)/(palette_scale*4);
+                    int32_t y=(temp_mouse_y-palette_y)/(palette_scale*4);
                     c2 = (y<<2)+x;
                     redraw=true;
                 }
@@ -2414,10 +2416,10 @@ void edit_tile(int tile,int flip,int &cs)
 //        if(isinRect(temp_mouse_x,temp_mouse_y,94,172,157,231))
                 if(isinRect(temp_mouse_x,temp_mouse_y,palette_x, palette_y+palette_scale,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*15)-1))
                 {
-//          int x=(temp_mouse_x-94)>>2;
-//          int y=(temp_mouse_y-172)>>2;
-                    int x=(temp_mouse_x-palette_x)/(palette_scale);
-                    int y=(temp_mouse_y-palette_y-palette_scale)/(palette_scale);
+//          int32_t x=(temp_mouse_x-94)>>2;
+//          int32_t y=(temp_mouse_y-172)>>2;
+                    int32_t x=(temp_mouse_x-palette_x)/(palette_scale);
+                    int32_t y=(temp_mouse_y-palette_y-palette_scale)/(palette_scale);
                     c2 = (y<<4)+x;
                     redraw=true;
                 }
@@ -2456,8 +2458,8 @@ void edit_tile(int tile,int flip,int &cs)
         if(drawing && isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
         {
         
-            int mx = gui_mouse_x();
-            int my = gui_mouse_y();
+            int32_t mx = gui_mouse_x();
+            int32_t my = gui_mouse_y();
             
             if(tool==t_fill)  //&& is_windowed_mode()) // Sigh... -L
             {
@@ -2465,8 +2467,8 @@ void edit_tile(int tile,int flip,int &cs)
                 my += is_large ? 14 : 7;
             }
             
-            int x=(mx-zoom_tile_x)/(zoom_tile_scale/zoom_tile_size);
-            int y=(my-zoom_tile_y)/(zoom_tile_scale/zoom_tile_size);
+            int32_t x=(mx-zoom_tile_x)/(zoom_tile_scale/zoom_tile_size);
+            int32_t y=(my-zoom_tile_y)/(zoom_tile_scale/zoom_tile_size);
             
             switch(tool)
             {
@@ -2499,7 +2501,7 @@ void edit_tile(int tile,int flip,int &cs)
                     unpack_tile(newtilebuf, tile, 0, false);
                     tf_u = unpackbuf[(y<<4)+x];
                     
-                    for(int i=0; i<256; i++)
+                    for(int32_t i=0; i<256; i++)
                     {
                         if(is_in_selection(i&15,i>>4))
                         {
@@ -2621,11 +2623,11 @@ void edit_tile(int tile,int flip,int &cs)
             "Pencil", "Fill", "Replace Color", "Grab Color", "Move", "Select", "Select Color"
         };
         
-        for(int i=0; i<t_max; i++)
+        for(int32_t i=0; i<t_max; i++)
         {
-            int column=tool_buttons_columns*i/(t_max+1);
-            int rows=(t_max+2)/tool_buttons_columns;
-            int row=i-(column*rows);
+            int32_t column=tool_buttons_columns*i/(t_max+1);
+            int32_t rows=(t_max+2)/tool_buttons_columns;
+            int32_t row=i-(column*rows);
             
             if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left+(column*23),tool_buttons_top+(row*23),tool_buttons_left+(column*23)+21,tool_buttons_top+(row*23)+21))
             {
@@ -2698,7 +2700,7 @@ void edit_tile(int tile,int flip,int &cs)
     
     if(done==1)
     {
-        for(int i=0; i<undocount; i++)
+        for(int32_t i=0; i<undocount; i++)
         {
             newtilebuf[tile].data[i]=oldtile[i];
         }
@@ -2708,7 +2710,7 @@ void edit_tile(int tile,int flip,int &cs)
         byte *buf = new byte[undocount];
         
         // put back old tile
-        for(int i=0; i<undocount; i++)
+        for(int32_t i=0; i<undocount; i++)
         {
             buf[i] = newtilebuf[tile].data[i];
             newtilebuf[tile].data[i] = oldtile[i];
@@ -2718,7 +2720,7 @@ void edit_tile(int tile,int flip,int &cs)
         go_tiles();
         
         // replace old tile with new one again
-        for(int i=0; i<undocount; i++)
+        for(int32_t i=0; i<undocount; i++)
         {
             newtilebuf[tile].data[i] = buf[i];
         }
@@ -2748,26 +2750,26 @@ void edit_tile(int tile,int flip,int &cs)
 enum recolorState { rcNone, rc4Bit, rc8Bit };
 
 void *imagebuf=NULL;
-long imagesize=0;
-long tilecount=0;
-int  imagetype=0;
-int imagex,imagey,selx,sely;
-int bp=4,grabmode=16,romofs=0,romtilemode=0, romtilecols=8;
+int32_t imagesize=0;
+int32_t tilecount=0;
+int32_t  imagetype=0;
+int32_t imagex,imagey,selx,sely;
+int32_t bp=4,grabmode=16,romofs=0,romtilemode=0, romtilecols=8;
 bool nesmode=false;
-int grabmask=0;
+int32_t grabmask=0;
 recolorState recolor=rcNone;
 PALETTE imagepal;
 
 /* bestfit_color:
   *  Searches a palette for the color closest to the requested R, G, B value.
   */
-int bestfit_cset_color(int cs, int r, int g, int b)
+int32_t bestfit_cset_color(int32_t cs, int32_t r, int32_t g, int32_t b)
 {
-    int bestMatch = 0; // Color with the lowest total difference so far
+    int32_t bestMatch = 0; // Color with the lowest total difference so far
     float bestTotalDiff = 100000; // Total difference between requested color and bestMatch
     float bestHighDiff = 100000; // Greatest difference of R, G, B between requested color and bestMatch
     
-    for(int i = 0; i < CSET_SIZE; i++)
+    for(int32_t i = 0; i < CSET_SIZE; i++)
     {
         byte *rgbByte;
         
@@ -2779,9 +2781,9 @@ int bestfit_cset_color(int cs, int r, int g, int b)
         else
             rgbByte = colordata + (CSET(cs)+i)*3;
             
-        int dr=r-*rgbByte;
-        int dg=g-*(rgbByte+1);
-        int db=b-*(rgbByte+2);
+        int32_t dr=r-*rgbByte;
+        int32_t dg=g-*(rgbByte+1);
+        int32_t db=b-*(rgbByte+2);
         
         // Track both the total color difference and the single greatest
         // difference of R, G, B. The idea is that it's better to have
@@ -2808,17 +2810,17 @@ int bestfit_cset_color(int cs, int r, int g, int b)
 }
 
 // Same as the above, but draws from all colors in CSets 0-11.
-int bestfit_cset_color_8bit(int r, int g, int b)
+int32_t bestfit_cset_color_8bit(int32_t r, int32_t g, int32_t b)
 {
-    int bestMatch = 0;
+    int32_t bestMatch = 0;
     float bestTotalDiff = 100000;
     float bestHighDiff = 100000;
     
-    for(int i = 0; i < 192; i++) // 192 colors in CSets 0-11
+    for(int32_t i = 0; i < 192; i++) // 192 colors in CSets 0-11
     {
         byte *rgbByte;
         
-        int cs=i>>4;
+        int32_t cs=i>>4;
         if(cs==2 || cs==3 || cs==4)
             rgbByte = colordata + (CSET((Map.CurrScr()->color+1) * pdLEVEL + cs) + (i%16)) * 3;
         else if(cs==9)
@@ -2826,9 +2828,9 @@ int bestfit_cset_color_8bit(int r, int g, int b)
         else
             rgbByte = colordata + i * 3;
             
-        int dr=r-*rgbByte;
-        int dg=g-*(rgbByte+1);
-        int db=b-*(rgbByte+2);
+        int32_t dr=r-*rgbByte;
+        int32_t dg=g-*(rgbByte+1);
+        int32_t db=b-*(rgbByte+2);
         
         float totalDiff = sqrt(dr*dr*0.241 + dg*dg*0.691 + db*db*0.068);
         float highDiff = zc_max(zc_max(sqrt(dr*dr*0.241), sqrt(dg*dg*0.691)), sqrt(db*db*0.068));
@@ -2850,9 +2852,9 @@ int bestfit_cset_color_8bit(int r, int g, int b)
 
 byte cset_reduce_table[PAL_SIZE];
 
-void calc_cset_reduce_table(PALETTE pal, int cs)
+void calc_cset_reduce_table(PALETTE pal, int32_t cs)
 {
-    for(int i=0; i<PAL_SIZE; i++)
+    for(int32_t i=0; i<PAL_SIZE; i++)
     {
         cset_reduce_table[i]=(bestfit_cset_color(cs, pal[i].r, pal[i].g, pal[i].b)&0x0F);
     }
@@ -2860,13 +2862,13 @@ void calc_cset_reduce_table(PALETTE pal, int cs)
 
 void calc_cset_reduce_table_8bit(PALETTE pal)
 {
-    for(int i=0; i<PAL_SIZE; i++)
+    for(int32_t i=0; i<PAL_SIZE; i++)
     {
         cset_reduce_table[i]=bestfit_cset_color_8bit(pal[i].r, pal[i].g, pal[i].b);
     }
 }
 
-void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs)
+void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 {
     //storage space for the grabbed image
     byte buf[64];
@@ -2874,15 +2876,15 @@ void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs)
     byte *oldsrc=src;
     
     //for 8 lines in the source image...
-    for(int line=0; line<(nesmode?4:8); line++)
+    for(int32_t line=0; line<(nesmode?4:8); line++)
     {
         //bx is the pixel at the start of a line in the storage buffer
-        int  bx=line<<(nesmode?4:3);
+        int32_t  bx=line<<(nesmode?4:3);
         //b is a byte in the source image (either an entire line in 1bp or the start of a line in others)
         byte b=src[(bp&1)?line:line<<1];
         
         //fill the storage buffer with data from the source image
-        for(int i=7; i>=0; --i)
+        for(int32_t i=7; i>=0; --i)
         {
             buf[bx+i] = (b&1)+(cs<<4);
             b>>=1;
@@ -2891,14 +2893,14 @@ void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs)
     
     ++src;
     
-    for(int p=1; p<bp; p++)
+    for(int32_t p=1; p<bp; p++)
     {
-        for(int line=0; line<(nesmode?4:8); line++)
+        for(int32_t line=0; line<(nesmode?4:8); line++)
         {
-            int  bx=line<<(nesmode?4:3);
+            int32_t  bx=line<<(nesmode?4:3);
             byte b=src[(bp&1)?line:line<<1];
             
-            for(int i=7; i>=0; --i)
+            for(int32_t i=7; i>=0; --i)
             {
                 if(nesmode)
                 {
@@ -2928,18 +2930,18 @@ void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs)
     {
         src=oldsrc;
         
-        for(int counter=0; counter<2; ++counter, ++src)
+        for(int32_t counter=0; counter<2; ++counter, ++src)
         {
             //for 8 lines in the source image...
-            for(int line=0; line<4; line++)
+            for(int32_t line=0; line<4; line++)
             {
                 //bx is the pixel at the start of a line in the storage buffer
-                int  bx=line<<4;
+                int32_t  bx=line<<4;
                 //b is a byte in the source image (either an entire line in 1bp or the start of a line in others)
                 byte b=src[(line+4)<<1];
                 
                 //fill the storage buffer with data from the source image
-                for(int i=7; i>=0; --i)
+                for(int32_t i=7; i>=0; --i)
                 {
                     //        buf[bx+i] = (b&1)+(cs<<4);
                     buf[bx+(counter<<3)+i] |= (b&1)<<1;
@@ -2949,16 +2951,16 @@ void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs)
         }
     }
     
-    int c=0;
+    int32_t c=0;
     
     switch(romtilemode)
     {
     case 0:
     case 1:
     case 2:
-        for(int j=0; j<8; j++)
+        for(int32_t j=0; j<8; j++)
         {
-            for(int i=0; i<8; i++)
+            for(int32_t i=0; i<8; i++)
             {
                 putpixel(dest,x+i,y+j,buf[c++]);
             }
@@ -2967,9 +2969,9 @@ void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs)
         break;
         
     case 3:
-        for(int j=0; j<4; j++)
+        for(int32_t j=0; j<4; j++)
         {
-            for(int i=0; i<16; i++)
+            for(int32_t i=0; i<16; i++)
             {
                 putpixel(dest,x+i,y+j,buf[c++]);
             }
@@ -2986,10 +2988,10 @@ const char *file_type[ftMAX]=
 
 void draw_grab_window()
 {
-    int w = is_large?640:320;
-    int h = is_large?480:240;
-    int window_xofs=(zq_screen_w-w-12)>>1;
-    int window_yofs=(zq_screen_h-h-25-6)>>1;
+    int32_t w = is_large?640:320;
+    int32_t h = is_large?480:240;
+    int32_t window_xofs=(zq_screen_w-w-12)>>1;
+    int32_t window_yofs=(zq_screen_h-h-25-6)>>1;
     scare_mouse();
     jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
     jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+2+2-(82*(is_large+1)),  FR_DEEP);
@@ -3002,13 +3004,13 @@ void draw_grab_window()
     return;
 }
 
-void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width, int height, byte *newformat)
+void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t white, int32_t width, int32_t height, byte *newformat)
 {
     width=width;
     height=height;
     white=white; // happy birthday compiler
     
-    int yofs=0;
+    int32_t yofs=0;
     //clear_to_color(screen2,bg);
     rectfill(screen2, 0, 0, 319, 159, black);
     //jwin_draw_win(screen2, 0, 160, 320, 80, FR_WIN);
@@ -3027,7 +3029,7 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     }
     
     // text_mode(-1);
-    int tileromcolumns=20;
+    int32_t tileromcolumns=20;
     
     switch(imagetype)
     {
@@ -3038,17 +3040,17 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
         }
         else
         {
-            int maxy=zc_min(160,((BITMAP*)imagebuf)->h);
-            int maxx=zc_min(320,((BITMAP*)imagebuf)->w);
+            int32_t maxy=zc_min(160,((BITMAP*)imagebuf)->h);
+            int32_t maxx=zc_min(320,((BITMAP*)imagebuf)->w);
             
-            for(int y=0; y<maxy; y++)
+            for(int32_t y=0; y<maxy; y++)
             {
                 if((imagey<<4)+y>=((BITMAP*)imagebuf)->h)
                 {
                     break;
                 }
                 
-                for(int x=0; x<maxx; x++)
+                for(int32_t x=0; x<maxx; x++)
                 {
                     if((imagex<<4)+x>=((BITMAP*)imagebuf)->w)
                     {
@@ -3075,9 +3077,9 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
         newtilebuf = grabtilebuf;
         //fixme
 	imagey = vbound(imagey, 0, MAXTILEROWS); //fixed -Z This can no longer crash if you scroll past the end of the tile pages. 6th June, 2020
-        int t=imagey*TILES_PER_ROW;
+        int32_t t=imagey*TILES_PER_ROW;
         
-        for(int i=0; i<200; i++)                              // 10 rows, down to y=160
+        for(int32_t i=0; i<200; i++)                              // 10 rows, down to y=160
         {
             if(t <= tilecount)
             {
@@ -3094,24 +3096,24 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     
     case ftBIN:
     {
-        int ofs = (tileromcolumns*imagex + imagey) * 128*bp + romofs;
+        int32_t ofs = (tileromcolumns*imagex + imagey) * 128*bp + romofs;
         byte *buf = (byte*)imagebuf;
         
         switch(romtilemode)
         {
         case 0:
-            for(int y=0; y<160; y+=8)
+            for(int32_t y=0; y<160; y+=8)
             {
-                for(int x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=8)
+                for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=8)
                 {
                     puttileROM(screen2,x,y,buf+ofs,cs);
                     ofs+=8*bp;
                 }
             }
             
-            for(int y=0; y<160; y+=8)
+            for(int32_t y=0; y<160; y+=8)
             {
-                for(int x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=8)
+                for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=8)
                 {
                     puttileROM(screen2,x+128,y,buf+ofs,cs);
                     ofs+=8*bp;
@@ -3121,9 +3123,9 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
             break;
             
         case 1:
-            for(int y=0; y<160; y+=16)
+            for(int32_t y=0; y<160; y+=16)
             {
-                for(int x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=8)
+                for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=8)
                 {
                     puttileROM(screen2,x,y,buf+ofs,cs);
                     ofs+=8*bp;
@@ -3132,9 +3134,9 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
                 }
             }
             
-            for(int y=0; y<160; y+=16)
+            for(int32_t y=0; y<160; y+=16)
             {
-                for(int x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=8)
+                for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=8)
                 {
                     puttileROM(screen2,x+128,y,buf+ofs,cs);
                     ofs+=8*bp;
@@ -3146,9 +3148,9 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
             break;
             
         case 2:
-            for(int y=0; y<160; y+=16)
+            for(int32_t y=0; y<160; y+=16)
             {
-                for(int x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=16)
+                for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=16)
                 {
                     puttileROM(screen2,x,y,buf+ofs,cs);
                     ofs+=8*bp;
@@ -3161,9 +3163,9 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
                 }
             }
             
-            for(int y=0; y<160; y+=16)
+            for(int32_t y=0; y<160; y+=16)
             {
-                for(int x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=16)
+                for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=16)
                 {
                     puttileROM(screen2,x+128,y,buf+ofs,cs);
                     ofs+=8*bp;
@@ -3179,9 +3181,9 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
             break;
             
         case 3:
-            for(int y=0; y<160; y+=16)
+            for(int32_t y=0; y<160; y+=16)
             {
-                for(int x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=16)
+                for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=16)
                 {
                     puttileROM(screen2,x,y,buf+ofs,cs);
                     ofs+=8*bp;
@@ -3194,9 +3196,9 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
                 }
             }
             
-            for(int y=0; y<160; y+=16)
+            for(int32_t y=0; y<160; y+=16)
             {
-                for(int x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=16)
+                for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=16)
                 {
                     puttileROM(screen2,x+128,y,buf+ofs,cs);
                     ofs+=8*bp;
@@ -3240,7 +3242,7 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     {
         newtilebuf[0].data = (byte *)zc_malloc(tilesize(newtilebuf[0].format));
         
-        for(int i=0; i<tilesize(newtilebuf[0].format); i++)
+        for(int32_t i=0; i<tilesize(newtilebuf[0].format); i++)
         {
             newtilebuf[0].data[i]=newtile[i];
         }
@@ -3263,7 +3265,7 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     {
         newtilebuf[0].data = (byte *)zc_malloc(tilesize(newtilebuf[0].format));
         
-        for(int i=0; i<newtilebuf[0].format*128; i++)
+        for(int32_t i=0; i<newtilebuf[0].format*128; i++)
         {
             newtilebuf[0].data[i]=hold.data[i];
         }
@@ -3304,11 +3306,11 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     jwin_draw_frame(screen2,230,166+yofs,20,20,FR_DEEP);
     jwin_draw_frame(screen2,206,190+yofs,20,20,FR_DEEP);
     jwin_draw_frame(screen2,230,190+yofs,20,20,FR_DEEP);
-    int window_xofs=0;
-    int window_yofs=0;
-    int screen_xofs=0;
-    int screen_yofs=0;
-    int mul = 1;
+    int32_t window_xofs=0;
+    int32_t window_yofs=0;
+    int32_t screen_xofs=0;
+    int32_t screen_yofs=0;
+    int32_t mul = 1;
     
     if(is_large)
     {
@@ -3343,7 +3345,7 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     case ftBMP:
     {
         textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %dx%d",imgstr[imagetype],((BITMAP*)imagebuf)->w,((BITMAP*)imagebuf)->h);
-        draw_text_button(screen,window_yofs+141*mul,window_yofs+(192+yofs)*mul,int(61*(is_large?1.5:1)),int(20*(is_large?1.5:1)),"Recolor",vc(1),vc(14),0,true);
+        draw_text_button(screen,window_yofs+141*mul,window_yofs+(192+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"Recolor",vc(1),vc(14),0,true);
         break;
     }
     
@@ -3375,12 +3377,12 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     
     textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(224+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",imagepath);
 //  rectfill(screen2,256,224,319,231,black);
-    draw_text_button(screen,window_xofs+255*mul,window_yofs+(168+yofs)*mul,int(61*(is_large?1.5:1)),int(20*(is_large?1.5:1)),"OK",vc(1),vc(14),0,true);
-    draw_text_button(screen,window_xofs+255*mul,window_yofs+(192+yofs)*mul,int(61*(is_large?1.5:1)),int(20*(is_large?1.5:1)),"Cancel",vc(1),vc(14),0,true);
-    draw_text_button(screen,window_xofs+255*mul,window_yofs+(216+yofs)*mul,int(61*(is_large?1.5:1)),int(20*(is_large?1.5:1)),"File",vc(1),vc(14),0,true);
-    draw_text_button(screen,window_xofs+117*mul,window_yofs+(166+yofs)*mul,int(61*(is_large?1.5:1)),int(20*(is_large?1.5:1)),"Leech",vc(1),vc(14),0,true);
+    draw_text_button(screen,window_xofs+255*mul,window_yofs+(168+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"OK",vc(1),vc(14),0,true);
+    draw_text_button(screen,window_xofs+255*mul,window_yofs+(192+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"Cancel",vc(1),vc(14),0,true);
+    draw_text_button(screen,window_xofs+255*mul,window_yofs+(216+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"File",vc(1),vc(14),0,true);
+    draw_text_button(screen,window_xofs+117*mul,window_yofs+(166+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"Leech",vc(1),vc(14),0,true);
     
-    //int rectw = 16*mul;
+    //int32_t rectw = 16*mul;
     //rect(screen,selx+screen_xofs,sely+screen_yofs,selx+screen_xofs+((width-1)*rectw)+rectw-1,sely+screen_yofs+((height-1)*rectw)+rectw-1,white);
     unscare_mouse();
     SCRFIX();
@@ -3391,7 +3393,7 @@ RGB_MAP rgb_table;
 COLOR_MAP imagepal_table;
 
 
-extern void return_RAMpal_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
+extern void return_RAMpal_color(AL_CONST PALETTE pal, int32_t x, int32_t y, RGB *rgb)
 {
     //these are here to bypass compiler warnings about unused arguments
     x=x;
@@ -3407,7 +3409,7 @@ void load_imagebuf()
     PACKFILE *f;
 	//cache QRS
 	//byte cached_rules[QUESTRULES_NEW_SIZE] = { 0 };
-	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
+	//for ( int32_t q = 0; q < QUESTRULES_NEW_SIZE; ++q )
 	// { 
 	//	cached_rules[q] = quest_rules[q];
 	// }
@@ -3578,7 +3580,7 @@ error2:
         newtilebuf=grabtilebuf;
         byte skip_flags[4];
         
-        for(int i=0; i<skip_max; ++i)
+        for(int32_t i=0; i<skip_max; ++i)
         {
             set_bit(skip_flags,i,1);
         }
@@ -3611,7 +3613,7 @@ error2:
     rgb_map = &zq_rgb_table;
     //restore cashed QRs / rules
 	
-	//for ( int q = 0; q < QUESTRULES_NEW_SIZE; ++q )
+	//for ( int32_t q = 0; q < QUESTRULES_NEW_SIZE; ++q )
 	// { 
 	//	quest_rules[q] = cached_rules[q];
 	// }
@@ -3620,9 +3622,9 @@ error2:
 static char bitstrbuf[32];
 bool leeching_from_tiles=false;
 
-const char *bitlist(int index, int *list_size)
+const char *bitlist(int32_t index, int32_t *list_size)
 {
-    int imported=2;
+    int32_t imported=2;
     
     if(index>=0)
     {
@@ -3694,20 +3696,20 @@ static DIALOG leech_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-bool leech_tiles(tiledata *dest,int start,int cs)
+bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 {
     bool shift=true; // fix this!
-    int cst=0;
-    int currtile=start;
-    int height=0, width=0;
+    int32_t cst=0;
+    int32_t currtile=start;
+    int32_t height=0, width=0;
     byte *testtile = new byte[tilesize(tf32Bit)];
     byte imported_format=0;
     char updatestring[6];
     bool canadd;
     bool temp_canadd;
     bool duplicate;
-    int total_duplicates_found=0, total_duplicates_discarded=0;
-    int duplicates_found[4]=                                  //, duplicates_discarded[4]={0,0,0,0};
+    int32_t total_duplicates_found=0, total_duplicates_discarded=0;
+    int32_t duplicates_found[4]=                                  //, duplicates_discarded[4]={0,0,0,0};
     {
         0,0,0,0
     };
@@ -3720,19 +3722,19 @@ bool leech_tiles(tiledata *dest,int start,int cs)
     
     leech_dlg[10].flags=(OnlyCheckNewTilesForDuplicates!=0) ? D_SELECTED : 0;
     
-    for(int i=0; i<2; i++)
+    for(int32_t i=0; i<2; i++)
     {
         leech_dlg[i+7].flags=0;
     }
     
     leech_dlg[7+((LeechUpdateTiles==0) ? 1 : 0)].flags=D_SELECTED;
     
-    for(int i=0; i<12; i++)
+    for(int32_t i=0; i<12; i++)
     {
         leech_dlg[i+16].flags=0;
     }
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         leech_dlg[(DuplicateAction[i])+16+(i*3)].flags=D_SELECTED;
     }
@@ -3742,7 +3744,7 @@ bool leech_tiles(tiledata *dest,int start,int cs)
     if(is_large)
         large_dialog(leech_dlg);
         
-    int ret = zc_popup_dialog(leech_dlg,3);
+    int32_t ret = zc_popup_dialog(leech_dlg,3);
     
     if(ret==2)
     {
@@ -3750,14 +3752,14 @@ bool leech_tiles(tiledata *dest,int start,int cs)
         return false;
     }
     
-    int cdepth=leech_dlg[31].d1+1;
-    int newformat=0;
+    int32_t cdepth=leech_dlg[31].d1+1;
+    int32_t newformat=0;
     LeechUpdate=atoi(updatestring);
     LeechUpdateTiles=(leech_dlg[7].flags&D_SELECTED)?1:0;
     
-    for(int j=0; j<4; j++)
+    for(int32_t j=0; j<4; j++)
     {
-        for(int i=0; i<3; i++)
+        for(int32_t i=0; i<3; i++)
         {
             if(leech_dlg[i+16+(j*3)].flags&D_SELECTED)
             {
@@ -3806,9 +3808,9 @@ bool leech_tiles(tiledata *dest,int start,int cs)
     saved=false;
     
     //  usetiles=true;
-    for(int ty=0; ty<height; ty++)                            //for every row
+    for(int32_t ty=0; ty<height; ty++)                            //for every row
     {
-        for(int tx=0; tx<width; tx++)                           //for every column (tile)
+        for(int32_t tx=0; tx<width; tx++)                           //for every column (tile)
         {
             if((((ty*width)+tx)%zc_max(LeechUpdate, 1))==0)                  //update status
             {
@@ -3879,9 +3881,9 @@ bool leech_tiles(tiledata *dest,int start,int cs)
                         break;
                         
                     case tf8Bit:
-                        for(int y=0; y<16; y++)                           //snag a tile
+                        for(int32_t y=0; y<16; y++)                           //snag a tile
                         {
-                            for(int x=0; x<16; x+=2)
+                            for(int32_t x=0; x<16; x+=2)
                             {
                                 testtile[(y*8)+(x/2)]=
                                     (grabtilebuf[tx].data[y*16+x]&15)+
@@ -3904,7 +3906,7 @@ bool leech_tiles(tiledata *dest,int start,int cs)
                         cst = cs&15;
                         cst <<= CSET_SHFT;
                         
-                        for(int i=0; i<256; i++)
+                        for(int32_t i=0; i<256; i++)
                         {
                             if(!shift||unpackbuf[i]!=0)
                             {
@@ -3933,9 +3935,9 @@ bool leech_tiles(tiledata *dest,int start,int cs)
             case ftBMP:
                 newformat=cdepth;
                 
-                for(int y=0; y<16; y++)                           //snag a tile
+                for(int32_t y=0; y<16; y++)                           //snag a tile
                 {
-                    for(int x=0; x<16; x+=2)
+                    for(int32_t x=0; x<16; x+=2)
                     {
                         switch(cdepth)
                         {
@@ -3961,9 +3963,9 @@ bool leech_tiles(tiledata *dest,int start,int cs)
                 temp_canadd=true;
                 
                 //check all tiles before this one
-                for(int checktile=((OnlyCheckNewTilesForDuplicates!=0)?start:0); ((temp_canadd==true)&&(checktile<currtile)); checktile++)
+                for(int32_t checktile=((OnlyCheckNewTilesForDuplicates!=0)?start:0); ((temp_canadd==true)&&(checktile<currtile)); checktile++)
                 {
-                    for(int flipping=0; ((temp_canadd==true)&&(flipping<4)); ++flipping)
+                    for(int32_t flipping=0; ((temp_canadd==true)&&(flipping<4)); ++flipping)
                     {
                         if(DuplicateAction[flipping]>0)
                         {
@@ -3982,9 +3984,9 @@ bool leech_tiles(tiledata *dest,int start,int cs)
                                 case 0:                                     //normal
                                     if(dest[checktile].data!=NULL)
                                     {
-                                        for(int y=0; ((duplicate==true)&&(y<16)); y++)
+                                        for(int32_t y=0; ((duplicate==true)&&(y<16)); y++)
                                         {
-                                            for(int x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
+                                            for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
                                             {
                                                 //                        if ((dest[(checktile*128)+(y*8)+(x/2)])!=(testtile[(y*8)+(x/2)]))
                                                 if((dest[checktile].data[(y*8*newformat)+(x/(3-newformat))])!=(newformat==tf4Bit?(testtile[(y*8)+(x/2)]):(testtile[(y*16)+x])))
@@ -4000,9 +4002,9 @@ bool leech_tiles(tiledata *dest,int start,int cs)
                                 case 1:                                     //horizontal
                                     if(dest[checktile].data!=NULL)
                                     {
-                                        for(int y=0; ((duplicate==true)&&(y<16)); y++)
+                                        for(int32_t y=0; ((duplicate==true)&&(y<16)); y++)
                                         {
-                                            for(int x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
+                                            for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
                                             {
                                                 //                        if ((dest[(checktile*128)+(y*8)+((14-x)/2)])!=(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)))
                                                 if((dest[checktile].data[(y*8*newformat)+(14+(newformat-1)-x)/(3-newformat)])!=(newformat==tf4Bit?(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)):(testtile[(y*16)+x])))
@@ -4018,9 +4020,9 @@ bool leech_tiles(tiledata *dest,int start,int cs)
                                 case 2:                                     //vertical
                                     if(dest[checktile].data!=NULL)
                                     {
-                                        for(int y=0; ((duplicate==true)&&(y<16)); y++)
+                                        for(int32_t y=0; ((duplicate==true)&&(y<16)); y++)
                                         {
-                                            for(int x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
+                                            for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
                                             {
                                                 //                      if ((dest[(checktile*128)+((15-y)*8)+(x/2)])!=(testtile[(y*8)+(x/2)]))
                                                 if((dest[checktile].data[((15-y)*8*newformat)+(x/(3-newformat))])!=(newformat==tf4Bit?(testtile[(y*8)+(x/2)]):(testtile[(y*16)+x])))
@@ -4036,9 +4038,9 @@ bool leech_tiles(tiledata *dest,int start,int cs)
                                 case 3:                                     //both
                                     if(dest[checktile].data!=NULL)
                                     {
-                                        for(int y=0; ((duplicate==true)&&(y<16)); y++)
+                                        for(int32_t y=0; ((duplicate==true)&&(y<16)); y++)
                                         {
-                                            for(int x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
+                                            for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
                                             {
                                                 //                      if ((dest[(checktile*128)+((15-y)*8)+((14-x)/2)])!=(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)))
                                                 if((dest[checktile].data[((15-y)*8*newformat)+((14+(newformat-1)-x)/(3-newformat))])!=(newformat==tf4Bit?(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)):testtile[(y*16)+x]))
@@ -4089,9 +4091,9 @@ bool leech_tiles(tiledata *dest,int start,int cs)
             if(canadd==true)
             {
                 /*
-                  for(int y=0; y<16; y++)
+                  for(int32_t y=0; y<16; y++)
                   {
-                  for(int x=0; x<8; x++)
+                  for(int32_t x=0; x<8; x++)
                   {
                   dest[currtile].data[(y*8)+x]=testtile[(y*8)+x];
                   }
@@ -4108,12 +4110,12 @@ bool leech_tiles(tiledata *dest,int start,int cs)
     return true;
 }
 
-void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *newformat)
+void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t oformat, byte *newformat)
 {
     // Not too sure what's going on with the format stuff here...
     byte defFormat=(bp==8) ? tf8Bit : tf4Bit;
     byte format=defFormat;
-    int stile = ((imagey*TILES_PER_ROW)+imagex)+(((sely/16)*TILES_PER_ROW)+(selx/16));
+    int32_t stile = ((imagey*TILES_PER_ROW)+imagex)+(((sely/16)*TILES_PER_ROW)+(selx/16));
     
     switch(imagetype)
     {
@@ -4124,9 +4126,9 @@ void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *
     case ftTIL:
     case ftBIN:
     case ftBMP:
-        for(int ty=0; ty<height; ty++)
+        for(int32_t ty=0; ty<height; ty++)
         {
-            for(int tx=0; tx<width; tx++)
+            for(int32_t tx=0; tx<width; tx++)
             {
                 format=defFormat;
                 
@@ -4141,9 +4143,9 @@ void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *
                     break;
                 }
                 
-                for(int y=0; y<16; y++)
+                for(int32_t y=0; y<16; y++)
                 {
-                    for(int x=0; x<16; x+=2)
+                    for(int32_t x=0; x<16; x+=2)
                     {
                         if(y<8 && x<8 && grabmask&1)
                         {
@@ -4310,9 +4312,9 @@ void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *
         break;
         
     default:
-        for(int i=0; i<200; i++)
+        for(int32_t i=0; i<200; i++)
         {
-            for(int j=0; j<256; j++)
+            for(int32_t j=0; j<256; j++)
             {
                 dest[i][j]=0;
             }
@@ -4325,24 +4327,24 @@ void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *
 }
 
 //Grabber is not grabbing to tile pages beyond pg. 252 right now. -ZX 18th June, 2019 
-void grab_tile(int tile,int &cs)
+void grab_tile(int32_t tile,int32_t &cs)
 {
-    int window_xofs=0;
-    int window_yofs=0;
-    int screen_xofs=0;
-    int screen_yofs=0;
-    int panel_yofs=0;
-    int mul = 1;
-    int bwidth = 61;
-    int bheight = 20;
-    int button_x = 255;
-    int grab_ok_button_y = 168;
-    int leech_button_x = 117;
-    int leech_button_y = 166;
-    int grab_cancel_button_y = 192;
-    int file_button_y = 216;
-    int rec_button_x = 141;
-    int rec_button_y = 192;
+    int32_t window_xofs=0;
+    int32_t window_yofs=0;
+    int32_t screen_xofs=0;
+    int32_t screen_yofs=0;
+    int32_t panel_yofs=0;
+    int32_t mul = 1;
+    int32_t bwidth = 61;
+    int32_t bheight = 20;
+    int32_t button_x = 255;
+    int32_t grab_ok_button_y = 168;
+    int32_t leech_button_x = 117;
+    int32_t leech_button_y = 166;
+    int32_t grab_cancel_button_y = 192;
+    int32_t file_button_y = 216;
+    int32_t rec_button_x = 141;
+    int32_t rec_button_y = 192;
     
     if(is_large)
     {
@@ -4360,8 +4362,8 @@ void grab_tile(int tile,int &cs)
         rec_button_y *= mul;
         rec_button_x *= mul;
         rec_button_x -= 30;
-        bwidth = int(bwidth*1.5);
-        bheight = int(bheight*1.5);
+        bwidth = int32_t(bwidth*1.5);
+        bheight = int32_t(bheight*1.5);
     }
     
     byte newtile[200][256];
@@ -4394,17 +4396,17 @@ void grab_tile(int tile,int &cs)
     memset(cset_reduce_table, 0, 256);
     memset(col_diff,0,3*128);
     bool bdown=false;
-    int done=0;
-    int pal=0;
-    int f=0;
-    int black=vc(0),white=vc(15);
-    int selwidth=1, selheight=1;
-    int selx2=0, sely2=0;
+    int32_t done=0;
+    int32_t pal=0;
+    int32_t f=0;
+    int32_t black=vc(0),white=vc(15);
+    int32_t selwidth=1, selheight=1;
+    int32_t selx2=0, sely2=0;
     bool xreversed=false, yreversed=false;
     bool doleech=false, dofile=false, dopal=false;
     
-    int jwin_pal2[jcMAX];
-    memcpy(jwin_pal2, jwin_pal, sizeof(int)*jcMAX);
+    int32_t jwin_pal2[jcMAX];
+    memcpy(jwin_pal2, jwin_pal, sizeof(int32_t)*jcMAX);
     
     
     if(imagebuf==NULL)
@@ -4649,8 +4651,8 @@ void grab_tile(int tile,int &cs)
             {
                 bool regrab=false;
                 bdown=true;
-                int x=gui_mouse_x()-window_xofs;
-                int y=gui_mouse_y()-window_xofs;
+                int32_t x=gui_mouse_x()-window_xofs;
+                int32_t y=gui_mouse_y()-window_xofs;
                 // Large Mode: change font temporarily
                 FONT* oldfont = font;
                 
@@ -4879,7 +4881,7 @@ void grab_tile(int tile,int &cs)
                 white=vc(15);
                 black=vc(0);
                 
-                memcpy(jwin_pal, jwin_pal2, sizeof(int)*jcMAX);
+                memcpy(jwin_pal, jwin_pal2, sizeof(int32_t)*jcMAX);
                 gui_bg_color=jwin_pal[jcBOX];
                 gui_fg_color=jwin_pal[jcBOXFG];
                 gui_mg_color=jwin_pal[jcMEDDARK];
@@ -4908,9 +4910,9 @@ void grab_tile(int tile,int &cs)
             else
                 blit(screen2,screen3,0, 0, 0, 0, zq_screen_w, zq_screen_h);
                 
-            int selxl = selx* mul;
-            int selyl = sely* mul;
-            int w = 16*mul;
+            int32_t selxl = selx* mul;
+            int32_t selyl = sely* mul;
+            int32_t w = 16*mul;
             
             if(f&8)
             {
@@ -4928,7 +4930,7 @@ void grab_tile(int tile,int &cs)
     }
     while(!done);
     
-    memcpy(jwin_pal, jwin_pal2, sizeof(int)*jcMAX);
+    memcpy(jwin_pal, jwin_pal2, sizeof(int32_t)*jcMAX);
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
     gui_mg_color=jwin_pal[jcMEDDARK];
@@ -4941,12 +4943,12 @@ void grab_tile(int tile,int &cs)
         saved=false;
             
         //   usetiles=true;
-        for(int y=0; y<selheight; y++)
+        for(int32_t y=0; y<selheight; y++)
         {
-            for(int x=0; x<selwidth; x++)
+            for(int32_t x=0; x<selwidth; x++)
             {
-                int temptile=tile+((TILES_PER_ROW*y)+x);
-                int format=(bp==8) ? tf8Bit : tf4Bit;
+                int32_t temptile=tile+((TILES_PER_ROW*y)+x);
+                int32_t format=(bp==8) ? tf8Bit : tf4Bit;
                 
                 if(newtilebuf[temptile].data!=NULL)
                     zc_free(newtilebuf[temptile].data);
@@ -4963,7 +4965,7 @@ void grab_tile(int tile,int &cs)
                     break;
                 }
                 
-                for(int i=0; i<((format==tf8Bit) ? 256 : 128); i++)
+                for(int32_t i=0; i<((format==tf8Bit) ? 256 : 128); i++)
                 {
                     newtilebuf[temptile].data[i] = newtile[(TILES_PER_ROW*y)+x][i];
                 }
@@ -4981,22 +4983,22 @@ void grab_tile(int tile,int &cs)
     register_blank_tiles();
 }
 
-int show_only_unused_tiles=4; //1 bit: hide used, 2 bit: hide unused, 4 bit: hide blank
-bool tile_is_used(int tile)
+int32_t show_only_unused_tiles=4; //1 bit: hide used, 2 bit: hide unused, 4 bit: hide blank
+bool tile_is_used(int32_t tile)
 {
     return used_tile_table[tile];
 }
-void draw_tiles(int first,int cs, int f)
+void draw_tiles(int32_t first,int32_t cs, int32_t f)
 {
 	draw_tiles(screen2, first, cs, f, is_large);
 }
-void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empty)
+void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bool true_empty)
 {
     clear_bitmap(dest);
     BITMAP *buf = create_bitmap_ex(8,16,16);
     
-    int w = 16;
-    int h = 16;
+    int32_t w = 16;
+    int32_t h = 16;
     
     if(large)
     {
@@ -5004,11 +5006,11 @@ void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empt
         h *=2;
     }
     
-    for(int i=0; i<TILES_PER_PAGE; i++)                       // 13 rows, leaving 32 pixels from y=208 to y=239
+    for(int32_t i=0; i<TILES_PER_PAGE; i++)                       // 13 rows, leaving 32 pixels from y=208 to y=239
     {
-        int x = (i%TILES_PER_ROW)<<4;
-        int y = (i/TILES_PER_ROW)<<4;
-        int l = 16;
+        int32_t x = (i%TILES_PER_ROW)<<4;
+        int32_t y = (i/TILES_PER_ROW)<<4;
+        int32_t l = 16;
         
         if(large)
         {
@@ -5027,9 +5029,9 @@ void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empt
 			{
 				if(InvalidStatic)
 				{
-					for(int dy=0; dy<=l+1; dy++)
+					for(int32_t dy=0; dy<=l+1; dy++)
 					{
-						for(int dx=0; dx<=l+1; dx++)
+						for(int32_t dx=0; dx<=l+1; dx++)
 						{
 							dest->line[dy+(y)][dx+(x)]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
 						}
@@ -5037,9 +5039,9 @@ void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empt
 				}
 				else
 				{
-					for(int dy=0; dy<=l+1; dy++)
+					for(int32_t dy=0; dy<=l+1; dy++)
 					{
-						for(int dx=0; dx<=l+1; dx++)
+						for(int32_t dx=0; dx<=l+1; dx++)
 						{
 							dest->line[dy+(y)][dx+(x)]=vc(0);
 						}
@@ -5058,18 +5060,18 @@ void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empt
         
         if((f%32)<=16 && large && !HIDE_8BIT_MARKER && newtilebuf[first+i].format==tf8Bit)
         {
-            textprintf_ex(dest,z3smallfont,(x)+l-3,(y)+l-3,vc(int((f%32)/6)+10),-1,"8");
+            textprintf_ex(dest,z3smallfont,(x)+l-3,(y)+l-3,vc(int32_t((f%32)/6)+10),-1,"8");
         }
     }
     
     destroy_bitmap(buf);
 }
 
-void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool rect_sel)
+void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copycnt,int32_t page,bool rect_sel)
 {
-    int yofs=0;
+    int32_t yofs=0;
     BITMAP *buf = create_bitmap_ex(8,16,16);
-    int mul = is_large + 1;
+    int32_t mul = is_large + 1;
     FONT *tfont = pfont;
     
     if(is_large)
@@ -5088,7 +5090,7 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
     
     // Copied tile and numbers
     jwin_draw_frame(screen2,(34*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-    int coldiff=TILECOL(copy)-TILECOL(copy+copycnt-1);
+    int32_t coldiff=TILECOL(copy)-TILECOL(copy+copycnt-1);
     if(copy>=0)
     {
         puttile16(buf,rect_sel&&coldiff>0?copy-coldiff:copy,0,0,cs,0);
@@ -5108,9 +5110,9 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
     {
         if(InvalidStatic)
         {
-            for(int dy=0; dy<16*mul; dy++)
+            for(int32_t dy=0; dy<16*mul; dy++)
             {
-                for(int dx=0; dx<16*mul; dx++)
+                for(int32_t dx=0; dx<16*mul; dx++)
                 {
                     screen2->line[(216*mul+yofs+dy)][36*mul+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                 }
@@ -5169,12 +5171,12 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
     
     font = tf;
     
-    int window_xofs=0;
-    int window_yofs=0;
-    int screen_xofs=0;
-    int screen_yofs=0;
-    int w = 320*mul;
-    int h = 240*mul;
+    int32_t window_xofs=0;
+    int32_t window_yofs=0;
+    int32_t screen_xofs=0;
+    int32_t screen_yofs=0;
+    int32_t w = 320*mul;
+    int32_t h = 240*mul;
     
     if(is_large)
     {
@@ -5192,11 +5194,11 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
     destroy_bitmap(buf);
 }
 
-void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int copy,int page, bool always_use_flip)
+void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int32_t flip,int32_t cs,int32_t copy,int32_t page, bool always_use_flip)
 {
-    int yofs=0;
+    int32_t yofs=0;
     BITMAP *buf = create_bitmap_ex(8,16,16);
-    int mul = is_large + 1;
+    int32_t mul = is_large + 1;
     FONT *tfont = pfont;
     
     if(is_large)
@@ -5224,9 +5226,9 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
     {
         if(InvalidStatic)
         {
-            for(int dy=0; dy<16*mul; dy++)
+            for(int32_t dy=0; dy<16*mul; dy++)
             {
-                for(int dx=0; dx<16*mul; dx++)
+                for(int32_t dx=0; dx<16*mul; dx++)
                 {
                     screen2->line[216*mul+yofs+dy][124*mul+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                 }
@@ -5279,12 +5281,12 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
     textprintf_ex(screen2,font,305*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
     
     
-    int window_xofs=0;
-    int window_yofs=0;
-    int screen_xofs=0;
-    int screen_yofs=0;
-    int w = 320;
-    int h = 240;
+    int32_t window_xofs=0;
+    int32_t window_yofs=0;
+    int32_t screen_xofs=0;
+    int32_t screen_yofs=0;
+    int32_t w = 320;
+    int32_t h = 240;
     
     if(is_large)
     {
@@ -5304,7 +5306,7 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
     destroy_bitmap(buf);
 }
 /*
-void reset_tile(tiledata *buf, int t, int format=1)
+void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
 {
   buf[t].format=format;
   if (buf[t].data!=NULL)
@@ -5316,29 +5318,29 @@ void reset_tile(tiledata *buf, int t, int format=1)
   {
     Z_error("Unable to initialize tile #%d.\n", t);
   }
-  for(int i=0; i<tilesize(buf[t].format); i++)
+  for(int32_t i=0; i<tilesize(buf[t].format); i++)
   {
     buf[t].data[i]=0;
   }
 }
 */
 
-int hide_used()
+int32_t hide_used()
 {
     show_only_unused_tiles ^= 1;
     return D_O_K;
 }
-int hide_unused()
+int32_t hide_unused()
 {
     show_only_unused_tiles ^= 2;
     return D_O_K;
 }
-int hide_blank()
+int32_t hide_blank()
 {
     show_only_unused_tiles ^= 4;
     return D_O_K;
 }
-int hide_8bit_marker()
+int32_t hide_8bit_marker()
 {
 	show_only_unused_tiles ^= 8;
 	return D_O_K;
@@ -5390,7 +5392,7 @@ static MENU select_combo_rc_menu[] =
 };
 
 //returns the row the tile is in on its page
-int tile_page_row(int tile)
+int32_t tile_page_row(int32_t tile)
 {
     return TILEROW(tile)-(TILEPAGE(tile)*TILE_ROWS_PER_PAGE);
 }
@@ -5398,10 +5400,10 @@ int tile_page_row(int tile)
 enum {ti_none, ti_encompass, ti_broken};
 
 //striped check and striped selection
-int move_intersection_ss(newcombo &cmb, int selection_first, int selection_last)
+int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t selection_last)
 {
-	int cmb_first = cmb.o_tile;
-	int cmb_last = cmb.o_tile;
+	int32_t cmb_first = cmb.o_tile;
+	int32_t cmb_last = cmb.o_tile;
 	do
 	{
 		cmb_last = cmb.tile;
@@ -5428,7 +5430,7 @@ int move_intersection_ss(newcombo &cmb, int selection_first, int selection_last)
 	reset_combo_animation(cmb);
 	return ti_none;
 }
-int move_intersection_ss(int check_first, int check_last, int selection_first, int selection_last)
+int32_t move_intersection_ss(int32_t check_first, int32_t check_last, int32_t selection_first, int32_t selection_last)
 {
     // if selection is before or after check...
     if((check_first>selection_last)||(selection_first>check_last))
@@ -5449,14 +5451,14 @@ int move_intersection_ss(int check_first, int check_last, int selection_first, i
 
 
 //rectangular check and striped selection
-int move_intersection_rs(int check_left, int check_top, int check_width, int check_height, int selection_first, int selection_last)
+int32_t move_intersection_rs(int32_t check_left, int32_t check_top, int32_t check_width, int32_t check_height, int32_t selection_first, int32_t selection_last)
 {
-    int ret1=-1, ret2=-1;
+    int32_t ret1=-1, ret2=-1;
     
-    for(int i=0; i<check_height; ++i)
+    for(int32_t i=0; i<check_height; ++i)
     {
-        int check_first=((check_top+i)*TILES_PER_ROW)+check_left;
-        int check_last=check_first+check_width-1;
+        int32_t check_first=((check_top+i)*TILES_PER_ROW)+check_left;
+        int32_t check_last=check_first+check_width-1;
         ret2=move_intersection_ss(check_first, check_last, selection_first, selection_last);
         
         if(ret2==ti_broken)
@@ -5485,12 +5487,12 @@ int move_intersection_rs(int check_left, int check_top, int check_width, int che
 
 
 //striped check and rectangular selection
-int move_intersection_sr(newcombo &cmb, int selection_left, int selection_top, int selection_width, int selection_height)
+int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t selection_top, int32_t selection_width, int32_t selection_height)
 {
 	if(selection_width < TILES_PER_ROW)
 	{
-		int cmb_first = cmb.o_tile;
-		int cmb_last = cmb.o_tile;
+		int32_t cmb_first = cmb.o_tile;
+		int32_t cmb_last = cmb.o_tile;
 		do
 		{
 			cmb_last = cmb.tile;
@@ -5514,8 +5516,8 @@ int move_intersection_sr(newcombo &cmb, int selection_left, int selection_top, i
 		
         if(TILEROW(cmb_first) == TILEROW(cmb_last))
         {
-            int firstcol = TILECOL(cmb_first);
-            int lastcol = TILECOL(cmb_last);
+            int32_t firstcol = TILECOL(cmb_first);
+            int32_t lastcol = TILECOL(cmb_last);
             
             if(lastcol < selection_left || firstcol >= selection_left+selection_width)
                 return ti_none;
@@ -5537,7 +5539,7 @@ int move_intersection_sr(newcombo &cmb, int selection_left, int selection_top, i
         }
 		else //multi-row combo...
 		{
-			int row = TILEROW(cmb_first);
+			int32_t row = TILEROW(cmb_first);
 			
 			do
 			{
@@ -5576,7 +5578,7 @@ int move_intersection_sr(newcombo &cmb, int selection_left, int selection_top, i
 	
     return move_intersection_ss(cmb, selection_top*TILES_PER_ROW+selection_left, (selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1);
 }
-int move_intersection_sr(int check_first, int check_last, int selection_left, int selection_top, int selection_width, int selection_height)
+int32_t move_intersection_sr(int32_t check_first, int32_t check_last, int32_t selection_left, int32_t selection_top, int32_t selection_width, int32_t selection_height)
 {
     if(selection_width < TILES_PER_ROW)
     {
@@ -5599,8 +5601,8 @@ int move_intersection_sr(int check_first, int check_last, int selection_left, in
         //one last base case: the strip we're interested in only lies along one row
         if(check_first/TILES_PER_ROW == check_last/TILES_PER_ROW)
         {
-            int cfcol = check_first%TILES_PER_ROW;
-            int clcol = check_last%TILES_PER_ROW;
+            int32_t cfcol = check_first%TILES_PER_ROW;
+            int32_t clcol = check_last%TILES_PER_ROW;
             
             if(clcol < selection_left || cfcol >= selection_left+selection_width)
                 return ti_none;
@@ -5610,9 +5612,9 @@ int move_intersection_sr(int check_first, int check_last, int selection_left, in
         else
         {
             //recursively cut the strip into substrips which lie entirely on one row
-            int currow = check_first/TILES_PER_ROW;
-            int endrow = check_last/TILES_PER_ROW;
-            int accum = 0;
+            int32_t currow = check_first/TILES_PER_ROW;
+            int32_t endrow = check_last/TILES_PER_ROW;
+            int32_t accum = 0;
             accum |= move_intersection_sr(check_first,(currow+1)*TILES_PER_ROW-1,selection_left,selection_top,selection_width,selection_height);
             
             for(++currow; currow<endrow; currow++)
@@ -5633,7 +5635,7 @@ int move_intersection_sr(int check_first, int check_last, int selection_left, in
 }
 
 //rectangular check and rectangular selection
-int move_intersection_rr(int check_left, int check_top, int check_width, int check_height, int selection_left, int selection_top, int selection_width, int selection_height)
+int32_t move_intersection_rr(int32_t check_left, int32_t check_top, int32_t check_width, int32_t check_height, int32_t selection_left, int32_t selection_top, int32_t selection_width, int32_t selection_height)
 {
     if((check_left>=selection_left) &&
             (check_left+check_width<=selection_left+selection_width) &&
@@ -5644,7 +5646,7 @@ int move_intersection_rr(int check_left, int check_top, int check_width, int che
     }
     else
     {
-        for(int i=check_top; i<check_top+check_height; ++i)
+        for(int32_t i=check_top; i<check_top+check_height; ++i)
         {
             if(move_intersection_rs(selection_left, selection_top, selection_width, selection_height, i*TILES_PER_ROW+check_left, i*TILES_PER_ROW+check_left+check_width-1)!=ti_none)
             {
@@ -5677,9 +5679,9 @@ static DIALOG tile_move_list_dlg[] =
 typedef struct move_tiles_item
 {
     const char *name;
-    int tile;
-    int width;
-    int height;
+    int32_t tile;
+    int32_t width;
+    int32_t height;
 } move_tiles_item;
 
 /*move_tiles_item subscreen_items[1]=
@@ -5750,44 +5752,44 @@ move_tiles_item link_sprite_items[41]=
     { "Charge (Right)",           0,  0,  0 },
 };
 
-int quick_select_3(int a, int b, int c, int d)
+int32_t quick_select_3(int32_t a, int32_t b, int32_t c, int32_t d)
 {
     return a==0?b:a==1?c:d;
 }
 
 void setup_link_sprite_items()
 {
-    int a_style=(zinit.linkanimationstyle);
+    int32_t a_style=(zinit.linkanimationstyle);
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
     {
         link_sprite_items[i].tile=walkspr[i][spr_tile]-(walkspr[i][spr_extend]<2?0:1)-(walkspr[i][spr_extend]<1?0:TILES_PER_ROW);
         link_sprite_items[i].width=(walkspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, (i==0?1:2), 3, 9) + (walkspr[i][spr_extend]<2?0:1);
         link_sprite_items[i].height=walkspr[i][spr_extend]<2?1:2;
     }
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
     {
         link_sprite_items[4+i].tile=slashspr[i][spr_tile]-(slashspr[i][spr_extend]<2?0:1)-(slashspr[i][spr_extend]<1?0:TILES_PER_ROW);
         link_sprite_items[4+i].width=(slashspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 6) + (slashspr[i][spr_extend]<2?0:1);;
         link_sprite_items[4+i].height=slashspr[i][spr_extend]<2?1:2;
     }
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
     {
         link_sprite_items[8+i].tile=stabspr[i][spr_tile]-(stabspr[i][spr_extend]<2?0:1)-(stabspr[i][spr_extend]<1?0:TILES_PER_ROW);
         link_sprite_items[8+i].width=(stabspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 3) + (stabspr[i][spr_extend]<2?0:1);;
         link_sprite_items[8+i].height=stabspr[i][spr_extend]<2?1:2;
     }
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
     {
         link_sprite_items[12+i].tile=poundspr[i][spr_tile]-(poundspr[i][spr_extend]<2?0:1)-(poundspr[i][spr_extend]<1?0:TILES_PER_ROW);
         link_sprite_items[12+i].width=(poundspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 3) + (poundspr[i][spr_extend]<2?0:1);;
         link_sprite_items[12+i].height=poundspr[i][spr_extend]<2?1:2;
     }
     
-    for(int i=0; i<2; ++i)
+    for(int32_t i=0; i<2; ++i)
     {
         link_sprite_items[16+i].tile=holdspr[0][i][spr_tile]-(holdspr[0][i][spr_extend]<2?0:1)-(holdspr[0][i][spr_extend]<1?0:TILES_PER_ROW);
         link_sprite_items[16+i].width=(holdspr[0][i][spr_extend]<2?1:2) + (holdspr[0][i][spr_extend]<2?0:1);;
@@ -5798,42 +5800,42 @@ void setup_link_sprite_items()
     link_sprite_items[18].width=(castingspr[spr_extend]<2?1:2) + (castingspr[spr_extend]<2?0:1);;
     link_sprite_items[18].height=castingspr[spr_extend]<2?1:2;
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
     {
         link_sprite_items[19+i].tile=floatspr[i][spr_tile]-(floatspr[i][spr_extend]<2?0:1)-(floatspr[i][spr_extend]<1?0:TILES_PER_ROW);
         link_sprite_items[19+i].width=(floatspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (floatspr[i][spr_extend]<2?0:1);;
         link_sprite_items[19+i].height=floatspr[i][spr_extend]<2?1:2;
     }
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
     {
         link_sprite_items[23+i].tile=swimspr[i][spr_tile]-(swimspr[i][spr_extend]<2?0:1)-(swimspr[i][spr_extend]<1?0:TILES_PER_ROW);
         link_sprite_items[23+i].width=(swimspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (swimspr[i][spr_extend]<2?0:1);;
         link_sprite_items[23+i].height=swimspr[i][spr_extend]<2?1:2;
     }
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
     {
         link_sprite_items[27+i].tile=divespr[i][spr_tile]-(divespr[i][spr_extend]<2?0:1)-(divespr[i][spr_extend]<1?0:TILES_PER_ROW);
         link_sprite_items[27+i].width=(divespr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (divespr[i][spr_extend]<2?0:1);;
         link_sprite_items[27+i].height=divespr[i][spr_extend]<2?1:2;
     }
     
-    for(int i=0; i<2; ++i)
+    for(int32_t i=0; i<2; ++i)
     {
         link_sprite_items[31+i].tile=holdspr[1][i][spr_tile]-(holdspr[1][i][spr_extend]<2?0:1)-(holdspr[1][i][spr_extend]<1?0:TILES_PER_ROW);
         link_sprite_items[31+i].width=(holdspr[1][i][spr_extend]<2?1:2) + (holdspr[1][i][spr_extend]<2?0:1);;
         link_sprite_items[31+i].height=holdspr[1][i][spr_extend]<2?1:2;
     }
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
     {
         link_sprite_items[33+i].tile=jumpspr[i][spr_tile]-(jumpspr[i][spr_extend]<2?0:1)-(jumpspr[i][spr_extend]<1?0:TILES_PER_ROW);
         link_sprite_items[33+i].width=(jumpspr[i][spr_extend]<2?1:2) * 3 + (jumpspr[i][spr_extend]<2?0:1);
         link_sprite_items[33+i].height=jumpspr[i][spr_extend]<2?1:2;
     }
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
     {
         link_sprite_items[37+i].tile=chargespr[i][spr_tile]-(chargespr[i][spr_extend]<2?0:1)-(chargespr[i][spr_extend]<1?0:TILES_PER_ROW);
         link_sprite_items[37+i].width=(chargespr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 9) + (chargespr[i][spr_extend]<2?0:1);
@@ -5845,16 +5847,16 @@ void register_used_tiles()
 {
     bool ignore_frames=false;
     
-    for(int t=0; t<NEWMAXTILES; ++t)
+    for(int32_t t=0; t<NEWMAXTILES; ++t)
     {
         used_tile_table[t]=false;
     }
     reset_combo_animations();
     reset_combo_animations2();
-    for(int u=0; u<MAXCOMBOS; u++)
+    for(int32_t u=0; u<MAXCOMBOS; u++)
     {
 		/* This doesn't account for ASkipX, or ASkipY... Time to rewrite.
-        for(int t=zc_max(combobuf[u].o_tile,0); t<zc_min(combobuf[u].o_tile+zc_max(combobuf[u].frames,1),NEWMAXTILES); ++t)
+        for(int32_t t=zc_max(combobuf[u].o_tile,0); t<zc_min(combobuf[u].o_tile+zc_max(combobuf[u].frames,1),NEWMAXTILES); ++t)
         {
             used_tile_table[t]=true;
         } */
@@ -5866,9 +5868,9 @@ void register_used_tiles()
 		while(combobuf[u].tile != combobuf[u].o_tile);
     }
     
-    for(int u=0; u<iLast; u++)
+    for(int32_t u=0; u<iLast; u++)
     {
-        for(int t=zc_max(itemsbuf[u].tile,0); t<zc_min(itemsbuf[u].tile+zc_max(itemsbuf[u].frames,1),NEWMAXTILES); ++t)
+        for(int32_t t=zc_max(itemsbuf[u].tile,0); t<zc_min(itemsbuf[u].tile+zc_max(itemsbuf[u].frames,1),NEWMAXTILES); ++t)
         {
             used_tile_table[t]=true;
         }
@@ -5876,9 +5878,9 @@ void register_used_tiles()
     
     bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
     
-    for(int u=0; u<wLast; u++)
+    for(int32_t u=0; u<wLast; u++)
     {
-        int m=0;
+        int32_t m=0;
         ignore_frames=false;
         
         switch(u)
@@ -5963,7 +5965,7 @@ void register_used_tiles()
             break;
         }
         
-        for(int t=zc_max(wpnsbuf[u].newtile,0); t<zc_min(wpnsbuf[u].newtile+zc_max((ignore_frames?0:wpnsbuf[u].frames),1)+m,NEWMAXTILES); ++t)
+        for(int32_t t=zc_max(wpnsbuf[u].newtile,0); t<zc_min(wpnsbuf[u].newtile+zc_max((ignore_frames?0:wpnsbuf[u].frames),1)+m,NEWMAXTILES); ++t)
         {
             used_tile_table[t]=true;
         }
@@ -5975,11 +5977,11 @@ void register_used_tiles()
     setup_link_sprite_items();
     
 //  i=move_intersection_rs(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
-    for(int u=0; u<41; u++)
+    for(int32_t u=0; u<41; u++)
     {
-        for(int r=zc_max(TILEROW(link_sprite_items[u].tile),0); r<zc_min(TILEROW(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+        for(int32_t r=zc_max(TILEROW(link_sprite_items[u].tile),0); r<zc_min(TILEROW(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
         {
-            for(int c=zc_max(TILECOL(link_sprite_items[u].tile),0); c<zc_min(TILECOL(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].width,1),TILES_PER_ROW); ++c)
+            for(int32_t c=zc_max(TILECOL(link_sprite_items[u].tile),0); c<zc_min(TILECOL(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].width,1),TILES_PER_ROW); ++c)
             {
                 used_tile_table[(r*TILES_PER_ROW)+c]=true;
             }
@@ -5999,20 +6001,20 @@ void register_used_tiles()
     map_styles_items[4].tile=misc.colors.new_overworld_map_tile;
     map_styles_items[5].tile=misc.colors.new_dungeon_map_tile;
     
-    for(int u=0; u<6; u++)
+    for(int32_t u=0; u<6; u++)
     {
-        for(int r=zc_max(TILEROW(map_styles_items[u].tile),0); r<zc_min(TILEROW(map_styles_items[u].tile)+zc_max(map_styles_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+        for(int32_t r=zc_max(TILEROW(map_styles_items[u].tile),0); r<zc_min(TILEROW(map_styles_items[u].tile)+zc_max(map_styles_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
         {
-            for(int c=zc_max(TILECOL(map_styles_items[u].tile),0); c<zc_min(TILECOL(map_styles_items[u].tile)+zc_max(map_styles_items[u].width,1),TILES_PER_ROW); ++c)
+            for(int32_t c=zc_max(TILECOL(map_styles_items[u].tile),0); c<zc_min(TILECOL(map_styles_items[u].tile)+zc_max(map_styles_items[u].width,1),TILES_PER_ROW); ++c)
             {
                 used_tile_table[(r*TILES_PER_ROW)+c]=true;
             }
         }
     }
     
-    for(int u=0; u<4; u++)
+    for(int32_t u=0; u<4; u++)
     {
-        for(int t=zc_max(misc.icons[u],0); t<zc_min(misc.icons[u]+1,NEWMAXTILES); ++t)
+        for(int32_t t=zc_max(misc.icons[u],0); t<zc_min(misc.icons[u]+1,NEWMAXTILES); ++t)
         {
             used_tile_table[t]=true;
         }
@@ -6020,7 +6022,7 @@ void register_used_tiles()
     
     BSZ2=(zinit.subscreen>2);
     
-    for(int d=0; d<MAXDMAPS; d++)
+    for(int32_t d=0; d<MAXDMAPS; d++)
     {
         dmap_map_items[0].tile=DMaps[d].minimap_1_tile;
         dmap_map_items[1].tile=DMaps[d].minimap_2_tile;
@@ -6029,11 +6031,11 @@ void register_used_tiles()
         dmap_map_items[3].tile=DMaps[d].largemap_2_tile;
         dmap_map_items[3].width=BSZ2?7:9;
         
-        for(int u=0; u<4; u++)
+        for(int32_t u=0; u<4; u++)
         {
-            for(int r=zc_max(TILEROW(dmap_map_items[u].tile),0); r<zc_min(TILEROW(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+            for(int32_t r=zc_max(TILEROW(dmap_map_items[u].tile),0); r<zc_min(TILEROW(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
             {
-                for(int c=zc_max(TILECOL(dmap_map_items[u].tile),0); c<zc_min(TILECOL(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].width,1),TILES_PER_ROW); ++c)
+                for(int32_t c=zc_max(TILECOL(dmap_map_items[u].tile),0); c<zc_min(TILECOL(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].width,1),TILES_PER_ROW); ++c)
                 {
                     used_tile_table[(r*TILES_PER_ROW)+c]=true;
                 }
@@ -6042,12 +6044,12 @@ void register_used_tiles()
     }
     
     bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
-    int u;
+    int32_t u;
     
     for(u=0; u<eMAXGUYS; u++)
     {
         bool darknut=false;
-        int gleeok=0;
+        int32_t gleeok=0;
         
         switch(u)
         {
@@ -6077,16 +6079,16 @@ void register_used_tiles()
             
             if(guysbuf[u].e_height==0)
             {
-                for(int t=zc_max(guysbuf[u].e_tile,0); t<zc_min(guysbuf[u].e_tile+zc_max(guysbuf[u].e_width, 0),NEWMAXTILES); ++t)
+                for(int32_t t=zc_max(guysbuf[u].e_tile,0); t<zc_min(guysbuf[u].e_tile+zc_max(guysbuf[u].e_width, 0),NEWMAXTILES); ++t)
                 {
                     used_tile_table[t]=true;
                 }
             }
             else
             {
-                for(int r=zc_max(TILEROW(guysbuf[u].e_tile),0); r<zc_min(TILEROW(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int32_t r=zc_max(TILEROW(guysbuf[u].e_tile),0); r<zc_min(TILEROW(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(TILECOL(guysbuf[u].e_tile),0); c<zc_min(TILECOL(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
+                    for(int32_t c=zc_max(TILECOL(guysbuf[u].e_tile),0); c<zc_min(TILECOL(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -6095,9 +6097,9 @@ void register_used_tiles()
             
             if(darknut)
             {
-                for(int r=zc_max(TILEROW(guysbuf[u].e_tile+120),0); r<zc_min(TILEROW(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int32_t r=zc_max(TILEROW(guysbuf[u].e_tile+120),0); r<zc_min(TILEROW(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(TILECOL(guysbuf[u].e_tile+120),0); c<zc_min(TILECOL(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
+                    for(int32_t c=zc_max(TILECOL(guysbuf[u].e_tile+120),0); c<zc_min(TILECOL(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -6105,9 +6107,9 @@ void register_used_tiles()
             }
             else if(u==eGANON)
             {
-                for(int r=zc_max(TILEROW(guysbuf[u].e_tile),0); r<zc_min(TILEROW(guysbuf[u].e_tile)+4,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int32_t r=zc_max(TILEROW(guysbuf[u].e_tile),0); r<zc_min(TILEROW(guysbuf[u].e_tile)+4,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(TILECOL(guysbuf[u].e_tile),0); c<zc_min(TILECOL(guysbuf[u].e_tile)+20,TILES_PER_ROW); ++c)
+                    for(int32_t c=zc_max(TILECOL(guysbuf[u].e_tile),0); c<zc_min(TILECOL(guysbuf[u].e_tile)+20,TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -6115,31 +6117,31 @@ void register_used_tiles()
             }
             else if(gleeok)
             {
-                for(int j=0; j<4; ++j)
+                for(int32_t j=0; j<4; ++j)
                 {
-                    for(int r=zc_max(TILEROW(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0),0); r<zc_min(TILEROW(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0)+1,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    for(int32_t r=zc_max(TILEROW(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0),0); r<zc_min(TILEROW(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0)+1,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                     {
-                        for(int c=zc_max(TILECOL(guysbuf[u].e_tile+(gleeok>1?-4:8)),0); c<zc_min(TILECOL(guysbuf[u].e_tile+(gleeok>1?-4:8))+4,TILES_PER_ROW); ++c)
+                        for(int32_t c=zc_max(TILECOL(guysbuf[u].e_tile+(gleeok>1?-4:8)),0); c<zc_min(TILECOL(guysbuf[u].e_tile+(gleeok>1?-4:8))+4,TILES_PER_ROW); ++c)
                         {
                             used_tile_table[(r*TILES_PER_ROW)+c]=true;
                         }
                     }
                 }
                 
-                int c3=TILECOL(guysbuf[u].e_tile)+(gleeok>1?-12:0);
-                int r3=TILEROW(guysbuf[u].e_tile)+(gleeok>1?17:8);
+                int32_t c3=TILECOL(guysbuf[u].e_tile)+(gleeok>1?-12:0);
+                int32_t r3=TILEROW(guysbuf[u].e_tile)+(gleeok>1?17:8);
                 
-                for(int r=zc_max(r3,0); r<zc_min(r3+3,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int32_t r=zc_max(r3,0); r<zc_min(r3+3,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(c3,0); c<zc_min(c3+20,TILES_PER_ROW); ++c)
+                    for(int32_t c=zc_max(c3,0); c<zc_min(c3+20,TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
                 }
                 
-                for(int r=zc_max(r3+3,0); r<zc_min(r3+3+6,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int32_t r=zc_max(r3+3,0); r<zc_min(r3+3+6,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(c3,0); c<zc_min(c3+16,TILES_PER_ROW); ++c)
+                    for(int32_t c=zc_max(c3,0); c<zc_min(c3+16,TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -6155,16 +6157,16 @@ void register_used_tiles()
             
             if(guysbuf[u].height==0)
             {
-                for(int t=zc_max(guysbuf[u].tile,0); t<zc_min(guysbuf[u].tile+zc_max(guysbuf[u].width, 0),NEWMAXTILES); ++t)
+                for(int32_t t=zc_max(guysbuf[u].tile,0); t<zc_min(guysbuf[u].tile+zc_max(guysbuf[u].width, 0),NEWMAXTILES); ++t)
                 {
                     used_tile_table[t]=true;
                 }
             }
             else
             {
-                for(int r=zc_max(TILEROW(guysbuf[u].tile),0); r<zc_min(TILEROW(guysbuf[u].tile)+zc_max(guysbuf[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                for(int32_t r=zc_max(TILEROW(guysbuf[u].tile),0); r<zc_min(TILEROW(guysbuf[u].tile)+zc_max(guysbuf[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                 {
-                    for(int c=zc_max(TILECOL(guysbuf[u].tile),0); c<zc_min(TILECOL(guysbuf[u].tile)+zc_max(guysbuf[u].width,1),TILES_PER_ROW); ++c)
+                    for(int32_t c=zc_max(TILECOL(guysbuf[u].tile),0); c<zc_min(TILECOL(guysbuf[u].tile)+zc_max(guysbuf[u].width,1),TILES_PER_ROW); ++c)
                     {
                         used_tile_table[(r*TILES_PER_ROW)+c]=true;
                     }
@@ -6175,16 +6177,16 @@ void register_used_tiles()
             {
                 if(guysbuf[u].s_height==0)
                 {
-                    for(int t=zc_max(guysbuf[u].s_tile,0); t<zc_min(guysbuf[u].s_tile+zc_max(guysbuf[u].s_width, 0),NEWMAXTILES); ++t)
+                    for(int32_t t=zc_max(guysbuf[u].s_tile,0); t<zc_min(guysbuf[u].s_tile+zc_max(guysbuf[u].s_width, 0),NEWMAXTILES); ++t)
                     {
                         used_tile_table[t]=true;
                     }
                 }
                 else
                 {
-                    for(int r=zc_max(TILEROW(guysbuf[u].s_tile),0); r<zc_min(TILEROW(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    for(int32_t r=zc_max(TILEROW(guysbuf[u].s_tile),0); r<zc_min(TILEROW(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                     {
-                        for(int c=zc_max(TILECOL(guysbuf[u].s_tile),0); c<zc_min(TILECOL(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_width,1),TILES_PER_ROW); ++c)
+                        for(int32_t c=zc_max(TILECOL(guysbuf[u].s_tile),0); c<zc_min(TILECOL(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_width,1),TILES_PER_ROW); ++c)
                         {
                             used_tile_table[(r*TILES_PER_ROW)+c]=true;
                         }
@@ -6195,7 +6197,7 @@ void register_used_tiles()
     }
 }
 
-bool overlay_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move, int cs, bool backwards)
+bool overlay_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move, int32_t cs, bool backwards)
 {
     bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
     bool copied=false;
@@ -6209,7 +6211,7 @@ bool overlay_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, b
     return copied;
 }
 
-bool overlay_tiles_mass(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move, int cs, bool backwards)
+bool overlay_tiles_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move, int32_t cs, bool backwards)
 {
     bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
     bool copied=false;
@@ -6229,7 +6231,7 @@ bool overlay_tiles_mass(int &tile,int &tile2,int &copy,int &copycnt, bool rect_s
     return copied;
 }
 
-bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move, int cs, bool backwards)
+bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move, int32_t cs, bool backwards)
 {
     bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
     bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
@@ -6244,21 +6246,21 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
     // alt=copy from right
     // shift=copy from bottom
     
-    int copies=copycnt;
-    int dest_first=tile;
-    int dest_last=tile2;
-    int src_first=copy;
-    int src_last=copy+copies-1;
+    int32_t copies=copycnt;
+    int32_t dest_first=tile;
+    int32_t dest_last=tile2;
+    int32_t src_first=copy;
+    int32_t src_last=copy+copies-1;
     
-    int dest_top=0;
-    int dest_bottom=0;
-    int src_top=0;
-    int src_bottom=0;
-    int src_left=0, src_right=0;
-    int src_width=0, src_height=0;
-    int dest_left=0, dest_right=0;
-    int dest_width=0, dest_height=0;
-    int rows=0, cols=0;
+    int32_t dest_top=0;
+    int32_t dest_bottom=0;
+    int32_t src_top=0;
+    int32_t src_bottom=0;
+    int32_t src_left=0, src_right=0;
+    int32_t src_width=0, src_height=0;
+    int32_t dest_left=0, dest_right=0;
+    int32_t dest_width=0, dest_height=0;
+    int32_t rows=0, cols=0;
     
     if(rect)
     {
@@ -6439,7 +6441,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
     bool found;
     bool flood;
     
-    int i;
+    int32_t i;
     bool *move_combo_list = new bool[MAXCOMBOS];
     bool *move_items_list = new bool[iMax];
     bool *move_weapons_list = new bool[wMAX];
@@ -6452,10 +6454,10 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
     
     // warn if paste overwrites other defined tiles or
     // if delete erases other defined tiles
-    int selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
+    int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
     bool done = false;
     
-    for(int q=0; q<2 && !done; ++q)
+    for(int32_t q=0; q<2 && !done; ++q)
     {
     
         switch(q)
@@ -6489,7 +6491,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 found=false;
                 flood=false;
                 
-                for(int u=0; u<MAXCOMBOS; u++)
+                for(int32_t u=0; u<MAXCOMBOS; u++)
                 {
                     move_combo_list[u]=false;
                     
@@ -6556,7 +6558,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -6576,7 +6578,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 flood=false;
                 build_bii_list(false);
                 
-                for(int u=0; u<iMax; u++)
+                for(int32_t u=0; u<iMax; u++)
                 {
                     move_items_list[u]=false;
                     
@@ -6643,7 +6645,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -6664,11 +6666,11 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 build_biw_list();
                 bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
                 
-                for(int u=0; u<wMAX; u++)
+                for(int32_t u=0; u<wMAX; u++)
                 {
                     ignore_frames=false;
                     move_weapons_list[u]=false;
-                    int m=0;
+                    int32_t m=0;
                     
                     switch(biw[u].i)
                     {
@@ -6847,7 +6849,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -6867,7 +6869,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 flood=false;
                 setup_link_sprite_items();
                 
-                for(int u=0; u<41; u++)
+                for(int32_t u=0; u<41; u++)
                 {
                     move_link_sprites_list[u]=false;
                     
@@ -6934,7 +6936,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -6949,9 +6951,9 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
             //Tried to have a go at this but I think it's a bit too complicated for me at the moment.
             //Might come back to it another time and see what I can do ~Joe123
             /*if(!done){
-                 for(int u=0;u<MAXCUSTOMSUBSCREENS;u++){
+                 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
                      if(!custom_subscreen[u].ss_type) continue;
-                     for(int v=0;v<MAXSUBSCREENITEMS;v++){
+                     for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
                           if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
                           subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
                           subscreen_items[0].width = custom_subscreen[u].objects[v].w;
@@ -6980,7 +6982,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 map_styles_items[4].tile=misc.colors.overworld_map_tile;
                 map_styles_items[5].tile=misc.colors.dungeon_map_tile;
                 
-                for(int u=0; u<6; u++)
+                for(int32_t u=0; u<6; u++)
                 {
                     move_mapstyles_list[u]=false;
                     
@@ -7047,7 +7049,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -7070,7 +7072,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                     "No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
                 };
                 
-                for(int u=0; u<4; u++)
+                for(int32_t u=0; u<4; u++)
                 {
                     move_game_icons_list[u]=false;
                     
@@ -7166,7 +7168,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -7186,7 +7188,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 flood=false;
                 bool BSZ2=(zinit.subscreen>2);
                 
-                for(int t=0; t<MAXDMAPS; t++)
+                for(int32_t t=0; t<MAXDMAPS; t++)
                 {
                     dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
                     dmap_map_items[1].tile=DMaps[t].minimap_2_tile;
@@ -7195,7 +7197,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                     dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
                     dmap_map_items[3].width=BSZ2?7:9;
                     
-                    for(int u=0; u<4; u++)
+                    for(int32_t u=0; u<4; u++)
                     {
                         move_dmap_maps_list[t][u]=false;
                         
@@ -7263,7 +7265,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -7283,13 +7285,13 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 flood=false;
                 build_bie_list(false);
                 bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
-                int u;
+                int32_t u;
                 
                 for(u=0; u<eMAXGUYS; u++)
                 {
                     const guydata& enemy=guysbuf[bie[u].i];
                     bool darknut=false;
-                    int gleeok=0;
+                    int32_t gleeok=0;
                     
                     if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
                         darknut=true;
@@ -7425,7 +7427,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                         }
                         else if(gleeok && i==ti_none)
                         {
-                            for(int j=0; j<4 && i==ti_none; ++j)
+                            for(int32_t j=0; j<4 && i==ti_none; ++j)
                             {
                                 if(rect)
                                 {
@@ -7439,8 +7441,8 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                             
                             if(i==ti_none)
                             {
-                                int c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-                                int r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
+                                int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
+                                int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
                                 
                                 if(rect)
                                 {
@@ -7608,7 +7610,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -7628,16 +7630,16 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
     {
         go_tiles();
         
-        int diff=dest_first-src_first;
+        int32_t diff=dest_first-src_first;
         
         if(rect)
         {
-            for(int r=0; r<rows; ++r)
+            for(int32_t r=0; r<rows; ++r)
             {
-                for(int c=0; c<cols; ++c)
+                for(int32_t c=0; c<cols; ++c)
                 {
-                    int dt=(dest_first+((r*TILES_PER_ROW)+c));
-                    int st=(src_first+((r*TILES_PER_ROW)+c));
+                    int32_t dt=(dest_first+((r*TILES_PER_ROW)+c));
+                    int32_t st=(src_first+((r*TILES_PER_ROW)+c));
                     
                     if(dt>=NEWMAXTILES)
                         continue;
@@ -7649,10 +7651,10 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
         }
         else
         {
-            for(int c=0; c<copies; ++c)
+            for(int32_t c=0; c<copies; ++c)
             {
-                int dt=(dest_first+c);
-                int st=(src_first+c);
+                int32_t dt=(dest_first+c);
+                int32_t st=(src_first+c);
                 
                 if(dt>=NEWMAXTILES)
                     continue;
@@ -7669,7 +7671,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
         
         if(move)
         {
-            for(int u=0; u<MAXCOMBOS; u++)
+            for(int32_t u=0; u<MAXCOMBOS; u++)
             {
                 if(move_combo_list[u])
                 {
@@ -7677,7 +7679,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 }
             }
             
-            for(int u=0; u<iMax; u++)
+            for(int32_t u=0; u<iMax; u++)
             {
                 if(move_items_list[u])
                 {
@@ -7685,7 +7687,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 }
             }
             
-            for(int u=0; u<wMAX; u++)
+            for(int32_t u=0; u<wMAX; u++)
             {
                 if(move_weapons_list[u])
                 {
@@ -7693,7 +7695,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 }
             }
             
-            for(int u=0; u<41; u++)
+            for(int32_t u=0; u<41; u++)
             {
                 if(move_link_sprites_list[u])
                 {
@@ -7779,7 +7781,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 }
             }
             
-            for(int u=0; u<6; u++)
+            for(int32_t u=0; u<6; u++)
             {
                 if(move_mapstyles_list[u])
                 {
@@ -7812,7 +7814,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 }
             }
             
-            for(int u=0; u<4; u++)
+            for(int32_t u=0; u<4; u++)
             {
                 if(move_game_icons_list[u])
                 {
@@ -7820,9 +7822,9 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
                 }
             }
             
-            for(int t=0; t<MAXDMAPS; t++)
+            for(int32_t t=0; t<MAXDMAPS; t++)
             {
-                for(int u=0; u<4; u++)
+                for(int32_t u=0; u<4; u++)
                 {
                     move_dmap_maps_list[t][u]=false;
                     
@@ -7868,7 +7870,7 @@ bool overlay_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect
 }
 //
 
-bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move, int cs, bool backwards)
+bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move, int32_t cs, bool backwards)
 {
     bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
     bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
@@ -7883,21 +7885,21 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
     // alt=copy from right
     // shift=copy from bottom
     
-    int copies=copycnt;
-    int dest_first=tile;
-    int dest_last=tile2;
-    int src_first=copy;
-    int src_last=copy+copies-1;
+    int32_t copies=copycnt;
+    int32_t dest_first=tile;
+    int32_t dest_last=tile2;
+    int32_t src_first=copy;
+    int32_t src_last=copy+copies-1;
     
-    int dest_top=0;
-    int dest_bottom=0;
-    int src_top=0;
-    int src_bottom=0;
-    int src_left=0, src_right=0;
-    int src_width=0, src_height=0;
-    int dest_left=0, dest_right=0;
-    int dest_width=0, dest_height=0;
-    int rows=0, cols=0;
+    int32_t dest_top=0;
+    int32_t dest_bottom=0;
+    int32_t src_top=0;
+    int32_t src_bottom=0;
+    int32_t src_left=0, src_right=0;
+    int32_t src_width=0, src_height=0;
+    int32_t dest_left=0, dest_right=0;
+    int32_t dest_width=0, dest_height=0;
+    int32_t rows=0, cols=0;
     
     if(rect)
     {
@@ -8078,7 +8080,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
     bool found;
     bool flood;
     
-    int i;
+    int32_t i;
     bool *move_combo_list = new bool[MAXCOMBOS];
     bool *move_items_list = new bool[iMax];
     bool *move_weapons_list = new bool[wMAX];
@@ -8091,10 +8093,10 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
     
     // warn if paste overwrites other defined tiles or
     // if delete erases other defined tiles
-    int selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
+    int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
     bool done = false;
     
-    for(int q=0; q<2 && !done; ++q)
+    for(int32_t q=0; q<2 && !done; ++q)
     {
     
         switch(q)
@@ -8128,7 +8130,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 found=false;
                 flood=false;
                 
-                for(int u=0; u<MAXCOMBOS; u++)
+                for(int32_t u=0; u<MAXCOMBOS; u++)
                 {
                     move_combo_list[u]=false;
                     
@@ -8195,7 +8197,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -8215,7 +8217,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 flood=false;
                 build_bii_list(false);
                 
-                for(int u=0; u<iMax; u++)
+                for(int32_t u=0; u<iMax; u++)
                 {
                     move_items_list[u]=false;
                     
@@ -8282,7 +8284,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -8303,11 +8305,11 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 build_biw_list();
                 bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
                 
-                for(int u=0; u<wMAX; u++)
+                for(int32_t u=0; u<wMAX; u++)
                 {
                     ignore_frames=false;
                     move_weapons_list[u]=false;
-                    int m=0;
+                    int32_t m=0;
                     
                     switch(biw[u].i)
                     {
@@ -8486,7 +8488,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -8506,7 +8508,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 flood=false;
                 setup_link_sprite_items();
                 
-                for(int u=0; u<41; u++)
+                for(int32_t u=0; u<41; u++)
                 {
                     move_link_sprites_list[u]=false;
                     
@@ -8573,7 +8575,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -8588,9 +8590,9 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
             //Tried to have a go at this but I think it's a bit too complicated for me at the moment.
             //Might come back to it another time and see what I can do ~Joe123
             /*if(!done){
-                 for(int u=0;u<MAXCUSTOMSUBSCREENS;u++){
+                 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
                      if(!custom_subscreen[u].ss_type) continue;
-                     for(int v=0;v<MAXSUBSCREENITEMS;v++){
+                     for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
                           if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
                           subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
                           subscreen_items[0].width = custom_subscreen[u].objects[v].w;
@@ -8619,7 +8621,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 map_styles_items[4].tile=misc.colors.overworld_map_tile;
                 map_styles_items[5].tile=misc.colors.dungeon_map_tile;
                 
-                for(int u=0; u<6; u++)
+                for(int32_t u=0; u<6; u++)
                 {
                     move_mapstyles_list[u]=false;
                     
@@ -8686,7 +8688,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -8709,7 +8711,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                     "No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
                 };
                 
-                for(int u=0; u<4; u++)
+                for(int32_t u=0; u<4; u++)
                 {
                     move_game_icons_list[u]=false;
                     
@@ -8805,7 +8807,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -8825,7 +8827,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 flood=false;
                 bool BSZ2=(zinit.subscreen>2);
                 
-                for(int t=0; t<MAXDMAPS; t++)
+                for(int32_t t=0; t<MAXDMAPS; t++)
                 {
                     dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
                     dmap_map_items[1].tile=DMaps[t].minimap_2_tile;
@@ -8834,7 +8836,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                     dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
                     dmap_map_items[3].width=BSZ2?7:9;
                     
-                    for(int u=0; u<4; u++)
+                    for(int32_t u=0; u<4; u++)
                     {
                         move_dmap_maps_list[t][u]=false;
                         
@@ -8902,7 +8904,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -8922,13 +8924,13 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 flood=false;
                 build_bie_list(false);
                 bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
-                int u;
+                int32_t u;
                 
                 for(u=0; u<eMAXGUYS; u++)
                 {
                     const guydata& enemy=guysbuf[bie[u].i];
                     bool darknut=false;
-                    int gleeok=0;
+                    int32_t gleeok=0;
                     
                     if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
                         darknut=true;
@@ -9064,7 +9066,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                         }
                         else if(gleeok && i==ti_none)
                         {
-                            for(int j=0; j<4 && i==ti_none; ++j)
+                            for(int32_t j=0; j<4 && i==ti_none; ++j)
                             {
                                 if(rect)
                                 {
@@ -9078,8 +9080,8 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                             
                             if(i==ti_none)
                             {
-                                int c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-                                int r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
+                                int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
+                                int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
                                 
                                 if(rect)
                                 {
@@ -9247,7 +9249,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -9267,16 +9269,16 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
     {
         go_tiles();
         
-        int diff=dest_first-src_first;
+        int32_t diff=dest_first-src_first;
         
         if(rect)
         {
-            for(int r=0; r<rows; ++r)
+            for(int32_t r=0; r<rows; ++r)
             {
-                for(int c=0; c<cols; ++c)
+                for(int32_t c=0; c<cols; ++c)
                 {
-                    int dt=(dest_first+((r*TILES_PER_ROW)+c));
-                    int st=(src_first);
+                    int32_t dt=(dest_first+((r*TILES_PER_ROW)+c));
+                    int32_t st=(src_first);
                     
                     if(dt>=NEWMAXTILES)
                         continue;
@@ -9288,10 +9290,10 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
         }
         else
         {
-            for(int c=0; c<copies; ++c)
+            for(int32_t c=0; c<copies; ++c)
             {
-                int dt=(dest_first+c);
-                int st=(src_first);
+                int32_t dt=(dest_first+c);
+                int32_t st=(src_first);
                 
                 if(dt>=NEWMAXTILES)
                     continue;
@@ -9308,7 +9310,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
         
         if(move)
         {
-            for(int u=0; u<MAXCOMBOS; u++)
+            for(int32_t u=0; u<MAXCOMBOS; u++)
             {
                 if(move_combo_list[u])
                 {
@@ -9316,7 +9318,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 }
             }
             
-            for(int u=0; u<iMax; u++)
+            for(int32_t u=0; u<iMax; u++)
             {
                 if(move_items_list[u])
                 {
@@ -9324,7 +9326,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 }
             }
             
-            for(int u=0; u<wMAX; u++)
+            for(int32_t u=0; u<wMAX; u++)
             {
                 if(move_weapons_list[u])
                 {
@@ -9332,7 +9334,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 }
             }
             
-            for(int u=0; u<41; u++)
+            for(int32_t u=0; u<41; u++)
             {
                 if(move_link_sprites_list[u])
                 {
@@ -9418,7 +9420,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 }
             }
             
-            for(int u=0; u<6; u++)
+            for(int32_t u=0; u<6; u++)
             {
                 if(move_mapstyles_list[u])
                 {
@@ -9451,7 +9453,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 }
             }
             
-            for(int u=0; u<4; u++)
+            for(int32_t u=0; u<4; u++)
             {
                 if(move_game_icons_list[u])
                 {
@@ -9459,9 +9461,9 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
                 }
             }
             
-            for(int t=0; t<MAXDMAPS; t++)
+            for(int32_t t=0; t<MAXDMAPS; t++)
             {
-                for(int u=0; u<4; u++)
+                for(int32_t u=0; u<4; u++)
                 {
                     move_dmap_maps_list[t][u]=false;
                     
@@ -9508,7 +9510,7 @@ bool overlay_tile_united_mass(int &tile,int &tile2,int &copy,int &copycnt, bool 
 //
 
 
-bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move)
+bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move)
 {
     bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
     bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
@@ -9523,21 +9525,21 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     // alt=copy from right
     // shift=copy from bottom
     
-    int copies=copycnt;
-    int dest_first=tile;
-    int dest_last=tile2;
-    int src_first=copy;
-    int src_last=copy+copies-1;
+    int32_t copies=copycnt;
+    int32_t dest_first=tile;
+    int32_t dest_last=tile2;
+    int32_t src_first=copy;
+    int32_t src_last=copy+copies-1;
     
-    int dest_top=0;
-    int dest_bottom=0;
-    int src_top=0;
-    int src_bottom=0;
-    int src_left=0, src_right=0;
-    int src_width=0, src_height=0;
-    int dest_left=0, dest_right=0;
-    int dest_width=0, dest_height=0;
-    int rows=0, cols=0;
+    int32_t dest_top=0;
+    int32_t dest_bottom=0;
+    int32_t src_top=0;
+    int32_t src_bottom=0;
+    int32_t src_left=0, src_right=0;
+    int32_t src_width=0, src_height=0;
+    int32_t dest_left=0, dest_right=0;
+    int32_t dest_width=0, dest_height=0;
+    int32_t rows=0, cols=0;
     
     if(rect)
     {
@@ -9718,7 +9720,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     bool found;
     bool flood;
     
-    int i;
+    int32_t i;
     bool *move_combo_list = new bool[MAXCOMBOS];
     bool *move_items_list = new bool[iMax];
     bool *move_weapons_list = new bool[wMAX];
@@ -9731,10 +9733,10 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     
     // warn if paste overwrites other defined tiles or
     // if delete erases other defined tiles
-    int selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
+    int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
     bool done = false;
     
-    for(int q=0; q<2 && !done; ++q)
+    for(int32_t q=0; q<2 && !done; ++q)
     {
     
         switch(q)
@@ -9768,7 +9770,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 found=false;
                 flood=false;
                 
-                for(int u=0; u<MAXCOMBOS; u++)
+                for(int32_t u=0; u<MAXCOMBOS; u++)
                 {
                     move_combo_list[u]=false;
                     
@@ -9835,7 +9837,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -9855,7 +9857,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 flood=false;
                 build_bii_list(false);
                 
-                for(int u=0; u<iMax; u++)
+                for(int32_t u=0; u<iMax; u++)
                 {
                     move_items_list[u]=false;
                     
@@ -9922,7 +9924,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -9943,11 +9945,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 build_biw_list();
                 bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
                 
-                for(int u=0; u<wMAX; u++)
+                for(int32_t u=0; u<wMAX; u++)
                 {
                     ignore_frames=false;
                     move_weapons_list[u]=false;
-                    int m=0;
+                    int32_t m=0;
                     
                     switch(biw[u].i)
                     {
@@ -10126,7 +10128,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -10146,7 +10148,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 flood=false;
                 setup_link_sprite_items();
                 
-                for(int u=0; u<41; u++)
+                for(int32_t u=0; u<41; u++)
                 {
                     move_link_sprites_list[u]=false;
                     
@@ -10213,7 +10215,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -10228,9 +10230,9 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
             //Tried to have a go at this but I think it's a bit too complicated for me at the moment.
             //Might come back to it another time and see what I can do ~Joe123
             /*if(!done){
-                 for(int u=0;u<MAXCUSTOMSUBSCREENS;u++){
+                 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
                      if(!custom_subscreen[u].ss_type) continue;
-                     for(int v=0;v<MAXSUBSCREENITEMS;v++){
+                     for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
                           if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
                           subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
                           subscreen_items[0].width = custom_subscreen[u].objects[v].w;
@@ -10259,7 +10261,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 map_styles_items[4].tile=misc.colors.new_overworld_map_tile;
                 map_styles_items[5].tile=misc.colors.new_dungeon_map_tile;
                 
-                for(int u=0; u<6; u++)
+                for(int32_t u=0; u<6; u++)
                 {
                     move_mapstyles_list[u]=false;
                     
@@ -10326,7 +10328,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -10349,7 +10351,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     "No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
                 };
                 
-                for(int u=0; u<4; u++)
+                for(int32_t u=0; u<4; u++)
                 {
                     move_game_icons_list[u]=false;
                     
@@ -10445,7 +10447,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -10465,7 +10467,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 flood=false;
                 bool BSZ2=(zinit.subscreen>2);
                 
-                for(int t=0; t<MAXDMAPS; t++)
+                for(int32_t t=0; t<MAXDMAPS; t++)
                 {
                     dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
                     dmap_map_items[1].tile=DMaps[t].minimap_2_tile;
@@ -10474,7 +10476,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
                     dmap_map_items[3].width=BSZ2?7:9;
                     
-                    for(int u=0; u<4; u++)
+                    for(int32_t u=0; u<4; u++)
                     {
                         move_dmap_maps_list[t][u]=false;
                         
@@ -10542,7 +10544,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -10562,13 +10564,13 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 flood=false;
                 build_bie_list(false);
                 bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
-                int u;
+                int32_t u;
                 
                 for(u=0; u<eMAXGUYS; u++)
                 {
                     const guydata& enemy=guysbuf[bie[u].i];
                     bool darknut=false;
-                    int gleeok=0;
+                    int32_t gleeok=0;
                     
                     if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
                         darknut=true;
@@ -10704,7 +10706,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         }
                         else if(gleeok && i==ti_none)
                         {
-                            for(int j=0; j<4 && i==ti_none; ++j)
+                            for(int32_t j=0; j<4 && i==ti_none; ++j)
                             {
                                 if(rect)
                                 {
@@ -10718,8 +10720,8 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                             
                             if(i==ti_none)
                             {
-                                int c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-                                int r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
+                                int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
+                                int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
                                 
                                 if(rect)
                                 {
@@ -10887,7 +10889,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -10907,23 +10909,23 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     {
         go_tiles();
         
-        int diff=dest_first-src_first;
+        int32_t diff=dest_first-src_first;
         
         if(rect)
         {
-            for(int r=0; r<rows; ++r)
+            for(int32_t r=0; r<rows; ++r)
             {
-                for(int c=0; c<cols; ++c)
+                for(int32_t c=0; c<cols; ++c)
                 {
-                    int dt=(dest_first+((r*TILES_PER_ROW)+c));
-                    int st=(src_first+((r*TILES_PER_ROW)+c));
+                    int32_t dt=(dest_first+((r*TILES_PER_ROW)+c));
+                    int32_t st=(src_first+((r*TILES_PER_ROW)+c));
                     
                     if(dt>=NEWMAXTILES)
                         continue;
                         
                     reset_tile(newtilebuf, dt, newundotilebuf[st].format);
                     
-                    for(int j=0; j<tilesize(newundotilebuf[st].format); j++)
+                    for(int32_t j=0; j<tilesize(newundotilebuf[st].format); j++)
                     {
                         newtilebuf[dt].data[j]=newundotilebuf[st].data[j];
                     }
@@ -10934,8 +10936,8 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                             reset_tile(newtilebuf, st, tf4Bit);
                         else
                         {
-                            int destLeft=dest_first%TILES_PER_ROW;
-                            int destRight=(dest_first+cols-1)%TILES_PER_ROW;
+                            int32_t destLeft=dest_first%TILES_PER_ROW;
+                            int32_t destRight=(dest_first+cols-1)%TILES_PER_ROW;
                             if(destLeft<=destRight)
                             {
                                 if(st%TILES_PER_ROW<destLeft || st%TILES_PER_ROW>destRight)
@@ -10953,17 +10955,17 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
         }
         else
         {
-            for(int c=0; c<copies; ++c)
+            for(int32_t c=0; c<copies; ++c)
             {
-                int dt=(dest_first+c);
-                int st=(src_first+c);
+                int32_t dt=(dest_first+c);
+                int32_t st=(src_first+c);
                 
                 if(dt>=NEWMAXTILES)
                     continue;
                     
                 reset_tile(newtilebuf, dt, newundotilebuf[st].format);
                 
-                for(int j=0; j<tilesize(newundotilebuf[st].format); j++)
+                for(int32_t j=0; j<tilesize(newundotilebuf[st].format); j++)
                 {
                     newtilebuf[dt].data[j]=newundotilebuf[st].data[j];
                 }
@@ -10978,7 +10980,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
         
         if(move)
         {
-            for(int u=0; u<MAXCOMBOS; u++)
+            for(int32_t u=0; u<MAXCOMBOS; u++)
             {
                 if(move_combo_list[u])
                 {
@@ -10986,7 +10988,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 }
             }
             
-            for(int u=0; u<iMax; u++)
+            for(int32_t u=0; u<iMax; u++)
             {
                 if(move_items_list[u])
                 {
@@ -10994,7 +10996,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 }
             }
             
-            for(int u=0; u<wMAX; u++)
+            for(int32_t u=0; u<wMAX; u++)
             {
                 if(move_weapons_list[u])
                 {
@@ -11002,7 +11004,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 }
             }
             
-            for(int u=0; u<41; u++)
+            for(int32_t u=0; u<41; u++)
             {
                 if(move_link_sprites_list[u])
                 {
@@ -11088,7 +11090,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 }
             }
             
-            for(int u=0; u<6; u++)
+            for(int32_t u=0; u<6; u++)
             {
                 if(move_mapstyles_list[u])
                 {
@@ -11121,7 +11123,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 }
             }
             
-            for(int u=0; u<4; u++)
+            for(int32_t u=0; u<4; u++)
             {
                 if(move_game_icons_list[u])
                 {
@@ -11129,9 +11131,9 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 }
             }
             
-            for(int t=0; t<MAXDMAPS; t++)
+            for(int32_t t=0; t<MAXDMAPS; t++)
             {
-                for(int u=0; u<4; u++)
+                for(int32_t u=0; u<4; u++)
                 {
                     move_dmap_maps_list[t][u]=false;
                     
@@ -11177,7 +11179,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
 }
 //
 
-bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move)
+bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move)
 {
     
     bool ignore_frames=false;
@@ -11191,21 +11193,21 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
     // alt=copy from right
     // shift=copy from bottom
     
-    int copies=copycnt;
-    int dest_first=tile;
-    int dest_last=tile2;
-    int src_first=copy;
-    int src_last=copy+copies-1;
+    int32_t copies=copycnt;
+    int32_t dest_first=tile;
+    int32_t dest_last=tile2;
+    int32_t src_first=copy;
+    int32_t src_last=copy+copies-1;
     
-    int dest_top=0;
-    int dest_bottom=0;
-    int src_top=0;
-    int src_bottom=0;
-    int src_left=0, src_right=0;
-    int src_width=0, src_height=0;
-    int dest_left=0, dest_right=0;
-    int dest_width=0, dest_height=0;
-    int rows=0, cols=0;
+    int32_t dest_top=0;
+    int32_t dest_bottom=0;
+    int32_t src_top=0;
+    int32_t src_bottom=0;
+    int32_t src_left=0, src_right=0;
+    int32_t src_width=0, src_height=0;
+    int32_t dest_left=0, dest_right=0;
+    int32_t dest_width=0, dest_height=0;
+    int32_t rows=0, cols=0;
     
     
     
@@ -11277,7 +11279,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
     bool found;
     bool flood;
     
-    int i;
+    int32_t i;
     bool *move_combo_list = new bool[MAXCOMBOS];
     bool *move_items_list = new bool[iMax];
     bool *move_weapons_list = new bool[wMAX];
@@ -11290,10 +11292,10 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
     
     // warn if paste overwrites other defined tiles or
     // if delete erases other defined tiles
-    int selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
+    int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
     bool done = false;
     
-    for(int q=0; q<2 && !done; ++q)
+    for(int32_t q=0; q<2 && !done; ++q)
     {
     
         switch(q)
@@ -11327,7 +11329,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                 found=false;
                 flood=false;
                 
-                for(int u=0; u<MAXCOMBOS; u++)
+                for(int32_t u=0; u<MAXCOMBOS; u++)
                 {
                     move_combo_list[u]=false;
                     
@@ -11394,7 +11396,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -11414,7 +11416,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                 flood=false;
                 build_bii_list(false);
                 
-                for(int u=0; u<iMax; u++)
+                for(int32_t u=0; u<iMax; u++)
                 {
                     move_items_list[u]=false;
                     
@@ -11481,7 +11483,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -11502,11 +11504,11 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                 build_biw_list();
                 bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
                 
-                for(int u=0; u<wMAX; u++)
+                for(int32_t u=0; u<wMAX; u++)
                 {
                     ignore_frames=false;
                     move_weapons_list[u]=false;
-                    int m=0;
+                    int32_t m=0;
                     
                     switch(biw[u].i)
                     {
@@ -11685,7 +11687,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -11705,7 +11707,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                 flood=false;
                 setup_link_sprite_items();
                 
-                for(int u=0; u<41; u++)
+                for(int32_t u=0; u<41; u++)
                 {
                     move_link_sprites_list[u]=false;
                     
@@ -11772,7 +11774,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -11787,9 +11789,9 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
             //Tried to have a go at this but I think it's a bit too complicated for me at the moment.
             //Might come back to it another time and see what I can do ~Joe123
             /*if(!done){
-                 for(int u=0;u<MAXCUSTOMSUBSCREENS;u++){
+                 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
                      if(!custom_subscreen[u].ss_type) continue;
-                     for(int v=0;v<MAXSUBSCREENITEMS;v++){
+                     for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
                           if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
                           subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
                           subscreen_items[0].width = custom_subscreen[u].objects[v].w;
@@ -11818,7 +11820,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                 map_styles_items[4].tile=misc.colors.overworld_map_tile;
                 map_styles_items[5].tile=misc.colors.dungeon_map_tile;
                 
-                for(int u=0; u<6; u++)
+                for(int32_t u=0; u<6; u++)
                 {
                     move_mapstyles_list[u]=false;
                     
@@ -11885,7 +11887,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -11908,7 +11910,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                     "No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
                 };
                 
-                for(int u=0; u<4; u++)
+                for(int32_t u=0; u<4; u++)
                 {
                     move_game_icons_list[u]=false;
                     
@@ -12004,7 +12006,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -12024,7 +12026,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                 flood=false;
                 bool BSZ2=(zinit.subscreen>2);
                 
-                for(int t=0; t<MAXDMAPS; t++)
+                for(int32_t t=0; t<MAXDMAPS; t++)
                 {
                     dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
                     dmap_map_items[1].tile=DMaps[t].minimap_2_tile;
@@ -12033,7 +12035,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                     dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
                     dmap_map_items[3].width=BSZ2?7:9;
                     
-                    for(int u=0; u<4; u++)
+                    for(int32_t u=0; u<4; u++)
                     {
                         move_dmap_maps_list[t][u]=false;
                         
@@ -12101,7 +12103,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -12121,13 +12123,13 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                 flood=false;
                 build_bie_list(false);
                 bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
-                int u;
+                int32_t u;
                 
                 for(u=0; u<eMAXGUYS; u++)
                 {
                     const guydata& enemy=guysbuf[bie[u].i];
                     bool darknut=false;
-                    int gleeok=0;
+                    int32_t gleeok=0;
                     
                     if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
                         darknut=true;
@@ -12263,7 +12265,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                         }
                         else if(gleeok && i==ti_none)
                         {
-                            for(int j=0; j<4 && i==ti_none; ++j)
+                            for(int32_t j=0; j<4 && i==ti_none; ++j)
                             {
                                 if(rect)
                                 {
@@ -12277,8 +12279,8 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                             
                             if(i==ti_none)
                             {
-                                int c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-                                int r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
+                                int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
+                                int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
                                 
                                 if(rect)
                                 {
@@ -12446,7 +12448,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
                         if(is_large)
                             large_dialog(tile_move_list_dlg);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
                         position_mouse_z(0);
                         
                         if(ret!=5)
@@ -12466,26 +12468,26 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
     {
         go_tiles();
         
-        int diff=dest_first-src_first;
+        int32_t diff=dest_first-src_first;
         
         if(rect)
         {
 	    al_trace("floodfill, rect\n");
 		al_trace("rows: %d\n", rows);
 		al_trace("cols: %d\n", cols);
-            for(int r=0; r<rows; ++r)
+            for(int32_t r=0; r<rows; ++r)
             {
-                for(int c=0; c<cols; ++c)
+                for(int32_t c=0; c<cols; ++c)
                 {
-                    int dt=(dest_first+((r*TILES_PER_ROW)+c));
-                    //int st=(src_first+((r*TILES_PER_ROW)+c));
+                    int32_t dt=(dest_first+((r*TILES_PER_ROW)+c));
+                    //int32_t st=(src_first+((r*TILES_PER_ROW)+c));
                     
                     if(dt>=NEWMAXTILES)
                         continue;
                         
                     reset_tile(newtilebuf, dt, newundotilebuf[copy].format);
                     
-                    for(int j=0; j<tilesize(newundotilebuf[copy].format); j++)
+                    for(int32_t j=0; j<tilesize(newundotilebuf[copy].format); j++)
                     {
                         newtilebuf[dt].data[j]=newundotilebuf[copy].data[j];
                     }
@@ -12494,17 +12496,17 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
         }
         else
         {
-            for(int c=0; c<copies; ++c)
+            for(int32_t c=0; c<copies; ++c)
             {
-                int dt=(dest_first+c);
-                int st=(src_first+c);
+                int32_t dt=(dest_first+c);
+                int32_t st=(src_first+c);
                 
                 if(dt>=NEWMAXTILES)
                     continue;
                     
                 reset_tile(newtilebuf, dt, newundotilebuf[copy].format);
                 
-                for(int j=0; j<tilesize(newundotilebuf[copy].format); j++)
+                for(int32_t j=0; j<tilesize(newundotilebuf[copy].format); j++)
                 {
                     newtilebuf[dt].data[j]=newundotilebuf[copy].data[j];
                 }
@@ -12529,7 +12531,7 @@ bool copy_tiles_united_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bo
 }
 //
 
-bool copy_tiles_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move)
+bool copy_tiles_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move)
 {
     al_trace("Floodfill Psste\n");
     bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
@@ -12550,7 +12552,7 @@ bool copy_tiles_floodfill(int &tile,int &tile2,int &copy,int &copycnt, bool rect
     return copied;
 }
 
-bool copy_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move)
+bool copy_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move)
 {
     bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
     bool copied=false;
@@ -12571,7 +12573,7 @@ bool copy_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool
 }
 
 
-void copy_combos(int &tile,int &tile2,int &copy,int &copycnt, bool masscopy)
+void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool masscopy)
 {
     //these 2 shouldn't be needed, but just to be safe...
     reset_combo_animations();
@@ -12594,7 +12596,7 @@ void copy_combos(int &tile,int &tile2,int &copy,int &copycnt, bool masscopy)
         // go_combos(); // commented because caller does it for us
         //if copying to an earlier combo, copy from left to right
         //otherwise, copy from right to left
-        for(int t=(tile<copy)?0:(copycnt-1); (tile<copy)?(t<copycnt):(t>=0); (tile<copy)?(t++):(t--))
+        for(int32_t t=(tile<copy)?0:(copycnt-1); (tile<copy)?(t<copycnt):(t>=0); (tile<copy)?(t++):(t--))
         {
             if(tile+t < MAXCOMBOS)
             {
@@ -12609,7 +12611,7 @@ void copy_combos(int &tile,int &tile2,int &copy,int &copycnt, bool masscopy)
     else
     {
         // go_combos();
-        int src=copy, dest=tile;
+        int32_t src=copy, dest=tile;
         
         do
         {
@@ -12631,7 +12633,7 @@ void copy_combos(int &tile,int &tile2,int &copy,int &copycnt, bool masscopy)
     return;
 }
 
-void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
+void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 {
     if(tile2<tile)
     {
@@ -12650,7 +12652,7 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
     reset_combo_animations2();
     go_combos();
     
-    for(int t=(tile<copy)?0:(copycnt-1); (tile<copy)?(t<copycnt):(t>=0); (tile<copy)?(t++):(t--))
+    for(int32_t t=(tile<copy)?0:(copycnt-1); (tile<copy)?(t<copycnt):(t>=0); (tile<copy)?(t++):(t--))
     {
         if(tile+t < MAXCOMBOS)
         {
@@ -12659,11 +12661,11 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
         }
     }
     
-    for(int i=0; i<map_count && i<MAXMAPS2; i++)
+    for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
     {
-        for(int j=0; j<MAPSCRS; j++)
+        for(int32_t j=0; j<MAPSCRS; j++)
         {
-            for(int k=0; k<176; k++)
+            for(int32_t k=0; k<176; k++)
             {
                 if((TheMaps[i*MAPSCRS+j].data[k]>=copy)&&(TheMaps[i*MAPSCRS+j].data[k]<copy+copycnt))
                 {
@@ -12671,7 +12673,7 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
                 }
             }
             
-            for(int k=0; k<128; k++)
+            for(int32_t k=0; k<128; k++)
             {
                 if((TheMaps[i*MAPSCRS+j].secretcombo[k]>=copy)&& (TheMaps[i*MAPSCRS+j].secretcombo[k]<copy+copycnt))
                 {
@@ -12684,7 +12686,7 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
                 TheMaps[i*MAPSCRS+j].undercombo=TheMaps[i*MAPSCRS+j].undercombo-copy+tile;
             }
             
-            for(int k=0; k<MAXFFCS; k++)
+            for(int32_t k=0; k<MAXFFCS; k++)
             {
                 if((TheMaps[i*MAPSCRS+j].ffdata[k] >= copy) && (TheMaps[i*MAPSCRS+j].ffdata[k] < copy+copycnt) && (TheMaps[i*MAPSCRS+j].ffdata[k] != 0))
                 {
@@ -12694,9 +12696,9 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
         }
     }
     
-    for(int i=0; i<MAXDOORCOMBOSETS; i++)
+    for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
     {
-        for(int j=0; j<9; j++)
+        for(int32_t j=0; j<9; j++)
         {
             if(j<4)
             {
@@ -12732,7 +12734,7 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
                 }
             }
             
-            for(int k=0; k<6; k++)
+            for(int32_t k=0; k<6; k++)
             {
                 if(k<4)
                 {
@@ -12760,7 +12762,7 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
         }
     }
     
-    for(int i=0; i<MAXCOMBOS; i++)
+    for(int32_t i=0; i<MAXCOMBOS; i++)
     {
         if((combobuf[i].nextcombo>=copy)&&(combobuf[i].nextcombo<copy+copycnt))
         {
@@ -12770,12 +12772,12 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
         }
     }
     
-    for(int i=0; i<MAXCOMBOALIASES; i++)
+    for(int32_t i=0; i<MAXCOMBOALIASES; i++)
     {
         //dimensions are 1 less than you would expect -DD
-        int count=(comboa_lmasktotal(combo_aliases[i].layermask)+1)*(combo_aliases[i].width+1)*(combo_aliases[i].height+1);
+        int32_t count=(comboa_lmasktotal(combo_aliases[i].layermask)+1)*(combo_aliases[i].width+1)*(combo_aliases[i].height+1);
         
-        for(int j=0; j<count; j++)
+        for(int32_t j=0; j<count; j++)
         {
         
             if((combo_aliases[i].combos[j]>=copy)&&(combo_aliases[i].combos[j]<copy+copycnt)&&(combo_aliases[i].combos[j]!=0))
@@ -12785,7 +12787,7 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
         }
     }
     
-    for(int i=0; i<MAXFAVORITECOMBOS; i++)
+    for(int32_t i=0; i<MAXFAVORITECOMBOS; i++)
     {
         if(favorite_combos[i]>=copy && favorite_combos[i]<copy+copycnt)
             favorite_combos[i]+=(-copy+tile);
@@ -12798,7 +12800,7 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
     saved=false;
 }
 
-void delete_tiles(int &tile,int &tile2,bool rect_sel)
+void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
 {
     char buf[40];
     
@@ -12813,7 +12815,7 @@ void delete_tiles(int &tile,int &tile2,bool rect_sel)
     
     if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
     {
-        int firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
+        int32_t firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
         
         if(rect_sel && TILECOL(firsttile)>TILECOL(lasttile))
         {
@@ -12826,7 +12828,7 @@ void delete_tiles(int &tile,int &tile2,bool rect_sel)
         
         //if copying to an earlier tile, copy from left to right
         //otherwise, copy from right to left
-        for(int t=firsttile; t<=lasttile; t++)
+        for(int32_t t=firsttile; t<=lasttile; t++)
             if(!rect_sel ||
                     ((TILECOL(t)>=TILECOL(firsttile)) &&
                      (TILECOL(t)<=TILECOL(lasttile))))
@@ -12838,14 +12840,14 @@ void delete_tiles(int &tile,int &tile2,bool rect_sel)
     }
 }
 
-void overlay_tile2(int dest,int src,int cs,bool backwards)
+void overlay_tile2(int32_t dest,int32_t src,int32_t cs,bool backwards)
 {
     byte buf[256];
     go_tiles();
     
     unpack_tile(newtilebuf, dest, 0, false);
     
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
         buf[i] = unpackbuf[i];
         
     unpack_tile(newtilebuf, src, 0, false);
@@ -12858,7 +12860,7 @@ void overlay_tile2(int dest,int src,int cs,bool backwards)
     cs &= 15;
     cs <<= CSET_SHFT;
     
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
     {
         if(backwards)
         {
@@ -12880,14 +12882,14 @@ void overlay_tile2(int dest,int src,int cs,bool backwards)
     saved=false;
 }
 
-void mass_overlay_tile(int dest1, int dest2, int src, int cs, bool backwards, bool rect_sel)
+void mass_overlay_tile(int32_t dest1, int32_t dest2, int32_t src, int32_t cs, bool backwards, bool rect_sel)
 {
     //byte buf[256];
     go_tiles();
     
     /*unpack_tile(newtilebuf, src, 0, false);
     
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
         buf[i] = unpackbuf[i];
         
     if(newtilebuf[src].format>tf4Bit)
@@ -12901,11 +12903,11 @@ void mass_overlay_tile(int dest1, int dest2, int src, int cs, bool backwards, bo
     */
     if(!rect_sel)
     {
-        for(int d=dest1; d <= dest2; ++d)
+        for(int32_t d=dest1; d <= dest2; ++d)
         {
             /*unpack_tile(newtilebuf, d, 0, false);
             
-            for(int i=0; i<256; i++)
+            for(int32_t i=0; i<256; i++)
             {
                 if(!backwards)
                 {
@@ -12936,20 +12938,20 @@ void mass_overlay_tile(int dest1, int dest2, int src, int cs, bool backwards, bo
     }
     else
     {
-        int rmin=zc_min(TILEROW(dest1),TILEROW(dest2));
-        int rmax=zc_max(TILEROW(dest1),TILEROW(dest2));
-        int cmin=zc_min(TILECOL(dest1),TILECOL(dest2));
-        int cmax=zc_max(TILECOL(dest1),TILECOL(dest2));
-        int d=0;
+        int32_t rmin=zc_min(TILEROW(dest1),TILEROW(dest2));
+        int32_t rmax=zc_max(TILEROW(dest1),TILEROW(dest2));
+        int32_t cmin=zc_min(TILECOL(dest1),TILECOL(dest2));
+        int32_t cmax=zc_max(TILECOL(dest1),TILECOL(dest2));
+        int32_t d=0;
         
-        for(int j=cmin; j<=cmax; ++j)
+        for(int32_t j=cmin; j<=cmax; ++j)
         {
-            for(int k=rmin; k<=rmax; ++k)
+            for(int32_t k=rmin; k<=rmax; ++k)
             {
                 d=j+TILES_PER_ROW*k;
                 /*unpack_tile(newtilebuf, d, 0, false);
                 
-                for(int i=0; i<256; i++)
+                for(int32_t i=0; i<256; i++)
                 {
                     if(!backwards)
                     {
@@ -12983,7 +12985,7 @@ void mass_overlay_tile(int dest1, int dest2, int src, int cs, bool backwards, bo
     return;
 }
 
-void sel_tile(int &tile, int &tile2, int &first, int type, int s)
+void sel_tile(int32_t &tile, int32_t &tile2, int32_t &first, int32_t type, int32_t s)
 {
     tile+=s;
     bound(tile,0,NEWMAXTILES-1);
@@ -12994,9 +12996,9 @@ void sel_tile(int &tile, int &tile2, int &first, int type, int s)
     first = tile - (tile%TILES_PER_PAGE);
 }
 
-void convert_tile(int t, int bp2, int cs, bool shift, bool alt)
+void convert_tile(int32_t t, int32_t bp2, int32_t cs, bool shift, bool alt)
 {
-    int cst;
+    int32_t cst;
     
     switch(bp2)
     {
@@ -13012,7 +13014,7 @@ void convert_tile(int t, int bp2, int cs, bool shift, bool alt)
             
             if(alt)  //reduce
             {
-                for(int i=0; i<256; i++)
+                for(int32_t i=0; i<256; i++)
                 {
                     if(!shift||unpackbuf[i]!=0)
                     {
@@ -13022,7 +13024,7 @@ void convert_tile(int t, int bp2, int cs, bool shift, bool alt)
             }
             else //truncate
             {
-                for(int i=0; i<256; i++)
+                for(int32_t i=0; i<256; i++)
                 {
                     unpackbuf[i]&=15;
                 }
@@ -13043,7 +13045,7 @@ void convert_tile(int t, int bp2, int cs, bool shift, bool alt)
             cst = cs&15;
             cst <<= CSET_SHFT;
             
-            for(int i=0; i<256; i++)
+            for(int32_t i=0; i<256; i++)
             {
                 if(!shift||unpackbuf[i]!=0)
                 {
@@ -13080,8 +13082,8 @@ static DIALOG create_relational_tiles_dlg[] =
 
 void draw_tile_list_window()
 {
-    int w = 320;
-    int h = 240;
+    int32_t w = 320;
+    int32_t h = 240;
     
     if(is_large)
     {
@@ -13089,8 +13091,8 @@ void draw_tile_list_window()
         h *= 2;
     }
     
-    int window_xofs=(zq_screen_w-w-12)>>1;
-    int window_yofs=(zq_screen_h-h-25-6)>>1;
+    int32_t window_xofs=(zq_screen_w-w-12)>>1;
+    int32_t window_yofs=(zq_screen_h-h-25-6)>>1;
     scare_mouse();
     jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
     jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+4+2-64,  FR_DEEP);
@@ -13103,7 +13105,7 @@ void draw_tile_list_window()
     return;
 }
 
-void show_blank_tile(int t)
+void show_blank_tile(int32_t t)
 {
     char tbuf[80], tbuf2[80], tbuf3[80];
     sprintf(tbuf, "Tile is%s blank.", blank_tile_table[t]?"":" not");
@@ -13112,7 +13114,7 @@ void show_blank_tile(int t)
     jwin_alert("Blank Tile Information",tbuf,tbuf2,tbuf3,"&OK",NULL,13,27,lfont);
 }
 
-void do_convert_tile(int tile, int tile2, int cs, bool rect_sel, bool fourbit, bool shift, bool alt)
+void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, bool fourbit, bool shift, bool alt)
 {
     char buf[80];
     sprintf(buf, "Do you want to convert the selected %s to %d-bit color?", tile==tile2?"tile":"tiles",fourbit?4:8);
@@ -13129,7 +13131,7 @@ void do_convert_tile(int tile, int tile2, int cs, bool rect_sel, bool fourbit, b
             calc_cset_reduce_table(RAMpal, cs);
         }
         
-        int firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
+        int32_t firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
         
         if(rect_sel && TILECOL(firsttile)>TILECOL(lasttile))
         {
@@ -13138,7 +13140,7 @@ void do_convert_tile(int tile, int tile2, int cs, bool rect_sel, bool fourbit, b
             lasttile+=coldiff;
         }
         
-        for(int t=firsttile; t<=lasttile; t++)
+        for(int32_t t=firsttile; t<=lasttile; t++)
             if(!rect_sel ||
                     ((TILECOL(t)>=TILECOL(firsttile)) &&
                      (TILECOL(t)<=TILECOL(lasttile))))
@@ -13149,12 +13151,12 @@ void do_convert_tile(int tile, int tile2, int cs, bool rect_sel, bool fourbit, b
 }
 
 
-int readtilefile(PACKFILE *f)
+int32_t readtilefile(PACKFILE *f)
 {
 	dword section_version=0;
 	dword section_cversion=0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	
 	if(!p_igetl(&zversion,f,true))
 	{
@@ -13192,8 +13194,8 @@ int readtilefile(PACKFILE *f)
 		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
 	
-	int index = 0;
-	int count = 0;
+	int32_t index = 0;
+	int32_t count = 0;
 	
 	//tile id
 	if(!p_igetl(&index,f,true))
@@ -13212,7 +13214,7 @@ int readtilefile(PACKFILE *f)
 	
 	
 
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		byte *temp_tile = new byte[tilesize(tf32Bit)];
 		byte format=tf4Bit;
@@ -13245,12 +13247,12 @@ int readtilefile(PACKFILE *f)
 	
 }
 
-int readtilefile_to_location(PACKFILE *f, int start, int skip)
+int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
 {
 	dword section_version=0;
 	dword section_cversion=0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	
 	if(!p_igetl(&zversion,f,true))
 	{
@@ -13288,8 +13290,8 @@ int readtilefile_to_location(PACKFILE *f, int start, int skip)
 		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
 	
-	int index = 0;
-	int count = 0;
+	int32_t index = 0;
+	int32_t count = 0;
 	
 	//tile id
 	if(!p_igetl(&index,f,true))
@@ -13306,7 +13308,7 @@ int readtilefile_to_location(PACKFILE *f, int start, int skip)
 	al_trace("Reading tile: count(%d)\n", count);
 	
 
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		byte *temp_tile = new byte[tilesize(tf32Bit)];
 		byte format=tf4Bit;
@@ -13353,12 +13355,12 @@ int readtilefile_to_location(PACKFILE *f, int start, int skip)
 }
 
 
-int readtilefile_to_location(PACKFILE *f, int start)
+int32_t readtilefile_to_location(PACKFILE *f, int32_t start)
 {
 	dword section_version=0;
 	dword section_cversion=0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	
 	if(!p_igetl(&zversion,f,true))
 	{
@@ -13396,8 +13398,8 @@ int readtilefile_to_location(PACKFILE *f, int start)
 		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
 	
-	int index = 0;
-	int count = 0;
+	int32_t index = 0;
+	int32_t count = 0;
 	
 	//tile id
 	if(!p_igetl(&index,f,true))
@@ -13416,7 +13418,7 @@ int readtilefile_to_location(PACKFILE *f, int start)
 	
 	
 
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		byte *temp_tile = new byte[tilesize(tf32Bit)];
 		byte format=tf4Bit;
@@ -13452,12 +13454,12 @@ int readtilefile_to_location(PACKFILE *f, int start)
 	return 1;
 	
 }
-int writetilefile(PACKFILE *f, int index, int count)
+int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 {
 	dword section_version=V_TILES;
 	dword section_cversion=CV_TILES;
-	int zversion = ZELDA_VERSION;
-	int zbuild = VERSION_BUILD;
+	int32_t zversion = ZELDA_VERSION;
+	int32_t zbuild = VERSION_BUILD;
 	
 	if(!p_iputl(zversion,f))
 	{
@@ -13489,7 +13491,7 @@ int writetilefile(PACKFILE *f, int index, int count)
 		return 0;
 	}
 	
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		//al_trace("Tile id: %d\n",index+(tilect));
 		if(!p_putc(newtilebuf[index+(tilect)].format,f))
@@ -13507,20 +13509,20 @@ int writetilefile(PACKFILE *f, int index, int count)
 	
 }
 
-int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, bool always_use_flip)
+int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
 {
 	reset_combo_animations();
 	reset_combo_animations2();
 	bound(tile,0,NEWMAXTILES-1);
 	ex=exnow;
-	int done=0;
-	int oflip=flip;
-	int otile=tile;
-	int ocs=cs;
-	int first=(tile/TILES_PER_PAGE)*TILES_PER_PAGE; //first tile on the current page
-	int copy=-1;
-	int tile2=tile,copycnt=0;
-	int tile_clicked=-1;
+	int32_t done=0;
+	int32_t oflip=flip;
+	int32_t otile=tile;
+	int32_t ocs=cs;
+	int32_t first=(tile/TILES_PER_PAGE)*TILES_PER_PAGE; //first tile on the current page
+	int32_t copy=-1;
+	int32_t tile2=tile,copycnt=0;
+	int32_t tile_clicked=-1;
 	bool rect_sel=true;
 	bound(first,0,(TILES_PER_PAGE*TILE_PAGES)-1);
 	position_mouse_z(0);
@@ -13528,14 +13530,14 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 	go();
 	
 	register_used_tiles();
-	int window_xofs=0;
-	int window_yofs=0;
-	int screen_xofs=0;
-	int screen_yofs=0;
-	int panel_yofs=0;
-	int w = 320;
-	int h = 240;
-	int mul = 1;
+	int32_t window_xofs=0;
+	int32_t window_yofs=0;
+	int32_t screen_xofs=0;
+	int32_t screen_yofs=0;
+	int32_t panel_yofs=0;
+	int32_t w = 320;
+	int32_t h = 240;
+	int32_t mul = 1;
 	FONT *tfont = pfont;
 	
 	if(is_large)
@@ -13552,7 +13554,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 	}
 	
 	draw_tile_list_window();
-	int f=0;
+	int32_t f=0;
 	draw_tiles(first,cs,f);
 	
 	if(type==0)
@@ -13575,7 +13577,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 	
 	#define FOREACH_START(_t) \
 	{ \
-		int _first, _last; \
+		int32_t _first, _last; \
 		if(is_rect) \
 		{ \
 			_first=top*TILES_PER_ROW+left; \
@@ -13586,14 +13588,14 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 			_first=zc_min(tile, tile2); \
 			_last=zc_max(tile, tile2); \
 		} \
-		for(int _t=_first; _t<=_last; _t++) \
+		for(int32_t _t=_first; _t<=_last; _t++) \
 		{ \
 			if(is_rect) \
 			{ \
-				int row=TILEROW(_t); \
+				int32_t row=TILEROW(_t); \
 				if(row<top || row>=top+rows) \
 					continue; \
-				int col=TILECOL(_t); \
+				int32_t col=TILECOL(_t); \
 				if(col<left || col>=left+columns) \
 					continue; \
 			} \
@@ -13606,10 +13608,10 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 	do
 	{
 		rest(4);
-		int top=TILEROW(zc_min(tile, tile2));
-		int left=zc_min(TILECOL(tile), TILECOL(tile2));
-		int rows=TILEROW(zc_max(tile, tile2))-top+1;
-		int columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
+		int32_t top=TILEROW(zc_min(tile, tile2));
+		int32_t left=zc_min(TILECOL(tile), TILECOL(tile2));
+		int32_t rows=TILEROW(zc_max(tile, tile2))-top+1;
+		int32_t columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
 		bool is_rect=(rows==1)||(columns==TILES_PER_ROW)||rect_sel;
 		bool redraw=false;
 		
@@ -13729,14 +13731,14 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 							{
 								saved=false;
 								go_slide_tiles(columns, rows, top, left);
-								int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
 								
-								for(int d=0; d<columns; d++)
+								for(int32_t d=0; d<columns; d++)
 								{
-									for(int s=0; s<rows; s++)
+									for(int32_t s=0; s<rows; s++)
 									{
-										int t=((top+s)*TILES_PER_ROW)+left+d;
+										int32_t t=((top+s)*TILES_PER_ROW)+left+d;
 										
 										if(newtilebuf[t].format!=bitcheck) same = false;
 									}
@@ -13744,19 +13746,19 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 								
 								if(!same) break;
 								
-								for(int c=0; c<columns; c++)
+								for(int32_t c=0; c<columns; c++)
 								{
-									for(int r=0; r<rows; r++)
+									for(int32_t r=0; r<rows; r++)
 									{
-										int temptile=((top+r)*TILES_PER_ROW)+left+c;
+										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 										qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(8*bitcheck));
 										qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data);
 										
-										for(int pixelrow=0; pixelrow<16*bitcheck; pixelrow++)
+										for(int32_t pixelrow=0; pixelrow<16*bitcheck; pixelrow++)
 										{
 											if(pixelrow==15*bitcheck)
 											{
-												int srctile=temptile+TILES_PER_ROW;
+												int32_t srctile=temptile+TILES_PER_ROW;
 												if(srctile>=NEWMAXTILES)
 													srctile-=rows*TILES_PER_ROW;
 												src_pixelrow=(qword*)(newtilebuf[srctile].data);
@@ -13770,7 +13772,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 									
 									qword *dest_pixelrow=(qword*)(newtilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
 									
-									for(int b=0; b<bitcheck; b++,dest_pixelrow++)
+									for(int32_t b=0; b<bitcheck; b++,dest_pixelrow++)
 									{
 										if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
 										{
@@ -13810,14 +13812,14 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 							{
 								saved=false;
 								go_slide_tiles(columns, rows, top, left);
-								int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
 								
-								for(int c=0; c<columns; c++)
+								for(int32_t c=0; c<columns; c++)
 								{
-									for(int r=0; r<rows; r++)
+									for(int32_t r=0; r<rows; r++)
 									{
-										int t=((top+r)*TILES_PER_ROW)+left+c;
+										int32_t t=((top+r)*TILES_PER_ROW)+left+c;
 										
 										if(newtilebuf[t].format!=bitcheck) same = false;
 									}
@@ -13825,19 +13827,19 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 								
 								if(!same) break;
 								
-								for(int c=0; c<columns; c++)
+								for(int32_t c=0; c<columns; c++)
 								{
-									for(int r=rows-1; r>=0; r--)
+									for(int32_t r=rows-1; r>=0; r--)
 									{
-										int temptile=((top+r)*TILES_PER_ROW)+left+c;
+										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 										qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(112*bitcheck)+(8*(bitcheck-1)));
 										qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data+(120*bitcheck)+(8*(bitcheck-1)));
 										
-										for(int pixelrow=(8<<bitcheck)-1; pixelrow>=0; pixelrow--)
+										for(int32_t pixelrow=(8<<bitcheck)-1; pixelrow>=0; pixelrow--)
 										{
 											if(pixelrow<bitcheck)
 											{
-												int srctile=temptile-TILES_PER_ROW;
+												int32_t srctile=temptile-TILES_PER_ROW;
 												if(srctile<0)
 													srctile+=rows*TILES_PER_ROW;
 												qword *tempsrc=(qword*)(newtilebuf[srctile].data+(120*bitcheck)+(8*pixelrow));
@@ -13857,7 +13859,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 									qword *dest_pixelrow=(qword*)(newtilebuf[(top*TILES_PER_ROW)+left+c].data);
 									qword *src_pixelrow=(qword*)(newundotilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
 									
-									for(int b=0; b<bitcheck; b++)
+									for(int32_t b=0; b<bitcheck; b++)
 									{
 										if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
 										{
@@ -13899,14 +13901,14 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 							{
 								saved=false;
 								go_slide_tiles(columns, rows, top, left);
-								int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
 								
-								for(int c=0; c<columns; c++)
+								for(int32_t c=0; c<columns; c++)
 								{
-									for(int r=0; r<rows; r++)
+									for(int32_t r=0; r<rows; r++)
 									{
-										int t=((top+r)*TILES_PER_ROW)+left+c;
+										int32_t t=((top+r)*TILES_PER_ROW)+left+c;
 										
 										if(newtilebuf[t].format!=bitcheck) same = false;
 									}
@@ -13914,20 +13916,20 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 								
 								if(!same) break;
 								
-								for(int r=0; r<rows; r++)
+								for(int32_t r=0; r<rows; r++)
 								{
-									for(int c=0; c<columns; c++)
+									for(int32_t c=0; c<columns; c++)
 									{
-										int temptile=((top+r)*TILES_PER_ROW)+left+c;
+										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 										byte *dest_pixelrow=(newtilebuf[temptile].data);
 										
-										for(int pixelrow=0; pixelrow<16; pixelrow++)
+										for(int32_t pixelrow=0; pixelrow<16; pixelrow++)
 										{
 		#ifdef ALLEGRO_LITTLE_ENDIAN
 										
 											//if(bitcheck==tf4Bit)
 											// {
-											for(int p=0; p<(8*bitcheck)-1; p++)
+											for(int32_t p=0; p<(8*bitcheck)-1; p++)
 											{
 												if(bitcheck==tf4Bit)
 												{
@@ -13946,7 +13948,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 											
 		#else
 											
-											for(int p=0; p<(8*bitcheck)-1; p++)
+											for(int32_t p=0; p<(8*bitcheck)-1; p++)
 											{
 												if(bitcheck==tf4Bit)
 												{
@@ -14032,14 +14034,14 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 							{
 								saved=false;
 								go_slide_tiles(columns, rows, top, left);
-								int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
 								
-								for(int c=0; c<columns; c++)
+								for(int32_t c=0; c<columns; c++)
 								{
-									for(int r=0; r<rows; r++)
+									for(int32_t r=0; r<rows; r++)
 									{
-										int t=((top+r)*TILES_PER_ROW)+left+c;
+										int32_t t=((top+r)*TILES_PER_ROW)+left+c;
 										
 										if(newtilebuf[t].format!=bitcheck) same = false;
 									}
@@ -14047,19 +14049,19 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 								
 								if(!same) break;
 								
-								for(int r=0; r<rows; r++)
+								for(int32_t r=0; r<rows; r++)
 								{
-									for(int c=columns-1; c>=0; c--)
+									for(int32_t c=columns-1; c>=0; c--)
 									{
-										int temptile=((top+r)*TILES_PER_ROW)+left+c;
+										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 										byte *dest_pixelrow=(newtilebuf[temptile].data)+(128*bitcheck)-1;
 										
-										for(int pixelrow=15; pixelrow>=0; pixelrow--)
+										for(int32_t pixelrow=15; pixelrow>=0; pixelrow--)
 										{
 		#ifdef ALLEGRO_LITTLE_ENDIAN
 										
 											//*dest_pixelrow=(*dest_pixelrow)<<4;
-											for(int p=0; p<(8*bitcheck)-1; p++)
+											for(int32_t p=0; p<(8*bitcheck)-1; p++)
 											{
 												if(bitcheck==tf4Bit)
 												{
@@ -14078,7 +14080,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 											
 		#else
 											
-											for(int p=0; p<(8*bitcheck)-1; p++)
+											for(int32_t p=0; p<(8*bitcheck)-1; p++)
 											{
 												if(bitcheck==tf4Bit)
 												{
@@ -14176,7 +14178,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 				
 				case KEY_P:
 				{
-					int whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
+					int32_t whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
 					
 					if(whatPage >= 0)
 						sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
@@ -14396,7 +14398,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 				
 				case KEY_D:
 				{
-					int frames=1;
+					int32_t frames=1;
 					char buf[80];
 					sprintf(buf, "%d", frames);
 					create_relational_tiles_dlg[0].dp2=lfont;
@@ -14405,15 +14407,15 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 					if(is_large)
 						large_dialog(create_relational_tiles_dlg);
 						
-					int ret=zc_popup_dialog(create_relational_tiles_dlg,2);
+					int32_t ret=zc_popup_dialog(create_relational_tiles_dlg,2);
 					
 					if(ret==5)
 					{
 						frames=zc_max(atoi(buf),1);
 						bool same = true;
-						int bitcheck=newtilebuf[tile].format;
+						int32_t bitcheck=newtilebuf[tile].format;
 						
-						for(int t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
+						for(int32_t t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
 						{
 							if(newtilebuf[tile+t].format!=bitcheck) same = false;
 						}
@@ -14430,16 +14432,16 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 							break;
 						}
 						
-						for(int i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
+						for(int32_t i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
 						{
 							reset_tile(newtilebuf, tile+i, bitcheck);
 						}
 						
 						if(create_relational_tiles_dlg[3].flags&D_SELECTED)
 						{
-							for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+							for(int32_t i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
 							{
-								for(int j=0; j<frames; ++j)
+								for(int32_t j=0; j<frames; ++j)
 								{
 									merge_tiles(tile+(i*frames)+j, (tile+(relational_template[i][0]*frames)+j)<<2, ((tile+(relational_template[i][1]*frames)+j)<<2)+1, ((tile+(relational_template[i][2]*frames)+j)<<2)+2, ((tile+(relational_template[i][3]*frames)+j)<<2)+3);
 								}
@@ -14447,9 +14449,9 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 						}
 						else
 						{
-							for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+							for(int32_t i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
 							{
-								for(int j=0; j<frames; ++j)
+								for(int32_t j=0; j<frames; ++j)
 								{
 									merge_tiles(tile+(i*frames)+j, (tile+(dungeon_carving_template[i][0]*frames)+j)<<2, ((tile+(dungeon_carving_template[i][1]*frames)+j)<<2)+1, ((tile+(dungeon_carving_template[i][2]*frames)+j)<<2)+2, ((tile+(dungeon_carving_template[i][3]*frames)+j)<<2)+3);
 								}
@@ -14492,13 +14494,13 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 				}
 			}
 			
-			int x=gui_mouse_x()-screen_xofs;
-			int y=gui_mouse_y()-screen_yofs;
+			int32_t x=gui_mouse_x()-screen_xofs;
+			int32_t y=gui_mouse_y()-screen_yofs;
 			
 			if(y>=0 && y<208*mul)
 			{
 				x=zc_min(zc_max(x,0),(320*mul)-1);
-				int t = (y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first;
+				int32_t t = (y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first;
 				
 				if(type==0 && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
@@ -14664,13 +14666,13 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 		
 		if(gui_mouse_b()&2 && !bdown && type==0)
 		{
-			int x=(gui_mouse_x()-screen_xofs);//&0xFF0;
-			int y=(gui_mouse_y()-screen_yofs);//&0xF0;
+			int32_t x=(gui_mouse_x()-screen_xofs);//&0xFF0;
+			int32_t y=(gui_mouse_y()-screen_yofs);//&0xF0;
 			
 			if(y>=0 && y<208*mul)
 			{
 				x=zc_min(zc_max(x,0),(320*mul)-1);
-				int t = ((y)>>(4+is_large))*TILES_PER_ROW + ((x)>>(4+is_large)) + first;
+				int32_t t = ((y)>>(4+is_large))*TILES_PER_ROW + ((x)>>(4+is_large)) + first;
 				
 				if(t<zc_min(tile,tile2) || t>zc_max(tile,tile2))
 					tile=tile2=t;
@@ -14697,7 +14699,7 @@ REDRAW:
 		{
 			if(rect_sel)
 			{
-				for(int i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+				for(int32_t i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
 						  zc_min(TILECOL(tile),TILECOL(tile2));
 						i<=zc_max(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
 						zc_max(TILECOL(tile),TILECOL(tile2)); i++)
@@ -14706,20 +14708,20 @@ REDRAW:
 							TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
 							TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
 					{
-						int x=(i%TILES_PER_ROW)<<(4+is_large);
-						int y=((i-first)/TILES_PER_ROW)<<(4+is_large);
+						int32_t x=(i%TILES_PER_ROW)<<(4+is_large);
+						int32_t y=((i-first)/TILES_PER_ROW)<<(4+is_large);
 						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
 					}
 				}
 			}
 			else
 			{
-				for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+				for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
 				{
 					if(i>=first && i<first+TILES_PER_PAGE)
 					{
-						int x=TILECOL(i)<<(4+is_large);
-						int y=TILEROW(i-first)<<(4+is_large);
+						int32_t x=TILECOL(i)<<(4+is_large);
+						int32_t y=TILEROW(i-first)<<(4+is_large);
 						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
 					}
 				}
@@ -14735,7 +14737,7 @@ REDRAW:
 		{
 			char cbuf[16];
 			sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
-			gui_textout_ln(screen, is_large?lfont_l:pfont, (unsigned char *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			gui_textout_ln(screen, is_large?lfont_l:pfont, (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 		}
 		
 		++f;
@@ -14748,7 +14750,7 @@ REDRAW:
 			select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
 			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
 			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
-			int m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
+			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
 			
 			switch(m)
@@ -14887,11 +14889,11 @@ REDRAW:
 	return done-1;
 }
 
-int onTiles()
+int32_t onTiles()
 {
-    static int t=0;
-    int f=0;
-    int c=CSet;
+    static int32_t t=0;
+    int32_t f=0;
+    int32_t c=CSet;
     reset_pal_cycling();
 //  loadlvlpal(Map.CurrScr()->color);
     rebuild_trans_table();
@@ -14900,7 +14902,7 @@ int onTiles()
     return D_O_K;
 }
 
-void draw_combo(BITMAP *dest, int x,int y,int c,int cs)
+void draw_combo(BITMAP *dest, int32_t x,int32_t y,int32_t c,int32_t cs)
 {
     if(c<MAXCOMBOS)
     {
@@ -14916,14 +14918,14 @@ void draw_combo(BITMAP *dest, int x,int y,int c,int cs)
     }
 }
 
-void draw_combos(int page,int cs,bool cols)
+void draw_combos(int32_t page,int32_t cs,bool cols)
 {
     clear_bitmap(screen2);
     BITMAP *buf = create_bitmap_ex(8,16,16);
     
-    int w = 16;
-    int h = 16;
-    int mul = 1;
+    int32_t w = 16;
+    int32_t h = 16;
+    int32_t mul = 1;
     
     if(is_large)
     {
@@ -14934,11 +14936,11 @@ void draw_combos(int page,int cs,bool cols)
     
     if(cols==false)
     {
-        for(int i=0; i<256; i++)                                // 13 rows, leaving 32 pixels from y=208 to y=239
+        for(int32_t i=0; i<256; i++)                                // 13 rows, leaving 32 pixels from y=208 to y=239
         {
 //      draw_combo((i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,i+(page<<8),cs);
-            int x = (i%COMBOS_PER_ROW)<<(4+is_large);
-            int y = (i/COMBOS_PER_ROW)<<(4+is_large);
+            int32_t x = (i%COMBOS_PER_ROW)<<(4+is_large);
+            int32_t y = (i/COMBOS_PER_ROW)<<(4+is_large);
             
             if(is_large)
             {
@@ -14952,12 +14954,12 @@ void draw_combos(int page,int cs,bool cols)
     }
     else
     {
-        int c = 0;
+        int32_t c = 0;
         
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
         {
-            int x = (i%COMBOS_PER_ROW)<<(4+is_large);
-            int y = (i/COMBOS_PER_ROW)<<(4+is_large);
+            int32_t x = (i%COMBOS_PER_ROW)<<(4+is_large);
+            int32_t y = (i/COMBOS_PER_ROW)<<(4+is_large);
             draw_combo(buf,0,0,c+(page<<8),cs);
             stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
             ++c;
@@ -14970,7 +14972,7 @@ void draw_combos(int page,int cs,bool cols)
         }
     }
     
-    for(int x=(64*mul); x<(320*mul); x+=(64*mul))
+    for(int32_t x=(64*mul); x<(320*mul); x+=(64*mul))
     {
         _allegro_vline(screen2,x,0,(208*mul)-1,vc(15));
     }
@@ -14978,11 +14980,11 @@ void draw_combos(int page,int cs,bool cols)
     destroy_bitmap(buf);
 }
 
-void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int buttons)
+void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copycnt,int32_t page,int32_t buttons)
 {
-    int yofs=0;
+    int32_t yofs=0;
     static BITMAP *buf = create_bitmap_ex(8,16,16);
-    int mul = is_large + 1;
+    int32_t mul = is_large + 1;
     FONT *tfont = pfont;
     
     if(is_large)
@@ -15020,9 +15022,9 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
     {
         if(InvalidStatic)
         {
-            for(int dy=0; dy<16*mul; dy++)
+            for(int32_t dy=0; dy<16*mul; dy++)
             {
-                for(int dx=0; dx<16*mul; dx++)
+                for(int32_t dx=0; dx<16*mul; dx++)
                 {
                     screen2->line[(216*mul)+yofs+dy][(31*mul)+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                 }
@@ -15059,8 +15061,8 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
     
     if(tile2==tile)
     {
-        int nextcombo=combobuf[tile].nextcombo;
-        int nextcset=(combobuf[tile].animflags & AF_CYCLENOCSET) ? cs : combobuf[tile].nextcset;
+        int32_t nextcombo=combobuf[tile].nextcombo;
+        int32_t nextcset=(combobuf[tile].animflags & AF_CYCLENOCSET) ? cs : combobuf[tile].nextcset;
         jwin_draw_frame(screen2,(136*mul)-2,(216*mul)+yofs-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
         
         if(nextcombo>0)
@@ -15072,9 +15074,9 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
         {
             if(InvalidStatic)
             {
-                for(int dy=0; dy<16*mul; dy++)
+                for(int32_t dy=0; dy<16*mul; dy++)
                 {
-                    for(int dx=0; dx<16*mul; dx++)
+                    for(int32_t dx=0; dx<16*mul; dx++)
                     {
                         screen2->line[(216*mul)+yofs+dy][(136*mul)+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
                     }
@@ -15114,12 +15116,12 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
     textprintf_centre_ex(screen2,tfont,(309*mul),(220*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
     textprintf_ex(screen2,font,(305*mul),(228*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
     
-    int window_xofs=0;
-    int window_yofs=0;
-    int screen_xofs=0;
-    int screen_yofs=0;
-    int w = 320*mul;
-    int h = 240*mul;
+    int32_t window_xofs=0;
+    int32_t window_yofs=0;
+    int32_t screen_xofs=0;
+    int32_t screen_yofs=0;
+    int32_t w = 320*mul;
+    int32_t h = 240*mul;
     
     if(is_large)
     {
@@ -15137,9 +15139,9 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
     //destroy_bitmap(buf);
 }
 
-void sel_combo(int &tile, int &tile2, int s, bool cols)
+void sel_combo(int32_t &tile, int32_t &tile2, int32_t s, bool cols)
 {
-    int page = tile&0xFF00;
+    int32_t page = tile&0xFF00;
     tile &= 0xFF;
     
     if(!cols)
@@ -15187,10 +15189,10 @@ word ctable[MAXCOMBOS];
 
 void draw_combo_list_window()
 {
-    int window_xofs=0;
-    int window_yofs=0;
-    int w = 320;
-    int h = 240;
+    int32_t window_xofs=0;
+    int32_t window_yofs=0;
+    int32_t w = 320;
+    int32_t h = 240;
     
     if(is_large)
     {
@@ -15212,35 +15214,35 @@ void draw_combo_list_window()
 
 
 
-int select_combo_2(int &tile,int &cs)
+int32_t select_combo_2(int32_t &tile,int32_t &cs)
 {
     reset_combo_animations();
     reset_combo_animations2();
-    // static int tile=0;
-    int page=tile>>8;
-    int tile2=tile;
-    int done=0;
-    int tile_clicked=-1;
-    int t2;
-    // int cs = CSet;
-    int copy=-1;
-    int copycnt=0;
+    // static int32_t tile=0;
+    int32_t page=tile>>8;
+    int32_t tile2=tile;
+    int32_t done=0;
+    int32_t tile_clicked=-1;
+    int32_t t2;
+    // int32_t cs = CSet;
+    int32_t copy=-1;
+    int32_t copycnt=0;
     
     position_mouse_z(0);
     
-    for(int i=0; i<MAXCOMBOS; i++)
-        //   for (int x=0; x<9; x++)
+    for(int32_t i=0; i<MAXCOMBOS; i++)
+        //   for (int32_t x=0; x<9; x++)
         combobuf[i].foo=i;
         
     go();
-    int window_xofs=0;
-    int window_yofs=0;
-    int screen_xofs=0;
-    int screen_yofs=0;
-    int panel_yofs=0;
-    int w = 320;
-    int h = 240;
-    int mul = 1;
+    int32_t window_xofs=0;
+    int32_t window_yofs=0;
+    int32_t screen_xofs=0;
+    int32_t screen_yofs=0;
+    int32_t panel_yofs=0;
+    int32_t w = 320;
+    int32_t h = 240;
+    int32_t mul = 1;
     FONT *tfont = pfont;
     
     if(is_large)
@@ -15267,7 +15269,7 @@ int select_combo_2(int &tile,int &cs)
     }
     
     bool bdown=false;
-    int f=0;
+    int32_t f=0;
     
     do
     {
@@ -15378,7 +15380,7 @@ int select_combo_2(int &tile,int &cs)
                 
             case KEY_P:
             {
-                int choosepage=getnumber("Goto Page", (PreFillComboEditorPage?page:0));
+                int32_t choosepage=getnumber("Goto Page", (PreFillComboEditorPage?page:0));
                 
                 if(!cancelgetnum)
                     page=(zc_min(choosepage,COMBO_PAGES-1));
@@ -15405,13 +15407,13 @@ int select_combo_2(int &tile,int &cs)
                 }
             }
             
-            int x=gui_mouse_x()-screen_xofs;
-            int y=gui_mouse_y()-screen_yofs;
+            int32_t x=gui_mouse_x()-screen_xofs;
+            int32_t y=gui_mouse_y()-screen_yofs;
             
             if(y>=0 && y<208*mul)
             {
                 x=zc_min(zc_max(x,0),(320*mul)-1);
-                int t;
+                int32_t t;
                 
                 if(!combo_cols)
                 {
@@ -15495,13 +15497,13 @@ int select_combo_2(int &tile,int &cs)
         
         if(gui_mouse_b()&2 && !bdown)
         {
-            int x=gui_mouse_x()+screen_xofs;
-            int y=gui_mouse_y()+screen_yofs;
+            int32_t x=gui_mouse_x()+screen_xofs;
+            int32_t y=gui_mouse_y()+screen_yofs;
             
             if(y>=0 && y<208*mul)
             {
                 x=zc_min(zc_max(x,0),(320*mul)-1);
-                int t;
+                int32_t t;
                 
                 if(!combo_cols)
                     t = (y>>(4+is_large))*COMBOS_PER_ROW + (x>>(4+is_large));
@@ -15529,14 +15531,14 @@ int select_combo_2(int &tile,int &cs)
         
         if(f&8)
         {
-            int x,y;
+            int32_t x,y;
             scare_mouse();
             
-            for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+            for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
             {
                 if((i>>8)==page)
                 {
-                    int t=i&255;
+                    int32_t t=i&255;
                     
                     if(!combo_cols)
                     {
@@ -15562,13 +15564,13 @@ int select_combo_2(int &tile,int &cs)
     }
     while(!done);
     
-    for(int p=0; p<MAXCOMBOS; p+=256)
+    for(int32_t p=0; p<MAXCOMBOS; p+=256)
     {
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
         {
-            int pos=0;
+            int32_t pos=0;
             
-            for(int j=0; j<256; j++)
+            for(int32_t j=0; j<256; j++)
             {
                 if(combobuf[j+p].foo==i+p)
                 {
@@ -15618,21 +15620,21 @@ static DIALOG advpaste_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int advpaste(int tile, int tile2, int copy)
+int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 {
     advpaste_dlg[0].dp2=lfont;
 	
 	if(is_large)
 		large_dialog(advpaste_dlg);
 	
-    int ret = zc_popup_dialog(advpaste_dlg,-1);
+    int32_t ret = zc_popup_dialog(advpaste_dlg,-1);
     
     if(ret!=1) return ret;
     
     // save original in case it's in paste range
     newcombo combo=combobuf[copy];
     
-    for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
+    for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
     {
         if(advpaste_dlg[3].flags & D_SELECTED)   // tile
         {
@@ -15677,19 +15679,19 @@ int advpaste(int tile, int tile2, int copy)
         
         if(advpaste_dlg[9].flags & D_SELECTED)   // attribytes
         {
-			for(int q = 0; q < 8; ++q)
+			for(int32_t q = 0; q < 8; ++q)
 				combobuf[i].attribytes[q] = combo.attribytes[q];
         }
         
         if(advpaste_dlg[10].flags & D_SELECTED)   // attribytes
         {
-			for(int q = 0; q < 8; ++q)
+			for(int32_t q = 0; q < 8; ++q)
 				combobuf[i].attrishorts[q] = combo.attrishorts[q];
         }
 		
         if(advpaste_dlg[11].flags & D_SELECTED)   // attributes
         {
-			for(int q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+			for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 				combobuf[i].attributes[q] = combo.attributes[q];
         }
         
@@ -15700,13 +15702,13 @@ int advpaste(int tile, int tile2, int copy)
         
         if(advpaste_dlg[13].flags & D_SELECTED)   // label
         {
-			for(int q = 0; q < 11; ++q)
+			for(int32_t q = 0; q < 11; ++q)
 				combobuf[i].label[q] = combo.label[q];
         }
         
         if(advpaste_dlg[14].flags & D_SELECTED)   // triggered by
         {
-			for(int q = 0; q < 3; ++q)
+			for(int32_t q = 0; q < 3; ++q)
 				combobuf[i].triggerflags[q] = combo.triggerflags[q];
 			combobuf[i].triggerlevel = combo.triggerlevel;
         }
@@ -15714,7 +15716,7 @@ int advpaste(int tile, int tile2, int copy)
         if(advpaste_dlg[15].flags & D_SELECTED)   // script
         {
             combobuf[i].script = combo.script;
-			for(int q = 0; q < 2; ++q)
+			for(int32_t q = 0; q < 2; ++q)
 				combobuf[i].initd[q] = combo.initd[q];
         }
         
@@ -15727,12 +15729,12 @@ int advpaste(int tile, int tile2, int copy)
     return ret;
 }
 
-int combo_screen(int pg, int tl)
+int32_t combo_screen(int32_t pg, int32_t tl)
 {
     reset_combo_animations();
     reset_combo_animations2();
-    static int tile=0;
-    static int page=0;
+    static int32_t tile=0;
+    static int32_t page=0;
     
     if(pg>-1)
         page = pg;
@@ -15740,31 +15742,31 @@ int combo_screen(int pg, int tl)
     if(tl>-1)
         tile = tl;
         
-    int tile2=tile;
-    int done=0;
-    int cs = CSet;
-    int copy=-1;
-    int copycnt=0;
+    int32_t tile2=tile;
+    int32_t done=0;
+    int32_t cs = CSet;
+    int32_t copy=-1;
+    int32_t copycnt=0;
     
-    int tile_clicked=-1;
-    int t2;
+    int32_t tile_clicked=-1;
+    int32_t t2;
     
     bool masscopy;
     
-    for(int i=0; i<MAXCOMBOS; i++)
+    for(int32_t i=0; i<MAXCOMBOS; i++)
     {
         combobuf[i].foo=i;
     }
     
     go();
-    int window_xofs=0;
-    int window_yofs=0;
-    int screen_xofs=0;
-    int screen_yofs=0;
-    int panel_yofs=0;
-    int w = 320;
-    int h = 240;
-    int mul = 1;
+    int32_t window_xofs=0;
+    int32_t window_yofs=0;
+    int32_t screen_xofs=0;
+    int32_t screen_yofs=0;
+    int32_t panel_yofs=0;
+    int32_t w = 320;
+    int32_t h = 240;
+    int32_t mul = 1;
     FONT *tfont = pfont;
     
     if(is_large)
@@ -15793,7 +15795,7 @@ int combo_screen(int pg, int tl)
     }
     
     bool bdown=false;
-    int f=0;
+    int32_t f=0;
     
     do
     {
@@ -15849,11 +15851,11 @@ int combo_screen(int pg, int tl)
             case KEY_PLUS_PAD:
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                 {
-					int amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
+					int32_t amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
 					           ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE*10 : TILES_PER_ROW)
 							   : ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE : 1);
 					
-                    for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
+                    for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
                     {
                         combobuf[i].set_tile(wrap(combobuf[i].tile + amnt,
                                                 0, NEWMAXTILES-1));
@@ -15874,11 +15876,11 @@ int combo_screen(int pg, int tl)
             case KEY_MINUS_PAD:
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                 {
-					int amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
+					int32_t amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
 					           ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE*10 : TILES_PER_ROW)
 							   : ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE : 1);
 					
-                    for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
+                    for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
                     {
                         combobuf[i].set_tile(wrap(combobuf[i].tile - amnt,
                                                 0, NEWMAXTILES-1));
@@ -15946,7 +15948,7 @@ int combo_screen(int pg, int tl)
             
             case KEY_P:
             {
-                int choosepage = getnumber("Goto Page", (PreFillComboEditorPage?page:0));
+                int32_t choosepage = getnumber("Goto Page", (PreFillComboEditorPage?page:0));
                 
                 if(!cancelgetnum)
                     page=(zc_min(choosepage,COMBO_PAGES-1));
@@ -15977,7 +15979,7 @@ int combo_screen(int pg, int tl)
                 break;
                 
             case KEY_H:
-                for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+                for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
                 {
                     combobuf[i].flip^=1;
                     byte w2=combobuf[i].walk;
@@ -16007,7 +16009,7 @@ int combo_screen(int pg, int tl)
                 {
                     go_combos();
                     
-                    for(int i=0; i<copycnt; i++)
+                    for(int32_t i=0; i<copycnt; i++)
                     {
                         zc_swap(combobuf[copy+i],combobuf[tile+i]);
                     }
@@ -16040,7 +16042,7 @@ int combo_screen(int pg, int tl)
                 {
                     go_combos();
                     
-                    for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+                    for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
                     {
                         combobuf[i].flip^=2;
                         byte w2=combobuf[i].walk;
@@ -16066,8 +16068,8 @@ int combo_screen(int pg, int tl)
             case KEY_I:
             {
                 // rev.1509; Can now insert/remove all selected combos
-                int z=tile;
-                int numSelected = abs(tile-tile2) + 1;
+                int32_t z=tile;
+                int32_t numSelected = abs(tile-tile2) + 1;
                 tile=zc_min(tile,tile2);
                 tile2=MAXCOMBOS;
                 copy = tile + numSelected; // copy=tile+1;
@@ -16135,7 +16137,7 @@ int combo_screen(int pg, int tl)
                 {
                     go_combos();
                     
-                    for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+                    for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
                     {
                         clear_combo(i);
                     }
@@ -16166,13 +16168,13 @@ int combo_screen(int pg, int tl)
                 }
             }
             
-            int x=gui_mouse_x()-screen_xofs;
-            int y=gui_mouse_y()-screen_yofs;
+            int32_t x=gui_mouse_x()-screen_xofs;
+            int32_t y=gui_mouse_y()-screen_yofs;
             
             if(y>=0 && y<(208*mul))
             {
                 x=zc_min(zc_max(x,0),(320*mul)-1);
-                int t;
+                int32_t t;
                 
                 if(!combo_cols)
                 {
@@ -16285,13 +16287,13 @@ int combo_screen(int pg, int tl)
         
         if(gui_mouse_b()&2 && !bdown)
         {
-            int x=gui_mouse_x()-screen_xofs;
-            int y=gui_mouse_y()-screen_yofs;
+            int32_t x=gui_mouse_x()-screen_xofs;
+            int32_t y=gui_mouse_y()-screen_yofs;
             
             if(y>=0 && y<(208*mul))
             {
                 x=zc_min(zc_max(x,0),(320*mul)-1);
-                int t;
+                int32_t t;
                 
                 if(!combo_cols)
                 {
@@ -16331,14 +16333,14 @@ REDRAW:
         
         if(f&8)
         {
-            int x,y;
+            int32_t x,y;
             scare_mouse();
             
-            for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+            for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
             {
                 if((i>>8)==page)
                 {
-                    int t=i&255;
+                    int32_t t=i&255;
                     
                     if(!combo_cols)
                     {
@@ -16364,7 +16366,7 @@ REDRAW:
         //Seriously? There is duplicate code for the r-click menu? -Gleeok
         if(r_click)
         {
-            int m = popup_menu(select_combo_rc_menu,gui_mouse_x(),gui_mouse_y());
+            int32_t m = popup_menu(select_combo_rc_menu,gui_mouse_x(),gui_mouse_y());
             redraw=true;
             
             switch(m)
@@ -16394,7 +16396,7 @@ REDRAW:
                 {
                     go_combos();
                     
-                    for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+                    for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
                     {
                         combobuf[i].flip^=2;
                         byte w2=combobuf[i].walk;
@@ -16425,7 +16427,7 @@ REDRAW:
                 {
                     go_combos();
                     
-                    for(int i=0; i<copycnt; i++)
+                    for(int32_t i=0; i<copycnt; i++)
                     {
                         zc_swap(combobuf[copy+i],combobuf[tile+i]);
                     }
@@ -16453,7 +16455,7 @@ REDRAW:
                 {
                     go_combos();
                     
-                    for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+                    for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
                         clear_combo(i);
                         
                     tile=tile2=zc_min(tile,tile2);
@@ -16471,7 +16473,7 @@ REDRAW:
             case 6:
             case 7:
             {
-                int z=tile;
+                int32_t z=tile;
                 tile=zc_min(tile,tile2);
                 tile2=MAXCOMBOS;
                 copy=tile+1;
@@ -16506,7 +16508,7 @@ REDRAW:
             
             case 9:
             {
-                int z = Combo;
+                int32_t z = Combo;
                 Combo = tile;
                 onComboLocationReport();
                 Combo = z;
@@ -16536,7 +16538,7 @@ REDRAW:
     return done-1;
 }
 
-int onCombos()
+int32_t onCombos()
 {
     // reset_combo_animations();
     combo_screen(-1,-1);
@@ -16545,9 +16547,9 @@ int onCombos()
     return D_O_K;
 }
 
-int edit_combo_cset;
+int32_t edit_combo_cset;
 
-int d_ctile_proc(int msg,DIALOG *d,int c)
+int32_t d_ctile_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     d=d;
@@ -16555,8 +16557,8 @@ int d_ctile_proc(int msg,DIALOG *d,int c)
     
     if(msg==MSG_CLICK)
     {
-        int t=curr_combo.o_tile;
-        int f=curr_combo.flip;
+        int32_t t=curr_combo.o_tile;
+        int32_t f=curr_combo.flip;
         
         if(select_tile(t,f,1,edit_combo_cset,true,0,true))
         {
@@ -16570,7 +16572,7 @@ int d_ctile_proc(int msg,DIALOG *d,int c)
     return D_O_K;
 }
 
-int d_combo_loader(int msg,DIALOG *d,int c)
+int32_t d_combo_loader(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
@@ -16589,7 +16591,7 @@ int d_combo_loader(int msg,DIALOG *d,int c)
 }
 
 combotype_struct bict[cMAX];
-int bict_cnt=-1;
+int32_t bict_cnt=-1;
 
 void build_bict_list()
 {
@@ -16597,7 +16599,7 @@ void build_bict_list()
 	bict[0].i = 0;
 	bict_cnt=1;
 	
-	for(int i=1; i<cMAX; i++)
+	for(int32_t i=1; i<cMAX; i++)
 	{
 		if ( moduledata.combo_type_names[i][0] != NULL )
 		{
@@ -16620,14 +16622,14 @@ void build_bict_list()
 		}
 	}
 	
-	for(int i=1; i<bict_cnt-1; i++)
-		for(int j=i+1; j<bict_cnt; j++)
+	for(int32_t i=1; i<bict_cnt-1; i++)
+		for(int32_t j=i+1; j<bict_cnt; j++)
 			if(stricmp(bict[i].s,bict[j].s)>0)
 				zc_swap(bict[i],bict[j]);
 	
 }
 
-const char *combotypelist(int index, int *list_size)
+const char *combotypelist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -16638,21 +16640,21 @@ const char *combotypelist(int index, int *list_size)
     return bict[index].s;
 }
 
-int onCmb_dlg_h();
-int onCmb_dlg_v();
-int onCmb_dlg_r();
+int32_t onCmb_dlg_h();
+int32_t onCmb_dlg_v();
+int32_t onCmb_dlg_r();
 
-int click_d_ctile_proc()
+int32_t click_d_ctile_proc()
 {
     d_ctile_proc(MSG_CLICK,NULL,0);
     return D_REDRAW;
 }
 
-int click_d_combo_proc();
+int32_t click_d_combo_proc();
 
 static ListData flag_list(flaglist, &font);
 
-static int combo_data_list[] =
+static int32_t combo_data_list[] =
 {
     // dialog control number
     4,5,6,
@@ -16665,13 +16667,13 @@ static int combo_data_list[] =
 	-1
 };
 
-static int combo_aflags_list[] =
+static int32_t combo_aflags_list[] =
 {
 	42,44,173,174,175,
 	-1
 };
 
-static int combo_attribytes_list[] =
+static int32_t combo_attribytes_list[] =
 {
     // dialog control number
 	47,48,
@@ -16682,7 +16684,7 @@ static int combo_attribytes_list[] =
 	-1
 };
 
-static int combo_attrishorts_list[] =
+static int32_t combo_attrishorts_list[] =
 {
     // dialog control number
 	47,48,
@@ -16693,7 +16695,7 @@ static int combo_attrishorts_list[] =
 	-1
 };
 
-static int combo_attributes_list[] =
+static int32_t combo_attributes_list[] =
 {
     // dialog control number
     47,48,
@@ -16703,7 +16705,7 @@ static int combo_attributes_list[] =
 	-1
 };
 
-static int combo_flags_list[] = 
+static int32_t combo_flags_list[] = 
 {
 	//,
 	47,48,
@@ -16713,21 +16715,21 @@ static int combo_flags_list[] =
 	-1
 };
 
-static int combo_trigger_list[] =
+static int32_t combo_trigger_list[] =
 {
     // dialog control number
 	65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86, 87,88,89, 90, 91,
      -1
 };
 
-static int combo_trigger_list2[] =
+static int32_t combo_trigger_list2[] =
 {
     // dialog control number
 	92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 198, 199,// 88, 89, // 102, 103,
      -1
 };
 
-static int combo_script_list[] =
+static int32_t combo_script_list[] =
 {
     // dialog control number
 	124,125,126,127,128,129,130,131,
@@ -16770,12 +16772,12 @@ static TABPANEL combo_tabs_data[] =
     { NULL,                   0,             NULL,                        0, NULL }
 };
 
-static int combo_tabs_data_list[] =
+static int32_t combo_tabs_data_list[] =
 {
     2,-1
 };
 
-static int combo_tabs_triggers_list[] =
+static int32_t combo_tabs_triggers_list[] =
 {
     3,-1
 };
@@ -16794,7 +16796,7 @@ static TABPANEL combo_tabs[] =
 
 struct ComboAttributesInfo
 {
-    int family;
+    int32_t family;
 	char *flags[16];
 	char *attributes[4];
 	char *attribytes[8];
@@ -18232,15 +18234,15 @@ static ComboAttributesInfo comboattrinfo[]=
 	}
 };
 
-static std::map<int, ComboAttributesInfo *> *comboinfomap = NULL;
+static std::map<int32_t, ComboAttributesInfo *> *comboinfomap = NULL;
 
-std::map<int, ComboAttributesInfo *> *getComboInfoMap()
+std::map<int32_t, ComboAttributesInfo *> *getComboInfoMap()
 {
     if(comboinfomap == NULL)
     {
-        comboinfomap = new std::map<int, ComboAttributesInfo *>();
+        comboinfomap = new std::map<int32_t, ComboAttributesInfo *>();
         
-        for(int i=0;; i++)
+        for(int32_t i=0;; i++)
         {
             ComboAttributesInfo *inf = &comboattrinfo[i];
             
@@ -18254,9 +18256,9 @@ std::map<int, ComboAttributesInfo *> *getComboInfoMap()
     return comboinfomap;
 }
 
-int get_tick_sel(){ return D_CLOSE; } 
+int32_t get_tick_sel(){ return D_CLOSE; } 
 
-const char *comboscriptdroplist(int index, int *list_size)
+const char *comboscriptdroplist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -18551,10 +18553,10 @@ static DIALOG combo_dlg[] =
 
 
 
-void setComboLabels(int family)
+void setComboLabels(int32_t family)
 {
-	std::map<int, ComboAttributesInfo *> *nmap = getComboInfoMap();
-	std::map<int, ComboAttributesInfo *>::iterator it = nmap->find(family);
+	std::map<int32_t, ComboAttributesInfo *> *nmap = getComboInfoMap();
+	std::map<int32_t, ComboAttributesInfo *>::iterator it = nmap->find(family);
 	ComboAttributesInfo *inf = NULL;
 	
 	if(it != nmap->end())
@@ -18711,7 +18713,7 @@ void setComboLabels(int family)
 }
 
 
-int click_d_combo_proc()
+int32_t click_d_combo_proc()
 {
     if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
     {
@@ -18727,7 +18729,7 @@ int click_d_combo_proc()
     return D_REDRAW;
 }
 
-int onCmb_dlg_h()
+int32_t onCmb_dlg_h()
 {
     curr_combo.flip^=1;
     
@@ -18738,12 +18740,12 @@ int onCmb_dlg_h()
     zc_swap(combo_dlg[22].flags, combo_dlg[23].flags);
     zc_swap(combo_dlg[24].flags, combo_dlg[25].flags);
     
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
         if(combo_dlg[i+17].flags & D_SELECTED)
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
         if(combo_dlg[i+137].flags & D_SELECTED)
             curr_combo.walk |= 1<<(i+4);
         else
@@ -18751,14 +18753,14 @@ int onCmb_dlg_h()
             
     curr_combo.csets &= 15;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         if(combo_dlg[i+22].flags & D_SELECTED)
             curr_combo.csets |= 16<<i;
             
     return D_REDRAW;
 }
 
-int onCmb_dlg_v()
+int32_t onCmb_dlg_v()
 {
     curr_combo.flip^=2;
     
@@ -18769,12 +18771,12 @@ int onCmb_dlg_v()
     zc_swap(combo_dlg[22].flags, combo_dlg[24].flags);
     zc_swap(combo_dlg[23].flags, combo_dlg[25].flags);
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         if(combo_dlg[i+17].flags & D_SELECTED)
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
         if(combo_dlg[i+137].flags & D_SELECTED)
             curr_combo.walk |= 1<<(i+4);
         else
@@ -18782,14 +18784,14 @@ int onCmb_dlg_v()
             
     curr_combo.csets &= 15;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         if(combo_dlg[i+22].flags & D_SELECTED)
             curr_combo.csets |= 16<<i;
             
     return D_REDRAW;
 }
 
-int onCmb_dlg_r()
+int32_t onCmb_dlg_r()
 {
     curr_combo.flip=rotate_value(curr_combo.flip);
     
@@ -18803,12 +18805,12 @@ int onCmb_dlg_r()
     zc_swap(combo_dlg[22].flags, combo_dlg[25].flags);
     zc_swap(combo_dlg[22].flags, combo_dlg[24].flags);
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         if(combo_dlg[i+17].flags & D_SELECTED)
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
-    for(int i=0; i<4; ++i)
+    for(int32_t i=0; i<4; ++i)
         if(combo_dlg[i+137].flags & D_SELECTED)
             curr_combo.walk |= 1<<(i+4);
         else
@@ -18816,7 +18818,7 @@ int onCmb_dlg_r()
             
     curr_combo.csets &= 15;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         if(combo_dlg[i+22].flags & D_SELECTED)
             curr_combo.csets |= 16<<i;
             
@@ -18829,7 +18831,7 @@ static ListData combotype_list(combotypelist, &font);
 
 
 
-bool edit_combo(int c,bool freshen,int cs)
+bool edit_combo(int32_t c,bool freshen,int32_t cs)
 {
 	combo_dlg[0].dp2=lfont;
 	
@@ -18862,7 +18864,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	char initiald0[16];
 	char initiald1[16];
 	
-	int thescript = 0;
+	int32_t thescript = 0;
 	
 	char combonumstr[48];
 	
@@ -18879,8 +18881,8 @@ bool edit_combo(int c,bool freshen,int cs)
 		sprintf(combonumstr, "Combo %d - No editing solidity/type", c);
 	else sprintf(combonumstr,"Combo %d", c);
 	sprintf(cset_str,"%d",csets);
-	//int temptile = curr_combo.tile;
-	//int temptile2 = NEWMAXTILES - temptile;
+	//int32_t temptile = curr_combo.tile;
+	//int32_t temptile2 = NEWMAXTILES - temptile;
 	sprintf(frm,"%d",vbound(curr_combo.frames,0,NEWMAXTILES-curr_combo.tile));
 	//al_trace("frm is: %s\n",frm);
 	sprintf(spd,"%d",curr_combo.speed);
@@ -18899,9 +18901,9 @@ bool edit_combo(int c,bool freshen,int cs)
 	
 	build_bidcomboscripts_list();
 	
-	int script = 0;
+	int32_t script = 0;
 	
-	for(int j = 0; j < bidcomboscripts_cnt; j++)
+	for(int32_t j = 0; j < bidcomboscripts_cnt; j++)
 	{
 		if(bidcomboscripts[j].second == curr_combo.script - 1)
 			script = j;
@@ -18912,20 +18914,20 @@ bool edit_combo(int c,bool freshen,int cs)
 	
 	combo_dlg[15].dp = cset_str;
 	
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 	{
 		combo_dlg[i+17].flags = curr_combo.walk&(1<<i) ? D_SELECTED : 0;
 		SETFLAG(combo_dlg[i+17].flags, D_DISABLED, disableEdit);
 	}
 	SETFLAG(combo_dlg[142].flags, D_DISABLED, disableEdit); //Text for solidity
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 	{
 		combo_dlg[i+137].flags = curr_combo.walk&(1<<(i+4)) ? D_SELECTED : 0;
 		SETFLAG(combo_dlg[i+137].flags, D_DISABLED, disableEdit);
 	}
 	SETFLAG(combo_dlg[141].flags, D_DISABLED, disableEdit); //Text for effect
 	
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 	{
 		combo_dlg[i+22].flags = curr_combo.csets&(16<<i) ? D_SELECTED : 0;
 	}
@@ -18948,7 +18950,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	combo_dlg[112].flags = curr_combo.usrflags&0x4000 ? D_SELECTED : 0;
 	combo_dlg[113].flags = curr_combo.usrflags&0x8000 ? D_SELECTED : 0;
 	/*
-	for(int i=0; i<8; i++)
+	for(int32_t i=0; i<8; i++)
 	{
 		combo_dlg[i+47].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
 	}
@@ -18999,7 +19001,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	
 	/* item trigger flags
 	//userflags
-	for(int i=0; i<22; i++)
+	for(int32_t i=0; i<22; i++)
 	{
 		//starts at 63, through 85
 		combo_dlg[i+63].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
@@ -19008,7 +19010,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	//98 is the min level
 	
 	//then script weapons
-	for(int i=0; i<10; i++)
+	for(int32_t i=0; i<10; i++)
 	{
 		//starts at 100 through 109
 		combo_dlg[i+100].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
@@ -19171,11 +19173,11 @@ bool edit_combo(int c,bool freshen,int cs)
 	SETFLAG(curr_combo.triggerflags[1], 0x10000, combo_dlg[199].flags & D_SELECTED);
 	
 	
-	int index=0;
+	int32_t index=0;
 	
 	al_trace("Last Selection: %d\n", last_droplist_sel);
 	
-	for(int j=0; j<bict_cnt; j++)
+	for(int32_t j=0; j<bict_cnt; j++)
 	{
 		if(bict[j].i == curr_combo.type)
 		{
@@ -19230,7 +19232,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		}
 	}
 	
-	int ret = -1;
+	int32_t ret = -1;
 	
 	if(freshen)
 	{
@@ -19344,7 +19346,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		//setComboLabels(combo_dlg[25].d1);
 		curr_combo.csets = csets;
 		
-		for(int i=0; i<4; i++)
+		for(int32_t i=0; i<4; i++)
 		{
 			if(combo_dlg[i+17].flags & D_SELECTED)
 			{
@@ -19355,7 +19357,7 @@ bool edit_combo(int c,bool freshen,int cs)
 				curr_combo.walk &= ~(1<<i);
 			}
 		}
-		for(int i=0; i<4; i++)
+		for(int32_t i=0; i<4; i++)
 		{
 			if(combo_dlg[i+137].flags & D_SELECTED)
 			{
@@ -19547,7 +19549,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		
 		curr_combo.csets = vbound(atoi(cset_str),-8,7)&15; //Bound this to a size of csets, so that it does not wrap!
 		
-		for(int i=0; i<4; i++)
+		for(int32_t i=0; i<4; i++)
 		{
 			if(combo_dlg[i+22].flags & D_SELECTED)
 			{
@@ -19565,7 +19567,7 @@ bool edit_combo(int c,bool freshen,int cs)
 		//lastframe = frames+(frames-1)*skip+(frames-1)*TILES_PER_ROW*skipy
 		//frames+frames*skip+frames*skipy*TILES_PER_ROW = lastframe + skip + TILES_PER_ROW*skipy
 		//frames = (lastframe+skip+TILES_PER_ROW*skipy)/(1+skip+TILES_PER_ROW*skipy)
-		int bound = (NEWMAXTILES-curr_combo.tile+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy)/
+		int32_t bound = (NEWMAXTILES-curr_combo.tile+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy)/
 				(1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
 				
 		curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
@@ -19805,18 +19807,18 @@ bool edit_combo(int c,bool freshen,int cs)
 	return edited;
 }
 
-int d_itile_proc(int msg,DIALOG *d,int)
+int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t)
 {
     switch(msg)
     {
     case MSG_CLICK:
     {
-        int cs = d->d2;
-        int f  = 0;
+        int32_t cs = d->d2;
+        int32_t f  = 0;
         
         if(select_tile(d->d1,f,1,cs,true))
         {
-            int ok=1;
+            int32_t ok=1;
             
             if(newtilebuf[d->d1].format==tf8Bit)
                 jwin_alert("Warning",
@@ -19876,14 +19878,14 @@ static DIALOG icon_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int onIcons()
+int32_t onIcons()
 {
     PALETTE pal;
     //  pal = RAMpal;
     memcpy(pal,RAMpal,sizeof(RAMpal));
     icon_dlg[0].dp2=lfont;
     
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
     {
         icon_dlg[i+2].d1 = misc.icons[i];
         icon_dlg[i+2].fg = i+6;
@@ -19895,11 +19897,11 @@ int onIcons()
     if(is_large)
         large_dialog(icon_dlg);
         
-    int ret = zc_popup_dialog(icon_dlg,7);
+    int32_t ret = zc_popup_dialog(icon_dlg,7);
     
     if(ret==6)
     {
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
         {
             if(misc.icons[i] != icon_dlg[i+2].d1)
             {
@@ -19914,7 +19916,7 @@ int onIcons()
 }
 
 // Identical to jwin_frame_proc, but is treated differently by large_dialog()
-int d_comboframe_proc(int msg, DIALOG *d, int c)
+int32_t d_comboframe_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
@@ -19927,7 +19929,7 @@ int d_comboframe_proc(int msg, DIALOG *d, int c)
     return D_O_K;
 }
 
-int d_combo_proc(int msg,DIALOG *d,int c)
+int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
@@ -19941,9 +19943,9 @@ int d_combo_proc(int msg,DIALOG *d,int c)
             break;
         }
         
-		int ret = (d->flags & D_EXIT) ? D_CLOSE : D_O_K;
-        int combo2;
-        int cs;
+		int32_t ret = (d->flags & D_EXIT) ? D_CLOSE : D_O_K;
+        int32_t combo2;
+        int32_t cs;
         
         if(key[KEY_LSHIFT])
         {
@@ -20075,8 +20077,8 @@ static word massRecolor8BitCSets=0; // Which CSets are affected? One bit each.
 static byte massRecolorSrc8Bit[16]={ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static byte massRecolorDest8Bit[16]={ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-static int massRecolorDraggedColor=-1;
-static int massRecolorCSet;
+static int32_t massRecolorDraggedColor=-1;
+static int32_t massRecolorCSet;
 static bool massRecolorIgnoreBlank=true;
 static byte massRecolorType=MR_4BIT;
 
@@ -20085,10 +20087,10 @@ static byte massRecolorType=MR_4BIT;
 // D_SETTABLE: Colors can be dragged and dropped onto this one.
 #define D_CSET D_USER
 #define D_SETTABLE (D_USER<<1)
-int d_mr_cset_proc(int msg, DIALOG* d, int)
+int32_t d_mr_cset_proc(int32_t msg, DIALOG* d, int32_t)
 {
     BITMAP* bmp=gui_get_screen();
-    int colorWidth=(d->w-4)/16;
+    int32_t colorWidth=(d->w-4)/16;
     byte* colors=static_cast<byte*>(d->dp);
     
     switch(msg)
@@ -20097,8 +20099,8 @@ int d_mr_cset_proc(int msg, DIALOG* d, int)
         {
             jwin_draw_frame(bmp, d->x, d->y, d->w, d->h, FR_DEEP);
             
-            int baseColor=((d->flags&D_CSET)!=0) ? massRecolorCSet*16 : 0;
-            for(int c=0; c<16; c++)
+            int32_t baseColor=((d->flags&D_CSET)!=0) ? massRecolorCSet*16 : 0;
+            for(int32_t c=0; c<16; c++)
             {
                 rectfill(bmp,
                   d->x+2+c*colorWidth, d->y+2,
@@ -20110,7 +20112,7 @@ int d_mr_cset_proc(int msg, DIALOG* d, int)
         
     case MSG_LPRESS:
         {
-            int x=(gui_mouse_x()-(d->x+2))/colorWidth;
+            int32_t x=(gui_mouse_x()-(d->x+2))/colorWidth;
 			
 			if(x >= 0 && x < 16) //sanity check!
 			{
@@ -20122,7 +20124,7 @@ int d_mr_cset_proc(int msg, DIALOG* d, int)
     case MSG_LRELEASE: // This isn't exactly right, but it'll do...
         if((d->flags&D_SETTABLE)!=0 && massRecolorDraggedColor>=0)
         {
-            int x=(gui_mouse_x()-(d->x+2))/colorWidth;
+            int32_t x=(gui_mouse_x()-(d->x+2))/colorWidth;
 			if(x >= 0 && x < 16) //sanity check!
 			{
 				colors[x]=massRecolorDraggedColor;
@@ -20137,20 +20139,20 @@ int d_mr_cset_proc(int msg, DIALOG* d, int)
 }
 
 // Used for the full palette in 8-bit mode.
-static int d_mr_palette_proc(int msg, DIALOG* d, int)
+static int32_t d_mr_palette_proc(int32_t msg, DIALOG* d, int32_t)
 {
     BITMAP* bmp=gui_get_screen();
-    int colorWidth=(d->w-4)/16;
-    int colorHeight=(d->h-4)/12;
+    int32_t colorWidth=(d->w-4)/16;
+    int32_t colorHeight=(d->h-4)/12;
     
     switch(msg)
     {
     case MSG_DRAW:
         {
             jwin_draw_frame(bmp, d->x, d->y, d->w, d->h, FR_DEEP);
-            for(int cset=0; cset<=11; cset++)
+            for(int32_t cset=0; cset<=11; cset++)
             {
-                for(int color=0; color<16; color++)
+                for(int32_t color=0; color<16; color++)
                 {
                     rectfill(bmp,
                       d->x+2+color*colorWidth,
@@ -20165,8 +20167,8 @@ static int d_mr_palette_proc(int msg, DIALOG* d, int)
         
     case MSG_LPRESS:
         {
-            int cset=(gui_mouse_y()-(d->y+2))/colorHeight;
-            int color=(gui_mouse_x()-(d->x+2))/colorWidth;
+            int32_t cset=(gui_mouse_y()-(d->y+2))/colorHeight;
+            int32_t color=(gui_mouse_x()-(d->x+2))/colorWidth;
             massRecolorDraggedColor=cset*16+color;
         }
         break;
@@ -20251,7 +20253,7 @@ static DIALOG recolor_8bit_dlg[] =
 #define MR8_OK 9
 #define MR8_CANCEL 10
 
-static void massRecolorInit(int cset)
+static void massRecolorInit(int32_t cset)
 {
     massRecolorDraggedColor=-1;
     massRecolorCSet=cset;
@@ -20259,7 +20261,7 @@ static void massRecolorInit(int cset)
     recolor_4bit_dlg[0].dp2=lfont;
     recolor_8bit_dlg[0].dp2=lfont;
     
-    for(int i=0; i<=11; i++)
+    for(int32_t i=0; i<=11; i++)
     {
         if((massRecolor8BitCSets&(1<<i))!=0)
             recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags|=D_SELECTED;
@@ -20306,7 +20308,7 @@ static void massRecolorInit(int cset)
 static void massRecolorApplyChanges()
 {
     massRecolor8BitCSets=0;
-    for(int i=0; i<=11; i++)
+    for(int32_t i=0; i<=11; i++)
     {
         if((recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags&D_SELECTED)!=0)
             massRecolor8BitCSets|=1<<i;
@@ -20318,13 +20320,13 @@ static void massRecolorApplyChanges()
         massRecolorIgnoreBlank=(recolor_8bit_dlg[MR8_IGNORE_BLANK].flags&D_SELECTED)!=0;
 }
 
-static bool massRecolorSetup(int cset)
+static bool massRecolorSetup(int32_t cset)
 {
     massRecolorInit(cset);
     
     // Remember the current colors in case the user cancels.
-    int oldDest4Bit[16], oldSrc8Bit[16], oldDest8Bit[16];
-    for(int i=0; i<16; i++)
+    int32_t oldDest4Bit[16], oldSrc8Bit[16], oldDest8Bit[16];
+    for(int32_t i=0; i<16; i++)
     {
         oldDest4Bit[i]=massRecolorDest4Bit[i];
         oldSrc8Bit[i]=massRecolorSrc8Bit[i];
@@ -20332,7 +20334,7 @@ static bool massRecolorSetup(int cset)
     }
     
     byte type=massRecolorType;
-    int ret;
+    int32_t ret;
     do
     {
         if(type==MR_4BIT)
@@ -20351,7 +20353,7 @@ static bool massRecolorSetup(int cset)
     
     if(ret!=MR4_OK && ret!=MR8_OK) // Canceled
     {
-        for(int i=0; i<16; i++)
+        for(int32_t i=0; i<16; i++)
         {
             massRecolorDest4Bit[i]=oldDest4Bit[i];
             massRecolorSrc8Bit[i]=oldSrc8Bit[i];
@@ -20366,19 +20368,19 @@ static bool massRecolorSetup(int cset)
     return true;
 }
 
-static void massRecolorApply4Bit(int tile)
+static void massRecolorApply4Bit(int32_t tile)
 {
     byte buf[256];
     unpack_tile(newtilebuf, tile, 0, true);
     
     if(newtilebuf[tile].format==tf4Bit)
     {
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
             buf[i]=massRecolorDest4Bit[unpackbuf[i]];
     }
     else // 8-bit
     {
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
         {
             word cset=unpackbuf[i]>>4;
             if((massRecolor8BitCSets&(1<<cset))!=0) // Recolor this CSet?
@@ -20394,15 +20396,15 @@ static void massRecolorApply4Bit(int tile)
     pack_tile(newtilebuf, buf, tile);
 }
 
-static void massRecolorApply8Bit(int tile)
+static void massRecolorApply8Bit(int32_t tile)
 {
     byte buf[256];
     unpack_tile(newtilebuf, tile, 0, true);
     
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
     {
         byte color=unpackbuf[i];
-        for(int j=0; j<16; j++)
+        for(int32_t j=0; j<16; j++)
         {
             if(massRecolorSrc8Bit[j]==color)
             {
@@ -20416,7 +20418,7 @@ static void massRecolorApply8Bit(int tile)
     pack_tile(newtilebuf, buf, tile);
 }
 
-static void massRecolorApply(int tile)
+static void massRecolorApply(int32_t tile)
 {
     if(massRecolorIgnoreBlank && blank_tile_table[tile])
         return;
@@ -20433,14 +20435,14 @@ static void massRecolorApply(int tile)
 
 static void massRecolorReset4Bit()
 {
-    for(int i=0; i<16; i++)
+    for(int32_t i=0; i<16; i++)
         massRecolorDest4Bit[i]=i;
     recolor_4bit_dlg[MR4_DEST_COLORS].flags|=D_DIRTY;
 }
 
 static void massRecolorReset8Bit()
 {
-    for(int i=0; i<16; i++)
+    for(int32_t i=0; i<16; i++)
     {
         massRecolorSrc8Bit[i]=0;
         massRecolorDest8Bit[i]=0;
@@ -20463,12 +20465,12 @@ void center_zq_tiles_dialogs()
 
 //.ZCOMBO
 
-int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
+int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite)
 {
 	dword section_version=0;
 	dword section_cversion=0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	
 	if(!p_igetl(&zversion,f,true))
 	{
@@ -20506,8 +20508,8 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 		al_trace("Reading a .zcombo packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
 	
-	int index = 0;
-	int count = 0;
+	int32_t index = 0;
+	int32_t count = 0;
 	
 	//tile id
 	if(!p_igetl(&index,f,true))
@@ -20527,7 +20529,7 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo));
 
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		memset(&temp_combo, 0, sizeof(newcombo));
 		if(!p_igetw(&temp_combo.tile,f,true))
@@ -20606,7 +20608,7 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 		{
 			if  ( section_version >= 12 )
 			{
-				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 				{
 					if(!p_igetl(&temp_combo.attributes[q],f,true))
 					{
@@ -20617,7 +20619,7 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 				{
 						return 0;
 				}	 
-				for ( int q = 0; q < 3; q++ ) 
+				for ( int32_t q = 0; q < 3; q++ ) 
 				{
 					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
 					{
@@ -20629,7 +20631,7 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 				{
 						return 0;
 				}	
-				for ( int q = 0; q < 11; q++ ) 
+				for ( int32_t q = 0; q < 11; q++ ) 
 				{
 					if(!p_getc(&temp_combo.label[q],f,true))
 					{
@@ -20639,7 +20641,7 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 			}
 			if  ( section_version >= 13 )
 			{
-				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 				{
 					if(!p_getc(&temp_combo.attribytes[q],f,true))
 					{
@@ -20681,17 +20683,17 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 			if ( 	combobuf[index+(tilect)].expansion[4] ) goto skip_combo_copy;
 			if ( 	combobuf[index+(tilect)].expansion[5] ) goto skip_combo_copy;
 			
-			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 			{
 				if ( combobuf[index+(tilect)].attributes[q] ) goto skip_combo_copy;
 			}
 			if ( 	combobuf[index+(tilect)].usrflags ) goto skip_combo_copy;
-			for ( int q = 0; q < 3; q++ )
+			for ( int32_t q = 0; q < 3; q++ )
 			{
 				if ( combobuf[index+(tilect)].triggerflags[q] ) goto skip_combo_copy;
 			}
 			if ( 	combobuf[index+(tilect)].triggerlevel ) goto skip_combo_copy;
-			for ( int q = 0; q < 11; q++ )
+			for ( int32_t q = 0; q < 11; q++ )
 			{
 				if ( combobuf[index+(tilect)].label[q] ) goto skip_combo_copy;
 			}
@@ -20699,7 +20701,7 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 			{
 				memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
 			}
-			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 			{
 				if ( combobuf[index+(tilect)].attribytes[q] ) goto skip_combo_copy;
 			}
@@ -20722,12 +20724,12 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 }
 
 
-int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip)
+int32_t readcombofile_to_location(PACKFILE *f, int32_t start, byte nooverwrite, int32_t skip)
 {
 	dword section_version=0;
 	dword section_cversion=0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	
 	if(!p_igetl(&zversion,f,true))
 	{
@@ -20765,8 +20767,8 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 		al_trace("Reading a .zcombo packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
 	
-	int index = 0;
-	int count = 0;
+	int32_t index = 0;
+	int32_t count = 0;
 	
 	//tile id
 	if(!p_igetl(&index,f,true))
@@ -20787,7 +20789,7 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo)); 
 	
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		memset(&temp_combo, 0, sizeof(newcombo));
 		if(!p_igetw(&temp_combo.tile,f,true))
@@ -20865,7 +20867,7 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 		{
 			if  ( section_version >= 12 )
 			{
-				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 				{
 					if(!p_igetl(&temp_combo.attributes[q],f,true))
 					{
@@ -20876,7 +20878,7 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 				{
 						return 0;
 				}	 
-				for ( int q = 0; q < 3; q++ ) 
+				for ( int32_t q = 0; q < 3; q++ ) 
 				{
 					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
 					{
@@ -20888,7 +20890,7 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 				{
 						return 0;
 				}	
-				for ( int q = 0; q < 11; q++ ) 
+				for ( int32_t q = 0; q < 11; q++ ) 
 				{
 					if(!p_getc(&temp_combo.label[q],f,true))
 					{
@@ -20898,7 +20900,7 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 			}
 			if  ( section_version >= 13 )
 			{
-				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 				{
 					if(!p_getc(&temp_combo.attribytes[q],f,true))
 					{
@@ -20945,18 +20947,18 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 				if ( 	combobuf[start+(tilect)-skip].expansion[4] ) goto skip_combo_copy2;
 				if ( 	combobuf[start+(tilect)-skip].expansion[5] ) goto skip_combo_copy2;
 				
-				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 				{
 					if ( combobuf[start+(tilect)-skip].attributes[q] ) goto skip_combo_copy2;
 					if ( combobuf[start+(tilect)-skip].attribytes[q] ) goto skip_combo_copy2;
 				}
 				if ( 	combobuf[start+(tilect)-skip].usrflags ) goto skip_combo_copy2;
-				for ( int q = 0; q < 3; q++ )
+				for ( int32_t q = 0; q < 3; q++ )
 				{
 					if ( combobuf[start+(tilect)-skip].triggerflags[q] ) goto skip_combo_copy2;
 				}
 				if ( 	combobuf[start+(tilect)-skip].triggerlevel ) goto skip_combo_copy2;
-				for ( int q = 0; q < 11; q++ )
+				for ( int32_t q = 0; q < 11; q++ )
 				{
 					if ( combobuf[start+(tilect)-skip].label[q] ) goto skip_combo_copy2;
 				}
@@ -20983,12 +20985,12 @@ int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip
 	return 1;
 	
 }
-int writecombofile(PACKFILE *f, int index, int count)
+int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count)
 {
 	dword section_version=V_COMBOS;
 	dword section_cversion=CV_COMBOS;
-	int zversion = ZELDA_VERSION;
-	int zbuild = VERSION_BUILD;
+	int32_t zversion = ZELDA_VERSION;
+	int32_t zbuild = VERSION_BUILD;
 	
 	if(!p_iputl(zversion,f))
 	{
@@ -21021,7 +21023,7 @@ int writecombofile(PACKFILE *f, int index, int count)
 	}
 	reset_combo_animations();
 	reset_combo_animations2();
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 	
 		if(!p_iputw(combobuf[index+(tilect)].tile,f))
@@ -21095,7 +21097,7 @@ int writecombofile(PACKFILE *f, int index, int count)
 		}
 		
 		//2.55 starts here
-		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 		{
 			if(!p_iputl(combobuf[index+(tilect)].attributes[q],f))
 			{
@@ -21106,7 +21108,7 @@ int writecombofile(PACKFILE *f, int index, int count)
 		{
 				return 0;
 		}	 
-		for ( int q = 0; q < 3; q++ ) 
+		for ( int32_t q = 0; q < 3; q++ ) 
 		{
 			if(!p_iputl(combobuf[index+(tilect)].triggerflags[q],f))
 			{
@@ -21118,14 +21120,14 @@ int writecombofile(PACKFILE *f, int index, int count)
 		{
 				return 0;
 		}	
-		for ( int q = 0; q < 11; q++ ) 
+		for ( int32_t q = 0; q < 11; q++ ) 
 		{
 			if(!p_putc(combobuf[index+(tilect)].label[q],f))
 			{
 				return 0;
 			}
 		}
-		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 		{
 			if(!p_putc(combobuf[index+(tilect)].attribytes[q],f))
 			{
@@ -21144,12 +21146,12 @@ int writecombofile(PACKFILE *f, int index, int count)
 
 //.ZALIAS
 
-int readcomboaliasfile(PACKFILE *f)
+int32_t readcomboaliasfile(PACKFILE *f)
 {
 	dword section_version=0;
 	dword section_cversion=0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	word tempword = 0;
 	
 	if(!p_igetl(&zversion,f,true))
@@ -21188,9 +21190,9 @@ int readcomboaliasfile(PACKFILE *f)
 		al_trace("Reading a .zalias packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
 	
-	int index = 0;
-	int count = 0;
-	int count2 = 0;
+	int32_t index = 0;
+	int32_t count = 0;
+	int32_t count2 = 0;
 	byte tempcset = 0;
 	
 	//tile id
@@ -21210,7 +21212,7 @@ int readcomboaliasfile(PACKFILE *f)
 	combo_alias temp_alias;
 	memset(&temp_alias, 0, sizeof(temp_alias));
 
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		memset(&temp_alias, 0, sizeof(temp_alias));
 	    if(!p_igetw(&temp_alias.combo,f,true))
@@ -21250,7 +21252,7 @@ int readcomboaliasfile(PACKFILE *f)
 	    temp_alias.combos = new word[count2];
 	    delete[] temp_alias.csets;
 	    temp_alias.csets = new byte[count2];
-            for(int k=0; k<count2; k++)
+            for(int32_t k=0; k<count2; k++)
             {
                 if(!p_igetw(&tempword,f,true))
                 {
@@ -21269,7 +21271,7 @@ int readcomboaliasfile(PACKFILE *f)
             }
 	    //al_trace("Read alias combos.\n");
             
-            for(int k=0; k<count2; k++)
+            for(int32_t k=0; k<count2; k++)
             {
                 if(!p_getc(&tempcset,f,true))
                 //if(!p_getc(&temp_alias.csets[k],f,true))
@@ -21296,12 +21298,12 @@ int readcomboaliasfile(PACKFILE *f)
 	
 }
 
-int readcomboaliasfile_to_location(PACKFILE *f, int start)
+int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 {
 	dword section_version=0;
 	dword section_cversion=0;
-	int zversion = 0;
-	int zbuild = 0;
+	int32_t zversion = 0;
+	int32_t zbuild = 0;
 	
 	if(!p_igetl(&zversion,f,true))
 	{
@@ -21339,9 +21341,9 @@ int readcomboaliasfile_to_location(PACKFILE *f, int start)
 		al_trace("Reading a .zalias packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
 	
-	int index = 0;
-	int count = 0;
-	int count2 = 0;
+	int32_t index = 0;
+	int32_t count = 0;
+	int32_t count2 = 0;
 	byte tempcset = 0;
 	word tempword = 0;
 	
@@ -21364,7 +21366,7 @@ int readcomboaliasfile_to_location(PACKFILE *f, int start)
 	combo_alias temp_alias;
 	memset(&temp_alias, 0, sizeof(temp_alias)); 
 
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		memset(&temp_alias, 0, sizeof(temp_alias));
 	    if(!p_igetw(&temp_alias.combo,f,true))
@@ -21377,7 +21379,7 @@ int readcomboaliasfile_to_location(PACKFILE *f, int start)
                 return 0;
             }
             
-            int count2 = 0;
+            int32_t count2 = 0;
 	    
 	    if(!p_igetl(&count2,f,true))
             {
@@ -21405,7 +21407,7 @@ int readcomboaliasfile_to_location(PACKFILE *f, int start)
 	    delete[] temp_alias.csets;
 	    temp_alias.csets = new byte[count2];
 	    
-            for(int k=0; k<count2; k++)
+            for(int32_t k=0; k<count2; k++)
             {
                 if(!p_igetw(&tempword,f,true))
                 {
@@ -21417,7 +21419,7 @@ int readcomboaliasfile_to_location(PACKFILE *f, int start)
 		}
             }
             
-            for(int k=0; k<count2; k++)
+            for(int32_t k=0; k<count2; k++)
             {
                 if(!p_getc(&tempcset,f,true))
                 {
@@ -21443,13 +21445,13 @@ int readcomboaliasfile_to_location(PACKFILE *f, int start)
 	return 1;
 	
 }
-int writecomboaliasfile(PACKFILE *f, int index, int count)
+int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 {
 	al_trace("Running writecomboaliasfile\n");
 	dword section_version=V_COMBOALIASES;
 	dword section_cversion=CV_COMBOALIASES;
-	int zversion = ZELDA_VERSION;
-	int zbuild = VERSION_BUILD;
+	int32_t zversion = ZELDA_VERSION;
+	int32_t zbuild = VERSION_BUILD;
 	
 	if(!p_iputl(zversion,f))
 	{
@@ -21481,7 +21483,7 @@ int writecomboaliasfile(PACKFILE *f, int index, int count)
 		return 0;
 	}
 	
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 	
 	    if(!p_iputw(combo_aliases[index+(tilect)].combo,f))
@@ -21494,7 +21496,7 @@ int writecomboaliasfile(PACKFILE *f, int index, int count)
                 return 0;
             }
             
-            int count2 = ((combo_aliases[index+(tilect)].width+1)*(combo_aliases[index+(tilect)].height+1))*(comboa_lmasktotal(combo_aliases[index+(tilect)].layermask)+1);
+            int32_t count2 = ((combo_aliases[index+(tilect)].width+1)*(combo_aliases[index+(tilect)].height+1))*(comboa_lmasktotal(combo_aliases[index+(tilect)].layermask)+1);
             
 	    if(!p_iputl(count2,f))
             {
@@ -21517,7 +21519,7 @@ int writecomboaliasfile(PACKFILE *f, int index, int count)
                 return 0;
             }
             
-            for(int k=0; k<count2; k++)
+            for(int32_t k=0; k<count2; k++)
             {
                 if(!p_iputw(combo_aliases[index+(tilect)].combos[k],f))
                 {
@@ -21525,7 +21527,7 @@ int writecomboaliasfile(PACKFILE *f, int index, int count)
                 }
             }
             
-            for(int k=0; k<count2; k++)
+            for(int32_t k=0; k<count2; k++)
             {
                 if(!p_putc(combo_aliases[index+(tilect)].csets[k],f))
                 {
@@ -21538,21 +21540,21 @@ int writecomboaliasfile(PACKFILE *f, int index, int count)
 	
 }
 
-int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, bool always_use_flip)
+int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
 {
     reset_combo_animations();
     reset_combo_animations2();
     bound(tile,0,NEWMAXTILES-1);
     ex=exnow;
     tile = DMapEditorLastMaptileUsed;
-    int done=0;
-    int oflip=flip;
-    int otile=tile;
-    int ocs=cs;
-    int first=(tile/TILES_PER_PAGE)*TILES_PER_PAGE; //first tile on the current page
-    int copy=-1;
-    int tile2=tile,copycnt=0;
-    int tile_clicked=-1;
+    int32_t done=0;
+    int32_t oflip=flip;
+    int32_t otile=tile;
+    int32_t ocs=cs;
+    int32_t first=(tile/TILES_PER_PAGE)*TILES_PER_PAGE; //first tile on the current page
+    int32_t copy=-1;
+    int32_t tile2=tile,copycnt=0;
+    int32_t tile_clicked=-1;
     bool rect_sel=true;
     bound(first,0,(TILES_PER_PAGE*TILE_PAGES)-1);
     position_mouse_z(0);
@@ -21560,14 +21562,14 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
     go();
     
     register_used_tiles();
-    int window_xofs=0;
-    int window_yofs=0;
-    int screen_xofs=0;
-    int screen_yofs=0;
-    int panel_yofs=0;
-    int w = 320;
-    int h = 240;
-    int mul = 1;
+    int32_t window_xofs=0;
+    int32_t window_yofs=0;
+    int32_t screen_xofs=0;
+    int32_t screen_yofs=0;
+    int32_t panel_yofs=0;
+    int32_t w = 320;
+    int32_t h = 240;
+    int32_t mul = 1;
     FONT *tfont = pfont;
     
     if(is_large)
@@ -21584,7 +21586,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
     }
     
     draw_tile_list_window();
-    int f=0;
+    int32_t f=0;
     draw_tiles(first,cs,f);
     
     if(type==0)
@@ -21607,7 +21609,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
     
     #define FOREACH_START_DMAPTILE(_t) \
     { \
-        int _first, _last; \
+        int32_t _first, _last; \
         if(is_rect) \
         { \
             _first=top*TILES_PER_ROW+left; \
@@ -21618,14 +21620,14 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
             _first=zc_min(tile, tile2); \
             _last=zc_max(tile, tile2); \
         } \
-        for(int _t=_first; _t<=_last; _t++) \
+        for(int32_t _t=_first; _t<=_last; _t++) \
         { \
             if(is_rect) \
             { \
-                int row=TILEROW(_t); \
+                int32_t row=TILEROW(_t); \
                 if(row<top || row>=top+rows) \
                     continue; \
-                int col=TILECOL(_t); \
+                int32_t col=TILECOL(_t); \
                 if(col<left || col>=left+columns) \
                     continue; \
             } \
@@ -21638,10 +21640,10 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
     do
     {
         rest(4);
-        int top=TILEROW(zc_min(tile, tile2));
-        int left=zc_min(TILECOL(tile), TILECOL(tile2));
-        int rows=TILEROW(zc_max(tile, tile2))-top+1;
-        int columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
+        int32_t top=TILEROW(zc_min(tile, tile2));
+        int32_t left=zc_min(TILECOL(tile), TILECOL(tile2));
+        int32_t rows=TILEROW(zc_max(tile, tile2))-top+1;
+        int32_t columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
         bool is_rect=(rows==1)||(columns==TILES_PER_ROW)||rect_sel;
         bool redraw=false;
         
@@ -21761,14 +21763,14 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     {
                         saved=false;
                         go_slide_tiles(columns, rows, top, left);
-                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+                        int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
                         bool same = true;
                         
-                        for(int d=0; d<columns; d++)
+                        for(int32_t d=0; d<columns; d++)
                         {
-                            for(int s=0; s<rows; s++)
+                            for(int32_t s=0; s<rows; s++)
                             {
-                                int t=((top+s)*TILES_PER_ROW)+left+d;
+                                int32_t t=((top+s)*TILES_PER_ROW)+left+d;
                                 
                                 if(newtilebuf[t].format!=bitcheck) same = false;
                             }
@@ -21776,19 +21778,19 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                         
                         if(!same) break;
                         
-                        for(int c=0; c<columns; c++)
+                        for(int32_t c=0; c<columns; c++)
                         {
-                            for(int r=0; r<rows; r++)
+                            for(int32_t r=0; r<rows; r++)
                             {
-                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
+                                int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
                                 qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(8*bitcheck));
                                 qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data);
                                 
-                                for(int pixelrow=0; pixelrow<16*bitcheck; pixelrow++)
+                                for(int32_t pixelrow=0; pixelrow<16*bitcheck; pixelrow++)
                                 {
                                     if(pixelrow==15*bitcheck)
                                     {
-                                        int srctile=temptile+TILES_PER_ROW;
+                                        int32_t srctile=temptile+TILES_PER_ROW;
                                         if(srctile>=NEWMAXTILES)
                                             srctile-=rows*TILES_PER_ROW;
                                         src_pixelrow=(qword*)(newtilebuf[srctile].data);
@@ -21802,7 +21804,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                             
                             qword *dest_pixelrow=(qword*)(newtilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
                             
-                            for(int b=0; b<bitcheck; b++,dest_pixelrow++)
+                            for(int32_t b=0; b<bitcheck; b++,dest_pixelrow++)
                             {
                                 if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
                                 {
@@ -21842,14 +21844,14 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     {
                         saved=false;
                         go_slide_tiles(columns, rows, top, left);
-                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+                        int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
                         bool same = true;
                         
-                        for(int c=0; c<columns; c++)
+                        for(int32_t c=0; c<columns; c++)
                         {
-                            for(int r=0; r<rows; r++)
+                            for(int32_t r=0; r<rows; r++)
                             {
-                                int t=((top+r)*TILES_PER_ROW)+left+c;
+                                int32_t t=((top+r)*TILES_PER_ROW)+left+c;
                                 
                                 if(newtilebuf[t].format!=bitcheck) same = false;
                             }
@@ -21857,19 +21859,19 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                         
                         if(!same) break;
                         
-                        for(int c=0; c<columns; c++)
+                        for(int32_t c=0; c<columns; c++)
                         {
-                            for(int r=rows-1; r>=0; r--)
+                            for(int32_t r=rows-1; r>=0; r--)
                             {
-                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
+                                int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
                                 qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(112*bitcheck)+(8*(bitcheck-1)));
                                 qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data+(120*bitcheck)+(8*(bitcheck-1)));
                                 
-                                for(int pixelrow=(8<<bitcheck)-1; pixelrow>=0; pixelrow--)
+                                for(int32_t pixelrow=(8<<bitcheck)-1; pixelrow>=0; pixelrow--)
                                 {
                                     if(pixelrow<bitcheck)
                                     {
-                                        int srctile=temptile-TILES_PER_ROW;
+                                        int32_t srctile=temptile-TILES_PER_ROW;
                                         if(srctile<0)
                                             srctile+=rows*TILES_PER_ROW;
                                         qword *tempsrc=(qword*)(newtilebuf[srctile].data+(120*bitcheck)+(8*pixelrow));
@@ -21889,7 +21891,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                             qword *dest_pixelrow=(qword*)(newtilebuf[(top*TILES_PER_ROW)+left+c].data);
                             qword *src_pixelrow=(qword*)(newundotilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
                             
-                            for(int b=0; b<bitcheck; b++)
+                            for(int32_t b=0; b<bitcheck; b++)
                             {
                                 if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
                                 {
@@ -21931,14 +21933,14 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     {
                         saved=false;
                         go_slide_tiles(columns, rows, top, left);
-                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+                        int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
                         bool same = true;
                         
-                        for(int c=0; c<columns; c++)
+                        for(int32_t c=0; c<columns; c++)
                         {
-                            for(int r=0; r<rows; r++)
+                            for(int32_t r=0; r<rows; r++)
                             {
-                                int t=((top+r)*TILES_PER_ROW)+left+c;
+                                int32_t t=((top+r)*TILES_PER_ROW)+left+c;
                                 
                                 if(newtilebuf[t].format!=bitcheck) same = false;
                             }
@@ -21946,20 +21948,20 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                         
                         if(!same) break;
                         
-                        for(int r=0; r<rows; r++)
+                        for(int32_t r=0; r<rows; r++)
                         {
-                            for(int c=0; c<columns; c++)
+                            for(int32_t c=0; c<columns; c++)
                             {
-                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
+                                int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
                                 byte *dest_pixelrow=(newtilebuf[temptile].data);
                                 
-                                for(int pixelrow=0; pixelrow<16; pixelrow++)
+                                for(int32_t pixelrow=0; pixelrow<16; pixelrow++)
                                 {
 #ifdef ALLEGRO_LITTLE_ENDIAN
                                 
                                     //if(bitcheck==tf4Bit)
                                     // {
-                                    for(int p=0; p<(8*bitcheck)-1; p++)
+                                    for(int32_t p=0; p<(8*bitcheck)-1; p++)
                                     {
                                         if(bitcheck==tf4Bit)
                                         {
@@ -21978,7 +21980,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                                     
 #else
                                     
-                                    for(int p=0; p<(8*bitcheck)-1; p++)
+                                    for(int32_t p=0; p<(8*bitcheck)-1; p++)
                                     {
                                         if(bitcheck==tf4Bit)
                                         {
@@ -22064,14 +22066,14 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     {
                         saved=false;
                         go_slide_tiles(columns, rows, top, left);
-                        int bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+                        int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
                         bool same = true;
                         
-                        for(int c=0; c<columns; c++)
+                        for(int32_t c=0; c<columns; c++)
                         {
-                            for(int r=0; r<rows; r++)
+                            for(int32_t r=0; r<rows; r++)
                             {
-                                int t=((top+r)*TILES_PER_ROW)+left+c;
+                                int32_t t=((top+r)*TILES_PER_ROW)+left+c;
                                 
                                 if(newtilebuf[t].format!=bitcheck) same = false;
                             }
@@ -22079,19 +22081,19 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                         
                         if(!same) break;
                         
-                        for(int r=0; r<rows; r++)
+                        for(int32_t r=0; r<rows; r++)
                         {
-                            for(int c=columns-1; c>=0; c--)
+                            for(int32_t c=columns-1; c>=0; c--)
                             {
-                                int temptile=((top+r)*TILES_PER_ROW)+left+c;
+                                int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
                                 byte *dest_pixelrow=(newtilebuf[temptile].data)+(128*bitcheck)-1;
                                 
-                                for(int pixelrow=15; pixelrow>=0; pixelrow--)
+                                for(int32_t pixelrow=15; pixelrow>=0; pixelrow--)
                                 {
 #ifdef ALLEGRO_LITTLE_ENDIAN
                                 
                                     //*dest_pixelrow=(*dest_pixelrow)<<4;
-                                    for(int p=0; p<(8*bitcheck)-1; p++)
+                                    for(int32_t p=0; p<(8*bitcheck)-1; p++)
                                     {
                                         if(bitcheck==tf4Bit)
                                         {
@@ -22110,7 +22112,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                                     
 #else
                                     
-                                    for(int p=0; p<(8*bitcheck)-1; p++)
+                                    for(int32_t p=0; p<(8*bitcheck)-1; p++)
                                     {
                                         if(bitcheck==tf4Bit)
                                         {
@@ -22208,7 +22210,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                 
             case KEY_P:
             {
-                int whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
+                int32_t whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
                 
                 if(whatPage >= 0)
                     sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
@@ -22431,7 +22433,7 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                 
             case KEY_D:
             {
-                int frames=1;
+                int32_t frames=1;
                 char buf[80];
                 sprintf(buf, "%d", frames);
                 create_relational_tiles_dlg[0].dp2=lfont;
@@ -22440,15 +22442,15 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                 if(is_large)
                     large_dialog(create_relational_tiles_dlg);
                     
-                int ret=zc_popup_dialog(create_relational_tiles_dlg,2);
+                int32_t ret=zc_popup_dialog(create_relational_tiles_dlg,2);
                 
                 if(ret==5)
                 {
                     frames=zc_max(atoi(buf),1);
                     bool same = true;
-                    int bitcheck=newtilebuf[tile].format;
+                    int32_t bitcheck=newtilebuf[tile].format;
                     
-                    for(int t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
+                    for(int32_t t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
                     {
                         if(newtilebuf[tile+t].format!=bitcheck) same = false;
                     }
@@ -22465,16 +22467,16 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                         break;
                     }
                     
-                    for(int i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
+                    for(int32_t i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
                     {
                         reset_tile(newtilebuf, tile+i, bitcheck);
                     }
                     
                     if(create_relational_tiles_dlg[3].flags&D_SELECTED)
                     {
-                        for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+                        for(int32_t i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
                         {
-                            for(int j=0; j<frames; ++j)
+                            for(int32_t j=0; j<frames; ++j)
                             {
                                 merge_tiles(tile+(i*frames)+j, (tile+(relational_template[i][0]*frames)+j)<<2, ((tile+(relational_template[i][1]*frames)+j)<<2)+1, ((tile+(relational_template[i][2]*frames)+j)<<2)+2, ((tile+(relational_template[i][3]*frames)+j)<<2)+3);
                             }
@@ -22482,9 +22484,9 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                     }
                     else
                     {
-                        for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+                        for(int32_t i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
                         {
-                            for(int j=0; j<frames; ++j)
+                            for(int32_t j=0; j<frames; ++j)
                             {
                                 merge_tiles(tile+(i*frames)+j, (tile+(dungeon_carving_template[i][0]*frames)+j)<<2, ((tile+(dungeon_carving_template[i][1]*frames)+j)<<2)+1, ((tile+(dungeon_carving_template[i][2]*frames)+j)<<2)+2, ((tile+(dungeon_carving_template[i][3]*frames)+j)<<2)+3);
                             }
@@ -22527,13 +22529,13 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
                 }
             }
             
-            int x=gui_mouse_x()-screen_xofs;
-            int y=gui_mouse_y()-screen_yofs;
+            int32_t x=gui_mouse_x()-screen_xofs;
+            int32_t y=gui_mouse_y()-screen_yofs;
             
             if(y>=0 && y<208*mul)
             {
                 x=zc_min(zc_max(x,0),(320*mul)-1);
-                int t = (y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first;
+                int32_t t = (y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first;
                 
                 if(type==0 && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
                 {
@@ -22699,13 +22701,13 @@ int select_dmap_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow
         
         if(gui_mouse_b()&2 && !bdown && type==0)
         {
-            int x=(gui_mouse_x()-screen_xofs);//&0xFF0;
-            int y=(gui_mouse_y()-screen_yofs);//&0xF0;
+            int32_t x=(gui_mouse_x()-screen_xofs);//&0xFF0;
+            int32_t y=(gui_mouse_y()-screen_yofs);//&0xF0;
             
             if(y>=0 && y<208*mul)
             {
                 x=zc_min(zc_max(x,0),(320*mul)-1);
-                int t = ((y)>>(4+is_large))*TILES_PER_ROW + ((x)>>(4+is_large)) + first;
+                int32_t t = ((y)>>(4+is_large))*TILES_PER_ROW + ((x)>>(4+is_large)) + first;
                 
                 if(t<zc_min(tile,tile2) || t>zc_max(tile,tile2))
                     tile=tile2=t;
@@ -22732,7 +22734,7 @@ REDRAW_DMAP_SELTILE:
         {
             if(rect_sel)
             {
-                for(int i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
+                for(int32_t i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
                           zc_min(TILECOL(tile),TILECOL(tile2));
                         i<=zc_max(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
                         zc_max(TILECOL(tile),TILECOL(tile2)); i++)
@@ -22741,20 +22743,20 @@ REDRAW_DMAP_SELTILE:
                             TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
                             TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
                     {
-                        int x=(i%TILES_PER_ROW)<<(4+is_large);
-                        int y=((i-first)/TILES_PER_ROW)<<(4+is_large);
+                        int32_t x=(i%TILES_PER_ROW)<<(4+is_large);
+                        int32_t y=((i-first)/TILES_PER_ROW)<<(4+is_large);
                         rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
                     }
                 }
             }
             else
             {
-                for(int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+                for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
                 {
                     if(i>=first && i<first+TILES_PER_PAGE)
                     {
-                        int x=TILECOL(i)<<(4+is_large);
-                        int y=TILEROW(i-first)<<(4+is_large);
+                        int32_t x=TILECOL(i)<<(4+is_large);
+                        int32_t y=TILEROW(i-first)<<(4+is_large);
                         rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
                     }
                 }
@@ -22770,7 +22772,7 @@ REDRAW_DMAP_SELTILE:
         {
             char cbuf[16];
             sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
-            gui_textout_ln(screen, is_large?lfont_l:pfont, (unsigned char *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+            gui_textout_ln(screen, is_large?lfont_l:pfont, (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
         }
         
         ++f;
@@ -22783,7 +22785,7 @@ REDRAW_DMAP_SELTILE:
             select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
             select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
             select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
-            int m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
+            int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
             redraw=true;
             
             switch(m)

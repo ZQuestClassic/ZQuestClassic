@@ -14,7 +14,7 @@ class ZScriptVersion
 {
 public:
     //If checks are done at setVersion rather than during play-time
-    static inline void setVersion(int newVersion)
+    static inline void setVersion(int32_t newVersion)
     {
         CurrentVersion = newVersion;
         
@@ -31,7 +31,7 @@ public:
     }
     
     //Only one if check at quest load, rather than each time we use the function
-    static inline int RunScript(const byte type, const word script, const long i = -1)
+    static inline int32_t RunScript(const byte type, const word script, const int32_t i = -1)
     {
 	/*
 	switch(type)
@@ -62,19 +62,19 @@ public:
 	return (*Interpreter)(type, script, i);
     }
     
-    static inline void RunScrollingScript(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw)
+    static inline void RunScrollingScript(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
     {
         (*onScrolling)(scrolldir, cx, sx, sy, end_frames,waitdraw);
     }
     
 private:
-    static int CurrentVersion;
-    static int (*Interpreter)(const byte, const word, const long);
-    static void (*onScrolling)(int, int, int, int, bool, bool);
+    static int32_t CurrentVersion;
+    static int32_t (*Interpreter)(const byte, const word, const int32_t);
+    static void (*onScrolling)(int32_t, int32_t, int32_t, int32_t, bool, bool);
     
     //Couldn't do anything with old ZScript
-    static inline void NullScrollingScript(int, int, int, int, bool, bool) { }
-    static void ScrollingScript(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw);
+    static inline void NullScrollingScript(int32_t, int32_t, int32_t, int32_t, bool, bool) { }
+    static void ScrollingScript(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw);
 };
 
 #endif

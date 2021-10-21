@@ -64,16 +64,16 @@ extern FONT *lfont_l;
 #endif
 
 
-static int fs_edit_proc(int, DIALOG *, int);
-static int fs_flist_proc(int, DIALOG *, int);
-static int fs_elist_proc(int, DIALOG *, int);
-static const char *fs_flist_getter(int, int *);
-static const char *fs_elist_getter(int, int *);
+static int32_t fs_edit_proc(int32_t, DIALOG *, int32_t);
+static int32_t fs_flist_proc(int32_t, DIALOG *, int32_t);
+static int32_t fs_elist_proc(int32_t, DIALOG *, int32_t);
+static const char *fs_flist_getter(int32_t, int32_t *);
+static const char *fs_elist_getter(int32_t, int32_t *);
 
 #ifdef HAVE_DIR_LIST
 
-static int fs_dlist_proc(int, DIALOG *, int);
-static const char *fs_dlist_getter(int, int *);
+static int32_t fs_dlist_proc(int32_t, DIALOG *, int32_t);
+static const char *fs_dlist_getter(int32_t, int32_t *);
 #endif
 
 static FLIST *flist = NULL;
@@ -82,7 +82,7 @@ static FLIST *flist = NULL;
 static char *fext = NULL;                                   /* tokenized extension string (dynamically allocated)     */
 static EXT_LIST *fext_list = NULL;
 static char **fext_p = NULL;                                /* list of pointers to the tokens (dynamically allocated) */
-static int fext_size = 0;                                   /* size of the list                                       */
+static int32_t fext_size = 0;                                   /* size of the list                                       */
 
 /* file attributes (rhsda order) */
 #define ATTRB_MAX     5                                     /* number of attributes */
@@ -93,12 +93,12 @@ attrb_state_t;
 
 #define DEFAULT_ATTRB_STATE  { ATTRB_ABSENT, ATTRB_UNSET, ATTRB_UNSET, ATTRB_ABSENT, ATTRB_ABSENT }
 
-static int attrb_flag[ATTRB_MAX] = { FA_RDONLY, FA_HIDDEN, FA_SYSTEM, FA_DIREC, FA_ARCH };
+static int32_t attrb_flag[ATTRB_MAX] = { FA_RDONLY, FA_HIDDEN, FA_SYSTEM, FA_DIREC, FA_ARCH };
 static attrb_state_t attrb_state[ATTRB_MAX] = DEFAULT_ATTRB_STATE;
 
 static char updir[1024];
 
-static int fs_dummy_proc(int msg, DIALOG *d, int c)
+static int32_t fs_dummy_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     msg=msg;
@@ -162,9 +162,9 @@ static DIALOG file_selector[] =
 /* count_disks:
   *  Counts the number of valid drives.
   */
-static int count_disks(void)
+static int32_t count_disks(void)
 {
-    int c, i;
+    int32_t c, i;
     
     c = 0;
     
@@ -178,9 +178,9 @@ static int count_disks(void)
 /* get_x_drive:
   *  Returns the drive letter matching the specified list index.
   */
-static int get_x_drive(int index)
+static int32_t get_x_drive(int32_t index)
 {
-    int c, i;
+    int32_t c, i;
     
     c = 0;
     
@@ -201,10 +201,10 @@ static int get_x_drive(int index)
 /* fs_dlist_getter:
   *  Listbox data getter routine for the file selector disk list.
   */
-static const char *fs_dlist_getter(int index, int *list_size)
+static const char *fs_dlist_getter(int32_t index, int32_t *list_size)
 {
     static char d[8];
-    int pos, c;
+    int32_t pos, c;
     
     if(index < 0)
     {
@@ -230,10 +230,10 @@ static const char *fs_dlist_getter(int index, int *list_size)
 /* fs_dlist_proc:
   *  Dialog procedure for the file selector disk list.
   */
-static int fs_dlist_proc(int msg, DIALOG *d, int c)
+static int32_t fs_dlist_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     char *s = (char *) file_selector[FS_EDIT].dp;
-    int ret, i, temp;
+    int32_t ret, i, temp;
     
     if(msg == MSG_START)
     {
@@ -283,15 +283,15 @@ static int fs_dlist_proc(int msg, DIALOG *d, int c)
 /* fs_edit_proc:
   *  Dialog procedure for the file selector editable string.
   */
-static int fs_edit_proc(int msg, DIALOG *d, int c)
+static int32_t fs_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     char *s = (char *) d->dp;
-    int size = (d->d1 + 1) * uwidth_max(U_CURRENT);           /* of s (in bytes) */
-    int list_size;
-    int found = 0;
+    int32_t size = (d->d1 + 1) * uwidth_max(U_CURRENT);           /* of s (in bytes) */
+    int32_t list_size;
+    int32_t found = 0;
     char b[1024], tmp[16];
-    int ch, attr;
-    int i;
+    int32_t ch, attr;
+    int32_t i;
     
     if(msg == MSG_START)
     {
@@ -363,7 +363,7 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
         return D_O_K;
     }
     
-    int allegro_lfn = ALLEGRO_LFN; //removes compiler warning
+    int32_t allegro_lfn = ALLEGRO_LFN; //removes compiler warning
     
     if(msg == MSG_UCHAR)
     {
@@ -398,10 +398,10 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
   *  ustricmp for filenames: makes sure that eg "foo.bar" comes before
   *  "foo-1.bar", and also that "foo9.bar" comes before "foo10.bar".
   */
-static int ustrfilecmp(AL_CONST char *s1, AL_CONST char *s2)
+static int32_t ustrfilecmp(AL_CONST char *s1, AL_CONST char *s2)
 {
-    int c1, c2;
-    int x1, x2;
+    int32_t c1, c2;
+    int32_t x1, x2;
     char *t1, *t2;
     
     for(;;)
@@ -444,10 +444,10 @@ static int ustrfilecmp(AL_CONST char *s1, AL_CONST char *s2)
 /* fs_flist_putter:
   *  Callback routine for for_each_file() to fill the file selector listbox.
   */
-static int fs_flist_putter(AL_CONST char *str, int attrib, void *check_attrib)
+static int32_t fs_flist_putter(AL_CONST char *str, int32_t attrib, void *check_attrib)
 {
     char *s, *ext, *name;
-    int c, c2;
+    int32_t c, c2;
     
     s = get_filename(str);
     fix_filename_case(s);
@@ -486,7 +486,7 @@ Next:
     
     if((flist->size < FLIST_SIZE) && ((ugetc(s) != '.') || (ugetat(s, 1))))
     {
-        int size = ustrsizez(s) + ((attrib & FA_DIREC) ? ucwidth(OTHER_PATH_SEPARATOR) : 0);
+        int32_t size = ustrsizez(s) + ((attrib & FA_DIREC) ? ucwidth(OTHER_PATH_SEPARATOR) : 0);
         name = (char *) zc_malloc(size);
         
         if(!name)
@@ -531,7 +531,7 @@ Next:
 /* fs_flist_getter:
   *  Listbox data getter routine for the file selector list.
   */
-static const char *fs_flist_getter(int index, int *list_size)
+static const char *fs_flist_getter(int32_t index, int32_t *list_size)
 {
     if(index < 0)
     {
@@ -547,9 +547,9 @@ static const char *fs_flist_getter(int index, int *list_size)
 /* build_attrb_flag:
   *  Returns the cumulative flag for all attributes in state STATE.
   */
-static int build_attrb_flag(attrb_state_t state)
+static int32_t build_attrb_flag(attrb_state_t state)
 {
-    int i, flag = 0;
+    int32_t i, flag = 0;
     
     for(i = 0; i < ATTRB_MAX; i++)
     {
@@ -563,16 +563,16 @@ static int build_attrb_flag(attrb_state_t state)
 /* fs_flist_proc:
   *  Dialog procedure for the file selector list.
   */
-static int fs_flist_proc(int msg, DIALOG *d, int c)
+static int32_t fs_flist_proc(int32_t msg, DIALOG *d, int32_t c)
 {
-    static int recurse_flag = 0;
+    static int32_t recurse_flag = 0;
     char *s = (char *) file_selector[FS_EDIT].dp;
     char tmp[32];
     /* of s (in bytes) */
-    int size = (file_selector[FS_EDIT].d1 + 1) * uwidth_max(U_CURRENT);
-    int sel = d->d1;
-    int i, ret;
-    int ch, count;
+    int32_t size = (file_selector[FS_EDIT].d1 + 1) * uwidth_max(U_CURRENT);
+    int32_t sel = d->d1;
+    int32_t i, ret;
+    int32_t ch, count;
     
     if(msg == MSG_START)
     {
@@ -685,7 +685,7 @@ static void parse_extension_string(AL_CONST char *ext)
     attrb_state_t state;
     char ext_tokens[32], attrb_char[32];
     char *last, *p, *attrb_p;
-    int c, c2, i;
+    int32_t c, c2, i;
     
     i = 0;
     fext_size = 0;
@@ -775,9 +775,9 @@ static void parse_extension_string(AL_CONST char *ext)
   *   size and the font in use.
   *   (all the magic numbers come from the "historical" file selector)
   */
-static void stretch_dialog(DIALOG *d, int width, int height, int show_extlist)
+static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t show_extlist)
 {
-    int font_w, font_h, hpad, vpad;
+    int32_t font_w, font_h, hpad, vpad;
     char tmp[16];
     
 #ifdef HAVE_DIR_LIST
@@ -786,9 +786,9 @@ static void stretch_dialog(DIALOG *d, int width, int height, int show_extlist)
     font_w = text_length(font, uconvert_ascii("A", tmp));
     
     if(width == 0)
-        width = (int)(0.95*SCREEN_W);
+        width = (int32_t)(0.95*SCREEN_W);
         
-    hpad = (int)(0.05*width);
+    hpad = (int32_t)(0.05*width);
     
     d[FS_WIN].w     = width;
     d[FS_WIN].x     = 0;
@@ -810,9 +810,9 @@ static void stretch_dialog(DIALOG *d, int width, int height, int show_extlist)
     font_h = text_height(font);
     
     if(height == 0)
-        height = (int)(0.80*SCREEN_H);
+        height = (int32_t)(0.80*SCREEN_H);
         
-    vpad = (int)(0.05*height);
+    vpad = (int32_t)(0.05*height);
     
     d[FS_WIN].h     = height;
     d[FS_WIN].y     = 0;
@@ -836,9 +836,9 @@ static void stretch_dialog(DIALOG *d, int width, int height, int show_extlist)
     font_w = text_length(font, uconvert_ascii("A", tmp));
     
     if(width == 0)
-        width = (int)(0.95*SCREEN_W);
+        width = (int32_t)(0.95*SCREEN_W);
     
-    hpad = (int)(0.05*width);
+    hpad = (int32_t)(0.05*width);
     
     d[FS_WIN].w     = width;
     d[FS_WIN].x     = 0;
@@ -858,9 +858,9 @@ static void stretch_dialog(DIALOG *d, int width, int height, int show_extlist)
     font_h = text_height(font);
     
     if(height == 0)
-        height = (int)(0.95*SCREEN_H);
+        height = (int32_t)(0.95*SCREEN_H);
     
-    vpad = (int)(0.04*height);
+    vpad = (int32_t)(0.04*height);
     
     d[FS_WIN].h     = height;
     d[FS_WIN].y     = 0;
@@ -881,7 +881,7 @@ static void stretch_dialog(DIALOG *d, int width, int height, int show_extlist)
 /* enlarge_file_selector:
  * Enlarges the dialog for Large Mode. -L
  */
-void enlarge_file_selector(int width, int height)
+void enlarge_file_selector(int32_t width, int32_t height)
 {
     if(file_selector[0].d1==0)
     {
@@ -894,7 +894,7 @@ void enlarge_file_selector(int width, int height)
     if(is_large)
     {
         large_dialog(file_selector);
-        int bottom =
+        int32_t bottom =
 #ifndef HAVE_DIR_LIST
             file_selector[FS_OK].y;
 #else
@@ -926,10 +926,10 @@ void enlarge_file_selector(int width, int height)
   *  includes only files with .PCX or .BMP extensions. Returns zero if it
   *  was closed with the Cancel button or non-zero if it was OK'd.
   */
-int jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int size, int width, int height, FONT *title_font)
+int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int32_t size, int32_t width, int32_t height, FONT *title_font)
 {
     static attrb_state_t default_attrb_state[ATTRB_MAX] = DEFAULT_ATTRB_STATE;
-    int ret;
+    int32_t ret;
     char *p;
     char tmp[32];
     ASSERT(message);
@@ -979,11 +979,11 @@ int jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, 
     
 #ifdef HAVE_DIR_LIST
     
-        int drive = _al_getdrive();
+        int32_t drive = _al_getdrive();
         
 #else
         
-        int drive = 0;
+        int32_t drive = 0;
 #endif
         
         _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
@@ -1022,7 +1022,7 @@ int jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, 
     
     if((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", tmp))))
     {
-        size -= ((long)(size_t)p - (long)(size_t)path + ucwidth('.'));
+        size -= ((int32_t)(size_t)p - (int32_t)(size_t)path + ucwidth('.'));
         
         if(size >= uwidth_max(U_CURRENT) + ucwidth(0))          /* do not end with '.' */
         {
@@ -1034,9 +1034,9 @@ int jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, 
     return TRUE;
 }
 
-static int count_ext_list()
+static int32_t count_ext_list()
 {
-    int c = 0;
+    int32_t c = 0;
     
     if(fext_list)
     {
@@ -1050,7 +1050,7 @@ static int count_ext_list()
 /* fs_elist_getter:
   *  Listbox data getter routine for the file selector disk list.
   */
-static const char *fs_elist_getter(int index, int *list_size)
+static const char *fs_elist_getter(int32_t index, int32_t *list_size)
 {
     if(index < 0)
     {
@@ -1066,10 +1066,10 @@ static const char *fs_elist_getter(int index, int *list_size)
 /* fs_elist_proc:
   *  Dialog procedure for the file selector disk list.
   */
-static int fs_elist_proc(int msg, DIALOG *d, int c)
+static int32_t fs_elist_proc(int32_t msg, DIALOG *d, int32_t c)
 {
-    int ret;
-    int sel = d->d1;
+    int32_t ret;
+    int32_t sel = d->d1;
     char *s, *tok;
     char tmp[80], ext[80];
     static char ext_tokens[] = " ,;";
@@ -1131,10 +1131,10 @@ static int fs_elist_proc(int msg, DIALOG *d, int c)
   *  if the selected path doesn't include a file name.
   *  This is for getting directories instead of files, so a blank filename isn't an issue.
   */
-int jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int size, int width, int height, FONT *title_font)
+int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int32_t size, int32_t width, int32_t height, FONT *title_font)
 {
     static attrb_state_t default_attrb_state[ATTRB_MAX] = DEFAULT_ATTRB_STATE;
-    int ret;
+    int32_t ret;
     char *p;
     char tmp[32];
     ASSERT(message);
@@ -1184,11 +1184,11 @@ int jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext,
     
 #ifdef HAVE_DIR_LIST
     
-        int drive = _al_getdrive();
+        int32_t drive = _al_getdrive();
         
 #else
         
-        int drive = 0;
+        int32_t drive = 0;
 #endif
         
         _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
@@ -1230,7 +1230,7 @@ int jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext,
     
     if((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", tmp))))
     {
-        size -= ((long)(size_t)p - (long)(size_t)path + ucwidth('.'));
+        size -= ((int32_t)(size_t)p - (int32_t)(size_t)path + ucwidth('.'));
         
         if(size >= uwidth_max(U_CURRENT) + ucwidth(0))          /* do not end with '.' */
         {
@@ -1246,10 +1246,10 @@ int jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext,
   *  Same as jwin_file_select but it lets you give it a list of
   *  possible extensions to choose from.
   */
-int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int *list_sel, int size, int width, int height, FONT *title_font)
+int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int32_t *list_sel, int32_t size, int32_t width, int32_t height, FONT *title_font)
 {
     static attrb_state_t default_attrb_state[ATTRB_MAX] = DEFAULT_ATTRB_STATE;
-    int ret;
+    int32_t ret;
     char *p;
     char tmp[32];
     ASSERT(message);
@@ -1303,11 +1303,11 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
     
 #ifdef HAVE_DIR_LIST
     
-        int drive = _al_getdrive();
+        int32_t drive = _al_getdrive();
         
 #else
         
-        int drive = 0;
+        int32_t drive = 0;
 #endif
         
         _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
@@ -1348,7 +1348,7 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
     
     if((!ugetc(p)) && (fext) && (!ustrpbrk(fext, uconvert_ascii(" ,;", tmp))))
     {
-        size -= ((long)(size_t)p - (long)(size_t)path + ucwidth('.'));
+        size -= ((int32_t)(size_t)p - (int32_t)(size_t)path + ucwidth('.'));
         
         if(size >= uwidth_max(U_CURRENT) + ucwidth(0))          /* do not end with '.' */
         {
@@ -1364,7 +1364,7 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
 void FLIST::load(const char* path)
 {
 	char tmp[32];
-	for(int i=0; i<size; i++)
+	for(int32_t i=0; i<size; i++)
 		if(name[i])
 			zc_free(name[i]);
 
@@ -1394,7 +1394,7 @@ void FLIST::load(const char* path)
 	usetc(get_filename(dir), 0);
 }
 
-bool FLIST::get(int index, char* buf)
+bool FLIST::get(int32_t index, char* buf)
 {
 	if(index < 0 || index >= size)
 		return false;
@@ -1404,7 +1404,7 @@ bool FLIST::get(int index, char* buf)
 
 void FLIST::clear()
 {
-	for(int i=0; i<size; i++)
+	for(int32_t i=0; i<size; i++)
 		if(name[i])
 			zc_free(name[i]);
 	

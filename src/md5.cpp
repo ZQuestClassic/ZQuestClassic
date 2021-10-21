@@ -54,20 +54,20 @@
    surprised if they were a performance bottleneck for MD5.  */
 
 static cvs_uint32
-getu32(const unsigned char *addr)
+getu32(const uint8_t *addr)
 {
-    return (((((unsigned long)addr[3] << 8) | addr[2]) << 8)
+    return (((((uint32_t)addr[3] << 8) | addr[2]) << 8)
             | addr[1]) << 8 | addr[0];
 }
 
 static void
 putu32(cvs_uint32 data,
-       unsigned char *addr)
+       uint8_t *addr)
 {
-    addr[0] = (unsigned char)data;
-    addr[1] = (unsigned char)(data >> 8);
-    addr[2] = (unsigned char)(data >> 16);
-    addr[3] = (unsigned char)(data >> 24);
+    addr[0] = (uint8_t)data;
+    addr[1] = (uint8_t)(data >> 8);
+    addr[2] = (uint8_t)(data >> 16);
+    addr[3] = (uint8_t)(data >> 24);
 }
 
 /*
@@ -92,7 +92,7 @@ cvs_MD5Init(cvs_MD5Context *ctx)
  */
 void
 cvs_MD5Update(cvs_MD5Context *ctx,
-              unsigned char const *buf,
+              uint8_t const *buf,
               unsigned len)
 {
     cvs_uint32 t;
@@ -112,7 +112,7 @@ cvs_MD5Update(cvs_MD5Context *ctx,
     
     if(t)
     {
-        unsigned char *p = ctx->in + t;
+        uint8_t *p = ctx->in + t;
         
         t = 64-t;
         
@@ -148,11 +148,11 @@ cvs_MD5Update(cvs_MD5Context *ctx,
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
 void
-cvs_MD5Final(unsigned char digest[16],
+cvs_MD5Final(uint8_t digest[16],
              cvs_MD5Context *ctx)
 {
     unsigned count;
-    unsigned char *p;
+    uint8_t *p;
     
     /* Compute number of bytes mod 64 */
     count = (ctx->bits[0] >> 3) & 0x3F;
@@ -214,11 +214,11 @@ cvs_MD5Final(unsigned char digest[16],
  */
 void
 cvs_MD5Transform(cvs_uint32 buf[4],
-                 const unsigned char inraw[64])
+                 const uint8_t inraw[64])
 {
     cvs_uint32 a, b, c, d;
     cvs_uint32 in[16];
-    int i;
+    int32_t i;
     
     for(i = 0; i < 16; ++i)
         in[i] = getu32(inraw + 4 * i);
@@ -308,13 +308,13 @@ cvs_MD5Transform(cvs_uint32 buf[4],
    RFC1321 for example.  */
 #include <stdio.h>
 
-int
-main(int argc, char **argv)
+int32_t
+main(int32_t argc, char **argv)
 {
     cvs_MD5Context context;
-    unsigned char checksum[16];
-    int i;
-    int j;
+    uint8_t checksum[16];
+    int32_t i;
+    int32_t j;
     
     if(argc < 2)
     {
@@ -331,7 +331,7 @@ main(int argc, char **argv)
         
         for(i = 0; i < 16; i++)
         {
-            printf("%02x", (unsigned int) checksum[i]);
+            printf("%02x", (uint32_t) checksum[i]);
         }
         
         printf("\n");

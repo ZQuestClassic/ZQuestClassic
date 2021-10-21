@@ -45,21 +45,21 @@ extern refInfo linkScriptData;
 
 extern refInfo itemScriptData[256];
 extern refInfo itemCollectScriptData[256];
-extern long item_stack[256][MAX_SCRIPT_REGISTERS];
-extern long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
+extern int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
+extern int32_t item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 extern refInfo *ri; //= NULL;
-extern long(*stack)[MAX_SCRIPT_REGISTERS];
+extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
 extern byte dmapscriptInitialised;
 extern word item_doscript[256];
 extern word item_collect_doscript[256];
 using std::set;
 
-extern int skipcont;
+extern int32_t skipcont;
 
-extern int draw_screen_clip_rect_x1;
-extern int draw_screen_clip_rect_x2;
-extern int draw_screen_clip_rect_y1;
-extern int draw_screen_clip_rect_y2;
+extern int32_t draw_screen_clip_rect_x1;
+extern int32_t draw_screen_clip_rect_x2;
+extern int32_t draw_screen_clip_rect_y1;
+extern int32_t draw_screen_clip_rect_y2;
 //extern bool draw_screen_clip_rect_show_link;
 extern word global_wait;
 extern bool link_waitdraw;
@@ -67,29 +67,29 @@ extern bool dmap_waitdraw;
 extern bool passive_subscreen_waitdraw;
 extern bool active_subscreen_waitdraw;
 
-int link_count = -1;
-int link_animation_speed = 1; //lower is faster animation
-int z3step = 2;
+int32_t link_count = -1;
+int32_t link_animation_speed = 1; //lower is faster animation
+int32_t z3step = 2;
 static zfix link_newstep(1.5);
 static zfix link_newstep_diag(1.5);
 bool did_scripta=false;
 bool did_scriptb=false;
 bool did_scriptl=false;
 byte lshift = 0;
-int dowpn = -1;
-int directItem = -1; //Is set if Link is currently using an item directly
-int directItemA = -1;
-int directItemB = -1;
-int directItemX = -1;
-int directItemY = -1;
-int directWpn = -1;
-int whistleitem=-1;
+int32_t dowpn = -1;
+int32_t directItem = -1; //Is set if Link is currently using an item directly
+int32_t directItemA = -1;
+int32_t directItemB = -1;
+int32_t directItemX = -1;
+int32_t directItemY = -1;
+int32_t directWpn = -1;
+int32_t whistleitem=-1;
 extern word g_doscript;
 extern word link_doscript;
 extern word dmap_doscript;
 extern word passive_subscreen_doscript;
 extern byte epilepsyFlashReduction;
-extern int script_link_cset;
+extern int32_t script_link_cset;
 
 void playLevelMusic();
 
@@ -107,7 +107,7 @@ static inline bool platform_fallthrough()
 		|| (Link.jumping < 0 && getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
 }
 
-static inline bool on_sideview_solid(int x, int y, bool ignoreFallthrough = false)
+static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthrough = false)
 {
 	return (_walkflag(x+4,y+16,0) || (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) ||
 		(((y%16)==0) && (!platform_fallthrough() || ignoreFallthrough) &&
@@ -118,13 +118,13 @@ bool LinkClass::isStanding(bool forJump)
 {
 	bool st = (z==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0);
 	if(!st) return false;
-	int val = check_pitslide();
+	int32_t val = check_pitslide();
 	if(val == -2) return false;
 	if(val == -1) return true;
 	return forJump;
 }
 
-static int isNextType(int type)
+static int32_t isNextType(int32_t type)
 {
 	switch(type)
 	{
@@ -149,9 +149,9 @@ static int isNextType(int type)
 	}
 }
 
-static int MatchComboTrigger(weapon *w, newcombo *c, int comboid)
+static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 {
-	int wid = (w->useweapon > 0) ? w->useweapon : w->id;
+	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	
 		if ( ( wid == wSword && wid == wSword && c[comboid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
 		
@@ -233,20 +233,20 @@ bool LinkClass::can_pitfall(bool ignore_hover)
 	return (!(isSideViewGravity()||action==rafting||z>0||fall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_link||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!(moveflags & FLAG_CAN_PITFALL)));
 }
 
-int LinkClass::DrunkClock()
+int32_t LinkClass::DrunkClock()
 {
     return drunkclk;
 }
-void LinkClass::setDrunkClock(int newdrunkclk)
+void LinkClass::setDrunkClock(int32_t newdrunkclk)
 {
     drunkclk=newdrunkclk;
 }
 
-int LinkClass::StunClock()
+int32_t LinkClass::StunClock()
 {
     return link_is_stunned;
 }
-void LinkClass::setStunClock(int v)
+void LinkClass::setStunClock(int32_t v)
 {
     link_is_stunned=v;
 }
@@ -271,11 +271,11 @@ void LinkClass::stopSubscreenFalling(bool v){
 
 //Set the button items by brute force
 
-void LinkClass::setAButtonItem(int itmslot){
+void LinkClass::setAButtonItem(int32_t itmslot){
 	game->awpn = itmslot;
 }
 
-void LinkClass::setBButtonItem(int itmslot){
+void LinkClass::setBButtonItem(int32_t itmslot){
 	game->bwpn = itmslot;
 }
 
@@ -298,7 +298,7 @@ void LinkClass::ClearhitLinkUIDs()
 		// 1. If set by internal mecanics, it has its value that you can read by script, before waitdraw--this part works at present.
 		// 2. FFCs can read it before Waitframe. --same.
 		// 3. After Waitframe(), it is wiped by the ZC Engine to 0. --I cannot get this to happen without breaking 1 and 2. 
-	for ( int q = 0; q < NUM_HIT_TYPES_USED_LINK; q++ ) 	
+	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED_LINK; q++ ) 	
 	{
 		/*
 		if ( lastHitBy[q][1] == (frame-1) ) //Verify if this is needed at all now. 
@@ -312,7 +312,7 @@ void LinkClass::ClearhitLinkUIDs()
 	}
 }
 
-void LinkClass::sethitLinkUID(int type, int screen_index)
+void LinkClass::sethitLinkUID(int32_t type, int32_t screen_index)
 {
 	lastHitBy[type][0] = screen_index;
 	//lastHitBy[type][1] = frame;
@@ -330,33 +330,33 @@ void LinkClass::sethitLinkUID(int type, int screen_index)
 	    draw_screen(tmpscr);
 	    
 	    //clear Link's last hits 
-	    //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0);
+	    //for ( int32_t q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0);
 	    
 	*/
 	
 }
 
-int LinkClass::gethitLinkUID(int type)
+int32_t LinkClass::gethitLinkUID(int32_t type)
 {
 	return lastHitBy[type][0];
 }
 
-void LinkClass::set_defence(int type, int v)
+void LinkClass::set_defence(int32_t type, int32_t v)
 {
 	defence[type] = v;
 }
 
-int LinkClass::get_defence(int type)
+int32_t LinkClass::get_defence(int32_t type)
 {
 	return defence[type];
 }
 
 
 //Set Link;s hurt sfx
-void LinkClass::setHurtSFX(int sfx){
+void LinkClass::setHurtSFX(int32_t sfx){
 	hurtsfx = sfx;
 }	
-int LinkClass::getHurtSFX() {
+int32_t LinkClass::getHurtSFX() {
 	return hurtsfx;
 }
 
@@ -376,35 +376,35 @@ void LinkClass::setBigHitbox(bool newbigHitbox)
 {
     bigHitbox=newbigHitbox;
 }
-int LinkClass::getStepRate()
+int32_t LinkClass::getStepRate()
 {
     return steprate;
 }
-void LinkClass::setStepRate(int newrate)
+void LinkClass::setStepRate(int32_t newrate)
 {
     steprate = newrate;
 }
-int LinkClass::getSwimUpRate()
+int32_t LinkClass::getSwimUpRate()
 {
     return game->get_sideswim_up();
 }
-void LinkClass::setSwimUpRate(int newrate)
+void LinkClass::setSwimUpRate(int32_t newrate)
 {
     game->set_sideswim_up(newrate);
 }
-int LinkClass::getSwimSideRate()
+int32_t LinkClass::getSwimSideRate()
 {
     return game->get_sideswim_side();
 }
-void LinkClass::setSwimSideRate(int newrate)
+void LinkClass::setSwimSideRate(int32_t newrate)
 {
     game->set_sideswim_side(newrate);
 }
-int LinkClass::getSwimDownRate()
+int32_t LinkClass::getSwimDownRate()
 {
     return game->get_sideswim_down();
 }
-void LinkClass::setSwimDownRate(int newrate)
+void LinkClass::setSwimDownRate(int32_t newrate)
 {
     game->set_sideswim_down(newrate);
 }
@@ -480,7 +480,7 @@ void LinkClass::unfreeze()
     if(action==sideswimfreeze && fairyclk<1) { action=sideswimming; FFCore.setLinkAction(sideswimming); }
 }
 
-void LinkClass::Drown(int state)
+void LinkClass::Drown(int32_t state)
 {
 	// Link should never drown if the ladder is out
 	if(ladderx+laddery)
@@ -534,11 +534,11 @@ void LinkClass::finishedmsg()
         holdclk = 1;
     }
 }
-void LinkClass::setEaten(int i)
+void LinkClass::setEaten(int32_t i)
 {
     inlikelike=i;
 }
-int LinkClass::getEaten()
+int32_t LinkClass::getEaten()
 {
     return inlikelike;
 }
@@ -566,27 +566,27 @@ zfix  LinkClass::getYOfs()
 {
     return yofs;
 }
-void LinkClass::setXOfs(int newxofs)
+void LinkClass::setXOfs(int32_t newxofs)
 {
     xofs=newxofs;
 }
-void LinkClass::setYOfs(int newyofs)
+void LinkClass::setYOfs(int32_t newyofs)
 {
     yofs=newyofs;
 }
-int  LinkClass::getHXOfs()
+int32_t  LinkClass::getHXOfs()
 {
     return hxofs;
 }
-int  LinkClass::getHYOfs()
+int32_t  LinkClass::getHYOfs()
 {
     return hyofs;
 }
-int  LinkClass::getHXSz()
+int32_t  LinkClass::getHXSz()
 {
     return hxsz;
 }
-int  LinkClass::getHYSz()
+int32_t  LinkClass::getHYSz()
 {
     return hysz;
 }
@@ -598,22 +598,22 @@ zfix  LinkClass::getClimbCoverY()
 {
     return climb_cover_y;
 }
-int  LinkClass::getLadderX()
+int32_t  LinkClass::getLadderX()
 {
     return ladderx;
 }
-int  LinkClass::getLadderY()
+int32_t  LinkClass::getLadderY()
 {
     return laddery;
 }
 
-void LinkClass::setX(int new_x)
+void LinkClass::setX(int32_t new_x)
 {
     zfix dx=new_x-x;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
-	hs_startx+=(int)dx;
+	hs_startx+=(int32_t)dx;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -623,7 +623,7 @@ void LinkClass::setX(int new_x)
 	
 	if(chainlinks.Count()>0)
 	{
-		for(int j=0; j<chainlinks.Count(); j++)
+		for(int32_t j=0; j<chainlinks.Count(); j++)
         {
             chainlinks.spr(j)->x+=dx;
         }
@@ -636,13 +636,13 @@ void LinkClass::setX(int new_x)
         is_on_conveyor=true;
 }
 
-void LinkClass::setY(int new_y)
+void LinkClass::setY(int32_t new_y)
 {
     zfix dy=new_y-y;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
-	hs_starty+=(int)dy;
+	hs_starty+=(int32_t)dy;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -652,7 +652,7 @@ void LinkClass::setY(int new_y)
 	
 	if(chainlinks.Count()>0)
 	{
-		for(int j=0; j<chainlinks.Count(); j++)
+		for(int32_t j=0; j<chainlinks.Count(); j++)
         {
             chainlinks.spr(j)->y+=dy;
         }
@@ -665,7 +665,7 @@ void LinkClass::setY(int new_y)
         is_on_conveyor=true;
 }
 
-void LinkClass::setZ(int new_z)
+void LinkClass::setZ(int32_t new_z)
 {
     if(isSideViewLink())
         return;
@@ -714,7 +714,7 @@ void LinkClass::setXfix(zfix new_x)
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
-	hs_startx+=(int)dx;
+	hs_startx+=(int32_t)dx;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -724,7 +724,7 @@ void LinkClass::setXfix(zfix new_x)
 	
 	if(chainlinks.Count()>0)
 	{
-		for(int j=0; j<chainlinks.Count(); j++)
+		for(int32_t j=0; j<chainlinks.Count(); j++)
         {
             chainlinks.spr(j)->x+=dx;
         }
@@ -743,7 +743,7 @@ void LinkClass::setYfix(zfix new_y)
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
-	hs_starty+=(int)dy;
+	hs_starty+=(int32_t)dy;
     }
     
     if(Lwpns.idFirst(wHSHandle)>-1)
@@ -753,7 +753,7 @@ void LinkClass::setYfix(zfix new_y)
 	
 	if(chainlinks.Count()>0)
 	{
-		for(int j=0; j<chainlinks.Count(); j++)
+		for(int32_t j=0; j<chainlinks.Count(); j++)
         {
             chainlinks.spr(j)->y+=dy;
         }
@@ -813,19 +813,19 @@ void LinkClass::setFall(zfix new_fall)
     fall=new_fall;
     jumping=-1;
 }
-void LinkClass::setClimbCoverX(int new_x)
+void LinkClass::setClimbCoverX(int32_t new_x)
 {
     climb_cover_x=new_x;
 }
-void LinkClass::setClimbCoverY(int new_y)
+void LinkClass::setClimbCoverY(int32_t new_y)
 {
     climb_cover_y=new_y;
 }
-int  LinkClass::getLStep()
+int32_t  LinkClass::getLStep()
 {
     return lstep;
 }
-int  LinkClass::getCharging()
+int32_t  LinkClass::getCharging()
 {
     return charging;
 }
@@ -833,31 +833,31 @@ bool LinkClass::isCharged()
 {
     return spins>0;
 }
-int  LinkClass::getAttackClk()
+int32_t  LinkClass::getAttackClk()
 {
     return attackclk;
 }
-void  LinkClass::setAttackClk(int new_clk)
+void  LinkClass::setAttackClk(int32_t new_clk)
 {
     attackclk=new_clk;
 }
-void LinkClass::setCharging(int new_charging)
+void LinkClass::setCharging(int32_t new_charging)
 {
     charging=new_charging;
 }
-int  LinkClass::getSwordClk()
+int32_t  LinkClass::getSwordClk()
 {
     return swordclk;
 }
-int  LinkClass::getItemClk()
+int32_t  LinkClass::getItemClk()
 {
     return itemclk;
 }
-void LinkClass::setSwordClk(int newclk)
+void LinkClass::setSwordClk(int32_t newclk)
 {
     swordclk=newclk;
 }
-void LinkClass::setItemClk(int newclk)
+void LinkClass::setItemClk(int32_t newclk)
 {
     itemclk=newclk;
 }
@@ -885,28 +885,28 @@ zfix  LinkClass::getModifiedY()
     return tempy;
 }
 
-int  LinkClass::getDir()
+int32_t  LinkClass::getDir()
 {
     return dir;
 }
-void LinkClass::setDir(int newdir)
+void LinkClass::setDir(int32_t newdir)
 {
     dir=newdir;
     reset_hookshot();
 }
-int  LinkClass::getHitDir()
+int32_t  LinkClass::getHitDir()
 {
     return hitdir;
 }
-void LinkClass::setHitDir(int newdir)
+void LinkClass::setHitDir(int32_t newdir)
 {
     hitdir = newdir;
 }
-int  LinkClass::getClk()
+int32_t  LinkClass::getClk()
 {
     return clk;
 }
-int  LinkClass::getPushing()
+int32_t  LinkClass::getPushing()
 {
     return pushing;
 }
@@ -928,7 +928,7 @@ void LinkClass::setClock(bool state)
 {
     superman=state;
 }
-int  LinkClass::getAction() // Used by ZScript
+int32_t  LinkClass::getAction() // Used by ZScript
 {
     if(spins > 0)
         return isspinning;
@@ -941,7 +941,7 @@ int  LinkClass::getAction() // Used by ZScript
     return action;
 }
 
-int  LinkClass::getAction2() // Used by ZScript new FFCore.actions
+int32_t  LinkClass::getAction2() // Used by ZScript new FFCore.actions
 {
     if(spins > 0)
         return isspinning;
@@ -997,7 +997,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
 	{
 		sprite* wind=0;
 		bool foundWind=false;
-		for(int i=0; i<Ewpns.Count(); i++)
+		for(int32_t i=0; i<Ewpns.Count(); i++)
 		{
 			wind=Ewpns.spr(i);
 			if(wind->id==ewWind && wind->misc==999)
@@ -1059,7 +1059,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
 	case isdiving:
 		if(action==swimming && diveclk==0)
 		{
-			int flippers_id = current_item_id(itype_flippers);
+			int32_t flippers_id = current_item_id(itype_flippers);
 			diveclk = (flippers_id < 0 ? 80 : (itemsbuf[flippers_id].misc1 + itemsbuf[flippers_id].misc2)); // Who cares about qr_NODIVING? It's the questmaker's business.
 		}
 		return;
@@ -1084,11 +1084,11 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
 		if(!fallclk)
 		{
 			//If there is a pit under Link, use it's combo.
-			if(int c = getpitfall(x+8,y+(bigHitbox?8:12))) fallCombo = c;
-			else if(int c = getpitfall(x,y+(bigHitbox?0:8))) fallCombo = c;
-			else if(int c = getpitfall(x+15,y+(bigHitbox?0:8))) fallCombo = c;
-			else if(int c = getpitfall(x,y+15)) fallCombo = c;
-			else if(int c = getpitfall(x+15,y+15)) fallCombo = c;
+			if(int32_t c = getpitfall(x+8,y+(bigHitbox?8:12))) fallCombo = c;
+			else if(int32_t c = getpitfall(x,y+(bigHitbox?0:8))) fallCombo = c;
+			else if(int32_t c = getpitfall(x+15,y+(bigHitbox?0:8))) fallCombo = c;
+			else if(int32_t c = getpitfall(x,y+15)) fallCombo = c;
+			else if(int32_t c = getpitfall(x+15,y+15)) fallCombo = c;
 			//Else, use a null value; triggers default pit values
 			else fallCombo = 0;
 			fallclk = PITFALL_FALL_FRAMES;
@@ -1127,17 +1127,17 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
 	action=new_action; FFCore.setLinkAction(new_action);
 }
 
-void LinkClass::setHeldItem(int newitem)
+void LinkClass::setHeldItem(int32_t newitem)
 {
     holditem=newitem;
 }
-int LinkClass::getHeldItem()
+int32_t LinkClass::getHeldItem()
 {
     return holditem;
 }
 bool LinkClass::isDiving()
 {
-	int flippers_id = current_item_id(itype_flippers);
+	int32_t flippers_id = current_item_id(itype_flippers);
     return (diveclk > (flippers_id < 0 ? 30 : itemsbuf[flippers_id].misc2));
 }
 bool LinkClass::isSwimming()
@@ -1157,17 +1157,17 @@ byte LinkClass::getDontDraw()
     return dontdraw;
 }
 
-void LinkClass::setHClk(int newhclk)
+void LinkClass::setHClk(int32_t newhclk)
 {
     hclk=newhclk;
 }
 
-int LinkClass::getHClk()
+int32_t LinkClass::getHClk()
 {
     return hclk;
 }
 
-int LinkClass::getSpecialCave()
+int32_t LinkClass::getSpecialCave()
 {
     return specialcave;    // used only by maps.cpp
 }
@@ -1266,7 +1266,7 @@ void LinkClass::init()
 	extra_jump_count = 0;
 	hoverflags = 0;
     
-    for(int i=0; i<32; i++) miscellaneous[i] = 0;
+    for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
     bigHitbox=(get_bit(quest_rules, qr_LTTPCOLLISION));
     diagonalMovement=(get_bit(quest_rules,qr_LTTPWALK));
@@ -1276,9 +1276,9 @@ void LinkClass::init()
 	hurtsfx = 19; //getHurtSFX(); //Set the default sound. 
 	flickerorflash = true; //flicker or flash unless disabled externally.
 	walkspeed = 0; //not used, yet. -Z
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
-	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][1] = 0; 
-	for ( int q = 0; q < wMax; q++ ) 
+	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
+	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][1] = 0; 
+	for ( int32_t q = 0; q < wMax; q++ ) 
 	{
 		defence[q] = link_defence[q]; //we will need to have a Link section in the quest load/save code! -Z Added 3/26/21 - Jman
 		//zprint2("defence[%d] is: %d\n", q, defence[q]);
@@ -1297,8 +1297,8 @@ void LinkClass::init()
 
 void LinkClass::draw_under(BITMAP* dest)
 {
-    int c_raft=current_item_id(itype_raft);
-    int c_ladder=current_item_id(itype_ladder);
+    int32_t c_raft=current_item_id(itype_raft);
+    int32_t c_ladder=current_item_id(itype_ladder);
     
     if(action==rafting && c_raft >-1)
     {
@@ -1331,7 +1331,7 @@ void LinkClass::draw_under(BITMAP* dest)
 
 void LinkClass::drawshadow(BITMAP* dest, bool translucent)
 {
-    int tempy=yofs;
+    int32_t tempy=yofs;
     yofs+=8;
     shadowtile = wpnsbuf[spr_shadow].newtile;
     sprite::drawshadow(dest,translucent);
@@ -1339,7 +1339,7 @@ void LinkClass::drawshadow(BITMAP* dest, bool translucent)
 }
 
 // The Stone of Agony reacts to these flags.
-bool LinkClass::agonyflag(int flag)
+bool LinkClass::agonyflag(int32_t flag)
 {
     switch(flag)
     {
@@ -1380,9 +1380,9 @@ bool LinkClass::agonyflag(int flag)
 
 // Find the attack power of the current melee weapon.
 // The Whimsical Ring is applied on a target-by-target basis.
-int LinkClass::weaponattackpower()
+int32_t LinkClass::weaponattackpower()
 {
-    int power = attack==wCByrna ? itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_cbyrna)].misc4 : directWpn>-1 ? itemsbuf[directWpn].power : (current_item_power(attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword));
+    int32_t power = attack==wCByrna ? itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_cbyrna)].misc4 : directWpn>-1 ? itemsbuf[directWpn].power : (current_item_power(attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword));
     
     // Multiply it by the power of the spin attack/quake hammer, if applicable.
     power *= (spins>0 ? itemsbuf[current_item_id(attack==wHammer ? itype_quakescroll : (spins>5 || current_item_id(itype_spinscroll) < 0) ? itype_spinscroll2 : itype_spinscroll)].power : 1);
@@ -1390,15 +1390,15 @@ int LinkClass::weaponattackpower()
 }
 
 // Must only be called once per frame!
-void LinkClass::positionSword(weapon *w, int itemid)
+void LinkClass::positionSword(weapon *w, int32_t itemid)
 {
 	//if ( w->ScriptGenerated ) return; //t/b/a for script-generated swords.
 	//if ( itemsbuf[itemid].ScriptGenerated ) return; //t/b/a for script-generated swords.
     itemid=vbound(itemid, 0, MAXITEMS-1);
     // Place a sword weapon at the right spot.
-    int wy=1;
-    int wx=1;
-    int f=0,t,cs2;
+    int32_t wy=1;
+    int32_t wx=1;
+    int32_t f=0,t,cs2;
     
     t = w->o_tile;
     cs2 = w->o_cset;
@@ -1555,7 +1555,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
     
     if(game->get_canslash() && itemsbuf[itemid].flags & ITEM_FLAG4 && attackclk<11)
     {
-        int wpn2=itemsbuf[itemid].wpn2;
+        int32_t wpn2=itemsbuf[itemid].wpn2;
         wpn2=vbound(wpn2, 0, MAXWPNS);
         
         //slashing tiles
@@ -1655,7 +1655,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
         }
     }
     
-    int itemid2 = current_item_id(itype_chargering);
+    int32_t itemid2 = current_item_id(itype_chargering);
     
     if(charging>(itemid2>=0 ? itemsbuf[itemid2].misc1 : 64))
     {
@@ -1682,7 +1682,7 @@ void LinkClass::draw(BITMAP* dest)
 		//sprintf(buf,"%d %d %d %d %d %d %d",dir, action, attack, attackclk, charging, spins, tapping);
 		textout_shadowed_ex(framebuf,font, buf, 2,72,WHITE,BLACK,-1);
 	}*/
-	int oxofs, oyofs;
+	int32_t oxofs, oyofs;
 	bool shieldModify = false;
 	bool invisible=(dontdraw>0) || (tmpscr->flags3&fINVISLINK);
 	
@@ -1706,22 +1706,22 @@ void LinkClass::draw(BITMAP* dest)
 		
 	// Stone of Agony
 	bool agony=false;
-	int agonyid = current_item_id(itype_agony);
+	int32_t agonyid = current_item_id(itype_agony);
 	
 	if(invisible)
 		goto attack;
 		
 	if(agonyid>-1)
 	{
-		int power=itemsbuf[agonyid].power;
-		int left=static_cast<int>(x+8-power)&0xF0; // Check top-left pixel of each tile
-		int right=(static_cast<int>(x+8+power)&0xF0)+16;
-		int top=static_cast<int>(y+(bigHitbox ? 8 : 12)-power)&0xF0;
-		int bottom=(static_cast<int>(y+(bigHitbox ? 8 : 12)+power)&0xF0)+16;
+		int32_t power=itemsbuf[agonyid].power;
+		int32_t left=static_cast<int32_t>(x+8-power)&0xF0; // Check top-left pixel of each tile
+		int32_t right=(static_cast<int32_t>(x+8+power)&0xF0)+16;
+		int32_t top=static_cast<int32_t>(y+(bigHitbox ? 8 : 12)-power)&0xF0;
+		int32_t bottom=(static_cast<int32_t>(y+(bigHitbox ? 8 : 12)+power)&0xF0)+16;
 		
-		for(int x=left; x<right; x+=16)
+		for(int32_t x=left; x<right; x+=16)
 		{
-			for(int y=top; y<bottom; y+=16)
+			for(int32_t y=top; y<bottom; y+=16)
 			{
 				if(agonyflag(MAPFLAG(x, y)) || agonyflag(MAPCOMBOFLAG(x, y)))
 				{
@@ -1757,8 +1757,8 @@ attack:
 		* - which must be converted to an item ID...
 		* - which is used to acquire a wpn ID! Aack!
 		*/
-		int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-		int itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+		int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+		int32_t itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 		itemid=vbound(itemid, 0, MAXITEMS-1);
 		// if ( itemsbuf[itemid].ScriptGenerated ) return; //t/b/a for script-generated swords.
 		if(attackclk>4||(attack==wSword&&game->get_canslash()))
@@ -1770,7 +1770,7 @@ attack:
 				bool found = false;
 				
 				// Look for pre-existing sword
-				for(int i=0; i<Lwpns.Count(); i++)
+				for(int32_t i=0; i<Lwpns.Count(); i++)
 				{
 					w = (weapon*)Lwpns.spr(i);
 					
@@ -1862,13 +1862,13 @@ attack:
 		
 		if(attack==wHammer) // To do: possibly abstract this out to a positionHammer routine?
 		{
-			int wy=1;
-			int wx=1;
-			int f=0,t,cs2;
+			int32_t wy=1;
+			int32_t wx=1;
+			int32_t f=0,t,cs2;
 			weapon *w=NULL;
 			bool found = false;
 			
-			for(int i=0; i<Lwpns.Count(); i++)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				w = (weapon*)Lwpns.spr(i);
 				
@@ -2024,7 +2024,7 @@ attack:
 	}
 	else if(!charging && !spins)  // remove the sword
 	{
-		for(int i=0; i<Lwpns.Count(); i++)
+		for(int32_t i=0; i<Lwpns.Count(); i++)
 		{
 			weapon *w = (weapon*)Lwpns.spr(i);
 			
@@ -2045,7 +2045,7 @@ attack:
 		// Keep this consistent with checkspecial2, line 7800-ish...
 		bool inwater = iswaterex(MAPCOMBO(x+4,y+9), currmap, currscr, -1, x+4, y+9, true, false)  && iswaterex(MAPCOMBO(x+4,y+15), currmap, currscr, -1, x+4, y+15, true, false) &&  iswaterex(MAPCOMBO(x+11,y+9), currmap, currscr, -1, x+11, y+9, true, false) && iswaterex(MAPCOMBO(x+11,y+15), currmap, currscr, -1, x+11, y+15, true, false);
 		
-		int jumping2 = int(jumping*((zinit.gravity2 / 100)/16.0));
+		int32_t jumping2 = int32_t(jumping*((zinit.gravity2 / 100)/16.0));
 		
 		//if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
 		switch(zinit.linkanimationstyle)
@@ -2144,7 +2144,7 @@ attack:
 			else if((z>0 || isSideViewLink()) && jumping2>0 && jumping2<24 && game->get_life()>0 && action!=rafting)
 			{
 				linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
+				if ( script_link_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
 			}
 			else if(fallclk>0)
 			{
@@ -2240,7 +2240,7 @@ attack:
 			else if((z>0 || isSideViewLink()) && jumping2>0 && jumping2<24 && game->get_life()>0)
 			{
 				linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
+				if ( script_link_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
 			}
 			else if(fallclk>0)
 			{
@@ -2329,16 +2329,16 @@ attack:
 			{
 				linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.linkanimationstyle);
 				if ( script_link_sprite <= 0 ) tile+=(extend==2?2:1);
-				//int l=link_count/link_animation_speed;
-				int l=(link_count/link_animation_speed)&15;
-				//int l=((p[lt_clock]/link_animation_speed)&15);
+				//int32_t l=link_count/link_animation_speed;
+				int32_t l=(link_count/link_animation_speed)&15;
+				//int32_t l=((p[lt_clock]/link_animation_speed)&15);
 				l-=((l>3)?1:0)+((l>12)?1:0);
 				if ( script_link_sprite <= 0 ) tile+=(l/2)*(extend==2?2:1);
 			}
 			else if((z>0 || isSideViewLink()) && jumping2>0 && jumping2<24 && game->get_life()>0)
 			{
 				linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
+				if ( script_link_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
 			}
 			else if(fallclk>0)
 			{
@@ -2364,7 +2364,7 @@ attack:
 				{
 					//tile+=(extend==2?2:1);
 					//tile+=(((active_count>>2)%8)*(extend==2?2:1));
-					int l = link_count / link_animation_speed;
+					int32_t l = link_count / link_animation_speed;
 					l -= ((l > 3) ? 1 : 0) + ((l > 12) ? 1 : 0);
 					if ( script_link_sprite <= 0 ) tile += (l / 2) * (extend == 2 ? 2 : 1);
 				}
@@ -2473,20 +2473,20 @@ attack:
 	}
 	
 	double a2 = fairyclk*2*PI/80 + (PI/2);
-	int hearts=0;
-	//  int htile = QHeader.dat_flags[ZQ_TILES] ? 2 : 0;
-	int htile = 2;
+	int32_t hearts=0;
+	//  int32_t htile = QHeader.dat_flags[ZQ_TILES] ? 2 : 0;
+	int32_t htile = 2;
 	
 	do
 	{
-		int nx=125;
+		int32_t nx=125;
 		
 		if(get_bit(quest_rules,qr_HEARTRINGFIX))
 		{
 			nx=x;
 		}
 		
-		int ny=88;
+		int32_t ny=88;
 		
 		if(get_bit(quest_rules,qr_HEARTRINGFIX))
 		{
@@ -2495,7 +2495,7 @@ attack:
 		
 		double tx = cos(a2)*53  +nx;
 		double ty = -sin(a2)*53 +ny+playing_field_offset;
-		overtile8(dest,htile,int(tx),int(ty),1,0);
+		overtile8(dest,htile,int32_t(tx),int32_t(ty),1,0);
 		a2-=PI/4;
 		++hearts;
 	}
@@ -2540,12 +2540,12 @@ bool LinkClass::checkstab()
         
     weapon *w=NULL;
     
-    int wx=0,wy=0,wz=0,wxsz=0,wysz=0;
+    int32_t wx=0,wy=0,wz=0,wxsz=0,wysz=0;
     bool found = false;
-    int melee_weapon_index = 0;
-	int parentitem=-1;
+    int32_t melee_weapon_index = 0;
+	int32_t parentitem=-1;
     
-    for(int i=0; i<Lwpns.Count(); i++)
+    for(int32_t i=0; i<Lwpns.Count(); i++)
     {
         w = (weapon*)Lwpns.spr(i);
         
@@ -2641,8 +2641,8 @@ bool LinkClass::checkstab()
 		}
 		
 		// The return of Spaghetti Code Constants!
-		int itype = (attack==wWand ? itype_wand : attack==wSword ? itype_sword : attack==wCByrna ? itype_cbyrna : itype_hammer);
-		int itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+		int32_t itype = (attack==wWand ? itype_wand : attack==wSword ? itype_sword : attack==wCByrna ? itype_cbyrna : itype_hammer);
+		int32_t itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 		itemid = vbound(itemid, 0, MAXITEMS-1);
 		
 		// The sword offsets aren't based on anything other than what felt about right
@@ -2712,7 +2712,7 @@ bool LinkClass::checkstab()
 		wx+=w->hxofs;
 		wy+=w->hyofs;
 		
-		for(int i=0; i<guys.Count(); i++)
+		for(int32_t i=0; i<guys.Count(); i++)
 		{
 			// So that Link can actually hit peahats while jumping, his weapons' hzsz becomes 16 in midair.
 			if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && ((attack!=wWand && attack!=wHammer && attack!=wCByrna) || !(itemsbuf[itemid].flags & ITEM_FLAG3)))
@@ -2724,23 +2724,23 @@ bool LinkClass::checkstab()
 				// weapon, since a 0-damage hit won't make the enemy invulnerable
 				// to damaging hits in the following frames.
 				
-				int whimsyid = current_item_id(itype_whimsicalring);
+				int32_t whimsyid = current_item_id(itype_whimsicalring);
 				
-				long dmg = weaponattackpower();
+				int32_t dmg = weaponattackpower();
 				if(whimsyid>-1)
 				{
 					if(!(zc_oldrand()%zc_max(itemsbuf[whimsyid].misc1,1)))
 						dmg += current_item_power(itype_whimsicalring);
 					else whimsyid = -1;
 				}
-				int atkringid = current_item_id(itype_atkring);
+				int32_t atkringid = current_item_id(itype_atkring);
 				if(atkringid>-1)
 				{
 					dmg *= itemsbuf[atkringid].misc2; //Multiplier
 					dmg += itemsbuf[atkringid].misc1; //Additive
 				}
 				
-				int h = hit_enemy(i,attack,dmg*game->get_hero_dmgmult(),wx,wy,dir,directWpn);
+				int32_t h = hit_enemy(i,attack,dmg*game->get_hero_dmgmult(),wx,wy,dir,directWpn);
 				enemy *e = (enemy*)guys.spr(i);
 				if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
 				//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
@@ -2771,7 +2771,7 @@ bool LinkClass::checkstab()
 	
 	if(((parentitem==-1&&!get_bit(quest_rules,qr_NOITEMMELEE))||parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
 	{
-		for(int j=0; j<items.Count(); j++)
+		for(int32_t j=0; j<items.Count(); j++)
 		{
 			item* ptr = (item*)items.spr(j); 
 			if((ptr->pickup & ipCANGRAB) || (ptr->pickup & ipTIMER))
@@ -2781,7 +2781,7 @@ bool LinkClass::checkstab()
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8,z,wxsz,wysz,1))
 							|| (attack==wHammer && ptr->hit(x,y-8,z,wxsz,wysz,1)))
 					{
-						int pickup = ptr->pickup;
+						int32_t pickup = ptr->pickup;
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
 							setmapflag(mITEM);
@@ -2800,9 +2800,9 @@ bool LinkClass::checkstab()
 				//ri = &(itemScriptData[ptr->id]);
 				//ri->Clear();
 				//itemCollectScriptData[ptr->id].Clear();
-				//for ( int q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0;
+				//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0;
 				ri = &(itemCollectScriptData[ptr->id]);
-				for ( int q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0xFFFF;
+				for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0xFFFF;
 				ri->Clear();
 				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id & 0xFFF)*-1));
 				
@@ -2831,7 +2831,7 @@ bool LinkClass::checkstab()
 						if(itemsbuf[ptr->id].script && ( (itemsbuf[ptr->id].flags&ITEM_FLAG16) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
 			{
 				ri = &(itemScriptData[ptr->id]);
-				for ( int q = 0; q < 1024; q++ ) item_stack[ptr->id][q] = 0xFFFF;
+				for ( int32_t q = 0; q < 1024; q++ ) item_stack[ptr->id][q] = 0xFFFF;
 				ri->Clear();
 				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 				item_doscript[ptr->id] = 1;
@@ -2844,7 +2844,7 @@ bool LinkClass::checkstab()
 						getitem(ptr->id);
 						items.del(j);
 						
-						for(int i=0; i<Lwpns.Count(); i++)
+						for(int32_t i=0; i<Lwpns.Count(); i++)
 						{
 							weapon *w2 = (weapon*)Lwpns.spr(i);
 							
@@ -2871,7 +2871,7 @@ bool LinkClass::checkstab()
 	{
 		if(attackclk == 6)
 		{
-			for(int q=0; q<176; q++)
+			for(int32_t q=0; q<176; q++)
 			{
 				set_bit(screengrid,q,0);
 				set_bit(screengrid_layer[0],q,0);
@@ -2879,7 +2879,7 @@ bool LinkClass::checkstab()
 			
 			}
 			
-			for(int q=0; q<32; q++)
+			for(int32_t q=0; q<32; q++)
 				set_bit(ffcgrid, q, 0);
 		}
 		
@@ -2978,14 +2978,14 @@ bool LinkClass::checkstab()
 	{
 		if(attackclk == 5)
 		{
-			for(int q=0; q<176; q++)
+			for(int32_t q=0; q<176; q++)
 			{
 				set_bit(screengrid,q,0);
 				set_bit(screengrid_layer[0],q,0);
 				set_bit(screengrid_layer[1],q,0);
 			}
 			
-			for(int q=0; q<32; q++)
+			for(int32_t q=0; q<32; q++)
 				set_bit(ffcgrid,q, 0);
 		}
 		
@@ -3034,14 +3034,14 @@ bool LinkClass::checkstab()
 	//else if((attack==wHammer) && (attackclk>=15)) //>= instead of == for time it takes to charge up hammer with quake scrolls.
 	{
 		// poundable blocks
-		for(int q=0; q<176; q++)
+		for(int32_t q=0; q<176; q++)
 		{
 			set_bit(screengrid,q,0);
 				set_bit(screengrid_layer[0],q,0);
 				set_bit(screengrid_layer[1],q,0);
 		}
 		
-		for(int q=0; q<32; q++)
+		for(int32_t q=0; q<32; q++)
 			set_bit(ffcgrid, q, 0);
 			
 		if(dir==up && (x.getInt()&15)==0)
@@ -3090,7 +3090,7 @@ bool LinkClass::checkstab()
 	return true;
 }
 
-void LinkClass::check_slash_block_layer(int bx, int by, int layer)
+void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 {
 	
     if(!(get_bit(quest_rules,qr_BUSHESONLAYERS1AND2))) 
@@ -3101,8 +3101,8 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
-    int fx=vbound(bx, 0, 255);
-    int fy=vbound(by, 0, 176);
+    int32_t fx=vbound(bx, 0, 255);
+    int32_t fy=vbound(by, 0, 176);
     //first things first
     if(attack!=wSword)
         return;
@@ -3116,13 +3116,13 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
     by &= 0xF0;
     
    
-    int flag = MAPFLAGL(layer,bx,by);
-    int flag2 = MAPCOMBOFLAGL(layer,bx,by);
-    int cid = MAPCOMBOL(layer,bx,by);
-    int type = combobuf[cid].type;
+    int32_t flag = MAPFLAGL(layer,bx,by);
+    int32_t flag2 = MAPCOMBOFLAGL(layer,bx,by);
+    int32_t cid = MAPCOMBOL(layer,bx,by);
+    int32_t type = combobuf[cid].type;
     //zprint("cid is: %d\n", cid);
      //zprint("type is: %d\n", type);
-    int i = (bx>>4) + by;
+    int32_t i = (bx>>4) + by;
     
     if(i > 175)
         return;
@@ -3136,7 +3136,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 	//zprint("ignoring\n");
     }
     
-    int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     if(!ignorescreen)
     {
 	    if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(screengrid_layer[layer-1],i,1);
@@ -3157,7 +3157,7 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
         }
         else if(isCuttableItemType(type))
         {
-            int it = -1;
+            int32_t it = -1;
 		
 		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1])/10000L : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) )
@@ -3183,16 +3183,16 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			}
 		}
 		else
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			}
-			else sfx(WAV_ZN1GRASSCUT,int(bx));
+			else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 		}
             }
             
@@ -3280,13 +3280,13 @@ void LinkClass::check_slash_block_layer(int bx, int by, int layer)
 
 
 
-void LinkClass::check_slash_block(int bx, int by)
+void LinkClass::check_slash_block(int32_t bx, int32_t by)
 {
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
-    int fx=vbound(bx, 0, 255);
-    int fy=vbound(by, 0, 176);
+    int32_t fx=vbound(bx, 0, 255);
+    int32_t fy=vbound(by, 0, 176);
     //first things first
     if(attack!=wSword)
         return;
@@ -3299,13 +3299,13 @@ void LinkClass::check_slash_block(int bx, int by)
     bx &= 0xF0;
     by &= 0xF0;
     
-    int type = COMBOTYPE(bx,by);
-    int type2 = FFCOMBOTYPE(fx,fy);
-    int flag = MAPFLAG(bx,by);
-    int flag2 = MAPCOMBOFLAG(bx,by);
-    int flag3 = MAPFFCOMBOFLAG(fx,fy);
-    int cid = MAPCOMBO(bx,by);
-    int i = (bx>>4) + by;
+    int32_t type = COMBOTYPE(bx,by);
+    int32_t type2 = FFCOMBOTYPE(fx,fy);
+    int32_t flag = MAPFLAG(bx,by);
+    int32_t flag2 = MAPCOMBOFLAG(bx,by);
+    int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t cid = MAPCOMBO(bx,by);
+    int32_t i = (bx>>4) + by;
     
     if(i > 175)
         return;
@@ -3318,7 +3318,7 @@ void LinkClass::check_slash_block(int bx, int by)
         ignorescreen = true;
     }
     
-    int current_ffcombo = getFFCAt(fx,fy);
+    int32_t current_ffcombo = getFFCAt(fx,fy);
     
     if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
     {
@@ -3339,7 +3339,7 @@ void LinkClass::check_slash_block(int bx, int by)
     
     mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
-    int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     byte skipsecrets = 0;
     
     if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
@@ -3371,7 +3371,7 @@ void LinkClass::check_slash_block(int bx, int by)
         }
         else if(((flag>=mfSWORD&&flag<=mfXSWORD)||(flag==mfSTRIKE)))
         {
-            for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+            for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
             {
                 findentrance(bx,by,mfSWORD+i2,true);
             }
@@ -3393,7 +3393,7 @@ void LinkClass::check_slash_block(int bx, int by)
         }
         else if(((flag2>=mfSWORD&&flag2<=mfXSWORD)||(flag2==mfSTRIKE)))
         {
-            for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+            for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
             {
                 findentrance(bx,by,mfSWORD+i2,true);
             }
@@ -3433,7 +3433,7 @@ void LinkClass::check_slash_block(int bx, int by)
     
     if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
     {
-        for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+        for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
         {
             findentrance(bx,by,mfSWORD+i2,true);
         }
@@ -3464,7 +3464,7 @@ void LinkClass::check_slash_block(int bx, int by)
         }
         else if(isCuttableItemType(type))
         {
-		int it = -1;
+		int32_t it = -1;
 		//zprint("reached iscuttableitem, with cid: %d\n", cid);
 		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
@@ -3507,16 +3507,16 @@ void LinkClass::check_slash_block(int bx, int by)
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			}
 		}
 		else
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			}
-			else sfx(WAV_ZN1GRASSCUT,int(bx));
+			else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 		}
             }
             
@@ -3604,7 +3604,7 @@ void LinkClass::check_slash_block(int bx, int by)
         
         if(isCuttableItemType(type2))
         {
-            int it=-1;
+            int32_t it=-1;
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 		
@@ -3614,7 +3614,7 @@ void LinkClass::check_slash_block(int bx, int by)
 		
 		else
 		{
-			int r=zc_oldrand()%100;
+			int32_t r=zc_oldrand()%100;
             
 			if(r<15)
 			{
@@ -3640,10 +3640,10 @@ void LinkClass::check_slash_block(int bx, int by)
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			}
 		}
-                else sfx(WAV_ZN1GRASSCUT,int(bx));
+                else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
             }
             
             if(isBushType(type2))
@@ -3725,12 +3725,12 @@ void LinkClass::check_slash_block(int bx, int by)
     }
 }
 
-void LinkClass::check_wpn_triggers(int bx, int by, weapon *w)
+void LinkClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 {
 	/*
-	int par_item = w->parentitem;
+	int32_t par_item = w->parentitem;
 	al_trace("check_wpn_triggers(weapon *w): par_item is: %d\n", par_item);
-	int usewpn = -1;
+	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
 		usewpn = itemsbuf[par_item].useweapon;
@@ -3744,7 +3744,7 @@ void LinkClass::check_wpn_triggers(int bx, int by, weapon *w)
 	*/
 	bx=vbound(bx, 0, 255);
 	by=vbound(by, 0, 176);
-	int cid = MAPCOMBO(bx,by);
+	int32_t cid = MAPCOMBO(bx,by);
 	switch(w->useweapon)
 	{
 		case wArrow:
@@ -3752,13 +3752,13 @@ void LinkClass::check_wpn_triggers(int bx, int by, weapon *w)
 			findentrance(bx,by,mfSARROW,true);
 			findentrance(bx,by,mfGARROW,true);
 		case wBeam:
-			for(int i = 0; i <4; i++) findentrance(bx,by,mfSWORDBEAM+i,true);
+			for(int32_t i = 0; i <4; i++) findentrance(bx,by,mfSWORDBEAM+i,true);
 			break;
 		case wHookshot:
 			findentrance(bx,by,mfHOOKSHOT,true);
 			break;
 		case wBrang:
-			for(int i = 0; i <3; i++) findentrance(bx,by,mfBRANG+i,true);
+			for(int32_t i = 0; i <3; i++) findentrance(bx,by,mfBRANG+i,true);
 			break;
 		case wMagic:
 			findentrance(bx,by,mfWANDMAGIC,true);
@@ -3767,7 +3767,7 @@ void LinkClass::check_wpn_triggers(int bx, int by, weapon *w)
 			findentrance(bx,by,mfWANDMAGIC,true);
 			break;
 		case wRefBeam:
-			for(int i = 0; i <4; i++) findentrance(bx,by,mfSWORDBEAM+i,true);
+			for(int32_t i = 0; i <4; i++) findentrance(bx,by,mfSWORDBEAM+i,true);
 			break;
 		//reflected magic needs to happen in mirrors:
 		//
@@ -3848,7 +3848,7 @@ void LinkClass::check_wpn_triggers(int bx, int by, weapon *w)
 	}
 }
 
-void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
+void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int32_t layer)
 {
 	
     if(!(get_bit(quest_rules,qr_BUSHESONLAYERS1AND2))) 
@@ -3859,8 +3859,8 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
-    int fx=vbound(bx, 0, 255);
-    int fy=vbound(by, 0, 176);
+    int32_t fx=vbound(bx, 0, 255);
+    int32_t fy=vbound(by, 0, 176);
     //first things first
     if(w->useweapon != wSword)
         return;
@@ -3870,13 +3870,13 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
     by &= 0xF0;
     
    
-    int flag = MAPFLAGL(layer,bx,by);
-    int flag2 = MAPCOMBOFLAGL(layer,bx,by);
-    int cid = MAPCOMBOL(layer,bx,by);
-    int type = combobuf[cid].type;
+    int32_t flag = MAPFLAGL(layer,bx,by);
+    int32_t flag2 = MAPCOMBOFLAGL(layer,bx,by);
+    int32_t cid = MAPCOMBOL(layer,bx,by);
+    int32_t type = combobuf[cid].type;
     //zprint("cid is: %d\n", cid);
      //zprint("type is: %d\n", type);
-    int i = (bx>>4) + by;
+    int32_t i = (bx>>4) + by;
     
     if(i > 175)
         return;
@@ -3888,7 +3888,7 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 	//zprint("ignoring\n");
     }
     
-    int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     
     {
 	    if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(w->wscreengrid_layer[layer-1],i,1);
@@ -3909,7 +3909,7 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
         }
         else if(isCuttableItemType(type))
         {
-            int it = -1;
+            int32_t it = -1;
 		
 		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) )
@@ -3934,11 +3934,11 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			}
 		}
 		else
-			sfx(WAV_ZN1GRASSCUT,int(bx));
+			sfx(WAV_ZN1GRASSCUT,int32_t(bx));
             }
             
             if(isBushType(type))
@@ -4027,12 +4027,12 @@ void LinkClass::check_slash_block_layer2(int bx, int by, weapon *w, int layer)
 
 
 
-void LinkClass::check_slash_block2(int bx, int by, weapon *w)
+void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 {
 	/*
-	int par_item = w->parentitem;
+	int32_t par_item = w->parentitem;
 	al_trace("check_slash_block(weapon *w): par_item is: %d\n", par_item);
-	int usewpn = -1;
+	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
 		usewpn = itemsbuf[par_item].useweapon;
@@ -4048,19 +4048,19 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
-    int fx=vbound(bx, 0, 255);
-    int fy=vbound(by, 0, 176);
-    int cid = MAPCOMBO(bx,by);
+    int32_t fx=vbound(bx, 0, 255);
+    int32_t fy=vbound(by, 0, 176);
+    int32_t cid = MAPCOMBO(bx,by);
         
     //find out which combo row/column the coordinates are in
     bx &= 0xF0;
     by &= 0xF0;
     
-    int type = COMBOTYPE(bx,by);
-    int type2 = FFCOMBOTYPE(fx,fy);
-    int flag = MAPFLAG(bx,by);
-    int flag2 = MAPCOMBOFLAG(bx,by);
-    int flag3 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t type = COMBOTYPE(bx,by);
+    int32_t type2 = FFCOMBOTYPE(fx,fy);
+    int32_t flag = MAPFLAG(bx,by);
+    int32_t flag2 = MAPCOMBOFLAG(bx,by);
+    int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
     byte dontignore = 0;
     byte dontignoreffc = 0;
     
@@ -4079,7 +4079,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 	if(w->useweapon != wSword && !dontignore) return;
 
     
-    int i = (bx>>4) + by;
+    int32_t i = (bx>>4) + by;
 	    if (get_bit(w->wscreengrid,(((bx>>4) + by))) ) return;
     
     if(i > 175)
@@ -4093,7 +4093,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         ignorescreen = true; dontignore = 0;
     }
     
-    int current_ffcombo = getFFCAt(fx,fy);
+    int32_t current_ffcombo = getFFCAt(fx,fy);
     
     if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
     {
@@ -4114,7 +4114,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
     
     mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
-    int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     byte skipsecrets = 0;
     if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
     {
@@ -4142,7 +4142,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         }
         else if(((flag>=mfSWORD&&flag<=mfXSWORD)||(flag==mfSTRIKE)))
         {
-            for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+            for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
             {
                 findentrance(bx,by,mfSWORD+i2,true);
             }
@@ -4164,7 +4164,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         }
         else if(((flag2>=mfSWORD&&flag2<=mfXSWORD)||(flag2==mfSTRIKE)))
         {
-            for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+            for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
             {
                 findentrance(bx,by,mfSWORD+i2,true);
             }
@@ -4203,7 +4203,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
     
     if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
     {
-        for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+        for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
         {
             findentrance(bx,by,mfSWORD+i2,true);
         }
@@ -4234,7 +4234,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         }
 	else if(isCuttableItemType(type))
         {
-		int it = -1;
+		int32_t it = -1;
 		//zprint("reached iscuttableitem, with cid: %d\n", cid);
 		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
@@ -4278,10 +4278,10 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			}
 		}
-                else sfx(WAV_ZN1GRASSCUT,int(bx));
+                else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
             }
             
             if(isBushType(type))
@@ -4368,7 +4368,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
         
         if(isCuttableItemType(type2))
         {
-            int it=-1;
+            int32_t it=-1;
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 		
@@ -4379,7 +4379,7 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 		
 		else
 		{
-			int r=zc_oldrand()%100;
+			int32_t r=zc_oldrand()%100;
             
 			if(r<15)
 			{
@@ -4405,16 +4405,16 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			}
 		}
                 else 
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],int(bx));
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			}
-			else sfx(WAV_ZN1GRASSCUT,int(bx));
+			else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 		}
             }
             
@@ -4498,12 +4498,12 @@ void LinkClass::check_slash_block2(int bx, int by, weapon *w)
 }
 
 
-void LinkClass::check_wand_block2(int bx, int by, weapon *w)
+void LinkClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
 {
 	/*
-	int par_item = w->parentitem;
+	int32_t par_item = w->parentitem;
 	al_trace("check_wand_block(weapon *w): par_item is: %d\n", par_item);
-	int usewpn = -1;
+	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
 		usewpn = itemsbuf[par_item].useweapon;
@@ -4525,9 +4525,9 @@ void LinkClass::check_wand_block2(int bx, int by, weapon *w)
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
-    int fx=vbound(bx, 0, 255);
-    int fy=vbound(by, 0, 176);
-    int cid = MAPCOMBO(bx,by);
+    int32_t fx=vbound(bx, 0, 255);
+    int32_t fy=vbound(by, 0, 176);
+    int32_t cid = MAPCOMBO(bx,by);
    
     //Z_scripterrlog("check_wand_block2 MatchComboTrigger() returned: %d\n", );
     if(w->useweapon != wWand && !MatchComboTrigger (w, combobuf, cid)) return;
@@ -4540,13 +4540,13 @@ void LinkClass::check_wand_block2(int bx, int by, weapon *w)
     bx &= 0xF0;
     by &= 0xF0;
     
-    int flag = MAPFLAG(bx,by);
-    int flag2 = MAPCOMBOFLAG(bx,by);
-    int flag3=0;
-    int flag31 = MAPFFCOMBOFLAG(fx,fy);
-    int flag32 = MAPFFCOMBOFLAG(fx,fy);
-    int flag33 = MAPFFCOMBOFLAG(fx,fy);
-    int flag34 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag = MAPFLAG(bx,by);
+    int32_t flag2 = MAPCOMBOFLAG(bx,by);
+    int32_t flag3=0;
+    int32_t flag31 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag32 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag33 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag34 = MAPFFCOMBOFLAG(fx,fy);
     
     if(flag31==mfWAND||flag32==mfWAND||flag33==mfWAND||flag34==mfWAND)
         flag3=mfWAND;
@@ -4554,7 +4554,7 @@ void LinkClass::check_wand_block2(int bx, int by, weapon *w)
     if(flag31==mfSTRIKE||flag32==mfSTRIKE||flag33==mfSTRIKE||flag34==mfSTRIKE)
         flag3=mfSTRIKE;
         
-    int i = (bx>>4) + by;
+    int32_t i = (bx>>4) + by;
     
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
         return;
@@ -4580,12 +4580,12 @@ void LinkClass::check_wand_block2(int bx, int by, weapon *w)
     //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
-void LinkClass::check_pound_block2(int bx, int by, weapon *w)
+void LinkClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
 {
 	/*
-	int par_item = w->parentitem;
+	int32_t par_item = w->parentitem;
 	al_trace("check_pound_block(weapon *w): par_item is: %d\n", par_item);
-	int usewpn = -1;
+	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
 		usewpn = itemsbuf[par_item].useweapon;
@@ -4599,9 +4599,9 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
 	//keep things inside the screen boundaries
 	bx=vbound(bx, 0, 255);
 	by=vbound(by, 0, 176);
-	int fx=vbound(bx, 0, 255);
-	int fy=vbound(by, 0, 176);
-	int cid = MAPCOMBO(bx,by);
+	int32_t fx=vbound(bx, 0, 255);
+	int32_t fy=vbound(by, 0, 176);
+	int32_t cid = MAPCOMBO(bx,by);
 	byte dontignore = MatchComboTrigger (w, combobuf, cid);
 	if(w->useweapon != wHammer && !dontignore ) return;
 	
@@ -4615,12 +4615,12 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
     bx &= 0xF0;
     by &= 0xF0;
     
-    int type = COMBOTYPE(bx,by);
-    int type2 = FFCOMBOTYPE(fx,fy);
-    int flag = MAPFLAG(bx,by);
-    int flag2 = MAPCOMBOFLAG(bx,by);
-    int flag3 = MAPFFCOMBOFLAG(fx,fy);
-    int i = (bx>>4) + by;
+    int32_t type = COMBOTYPE(bx,by);
+    int32_t type2 = FFCOMBOTYPE(fx,fy);
+    int32_t flag = MAPFLAG(bx,by);
+    int32_t flag2 = MAPCOMBOFLAG(bx,by);
+    int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t i = (bx>>4) + by;
     if (get_bit(w->wscreengrid,(((bx>>4) + by))) ) return;
     
     if(i > 175)
@@ -4638,7 +4638,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
         ignorescreen = true; dontignore = 0;
     }
         
-    int current_ffcombo = getFFCAt(fx,fy);
+    int32_t current_ffcombo = getFFCAt(fx,fy);
     
     if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
         ignoreffc = true;
@@ -4719,7 +4719,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
         }
         
         if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int(bx));
+            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
             
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
     }
@@ -4729,7 +4729,7 @@ void LinkClass::check_pound_block2(int bx, int by, weapon *w)
         set_bit(ffcgrid,current_ffcombo,1);
         
         if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int(bx));
+            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
     }
     
     return;
@@ -4741,9 +4741,9 @@ void LinkClass::check_slash_block(weapon *w)
 {
 	//first things 
 	
-	int par_item = w->parentitem;
+	int32_t par_item = w->parentitem;
 	al_trace("check_slash_block(weapon *w): par_item is: %d\n", par_item);
-	int usewpn = -1;
+	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
 		usewpn = itemsbuf[par_item].useweapon;
@@ -4756,18 +4756,18 @@ void LinkClass::check_slash_block(weapon *w)
     if(usewpn != wSword) return;
 	
 	
-    int bx = 0, by = 0;
-	bx = ((int)w->x) + (((int)w->hxsz)/2);
-	by = ((int)w->y) + (((int)w->hysz)/2);
+    int32_t bx = 0, by = 0;
+	bx = ((int32_t)w->x) + (((int32_t)w->hxsz)/2);
+	by = ((int32_t)w->y) + (((int32_t)w->hysz)/2);
 	al_trace("check_slash_block(weapon *w): bx is: %d\n", bx);
 	al_trace("check_slash_block(weapon *w): by is: %d\n", by);
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
-    int fx=vbound(bx, 0, 255);
-    int fy=vbound(by, 0, 176);
+    int32_t fx=vbound(bx, 0, 255);
+    int32_t fy=vbound(by, 0, 176);
     
-    int cid = MAPCOMBO(bx,by);
+    int32_t cid = MAPCOMBO(bx,by);
         
     //if(z>8 || attackclk==SWORDCHARGEFRAME  // is not charging>0, as tapping a wall reduces attackclk but retains charging
     //        || (attackclk>SWORDTAPFRAME && tapping))
@@ -4777,12 +4777,12 @@ void LinkClass::check_slash_block(weapon *w)
     bx &= 0xF0;
     by &= 0xF0;
     
-    int type = COMBOTYPE(bx,by);
-    int type2 = FFCOMBOTYPE(fx,fy);
-    int flag = MAPFLAG(bx,by);
-    int flag2 = MAPCOMBOFLAG(bx,by);
-    int flag3 = MAPFFCOMBOFLAG(fx,fy);
-    int i = (bx>>4) + by;
+    int32_t type = COMBOTYPE(bx,by);
+    int32_t type2 = FFCOMBOTYPE(fx,fy);
+    int32_t flag = MAPFLAG(bx,by);
+    int32_t flag2 = MAPCOMBOFLAG(bx,by);
+    int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t i = (bx>>4) + by;
     
     if(i > 175)
     {
@@ -4798,7 +4798,7 @@ void LinkClass::check_slash_block(weapon *w)
         ignorescreen = true;
     }
     
-    int current_ffcombo = getFFCAt(fx,fy);
+    int32_t current_ffcombo = getFFCAt(fx,fy);
     
     if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
     {
@@ -4819,7 +4819,7 @@ void LinkClass::check_slash_block(weapon *w)
     
     mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
-    int sworditem = (par_item >-1 ? itemsbuf[par_item].fam_type : current_item(itype_sword)); //Get the level of the item, else the highest sword level in inventory.
+    int32_t sworditem = (par_item >-1 ? itemsbuf[par_item].fam_type : current_item(itype_sword)); //Get the level of the item, else the highest sword level in inventory.
     
     if(!ignorescreen)
     {
@@ -4838,7 +4838,7 @@ void LinkClass::check_slash_block(weapon *w)
         }
         else if(((flag>=mfSWORD&&flag<=mfXSWORD)||(flag==mfSTRIKE)))
         {
-            for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+            for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
             {
                 findentrance(bx,by,mfSWORD+i2,true);
             }
@@ -4860,7 +4860,7 @@ void LinkClass::check_slash_block(weapon *w)
         }
         else if(((flag2>=mfSWORD&&flag2<=mfXSWORD)||(flag2==mfSTRIKE)))
         {
-            for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+            for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
             {
                 findentrance(bx,by,mfSWORD+i2,true);
             }
@@ -4886,7 +4886,7 @@ void LinkClass::check_slash_block(weapon *w)
     
     if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
     {
-        for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+        for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
         {
             findentrance(bx,by,mfSWORD+i2,true);
         }
@@ -4917,7 +4917,7 @@ void LinkClass::check_slash_block(weapon *w)
         }
         else if(isCuttableItemType(type))
         {
-		int it = -1;
+		int32_t it = -1;
 		//zprint("reached iscuttableitem, with cid: %d\n", cid);
 		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
@@ -4960,16 +4960,16 @@ void LinkClass::check_slash_block(weapon *w)
 		{
 			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
 			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
+				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int32_t(bx));
 			}
 		}
                 else 
 		{
 			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
 			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
+				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int32_t(bx));
 			}
-			else sfx(WAV_ZN1GRASSCUT,int(bx));
+			else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 		}
             }
             
@@ -5057,7 +5057,7 @@ void LinkClass::check_slash_block(weapon *w)
         
         if(isCuttableItemType(type2))
         {
-            int it=-1;
+            int32_t it=-1;
 		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
 		{
 		
@@ -5068,7 +5068,7 @@ void LinkClass::check_slash_block(weapon *w)
 		
 		else
 		{
-			int r=zc_oldrand()%100;
+			int32_t r=zc_oldrand()%100;
             
 			if(r<15)
 			{
@@ -5097,16 +5097,16 @@ void LinkClass::check_slash_block(weapon *w)
 		{
 			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
 			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
+				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int32_t(bx));
 			}
 		}
                 else 
 		{
 			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
 			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int(bx));
+				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int32_t(bx));
 			}
-			else sfx(WAV_ZN1GRASSCUT,int(bx));
+			else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 		}
             }
             
@@ -5195,14 +5195,14 @@ void LinkClass::check_slash_block(weapon *w)
 
 }*/
 
-void LinkClass::check_wand_block(int bx, int by)
+void LinkClass::check_wand_block(int32_t bx, int32_t by)
 {
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
-    int fx=vbound(bx, 0, 255);
-    int fy=vbound(by, 0, 176);
-    int cid = MAPCOMBO(bx,by);
+    int32_t fx=vbound(bx, 0, 255);
+    int32_t fy=vbound(by, 0, 176);
+    int32_t cid = MAPCOMBO(bx,by);
     
     //first things first
     if(z>8) return;
@@ -5211,13 +5211,13 @@ void LinkClass::check_wand_block(int bx, int by)
     bx &= 0xF0;
     by &= 0xF0;
     
-    int flag = MAPFLAG(bx,by);
-    int flag2 = MAPCOMBOFLAG(bx,by);
-    int flag3=0;
-    int flag31 = MAPFFCOMBOFLAG(fx,fy);
-    int flag32 = MAPFFCOMBOFLAG(fx,fy);
-    int flag33 = MAPFFCOMBOFLAG(fx,fy);
-    int flag34 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag = MAPFLAG(bx,by);
+    int32_t flag2 = MAPCOMBOFLAG(bx,by);
+    int32_t flag3=0;
+    int32_t flag31 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag32 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag33 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag34 = MAPFFCOMBOFLAG(fx,fy);
     
     if(flag31==mfWAND||flag32==mfWAND||flag33==mfWAND||flag34==mfWAND)
         flag3=mfWAND;
@@ -5225,7 +5225,7 @@ void LinkClass::check_wand_block(int bx, int by)
     if(flag31==mfSTRIKE||flag32==mfSTRIKE||flag33==mfSTRIKE||flag34==mfSTRIKE)
         flag3=mfSTRIKE;
         
-    int i = (bx>>4) + by;
+    int32_t i = (bx>>4) + by;
     
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
         return;
@@ -5249,14 +5249,14 @@ void LinkClass::check_wand_block(int bx, int by)
     //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
-void LinkClass::check_pound_block(int bx, int by)
+void LinkClass::check_pound_block(int32_t bx, int32_t by)
 {
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
-    int fx=vbound(bx, 0, 255);
-    int fy=vbound(by, 0, 176);
-    int cid = MAPCOMBO(bx,by);
+    int32_t fx=vbound(bx, 0, 255);
+    int32_t fy=vbound(by, 0, 176);
+    int32_t cid = MAPCOMBO(bx,by);
     
     //first things first
     if(z>8) return;
@@ -5265,12 +5265,12 @@ void LinkClass::check_pound_block(int bx, int by)
     bx &= 0xF0;
     by &= 0xF0;
     
-    int type = COMBOTYPE(bx,by);
-    int type2 = FFCOMBOTYPE(fx,fy);
-    int flag = MAPFLAG(bx,by);
-    int flag2 = MAPCOMBOFLAG(bx,by);
-    int flag3 = MAPFFCOMBOFLAG(fx,fy);
-    int i = (bx>>4) + by;
+    int32_t type = COMBOTYPE(bx,by);
+    int32_t type2 = FFCOMBOTYPE(fx,fy);
+    int32_t flag = MAPFLAG(bx,by);
+    int32_t flag2 = MAPCOMBOFLAG(bx,by);
+    int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t i = (bx>>4) + by;
     
     if(i > 175)
         return;
@@ -5285,7 +5285,7 @@ void LinkClass::check_pound_block(int bx, int by)
     if(get_bit(screengrid, i) != 0)
         ignorescreen = true;
         
-    int current_ffcombo = getFFCAt(fx,fy);
+    int32_t current_ffcombo = getFFCAt(fx,fy);
     
     if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
         ignoreffc = true;
@@ -5366,7 +5366,7 @@ void LinkClass::check_pound_block(int bx, int by)
         }
         
         if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int(bx));
+            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
             
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
     }
@@ -5376,7 +5376,7 @@ void LinkClass::check_pound_block(int bx, int by)
         set_bit(ffcgrid,current_ffcombo,1);
         
         if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int(bx));
+            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
     }
     
     return;
@@ -5386,9 +5386,9 @@ void LinkClass::check_pound_block(int bx, int by)
 void LinkClass::check_wand_block(weapon *w)
 {
 	
-    int par_item = w->parentitem;
+    int32_t par_item = w->parentitem;
 	al_trace("check_wand_block(weapon *w): par_item is: %d\n", par_item);
-	int usewpn = -1;
+	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
 		usewpn = itemsbuf[par_item].useweapon;
@@ -5401,16 +5401,16 @@ void LinkClass::check_wand_block(weapon *w)
     if(usewpn != wWand) return;
 	
 	
-    int bx = 0, by = 0;
-	bx = ((int)w->x) + (((int)w->hxsz)/2);
-	by = ((int)w->y) + (((int)w->hysz)/2);
+    int32_t bx = 0, by = 0;
+	bx = ((int32_t)w->x) + (((int32_t)w->hxsz)/2);
+	by = ((int32_t)w->y) + (((int32_t)w->hysz)/2);
 	
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
-    int fx=vbound(bx, 0, 255);
-    int fy=vbound(by, 0, 176);
-    int cid = MAPCOMBO(bx,by);
+    int32_t fx=vbound(bx, 0, 255);
+    int32_t fy=vbound(by, 0, 176);
+    int32_t cid = MAPCOMBO(bx,by);
     //first things first
     if(z>8) return;
     
@@ -5418,13 +5418,13 @@ void LinkClass::check_wand_block(weapon *w)
     bx &= 0xF0;
     by &= 0xF0;
     
-    int flag = MAPFLAG(bx,by);
-    int flag2 = MAPCOMBOFLAG(bx,by);
-    int flag3=0;
-    int flag31 = MAPFFCOMBOFLAG(fx,fy);
-    int flag32 = MAPFFCOMBOFLAG(fx,fy);
-    int flag33 = MAPFFCOMBOFLAG(fx,fy);
-    int flag34 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag = MAPFLAG(bx,by);
+    int32_t flag2 = MAPCOMBOFLAG(bx,by);
+    int32_t flag3=0;
+    int32_t flag31 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag32 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag33 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t flag34 = MAPFFCOMBOFLAG(fx,fy);
     
     if(flag31==mfWAND||flag32==mfWAND||flag33==mfWAND||flag34==mfWAND)
         flag3=mfWAND;
@@ -5432,7 +5432,7 @@ void LinkClass::check_wand_block(weapon *w)
     if(flag31==mfSTRIKE||flag32==mfSTRIKE||flag33==mfSTRIKE||flag34==mfSTRIKE)
         flag3=mfSTRIKE;
         
-    int i = (bx>>4) + by;
+    int32_t i = (bx>>4) + by;
     
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
         return;
@@ -5459,9 +5459,9 @@ void LinkClass::check_wand_block(weapon *w)
 void LinkClass::check_pound_block(weapon *w)
 {
 	
-	int par_item = w->parentitem;
+	int32_t par_item = w->parentitem;
 	al_trace("check_pound_block(weapon *w): par_item is: %d\n", par_item);
-	int usewpn = -1;
+	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
 		usewpn = itemsbuf[par_item].useweapon;
@@ -5474,15 +5474,15 @@ void LinkClass::check_pound_block(weapon *w)
     if(usewpn != wHammer) return;
 	
 	
-    int bx = 0, by = 0;
-	bx = ((int)w->x) + (((int)w->hxsz)/2);
-	by = ((int)w->y) + (((int)w->hysz)/2);
+    int32_t bx = 0, by = 0;
+	bx = ((int32_t)w->x) + (((int32_t)w->hxsz)/2);
+	by = ((int32_t)w->y) + (((int32_t)w->hysz)/2);
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
-    int fx=vbound(bx, 0, 255);
-    int fy=vbound(by, 0, 176);
-    int cid = MAPCOMBO(bx,by);
+    int32_t fx=vbound(bx, 0, 255);
+    int32_t fy=vbound(by, 0, 176);
+    int32_t cid = MAPCOMBO(bx,by);
     //first things first
     if(z>8) return;
     
@@ -5490,12 +5490,12 @@ void LinkClass::check_pound_block(weapon *w)
     bx &= 0xF0;
     by &= 0xF0;
     
-    int type = COMBOTYPE(bx,by);
-    int type2 = FFCOMBOTYPE(fx,fy);
-    int flag = MAPFLAG(bx,by);
-    int flag2 = MAPCOMBOFLAG(bx,by);
-    int flag3 = MAPFFCOMBOFLAG(fx,fy);
-    int i = (bx>>4) + by;
+    int32_t type = COMBOTYPE(bx,by);
+    int32_t type2 = FFCOMBOTYPE(fx,fy);
+    int32_t flag = MAPFLAG(bx,by);
+    int32_t flag2 = MAPCOMBOFLAG(bx,by);
+    int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
+    int32_t i = (bx>>4) + by;
     
     if(i > 175)
         return;
@@ -5510,7 +5510,7 @@ void LinkClass::check_pound_block(weapon *w)
     if(get_bit(screengrid, i) != 0)
         ignorescreen = true;
         
-    int current_ffcombo = getFFCAt(fx,fy);
+    int32_t current_ffcombo = getFFCAt(fx,fy);
     
     if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
         ignoreffc = true;
@@ -5591,7 +5591,7 @@ void LinkClass::check_pound_block(weapon *w)
         }
         
         if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int(bx));
+            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
             
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
     }
@@ -5601,7 +5601,7 @@ void LinkClass::check_pound_block(weapon *w)
         set_bit(ffcgrid,current_ffcombo,1);
         
         if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int(bx));
+            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
     }
     
     return;
@@ -5612,9 +5612,9 @@ void LinkClass::check_pound_block(weapon *w)
 // -1 iGNORE WEAPON
 // 0 No effects
 // 1 Effects, weapon is not ignored or removed
-int LinkClass::defend(weapon *w)
+int32_t LinkClass::defend(weapon *w)
 {
-	int def = conv_edef_unblockable(defence[w->id], w->unblockable);
+	int32_t def = conv_edef_unblockable(defence[w->id], w->unblockable);
 	switch(def)
 	{
 		case edNORMAL: return 1;
@@ -5642,7 +5642,7 @@ int LinkClass::defend(weapon *w)
 			}
 			else 
 			{
-				sfx(WAV_CHINK,pan(int(x)));
+				sfx(WAV_CHINK,pan(int32_t(x)));
 				w->dead = 0;
 				return -1;
 			}
@@ -5663,7 +5663,7 @@ int LinkClass::defend(weapon *w)
 		{
 			if (w->power < 1) 
 			{
-				sfx(WAV_CHINK,pan(int(x)));
+				sfx(WAV_CHINK,pan(int32_t(x)));
 				w->dead = 0;
 				return -1;
 			}
@@ -5676,7 +5676,7 @@ int LinkClass::defend(weapon *w)
 		{
 			if (w->power < 2) 
 			{
-				sfx(WAV_CHINK,pan(int(x)));
+				sfx(WAV_CHINK,pan(int32_t(x)));
 				w->dead = 0;
 				return -1;
 			}
@@ -5689,7 +5689,7 @@ int LinkClass::defend(weapon *w)
 		{
 			if (w->power < 4) 
 			{
-				sfx(WAV_CHINK,pan(int(x)));
+				sfx(WAV_CHINK,pan(int32_t(x)));
 				w->dead = 0;
 				return -1;
 			}
@@ -5702,7 +5702,7 @@ int LinkClass::defend(weapon *w)
 		{
 			if (w->power < 6) 
 			{
-				sfx(WAV_CHINK,pan(int(x)));
+				sfx(WAV_CHINK,pan(int32_t(x)));
 				w->dead = 0;
 				return -1;
 			}
@@ -5715,7 +5715,7 @@ int LinkClass::defend(weapon *w)
 		{
 			if (w->power < 8) 
 			{
-				sfx(WAV_CHINK,pan(int(x)));
+				sfx(WAV_CHINK,pan(int32_t(x)));
 				w->dead = 0;
 				return -1;
 			}
@@ -5726,7 +5726,7 @@ int LinkClass::defend(weapon *w)
 		}
 		case edCHINK: // : IMPLEMENTED : Bounces off, plays SFX_CHINK
 		{
-			sfx(WAV_CHINK,pan(int(x)));
+			sfx(WAV_CHINK,pan(int32_t(x)));
 			w->dead = 0;
 			return -1;
 		}
@@ -5751,7 +5751,7 @@ int LinkClass::defend(weapon *w)
 		{
 			if (w->power < 10) 
 			{
-				sfx(WAV_CHINK,pan(int(x)));
+				sfx(WAV_CHINK,pan(int32_t(x)));
 				w->dead = 0;
 				return -1;
 			}
@@ -5777,7 +5777,7 @@ int LinkClass::defend(weapon *w)
 		}
 		case edHEAL: // : IMPLEMENTED : Gain the weapon damage in HP.
 		{
-			//sfx(WAV_HEAL,pan(int(x)));
+			//sfx(WAV_HEAL,pan(int32_t(x)));
 			game->set_life(zc_min(game->get_life()+w->power, game->get_maxlife()));
 			w->dead = 0;
 			return -1;
@@ -5812,8 +5812,8 @@ int LinkClass::defend(weapon *w)
 		{
 			w->power = 0;
 			w->dead = 0;
-			int itemid = current_item_id(itype_shield);
-			//sfx(WAV_BREAKSHIELD,pan(int(x)));
+			int32_t itemid = current_item_id(itype_shield);
+			//sfx(WAV_BREAKSHIELD,pan(int32_t(x)));
 			if(itemsbuf[itemid].flags&ITEM_EDIBLE)
 				game->set_item(itemid, false);
 			//Remove Link's shield
@@ -5826,9 +5826,9 @@ int LinkClass::defend(weapon *w)
 	}
 }
 
-int LinkClass::EwpnHit()
+int32_t LinkClass::EwpnHit()
 {
-    for(int i=0; i<Ewpns.Count(); i++)
+    for(int32_t i=0; i<Ewpns.Count(); i++)
     {
         if(Ewpns.spr(i)->hit(x+7,y+7,z,2,2,1))
         {
@@ -5838,7 +5838,7 @@ int LinkClass::EwpnHit()
             if((ew->ignoreLink)==true || ew->fallclk|| ew->drownclk)
                 break;
 	    
-	    int defresult = defend(ew);
+	    int32_t defresult = defend(ew);
 	    if ( defresult == -1 ) return -1; //The weapon did something special, but it is otherwise ignored, possibly killed by defend(). 
                 
             if(ew->id==ewWind)
@@ -5891,7 +5891,7 @@ int LinkClass::EwpnHit()
                 return i;
             }
             
-            int itemid = current_item_id(itype_shield);
+            int32_t itemid = current_item_id(itype_shield);
             
             if(itemid<0 || !checkmagiccost(itemid)) return i;
             
@@ -5978,7 +5978,7 @@ int LinkClass::EwpnHit()
 			if(!reflect && (ew->unblockable&WPNUNB_SHLD))
 				return i;
 			
-            int oldid = ew->id;
+            int32_t oldid = ew->id;
             ew->onhit(false, reflect ? 2 : 1, dir);
             
             if(ew->id != oldid)                                     // changed type from ewX to wX
@@ -6002,9 +6002,9 @@ int LinkClass::EwpnHit()
     return -1;
 }
 
-int LinkClass::LwpnHit()                                    //only here to check magic hits
+int32_t LinkClass::LwpnHit()                                    //only here to check magic hits
 {
-    for(int i=0; i<Lwpns.Count(); i++)
+    for(int32_t i=0; i<Lwpns.Count(); i++)
         if(Lwpns.spr(i)->hit(x+7,y+7,z,2,2,1))
         {
             weapon *lw = (weapon*)(Lwpns.spr(i));
@@ -6040,7 +6040,7 @@ int LinkClass::LwpnHit()                                    //only here to check
                 break;
             }
             
-            int itemid = current_item_id(itype_shield);
+            int32_t itemid = current_item_id(itype_shield);
             bool reflect = false;
             
             switch(lw->id)
@@ -6149,7 +6149,7 @@ void LinkClass::checkhit()
     {
         if(((ladderx+laddery) && ((hitdir&2)==ladderdir))||(!(ladderx+laddery)))
         {
-            for(int i=0; i<4; i++)
+            for(int32_t i=0; i<4; i++)
             {
                 switch(hitdir)
                 {
@@ -6198,10 +6198,10 @@ void LinkClass::checkhit()
         return;
     }
     
-    for(int i=0; i<Lwpns.Count(); i++)
+    for(int32_t i=0; i<Lwpns.Count(); i++)
     {
         sprite *s = Lwpns.spr(i);
-	int itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
+	int32_t itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
         //if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Link
 	    //if ( itemsbuf[parentitem].misc1 > 0 ) //damages Link by this amount. 
         if((!(itemid==-1&&get_bit(quest_rules,qr_FIREPROOFLINK)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
@@ -6211,7 +6211,7 @@ void LinkClass::checkhit()
             {
                 if(NayrusLoveShieldClk<=0)
                 {
-                    int ringpow = ringpower(lwpn_dp(i));
+                    int32_t ringpow = ringpower(lwpn_dp(i));
                     game->set_life(zc_max(game->get_life()-ringpow,0));
                 }
                 
@@ -6252,11 +6252,11 @@ void LinkClass::checkhit()
         {
             if(s->id==wBrang || s->id==wHookshot)
             {
-                int itemid = ((weapon*)s)->parentitem>-1 ? ((weapon*)s)->parentitem :
+                int32_t itemid = ((weapon*)s)->parentitem>-1 ? ((weapon*)s)->parentitem :
                              directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? itype_hookshot : itype_brang);
                 itemid = vbound(itemid, 0, MAXITEMS-1);
                 
-                for(int j=0; j<Ewpns.Count(); j++)
+                for(int32_t j=0; j<Ewpns.Count(); j++)
                 {
                     sprite *t = Ewpns.spr(j);
                     
@@ -6287,7 +6287,7 @@ void LinkClass::checkhit()
                         case ewFireball2:
                         case ewFireball:
                         {
-                            int mask = (((weapon*)t)->type&1 ? shFIREBALL2 : shFIREBALL);
+                            int32_t mask = (((weapon*)t)->type&1 ? shFIREBALL2 : shFIREBALL);
                             
                             if(!(itemsbuf[itemid].misc3 & mask)) break;
                             
@@ -6328,7 +6328,7 @@ void LinkClass::checkhit()
 killweapon:
                             ((weapon*)s)->dead=1;
                             weapon *ew = ((weapon*)t);
-                            int oldid = ew->id;
+                            int32_t oldid = ew->id;
                             ew->onhit(true, reflect ? 2 : 1, s->dir);
                             
                             /*if (s->dummy_bool[0])
@@ -6365,7 +6365,7 @@ killweapon:
             {
                 if(NayrusLoveShieldClk<=0)
                 {
-                    int ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart()));
+                    int32_t ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart()));
                     game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-ringpow,0)));
                 }
                 
@@ -6411,7 +6411,7 @@ killweapon:
             // In case Link used two whistles in a row, summoning two whirlwinds,
             // check which whistle's whirlwind picked him up so the correct
             // warp ring will be used
-            int whistle=((weapon*)s)->parentitem;
+            int32_t whistle=((weapon*)s)->parentitem;
             
             if(whistle>-1 && itemsbuf[whistle].family==itype_whistle)
                 whistleitem=whistle;
@@ -6424,7 +6424,7 @@ killweapon:
             action==casting || action==sideswimcasting || action==drowning || action==lavadrowning || action==sidedrowning || superman || !(scriptcoldet&1) || fallclk)
         return;
         
-    int hit2 = diagonalMovement?GuyHit(x+4,y+4,z,8,8,hzsz):GuyHit(x+7,y+7,z,2,2,hzsz);
+    int32_t hit2 = diagonalMovement?GuyHit(x+4,y+4,z,8,8,hzsz):GuyHit(x+7,y+7,z,2,2,hzsz);
     
     
     
@@ -6440,7 +6440,7 @@ killweapon:
     {
         if(NayrusLoveShieldClk<=0)
         {
-            int ringpow = ringpower(lwpn_dp(hit2));
+            int32_t ringpow = ringpower(lwpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
 	    sethitLinkUID(HIT_BY_LWEAPON,(hit2+1));  //this is first readable after waitdraw. 
 		//Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
@@ -6485,7 +6485,7 @@ killweapon:
     {
         if(NayrusLoveShieldClk<=0)
         {
-            int ringpow = ringpower(ewpn_dp(hit2));
+            int32_t ringpow = ringpower(ewpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
 	    sethitLinkUID(HIT_BY_EWEAPON,(hit2+1)); //this is first readable after waitdraw. 
 		//Z_scripterrlog("wweapon hit2 is: %d\n", hit2*10000);
@@ -6525,26 +6525,26 @@ killweapon:
     // The rest of this method deals with damage combos, which can be jumped over.
     if(z>0 && !(tmpscr->flags2&fAIRCOMBOS)) return;
     
-    int dx1 = (int)x+8-(tmpscr->csensitive);
-    int dx2 = (int)x+8+(tmpscr->csensitive-1);
-    int dy1 = (int)y+(bigHitbox?8:12)-(bigHitbox?tmpscr->csensitive:(tmpscr->csensitive+1)/2);
-    int dy2 = (int)y+(bigHitbox?8:12)+(bigHitbox?tmpscr->csensitive-1:((tmpscr->csensitive+1)/2)-1);
+    int32_t dx1 = (int32_t)x+8-(tmpscr->csensitive);
+    int32_t dx2 = (int32_t)x+8+(tmpscr->csensitive-1);
+    int32_t dy1 = (int32_t)y+(bigHitbox?8:12)-(bigHitbox?tmpscr->csensitive:(tmpscr->csensitive+1)/2);
+    int32_t dy2 = (int32_t)y+(bigHitbox?8:12)+(bigHitbox?tmpscr->csensitive-1:((tmpscr->csensitive+1)/2)-1);
     
-    for(int i=get_bit(quest_rules, qr_DMGCOMBOLAYERFIX) ? 1 : -1; i>=-1; i--)  // Layers 0, 1 and 2!!
+    for(int32_t i=get_bit(quest_rules, qr_DMGCOMBOLAYERFIX) ? 1 : -1; i>=-1; i--)  // Layers 0, 1 and 2!!
         (void)checkdamagecombos(dx1,dx2,dy1,dy2,i);
 }
 
-bool LinkClass::checkdamagecombos(int dx, int dy)
+bool LinkClass::checkdamagecombos(int32_t dx, int32_t dy)
 {
     return checkdamagecombos(dx,dx,dy,dy);
 }
 
-bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer, bool solid) //layer = -1, solid = false
+bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer, bool solid) //layer = -1, solid = false
 {
 	if(hclk || superman || fallclk)
 		return false;
 		
-	int hp_mod[4] = {0};
+	int32_t hp_mod[4] = {0};
 	byte hasKB = 0;
 	
 	{
@@ -6597,9 +6597,9 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	}
 	
 	
-	int hp_modtotal=0;
+	int32_t hp_modtotal=0;
 	
-	for (int i = 0; i <= 1; ++i)
+	for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
@@ -6610,7 +6610,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		}
 	}
 	
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 	{
 		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
 		{
@@ -6672,9 +6672,9 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		}
 	}
 	
-	int hp_modtotalffc = 0;
+	int32_t hp_modtotalffc = 0;
 	
-	for (int i = 0; i <= 1; ++i)
+	for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
@@ -6685,7 +6685,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		}
 	}
 	
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 	{
 		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
 		{
@@ -6698,12 +6698,12 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 			hp_modtotalffc = zc_min(hp_modtotalffc, hp_mod[i]);
 	}
 	
-	int hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
+	int32_t hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
 	
 	bool global_ring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
 	bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
 	
-	int itemid = current_item_id(itype_boots);
+	int32_t itemid = current_item_id(itype_boots);
 	
 	bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & ITEM_FLAG1);
 	
@@ -6713,7 +6713,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 		{
 			if(NayrusLoveShieldClk<=0)
 			{
-				int ringpow = ringpower(-hp_modmin);
+				int32_t ringpow = ringpower(-hp_modmin);
 				game->set_life(zc_max(game->get_life()-(global_ring!=current_ring ? ringpow:-hp_modmin),0));
 			}
 			
@@ -6757,14 +6757,14 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 	return false;
 }
 
-void LinkClass::hitlink(int hit2)
+void LinkClass::hitlink(int32_t hit2)
 {
-//printf("Stomp check: %d <= 12, %d < %d\n", int((y+16)-(((enemy*)guys.spr(hit2))->y)), (int)falling_oldy, (int)y);
+//printf("Stomp check: %d <= 12, %d < %d\n", int32_t((y+16)-(((enemy*)guys.spr(hit2))->y)), (int32_t)falling_oldy, (int32_t)y);
     if(current_item(itype_stompboots) && checkmagiccost(current_item(itype_stompboots)) && (stomping ||
             (z > (((enemy*)guys.spr(hit2))->z)) ||
             ((isSideViewLink() && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
     {
-        int itemid = current_item_id(itype_stompboots);
+        int32_t itemid = current_item_id(itype_stompboots);
         paymagiccost(itemid);
         hit_enemy(hit2,wStomp,itemsbuf[itemid].power*game->get_hero_dmgmult(),x,y,0,itemid);
         
@@ -6776,10 +6776,10 @@ void LinkClass::hitlink(int hit2)
         {
 		//clear the item script stack for a new script
 		ri = &(itemScriptData[itemid]);
-		for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
+		for ( int32_t q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
 		ri->Clear();
 		//itemScriptData[(itemid & 0xFFF)].Clear();
-		//for ( int q = 0; q < 1024; q++ ) item_stack[(itemid & 0xFFF)][q] = 0;
+		//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(itemid & 0xFFF)][q] = 0;
 		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 		item_doscript[itemid] = 1;
 		itemscriptInitialised[itemid] = 0;
@@ -6792,7 +6792,7 @@ void LinkClass::hitlink(int hit2)
         return;
     else if(NayrusLoveShieldClk<=0)
     {
-        int ringpow = ringpower(enemy_dp(hit2));
+        int32_t ringpow = ringpower(enemy_dp(hit2));
         game->set_life(zc_max(game->get_life()-ringpow,0));
 	sethitLinkUID(HIT_BY_NPC,(hit2+1)); //this is first readable after waitdraw. 
 	    //Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
@@ -6825,8 +6825,8 @@ void LinkClass::hitlink(int hit2)
     }
     
     enemy_scored(hit2);
-    int dm7 = ((enemy*)guys.spr(hit2))->dmisc7;
-    int dm8 = ((enemy*)guys.spr(hit2))->dmisc8;
+    int32_t dm7 = ((enemy*)guys.spr(hit2))->dmisc7;
+    int32_t dm8 = ((enemy*)guys.spr(hit2))->dmisc8;
     
     switch(((enemy*)guys.spr(hit2))->family)
     {
@@ -6844,10 +6844,10 @@ void LinkClass::hitlink(int hit2)
         //case eeBUBBLE:
     case eeWALK:
     {
-        int itemid = current_item_id(itype_whispring);
-        //I can only assume these are supposed to be int, not bool ~pkmnfrk
-        int sworddivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 1) ? itemsbuf[itemid].power : 1);
-        int itemdivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 2) ? itemsbuf[itemid].power : 1);
+        int32_t itemid = current_item_id(itype_whispring);
+        //I can only assume these are supposed to be int32_t, not bool ~pkmnfrk
+        int32_t sworddivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 1) ? itemsbuf[itemid].power : 1);
+        int32_t itemdivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 2) ? itemsbuf[itemid].power : 1);
         
         switch(dm7)
         {
@@ -6864,10 +6864,10 @@ void LinkClass::hitlink(int hit2)
             
         case e7tPERMJINX:
             if(dm8==0 || dm8==2)
-                if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int(150/sworddivisor) : -1;
+                if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/sworddivisor) : -1;
                 
             if(dm8==1 || dm8==2)
-                if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int(150/itemdivisor) : -1;
+                if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/itemdivisor) : -1;
                 
             break;
             
@@ -6903,30 +6903,30 @@ void LinkClass::hitlink(int hit2)
     }
 }
 
-void LinkClass::addsparkle(int wpn)
+void LinkClass::addsparkle(int32_t wpn)
 {
 	//return;
     weapon *w = (weapon*)Lwpns.spr(wpn);
-    int itemid = w->parentitem;
+    int32_t itemid = w->parentitem;
     
     if(itemid<0)
         return;
         
-    int itemtype = itemsbuf[itemid].family;
+    int32_t itemtype = itemsbuf[itemid].family;
     
     if(itemtype!=itype_cbyrna && frame%4)
         return;
         
-    int wpn2 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn4 : itemsbuf[itemid].wpn2;
-    int wpn3 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn5 : itemsbuf[itemid].wpn3;
+    int32_t wpn2 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn4 : itemsbuf[itemid].wpn2;
+    int32_t wpn3 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn5 : itemsbuf[itemid].wpn3;
     // Either one (wpn2) or the other (wpn3). If both are present, randomise.
-    int sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (zc_oldrand()&1 ? wpn2 : wpn3)));
-    int direction=w->dir;
+    int32_t sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (zc_oldrand()&1 ? wpn2 : wpn3)));
+    int32_t direction=w->dir;
     
     if(sparkle_type)
     {
-        int h=0;
-        int v=0;
+        int32_t h=0;
+        int32_t v=0;
         
         if(w->dir==right||w->dir==r_up||w->dir==r_down)
         {
@@ -6965,13 +6965,13 @@ void LinkClass::addsparkle(int wpn)
 }
 
 // For wPhantoms
-void LinkClass::addsparkle2(int type1, int type2)
+void LinkClass::addsparkle2(int32_t type1, int32_t type2)
 {
     if(frame%4) return;
     
-    int arrow = -1;
+    int32_t arrow = -1;
     
-    for(int i=0; i<Lwpns.Count(); i++)
+    for(int32_t i=0; i<Lwpns.Count(); i++)
     {
         weapon *w = (weapon*)Lwpns.spr(i);
         
@@ -6992,12 +6992,12 @@ void LinkClass::addsparkle2(int type1, int type2)
                          Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
 }
 
-//cleans up decorations that exit the bounds of the screen for a long time, to prevebt them wrapping around.
+//cleans up decorations that exit the bounds of the screen for a int32_t time, to prevebt them wrapping around.
 void LinkClass::PhantomsCleanup()
 {
 	if(Lwpns.idCount(wPhantom))
 	{
-		for(int i=0; i<Lwpns.Count(); i++)
+		for(int32_t i=0; i<Lwpns.Count(); i++)
 		{
 			weapon *w = ((weapon *)Lwpns.spr(i));
 			if ( w->id == wPhantom && !w->isScriptGenerated() )
@@ -7012,9 +7012,9 @@ void LinkClass::PhantomsCleanup()
 }
 
 // returns true when game over
-bool LinkClass::animate(int)
+bool LinkClass::animate(int32_t)
 {
-	int lsave=0;
+	int32_t lsave=0;
 	
 	if (onpassivedmg)
 	{
@@ -7068,7 +7068,7 @@ bool LinkClass::animate(int)
 				{
 					decorations.add(new dRipples(x, y, dRIPPLES, 0));
 				}
-				int watercheck = iswaterex(FFORCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, false, false, true, true);
+				int32_t watercheck = iswaterex(FFORCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, false, false, true, true);
 				if (combobuf[watercheck].usrflags&cflag2)
 				{
 					if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
@@ -7076,7 +7076,7 @@ bool LinkClass::animate(int)
 						onpassivedmg = true;
 						if (damageovertimeclk == 0)
 						{
-							int curhp = game->get_life();
+							int32_t curhp = game->get_life();
 							if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
 							else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1]/10000L, 0, game->get_maxlife()));
 							if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
@@ -7108,7 +7108,7 @@ bool LinkClass::animate(int)
 			{
 				decorations.add(new dRipples(x, y, dRIPPLES, 0));
 			}
-			int watercheck = FFORCOMBO(x+7.5,y.getInt()+15);
+			int32_t watercheck = FFORCOMBO(x+7.5,y.getInt()+15);
 			if (combobuf[watercheck].usrflags&cflag2)
 			{
 				if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
@@ -7116,7 +7116,7 @@ bool LinkClass::animate(int)
 					onpassivedmg = true;
 					if (damageovertimeclk == 0)
 					{
-						int curhp = game->get_life();
+						int32_t curhp = game->get_life();
 						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
 						else game->set_life(vbound(game->get_life()+(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife()));
 						if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
@@ -7165,7 +7165,7 @@ bool LinkClass::animate(int)
 	}
 	if(can_use_item(itype_hoverboots,i_hoverboots))
 	{
-		int hoverid = current_item_id(itype_hoverboots);
+		int32_t hoverid = current_item_id(itype_hoverboots);
 		if(!(itemsbuf[hoverid].flags & ITEM_FLAG1))
 		{
 			if(hoverclk < 0) hoverclk = 0;
@@ -7203,9 +7203,9 @@ bool LinkClass::animate(int)
 		// Fall, unless on a ladder, sideview ladder, rafting, using the hookshot, drowning, sideswimming or cheating.
 		if(!(toogam && Up()) && !drownclk && action!=rafting && !IsSideSwim() && !pull_link && !((ladderx || laddery) && fall>0) && !getOnSideviewLadder())
 		{
-			int ydiff = fall/(spins && fall<0 ? 200:100);
+			int32_t ydiff = fall/(spins && fall<0 ? 200:100);
 			//zprint2("ydif is: %d\n", ydiff);
-			//zprint2("ydif is: %d\n", (int)fall);
+			//zprint2("ydif is: %d\n", (int32_t)fall);
 			falling_oldy = y; // Stomp Boots-related variable
 			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
 			{
@@ -7214,7 +7214,7 @@ bool LinkClass::animate(int)
 			y+=ydiff;
 			hs_starty+=ydiff;
 			
-			for(int j=0; j<chainlinks.Count(); j++)
+			for(int32_t j=0; j<chainlinks.Count(); j++)
 			{
 				chainlinks.spr(j)->y+=ydiff;
 			}
@@ -7254,7 +7254,7 @@ bool LinkClass::animate(int)
 		{
 			stop_item_sfx(itype_hoverboots);
 			if(!getOnSideviewLadder() && (fall > 0 || get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON)))
-				y-=(int)y%8; //fix position
+				y-=(int32_t)y%8; //fix position
 			fall = hoverclk = jumping = 0;
 			hoverflags = 0;
 			
@@ -7271,7 +7271,7 @@ bool LinkClass::animate(int)
 		}
 		// Continue falling.
 		
-		else if(fall <= (int)zinit.terminalv)
+		else if(fall <= (int32_t)zinit.terminalv)
 		{
 			
 			if(fall != 0 || hoverclk>0)
@@ -7328,9 +7328,9 @@ bool LinkClass::animate(int)
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
-			else if(fall+int((zinit.gravity2 / 100)) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
+			else if(fall+int32_t((zinit.gravity2 / 100)) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
 			{
-				int itemid = current_item_id(itype_hoverboots);
+				int32_t itemid = current_item_id(itype_hoverboots);
 				if(hoverclk < 0)
 					hoverclk = -hoverclk;
 				else
@@ -7388,7 +7388,7 @@ bool LinkClass::animate(int)
 			}
 		}
 		
-		for(int j=0; j<chainlinks.Count(); j++)
+		for(int32_t j=0; j<chainlinks.Count(); j++)
 		{
 			chainlinks.spr(j)->z=z;
 		}
@@ -7427,7 +7427,7 @@ bool LinkClass::animate(int)
 				}
 			}
 		}
-		else if(fall <= (int)zinit.terminalv)
+		else if(fall <= (int32_t)zinit.terminalv)
 		{
 			if(fall != 0 || hoverclk>0)
 				jumping++;
@@ -7445,14 +7445,14 @@ bool LinkClass::animate(int)
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
-			else if(fall+(int)(zinit.gravity2 / 100) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
+			else if(fall+(int32_t)(zinit.gravity2 / 100) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
 			{
 				if(hoverclk < 0)
 					hoverclk = -hoverclk;
 				else
 				{
 					fall = 0;
-					int itemid = current_item_id(itype_hoverboots);
+					int32_t itemid = current_item_id(itype_hoverboots);
 					if(itemsbuf[itemid].misc1)
 						hoverclk = itemsbuf[itemid].misc1;
 					else
@@ -7491,7 +7491,7 @@ bool LinkClass::animate(int)
 	if ( FFCore.getLinkAction() == stunned && !link_is_stunned )
 	{
 	action=tempaction; FFCore.setLinkAction(tempaction);
-		 zprint("Unfreezing link to action: %d\n", (int)tempaction);
+		 zprint("Unfreezing link to action: %d\n", (int32_t)tempaction);
 	   
 	//action=none; FFCore.setLinkAction(none);
 		
@@ -7527,9 +7527,9 @@ bool LinkClass::animate(int)
 			
 			watch=false;
 			
-			for(int i=0; i<eMAXGUYS; i++)
+			for(int32_t i=0; i<eMAXGUYS; i++)
 			{
-				for(int zoras=0; zoras<clock_zoras[i]; zoras++)
+				for(int32_t zoras=0; zoras<clock_zoras[i]; zoras++)
 				{
 					addenemy(0,0,i,0);
 				}
@@ -7547,7 +7547,7 @@ bool LinkClass::animate(int)
 			if(pull_link==true)
 			{
 				sprite *t;
-				int i;
+				int32_t i;
 				
 				for(i=0; i<Lwpns.Count() && (Lwpns.spr(i)->id!=wHSHandle); i++)
 				{
@@ -7623,22 +7623,22 @@ bool LinkClass::animate(int)
 		{
 			if(dir==up)
 			{
-				y=int(y+7)&0xF0;
+				y=int32_t(y+7)&0xF0;
 			}
 			
 			if(dir==down)
 			{
-				y=int(y+7)&0xF0;
+				y=int32_t(y+7)&0xF0;
 			}
 			
 			if(dir==left)
 			{
-				x=int(x+7)&0xF0;
+				x=int32_t(x+7)&0xF0;
 			}
 			
 			if(dir==right)
 			{
-				x=int(x+7)&0xF0;
+				x=int32_t(x+7)&0xF0;
 			}
 			
 			hs_fix=false;
@@ -7668,7 +7668,7 @@ bool LinkClass::animate(int)
 		if( !FFCore.runOnMapScriptEngine() ) //OnMap script replaces the 'onViewMap()' call
 			onViewMap();
 	}   
-	for(int i=0; i<Lwpns.Count(); i++)
+	for(int32_t i=0; i<Lwpns.Count(); i++)
 	{
 		weapon *w = ((weapon*)Lwpns.spr(i));
 		
@@ -7692,11 +7692,11 @@ bool LinkClass::animate(int)
 	if(Lwpns.idCount(wCByrna))
 	{
 		weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wCByrna)));
-		int itemid = ew->parentitem;
+		int32_t itemid = ew->parentitem;
 		
 		if(!checkmagiccost(itemid))
 		{
-			for(int i=0; i<Lwpns.Count(); i++)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				weapon *w = ((weapon*)Lwpns.spr(i));
 				
@@ -7724,16 +7724,16 @@ bool LinkClass::animate(int)
 	}
 	if(!isSideViewLink())
 	{
-		int tx = x.getInt()+8,
+		int32_t tx = x.getInt()+8,
 		    ty = y.getInt()+(bigHitbox?8:12);
 		if(!(unsigned(ty)>175 || unsigned(tx) > 255))
 		{
-			for(int q = 0; q < 3; ++q)
+			for(int32_t q = 0; q < 3; ++q)
 			{
 				if(q && !tmpscr2[q-1].valid) continue;
 				newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
 				if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
-				int b = 1;
+				int32_t b = 1;
 				if(tx&8) b <<= 2;
 				if(ty&8) b <<= 1;
 				b |= (b<<4); //check equivalent effect flag too
@@ -7890,8 +7890,8 @@ bool LinkClass::animate(int)
 		if(--drownclk==0)
 		{
 			action=none; FFCore.setLinkAction(none);
-			int water = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
-			int damage = combobuf[water].attributes[0]/10000L;
+			int32_t water = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
+			int32_t damage = combobuf[water].attributes[0]/10000L;
 			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (game->get_hp_per_heart()/4);
 			if (combobuf[water].type != cWATER) damage = 4;
 			game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
@@ -7977,7 +7977,7 @@ bool LinkClass::animate(int)
 	}
 	case inwind:
 	{
-		int i=Lwpns.idFirst(wWind);
+		int32_t i=Lwpns.idFirst(wWind);
 		
 		if(i<0)
 		{
@@ -8056,7 +8056,7 @@ bool LinkClass::animate(int)
 		if (shouldbreak) break;
 		if (action == swimming || action == sideswimming || action == sideswimattacking)
 		{
-			int watercheck = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
+			int32_t watercheck = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			if (combobuf[watercheck].usrflags&cflag2)
 			{
 				if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
@@ -8064,7 +8064,7 @@ bool LinkClass::animate(int)
 					onpassivedmg = true;
 					if (damageovertimeclk == 0)
 					{
-						int curhp = game->get_life();
+						int32_t curhp = game->get_life();
 						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
 						else game->set_life(vbound(game->get_life()+(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife()));
 						if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
@@ -8198,7 +8198,7 @@ bool LinkClass::animate(int)
 				pity=y;
 			}
 			
-			int index2 = 0;
+			int32_t index2 = 0;
 			
 			if(tmpscr->flags5 & fRANDOMTIMEDWARP) index2=zc_oldrand()%4;
 			
@@ -8209,25 +8209,25 @@ bool LinkClass::animate(int)
 	
 	bool awarp = false;
 	//!DIMI: Global Combo Effects (AUTO STUFF)
-	for(int i=0; i<176; i++)
+	for(int32_t i=0; i<176; i++)
 	{
-		for(int layer=0; layer<=2; layer++)
+		for(int32_t layer=0; layer<=2; layer++)
 		{
 			if (layer == 1 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_1)) continue;
 			if (layer == 2 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_2)) continue;
-			int ind=0;
+			int32_t ind=0;
 			
 			if(!awarp) //Putting stuff in here so it doesn't activate after an autowarp happens.
 			{
 				//AUTOMATIC TRIGGER CODE
-				int cid = ( layer ) ? MAPCOMBOL(layer,MAPCOMBOX(i),MAPCOMBOY(i)) : MAPCOMBO(MAPCOMBOX(i),MAPCOMBOY(i));
+				int32_t cid = ( layer ) ? MAPCOMBOL(layer,MAPCOMBOX(i),MAPCOMBOY(i)) : MAPCOMBO(MAPCOMBOX(i),MAPCOMBOY(i));
 				newcombo const& cmb = combobuf[cid];
 				if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 				{
-					int flag = ( layer ) ? MAPFLAGL(layer, MAPCOMBOX(i),MAPCOMBOY(i)) : MAPFLAG(MAPCOMBOX(i),MAPCOMBOY(i));
-					int flag2 = ( layer ) ? MAPCOMBOFLAGL(layer,MAPCOMBOX(i),MAPCOMBOY(i)): MAPCOMBOFLAG(MAPCOMBOX(i),MAPCOMBOY(i));
-					int ft = cmb.attribytes[3];
-					int scombo=COMBOPOS(MAPCOMBOX(i),MAPCOMBOY(i));
+					int32_t flag = ( layer ) ? MAPFLAGL(layer, MAPCOMBOX(i),MAPCOMBOY(i)) : MAPFLAG(MAPCOMBOX(i),MAPCOMBOY(i));
+					int32_t flag2 = ( layer ) ? MAPCOMBOFLAGL(layer,MAPCOMBOX(i),MAPCOMBOY(i)): MAPCOMBOFLAG(MAPCOMBOX(i),MAPCOMBOY(i));
+					int32_t ft = cmb.attribytes[3];
+					int32_t scombo=COMBOPOS(MAPCOMBOX(i),MAPCOMBOY(i));
 					bool single16 = false;
 					if ( cmb.type >= cSCRIPT1 && cmb.type <= cTRIGGERGENERIC )
 					{
@@ -8294,9 +8294,9 @@ bool LinkClass::animate(int)
 	
 	awarp=false;
 	
-	for(int i=0; i<32; i++)
+	for(int32_t i=0; i<32; i++)
 	{
-		int ind=0;
+		int32_t ind=0;
 		
 		if(!awarp)
 		{
@@ -8361,8 +8361,8 @@ bool LinkClass::animate(int)
 	{
 	if(DEVLOGGING) zprint("Running warpex from Link.cpp\n");
 	FFCore.warpex[wexActive] = 0;
-	int temp_warpex[wexActive] = {0}; //to hold the values as we clear the FFCore array. -Z
-	for ( int q = 0; q < wexActive; q++ ) 
+	int32_t temp_warpex[wexActive] = {0}; //to hold the values as we clear the FFCore array. -Z
+	for ( int32_t q = 0; q < wexActive; q++ ) 
 	{
 		temp_warpex[q] = FFCore.warpex[q];
 		FFCore.warpex[q] = 0;
@@ -8373,7 +8373,7 @@ bool LinkClass::animate(int)
 	
 	// walk through bombed doors and fake walls
 	bool walk=false;
-	int dtype=dBOMBED;
+	int32_t dtype=dBOMBED;
 	
 	if(pushing>=24) dtype=dWALK;
 	
@@ -8455,7 +8455,7 @@ bool LinkClass::animate(int)
 	
 	if(rSbtn())
 	{
-		int tmp_subscr_clk = frame;
+		int32_t tmp_subscr_clk = frame;
 		
 		switch(lsave)
 		{
@@ -8488,12 +8488,12 @@ bool LinkClass::animate(int)
 	if (!checkstab() )
 	{
 		/*
-		for(int q=0; q<176; q++)
+		for(int32_t q=0; q<176; q++)
 			{
 				set_bit(screengrid,q,0); 
 			}
 			
-			for(int q=0; q<32; q++)
+			for(int32_t q=0; q<32; q++)
 				set_bit(ffcgrid, q, 0);
 		*/
 	}
@@ -8545,12 +8545,12 @@ bool LinkClass::animate(int)
 
 // A routine used exclusively by startwpn,
 // to switch Link's weapon if his current weapon (bombs) was depleted.
-void LinkClass::deselectbombs(int super)
+void LinkClass::deselectbombs(int32_t super)
 {
     if ( get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb || itemsbuf[game->forced_xwpn].family == itype_bomb || itemsbuf[game->forced_ywpn].family == itype_bomb) return;
     if(getItemFamily(itemsbuf,Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
-        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
         Bwpn = Bweapon(temp);
         directItemB = directItem;
         game->bwpn = temp;
@@ -8558,31 +8558,31 @@ void LinkClass::deselectbombs(int super)
     
     else if (getItemFamily(itemsbuf,Xwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
     {
-        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->xwpn, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->xwpn, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
         Xwpn = Bweapon(temp);
         directItemX = directItem;
         game->xwpn = temp;
     }
     else if (getItemFamily(itemsbuf,Ywpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
     {
-        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->ywpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, game->awpn);
+        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->ywpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, game->awpn);
         Ywpn = Bweapon(temp);
         directItemY = directItem;
         game->ywpn = temp;
     }
     else
     {
-        int temp = selectWpn_new(SEL_VERIFY_LEFT, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
         Awpn = Bweapon(temp);
         directItemA = directItem;
         game->awpn = temp;
     }
 }
 
-int potion_life=0;
-int potion_magic=0;
+int32_t potion_life=0;
+int32_t potion_magic=0;
 
-bool LinkClass::startwpn(int itemid)
+bool LinkClass::startwpn(int32_t itemid)
 {
     if(itemid < 0) return false;
     
@@ -8590,9 +8590,9 @@ bool LinkClass::startwpn(int itemid)
             (dir==left && x<32) || (dir==right && x>208)) && !(get_bit(quest_rules,qr_ITEMSONEDGES) || inlikelike))
         return false;
         
-    int wx=x;
-    int wy=y;
-    int wz=z;
+    int32_t wx=x;
+    int32_t wy=y;
+    int32_t wz=z;
     bool ret = true;
     
     switch(dir)
@@ -8694,7 +8694,7 @@ bool LinkClass::startwpn(int itemid)
 					reset_ladder();
 					
 				sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
-				//zprint2("fall is: %d\n", (int)fall);
+				//zprint2("fall is: %d\n", (int32_t)fall);
 			}
         }
         
@@ -8710,7 +8710,7 @@ bool LinkClass::startwpn(int itemid)
                 ((currscr<128&&!(DMaps[currdmap].flags&dmfGUYCAVES))||(currscr>=128&&DMaps[currdmap].flags&dmfGUYCAVES))
           )
         {
-            int usedid = getItemID(itemsbuf, itype_letter,i_letter+1);
+            int32_t usedid = getItemID(itemsbuf, itype_letter,i_letter+1);
             
             if(usedid != -1)
                 getitem(usedid, true);
@@ -8764,7 +8764,7 @@ bool LinkClass::startwpn(int itemid)
         }
         else
         {
-            int where = itemsbuf[itemid].misc1;
+            int32_t where = itemsbuf[itemid].misc1;
             
             if(where>right) where=dir^1;
             
@@ -8891,7 +8891,7 @@ bool LinkClass::startwpn(int itemid)
             return false;
 		}
             
-        int bookid = current_item_id(itype_book);
+        int32_t bookid = current_item_id(itype_book);
         bool paybook = (bookid>-1 && checkmagiccost(bookid));
         
         if(!(itemsbuf[itemid].flags&ITEM_FLAG1) && !paybook)  //Can the wand shoot without the book?
@@ -8908,7 +8908,7 @@ bool LinkClass::startwpn(int itemid)
         
 	//This needs an ER -V
 	//Patched with QRs
-	int type, pow;
+	int32_t type, pow;
 	if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
 	{
 		type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
@@ -8922,7 +8922,7 @@ bool LinkClass::startwpn(int itemid)
 		type = (bookid != -1 && paybook) ? current_item(itype_book) : itemsbuf[itemid].fam_type;
 		pow = ((bookid != -1 && paybook) ? current_item_power(itype_book) : itemsbuf[itemid].power)*game->get_hero_dmgmult();
 	}
-        for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
+        for(int32_t i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
             if(dir!=(i^1))
 	    {
 		weapon *magic = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wMagic,type,pow,i, itemid,getUID(),false,false,true);
@@ -9006,9 +9006,9 @@ bool LinkClass::startwpn(int itemid)
             temppower = game->get_hero_dmgmult()*itemsbuf[itemid].misc2;
         }
         
-        //Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
+        //Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itemsbuf[itemid].fam_type,int32_t(temppower),dir,itemid,getUID()));
 	//Add weapon script to sword beams.
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID(),false,false,true));
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itemsbuf[itemid].fam_type,int32_t(temppower),dir,itemid,getUID(),false,false,true));
 	//weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //the pointer to this beam
 	//w->weaponscript = itemsbuf[itemid].weaponscript;
 	//w->canrunscript = 0;
@@ -9293,12 +9293,12 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         
-        for(int i=-1; i<2; i++)
+        for(int32_t i=-1; i<2; i++)
         {
             if(dir==up)
             {
                 if(isHSGrabbable(combobuf[MAPCOMBO2(i,x,y-7)])||
-                        (_walkflag(x+2,y+4,1,SWITCHBLOCK_STATE) && !ishookshottable(x.getInt(),int(y+4))))
+                        (_walkflag(x+2,y+4,1,SWITCHBLOCK_STATE) && !ishookshottable(x.getInt(),int32_t(y+4))))
                 {
                     use_hookshot=false;
                 }
@@ -9357,8 +9357,8 @@ bool LinkClass::startwpn(int itemid)
         
         if(use_hookshot)
         {
-            int hookitem = itemsbuf[itemid].fam_type;
-            int hookpower = itemsbuf[itemid].power;
+            int32_t hookitem = itemsbuf[itemid].fam_type;
+            int32_t hookpower = itemsbuf[itemid].power;
             byte allow_diagonal = (itemsbuf[itemid].flags & ITEM_FLAG2) ? 1 : 0; 
 		
             if(!Lwpns.has_space())
@@ -9384,7 +9384,7 @@ bool LinkClass::startwpn(int itemid)
             
             if(dir==down)
             {
-                int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
+                int32_t offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 hookshot_used=true;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
                                      hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
@@ -9419,7 +9419,7 @@ bool LinkClass::startwpn(int itemid)
 	    if(dir==r_down)
             {
                 hookshot_used=true;
-		int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
+		int32_t offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
                                      hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
@@ -9440,7 +9440,7 @@ bool LinkClass::startwpn(int itemid)
 	    if(dir==l_down)
             {
                 hookshot_used=true;
-		int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
+		int32_t offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
                                      hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
@@ -9521,7 +9521,7 @@ bool LinkClass::startwpn(int itemid)
         paymagiccost(itemid);
 	last_cane_of_byrna_item_id = itemid; 
         //zprint("itemsbuf[itemid].misc3: %d\n", itemsbuf[itemid].misc3);
-        for(int i=0; i<itemsbuf[itemid].misc3; i++)
+        for(int32_t i=0; i<itemsbuf[itemid].misc3; i++)
 	{
 		//byrna weapons are added here
 		//space them apart
@@ -9582,8 +9582,8 @@ bool LinkClass::startwpn(int itemid)
 
 bool LinkClass::doattack()
 {
-    //int s = BSZ ? 0 : 11;
-    int s = (zinit.linkanimationstyle==las_bszelda) ? 0 : 11;
+    //int32_t s = BSZ ? 0 : 11;
+    int32_t s = (zinit.linkanimationstyle==las_bszelda) ? 0 : 11;
     
     // Abort attack if attackclk has run out and:
     // * the attack is not Hammer, Sword with Spin Scroll, Candle, or Wand, OR
@@ -9602,8 +9602,8 @@ bool LinkClass::doattack()
         return false;
     }
     
-    int candleid = (directWpn>-1 && itemsbuf[directWpn].family==itype_candle) ? directWpn : current_item_id(itype_candle);
-    int byrnaid = (directWpn>-1 && itemsbuf[directWpn].family==itype_cbyrna) ? directWpn : current_item_id(itype_cbyrna);
+    int32_t candleid = (directWpn>-1 && itemsbuf[directWpn].family==itype_candle) ? directWpn : current_item_id(itype_candle);
+    int32_t byrnaid = (directWpn>-1 && itemsbuf[directWpn].family==itype_cbyrna) ? directWpn : current_item_id(itype_cbyrna);
     
     // An attack can be "walked out-of" after 8 frames, unless it's:
     // * a sword stab
@@ -9629,8 +9629,8 @@ bool LinkClass::doattack()
     }
     
     // Work out the sword charge-up delay
-    int magiccharge = 192, normalcharge = 64;
-    int itemid = current_item_id(itype_chargering);
+    int32_t magiccharge = 192, normalcharge = 64;
+    int32_t itemid = current_item_id(itype_chargering);
     
     if(itemid>=0)
     {
@@ -9705,7 +9705,7 @@ bool LinkClass::doattack()
         
         bool beamcount = false;
         
-        for(int i=0; i<Lwpns.Count(); i++)
+        for(int32_t i=0; i<Lwpns.Count(); i++)
         {
             weapon *w = ((weapon*)Lwpns.spr(i));
             
@@ -9768,7 +9768,7 @@ bool LinkClass::doattack()
                 quakeclk=(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].misc1);
                 
                 // general area stun
-                for(int i=0; i<GuyCount(); i++)
+                for(int32_t i=0; i<GuyCount(); i++)
                 {
                     if(!isflier(GuyID(i)))
                     {
@@ -9793,13 +9793,13 @@ bool LinkClass::doattack()
         return startwpn(attackid); // Flame if the Candle stab animation WASN'T used.
     }
     
-    int crossid = current_item_id(itype_crossscroll);  //has Cross Beams scroll
+    int32_t crossid = current_item_id(itype_crossscroll);  //has Cross Beams scroll
     
     if(attackclk==13 || (attackclk==7 && spins>1 && crossid >=0 && checkmagiccost(crossid)))
     {
     
-        int wpnid = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? directWpn : current_item_id(itype_sword);
-        long long templife = wpnid>=0? itemsbuf[wpnid].misc1 : 0;
+        int32_t wpnid = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? directWpn : current_item_id(itype_sword);
+        int64_t templife = wpnid>=0? itemsbuf[wpnid].misc1 : 0;
         
         if(wpnid>=0 && itemsbuf[wpnid].flags & ITEM_FLAG1)
         {
@@ -9812,7 +9812,7 @@ bool LinkClass::doattack()
         }
         
         bool normalbeam = (game->get_life()+(get_bit(quest_rules,qr_QUARTERHEART)?((game->get_hp_per_heart()/4)-1):((game->get_hp_per_heart()/2)-1))>=templife);
-        int perilid = current_item_id(itype_perilscroll);
+        int32_t perilid = current_item_id(itype_perilscroll);
         bool perilbeam = (perilid>=0 && wpnid>=0 && game->get_life()<=itemsbuf[perilid].misc1*game->get_hp_per_heart()
                           && checkmagiccost(perilid)
                           // Must actually be able to shoot sword beams
@@ -9855,15 +9855,15 @@ bool LinkClass::doattack()
 
 bool LinkClass::can_attack()
 {
-	int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
+	int32_t currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
     if(action==hopping || action==swimming || action==freeze || action==sideswimfreeze || link_is_stunned > 0 ||
             ((action==attacking||action==sideswimattacking) && ((attack!=wSword && attack!=wWand) || !(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)) && charging!=0) || spins>0)
     {
         return false;
     }
     
-    int r = (isdungeon()) ? 16 : 0;
-    int r2 = get_bit(quest_rules, qr_NOBORDER) ? 0 : 8;
+    int32_t r = (isdungeon()) ? 16 : 0;
+    int32_t r2 = get_bit(quest_rules, qr_NOBORDER) ? 0 : 8;
     
     if(!get_bit(quest_rules, qr_ITEMSONEDGES)) switch(dir)
         {
@@ -9879,7 +9879,7 @@ bool LinkClass::can_attack()
     return true;
 }
 
-bool isRaftFlag(int flag)
+bool isRaftFlag(int32_t flag)
 {
     return (flag==mfRAFT || flag==mfRAFT_BRANCH || flag==mfRAFT_BOUNCE);
 }
@@ -9889,8 +9889,8 @@ void do_lens()
 	
 	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x250 )
 	{
-		int wpnPressed = getWpnPressed(itype_lens);
-	    int itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
+		int32_t wpnPressed = getWpnPressed(itype_lens);
+	    int32_t itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
 	    //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ngetWpnPressed:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,getWpnPressed(itype_lens),current_item_id(itype_lens));
 	    if(itemid<0)
 		return;
@@ -9911,9 +9911,9 @@ void do_lens()
 		{
 			//clear the item script stack for a new script
 			//itemScriptData[(itemid & 0xFFF)].Clear();
-			//for ( int q = 0; q < 1024; q++ ) item_stack[(itemid & 0xFFF)][q] = 0;
+			//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(itemid & 0xFFF)][q] = 0;
 			ri = &(itemScriptData[itemid]);
-			for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
+			for ( int32_t q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
 			ri->Clear();
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 			item_doscript[itemid] = 1;
@@ -9946,7 +9946,7 @@ void do_lens()
 //Add 2.10 version check to call this
 void do_210_lens()
 {
-    int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
+    int32_t itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
     
     if(itemid<0)
         return;
@@ -9967,9 +9967,9 @@ void do_210_lens()
 		//clear the item script stack for a new script
 		//itemScriptData[(itemid & 0xFFF)].Clear();
 		ri = &(itemScriptData[itemid]);
-		for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
+		for ( int32_t q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
 		ri->Clear();
-		//for ( int q = 0; q < 1024; q++ ) item_stack[(itemid & 0xFFF)][q] = 0;
+		//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(itemid & 0xFFF)][q] = 0;
 		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 		item_doscript[itemid] = 1;
 		itemscriptInitialised[itemid] = 0;
@@ -10001,7 +10001,7 @@ void LinkClass::do_hopping()
     if(hopclk==0xFF) //|| (diagonalMovement && hopclk >= 0xFF) ))                                         // swimming
 			//Possible fix for exiting water in diagonal movement. -Z
     {
-		int flippers_id = current_item_id(itype_flippers);
+		int32_t flippers_id = current_item_id(itype_flippers);
         if(diveclk>0)
 		{
             --diveclk;
@@ -10072,7 +10072,7 @@ void LinkClass::do_hopping()
                 {
                     linkstep();
                     linkstep();
-                    int sidestep=0;
+                    int32_t sidestep=0;
                     
                     if(iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
                         sidestep=1;
@@ -10096,7 +10096,7 @@ void LinkClass::do_hopping()
                 {
                     linkstep();
                     linkstep();
-                    int sidestep=0;
+                    int32_t sidestep=0;
                     
                     if(iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && !iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && !iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
                         sidestep=1;
@@ -10120,7 +10120,7 @@ void LinkClass::do_hopping()
                 {
                     linkstep();
                     linkstep();
-                    int sidestep=0;
+                    int32_t sidestep=0;
                     
                     if(iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x-1,y+(bigHitbox?8:12)), currmap, currscr, -1, x-1,y+(bigHitbox?8:12), true, false) && !iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
                         sidestep=1;
@@ -10144,7 +10144,7 @@ void LinkClass::do_hopping()
                 {
                     linkstep();
                     linkstep();
-                    int sidestep=0;
+                    int32_t sidestep=0;
                     
                     if(iswaterex(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x+16,y+(bigHitbox?8:12)), currmap, currscr, -1, x+16,y+(bigHitbox?8:12), true, false) && !iswaterex(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
                         sidestep=1;
@@ -10173,7 +10173,7 @@ void LinkClass::do_hopping()
                 {
                     linkstep();
                     linkstep();
-                    int sidestep=0;
+                    int32_t sidestep=0;
                     
                     if(!iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
                         sidestep=1;
@@ -10196,7 +10196,7 @@ void LinkClass::do_hopping()
                 {
                     linkstep();
                     linkstep();
-                    int sidestep=0;
+                    int32_t sidestep=0;
                     
                     if(!iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
                         sidestep=1;
@@ -10220,7 +10220,7 @@ void LinkClass::do_hopping()
                 {
                     linkstep();
                     linkstep();
-                    int sidestep=0;
+                    int32_t sidestep=0;
                     
                     if(!iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && iswaterex(MAPCOMBO(x-1,y+(bigHitbox?8:12)), currmap, currscr, -1, x-1,y+(bigHitbox?8:12), true, false) && iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
                         sidestep=1;
@@ -10244,7 +10244,7 @@ void LinkClass::do_hopping()
                     linkstep();
                     linkstep();
                     
-                    int sidestep=0;
+                    int32_t sidestep=0;
                     
                     if(!iswaterex(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && iswaterex(MAPCOMBO(x+16,y+(bigHitbox?8:12)), currmap, currscr, -1, x+16,y+(bigHitbox?8:12), true, false) && iswaterex(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
                         sidestep=1;
@@ -10288,9 +10288,9 @@ void LinkClass::do_hopping()
                 if(++link_count>(16*link_animation_speed))
                     link_count=0;
                     
-                int xofs2 = x.getInt()&15;
-                int yofs2 = y.getInt()&15;
-                int s = 1 + (frame&1);
+                int32_t xofs2 = x.getInt()&15;
+                int32_t yofs2 = y.getInt()&15;
+                int32_t s = 1 + (frame&1);
                 
                 switch(dir)
                 {
@@ -10339,12 +10339,12 @@ void LinkClass::do_rafting()
     linkstep();
     
 	//Calculate rafting speed
-	int raft_item = current_item_id(itype_raft);
-	int raft_step = (raft_item < 0 ? 1 : itemsbuf[raft_item].misc1);
+	int32_t raft_item = current_item_id(itype_raft);
+	int32_t raft_step = (raft_item < 0 ? 1 : itemsbuf[raft_item].misc1);
 	raft_step = vbound(raft_step, -8, 5);
-	int raft_time = raft_step < 0 ? 1<<(-raft_step) : 1;
+	int32_t raft_time = raft_step < 0 ? 1<<(-raft_step) : 1;
 	if(raft_step < 0) raft_step = 1;
-	int step_inc = 1 << (raft_step - 1);
+	int32_t step_inc = 1 << (raft_step - 1);
 	// Fix position
 	if(raft_step > 1)
 	{
@@ -10480,7 +10480,7 @@ bool LinkClass::try_hover()
 {
 	if(hoverclk <= 0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
 	{
-		int itemid = current_item_id(itype_hoverboots);
+		int32_t itemid = current_item_id(itype_hoverboots);
 		if(hoverclk < 0)
 			hoverclk = -hoverclk;
 		else
@@ -10507,7 +10507,7 @@ bool LinkClass::try_hover()
 //Returns bitwise; lower 8 are dir pulled in, next 16 are combo ID, 25th bit is bool for if can be resisted
 //Returns '-1' if not being pulled
 //Returns '-2' if should be falling in
-int LinkClass::check_pitslide(bool ignore_hover)
+int32_t LinkClass::check_pitslide(bool ignore_hover)
 {
 	//Pitfall todo -Emily
 	//Iron boots; can't fight slipping, 2px/frame
@@ -10523,19 +10523,19 @@ int LinkClass::check_pitslide(bool ignore_hover)
 	if(can_pitfall(ignore_hover))
 	{
 		bool can_diag = (diagonalMovement || get_bit(quest_rules,qr_DISABLE_4WAY_GRIDLOCK));
-		int ispitul = getpitfall(x,y+(bigHitbox?0:8));
-		int ispitbl = getpitfall(x,y+15);
-		int ispitur = getpitfall(x+15,y+(bigHitbox?0:8));
-		int ispitbr = getpitfall(x+15,y+15);
-		int ispitul_50 = getpitfall(x+8,y+(bigHitbox?8:12));
-		int ispitbl_50 = getpitfall(x+8,y+(bigHitbox?7:11));
-		int ispitur_50 = getpitfall(x+7,y+(bigHitbox?8:12));
-		int ispitbr_50 = getpitfall(x+7,y+(bigHitbox?7:11));
-		int ispitul_75 = getpitfall(x+12,y+(bigHitbox?12:14));
-		int ispitbl_75 = getpitfall(x+12,y+(bigHitbox?3:9));
-		int ispitur_75 = getpitfall(x+3,y+(bigHitbox?12:14));
-		int ispitbr_75 = getpitfall(x+3,y+(bigHitbox?3:9));
-		static const int flag_pit_irresistable = (1<<24);
+		int32_t ispitul = getpitfall(x,y+(bigHitbox?0:8));
+		int32_t ispitbl = getpitfall(x,y+15);
+		int32_t ispitur = getpitfall(x+15,y+(bigHitbox?0:8));
+		int32_t ispitbr = getpitfall(x+15,y+15);
+		int32_t ispitul_50 = getpitfall(x+8,y+(bigHitbox?8:12));
+		int32_t ispitbl_50 = getpitfall(x+8,y+(bigHitbox?7:11));
+		int32_t ispitur_50 = getpitfall(x+7,y+(bigHitbox?8:12));
+		int32_t ispitbr_50 = getpitfall(x+7,y+(bigHitbox?7:11));
+		int32_t ispitul_75 = getpitfall(x+12,y+(bigHitbox?12:14));
+		int32_t ispitbl_75 = getpitfall(x+12,y+(bigHitbox?3:9));
+		int32_t ispitur_75 = getpitfall(x+3,y+(bigHitbox?12:14));
+		int32_t ispitbr_75 = getpitfall(x+3,y+(bigHitbox?3:9));
+		static const int32_t flag_pit_irresistable = (1<<24);
 		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
 		{
 			case 4: return -2; //Fully over pit; fall in
@@ -10756,7 +10756,7 @@ bool LinkClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 {
 	pitfall();
 	if(fallclk) return true;
-	int val = check_pitslide();
+	int32_t val = check_pitslide();
 	//Val should not be -2 here; if -2 would have been returned, the 'return true' above should have triggered!
 	if(val == -1)
 	{
@@ -10764,9 +10764,9 @@ bool LinkClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 		pit_pullclk = 0;
 		return false;
 	}
-	int dir = val&0xFF;
-	int cmbid = (val&0xFFFF00)>>8;
-	int sensitivity = combobuf[cmbid].attribytes[2];
+	int32_t dir = val&0xFF;
+	int32_t cmbid = (val&0xFFFF00)>>8;
+	int32_t sensitivity = combobuf[cmbid].attribytes[2];
 	if(combobuf[cmbid].usrflags&cflag5) //No pull at all
 	{
 		pit_pulldir = -1;
@@ -10780,7 +10780,7 @@ bool LinkClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 		return false;
 	}
 	pit_pulldir = dir;
-	int step = 1;
+	int32_t step = 1;
 	if(sensitivity == 0)
 	{
 		step = 2;
@@ -10817,7 +10817,7 @@ void LinkClass::pitfall()
 		//Handle falling
 		if(!--fallclk)
 		{
-			int dmg = game->get_hp_per_heart()/4;
+			int32_t dmg = game->get_hp_per_heart()/4;
 			bool dmg_perc = false;
 			bool warp = false;
 			
@@ -10832,7 +10832,7 @@ void LinkClass::pitfall()
 			if(dmg) //Damage
 			{
 				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
-				game->set_life(vbound(int(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg)),0,game->get_maxlife()));
+				game->set_life(vbound(int32_t(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg)),0,game->get_maxlife()));
 			}
 			if(warp) //Warp
 			{
@@ -10860,7 +10860,7 @@ void LinkClass::pitfall()
 		bool ispitbl = ispitfall(x,y+15);
 		bool ispitur = ispitfall(x+15,y+(bigHitbox?0:8));
 		bool ispitbr = ispitfall(x+15,y+15);
-		int pitctr = getpitfall(x+8,y+(bigHitbox?8:12));
+		int32_t pitctr = getpitfall(x+8,y+(bigHitbox?8:12));
 		if(ispitul && ispitbl && ispitur && ispitbr && pitctr)
 		{
 			if(!(hoverflags & HOV_PITFALL_OUT) && try_hover()) return;
@@ -10877,21 +10877,21 @@ void LinkClass::pitfall()
 void LinkClass::movelink()
 {
 	if(link_is_stunned) return;
-	int xoff=x.getInt()&7;
-	int yoff=y.getInt()&7;
+	int32_t xoff=x.getInt()&7;
+	int32_t yoff=y.getInt()&7;
 	if(NO_GRIDLOCK)
 	{
 		xoff = 0;
 		yoff = 0;
 	}
-	int push=pushing;
-	int oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
+	int32_t push=pushing;
+	int32_t oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
 	pushing=0;
 	zfix temp_step(link_newstep);
 	zfix temp_x(x);
 	zfix temp_y(y);
 	
-	int flippers_id = current_item_id(itype_flippers);
+	int32_t flippers_id = current_item_id(itype_flippers);
 	if(diveclk>0)
 	{
 		if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) diveclk = 0;
@@ -10922,12 +10922,12 @@ void LinkClass::movelink()
 		setEntryPoints(x,y);
 	}
 	
-	int olddirectwpn = directWpn; // To be reinstated if startwpn() fails
-	int btnwpn = -1;
+	int32_t olddirectwpn = directWpn; // To be reinstated if startwpn() fails
+	int32_t btnwpn = -1;
 	
 	//&0xFFF removes the "bow & arrows" bitmask
 	//The Quick Sword is allowed to interrupt attacks.
-	int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
+	int32_t currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
 	if((!attackclk && action!=attacking && action != sideswimattacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)))
 	{
 		if(DrunkrBbtn())
@@ -10985,10 +10985,10 @@ void LinkClass::movelink()
 				//clear the item script stack for a new script
 			
 				ri = &(itemScriptData[dowpn]);
-				for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
+				for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
 				ri->Clear();
 				//itemScriptData[(dowpn & 0xFFF)].Clear();
-				//for ( int q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
+				//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
 				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
 				item_doscript[dowpn] = 1;
 				itemscriptInitialised[dowpn] = 0;
@@ -11015,8 +11015,8 @@ void LinkClass::movelink()
 		}
 	}
 	
-	int wx=x;
-	int wy=y;
+	int32_t wx=x;
+	int32_t wy=y;
 	if((action==none || action==walking) && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 	{
 		if((xoff==0)||diagonalMovement)
@@ -11144,9 +11144,9 @@ void LinkClass::movelink()
 			//clear the item script stack for a new script
 			//itemScriptData[(dowpn & 0xFFF)].Clear();
 			ri = &(itemScriptData[dowpn]);
-			for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
+			for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
 			ri->Clear();
-			//for ( int q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
+			//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
 			item_doscript[dowpn] = 1;
 			itemscriptInitialised[dowpn] = 0;
@@ -11271,9 +11271,9 @@ void LinkClass::movelink()
 			{
 				if(dir==up&&yoff)
 				{
-					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]),2,up);
+					info = walkflag(x,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]),2,up);
 					if(blockmoving)
-						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]));
+						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]));
 					execute(info);
 					
 					if(!info.isUnwalkable())
@@ -11281,23 +11281,23 @@ void LinkClass::movelink()
 						bool ffcwalk = true;
 						//check for solid ffcs here -Z
 						//This does work, however once the solif ffc stops Link from moving, the player can release the dpan, press again, and pass through it.
-						for ( int q = 0; q < 32; ++q )
+						for ( int32_t q = 0; q < 32; ++q )
 						{
 							//solid ffcs attampt -Z ( 30th March, 2019 )
 							if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
 							{
-								//al_trace("(int)tmpscr->ffy[0] is %d\n",(int)tmpscr->ffy[q]/10000);
-								//al_trace("(int)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int)((tmpscr->ffheight[q]&0x3F)+1));
-								int max_y = (((int)tmpscr->ffy[q])/10000) + (int)((tmpscr->ffheight[q]&0x3F)+1);
+								//al_trace("(int32_t)tmpscr->ffy[0] is %d\n",(int32_t)tmpscr->ffy[q]/10000);
+								//al_trace("(int32_t)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int32_t)((tmpscr->ffheight[q]&0x3F)+1));
+								int32_t max_y = (((int32_t)tmpscr->ffy[q])/10000) + (int32_t)((tmpscr->ffheight[q]&0x3F)+1);
 								//al_trace("max_y for ffc bottom edge is: %d\n", max_y);
-								//al_trace("int(lsteps[y.getInt()&7] is %d\n",int(lsteps[y.getInt()&7]));
-								//if ( (int)y - int(lsteps[y.getInt()&7]) == max_y ) //if the ffc bottom edge is in the step range
-								if ( (int)y == max_y ) //if the ffc bottom edge is in the step range
+								//al_trace("int32_t(lsteps[y.getInt()&7] is %d\n",int32_t(lsteps[y.getInt()&7]));
+								//if ( (int32_t)y - int32_t(lsteps[y.getInt()&7]) == max_y ) //if the ffc bottom edge is in the step range
+								if ( (int32_t)y == max_y ) //if the ffc bottom edge is in the step range
 								{
 									//al_trace("Link is under the ffc\n");
-									int linkwidthx = (int)x+(int)hxsz;
+									int32_t linkwidthx = (int32_t)x+(int32_t)hxsz;
 									//al_trace("linkwidthx is: %d\n",linkwidthx);
-									if ( linkwidthx >= (((int)tmpscr->ffx[q])/10000) && (int)x < ( (((int)tmpscr->ffx[q])/10000) + (int)(tmpscr->ffwidth[q]&0x3F)+1) )
+									if ( linkwidthx >= (((int32_t)tmpscr->ffx[q])/10000) && (int32_t)x < ( (((int32_t)tmpscr->ffx[q])/10000) + (int32_t)(tmpscr->ffwidth[q]&0x3F)+1) )
 									{
 										al_trace("Link is under X border of ffc\n");
 										//Link is under the ffc
@@ -11319,9 +11319,9 @@ void LinkClass::movelink()
 				
 				if(dir==down&&yoff)
 				{
-					info = walkflag(x,y+15+int(lsteps[y.getInt()&7]),2,down);
+					info = walkflag(x,y+15+int32_t(lsteps[y.getInt()&7]),2,down);
 					if(blockmoving)
-						info = info || walkflagMBlock(x+8,y+15+int(lsteps[y.getInt()&7]));
+						info = info || walkflagMBlock(x+8,y+15+int32_t(lsteps[y.getInt()&7]));
 					execute(info);
 					
 					if(!info.isUnwalkable())
@@ -11329,19 +11329,19 @@ void LinkClass::movelink()
 						bool ffcwalk = true;
 						//solid ffcs attampt -Z ( 30th March, 2019 )
 						//check for solid ffcs here -Z
-						for ( int q = 0; q < 32; ++q )
+						for ( int32_t q = 0; q < 32; ++q )
 						{
 							if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
 							{
-								int min_y = (((int)tmpscr->ffy[0])/10000);
-								//if ( (int)y+(int)hysz + int(lsteps[y.getInt()&7]) > min_y ) //if the ffc bottom edge is in the step range
-								//if ( (int)y+(int)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
-								if ( (int)y+(int)hysz == min_y ) //if the ffc bottom edge is in the step range
+								int32_t min_y = (((int32_t)tmpscr->ffy[0])/10000);
+								//if ( (int32_t)y+(int32_t)hysz + int32_t(lsteps[y.getInt()&7]) > min_y ) //if the ffc bottom edge is in the step range
+								//if ( (int32_t)y+(int32_t)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
+								if ( (int32_t)y+(int32_t)hysz == min_y ) //if the ffc bottom edge is in the step range
 								{
 									//al_trace("Link is under the ffc\n");
-									int linkwidthx = (int)x+(int)hxsz;
+									int32_t linkwidthx = (int32_t)x+(int32_t)hxsz;
 									//al_trace("linkwidthx is: %d\n",linkwidthx);
-									if ( linkwidthx >= (((int)tmpscr->ffx[0])/10000) && (int)x < ( (((int)tmpscr->ffx[0])/10000) + (int)(tmpscr->ffwidth[0]&0x3F)+1) )
+									if ( linkwidthx >= (((int32_t)tmpscr->ffx[0])/10000) && (int32_t)x < ( (((int32_t)tmpscr->ffx[0])/10000) + (int32_t)(tmpscr->ffwidth[0]&0x3F)+1) )
 									{
 									//	al_trace("Link is under X border of ffc\n");
 										//Link is under the ffc
@@ -11364,7 +11364,7 @@ void LinkClass::movelink()
 				
 				if(dir==left&&xoff)
 				{
-					info = walkflag(x-int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) || walkflag(x-int(lsteps[x.getInt()&7]),y+8,1,left);
+					info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) || walkflag(x-int32_t(lsteps[x.getInt()&7]),y+8,1,left);
 					execute(info);
 					
 					if(!info.isUnwalkable())
@@ -11381,7 +11381,7 @@ void LinkClass::movelink()
 				
 				if(dir==right&&xoff)
 				{
-					info = walkflag(x+15+int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right) || walkflag(x+15+int(lsteps[x.getInt()&7]),y+8,1,right);
+					info = walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right) || walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+8,1,right);
 					execute(info);
 					
 					if(!info.isUnwalkable())
@@ -11412,22 +11412,22 @@ void LinkClass::movelink()
 							bool ffcwalk = true;
 							//check for solid ffcs here -Z
 							//This does work, however once the solif ffc stops Link from moving, the player can release the dpan, press again, and pass through it.
-							for ( int q = 0; q < 32; ++q )
+							for ( int32_t q = 0; q < 32; ++q )
 							{
 								//solid ffcs attampt -Z ( 30th March, 2019 )
 								if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
-								//al_trace("(int)tmpscr->ffy[0] is %d\n",(int)tmpscr->ffy[q]/10000);
-								//al_trace("(int)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int)((tmpscr->ffheight[q]&0x3F)+1));
-								int max_y = (((int)tmpscr->ffy[q])/10000) + (int)((tmpscr->ffheight[q]&0x3F)+1);
+								//al_trace("(int32_t)tmpscr->ffy[0] is %d\n",(int32_t)tmpscr->ffy[q]/10000);
+								//al_trace("(int32_t)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int32_t)((tmpscr->ffheight[q]&0x3F)+1));
+								int32_t max_y = (((int32_t)tmpscr->ffy[q])/10000) + (int32_t)((tmpscr->ffheight[q]&0x3F)+1);
 								//al_trace("max_y for ffc bottom edge is: %d\n", max_y);
-								//al_trace("int(lsteps[y.getInt()&7] is %d\n",int(lsteps[y.getInt()&7]));
-								//if ( (int)y - int(lsteps[y.getInt()&7]) == max_y ) //if the ffc bottom edge is in the step range
+								//al_trace("int32_t(lsteps[y.getInt()&7] is %d\n",int32_t(lsteps[y.getInt()&7]));
+								//if ( (int32_t)y - int32_t(lsteps[y.getInt()&7]) == max_y ) //if the ffc bottom edge is in the step range
 								if ( temp_y.getInt() == max_y ) //if the ffc bottom edge is in the step range
 								{
 									//al_trace("Link is under the ffc\n");
-									int linkwidthx = temp_x.getInt()+(int)hxsz;
+									int32_t linkwidthx = temp_x.getInt()+(int32_t)hxsz;
 									//al_trace("linkwidthx is: %d\n",linkwidthx);
-									if ( linkwidthx >= (((int)tmpscr->ffx[q])/10000) && temp_x.getInt() < ( (((int)tmpscr->ffx[q])/10000) + (int)(tmpscr->ffwidth[q]&0x3F)+1) )
+									if ( linkwidthx >= (((int32_t)tmpscr->ffx[q])/10000) && temp_x.getInt() < ( (((int32_t)tmpscr->ffx[q])/10000) + (int32_t)(tmpscr->ffwidth[q]&0x3F)+1) )
 									{
 										al_trace("Link is under X border of ffc\n");
 										//Link is under the ffc
@@ -11446,14 +11446,14 @@ void LinkClass::movelink()
 							}
 						}
 						//Could not move, try moving less
-						if(temp_y != int(temp_y))
+						if(temp_y != int32_t(temp_y))
 						{
 							temp_y = floor((double)temp_y);
 							continue;
 						}
 						else if(temp_step > 1)
 						{
-							if(temp_step != int(temp_step)) //floor
+							if(temp_step != int32_t(temp_step)) //floor
 								temp_step = floor((double)temp_step);
 							else --temp_step;
 							continue;
@@ -11480,19 +11480,19 @@ void LinkClass::movelink()
 							bool ffcwalk = true;
 							//solid ffcs attampt -Z ( 30th March, 2019 )
 							//check for solid ffcs here -Z
-							for ( int q = 0; q < 32; ++q )
+							for ( int32_t q = 0; q < 32; ++q )
 							{
 								if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
 								{
-									int min_y = (((int)tmpscr->ffy[0])/10000);
-									//if ( temp_y.getInt()+(int)hysz + temp_step > min_y ) //if the ffc bottom edge is in the step range
-									//if ( temp_y.getInt()+(int)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
-									if ( temp_y.getInt()+(int)hysz == min_y ) //if the ffc bottom edge is in the step range
+									int32_t min_y = (((int32_t)tmpscr->ffy[0])/10000);
+									//if ( temp_y.getInt()+(int32_t)hysz + temp_step > min_y ) //if the ffc bottom edge is in the step range
+									//if ( temp_y.getInt()+(int32_t)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
+									if ( temp_y.getInt()+(int32_t)hysz == min_y ) //if the ffc bottom edge is in the step range
 									{
 										//al_trace("Link is under the ffc\n");
-										int linkwidthx = temp_x.getInt()+(int)hxsz;
+										int32_t linkwidthx = temp_x.getInt()+(int32_t)hxsz;
 										//al_trace("linkwidthx is: %d\n",linkwidthx);
-										if ( linkwidthx >= (((int)tmpscr->ffx[0])/10000) && temp_x.getInt() < ( (((int)tmpscr->ffx[0])/10000) + (int)(tmpscr->ffwidth[0]&0x3F)+1) )
+										if ( linkwidthx >= (((int32_t)tmpscr->ffx[0])/10000) && temp_x.getInt() < ( (((int32_t)tmpscr->ffx[0])/10000) + (int32_t)(tmpscr->ffwidth[0]&0x3F)+1) )
 										{
 										//	al_trace("Link is under X border of ffc\n");
 											//Link is under the ffc
@@ -11512,14 +11512,14 @@ void LinkClass::movelink()
 							}
 						}
 						//Could not move, try moving less
-						if(temp_y != int(temp_y))
+						if(temp_y != int32_t(temp_y))
 						{
 							temp_y = floor((double)temp_y);
 							continue;
 						}
 						else if(temp_step > 1)
 						{
-							if(temp_step != int(temp_step)) //floor
+							if(temp_step != int32_t(temp_step)) //floor
 								temp_step = floor((double)temp_step);
 							else --temp_step;
 							continue;
@@ -11548,14 +11548,14 @@ void LinkClass::movelink()
 							return;
 						}
 						//Could not move, try moving less
-						if(temp_x != int(temp_x))
+						if(temp_x != int32_t(temp_x))
 						{
 							temp_x = floor((double)temp_x);
 							continue;
 						}
 						else if(temp_step > 1)
 						{
-							if(temp_step != int(temp_step)) //floor
+							if(temp_step != int32_t(temp_step)) //floor
 								temp_step = floor((double)temp_step);
 							else --temp_step;
 							continue;
@@ -11584,14 +11584,14 @@ void LinkClass::movelink()
 							return;
 						}
 						//Could not move, try moving less
-						if(temp_x != int(temp_x))
+						if(temp_x != int32_t(temp_x))
 						{
 							temp_x = floor((double)temp_x);
 							continue;
 						}
 						else if(temp_step > 1)
 						{
-							if(temp_step != int(temp_step)) //floor
+							if(temp_step != int32_t(temp_step)) //floor
 								temp_step = floor((double)temp_step);
 							else --temp_step;
 							continue;
@@ -11713,7 +11713,7 @@ void LinkClass::movelink()
 								}
 								else if(link_newstep > 1)
 								{
-									if(link_newstep != int(link_newstep)) //floor
+									if(link_newstep != int32_t(link_newstep)) //floor
 										link_newstep = floor((double)link_newstep);
 									else --link_newstep;
 								}
@@ -11725,7 +11725,7 @@ void LinkClass::movelink()
 						while(!walkable);
 					}
 					
-					int s=shiftdir;
+					int32_t s=shiftdir;
 					
 					if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
 					{
@@ -11939,7 +11939,7 @@ void LinkClass::movelink()
 								}
 								else if(link_newstep > 1)
 								{
-									if(link_newstep != int(link_newstep)) //floor
+									if(link_newstep != int32_t(link_newstep)) //floor
 										link_newstep = floor((double)link_newstep);
 									else --link_newstep;
 								}
@@ -11951,7 +11951,7 @@ void LinkClass::movelink()
 						while(!walkable);
 					}
 					
-					int s=shiftdir;
+					int32_t s=shiftdir;
 					
 					if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
 					{
@@ -12150,7 +12150,7 @@ void LinkClass::movelink()
 							}
 							else if(link_newstep > 1)
 							{
-								if(link_newstep != int(link_newstep)) //floor
+								if(link_newstep != int32_t(link_newstep)) //floor
 									link_newstep = floor((double)link_newstep);
 								else --link_newstep;
 							}
@@ -12161,7 +12161,7 @@ void LinkClass::movelink()
 					}
 					while(!walkable);
 					
-					int s=shiftdir;
+					int32_t s=shiftdir;
 					
 					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
@@ -12286,8 +12286,8 @@ void LinkClass::movelink()
 						{
 							x = x.getInt();
 							y = y.getInt();
-							int v1=bigHitbox?0:8;
-							int v2=bigHitbox?8:12;
+							int32_t v1=bigHitbox?0:8;
+							int32_t v2=bigHitbox?8:12;
 							
 							if(!_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
 									!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
@@ -12367,7 +12367,7 @@ void LinkClass::movelink()
 							}
 							else if(link_newstep > 1)
 							{
-								if(link_newstep != int(link_newstep)) //floor
+								if(link_newstep != int32_t(link_newstep)) //floor
 									link_newstep = floor((double)link_newstep);
 								else --link_newstep;
 							}
@@ -12378,7 +12378,7 @@ void LinkClass::movelink()
 					}
 					while(!walkable);
 					
-					int s=shiftdir;
+					int32_t s=shiftdir;
 					
 					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
@@ -12503,8 +12503,8 @@ void LinkClass::movelink()
 						{
 							x = x.getInt();
 							y = y.getInt();
-							int v1=bigHitbox?0:8;
-							int v2=bigHitbox?8:12;
+							int32_t v1=bigHitbox?0:8;
+							int32_t v2=bigHitbox?8:12;
 								   
 							if(!_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
 								   !_walkflag(x+16,y+v2,1,SWITCHBLOCK_STATE)&&
@@ -12619,7 +12619,7 @@ void LinkClass::movelink()
 						}
 					}
 					
-					int s=shiftdir;
+					int32_t s=shiftdir;
 					
 					if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
 					{
@@ -12787,7 +12787,7 @@ void LinkClass::movelink()
 						}
 					}
 					
-					int s=shiftdir;
+					int32_t s=shiftdir;
 					
 					if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
 					{
@@ -12951,7 +12951,7 @@ void LinkClass::movelink()
 						walkable = true;
 					}
 					
-					int s=shiftdir;
+					int32_t s=shiftdir;
 					
 					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
@@ -13008,8 +13008,8 @@ void LinkClass::movelink()
 					{
 						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
 						{
-							int v1=bigHitbox?0:8;
-							int v2=bigHitbox?8:12;
+							int32_t v1=bigHitbox?0:8;
+							int32_t v2=bigHitbox?8:12;
 							
 							if(!_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
 									!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
@@ -13118,7 +13118,7 @@ void LinkClass::movelink()
 						walkable = true;
 					}
 					
-					int s=shiftdir;
+					int32_t s=shiftdir;
 					
 					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
@@ -13175,8 +13175,8 @@ void LinkClass::movelink()
 					{
 						if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
 						{
-							int v1=bigHitbox?0:8;
-							int v2=bigHitbox?8:12;
+							int32_t v1=bigHitbox?0:8;
+							int32_t v2=bigHitbox?8:12;
 							
 							info = !walkflag(x+16,y+v1,1,right)&&
 								   !walkflag(x+16,y+v2,1,right)&&
@@ -13229,11 +13229,11 @@ void LinkClass::movelink()
 			}
 		}
 		
-		int wtry  = iswaterex(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
-		int wtry8 = iswaterex(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
-		int wtrx = iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
-		int wtrx8 = iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
-		int wtrc = iswaterex(MAPCOMBO(x+8,y+(bigHitbox?8:12)), currmap, currscr, -1, x+8,y+(bigHitbox?8:12), true, false);
+		int32_t wtry  = iswaterex(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
+		int32_t wtry8 = iswaterex(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
+		int32_t wtrx = iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
+		int32_t wtrx8 = iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
+		int32_t wtrc = iswaterex(MAPCOMBO(x+8,y+(bigHitbox?8:12)), currmap, currscr, -1, x+8,y+(bigHitbox?8:12), true, false);
 		
 		if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))&&!(ladderx+laddery)&&z==0)
 		{
@@ -13276,13 +13276,13 @@ void LinkClass::movelink()
 				
 				if(info.isUnwalkable())
 				{
-					if(temp_x != int(temp_x))
+					if(temp_x != int32_t(temp_x))
 					{
 						temp_x = floor((double)temp_x);
 					}
 					else if(temp_step > 1)
 					{
-						if(temp_step != int(temp_step)) //floor
+						if(temp_step != int32_t(temp_step)) //floor
 							temp_step = floor((double)temp_step);
 						else --temp_step;
 					}
@@ -13317,13 +13317,13 @@ void LinkClass::movelink()
 				
 				if(info.isUnwalkable())
 				{
-					if(temp_x != int(temp_x))
+					if(temp_x != int32_t(temp_x))
 					{
 						temp_x = floor((double)temp_x);
 					}
 					else if(temp_step > 1)
 					{
-						if(temp_step != int(temp_step)) //floor
+						if(temp_step != int32_t(temp_step)) //floor
 							temp_step = floor((double)temp_step);
 						else --temp_step;
 					}
@@ -13405,13 +13405,13 @@ void LinkClass::movelink()
 					
 					if(info.isUnwalkable())
 					{
-						if(temp_y != int(temp_y))
+						if(temp_y != int32_t(temp_y))
 						{
 							temp_y = floor((double)temp_y);
 						}
 						else if(temp_step > 1)
 						{
-							if(temp_step != int(temp_step)) //floor
+							if(temp_step != int32_t(temp_step)) //floor
 								temp_step = floor((double)temp_step);
 							else --temp_step;
 						}
@@ -13535,13 +13535,13 @@ void LinkClass::movelink()
 					
 					if(info.isUnwalkable())
 					{
-						if(temp_y != int(temp_y))
+						if(temp_y != int32_t(temp_y))
 						{
 							temp_y = floor((double)temp_y);
 						}
 						else if(temp_step > 1)
 						{
-							if(temp_step != int(temp_step)) //floor
+							if(temp_step != int32_t(temp_step)) //floor
 								temp_step = floor((double)temp_step);
 							else --temp_step;
 						}
@@ -13659,13 +13659,13 @@ LEFTRIGHT_NEWMOVE:
 					
 					if(info.isUnwalkable())
 					{
-						if(temp_x != int(temp_x))
+						if(temp_x != int32_t(temp_x))
 						{
 							temp_x = floor((double)temp_x);
 						}
 						else if(temp_step > 1)
 						{
-							if(temp_step != int(temp_step)) //floor
+							if(temp_step != int32_t(temp_step)) //floor
 								temp_step = floor((double)temp_step);
 							else --temp_step;
 						}
@@ -13692,8 +13692,8 @@ LEFTRIGHT_NEWMOVE:
 					{
 						x = x.getInt();
 						y = y.getInt();
-						int v1=bigHitbox?0:8;
-						int v2=bigHitbox?8:12;
+						int32_t v1=bigHitbox?0:8;
+						int32_t v2=bigHitbox?8:12;
 						
 						if(!_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
 								!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
@@ -13776,13 +13776,13 @@ LEFTRIGHT_NEWMOVE:
 					
 					if(info.isUnwalkable())
 					{
-						if(temp_x != int(temp_x))
+						if(temp_x != int32_t(temp_x))
 						{
 							temp_x = floor((double)temp_x);
 						}
 						else if(temp_step > 1)
 						{
-							if(temp_step != int(temp_step)) //floor
+							if(temp_step != int32_t(temp_step)) //floor
 								temp_step = floor((double)temp_step);
 							else --temp_step;
 						}
@@ -13809,8 +13809,8 @@ LEFTRIGHT_NEWMOVE:
 					{
 						x = x.getInt();
 						y = y.getInt();
-						int v1=bigHitbox?0:8;
-						int v2=bigHitbox?8:12;
+						int32_t v1=bigHitbox?0:8;
+						int32_t v2=bigHitbox?8:12;
 							   
 						if(!_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
 							   !_walkflag(x+16,y+v2,1,SWITCHBLOCK_STATE)&&
@@ -13850,8 +13850,8 @@ LEFTRIGHT_NEWMOVE:
 	}
 	else
 	{
-		info = walkflag(x-int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) ||
-			   walkflag(x-int(lsteps[x.getInt()&7]),y+8,1,left);
+		info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) ||
+			   walkflag(x-int32_t(lsteps[x.getInt()&7]),y+8,1,left);
 		
 		if(isdungeon() && DrunkLeft() && !info.isUnwalkable() && (x==32 && y==80))
 		{
@@ -13862,8 +13862,8 @@ LEFTRIGHT_NEWMOVE:
 			return;
 		}
 		
-		info = walkflag(x+15+int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right) ||
-			   walkflag(x+15+int(lsteps[x.getInt()&7]),y+8,1,right);
+		info = walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right) ||
+			   walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+8,1,right);
 		
 		if(isdungeon() && DrunkRight() && !info.isUnwalkable() && x==208 && y==80)
 		{
@@ -13910,20 +13910,20 @@ LEFTRIGHT_NEWMOVE:
 			{
 				if(action==swimming || IsSideSwim() || action == swimhit)
 				{
-					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]),2,up);
+					info = walkflag(x,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]),2,up);
 					
-					if(_walkflag(x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]), 1,SWITCHBLOCK_STATE) &&
-							!(iswaterex(MAPCOMBO(x, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7])) &&
-							  iswaterex(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]))))
+					if(_walkflag(x+15, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]), 1,SWITCHBLOCK_STATE) &&
+							!(iswaterex(MAPCOMBO(x, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7])) &&
+							  iswaterex(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]))))
 						info.setUnwalkable(true);
 				}
 				else
 				{
-					info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]),2,up);
+					info = walkflag(x,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]),2,up);
 					if(x.getInt() & 7)
-						info = info || walkflag(x+16,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]),1,up);
+						info = info || walkflag(x+16,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]),1,up);
 					else if(blockmoving)
-						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[y.getInt()&7]));
+						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]));
 				}
 				
 				execute(info);
@@ -14015,20 +14015,20 @@ LEFTRIGHT_NEWMOVE:
 			{
 				if(action==swimming || IsSideSwim() || action == swimhit)
 				{
-					info=walkflag(x,y+15+int(lsteps[y.getInt()&7]),2,down);
+					info=walkflag(x,y+15+int32_t(lsteps[y.getInt()&7]),2,down);
 					
-					if(_walkflag(x+15, y+15+int(lsteps[y.getInt()&7]), 1,SWITCHBLOCK_STATE) &&
-							!(iswaterex(MAPCOMBO(x, y+15+int(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+15+int(lsteps[y.getInt()&7])) &&
-							  iswaterex(MAPCOMBO(x+15, y+15+int(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+15+int(lsteps[y.getInt()&7]))))
+					if(_walkflag(x+15, y+15+int32_t(lsteps[y.getInt()&7]), 1,SWITCHBLOCK_STATE) &&
+							!(iswaterex(MAPCOMBO(x, y+15+int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+15+int32_t(lsteps[y.getInt()&7])) &&
+							  iswaterex(MAPCOMBO(x+15, y+15+int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+15+int32_t(lsteps[y.getInt()&7]))))
 						info.setUnwalkable(true);
 				}
 				else
 				{
-					info=walkflag(x,y+15+int(lsteps[y.getInt()&7]),2,down);
+					info=walkflag(x,y+15+int32_t(lsteps[y.getInt()&7]),2,down);
 					if(x.getInt() & 7)
-						info = info || walkflag(x+16,y+15+int(lsteps[y.getInt()&7]),1,down);
+						info = info || walkflag(x+16,y+15+int32_t(lsteps[y.getInt()&7]),1,down);
 					else if(blockmoving)
-						 info = info || walkflagMBlock(x+8,y+15+int(lsteps[y.getInt()&7]));
+						 info = info || walkflagMBlock(x+8,y+15+int32_t(lsteps[y.getInt()&7]));
 				}
 				
 				execute(info);
@@ -14122,11 +14122,11 @@ LEFTRIGHT_OLDMOVE:
 			}
 			else
 			{
-				info = walkflag(x-int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) ||
-					   walkflag(x-int(lsteps[x.getInt()&7]),y+(isSideViewLink() ?0:8), 1,left);
+				info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) ||
+					   walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(isSideViewLink() ?0:8), 1,left);
 					   
 				if(y.getInt() & 7)
-					info = info || walkflag(x-int(lsteps[x.getInt()&7]),y+16,1,left);
+					info = info || walkflag(x-int32_t(lsteps[x.getInt()&7]),y+16,1,left);
 				
 				execute(info);
 				
@@ -14140,8 +14140,8 @@ LEFTRIGHT_OLDMOVE:
 				{
 					if(NO_GRIDLOCK)
 					{
-						int v1=bigHitbox?0:8;
-						int v2=bigHitbox?8:12;
+						int32_t v1=bigHitbox?0:8;
+						int32_t v2=bigHitbox?8:12;
 						
 						if(!_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
 								!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
@@ -14214,11 +14214,11 @@ LEFTRIGHT_OLDMOVE:
 			}
 			else
 			{
-				info = walkflag(x+15+int(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right)
-					|| walkflag(x+15+int(lsteps[x.getInt()&7]),y+(isSideViewLink()?0:8),1,right);
+				info = walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right)
+					|| walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(isSideViewLink()?0:8),1,right);
 				
 				if(y.getInt() & 7)
-					info = info || walkflag(x+15+int(lsteps[x.getInt()&7]),y+16,1,right);
+					info = info || walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+16,1,right);
 				
 				execute(info);
 				
@@ -14232,8 +14232,8 @@ LEFTRIGHT_OLDMOVE:
 				{
 					if(NO_GRIDLOCK)
 					{
-						int v1=bigHitbox?0:8;
-						int v2=bigHitbox?8:12;
+						int32_t v1=bigHitbox?0:8;
+						int32_t v2=bigHitbox?8:12;
 							   
 						if(!_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
 							   !_walkflag(x+16,y+v2,1,SWITCHBLOCK_STATE)&&
@@ -14274,7 +14274,7 @@ LEFTRIGHT_OLDMOVE:
 }
 
 //solid ffc checking should probably be moved to here.
-void LinkClass::move(int d2, int forceRate)
+void LinkClass::move(int32_t d2, int32_t forceRate)
 {
     if( inlikelike || link_is_stunned > 0 )
         return;
@@ -14288,7 +14288,7 @@ void LinkClass::move(int d2, int forceRate)
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1) && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
                      (isSideViewLink() && (on_sideview_solid(x,y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1));
 		     //!DIMITODO: add QR for slow combos under link
-	for (int i = 0; i <= 1; ++i)
+	for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
@@ -14539,7 +14539,7 @@ void LinkClass::move(int d2, int forceRate)
 			if (game->get_sideswim_jump() != 0)
 			{
 				setFall(zfix(0-(FEATHERJUMP*(game->get_sideswim_jump()/10000.0))));
-				sfx(WAV_ZN1SPLASH,(int)x);
+				sfx(WAV_ZN1SPLASH,(int32_t)x);
 				hopclk = 0;
 				if (charging || spins) action = attacking;
 				else action = none;
@@ -14552,7 +14552,7 @@ void LinkClass::move(int d2, int forceRate)
 	}
 }
 
-void LinkClass::moveOld(int d2)
+void LinkClass::moveOld(int32_t d2)
 {
 	//al_trace("%s\n",d2==up?"up":d2==down?"down":d2==left?"left":d2==right?"right":"?");
     static bool totalskip = false;
@@ -14560,11 +14560,11 @@ void LinkClass::moveOld(int d2)
     if( inlikelike || link_is_stunned > 0 )
         return;
 	
-    int dx=0,dy=0;
-    int xstep=lsteps[x.getInt()&7];
-    int ystep=lsteps[y.getInt()&7];
-    int z3skip=0;
-    int z3diagskip=0;
+    int32_t dx=0,dy=0;
+    int32_t xstep=lsteps[x.getInt()&7];
+    int32_t ystep=lsteps[y.getInt()&7];
+    int32_t z3skip=0;
+    int32_t z3diagskip=0;
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
                      (isSideViewLink() && (on_sideview_solid(x,y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
@@ -14857,11 +14857,11 @@ void LinkClass::moveOld(int d2)
     }
 }
 
-LinkClass::WalkflagInfo LinkClass::walkflag(zfix fx,zfix fy,int cnt,byte d2)
+LinkClass::WalkflagInfo LinkClass::walkflag(zfix fx,zfix fy,int32_t cnt,byte d2)
 {
 	return walkflag(fx.getInt(), fy.getInt(), cnt, d2);
 }
-LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
+LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,byte d2)
 {
     WalkflagInfo ret;
     
@@ -14941,8 +14941,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             {
                 if((!(get_bit(quest_rules, qr_NO_HOPPING) || CanSideSwim()) || isthissolid) && (dir==d2 || shiftdir==d2))
                 {
-                    //int vx=((int)x+4)&0xFFF8;
-                    //int vy=((int)y+4)&0xFFF8;
+                    //int32_t vx=((int32_t)x+4)&0xFFF8;
+                    //int32_t vy=((int32_t)y+4)&0xFFF8;
                     if(d2==left)
                     {
                         if(!iswaterex(MAPCOMBO(x-1,y+(bigHitbox?6:11)), currmap, currscr, -1, x-1,y+(bigHitbox?6:11)) &&
@@ -15013,8 +15013,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         }
         else
         {
-            int wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
-            int wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Is x + 8 intentional???
+            int32_t wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
+            int32_t wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Is x + 8 intentional???
             
             if((d2>=left && wtrx) || (d2<=down && wtrx && wtrx8))
             {
@@ -15025,8 +15025,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
     }
     else if(ladderx+laddery)                                  // ladder is being used
     {
-        int lx = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? wx : x;
-        int ly = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? wy : y;
+        int32_t lx = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? wx : x;
+        int32_t ly = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? wy : y;
         
         if((diagonalMovement||NO_GRIDLOCK))
         {
@@ -15156,8 +15156,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         // check if he can swim
         if(current_item(itype_flippers) && z==0)
         {
-		int wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
-		int wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Still not sure if this should be x + 8...
+		int32_t wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
+		int32_t wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Still not sure if this should be x + 8...
 		if (current_item(itype_flippers) >= combobuf[wtrx8].attribytes[0] && (!(combobuf[wtrx8].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) //Don't swim if the water's required level is too high! -Dimi
 		{
 		//ladder ignores water combos that are now walkable thanks to flippers -DD
@@ -15206,7 +15206,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             // Check if there's water to use the ladder over
             bool wtrx = (iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy) != 0);
             bool wtrx8 = (iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy) != 0);
-			int ldrid = current_item_id(itype_ladder);
+			int32_t ldrid = current_item_id(itype_ladder);
 			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&ITEM_FLAG1);
             
             if(wtrx || wtrx8)
@@ -15236,21 +15236,21 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 				//Check pits
 				if(ladderpits)
 				{
-					int pit_cmb = getpitfall(wx,wy);
+					int32_t pit_cmb = getpitfall(wx,wy);
 					wtrx = pit_cmb && (combobuf[pit_cmb].usrflags&cflag4);
 					pit_cmb = getpitfall(x+8,wy);
 					wtrx8 = pit_cmb && (combobuf[pit_cmb].usrflags&cflag4);
 				}
 				if(!ladderpits || (!(wtrx || wtrx8) || isSideViewLink())) //If no pit, check ladder combos
 				{
-					int combo=combobuf[MAPCOMBO(wx, wy)].type;
+					int32_t combo=combobuf[MAPCOMBO(wx, wy)].type;
 					wtrx=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
 					combo=combobuf[MAPCOMBO(wx+8, wy)].type;
 					wtrx8=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
 				}
 			}
             
-	     for (int i = 0; i <= 1; ++i)
+	     for (int32_t i = 0; i <= 1; ++i)
 		{
 			if(tmpscr2[i].valid!=0)
 			{
@@ -15264,20 +15264,20 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             {
                 if(d2==dir)
                 {
-                    int c = walkwater ? 0:8;
-                    int b = walkwater ? 8:0;
+                    int32_t c = walkwater ? 0:8;
+                    int32_t b = walkwater ? 8:0;
                     
                     if(d2>=left)
                     {
                         // If the difference between wy and y is small enough
-                        if(abs((wy)-(int(y+c)))<=(b) && wtrx)
+                        if(abs((wy)-(int32_t(y+c)))<=(b) && wtrx)
                         {
                             // Don't activate the ladder if it would be entirely
                             // over water and Link has the flippers. This isn't
                             // a good way to do this, but it's too risky
                             // to make big changes to this stuff.
                             bool deployLadder=true;
-                            int lx=wx&0xF0;
+                            int32_t lx=wx&0xF0;
                             if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex(MAPCOMBO(lx+8, y+8), currmap, currscr, -1, lx+8, y+8)].attribytes[0] && z==0)
                             {
                                 if(iswaterex(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
@@ -15300,7 +15300,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     else if(d2<=down)
                     {
                         // If the difference between wx and x is small enough
-                        if(abs((wx)-(int(x+c)))<=(b) && wtrx)
+                        if(abs((wx)-(int32_t(x+c)))<=(b) && wtrx)
                         {
                             ladderx = x;
                             laddery = wy&0xF0;
@@ -15312,7 +15312,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                         
                         if(cnt==2)
                         {
-                            if(abs((wx+8)-(int(x+c)))<=(b) && wtrx8)
+                            if(abs((wx+8)-(int32_t(x+c)))<=(b) && wtrx8)
                             {
                                 ladderx = x;
                                 laddery = wy&0xF0;
@@ -15362,7 +15362,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 }
 
 // Only checks for moving blocks. Apparently this is a thing we need.
-LinkClass::WalkflagInfo LinkClass::walkflagMBlock(int wx,int wy)
+LinkClass::WalkflagInfo LinkClass::walkflagMBlock(int32_t wx,int32_t wy)
 {
     WalkflagInfo ret;
     ret.setUnwalkable(blockmoving && mblock2.hit(wx,wy,0,1,1,1));
@@ -15374,9 +15374,9 @@ bool LinkClass::checksoliddamage()
 	if(toogam) return false;
     
 	if(z!=0) return false;
-	int bx = x.getInt();
-	int by = y.getInt();
-	int initk = 0;
+	int32_t bx = x.getInt();
+	int32_t by = y.getInt();
+	int32_t initk = 0;
 	switch(dir)
 	{
 	case up:
@@ -15428,16 +15428,16 @@ bool LinkClass::checksoliddamage()
 		
 		break;
 	}
-	int t = combobuf[MAPCOMBO(bx,by)].type;
-	int initbx = bx;
-	int initby = by;
+	int32_t t = combobuf[MAPCOMBO(bx,by)].type;
+	int32_t initbx = bx;
+	int32_t initby = by;
 	
 	// Unlike push blocks, damage combos should be tested on layers 2 and under
-	for(int i=(get_bit(quest_rules,qr_DMGCOMBOLAYERFIX) ? 2 : 0); i>=0; i--)
+	for(int32_t i=(get_bit(quest_rules,qr_DMGCOMBOLAYERFIX) ? 2 : 0); i>=0; i--)
 	{
 		bx = initbx;
 		by = initby;
-		for (int k = initk; k <= 2; k++)
+		for (int32_t k = initk; k <= 2; k++)
 		{
 			t = COMBOTYPE2(i-1,bx,by);
 			
@@ -15488,8 +15488,8 @@ void LinkClass::checkpushblock()
     // if(y<16) return;
     if(isSideViewLink() && !on_sideview_solid(x,y)) return;
     
-    int bx = x.getInt()&0xF0;
-    int by = (y.getInt()&0xF0);
+    int32_t bx = x.getInt()&0xF0;
+    int32_t by = (y.getInt()&0xF0);
     
     switch(dir)
     {
@@ -15500,9 +15500,9 @@ void LinkClass::checkpushblock()
             break;
         }
         
-        if(!((int)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
+        if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
         
-        if((int)x&8) bx+=16;
+        if((int32_t)x&8) bx+=16;
         
         break;
         
@@ -15516,7 +15516,7 @@ void LinkClass::checkpushblock()
         {
             by+=16;
             
-            if((int)x&8) bx+=16;
+            if((int32_t)x&8) bx+=16;
         }
         
         break;
@@ -15558,16 +15558,16 @@ void LinkClass::checkpushblock()
         break;
     }
     
-    int f = MAPFLAG(bx,by);
-    int f2 = MAPCOMBOFLAG(bx,by);
-    int t = combobuf[MAPCOMBO(bx,by)].type;
+    int32_t f = MAPFLAG(bx,by);
+    int32_t f2 = MAPCOMBOFLAG(bx,by);
+    int32_t t = combobuf[MAPCOMBO(bx,by)].type;
     
     if (checksoliddamage()) return;
     
     if(earlyReturn)
         return;
     
-    int itemid=current_item_id(itype_bracelet);
+    int32_t itemid=current_item_id(itype_bracelet);
     
     if((t==cPUSH_WAIT || t==cPUSH_HW || t==cPUSH_HW2) && (pushing<16 || hasMainGuy())) return;
     
@@ -15658,7 +15658,7 @@ void LinkClass::checkpushblock()
     {
         if(itemid>=0 && itemsbuf[itemid].flags & ITEM_FLAG1) didstuff|=did_glove;
         
-        //   for(int i=0; i<1; i++)
+        //   for(int32_t i=0; i<1; i++)
         if(!blockmoving)
         {
             if(changeflag)
@@ -15675,7 +15675,7 @@ void LinkClass::checkpushblock()
                 mblock2.push((zfix)bx,(zfix)by,dir,f);
                 
                 if(get_bit(quest_rules,qr_MORESOUNDS))
-                    sfx(WAV_ZN1PUSHBLOCK,(int)x);
+                    sfx(WAV_ZN1PUSHBLOCK,(int32_t)x);
                     
                 //       break;
             }
@@ -15685,7 +15685,7 @@ void LinkClass::checkpushblock()
 
 bool usekey()
 {
-    int itemid = current_item_id(itype_magickey);
+    int32_t itemid = current_item_id(itype_magickey);
     
     if(itemid<0 ||
             (itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
@@ -15695,8 +15695,8 @@ bool usekey()
         {
             game->lvlkeys[dlevel]--;
 	    //run script for level key item
-		int key_item = 0; //current_item_id(itype_lkey); //not possible
-		for ( int q = 0; q < MAXITEMS; ++q )
+		int32_t key_item = 0; //current_item_id(itype_lkey); //not possible
+		for ( int32_t q = 0; q < MAXITEMS; ++q )
 		{
 			if ( itemsbuf[q].family == itype_lkey )
 			{
@@ -15708,7 +15708,7 @@ bool usekey()
 		if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 		{
 			ri = &(itemScriptData[key_item]);
-			for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+			for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 			ri->Clear();
 			item_doscript[key_item] = 1;
 			itemscriptInitialised[key_item] = 0;
@@ -15727,8 +15727,8 @@ bool usekey()
 		else 
 		{
 			//run script for key item
-			int key_item = 0; //current_item_id(itype_key); //not possible
-			for ( int q = 0; q < MAXITEMS; ++q )
+			int32_t key_item = 0; //current_item_id(itype_key); //not possible
+			for ( int32_t q = 0; q < MAXITEMS; ++q )
 			{
 				if ( itemsbuf[q].family == itype_key )
 				{
@@ -15740,7 +15740,7 @@ bool usekey()
 			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 			{
 				ri = &(itemScriptData[key_item]);
-				for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 				ri->Clear();
 				item_doscript[key_item] = 1;
 				itemscriptInitialised[key_item] = 0;
@@ -15755,9 +15755,9 @@ bool usekey()
     return true;
 }
 
-bool usekey(int num)
+bool usekey(int32_t num)
 {
-    int itemid = current_item_id(itype_magickey);
+    int32_t itemid = current_item_id(itype_magickey);
     
     if(itemid<0 ||
             (itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
@@ -15778,9 +15778,9 @@ bool usekey(int num)
     return true;
 }
 
-bool islockeddoor(int x, int y, int lock)
+bool islockeddoor(int32_t x, int32_t y, int32_t lock)
 {
-    int mc = (y&0xF0)+(x>>4);
+    int32_t mc = (y&0xF0)+(x>>4);
     bool ret = (((mc==7||mc==8||mc==23||mc==24) && tmpscr->door[up]==lock)
                 || ((mc==151||mc==152||mc==167||mc==168) && tmpscr->door[down]==lock)
                 || ((mc==64||mc==65||mc==80||mc==81) && tmpscr->door[left]==lock)
@@ -15792,14 +15792,14 @@ void LinkClass::checklockblock()
 {
     if(toogam) return;
     
-    int bx = x.getInt()&0xF0;
-    int bx2 = int(x+8)&0xF0;
-    int by = y.getInt()&0xF0;
+    int32_t bx = x.getInt()&0xF0;
+    int32_t bx2 = int32_t(x+8)&0xF0;
+    int32_t by = y.getInt()&0xF0;
     
     switch(dir)
     {
     case up:
-        if(!((int)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
+        if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
         
         break;
         
@@ -15808,7 +15808,7 @@ void LinkClass::checklockblock()
         break;
         
     case left:
-        if((((int)x)&0x0F)<8)
+        if((((int32_t)x)&0x0F)<8)
             bx-=16;
         
         if(y.getInt()&8)
@@ -15833,8 +15833,8 @@ void LinkClass::checklockblock()
     
     bool found1=false;
     bool found2=false;
-    int foundlayer = -1;
-    int cid = 0;
+    int32_t foundlayer = -1;
+    int32_t cid = 0;
     // Layer 0 is overridden by Locked Doors
     if((combobuf[MAPCOMBO(bx,by)].type==cLOCKBLOCK && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dLOCKED)))
     {
@@ -15849,7 +15849,7 @@ void LinkClass::checklockblock()
 	foundlayer = 0;
     }
     
-	for (int i = 0; i <= 1; ++i)
+	for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
@@ -15864,7 +15864,7 @@ void LinkClass::checklockblock()
     {
 	cid = 0;
 	foundlayer = -1;
-        for(int i=0; i<2; i++)
+        for(int32_t i=0; i<2; i++)
         {
 	    if (i == 0)
 	    {
@@ -15901,10 +15901,10 @@ void LinkClass::checklockblock()
     //zprint("foundlayer: %d\n", foundlayer);
     //zprint("cid: %d\n", cid);
     //zprint("MAPCOMBO2(foundlayer,bx2,by): %d\n", MAPCOMBO2(foundlayer,bx2,by));
-    int requireditem = combobuf[cid].usrflags&cflag1 ? combobuf[cid].attribytes[0] : 0;
-    int itemonly = combobuf[cid].usrflags&cflag2;
-    int thecounter = combobuf[cid].attribytes[1];
-    int ctr_amount = combobuf[cid].attributes[0]/10000L;
+    int32_t requireditem = combobuf[cid].usrflags&cflag1 ? combobuf[cid].attribytes[0] : 0;
+    int32_t itemonly = combobuf[cid].usrflags&cflag2;
+    int32_t thecounter = combobuf[cid].attribytes[1];
+    int32_t ctr_amount = combobuf[cid].attributes[0]/10000L;
     if( requireditem && game->item[requireditem]) 
     {
 	    if ((combobuf[cid].usrflags&cflag5)) 
@@ -15954,14 +15954,14 @@ void LinkClass::checkbosslockblock()
 {
     if(toogam) return;
     
-    int bx = x.getInt()&0xF0;
-    int bx2 = int(x+8)&0xF0;
-    int by = y.getInt()&0xF0;
+    int32_t bx = x.getInt()&0xF0;
+    int32_t bx2 = int32_t(x+8)&0xF0;
+    int32_t by = y.getInt()&0xF0;
     
     switch(dir)
     {
     case up:
-        if(!((int)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
+        if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
         
         break;
         
@@ -15970,7 +15970,7 @@ void LinkClass::checkbosslockblock()
         break;
         
     case left:
-        if((((int)x)&0x0F)<8)
+        if((((int32_t)x)&0x0F)<8)
             bx-=16;
         
         if(y.getInt()&8)
@@ -16001,7 +16001,7 @@ void LinkClass::checkbosslockblock()
         found=true;
     }
     
-    for (int i = 0; i <= 1; ++i)
+    for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
@@ -16012,7 +16012,7 @@ void LinkClass::checkbosslockblock()
     
     if(!found)
     {
-        for(int i=0; i<2; i++)
+        for(int32_t i=0; i<2; i++)
         {
 	    if (i == 0)
 	    {
@@ -16040,8 +16040,8 @@ void LinkClass::checkbosslockblock()
 	
     
 	// Run Boss Key Script
-	int key_item = 0; //current_item_id(itype_bosskey); //not possible
-	for ( int q = 0; q < MAXITEMS; ++q )
+	int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+	for ( int32_t q = 0; q < MAXITEMS; ++q )
 	{
 		if ( itemsbuf[q].family == itype_bosskey )
 		{
@@ -16051,7 +16051,7 @@ void LinkClass::checkbosslockblock()
 	if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 	{
 		ri = &(itemScriptData[key_item]);
-		for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+		for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 		ri->Clear();
 		item_doscript[key_item] = 1;
 		itemscriptInitialised[key_item] = 0;
@@ -16064,21 +16064,21 @@ void LinkClass::checkbosslockblock()
     sfx(WAV_DOOR);
 }
 
-void LinkClass::oldcheckchest(int type)
+void LinkClass::oldcheckchest(int32_t type)
 {
 	// chests aren't affected by tmpscr->flags2&fAIRCOMBOS
 	if(toogam || z>0) return;
 	if(pushing<8) return;
-	int bx = x.getInt()&0xF0;
-	int bx2 = int(x+8)&0xF0;
-	int by = y.getInt()&0xF0;
+	int32_t bx = x.getInt()&0xF0;
+	int32_t bx2 = int32_t(x+8)&0xF0;
+	int32_t by = y.getInt()&0xF0;
 	
 	switch(dir)
 	{
 		case up:
 			if(isSideViewLink()) return;
 			
-			if(!((int)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
+			if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
 			
 			break;
 			
@@ -16098,7 +16098,7 @@ void LinkClass::oldcheckchest(int type)
 	{
 		found=true;
 	}
-	for (int i = 0; i <= 1; ++i)
+	for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
@@ -16109,7 +16109,7 @@ void LinkClass::oldcheckchest(int type)
 	
 	if(!found)
 	{
-		for(int i=0; i<2; i++)
+		for(int32_t i=0; i<2; i++)
 		{
 			if (i == 0)
 			{
@@ -16148,8 +16148,8 @@ void LinkClass::oldcheckchest(int type)
 		case cBOSSCHEST:
 			if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
 			// Run Boss Key Script
-			int key_item = 0; //current_item_id(itype_bosskey); //not possible
-			for ( int q = 0; q < MAXITEMS; ++q )
+			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+			for ( int32_t q = 0; q < MAXITEMS; ++q )
 			{
 				if ( itemsbuf[q].family == itype_bosskey )
 				{
@@ -16159,7 +16159,7 @@ void LinkClass::oldcheckchest(int type)
 			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 			{
 				ri = &(itemScriptData[key_item]);
-				for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 				ri->Clear();
 				item_doscript[key_item] = 1;
 				itemscriptInitialised[key_item] = 0;
@@ -16179,7 +16179,7 @@ void LinkClass::oldcheckchest(int type)
 	
 	if(!itemflag)
 	{
-		for(int i=0; i<2; i++)
+		for(int32_t i=0; i<2; i++)
 		{
 			itemflag |= MAPFLAG2(i,bx,by)==mfARMOS_ITEM;
 			itemflag |= MAPFLAG2(i,bx2,by)==mfARMOS_ITEM;
@@ -16194,7 +16194,7 @@ void LinkClass::oldcheckchest(int type)
 	}
 }
 
-void LinkClass::checkchest(int type)
+void LinkClass::checkchest(int32_t type)
 {
 	if(get_bit(quest_rules,qr_OLD_CHEST_COLLISION))
 	{
@@ -16233,13 +16233,13 @@ void LinkClass::checkchest(int type)
 			break;
 	}
 	
-	int found = -1;
+	int32_t found = -1;
 	
 	if(combobuf[MAPCOMBO(bx,by)].type==type && _effectflag(bx,by,1, -1))
 	{
 		found = MAPCOMBO(bx,by);
 		fx = bx; fy = by;
-		for (int i = 0; i <= 1; ++i)
+		for (int32_t i = 0; i <= 1; ++i)
 		{
 			if(tmpscr2[i].valid!=0)
 			{
@@ -16251,7 +16251,7 @@ void LinkClass::checkchest(int type)
 	{
 		found = MAPCOMBO(bx2,by2);
 		fx = bx2; fy = by2;
-		for (int i = 0; i <= 1; ++i)
+		for (int32_t i = 0; i <= 1; ++i)
 		{
 			if(tmpscr2[i].valid!=0)
 			{
@@ -16262,7 +16262,7 @@ void LinkClass::checkchest(int type)
 	
 	if(found<0)
 	{
-		for(int i=0; i<2; i++)
+		for(int32_t i=0; i<2; i++)
 		{
 			if(combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))
 			{
@@ -16307,7 +16307,7 @@ void LinkClass::checkchest(int type)
 				return;
 			break;
 	}
-	int intbtn = cmb.attribytes[2];
+	int32_t intbtn = cmb.attribytes[2];
 	
 	if(intbtn) //
 	{
@@ -16332,8 +16332,8 @@ void LinkClass::checkchest(int type)
 		case cBOSSCHEST:
 			if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
 			// Run Boss Key Script
-			int key_item = 0; //current_item_id(itype_bosskey); //not possible
-			for ( int q = 0; q < MAXITEMS; ++q )
+			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+			for ( int32_t q = 0; q < MAXITEMS; ++q )
 			{
 				if ( itemsbuf[q].family == itype_bosskey )
 				{
@@ -16343,7 +16343,7 @@ void LinkClass::checkchest(int type)
 			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 			{
 				ri = &(itemScriptData[key_item]);
-				for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 				ri->Clear();
 				item_doscript[key_item] = 1;
 				itemscriptInitialised[key_item] = 0;
@@ -16358,7 +16358,7 @@ void LinkClass::checkchest(int type)
 	itemflag |= MAPFLAG(fx,fy)==mfARMOS_ITEM;
 	if(!itemflag)
 	{
-		for(int i=0; i<2; i++)
+		for(int32_t i=0; i<2; i++)
 		{
 			itemflag |= MAPFLAG2(i,fx,fy)==mfARMOS_ITEM;
 			itemflag |= MAPCOMBOFLAG2(i,fx,fy)==mfARMOS_ITEM;
@@ -16407,13 +16407,13 @@ void LinkClass::checksigns()
 			break;
 	}
 	
-	int found = -1;
+	int32_t found = -1;
 	
 	if(combobuf[MAPCOMBO(bx,by)].type==cSIGNPOST && _effectflag(bx,by,1, -1))
 	{
 		found = MAPCOMBO(bx,by);
 		fx = bx; fy = by;
-		for (int i = 0; i <= 1; ++i)
+		for (int32_t i = 0; i <= 1; ++i)
 		{
 			if(tmpscr2[i].valid!=0)
 			{
@@ -16425,7 +16425,7 @@ void LinkClass::checksigns()
 	{
 		found = MAPCOMBO(bx2,by2);
 		fx = bx2; fy = by2;
-		for (int i = 0; i <= 1; ++i)
+		for (int32_t i = 0; i <= 1; ++i)
 		{
 			if(tmpscr2[i].valid!=0)
 			{
@@ -16436,7 +16436,7 @@ void LinkClass::checksigns()
 	
 	if(found<0)
 	{
-		for(int i=0; i<2; i++)
+		for(int32_t i=0; i<2; i++)
 		{
 			if(combobuf[MAPCOMBO2(i,bx,by)].type==cSIGNPOST && _effectflag(bx,by,1, i))
 			{
@@ -16481,7 +16481,7 @@ void LinkClass::checksigns()
 				return;
 			break;
 	}
-	int intbtn = cmb.attribytes[2];
+	int32_t intbtn = cmb.attribytes[2];
 	
 	if(intbtn) //
 	{
@@ -16490,7 +16490,7 @@ void LinkClass::checksigns()
 	}
 	else if(pushing < 8 || pushing%8) return; //Not pushing against sign enough
 	
-	int str = cmb.attributes[0]/10000L;
+	int32_t str = cmb.attributes[0]/10000L;
 	switch(str)
 	{
 		case -1: //Special case: Use Screen String
@@ -16500,7 +16500,7 @@ void LinkClass::checksigns()
 			str = tmpscr->catchall;
 			break;
 		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
-			int di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+			int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
 			str = game->screen_d[di][abs(str)-10] / 10000L;
 			break;
 	}
@@ -16523,14 +16523,14 @@ void LinkClass::checklocked()
     
 	
 	bool found = false;
-	for ( int q = 0; q < 4; q++ ) {
+	for ( int32_t q = 0; q < 4; q++ ) {
 		if ( tmpscr->door[q] == dLOCKED || tmpscr->door[q] == dBOSS ) { found = true; }
 	}
 	
     if ( !found ) return;
     
-    int si = (currmap<<7) + currscr;
-    int di = NULL;
+    int32_t si = (currmap<<7) + currscr;
+    int32_t di = NULL;
     
     
 	
@@ -16573,8 +16573,8 @@ void LinkClass::checklocked()
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
-					int key_item = 0; //current_item_id(itype_bosskey); //not possible
-					for ( int q = 0; q < MAXITEMS; ++q )
+					int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+					for ( int32_t q = 0; q < MAXITEMS; ++q )
 					{
 						if ( itemsbuf[q].family == itype_bosskey )
 						{
@@ -16584,7 +16584,7 @@ void LinkClass::checklocked()
 					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 					{
 						ri = &(itemScriptData[key_item]);
-						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 						ri->Clear();
 						item_doscript[key_item] = 1;
 						itemscriptInitialised[key_item] = 0;
@@ -16632,8 +16632,8 @@ void LinkClass::checklocked()
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
-					int key_item = 0; //current_item_id(itype_bosskey); //not possible
-					for ( int q = 0; q < MAXITEMS; ++q )
+					int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+					for ( int32_t q = 0; q < MAXITEMS; ++q )
 					{
 						if ( itemsbuf[q].family == itype_bosskey )
 						{
@@ -16643,7 +16643,7 @@ void LinkClass::checklocked()
 					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 					{
 						ri = &(itemScriptData[key_item]);
-						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 						ri->Clear();
 						item_doscript[key_item] = 1;
 						itemscriptInitialised[key_item] = 0;
@@ -16689,8 +16689,8 @@ void LinkClass::checklocked()
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
-					int key_item = 0; //current_item_id(itype_bosskey); //not possible
-					for ( int q = 0; q < MAXITEMS; ++q )
+					int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+					for ( int32_t q = 0; q < MAXITEMS; ++q )
 					{
 						if ( itemsbuf[q].family == itype_bosskey )
 						{
@@ -16700,7 +16700,7 @@ void LinkClass::checklocked()
 					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 					{
 						ri = &(itemScriptData[key_item]);
-						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 						ri->Clear();
 						item_doscript[key_item] = 1;
 						itemscriptInitialised[key_item] = 0;
@@ -16750,8 +16750,8 @@ void LinkClass::checklocked()
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
-					int key_item = 0; //current_item_id(itype_bosskey); //not possible
-					for ( int q = 0; q < MAXITEMS; ++q )
+					int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+					for ( int32_t q = 0; q < MAXITEMS; ++q )
 					{
 						if ( itemsbuf[q].family == itype_bosskey )
 						{
@@ -16761,7 +16761,7 @@ void LinkClass::checklocked()
 					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 					{
 						ri = &(itemScriptData[key_item]);
-						for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 						ri->Clear();
 						item_doscript[key_item] = 1;
 						itemscriptInitialised[key_item] = 0;
@@ -16817,8 +16817,8 @@ void LinkClass::checklocked()
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script
-						int key_item = 0; //current_item_id(itype_bosskey); //not possible
-						for ( int q = 0; q < MAXITEMS; ++q )
+						int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+						for ( int32_t q = 0; q < MAXITEMS; ++q )
 						{
 							if ( itemsbuf[q].family == itype_bosskey )
 							{
@@ -16828,7 +16828,7 @@ void LinkClass::checklocked()
 						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 						{
 							ri = &(itemScriptData[key_item]);
-							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 							ri->Clear();
 							item_doscript[key_item] = 1;
 							itemscriptInitialised[key_item] = 0;
@@ -16884,8 +16884,8 @@ void LinkClass::checklocked()
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script
-						int key_item = 0; //current_item_id(itype_bosskey); //not possible
-						for ( int q = 0; q < MAXITEMS; ++q )
+						int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+						for ( int32_t q = 0; q < MAXITEMS; ++q )
 						{
 							if ( itemsbuf[q].family == itype_bosskey )
 							{
@@ -16895,7 +16895,7 @@ void LinkClass::checklocked()
 						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 						{
 							ri = &(itemScriptData[key_item]);
-							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 							ri->Clear();
 							item_doscript[key_item] = 1;
 							itemscriptInitialised[key_item] = 0;
@@ -16949,8 +16949,8 @@ void LinkClass::checklocked()
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script
-						int key_item = 0; //current_item_id(itype_bosskey); //not possible
-						for ( int q = 0; q < MAXITEMS; ++q )
+						int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+						for ( int32_t q = 0; q < MAXITEMS; ++q )
 						{
 							if ( itemsbuf[q].family == itype_bosskey )
 							{
@@ -16960,7 +16960,7 @@ void LinkClass::checklocked()
 						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
 						{
 							ri = &(itemScriptData[key_item]);
-							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 							ri->Clear();
 							item_doscript[key_item] = 1;
 							itemscriptInitialised[key_item] = 0;
@@ -17017,8 +17017,8 @@ void LinkClass::checklocked()
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script
-						int key_item = 0; //current_item_id(itype_bosskey); //not possible
-						for ( int q = 0; q < MAXITEMS; ++q )
+						int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+						for ( int32_t q = 0; q < MAXITEMS; ++q )
 						{
 							if ( itemsbuf[q].family == itype_bosskey )
 							{
@@ -17028,7 +17028,7 @@ void LinkClass::checklocked()
 						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //
 						{
 							ri = &(itemScriptData[key_item]);
-							for ( int q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
 							ri->Clear();
 							item_doscript[key_item] = 1;
 							itemscriptInitialised[key_item] = 0;
@@ -17054,8 +17054,8 @@ void LinkClass::checkswordtap()
 {
     if(attack!=wSword || charging<=0 || pushing<8) return;
     
-    int bx=x;
-    int by=y+8;
+    int32_t bx=x;
+    int32_t by=y+8;
     
     switch(dir)
     {
@@ -17093,7 +17093,7 @@ void LinkClass::checkswordtap()
     pushing=-8; //16 frames between taps
     tapping=true;
     
-    int type = COMBOTYPE(bx,by);
+    int32_t type = COMBOTYPE(bx,by);
     
     if(!isCuttableType(type))
     {
@@ -17101,11 +17101,11 @@ void LinkClass::checkswordtap()
                        MAPFLAG(bx,by) == mfSBOMB || MAPCOMBOFLAG(bx,by) == mfSBOMB);
                        
         // Layers
-        for(int i=0; i < 6; i++)
+        for(int32_t i=0; i < 6; i++)
             hollow = (hollow || MAPFLAG2(i,bx,by) == mfBOMB || MAPCOMBOFLAG2(i,bx,by) == mfBOMB ||
                       MAPFLAG2(i,bx,by) == mfSBOMB || MAPCOMBOFLAG2(i,bx,by) == mfSBOMB);
                       
-        for(int i=0; i<4; i++)
+        for(int32_t i=0; i<4; i++)
             if(tmpscr->door[i]==dBOMB && i==dir)
                 switch(i)
                 {
@@ -17127,7 +17127,7 @@ void LinkClass::checkswordtap()
     
 }
 
-void LinkClass::fairycircle(int type)
+void LinkClass::fairycircle(int32_t type)
 {
     if(fairyclk==0)
     {
@@ -17181,9 +17181,9 @@ void LinkClass::fairycircle(int type)
     }
 }
 
-int touchcombo(int x,int y)
+int32_t touchcombo(int32_t x,int32_t y)
 {
-	for (int i = 0; i <= 1; ++i)
+	for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
@@ -17210,17 +17210,17 @@ int touchcombo(int x,int y)
 	return 0;
 }
 
-static int COMBOX(int pos) { return ((pos)%16*16); }
-static int COMBOY(int pos) { return ((pos)&0xF0); }
+static int32_t COMBOX(int32_t pos) { return ((pos)%16*16); }
+static int32_t COMBOY(int32_t pos) { return ((pos)&0xF0); }
 
-static int GridX(int x) 
+static int32_t GridX(int32_t x) 
 {
 	return (x >> 4) << 4;
 }
 
 //Snaps 'y' to the combo grid
 //Equivalent to calling ComboY(ComboAt(foo,y));
-static int GridY(int y) 
+static int32_t GridY(int32_t y) 
 {
 	return (y >> 4) << 4;
 }
@@ -17232,7 +17232,7 @@ void LinkClass::checktouchblk()
     if(!pushing)
         return;
         
-    int tdir = dir; //Bad hack #2. _L_, your welcome to fix this properly. ;)
+    int32_t tdir = dir; //Bad hack #2. _L_, your welcome to fix this properly. ;)
     
     if(charging > 0 || spins > 0) //if not I probably will at some point...
     {
@@ -17249,7 +17249,7 @@ void LinkClass::checktouchblk()
         }
     }
     
-    int tx=0,ty=-1;
+    int32_t tx=0,ty=-1;
     
     switch(tdir)
     {
@@ -17304,11 +17304,11 @@ void LinkClass::checktouchblk()
     {
         ty&=0xF0;
         tx&=0xF0;
-        int di = ty+(tx>>4);
-        int gc=0;
-        int eclk=-14;
+        int32_t di = ty+(tx>>4);
+        int32_t gc=0;
+        int32_t eclk=-14;
         
-        for(int i=0; i<guys.Count(); ++i)
+        for(int32_t i=0; i<guys.Count(); ++i)
         {
             if(((enemy*)guys.spr(i))->mainguy)
             {
@@ -17322,16 +17322,16 @@ void LinkClass::checktouchblk()
             {
                 guygrid[di]=61; //Note: not 60.
 		//zprint2("oof: %d\n", di);
-                int id2=0; 
-                int cid = MAPCOMBO(tx,ty);
-		int cpos = COMBOPOS(tx,ty);
+                int32_t id2=0; 
+                int32_t cid = MAPCOMBO(tx,ty);
+		int32_t cpos = COMBOPOS(tx,ty);
                 switch(combobuf[MAPCOMBO(tx,ty)].type)
                 {
                 case cARMOS: //id2=eARMOS; break;
 			
 			if ( combobuf[cid].usrflags&cflag1 ) //custom enemy ids
 			{
-				int r = (combobuf[cid].usrflags&cflag2) ? zc_oldrand()%2 : 0;
+				int32_t r = (combobuf[cid].usrflags&cflag2) ? zc_oldrand()%2 : 0;
 				id2 = combobuf[cid].attribytes[0+r];
 				//if(guysbuf[id2].family==eeWALK)
 				//{
@@ -17339,15 +17339,15 @@ void LinkClass::checktouchblk()
 				//}
 				
 				//! To-do Adjust for larger enemies, but we need it to be directional. 
-				int ypos = 0; int xpos = 0;
-				int chy = 0; int chx = 0;
+				int32_t ypos = 0; int32_t xpos = 0;
+				int32_t chy = 0; int32_t chx = 0;
 				//nmew idea = check while the upper-left corner combo is armos
 				///move up one and check if it is armos, check the next, and stop as soon as that is not armos
 				///then do the same going left
 				
-				int searching = 1;
-				int armosxsz = 1;
-				int armosysz = 1;
+				int32_t searching = 1;
+				int32_t armosxsz = 1;
+				int32_t armosysz = 1;
 				switch(guysbuf[id2].family)
 				{
 					case eeGHOMA:
@@ -17398,8 +17398,8 @@ void LinkClass::checktouchblk()
 						{
 							//zprint("touched armos from above\n");
 							//zprint("cpos: %d\n", cpos);
-							//int tx2 = (int)x; //COMBOX(COMBOPOS(tx,ty));
-							//int ty2 = (int)y+16; //COMBOY(COMBOPOS(tx,ty));
+							//int32_t tx2 = (int32_t)x; //COMBOX(COMBOPOS(tx,ty));
+							//int32_t ty2 = (int32_t)y+16; //COMBOY(COMBOPOS(tx,ty));
 							//tx2 = GridX(tx2);
 							//ty2 = GridY(ty2);
 							while(searching == 1) //find the left edge of an armos block
@@ -17471,13 +17471,13 @@ void LinkClass::checktouchblk()
 				}
 				//if ( guysbuf[id2].txsz > 1 ) xpos -= guysbuf[id2].txsz*16;
 				//if ( guysbuf[id2].tysz > 1 ) ypos -= guysbuf[id2].tysz*16;
-				int xpos2 = tx+xpos;
-				int ypos2 = ty+ypos;
-				int id3 = COMBOPOS(xpos2, ypos2);
-				for (int n = 0; n < armosysz && id3 < 176; n++)
+				int32_t xpos2 = tx+xpos;
+				int32_t ypos2 = ty+ypos;
+				int32_t id3 = COMBOPOS(xpos2, ypos2);
+				for (int32_t n = 0; n < armosysz && id3 < 176; n++)
 				{
 					
-					for (int m = 0; m < armosxsz && id3 < 176; m++) 
+					for (int32_t m = 0; m < armosxsz && id3 < 176; m++) 
 					{
 						guygrid[id3+m]=61;
 						//zprint2("oof: %d\n", id3+m);
@@ -17496,9 +17496,9 @@ void LinkClass::checktouchblk()
 				//((enemy*)guys.spr(guys.Count()-1))->xofs = 0;
 				//((enemy*)guys.spr(guys.Count()-1))->yofs = 0;
 				/*
-				int cd = (tx>>4)+ty;
-				int f = MAPFLAG(tx,ty);
-				int f2 = MAPCOMBOFLAG(tx,ty);
+				int32_t cd = (tx>>4)+ty;
+				int32_t f = MAPFLAG(tx,ty);
+				int32_t f2 = MAPCOMBOFLAG(tx,ty);
 				tmpscr->data[cd] = tmpscr->undercombo;
 				tmpscr->cset[cd] = tmpscr->undercset;
 				tmpscr->sflag[cd] = 0;
@@ -17526,7 +17526,7 @@ void LinkClass::checktouchblk()
 				return;
 			}
 			
-                    for(int i=0; i<eMAXGUYS; i++)
+                    for(int32_t i=0; i<eMAXGUYS; i++)
                     {
                         if(guysbuf[i].flags2&cmbflag_armos)
                         {
@@ -17549,7 +17549,7 @@ void LinkClass::checktouchblk()
                     
                     //fall through
                 case cGRAVE:
-                    for(int i=0; i<eMAXGUYS; i++)
+                    for(int32_t i=0; i<eMAXGUYS; i++)
                     {
                         if(guysbuf[i].flags2&cmbflag_ghini)
                         {
@@ -17570,7 +17570,7 @@ void LinkClass::checktouchblk()
     }
 }
 
-int LinkClass::nextcombo(int cx, int cy, int cdir)
+int32_t LinkClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
 {
     switch(cdir)
     {
@@ -17594,7 +17594,7 @@ int LinkClass::nextcombo(int cx, int cy, int cdir)
     // off the screen
     if(cx<0 || cy<0 || cx>255 || cy>175)
     {
-        int ns = nextscr(cdir);
+        int32_t ns = nextscr(cdir);
         
         if(ns==0xFFFF) return 0;
         
@@ -17621,7 +17621,7 @@ int LinkClass::nextcombo(int cx, int cy, int cdir)
         }
         
         // from MAPCOMBO()
-        int cmb = (cy&0xF0)+(cx>>4);
+        int32_t cmb = (cy&0xF0)+(cx>>4);
         
         if(cmb>175)
             return 0;
@@ -17632,7 +17632,7 @@ int LinkClass::nextcombo(int cx, int cy, int cdir)
     return MAPCOMBO(cx,cy);
 }
 
-int LinkClass::nextflag(int cx, int cy, int cdir, bool comboflag)
+int32_t LinkClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag)
 {
     switch(cdir)
     {
@@ -17656,7 +17656,7 @@ int LinkClass::nextflag(int cx, int cy, int cdir, bool comboflag)
     // off the screen
     if(cx<0 || cy<0 || cx>255 || cy>175)
     {
-        int ns = nextscr(cdir);
+        int32_t ns = nextscr(cdir);
         
         if(ns==0xFFFF) return 0;
         
@@ -17683,7 +17683,7 @@ int LinkClass::nextflag(int cx, int cy, int cdir, bool comboflag)
         }
         
         // from MAPCOMBO()
-        int cmb = (cy&0xF0)+(cx>>4);
+        int32_t cmb = (cy&0xF0)+(cx>>4);
         
         if(cmb>175)
             return 0;
@@ -17721,7 +17721,7 @@ void LinkClass::checkspecial()
         // after beating enemies
         
         // if room has traps, guys don't come back
-        for(int i=0; i<eMAXGUYS; i++)
+        for(int32_t i=0; i<eMAXGUYS; i++)
         {
             if(guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
                 if(guys.idCount(i) && !getmapflag(mTMPNORET))
@@ -17731,7 +17731,7 @@ void LinkClass::checkspecial()
         // item
         if(hasitem&(4|2|1))
         {
-            int Item=tmpscr->item;
+            int32_t Item=tmpscr->item;
             
             //if(getmapflag())
             //  Item=0;
@@ -17767,7 +17767,7 @@ void LinkClass::checkspecial()
     }
     
     // doors
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         if(tmpscr->door[i]==dSHUTTER)
         {
             if(opendoors==0 && loaded_enemies)
@@ -17807,7 +17807,7 @@ void LinkClass::checkspecial()
 	
 	if((hasitem&8) && triggered_screen_secrets)
 	{
-		int Item=tmpscr->item;
+		int32_t Item=tmpscr->item;
 		
 		if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
 		{
@@ -17822,7 +17822,7 @@ void LinkClass::checkspecial()
 	}
 }
 
-void LinkClass::checkspecial2(int *ls)
+void LinkClass::checkspecial2(int32_t *ls)
 {
 	if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !(diagonalMovement||NO_GRIDLOCK))
 	{
@@ -17837,12 +17837,12 @@ void LinkClass::checkspecial2(int *ls)
 	
 	bool didstrig = false;
 	
-	for(int i=bigHitbox?0:8; i<16; i+=bigHitbox?15:7)
+	for(int32_t i=bigHitbox?0:8; i<16; i+=bigHitbox?15:7)
 	{
-		for(int j=0; j<16; j+=15) for(int k=0; k<2; k++)
+		for(int32_t j=0; j<16; j+=15) for(int32_t k=0; k<2; k++)
 		{
-			int stype = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].type;
-		int warpsound = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].attribytes[0];
+			int32_t stype = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].type;
+		int32_t warpsound = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].attribytes[0];
 			
 			if(stype==cSWARPA)
 			{
@@ -17921,15 +17921,15 @@ void LinkClass::checkspecial2(int *ls)
 				{ 
 					if(!didstrig)
 					{
-						stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
+						stepsecret = ((int32_t)(y+i)&0xF0)+((int32_t)(x+j)>>4);
 						
 						if(!(tmpscr->flags5&fTEMPSECRETS))
 						{
 							setmapflag(mSECRET);
 						}
-			//int thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
+			//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
 			//zprint("Step Secrets SFX: %d\n", thesfx);
-						sfx(warpsound,pan((int)x));
+						sfx(warpsound,pan((int32_t)x));
 						hidden_entrance(0,true,false); 
 						didstrig = true;
 					}
@@ -17938,14 +17938,14 @@ void LinkClass::checkspecial2(int *ls)
 				{ 
 					if(!didstrig)
 					{
-						stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
+						stepsecret = ((int32_t)(y+i)&0xF0)+((int32_t)(x+j)>>4);
 						hidden_entrance(0,true,true); 
 						didstrig = true;
 			//play trigger sound
-			//int thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
+			//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
 			//zprint("Step Secrets SFX: %d\n", thesfx);
-						//sfx(thesfx,pan((int)x));
-			sfx(warpsound,pan((int)x));
+						//sfx(thesfx,pan((int32_t)x));
+			sfx(warpsound,pan((int32_t)x));
 					}
 				}
 			}
@@ -17953,28 +17953,28 @@ void LinkClass::checkspecial2(int *ls)
 	}
 	
 	// check if he's standing on a warp he just came out of
-	if(((int)y>=warpy-8&&(int)y<=warpy+7)&&warpy!=-1)
+	if(((int32_t)y>=warpy-8&&(int32_t)y<=warpy+7)&&warpy!=-1)
 	{
-		if(((int)x>=warpx-8&&(int)x<=warpx+7)&&warpx!=-1)
+		if(((int32_t)x>=warpx-8&&(int32_t)x<=warpx+7)&&warpx!=-1)
 		{
 			return;
 		}
 	}
 	
 	warpy=255;
-	int tx=x;
-	int ty=y;
+	int32_t tx=x;
+	int32_t ty=y;
 	
-	int flag=0;
-	int flag2=0;
-	int flag3=0;
-	int type=0;
-	int water=0;
-	int index = 0;
+	int32_t flag=0;
+	int32_t flag2=0;
+	int32_t flag3=0;
+	int32_t type=0;
+	int32_t water=0;
+	int32_t index = 0;
 	
 	//bool gotpit=false;
 	
-	int x1,x2,y1,y2;
+	int32_t x1,x2,y1,y2;
 	x1 = tx;
 	x2 = tx+15;
 	y1 = ty;
@@ -17988,10 +17988,10 @@ void LinkClass::checkspecial2(int *ls)
 		y2 = ty+11;
 	}
 	
-	int types[4];
+	int32_t types[4];
 	types[0]=types[1]=types[2]=types[3]=-1;
-	int cids[4];
-	int ffcids[4];
+	int32_t cids[4];
+	int32_t ffcids[4];
 	cids[0]=cids[1]=cids[2]=cids[3]=-1;
 	ffcids[0]=ffcids[1]=ffcids[2]=ffcids[3]=-1;
 	//
@@ -18074,9 +18074,9 @@ void LinkClass::checkspecial2(int *ls)
 		types[3] = FFCOMBOTYPE(x2,y2);
 	cids[3] = MAPFFCOMBO(x2,y2);
 	}
-	int warpsfx2 = 0;
+	int32_t warpsfx2 = 0;
 	// Change B, C and D warps into A, for the comparison below...
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 	{
 		if(types[i]==cCAVE)
 		{
@@ -18276,7 +18276,7 @@ void LinkClass::checkspecial2(int *ls)
 		
 	bool setsave=false;
 	
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 	{
 		if(types[i]==cSAVE) setsave=true;
 		
@@ -18325,7 +18325,7 @@ void LinkClass::checkspecial2(int *ls)
 			if(MAPFFCOMBO(x2,y2))
 				types[3] = FFCOMBOTYPE(x2,y2);
 				
-			int typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
+			int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
 			if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
 				typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
 				
@@ -18377,7 +18377,7 @@ void LinkClass::checkspecial2(int *ls)
 	cids[3] = MAPFFCOMBO(x2,y2);
 	}
 		
-	for(int i=0; i<4; i++)
+	for(int32_t i=0; i<4; i++)
 	{
 		if(types[i]==cPIT) 
 	{
@@ -18462,7 +18462,7 @@ void LinkClass::checkspecial2(int *ls)
 		if((((ty+8)&0xF0)+((tx+8)>>4))!=stepsecret || get_bit(quest_rules,qr_TRIGGERSREPEAT))
 		{
 			stepsecret = (((ty+8)&0xF0)+((tx+8)>>4)); 
-		sfx(combobuf[tmpscr->data[stepsecret]].attribytes[0],pan((int)x));
+		sfx(combobuf[tmpscr->data[stepsecret]].attribytes[0],pan((int32_t)x));
 		//zprint("Step Secrets Sound: %d\n", combobuf[tmpscr->data[stepsecret]].attribytes[0]);
 			
 			if(type==cTRIGFLAG && canPermSecret())
@@ -18525,7 +18525,7 @@ void LinkClass::checkspecial2(int *ls)
 		)
 		
 		{
-		sfx(combobuf[tmpscr->data[stepnext]].attribytes[0],pan((int)x));
+		sfx(combobuf[tmpscr->data[stepnext]].attribytes[0],pan((int32_t)x));
 				tmpscr->data[stepnext]++;
 		
 			}
@@ -18538,9 +18538,9 @@ void LinkClass::checkspecial2(int *ls)
 			( ( !combobuf[tmpscr->data[stepnext]].usrflags&cflag1 ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
 		)
 			{
-				int stepc = tmpscr->data[stepnext];
-				sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
-				for(int k=0; k<176; k++)
+				int32_t stepc = tmpscr->data[stepnext];
+				sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int32_t)x));
+				for(int32_t k=0; k<176; k++)
 				{
 					if(tmpscr->data[k]==stepc)
 					{
@@ -18557,8 +18557,8 @@ void LinkClass::checkspecial2(int *ls)
 			( ( !combobuf[tmpscr->data[stepnext]].usrflags&cflag1 ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
 		)
 			{
-		sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int)x));
-				for(int k=0; k<176; k++)
+		sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int32_t)x));
+				for(int32_t k=0; k<176; k++)
 				{
 					if(
 						(combobuf[tmpscr->data[k]].type==cSTEP)||
@@ -18576,18 +18576,18 @@ void LinkClass::checkspecial2(int *ls)
 	else if(type==cSTEPSFX)
 	{ 
 	//We probably only want to do this when the player is moving.
-	int thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0];
+	int32_t thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0];
 	if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
-		sfx(thesfx,pan((int)x));
+		sfx(thesfx,pan((int32_t)x));
 	if ( combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag1 && action==walking ) //landmine
 	{
-		int wpn = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1];
-		int wpdir = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2];
+		int32_t wpn = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1];
+		int32_t wpdir = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2];
 		if ( ((unsigned)wpdir) > r_down )
 		{
 			wpdir = zc_oldrand()&3;
 		}
-		int damg = combobuf[MAPCOMBO(tx+8,ty+8)].attributes[0]/10000L;
+		int32_t damg = combobuf[MAPCOMBO(tx+8,ty+8)].attributes[0]/10000L;
 		switch(wpn)
 		{
 			//eweapons
@@ -18655,7 +18655,7 @@ void LinkClass::checkspecial2(int *ls)
 			case wFire:
 				//if (combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag2) //wscript lwpn
 				//{
-					//:weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special)
+					//:weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special)
 					Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,getUID(),false,0,1,0)); break;
 				//}
 				//else //wscript ewpn
@@ -18678,7 +18678,7 @@ void LinkClass::checkspecial2(int *ls)
 			
 				if (combobuf[MAPCOMBO(tx+8,ty+8)].usrflags&cflag2) //wscript lwpn
 				{
-					//:weapon(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special)
+					//:weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special)
 					Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,getUID(),false,0,1,0)); 
 					if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
 					{
@@ -18708,7 +18708,7 @@ void LinkClass::checkspecial2(int *ls)
 								attack=none;
 								tapping = false;
 							}
-							int dmgamt = ((damg > 0) ? damg : 4);
+							int32_t dmgamt = ((damg > 0) ? damg : 4);
 		
 							game->set_life(game->get_life()-ringpower(dmgamt));
 							
@@ -18760,7 +18760,7 @@ void LinkClass::checkspecial2(int *ls)
 							attack=none;
 							tapping = false;
 						}
-						int dmgamt = ((damg > 0) ? damg : 4);
+						int32_t dmgamt = ((damg > 0) ? damg : 4);
 
 						game->set_life(game->get_life()-ringpower(dmgamt));
 						
@@ -18771,7 +18771,7 @@ void LinkClass::checkspecial2(int *ls)
 				break;
 			
 			default: //enemy bomb
-				//(zfix X,zfix Y,zfix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW, byte special) : sprite(), parentid(
+				//(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special) : sprite(), parentid(
 				//Ewpns.add(new weapon((zfix)tx+8,(zfix)ty+8,(zfix)0,ewLitBomb,16,0,0, -1,-1,false)); break;
 				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,ewLitBomb,0,((damg > 0) ? damg : 4),up, -1,-1,false)); 
 				if (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[3] > 0 && combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2] < 256 )
@@ -18797,16 +18797,16 @@ void LinkClass::checkspecial2(int *ls)
 	else if(type==cTALLGRASS||type==cTALLGRASSTOUCHY||type==cTALLGRASSNEXT)
 	{ 
 	//We probably only want to do this when the player is moving.
-	int thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2];
+	int32_t thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2];
 	if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
-		sfx(thesfx,pan((int)x));
+		sfx(thesfx,pan((int32_t)x));
 	}
 	else if(type==cSHALLOWWATER)
 	{ 
 	//We probably only want to do this when the player is moving.
-	int thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0];
+	int32_t thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0];
 	if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
-		sfx(thesfx,pan((int)x));
+		sfx(thesfx,pan((int32_t)x));
 	}
 	else stepnext = -1;
 	
@@ -18921,7 +18921,7 @@ void LinkClass::checkspecial2(int *ls)
 	}
 	
 	
-	int t=(currscr<128)?0:1;
+	int32_t t=(currscr<128)?0:1;
 	
 	if((type==cCAVE || type==cCAVE2) && (tmpscr[t].tilewarptype[index]==wtNOWARP)) return;
 	
@@ -18941,7 +18941,7 @@ void LinkClass::checkspecial2(int *ls)
 		// * entering a Guy Cave
 		// * warping to a DMap whose music is different.
 		
-		int tdm = tmpscr[t].tilewarpdmap[index];
+		int32_t tdm = tmpscr[t].tilewarpdmap[index];
 		
 		if(tmpscr[t].tilewarptype[index]<=wtPASS)
 		{
@@ -18994,8 +18994,8 @@ void LinkClass::checkspecial2(int *ls)
 		}
 		
 		// "take any road you want"
-		int dw = x<112 ? 1 : (x>136 ? 3 : 2);
-		int code = WARPCODE(currdmap,homescr,dw);
+		int32_t dw = x<112 ? 1 : (x>136 ? 3 : 2);
+		int32_t code = WARPCODE(currdmap,homescr,dw);
 		
 		if(code>-1)
 		{
@@ -19072,7 +19072,7 @@ void LinkClass::checkspecial2(int *ls)
 	}
 }
 
-int selectWlevel(int d)
+int32_t selectWlevel(int32_t d)
 {
     if(TriforceCount()==0)
         return 0;
@@ -19097,7 +19097,7 @@ int selectWlevel(int d)
 // Would someone tell the Dodongos to shut their yaps?!
 void kill_enemy_sfx()
 {
-    for(int i=0; i<guys.Count(); i++)
+    for(int32_t i=0; i<guys.Count(); i++)
     {
         if(((enemy*)guys.spr(i))->bgsfx)
             stop_sfx(((enemy*)guys.spr(i))->bgsfx);
@@ -19109,14 +19109,14 @@ void kill_enemy_sfx()
 
 bool LinkClass::HasHeavyBoots()
 {
-	for ( int q = 0; q < MAXITEMS; ++q )
+	for ( int32_t q = 0; q < MAXITEMS; ++q )
 	{
 		if ( game->item[q] && ( itemsbuf[q].family == itype_boots ) && /*iron*/ (itemsbuf[q].flags&ITEM_FLAG2) ) return true;
 	}
 	return false;
 }
 
-void LinkClass::setEntryPoints(int x2, int y2)
+void LinkClass::setEntryPoints(int32_t x2, int32_t y2)
 {
     mapscr *m = &tmpscr[0];
 	m->entry_x = x2;
@@ -19135,7 +19135,7 @@ const char *roomtype_string[rMAX] =
     "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
 };
 
-bool LinkClass::dowarp(int type, int index, int warpsfx)
+bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 {
 	byte reposition_sword_postwarp = 0;
 	if(index<0)
@@ -19143,7 +19143,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		return false;
 	}
 	is_warping = true;
-	for ( int q = 0; q < Lwpns.Count(); ++q )
+	for ( int32_t q = 0; q < Lwpns.Count(); ++q )
 	{
 		weapon *swd=NULL;
 		swd = (weapon*)Lwpns.spr(q);
@@ -19160,7 +19160,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	byte wscr=0,wtype=0,t=0;
 	bool overlay=false;
 	t=(currscr<128)?0:1;
-	int wrindex = 0;
+	int32_t wrindex = 0;
 	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
 	
 	// Drawing commands probably shouldn't carry over...
@@ -19191,14 +19191,14 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		case 2:                                                 // whistle warp
 		{
 			wtype = wtWHISTLE;
-			int wind = whistleitem>-1 ? itemsbuf[whistleitem].misc2 : 8;
-			int level=0;
+			int32_t wind = whistleitem>-1 ? itemsbuf[whistleitem].misc2 : 8;
+			int32_t level=0;
 			
 			if(blowcnt==0)
 				level = selectWlevel(0);
 			else
 			{
-				for(int i=0; i<abs(blowcnt); i++)
+				for(int32_t i=0; i<abs(blowcnt); i++)
 					level = selectWlevel(blowcnt);
 			}
 			
@@ -19227,7 +19227,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	}
 	
 	bool intradmap = (wdmap == currdmap);
-	int olddmap = currdmap;
+	int32_t olddmap = currdmap;
 	rehydratelake(type!=wtSCROLL);
 	
 	switch(wtype)
@@ -19281,14 +19281,14 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			if(reposition_sword_postwarp)
 			{
 				weapon *swd=NULL;
-				for(int i=0; i<Lwpns.Count(); i++)
+				for(int32_t i=0; i<Lwpns.Count(); i++)
 				{
 					swd = (weapon*)Lwpns.spr(i);
 					
 					if(swd->id == (attack==wSword ? wSword : wWand))
 					{
-					int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-					int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+					int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+					int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 					positionSword(swd,item_id);
 					break;
 					}
@@ -19333,14 +19333,14 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			if(reposition_sword_postwarp)
 			{
 				weapon *swd=NULL;
-				for(int i=0; i<Lwpns.Count(); i++)
+				for(int32_t i=0; i<Lwpns.Count(); i++)
 				{
 					swd = (weapon*)Lwpns.spr(i);
 					
 					if(swd->id == (attack==wSword ? wSword : wWand))
 					{
-					int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-					int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+					int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+					int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 					positionSword(swd,item_id);
 					break;
 					}
@@ -19408,14 +19408,14 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		if(reposition_sword_postwarp)
 		{
 			weapon *swd=NULL;
-			for(int i=0; i<Lwpns.Count(); i++)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				swd = (weapon*)Lwpns.spr(i);
 				
 				if(swd->id == (attack==wSword ? wSword : wWand))
 				{
-				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 				}
@@ -19469,7 +19469,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			darkroom=naturaldark=false;
 		}
 		
-		int wrx,wry;
+		int32_t wrx,wry;
 		
 		if(get_bit(quest_rules,qr_NOARRIVALPOINT))
 		{
@@ -19535,7 +19535,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		if(dlevel)
 		{
 			// reset enemy kill counts
-			for(int i=0; i<128; i++)
+			for(int32_t i=0; i<128; i++)
 			{
 				game->guys[(currmap*MAPSCRSNORMAL)+i] = 0;
 				game->maps[(currmap*MAPSCRSNORMAL)+i] &= ~mTMPNORET;
@@ -19550,14 +19550,14 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		if(reposition_sword_postwarp)
 		{
 			weapon *swd=NULL;
-			for(int i=0; i<Lwpns.Count(); i++)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				swd = (weapon*)Lwpns.spr(i);
 				
 				if(swd->id == (attack==wSword ? wSword : wWand))
 				{
-				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 				}
@@ -19578,9 +19578,9 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			if(!COOLSCROLL)
 				openscreen();
 				
-			int type1 = combobuf[MAPCOMBO(x,y-16)].type; // Old-style blue square placement
-			int type2 = combobuf[MAPCOMBO(x,y)].type;
-			int type3 = combobuf[MAPCOMBO(x,y+16)].type; // More old-style blue square placement
+			int32_t type1 = combobuf[MAPCOMBO(x,y-16)].type; // Old-style blue square placement
+			int32_t type2 = combobuf[MAPCOMBO(x,y)].type;
+			int32_t type3 = combobuf[MAPCOMBO(x,y+16)].type; // More old-style blue square placement
 			
 			if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
 			{
@@ -19609,7 +19609,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		dointro();
 		setEntryPoints(x,y);
 		
-		for(int i=0; i<6; i++)
+		for(int32_t i=0; i<6; i++)
 			visited[i]=-1;
 			
 		break;
@@ -19617,7 +19617,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	
 	case wtSCROLL:                                          // scrolling warp
 	{
-		int c = DMaps[currdmap].color;
+		int32_t c = DMaps[currdmap].color;
 		scrolling_map = currmap;
 		currmap = DMaps[wdmap].map;
 		update_subscreens(wdmap);
@@ -19647,14 +19647,14 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		if(reposition_sword_postwarp)
 		{
 			weapon *swd=NULL;
-			for(int i=0; i<Lwpns.Count(); i++)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				swd = (weapon*)Lwpns.spr(i);
 				
 				if(swd->id == (attack==wSword ? wSword : wWand))
 				{
-				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 				}
@@ -19667,7 +19667,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			homescr = currscr = wscr + DMaps[wdmap].xoff;
 			init_dmap();
 			
-			int wrx,wry;
+			int32_t wrx,wry;
 			
 			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
 			{
@@ -19720,13 +19720,13 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		currcset=DMaps[currdmap].color;
 		dointro();
 		action=inwind; FFCore.setLinkAction(inwind);
-		int wry;
+		int32_t wry;
 		
 		if(get_bit(quest_rules,qr_NOARRIVALPOINT))
 			wry=tmpscr->warpreturny[0];
 		else wry=tmpscr->warparrivaly;
 		
-		int wrx;
+		int32_t wrx;
 		
 		if(get_bit(quest_rules,qr_NOARRIVALPOINT))
 			wrx=tmpscr->warpreturnx[0];
@@ -19764,9 +19764,9 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			}
 		}
 		//for determining whether to exit cave
-		int type1 = combobuf[MAPCOMBO(x,y-16)].type;
-		int type2 = combobuf[MAPCOMBO(x,y)].type;
-		int type3 = combobuf[MAPCOMBO(x,y+16)].type;
+		int32_t type1 = combobuf[MAPCOMBO(x,y-16)].type;
+		int32_t type2 = combobuf[MAPCOMBO(x,y)].type;
+		int32_t type3 = combobuf[MAPCOMBO(x,y+16)].type;
 		
 		bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
 						 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
@@ -19775,7 +19775,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		{
 			//ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
 			bool wasswimming = (action == swimming);
-			int olddiveclk = diveclk;
+			int32_t olddiveclk = diveclk;
 			ALLOFF();
 			
 			if(wasswimming)
@@ -19803,7 +19803,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			blackscr(30,b2?false:true);
 		}
 		
-		int c = DMaps[currdmap].color;
+		int32_t c = DMaps[currdmap].color;
 		currdmap = wdmap;
 		dlevel = DMaps[currdmap].level;
 		currmap = DMaps[currdmap].map;
@@ -19845,7 +19845,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		
 		markBmap(dir^1);
 		
-		int checkwater = iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
+		int32_t checkwater = iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
 		
 		if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].attribytes[0] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))
 		{
@@ -19892,14 +19892,14 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		if(reposition_sword_postwarp)
 		{
 			weapon *swd=NULL;
-			for(int i=0; i<Lwpns.Count(); i++)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				swd = (weapon*)Lwpns.spr(i);
 				
 				if(swd->id == (attack==wSword ? wSword : wWand))
 				{
-				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 				}
@@ -19927,9 +19927,9 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		{
 			al_trace("Encountered a warp in a 1.92b163 style quest, that was set as a Cancel Warp.\n %s\n", "Trying to redirect it into a Wave Effect");
 			//for determining whether to exit cave
-			int type1 = combobuf[MAPCOMBO(x,y-16)].type;
-			int type2 = combobuf[MAPCOMBO(x,y)].type;
-			int type3 = combobuf[MAPCOMBO(x,y+16)].type;
+			int32_t type1 = combobuf[MAPCOMBO(x,y-16)].type;
+			int32_t type2 = combobuf[MAPCOMBO(x,y)].type;
+			int32_t type3 = combobuf[MAPCOMBO(x,y+16)].type;
 			
 			bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
 					 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
@@ -19938,7 +19938,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			{
 				//ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
 				bool wasswimming = (action == swimming);
-				int olddiveclk = diveclk;
+				int32_t olddiveclk = diveclk;
 				ALLOFF();
 				
 				if(wasswimming)
@@ -19966,7 +19966,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 				blackscr(30,b2?false:true);
 			}
 			
-			int c = DMaps[currdmap].color;
+			int32_t c = DMaps[currdmap].color;
 			currdmap = wdmap;
 			dlevel = DMaps[currdmap].level;
 			currmap = DMaps[currdmap].map;
@@ -20054,14 +20054,14 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			if(reposition_sword_postwarp)
 			{
 				weapon *swd=NULL;
-				for(int i=0; i<Lwpns.Count(); i++)
+				for(int32_t i=0; i<Lwpns.Count(); i++)
 				{
 					swd = (weapon*)Lwpns.spr(i);
 					
 					if(swd->id == (attack==wSword ? wSword : wWand))
 					{
-						int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-						int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+						int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+						int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 						positionSword(swd,item_id);
 						break;
 					}
@@ -20080,14 +20080,14 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 			if(reposition_sword_postwarp)
 			{
 				weapon *swd=NULL;
-				for(int i=0; i<Lwpns.Count(); i++)
+				for(int32_t i=0; i<Lwpns.Count(); i++)
 				{
 					swd = (weapon*)Lwpns.spr(i);
 					
 					if(swd->id == (attack==wSword ? wSword : wWand))
 					{
-						int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-						int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+						int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+						int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 						positionSword(swd,item_id);
 						break;
 					}
@@ -20108,14 +20108,14 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		if(reposition_sword_postwarp)
 		{
 			weapon *swd=NULL;
-			for(int i=0; i<Lwpns.Count(); i++)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				swd = (weapon*)Lwpns.spr(i);
 				
 				if(swd->id == (attack==wSword ? wSword : wWand))
 				{
-				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 				}
@@ -20133,7 +20133,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 		action=none; FFCore.setLinkAction(none);
 	}
 	
-	int checkwater = iswaterex(MAPCOMBO(x,y+(bigHitbox?8:12)), currmap, currscr, -1, x,y+(bigHitbox?8:12));
+	int32_t checkwater = iswaterex(MAPCOMBO(x,y+(bigHitbox?8:12)), currmap, currscr, -1, x,y+(bigHitbox?8:12));
 	// But keep him swimming if he ought to be!
 	// Unless the water is too high levelled, in which case... well, he'll drown on transition probably anyways. -Dimi
 	if(action!=rafting && checkwater && (_walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) || get_bit(quest_rules,qr_DROWN))
@@ -20172,7 +20172,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	
 	if(!wasSideview && tmpscr_is_sideview)
 	{
-		for(int i=0; i<guys.Count(); i++)
+		for(int32_t i=0; i<guys.Count(); i++)
 		{
 			if(guys.spr(i)->z > 0)
 			{
@@ -20186,7 +20186,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	}
 	else if(wasSideview && !tmpscr_is_sideview)
 	{
-		for(int i=0; i<guys.Count(); i++)
+		for(int32_t i=0; i<guys.Count(); i++)
 		{
 			if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
 				guys.spr(i)->yofs -= 2;
@@ -20197,7 +20197,7 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	{
 		if(dlevel)
 		{
-			int wrx,wry;
+			int32_t wrx,wry;
 			
 			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
 			{
@@ -20277,14 +20277,14 @@ bool LinkClass::dowarp(int type, int index, int warpsfx)
 	if(reposition_sword_postwarp)
 	{
 		weapon *swd=NULL;
-		for(int i=0; i<Lwpns.Count(); i++)
+		for(int32_t i=0; i<Lwpns.Count(); i++)
 		{
 			swd = (weapon*)Lwpns.spr(i);
 			
 			if(swd->id == (attack==wSword ? wSword : wWand))
 			{
-				int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 			}
@@ -20315,9 +20315,9 @@ void LinkClass::exitcave()
     if(x+y == 0)
         x = y = 80;
         
-    int type1 = combobuf[MAPCOMBO(x,y-16)].type;
-    int type2 = combobuf[MAPCOMBO(x,y)].type;
-    int type3 = combobuf[MAPCOMBO(x,y+16)].type;
+    int32_t type1 = combobuf[MAPCOMBO(x,y-16)].type;
+    int32_t type2 = combobuf[MAPCOMBO(x,y)].type;
+    int32_t type3 = combobuf[MAPCOMBO(x,y+16)].type;
     bool b = COOLSCROLL &&
              ((type1==cCAVE) || (type1>=cCAVEB && type1<=cCAVED) ||
               (type2==cCAVE) || (type2>=cCAVEB && type2<=cCAVED) ||
@@ -20358,7 +20358,7 @@ void LinkClass::exitcave()
 }
 
 
-void LinkClass::stepforward(int steps, bool adjust)
+void LinkClass::stepforward(int32_t steps, bool adjust)
 {
 	if ( FFCore.nostepforward ) return;
 	if ( FFCore.temp_no_stepforward ) { FFCore.temp_no_stepforward = 0; return; }
@@ -20367,10 +20367,10 @@ void LinkClass::stepforward(int steps, bool adjust)
     zfix tstep(0);        //temp single step distance
     zfix s(0);            //calculated step distance for all steps
     z3step=2;
-    int sh=shiftdir;
+    int32_t sh=shiftdir;
     shiftdir=-1;
     
-    for(int i=steps; i>0; --i)
+    for(int32_t i=steps; i>0; --i)
     {
 		if(diagonalMovement)
         {
@@ -20392,7 +20392,7 @@ void LinkClass::stepforward(int steps, bool adjust)
 			}
 			else
 			{
-				tstep=lsteps[int((dir<left)?ty:tx)&7];
+				tstep=lsteps[int32_t((dir<left)?ty:tx)&7];
 				
 				switch(dir)
 				{
@@ -20432,7 +20432,7 @@ void LinkClass::stepforward(int steps, bool adjust)
 				{
 					walkable = false;
 					shiftdir = -1;
-					int tdir=dir<left?(x.getInt()&8?left:right):(y.getInt()&8?down:up);
+					int32_t tdir=dir<left?(x.getInt()&8?left:right):(y.getInt()&8?down:up);
 					switch(tdir)
 					{
 						case left:
@@ -20477,7 +20477,7 @@ void LinkClass::stepforward(int steps, bool adjust)
 			if((dir<left?x.getInt()&7:y.getInt()&7)&&adjust==true)
             {
                 walkable=false;
-                int tdir=dir<left?(x.getInt()&8?left:right):(y.getInt()&8?down:up);
+                int32_t tdir=dir<left?(x.getInt()&8?left:right):(y.getInt()&8?down:up);
 				switch(tdir)
 				{
 					case left:
@@ -20587,8 +20587,8 @@ void LinkClass::stepforward(int steps, bool adjust)
     }
 	if(dir==right||dir==down)
 	{
-		x=int(x);
-		y=int(y);
+		x=int32_t(x);
+		y=int32_t(y);
 	}
 	else
 	{
@@ -20612,7 +20612,7 @@ void LinkClass::walkdown(bool opening) //entering cave
     stop_item_sfx(itype_brang);
     sfx(WAV_STAIRS,pan(x.getInt()));
     clk=0;
-    //  int cmby=(y.getInt()&0xF0)+16;
+    //  int32_t cmby=(y.getInt()&0xF0)+16;
     // Fix Link's position to the grid
     y=y.getInt()&0xF0;
     action=climbcoverbottom; FFCore.setLinkAction(climbcoverbottom);
@@ -20628,7 +20628,7 @@ void LinkClass::walkdown(bool opening) //entering cave
     Ewpns.clear();
     items.clear();
     
-    for(int i=0; i<64; i++)
+    for(int32_t i=0; i<64; i++)
     {
         linkstep();
         
@@ -20650,7 +20650,7 @@ void LinkClass::walkdown(bool opening) //entering cave
 
 void LinkClass::walkdown2(bool opening) //exiting cave 2
 {
-    int type = combobuf[MAPCOMBO(x,y)].type;
+    int32_t type = combobuf[MAPCOMBO(x,y)].type;
     
     if((type==cCAVE2)||(type>=cCAVE2B && type<=cCAVE2D))
         y-=16;
@@ -20669,7 +20669,7 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
     stop_item_sfx(itype_brang);
     sfx(WAV_STAIRS,pan(x.getInt()));
     clk=0;
-    //  int cmby=y.getInt()&0xF0;
+    //  int32_t cmby=y.getInt()&0xF0;
     action=climbcovertop; FFCore.setLinkAction(climbcovertop);
     attack=wNone;
     attackid=-1;
@@ -20683,7 +20683,7 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
     Ewpns.clear();
     items.clear();
     
-    for(int i=0; i<64; i++)
+    for(int32_t i=0; i<64; i++)
     {
         linkstep();
         
@@ -20705,7 +20705,7 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
 
 void LinkClass::walkup(bool opening) //exiting cave
 {
-    int type = combobuf[MAPCOMBO(x,y)].type;
+    int32_t type = combobuf[MAPCOMBO(x,y)].type;
     
     if((type==cCAVE)||(type>=cCAVEB && type<=cCAVED))
         y+=16;
@@ -20724,7 +20724,7 @@ void LinkClass::walkup(bool opening) //exiting cave
     sfx(WAV_STAIRS,pan(x.getInt()));
     dir=down;
     clk=0;
-    //  int cmby=y.getInt()&0xF0;
+    //  int32_t cmby=y.getInt()&0xF0;
     action=climbcoverbottom; FFCore.setLinkAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
@@ -20738,7 +20738,7 @@ void LinkClass::walkup(bool opening) //exiting cave
     Ewpns.clear();
     items.clear();
     
-    for(int i=0; i<64; i++)
+    for(int32_t i=0; i<64; i++)
     {
         linkstep();
         
@@ -20772,7 +20772,7 @@ void LinkClass::walkup2(bool opening) //entering cave2
     sfx(WAV_STAIRS,pan(x.getInt()));
     dir=up;
     clk=0;
-    //  int cmby=y.getInt()&0xF0;
+    //  int32_t cmby=y.getInt()&0xF0;
     action=climbcovertop; FFCore.setLinkAction(climbcovertop);
     attack=wNone;
     attackid=-1;
@@ -20786,7 +20786,7 @@ void LinkClass::walkup2(bool opening) //entering cave2
     Ewpns.clear();
     items.clear();
     
-    for(int i=0; i<64; i++)
+    for(int32_t i=0; i<64; i++)
     {
         linkstep();
         
@@ -20810,7 +20810,7 @@ void LinkClass::walkup2(bool opening) //entering cave2
 
 void LinkClass::stepout() // Step out of item cellars and passageways
 {
-    int sc = specialcave; // This gets erased by ALLOFF()
+    int32_t sc = specialcave; // This gets erased by ALLOFF()
     ALLOFF();
     stop_sfx(WAV_ER);
     map_bkgsfx(false);
@@ -20857,7 +20857,7 @@ void LinkClass::stepout() // Step out of item cellars and passageways
 	byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poLEVEL)*3;
 	si+=3*48;
 	    
-	for(int i=0; i<16; i++)
+	for(int32_t i=0; i<16; i++)
 	{
 		RAMpal[CSET(9)+i] = _RGB(si);
 		tempgreypal[CSET(9)+i] = _RGB(si); //preserve monochrome
@@ -20883,7 +20883,7 @@ void LinkClass::stepout() // Step out of item cellars and passageways
     setEntryPoints(x,y);
     
     // Let's use the 'exit cave' animation if we entered this cellar via a cave combo.
-    int type = combobuf[MAPCOMBO(tmpscr->warpreturnx[stepoutwr],tmpscr->warpreturny[stepoutwr])].type;
+    int32_t type = combobuf[MAPCOMBO(tmpscr->warpreturnx[stepoutwr],tmpscr->warpreturny[stepoutwr])].type;
     
     if((type==cCAVE)||(type>=cCAVEB && type<=cCAVED))
     {
@@ -20914,14 +20914,14 @@ void LinkClass::stepout() // Step out of item cellars and passageways
     loadside=dir^1;
 }
 
-bool LinkClass::nextcombo_wf(int d2)
+bool LinkClass::nextcombo_wf(int32_t d2)
 {
     if(toogam || (action!=swimming && !IsSideSwim() && action != swimhit) || hopclk==0) //!DIMITODO: ...does swimming just let you ignore smart scrolling entirely!?
         return false;
         
     // assumes Link is about to scroll screens
     
-    int ns = nextscr(d2);
+    int32_t ns = nextscr(d2);
     
     if(ns==0xFFFF)
         return false;
@@ -20929,8 +20929,8 @@ bool LinkClass::nextcombo_wf(int d2)
     // want actual screen index, not game->maps[] index
     ns = (ns&127) + (ns>>7)*MAPSCRS;
     
-    int cx = x;
-    int cy = y;
+    int32_t cx = x;
+    int32_t cy = y;
     
     switch(d2)
     {
@@ -20955,7 +20955,7 @@ bool LinkClass::nextcombo_wf(int d2)
     cy += 8;
     
     // from MAPCOMBO()
-    int cmb = (cy&0xF0)+(cx>>4);
+    int32_t cmb = (cy&0xF0)+(cx>>4);
     
     if(cmb>175)
         return true;
@@ -20963,7 +20963,7 @@ bool LinkClass::nextcombo_wf(int d2)
     newcombo c = combobuf[TheMaps[ns].data[cmb]];
     bool dried = iswater_type(c.type) && DRIEDLAKE;
     bool swim = iswater_type(c.type) && (current_item(itype_flippers)) && !dried;
-    int b=1;
+    int32_t b=1;
     
     if(cx&8) b<<=2;
     
@@ -20993,25 +20993,25 @@ bool LinkClass::nextcombo_wf(int d2)
     return (c.walk&b) ? !dried && !swim : false;
 }
 
-bool LinkClass::nextcombo_solid(int d2)
+bool LinkClass::nextcombo_solid(int32_t d2)
 {
 	if(toogam || currscr>=128)
 		return false;
 		
 	// assumes Link is about to scroll screens
 	
-	int ns = nextscr(d2);
+	int32_t ns = nextscr(d2);
 	
 	if(ns==0xFFFF)
 		return false;
 		
 	// want actual screen index, not game->maps[] index
 	ns = (ns&127) + (ns>>7)*MAPSCRS;
-	int screen = (ns%MAPSCRS);
-	int map = (ns - screen) / MAPSCRS;
+	int32_t screen = (ns%MAPSCRS);
+	int32_t map = (ns - screen) / MAPSCRS;
 	
-	int cx = x;
-	int cy = y;
+	int32_t cx = x;
+	int32_t cy = y;
 	
 	switch(d2)
 	{
@@ -21036,16 +21036,16 @@ bool LinkClass::nextcombo_solid(int d2)
 	
 	if(d2==left||d2==right) cy+=bigHitbox?0:8;
 	
-	int initcx = cx;
-	int initcy = cy;
+	int32_t initcx = cx;
+	int32_t initcy = cy;
 	// from MAPCOMBO()
 	
-	for(int i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((initcy&7)?2:1):((initcy&7)?1:0)) && cy < 176; cy+=(cy%2)?7:8,i++)
+	for(int32_t i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((initcy&7)?2:1):((initcy&7)?1:0)) && cy < 176; cy+=(cy%2)?7:8,i++)
 	{
 		cx = initcx;
-		for(int k=0; k<=(get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)?((initcx&7)?2:1):0) && cx < 256; cx+=(cx%2)?7:8,k++)
+		for(int32_t k=0; k<=(get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)?((initcx&7)?2:1):0) && cx < 256; cx+=(cx%2)?7:8,k++)
 		{
-			int cmb = (cy&0xF0)+(cx>>4);
+			int32_t cmb = (cy&0xF0)+(cx>>4);
 			
 			if(cmb>175)
 			{
@@ -21054,7 +21054,7 @@ bool LinkClass::nextcombo_solid(int d2)
 			
 			newcombo const& c = combobuf[MAPCOMBO3(map, screen, -1,cx,cy, get_bit(quest_rules, qr_SMARTER_SMART_SCROLL))];
 		
-			int b=1;
+			int32_t b=1;
 			
 			if(cx&8) b<<=2;
 			
@@ -21062,10 +21062,10 @@ bool LinkClass::nextcombo_solid(int d2)
 		
 			//bool bridgedetected = false;
 		
-			int walk = c.walk;
+			int32_t walk = c.walk;
 			if (get_bit(quest_rules, qr_SMARTER_SMART_SCROLL))
 			{
-				for (int m = 0; m <= 1; m++)
+				for (int32_t m = 0; m <= 1; m++)
 				{
 					newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,cx,cy, true)];
 					if (cmb.type == cBRIDGE) 
@@ -21427,7 +21427,7 @@ bool LinkClass::checkmaze(mapscr *scr, bool sound)
     if(lastdir[3]==scr->exitdir)
         return true;
         
-    for(int i=0; i<4; i++)
+    for(int32_t i=0; i<4; i++)
         if(lastdir[i]!=scr->path[i])
             return false;
             
@@ -21437,7 +21437,7 @@ bool LinkClass::checkmaze(mapscr *scr, bool sound)
     return true;
 }
 
-bool LinkClass::edge_of_dmap(int side)
+bool LinkClass::edge_of_dmap(int32_t side)
 {
     if(checkmaze(tmpscr,false)==false)
         return false;
@@ -21476,14 +21476,14 @@ bool LinkClass::edge_of_dmap(int side)
     return false;
 }
 
-bool LinkClass::lookaheadraftflag(int d2)
+bool LinkClass::lookaheadraftflag(int32_t d2)
 {
     // Helper for scrollscr that gets next combo on next screen.
     // Can use destscr for scrolling warps,
     // but assumes currmap is correct.
     
-    int cx = x;
-    int cy = y + 8;
+    int32_t cx = x;
+    int32_t cy = y + 8;
 	
 	bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
 	bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
@@ -21509,20 +21509,20 @@ bool LinkClass::lookaheadraftflag(int d2)
         break;
     }
     
-    int combo = (cy&0xF0)+(cx>>4);
+    int32_t combo = (cy&0xF0)+(cx>>4);
     
     if(combo>175)
         return 0;
     return ( isRaftFlag(combobuf[tmpscr[0].data[combo]].flag) || isRaftFlag(tmpscr[0].sflag[combo]));
     
 }
-int LinkClass::lookahead(int d2)                       // Helper for scrollscr that gets next combo on next screen.
+int32_t LinkClass::lookahead(int32_t d2)                       // Helper for scrollscr that gets next combo on next screen.
 {
     // Can use destscr for scrolling warps,
     // but assumes currmap is correct.
     
-	int cx = vbound(x,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
-	int cy = vbound(y + 8,0,160);
+	int32_t cx = vbound(x,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
+	int32_t cy = vbound(y + 8,0,160);
 	//bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
 	//bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
 	//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
@@ -21545,7 +21545,7 @@ int LinkClass::lookahead(int d2)                       // Helper for scrollscr t
         break;
     }
     
-    int combo = (cy&0xF0)+(cx>>4);
+    int32_t combo = (cy&0xF0)+(cx>>4);
     
     if(combo>175)
         return 0;
@@ -21553,14 +21553,14 @@ int LinkClass::lookahead(int d2)                       // Helper for scrollscr t
     return tmpscr[0].data[combo];            // entire combo code
 }
 
-int LinkClass::lookaheadflag(int d2)
+int32_t LinkClass::lookaheadflag(int32_t d2)
 {
     // Helper for scrollscr that gets next combo on next screen.
     // Can use destscr for scrolling warps,
     // but assumes currmap is correct.
     
-    int cx = vbound(x,0,240);
-    int cy = vbound(y + 8,0,160);
+    int32_t cx = vbound(x,0,240);
+    int32_t cy = vbound(y + 8,0,160);
 	
 	//bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
 	//bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
@@ -21586,7 +21586,7 @@ int LinkClass::lookaheadflag(int d2)
         break;
     }
     
-    int combo = (cy&0xF0)+(cx>>4);
+    int32_t combo = (cy&0xF0)+(cx>>4);
     
     if(combo>175)
         return 0;
@@ -21600,7 +21600,7 @@ int LinkClass::lookaheadflag(int d2)
 }
 
 //Bit of a messy kludge to give the correct Link->X/Link->Y in the script
-void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw)
+void LinkClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
 {
 	// For rafting (and possibly other esoteric things)
 	// Link's action should remain unchanged while scrolling,
@@ -21714,9 +21714,9 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 //Only used just before scrolling screens
 // Note: since scrollscr() calls this, and dowarp() calls scrollscr(),
 // return true to abort the topmost scrollscr() call. -L
-bool LinkClass::maze_enabled_sizewarp(int scrolldir)
+bool LinkClass::maze_enabled_sizewarp(int32_t scrolldir)
 {
-    for(int i = 0; i < 3; i++) lastdir[i] = lastdir[i+1];
+    for(int32_t i = 0; i < 3; i++) lastdir[i] = lastdir[i+1];
     
     lastdir[3] = tmpscr->flags&fMAZE ? scrolldir : 0xFF;
     
@@ -21773,7 +21773,7 @@ bool LinkClass::maze_enabled_sizewarp(int scrolldir)
     return false;
 }
 
-int LinkClass::get_scroll_step(int scrolldir)
+int32_t LinkClass::get_scroll_step(int32_t scrolldir)
 {
 	// For side-scrollers, where the relative speed of 'fast' scrolling is a bit slow.
 	if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
@@ -21796,7 +21796,7 @@ int LinkClass::get_scroll_step(int scrolldir)
     }
 }
 
-int LinkClass::get_scroll_delay(int scrolldir)
+int32_t LinkClass::get_scroll_delay(int32_t scrolldir)
 {
 	if(get_bit(quest_rules, qr_NOSCROLL))
 		return 0;
@@ -21819,14 +21819,14 @@ int LinkClass::get_scroll_delay(int scrolldir)
 	}
 }
 
-void LinkClass::calc_darkroom_link(int x1, int y1, int x2, int y2)
+void LinkClass::calc_darkroom_link(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
-	int itemid = current_item_id(itype_lantern);
+	int32_t itemid = current_item_id(itype_lantern);
 	if(itemid < 0) return; //no lantern light circle
-	int hx1 = x.getInt() - x1 + 8;
-	int hy1 = y.getInt() - y1 + 8;
-	int hx2 = x.getInt() - x2 + 8;
-	int hy2 = y.getInt() - y2 + 8;
+	int32_t hx1 = x.getInt() - x1 + 8;
+	int32_t hy1 = y.getInt() - y1 + 8;
+	int32_t hx2 = x.getInt() - x2 + 8;
+	int32_t hy2 = y.getInt() - y2 + 8;
 	
 	itemdata& lamp = itemsbuf[itemid];
 	switch(lamp.misc1) //Shape
@@ -21842,7 +21842,7 @@ void LinkClass::calc_darkroom_link(int x1, int y1, int x2, int y2)
 	}
 }
 
-void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
+void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 {
 	if(action==freeze||action==sideswimfreeze)
 	{
@@ -21906,12 +21906,12 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	FFCore.init_combo_doscript();
 	tmpscr[1] = tmpscr[0];
 	
-	const int _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
+	const int32_t _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
 	tmpscr[1].data.resize(_mapsSize, 0);
 	tmpscr[1].sflag.resize(_mapsSize, 0);
 	tmpscr[1].cset.resize(_mapsSize, 0);
 	
-	for(int i = 0; i < 6; i++)
+	for(int32_t i = 0; i < 6; i++)
 	{
 		tmpscr3[i] = tmpscr2[i];
 		tmpscr3[1].data.resize(_mapsSize, 0);
@@ -21925,13 +21925,13 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	mapscr *oldscr = &tmpscr[1];
 	
 	//scroll x, scroll y, old screen x, old screen y, new screen x, new screen y
-	int sx = 0, sy = 0, tx = 0, ty = 0, tx2 = 0, ty2 = 0;
-	int cx = 0;
-	int step = get_scroll_step(scrolldir);
-	int delay = get_scroll_delay(scrolldir);
+	int32_t sx = 0, sy = 0, tx = 0, ty = 0, tx2 = 0, ty2 = 0;
+	int32_t cx = 0;
+	int32_t step = get_scroll_step(scrolldir);
+	int32_t delay = get_scroll_delay(scrolldir);
 	bool end_frames = false;
 	
-	int scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
+	int32_t scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
 	if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
 
 	  scx = 32; //for sideview very fast screolling. 
@@ -21970,7 +21970,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 		tmpscr->screen_waitdraw = 0;		
 	}
 	
-	for ( int q = 0; q < 32; ++q )
+	for ( int32_t q = 0; q < 32; ++q )
 	{
 	//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
 	if ( tmpscr->ffcswaitdraw&(1<<q) )
@@ -22031,7 +22031,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	
 	
 	//clear Link's last hits 
-	//for ( int q = 0; q < 4; q++ ) sethitLinkUID(q, 0);
+	//for ( int32_t q = 0; q < 4; q++ ) sethitLinkUID(q, 0);
 	
 	switch(DMaps[currdmap].type&dmfTYPE)
 	{
@@ -22136,10 +22136,10 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	}
 
 	// change Link's state if entering water
-	int ahead = lookahead(scrolldir);
-	int aheadflag = lookaheadflag(scrolldir);
-	int lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
-	int lookaheady = vbound(y + (bigHitbox?8:12),0,160);
+	int32_t ahead = lookahead(scrolldir);
+	int32_t aheadflag = lookaheadflag(scrolldir);
+	int32_t lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
+	int32_t lookaheady = vbound(y + (bigHitbox?8:12),0,160);
 		//bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
 		//bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
 		//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
@@ -22206,7 +22206,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	//Preloaded ffc scripts
 	if(destdmap >= 0)
 	{
-		long dmap = currdmap; // Kludge
+		int32_t dmap = currdmap; // Kludge
 		currdmap = destdmap;
 		ffscript_engine(true);
 		currdmap = dmap;
@@ -22231,7 +22231,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 		
 	cx *= delay; //so we can have drawing re-done every frame,
 	//previously it was for(0 to delay) advanceframes at end of loop
-	int no_move = 0;
+	int32_t no_move = 0;
 	
 	for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
 	{
@@ -22527,8 +22527,8 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
 		{
 			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
-			int dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
-			int dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
+			int32_t dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
+			int32_t dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
 			if(newscr->flags & fDARK)
 			{
 				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
@@ -22571,8 +22571,8 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6))
 		{
 			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
-			int dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
-			int dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
+			int32_t dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
+			int32_t dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
 			if(newscr->flags & fDARK)
 			{
 				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
@@ -22781,13 +22781,13 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 
 
 // How much to reduce Link's damage, taking into account various rings.
-int LinkClass::ringpower(int dmg)
+int32_t LinkClass::ringpower(int32_t dmg)
 {
 	if ( get_bit(quest_rules,qr_BROKEN_RING_POWER) )
 	{
-		int divisor = 1;
+		int32_t divisor = 1;
 		float percentage = 1;
-		int itemid = current_item_id(itype_ring);
+		int32_t itemid = current_item_id(itype_ring);
 		bool usering = false;
     
 		if(itemid>-1)  // current_item_id checks magic cost for rings
@@ -22835,7 +22835,7 @@ int LinkClass::ringpower(int dmg)
 	{
 		double divisor = 1;
 		double percentage = 1;
-		int itemid = current_item_id(itype_ring);
+		int32_t itemid = current_item_id(itype_ring);
 		bool usering = false;
 		    
 		if(itemid>-1)  // current_item_id checks magic cost for rings
@@ -22890,7 +22890,7 @@ int LinkClass::ringpower(int dmg)
 // Or is Link just hitting air?
 bool LinkClass::sideviewhammerpound()
 {
-    int wx=0,wy=0;
+    int32_t wx=0,wy=0;
     
     switch(dir)
     {
@@ -22949,22 +22949,22 @@ bool LinkClass::sideviewhammerpound()
 /************************************/
 
 // The following are only used for Link damage. Damage is in quarter hearts.
-int enemy_dp(int index)
+int32_t enemy_dp(int32_t index)
 {
     return (((enemy*)guys.spr(index))->dp)*(game->get_ene_dmgmult());
 }
 
-int ewpn_dp(int index)
+int32_t ewpn_dp(int32_t index)
 {
     return (((weapon*)Ewpns.spr(index))->power)*(game->get_ene_dmgmult());
 }
 
-int lwpn_dp(int index)
+int32_t lwpn_dp(int32_t index)
 {
     return (((weapon*)Lwpns.spr(index))->power)*(game->get_ene_dmgmult());
 }
 
-bool checkmagiccost(int itemid)
+bool checkmagiccost(int32_t itemid)
 {
     if(itemid < 0)
     {
@@ -22984,7 +22984,7 @@ bool checkmagiccost(int itemid)
     }
     
     */
-    //! New handling for custom cost counters int he item editor, 25th Dec 2017. -Z
+    //! New handling for custom cost counters int32_t he item editor, 25th Dec 2017. -Z
     switch (itemsbuf[itemid].cost_counter )
     {
 	case 1: //rupees
@@ -23022,7 +23022,7 @@ bool checkmagiccost(int itemid)
     //return 1;
 }
 
-void paymagiccost(int itemid, bool ignoreTimer)
+void paymagiccost(int32_t itemid, bool ignoreTimer)
 {
     if(itemid < 0)
     {
@@ -23083,16 +23083,16 @@ void paymagiccost(int itemid, bool ignoreTimer)
     }
 }
 
-int Bweapon(int pos)
+int32_t Bweapon(int32_t pos)
 {
     if(pos < 0 || current_subscreen_active == NULL)
     {
         return 0;
     }
     
-    int p=-1;
+    int32_t p=-1;
     
-    for(int i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
+    for(int32_t i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
     {
         if(current_subscreen_active->objects[i].type==ssoCURRENTITEM && current_subscreen_active->objects[i].d3==pos)
         {
@@ -23106,9 +23106,9 @@ int Bweapon(int pos)
         return 0;
     }
     
-    int actualItem = current_subscreen_active->objects[p].d8;
-    //int familyCheck = actualItem ? itemsbuf[actualItem].family : current_subscreen_active->objects[p].d1
-    int family = -1;
+    int32_t actualItem = current_subscreen_active->objects[p].d8;
+    //int32_t familyCheck = actualItem ? itemsbuf[actualItem].family : current_subscreen_active->objects[p].d1
+    int32_t family = -1;
     bool bow = false;
     
     if(actualItem)
@@ -23151,7 +23151,7 @@ int Bweapon(int pos)
             
         case itype_sbomb:
         {
-            int bombbagid = current_item_id(itype_bombbag);
+            int32_t bombbagid = current_item_id(itype_bombbag);
             
             if((game->get_sbombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
@@ -23194,7 +23194,7 @@ int Bweapon(int pos)
     {
     case itype_bomb:
     {
-        int bombid = current_item_id(itype_bomb);
+        int32_t bombid = current_item_id(itype_bomb);
         
         if((game->get_bombs() ||
                 // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
@@ -23231,8 +23231,8 @@ int Bweapon(int pos)
         
     case itype_sbomb:
     {
-        int bombbagid = current_item_id(itype_bombbag);
-        int sbombid = current_item_id(itype_sbomb);
+        int32_t bombbagid = current_item_id(itype_bombbag);
+        int32_t sbombid = current_item_id(itype_sbomb);
         
         if((game->get_sbombs() ||
                 // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
@@ -23261,7 +23261,7 @@ int Bweapon(int pos)
     if(family==-1)
         return 0;
         
-    for(int j=0; j<MAXITEMS; j++)
+    for(int32_t j=0; j<MAXITEMS; j++)
     {
         // Find the item that matches this subscreen object.
         if(itemsbuf[j].family==family && j == current_item_id(family,false) && !item_disabled(j))
@@ -23275,7 +23275,7 @@ int Bweapon(int pos)
 
 void stopCaneOfByrna()
 {
-	for(int i=0; i<Lwpns.Count(); i++)
+	for(int32_t i=0; i<Lwpns.Count(); i++)
 	{
 		weapon *w = ((weapon*)Lwpns.spr(i));
 		if(w->id==wCByrna)
@@ -23289,7 +23289,7 @@ void stopCaneOfByrna()
 	byte prnt_cane = -1; 
 	weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wCByrna)));
         prnt_cane = ew->parentitem;
-	for(int i=0; i<Lwpns.Count(); i++)
+	for(int32_t i=0; i<Lwpns.Count(); i++)
 	{
 		weapon *w = ((weapon*)Lwpns.spr(i));
         
@@ -23319,7 +23319,7 @@ void LinkClass::cleanupByrna()
 }
 
 // Used to find out if an item family is attached to one of the buttons currently pressed.
-bool isWpnPressed(int itype)
+bool isWpnPressed(int32_t itype)
 {
     if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true; //0xFFF for subscreen overrides
 	//Will crash on win10 without it! -Z
@@ -23332,7 +23332,7 @@ bool isWpnPressed(int itype)
     return false;
 }
 
-int getWpnPressed(int itype)
+int32_t getWpnPressed(int32_t itype)
 {
     if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return Bwpn; //0xFFF for subscreen overrides
 	//Will crash on win10 without it! -Z
@@ -23342,38 +23342,38 @@ int getWpnPressed(int itype)
     return -1;
 }
 
-void selectNextAWpn(int type)
+void selectNextAWpn(int32_t type)
 {
     if(!get_bit(quest_rules,qr_SELECTAWPN))
         return;
         
-    int ret = selectWpn_new(type, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+    int32_t ret = selectWpn_new(type, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
     Awpn = Bweapon(ret);
     directItemA = directItem;
     game->awpn = ret;
 }
 
-void selectNextBWpn(int type)
+void selectNextBWpn(int32_t type)
 {
-	int ret = selectWpn_new(type, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+	int32_t ret = selectWpn_new(type, game->bwpn, game->awpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
 	Bwpn = Bweapon(ret);
 	directItemB = directItem;
 	game->bwpn = ret;
 }
 
-void selectNextXWpn(int type)
+void selectNextXWpn(int32_t type)
 {
 	if(!get_bit(quest_rules,qr_SET_XBUTTON_ITEMS)) return;
-	int ret = selectWpn_new(type, game->xwpn, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+	int32_t ret = selectWpn_new(type, game->xwpn, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
 	Xwpn = Bweapon(ret);
 	directItemX = directItem;
 	game->xwpn = ret;
 }
 
-void selectNextYWpn(int type)
+void selectNextYWpn(int32_t type)
 {
 	if(!get_bit(quest_rules,qr_SET_YBUTTON_ITEMS)) return;
-	int ret = selectWpn_new(type, game->ywpn, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1);
+	int32_t ret = selectWpn_new(type, game->ywpn, game->awpn, game->bwpn, get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1);
 	Ywpn = Bweapon(ret);
 	directItemY = directItem;
 	game->ywpn = ret;
@@ -23447,12 +23447,12 @@ void verifyBothWeapons()
     verifyYWpn();
 }
 
-int selectWpn_new(int type, int startpos, int forbiddenpos, int fp2, int fp3)
+int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int32_t fp2, int32_t fp3)
 {
     //what will be returned when all else fails.
     //don't return the forbiddenpos... no matter what -DD
     
-    int failpos(0);
+    int32_t failpos(0);
     
     if(startpos == forbiddenpos || startpos == fp2 || startpos == fp3)
         failpos = 0xFF;
@@ -23467,7 +23467,7 @@ int selectWpn_new(int type, int startpos, int forbiddenpos, int fp2, int fp3)
         
     if(type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT)
     {
-        int wpn = Bweapon(startpos);
+        int32_t wpn = Bweapon(startpos);
         
         if(wpn != 0 && startpos != forbiddenpos && startpos != fp2 && startpos != fp3)
         {
@@ -23475,11 +23475,11 @@ int selectWpn_new(int type, int startpos, int forbiddenpos, int fp2, int fp3)
         }
     }
     
-    int p=-1;
-    int curpos = startpos;
-    int firstValidPos=-1;
+    int32_t p=-1;
+    int32_t curpos = startpos;
+    int32_t firstValidPos=-1;
     
-    for(int i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
+    for(int32_t i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
     {
         if(current_subscreen_active->objects[i].type==ssoCURRENTITEM)
         {
@@ -23513,7 +23513,7 @@ int selectWpn_new(int type, int startpos, int forbiddenpos, int fp2, int fp3)
     }
     
     //remember we've been here
-    set<int> oldPositions;
+    set<int32_t> oldPositions;
     oldPositions.insert(curpos);
     
     //1. Perform any shifts required by the above
@@ -23549,7 +23549,7 @@ int selectWpn_new(int type, int startpos, int forbiddenpos, int fp2, int fp3)
         //find our new position
         p = -1;
         
-        for(int i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
+        for(int32_t i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
         {
             if(current_subscreen_active->objects[i].type==ssoCURRENTITEM)
             {
@@ -23586,9 +23586,9 @@ int selectWpn_new(int type, int startpos, int forbiddenpos, int fp2, int fp3)
 }
 
 // Select the sword for the A button if the 'select A button weapon' quest rule isn't set.
-int selectSword()
+int32_t selectSword()
 {
-    int ret = current_item_id(itype_sword);
+    int32_t ret = current_item_id(itype_sword);
     
     if(ret == -1)
         ret = 0;
@@ -23597,15 +23597,15 @@ int selectSword()
 }
 
 // Used for the 'Pickup Hearts' item pickup condition.
-bool canget(int id)
+bool canget(int32_t id)
 {
     return id>=0 && (game->get_maxlife()>=(itemsbuf[id].pickup_hearts*game->get_hp_per_heart()));
 }
 
-void dospecialmoney(int index)
+void dospecialmoney(int32_t index)
 {
-    int tmp=currscr>=128?1:0;
-    int priceindex = ((item*)items.spr(index))->PriceIndex;
+    int32_t tmp=currscr>=128?1:0;
+    int32_t priceindex = ((item*)items.spr(index))->PriceIndex;
     
     switch(tmpscr[tmp].room)
     {
@@ -23618,8 +23618,8 @@ void dospecialmoney(int index)
 	    {
 		if (game->get_spendable_rupies() < abs(prices[priceindex])) 
 			return;
-		int tmpprice = -abs(prices[priceindex]);
-		int total = game->get_drupy()-tmpprice;
+		int32_t tmpprice = -abs(prices[priceindex]);
+		int32_t total = game->get_drupy()-tmpprice;
 		total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 		game->set_drupy(game->get_drupy()-total);
 		//game->change_drupy(-abs(prices[priceindex]));
@@ -23636,11 +23636,11 @@ void dospecialmoney(int index)
         set_clip_state(pricesdisplaybuf, 1);
         items.del(0);
         
-        for(int i=0; i<items.Count(); i++)
+        for(int32_t i=0; i<items.Count(); i++)
             ((item*)items.spr(i))->pickup=ipDUMMY;
             
         // Prevent the prices from being displayed anymore
-        for(int i=0; i<3; i++)
+        for(int32_t i=0; i<3; i++)
         {
             prices[i] = 0;
         }
@@ -23667,13 +23667,13 @@ void dospecialmoney(int index)
         
         unsigned si=(zc_oldrand()%24)*3;
         
-        for(int i=0; i<3; i++)
+        for(int32_t i=0; i<3; i++)
             prices[i]=gambledat[si++];
             
 	game->set_drupy(game->get_drupy()+prices[priceindex]);
         putprices(true);
         
-        for(int i=1; i<4; i++)
+        for(int32_t i=1; i<4; i++)
             ((item*)items.spr(i))->pickup=ipDUMMY;
     }
     break;
@@ -23683,8 +23683,8 @@ void dospecialmoney(int index)
         if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
             return;
             
-		int price = -abs(tmpscr[tmp].catchall);
-		int wmedal = current_item_id(itype_wealthmedal);
+		int32_t price = -abs(tmpscr[tmp].catchall);
+		int32_t wmedal = current_item_id(itype_wealthmedal);
 		if(wmedal >= 0)
 		{
 			if(itemsbuf[wmedal].flags & ITEM_FLAG1)
@@ -23693,7 +23693,7 @@ void dospecialmoney(int index)
 				price+=itemsbuf[wmedal].misc1;
 		}
 		
-	int total = game->get_drupy()-price;
+	int32_t total = game->get_drupy()-price;
 	total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 	game->set_drupy(game->get_drupy()-total);
         //game->set_drupy(game->get_drupy()+price);
@@ -23701,14 +23701,14 @@ void dospecialmoney(int index)
         game->change_maxbombs(4);
         game->set_bombs(game->get_maxbombs());
         {
-            int div = zinit.bomb_ratio;
+            int32_t div = zinit.bomb_ratio;
             
             if(div > 0)
                 game->change_maxcounter(4/div, 6);
         }
         
         //also give Link an actual Bomb item
-        for(int i=0; i<MAXITEMS; i++)
+        for(int32_t i=0; i<MAXITEMS; i++)
         {
             if(itemsbuf[i].family == itype_bomb && itemsbuf[i].fam_type == 1)
                 getitem(i, true);
@@ -23729,8 +23729,8 @@ void dospecialmoney(int index)
         if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
             return;
             
-        int price = -abs(tmpscr[tmp].catchall);
-		int wmedal = current_item_id(itype_wealthmedal);
+        int32_t price = -abs(tmpscr[tmp].catchall);
+		int32_t wmedal = current_item_id(itype_wealthmedal);
 		if(wmedal >= 0)
 		{
 			if(itemsbuf[wmedal].flags & ITEM_FLAG1)
@@ -23739,7 +23739,7 @@ void dospecialmoney(int index)
 				price+=itemsbuf[wmedal].misc1;
 		}
 		
-	int total = game->get_drupy()-price;
+	int32_t total = game->get_drupy()-price;
 	total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 	game->set_drupy(game->get_drupy()-total);
 
@@ -23762,8 +23762,8 @@ void dospecialmoney(int index)
         {
             if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
                 return;
-	    int tmpprice = -abs(tmpscr[tmp].catchall);
-	    int total = game->get_drupy()-tmpprice;
+	    int32_t tmpprice = -abs(tmpscr[tmp].catchall);
+	    int32_t total = game->get_drupy()-tmpprice;
 	    total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 	    game->set_drupy(game->get_drupy()-total);
         }
@@ -23788,7 +23788,7 @@ void dospecialmoney(int index)
     }
 }
 
-void getitem(int id, bool nosound)
+void getitem(int32_t id, bool nosound)
 {
     if(id<0)
     {
@@ -23800,7 +23800,7 @@ void getitem(int id, bool nosound)
         if(itemsbuf[id].flags & ITEM_GAMEDATA && itemsbuf[id].family != itype_triforcepiece)
         {
             // Fix boomerang sounds.
-            int itemid = current_item_id(itemsbuf[id].family);
+            int32_t itemid = current_item_id(itemsbuf[id].family);
             
             if(itemid>=0 && (itemsbuf[id].family == itype_brang || itemsbuf[id].family == itype_nayruslove
                              || itemsbuf[id].family == itype_hookshot || itemsbuf[id].family == itype_cbyrna)
@@ -23823,7 +23823,7 @@ void getitem(int id, bool nosound)
             
             // NES consistency: replace all flying boomerangs with the current boomerang.
             if(itemsbuf[id].family==itype_brang)
-                for(int i=0; i<Lwpns.Count(); i++)
+                for(int32_t i=0; i<Lwpns.Count(); i++)
                 {
                     weapon *w = ((weapon*)Lwpns.spr(i));
                     
@@ -23841,7 +23841,7 @@ void getitem(int id, bool nosound)
                 // Bomb bags are a special case; they may be set not to increase super bombs
                 if(itemsbuf[id].family==itype_bombbag && itemsbuf[id].count==2 && (itemsbuf[id].flags&16)==0)
                 {
-                    int max = game->get_maxbombs();
+                    int32_t max = game->get_maxbombs();
                     
                     if(max<itemsbuf[id].max) max=itemsbuf[id].max;
                     
@@ -23849,7 +23849,7 @@ void getitem(int id, bool nosound)
                 }
                 else
                 {
-                    int max = game->get_maxcounter(itemsbuf[id].count);
+                    int32_t max = game->get_maxcounter(itemsbuf[id].count);
                     
                     if(max<itemsbuf[id].max) max=itemsbuf[id].max;
                     
@@ -23857,7 +23857,7 @@ void getitem(int id, bool nosound)
                 }
             }
             
-            // Amount is an unsigned short, but the range is -9999 to 16383
+            // Amount is an uint16_t, but the range is -9999 to 16383
             // -1 is actually 16385 ... -9999 is 26383, and 0x8000 means use the drain counter
             if(itemsbuf[id].amount&0x3FFF)
             {
@@ -23884,9 +23884,9 @@ void getitem(int id, bool nosound)
     //add lower-level items
     if(itemsbuf[id].flags&ITEM_GAINOLD)
     {
-        for(int i=itemsbuf[id].fam_type-1; i>0; i--)
+        for(int32_t i=itemsbuf[id].fam_type-1; i>0; i--)
         {
-            int potid = getItemID(itemsbuf, itemsbuf[id].family, i);
+            int32_t potid = getItemID(itemsbuf, itemsbuf[id].family, i);
             
             if(potid != -1)
             {
@@ -23901,7 +23901,7 @@ void getitem(int id, bool nosound)
     {
         setClock(watch=true);
         
-        for(int i=0; i<eMAXGUYS; i++)
+        for(int32_t i=0; i<eMAXGUYS; i++)
             clock_zoras[i]=0;
             
         clockclk=itemsbuf[id&0xFF].misc1;
@@ -23955,8 +23955,8 @@ void getitem(int id, bool nosound)
         
     case itype_fairy:
     
-        game->set_life(zc_min(game->get_life()+(itemsbuf[id].flags&ITEM_FLAG1 ?(int)(game->get_maxlife()*(itemsbuf[id].misc1/100.0)):((itemsbuf[id].misc1*game->get_hp_per_heart()))),game->get_maxlife()));
-        game->set_magic(zc_min(game->get_magic()+(itemsbuf[id].flags&ITEM_FLAG2 ?(int)(game->get_maxmagic()*(itemsbuf[id].misc2/100.0)):((itemsbuf[id].misc2*game->get_mp_per_block()))),game->get_maxmagic()));
+        game->set_life(zc_min(game->get_life()+(itemsbuf[id].flags&ITEM_FLAG1 ?(int32_t)(game->get_maxlife()*(itemsbuf[id].misc1/100.0)):((itemsbuf[id].misc1*game->get_hp_per_heart()))),game->get_maxlife()));
+        game->set_magic(zc_min(game->get_magic()+(itemsbuf[id].flags&ITEM_FLAG2 ?(int32_t)(game->get_maxmagic()*(itemsbuf[id].misc2/100.0)):((itemsbuf[id].misc2*game->get_mp_per_block()))),game->get_maxmagic()));
         break;
         
     case itype_heartpiece:
@@ -23967,7 +23967,7 @@ void getitem(int id, bool nosound)
             
         game->set_HCpieces(0);
         
-        for(int i=0; i<MAXITEMS; i++)
+        for(int32_t i=0; i<MAXITEMS; i++)
         {
             if(itemsbuf[i].family == itype_heartcontainer)
             {
@@ -23988,7 +23988,7 @@ void getitem(int id, bool nosound)
     verifyBothWeapons();
 }
 
-void takeitem(int id)
+void takeitem(int32_t id)
 {
     game->set_item(id, false);
     
@@ -24012,7 +24012,7 @@ void takeitem(int id)
     {
         // NES consistency: replace all flying boomerangs with the current boomerang.
     case itype_brang:
-        if(current_item(itype_brang)) for(int i=0; i<Lwpns.Count(); i++)
+        if(current_item(itype_brang)) for(int32_t i=0; i<Lwpns.Count(); i++)
             {
                 weapon *w = ((weapon*)Lwpns.spr(i));
                 
@@ -24063,9 +24063,9 @@ void takeitem(int id)
 }
 
 // Attempt to pick up an item. (-1 = check items touching Link.)
-void LinkClass::checkitems(int index)
+void LinkClass::checkitems(int32_t index)
 {
-    int tmp=currscr>=128?1:0;
+    int32_t tmp=currscr>=128?1:0;
     
     if(index==-1)
     {
@@ -24082,12 +24082,12 @@ void LinkClass::checkitems(int index)
     // if (tmpscr[tmp].room==rSHOP && boughtsomething==true)
     //   return;
     item* ptr = (item*)items.spr(index);
-    int pickup = ((item*)items.spr(index))->pickup;
-    int PriceIndex = ((item*)items.spr(index))->PriceIndex;
-    int id2 = ((item*)items.spr(index))->id;
-    int pstr = ((item*)items.spr(index))->pstring;
-    int pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
-    //int tempnextmsg;
+    int32_t pickup = ((item*)items.spr(index))->pickup;
+    int32_t PriceIndex = ((item*)items.spr(index))->PriceIndex;
+    int32_t id2 = ((item*)items.spr(index))->id;
+    int32_t pstr = ((item*)items.spr(index))->pstring;
+    int32_t pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
+    //int32_t tempnextmsg;
     
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
@@ -24114,9 +24114,9 @@ void LinkClass::checkitems(int index)
     if((itemsbuf[id2].flags & ITEM_COMBINE) && current_item(itemsbuf[id2].family)==itemsbuf[id2].fam_type)
         // Item upgrade routine.
     {
-        int nextitem = -1;
+        int32_t nextitem = -1;
         
-        for(int i=0; i<MAXITEMS; i++)
+        for(int32_t i=0; i<MAXITEMS; i++)
         {
             // Find the item which is as close to this item's fam_type as possible.
             if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
@@ -24150,9 +24150,9 @@ void LinkClass::checkitems(int index)
 		if(!current_item_power(itype_wallet))
 		{
 			if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
-			int tmpprice = -abs(prices[PriceIndex]);
+			int32_t tmpprice = -abs(prices[PriceIndex]);
 			//game->change_drupy(-abs(prices[priceindex]));
-			int total = game->get_drupy()-tmpprice;
+			int32_t total = game->get_drupy()-tmpprice;
 			total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 			game->set_drupy(game->get_drupy()-total);
 		}
@@ -24164,7 +24164,7 @@ void LinkClass::checkitems(int index)
             boughtsomething=true;
             //make the other shop items untouchable after
             //you buy something
-            int count = 0;
+            int32_t count = 0;
 	    
 	    
 	    //Show a message string, if set.
@@ -24174,7 +24174,7 @@ void LinkClass::checkitems(int index)
 	    }*/
 	    
             
-            for(int i=0; i<3; i++)
+            for(int32_t i=0; i<3; i++)
             {
                 if(QMisc.shop[tmpscr[tmp].catchall].hasitem[i] != 0)
                 {
@@ -24182,7 +24182,7 @@ void LinkClass::checkitems(int index)
                 }
             }
             
-            for(int i=0; i<items.Count(); i++)
+            for(int32_t i=0; i<items.Count(); i++)
             {
                 if(((item*)items.spr(i))->PriceIndex >-1 && i!=index)
                     ((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
@@ -24222,10 +24222,10 @@ void LinkClass::checkitems(int index)
     {
 	    //clear the item script stack for a new script
 		ri = &(itemCollectScriptData[id2]);
-	        for ( int q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
+	        for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
 		ri->Clear();
 	        //itemCollectScriptData[(id2 & 0xFFF)].Clear();
-		//for ( int q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
+		//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
 		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
 		if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
 		{
@@ -24250,7 +24250,7 @@ void LinkClass::checkitems(int index)
 	if(itemsbuf[id2].script && ( (itemsbuf[id2].flags&ITEM_FLAG16) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
 	{
 		ri = &(itemScriptData[id2]);
-		for ( int q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
+		for ( int32_t q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
 		ri->Clear();
 		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 		item_doscript[id2] = 1;
@@ -24329,7 +24329,7 @@ void LinkClass::checkitems(int index)
 			
 			//if (pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP ) ) )
 			
-			int shop_pstr = ( tmpscr[tmp].room == rSHOP && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
+			int32_t shop_pstr = ( tmpscr[tmp].room == rSHOP && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
 			if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 			{
 				if ( (pstr > 0 && pstr < msg_count) && ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) ) )
@@ -24357,7 +24357,7 @@ void LinkClass::checkitems(int index)
         
         items.del(index);
         
-        for(int i=0; i<Lwpns.Count(); i++)
+        for(int32_t i=0; i<Lwpns.Count(); i++)
         {
             weapon *w = (weapon*)Lwpns.spr(i);
             
@@ -24381,7 +24381,7 @@ void LinkClass::checkitems(int index)
                 if(((item*)items.spr(0))->id == iRupy && ((item*)items.spr(0))->pickup & ipDUMMY)
                     items.del(0);
                     
-                for(int i=0; i<Lwpns.Count(); i++)
+                for(int32_t i=0; i<Lwpns.Count(); i++)
                 {
                     weapon *w = (weapon*)Lwpns.spr(i);
                     
@@ -24411,7 +24411,7 @@ void LinkClass::checkitems(int index)
     {
         items.del(index);
         
-        for(int i=0; i<Lwpns.Count(); i++)
+        for(int32_t i=0; i<Lwpns.Count(); i++)
         {
             weapon *w = (weapon*)Lwpns.spr(i);
             
@@ -24434,7 +24434,7 @@ void LinkClass::checkitems(int index)
 		//show the info string
 		//non-held
 		//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
-		int shop_pstr = ( tmpscr[tmp].room == rSHOP && PriceIndex>=0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
+		int32_t shop_pstr = ( tmpscr[tmp].room == rSHOP && PriceIndex>=0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
 		if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 		{
 			if ( (pstr > 0 && pstr < msg_count) && ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )
@@ -24471,7 +24471,7 @@ void LinkClass::checkitems(int index)
     }
 }
 
-void LinkClass::StartRefill(int refillWhat)
+void LinkClass::StartRefill(int32_t refillWhat)
 {
     if(!refilling)
     {
@@ -24507,7 +24507,7 @@ void LinkClass::StartRefill(int refillWhat)
     }
 }
 
-void LinkClass::Start250Refill(int refillWhat){
+void LinkClass::Start250Refill(int32_t refillWhat){
 	if(!refilling)
 	{
 		refillclk=21;
@@ -24548,14 +24548,14 @@ bool LinkClass::refill()
     }
     
     ++refillclk;
-    int speed = get_bit(quest_rules,qr_FASTFILL) ? 6 : 22;
-    int refill_heart_stop=game->get_maxlife();
-    int refill_magic_stop=game->get_maxmagic();
+    int32_t speed = get_bit(quest_rules,qr_FASTFILL) ? 6 : 22;
+    int32_t refill_heart_stop=game->get_maxlife();
+    int32_t refill_magic_stop=game->get_maxmagic();
     
     if(refill_why>=0 && itemsbuf[refill_why].family==itype_potion)
     {
-        refill_heart_stop=zc_min(potion_life+(itemsbuf[refill_why].flags & ITEM_FLAG1 ?int(game->get_maxlife()*(itemsbuf[refill_why].misc1 /100.0)):((itemsbuf[refill_why].misc1 *game->get_hp_per_heart()))),game->get_maxlife());
-        refill_magic_stop=zc_min(potion_magic+(itemsbuf[refill_why].flags & ITEM_FLAG2 ?int(game->get_maxmagic()*(itemsbuf[refill_why].misc2 /100.0)):((itemsbuf[refill_why].misc2 *game->get_mp_per_block()))),game->get_maxmagic());
+        refill_heart_stop=zc_min(potion_life+(itemsbuf[refill_why].flags & ITEM_FLAG1 ?int32_t(game->get_maxlife()*(itemsbuf[refill_why].misc1 /100.0)):((itemsbuf[refill_why].misc1 *game->get_hp_per_heart()))),game->get_maxlife());
+        refill_magic_stop=zc_min(potion_magic+(itemsbuf[refill_why].flags & ITEM_FLAG2 ?int32_t(game->get_maxmagic()*(itemsbuf[refill_why].misc2 /100.0)):((itemsbuf[refill_why].misc2 *game->get_mp_per_block()))),game->get_maxmagic());
     }
     
     if(refillclk%speed == 0)
@@ -24570,10 +24570,10 @@ bool LinkClass::refill()
             {
                 game->set_life(refill_heart_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                for ( int q = 0; q < WAV_COUNT; q++ )
+                for ( int32_t q = 0; q < WAV_COUNT; q++ )
 		{
-			if ( q == (int)tmpscr->oceansfx ) continue;
-			if ( q == (int)tmpscr->bosssfx ) continue;
+			if ( q == (int32_t)tmpscr->oceansfx ) continue;
+			if ( q == (int32_t)tmpscr->bosssfx ) continue;
 			stop_sfx(q);
 		}
 		sfx(WAV_MSG);
@@ -24590,10 +24590,10 @@ bool LinkClass::refill()
             {
                 game->set_magic(refill_magic_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                for ( int q = 0; q < WAV_COUNT; q++ )
+                for ( int32_t q = 0; q < WAV_COUNT; q++ )
 		{
-			if ( q == (int)tmpscr->oceansfx ) continue;
-			if ( q == (int)tmpscr->bosssfx ) continue;
+			if ( q == (int32_t)tmpscr->oceansfx ) continue;
+			if ( q == (int32_t)tmpscr->bosssfx ) continue;
 			stop_sfx(q);
 		}
                 sfx(WAV_MSG);
@@ -24612,10 +24612,10 @@ bool LinkClass::refill()
                 game->set_life(refill_heart_stop);
                 game->set_magic(refill_magic_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                for ( int q = 0; q < WAV_COUNT; q++ )
+                for ( int32_t q = 0; q < WAV_COUNT; q++ )
 		{
-			if ( q == (int)tmpscr->oceansfx ) continue;
-			if ( q == (int)tmpscr->bosssfx ) continue;
+			if ( q == (int32_t)tmpscr->oceansfx ) continue;
+			if ( q == (int32_t)tmpscr->bosssfx ) continue;
 			stop_sfx(q);
 		}
                 sfx(WAV_MSG);
@@ -24630,13 +24630,13 @@ bool LinkClass::refill()
     return true;
 }
 
-void LinkClass::getTriforce(int id2)
+void LinkClass::getTriforce(int32_t id2)
 {
 		
 	PALETTE flash_pal;
-	int refill_frame = ( (itemsbuf[id2].misc5 > 0) ? itemsbuf[id2].misc5 : 88 );
+	int32_t refill_frame = ( (itemsbuf[id2].misc5 > 0) ? itemsbuf[id2].misc5 : 88 );
 	
-	for(int i=0; i<256; i++)
+	for(int32_t i=0; i<256; i++)
 	{
 		flash_pal[i] = get_bit(quest_rules,qr_FADE) ? _RGB(63,63,0) : _RGB(63,63,63); 
 	}
@@ -24663,7 +24663,7 @@ void LinkClass::getTriforce(int id2)
 	//If item flag six is enabled, and a sound is set to attributes[2], play that sound.
 	if ( (itemsbuf[id2].flags & ITEM_FLAG14) )
 	{
-		unsigned char playwav = itemsbuf[id2].misc3;
+		uint8_t playwav = itemsbuf[id2].misc3;
 		//zprint2("playwav is: %d\n", playwav);
 		sfx(playwav);
 		
@@ -24689,20 +24689,20 @@ void LinkClass::getTriforce(int id2)
 		game->lvlitems[dlevel]|=liTRIFORCE;
 	}
     
-	int f=0;
-	int x2=0;
-	int curtain_x=0;
-	int c=0;
+	int32_t f=0;
+	int32_t x2=0;
+	int32_t curtain_x=0;
+	int32_t c=0;
 	/*if ( (itemsbuf[id2].flags & ITEM_FLAG12) ) //Run collect script This happens w/o the flag. 
 		{
 			if(itemsbuf[id2].collect_script && !item_collect_doscript[id2])
 			{
 				//clear the item script stack for a new script
 				ri = &(itemCollectScriptData[id2]);
-				for ( int q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
+				for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
 				ri->Clear();
 				//itemCollectScriptData[(id2 & 0xFFF)].Clear();
-				//for ( int q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
+				//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
 				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
 				if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
 				{
@@ -24734,7 +24734,7 @@ void LinkClass::getTriforce(int id2)
 				if ( !item_doscript[id2] ) 
 				{
 					ri = &(itemScriptData[id2]);
-					for ( int q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
+					for ( int32_t q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
 					ri->Clear();
 					item_doscript[id2] = 1;
 					itemscriptInitialised[id2] = 0;
@@ -24766,7 +24766,7 @@ void LinkClass::getTriforce(int id2)
 		{
 		    if(get_bit(quest_rules,qr_FADE))
 		    {
-			//int flashbit = ;
+			//int32_t flashbit = ;
 			if((f&(((get_bit(quest_rules,qr_EPILEPSY) || epilepsyFlashReduction)) ? 6 : 3))==0)
 			{
 			    fade_interpolate(RAMpal,flash_pal,RAMpal,42,0,CSET(6)-1);
@@ -24787,9 +24787,9 @@ void LinkClass::getTriforce(int id2)
 		    {
 			if((f&((get_bit(quest_rules,qr_EPILEPSY) || FFCore.emulation[emuEPILEPSY]) ? 10 : 7))==0)
 			{
-			    for(int cs2=2; cs2<5; cs2++)
+			    for(int32_t cs2=2; cs2<5; cs2++)
 			    {
-				for(int i=1; i<16; i++)
+				for(int32_t i=1; i<16; i++)
 				{
 				    RAMpal[CSET(cs2)+i]=flash_pal[CSET(cs2)+i];
 				}
@@ -24902,24 +24902,24 @@ void LinkClass::getTriforce(int id2)
 
 void red_shift()
 {
-    int tnum=176;
+    int32_t tnum=176;
     
     // set up the new palette
-    for(int i=CSET(2); i < CSET(4); i++)
+    for(int32_t i=CSET(2); i < CSET(4); i++)
     {
-        int r = (i-CSET(2)) << 1;
+        int32_t r = (i-CSET(2)) << 1;
         RAMpal[i+tnum].r = r;
         RAMpal[i+tnum].g = r >> 3;
         RAMpal[i+tnum].b = r >> 4;
     }
     
     // color scale the game screen
-    for(int y=0; y<168; y++)
+    for(int32_t y=0; y<168; y++)
     {
-        for(int x=0; x<256; x++)
+        for(int32_t x=0; x<256; x++)
         {
-            int c = framebuf->line[y+playing_field_offset][x];
-            int r = zc_min(int(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
+            int32_t c = framebuf->line[y+playing_field_offset][x];
+            int32_t r = zc_min(int32_t(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
             framebuf->line[y+playing_field_offset][x] = (c ? (r+tnum+CSET(2)) : 0);
         }
     }
@@ -24969,12 +24969,12 @@ void setup_red_screen_old()
     
     //red shift
     // color scale the game screen
-    for(int y=0; y<168; y++)
+    for(int32_t y=0; y<168; y++)
     {
-        for(int x=0; x<256; x++)
+        for(int32_t x=0; x<256; x++)
         {
-            int c = framebuf->line[y+playing_field_offset][x];
-            int r = zc_min(int(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
+            int32_t c = framebuf->line[y+playing_field_offset][x];
+            int32_t r = zc_min(int32_t(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
             framebuf->line[y+playing_field_offset][x] = (c ? (r+CSET(2)) : 0);
         }
     }
@@ -25009,13 +25009,13 @@ void setup_red_screen_old()
 				if(!(msg_portrait_display_buf->clip)) blit_msgstr_prt(subbmp, 0, 0, 0, 0, 256, 168);
 				if(!(msg_txt_display_buf->clip)) blit_msgstr_fg(subbmp, 0, 0, 0, 0, 256, 168);
 			}
-            for(int y=0; y<168; y++)
+            for(int32_t y=0; y<168; y++)
             {
-                for(int x=0; x<256; x++)
+                for(int32_t x=0; x<256; x++)
                 {
-                    int c1 = framebuf->line[y+playing_field_offset][x];
-                    int c2 = subbmp->line[y][x];
-                    int c3 = pricesdisplaybuf->clip ? 0 : pricesdisplaybuf->line[y][x];
+                    int32_t c1 = framebuf->line[y+playing_field_offset][x];
+                    int32_t c2 = subbmp->line[y][x];
+                    int32_t c3 = pricesdisplaybuf->clip ? 0 : pricesdisplaybuf->line[y][x];
                     
                     if(c1 && c3)
                     {
@@ -25032,12 +25032,12 @@ void setup_red_screen_old()
         
         //red shift
         // color scale the game screen
-        for(int y=0; y<168; y++)
+        for(int32_t y=0; y<168; y++)
         {
-            for(int x=0; x<256; x++)
+            for(int32_t x=0; x<256; x++)
             {
-                int c = framebuf->line[y+playing_field_offset][x];
-                int r = zc_min(int(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
+                int32_t c = framebuf->line[y+playing_field_offset][x];
+                int32_t r = zc_min(int32_t(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
                 framebuf->line[y+playing_field_offset][x] = r+CSET(2);
             }
         }
@@ -25046,9 +25046,9 @@ void setup_red_screen_old()
     blit(framebuf,scrollbuf, 0, playing_field_offset, 0, playing_field_offset, 256, 168);
     
     // set up the new palette
-    for(int i=CSET(2); i < CSET(4); i++)
+    for(int32_t i=CSET(2); i < CSET(4); i++)
     {
-        int r = (i-CSET(2)) << 1;
+        int32_t r = (i-CSET(2)) << 1;
         RAMpal[i].r = r;
         RAMpal[i].g = r >> 3;
         RAMpal[i].b = r >> 4;
@@ -25059,9 +25059,9 @@ void setup_red_screen_old()
 
 
 
-void slide_in_color(int color)
+void slide_in_color(int32_t color)
 {
-    for(int i=1; i<16; i+=3)
+    for(int32_t i=1; i<16; i+=3)
     {
         RAMpal[CSET(2)+i+2] = RAMpal[CSET(2)+i+1];
         RAMpal[CSET(2)+i+1] = RAMpal[CSET(2)+i];
@@ -25074,8 +25074,8 @@ void slide_in_color(int color)
 
 void LinkClass::heroDeathAnimation()
 {
-	int f=0;
-	int deathclk=0,deathfrm=0;
+	int32_t f=0;
+	int32_t deathclk=0,deathfrm=0;
     
 	action=none; FFCore.setLinkAction(dying); //mayhaps a new action of 'gameover'? -Z
 	
@@ -25104,7 +25104,7 @@ void LinkClass::heroDeathAnimation()
 	attackclk=hclk=superman=0;
 	scriptcoldet = 1;
     
-	for(int i=0; i<32; i++) miscellaneous[i] = 0;
+	for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
 	
     
@@ -25115,7 +25115,7 @@ void LinkClass::heroDeathAnimation()
 	//code in subscr.cpp, put_passive_subscr checks the following value.
 	//color 255 is a GUI color, so quest makers shouldn't be using this value.
 	//Also, subscreen is static after death in Z1.
-	int tmp_link_dot = QMisc.colors.link_dot;
+	int32_t tmp_link_dot = QMisc.colors.link_dot;
 	QMisc.colors.link_dot = 255;
 	//doesn't work
 	//scrollbuf is tampered with by draw_screen()
@@ -25145,7 +25145,7 @@ void LinkClass::heroDeathAnimation()
 				attackclk=hclk=superman=0;
 				scriptcoldet = 1;
 			    
-				for(int i=0; i<32; i++) miscellaneous[i] = 0;
+				for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
 			    
 				
 			    
@@ -25156,7 +25156,7 @@ void LinkClass::heroDeathAnimation()
 				//code in subscr.cpp, put_passive_subscr checks the following value.
 				//color 255 is a GUI color, so quest makers shouldn't be using this value.
 				//Also, subscreen is static after death in Z1.
-				int tmp_link_dot = QMisc.colors.link_dot;
+				int32_t tmp_link_dot = QMisc.colors.link_dot;
 				QMisc.colors.link_dot = 255;
 				//doesn't work
 				//scrollbuf is tampered with by draw_screen()
@@ -25290,7 +25290,7 @@ void LinkClass::heroDeathAnimation()
 						create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
 						memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
                         
-						for(int q=0; q<PAL_SIZE; q++)
+						for(int32_t q=0; q<PAL_SIZE; q++)
 						{
 							trans_table2.data[0][q] = q;
 							trans_table2.data[q][q] = q;
@@ -25313,7 +25313,7 @@ void LinkClass::heroDeathAnimation()
 						create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
 						memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
                         
-						for(int q=0; q<PAL_SIZE; q++)
+						for(int32_t q=0; q<PAL_SIZE; q++)
 						{
 							trans_table2.data[0][q] = q;
 							trans_table2.data[q][q] = q;
@@ -25328,9 +25328,9 @@ void LinkClass::heroDeathAnimation()
 					{
 						fade_interpolate(RAMpal,black_palette,RAMpal,64, 224, 255);
                         
-						for(int i=CSET(6); i < CSET(7); i++)
+						for(int32_t i=CSET(6); i < CSET(7); i++)
 						{
-							int g = (RAMpal[i].r + RAMpal[i].g + RAMpal[i].b)/3;
+							int32_t g = (RAMpal[i].r + RAMpal[i].g + RAMpal[i].b)/3;
 							RAMpal[i] = _RGB(g,g,g);
 						}
                         
@@ -25347,39 +25347,39 @@ void LinkClass::heroDeathAnimation()
 			{
 				if(f==58)
 				{
-					for(int i = 0; i < 96; i++)
+					for(int32_t i = 0; i < 96; i++)
 						tmpscr->cset[i] = 3;
                         
-					for(int j=0; j<6; j++)
+					for(int32_t j=0; j<6; j++)
 						if(tmpscr->layermap[j]>0)
-							for(int i=0; i<96; i++)
+							for(int32_t i=0; i<96; i++)
 								tmpscr2[j].cset[i] = 3;
 				}
                 
 				if(f==59)
 				{
-					for(int i = 96; i < 176; i++)
+					for(int32_t i = 96; i < 176; i++)
 						tmpscr->cset[i] = 3;
                         
-					for(int j=0; j<6; j++)
+					for(int32_t j=0; j<6; j++)
 						if(tmpscr->layermap[j]>0)
-							for(int i=96; i<176; i++)
+							for(int32_t i=96; i<176; i++)
 								tmpscr2[j].cset[i] = 3;
 				}
                 
 				if(f==60)
 				{
-					for(int i=0; i<176; i++)
+					for(int32_t i=0; i<176; i++)
 					{
 						tmpscr->cset[i] = 2;
 					}
                     
-					for(int j=0; j<6; j++)
+					for(int32_t j=0; j<6; j++)
 						if(tmpscr->layermap[j]>0)
-							for(int i=0; i<176; i++)
+							for(int32_t i=0; i<176; i++)
 								tmpscr2[j].cset[i] = 2;
                                 
-					for(int i=1; i<16; i+=3)
+					for(int32_t i=1; i<16; i+=3)
 					{
 						RAMpal[CSET(2)+i]   = NESpal(0x17);
 						RAMpal[CSET(2)+i+1] = NESpal(0x16);
@@ -25406,7 +25406,7 @@ void LinkClass::heroDeathAnimation()
                 
 				if(f==170)
 				{
-					for(int i=1; i<16; i+=3)
+					for(int32_t i=1; i<16; i+=3)
 					{
 						RAMpal[CSET(6)+i]   = NESpal(0x10);
 						RAMpal[CSET(6)+i+1] = NESpal(0x30);
@@ -25524,7 +25524,7 @@ void LinkClass::ganon_intro()
     //not good, as this only returns the highest level that Link possesses. -DD
     //getHighestLevelOfFamily(game, itemsbuf, itype_triforcepiece, false));
     
-    for(int f=0; f<271 && !Quit; f++)
+    for(int32_t f=0; f<271 && !Quit; f++)
     {
         if(f==47)
         {
@@ -25532,9 +25532,9 @@ void LinkClass::ganon_intro()
             stop_sfx(WAV_ROAR);
             sfx(WAV_GASP);
             sfx(WAV_GANON);
-            int Id=0;
+            int32_t Id=0;
             
-            for(int i=0; i<eMAXGUYS; i++)
+            for(int32_t i=0; i<eMAXGUYS; i++)
             {
                 if(guysbuf[i].flags2&eneflag_ganon)
                 {
@@ -25578,7 +25578,7 @@ void LinkClass::ganon_intro()
         if(rSbtn())
         {
             conveyclk=3;
-            int tmp_subscr_clk = frame;
+            int32_t tmp_subscr_clk = frame;
             dosubscr(&QMisc);
             newscr_clk += frame - tmp_subscr_clk;
         }
@@ -25645,7 +25645,7 @@ void LinkClass::reset_hookshot()
     Lwpns.del(Lwpns.idFirst(wHSHandle));
     Lwpns.del(Lwpns.idFirst(wHookshot));
     chainlinks.clear();
-    int index=directItem>-1 ? directItem : current_item_id(itype_hookshot);
+    int32_t index=directItem>-1 ? directItem : current_item_id(itype_hookshot);
     
     if(index>=0)
     {
@@ -25678,17 +25678,17 @@ void LinkClass::check_conveyor()
 	}
 	
 	WalkflagInfo info;
-	int xoff,yoff;
+	int32_t xoff,yoff;
 	zfix deltax(0), deltay(0);
-	int cmb = MAPCOMBO(x+7,y+(bigHitbox?8:12));
+	int32_t cmb = MAPCOMBO(x+7,y+(bigHitbox?8:12));
 	++newconveyorclk;
 	if (newconveyorclk < 0) newconveyorclk = 0;
 	if((combobuf[cmb].usrflags&cflag2) || (!(combobuf[cmb].usrflags&cflag2) && conveyclk<=0)) //!DIMITODO: let player be on multiple conveyors at once
 	{
 		is_on_conveyor=false;
-		int ctype;
+		int32_t ctype;
 		ctype=(combobuf[cmb].type);
-		for (int i = 0; i <= 1; ++i)
+		for (int32_t i = 0; i <= 1; ++i)
 		{
 			if(tmpscr2[i].valid!=0)
 			{
@@ -25738,7 +25738,7 @@ void LinkClass::check_conveyor()
 				{
 					while(step<(abs(deltay)*(isSideViewLink()?2:1)))
 					{
-						yoff=int(y-step)&7;
+						yoff=int32_t(y-step)&7;
 						
 						if(!yoff) break;
 						
@@ -25753,7 +25753,7 @@ void LinkClass::check_conveyor()
 				y=y-step;
 				hs_starty-=step.getInt();
 				
-				for(int j=0; j<chainlinks.Count(); j++)
+				for(int32_t j=0; j<chainlinks.Count(); j++)
 				{
 					chainlinks.spr(j)->y-=step;
 				}
@@ -25783,7 +25783,7 @@ void LinkClass::check_conveyor()
 				{
 					while(step<abs(deltay))
 					{
-						yoff=int(y+step)&7;
+						yoff=int32_t(y+step)&7;
 						
 						if(!yoff) break;
 						
@@ -25798,7 +25798,7 @@ void LinkClass::check_conveyor()
 				y=y+step;
 				hs_starty+=step.getInt();
 				
-				for(int j=0; j<chainlinks.Count(); j++)
+				for(int32_t j=0; j<chainlinks.Count(); j++)
 				{
 					chainlinks.spr(j)->y+=step;
 				}
@@ -25818,7 +25818,7 @@ void LinkClass::check_conveyor()
 		
 		if(deltax<0)
 		{
-			info = walkflag(x-int(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
+			info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
 			execute(info);
 			
 			if(!info.isUnwalkable())
@@ -25829,7 +25829,7 @@ void LinkClass::check_conveyor()
 				{
 					while(step<abs(deltax))
 					{
-						xoff=int(x-step)&7;
+						xoff=int32_t(x-step)&7;
 						
 						if(!xoff) break;
 						
@@ -25844,7 +25844,7 @@ void LinkClass::check_conveyor()
 				x=x-step;
 				hs_startx-=step.getInt();
 				
-				for(int j=0; j<chainlinks.Count(); j++)
+				for(int32_t j=0; j<chainlinks.Count(); j++)
 				{
 					chainlinks.spr(j)->x-=step;
 				}
@@ -25859,7 +25859,7 @@ void LinkClass::check_conveyor()
 					Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
 				}
 			}
-			else checkdamagecombos(x-int(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0));
+			else checkdamagecombos(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0));
 		}
 		else if(deltax>0)
 		{
@@ -25874,7 +25874,7 @@ void LinkClass::check_conveyor()
 				{
 					while(step<abs(deltax))
 					{
-						xoff=int(x+step)&7;
+						xoff=int32_t(x+step)&7;
 						
 						if(!xoff) break;
 						
@@ -25889,7 +25889,7 @@ void LinkClass::check_conveyor()
 				x=x+step;
 				hs_startx+=step.getInt();
 				
-				for(int j=0; j<chainlinks.Count(); j++)
+				for(int32_t j=0; j<chainlinks.Count(); j++)
 				{
 					chainlinks.spr(j)->x+=step;
 				}
@@ -25909,7 +25909,7 @@ void LinkClass::check_conveyor()
 	}
 }
 
-void LinkClass::setNayrusLoveShieldClk(int newclk)
+void LinkClass::setNayrusLoveShieldClk(int32_t newclk)
 {
     NayrusLoveShieldClk=newclk;
     
@@ -25924,26 +25924,26 @@ void LinkClass::setNayrusLoveShieldClk(int newclk)
     }
 }
 
-int LinkClass::getNayrusLoveShieldClk()
+int32_t LinkClass::getNayrusLoveShieldClk()
 {
     return NayrusLoveShieldClk;
 }
 
-int LinkClass::getHoverClk()
+int32_t LinkClass::getHoverClk()
 {
     return hoverclk;
 }
 
-int LinkClass::getHoldClk()
+int32_t LinkClass::getHoldClk()
 {
     return holdclk;
 }
 
-int LinkClass::getLastLensID(){
+int32_t LinkClass::getLastLensID(){
 	return last_lens_id;
 }
 
-void LinkClass::setLastLensID(int p_item){
+void LinkClass::setLastLensID(int32_t p_item){
 	last_lens_id = p_item;
 }
 
@@ -25981,7 +25981,7 @@ bool LinkClass::canSideviewLadder(bool down)
 		|| (down && (isSVLadder(x+4,y+16) || isSVLadder(x+12,y+16)));
 }
 
-bool LinkClass::canSideviewLadderRemote(int wx, int wy, bool down)
+bool LinkClass::canSideviewLadderRemote(int32_t wx, int32_t wy, bool down)
 {
 	if(!isSideViewLink()) return false;
 	if(jumping < 0) return false;
@@ -26002,7 +26002,7 @@ bool LinkClass::canSideviewLadderRemote(int wx, int wy, bool down)
 
 void LinkClass::execute(LinkClass::WalkflagInfo info)
 {
-    int flags = info.getFlags();
+    int32_t flags = info.getFlags();
     
     if(flags & WalkflagInfo::CLEARILSWIM)
         ilswim =false;
@@ -26039,8 +26039,8 @@ LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator ||(LinkClass::Walkflag
     ret.newdir = newdir;
     ret.newhopdir = (other.newhopdir >-1 ? other.newhopdir : newhopdir);
     
-    int flags1 = (flags & ~UNWALKABLE) & (other.flags & ~UNWALKABLE);
-    int flags2 = (flags & UNWALKABLE) | (other.flags & UNWALKABLE);
+    int32_t flags1 = (flags & ~UNWALKABLE) & (other.flags & ~UNWALKABLE);
+    int32_t flags2 = (flags & UNWALKABLE) | (other.flags & UNWALKABLE);
     ret.flags = flags1 | flags2;
     return ret;
 }
@@ -26067,34 +26067,34 @@ LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator !()
     return ret;
 }
 
-void LinkClass::explode(int type)
+void LinkClass::explode(int32_t type)
 {
-	static int tempx, tempy;
+	static int32_t tempx, tempy;
 	static byte linktilebuf[256];
-	int ltile=0;
-	int lflip=0;
+	int32_t ltile=0;
+	int32_t lflip=0;
 	bool shieldModify=true;
 	unpack_tile(newtilebuf, tile, flip, true);
 	memcpy(linktilebuf, unpackbuf, 256);
 	tempx=Link.getX();
 	tempy=Link.getY();
-	for(int i=0; i<16; ++i)
+	for(int32_t i=0; i<16; ++i)
 	{
-                for(int j=0; j<16; ++j)
+                for(int32_t j=0; j<16; ++j)
                 {
                     if(linktilebuf[i*16+j])
                     {
                         if(type==0)  // Twilight
                         {
                             particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
-                            int k=particles.Count()-1;
+                            int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(type ==1)  // Sands of Hours
                         {
                             particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
-                            int k=particles.Count()-1;
+                            int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
                             
@@ -26108,7 +26108,7 @@ void LinkClass::explode(int type)
                         {
                             particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], zc_oldrand()%96));
                             
-                            int k=particles.Count()-1;
+                            int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->angular=true;
                             p->angle=zc_oldrand();
@@ -26147,9 +26147,9 @@ bool LinkClass::CanSideSwim()
 	return (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM));
 }
 
-//int LinkClass::getTileModifier() { return item_tile_mod(shieldModify); }
-int LinkClass::getTileModifier() { return item_tile_mod(true); } //how best to read shieldcanmodify? -Z
-void LinkClass::setTileModifier(int new_tile_mod) { /*item_tile_mod = new_tile_mod;*/ }
+//int32_t LinkClass::getTileModifier() { return item_tile_mod(shieldModify); }
+int32_t LinkClass::getTileModifier() { return item_tile_mod(true); } //how best to read shieldcanmodify? -Z
+void LinkClass::setTileModifier(int32_t new_tile_mod) { /*item_tile_mod = new_tile_mod;*/ }
 /*** end of link.cpp ***/
 
 

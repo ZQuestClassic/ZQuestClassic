@@ -10,40 +10,40 @@ class LandWormSegment;
 class LandWorm : public enemy
 {
 public:
-	LandWorm(zfix x, zfix y, int id);
+	LandWorm(zfix x, zfix y, int32_t id);
 	/* Creates and returns the next segment. Doesn't keep track of how many
 	 * should be created; use numSegments() for that.
 	 */
 	LandWormSegment* createSegment();
 
 	/* Returns the number of segments to be created. */
-	static int numSegments(const guydata& data);
+	static int32_t numSegments(const guydata& data);
 
 private:
-	int segmentsCreated;
+	int32_t segmentsCreated;
 	LandWormSegment* lastSegmentCreated;
 	std::shared_ptr<std::deque<direction>> moveHistory;
 
 	/* Moves the worm if its fixed spawn point is in an invalid location. */
 	void adjustSpawnPoint();
 
-	bool animate(int index) override;
+	bool animate(int32_t index) override;
 	void draw(BITMAP*) override {} // Invisible
 
-	static constexpr int MAX_SEGMENTS = 254;
+	static constexpr int32_t MAX_SEGMENTS = 254;
 };
 
 class LandWormSegment : public enemy
 {
 public:
-	LandWormSegment(zfix x, zfix y, int id,int clk,
+	LandWormSegment(zfix x, zfix y, int32_t id, int32_t clk,
 		std::shared_ptr<std::deque<direction>> moveHistory);
 
 private:
 	LandWormSegment* prevSegment;
 	LandWormSegment* nextSegment;
-	int moveTimer;
-	int moveIndex; // The index in moveHistory this segment reads
+	int32_t moveTimer;
+	int32_t moveIndex; // The index in moveHistory this segment reads
 	std::shared_ptr<std::deque<direction>> moveHistory;
 
 	/* Called when a segment dies. Shifts its HP (and a few other things)
@@ -57,8 +57,8 @@ private:
 	 * non-head segments follow the same path.
 	 */
 	void walk();
-	int takehit(weapon* w) override;
-	bool animate(int index) override;
+	int32_t takehit(weapon* w) override;
+	bool animate(int32_t index) override;
 	void draw(BITMAP* dest) override;
 
 	friend class LandWorm;

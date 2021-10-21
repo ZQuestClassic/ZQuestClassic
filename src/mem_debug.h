@@ -30,7 +30,7 @@
 
 
 #ifdef _DEBUG
-inline static void InitCrtDebug(int flags = 0)
+inline static void InitCrtDebug(int32_t flags = 0)
 {
     if (flags == 0)
         flags =
@@ -45,14 +45,14 @@ inline static void InitCrtDebug(int flags = 0)
 
 }
 #else // NOT _DEBUG
-/*inline static void InitCrtDebug( int flags = 0 )
+/*inline static void InitCrtDebug( int32_t flags = 0 )
     {
         flags = flags; //do nothing
     }*/
 #endif
 
 #else // NOT _MSC_VER
-/*static void InitCrtDebug( int flags = 0 )
+/*static void InitCrtDebug( int32_t flags = 0 )
     {
         flags = flags; //do nothing
     }*/

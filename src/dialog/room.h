@@ -16,8 +16,8 @@ public:
 		SET_ROOM, SET_ARGUMENT, SET_GUY, SET_STRING, ROOM_INFO, OK, CANCEL
 	};
 
-	RoomDialog(int room, int argument, int guy, int string,
-		std::function<void(int, int, int, int)> setRoomVars);
+	RoomDialog(int32_t room, int32_t argument, int32_t guy, int32_t string,
+		std::function<void(int32_t, int32_t, int32_t, int32_t)> setRoomVars);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -30,9 +30,9 @@ private:
 	std::shared_ptr<GUI::Label> argLabel;
 	struct
 	{
-		int type, argument, guy, string;
+		int32_t type, argument, guy, string;
 	} room;
-	std::function<void(int, int, int, int)> setRoomVars;
+	std::function<void(int32_t, int32_t, int32_t, int32_t)> setRoomVars;
 
 	/* Called when the room is changed to show the appropriate
 	* argument selector and set its value.
@@ -42,7 +42,7 @@ private:
 	/* Called when the dialog is closed to get the argument
 	 * limited to legal values.
 	 */
-	int getArgument() const;
+	int32_t getArgument() const;
 
 	/* Returns a string describing the currently selected room. */
 	const char* getRoomInfo() const;

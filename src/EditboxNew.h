@@ -22,19 +22,19 @@ struct BITMAP;
 class Unicode
 {
 public:
-	static const int TABSIZE = 4;
-	static int indexToOffset(string &s, int i);
-	static void insertAtIndex(string &s, int c, int i);
-	static void extractRange(string &s, string &dest, int first, int last);
-	static void removeRange(string &s, int first, int last);
-	static int getCharAtIndex(string &s, int i);
-	static int getCharWidth(int c, FONT *f);
-	static pair<int, int> munchWord(string &s, int startoffset, FONT *f);
-	static int getCharWidth(const char *s, int offset);
-	static int getCharAtOffset(const char *s, int offset);
-	static void textout_ex_nonstupid(BITMAP *bmp, FONT *f, string &s, int x, int y, int fg, int bg);
-	static int getIndexOfWidth(string &s, int x, FONT *f);
-	static int getLength(string &s);
+	static const int32_t TABSIZE = 4;
+	static int32_t indexToOffset(string &s, int32_t i);
+	static void insertAtIndex(string &s, int32_t c, int32_t i);
+	static void extractRange(string &s, string &dest, int32_t first, int32_t last);
+	static void removeRange(string &s, int32_t first, int32_t last);
+	static int32_t getCharAtIndex(string &s, int32_t i);
+	static int32_t getCharWidth(int32_t c, FONT *f);
+	static pair<int32_t, int32_t> munchWord(string &s, int32_t startoffset, FONT *f);
+	static int32_t getCharWidth(const char *s, int32_t offset);
+	static int32_t getCharAtOffset(const char *s, int32_t offset);
+	static void textout_ex_nonstupid(BITMAP *bmp, FONT *f, string &s, int32_t x, int32_t y, int32_t fg, int32_t bg);
+	static int32_t getIndexOfWidth(string &s, int32_t x, FONT *f);
+	static int32_t getLength(string &s);
 };
 
 class TextSelection
@@ -50,21 +50,21 @@ public:
 		return isselecting;
 	}
 	void clearSelection();
-	pair<int, int> getSelection();
+	pair<int32_t, int32_t> getSelection();
 	void doneSelection()
 	{
 		isselecting=false;
 	}
 private:
 	bool isselecting;
-	int start;
-	int end;
+	int32_t start;
+	int32_t end;
 };
 
 struct LineData
 {
 	string line;
-	int numchars;
+	int32_t numchars;
 	bool newlineterminated;
 	bool dirtyflag;
 	BITMAP *strip;
@@ -91,15 +91,15 @@ public:
 	virtual void draw();
 	virtual void ensureCursorOnScreen() {}
 	virtual ~EditboxView();
-	virtual bool mouseClick(int, int)
+	virtual bool mouseClick(int32_t, int32_t)
 	{
 		return false;
 	}
-	virtual bool mouseDrag(int, int)
+	virtual bool mouseDrag(int32_t, int32_t)
 	{
 		return false;
 	}
-	virtual bool mouseRelease(int, int)
+	virtual bool mouseRelease(int32_t, int32_t)
 	{
 		return false;
 	}
@@ -109,8 +109,8 @@ public:
 	}
 protected:
 	virtual void enforceHardLimits() {}
-	void invertRectangle(int x1, int y1, int x2, int y2);
-	virtual int getAreaHeight()=0;
+	void invertRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
+	virtual int32_t getAreaHeight()=0;
 	FONT *textfont;
 	BITMAP *dbuf;
 	virtual void layoutPage()=0;
@@ -121,9 +121,9 @@ protected:
 
 struct CursorPos
 {
-	int lineno;
-	int index;
-	int x;
+	int32_t lineno;
+	int32_t index;
+	int32_t x;
 	list<LineData>::iterator it;
 };
 
@@ -131,9 +131,9 @@ class EditboxCursor
 {
 public:
 	EditboxCursor(EditboxModel &model) : visible(true), host(model), index(0), preferredX(0) {}
-	void insertChar(int c);
+	void insertChar(int32_t c);
 	void insertString(string s);
-	void updateCursor(int new_index)
+	void updateCursor(int32_t new_index)
 	{
 		index = new_index;
 	}
@@ -145,13 +145,13 @@ public:
 	{
 		return visible;
 	}
-	int getPosition()
+	int32_t getPosition()
 	{
 		return index;
 	}
-	void operator++(int);
-	void operator--(int);
-	int getPreferredX()
+	void operator++(int32_t);
+	void operator--(int32_t);
+	int32_t getPreferredX()
 	{
 		return preferredX;
 	}
@@ -161,8 +161,8 @@ public:
 private:
 	bool visible;
 	EditboxModel &host;
-	int index;
-	int preferredX;
+	int32_t index;
+	int32_t preferredX;
 	//NOT IMPLEMENTED: DO NOT USE
 	EditboxCursor(EditboxCursor &);
 	EditboxCursor &operator =(EditboxCursor &);
@@ -197,7 +197,7 @@ public:
 		return lines;
 	}
 	CursorPos findCursor();
-	CursorPos findIndex(int totalindex);
+	CursorPos findIndex(int32_t totalindex);
 	void markAsDirty(list<LineData>::iterator line);
 	bool isReadonly()
 	{
@@ -225,14 +225,14 @@ private:
 struct CharPos
 {
 	list<LineData>::iterator it;
-	int lineIndex;
-	int totalIndex;
+	int32_t lineIndex;
+	int32_t totalIndex;
 };
 
 class BasicEditboxView : public EditboxView
 {
 public:
-	BasicEditboxView(DIALOG *Host, FONT *TextFont, int FGColor, int BGColor, int Highlight_Style) : EditboxView(Host, TextFont),
+	BasicEditboxView(DIALOG *Host, FONT *TextFont, int32_t FGColor, int32_t BGColor, int32_t Highlight_Style) : EditboxView(Host, TextFont),
 		view_x(0), view_y(0), fgcolor(FGColor), bgcolor(BGColor), hstyle(Highlight_Style) {}
 	~BasicEditboxView();
 	void ensureCursorOnScreen();
@@ -241,82 +241,82 @@ public:
 	void scrollLeft();
 	void scrollRight();
 	void draw();
-	bool mouseClick(int x, int y);
-	bool mouseDrag(int x, int y);
-	bool mouseRelease(int x, int y);
-	static const int HSTYLE_EOLINE = 0;
-	static const int HSTYLE_EOTEXT = 1;
-	int getForeground()
+	bool mouseClick(int32_t x, int32_t y);
+	bool mouseDrag(int32_t x, int32_t y);
+	bool mouseRelease(int32_t x, int32_t y);
+	static const int32_t HSTYLE_EOLINE = 0;
+	static const int32_t HSTYLE_EOTEXT = 1;
+	int32_t getForeground()
 	{
 		return fgcolor;
 	}
-	int getBackground()
+	int32_t getBackground()
 	{
 		return bgcolor;
 	}
 protected:
-	void createStripBitmap(list<LineData>::iterator it, int width);
+	void createStripBitmap(list<LineData>::iterator it, int32_t width);
 	virtual void drawExtraComponents()=0;
 	void init();
-	int getAreaHeight()
+	int32_t getAreaHeight()
 	{
 		return area_height;
 	}
 	void enforceHardLimits();
-	int area_xstart;
-	int area_ystart;
-	int area_width;
-	int area_height;
-	int view_width;
-	int view_x;
-	int view_y;
+	int32_t area_xstart;
+	int32_t area_ystart;
+	int32_t area_width;
+	int32_t area_height;
+	int32_t view_width;
+	int32_t view_x;
+	int32_t view_y;
 	
-	CharPos findCharacter(int x, int y);
-	int fgcolor;
-	int bgcolor;
-	int hstyle;
+	CharPos findCharacter(int32_t x, int32_t y);
+	int32_t fgcolor;
+	int32_t bgcolor;
+	int32_t hstyle;
 };
 
 class EditboxVScrollView : public BasicEditboxView
 {
 public:
-	EditboxVScrollView(DIALOG *Host, FONT *TextFont, int FGColor, int BGColor, int Highlight_Style=HSTYLE_EOLINE) : BasicEditboxView(Host, TextFont, FGColor, BGColor, Highlight_Style), sbarpattern(NULL) {}
+	EditboxVScrollView(DIALOG *Host, FONT *TextFont, int32_t FGColor, int32_t BGColor, int32_t Highlight_Style=HSTYLE_EOLINE) : BasicEditboxView(Host, TextFont, FGColor, BGColor, Highlight_Style), sbarpattern(NULL) {}
 	
 	~EditboxVScrollView();
-	bool mouseClick(int x, int y);
-	bool mouseDrag(int x, int y);
-	bool mouseRelease(int x, int y);
+	bool mouseClick(int32_t x, int32_t y);
+	bool mouseDrag(int32_t x, int32_t y);
+	bool mouseRelease(int32_t x, int32_t y);
 protected:
-	virtual bool mouseDragOther(int x, int y)
+	virtual bool mouseDragOther(int32_t x, int32_t y)
 	{
 		x=x;
 		y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;
 	}
-	virtual bool mouseClickOther(int x, int y)
+	virtual bool mouseClickOther(int32_t x, int32_t y)
 	{
 		x=x;
 		y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;
 	}
 	void drawExtraComponents();
 	void init();
-	int bottomarrow_y;
+	int32_t bottomarrow_y;
 	BITMAP *sbarpattern;
 private:
-	int toparrow_x;
-	int toparrow_y;
-	int toparrow_state;
-	int bottomarrow_x;
-	int bottomarrow_state;
-	int baroff;
-	int barlen;
-	int barstate;
-	int barstarty;
+	int32_t toparrow_x;
+	int32_t toparrow_y;
+	int32_t toparrow_state;
+	int32_t bottomarrow_x;
+	int32_t bottomarrow_state;
+	int32_t baroff;
+	int32_t barlen;
+	int32_t barstate;
+	int32_t barstarty;
 };
 
 class EditboxWordWrapView : public EditboxVScrollView
 {
 public:
-	EditboxWordWrapView(DIALOG *Host, FONT *TextFont, int FGColor, int BGColor, int Highlight_Style=HSTYLE_EOLINE) : EditboxVScrollView(Host, TextFont, FGColor, BGColor, Highlight_Style) {}
+	EditboxWordWrapView(DIALOG *Host, FONT *TextFont, int32_t FGColor, int32_t BGColor, int32_t Highlight_Style=HSTYLE_EOLINE) : EditboxVScrollView(Host, TextFont, FGColor, BGColor, Highlight_Style) {}
 protected:
 	void layoutPage();
 };
@@ -324,31 +324,31 @@ protected:
 class EditboxNoWrapView : public EditboxVScrollView
 {
 public:
-	EditboxNoWrapView(DIALOG *Host, FONT *TextFont, int FGColor, int BGColor, int Highlight_Style=HSTYLE_EOLINE) : EditboxVScrollView(Host, TextFont, FGColor, BGColor, Highlight_Style) {}
+	EditboxNoWrapView(DIALOG *Host, FONT *TextFont, int32_t FGColor, int32_t BGColor, int32_t Highlight_Style=HSTYLE_EOLINE) : EditboxVScrollView(Host, TextFont, FGColor, BGColor, Highlight_Style) {}
 	void init();
 protected:
 	void layoutPage();
 	void drawExtraComponents();
-	bool mouseDragOther(int x, int y);
-	bool mouseRelease(int x, int y);
-	bool mouseClickOther(int x, int y);
-	int leftarrow_y;
-	int rightarrow_y;
+	bool mouseDragOther(int32_t x, int32_t y);
+	bool mouseRelease(int32_t x, int32_t y);
+	bool mouseClickOther(int32_t x, int32_t y);
+	int32_t leftarrow_y;
+	int32_t rightarrow_y;
 private:
-	int leftarrow_x;
-	int leftarrow_state;
-	int rightarrow_x;
-	int rightarrow_state;
-	int hbaroff;
-	int hbarlen;
-	int hbarstate;
-	int hbarstartx;
+	int32_t leftarrow_x;
+	int32_t leftarrow_state;
+	int32_t rightarrow_x;
+	int32_t rightarrow_state;
+	int32_t hbaroff;
+	int32_t hbarlen;
+	int32_t hbarstate;
+	int32_t hbarstartx;
 };
 
 class EditboxScriptView : public EditboxNoWrapView
 {
 public:
-	EditboxScriptView(DIALOG *Host, FONT *TextFont, int FGColor, int BGColor, int Highlight_Style=HSTYLE_EOLINE) : EditboxNoWrapView(Host, TextFont, FGColor, BGColor, Highlight_Style), linetext(NULL) {}
+	EditboxScriptView(DIALOG *Host, FONT *TextFont, int32_t FGColor, int32_t BGColor, int32_t Highlight_Style=HSTYLE_EOLINE) : EditboxNoWrapView(Host, TextFont, FGColor, BGColor, Highlight_Style), linetext(NULL) {}
 	void init();
 	~EditboxScriptView();
 protected:

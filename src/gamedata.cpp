@@ -21,7 +21,7 @@
 
 using namespace util;
 
-extern int dlevel;
+extern int32_t dlevel;
 extern void flushItemCache();
 extern zinitdata zinit;
 extern void Z_eventlog(char *format,...);
@@ -66,7 +66,7 @@ void gamedata::Clear()
     std::fill(icon, icon+128, 0);
     std::fill(pal, pal+48, 0);
     
-    for(int i=0; i<MAXDMAPS*MAPSCRSNORMAL; i++) std::fill(screen_d[i], screen_d[i]+8, 0);
+    for(int32_t i=0; i<MAXDMAPS*MAPSCRSNORMAL; i++) std::fill(screen_d[i], screen_d[i]+8, 0);
     
     std::fill(global_d, global_d+MAX_SCRIPT_REGISTERS, 0);
     globalRAM.clear();
@@ -185,7 +185,7 @@ void gamedata::set_quest(byte q)
     _quest=q;
     return;
 }
-void gamedata::change_quest(short q)
+void gamedata::change_quest(int16_t q)
 {
     _quest+=q;
     return;
@@ -210,7 +210,7 @@ void gamedata::set_counter(word change, byte c)
         
     if(game!=NULL)
     {
-        int ringID=current_item_id(itype_ring, true);
+        int32_t ringID=current_item_id(itype_ring, true);
         _counter[c]=zc_max(change, 0);
         
         // ringcolor is very slow, so make sure the ring has actually changed
@@ -223,7 +223,7 @@ void gamedata::set_counter(word change, byte c)
     return;
 }
 
-void gamedata::change_counter(short change, byte c)
+void gamedata::change_counter(int16_t change, byte c)
 {
 #ifdef DEBUG_GD_COUNTERS
     al_trace("Changing counter %i from %i by %i\n", c, _counter[c], change);
@@ -234,7 +234,7 @@ void gamedata::change_counter(short change, byte c)
         
     if(game!=NULL)
     {
-        int ringID=current_item_id(itype_ring, true);
+        int32_t ringID=current_item_id(itype_ring, true);
         _counter[c]=vbound(_counter[c]+change, 0, _maxcounter[c]);
         
         if(ringID!=current_item_id(itype_ring, true))
@@ -275,7 +275,7 @@ void gamedata::set_maxcounter(word change, byte c)
     return;
 }
 
-void gamedata::change_maxcounter(short change, byte c)
+void gamedata::change_maxcounter(int16_t change, byte c)
 {
 #ifdef DEBUG_GD_COUNTERS
     al_trace("Changing max counter %i from %i by +%i\n", c, _maxcounter[c], change);
@@ -294,7 +294,7 @@ void gamedata::change_maxcounter(short change, byte c)
     return;
 }
 
-short gamedata::get_dcounter(byte c)
+int16_t gamedata::get_dcounter(byte c)
 {
     if(c>=32)  // Sanity check
         return 0;
@@ -302,7 +302,7 @@ short gamedata::get_dcounter(byte c)
     return _dcounter[c];
 }
 
-void gamedata::set_dcounter(short change, byte c)
+void gamedata::set_dcounter(int16_t change, byte c)
 {
 #ifdef DEBUG_GD_COUNTERS
 
@@ -316,7 +316,7 @@ void gamedata::set_dcounter(short change, byte c)
         
     if(game!=NULL)
     {
-        int ringID=current_item_id(itype_ring, true);
+        int32_t ringID=current_item_id(itype_ring, true);
         _dcounter[c]=change;
         
         if(ringID!=current_item_id(itype_ring, true))
@@ -328,7 +328,7 @@ void gamedata::set_dcounter(short change, byte c)
     return;
 }
 
-void gamedata::change_dcounter(short change, byte c)
+void gamedata::change_dcounter(int16_t change, byte c)
 {
 #ifdef DEBUG_GD_COUNTERS
 
@@ -341,7 +341,7 @@ void gamedata::change_dcounter(short change, byte c)
         
     if(game!=NULL)
     {
-        int ringID=current_item_id(itype_ring, true);
+        int32_t ringID=current_item_id(itype_ring, true);
         _dcounter[c]+=change;
         
         if(ringID!=current_item_id(itype_ring, true))
@@ -353,18 +353,18 @@ void gamedata::change_dcounter(short change, byte c)
     return;
 }
 
-long gamedata::get_generic(byte c)
+int32_t gamedata::get_generic(byte c)
 {
     return _generic[c];
 }
 
-void gamedata::set_generic(long change, byte c)
+void gamedata::set_generic(int32_t change, byte c)
 {
     _generic[c]=change;
     return;
 }
 
-void gamedata::change_generic(long change, byte c)
+void gamedata::change_generic(int32_t change, byte c)
 {
     _generic[c]+=change;
     return;
@@ -381,7 +381,7 @@ void gamedata::set_life(word l)
     set_counter(l, 0);
     return;
 }
-void gamedata::change_life(short l)
+void gamedata::change_life(int16_t l)
 {
     change_counter(l, 0);
     
@@ -399,22 +399,22 @@ void gamedata::set_maxlife(word m)
     set_maxcounter(m, 0);
     return;
 }
-void gamedata::change_maxlife(short m)
+void gamedata::change_maxlife(int16_t m)
 {
     change_maxcounter(m, 0);
     return;
 }
 
-short gamedata::get_drupy()
+int16_t gamedata::get_drupy()
 {
     return get_dcounter(1);
 }
-void gamedata::set_drupy(short d)
+void gamedata::set_drupy(int16_t d)
 {
     set_dcounter(d, 1);
     return;
 }
-void gamedata::change_drupy(short d)
+void gamedata::change_drupy(int16_t d)
 {
     change_dcounter(d, 1);
     return;
@@ -436,7 +436,7 @@ void gamedata::set_rupies(word r)
     set_counter(r, 1);
     return;
 }
-void gamedata::change_rupies(short r)
+void gamedata::change_rupies(int16_t r)
 {
     change_counter(r, 1);
     return;
@@ -450,7 +450,7 @@ void gamedata::set_maxarrows(word a)
 {
     set_maxcounter(a, 3);
 }
-void gamedata::change_maxarrows(short a)
+void gamedata::change_maxarrows(int16_t a)
 {
     change_maxcounter(a, 3);
     return;
@@ -464,7 +464,7 @@ void gamedata::set_arrows(word a)
 {
     set_counter(a, 3);
 }
-void gamedata::change_arrows(short a)
+void gamedata::change_arrows(int16_t a)
 {
     change_counter(a, 3);
     return;
@@ -479,7 +479,7 @@ void gamedata::set_deaths(word d)
     _deaths=d;
     return;
 }
-void gamedata::change_deaths(short d)
+void gamedata::change_deaths(int16_t d)
 {
     _deaths+=d;
     return;
@@ -494,7 +494,7 @@ void gamedata::set_keys(word k)
     set_counter(k, 5);
     return;
 }
-void gamedata::change_keys(short k)
+void gamedata::change_keys(int16_t k)
 {
     change_counter(k, 5);
     return;
@@ -509,7 +509,7 @@ void gamedata::set_bombs(word k)
     set_counter(k, 2);
     return;
 }
-void gamedata::change_bombs(short k)
+void gamedata::change_bombs(int16_t k)
 {
     change_counter(k, 2);
     return;
@@ -522,17 +522,17 @@ word gamedata::get_maxbombs()
 void gamedata::set_maxbombs(word b, bool setSuperBombs)
 {
     _maxcounter[2]=b;
-    int div = zinit.bomb_ratio;
+    int32_t div = zinit.bomb_ratio;
     
     if(div != 0 && setSuperBombs)
         set_maxcounter(b/div,6);
         
     return;
 }
-void gamedata::change_maxbombs(short b)
+void gamedata::change_maxbombs(int16_t b)
 {
     _maxcounter[2]+=b;
-    int div = zinit.bomb_ratio;
+    int32_t div = zinit.bomb_ratio;
     
     if(div != 0)
         change_maxcounter(b/div,6);
@@ -549,7 +549,7 @@ void gamedata::set_sbombs(word k)
     set_counter(k, 6);
     return;
 }
-void gamedata::change_sbombs(short k)
+void gamedata::change_sbombs(int16_t k)
 {
     change_counter(k, 6);
     return;
@@ -564,7 +564,7 @@ void gamedata::set_wlevel(word l)
     set_generic(l, 3);
     return;
 }
-void gamedata::change_wlevel(short l)
+void gamedata::change_wlevel(int16_t l)
 {
     change_generic(l, 3);
     return;
@@ -579,7 +579,7 @@ void gamedata::set_cheat(byte c)
     _cheat=c;
     return;
 }
-void gamedata::change_cheat(short c)
+void gamedata::change_cheat(int16_t c)
 {
     _cheat+=c;
     return;
@@ -594,7 +594,7 @@ void gamedata::set_hasplayed(byte p)
     _hasplayed=p;
     return;
 }
-void gamedata::change_hasplayed(short p)
+void gamedata::change_hasplayed(int16_t p)
 {
     _hasplayed+=p;
     return;
@@ -609,7 +609,7 @@ void gamedata::set_time(dword t)
     _time=t;
     return;
 }
-void gamedata::change_time(long long t)
+void gamedata::change_time(int64_t t)
 {
     _time+=t;
     return;
@@ -624,7 +624,7 @@ void gamedata::set_timevalid(byte t)
     _timevalid=t;
     return;
 }
-void gamedata::change_timevalid(short t)
+void gamedata::change_timevalid(int16_t t)
 {
     _timevalid+=t;
     return;
@@ -643,7 +643,7 @@ void gamedata::set_HCpieces(byte p)
     set_generic(p, 0);
     return;
 }
-void gamedata::change_HCpieces(short p)
+void gamedata::change_HCpieces(int16_t p)
 {
 #ifdef DEBUG_GD_HCP
     al_trace("Changing HCP by %d to %d\n",p, get_generic(0));
@@ -663,7 +663,7 @@ void gamedata::set_continue_scrn(byte s)
     _continue_scrn=s;
     return;
 }
-void gamedata::change_continue_scrn(short s)
+void gamedata::change_continue_scrn(int16_t s)
 {
     if(!isclearing && s!=0) Z_eventlog("Continue screen set to %x\n", _continue_scrn+s);
     
@@ -682,7 +682,7 @@ void gamedata::set_continue_dmap(word d)
     _continue_dmap=d;
     return;
 }
-void gamedata::change_continue_dmap(short d)
+void gamedata::change_continue_dmap(int16_t d)
 {
     if(!isclearing && d!=0) Z_eventlog("Continue DMap set to %d\n", _continue_dmap+d);
     
@@ -700,7 +700,7 @@ void gamedata::set_maxmagic(word m)
     set_maxcounter(m, 4);
     return;
 }
-void gamedata::change_maxmagic(short m)
+void gamedata::change_maxmagic(int16_t m)
 {
     change_maxcounter(m, 4);
     return;
@@ -715,22 +715,22 @@ void gamedata::set_magic(word m)
     set_counter(m, 4);
     return;
 }
-void gamedata::change_magic(short m)
+void gamedata::change_magic(int16_t m)
 {
     change_counter(m, 4);
     return;
 }
 
-short gamedata::get_dmagic()
+int16_t gamedata::get_dmagic()
 {
     return get_dcounter(4);
 }
-void gamedata::set_dmagic(short d)
+void gamedata::set_dmagic(int16_t d)
 {
     set_dcounter(d, 4);
     return;
 }
-void gamedata::change_dmagic(short d)
+void gamedata::change_dmagic(int16_t d)
 {
     change_dcounter(d, 4);
     return;
@@ -745,7 +745,7 @@ void gamedata::set_magicdrainrate(byte r)
     set_generic(r, 1);
     return;
 }
-void gamedata::change_magicdrainrate(short r)
+void gamedata::change_magicdrainrate(int16_t r)
 {
     change_generic((char)r, 1);
     return;
@@ -760,7 +760,7 @@ void gamedata::set_canslash(byte s)
     set_generic(s, 2);
     return;
 }
-void gamedata::change_canslash(short s)
+void gamedata::change_canslash(int16_t s)
 {
     change_generic(s, 2);
     return;
@@ -771,7 +771,7 @@ byte gamedata::get_lkeys()
     return lvlkeys[dlevel];
 }
 
-/*bool gamedata::get_item(int id)
+/*bool gamedata::get_item(int32_t id)
 {
 return item[id];
 }*/
@@ -901,57 +901,57 @@ void gamedata::set_darkscr_color(byte val)
 	set_generic(val, genDARK_COL);
 }
 
-int gamedata::get_watergrav()
+int32_t gamedata::get_watergrav()
 {
 	return get_generic(genWATER_GRAV);
 }
-void gamedata::set_watergrav(int val)
+void gamedata::set_watergrav(int32_t val)
 {
 	set_generic(val, genWATER_GRAV);
 }
-int gamedata::get_sideswim_up()
+int32_t gamedata::get_sideswim_up()
 {
 	return get_generic(genSIDESWIM_UP);
 }
-void gamedata::set_sideswim_up(int val)
+void gamedata::set_sideswim_up(int32_t val)
 {
 	set_generic(val, genSIDESWIM_UP);
 }
 
-int gamedata::get_sideswim_side()
+int32_t gamedata::get_sideswim_side()
 {
 	return get_generic(genSIDESWIM_SIDE);
 }
-void gamedata::set_sideswim_side(int val)
+void gamedata::set_sideswim_side(int32_t val)
 {
 	set_generic(val, genSIDESWIM_SIDE);
 }
 
-int gamedata::get_sideswim_down()
+int32_t gamedata::get_sideswim_down()
 {
 	return get_generic(genSIDESWIM_DOWN);
 }
-void gamedata::set_sideswim_down(int val)
+void gamedata::set_sideswim_down(int32_t val)
 {
 	set_generic(val, genSIDESWIM_DOWN);
 }
 
-int gamedata::get_sideswim_jump()
+int32_t gamedata::get_sideswim_jump()
 {
 	return get_generic(genSIDESWIM_JUMP);
 }
-void gamedata::set_sideswim_jump(int val)
+void gamedata::set_sideswim_jump(int32_t val)
 {
 	set_generic(val, genSIDESWIM_JUMP);
 }
 
-void gamedata::set_item(int id, bool value)
+void gamedata::set_item(int32_t id, bool value)
 {
     set_item_no_flush(id, value);
     flushItemCache();
 }
 
-void gamedata::set_item_no_flush(int id, bool value)
+void gamedata::set_item_no_flush(int32_t id, bool value)
 {
     if(!isclearing && !(value == item[id]))
         Z_eventlog("%sed item %i: %s\n", value ? "Gain" : "Remov", id, item_string[id]);

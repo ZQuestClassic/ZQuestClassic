@@ -81,7 +81,7 @@ void Window::calculateSize()
 	}
 }
 
-void Window::arrange(int contX, int contY, int contW, int contH)
+void Window::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 {
 	// For now, at least, we're assuming everything will fit...
 	Widget::arrange(contX, contY, contW, contH);
@@ -127,7 +127,7 @@ void Window::realize(DialogRunner& runner)
 	realizeKeys(runner);
 }
 
-int Window::onEvent(int event, MessageDispatcher& sendMessage)
+int32_t Window::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	if(event == geCLOSE)
 	{

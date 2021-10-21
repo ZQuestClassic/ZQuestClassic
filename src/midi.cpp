@@ -12,10 +12,10 @@
 
   typedef struct MIDI                    // a midi file
   {
-  int divisions;                      // number of ticks per quarter note
+  int32_t divisions;                      // number of ticks per quarter note
   struct {
-  unsigned char *data;             // MIDI message stream
-  int len;                         // length of the track data
+  uint8_t *data;             // MIDI message stream
+  int32_t len;                         // length of the track data
   } track[MIDI_TRACKS];
   } MIDI;
 
@@ -43,12 +43,12 @@
 #define snprintf _snprintf
 #endif
 
-int save_midi(char *filename, MIDI *midi)
+int32_t save_midi(char *filename, MIDI *midi)
 {
-    int c;
-    long len;
+    int32_t c;
+    int32_t len;
     PACKFILE *fp;
-    int num_tracks = 0;
+    int32_t num_tracks = 0;
     
     if(!midi)
         return 1;
@@ -101,12 +101,12 @@ err:
   typedef struct midi_info
   {
   // midi info
-  int format;
-  int num_tracks;
-  int divisions;
-  int len_beats;
+  int32_t format;
+  int32_t num_tracks;
+  int32_t divisions;
+  int32_t len_beats;
   double len_sec;
-  int tempo_changes;
+  int32_t tempo_changes;
   double tempo[MAX_TEMPO_CHANGES];         // tempo can change during song
   dword  tempo_c[MAX_TEMPO_CHANGES];       // store the total delta time before each change in tempo
 
@@ -133,12 +133,12 @@ err:
 
   */
 
-dword getval(byte *buf,int nbytes)
+dword getval(byte *buf,int32_t nbytes)
 {
     dword value;
     value=0;
     
-    for(int i=0; i<nbytes; i++)
+    for(int32_t i=0; i<nbytes; i++)
     {
         value<<=8;
         value+=buf[i];
@@ -235,7 +235,7 @@ bool eot(midi_info *mi)
     return (mi->event==0xFF && mi->type==0x2F);
 }
 
-int beats(dword dt,int divs)
+int32_t beats(dword dt,int32_t divs)
 {
     if(divs<=0)
         return 1;
@@ -254,7 +254,7 @@ double tempo(byte *buf)
     return 1/t;
 }
 
-double _runtime(int beats,double tempo)
+double _runtime(int32_t beats,double tempo)
 {
     if(tempo==0)
         return 0;
@@ -262,21 +262,21 @@ double _runtime(int beats,double tempo)
     return beats/tempo*60.0;
 }
 
-double runtime(int beats,midi_info *mi)
+double runtime(int32_t beats,midi_info *mi)
 {
     double t=0;
     
-    int c=0;
+    int32_t c=0;
     
     while(c<mi->tempo_changes)
     {
-        if(beats < (int)mi->tempo_c[c])
+        if(beats < (int32_t)mi->tempo_c[c])
             break;
             
         c++;
     }
     
-    for(int i=1; i<c; i++)
+    for(int32_t i=1; i<c; i++)
         t += _runtime(mi->tempo_c[i] - mi->tempo_c[i-1],mi->tempo[i-1]);
         
     t += _runtime(beats - mi->tempo_c[c-1],mi->tempo[c-1]);
@@ -293,7 +293,7 @@ void get_midi_info(MIDI *midi, midi_info *mi)
     if(midi==NULL)
         goto done;
         
-    for(int i=0; midi->track[i].len>0; i++)
+    for(int32_t i=0; midi->track[i].len>0; i++)
     {
         byte *data = midi->track[i].data;
         
@@ -314,7 +314,7 @@ void get_midi_info(MIDI *midi, midi_info *mi)
             if(gettempo && mi->event==0xFF && mi->type==0x51 && mi->tempo_changes<MAX_TEMPO_CHANGES)
             {
                 mi->tempo[mi->tempo_changes] = tempo(mi->buf);
-                int tempo_c = mi->tempo_c[mi->tempo_changes] = beats(total_dt,midi->divisions);
+                int32_t tempo_c = mi->tempo_c[mi->tempo_changes] = beats(total_dt,midi->divisions);
                 
                 if(mi->tempo_changes==0 && tempo_c!=0)              // make sure there is a tempo at beat 0
                 {
@@ -348,7 +348,7 @@ done:
 char *timestr(double sec)
 {
     static char buf[16];
-    int min = (int)(sec/60);
+    int32_t min = (int32_t)(sec/60);
     sec -= min*60;
     
     if(sec>=59.5)
@@ -361,7 +361,7 @@ char *timestr(double sec)
     return buf;
 }
 
-bool decode_text_event(char *s,int length, byte type,byte *buf)
+bool decode_text_event(char *s,int32_t length, byte type,byte *buf)
 {
     switch(type)
     {
@@ -393,12 +393,12 @@ void get_midi_text(MIDI *midi, midi_info *mi, char *text)
 {
     byte buf[1024];
     char *out = text;
-    int length=4096;
+    int32_t length=4096;
     dword nbytes;
     
     text[0] = 0;
     
-    for(int i=0; midi->track[i].len>0; i++)
+    for(int32_t i=0; midi->track[i].len>0; i++)
     {
         byte *data = midi->track[i].data;
         

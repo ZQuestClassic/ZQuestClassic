@@ -172,6 +172,8 @@ struct widgetType##Builder                                                      
     ZCGUI_ACCEPT_PROP(focused, setFocused, bool)                                                   \
     ZCGUI_ACCEPT_PROP(framed, setFramed, bool)                                                     \
     ZCGUI_ACCEPT_PROP(fitParent, setFitParent, bool)                                               \
+    ZCGUI_ACCEPT_PROP(forceFitW, setForceFitWid, bool)                                             \
+    ZCGUI_ACCEPT_PROP(forceFitH, setForceFitHei, bool)                                             \
     ZCGUI_ACCEPT_PROP(disabled, setDisabled, bool)                                                 \
     ZCGUI_ACCEPT_PROP(useFont, setFont, FONT*)                                                     \
     ZCGUI_ACCEPT_PROP(frameText, setFrameText, std::string const&)                                 \
@@ -247,7 +249,7 @@ struct widgetType##Builder                                                      
 
 
 #define ZCGUI_ACCEPT_ONE_CHILD(function)                                                           \
-    template<int counter = 1, typename ChildType, typename... MoreChildrenType>                    \
+    template<int32_t counter = 1, typename ChildType, typename... MoreChildrenType>                    \
     inline void addChildren(ChildType&&, MoreChildrenType&&... moreChildren)                       \
     {                                                                                              \
         using DecayType = typename std::decay_t<ChildType>;                                        \
@@ -259,7 +261,7 @@ struct widgetType##Builder                                                      
         addChildren<counter+1>(std::forward<MoreChildrenType>(moreChildren)...);                   \
     }                                                                                              \
                                                                                                    \
-    template<int counter = 1, typename ChildType>                                                  \
+    template<int32_t counter = 1, typename ChildType>                                                  \
     inline void addChildren(ChildType&& child)                                                     \
     {                                                                                              \
         using DecayType = typename std::decay_t<ChildType>;                                        \

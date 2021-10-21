@@ -11,20 +11,20 @@ class Hive: public enemy
 public:
 	static int numOrbiters(guydata& data);
 
-	Hive(zfix x, zfix y, int id, int clk);
+	Hive(zfix x, zfix y, int32_t id, int32_t clk);
 	HiveOrbiter* createOrbiter();
 
 private:
-	int& mainTimer;
-	int timerLimit;
+	int32_t& mainTimer;
+	int32_t timerLimit;
 	std::vector<HiveOrbiter*> orbiters;
-	int outerRingCount, innerRingCount, patternCounter;
+	int32_t outerRingCount, innerRingCount, patternCounter;
 
 	/* Called by orbiters when they die. Updates the list of living orbiters. */
 	void orbiterDied(HiveOrbiter* orbiter);
-	int defend(int wpnId, int *power, int edef) override;
-	int defendNew(int wpnId, int *power, int edef, byte unblockable) override;
-	bool animate(int index) override;
+	int32_t defend(int32_t wpnId, int32_t* power, int32_t edef) override;
+	int32_t defendNew(int32_t wpnId, int32_t* power, int32_t edef, byte unblockable) override;
+	bool animate(int32_t index) override;
 	void draw(BITMAP *dest) override;
 
 	inline bool isBig() const { return dmisc10 == 1; }
@@ -35,7 +35,7 @@ private:
 class HiveOrbiter: public enemy
 {
 public:
-	HiveOrbiter(int id, Hive* parent, int pos, bool inner);
+	HiveOrbiter(int32_t id, Hive* parent, int32_t pos, bool inner);
 
 
 private:
@@ -52,7 +52,7 @@ private:
 
 	void positionBigCircle();
 	void positionOval();
-	bool animate(int index) override;
+	bool animate(int32_t index) override;
 	void draw(BITMAP *dest) override;
 
 	inline bool isBig() const { return dmisc10 == 1; }

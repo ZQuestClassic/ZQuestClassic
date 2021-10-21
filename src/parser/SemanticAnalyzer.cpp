@@ -5,12 +5,11 @@
 #include "Scope.h"
 #include "Types.h"
 #include "CompileError.h"
-#include <boost/move/unique_ptr.hpp>
 
 using std::string;
 using std::vector;
 using std::ostringstream;
-using boost::movelib::unique_ptr;
+using std::unique_ptr;
 using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
@@ -156,7 +155,7 @@ void SemanticAnalyzer::caseUsing(ASTUsingDecl& host, void*)
 	//Handle adding scope
 	ASTExprIdentifier* iden = host.getIdentifier();
 	Scope* temp = host.always ? getRoot(*scope) : scope;
-	int numMatches = temp->useNamespace(iden->components, iden->delimiters, iden->noUsing);
+	int32_t numMatches = temp->useNamespace(iden->components, iden->delimiters, iden->noUsing);
 	if(numMatches > 1)
 		handleError(CompileError::TooManyUsing(&host, iden->asString()));
 	else if(!numMatches)
@@ -246,8 +245,8 @@ void SemanticAnalyzer::caseRange(ASTRange& host, void*)
 {
 	RecursiveVisitor::caseRange(host);
 	if(breakRecursion(host)) return;
-	optional<long> start = (*host.start).getCompileTimeValue(this, scope);
-	optional<long> end = (*host.end).getCompileTimeValue(this, scope);
+	optional<int32_t> start = (*host.start).getCompileTimeValue(this, scope);
+	optional<int32_t> end = (*host.end).getCompileTimeValue(this, scope);
 	//`start` and `end` must exist, as they are ASTConstExpr. -V
 	if(*start > *end)
 	{
@@ -447,7 +446,7 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 	}
 
 	//Handle initializer assignment
-	long ipart = -1, dpart = 0;
+	int32_t ipart = -1, dpart = 0;
 	std::vector<ASTDataDecl*> decls = host.getDeclarations();
 	for(vector<ASTDataDecl*>::iterator it = decls.begin();
 		it != decls.end(); ++it)
@@ -455,9 +454,9 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		ASTDataDecl* declaration = *it;
 		if(ASTExpr* init = declaration->getInitializer())
 		{
-			if(optional<long> v = init->getCompileTimeValue(this, scope))
+			if(optional<int32_t> v = init->getCompileTimeValue(this, scope))
 			{
-				long val = *v;
+				int32_t val = *v;
 				ipart = val/10000;
 				dpart = val%10000;
 			}
@@ -546,7 +545,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 				return;
 			}
 			
-			long value = *host.getInitializer()->getCompileTimeValue(this, scope);
+			int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
 			Constant::create(*scope, host, type, value, this);
 		}
 		
@@ -608,7 +607,7 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 			return;
 		}
 		
-		if(optional<long> theSize = size.getCompileTimeValue(this, scope))
+		if(optional<int32_t> theSize = size.getCompileTimeValue(this, scope))
 		{
 			if(*theSize % 10000)
 			{
@@ -816,7 +815,7 @@ void SemanticAnalyzer::caseAssert(ASTAssert& host, void* param)
 {
 	visit(host.expr.get(), param);
     if (breakRecursion(host)) return;
-	long val = *(host.expr->getCompileTimeValue(this, scope));
+	int32_t val = *(host.expr->getCompileTimeValue(this, scope));
 	if(val == 0)
 	{
 		ASTString* str = host.msg.get();
@@ -1050,13 +1049,13 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;
-	int bestCastCount = parameterTypes.size() + 1;
+	int32_t bestCastCount = parameterTypes.size() + 1;
 	for (vector<Function*>::iterator it = functions.begin();
 		 it != functions.end(); ++it)
 	{
 		// Count number of casts.
 		Function& function = **it;
-		int castCount = 0;
+		int32_t castCount = 0;
 		for(size_t i = 0; i < parameterTypes.size(); ++i)
 		{
 			DataType const& from = getNaiveType(*parameterTypes[i], scope);
@@ -1216,8 +1215,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			
 			host.inlineBlock = host.binding->node->block->clone();
 			host.inlineParams = host.binding->node->parameters;
-			int sz = host.parameters.size();
-			for(int q = 0; q < sz; ++q)
+			int32_t sz = host.parameters.size();
+			for(int32_t q = 0; q < sz; ++q)
 			{
 				ASTExpr* init = host.parameters[q];
 				host.inlineParams[q]->setInitializer(init->clone());
@@ -1487,7 +1486,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
 {
 	/* handled in `ASTOptionValue->getCompileTimeValue()` now
-	if (optional<long> value = lookupOption(*scope, host.option))
+	if (optional<int32_t> value = lookupOption(*scope, host.option))
 		host.value = value;
 	else
 		handleError(CompileError::UnknownOption(&host, host.name));*/

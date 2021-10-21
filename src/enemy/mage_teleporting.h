@@ -7,7 +7,7 @@ class MageTeleporting : public enemy
 {
 public:
 	MageTeleporting(const enemy& other, bool newScriptUID, bool clearParentUID);
-	MageTeleporting(zfix x, zfix y, int id, int clk);
+	MageTeleporting(zfix x, zfix y, int32_t id, int32_t clk);
 
 private:
 	enum class animState: char { NORMAL, CHARGING, FIRING };
@@ -30,7 +30,7 @@ private:
 	/* Turns the Mage to face the hero. */
 	void faceHero();
 
-	bool animate(int index) override;
+	bool animate(int32_t index) override;
 	void draw(BITMAP *dest) override;
 };
 

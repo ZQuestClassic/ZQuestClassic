@@ -27,7 +27,7 @@ void Label::setMaxLines(size_t newMax)
 	maxLines = newMax;
 }
 
-void Label::setAlign(int ta)
+void Label::setAlign(int32_t ta)
 {
 	textAlign = vbound(ta,0,2);
 	if(alDialog)
@@ -59,13 +59,13 @@ void Label::fitText()
 	char* data = text_fit.data();
 	auto* f = widgFont;
 	auto* char_length = f->vtable->char_length;
-	int actualWidth = getWidthOverridden() ? getWidth() : getMaxWidth();
+	int32_t actualWidth = getWidthOverridden() ? getWidth() : getMaxWidth();
 	if(actualWidth < 0) actualWidth = zq_screen_w;
-	int lastSpace = -1;
-	int widthSoFar = 0;
+	int32_t lastSpace = -1;
+	int32_t widthSoFar = 0;
 	size_t currentLine = 1;
-	int max_width = 0;
-	int i;
+	int32_t max_width = 0;
+	int32_t i;
 	size_t linecount = 1;
 	for(i = 0; data[i] && currentLine < maxLines; ++i)
 	{
@@ -87,7 +87,7 @@ void Label::fitText()
 		widthSoFar += char_length(f, c);
 		if(widthSoFar > actualWidth)
 		{
-			// Line's too long; try to put replace the last space with
+			// Line's too int32_t; try to put replace the last space with
 			// a line break. If there hasn't been one, we'll just
 			// keep trying until there's a space.
 			if(lastSpace >= 0)
@@ -123,7 +123,7 @@ void Label::fitText()
 	}
 }
 
-void Label::arrange(int cx, int cy, int cw, int ch)
+void Label::arrange(int32_t cx, int32_t cy, int32_t cw, int32_t ch)
 {
 	// Hang on to these in case the text is changed and
 	// the label needs repositioned.

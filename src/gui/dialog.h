@@ -24,7 +24,7 @@ public:
 		showDialog(*static_cast<T*>(this));
 	}
 
-	/* Subclasses must define an int-convertible type called `message`
+	/* Subclasses must define an int32_t-convertible type called `message`
 	 * and implement:
 	 * bool handleMessage(const DialogMessage<message>&)
 	 */

@@ -2,6 +2,7 @@
 #define ZC_GUI_DIALOGREF_H
 
 #include <cstddef>
+#include <cstdint>
 struct DIALOG;
 
 namespace GUI
@@ -22,20 +23,20 @@ public:
 	DIALOG* operator->();
 	const DIALOG* operator->() const;
 	DIALOG& operator*();
-	DIALOG& operator[](int offset);
-	const DIALOG& operator[](int offset) const;
+	DIALOG& operator[](int32_t offset);
+	const DIALOG& operator[](int32_t offset) const;
 	operator bool() const
 	{
 		return owner;
 	}
 	
-	void applyVisibility(bool visible, int offs = 0);
-	void message(int msg, int c);
+	void applyVisibility(bool visible, int32_t offs = 0);
+	void message(int32_t msg, int32_t c);
 	
 private:
 	DialogRunner* owner;
 	size_t index;
-	int old_x;
+	int32_t old_x;
 
 	DialogRef(DialogRunner* owner, size_t index);
 

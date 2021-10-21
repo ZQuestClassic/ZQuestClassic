@@ -22,16 +22,16 @@ using std::ostringstream;
 using namespace ZScript;
 
 #define YYINCLUDED_STDLIB_H
-extern int yydebug;
-extern int yyrow;
-extern int yycol;
+extern int32_t yydebug;
+extern int32_t yyrow;
+extern int32_t yycol;
 extern char* yytext;
-extern int yyleng;
-extern int yylex(void);
+extern int32_t yyleng;
+extern int32_t yylex(void);
 extern FILE *yyin;
 extern void resetLexer();
-void yyerror(boost::movelib::unique_ptr<ASTFile>& root, const char* s);
-void yymsg(string const& message, int row = yyrow, int col = yycol);
+void yyerror(std::unique_ptr<ASTFile>& root, const char* s);
+void yymsg(string const& message, int32_t row = yyrow, int32_t col = yycol);
 std::string curfilename;
 extern YYLTYPE noloc;
 
@@ -66,11 +66,10 @@ extern YYLTYPE noloc;
 %}
 
 %code requires {
-	#include <boost/move/unique_ptr.hpp>
 	namespace ZScript
 	{
 		class ASTFile;
-		boost::movelib::unique_ptr<ZScript::ASTFile> parseFile(std::string const& filename);
+		std::unique_ptr<ZScript::ASTFile> parseFile(std::string const& filename);
 	};
 }
 
@@ -78,7 +77,7 @@ extern YYLTYPE noloc;
 %expect 4
 %error-verbose
 %start Init
-%parse-param {boost::movelib::unique_ptr<ZScript::ASTFile>& root}
+%parse-param {std::unique_ptr<ZScript::ASTFile>& root}
 
 %define api.token.prefix {TOK_}
 
@@ -295,7 +294,7 @@ Namespace :
 		ASTExprIdentifier* idens = (ASTExprIdentifier*)$2;
 		std::vector<std::string> components = idens->components;
 		std::string name = components.front();
-		int size = idens->components.size();
+		int32_t size = idens->components.size();
 		if(size == 1)
 		{
 			ASTNamespace* namesp = (ASTNamespace*)$4;
@@ -1582,7 +1581,7 @@ Literal_Bool :
 	;
 
 Literal_Array :
-	// (int[5]){1, 2, 3}
+	// (int32_t[5]){1, 2, 3}
 	LT DataType LBRACKET Expression_Constant RBRACKET GT
 		  LBRACE Literal_Array_Body RBRACE
 	{
@@ -1594,7 +1593,7 @@ Literal_Array :
 		al->location = @$;
 		$$ = al;
 	}
-	// (int[]){1, 2, 3}
+	// (int32_t[]){1, 2, 3}
 	| LT DataType LBRACKET RBRACKET GT
 		  LBRACE Literal_Array_Body RBRACE
 	{
@@ -1604,7 +1603,7 @@ Literal_Array :
 		al->location = @$;
 		$$ = al;
 	}
-	// (int[5]){}
+	// (int32_t[5]){}
 	| LT DataType LBRACKET Expression_Constant RBRACKET
 		  GT LBRACE RBRACE
 	{
@@ -1641,7 +1640,7 @@ Literal_Array_Body :
 
 /*        programs */
 
-void yymsg(string const& message, int row, int col)
+void yymsg(string const& message, int32_t row, int32_t col)
 {
 	ostringstream out;
 	out << message << " [";
@@ -1657,15 +1656,15 @@ void yymsg(string const& message, int row, int col)
     box_eol();
 }
 
-void yyerror(boost::movelib::unique_ptr<ASTFile>&, const char *s) {
+void yyerror(std::unique_ptr<ASTFile>&, const char *s) {
 	yymsg(s);
 }
 
 namespace ZScript
 {
-	boost::movelib::unique_ptr<ASTFile> parseFile(std::string const& filename)
+	std::unique_ptr<ASTFile> parseFile(std::string const& filename)
 	{
-		boost::movelib::unique_ptr<ASTFile> result;
+		std::unique_ptr<ASTFile> result;
 
 		// Reset lexer.
 		yyin = NULL;
@@ -1677,7 +1676,7 @@ namespace ZScript
 		{
 			box_out("Can't open input file");
 			box_eol();
-			return boost::movelib::unique_ptr<ASTFile>(NULL);
+			return nullptr;
 		}
 		curfilename = filename;
 
@@ -1688,6 +1687,6 @@ namespace ZScript
 		}
 		fclose(yyin);
 
-		return boost::movelib::unique_ptr<ASTFile>(result.release());
+		return std::unique_ptr<ASTFile>(result.release());
 	}
 };

@@ -39,7 +39,7 @@ inline double sd_log2( double n )
     return v;
 }  
 
-inline bool isPowerOfTwo(int n) 
+inline bool isPowerOfTwo(int32_t n) 
 { 
    if(n==0) 
    return false; 
@@ -64,7 +64,7 @@ BITMAP* ScriptDrawingBitmapPool::_parent_bmp = 0;
 
 
 
-FONT *get_zc_font(int index)
+FONT *get_zc_font(int32_t index)
 {
     //return getfont(index);
     switch(index)
@@ -201,7 +201,7 @@ class TileHelper
 {
 public:
 
-    static void OldPutTile(BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, byte skiprows=0)
+    static void OldPutTile(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, byte skiprows=0)
     {
         // Past the end of the tile page?
         if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
@@ -215,42 +215,42 @@ public:
         switch(flip)
         {
         case 1:
-            for(int j=0; j<h; j++)
-                for(int k=w-1; k>=0; k--)
+            for(int32_t j=0; j<h; j++)
+                for(int32_t k=w-1; k>=0; k--)
                     oldputtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, color, flip);
                     
             break;
             
         case 2:
-            for(int j=h-1; j>=0; j--)
-                for(int k=0; k<w; k++)
+            for(int32_t j=h-1; j>=0; j--)
+                for(int32_t k=0; k<w; k++)
                     oldputtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, color, flip);
                     
             break;
             
         case 3:
-            for(int j=h-1; j>=0; j--)
-                for(int k=w-1; k>=0; k--)
+            for(int32_t j=h-1; j>=0; j--)
+                for(int32_t k=w-1; k>=0; k--)
                     oldputtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, color, flip);
                     
             break;
             
         case 0:
         default:
-            for(int j=0; j<h; j++)
-                for(int k=0; k<w; k++)
+            for(int32_t j=0; j<h; j++)
+                for(int32_t k=0; k<w; k++)
                     oldputtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, color, flip);
                     
             break;
         }
     }
     
-    static void OverTile(BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, byte skiprows=0)
+    static void OverTile(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, byte skiprows=0)
     {
 		overtileblock16(_Dest,tile,x,y,w,h,color,flip,skiprows);
     }
 	
-	static void OverTileCloaked(BITMAP* _Dest, int tile, int x, int y, int w, int h, int flip, byte skiprows=0)
+	static void OverTileCloaked(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t flip, byte skiprows=0)
 	{
 		if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
 		{
@@ -263,36 +263,36 @@ public:
 		switch(flip)
 		{
 			case 1:
-				for(int j=0; j<h; j++)
-					for(int k=w-1; k>=0; k--)
+				for(int32_t j=0; j<h; j++)
+					for(int32_t k=w-1; k>=0; k--)
 						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, flip);
 						
 				break;
 				
 			case 2:
-				for(int j=h-1; j>=0; j--)
-					for(int k=0; k<w; k++)
+				for(int32_t j=h-1; j>=0; j--)
+					for(int32_t k=0; k<w; k++)
 						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, flip);
 						
 				break;
 				
 			case 3:
-				for(int j=h-1; j>=0; j--)
-					for(int k=w-1; k>=0; k--)
+				for(int32_t j=h-1; j>=0; j--)
+					for(int32_t k=w-1; k>=0; k--)
 						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, flip);
 						
 				break;
 				
 			default:
-				for(int j=0; j<h; j++)
-					for(int k=0; k<w; k++)
+				for(int32_t j=0; j<h; j++)
+					for(int32_t k=0; k<w; k++)
 						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, flip);
 						
 				break;
 		}
 	}
     
-    static void OverTileTranslucent(BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, int opacity, byte skiprows=0)
+    static void OverTileTranslucent(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, int32_t opacity, byte skiprows=0)
     {
         if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
         {
@@ -305,36 +305,36 @@ public:
         switch(flip)
         {
         case 1:
-            for(int j=0; j<h; j++)
-                for(int k=w-1; k>=0; k--)
+            for(int32_t j=0; j<h; j++)
+                for(int32_t k=w-1; k>=0; k--)
                     overtiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, color, flip, opacity);
                     
             break;
             
         case 2:
-            for(int j=h-1; j>=0; j--)
-                for(int k=0; k<w; k++)
+            for(int32_t j=h-1; j>=0; j--)
+                for(int32_t k=0; k<w; k++)
                     overtiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, color, flip, opacity);
                     
             break;
             
         case 3:
-            for(int j=h-1; j>=0; j--)
-                for(int k=w-1; k>=0; k--)
+            for(int32_t j=h-1; j>=0; j--)
+                for(int32_t k=w-1; k>=0; k--)
                     overtiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, color, flip, opacity);
                     
             break;
             
         default:
-            for(int j=0; j<h; j++)
-                for(int k=0; k<w; k++)
+            for(int32_t j=0; j<h; j++)
+                for(int32_t k=0; k<w; k++)
                     overtiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, color, flip, opacity);
                     
             break;
         }
     }
     
-    static void PutTileTranslucent(BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, int opacity, byte skiprows=0)
+    static void PutTileTranslucent(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, int32_t opacity, byte skiprows=0)
     {
         if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
         {
@@ -347,29 +347,29 @@ public:
         switch(flip)
         {
         case 1:
-            for(int j=0; j<h; j++)
-                for(int k=w-1; k>=0; k--)
+            for(int32_t j=0; j<h; j++)
+                for(int32_t k=w-1; k>=0; k--)
                     puttiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, color, flip, opacity);
                     
             break;
             
         case 2:
-            for(int j=h-1; j>=0; j--)
-                for(int k=0; k<w; k++)
+            for(int32_t j=h-1; j>=0; j--)
+                for(int32_t k=0; k<w; k++)
                     puttiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, color, flip, opacity);
                     
             break;
             
         case 3:
-            for(int j=h-1; j>=0; j--)
-                for(int k=w-1; k>=0; k--)
+            for(int32_t j=h-1; j>=0; j--)
+                for(int32_t k=w-1; k>=0; k--)
                     puttiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, color, flip, opacity);
                     
             break;
             
         default:
-            for(int j=0; j<h; j++)
-                for(int k=0; k<w; k++)
+            for(int32_t j=0; j<h; j++)
+                for(int32_t k=0; k<w; k++)
                     puttiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, color, flip, opacity);
                     
             break;
@@ -380,7 +380,7 @@ public:
 
 
 
-void do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -399,10 +399,10 @@ void do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
-    int x2=sdci[4]/10000;
-    int y2=sdci[5]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
+    int32_t x2=sdci[4]/10000;
+    int32_t y2=sdci[5]/10000;
     
     if(x1>x2)
     {
@@ -416,17 +416,17 @@ void do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if(sdci[7] != 10000)
     {
-        int w=x2-x1+1;
-        int h=y2-y1+1;
-        int w2=(w*sdci[7])/10000;
-        int h2=(h*sdci[7])/10000;
+        int32_t w=x2-x1+1;
+        int32_t h=y2-y1+1;
+        int32_t w2=(w*sdci[7])/10000;
+        int32_t h2=(h*sdci[7])/10000;
         x1=x1-((w2-w)/2);
         x2=x2+((w2-w)/2);
         y1=y1-((h2-h)/2);
         y2=y2+((h2-h)/2);
     }
     
-    int color=sdci[6]/10000;
+    int32_t color=sdci[6]/10000;
     
     if(sdci[12]/10000<=127) //translucent
     {
@@ -446,9 +446,9 @@ void do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
     else  //rotate
     {
-        int xy[16];
-        int rx=sdci[8]/10000;
-        int ry=sdci[9]/10000;
+        int32_t xy[16];
+        int32_t rx=sdci[8]/10000;
+        int32_t ry=sdci[9]/10000;
         fixed ra1=itofix(sdci[10]%10000)/10000;
         fixed ra2=itofix(sdci[10]/10000);
         fixed ra=ra1+ra2;
@@ -490,7 +490,7 @@ void do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
-void do_framer(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_framer(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -502,13 +502,13 @@ void do_framer(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[8]=overlay
     //sdci[9]=opacity
     
-    int x=sdci[2]/10000;
-    int y=sdci[3]/10000;
+    int32_t x=sdci[2]/10000;
+    int32_t y=sdci[3]/10000;
     
-    int tile=sdci[4]/10000;
-    int cs=sdci[5]/10000;
-    int w=sdci[6]/10000;
-    int h=sdci[7]/10000;
+    int32_t tile=sdci[4]/10000;
+    int32_t cs=sdci[5]/10000;
+    int32_t w=sdci[6]/10000;
+    int32_t h=sdci[7]/10000;
     bool overlay=sdci[8];
     bool trans=(sdci[9]/10000<=127);
     
@@ -517,7 +517,7 @@ void do_framer(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 
 
-void do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_circler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -535,8 +535,8 @@ void do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
     qword r=sdci[4];
     
     if(sdci[6] != 10000)
@@ -546,7 +546,7 @@ void do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
     
     r/=10000;
-    int color=sdci[5]/10000;
+    int32_t color=sdci[5]/10000;
     
     if(sdci[11]/10000<=127) //translucent
     {
@@ -555,9 +555,9 @@ void do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if(sdci[9]!=0&&(sdci[2]!=sdci[7]||sdci[3]!=sdci[8])) //rotation
     {
-        int xy[2];
-        int rx=sdci[7]/10000;
-        int ry=sdci[8]/10000;
+        int32_t xy[2];
+        int32_t rx=sdci[7]/10000;
+        int32_t ry=sdci[8]/10000;
         fixed ra1=itofix(sdci[9]%10000)/10000;
         fixed ra2=itofix(sdci[9]/10000);
         fixed ra=ra1+ra2;
@@ -582,7 +582,7 @@ void do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -604,8 +604,8 @@ void do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    int cx=sdci[2]/10000;
-    int cy=sdci[3]/10000;
+    int32_t cx=sdci[2]/10000;
+    int32_t cy=sdci[3]/10000;
     qword r=sdci[4];
     
     if(sdci[8] != 10000)
@@ -616,7 +616,7 @@ void do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     r/=10000;
     
-    int color=sdci[7]/10000;
+    int32_t color=sdci[7]/10000;
     
     fixed ra1=itofix(sdci[11]%10000)/10000;
     fixed ra2=itofix(sdci[11]/10000);
@@ -636,8 +636,8 @@ void do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if(sdci[11]!=0) //rotation
     {
-        int rx=sdci[9]/10000;
-        int ry=sdci[10]/10000;
+        int32_t rx=sdci[9]/10000;
+        int32_t ry=sdci[10]/10000;
         
         cx=rx + fixtoi((fixcos(ra) * (cx - rx) - fixsin(ra) * (cy - ry)));     //x1
         cy=ry + fixtoi((fixsin(ra) * (cx - rx) + fixcos(ra) * (cy - ry)));     //y1
@@ -645,15 +645,15 @@ void do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         sa-=ra;
     }
     
-    int fx=cx+fixtoi(fixcos(-(ea+sa)/2)*r/2);
-    int fy=cy+fixtoi(fixsin(-(ea+sa)/2)*r/2);
+    int32_t fx=cx+fixtoi(fixcos(-(ea+sa)/2)*r/2);
+    int32_t fy=cy+fixtoi(fixsin(-(ea+sa)/2)*r/2);
     
     if(sdci[12]) //closed
     {
         if(sdci[13]) //filled
         {
             clear_bitmap(prim_bmp);
-            arc(prim_bmp, cx+xoffset, cy+yoffset, sa, ea, int(r), color);
+            arc(prim_bmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-sa)*r), cy+yoffset+fixtoi(fixsin(-sa)*r), color);
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-ea)*r), cy+yoffset+fixtoi(fixsin(-ea)*r), color);
             floodfill(prim_bmp, zc_max(0,fx)+xoffset, zc_max(0,fy)+yoffset, color);
@@ -669,7 +669,7 @@ void do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         }
         else
         {
-            arc(bmp, cx+xoffset, cy+yoffset, sa, ea, int(r), color);
+            arc(bmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
             line(bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-sa)*r), cy+yoffset+fixtoi(fixsin(-sa)*r), color);
             line(bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-ea)*r), cy+yoffset+fixtoi(fixsin(-ea)*r), color);
         }
@@ -681,13 +681,13 @@ void do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
             drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
         }
         
-        arc(bmp, cx+xoffset, cy+yoffset, sa, ea, int(r), color);
+        arc(bmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
         drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
     }
 }
 
 
-void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_ellipser(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -707,23 +707,23 @@ void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
-    int radx=sdci[4]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
+    int32_t radx=sdci[4]/10000;
     radx*=sdci[7]/10000;
-    int rady=sdci[5]/10000;
+    int32_t rady=sdci[5]/10000;
     rady*=sdci[7]/10000;
-    int color=sdci[6]/10000;
+    int32_t color=sdci[6]/10000;
     float rotation = sdci[10]/10000;
     
-    int rx=sdci[8]/10000;
-    int ry=sdci[9]/10000;
+    int32_t rx=sdci[8]/10000;
+    int32_t ry=sdci[9]/10000;
     fixed ra1=itofix(sdci[10]%10000)/10000;
     fixed ra2=itofix(sdci[10]/10000);
     fixed ra=ra1+ra2;
     ra = (ra/360)*256;
     
-    int xy[2];
+    int32_t xy[2];
     xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
     xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
     x1=xy[0];
@@ -771,11 +771,11 @@ void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     if(color==0)
     {
         // This is very slow, so check the smallest possible square
-        int endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
-        int endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
+        int32_t endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
+        int32_t endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
         
-        for(int y=zc_max(0, y1-zc_max(radx, rady)); y<=endy; y++)
-            for(int x=zc_max(0, x1-zc_max(radx, rady)); x<=endx; x++)
+        for(int32_t y=zc_max(0, y1-zc_max(radx, rady)); y<=endy; y++)
+            for(int32_t x=zc_max(0, x1-zc_max(radx, rady)); x<=endx; x++)
                 if(getpixel(bmp, x, y)==255)
                     putpixel(bmp, x, y, 0);
     }
@@ -784,7 +784,7 @@ void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_liner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -802,24 +802,24 @@ void do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
-    int x2=sdci[4]/10000;
-    int y2=sdci[5]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
+    int32_t x2=sdci[4]/10000;
+    int32_t y2=sdci[5]/10000;
     
     if(sdci[7] != 10000)
     {
-        int w=x2-x1+1;
-        int h=y2-y1+1;
-        int w2=int(w*((double)sdci[7]/10000.0));
-        int h2=int(h*((double)sdci[7]/10000.0));
+        int32_t w=x2-x1+1;
+        int32_t h=y2-y1+1;
+        int32_t w2=int32_t(w*((double)sdci[7]/10000.0));
+        int32_t h2=int32_t(h*((double)sdci[7]/10000.0));
         x1=x1-((w2-w)/2);
         x2=x2+((w2-w)/2);
         y1=y1-((h2-h)/2);
         y2=y2+((h2-h)/2);
     }
     
-    int color=sdci[6]/10000;
+    int32_t color=sdci[6]/10000;
     
     if(sdci[11]/10000<=127) //translucent
     {
@@ -828,9 +828,9 @@ void do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if(sdci[10]!=0) //rotation
     {
-        int xy[4];
-        int rx=sdci[8]/10000;
-        int ry=sdci[9]/10000;
+        int32_t xy[4];
+        int32_t rx=sdci[8]/10000;
+        int32_t ry=sdci[9]/10000;
         fixed ra1=itofix(sdci[10]%10000)/10000;
         fixed ra2=itofix(sdci[10]/10000);
         fixed ra=ra1+ra2;
@@ -849,7 +849,7 @@ void do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
-void do_linesr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void do_linesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=array[10] = { x, y, x2, y2, colour, scale, rx, ry, angle, opacity }
@@ -869,7 +869,7 @@ void do_linesr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //    return;
     //}
     
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
     
     if(!v_ptr)
     {
@@ -877,37 +877,37 @@ void do_linesr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    std::vector<long> &v = *v_ptr;
+    std::vector<int32_t> &v = *v_ptr;
     
     if(v.empty())
         return;
         //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
-    long* pos = &v[0];
-    int sz = v.size();
+    int32_t* pos = &v[0];
+    int32_t sz = v.size();
     
-    for ( int q = 0; q < sz; q+=10 )
+    for ( int32_t q = 0; q < sz; q+=10 )
     {
 	
-	    int x1 = v.at(q);
+	    int32_t x1 = v.at(q);
 	    Z_scripterrlog("Lines( x1 ) is: %d\n", x1);
-	    int y1 = v.at(q+1);
+	    int32_t y1 = v.at(q+1);
 	    Z_scripterrlog("Lines( x2 ) is: %d\n", y1);
-	    int x2 = v.at(q+2);
+	    int32_t x2 = v.at(q+2);
 	    Z_scripterrlog("Lines( x2 ) is: %d\n", x2);
-	    int y2 = v.at(q+3);
+	    int32_t y2 = v.at(q+3);
 	    Z_scripterrlog("Lines( y2 ) is: %d\n", y2);
-	    int color  = v.at(q+4);
+	    int32_t color  = v.at(q+4);
 	    Z_scripterrlog("Lines( colour ) is: %d\n", color);
 	    Z_scripterrlog("Lines( scale ) is: %d\n", v.at(q+5));
 	    if (v.at(q+5) == 0) { Z_scripterrlog("Lines() aborting due to scale\n"); return; }//scale
 	    
 	    if( v.at(q+5) != 10000)
 	    {
-		int w=x2-x1+1;
-		int h=y2-y1+1;
-		int w2=int(w*((double)v.at(q+5)));
-		int h2=int(h*((double)v.at(q+5)));
+		int32_t w=x2-x1+1;
+		int32_t h=y2-y1+1;
+		int32_t w2=int32_t(w*((double)v.at(q+5)));
+		int32_t h2=int32_t(h*((double)v.at(q+5)));
 		x1=x1-((w2-w)/2);
 		x2=x2+((w2-w)/2);
 		y1=y1-((h2-h)/2);
@@ -926,11 +926,11 @@ void do_linesr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	    Z_scripterrlog("Lines( rot_x ) is: %d\n", v.at(q+7));
 	    if( v.at(q+8) !=0 ) //rotation
 	    {
-		int xy[4];
+		int32_t xy[4];
 		    
-		int rx = v.at(q+6);
+		int32_t rx = v.at(q+6);
 		    
-		int ry = v.at(q+7);
+		int32_t ry = v.at(q+7);
 		    
 		fixed ra1=itofix(v.at(q+8) % 1);
 		fixed ra2=itofix(v.at(q+8));
@@ -952,7 +952,7 @@ void do_linesr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
-void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=point count
@@ -960,12 +960,12 @@ void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	//sdci[4] = colour
 	//sdci[5] = opacity
 
-	int col = sdci[4]/10000;
-	int op = sdci[5]/10000;
+	int32_t col = sdci[4]/10000;
+	int32_t op = sdci[5]/10000;
     
 	//bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
 	//Z_scripterrlog("Broken offset rule for Polygon() is: %s\n", brokenOffset ? "ON" : "OFF");
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
     
     if(!v_ptr)
     {
@@ -973,17 +973,17 @@ void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    std::vector<long> &v = *v_ptr;
+    std::vector<int32_t> &v = *v_ptr;
     
     if(v.empty())
         return;
         //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
-    long* pos = &v[0];
-    int sz = v.size();
+    int32_t* pos = &v[0];
+    int32_t sz = v.size();
     
     //Fix the draw Y offset. -Z 20th June, 2019
-    for ( int q = 1; q < sz; q+=2 )
+    for ( int32_t q = 1; q < sz; q+=2 )
     {
 	pos[q] += yoffset;    
 	    
@@ -994,12 +994,12 @@ void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	    }
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	    
-	    polygon(bmp, (sdci[2]/10000), (int*)pos, col);
+	    polygon(bmp, (sdci[2]/10000), (int32_t*)pos, col);
 	    //polygon(bmp, (sdci[2]/10000), &v, col);
 	    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
-void bmp_do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=point count
@@ -1007,8 +1007,8 @@ void bmp_do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	//sdci[4] = colour
 	//sdci[5] = opacity
 
-	int col = sdci[4]/10000;
-	int op = sdci[5]/10000;
+	int32_t col = sdci[4]/10000;
+	int32_t op = sdci[5]/10000;
 	
 	if ( sdci[17] <= 0 ) 
 	{
@@ -1020,7 +1020,7 @@ void bmp_do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
     
     if(!v_ptr)
     {
@@ -1028,17 +1028,17 @@ void bmp_do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    std::vector<long> &v = *v_ptr;
+    std::vector<int32_t> &v = *v_ptr;
     
     if(v.empty())
         return;
         //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
-    long* pos = &v[0];
-    int sz = v.size();
+    int32_t* pos = &v[0];
+    int32_t sz = v.size();
     
     //Fix the draw Y offset. -Z 20th June, 2019
-    for ( int q = 1; q < sz; q+=2 )
+    for ( int32_t q = 1; q < sz; q+=2 )
     {
 	pos[q] += yoffset;    
 	    
@@ -1049,16 +1049,16 @@ void bmp_do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	    }
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	    
-	    polygon(refbmp, (sdci[2]/10000), (int*)pos, col);
+	    polygon(refbmp, (sdci[2]/10000), (int32_t*)pos, col);
 	    //polygon(refbmp, (sdci[2]/10000), &v, col);
 	    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
-void do_spliner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_spliner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     /* layer, x1, y1, x2, y2, x3, y3, x4, y4, color, opacity */
     
-    int points[8] = {    xoffset + (sdci[2]/10000), yoffset + (sdci[3]/10000),
+    int32_t points[8] = {    xoffset + (sdci[2]/10000), yoffset + (sdci[3]/10000),
                          xoffset + (sdci[4]/10000), yoffset + (sdci[5]/10000),
                          xoffset + (sdci[6]/10000), yoffset + (sdci[7]/10000),
                          xoffset + (sdci[8]/10000), yoffset + (sdci[9]/10000)
@@ -1075,7 +1075,7 @@ void do_spliner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_putpixelr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -1085,9 +1085,9 @@ void do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[6]=rotation anchor y
     //sdci[7]=rotation angle
     //sdci[8]=opacity
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
-    int color=sdci[4]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
+    int32_t color=sdci[4]/10000;
     
     if(sdci[8]/10000<=127) //translucent
     {
@@ -1096,9 +1096,9 @@ void do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if(sdci[7]!=0) //rotation
     {
-        int xy[2];
-        int rx=sdci[5]/10000;
-        int ry=sdci[6]/10000;
+        int32_t xy[2];
+        int32_t rx=sdci[5]/10000;
+        int32_t ry=sdci[6]/10000;
         fixed ra1=itofix(sdci[7]%10000)/10000;
         fixed ra2=itofix(sdci[7]/10000);
         fixed ra=ra1+ra2;
@@ -1113,7 +1113,7 @@ void do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
-void do_putpixelsr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void do_putpixelsr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//Z_scripterrlog("Starting putpixels()%s\n");
     //sdci[1]=layer
@@ -1123,7 +1123,7 @@ void do_putpixelsr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[5]=rotation angle
 	
 	
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
     
     if(!v_ptr)
     {
@@ -1131,24 +1131,24 @@ void do_putpixelsr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    std::vector<long> &v = *v_ptr;
+    std::vector<int32_t> &v = *v_ptr;
     
     if(v.empty())
         return;
         //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
-    long* pos = &v[0];
-    int sz = v.size();
+    int32_t* pos = &v[0];
+    int32_t sz = v.size();
     //Z_scripterrlog("Vector size is: %d\n", sz);
-    //for ( int m = 0; m < 256; ++m ) Z_scripterrlog("Vector contents at pos[%d]: %d\n", m, pos[m]);
+    //for ( int32_t m = 0; m < 256; ++m ) Z_scripterrlog("Vector contents at pos[%d]: %d\n", m, pos[m]);
   
     //FFCore.getValues(sdci[2]/10000, points, sz);
     
     
-	int x1 = 0;
-	int y1 = 0;
+	int32_t x1 = 0;
+	int32_t y1 = 0;
     
-    for ( int q = 0; q < sz; q+=4 )
+    for ( int32_t q = 0; q < sz; q+=4 )
     {
 	    //Z_scripterrlog("Vector q: %d\n", q);
 	    //if ( q > sz-1 ) break;
@@ -1158,9 +1158,9 @@ void do_putpixelsr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	    //Z_scripterrlog("y1 is: %d\n", 1);
 	    if(sdci[5]!=0) //rotation
 	    {
-		int xy[2];
-		int rx=sdci[3]/10000;
-		int ry=sdci[4]/10000;
+		int32_t xy[2];
+		int32_t rx=sdci[3]/10000;
+		int32_t ry=sdci[4]/10000;
 		fixed ra1=itofix(sdci[5]%10000)/10000;
 		fixed ra2=itofix(sdci[5]/10000);
 		fixed ra=ra1+ra2;
@@ -1183,7 +1183,7 @@ void do_putpixelsr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
-void do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -1201,26 +1201,26 @@ void do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[14]=transparency
     //sdci[15]=opacity
     
-    int w = sdci[5]/10000;
-    int h = sdci[6]/10000;
+    int32_t w = sdci[5]/10000;
+    int32_t h = sdci[6]/10000;
     
     if(w < 1 || h < 1 || h > 20 || w > 20)
     {
         return;
     }
     
-    int xscale=sdci[8]/10000;
-    int yscale=sdci[9]/10000;
-    int rx = sdci[10]/10000;
-    int ry = sdci[11]/10000;
+    int32_t xscale=sdci[8]/10000;
+    int32_t yscale=sdci[9]/10000;
+    int32_t rx = sdci[10]/10000;
+    int32_t ry = sdci[11]/10000;
     float rotation=sdci[12]/10000;
-    int flip=(sdci[13]/10000)&3;
+    int32_t flip=(sdci[13]/10000)&3;
     bool transparency=sdci[14]!=0;
-    int opacity=sdci[15]/10000;
-    int color=sdci[7]/10000;
+    int32_t opacity=sdci[15]/10000;
+    int32_t color=sdci[7]/10000;
     
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
     
     //don't scale if it's not safe to do so
     bool canscale = true;
@@ -1251,7 +1251,7 @@ void do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
             //low negative values indicate no anchor-point rotation
             if(rx>-777||ry>-777)
             {
-                int xy[2];
+                int32_t xy[2];
                 fixed ra1=itofix(sdci[12]%10000)/10000;
                 fixed ra2=itofix(sdci[12]/10000);
                 fixed ra=ra1+ra2;
@@ -1346,7 +1346,7 @@ void do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
 }
 
-void do_drawtilecloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_drawtilecloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//sdci[1]=layer
 	//sdci[2]=x
@@ -1356,24 +1356,24 @@ void do_drawtilecloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//sdci[6]=tile height
 	//sdci[7]=flip
 	
-	int w = sdci[5]/10000;
-	int h = sdci[6]/10000;
+	int32_t w = sdci[5]/10000;
+	int32_t h = sdci[6]/10000;
 	
 	if(w < 1 || h < 1 || h > 20 || w > 20)
 	{
 		return;
 	}
 	
-	int flip=(sdci[7]/10000)&3;
+	int32_t flip=(sdci[7]/10000)&3;
 	
-	int x1=sdci[2]/10000;
-	int y1=sdci[3]/10000;
+	int32_t x1=sdci[2]/10000;
+	int32_t y1=sdci[3]/10000;
 	
 	TileHelper::OverTileCloaked(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, flip);
 }
 
 
-void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -1392,36 +1392,36 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[15]=transparency
     //sdci[16]=opacity
     
-    int w = sdci[5]/10000;
-    int h = sdci[6]/10000;
+    int32_t w = sdci[5]/10000;
+    int32_t h = sdci[6]/10000;
     
     if(w<1||h<1||h>20||w>20)
     {
         return;
     }
-    int cmb = (sdci[4]/10000);
+    int32_t cmb = (sdci[4]/10000);
 	if((unsigned)cmb >= MAXCOMBOS)
 	{
 		Z_scripterrlog("DrawCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
 		return;
 	}
 	
-    int xscale=sdci[8]/10000;
-    int yscale=sdci[9]/10000;
-    int rx = sdci[10]/10000; //these work now
-    int ry = sdci[11]/10000; //these work now
+    int32_t xscale=sdci[8]/10000;
+    int32_t yscale=sdci[9]/10000;
+    int32_t rx = sdci[10]/10000; //these work now
+    int32_t ry = sdci[11]/10000; //these work now
     float rotation=sdci[12]/10000;
     
     bool transparency=sdci[15]!=0;
-    int opacity=sdci[16]/10000;
-    int color=sdci[7]/10000;
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
+    int32_t opacity=sdci[16]/10000;
+    int32_t color=sdci[7]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
     
     const newcombo & c = combobuf[cmb];
-    int tiletodraw = combo_tile(c, x1, y1);
-    int flip = ((sdci[14]/10000) & 3) ^ c.flip;
-    int skiprows=c.skipanimy;
+    int32_t tiletodraw = combo_tile(c, x1, y1);
+    int32_t flip = ((sdci[14]/10000) & 3) ^ c.flip;
+    int32_t skiprows=c.skipanimy;
     
     
     //don't scale if it's not safe to do so
@@ -1453,7 +1453,7 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
             //fixed point sucks ;0
             if(rx>-777||ry>-777) //set the rotation anchor and rotate around that
             {
-                int xy[2];
+                int32_t xy[2];
                 fixed ra1=itofix(sdci[12]%10000)/10000;
                 fixed ra2=itofix(sdci[12]/10000);
                 fixed ra=ra1+ra2;
@@ -1546,7 +1546,7 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
 }
 
-void do_drawcombocloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//sdci[1]=layer
 	//sdci[2]=x
@@ -1556,37 +1556,37 @@ void do_drawcombocloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//sdci[6]=tile height
 	//sdci[7]=flip
 	
-	int w = sdci[5]/10000;
-	int h = sdci[6]/10000;
+	int32_t w = sdci[5]/10000;
+	int32_t h = sdci[6]/10000;
 	
 	if(w<1||h<1||h>20||w>20)
 	{
 		return;
 	}
-    int cmb = (sdci[4]/10000);
+    int32_t cmb = (sdci[4]/10000);
 	if((unsigned)cmb >= MAXCOMBOS)
 	{
 		Z_scripterrlog("DrawComboCloaked() cannot draw combo '%d', as it is out of bounds.\n", cmb);
 		return;
 	}
 	
-	int x1=sdci[2]/10000;
-	int y1=sdci[3]/10000;
+	int32_t x1=sdci[2]/10000;
+	int32_t y1=sdci[3]/10000;
 	
 	const newcombo & c = combobuf[cmb];
-	int tiletodraw = combo_tile(c, x1, y1);
-	int flip = ((sdci[7]/10000) & 3) ^ c.flip;
-	int skiprows=c.skipanimy;
+	int32_t tiletodraw = combo_tile(c, x1, y1);
+	int32_t flip = ((sdci[7]/10000) & 3) ^ c.flip;
+	int32_t skiprows=c.skipanimy;
 	
 	TileHelper::OverTileCloaked(bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, flip, skiprows);
 }
 
 
-void do_fasttiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     /* layer, x, y, tile, color opacity */
     
-    int opacity = sdci[6]/10000;
+    int32_t opacity = sdci[6]/10000;
     
     if(opacity < 128)
         overtiletranslucent16(bmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0, opacity);
@@ -1594,14 +1594,14 @@ void do_fasttiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         overtile16(bmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0);
 }
 
-void do_fasttilesr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void do_fasttilesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     /* layer, x, y, tile, color opacity */
     
     //sdci[1]=layer
     //sdci[2]=array {x,y,tile,colour,opacity}
     
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
     
     if(!v_ptr)
     {
@@ -1609,16 +1609,16 @@ void do_fasttilesr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    std::vector<long> &v = *v_ptr;
+    std::vector<int32_t> &v = *v_ptr;
     
     if(v.empty())
         return;
         //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
-    long* pos = &v[0];
-    int sz = v.size();
+    int32_t* pos = &v[0];
+    int32_t sz = v.size();
     
-    for ( int q = 0; q < sz; q+=5 )
+    for ( int32_t q = 0; q < sz; q+=5 )
     {
 	    
 	    if(v.at(q+4) < 128)
@@ -1630,15 +1630,15 @@ void do_fasttilesr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 
 
 
-void do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     /* layer, x, y, tile, color opacity */
     
-    int opacity = sdci[6] / 10000;
-    int x1 = sdci[2] / 10000;
-    int y1 = sdci[3] / 10000;
+    int32_t opacity = sdci[6] / 10000;
+    int32_t x1 = sdci[2] / 10000;
+    int32_t y1 = sdci[3] / 10000;
     
-    int cmb = (sdci[4]/10000);
+    int32_t cmb = (sdci[4]/10000);
 	if((unsigned)cmb >= MAXCOMBOS)
 	{
 		Z_scripterrlog("FastCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
@@ -1649,32 +1649,32 @@ void do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     const newcombo & c = combobuf[index];
     
     if(opacity < 128)
-        overtiletranslucent16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int)c.flip, opacity);
+        overtiletranslucent16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip, opacity);
     else
-        overtile16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int)c.flip);
+        overtile16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip);
 	*/
 	
 	if(opacity < 128)
 	{
-		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
+		//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
 		overcomboblocktranslucent(bmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1, 128);
 
 	}
 	else
 	{
-		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
+		//overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h)
 		overcomboblock(bmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1);
 	}
 }
 
-void do_fastcombosr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void do_fastcombosr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/* layer, x, y, combo, cset, opacity */
 	
 	//sdci[1]=layer
 	//sdci[2]=array {x,y,combo,cset,opacity}
 	
-	std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+	std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
 	
 	if(!v_ptr)
 	{
@@ -1682,15 +1682,15 @@ void do_fastcombosr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 		return;
 	}
 	
-	std::vector<long> &v = *v_ptr;
+	std::vector<int32_t> &v = *v_ptr;
 	
 	if(v.empty())
 		return;
 	
-	long* pos = &v[0];
-	int sz = v.size();
+	int32_t* pos = &v[0];
+	int32_t sz = v.size();
 	
-	for ( int q = 0; q < sz; q+=5 )
+	for ( int32_t q = 0; q < sz; q+=5 )
 	{
 		if((unsigned)(v.at(q+2)) >= MAXCOMBOS)
 		{
@@ -1699,13 +1699,13 @@ void do_fastcombosr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 		}
 		if(v.at(q+4) < 128)
 		{
-			//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
+			//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
 			overcomboblocktranslucent(bmp, xoffset+v.at(q), yoffset+v.at(q+1), v.at(q+2), v.at(q+3), 1, 1, 128);
 
 		}
 		else
 		{
-			//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
+			//overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h)
 			overcomboblock(bmp, xoffset+v.at(q), yoffset+v.at(q+1), v.at(q+2), v.at(q+3), 1, 1);
 		}
 	}
@@ -1714,7 +1714,7 @@ void do_fastcombosr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 
 
 
-void do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//broken 2.50.2 and earlier drawcharacter()
 	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
@@ -1730,15 +1730,15 @@ void do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		    //sdci[9]=char
 		    //sdci[10]=opacity
 		    
-		    int x=sdci[2]/10000;
-		    int y=sdci[3]/10000;
-		    int font_index=sdci[4]/10000;
-		    int color=sdci[5]/10000;
-		    int bg_color=sdci[6]/10000; //-1 = transparent
-		    int w=sdci[7]/10000;
-		    int h=sdci[8]/10000;
+		    int32_t x=sdci[2]/10000;
+		    int32_t y=sdci[3]/10000;
+		    int32_t font_index=sdci[4]/10000;
+		    int32_t color=sdci[5]/10000;
+		    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+		    int32_t w=sdci[7]/10000;
+		    int32_t h=sdci[8]/10000;
 		    char glyph=char(sdci[9]/10000);
-		    int opacity=sdci[10]/10000;
+		    int32_t opacity=sdci[10]/10000;
 		    
 		    //safe check
 		    if(bg_color < -1) bg_color = -1;
@@ -1813,15 +1813,15 @@ void do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		    //sdci[9]=char
 		    //sdci[10]=opacity
 		    
-		    int x=sdci[2]/10000;
-		    int y=sdci[3]/10000;
-		    int font_index=sdci[4]/10000;
-		    int color=sdci[5]/10000;
-		    int bg_color=sdci[6]/10000; //-1 = transparent
-		    int w=sdci[7]/10000;
-		    int h=sdci[8]/10000;
+		    int32_t x=sdci[2]/10000;
+		    int32_t y=sdci[3]/10000;
+		    int32_t font_index=sdci[4]/10000;
+		    int32_t color=sdci[5]/10000;
+		    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+		    int32_t w=sdci[7]/10000;
+		    int32_t h=sdci[8]/10000;
 		    char glyph=char(sdci[9]/10000);
-		    int opacity=sdci[10]/10000;
+		    int32_t opacity=sdci[10]/10000;
 		    
 		    //safe check
 		    if(bg_color < -1) bg_color = -1;
@@ -1886,7 +1886,7 @@ void do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//broken 2.50.2 and earlier drawinteger()
 	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
@@ -1903,16 +1903,16 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    //sdci[10]=num decimal places
 	    //sdci[11]=opacity
 	    
-	    int x=sdci[2]/10000;
-	    int y=sdci[3]/10000;
-	    int font_index=sdci[4]/10000;
-	    int color=sdci[5]/10000;
-	    int bg_color=sdci[6]/10000; //-1 = transparent
-	    int w=sdci[7]/10000;
-	    int h=sdci[8]/10000;
+	    int32_t x=sdci[2]/10000;
+	    int32_t y=sdci[3]/10000;
+	    int32_t font_index=sdci[4]/10000;
+	    int32_t color=sdci[5]/10000;
+	    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+	    int32_t w=sdci[7]/10000;
+	    int32_t h=sdci[8]/10000;
 	    //float number=static_cast<float>(sdci[9])/10000.0f;
-	    int decplace=sdci[10]/10000;
-	    int opacity=sdci[11]/10000;
+	    int32_t decplace=sdci[10]/10000;
+	    int32_t opacity=sdci[11]/10000;
 	    
 	    //safe check
 	    if(bg_color < -1) bg_color = -1;
@@ -2018,17 +2018,17 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    //sdci[10]=num decimal places
 	    //sdci[11]=opacity
 	    
-	    int x=sdci[2]/10000;
-	    int y=sdci[3]/10000;
-	    int font_index=sdci[4]/10000;
-	    int color=sdci[5]/10000;
-	    int bg_color=sdci[6]/10000; //-1 = transparent
-	    int w=sdci[7]/10000;
-	    int h=sdci[8]/10000;
+	    int32_t x=sdci[2]/10000;
+	    int32_t y=sdci[3]/10000;
+	    int32_t font_index=sdci[4]/10000;
+	    int32_t color=sdci[5]/10000;
+	    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+	    int32_t w=sdci[7]/10000;
+	    int32_t h=sdci[8]/10000;
 	    //float number=static_cast<float>(sdci[9])/10000.0f;
-		//int numberint = sdci[9]/10000;
-	    int decplace=sdci[10]/10000;
-	    int opacity=sdci[11]/10000;
+		//int32_t numberint = sdci[9]/10000;
+	    int32_t decplace=sdci[10]/10000;
+	    int32_t opacity=sdci[11]/10000;
 	    
 	    //safe check
 	    if(bg_color < -1) bg_color = -1;
@@ -2126,7 +2126,7 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void do_drawstringr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -2146,13 +2146,13 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    int x=sdci[2]/10000;
-    int y=sdci[3]/10000;
+    int32_t x=sdci[2]/10000;
+    int32_t y=sdci[3]/10000;
     FONT* font=get_zc_font(sdci[4]/10000);
-    int color=sdci[5]/10000;
-    int bg_color=sdci[6]/10000; //-1 = transparent
-    int format_type=sdci[7]/10000;
-    int opacity=sdci[9]/10000;
+    int32_t color=sdci[5]/10000;
+    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+    int32_t format_type=sdci[7]/10000;
+    int32_t opacity=sdci[9]/10000;
     //sdci[8] not needed :)
     
     //safe check
@@ -2160,7 +2160,7 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     if(opacity < 128)
     {
-        int width=zc_min(text_length(font, str->c_str()), 512);
+        int32_t width=zc_min(text_length(font, str->c_str()), 512);
         BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
         clear_bitmap(pbmp);
         textout_ex(pbmp, font, str->c_str(), 0, 0, color, bg_color);
@@ -2188,7 +2188,7 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     }
 }
 
-void do_drawstringr2(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void do_drawstringr2(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -2210,15 +2210,15 @@ void do_drawstringr2(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    int x=sdci[2]/10000;
-    int y=sdci[3]/10000;
+    int32_t x=sdci[2]/10000;
+    int32_t y=sdci[3]/10000;
     FONT* font=get_zc_font(sdci[4]/10000);
-    int color=sdci[5]/10000;
-    int bg_color=sdci[6]/10000; //-1 = transparent
-    int format_type=sdci[7]/10000;
-    int opacity=sdci[9]/10000;
-	int textstyle = sdci[10]/10000;
-	int shadow_color = sdci[11]/10000;
+    int32_t color=sdci[5]/10000;
+    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+    int32_t format_type=sdci[7]/10000;
+    int32_t opacity=sdci[9]/10000;
+	int32_t textstyle = sdci[10]/10000;
+	int32_t shadow_color = sdci[11]/10000;
     //sdci[8] not needed :)
     
     //safe check
@@ -2226,7 +2226,7 @@ void do_drawstringr2(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     if(opacity < 128)
     {
-        int width=zc_min(text_length(font, str->c_str()), 512);
+        int32_t width=zc_min(text_length(font, str->c_str()), 512);
         BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
         clear_bitmap(pbmp);
 		textout_styled_aligned_ex(pbmp, font, str->c_str(), 0, 0, textstyle, sstaLEFT, color, shadow_color, bg_color);
@@ -2245,7 +2245,7 @@ void do_drawstringr2(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 }
 
 
-void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x1
@@ -2263,20 +2263,20 @@ void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[14]=tile/combo
     //sdci[15]=polytype
     
-    int x1 = sdci[2]/10000;
-    int y1 = sdci[3]/10000;
-    int x2 = sdci[4]/10000;
-    int y2 = sdci[5]/10000;
-    int x3 = sdci[6]/10000;
-    int y3 = sdci[7]/10000;
-    int x4 = sdci[8]/10000;
-    int y4 = sdci[9]/10000;
-    int w = sdci[10]/10000;
-    int h = sdci[11]/10000;
-    int color = sdci[12]/10000;
-    int flip=(sdci[13]/10000)&3;
-    int tile = sdci[14]/10000;
-    int polytype = sdci[15]/10000;
+    int32_t x1 = sdci[2]/10000;
+    int32_t y1 = sdci[3]/10000;
+    int32_t x2 = sdci[4]/10000;
+    int32_t y2 = sdci[5]/10000;
+    int32_t x3 = sdci[6]/10000;
+    int32_t y3 = sdci[7]/10000;
+    int32_t x4 = sdci[8]/10000;
+    int32_t y4 = sdci[9]/10000;
+    int32_t w = sdci[10]/10000;
+    int32_t h = sdci[11]/10000;
+    int32_t color = sdci[12]/10000;
+    int32_t flip=(sdci[13]/10000)&3;
+    int32_t tile = sdci[14]/10000;
+    int32_t polytype = sdci[15]/10000;
     
     //todo: finish palette shading
     /*
@@ -2304,8 +2304,8 @@ void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         return; //non power of two error
     }
     
-    int tex_width = w*16;
-    int tex_height = h*16;
+    int32_t tex_width = w*16;
+    int32_t tex_height = h*16;
     
     BITMAP *tex;
     
@@ -2321,7 +2321,7 @@ void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         clear_bitmap(tex);
     }
     
-    int col[4];
+    int32_t col[4];
     /*
     if( color < 0 )
     {
@@ -2343,7 +2343,7 @@ void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     if ( tile < 0 )        // COMBO
     {
         const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-        const int tiletodraw = combo_tile(c, x1, y1);
+        const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
@@ -2362,7 +2362,7 @@ void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x1
@@ -2378,18 +2378,18 @@ void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[12]=tile/combo
     //sdci[13]=polytype
     
-    int x1 = sdci[2]/10000;
-    int y1 = sdci[3]/10000;
-    int x2 = sdci[4]/10000;
-    int y2 = sdci[5]/10000;
-    int x3 = sdci[6]/10000;
-    int y3 = sdci[7]/10000;
-    int w = sdci[8]/10000;
-    int h = sdci[9]/10000;
-    int color = sdci[10]/10000;
-    int flip=(sdci[11]/10000)&3;
-    int tile = sdci[12]/10000;
-    int polytype = sdci[13]/10000;
+    int32_t x1 = sdci[2]/10000;
+    int32_t y1 = sdci[3]/10000;
+    int32_t x2 = sdci[4]/10000;
+    int32_t y2 = sdci[5]/10000;
+    int32_t x3 = sdci[6]/10000;
+    int32_t y3 = sdci[7]/10000;
+    int32_t w = sdci[8]/10000;
+    int32_t h = sdci[9]/10000;
+    int32_t color = sdci[10]/10000;
+    int32_t flip=(sdci[11]/10000)&3;
+    int32_t tile = sdci[12]/10000;
+    int32_t polytype = sdci[13]/10000;
     
     polytype = vbound(polytype, 0, 14);
     
@@ -2399,8 +2399,8 @@ void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         return; //non power of two error
     }
     
-    int tex_width = w*16;
-    int tex_height = h*16;
+    int32_t tex_width = w*16;
+    int32_t tex_height = h*16;
     
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
@@ -2412,7 +2412,7 @@ void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         clear_bitmap(tex);
     }
     
-    int col[3];
+    int32_t col[3];
     /*
     if( color < 0 )
     {
@@ -2432,7 +2432,7 @@ void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     else        // COMBO
     {
         const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-        const int tiletodraw = combo_tile(c, x1, y1);
+        const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
@@ -2450,7 +2450,7 @@ void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_drawbitmapr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//sdci[1]=layer
 	//sdci[2]=bitmap
@@ -2465,15 +2465,15 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//sdci[11]=rotation
 	//sdci[12]=mask
 
-	int bitmapIndex = sdci[2]/10000;
-	int sx = sdci[3]/10000;
-	int sy = sdci[4]/10000;
-	int sw = sdci[5]/10000;
-	int sh = sdci[6]/10000;
-	int dx = sdci[7]/10000;
-	int dy = sdci[8]/10000;
-	int dw = sdci[9]/10000;
-	int dh = sdci[10]/10000;
+	int32_t bitmapIndex = sdci[2]/10000;
+	int32_t sx = sdci[3]/10000;
+	int32_t sy = sdci[4]/10000;
+	int32_t sw = sdci[5]/10000;
+	int32_t sh = sdci[6]/10000;
+	int32_t dx = sdci[7]/10000;
+	int32_t dy = sdci[8]/10000;
+	int32_t dw = sdci[9]/10000;
+	int32_t dh = sdci[10]/10000;
 	float rot = sdci[11]/10000;
 	bool masked = (sdci[12] != 0);
 
@@ -2606,7 +2606,7 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 
 //Draw]()
-void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/*
 	//sdci[1]=layer
@@ -2625,11 +2625,11 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//scdi[14] = effect flags
 	
 		
-		const int BITDX_NORMAL = 0;
-		const int BITDX_TRANS = 1; //Translucent
-		const int BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
-		const int BITDX_HFLIP = 4; //Horizontal Flip
-		const int BITDX_VFLIP = 8; //Vertical Flip.
+		const int32_t BITDX_NORMAL = 0;
+		const int32_t BITDX_TRANS = 1; //Translucent
+		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+		const int32_t BITDX_HFLIP = 4; //Horizontal Flip
+		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error
 		//	detailing this will be shown in allegro.log.
 		
@@ -2641,20 +2641,20 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	*/
 
-	int bitmapIndex = sdci[2]/10000;
-	int sx = sdci[3]/10000;
-	int sy = sdci[4]/10000;
-	int sw = sdci[5]/10000;
-	int sh = sdci[6]/10000;
-	int dx = sdci[7]/10000;
-	int dy = sdci[8]/10000;
-	int dw = sdci[9]/10000;
-	int dh = sdci[10]/10000;
+	int32_t bitmapIndex = sdci[2]/10000;
+	int32_t sx = sdci[3]/10000;
+	int32_t sy = sdci[4]/10000;
+	int32_t sw = sdci[5]/10000;
+	int32_t sh = sdci[6]/10000;
+	int32_t dx = sdci[7]/10000;
+	int32_t dy = sdci[8]/10000;
+	int32_t dw = sdci[9]/10000;
+	int32_t dh = sdci[10]/10000;
 	float rot = sdci[11]/10000;
-	int cx = sdci[12]/10000;
-	int cy = sdci[13]/10000;
-	int mode = sdci[14]/10000;
-	int litcolour = sdci[15]/10000;
+	int32_t cx = sdci[12]/10000;
+	int32_t cy = sdci[13]/10000;
+	int32_t mode = sdci[14]/10000;
+	int32_t litcolour = sdci[15]/10000;
 	bool masked = (sdci[16] != 0);
 	
 	
@@ -2830,7 +2830,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -2968,7 +2968,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -3108,7 +3108,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -3245,7 +3245,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -3391,7 +3391,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -3527,7 +3527,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -3669,7 +3669,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -3806,7 +3806,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -3831,7 +3831,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=pos[12]
@@ -3842,7 +3842,7 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[7]=tile/combo
     //sdci[8]=polytype
     
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
     
     if(!v_ptr)
     {
@@ -3850,21 +3850,21 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    std::vector<long> &v = *v_ptr;
+    std::vector<int32_t> &v = *v_ptr;
     
     if(v.empty())
         return;
         
-    long* pos = &v[0];
-    long* uv = &v[12];
-    long* col = &v[20];
-    long* size = &v[24];
+    int32_t* pos = &v[0];
+    int32_t* uv = &v[12];
+    int32_t* col = &v[20];
+    int32_t* size = &v[24];
     
-    int w = size[0]; //magic numerical constants... yuck.
-    int h = size[1];
-    int flip = (sdci[6]/10000)&3;
-    int tile = sdci[7]/10000;
-    int polytype = sdci[8]/10000;
+    int32_t w = size[0]; //magic numerical constants... yuck.
+    int32_t h = size[1];
+    int32_t flip = (sdci[6]/10000)&3;
+    int32_t tile = sdci[7]/10000;
+    int32_t polytype = sdci[8]/10000;
     
     polytype = vbound(polytype, 0, 14);
     
@@ -3874,8 +3874,8 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 		return; //non power of two error
 	}
     
-    int tex_width = w*16;
-    int tex_height = h*16;
+    int32_t tex_width = w*16;
+    int32_t tex_height = h*16;
     
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
@@ -3894,7 +3894,7 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     else        // COMBO
     {
         const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-        const int tiletodraw = combo_tile(c, 0, 0);
+        const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
         
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
@@ -3914,7 +3914,7 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 
 
 
-void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=pos[9]
@@ -3925,7 +3925,7 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[7]=tile/combo
     //sdci[8]=polytype
     
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
     
     if(!v_ptr)
     {
@@ -3933,21 +3933,21 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    std::vector<long> &v = *v_ptr;
+    std::vector<int32_t> &v = *v_ptr;
     
     if(v.empty())
         return;
         
-    long* pos = &v[0];
-    long* uv = &v[9];
-    long* col = &v[15];
-    long* size = &v[18];
+    int32_t* pos = &v[0];
+    int32_t* uv = &v[9];
+    int32_t* col = &v[15];
+    int32_t* size = &v[18];
     
-    int w = size[0]; //magic numerical constants... yuck.
-    int h = size[1];
-    int flip = (sdci[6]/10000)&3;
-    int tile = sdci[7]/10000;
-    int polytype = sdci[8]/10000;
+    int32_t w = size[0]; //magic numerical constants... yuck.
+    int32_t h = size[1];
+    int32_t flip = (sdci[6]/10000)&3;
+    int32_t tile = sdci[7]/10000;
+    int32_t polytype = sdci[8]/10000;
     
     polytype = vbound(polytype, 0, 14);
     
@@ -3957,8 +3957,8 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 		return; //non power of two error
 	}
     
-    int tex_width = w*16;
-    int tex_height = h*16;
+    int32_t tex_width = w*16;
+    int32_t tex_height = h*16;
     
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
@@ -3977,7 +3977,7 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     else        // COMBO
     {
         const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-        const int tiletodraw = combo_tile(c, 0, 0);
+        const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
         
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
@@ -3994,7 +3994,7 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         
 }
 
-void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//Z_scripterrlog("rect sdci[13] is: %d\n", sdci[13]);
     //sdci[1]=layer
@@ -4024,10 +4024,10 @@ void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
-    int x2=sdci[4]/10000;
-    int y2=sdci[5]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
+    int32_t x2=sdci[4]/10000;
+    int32_t y2=sdci[5]/10000;
     
     
     if(x1>x2)
@@ -4042,17 +4042,17 @@ void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if(sdci[7] != 10000)
     {
-        int w=x2-x1+1;
-        int h=y2-y1+1;
-        int w2=(w*sdci[7])/10000;
-        int h2=(h*sdci[7])/10000;
+        int32_t w=x2-x1+1;
+        int32_t h=y2-y1+1;
+        int32_t w2=(w*sdci[7])/10000;
+        int32_t h2=(h*sdci[7])/10000;
         x1=x1-((w2-w)/2);
         x2=x2+((w2-w)/2);
         y1=y1-((h2-h)/2);
         y2=y2+((h2-h)/2);
     }
     
-    int color=sdci[6]/10000;
+    int32_t color=sdci[6]/10000;
     
     if(sdci[12]/10000<=127) //translucent
     {
@@ -4072,9 +4072,9 @@ void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
     else  //rotate
     {
-        int xy[16];
-        int rx=sdci[8]/10000;
-        int ry=sdci[9]/10000;
+        int32_t xy[16];
+        int32_t rx=sdci[8]/10000;
+        int32_t ry=sdci[9]/10000;
         fixed ra1=itofix(sdci[10]%10000)/10000;
         fixed ra2=itofix(sdci[10]/10000);
         fixed ra=ra1+ra2;
@@ -4116,7 +4116,7 @@ void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
-void bmp_do_framer(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_framer(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -4138,13 +4138,13 @@ void bmp_do_framer(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 
-    int x=sdci[2]/10000;
-    int y=sdci[3]/10000;
+    int32_t x=sdci[2]/10000;
+    int32_t y=sdci[3]/10000;
     
-    int tile=sdci[4]/10000;
-    int cs=sdci[5]/10000;
-    int w=sdci[6]/10000;
-    int h=sdci[7]/10000;
+    int32_t tile=sdci[4]/10000;
+    int32_t cs=sdci[5]/10000;
+    int32_t w=sdci[6]/10000;
+    int32_t h=sdci[7]/10000;
     bool overlay=sdci[8];
     bool trans=(sdci[9]/10000<=127);
     
@@ -4152,7 +4152,7 @@ void bmp_do_framer(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_circler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -4180,8 +4180,8 @@ void bmp_do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
     qword r=sdci[4];
     
     if(sdci[6] != 10000)
@@ -4191,7 +4191,7 @@ void bmp_do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
     
     r/=10000;
-    int color=sdci[5]/10000;
+    int32_t color=sdci[5]/10000;
     
     if(sdci[11]/10000<=127) //translucent
     {
@@ -4200,9 +4200,9 @@ void bmp_do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if(sdci[9]!=0&&(sdci[2]!=sdci[7]||sdci[3]!=sdci[8])) //rotation
     {
-        int xy[2];
-        int rx=sdci[7]/10000;
-        int ry=sdci[8]/10000;
+        int32_t xy[2];
+        int32_t rx=sdci[7]/10000;
+        int32_t ry=sdci[8]/10000;
         fixed ra1=itofix(sdci[9]%10000)/10000;
         fixed ra2=itofix(sdci[9]/10000);
         fixed ra=ra1+ra2;
@@ -4227,7 +4227,7 @@ void bmp_do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -4259,8 +4259,8 @@ void bmp_do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
-    int cx=sdci[2]/10000;
-    int cy=sdci[3]/10000;
+    int32_t cx=sdci[2]/10000;
+    int32_t cy=sdci[3]/10000;
     qword r=sdci[4];
     
     if(sdci[8] != 10000)
@@ -4271,7 +4271,7 @@ void bmp_do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     r/=10000;
     
-    int color=sdci[7]/10000;
+    int32_t color=sdci[7]/10000;
     
     fixed ra1=itofix(sdci[11]%10000)/10000;
     fixed ra2=itofix(sdci[11]/10000);
@@ -4291,8 +4291,8 @@ void bmp_do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if(sdci[11]!=0) //rotation
     {
-        int rx=sdci[9]/10000;
-        int ry=sdci[10]/10000;
+        int32_t rx=sdci[9]/10000;
+        int32_t ry=sdci[10]/10000;
         
         cx=rx + fixtoi((fixcos(ra) * (cx - rx) - fixsin(ra) * (cy - ry)));     //x1
         cy=ry + fixtoi((fixsin(ra) * (cx - rx) + fixcos(ra) * (cy - ry)));     //y1
@@ -4300,15 +4300,15 @@ void bmp_do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         sa-=ra;
     }
     
-    int fx=cx+fixtoi(fixcos(-(ea+sa)/2)*r/2);
-    int fy=cy+fixtoi(fixsin(-(ea+sa)/2)*r/2);
+    int32_t fx=cx+fixtoi(fixcos(-(ea+sa)/2)*r/2);
+    int32_t fy=cy+fixtoi(fixsin(-(ea+sa)/2)*r/2);
     
     if(sdci[12]) //closed
     {
         if(sdci[13]) //filled
         {
             clear_bitmap(prim_bmp);
-            arc(prim_bmp, cx+xoffset, cy+yoffset, sa, ea, int(r), color);
+            arc(prim_bmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-sa)*r), cy+yoffset+fixtoi(fixsin(-sa)*r), color);
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-ea)*r), cy+yoffset+fixtoi(fixsin(-ea)*r), color);
             floodfill(prim_bmp, zc_max(0,fx)+xoffset, zc_max(0,fy)+yoffset, color);
@@ -4324,7 +4324,7 @@ void bmp_do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         }
         else
         {
-            arc(refbmp, cx+xoffset, cy+yoffset, sa, ea, int(r), color);
+            arc(refbmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
             line(refbmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-sa)*r), cy+yoffset+fixtoi(fixsin(-sa)*r), color);
             line(refbmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-ea)*r), cy+yoffset+fixtoi(fixsin(-ea)*r), color);
         }
@@ -4336,13 +4336,13 @@ void bmp_do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
             drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
         }
         
-        arc(refbmp, cx+xoffset, cy+yoffset, sa, ea, int(r), color);
+        arc(refbmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
         drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
     }
 }
 
 
-void bmp_do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_ellipser(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -4370,17 +4370,17 @@ void bmp_do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
-    int radx=sdci[4]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
+    int32_t radx=sdci[4]/10000;
     radx*=sdci[7]/10000;
-    int rady=sdci[5]/10000;
+    int32_t rady=sdci[5]/10000;
     rady*=sdci[7]/10000;
-    int color=sdci[6]/10000;
+    int32_t color=sdci[6]/10000;
     float rotation = sdci[10]/10000;
     
-    int rx=sdci[8]/10000;
-    int ry=sdci[9]/10000;
+    int32_t rx=sdci[8]/10000;
+    int32_t ry=sdci[9]/10000;
     fixed ra1=itofix(sdci[10]%10000)/10000;
     fixed ra2=itofix(sdci[10]/10000);
     fixed ra=ra1+ra2;
@@ -4388,7 +4388,7 @@ void bmp_do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
-    int xy[2];
+    int32_t xy[2];
     xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
     xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
     x1=xy[0];
@@ -4438,11 +4438,11 @@ void bmp_do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     if(color==0)
     {
         // This is very slow, so check the smallest possible square
-        int endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
-        int endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
+        int32_t endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
+        int32_t endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
         
-        for(int y=zc_max(0, y1-zc_max(radx, rady)); y<=endy; y++)
-            for(int x=zc_max(0, x1-zc_max(radx, rady)); x<=endx; x++)
+        for(int32_t y=zc_max(0, y1-zc_max(radx, rady)); y<=endy; y++)
+            for(int32_t x=zc_max(0, x1-zc_max(radx, rady)); x<=endx; x++)
                 if(getpixel(refbmp, x, y)==255)
                     putpixel(refbmp, x, y, 0);
     }
@@ -4451,7 +4451,7 @@ void bmp_do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_liner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -4479,24 +4479,24 @@ void bmp_do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
-    int x2=sdci[4]/10000;
-    int y2=sdci[5]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
+    int32_t x2=sdci[4]/10000;
+    int32_t y2=sdci[5]/10000;
     
     if(sdci[7] != 10000)
     {
-        int w=x2-x1+1;
-        int h=y2-y1+1;
-        int w2=int(w*((double)sdci[7]/10000.0));
-        int h2=int(h*((double)sdci[7]/10000.0));
+        int32_t w=x2-x1+1;
+        int32_t h=y2-y1+1;
+        int32_t w2=int32_t(w*((double)sdci[7]/10000.0));
+        int32_t h2=int32_t(h*((double)sdci[7]/10000.0));
         x1=x1-((w2-w)/2);
         x2=x2+((w2-w)/2);
         y1=y1-((h2-h)/2);
         y2=y2+((h2-h)/2);
     }
     
-    int color=sdci[6]/10000;
+    int32_t color=sdci[6]/10000;
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
@@ -4507,9 +4507,9 @@ void bmp_do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if(sdci[10]!=0) //rotation
     {
-        int xy[4];
-        int rx=sdci[8]/10000;
-        int ry=sdci[9]/10000;
+        int32_t xy[4];
+        int32_t rx=sdci[8]/10000;
+        int32_t ry=sdci[9]/10000;
         fixed ra1=itofix(sdci[10]%10000)/10000;
         fixed ra2=itofix(sdci[10]/10000);
         fixed ra=ra1+ra2;
@@ -4529,12 +4529,12 @@ void bmp_do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_spliner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_spliner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     /* layer, x1, y1, x2, y2, x3, y3, x4, y4, color, opacity */
 	//sdci[17] Bitmap Pointer
     
-    int points[8] = {    xoffset + (sdci[2]/10000), yoffset + (sdci[3]/10000),
+    int32_t points[8] = {    xoffset + (sdci[2]/10000), yoffset + (sdci[3]/10000),
                          xoffset + (sdci[4]/10000), yoffset + (sdci[5]/10000),
                          xoffset + (sdci[6]/10000), yoffset + (sdci[7]/10000),
                          xoffset + (sdci[8]/10000), yoffset + (sdci[9]/10000)
@@ -4562,7 +4562,7 @@ void bmp_do_spliner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_putpixelr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -4573,9 +4573,9 @@ void bmp_do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[7]=rotation angle
     //sdci[8]=opacity
 	//sdci[17] Bitmap Pointer
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
-    int color=sdci[4]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
+    int32_t color=sdci[4]/10000;
     
     if(sdci[8]/10000<=127) //translucent
     {
@@ -4595,9 +4595,9 @@ void bmp_do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if(sdci[7]!=0) //rotation
     {
-        int xy[2];
-        int rx=sdci[5]/10000;
-        int ry=sdci[6]/10000;
+        int32_t xy[2];
+        int32_t rx=sdci[5]/10000;
+        int32_t ry=sdci[6]/10000;
         fixed ra1=itofix(sdci[7]%10000)/10000;
         fixed ra2=itofix(sdci[7]/10000);
         fixed ra=ra1+ra2;
@@ -4613,7 +4613,7 @@ void bmp_do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -4632,8 +4632,8 @@ void bmp_do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[15]=opacity
 	//sdci[17] Bitmap Pointer
     
-    int w = sdci[5]/10000;
-    int h = sdci[6]/10000;
+    int32_t w = sdci[5]/10000;
+    int32_t h = sdci[6]/10000;
     
     if(w < 1 || h < 1 || h > 20 || w > 20)
     {
@@ -4649,18 +4649,18 @@ void bmp_do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
-    int xscale=sdci[8]/10000;
-    int yscale=sdci[9]/10000;
-    int rx = sdci[10]/10000;
-    int ry = sdci[11]/10000;
+    int32_t xscale=sdci[8]/10000;
+    int32_t yscale=sdci[9]/10000;
+    int32_t rx = sdci[10]/10000;
+    int32_t ry = sdci[11]/10000;
     float rotation=sdci[12]/10000;
-    int flip=(sdci[13]/10000)&3;
+    int32_t flip=(sdci[13]/10000)&3;
     bool transparency=sdci[14]!=0;
-    int opacity=sdci[15]/10000;
-    int color=sdci[7]/10000;
+    int32_t opacity=sdci[15]/10000;
+    int32_t color=sdci[7]/10000;
     
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
     
     
     //don't scale if it's not safe to do so
@@ -4694,7 +4694,7 @@ void bmp_do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
             //low negative values indicate no anchor-point rotation
             if(rx>-777||ry>-777)
             {
-                int xy[2];
+                int32_t xy[2];
                 fixed ra1=itofix(sdci[12]%10000)/10000;
                 fixed ra2=itofix(sdci[12]/10000);
                 fixed ra=ra1+ra2;
@@ -4789,7 +4789,7 @@ void bmp_do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
 }
 
-void bmp_do_drawtilecloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawtilecloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//sdci[1]=layer
 	//sdci[2]=x
@@ -4800,8 +4800,8 @@ void bmp_do_drawtilecloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//sdci[7]=flip
 	//sdci[17] Bitmap Pointer
 	
-	int w = sdci[5]/10000;
-	int h = sdci[6]/10000;
+	int32_t w = sdci[5]/10000;
+	int32_t h = sdci[6]/10000;
 	
 	if(w < 1 || h < 1 || h > 20 || w > 20)
 	{
@@ -4817,10 +4817,10 @@ void bmp_do_drawtilecloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 	
-	int flip=(sdci[7]/10000)&3;
+	int32_t flip=(sdci[7]/10000)&3;
 	
-	int x1=sdci[2]/10000;
-	int y1=sdci[3]/10000;
+	int32_t x1=sdci[2]/10000;
+	int32_t y1=sdci[3]/10000;
 		
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
@@ -4828,7 +4828,7 @@ void bmp_do_drawtilecloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -4847,8 +4847,8 @@ void bmp_do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[15]=transparency
     //sdci[16]=opacity
 	//sdci[17] Bitmap Pointer
-    int w = sdci[5]/10000;
-    int h = sdci[6]/10000;
+    int32_t w = sdci[5]/10000;
+    int32_t h = sdci[6]/10000;
     
     if(w<1||h<1||h>20||w>20)
     {
@@ -4863,29 +4863,29 @@ void bmp_do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
     if ( refbmp == NULL ) return;
-	int cmb = (sdci[4]/10000);
+	int32_t cmb = (sdci[4]/10000);
 	if((unsigned)cmb >= MAXCOMBOS)
 	{
 		Z_scripterrlog("DrawCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
 		return;
 	}
     
-    int xscale=sdci[8]/10000;
-    int yscale=sdci[9]/10000;
-    int rx = sdci[10]/10000; //these work now
-    int ry = sdci[11]/10000; //these work now
+    int32_t xscale=sdci[8]/10000;
+    int32_t yscale=sdci[9]/10000;
+    int32_t rx = sdci[10]/10000; //these work now
+    int32_t ry = sdci[11]/10000; //these work now
     float rotation=sdci[12]/10000;
     
     bool transparency=sdci[15]!=0;
-    int opacity=sdci[16]/10000;
-    int color=sdci[7]/10000;
-    int x1=sdci[2]/10000;
-    int y1=sdci[3]/10000;
+    int32_t opacity=sdci[16]/10000;
+    int32_t color=sdci[7]/10000;
+    int32_t x1=sdci[2]/10000;
+    int32_t y1=sdci[3]/10000;
     
     const newcombo & c = combobuf[cmb];
-    int tiletodraw = combo_tile(c, x1, y1);
-    int flip = ((sdci[14]/10000) & 3) ^ c.flip;
-    int skiprows=c.skipanimy;
+    int32_t tiletodraw = combo_tile(c, x1, y1);
+    int32_t flip = ((sdci[14]/10000) & 3) ^ c.flip;
+    int32_t skiprows=c.skipanimy;
     
     
     //don't scale if it's not safe to do so
@@ -4919,7 +4919,7 @@ void bmp_do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
             //fixed point sucks ;0
             if(rx>-777||ry>-777) //set the rotation anchor and rotate around that
             {
-                int xy[2];
+                int32_t xy[2];
                 fixed ra1=itofix(sdci[12]%10000)/10000;
                 fixed ra2=itofix(sdci[12]/10000);
                 fixed ra=ra1+ra2;
@@ -5013,7 +5013,7 @@ void bmp_do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_drawcombocloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//sdci[1]=layer
 	//sdci[2]=x
@@ -5024,8 +5024,8 @@ void bmp_do_drawcombocloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//sdci[7]=flip
 	//sdci[17] Bitmap Pointer
 	
-	int w = sdci[5]/10000;
-	int h = sdci[6]/10000;
+	int32_t w = sdci[5]/10000;
+	int32_t h = sdci[6]/10000;
 	
 	if(w<1||h<1||h>20||w>20)
 	{
@@ -5040,7 +5040,7 @@ void bmp_do_drawcombocloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	int cmb = (sdci[4]/10000);
+	int32_t cmb = (sdci[4]/10000);
 	if((unsigned)cmb >= MAXCOMBOS)
 	{
 		Z_scripterrlog("DrawComboCloaked() cannot draw combo '%d', as it is out of bounds.\n", cmb);
@@ -5049,24 +5049,24 @@ void bmp_do_drawcombocloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-	int x1=sdci[2]/10000;
-	int y1=sdci[3]/10000;
+	int32_t x1=sdci[2]/10000;
+	int32_t y1=sdci[3]/10000;
 	
 	const newcombo & c = combobuf[cmb];
-	int tiletodraw = combo_tile(c, x1, y1);
-	int flip = ((sdci[7]/10000) & 3) ^ c.flip;
-	int skiprows=c.skipanimy;
+	int32_t tiletodraw = combo_tile(c, x1, y1);
+	int32_t flip = ((sdci[7]/10000) & 3) ^ c.flip;
+	int32_t skiprows=c.skipanimy;
 	
 	TileHelper::OverTileCloaked(refbmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, flip, skiprows);
 }
 
 
-void bmp_do_fasttiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     /* layer, x, y, tile, color opacity */
 	//sdci[17] Bitmap Pointer
     
-    int opacity = sdci[6]/10000;
+    int32_t opacity = sdci[6]/10000;
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->FastTile() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
@@ -5083,7 +5083,7 @@ void bmp_do_fasttiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         overtile16(refbmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0);
 }
 
-void do_bmpwritetile(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_bmpwritetile(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/* layer, x, y, tile, is8bit, mask */
 	//sdci[17] Bitmap Pointer
@@ -5097,13 +5097,13 @@ void do_bmpwritetile(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-	int x = (sdci[2]/10000), y = (sdci[3]/10000), tl = (sdci[4]/10000);
+	int32_t x = (sdci[2]/10000), y = (sdci[3]/10000), tl = (sdci[4]/10000);
 	bool is8bit = sdci[5]!=0, mask = sdci[6]!=0;
 	
 	write_tile(newtilebuf, refbmp, tl, x+xoffset, y+yoffset, is8bit, mask);
 }
 
-void do_bmpdither(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_bmpdither(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/* layer, mask, color, ditherType, ditherArg */
 	//sdci[2] Mask Bitmap Pointer
@@ -5124,7 +5124,7 @@ void do_bmpdither(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	BITMAP *mask = FFCore.GetScriptBitmap(sdci[2]-10);
 	if ( mask == NULL ) return;
 	
-	int dType = sdci[4] / 10000L;
+	int32_t dType = sdci[4] / 10000L;
 	if(dType < 0 || dType >= dithMax)
 	{
 		Z_scripterrlog("bitmap->Dither() used an invalid dither type: %d. Aborting.\n", dType);
@@ -5134,7 +5134,7 @@ void do_bmpdither(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	ditherblit(refbmp, mask, byte(sdci[3]/10000L), dType, sdci[5]/10000L);
 }
 
-void do_bmpreplcol(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_bmpreplcol(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/* layer, shift, startcol, endcol */
 	//sdci[2] NewCol
@@ -5151,7 +5151,7 @@ void do_bmpreplcol(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	replColor(refbmp, sdci[2]/10000L, sdci[3]/10000L, sdci[4]/10000L, false);
 }
 
-void do_bmpshiftcol(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_bmpshiftcol(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/* layer, shift, startcol, endcol */
 	//sdci[2] ShiftAmount
@@ -5168,7 +5168,7 @@ void do_bmpshiftcol(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	replColor(refbmp, sdci[2]/10000L, sdci[3]/10000L, sdci[4]/10000L, true);
 }
 
-void do_bmpmaskdraw(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void do_bmpmaskdraw(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/* layer, mask, color */
 	//sdci[2] Mask Bitmap Pointer
@@ -5191,14 +5191,14 @@ void do_bmpmaskdraw(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	maskblit(refbmp, mask, byte(sdci[3]/10000L));
 }
 
-void bmp_do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     /* layer, x, y, tile, color opacity */
     //sdci[17] Bitmap Pointer
-    int opacity = sdci[6] / 10000;
-    int x1 = sdci[2] / 10000;
-    int y1 = sdci[3] / 10000;
-    int index = sdci[4]/10000;
+    int32_t opacity = sdci[6] / 10000;
+    int32_t x1 = sdci[2] / 10000;
+    int32_t y1 = sdci[3] / 10000;
+    int32_t index = sdci[4]/10000;
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->FastCombo() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
@@ -5206,7 +5206,7 @@ void bmp_do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	int cmb = (sdci[4]/10000);
+	int32_t cmb = (sdci[4]/10000);
 	if((unsigned)cmb >= MAXCOMBOS)
 	{
 		Z_scripterrlog("FastCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
@@ -5220,27 +5220,27 @@ void bmp_do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     const newcombo & c = combobuf[index];
     
     if(opacity < 128)
-        overtiletranslucent16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int)c.flip, opacity);
+        overtiletranslucent16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip, opacity);
     else
-        overtile16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int)c.flip);
+        overtile16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip);
 	*/
 	
 	if(opacity < 128)
 	{
-		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
+		//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
 		overcomboblocktranslucent(refbmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1, 128);
 
 	}
 	else
 	{
-		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
+		//overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h)
 		overcomboblock(refbmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1);
 	}
 }
 
 
 
-void bmp_do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//sdci[17] Bitmap Pointer
 	if ( sdci[17] <= 0 )
@@ -5268,15 +5268,15 @@ void bmp_do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		    //sdci[10]=opacity
 		//sdci[17] Bitmap Pointer
 		    
-		    int x=sdci[2]/10000;
-		    int y=sdci[3]/10000;
-		    int font_index=sdci[4]/10000;
-		    int color=sdci[5]/10000;
-		    int bg_color=sdci[6]/10000; //-1 = transparent
-		    int w=sdci[7]/10000;
-		    int h=sdci[8]/10000;
+		    int32_t x=sdci[2]/10000;
+		    int32_t y=sdci[3]/10000;
+		    int32_t font_index=sdci[4]/10000;
+		    int32_t color=sdci[5]/10000;
+		    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+		    int32_t w=sdci[7]/10000;
+		    int32_t h=sdci[8]/10000;
 		    char glyph=char(sdci[9]/10000);
-		    int opacity=sdci[10]/10000;
+		    int32_t opacity=sdci[10]/10000;
 		    
 		    //safe check
 		    if(bg_color < -1) bg_color = -1;
@@ -5351,15 +5351,15 @@ void bmp_do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		    //sdci[9]=char
 		    //sdci[10]=opacity
 		    
-		    int x=sdci[2]/10000;
-		    int y=sdci[3]/10000;
-		    int font_index=sdci[4]/10000;
-		    int color=sdci[5]/10000;
-		    int bg_color=sdci[6]/10000; //-1 = transparent
-		    int w=sdci[7]/10000;
-		    int h=sdci[8]/10000;
+		    int32_t x=sdci[2]/10000;
+		    int32_t y=sdci[3]/10000;
+		    int32_t font_index=sdci[4]/10000;
+		    int32_t color=sdci[5]/10000;
+		    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+		    int32_t w=sdci[7]/10000;
+		    int32_t h=sdci[8]/10000;
 		    char glyph=char(sdci[9]/10000);
-		    int opacity=sdci[10]/10000;
+		    int32_t opacity=sdci[10]/10000;
 		    
 		    //safe check
 		    if(bg_color < -1) bg_color = -1;
@@ -5424,7 +5424,7 @@ void bmp_do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	if ( sdci[17] <= 0 )
 	{
@@ -5452,16 +5452,16 @@ void bmp_do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    //sdci[11]=opacity
 		//sdci[17] Bitmap Pointer
 	    
-	    int x=sdci[2]/10000;
-	    int y=sdci[3]/10000;
-	    int font_index=sdci[4]/10000;
-	    int color=sdci[5]/10000;
-	    int bg_color=sdci[6]/10000; //-1 = transparent
-	    int w=sdci[7]/10000;
-	    int h=sdci[8]/10000;
+	    int32_t x=sdci[2]/10000;
+	    int32_t y=sdci[3]/10000;
+	    int32_t font_index=sdci[4]/10000;
+	    int32_t color=sdci[5]/10000;
+	    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+	    int32_t w=sdci[7]/10000;
+	    int32_t h=sdci[8]/10000;
 	    //float number=static_cast<float>(sdci[9])/10000.0f;
-	    int decplace=sdci[10]/10000;
-	    int opacity=sdci[11]/10000;
+	    int32_t decplace=sdci[10]/10000;
+	    int32_t opacity=sdci[11]/10000;
 	    
 	    //safe check
 	    if(bg_color < -1) bg_color = -1;
@@ -5567,17 +5567,17 @@ void bmp_do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    //sdci[10]=num decimal places
 	    //sdci[11]=opacity
 	    
-	    int x=sdci[2]/10000;
-	    int y=sdci[3]/10000;
-	    int font_index=sdci[4]/10000;
-	    int color=sdci[5]/10000;
-	    int bg_color=sdci[6]/10000; //-1 = transparent
-	    int w=sdci[7]/10000;
-	    int h=sdci[8]/10000;
+	    int32_t x=sdci[2]/10000;
+	    int32_t y=sdci[3]/10000;
+	    int32_t font_index=sdci[4]/10000;
+	    int32_t color=sdci[5]/10000;
+	    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+	    int32_t w=sdci[7]/10000;
+	    int32_t h=sdci[8]/10000;
 	    //float number=static_cast<float>(sdci[9])/10000.0f;
-		//int numberint = sdci[9]/10000;
-	    int decplace=sdci[10]/10000;
-	    int opacity=sdci[11]/10000;
+		//int32_t numberint = sdci[9]/10000;
+	    int32_t decplace=sdci[10]/10000;
+	    int32_t opacity=sdci[11]/10000;
 	    
 	    //safe check
 	    if(bg_color < -1) bg_color = -1;
@@ -5675,7 +5675,7 @@ void bmp_do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawstringr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -5706,13 +5706,13 @@ void bmp_do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    int x=sdci[2]/10000;
-    int y=sdci[3]/10000;
+    int32_t x=sdci[2]/10000;
+    int32_t y=sdci[3]/10000;
     FONT* font=get_zc_font(sdci[4]/10000);
-    int color=sdci[5]/10000;
-    int bg_color=sdci[6]/10000; //-1 = transparent
-    int format_type=sdci[7]/10000;
-    int opacity=sdci[9]/10000;
+    int32_t color=sdci[5]/10000;
+    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+    int32_t format_type=sdci[7]/10000;
+    int32_t opacity=sdci[9]/10000;
     //sdci[8] not needed :)
     
     //safe check
@@ -5720,7 +5720,7 @@ void bmp_do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     if(opacity < 128)
     {
-        int width=zc_min(text_length(font, str->c_str()), 512);
+        int32_t width=zc_min(text_length(font, str->c_str()), 512);
         BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
         clear_bitmap(pbmp);
         textout_ex(pbmp, font, str->c_str(), 0, 0, color, bg_color);
@@ -5748,7 +5748,7 @@ void bmp_do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     }
 }
 
-void bmp_do_drawstringr2(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawstringr2(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x
@@ -5781,15 +5781,15 @@ void bmp_do_drawstringr2(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset
         return;
     }
     
-    int x=sdci[2]/10000;
-    int y=sdci[3]/10000;
+    int32_t x=sdci[2]/10000;
+    int32_t y=sdci[3]/10000;
     FONT* font=get_zc_font(sdci[4]/10000);
-    int color=sdci[5]/10000;
-    int bg_color=sdci[6]/10000; //-1 = transparent
-    int format_type=sdci[7]/10000;
-    int opacity=sdci[9]/10000;
-	int textstyle = sdci[10]/10000;
-	int shadow_color = sdci[11]/10000;
+    int32_t color=sdci[5]/10000;
+    int32_t bg_color=sdci[6]/10000; //-1 = transparent
+    int32_t format_type=sdci[7]/10000;
+    int32_t opacity=sdci[9]/10000;
+	int32_t textstyle = sdci[10]/10000;
+	int32_t shadow_color = sdci[11]/10000;
     //sdci[8] not needed :)
     
     //safe check
@@ -5797,7 +5797,7 @@ void bmp_do_drawstringr2(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset
     
     if(opacity < 128)
     {
-        int width=zc_min(text_length(font, str->c_str()), 512);
+        int32_t width=zc_min(text_length(font, str->c_str()), 512);
         BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
         clear_bitmap(pbmp);
         textout_styled_aligned_ex(pbmp, font, str->c_str(), 0, 0, textstyle, sstaLEFT, color, shadow_color, bg_color);
@@ -5814,7 +5814,7 @@ void bmp_do_drawstringr2(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset
     }
 }
 
-void bmp_do_clearr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_clearr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
 	//sdci[17] Bitmap Pointer
@@ -5824,33 +5824,33 @@ void bmp_do_clearr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	Z_scripterrlog("bitmap->Clear() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-	int bitid = sdci[17] - 10; 
+	int32_t bitid = sdci[17] - 10; 
 	if ( scb.script_created_bitmaps[bitid].u_bmp )
 		clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
 }
 
-void bmp_do_clearcolorr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_clearcolorr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=color
 	//sdci[17] Bitmap Pointer
-	int pal_color = sdci[2]/10000;
+	int32_t pal_color = sdci[2]/10000;
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->ClearToColor() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-	int bitid = sdci[17] - 10; 
+	int32_t bitid = sdci[17] - 10; 
 	if ( scb.script_created_bitmaps[bitid].u_bmp )
 		clear_to_color(scb.script_created_bitmaps[bitid].u_bmp, pal_color);
 }
 
 
-void bmp_do_regenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_regenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
-	int h = sdci[3]/10000;
-	int w = sdci[2]/10000;
+	int32_t h = sdci[3]/10000;
+	int32_t w = sdci[2]/10000;
 	if ( get_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS) )
 	{
 		//flip height and width
@@ -5865,7 +5865,7 @@ void bmp_do_regenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	Z_scripterrlog("bitmap->Create() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-	int bitid = sdci[17] - 10; 
+	int32_t bitid = sdci[17] - 10; 
 	if ( scb.script_created_bitmaps[bitid].u_bmp )
 		destroy_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
 	scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,w,h);
@@ -5877,7 +5877,7 @@ void bmp_do_regenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
 }
 
-void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void bmp_do_readr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=filename
@@ -5895,7 +5895,7 @@ void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 		Z_scripterrlog("bitmap->Read() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 		return;
     }
-	int bitid = sdci[17] - 10; 
+	int32_t bitid = sdci[17] - 10; 
 	scb.script_created_bitmaps[bitid].destroy();
     
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
@@ -5940,7 +5940,7 @@ void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 
 
 
-void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void bmp_do_writer(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=filename
@@ -5959,7 +5959,7 @@ void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	Z_scripterrlog("bitmap->Write() wanted to use to an invalid bitmap id: %d. Aborting.\n",  sdci[17]);
 	return;
     }
-	int bitid = sdci[17] - 10; 
+	int32_t bitid = sdci[17] - 10; 
 	
     if ( !scb.script_created_bitmaps[bitid].u_bmp ) 
     {
@@ -6012,7 +6012,7 @@ void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x1
@@ -6041,21 +6041,21 @@ void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
 	if ( !refbmp ) return;
     
-    int x1 = sdci[2]/10000;
-    int y1 = sdci[3]/10000;
-    int x2 = sdci[4]/10000;
-    int y2 = sdci[5]/10000;
-    int x3 = sdci[6]/10000;
-    int y3 = sdci[7]/10000;
-    int x4 = sdci[8]/10000;
-    int y4 = sdci[9]/10000;
-    int w = sdci[10]/10000;
-    int h = sdci[11]/10000;
-    int color = sdci[12]/10000;
-    int flip=(sdci[13]/10000)&3;
-    int tile = sdci[14]/10000;
-    int polytype = sdci[15]/10000;
-    int quad_render_source = sdci[16]-10;
+    int32_t x1 = sdci[2]/10000;
+    int32_t y1 = sdci[3]/10000;
+    int32_t x2 = sdci[4]/10000;
+    int32_t y2 = sdci[5]/10000;
+    int32_t x3 = sdci[6]/10000;
+    int32_t y3 = sdci[7]/10000;
+    int32_t x4 = sdci[8]/10000;
+    int32_t y4 = sdci[9]/10000;
+    int32_t w = sdci[10]/10000;
+    int32_t h = sdci[11]/10000;
+    int32_t color = sdci[12]/10000;
+    int32_t flip=(sdci[13]/10000)&3;
+    int32_t tile = sdci[14]/10000;
+    int32_t polytype = sdci[15]/10000;
+    int32_t quad_render_source = sdci[16]-10;
     //Z_scripterrlog("bitmap->Quad() render source is: %d\n", quad_render_source);
     
     bool tex_is_bitmap = ( sdci[16] != 0 );
@@ -6064,7 +6064,7 @@ void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     BITMAP *tex=NULL;
     polytype = vbound(polytype, 0, 14);
 
-    int col[4];
+    int32_t col[4];
         col[0]=col[1]=col[2]=col[3]=color;
     bool mustDestroyBmp = false;
     
@@ -6114,7 +6114,7 @@ void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		if ( tile < 0 )        // COMBO
 		{
 			const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-			const int tiletodraw = combo_tile(c, x1, y1);
+			const int32_t tiletodraw = combo_tile(c, x1, y1);
 			flip = flip ^ c.flip;
 		
 			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
@@ -6162,7 +6162,7 @@ void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_getpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_getpixelr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x1
@@ -6180,9 +6180,9 @@ void bmp_do_getpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
-    int x1 = sdci[2]/10000;
-    int y1 = (sdci[3]/10000)+yoffset;
-    int col = getpixel(scb.script_created_bitmaps[(sdci[17]-10)].u_bmp, x1, y1);
+    int32_t x1 = sdci[2]/10000;
+    int32_t y1 = (sdci[3]/10000)+yoffset;
+    int32_t col = getpixel(scb.script_created_bitmaps[(sdci[17]-10)].u_bmp, x1, y1);
     Z_scripterrlog("bitmap->GetPixel col is %d\n",col);
     Z_scripterrlog("bitmap->GetPixel bitmap ptr is is %d\n",(sdci[17]-10));
     FFCore.set_sarg1(col);
@@ -6191,7 +6191,7 @@ void bmp_do_getpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 
 
-void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=x1
@@ -6216,7 +6216,7 @@ void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if ( refbmp == NULL ) return;
     
     
-    int render_source = sdci[14]-10;
+    int32_t render_source = sdci[14]-10;
     //Z_scripterrlog("bitmap->Triangle() render source is: %d\n", render_source);
     
     bool tex_is_bitmap = ( sdci[14] != 0 );
@@ -6234,26 +6234,26 @@ void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
-    int x1 = sdci[2]/10000;
-    int y1 = sdci[3]/10000;
-    int x2 = sdci[4]/10000;
-    int y2 = sdci[5]/10000;
-    int x3 = sdci[6]/10000;
-    int y3 = sdci[7]/10000;
-    int w = sdci[8]/10000;
-    int h = sdci[9]/10000;
-    int color = sdci[10]/10000;
-    int flip=(sdci[11]/10000)&3;
-    int tile = sdci[12]/10000;
-    int polytype = sdci[13]/10000;
+    int32_t x1 = sdci[2]/10000;
+    int32_t y1 = sdci[3]/10000;
+    int32_t x2 = sdci[4]/10000;
+    int32_t y2 = sdci[5]/10000;
+    int32_t x3 = sdci[6]/10000;
+    int32_t y3 = sdci[7]/10000;
+    int32_t w = sdci[8]/10000;
+    int32_t h = sdci[9]/10000;
+    int32_t color = sdci[10]/10000;
+    int32_t flip=(sdci[11]/10000)&3;
+    int32_t tile = sdci[12]/10000;
+    int32_t polytype = sdci[13]/10000;
     
     polytype = vbound(polytype, 0, 14);
-    int utex_w = w;
-    int utex_h = h;
+    int32_t utex_w = w;
+    int32_t utex_h = h;
     
     
-    int tex_width = w*16;
-    int tex_height = h*16;
+    int32_t tex_width = w*16;
+    int32_t tex_height = h*16;
     
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
@@ -6265,7 +6265,7 @@ void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         clear_bitmap(tex);
     }
     
-    int col[3];
+    int32_t col[3];
     /*
     if( color < 0 )
     {
@@ -6285,7 +6285,7 @@ void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     else        // COMBO
     {
         const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-        const int tiletodraw = combo_tile(c, x1, y1);
+        const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
@@ -6327,11 +6327,11 @@ void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/*
-	int layer, int rt, int srcX, int srcY, int srcW, int srcH, int destW, int destH, int angle, int cx, int cy, int space_z, int horizon, 
-	int scale_x, int scale_y){
+	int32_t layer, int32_t rt, int32_t srcX, int32_t srcY, int32_t srcW, int32_t srcH, int32_t destW, int32_t destH, int32_t angle, int32_t cx, int32_t cy, int32_t space_z, int32_t horizon, 
+	int32_t scale_x, int32_t scale_y){
 	
 	//sdci[1]=layer 
 	//sdci[2]=bitmap target 
@@ -6367,11 +6367,11 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	
 		// ZScript-side constant values:
-		const int BITDX_NORMAL = 0;
-		const int BITDX_TRANS = 1; //Translucent
-		const int BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
-		const int BITDX_HFLIP = 4; //Horizontal Flip
-		const int BITDX_VFLIP = 8; //Vertical Flip.
+		const int32_t BITDX_NORMAL = 0;
+		const int32_t BITDX_TRANS = 1; //Translucent
+		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+		const int32_t BITDX_HFLIP = 4; //Horizontal Flip
+		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error
 		//	detailing this will be shown in allegro.log.
 		
@@ -6384,8 +6384,8 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	*/
 	
 
-	int bitmapIndex = sdci[2];
-	int usr_bitmap_index = sdci[2]-10;
+	int32_t bitmapIndex = sdci[2];
+	int32_t usr_bitmap_index = sdci[2]-10;
 	byte using_user_bitmap = 0;
 	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
 	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
@@ -6394,7 +6394,7 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	#endif
 	if ( bitmapIndex >= 10000 )
 	{
-		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int> 8;
+		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int32_t> 8;
 	}
 	else if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
 	{
@@ -6404,21 +6404,21 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		yoffset = 0;
 	}
 	
-	//int sx = sdci[3]/10000;
-	//int sy = sdci[4]/10000;
-	//int sw = sdci[5]/10000;
+	//int32_t sx = sdci[3]/10000;
+	//int32_t sy = sdci[4]/10000;
+	//int32_t sw = sdci[5]/10000;
 	//Z_scripterrlog("sh is: %d\n",sdci[5]/10000);
-	//int sh = sdci[6]/10000;
+	//int32_t sh = sdci[6]/10000;
 	//Z_scripterrlog("sh is: %d\n",sdci[6]/10000);
-	//int dx = sdci[7]/10000;
-	//int dy = sdci[8]/10000;
-	//int dw = sdci[9]/10000;
-	//int dh = sdci[10]/10000;
+	//int32_t dx = sdci[7]/10000;
+	//int32_t dy = sdci[8]/10000;
+	//int32_t dw = sdci[9]/10000;
+	//int32_t dh = sdci[10]/10000;
 	//float rot = sdci[11]/10000;
-	//int cx = sdci[12]/10000;
-	//int cy = sdci[13]/10000;
-	//int mode = sdci[14]/10000;
-	//int litcolour = sdci[15]/10000;
+	//int32_t cx = sdci[12]/10000;
+	//int32_t cy = sdci[13]/10000;
+	//int32_t mode = sdci[14]/10000;
+	//int32_t litcolour = sdci[15]/10000;
 	
 	//rendering mode 7 args
 	double srcX = sdci[3]/10000.0;
@@ -6427,13 +6427,13 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	double destY = sdci[6]/10000.0;
 	
 	
-//	int srcW = sdci[5]/10000; 
-//	int srcH = sdci[6]/10000; 
+//	int32_t srcW = sdci[5]/10000; 
+//	int32_t srcH = sdci[6]/10000; 
 	double destW = sdci[7]/10000.0;
 	double destH = sdci[8]/10000.0;
-//	int angle = sdci[9]/10000; 
-//	int cx = sdci[10]/10000;
-//	int cy = sdci[11]/10000;
+//	int32_t angle = sdci[9]/10000; 
+//	int32_t cx = sdci[10]/10000;
+//	int32_t cy = sdci[11]/10000;
 	double space_z = sdci[9]/10000.0;
 	double horizon = sdci[10]/10000.0;
 	double scale_x = sdci[11]/10000.0;
@@ -6441,7 +6441,7 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	byte masked = ( sdci[13] ) ? 1 : 0;
 	
 	
-	int ref = 0;
+	int32_t ref = 0;
 	
 	//dx = 0 + xoffset;
 	//dy = 0 + yoffset;
@@ -6478,7 +6478,7 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	{
 		case -2:
 		{
-			int curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
+			int32_t curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
 			//zprint2("current RT is: %d\n", curr_rt);
 			if ( curr_rt >= 0 && curr_rt < 7 ) 
 				destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); //Drawing to the current RenderTarget.
@@ -6596,15 +6596,15 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//dx = dx + xoffset; //don't do this here!
 	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
 	//All of these are a factor of 10000 as fix. 
-	int screen_x = 0; int screen_y = 0;
+	int32_t screen_x = 0; int32_t screen_y = 0;
 	
 	double distance = 0; double horizontal_scale = 0;
 	
-	int screen_y_horizon = 0;
+	int32_t screen_y_horizon = 0;
 	
 	double line_dx = 0; double line_dy = 0;
 	
-	int space_x = 0; int space_y = 0;
+	int32_t space_x = 0; int32_t space_y = 0;
 	
 	for(screen_y = 0; screen_y < destH; screen_y++) //fix, offset by .0000
 	{
@@ -6626,14 +6626,14 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		space_y = srcY - distance + destH/2.0 * line_dy;
 		
 		//Keep blits within the bounds of both bitmaps to avoid crashes
-		int y1 = srcY+space_y;
-		int y2 = destY+screen_y;
+		int32_t y1 = srcY+space_y;
+		int32_t y2 = destY+screen_y;
 		if(y1 >=0 && y1 <= (sourceBitmap->h-1) && y2 >=0 && y2 <= (destBMP->h-1) )
 		{
-			if ( masked ) masked_stretch_blit(sourceBitmap, destBMP, (int)(srcX+space_x), (int)(srcY+space_y), 
-				(int)(line_dx*destW), 1, (int)(screen_x), (int)(screen_y)+yoffset, (int)(destW), 1);
-			else stretch_blit(sourceBitmap, destBMP, (int)(srcX+space_x), (int)(srcY+space_y), 
-				(int)(line_dx*destW), 1, (int)(screen_x), (int)(screen_y)+yoffset, (int)(destW), 1);
+			if ( masked ) masked_stretch_blit(sourceBitmap, destBMP, (int32_t)(srcX+space_x), (int32_t)(srcY+space_y), 
+				(int32_t)(line_dx*destW), 1, (int32_t)(screen_x), (int32_t)(screen_y)+yoffset, (int32_t)(destW), 1);
+			else stretch_blit(sourceBitmap, destBMP, (int32_t)(srcX+space_x), (int32_t)(srcY+space_y), 
+				(int32_t)(line_dx*destW), 1, (int32_t)(screen_x), (int32_t)(screen_y)+yoffset, (int32_t)(destW), 1);
 		}
 	}
 	
@@ -6648,7 +6648,7 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 
 //Draw]()
-void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/*
 	//sdci[1]=layer 
@@ -6680,11 +6680,11 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//sdci[17] Bitmap Pointer
 	
 		// ZScript-side constant values:
-		const int BITDX_NORMAL = 0;
-		const int BITDX_TRANS = 1; //Translucent
-		const int BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
-		const int BITDX_HFLIP = 4; //Horizontal Flip
-		const int BITDX_VFLIP = 8; //Vertical Flip.
+		const int32_t BITDX_NORMAL = 0;
+		const int32_t BITDX_TRANS = 1; //Translucent
+		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+		const int32_t BITDX_HFLIP = 4; //Horizontal Flip
+		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error
 		//	detailing this will be shown in allegro.log.
 		
@@ -6696,8 +6696,8 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	*/
 	
-	int bitmapIndex = sdci[2]/10000;
-	int usr_bitmap_index = sdci[2]-10;
+	int32_t bitmapIndex = sdci[2]/10000;
+	int32_t usr_bitmap_index = sdci[2]-10;
 	byte using_user_bitmap = 0;
 	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
 	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
@@ -6706,7 +6706,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	#endif
 	if ( bitmapIndex > 10000 )
 	{
-		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int> 8;
+		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int32_t> 8;
 	}
 	if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
 	{
@@ -6715,24 +6715,24 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		yoffset = 0;
 	}
 	
-	int sx = sdci[3]/10000;
-	int sy = sdci[4]/10000;
-	int sw = sdci[5]/10000;
+	int32_t sx = sdci[3]/10000;
+	int32_t sy = sdci[4]/10000;
+	int32_t sw = sdci[5]/10000;
 	//Z_scripterrlog("sh is: %d\n",sdci[5]/10000);
-	int sh = sdci[6]/10000;
+	int32_t sh = sdci[6]/10000;
 	//Z_scripterrlog("sh is: %d\n",sdci[6]/10000);
-	int dx = sdci[7]/10000;
-	int dy = sdci[8]/10000;
-	int dw = sdci[9]/10000;
-	int dh = sdci[10]/10000;
+	int32_t dx = sdci[7]/10000;
+	int32_t dy = sdci[8]/10000;
+	int32_t dw = sdci[9]/10000;
+	int32_t dh = sdci[10]/10000;
 	float rot = sdci[11]/10000;
-	int cx = sdci[12]/10000;
-	int cy = sdci[13]/10000;
-	int mode = sdci[14]/10000;
-	int litcolour = sdci[15]/10000;
+	int32_t cx = sdci[12]/10000;
+	int32_t cy = sdci[13]/10000;
+	int32_t mode = sdci[14]/10000;
+	int32_t litcolour = sdci[15]/10000;
 	bool masked = (sdci[16] != 0);
 	
-	int ref = 0;
+	int32_t ref = 0;
 	
 	dx = dx + xoffset;
 	dy = dy + yoffset;
@@ -6770,7 +6770,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	{
 		case -2:
 		{
-			int curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
+			int32_t curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
 			//zprint2("current RT is: %d\n", curr_rt);
 			if ( curr_rt >= 0 && curr_rt < 7 ) 
 				destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); //Drawing to the current RenderTarget.
@@ -7015,7 +7015,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -7154,7 +7154,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -7298,7 +7298,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -7436,7 +7436,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -7583,7 +7583,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -7720,7 +7720,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -7863,7 +7863,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -8001,7 +8001,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -8029,7 +8029,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 
 
-void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/*
 	//sdci[1]=layer 
@@ -8061,11 +8061,11 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//sdci[17] Bitmap Pointer
 	
 		// ZScript-side constant values:
-		const int BITDX_NORMAL = 0;
-		const int BITDX_TRANS = 1; //Translucent
-		const int BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
-		const int BITDX_HFLIP = 4; //Horizontal Flip
-		const int BITDX_VFLIP = 8; //Vertical Flip.
+		const int32_t BITDX_NORMAL = 0;
+		const int32_t BITDX_TRANS = 1; //Translucent
+		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+		const int32_t BITDX_HFLIP = 4; //Horizontal Flip
+		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error
 		//	detailing this will be shown in allegro.log.
 		
@@ -8077,9 +8077,9 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	*/
 	
-	int srcyoffset = yoffset, srcxoffset = xoffset;
-	int bitmapIndex = sdci[2]/10000;
-	int usr_bitmap_index = sdci[2]-10;
+	int32_t srcyoffset = yoffset, srcxoffset = xoffset;
+	int32_t bitmapIndex = sdci[2]/10000;
+	int32_t usr_bitmap_index = sdci[2]-10;
 	byte using_user_bitmap = 0;
 	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
 	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
@@ -8088,7 +8088,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	#endif
 	if ( bitmapIndex > 10000 )
 	{
-		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int> 8;
+		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int32_t> 8;
 	}
 	if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
 	{
@@ -8097,24 +8097,24 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		srcyoffset = 0;
 	}
 	
-	int sx = sdci[3]/10000;
-	int sy = sdci[4]/10000;
-	int sw = sdci[5]/10000;
+	int32_t sx = sdci[3]/10000;
+	int32_t sy = sdci[4]/10000;
+	int32_t sw = sdci[5]/10000;
 	//Z_scripterrlog("sh is: %d\n",sdci[5]/10000);
-	int sh = sdci[6]/10000;
+	int32_t sh = sdci[6]/10000;
 	//Z_scripterrlog("sh is: %d\n",sdci[6]/10000);
-	int dx = sdci[7]/10000;
-	int dy = sdci[8]/10000;
-	int dw = sdci[9]/10000;
-	int dh = sdci[10]/10000;
+	int32_t dx = sdci[7]/10000;
+	int32_t dy = sdci[8]/10000;
+	int32_t dw = sdci[9]/10000;
+	int32_t dh = sdci[10]/10000;
 	float rot = sdci[11]/10000;
-	int cx = sdci[12]/10000;
-	int cy = sdci[13]/10000;
-	int mode = sdci[14]/10000;
-	int litcolour = sdci[15]/10000;
+	int32_t cx = sdci[12]/10000;
+	int32_t cy = sdci[13]/10000;
+	int32_t mode = sdci[14]/10000;
+	int32_t litcolour = sdci[15]/10000;
 	bool masked = (sdci[16] != 0);
 	
-	int ref = 0;
+	int32_t ref = 0;
 	
 	//These should go down farther, should they not? -V
 	//dx = dx + xoffset;
@@ -8158,7 +8158,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	{
 		case -2:
 		{
-			int curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
+			int32_t curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
 			//zprint2("current RT is: %d\n", curr_rt);
 			if ( curr_rt >= 0 && curr_rt < 7 ) 
 				destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); //Drawing to the current RenderTarget.
@@ -8403,7 +8403,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -8541,7 +8541,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -8684,7 +8684,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -8821,7 +8821,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -8967,7 +8967,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -9103,7 +9103,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -9245,7 +9245,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -9382,7 +9382,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 					case 32: //gouraud
 						//Probably not wort supporting. 
 					//blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
-					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
@@ -9408,7 +9408,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	
     //sdci[1]=layer
@@ -9429,7 +9429,7 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
     
     if(!v_ptr)
     {
@@ -9437,28 +9437,28 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         return;
     }
     
-    std::vector<long> &v = *v_ptr;
+    std::vector<int32_t> &v = *v_ptr;
     
     if(v.empty())
         return;
         
-    long* pos = &v[0];
-    long* uv = &v[12];
-    long* col = &v[20];
-    long* size = &v[24];
+    int32_t* pos = &v[0];
+    int32_t* uv = &v[12];
+    int32_t* col = &v[20];
+    int32_t* size = &v[24];
     
-    int w = size[0]; //magic numerical constants... yuck.
-    int h = size[1];
-    int flip = (sdci[6]/10000)&3;
-    int tile = sdci[7]/10000;
-    int polytype = sdci[8]/10000;
-    int quad_render_source = sdci[9]-10;
+    int32_t w = size[0]; //magic numerical constants... yuck.
+    int32_t h = size[1];
+    int32_t flip = (sdci[6]/10000)&3;
+    int32_t tile = sdci[7]/10000;
+    int32_t polytype = sdci[8]/10000;
+    int32_t quad_render_source = sdci[9]-10;
     Z_scripterrlog("Quad3D texture is %d\n", quad_render_source);
     
     polytype = vbound(polytype, 0, 14);
     
-    int tex_width = w*16;
-    int tex_height = h*16;
+    int32_t tex_width = w*16;
+    int32_t tex_height = h*16;
     
     bool mustDestroyBmp = false;
     BITMAP *tex=NULL; 
@@ -9496,7 +9496,7 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	    else        // COMBO
 	    {
 		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-		const int tiletodraw = combo_tile(c, 0, 0);
+		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
 		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
@@ -9544,7 +9544,7 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 
 
 
-void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void bmp_do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=pos[9]
@@ -9564,7 +9564,7 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoff
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
     
     if(!v_ptr)
     {
@@ -9572,22 +9572,22 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoff
         return;
     }
     
-    std::vector<long> &v = *v_ptr;
+    std::vector<int32_t> &v = *v_ptr;
     
     if(v.empty())
         return;
         
-    long* pos = &v[0];
-    long* uv = &v[9];
-    long* col = &v[15];
-    long* size = &v[18];
+    int32_t* pos = &v[0];
+    int32_t* uv = &v[9];
+    int32_t* col = &v[15];
+    int32_t* size = &v[18];
     
-    int w = size[0]; //magic numerical constants... yuck.
-    int h = size[1];
-    int flip = (sdci[6]/10000)&3;
-    int tile = sdci[7]/10000;
-    int polytype = sdci[8]/10000;
-    int quad_render_source = sdci[9]-10;
+    int32_t w = size[0]; //magic numerical constants... yuck.
+    int32_t h = size[1];
+    int32_t flip = (sdci[6]/10000)&3;
+    int32_t tile = sdci[7]/10000;
+    int32_t polytype = sdci[8]/10000;
+    int32_t quad_render_source = sdci[9]-10;
     polytype = vbound(polytype, 0, 14);
     
 	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
@@ -9596,8 +9596,8 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoff
 		return; //non power of two error
 	}
     
-    int tex_width = w*16;
-    int tex_height = h*16;
+    int32_t tex_width = w*16;
+    int32_t tex_height = h*16;
     
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
@@ -9630,7 +9630,7 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoff
 	    else        // COMBO
 	    {
 		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-		const int tiletodraw = combo_tile(c, 0, 0);
+		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
 		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
@@ -9663,18 +9663,18 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoff
 }
 
 
-bool is_layer_transparent(const mapscr& m, int layer)
+bool is_layer_transparent(const mapscr& m, int32_t layer)
 {
     layer = vbound(layer, 0, 5);
     return m.layeropacity[layer] == 128;
 }
 
-mapscr *getmapscreen(int map_index, int screen_index, int layer)   //returns NULL for invalid or non-existent layer
+mapscr *getmapscreen(int32_t map_index, int32_t screen_index, int32_t layer)   //returns NULL for invalid or non-existent layer
 {
     mapscr *base_screen;
-    int index = map_index*MAPSCRS+screen_index;
+    int32_t index = map_index*MAPSCRS+screen_index;
     
-    if((unsigned int)layer > 6 || (unsigned int)index >= TheMaps.size())
+    if((uint32_t)layer > 6 || (uint32_t)index >= TheMaps.size())
         return NULL;
         
     if(layer != 0)
@@ -9688,63 +9688,63 @@ mapscr *getmapscreen(int map_index, int screen_index, int layer)   //returns NUL
             
         index=(base_screen->layermap[layer]-1)*MAPSCRS+base_screen->layerscreen[layer];
         
-        if((unsigned int)index >= TheMaps.size())   // Might as well make sure
+        if((uint32_t)index >= TheMaps.size())   // Might as well make sure
             return NULL;
     }
     
     return &(TheMaps[index]);
 }
 
-void draw_mapscr(BITMAP *b, const mapscr& m, int x, int y, bool transparent)
+void draw_mapscr(BITMAP *b, const mapscr& m, int32_t x, int32_t y, bool transparent)
 {
-    for(int i(0); i < 176; ++i)
+    for(int32_t i(0); i < 176; ++i)
     {
-        const int x2 = ((i&15)<<4) + x;
-        const int y2 = (i&0xF0) + y;
+        const int32_t x2 = ((i&15)<<4) + x;
+        const int32_t y2 = (i&0xF0) + y;
         
         //const newcombo & c = combobuf[ m.data[i] ];
 	    
 	/*
 	newcombo c = combobuf[m.data[i]];
-	int csets[4];
-        int cofs = c.csets&15;
+	int32_t csets[4];
+        int32_t cofs = c.csets&15;
         
         if(cofs&8)
-            cofs |= ~int(0xF);
+            cofs |= ~int32_t(0xF);
             
-        for(int i=0; i<4; ++i)
+        for(int32_t i=0; i<4; ++i)
             csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
 	
 	
-        const int tile = combo_tile(c, x2, y2);
+        const int32_t tile = combo_tile(c, x2, y2);
 	    */
         
         if(transparent)
 	{
-		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
+		//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
 		overcomboblocktranslucent(b, x2, y2, m.data[i], m.cset[i], 1, 1, 128);
 
             //overtiletranslucent16(b, tile, x2, y2, m.cset[i], c.flip, 128);
 	}
         else
 	{
-		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
+		//overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h)
 		overcomboblock(b, x2, y2, m.data[i], m.cset[i], 1, 1);
             //overtile16(b, tile, x2, y2, m.cset[i], c.flip);
 	}
     }
 }
 
-void draw_map_solidity(BITMAP *b, const mapscr& m, int x, int y)
+void draw_map_solidity(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
     BITMAP* square = create_bitmap_ex(8,16,16);
     
-    for(int i(0); i < 176; ++i)
+    for(int32_t i(0); i < 176; ++i)
     {
-        const int x2 = ((i&15)<<4) + x;
-        const int y2 = (i&0xF0) + y;
+        const int32_t x2 = ((i&15)<<4) + x;
+        const int32_t y2 = (i&0xF0) + y;
 	//Blit the palette index of the solidity value.
-	//int col = (combobuf[m.data[i]].walk&15);
+	//int32_t col = (combobuf[m.data[i]].walk&15);
 	//if ( col != 0 ) 
 	//{
 	//	Z_scripterrlog("Position %d has a solidity value of %d.\n", i, col);
@@ -9758,7 +9758,7 @@ void draw_map_solidity(BITMAP *b, const mapscr& m, int x, int y)
     destroy_bitmap(square);
 }
 
-void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -9773,15 +9773,15 @@ void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int x = sdci[4]/10000;
-    int y = sdci[5]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[6]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t x = sdci[4]/10000;
+    int32_t y = sdci[5]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[6]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     
     if(index >= TheMaps.size())
     {
@@ -9801,11 +9801,11 @@ void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
     //draw layer 0
     draw_map_solidity(b, m, x1, y1);
     
-    for(int i(0); i < 6; ++i)
+    for(int32_t i(0); i < 6; ++i)
     {
         if(m.layermap[i] == 0) continue;
         
-        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
         
         if(layer_screen_index >= TheMaps.size())
             continue;
@@ -9821,25 +9821,25 @@ void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
     }
 }
 
-void draw_map_solid(BITMAP *b, const mapscr& m, int x, int y)
+void draw_map_solid(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
     BITMAP* square = create_bitmap_ex(8,16,16);
     BITMAP* subsquare = create_bitmap_ex(8,16,16);
 	clear_to_color(subsquare,1);
     
-    for(int i(0); i < 176; ++i)
+    for(int32_t i(0); i < 176; ++i)
     {
-        const int x2 = ((i&15)<<4) + x;
-        const int y2 = (i&0xF0) + y;
+        const int32_t x2 = ((i&15)<<4) + x;
+        const int32_t y2 = (i&0xF0) + y;
 	//Blit the palette index of the solidity value.
-	//int col = (combobuf[m.data[i]].walk&15);
+	//int32_t col = (combobuf[m.data[i]].walk&15);
 	//if ( col != 0 ) 
 	//{
 	//	Z_scripterrlog("Position %d has a solidity value of %d.\n", i, col);
 	//	
 	//}
 	clear_bitmap(square);
-	int sol = (combobuf[m.data[i]].walk);
+	int32_t sol = (combobuf[m.data[i]].walk);
 	//al_trace("Solidity is: %d.\n", sol);
 	if ( sol & 1 )
 	{
@@ -9865,7 +9865,7 @@ void draw_map_solid(BITMAP *b, const mapscr& m, int x, int y)
     destroy_bitmap(subsquare);
 }
 
-void do_bmpdrawscreen_solidr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawscreen_solidr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -9880,15 +9880,15 @@ void do_bmpdrawscreen_solidr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
 
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int x = sdci[4]/10000;
-    int y = sdci[5]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[6]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t x = sdci[4]/10000;
+    int32_t y = sdci[5]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[6]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     
     if(index >= TheMaps.size())
     {
@@ -9908,11 +9908,11 @@ void do_bmpdrawscreen_solidr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
     //draw layer 0
     draw_map_solid(b, m, x1, y1);
     
-    for(int i(0); i < 6; ++i)
+    for(int32_t i(0); i < 6; ++i)
     {
         if(m.layermap[i] == 0) continue;
         
-        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
         
         if(layer_screen_index >= TheMaps.size())
             continue;
@@ -9928,14 +9928,14 @@ void do_bmpdrawscreen_solidr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
     }
 }
 
-void draw_map_cflag(BITMAP *b, const mapscr& m, int x, int y)
+void draw_map_cflag(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
     BITMAP* square = create_bitmap_ex(8,16,16);
     
-    for(int i(0); i < 176; ++i)
+    for(int32_t i(0); i < 176; ++i)
     {
-        const int x2 = ((i&15)<<4) + x;
-        const int y2 = (i&0xF0) + y;
+        const int32_t x2 = ((i&15)<<4) + x;
+        const int32_t y2 = (i&0xF0) + y;
 	//Blit the palette index of the solidity value.
 	clear_to_color(square,m.sflag[i]);
 	blit(square, b, 0, 0, x2, y2, square->w, square->h);
@@ -9945,7 +9945,7 @@ void draw_map_cflag(BITMAP *b, const mapscr& m, int x, int y)
     destroy_bitmap(square);
 }
 
-void do_bmpdrawscreen_cflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawscreen_cflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -9960,15 +9960,15 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
 
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int x = sdci[4]/10000;
-    int y = sdci[5]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[6]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t x = sdci[4]/10000;
+    int32_t y = sdci[5]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[6]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     
     if(index >= TheMaps.size())
     {
@@ -9988,11 +9988,11 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
     //draw layer 0
     draw_map_cflag(b, m, x1, y1);
     
-    for(int i(0); i < 6; ++i)
+    for(int32_t i(0); i < 6; ++i)
     {
         if(m.layermap[i] == 0) continue;
         
-        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
         
         if(layer_screen_index >= TheMaps.size())
             continue;
@@ -10009,14 +10009,14 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
 }
 
 
-void draw_map_combotype(BITMAP *b, const mapscr& m, int x, int y)
+void draw_map_combotype(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
     BITMAP* square = create_bitmap_ex(8,16,16);
     
-    for(int i(0); i < 176; ++i)
+    for(int32_t i(0); i < 176; ++i)
     {
-        const int x2 = ((i&15)<<4) + x;
-        const int y2 = (i&0xF0) + y;
+        const int32_t x2 = ((i&15)<<4) + x;
+        const int32_t y2 = (i&0xF0) + y;
 	//Blit the palette index of the solidity value.
 	clear_to_color(square,(combobuf[m.data[i]].type));
 	blit(square, b, 0, 0, x2, y2, square->w, square->h);
@@ -10026,7 +10026,7 @@ void draw_map_combotype(BITMAP *b, const mapscr& m, int x, int y)
     destroy_bitmap(square);
 }
 
-void do_bmpdrawscreen_ctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawscreen_ctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -10041,15 +10041,15 @@ void do_bmpdrawscreen_ctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
 
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int x = sdci[4]/10000;
-    int y = sdci[5]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[6]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t x = sdci[4]/10000;
+    int32_t y = sdci[5]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[6]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     
     if(index >= TheMaps.size())
     {
@@ -10069,11 +10069,11 @@ void do_bmpdrawscreen_ctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
     //draw layer 0
     draw_map_combotype(b, m, x1, y1);
     
-    for(int i(0); i < 6; ++i)
+    for(int32_t i(0); i < 6; ++i)
     {
         if(m.layermap[i] == 0) continue;
         
-        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
         
         if(layer_screen_index >= TheMaps.size())
             continue;
@@ -10090,14 +10090,14 @@ void do_bmpdrawscreen_ctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
 }
 
 
-void draw_map_comboiflag(BITMAP *b, const mapscr& m, int x, int y)
+void draw_map_comboiflag(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
     BITMAP* square = create_bitmap_ex(8,16,16);
     
-    for(int i(0); i < 176; ++i)
+    for(int32_t i(0); i < 176; ++i)
     {
-        const int x2 = ((i&15)<<4) + x;
-        const int y2 = (i&0xF0) + y;
+        const int32_t x2 = ((i&15)<<4) + x;
+        const int32_t y2 = (i&0xF0) + y;
 	//Blit the palette index of the solidity value.
 	clear_to_color(square,(combobuf[m.data[i]].flag));
 	blit(square, b, 0, 0, x2, y2, square->w, square->h);
@@ -10107,7 +10107,7 @@ void draw_map_comboiflag(BITMAP *b, const mapscr& m, int x, int y)
     destroy_bitmap(square);
 }
 
-void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -10122,15 +10122,15 @@ void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
 
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int x = sdci[4]/10000;
-    int y = sdci[5]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[6]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t x = sdci[4]/10000;
+    int32_t y = sdci[5]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[6]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     
     if(index >= TheMaps.size())
     {
@@ -10150,11 +10150,11 @@ void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
     //draw layer 0
     draw_map_comboiflag(b, m, x1, y1);
     
-    for(int i(0); i < 6; ++i)
+    for(int32_t i(0); i < 6; ++i)
     {
         if(m.layermap[i] == 0) continue;
         
-        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
         
         if(layer_screen_index >= TheMaps.size())
             continue;
@@ -10170,7 +10170,7 @@ void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
     }
 }
 
-void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -10181,17 +10181,17 @@ void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffS
     //sdci[7]=rotation
     //sdci[8]=opacity
     
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
-    int x = sdci[5]/10000;
-    int y = sdci[6]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[7]/10000;
-    int opacity = sdci[8]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int32_t x = sdci[5]/10000;
+    int32_t y = sdci[6]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[7]/10000;
+    int32_t opacity = sdci[8]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
     
     if(!m) //no need to log it.
@@ -10211,8 +10211,8 @@ void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffS
         b = script_drawing_commands.AquireSubBitmap(256, 176);
         
         
-    const int maxX = isOffScreen ? 512 : 256;
-    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    const int32_t maxX = isOffScreen ? 512 : 256;
+    const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
     
     if(rotation != 0) // rotate
@@ -10224,15 +10224,15 @@ void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffS
     }
     else
     {
-        for(int i(0); i < 176; ++i)
+        for(int32_t i(0); i < 176; ++i)
         {
-            const int x2 = ((i&15)<<4) + x1;
-            const int y2 = (i&0xF0) + y1;
+            const int32_t x2 = ((i&15)<<4) + x1;
+            const int32_t y2 = (i&0xF0) + y1;
             
             if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
             {
                 const newcombo & c = combobuf[ l.data[i] ];
-                const int tile = combo_tile(c, x2, y2);
+                const int32_t tile = combo_tile(c, x2, y2);
                 
                 if(opacity < 128)
 		{	
@@ -10256,7 +10256,7 @@ void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffS
 
 
 
-void do_drawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_drawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -10265,15 +10265,15 @@ void do_drawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOff
     //sdci[5]=y
     //sdci[6]=rotation
     
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int x = sdci[4]/10000;
-    int y = sdci[5]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[6]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t x = sdci[4]/10000;
+    int32_t y = sdci[5]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[6]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     
     if(index >= TheMaps.size())
     {
@@ -10292,11 +10292,11 @@ void do_drawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOff
     //draw layer 0
     draw_mapscr(b, m, x1, y1, false);
     
-    for(int i(0); i < 6; ++i)
+    for(int32_t i(0); i < 6; ++i)
     {
         if(m.layermap[i] == 0) continue;
         
-        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
         
         if(layer_screen_index >= TheMaps.size())
             continue;
@@ -10315,7 +10315,7 @@ void do_drawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOff
 }
 
 
-void do_bmpdrawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -10331,17 +10331,17 @@ void do_bmpdrawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isO
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
-    int x = sdci[5]/10000;
-    int y = sdci[6]/10000;
-    int rotation = sdci[7]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int32_t x = sdci[5]/10000;
+    int32_t y = sdci[6]/10000;
+    int32_t rotation = sdci[7]/10000;
 
 	byte noclip = 0;//(sdci[8]!=0);
-    int opacity = sdci[8]/10000;
+    int32_t opacity = sdci[8]/10000;
     //zprint2("Running bmp->DrawLayer(%d, %d, %d, %d, %d, %d, %d, %d)\n", sdci[1]/10000, map, scrn, sourceLayer, x, y, rotation, opacity);
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
     
     if(!m) //no need to log it.
@@ -10362,8 +10362,8 @@ void do_bmpdrawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isO
         b = script_drawing_commands.AquireSubBitmap(256, 176);
         
         
-    const int maxX = isOffScreen ? 512 : 256;
-    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    const int32_t maxX = isOffScreen ? 512 : 256;
+    const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
     
     if(rotation != 0) // rotate
@@ -10375,15 +10375,15 @@ void do_bmpdrawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isO
     }
     else
     {
-		for(int i(0); i < 176; ++i)
+		for(int32_t i(0); i < 176; ++i)
         {
-            const int x2 = ((i&15)<<4) + x;
-            const int y2 = (i&0xF0) + y;
+            const int32_t x2 = ((i&15)<<4) + x;
+            const int32_t y2 = (i&0xF0) + y;
             
             //if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
                 const newcombo & c = combobuf[ l.data[i] ];
-                const int tile = combo_tile(c, x2, y2);
+                const int32_t tile = combo_tile(c, x2, y2);
                 
                 if(opacity < 128)
                     overtiletranslucent16(refbmp, tile, x2, y2, l.cset[i], c.flip, opacity);
@@ -10400,7 +10400,7 @@ void do_bmpdrawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isO
 
 
 
-void do_bmpdrawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -10415,15 +10415,15 @@ void do_bmpdrawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool is
 
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int x = sdci[4]/10000;
-    int y = sdci[5]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[6]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t x = sdci[4]/10000;
+    int32_t y = sdci[5]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[6]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     
     if(index >= TheMaps.size())
     {
@@ -10443,11 +10443,11 @@ void do_bmpdrawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool is
     //draw layer 0
     draw_mapscr(b, m, x1, y1, false);
     
-    for(int i(0); i < 6; ++i)
+    for(int32_t i(0); i < 6; ++i)
     {
         if(m.layermap[i] == 0) continue;
         
-        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
         
         if(layer_screen_index >= TheMaps.size())
             continue;
@@ -10465,7 +10465,7 @@ void do_bmpdrawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool is
     }
 }
 
-void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -10477,18 +10477,18 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffset,
     //sdci[8]=bool noclip
 	//sdci[9] == opacity
     
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
-    int x = sdci[5]/10000;
-    int y = sdci[6]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[7]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int32_t x = sdci[5]/10000;
+    int32_t y = sdci[6]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[7]/10000;
     byte noclip = (sdci[8]!=0);
-    int opacity = sdci[9]/10000;
+    int32_t opacity = sdci[9]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
     
     if(!m) //no need to log it.
@@ -10508,8 +10508,8 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffset,
         b = script_drawing_commands.AquireSubBitmap(256, 176);
         
         
-    const int maxX = isOffScreen ? 512 : 256;
-    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    const int32_t maxX = isOffScreen ? 512 : 256;
+    const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
     
     if(rotation != 0) // rotate
@@ -10524,14 +10524,14 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffset,
 	BITMAP* square = create_bitmap_ex(8,16,16);
 	BITMAP* subsquare = create_bitmap_ex(8,16,16);
 	clear_to_color(subsquare,1);
-        for(int i(0); i < 176; ++i)
+        for(int32_t i(0); i < 176; ++i)
         {
-            const int x2 = ((i&15)<<4) + x1;
-            const int y2 = (i&0xF0) + y1;
+            const int32_t x2 = ((i&15)<<4) + x1;
+            const int32_t y2 = (i&0xF0) + y1;
             
             if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
-                int sol = (combobuf[l.data[i]].walk);
+                int32_t sol = (combobuf[l.data[i]].walk);
                 
                 if ( sol & 1 )
 		{
@@ -10559,7 +10559,7 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffset,
     //putscr
 }
 
-void do_bmpdrawlayersolidityr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -10572,18 +10572,18 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
     //sdci[9]=opacity
 	
     
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
-    int x = sdci[5]/10000;
-    int y = sdci[6]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[7]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int32_t x = sdci[5]/10000;
+    int32_t y = sdci[6]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[7]/10000;
 	byte noclip = (sdci[8]!=0);
-    int opacity = sdci[9]/10000;
+    int32_t opacity = sdci[9]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
     
     if(!m) //no need to log it.
@@ -10603,8 +10603,8 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
         b = script_drawing_commands.AquireSubBitmap(256, 176);
         
         
-    const int maxX = isOffScreen ? 512 : 256;
-    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    const int32_t maxX = isOffScreen ? 512 : 256;
+    const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
     
     if(rotation != 0) // rotate
@@ -10617,10 +10617,10 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
     else
     {
 	BITMAP* square = create_bitmap_ex(8,16,16);
-        for(int i(0); i < 176; ++i)
+        for(int32_t i(0); i < 176; ++i)
         {
-            const int x2 = ((i&15)<<4) + x1;
-            const int y2 = (i&0xF0) + y1;
+            const int32_t x2 = ((i&15)<<4) + x1;
+            const int32_t y2 = (i&0xF0) + y1;
             
             if(noclip && (x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
@@ -10634,7 +10634,7 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
     //putscr
 }
 
-void do_bmpdrawlayercflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -10647,19 +10647,19 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
     //sdci[9]=opacity
 	
     
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
-    int x = sdci[5]/10000;
-    int y = sdci[6]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[7]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int32_t x = sdci[5]/10000;
+    int32_t y = sdci[6]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[7]/10000;
 
 	byte noclip = (sdci[8]!=0);
-    int opacity = sdci[9]/10000;
+    int32_t opacity = sdci[9]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
     
     if(!m) //no need to log it.
@@ -10679,8 +10679,8 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
         b = script_drawing_commands.AquireSubBitmap(256, 176);
         
         
-    const int maxX = isOffScreen ? 512 : 256;
-    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    const int32_t maxX = isOffScreen ? 512 : 256;
+    const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
     
     if(rotation != 0) // rotate
@@ -10693,10 +10693,10 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
     else
     {
 	BITMAP* square = create_bitmap_ex(8,16,16);
-        for(int i(0); i < 176; ++i)
+        for(int32_t i(0); i < 176; ++i)
         {
-            const int x2 = ((i&15)<<4) + x1;
-            const int y2 = (i&0xF0) + y1;
+            const int32_t x2 = ((i&15)<<4) + x1;
+            const int32_t y2 = (i&0xF0) + y1;
             
             if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
@@ -10710,7 +10710,7 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
     //putscr
 }
 
-void do_bmpdrawlayerctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -10722,18 +10722,18 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
 	//[8] noclip
     //sdci[9]=opacity
     
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
-    int x = sdci[5]/10000;
-    int y = sdci[6]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[7]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int32_t x = sdci[5]/10000;
+    int32_t y = sdci[6]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[7]/10000;
 
     byte noclip = (sdci[8]!=0);
-    int opacity = sdci[9]/10000;
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    int32_t opacity = sdci[9]/10000;
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
     
     if(!m) //no need to log it.
@@ -10753,8 +10753,8 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
         b = script_drawing_commands.AquireSubBitmap(256, 176);
         
         
-    const int maxX = isOffScreen ? 512 : 256;
-    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    const int32_t maxX = isOffScreen ? 512 : 256;
+    const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
     
     if(rotation != 0) // rotate
@@ -10767,10 +10767,10 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
     else
     {
 	BITMAP* square = create_bitmap_ex(8,16,16);
-        for(int i(0); i < 176; ++i)
+        for(int32_t i(0); i < 176; ++i)
         {
-            const int x2 = ((i&15)<<4) + x1;
-            const int y2 = (i&0xF0) + y1;
+            const int32_t x2 = ((i&15)<<4) + x1;
+            const int32_t y2 = (i&0xF0) + y1;
             
             if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
@@ -10784,7 +10784,7 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
     //putscr
 }
 
-void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -10796,18 +10796,18 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bo
 	//[8] noclip
     //sdci[9]=opacity
     
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
-    int x = sdci[5]/10000;
-    int y = sdci[6]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[7]/10000;
+    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int32_t scrn = sdci[3]/10000;
+    int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int32_t x = sdci[5]/10000;
+    int32_t y = sdci[6]/10000;
+    int32_t x1 = x + xoffset;
+    int32_t y1 = y + yoffset;
+    int32_t rotation = sdci[7]/10000;
     byte noclip = (sdci[8]!=0);
-    int opacity = sdci[9]/10000;
+    int32_t opacity = sdci[9]/10000;
     
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
     
     if(!m) //no need to log it.
@@ -10827,8 +10827,8 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bo
         b = script_drawing_commands.AquireSubBitmap(256, 176);
         
         
-    const int maxX = isOffScreen ? 512 : 256;
-    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    const int32_t maxX = isOffScreen ? 512 : 256;
+    const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
     
     if(rotation != 0) // rotate
@@ -10841,10 +10841,10 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bo
     else
     {
 	BITMAP* square = create_bitmap_ex(8,16,16);
-        for(int i(0); i < 176; ++i)
+        for(int32_t i(0); i < 176; ++i)
         {
-            const int x2 = ((i&15)<<4) + x1;
-            const int y2 = (i&0xF0) + y1;
+            const int32_t x2 = ((i&15)<<4) + x1;
+            const int32_t y2 = (i&0xF0) + y1;
             
             if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
@@ -10864,7 +10864,7 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bo
 // do primitives
 ////////////////////////////////////////////////////////
 
-void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, int yoff)
+void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_t xoff, int32_t yoff)
 {
 	color_map = &trans_table2;
 	
@@ -10886,18 +10886,18 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, 
 	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
 	
 	bool isTargetOffScreenBmp = false;
-	const int type_mul_10000 = type * 10000;
-	const int numDrawCommandsToProcess = script_drawing_commands.Count();
+	const int32_t type_mul_10000 = type * 10000;
+	const int32_t numDrawCommandsToProcess = script_drawing_commands.Count();
 	FFCore.numscriptdraws = numDrawCommandsToProcess;
-	int xoffset=xoff, yoffset=yoff;
-	for(int i(0); i < numDrawCommandsToProcess; ++i)
+	int32_t xoffset=xoff, yoffset=yoff;
+	for(int32_t i(0); i < numDrawCommandsToProcess; ++i)
 	{
 		if(!brokenOffset)
 		{
 			xoffset = 0;
 			yoffset = 0;
 		}
-		int *sdci = &script_drawing_commands[i][0];
+		int32_t *sdci = &script_drawing_commands[i][0];
 		
 		if(sdci[1] != type_mul_10000)
 			continue;
@@ -11190,7 +11190,7 @@ void CScriptDrawingCommands::Clear()
 	draw_container.Clear();
 }
 
-void do_script_draws(BITMAP *targetBitmap, mapscr* theScreen, int xoff, int yoff, bool hideLayer7)
+void do_script_draws(BITMAP *targetBitmap, mapscr* theScreen, int32_t xoff, int32_t yoff, bool hideLayer7)
 {
 	if(theScreen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(targetBitmap, 3, theScreen, xoff, yoff);
 	if(theScreen->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(targetBitmap, 2, theScreen, xoff, yoff);

@@ -17,42 +17,42 @@
 #include <map>
 #include <string>
 
-void editmsg(int index, int addAfter);
-int strlist_del();
-int addtomsglist(int index);
+void editmsg(int32_t index, int32_t addAfter);
+int32_t strlist_del();
+int32_t addtomsglist(int32_t index);
 void build_bistringcat_list();
-const char *stringcatlist(int index, int *list_size);
+const char *stringcatlist(int32_t index, int32_t *list_size);
 char *parse_msg_str(char *s);
-int msg_code_operands(int cc);
-int d_msg_preview_proc(int msg,DIALOG *d,int c);
-int d_msg_edit_proc(int msg,DIALOG *d,int c);
-int d_msgtile_proc(int msg,DIALOG *d,int c);
-void strlist_rclick_func(int index, int x, int y);
+int32_t msg_code_operands(int32_t cc);
+int32_t d_msg_preview_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_msg_edit_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c);
+void strlist_rclick_func(int32_t index, int32_t x, int32_t y);
 
 
-std::map<int, int> msglistcache;
+std::map<int32_t, int32_t> msglistcache;
 
 static ListData strlist_dlg_list(msgslist, &font);
 static ListData stringcat_dlg_list(stringcatlist, &font);
 MsgStr *curmsgstr = NULL;
-int msg_x = 0;
-int msg_y = 0;
-int msgtile = 0;
-int msgcset = 0;
+int32_t msg_x = 0;
+int32_t msg_y = 0;
+int32_t msgtile = 0;
+int32_t msgcset = 0;
 char msgbuf[MSGSIZE*3];
 
-int bistringcat[256]; // A dropdown menu containing all strings which begin with '--', which serves as a quick shortcut to large string blocks.
-int bistringcat_cnt=-1;
+int32_t bistringcat[256]; // A dropdown menu containing all strings which begin with '--', which serves as a quick shortcut to large string blocks.
+int32_t bistringcat_cnt=-1;
 
 // Dialogs
 
-static int editmsg_string_list[] =
+static int32_t editmsg_string_list[] =
 { 2, 3, 4, 5, 8, 17, 18, 29, 32, 58, 59, -1 };
 
-static int editmsg_attributes_list[] =
+static int32_t editmsg_attributes_list[] =
 { 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27,28, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, 54, 55, 56, 57, -1 };
 
-static int editmsg_portrait_list[] =
+static int32_t editmsg_portrait_list[] =
 { 45, 46, 47, 48, 49, 50, 51, 52, 53, -1 };
 
 static TABPANEL editmsg_tabs[] =
@@ -204,8 +204,8 @@ static MENU strlist_rclick_menu[] =
 	{ NULL,                       NULL,  NULL, 0, NULL }
 };
 
-static int zqstr_copysrc=-1;
-void strlist_rclick_func(int index, int x, int y)
+static int32_t zqstr_copysrc=-1;
+void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 {
 	// Don't do anything on (none) or <New String>
 	if(index<=0 || index==msg_count-1)
@@ -226,7 +226,7 @@ void strlist_rclick_func(int index, int x, int y)
 		strlist_rclick_menu[4].flags&=~D_DISABLED;
 		strlist_rclick_menu[5].flags&=~D_DISABLED;
 	}
-	int ret=popup_menu(strlist_rclick_menu, x, y);
+	int32_t ret=popup_menu(strlist_rclick_menu, x, y);
 
 	switch(ret)
 	{
@@ -254,7 +254,7 @@ void strlist_rclick_func(int index, int x, int y)
 	case 5: //Paste Style to All
 		if(jwin_alert("Paste Style to All", "Overwrite style of all strings?", NULL, NULL, "&Yes","&No",'y','n',lfont)==1)
 		{
-			for(int q = 0; q < msg_count-1; ++q)
+			for(int32_t q = 0; q < msg_count-1; ++q)
 			{
 				MsgStrings[q].copyStyle(MsgStrings[zqstr_copysrc]);
 			}
@@ -272,7 +272,7 @@ void strlist_rclick_func(int index, int x, int y)
 // Don't actually use this to strip spaces.
 char *strip_extra_spaces(char *string)
 {
-	int len=(int)strlen(string);
+	int32_t len=(int32_t)strlen(string);
 	char *src=(char *)zc_malloc(len+1);
 	char *tmpsrc=src;
 	memcpy(src,string,len+1);
@@ -291,7 +291,7 @@ char *strip_extra_spaces(char *string)
 		}
 		else if(*tmpsrc && (*tmpsrc < 32 || *tmpsrc > 126))
 		{
-			for(int numops=msg_code_operands(*tmpsrc-1); numops>0; numops--)
+			for(int32_t numops=msg_code_operands(*tmpsrc-1); numops>0; numops--)
 			{
 				tmpsrc++;
 				
@@ -312,7 +312,7 @@ char *strip_extra_spaces(char *string)
 	return string;
 }
 
-char *MsgString(int index, bool show_number, bool pad_number)
+char *MsgString(int32_t index, bool show_number, bool pad_number)
 {
 	bound(index,0,msg_strings_size-1);
 	static char u[80];
@@ -322,8 +322,8 @@ char *MsgString(int index, bool show_number, bool pad_number)
 	
 	char *t = new char[71];
 	memset(t, 0, 71);
-	int i=0;
-	int length=strlen(MsgStrings[index].s);
+	int32_t i=0;
+	int32_t length=strlen(MsgStrings[index].s);
 	//return s;
 	
 	//remove preceding spaces;
@@ -331,7 +331,7 @@ char *MsgString(int index, bool show_number, bool pad_number)
 	{
 		if(MsgStrings[index].s[i]!=' ')  // Is it a control code?
 		{
-			for(int numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
+			for(int32_t numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
 			{
 				i++;
 				
@@ -341,7 +341,7 @@ char *MsgString(int index, bool show_number, bool pad_number)
 		}
 	}
 	
-	int msgptr=0;
+	int32_t msgptr=0;
 	
 	for(; msgptr<70 && i<MSGSIZE; i++)
 	{
@@ -351,7 +351,7 @@ char *MsgString(int index, bool show_number, bool pad_number)
 		}
 		else if(i<length && MsgStrings[index].s[i])
 		{
-			for(int numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
+			for(int32_t numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
 			{
 				i++;
 				
@@ -375,7 +375,7 @@ char *MsgString(int index, bool show_number, bool pad_number)
 	return s;
 }
 
-const char *msgslistImpl(int index, int *list_size, bool numbered)
+const char *msgslistImpl(int32_t index, int32_t *list_size, bool numbered)
 {
 	static char buf[80];
 	memset(buf, 0, 80);
@@ -388,9 +388,9 @@ const char *msgslistImpl(int index, int *list_size, bool numbered)
 		}
 		
 		// Find the listpos corresponding to the index
-		int pos = 0;
+		int32_t pos = 0;
 		
-		std::map<int,int>::iterator res = msglistcache.find(index);
+		std::map<int32_t,int32_t>::iterator res = msglistcache.find(index);
 		
 		if(res != msglistcache.end())
 			pos = res->second;
@@ -407,18 +407,18 @@ const char *msgslistImpl(int index, int *list_size, bool numbered)
 	return NULL;
 }
 
-const char *msgslist(int index, int *list_size)
+const char *msgslist(int32_t index, int32_t *list_size)
 {
 	return msgslistImpl(index, list_size, true);
 }
 
 //same as above, but without the numbers
-const char *msgslist2(int index, int *list_size)
+const char *msgslist2(int32_t index, int32_t *list_size)
 {
 	return msgslistImpl(index, list_size, false);
 }
 
-FONT* getfont(int fonta)
+FONT* getfont(int32_t fonta)
 {
 	switch(fonta)
 	{
@@ -559,7 +559,7 @@ void fix_string(word &str, word index)
 		--str;
 }
 
-int strlist_del()
+int32_t strlist_del()
 {
 	if(msglistcache[strlist_dlg[2].d1]>0 && msglistcache[strlist_dlg[2].d1]<msg_count-1)
 		return D_CLOSE;
@@ -567,7 +567,7 @@ int strlist_del()
 	return D_O_K;
 }
 
-int onStrings()
+int32_t onStrings()
 {
 	if(is_large && !strlist_dlg[0].d1)
 	{
@@ -575,11 +575,11 @@ int onStrings()
 	}
 	
 	strlist_dlg[0].dp2=lfont;
-	int index=0;
+	int32_t index=0;
 	char msgmore_xstring[5], msgmore_ystring[5], msgspeed_string[3], template_string[6];
-	int morex=zinit.msg_more_x;
-	int morey=zinit.msg_more_y;
-	int msgspeed = zinit.msg_speed;
+	int32_t morex=zinit.msg_more_x;
+	int32_t morey=zinit.msg_more_y;
+	int32_t msgspeed = zinit.msg_speed;
 	sprintf(msgmore_xstring, "%d", zinit.msg_more_x);
 	sprintf(msgmore_ystring, "%d", zinit.msg_more_y);
 	sprintf(msgspeed_string, "%d", zinit.msg_speed);
@@ -622,11 +622,11 @@ int onStrings()
 		strlist_dlg[10].dp=msgspeed_string;
 		strlist_dlg[22].dp=template_string;
 		
-		int ret=zc_popup_dialog(strlist_dlg,2);
+		int32_t ret=zc_popup_dialog(strlist_dlg,2);
 		index=msglistcache[strlist_dlg[2].d1];
 		
 		bool doedit=false;
-		int addAfter = -1;
+		int32_t addAfter = -1;
 		
 		switch(ret)
 		{
@@ -648,17 +648,17 @@ int onStrings()
 				break;
 				
 			// Find the string with index's listpos - 1, and increment it
-			int nextlistpos = MsgStrings[index].listpos-1;
+			int32_t nextlistpos = MsgStrings[index].listpos-1;
 			
 			if(nextlistpos<0)
 				break;
 				
-			std::map<int,int>::iterator res = msglistcache.find(nextlistpos);
+			std::map<int32_t,int32_t>::iterator res = msglistcache.find(nextlistpos);
 			
 			if(res == msglistcache.end())
 				(void)addtomsglist(nextlistpos);
 				
-			int otherindex = msglistcache[nextlistpos];
+			int32_t otherindex = msglistcache[nextlistpos];
 			
 			if(otherindex==0)
 				break; // It's obviously not in here...
@@ -681,17 +681,17 @@ int onStrings()
 				break;
 				
 			// Find the string with index's listpos + 1, and decrement it
-			int nextlistpos = MsgStrings[index].listpos+1;
+			int32_t nextlistpos = MsgStrings[index].listpos+1;
 			
 			if(nextlistpos>=msg_count-1)
 				break;
 				
-			std::map<int,int>::iterator res = msglistcache.find(nextlistpos);
+			std::map<int32_t,int32_t>::iterator res = msglistcache.find(nextlistpos);
 			
 			if(res == msglistcache.end())
 				(void)addtomsglist(nextlistpos);
 				
-			int otherindex = msglistcache[nextlistpos];
+			int32_t otherindex = msglistcache[nextlistpos];
 			
 			if(otherindex==0)
 				break; // It's obviously not in here...
@@ -714,20 +714,20 @@ int onStrings()
 			if(index==0 || index==msg_count-1)
 				break;
 				
-			int diff = (ret == 13) ? zc_max(MsgStrings[index].listpos-12, 1) : zc_min(MsgStrings[index].listpos+12, msg_count-2);
-			int sign = (ret == 13) ? -1 : 1;
+			int32_t diff = (ret == 13) ? zc_max(MsgStrings[index].listpos-12, 1) : zc_min(MsgStrings[index].listpos+12, msg_count-2);
+			int32_t sign = (ret == 13) ? -1 : 1;
 			
-			int nextindex;
+			int32_t nextindex;
 			
 			// For all strings above or below, de/increment
-			for(int i=MsgStrings[index].listpos; i!=diff+sign; i+=sign)
+			for(int32_t i=MsgStrings[index].listpos; i!=diff+sign; i+=sign)
 			{
-				std::map<int,int>::iterator res = msglistcache.find(i);
+				std::map<int32_t,int32_t>::iterator res = msglistcache.find(i);
 				
 				if(res == msglistcache.end())
 					(void)addtomsglist(i);
 					
-				int otherindex = msglistcache[i];
+				int32_t otherindex = msglistcache[i];
 				
 				if(otherindex==0)
 					break; // It's obviously not in here...
@@ -806,26 +806,26 @@ int onStrings()
 				
 				
 				/*// Go through strings with higher listpos and decrement listpos
-				for(int j=MsgStrings[index].listpos; j<msg_count; j++)
+				for(int32_t j=MsgStrings[index].listpos; j<msg_count; j++)
 				{
 					MsgStrings[addtomsglist(j)].listpos--;
 				}
 				// Delete string
-				for(int i=index; i<msg_strings_size-1; i++)
+				for(int32_t i=index; i<msg_strings_size-1; i++)
 					MsgStrings[i]=MsgStrings[i+1];
 				// This is now inaccurate
 				msglistcache.clear();
 				reset_msgstr(msg_strings_size-1);
 				--msg_count;
-				int sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
+				int32_t sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
 				
-				for(int s=0; s<sc; s++)                           //room strings
+				for(int32_t s=0; s<sc; s++)                           //room strings
 				{
 					fix_string(TheMaps[s].str, index);
 				}
-				for(int i=0; i<16; i++)                           //info strings
+				for(int32_t i=0; i<16; i++)                           //info strings
 				{
-					for(int j=0; j<3; j++)
+					for(int32_t j=0; j<3; j++)
 					{
 						fix_string(misc.info[i].str[j], index);
 					}
@@ -868,7 +868,7 @@ int onStrings()
 		
 		if(index>0 && doedit)
 		{
-			int lp = addAfter>=0 ? MsgStrings[addAfter].listpos : -1;
+			int32_t lp = addAfter>=0 ? MsgStrings[addAfter].listpos : -1;
 			editmsg(index, addAfter);
 			
 			if(MsgStrings[index].listpos!=msg_count) // Created new string
@@ -877,7 +877,7 @@ int onStrings()
 				strlist_dlg[2].d1 = MsgStrings[index].listpos;
 				if((editmsg_dlg[32].flags&D_SELECTED)!=0)
 				{
-					int prev=msg_at_pos(MsgStrings[index].listpos-1);
+					int32_t prev=msg_at_pos(MsgStrings[index].listpos-1);
 					MsgStrings[prev].nextstring=index;
 				}
 				editmsg_dlg[27].flags=(MsgStrings[index].stringflags&STRINGFLAG_CONT)?D_SELECTED:0;
@@ -896,7 +896,7 @@ int onStrings()
 	return D_O_K;
 }
 
-void editmsg(int index, int addAfter)
+void editmsg(int32_t index, int32_t addAfter)
 {
 	char setitle[80];
 	static char namebuf[9] = "[NAME]";
@@ -906,7 +906,7 @@ void editmsg(int index, int addAfter)
 	
 	if(index==msg_count) // Adding a new message
 	{
-		int templateID=atoi(static_cast<char*>(strlist_dlg[22].dp));
+		int32_t templateID=atoi(static_cast<char*>(strlist_dlg[22].dp));
 		if(templateID>0 && templateID<msg_count)
 			MsgStrings[index].copyStyle(MsgStrings[templateID]);
 	}
@@ -954,7 +954,7 @@ void editmsg(int index, int addAfter)
 	editmsg_dlg[54].d1 = MsgStrings[index].shadow_type;
 	editmsg_dlg[57].d1 = MsgStrings[index].shadow_color;
 	editmsg_dlg[58].dp = (void*)namebuf;
-	for(int q = 0; q < 4; ++q)
+	for(int32_t q = 0; q < 4; ++q)
 	{
 		sprintf(msg_margins_bufs[q],"%d",MsgStrings[index].margins[q]);
 	}
@@ -964,7 +964,7 @@ void editmsg(int index, int addAfter)
 	editmsg_dlg[21].dp = msg_hbuf;
 	editmsg_dlg[23].dp = msg_hsbuf;
 	editmsg_dlg[25].dp = msg_vsbuf;
-	for(int q = 0; q < 4; ++q)
+	for(int32_t q = 0; q < 4; ++q)
 	{
 		editmsg_dlg[37+(2*q)].dp = msg_margins_bufs[q];
 	}
@@ -1005,7 +1005,7 @@ void editmsg(int index, int addAfter)
 	if(addAfter<=0) // Not <0 - wouldn't want to set message 0's next string
 		editmsg_dlg[32].proc=d_dummy_proc;
 	
-	int ret = -1;
+	int32_t ret = -1;
 	
 	do
 	{
@@ -1061,23 +1061,23 @@ void editmsg(int index, int addAfter)
 		MsgStrings[index].cset = editmsg_dlg[12].fg;
 		MsgStrings[index].portrait_tile = editmsg_dlg[53].d1;
 		MsgStrings[index].portrait_cset = editmsg_dlg[53].d2;
-		MsgStrings[index].x = vbound((int)strtol(msg_xbuf, (char **)NULL, 10),-512,512);
-		MsgStrings[index].y = vbound((int)strtol(msg_ybuf, (char **)NULL, 10),-512,512);
-		MsgStrings[index].w = vbound((int)strtol(msg_wbuf, (char **)NULL, 10),8,512);
-		MsgStrings[index].h = vbound((int)strtol(msg_hbuf, (char **)NULL, 10),8,512);
-		for(int q = 0; q < 4; ++q)
+		MsgStrings[index].x = vbound((int32_t)strtol(msg_xbuf, (char **)NULL, 10),-512,512);
+		MsgStrings[index].y = vbound((int32_t)strtol(msg_ybuf, (char **)NULL, 10),-512,512);
+		MsgStrings[index].w = vbound((int32_t)strtol(msg_wbuf, (char **)NULL, 10),8,512);
+		MsgStrings[index].h = vbound((int32_t)strtol(msg_hbuf, (char **)NULL, 10),8,512);
+		for(int32_t q = 0; q < 4; ++q)
 		{
 			MsgStrings[index].margins[q] = vbound((byte)strtol(msg_margins_bufs[q], (char **)NULL, 10),0,255);
 		}
-		MsgStrings[index].portrait_x = vbound((int)strtol(prt_xbuf, (char **)NULL, 10),0,255);
-		MsgStrings[index].portrait_y = vbound((int)strtol(prt_ybuf, (char **)NULL, 10),0,255);
-		MsgStrings[index].portrait_tw = vbound((int)strtol(prt_twbuf, (char **)NULL, 10),0,16);
-		MsgStrings[index].portrait_th = vbound((int)strtol(prt_thbuf, (char **)NULL, 10),0,14);
+		MsgStrings[index].portrait_x = vbound((int32_t)strtol(prt_xbuf, (char **)NULL, 10),0,255);
+		MsgStrings[index].portrait_y = vbound((int32_t)strtol(prt_ybuf, (char **)NULL, 10),0,255);
+		MsgStrings[index].portrait_tw = vbound((int32_t)strtol(prt_twbuf, (char **)NULL, 10),0,16);
+		MsgStrings[index].portrait_th = vbound((int32_t)strtol(prt_thbuf, (char **)NULL, 10),0,14);
 		MsgStrings[index].shadow_type = editmsg_dlg[54].d1;
 		MsgStrings[index].shadow_color = editmsg_dlg[57].d1;
-		MsgStrings[index].hspace = vbound((int)strtol(msg_hsbuf, (char **)NULL, 10),0,128);
-		MsgStrings[index].vspace = vbound((int)strtol(msg_vsbuf, (char **)NULL, 10),0,128);
-		MsgStrings[index].sfx = (int)strtol(msg_sfxbuf, (char **)NULL, 10);
+		MsgStrings[index].hspace = vbound((int32_t)strtol(msg_hsbuf, (char **)NULL, 10),0,128);
+		MsgStrings[index].vspace = vbound((int32_t)strtol(msg_vsbuf, (char **)NULL, 10),0,128);
+		MsgStrings[index].sfx = (int32_t)strtol(msg_sfxbuf, (char **)NULL, 10);
 		MsgStrings[index].stringflags = editmsg_dlg[27].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_CONT : MsgStrings[index].stringflags & ~STRINGFLAG_CONT;
 		MsgStrings[index].stringflags = editmsg_dlg[28].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_WRAP : MsgStrings[index].stringflags & ~STRINGFLAG_WRAP;
 		MsgStrings[index].stringflags = editmsg_dlg[33].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_FULLTILE : MsgStrings[index].stringflags & ~STRINGFLAG_FULLTILE;
@@ -1091,7 +1091,7 @@ void editmsg(int index, int addAfter)
 				MsgStrings[index].listpos = MsgStrings[addAfter].listpos+1;
 				
 				// Go through strings with higher listpos and increment listpos
-				for(int j=msg_count-1; j>=MsgStrings[index].listpos; j--)
+				for(int32_t j=msg_count-1; j>=MsgStrings[index].listpos; j--)
 				{
 					MsgStrings[addtomsglist(j)].listpos++;
 				}
@@ -1111,7 +1111,7 @@ void editmsg(int index, int addAfter)
 }
 
 // Returns the actual string of a given listpos
-int addtomsglist(int index)
+int32_t addtomsglist(int32_t index)
 {
 	if(index==0)
 		return 0; // '(None)' is always at the top
@@ -1119,11 +1119,11 @@ int addtomsglist(int index)
 	if(index==msg_count)
 		return msg_count; // '<New String>' is always at the bottom
 		
-	int pos = 0;
+	int32_t pos = 0;
 	// Easy heuristic:
 	// - Search backwards if index>(msg_count/2)
-	int increment = 1;
-	int i = 0;
+	int32_t increment = 1;
+	int32_t i = 0;
 	
 	if(index > (msg_count/2))
 	{
@@ -1194,7 +1194,7 @@ const char *msgfont_str[font_max] =
 	"Lisa"
 };
 
-const char *msgfontlist(int index, int *list_size)
+const char *msgfontlist(int32_t index, int32_t *list_size)
 {
 	if(index<0)
 	{
@@ -1207,11 +1207,11 @@ const char *msgfontlist(int index, int *list_size)
 
 void strip_trailing_spaces(char *str)
 {
-	for(int i=0; str[i]; i++)
+	for(int32_t i=0; str[i]; i++)
 	{
 		if(str[i]==' ')
 		{
-			for(int k=i+1; true; k++)
+			for(int32_t k=i+1; true; k++)
 			{
 				// End of the string, just spaces so far; end at i
 				if(str[k]=='\0')
@@ -1236,14 +1236,14 @@ char *parse_msg_str(char *s)
 	//if(smsg!=NULL) delete [] smsg;
 	char *smsg = new char[MSGSIZE+1];
 	memset(smsg, 0, MSGSIZE+1);
-	int msgptr=0;
+	int32_t msgptr=0;
 	
-	for(int i=0; msgptr<MSGSIZE; msgptr++, i++) // But what about long CCs?
+	for(int32_t i=0; msgptr<MSGSIZE; msgptr++, i++) // But what about int32_t CCs?
 	{
 		// Is it a backslash-escaped number?
 		if(*(s+i)=='\\' && i+4<MSGSIZE*3)
 		{
-			int msgcc = 0;
+			int32_t msgcc = 0;
 			byte twofiftyfives = 0;
 			byte digits = 0;
 			
@@ -1260,13 +1260,13 @@ char *parse_msg_str(char *s)
 					twofiftyfives = (msgcc/254)<<0;
 				}
 				
-				smsg[msgptr] = (unsigned char)((msgcc % 254) + 1); // As 0 is null, we must store codes 1 higher than their actual value...
+				smsg[msgptr] = (uint8_t)((msgcc % 254) + 1); // As 0 is null, we must store codes 1 higher than their actual value...
 			}
 			
 			// A hack to allow multi-byte numbers, continued
 			if(twofiftyfives > 0 && i+2<MSGSIZE*3)
 			{
-				smsg[++msgptr] = (unsigned char)0xff;
+				smsg[++msgptr] = (uint8_t)0xff;
 				smsg[++msgptr] = twofiftyfives;
 			}
 		}
@@ -1281,15 +1281,15 @@ char *parse_msg_str(char *s)
 }
 
 //Make sure this is synchronised with parsemsgcode in guys.cpp!
-static int ssc_tile_hei = -1;
-word grab_next_argument(char* s2, int* i)
+static int32_t ssc_tile_hei = -1;
+word grab_next_argument(char* s2, int32_t* i)
 {
 	byte val=s2[(*i)++]-1;
 	word ret=val;
 	
 	// If an argument is succeeded by 255, then it's a three-byte argument -
 	// between 254 and 65535 (or whatever the maximum actually is)
-	if((unsigned char)(s2[(*i)]) == 255)
+	if((uint8_t)(s2[(*i)]) == 255)
 	{
 		val=s2[(*i)+1];
 		word next=val;
@@ -1300,34 +1300,34 @@ word grab_next_argument(char* s2, int* i)
 	return ret;
 }
 
-void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
+void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t start_x, int32_t start_y)
 {
 	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
 	ssc_tile_hei = -1;
-	int w = vbound((int)strtol((char*)editmsg_dlg[19].dp, (char **)NULL, 10),0,512);
-	int h = vbound((int)strtol((char*)editmsg_dlg[21].dp, (char **)NULL, 10),0,512);
-	int fonta = editmsg_dlg[18].d1;
-	int flags = 0;
-	flags |= (int)editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
-	flags |= (int)editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
-	flags |= (int)editmsg_dlg[33].flags & D_SELECTED ? STRINGFLAG_FULLTILE : 0;
-	flags |= (int)editmsg_dlg[34].flags & D_SELECTED ? STRINGFLAG_TRANS_BG : 0;
-	flags |= (int)editmsg_dlg[35].flags & D_SELECTED ? STRINGFLAG_TRANS_FG : 0;
-	int vspace = vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
-	int hspace = vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
-	int nextstring = addtomsglist(editmsg_dlg[5].d1);
+	int32_t w = vbound((int32_t)strtol((char*)editmsg_dlg[19].dp, (char **)NULL, 10),0,512);
+	int32_t h = vbound((int32_t)strtol((char*)editmsg_dlg[21].dp, (char **)NULL, 10),0,512);
+	int32_t fonta = editmsg_dlg[18].d1;
+	int32_t flags = 0;
+	flags |= (int32_t)editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
+	flags |= (int32_t)editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
+	flags |= (int32_t)editmsg_dlg[33].flags & D_SELECTED ? STRINGFLAG_FULLTILE : 0;
+	flags |= (int32_t)editmsg_dlg[34].flags & D_SELECTED ? STRINGFLAG_TRANS_BG : 0;
+	flags |= (int32_t)editmsg_dlg[35].flags & D_SELECTED ? STRINGFLAG_TRANS_FG : 0;
+	int32_t vspace = vbound((int32_t)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
+	int32_t hspace = vbound((int32_t)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
+	int32_t nextstring = addtomsglist(editmsg_dlg[5].d1);
 	byte msg_margins[4];
-	for(int q = 0; q < 4; ++q)
+	for(int32_t q = 0; q < 4; ++q)
 	{
-		msg_margins[q] = oldmargin ? 0 : vbound((int)strtol((char*)editmsg_dlg[37+(2*q)].dp, (char **)NULL, 10),0,255);
+		msg_margins[q] = oldmargin ? 0 : vbound((int32_t)strtol((char*)editmsg_dlg[37+(2*q)].dp, (char **)NULL, 10),0,255);
 	}
-	int cursor_x = msg_margins[left];
-	int cursor_y = msg_margins[up];
+	int32_t cursor_x = msg_margins[left];
+	int32_t cursor_y = msg_margins[up];
 	
-	int i=0;
-	int msgcolour=misc.colors.msgtext;
-	int shdtype=editmsg_dlg[54].d1;
-	int shdcolor=editmsg_dlg[57].d1;
+	int32_t i=0;
+	int32_t msgcolour=misc.colors.msgtext;
+	int32_t shdtype=editmsg_dlg[54].d1;
+	int32_t shdcolor=editmsg_dlg[57].d1;
 	
 	FONT *workfont = getfont(fonta);
 	
@@ -1348,17 +1348,17 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 			if(flags & STRINGFLAG_FULLTILE)
 			{
 				draw_block_flip(buf,0,0,msgtile,msgcset,
-					(int)ceil(w/16.0),(int)ceil(h/16.0),0,false,false);
+					(int32_t)ceil(w/16.0),(int32_t)ceil(h/16.0),0,false,false);
 			}
 			else
 			{
-				int add = (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
+				int32_t add = (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
 				frame2x2(buf,&misc,0,0,msgtile,msgcset,(w/8)+add,(h/8)+add,0,0,0);
 			}
 		}
 			
 		bool space=true;
-		int tlength=0;
+		int32_t tlength=0;
 		
 		for(; ;)
 		{
@@ -1367,9 +1367,9 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 			while((*(s2+i)) && !done)
 			{
 				char s3[145]; // Stores a complete word
-				int j;
-				int s3length = 1;
-				int hjump=0;
+				int32_t j;
+				int32_t s3length = 1;
+				int32_t hjump=0;
 				
 				if(flags & STRINGFLAG_WRAP)
 				{
@@ -1432,7 +1432,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 				   && ((cursor_x > (w-msg_margins[right]) || !(flags & STRINGFLAG_WRAP))
 						? 1 : strcmp(s3," ")!=0))
 				{
-					int thei = zc_max(ssc_tile_hei, text_height(workfont));
+					int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
 					ssc_tile_hei = -1;
 					cursor_y += thei + vspace;
 					if(cursor_y >= (h - msg_margins[down])) break;
@@ -1442,7 +1442,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 				
 				// Evaluate what control code the character is, and skip over the CC's arguments by incrementing i (NOT k).
 				// Interpret the control codes which affect text display (currently just MSGC_COLOR). -L
-				for(int k=0; k < s3length && !done; k++)
+				for(int32_t k=0; k < s3length && !done; k++)
 				{
 					switch(s3[k]-1)
 					{
@@ -1450,7 +1450,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 						{
 							if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
 							{
-								int thei = zc_max(ssc_tile_hei, text_height(workfont));
+								int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
 								ssc_tile_hei = -1;
 								cursor_y += thei + vspace;
 								if(cursor_y >= (h - msg_margins[down])) done = true;
@@ -1463,13 +1463,13 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 						
 						case MSGC_COLOUR:
 						{
-							int cset = grab_next_argument(s2, &i);
+							int32_t cset = grab_next_argument(s2, &i);
 							msgcolour = CSET(cset)+grab_next_argument(s2, &i);
 							break;
 						}
 						case MSGC_SHDCOLOR:
 						{
-							int cset = grab_next_argument(s2, &i);
+							int32_t cset = grab_next_argument(s2, &i);
 							shdcolor = CSET(cset)+grab_next_argument(s2, &i);
 							break;
 						}
@@ -1483,7 +1483,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 						{
 							char *namestr = (char*)editmsg_dlg[58].dp;
 							char wrapstr[9] = {0};
-							for(int q = 0; namestr[q]; ++q)
+							for(int32_t q = 0; namestr[q]; ++q)
 							{
 								if(flags & STRINGFLAG_WRAP)
 								{
@@ -1496,9 +1496,9 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 								
 								tlength = text_length(workfont, wrapstr);
 								
-								if(int(cursor_x+tlength+(hspace*strlen(namestr))) > int(w-msg_margins[right]))
+								if(int32_t(cursor_x+tlength+(hspace*strlen(namestr))) > int32_t(w-msg_margins[right]))
 								{
-									int thei = zc_max(ssc_tile_hei, text_height(workfont));
+									int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
 									ssc_tile_hei = -1;
 									cursor_y += thei + vspace;
 									if(cursor_y >= (h - msg_margins[down])) break;
@@ -1519,22 +1519,22 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 						
 						case MSGC_DRAWTILE:
 						{
-							int tl = grab_next_argument(s2, &i);
-							int cs = grab_next_argument(s2, &i);
-							int t_wid = grab_next_argument(s2, &i);
-							int t_hei = grab_next_argument(s2, &i);
-							int fl = grab_next_argument(s2, &i);
+							int32_t tl = grab_next_argument(s2, &i);
+							int32_t cs = grab_next_argument(s2, &i);
+							int32_t t_wid = grab_next_argument(s2, &i);
+							int32_t t_hei = grab_next_argument(s2, &i);
+							int32_t fl = grab_next_argument(s2, &i);
 							
 							if(cursor_x+hspace + t_wid > w-msg_margins[right])
 							{
-								int thei = zc_max(ssc_tile_hei, text_height(workfont));
+								int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
 								ssc_tile_hei = -1;
 								cursor_y += thei + vspace;
 								if(cursor_y >= (h - msg_margins[down])) break;
 								cursor_x=msg_margins[left];
 							}
 							
-							overtileblock16(buf, tl, cursor_x, cursor_y, (int)ceil(t_wid/16.0), (int)ceil(t_hei/16.0), cs, fl);
+							overtileblock16(buf, tl, cursor_x, cursor_y, (int32_t)ceil(t_wid/16.0), (int32_t)ceil(t_hei/16.0), cs, fl);
 							if(t_hei > ssc_tile_hei)
 								ssc_tile_hei = t_hei;
 							cursor_x += hspace + t_wid;
@@ -1556,7 +1556,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 							}
 							else
 							{
-								for(int numops=msg_code_operands(s3[k]-1); numops>0; numops--)
+								for(int32_t numops=msg_code_operands(s3[k]-1); numops>0; numops--)
 								{
 									i++;
 									
@@ -1603,13 +1603,13 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 	if(s2!=NULL) delete [] s2;
 }
 
-int mprvfont=0;
-int mprvflags=0;
-int mprvvspace=0;
-int mprvhspace=0;
-int mprvnextstring=0;
-int mprvw=0;
-int mprvh=0;
+int32_t mprvfont=0;
+int32_t mprvflags=0;
+int32_t mprvvspace=0;
+int32_t mprvhspace=0;
+int32_t mprvnextstring=0;
+int32_t mprvw=0;
+int32_t mprvh=0;
 
 // Returns true if the given character should be encoded as a control code.
 // lastWasSCC indicates whether this is immediately after a control code.
@@ -1631,7 +1631,7 @@ static inline bool isSCC(char character, bool lastWasSCC)
 }
 
 // Load a stored string into msgbuf for editing.
-void encode_msg_str(int index)
+void encode_msg_str(int32_t index)
 {
 	memset(msgbuf, 0, MSGSIZE*3);
 	
@@ -1640,13 +1640,13 @@ void encode_msg_str(int index)
 		return;
 		
 	char *str=MsgStrings[index].s;
-	int strPos=0;
-	int msgbufPos=0;
+	int32_t strPos=0;
+	int32_t msgbufPos=0;
 	byte nextChar;
 	char sccBuf[30]; // For string control codes
 	char sccArgBuf[10];
 	word sccArg;
-	int sccNumArgs;
+	int32_t sccNumArgs;
 	bool lastWasSCC=false;
 	
 	while(msgbufPos<MSGSIZE*3 && strPos<MSGSIZE+1)
@@ -1731,16 +1731,16 @@ void encode_msg_str(int index)
 // Fix the strings if they were broken
 void fix_string_list()
 {
-	int found[MAXMSGS];
+	int32_t found[MAXMSGS];
 	bool corrupted = false;
 	memset(found, 0, MAXMSGS);
 	
-	for(int i=0; i<msg_count; i++)
+	for(int32_t i=0; i<msg_count; i++)
 	{
 		found[MsgStrings[i].listpos] = 1;
 	}
 	
-	for(int i=0; i<msg_count; i++)
+	for(int32_t i=0; i<msg_count; i++)
 	{
 		if(found[i]==0)
 			corrupted=true;
@@ -1748,7 +1748,7 @@ void fix_string_list()
 	
 	if(corrupted)
 	{
-		for(int i=0; i<msg_count; i++)
+		for(int32_t i=0; i<msg_count; i++)
 		{
 			MsgStrings[i].listpos = i;
 		}
@@ -1763,12 +1763,12 @@ void rebuild_string_list()
 	msglistcache.clear();
 }
 
-void reset_msgstr(int index)
+void reset_msgstr(int32_t index)
 {
 	bound(index,0,msg_strings_size-1);
 	/*
 	  char *s=MsgStrings[index].s;
-	  for(int i=0; i<76; i++)
+	  for(int32_t i=0; i<76; i++)
 	  *(s++)=0;
 	  */
 	memset(MsgStrings[index].s, 0, MSGSIZE+1);
@@ -1777,9 +1777,9 @@ void reset_msgstr(int index)
 }
 
 // Get the number of the message at the given list position
-int msg_at_pos(int pos)
+int32_t msg_at_pos(int32_t pos)
 {
-	for(int i=0; i<msg_count; i++)
+	for(int32_t i=0; i<msg_count; i++)
 	{
 		if(MsgStrings[i].listpos==pos)
 		{
@@ -1793,7 +1793,7 @@ int msg_at_pos(int pos)
 }
 
 // Returns number of arguments to each control code
-int msg_code_operands(int cc)
+int32_t msg_code_operands(int32_t cc)
 {
 	switch(cc)
 	{
@@ -1842,12 +1842,12 @@ int msg_code_operands(int cc)
 
 void build_bistringcat_list()
 {
-	memset(bistringcat,0,256*sizeof(int));
+	memset(bistringcat,0,256*sizeof(int32_t));
 	bistringcat_cnt=1;
 	
-	for(int i = 0; i < msg_count && bistringcat_cnt<256; i++)
+	for(int32_t i = 0; i < msg_count && bistringcat_cnt<256; i++)
 	{
-		int m =  addtomsglist(i);
+		int32_t m =  addtomsglist(i);
 		
 		if(MsgStrings[m].s[0]=='-' && MsgStrings[m].s[1]=='-')
 		{
@@ -1857,7 +1857,7 @@ void build_bistringcat_list()
 	}
 }
 
-const char *stringcatlist(int index, int *list_size)
+const char *stringcatlist(int32_t index, int32_t *list_size)
 {
 	static char buf[80];
 	
@@ -1875,15 +1875,15 @@ const char *stringcatlist(int index, int *list_size)
 // Dialog procs
  //
 
-extern int zqwin_scale;
+extern int32_t zqwin_scale;
 
 
-int d_msg_preview_proc(int msg,DIALOG *d,int c)
+int32_t d_msg_preview_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	c=c;
 	char *s=(char*)(d->dp);
-	int w = vbound((int)strtol((char *)editmsg_dlg[19].dp, (char **) NULL, 10),8,512);
-	int h = vbound((int)strtol((char *)editmsg_dlg[21].dp, (char **) NULL, 10),8,512);
+	int32_t w = vbound((int32_t)strtol((char *)editmsg_dlg[19].dp, (char **) NULL, 10),8,512);
+	int32_t h = vbound((int32_t)strtol((char *)editmsg_dlg[21].dp, (char **) NULL, 10),8,512);
 	
 	if(msg_x > zc_max(w-256,0)) msg_x = zc_max(w-256,0);
 	
@@ -1891,22 +1891,22 @@ int d_msg_preview_proc(int msg,DIALOG *d,int c)
 	
 	if(mprvfont != editmsg_dlg[18].d1 ||
 			mprvflags != ((editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0) | (editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0)) ||
-			mprvvspace != vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128) ||
-			mprvhspace != vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128) ||
+			mprvvspace != vbound((int32_t)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128) ||
+			mprvhspace != vbound((int32_t)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128) ||
 			mprvnextstring != addtomsglist(editmsg_dlg[5].d1) ||
-			mprvw != vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128) ||
-			mprvh != vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128))
+			mprvw != vbound((int32_t)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128) ||
+			mprvh != vbound((int32_t)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128))
 	{
 	
 		mprvfont = editmsg_dlg[18].d1;
 		mprvflags = 0;
-		mprvflags |= (int)editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
-		mprvflags |= (int)editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
-		mprvvspace = vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
-		mprvhspace = vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
+		mprvflags |= (int32_t)editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
+		mprvflags |= (int32_t)editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
+		mprvvspace = vbound((int32_t)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
+		mprvhspace = vbound((int32_t)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
 		mprvnextstring = addtomsglist(editmsg_dlg[5].d1);
-		mprvw = vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
-		mprvh = vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
+		mprvw = vbound((int32_t)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
+		mprvh = vbound((int32_t)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
 		
 		msg = MSG_DRAW;
 	}
@@ -1917,26 +1917,26 @@ int d_msg_preview_proc(int msg,DIALOG *d,int c)
 	case MSG_CLICK:
 	{
 		/*{
-		int pos = (((gui_mouse_x())-(d->x+8))>>3)+(((gui_mouse_y())-(d->y+16))>>3)*24;
-		int i = 0;
-		while (pos>0 && i<(int)strlen(msgbuf)) {
+		int32_t pos = (((gui_mouse_x())-(d->x+8))>>3)+(((gui_mouse_y())-(d->y+16))>>3)*24;
+		int32_t i = 0;
+		while (pos>0 && i<(int32_t)strlen(msgbuf)) {
 			while (msgbuf[i] == '\\') {
 				do {
 					i++;
 				}
-				while(i<(int)strlen(msgbuf) && msgbuf[i] >= '0' && msgbuf[i] <= '9');
+				while(i<(int32_t)strlen(msgbuf) && msgbuf[i] >= '0' && msgbuf[i] <= '9');
 			}
 			pos--;
 			i++;
 		}
 		editmsg_dlg[3].d2 = i;
 		(void)jwin_edit_proc(MSG_DRAW,&editmsg_dlg[3],c);*/
-		int ox = gui_mouse_x();
-		int oy = gui_mouse_y();
-		int cmx = msg_x;
-		int cmy = msg_y;
-		int omx = cmx;
-		int omy = cmy;
+		int32_t ox = gui_mouse_x();
+		int32_t oy = gui_mouse_y();
+		int32_t cmx = msg_x;
+		int32_t cmy = msg_y;
+		int32_t omx = cmx;
+		int32_t omy = cmy;
 		
 		while(gui_mouse_b())
 		{
@@ -1990,7 +1990,7 @@ int d_msg_preview_proc(int msg,DIALOG *d,int c)
 	return D_O_K;
 }
 
-int d_msg_edit_proc(int msg,DIALOG *d,int c)
+int32_t d_msg_edit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	if(d->flags & D_HIDDEN)
 	{
@@ -2000,7 +2000,7 @@ int d_msg_edit_proc(int msg,DIALOG *d,int c)
 				return D_O_K;
 		}
 	}
-	int ret = jwin_edit_proc(msg,d,c);
+	int32_t ret = jwin_edit_proc(msg,d,c);
 	
 	if(msg==MSG_CHAR)
 	{
@@ -2015,7 +2015,7 @@ int d_msg_edit_proc(int msg,DIALOG *d,int c)
 	return ret;
 }
 
-int d_msgtile_proc(int msg,DIALOG *d,int c)
+int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
@@ -2034,8 +2034,8 @@ int d_msgtile_proc(int msg,DIALOG *d,int c)
 		
 	case MSG_DRAW:
 	{
-		int dw = d->w;
-		int dh = d->h;
+		int32_t dw = d->w;
+		int32_t dh = d->h;
 		
 		if(is_large)
 		{

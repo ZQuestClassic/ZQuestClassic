@@ -21,7 +21,9 @@ static direction angleToDir(double angle)
 		return down;
 }
 
-int Hive::numOrbiters(guydata& data)
+// Hive ========================================================================
+
+int32_t Hive::numOrbiters(guydata& data)
 {
 	if(data.misc10 == 1)
 		// Big - outer orbiters only
@@ -31,9 +33,7 @@ int Hive::numOrbiters(guydata& data)
 		return data.misc1+data.misc2;
 }
 
-// Hive ========================================================================
-
-Hive::Hive(zfix _x, zfix _y, int id, int clk):
+Hive::Hive(zfix _x, zfix _y, int32_t id, int32_t clk):
 	enemy(_x, _y, id, clk),
 	mainTimer(clk2),
 	outerRingCount(dmisc1),
@@ -116,7 +116,7 @@ void Hive::orbiterDied(HiveOrbiter* orbiter)
 	else
 		--outerRingCount;
 
-	for(int i = 0; i < orbiters.size(); ++i)
+	for(size_t i = 0; i < orbiters.size(); ++i)
 	{
 		if(orbiter == orbiters[i])
 		{
@@ -126,7 +126,7 @@ void Hive::orbiterDied(HiveOrbiter* orbiter)
 	}
 }
 
-bool Hive::animate(int index)
+bool Hive::animate(int32_t index)
 {
 	if(dying)
 	{
@@ -166,9 +166,9 @@ bool Hive::animate(int index)
 	return enemy::animate(index);
 }
 
-int Hive::defend(int wpnId, int *power, int edef)
+int32_t Hive::defend(int32_t wpnId, int32_t* power, int32_t edef)
 {
-	int ret = enemy::defend(wpnId, power, edef);
+	int32_t ret = enemy::defend(wpnId, power, edef);
 
 	if(ret<0 && (outerRingCount || innerRingCount))
 		return 0;
@@ -176,9 +176,9 @@ int Hive::defend(int wpnId, int *power, int edef)
 	return ret;
 }
 
-int Hive::defendNew(int wpnId, int *power, int edef, byte unblockable)
+int32_t Hive::defendNew(int32_t wpnId, int32_t* power, int32_t edef, byte unblockable)
 {
-	int ret = enemy::defendNew(wpnId, power, edef, unblockable);
+	int32_t ret = enemy::defendNew(wpnId, power, edef, unblockable);
 
 	if(ret < 0 && (outerRingCount || innerRingCount))
 		return 0;
@@ -232,7 +232,7 @@ void Hive::draw(BITMAP *dest)
 
 // Hive orbiter ================================================================
 
-HiveOrbiter::HiveOrbiter(int id, Hive* parent, int pos, bool inner):
+HiveOrbiter::HiveOrbiter(int32_t id, Hive* parent, int32_t pos, bool inner):
 	enemy(parent->x, parent->y, id, -((pos*21)>>1)-1),
 	inner(inner),
 	parent(parent)
@@ -322,7 +322,7 @@ HiveOrbiter::HiveOrbiter(int id, Hive* parent, int pos, bool inner):
 		zofs = parent->zofs;
 }
 
-bool HiveOrbiter::animate(int index)
+bool HiveOrbiter::animate(int32_t index)
 {
 	if(dying)
 	{

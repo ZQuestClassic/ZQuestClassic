@@ -134,7 +134,7 @@ ASTFloat::ASTFloat(
 	: AST(location), type(type), negative(false), value(value)
 {}
 
-ASTFloat::ASTFloat(long value, Type type, LocationData const& location)
+ASTFloat::ASTFloat(int32_t value, Type type, LocationData const& location)
 	: AST(location), type(type), negative(false)
 {
 	char tmp[15];
@@ -142,7 +142,7 @@ ASTFloat::ASTFloat(long value, Type type, LocationData const& location)
 	ASTFloat::value = string(tmp);
 }
 
-ASTFloat::ASTFloat(long ipart, long dpart, LocationData const& location)
+ASTFloat::ASTFloat(int32_t ipart, int32_t dpart, LocationData const& location)
 	: AST(location), type(TYPE_DECIMAL), negative(false)
 {
 	char tmp[13];
@@ -240,7 +240,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 				f = f.substr(2,f.size()-2);
 			}
 			// Parse the hex.
-			long val2=0;
+			int32_t val2=0;
 		
 			for(size_t i=0; i<f.size(); i++)
 			{
@@ -290,7 +290,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 				f = f.substr(0,f.size()-1);
 			}
 			// Parse the octal.
-			long val2=0;
+			int32_t val2=0;
 		
 			for(size_t i=0; i<f.size(); i++)
 			{
@@ -334,7 +334,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 				//trim off the 'b'
 				f = f.substr(0,f.size()-1);
 			}
-			long val2=0;
+			int32_t val2=0;
 			if(is_long || (*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT) != 0))
 			{
 				if(f.size() > 32)
@@ -457,7 +457,7 @@ CompileOptionSetting ASTSetOption::getSetting(
 {
 	if (expr.get())
 	{
-		if (optional<long> value = expr->getCompileTimeValue(handler, scope))
+		if (optional<int32_t> value = expr->getCompileTimeValue(handler, scope))
 			return CompileOptionSetting(*value);
 		handler->handleError(CompileError::ExprNotConstant(this));
 		return CompileOptionSetting::Invalid;
@@ -782,7 +782,7 @@ void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
 	visitor.caseFuncDecl(*this, param);
 }
 
-void ASTFuncDecl::setFlag(int flag, bool state)
+void ASTFuncDecl::setFlag(int32_t flag, bool state)
 {
 	switch(flag)
 	{
@@ -987,17 +987,17 @@ void ASTDataDeclExtraArray::execute(ASTVisitor& visitor, void* param)
 	visitor.caseDataDeclExtraArray(*this, param);
 }
 
-optional<int> ASTDataDeclExtraArray::getCompileTimeSize(
+optional<int32_t> ASTDataDeclExtraArray::getCompileTimeSize(
 		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (dimensions.size() == 0) return nullopt;
-	int size = 1;
+	int32_t size = 1;
 	for (vector<ASTExpr*>::const_iterator it = dimensions.begin();
 		 it != dimensions.end(); ++it)
 	{
 		ASTExpr& expr = **it;
-		if (optional<long> value = expr.getCompileTimeValue(errorHandler, scope))
+		if (optional<int32_t> value = expr.getCompileTimeValue(errorHandler, scope))
 			size *= *value / 10000L;
 		else
 			return nullopt;
@@ -1085,7 +1085,7 @@ void ASTExprConst::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprConst(*this, param);
 }
 
-optional<long> ASTExprConst::getCompileTimeValue(
+optional<int32_t> ASTExprConst::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	return content ? content->getCompileTimeValue(errorHandler, scope) : nullopt;
@@ -1102,7 +1102,7 @@ void ASTExprVarInitializer::execute(ASTVisitor& visitor, void* param)
 	visitor.caseVarInitializer(*this, param);
 }
 
-optional<long> ASTExprVarInitializer::getCompileTimeValue(
+optional<int32_t> ASTExprVarInitializer::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if(scope->isGlobal() || scope->isScript())
@@ -1128,7 +1128,7 @@ void ASTExprAssign::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprAssign(*this, param);
 }
 
-optional<long> ASTExprAssign::getCompileTimeValue(
+optional<int32_t> ASTExprAssign::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	return right ? right->getCompileTimeValue(errorHandler, scope) : nullopt;
@@ -1163,7 +1163,7 @@ string ASTExprIdentifier::asString() const
 	return s;
 }
 
-optional<long> ASTExprIdentifier::getCompileTimeValue(
+optional<int32_t> ASTExprIdentifier::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	return binding ? binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()) : nullopt;
@@ -1287,11 +1287,11 @@ void ASTExprNegate::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprNegate(*this, param);
 }
 
-optional<long> ASTExprNegate::getCompileTimeValue(
+optional<int32_t> ASTExprNegate::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!operand) return nullopt;
-	if (optional<long> value = operand->getCompileTimeValue(errorHandler, scope))
+	if (optional<int32_t> value = operand->getCompileTimeValue(errorHandler, scope))
 		return done ? *value : -*value;
 	return nullopt;
 }
@@ -1307,11 +1307,11 @@ void ASTExprNot::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprNot(*this, param);
 }
 
-optional<long> ASTExprNot::getCompileTimeValue(
+optional<int32_t> ASTExprNot::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!operand) return nullopt;
-	if (optional<long> value = operand->getCompileTimeValue(errorHandler, scope))
+	if (optional<int32_t> value = operand->getCompileTimeValue(errorHandler, scope))
 		return *value ? 0L : (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L);
 	return nullopt;
 }
@@ -1327,11 +1327,11 @@ void ASTExprBitNot::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprBitNot(*this, param);
 }
 
-optional<long> ASTExprBitNot::getCompileTimeValue(
+optional<int32_t> ASTExprBitNot::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!operand) return nullopt;
-	if (optional<long> value = operand->getCompileTimeValue(errorHandler, scope))
+	if (optional<int32_t> value = operand->getCompileTimeValue(errorHandler, scope))
 	{
 		if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
 		   || operand->isLong(scope, errorHandler))
@@ -1398,7 +1398,7 @@ void ASTExprCast::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprCast(*this, param);
 }
 
-optional<long> ASTExprCast::getCompileTimeValue(
+optional<int32_t> ASTExprCast::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!operand) return nullopt;
@@ -1444,15 +1444,15 @@ void ASTExprAnd::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprAnd(*this, param);
 }
 
-optional<long> ASTExprAnd::getCompileTimeValue(
+optional<int32_t> ASTExprAnd::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
 	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	if(short_circuit && !*leftValue) return 0L; //Cut it short if we already know the result, and the option is on.
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	if(short_circuit && !*leftValue) return 0L; //Cut it int16_t if we already know the result, and the option is on.
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue && *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
@@ -1469,15 +1469,15 @@ void ASTExprOr::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprOr(*this, param);
 }
 
-optional<long> ASTExprOr::getCompileTimeValue(
+optional<int32_t> ASTExprOr::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
 	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	if(short_circuit && *leftValue) return 10000L; //Cut it short if we already know the result, and the option is on.
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	if(short_circuit && *leftValue) return 10000L; //Cut it int16_t if we already know the result, and the option is on.
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue || *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
@@ -1501,13 +1501,13 @@ void ASTExprGT::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprGT(*this, param);
 }
 
-optional<long> ASTExprGT::getCompileTimeValue(
+optional<int32_t> ASTExprGT::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue > *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
@@ -1524,13 +1524,13 @@ void ASTExprGE::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprGE(*this, param);
 }
 
-optional<long> ASTExprGE::getCompileTimeValue(
+optional<int32_t> ASTExprGE::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue >= *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
@@ -1547,13 +1547,13 @@ void ASTExprLT::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprLT(*this, param);
 }
 
-optional<long> ASTExprLT::getCompileTimeValue(
+optional<int32_t> ASTExprLT::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue < *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
@@ -1570,13 +1570,13 @@ void ASTExprLE::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprLE(*this, param);
 }
 
-optional<long> ASTExprLE::getCompileTimeValue(
+optional<int32_t> ASTExprLE::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue <= *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
@@ -1593,13 +1593,13 @@ void ASTExprEQ::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprEQ(*this, param);
 }
 
-optional<long> ASTExprEQ::getCompileTimeValue(
+optional<int32_t> ASTExprEQ::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue == *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
@@ -1616,13 +1616,13 @@ void ASTExprNE::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprNE(*this, param);
 }
 
-optional<long> ASTExprNE::getCompileTimeValue(
+optional<int32_t> ASTExprNE::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue != *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
@@ -1639,13 +1639,13 @@ void ASTExprAppxEQ::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprAppxEQ(*this, param);
 }
 
-optional<long> ASTExprAppxEQ::getCompileTimeValue(
+optional<int32_t> ASTExprAppxEQ::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (abs(*leftValue - *rightValue) <= (*lookupOption(*scope, CompileOption::OPT_APPROX_EQUAL_MARGIN))) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
@@ -1662,13 +1662,13 @@ void ASTExprXOR::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprXOR(*this, param);
 }
 
-optional<long> ASTExprXOR::getCompileTimeValue(
+optional<int32_t> ASTExprXOR::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return ((!*leftValue) != (!*rightValue)) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
@@ -1692,13 +1692,13 @@ void ASTExprPlus::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprPlus(*this, param);
 }
 
-optional<long> ASTExprPlus::getCompileTimeValue(
+optional<int32_t> ASTExprPlus::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return *leftValue + *rightValue;
 }
@@ -1715,13 +1715,13 @@ void ASTExprMinus::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprMinus(*this, param);
 }
 
-optional<long> ASTExprMinus::getCompileTimeValue(
+optional<int32_t> ASTExprMinus::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return *leftValue - *rightValue;
 }
@@ -1745,18 +1745,18 @@ void ASTExprTimes::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprTimes(*this, param);
 }
 
-optional<long> ASTExprTimes::getCompileTimeValue(
+optional<int32_t> ASTExprTimes::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if(rightValue && (*rightValue == 0)) return 0;
 	if(leftValue && (*leftValue == 0)) return 0;
 	if (!leftValue) return nullopt;
 	if (!rightValue) return nullopt;
 
-	return long(*leftValue * (*rightValue / 10000.0));
+	return int32_t(*leftValue * (*rightValue / 10000.0));
 }
 
 // ASTExprDivide
@@ -1771,13 +1771,13 @@ void ASTExprDivide::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprDivide(*this, param);
 }
 
-optional<long> ASTExprDivide::getCompileTimeValue(
+optional<int32_t> ASTExprDivide::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
 	if (*rightValue == 0)
@@ -1793,7 +1793,7 @@ optional<long> ASTExprDivide::getCompileTimeValue(
 		return *leftValue / *rightValue * 10000L;
 	}
 	
-	return static_cast<long>((*leftValue * 1.0) / (*rightValue * 1.0) * (10000L));
+	return static_cast<int32_t>((*leftValue * 1.0) / (*rightValue * 1.0) * (10000L));
 }
 
 // ASTExprModulo
@@ -1808,13 +1808,13 @@ void ASTExprModulo::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprModulo(*this, param);
 }
 
-optional<long> ASTExprModulo::getCompileTimeValue(
+optional<int32_t> ASTExprModulo::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
 	if (*rightValue == 0)
@@ -1845,13 +1845,13 @@ void ASTExprBitAnd::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprBitAnd(*this, param);
 }
 
-optional<long> ASTExprBitAnd::getCompileTimeValue(
+optional<int32_t> ASTExprBitAnd::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
 	   || left->isLong(scope, errorHandler)
@@ -1872,13 +1872,13 @@ void ASTExprBitOr::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprBitOr(*this, param);
 }
 
-optional<long> ASTExprBitOr::getCompileTimeValue(
+optional<int32_t> ASTExprBitOr::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
 	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
@@ -1900,13 +1900,13 @@ void ASTExprBitXor::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprBitXor(*this, param);
 }
 
-optional<long> ASTExprBitXor::getCompileTimeValue(
+optional<int32_t> ASTExprBitXor::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
 	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
@@ -1935,13 +1935,13 @@ void ASTExprLShift::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprLShift(*this, param);
 }
 
-optional<long> ASTExprLShift::getCompileTimeValue(
+optional<int32_t> ASTExprLShift::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	
 	if (*rightValue % 10000L)
@@ -1971,13 +1971,13 @@ void ASTExprRShift::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprRShift(*this, param);
 }
 
-optional<long> ASTExprRShift::getCompileTimeValue(
+optional<int32_t> ASTExprRShift::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	
 	if (*rightValue % 10000L)
@@ -2015,14 +2015,14 @@ void ASTTernaryExpr::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprTernary(*this, param);
 }
 
-optional<long> ASTTernaryExpr::getCompileTimeValue(
+optional<int32_t> ASTTernaryExpr::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !middle || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> middleValue = middle->getCompileTimeValue(errorHandler, scope);
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> middleValue = middle->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	
 	if(*leftValue)
 	{
@@ -2057,11 +2057,11 @@ void ASTNumberLiteral::execute(ASTVisitor& visitor, void* param)
 	visitor.caseNumberLiteral(*this, param);
 }
 
-optional<long> ASTNumberLiteral::getCompileTimeValue(
+optional<int32_t> ASTNumberLiteral::getCompileTimeValue(
 	CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!value) return nullopt;
-    pair<long, bool> val = ScriptParser::parseLong(value->parseValue(errorHandler, scope), scope);
+    pair<int32_t, bool> val = ScriptParser::parseLong(value->parseValue(errorHandler, scope), scope);
 	
     if (!val.second && errorHandler)
 	    errorHandler->handleError(
@@ -2095,11 +2095,11 @@ void ASTCharLiteral::execute(ASTVisitor& visitor, void* param)
 	visitor.caseCharLiteral(*this, param);
 }
 
-optional<long> ASTCharLiteral::getCompileTimeValue(
+optional<int32_t> ASTCharLiteral::getCompileTimeValue(
 	CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!value) return nullopt;
-    pair<long, bool> val = ScriptParser::parseLong(value->parseValue(errorHandler, scope), scope);
+    pair<int32_t, bool> val = ScriptParser::parseLong(value->parseValue(errorHandler, scope), scope);
 
     if (!val.second && errorHandler)
 	    errorHandler->handleError(
@@ -2211,11 +2211,11 @@ void ASTOptionValue::execute(ASTVisitor& visitor, void* param)
 	visitor.caseOptionValue(*this, param);
 }
 
-optional<long> ASTOptionValue::getCompileTimeValue(
+optional<int32_t> ASTOptionValue::getCompileTimeValue(
 	CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!scope) return nullopt;
-	if (optional<long> value = lookupOption(*scope, option))
+	if (optional<int32_t> value = lookupOption(*scope, option))
 		return value;
 	errorHandler->handleError(CompileError::UnknownOption(this, name));
 	return nullopt;
@@ -2241,7 +2241,7 @@ void ASTIsIncluded::execute(ASTVisitor& visitor, void* param)
 	visitor.caseIsIncluded(*this, param);
 }
 
-optional<long> ASTIsIncluded::getCompileTimeValue(
+optional<int32_t> ASTIsIncluded::getCompileTimeValue(
 	CompileErrorHandler* errorHandler, Scope* scope)
 {
 	RootScope* root = getRoot(*scope);

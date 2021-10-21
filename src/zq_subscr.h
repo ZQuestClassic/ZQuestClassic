@@ -21,10 +21,10 @@ enum { ssodLEFT, ssodCENTER, ssodRIGHT, ssodTOP, ssodMIDDLE, ssodBOTTOM };
 enum { ssosLEFT, ssosCENTER, ssosRIGHT, ssosTOP, ssosMIDDLE, ssosBOTTOM };
 
 void edit_subscreen();
-int onEditSubscreens();
+int32_t onEditSubscreens();
 
-char *sso_name(int type);
-char *sso_name(subscreen_object *tempss, int id);
+char *sso_name(int32_t type);
+char *sso_name(subscreen_object *tempss, int32_t id);
 void center_zq_subscreen_dialogs();
 void update_sso_name();
 void update_up_dn_btns();

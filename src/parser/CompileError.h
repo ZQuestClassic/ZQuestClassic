@@ -45,7 +45,7 @@ namespace ZScript
 #		define EXPAND(X) X
 #		define TYPE_VOID /* ignore void types */
 #		define TYPE_void /* ignore void types */
-#		define TYPE_INT ,int
+#		define TYPE_INT ,int32_t
 #		define TYPE_STR ,std::string const&
 		// Split on USED field.
 #		define X(NAME, CODE, USED, ...) EXPAND(X_##USED(NAME, CODE, __VA_ARGS__))
@@ -100,12 +100,12 @@ namespace ZScript
 		void handleError(CompileError const&);
 	
 		bool hasError() const {return errorCount_ > 0;}
-		int getErrorCount() const {return errorCount_;}
-		int getWarningCount() const {return warningCount_;}
+		int32_t getErrorCount() const {return errorCount_;}
+		int32_t getWarningCount() const {return warningCount_;}
 	
 	private:
-		int errorCount_;
-		int warningCount_;
+		int32_t errorCount_;
+		int32_t warningCount_;
 	};
 }
 	

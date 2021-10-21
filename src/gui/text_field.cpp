@@ -34,7 +34,7 @@ void TextField::setText(std::string_view newText)
 	pendDraw();
 }
 
-void TextField::setVal(int val)
+void TextField::setVal(int32_t val)
 {
 	char buf[32] = {0};
 	switch(tfType)
@@ -100,19 +100,19 @@ std::string_view TextField::getText()
 	else
 		return std::string_view("", 1);
 }
-void TextField::setLowBound(int low)
+void TextField::setLowBound(int32_t low)
 {
 	lbound = low;
 	check_len(1);
 }
-void TextField::setHighBound(int high)
+void TextField::setHighBound(int32_t high)
 {
 	ubound = high;
 	check_len(1);
 }
-int TextField::getVal()
+int32_t TextField::getVal()
 {
-	int value=0;
+	int32_t value=0;
 	switch(tfType)
 	{
 		case type::TEXT:
@@ -135,7 +135,7 @@ int TextField::getVal()
 		case type::FIXED_DECIMAL:
 		{
 			double scale = pow(10, fixedPlaces);
-			value = int(strtod(buffer.get(), NULL)*scale);
+			value = int32_t(strtod(buffer.get(), NULL)*scale);
 			break;
 		}
 	}
@@ -185,12 +185,12 @@ void TextField::_updateBuf(size_t sz)
 	buffer = std::move(newBuffer);
 	maxLength = sz;
 	
-	int btnsz = isSwapType() ? 16 : 0;
+	int32_t btnsz = isSwapType() ? 16 : 0;
 	
 	setPreferredWidth(Size::largePixels(btnsz)+Size::em(std::min((sz+sized(2,1))*0.75, 20.0)));
 }
 
-void TextField::setOnValChanged(std::function<void(type,std::string_view,int)> newOnValChanged)
+void TextField::setOnValChanged(std::function<void(type,std::string_view,int32_t)> newOnValChanged)
 {
 	onValChanged = std::move(newOnValChanged);
 }
@@ -200,7 +200,7 @@ void TextField::setFixedPlaces(size_t places)
 	places = vbound(places,1,4);
 	if(valSet)
 	{
-		int val = getVal();
+		int32_t val = getVal();
 		fixedPlaces = places;
 		setVal(val);
 	}
@@ -212,7 +212,7 @@ void TextField::realize(DialogRunner& runner)
 	Widget::realize(runner);
 	assert(maxLength > 0);
 
-	using ProcType = int(*)(int, DIALOG*, int);
+	using ProcType = int32_t(*)(int32_t, DIALOG*, int32_t);
 	ProcType proc;
 	if(isSwapType())
 	{
@@ -234,9 +234,9 @@ void TextField::realize(DialogRunner& runner)
 				break;
 		}
 		
-		int totalwid = getWidth();
-		int btnwid = (24_lpx).resolve();
-		int txtfwid = totalwid-btnwid;
+		int32_t totalwid = getWidth();
+		int32_t btnwid = (24_lpx).resolve();
+		int32_t txtfwid = totalwid-btnwid;
 		
 		alDialog = runner.push(shared_from_this(), DIALOG {
 			proc,
@@ -244,7 +244,7 @@ void TextField::realize(DialogRunner& runner)
 			startVal, bgColor,
 			0, // key
 			getFlags(), // flags
-			static_cast<int>(maxLength), 0, // d1, d2
+			static_cast<int32_t>(maxLength), 0, // d1, d2
 			buffer.get(), widgFont, nullptr // dp, dp2, dp3
 		});
 		swapBtnDialog = runner.push(shared_from_this(), DIALOG {
@@ -287,7 +287,7 @@ void TextField::realize(DialogRunner& runner)
 			fgColor, bgColor,
 			0, // key
 			getFlags(), // flags
-			static_cast<int>(maxLength), 0, // d1, d2
+			static_cast<int32_t>(maxLength), 0, // d1, d2
 			buffer.get(), widgFont, nullptr // dp, dp2, dp3
 		});
 	}
@@ -309,9 +309,9 @@ void TextField::applyFont(FONT* newFont)
 	Widget::applyFont(newFont);
 }
 
-int TextField::onEvent(int event, MessageDispatcher& sendMessage)
+int32_t TextField::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
-	int message = -1;
+	int32_t message = -1;
 	switch(event)
 	{
 		case geENTER:

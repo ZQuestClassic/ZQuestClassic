@@ -160,13 +160,13 @@ void Widget::setExposed(bool exposed)
 	}
 }
 
-int Widget::onEvent(int, MessageDispatcher&)
+int32_t Widget::onEvent(int32_t, MessageDispatcher&)
 {
 	assert(false); // This function should have been overridden
 	return -1;
 }
 
-void Widget::arrange(int contX, int contY, int contW, int contH)
+void Widget::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 {
 	contX += leftMargin+leftPadding;
 	contW -= leftMargin+rightMargin+leftPadding+rightPadding;
@@ -176,6 +176,14 @@ void Widget::arrange(int contX, int contY, int contW, int contH)
 		contW = maxwidth;
 	if(maxheight > -1 && contH > maxheight)
 		contH = maxheight;
+	if(flags & f_FORCE_FIT_W)
+	{
+		overrideWidth(Size::pixels(contW));
+	}
+	if(flags & f_FORCE_FIT_H)
+	{
+		overrideHeight(Size::pixels(contH));
+	}
 	if(flags&f_FIT_PARENT)
 	{
 		setPreferredWidth(Size::pixels(contW));
@@ -263,6 +271,22 @@ void Widget::setFitParent(bool fit) noexcept
 		flags &= ~f_FIT_PARENT;
 }
 
+void Widget::setForceFitWid(bool fit) noexcept
+{
+	if(fit)
+		flags |= f_FORCE_FIT_W;
+	else
+		flags &= ~f_FORCE_FIT_W;
+}
+
+void Widget::setForceFitHei(bool fit) noexcept
+{
+	if(fit)
+		flags |= f_FORCE_FIT_H;
+	else
+		flags &= ~f_FORCE_FIT_H;
+}
+
 void Widget::setFrameText(std::string const& newstr)
 {
 	frameText = newstr;
@@ -283,9 +307,9 @@ void Widget::applyFont(FONT* newfont)
 	}
 }
 
-int Widget::getFlags() const noexcept
+int32_t Widget::getFlags() const noexcept
 {
-	int ret = D_NEW_GUI;
+	int32_t ret = D_NEW_GUI;
 	if(hideCount > 0 || (flags&f_INVISIBLE) != 0)
 		ret |= D_HIDDEN;
 	if(flags&f_DISABLED)

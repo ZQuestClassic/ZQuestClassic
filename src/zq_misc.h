@@ -51,7 +51,7 @@
 
 #define C(x)   ((x)-'a'+1)
 
-INLINE int popup_menu(MENU *menu,int x,int y)
+INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
 {
     while(gui_mouse_b())
     {
@@ -61,7 +61,7 @@ INLINE int popup_menu(MENU *menu,int x,int y)
     return jwin_do_menu(menu,x,y);
 }
 
-INLINE int bit(int val,int b)
+INLINE int32_t bit(int32_t val,int32_t b)
 {
     return (val>>b)&1;
 }
@@ -98,9 +98,9 @@ extern const char *enetype_string[eeMAX];
 extern const char *eneanim_string[aMAX];
 //extern char *itemset_string[isMAX];
 extern const char *eweapon_string[wMax-wEnemyWeapons];
-extern int gocnt;
+extern int32_t gocnt;
 
-int filetype(const char *path);
+int32_t filetype(const char *path);
 void load_mice();
 void load_icons();
 void load_panel_button_icons();
@@ -108,249 +108,249 @@ void load_selections();
 void load_arrows();
 void dump_pal();
 
-int wrap(int x,int low,int high);
-bool readfile(const char *path,void *buf,int count);
-bool writefile(const char *path,void *buf,int count);
+int32_t wrap(int32_t x,int32_t low,int32_t high);
+bool readfile(const char *path,void *buf,int32_t count);
+bool writefile(const char *path,void *buf,int32_t count);
 
 /***  from allegro's guiproc.c  ***/
-void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg);
+void dotted_rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t fg, int32_t bg);
 
 RGB _RGB(byte *si);
-RGB _RGB(int r,int g,int b);
+RGB _RGB(int32_t r,int32_t g,int32_t b);
 RGB invRGB(RGB s);
-RGB mixRGB(int r1,int g1,int b1,int r2,int g2,int b2,int ratio);
+RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int32_t ratio);
 
 void reset_pal_cycling();
 void cycle_palette();
-void load_cset(RGB *pal,int cset_index,int dataset);
+void load_cset(RGB *pal,int32_t cset_index,int32_t dataset);
 void set_pal();
-void loadlvlpal(int level);
-void loadfadepal(int dataset);
+void loadlvlpal(int32_t level);
+void loadfadepal(int32_t dataset);
 
 void setup_lcolors();
 void refresh_pal();
 
-void refresh(int flags);
+void refresh(int32_t flags);
 void domouse();
 void init_doorcombosets();
 
-int onNew();
-int onOpen();
-int onOpen2();
-int onRevert();
-int onSave();
-int onSaveAs();
-int onQuestTemplates();
+int32_t onNew();
+int32_t onOpen();
+int32_t onOpen2();
+int32_t onRevert();
+int32_t onSave();
+int32_t onSaveAs();
+int32_t onQuestTemplates();
 
-int onUndo();
-int onCopy();
-int onPaste();
-int onPasteAll();
-int onPasteToAll();
-int onPasteAllToAll();
-int onDelete();
-int onDeleteMap();
+int32_t onUndo();
+int32_t onCopy();
+int32_t onPaste();
+int32_t onPasteAll();
+int32_t onPasteToAll();
+int32_t onPasteAllToAll();
+int32_t onDelete();
+int32_t onDeleteMap();
 
-int onPasteUnderCombo();
-int onPasteSecretCombos();
-int onPasteFFCombos();
-int onPasteWarps();
-int onPasteScreenData();
-int onPasteWarpLocations();
-int onPasteDoors();
-int onPasteLayers();
-int onPasteRoom();
-int onPasteGuy();
-int onPasteEnemies();
+int32_t onPasteUnderCombo();
+int32_t onPasteSecretCombos();
+int32_t onPasteFFCombos();
+int32_t onPasteWarps();
+int32_t onPasteScreenData();
+int32_t onPasteWarpLocations();
+int32_t onPasteDoors();
+int32_t onPasteLayers();
+int32_t onPasteRoom();
+int32_t onPasteGuy();
+int32_t onPasteEnemies();
 
-int onTemplate();
-int onDoors();
-int onCSetFix();
-int onFlags();
-int onShowPal();
-int onReTemplate();
+int32_t onTemplate();
+int32_t onDoors();
+int32_t onCSetFix();
+int32_t onFlags();
+int32_t onShowPal();
+int32_t onReTemplate();
 
-int playTune();
-int playMIDI();
-int stopMIDI();
-int onKeyFile();
+int32_t playTune();
+int32_t playMIDI();
+int32_t stopMIDI();
+int32_t onKeyFile();
 
-int onUp();
-int onDown();
-int onLeft();
-int onRight();
-int onPgUp();
-int onPgDn();
-int onIncreaseCSet();
-int onDecreaseCSet();
+int32_t onUp();
+int32_t onDown();
+int32_t onLeft();
+int32_t onRight();
+int32_t onPgUp();
+int32_t onPgDn();
+int32_t onIncreaseCSet();
+int32_t onDecreaseCSet();
 
-int  onHelp();
-void doHelp(int bg,int fg);
+int32_t  onHelp();
+void doHelp(int32_t bg,int32_t fg);
 
-int onScrData();
-int onGuy();
-int onEndString();
-int onString();
-int onRType();
-int onCatchall();
-int onItem();
-int onWarp();
-int onWarp2();
-int onPath();
-int onEnemies();
-int onEnemyFlags();
-int onUnderCombo();
-int onSecretCombo();
+int32_t onScrData();
+int32_t onGuy();
+int32_t onEndString();
+int32_t onString();
+int32_t onRType();
+int32_t onCatchall();
+int32_t onItem();
+int32_t onWarp();
+int32_t onWarp2();
+int32_t onPath();
+int32_t onEnemies();
+int32_t onEnemyFlags();
+int32_t onUnderCombo();
+int32_t onSecretCombo();
 
-int onHeader();
-int onAnimationRules();
-int onWeaponRules();
-int onHeroRules();
-int onComboRules();
-int onItemRules();
-int onEnemyRules();
-int onFixesRules();
-int onMiscRules();
-int onCompatRules();
-int onRules2();
-int onCheats();
-int onStrings();
-int onDmaps();
-int onTiles();
-int onCombos();
-int onMidis();
-int onShopTypes();
-int onInfoTypes();
-int onWarpRings();
-int onWhistle();
-int onMiscColors();
-int onMapStyles();
-int onTemplates();
-int onDoorCombos();
-int onTriPieces();
-int onIcons();
-int onInit();
-int onLayers();
-int onScreenPalette();
+int32_t onHeader();
+int32_t onAnimationRules();
+int32_t onWeaponRules();
+int32_t onHeroRules();
+int32_t onComboRules();
+int32_t onItemRules();
+int32_t onEnemyRules();
+int32_t onFixesRules();
+int32_t onMiscRules();
+int32_t onCompatRules();
+int32_t onRules2();
+int32_t onCheats();
+int32_t onStrings();
+int32_t onDmaps();
+int32_t onTiles();
+int32_t onCombos();
+int32_t onMidis();
+int32_t onShopTypes();
+int32_t onInfoTypes();
+int32_t onWarpRings();
+int32_t onWhistle();
+int32_t onMiscColors();
+int32_t onMapStyles();
+int32_t onTemplates();
+int32_t onDoorCombos();
+int32_t onTriPieces();
+int32_t onIcons();
+int32_t onInit();
+int32_t onLayers();
+int32_t onScreenPalette();
 
-int onColors_Main();
-int onColors_Levels();
-int onColors_Sprites();
+int32_t onColors_Main();
+int32_t onColors_Levels();
+int32_t onColors_Sprites();
 
-int onImport_Map();
-int onImport_DMaps();
-int onImport_Msgs();
-int onImport_Combos();
-int onImport_Tiles();
-int onImport_Guys();
-int onImport_Subscreen();
-int onImport_Pals();
-int onImport_ZGP();
-int onImport_ZQT();
-int onImport_UnencodedQuest();
+int32_t onImport_Map();
+int32_t onImport_DMaps();
+int32_t onImport_Msgs();
+int32_t onImport_Combos();
+int32_t onImport_Tiles();
+int32_t onImport_Guys();
+int32_t onImport_Subscreen();
+int32_t onImport_Pals();
+int32_t onImport_ZGP();
+int32_t onImport_ZQT();
+int32_t onImport_UnencodedQuest();
 
-int onExport_Map();
-int onExport_DMaps();
-int onExport_Msgs();
-int onExport_MsgsText();
-int onExport_Combos();
-int onExport_Tiles();
-int onExport_Guys();
-int onExport_Subscreen();
-int onExport_Pals();
-int onExport_ZGP();
-int onExport_ZQT();
-int onExport_UnencodedQuest();
-int onAbout_Module();
-int onExport_Tilepack();
-int onImport_Tilepack();
-int onImport_Tilepack_To();
+int32_t onExport_Map();
+int32_t onExport_DMaps();
+int32_t onExport_Msgs();
+int32_t onExport_MsgsText();
+int32_t onExport_Combos();
+int32_t onExport_Tiles();
+int32_t onExport_Guys();
+int32_t onExport_Subscreen();
+int32_t onExport_Pals();
+int32_t onExport_ZGP();
+int32_t onExport_ZQT();
+int32_t onExport_UnencodedQuest();
+int32_t onAbout_Module();
+int32_t onExport_Tilepack();
+int32_t onImport_Tilepack();
+int32_t onImport_Tilepack_To();
 
-int onExport_Combopack();
-int onImport_Combopack_To();
-int onImport_Combopack();
+int32_t onExport_Combopack();
+int32_t onImport_Combopack_To();
+int32_t onImport_Combopack();
 
-int onImport_Comboaliaspack();
-int onImport_Comboaliaspack_To();
-int onExport_Comboaliaspack();
+int32_t onImport_Comboaliaspack();
+int32_t onImport_Comboaliaspack_To();
+int32_t onExport_Comboaliaspack();
 
-int writezdoorsets(PACKFILE *f, int first, int count);
-int readzdoorsets(PACKFILE *f, int first, int count, int deststart);
-int writeonezdoorset(PACKFILE *f, int index);
-int readonezdoorset(PACKFILE *f, int index);
+int32_t writezdoorsets(PACKFILE *f, int32_t first, int32_t count);
+int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststart);
+int32_t writeonezdoorset(PACKFILE *f, int32_t index);
+int32_t readonezdoorset(PACKFILE *f, int32_t index);
 
-int onExport_Doorset();
-int onImport_Doorset();
+int32_t onExport_Doorset();
+int32_t onImport_Doorset();
 
-int onGotoMap();
+int32_t onGotoMap();
 
-int onViewPic();
-int onViewMap();
-int onComboPage();
+int32_t onViewPic();
+int32_t onViewMap();
+int32_t onComboPage();
 
-int onDefault_Pals();
-int onDefault_Tiles();
-int onDefault_Combos();
-int onDefault_Sprites();
-int onDefault_MapStyles();
+int32_t onDefault_Pals();
+int32_t onDefault_Tiles();
+int32_t onDefault_Combos();
+int32_t onDefault_Sprites();
+int32_t onDefault_MapStyles();
 
-int onCustomItems();
-int onCustomWpns();
-int onCustomLink();
-int onCustomGuys();
+int32_t onCustomItems();
+int32_t onCustomWpns();
+int32_t onCustomLink();
+int32_t onCustomGuys();
 
-int onTest();
-int onTestOptions();
+int32_t onTest();
+int32_t onTestOptions();
 
-int onOptions();
+int32_t onOptions();
 
-bool edit_combo(int c,bool freshen,int cs);
+bool edit_combo(int32_t c,bool freshen,int32_t cs);
 
-void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg,bool value);
-void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int value);
+void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,bool value);
+void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_t value);
 void KeyFileName(char *kfname);
 
-int onSpacebar();
-int onSnapshot();
-int onMapscrSnapshot();
-int onSaveZQuestSettings();
-int onClearQuestFilepath();
+int32_t onSpacebar();
+int32_t onSnapshot();
+int32_t onMapscrSnapshot();
+int32_t onSaveZQuestSettings();
+int32_t onClearQuestFilepath();
 void go();
 void comeback();
-int checksave();
-int onExit();
-int onAbout();
-int onShowCSet();
-int onShowCType();
-int onShowWalkability();
-int onPreviewMode();
-int onShowFlags();
-int onP();
-int onShowComboInfoCSet();
-int onShowDarkness();
-int onJ();
-int onM();
+int32_t checksave();
+int32_t onExit();
+int32_t onAbout();
+int32_t onShowCSet();
+int32_t onShowCType();
+int32_t onShowWalkability();
+int32_t onPreviewMode();
+int32_t onShowFlags();
+int32_t onP();
+int32_t onShowComboInfoCSet();
+int32_t onShowDarkness();
+int32_t onJ();
+int32_t onM();
 void setFlagColor();
-int onIncreaseFlag();
-int onDecreaseFlag();
-int on0();
-int on1();
-int on2();
-int on3();
-int on4();
-int on5();
-int on6();
-int on7();
-int on8();
-int on9();
-int on10();
-int on11();
-int on12();
-int on13();
-int on14();
-int onToggleDarkness();
-int onIncMap();
-int onDecMap();
-int onDumpScr();
+int32_t onIncreaseFlag();
+int32_t onDecreaseFlag();
+int32_t on0();
+int32_t on1();
+int32_t on2();
+int32_t on3();
+int32_t on4();
+int32_t on5();
+int32_t on6();
+int32_t on7();
+int32_t on8();
+int32_t on9();
+int32_t on10();
+int32_t on11();
+int32_t on12();
+int32_t on13();
+int32_t on14();
+int32_t onToggleDarkness();
+int32_t onIncMap();
+int32_t onDecMap();
+int32_t onDumpScr();
 #endif
 

@@ -48,7 +48,7 @@ extern zcmodule moduledata;
 //modules
 
 
-extern int jwin_pal[jcMAX];
+extern int32_t jwin_pal[jcMAX];
 extern FONT *sfont2;
 extern FONT *lfont;
 extern FONT *pfont;
@@ -58,22 +58,22 @@ extern byte quest_rules[QUESTRULES_NEW_SIZE];
 extern char *item_string[];
 extern byte *colordata;
 
-void initPopulate(int &i, DIALOG_PROC proc, int x, int y, int w, int h, int fg, int bg, int key, int flags, int d1, int d2,
+void initPopulate(int32_t &i, DIALOG_PROC proc, int32_t x, int32_t y, int32_t w, int32_t h, int32_t fg, int32_t bg, int32_t key, int32_t flags, int32_t d1, int32_t d2,
                   void *dp, void *dp2 = NULL, void *dp3 = NULL);
-void getitem(int id, bool nosound);
+void getitem(int32_t id, bool nosound);
 
-static const int endEquipField = 33;
+static const int32_t endEquipField = 33;
 
-void doFamily(int family, zinitdata *data);
-int jwin_initlist_proc(int msg,DIALOG *d,int c);
+void doFamily(int32_t family, zinitdata *data);
+int32_t jwin_initlist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 class Family
 {
 public:
-    Family(int fam, int lvl, int id) : family(fam), level(lvl), itemid(id) {}
-    int family;
-    int level;
-    int itemid;
+    Family(int32_t fam, int32_t lvl, int32_t id) : family(fam), level(lvl), itemid(id) {}
+    int32_t family;
+    int32_t level;
+    int32_t itemid;
     bool operator<(const Family &other) const
     {
         return level < other.level;
@@ -83,39 +83,39 @@ public:
 //extern char *itype_names[itype_last];
 
 
-extern int d_dummy_proc(int msg,DIALOG *d,int c);
-extern int d_dropdmaplist_proc(int msg,DIALOG *d,int c);
-extern const char *dmaplist(int index, int *list_size);
-extern int onHelp();
-extern int startdmapxy[6];
+extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
+extern int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
+extern const char *dmaplist(int32_t index, int32_t *list_size);
+extern int32_t onHelp();
+extern int32_t startdmapxy[6];
 extern void onInitOK();
 
-std::map<int, int> listidx2biic;
+std::map<int32_t, int32_t> listidx2biic;
 //sorted by family id
-static std::map<int, std::vector<Family> > families;
+static std::map<int32_t, std::vector<Family> > families;
 
-int d_line_proc(int msg, DIALOG *d, int c)
+int32_t d_line_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
     
     if(msg==MSG_DRAW)
     {
-        int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+        int32_t fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
         line(screen, d->x, d->y, d->x+d->w, d->y+d->h, palette_color[fg]);
     }
     
     return D_O_K;
 }
 
-static int init_equipment_list[] =
+static int32_t init_equipment_list[] =
 {
     // dialog control number
     5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 
 	41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, -1
 };
 
-static int init_items_list[] =
+static int32_t init_items_list[] =
 {
     // dialog control number
     65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 
@@ -123,12 +123,12 @@ static int init_items_list[] =
 	128, 129, 130, 131, 132, 133, 134, 135, 136, 1692, 1693, 1698, 1699, -1
 };
 
-static int init_scrcnt_tb_list[] =
+static int32_t init_scrcnt_tb_list[] =
 {
 	102, -1
 };
 
-static int init_scrcnt_list[] =
+static int32_t init_scrcnt_list[] =
 {
 	// dialog control number
 	3276,3277,3278,3279,
@@ -158,7 +158,7 @@ static int init_scrcnt_list[] =
 	-1
 };
 
-static int init_scrcnt2_list[] =
+static int32_t init_scrcnt2_list[] =
 {
 	// dialog control number
 	3356,3357,3358,3359,
@@ -170,199 +170,199 @@ static int init_scrcnt2_list[] =
 	-1
 };
 
-static int init_dmap_items_list[] =
+static int32_t init_dmap_items_list[] =
 {
     // dialog control number
     137, -1
 };
 
-static int init_dmap_items_000s_list[] =
+static int32_t init_dmap_items_000s_list[] =
 {
     // dialog control number
     138, -1
 };
 
-static int init_dmap_items_100s_list[] =
+static int32_t init_dmap_items_100s_list[] =
 {
     // dialog control number
     139, -1
 };
 
-static int init_dmap_items_200s_list[] =
+static int32_t init_dmap_items_200s_list[] =
 {
     // dialog control number
     140, -1
 };
 
-static int init_dmap_items_300s_list[] =
+static int32_t init_dmap_items_300s_list[] =
 {
     // dialog control number
     1707, -1
 };
 
-static int init_dmap_items_400s_list[] =
+static int32_t init_dmap_items_400s_list[] =
 {
     // dialog control number
     1708, -1
 };
 
-static int init_dmap_items_500s_list[] =
+static int32_t init_dmap_items_500s_list[] =
 {
     // dialog control number
     1709, -1
 };
 
-static int init_dmap_items_0_00s_list[] =
+static int32_t init_dmap_items_0_00s_list[] =
 {
     // dialog control number
     141, 167, 168, 219, 220, 271, 272, 323, 324, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 887, 888, 889, 890, 891, 892, 893, 894, 895, 896, 1143, 1144, 1145, 1146, 1147, 1148, 1149, 1150, 1151, 1152, 1399, 1400, 1401, 1402, 1403, 1404, 1405, 1406, 1407, 1408, -1
 };
 
-static int init_dmap_items_0_10s_list[] =
+static int32_t init_dmap_items_0_10s_list[] =
 {
     // dialog control number
     142, 169, 170, 221, 222, 273, 274, 325, 326, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 897, 898, 899, 900, 901, 902, 903, 904, 905, 906, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1160, 1161, 1162, 1409, 1410, 1411, 1412, 1413, 1414, 1415, 1416, 1417, 1418, -1
 };
 
-static int init_dmap_items_0_20s_list[] =
+static int32_t init_dmap_items_0_20s_list[] =
 {
     // dialog control number
     143, 171, 172, 223, 224, 275, 276, 327, 328, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 651, 652, 653, 654, 655, 656, 657, 658, 659, 660, 907, 908, 909, 910, 911, 912, 913, 914, 915, 916, 1163, 1164, 1165, 1166, 1167, 1168, 1169, 1170, 1171, 1172, 1419, 1420, 1421, 1422, 1423, 1424, 1425, 1426, 1427, 1428, -1
 };
 
-static int init_dmap_items_0_30s_list[] =
+static int32_t init_dmap_items_0_30s_list[] =
 {
     // dialog control number
     144, 173, 174, 225, 226, 277, 278, 329, 330, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 661, 662, 663, 664, 665, 666, 667, 668, 669, 670, 917, 918, 919, 920, 921, 922, 923, 924, 925, 926, 1173, 1174, 1175, 1176, 1177, 1178, 1179, 1180, 1181, 1182, 1429, 1430, 1431, 1432, 1433, 1434, 1435, 1436, 1437, 1438, -1
 };
 
-static int init_dmap_items_0_40s_list[] =
+static int32_t init_dmap_items_0_40s_list[] =
 {
     // dialog control number
     145, 175, 176, 227, 228, 279, 280, 331, 332, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 671, 672, 673, 674, 675, 676, 677, 678, 679, 680, 927, 928, 929, 930, 931, 932, 933, 934, 935, 936, 1183, 1184, 1185, 1186, 1187, 1188, 1189, 1190, 1191, 1192, 1439, 1440, 1441, 1442, 1443, 1444, 1445, 1446, 1447, 1448, -1
 };
 
-static int init_dmap_items_0_50s_list[] =
+static int32_t init_dmap_items_0_50s_list[] =
 {
     // dialog control number
     146, 177, 178, 229, 230, 281, 282, 333, 334, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 681, 682, 683, 684, 685, 686, 687, 688, 689, 690, 937, 938, 939, 940, 941, 942, 943, 944, 945, 946, 1193, 1194, 1195, 1196, 1197, 1198, 1199, 1200, 1201, 1202, 1449, 1450, 1451, 1452, 1453, 1454, 1455, 1456, 1457, 1458, -1
 };
 
-static int init_dmap_items_0_60s_list[] =
+static int32_t init_dmap_items_0_60s_list[] =
 {
     // dialog control number
     147, 179, 180, 231, 232, 283, 284, 335, 336, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 691, 692, 693, 694, 695, 696, 697, 698, 699, 700, 947, 948, 949, 950, 951, 952, 953, 954, 955, 956, 1203, 1204, 1205, 1206, 1207, 1208, 1209, 1210, 1211, 1212, 1459, 1460, 1461, 1462, 1463, 1464, 1465, 1466, 1467, 1468, -1
 };
 
-static int init_dmap_items_0_70s_list[] =
+static int32_t init_dmap_items_0_70s_list[] =
 {
     // dialog control number
     148, 181, 182, 233, 234, 285, 286, 337, 338, 445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 957, 958, 959, 960, 961, 962, 963, 964, 965, 966, 1213, 1214, 1215, 1216, 1217, 1218, 1219, 1220, 1221, 1222, 1469, 1470, 1471, 1472, 1473, 1474, 1475, 1476, 1477, 1478, -1
 };
 
-static int init_dmap_items_0_80s_list[] =
+static int32_t init_dmap_items_0_80s_list[] =
 {
     // dialog control number
     149, 183, 184, 235, 236, 287, 288, 339, 340, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 967, 968, 969, 970, 971, 972, 973, 974, 975, 976, 1223, 1224, 1225, 1226, 1227, 1228, 1229, 1230, 1231, 1232, 1479, 1480, 1481, 1482, 1483, 1484, 1485, 1486, 1487, 1488, -1
 };
 
-static int init_dmap_items_0_90s_list[] =
+static int32_t init_dmap_items_0_90s_list[] =
 {
     // dialog control number
     150, 185, 186, 237, 238, 289, 290, 341, 342, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 977, 978, 979, 980, 981, 982, 983, 984, 985, 986, 1233, 1234, 1235, 1236, 1237, 1238, 1239, 1240, 1241, 1242, 1489, 1490, 1491, 1492, 1493, 1494, 1495, 1496, 1497, 1498, -1
 };
 
-static int init_dmap_items_1_00s_list[] =
+static int32_t init_dmap_items_1_00s_list[] =
 {
     // dialog control number
     151, 187, 188, 239, 240, 291, 292, 343, 344, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 731, 732, 733, 734, 735, 736, 737, 738, 739, 740, 987, 988, 989, 990, 991, 992, 993, 994, 995, 996, 1243, 1244, 1245, 1246, 1247, 1248, 1249, 1250, 1251, 1252, 1499, 1500, 1501, 1502, 1503, 1504, 1505, 1506, 1507, 1508, -1
 };
 
-static int init_dmap_items_1_10s_list[] =
+static int32_t init_dmap_items_1_10s_list[] =
 {
     // dialog control number
     152, 189, 190, 241, 242, 293, 294, 345, 346, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 741, 742, 743, 744, 745, 746, 747, 748, 749, 750, 997, 998, 999, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1253, 1254, 1255, 1256, 1257, 1258, 1259, 1260, 1261, 1262, 1509, 1510, 1511, 1512, 1513, 1514, 1515, 1516, 1517, 1518, -1
 };
 
-static int init_dmap_items_1_20s_list[] =
+static int32_t init_dmap_items_1_20s_list[] =
 {
     // dialog control number
     153, 191, 192, 243, 244, 295, 296, 347, 348, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 751, 752, 753, 754, 755, 756, 757, 758, 759, 760, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1263, 1264, 1265, 1266, 1267, 1268, 1269, 1270, 1271, 1272, 1519, 1520, 1521, 1522, 1523, 1524, 1525, 1526, 1527, 1528, -1
 };
 
-static int init_dmap_items_1_30s_list[] =
+static int32_t init_dmap_items_1_30s_list[] =
 {
     // dialog control number
     154, 193, 194, 245, 246, 297, 298, 349, 350, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 761, 762, 763, 764, 765, 766, 767, 768, 769, 770, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1273, 1274, 1275, 1276, 1277, 1278, 1279, 1280, 1281, 1282, 1529, 1530, 1531, 1532, 1533, 1534, 1535, 1536, 1537, 1538, -1
 };
 
-static int init_dmap_items_1_40s_list[] =
+static int32_t init_dmap_items_1_40s_list[] =
 {
     // dialog control number
     155, 195, 196, 247, 248, 299, 300, 351, 352, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 771, 772, 773, 774, 775, 776, 777, 778, 779, 780, 1027, 1028, 1029, 1030, 1031, 1032, 1033, 1034, 1035, 1036, 1283, 1284, 1285, 1286, 1287, 1288, 1289, 1290, 1291, 1292, 1539, 1540, 1541, 1542, 1543, 1544, 1545, 1546, 1547, 1548, -1
 };
 
-static int init_dmap_items_1_50s_list[] =
+static int32_t init_dmap_items_1_50s_list[] =
 {
     // dialog control number
     156, 197, 198, 249, 250, 301, 302, 353, 354, 525, 526, 527, 528, 529, 530, 531, 532, 533, 534, 781, 782, 783, 784, 785, 786, 787, 788, 789, 790, 1037, 1038, 1039, 1040, 1041, 1042, 1043, 1044, 1045, 1046, 1293, 1294, 1295, 1296, 1297, 1298, 1299, 1300, 1301, 1302, 1549, 1550, 1551, 1552, 1553, 1554, 1555, 1556, 1557, 1558, -1
 };
 
-static int init_dmap_items_1_60s_list[] =
+static int32_t init_dmap_items_1_60s_list[] =
 {
     // dialog control number
     157, 199, 200, 251, 252, 303, 304, 355, 356, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 791, 792, 793, 794, 795, 796, 797, 798, 799, 800, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1056, 1303, 1304, 1305, 1306, 1307, 1308, 1309, 1310, 1311, 1312, 1559, 1560, 1561, 1562, 1563, 1564, 1565, 1566, 1567, 1568, -1
 };
 
-static int init_dmap_items_1_70s_list[] =
+static int32_t init_dmap_items_1_70s_list[] =
 {
     // dialog control number
     158, 201, 202, 253, 254, 305, 306, 357, 358, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554, 801, 802, 803, 804, 805, 806, 807, 808, 809, 810, 1057, 1058, 1059, 1060, 1061, 1062, 1063, 1064, 1065, 1066, 1313, 1314, 1315, 1316, 1317, 1318, 1319, 1320, 1321, 1322, 1569, 1570, 1571, 1572, 1573, 1574, 1575, 1576, 1577, 1578, -1
 };
 
-static int init_dmap_items_1_80s_list[] =
+static int32_t init_dmap_items_1_80s_list[] =
 {
     // dialog control number
     159, 203, 204, 255, 256, 307, 308, 359, 360, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564, 811, 812, 813, 814, 815, 816, 817, 818, 819, 820, 1067, 1068, 1069, 1070, 1071, 1072, 1073, 1074, 1075, 1076, 1323, 1324, 1325, 1326, 1327, 1328, 1329, 1330, 1331, 1332, 1579, 1580, 1581, 1582, 1583, 1584, 1585, 1586, 1587, 1588, -1
 };
 
-static int init_dmap_items_1_90s_list[] =
+static int32_t init_dmap_items_1_90s_list[] =
 {
     // dialog control number
     160, 205, 206, 257, 258, 309, 310, 361, 362, 565, 566, 567, 568, 569, 570, 571, 572, 573, 574, 821, 822, 823, 824, 825, 826, 827, 828, 829, 830, 1077, 1078, 1079, 1080, 1081, 1082, 1083, 1084, 1085, 1086, 1333, 1334, 1335, 1336, 1337, 1338, 1339, 1340, 1341, 1342, 1589, 1590, 1591, 1592, 1593, 1594, 1595, 1596, 1597, 1598, -1
 };
 
-static int init_dmap_items_2_00s_list[] =
+static int32_t init_dmap_items_2_00s_list[] =
 {
     // dialog control number
     161, 207, 208, 259, 260, 311, 312, 363, 364, 575, 576, 577, 578, 579, 580, 581, 582, 583, 584, 831, 832, 833, 834, 835, 836, 837, 838, 839, 840, 1087, 1088, 1089, 1090, 1091, 1092, 1093, 1094, 1095, 1096, 1343, 1344, 1345, 1346, 1347, 1348, 1349, 1350, 1351, 1352, 1599, 1600, 1601, 1602, 1603, 1604, 1605, 1606, 1607, 1608, -1
 };
 
-static int init_dmap_items_2_10s_list[] =
+static int32_t init_dmap_items_2_10s_list[] =
 {
     // dialog control number
     162, 209, 210, 261, 262, 313, 314, 365, 366, 585, 586, 587, 588, 589, 590, 591, 592, 593, 594, 841, 842, 843, 844, 845, 846, 847, 848, 849, 850, 1097, 1098, 1099, 1100, 1101, 1102, 1103, 1104, 1105, 1106, 1353, 1354, 1355, 1356, 1357, 1358, 1359, 1360, 1361, 1362, 1609, 1610, 1611, 1612, 1613, 1614, 1615, 1616, 1617, 1618, -1
 };
 
-static int init_dmap_items_2_20s_list[] =
+static int32_t init_dmap_items_2_20s_list[] =
 {
     // dialog control number
     163, 211, 212, 263, 264, 315, 316, 367, 368, 595, 596, 597, 598, 599, 600, 601, 602, 603, 604, 851, 852, 853, 854, 855, 856, 857, 858, 859, 860, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1363, 1364, 1365, 1366, 1367, 1368, 1369, 1370, 1371, 1372, 1619, 1620, 1621, 1622, 1623, 1624, 1625, 1626, 1627, 1628, -1
 };
 
-static int init_dmap_items_2_30s_list[] =
+static int32_t init_dmap_items_2_30s_list[] =
 {
     // dialog control number
     164, 213, 214, 265, 266, 317, 318, 369, 370, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 861, 862, 863, 864, 865, 866, 867, 868, 869, 870, 1117, 1118, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1373, 1374, 1375, 1376, 1377, 1378, 1379, 1380, 1381, 1382, 1629, 1630, 1631, 1632, 1633, 1634, 1635, 1636, 1637, 1638, -1
 };
 
-static int init_dmap_items_2_40s_list[] =
+static int32_t init_dmap_items_2_40s_list[] =
 {
     // dialog control number
     165, 215, 216, 267, 268, 319, 320, 371, 372, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 871, 872, 873, 874, 875, 876, 877, 878, 879, 880, 1127, 1128, 1129, 1130, 1131, 1132, 1133, 1134, 1135, 1136, 1383, 1384, 1385, 1386, 1387, 1388, 1389, 1390, 1391, 1392, 1639, 1640, 1641, 1642, 1643, 1644, 1645, 1646, 1647, 1648, -1
 };
 
-static int init_dmap_items_2_50s_list[] =
+static int32_t init_dmap_items_2_50s_list[] =
 {
     // dialog control number
     166, 217, 218, 269, 270, 321, 322, 373, 374, 625, 626, 627, 628, 629, 630, 881, 882, 883, 884, 885, 886, 1137, 1138, 1139, 1140, 1141, 1142, 1393, 1394, 1395, 1396, 1397, 1398, 1649, 1650, 1651, 1652, 1653, 1654,
@@ -373,7 +373,7 @@ static int init_dmap_items_2_50s_list[] =
     3008, 3009, 3010, 3011, -1
 };
 
-static int init_dmap_items_2_60s_list[] =
+static int32_t init_dmap_items_2_60s_list[] =
 {
     1750,
     1776, 1777,
@@ -387,7 +387,7 @@ static int init_dmap_items_2_60s_list[] =
     3012, 3013, 3014, 3015, 3016, 3017, 3018, 3019, 3020, 3021, -1
 };
 
-static int init_dmap_items_2_70s_list[] =
+static int32_t init_dmap_items_2_70s_list[] =
 {
     1751,
     1778, 1779,
@@ -401,7 +401,7 @@ static int init_dmap_items_2_70s_list[] =
     3022, 3023, 3024, 3025, 3026, 3027, 3028, 3029, 3030, 3031, -1
 };
 
-static int init_dmap_items_2_80s_list[] =
+static int32_t init_dmap_items_2_80s_list[] =
 {
     1752,
     1780, 1781,
@@ -415,7 +415,7 @@ static int init_dmap_items_2_80s_list[] =
     3032, 3033, 3034, 3035, 3036, 3037, 3038, 3039, 3040, 3041, -1
 };
 
-static int init_dmap_items_2_90s_list[] =
+static int32_t init_dmap_items_2_90s_list[] =
 {
     1753,
     1782, 1783,
@@ -429,7 +429,7 @@ static int init_dmap_items_2_90s_list[] =
     3042, 3043, 3044, 3045, 3046, 3047, 3048, 3049, 3050, 3051, -1
 };
 
-static int init_dmap_items_3_00s_list[] =
+static int32_t init_dmap_items_3_00s_list[] =
 {
     1754,
     1784, 1785,
@@ -443,7 +443,7 @@ static int init_dmap_items_3_00s_list[] =
     3052, 3053, 3054, 3055, 3056, 3057, 3058, 3059, 3060, 3061, -1
 };
 
-static int init_dmap_items_3_10s_list[] =
+static int32_t init_dmap_items_3_10s_list[] =
 {
     1755,
     1786, 1787,
@@ -457,7 +457,7 @@ static int init_dmap_items_3_10s_list[] =
     3062, 3063, 3064, 3065, 3066, 3067, 3068, 3069, 3070, 3071, -1
 };
 
-static int init_dmap_items_3_20s_list[] =
+static int32_t init_dmap_items_3_20s_list[] =
 {
     1756,
     1788, 1789,
@@ -471,7 +471,7 @@ static int init_dmap_items_3_20s_list[] =
     3072, 3073, 3074, 3075, 3076, 3077, 3078, 3079, 3080, 3081, -1
 };
 
-static int init_dmap_items_3_30s_list[] =
+static int32_t init_dmap_items_3_30s_list[] =
 {
     1757,
     1790, 1791,
@@ -485,7 +485,7 @@ static int init_dmap_items_3_30s_list[] =
     3082, 3083, 3084, 3085, 3086, 3087, 3088, 3089, 3090, 3091, -1
 };
 
-static int init_dmap_items_3_40s_list[] =
+static int32_t init_dmap_items_3_40s_list[] =
 {
     1758,
     1792, 1793,
@@ -499,7 +499,7 @@ static int init_dmap_items_3_40s_list[] =
     3092, 3093, 3094, 3095, 3096, 3097, 3098, 3099, 3100, 3101, -1
 };
 
-static int init_dmap_items_3_50s_list[] =
+static int32_t init_dmap_items_3_50s_list[] =
 {
     1759,
     1794, 1795,
@@ -513,7 +513,7 @@ static int init_dmap_items_3_50s_list[] =
     3102, 3103, 3104, 3105, 3106, 3107, 3108, 3109, 3110, 3111, -1
 };
 
-static int init_dmap_items_3_60s_list[] =
+static int32_t init_dmap_items_3_60s_list[] =
 {
     1760,
     1796, 1797,
@@ -527,7 +527,7 @@ static int init_dmap_items_3_60s_list[] =
     3112, 3113, 3114, 3115, 3116, 3117, 3118, 3119, 3120, 3121, -1
 };
 
-static int init_dmap_items_3_70s_list[] =
+static int32_t init_dmap_items_3_70s_list[] =
 {
     1761,
     1798, 1799,
@@ -541,7 +541,7 @@ static int init_dmap_items_3_70s_list[] =
     3122, 3123, 3124, 3125, 3126, 3127, 3128, 3129, 3130, 3131, -1
 };
 
-static int init_dmap_items_3_80s_list[] =
+static int32_t init_dmap_items_3_80s_list[] =
 {
     1762,
     1800, 1801,
@@ -555,7 +555,7 @@ static int init_dmap_items_3_80s_list[] =
     3132, 3133, 3134, 3135, 3136, 3137, 3138, 3139, 3140, 3141, -1
 };
 
-static int init_dmap_items_3_90s_list[] =
+static int32_t init_dmap_items_3_90s_list[] =
 {
     1763,
     1802, 1803,
@@ -569,7 +569,7 @@ static int init_dmap_items_3_90s_list[] =
     3142, 3143, 3144, 3145, 3146, 3147, 3148, 3149, 3150, 3151, -1
 };
 
-static int init_dmap_items_4_00s_list[] =
+static int32_t init_dmap_items_4_00s_list[] =
 {
     1764,
     1804, 1805,
@@ -583,7 +583,7 @@ static int init_dmap_items_4_00s_list[] =
     3152, 3153, 3154, 3155, 3156, 3157, 3158, 3159, 3160, 3161, -1
 };
 
-static int init_dmap_items_4_10s_list[] =
+static int32_t init_dmap_items_4_10s_list[] =
 {
     1765,
     1806, 1807,
@@ -597,7 +597,7 @@ static int init_dmap_items_4_10s_list[] =
     3162, 3163, 3164, 3165, 3166, 3167, 3168, 3169, 3170, 3171, -1
 };
 
-static int init_dmap_items_4_20s_list[] =
+static int32_t init_dmap_items_4_20s_list[] =
 {
     1766,
     1808, 1809,
@@ -611,7 +611,7 @@ static int init_dmap_items_4_20s_list[] =
     3172, 3173, 3174, 3175, 3176, 3177, 3178, 3179, 3180, 3181, -1
 };
 
-static int init_dmap_items_4_30s_list[] =
+static int32_t init_dmap_items_4_30s_list[] =
 {
     1767,
     1810, 1811,
@@ -625,7 +625,7 @@ static int init_dmap_items_4_30s_list[] =
     3182, 3183, 3184, 3185, 3186, 3187, 3188, 3189, 3190, 3191, -1
 };
 
-static int init_dmap_items_4_40s_list[] =
+static int32_t init_dmap_items_4_40s_list[] =
 {
     1768,
     1812, 1813,
@@ -639,7 +639,7 @@ static int init_dmap_items_4_40s_list[] =
     3192, 3193, 3194, 3195, 3196, 3197, 3198, 3199, 3200, 3201, -1
 };
 
-static int init_dmap_items_4_50s_list[] =
+static int32_t init_dmap_items_4_50s_list[] =
 {
     1769,
     1814, 1815,
@@ -653,7 +653,7 @@ static int init_dmap_items_4_50s_list[] =
     3202, 3203, 3204, 3205, 3206, 3207, 3208, 3209, 3210, 3211, -1
 };
 
-static int init_dmap_items_4_60s_list[] =
+static int32_t init_dmap_items_4_60s_list[] =
 {
     1770,
     1816, 1817,
@@ -667,7 +667,7 @@ static int init_dmap_items_4_60s_list[] =
     3212, 3213, 3214, 3215, 3216, 3217, 3218, 3219, 3220, 3221, -1
 };
 
-static int init_dmap_items_4_70s_list[] =
+static int32_t init_dmap_items_4_70s_list[] =
 {
     1771,
     1818, 1819,
@@ -681,7 +681,7 @@ static int init_dmap_items_4_70s_list[] =
     3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230, 3231, -1
 };
 
-static int init_dmap_items_4_80s_list[] =
+static int32_t init_dmap_items_4_80s_list[] =
 {
     1772,
     1820, 1821,
@@ -695,7 +695,7 @@ static int init_dmap_items_4_80s_list[] =
     3232, 3233, 3234, 3235, 3236, 3237, 3238, 3239, 3240, 3241, -1
 };
 
-static int init_dmap_items_4_90s_list[] =
+static int32_t init_dmap_items_4_90s_list[] =
 {
     1773,
     1822, 1823,
@@ -709,7 +709,7 @@ static int init_dmap_items_4_90s_list[] =
     3242, 3243, 3244, 3245, 3246, 3247, 3248, 3249, 3250, 3251, -1
 };
 
-static int init_dmap_items_5_00s_list[] =
+static int32_t init_dmap_items_5_00s_list[] =
 {
     1774,
     1824, 1825,
@@ -723,7 +723,7 @@ static int init_dmap_items_5_00s_list[] =
     3252, 3253, 3254, 3255, 3256, 3257, 3258, 3259, 3260, 3261, -1
 };
 
-static int init_dmap_items_5_10s_list[] =
+static int32_t init_dmap_items_5_10s_list[] =
 {
     1775,
     1826, 1827,
@@ -737,14 +737,14 @@ static int init_dmap_items_5_10s_list[] =
     3262, 3263, -1
 };
 
-static int init_misc_list[] =
+static int32_t init_misc_list[] =
 {
     // dialog control number
     //  1605, 1606, 1607, 1608, 1609, 1610, 1611, 1612, 1613, 1614, 1615, 1616, 1617, 1618, 1619, 1620, 1621, 1622, 1623, 1624, 1625, 1626, 1627, 1628, 1629, 1630, 1631, 1632, 1633, 1634, 1635, 1636, 1637, 1638, 1639, 1640, 1641, -1
     1655, 1656, 1657, 1658, 1659, 1660, 1661, 1662, 1663, 1664, 1665, 1666, 1667, 1668, 1669, 1670, 1671, 1672, 1673, 1674, 1675, 1676, 1677, 1678, 1679, 1680, 1681, 1682, 1683, 1684, 1685, 1686, 1687, 1688, 1689, 1690, 1691, 1694, 1695, 1696, 1697, -1
 };
 
-static int init_var_list[] =
+static int32_t init_var_list[] =
 {
     1700, 1701, 1702, 1703, 1704, 1705, 1706, 
 	3264, 3265, 3266, 3267,
@@ -752,19 +752,19 @@ static int init_var_list[] =
 	-1
 };
 
-static int init_var_list2[] =
+static int32_t init_var_list2[] =
 {
 	3376, 3377, 3378, 3379, 3380, 3381, 3382, 3383, 3384, 3385, 3386, 3387,
 	-1
 };
 
-static int init_var_list3[] =
+static int32_t init_var_list3[] =
 {
 	3388, 3389, 3390, 3391, 3392, 3393, 3394, 3395,
 	-1
 };
 
-static int init_var_tb_list[] =
+static int32_t init_var_tb_list[] =
 {
 	101, -1
 };
@@ -900,16 +900,16 @@ TABPANEL init_var_tabs[] =
     { NULL,                      0,            0,                      0, NULL }
 };
 
-//int startdmapxy[6] = {188-68,131-93,188-68,111-93,188-68,120-93};
+//int32_t startdmapxy[6] = {188-68,131-93,188-68,111-93,188-68,120-93};
 
-int d_maxbombsedit_proc(int msg,DIALOG *d,int c)
+int32_t d_maxbombsedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret = jwin_edit_proc(msg,d,c);
+    int32_t ret = jwin_edit_proc(msg,d,c);
     
     if(msg==MSG_DRAW)
     {
         scare_mouse();
-        int div = atoi((char*)((d+1589)->dp));
+        int32_t div = atoi((char*)((d+1589)->dp));
         
         if(div == 0)
             div = 4;
@@ -922,14 +922,14 @@ int d_maxbombsedit_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_bombratioedit_proc(int msg,DIALOG *d,int c)
+int32_t d_bombratioedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int ret = jwin_edit_proc(msg,d,c);
+    int32_t ret = jwin_edit_proc(msg,d,c);
     
     if(msg==MSG_DRAW)
     {
-        int sbombmax = 0;
-        int div = atoi((char*)(d->dp));
+        int32_t sbombmax = 0;
+        int32_t div = atoi((char*)(d->dp));
         
         if(div == 0)
             div = 4;
@@ -949,7 +949,7 @@ int d_bombratioedit_proc(int msg,DIALOG *d,int c)
 enum { ws_2_frame, ws_3_frame, ws_max };
 const char *walkstyles[]= { "2-frame", "3-frame" };
 
-char *walkstylelist(int index, int *list_size)
+char *walkstylelist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
@@ -969,7 +969,7 @@ DIALOG init_dlg[INIT_DLG_SZ]; /* 	This array is used instead of a const static d
 			*/
 
 
-void initPopulate(int &i, DIALOG_PROC Proc, int X, int Y, int W, int H, int FG, int BG, int Key, int Flags, int D1, int D2, void *DP, void *DP2, void *DP3)
+void initPopulate(int32_t &i, DIALOG_PROC Proc, int32_t X, int32_t Y, int32_t W, int32_t H, int32_t FG, int32_t BG, int32_t Key, int32_t Flags, int32_t D1, int32_t D2, void *DP, void *DP2, void *DP3)
 {
     init_dlg[i].proc = Proc;
     init_dlg[i].x = X;
@@ -994,7 +994,7 @@ ListData dmap_list(dmaplist, &font);
 
 void PopulateInitDialog()
 {
-    int i=0;
+    int32_t i=0;
     // 0
     initPopulate(i, jwin_win_proc,              0,      0,    296,    234,    vc(14),                 vc(1),                   0,    D_EXIT,         0,             0, (void *) "Initialization Data",                        NULL,   NULL);
     initPopulate(i, jwin_button_proc,         187,    209,     61,     21,    vc(14),                 vc(1),                  27,    D_EXIT,         0,             0, (void *) "Cancel",                                     NULL,   NULL);
@@ -1187,36 +1187,36 @@ void PopulateInitDialog()
     initPopulate(i, jwin_vline_proc,          147,     91,     40,     96,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_vline_proc,          147,     91,     40,     96,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     
-    for(int j=0; j<26; j++)
+    for(int32_t j=0; j<26; j++)
     {
         initPopulate(i, jwin_ctext_proc,           67,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "M",                                          NULL,   NULL);
         initPopulate(i, jwin_ctext_proc,          196,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "M",                                          NULL,   NULL);
     }
     
-    for(int j=0; j<26; j++)
+    for(int32_t j=0; j<26; j++)
     {
         initPopulate(i, jwin_ctext_proc,           79,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "C",                                          NULL,   NULL);
         initPopulate(i, jwin_ctext_proc,          208,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "C",                                          NULL,   NULL);
     }
     
-    for(int j=0; j<26; j++)
+    for(int32_t j=0; j<26; j++)
     {
         initPopulate(i, jwin_ctext_proc,           92,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "B",                                          NULL,   NULL);
         initPopulate(i, jwin_ctext_proc,          221,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "B",                                          NULL,   NULL);
     }
     
-    for(int j=0; j<26; j++)
+    for(int32_t j=0; j<26; j++)
     {
         initPopulate(i, jwin_ctext_proc,          111,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "K",                                          NULL,   NULL);
         initPopulate(i, jwin_ctext_proc,          240,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "K",                                          NULL,   NULL);
     }
     
     // 0-255 level numbers
-    for(int j=0; j<=255;)
+    for(int32_t j=0; j<=255;)
     {
-        for(int x = 39; x<=168 && j<=255; x+=129)
+        for(int32_t x = 39; x<=168 && j<=255; x+=129)
         {
-            for(int y = 103; y<=175 && j<=255; y+=18)
+            for(int32_t y = 103; y<=175 && j<=255; y+=18)
             {
                 char *t = new char[4]; //memory not freed
                 sprintf(t, "%d", j++);
@@ -1227,7 +1227,7 @@ void PopulateInitDialog()
     }
     
     // Map
-    for(int j=0; j<25; j++)
+    for(int32_t j=0; j<25; j++)
     {
         initPopulate(i, jwin_check_proc,           62,    103,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
         initPopulate(i, jwin_check_proc,           62,    121,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
@@ -1249,7 +1249,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_check_proc,          191,    103,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
     
     // Compass
-    for(int j=0; j<25; j++)
+    for(int32_t j=0; j<25; j++)
     {
         initPopulate(i, jwin_check_proc,           75,    103,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
         initPopulate(i, jwin_check_proc,           75,    121,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
@@ -1271,7 +1271,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_check_proc,          204,    103,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
     
     // Boss Key
-    for(int j=0; j<25; j++)
+    for(int32_t j=0; j<25; j++)
     {
         initPopulate(i, jwin_check_proc,           88,    103,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
         initPopulate(i, jwin_check_proc,           88,    121,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
@@ -1293,7 +1293,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_check_proc,          217,    103,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
     
     // Keys
-    for(int j=0; j<25; j++)
+    for(int32_t j=0; j<25; j++)
     {
         initPopulate(i, jwin_edit_proc,           101,     99,     29,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
         initPopulate(i, jwin_edit_proc,           101,    117,     29,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
@@ -1444,28 +1444,28 @@ void PopulateInitDialog()
     initPopulate(i, jwin_vline_proc,          147,     91,     40,     96,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     
     // 1776
-    for(int j=0; j<26; j++)
+    for(int32_t j=0; j<26; j++)
     {
         initPopulate(i, jwin_ctext_proc,           67,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "M",                                          NULL,   NULL);
         initPopulate(i, jwin_ctext_proc,          196,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "M",                                          NULL,   NULL);
     }
     
     // 1828
-    for(int j=0; j<26; j++)
+    for(int32_t j=0; j<26; j++)
     {
         initPopulate(i, jwin_ctext_proc,           79,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "C",                                          NULL,   NULL);
         initPopulate(i, jwin_ctext_proc,          208,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "C",                                          NULL,   NULL);
     }
     
     // 1880
-    for(int j=0; j<26; j++)
+    for(int32_t j=0; j<26; j++)
     {
         initPopulate(i, jwin_ctext_proc,           92,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "B",                                          NULL,   NULL);
         initPopulate(i, jwin_ctext_proc,          221,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "B",                                          NULL,   NULL);
     }
     
     // 1932
-    for(int j=0; j<26; j++)
+    for(int32_t j=0; j<26; j++)
     {
         initPopulate(i, jwin_ctext_proc,          111,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "K",                                          NULL,   NULL);
         initPopulate(i, jwin_ctext_proc,          240,     91,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "K",                                          NULL,   NULL);
@@ -1473,11 +1473,11 @@ void PopulateInitDialog()
     
     // 1984
     // 0-255 level numbers
-    for(int j=250; j<=511;)
+    for(int32_t j=250; j<=511;)
     {
-        for(int x = 39; x<=168 && j<=511; x+=129)
+        for(int32_t x = 39; x<=168 && j<=511; x+=129)
         {
-            for(int y = 103; y<=175 && j<=511; y+=18)
+            for(int32_t y = 103; y<=175 && j<=511; y+=18)
             {
                 if(j>=256)
                 {
@@ -1498,7 +1498,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_check_proc,          191,    157,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_check_proc,          191,    175,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
     
-    for(int j=0; j<25; j++)
+    for(int32_t j=0; j<25; j++)
     {
         initPopulate(i, jwin_check_proc,           62,    103,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
         initPopulate(i, jwin_check_proc,           62,    121,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
@@ -1522,7 +1522,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_check_proc,          204,    157,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_check_proc,          204,    175,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
     
-    for(int j=0; j<25; j++)
+    for(int32_t j=0; j<25; j++)
     {
         initPopulate(i, jwin_check_proc,           75,    103,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
         initPopulate(i, jwin_check_proc,           75,    121,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
@@ -1546,7 +1546,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_check_proc,          217,    157,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_check_proc,          217,    175,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
     
-    for(int j=0; j<25; j++)
+    for(int32_t j=0; j<25; j++)
     {
         initPopulate(i, jwin_check_proc,           88,    103,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
         initPopulate(i, jwin_check_proc,           88,    121,     64,      9,    vc(0),                  vc(11),                  0,    0,              1,             0,  NULL,                                                  NULL,   NULL);
@@ -1570,7 +1570,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_edit_proc,           230,    153,     29,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_edit_proc,           230,    171,     29,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
     
-    for(int j=0; j<25; j++)
+    for(int32_t j=0; j<25; j++)
     {
         initPopulate(i, jwin_edit_proc,           101,     99,     29,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
         initPopulate(i, jwin_edit_proc,           101,    117,     29,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
@@ -1618,11 +1618,11 @@ void PopulateInitDialog()
     initPopulate(i, jwin_numedit_byte_proc,            162,     188,     26,     16,    vc(12),                 vc(1),                   0,    0,              4,             0,  NULL,                                                  NULL,   NULL);
     
 	//3276 - 3375
-	for(int q = 0; q < 25; ++q)
+	for(int32_t q = 0; q < 25; ++q)
 	{
-		int ind = (q%20);
-		int x = 10 + (ind/5)*70;
-		int y = 54 + (ind%5)*30;
+		int32_t ind = (q%20);
+		int32_t x = 10 + (ind/5)*70;
+		int32_t y = 54 + (ind%5)*30;
 		char* buf = (char*)zc_malloc(12); //Won't be freed, should only be alloc'd once per launch -Em
 		sprintf(buf, " Script %d ", q+1); //1-indexed
 		initPopulate(i, jwin_frame_proc,           x,     y,     68,     28,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
@@ -1709,19 +1709,19 @@ const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candle
 const char *itype_new_names[itype_max] = { "Script 1","Script 2","Script 3","Script 4","Script 5","Script 6","Script 7","Script 8","Script 9","Script 10", "Ice Rod"
                                      };
 				     
-const char *familylist(int index, int *list_size);
+const char *familylist(int32_t index, int32_t *list_size);
 
 
 item_class_struct biic[itype_max];
-int biic_cnt=-1;
+int32_t biic_cnt=-1;
 
 void build_biic_list()
 {
-	int start=biic_cnt=0;
-	std::map<std::string, int> fams;
+	int32_t start=biic_cnt=0;
+	std::map<std::string, int32_t> fams;
 	std::set<std::string> famnames;
 	
-	for(int i=start; i<itype_max; ++i)
+	for(int32_t i=start; i<itype_max; ++i)
 	{
         if(i < itype_last || moduledata.item_editor_type_names[i][0] != NULL )
 		{
@@ -1757,14 +1757,14 @@ void build_biic_list()
 
 void deallocate_biic_list()
 {
-    for(int i(0); i < 255; i++) //I don't know what this really is.
+    for(int32_t i(0); i < 255; i++) //I don't know what this really is.
     {
         if(biic[i].s)
             delete [] biic[i].s;
     }
 }
 
-const char *item_class_list(int index, int *list_size)
+const char *item_class_list(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
@@ -1778,20 +1778,20 @@ const char *item_class_list(int index, int *list_size)
 //InitData store values. -Z
 
 #include "dialog/init_data.h"
-int doInit(zinitdata *local_zinit, bool isZC)
+int32_t doInit(zinitdata *local_zinit, bool isZC)
 {
 	call_init_dlg(*local_zinit, isZC);
 	return D_O_K;
-    for(int i=0; i<MAXITEMS; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
-        int family = itemsbuf[i].family;
+        int32_t family = itemsbuf[i].family;
         
         if(family == 0x200 || family == itype_triforcepiece || !(itemsbuf[i].flags & ITEM_GAMEDATA))
         {
             continue;
         }
         
-        std::map<int,std::vector<Family> >::iterator it = families.find(family);
+        std::map<int32_t,std::vector<Family> >::iterator it = families.find(family);
         
         if(it == families.end())
         {
@@ -1802,7 +1802,7 @@ int doInit(zinitdata *local_zinit, bool isZC)
     }
     
     //family map has been populated, now sort
-    for(std::map<int, std::vector<Family> >::iterator it = families.begin(); it != families.end(); it++)
+    for(std::map<int32_t, std::vector<Family> >::iterator it = families.begin(); it != families.end(); it++)
     {
         sort(it->second.begin(), it->second.end());
     }
@@ -1815,9 +1815,9 @@ int doInit(zinitdata *local_zinit, bool isZC)
     }
     
     //make the map
-    int listindex=0;
+    int32_t listindex=0;
     
-    for(int i=0; i<biic_cnt; i++)
+    for(int32_t i=0; i<biic_cnt; i++)
     {
         if(families.find(biic[i].i) != families.end())
         {
@@ -1833,8 +1833,8 @@ int doInit(zinitdata *local_zinit, bool isZC)
     
     zinitdata tempdata;
     memcpy(&tempdata, local_zinit,sizeof(zinitdata));
-    int oldselection;
-    std::pair<int *, zinitdata *> p(&oldselection,&tempdata);
+    int32_t oldselection;
+    std::pair<int32_t *, zinitdata *> p(&oldselection,&tempdata);
     init_dlg[5].dp3 = &p;
     
     if(families.size() == 0)
@@ -1901,7 +1901,7 @@ int doInit(zinitdata *local_zinit, bool isZC)
 	
 	char scrcntstr[25][6];
 	char scrmaxcntstr[25][6];
-	for(int q = 0; q < 25; ++q)
+	for(int32_t q = 0; q < 25; ++q)
 	{
 		sprintf(scrcntstr[q], "%d", local_zinit->scrcnt[q]);
 		sprintf(scrmaxcntstr[q], "%d", local_zinit->scrmaxcnt[q]);//3276 - 3375
@@ -1913,7 +1913,7 @@ int doInit(zinitdata *local_zinit, bool isZC)
     
     char key_list[512][4];
     
-    for(int i=0; i<256; i++)
+    for(int32_t i=0; i<256; i++)
     {
         init_dlg[i+631].flags  = get_bit(local_zinit->map,i) ? D_SELECTED : 0;
         init_dlg[i+887].flags  = get_bit(local_zinit->compass,i) ? D_SELECTED : 0;
@@ -1922,7 +1922,7 @@ int doInit(zinitdata *local_zinit, bool isZC)
         init_dlg[i+1399].dp = key_list[i];
     }
     
-    for(int i=256; i<512; i++)
+    for(int32_t i=256; i<512; i++)
     {
         init_dlg[i+2240-256].flags  = get_bit(local_zinit->map,i) ? D_SELECTED : 0;
         init_dlg[i+2496-256].flags  = get_bit(local_zinit->compass,i) ? D_SELECTED : 0;
@@ -1978,7 +1978,7 @@ int doInit(zinitdata *local_zinit, bool isZC)
     init_dlg[1669].dp=hcpstring;
     init_dlg[1671].dp=hcpperstring;
     
-    for(int i=0; i<8; i++)
+    for(int32_t i=0; i<8; i++)
     {
         init_dlg[1676+i].flags = get_bit(&local_zinit->triforce,i) ? D_SELECTED : 0;
     }
@@ -2020,7 +2020,7 @@ int doInit(zinitdata *local_zinit, bool isZC)
         init_dlg[0].d1 = 1;
     }
     
-    int ret = zc_popup_dialog(init_dlg,1);
+    int32_t ret = zc_popup_dialog(init_dlg,1);
     
     if(ret==2)
     {
@@ -2028,14 +2028,14 @@ int doInit(zinitdata *local_zinit, bool isZC)
         //save old selection
         if(oldselection != -1)
         {
-            std::map<int, std::vector<Family> >::iterator it = families.find(biic[listidx2biic[oldselection]].i);
+            std::map<int32_t, std::vector<Family> >::iterator it = families.find(biic[listidx2biic[oldselection]].i);
             
             if(it != families.end())
             {
                 std::vector<Family> &f = it->second;
                 std::vector<Family>::iterator it2 = f.begin();
                 
-                for(int j=7; it2 != f.end() && j<endEquipField; it2++,j++)
+                for(int32_t j=7; it2 != f.end() && j<endEquipField; it2++,j++)
                 {
                     tempdata.items[it2->itemid] = 0 != (init_dlg[j].flags & D_SELECTED);
                 }
@@ -2049,14 +2049,14 @@ int doInit(zinitdata *local_zinit, bool isZC)
         local_zinit->nSBombmax=vbound(atoi(sbombstring),0,0xFFFF);
         local_zinit->nArrows=vbound(atoi(arrowstring),0,0xFFFF);
         local_zinit->nArrowmax=vbound(atoi(maxarrowstring),0,0xFFFF);
-		for(int q = 0; q < 25; ++q)
+		for(int32_t q = 0; q < 25; ++q)
 		{
 			local_zinit->scrcnt[q]=vbound(atoi(scrcntstr[q]),0,0xFFFF);
 			local_zinit->scrmaxcnt[q]=vbound(atoi(scrmaxcntstr[q]),0,0xFFFF);
         }
 		
         // dmap items
-        for(int i=0; i<256; i++)
+        for(int32_t i=0; i<256; i++)
         {
             set_bit(local_zinit->map,i,init_dlg[i+631].flags & D_SELECTED);
             set_bit(local_zinit->compass,i,init_dlg[i+887].flags & D_SELECTED);
@@ -2064,7 +2064,7 @@ int doInit(zinitdata *local_zinit, bool isZC)
             local_zinit->level_keys[i]=vbound(atoi(key_list[i]),0,255);
         }
         
-        for(int i=256; i<512; i++)
+        for(int32_t i=256; i<512; i++)
         {
             set_bit(local_zinit->map,i,init_dlg[i+2240-256].flags & D_SELECTED);
             set_bit(local_zinit->compass,i,init_dlg[i+2496-256].flags & D_SELECTED);
@@ -2095,7 +2095,7 @@ int doInit(zinitdata *local_zinit, bool isZC)
         local_zinit->rupies = vbound(atoi(rupiestring), 0, 0xFFFF);
         
         // triforce
-        for(int i=0; i<8; i++)
+        for(int32_t i=0; i<8; i++)
         {
             set_bit(&local_zinit->triforce,i,init_dlg[1676+i].flags & D_SELECTED);
         }
@@ -2108,9 +2108,9 @@ int doInit(zinitdata *local_zinit, bool isZC)
         local_zinit->max_rupees = vbound(atoi(maxrupeestring), 0, 0xFFFF);
         local_zinit->max_keys = vbound(atoi(maxkeystring), 0, 0xFFFF);
         local_zinit->bomb_ratio = vbound(atoi(bombratiostring),0,255);
-        local_zinit->gravity = vbound(int(strtod(gravitystring, NULL)*10000),1,255);
-        local_zinit->gravity2 = int(strtod(gravitystring, NULL)*10000);
-        local_zinit->terminalv = vbound(int(strtod(terminalvstring, NULL)*100), 1, 9999);
+        local_zinit->gravity = vbound(int32_t(strtod(gravitystring, NULL)*10000),1,255);
+        local_zinit->gravity2 = int32_t(strtod(gravitystring, NULL)*10000);
+        local_zinit->terminalv = vbound(int32_t(strtod(terminalvstring, NULL)*100), 1, 9999);
         local_zinit->jump_link_layer_threshold = vbound(atoi(thresholdstring),0,255);
         local_zinit->heroStep = vbound(atoi(herostepstr),0,9999);
         local_zinit->subscrSpeed = vbound(atoi(subscrspeedstr),1,85);
@@ -2123,14 +2123,14 @@ int doInit(zinitdata *local_zinit, bool isZC)
 		local_zinit->dither_percent = vbound(atoi(dith_perc),0,255);
 		local_zinit->def_lightrad = vbound(atoi(light_rad),0,255);
 		local_zinit->transdark_percent = vbound(atoi(tdark_perc),0,255);
-		local_zinit->swimgravity = int(strtod(swimgravitystring, NULL)*10000);
+		local_zinit->swimgravity = int32_t(strtod(swimgravitystring, NULL)*10000);
 		local_zinit->heroSideswimUpStep = vbound(atoi(herosideswimupstepstr),0,9999);
 		local_zinit->heroSideswimSideStep = vbound(atoi(herosideswimsidestepstr),0,9999);
 		local_zinit->heroSideswimDownStep = vbound(atoi(herosideswimdownstepstr),0,9999);
         onInitOK();
     }
     
-    //for(map<int, char *>::iterator it = famnames.begin(); it != famnames.end(); it++)
+    //for(map<int32_t, char *>::iterator it = famnames.begin(); it != famnames.end(); it++)
     //  delete[] it->second;
     //famnames.clear();
     families.clear();
@@ -2138,22 +2138,22 @@ int doInit(zinitdata *local_zinit, bool isZC)
 }
 
 
-const char *familylist(int index, int *list_size)
+const char *familylist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int)listidx2biic.size();
+        *list_size = (int32_t)listidx2biic.size();
         return NULL;
     }
     
     return biic[listidx2biic[index]].s;
 }
 
-void doFamily(int biicindx, zinitdata *local_zinit)
+void doFamily(int32_t biicindx, zinitdata *local_zinit)
 {
     if(biicindx == -1 || families.find(biic[biicindx].i) == families.end())
     {
-        for(int i=7; i<endEquipField; i++)
+        for(int32_t i=7; i<endEquipField; i++)
         {
             init_dlg[i].proc = d_dummy_proc;
         }
@@ -2163,7 +2163,7 @@ void doFamily(int biicindx, zinitdata *local_zinit)
     
     std::vector<Family> &f = families[biic[biicindx].i];
     std::vector<Family>::iterator it = f.begin();
-    int i;
+    int32_t i;
     
     for(i=7; i < endEquipField && it != f.end(); i++, it++)
     {
@@ -2177,7 +2177,7 @@ void doFamily(int biicindx, zinitdata *local_zinit)
         init_dlg[i].proc = d_dummy_proc;
 }
 
-int jwin_initlist_proc(int msg,DIALOG *d,int c)
+int32_t jwin_initlist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     /*FONT *tempfont=font;
     switch(msg)
@@ -2186,16 +2186,16 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
       font=pfont;
         break;
     }*/
-    int rval = jwin_abclist_proc(msg, d, c);
+    int32_t rval = jwin_abclist_proc(msg, d, c);
     /*switch(msg)
     {
       case MSG_DRAW:
         font=tempfont;
         break;
     }*/
-    std::pair<int *, zinitdata *> *p = (std::pair<int *, zinitdata *> *)(d->dp3);
-    int *oldselection = p->first;
-    static int index=-1;
+    std::pair<int32_t *, zinitdata *> *p = (std::pair<int32_t *, zinitdata *> *)(d->dp3);
+    int32_t *oldselection = p->first;
+    static int32_t index=-1;
     index = d->d1;
     
     if(*oldselection != d->d1 && d->d1 != -1)
@@ -2203,14 +2203,14 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
         //save old selection
         if(*oldselection != -1)
         {
-            std::map<int, std::vector<Family> >::iterator it = families.find(biic[listidx2biic[*oldselection]].i);
+            std::map<int32_t, std::vector<Family> >::iterator it = families.find(biic[listidx2biic[*oldselection]].i);
             
             if(it != families.end())
             {
                 std::vector<Family> &f = it->second;
                 std::vector<Family>::iterator it2 = f.begin();
                 
-                for(int j=7; it2 != f.end() && j<endEquipField; it2++,j++)
+                for(int32_t j=7; it2 != f.end() && j<endEquipField; it2++,j++)
                 {
                     p->second->items[it2->itemid] = 0 != (init_dlg[j].flags & D_SELECTED);
                 }
@@ -2249,7 +2249,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     game2->set_maxcounter(zinit2->max_keys, 5);
     
     //set up the items
-    for(int i=0; i<MAXITEMS; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         if(zinit2->items[i] && (itemsbuf[i].flags & ITEM_GAMEDATA))
         {
@@ -2300,7 +2300,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 	game2->set_sideswim_down(zinit2->heroSideswimDownStep);
 	game2->set_sideswim_jump(zinit2->exitWaterJump);
     
-    for(int i=0; i<MAXLEVELS; i++)
+    for(int32_t i=0; i<MAXLEVELS; i++)
     {
         // Kludge to prevent two bits (liTRIFORCE and liBOSS) which aren't
         // completely stored in Init Data, from being erased when this is run in-game.
@@ -2315,7 +2315,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
         game2->lvlkeys[i]=zinit2->level_keys[i];
     }
     
-    for(int i=0; i<8; i++)
+    for(int32_t i=0; i<8; i++)
     {
         game2->lvlitems[i+1]|=get_bit(&zinit2->triforce,i)?liTRIFORCE:0;
     }
@@ -2326,7 +2326,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     
     game2->set_arrows(zinit2->nArrows);
     
-	for(int q = 0; q < 25; ++q)
+	for(int32_t q = 0; q < 25; ++q)
 	{
 		game2->set_counter(zinit2->scrcnt[q], q+7);
 		game2->set_maxcounter(zinit2->scrmaxcnt[q], q+7);

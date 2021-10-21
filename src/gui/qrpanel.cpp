@@ -29,7 +29,7 @@ void QRPanel::loadList(GUI::ListData qrlist)
 {
 	assert(init_qrs);
 	size_t q = 0;
-	int tabnum = 1;
+	int32_t tabnum = 1;
 	if(qrlist.size() <= qrCount+2) //If it can fit without a tabpanel, allow it to
 		qrCount+=2;
 	while(q < qrlist.size())
@@ -45,7 +45,7 @@ void QRPanel::loadList(GUI::ListData qrlist)
 			}
 			else
 			{
-				int qr = qrlist.getValue(q);
+				int32_t qr = qrlist.getValue(q);
 				std::string const& name = qrlist.getText(q);
 				cbox->setText(name);
 				cbox->onToggle(message);

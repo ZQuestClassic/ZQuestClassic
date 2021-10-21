@@ -12,11 +12,11 @@
 #include <string_view>
 #include <map>
 
-void call_item_editor(int index);
+void call_item_editor(int32_t index);
 
 struct ItemNameInfo
 {
-	int iclass;
+	int32_t iclass;
 	char *power;
 	char *misc1;
 	char *misc2;
@@ -58,8 +58,8 @@ struct ItemNameInfo
 };
 
 extern ItemNameInfo inameinf[];
-extern std::map<int, ItemNameInfo *> *inamemap;
-std::map<int, ItemNameInfo *> *getItemNameMap();
+extern std::map<int32_t, ItemNameInfo *> *inamemap;
+std::map<int32_t, ItemNameInfo *> *getItemNameMap();
 
 class ItemEditorDialog: public GUI::Dialog<ItemEditorDialog>
 {
@@ -71,8 +71,8 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	ItemEditorDialog(itemdata const& ref, char const* str, int index);
-	ItemEditorDialog(int index);
+	ItemEditorDialog(itemdata const& ref, char const* str, int32_t index);
+	ItemEditorDialog(int32_t index);
 	void loadItemClass();
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::Label> l_attribs[10];
@@ -82,12 +82,12 @@ private:
 	std::shared_ptr<GUI::Label> l_sfx;
 	std::shared_ptr<GUI::TileFrame> animFrame;
 	std::string itemname;
-	int index;
+	int32_t index;
 	itemdata local_itemref;
 	GUI::ListData list_items, list_counters, list_sprites,
 		list_itemdatscript, list_itemsprscript, list_weaponscript,
 		list_weaptype, list_deftypes;
-	friend void call_item_editor(int index);
+	friend void call_item_editor(int32_t index);
 };
 
 #endif

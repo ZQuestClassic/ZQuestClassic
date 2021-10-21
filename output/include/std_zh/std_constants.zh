@@ -36,6 +36,10 @@ const int MAX_INT 			= 214747 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
 const int MIN_INT 			= -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
 const int MAX_FLOAT 			= 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
 const int MIN_FLOAT 			= -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
+const int MAX_SHORT             = 32767;
+const int MIN_SHORT             = -32768;
+const int MAX_BYTE              = 255;
+const int MIN_BYTE              = 0;
 
 const int MAX_COUNTER 			= WORD_MAX; 
 const int MIN_COUNTER 			= WORD_MIN;

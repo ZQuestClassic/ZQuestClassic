@@ -13,11 +13,11 @@ namespace GUI
 
 struct ListItem
 {
-	ListItem(std::string text, int value) noexcept:
+	ListItem(std::string text, int32_t value) noexcept:
 		text(std::move(text)), value(value), info("")
 	{}
 	
-	ListItem(std::string text, int value, std::string info) noexcept:
+	ListItem(std::string text, int32_t value, std::string info) noexcept:
 		text(std::move(text)), value(value), info(std::move(info))
 	{}
 
@@ -29,7 +29,7 @@ struct ListItem
 
 	std::string text;
 	std::string info;
-	int value;
+	int32_t value;
 };
 
 // Data source for List and DropDownList.
@@ -48,10 +48,10 @@ public:
 	ListData(std::vector<ListItem> listItems): listItems(std::move(listItems))
 	{}
 	
-	ListData(::ListData const& jwinldata, int valoffs = 0);
+	ListData(::ListData const& jwinldata, int32_t valoffs = 0);
 
 	ListData(size_t numItems, std::function<std::string(size_t)> getString,
-		std::function<int(size_t)> getValue);
+		std::function<int32_t(size_t)> getValue);
 
 	ListData& operator=(const ListData& other) = default;
 	ListData& operator=(ListData&& other) noexcept = default;
@@ -73,7 +73,7 @@ public:
 		return listItems.at(index).text;
 	}
 
-	inline const int getValue(size_t index) const
+	inline const int32_t getValue(size_t index) const
 	{
 		return listItems.at(index).value;
 	}
@@ -84,7 +84,7 @@ public:
 	}
 	
 	inline static const std::string nullstr = "";
-	inline const std::string& findText(int key) const
+	inline const std::string& findText(int32_t key) const
 	{
 		for(ListItem const& li : listItems)
 		{
@@ -94,7 +94,7 @@ public:
 		return nullstr;
 	}
 	
-	inline const std::string& findInfo(int key) const
+	inline const std::string& findInfo(int32_t key) const
 	{
 		for(ListItem const& li : listItems)
 		{
@@ -104,7 +104,7 @@ public:
 		return nullstr;
 	}
 	
-	inline void removeVal(int key)
+	inline void removeVal(int32_t key)
 	{
 		for(std::vector<ListItem>::iterator it = listItems.begin(); it != listItems.end();)
 		{
@@ -130,11 +130,11 @@ private:
 	
 	ListData(){}
 	void add(ListItem item) {listItems.push_back(item);}
-	void add(std::string name, int val) {listItems.emplace_back(name, val);};
-	void add(std::string name, int val, std::string desc) {listItems.emplace_back(name, val,desc);};
-	void add(std::set<std::string> names, std::map<std::string, int> vals);
+	void add(std::string name, int32_t val) {listItems.emplace_back(name, val);};
+	void add(std::string name, int32_t val, std::string desc) {listItems.emplace_back(name, val,desc);};
+	void add(std::set<std::string> names, std::map<std::string, int32_t> vals);
 	
-	static const char* jwinWrapper(int index, int* size, void* owner);
+	static const char* jwinWrapper(int32_t index, int32_t* size, void* owner);
 };
 
 }

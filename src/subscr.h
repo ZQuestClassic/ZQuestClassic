@@ -24,22 +24,22 @@ extern bool show_subscreen_numbers;
 extern bool show_subscreen_items;
 extern bool show_subscreen_life;
 
-void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int textstyle, int alignment, int color, int shadow, int bg);
-void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,int h,int flip,bool overlay,bool trans);
-void drawgrid(BITMAP *dest,int x,int y,int c1,int c2);
-void draw_block(BITMAP *dest,int x,int y,int tile,int cset,int w,int h);
-void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int showlink, int showcompass, int linkcolor, int lccolor, int dccolor);
-void lifemeter(BITMAP *dest,int x,int y,int tile,bool bs_style);
-void magicmeter(BITMAP *dest,int x,int y);
-void buttonitem(BITMAP *dest, int button, int x, int y);
-void putxnum(BITMAP *dest,int x,int y,int num,FONT *tempfont,int color,int shadowcolor,int bgcolor,int textstyle,bool usex,int digits,bool infinite,char idigit);
-void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, bool usex, int textstyle, int digits, char idigit);
-void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, int alignment, int textstyle, int digits, char idigit, bool showzero, int itemtype1, int itemtype2, int itemtype3, int infiniteitem, bool onlyselected);
-void minimaptitle(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, int alignment, int textstyle);
+void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg);
+void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t flip,bool overlay,bool trans);
+void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2);
+void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h);
+void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap, int32_t showlink, int32_t showcompass, int32_t linkcolor, int32_t lccolor, int32_t dccolor);
+void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t tile,bool bs_style);
+void magicmeter(BITMAP *dest,int32_t x,int32_t y);
+void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y);
+void putxnum(BITMAP *dest,int32_t x,int32_t y,int32_t num,FONT *tempfont,int32_t color,int32_t shadowcolor,int32_t bgcolor,int32_t textstyle,bool usex,int32_t digits,bool infinite,char idigit);
+void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, bool usex, int32_t textstyle, int32_t digits, char idigit);
+void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, int32_t alignment, int32_t textstyle, int32_t digits, char idigit, bool showzero, int32_t itemtype1, int32_t itemtype2, int32_t itemtype3, int32_t infiniteitem, bool onlyselected);
+void minimaptitle(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, int32_t alignment, int32_t textstyle);
 void animate_selectors();
 void delete_selectors();
 
-INLINE void putdot(BITMAP *dest,int x,int y,int c)
+INLINE void putdot(BITMAP *dest,int32_t x,int32_t y,int32_t c)
 {
     rectfill(dest,x,y,x+2,y+2,c);
 }
@@ -168,7 +168,7 @@ enum { sstaLEFT, sstaCENTER, sstaRIGHT };
 struct sso_struct
 {
     char *s;
-    int i;
+    int32_t i;
 };
 
 extern sso_struct bisso[ssoMAX];
@@ -178,26 +178,26 @@ struct subscreen_object
 {
     byte  type;
     byte  pos;
-    short  x;
-    short  y;
+    int16_t  x;
+    int16_t  y;
     word  w;
     word  h;
     byte  colortype1;
-    short color1;
+    int16_t color1;
     byte  colortype2;
-    short color2;
+    int16_t color2;
     byte  colortype3;
-    short color3;
-    int   d1;
-    int   d2;
-    int   d3; //pos
-    int   d4; //up
-    int   d5; //down
-    int   d6; //left
-    int   d7; //right
-    int   d8;
-    int   d9;
-    int   d10;
+    int16_t color3;
+    int32_t   d1;
+    int32_t   d2;
+    int32_t   d3; //pos
+    int32_t   d4; //up
+    int32_t   d5; //down
+    int32_t   d6; //left
+    int32_t   d7; //right
+    int32_t   d8;
+    int32_t   d9;
+    int32_t   d10;
     byte  frames;
     byte  speed;
     byte  delay;
@@ -228,7 +228,7 @@ extern subscreen_group *current_subscreen_active;
 extern subscreen_group *current_subscreen_passive;
 
 extern item *Bitem, *Aitem, *Yitem, *Xitem;
-extern int   Bid, Aid, Xid, Yid;
+extern int32_t   Bid, Aid, Xid, Yid;
 const byte tripiece[2][8][3] =
 {
     //  112,112,0, 128,112,1, 96,128,0, 144,128,1,
@@ -266,7 +266,7 @@ const byte bmap_bs[2][12] =
     {0,0,1,0,0,1,0,0,1,0,1,0},
     {0,3,0,0,3,0,0,3,0,3,0,0}
 };
-const int fringe[8] = { 6,2,4,7,6,8,7,5 };
+const int32_t fringe[8] = { 6,2,4,7,6,8,7,5 };
 const byte bmaptiles_old[8*5] =
 {
     0, 1, 2, 3, 2, 3, 3, 4,
@@ -297,33 +297,33 @@ const byte bmaptiles_bs[5][6] =
 void reset_subscr_items();
 void update_subscr_items();
 void add_subscr_item(item *newItem);
-int stripspaces(char *source, char *target, int stop);
-void put_passive_subscr(BITMAP *dest,miscQdata *misc,int x,int y,bool showtime,int pos2);
-void puttriframe(BITMAP *dest, miscQdata *misc, int x, int y, int triframecolor, int numbercolor, int triframetile, int triframecset, int triforcetile, int triforcecset, bool showframe, bool showpieces, bool largepieces);
-void puttriforce(BITMAP *dest, miscQdata *misc, int x, int y, int tile, int cset, int w, int h, int flip, bool overlay, bool trans, int trinum);
-void draw_block(BITMAP *dest,int x,int y,int tile,int cset,int w,int h);
-void draw_block_flip(BITMAP *dest,int x,int y,int tile,int cset,int w,int h,int flip,bool overlay,bool trans);
-void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool showrooms, bool showlink, int roomcolor, int linkcolor, bool large);
+int32_t stripspaces(char *source, char *target, int32_t stop);
+void put_passive_subscr(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,bool showtime,int32_t pos2);
+void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t triframecolor, int32_t numbercolor, int32_t triframetile, int32_t triframecset, int32_t triforcetile, int32_t triforcecset, bool showframe, bool showpieces, bool largepieces);
+void puttriforce(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tile, int32_t cset, int32_t w, int32_t h, int32_t flip, bool overlay, bool trans, int32_t trinum);
+void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h);
+void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t flip,bool overlay,bool trans);
+void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, bool showrooms, bool showlink, int32_t roomcolor, int32_t linkcolor, bool large);
 void load_Sitems(miscQdata *misc);
-void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int textstyle, int alignment, int color, int shadow, int bg);
-void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int x, int y, int textstyle, int alignment, int color, int shadow, int bg, const char *format, ...);
-void update_subscreens(int dmap=-1);
-void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, int xofs, int yofs, bool showtime, int pos2);
-FONT *ss_font(int fontnum);
-int ss_objects(subscreen_group *tempss);
+void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg);
+void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
+void update_subscreens(int32_t dmap=-1);
+void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2);
+FONT *ss_font(int32_t fontnum);
+int32_t ss_objects(subscreen_group *tempss);
 void purge_blank_subscreen_objects(subscreen_group *tempss);
-int subscreen_cset(miscQdata *misc,int c1, int c2);
+int32_t subscreen_cset(miscQdata *misc,int32_t c1, int32_t c2);
 
-int sso_x(subscreen_object *tempsso);
-int sso_y(subscreen_object *tempsso);
-int sso_h(subscreen_object *tempsso);
-int sso_w(subscreen_object *tempsso);
-int get_alignment(subscreen_object *tempsso);
-void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int index, int color);
+int32_t sso_x(subscreen_object *tempsso);
+int32_t sso_y(subscreen_object *tempsso);
+int32_t sso_h(subscreen_object *tempsso);
+int32_t sso_w(subscreen_object *tempsso);
+int32_t get_alignment(subscreen_object *tempsso);
+void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32_t color);
 
 
-bool findWeaponWithParent(int id, int type);
-int countWeaponWithParent(int id, int type);
+bool findWeaponWithParent(int32_t id, int32_t type);
+int32_t countWeaponWithParent(int32_t id, int32_t type);
 #endif
 
 /*** end of subscr.cc ***/

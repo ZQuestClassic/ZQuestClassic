@@ -22,18 +22,18 @@ public:
 	template<typename T>
 	RequireMessage<T> onClick(T m)
 	{
-		message = static_cast<int>(m);
+		message = static_cast<int32_t>(m);
 	}
 
 private:
 	std::string text;
 	DialogRef alDialog;
-	int message;
+	int32_t message;
 	std::function<void()> onPress;
 
 	void applyVisibility(bool visible) override;
 	void realize(DialogRunner& runner) override;
-	int onEvent(int event, MessageDispatcher& sendMessage) override;
+	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 	void applyFont(FONT* newFont) override;
 };
 

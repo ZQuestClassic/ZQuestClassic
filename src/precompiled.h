@@ -31,6 +31,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cstdint>
 
 //c++ stl (these are already found in common headers)
 #include <map>
@@ -47,3 +48,4 @@
 
 #endif // ZC_PCH
 #endif // !PRECOMPILED_H
+

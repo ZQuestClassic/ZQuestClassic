@@ -19,14 +19,14 @@
 #include "../zsyssimple.h"
 #include "y.tab.hpp"
 YYLTYPE noloc = {0,0,0,0};
-int yyrow, yycol;
-int doImportStr = 0;
+int32_t yyrow, yycol;
+int32_t doImportStr = 0;
 
 enum {st_none, st_case};
-int special_state = st_none;
+int32_t special_state = st_none;
 
 // Defined in ffscript.ypp.
-void yymsg(std::string const& message, int row = yyrow, int col = yycol);
+void yymsg(std::string const& message, int32_t row = yyrow, int32_t col = yycol);
 %}
 
 %%
@@ -35,7 +35,7 @@ void yymsg(std::string const& message, int row = yyrow, int col = yycol);
 %{
 using namespace ZScript;
 
-int srow, scol;
+int32_t srow, scol;
 std::ostringstream qstr;
 
 #define NEWLINE ++yyrow; yycol = 1; doImportStr = 0
@@ -336,7 +336,7 @@ appx_equal	TOKEN( APPXEQUAL );
 		yytext[yyleng - 1] = 0;
 		qstr << yytext;
 		// Read in the escaped character.
-		int c = yyinput();
+		int32_t c = yyinput();
 		switch (c)
     {
 			case 'a': ESC_CHAR('\a');
@@ -351,7 +351,7 @@ appx_equal	TOKEN( APPXEQUAL );
 			{
 				std::stringstream escstr;
 				escstr.str("");
-				int ch = yyinput();
+				int32_t ch = yyinput();
 				if((ch >= '0' && ch <= '9')||(ch>='a'&&ch<='f')||(ch>='A'&&ch<='F'))
 					escstr << ((char)ch);
 				else
@@ -369,7 +369,7 @@ appx_equal	TOKEN( APPXEQUAL );
 					//TERMINATE;
 				}
 				std::stringstream buf;
-				int temp;
+				int32_t temp;
 				buf << std::hex << escstr.str();
 				buf >> temp;
 				ESC_CHAR((char)temp);
@@ -524,20 +524,20 @@ appx_equal	TOKEN( APPXEQUAL );
 }
 
 \'\\x[0-9a-fA-F][0-9a-fA-F]?\' {
-	int x = yytext[yyleng-3]=='x' ? yyleng-3 : yyleng-4;
+	int32_t x = yytext[yyleng-3]=='x' ? yyleng-3 : yyleng-4;
 	std::stringstream escstr;
 	escstr.str("");
 	escstr << yytext[x+1];
 	if(yytext[x+2]!='\'')
 		escstr << yytext[x+2];
 	std::stringstream buf;
-	int temp;
+	int32_t temp;
 	buf << std::hex << escstr.str();
 	buf >> temp;
 	yytext[x-1] = (char)temp;
 	yytext[x] = '\'';
 	//Clear the extra space
-	for(int q = x+1; q < yyleng; ++q)
+	for(int32_t q = x+1; q < yyleng; ++q)
 		yytext[q] = 0;
 	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
 }

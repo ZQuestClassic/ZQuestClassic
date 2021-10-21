@@ -53,7 +53,7 @@ class ZCArrayIterator
 {
 public:
     friend class ZCArray<T>;
-    typedef unsigned int size_type;
+    typedef uint32_t size_type;
     typedef const T& const_reference;
     typedef const T* const_pointer;
     typedef T& reference;
@@ -124,34 +124,34 @@ public:
         --_ptr;
         return *this;
     }
-    ZCArrayIterator  operator ++ (int)
+    ZCArrayIterator  operator ++ (int32_t)
     {
         pointer _Tmp = _ptr;
         _ptr++;
         return ZCArrayIterator(_Tmp);
     }
-    ZCArrayIterator  operator -- (int)
+    ZCArrayIterator  operator -- (int32_t)
     {
         pointer _Tmp = _ptr;
         _ptr--;
         return ZCArrayIterator(_Tmp);
     }
     
-    ZCArrayIterator &operator += (int _Offset)
+    ZCArrayIterator &operator += (int32_t _Offset)
     {
         _ptr += _Offset;
         return *this;
     }
-    ZCArrayIterator &operator -= (int _Offset)
+    ZCArrayIterator &operator -= (int32_t _Offset)
     {
         _ptr -= _Offset;
         return *this;
     }
-    ZCArrayIterator  operator + (int _Offset) const
+    ZCArrayIterator  operator + (int32_t _Offset) const
     {
         return ZCArrayIterator(_ptr + _Offset);
     }
-    ZCArrayIterator  operator - (int _Offset) const
+    ZCArrayIterator  operator - (int32_t _Offset) const
     {
         return ZCArrayIterator(_ptr - _Offset);
     }
@@ -168,7 +168,7 @@ public:
     friend class ZCArrayIterator<T>;
     typedef const ZCArrayIterator<T> const_iterator;
     typedef ZCArrayIterator<T> iterator;
-    typedef unsigned int size_type;
+    typedef uint32_t size_type;
     typedef const T& const_reference;
     typedef const T* const_pointer;
     typedef const T const_type;
@@ -178,7 +178,7 @@ public:
     
     ZCArray() : _ptr(NULL), _size(0)
     {
-        for(int i = 0; i < 4; i++)
+        for(int32_t i = 0; i < 4; i++)
             _dim[i] = 0;
     }
     
@@ -202,7 +202,7 @@ public:
     
     ZCArray(const ZCArray &_Array) : _ptr(NULL), _size(0)
     {
-        for(int i = 0; i < 4; i++) _dim[i] = 0;
+        for(int32_t i = 0; i < 4; i++) _dim[i] = 0;
         
         Copy(_Array);
     }
@@ -441,7 +441,7 @@ public:
         if(_size != _Array.Size())
             _Alloc(_Array.Size());
             
-        for(int i = 0; i < 4; i++)
+        for(int32_t i = 0; i < 4; i++)
             _dim[ i ] = _Array._dim[ i ];
             
         for(size_type i(0); i < _size; i++)

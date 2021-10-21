@@ -9,42 +9,42 @@ MageTeleporting::MageTeleporting(enemy const & other, bool newScriptUID, bool cl
 	if(other.scrmem)
 	{
 		alloc_scriptmem();
-		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(long));
+		memcpy(scrmem->stack, other.scrmem->stack, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
 
 		scrmem->scriptData = other.scrmem->scriptData;
 	}
 	else
 		scrmem = nullptr;
 
-	for(int i = 0; i < edefLAST255; ++i)
+	for(int32_t i = 0; i < edefLAST255; ++i)
 		defense[i]=other.defense[i];
-	for(int q = 0; q < 10; ++q)
+	for(int32_t q = 0; q < 10; ++q)
 		frozenmisc[q] = other.frozenmisc[q];
-	for(int q = 0; q < NUM_HIT_TYPES_USED; ++q)
+	for(int32_t q = 0; q < NUM_HIT_TYPES_USED; ++q)
 		hitby[q] = other.hitby[q];
 
 	if(newScriptUID)
 		script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs.
 	if(clearParentUID)
 		parent_script_UID = 0;
-	for(int q = 0; q < 32; ++q)
+	for(int32_t q = 0; q < 32; ++q)
 		movement[q] = other.movement[q];
-	for(int q = 0; q < 32; ++q)
+	for(int32_t q = 0; q < 32; ++q)
 		new_weapon[q] = other.new_weapon[q];
 
-	for(int q = 0; q < 8; ++q)
+	for(int32_t q = 0; q < 8; ++q)
 	{
 		initD[q] = other.initD[q];
 		weap_initiald[q] = other.weap_initiald[q];
 	}
-	for(int q = 0; q < 2; ++q)
+	for(int32_t q = 0; q < 2; ++q)
 	{
 		initA[q] = other.initA[q];
 		weap_initiala[q] = other.weap_initiala[q];
 	}
 }
 
-MageTeleporting::MageTeleporting(zfix x, zfix y, int id, int clk):
+MageTeleporting::MageTeleporting(zfix x, zfix y, int32_t id, int32_t clk):
 	enemy(x, y, id, clk),
 	currAnimState(animState::NORMAL)
 {
@@ -93,7 +93,7 @@ MageTeleporting::MageTeleporting(zfix x, zfix y, int id, int clk):
 		zofs = d->zofs;
 }
 
-bool MageTeleporting::animate(int index)
+bool MageTeleporting::animate(int32_t index)
 {
 	if(fallclk || drownclk)
 		return enemy::animate(index);
@@ -191,7 +191,7 @@ bool MageTeleporting::tryTeleport()
 
 bool MageTeleporting::teleportRandomly()
 {
-	for(int i = 0; i < 160; ++i)
+	for(int8_t i = 0; i < 160; ++i)
 	{
 		if(isdungeon())
 		{
@@ -213,16 +213,16 @@ bool MageTeleporting::teleportRandomly()
 
 void MageTeleporting::teleportAligned(bool solidOK)
 {
-	int hx = std::clamp(((int)Link.getX())&0xF0, 32, 208);
-	int hy = std::clamp(((int)Link.getY())&0xF0, 32, 128);
-	int checkPos = rand()%23;
+	int32_t hx = std::clamp(((int32_t)Link.getX())&0xF0, 32, 208);
+	int32_t hy = std::clamp(((int32_t)Link.getY())&0xF0, 32, 128);
+	int32_t checkPos = rand()%23;
 	bool placed = false;
 
 	// Each of the tiles aligned with the hero and not at the edge of the screen
 	// are checked - that's 9 vertically and 14 horizontally. 23 positions,
 	// with one duplicated. Cycle through them and take the first one that's
 	// far enough from the hero and the mage can stand on.
-	int numTries;
+	int32_t numTries;
 	for(numTries = 0; true; ++numTries)
 	{
 		if(checkPos<14)

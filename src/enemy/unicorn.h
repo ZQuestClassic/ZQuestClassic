@@ -7,14 +7,14 @@ class Unicorn : public enemy
 {
 public:
 	Unicorn(enemy const & other, bool newScriptUID, bool clearParentUID);
-	Unicorn(zfix x, zfix y, int id, int clk);
+	Unicorn(zfix x, zfix y, int32_t id, int32_t clk);
 
 private:
 	enum class facing: bool { LEFT, RIGHT };
 
 	facing facingDir;
-	int walkTimer;
-	int& shotTimer;
+	int32_t walkTimer;
+	int32_t& shotTimer;
 
 	inline bool tooFarLeft() const
 	{
@@ -26,7 +26,7 @@ private:
 		return x >= ((facingDir == facing::RIGHT) ? 104_x : 200_x);
 	}
 
-	bool animate(int index) override;
+	bool animate(int32_t index) override;
 	void draw(BITMAP *dest) override;
 	bool hit(weapon *w) override;
 };

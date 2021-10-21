@@ -4,12 +4,12 @@
 
 // Controller ==================================================================
 
-int LandWorm::numSegments(const guydata& data)
+int32_t LandWorm::numSegments(const guydata& data)
 {
-	return std::clamp<int>(data.misc1, 1, MAX_SEGMENTS);
+	return std::clamp<int32_t>(data.misc1, 1, MAX_SEGMENTS);
 }
 
-LandWorm::LandWorm(zfix x, zfix y, int id):
+LandWorm::LandWorm(zfix x, zfix y, int32_t id):
 	enemy(x, y, id, 0),
 	segmentsCreated(0),
 	lastSegmentCreated(nullptr),
@@ -76,7 +76,7 @@ void LandWorm::adjustSpawnPoint()
 
 LandWormSegment* LandWorm::createSegment()
 {
-	int clk = -(segmentsCreated<<dmisc2);
+	int32_t clk = -(segmentsCreated<<dmisc2);
 	++segmentsCreated;
 	if(segmentsCreated > 1)
 	{
@@ -93,7 +93,7 @@ LandWormSegment* LandWorm::createSegment()
 	}
 }
 
-bool LandWorm::animate(int index)
+bool LandWorm::animate(int32_t index)
 {
 	if(clk == 0)
 		removearmos(x, y);
@@ -117,7 +117,7 @@ bool LandWorm::animate(int index)
 
 // Segment =====================================================================
 
-LandWormSegment::LandWormSegment(zfix _x, zfix _y, int id, int clk,
+LandWormSegment::LandWormSegment(zfix _x, zfix _y, int32_t id, int32_t clk,
 	std::shared_ptr<std::deque<direction>> moveHistory):
 		enemy(_x, _y, id, clk),
 		prevSegment(nullptr),
@@ -143,7 +143,7 @@ LandWormSegment::LandWormSegment(zfix _x, zfix _y, int id, int clk,
 	}
 }
 
-bool LandWormSegment::animate(int index)
+bool LandWormSegment::animate(int32_t index)
 {
 	if(hp<=0 && (prevSegment || nextSegment))
 		moveToEnd();
@@ -225,7 +225,7 @@ void LandWormSegment::moveToEnd()
 	}
 }
 
-int LandWormSegment::takehit(weapon *w)
+int32_t LandWormSegment::takehit(weapon *w)
 {
 	if(enemy::takehit(w))
 		// Wait a frame before checking sword attacks again
@@ -248,8 +248,8 @@ void LandWormSegment::draw(BITMAP *dest)
 			else
 				tile+=20;
 		}
-		int frameDiv = frate/4;
-		int frame = (frameDiv == 0) ? 0 : clk/frameDiv;
+		int32_t frameDiv = frate/4;
+		int32_t frame = (frameDiv == 0) ? 0 : clk/frameDiv;
 		tile += (dir&3)*4;
 		tile += frame;
 	}

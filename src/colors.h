@@ -14,7 +14,7 @@
 #include "zdefs.h"
 
 extern byte *colordata;
-extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, int b);
+extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_t r, int32_t g, int32_t b);
 
 // offsets in "data sets"
 #define poFULL   0                                          // main palette

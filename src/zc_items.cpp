@@ -34,15 +34,15 @@ extern sprite_list  guys;
 extern sprite_list  items;
 
 /*
-  void movefairy(zfix &x,zfix &y,int misc) {
+  void movefairy(zfix &x,zfix &y,int32_t misc) {
   return;
   }
 
-  void killfairy(int misc) {
+  void killfairy(int32_t misc) {
   return;
   }
   */
-bool addfairy(zfix x, zfix y, int misc3, int id)
+bool addfairy(zfix x, zfix y, int32_t misc3, int32_t id)
 {
     addenemy(x,y,eITEMFAIRY,id);
     ((enemy*)guys.spr(guys.Count()-1))->dstep=misc3;
@@ -51,7 +51,7 @@ bool addfairy(zfix x, zfix y, int misc3, int id)
     return true;
 }
 
-bool addfairynew(zfix x, zfix y, int misc3, item &itemfairy)
+bool addfairynew(zfix x, zfix y, int32_t misc3, item &itemfairy)
 {
     addenemy(x,y,eITEMFAIRY,0);
     enemy *ptr = ((enemy*)guys.spr(guys.Count()-1));
@@ -66,7 +66,7 @@ bool addfairynew(zfix x, zfix y, int misc3, item &itemfairy)
 bool can_drop(zfix x, zfix y)
 {
     return !(_walkflag(x,y+16,0) ||
-		((!get_bit(quest_rules, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && int(y)%16==0) &&
+		((!get_bit(quest_rules, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && int32_t(y)%16==0) &&
 		((checkSVLadderPlatform(x+4,y+16)) || (checkSVLadderPlatform(x+12,y+16)))));
 }
 
@@ -75,7 +75,7 @@ void item_fall(zfix& x, zfix& y, zfix& fall)
 	if(!get_bit(quest_rules, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && checkSVLadderPlatform(x+4,y+(fall/100)+15))
 	{
 		y+=fall/100;
-		y-=int(y)%16; //Fix to top of ladder
+		y-=int32_t(y)%16; //Fix to top of ladder
 		fall = 0;
 	}
 	else
@@ -85,24 +85,24 @@ void item_fall(zfix& x, zfix& y, zfix& fall)
 		if((fall/100)==0 && fall>0)
 			fall*=(fall>0 ? 2 : 0.5); // That oughta do something about the floatiness.
 			
-		if(fall <= (int)zinit.terminalv)
+		if(fall <= (int32_t)zinit.terminalv)
 		{
 			fall += (zinit.gravity2 / 100);
 		}
 	}
 }
 
-int select_dropitem(int item_set)
+int32_t select_dropitem(int32_t item_set)
 {
-    int total_chance=0;
+    int32_t total_chance=0;
     
-    for(int k=0; k<11; ++k)
+    for(int32_t k=0; k<11; ++k)
     {
-        int current_chance=item_drop_sets[item_set].chance[k];
+        int32_t current_chance=item_drop_sets[item_set].chance[k];
         
         if(k>0)
         {
-            int current_item=item_drop_sets[item_set].item[k-1];
+            int32_t current_item=item_drop_sets[item_set].item[k-1];
             
             if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(itemsbuf[current_item].family == itype_magic))
             {
@@ -129,15 +129,15 @@ int select_dropitem(int item_set)
     if(total_chance==0)
         return -1;
         
-    int item_chance=(zc_oldrand()%total_chance)+1;
+    int32_t item_chance=(zc_oldrand()%total_chance)+1;
     
-    int drop_item=-1;
+    int32_t drop_item=-1;
     
-    for(int k=10; k>=0; --k)
+    for(int32_t k=10; k>=0; --k)
     {
     
-        int current_chance=item_drop_sets[item_set].chance[k];
-        int current_item=(k==0 ? -1 : item_drop_sets[item_set].item[k-1]);
+        int32_t current_chance=item_drop_sets[item_set].chance[k];
+        int32_t current_item=(k==0 ? -1 : item_drop_sets[item_set].item[k-1]);
         
         if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&itemsbuf[current_item].family == itype_magic))
         {
@@ -170,13 +170,13 @@ int select_dropitem(int item_set)
     
     return drop_item;
 }
-int select_dropitem(int item_set, int x, int y)
+int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 {
-	int drop_item = select_dropitem(item_set);
+	int32_t drop_item = select_dropitem(item_set);
 	
     if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy && !get_bit(quest_rules,qr_FIXED_FAIRY_LIMIT))
     {
-        for(int j=0; j<items.Count(); ++j)
+        for(int32_t j=0; j<items.Count(); ++j)
         {
             if((itemsbuf[items.spr(j)->id].family==itype_fairy)&&((abs(items.spr(j)->x-x)<32)||(abs(items.spr(j)->y-y)<32)))
             {
@@ -188,11 +188,11 @@ int select_dropitem(int item_set, int x, int y)
 	
 	return drop_item;
 }
-int item::run_script(int mode)
+int32_t item::run_script(int32_t mode)
 {
 	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptITEMSPRITESCRIPTS])
 		return RUNSCRIPT_OK;
-	int ret = RUNSCRIPT_OK;
+	int32_t ret = RUNSCRIPT_OK;
 	alloc_scriptmem();
 	switch(mode)
 	{

@@ -261,9 +261,9 @@ enum mapflagtype
 struct user_bitmap
 {
 	BITMAP* u_bmp;
-	int width;
-	int height;
-	int depth;
+	int32_t width;
+	int32_t height;
+	int32_t depth;
 	byte flags;
 	
 	user_bitmap() : u_bmp(NULL), width(0), height(0), depth(0), flags(0) {}
@@ -319,14 +319,14 @@ struct script_bitmaps
 	user_bitmap script_created_bitmaps[MAX_USER_BITMAPS];
 	void update()
 	{
-		for(int q = 0; q < MAX_USER_BITMAPS; ++q)
+		for(int32_t q = 0; q < MAX_USER_BITMAPS; ++q)
 		{
 			script_created_bitmaps[q].update();
 		}
 	}
 	void clear()
 	{
-		for(int q = 0; q < MAX_USER_BITMAPS; ++q)
+		for(int32_t q = 0; q < MAX_USER_BITMAPS; ++q)
 		{
 			script_created_bitmaps[q].clear();
 		}
@@ -339,12 +339,12 @@ struct user_palette
 {
 	PALETTE* u_pal;
 	byte colours[256];
-	int current_id;
+	int32_t current_id;
 };
 
 struct script_palettes
 {
-	int num_active;
+	int32_t num_active;
 	user_palette script_created_palettes[MAX_USER_PALETTES];
 };
 
@@ -352,7 +352,7 @@ struct script_palettes
 struct user_rgb
 {
 	RGB usr_rgb[256][MAX_USER_RGB];
-	int current_active;
+	int32_t current_active;
 };
 
 #define MAX_USER_FILES 256
@@ -379,11 +379,11 @@ struct user_file
 		filepath = "";
 	}
 	
-	int do_remove()
+	int32_t do_remove()
 	{
 		if(file) fclose(file);
 		file = NULL;
-		int r = remove(filepath.c_str());
+		int32_t r = remove(filepath.c_str());
 		filepath = "";
 		return r;
 	}
@@ -413,11 +413,11 @@ struct user_dir
 			list->load(filepath.c_str());
 		else setPath(filepath.c_str());
 	}
-	int size()
+	int32_t size()
 	{
 		return list->size;
 	}
-	bool get(int index, char* buf)
+	bool get(int32_t index, char* buf)
 	{
 		return list->get(index, buf);
 	}
@@ -429,21 +429,21 @@ struct user_rng
 	zc_randgen* gen;
 	bool reserved;
 	
-	int rand()
+	int32_t rand()
 	{
 		return zc_rand(gen);
 	}
-	int rand(int upper, int lower=0)
+	int32_t rand(int32_t upper, int32_t lower=0)
 	{
 		return zc_rand(upper, lower, gen);
 	}
-	void srand(long seed)
+	void srand(int32_t seed)
 	{
 		zc_srand(seed, gen);
 	}
-	long srand()
+	int32_t srand()
 	{
-		long seed = time(0) + ((rand() * rand()) * ((rand() % 2) ? 1 : -1));
+		int32_t seed = time(0) + ((rand() * rand()) * ((rand() % 2) ? 1 : -1));
 		srand(seed);
 		return seed;
 	}
@@ -486,14 +486,14 @@ typedef struct ZSCRIPT_CONFIG
 {
    ZSCRIPT_CONFIG_ENTRY *head;              /* linked list of config entries */
    char *filename;                  /* where were we loaded from? */
-   int dirty;                       /* has our data changed? */
+   int32_t dirty;                       /* has our data changed? */
 } ZSCRIPT_CONFIG;
 
 
 typedef struct ZSCRIPT_CONFIG_HOOK
 {
    char *section;                   /* hooked config section info */
-   int (*intgetter)(AL_CONST char *name, int def);
+   int32_t (*intgetter)(AL_CONST char *name, int32_t def);
    AL_CONST char *(*stringgetter)(AL_CONST char *name, AL_CONST char *def);
    void (*stringsetter)(AL_CONST char *name, AL_CONST char *value);
    struct ZSCRIPT_CONFIG_HOOK *next; 
@@ -509,50 +509,50 @@ static ZSCRIPT_CONFIG *system_config = NULL;
 
 static ZSCRIPT_CONFIG_HOOK *config_hook = NULL;
 
-static int config_installed = FALSE;
+static int32_t config_installed = FALSE;
 
 static char **config_argv = NULL;
 static char *argv_buf = NULL;
-static int argv_buf_size = 0;
+static int32_t argv_buf_size = 0;
 
 //Config files
 void zscript_flush_config(ZSCRIPT_CONFIG *cfg);
 void zscript_flush_config_file(void);
 void zscript_destroy_config(ZSCRIPT_CONFIG *cfg);
 void zscript_config_cleanup(void);
-void zscript_init_config(int loaddata);
-int zscript_get_config_line(const char *data, int length, char **name, char **val);
-void zscript_set_config(ZSCRIPT_CONFIG **config, const char *data, int length, const char *filename);
+void zscript_init_config(int32_t loaddata);
+int32_t zscript_get_config_line(const char *data, int32_t length, char **name, char **val);
+void zscript_set_config(ZSCRIPT_CONFIG **config, const char *data, int32_t length, const char *filename);
 void zscript_load_config_file(ZSCRIPT_CONFIG **config, const char *filename, const char *savefile);
 void zscript_set_config_file(const char *filename);
-void zscript_set_config_data(const char *data, int length);
+void zscript_set_config_data(const char *data, int32_t length);
 void zscript_override_config_file(const char *filename);
-void zscript_override_config_data(const char *data, int length);
+void zscript_override_config_data(const char *data, int32_t length);
 void zscript_push_config_state(void);
 void zscript_pop_config_state(void);
-void zscript_prettify_config_section_name(const char *in, char *out, int out_size);
-void zscript_hook_config_section(const char *section, int (*intgetter)(const char *, int), const char *(*stringgetter)(const char *, const char *), void (*stringsetter)(const char *, const char *));
-int zscript_config_is_hooked(const char *section);
+void zscript_prettify_config_section_name(const char *in, char *out, int32_t out_size);
+void zscript_hook_config_section(const char *section, int32_t (*intgetter)(const char *, int32_t), const char *(*stringgetter)(const char *, const char *), void (*stringsetter)(const char *, const char *));
+int32_t zscript_config_is_hooked(const char *section);
 ZSCRIPT_CONFIG_ENTRY *zscript_find_config_string(ZSCRIPT_CONFIG *config, const char *section, const char *name, ZSCRIPT_CONFIG_ENTRY **prev);
 const char *zscript_get_config_string(const char *section, const char *name, const char *def);
-int zscript_get_config_int(const char *section, const char *name, int def);
-int zscript_get_config_hex(const char *section, const char *name, int def);
+int32_t zscript_get_config_int(const char *section, const char *name, int32_t def);
+int32_t zscript_get_config_hex(const char *section, const char *name, int32_t def);
 float zscript_get_config_float(const char *section, const char *name, float def);
-int zscript_get_config_id(const char *section, const char *name, int def);
-char **zscript_get_config_argv(const char *section, const char *name, int *argc);
+int32_t zscript_get_config_id(const char *section, const char *name, int32_t def);
+char **zscript_get_config_argv(const char *section, const char *name, int32_t *argc);
 ZSCRIPT_CONFIG_ENTRY *zscript_insert_config_variable(ZSCRIPT_CONFIG *the_config, ZSCRIPT_CONFIG_ENTRY *p, const char *name, const char *data);
 void zscript_set_config_string(const char *section, const char *name, const char *val);
-void zscript_set_config_int(const char *section, const char *name, int val);
-void zscript_set_config_hex(const char *section, const char *name, int val);
+void zscript_set_config_int(const char *section, const char *name, int32_t val);
+void zscript_set_config_hex(const char *section, const char *name, int32_t val);
 void zscript_set_config_float(const char *section, const char *name, float val);
-void zscript_set_config_id(const char *section, const char *name, int val);
+void zscript_set_config_id(const char *section, const char *name, int32_t val);
 void _zscript_reload_config(void);
 void zscript_reload_config_texts(const char *new_language);
 const char *zscript_get_config_text(const char *msg);
-int zscript_add_unique_config_name(const char ***names, int n, char const *name);
-int zscript_attach_config_entries(ZSCRIPT_CONFIG *conf, const char *section,int n, const char ***names, int list_sections);
-int zscript_list_config_entries(const char *section, const char ***names);
-int zscript_list_config_sections(const char ***names);
+int32_t zscript_add_unique_config_name(const char ***names, int32_t n, char const *name);
+int32_t zscript_attach_config_entries(ZSCRIPT_CONFIG *conf, const char *section,int32_t n, const char ***names, int32_t list_sections);
+int32_t zscript_list_config_entries(const char *section, const char ***names);
+int32_t zscript_list_config_sections(const char ***names);
 void zscript_free_config_entries(const char ***names);
 
 class FFScript
@@ -564,26 +564,26 @@ public:
 void init();
 
 
-int max_ff_rules;
+int32_t max_ff_rules;
 mapscr* tempScreens[7];
 mapscr* ScrollingScreens[7];
-int ScrollingData[SZ_SCROLLDATA];
-int getQRBit(int rule);	
-void setRule(int rule, bool s);
-bool getRule(int rule_bit);
+int32_t ScrollingData[SZ_SCROLLDATA];
+int32_t getQRBit(int32_t rule);	
+void setRule(int32_t rule, bool s);
+bool getRule(int32_t rule_bit);
 void setFFRules();
-void setLinkTile(int t);
-int getLinkTile();
-void setLinkAction(int a);
-int getLinkAction();
+void setLinkTile(int32_t t);
+int32_t getLinkTile();
+void setLinkAction(int32_t a);
+int32_t getLinkAction();
 void Play_Level_Music();
-int getTime(int type); //get system RTC Information.
+int32_t getTime(int32_t type); //get system RTC Information.
 void getRTC(const bool v);
-long getQuestHeaderInfo(int type);
+int32_t getQuestHeaderInfo(int32_t type);
 void do_graphics_getpixel();
 
-void set_mapscreenflag_state(mapscr *m, int flagid, bool state);
-long get_mapscreenflag_state(mapscr *m, int flagid);
+void set_mapscreenflag_state(mapscr *m, int32_t flagid, bool state);
+int32_t get_mapscreenflag_state(mapscr *m, int32_t flagid);
 
 void clearRunningItemScripts();
 bool itemScriptEngine();
@@ -616,23 +616,23 @@ void do_strcpy(const bool a, const bool b);
 void do_strlen(const bool v);
 //More string.h functions, 19th May, 2019 
 void do_arraycpy(const bool a, const bool b);
-void AlloffLimited(int flagset);
+void AlloffLimited(int32_t flagset);
 void do_xlen(const bool v);
 double ln(double temp);
 double Log2( double n );
-int numDigits(long number);
-int Log10(double temp);
+int32_t numDigits(int32_t number);
+int32_t Log10(double temp);
 double LogToBase(double x, double base);
 void do_xtoi(const bool v);
 void do_ilen(const bool v);
 void do_atoi(const bool v);
 bool isNumber(char chr);
-int UpperToLower(std::string *s);
-int LowerToUpper(std::string *s);
-int ConvertCase(std::string *s);
-int ilen(char *p);
-int zc_strlen(char *p);
-int atox(char *ip_str);
+int32_t UpperToLower(std::string *s);
+int32_t LowerToUpper(std::string *s);
+int32_t ConvertCase(std::string *s);
+int32_t ilen(char *p);
+int32_t zc_strlen(char *p);
+int32_t atox(char *ip_str);
 void do_LowerToUpper(const bool v);
 void do_UpperToLower(const bool v);
 void do_ConvertCase(const bool v);
@@ -655,39 +655,39 @@ void do_getitembyname();
 void do_getcombobyname();
 void do_getdmapbyname();
 
-int getLinkOTile(long index1, long index2);
-int getLinkOFlip(long index1, long index2);
+int32_t getLinkOTile(int32_t index1, int32_t index2);
+int32_t getLinkOFlip(int32_t index1, int32_t index2);
 
-int IsBlankTile(int i);
+int32_t IsBlankTile(int32_t i);
 
-defWpnSprite getDefWeaponSprite(int wpnid);
+defWpnSprite getDefWeaponSprite(int32_t wpnid);
 //defWpnSprite getDefWeaponSprite(weapon *wp);
 
 //ZC SRAM
-//void read_maps(PACKFILE *f, int vers_id);
-//void write_maps(PACKFILE *f, int vers_id);
-void read_dmaps(PACKFILE *f, int vers_id);
-void write_dmaps(PACKFILE *f, int vers_id);
-void read_combos(PACKFILE *f, int vers_id);
-void write_combos(PACKFILE *f, int vers_id);
-void write_items(PACKFILE *f, int vers_id);
-void read_items(PACKFILE *f, int vers_id);
-void write_enemies(PACKFILE *f, int vers_id);
-void read_enemies(PACKFILE *f, int vers_id);
-void write_weaponsprtites(PACKFILE *f, int vers_id);
-void read_weaponsprtites(PACKFILE *f, int vers_id);
-void write_mapscreens(PACKFILE *f,int vers_id);
-void read_mapscreens(PACKFILE *f, int vers_id);
+//void read_maps(PACKFILE *f, int32_t vers_id);
+//void write_maps(PACKFILE *f, int32_t vers_id);
+void read_dmaps(PACKFILE *f, int32_t vers_id);
+void write_dmaps(PACKFILE *f, int32_t vers_id);
+void read_combos(PACKFILE *f, int32_t vers_id);
+void write_combos(PACKFILE *f, int32_t vers_id);
+void write_items(PACKFILE *f, int32_t vers_id);
+void read_items(PACKFILE *f, int32_t vers_id);
+void write_enemies(PACKFILE *f, int32_t vers_id);
+void read_enemies(PACKFILE *f, int32_t vers_id);
+void write_weaponsprtites(PACKFILE *f, int32_t vers_id);
+void read_weaponsprtites(PACKFILE *f, int32_t vers_id);
+void write_mapscreens(PACKFILE *f,int32_t vers_id);
+void read_mapscreens(PACKFILE *f, int32_t vers_id);
 void do_savegamestructs(const bool v, const bool v2);
 void do_loadgamestructs(const bool v, const bool v2);
-long Distance(double x1, double y1, double x2, double y2);
-long Distance(double x1, double y1, double x2, double y2, int scale);
-long LongDistance(double x1, double y1, double x2, double y2);
-long LongDistance(double x1, double y1, double x2, double y2, int scale);
+int32_t Distance(double x1, double y1, double x2, double y2);
+int32_t Distance(double x1, double y1, double x2, double y2, int32_t scale);
+int32_t LongDistance(double x1, double y1, double x2, double y2);
+int32_t LongDistance(double x1, double y1, double x2, double y2, int32_t scale);
 void do_distance();
 
-int combo_script_engine(const bool preload);
-int combo_script_engine_waitdraw(const bool preload);
+int32_t combo_script_engine(const bool preload);
+int32_t combo_script_engine_waitdraw(const bool preload);
 
 void do_strstr();
 void do_strcat();
@@ -715,15 +715,15 @@ void do_cleartrace();
 bool print_ZASM;
 void do_tracetobase();
 void ZScriptConsole(bool open);
-void ZScriptConsole(int attributes,const char *format,...);
+void ZScriptConsole(int32_t attributes,const char *format,...);
 void TraceScriptIDs(bool zasm_console = false);
-void ZScriptConsolePrint(int colourformat, const char * const format,...);
+void ZScriptConsolePrint(int32_t colourformat, const char * const format,...);
 void ZASMPrint(bool open);
 void ZASMPrintCommand(const word scommand);
-void ZASMPrintVarSet(const long arg, long argval);
-void ZASMPrintVarGet(const long arg, long argval);
+void ZASMPrintVarSet(const int32_t arg, int32_t argval);
+void ZASMPrintVarGet(const int32_t arg, int32_t argval);
 /*
-long getQuestHeaderInfo(int type)
+int32_t getQuestHeaderInfo(int32_t type)
 {
     return quest_format[type];
 }
@@ -731,17 +731,17 @@ long getQuestHeaderInfo(int type)
 
 */
 
-//Script-only Warp, Link->WarpEx(int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir)
-//Script-only Warp, Link->WarpEx(int array[])
-//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
-bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir);
+//Script-only Warp, Link->WarpEx(int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir)
+//Script-only Warp, Link->WarpEx(int32_t array[])
+//{int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir}
+bool warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t linkFacesDir);
 
 void user_files_init();
 void user_dirs_init();
 void user_rng_init();
-int get_free_file(bool skipError = false);
-int get_free_directory(bool skipError = false);
-int get_free_rng(bool skipError = false);
+int32_t get_free_file(bool skipError = false);
+int32_t get_free_directory(bool skipError = false);
+int32_t get_free_rng(bool skipError = false);
 
 bool get_scriptfile_path(char* buf, const char* path);
 
@@ -777,11 +777,11 @@ void do_directory_free();
 
 void user_bitmaps_init();
 
-int get_free_bitmap(bool skipError = false);
+int32_t get_free_bitmap(bool skipError = false);
 void do_deallocate_bitmap();
-bool isSystemBitref(long ref);
+bool isSystemBitref(int32_t ref);
 
-long create_user_bitmap_ex(int w, int h, int depth);
+int32_t create_user_bitmap_ex(int32_t w, int32_t h, int32_t depth);
 void do_isvalidbitmap();
 void do_isallocatedbitmap();
 
@@ -791,10 +791,10 @@ void do_set_oggex_position(const bool v);
 void go_get_oggex_position();
 void do_set_oggex_speed(const bool v);
 
-BITMAP* GetScriptBitmap(int id);
+BITMAP* GetScriptBitmap(int32_t id);
 
-int highest_valid_user_bitmap();
-long do_create_bitmap();
+int32_t highest_valid_user_bitmap();
+int32_t do_create_bitmap();
 
 void do_adjustsfxvolume(const bool v);
 void do_adjustvolume(const bool v);
@@ -802,48 +802,48 @@ void do_warp_ex(const bool v);
 //FFScript();
 //static void init();
 
-long quest_format[versiontypesLAST];
+int32_t quest_format[versiontypesLAST];
 byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game credits, but not Link's Win script. -Z
 
-long emulation[emuLAST];
+int32_t emulation[emuLAST];
 byte system_suspend[susptLAST];
 
-long coreflags;
-long script_UIDs[UID_TYPES];
-long usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
+int32_t coreflags;
+int32_t script_UIDs[UID_TYPES];
+int32_t usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
 
 byte FF_rules[FFRULES_SIZE]; //For Migration of Quest Rules, and Scritp Engine Rules
-long FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
+int32_t FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
 byte FF_link_action; //This way, we can make safe replicas of internal Link actions to be set by script. 
 bool kb_typing_mode; //script only, for disbaling key presses affecting Link, etc. 
-long FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
-long FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
-long FF_subscreen_dimensions[4];
-int numscriptdraws;
-long FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
-long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
+int32_t FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
+int32_t FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
+int32_t FF_subscreen_dimensions[4];
+int32_t numscriptdraws;
+int32_t FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
+int32_t FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
 
 std::vector<std::string> includePaths;
 char includePathString[MAX_INCLUDE_PATH_CHARS];
 char scriptRunString[21];
-int warpex[wexLast];
-int StdArray[256];
-int GhostArray[256];
-int TangoArray[256];
+int32_t warpex[wexLast];
+int32_t StdArray[256];
+int32_t GhostArray[256];
+int32_t TangoArray[256];
 
 #define FFSCRIPTCLASS_CLOCKS 10
-long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
+int32_t FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
 
 #define SCRIPT_DRAWING_RULES 20
 byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 
 #define NUM_USER_MIDI_OVERRIDES 6
-long FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
+int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
  
-short passive_subscreen_offsets[2];
+int16_t passive_subscreen_offsets[2];
 byte active_subscreen_scrollspeed_adjustment;
 
-int FF_gravity;
+int32_t FF_gravity;
 word FF_terminalv;
 byte FF_msg_speed;
 byte FF_transition_type; // Can't edit, yet.
@@ -853,7 +853,7 @@ byte FF_link_swim_speed;
 byte zasm_break_mode;
 
 //Enemy removal bounds
-int enemy_removal_point[6];
+int32_t enemy_removal_point[6];
 
 //Disable stepforward on dungeon dmaps
 byte nostepforward;
@@ -861,10 +861,10 @@ byte temp_no_stepforward;
 
 byte subscreen_scroll_speed;
 
-void set_sarg1(int v);
+void set_sarg1(int32_t v);
 void clear_screen_stack();
 void setSubscreenScrollSpeed(byte n);
-int getSubscreenScrollSpeed();
+int32_t getSubscreenScrollSpeed();
 void do_fx_zap(const bool v);
 void do_fx_wavy(const bool v);
 void do_greyscale(const bool v);
@@ -887,47 +887,47 @@ void initZScriptItemScripts();
 void init_combo_doscript();
 void clear_combo_refinfo();
 void clear_combo_stacks();
-void clear_combo_refinfo(int pos);
-void clear_combo_stack(int q);
+void clear_combo_refinfo(int32_t pos);
+void clear_combo_stack(int32_t q);
 void clear_combo_initialised();
 void ClearComboScripts();
-int getComboDataLayer(int c, int scripttype);
-int getCombodataPos(int c, int scripttype);
-int getCombodataY(int c, int scripttype);
-int getCombodataX(int c, int scripttype);
+int32_t getComboDataLayer(int32_t c, int32_t scripttype);
+int32_t getCombodataPos(int32_t c, int32_t scripttype);
+int32_t getCombodataY(int32_t c, int32_t scripttype);
+int32_t getCombodataX(int32_t c, int32_t scripttype);
 
 //tba
 //void deallocateComboArrays();
 
-int GetScriptObjectUID(int type);
+int32_t GetScriptObjectUID(int32_t type);
     
 //byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 				//so that they do not play every time an item is collected, unless one of the flags is set for it.
 
-void SetFFEngineFlag(int flag, bool v);
-void SetItemMessagePlayed(int itm);
-bool GetItemMessagePlayed(int itm);
+void SetFFEngineFlag(int32_t flag, bool v);
+void SetItemMessagePlayed(int32_t itm);
+bool GetItemMessagePlayed(int32_t itm);
 	
-int do_getpixel();
-int GetDefaultWeaponSprite(int w);
+int32_t do_getpixel();
+int32_t GetDefaultWeaponSprite(int32_t w);
 
-int GetQuestVersion();
-int GetQuestBuild();
-int GetQuestSectionVersion(int section);
+int32_t GetQuestVersion();
+int32_t GetQuestBuild();
+int32_t GetQuestSectionVersion(int32_t section);
 
-int do_get_internal_uid_npc(int i);
-int do_get_internal_uid_item(int i);
-int do_get_internal_uid_lweapon(int i);
-int do_get_internal_uid_eweapon(int i);
+int32_t do_get_internal_uid_npc(int32_t i);
+int32_t do_get_internal_uid_item(int32_t i);
+int32_t do_get_internal_uid_lweapon(int32_t i);
+int32_t do_get_internal_uid_eweapon(int32_t i);
 
 void do_loadnpc_by_script_uid(const bool v);
 void do_loaditem_by_script_uid(const bool v);
 void do_loadlweapon_by_script_uid(const bool v);
 void do_loadeweapon_by_script_uid(const bool v);
 
-int getEnemyByScriptUID(int sUID);
-int getLWeaponByScriptUID(int sUID);
-int getEWeaponByScriptUID(int sUID);
+int32_t getEnemyByScriptUID(int32_t sUID);
+int32_t getLWeaponByScriptUID(int32_t sUID);
+int32_t getEWeaponByScriptUID(int32_t sUID);
 
 //new npc functions for npc scripts
 void do_isdeadnpc();
@@ -945,8 +945,8 @@ void do_npc_haltwalk8();
 void do_npc_floatwalk();
 void do_npc_breathefire();
 void do_npc_newdir8();
-long npc_collision();
-long npc_linedup();
+int32_t npc_collision();
+int32_t npc_linedup();
 void do_npc_link_in_range(const bool v);
 void do_npc_simulate_hit(const bool v);
 void do_npc_knockback(const bool v);
@@ -961,7 +961,7 @@ void do_lweapon_delete();
 void do_eweapon_delete();
 void do_itemsprite_delete();
 
-//int do_get_internal_uid
+//int32_t do_get_internal_uid
 
     //virtual ~FFScript();
     
@@ -971,7 +971,7 @@ void do_itemsprite_delete();
     static weapon *temp_ff_lweapon;
     static weapon *temp_ff_eweapon;
 
-    static int load_enemy(const long eid, const char * const funcvar)
+    static int32_t load_enemy(const int32_t eid, const char * const funcvar)
     {
         temp_ff_enemy = (enemy *) guys.getByUID(eid);
         
@@ -996,7 +996,7 @@ void do_itemsprite_delete();
     
     // Currently only used in a context where the enemy is known to be valid,
     // so there's no need to print an error
-    static int get_enemy_Index(const long eid)
+    static int32_t get_enemy_Index(const int32_t eid)
     {
         for(word i = 0; i < guys.Count(); i++)
         {
@@ -1007,7 +1007,7 @@ void do_itemsprite_delete();
         return -1;
     }
     
-    static long get_enemy_Misc(const byte a)
+    static int32_t get_enemy_Misc(const byte a)
     {
         switch(a)
         {
@@ -1059,7 +1059,7 @@ void do_itemsprite_delete();
         return false;
     }
     
-    static long get_enemy_Misc_Flags()
+    static int32_t get_enemy_Misc_Flags()
     {
         flagpos = 5;
         // Must be in the same order as in the Enemy Editor pane
@@ -1083,7 +1083,7 @@ void do_itemsprite_delete();
 
 
 
-    static int load_Item(const long iid, const char * const funcvar)
+    static int32_t load_Item(const int32_t iid, const char * const funcvar)
     {
         temp_ff_item = (item *) items.getByUID(iid);
         
@@ -1101,7 +1101,7 @@ void do_itemsprite_delete();
         return _NoError;
     }
     
-    static int getItemIndex(const long iid)
+    static int32_t getItemIndex(const int32_t iid)
     {
         for(word i = 0; i < items.Count(); i++)
         {
@@ -1125,7 +1125,7 @@ void do_itemsprite_delete();
 
 
 
-    static int load_LWeapon(const long wid, const char * const funcvar)
+    static int32_t load_LWeapon(const int32_t wid, const char * const funcvar)
     {
         temp_ff_lweapon = (weapon *) Lwpns.getByUID(wid);
         
@@ -1143,7 +1143,7 @@ void do_itemsprite_delete();
         return _NoError;
     }
     
-    static int getLWeaponIndex(const long lwid)
+    static int32_t getLWeaponIndex(const int32_t lwid)
     {
         for(word i = 0; i < Lwpns.Count(); i++)
         {
@@ -1164,7 +1164,7 @@ void do_itemsprite_delete();
     {
         temp_ff_lweapon = NULL;
     }
-    static int load_EWeapon(const long wid, const char * const funcvar)
+    static int32_t load_EWeapon(const int32_t wid, const char * const funcvar)
     {
         temp_ff_eweapon = (weapon *) Ewpns.getByUID(wid);
         
@@ -1182,7 +1182,7 @@ void do_itemsprite_delete();
         return _NoError;
     }
     
-    static int getEWeaponIndex(const long lwid)
+    static int32_t getEWeaponIndex(const int32_t lwid)
     {
         for(word i = 0; i < Ewpns.Count(); i++)
         {
@@ -1205,61 +1205,61 @@ void do_itemsprite_delete();
     */
 
 
-	static INLINE int ZSbound_byte(int val)
+	static INLINE int32_t ZSbound_byte(int32_t val)
 	{
 		return vbound(val,0,ZS_BYTE);
 	}
-	static INLINE int ZSbound_char(int val)
+	static INLINE int32_t ZSbound_char(int32_t val)
 	{
 		return vbound(val,0,ZS_CHAR);
 	}
-	static INLINE int ZSbound_word(int val)
+	static INLINE int32_t ZSbound_word(int32_t val)
 	{
 		return vbound(val,0,ZS_WORD);
 	}
-	static INLINE int ZSbound_short(int val)
+	static INLINE int32_t ZSbound_short(int32_t val)
 	{
 		return vbound(val,0,ZS_SHORT);
 	}
-	static INLINE int ZSbound_long(int val)
+	static INLINE int32_t ZSbound_long(int32_t val)
 	{
 		return vbound(val,0,ZS_LONG);
 	}
-	static INLINE int ZSbound_fix(int val)
+	static INLINE int32_t ZSbound_fix(int32_t val)
 	{
 		return vbound(val,0,ZS_FIX);
 	}
 	
-static void set_screenwarpReturnY(mapscr *m, int d, int value);
-static void set_screendoor(mapscr *m, int d, int value);
-static void set_screenenemy(mapscr *m, int index, int value);
-static void set_screenlayeropacity(mapscr *m, int d, int value);
-static void set_screensecretcombo(mapscr *m, int d, int value);
-static void set_screensecretcset(mapscr *m, int d, int value);
-static void set_screensecretflag(mapscr *m, int d, int value);
-static void set_screenlayermap(mapscr *m, int d, int value);
-static void set_screenlayerscreen(mapscr *m, int d, int value);
-static void set_screenpath(mapscr *m, int d, int value);
-static void set_screenwarpReturnX(mapscr *m, int d, int value);
-static void set_screenWidth(mapscr *m, int value);
-static void set_screenHeight(mapscr *m, int value);
-static void set_screenViewX(mapscr *m, int value);
-static void set_screenViewY(mapscr *m, int value);
-static void set_screenGuy(mapscr *m, int value);
-static void set_screenString(mapscr *m, int value);
-static void set_screenRoomtype(mapscr *m, int value);
-static void set_screenEntryX(mapscr *m, int value);
-static void set_screenEntryY(mapscr *m, int value);
-static void set_screenitem(mapscr *m, int value);
-static void set_screenundercombo(mapscr *m, int value);
-static void set_screenundercset(mapscr *m, int value);
-static void set_screenatchall(mapscr *m, int value);
-static long get_screenWidth(mapscr *m);
-static long get_screenHeight(mapscr *m);
-static void deallocateZScriptArray(const long ptrval);
-static int get_screen_d(long index1, long index2);
-static void set_screen_d(long index1, long index2, int val);
-static int whichlayer(long scr);
+static void set_screenwarpReturnY(mapscr *m, int32_t d, int32_t value);
+static void set_screendoor(mapscr *m, int32_t d, int32_t value);
+static void set_screenenemy(mapscr *m, int32_t index, int32_t value);
+static void set_screenlayeropacity(mapscr *m, int32_t d, int32_t value);
+static void set_screensecretcombo(mapscr *m, int32_t d, int32_t value);
+static void set_screensecretcset(mapscr *m, int32_t d, int32_t value);
+static void set_screensecretflag(mapscr *m, int32_t d, int32_t value);
+static void set_screenlayermap(mapscr *m, int32_t d, int32_t value);
+static void set_screenlayerscreen(mapscr *m, int32_t d, int32_t value);
+static void set_screenpath(mapscr *m, int32_t d, int32_t value);
+static void set_screenwarpReturnX(mapscr *m, int32_t d, int32_t value);
+static void set_screenWidth(mapscr *m, int32_t value);
+static void set_screenHeight(mapscr *m, int32_t value);
+static void set_screenViewX(mapscr *m, int32_t value);
+static void set_screenViewY(mapscr *m, int32_t value);
+static void set_screenGuy(mapscr *m, int32_t value);
+static void set_screenString(mapscr *m, int32_t value);
+static void set_screenRoomtype(mapscr *m, int32_t value);
+static void set_screenEntryX(mapscr *m, int32_t value);
+static void set_screenEntryY(mapscr *m, int32_t value);
+static void set_screenitem(mapscr *m, int32_t value);
+static void set_screenundercombo(mapscr *m, int32_t value);
+static void set_screenundercset(mapscr *m, int32_t value);
+static void set_screenatchall(mapscr *m, int32_t value);
+static int32_t get_screenWidth(mapscr *m);
+static int32_t get_screenHeight(mapscr *m);
+static void deallocateZScriptArray(const int32_t ptrval);
+static int32_t get_screen_d(int32_t index1, int32_t index2);
+static void set_screen_d(int32_t index1, int32_t index2, int32_t val);
+static int32_t whichlayer(int32_t scr);
 static void clear_ffc_stack(const byte i);
 static void clear_global_stack(const byte i);
 
@@ -1377,9 +1377,9 @@ static void setLinkBigHitbox(bool v);
 
 	//NPCData Setters, three inputs, no return.
 	//static void setNPCData_scriptdefence();
-	static void setNPCData_defense(int v); //extra arg
-	static void setNPCData_SIZEflags(int v);
-	static void setNPCData_misc(int val);
+	static void setNPCData_defense(int32_t v); //extra arg
+	static void setNPCData_SIZEflags(int32_t v);
+	static void setNPCData_misc(int32_t val);
 	
 	static void setNPCData_tile();
 	static void setNPCData_e_height();
@@ -1552,9 +1552,9 @@ static void setLinkBigHitbox(bool v);
 	static void setComboData_animflags();
 
 	//three inputs, no return
-	static void setComboData_block_weapon(int v);
-	static void setComboData_expansion(int v);
-	static void setComboData_strike_weapons(int v);
+	static void setComboData_block_weapon(int32_t v);
+	static void setComboData_expansion(int32_t v);
+	static void setComboData_strike_weapons(int32_t v);
 	
 	//SpriteData
 	static void getSpriteDataTile();
@@ -1584,25 +1584,25 @@ static void setLinkBigHitbox(bool v);
 	static void do_loadmapdata(const bool v);
 	static void do_loadmapdata_tempscr(const bool v);
 	static void do_loadmapdata_scrollscr(const bool v);
-	static long loadMapData();
+	static int32_t loadMapData();
 	static void do_loadspritedata(const bool v);
 	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
-	static long do_allocate_bitmap();
+	static int32_t do_allocate_bitmap();
 	static void do_write_bitmap();
 	static void do_loadshopdata(const bool v);
 	static void do_loadinfoshopdata(const bool v);
-	static void do_setMIDI_volume(int m);
-	static void do_setMusic_volume(int m);
-	static void do_setDIGI_volume(int m);
-	static void do_setSFX_volume(int m);
-	static void do_setSFX_pan(int m);
+	static void do_setMIDI_volume(int32_t m);
+	static void do_setMusic_volume(int32_t m);
+	static void do_setDIGI_volume(int32_t m);
+	static void do_setSFX_volume(int32_t m);
+	static void do_setSFX_pan(int32_t m);
 	
-	static int do_getMIDI_volume();
-	static int do_getMusic_volume();
-	static int do_getDIGI_volume();
-	static int do_getSFX_volume();
-	static int do_getSFX_pan();
+	static int32_t do_getMIDI_volume();
+	static int32_t do_getMusic_volume();
+	static int32_t do_getDIGI_volume();
+	static int32_t do_getSFX_volume();
+	static int32_t do_getSFX_pan();
 	
 	static void do_loadmessagedata(const bool v);
 	static void do_messagedata_setstring(const bool v);
@@ -1634,9 +1634,9 @@ enum __Error
     };
     
     
-    int checkUserArrayIndex(const long index, const dword size)
+    int32_t checkUserArrayIndex(const int32_t index, const dword size)
     {
-        if(index < 0 || index >= long(size))
+        if(index < 0 || index >= int32_t(size))
         {
           //  Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
             return _OutOfBounds;
@@ -1648,23 +1648,23 @@ enum __Error
     
     
     //only if the player is messing with their pointers...
-    ZScriptArray& InvalidError(const long ptr)
+    ZScriptArray& InvalidError(const int32_t ptr)
     {
         Z_scripterrlog("FFSScript::InvalidError - Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
         return INVALIDARRAY;
     }
     
     //Returns a reference to the correct array based on pointer passed
-    ZScriptArray& getArray(const long ptr)
+    ZScriptArray& getArray(const int32_t ptr)
     {
         if(ptr <= 0)
             return InvalidError(ptr);
             
         if(ptr >= NUM_ZSCRIPT_ARRAYS) //Then it's a global
         {
-            long gptr = ptr - NUM_ZSCRIPT_ARRAYS;
+            int32_t gptr = ptr - NUM_ZSCRIPT_ARRAYS;
             
-            if(gptr > (long)game->globalRAM.size())
+            if(gptr > (int32_t)game->globalRAM.size())
                 return InvalidError(ptr);
                 
             return game->globalRAM[gptr];
@@ -1678,7 +1678,7 @@ enum __Error
         }
     }
     
-    size_t getSize(const long ptr)
+    size_t getSize(const int32_t ptr)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -1689,7 +1689,7 @@ enum __Error
     }
     
     //Can't you get the std::string and then check its length?
-    int strlen(const long ptr)
+    int32_t strlen(const int32_t ptr)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -1704,7 +1704,7 @@ enum __Error
     }
     
     //Returns values of a zscript array as an std::string.
-    void getString(const long ptr, std::string &str, dword num_chars = ZSCRIPT_MAX_STRING_CHARS)
+    void getString(const int32_t ptr, std::string &str, dword num_chars = ZSCRIPT_MAX_STRING_CHARS)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -1723,7 +1723,7 @@ enum __Error
         }
     }
     //Copies clues for ZS array b to a. 
-    void copyValues(const long ptr, const long ptr2, size_t num_values)
+    void copyValues(const int32_t ptr, const int32_t ptr2, size_t num_values)
     {
         ZScriptArray& a = getArray(ptr);
         ZScriptArray& b = getArray(ptr2);
@@ -1741,7 +1741,7 @@ enum __Error
         }
     }
     //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-    void getValues(const long ptr, long* arrayPtr, word num_values)
+    void getValues(const int32_t ptr, int32_t* arrayPtr, word num_values)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -1754,7 +1754,7 @@ enum __Error
             num_values--;
         }
     }
-    void getValues(const long ptr, long* arrayPtr, word num_values, int min_size)
+    void getValues(const int32_t ptr, int32_t* arrayPtr, word num_values, int32_t min_size)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -1771,7 +1771,7 @@ enum __Error
     }
     
     //Get element from array
-    long getElement(const long ptr, const long offset)
+    int32_t getElement(const int32_t ptr, const int32_t offset)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -1785,7 +1785,7 @@ enum __Error
     }
     
     //Set element in array
-    void setElement(const long ptr, const long offset, const long value)
+    void setElement(const int32_t ptr, const int32_t offset, const int32_t value)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -1798,19 +1798,19 @@ enum __Error
     
     //Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
     template <typename T>
-    int getArray(const long ptr, T *refArray)
+    int32_t getArray(const int32_t ptr, T *refArray)
     {
         return getArray(ptr, getArray(ptr).Size(), 0, 0, 0, refArray);
     }
     
     template <typename T>
-    int getArray(const long ptr, const word size, T *refArray)
+    int32_t getArray(const int32_t ptr, const word size, T *refArray)
     {
         return getArray(ptr, size, 0, 0, 0, refArray);
     }
     
     template <typename T>
-    int getArray(const long ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
+    int32_t getArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -1841,7 +1841,7 @@ enum __Error
     }
     
     
-    int setArray(const long ptr, const std::string s2)
+    int32_t setArray(const int32_t ptr, const std::string s2)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -1871,13 +1871,13 @@ enum __Error
     
     //Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
     template <typename T>
-    int setArray(const long ptr, const word size, T *refArray)
+    int32_t setArray(const int32_t ptr, const word size, T *refArray)
     {
         return setArray(ptr, size, 0, 0, 0, refArray);
     }
     
     template <typename T>
-    int setArray(const long ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
+    int32_t setArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -1898,7 +1898,7 @@ enum __Error
                 k--;
             else if(checkUserArrayIndex(i, a.Size()) == _NoError)
             {
-                a[i] = long(refArray[j + refArrayOffset]) * 10000;
+                a[i] = int32_t(refArray[j + refArrayOffset]) * 10000;
                 k = userStride;
                 j++;
             }
@@ -1907,14 +1907,14 @@ enum __Error
         return _NoError;
     }
     
-	static void deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways = true);
+	static void deallocateAllArrays(const byte scriptType, const int32_t UID, bool requireAlways = true);
 	static void deallocateAllArrays();
 	
     private:
-    long sid;
+    int32_t sid;
 };
 
-extern long ffmisc[32][16];
+extern int32_t ffmisc[32][16];
 extern refInfo ffcScriptData[32];
 extern refInfo screenScriptData;
 extern word g_doscript;
@@ -1922,9 +1922,9 @@ extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];
 extern PALETTE tempblackpal;
 
-long get_register(const long arg);
-int run_script(const byte type, const word script, const long i = -1); //Global scripts don't need 'i'
-int ffscript_engine(const bool preload);
+int32_t get_register(const int32_t arg);
+int32_t run_script(const byte type, const word script, const int32_t i = -1); //Global scripts don't need 'i'
+int32_t ffscript_engine(const bool preload);
 
 void clear_ffc_stack(const byte i);
 void clear_global_stack(const byte i);
@@ -1932,33 +1932,33 @@ void clear_link_stack();
 void clear_dmap_stack();
 void clear_active_subscreen_stack();
 void clear_passive_subscreen_stack();
-void deallocateArray(const long ptrval);
+void deallocateArray(const int32_t ptrval);
 void clearScriptHelperData();
 
 void do_getscreenflags();
 void do_getscreeneflags();
-long get_screendoor(mapscr *m, int d);
-long get_screenlayeropacity(mapscr *m, int d);
-long get_screensecretcombo(mapscr *m, int d);
-long get_screensecretcset(mapscr *m, int d);
-long get_screensecretflag(mapscr *m, int d);
-long get_screenlayermap(mapscr *m, int d);
-long get_screenlayerscreen(mapscr *m, int d);
-long get_screenpath(mapscr *m, int d);
-long get_screenwarpReturnX(mapscr *m, int d);
-long get_screenwarpReturnY(mapscr *m, int d);
+int32_t get_screendoor(mapscr *m, int32_t d);
+int32_t get_screenlayeropacity(mapscr *m, int32_t d);
+int32_t get_screensecretcombo(mapscr *m, int32_t d);
+int32_t get_screensecretcset(mapscr *m, int32_t d);
+int32_t get_screensecretflag(mapscr *m, int32_t d);
+int32_t get_screenlayermap(mapscr *m, int32_t d);
+int32_t get_screenlayerscreen(mapscr *m, int32_t d);
+int32_t get_screenpath(mapscr *m, int32_t d);
+int32_t get_screenwarpReturnX(mapscr *m, int32_t d);
+int32_t get_screenwarpReturnY(mapscr *m, int32_t d);
 
-long get_screenViewX(mapscr *m);
-long get_screenGuy(mapscr *m);
-long get_screenString(mapscr *m);
-long get_screenRoomtype(mapscr *m);
-long get_screenViewY(mapscr *m);
-long get_screenEntryX(mapscr *m);
-long get_screenEntryY(mapscr *m);
-long get_screenitem(mapscr *m);
-long get_screenundercombo(mapscr *m);
-long get_screenundercset(mapscr *m);
-long get_screenatchall(mapscr *m);
+int32_t get_screenViewX(mapscr *m);
+int32_t get_screenGuy(mapscr *m);
+int32_t get_screenString(mapscr *m);
+int32_t get_screenRoomtype(mapscr *m);
+int32_t get_screenViewY(mapscr *m);
+int32_t get_screenEntryX(mapscr *m);
+int32_t get_screenEntryY(mapscr *m);
+int32_t get_screenitem(mapscr *m);
+int32_t get_screenundercombo(mapscr *m);
+int32_t get_screenundercset(mapscr *m);
+int32_t get_screenatchall(mapscr *m);
 void do_getscreenLayerOpacity();
 void do_getscreenSecretCombo();
 void do_getscreenSecretCSet();
@@ -1981,7 +1981,7 @@ void do_getscreenEntryX();
 void do_getscreenEntryY();
 void do_getscreenItem();
 void do_getscreendoor();
-long get_screennpc(mapscr *m, int index);
+int32_t get_screennpc(mapscr *m, int32_t index);
 void do_getscreennpc();
 
 // Defines for script flags
@@ -3963,7 +3963,7 @@ enum ASM_DEFINE
 #define DMAPDATASUBSCRA 	0x12AA //byte, active subscreen
 #define DMAPDATASUBSCRP 	0x12AB //byte, passive subscreen
 #define DMAPDATADISABLEDITEMS 	0x12AC //byte[iMax]
-#define DMAPDATAFLAGS 		0x12AD //long
+#define DMAPDATAFLAGS 		0x12AD //int32_t
 //Audio->Volume()
 #define AUUDIOUNUSED0001		0x12AE
 #define AUUDIOUNUSED0002		0x12AF
@@ -3972,9 +3972,9 @@ enum ASM_DEFINE
 #define ITEMPSTRINGFLAGS		0x12B1
 #define ITEMOVERRIDEFLAGS		0x12B2
 #define LINKPUSH		0x12B3
-#define GAMEMISC		0x12B4 //long
-#define LINKSTUN		0x12B5 //int (32b)
-#define TYPINGMODE		0x12B6 //int (32b)
+#define GAMEMISC		0x12B4 //int32_t
+#define LINKSTUN		0x12B5 //int32_t (32b)
+#define TYPINGMODE		0x12B6 //int32_t (32b)
 
 //NEWCOMBO STRUCT
 #define COMBODTILE		0x12B7	//word
@@ -4330,23 +4330,24 @@ enum ASM_DEFINE
 #define NPCDDEATHSPR 			0x13F7
 
 #define COMBOLAYERR 			0x13F8
+#define COMBODATTRISHORTS       0x13F9
 
-#define NUMVARIABLES         	0x13F9
+#define NUMVARIABLES         	0x13FA
 
 //} End variables
 
 struct quad3Dstruct
 {
-    int index;
+    int32_t index;
     float pos[12], uv[8];
-    int size[2], color[4];
+    int32_t size[2], color[4];
 };
 
 struct triangle3Dstruct
 {
-    int index;
+    int32_t index;
     float pos[9], uv[6];
-    int size[2], color[3];
+    int32_t size[2], color[3];
 };
 
 #endif

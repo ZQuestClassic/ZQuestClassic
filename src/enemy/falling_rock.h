@@ -6,7 +6,7 @@
 class FallingRock: public enemy
 {
 public:
-	FallingRock(zfix x, zfix y, int id);
+	FallingRock(zfix x, zfix y, int32_t id);
 	FallingRock(const enemy& other, bool newScriptUID, bool clearParentUID);
 
 protected:
@@ -15,7 +15,7 @@ protected:
 	direction drawDir;
 
 	inline bool isBig() const { return dmisc10; }
-	bool animate(int index) override;
+	bool animate(int32_t index) override;
 	int takehit(weapon* w) override;
 	void draw(BITMAP* dest) override;
 	void drawshadow(BITMAP* dest, bool translucent) override;

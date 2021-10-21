@@ -33,7 +33,7 @@ void call_header_dlg()
 HeaderDialog::HeaderDialog(std::string verstr, std::string initVals[5], std::function<void(std::string_view[5])> setVals):
 	setVals(setVals), verstr(verstr)
 {
-	for (int q = 0; q < 5; ++q)
+	for (int32_t q = 0; q < 5; ++q)
 		vals[q] = initVals[q];
 }
 

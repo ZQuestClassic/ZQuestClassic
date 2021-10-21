@@ -22,56 +22,56 @@
 class item;
 extern char *item_string[ITEMCNT];
 
-extern int fairy_cnt;
-void movefairy(zfix &x,zfix &y,int misc);
+extern int32_t fairy_cnt;
+void movefairy(zfix &x,zfix &y,int32_t misc);
 void movefairynew(zfix &x,zfix &y,item const &itemfairy);
-void killfairy(int misc);
+void killfairy(int32_t misc);
 void killfairynew(item const &itemfairy);
-int addenemy(int x,int y,int id,int clk);
-bool addfairy(zfix x, zfix y, int misc3, int id);
-bool addfairynew(zfix x, zfix y, int misc3, item &itemfairy);
+int32_t addenemy(int32_t x,int32_t y,int32_t id,int32_t clk);
+bool addfairy(zfix x, zfix y, int32_t misc3, int32_t id);
+bool addfairynew(zfix x, zfix y, int32_t misc3, item &itemfairy);
 bool can_drop(zfix x, zfix y);
 void item_fall(zfix& x, zfix& y, zfix& fall);
-int item_pits(zfix& x, zfix& y, int& fallclk);
-int select_dropitem(int item_set);
-int select_dropitem(int item_set, int x, int y);
+int32_t item_pits(zfix& x, zfix& y, int32_t& fallclk);
+int32_t select_dropitem(int32_t item_set);
+int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y);
 
 class item : public sprite
 {
 public:
-    int pickup,clk2;
-    int aclk,aframe;
+    int32_t pickup,clk2;
+    int32_t aclk,aframe;
     char PriceIndex;
     bool flash,twohand,anim, subscreenItem;
-    int o_tile,o_cset, o_speed, o_delay, frames;
-    long fairyUID;
+    int32_t o_tile,o_cset, o_speed, o_delay, frames;
+    int32_t fairyUID;
     word pstring; //pickup string
     word pickup_string_flags;
-    //int script_UID;
-    int overrideFLAGS; //Override flags.
-    long family;
+    //int32_t script_UID;
+    int32_t overrideFLAGS; //Override flags.
+    int32_t family;
     byte lvl;
-    int linked_parent;
-    //int weapoverrideFLAGS; 
+    int32_t linked_parent;
+    //int32_t weapoverrideFLAGS; 
     
     //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
 //Linker errors because this is shared with zquest. :( -Z
     #ifndef IS_ZQUEST
-    int script_UID;
-    int getScriptUID();
-    void setScriptUID(int new_id);
+    int32_t script_UID;
+    int32_t getScriptUID();
+    void setScriptUID(int32_t new_id);
     #endif
 //
-    item(zfix X,zfix Y,zfix Z,int i,int p,int c, bool isDummy = false);
+    item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy = false);
     virtual ~item();
-    virtual bool animate(int index);
+    virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
-	virtual int run_script(int mode);
+	virtual int32_t run_script(int32_t mode);
 };
 
 // easy way to draw an item
-void putitem(BITMAP *dest,int x,int y,int item_id);
-void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int flash);
+void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id);
+void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, int32_t &aframe, int32_t flash);
 #endif
 /*** end of sprite.cc ***/
 
