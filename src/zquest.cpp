@@ -33,6 +33,7 @@
 #include "mem_debug.h"
 #include "particles.h"
 #include "metadata/versionsig.h"
+#include "dialog/alertfunc.h"
 particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
 
@@ -48,6 +49,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/foodlg.h"
 #include "dialog/quest_rules.h"
 #include "dialog/script_rules.h"
+#include "dialog/headerdlg.h"
 
 #include "gui.h"
 #include "load_gif.h"
@@ -21673,7 +21675,6 @@ int32_t d_showedit_proc(int32_t msg,DIALOG *d,int32_t c)
     return ret;
 }
 
-void call_header_dlg();
 int32_t onHeader()
 {
 	call_header_dlg();
@@ -25307,10 +25308,17 @@ int32_t onCompileScript()
 			
 			fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
 			fclose(tempfile);
+			
+			uint32_t lastInitSize = 0;
+			{
+				script_data const* init_script = globalscripts[0];
+				while(init_script->zasm[lastInitSize].command != 0xFFFF)
+					++lastInitSize;
+			}
 			box_start(1, "Compile Progress", lfont, sfont,true);
 			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
 			clock_t start_compile_time = clock();
-			std::unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
+			unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
 			clock_t end_compile_time = clock();
 			char buf[256] = {0};
 			sprintf(buf, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
@@ -25390,19 +25398,19 @@ int32_t onCompileScript()
 			{
 				if(sfx_voice[compile_success_sample]!=-1)
 				{
-				deallocate_voice(sfx_voice[compile_success_sample]);
-				sfx_voice[compile_success_sample]=-1;
+					deallocate_voice(sfx_voice[compile_success_sample]);
+					sfx_voice[compile_success_sample]=-1;
 				}
 			}
 			if ( compile_error_sample > 0 )
 			{
 				if(sfx_voice[compile_error_sample]!=-1)
 				{
-				deallocate_voice(sfx_voice[compile_error_sample]);
-				sfx_voice[compile_error_sample]=-1;
+					deallocate_voice(sfx_voice[compile_error_sample]);
+					sfx_voice[compile_error_sample]=-1;
 				}
 			}
-				refresh(rALL);
+			refresh(rALL);
 			if ( compile_tune ) stopMusic();
 			
 			if(result == NULL)
@@ -25443,48 +25451,33 @@ int32_t onCompileScript()
 			{
 				string const& name = it->first;
 				ZScript::ScriptType type = it->second;
-					if ( type == ZScript::ScriptType::ffc )
-					{		asffcscripts.push_back(name); }
-					else if ( type == ZScript::ScriptType::item )
-					{		asitemscripts.push_back(name); }
-					else if ( type == ZScript::ScriptType::npc )
-					{		asnpcscripts.push_back(name); }
-					else if ( type == ZScript::ScriptType::eweapon )
-					{		aseweaponscripts.push_back(name); }
-					else if ( type == ZScript::ScriptType::lweapon )
-					{		aslweaponscripts.push_back(name); } 
-					else if ( type == ZScript::ScriptType::link )
-					{		aslinkscripts.push_back(name); }
-					else if ( type == ZScript::ScriptType::dmapdata )
-					{		asdmapscripts.push_back(name); }
-					else if ( type == ZScript::ScriptType::screendata )
-					{		asscreenscripts.push_back(name); }
-					else if ( type == ZScript::ScriptType::itemsprite )
-					{		asitemspritescripts.push_back(name); }
-					else if ( type == ZScript::ScriptType::combodata )
-					{		ascomboscripts.push_back(name); }
-					else if ( type == ZScript::ScriptType::global )
-					{
-						if (name != "~Init")
-						{
-							asglobalscripts.push_back(name);
-						}
-					}
-						
-						
-						
-					
-					/*
-				if (type == ZScript::ScriptType::ffc)
+				if ( type == ZScript::ScriptType::ffc )
 					asffcscripts.push_back(name);
-				else if (type == ZScript::ScriptType::item)
+				else if ( type == ZScript::ScriptType::item )
 					asitemscripts.push_back(name);
-				else if (type == ZScript::ScriptType::global
-						 // Don't allow assigning the allocate memory
-						 // script, bad things could happen
-						 && name != "~Init")
-					asglobalscripts.push_back(name);
-					*/
+				else if ( type == ZScript::ScriptType::npc )
+					asnpcscripts.push_back(name);
+				else if ( type == ZScript::ScriptType::eweapon )
+					aseweaponscripts.push_back(name);
+				else if ( type == ZScript::ScriptType::lweapon )
+					aslweaponscripts.push_back(name);
+				else if ( type == ZScript::ScriptType::link )
+					aslinkscripts.push_back(name);
+				else if ( type == ZScript::ScriptType::dmapdata )
+					asdmapscripts.push_back(name);
+				else if ( type == ZScript::ScriptType::screendata )
+					asscreenscripts.push_back(name);
+				else if ( type == ZScript::ScriptType::itemsprite )
+					asitemspritescripts.push_back(name);
+				else if ( type == ZScript::ScriptType::combodata )
+					ascomboscripts.push_back(name);
+				else if ( type == ZScript::ScriptType::global )
+				{
+					if (name != "~Init")
+					{
+						asglobalscripts.push_back(name);
+					}
+				}
 			}
 		
 			//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
@@ -25533,6 +25526,28 @@ int32_t onCompileScript()
 			//scripts.clear(); //Doesn't release it back to Windows. 
 			//std::map<string, disassembled_script_data>().swap(scripts); //Doesn't release it back to Windows. 
 			//malloc_trim(); //This is Unix only, and will release heap memory allocation back to the host OS
+			
+			uint32_t newInitSize = 0;
+			{
+				script_data const* new_init_script = globalscripts[0];
+				while(new_init_script->zasm[newInitSize].command != 0xFFFF)
+					++newInitSize;
+			}
+			if(newInitSize != lastInitSize) //Global init changed
+			{
+				AlertFuncDialog("Init Script Changed",
+					"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(newInitSize)+")\n\n"
+					"This can break existing save files of your quest. To prevent users "
+					"from loading save files that would break, you can raise the \"Quest "
+					"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"
+					"Ensure that both versions are higher than \"Quest Ver\" was previously, "
+					"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
+					2, 1, //2 buttons, where buttons[1] is focused
+					"Header", call_header_dlg,
+					"OK", NULL
+				).show();
+			}
+			
 			return D_O_K;
 		}
 	}

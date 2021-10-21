@@ -61,6 +61,7 @@ src/dialog/headerdlg.cpp
 src/dialog/alert.cpp
 src/dialog/init_data.cpp
 src/dialog/itemeditor.cpp
+src/dialog/alertfunc.cpp
 
 ## End of ZQuest GUI module
 )

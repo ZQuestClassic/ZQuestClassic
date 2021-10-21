@@ -57,7 +57,29 @@ public:
 	{
 		return Size(value+other.value);
 	}
-
+	
+	inline constexpr Size operator*(const int32_t& other) const noexcept
+	{
+		return Size(value*other);
+	}
+	
+	inline constexpr Size operator*(const Size& other) const noexcept
+	{
+		return Size(value*other.value);
+	}
+	inline friend Size operator*(const int32_t v, const Size s);
+	
+	inline constexpr Size operator-(const int32_t& other) const noexcept
+	{
+		return Size(value-other);
+	}
+	
+	inline constexpr Size operator-(const Size& other) const noexcept
+	{
+		return Size(value-other.value);
+	}
+	inline friend Size operator-(const Size s, const int32_t v);
+	inline friend Size operator-(const int32_t v, const Size s);
 	inline constexpr bool operator<(const Size& other) const noexcept
 	{
 		return value < other.value;
@@ -109,6 +131,21 @@ inline Size operator ""_lpx(uint64_t size)
 inline Size operator ""_spx(uint64_t size)
 {
 	return Size::smallPixels(size);
+}
+
+inline Size operator-(const Size s, const int32_t v)
+{
+	return Size(s.value - v);
+}
+
+inline Size operator-(const int32_t v, const Size s)
+{
+	return Size(v - s.value);
+}
+
+inline Size operator*(const int32_t v, const Size s)
+{
+	return Size(v*s.value);
 }
 
 }

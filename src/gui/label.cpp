@@ -9,7 +9,7 @@
 namespace GUI
 {
 
-Label::Label(): text(), text_fit(), maxLines(10), contX(0), contY(0), contW(0), contH(0), textAlign(0)
+Label::Label(): text(), text_fit(), maxLines(0), contX(0), contY(0), contW(0), contH(0), textAlign(0)
 {
 	setPreferredHeight(Size::pixels(text_height(widgFont)));
 }
@@ -23,7 +23,6 @@ void Label::setText(std::string newText)
 
 void Label::setMaxLines(size_t newMax)
 {
-	assert(newMax>0);
 	maxLines = newMax;
 }
 
@@ -67,7 +66,7 @@ void Label::fitText()
 	int32_t max_width = 0;
 	int32_t i;
 	size_t linecount = 1;
-	for(i = 0; data[i] && currentLine < maxLines; ++i)
+	for(i = 0; data[i] && (!maxLines || currentLine < maxLines); ++i)
 	{
 		char c = data[i];
 		if(c == '\n')
