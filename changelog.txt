@@ -1,5 +1,30 @@
 // 2.55 Change Log
-// Updated 10th Oct, 2021
+// Updated 21st Oct, 2021
+
+//Recent Changes
+
+Add 'ResizeArray()'
+Add warning when global Init script changes
+	( EmilyV, Oct 21st, 2021 )
+
+Fix dialogs, spacebar map bug
+	( EmilyV, Oct 17th, 2021 )
+
+Refactor code to use specific-sized types
+	( EmilyV, Oct 15th, 2021 )
+
+Fix 'combodata->Attribytes[]', add 'combodata->Attrishorts[]'
+	( EmilyV, Oct 12th, 2021 )
+
+Update std_functions.zh; WrapAngle(), WrapDegrees()
+Fix some dialog issues
+	( EmilyV, Oct 11th, 2021 )
+
+Fix solidity errors, fix solid damage combos
+	( Dimi, Oct 11th, 2021 )
+
+Allow script-modified templayers to become 'valid'
+	( EmilyV, Oct 10th, 2021 )
 
 //Alpha 99
 
