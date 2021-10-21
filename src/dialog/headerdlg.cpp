@@ -37,6 +37,8 @@ HeaderDialog::HeaderDialog(std::string verstr, std::string initVals[5], std::fun
 		vals[q] = initVals[q];
 }
 
+#define HEADER_TEXTFIELD_WID 9_em
+
 std::shared_ptr<GUI::Widget> HeaderDialog::view()
 {
 	using namespace GUI::Builder;
@@ -54,55 +56,49 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 			),
 			Rows<2>(
 				Column(
-					width = 140_spx,
-					Rows<3>(
-						Button(width = 2_em, text = "?", hAlign = 1.0, onPressFunc = []()
-						{
-							InfoDialog("Quest Version","The version number of your quest. This is stored in save files, and is used for comparing with 'Min. Ver'").show();
-						}),
-						Label(text = "Quest Ver:", hAlign = 0.0),
-						questRev = TextField(width = 8_em, hAlign = 0.0, maxLength = 9, text = vals[0]),
-						Button(width = 2_em, text = "?", hAlign = 1.0, onPressFunc = []()
-						{
-							InfoDialog("Min Version","If a save file of your quest was saved with a 'Quest Ver' lower than this value, it will not be allowed to load. Useful for preventing loading of saves that would be broken by changes to the quest.").show();
-						}),
-						Label(text = "Min. Ver:", hAlign = 0.0),
-						minRev = TextField(width = 8_em, hAlign = 0.0, maxLength = 9, text = vals[1]),
+					Rows<6>(
+						Button(width = 2_em, rightPadding = 0_px, forceFitH = true, text = "?",
+							onPressFunc = []()
+							{
+								InfoDialog("Quest Version","The version number of your quest. This is stored in save files, and is used for comparing with 'Min. Ver'").show();
+							}),
+						Label(text = "Quest Ver:", rightPadding = 0_px, hAlign = 1.0),
+						questRev = TextField(width = HEADER_TEXTFIELD_WID, hAlign = 0.0, maxLength = 9, text = vals[0]),
+						//
+						Label(text = "Quest Num:", rightPadding = 0_px, hAlign = 1.0),
+						questNum = TextField(width = HEADER_TEXTFIELD_WID, rightPadding = 0_px, hAlign = 1.0, maxLength = 9, text = vals[4]),
+						Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?",
+							onPressFunc = []()
+							{
+								InfoDialog("Quest Progression Number","This value is used by module-based quests, such as '1st.qst'. Unless you know what you are doing, leave this at '0'!").show();
+							}),
+						//
+						Button(width = 2_em, rightPadding = 0_px, forceFitH = true, text = "?",
+							onPressFunc = []()
+							{
+								InfoDialog("Min Version","If a save file of your quest was saved with a 'Quest Ver' lower than this value, it will not be allowed to load. Useful for preventing loading of saves that would be broken by changes to the quest.").show();
+							}),
+						Label(text = "Min. Ver:", rightPadding = 0_px, hAlign = 1.0),
+						minRev = TextField(width = HEADER_TEXTFIELD_WID, hAlign = 0.0, maxLength = 9, text = vals[1]),
+						//
 						DummyWidget(),
-						Label(text = "Title:", hAlign = 0.0),
+						DummyWidget(),
+						DummyWidget(),
+						//
+						DummyWidget(),
+						Label(text = "Title:", rightPadding = 0_px, hAlign = 1.0),
 						titlestr = TextField(
-							width = 8_em,
+							width = HEADER_TEXTFIELD_WID,
 							hAlign = 1.0,
 							maxLength = 64,
 							text = vals[2],
 							onValueChanged = message::TITLE
-						)
-					),
-					titleLabel = Label(
-						fitParent = true,
-						framed = true,
-						height = 3_em,
-						vPadding = 4_spx,
-						leftMargin = 2_em+4_spx,
-						text = vals[2],
-						textAlign = 1
-					)
-				),
-				Column(
-					width = 140_spx,
-					Rows<3>(
-						Label(text = "Quest Num:", hAlign = 0.0),
-						questNum = TextField(width = 8_em, hAlign = 1.0, maxLength = 9, text = vals[4]),
-						Button(width = 2_em, text = "?", hAlign = 0.0, onPressFunc = []()
-						{
-							InfoDialog("Quest Progression Number","This value is used by module-based quests, such as '1st.qst'. Unless you know what you are doing, leave this at '0'!").show();
-						}),
-						DummyWidget(),
-						DummyWidget(),
-						Button(width = 2_em, visible = false, hAlign = 0.0), //dummy, for spacing
-						Label(text = "Author:", hAlign = 0.0),
+						),
+						//
+						Label(text = "Author:", rightPadding = 0_px, hAlign = 1.0),
 						author = TextField(
-							width = 8_em,
+							width = HEADER_TEXTFIELD_WID,
+							rightPadding = 0_px, 
 							hAlign = 1.0,
 							maxLength = 64,
 							text = vals[3],
@@ -110,14 +106,25 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 						),
 						DummyWidget()
 					),
-					authorLabel = Label(
-						fitParent = true,
-						framed = true,
-						height = 3_em,
-						vPadding = 4_spx,
-						rightMargin = 2_em+4_spx,
-						text = vals[3],
-						textAlign = 1
+					Row(
+						titleLabel = Label(
+							framed = true,
+							height = 3_em,
+							width = 140_spx-DEFAULT_PADDING,
+							vPadding = 4_spx,
+							leftMargin = DEFAULT_PADDING,
+							text = vals[2],
+							textAlign = 1
+						),
+						authorLabel = Label(
+							framed = true,
+							height = 3_em,
+							width = 140_spx-DEFAULT_PADDING,
+							vPadding = 4_spx,
+							rightMargin = DEFAULT_PADDING,
+							text = vals[3],
+							textAlign = 1
+						)
 					)
 				)
 			),
