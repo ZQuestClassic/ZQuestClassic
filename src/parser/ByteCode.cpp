@@ -3282,6 +3282,11 @@ string ODeallocateMemImmediate::toString()
     return "DEALLOCATEMEMV " + getArgument()->toString();
 }
 
+string OResizeArrayRegister::toString()
+{
+    return "RESIZEARRAYR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+}
+
 string OSave::toString()
 {
     return "SAVE";

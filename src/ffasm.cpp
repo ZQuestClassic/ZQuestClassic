@@ -999,6 +999,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "BMPREPLCOLOR",           0,   0,   0,   0},
 	{ "BMPSHIFTCOLOR",           0,   0,   0,   0},
 	{ "BMPMASKDRAW",           0,   0,   0,   0},
+	{ "RESIZEARRAYR",           2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

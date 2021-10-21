@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 99
-Document Revision: 13th Oct, 2021
+Document Revision: 21st Oct, 2021
 
 
  __           _   _                 
@@ -2722,6 +2722,10 @@ void OverlayTile(int firsttile, int secondtile);
 
 int SizeOfArray(untyped[]);
  * SizeOfArray() now returns the size of all datatypes.
+
+void ResizeArray(untyped[] arr, int size);
+ * Resizes the array 'arr' to size 'size'.
+ * If size is <1, the array will be resized to size '1'.
 
 void Trace(untyped)
  * The Trace() instruction now supports all datatypes.

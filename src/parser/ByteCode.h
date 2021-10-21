@@ -4332,6 +4332,17 @@ namespace ZScript
 		}
 	};
 
+	class OResizeArrayRegister : public BinaryOpcode
+	{
+	public:
+		OResizeArrayRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OResizeArrayRegister(a->clone(), b->clone());
+		}
+	};
+
 	class OSave : public Opcode
 	{
 	public:

@@ -19236,6 +19236,15 @@ void do_internal_stricmp()
 	else                ri->scriptflag &= ~TRUEFLAG;
 }
 
+void do_resize_array()
+{
+	int32_t size = vbound(get_register(sarg2) / 10000, 1, 214748);
+	dword ptrval = get_register(sarg1) / 10000;
+	ZScriptArray &a = ArrayH::getArray(ptrval);
+	if(a == INVALIDARRAY) return;
+	a.Resize(size);
+}
+
 void do_allocatemem(const bool v, const bool local, const byte type, const uint32_t UID)
 {
 	const int32_t size = SH::get_arg(sarg2, v) / 10000;
@@ -24480,6 +24489,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				
 			case ALLOCATEMEMV:
 				do_allocatemem(true, true, type, i);
+				break;
+			
+			case RESIZEARRAYR:
+				do_resize_array();
 				break;
 				
 			case DEALLOCATEMEMR:
@@ -33685,6 +33698,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "BMPREPLCOLOR",           0,   0,   0,   0},
 	{ "BMPSHIFTCOLOR",           0,   0,   0,   0},
 	{ "BMPMASKDRAW",           0,   0,   0,   0},
+	{ "RESIZEARRAYR",           2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
