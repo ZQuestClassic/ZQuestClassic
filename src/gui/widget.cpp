@@ -21,7 +21,7 @@ Widget::Widget() noexcept:
 	minwidth(-1), minheight(-1),
 	flags(0), hideCount(0),
 	frameText(""), widgFont(GUI_DEF_FONT),
-	owner(NULL)
+	owner(NULL), rowSpan(1), colSpan(1)
 {}
 
 void Widget::overrideWidth(Size newWidth) noexcept

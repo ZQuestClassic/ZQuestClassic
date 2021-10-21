@@ -260,6 +260,23 @@ public:
 		return flags&f_FORCE_FIT_H;
 	}
 	
+	void setRowSpan(uint8_t newSpan)
+	{
+		rowSpan = std::max(uint8_t(1),newSpan);
+	}
+	void setColSpan(uint8_t newSpan)
+	{
+		colSpan = std::max(uint8_t(1),newSpan);
+	}
+	uint8_t getRowSpan() const
+	{
+		return rowSpan;
+	}
+	uint8_t getColSpan() const
+	{
+		return colSpan;
+	}
+	
 	//Sets the text that appears inside the frame, if framed
 	void setFrameText(std::string const& newstr);
 	
@@ -338,6 +355,7 @@ private:
 	};
 
 	int32_t width, height, maxwidth, maxheight, minwidth, minheight;
+	uint8_t rowSpan, colSpan;
 	DialogRunner *owner;
 	uint16_t flags : 9;
 

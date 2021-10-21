@@ -6,6 +6,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <map>
 
 namespace GUI
 {
@@ -49,21 +50,27 @@ public:
 	}
 
 	/* Add a widget at the next position in the grid. */
-	inline void add(std::shared_ptr<Widget> child)
-	{
-		children.emplace_back(std::move(child));
-	}
+	void add(std::shared_ptr<Widget> child);
 
 	void applyVisibility(bool visible) override;
 	void calculateSize() override;
 	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;
 private:
-	std::vector<std::shared_ptr<Widget>> children;
+	//std::vector<std::shared_ptr<Widget>> children;
 	std::vector<int32_t> rowWidths, colWidths, rowHeights, colHeights;
-	uint16_t rowSpacing, colSpacing;
+	size_t rowSpacing, colSpacing;
+	
+	std::map<size_t, std::shared_ptr<Widget>> children;
+	std::map<size_t, bool> usedIndexes;
+	
 	type growthType;
 	size_t growthLimit;
+	
+	size_t maxChildIndex()
+	{
+		return children.rbegin()->first;
+	}
 };
 
 }

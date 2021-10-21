@@ -103,22 +103,24 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 							text = vals[3],
 							onValueChanged = message::AUTHOR
 						),
-						DummyWidget()
-					),
-					Row(
+						DummyWidget(),
+						//
 						titleLabel = Label(
+							colSpan = 3,
+							forceFitW = true,
 							framed = true,
 							height = 3_em,
-							width = 140_spx-DEFAULT_PADDING,
 							vPadding = 4_spx,
 							leftMargin = DEFAULT_PADDING,
 							text = vals[2],
 							textAlign = 1
 						),
+						//
 						authorLabel = Label(
+							colSpan = 3,
+							forceFitW = true,
 							framed = true,
 							height = 3_em,
-							width = 140_spx-DEFAULT_PADDING,
 							vPadding = 4_spx,
 							rightMargin = DEFAULT_PADDING,
 							text = vals[3],

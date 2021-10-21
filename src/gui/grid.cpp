@@ -16,7 +16,41 @@ void Grid::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
 	for(auto& child: children)
-		child->applyVisibility(visible);
+	{
+		if(child.second)
+			child.second->applyVisibility(visible);
+	}
+}
+
+void Grid::add(std::shared_ptr<Widget> child)
+{
+	for(size_t q = 0;;++q)
+	{
+		if(usedIndexes[q]) continue;
+		uint8_t mainspan, altspan;
+		if(growthType == type::ROWS)
+		{
+			mainspan = child->getColSpan();
+			altspan = child->getRowSpan();
+		}
+		else
+		{
+			mainspan = child->getRowSpan();
+			altspan = child->getColSpan();
+		}
+		children[q] = std::move(child);
+		
+		for(size_t altind = 0; altind < altspan; ++altind)
+		{
+			for(size_t ind = 0; ind < mainspan && ((q+ind)/growthLimit == (q/growthLimit)); ++ind)
+			{
+				size_t calcIndex = q+ind+(altind*growthLimit);
+				usedIndexes[calcIndex] = true;
+				if(calcIndex!=q) children[calcIndex] = nullptr;
+			}
+		}
+		return;
+	}
 }
 
 void Grid::calculateSize()
@@ -30,13 +64,14 @@ void Grid::calculateSize()
 	if(growthType == type::ROWS)
 	{
 		// +growthLimit-1 to round up
-		numRows = (children.size()+growthLimit-1)/growthLimit;
+		
+		numRows = 1+(maxChildIndex() / growthLimit);
 		numCols = growthLimit;
 	}
 	else
 	{
 		numRows = growthLimit;
-		numCols = (children.size()+growthLimit-1)/growthLimit;
+		numCols = 1+(maxChildIndex() / growthLimit);
 	}
 
 	totalRowSpacing = (numRows-1)*rowSpacing;
@@ -53,15 +88,15 @@ void Grid::calculateSize()
 			size_t index = growthType == type::ROWS ?
 				row*growthLimit+col :
 				col*growthLimit+row;
-			if(index >= children.size())
-				break;
+			if(!children[index])
+				continue;
 
-			auto child = children[index];
+			auto& child = children[index];
 			child->calculateSize();
 			if(!child->getForceFitWid())
 				total += child->getTotalWidth();
 			
-			if(!child->getForceFitHei())
+			if(!child->getForceFitHei() && child->getRowSpan() == 1)
 				max = std::max(max, child->getTotalHeight());
 		}
 		tempRowWidths.push_back(total);
@@ -77,12 +112,12 @@ void Grid::calculateSize()
 			size_t index = growthType == type::ROWS ?
 				row*growthLimit+col :
 				col*growthLimit+row;
-			if(index >= children.size())
-				break;
+			if(!children[index])
+				continue;
 
-			auto child = children[index];
+			auto& child = children[index];
 			
-			if(!child->getForceFitWid())
+			if(!child->getForceFitWid() && child->getColSpan() == 1)
 				max = std::max(max, child->getTotalWidth());
 			
 			if(!child->getForceFitHei())
@@ -95,26 +130,45 @@ void Grid::calculateSize()
 	// Get the size of each row (second pass)
 	for(size_t row = 0; row < numRows; ++row)
 	{
-		int32_t total = totalColSpacing, max = 0;
+		int32_t total = totalColSpacing, max = tempRowHeights.at(row);
 		for(size_t col = 0; col < numCols; ++col)
 		{
 			size_t index = growthType == type::ROWS ?
 				row*growthLimit+col :
 				col*growthLimit+row;
-			if(index >= children.size())
-				break;
+			if(!children[index])
+				continue;
 
-			auto child = children[index];
+			auto& child = children[index];
 			
 			if(child->getForceFitWid())
-				total += tempColWidths.at(col);
+			{
+				for(size_t q = 0; q < child->getColSpan(); ++q)
+					total += tempColWidths.at(col+q);
+				total += (child->getColSpan() - 1) * colSpacing;
+			}
 			else
 				total += child->getTotalWidth();
 			
 			if(child->getForceFitHei())
+			{
 				max = std::max(max, tempRowHeights.at(row));
+			}
 			else
-				max = std::max(max, child->getTotalHeight());
+			{
+				if(child->getRowSpan() == 1)
+					max = std::max(max, child->getTotalHeight());
+				else
+				{
+					size_t brow = row+child->getRowSpan()-1;
+					int32_t tmpheight = 0;
+					for(size_t r = row; r < brow; ++r)
+					{
+						tmpheight += (tempRowHeights.at(r) + rowSpacing);
+					}
+					tempRowHeights[brow] = std::max(tempRowHeights.at(brow), child->getTotalHeight() - tmpheight);
+				}
+			}
 		}
 		rowWidths.push_back(total);
 		rowHeights.push_back(max);
@@ -123,24 +177,43 @@ void Grid::calculateSize()
 	// Get the size of each column (second pass)
 	for(size_t col = 0; col < numCols; ++col)
 	{
-		int32_t total = totalRowSpacing, max = 0;
+		int32_t total = totalRowSpacing, max = tempColWidths.at(col);
 		for(size_t row = 0; row < numRows; ++row)
 		{
 			size_t index = growthType == type::ROWS ?
 				row*growthLimit+col :
 				col*growthLimit+row;
-			if(index >= children.size())
-				break;
+			if(!children[index])
+				continue;
 
-			auto child = children[index];
+			auto& child = children[index];
 			
 			if(child->getForceFitWid())
+			{
 				max = std::max(max, tempColWidths.at(col));
+			}
 			else
-				max = std::max(max, child->getTotalWidth());
+			{
+				if(child->getColSpan() == 1)
+					max = std::max(max, child->getTotalWidth());
+				else
+				{
+					size_t rcol = col+child->getColSpan()-1;
+					int32_t tmpwid = 0;
+					for(size_t c = col; c < rcol; ++c)
+					{
+						tmpwid += (tempColWidths.at(c) + colSpacing);
+					}
+					tempColWidths[rcol] = std::max(tempColWidths.at(rcol), child->getTotalWidth() - tmpwid);
+				}
+			}
 			
 			if(child->getForceFitHei())
-				total += tempRowHeights.at(row);
+			{
+				for(size_t q = 0; q < child->getRowSpan(); ++q)
+					total += tempRowHeights.at(row+q);
+				total += (child->getRowSpan() - 1) * rowSpacing;
+			}
 			else
 				total += child->getTotalHeight();
 		}
@@ -183,38 +256,49 @@ void Grid::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 	
 	if(growthType == type::ROWS)
 	{
-		// +growthLimit-1 to round up
-		numRows = (children.size()+growthLimit-1)/growthLimit;
+		numRows = 1+(maxChildIndex() / growthLimit);
 		numCols = growthLimit;
 	}
 	else
 	{
 		numRows = growthLimit;
-		numCols = (children.size()+growthLimit-1)/growthLimit;
+		numCols = 1+(maxChildIndex() / growthLimit);
 	}
 
 	int32_t cy = y;
 	for(size_t row = 0; row < numRows; ++row)
 	{
 		int32_t cx = x;
-		int32_t c_hei = rowHeights[row];
 		for(size_t col = 0; col < numCols; ++col)
 		{
 			size_t index = growthType == type::ROWS ?
 				row*growthLimit+col :
 				col*growthLimit+row;
-			if(index >= children.size())
-				break;
-
-			int32_t c_wid = colWidths[col];
+			if(!children[index])
+			{
+				cx += colWidths[col]+colSpacing;
+				continue;
+			}
+			auto& child = children[index];
+			
+			int32_t c_hei = rowSpacing * (child->getRowSpan()-1);
+			int32_t c_wid = colSpacing * (child->getColSpan()-1);
+			for(size_t q = 0; q < child->getRowSpan(); ++q)
+			{
+				c_hei += rowHeights[row+q];
+			}
+			for(size_t q = 0; q < child->getColSpan(); ++q)
+			{
+				c_wid += colWidths[col+q];
+			}
 			if(c_hei > (getHeight()-(cy-y)))
 				c_hei = (getHeight()-(cy-y));
 			if(c_wid > (getWidth()-(cx-x)))
 				c_wid = (getWidth()-(cx-x));
 			children[index]->arrange(cx, cy, c_wid, c_hei);
-			cx += c_wid+colSpacing;
+			cx += colWidths[col]+colSpacing;
 		}
-		cy += c_hei+rowSpacing;
+		cy += rowHeights[row]+rowSpacing;
 	}
 }
 
@@ -222,7 +306,10 @@ void Grid::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
 	for(auto& child: children)
-		child->realize(runner);
+	{
+		if(child.second)
+			child.second->realize(runner);
+	}
 }
 
 }
