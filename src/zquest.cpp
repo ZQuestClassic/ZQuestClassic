@@ -25310,11 +25310,9 @@ int32_t onCompileScript()
 			fclose(tempfile);
 			
 			uint32_t lastInitSize = 0;
-			{
-				script_data const* init_script = globalscripts[0];
-				while(init_script->zasm[lastInitSize].command != 0xFFFF)
-					++lastInitSize;
-			}
+			script_data const old_init_script = *globalscripts[0];
+			while(old_init_script.zasm[lastInitSize].command != 0xFFFF)
+				++lastInitSize;
 			box_start(1, "Compile Progress", lfont, sfont,true);
 			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
 			clock_t start_compile_time = clock();
@@ -25528,12 +25526,24 @@ int32_t onCompileScript()
 			//malloc_trim(); //This is Unix only, and will release heap memory allocation back to the host OS
 			
 			uint32_t newInitSize = 0;
+			script_data const& new_init_script = *globalscripts[0];
+			while(new_init_script.zasm[newInitSize].command != 0xFFFF)
+				++newInitSize;
+			bool initChanged = newInitSize != lastInitSize;
+			if(!initChanged) //Same size, but is the content the same?
 			{
-				script_data const* new_init_script = globalscripts[0];
-				while(new_init_script->zasm[newInitSize].command != 0xFFFF)
-					++newInitSize;
+				for(uint32_t q = 0; q < newInitSize; ++q)
+				{
+					if(old_init_script.zasm[q].command != new_init_script.zasm[q].command
+					   || old_init_script.zasm[q].arg1 != new_init_script.zasm[q].arg1
+					   || old_init_script.zasm[q].arg2 != new_init_script.zasm[q].arg2)
+					{
+						initChanged = true;
+						break;
+					}
+				}
 			}
-			if(newInitSize != lastInitSize) //Global init changed
+			if(initChanged) //Global init changed
 			{
 				AlertFuncDialog("Init Script Changed",
 					"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(newInitSize)+")\n\n"
