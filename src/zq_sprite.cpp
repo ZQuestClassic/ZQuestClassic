@@ -32,22 +32,13 @@ void sprite::check_conveyor()
     return;
 }
 
-void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
+void movingblock::push(zfix,zfix,int32_t,int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    bx=bx;
-    by=by;
-    d2=d2;
-    f=f;
-    
     return;
 }
 
-bool movingblock::animate(int32_t index)
+bool movingblock::animate(int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    index=index;
-    
     return false;
 }
 

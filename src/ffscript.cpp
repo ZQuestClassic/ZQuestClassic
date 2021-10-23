@@ -300,7 +300,6 @@ int32_t getScreen(int32_t ref)
 	}
 }
 
-
 #ifdef _WIN32
 #include "ConsoleLogger.h"
 #else
@@ -1463,10 +1462,6 @@ byte combo_waitdraw[176] = {0}; //one bit per layer
 byte combo_initialised[176*7] = {0}; //one bit per layer
 int32_t comboscript_combo_ids[176*7] = {0};
 int32_t combo_stack[176*7][MAX_SCRIPT_REGISTERS];
-
-#define COMBOSCRIPT_RUNTYPE_DISABLED 0
-#define COMBOSCRIPT_RUNTYPE_RUNNING 1
-#define COMBOSCRIPT_RUNTYPE_CLEARING 2
 
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
@@ -8072,6 +8067,10 @@ int32_t get_register(const int32_t arg)
 			
 		case PUSHBLOCKY:
 			ret = blockmoving ? int32_t(mblock2.y)*10000 : -10000;
+			break;
+		
+		case PUSHBLOCKLAYER:
+			ret = blockmoving ? int32_t(mblock2.blockLayer)*10000 : -10000;
 			break;
 			
 		case PUSHBLOCKCOMBO:
@@ -16279,6 +16278,10 @@ void set_register(const int32_t arg, const int32_t value)
 			tmpscr->catchall=value/10000;
 			break;
 			
+		case PUSHBLOCKLAYER:
+			mblock2.blockLayer=vbound(value/10000, 0, 6);
+			break;
+			
 		case PUSHBLOCKCOMBO:
 			mblock2.bcombo=value/10000;
 			break;
@@ -23631,7 +23634,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	
 	script_counter = 0;
 #endif
-	
+	uint32_t this_combo_id = 0;
 	switch(type)
 	{
 		//Z_scripterrlog("The script type is: %d\n", type);
@@ -23899,7 +23902,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			int32_t pos = ((i%176));
 			int32_t lyr = i/176;
 			int32_t id = comboscript_combo_ids[i]; 
-
+			this_combo_id = FFCore.tempScreens[lyr]->data[pos];
 			if(!(combo_initialised[pos] & (1<<lyr)))
 			{
 				memset(ri->d, 0, 8 * sizeof(int32_t));
@@ -26968,7 +26971,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				
 			}
 		}
-		
+		if (type == SCRIPT_COMBO)
+		{
+			if(this_combo_id != FFCore.tempScreens[i/176]->data[i%176])
+			{
+				//Combo changed! Abort script!
+				return RUNSCRIPT_OK;
+			}
+		}
 		if(scommand != 0xFFFF)
 		{
 			scommand = curscript->zasm[ri->pc].command;
@@ -34922,6 +34932,8 @@ script_variable ZASMVars[]=
 	{ "COMBOLAYERR",           COMBOLAYERR,            0,             0 },
 	{ "COMBODATTRISHORTS",           COMBODATTRISHORTS,            0,             0 },
 	
+	{ "PUSHBLOCKLAYER",           PUSHBLOCKLAYER,            0,             0 },
+	
 	{ " ",                       -1,             0,             0 }
 };
 
@@ -39818,6 +39830,19 @@ void FFScript::clear_combo_stack(int32_t q)
 void FFScript::clear_combo_initialised()
 {
 	memset(combo_initialised, 0, sizeof(combo_initialised));
+}
+
+void FFScript::reset_combo_script(int32_t lyr, int32_t pos)
+{
+	if(lyr < 0) return;
+	uint32_t ind = pos+(176*lyr);
+	if(ind >= 176*7) return;
+	
+	combo_doscript[ind] = 1;
+	combo_initialised[pos] &= ~(1<<lyr);
+	FFCore.clear_combo_stack(ind);
+	comboScriptData[ind].Clear();
+	combo_waitdraw[ind] &= ~(1<<lyr);
 }
 
 int32_t FFScript::getComboDataLayer(int32_t c, int32_t scripttype)

@@ -8896,15 +8896,23 @@ void doflags()
             else
             {
                 // Notify if they are using a flag that doesn't work on this layer.
-                if(!skipLayerWarning && ((Flag >= mfTRAP_H && Flag <= mfNOBLOCKS) || (Flag == mfFAIRY) || (Flag == mfMAGICFAIRY)
+                if(!skipLayerWarning && ((Flag >= mfTRAP_H && Flag < mfPUSHD) || (Flag == mfFAIRY) || (Flag == mfMAGICFAIRY)
                         || (Flag == mfALLFAIRY) || (Flag == mfRAFT) || (Flag == mfRAFT_BRANCH)
                         || (Flag == mfDIVE_ITEM) || (Flag == mfARMOS_SECRET) || (Flag == mfNOENEMY)
-                        || (Flag == mfBLOCKHOLE) || (Flag == mfZELDA)))
+                        || (Flag == mfZELDA)))
                 {
-                    char buf[38];
-                    sprintf(buf, "You are currently working on layer %d.", CurrentLayer);
-                    jwin_alert("Notice",buf,"This combo flag only functions when placed on layer 0.",NULL,"O&K",NULL,'k',0,lfont);
+					InfoDialog("Notice","You are currently working on layer "
+						+to_string(CurrentLayer)
+						+". This combo flag does not function on layers above '0'.").show();
                 }
+				if(!skipLayerWarning && CurrentLayer > 2 &&
+					((Flag == mfBLOCKHOLE) || (Flag >= mfPUSHD && Flag < mfNOBLOCKS)
+					|| (Flag == mfPUSHUD) || (Flag == mfPUSH4)))
+				{
+					InfoDialog("Notice","You are currently working on layer "
+						+to_string(CurrentLayer)
+						+". This combo flag does not function on layers above '2'.").show();
+				}
                 
                 TheMaps[(Map.CurrScr()->layermap[CurrentLayer-1]-1)*MAPSCRS+(Map.CurrScr()->layerscreen[CurrentLayer-1])].sflag[c]=Flag;
                 //      Map.CurrScr()->sflag[c]=Flag;

@@ -1300,7 +1300,9 @@
 #define COMBOLAYERR             1218
 #define COMBODATTRISHORTS       1219
 
-#define LAST_BYTECODE           1220
+#define PUSHBLOCKLAYER          1220
+
+#define LAST_BYTECODE           1221
 
 //} END OF BYTECODE
 

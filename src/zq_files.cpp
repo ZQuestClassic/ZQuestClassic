@@ -800,7 +800,10 @@ void applyRuleset(int32_t newRuleset)
 			set_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM, 1);
 			set_bit(quest_rules, qr_CORRECTED_EW_BRANG_ANIM, 1);
 			set_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2, 1);
+			set_bit(quest_rules, qr_AUTOCOMBO_LAYER_1, 1);
+			set_bit(quest_rules, qr_AUTOCOMBO_LAYER_2, 1);
 			set_bit(quest_rules, qr_NEW_DARKROOM, 1);
+			set_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2, 1);
 			//}
 			break;
 		}

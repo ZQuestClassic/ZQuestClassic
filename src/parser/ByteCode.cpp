@@ -1112,6 +1112,9 @@ string ZScript::VarToString(int32_t ID)
 	case PUSHBLOCKY:
 		return "PUSHBLOCKY";
 		
+	case PUSHBLOCKLAYER:
+		return "PUSHBLOCKLAYER";
+		
 	case PUSHBLOCKCOMBO:
 		return "PUSHBLOCKCOMBO";
 		

@@ -890,6 +890,7 @@ void clear_combo_stacks();
 void clear_combo_refinfo(int32_t pos);
 void clear_combo_stack(int32_t q);
 void clear_combo_initialised();
+void reset_combo_script(int32_t lyr, int32_t pos);
 void ClearComboScripts();
 int32_t getComboDataLayer(int32_t c, int32_t scripttype);
 int32_t getCombodataPos(int32_t c, int32_t scripttype);
@@ -4333,7 +4334,9 @@ enum ASM_DEFINE
 #define COMBOLAYERR 			0x13F8
 #define COMBODATTRISHORTS       0x13F9
 
-#define NUMVARIABLES         	0x13FA
+#define PUSHBLOCKLAYER          0x13FA
+
+#define NUMVARIABLES         	0x13FB
 
 //} End variables
 

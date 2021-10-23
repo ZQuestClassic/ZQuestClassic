@@ -18,7 +18,9 @@
 #include "zelda.h"
 #include "maps.h"
 #include "tiles.h"
+#include "ffscript.h"
 
+extern FFScript FFCore;
 /*
 void sprite::check_conveyor()
 {
@@ -116,27 +118,28 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
     endy=y=by;
     dir=d2;
     oldflag=f;
-    word *di = &(tmpscr->data[(int32_t(y)&0xF0)+(int32_t(x)>>4)]);
-    byte *ci = &(tmpscr->cset[(int32_t(y)&0xF0)+(int32_t(x)>>4)]);
-    //   bcombo = ((*di)&0xFF)+(tmpscr->cpage<<8);
-    bcombo =  tmpscr->data[(int32_t(y)&0xF0)+(int32_t(x)>>4)];
-    oldcset = tmpscr->cset[(int32_t(y)&0xF0)+(int32_t(x)>>4)];
+	size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
+	mapscr *m = FFCore.tempScreens[blockLayer];
+    word *di = &(m->data[combopos]);
+    byte *ci = &(m->cset[combopos]);
+    bcombo =  m->data[combopos];
+    oldcset = m->cset[combopos];
     cs     = (isdungeon() && !get_bit(quest_rules, qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
     tile = combobuf[bcombo].tile;
     flip = combobuf[bcombo].flip;
     //   cs = ((*di)&0x700)>>8;
-    *di = tmpscr->undercombo;
-    *ci = tmpscr->undercset;
+    *di = m->undercombo;
+    *ci = m->undercset;
+	FFCore.reset_combo_script(blockLayer, combopos);
     putcombo(scrollbuf,x,y,*di,*ci);
     clk=32;
     blockmoving=true;
 }
 
-bool movingblock::animate(int32_t index)
+bool movingblock::animate(int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    index=index;
-    if(fallclk)
+	mapscr* m = FFCore.tempScreens[blockLayer];
+	if(fallclk)
 	{
 		if(fallclk == PITFALL_FALL_FRAMES)
 			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
@@ -150,8 +153,8 @@ bool movingblock::animate(int32_t index)
 	if(drownclk)
 	{
 		//if(drownclk == WATER_DROWN_FRAMES)
-			//sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
-			//!TODO: Drown SFX
+		//sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
+		//!TODO: Drown SFX
 		if(!--drownclk)
 		{
 			blockmoving=false;
@@ -159,15 +162,15 @@ bool movingblock::animate(int32_t index)
 		clk = 0;
 		return false;
 	}
-    if(clk<=0)
-        return false;
-        
-    move((zfix)0.5);
-    
-    if(--clk==0)
-    {
-        bool bhole=false;
-        blockmoving=false;
+	if(clk<=0)
+		return false;
+		
+	move((zfix)0.5);
+	
+	if(--clk==0)
+	{
+		bool bhole=false;
+		blockmoving=false;
 		
 		if(fallCombo = getpitfall(x+8,y+8))
 		{
@@ -180,133 +183,134 @@ bool movingblock::animate(int32_t index)
 			drownclk = WATER_DROWN_FRAMES;
 		}
 		*/
+		size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
+		int32_t f1 = m->sflag[combopos];
+		int32_t f2 = MAPCOMBOFLAG2(blockLayer,x,y);
+		if(!fallclk && !drownclk)
+		{
+			m->data[combopos]=bcombo;
+			m->cset[combopos]=oldcset;
+			FFCore.reset_combo_script(blockLayer, combopos);
+		}
+		if(!fallclk && !drownclk && ((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER))
+		{
+			trigger=true;
+			m->sflag[combopos]=mfPUSHED;
+			//the above line used to be in the following if statement.
+			//However, it caused inherent-flag pushblocks to not lock into
+			//block trigger combos unless the block trigger is also an
+			//inherent flag
+			/*
+			if(f2==mfBLOCKTRIGGER)
+			{
+				m->sflag[combopos]=mfPUSHED;
+			}
+			*/
+		}
 		
-        int32_t f1 = tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)];
-        int32_t f2 = MAPCOMBOFLAG(x,y);
-        if(!fallclk && !drownclk)
-	{
-		tmpscr->data[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=bcombo;
-		tmpscr->cset[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=oldcset;
-        }
-        if(!fallclk && !drownclk && ((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER))
-        {
-            trigger=true;
-            tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=mfPUSHED;
-            //the above line used to be in the following if statement.
-            //However, it caused inherent-flag pushblocks to not lock into
-            //block trigger combos unless the block trigger is also an
-            //inherent flag
-            /*
-            if(f2==mfBLOCKTRIGGER)
-            {
-              tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=mfPUSHED;
-            }
-            */
-        }
-        
-        if((f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE)
-        {
-            tmpscr->data[(int32_t(y)&0xF0)+(int32_t(x)>>4)]+=1;
-            bhole=true;
-            //tmpscr->cset[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=;
-        }
-        
-        if(bhole)
-        {
-            tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=mfNONE;
+		if((f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE)
+		{
+			m->data[combopos]+=1;
+			bhole=true;
+			//m->cset[combopos]=;
+		}
+		
+		if(bhole)
+		{
+			m->sflag[combopos]=mfNONE;
 			if(fallclk||drownclk)
 			{
 				fallclk = 0;
 				drownclk = 0;
 				return false;
 			}
-        }
-        else if(!fallclk&&!drownclk)
-        {
-            f2 = MAPCOMBOFLAG(x,y);
-            
-            if(!((f2==mfPUSHUDINS && dir<=down) ||
-                    (f2==mfPUSHLRINS && dir>=left) ||
-                    (f2==mfPUSHUINS && dir==up) ||
-                    (f2==mfPUSHDINS && dir==down) ||
-                    (f2==mfPUSHLINS && dir==left) ||
-                    (f2==mfPUSHRINS && dir==right) ||
-                    (f2==mfPUSH4INS)))
-            {
-                tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=mfPUSHED;
-            }
-        }
+		}
+		else if(!fallclk&&!drownclk)
+		{
+			f2 = MAPCOMBOFLAG2(blockLayer,x,y);
+			
+			if(!((f2==mfPUSHUDINS && dir<=down) ||
+					(f2==mfPUSHLRINS && dir>=left) ||
+					(f2==mfPUSHUINS && dir==up) ||
+					(f2==mfPUSHDINS && dir==down) ||
+					(f2==mfPUSHLINS && dir==left) ||
+					(f2==mfPUSHRINS && dir==right) ||
+					(f2==mfPUSH4INS)))
+			{
+				m->sflag[combopos]=mfPUSHED;
+			}
+		}
 		if(fallclk||drownclk) return false;
-        
-        if(oldflag>=mfPUSHUDINS&&oldflag&&!trigger&&!bhole)
-        {
-            tmpscr->sflag[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=oldflag;
-        }
-        
-        for(int32_t i=0; i<176; i++)
-        {
-            if(tmpscr->sflag[i]==mfBLOCKTRIGGER||combobuf[tmpscr->data[i]].flag==mfBLOCKTRIGGER)
-            {
-                trigger=false;
-            }
-        }
-        
-        //triggers a secret
-        f2 = MAPCOMBOFLAG(x,y);
-        
-        if((oldflag==mfPUSH4 ||
-            (oldflag==mfPUSHUD && dir<=down) ||
-            (oldflag==mfPUSHLR && dir>=left) ||
-            (oldflag==mfPUSHU && dir==up) ||
-            (oldflag==mfPUSHD && dir==down) ||
-            (oldflag==mfPUSHL && dir==left) ||
-            (oldflag==mfPUSHR && dir==right) ||
-            f2==mfPUSH4 ||
-            (f2==mfPUSHUD && dir<=down) ||
-            (f2==mfPUSHLR && dir>=left) ||
-            (f2==mfPUSHU && dir==up) ||
-            (f2==mfPUSHD && dir==down) ||
-            (f2==mfPUSHL && dir==left) ||
-            (f2==mfPUSHR && dir==right)) ||
-           trigger)
-            //if(oldflag<mfPUSHUDNS||trigger)
-        {
-            if(hiddenstair(0,true))
-            {
-                sfx(tmpscr->secretsfx);
-            }
-            else
-            {
-                hidden_entrance(0,true,true);
-                
-                if((combobuf[bcombo].type == cPUSH_WAIT) ||
-                        (combobuf[bcombo].type == cPUSH_HW) ||
-                        (combobuf[bcombo].type == cPUSH_HW2) || trigger)
-                {
-                    sfx(tmpscr->secretsfx);
-                }
-            }
-            
-            if(isdungeon() && tmpscr->flags&fSHUTTERS)
-            {
-                opendoors=8;
-            }
-            
-            if(canPermSecret())
-            {
-                if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
+		
+		if(oldflag>=mfPUSHUDINS&&oldflag&&!trigger&&!bhole)
+		{
+			m->sflag[combopos]=oldflag;
+		}
+		
+		for(int32_t i=0; i<176; i++)
+		{
+			if(m->sflag[i]==mfBLOCKTRIGGER||combobuf[m->data[i]].flag==mfBLOCKTRIGGER)
+			{
+				trigger=false;
+			}
+		}
+		
+		//triggers a secret
+		f2 = MAPCOMBOFLAG2(blockLayer,x,y);
+		
+		if((oldflag==mfPUSH4 ||
+			(oldflag==mfPUSHUD && dir<=down) ||
+			(oldflag==mfPUSHLR && dir>=left) ||
+			(oldflag==mfPUSHU && dir==up) ||
+			(oldflag==mfPUSHD && dir==down) ||
+			(oldflag==mfPUSHL && dir==left) ||
+			(oldflag==mfPUSHR && dir==right) ||
+			f2==mfPUSH4 ||
+			(f2==mfPUSHUD && dir<=down) ||
+			(f2==mfPUSHLR && dir>=left) ||
+			(f2==mfPUSHU && dir==up) ||
+			(f2==mfPUSHD && dir==down) ||
+			(f2==mfPUSHL && dir==left) ||
+			(f2==mfPUSHR && dir==right)) ||
+		   trigger)
+		//if(oldflag<mfPUSHUDNS||trigger)
+		{
+			if(hiddenstair(0,true))
+			{
+				sfx(tmpscr->secretsfx);
+			}
+			else
+			{
+				hidden_entrance(0,true,true);
+				
+				if((combobuf[bcombo].type == cPUSH_WAIT) ||
+						(combobuf[bcombo].type == cPUSH_HW) ||
+						(combobuf[bcombo].type == cPUSH_HW2) || trigger)
+				{
+					sfx(tmpscr->secretsfx);
+				}
+			}
+			
+			if(isdungeon() && tmpscr->flags&fSHUTTERS)
+			{
+				opendoors=8;
+			}
+			
+			if(canPermSecret())
+			{
+				if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 					(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
-                        || combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
-                {
-                    if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
-                }
-            }
-        }
-        
-        putcombo(scrollbuf,x,y,bcombo,cs);
-    }
-    
-    return false;
+						|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
+				{
+					if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+				}
+			}
+		}
+		
+		putcombo(scrollbuf,x,y,bcombo,cs);
+	}
+	
+	return false;
 }
 
 /*** end of sprite.cc ***/

@@ -3629,6 +3629,11 @@ bool SecretsTriggered();
 int ComboE[176];
  * The effect area bits of each of the 176 combos used on the screen.
 
+int MovingBlockLayer;
+ * The layer of a currently moving pushblock
+ * Returns -1 and ignores writes if there is no pushblock currently moving
+ * Allows values 0-6 to be written; the block will "settle into place" on this layer.
+
 int GetRenderTarget();
  * Returns the present drawing render target ID.
  * Use in conjunction with SetRenderTarget(int) to cache the present RT, 

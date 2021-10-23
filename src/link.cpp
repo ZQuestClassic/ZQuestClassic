@@ -15475,212 +15475,214 @@ bool LinkClass::checksoliddamage()
 }
 void LinkClass::checkpushblock()
 {
-    if(toogam) return;
-    
-    if(z!=0) return;
-    
-    // Return early in some cases..
-    bool earlyReturn=false;
-    
-    if(!(diagonalMovement||NO_GRIDLOCK) || dir==left)
-        if(x.getInt()&15) earlyReturn=true;
-        
-    // if(y<16) return;
-    if(isSideViewLink() && !on_sideview_solid(x,y)) return;
-    
-    int32_t bx = x.getInt()&0xF0;
-    int32_t by = (y.getInt()&0xF0);
-    
-    switch(dir)
-    {
-    case up:
-        if(y<16)
-        {
-            earlyReturn=true;
-            break;
-        }
-        
-        if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
-        
-        if((int32_t)x&8) bx+=16;
-        
-        break;
-        
-    case down:
-        if(y>128)
-        {
-            earlyReturn=true;
-            break;
-        }
-        else
-        {
-            by+=16;
-            
-            if((int32_t)x&8) bx+=16;
-        }
-        
-        break;
-        
-    case left:
-        if(x<32)
-        {
-            earlyReturn=true;
-            break;
-        }
-        else
-        {
-            bx-=16;
-            
-            if(y.getInt()&8)
-            {
-                by+=16;
-            }
-        }
-        
-        break;
-        
-    case right:
-        if(x>208)
-        {
-            earlyReturn=true;
-            break;
-        }
-        else
-        {
-            bx+=16;
-            
-            if(y.getInt()&8)
-            {
-                by+=16;
-            }
-        }
-        
-        break;
-    }
-    
-    int32_t f = MAPFLAG(bx,by);
-    int32_t f2 = MAPCOMBOFLAG(bx,by);
-    int32_t t = combobuf[MAPCOMBO(bx,by)].type;
-    
-    if (checksoliddamage()) return;
-    
-    if(earlyReturn)
-        return;
-    
-    int32_t itemid=current_item_id(itype_bracelet);
-    
-    if((t==cPUSH_WAIT || t==cPUSH_HW || t==cPUSH_HW2) && (pushing<16 || hasMainGuy())) return;
-    
-    if((t==cPUSH_HW || t==cPUSH_HEAVY || t==cPUSH_HEAVY2 || t==cPUSH_HW2)
-            && (itemid<0 || itemsbuf[itemid].power<((t==cPUSH_HEAVY2 || t==cPUSH_HW2)?2:1) ||
-                ((itemid>=0 && itemsbuf[itemid].flags & ITEM_FLAG1) && (didstuff&did_glove)))) return;
-                
-    if(get_bit(quest_rules,qr_HESITANTPUSHBLOCKS)&&(pushing<4)) return;
-    
-    bool doit=false;
-    bool changeflag=false;
-    bool changecombo=false;
-    
-    if(((f==mfPUSHUD || f==mfPUSHUDNS|| f==mfPUSHUDINS) && dir<=down) ||
-            ((f==mfPUSHLR || f==mfPUSHLRNS|| f==mfPUSHLRINS) && dir>=left) ||
-            ((f==mfPUSHU || f==mfPUSHUNS || f==mfPUSHUINS) && dir==up) ||
-            ((f==mfPUSHD || f==mfPUSHDNS || f==mfPUSHDINS) && dir==down) ||
-            ((f==mfPUSHL || f==mfPUSHLNS || f==mfPUSHLINS) && dir==left) ||
-            ((f==mfPUSHR || f==mfPUSHRNS || f==mfPUSHRINS) && dir==right) ||
-            f==mfPUSH4 || f==mfPUSH4NS || f==mfPUSH4INS)
-    {
-        changeflag=true;
-        doit=true;
-    }
-    
-    if((((f2==mfPUSHUD || f2==mfPUSHUDNS|| f2==mfPUSHUDINS) && dir<=down) ||
-            ((f2==mfPUSHLR || f2==mfPUSHLRNS|| f2==mfPUSHLRINS) && dir>=left) ||
-            ((f2==mfPUSHU || f2==mfPUSHUNS || f2==mfPUSHUINS) && dir==up) ||
-            ((f2==mfPUSHD || f2==mfPUSHDNS || f2==mfPUSHDINS) && dir==down) ||
-            ((f2==mfPUSHL || f2==mfPUSHLNS || f2==mfPUSHLINS) && dir==left) ||
-            ((f2==mfPUSHR || f2==mfPUSHRNS || f2==mfPUSHRINS) && dir==right) ||
-            f2==mfPUSH4 || f2==mfPUSH4NS || f2==mfPUSH4INS)&&(f!=mfPUSHED))
-    {
-        changecombo=true;
-        doit=true;
-    }
-    
-    if(get_bit(quest_rules,qr_SOLIDBLK))
-    {
-        switch(dir)
-        {
-        case up:
-            if(_walkflag(bx,by-8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG(bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx,by-8)==mfBLOCKHOLE))    doit=false;
-            
-            break;
-            
-        case down:
-            if(_walkflag(bx,by+24,2,SWITCHBLOCK_STATE)&&!(MAPFLAG(bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG(bx,by+24)==mfBLOCKHOLE))   doit=false;
-            
-            break;
-            
-        case left:
-            if(_walkflag(bx-16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG(bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx-16,by+8)==mfBLOCKHOLE)) doit=false;
-            
-            break;
-            
-        case right:
-            if(_walkflag(bx+16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG(bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx+16,by+8)==mfBLOCKHOLE)) doit=false;
-            
-            break;
-        }
-    }
-    
-    switch(dir)
-    {
-    case up:
-        if((MAPFLAG(bx,by-8)==mfNOBLOCKS||MAPCOMBOFLAG(bx,by-8)==mfNOBLOCKS))       doit=false;
-        
-        break;
-        
-    case down:
-        if((MAPFLAG(bx,by+24)==mfNOBLOCKS||MAPCOMBOFLAG(bx,by+24)==mfNOBLOCKS))     doit=false;
-        
-        break;
-        
-    case left:
-        if((MAPFLAG(bx-16,by+8)==mfNOBLOCKS||MAPCOMBOFLAG(bx-16,by+8)==mfNOBLOCKS)) doit=false;
-        
-        break;
-        
-    case right:
-        if((MAPFLAG(bx+16,by+8)==mfNOBLOCKS||MAPCOMBOFLAG(bx+16,by+8)==mfNOBLOCKS)) doit=false;
-        
-        break;
-    }
-    
-    if(doit)
-    {
-        if(itemid>=0 && itemsbuf[itemid].flags & ITEM_FLAG1) didstuff|=did_glove;
-        
-        //   for(int32_t i=0; i<1; i++)
-        if(!blockmoving)
-        {
-            if(changeflag)
-            {
-                tmpscr->sflag[(by&0xF0)+(bx>>4)]=0;
-            }
-            
-            //if (changecombo)
-            //{
-            //++tmpscr->data[(by&0xF0)+(bx>>4)];
-            //}
-            if(mblock2.clk<=0)
-            {
-                mblock2.push((zfix)bx,(zfix)by,dir,f);
-                
-                if(get_bit(quest_rules,qr_MORESOUNDS))
-                    sfx(WAV_ZN1PUSHBLOCK,(int32_t)x);
-                    
-                //       break;
-            }
-        }
-    }
+	if(toogam) return;
+	
+	if(z!=0) return;
+	
+	// Return early in some cases..
+	bool earlyReturn=false;
+	
+	if(!(diagonalMovement||NO_GRIDLOCK) || dir==left)
+		if(x.getInt()&15) earlyReturn=true;
+		
+	// if(y<16) return;
+	if(isSideViewLink() && !on_sideview_solid(x,y)) return;
+	
+	int32_t bx = x.getInt()&0xF0;
+	int32_t by = (y.getInt()&0xF0);
+	
+	switch(dir)
+	{
+	case up:
+		if(y<16)
+		{
+			earlyReturn=true;
+			break;
+		}
+		
+		if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
+		
+		if((int32_t)x&8) bx+=16;
+		
+		break;
+		
+	case down:
+		if(y>128)
+		{
+			earlyReturn=true;
+			break;
+		}
+		else
+		{
+			by+=16;
+			
+			if((int32_t)x&8) bx+=16;
+		}
+		
+		break;
+		
+	case left:
+		if(x<32)
+		{
+			earlyReturn=true;
+			break;
+		}
+		else
+		{
+			bx-=16;
+			
+			if(y.getInt()&8)
+			{
+				by+=16;
+			}
+		}
+		
+		break;
+		
+	case right:
+		if(x>208)
+		{
+			earlyReturn=true;
+			break;
+		}
+		else
+		{
+			bx+=16;
+			
+			if(y.getInt()&8)
+			{
+				by+=16;
+			}
+		}
+		
+		break;
+	}
+	
+	if (checksoliddamage()) return;
+	
+	if(earlyReturn)
+		return;
+	
+	int32_t itemid=current_item_id(itype_bracelet);
+	size_t combopos = (by&0xF0)+(bx>>4);
+	
+	for(int lyr = 2; lyr > -1; --lyr) //Top-down, in case of stacked push blocks
+	{
+		if(get_bit(quest_rules,qr_HESITANTPUSHBLOCKS)&&(pushing<4)) break;
+		if(lyr && !get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+			continue;
+		mapscr* m = FFCore.tempScreens[lyr];
+		int32_t f = MAPFLAG2(lyr-1,bx,by);
+		int32_t f2 = MAPCOMBOFLAG2(lyr-1,bx,by);
+		int32_t t = combobuf[MAPCOMBOL(lyr,bx,by)].type;
+		
+		if((t==cPUSH_WAIT || t==cPUSH_HW || t==cPUSH_HW2) && (pushing<16 || hasMainGuy())) continue;
+		
+		if((t==cPUSH_HW || t==cPUSH_HEAVY || t==cPUSH_HEAVY2 || t==cPUSH_HW2)
+				&& (itemid<0 || itemsbuf[itemid].power<((t==cPUSH_HEAVY2 || t==cPUSH_HW2)?2:1) ||
+					((itemid>=0 && itemsbuf[itemid].flags & ITEM_FLAG1) && (didstuff&did_glove)))) continue;
+		
+		bool doit=false;
+		bool changeflag=false;
+		bool changecombo=false;
+		
+		if(((f==mfPUSHUD || f==mfPUSHUDNS|| f==mfPUSHUDINS) && dir<=down) ||
+				((f==mfPUSHLR || f==mfPUSHLRNS|| f==mfPUSHLRINS) && dir>=left) ||
+				((f==mfPUSHU || f==mfPUSHUNS || f==mfPUSHUINS) && dir==up) ||
+				((f==mfPUSHD || f==mfPUSHDNS || f==mfPUSHDINS) && dir==down) ||
+				((f==mfPUSHL || f==mfPUSHLNS || f==mfPUSHLINS) && dir==left) ||
+				((f==mfPUSHR || f==mfPUSHRNS || f==mfPUSHRINS) && dir==right) ||
+				f==mfPUSH4 || f==mfPUSH4NS || f==mfPUSH4INS)
+		{
+			changeflag=true;
+			doit=true;
+		}
+		
+		if((((f2==mfPUSHUD || f2==mfPUSHUDNS|| f2==mfPUSHUDINS) && dir<=down) ||
+				((f2==mfPUSHLR || f2==mfPUSHLRNS|| f2==mfPUSHLRINS) && dir>=left) ||
+				((f2==mfPUSHU || f2==mfPUSHUNS || f2==mfPUSHUINS) && dir==up) ||
+				((f2==mfPUSHD || f2==mfPUSHDNS || f2==mfPUSHDINS) && dir==down) ||
+				((f2==mfPUSHL || f2==mfPUSHLNS || f2==mfPUSHLINS) && dir==left) ||
+				((f2==mfPUSHR || f2==mfPUSHRNS || f2==mfPUSHRINS) && dir==right) ||
+				f2==mfPUSH4 || f2==mfPUSH4NS || f2==mfPUSH4INS)&&(f!=mfPUSHED))
+		{
+			changecombo=true;
+			doit=true;
+		}
+		
+		if(get_bit(quest_rules,qr_SOLIDBLK))
+		{
+			switch(dir)
+			{
+			case up:
+				if(_walkflag(bx,by-8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE))    doit=false;
+				
+				break;
+				
+			case down:
+				if(_walkflag(bx,by+24,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE))   doit=false;
+				
+				break;
+				
+			case left:
+				if(_walkflag(bx-16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE)) doit=false;
+				
+				break;
+				
+			case right:
+				if(_walkflag(bx+16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE)) doit=false;
+				
+				break;
+			}
+		}
+		
+		switch(dir)
+		{
+		case up:
+			if((MAPFLAG2(lyr-1,bx,by-8)==mfNOBLOCKS||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfNOBLOCKS))       doit=false;
+			
+			break;
+			
+		case down:
+			if((MAPFLAG2(lyr-1,bx,by+24)==mfNOBLOCKS||MAPCOMBOFLAG2(lyr-1,bx,by+24)==mfNOBLOCKS))     doit=false;
+			
+			break;
+			
+		case left:
+			if((MAPFLAG2(lyr-1,bx-16,by+8)==mfNOBLOCKS||MAPCOMBOFLAG2(lyr-1,bx-16,by+8)==mfNOBLOCKS)) doit=false;
+			
+			break;
+			
+		case right:
+			if((MAPFLAG2(lyr-1,bx+16,by+8)==mfNOBLOCKS||MAPCOMBOFLAG2(lyr-1,bx+16,by+8)==mfNOBLOCKS)) doit=false;
+			
+			break;
+		}
+		
+		if(doit)
+		{
+			if(itemid>=0 && itemsbuf[itemid].flags & ITEM_FLAG1) didstuff|=did_glove;
+			
+			//   for(int32_t i=0; i<1; i++)
+			if(!blockmoving)
+			{
+				if(changeflag)
+				{
+					m->sflag[combopos]=0;
+				}
+				
+				if(mblock2.clk<=0)
+				{
+					mblock2.blockLayer = lyr;
+					mblock2.push((zfix)bx,(zfix)by,dir,f);
+					
+					if(get_bit(quest_rules,qr_MORESOUNDS))
+						sfx(WAV_ZN1PUSHBLOCK,(int32_t)x);
+				}
+			}
+			break;
+		}
+	}
 }
 
 bool usekey()

@@ -254,6 +254,7 @@ public:
     int32_t endx, endy;
     bool trigger;
     byte undercset;
+	byte blockLayer;
     
     movingblock();
     void push(zfix bx,zfix by,int32_t d,int32_t f);

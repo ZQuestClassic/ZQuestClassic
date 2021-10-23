@@ -73,7 +73,8 @@ static const GUI::ListData comboRulesList
 	{ "Auto Combos work on Layer 1", qr_AUTOCOMBO_LAYER_1 },
 	{ "Auto Combos work on Layer 2", qr_AUTOCOMBO_LAYER_2 },
 	{ "Sideview Swimming", qr_SIDESWIM },
-	{ "Link faces Left/Right while Sideview Swimming", qr_SIDESWIMDIR }
+	{ "Link faces Left/Right while Sideview Swimming", qr_SIDESWIMDIR },
+	{ "Pushblocks Work on Layer 1 and 2", qr_PUSHBLOCK_LAYER_1_2 }
 };
 
 static const GUI::ListData compatRulesList
