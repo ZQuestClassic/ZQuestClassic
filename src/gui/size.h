@@ -48,9 +48,9 @@ public:
 		return value;
 	}
 	
-	inline constexpr Size operator+(const int32_t& other) const noexcept
+	inline constexpr Size operator+(const int32_t v) const noexcept
 	{
-		return Size(value+other);
+		return Size(value+v);
 	}
 	
 	inline constexpr Size operator+(const Size& other) const noexcept
@@ -58,9 +58,9 @@ public:
 		return Size(value+other.value);
 	}
 	
-	inline constexpr Size operator*(const int32_t& other) const noexcept
+	inline constexpr Size operator*(const int32_t v) const noexcept
 	{
-		return Size(value*other);
+		return Size(value*v);
 	}
 	
 	inline constexpr Size operator*(const Size& other) const noexcept
@@ -68,6 +68,17 @@ public:
 		return Size(value*other.value);
 	}
 	inline friend Size operator*(const int32_t v, const Size s);
+	
+	inline constexpr Size operator/(const int32_t v) const noexcept
+	{
+		return Size(value/v);
+	}
+	
+	inline constexpr Size operator/(const Size& other) const noexcept
+	{
+		return Size(value/other.value);
+	}
+	inline friend Size operator/(const int32_t v, const Size s);
 	
 	inline constexpr Size operator-(const int32_t& other) const noexcept
 	{
@@ -146,6 +157,11 @@ inline Size operator-(const int32_t v, const Size s)
 inline Size operator*(const int32_t v, const Size s)
 {
 	return Size(v*s.value);
+}
+
+inline Size operator/(const int32_t v, const Size s)
+{
+	return Size(v/s.value);
 }
 
 }

@@ -57,10 +57,21 @@ void TextField::setVal(int32_t val)
 			break;
 		case type::FIXED_DECIMAL:
 		{
-			double scale = pow(10, fixedPlaces);
-			char templ[20];
-			sprintf(templ, "%%.%df", fixedPlaces);
-			sprintf(buf, templ, val/scale);
+			int32_t scale = int32_t(pow(10, fixedPlaces));
+			char templ[32] = {0};
+			sprintf(templ, "%%d.%%0%dd", fixedPlaces);
+			sprintf(buf, templ, val/scale, val%scale);
+			for(size_t q = strlen(buf)-1; q > 0; --q)
+			{
+				if(buf[q] == '0')
+				{
+					buf[q] = 0;
+					continue;
+				}
+				else if(buf[q] == '.')
+					buf[q] = 0;
+				break;
+			}
 			break;
 		}
 		
@@ -134,8 +145,25 @@ int32_t TextField::getVal()
 			
 		case type::FIXED_DECIMAL:
 		{
-			double scale = pow(10, fixedPlaces);
-			value = int32_t(strtod(buffer.get(), NULL)*scale);
+			int32_t scale = int32_t(pow(10, fixedPlaces));
+			char buf[32] = {0};
+			char* decptr = NULL;
+			strcpy(buf, buffer.get());
+			for(size_t q = strlen(buf); q < 31; ++q)
+				buf[q] = '0';
+			for(size_t q = 0;;++q)
+			{
+				if(buf[q] == '.')
+				{
+					buf[q] = 0;
+					decptr = buf+q+1;
+					decptr[fixedPlaces] = 0;
+				}
+				if(buf[q] == 0)
+					break;
+			}
+			value = atoi(buf) * scale;
+			if(decptr) value += atoi(decptr);
 			break;
 		}
 	}

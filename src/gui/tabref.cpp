@@ -6,7 +6,9 @@ namespace GUI
 {
 
 TabRef::TabRef()
-{}
+{
+	setFitParent(true);
+}
 
 void TabRef::setContent(std::shared_ptr<Widget> newContent) noexcept
 {

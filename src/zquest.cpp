@@ -1313,7 +1313,7 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int32_t  Flags=0,Flag=1,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
-	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0;
+	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 bool Vsync = false, ShowFPS = false;
@@ -3763,114 +3763,10 @@ static DIALOG options_dlg[] =
     { NULL,                     0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                }
 };
 
+void call_options_dlg();
 int32_t onOptions()
 {
-    int32_t OldAutoSaveInterval=AutoSaveInterval;
-    char kbdelay[80], kbrate[80], cur_large[16]={0}, cur_small[16]={0};
-    sprintf(kbdelay, "%d", KeyboardRepeatDelay);
-    sprintf(kbrate, "%d", KeyboardRepeatRate);
-	sprintf(cur_large, "%f", get_config_float("zquest","cursor_scale_large",1.5));
-	sprintf(cur_small, "%f", get_config_float("zquest","cursor_scale_small",1.0));
-	for(int32_t q = 15; q >= 0; --q) //trim trailing 0s
-	{
-		if(cur_large[q] && cur_large[q] != '0')
-		{
-			if(cur_large[q] == '.') cur_large[q] = 0;
-			break;
-		}
-		cur_large[q] = 0;
-	}
-	for(int32_t q = 15; q >= 0; --q) //trim trailing 0s
-	{
-		if(cur_small[q] && cur_small[q] != '0')
-		{
-			if(cur_small[q] == '.') cur_small[q] = 0;
-			break;
-		}
-		cur_small[q] = 0;
-	}
-    options_dlg[0].dp2=lfont;
-    reset_combo_animations();
-    reset_combo_animations2();
-    go();
-    options_dlg[4].flags = MouseScroll ? D_SELECTED : 0;
-    options_dlg[5].flags = SavePaths ? D_SELECTED : 0;
-    options_dlg[6].flags = CycleOn ? D_SELECTED : 0;
-    options_dlg[7].flags = Vsync ? D_SELECTED : 0;
-    options_dlg[8].flags = ShowFPS ? D_SELECTED : 0;
-    options_dlg[9].flags = ComboBrush ? D_SELECTED : 0;
-    options_dlg[10].flags = FloatBrush ? D_SELECTED : 0;
-    options_dlg[11].flags = OpenLastQuest ? D_SELECTED : 0;
-    options_dlg[12].flags = ShowMisalignments ? D_SELECTED : 0;
-    options_dlg[13].flags = AnimationOn ? D_SELECTED : 0;
-    options_dlg[14].flags = OverwriteProtection ? D_SELECTED : 0;
-    options_dlg[15].flags = TileProtection ? D_SELECTED : 0;
-    options_dlg[16].flags = InvalidStatic ? D_SELECTED : 0;
-    options_dlg[17].flags = UseSmall ? D_SELECTED : 0;
-    options_dlg[18].flags = RulesetDialog ? D_SELECTED : 0;
-    options_dlg[19].flags = EnableTooltips ? D_SELECTED : 0;
-    options_dlg[32].d1 = AutoBackupRetention;
-    options_dlg[34].d1 = AutoSaveInterval;
-    options_dlg[36].d1 = AutoSaveRetention;
-    options_dlg[37].flags = UncompressedAutoSaves ? D_SELECTED : 0;
-    options_dlg[39].d1 = GridColor;
-    options_dlg[41].d1 = SnapshotFormat;
-    options_dlg[43].dp = kbdelay;
-    options_dlg[45].dp = kbrate;
-    options_dlg[50].flags = abc_patternmatch ? D_SELECTED : 0;
-    options_dlg[51].flags = NoScreenPreview ? D_SELECTED : 0;
-    options_dlg[58].dp = cur_large;
-    options_dlg[60].dp = cur_small;
-    
-    if(is_large)
-        large_dialog(options_dlg);
-        
-    if(zc_popup_dialog(options_dlg,-1) == 2)
-    {
-        MouseScroll                = options_dlg[4].flags & D_SELECTED ? 1 : 0;
-        SavePaths                  = options_dlg[5].flags & D_SELECTED ? 1 : 0;
-        CycleOn                    = options_dlg[6].flags & D_SELECTED ? 1 : 0;
-        Vsync                      = options_dlg[7].flags & D_SELECTED ? 1 : 0;
-        ShowFPS                    = options_dlg[8].flags & D_SELECTED ? 1 : 0;
-        ComboBrush                 = options_dlg[9].flags & D_SELECTED ? 1 : 0;
-        FloatBrush                 = options_dlg[10].flags & D_SELECTED ? 1 : 0;
-        OpenLastQuest              = options_dlg[11].flags & D_SELECTED ? 1 : 0;
-        ShowMisalignments          = options_dlg[12].flags & D_SELECTED ? 1 : 0;
-        AnimationOn                = options_dlg[13].flags & D_SELECTED ? 1 : 0;
-        OverwriteProtection        = options_dlg[14].flags & D_SELECTED ? 1 : 0;
-        TileProtection             = options_dlg[15].flags & D_SELECTED ? 1 : 0;
-        InvalidStatic              = options_dlg[16].flags & D_SELECTED ? 1 : 0;
-        UseSmall                   = options_dlg[17].flags & D_SELECTED ? 1 : 0;
-        RulesetDialog              = options_dlg[18].flags & D_SELECTED ? 1 : 0;
-        EnableTooltips             = options_dlg[19].flags & D_SELECTED ? 1 : 0;
-        AutoBackupRetention        = options_dlg[32].d1;
-        AutoSaveInterval           = options_dlg[34].d1;
-        AutoSaveRetention          = options_dlg[36].d1;
-        UncompressedAutoSaves      = options_dlg[37].flags & D_SELECTED ? 1 : 0;
-        GridColor                  = options_dlg[39].d1;
-        SnapshotFormat             = options_dlg[41].d1;
-        KeyboardRepeatDelay        = atoi(kbdelay);
-        KeyboardRepeatRate         = atoi(kbrate);
-		abc_patternmatch           = options_dlg[50].flags & D_SELECTED ? 1 : 0;
-		NoScreenPreview            = options_dlg[51].flags & D_SELECTED ? 1 : 0;
-		set_config_float("zquest","cursor_scale_large",vbound(atof(cur_large),1.0,5.0));
-		set_config_float("zquest","cursor_scale_small",vbound(atof(cur_small),1.0,5.0));
-		
-		load_mice(); //Reload cursor scale
-		
-        set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
-    }
-    
-    if(AutoSaveInterval!=OldAutoSaveInterval)
-    {
-        time(&auto_save_time_start);
-    }
-    
-    save_config_file();
-    setup_combo_animations();
-    setup_combo_animations2();
-    refresh(rALL);
-    comeback();
+	call_options_dlg();
     return D_O_K;
 }
 
@@ -25524,43 +25420,45 @@ int32_t onCompileScript()
 			//std::map<string, disassembled_script_data>().swap(scripts); //Doesn't release it back to Windows. 
 			//malloc_trim(); //This is Unix only, and will release heap memory allocation back to the host OS
 			
-			uint32_t newInitSize = 0;
-			script_data const& new_init_script = *globalscripts[0];
-			newInitSize = new_init_script.size();
-			bool initChanged = newInitSize != lastInitSize;
-			if(!initChanged) //Same size, but is the content the same?
+			if(WarnOnInitChanged)
 			{
-				if(!old_init_script.valid() || !new_init_script.valid())
+				uint32_t newInitSize = 0;
+				script_data const& new_init_script = *globalscripts[0];
+				newInitSize = new_init_script.size();
+				bool initChanged = newInitSize != lastInitSize;
+				if(!initChanged) //Same size, but is the content the same?
 				{
-					if(old_init_script.valid() || new_init_script.valid())
-						initChanged = true;
-				}
-				else for(uint32_t q = 0; q < newInitSize; ++q)
-				{
-					if(old_init_script.zasm[q].command != new_init_script.zasm[q].command
-					   || old_init_script.zasm[q].arg1 != new_init_script.zasm[q].arg1
-					   || old_init_script.zasm[q].arg2 != new_init_script.zasm[q].arg2)
+					if(!old_init_script.valid() || !new_init_script.valid())
 					{
-						initChanged = true;
-						break;
+						if(old_init_script.valid() || new_init_script.valid())
+							initChanged = true;
+					}
+					else for(uint32_t q = 0; q < newInitSize; ++q)
+					{
+						if(old_init_script.zasm[q].command != new_init_script.zasm[q].command
+						   || old_init_script.zasm[q].arg1 != new_init_script.zasm[q].arg1
+						   || old_init_script.zasm[q].arg2 != new_init_script.zasm[q].arg2)
+						{
+							initChanged = true;
+							break;
+						}
 					}
 				}
+				if(initChanged) //Global init changed
+				{
+					AlertFuncDialog("Init Script Changed",
+						"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(newInitSize)+")\n\n"
+						"This can break existing save files of your quest. To prevent users "
+						"from loading save files that would break, you can raise the \"Quest "
+						"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"
+						"Ensure that both versions are higher than \"Quest Ver\" was previously, "
+						"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
+						2, 1, //2 buttons, where buttons[1] is focused
+						"Header", call_header_dlg,
+						"OK", NULL
+					).show();
+				}
 			}
-			if(initChanged) //Global init changed
-			{
-				AlertFuncDialog("Init Script Changed",
-					"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(newInitSize)+")\n\n"
-					"This can break existing save files of your quest. To prevent users "
-					"from loading save files that would break, you can raise the \"Quest "
-					"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"
-					"Ensure that both versions are higher than \"Quest Ver\" was previously, "
-					"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
-					2, 1, //2 buttons, where buttons[1] is focused
-					"Header", call_header_dlg,
-					"OK", NULL
-				).show();
-			}
-			
 			return D_O_K;
 		}
 		}
@@ -30973,6 +30871,7 @@ int32_t main(int32_t argc,char **argv)
     chop_path(tmusicpath);
     
     MouseScroll                    = get_config_int("zquest","mouse_scroll",0);
+    WarnOnInitChanged              = get_config_int("zquest","warn_initscript_changes",1);
     InvalidStatic                  = get_config_int("zquest","invalid_static",1);
     MMapCursorStyle                = get_config_int("zquest","cursorblink_style",1);
     TileProtection                 = get_config_int("zquest","tile_protection",1);
@@ -33680,6 +33579,7 @@ int32_t save_config_file()
     set_config_string("zquest",last_quest_name,filepath);
     set_config_string("zquest","last_timed_save",last_timed_save);
     set_config_int("zquest","mouse_scroll",MouseScroll);
+    set_config_int("zquest","warn_initscript_changes",WarnOnInitChanged);
     set_config_int("zquest","invalid_static",InvalidStatic);
 //	set_config_int("zquest","cursorblink_style",MMapCursorStyle); // You cannot do this unless the value is changed by the user via the GUI! -Z
     set_config_int("zquest","skip_layer_warning",skipLayerWarning);
