@@ -6883,8 +6883,15 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 			return;
 		}
 	}
-    
-    
+	BITMAP* sbmp = sourceBitmap;
+	if (sx + sw > sbmp->w || sy + sh > sbmp->h)
+	{
+		sbmp = create_bitmap_ex(8, sw, sh);
+		clear_bitmap(sbmp);
+		blit(sourceBitmap, sbmp, sx, sy, 0, 0, std::min(sourceBitmap->w-sx, sw), std::min(sourceBitmap->h-sy, sh));
+		sx = 0;
+		sy = 0;
+	}
 	//dx = dx + xoffset; //don't do this here!
 	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
     
@@ -6898,51 +6905,51 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 				{
 					case 1:
 					//transparent
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_trans_sprite(destBMP, subBmp, dx, dy);
 					break;
 					
 					
 					case 2: 
 						//pivot?
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
 					
 					case 3: 
 						//pivot + trans
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_trans(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
 					
 					case 4: 
 						//flip v
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_v_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 5: 
 						//trans + v flip
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
 					
 					case 6: 
 						//pivot + v flip
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
 					
 					case 8: 
 						//vlip h
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_h_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 9: 
 						//trans + h flip
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
 					
@@ -6954,13 +6961,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 12:
 						//vh flip
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_vh_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 13: 
 						//trans + vh flip
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
 					
@@ -6972,31 +6979,31 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 16: 
 						//lit
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_lit_sprite(destBMP, subBmp, dx, dy, litcolour);
 					break;
 					
 					case 18: 
 						//pivot, lit
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_lit(destBMP, subBmp, dx, dy, cx, cy,  degrees_to_fixed(rot),litcolour);
 					break;
 					
 					case 20: 
 						//lit + v flip
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
 					
 					case 22: 
 						//Pivot, vflip, lit
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
 					
 					case 24: 
 						//lit + h flip
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
 					
@@ -7008,7 +7015,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 28: 
 						//lit + vh flip
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
 					
@@ -7020,7 +7027,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 0: 
 						//no effect
-					masked_stretch_blit(sourceBitmap, destBMP, sx, sy, sw, sh, dx, dy, dw, dh);
+					masked_stretch_blit(sbmp, destBMP, sx, sy, sw, sh, dx, dy, dw, dh);
 					break;
 					
 					
@@ -7038,7 +7045,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 				{
 					case 1: 
 						//transparent
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					
 					break;
@@ -7057,13 +7064,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 4: 
 						//flip v
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
 					case 5: 
 						//trans + v flip
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
@@ -7111,7 +7118,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 16: 
 						//lit
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
 					
@@ -7123,7 +7130,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 20: 
 						//lit + vflip
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
 					
@@ -7159,7 +7166,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 0: 
 						//no effect.
-					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
@@ -7181,51 +7188,51 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 				{
 					case 1:
 					//transparent
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_trans_sprite(destBMP, subBmp, dx, dy);
 					break;
 					
 					
 					case 2: 
 						//pivot?
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
 					
 					case 3: 
 						//pivot + trans
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_trans(destBMP, subBmp, dx,dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
 					
 					case 4: 
 						//flip v
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_v_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 5: 
 						//trans + v flip
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
 					
 					case 6: 
 						//pivot + v flip
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
 					
 					case 8: 
 						//vlip h
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_h_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 9: 
 						//trans + h flip
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
 					
@@ -7237,13 +7244,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 12:
 						//vh flip
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_vh_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 13: 
 						//trans + vh flip
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
 					
@@ -7255,31 +7262,31 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 16: 
 						//lit
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_lit_sprite(destBMP, subBmp, dx, dy, litcolour);
 					break;
 					
 					case 18: 
 						//pivot, lit
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
 					
 					case 20: 
 						//lit + v flip
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
 					
 					case 22: 
 						//Pivot, vflip, lit
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
 					
 					case 24: 
 						//lit + h flip
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
 					
@@ -7291,19 +7298,19 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 28: 
 						//lit + vh flip
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
 					
 					case 32: //gouraud
 						//Probably not wort supporting. 
-					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					//stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
 						//no effect
-					stretch_blit(sourceBitmap, destBMP, sx, sy, sw, sh, dx, dy, dw, dh);
+					stretch_blit(sbmp, destBMP, sx, sy, sw, sh, dx, dy, dw, dh);
 					break;
 					
 					
@@ -7320,7 +7327,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 				switch(mode)
 				{
 					case 1: 
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					
 					break;
@@ -7339,13 +7346,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 4: 
 						//flip v
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
 					case 5: 
 						//trans + v flip
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
@@ -7393,7 +7400,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 16: 
 						//lit
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
 					
@@ -7405,7 +7412,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 20: 
 						//lit + vflip
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_v_flip_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
 					
@@ -7435,13 +7442,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 32: //gouraud
 						//Probably not wort supporting. 
-					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					//stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
 						//no effect.
-					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
@@ -7466,51 +7473,51 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 				{
 					case 1:
 					//transparent
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_trans_sprite(destBMP, subBmp, dx, dy);
 					break;
 					
 					
 					case 2: 
 						//pivot?
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
 					
 					case 3: 
 						//pivot + trans
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_trans(destBMP, subBmp, dx, dy,  cx, cy, degrees_to_fixed(rot));
 					break;
 					
 					case 4: 
 						//flip v
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_v_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 5: 
 						//trans + v flip
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
 					
 					case 6: 
 						//pivot + v flip
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
 					
 					case 8: 
 						//vlip h
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_h_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 9: 
 						//trans + h flip
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
 					
@@ -7522,13 +7529,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 12:
 						//vh flip
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_vh_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 13: 
 						//trans + vh flip
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
 					
@@ -7540,31 +7547,31 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 16: 
 						//lit
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_lit_sprite(destBMP, subBmp, dx, dy, litcolour);
 					break;
 					
 					case 18: 
 						//pivot, lit
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
 					
 					case 20: 
 						//lit + v flip
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
 					
 					case 22: 
 						//Pivot, vflip, lit
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
 					
 					case 24: 
 						//lit + h flip
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
 					
@@ -7576,19 +7583,19 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 28: 
 						//lit + vh flip
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
 					
 					case 32: //gouraud
 						//Probably not wort supporting. 
-					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					//stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
 						//no effect
-					masked_blit(sourceBitmap, destBMP, sx, sy, dx, dy, dw, dh);
+					masked_blit(sbmp, destBMP, sx, sy, dx, dy, dw, dh);
 					break;
 					
 					
@@ -7605,7 +7612,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 				switch(mode)
 				{
 					case 1: 
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);	//transparent
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);	//transparent
 					rotate_sprite_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					
 					break;
@@ -7624,12 +7631,12 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 4: 
 						//flip v
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
 					case 5: 
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);	//trans + v flip
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);	//trans + v flip
 					rotate_sprite_v_flip_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
@@ -7677,7 +7684,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 16: 
 						//lit
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
 					
@@ -7689,7 +7696,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 20: 
 						//lit + vflip
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
 					
@@ -7719,13 +7726,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 32: //gouraud
 						//Probably not wort supporting. 
-					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					//stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
 						//no effect.
-					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
@@ -7746,51 +7753,51 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 				{
 					case 1:
 					//transparent
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					draw_trans_sprite(destBMP, subBmp, dx, dy);
 					break;
 					
 					
 					case 2: 
 						//pivot?
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
 					
 					case 3: 
 						//pivot + trans
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					pivot_sprite_trans(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
 					
 					case 4: 
 						//flip v
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					draw_sprite_v_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 5: 
 						//trans + v flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
 					
 					case 6: 
 						//pivot + v flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
 					
 					case 8: 
 						//vlip h
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					draw_sprite_h_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 9: 
 						//trans + h flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
 					
@@ -7802,13 +7809,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 12:
 						//vh flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					draw_sprite_vh_flip(destBMP, subBmp, dx, dy);
 					break;
 					
 					case 13: 
 						//trans + vh flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
 					
@@ -7820,31 +7827,31 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 16: 
 						//lit
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					draw_lit_sprite(destBMP, subBmp, dx, dy, litcolour);
 					break;
 					
 					case 18: 
 						//pivot, lit
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					pivot_sprite_lit(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot),litcolour);
 					break;
 					
 					case 20: 
 						//lit + v flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
 					
 					case 22: 
 						//Pivot, vflip, lit
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					pivot_sprite_v_flip_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
 					
 					case 24: 
 						//lit + h flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
 					
@@ -7856,19 +7863,19 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 28: 
 						//lit + vh flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
 					
 					case 32: //gouraud
 						//Probably not wort supporting. 
-					//blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					//blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
 						//no effect
-					blit(sourceBitmap, destBMP, sx, sy, dx, dy, dw, dh);
+					blit(sbmp, destBMP, sx, sy, dx, dy, dw, dh);
 					break;
 					
 					
@@ -7885,7 +7892,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 				switch(mode)
 				{
 					case 1: 
-						blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);//transparent
+						blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);//transparent
 					rotate_sprite_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					 
 					break;
@@ -7904,13 +7911,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 4: 
 						//flip v
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					rotate_sprite_v_flip(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
 					case 5: 
 						//trans + v flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
@@ -7958,7 +7965,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 16: 
 						//lit
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
 					
@@ -7970,7 +7977,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 20: 
 						//lit + vflip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
 					
@@ -8000,13 +8007,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 32: //gouraud
 						//Probably not wort supporting. 
-					//blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					//blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
 					
 					case 0: 
 						//no effect.
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
 					rotate_sprite(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
 					
@@ -8024,6 +8031,10 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	{
 		//script_drawing_commands.ReleaseSubBitmap(subBmp); //purge the temporary bitmap.
 		destroy_bitmap(subBmp);
+	}
+	if (sbmp != sourceBitmap)
+	{
+		destroy_bitmap(sbmp);
 	}
 }
 
@@ -8272,7 +8283,14 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 		}
 	}
     
-    
+	if (sx + sw > destBMP->w || sy + sh > destBMP->h)
+	{
+		newSource = create_bitmap_ex(8, sw, sh);
+		clear_bitmap(newSource);
+		blit(destBMP, newSource, sx, sy, 0, 0, std::min(destBMP->w-sx, sw), std::min(destBMP->h-sy, sh));
+		sx = 0;
+		sy = 0;
+	}
 	//dx = dx + xoffset; //don't do this here!
 	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
     
@@ -9404,6 +9422,10 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 	{
 		//script_drawing_commands.ReleaseSubBitmap(subBmp); //purge the temporary bitmap.
 		destroy_bitmap(subBmp);
+	}
+	if(newSource != destBMP)
+	{
+		destroy_bitmap(newSource);
 	}
 }
 
