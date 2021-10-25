@@ -2401,7 +2401,7 @@ Presently, annotations are only allowed on scripts.
 
 	[example--
 		
-		@Author("Venrob") //This sets the 'Author' metadata of 'script foo' to read 'Venrob'
+		@Author("EmilyV") //This sets the 'Author' metadata of 'script foo' to read 'EmilyV'
 		ffc script foo
 		{
 			void run()
