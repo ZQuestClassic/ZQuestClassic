@@ -15575,6 +15575,7 @@ void LinkClass::checkpushblock()
 		int32_t f = MAPFLAG2(lyr-1,bx,by);
 		int32_t f2 = MAPCOMBOFLAG2(lyr-1,bx,by);
 		int32_t t = combobuf[MAPCOMBOL(lyr,bx,by)].type;
+		if (lyr == 0) t = combobuf[MAPCOMBO(bx,by)].type;
 		
 		if((t==cPUSH_WAIT || t==cPUSH_HW || t==cPUSH_HW2) && (pushing<16 || hasMainGuy())) continue;
 		

@@ -3414,6 +3414,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
                     return qe_invalid;
                 }
             }
+	    tempMsgString.w=(25*8);
+            tempMsgString.h=(4*8);
             
             if(keepdata==true)
             {
@@ -9096,7 +9098,9 @@ void init_guys(int32_t guyversion)
     for(int32_t i=0; i<OLDMAXGUYS; i++)
     {
         guysbuf[i] = default_guys[i];
-        
+        guysbuf[i].spr_shadow = (guysbuf[i].family==eeROCK && guysbuf[i].misc10==1) ? iwLargeShadow : iwShadow;
+	guysbuf[i].spr_death = iwDeath;
+	guysbuf[i].spr_spawn = iwSpawn;
         // Patra fix: 2.10 BSPatras used spDIG. 2.50 Patras use CSet 7.
         if(guyversion<=3 && i==ePATRABS)
         {
@@ -17980,6 +17984,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	temp_zinit.msg_speed=5;
 	temp_zinit.transition_type=0;
 	temp_zinit.jump_link_layer_threshold=255;
+	temp_zinit.subscrSpeed = 1;
 	
 	if(s_version >= 15 && get_bit(deprecated_rules, 27)) // The int16_t-lived rule, qr_JUMPLINKLAYER3
 		temp_zinit.jump_link_layer_threshold=0;
@@ -19145,7 +19150,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		//addOldStyleFamily(&temp_zinit, itemsbuf, itype_wallet, 4);   //is this needed?
 		temp_zinit.max_rupees=999;
-		temp_zinit.rupies=999;
+		//temp_zinit.rupies=999;
 	}
 	if(Header->zelda_version < 0x190) //1.84 bugfix. -Z
 	{
