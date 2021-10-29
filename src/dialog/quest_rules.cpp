@@ -116,7 +116,8 @@ static const GUI::ListData compatRulesList
 	{ "Old CSet2 Handling", qr_OLDCS2 },
 	{ "Hardcoded Shadow/Spawn/Death anim frames", qr_HARDCODED_ENEMY_ANIMS },
 	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING },
-	{ "No fairy spawn limit", qr_FIXED_FAIRY_LIMIT }
+	{ "No fairy spawn limit", qr_FIXED_FAIRY_LIMIT },
+	{ "Arrows clip farther into dungeon walls", qr_ARROWCLIP }
 };
 
 static const GUI::ListData enemiesRulesList

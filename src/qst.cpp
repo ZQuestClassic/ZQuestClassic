@@ -2839,6 +2839,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_NOSCROLLCONTINUE,1);
 	}
 	
+	if(tempheader.zelda_version < 0x210)
+	{
+		set_bit(quest_rules,qr_ARROWCLIP,1);
+	}
+	
 	if(tempheader.zelda_version == 0x210)
 	{
 		set_bit(quest_rules, qr_NOSCROLLCONTINUE, get_bit(quest_rules, qr_CMBCYCLELAYERS));

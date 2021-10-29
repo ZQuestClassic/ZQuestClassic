@@ -1013,7 +1013,7 @@ enum
 	qr_SIDESWIM, qr_SIDESWIMDIR, qr_PUSHBLOCK_LAYER_1_2,
 	
 	//35
-	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR,
+	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP,
 	
 	//ZScript Parser //room for 20 of these
 	//80

@@ -3902,6 +3902,14 @@ bool weapon::clip()
         c[3] = d2?208:(224+nb1);
     }
     
+    if (id==wArrow && get_bit(quest_rules,qr_ARROWCLIP))
+    {
+        c[0] = d2?18:2;
+        c[1] = d2?143:160;
+        c[2] = d2?18:4;
+        c[3] = d2?221:236;
+    }
+    
     if(x < c[2])
         if(dir==left || dir==l_up || dir==l_down)
             return true;
@@ -7156,9 +7164,13 @@ bool weapon::animate(int32_t index)
 	// move sprite, check clipping
 	if(dead==-1 && clk>=0)
 	{
+		if(clip() && get_bit(quest_rules,qr_ARROWCLIP)) //I think 1.90 checked this before hand.
+		{
+			onhit(true);
+		}
 		move(step);
 		
-		if(clip())
+		if(clip() && !get_bit(quest_rules,qr_ARROWCLIP))
 		{
 			onhit(true);
 		}
