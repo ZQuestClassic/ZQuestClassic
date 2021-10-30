@@ -2093,12 +2093,7 @@ attack:
 			}
 			else if(action==swimming || action==swimhit || hopclk==0xFF)
 			{
-				if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
-				{
-					linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
-				}
-				else
-					linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+				linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
 				
 				if(lstep>=6)
 				{
@@ -2114,14 +2109,7 @@ attack:
 				
 				if(isDiving())
 				{
-					if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
-					{
-						linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
-					}
-					else
-					{
-						linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-					}
+					linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
 					if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
 				}
 			}
@@ -2209,7 +2197,7 @@ attack:
 			}
 			else if(action==swimming || action==swimhit || hopclk==0xFF)
 			{
-				if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+				if (get_bit(quest_rules, qr_COPIED_SWIM_SPRITES)) 
 				{
 					linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
 				}
@@ -2221,7 +2209,7 @@ attack:
 				
 				if(isDiving())
 				{
-					if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+					if (get_bit(quest_rules, qr_COPIED_SWIM_SPRITES)) 
 					{
 						linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
 					}
@@ -2302,26 +2290,12 @@ attack:
 			}
 			else if(action == swimming || action==swimhit || hopclk==0xFF)
 			{
-				if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
-				{
-					linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
-				}
-				else
-				{
-					linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-				}
+				linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
 				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				
 				if(isDiving())
 				{
-					if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
-					{
-						linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
-					}
-					else
-					{
-						linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-					} 
+					linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
 					if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 			}
@@ -3139,7 +3113,7 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     if(!ignorescreen)
     {
-	    if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(screengrid_layer[layer-1],i,1);
+	    if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid_layer[layer-1],i,1);
             if(isCuttableNextType(type) || isCuttableNextType(type))
             {
                 FFCore.tempScreens[layer]->data[i]++;
@@ -3344,8 +3318,7 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
     
     if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
     {
-		//if an emulation bit says to use buggy code
-		if (FFCore.emulation[emuBUGGYNEXTCOMBOS] || get_bit(quest_rules,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT)) //Haha wow Zoria you really named it that huh -Dimi
+		if (get_bit(quest_rules,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT)) //Haha wow Zoria you really named it that huh -Dimi
 		{
 			skipsecrets = 0;
 		}
@@ -3455,7 +3428,7 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
     
     if(!ignorescreen)
     {
-        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(screengrid,i,1);
+        if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
@@ -3600,7 +3573,7 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
     
     if(!ignoreffc)
     {
-        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(ffcgrid, current_ffcombo, 1);
+        if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
         
         if(isCuttableItemType(type2))
         {
@@ -3891,7 +3864,7 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     
     {
-	    if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(w->wscreengrid_layer[layer-1],i,1);
+	    if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid_layer[layer-1],i,1);
             if(isCuttableNextType(type) || isCuttableNextType(type))
             {
                 FFCore.tempScreens[layer]->data[i]++;
@@ -4118,8 +4091,7 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     byte skipsecrets = 0;
     if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
     {
-		//if an emulation bit says to use buggy code
-		if (FFCore.emulation[emuBUGGYNEXTCOMBOS] || get_bit(quest_rules,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT))
+		if (get_bit(quest_rules,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT))
 		{
 			skipsecrets = 0;
 		}
@@ -4225,7 +4197,7 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     
     if(!ignorescreen || dontignore)
     {
-        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(w->wscreengrid,i,1);
+        if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid,i,1);
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
@@ -4364,7 +4336,7 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     
     if(!ignoreffc)
     {
-        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(ffcgrid, current_ffcombo, 1);
+        if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
         
         if(isCuttableItemType(type2))
         {
@@ -4908,7 +4880,7 @@ void LinkClass::check_slash_block(weapon *w)
     
     if(!ignorescreen)
     {
-        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(screengrid,i,1);
+        if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
         {
@@ -5053,7 +5025,7 @@ void LinkClass::check_slash_block(weapon *w)
     
     if(!ignoreffc)
     {
-        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(ffcgrid, current_ffcombo, 1);
+        if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
         
         if(isCuttableItemType(type2))
         {
@@ -6949,13 +6921,14 @@ void LinkClass::addsparkle(int32_t wpn)
         }
         
         // Damaging boomerang sparkle?
-        if(wpn3 && itemtype==itype_brang && !FFCore.emulation[emuNOFLIPFIRETRAIL])
+        if(wpn3 && itemtype==itype_brang)
         {
             // If the boomerang just bounced, flip the sparkle direction so it doesn't hit
             // whatever it just bounced off of if it's shielded from that direction.
             if(w->misc==1 && w->clk2>256 && w->clk2<272)
                 direction=oppositeDir[direction];
         }
+	if(itemtype==itype_brang && get_bit(quest_rules, qr_WRONG_BRANG_TRAIL_DIR)) direction = 0;
         
         Lwpns.add(new weapon((zfix)(w->x+(itemtype==itype_cbyrna ? 2 : zc_oldrand()%4)+(h*4)),
                              (zfix)(w->y+(itemtype==itype_cbyrna ? 2 : zc_oldrand()%4)+(v*4)),
@@ -15220,7 +15193,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                 // * otherwise, walk on ladder(+hookshot) combos.
                 else if(wtrx==wtrx8 && (isstepable(MAPCOMBO(wx, wy)) || isstepable(MAPCOMBO(wx+8,wy)) || wtrx==true))
                 {
-		    if(!FFCore.emulation[emuOLD210WATER])
+		    if(!get_bit(quest_rules, qr_OLD_210_WATER))
 		    {
 			//if Link could swim on a tile instead of using the ladder,
 			//refuse to use the ladder to step over that tile. -DD
@@ -19749,7 +19722,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	case wtIWARPWAVE:                                       // insta-warps
 	{
 		bool old_192 = false;
-		if ( FFCore.emulation[emu192b163] )
+		if (get_bit(quest_rules,qr_192b163_WARP))
 		{
 			if ( wtype == wtIWARPWAVE )
 			{
@@ -19921,7 +19894,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	case wtNOWARP:
 	{
 		bool old_192 = false;
-		if ( FFCore.emulation[emu192b163] )
+		if (get_bit(quest_rules,qr_192b163_WARP))
 		{
 			wtype = wtIWARPWAVE;
 			old_192 = true;
@@ -24788,7 +24761,7 @@ void LinkClass::getTriforce(int32_t id2)
 		    }
 		    else
 		    {
-			if((f&((get_bit(quest_rules,qr_EPILEPSY) || FFCore.emulation[emuEPILEPSY]) ? 10 : 7))==0)
+			if((f&((get_bit(quest_rules,qr_EPILEPSY)) ? 10 : 7))==0)
 			{
 			    for(int32_t cs2=2; cs2<5; cs2++)
 			    {

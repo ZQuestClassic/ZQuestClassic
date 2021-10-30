@@ -1066,7 +1066,7 @@ void dismissmsg()
 
 void dointro()
 {
-    if(game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0 || FFCore.emulation[emu250DMAPINTOREPEAT])
+    if(game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0)
     {
         dmapmsgclk=0;
         game->visited[currdmap]=1;

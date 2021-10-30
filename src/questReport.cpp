@@ -37,7 +37,6 @@ char *palname_spaced(int32_t pal)
 
 static int32_t isNextType(int32_t type)
 {
-	//return true here, if an emulation bit says to use buggy code
 	switch(type)
 	{
 		case cSLASHNEXT:
@@ -56,7 +55,6 @@ static int32_t isNextType(int32_t type)
 
 static int32_t usesSecretTriggerFlag(int32_t type)
 {
-	//return true here, if an emulation bit says to use buggy code
 	switch(type)
 	{
 		case mfSECRETS01:

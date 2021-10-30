@@ -118,7 +118,14 @@ static const GUI::ListData compatRulesList
 	{ "Old CSet2 Handling", qr_OLDCS2 },
 	{ "Hardcoded Shadow/Spawn/Death anim frames", qr_HARDCODED_ENEMY_ANIMS },
 	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING },
-	{ "No fairy spawn limit", qr_FIXED_FAIRY_LIMIT }
+	{ "No fairy spawn limit", qr_FIXED_FAIRY_LIMIT },
+	{ "Arrows clip farther into dungeon walls", qr_ARROWCLIP },
+	{ "All sword triggers are continuous", qr_CONT_SWORD_TRIGGERS },
+	{ "Ladder takes precedence over North and South water", qr_OLD_210_WATER },
+	{ "All 8 way-shot enemies use SFX_FIRE for firing SFX", qr_8WAY_SHOT_SFX },
+	{ "BS Zelda uses walking sprites for swimming", qr_COPIED_SWIM_SPRITES },
+	{ "Fire boomerang sparkles always face up", qr_WRONG_BRANG_TRAIL_DIR },
+	{ "Wavy and Cancel warps are swapped", qr_192b163_WARP }
 };
 
 static const GUI::ListData enemiesRulesList

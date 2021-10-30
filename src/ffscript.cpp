@@ -29625,7 +29625,6 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
-	//memset(emulation,0,sizeof(emulation));
 	initIncludePaths();
 	initRunString();
 	//clearRunningItemScripts();

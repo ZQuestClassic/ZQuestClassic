@@ -1013,7 +1013,10 @@ enum
 	qr_SIDESWIM, qr_SIDESWIMDIR, qr_PUSHBLOCK_LAYER_1_2,
 	
 	//35
-	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR,
+	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 
+	qr_OLD_210_WATER, qr_8WAY_SHOT_SFX, qr_COPIED_SWIM_SPRITES, qr_WRONG_BRANG_TRAIL_DIR,
+	//36
+	qr_192b163_WARP,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -1146,16 +1149,6 @@ enum                                                        // value matters bec
 #define shFLAME		0x040
 #define shSCRIPT	0x080
 #define shFIREBALL2	0x100 // Boss fireball, not ewFireball2
-
-
-//emulation patches
-enum 
-{ 
-	emuITEMPERSEG, emuGRIDCOLLISION, emuOLDTRIBBLES, emu190LINKSPRITES, emuCOPYSWIMSPRITES, emu210WINDROBES,
-	emu250DMAPINTOREPEAT, emuFIXTRIFORCECELLAR, emuNOFLIPFIRETRAIL, emuSWORDTRIGARECONTINUOUS, emu8WAYSHOTSFX, emu210BOMBCHU, emu192b163, 
-	emuEPILEPSY, emuBUGGYNEXTCOMBOS, emuOLD210WATER, emuLAST
-		
-};
 
 
 // item sets

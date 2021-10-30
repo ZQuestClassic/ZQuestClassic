@@ -5503,7 +5503,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 				strcpy(lsttmp, ((data->listFunc(listpos,&dummy))));
 				for ( int32_t w = 0; w < 1024; ++w )
 				{
-					if ( isalpha(tmp[w]) )
+					if ( zc_isalpha(tmp[w]) )
 					{
 						tmp[w] = toupper(tmp[w]);
 						//al_trace("tmp is: %s\n",tmp);
@@ -5511,7 +5511,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 				}
 				for ( int32_t e = 0; e < 1024; ++e ) 
 				{
-					if ( isalpha(lsttmp[e]) )
+					if ( zc_isalpha(lsttmp[e]) )
 					{
 						lsttmp[e] = toupper(lsttmp[e]);
 						//al_trace("lsttmp is: %s\n",lsttmp);

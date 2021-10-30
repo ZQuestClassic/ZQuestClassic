@@ -400,6 +400,11 @@ namespace util
 			}
 		}
 	}
+	bool zc_isalpha(int c)
+	{
+	    if(unsigned(c) > 255) return false;
+	    return isalpha((char)c);
+	}
 }
 
 int32_t vbound(int32_t val, int32_t low, int32_t high)
