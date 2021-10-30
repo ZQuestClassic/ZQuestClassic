@@ -6,6 +6,7 @@
 #include "../jwin.h"
 #include "../zquest.h"
 #include "../zsys.h"
+#include "dialog/info.h"
 #include <utility>
 
 
@@ -34,20 +35,27 @@ void QRPanel::loadList(GUI::ListData qrlist)
 		qrCount+=2;
 	while(q < qrlist.size())
 	{
-		std::shared_ptr<Grid> content = Grid::rows(1);
+		std::shared_ptr<Grid> content = Grid::rows(2);
 		for(size_t ind = 0; ind < qrCount; ++ind)
 		{
 			std::shared_ptr<QRCheckbox> cbox = std::make_shared<QRCheckbox>();
+			std::shared_ptr<Button> ibtn = std::make_shared<Button>();
+			ibtn->setText("?");
 			if(q >= qrlist.size())
 			{
 				cbox->setText("--");
 				cbox->setDisabled(true);
+				ibtn->setDisabled(true);
 			}
 			else
 			{
 				int32_t qr = qrlist.getValue(q);
 				std::string const& name = qrlist.getText(q);
+				std::string const& infotext = qrlist.getInfo(q);
 				cbox->setText(name);
+				if(infotext.size())
+					ibtn->setOnPress([infotext](){InfoDialog("QR Info",infotext).show();});
+				else ibtn->setDisabled(true);
 				cbox->onToggle(message);
 				cbox->setQR(qr);
 				if(get_bit(init_qrs, qr))
@@ -55,7 +63,12 @@ void QRPanel::loadList(GUI::ListData qrlist)
 				++q;
 			}
 			cbox->setHAlign(0.0);
+			ibtn->setHAlign(1.0);
 			cbox->setPadding(0_px);
+			ibtn->setPadding(0_px);
+			ibtn->overrideWidth(2_em);
+			ibtn->setForceFitHei(true); //fit the height of the cbox
+			content->add(ibtn);
 			content->add(cbox);
 		}
 		content->setHAlign(0.0);

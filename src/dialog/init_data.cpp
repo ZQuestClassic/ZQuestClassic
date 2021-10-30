@@ -450,7 +450,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									DEC_VAL_FIELD("Gravity:",1,99990000,4,gravity2,isZC),
 									DEC_VAL_FIELD("Terminal Vel:",1,999900,2,terminalv,isZC),
 									VAL_FIELD("Jump Layer Height:",0,255,jump_link_layer_threshold,isZC),
-									VAL_FIELD("Hero Step:",0,9999,heroStep,isZC),
+									VAL_FIELD("Player Step:",0,9999,heroStep,isZC),
 									VAL_FIELD("Subscreen Fall Mult:",1,85,subscrSpeed,isZC)
 								)
 							),
@@ -742,7 +742,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							DEC_VAL_FIELD("Gravity:",1,99990000,4,gravity2,isZC),
 							DEC_VAL_FIELD("Terminal Vel:",1,999900,2,terminalv,isZC),
 							VAL_FIELD("Jump Layer Height:",0,255,jump_link_layer_threshold,isZC),
-							VAL_FIELD("Hero Step:",0,9999,heroStep,isZC),
+							VAL_FIELD("Player Step:",0,9999,heroStep,isZC),
 							VAL_FIELD("Subscren Fall Mult:",1,85,subscrSpeed,isZC),
 							VAL_FIELD("HP Per Heart:",1,255,hp_per_heart,false),
 							VAL_FIELD("MP Per Block:",1,255,magic_per_block,false),

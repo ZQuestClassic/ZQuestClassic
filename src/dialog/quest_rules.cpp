@@ -37,7 +37,9 @@ static const GUI::ListData animRulesList
 
 static const GUI::ListData comboRulesList
 {
-	{ "Link Drowns in Walkable Water", qr_DROWN },
+	{ "Player Drowns in Walkable Water", qr_DROWN,
+		"When the Player steps in water without powerful enough flippers to swim in it,"
+		" they will drown" },
 	{ "Smart Screen Scrolling", qr_SMARTSCREENSCROLL },
 	{ "Can't Push Blocks Onto Unwalkable Combos", qr_SOLIDBLK },
 	{ "Push Blocks Don't Move When Bumped", qr_HESITANTPUSHBLOCKS },
@@ -233,7 +235,10 @@ static const GUI::ListData playerRulesList
 {
 	{ "Diagonal Movement", qr_LTTPWALK },
 	{ "Large Hitbox", qr_LTTPCOLLISION },
-	{ "New Hero Movement", qr_NEW_HERO_MOVEMENT },
+	{ "New Player Movement", qr_NEW_HERO_MOVEMENT,
+		"Alters the player's movement; with this enabled, movement includes decimal precision,"
+		" diagonal movement is 'smoother', and the player's speed can be adjusted using"
+		" 'Player->Step' via ZScript, as well as the 'Player Step' option in 'Init Data'." },
 	{ "Disable 4-Way Movement's Gridlock", qr_DISABLE_4WAY_GRIDLOCK },
 	{ "Invincible Link Flickers", qr_LINKFLICKER },
 	{ "Expanded Link Tile Modifiers", qr_EXPANDEDLTM }

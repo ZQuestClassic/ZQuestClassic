@@ -4,6 +4,7 @@
 #include "widget.h"
 #include "tabpanel.h"
 #include "tabref.h"
+#include "button.h"
 #include "list_data.h"
 #include <vector>
 #include "dialog_ref.h"

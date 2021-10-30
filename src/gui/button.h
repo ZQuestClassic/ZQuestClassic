@@ -24,6 +24,14 @@ public:
 	{
 		message = static_cast<int32_t>(m);
 	}
+	
+	/*static std::shared_ptr<Button> infoButton(std::string title, std::string text)
+	{
+		std::shared_ptr<Button> b = std::make_shared<Button>();
+		b->setText("?");
+		b->setOnPress([](){InfoDialog(title,text).show();});
+		return b;
+	}*/
 
 private:
 	std::string text;
@@ -38,5 +46,12 @@ private:
 };
 
 }
+
+#define INFO_BUTTON(infotitle, infotext) \
+	Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?", \
+		onPressFunc = []() \
+		{ \
+			InfoDialog(infotitle,infotext).show(); \
+		}),
 
 #endif
