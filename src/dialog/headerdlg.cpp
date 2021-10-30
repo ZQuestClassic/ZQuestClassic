@@ -7,7 +7,7 @@ extern zquestheader header;
 extern bool saved;
 void call_header_dlg()
 {
-	char alphastr[64];
+	char alphastr[64] = {0};
 	if ( header.new_version_id_alpha ) { sprintf(alphastr, " (Alpha %d)", header.new_version_id_alpha); }
 	else if ( header.new_version_id_beta ) { sprintf(alphastr, " (Beta %d)", header.new_version_id_beta); }
 	else if ( header.new_version_id_gamma ) { sprintf(alphastr, " (Gamma %d)", header.new_version_id_gamma); }
