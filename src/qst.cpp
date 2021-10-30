@@ -2938,7 +2938,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		if(tempheader.zelda_version>=0x211 && tempheader.build>=18)
 			set_bit(quest_rules, qr_BROKENSTATUES, 1);
 	}
-	
+	if (tempheader.zelda_version <= 0x190)
+	{
+		set_bit(quest_rules, qr_COPIED_SWIM_SPRITES, 1);
+	}
 	if ( (tempheader.zelda_version == 0x250 && tempheader.build < 33) || tempheader.zelda_version == 0x254 || tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
 	{
 		set_bit(quest_rules, qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT, 1);

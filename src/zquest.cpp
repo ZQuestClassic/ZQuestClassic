@@ -2021,7 +2021,6 @@ MENU the_menu_large_old[] =
     { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
-    { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
     { (char *)"Et&c",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -2036,7 +2035,6 @@ MENU the_menu[] =
     { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
-    { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
 
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -2050,7 +2048,6 @@ MENU the_menu_large[] =
     { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
-    { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
     { (char *)"Z&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -2079,7 +2076,6 @@ MENU the_menu_large_zcleft[] =
     { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
-    { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 

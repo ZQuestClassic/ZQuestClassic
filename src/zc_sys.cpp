@@ -392,7 +392,7 @@ void load_game_configs()
     midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",1);
 	monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
 #else //UNIX
-    use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
+    use_debug_console = false;//(byte) get_config_int(cfg_sect,"debug_console",0);
     zasm_debugger = (byte) get_config_int("CONSOLE","print_ZASM",0);
     zscript_debugger = (byte) get_config_int("CONSOLE","ZScript_Debugger",0);
     monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
@@ -8168,10 +8168,10 @@ static MENU misc_menu[] =
     { (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
     { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
     { (char *)"Save ZC Configuration",           OnSaveZCConfig,           NULL,                      0, NULL },
-    { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
      { (char *)"Show ZASM Debugger",           onConsoleZASM,           NULL,                      0, NULL },
      { (char *)"Show ZScript Debugger",           onConsoleZScript,           NULL,                      0, NULL },
     { (char *)"Clear Directory Cache",           OnnClearQuestDir,           NULL,                      0, NULL },
+    { (char *)"Modules",           NULL,           zcmodule_menu,                      0, NULL },
      
      { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -8322,7 +8322,6 @@ MENU the_player_menu2[] =
 {
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
-    { (char *)"M&odules",                   NULL,                    zcmodule_menu,             0, NULL },
     { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
     
     #if DEVLEVEL > 0
@@ -8341,7 +8340,6 @@ MENU the_player_menu_zc_on_left2[] =
     { (char *)"&ZC",                      NULL,                    misc_menu,                 0, NULL },
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
-    { (char *)"M&odules",                   NULL,                    zcmodule_menu,             0, NULL },
     { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
     #if DEVLEVEL > 0
     { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
