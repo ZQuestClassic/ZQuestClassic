@@ -12684,7 +12684,7 @@ bool eStalfos::animate(int32_t index)
 						if(dmisc2==e2tBOMBCHU && LinkInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
 						{
 				
-				if (  FFCore.emulation[emu210BOMBCHU] || get_bit(quest_rules,qr_BOMBCHUSUPERBOMB) ) 
+				if (  get_bit(quest_rules,qr_BOMBCHUSUPERBOMB) ) 
 				{
 					hp=-1000;
 							
@@ -13563,7 +13563,7 @@ bool eWizzrobe::animate(int32_t index)
 			// Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
 			// but should not appear on dungeon walls.	
 					if ( FFCore.getQuestHeaderInfo(vZelda) <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
-					else if ( (FFCore.getQuestHeaderInfo(vZelda) == 0x210 || FFCore.getQuestHeaderInfo(vZelda) == 0x192 ) && id == eWWIZ && FFCore.emulation[emu210WINDROBES] ) 
+					else if (editorflags&ENEMY_FLAG5) 
 			{
 				//2.10 Windrobe
 				//randomise location and face Link
@@ -13749,7 +13749,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 		addEwpn(x,y,z,wpn,0,wdp,r_down,getUID());
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		sfx(WAV_FIRE,pan(int32_t(x)));
-	if (  FFCore.emulation[emu8WAYSHOTSFX] ) sfx(WAV_FIRE,pan(int32_t(x))); 
+	if (get_bit(quest_rules, qr_8WAY_SHOT_SFX)) sfx(WAV_FIRE,pan(int32_t(x))); 
 	else
 	{
 		switch(wpn)
@@ -15792,7 +15792,7 @@ bool eMoldorm::animate(int32_t index)
 			if(flags&guy_neverret)
 				never_return(index);
 				
-			if(!dmisc2 || ( FFCore.getQuestHeaderInfo(vZelda) >= 0x210 && FFCore.emulation[emuITEMPERSEG]) )
+			if(!dmisc2 || (editorflags & ENEMY_FLAG6))
 				leave_item();
 				
 			stop_bgsfx(index);
@@ -16112,7 +16112,7 @@ bool eLanmola::animate(int32_t index)
 	{
 		if(--clk2 == 0)
 		{
-		if(!dmisc3 || ( FFCore.getQuestHeaderInfo(vZelda) >= 0x210 && FFCore.emulation[emuITEMPERSEG]) )
+		if(!dmisc3 || (editorflags & ENEMY_FLAG6))
 				leave_item();
 				
 			stop_bgsfx(index);
@@ -16439,7 +16439,7 @@ bool eManhandla::animate(int32_t index)
 				guys.swap(index+j+1,index+j+2);
 				
 			}
-			if( ( FFCore.getQuestHeaderInfo(vZelda) <= 0x210 && FFCore.emulation[emuITEMPERSEG] ) ) //They only did this in 2.10
+			if((editorflags & ENEMY_FLAG6)) //They only did this in 2.10
 		{
 				leave_item();
 		}

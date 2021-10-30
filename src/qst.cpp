@@ -2820,8 +2820,6 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules, qr_OLDLENSORDER, 1);
 		set_bit(quest_rules, qr_NOFAIRYGUYFIRES, 1);
 		set_bit(quest_rules, qr_TRIGGERSREPEAT, 1);
-		FFCore.emulation[emuITEMPERSEG] = 1;
-		FFCore.emulation[emu210WINDROBES] = 1;
 	}
 	
 	if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<3)))
@@ -2839,7 +2837,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_NOSCROLLCONTINUE,1);
 	}
 	
-	if(tempheader.zelda_version < 0x210)
+	if(tempheader.zelda_version <= 0x210)
 	{
 		set_bit(quest_rules,qr_ARROWCLIP,1);
 	}
@@ -2848,7 +2846,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules, qr_NOSCROLLCONTINUE, get_bit(quest_rules, qr_CMBCYCLELAYERS));
 		set_bit(quest_rules, qr_CMBCYCLELAYERS, 0);
-		FFCore.emulation[emuSWORDTRIGARECONTINUOUS] = 1;
+		set_bit(quest_rules, qr_CONT_SWORD_TRIGGERS, 1);
 	}
 	
 	if(tempheader.zelda_version <= 0x210)
@@ -2861,6 +2859,16 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP,1);
 		set_bit(quest_rules, qr_OLDHOOKSHOTGRAB,1);
+	}
+	
+	if(tempheader.zelda_version < 0x211)
+	{
+		set_bit(quest_rules, qr_WRONG_BRANG_TRAIL_DIR,1);
+	}
+	
+	if(tempheader.zelda_version == 0x192 && tempheader.build == 163)
+	{
+		set_bit(quest_rules, qr_192b163_WARP,1);
 	}
 	
 	if(tempheader.zelda_version == 0x210)
@@ -2901,22 +2909,18 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		if ( tempheader.build == 24 ) //2.50.0
 		{
 			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
-			FFCore.emulation[emu210BOMBCHU] = 1;
 		}
 		if ( tempheader.build == 28 ) //2.50.1
 		{
 			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
-			FFCore.emulation[emu210BOMBCHU] = 1;
 		}
 		if ( tempheader.build == 29 ) //2.50.2
 		{
 			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
-			FFCore.emulation[emu210BOMBCHU] = 0;
 		}
 		if ( tempheader.build == 30 ) //2.50.3RC1
 		{
 			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
-			FFCore.emulation[emu210BOMBCHU] = 0;
 		}
 	}
 	
@@ -2937,13 +2941,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if ( (tempheader.zelda_version == 0x250 && tempheader.build < 33) || tempheader.zelda_version == 0x254 || tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
 	{
-		FFCore.emulation[emuBUGGYNEXTCOMBOS] = 1;
 		set_bit(quest_rules, qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT, 1);
 	}
 	
 	if ( (tempheader.zelda_version < 0x211) ) //2.10 water and ladder interaction
 	{
-		FFCore.emulation[emuOLD210WATER] = 1;
+		set_bit(quest_rules, qr_OLD_210_WATER, 1);
 	}
 	
 	if ( (tempheader.zelda_version < 0x255 ) || (tempheader.zelda_version == 0x255 &&  tempheader.build < 51 ) ) //2.10 water and ladder interaction
@@ -2953,7 +2956,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if ( tempheader.zelda_version < 0x250 ) 
 	{
-		FFCore.emulation[emu8WAYSHOTSFX] = 1;    
+		set_bit(quest_rules, qr_8WAY_SHOT_SFX, 1);		
 	}
 	
 	if(s_version < 3)
@@ -9758,6 +9761,12 @@ int32_t readlinksprites2(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
     return 0;
 }
 
+void setSprite(int32_t* arr, int32_t tile, int32_t flip, int32_t ext)
+{
+    arr[spr_tile] = tile;
+    arr[spr_flip] = (flip > 3 ? 0 : flip);
+    arr[spr_extend] = (ext > 2 ? 0 : ext);
+}
 //Used to read the player sprites as int32_t, not word. 
 int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linksprites, bool keepdata)
 {
@@ -9797,9 +9806,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             
             if(keepdata)
             {
-                walkspr[i][spr_tile]=(int32_t)tile;
-                walkspr[i][spr_flip]=(int32_t)flip;
-                walkspr[i][spr_extend]=(int32_t)extend;
+                setSprite(walkspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
             }
         }
         
@@ -9822,9 +9829,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             
             if(keepdata)
             {
-                stabspr[i][spr_tile]=(int32_t)tile;
-                stabspr[i][spr_flip]=(int32_t)flip;
-                stabspr[i][spr_extend]=(int32_t)extend;
+                setSprite(stabspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
             }
         }
         
@@ -9847,9 +9852,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             
             if(keepdata)
             {
-                slashspr[i][spr_tile]=(int32_t)tile;
-                slashspr[i][spr_flip]=(int32_t)flip;
-                slashspr[i][spr_extend]=(int32_t)extend;
+                setSprite(slashspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
             }
         }
         
@@ -9872,9 +9875,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             
             if(keepdata)
             {
-                floatspr[i][spr_tile]=(int32_t)tile;
-                floatspr[i][spr_flip]=(int32_t)flip;
-                floatspr[i][spr_extend]=(int32_t)extend;
+                setSprite(floatspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
             }
         }
         
@@ -9899,9 +9900,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
                 
                 if(keepdata)
                 {
-                    swimspr[i][spr_tile]=(int32_t)tile;
-                    swimspr[i][spr_flip]=(int32_t)flip;
-                    swimspr[i][spr_extend]=(int32_t)extend;
+                    setSprite(swimspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
                 }
             }
         }
@@ -9925,9 +9924,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             
             if(keepdata)
             {
-                divespr[i][spr_tile]=(int32_t)tile;
-                divespr[i][spr_flip]=(int32_t)flip;
-                divespr[i][spr_extend]=(int32_t)extend;
+                setSprite(divespr[i], int32_t(tile), int32_t(flip), int32_t(extend));
             }
         }
         
@@ -9950,9 +9947,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             
             if(keepdata)
             {
-                poundspr[i][spr_tile]=(int32_t)tile;
-                poundspr[i][spr_flip]=(int32_t)flip;
-                poundspr[i][spr_extend]=(int32_t)extend;
+                setSprite(poundspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
             }
         }
         
@@ -9978,14 +9973,12 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
         
         if(keepdata)
         {
-            castingspr[spr_tile]=(int32_t)tile;
-            castingspr[spr_flip]=(int32_t)flip;
-            castingspr[spr_extend]=(int32_t)extend;
+            setSprite(castingspr, int32_t(tile), int32_t(flip), int32_t(extend));
         }
         
         if(v_linksprites>0)
         {
-			int32_t num_holdsprs = (v_linksprites > 6 ? 3 : 2);
+	    int32_t num_holdsprs = (v_linksprites > 6 ? 3 : 2);
             for(int32_t i=0; i<2; i++)
             {
                 for(int32_t j=0; j<num_holdsprs; j++)
@@ -10007,9 +10000,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
                     
                     if(keepdata)
                     {
-                        holdspr[i][j][spr_tile]=(int32_t)tile;
-                        holdspr[i][j][spr_flip]=(int32_t)flip;
-                        holdspr[i][j][spr_extend]=(int32_t)extend;
+                        setSprite(holdspr[i][j], int32_t(tile), int32_t(flip), int32_t(extend));
                     }
                 }
             }
@@ -10035,12 +10026,8 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
                 
                 if(keepdata)
                 {
-                    holdspr[i][spr_hold1][spr_tile]=(int32_t)tile;
-                    holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
-                    holdspr[i][spr_hold1][spr_extend]=(int32_t)extend;
-                    holdspr[i][spr_hold2][spr_tile]=(int32_t)tile2;
-                    holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
-                    holdspr[i][spr_hold2][spr_extend]=(int32_t)extend;
+                    setSprite(holdspr[i][spr_hold1], int32_t(tile), int32_t(flip), int32_t(extend));
+                    setSprite(holdspr[i][spr_hold2], int32_t(tile2), int32_t(flip), int32_t(extend));
                 }
             }
         }
@@ -10066,9 +10053,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
                 
                 if(keepdata)
                 {
-                    jumpspr[i][spr_tile]=(int32_t)tile;
-                    jumpspr[i][spr_flip]=(int32_t)flip;
-                    jumpspr[i][spr_extend]=(int32_t)extend;
+                    setSprite(jumpspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
                 }
             }
         }
@@ -10094,9 +10079,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
                 
                 if(keepdata)
                 {
-                    chargespr[i][spr_tile]=(int32_t)tile;
-                    chargespr[i][spr_flip]=(int32_t)flip;
-                    chargespr[i][spr_extend]=(int32_t)extend;
+                    setSprite(chargespr[i], int32_t(tile), int32_t(flip), int32_t(extend));
                 }
             }
         }
@@ -10129,9 +10112,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					frozenspr[q][spr_tile] = (int32_t)tile;
-					frozenspr[q][spr_flip] = (int32_t)flip;
-					frozenspr[q][spr_extend] = (int32_t)extend;
+					setSprite(frozenspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			for(int32_t q = 0; q < 4; ++q)
@@ -10147,9 +10128,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					frozen_waterspr[q][spr_tile] = (int32_t)tile;
-					frozen_waterspr[q][spr_flip] = (int32_t)flip;
-					frozen_waterspr[q][spr_extend] = (int32_t)extend;
+					setSprite(frozen_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10166,9 +10145,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					onfirespr[q][spr_tile] = (int32_t)tile;
-					onfirespr[q][spr_flip] = (int32_t)flip;
-					onfirespr[q][spr_extend] = (int32_t)extend;
+					setSprite(onfirespr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			for(int32_t q = 0; q < 4; ++q)
@@ -10184,9 +10161,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					onfire_waterspr[q][spr_tile] = (int32_t)tile;
-					onfire_waterspr[q][spr_flip] = (int32_t)flip;
-					onfire_waterspr[q][spr_extend] = (int32_t)extend;
+					setSprite(onfire_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10203,9 +10178,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					diggingspr[q][spr_tile] = (int32_t)tile;
-					diggingspr[q][spr_flip] = (int32_t)flip;
-					diggingspr[q][spr_extend] = (int32_t)extend;
+					setSprite(diggingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10222,9 +10195,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					usingrodspr[q][spr_tile] = (int32_t)tile;
-					usingrodspr[q][spr_flip] = (int32_t)flip;
-					usingrodspr[q][spr_extend] = (int32_t)extend;
+					setSprite(usingrodspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10241,9 +10212,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					usingcanespr[q][spr_tile] = (int32_t)tile;
-					usingcanespr[q][spr_flip] = (int32_t)flip;
-					usingcanespr[q][spr_extend] = (int32_t)extend;
+					setSprite(usingcanespr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10260,9 +10229,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					pushingspr[q][spr_tile] = (int32_t)tile;
-					pushingspr[q][spr_flip] = (int32_t)flip;
-					pushingspr[q][spr_extend] = (int32_t)extend;
+					setSprite(pushingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10279,9 +10246,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					liftingspr[q][spr_tile] = (int32_t)tile;
-					liftingspr[q][spr_flip] = (int32_t)flip;
-					liftingspr[q][spr_extend] = (int32_t)extend;
+					setSprite(liftingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10298,9 +10263,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					liftingheavyspr[q][spr_tile] = (int32_t)tile;
-					liftingheavyspr[q][spr_flip] = (int32_t)flip;
-					liftingheavyspr[q][spr_extend] = (int32_t)extend;
+					setSprite(liftingheavyspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10317,9 +10280,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					stunnedspr[q][spr_tile] = (int32_t)tile;
-					stunnedspr[q][spr_flip] = (int32_t)flip;
-					stunnedspr[q][spr_extend] = (int32_t)extend;
+					setSprite(stunnedspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			for(int32_t q = 0; q < 4; ++q)
@@ -10335,9 +10296,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					stunned_waterspr[q][spr_tile] = (int32_t)tile;
-					stunned_waterspr[q][spr_flip] = (int32_t)flip;
-					stunned_waterspr[q][spr_extend] = (int32_t)extend;
+					setSprite(stunned_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10354,9 +10313,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					drowningspr[q][spr_tile] = (int32_t)tile;
-					drowningspr[q][spr_flip] = (int32_t)flip;
-					drowningspr[q][spr_extend] = (int32_t)extend;
+					setSprite(drowningspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10373,9 +10330,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					drowning_lavaspr[q][spr_tile] = (int32_t)tile;
-					drowning_lavaspr[q][spr_flip] = (int32_t)flip;
-					drowning_lavaspr[q][spr_extend] = (int32_t)extend;
+					setSprite(drowning_lavaspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10392,9 +10347,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					fallingspr[q][spr_tile] = (int32_t)tile;
-					fallingspr[q][spr_flip] = (int32_t)flip;
-					fallingspr[q][spr_extend] = (int32_t)extend;
+					setSprite(fallingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10411,9 +10364,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					shockedspr[q][spr_tile] = (int32_t)tile;
-					shockedspr[q][spr_flip] = (int32_t)flip;
-					shockedspr[q][spr_extend] = (int32_t)extend;
+					setSprite(shockedspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			for(int32_t q = 0; q < 4; ++q)
@@ -10429,9 +10380,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					shocked_waterspr[q][spr_tile] = (int32_t)tile;
-					shocked_waterspr[q][spr_flip] = (int32_t)flip;
-					shocked_waterspr[q][spr_extend] = (int32_t)extend;
+					setSprite(shocked_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10448,9 +10397,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					pullswordspr[q][spr_tile] = (int32_t)tile;
-					pullswordspr[q][spr_flip] = (int32_t)flip;
-					pullswordspr[q][spr_extend] = (int32_t)extend;
+					setSprite(pullswordspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10467,9 +10414,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					readingspr[q][spr_tile] = (int32_t)tile;
-					readingspr[q][spr_flip] = (int32_t)flip;
-					readingspr[q][spr_extend] = (int32_t)extend;
+					setSprite(readingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10486,9 +10431,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					slash180spr[q][spr_tile] = (int32_t)tile;
-					slash180spr[q][spr_flip] = (int32_t)flip;
-					slash180spr[q][spr_extend] = (int32_t)extend;
+					setSprite(slash180spr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10505,9 +10448,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					slashZ4spr[q][spr_tile] = (int32_t)tile;
-					slashZ4spr[q][spr_flip] = (int32_t)flip;
-					slashZ4spr[q][spr_extend] = (int32_t)extend;
+					setSprite(slashZ4spr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10524,9 +10465,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					dashspr[q][spr_tile] = (int32_t)tile;
-					dashspr[q][spr_flip] = (int32_t)flip;
-					dashspr[q][spr_extend] = (int32_t)extend;
+					setSprite(dashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10543,9 +10482,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					bonkspr[q][spr_tile] = (int32_t)tile;
-					bonkspr[q][spr_flip] = (int32_t)flip;
-					bonkspr[q][spr_extend] = (int32_t)extend;
+					setSprite(bonkspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10562,9 +10499,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(keepdata)
 				{
-					medallionsprs[q][spr_tile] = (int32_t)tile;
-					medallionsprs[q][spr_flip] = (int32_t)flip;
-					medallionsprs[q][spr_extend] = (int32_t)extend;
+					setSprite(medallionsprs[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			if (v_linksprites > 8)
@@ -10582,9 +10517,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					
 					if(keepdata)
 					{
-						sideswimspr[q][spr_tile] = (int32_t)tile;
-						sideswimspr[q][spr_flip] = (int32_t)flip;
-						sideswimspr[q][spr_extend] = (int32_t)extend;
+						setSprite(sideswimspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 					}
 				}
 			}
@@ -10603,9 +10536,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					
 					if(keepdata)
 					{
-						sideswimslashspr[q][spr_tile] = (int32_t)tile;
-						sideswimslashspr[q][spr_flip] = (int32_t)flip;
-						sideswimslashspr[q][spr_extend] = (int32_t)extend;
+						setSprite(sideswimslashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 					}
 				}
 				for(int32_t q = 0; q < 4; ++q)
@@ -10621,9 +10552,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					
 					if(keepdata)
 					{
-						sideswimstabspr[q][spr_tile] = (int32_t)tile;
-						sideswimstabspr[q][spr_flip] = (int32_t)flip;
-						sideswimstabspr[q][spr_extend] = (int32_t)extend;
+						setSprite(sideswimstabspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 					}
 				}
 				for(int32_t q = 0; q < 4; ++q)
@@ -10639,9 +10568,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					
 					if(keepdata)
 					{
-						sideswimpoundspr[q][spr_tile] = (int32_t)tile;
-						sideswimpoundspr[q][spr_flip] = (int32_t)flip;
-						sideswimpoundspr[q][spr_extend] = (int32_t)extend;
+						setSprite(sideswimpoundspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 					}
 				}
 			}
@@ -10660,9 +10587,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					
 					if(keepdata)
 					{
-						sideswimchargespr[q][spr_tile] = (int32_t)tile;
-						sideswimchargespr[q][spr_flip] = (int32_t)flip;
-						sideswimchargespr[q][spr_extend] = (int32_t)extend;
+						setSprite(sideswimchargespr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 					}
 				}
 			}
@@ -10696,9 +10621,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					
 					if(keepdata)
 					{
-						sideswimholdspr[q][spr_tile] = (int32_t)tile;
-						sideswimholdspr[q][spr_flip] = (int32_t)flip;
-						sideswimholdspr[q][spr_extend] = (int32_t)extend;
+						setSprite(sideswimholdspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 					}
 				}
 			}
@@ -10712,9 +10635,11 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				
 				if(!p_getc(&extend,f,keepdata))
 					return qe_invalid;
-				sideswimcastingspr[spr_tile]=(int32_t)tile;
-				sideswimcastingspr[spr_flip]=(int32_t)flip;
-				sideswimcastingspr[spr_extend]=(int32_t)extend;
+				if (keepdata)
+				{
+					setSprite(sideswimcastingspr, int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+				
 			}
 			if (v_linksprites > 13)
 			{
@@ -10731,9 +10656,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					
 					if(keepdata)
 					{
-						sidedrowningspr[q][spr_tile] = (int32_t)tile;
-						sidedrowningspr[q][spr_flip] = (int32_t)flip;
-						sidedrowningspr[q][spr_extend] = (int32_t)extend;
+						setSprite(sidedrowningspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 					}
 				}
 			}
@@ -13158,7 +13081,15 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
  // Not sure when this first changed, but it's necessary for 2.10, at least
     // @TODO: @BUG:1.92 - 1.84? Figure this out exactly for the final 2.50 release.
 //2.10 Fixes  
-     if((Header->zelda_version <= 0x255) || (Header->zelda_version == 0x255 && Header->build < 47) )
+    if((Header->zelda_version < 0x211)||((Header->zelda_version == 0x211)&&(Header->build<18)))
+    {
+	guysbuf[eWWIZ].editorflags |= ENEMY_FLAG5;
+	guysbuf[eMOLDORM].editorflags |= ENEMY_FLAG6;
+	guysbuf[eMANHAN].editorflags |= ENEMY_FLAG6;
+	guysbuf[eCENT1].editorflags |= ENEMY_FLAG6;
+	guysbuf[eCENT2].editorflags |= ENEMY_FLAG6;
+    }
+    if((Header->zelda_version <= 0x255) || (Header->zelda_version == 0x255 && Header->build < 47) )
     {
 	guysbuf[eWPOLSV].defense[edefWhistle] = ed1HKO;
     }

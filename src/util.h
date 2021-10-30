@@ -35,6 +35,7 @@ namespace util
 	int32_t zc_chmod(const char* path, mode_t mode);
 	bool checkPath(const char* path, const bool is_dir);
 	void safe_al_trace(const char* str);
+	bool zc_isalpha(int c);
 }
 int32_t vbound(int32_t val, int32_t low, int32_t high);
 double vbound(double val, double low, double high);

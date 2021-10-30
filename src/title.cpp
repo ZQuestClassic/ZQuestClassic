@@ -684,7 +684,6 @@ static void treasures(int32_t f)
 
 static void NES_titlescreen()
 {
-	memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
@@ -781,7 +780,6 @@ static void NES_titlescreen()
 
 static void DX_mainscreen(int32_t f)
 {
-	memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	/*if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
@@ -918,7 +916,6 @@ static void DX_mainscreen(int32_t f)
 static void DX_titlescreen()
 {
 	//  JGMOD *yea;
-	memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	/*
@@ -1008,7 +1005,6 @@ static void DX_titlescreen()
 
 static void v25_mainscreen(int32_t f)
 {
-	memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	/*
@@ -1145,7 +1141,6 @@ static void v25_mainscreen(int32_t f)
 
 static void v25_titlescreen()
 {
-	memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	/*
@@ -1241,7 +1236,6 @@ extern char *SAVE_FILE;
 
 int32_t readsaves(gamedata *savedata, PACKFILE *f)
 {
-	memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
@@ -2031,7 +2025,6 @@ void set_up_standalone_save()
 // call once at startup
 int32_t load_savedgames()
 {
-	memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 /*    
@@ -4329,12 +4322,10 @@ void game_over(int32_t type)
 		{
 			if(standalone_mode && !skip_title)
 			{
-		memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 				Quit=qRESET;
 			}
 			else
 			{
-		memset(FFCore.emulation,0,sizeof(FFCore.emulation));
 				Quit=qQUIT;
 			}
 		}
