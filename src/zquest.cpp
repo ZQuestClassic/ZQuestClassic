@@ -25913,7 +25913,7 @@ int main(int argc,char **argv)
     TileProtection                 = get_config_int("zquest","tile_protection",1);
     ShowGrid                       = get_config_int("zquest","show_grid",0);
     GridColor                      = get_config_int("zquest","grid_color",15);
-    SnapshotFormat                 = get_config_int("zquest","snapshot_format",3);
+    SnapshotFormat                 = vbound(get_config_int("zquest","snapshot_format",3),0,5);
     SavePaths                      = get_config_int("zquest","save_paths",1);
     CycleOn                        = get_config_int("zquest","cycle_on",1);
     Vsync                          = get_config_int("zquest","vsync",1)!=0;

@@ -326,7 +326,7 @@ void load_game_configs()
     zc_vsync = get_config_int(cfg_sect,"vsync",0);
     Throttlefps = get_config_int(cfg_sect,"throttlefps",1)!=0;
     TransLayers = get_config_int(cfg_sect,"translayers",1)!=0;
-    SnapshotFormat = get_config_int(cfg_sect,"snapshot_format",3);
+    SnapshotFormat = vbound(get_config_int(cfg_sect,"snapshot_format",3),0,5);
     NameEntryMode = get_config_int(cfg_sect,"name_entry_mode",0);
     ShowFPS = get_config_int(cfg_sect,"showfps",0)!=0;
     NESquit = get_config_int(cfg_sect,"fastquit",0)!=0;
