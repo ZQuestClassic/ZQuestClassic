@@ -3380,6 +3380,14 @@ void calc_darkroom_combos(bool scrolling)
 			}
 		}
 	}
+	for(int q = 0; q < 32; ++q)
+	{
+		newcombo const& cmb = combobuf[tmpscr->ffdata[q]];
+		if(cmb.type == cLANTERN)
+		{
+			doDarkroomCircle((tmpscr->ffx[q]/10000)+(tmpscr->ffEffectWidth(q)/2), (tmpscr->ffy[q]/10000)+(tmpscr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
+		}
+	}
 	
 	if(!scrolling) return; //not a scrolling call, don't run code for scrolling screen
 	
@@ -3401,6 +3409,14 @@ void calc_darkroom_combos(bool scrolling)
 			{
 				doLampCirc(darkscr_bmp_scrollscr, q, cmb);
 			}
+		}
+	}
+	for(int q = 0; q < 32; ++q)
+	{
+		newcombo const& cmb = combobuf[tmpscr[1].ffdata[q]];
+		if(cmb.type == cLANTERN)
+		{
+			doDarkroomCircle((tmpscr[1].ffx[q]/10000)+(tmpscr[1].ffEffectWidth(q)/2), (tmpscr[1].ffy[q]/10000)+(tmpscr[1].ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
 		}
 	}
 }
