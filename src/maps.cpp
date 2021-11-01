@@ -5128,8 +5128,8 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 	if(y&8) b<<=1;
 	
 	int32_t cwalkflag = (c.walk>>4);
-	if (layer == 1) cwalkflag = (c1.walk>>4);
-	if (layer == 2) cwalkflag = (c2.walk>>4);
+	if (layer == 0) cwalkflag = (c1.walk>>4);
+	if (layer == 1) cwalkflag = (c2.walk>>4);
 	//if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (((*tmpscr).layermap[0]-1)>=0 && layer < 0)
 	{
