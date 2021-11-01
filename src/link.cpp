@@ -6586,9 +6586,9 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	{
 		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
 		{
-			if(hp_modtotal >= 0)
+			if(hp_modtotal >= 0) //Okay, if it's over 0, it's healing Link.
 				hp_modtotal = zc_min(hp_modtotal, hp_mod[i]);
-			else if(hp_mod[i] < 0)
+			else if(hp_mod[i] < 0) //If it's under 0, it's hurting Link.
 				hp_modtotal = zc_max(hp_modtotal, hp_mod[i]);
 		}
 		else
@@ -25219,7 +25219,7 @@ void LinkClass::heroDeathAnimation()
 				extend = 0;
 				cs = wpnsbuf[spr_death].csets&15;
 				tile = wpnsbuf[spr_death].newtile;
-                if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+				if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
 				{
 					tile += deathfrm;
 					f = 206;

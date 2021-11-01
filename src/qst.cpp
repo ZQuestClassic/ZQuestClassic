@@ -19089,7 +19089,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		//addOldStyleFamily(&temp_zinit, itemsbuf, itype_wallet, 4);   //is this needed?
 		temp_zinit.max_rupees=999;
-		//temp_zinit.rupies=999;
+		//temp_zinit.rupies=999; //This rule only gave you an invisible max wallet; it did not give you max rupies.
 	}
 	if(Header->zelda_version < 0x190) //1.84 bugfix. -Z
 	{
