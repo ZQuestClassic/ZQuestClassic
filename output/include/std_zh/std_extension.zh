@@ -1403,7 +1403,7 @@ void GiveLinkItem(int itm_id, int holdtype)
 		Link->HeldItem = itm_id;
 		if ( Link->Action == LA_SWIMMING ) Link->Action = LA_HOLD2WATER;
 		else if ( Link->Action == LA_DIVING ) Link->Action = LA_HOLD2WATER;
-		else holdtype = Link->Action;
+		else holdtype = LA_HOLD2LAND;
 	}
 	else
 	{
