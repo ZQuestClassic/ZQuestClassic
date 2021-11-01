@@ -3352,20 +3352,39 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t temps
 	}
 }
 
-void doLampCirc(BITMAP* bmp, int32_t pos, newcombo const& cmb)
+void doLampCirc(BITMAP* bmp, int32_t pos, newcombo const& cmb, int32_t xoffs = 0, int32_t yoffs = 0)
 {
 	if(cmb.type != cLANTERN) return;
-	doDarkroomCircle(MAPCOMBOX(pos)+8, MAPCOMBOY(pos)+8, cmb.attribytes[0], bmp);
+	doDarkroomCircle(MAPCOMBOX(pos)+8+xoffs, MAPCOMBOY(pos)+8+yoffs, cmb.attribytes[0], bmp);
 }
 
 void calc_darkroom_combos(bool scrolling)
 {
+	int32_t scrolldir = get_bit(quest_rules, qr_NEWDARK_SCROLLEDGE) ? FFCore.ScrollingData[SCROLLDATA_DIR] : -1;
+	int32_t scrollxoffs = 0, scrollyoffs = 0;
+	switch(scrolldir)
+	{
+		case up:
+			scrollyoffs = -176;
+			break;
+		case down:
+			scrollyoffs = 176;
+			break;
+		case left:
+			scrollxoffs = -256;
+			break;
+		case right:
+			scrollxoffs = 256;
+			break;
+	}
 	for(int32_t q = 0; q < 176; ++q)
 	{
 		newcombo const& cmb = combobuf[tmpscr->data[q]];
 		if(cmb.type == cLANTERN)
 		{
 			doLampCirc(darkscr_bmp_curscr, q, cmb);
+			if(scrolldir > -1)
+				doLampCirc(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
 		}
 	}
 	for(int32_t lyr = 0; lyr < 6; ++lyr)
@@ -3377,6 +3396,8 @@ void calc_darkroom_combos(bool scrolling)
 			if(cmb.type == cLANTERN)
 			{
 				doLampCirc(darkscr_bmp_curscr, q, cmb);
+				if(scrolldir > -1)
+					doLampCirc(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
 			}
 		}
 	}
@@ -3386,6 +3407,8 @@ void calc_darkroom_combos(bool scrolling)
 		if(cmb.type == cLANTERN)
 		{
 			doDarkroomCircle((tmpscr->ffx[q]/10000)+(tmpscr->ffEffectWidth(q)/2), (tmpscr->ffy[q]/10000)+(tmpscr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
+			if(scrolldir > -1)
+				doDarkroomCircle((tmpscr->ffx[q]/10000)+(tmpscr->ffEffectWidth(q)/2)+scrollxoffs, (tmpscr->ffy[q]/10000)+(tmpscr->ffEffectHeight(q)/2)+scrollyoffs, cmb.attribytes[0], darkscr_bmp_scrollscr);
 		}
 	}
 	
@@ -3397,6 +3420,8 @@ void calc_darkroom_combos(bool scrolling)
 		if(cmb.type == cLANTERN)
 		{
 			doLampCirc(darkscr_bmp_scrollscr, q, cmb);
+			if(scrolldir > -1)
+				doLampCirc(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
 		}
 	}
 	for(int32_t lyr = 0; lyr < 6; ++lyr)
@@ -3408,6 +3433,8 @@ void calc_darkroom_combos(bool scrolling)
 			if(cmb.type == cLANTERN)
 			{
 				doLampCirc(darkscr_bmp_scrollscr, q, cmb);
+				if(scrolldir > -1)
+					doLampCirc(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
 			}
 		}
 	}
@@ -3417,6 +3444,8 @@ void calc_darkroom_combos(bool scrolling)
 		if(cmb.type == cLANTERN)
 		{
 			doDarkroomCircle((tmpscr[1].ffx[q]/10000)+(tmpscr[1].ffEffectWidth(q)/2), (tmpscr[1].ffy[q]/10000)+(tmpscr[1].ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
+			if(scrolldir > -1)
+				doDarkroomCircle((tmpscr[1].ffx[q]/10000)+(tmpscr[1].ffEffectWidth(q)/2)-scrollxoffs, (tmpscr[1].ffy[q]/10000)+(tmpscr[1].ffEffectHeight(q)/2)-scrollyoffs, cmb.attribytes[0], darkscr_bmp_curscr);
 		}
 	}
 }
