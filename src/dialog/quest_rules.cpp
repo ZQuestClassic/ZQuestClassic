@@ -18,12 +18,12 @@ void update_map_count(word newmapcount);
 
 static const GUI::ListData animRulesList
 {
-	{ "BS-Zelda Animation Quirks", qr_BSZELDA, "Affects a number of small miscellaneous stuff to make Z1 more accurate to BS Zelda. "
-	"Guy fires have their positions adjusted, enemy spawn animations are faster, enemy and player death animations have more frames, "
-	"wand magic moves 0.5 pixels per frame faster, weapon flashing is slightly different, boomerangs may animate different, and "
-	"most weapons gain a 2 pixel Y offset when created. Having this enabled also deprecates the 'Fix Player's Position in Dungeons' "
-	"quest rule, as this rule fixes that behavior as well. If this rule is disabled, Whistle Whirlwinds appear as flame for a single "
-	"frame when hitting the edge of the screen."},
+	{ "BS-Zelda Animation Quirks", qr_BSZELDA, "Affects a number of small miscellaneous stuff to make Z1 more accurate to BS Zelda."
+		" Guy fires have their positions adjusted, enemy spawn animations are faster, enemy and player death animations have more frames,"
+		" wand magic moves 0.5 pixels per frame faster, weapon flashing is slightly different, boomerangs may animate different, and"
+		" most weapons gain a 2 pixel Y offset when created. Having this enabled also deprecates the 'Fix Player's Position in Dungeons'"
+		" quest rule, as this rule fixes that behavior as well. If this rule is disabled, Whistle Whirlwinds appear as flame for a single"
+		" frame when hitting the edge of the screen."},
 	{ "Circle Opening/Closing Wipes", qr_COOLSCROLL, "Changes the animation going to/from full black when entering caves or starting the game. "
 	"If multiple are selected, it will be chosen randomly between the ones that are selected. If none are selected, the Z1 opening is used. "
 	"This opening animation has a circle cut out from the black expand either outwards or inwards."},
@@ -109,7 +109,7 @@ static const GUI::ListData comboRulesList
 	{ "Block Triggers Are Perm For Non-Heavy Blocks", qr_NONHEAVY_BLOCKTRIGGER_PERM, "If enabled, push blocks will set the secret screen state when triggering secrets."
 		" If disabled, the secrets will reset when you leave and return to the screen. Note that Heavy push blocks already set the secret screen state even with this disabled."},
 	{ "Pushblocks Work On Layer 1 And 2", qr_PUSHBLOCK_LAYER_1_2, "If enabled, pushblocks can be placed on Layers 1 and 2 and function. Note that the push order goes from top to bottom."},
-	{ "New Combo Animation", qr_NEW_COMBO_ANIMATION, "Internally changes how Combo Animation is handled."},
+	{ "New Combo Animation", qr_NEW_COMBO_ANIMATION, "Internally changes how Combo Animation is handled. Required for combodata->OriginalTile."},
 	{ "New Water Collision", qr_SMARTER_WATER, "Internally changes how water is checked to allow for easier feature additions. It also allows Link to disembark out of water onto an FFC or Bridge combo."
 		" 'Water Works On Layer 1/Layer 2' relies on this Quest Rule."},
 	{ "Disable LA_HOPPING", qr_NO_HOPPING, "Disables the transition state when entering/exiting walkable water where the Player walks for a few frames without any player control."
@@ -129,10 +129,12 @@ static const GUI::ListData comboRulesList
 
 static const GUI::ListData compatRulesList
 {
-	{ "Old GOTOLESS Behavior", qr_GOTOLESSNOTEQUAL },
-	{ "Old Lens Drawing Order", qr_OLDLENSORDER },
-	{ "No Fairy Guy Fires", qr_NOFAIRYGUYFIRES },
-	{ "Continuous Step Triggers", qr_TRIGGERSREPEAT },
+	{ "Old GOTOLESS Behavior", qr_GOTOLESSNOTEQUAL, "If enabled, the ZASM GOTOLESS will return true if less or equal than the compared value. If disabled, it will only return true if it's less than the compared value." },
+	{ "Old Lens Drawing Order", qr_OLDLENSORDER, "If enabled, Lens hints will draw on layer 0 and hide Layer 1 and 2 if there is a secret on that combo. If disabled, hints will draw above Layer 2 without hiding Layers 1 and 2. "},
+	{ "No Fairy Guy Fires", qr_NOFAIRYGUYFIRES, "If enabled, Fairy Guys will not have fires, and will not block the upper portion of the screen."},
+	{ "Continuous Step Triggers", qr_TRIGGERSREPEAT, "If enabled, step triggers that change to another step trigger will trigger without you needing to step off them."
+		" Normally, step triggers have a safety feature where if you step on them, you cannot step on another step trigger in that position until you move onto a different position."
+		" This rule disables that behavior, allowing you to keep triggering step triggers that appear under you without moving off of it."},
 	{ "Downward Hookshot Bug", qr_HOOKSHOTDOWNBUG },
 	{ "Fix Open Door Solidity", qr_REPLACEOPENDOORS },
 	{ "No Solid Damage Combos", qr_NOSOLIDDAMAGECOMBOS },
@@ -154,7 +156,7 @@ static const GUI::ListData compatRulesList
 	{ "1.92 Diagonal Walk Speed", qr_SHORTDGNWALK },
 	{ "Old String Margins", qr_OLD_STRING_EDITOR_MARGINS },
 	{ "Old String Frame Width/Height", qr_STRING_FRAME_OLD_WIDTH_HEIGHT },
-	{ "Bugged ->Next Combos", qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT },
+	{ "Old ->Next Combo Secret Flag Behavior", qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT },
 	{ "Overworld Minimap Ignores Map Item", qr_BROKEN_OVERWORLD_MINIMAP },
 	{ "Old (Broken) Ring Power Maths", qr_BROKEN_RING_POWER },
 	{ "Overworld DMaps Do Not Chart Progress", qr_NO_OVERWORLD_MAP_CHARTING },
@@ -165,15 +167,19 @@ static const GUI::ListData compatRulesList
 	{ "Enemies->Secret only affects flags 16-31", qr_ENEMIES_SECRET_ONLY_16_31 },
 	{ "Old CSet2 Handling", qr_OLDCS2 },
 	{ "Hardcoded Shadow/Spawn/Death anim frames", qr_HARDCODED_ENEMY_ANIMS },
-	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING },
-	{ "No fairy spawn limit", qr_FIXED_FAIRY_LIMIT },
-	{ "Arrows clip farther into dungeon walls", qr_ARROWCLIP },
-	{ "All sword triggers are continuous", qr_CONT_SWORD_TRIGGERS },
-	{ "Ladder takes precedence over North and South water", qr_OLD_210_WATER },
-	{ "All 8 way-shot enemies use SFX_FIRE for firing SFX", qr_8WAY_SHOT_SFX },
-	{ "BS Zelda uses walking sprites for swimming", qr_COPIED_SWIM_SPRITES },
-	{ "Fire boomerang sparkles always face up", qr_WRONG_BRANG_TRAIL_DIR },
-	{ "Wavy and Cancel warps are swapped", qr_192b163_WARP }
+	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING, "Changes the timing of itemdata scripts. If this is disabled, they run immediately before the Player's internal code. If this is enabled, it will run immediately after."},
+	{ "No fairy spawn limit", qr_FIXED_FAIRY_LIMIT, "If this rule is enabled, there is no longer a single spawn limit on the number of fairies onscreen. This lets enemies and other things drop fairies while there is a fairy onscreen." },
+	{ "Arrows clip farther into dungeon walls", qr_ARROWCLIP, "If this rule is enabled, arrows will still check for secrets even while they are 'blinking out'. This lets them hit triggers on top of blocking combos and on the edges of dungeon walls."},
+	{ "All sword triggers are continuous", qr_CONT_SWORD_TRIGGERS, "If this rule is enabled, all sword triggers are treated as continuous. That means if a sword trigger becomes another sword trigger and the sword still occupies the space, it will trigger the new trigger too."
+		" If a sword trigger is not continuous and it becomes another trigger, you will need to slash the sword again to trigger the new trigger."},
+	{ "Ladder takes precedence over North and South water", qr_OLD_210_WATER, "This rule changes whether the ladder or the flippers takes priority when entering water from below or above."
+		"If this rule is enabled, the ladder takes priority. If this rule is disabled, the flippers take priority. Note that flippers always take priority when entering into water from the left or right, regardless of this rule."},
+	{ "All 8 way-shot enemies use SFX_FIRE for firing SFX", qr_8WAY_SHOT_SFX, "In older versions of ZC, all 8 way shots defaulted to the Flame sound used by the Candle. Newer versions of ZC instead use the sound associated with the weapon. This QR reverts this back to the old behavior."},
+	{ "BS Zelda uses walking sprites for swimming", qr_COPIED_SWIM_SPRITES, "In older versions of ZC, BS Zelda animation didn't use swimming sprites, and thus defaulted to walking sprites. This QR simulates this behavior"},
+	{ "Fire boomerang sparkles always face up", qr_WRONG_BRANG_TRAIL_DIR, "In older versions of ZC, Fire Boomerang sparkles always faced up due to not having a direction set. This QR re-enables this behavior."},
+	{ "Wavy and Cancel warps are swapped", qr_192b163_WARP, "Swaps Wavy and Cancel warps. Supposedly this was done temporarily in 1.92 Beta 163, so this quest rule is automatically activated when playing those quests."},
+	{ "Old Warping Onto Warp Protection", qr_210_WARPRETURN, "Changes the code that prevents you from being warped when you warp onto a warp to the 2.10 logic." 
+		" Some quests, such as Ballad of a Bloodline, warp you onto a step trigger in an enclosed space. With this rule off, those quests will softlock."}
 };
 
 static const GUI::ListData enemiesRulesList

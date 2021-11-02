@@ -2852,6 +2852,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(tempheader.zelda_version <= 0x210)
 	{
 		set_bit(quest_rules,qr_OLDSTYLEWARP,1);
+		set_bit(quest_rules,qr_210_WARPRETURN,1);
 	}
 	
 	//might not be correct
@@ -4362,6 +4363,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
             
             if(Header && ((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<152))))
             {
+                if ((tempDMap.type & dmfTYPE) == dmOVERW) tempDMap.flags = dmfCAVES | dmf3STAIR | dmfWHIRLWIND | dmfGUYCAVES;
                 if(keepdata==true)
                 {
                     memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));

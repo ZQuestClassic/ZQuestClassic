@@ -17929,11 +17929,22 @@ void LinkClass::checkspecial2(int32_t *ls)
 	}
 	
 	// check if he's standing on a warp he just came out of
-	if(((int32_t)y>=warpy-8&&(int32_t)y<=warpy+7)&&warpy!=-1)
+	// But if the QR is checked, it uses the old logic, cause some quests like Ballad of a Bloodline warp you onto a trigger and this new logic bricks that.
+	if (!get_bit(quest_rules,qr_210_WARPRETURN))
 	{
-		if(((int32_t)x>=warpx-8&&(int32_t)x<=warpx+7)&&warpx!=-1)
+		if(((int32_t)y>=warpy-8&&(int32_t)y<=warpy+7)&&warpy!=-1)
 		{
-			return;
+			if(((int32_t)x>=warpx-8&&(int32_t)x<=warpx+7)&&warpx!=-1)
+			{
+				return;
+			}
+		}
+	}
+	else
+	{
+		if((int(y)&0xF8)==warpy)
+		{
+			if(x==warpx) return;
 		}
 	}
 	
