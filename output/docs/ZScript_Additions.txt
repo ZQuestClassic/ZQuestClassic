@@ -4881,7 +4881,10 @@ int HurtSound;
  * The sound that plays when Link is injured. By default this is '16', but you may change it at any time.  
 
 int Eaten;				
- * It returns 0 if Link is not eaten, otherwise it returns the duration of him being eaten.
+ * Returns 0 if the player is not eaten, otherwise it returns the duration of them being eaten.
+
+bool Grabbed;
+ * Returns if the player is grabbed (i.e. by wallmaster)
 
 int Equipment;				
  * Link->Equipment is now read-write, and needs testing.

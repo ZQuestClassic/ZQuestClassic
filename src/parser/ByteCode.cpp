@@ -271,6 +271,7 @@ string ZScript::VarToString(int32_t ID)
 	return "LINKHURTSFX";
 	
 	case LINKEATEN: return "LINKEATEN";
+	case LINKGRABBED: return "LINKGRABBED";
 	
 	case LINKITEMB: return "LINKITEMB";
 

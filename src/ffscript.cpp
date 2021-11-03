@@ -3946,6 +3946,9 @@ int32_t get_register(const int32_t arg)
 		case LINKEATEN:
 			ret=(int32_t)Link.getEaten()*10000;
 			break;
+		case LINKGRABBED:
+			ret = Link.inwallm ? 10000 : 0;
+			break;
 		case LINKPUSH:
 			ret=(int32_t)Link.getPushing()*10000;
 			break;
@@ -11831,6 +11834,9 @@ void set_register(const int32_t arg, const int32_t value)
 
 		case LINKEATEN:
 			Link.setEaten(value/10000);
+			break;
+		case LINKGRABBED:
+			Link.inwallm = value != 0;
 			break;
 		case LINKPUSH:
 			Link.pushing = zc_max((value/10000),0);
@@ -34932,6 +34938,7 @@ script_variable ZASMVars[]=
 	{ "COMBODATTRISHORTS",           COMBODATTRISHORTS,            0,             0 },
 	
 	{ "PUSHBLOCKLAYER",           PUSHBLOCKLAYER,            0,             0 },
+	{ "LINKGRABBED",           LINKGRABBED,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
