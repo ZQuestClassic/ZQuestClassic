@@ -30038,14 +30038,17 @@ bool ZModule::init(bool d) //bool default
 		}
 		
 		//datafiles
+		//Hardcoded sfx.dat, fix quest sounds bug
+		strcpy(moduledata.datafiles[sfx_dat],"sfx.dat");
+		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
+		
+		
 		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
 		al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
 		strcpy(moduledata.datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
 		al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
 		strcpy(moduledata.datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
 		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
-		strcpy(moduledata.datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
-		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
 		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
 		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
 		
