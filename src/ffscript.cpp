@@ -22708,7 +22708,7 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			if(isdungeon())
 			{
 				openscreen();
-				if(get_bit(extra_rules, er_SHORTDGNWALK)==0)
+				if(get_bit(extra_rules, er_SHORTDGNWALK)==0 && get_bit(quest_rules, qr_SHORTDGNWALK)==0)
 				Link.stepforward(Link.diagonalMovement?11:12, false);
 				else
 				// Didn't walk as far pre-1.93, and some quests depend on that

@@ -3286,8 +3286,8 @@ void init_msgstr(MsgStr *str)
     str->sfx=18;
     str->listpos=0;
     str->x=24;
-	str->w=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 24*8 : 26*8;
-	str->h=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 3*8 : 5*8;
+	str->w=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 25*8 : 26*8;
+	str->h=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 4*8 : 5*8;
     str->hspace=0;
     str->vspace=0;
     str->stringflags=0;
@@ -3337,7 +3337,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         byte tempbyte;
         int32_t strings_to_read=0;
-        
+        set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
         if((Header->zelda_version < 0x192)||
                 ((Header->zelda_version == 0x192)&&(Header->build<31)))
         {
@@ -3505,8 +3505,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(s_version<2)
             {
-		tempMsgString.w=(25*8);
-                tempMsgString.h=(4*8);
+		//tempMsgString.w=(25*8);
+                //tempMsgString.h=(4*8);
                 for(int32_t j=72; j<MSGSIZE; j++)
                 {
                     tempMsgString.s[j]='\0';

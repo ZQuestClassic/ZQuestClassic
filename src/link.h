@@ -317,7 +317,7 @@ public:
     bool  lookaheadraftflag(int32_t d);
     void checkhit();
     bool checkdamagecombos(int32_t dx, int32_t dy);
-    bool checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer = -1, bool solid = false);
+    bool checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer = -1, bool solid = false, bool do_health_check = true);
     void checkscroll();
     void checkspecial();
     void checkspecial2(int32_t *ls);

@@ -6511,7 +6511,7 @@ bool LinkClass::checkdamagecombos(int32_t dx, int32_t dy)
     return checkdamagecombos(dx,dx,dy,dy);
 }
 
-bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer, bool solid) //layer = -1, solid = false
+bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer, bool solid, bool do_health_check) //layer = -1, solid = false, do_health_check = true
 {
 	if(hclk || superman || fallclk)
 		return false;
@@ -6683,6 +6683,7 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	{
 		if((itemid<0) || (tmpscr->flags5&fDAMAGEWITHBOOTS) || (4<<current_item_power(itype_boots)<(abs(hp_modmin))) || (solid && bootsnosolid) || !checkmagiccost(itemid))
 		{
+			if (!do_health_check) return true;
 			if(NayrusLoveShieldClk<=0)
 			{
 				int32_t ringpow = ringpower(-hp_modmin);
@@ -6723,7 +6724,7 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			sfx(getHurtSFX(),pan(x.getInt()));
 			return true;
 		}
-		else paymagiccost(itemid); // Boots are successful
+		else if (do_health_check) paymagiccost(itemid); // Boots are successful
 	}
 	
 	return false;
@@ -7535,52 +7536,65 @@ bool LinkClass::animate(int32_t)
 					
 					if(s->id==wHookshot)
 					{
-						if((s->y)>y)
+						if (abs((s->y) - y) >= 1)
 						{
-							y+=4;
-							
-							if(Lwpns.idFirst(wHSHandle)!=-1)
+							if((s->y)>y)
 							{
-								t->y+=4;
+								y+=4;
+								
+								if(Lwpns.idFirst(wHSHandle)!=-1)
+								{
+									t->y+=4;
+								}
+								
+								hs_starty+=4;
 							}
 							
-							hs_starty+=4;
+							if((s->y)<y)
+							{
+								y-=4;
+								
+								if(Lwpns.idFirst(wHSHandle)!=-1)
+								{
+									t->y-=4;
+								}
+								
+								hs_starty-=4;
+							}
 						}
-						
-						if((s->y)<y)
+						else 
 						{
-							y-=4;
-							
-							if(Lwpns.idFirst(wHSHandle)!=-1)
-							{
-								t->y-=4;
-							}
-							
-							hs_starty-=4;
+							y = (s->y);
 						}
-						
-						if((s->x)>x)
+						if (abs((s->x) - x) >= 1)
 						{
-							x+=4;
-							
-							if(Lwpns.idFirst(wHSHandle)!=-1)
+							if((s->x)>x)
 							{
-								t->x+=4;
+								x+=4;
+								
+								if(Lwpns.idFirst(wHSHandle)!=-1)
+								{
+									t->x+=4;
+								}
+								
+								hs_startx+=4;
 							}
 							
-							hs_startx+=4;
+							if((s->x)<x)
+							{
+								x-=4;
+								
+								if(Lwpns.idFirst(wHSHandle)!=-1)
+								{
+									t->x-=4;
+								}
+								
+								hs_startx-=4;
+							}
 						}
-						
-						if((s->x)<x)
+						else 
 						{
-							x-=4;
-							
-							if(Lwpns.idFirst(wHSHandle)!=-1)
-							{
-								t->x-=4;
-							}
-							
-							hs_startx-=4;
+							x = (s->x);
 						}
 					}
 				}
@@ -11661,7 +11675,7 @@ void LinkClass::movelink()
 					}
 					
 					//walkable if Ladder can be placed or is already placed vertically
-					if(isSideViewLink() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+					if(isSideViewLink() && !toogam && (!get_bit(quest_rules, qr_OLD_LADDER_ITEM_SIDEVIEW) || !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up))) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -15415,28 +15429,44 @@ bool LinkClass::checksoliddamage()
 			t = COMBOTYPE2(i-1,bx,by);
 			
 			// Solid damage combos use pushing>0, hence the code is here.
-			if(combo_class_buf[t].modify_hp_amount && _walkflag(bx,by,1,SWITCHBLOCK_STATE) && pushing>0 && hclk<1 && action!=casting && action != sideswimcasting && !get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS))
+			if (!get_bit(quest_rules, qr_LESS_AWFUL_SIDESPIKES) || !isSideViewLink() || (dir != down && (dir != up || getOnSideviewLadder())))
 			{
-				// Bite Link
-				if (checkdamagecombos(bx, bx, by, by, i-1, true)) return true;
+				if(combo_class_buf[t].modify_hp_amount && _walkflag(bx,by,1,SWITCHBLOCK_STATE) && pushing>0 && hclk<1 && action!=casting && action != sideswimcasting && !get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS))
+				{
+					// Bite Link
+					if (checkdamagecombos(bx, bx, by, by, i-1, true)) return true;
+				}
 			}
 			if(isSideViewLink() && // Check for sideview damage combos
 					hclk<1 && action!=casting && action!=sideswimcasting) // ... but only if Link could be hurt
 			{
-			
-				//old 2.50.2-ish code for 2.50.0 sideview quests for er_OLDSIDEVIEWSPIKES
-				if ( get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES ) )
+				if (get_bit(quest_rules, qr_LESS_AWFUL_SIDESPIKES))
 				{
-					if (checkdamagecombos(x+8-(zfix)(tmpscr->csensitive),
-						x+8+(zc_max(tmpscr->csensitive-1,0)),
-						y+17-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
-						y+17+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true))
-							return true;
+					if (on_sideview_solid(x,y) && (!getOnSideviewLadder() || DrunkDown()))
+					{
+						if(checkdamagecombos(x+4, x+4, y+16, y+18, i-1, false, false) && checkdamagecombos(x+12, x+12, y+16, y+18, i-1, false, false))
+						{
+							if (checkdamagecombos(x+4, x+12, y+16, y+18, i-1, false, true)) return true;
+						}
+					}
+					if (checkdamagecombos(x+4, x+12, y+8, y+15, i-1, false, true)) return true;
 				}
-				else //2.50.1 and later
+				else
 				{
-					if(checkdamagecombos(x+4, x+12, y+16, y+24))
-						return true;
+					//old 2.50.2-ish code for 2.50.0 sideview quests for er_OLDSIDEVIEWSPIKES
+					if ( get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES ) )
+					{
+						if (checkdamagecombos(x+8-(zfix)(tmpscr->csensitive),
+							x+8+(zc_max(tmpscr->csensitive-1,0)),
+							y+17-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
+							y+17+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true))
+								return true;
+					}
+					else //2.50.1 and later
+					{
+						if(checkdamagecombos(x+4, x+12, y+16, y+24))
+							return true;
+					}
 				}
 				
 			}
@@ -19554,7 +19584,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		if(isdungeon())
 		{
 			openscreen();
-			if(get_bit(extra_rules, er_SHORTDGNWALK)==0)
+			if(get_bit(extra_rules, er_SHORTDGNWALK)==0 && get_bit(quest_rules, qr_SHORTDGNWALK)==0)
 				stepforward(diagonalMovement?11:12, false);
 			else
 				// Didn't walk as far pre-1.93, and some quests depend on that
@@ -24182,6 +24212,14 @@ void LinkClass::checkitems(int32_t index)
     {
 		setmapflag(mITEM);
 
+		//Okay so having old source files is a godsend. You wanna know why?
+		//Because the issue here was never to so with the wrong flag being set; no it's always been setting the right flag.
+		//The problem here is that guy rooms were always checking for getmapflag, which used to have an internal check for the default.
+		//The default would be mITEM if currscr was under 128 (AKA not in a cave), and mBELOW if in a cave.
+		//However, now the check just always defaults to mBELOW, which causes this bug.
+		//This means that this section of code is no longer a bunch of eggshells, cause none of these overcomplicated compats actually solved shit lmao - Dimi
+		
+		/*
 		// WARNING - Item pickups are very volatile due to crazy compatability hacks, eg., supporting
 		// broken behavior from early ZC versions. If you change things here please comment on it's purpose.
 
@@ -24195,6 +24233,7 @@ void LinkClass::checkitems(int32_t index)
 				setmapflag(mBELOW);
 			}
 		}
+		*/
     }
     else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
         setmapflag();

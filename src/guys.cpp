@@ -19654,7 +19654,7 @@ void loadguys()
 		case rTAKEONE:
 		case rREPAIR:
 		case rRP_HC:
-			if(getmapflag() && !(tmpscr->flags9&fBELOWRETURN))
+			if(getmapflag() && !(tmpscr->flags9&fBELOWRETURN)) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
