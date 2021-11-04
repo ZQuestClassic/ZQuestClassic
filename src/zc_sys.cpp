@@ -9587,90 +9587,174 @@ INLINE int32_t mixvol(int32_t v1,int32_t v2)
 // Run an NSF, or a MIDI if the NSF is missing somehow.
 bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 {
-    ZCMUSIC *newzcmusic = NULL;
-    
-    // Try the ZC directory first
-    {
-        char exepath[2048];
-        char musicpath[2048];
-        get_executable_name(exepath, 2048);
-        replace_filename(musicpath, exepath, filename, 2048);
-        newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-    }
-    
-    // Not in ZC directory, try the quest directory
-    if(newzcmusic==NULL)
-    {
-        char musicpath[2048];
-        replace_filename(musicpath, qstpath, filename, 2048);
-        newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-    }
-    
-    // Found it
-    if(newzcmusic!=NULL)
-    {
-        zcmusic_stop(zcmusic);
-        zcmusic_unload_file(zcmusic);
-        stop_midi();
-        
-        zcmusic=newzcmusic;
-        zcmusic_play(zcmusic, emusic_volume);
-        
-        if(track>0)
-            zcmusic_change_track(zcmusic,track);
-            
-        return true;
-    }
-    
-    // Not found, play MIDI - unless this was called by a script (yay, magic numbers)
-    else if(midi>-1000)
-        jukebox(midi);
-        
-    return false;
+	ZCMUSIC *newzcmusic = NULL;
+	
+	char exedir[2048];
+	char qstdir[2048];
+	char qstfname[2048];
+	// Try the ZC directory first
+	{
+		char exepath[2048];
+		char musicpath[2048];
+		get_executable_name(exepath, 2048);
+		replace_filename(exedir, exepath, "", 2048);
+		append_filename(musicpath, exedir, filename, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
+	}
+	
+	// Not in ZC directory, try the quest directory -Em
+	if(newzcmusic==NULL)
+	{
+		//get the filename w/o extension
+		replace_extension(qstfname, get_filename(qstpath), "", 2048);
+		//get the quest path w/o filename
+		replace_filename(qstdir, qstpath, "", 2048);
+		char musicpath[2048];
+		append_filename(musicpath, qstdir, filename, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
+	}
+	
+	//Not found yet, check subfolder options under the exe dir -Em
+	if(newzcmusic==NULL)
+	{
+		char musicpath[2048];
+		char buf[2048];
+		sprintf(buf, "%s_music\\%s", qstfname, filename);
+		regulate_path(buf);
+		append_filename(musicpath, exedir, buf, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
+		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
+		{
+			sprintf(buf, "music\\%s", qstfname, filename);
+			append_filename(musicpath, exedir, buf, 2048);
+			newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
+		}
+	}
+	
+	//Not found yet, check subfolder options under the qst dir
+	if(newzcmusic==NULL)
+	{
+		char musicpath[2048];
+		char buf[2048];
+		sprintf(buf, "%s_music\\%s", qstfname, filename);
+		regulate_path(buf);
+		append_filename(musicpath, qstdir, buf, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
+		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
+		{
+			sprintf(buf, "music\\%s", qstfname, filename);
+			append_filename(musicpath, qstdir, buf, 2048);
+			newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
+		}
+	}
+	
+	// Found it
+	if(newzcmusic!=NULL)
+	{
+		zcmusic_stop(zcmusic);
+		zcmusic_unload_file(zcmusic);
+		stop_midi();
+		
+		zcmusic=newzcmusic;
+		zcmusic_play(zcmusic, emusic_volume);
+		
+		if(track>0)
+			zcmusic_change_track(zcmusic,track);
+			
+		return true;
+	}
+	
+	// Not found, play MIDI - unless this was called by a script (yay, magic numbers)
+	else if(midi>-1000)
+		jukebox(midi);
+		
+	return false;
 }
 
 bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi)
 {
-    ZCMUSIC *newzcmusic = NULL;
-    
-    // Try the ZC directory first
-    {
-        char exepath[2048];
-        char musicpath[2048];
-        get_executable_name(exepath, 2048);
-        replace_filename(musicpath, exepath, filename, 2048);
-        newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
-    }
-    
-    // Not in ZC directory, try the quest directory
-    if(newzcmusic==NULL)
-    {
-        char musicpath[2048];
-        replace_filename(musicpath, qstpath, filename, 2048);
-        newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
-    }
-    
-    // Found it
-    if(newzcmusic!=NULL)
-    {
-        zcmusic_stop(zcmusic);
-        zcmusic_unload_file(zcmusic);
-        stop_midi();
-        
-        zcmusic=newzcmusic;
-        zcmusic_play(zcmusic, emusic_volume);
-        
-        if(track>0)
-            zcmusic_change_track(zcmusic,track);
-            
-        return true;
-    }
-    
-    // Not found, play MIDI - unless this was called by a script (yay, magic numbers)
-    else if(midi>-1000)
-        jukebox(midi);
-        
-    return false;
+	ZCMUSIC *newzcmusic = NULL;
+	
+	char exedir[2048];
+	char qstdir[2048];
+	char qstfname[2048];
+	// Try the ZC directory first
+	{
+		char exepath[2048];
+		char musicpath[2048];
+		get_executable_name(exepath, 2048);
+		replace_filename(exedir, exepath, "", 2048);
+		append_filename(musicpath, exedir, filename, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+	}
+	
+	// Not in ZC directory, try the quest directory -Em
+	if(newzcmusic==NULL)
+	{
+		//get the filename w/o extension
+		replace_extension(qstfname, get_filename(qstpath), "", 2048);
+		//get the quest path w/o filename
+		replace_filename(qstdir, qstpath, "", 2048);
+		char musicpath[2048];
+		append_filename(musicpath, qstdir, filename, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+	}
+	
+	//Not found yet, check subfolder options under the exe dir -Em
+	if(newzcmusic==NULL)
+	{
+		char musicpath[2048];
+		char buf[2048];
+		sprintf(buf, "%s_music\\%s", qstfname, filename);
+		regulate_path(buf);
+		append_filename(musicpath, exedir, buf, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
+		{
+			sprintf(buf, "music\\%s", qstfname, filename);
+			append_filename(musicpath, exedir, buf, 2048);
+			newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+		}
+	}
+	
+	//Not found yet, check subfolder options under the qst dir
+	if(newzcmusic==NULL)
+	{
+		char musicpath[2048];
+		char buf[2048];
+		sprintf(buf, "%s_music\\%s", qstfname, filename);
+		regulate_path(buf);
+		append_filename(musicpath, qstdir, buf, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
+		{
+			sprintf(buf, "music\\%s", qstfname, filename);
+			append_filename(musicpath, qstdir, buf, 2048);
+			newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+		}
+	}
+	
+	// Found it
+	if(newzcmusic!=NULL)
+	{
+		zcmusic_stop(zcmusic);
+		zcmusic_unload_file(zcmusic);
+		stop_midi();
+		
+		zcmusic=newzcmusic;
+		zcmusic_play(zcmusic, emusic_volume);
+		
+		if(track>0)
+			zcmusic_change_track(zcmusic,track);
+			
+		return true;
+	}
+	
+	// Not found, play MIDI - unless this was called by a script (yay, magic numbers)
+	else if(midi>-1000)
+		jukebox(midi);
+		
+	return false;
 }
 
 int32_t get_zcmusicpos()
