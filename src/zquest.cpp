@@ -7451,13 +7451,17 @@ void refresh(int32_t flags)
     if(ShowFFScripts && !prv_mode)
     {
         int32_t ypos = ShowFPS ? 28 : 18;
-        
+        size_t maxwid = mapscreen_x+(mapscreensize*mapscreenbmp->w);
+		BITMAP* tempbmp = create_bitmap_ex(8,maxwid,text_height(is_large ? lfont_l : font));
         for(int32_t i=0; i< MAXFFCS; i++)
             if(Map.CurrScr()->ffscript[i] && Map.CurrScr()->ffdata[i])
             {
-                textout_shadowed_ex(menu1,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.c_str(),2,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
-                ypos+=16;
+				clear_bitmap(tempbmp);
+                textout_shadowed_ex(tempbmp,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.substr(0,300).c_str(),2,0,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
+                masked_blit(tempbmp,menu1,0,0,0,ypos,tempbmp->w, tempbmp->h);
+				ypos+=16;
             }
+		destroy_bitmap(tempbmp);
     }
     
     // Show Errors & Details
@@ -9972,11 +9976,11 @@ void domouse()
 					}
 					
 					tooltip_current_ffc = i;
-					char msg[288];
+					char msg[1024] = {0};
 					sprintf(msg,"FFC: %d Combo: %d\nCSet: %d Type: %s\nScript: %s",
 							i+1, Map.CurrScr()->ffdata[i],Map.CurrScr()->ffcset[i],
 							combo_class_buf[combobuf[Map.CurrScr()->ffdata[i]].type].name,
-							Map.CurrScr()->ffscript[i]<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.c_str());
+							(Map.CurrScr()->ffscript[i]<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.substr(0,400).c_str()));
 					update_tooltip(x, y, startxint, startyint, int32_t(256*mapscreensize),int32_t(176*mapscreensize), msg);
 					break;
 				}
@@ -10006,8 +10010,7 @@ void domouse()
 		}
 		
 		tooltip_current_combo = c;
-		char msg[288];
-		memset(msg, 0, 256);
+		char msg[512] = {0};
 		sprintf(msg,"Pos: %d Combo: %d\nCSet: %d Flags: %d, %d\nCombo type: %s",
 				c, Map.AbsoluteScr(drawmap, drawscr)->data[c],
 				Map.AbsoluteScr(drawmap, drawscr)->cset[c], Map.CurrScr()->sflag[c],combobuf[Map.CurrScr()->data[c]].flag,
@@ -31624,7 +31627,7 @@ int32_t main(int32_t argc,char **argv)
     dmapbmp_large = create_bitmap_ex(8,(is_large?177:113),(is_large?81:57));
     brushbmp = create_bitmap_ex(8,256*mapscreensize, 176*mapscreensize);
     brushscreen = create_bitmap_ex(8,(256+(showedges?16:0))*mapscreensize, (176+(showedges?16:0))*mapscreensize);
-    tooltipbmp = create_bitmap_ex(8,256,256); // Decrease size at your own risk.
+    tooltipbmp = create_bitmap_ex(8,zq_screen_w,zq_screen_h); // Decrease size at your own risk.
     clear_bitmap(tooltipbmp);
     
     if(!screen2 || !tmp_scr || !menu1 || !menu3 || !dmapbmp_large || !dmapbmp_large || !brushbmp || !brushscreen)// || !brushshadowbmp )
@@ -34089,7 +34092,11 @@ void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, 
         tooltip_box.y=y;
         int32_t lines=count_lines(tipmsg);
         tooltip_box.w=get_longest_line_length(font, tipmsg)+8+1;
-        tooltip_box.h=(lines*text_height(font))+8+1;
+        tooltip_box.h = (lines * text_height(font)) + 8 + 1;
+        if (tooltip_box.w > zq_screen_w)
+            tooltip_box.w = zq_screen_w;
+        if (tooltip_box.h > zq_screen_h)
+            tooltip_box.h = zq_screen_h;
         
         if(tooltip_box.x+tooltip_box.w>=zq_screen_w)
         {
@@ -34105,8 +34112,8 @@ void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, 
         rect(tooltipbmp, 0, 0, tooltip_box.w-2, tooltip_box.h-2, jwin_pal[jcTEXTFG]);
         vline(tooltipbmp, tooltip_box.w-1, 0,           tooltip_box.h-1, jwin_pal[jcTEXTFG]);
         hline(tooltipbmp,           1, tooltip_box.h-1, tooltip_box.w-2, jwin_pal[jcTEXTFG]);
-        tooltipbmp->line[tooltip_box.w-1][0]=0;
-        tooltipbmp->line[0][tooltip_box.h-1]=0;
+        tooltipbmp->line[tooltip_box.h-1][0]=0;
+        tooltipbmp->line[0][tooltip_box.w-1]=0;
         
         //char *kill=(char *)calloc(strlen(tipmsg)*2,1);
         char *tmpstr=tipmsg;

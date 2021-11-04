@@ -2548,7 +2548,7 @@ void _jwin_draw_abclistbox(DIALOG *d)
 	int32_t height, listsize, i, len, bar, x, y, w;
 	int32_t fg_color, bg_color, fg, bg;
 	char *sel = (char*)d->dp2;
-	char s[1024];
+    char s[1024] = { 0 };
 	ListData *data = (ListData *)d->dp;
 
 	data->listFunc(-1, &listsize);
@@ -2640,7 +2640,7 @@ void _jwin_draw_listbox(DIALOG *d)
     int32_t height, listsize, i, len, bar, x, y, w;
     int32_t fg_color, bg_color, fg, bg;
     char *sel = (char*)d->dp2;
-    char s[1024];
+    char s[1024] = {0};
     ListData *data = (ListData *)d->dp;
 
     data->listFunc(-1, &listsize);
@@ -3264,9 +3264,9 @@ void _jwin_draw_textbox(char *thetext, int32_t *listsize, int32_t draw, int32_t 
     int32_t x1;
     int32_t len;
     int32_t ww = w-10;
-    char s[16];
-    char text[16];
-    char space[16];
+    char s[16] = {0};
+    char text[16] = {0};
+    char space[16] = {0};
     char *printed = text;
     char *scanned = text;
     char *oldscan = text;

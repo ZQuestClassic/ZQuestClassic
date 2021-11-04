@@ -1301,8 +1301,9 @@
 #define COMBODATTRISHORTS       1219
 
 #define PUSHBLOCKLAYER          1220
+#define LINKGRABBED             1221
 
-#define LAST_BYTECODE           1221
+#define LAST_BYTECODE           1222
 
 //} END OF BYTECODE
 

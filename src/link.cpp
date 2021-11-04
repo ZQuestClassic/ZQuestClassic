@@ -22602,7 +22602,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
 					draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
 				else 
-					masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 168);
+					masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 176);
 				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
 				color_map = &trans_table;
 			}
@@ -22618,7 +22618,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
 					draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
 				else 
-					masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 168);
+					masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 176);
 				draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
 				color_map = &trans_table;
 			}

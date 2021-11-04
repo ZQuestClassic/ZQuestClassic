@@ -14,6 +14,7 @@
 #include "zdefs.h"
 #include "subscr.h"
 #include "zscriptversion.h"
+#include "zc_malloc.h"
 
 
 #include "ffscript.h"
@@ -29,9 +30,15 @@ struct script_slot_data
 	script_slot_data() : slotname(""), scriptname(""), output(""), format(SCRIPT_FORMAT_DEFAULT) {}
 	void update()
 	{
-		char temp[128];
-		sprintf(temp, getFormatStr()->c_str(), slotname.c_str(), scriptname.c_str());
+		char const* formatstr = getFormatStr()->c_str();
+		char const* slotstr = slotname.c_str();
+		char const* scriptstr = scriptname.c_str();
+		size_t len = strlen(formatstr) + strlen(slotstr) + strlen(scriptstr) - 4 + 1;
+		char* temp = (char*)zc_malloc(len);
+		sprintf(temp, formatstr, slotstr, scriptstr);
+		temp[len - 1] = 0;
 		output = temp;
+		zc_free(temp);
 	}
 	
 	void updateName(std::string newname)

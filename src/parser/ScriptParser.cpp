@@ -677,13 +677,13 @@ ScriptsData::ScriptsData(Program& program)
 		theScripts[name].second = script.code;
 		meta.autogen();
 		meta.script_type = script.getType().getTrueId();
-		string const& author = script.getAuthor().substr(0,32);
+		string const& author = script.getAuthor();
 		strcpy(meta.script_name, name.substr(0,32).c_str());
-		strcpy(meta.author, author.c_str());
-		al_trace(meta.script_name);
-		al_trace(meta.author);
-		al_trace(name.c_str());
-		al_trace(author.c_str());
+		strcpy(meta.author, author.substr(0,32).c_str());
+		// al_trace(meta.script_name);
+		// al_trace(meta.author);
+		// safe_al_trace(name.c_str());
+		// safe_al_trace(author.c_str());
 		if(Function* run = script.getRun())
 		{
 			int32_t ind = 0;

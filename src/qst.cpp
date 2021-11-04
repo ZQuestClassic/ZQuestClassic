@@ -12676,242 +12676,258 @@ char *sfx_string[WAV_COUNT];
 
 int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
-    int32_t dummy;
-    word s_version=0, s_cversion=0;
-    //int32_t ret;
-    SAMPLE temp_sample;
-    temp_sample.loop_start=0;
-    temp_sample.loop_end=0;
-    temp_sample.param=0;
-    
-    //section version info
-    if(!p_igetw(&s_version,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    FFCore.quest_format[vSFX] = s_version;
-    
-    //al_trace("SFX version %d\n", s_version);
-    if(!p_igetw(&s_cversion,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    //section size
-    if(!p_igetl(&dummy,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    /* HIGHLY UNORTHODOX UPDATING THING, by L
-     * This fixes quests made before revision 411 (such as the 'Lost Isle Build'),
-     * where the meaning of GOTOLESS changed. It also coincided with V_SFX
-     * changing from 1 to 2.
-     */
-    if(s_version < 2 && keepdata)
-        set_bit(quest_rules,qr_GOTOLESSNOTEQUAL,1);
-        
-    /* End highly unorthodox updating thing */
-    
-    int32_t wavcount = WAV_COUNT;
-    
-    if(s_version < 6)
-        wavcount = 128;
-        
-    uint8_t tempflag[WAV_COUNT>>3];
-    
-    if(s_version < 4)
-    {
-        memset(tempflag, 0xFF, WAV_COUNT>>3);
-    }
-    else
-    {
-        if(s_version < 6)
-            memset(tempflag, 0, WAV_COUNT>>3);
-            
-        for(int32_t i=0; i<(wavcount>>3); i++)
-        {
-            p_getc(&tempflag[i], f, true);
-        }
-        
-    }
-    
-    if(keepdata)
-        memcpy(customsfxflag, tempflag, WAV_COUNT>>3);
-        
-    if(s_version>4)
-    {
-        for(int32_t i=1; i<WAV_COUNT; i++)
-        {
-            if(keepdata)
-            {
-                sprintf(sfx_string[i],"s%03d",i);
-                
-                if((i<Z35))
-                    strcpy(sfx_string[i], old_sfx_string[i-1]);
-            }
-            
-            if((get_bit(tempflag, i-1) == 0) || i>=wavcount)
-                continue;
-                
-            char tempname[36];
-            
-            if(!pfread(tempname, 36, f, keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(keepdata)
-            {
-		strcpy(sfx_string[i], tempname);
-		sfx_string[i][35] = 0; //Force NULL Termination
-            }
-        }
-    }
-    else
-    {
-        if(keepdata)
-        {
-            for(int32_t i=1; i<WAV_COUNT; i++)
-            {
-                sprintf(sfx_string[i],"s%03d",i);
-                
-                if(i<Z35)
-                    strcpy(sfx_string[i], old_sfx_string[i-1]);
-            }
-        }
-    }
-    
-    //finally...  section data
-    for(int32_t i=1; i<wavcount; i++)
-    {
-        if(get_bit(tempflag, i-1) == 0)
-            continue;
-            
-        if(!p_igetl(&dummy,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        (temp_sample.bits) = dummy;
-        
-        if(!p_igetl(&dummy,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        (temp_sample.stereo) = dummy;
-        
-        if(!p_igetl(&dummy,f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        (temp_sample.freq) = dummy;
-        
-        if(!p_igetl(&dummy,f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        (temp_sample.priority) = dummy;
-        
-        if(!p_igetl(&(temp_sample.len),f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetl(&(temp_sample.loop_start),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetl(&(temp_sample.loop_end),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetl(&(temp_sample.param),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        // al_trace("F%i: L%i\n",i,temp_sample.len);
-//    temp_sample.data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
-        int32_t len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
-        temp_sample.data = calloc(len,1);
-        
-        if(s_version < 3)
-            len = (temp_sample.bits==8?1:2)*temp_sample.len;
-            
-        //old-style, non-portable loading (Bad Allegro! Bad!!) -DD
-        if(s_version < 2)
-        {
-            if(!pfread(temp_sample.data, len,f,keepdata))
-            {
-                return qe_invalid;
-            }
-        }
-        else
-        {
-            //re-endianfy the data
-            int32_t wordstoread = len / sizeof(word);
-            
-            for(int32_t j=0; j<wordstoread; j++)
-            {
-                word temp;
-                
-                if(!p_igetw(&temp, f, keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(keepdata)
-                    ((word *)temp_sample.data)[j] = temp;
-            }
-        }
-        
-        if(keepdata)
-        {
-            if(customsfxdata[i].data!=NULL)
-            {
-//        delete [] customsfxdata[i].data;
-                zc_free(customsfxdata[i].data);
-            }
-            
-//      customsfxdata[i].data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
-            int32_t len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
-            customsfxdata[i].data = calloc(len2,1);
-            customsfxdata[i].bits = temp_sample.bits;
-            customsfxdata[i].stereo = temp_sample.stereo;
-            customsfxdata[i].freq = temp_sample.freq;
-            customsfxdata[i].priority = temp_sample.priority;
-            customsfxdata[i].len = temp_sample.len;
-            customsfxdata[i].loop_start = temp_sample.loop_start;
-            customsfxdata[i].loop_end = temp_sample.loop_end;
-            customsfxdata[i].param = temp_sample.param;
-            int32_t cpylen = len2;
-            
-            if(s_version<3)
-            {
-                cpylen = (temp_sample.bits==8?1:2)*temp_sample.len;
-                al_trace("WARNING: Quest SFX %d is in stereo, and may be corrupt.\n",i);
-            }
-            
-            memcpy(customsfxdata[i].data,temp_sample.data,cpylen);
-            
-            
-        }
-        
-        zc_free(temp_sample.data);
-    }
-    
-    sfxdat=0;
-    return 0;
+	//these are here to bypass compiler warnings about unused arguments
+	Header=Header;
+	
+	int32_t dummy;
+	word s_version=0, s_cversion=0;
+	//int32_t ret;
+	SAMPLE temp_sample;
+	temp_sample.loop_start=0;
+	temp_sample.loop_end=0;
+	temp_sample.param=0;
+	
+	//section version info
+	if(!p_igetw(&s_version,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	FFCore.quest_format[vSFX] = s_version;
+	
+	//al_trace("SFX version %d\n", s_version);
+	if(!p_igetw(&s_cversion,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	//section size
+	if(!p_igetl(&dummy,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	/* HIGHLY UNORTHODOX UPDATING THING, by L
+	 * This fixes quests made before revision 411 (such as the 'Lost Isle Build'),
+	 * where the meaning of GOTOLESS changed. It also coincided with V_SFX
+	 * changing from 1 to 2.
+	 */
+	if(s_version < 2 && keepdata)
+		set_bit(quest_rules,qr_GOTOLESSNOTEQUAL,1);
+		
+	/* End highly unorthodox updating thing */
+	
+	int32_t wavcount = WAV_COUNT;
+	
+	if(s_version < 6)
+		wavcount = 128;
+		
+	uint8_t tempflag[WAV_COUNT>>3];
+	
+	if(s_version < 4)
+	{
+		memset(tempflag, 0xFF, WAV_COUNT>>3);
+	}
+	else
+	{
+		if(s_version < 6)
+			memset(tempflag, 0, WAV_COUNT>>3);
+			
+		for(int32_t i=0; i<(wavcount>>3); i++)
+		{
+			p_getc(&tempflag[i], f, true);
+		}
+		
+	}
+		
+	if(s_version>4)
+	{
+		for(int32_t i=1; i<WAV_COUNT; i++)
+		{
+			if(keepdata)
+			{
+				sprintf(sfx_string[i],"s%03d",i);
+				
+				if((i<Z35))
+					strcpy(sfx_string[i], old_sfx_string[i-1]);
+			}
+			
+			if(i>=wavcount)
+				continue;
+			if(get_bit(tempflag, i-1))
+			{
+				char tempname[36];
+				
+				if(!pfread(tempname, 36, f, keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(keepdata)
+				{
+					strcpy(sfx_string[i], tempname);
+					sfx_string[i][35] = 0; //Force NULL Termination
+				}
+			}
+			else if(keepdata)
+			{
+				sprintf(sfx_string[i],"s%03d",i);
+				
+				if(i<Z35)
+					strcpy(sfx_string[i], old_sfx_string[i-1]);
+				sfx_string[i][35] = 0; //Force NULL Termination
+			}
+		}
+	}
+	else
+	{
+		if(keepdata)
+		{
+			for(int32_t i=1; i<WAV_COUNT; i++)
+			{
+				sprintf(sfx_string[i],"s%03d",i);
+				
+				if(i<Z35)
+					strcpy(sfx_string[i], old_sfx_string[i-1]);
+			}
+		}
+	}
+	
+	//finally...  section data
+	for(int32_t i=1; i<wavcount; i++)
+	{
+		if(get_bit(tempflag, i-1))
+		{
+			
+			if(!p_igetl(&dummy,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			(temp_sample.bits) = dummy;
+			
+			if(!p_igetl(&dummy,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			(temp_sample.stereo) = dummy;
+			
+			if(!p_igetl(&dummy,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			(temp_sample.freq) = dummy;
+			
+			if(!p_igetl(&dummy,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			(temp_sample.priority) = dummy;
+			
+			if(!p_igetl(&(temp_sample.len),f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetl(&(temp_sample.loop_start),f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetl(&(temp_sample.loop_end),f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetl(&(temp_sample.param),f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			// al_trace("F%i: L%i\n",i,temp_sample.len);
+			// temp_sample.data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
+			int32_t len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
+			temp_sample.data = calloc(len,1);
+			
+			if(s_version < 3)
+				len = (temp_sample.bits==8?1:2)*temp_sample.len;
+				
+			//old-style, non-portable loading (Bad Allegro! Bad!!) -DD
+			if(s_version < 2)
+			{
+				if(!pfread(temp_sample.data, len,f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				//re-endianfy the data
+				int32_t wordstoread = len / sizeof(word);
+				
+				for(int32_t j=0; j<wordstoread; j++)
+				{
+					word temp;
+					
+					if(!p_igetw(&temp, f, keepdata))
+					{
+						return qe_invalid;
+					}
+					
+					if(keepdata)
+						((word *)temp_sample.data)[j] = temp;
+				}
+			}
+		}
+		else if(i <= Z35)
+		{
+			SAMPLE* datsamp = (SAMPLE*)(sfxdata[i].dat);
+			memcpy(&temp_sample, datsamp, sizeof(SAMPLE));
+			set_bit(tempflag, i-1, 1);
+		}
+		else continue;
+		
+		if(keepdata)
+		{
+			if(customsfxdata[i].data!=NULL)
+			{
+				// delete [] customsfxdata[i].data;
+				zc_free(customsfxdata[i].data);
+			}
+			
+			// customsfxdata[i].data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
+			int32_t len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
+			customsfxdata[i].data = calloc(len2,1);
+			customsfxdata[i].bits = temp_sample.bits;
+			customsfxdata[i].stereo = temp_sample.stereo;
+			customsfxdata[i].freq = temp_sample.freq;
+			customsfxdata[i].priority = temp_sample.priority;
+			customsfxdata[i].len = temp_sample.len;
+			customsfxdata[i].loop_start = temp_sample.loop_start;
+			customsfxdata[i].loop_end = temp_sample.loop_end;
+			customsfxdata[i].param = temp_sample.param;
+			int32_t cpylen = len2;
+			
+			if(s_version<3)
+			{
+				cpylen = (temp_sample.bits==8?1:2)*temp_sample.len;
+				al_trace("WARNING: Quest SFX %d is in stereo, and may be corrupt.\n",i);
+			}
+			
+			memcpy(customsfxdata[i].data,temp_sample.data,cpylen);
+		}
+		
+		zc_free(temp_sample.data);
+	}
+	
+	if(keepdata)
+		memcpy(customsfxflag, tempflag, WAV_COUNT>>3);
+	
+	sfxdat=0;
+	return 0;
 }
 
 void setupsfx()

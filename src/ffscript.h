@@ -4334,8 +4334,9 @@ enum ASM_DEFINE
 #define COMBODATTRISHORTS       0x13F9
 
 #define PUSHBLOCKLAYER          0x13FA
+#define LINKGRABBED             0x13FB
 
-#define NUMVARIABLES         	0x13FB
+#define NUMVARIABLES         	0x13FC
 
 //} End variables
 

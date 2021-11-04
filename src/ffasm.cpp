@@ -2235,6 +2235,7 @@ script_variable variable_list[]=
 	{ "COMBODATTRISHORTS",           COMBODATTRISHORTS,            0,             0 },
 	
 	{ "PUSHBLOCKLAYER",           PUSHBLOCKLAYER,            0,             0 },
+	{ "LINKGRABBED",           LINKGRABBED,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

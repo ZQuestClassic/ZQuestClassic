@@ -3946,6 +3946,9 @@ int32_t get_register(const int32_t arg)
 		case LINKEATEN:
 			ret=(int32_t)Link.getEaten()*10000;
 			break;
+		case LINKGRABBED:
+			ret = Link.inwallm ? 10000 : 0;
+			break;
 		case LINKPUSH:
 			ret=(int32_t)Link.getPushing()*10000;
 			break;
@@ -11831,6 +11834,9 @@ void set_register(const int32_t arg, const int32_t value)
 
 		case LINKEATEN:
 			Link.setEaten(value/10000);
+			break;
+		case LINKGRABBED:
+			Link.inwallm = value != 0;
 			break;
 		case LINKPUSH:
 			Link.pushing = zc_max((value/10000),0);
@@ -30032,14 +30038,17 @@ bool ZModule::init(bool d) //bool default
 		}
 		
 		//datafiles
+		//Hardcoded sfx.dat, fix quest sounds bug
+		strcpy(moduledata.datafiles[sfx_dat],"sfx.dat");
+		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
+		
+		
 		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
 		al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
 		strcpy(moduledata.datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
 		al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
 		strcpy(moduledata.datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
 		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
-		strcpy(moduledata.datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
-		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
 		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
 		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
 		
@@ -34932,6 +34941,7 @@ script_variable ZASMVars[]=
 	{ "COMBODATTRISHORTS",           COMBODATTRISHORTS,            0,             0 },
 	
 	{ "PUSHBLOCKLAYER",           PUSHBLOCKLAYER,            0,             0 },
+	{ "LINKGRABBED",           LINKGRABBED,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
