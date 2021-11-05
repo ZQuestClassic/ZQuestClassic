@@ -12880,7 +12880,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 				}
 			}
 		}
-		else if(i <= Z35)
+		else if(i < Z35)
 		{
 			SAMPLE* datsamp = (SAMPLE*)(sfxdata[i].dat);
 			memcpy(&temp_sample, datsamp, sizeof(SAMPLE));

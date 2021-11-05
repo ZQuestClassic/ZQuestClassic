@@ -4203,25 +4203,24 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2);
 
 int32_t onDefault_SFX()
 {
-    if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
-    {
-        saved=false;
-        SAMPLE *temp_sample;
-        
-        for(int32_t i=1; i<WAV_COUNT; i++)
-        {
-            temp_sample = (SAMPLE *)sfxdata[zc_min(i,Z35)].dat;
-            change_sfx(&customsfxdata[i], temp_sample);
-            sprintf(sfx_string[i],"s%03d",i);
-            
-            if(i<Z35)
-                strcpy(sfx_string[i], old_sfx_string[i-1]);
-                
-            memset(customsfxflag, 0, WAV_COUNT>>3);
-        }
-    }
-    
-    return D_O_K;
+	if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+	{
+		saved=false;
+		SAMPLE *temp_sample;
+		
+		for(int32_t i=1; i<WAV_COUNT; i++)
+		{
+			temp_sample = (SAMPLE *)sfxdata[zc_min(i,Z35)].dat;
+			change_sfx(&customsfxdata[i], temp_sample);
+			sprintf(sfx_string[i],"s%03d",i);
+			
+			if(i<Z35)
+				strcpy(sfx_string[i], old_sfx_string[i-1]);
+			set_bit(customsfxflag, i<Z35?1:0, i-1);
+		}
+	}
+	
+	return D_O_K;
 }
 
 
@@ -28568,168 +28567,164 @@ bool saveWAV(int32_t slot, const char *filename)
 
 int32_t onEditSFX(int32_t index)
 {
-    kill_sfx();
-    stop_midi();
-    set_volume(255,-1);
-    int32_t ret;
-    sfx_edit_dlg[0].dp2=lfont;
-    uint8_t tempflag;
-    tempflag = get_bit(customsfxflag,index-1);
-    change_sfx(&templist[index], &customsfxdata[index]);
-    
-    char sfxnumstr[50];
-    sprintf(sfxnumstr,"SFX %d: %s", index, sfx_string[index]);
-    sfx_edit_dlg[0].dp = sfxnumstr;
-    
-    char name[36];
-    strcpy(name,sfx_string[index]);
-    sfx_edit_dlg[7].dp = name;
-    
-    if(is_large)
-        large_dialog(sfx_edit_dlg);
-        
-    do
-    {
-        ret=zc_popup_dialog(sfx_edit_dlg,1);
-        
-        switch(ret)
-        {
-		case 1:
-		    saved= false;
-		    kill_sfx();
-		    change_sfx(&customsfxdata[index],&templist[index]);
-		    set_bit(customsfxflag,index-1,tempflag);
-		    strcpy(sfx_string[index], name);
-		    
-		case 2:
-		case 0:
-		    // Fall Through
-		    kill_sfx();
-		    
-		    for(int32_t i=1; i<WAV_COUNT; i++)
-		    {
-			if(templist[i].data != NULL)
-			{
-			    zc_free(templist[i].data);
-			    templist[i].data = NULL;
-			}
-		    }
-		    
-		    break;
-		    
-		case 3:
-		    if(getname("Open .WAV file", "wav", NULL,temppath, true))
-		    {
-			SAMPLE * temp_sample;
-			
-			if((temp_sample = load_wav(temppath))==NULL)
-			{
-			    jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
-			}
-			else
-			{
-			    char sfxtitle[36];
-			    char *t = get_filename(temppath);
-			    int32_t j;
-			    
-			    for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
-			    {
-				sfxtitle[j]=t[j];
-			    }
-			    
-			    sfxtitle[j]=0;
-			    strcpy(name,sfxtitle);
-			    kill_sfx();
-			    change_sfx(&templist[index], temp_sample);
-			    destroy_sample(temp_sample);
-			    tempflag = 1;
-			}
-		    }
-		    
-		    break;
-		    
-		case 4:
-		{
-		    kill_sfx();
-		    
-		    if(templist[index].data != NULL)
-		    {
-			sfx(index, 128, false,true);
-		    }
-		}
-		break;
+	kill_sfx();
+	stop_midi();
+	set_volume(255,-1);
+	int32_t ret;
+	sfx_edit_dlg[0].dp2=lfont;
+	uint8_t tempflag;
+	tempflag = get_bit(customsfxflag,index-1);
+	change_sfx(&templist[index], &customsfxdata[index]);
+	
+	char sfxnumstr[50];
+	sprintf(sfxnumstr,"SFX %d: %s", index, sfx_string[index]);
+	sfx_edit_dlg[0].dp = sfxnumstr;
+	
+	char name[36];
+	strcpy(name,sfx_string[index]);
+	sfx_edit_dlg[7].dp = name;
+	
+	if(is_large)
+		large_dialog(sfx_edit_dlg);
 		
-		case 5:
-		    kill_sfx();
-		    break;
-		    
-		case 6:
-		    kill_sfx();
-		    
-		    if(index < WAV_COUNT)
-		    {
-			SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
-			change_sfx(&templist[index], temp_sample);
-			tempflag = 0;
-			sprintf(name,"s%03d", index);
-			
-			if(index <Z35)
-			{
-			    strcpy(name, old_sfx_string[index-1]);
-			}
-		    }
-		    
-		    break;
-		    
-	    
-		case 10:
+	do
+	{
+		ret=zc_popup_dialog(sfx_edit_dlg,1);
+		
+		switch(ret)
 		{
-			memset(temppath, 0, sizeof(temppath));
-			char tempname[36];
-			strcpy(tempname,sfx_string[index]);
-			//change spaces to dashes for f/s safety
-			for ( int32_t q = 0; q < 36; ++q )
-			{
-				if(tempname[q] == 32 || tempname[q] == 47 || tempname[q] == 92 ) //SPACE, Bslash, Fslash
-					tempname[q] = 45; //becomes hyphen
-			}
-			
-			tempname[35] = 0;
-			
-			strcpy(temppath,tempname);
-			
-			//zprint2("temppath is: %s\n", temppath);
-			//zprint2("tempname is: %s\n", tempname);
-			//save
-			if(templist[index].data != NULL)
-			{
-				if (getname("Save .WAV file", "wav", NULL, temppath, true))
+			case 1:
+				saved= false;
+				kill_sfx();
+				change_sfx(&customsfxdata[index],&templist[index]);
+				set_bit(customsfxflag,index-1,tempflag);
+				strcpy(sfx_string[index], name);
+				
+			case 2:
+			case 0:
+				// Fall Through
+				kill_sfx();
+				
+				for(int32_t i=1; i<WAV_COUNT; i++)
 				{
-					if(!saveWAV(index, temppath))
+					if(templist[i].data != NULL)
 					{
-						jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, lfont);
-					}
-					else 
-					{
-						jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, lfont);
-						
+						zc_free(templist[i].data);
+						templist[i].data = NULL;
 					}
 				}
 				
-			}
-			else 
-			{
-				jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, lfont);
+				break;
 				
-			}		
+			case 3:
+				if(getname("Open .WAV file", "wav", NULL,temppath, true))
+				{
+					SAMPLE * temp_sample;
+					
+					if((temp_sample = load_wav(temppath))==NULL)
+					{
+						jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
+					}
+					else
+					{
+						char sfxtitle[36];
+						char *t = get_filename(temppath);
+						int32_t j;
+						
+						for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
+						{
+							sfxtitle[j]=t[j];
+						}
+						
+						sfxtitle[j]=0;
+						strcpy(name,sfxtitle);
+						kill_sfx();
+						change_sfx(&templist[index], temp_sample);
+						destroy_sample(temp_sample);
+						tempflag = 1;
+					}
+				}
+				
+				break;
+				
+			case 4:
+			{
+				kill_sfx();
+				
+				if(templist[index].data != NULL)
+				{
+					sfx(index, 128, false,true);
+				}
+			}
 			break;
+			
+			case 5:
+				kill_sfx();
+				break;
+				
+			case 6:
+				kill_sfx();
+				
+				if(index < WAV_COUNT)
+				{
+					SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
+					change_sfx(&templist[index], temp_sample);
+					tempflag = 1; //now count as custom sfx
+					sprintf(name,"s%03d", index);
+					
+					if(index <Z35)
+					{
+						strcpy(name, old_sfx_string[index-1]);
+					}
+				}
+				
+				break;
+				
+			
+			case 10:
+			{
+				memset(temppath, 0, sizeof(temppath));
+				char tempname[36];
+				strcpy(tempname,sfx_string[index]);
+				//change spaces to dashes for f/s safety
+				for ( int32_t q = 0; q < 36; ++q )
+				{
+					if(tempname[q] == 32 || tempname[q] == 47 || tempname[q] == 92 ) //SPACE, Bslash, Fslash
+						tempname[q] = 45; //becomes hyphen
+				}
+				
+				tempname[35] = 0;
+				
+				strcpy(temppath,tempname);
+				
+				//zprint2("temppath is: %s\n", temppath);
+				//zprint2("tempname is: %s\n", tempname);
+				//save
+				if(templist[index].data != NULL)
+				{
+					if (getname("Save .WAV file", "wav", NULL, temppath, true))
+					{
+						if(!saveWAV(index, temppath))
+						{
+							jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+						}
+						else 
+						{
+							jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+						}
+					}
+				}
+				else 
+				{
+					jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, lfont);
+				}		
+				break;
+			}
 		}
+	}
+	while(ret>2);
 	
-        }
-    }
-    while(ret>2);
-    
-    return D_O_K;
+	return D_O_K;
 }
 
 
