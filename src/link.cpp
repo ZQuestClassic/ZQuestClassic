@@ -2760,7 +2760,7 @@ bool LinkClass::checkstab()
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
 							setmapflag(mITEM);
 						else if(pickup&ipONETIME2) // set mBELOW flag for other one-time-only items
-							setmapflag();
+							setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
 				
 					if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 					{
@@ -3124,7 +3124,7 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
                 FFCore.tempScreens[layer]->cset[i] = tmpscr->undercset;
                 FFCore.tempScreens[layer]->sflag[i] = 0;
             }
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -3430,7 +3430,7 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
     {
         if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -3875,7 +3875,7 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
                 FFCore.tempScreens[layer]->cset[i] = tmpscr->undercset;
                 FFCore.tempScreens[layer]->sflag[i] = 0;
             }
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -4199,7 +4199,7 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -4684,7 +4684,7 @@ void LinkClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
             
         set_bit(w->wscreengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -4882,7 +4882,7 @@ void LinkClass::check_slash_block(weapon *w)
     {
         if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -5331,7 +5331,7 @@ void LinkClass::check_pound_block(int32_t bx, int32_t by)
             
         set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -5556,7 +5556,7 @@ void LinkClass::check_pound_block(weapon *w)
             
         set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -9239,7 +9239,7 @@ bool LinkClass::startwpn(int32_t itemid)
         paymagiccost(itemid);
         sfx(itemsbuf[itemid].usesound,pan(wx));
         
-        if(tmpscr->room==rGRUMBLE && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+        if(tmpscr->room==rGRUMBLE && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)wx,(zfix)wy,(zfix)0,iBait,ipDUMMY+ipFADE,0));
             fadeclk=66;
@@ -9247,7 +9247,7 @@ bool LinkClass::startwpn(int32_t itemid)
             clear_bitmap(pricesdisplaybuf);
             set_clip_state(pricesdisplaybuf, 1);
             //    putscr(scrollbuf,0,0,tmpscr);
-            setmapflag();
+            setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
             removeItemsOfFamily(game,itemsbuf,itype_bait);
             verifyBothWeapons();
             sfx(tmpscr->secretsfx);
@@ -16194,7 +16194,7 @@ void LinkClass::oldcheckchest(int32_t type)
 		}
 	}
 	
-	if(itemflag && !getmapflag())
+	if(itemflag && !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW))
 	{
 		items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 	}
@@ -16371,7 +16371,7 @@ void LinkClass::checkchest(int32_t type)
 		}
 	}
 	
-	if(itemflag && !getmapflag())
+	if(itemflag && !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW))
 	{
 		items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 	}
@@ -18838,7 +18838,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 		switch(flag)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, tmpscr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -18872,7 +18872,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 		switch(flag2)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, tmpscr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -18906,7 +18906,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 		switch(flag3)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag() || (tmpscr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, tmpscr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -23674,7 +23674,7 @@ void dospecialmoney(int32_t index)
 	//game->set_drupy(game->get_drupy()+price); may be needed everywhere
 
         putprices(false);
-        setmapflag();
+        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
         break;
     }
         
@@ -23714,7 +23714,7 @@ void dospecialmoney(int32_t index)
 	total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 	game->set_drupy(game->get_drupy()-total);
         //game->set_drupy(game->get_drupy()+price);
-        setmapflag();
+        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
         game->change_maxbombs(4);
         game->set_bombs(game->get_maxbombs());
         {
@@ -23761,7 +23761,7 @@ void dospecialmoney(int32_t index)
 	game->set_drupy(game->get_drupy()-total);
 
 	//game->set_drupy(game->get_drupy()+price);
-        setmapflag();
+        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
         game->change_maxarrows(10);
         game->set_arrows(game->get_maxarrows());
         ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
@@ -23793,7 +23793,7 @@ void dospecialmoney(int32_t index)
             game->set_maxlife(zc_max(game->get_maxlife()-game->get_hp_per_heart(),(game->get_hp_per_heart())));
         }
         
-        setmapflag();
+        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
         ((item*)items.spr(0))->pickup=ipDUMMY+ipFADE;
         ((item*)items.spr(1))->pickup=ipDUMMY+ipFADE;
         fadeclk=66;
@@ -24236,7 +24236,7 @@ void LinkClass::checkitems(int32_t index)
 		*/
     }
     else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
-        setmapflag();
+        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
 	
     if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
     {

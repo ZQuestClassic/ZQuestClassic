@@ -146,7 +146,8 @@ static const GUI::ListData compatRulesList
 		" Note that the hookshot's Y position is 3 pixels more than Link's when facing left/right, and note that this rule does not affect the hookshot when travelling up or down."},
 	{ "Peahats Are Vulnerable When Frozen By Clocks", qr_PEAHATCLOCKVULN, "If this rule is enabled, Peahats will be vulnerable when a Clock item is active. This rule only works if the rule 'Enemies Jump/Fly Through Z-Axis' is disabled."},
 	{ "Weapons With No Collision Detection Move Offscreen", qr_OFFSCREENWEAPONS, "If enabled, weapons with no collision won't be killed if they move offscreen. If disabled, they'll be killed when they move offscreen."},
-	{ "Screen Item Pickup Disables Hunger/Special Item", qr_ITEMPICKUPSETSBELOW },
+	{ "Old Special Room Screenstate Detection", qr_ITEMPICKUPSETSBELOW, "If enabled, Guy Rooms are flagged with mITEM instead of mBELOW if they are outside of a cave screen."
+		" This means that they set the Screen Item state, and collecting the Screen Item will remove the Guy."},
 	{ "Sideview Spike Detection Prior to 2.50.1RC3", qr_OLDSIDEVIEWSPIKES, "Sideview spikes were changed in newer 2.50 quests to be much more sensitive and check further below you, and also check the ceiling if you bonk against it."
 		" Checking this will revert them to the old collision, where they only the pixel below you and obeyed damage combo sensitivity, but will no longer check the ceiling above you when bumping into the ceiling."
 		" Note that if you have 'Better Sideview Damage Combo Detection' enabled, the only thing this rule affects is the ceiling portion of the rule."},
@@ -212,7 +213,11 @@ static const GUI::ListData compatRulesList
 	{ "Old Warping Onto Warp Protection", qr_210_WARPRETURN, "Changes the code that prevents you from being warped when you warp onto a warp to the 2.10 logic." 
 		" Some quests, such as Ballad of a Bloodline, warp you onto a step trigger in an enclosed space. With this rule off, those quests will softlock."},
 	{ "Jittering In Sideview With Ladder Item", qr_OLD_LADDER_ITEM_SIDEVIEW, "In old versions, there was a bug where possessing the ladder item would let you jitter upwards in sideview." 
-		" Originally, this happened because someone attempted to add ladder compatibility in sideview and left it half-finished. Checking this rule will emulate this behavior."}
+		" Originally, this happened because someone attempted to add ladder compatibility in sideview and left it half-finished. Checking this rule will emulate this behavior."},
+	{ "Renewable Secret Money Rooms Outside Caves", qr_OLD_SECRETMONEY, "If enabled, Secret Money rooms will never be flagged as collected unless they are inside a Screen 80 Cave or Item Cellar. This was a bug that existed until 2.50 RC1."},
+	{ "Renewable Door Repairs Rooms Outside Caves", qr_OLD_DOORREPAIR, "If enabled, Door Repair rooms will never be flagged as collected unless they are inside a Screen 80 Cave or Item Cellar. This was a bug that existed until 2.50 RC4."},
+	{ "Renewable Potion Or Heart Container Rooms Outside Caves", qr_OLD_POTION_OR_HC, "If enabled, the Red Potion or Heart Container room will never be flagged as collected unless it is inside a Screen 80 Cave or Item Cellar. This was a bug that existed until 2.50.1 Final."
+		" Note that this does not refer to the 'Take Only One' Item room; that is a different room type."}
 };
 
 static const GUI::ListData enemiesRulesList

@@ -2899,6 +2899,21 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_PEAHATCLOCKVULN, 1);
 	}
 	
+	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build < 22)) //22 is 2.50.0 RC4. Gotta set the door repair QR... -Dimi
+	{
+		set_bit(quest_rules,qr_OLD_DOORREPAIR, 1);
+	}
+	
+	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build < 20)) //20 is 2.50.0 RC1 and RC2 (cause it didn't get bumped). Okay I'm gonna be honest I have no idea if any 2.50 build was available before RC1, but gonna try and cover my ass here -Dimi
+	{
+		set_bit(quest_rules,qr_OLD_SECRETMONEY, 1);
+	}
+	
+	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build < 28)) //28 is 2.50.1 final. Potion bug might have been used, I dunno. -Dimi
+	{
+		set_bit(quest_rules,qr_OLD_POTION_OR_HC, 1);
+	}
+	
 	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<28))
 	{
 		set_bit(quest_rules, qr_OFFSCREENWEAPONS, 1);
