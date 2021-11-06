@@ -15049,7 +15049,7 @@ void drawdmap(int32_t dmap)
         
         if(DMaps[dmap].minimap_2_tile)
             ;
-        // overworld_map_tile overrides the NES minimap. dungeon_map_tile does not.
+        // new_overworld_map_tile overrides the NES minimap. new_dungeon_map_tile does not.
         else for(int32_t y=1; y<33; y+=4)
                 drawgrid(dmapbmp_small,1,y,DMaps[dmap].grid[y>>2], DMaps[dmap].flags&dmfMINIMAPCOLORFIX ? mc.cave_fg : mc.dngn_fg, -1, -1);
                 
@@ -15065,7 +15065,7 @@ void drawdmap(int32_t dmap)
         
         if(DMaps[dmap].minimap_2_tile)
             ;
-        else if(!mc.overworld_map_tile)
+        else if(!mc.new_overworld_map_tile)
             for(int32_t y=1; y<33; y+=4)
                 drawovergrid(dmapbmp_small,1,y,DMaps[dmap].grid[y>>2],mc.overw_bg,vc(0));
                 
@@ -15078,7 +15078,7 @@ void drawdmap(int32_t dmap)
         
         if(DMaps[dmap].minimap_2_tile)
             ;
-        else if(!mc.overworld_map_tile)
+        else if(!mc.new_overworld_map_tile)
             for(int32_t y=1; y<33; y+=4)
                 //    drawgrid_s(dmapbmp,1,y,DMaps[dmap].grid[y>>2],dvc(2*4),dvc(2*3),dvc(3+4));
                 drawgrid_s(dmapbmp_small,1,y,DMaps[dmap].grid[y>>2],mc.bs_goal,mc.bs_dk,vc(14));
@@ -15101,13 +15101,13 @@ void drawdmap_screen(int32_t x, int32_t y, int32_t w, int32_t h, int32_t dmap)
     {
         draw_block(tempbmp,0,0,DMaps[dmap].minimap_2_tile,DMaps[dmap].minimap_2_cset,5,3);
     }
-    else if(((DMaps[dmap].type&dmfTYPE)==dmDNGN || (DMaps[dmap].type&dmfTYPE)==dmCAVE) && mc.dungeon_map_tile)
+    else if(((DMaps[dmap].type&dmfTYPE)==dmDNGN || (DMaps[dmap].type&dmfTYPE)==dmCAVE) && mc.new_dungeon_map_tile)
     {
-        draw_block(tempbmp,0,0,mc.dungeon_map_tile,mc.dungeon_map_cset,5,3);
+        draw_block(tempbmp,0,0,mc.new_dungeon_map_tile,mc.dungeon_map_cset,5,3);
     }
-    else if(((DMaps[dmap].type&dmfTYPE)==dmOVERW || (DMaps[dmap].type&dmfTYPE)==dmBSOVERW) && mc.overworld_map_tile)
+    else if(((DMaps[dmap].type&dmfTYPE)==dmOVERW || (DMaps[dmap].type&dmfTYPE)==dmBSOVERW) && mc.new_overworld_map_tile)
     {
-        draw_block(tempbmp,0,0,mc.overworld_map_tile,mc.overworld_map_cset,5,3);
+        draw_block(tempbmp,0,0,mc.new_overworld_map_tile,mc.overworld_map_cset,5,3);
     }
     
     masked_blit(dmapbmp_small,tempbmp,0,0,8,7,65,33);
