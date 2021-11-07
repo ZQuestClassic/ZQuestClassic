@@ -1182,17 +1182,17 @@ bool reset_wpns(bool validate, zquestheader *Header)
 
 bool reset_mapstyles(bool validate, miscQdata *Misc)
 {
-    Misc->colors.new_blueframe_tile = 20044;
+    Misc->colors.blueframe_tile = 20044;
     Misc->colors.blueframe_cset = 0;
-    Misc->colors.new_triforce_tile = 23461;
+    Misc->colors.triforce_tile = 23461;
     Misc->colors.triforce_cset = 1;
-    Misc->colors.new_triframe_tile = 18752;
+    Misc->colors.triframe_tile = 18752;
     Misc->colors.triframe_cset = 1;
-    Misc->colors.new_overworld_map_tile = 16990;
+    Misc->colors.overworld_map_tile = 16990;
     Misc->colors.overworld_map_cset = 2;
-    Misc->colors.new_HCpieces_tile = 21160;
+    Misc->colors.HCpieces_tile = 21160;
     Misc->colors.HCpieces_cset = 8;
-    Misc->colors.new_dungeon_map_tile = 19651;
+    Misc->colors.dungeon_map_tile = 19651;
     Misc->colors.dungeon_map_cset = 8;
     return true;
 }
@@ -4715,282 +4715,230 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 
 int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
-    miscQdata temp_misc;
-    word s_version=0, s_cversion=0;
-    int32_t tempsize=0;
-    
-    memcpy(&temp_misc,Misc,sizeof(temp_misc));
-    
-    //section version info
-    if(!p_igetw(&s_version,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    FFCore.quest_format[vColours] = s_version;
-    
-    al_trace("Misc Colours section version: %d\n", s_version);
-    
-    //al_trace("Misc. colors version %d\n", s_version);
-    if(!p_igetw(&s_cversion,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    
-    //section size
-    if(!p_igetl(&tempsize,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    //finally...  section data
-    readsize=0;
-    
-    if(!p_getc(&temp_misc.colors.text,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.caption,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.overw_bg,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.dngn_bg,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.dngn_fg,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.cave_fg,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.bs_dk,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.bs_goal,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.compass_lt,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.compass_dk,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.subscr_bg,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.triframe_color,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.link_dot,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.bmap_bg,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.bmap_fg,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.triforce_cset,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.triframe_cset,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.overworld_map_cset,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.dungeon_map_cset,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.blueframe_cset,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_igetw(&temp_misc.colors.triforce_tile,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_igetw(&temp_misc.colors.triframe_tile,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_igetw(&temp_misc.colors.overworld_map_tile,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_igetw(&temp_misc.colors.dungeon_map_tile,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_igetw(&temp_misc.colors.blueframe_tile,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_igetw(&temp_misc.colors.HCpieces_tile,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.HCpieces_cset,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_getc(&temp_misc.colors.subscr_shadow,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    if(s_version < 2)
-    {
-        temp_misc.colors.msgtext = 0x01;
-    }
-    else
-    {
-        if(!p_getc(&temp_misc.colors.msgtext, f, true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if ( s_version >= 3 ) //expanded tile pages to 825
-    {
-	if(!p_igetl(&temp_misc.colors.new_triforce_tile,f,true))
-        {
-             return qe_invalid;
-        }    
-    }
-    else
-    {
-	al_trace("Copying misc.colors.*tile to misc.colors.new_*tile.\n");
-	temp_misc.colors.new_triforce_tile = temp_misc.colors.triforce_tile;
-	    //al_trace("Old triforce tile: %d\n", temp_misc.colors.triforce_tile);
-	   // al_trace("New triforce tile: %d\n", temp_misc.colors.new_triforce_tile);
-    }
-    if ( s_version >= 3 ) //expanded tile pages to 825
-    {
-	if(!p_igetl(&temp_misc.colors.new_triframe_tile,f,true))
-        {
-             return qe_invalid;
-        }  
-    }
-    else
-    {
-	temp_misc.colors.new_triframe_tile = temp_misc.colors.triframe_tile;
-	   // al_trace("Old triframe tile: %d\n", temp_misc.colors.triframe_tile);
-	   // al_trace("New triframe tile: %d\n", temp_misc.colors.new_triframe_tile);
-	    
-    }
-    if ( s_version >= 3 ) //expanded tile pages to 825
-    {
-	if(!p_igetl(&temp_misc.colors.new_overworld_map_tile,f,true))
-        {
-             return qe_invalid;
-        } 
-    }
-    else
-    {
-	temp_misc.colors.new_overworld_map_tile = temp_misc.colors.overworld_map_tile;    
-	  //  al_trace("Old overworld map tile: %d\n", temp_misc.colors.overworld_map_tile);
-	  //  al_trace("New overworld map tile: %d\n", temp_misc.colors.new_overworld_map_tile);
-	    
-    }
-    if ( s_version >= 3 ) //expanded tile pages to 825
-    {
-	if(!p_igetl(&temp_misc.colors.new_dungeon_map_tile,f,true))
-        {
-             return qe_invalid;
-        } 
-    }
-    else
-    {
-	temp_misc.colors.new_dungeon_map_tile = temp_misc.colors.dungeon_map_tile;    
-	//al_trace("Old dungeon map tile: %d\n", temp_misc.colors.dungeon_map_tile);
-	  //  al_trace("New dungeon map tile: %d\n", temp_misc.colors.new_dungeon_map_tile);
-    }
-    if ( s_version >= 3 ) //expanded tile pages to 825
-    {
-	if(!p_igetl(&temp_misc.colors.new_blueframe_tile,f,true))
-        {
-             return qe_invalid;
-        }
-    }
-    else
-    {
-	temp_misc.colors.new_blueframe_tile = temp_misc.colors.blueframe_tile;
-	//al_trace("Old blueframe tile: %d\n", temp_misc.colors.blueframe_tile);
-	  //  al_trace("New blueframe tile: %d\n", temp_misc.colors.new_blueframe_tile);
-    }
-    if ( s_version >= 3 ) //expanded tile pages to 825
-    {
-	if(!p_igetl(&temp_misc.colors.new_HCpieces_tile,f,true))
-        {
-             return qe_invalid;
-        }
-    }
-    else
-    {	    
-	temp_misc.colors.new_HCpieces_tile = temp_misc.colors.HCpieces_tile;  
-	//al_trace("Old HCP tile: %d\n", temp_misc.colors.HCpieces_tile);
-	 //   al_trace("New HCP tile: %d\n", temp_misc.colors.new_HCpieces_tile);	    
-    }
-    
-    
-    if(keepdata==true)
-    {
-        memcpy(Misc, &temp_misc, sizeof(temp_misc));
-    }
-    
-    return 0;
+	//these are here to bypass compiler warnings about unused arguments
+	Header=Header;
+	
+	miscQdata temp_misc;
+	word s_version=0, s_cversion=0;
+	int32_t tempsize=0;
+	word dummyw;
+	
+	memcpy(&temp_misc,Misc,sizeof(temp_misc));
+	
+	//section version info
+	if(!p_igetw(&s_version,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	FFCore.quest_format[vColours] = s_version;
+	
+	al_trace("Misc Colours section version: %d\n", s_version);
+	
+	//al_trace("Misc. colors version %d\n", s_version);
+	if(!p_igetw(&s_cversion,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	
+	//section size
+	if(!p_igetl(&tempsize,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	//finally...  section data
+	readsize=0;
+	
+	if(!p_getc(&temp_misc.colors.text,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.caption,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.overw_bg,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.dngn_bg,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.dngn_fg,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.cave_fg,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.bs_dk,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.bs_goal,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.compass_lt,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.compass_dk,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.subscr_bg,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.triframe_color,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.link_dot,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.bmap_bg,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.bmap_fg,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.triforce_cset,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.triframe_cset,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.overworld_map_cset,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.dungeon_map_cset,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.blueframe_cset,f,true))
+	{
+		return qe_invalid;
+	}
+	if(s_version < 4)
+	{
+		if(!p_igetw(&dummyw,f,true))
+			return qe_invalid;
+		temp_misc.colors.triforce_tile = dummyw;
+		
+		if(!p_igetw(&dummyw,f,true))
+			return qe_invalid;
+		temp_misc.colors.triframe_tile = dummyw;
+		
+		if(!p_igetw(&dummyw,f,true))
+			return qe_invalid;
+		temp_misc.colors.overworld_map_tile = dummyw;
+		
+		if(!p_igetw(&dummyw,f,true))
+			return qe_invalid;
+		temp_misc.colors.dungeon_map_tile = dummyw;
+		
+		if(!p_igetw(&dummyw,f,true))
+			return qe_invalid;
+		temp_misc.colors.blueframe_tile = dummyw;
+		
+		if(!p_igetw(&dummyw,f,true))
+			return qe_invalid;
+		temp_misc.colors.HCpieces_tile = dummyw;
+	}
+	
+	if(!p_getc(&temp_misc.colors.HCpieces_cset,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&temp_misc.colors.subscr_shadow,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	if(s_version < 2)
+	{
+		temp_misc.colors.msgtext = 0x01;
+	}
+	else
+	{
+		if(!p_getc(&temp_misc.colors.msgtext, f, true))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	if ( s_version >= 3 ) //expanded tile pages to 825
+	{
+		if(!p_igetl(&temp_misc.colors.triforce_tile,f,true))
+		{
+			 return qe_invalid;
+		}
+		
+		if(!p_igetl(&temp_misc.colors.triframe_tile,f,true))
+		{
+			 return qe_invalid;
+		}
+		
+		if(!p_igetl(&temp_misc.colors.overworld_map_tile,f,true))
+		{
+			 return qe_invalid;
+		}
+		
+		if(!p_igetl(&temp_misc.colors.dungeon_map_tile,f,true))
+		{
+			 return qe_invalid;
+		}
+		
+		if(!p_igetl(&temp_misc.colors.blueframe_tile,f,true))
+		{
+			 return qe_invalid;
+		}
+		
+		if(!p_igetl(&temp_misc.colors.HCpieces_tile,f,true))
+		{
+			 return qe_invalid;
+		}
+	}
+	
+	
+	if(keepdata==true)
+	{
+		memcpy(Misc, &temp_misc, sizeof(temp_misc));
+	}
+	
+	return 0;
 }
 
 int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
@@ -18139,16 +18087,17 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 		}
 		
-		//Oh sure, stick these IN THE MIDDLE OF THE ITEMS, just to make me want
-		//to jab out my eye...
-		if(!p_getc(&temp_zinit.bombs,f,true))
+		if(s_version < 29)
 		{
-			return qe_invalid;
-		}
-		
-		if(!p_getc(&temp_zinit.super_bombs,f,true))
-		{
-			return qe_invalid;
+			//Oh sure, stick these IN THE MIDDLE OF THE ITEMS, just to make me want
+			//to jab out my eye...
+			if(!p_getc(&padding,f,true))
+				return qe_invalid;
+			temp_zinit.bombs = padding;
+			
+			if(!p_getc(&padding,f,true))
+				return qe_invalid;
+			temp_zinit.super_bombs = padding;
 		}
 		
 		//Back to more OLD item code
@@ -18328,9 +18277,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 		}
 		
-		if(!p_getc(&temp_zinit.max_bombs,f,true))
+		if(s_version < 29)
 		{
-			return qe_invalid;
+			if(!p_getc(&padding,f,true))
+				return qe_invalid;
+			temp_zinit.max_bombs = padding;
 		}
 		
 		if(!p_getc(&temp_zinit.keys,f,true))
@@ -18589,17 +18540,15 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 		}
 		
-		if(s_version>1)
+		if(s_version>1 && s_version < 29)
 		{
-			if(!p_getc(&temp_zinit.arrows,f,true))
-			{
+			if(!p_getc(&padding,f,true))
 				return qe_invalid;
-			}
+			temp_zinit.arrows = padding;
 			
-			if(!p_getc(&temp_zinit.max_arrows,f,true))
-			{
+			if(!p_getc(&padding,f,true))
 				return qe_invalid;
-			}
+			temp_zinit.max_arrows = padding;
 		}
 		
 		if(s_version>2)
@@ -18836,56 +18785,33 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		//expaned init data for larger values in 2.55
 		if ( s_version >= 19 ) //expand init data bombs, sbombs, and arrows to 0xFFFF
 		{
-			al_trace("2.50.x version of init data, or older.\n");
-			if(!p_igetw(&temp_zinit.nBombs,f,true))
+			if(!p_igetw(&temp_zinit.bombs,f,true))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.nSbombs,f,true))
+			if(!p_igetw(&temp_zinit.super_bombs,f,true))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.nBombmax,f,true))
+			if(!p_igetw(&temp_zinit.max_bombs,f,true))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.nSBombmax,f,true))
+			if(!p_igetw(&temp_zinit.max_sbombs,f,true))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.nArrows,f,true))
+			if(!p_igetw(&temp_zinit.arrows,f,true))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.nArrowmax,f,true))
+			if(!p_igetw(&temp_zinit.max_arrows,f,true))
 			{
 				return qe_invalid;
 			}
 			
 		}
-		else //load new vars with old data
-		{
-			al_trace("Copying over old init values:\n");
-			temp_zinit.nBombs = temp_zinit.bombs;
-			al_trace("temp_zinit.bombs is: %d\n", temp_zinit.bombs);
-			al_trace("temp_zinit.nBombs is: %d\n", temp_zinit.nBombs);
-			temp_zinit.nSbombs = temp_zinit.super_bombs;
-			al_trace("temp_zinit.super_bombs is: %d\n", temp_zinit.super_bombs);
-			al_trace("temp_zinit.nSbombs is: %d\n", temp_zinit.nSbombs);
-			temp_zinit.nBombmax = temp_zinit.max_bombs;
-			al_trace("temp_zinit.max_bombs is: %d\n", temp_zinit.max_bombs);
-			al_trace("temp_zinit.nBombmax is: %d\n", temp_zinit.nBombmax);
-			//temp_zinit.nSBombmax = temp_zinit.bombs;
-			temp_zinit.nArrows = temp_zinit.arrows;
-			al_trace("temp_zinit.arrows is: %d\n", temp_zinit.arrows);
-			al_trace("temp_zinit.nArrows is: %d\n", temp_zinit.nArrows);
-			temp_zinit.nArrowmax = temp_zinit.max_arrows;
-			al_trace("temp_zinit.max_arrows is: %d\n", temp_zinit.max_arrows);
-			al_trace("temp_zinit.nArrowmax is: %d\n", temp_zinit.nArrowmax);
-				
-				
-		}
-			if ( s_version >= 20 )
+		if ( s_version >= 20 )
 		{
 			if(!p_igetw(&temp_zinit.heroStep,f,true))
 			{
@@ -19012,78 +18938,79 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	
 	// Okay,  let's put these legacy values into itemsbuf.
-	if(s_version < 15) for(int32_t i=0; i<MAXITEMS; i++)
+	if(s_version < 15)
+		for(int32_t i=0; i<MAXITEMS; i++)
 		{
 			switch(i)
 			{
-			case iFairyStill:
-				itemsbuf[i].misc1 = stationary_fairy_hearts;
-				itemsbuf[i].misc2 = stationary_fairy_magic;
-				itemsbuf[i].misc3 = 0;
-				itemsbuf[i].flags |= stationary_fairy_heart_percent ? ITEM_FLAG1 : 0;
-				itemsbuf[i].flags |= stationary_fairy_magic_percent ? ITEM_FLAG2 : 0;
-				break;
-				
-			case iFairyMoving:
-				itemsbuf[i].misc1 = moving_fairy_hearts;
-				itemsbuf[i].misc2 = moving_fairy_magic;
-				itemsbuf[i].misc3 = 50;
-				itemsbuf[i].flags |= moving_fairy_heart_percent ? ITEM_FLAG1 : 0;
-				itemsbuf[i].flags |= moving_fairy_magic_percent ? ITEM_FLAG2 : 0;
-				break;
-				
-			case iRPotion:
-				itemsbuf[i].misc1 = red_potion_hearts;
-				itemsbuf[i].misc2 = red_potion_magic;
-				itemsbuf[i].flags |= red_potion_heart_percent ? ITEM_FLAG1 : 0;
-				itemsbuf[i].flags |= red_potion_magic_percent ? ITEM_FLAG2 : 0;
-				break;
-				
-			case iBPotion:
-				itemsbuf[i].misc1 = blue_potion_hearts;
-				itemsbuf[i].misc2 = blue_potion_magic;
-				itemsbuf[i].flags |= blue_potion_heart_percent ? ITEM_FLAG1 : 0;
-				itemsbuf[i].flags |= blue_potion_magic_percent ? ITEM_FLAG2 : 0;
-				break;
-				
-			case iSword:
-				itemsbuf[i].pickup_hearts = sword_hearts[0];
-				itemsbuf[i].misc1 = beam_hearts[0];
-				itemsbuf[i].misc2 = beam_power[0];
-				// It seems that ITEM_FLAG1 was already added by reset_itembuf()...
-				itemsbuf[i].flags &= (!get_bit(&beam_percent,0)) ? ~ITEM_FLAG1 : ~0;
-				break;
-				
-			case iWSword:
-				itemsbuf[i].pickup_hearts = sword_hearts[1];
-				itemsbuf[i].misc1 = beam_hearts[1];
-				itemsbuf[i].misc2 = beam_power[1];
-				itemsbuf[i].flags &= (!get_bit(&beam_percent,1)) ? ~ITEM_FLAG1 : ~0;
-				break;
-				
-			case iMSword:
-				itemsbuf[i].pickup_hearts = sword_hearts[2];
-				itemsbuf[i].misc1 = beam_hearts[2];
-				itemsbuf[i].misc2 = beam_power[2];
-				itemsbuf[i].flags &= (!get_bit(&beam_percent,2)) ? ~ITEM_FLAG1 : ~0;
-				break;
-				
-			case iXSword:
-				itemsbuf[i].pickup_hearts = sword_hearts[3];
-				itemsbuf[i].misc1 = beam_hearts[3];
-				itemsbuf[i].misc2 = beam_power[3];
-				itemsbuf[i].flags &= (!get_bit(&beam_percent,3)) ? ~ITEM_FLAG1 : ~0;
-				break;
-				
-			case iHookshot:
-				itemsbuf[i].misc1 = hookshot_length;
-				itemsbuf[i].misc2 = hookshot_links;
-				break;
-				
-			case iLongshot:
-				itemsbuf[i].misc1 = longshot_length;
-				itemsbuf[i].misc2 = longshot_links;
-				break;
+				case iFairyStill:
+					itemsbuf[i].misc1 = stationary_fairy_hearts;
+					itemsbuf[i].misc2 = stationary_fairy_magic;
+					itemsbuf[i].misc3 = 0;
+					itemsbuf[i].flags |= stationary_fairy_heart_percent ? ITEM_FLAG1 : 0;
+					itemsbuf[i].flags |= stationary_fairy_magic_percent ? ITEM_FLAG2 : 0;
+					break;
+					
+				case iFairyMoving:
+					itemsbuf[i].misc1 = moving_fairy_hearts;
+					itemsbuf[i].misc2 = moving_fairy_magic;
+					itemsbuf[i].misc3 = 50;
+					itemsbuf[i].flags |= moving_fairy_heart_percent ? ITEM_FLAG1 : 0;
+					itemsbuf[i].flags |= moving_fairy_magic_percent ? ITEM_FLAG2 : 0;
+					break;
+					
+				case iRPotion:
+					itemsbuf[i].misc1 = red_potion_hearts;
+					itemsbuf[i].misc2 = red_potion_magic;
+					itemsbuf[i].flags |= red_potion_heart_percent ? ITEM_FLAG1 : 0;
+					itemsbuf[i].flags |= red_potion_magic_percent ? ITEM_FLAG2 : 0;
+					break;
+					
+				case iBPotion:
+					itemsbuf[i].misc1 = blue_potion_hearts;
+					itemsbuf[i].misc2 = blue_potion_magic;
+					itemsbuf[i].flags |= blue_potion_heart_percent ? ITEM_FLAG1 : 0;
+					itemsbuf[i].flags |= blue_potion_magic_percent ? ITEM_FLAG2 : 0;
+					break;
+					
+				case iSword:
+					itemsbuf[i].pickup_hearts = sword_hearts[0];
+					itemsbuf[i].misc1 = beam_hearts[0];
+					itemsbuf[i].misc2 = beam_power[0];
+					// It seems that ITEM_FLAG1 was already added by reset_itembuf()...
+					itemsbuf[i].flags &= (!get_bit(&beam_percent,0)) ? ~ITEM_FLAG1 : ~0;
+					break;
+					
+				case iWSword:
+					itemsbuf[i].pickup_hearts = sword_hearts[1];
+					itemsbuf[i].misc1 = beam_hearts[1];
+					itemsbuf[i].misc2 = beam_power[1];
+					itemsbuf[i].flags &= (!get_bit(&beam_percent,1)) ? ~ITEM_FLAG1 : ~0;
+					break;
+					
+				case iMSword:
+					itemsbuf[i].pickup_hearts = sword_hearts[2];
+					itemsbuf[i].misc1 = beam_hearts[2];
+					itemsbuf[i].misc2 = beam_power[2];
+					itemsbuf[i].flags &= (!get_bit(&beam_percent,2)) ? ~ITEM_FLAG1 : ~0;
+					break;
+					
+				case iXSword:
+					itemsbuf[i].pickup_hearts = sword_hearts[3];
+					itemsbuf[i].misc1 = beam_hearts[3];
+					itemsbuf[i].misc2 = beam_power[3];
+					itemsbuf[i].flags &= (!get_bit(&beam_percent,3)) ? ~ITEM_FLAG1 : ~0;
+					break;
+					
+				case iHookshot:
+					itemsbuf[i].misc1 = hookshot_length;
+					itemsbuf[i].misc2 = hookshot_links;
+					break;
+					
+				case iLongshot:
+					itemsbuf[i].misc1 = longshot_length;
+					itemsbuf[i].misc2 = longshot_links;
+					break;
 			}
 		}
 		
@@ -19112,32 +19039,15 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	if(Header->zelda_version < 0x190) //1.84 bugfix. -Z
 	{
-	//temp_zinit.items[iBombBag] = true; //No, this is 30 max bombs!
-	temp_zinit.max_bombs = 8;
+		//temp_zinit.items[iBombBag] = true; //No, this is 30 max bombs!
+		temp_zinit.max_bombs = 8;
 	}
-	al_trace("About to copy over new init data values for quest made in: %x\n", Header->zelda_version);
+	// al_trace("About to copy over new init data values for quest made in: %x\n", Header->zelda_version);
 	//time to ensure that we port all new values properly:
-	if(Header->zelda_version < 0x255)
-	{
-	temp_zinit.nBombs = temp_zinit.bombs;
-	//al_trace("Copied over %s\n", "nbombs");
-	temp_zinit.nSbombs = temp_zinit.super_bombs;
-		//al_trace("Copied over %s\n", "nSbombs");
-	temp_zinit.nBombmax = temp_zinit.max_bombs;
-		//al_trace("Copied over %s\n", "nBombmax");
-		
-		//al_trace("temp_zinit.max_bombs is %d\n", temp_zinit.max_bombs);
-		//al_trace("temp_zinit.bomb_ratio is %d\n", temp_zinit.bomb_ratio);
 	if(Header->zelda_version < 0x250)
-	{//bomb ratio is 0 at this point in 2.50 quests for some reason. -Z ( 23rd March, 2019 )
-		temp_zinit.nSBombmax = temp_zinit.bomb_ratio > 0 ? ( temp_zinit.max_bombs/temp_zinit.bomb_ratio ) : (temp_zinit.max_bombs/4);
-		//al_trace("Copied over %s\n", "nSBombmax");
+	{
+		temp_zinit.max_sbombs = temp_zinit.bomb_ratio > 0 ? ( temp_zinit.max_bombs/temp_zinit.bomb_ratio ) : (temp_zinit.max_bombs/4);
 	}
-	temp_zinit.nArrows = temp_zinit.arrows;
-		//al_trace("Copied over %s\n", "nArrows");
-	temp_zinit.nArrowmax = temp_zinit.max_arrows;
-		//al_trace("Copied over %s\n", "nArrowmax");
-	}	
 	
 	if(s_version > 21)
 	{
@@ -19306,9 +19216,6 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			link_animation_speed=1;
 		}
 	}
-	
-	
-	
 	
 	return 0;
 }

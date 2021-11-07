@@ -15049,7 +15049,7 @@ void drawdmap(int32_t dmap)
         
         if(DMaps[dmap].minimap_2_tile)
             ;
-        // new_overworld_map_tile overrides the NES minimap. new_dungeon_map_tile does not.
+        // overworld_map_tile overrides the NES minimap. dungeon_map_tile does not.
         else for(int32_t y=1; y<33; y+=4)
                 drawgrid(dmapbmp_small,1,y,DMaps[dmap].grid[y>>2], DMaps[dmap].flags&dmfMINIMAPCOLORFIX ? mc.cave_fg : mc.dngn_fg, -1, -1);
                 
@@ -15065,7 +15065,7 @@ void drawdmap(int32_t dmap)
         
         if(DMaps[dmap].minimap_2_tile)
             ;
-        else if(!mc.new_overworld_map_tile)
+        else if(!mc.overworld_map_tile)
             for(int32_t y=1; y<33; y+=4)
                 drawovergrid(dmapbmp_small,1,y,DMaps[dmap].grid[y>>2],mc.overw_bg,vc(0));
                 
@@ -15078,7 +15078,7 @@ void drawdmap(int32_t dmap)
         
         if(DMaps[dmap].minimap_2_tile)
             ;
-        else if(!mc.new_overworld_map_tile)
+        else if(!mc.overworld_map_tile)
             for(int32_t y=1; y<33; y+=4)
                 //    drawgrid_s(dmapbmp,1,y,DMaps[dmap].grid[y>>2],dvc(2*4),dvc(2*3),dvc(3+4));
                 drawgrid_s(dmapbmp_small,1,y,DMaps[dmap].grid[y>>2],mc.bs_goal,mc.bs_dk,vc(14));
@@ -15101,13 +15101,13 @@ void drawdmap_screen(int32_t x, int32_t y, int32_t w, int32_t h, int32_t dmap)
     {
         draw_block(tempbmp,0,0,DMaps[dmap].minimap_2_tile,DMaps[dmap].minimap_2_cset,5,3);
     }
-    else if(((DMaps[dmap].type&dmfTYPE)==dmDNGN || (DMaps[dmap].type&dmfTYPE)==dmCAVE) && mc.new_dungeon_map_tile)
+    else if(((DMaps[dmap].type&dmfTYPE)==dmDNGN || (DMaps[dmap].type&dmfTYPE)==dmCAVE) && mc.dungeon_map_tile)
     {
-        draw_block(tempbmp,0,0,mc.new_dungeon_map_tile,mc.dungeon_map_cset,5,3);
+        draw_block(tempbmp,0,0,mc.dungeon_map_tile,mc.dungeon_map_cset,5,3);
     }
-    else if(((DMaps[dmap].type&dmfTYPE)==dmOVERW || (DMaps[dmap].type&dmfTYPE)==dmBSOVERW) && mc.new_overworld_map_tile)
+    else if(((DMaps[dmap].type&dmfTYPE)==dmOVERW || (DMaps[dmap].type&dmfTYPE)==dmBSOVERW) && mc.overworld_map_tile)
     {
-        draw_block(tempbmp,0,0,mc.new_overworld_map_tile,mc.overworld_map_cset,5,3);
+        draw_block(tempbmp,0,0,mc.overworld_map_tile,mc.overworld_map_cset,5,3);
     }
     
     masked_blit(dmapbmp_small,tempbmp,0,0,8,7,65,33);
@@ -28786,23 +28786,23 @@ int32_t onMapStyles()
     }
     
     mapstyles_dlg[0].dp2 = lfont;
-    //al_trace("onMapStyles() read new_blueframe_tile as: %d\n", misc.colors.new_blueframe_tile);
-    mapstyles_dlg[17].d1  = misc.colors.new_blueframe_tile;
+    //al_trace("onMapStyles() read blueframe_tile as: %d\n", misc.colors.blueframe_tile);
+    mapstyles_dlg[17].d1  = misc.colors.blueframe_tile;
     mapstyles_dlg[17].fg  = misc.colors.blueframe_cset;
-    //al_trace("onMapStyles() read new_triforce_tile as: %d\n", misc.colors.new_triforce_tile);
-    mapstyles_dlg[18].d1  = misc.colors.new_triforce_tile;
+    //al_trace("onMapStyles() read triforce_tile as: %d\n", misc.colors.triforce_tile);
+    mapstyles_dlg[18].d1  = misc.colors.triforce_tile;
     mapstyles_dlg[18].fg  = misc.colors.triforce_cset;
-    //al_trace("onMapStyles() read new_triframe_tile as: %d\n", misc.colors.new_triframe_tile);
-    mapstyles_dlg[19].d1  = misc.colors.new_triframe_tile;
+    //al_trace("onMapStyles() read triframe_tile as: %d\n", misc.colors.triframe_tile);
+    mapstyles_dlg[19].d1  = misc.colors.triframe_tile;
     mapstyles_dlg[19].fg  = misc.colors.triframe_cset;
-    //al_trace("onMapStyles() read new_overworld_map_tile as: %d\n", misc.colors.new_overworld_map_tile);
-    mapstyles_dlg[20].d1  = misc.colors.new_overworld_map_tile;
+    //al_trace("onMapStyles() read overworld_map_tile as: %d\n", misc.colors.overworld_map_tile);
+    mapstyles_dlg[20].d1  = misc.colors.overworld_map_tile;
     mapstyles_dlg[20].fg  = misc.colors.overworld_map_cset;
-     //al_trace("onMapStyles() read new_HCpieces_tile as: %d\n", misc.colors.new_HCpieces_tile);
-    mapstyles_dlg[21].d1 = misc.colors.new_HCpieces_tile;
+     //al_trace("onMapStyles() read HCpieces_tile as: %d\n", misc.colors.HCpieces_tile);
+    mapstyles_dlg[21].d1 = misc.colors.HCpieces_tile;
     mapstyles_dlg[21].fg = misc.colors.HCpieces_cset;
-    //al_trace("onMapStyles() read new_dungeon_map_tile as: %d\n", misc.colors.new_dungeon_map_tile);
-    mapstyles_dlg[22].d1  = misc.colors.new_dungeon_map_tile;
+    //al_trace("onMapStyles() read dungeon_map_tile as: %d\n", misc.colors.dungeon_map_tile);
+    mapstyles_dlg[22].d1  = misc.colors.dungeon_map_tile;
     mapstyles_dlg[22].fg  = misc.colors.dungeon_map_cset;
     
     if(is_large)
@@ -28814,17 +28814,17 @@ int32_t onMapStyles()
     
     if(ret==23)
     {
-        misc.colors.new_blueframe_tile     = mapstyles_dlg[17].d1;
+        misc.colors.blueframe_tile     = mapstyles_dlg[17].d1;
         misc.colors.blueframe_cset     = mapstyles_dlg[17].fg;
-        misc.colors.new_triforce_tile      = mapstyles_dlg[18].d1;
+        misc.colors.triforce_tile      = mapstyles_dlg[18].d1;
         misc.colors.triforce_cset      = mapstyles_dlg[18].fg;
-        misc.colors.new_triframe_tile      = mapstyles_dlg[19].d1;
+        misc.colors.triframe_tile      = mapstyles_dlg[19].d1;
         misc.colors.triframe_cset      = mapstyles_dlg[19].fg;
-        misc.colors.new_overworld_map_tile = mapstyles_dlg[20].d1;
+        misc.colors.overworld_map_tile = mapstyles_dlg[20].d1;
         misc.colors.overworld_map_cset = mapstyles_dlg[20].fg;
-        misc.colors.new_HCpieces_tile      = mapstyles_dlg[21].d1;
+        misc.colors.HCpieces_tile      = mapstyles_dlg[21].d1;
         misc.colors.HCpieces_cset      = mapstyles_dlg[21].fg;
-        misc.colors.new_dungeon_map_tile   = mapstyles_dlg[22].d1;
+        misc.colors.dungeon_map_tile   = mapstyles_dlg[22].d1;
         misc.colors.dungeon_map_cset   = mapstyles_dlg[22].fg;
         saved=false;
     }
@@ -35734,8 +35734,8 @@ bool ZModule::init(bool d) //bool default
 			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255",
 			"ic_script01","ic_script02","ic_script03","ic_script04","ic_script05",
 			"ic_script06","ic_script07","ic_script08","ic_script09","ic_script10",
-			"ic_icerod","ic_atkring",
-			"ic_267","ic_269""ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
+			"ic_icerod","ic_atkring","ic_lantern",
+			"ic_269""ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
 			"ic_286","ic_287","ic_288","ic_289","ic_290","ic_291","ic_292","ic_293","ic_294","ic_295","ic_296","ic_297","ic_298","ic_299","ic_300","ic_301","ic_302","ic_303","ic_304",
 			"ic_305","ic_306","ic_307","ic_308","ic_309","ic_311","ic_312","ic_313","ic_314","ic_315","ic_316","ic_317","ic_318","ic_319","ic_320","ic_321",
 			"ic_322","ic_323","ic_324","ic_325","ic_326","ic_327","ic_328","ic_329","ic_330","ic_331","ic_332","ic_333","ic_334","ic_335","ic_336","ic_337",
