@@ -1992,9 +1992,6 @@ Waitdraw Support:	Yes
 * You can assign this script to a DMap in the DMAPS EDITOR dialogue. 
 *	To do this, open the DMAPS EDITOR, and select the 'Scripts' tab.
 *
-* You may assign scripts to DMaps from other scripts, on an initialised dmapdata pointer,
-* via dmapdata->Script and dmapdata->SubscreenScript[2], where the indices are:
-*
 *	DMD_SUBSCREEN_ACTIVE 	= 0;
 *	DMD_SUBSCREEN_PASSIVE 	= 1;
 *
