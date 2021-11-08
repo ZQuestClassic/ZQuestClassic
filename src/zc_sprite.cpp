@@ -185,7 +185,7 @@ bool movingblock::animate(int32_t)
 		*/
 		size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
 		int32_t f1 = m->sflag[combopos];
-		int32_t f2 = MAPCOMBOFLAG2(blockLayer,x,y);
+		int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 		if(!fallclk && !drownclk)
 		{
 			m->data[combopos]=bcombo;
@@ -227,7 +227,7 @@ bool movingblock::animate(int32_t)
 		}
 		else if(!fallclk&&!drownclk)
 		{
-			f2 = MAPCOMBOFLAG2(blockLayer,x,y);
+			f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			
 			if(!((f2==mfPUSHUDINS && dir<=down) ||
 					(f2==mfPUSHLRINS && dir>=left) ||
@@ -256,7 +256,7 @@ bool movingblock::animate(int32_t)
 		}
 		
 		//triggers a secret
-		f2 = MAPCOMBOFLAG2(blockLayer,x,y);
+		f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 		
 		if((oldflag==mfPUSH4 ||
 			(oldflag==mfPUSHUD && dir<=down) ||
