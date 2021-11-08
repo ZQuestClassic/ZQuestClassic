@@ -1,5 +1,5 @@
  
-Venrob04/25/2019
+EmilyV04/25/2019
 Notice the Would be nice tag; we have no plans to even implement this at this time
 part of the syntax is limited by the bison, as well, due to shift-reduce and reduce-reduce errors
 one of the reasons casting is <type> instead of (type)
@@ -7,7 +7,7 @@ one of the reasons casting is <type> instead of (type)
 Mr Mustache04/25/2019
 ok thats just one of the things I hate in c++ is the * and &
  
-Venrob04/25/2019
+EmilyV04/25/2019
 I understand the feeling, because they always confuse me
 but, they are actually very important in what they allow
  
@@ -46,7 +46,7 @@ The first index tells us how far into the vector from this point we are reading.
 
 The actual initialisation of a function pointer:
 void(*foo)(int,bool,bitmap); would push onto the stack, a flag that the next stack value is going to be a function pointer, then the array address in the vector.
-@Venrob Feasibility?
+@EmilyV Feasibility?
 It would have been better if our syntax always required pointer tokens for this sort of thing, because the way that we pass arrays by reference is exactly why it is hard to fix some of their problems, and a cause for not being able to ever migrate away from how they now work.
 Thus, if we ever want real structs, 2D arrays, or classes, we would need some kind of address system for those.
 In that case, the pointer would be the starting point of the struct/array/class in a vector.
@@ -233,12 +233,12 @@ I would advise against it.
 That's also based on pascal.
 http://wiki.freepascal.org/Function
  
-Venrob
+EmilyV
 
 
 Adding class to ZScript
 
-If @Venrob manages to get namespace working, fully, then I don't think that this will be as big of a bitch as he imagines it would.
+If @EmilyV manages to get namespace working, fully, then I don't think that this will be as big of a bitch as he imagines it would.
 
 (A) ZScript will not need, nor be able to use multiple instances, so we can dispose of new m and instance behaviour, and focus on the following:
 
@@ -311,7 +311,7 @@ class foo
     public: int y;
 };
  
-Venrob04/25/2019
+EmilyV04/25/2019
 Again, inactive channel
 this entire category is
 
@@ -322,7 +322,7 @@ Array data is all stored in a vector that contains first the array pointer, then
 2D or 3D would need to contain the different dimensions, and the data in the correct sequence.
 structs would need to store the struct pointer, the number of members, then the datatype of each member, the size and dimensions of each member, and then the data.
  
-Venrob03/24/2019
+EmilyV03/24/2019
 My main issue is I know almost nothing about the ASM side, or anything related (including save file stuff)
 I don't think I've even added an opcode, that got merged (KoolAid and I did the TriComp, as a test to learn how the parser worked, but that's not getting merged, because we don't want it)
 
