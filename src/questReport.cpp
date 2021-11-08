@@ -1323,10 +1323,10 @@ void integrityCheckRoomNoGuyNoString()
 
 void integrityCheckQuestNumber()
 {
-    if(header.quest_number!=0)
-    {
-        quest_report_str+="The quest number (in the Quest->Header menu) is not set to 0.  This quest will not be playable unless this is changed!\n\n";
-    }
+    // if(header.quest_number!=0)
+    // {
+        // quest_report_str+="The quest number (in the Quest->Header menu) is not set to 0.  This quest will not be playable unless this is changed!\n\n";
+    // }
 }
 
 void integrityCheckItemWalkability()

@@ -3345,17 +3345,17 @@ static bool register_name()
 		strcpy(buf,name);
 		strupr(buf);
 		
-	for ( int32_t q = 2; q < moduledata.max_quest_files+1; q++)
-	{
-		al_trace("Quest number is: %d\n",q);
-		al_trace("Quest skip string is: %s",moduledata.skipnames[q-1]);
-		if(!stricmp(buf,moduledata.skipnames[q-1]))
+		for ( int32_t q = 2; q < moduledata.max_quest_files+1; q++)
 		{
-			quest=q;  
+			// al_trace("Quest number is: %d\n",q);
+			// al_trace("Quest skip string is: %s",moduledata.skipnames[q-1]);
+			if(!stricmp(buf,moduledata.skipnames[q-1]))
+			{
+				quest=q;  
+			}
+			  
 		}
-		  
-	}
-	/*
+		/*
 		if(!stricmp(buf,moduledata.skipnames[1]))
 			quest=2;
 			
@@ -3601,15 +3601,22 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 		break;
 	}
 	
-	if(header->quest_number > 0)
-	{
-		strcpy(str,
-			   (header->quest_number == 4) ? "Error: Not a custom quest! Clear the Second Quest with all 16 Heart Containers to play this." :
-			   (header->quest_number == 3) ? "Error: Not a custom quest! Clear the Second Quest to play this." :
-			   (header->quest_number > 1) ? "Error: Not a custom quest! Clear the First Quest to play this." :
-			   "Error: Not a custom quest! Create a new save file and press Start to play the First Quest.");
-		return 0;
-	}
+	// if(header->quest_number > 0)
+	// {
+		// if(moduledata.old_quest_serial_flow)
+		// {
+			// strcpy(str,
+				   // (header->quest_number == 4) ? "Error: Not a custom quest! Clear the Second Quest with all 16 Heart Containers to play this." :
+				   // (header->quest_number == 3) ? "Error: Not a custom quest! Clear the Second Quest to play this." :
+				   // (header->quest_number > 1) ? "Error: Not a custom quest! Clear the First Quest to play this." :
+				   // "Error: Not a custom quest! Create a new save file and press Start to play the First Quest.");
+		// }
+		// else
+		// {
+			// strcpy(str, "Error: Not a custom quest! Clear the prior quest in the module to play this.");
+		// }
+		// return 0;
+	// }
 	
 	strcpy(str,"Title:\n");
 	strcat(str,header->title);
