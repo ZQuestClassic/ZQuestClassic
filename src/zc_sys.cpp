@@ -9625,7 +9625,7 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 		newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
 		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
 		{
-			sprintf(buf, "music\\%s", qstfname, filename);
+			sprintf(buf, "music\\%s", filename);
 			append_filename(musicpath, exedir, buf, 2048);
 			newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
 		}
@@ -9642,7 +9642,7 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 		newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
 		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
 		{
-			sprintf(buf, "music\\%s", qstfname, filename);
+			sprintf(buf, "music\\%s", filename);
 			append_filename(musicpath, qstdir, buf, 2048);
 			newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
 		}
@@ -9711,7 +9711,7 @@ bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi)
 		newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
 		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
 		{
-			sprintf(buf, "music\\%s", qstfname, filename);
+			sprintf(buf, "music\\%s", filename);
 			append_filename(musicpath, exedir, buf, 2048);
 			newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
 		}
@@ -9728,7 +9728,7 @@ bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi)
 		newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
 		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
 		{
-			sprintf(buf, "music\\%s", qstfname, filename);
+			sprintf(buf, "music\\%s", filename);
 			append_filename(musicpath, qstdir, buf, 2048);
 			newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
 		}

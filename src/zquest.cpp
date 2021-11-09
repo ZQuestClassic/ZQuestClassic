@@ -4203,25 +4203,24 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2);
 
 int32_t onDefault_SFX()
 {
-    if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
-    {
-        saved=false;
-        SAMPLE *temp_sample;
-        
-        for(int32_t i=1; i<WAV_COUNT; i++)
-        {
-            temp_sample = (SAMPLE *)sfxdata[zc_min(i,Z35)].dat;
-            change_sfx(&customsfxdata[i], temp_sample);
-            sprintf(sfx_string[i],"s%03d",i);
-            
-            if(i<Z35)
-                strcpy(sfx_string[i], old_sfx_string[i-1]);
-                
-            memset(customsfxflag, 0, WAV_COUNT>>3);
-        }
-    }
-    
-    return D_O_K;
+	if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+	{
+		saved=false;
+		SAMPLE *temp_sample;
+		
+		for(int32_t i=1; i<WAV_COUNT; i++)
+		{
+			temp_sample = (SAMPLE *)sfxdata[zc_min(i,Z35)].dat;
+			change_sfx(&customsfxdata[i], temp_sample);
+			sprintf(sfx_string[i],"s%03d",i);
+			
+			if(i<Z35)
+				strcpy(sfx_string[i], old_sfx_string[i-1]);
+			set_bit(customsfxflag, i<Z35?1:0, i-1);
+		}
+	}
+	
+	return D_O_K;
 }
 
 
@@ -28568,168 +28567,164 @@ bool saveWAV(int32_t slot, const char *filename)
 
 int32_t onEditSFX(int32_t index)
 {
-    kill_sfx();
-    stop_midi();
-    set_volume(255,-1);
-    int32_t ret;
-    sfx_edit_dlg[0].dp2=lfont;
-    uint8_t tempflag;
-    tempflag = get_bit(customsfxflag,index-1);
-    change_sfx(&templist[index], &customsfxdata[index]);
-    
-    char sfxnumstr[50];
-    sprintf(sfxnumstr,"SFX %d: %s", index, sfx_string[index]);
-    sfx_edit_dlg[0].dp = sfxnumstr;
-    
-    char name[36];
-    strcpy(name,sfx_string[index]);
-    sfx_edit_dlg[7].dp = name;
-    
-    if(is_large)
-        large_dialog(sfx_edit_dlg);
-        
-    do
-    {
-        ret=zc_popup_dialog(sfx_edit_dlg,1);
-        
-        switch(ret)
-        {
-		case 1:
-		    saved= false;
-		    kill_sfx();
-		    change_sfx(&customsfxdata[index],&templist[index]);
-		    set_bit(customsfxflag,index-1,tempflag);
-		    strcpy(sfx_string[index], name);
-		    
-		case 2:
-		case 0:
-		    // Fall Through
-		    kill_sfx();
-		    
-		    for(int32_t i=1; i<WAV_COUNT; i++)
-		    {
-			if(templist[i].data != NULL)
-			{
-			    zc_free(templist[i].data);
-			    templist[i].data = NULL;
-			}
-		    }
-		    
-		    break;
-		    
-		case 3:
-		    if(getname("Open .WAV file", "wav", NULL,temppath, true))
-		    {
-			SAMPLE * temp_sample;
-			
-			if((temp_sample = load_wav(temppath))==NULL)
-			{
-			    jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
-			}
-			else
-			{
-			    char sfxtitle[36];
-			    char *t = get_filename(temppath);
-			    int32_t j;
-			    
-			    for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
-			    {
-				sfxtitle[j]=t[j];
-			    }
-			    
-			    sfxtitle[j]=0;
-			    strcpy(name,sfxtitle);
-			    kill_sfx();
-			    change_sfx(&templist[index], temp_sample);
-			    destroy_sample(temp_sample);
-			    tempflag = 1;
-			}
-		    }
-		    
-		    break;
-		    
-		case 4:
-		{
-		    kill_sfx();
-		    
-		    if(templist[index].data != NULL)
-		    {
-			sfx(index, 128, false,true);
-		    }
-		}
-		break;
+	kill_sfx();
+	stop_midi();
+	set_volume(255,-1);
+	int32_t ret;
+	sfx_edit_dlg[0].dp2=lfont;
+	uint8_t tempflag;
+	tempflag = get_bit(customsfxflag,index-1);
+	change_sfx(&templist[index], &customsfxdata[index]);
+	
+	char sfxnumstr[50];
+	sprintf(sfxnumstr,"SFX %d: %s", index, sfx_string[index]);
+	sfx_edit_dlg[0].dp = sfxnumstr;
+	
+	char name[36];
+	strcpy(name,sfx_string[index]);
+	sfx_edit_dlg[7].dp = name;
+	
+	if(is_large)
+		large_dialog(sfx_edit_dlg);
 		
-		case 5:
-		    kill_sfx();
-		    break;
-		    
-		case 6:
-		    kill_sfx();
-		    
-		    if(index < WAV_COUNT)
-		    {
-			SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
-			change_sfx(&templist[index], temp_sample);
-			tempflag = 0;
-			sprintf(name,"s%03d", index);
-			
-			if(index <Z35)
-			{
-			    strcpy(name, old_sfx_string[index-1]);
-			}
-		    }
-		    
-		    break;
-		    
-	    
-		case 10:
+	do
+	{
+		ret=zc_popup_dialog(sfx_edit_dlg,1);
+		
+		switch(ret)
 		{
-			memset(temppath, 0, sizeof(temppath));
-			char tempname[36];
-			strcpy(tempname,sfx_string[index]);
-			//change spaces to dashes for f/s safety
-			for ( int32_t q = 0; q < 36; ++q )
-			{
-				if(tempname[q] == 32 || tempname[q] == 47 || tempname[q] == 92 ) //SPACE, Bslash, Fslash
-					tempname[q] = 45; //becomes hyphen
-			}
-			
-			tempname[35] = 0;
-			
-			strcpy(temppath,tempname);
-			
-			//zprint2("temppath is: %s\n", temppath);
-			//zprint2("tempname is: %s\n", tempname);
-			//save
-			if(templist[index].data != NULL)
-			{
-				if (getname("Save .WAV file", "wav", NULL, temppath, true))
+			case 1:
+				saved= false;
+				kill_sfx();
+				change_sfx(&customsfxdata[index],&templist[index]);
+				set_bit(customsfxflag,index-1,tempflag);
+				strcpy(sfx_string[index], name);
+				
+			case 2:
+			case 0:
+				// Fall Through
+				kill_sfx();
+				
+				for(int32_t i=1; i<WAV_COUNT; i++)
 				{
-					if(!saveWAV(index, temppath))
+					if(templist[i].data != NULL)
 					{
-						jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, lfont);
-					}
-					else 
-					{
-						jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, lfont);
-						
+						zc_free(templist[i].data);
+						templist[i].data = NULL;
 					}
 				}
 				
-			}
-			else 
-			{
-				jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, lfont);
+				break;
 				
-			}		
+			case 3:
+				if(getname("Open .WAV file", "wav", NULL,temppath, true))
+				{
+					SAMPLE * temp_sample;
+					
+					if((temp_sample = load_wav(temppath))==NULL)
+					{
+						jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
+					}
+					else
+					{
+						char sfxtitle[36];
+						char *t = get_filename(temppath);
+						int32_t j;
+						
+						for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
+						{
+							sfxtitle[j]=t[j];
+						}
+						
+						sfxtitle[j]=0;
+						strcpy(name,sfxtitle);
+						kill_sfx();
+						change_sfx(&templist[index], temp_sample);
+						destroy_sample(temp_sample);
+						tempflag = 1;
+					}
+				}
+				
+				break;
+				
+			case 4:
+			{
+				kill_sfx();
+				
+				if(templist[index].data != NULL)
+				{
+					sfx(index, 128, false,true);
+				}
+			}
 			break;
+			
+			case 5:
+				kill_sfx();
+				break;
+				
+			case 6:
+				kill_sfx();
+				
+				if(index < WAV_COUNT)
+				{
+					SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
+					change_sfx(&templist[index], temp_sample);
+					tempflag = 1; //now count as custom sfx
+					sprintf(name,"s%03d", index);
+					
+					if(index <Z35)
+					{
+						strcpy(name, old_sfx_string[index-1]);
+					}
+				}
+				
+				break;
+				
+			
+			case 10:
+			{
+				memset(temppath, 0, sizeof(temppath));
+				char tempname[36];
+				strcpy(tempname,sfx_string[index]);
+				//change spaces to dashes for f/s safety
+				for ( int32_t q = 0; q < 36; ++q )
+				{
+					if(tempname[q] == 32 || tempname[q] == 47 || tempname[q] == 92 ) //SPACE, Bslash, Fslash
+						tempname[q] = 45; //becomes hyphen
+				}
+				
+				tempname[35] = 0;
+				
+				strcpy(temppath,tempname);
+				
+				//zprint2("temppath is: %s\n", temppath);
+				//zprint2("tempname is: %s\n", tempname);
+				//save
+				if(templist[index].data != NULL)
+				{
+					if (getname("Save .WAV file", "wav", NULL, temppath, true))
+					{
+						if(!saveWAV(index, temppath))
+						{
+							jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+						}
+						else 
+						{
+							jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+						}
+					}
+				}
+				else 
+				{
+					jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, lfont);
+				}		
+				break;
+			}
 		}
+	}
+	while(ret>2);
 	
-        }
-    }
-    while(ret>2);
-    
-    return D_O_K;
+	return D_O_K;
 }
 
 
@@ -28791,23 +28786,23 @@ int32_t onMapStyles()
     }
     
     mapstyles_dlg[0].dp2 = lfont;
-    //al_trace("onMapStyles() read new_blueframe_tile as: %d\n", misc.colors.new_blueframe_tile);
-    mapstyles_dlg[17].d1  = misc.colors.new_blueframe_tile;
+    //al_trace("onMapStyles() read blueframe_tile as: %d\n", misc.colors.blueframe_tile);
+    mapstyles_dlg[17].d1  = misc.colors.blueframe_tile;
     mapstyles_dlg[17].fg  = misc.colors.blueframe_cset;
-    //al_trace("onMapStyles() read new_triforce_tile as: %d\n", misc.colors.new_triforce_tile);
-    mapstyles_dlg[18].d1  = misc.colors.new_triforce_tile;
+    //al_trace("onMapStyles() read triforce_tile as: %d\n", misc.colors.triforce_tile);
+    mapstyles_dlg[18].d1  = misc.colors.triforce_tile;
     mapstyles_dlg[18].fg  = misc.colors.triforce_cset;
-    //al_trace("onMapStyles() read new_triframe_tile as: %d\n", misc.colors.new_triframe_tile);
-    mapstyles_dlg[19].d1  = misc.colors.new_triframe_tile;
+    //al_trace("onMapStyles() read triframe_tile as: %d\n", misc.colors.triframe_tile);
+    mapstyles_dlg[19].d1  = misc.colors.triframe_tile;
     mapstyles_dlg[19].fg  = misc.colors.triframe_cset;
-    //al_trace("onMapStyles() read new_overworld_map_tile as: %d\n", misc.colors.new_overworld_map_tile);
-    mapstyles_dlg[20].d1  = misc.colors.new_overworld_map_tile;
+    //al_trace("onMapStyles() read overworld_map_tile as: %d\n", misc.colors.overworld_map_tile);
+    mapstyles_dlg[20].d1  = misc.colors.overworld_map_tile;
     mapstyles_dlg[20].fg  = misc.colors.overworld_map_cset;
-     //al_trace("onMapStyles() read new_HCpieces_tile as: %d\n", misc.colors.new_HCpieces_tile);
-    mapstyles_dlg[21].d1 = misc.colors.new_HCpieces_tile;
+     //al_trace("onMapStyles() read HCpieces_tile as: %d\n", misc.colors.HCpieces_tile);
+    mapstyles_dlg[21].d1 = misc.colors.HCpieces_tile;
     mapstyles_dlg[21].fg = misc.colors.HCpieces_cset;
-    //al_trace("onMapStyles() read new_dungeon_map_tile as: %d\n", misc.colors.new_dungeon_map_tile);
-    mapstyles_dlg[22].d1  = misc.colors.new_dungeon_map_tile;
+    //al_trace("onMapStyles() read dungeon_map_tile as: %d\n", misc.colors.dungeon_map_tile);
+    mapstyles_dlg[22].d1  = misc.colors.dungeon_map_tile;
     mapstyles_dlg[22].fg  = misc.colors.dungeon_map_cset;
     
     if(is_large)
@@ -28819,17 +28814,17 @@ int32_t onMapStyles()
     
     if(ret==23)
     {
-        misc.colors.new_blueframe_tile     = mapstyles_dlg[17].d1;
+        misc.colors.blueframe_tile     = mapstyles_dlg[17].d1;
         misc.colors.blueframe_cset     = mapstyles_dlg[17].fg;
-        misc.colors.new_triforce_tile      = mapstyles_dlg[18].d1;
+        misc.colors.triforce_tile      = mapstyles_dlg[18].d1;
         misc.colors.triforce_cset      = mapstyles_dlg[18].fg;
-        misc.colors.new_triframe_tile      = mapstyles_dlg[19].d1;
+        misc.colors.triframe_tile      = mapstyles_dlg[19].d1;
         misc.colors.triframe_cset      = mapstyles_dlg[19].fg;
-        misc.colors.new_overworld_map_tile = mapstyles_dlg[20].d1;
+        misc.colors.overworld_map_tile = mapstyles_dlg[20].d1;
         misc.colors.overworld_map_cset = mapstyles_dlg[20].fg;
-        misc.colors.new_HCpieces_tile      = mapstyles_dlg[21].d1;
+        misc.colors.HCpieces_tile      = mapstyles_dlg[21].d1;
         misc.colors.HCpieces_cset      = mapstyles_dlg[21].fg;
-        misc.colors.new_dungeon_map_tile   = mapstyles_dlg[22].d1;
+        misc.colors.dungeon_map_tile   = mapstyles_dlg[22].d1;
         misc.colors.dungeon_map_cset   = mapstyles_dlg[22].fg;
         saved=false;
     }
@@ -35739,8 +35734,8 @@ bool ZModule::init(bool d) //bool default
 			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255",
 			"ic_script01","ic_script02","ic_script03","ic_script04","ic_script05",
 			"ic_script06","ic_script07","ic_script08","ic_script09","ic_script10",
-			"ic_icerod","ic_atkring",
-			"ic_267","ic_269""ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
+			"ic_icerod","ic_atkring","ic_lantern",
+			"ic_269""ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
 			"ic_286","ic_287","ic_288","ic_289","ic_290","ic_291","ic_292","ic_293","ic_294","ic_295","ic_296","ic_297","ic_298","ic_299","ic_300","ic_301","ic_302","ic_303","ic_304",
 			"ic_305","ic_306","ic_307","ic_308","ic_309","ic_311","ic_312","ic_313","ic_314","ic_315","ic_316","ic_317","ic_318","ic_319","ic_320","ic_321",
 			"ic_322","ic_323","ic_324","ic_325","ic_326","ic_327","ic_328","ic_329","ic_330","ic_331","ic_332","ic_333","ic_334","ic_335","ic_336","ic_337",

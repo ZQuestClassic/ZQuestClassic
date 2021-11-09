@@ -236,10 +236,10 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_DOORS            1
 #define V_ITEMS           48
 #define V_WEAPONS          7
-#define V_COLORS           3 //Misc Colours
+#define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        28
+#define V_INITDATA        29
 #define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -3440,13 +3440,6 @@ struct dmap
     byte disableditems[iMax];
     // 460
     int32_t flags;
-    //byte sideview;
-    //byte gravity; //This is a byte (not a float!) in initdata -Z
-    //word terminalv; //This is a word  (not a float!) in initdata -Z
-    //int32_t jump_z_layer_3;
-    //byte noF6;
-    //int32_t init_d[8];
-    //int32_t script;
     char sideview;
     word script;
     int32_t initD[8];
@@ -3565,29 +3558,22 @@ struct zcolors
     byte dungeon_map_cset;
     byte blueframe_cset;
     //20
-    word triforce_tile;
-    word triframe_tile;
-    word overworld_map_tile;
-    word dungeon_map_tile;
-    word blueframe_tile;
-    //30
-    word HCpieces_tile;
+    int32_t triforce_tile;
+    int32_t triframe_tile;
+    int32_t overworld_map_tile;
+    int32_t dungeon_map_tile;
+    int32_t blueframe_tile;
+    //40
+    int32_t HCpieces_tile;
     byte HCpieces_cset;
     byte msgtext;
     
-    int32_t new_triforce_tile;
-    int32_t new_triframe_tile;
-    int32_t new_overworld_map_tile;
-    int32_t new_dungeon_map_tile;
-    int32_t new_blueframe_tile;
-    int32_t new_HCpieces_tile;
-    
     byte foo[6];
-    //40
+    //52
     byte foo2[256];
     
     
-    //296 bytes
+    //308 bytes
 };
 
 struct palcycle
@@ -4171,56 +4157,54 @@ enum
 
 struct zinitdata
 {
-    byte bombs, super_bombs;
-    bool items[256];
-    //94
-    byte hc;
-    word start_heart, cont_heart;
-    byte hcp, hcp_per_hc, max_bombs, keys;
-    byte arrows, max_arrows;
-    word rupies;
-    byte triforce;                                            // bit flags
-    byte map[64];
-    byte compass[64];
-    byte boss_key[64];
-    byte misc[16];
-//  byte sword_hearts[4];
-    byte last_map;                                            //last map worked on
-    //220
-    byte last_screen;                                         //last screen worked on
-    word max_magic;
-    word magic;
-    byte bomb_ratio;	// ratio of super bombs to bombs
-    byte msg_more_x, msg_more_y, msg_more_is_offset;
-    byte subscreen;
-    word start_dmap;
-    byte linkanimationstyle;
-    //238
-    //byte expansion[98];
-    //336 bytes total
-    byte level_keys[MAXLEVELS];
-    int32_t ss_grid_x;
-    int32_t ss_grid_y;
-    int32_t ss_grid_xofs;
-    int32_t ss_grid_yofs;
-    int32_t ss_grid_color;
-    int32_t ss_bbox_1_color;
-    int32_t ss_bbox_2_color;
-    int32_t ss_flags;
-    byte subscreen_style;
-    byte usecustomsfx;
-    word max_rupees, max_keys;
-    byte gravity; //Deprecated!
-    int32_t gravity2; //Bumping this up to an int32_t.
-    word terminalv;
-    byte msg_speed;
-    byte transition_type; // Can't edit, yet.
-    byte jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
-    byte link_swim_speed;
-    
-    word nBombs, nSbombs, nBombmax, nSBombmax, nArrows, nArrowmax, heroStep, subscrSpeed, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
-    
-    int32_t exitWaterJump;
+	bool items[256];
+	//94
+	byte hc;
+	word start_heart, cont_heart;
+	byte hcp, hcp_per_hc, keys;
+	word rupies;
+	byte triforce;                                            // bit flags
+	byte map[64];
+	byte compass[64];
+	byte boss_key[64];
+	byte misc[16];
+	// byte sword_hearts[4];
+	byte last_map;                                            //last map worked on
+	//220
+	byte last_screen;                                         //last screen worked on
+	word max_magic;
+	word magic;
+	byte bomb_ratio;	// ratio of super bombs to bombs
+	byte msg_more_x, msg_more_y, msg_more_is_offset;
+	byte subscreen;
+	word start_dmap;
+	byte linkanimationstyle;
+	//238
+	//byte expansion[98];
+	//336 bytes total
+	byte level_keys[MAXLEVELS];
+	int32_t ss_grid_x;
+	int32_t ss_grid_y;
+	int32_t ss_grid_xofs;
+	int32_t ss_grid_yofs;
+	int32_t ss_grid_color;
+	int32_t ss_bbox_1_color;
+	int32_t ss_bbox_2_color;
+	int32_t ss_flags;
+	byte subscreen_style;
+	byte usecustomsfx;
+	word max_rupees, max_keys;
+	byte gravity; //Deprecated!
+	int32_t gravity2; //Bumping this up to an int32_t.
+	word terminalv;
+	byte msg_speed;
+	byte transition_type; // Can't edit, yet.
+	byte jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
+	byte link_swim_speed;
+	
+	word bombs, super_bombs, max_bombs, max_sbombs, arrows, max_arrows, heroStep, subscrSpeed, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
+	
+	int32_t exitWaterJump;
 
 	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
 	
@@ -4234,20 +4218,20 @@ struct zinitdata
 
 struct zcmap
 {
-    byte tileWidth;
-    byte tileHeight;
-    word subaWidth;
-    word subaHeight;
-    word subpWidth;
-    word subpHeight;
-    word scrResWidth;
-    word scrResHeight;
-    word viewWidth;
-    word viewHeight;
-    word viewX;
-    word viewY;
-    bool subaTrans;
-    bool subpTrans;
+	byte tileWidth;
+	byte tileHeight;
+	word subaWidth;
+	word subaHeight;
+	word subpWidth;
+	word subpHeight;
+	word scrResWidth;
+	word scrResHeight;
+	word viewWidth;
+	word viewHeight;
+	word viewX;
+	word viewY;
+	bool subaTrans;
+	bool subpTrans;
 };
 
 enum controls //Args for 'getInput()'

@@ -1729,43 +1729,33 @@ int8_t smart_vercmp(char const* a, char const* b)
 
 int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 {
-    chop_path(qstpath);
-    char *tempdir=(char *)"";
+	chop_path(qstpath);
+	char *tempdir=(char *)"";
 #ifndef ALLEGRO_MACOSX
-    tempdir=qstdir;
+	tempdir=qstdir;
 #endif
-    
-    if(g->get_quest()<255)
-    {
-        // Check the ZC directory first for 1st-4th quests; check qstdir if they're not there
-	switch(g->get_quest())
+	
+	if(g->get_quest()<255)
 	{
-		case 1: sprintf(qstpath, moduledata.quests[0], ordinal(g->get_quest())); break;
-		case 2: sprintf(qstpath, moduledata.quests[1], ordinal(g->get_quest())); break;
-		case 3: sprintf(qstpath, moduledata.quests[2], ordinal(g->get_quest())); break;
-		case 4: sprintf(qstpath, moduledata.quests[3], ordinal(g->get_quest())); break;
-		case 5: sprintf(qstpath, moduledata.quests[4], ordinal(g->get_quest())); break;
-			
-		default: break;
+		// Check the ZC directory first for 1st-4th quests; check qstdir if they're not there
+		if(g->get_quest() < zc_min(10,moduledata.max_quest_files))
+			sprintf(qstpath, moduledata.quests[g->get_quest()], ordinal(g->get_quest()));
+		
+		if(!exists(qstpath))
+		{
+			sprintf(qstpath,"%s%s.qst",tempdir,ordinal(g->get_quest()));
+		}
 	}
-        
-	//was sprintf(qstpath, "%s.qst", ordinal(g->get_quest()));
-        
-        if(!exists(qstpath))
-        {
-            sprintf(qstpath,"%s%s.qst",tempdir,ordinal(g->get_quest()));
-        }
-    }
-    else
-    {
-        if(is_relative_filename(g->qstpath))
-        {
-            sprintf(qstpath,"%s%s",qstdir,g->qstpath);
-        }
-        else
-        {
-            sprintf(qstpath,"%s", g->qstpath);
-        }
+	else
+	{
+		if(is_relative_filename(g->qstpath))
+		{
+			sprintf(qstpath,"%s%s",qstdir,g->qstpath);
+		}
+		else
+		{
+			sprintf(qstpath,"%s", g->qstpath);
+		}
 
 		// ZC paths are retarded.
 		// This is just an awful hack, and generally some of the worst code ever written, but it only ever gets run
@@ -1815,7 +1805,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 					{
 						char cwdbuf[260];
 						memset(cwdbuf,0,260*sizeof(char));
-                        getcwd(cwdbuf, 260);
+						getcwd(cwdbuf, 260);
 
 						std::string path = cwdbuf;
 						std::string fn;
@@ -1841,56 +1831,56 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 			}
 		}//end hack
 
-    }
-    
-    //setPackfilePassword(datapwd);
-    byte skip_flags[4];
-    
-    for(int32_t i=0; i<4; ++i)
-    {
-        skip_flags[i]=0;
-    }
-    
-    int32_t ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata);
+	}
+	
+	//setPackfilePassword(datapwd);
+	byte skip_flags[4];
+	
+	for(int32_t i=0; i<4; ++i)
+	{
+		skip_flags[i]=0;
+	}
+	
+	int32_t ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata);
 	//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
-    //setPackfilePassword(NULL);
-    
-    if(!g->title[0] || g->get_hasplayed() == 0)
-    {
-        strcpy(g->version,QHeader.version);
-        strcpy(g->title,QHeader.title);
-    }
-    else
-    {
-        if(!ret && strcmp(g->title,QHeader.title))
-        {
-            ret = qe_match;
-        }
-    }
-    
-    if(QHeader.minver[0])
-    {
-        if(smart_vercmp(g->version,QHeader.minver) < 0)
-            ret = qe_minver;
-    }
-    
-    if(ret && report)
-    {
-        system_pal();
-        char buf1[80],buf2[80];
-        sprintf(buf1,"Error loading %s:",get_filename(qstpath));
-        sprintf(buf2,"%s",qst_error[ret]);
-        jwin_alert("File error",buf1,buf2,qstpath,"OK",NULL,13,27,lfont);
-        
-        if(standalone_mode)
-        {
-            exit(1);
-        }
-        
-        game_pal();
-    }
-    
-    return ret;
+	//setPackfilePassword(NULL);
+	
+	if(!g->title[0] || g->get_hasplayed() == 0)
+	{
+		strcpy(g->version,QHeader.version);
+		strcpy(g->title,QHeader.title);
+	}
+	else
+	{
+		if(!ret && strcmp(g->title,QHeader.title))
+		{
+			ret = qe_match;
+		}
+	}
+	
+	if(QHeader.minver[0])
+	{
+		if(smart_vercmp(g->version,QHeader.minver) < 0)
+			ret = qe_minver;
+	}
+	
+	if(ret && report)
+	{
+		system_pal();
+		char buf1[80],buf2[80];
+		sprintf(buf1,"Error loading %s:",get_filename(qstpath));
+		sprintf(buf2,"%s",qst_error[ret]);
+		jwin_alert("File error",buf1,buf2,qstpath,"OK",NULL,13,27,lfont);
+		
+		if(standalone_mode)
+		{
+			exit(1);
+		}
+		
+		game_pal();
+	}
+	
+	return ret;
 }
 
 void init_dmap()

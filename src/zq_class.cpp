@@ -7491,249 +7491,204 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
 
 int32_t writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
-    dword section_id=ID_COLORS;
-    dword section_version=V_COLORS;
-    dword section_cversion=CV_COLORS;
-    dword section_size = 0;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        new_return(1);
-    }
-    
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        new_return(2);
-    }
-    
-    if(!p_iputw(section_cversion,f))
-    {
-        new_return(3);
-    }
-    
-    for(int32_t writecycle=0; writecycle<2; ++writecycle)
-    {
-        fake_pack_writing=(writecycle==0);
-        
-        //section size
-        if(!p_iputl(section_size,f))
-        {
-            new_return(4);
-        }
-        
-        writesize=0;
-        
-        if(!p_putc(Misc->colors.text,f))
-        {
-            new_return(5);
-        }
-        
-        if(!p_putc(Misc->colors.caption,f))
-        {
-            new_return(6);
-        }
-        
-        if(!p_putc(Misc->colors.overw_bg,f))
-        {
-            new_return(7);
-        }
-        
-        if(!p_putc(Misc->colors.dngn_bg,f))
-        {
-            new_return(8);
-        }
-        
-        if(!p_putc(Misc->colors.dngn_fg,f))
-        {
-            new_return(9);
-        }
-        
-        if(!p_putc(Misc->colors.cave_fg,f))
-        {
-            new_return(10);
-        }
-        
-        if(!p_putc(Misc->colors.bs_dk,f))
-        {
-            new_return(11);
-        }
-        
-        if(!p_putc(Misc->colors.bs_goal,f))
-        {
-            new_return(12);
-        }
-        
-        if(!p_putc(Misc->colors.compass_lt,f))
-        {
-            new_return(13);
-        }
-        
-        if(!p_putc(Misc->colors.compass_dk,f))
-        {
-            new_return(14);
-        }
-        
-        if(!p_putc(Misc->colors.subscr_bg,f))
-        {
-            new_return(15);
-        }
-        
-        if(!p_putc(Misc->colors.triframe_color,f))
-        {
-            new_return(16);
-        }
-        
-        if(!p_putc(Misc->colors.link_dot,f))
-        {
-            new_return(17);
-        }
-        
-        if(!p_putc(Misc->colors.bmap_bg,f))
-        {
-            new_return(18);
-        }
-        
-        if(!p_putc(Misc->colors.bmap_fg,f))
-        {
-            new_return(19);
-        }
-        
-        if(!p_putc(Misc->colors.triforce_cset,f))
-        {
-            new_return(20);
-        }
-        
-        if(!p_putc(Misc->colors.triframe_cset,f))
-        {
-            new_return(21);
-        }
-        
-        if(!p_putc(Misc->colors.overworld_map_cset,f))
-        {
-            new_return(22);
-        }
-        
-        if(!p_putc(Misc->colors.dungeon_map_cset,f))
-        {
-            new_return(23);
-        }
-        
-        if(!p_putc(Misc->colors.blueframe_cset,f))
-        {
-            new_return(24);
-        }
-        
-        if(!p_iputw(Misc->colors.triforce_tile,f))
-        {
-            new_return(25);
-        }
-        
-        if(!p_iputw(Misc->colors.triframe_tile,f))
-        {
-            new_return(26);
-        }
-        
-        if(!p_iputw(Misc->colors.overworld_map_tile,f))
-        {
-            new_return(27);
-        }
-        
-        if(!p_iputw(Misc->colors.dungeon_map_tile,f))
-        {
-            new_return(28);
-        }
-        
-        if(!p_iputw(Misc->colors.blueframe_tile,f))
-        {
-            new_return(29);
-        }
-        
-        if(!p_iputw(Misc->colors.HCpieces_tile,f))
-        {
-            new_return(30);
-        }
-        
-        if(!p_putc(Misc->colors.HCpieces_cset,f))
-        {
-            new_return(31);
-        }
-        
-        if(!p_putc(Misc->colors.subscr_shadow,f))
-        {
-            new_return(32);
-        }
-        
-        if(!p_putc(Misc->colors.msgtext,f))
-        {
-            new_return(33);
-        }
+	//these are here to bypass compiler warnings about unused arguments
+	Header=Header;
 	
-        if(!p_iputl(Misc->colors.new_triforce_tile,f))
-        {
-            new_return(34);
-        }
-        
-        if(!p_iputl(Misc->colors.new_triframe_tile,f))
-        {
-            new_return(35);
-        }
-        
-        if(!p_iputl(Misc->colors.new_overworld_map_tile,f))
-        {
-            new_return(36);
-        }
-        
-        if(!p_iputl(Misc->colors.new_dungeon_map_tile,f))
-        {
-            new_return(37);
-        }
-	//Older (2.10 and earlier) quests did not have a proper tile here, so we need to write it.
-	//this routine, uses the tile loaded into RAM as 'bluetile_frame' when the old quest was
-	//loaded by 2.55 in its ORIGINAL (old) format, then writes it into the quest file
-	//in the space allocated for `new_blueframe_tile`. -Z (13th March, 2019 )
-	if ( FFCore.getQuestHeaderInfo(vZelda) <= 0x210 )
+	dword section_id=ID_COLORS;
+	dword section_version=V_COLORS;
+	dword section_cversion=CV_COLORS;
+	dword section_size = 0;
+	
+	//section id
+	if(!p_mputl(section_id,f))
 	{
-		if(!p_iputl(Misc->colors.blueframe_tile,f))
+		new_return(1);
+	}
+	
+	
+	//section version info
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+	
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+	
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing=(writecycle==0);
+		
+		//section size
+		if(!p_iputl(section_size,f))
 		{
-		    new_return(38);
+			new_return(4);
 		}
 		
-	}
-	//Otherwise, if the quest was made in 2.50 or later, then is data is copied by the quest loader
-	//into the new var `new_blueframe_tile`, so we just write that out. -Z (13th March, 2019 )
-	else
-	{
-		if(!p_iputl(Misc->colors.new_blueframe_tile,f))
+		writesize=0;
+		
+		if(!p_putc(Misc->colors.text,f))
+		{
+			new_return(5);
+		}
+		
+		if(!p_putc(Misc->colors.caption,f))
+		{
+			new_return(6);
+		}
+		
+		if(!p_putc(Misc->colors.overw_bg,f))
+		{
+			new_return(7);
+		}
+		
+		if(!p_putc(Misc->colors.dngn_bg,f))
+		{
+			new_return(8);
+		}
+		
+		if(!p_putc(Misc->colors.dngn_fg,f))
+		{
+			new_return(9);
+		}
+		
+		if(!p_putc(Misc->colors.cave_fg,f))
+		{
+			new_return(10);
+		}
+		
+		if(!p_putc(Misc->colors.bs_dk,f))
+		{
+			new_return(11);
+		}
+		
+		if(!p_putc(Misc->colors.bs_goal,f))
+		{
+			new_return(12);
+		}
+		
+		if(!p_putc(Misc->colors.compass_lt,f))
+		{
+			new_return(13);
+		}
+		
+		if(!p_putc(Misc->colors.compass_dk,f))
+		{
+			new_return(14);
+		}
+		
+		if(!p_putc(Misc->colors.subscr_bg,f))
+		{
+			new_return(15);
+		}
+		
+		if(!p_putc(Misc->colors.triframe_color,f))
+		{
+			new_return(16);
+		}
+		
+		if(!p_putc(Misc->colors.link_dot,f))
+		{
+			new_return(17);
+		}
+		
+		if(!p_putc(Misc->colors.bmap_bg,f))
+		{
+			new_return(18);
+		}
+		
+		if(!p_putc(Misc->colors.bmap_fg,f))
+		{
+			new_return(19);
+		}
+		
+		if(!p_putc(Misc->colors.triforce_cset,f))
+		{
+			new_return(20);
+		}
+		
+		if(!p_putc(Misc->colors.triframe_cset,f))
+		{
+			new_return(21);
+		}
+		
+		if(!p_putc(Misc->colors.overworld_map_cset,f))
+		{
+			new_return(22);
+		}
+		
+		if(!p_putc(Misc->colors.dungeon_map_cset,f))
+		{
+			new_return(23);
+		}
+		
+		if(!p_putc(Misc->colors.blueframe_cset,f))
+		{
+			new_return(24);
+		}
+		
+		if(!p_putc(Misc->colors.HCpieces_cset,f))
+		{
+			new_return(31);
+		}
+		
+		if(!p_putc(Misc->colors.subscr_shadow,f))
+		{
+			new_return(32);
+		}
+		
+		if(!p_putc(Misc->colors.msgtext,f))
+		{
+			new_return(33);
+		}
+	
+		if(!p_iputl(Misc->colors.triforce_tile,f))
+		{
+			new_return(34);
+		}
+		
+		if(!p_iputl(Misc->colors.triframe_tile,f))
+		{
+			new_return(35);
+		}
+		
+		if(!p_iputl(Misc->colors.overworld_map_tile,f))
+		{
+			new_return(36);
+		}
+		
+		if(!p_iputl(Misc->colors.dungeon_map_tile,f))
+		{
+			new_return(37);
+		}
+		
+		if(!p_iputl(Misc->colors.blueframe_tile,f))
 		{
 			new_return(38);
 		}
-        }
-        if(!p_iputl(Misc->colors.new_HCpieces_tile,f))
-        {
-            new_return(39);
-        }
-        
-        
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    
-    if(writesize!=int32_t(section_size) && save_warn)
-    {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writemisccolors()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
-    }
-    
-    new_return(0);
+		
+		if(!p_iputl(Misc->colors.HCpieces_tile,f))
+		{
+			new_return(39);
+		}
+		
+		
+		if(writecycle==0)
+		{
+			section_size=writesize;
+		}
+	}
+	
+	if(writesize!=int32_t(section_size) && save_warn)
+	{
+		char ebuf[80];
+		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
+		jwin_alert("Error:  writemisccolors()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	
+	new_return(0);
 }
 
 int32_t writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
@@ -12598,17 +12553,6 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 			}
 		}
 		
-		//bomb counter RANDOMLY in the middle of items :-/
-		if(!p_putc(zinit.bombs,f))
-		{
-			new_return(23);
-		}
-		
-		if(!p_putc(zinit.super_bombs,f))
-		{
-			new_return(24);
-		}
-		
 		if(!p_putc(zinit.hc,f))
 		{
 			new_return(25);
@@ -12632,11 +12576,6 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		if(!p_putc(zinit.hcp_per_hc,f))
 		{
 			new_return(29);
-		}
-		
-		if(!p_putc(zinit.max_bombs,f))
-		{
-			new_return(30);
 		}
 		
 		if(!p_putc(zinit.keys,f))
@@ -12734,16 +12673,6 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		if(!p_putc(zinit.linkanimationstyle,f))
 		{
 			new_return(46);
-		}
-		
-		if(!p_putc(zinit.arrows,f))
-		{
-			new_return(47);
-		}
-		
-		if(!p_putc(zinit.max_arrows,f))
-		{
-			new_return(48);
 		}
 		
 		for(int32_t i=0; i<MAXLEVELS; i++)
@@ -12844,27 +12773,27 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 			new_return(67);
 		}
 	
-		if(!p_iputw(zinit.nBombs,f))
+		if(!p_iputw(zinit.bombs,f))
 		{
 			new_return(68);
 		}
-		if(!p_iputw(zinit.nSbombs,f))
+		if(!p_iputw(zinit.super_bombs,f))
 		{
 			new_return(69);
 		}
-		if(!p_iputw(zinit.nBombmax,f))
+		if(!p_iputw(zinit.max_bombs,f))
 		{
 			new_return(70);
 		}
-		if(!p_iputw(zinit.nSBombmax,f))
+		if(!p_iputw(zinit.max_sbombs,f))
 		{
 			new_return(71);
 		}
-		if(!p_iputw(zinit.nArrows,f))
+		if(!p_iputw(zinit.arrows,f))
 		{
 			new_return(72);
 		}
-		if(!p_iputw(zinit.nArrowmax,f))
+		if(!p_iputw(zinit.max_arrows,f))
 		{
 			new_return(73);
 		}

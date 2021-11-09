@@ -42,7 +42,7 @@ void InitDataDialog::setOfs(size_t ofs)
 }
 
 //{ Macros
-#define SBOMB_RATIO (local_zinit.nBombmax / (local_zinit.bomb_ratio > 0 ? local_zinit.bomb_ratio : 4))
+#define SBOMB_RATIO (local_zinit.max_bombs / (local_zinit.bomb_ratio > 0 ? local_zinit.bomb_ratio : 4))
 
 #define BYTE_FIELD(member) \
 TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
@@ -240,12 +240,12 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								margins = 2_spx,
 								Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 								Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
-								WORD_FIELD(nBombs),
+								WORD_FIELD(bombs),
 								TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-									high = 65535, val = local_zinit.nBombmax,
+									high = 65535, val = local_zinit.max_bombs,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										local_zinit.nBombmax = val;
+										local_zinit.max_bombs = val;
 										sBombMax->setVal(SBOMB_RATIO);
 									})
 							),
@@ -255,7 +255,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 								Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
 								Label(hAlign = 1.0, bottomPadding = 0_px, text = "Ratio"),
-								WORD_FIELD(nSbombs),
+								WORD_FIELD(super_bombs),
 								sBombMax = TextField(
 									maxLength = 5,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -270,7 +270,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 										sBombMax->setVal(SBOMB_RATIO);
 									})
 							),
-							COUNTER_FRAME("Arrows", WORD_FIELD(nArrows), WORD_FIELD(nArrowmax)),
+							COUNTER_FRAME("Arrows", WORD_FIELD(arrows), WORD_FIELD(max_arrows)),
 							COUNTER_FRAME("Rupees", WORD_FIELD(rupies), WORD_FIELD(max_rupees)),
 							COUNTER_FRAME("Keys", BYTE_FIELD(keys), WORD_FIELD(max_keys))
 						)),
@@ -537,12 +537,12 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							margins = 2_spx,
 							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
-							WORD_FIELD(nBombs),
+							WORD_FIELD(bombs),
 							TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-								high = 65535, val = local_zinit.nBombmax,
+								high = 65535, val = local_zinit.max_bombs,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									local_zinit.nBombmax = val;
+									local_zinit.max_bombs = val;
 									sBombMax->setVal(SBOMB_RATIO);
 								})
 						),
@@ -552,7 +552,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Ratio"),
-							WORD_FIELD(nSbombs),
+							WORD_FIELD(super_bombs),
 							sBombMax = TextField(
 								maxLength = 5,
 								type = GUI::TextField::type::INT_DECIMAL,
@@ -567,7 +567,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									sBombMax->setVal(SBOMB_RATIO);
 								})
 						),
-						COUNTER_FRAME("Arrows", WORD_FIELD(nArrows), WORD_FIELD(nArrowmax)),
+						COUNTER_FRAME("Arrows", WORD_FIELD(arrows), WORD_FIELD(max_arrows)),
 						COUNTER_FRAME("Rupees", WORD_FIELD(rupies), WORD_FIELD(max_rupees)),
 						COUNTER_FRAME("Keys", BYTE_FIELD(keys), WORD_FIELD(max_keys))
 					)),

@@ -1864,12 +1864,12 @@ int32_t doInit(zinitdata *local_zinit, bool isZC)
 	char mpperblockstr[8];
 	char dmgmultstr[8];
 	char dmgmultstr2[8];
-    sprintf(bombstring, "%d", local_zinit->nBombs);
-    sprintf(maxbombstring, "%d", local_zinit->nBombmax);
-    sprintf(sbombstring, "%d", local_zinit->nSbombs);
-    sprintf(maxsbombstring, "%d", local_zinit->nBombmax/(local_zinit->bomb_ratio > 0 ? local_zinit->bomb_ratio : 4));
-    sprintf(arrowstring, "%d", local_zinit->nArrows);
-    sprintf(maxarrowstring, "%d", local_zinit->nArrowmax);
+    sprintf(bombstring, "%d", local_zinit->bombs);
+    sprintf(maxbombstring, "%d", local_zinit->max_bombs);
+    sprintf(sbombstring, "%d", local_zinit->super_bombs);
+    sprintf(maxsbombstring, "%d", local_zinit->max_bombs/(local_zinit->bomb_ratio > 0 ? local_zinit->bomb_ratio : 4));
+    sprintf(arrowstring, "%d", local_zinit->arrows);
+    sprintf(maxarrowstring, "%d", local_zinit->max_arrows);
     sprintf(herostepstr, "%d", local_zinit->heroStep);
     sprintf(herosideswimupstepstr, "%d", local_zinit->heroSideswimUpStep);
     sprintf(herosideswimsidestepstr, "%d", local_zinit->heroSideswimSideStep);
@@ -2043,12 +2043,12 @@ int32_t doInit(zinitdata *local_zinit, bool isZC)
         }
         
         memcpy(local_zinit, &tempdata, sizeof(zinitdata));
-        local_zinit->nBombs=vbound(atoi(bombstring),0,0xFFFF);
-        local_zinit->nBombmax=vbound(atoi(maxbombstring),0,0xFFFF);
-        local_zinit->nSbombs=vbound(atoi(sbombstring),0,0xFFFF);
-        local_zinit->nSBombmax=vbound(atoi(sbombstring),0,0xFFFF);
-        local_zinit->nArrows=vbound(atoi(arrowstring),0,0xFFFF);
-        local_zinit->nArrowmax=vbound(atoi(maxarrowstring),0,0xFFFF);
+        local_zinit->bombs=vbound(atoi(bombstring),0,0xFFFF);
+        local_zinit->max_bombs=vbound(atoi(maxbombstring),0,0xFFFF);
+        local_zinit->super_bombs=vbound(atoi(sbombstring),0,0xFFFF);
+        local_zinit->max_sbombs=vbound(atoi(sbombstring),0,0xFFFF);
+        local_zinit->arrows=vbound(atoi(arrowstring),0,0xFFFF);
+        local_zinit->max_arrows=vbound(atoi(maxarrowstring),0,0xFFFF);
 		for(int32_t q = 0; q < 25; ++q)
 		{
 			local_zinit->scrcnt[q]=vbound(atoi(scrcntstr[q]),0,0xFFFF);
@@ -2241,10 +2241,10 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 {
     game2->set_life(zinit2->start_heart*zinit2->hp_per_heart);
     game2->set_maxlife(zinit2->hc*zinit2->hp_per_heart);
-    game2->set_maxbombs(zinit2->nBombmax);
-    game2->set_maxcounter(zinit2->nBombmax/zc_max(1,zinit2->bomb_ratio), 6);
+    game2->set_maxbombs(zinit2->max_bombs);
+    game2->set_maxcounter(zinit2->max_bombs/zc_max(1,zinit2->bomb_ratio), 6);
     game2->set_maxmagic(zinit2->max_magic);
-    game2->set_maxarrows(zinit2->nArrowmax);
+    game2->set_maxarrows(zinit2->max_arrows);
     game2->set_maxcounter(zinit2->max_rupees, 1);
     game2->set_maxcounter(zinit2->max_keys, 5);
     
@@ -2270,14 +2270,14 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     flushItemCache();
     
     //Then set up the counters
-    game2->set_bombs(zinit2->nBombs);
+    game2->set_bombs(zinit2->bombs);
     
-    if(zinit2->nBombs > 0 && zinit2->nBombmax > 0) game2->set_item(iBombs, true);
+    if(zinit2->bombs > 0 && zinit2->max_bombs > 0) game2->set_item(iBombs, true);
     
     game2->set_keys(zinit2->keys);
-    game2->set_sbombs(zinit2->nSbombs);
+    game2->set_sbombs(zinit2->super_bombs);
     
-    if(zinit2->nSbombs > 0 && (zinit2->nBombmax/zc_max(1,zinit2->bomb_ratio)) > 0) game2->set_item(iSBomb, true);
+    if(zinit2->super_bombs > 0 && (zinit2->max_bombs/zc_max(1,zinit2->bomb_ratio)) > 0) game2->set_item(iSBomb, true);
     
     game2->set_HCpieces(zinit2->hcp);
     game2->set_rupies(zinit2->rupies);
@@ -2324,7 +2324,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     game2->set_magicdrainrate(get_bit(zinit2->misc,idM_DOUBLEMAGIC)?1:2);
     game2->set_canslash(get_bit(zinit2->misc,idM_CANSLASH)?1:0);
     
-    game2->set_arrows(zinit2->nArrows);
+    game2->set_arrows(zinit2->arrows);
     
 	for(int32_t q = 0; q < 25; ++q)
 	{

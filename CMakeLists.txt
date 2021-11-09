@@ -237,19 +237,6 @@ if(MSVC AND USE_PCH)
 endif()
 
 #############################################################
-# ZScript parser
-#############################################################
-
-if(LINUX)
-	set(ZSCRIPTLIBSEXTRA ${X11_LIBRARIES})
-endif()
-
-if(${BISON_FOUND} AND ${FLEX_FOUND})
-	add_executable(zscript src/parser/ZScript_main.cpp src/util.cpp ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
-	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
-endif()
-
-#############################################################
 # ZQuest
 #############################################################
 
@@ -289,4 +276,17 @@ if(Boost_FOUND)
 		target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
 		target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
 	endif()
+endif()
+
+#############################################################
+# ZScript parser
+#############################################################
+
+if(LINUX)
+	set(ZSCRIPTLIBSEXTRA ${X11_LIBRARIES})
+endif()
+
+if(${BISON_FOUND} AND ${FLEX_FOUND})
+	add_executable(zscript src/parser/ZScript_main.cpp src/util.cpp ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
+	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
 endif()

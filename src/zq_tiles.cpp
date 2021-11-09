@@ -5989,17 +5989,17 @@ void register_used_tiles()
     }
     
     BSZ2=(zinit.subscreen>2);
-    map_styles_items[0].tile=misc.colors.new_blueframe_tile;
-    map_styles_items[1].tile=misc.colors.new_HCpieces_tile;
+    map_styles_items[0].tile=misc.colors.blueframe_tile;
+    map_styles_items[1].tile=misc.colors.HCpieces_tile;
     map_styles_items[1].width=zinit.hcp_per_hc;
-    map_styles_items[2].tile=misc.colors.new_triforce_tile;
+    map_styles_items[2].tile=misc.colors.triforce_tile;
     map_styles_items[2].width=BSZ2?2:1;
     map_styles_items[2].height=BSZ2?3:1;
-    map_styles_items[3].tile=misc.colors.new_triframe_tile;
+    map_styles_items[3].tile=misc.colors.triframe_tile;
     map_styles_items[3].width=BSZ2?7:6;
     map_styles_items[3].height=BSZ2?7:3;
-    map_styles_items[4].tile=misc.colors.new_overworld_map_tile;
-    map_styles_items[5].tile=misc.colors.new_dungeon_map_tile;
+    map_styles_items[4].tile=misc.colors.overworld_map_tile;
+    map_styles_items[5].tile=misc.colors.dungeon_map_tile;
     
     for(int32_t u=0; u<6; u++)
     {
@@ -10249,17 +10249,17 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
                 found=false;
                 flood=false;
                 bool BSZ2=(zinit.subscreen>2);
-                map_styles_items[0].tile=misc.colors.new_blueframe_tile;
-                map_styles_items[1].tile=misc.colors.new_HCpieces_tile;
+                map_styles_items[0].tile=misc.colors.blueframe_tile;
+                map_styles_items[1].tile=misc.colors.HCpieces_tile;
                 map_styles_items[1].width=zinit.hcp_per_hc;
-                map_styles_items[2].tile=misc.colors.new_triforce_tile;
+                map_styles_items[2].tile=misc.colors.triforce_tile;
                 map_styles_items[2].width=BSZ2?2:1;
                 map_styles_items[2].height=BSZ2?3:1;
-                map_styles_items[3].tile=misc.colors.new_triframe_tile;
+                map_styles_items[3].tile=misc.colors.triframe_tile;
                 map_styles_items[3].width=BSZ2?7:6;
                 map_styles_items[3].height=BSZ2?7:3;
-                map_styles_items[4].tile=misc.colors.new_overworld_map_tile;
-                map_styles_items[5].tile=misc.colors.new_dungeon_map_tile;
+                map_styles_items[4].tile=misc.colors.overworld_map_tile;
+                map_styles_items[5].tile=misc.colors.dungeon_map_tile;
                 
                 for(int32_t u=0; u<6; u++)
                 {
@@ -11097,27 +11097,27 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
                     switch(u)
                     {
                     case 0:
-                        misc.colors.new_blueframe_tile+=diff;
+                        misc.colors.blueframe_tile+=diff;
                         break;
                         
                     case 1:
-                        misc.colors.new_HCpieces_tile+=diff;
+                        misc.colors.HCpieces_tile+=diff;
                         break;
                         
                     case 2:
-                        misc.colors.new_triforce_tile+=diff;
+                        misc.colors.triforce_tile+=diff;
                         break;
                         
                     case 3:
-                        misc.colors.new_triframe_tile+=diff;
+                        misc.colors.triframe_tile+=diff;
                         break;
                         
                     case 4:
-                        misc.colors.new_overworld_map_tile+=diff;
+                        misc.colors.overworld_map_tile+=diff;
                         break;
                         
                     case 5:
-                        misc.colors.new_dungeon_map_tile+=diff;
+                        misc.colors.dungeon_map_tile+=diff;
                         break;
                     }
                 }

@@ -2169,7 +2169,7 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
       */
     if(tile==0)
     {
-	tile= FFCore.getQuestHeaderInfo(vZelda) >= 0x250 ? misc->colors.new_blueframe_tile : misc->colors.blueframe_tile;
+	tile= FFCore.getQuestHeaderInfo(vZelda) >= 0x250 ? misc->colors.blueframe_tile : misc->colors.blueframe_tile;
     }
     
     int32_t t8 = tile<<2;
@@ -2548,9 +2548,9 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap,
             {
                 draw_block(dest,x,y,maptile,mapcset,5,3);
             }
-            else if(c.new_overworld_map_tile || c.overworld_map_tile)
+            else if(c.overworld_map_tile || c.overworld_map_tile)
             {
-                draw_block(dest,x,y,(c.new_overworld_map_tile!=0?c.new_overworld_map_tile:c.overworld_map_tile),c.overworld_map_cset,5,3);
+                draw_block(dest,x,y,(c.overworld_map_tile!=0?c.overworld_map_tile:c.overworld_map_tile),c.overworld_map_cset,5,3);
             }
             else
             {
@@ -2574,9 +2574,9 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap,
             {
                 draw_block(dest,x,y,maptile,mapcset,5,3);
             }
-            else if(c.new_dungeon_map_tile||c.dungeon_map_tile)
+            else if(c.dungeon_map_tile||c.dungeon_map_tile)
             {
-                draw_block(dest,x,y,(c.new_dungeon_map_tile!=0?c.new_dungeon_map_tile:c.dungeon_map_tile),c.dungeon_map_cset,5,3);
+                draw_block(dest,x,y,(c.dungeon_map_tile!=0?c.dungeon_map_tile:c.dungeon_map_tile),c.dungeon_map_cset,5,3);
             }
             else
             {
@@ -4679,14 +4679,14 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
 {
     if(triframetile==0)
     {
-        triframetile=misc->colors.new_triframe_tile;
+        triframetile=misc->colors.triframe_tile;
 	if(triframetile==0) triframetile = misc->colors.triframe_tile;
         triframecset=misc->colors.triframe_cset;
     }
     
     if(triforcetile==0)
     {
-        triforcetile=misc->colors.new_triforce_tile;
+        triforcetile=misc->colors.triforce_tile;
 	if(triforcetile==0) triforcetile = misc->colors.triforce_tile;
         triforcecset=misc->colors.triforce_cset;
     }
@@ -4851,7 +4851,7 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t ti
 {
     if(tile==0)
     {
-        tile=misc->colors.new_triforce_tile;
+        tile=misc->colors.triforce_tile;
 	if (tile == 0) tile=misc->colors.triforce_tile;
     }
     
@@ -4904,13 +4904,13 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
         {
             draw_block(dest,x,y,maptile,mapcset,large?9:7,5);
         }
-        else if(misc->colors.new_dungeon_map_tile||misc->colors.dungeon_map_tile)
+        else if(misc->colors.dungeon_map_tile||misc->colors.dungeon_map_tile)
         {
             for(int32_t y2=0; y2<5; y2++)
             {
                 for(int32_t x2=0; x2<(large?8:6); x2++)
                 {
-                    overtile16(dest,(misc->colors.new_dungeon_map_tile!=0?misc->colors.new_dungeon_map_tile:misc->colors.dungeon_map_tile)+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),misc->colors.dungeon_map_cset,0);
+                    overtile16(dest,(misc->colors.dungeon_map_tile!=0?misc->colors.dungeon_map_tile:misc->colors.dungeon_map_tile)+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),misc->colors.dungeon_map_cset,0);
                     //++si;
                 }
             }
@@ -5015,7 +5015,7 @@ void load_Sitems(miscQdata *misc)
     Sitems.clear();
     
     // HC Pieces
-    if(misc->colors.new_HCpieces_tile || misc->colors.HCpieces_tile)
+    if(misc->colors.HCpieces_tile || misc->colors.HCpieces_tile)
     {
         //      item *HCP = new item((zfix)(inventory_x[5]-ofs),(zfix)y,iMax,0,0);
         item *HCP = new item((zfix)0,(zfix)0,(zfix)0,iHCPiece,0,0);
@@ -5023,7 +5023,7 @@ void load_Sitems(miscQdata *misc)
         if(HCP)
         {
             int32_t hcpphc =  game->get_hcp_per_hc();
-            HCP->tile   = (misc->colors.new_HCpieces_tile != 0 ? misc->colors.new_HCpieces_tile : misc->colors.HCpieces_tile) + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
+            HCP->tile   = (misc->colors.HCpieces_tile != 0 ? misc->colors.HCpieces_tile : misc->colors.HCpieces_tile) + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
             HCP->o_tile = HCP->tile;
             HCP->cs     = misc->colors.HCpieces_cset;
             HCP->frames = 0;

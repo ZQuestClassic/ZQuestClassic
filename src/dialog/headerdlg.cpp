@@ -70,7 +70,8 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 						Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?",
 							onPressFunc = []()
 							{
-								InfoDialog("Quest Progression Number","This value is used by module-based quests, such as '1st.qst'. Unless you know what you are doing, leave this at '0'!").show();
+								InfoDialog("Quest Progression Number","This value is used by module-based quests, such as '1st.qst'. Unless you know what you are doing, leave this at '0'!\n\n"
+									"This *should* be deprecated.").show();
 							}),
 						//
 						Label(text = "Min. Ver:", rightPadding = 0_px, hAlign = 1.0),
