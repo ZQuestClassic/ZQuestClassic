@@ -12854,17 +12854,6 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 			temp_sample.data = calloc(len,1);
 			memcpy(temp_sample.data, datsamp->data, len);
 		}
-		*/
-		else if(i <= Z35)
-		{
-			zprint2("Attempting load sfx '%d' into quest from sfx.dat....\n", i);
-			SAMPLE* datsamp = (SAMPLE*)(sfxdata[i].dat);
-			memcpy(&temp_sample, datsamp, sizeof(SAMPLE));
-			set_bit(tempflag, i-1, 1);
-			int32_t len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
-			temp_sample.data = calloc(len,1);
-			memcpy(temp_sample.data, datsamp->data, len);
-		}
 		else continue;
 		
 		if(keepdata)

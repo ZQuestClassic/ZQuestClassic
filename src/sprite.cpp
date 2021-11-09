@@ -405,17 +405,15 @@ bool sprite::animate(int32_t)
 int32_t sprite::real_x(zfix fx)
 {
     int32_t rx = fx.getInt();
-    /*
     switch(dir)
     {
     case 9:
     case 13:
-        if(fx.getDPart() != 0)
+        if(fx.getZLong() & 0xFFFF) //No idea what the hell this is doing, but it sure isn't just getting the decimal portion.
             ++rx;
             
         break;
     }
-    */
     return rx;
 }
 
