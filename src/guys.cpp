@@ -4398,27 +4398,33 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				new_id &= 0xFFF;
 				int32_t shft = guysbuf[new_id].misc2;
 				byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
-				
-				if(!guys.add(new esLanmola((zfix)x,(zfix)y,new_id+0x1000,0)))
+				enemy *e = new esLanmola((zfix)x,(zfix)y,new_id+0x1000,0);
+					
+				if(!guys.add(e))
 				{
 					al_trace("Lanmola segment 1 could not be created!\n");
 					guys.del(guys.Count()-1);
 					return 0;
 				}
+				e->x = x;
+				e->y = y;
 				
 				
 				
 				for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)); i++)
 				{
-					if(!guys.add(new esLanmola((zfix)x,(zfix)y,new_id+0x2000,-(i<<shft))))
+					enemy *e2 = new esLanmola((zfix)x,(zfix)y,new_id+0x2000,-(i<<shft));
+					if(!guys.add(e2))
 					{
-					al_trace("Lanmola segment %d could not be created!\n",i+1);
-					
-					for(int32_t j=0; j<i+1; j++)
-						guys.del(guys.Count()-1);
+						al_trace("Lanmola segment %d could not be created!\n",i+1);
 						
-					return 0;
+						for(int32_t j=0; j<i+1; j++)
+							guys.del(guys.Count()-1);
+							
+						return 0;
 					}
+					e2->x = x;
+					e2->y = y;
 					
 					((enemy*)guys.spr(guys.Count()-1))->item_set=is;
 					
@@ -16112,7 +16118,7 @@ bool eLanmola::animate(int32_t index)
 	{
 		if(--clk2 == 0)
 		{
-		if(!dmisc3 || (editorflags & ENEMY_FLAG6))
+			if(!dmisc3) //This checks if  "segments drop items" isn't true, because if they don't drop items, then only killing the whole thing drops an item.
 				leave_item();
 				
 			stop_bgsfx(index);
@@ -20636,7 +20642,12 @@ placed_enemy:
 				
 				if(index!=-1)
 				{
-					((enemy*)guys.spr(index))->leader = true;
+					//grab the first segment. Not accurate to how older versions did it, but the way they did it might be incompatible with enemy editor.
+					if ((((enemy*)guys.spr(index))->family == eeLANM) && !get_bit(quest_rules, qr_NO_LANMOLA_RINGLEADER)) index = guys.idNth(tmpscr->enemy[i], 2, 0xFFF); 
+					if(index!=-1)                                                                                                                                      
+					{
+						((enemy*)guys.spr(index))->leader = true;
+					}
 				}
 			}
 			

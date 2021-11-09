@@ -217,18 +217,22 @@ static const GUI::ListData compatRulesList
 	{ "Renewable Secret Money Rooms Outside Caves", qr_OLD_SECRETMONEY, "If enabled, Secret Money rooms will never be flagged as collected unless they are inside a Screen 80 Cave or Item Cellar. This was a bug that existed until 2.50 RC1."},
 	{ "Renewable Door Repairs Rooms Outside Caves", qr_OLD_DOORREPAIR, "If enabled, Door Repair rooms will never be flagged as collected unless they are inside a Screen 80 Cave or Item Cellar. This was a bug that existed until 2.50 RC4."},
 	{ "Renewable Potion Or Heart Container Rooms Outside Caves", qr_OLD_POTION_OR_HC, "If enabled, the Red Potion or Heart Container room will never be flagged as collected unless it is inside a Screen 80 Cave or Item Cellar. This was a bug that existed until 2.50.1 Final."
-		" Note that this does not refer to the 'Take Only One' Item room; that is a different room type."}
+		" Note that this does not refer to the 'Take Only One' Item room; that is a different room type."},
+	{ "Lanmolas can't be ringleaders", qr_NO_LANMOLA_RINGLEADER, "If enabled, Lanmolas are unable to be ringleaders. This was a bug introduced in 2.50 RC1, and was fixed in 2.55 Alpha 100."},
 };
 
 static const GUI::ListData enemiesRulesList
 {
-	{ "Enemies Jump/Fly Through Z-Axis", qr_NEWENEMYTILES },
-	{ "Hide Enemy-Carried Items", qr_ENEMIESZAXIS },
-	{ "Enemies Always Return", qr_HIDECARRIEDITEMS },
-	{ "Temporary No Return Disabled", qr_ALWAYSRET },
-	{ "Must Kill All Bosses To Set 'No Return' Screen State", qr_NOTMPNORET },
-	{ "Multi-Directional Traps", qr_KILLALL },
-	{ "Line-of-Sight Traps Can Move Across Entire Screen", qr_MEANTRAPS },
+	{ "Use New Enemy Tiles", qr_NEWENEMYTILES },
+	{ "Enemies Jump/Fly Through Z-Axis", qr_ENEMIESZAXIS },
+	{ "Hide Enemy-Carried Items", qr_HIDECARRIEDITEMS },
+	{ "Enemies Always Return", qr_ALWAYSRET },
+	{ "Temporary No Return Disabled", qr_NOTMPNORET },
+	{ "Must Kill All Bosses To Set 'No Return' Screen State", qr_KILLALL },
+	{ "Line of Sight Traps Obey Solidity And Don't Have Hardcoded Directions", qr_MEANTRAPS, "If enabled, Line of Sight traps will return when they hit a solid object. If disabled, they will only return depending on their position as determined by 'Line-of-Sight Traps Can Move Across Entire Screen'"
+		" This rule also determines if the directions a trap can move in are hardcoded based on it's position. If this rule is enabled, they are not hardcoded. If this rule is disabled, traps will be unable to travel in certain directions if placed in specific positions."},
+	{ "Line-of-Sight Traps Can Move Across Entire Screen", qr_MEANPLACEDTRAPS, "If enabled, Line of Sight traps will only be stopped either by hitting the screen edge or, if the rule 'Line of Sight Traps Obey Solidity And Don't Have Hardcoded Directions' is enabled,"
+		" by hitting a solid object. If disabled, they will arbitrarily stop at the middle of the screen either vertically or horizontally."},
 	{ "Constant Traps Can Pass Through Enemies", qr_PHANTOMPLACEDTRAPS },
 	{ "Flying Enemies Can Appear on Unwalkable Combos", qr_WALLFLIERS },
 	{ "Broken Enemy Shield Tiles", qr_BRKNSHLDTILES },

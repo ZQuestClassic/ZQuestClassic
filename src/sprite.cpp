@@ -405,7 +405,7 @@ bool sprite::animate(int32_t)
 int32_t sprite::real_x(zfix fx)
 {
     int32_t rx = fx.getInt();
-    
+    /*
     switch(dir)
     {
     case 9:
@@ -415,7 +415,7 @@ int32_t sprite::real_x(zfix fx)
             
         break;
     }
-    
+    */
     return rx;
 }
 
@@ -2661,6 +2661,21 @@ int32_t sprite_list::idFirst(int32_t id, int32_t mask)
     return -1;
 }
 
+// returns index of nth sprite with matching id, -1 if none found
+int32_t sprite_list::idNth(int32_t id, int32_t n, int32_t mask)
+{
+    for(int32_t i=0; i<count; i++)
+    {
+        if(((sprites[i]->id)&mask) == (id&mask))
+        {
+	    if (n > 1) --n;
+            else return i;
+        }
+    }
+    
+    return -1;
+}
+
 // returns index of last sprite with matching id, -1 if none found
 int32_t sprite_list::idLast(int32_t id, int32_t mask)
 {
@@ -2685,6 +2700,12 @@ int32_t sprite_list::idCount(int32_t id)
 int32_t sprite_list::idFirst(int32_t id)
 {
     return idFirst(id,0xFFFF);
+}
+
+// returns index of first sprite with matching id, -1 if none found
+int32_t sprite_list::idNth(int32_t id, int32_t n)
+{
+    return idNth(id,n,0xFFFF);
 }
 
 // returns index of last sprite with matching id, -1 if none found

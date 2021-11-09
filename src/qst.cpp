@@ -13134,8 +13134,8 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	guysbuf[eWWIZ].editorflags |= ENEMY_FLAG5;
 	guysbuf[eMOLDORM].editorflags |= ENEMY_FLAG6;
 	guysbuf[eMANHAN].editorflags |= ENEMY_FLAG6;
-	guysbuf[eCENT1].editorflags |= ENEMY_FLAG6;
-	guysbuf[eCENT2].editorflags |= ENEMY_FLAG6;
+	guysbuf[eCENT1].misc3 = 1;
+	guysbuf[eCENT2].misc3 = 1;
     }
     if((Header->zelda_version <= 0x255) || (Header->zelda_version == 0x255 && Header->build < 47) )
     {

@@ -227,12 +227,16 @@ public:
     int32_t idCount(int32_t id, int32_t mask);
     // returns index of first sprite with matching id, -1 if none found
     int32_t idFirst(int32_t id, int32_t mask);
+    // returns index of nth sprite with matching id, -1 if none found
+    int32_t idNth(int32_t id, int32_t n, int32_t mask);
     // returns index of last sprite with matching id, -1 if none found
     int32_t idLast(int32_t id, int32_t mask);
     // returns the number of sprites with matching id
     int32_t idCount(int32_t id);
     // returns index of first sprite with matching id, -1 if none found
     int32_t idFirst(int32_t id);
+    // returns index of nth sprite with matching id, -1 if none found
+    int32_t idNth(int32_t id, int32_t n);
     // returns index of last sprite with matching id, -1 if none found
     int32_t idLast(int32_t id);
     
