@@ -17445,6 +17445,8 @@ ePatra::ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)// enemy
 	flycnt=dmisc1;
 	flycnt2=dmisc2;
 	loopcnt=0;
+	clk4 = 0;
+	clk5 = 0;
 	if(dmisc6<int16_t(1))dmisc6=1; // ratio cannot be 0!
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
@@ -17503,6 +17505,25 @@ bool ePatra::animate(int32_t index)
 	
 	double size=1;
 	
+	if (clk5 < 0)
+	{
+		if (dmisc5 == 1)
+		{
+			if (get_bit(quest_rules,qr_NEWENEMYTILES) || dmisc5 != 1)
+			{
+				if (++clk5 == 0) o_tile=d->e_tile;
+				else
+				{
+					if (clk5 > -16) o_tile=d->e_tile + 80;
+					else o_tile=d->e_tile + 40;
+				}
+			}
+			else clk5 = 0;
+		}
+		else ++clk5;
+	}
+	else if (dmisc19) ++clk5;
+	
 	for(int32_t i=index+1; i<index+flycnt+1; i++)
 	{
 		//outside ring
@@ -17510,15 +17531,15 @@ bool ePatra::animate(int32_t index)
 		{
 			if(get_bit(quest_rules,qr_NEWENEMYTILES))
 			{
-				((enemy*)guys.spr(i))->o_tile=o_tile+dmisc8;
-		enemy *s = ((enemy*)guys.spr(i));
-		s->parent_script_UID = this->script_UID;
+				((enemy*)guys.spr(i))->o_tile=d->e_tile+dmisc8;
+				enemy *s = ((enemy*)guys.spr(i));
+				s->parent_script_UID = this->script_UID;
 			}
 			else
 			{
 				((enemy*)guys.spr(i))->o_tile=o_tile+1;
-		enemy *s = ((enemy*)guys.spr(i));
-		s->parent_script_UID = this->script_UID;
+				enemy *s = ((enemy*)guys.spr(i));
+				s->parent_script_UID = this->script_UID;
 			}
 			
 			((enemy*)guys.spr(i))->cs=dmisc9;
@@ -17618,7 +17639,19 @@ bool ePatra::animate(int32_t index)
 	
 	if(dmisc5==1)
 	{
-		if(!(zc_oldrand()&127))
+		if (((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
+		(!dmisc18 && !(zc_oldrand()&127))) && (clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
+		&& clk5 >= dmisc19)
+		{
+			if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) clk5 = -48;
+			else
+			{
+				addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
+				sfx(wpnsfx(wpn),pan(int32_t(x)));
+				clk5 = 0;
+			}
+		}
+		if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && clk5 == -16)
 		{
 			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
 			sfx(wpnsfx(wpn),pan(int32_t(x)));
@@ -17626,7 +17659,15 @@ bool ePatra::animate(int32_t index)
 	}
 	
 	size=.5;
-	
+	int randeye = ((flycnt2 > 0) ? (zc_oldrand() % zc_max(1,flycnt2)) : 0);
+	randeye += (index+flycnt+1);
+	bool dofire = false;
+	if (dmisc20)
+	{
+		if (((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
+		(!dmisc18 && !(zc_oldrand()&127))) && (clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
+		&& clk5 >= dmisc19) dofire = true;
+	}
 	if(flycnt2)
 	{
 		for(int32_t i=index+flycnt+1; i<index+flycnt+flycnt2+1; i++)//inner ring
@@ -17641,13 +17682,13 @@ bool ePatra::animate(int32_t index)
 					{
 						// Center eye shoots projectiles; make room for its firing tiles
 					case 1:
-						((enemy*)guys.spr(i))->o_tile=o_tile+120;
+						((enemy*)guys.spr(i))->o_tile=d->e_tile+120;
 						break;
 						
 						// Center eyes does not shoot; use tiles two rows below for inner eyes.
 					default:
 					case 2:
-						((enemy*)guys.spr(i))->o_tile=o_tile+40;
+						((enemy*)guys.spr(i))->o_tile=d->e_tile+40;
 						break;
 					}
 				}
@@ -17681,10 +17722,114 @@ bool ePatra::animate(int32_t index)
 			{
 				if(dmisc5==2)
 				{
+					/*
 					if(!(zc_oldrand()&127))
 					{
 						addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
 						sfx(wpnsfx(wpn),pan(int32_t(x)));
+					}
+					*/
+					if (((esPatra*)guys.spr(i))->clk5 < 0)
+					{
+						if (++((esPatra*)guys.spr(i))->clk5 == 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
+						else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+						else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+80;
+						else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
+					}
+					else if (dmisc19 || ((esPatra*)guys.spr(i))->clk5) ++((esPatra*)guys.spr(i))->clk5;
+					switch(dmisc20) //Patra Attack Patterns
+					{
+						case 3: //Ring
+						{
+							if (dofire)
+							{
+								if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) 
+								{
+									((esPatra*)guys.spr(i))->clk5 = -48;
+									clk5 = -48;
+								}
+								else
+								{
+									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+									sfx(wpnsfx(wpn),pan(int32_t(x)));
+									int32_t m=Ewpns.Count()-1;
+									weapon *ew = (weapon*)(Ewpns.spr(m));
+									
+									ew->setAngle(atan2(double(LinkY()-y),double(LinkX()-x)));
+									((esPatra*)guys.spr(i))->clk5 = 0;
+									clk5 = 0;
+								}
+							}
+							if (((esPatra*)guys.spr(i))->clk5 == -16)
+							{
+								addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+								sfx(wpnsfx(wpn),pan(int32_t(x)));
+								int32_t m=Ewpns.Count()-1;
+								weapon *ew = (weapon*)(Ewpns.spr(m));
+								
+								ew->setAngle(atan2(double(LinkY()-y),double(LinkX()-x)));
+							}
+							break;
+						}
+						case 2: //one after another
+						{
+							if (dofire)
+							{
+								((esPatra*)guys.spr(i))->clk5 = -48 - (16*(i-(index+flycnt+1)));
+								clk5 = -48 - (16*flycnt2);
+							}
+							if (((esPatra*)guys.spr(i))->clk5 == -16)
+							{
+								addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+								sfx(wpnsfx(wpn),pan(int32_t(x)));
+							}
+							break;
+						}
+						case 1: //random one eye
+						{
+							if (dofire && i == randeye)
+							{
+								if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) 
+								{
+									((esPatra*)guys.spr(i))->clk5 = -48;
+									clk5 = -48;
+								}
+								else
+								{
+									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+									sfx(wpnsfx(wpn),pan(int32_t(x)));
+									((esPatra*)guys.spr(i))->clk5 = 0;
+									clk5 = 0;
+								}
+							}
+							if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && ((esPatra*)guys.spr(i))->clk5 == -16)
+							{
+								addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+								sfx(wpnsfx(wpn),pan(int32_t(x)));
+							}
+							break;
+						}
+						default: //old behavior, all eyes can fire any time
+						{
+							if (((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
+							(!dmisc18 && !(zc_oldrand()&127))) && (((esPatra*)guys.spr(i))->clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
+							&& ((esPatra*)guys.spr(i))->clk5 >= dmisc19)
+							{
+								if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) ((esPatra*)guys.spr(i))->clk5 = -48;
+								else
+								{
+									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+									sfx(wpnsfx(wpn),pan(int32_t(x)));
+									((esPatra*)guys.spr(i))->clk5 = 0;
+								}
+							}
+							if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && ((esPatra*)guys.spr(i))->clk5 == -16)
+							{
+								addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+								sfx(wpnsfx(wpn),pan(int32_t(x)));
+							}
+							break;
+						}
 					}
 				}
 				
@@ -17805,6 +17950,8 @@ esPatra::esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,
 	//cs=8;
 	item_set=0;
 	misc=clk;
+	clk4 = 0;
+	clk5 = 0;
 	clk = -((misc*21)>>1)-1;
 	yofs=playing_field_offset;
 	enemy *prntenemy = (enemy *) guys.getByUID(parent->getUID());
@@ -17914,6 +18061,8 @@ ePatraBS::ePatraBS(zfix ,zfix ,int32_t Id,int32_t Clk) : enemy((zfix)128,(zfix)4
 	adjusted=false;
 	dir=(zc_oldrand()&7)+8;
 	step=0.25;
+	clk4 = 0;
+	clk5 = 0;
 	//flycnt=6; flycnt2=0;
 	flycnt=dmisc1;
 	flycnt2=0; // PatraBS doesn't have inner rings!
@@ -18196,7 +18345,8 @@ esPatraBS::esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enem
 	item_set=0;
 	misc=clk;
 	clk = -((misc*21)>>1)-1;
-	
+	clk4 = 0;
+	clk5 = 0;
 	enemy *prntenemy = (enemy *) guys.getByUID(parent->getUID());
 	int32_t prntSIZEflags = prntenemy->SIZEflags;
 	if ( ((prntSIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = prntenemy->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 

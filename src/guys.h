@@ -799,6 +799,8 @@ public:
 	double circle_x, circle_y;
 	double temp_x, temp_y;
 	bool adjusted;
+	int32_t clk4, //Unused
+		clk5; //Firing clock
 	//ePatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk);                     // : enemy((zfix)128,(zfix)48,Id,Clk)
 	virtual bool animate(int32_t index);
@@ -811,6 +813,8 @@ public:
 class esPatra : public enemy
 {
 public:
+	int32_t clk4, //Unused
+		clk5; //Firing clock
 	//esPatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk,sprite * prnt);                    // : enemy(X,Y,Id,Clk)
 	sprite * parent;
@@ -824,6 +828,8 @@ public:
 	int32_t flycnt,flycnt2, loopcnt, lookat;
 	double temp_x, temp_y;
 	bool adjusted;
+	int32_t clk4, //Unused
+		clk5; //Firing clock
 	//ePatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	ePatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk);                   // : enemy((zfix)128,(zfix)48,Id,Clk)
 	virtual bool animate(int32_t index);
@@ -836,6 +842,8 @@ public:
 class esPatraBS : public enemy
 {
 public:
+	int32_t clk4, //Unused
+		clk5; //Firing clock
 	//esPatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk,sprite * prnt);                  // : enemy(X,Y,Id,Clk)
 	sprite * parent;

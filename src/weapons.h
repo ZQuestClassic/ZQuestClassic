@@ -48,6 +48,7 @@ private:
 	friend void setScreenLimits(weapon&);
     
 public:
+    void setAngle(double angletoset);
     int32_t power,type,dead,clk2,misc2,ignorecombo;
     bool isLit; //if true, this weapon is providing light to the current screen
     int32_t parentid, //Enemy who created it

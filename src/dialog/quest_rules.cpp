@@ -79,7 +79,7 @@ static const GUI::ListData comboRulesList
 	{ "Magic Mirrors Reflect Scripted Whirlwinds", qr_WHIRLWINDMIRROR, "Let's script-created Wind Weapons reflect off Mirrors." 
 		" Note that this does not affect whistle-created whirlwinds; to have those reflect, check the 'Whirlwinds Reflect off Prism/Mirror Combos' Item Flag on the whistle item in the item editor."},
 	{ "Combo Cycling On Layers", qr_CMBCYCLELAYERS, "Allows combos to combo cycle when placed on Layers 1-6." },
-	{ "Lesser Damage Combos Take Priority", qr_DMGCOMBOPRI, "If this is enabled and you touch two damage combos at once, the one with less damage take priority."
+	{ "Lesser Damage Combos Take Priority", qr_DMGCOMBOPRI, "If this is enabled and you touch two damage combos at once, the one with less damage takes priority."
 		" If disabled, the one with more damage takes priority."},
 	{ "Set Continue Point Even If Arrival Square Isn't Set", qr_WARPSIGNOREARRIVALPOINT, "When enabled, this rule will set the continue point on Entrance/Exit warps"
 		" and Scrolling Warps (provided the latter can set continue points; see 'Scrolling Warps Don't Set The Continue Point'), even if the arrival square is located"
