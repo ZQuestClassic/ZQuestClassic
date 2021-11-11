@@ -499,10 +499,10 @@ const char *buttonlist(int32_t index, int32_t *list_size)
 const char *icounter_str[sscMAX] =
 {
     "Rupees", "Bombs", "Super Bombs", "Arrows", "Gen. Keys w/Magic", "Gen. Keys w/o Magic", "Level Keys w/Magic",
-    "Level Keys w/o Magic", "Any Keys w/Magic", "Any Keys w/o Magic", "Script 1", "Script 2", "Script 3", "Script 4",
-    "Script 5", "Script 6", "Script 7", "Script 8", "Script 9", "Script 10", "Script 11", "Script 12", "Script 13",
-    "Script 14", "Script 15", "Script 16", "Script 17", "Script 18", "Script 19", "Script 20", "Script 21",
-    "Script 22", "Script 23", "Script 24", "Script 25", "Life", "Magic", "Max Life", "Max Magic"
+    "Level Keys w/o Magic", "Any Keys w/Magic", "Any Keys w/o Magic", "Custom 1", "Custom 2", "Custom 3", "Custom 4",
+    "Custom 5", "Custom 6", "Custom 7", "Custom 8", "Custom 9", "Custom 10", "Custom 11", "Custom 12", "Custom 13",
+    "Custom 14", "Custom 15", "Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20", "Custom 21",
+    "Custom 22", "Custom 23", "Custom 24", "Custom 25", "Life", "Magic", "Max Life", "Max Magic"
 };
 
 const char *icounterlist(int32_t index, int32_t *list_size)

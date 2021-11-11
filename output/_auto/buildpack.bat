@@ -9,6 +9,7 @@ set rel=%src%\Release
 set incl=%out%\include
 set docs=%out%\docs
 set theme=%out%\themes
+set tsets=%out%\tilesets
 set util=%out%\utilities
 set conf=%out%\config
 set mod=%out%\modules
@@ -39,6 +40,10 @@ xcopy /e /y /i "%docs%" "%nb%\docs" >>%log%
 echo Copying '\output\themes'...
 echo Copying '\output\themes'...>>%log%
 xcopy /e /y /i "%theme%" "%nb%\themes" >>%log%
+
+echo Copying '\output\tilesets'...
+echo Copying '\output\tilesets'...>>%log%
+xcopy /e /y /i "%tsets%" "%nb%\tilesets" >>%log%
 
 echo Copying '\output\utilities'...
 echo Copying '\output\utilities'...>>%log%

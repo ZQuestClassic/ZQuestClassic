@@ -1699,10 +1699,10 @@ const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candle
                                        "Whisp Rings", "Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", "Scroll: Hurricane Spin", 
 					"Scroll: Super Quake",
                                        "Stones of Agony", "Stomp Boots", "Whimsical Rings", "Peril Rings", "Non-gameplay Items",
-                                       "Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03", "Custom Itemclass 04", "Custom Itemclass 05",
-                                       "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", "Custom Itemclass 09", "Custom Itemclass 10",
-                                       "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", "Custom Itemclass 14", "Custom Itemclass 15",
-                                       "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", "Custom Itemclass 19", "Custom Itemclass 20",
+                                       "zz67", "zz68", "zz69", "zz70", "zz71",
+                                       "zz72", "zz73", "zz74", "zz75", "zz76",
+                                       "zz77", "zz78", "zz79", "zz80", "zz81",
+                                       "zz82", "zz83", "zz84", "zz85", "zz86",
                                        "Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)"
                                      };
 //New Item Classes dfor 2.54 andd above. 
@@ -1723,6 +1723,8 @@ void build_biic_list()
 	
 	for(int32_t i=start; i<itype_max; ++i)
 	{
+		if(moduledata.item_editor_type_names[i][0] == '-')
+			continue; //Hidden
         if(i < itype_last || moduledata.item_editor_type_names[i][0] != NULL )
 		{
             char const* module_str = moduledata.item_editor_type_names[i];

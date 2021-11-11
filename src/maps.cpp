@@ -1301,6 +1301,7 @@ bool isHSGrabbable(newcombo const& cmb)
 		case cSIGNPOST:
 		case cCSWITCHBLOCK:
 		case cLANTERN:
+		case cTRIGGERGENERIC:
 			return (cmb.usrflags&cflag16)?true:false;
 		default:
 			return false;

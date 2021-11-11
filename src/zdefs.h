@@ -252,7 +252,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       5
+#define V_COMPATRULE       6
 //= V_SHOPS is under V_MISC
 
 /*
@@ -1012,6 +1012,7 @@ enum
 	qr_SCREEN80_OWN_MUSIC, qr_OLDCS2, qr_HARDCODED_ENEMY_ANIMS, qr_OLD_ITEMDATA_SCRIPT_TIMING,
 	qr_SIDESWIM, qr_SIDESWIMDIR, qr_PUSHBLOCK_LAYER_1_2, qr_NEWDARK_SCROLLEDGE,
 	//32
+	qr_STEPTEMP_SECRET_ONLY_16_31,
 	
 	//35
 	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 
@@ -2560,6 +2561,45 @@ struct mapscr
 	}
 };
 
+//Build date info
+
+#define BUILDTM_YEAR (\
+    __DATE__[7] == '?' ? 1900 \
+    : (((__DATE__[7] - '0') * 1000 ) \
+    + (__DATE__[8] - '0') * 100 \
+    + (__DATE__[9] - '0') * 10 \
+    + __DATE__[10] - '0'))
+
+#define BUILDTM_MONTH (\
+    __DATE__ [2] == '?' ? 1 \
+    : __DATE__ [2] == 'n' ? (__DATE__ [1] == 'a' ? 1 : 6) \
+    : __DATE__ [2] == 'b' ? 2 \
+    : __DATE__ [2] == 'r' ? (__DATE__ [0] == 'M' ? 3 : 4) \
+    : __DATE__ [2] == 'y' ? 5 \
+    : __DATE__ [2] == 'l' ? 7 \
+    : __DATE__ [2] == 'g' ? 8 \
+    : __DATE__ [2] == 'p' ? 9 \
+    : __DATE__ [2] == 't' ? 10 \
+    : __DATE__ [2] == 'v' ? 11 \
+    : 12)
+
+#define BUILDTM_DAY (\
+    __DATE__[4] == '?' ? 1 \
+    : ((__DATE__[4] == ' ' ? 0 : \
+    ((__DATE__[4] - '0') * 10)) + __DATE__[5] - '0'))
+
+#define BUILDTM_HOUR (\
+	(__TIME__[0]-'0')*10 + \
+	(__TIME__[1]-'0'))
+	
+#define BUILDTM_MINUTE (\
+	(__TIME__[3]-'0')*10 + \
+	(__TIME__[4]-'0'))
+	
+#define BUILDTM_SECOND (\
+	(__TIME__[6]-'0')*10 + \
+	(__TIME__[7]-'0'))
+
 // The version of the ZASM engine a script was compiled for
 // NOT the same as V_FFSCRIPT, which is the version of the packfile format
 // where the scripts are serialized
@@ -2593,10 +2633,10 @@ struct mapscr
 #define SCRIPT_FORMAT_ZASM			3
 
 #define METADATA_V			2
-#define V_COMPILER_FIRST	2021
-#define V_COMPILER_SECOND	7
-#define V_COMPILER_THIRD	28
-#define V_COMPILER_FOURTH	0
+#define V_COMPILER_FIRST	BUILDTM_YEAR
+#define V_COMPILER_SECOND	BUILDTM_MONTH
+#define V_COMPILER_THIRD	BUILDTM_DAY
+#define V_COMPILER_FOURTH	BUILDTM_HOUR
 #define ZMETA_NULL_TYPE		1
 struct zasm_meta
 {
@@ -3863,7 +3903,17 @@ enum glow_shape
 	glshapeCIRC, glshapeCONE,
 	glshapeMAX
 };
-#define MAX_COUNTERS 32
+enum
+{
+	crNONE = -1,
+	crLIFE, crMONEY, crBOMBS, crARROWS, crMAGIC,
+	crKEYS, crSBOMBS, crCUSTOM1, crCUSTOM2, crCUSTOM3,
+	crCUSTOM4, crCUSTOM5, crCUSTOM6, crCUSTOM7, crCUSTOM8,
+	crCUSTOM9, crCUSTOM10, crCUSTOM11, crCUSTOM12, crCUSTOM13,
+	crCUSTOM14, crCUSTOM15, crCUSTOM16, crCUSTOM17, crCUSTOM18,
+	crCUSTOM19, crCUSTOM20, crCUSTOM21, crCUSTOM22, crCUSTOM23,
+	crCUSTOM24, crCUSTOM25, MAX_COUNTERS
+};
 struct gamedata
 {
     //private:
@@ -4381,43 +4431,6 @@ struct zcmodule
 #define DCLICK_RELEASE    1
 #define DCLICK_AGAIN      2
 #define DCLICK_NOT        3
-
-#define BUILDTM_YEAR (\
-    __DATE__[7] == '?' ? 1900 \
-    : (((__DATE__[7] - '0') * 1000 ) \
-    + (__DATE__[8] - '0') * 100 \
-    + (__DATE__[9] - '0') * 10 \
-    + __DATE__[10] - '0'))
-
-#define BUILDTM_MONTH (\
-    __DATE__ [2] == '?' ? 1 \
-    : __DATE__ [2] == 'n' ? (__DATE__ [1] == 'a' ? 1 : 6) \
-    : __DATE__ [2] == 'b' ? 2 \
-    : __DATE__ [2] == 'r' ? (__DATE__ [0] == 'M' ? 3 : 4) \
-    : __DATE__ [2] == 'y' ? 5 \
-    : __DATE__ [2] == 'l' ? 7 \
-    : __DATE__ [2] == 'g' ? 8 \
-    : __DATE__ [2] == 'p' ? 9 \
-    : __DATE__ [2] == 't' ? 10 \
-    : __DATE__ [2] == 'v' ? 11 \
-    : 12)
-
-#define BUILDTM_DAY (\
-    __DATE__[4] == '?' ? 1 \
-    : ((__DATE__[4] == ' ' ? 0 : \
-    ((__DATE__[4] - '0') * 10)) + __DATE__[5] - '0'))
-
-#define BUILDTM_HOUR (\
-	(__TIME__[0]-'0')*10 + \
-	(__TIME__[1]-'0'))
-	
-#define BUILDTM_MINUTE (\
-	(__TIME__[3]-'0')*10 + \
-	(__TIME__[4]-'0'))
-	
-#define BUILDTM_SECOND (\
-	(__TIME__[6]-'0')*10 + \
-	(__TIME__[7]-'0'))
 
 template <class T>
 INLINE T sign(T a)

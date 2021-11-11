@@ -1675,1074 +1675,1077 @@ void invert_selection_grid()
 
 void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 {
-    go();
-    undocount = tilesize(newtilebuf[tile].format);
-    clear_selection_grid();
-    selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
-    
-    //PALETTE opal;
-    PALETTE tpal;
-    //get_palette(opal);
-    /*
-    //This causes a bug. Why? -L
-    get_palette(tpal);
-    for(int32_t i=0; i<15; i++)
-    {
-      load_cset(tpal,i,i);
-    }
-    set_palette(tpal);
-    */
-    byte oldtile[256];
-    
-    memset(&tpal, 0, sizeof(PALETTE));
-    memset(oldtile, 0, 256);
-    
-    for(int32_t i=0; i<undocount; i++)
-    {
-        oldtile[i]=undotile[i]=newtilebuf[tile].data[i];
-    }
-    
-    int32_t tile_x=-1, tile_y=-1;
-    int32_t temp_x=-1, temp_y=-1;
-    bool bdown=false;
-    int32_t done=0;
-    drawing=0;
-    tool_cur = -1;
-    
-    get_palette(tpal);
-    
-    if(newtilebuf[tile].format==tf4Bit)
-    {
-        invcol=makecol8((63-tpal[CSET(cs)].r)*255/63,(63-tpal[CSET(cs)].g)*255/63,(63-tpal[CSET(cs)].b)*255/63);
-    }
-    else
-    {
-        invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
-    }
-    
-    custom_vsync();
-    set_palette(tpal);
-    draw_edit_scr(tile,flip,cs,oldtile, true);
-    
-    while(gui_mouse_b())
-    {
-        /* do nothing */
-    }
-    
-    int32_t move_origin_x=-1, move_origin_y=-1;
-    int32_t prev_x=-1, prev_y=-1;
-    
-    
-    
-    byte selection_pattern_source[8][8]=
-    {
-        {1, 1, 1, 1, 0, 0, 0, 0},
-        {1, 1, 1, 0, 0, 0, 0, 1},
-        {1, 1, 0, 0, 0, 0, 1, 1},
-        {1, 0, 0, 0, 0, 1, 1, 1},
-        {0, 0, 0, 0, 1, 1, 1, 1},
-        {0, 0, 0, 1, 1, 1, 1, 0},
-        {0, 0, 1, 1, 1, 1, 0, 0},
-        {0, 1, 1, 1, 1, 0, 0, 0},
-    };
-    
-    byte selecting_pattern_source[8][8]=
-    {
-        {1, 1, 0, 0, 0, 0, 1, 1},
-        {1, 0, 0, 0, 0, 1, 1, 1},
-        {0, 0, 0, 0, 1, 1, 1, 1},
-        {0, 0, 0, 1, 1, 1, 1, 0},
-        {0, 0, 1, 1, 1, 1, 0, 0},
-        {0, 1, 1, 1, 1, 0, 0, 0},
-        {1, 1, 1, 1, 0, 0, 0, 0},
-        {1, 1, 1, 0, 0, 0, 0, 1},
-    };
-    
-    byte intersection_pattern_source[8][8]=
-    {
-        {0, 0, 1, 1, 0, 0, 1, 1},
-        {0, 1, 1, 0, 0, 1, 1, 0},
-        {1, 1, 0, 0, 1, 1, 0, 0},
-        {1, 0, 0, 1, 1, 0, 0, 1},
-        {0, 0, 1, 1, 0, 0, 1, 1},
-        {0, 1, 1, 0, 0, 1, 1, 0},
-        {1, 1, 0, 0, 1, 1, 0, 0},
-        {1, 0, 0, 1, 1, 0, 0, 1},
-    };
-    
-    selection_pattern=create_bitmap_ex(8, 8, 8);
-    
-    for(int32_t x=0; x<8; ++x)
-    {
-        for(int32_t y=0; y<8; ++y)
-        {
-            //      rectfill(selection_pattern, x<<2, y<<2, (x<<2)+3, (y<<2)+3, (((x^y)&1)==0)?vc(15):vc(0));
-            selection_pattern->line[y][x]=selection_pattern_source[x][y]?vc(0):vc(15);
-        }
-    }
-    
-    selecting_pattern=create_bitmap_ex(8, 8, 8);
-    
-    for(int32_t x=0; x<8; ++x)
-    {
-        for(int32_t y=0; y<8; ++y)
-        {
-            //      rectfill(selection_pattern, x<<2, y<<2, (x<<2)+3, (y<<2)+3, (((x^y)&1)==0)?vc(15):vc(0));
-            selecting_pattern->line[y][x]=selecting_pattern_source[x][y]?vc(0):vc(15);
-        }
-    }
-    
-    intersection_pattern=create_bitmap_ex(8, 8, 8);
-    
-    for(int32_t x=0; x<8; ++x)
-    {
-        for(int32_t y=0; y<8; ++y)
-        {
-            //      rectfill(selection_pattern, x<<2, y<<2, (x<<2)+3, (y<<2)+3, (((x^y)&1)==0)?vc(15):vc(0));
-            intersection_pattern->line[y][x]=intersection_pattern_source[x][y]?vc(0):vc(15);
-        }
-    }
-    
-//  int32_t screen_xofs=(zq_screen_w-320)>>1;
-//  int32_t screen_yofs=(zq_screen_h-240)>>1;
+	go();
+	undocount = tilesize(newtilebuf[tile].format);
+	clear_selection_grid();
+	selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
+	
+	//PALETTE opal;
+	PALETTE tpal;
+	//get_palette(opal);
+	/*
+	//This causes a bug. Why? -L
+	get_palette(tpal);
+	for(int32_t i=0; i<15; i++)
+	{
+	  load_cset(tpal,i,i);
+	}
+	set_palette(tpal);
+	*/
+	byte oldtile[256];
+	
+	memset(&tpal, 0, sizeof(PALETTE));
+	memset(oldtile, 0, 256);
+	
+	for(int32_t i=0; i<undocount; i++)
+	{
+		oldtile[i]=undotile[i]=newtilebuf[tile].data[i];
+	}
+	
+	int32_t tile_x=-1, tile_y=-1;
+	int32_t temp_x=-1, temp_y=-1;
+	bool bdown=false;
+	int32_t done=0;
+	drawing=0;
+	tool_cur = -1;
+	
+	get_palette(tpal);
+	
+	if(newtilebuf[tile].format==tf4Bit)
+	{
+		invcol=makecol8((63-tpal[CSET(cs)].r)*255/63,(63-tpal[CSET(cs)].g)*255/63,(63-tpal[CSET(cs)].b)*255/63);
+	}
+	else
+	{
+		invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
+	}
+	
+	custom_vsync();
+	set_palette(tpal);
+	draw_edit_scr(tile,flip,cs,oldtile, true);
+	
+	while(gui_mouse_b())
+	{
+		/* do nothing */
+	}
+	
+	int32_t move_origin_x=-1, move_origin_y=-1;
+	int32_t prev_x=-1, prev_y=-1;
+	
+	
+	
+	byte selection_pattern_source[8][8]=
+	{
+		{1, 1, 1, 1, 0, 0, 0, 0},
+		{1, 1, 1, 0, 0, 0, 0, 1},
+		{1, 1, 0, 0, 0, 0, 1, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1},
+		{0, 0, 0, 0, 1, 1, 1, 1},
+		{0, 0, 0, 1, 1, 1, 1, 0},
+		{0, 0, 1, 1, 1, 1, 0, 0},
+		{0, 1, 1, 1, 1, 0, 0, 0},
+	};
+	
+	byte selecting_pattern_source[8][8]=
+	{
+		{1, 1, 0, 0, 0, 0, 1, 1},
+		{1, 0, 0, 0, 0, 1, 1, 1},
+		{0, 0, 0, 0, 1, 1, 1, 1},
+		{0, 0, 0, 1, 1, 1, 1, 0},
+		{0, 0, 1, 1, 1, 1, 0, 0},
+		{0, 1, 1, 1, 1, 0, 0, 0},
+		{1, 1, 1, 1, 0, 0, 0, 0},
+		{1, 1, 1, 0, 0, 0, 0, 1},
+	};
+	
+	byte intersection_pattern_source[8][8]=
+	{
+		{0, 0, 1, 1, 0, 0, 1, 1},
+		{0, 1, 1, 0, 0, 1, 1, 0},
+		{1, 1, 0, 0, 1, 1, 0, 0},
+		{1, 0, 0, 1, 1, 0, 0, 1},
+		{0, 0, 1, 1, 0, 0, 1, 1},
+		{0, 1, 1, 0, 0, 1, 1, 0},
+		{1, 1, 0, 0, 1, 1, 0, 0},
+		{1, 0, 0, 1, 1, 0, 0, 1},
+	};
+	
+	selection_pattern=create_bitmap_ex(8, 8, 8);
+	
+	for(int32_t x=0; x<8; ++x)
+	{
+		for(int32_t y=0; y<8; ++y)
+		{
+			// rectfill(selection_pattern, x<<2, y<<2, (x<<2)+3, (y<<2)+3, (((x^y)&1)==0)?vc(15):vc(0));
+			selection_pattern->line[y][x]=selection_pattern_source[x][y]?vc(0):vc(15);
+		}
+	}
+	
+	selecting_pattern=create_bitmap_ex(8, 8, 8);
+	
+	for(int32_t x=0; x<8; ++x)
+	{
+		for(int32_t y=0; y<8; ++y)
+		{
+			// rectfill(selection_pattern, x<<2, y<<2, (x<<2)+3, (y<<2)+3, (((x^y)&1)==0)?vc(15):vc(0));
+			selecting_pattern->line[y][x]=selecting_pattern_source[x][y]?vc(0):vc(15);
+		}
+	}
+	
+	intersection_pattern=create_bitmap_ex(8, 8, 8);
+	
+	for(int32_t x=0; x<8; ++x)
+	{
+		for(int32_t y=0; y<8; ++y)
+		{
+			// rectfill(selection_pattern, x<<2, y<<2, (x<<2)+3, (y<<2)+3, (((x^y)&1)==0)?vc(15):vc(0));
+			intersection_pattern->line[y][x]=intersection_pattern_source[x][y]?vc(0):vc(15);
+		}
+	}
+	
+	// int32_t screen_xofs=(zq_screen_w-320)>>1;
+	// int32_t screen_yofs=(zq_screen_h-240)>>1;
 
-    do
-    {
-//    int32_t temp_mouse_x=gui_mouse_x()-screen_xofs;
-//    int32_t temp_mouse_y=gui_mouse_y()-screen_yofs;
-        int32_t temp_mouse_x=gui_mouse_x();
-        int32_t temp_mouse_y=gui_mouse_y();
-        rest(4);
-        bool redraw=false;
-        bool did_wand_select=false;
-        
-        if((tooltip_trigger.x>-1&&tooltip_trigger.y>-1)&&(!isinRect(temp_mouse_x,temp_mouse_y,tooltip_trigger.x,tooltip_trigger.y,tooltip_trigger.x+tooltip_trigger.w-1,tooltip_trigger.y+tooltip_trigger.h-1)))
-        {
-            clear_tooltip();
-            redraw=true;
-        }
-        
-        if(keypressed())
-        {
-            switch(readkey()>>8)
-            {
-            case KEY_ENTER_PAD:
-            case KEY_ENTER:
-                done=2;
-                break;
-                
-            case KEY_ESC:
-                done=1;
-                break;
-                
-            case KEY_A:
-                clear_selection_grid();
-                invert_selection_grid();
-                redraw=true;
-                break;
-                
-            case KEY_D:
-                clear_selection_grid();
-                redraw=true;
-                break;
-                
-            case KEY_I:
-                invert_selection_grid();
-                redraw=true;
-                break;
-                
-            case KEY_H:
-                flip^=1;
-                normalize(tile,tile,0,flip);
-                flip=0;
-                redraw=true;
-                break;
-                
-            case KEY_V:
-                flip^=2;
-                normalize(tile,tile,0,flip);
-                flip=0;
-                redraw=true;
-                break;
-                
-            case KEY_F12:
-                onSnapshot();
-                break;
-                
-            case KEY_R:
-            {
-                //if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
-                // {
-                //do_recolor(tile); redraw=true; saved=false;
-                // }
-                //else
-                // {
-                go_tiles();
-                rotate_tile(tile,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
-                redraw=true;
-                saved=false;
-                break;
-            }
-            
-            case KEY_EQUALS:
-            case KEY_PLUS_PAD:
-            {
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
-                        key[KEY_ALT] || key[KEY_ALTGR])
-                {
-                    for(int32_t i=0; i<undocount; i++)
-                        undotile[i]=newtilebuf[tile].data[i];
-                        
-                    if(key[KEY_ALT] || key[KEY_ALTGR])
-                        shift_tile_colors(tile, 16, false);
-                    else
-                        shift_tile_colors(tile, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-                }
-                else
-                    cs = (cs<11) ? cs+1:0;
-                    
-                redraw=true;
-                break;
-            }
-            
-            case KEY_MINUS:
-            case KEY_MINUS_PAD:
-            {
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
-                        key[KEY_ALT] || key[KEY_ALTGR])
-                {
-                    for(int32_t i=0; i<undocount; i++)
-                        undotile[i]=newtilebuf[tile].data[i];
-                        
-                    if(key[KEY_ALT] || key[KEY_ALTGR])
-                        shift_tile_colors(tile, -16, false);
-                    else
-                        shift_tile_colors(tile, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-                }
-                else
-                    cs = (cs>0) ? cs-1:11;
-                    
-                redraw=true;
-                break;
-            }
-            
-            case KEY_SPACE:
-                gridmode=(gridmode+1)%gm_max;
-                redraw=true;
-                break;
-                
-            case KEY_U:
-                for(int32_t i=0; i<undocount; i++) zc_swap(undotile[i],newtilebuf[tile].data[i]);
-                
-                redraw=true;
-                break;
-                
-            case KEY_S:
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-                {
-                    for(int32_t i=0; i<undocount; i++)
-                    {
-                        undotile[i]=newtilebuf[tile].data[i];
-                    }
-                    
-                    unpack_tile(newtilebuf, tile, 0, false);
-                    
-                    for(int32_t i=0; i<256; i++)
-                    {
-                        if(unpackbuf[i]==c1)
-                        {
-                            unpackbuf[i]=c2;
-                        }
-                        else if(unpackbuf[i]==c2)
-                        {
-                            unpackbuf[i]=c1;
-                        }
-                    }
-                    
-                    pack_tile(newtilebuf, unpackbuf,tile);
-                }
-                
-                zc_swap(c1,c2);
-                redraw=true;
-                break;
-                
-            case KEY_UP:
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-                {
-                    tile=zc_max(0,tile-TILES_PER_ROW);
-                    undocount = tilesize(newtilebuf[tile].format);
-                    
-                    for(int32_t i=0; i<undocount; i++)
-                    {
-                        undotile[i]=newtilebuf[tile].data[i];
-                        oldtile[i]=undotile[i];
-                    }
-                    
-                    redraw=true;
-                }
-                else
-                {
-                    for(int32_t i=0; i<undocount; i++)
-                    {
-                        undotile[i]=newtilebuf[tile].data[i];
-                    }
-                    
-                    wrap_tile(tile, -1, 0, false);
-                    redraw=true;
-                }
-                
-                break;
-                
-            case KEY_DOWN:
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-                {
-                    tile=zc_min(tile+TILES_PER_ROW,NEWMAXTILES-1);
-                    undocount = tilesize(newtilebuf[tile].format);
-                    
-                    for(int32_t i=0; i<undocount; i++)
-                    {
-                        undotile[i]=newtilebuf[tile].data[i];
-                        oldtile[i]=undotile[i];
-                    }
-                    
-                    redraw=true;
-                }
-                else
-                {
-                    for(int32_t i=0; i<undocount; i++)
-                    {
-                        undotile[i]=newtilebuf[tile].data[i];
-                    }
-                    
-                    wrap_tile(tile, 1, 0, false);
-                    redraw=true;
-                }
-                
-                break;
-                
-            case KEY_LEFT:
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-                {
-                    tile=zc_max(0,tile-1);
-                    undocount = tilesize(newtilebuf[tile].format);
-                    
-                    for(int32_t i=0; i<undocount; i++)
-                    {
-                        undotile[i]=newtilebuf[tile].data[i];
-                        oldtile[i]=undotile[i];
-                    }
-                    
-                    redraw=true;
-                }
-                else
-                {
-                    for(int32_t i=0; i<undocount; i++)
-                    {
-                        undotile[i]=newtilebuf[tile].data[i];
-                    }
-                    
-                    wrap_tile(tile, 0, -1, false);
-                    redraw=true;
-                }
-                
-                break;
-                
-            case KEY_RIGHT:
-                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-                {
-                    tile=zc_min(tile+1, NEWMAXTILES-1);
-                    undocount = tilesize(newtilebuf[tile].format);
-                    
-                    for(int32_t i=0; i<undocount; i++)
-                    {
-                        undotile[i]=newtilebuf[tile].data[i];
-                        oldtile[i]=undotile[i];
-                    }
-                    
-                    redraw=true;
-                }
-                else
-                {
-                    for(int32_t i=0; i<undocount; i++)
-                    {
-                        undotile[i]=newtilebuf[tile].data[i];
-                    }
-                    
-                    wrap_tile(tile, 0, 1, false);
-                    redraw=true;
-                }
-                
-                break;
-            }
-            
-            clear_keybuf();
-        }
-        
-        /*
-          if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
-          !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
-          !key[KEY_ALT] && !key[KEY_ALTGR]) {
-          */
-//    if (isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
-        if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2)) //inside the zoomed tile window
-        {
-            if(!bdown&&(gui_mouse_b()&3))  //pressed the left or right button
-            {
-//        zq_set_mouse_range(80+screen_xofs,32+screen_yofs,206+screen_xofs,158+screen_yofs);
-//        zq_set_mouse_range(80,32,206,158);
-                //zq_set_mouse_range(zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2);
-            }
-            else if(bdown&&!gui_mouse_b())  //released the mouse button
-            {
-                //zq_set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
-            }
-        }
-        
-        if(!gui_mouse_b())
-        {
-            if(is_selecting())
-            {
-                int32_t x1=zc_min(selecting_x1,selecting_x2);
-                int32_t x2=zc_max(selecting_x1,selecting_x2);
-                int32_t y1=zc_min(selecting_y1,selecting_y2);
-                int32_t y2=zc_max(selecting_y1,selecting_y2);
-                
-                if(select_mode==0)
-                {
-                    clear_selection_grid();
-                }
-                
-                for(int32_t x=x1; x<=x2; ++x)
-                {
-                    for(int32_t y=y1; y<=y2; ++y)
-                    {
-                        selection_grid[x+1][y+1]=((select_mode<2)?(1):(((select_mode==2)?(0):(selection_grid[x+1][y+1]))));
-                    }
-                }
-                
-                if(select_mode==3)
-                {
-                    for(int32_t y=0; y<16; ++y)
-                    {
-                        for(int32_t x=0; x<x1; ++x)
-                        {
-                            selection_grid[x+1][y+1]=0;
-                        }
-                        
-                        for(int32_t x=x2+1; x<16; ++x)
-                        {
-                            selection_grid[x+1][y+1]=0;
-                        }
-                    }
-                    
-                    for(int32_t x=x1; x<=x2; ++x)
-                    {
-                        for(int32_t y=0; y<y1; ++y)
-                        {
-                            selection_grid[x+1][y+1]=0;
-                        }
-                        
-                        for(int32_t y=y2+1; y<16; ++y)
-                        {
-                            selection_grid[x+1][y+1]=0;
-                        }
-                    }
-                }
-            }
-            
-            selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
-            did_wand_select=false;
-        }
-        
-        bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
-        bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-        
-        if(tool==t_select||tool==t_wand)
-        {
-            if(!drawing)
-            {
-                int32_t type=0;
-                
-                if(has_selection())
-                {
-                    switch(tool)
-                    {
-                    case t_select:
-                    case t_wand:
-                        if(shift)
-                        {
-                            type+=1;
-                        }
-                        
-                        if(alt)
-                        {
-                            type+=2;
-                        }
-                        
-                        break;
-                    }
-                }
-                
-                if(type!=select_mode)
-                {
-                    select_mode=type;
-                    
-//          if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158)) //inside the zoomed tile window
-                    if(isinRect(temp_mouse_x,temp_mouse_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
-                    {
-                        set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][type]);
-                    }
-                }
-            }
-        }
-        else if(alt)
-        {
-            if(old_tool==-1)
-            {
-                old_tool = tool;
-                tool = t_eyedropper;
-                tool_cur = -1;
-                redraw = true;
-            }
-        }
-        else
-        {
-            if(old_tool!=-1)
-            {
-                tool = old_tool;
-                old_tool = -1;
-                tool_cur = -1;
-                redraw = true;
-            }
-        }
-        
-        if(!bdown)
-        {
-//      move_origin_x=prev_x=(temp_mouse_x-80)>>3;
-//      move_origin_y=prev_y=(temp_mouse_y-32)>>3;
-            move_origin_x=prev_x=(temp_mouse_x-zoom_tile_x)/zoom_tile_scale;
-            move_origin_y=prev_y=(temp_mouse_y-zoom_tile_y)/zoom_tile_scale;
-        }
-        
-        if(gui_mouse_b()==1 && !bdown) //pressed the left mouse button
-        {
-//      if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
-            if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
-            {
-                if(tool==t_move || tool==t_fill)
-                {
-                    scare_mouse();
-                    
-                    if(tool==t_fill)
-                    {
-                        set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
-                        set_mouse_sprite_focus(1, 14);
-                    }
-                    else
-                    {
-                        set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][1]);
-                        set_mouse_sprite_focus(8, 8);
-                    }
-                    
-                    unscare_mouse();
-                    move_origin_x=prev_x=(temp_mouse_x-zoom_tile_x)/zoom_tile_scale;
-                    move_origin_y=prev_y=(temp_mouse_y-zoom_tile_y)/zoom_tile_scale;
-//          move_origin_x=prev_x=(temp_mouse_x-80)>>3;
-//          move_origin_y=prev_y=(temp_mouse_y-32)>>3;
-                }
-                
-                for(int32_t i=0; i<undocount; i++)
-                {
-                    undotile[i]=newtilebuf[tile].data[i];
-                }
-                
-                drawing=1;
-            }
-            
-            if(isinRect(temp_mouse_x,temp_mouse_y,ok_button_x,ok_button_y,ok_button_x+61,ok_button_y+21))
-            {
-//        if(do_text_button(224+screen_xofs,168+screen_yofs,61,21,"OK",vc(1),vc(14),true))
-                if(do_text_button(ok_button_x,ok_button_y,61,21,"OK",vc(1),vc(14),true))
-                {
-                    done=2;
-                }
-            }
-            
-            if(isinRect(temp_mouse_x,temp_mouse_y,cancel_button_x,cancel_button_y,cancel_button_x+61,cancel_button_y+21))
-            {
-//        if(do_text_button(224+screen_xofs,192+screen_yofs,61,21,"Cancel",vc(1),vc(14),true))
-                if(do_text_button(cancel_button_x,cancel_button_y,61,21,"Cancel",vc(1),vc(14),true))
-                {
-                    done=1;
-                }
-            }
-            
-            if(isinRect(temp_mouse_x,temp_mouse_y,edit_button_x,edit_button_y,edit_button_x+61,edit_button_y+21))
-            {
-//        if(do_text_button(24+screen_xofs,184+screen_yofs,61,21,"Edit",vc(1),vc(14),true))
-                if(do_text_button(edit_button_x,edit_button_y,61,21,"Edit",vc(1),vc(14),true))
-                {
-//          popup_menu(colors_menu,26+screen_xofs,144+screen_yofs);
-                    popup_menu(colors_menu,edit_button_x+2,edit_button_y-40);
-                    get_palette(tpal);
-                    
-                    if(newtilebuf[tile].format==tf4Bit)
-                    {
-                        invcol=makecol8((63-tpal[CSET(cs)].r)*255/63,(63-tpal[CSET(cs)].g)*255/63,(63-tpal[CSET(cs)].b)*255/63);
-                    }
-                    else
-                    {
-                        invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
-                    }
-                    
-                    redraw=true;
-                }
-            }
-            
-            switch(newtilebuf[tile].format)
-            {
-            case tf4Bit:
-            
-//        if(isinRect(temp_mouse_x,temp_mouse_y,104,176,135,207))
-                if(isinRect(temp_mouse_x,temp_mouse_y,palette_x,palette_y,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*16)-1))
-                {
-//          int32_t x=(temp_mouse_x-104)>>3;
-//          int32_t y=(temp_mouse_y-176)>>3;
-                    int32_t x=(temp_mouse_x-palette_x)/(palette_scale*4);
-                    int32_t y=(temp_mouse_y-palette_y)/(palette_scale*4);
-                    c1 = (y<<2)+x;
-                    redraw=true;
-                }
-                
-                break;
-                
-            case tf8Bit:
-            
-//        if(isinRect(temp_mouse_x,temp_mouse_y,94,172,157,231))
-                if(isinRect(temp_mouse_x,temp_mouse_y,palette_x, palette_y+palette_scale,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*15)-1))
-                {
-//          int32_t x=(temp_mouse_x-94)>>2;
-//          int32_t y=(temp_mouse_y-172)>>2;
-                    int32_t x=(temp_mouse_x-palette_x)/(palette_scale);
-                    int32_t y=(temp_mouse_y-palette_y-palette_scale)/(palette_scale);
-                    c1 = (y<<4)+x;
-                    redraw=true;
-                }
-                
-                break;
-            }
-            
-            
-            for(int32_t i=0; i<t_max; i++)
-            {
-                int32_t column=tool_buttons_columns*i/(t_max+1);
-                int32_t rows=(t_max+2)/tool_buttons_columns;
-                int32_t row=i-(column*rows);
-                
-//        if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left,(i*23)+tool_buttons_top,tool_buttons_left+21,(i*23)+tool_buttons_top+21))
-                if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left+(column*23),tool_buttons_top+(row*23),tool_buttons_left+(column*23)+21,tool_buttons_top+(row*23)+21))
-                {
-                    tool=i;
-                    redraw=true;
-                }
-            }
-            
-            if(isinRect(temp_mouse_x,temp_mouse_y,zq_screen_w - 21, 5, zq_screen_w - 21 + 15, 5 + 13))
-            {
-//        if(do_x_button(screen, 320+screen_xofs - 21, 5+screen_yofs))
-                if(do_x_button(screen, zq_screen_w - 21, 5))
-                {
-                    done=1;
-                }
-            }
-            
-            bdown=true;
-        }
-        
-        if(gui_mouse_b()&2 && !bdown) //pressed the left mouse button
-        {
-//      if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
-            if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
-            {
-                if(tool==t_move || tool==t_fill)
-                {
-                    scare_mouse();
-                    
-                    if(tool==t_fill)
-                    {
-                        set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
-                        set_mouse_sprite_focus(1, 14);
-                    }
-                    else
-                    {
-                        set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][1]);
-                        set_mouse_sprite_focus(8, 8);
-                    }
-                    
-                    unscare_mouse();
-                    move_origin_x=prev_x=(temp_mouse_x-zoom_tile_x)/zoom_tile_scale;
-                    move_origin_y=prev_y=(temp_mouse_y-zoom_tile_y)/zoom_tile_scale;
-//          move_origin_x=prev_x=(temp_mouse_x-80)>>3;
-//          move_origin_y=prev_y=(temp_mouse_y-32)>>3;
-                }
-                
-                for(int32_t i=0; i<undocount; i++)
-                {
-                    undotile[i]=newtilebuf[tile].data[i];
-                }
-                
-                drawing=2;
-            }
-            
-            switch(newtilebuf[tile].format)
-            {
-            case tf4Bit:
-            
-//        if(isinRect(temp_mouse_x,temp_mouse_y,104,176,135,207))
-                if(isinRect(temp_mouse_x,temp_mouse_y,palette_x,palette_y,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*16)-1))
-                {
-//          int32_t x=(temp_mouse_x-104)>>3;
-//          int32_t y=(temp_mouse_y-176)>>3;
-                    int32_t x=(temp_mouse_x-palette_x)/(palette_scale*4);
-                    int32_t y=(temp_mouse_y-palette_y)/(palette_scale*4);
-                    c2 = (y<<2)+x;
-                    redraw=true;
-                }
-                
-                break;
-                
-            case tf8Bit:
-            
-//        if(isinRect(temp_mouse_x,temp_mouse_y,94,172,157,231))
-                if(isinRect(temp_mouse_x,temp_mouse_y,palette_x, palette_y+palette_scale,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*15)-1))
-                {
-//          int32_t x=(temp_mouse_x-94)>>2;
-//          int32_t y=(temp_mouse_y-172)>>2;
-                    int32_t x=(temp_mouse_x-palette_x)/(palette_scale);
-                    int32_t y=(temp_mouse_y-palette_y-palette_scale)/(palette_scale);
-                    c2 = (y<<4)+x;
-                    redraw=true;
-                }
-                
-                break;
-            }
-            
-            bdown=true;
-        }
-        
-        if(bdown&&!gui_mouse_b())  //released the buttons
-        {
-//      if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
-            if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
-            {
-                if(tool==t_move || tool==t_fill)
-                {
-                    scare_mouse();
-                    set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
-                    
-                    if(tool==t_fill)
-                    {
-                        set_mouse_sprite_focus(1, 14);
-                    }
-                    else
-                    {
-                        set_mouse_sprite_focus(8, 8);
-                    }
-                    
-                    unscare_mouse();
-                }
-            }
-        }
-        
-//    if(drawing && isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
-        if(drawing && isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
-        {
-        
-            int32_t mx = gui_mouse_x();
-            int32_t my = gui_mouse_y();
-            
-            if(tool==t_fill)  //&& is_windowed_mode()) // Sigh... -L
-            {
-                mx += 1;
-                my += is_large ? 14 : 7;
-            }
-            
-            int32_t x=(mx-zoom_tile_x)/(zoom_tile_scale/zoom_tile_size);
-            int32_t y=(my-zoom_tile_y)/(zoom_tile_scale/zoom_tile_size);
-            
-            switch(tool)
-            {
-            case t_pen:
-                if(flip&1) x=15-x;
-                
-                if(flip&2) y=15-y;
-                
-                if(is_in_selection(x,y))
-                {
-                    unpack_tile(newtilebuf, tile, 0, false);
-                    unpackbuf[((y<<4)+x)]=(drawing==1)?c1:c2;
-                    pack_tile(newtilebuf, unpackbuf,tile);
-                }
-                
-                break;
-                
-            case t_fill:
-                if(is_in_selection(x,y))
-                {
-                    tile_floodfill(tile,x,y,(drawing==1)?c1:c2);
-                    drawing=0;
-                }
-                
-                break;
-                
-            case t_recolor:
-                if(is_in_selection(x,y))
-                {
-                    unpack_tile(newtilebuf, tile, 0, false);
-                    tf_u = unpackbuf[(y<<4)+x];
-                    
-                    for(int32_t i=0; i<256; i++)
-                    {
-                        if(is_in_selection(i&15,i>>4))
-                        {
-                            if(unpackbuf[i]==tf_u)
-                            {
-                                unpackbuf[i]=(drawing==1)?c1:c2;
-                            }
-                        }
-                    }
-                    
-                    pack_tile(newtilebuf, unpackbuf,tile);
-                    drawing=0;
-                }
-                
-                break;
-                
-            case t_eyedropper:
-                unpack_tile(newtilebuf, tile, 0, false);
-                
-                if(gui_mouse_b()&1)
-                {
-                    c1=unpackbuf[((y<<4)+x)];
-                }
-                
-                if(gui_mouse_b()&2)
-                {
-                    c2=unpackbuf[((y<<4)+x)];
-                }
-                
-                break;
-                
-            case t_move:
-                if((prev_x!=x)||(prev_y!=y))
-                {
-                    wrap_tile(tile, y-move_origin_y, x-move_origin_x, drawing==2);
-                    prev_x=x;
-                    prev_y=y;
-                }
-                
-                break;
-                
-            case t_select:
-                if(flip&1) x=15-x;
-                
-                if(flip&2) y=15-y;
-                
-                if(selecting_x1==-1||selecting_y1==-1)
-                {
-                    selecting_x1=x;
-                    selecting_y1=y;
-                }
-                else
-                {
-                    selecting_x2=x;
-                    selecting_y2=y;
-                }
-                
-                break;
-                
-            case t_wand:
-                if(flip&1) x=15-x;
-                
-                if(flip&2) y=15-y;
-                
-                switch(select_mode)
-                {
-                case 0:
-                    clear_selection_grid();
-                    add_color_to_selection(unpackbuf[((y<<4)+x)]);
-                    break;
-                    
-                case 1:
-                    add_color_to_selection(unpackbuf[((y<<4)+x)]);
-                    break;
-                    
-                case 2:
-                    remove_color_from_selection(unpackbuf[((y<<4)+x)]);
-                    break;
-                    
-                case 3:
-                    intersect_color_with_selection(unpackbuf[((y<<4)+x)]);
-                    break;
-                }
-                
-                drawing=0;
-                break;
-            }
-            
-            redraw=true;
-        }
-        
-        if(gui_mouse_b()==0)
-        {
-            bdown=false;
-            drawing=0;
-        }
-        
-//    temp_x=(temp_mouse_x-80)/8;
-//    temp_y=(temp_mouse_y-32)/8;
-        temp_x=zoom_tile_size*(gui_mouse_x()-zoom_tile_x)/zoom_tile_scale;
-        temp_y=zoom_tile_size*(gui_mouse_y()-zoom_tile_y)/zoom_tile_scale;
-        
-//    if(!isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
-        if(!isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2)) //inside the zoomed tile window
-        {
-//      temp_x=-1;
-//      temp_y=-1;
-        }
-        
-//    if (temp_x!=tile_x||temp_y!=tile_y)
-        {
-            tile_x=temp_x;
-            tile_y=temp_y;
-            redraw=true;
-        }
-        
-        const char *toolnames[t_max]=
-        {
-            "Pencil", "Fill", "Replace Color", "Grab Color", "Move", "Select", "Select Color"
-        };
-        
-        for(int32_t i=0; i<t_max; i++)
-        {
-            int32_t column=tool_buttons_columns*i/(t_max+1);
-            int32_t rows=(t_max+2)/tool_buttons_columns;
-            int32_t row=i-(column*rows);
-            
-            if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left+(column*23),tool_buttons_top+(row*23),tool_buttons_left+(column*23)+21,tool_buttons_top+(row*23)+21))
-            {
-                char msg[80];
-                sprintf(msg, "%s", toolnames[i]);
-                update_tooltip(temp_mouse_x,temp_mouse_y,tool_buttons_left+(column*23),tool_buttons_top+(row*23),21,21, msg);
-                redraw=true;
-            }
-        }
-        
-        if(redraw)
-        {
-            get_palette(tpal);
-            
-            if(newtilebuf[tile].format==tf4Bit)
-            {
-                tpal[208]=tpal[CSET(cs)+c1];
-                tpal[209]=tpal[CSET(cs)+c2];
-                tpal[210]=invRGB(tpal[CSET(cs)]);
-            }
-            else
-            {
-                tpal[208]=tpal[c1];
-                tpal[209]=tpal[c2];
-                tpal[210]=invRGB(tpal[0]);
-            }
-            
-            custom_vsync();
-            set_palette(tpal);
-            draw_edit_scr(tile,flip,cs,oldtile, false);
-            
-            if((tooltip_timer>=tooltip_maxtimer)&&(tooltip_box.x>=0&&tooltip_box.y>=0))
-            {
-                masked_blit(tooltipbmp, screen, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
-            }
-        }
-        else
-        {
-            bool hs=has_selection();
-            
-            if(hs)
-            {
-//        zoomtile16(screen2,tile,79,31,cs,flip,8);
-                zoomtile16(screen2,tile,zoom_tile_x-1,zoom_tile_y-1,cs,flip,zoom_tile_scale);
-            }
-            
-            custom_vsync();
-            scare_mouse();
-            
-            if(hs)
-            {
-//        blit(screen2, screen, 79, 31, 79, 31, 129, 129);
-                blit(screen2, screen, zoom_tile_x-1,zoom_tile_y-1, zoom_tile_x-1,zoom_tile_y-1, (16*zoom_tile_scale/zoom_tile_size)+1, (16*zoom_tile_scale/zoom_tile_size)+1);
-            }
-            
-            update_tool_cursor();
-            unscare_mouse();
-            SCRFIX();
-        }
-        
-    }
-    while(!done);
-    
-    clear_selection_grid();
-    
-    while(gui_mouse_b())
-    {
-        /* do nothing */
-    }
-    
-    if(done==1)
-    {
-        for(int32_t i=0; i<undocount; i++)
-        {
-            newtilebuf[tile].data[i]=oldtile[i];
-        }
-    }
-    else
-    {
-        byte *buf = new byte[undocount];
-        
-        // put back old tile
-        for(int32_t i=0; i<undocount; i++)
-        {
-            buf[i] = newtilebuf[tile].data[i];
-            newtilebuf[tile].data[i] = oldtile[i];
-        }
-        
-        // go
-        go_tiles();
-        
-        // replace old tile with new one again
-        for(int32_t i=0; i<undocount; i++)
-        {
-            newtilebuf[tile].data[i] = buf[i];
-        }
-        
-        //   usetiles=true;
-        saved=false;
-        
-        if(buf!=NULL)
-        {
-            delete[] buf;
-        }
-    }
-    
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-    register_blank_tiles();
-    register_used_tiles();
-    //set_palette(opal);
-    clear_tooltip();
-    comeback();
-    destroy_bitmap(selection_pattern);
-    destroy_bitmap(selecting_pattern);
-    destroy_bitmap(intersection_pattern);
+	do
+	{
+		// int32_t temp_mouse_x=gui_mouse_x()-screen_xofs;
+		// int32_t temp_mouse_y=gui_mouse_y()-screen_yofs;
+		int32_t temp_mouse_x=gui_mouse_x();
+		int32_t temp_mouse_y=gui_mouse_y();
+		rest(4);
+		bool redraw=false;
+		bool did_wand_select=false;
+		
+		if((tooltip_trigger.x>-1&&tooltip_trigger.y>-1)&&(!isinRect(temp_mouse_x,temp_mouse_y,tooltip_trigger.x,tooltip_trigger.y,tooltip_trigger.x+tooltip_trigger.w-1,tooltip_trigger.y+tooltip_trigger.h-1)))
+		{
+			clear_tooltip();
+			redraw=true;
+		}
+		
+		if(keypressed())
+		{
+			switch(readkey()>>8)
+			{
+			case KEY_ENTER_PAD:
+			case KEY_ENTER:
+				done=2;
+				break;
+				
+			case KEY_ESC:
+				done=1;
+				break;
+				
+			case KEY_A:
+				clear_selection_grid();
+				invert_selection_grid();
+				redraw=true;
+				break;
+				
+			case KEY_D:
+				clear_selection_grid();
+				redraw=true;
+				break;
+				
+			case KEY_I:
+				invert_selection_grid();
+				redraw=true;
+				break;
+				
+			case KEY_H:
+				flip^=1;
+				normalize(tile,tile,0,flip);
+				flip=0;
+				redraw=true;
+				break;
+				
+			case KEY_V:
+				flip^=2;
+				normalize(tile,tile,0,flip);
+				flip=0;
+				redraw=true;
+				break;
+				
+			case KEY_F12:
+				onSnapshot();
+				break;
+				
+			case KEY_R:
+			{
+				//if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+				// {
+				//do_recolor(tile); redraw=true; saved=false;
+				// }
+				//else
+				// {
+				go_tiles();
+				rotate_tile(tile,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
+				redraw=true;
+				saved=false;
+				break;
+			}
+			
+			case KEY_EQUALS:
+			case KEY_PLUS_PAD:
+			{
+				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+						key[KEY_ALT] || key[KEY_ALTGR])
+				{
+					for(int32_t i=0; i<undocount; i++)
+						undotile[i]=newtilebuf[tile].data[i];
+						
+					if(key[KEY_ALT] || key[KEY_ALTGR])
+						shift_tile_colors(tile, 16, false);
+					else
+						shift_tile_colors(tile, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+				}
+				else
+					cs = (cs<11) ? cs+1:0;
+					
+				redraw=true;
+				break;
+			}
+			
+			case KEY_MINUS:
+			case KEY_MINUS_PAD:
+			{
+				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+						key[KEY_ALT] || key[KEY_ALTGR])
+				{
+					for(int32_t i=0; i<undocount; i++)
+						undotile[i]=newtilebuf[tile].data[i];
+						
+					if(key[KEY_ALT] || key[KEY_ALTGR])
+						shift_tile_colors(tile, -16, false);
+					else
+						shift_tile_colors(tile, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+				}
+				else
+					cs = (cs>0) ? cs-1:11;
+					
+				redraw=true;
+				break;
+			}
+			
+			case KEY_SPACE:
+				gridmode=(gridmode+1)%gm_max;
+				redraw=true;
+				break;
+				
+			case KEY_U:
+				for(int32_t i=0; i<undocount; i++) zc_swap(undotile[i],newtilebuf[tile].data[i]);
+				
+				redraw=true;
+				break;
+				
+			case KEY_S:
+				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					for(int32_t i=0; i<undocount; i++)
+					{
+						undotile[i]=newtilebuf[tile].data[i];
+					}
+					
+					unpack_tile(newtilebuf, tile, 0, false);
+					
+					for(int32_t i=0; i<256; i++)
+					{
+						if(unpackbuf[i]==c1)
+						{
+							unpackbuf[i]=c2;
+						}
+						else if(unpackbuf[i]==c2)
+						{
+							unpackbuf[i]=c1;
+						}
+					}
+					
+					pack_tile(newtilebuf, unpackbuf,tile);
+				}
+				
+				zc_swap(c1,c2);
+				redraw=true;
+				break;
+				
+			case KEY_UP:
+				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					tile=zc_max(0,tile-TILES_PER_ROW);
+					undocount = tilesize(newtilebuf[tile].format);
+					
+					for(int32_t i=0; i<undocount; i++)
+					{
+						undotile[i]=newtilebuf[tile].data[i];
+						oldtile[i]=undotile[i];
+					}
+					
+					redraw=true;
+				}
+				else
+				{
+					for(int32_t i=0; i<undocount; i++)
+					{
+						undotile[i]=newtilebuf[tile].data[i];
+					}
+					
+					wrap_tile(tile, -1, 0, false);
+					redraw=true;
+				}
+				
+				break;
+				
+			case KEY_DOWN:
+				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					tile=zc_min(tile+TILES_PER_ROW,NEWMAXTILES-1);
+					undocount = tilesize(newtilebuf[tile].format);
+					
+					for(int32_t i=0; i<undocount; i++)
+					{
+						undotile[i]=newtilebuf[tile].data[i];
+						oldtile[i]=undotile[i];
+					}
+					
+					redraw=true;
+				}
+				else
+				{
+					for(int32_t i=0; i<undocount; i++)
+					{
+						undotile[i]=newtilebuf[tile].data[i];
+					}
+					
+					wrap_tile(tile, 1, 0, false);
+					redraw=true;
+				}
+				
+				break;
+				
+			case KEY_LEFT:
+				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					tile=zc_max(0,tile-1);
+					undocount = tilesize(newtilebuf[tile].format);
+					
+					for(int32_t i=0; i<undocount; i++)
+					{
+						undotile[i]=newtilebuf[tile].data[i];
+						oldtile[i]=undotile[i];
+					}
+					
+					redraw=true;
+				}
+				else
+				{
+					for(int32_t i=0; i<undocount; i++)
+					{
+						undotile[i]=newtilebuf[tile].data[i];
+					}
+					
+					wrap_tile(tile, 0, -1, false);
+					redraw=true;
+				}
+				
+				break;
+				
+			case KEY_RIGHT:
+				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					tile=zc_min(tile+1, NEWMAXTILES-1);
+					undocount = tilesize(newtilebuf[tile].format);
+					
+					for(int32_t i=0; i<undocount; i++)
+					{
+						undotile[i]=newtilebuf[tile].data[i];
+						oldtile[i]=undotile[i];
+					}
+					
+					redraw=true;
+				}
+				else
+				{
+					for(int32_t i=0; i<undocount; i++)
+					{
+						undotile[i]=newtilebuf[tile].data[i];
+					}
+					
+					wrap_tile(tile, 0, 1, false);
+					redraw=true;
+				}
+				
+				break;
+			}
+			
+			clear_keybuf();
+		}
+		
+		/*
+		  if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
+		  !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
+		  !key[KEY_ALT] && !key[KEY_ALTGR]) {
+		  */
+		// if (isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
+		/* if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2)) //inside the zoomed tile window
+		{
+			if(!bdown&&(gui_mouse_b()&3))  //pressed the left or right button
+			{
+				// zq_set_mouse_range(80+screen_xofs,32+screen_yofs,206+screen_xofs,158+screen_yofs);
+				// zq_set_mouse_range(80,32,206,158);
+				// zq_set_mouse_range(zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2);
+			}
+			else if(bdown&&!gui_mouse_b())  //released the mouse button
+			{
+				// zq_set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
+			}
+		}*/
+		
+		if(!gui_mouse_b())
+		{
+			if(is_selecting())
+			{
+				int32_t x1=zc_min(selecting_x1,selecting_x2);
+				int32_t x2=zc_max(selecting_x1,selecting_x2);
+				int32_t y1=zc_min(selecting_y1,selecting_y2);
+				int32_t y2=zc_max(selecting_y1,selecting_y2);
+				
+				if(select_mode==0)
+				{
+					clear_selection_grid();
+				}
+				
+				for(int32_t x=x1; x<=x2; ++x)
+				{
+					for(int32_t y=y1; y<=y2; ++y)
+					{
+						selection_grid[x+1][y+1]=((select_mode<2)?(1):(((select_mode==2)?(0):(selection_grid[x+1][y+1]))));
+					}
+				}
+				
+				if(select_mode==3)
+				{
+					for(int32_t y=0; y<16; ++y)
+					{
+						for(int32_t x=0; x<x1; ++x)
+						{
+							selection_grid[x+1][y+1]=0;
+						}
+						
+						for(int32_t x=x2+1; x<16; ++x)
+						{
+							selection_grid[x+1][y+1]=0;
+						}
+					}
+					
+					for(int32_t x=x1; x<=x2; ++x)
+					{
+						for(int32_t y=0; y<y1; ++y)
+						{
+							selection_grid[x+1][y+1]=0;
+						}
+						
+						for(int32_t y=y2+1; y<16; ++y)
+						{
+							selection_grid[x+1][y+1]=0;
+						}
+					}
+				}
+			}
+			
+			selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
+			did_wand_select=false;
+		}
+		
+		bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
+		bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+		bool ctrl=(key[KEY_LCONTROL] || key[KEY_RCONTROL]);
+		static int32_t last_tool_val = 0;
+		
+		if(tool==t_select||tool==t_wand)
+		{
+			if(!drawing)
+			{
+				int32_t type=0;
+				
+				if(has_selection())
+				{
+					if(shift)
+					{
+						type+=1;
+					}
+					
+					if(alt)
+					{
+						type+=2;
+					}
+				}
+				
+				if(type!=select_mode)
+				{
+					select_mode=type;
+					
+					// if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158)) //inside the zoomed tile window
+					if(isinRect(temp_mouse_x,temp_mouse_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
+					{
+						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][type]);
+					}
+				}
+			}
+		}
+		else if(alt||ctrl)
+		{
+			if(old_tool==-1)
+			{
+				old_tool = tool;
+				tool_cur = -1;
+			}
+			if(alt&&ctrl)
+				tool = t_recolor;
+			else if(alt)
+				tool = t_eyedropper;
+			else tool = t_fill;
+		}
+		else if(old_tool!=-1)
+		{
+			tool = old_tool;
+			old_tool = -1;
+			tool_cur = -1;
+			redraw = true;
+		}
+		if(last_tool_val != tool)
+		{
+			redraw = true;
+			tool_cur = -1;
+			scare_mouse();
+			update_tool_cursor();
+			unscare_mouse();
+			last_tool_val = tool;
+		}
+		
+		if(!bdown)
+		{
+			// move_origin_x=prev_x=(temp_mouse_x-80)>>3;
+			// move_origin_y=prev_y=(temp_mouse_y-32)>>3;
+			move_origin_x=prev_x=(temp_mouse_x-zoom_tile_x)/zoom_tile_scale;
+			move_origin_y=prev_y=(temp_mouse_y-zoom_tile_y)/zoom_tile_scale;
+		}
+		
+		if(gui_mouse_b()==1 && !bdown) //pressed the left mouse button
+		{
+			// if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
+			if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
+			{
+				if(tool==t_move || tool==t_fill)
+				{
+					scare_mouse();
+					
+					if(tool==t_fill)
+					{
+						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
+						set_mouse_sprite_focus(1, 14);
+					}
+					else
+					{
+						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][1]);
+						set_mouse_sprite_focus(8, 8);
+					}
+					
+					unscare_mouse();
+					move_origin_x=prev_x=(temp_mouse_x-zoom_tile_x)/zoom_tile_scale;
+					move_origin_y=prev_y=(temp_mouse_y-zoom_tile_y)/zoom_tile_scale;
+					// move_origin_x=prev_x=(temp_mouse_x-80)>>3;
+					// move_origin_y=prev_y=(temp_mouse_y-32)>>3;
+				}
+				
+				for(int32_t i=0; i<undocount; i++)
+				{
+					undotile[i]=newtilebuf[tile].data[i];
+				}
+				
+				drawing=1;
+			}
+			
+			if(isinRect(temp_mouse_x,temp_mouse_y,ok_button_x,ok_button_y,ok_button_x+61,ok_button_y+21))
+			{
+				// if(do_text_button(224+screen_xofs,168+screen_yofs,61,21,"OK",vc(1),vc(14),true))
+				if(do_text_button(ok_button_x,ok_button_y,61,21,"OK",vc(1),vc(14),true))
+				{
+					done=2;
+				}
+			}
+			
+			if(isinRect(temp_mouse_x,temp_mouse_y,cancel_button_x,cancel_button_y,cancel_button_x+61,cancel_button_y+21))
+			{
+				// if(do_text_button(224+screen_xofs,192+screen_yofs,61,21,"Cancel",vc(1),vc(14),true))
+				if(do_text_button(cancel_button_x,cancel_button_y,61,21,"Cancel",vc(1),vc(14),true))
+				{
+					done=1;
+				}
+			}
+			
+			if(isinRect(temp_mouse_x,temp_mouse_y,edit_button_x,edit_button_y,edit_button_x+61,edit_button_y+21))
+			{
+				// if(do_text_button(24+screen_xofs,184+screen_yofs,61,21,"Edit",vc(1),vc(14),true))
+				if(do_text_button(edit_button_x,edit_button_y,61,21,"Edit",vc(1),vc(14),true))
+				{
+					// popup_menu(colors_menu,26+screen_xofs,144+screen_yofs);
+					popup_menu(colors_menu,edit_button_x+2,edit_button_y-40);
+					get_palette(tpal);
+					
+					if(newtilebuf[tile].format==tf4Bit)
+					{
+						invcol=makecol8((63-tpal[CSET(cs)].r)*255/63,(63-tpal[CSET(cs)].g)*255/63,(63-tpal[CSET(cs)].b)*255/63);
+					}
+					else
+					{
+						invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
+					}
+					
+					redraw=true;
+				}
+			}
+			
+			switch(newtilebuf[tile].format)
+			{
+			case tf4Bit:
+			
+				// if(isinRect(temp_mouse_x,temp_mouse_y,104,176,135,207))
+				if(isinRect(temp_mouse_x,temp_mouse_y,palette_x,palette_y,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*16)-1))
+				{
+					// int32_t x=(temp_mouse_x-104)>>3;
+					// int32_t y=(temp_mouse_y-176)>>3;
+					int32_t x=(temp_mouse_x-palette_x)/(palette_scale*4);
+					int32_t y=(temp_mouse_y-palette_y)/(palette_scale*4);
+					c1 = (y<<2)+x;
+					redraw=true;
+				}
+				
+				break;
+				
+			case tf8Bit:
+			
+				// if(isinRect(temp_mouse_x,temp_mouse_y,94,172,157,231))
+				if(isinRect(temp_mouse_x,temp_mouse_y,palette_x, palette_y+palette_scale,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*15)-1))
+				{
+					// int32_t x=(temp_mouse_x-94)>>2;
+					// int32_t y=(temp_mouse_y-172)>>2;
+					int32_t x=(temp_mouse_x-palette_x)/(palette_scale);
+					int32_t y=(temp_mouse_y-palette_y-palette_scale)/(palette_scale);
+					c1 = (y<<4)+x;
+					redraw=true;
+				}
+				
+				break;
+			}
+			
+			
+			for(int32_t i=0; i<t_max; i++)
+			{
+				int32_t column=tool_buttons_columns*i/(t_max+1);
+				int32_t rows=(t_max+2)/tool_buttons_columns;
+				int32_t row=i-(column*rows);
+				
+				// if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left,(i*23)+tool_buttons_top,tool_buttons_left+21,(i*23)+tool_buttons_top+21))
+				if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left+(column*23),tool_buttons_top+(row*23),tool_buttons_left+(column*23)+21,tool_buttons_top+(row*23)+21))
+				{
+					tool=i;
+					redraw=true;
+				}
+			}
+			
+			if(isinRect(temp_mouse_x,temp_mouse_y,zq_screen_w - 21, 5, zq_screen_w - 21 + 15, 5 + 13))
+			{
+				// if(do_x_button(screen, 320+screen_xofs - 21, 5+screen_yofs))
+				if(do_x_button(screen, zq_screen_w - 21, 5))
+				{
+					done=1;
+				}
+			}
+			
+			bdown=true;
+		}
+		
+		if(gui_mouse_b()&2 && !bdown) //pressed the left mouse button
+		{
+			// if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
+			if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
+			{
+				if(tool==t_move || tool==t_fill)
+				{
+					scare_mouse();
+					
+					if(tool==t_fill)
+					{
+						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
+						set_mouse_sprite_focus(1, 14);
+					}
+					else
+					{
+						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][1]);
+						set_mouse_sprite_focus(8, 8);
+					}
+					
+					unscare_mouse();
+					move_origin_x=prev_x=(temp_mouse_x-zoom_tile_x)/zoom_tile_scale;
+					move_origin_y=prev_y=(temp_mouse_y-zoom_tile_y)/zoom_tile_scale;
+					// move_origin_x=prev_x=(temp_mouse_x-80)>>3;
+					// move_origin_y=prev_y=(temp_mouse_y-32)>>3;
+				}
+				
+				for(int32_t i=0; i<undocount; i++)
+				{
+					undotile[i]=newtilebuf[tile].data[i];
+				}
+				
+				drawing=2;
+			}
+			
+			switch(newtilebuf[tile].format)
+			{
+			case tf4Bit:
+			
+				// if(isinRect(temp_mouse_x,temp_mouse_y,104,176,135,207))
+				if(isinRect(temp_mouse_x,temp_mouse_y,palette_x,palette_y,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*16)-1))
+				{
+					// int32_t x=(temp_mouse_x-104)>>3;
+					// int32_t y=(temp_mouse_y-176)>>3;
+					int32_t x=(temp_mouse_x-palette_x)/(palette_scale*4);
+					int32_t y=(temp_mouse_y-palette_y)/(palette_scale*4);
+					c2 = (y<<2)+x;
+					redraw=true;
+				}
+				
+				break;
+				
+			case tf8Bit:
+				// if(isinRect(temp_mouse_x,temp_mouse_y,94,172,157,231))
+				if(isinRect(temp_mouse_x,temp_mouse_y,palette_x, palette_y+palette_scale,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*15)-1))
+				{
+					// int32_t x=(temp_mouse_x-94)>>2;
+					// int32_t y=(temp_mouse_y-172)>>2;
+					int32_t x=(temp_mouse_x-palette_x)/(palette_scale);
+					int32_t y=(temp_mouse_y-palette_y-palette_scale)/(palette_scale);
+					c2 = (y<<4)+x;
+					redraw=true;
+				}
+				
+				break;
+			}
+			
+			bdown=true;
+		}
+		
+		if(bdown&&!gui_mouse_b())  //released the buttons
+		{
+			// if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
+			if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
+			{
+				if(tool==t_move || tool==t_fill)
+				{
+					scare_mouse();
+					set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
+					
+					if(tool==t_fill)
+					{
+						set_mouse_sprite_focus(1, 14);
+					}
+					else
+					{
+						set_mouse_sprite_focus(8, 8);
+					}
+					
+					unscare_mouse();
+				}
+			}
+		}
+		
+		// if(drawing && isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
+		if(drawing && isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
+		{
+		
+			int32_t mx = gui_mouse_x();
+			int32_t my = gui_mouse_y();
+			
+			if(tool==t_fill)  //&& is_windowed_mode()) // Sigh... -L
+			{
+				mx += 1;
+				my += is_large ? 14 : 7;
+			}
+			
+			int32_t x=(mx-zoom_tile_x)/(zoom_tile_scale/zoom_tile_size);
+			int32_t y=(my-zoom_tile_y)/(zoom_tile_scale/zoom_tile_size);
+			
+			switch(tool)
+			{
+			case t_pen:
+				if(flip&1) x=15-x;
+				
+				if(flip&2) y=15-y;
+				
+				if(is_in_selection(x,y))
+				{
+					unpack_tile(newtilebuf, tile, 0, false);
+					unpackbuf[((y<<4)+x)]=(drawing==1)?c1:c2;
+					pack_tile(newtilebuf, unpackbuf,tile);
+				}
+				
+				break;
+				
+			case t_fill:
+				if(is_in_selection(x,y))
+				{
+					tile_floodfill(tile,x,y,(drawing==1)?c1:c2);
+					drawing=0;
+				}
+				
+				break;
+				
+			case t_recolor:
+				if(is_in_selection(x,y))
+				{
+					unpack_tile(newtilebuf, tile, 0, false);
+					tf_u = unpackbuf[(y<<4)+x];
+					
+					for(int32_t i=0; i<256; i++)
+					{
+						if(is_in_selection(i&15,i>>4))
+						{
+							if(unpackbuf[i]==tf_u)
+							{
+								unpackbuf[i]=(drawing==1)?c1:c2;
+							}
+						}
+					}
+					
+					pack_tile(newtilebuf, unpackbuf,tile);
+					drawing=0;
+				}
+				
+				break;
+				
+			case t_eyedropper:
+				unpack_tile(newtilebuf, tile, 0, false);
+				
+				if(gui_mouse_b()&1)
+				{
+					c1=unpackbuf[((y<<4)+x)];
+				}
+				
+				if(gui_mouse_b()&2)
+				{
+					c2=unpackbuf[((y<<4)+x)];
+				}
+				
+				break;
+				
+			case t_move:
+				if((prev_x!=x)||(prev_y!=y))
+				{
+					wrap_tile(tile, y-move_origin_y, x-move_origin_x, drawing==2);
+					prev_x=x;
+					prev_y=y;
+				}
+				
+				break;
+				
+			case t_select:
+				if(flip&1) x=15-x;
+				
+				if(flip&2) y=15-y;
+				
+				if(selecting_x1==-1||selecting_y1==-1)
+				{
+					selecting_x1=x;
+					selecting_y1=y;
+				}
+				else
+				{
+					selecting_x2=x;
+					selecting_y2=y;
+				}
+				
+				break;
+				
+			case t_wand:
+				if(flip&1) x=15-x;
+				
+				if(flip&2) y=15-y;
+				
+				switch(select_mode)
+				{
+				case 0:
+					clear_selection_grid();
+					add_color_to_selection(unpackbuf[((y<<4)+x)]);
+					break;
+					
+				case 1:
+					add_color_to_selection(unpackbuf[((y<<4)+x)]);
+					break;
+					
+				case 2:
+					remove_color_from_selection(unpackbuf[((y<<4)+x)]);
+					break;
+					
+				case 3:
+					intersect_color_with_selection(unpackbuf[((y<<4)+x)]);
+					break;
+				}
+				
+				drawing=0;
+				break;
+			}
+			
+			redraw=true;
+		}
+		
+		if(gui_mouse_b()==0)
+		{
+			bdown=false;
+			drawing=0;
+		}
+		
+		// temp_x=(temp_mouse_x-80)/8;
+		// temp_y=(temp_mouse_y-32)/8;
+		temp_x=zoom_tile_size*(gui_mouse_x()-zoom_tile_x)/zoom_tile_scale;
+		temp_y=zoom_tile_size*(gui_mouse_y()-zoom_tile_y)/zoom_tile_scale;
+		
+		// if(!isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
+		// if(!isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2)) //inside the zoomed tile window
+		// {
+			// temp_x=-1;
+			// temp_y=-1;
+		// }
+		
+		// if (temp_x!=tile_x||temp_y!=tile_y)
+		{
+			tile_x=temp_x;
+			tile_y=temp_y;
+			redraw=true;
+		}
+		
+		const char *toolnames[t_max]=
+		{
+			"Pencil", "Fill", "Replace Color", "Grab Color", "Move", "Select", "Select Color"
+		};
+		
+		for(int32_t i=0; i<t_max; i++)
+		{
+			int32_t column=tool_buttons_columns*i/(t_max+1);
+			int32_t rows=(t_max+2)/tool_buttons_columns;
+			int32_t row=i-(column*rows);
+			
+			if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left+(column*23),tool_buttons_top+(row*23),tool_buttons_left+(column*23)+21,tool_buttons_top+(row*23)+21))
+			{
+				char msg[80];
+				sprintf(msg, "%s", toolnames[i]);
+				update_tooltip(temp_mouse_x,temp_mouse_y,tool_buttons_left+(column*23),tool_buttons_top+(row*23),21,21, msg);
+				redraw=true;
+			}
+		}
+		
+		if(redraw)
+		{
+			get_palette(tpal);
+			
+			if(newtilebuf[tile].format==tf4Bit)
+			{
+				tpal[208]=tpal[CSET(cs)+c1];
+				tpal[209]=tpal[CSET(cs)+c2];
+				tpal[210]=invRGB(tpal[CSET(cs)]);
+			}
+			else
+			{
+				tpal[208]=tpal[c1];
+				tpal[209]=tpal[c2];
+				tpal[210]=invRGB(tpal[0]);
+			}
+			
+			custom_vsync();
+			set_palette(tpal);
+			draw_edit_scr(tile,flip,cs,oldtile, false);
+			
+			if((tooltip_timer>=tooltip_maxtimer)&&(tooltip_box.x>=0&&tooltip_box.y>=0))
+			{
+				masked_blit(tooltipbmp, screen, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
+			}
+		}
+		else
+		{
+			bool hs=has_selection();
+			
+			if(hs)
+			{
+				// zoomtile16(screen2,tile,79,31,cs,flip,8);
+				zoomtile16(screen2,tile,zoom_tile_x-1,zoom_tile_y-1,cs,flip,zoom_tile_scale);
+			}
+			
+			custom_vsync();
+			scare_mouse();
+			
+			if(hs)
+			{
+				// blit(screen2, screen, 79, 31, 79, 31, 129, 129);
+				blit(screen2, screen, zoom_tile_x-1,zoom_tile_y-1, zoom_tile_x-1,zoom_tile_y-1, (16*zoom_tile_scale/zoom_tile_size)+1, (16*zoom_tile_scale/zoom_tile_size)+1);
+			}
+			
+			update_tool_cursor();
+			unscare_mouse();
+			SCRFIX();
+		}
+		
+	}
+	while(!done);
+	
+	clear_selection_grid();
+	
+	while(gui_mouse_b())
+	{
+		/* do nothing */
+	}
+	
+	if(done==1)
+	{
+		for(int32_t i=0; i<undocount; i++)
+		{
+			newtilebuf[tile].data[i]=oldtile[i];
+		}
+	}
+	else
+	{
+		byte *buf = new byte[undocount];
+		
+		// put back old tile
+		for(int32_t i=0; i<undocount; i++)
+		{
+			buf[i] = newtilebuf[tile].data[i];
+			newtilebuf[tile].data[i] = oldtile[i];
+		}
+		
+		// go
+		go_tiles();
+		
+		// replace old tile with new one again
+		for(int32_t i=0; i<undocount; i++)
+		{
+			newtilebuf[tile].data[i] = buf[i];
+		}
+		
+		//   usetiles=true;
+		saved=false;
+		
+		if(buf!=NULL)
+		{
+			delete[] buf;
+		}
+	}
+	
+	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	register_blank_tiles();
+	register_used_tiles();
+	//set_palette(opal);
+	clear_tooltip();
+	comeback();
+	destroy_bitmap(selection_pattern);
+	destroy_bitmap(selecting_pattern);
+	destroy_bitmap(intersection_pattern);
 }
 
 /*  Grab Tile Code  */
@@ -18083,7 +18086,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		// { "Enable", "Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
 		
 		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","Room Item","Singular Secret","Kill Wpn",
-			NULL,"Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy", NULL,NULL},
+			NULL,"Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy", NULL,"Hook-Grabbable"},
 		{ NULL,NULL,NULL,NULL},
 		{ "Sprite", "Dropset", "Sound", "Singular Secret",NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
@@ -18151,7 +18154,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		// { "Enable", "Enable", NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Clippings","Specific Item",NULL,NULL,NULL,NULL,NULL},
 		
 		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","Room Item","Secrets","Kill Wpn",
-			"Engine","Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy",NULL,NULL},
+			"Engine","Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy",NULL,"Hook-Grabbable"},
 		{ NULL,NULL,NULL,NULL},
 		{ "Sprite", "Dropset", "Sound", "Secret Type",NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
@@ -18160,7 +18163,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		258,
 		//if dropping an enemy from a script 1 to 20 combo
 		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","No Poof","Secrets","Kill Wpn",
-			"Engine","Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy",NULL,NULL},
+			"Engine","Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy",NULL,"Hook-Grabbable"},
 		{ NULL,NULL,NULL,NULL},
 		{ "Sprite", "Dropset", "Sound", "Secret Type",NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
@@ -18170,7 +18173,7 @@ static ComboAttributesInfo comboattrinfo[]=
 		//if dropping an enemy from a generic trigger combo
 		
 		{ "Visuals", "Itemdrop", "SFX", "Next","Continuous","No Poof","Secrets","Kill Wpn",
-			NULL,"Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy",NULL,NULL},
+			NULL,"Clippings","Specific Item","Undercombo","Always Drop","Drop Enemy",NULL,"Hook-Grabbable"},
 		{ NULL,NULL,NULL,NULL},
 		{ "Sprite", "Dropset", "Sound", "Secret Type",NULL,NULL,NULL,NULL},
 		{ NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}
@@ -18394,18 +18397,18 @@ static DIALOG combo_dlg[] =
     { jwin_edit_proc,         8+22+16,    135+16+4+17,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
     { jwin_text_proc,           98,    135-4+16+10+17,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
     //92 (triggered by 2)
-    { jwin_check_proc,        8+22+16,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 1",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 2",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     60+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 3",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     75+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 4",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     90+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 5",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Custom Weapon 1",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Custom Weapon 2",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     60+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Custom Weapon 3",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     75+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Custom Weapon 4",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     90+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Custom Weapon 5",                      NULL,   NULL                  },
     //97
-    { jwin_check_proc,        100,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 6",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 7",                      NULL,   NULL                  },
+    { jwin_check_proc,        125,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Custom Weapon 6",                      NULL,   NULL                  },
+    { jwin_check_proc,        125,     45+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Custom Weapon 7",                      NULL,   NULL                  },
     //99
-    { jwin_check_proc,        100,     60+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 8",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     75+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 9",                      NULL,   NULL                  },
-    { jwin_check_proc,        100,     90+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 10",                      NULL,   NULL                  },
+    { jwin_check_proc,        125,     60+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Custom Weapon 8",                      NULL,   NULL                  },
+    { jwin_check_proc,        125,     75+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Custom Weapon 9",                      NULL,   NULL                  },
+    { jwin_check_proc,        125,     90+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Custom Weapon 10",                      NULL,   NULL                  },
     //102
     { jwin_button_proc,     105,  180+17,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180+17,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
@@ -18546,7 +18549,7 @@ static DIALOG combo_dlg[] =
 	{ jwin_swapbtn_proc,    130,    70,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
 	//198
 	{ jwin_check_proc,        46,     105+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always Triggered",                      NULL,   NULL                  },
-	{ jwin_check_proc,        154,     30+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Triggers Secrets",                      NULL,   NULL                  },
+	{ jwin_check_proc,        125,    105+16+3+17,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Triggers Secrets",                      NULL,   NULL                  },
 	//200
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -22225,13 +22228,13 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
                     
                     if(key[KEY_LSHIFT] ||key[KEY_RSHIFT])
                     {
-			mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]), rect_sel);
+						mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]), rect_sel);
                         saved=false;
                     }
                     else
                     {
                         saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
-			//overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
+						//overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
                     }
                     
                     saved=false;

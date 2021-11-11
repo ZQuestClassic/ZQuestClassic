@@ -17922,7 +17922,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 			
 			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=MAPCOMBO(x+j,y+i))
 			{
-		zprint("Step Secs\n");
+				zprint("Step Secs\n");
 				if(stype==cSTRIGFLAG && canPermSecret())
 				{ 
 					if(!didstrig)
@@ -17933,8 +17933,8 @@ void LinkClass::checkspecial2(int32_t *ls)
 						{
 							setmapflag(mSECRET);
 						}
-			//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
-			//zprint("Step Secrets SFX: %d\n", thesfx);
+						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
+						//zprint("Step Secrets SFX: %d\n", thesfx);
 						sfx(warpsound,pan((int32_t)x));
 						hidden_entrance(0,true,false); 
 						didstrig = true;
@@ -17945,13 +17945,14 @@ void LinkClass::checkspecial2(int32_t *ls)
 					if(!didstrig)
 					{
 						stepsecret = ((int32_t)(y+i)&0xF0)+((int32_t)(x+j)>>4);
-						hidden_entrance(0,true,true); 
+						bool only16_31 = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
+						hidden_entrance(0,true,only16_31); 
 						didstrig = true;
-			//play trigger sound
-			//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
-			//zprint("Step Secrets SFX: %d\n", thesfx);
+						//play trigger sound
+						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
+						//zprint("Step Secrets SFX: %d\n", thesfx);
 						//sfx(thesfx,pan((int32_t)x));
-			sfx(warpsound,pan((int32_t)x));
+						sfx(warpsound,pan((int32_t)x));
 					}
 				}
 			}
@@ -18066,7 +18067,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 	if(MAPFFCOMBO(x1,y1))
 	{
 		types[0] = FFCOMBOTYPE(x1,y1);
-	cids[0] = MAPFFCOMBO(x1,y1);
+		cids[0] = MAPFFCOMBO(x1,y1);
 	}
 		
 	types[1] = COMBOTYPE(x1,y2);
@@ -18074,7 +18075,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 	if(MAPFFCOMBO(x1,y2))
 	{
 		types[1] = FFCOMBOTYPE(x1,y2);
-	cids[1] = MAPFFCOMBO(x1,y2);
+		cids[1] = MAPFFCOMBO(x1,y2);
 	}
 		
 	types[2] = COMBOTYPE(x2,y1);
@@ -18089,7 +18090,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 	if(MAPFFCOMBO(x2,y2))
 	{
 		types[3] = FFCOMBOTYPE(x2,y2);
-	cids[3] = MAPFFCOMBO(x2,y2);
+		cids[3] = MAPFFCOMBO(x2,y2);
 	}
 	int32_t warpsfx2 = 0;
 	// Change B, C and D warps into A, for the comparison below...
@@ -18098,156 +18099,156 @@ void LinkClass::checkspecial2(int32_t *ls)
 		if(types[i]==cCAVE)
 		{
 			index=0;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		else if(types[i]==cCAVEB)
 		{
 			types[i]=cCAVE;
 			index=1;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		else if(types[i]==cCAVEC)
 		{
 			types[i]=cCAVE;
 			index=2;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		else if(types[i]==cCAVED)
 		{
 			types[i]=cCAVE;
 			index=3;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		
 		if(types[i]==cPIT) 
-	{
-		index=0;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
-	}
+		{
+			index=0;
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
+		}
 		else if(types[i]==cPITB)
 		{
 			types[i]=cPIT;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=1;
 		}
 		else if(types[i]==cPITC)
 		{
 			types[i]=cPIT;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=2;
 		}
 		else if(types[i]==cPITD)
 		{
 			types[i]=cPIT;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=3;
 		}
 		else if(types[i]==cPITR)
 		{
 			types[i]=cPIT;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=zc_oldrand()%4;
 		}
 		
 		if(types[i]==cSTAIR)
 		{
 			index=0;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		else if(types[i]==cSTAIRB)
 		{
 			types[i]=cSTAIR;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=1;
 		}
 		else if(types[i]==cSTAIRC)
 		{
 			types[i]=cSTAIR;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=2;
 		}
 		else if(types[i]==cSTAIRD)
 		{
 			types[i]=cSTAIR;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=3;
 		}
 		else if(types[i]==cSTAIRR)
 		{
 			types[i]=cSTAIR;
 			index=zc_oldrand()%4;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		
 		if(types[i]==cCAVE2)
 		{
 			index=0;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		else if(types[i]==cCAVE2B)
 		{
 			types[i]=cCAVE2;
 			index=1;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		else if(types[i]==cCAVE2C)
 		{
 			types[i]=cCAVE2;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=2;
 		}
 		else if(types[i]==cCAVE2D)
 		{
 			types[i]=cCAVE2;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=3;
 		}
 		
 		if(types[i]==cSWIMWARP) 
-	{
-		index=0;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
-	}
+		{
+			index=0;
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
+		}
 		else if(types[i]==cSWIMWARPB)
 		{
 			types[i]=cSWIMWARP;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=1;
 		}
 		else if(types[i]==cSWIMWARPC)
 		{
 			types[i]=cSWIMWARP;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=2;
 		}
 		else if(types[i]==cSWIMWARPD)
 		{
 			types[i]=cSWIMWARP;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=3;
 		}
 		
 		if(types[i]==cDIVEWARP) 
-	{
-		index=0;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
-	}
+		{
+			index=0;
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
+		}
 		else if(types[i]==cDIVEWARPB)
 		{
 			types[i]=cDIVEWARP;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=1;
 		}
 		else if(types[i]==cDIVEWARPC)
 		{
 			types[i]=cDIVEWARP;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=2;
 		}
 		else if(types[i]==cDIVEWARPD)
 		{
 			types[i]=cDIVEWARP;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 			index=3;
 		}
 		
@@ -18300,11 +18301,8 @@ void LinkClass::checkspecial2(int32_t *ls)
 		if(types[i]==cSAVE2) setsave=true;
 	}
 	
-	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
-		if(setsave)
-		{
-			type = types[0];
-		}
+	if(setsave && types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+		type = types[0];
 		
 	//
 	// Now, let's check for Drowning combos...
@@ -18365,7 +18363,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 	if(MAPFFCOMBO(x1,y1))
 	{
 		types[0] = FFCOMBOTYPE(x1,y1);
-	cids[0] = MAPFFCOMBO(x1,y1);
+		cids[0] = MAPFFCOMBO(x1,y1);
 	}
 		
 	types[1] = COMBOTYPE(x1,y2);
@@ -18382,7 +18380,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 	if(MAPFFCOMBO(x2,y1))
 	{
 		types[2] = FFCOMBOTYPE(x2,y1);
-	cids[2] = MAPFFCOMBO(x2,y1);
+		cids[2] = MAPFFCOMBO(x2,y1);
 	}
 		
 	types[3] = COMBOTYPE(x2,y2);
@@ -18391,33 +18389,33 @@ void LinkClass::checkspecial2(int32_t *ls)
 	if(MAPFFCOMBO(x2,y2))
 	{
 		types[3] = FFCOMBOTYPE(x2,y2);
-	cids[3] = MAPFFCOMBO(x2,y2);
+		cids[3] = MAPFFCOMBO(x2,y2);
 	}
 		
 	for(int32_t i=0; i<4; i++)
 	{
 		if(types[i]==cPIT) 
-	{
-		index=0;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
-	}
+		{
+			index=0;
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
+		}
 		else if(types[i]==cPITB)
 		{
 			types[i]=cPIT;
 			index=1;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		else if(types[i]==cPITC)
 		{
 			types[i]=cPIT;
 			index=2;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 		else if(types[i]==cPITD)
 		{
 			types[i]=cPIT;
 			index=3;
-		warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].attribytes[0];
 		}
 	}
 	
@@ -18479,8 +18477,8 @@ void LinkClass::checkspecial2(int32_t *ls)
 		if((((ty+8)&0xF0)+((tx+8)>>4))!=stepsecret || get_bit(quest_rules,qr_TRIGGERSREPEAT))
 		{
 			stepsecret = (((ty+8)&0xF0)+((tx+8)>>4)); 
-		sfx(combobuf[tmpscr->data[stepsecret]].attribytes[0],pan((int32_t)x));
-		//zprint("Step Secrets Sound: %d\n", combobuf[tmpscr->data[stepsecret]].attribytes[0]);
+			sfx(combobuf[tmpscr->data[stepsecret]].attribytes[0],pan((int32_t)x));
+			//zprint("Step Secrets Sound: %d\n", combobuf[tmpscr->data[stepsecret]].attribytes[0]);
 			
 			if(type==cTRIGFLAG && canPermSecret())
 			{ 
@@ -18489,7 +18487,10 @@ void LinkClass::checkspecial2(int32_t *ls)
 				hidden_entrance(0,true,false);
 			}
 			else 
-		{  hidden_entrance(0,true,true);  }
+			{
+				bool only16_31 = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
+				hidden_entrance(0,true,only16_31);
+			}
 		}
 	}
 	else if(!didstrig)

@@ -29850,7 +29850,7 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
 	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
 	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
-	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.enem_anim_type_names));
+	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.item_editor_type_names));
 	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
 	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
 	
@@ -30170,8 +30170,9 @@ bool ZModule::init(bool d) //bool default
 		};
 		for ( int32_t q = 0; q < itype_max; q++ )
 		{
-			strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
-			//al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
+			if(default_itype_strings[q][0])
+				strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
+			else sprintf(moduledata.item_editor_type_names[q], "-zz%03d",q);
 		}
 		
 		const char roomtype_cats[rMAX][256] =

@@ -194,7 +194,10 @@ static const GUI::ListData compatRulesList
 		" as well as letting the player use a defined button to open the chest (or the old behavior of walking into the chest if set). These new features are not available if this rule is enabled."},
 	{ "Broken Horizontal Weapon Animation", qr_BROKEN_HORIZONTAL_WEAPON_ANIM, "In older versions, weapon types with different left/right facing tiles, such as Arrows or the Sword, had a bug where if their sprite was animated,"
 		"it would only use the default tile and it's animation, instead of using the left/right tile and it's intended animation. Enabling this rule brings back this bug."},
-	{ "Enemies->Secret only affects flags 16-31", qr_ENEMIES_SECRET_ONLY_16_31, "If this rule is enabled, Enemies->Secret will only trigger Secret Flags 16 through 31. It will not trigger weapon triggers such as burn triggers or bomb triggers."},
+	{ "Enemies->Secret only affects flags 16-31", qr_ENEMIES_SECRET_ONLY_16_31,
+		"If this rule is enabled, Enemies->Secret will only trigger Secret Flags 16"
+		" through 31. It will not trigger weapon triggers such as burn triggers or"
+		" bomb triggers."},
 	{ "Old CSet2 Handling", qr_OLDCS2, "If this is enabled, you can access csets 12 through 15 via a combo's cset2 value. However, because these are reserved and prone to change with different editor themes, this functionality was removed."
 		" If this rule is disabled, only CSets 0-11 are allowed, and the wrapping is changed as well."},
 	{ "Hardcoded Shadow/Spawn/Death anim frames", qr_HARDCODED_ENEMY_ANIMS, "If this is enabled, enemies spawning, shadow, and death animations are hardcoded. They will use hardcoded aframe and aspeed values regardless of what they are set as in the sprite editor."
@@ -202,23 +205,64 @@ static const GUI::ListData compatRulesList
 	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING, "Changes the timing of itemdata scripts. If this is disabled, they run immediately before the Player's internal code. If this is enabled, it will run immediately after."},
 	{ "No fairy spawn limit", qr_FIXED_FAIRY_LIMIT, "If this rule is enabled, there is no longer a single spawn limit on the number of fairies onscreen. This lets enemies and other things drop fairies while there is a fairy onscreen." },
 	{ "Arrows clip farther into dungeon walls", qr_ARROWCLIP, "If this rule is enabled, arrows will still check for secrets even while they are 'blinking out'. This lets them hit triggers on top of blocking combos and on the edges of dungeon walls."},
-	{ "All sword triggers are continuous", qr_CONT_SWORD_TRIGGERS, "If this rule is enabled, all sword triggers are treated as continuous. That means if a sword trigger becomes another sword trigger and the sword still occupies the space, it will trigger the new trigger too."
-		" If a sword trigger is not continuous and it becomes another trigger, you will need to slash the sword again to trigger the new trigger."},
-	{ "Ladder takes precedence over North and South water", qr_OLD_210_WATER, "This rule changes whether the ladder or the flippers takes priority when entering water from below or above."
-		" If this rule is enabled, the ladder takes priority. If this rule is disabled, the flippers take priority. Note that flippers always take priority when entering into water from the left or right, regardless of this rule."},
-	{ "All 8 way-shot enemies use SFX_FIRE for firing SFX", qr_8WAY_SHOT_SFX, "In older versions of ZC, all 8 way shots defaulted to the Flame sound used by the Candle. Newer versions of ZC instead use the sound associated with the weapon. This QR reverts this back to the old behavior."},
-	{ "BS Zelda uses walking sprites for swimming", qr_COPIED_SWIM_SPRITES, "In older versions of ZC, BS Zelda animation didn't use swimming sprites, and thus defaulted to walking sprites. This QR simulates this behavior"},
-	{ "Fire boomerang sparkles always face up", qr_WRONG_BRANG_TRAIL_DIR, "In older versions of ZC, Fire Boomerang sparkles always faced up due to not having a direction set. This QR re-enables this behavior."},
-	{ "Wavy and Cancel warps are swapped", qr_192b163_WARP, "Swaps Wavy and Cancel warps. Supposedly this was done temporarily in 1.92 Beta 163, so this quest rule is automatically activated when playing those quests."},
-	{ "Old Warping Onto Warp Protection", qr_210_WARPRETURN, "Changes the code that prevents you from being warped when you warp onto a warp to the 2.10 logic." 
-		" Some quests, such as Ballad of a Bloodline, warp you onto a step trigger in an enclosed space. With this rule off, those quests will softlock."},
-	{ "Jittering In Sideview With Ladder Item", qr_OLD_LADDER_ITEM_SIDEVIEW, "In old versions, there was a bug where possessing the ladder item would let you jitter upwards in sideview." 
-		" Originally, this happened because someone attempted to add ladder compatibility in sideview and left it half-finished. Checking this rule will emulate this behavior."},
-	{ "Renewable Secret Money Rooms Outside Caves", qr_OLD_SECRETMONEY, "If enabled, Secret Money rooms will never be flagged as collected unless they are inside a Screen 80 Cave or Item Cellar. This was a bug that existed until 2.50 RC1."},
-	{ "Renewable Door Repairs Rooms Outside Caves", qr_OLD_DOORREPAIR, "If enabled, Door Repair rooms will never be flagged as collected unless they are inside a Screen 80 Cave or Item Cellar. This was a bug that existed until 2.50 RC4."},
-	{ "Renewable Potion Or Heart Container Rooms Outside Caves", qr_OLD_POTION_OR_HC, "If enabled, the Red Potion or Heart Container room will never be flagged as collected unless it is inside a Screen 80 Cave or Item Cellar. This was a bug that existed until 2.50.1 Final."
-		" Note that this does not refer to the 'Take Only One' Item room; that is a different room type."},
-	{ "Lanmolas can't be ringleaders", qr_NO_LANMOLA_RINGLEADER, "If enabled, Lanmolas are unable to be ringleaders. This was a bug introduced in 2.50 RC1, and was fixed in 2.55 Alpha 100."},
+	{ "All sword triggers are continuous", qr_CONT_SWORD_TRIGGERS,
+		"If this rule is enabled, all sword triggers are treated as continuous. That"
+		" means if a sword trigger becomes another sword trigger and the sword still"
+		" occupies the space, it will trigger the new trigger too."
+		" If a sword trigger is not continuous and it becomes another trigger, you"
+		" will need to slash the sword again to trigger the new trigger."},
+	{ "Ladder takes precedence over North and South water", qr_OLD_210_WATER, 
+		"This rule changes whether the ladder or the flippers takes priority when"
+		" entering water from below or above. If this rule is enabled, the ladder"
+		" takes priority. If this rule is disabled, the flippers take priority."
+		" Note that flippers always take priority when entering into water from"
+		" the left or right, regardless of this rule."},
+	{ "All 8 way-shot enemies use SFX_FIRE for firing SFX", qr_8WAY_SHOT_SFX,
+		"In older versions of ZC, all 8 way shots defaulted to the Flame sound used"
+		" by the Candle. Newer versions of ZC instead use the sound associated with"
+		" the weapon. This QR reverts this back to the old behavior."},
+	{ "BS Zelda uses walking sprites for swimming", qr_COPIED_SWIM_SPRITES,
+		"In older versions of ZC, BS Zelda animation didn't use swimming sprites,"
+		" and thus defaulted to walking sprites. This QR simulates this behavior"},
+	{ "Fire boomerang sparkles always face up", qr_WRONG_BRANG_TRAIL_DIR,
+		"In older versions of ZC, Fire Boomerang sparkles always faced up due to"
+		" not having a direction set. This QR re-enables this behavior."},
+	{ "Wavy and Cancel warps are swapped", qr_192b163_WARP,
+		"Swaps Wavy and Cancel warps. Supposedly this was done temporarily in"
+		" 1.92 Beta 163, so this quest rule is automatically activated when"
+		" playing those quests."},
+	{ "Old Warping Onto Warp Protection", qr_210_WARPRETURN,
+		"Changes the code that prevents you from being warped when you warp"
+		" onto a warp to the 2.10 logic. Some quests, such as Ballad of a Bloodline,"
+		" warp you onto a step trigger in an enclosed space. With this rule off,"
+		" those quests will softlock."},
+	{ "Jittering In Sideview With Ladder Item", qr_OLD_LADDER_ITEM_SIDEVIEW,
+		"In old versions, there was a bug where possessing the ladder item would"
+		" let you jitter upwards in sideview. Originally, this happened"
+		" because someone attempted to add ladder compatibility in sideview"
+		" and left it half-finished. Checking this rule will emulate this behavior."},
+	{ "Renewable Secret Money Rooms Outside Caves", qr_OLD_SECRETMONEY,
+		"If enabled, Secret Money rooms will never be flagged as"
+		" collected unless they are inside a Screen 80 Cave or"
+		" Item Cellar. This was a bug that existed until 2.50 RC1."},
+	{ "Renewable Door Repairs Rooms Outside Caves", qr_OLD_DOORREPAIR,
+		"If enabled, Door Repair rooms will never be flagged as collected unless"
+		" they are inside a Screen 80 Cave or Item Cellar."
+		" This was a bug that existed until 2.50 RC4."},
+	{ "Renewable Potion Or Heart Container Rooms Outside Caves", qr_OLD_POTION_OR_HC,
+		"If enabled, the Red Potion or Heart Container room will never be flagged"
+		" as collected unless it is inside a Screen 80 Cave or Item Cellar."
+		" This was a bug that existed until 2.50.1 Final."
+		" Note that this does not refer to the 'Take Only One' Item room;"
+		" that is a different room type."},
+	{ "Lanmolas can't be ringleaders", qr_NO_LANMOLA_RINGLEADER,
+		"If enabled, Lanmolas are unable to be ringleaders."
+		" This was a bug introduced in 2.50 RC1,"
+		" and was fixed in 2.55 Alpha 100."},
+	{ "Step->Secrets (Temp) only affects flags 16-31", qr_STEPTEMP_SECRET_ONLY_16_31,
+		"If this rule is enabled, Step->Secrets (Temp) will only trigger Secret Flags"
+		" 16 through 31. It will not trigger weapon triggers such as burn triggers or"
+		" bomb triggers."},
 };
 
 static const GUI::ListData enemiesRulesList

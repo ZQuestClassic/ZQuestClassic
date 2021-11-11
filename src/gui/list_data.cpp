@@ -55,7 +55,9 @@ ListData ListData::itemclass(bool numbered)
 	
 	for(int32_t i=0; i<itype_max; ++i)
 	{
-        if(i < itype_last || moduledata.item_editor_type_names[i][0] != NULL )
+		if(moduledata.item_editor_type_names[i][0] == '-')
+			continue; //Hidden
+        if(i < itype_last || moduledata.item_editor_type_names[i][0])
 		{
             char const* module_str = moduledata.item_editor_type_names[i];
             char* name = new char[strlen(module_str) + 7];
