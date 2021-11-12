@@ -25465,6 +25465,7 @@ int32_t onCompileScript()
 					).show();
 				}
 			}
+			
 			return D_O_K;
 		}
 		}
@@ -26461,13 +26462,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 			case 2:
 				//Cancel
 				if(tempfile!=NULL) fclose(tempfile);
-				for(map<string, disassembled_script_data>::iterator it = scripts.begin(); it != scripts.end(); it++)
-				{
-					for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
-					{
-						delete *it2;
-					}
-				}
+				
 				return false;
 				
 			case 3:
@@ -26498,7 +26493,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -26543,7 +26538,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -26587,7 +26582,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -26630,7 +26625,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -26673,7 +26668,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -26716,7 +26711,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -26759,7 +26754,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -26802,7 +26797,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -26845,7 +26840,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -26888,7 +26883,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -26933,7 +26928,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						}
 						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
 						
-						for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
 						{
 							string theline = (*line)->printLine();
 							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -26985,13 +26980,6 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				build_biffs_list();
 				build_biitems_list();
 				if(tempfile!=NULL) fclose(tempfile);
-				for(map<string, disassembled_script_data>::iterator it = scripts.begin(); it != scripts.end(); it++)
-				{
-					for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
-					{
-						delete *it2;
-					}
-				}
 				return true;
 			}
 			//Left off here for the day. -Z
@@ -30020,7 +30008,7 @@ int32_t main(int32_t argc,char **argv)
 { 
 #if (defined(_DEBUG) && defined(_MSC_VER))
 #if (VLD_FORCE_ENABLE == 0)
-    ::InitCrtDebug();
+	::InitCrtDebug();
 #endif // (VLD_FORCE_ENABLE == 0)
 #endif // (defined(_DEBUG) && defined(_MSC_VER))
 	
@@ -30043,73 +30031,73 @@ int32_t main(int32_t argc,char **argv)
 	}
 	
 	/*
-		    switch(IS_BETA)
-		    {
-		    case -1:
-		    {
+			switch(IS_BETA)
+			{
+			case -1:
+			{
 			Z_title("ZQuest %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
 			//Print the current time to allegro.log as a test.
 			
 			break;
-		    }
-		    case 1:
+			}
+			case 1:
 			Z_title("ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
 			break;
 			
-		    case 0:
+			case 0:
 			Z_title("ZQuest %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-		    }
+			}
 	*/
-    
-    scrtmp = NULL;
-    
-    //turn on MSVC memory checks
-    //this should be interesting...
-    
-    //InitCrtDebug();
-    
-    
-    // Before anything else, let's register our custom trace handler:
-    register_trace_handler(zc_trace_handler);
-    
-    /*
-    	// Initialize SDL
-    	if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
-    		fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
-    		return(1);
-    	}
-    
-    	// Initialize the display
-    	int32_t w=800, h=600;
-    	int32_t desired_bpp=8;
-    	Uint32 video_flags=SDL_HWSURFACE|SDL_HWPALETTE;
-    	sdl_screen = SDL_SetVideoMode(w, h, desired_bpp, video_flags);
-    	if ( sdl_screen == NULL ) {
-    		fprintf(stderr, "Couldn't set %dx%dx%d video mode: %s\n",
-    					w, h, desired_bpp, SDL_GetError());
-    		exit(1);
-    	}
-    
-    	// Set the window manager title bar
-    	SDL_WM_SetCaption("SDL test window", "testwin");
-    */
-    PopulateInitDialog();
-    //FFScript::init();
-    memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
-    Z_message("Allocating tunes buffer (%s)... ", byte_conversion2(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ,memrequested,-1,-1));
-    customtunes = (zctune*)zc_malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
-    memset(customtunes, 0, sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
-    
-    /*
-    FFCore.ZScriptConsole
-			    (
+	
+	scrtmp = NULL;
+	
+	//turn on MSVC memory checks
+	//this should be interesting...
+	
+	InitCrtDebug();
+	
+	
+	// Before anything else, let's register our custom trace handler:
+	register_trace_handler(zc_trace_handler);
+	
+	/*
+		// Initialize SDL
+		if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+			fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
+			return(1);
+		}
+	
+		// Initialize the display
+		int32_t w=800, h=600;
+		int32_t desired_bpp=8;
+		Uint32 video_flags=SDL_HWSURFACE|SDL_HWPALETTE;
+		sdl_screen = SDL_SetVideoMode(w, h, desired_bpp, video_flags);
+		if ( sdl_screen == NULL ) {
+			fprintf(stderr, "Couldn't set %dx%dx%d video mode: %s\n",
+						w, h, desired_bpp, SDL_GetError());
+			exit(1);
+		}
+	
+		// Set the window manager title bar
+		SDL_WM_SetCaption("SDL test window", "testwin");
+	*/
+	PopulateInitDialog();
+	//FFScript::init();
+	memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
+	Z_message("Allocating tunes buffer (%s)... ", byte_conversion2(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ,memrequested,-1,-1));
+	customtunes = (zctune*)zc_malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
+	memset(customtunes, 0, sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
+	
+	/*
+	FFCore.ZScriptConsole
+				(
 				
 				CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%s, v.%s Alpha %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_ALPHA
-			    );*/
-    
-    if(!customtunes)
-    {
+				);*/
+	
+	if(!customtunes)
+	{
 
 	/*FFCore.ZScriptConsole
 	(
@@ -30117,392 +30105,392 @@ int32_t main(int32_t argc,char **argv)
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
 			"Failed to load custom music files."
 	);
-	    */
+		*/
 
-        Z_error("Error");
-        quit_game();
-    }
-    
-    Z_message("OK\n");                                      // Allocating MIDI buffer...
-    
-    /*memrequested+=sizeof(emusic)*MAXMUSIC;
-    Z_message("Allocating Enhanced Music buffer (%s)... ", byte_conversion2(sizeof(emusic)*MAXMUSIC,memrequested,-1,-1));
-    enhancedMusic = (emusic*)zc_malloc(sizeof(emusic)*MAXMUSIC);
-    if(!enhancedMusic)
-    {
-      Z_error("Error");
-    }
-    Z_message("OK\n");                                      // Allocating Enhanced Music buffer...
-    */
-    if(!get_qst_buffers())
-    {
+		Z_error("Error");
+		quit_game();
+	}
+	
+	Z_message("OK\n");									  // Allocating MIDI buffer...
+	
+	/*memrequested+=sizeof(emusic)*MAXMUSIC;
+	Z_message("Allocating Enhanced Music buffer (%s)... ", byte_conversion2(sizeof(emusic)*MAXMUSIC,memrequested,-1,-1));
+	enhancedMusic = (emusic*)zc_malloc(sizeof(emusic)*MAXMUSIC);
+	if(!enhancedMusic)
+	{
+	  Z_error("Error");
+	}
+	Z_message("OK\n");									  // Allocating Enhanced Music buffer...
+	*/
+	if(!get_qst_buffers())
+	{
 
 	/*FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-	    "Failed to load quest buffers."
+		"Failed to load quest buffers."
 	);*/
-	    
+		
 
-        Z_error("Error");
-        quit_game();
-    }
-    
-    memrequested+=sizeof(newcombo)*MAXCOMBOS;
-    Z_message("Allocating combo undo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
-    undocombobuf = (newcombo*)zc_malloc(sizeof(newcombo)*MAXCOMBOS);
-    
-    if(!undocombobuf)
-    {
+		Z_error("Error");
+		quit_game();
+	}
+	
+	memrequested+=sizeof(newcombo)*MAXCOMBOS;
+	Z_message("Allocating combo undo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
+	undocombobuf = (newcombo*)zc_malloc(sizeof(newcombo)*MAXCOMBOS);
+	
+	if(!undocombobuf)
+	{
 
 	/*FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-	    "No memory for combo undo buffer!"
+		"No memory for combo undo buffer!"
 	);*/
 
-        Z_error("Error: no memory for combo undo buffer!");
-        quit_game();
-    }
-    
-    Z_message("OK\n");                                      // Allocating combo undo buffer...
-    
-    memrequested+=(NEWMAXTILES*sizeof(tiledata));
-    Z_message("Allocating new tile undo buffer (%s)... ", byte_conversion2(NEWMAXTILES*sizeof(tiledata),memrequested,-1,-1));
-    
-    if((newundotilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
-    {
-        Z_error("Error: no memory for tile undo buffer!");
-        quit_game();
-    }
-    
-    memset(newundotilebuf, 0, NEWMAXTILES*sizeof(tiledata));
-    Z_message("OK\n");                                        // Allocating new tile buffer...
-    
-    Z_message("Resetting new tile buffer...");
-    newtilebuf = (tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata));
-    
-    for(int32_t j=0; j<NEWMAXTILES; j++)
-        newtilebuf[j].data=NULL;
-        
-    Z_message("OK\n");
-    
-    memrequested+=(2048*5);
-    Z_message("Allocating file path buffers (%s)... ", byte_conversion2(2048*7,memrequested,-1,-1));
-    filepath=(char*)zc_malloc(2048);
-    temppath=(char*)zc_malloc(2048);
-    datapath=(char*)zc_malloc(2048);
-    midipath=(char*)zc_malloc(2048);
-    imagepath=(char*)zc_malloc(2048);
-    tmusicpath=(char*)zc_malloc(2048);
-    last_timed_save=(char*)zc_malloc(2048);
-    
-    if(!filepath || !datapath || !temppath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
-    {
+		Z_error("Error: no memory for combo undo buffer!");
+		quit_game();
+	}
+	
+	Z_message("OK\n");									  // Allocating combo undo buffer...
+	
+	memrequested+=(NEWMAXTILES*sizeof(tiledata));
+	Z_message("Allocating new tile undo buffer (%s)... ", byte_conversion2(NEWMAXTILES*sizeof(tiledata),memrequested,-1,-1));
+	
+	if((newundotilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
+	{
+		Z_error("Error: no memory for tile undo buffer!");
+		quit_game();
+	}
+	
+	memset(newundotilebuf, 0, NEWMAXTILES*sizeof(tiledata));
+	Z_message("OK\n");										// Allocating new tile buffer...
+	
+	Z_message("Resetting new tile buffer...");
+	newtilebuf = (tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata));
+	
+	for(int32_t j=0; j<NEWMAXTILES; j++)
+		newtilebuf[j].data=NULL;
+		
+	Z_message("OK\n");
+	
+	memrequested+=(2048*5);
+	Z_message("Allocating file path buffers (%s)... ", byte_conversion2(2048*7,memrequested,-1,-1));
+	filepath=(char*)zc_malloc(2048);
+	temppath=(char*)zc_malloc(2048);
+	datapath=(char*)zc_malloc(2048);
+	midipath=(char*)zc_malloc(2048);
+	imagepath=(char*)zc_malloc(2048);
+	tmusicpath=(char*)zc_malloc(2048);
+	last_timed_save=(char*)zc_malloc(2048);
+	
+	if(!filepath || !datapath || !temppath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
+	{
 
 	/*FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-	    "No memory for file paths!"
+		"No memory for file paths!"
 	);
-	    */
+		*/
 
-        Z_error("Error: no memory for file paths!");
-        quit_game();
-    }
-    
-    Z_message("OK\n");                                      // Allocating file path buffers...
-    
-    zc_srand(time(0));
-    
-    
-    set_uformat(U_ASCII);
-    Z_message("Initializing Allegro... ");
-    
-    allegro_init();
-    three_finger_flag=false;
-    register_bitmap_file_type("GIF",  load_gif, save_gif);
-    jpgalleg_init();
-    loadpng_init();
-    
-    //set_config_file("ag.cfg");
-    set_config_file("zquest.cfg");
-    if(install_timer() < 0)
-    {
+		Z_error("Error: no memory for file paths!");
+		quit_game();
+	}
+	
+	Z_message("OK\n");									  // Allocating file path buffers...
+	
+	zc_srand(time(0));
+	
+	
+	set_uformat(U_ASCII);
+	Z_message("Initializing Allegro... ");
+	
+	allegro_init();
+	three_finger_flag=false;
+	register_bitmap_file_type("GIF",  load_gif, save_gif);
+	jpgalleg_init();
+	loadpng_init();
+	
+	//set_config_file("ag.cfg");
+	set_config_file("zquest.cfg");
+	if(install_timer() < 0)
+	{
 
-	    /*
+		/*
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-	    "Failed to init allegro timers!"
+		"Failed to init allegro timers!"
 	);
-	    */
+		*/
 
-        Z_error(allegro_error);
-        quit_game();
-    }
-    
-    if(install_keyboard() < 0)
-    {
+		Z_error(allegro_error);
+		quit_game();
+	}
+	
+	if(install_keyboard() < 0)
+	{
 
-	    /*
+		/*
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-	    "Failed to install keyboard!"
+		"Failed to install keyboard!"
 	);
-	    */
+		*/
 
-        Z_error(allegro_error);
-        quit_game();
-    }
-    
-    if(install_mouse() < 0)
-    {
+		Z_error(allegro_error);
+		quit_game();
+	}
+	
+	if(install_mouse() < 0)
+	{
 
 	/*FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-	    "Failed to install mouse!"
+		"Failed to install mouse!"
 	);
-	    */
+		*/
 
-        Z_error(allegro_error);
-        quit_game();
-    }
-    
-    enable_hardware_cursor();
-    
-    LOCK_VARIABLE(lastfps);
-    
-    LOCK_VARIABLE(framecnt);
-    LOCK_FUNCTION(fps_callback);
-    
-    if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
-    {
+		Z_error(allegro_error);
+		quit_game();
+	}
+	
+	enable_hardware_cursor();
+	
+	LOCK_VARIABLE(lastfps);
+	
+	LOCK_VARIABLE(framecnt);
+	LOCK_FUNCTION(fps_callback);
+	
+	if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
+	{
 
 	/*
-	    FFCore.ZScriptConsole
+		FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-	    "Failed to allocate timer fps callback!"
+		"Failed to allocate timer fps callback!"
 	);
-	    */
+		*/
 
-        Z_error("couldn't allocate timer");
-        quit_game();
-    }
-    
-    
-    LOCK_VARIABLE(dclick_status);
-    LOCK_VARIABLE(dclick_time);
-    lock_dclick_function();
-    install_int(dclick_check, 20);
-    
-    set_gfx_mode(GFX_TEXT,80,50,0,0);
-    
-    Z_message("OK\n");                                      // Initializing Allegro...
-    
-    //Initialise MODULES
-    //We'll read the data files from them, in the future, so this MUST occur here!
-    zcm.init(true);
-    //zcm.load(true);
-    zcm.debug();
-    
-    Z_message("Loading data files:\n");
-    
-    resolve_password(datapwd);
-    packfile_password(datapwd);
-    
-    
-    sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
-    
-    Z_message("Fonts.Dat...");
-    
-    if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
-    {
+		Z_error("couldn't allocate timer");
+		quit_game();
+	}
+	
+	
+	LOCK_VARIABLE(dclick_status);
+	LOCK_VARIABLE(dclick_time);
+	lock_dclick_function();
+	install_int(dclick_check, 20);
+	
+	set_gfx_mode(GFX_TEXT,80,50,0,0);
+	
+	Z_message("OK\n");									  // Initializing Allegro...
+	
+	//Initialise MODULES
+	//We'll read the data files from them, in the future, so this MUST occur here!
+	zcm.init(true);
+	//zcm.load(true);
+	zcm.debug();
+	
+	Z_message("Loading data files:\n");
+	
+	resolve_password(datapwd);
+	packfile_password(datapwd);
+	
+	
+	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+	
+	Z_message("Fonts.Dat...");
+	
+	if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
+	{
 
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-	    "Failed to load fonts datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
+		"Failed to load fonts datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
-        Z_error("failed");
-        quit_game();
-    }
-    
-    if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
-    {
+		Z_error("failed");
+		quit_game();
+	}
+	
+	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
+	{
 
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of fonts.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
-        Z_error("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD
+		Z_error("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD
 	);
 
-        quit_game();
-    }
-    
-    Z_message("OK\n");
-    
-    Z_message("ZQuest.Dat...");
-    
-    if((zcdata=load_datafile(moduledata.datafiles[zquest_dat]))==NULL)
-    {
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-	    "Failed to load ZQ Creator datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-	);
-
-        Z_error("failed");
-        quit_game();
-    }
-    
-    datafile_str=moduledata.datafiles[zquest_dat];
-    Z_message("OK\n");
-    
-    sprintf(qstdat_str,moduledata.datafiles[qst_dat]);
-    strcat(qstdat_str,"#_SIGNATURE");
-    //al_trace("qstdat_str is: %s\n", qstdat_str);
-    
-    sprintf(qstdat_sig,"QST.Dat %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);
-    
-    Z_message("QST.Dat...");
-    
-    //PACKFILE *f=pack_fopen_password("qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
-    //PACKFILE *f=pack_fopen_password("classic_qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
-    PACKFILE *f=pack_fopen_password(qstdat_str, F_READ_PACKED, datapwd);
-    
-    if(!f)
-    {
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-	    "Failed to load quest datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-	);
-
-        Z_error("failed");
-        quit_game();
-    }
-    
-    char qstdat_read_sig[52];
-    memset(qstdat_read_sig, 0, 52);
-    int32_t pos=0;
-    
-    while(!pack_feof(f))
-    {
-        if(!p_getc(&(qstdat_read_sig[pos++]),f,true))
-        {
-            pack_fclose(f);
-            Z_error("failed");
-            quit_game();
-        }
-    }
-    
-    pack_fclose(f);
-    
-    if(strncmp(qstdat_read_sig,qstdat_sig,22))
-    {
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of qst.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);    
+		quit_game();
+	}
 	
-        Z_error("\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD
-	);
-
-        quit_game();
-    }
-    
-    Z_message("OK\n");
-    
-    
-    //setPackfilePassword(NULL);
-    packfile_password("");
-    
-    sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
-    
-    Z_message("SFX.Dat...");
-    
-    if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
-    {
+	Z_message("OK\n");
+	
+	Z_message("ZQuest.Dat...");
+	
+	if((zcdata=load_datafile(moduledata.datafiles[zquest_dat]))==NULL)
+	{
 
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-	    "Failed to load SFX datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
+		"Failed to load ZQ Creator datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
-        Z_error("failed %s", allegro_error);
-        quit_game();
-    }
-    
-    if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
-    {
+		Z_error("failed");
+		quit_game();
+	}
+	
+	datafile_str=moduledata.datafiles[zquest_dat];
+	Z_message("OK\n");
+	
+	sprintf(qstdat_str,moduledata.datafiles[qst_dat]);
+	strcat(qstdat_str,"#_SIGNATURE");
+	//al_trace("qstdat_str is: %s\n", qstdat_str);
+	
+	sprintf(qstdat_sig,"QST.Dat %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);
+	
+	Z_message("QST.Dat...");
+	
+	//PACKFILE *f=pack_fopen_password("qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
+	//PACKFILE *f=pack_fopen_password("classic_qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
+	PACKFILE *f=pack_fopen_password(qstdat_str, F_READ_PACKED, datapwd);
+	
+	if(!f)
+	{
+
+	FFCore.ZScriptConsole
+	(
+		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
+		"Failed to load quest datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
+	);
+
+		Z_error("failed");
+		quit_game();
+	}
+	
+	char qstdat_read_sig[52];
+	memset(qstdat_read_sig, 0, 52);
+	int32_t pos=0;
+	
+	while(!pack_feof(f))
+	{
+		if(!p_getc(&(qstdat_read_sig[pos++]),f,true))
+		{
+			pack_fclose(f);
+			Z_error("failed");
+			quit_game();
+		}
+	}
+	
+	pack_fclose(f);
+	
+	if(strncmp(qstdat_read_sig,qstdat_sig,22))
+	{
+
+	FFCore.ZScriptConsole
+	(
+		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of qst.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);	
+	
+		Z_error("\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD
+	);
+
+		quit_game();
+	}
+	
+	Z_message("OK\n");
+	
+	
+	//setPackfilePassword(NULL);
+	packfile_password("");
+	
+	sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
+	
+	Z_message("SFX.Dat...");
+	
+	if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
+	{
+
+	FFCore.ZScriptConsole
+	(
+		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
+		"Failed to load SFX datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
+	);
+
+		Z_error("failed %s", allegro_error);
+		quit_game();
+	}
+	
+	if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
+	{
 
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of sfx.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
-        quit_game();
-        Z_error("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD
+		quit_game();
+		Z_error("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD
 	);
 
-        quit_game();
-    }
-    
-    Z_message("OK\n");
-    
-    deffont=font;
-    nfont = (FONT*)fontsdata[FONT_GUI_PROP].dat;
-    font = nfont;
-    pfont = (FONT*)fontsdata[FONT_8xPROP_THIN].dat;
-    lfont = (FONT*)fontsdata[FONT_LARGEPROP].dat;
-    lfont_l = (FONT*)fontsdata[FONT_LARGEPROP_L].dat;
-    zfont = (FONT*)fontsdata[FONT_NES].dat;
-    z3font = (FONT*)fontsdata[FONT_Z3].dat;
-    z3smallfont = (FONT*)fontsdata[FONT_Z3SMALL].dat;
-    mfont = (FONT*)fontsdata[FONT_MATRIX].dat;
-    ztfont = (FONT*)fontsdata[FONT_ZTIME].dat;
-    sfont = (FONT*)fontsdata[FONT_6x6].dat;
-    sfont2 = (FONT*)fontsdata[FONT_6x4].dat;
-    sfont3 = (FONT*)fontsdata[FONT_12x8].dat;
-    spfont = (FONT*)fontsdata[FONT_6xPROP].dat;
-    ssfont1 = (FONT*)fontsdata[FONT_SUBSCREEN1].dat;
-    ssfont2 = (FONT*)fontsdata[FONT_SUBSCREEN2].dat;
-    ssfont3 = (FONT*)fontsdata[FONT_SUBSCREEN3].dat;
-    ssfont4 = (FONT*)fontsdata[FONT_SUBSCREEN4].dat;
-    gblafont = (FONT*)fontsdata[FONT_GB_LA].dat;
-    goronfont = (FONT*)fontsdata[FONT_GORON].dat;
-    zoranfont = (FONT*)fontsdata[FONT_ZORAN].dat;
-    hylian1font = (FONT*)fontsdata[FONT_HYLIAN1].dat;
-    hylian2font = (FONT*)fontsdata[FONT_HYLIAN2].dat;
-    hylian3font = (FONT*)fontsdata[FONT_HYLIAN3].dat;
-    hylian4font = (FONT*)fontsdata[FONT_HYLIAN4].dat;
-    gboraclefont = (FONT*)fontsdata[FONT_GB_ORACLE].dat;
-    gboraclepfont = (FONT*)fontsdata[FONT_GB_ORACLE_P].dat;
-    dsphantomfont = (FONT*)fontsdata[FONT_DS_PHANTOM].dat;
-    dsphantompfont = (FONT*)fontsdata[FONT_DS_PHANTOM_P].dat;
-    //Do not forhet to init the fonts! -Z
-    
-     atari800font=(FONT*)fontsdata[FONT_ZZ_ATARU800].dat;  
+		quit_game();
+	}
+	
+	Z_message("OK\n");
+	
+	deffont=font;
+	nfont = (FONT*)fontsdata[FONT_GUI_PROP].dat;
+	font = nfont;
+	pfont = (FONT*)fontsdata[FONT_8xPROP_THIN].dat;
+	lfont = (FONT*)fontsdata[FONT_LARGEPROP].dat;
+	lfont_l = (FONT*)fontsdata[FONT_LARGEPROP_L].dat;
+	zfont = (FONT*)fontsdata[FONT_NES].dat;
+	z3font = (FONT*)fontsdata[FONT_Z3].dat;
+	z3smallfont = (FONT*)fontsdata[FONT_Z3SMALL].dat;
+	mfont = (FONT*)fontsdata[FONT_MATRIX].dat;
+	ztfont = (FONT*)fontsdata[FONT_ZTIME].dat;
+	sfont = (FONT*)fontsdata[FONT_6x6].dat;
+	sfont2 = (FONT*)fontsdata[FONT_6x4].dat;
+	sfont3 = (FONT*)fontsdata[FONT_12x8].dat;
+	spfont = (FONT*)fontsdata[FONT_6xPROP].dat;
+	ssfont1 = (FONT*)fontsdata[FONT_SUBSCREEN1].dat;
+	ssfont2 = (FONT*)fontsdata[FONT_SUBSCREEN2].dat;
+	ssfont3 = (FONT*)fontsdata[FONT_SUBSCREEN3].dat;
+	ssfont4 = (FONT*)fontsdata[FONT_SUBSCREEN4].dat;
+	gblafont = (FONT*)fontsdata[FONT_GB_LA].dat;
+	goronfont = (FONT*)fontsdata[FONT_GORON].dat;
+	zoranfont = (FONT*)fontsdata[FONT_ZORAN].dat;
+	hylian1font = (FONT*)fontsdata[FONT_HYLIAN1].dat;
+	hylian2font = (FONT*)fontsdata[FONT_HYLIAN2].dat;
+	hylian3font = (FONT*)fontsdata[FONT_HYLIAN3].dat;
+	hylian4font = (FONT*)fontsdata[FONT_HYLIAN4].dat;
+	gboraclefont = (FONT*)fontsdata[FONT_GB_ORACLE].dat;
+	gboraclepfont = (FONT*)fontsdata[FONT_GB_ORACLE_P].dat;
+	dsphantomfont = (FONT*)fontsdata[FONT_DS_PHANTOM].dat;
+	dsphantompfont = (FONT*)fontsdata[FONT_DS_PHANTOM_P].dat;
+	//Do not forhet to init the fonts! -Z
+	
+	 atari800font=(FONT*)fontsdata[FONT_ZZ_ATARU800].dat;  
 		 acornfont=(FONT*)fontsdata[FONT_ZZ_ACORN].dat;  
 		 adosfont=(FONT*)fontsdata[FONT_ZZ_ADOS].dat;  
 		 baseallegrofont=(FONT*)fontsdata[FONT_ZZ_ALLEGRO].dat;  
@@ -30546,60 +30534,60 @@ int32_t main(int32_t argc,char **argv)
 		 z2font=(FONT*)fontsdata[FONT_ZZ_ZELDA2].dat;  
 		 zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat; 
 		 lisafont=(FONT*)fontsdata[FONT_ZZZ_LISA].dat;
-    
-    for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
-    {
-        customtunes[i].data=NULL;
-        midi_string[i+4]=customtunes[i].title;
-    }
-    
-    for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
-    {
-        customtunes[i].data=NULL;
-        screen_midi_string[i+5]=customtunes[i].title;
-    }
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-        {
-            memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-        }
-    }
-    
-    int32_t helpsize = file_size_ex_password("docs/zquest.txt","");
-    
-    if(helpsize==0)
-    {
+	
+	for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
+	{
+		customtunes[i].data=NULL;
+		midi_string[i+4]=customtunes[i].title;
+	}
+	
+	for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
+	{
+		customtunes[i].data=NULL;
+		screen_midi_string[i+5]=customtunes[i].title;
+	}
+	
+	for(int32_t i=0; i<4; i++)
+	{
+		for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
+		{
+			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
+		}
+	}
+	
+	int32_t helpsize = file_size_ex_password("docs/zquest.txt","");
+	
+	if(helpsize==0)
+	{
 	helpsize = file_size_ex_password("zquest.txt","");
 	if(helpsize==0)
 	{
 		Z_error("Error: zquest.txt not found.");
 		quit_game();
 	}
-    }
-    
-    helpbuf = (char*)zc_malloc(helpsize<65536?65536:helpsize*2+1);
-    
-    if(!helpbuf)
-    {
+	}
+	
+	helpbuf = (char*)zc_malloc(helpsize<65536?65536:helpsize*2+1);
+	
+	if(!helpbuf)
+	{
 
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
-	    "Failed to allocate EWditor Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
+		"Failed to allocate EWditor Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-        Z_error("Error allocating help buffer.");
-        quit_game();
-    }
-    
-    //if(!readfile("zquest.txt",helpbuf,helpsize))
-    FILE *hb = fopen("docs/zquest.txt", "r");
-    
-    if(!hb)
-    {
+		Z_error("Error allocating help buffer.");
+		quit_game();
+	}
+	
+	//if(!readfile("zquest.txt",helpbuf,helpsize))
+	FILE *hb = fopen("docs/zquest.txt", "r");
+	
+	if(!hb)
+	{
 	hb = fopen("zquest.txt", "r");
 	if(!hb)
 	{
@@ -30614,28 +30602,28 @@ int32_t main(int32_t argc,char **argv)
 		Z_error("Error loading zquest.txt.");
 		quit_game();
 	}
-    }
-    
-    char c = fgetc(hb);
-    int32_t index=0;
-    
-    while(!feof(hb))
-    {
-        helpbuf[index] = c;
-        index++;
-        c = fgetc(hb);
-    }
-    
-    fclose(hb);
-    
-    helpbuf[helpsize]=0;
-    helpstr = helpbuf;
-    Z_message("Found zquest.txt\n");                                      // loading data files...
-    
-    int32_t shieldblockhelpsize = file_size_ex_password("docs/shield_block_flags.txt","");
-    
-    if(shieldblockhelpsize==0)
-    {
+	}
+	
+	char c = fgetc(hb);
+	int32_t index=0;
+	
+	while(!feof(hb))
+	{
+		helpbuf[index] = c;
+		index++;
+		c = fgetc(hb);
+	}
+	
+	fclose(hb);
+	
+	helpbuf[helpsize]=0;
+	helpstr = helpbuf;
+	Z_message("Found zquest.txt\n");									  // loading data files...
+	
+	int32_t shieldblockhelpsize = file_size_ex_password("docs/shield_block_flags.txt","");
+	
+	if(shieldblockhelpsize==0)
+	{
 	shieldblockhelpsize = file_size_ex_password("shield_block_flags.txt","");
 	if(shieldblockhelpsize==0)
 	{
@@ -30650,12 +30638,12 @@ int32_t main(int32_t argc,char **argv)
 		Z_error("Error: shield_block_flags.txt not found.");
 		quit_game();
 	}
-    }
-    
-    shieldblockhelpbuf = (char*)zc_malloc(shieldblockhelpsize<65536?65536:shieldblockhelpsize*2+1);
-    
-    if(!shieldblockhelpbuf)
-    {
+	}
+	
+	shieldblockhelpbuf = (char*)zc_malloc(shieldblockhelpsize<65536?65536:shieldblockhelpsize*2+1);
+	
+	if(!shieldblockhelpbuf)
+	{
 
 	FFCore.ZScriptConsole
 	(
@@ -30664,14 +30652,14 @@ int32_t main(int32_t argc,char **argv)
 		"Failed allocating shieldblockhelp buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-        Z_error("Error allocating shieldblockhelp buffer.");
-        quit_game();
-    }
-    
-    FILE *shieldhb = fopen("docs/shield_block_flags.txt", "r");
-    
-    if(!shieldhb)
-    {
+		Z_error("Error allocating shieldblockhelp buffer.");
+		quit_game();
+	}
+	
+	FILE *shieldhb = fopen("docs/shield_block_flags.txt", "r");
+	
+	if(!shieldhb)
+	{
 	shieldhb = fopen("shield_block_flags.txt", "r");
 	if(!shieldhb)
 	{
@@ -30686,28 +30674,28 @@ int32_t main(int32_t argc,char **argv)
 		Z_error("Error loading shield_block_flags.txt.");
 		quit_game();
 	}
-    }
-    
-    char shieldc = fgetc(shieldhb);
-    int32_t shieldhelpindex=0;
-    
-    while(!feof(shieldhb))
-    {
-        shieldblockhelpbuf[shieldhelpindex] = shieldc;
-        shieldhelpindex++;
-        shieldc = fgetc(shieldhb);
-    }
-    
-    fclose(shieldhb);
-    
-    shieldblockhelpbuf[shieldblockhelpsize]=0;
-    shieldblockhelpstr = shieldblockhelpbuf;
-    Z_message("Found shield_block_flags.txt\n");    
-    
-    int32_t zscripthelpsz = file_size_ex_password("docs/zscript.txt","");
-    
-    if(zscripthelpsz==0)
-    {
+	}
+	
+	char shieldc = fgetc(shieldhb);
+	int32_t shieldhelpindex=0;
+	
+	while(!feof(shieldhb))
+	{
+		shieldblockhelpbuf[shieldhelpindex] = shieldc;
+		shieldhelpindex++;
+		shieldc = fgetc(shieldhb);
+	}
+	
+	fclose(shieldhb);
+	
+	shieldblockhelpbuf[shieldblockhelpsize]=0;
+	shieldblockhelpstr = shieldblockhelpbuf;
+	Z_message("Found shield_block_flags.txt\n");	
+	
+	int32_t zscripthelpsz = file_size_ex_password("docs/zscript.txt","");
+	
+	if(zscripthelpsz==0)
+	{
 	zscripthelpsz = file_size_ex_password("zscript.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
 	if(zscripthelpsz==0)
 	{
@@ -30722,12 +30710,12 @@ int32_t main(int32_t argc,char **argv)
 		Z_error("Error: zscript.txt not found.");
 		quit_game();
 	}
-    }
-    
-    zscripthelpbuf = (char*)zc_malloc(zscripthelpsz<65536?65536:zscripthelpsz*2+1);
-    
-    if(!zscripthelpbuf)
-    {
+	}
+	
+	zscripthelpbuf = (char*)zc_malloc(zscripthelpsz<65536?65536:zscripthelpsz*2+1);
+	
+	if(!zscripthelpbuf)
+	{
 
 	FFCore.ZScriptConsole
 	(
@@ -30736,14 +30724,14 @@ int32_t main(int32_t argc,char **argv)
 		"Failed allocating ZScript Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-        Z_error("Error allocating ZScript Help buffer.");
-        quit_game();
-    }
-    
-    FILE *zscripthelphb = fopen("docs/zscript.txt", "r");
-    
-    if(!zscripthelphb)
-    {
+		Z_error("Error allocating ZScript Help buffer.");
+		quit_game();
+	}
+	
+	FILE *zscripthelphb = fopen("docs/zscript.txt", "r");
+	
+	if(!zscripthelphb)
+	{
 	zscripthelphb = fopen("zscript.txt", "r");
 	if(!zscripthelphb)
 	{
@@ -30752,34 +30740,34 @@ int32_t main(int32_t argc,char **argv)
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-	    "Failed loading zscript.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
+		"Failed loading zscript.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
 		Z_error("Error loading zscript.txt.");
 		quit_game();
 	}
-    }
-    
-    char zscripthelpc = fgetc(zscripthelphb);
-    int32_t zscripthelpindex=0;
-    
-    while(!feof(zscripthelphb))
-    {
-        zscripthelpbuf[zscripthelpindex] = zscripthelpc;
-        zscripthelpindex++;
-        zscripthelpc = fgetc(zscripthelphb);
-    }
-    
-    fclose(zscripthelphb);
-    
-    zscripthelpbuf[zscripthelpsz]=0;
-    zscripthelpstr = zscripthelpbuf;
-    Z_message("Found zscript.txt\n");    
-    
-    int32_t zstringshelpsz = file_size_ex_password("docs/zstrings.txt","");
-    
-    if(zstringshelpsz==0)
-    {
+	}
+	
+	char zscripthelpc = fgetc(zscripthelphb);
+	int32_t zscripthelpindex=0;
+	
+	while(!feof(zscripthelphb))
+	{
+		zscripthelpbuf[zscripthelpindex] = zscripthelpc;
+		zscripthelpindex++;
+		zscripthelpc = fgetc(zscripthelphb);
+	}
+	
+	fclose(zscripthelphb);
+	
+	zscripthelpbuf[zscripthelpsz]=0;
+	zscripthelpstr = zscripthelpbuf;
+	Z_message("Found zscript.txt\n");	
+	
+	int32_t zstringshelpsz = file_size_ex_password("docs/zstrings.txt","");
+	
+	if(zstringshelpsz==0)
+	{
 	zstringshelpsz = file_size_ex_password("zstrings.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
 	if(zstringshelpsz==0)
 	{
@@ -30794,28 +30782,28 @@ int32_t main(int32_t argc,char **argv)
 		Z_error("Error: zstrings.txt not found.");
 		quit_game();
 	}
-    }
-    
-    zstringshelpbuf = (char*)zc_malloc(zstringshelpsz<65536?65536:zstringshelpsz*2+1);
-    
-    if(!zstringshelpbuf)
-    {
+	}
+	
+	zstringshelpbuf = (char*)zc_malloc(zstringshelpsz<65536?65536:zstringshelpsz*2+1);
+	
+	if(!zstringshelpbuf)
+	{
 
 	FFCore.ZScriptConsole
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
-	    "Failed allocating zstrings Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
+		"Failed allocating zstrings Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-        Z_error("Error allocating zstrings Help buffer.");
-        quit_game();
-    }
-    
-    FILE *zstringshelphb = fopen("docs/zstrings.txt", "r");
-    
-    if(!zstringshelphb)
-    {
+		Z_error("Error allocating zstrings Help buffer.");
+		quit_game();
+	}
+	
+	FILE *zstringshelphb = fopen("docs/zstrings.txt", "r");
+	
+	if(!zstringshelphb)
+	{
 	zstringshelphb = fopen("zstrings.txt", "r");
 	if(!zstringshelphb)
 	{
@@ -30830,476 +30818,476 @@ int32_t main(int32_t argc,char **argv)
 		Z_error("Error loading zstrings.txt.");
 		quit_game();
 	}
-    }
-    
-    char zstringshelpc = fgetc(zstringshelphb);
-    int32_t zstringshelpindex=0;
-    
-    while(!feof(zstringshelphb))
-    {
-        zstringshelpbuf[zstringshelpindex] = zstringshelpc;
-        zstringshelpindex++;
-        zstringshelpc = fgetc(zstringshelphb);
-    }
-    
-    fclose(zstringshelphb);
-    
-    zstringshelpbuf[zstringshelpsz]=0;
-    zstringshelpstr = zstringshelpbuf;
-    Z_message("Found zstrings.txt\n");                               
-    
-    // loading data files...
-    
-    
-    init_qts();
-    
-    filepath[0]=temppath[0]=0;
-    
+	}
+	
+	char zstringshelpc = fgetc(zstringshelphb);
+	int32_t zstringshelpindex=0;
+	
+	while(!feof(zstringshelphb))
+	{
+		zstringshelpbuf[zstringshelpindex] = zstringshelpc;
+		zstringshelpindex++;
+		zstringshelpc = fgetc(zstringshelphb);
+	}
+	
+	fclose(zstringshelphb);
+	
+	zstringshelpbuf[zstringshelpsz]=0;
+	zstringshelpstr = zstringshelpbuf;
+	Z_message("Found zstrings.txt\n");							   
+	
+	// loading data files...
+	
+	
+	init_qts();
+	
+	filepath[0]=temppath[0]=0;
+	
 #ifdef ALLEGRO_MACOSX
-    const char *default_path="../../../";
-    sprintf(filepath, "../../../");
-    sprintf(temppath, "../");
+	const char *default_path="../../../";
+	sprintf(filepath, "../../../");
+	sprintf(temppath, "../");
 #else
-    const char *default_path="";
+	const char *default_path="";
 #endif
-    
-    strcpy(datapath,get_config_string("zquest",data_path_name,default_path));
-    strcpy(midipath,get_config_string("zquest",midi_path_name,default_path));
-    strcpy(imagepath,get_config_string("zquest",image_path_name,default_path));
-    strcpy(tmusicpath,get_config_string("zquest",tmusic_path_name,default_path));
-    chop_path(datapath);
-    chop_path(midipath);
-    chop_path(imagepath);
-    chop_path(tmusicpath);
-    
-    MouseScroll                    = get_config_int("zquest","mouse_scroll",0);
-    WarnOnInitChanged              = get_config_int("zquest","warn_initscript_changes",1);
-    InvalidStatic                  = get_config_int("zquest","invalid_static",1);
-    MMapCursorStyle                = get_config_int("zquest","cursorblink_style",1);
-    TileProtection                 = get_config_int("zquest","tile_protection",1);
-    ShowGrid                       = get_config_int("zquest","show_grid",0);
-    GridColor                      = get_config_int("zquest","grid_color",15);
-    SnapshotFormat                 = get_config_int("zquest","snapshot_format",3);
-    SavePaths                      = get_config_int("zquest","save_paths",1);
-    CycleOn                        = get_config_int("zquest","cycle_on",1);
-    Vsync                          = get_config_int("zquest","vsync",1)!=0;
-    ShowFPS                        = get_config_int("zquest","showfps",0)!=0;
-    ComboBrush                     = get_config_int("zquest","combo_brush",0);
-    BrushPosition                  = get_config_int("zquest","brush_position",0);
-    FloatBrush                     = get_config_int("zquest","float_brush",0);
-    UseSmall                       = get_config_int("zquest","small",0);
-    RulesetDialog                  = get_config_int("zquest","rulesetdialog",1);
-    EnableTooltips                 = get_config_int("zquest","enable_tooltips",1);
-    ShowFFScripts                  = get_config_int("zquest","showffscripts",1);
-    ShowSquares                    = get_config_int("zquest","showsquares",1);
-    ShowInfo                       = get_config_int("zquest","showinfo",1);
-    skipLayerWarning               = get_config_int("zquest","skip_layer_warning",0);
 	
-    OpenLastQuest                  = get_config_int("zquest","open_last_quest",0);
-    ShowMisalignments              = get_config_int("zquest","show_misalignments",0);
-    AnimationOn                    = get_config_int("zquest","animation_on",1);
-    AutoBackupRetention            = get_config_int("zquest","auto_backup_retention",2);
-    AutoSaveInterval               = get_config_int("zquest","auto_save_interval",6);
-    AutoSaveRetention              = get_config_int("zquest","auto_save_retention",2);
-    UncompressedAutoSaves          = get_config_int("zquest","uncompressed_auto_saves",1);
-    OverwriteProtection            = get_config_int("zquest","overwrite_prevention",0)!=0;
-    ImportMapBias                  = get_config_int("zquest","import_map_bias",0);
-    
-    KeyboardRepeatDelay           = get_config_int("zquest","keyboard_repeat_delay",300);
-    KeyboardRepeatRate            = get_config_int("zquest","keyboard_repeat_rate",80);
-    
-//  Frameskip                     = get_config_int("zquest","frameskip",0); //todo: this is not actually supported yet.
-    RequestedFPS                  = get_config_int("zquest","fps",60);
-    ForceExit                     = get_config_int("zquest","force_exit",0);
-    
-    //Combo Page, Tile Page, an Map Tile Page Autofill
-    PreFillTileEditorPage	  = get_config_int("zquest","PreFillTileEditorPage",0);
-    PreFillComboEditorPage	  = get_config_int("zquest","PreFillComboEditorPage",0);
-    PreFillMapTilePage		  =  get_config_int("zquest","PreFillMapTilePage",0);
-    //ViewLayer3BG = get_config_int("zquest","ViewLayer3BG",0);
-    //ViewLayer2BG = get_config_int("zquest","ViewLayer2BG",0);
-    
-    
-    //This is too much work to fix for 2.5. :| -Gleeok
-    //zqColorDepth                  = get_config_int("zquest","zq_color_depth",8);
-    
+	strcpy(datapath,get_config_string("zquest",data_path_name,default_path));
+	strcpy(midipath,get_config_string("zquest",midi_path_name,default_path));
+	strcpy(imagepath,get_config_string("zquest",image_path_name,default_path));
+	strcpy(tmusicpath,get_config_string("zquest",tmusic_path_name,default_path));
+	chop_path(datapath);
+	chop_path(midipath);
+	chop_path(imagepath);
+	chop_path(tmusicpath);
+	
+	MouseScroll					= get_config_int("zquest","mouse_scroll",0);
+	WarnOnInitChanged			  = get_config_int("zquest","warn_initscript_changes",1);
+	InvalidStatic				  = get_config_int("zquest","invalid_static",1);
+	MMapCursorStyle				= get_config_int("zquest","cursorblink_style",1);
+	TileProtection				 = get_config_int("zquest","tile_protection",1);
+	ShowGrid					   = get_config_int("zquest","show_grid",0);
+	GridColor					  = get_config_int("zquest","grid_color",15);
+	SnapshotFormat				 = get_config_int("zquest","snapshot_format",3);
+	SavePaths					  = get_config_int("zquest","save_paths",1);
+	CycleOn						= get_config_int("zquest","cycle_on",1);
+	Vsync						  = get_config_int("zquest","vsync",1)!=0;
+	ShowFPS						= get_config_int("zquest","showfps",0)!=0;
+	ComboBrush					 = get_config_int("zquest","combo_brush",0);
+	BrushPosition				  = get_config_int("zquest","brush_position",0);
+	FloatBrush					 = get_config_int("zquest","float_brush",0);
+	UseSmall					   = get_config_int("zquest","small",0);
+	RulesetDialog				  = get_config_int("zquest","rulesetdialog",1);
+	EnableTooltips				 = get_config_int("zquest","enable_tooltips",1);
+	ShowFFScripts				  = get_config_int("zquest","showffscripts",1);
+	ShowSquares					= get_config_int("zquest","showsquares",1);
+	ShowInfo					   = get_config_int("zquest","showinfo",1);
+	skipLayerWarning			   = get_config_int("zquest","skip_layer_warning",0);
+	
+	OpenLastQuest				  = get_config_int("zquest","open_last_quest",0);
+	ShowMisalignments			  = get_config_int("zquest","show_misalignments",0);
+	AnimationOn					= get_config_int("zquest","animation_on",1);
+	AutoBackupRetention			= get_config_int("zquest","auto_backup_retention",2);
+	AutoSaveInterval			   = get_config_int("zquest","auto_save_interval",6);
+	AutoSaveRetention			  = get_config_int("zquest","auto_save_retention",2);
+	UncompressedAutoSaves		  = get_config_int("zquest","uncompressed_auto_saves",1);
+	OverwriteProtection			= get_config_int("zquest","overwrite_prevention",0)!=0;
+	ImportMapBias				  = get_config_int("zquest","import_map_bias",0);
+	
+	KeyboardRepeatDelay		   = get_config_int("zquest","keyboard_repeat_delay",300);
+	KeyboardRepeatRate			= get_config_int("zquest","keyboard_repeat_rate",80);
+	
+//  Frameskip					 = get_config_int("zquest","frameskip",0); //todo: this is not actually supported yet.
+	RequestedFPS				  = get_config_int("zquest","fps",60);
+	ForceExit					 = get_config_int("zquest","force_exit",0);
+	
+	//Combo Page, Tile Page, an Map Tile Page Autofill
+	PreFillTileEditorPage	  = get_config_int("zquest","PreFillTileEditorPage",0);
+	PreFillComboEditorPage	  = get_config_int("zquest","PreFillComboEditorPage",0);
+	PreFillMapTilePage		  =  get_config_int("zquest","PreFillMapTilePage",0);
+	//ViewLayer3BG = get_config_int("zquest","ViewLayer3BG",0);
+	//ViewLayer2BG = get_config_int("zquest","ViewLayer2BG",0);
+	
+	
+	//This is too much work to fix for 2.5. :| -Gleeok
+	//zqColorDepth				  = get_config_int("zquest","zq_color_depth",8);
+	
 #ifdef _WIN32
-    zqUseWin32Proc                 = get_config_int("zquest","zq_win_proc_fix",0);
-    
-    // This seems to fix some problems on Windows 7
-    disable_direct_updating = (byte) get_config_int("graphics","disable_direct_updating",1);
-#endif
-    
-    if(RequestedFPS < 12) RequestedFPS = 12;
-    
-    if(RequestedFPS > 60) RequestedFPS = 60;
-    
-    LOCK_VARIABLE(myvsync);
-    LOCK_FUNCTION(myvsync_callback);
-    
-    if(install_int_ex(myvsync_callback,BPS_TO_TIMER(RequestedFPS)))
-    {
-        Z_error("couldn't allocate timer");
-        quit_game();
-    }
-    
-    // 1 <= zcmusic_bufsz <= 128
-    zcmusic_bufsz = vbound(get_config_int("zquest","zqmusic_bufsz",64),1,128);
-    int32_t tempvalue                  = get_config_int("zquest","layer_mask",-1);
-    int32_t usefullscreen				 = get_config_int("zquest","fullscreen",0);
-    tempmode = (usefullscreen == 0 ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN);
-    LayerMask[0]=byte(tempvalue&0xFF);
-    LayerMask[1]=byte((tempvalue>>8)&0xFF);
-    
-    for(int32_t x=0; x<7; x++)
-    {
-        LayerMaskInt[x]=get_bit(LayerMask,x);
-    }
-    
-    DuplicateAction[0]             = get_config_int("zquest","normal_duplicate_action",2);
-    DuplicateAction[1]             = get_config_int("zquest","horizontal_duplicate_action",0);
-    DuplicateAction[2]             = get_config_int("zquest","vertical_duplicate_action",0);
-    DuplicateAction[3]             = get_config_int("zquest","both_duplicate_action",0);
-    LeechUpdate                    = get_config_int("zquest","leech_update",500);
-    LeechUpdateTiles               = get_config_int("zquest","leech_update_tiles",1);
-    OnlyCheckNewTilesForDuplicates = get_config_int("zquest","only_check_new_tiles_for_duplicates",0);
-    gui_colorset                   = get_config_int("zquest","gui_colorset",0);
-    
-    strcpy(last_timed_save,get_config_string("zquest","last_timed_save",""));
-    
-    midi_volume                    = get_config_int("zquest", "midi", 255);
+	zqUseWin32Proc				 = get_config_int("zquest","zq_win_proc_fix",0);
 	
-	abc_patternmatch               = get_config_int("zquest", "lister_pattern_matching", 1);
-	NoScreenPreview               = get_config_int("zquest", "no_preview", 1);
+	// This seems to fix some problems on Windows 7
+	disable_direct_updating = (byte) get_config_int("graphics","disable_direct_updating",1);
+#endif
+	
+	if(RequestedFPS < 12) RequestedFPS = 12;
+	
+	if(RequestedFPS > 60) RequestedFPS = 60;
+	
+	LOCK_VARIABLE(myvsync);
+	LOCK_FUNCTION(myvsync_callback);
+	
+	if(install_int_ex(myvsync_callback,BPS_TO_TIMER(RequestedFPS)))
+	{
+		Z_error("couldn't allocate timer");
+		quit_game();
+	}
+	
+	// 1 <= zcmusic_bufsz <= 128
+	zcmusic_bufsz = vbound(get_config_int("zquest","zqmusic_bufsz",64),1,128);
+	int32_t tempvalue				  = get_config_int("zquest","layer_mask",-1);
+	int32_t usefullscreen				 = get_config_int("zquest","fullscreen",0);
+	tempmode = (usefullscreen == 0 ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN);
+	LayerMask[0]=byte(tempvalue&0xFF);
+	LayerMask[1]=byte((tempvalue>>8)&0xFF);
+	
+	for(int32_t x=0; x<7; x++)
+	{
+		LayerMaskInt[x]=get_bit(LayerMask,x);
+	}
+	
+	DuplicateAction[0]			 = get_config_int("zquest","normal_duplicate_action",2);
+	DuplicateAction[1]			 = get_config_int("zquest","horizontal_duplicate_action",0);
+	DuplicateAction[2]			 = get_config_int("zquest","vertical_duplicate_action",0);
+	DuplicateAction[3]			 = get_config_int("zquest","both_duplicate_action",0);
+	LeechUpdate					= get_config_int("zquest","leech_update",500);
+	LeechUpdateTiles			   = get_config_int("zquest","leech_update_tiles",1);
+	OnlyCheckNewTilesForDuplicates = get_config_int("zquest","only_check_new_tiles_for_duplicates",0);
+	gui_colorset				   = get_config_int("zquest","gui_colorset",0);
+	
+	strcpy(last_timed_save,get_config_string("zquest","last_timed_save",""));
+	
+	midi_volume					= get_config_int("zquest", "midi", 255);
+	
+	abc_patternmatch			   = get_config_int("zquest", "lister_pattern_matching", 1);
+	NoScreenPreview			   = get_config_int("zquest", "no_preview", 1);
 	
 	try_recovering_missing_scripts = get_config_int("Compiler", "try_recovering_missing_scripts",0);
 	zc_menu_on_left = get_config_int("zquest", "zc_menu_on_left",0);
-    //We need to remove all of the zeldadx refs to the config file for zquest. 
-    
-    set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
-    
-    if(used_switch(argc,argv,"-small") || UseSmall==1)
-    {
-        is_large=false;
-        BMM=1;
-    }
-    
-    tooltip_box.x=-1;
-    tooltip_box.y=-1;
-    tooltip_box.w=0;
-    tooltip_box.h=0;
-    
-    tooltip_trigger.x=-1;
-    tooltip_trigger.y=-1;
-    tooltip_trigger.w=0;
-    tooltip_trigger.h=0;
-    
-    if(is_large)
-    {
+	//We need to remove all of the zeldadx refs to the config file for zquest. 
+	
+	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
+	
+	if(used_switch(argc,argv,"-small") || UseSmall==1)
+	{
+		is_large=false;
+		BMM=1;
+	}
+	
+	tooltip_box.x=-1;
+	tooltip_box.y=-1;
+	tooltip_box.w=0;
+	tooltip_box.h=0;
+	
+	tooltip_trigger.x=-1;
+	tooltip_trigger.y=-1;
+	tooltip_trigger.w=0;
+	tooltip_trigger.h=0;
+	
+	if(is_large)
+	{
 	if ( zc_menu_on_left ) 
 	{
 		memcpy(the_menu, the_menu_large_zcleft, sizeof(the_menu));
 	}
 	else memcpy(the_menu, the_menu_large, sizeof(the_menu));
-        blackout_color=8;
-        zq_screen_w=800;
-        zq_screen_h=600;
-        
-        combolist_window.x=576;
-        combolist_window.y=0;
-        combolist_window.w=224;
-        combolist_window.h=464;
-        combo_preview.x=combolist_window.x+96-24;
-        combo_preview.y=combolist_window.y+6;
-        combo_preview.w=32;
-        combo_preview.h=32;
-        
-        combolist[0].x=combolist_window.x+8;
-        combolist[0].y=combolist_window.y+64;
-        combolist[0].w=4;
-        combolist[0].h=24;
-        combolist[1].x=combolist[0].x+72;
-        combolist[1].y=combolist[0].y;
-        combolist[1].w=combolist[0].w;
-        combolist[1].h=combolist[0].h;
-        combolist[2].x=combolist[1].x+72;
-        combolist[2].y=combolist[1].y;
-        combolist[2].w=combolist[1].w;
-        combolist[2].h=combolist[1].h;
-        
-        comboaliaslist[0].x=combolist[0].x;
-        comboaliaslist[0].y=combolist[0].y;
-        comboaliaslist[0].w=combolist[0].w;
-        comboaliaslist[0].h=combolist[0].h-5;
-        comboalias_preview[0].x=comboaliaslist[0].x;
-        comboalias_preview[0].y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
-        comboalias_preview[0].w=comboaliaslist[0].w<<4;
-        comboalias_preview[0].h=64;
-        
-        comboaliaslist[1].x=combolist[1].x;
-        comboaliaslist[1].y=combolist[1].y;
-        comboaliaslist[1].w=comboaliaslist[0].w;
-        comboaliaslist[1].h=comboaliaslist[0].h;
-        comboalias_preview[1].x=comboaliaslist[1].x;
-        comboalias_preview[1].y=comboaliaslist[1].y+(comboaliaslist[1].h<<4)+16;
-        comboalias_preview[1].w=comboaliaslist[1].w<<4;
-        comboalias_preview[1].h=64;
-        
-        comboaliaslist[2].x=combolist[2].x;
-        comboaliaslist[2].y=combolist[2].y;
-        comboaliaslist[2].w=comboaliaslist[1].w;
-        comboaliaslist[2].h=comboaliaslist[1].h;
-        comboalias_preview[2].x=comboaliaslist[2].x;
-        comboalias_preview[2].y=comboaliaslist[2].y+(comboaliaslist[2].h<<4)+16;
-        comboalias_preview[2].w=comboaliaslist[2].w<<4;
-        comboalias_preview[2].h=64;
-        
-        mapscreen_x=0;
-        mapscreen_y=16;
-        mapscreensize=2;
-        showedges=1;
-        showallpanels=0;
-        
-        for(int32_t i=0; i<=8; i++)
-        {
-            map_page_bar[i].x = mapscreen_x+(i*16*2*mapscreensize);
-            map_page_bar[i].y = mapscreen_y+((showedges?13:11)*16*mapscreensize);
-            map_page_bar[i].w = 64;
-            map_page_bar[i].h = 20;
-        }
-        
-        minimap.w=7+48*BMM;
-        minimap.h=16+27*BMM;
-        
-        layer_panel.x=map_page_bar[0].x;
-        layer_panel.y=map_page_bar[0].y+map_page_bar[0].h;
-        layer_panel.w=map_page_bar[8].x+map_page_bar[8].w;
-        layer_panel.h=40;
-        
-        for(int32_t i=0; i<9; i++)
-        {
-            panel[i].x=10+48*BMM;
-            panel[i].y=layer_panel.y+layer_panel.h;
-            panel[i].w=(map_page_bar[6].x)-(minimap.w+3);
-            panel[i].h=76+32;
-        }
-        
-        minimap.x=3;
-        minimap.y=panel[0].y+4;
-        
-        combolistscrollers[0].w=11;
-        combolistscrollers[0].h=11;
-        combolistscrollers[0].x=combolist[0].x+21;
-        combolistscrollers[0].y=combolist[0].y-combolistscrollers[0].h-11;
-        combolistscrollers[1].w=11;
-        combolistscrollers[1].h=11;
-        combolistscrollers[1].x=combolist[1].x+21;
-        combolistscrollers[1].y=combolist[1].y-combolistscrollers[1].h-11;
-        combolistscrollers[2].w=11;
-        combolistscrollers[2].h=11;
-        combolistscrollers[2].x=combolist[2].x+21;
-        combolistscrollers[2].y=combolist[2].y-combolistscrollers[2].h-11;
-        
-        mouse_scroll_h=10;
-        
-        favorites_window.x=combolist_window.x;
-        favorites_window.y=464;
-        favorites_window.w=combolist_window.w;
-        favorites_window.h=136;
-        
-        favorites_list.x=favorites_window.x+8;
-        favorites_list.y=favorites_window.y+16;
-        favorites_list.w=(favorites_window.w-16)>>4;
-        favorites_list.h=(favorites_window.h-24)>>4;
-        
-        commands_window.w=combolist_window.x-(panel[0].x+panel[0].w);
-        commands_window.h=zq_screen_h-panel[0].y;
-        commands_window.x=favorites_window.x-commands_window.w;
-        commands_window.y=panel[0].y;
-        
-        commands_list.x=commands_window.x+8;
-        commands_list.y=commands_window.y+20;
-        commands_list.w=2;
-        commands_list.h=4;
-        
-        //Help Dialogue Sizing
-        help_dlg[0].w=800;
-        help_dlg[0].h=600;
-        help_dlg[1].w=800-8;
-        help_dlg[1].h=600-27;
-        help_dlg[2].w=800-8-4;
-        help_dlg[2].h=600-27-4;
+		blackout_color=8;
+		zq_screen_w=800;
+		zq_screen_h=600;
+		
+		combolist_window.x=576;
+		combolist_window.y=0;
+		combolist_window.w=224;
+		combolist_window.h=464;
+		combo_preview.x=combolist_window.x+96-24;
+		combo_preview.y=combolist_window.y+6;
+		combo_preview.w=32;
+		combo_preview.h=32;
+		
+		combolist[0].x=combolist_window.x+8;
+		combolist[0].y=combolist_window.y+64;
+		combolist[0].w=4;
+		combolist[0].h=24;
+		combolist[1].x=combolist[0].x+72;
+		combolist[1].y=combolist[0].y;
+		combolist[1].w=combolist[0].w;
+		combolist[1].h=combolist[0].h;
+		combolist[2].x=combolist[1].x+72;
+		combolist[2].y=combolist[1].y;
+		combolist[2].w=combolist[1].w;
+		combolist[2].h=combolist[1].h;
+		
+		comboaliaslist[0].x=combolist[0].x;
+		comboaliaslist[0].y=combolist[0].y;
+		comboaliaslist[0].w=combolist[0].w;
+		comboaliaslist[0].h=combolist[0].h-5;
+		comboalias_preview[0].x=comboaliaslist[0].x;
+		comboalias_preview[0].y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
+		comboalias_preview[0].w=comboaliaslist[0].w<<4;
+		comboalias_preview[0].h=64;
+		
+		comboaliaslist[1].x=combolist[1].x;
+		comboaliaslist[1].y=combolist[1].y;
+		comboaliaslist[1].w=comboaliaslist[0].w;
+		comboaliaslist[1].h=comboaliaslist[0].h;
+		comboalias_preview[1].x=comboaliaslist[1].x;
+		comboalias_preview[1].y=comboaliaslist[1].y+(comboaliaslist[1].h<<4)+16;
+		comboalias_preview[1].w=comboaliaslist[1].w<<4;
+		comboalias_preview[1].h=64;
+		
+		comboaliaslist[2].x=combolist[2].x;
+		comboaliaslist[2].y=combolist[2].y;
+		comboaliaslist[2].w=comboaliaslist[1].w;
+		comboaliaslist[2].h=comboaliaslist[1].h;
+		comboalias_preview[2].x=comboaliaslist[2].x;
+		comboalias_preview[2].y=comboaliaslist[2].y+(comboaliaslist[2].h<<4)+16;
+		comboalias_preview[2].w=comboaliaslist[2].w<<4;
+		comboalias_preview[2].h=64;
+		
+		mapscreen_x=0;
+		mapscreen_y=16;
+		mapscreensize=2;
+		showedges=1;
+		showallpanels=0;
+		
+		for(int32_t i=0; i<=8; i++)
+		{
+			map_page_bar[i].x = mapscreen_x+(i*16*2*mapscreensize);
+			map_page_bar[i].y = mapscreen_y+((showedges?13:11)*16*mapscreensize);
+			map_page_bar[i].w = 64;
+			map_page_bar[i].h = 20;
+		}
+		
+		minimap.w=7+48*BMM;
+		minimap.h=16+27*BMM;
+		
+		layer_panel.x=map_page_bar[0].x;
+		layer_panel.y=map_page_bar[0].y+map_page_bar[0].h;
+		layer_panel.w=map_page_bar[8].x+map_page_bar[8].w;
+		layer_panel.h=40;
+		
+		for(int32_t i=0; i<9; i++)
+		{
+			panel[i].x=10+48*BMM;
+			panel[i].y=layer_panel.y+layer_panel.h;
+			panel[i].w=(map_page_bar[6].x)-(minimap.w+3);
+			panel[i].h=76+32;
+		}
+		
+		minimap.x=3;
+		minimap.y=panel[0].y+4;
+		
+		combolistscrollers[0].w=11;
+		combolistscrollers[0].h=11;
+		combolistscrollers[0].x=combolist[0].x+21;
+		combolistscrollers[0].y=combolist[0].y-combolistscrollers[0].h-11;
+		combolistscrollers[1].w=11;
+		combolistscrollers[1].h=11;
+		combolistscrollers[1].x=combolist[1].x+21;
+		combolistscrollers[1].y=combolist[1].y-combolistscrollers[1].h-11;
+		combolistscrollers[2].w=11;
+		combolistscrollers[2].h=11;
+		combolistscrollers[2].x=combolist[2].x+21;
+		combolistscrollers[2].y=combolist[2].y-combolistscrollers[2].h-11;
+		
+		mouse_scroll_h=10;
+		
+		favorites_window.x=combolist_window.x;
+		favorites_window.y=464;
+		favorites_window.w=combolist_window.w;
+		favorites_window.h=136;
+		
+		favorites_list.x=favorites_window.x+8;
+		favorites_list.y=favorites_window.y+16;
+		favorites_list.w=(favorites_window.w-16)>>4;
+		favorites_list.h=(favorites_window.h-24)>>4;
+		
+		commands_window.w=combolist_window.x-(panel[0].x+panel[0].w);
+		commands_window.h=zq_screen_h-panel[0].y;
+		commands_window.x=favorites_window.x-commands_window.w;
+		commands_window.y=panel[0].y;
+		
+		commands_list.x=commands_window.x+8;
+		commands_list.y=commands_window.y+20;
+		commands_list.w=2;
+		commands_list.h=4;
+		
+		//Help Dialogue Sizing
+		help_dlg[0].w=800;
+		help_dlg[0].h=600;
+		help_dlg[1].w=800-8;
+		help_dlg[1].h=600-27;
+		help_dlg[2].w=800-8-4;
+		help_dlg[2].h=600-27-4;
 	
 	
 	zscripthelp_dlg[0].w=800;
-        zscripthelp_dlg[0].h=600;
-        zscripthelp_dlg[1].w=800-8;
-        zscripthelp_dlg[1].h=600-27;
-        zscripthelp_dlg[2].w=800-8-4;
-        zscripthelp_dlg[2].h=600-27-4;
+		zscripthelp_dlg[0].h=600;
+		zscripthelp_dlg[1].w=800-8;
+		zscripthelp_dlg[1].h=600-27;
+		zscripthelp_dlg[2].w=800-8-4;
+		zscripthelp_dlg[2].h=600-27-4;
 	
 	Zstringshelp_dlg[0].w=800;
-        Zstringshelp_dlg[0].h=600;
-        Zstringshelp_dlg[1].w=800-8;
-        Zstringshelp_dlg[1].h=600-27;
-        Zstringshelp_dlg[2].w=800-8-4;
-        Zstringshelp_dlg[2].h=600-27-4;
+		Zstringshelp_dlg[0].h=600;
+		Zstringshelp_dlg[1].w=800-8;
+		Zstringshelp_dlg[1].h=600-27;
+		Zstringshelp_dlg[2].w=800-8-4;
+		Zstringshelp_dlg[2].h=600-27-4;
 	
 	shieldblockhelp_dlg[0].w=800;
-        shieldblockhelp_dlg[0].h=600;
-        shieldblockhelp_dlg[1].w=800-8;
-        shieldblockhelp_dlg[1].h=600-27;
-        shieldblockhelp_dlg[2].w=800-8-4;
-        shieldblockhelp_dlg[2].h=600-27-4;
-        
-        edit_zscript_dlg[0].w=800;
-        edit_zscript_dlg[0].h=600;
-        edit_zscript_dlg[1].w=800-8;
-        edit_zscript_dlg[1].h=600-27;
-        edit_zscript_dlg[2].w=800-8-4;
-        edit_zscript_dlg[2].h=600-27-4;
-        
-        editmsg_help_dlg[0].w=800;
-        editmsg_help_dlg[0].h=600;
-        editmsg_help_dlg[1].w=800-8;
-        editmsg_help_dlg[1].h=600-27;
-        editmsg_help_dlg[2].w=800-8-4;
-        editmsg_help_dlg[2].h=600-27-4;
-        
-        enlargeIntegrityReportDialog();
-    }
-    else
-    {
+		shieldblockhelp_dlg[0].h=600;
+		shieldblockhelp_dlg[1].w=800-8;
+		shieldblockhelp_dlg[1].h=600-27;
+		shieldblockhelp_dlg[2].w=800-8-4;
+		shieldblockhelp_dlg[2].h=600-27-4;
+		
+		edit_zscript_dlg[0].w=800;
+		edit_zscript_dlg[0].h=600;
+		edit_zscript_dlg[1].w=800-8;
+		edit_zscript_dlg[1].h=600-27;
+		edit_zscript_dlg[2].w=800-8-4;
+		edit_zscript_dlg[2].h=600-27-4;
+		
+		editmsg_help_dlg[0].w=800;
+		editmsg_help_dlg[0].h=600;
+		editmsg_help_dlg[1].w=800-8;
+		editmsg_help_dlg[1].h=600-27;
+		editmsg_help_dlg[2].w=800-8-4;
+		editmsg_help_dlg[2].h=600-27-4;
+		
+		enlargeIntegrityReportDialog();
+	}
+	else
+	{
 	//the_menu[8] = the_menu[9]; //end menus at visible length
 	if ( zc_menu_on_left ) 
 	{
 		memcpy(the_menu, the_menu_small_zcleft, sizeof(the_menu));
 	}
 	else memcpy(the_menu, the_menu_small, sizeof(the_menu));
-        blackout_color=0;
-        zq_screen_w=320;
-        zq_screen_h=240;
-        minimap.x=3;
-        minimap.y=195;
-        minimap.w=55;
-        minimap.h=43;
-        combolist[0].x=256;
-        combolist[0].y=16;
-        combolist[0].w=4;
-        combolist[0].h=14;
-        combolist[1].x=-1;
-        combolist[1].y=-1;
-        combolist[1].w=-1;
-        combolist[1].h=-1;
-        combolist[2].x=-1;
-        combolist[2].y=-1;
-        combolist[2].w=-1;
-        combolist[2].h=-1;
-        
-        comboaliaslist[0].x=256;
-        comboaliaslist[0].y=16;
-        comboaliaslist[0].w=4;
-        comboaliaslist[0].h=10;
-        comboalias_preview[0].x=256;
-        comboalias_preview[0].y=176;
-        comboalias_preview[0].w=64;
-        comboalias_preview[0].h=64;
-        comboaliaslist[1].x=-1;
-        comboaliaslist[1].y=-1;
-        comboaliaslist[1].w=-1;
-        comboaliaslist[1].h=-1;
-        comboalias_preview[1].x=-1;
-        comboalias_preview[1].y=-1;
-        comboalias_preview[1].w=-1;
-        comboalias_preview[1].h=-1;
-        comboaliaslist[2].x=-1;
-        comboaliaslist[2].y=-1;
-        comboaliaslist[2].w=-1;
-        comboaliaslist[2].h=-1;
-        comboalias_preview[2].x=-1;
-        comboalias_preview[2].y=-1;
-        comboalias_preview[2].w=-1;
-        comboalias_preview[2].h=-1;
-        
-        mapscreen_x=0;
-        mapscreen_y=16;
-        mapscreensize=1;
-        showedges=0;
-        showallpanels=0;
-        
-        for(int32_t i=0; i<9; i++)
-        {
-            panel[i].x=58;
-            panel[i].y=192;
-            panel[i].w=198;
-            panel[i].h=48;
-        }
-        
-        combolist_window.x=-1;
-        combolist_window.y=-1;
-        combolist_window.w=-1;
-        combolist_window.h=-1;
-        combo_preview.x=304;
-        combo_preview.y=0;
-        combo_preview.w=16;
-        combo_preview.h=16;
-        combolistscrollers[0].w=11;
-        combolistscrollers[0].h=11;
-        combolistscrollers[0].x=panel[0].x+panel[0].w-15;
-        combolistscrollers[0].y=panel[0].y+9;
-        combolistscrollers[1].w=-1;
-        combolistscrollers[1].h=-1;
-        combolistscrollers[1].x=-1;
-        combolistscrollers[1].y=-1;
-        combolistscrollers[2].w=-1;
-        combolistscrollers[2].h=-1;
-        combolistscrollers[2].x=-1;
-        combolistscrollers[2].y=-1;
-        
-        mouse_scroll_h=16;
-        
-        favorites_window.x=-1;
-        favorites_window.y=-1;
-        favorites_window.w=-1;
-        favorites_window.h=-1;
-        
-        favorites_list.x=-1;
-        favorites_list.y=-1;
-        favorites_list.w=-1;
-        favorites_list.h=-1;
-        
-        commands_window.x=-1;
-        commands_window.y=-1;
-        commands_window.w=-1;
-        commands_window.h=-1;
-        
-        commands_list.x=-1;
-        commands_list.y=-1;
-        commands_list.w=-1;
-        commands_list.h=-1;
-        
-        layer_panel.x=-1;
-        layer_panel.y=-1;
-        layer_panel.w=-1;
-        layer_panel.h=-1;
-    }
-    
-    for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
-    {
-        favorite_combos[i]=-1;
-    }
-    
-    for(int32_t i=0; i<MAXFAVORITECOMBOALIASES; ++i)
-    {
-        favorite_comboaliases[i]=-1;
-    }
-    
-    char cmdnametitle[20];
-    
-    for(int32_t x=0; x<MAXFAVORITECOMMANDS; ++x)
-    {
-        sprintf(cmdnametitle, "command%02d", x+1);
-        favorite_commands[x]=get_config_int("zquest",cmdnametitle,0);
+		blackout_color=0;
+		zq_screen_w=320;
+		zq_screen_h=240;
+		minimap.x=3;
+		minimap.y=195;
+		minimap.w=55;
+		minimap.h=43;
+		combolist[0].x=256;
+		combolist[0].y=16;
+		combolist[0].w=4;
+		combolist[0].h=14;
+		combolist[1].x=-1;
+		combolist[1].y=-1;
+		combolist[1].w=-1;
+		combolist[1].h=-1;
+		combolist[2].x=-1;
+		combolist[2].y=-1;
+		combolist[2].w=-1;
+		combolist[2].h=-1;
+		
+		comboaliaslist[0].x=256;
+		comboaliaslist[0].y=16;
+		comboaliaslist[0].w=4;
+		comboaliaslist[0].h=10;
+		comboalias_preview[0].x=256;
+		comboalias_preview[0].y=176;
+		comboalias_preview[0].w=64;
+		comboalias_preview[0].h=64;
+		comboaliaslist[1].x=-1;
+		comboaliaslist[1].y=-1;
+		comboaliaslist[1].w=-1;
+		comboaliaslist[1].h=-1;
+		comboalias_preview[1].x=-1;
+		comboalias_preview[1].y=-1;
+		comboalias_preview[1].w=-1;
+		comboalias_preview[1].h=-1;
+		comboaliaslist[2].x=-1;
+		comboaliaslist[2].y=-1;
+		comboaliaslist[2].w=-1;
+		comboaliaslist[2].h=-1;
+		comboalias_preview[2].x=-1;
+		comboalias_preview[2].y=-1;
+		comboalias_preview[2].w=-1;
+		comboalias_preview[2].h=-1;
+		
+		mapscreen_x=0;
+		mapscreen_y=16;
+		mapscreensize=1;
+		showedges=0;
+		showallpanels=0;
+		
+		for(int32_t i=0; i<9; i++)
+		{
+			panel[i].x=58;
+			panel[i].y=192;
+			panel[i].w=198;
+			panel[i].h=48;
+		}
+		
+		combolist_window.x=-1;
+		combolist_window.y=-1;
+		combolist_window.w=-1;
+		combolist_window.h=-1;
+		combo_preview.x=304;
+		combo_preview.y=0;
+		combo_preview.w=16;
+		combo_preview.h=16;
+		combolistscrollers[0].w=11;
+		combolistscrollers[0].h=11;
+		combolistscrollers[0].x=panel[0].x+panel[0].w-15;
+		combolistscrollers[0].y=panel[0].y+9;
+		combolistscrollers[1].w=-1;
+		combolistscrollers[1].h=-1;
+		combolistscrollers[1].x=-1;
+		combolistscrollers[1].y=-1;
+		combolistscrollers[2].w=-1;
+		combolistscrollers[2].h=-1;
+		combolistscrollers[2].x=-1;
+		combolistscrollers[2].y=-1;
+		
+		mouse_scroll_h=16;
+		
+		favorites_window.x=-1;
+		favorites_window.y=-1;
+		favorites_window.w=-1;
+		favorites_window.h=-1;
+		
+		favorites_list.x=-1;
+		favorites_list.y=-1;
+		favorites_list.w=-1;
+		favorites_list.h=-1;
+		
+		commands_window.x=-1;
+		commands_window.y=-1;
+		commands_window.w=-1;
+		commands_window.h=-1;
+		
+		commands_list.x=-1;
+		commands_list.y=-1;
+		commands_list.w=-1;
+		commands_list.h=-1;
+		
+		layer_panel.x=-1;
+		layer_panel.y=-1;
+		layer_panel.w=-1;
+		layer_panel.h=-1;
+	}
+	
+	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
+	{
+		favorite_combos[i]=-1;
+	}
+	
+	for(int32_t i=0; i<MAXFAVORITECOMBOALIASES; ++i)
+	{
+		favorite_comboaliases[i]=-1;
+	}
+	
+	char cmdnametitle[20];
+	
+	for(int32_t x=0; x<MAXFAVORITECOMMANDS; ++x)
+	{
+		sprintf(cmdnametitle, "command%02d", x+1);
+		favorite_commands[x]=get_config_int("zquest",cmdnametitle,0);
 		if(favorite_commands[x] >= cmdMAX || favorite_commands[x] < 0)
 		{
 			favorite_commands[x] = 0;
@@ -31308,43 +31296,43 @@ int32_t main(int32_t argc,char **argv)
 		{
 			favorite_commands[x] = 0;
 		}
-    }
-    
-    
-    if(used_switch(argc,argv,"-d"))
-    {
-        resolve_password(zquestpwd);
-        set_debug(!strcmp(zquestpwd,get_config_string("zquest","debug_this","")));
-    }
-    
-    char qtnametitle[20];
-    char qtpathtitle[20];
-    
-    for(int32_t x=1; x<MAXQTS; ++x)
-    {
-        sprintf(qtnametitle, "%s%d", qtname_name, x);
-        sprintf(qtpathtitle, "%s%d", qtpath_name, x);
-        strcpy(QuestTemplates[x].name,get_config_string("zquest",qtnametitle,""));
-        strcpy(QuestTemplates[x].path,get_config_string("zquest",qtpathtitle,""));
-        
-        if(QuestTemplates[x].name[0]==0)
-        {
-            qt_count=x;
-            break;
-        }
-    }
-    
-    Z_message("Initializing sound driver... ");
-    
-    if(used_switch(argc,argv,"-s"))
-    {
-        Z_message("skipped\n");
-    }
-    else
-    {
-        if(install_sound(DIGI_AUTODETECT,DIGI_AUTODETECT,NULL))
-        {
-        
+	}
+	
+	
+	if(used_switch(argc,argv,"-d"))
+	{
+		resolve_password(zquestpwd);
+		set_debug(!strcmp(zquestpwd,get_config_string("zquest","debug_this","")));
+	}
+	
+	char qtnametitle[20];
+	char qtpathtitle[20];
+	
+	for(int32_t x=1; x<MAXQTS; ++x)
+	{
+		sprintf(qtnametitle, "%s%d", qtname_name, x);
+		sprintf(qtpathtitle, "%s%d", qtpath_name, x);
+		strcpy(QuestTemplates[x].name,get_config_string("zquest",qtnametitle,""));
+		strcpy(QuestTemplates[x].path,get_config_string("zquest",qtpathtitle,""));
+		
+		if(QuestTemplates[x].name[0]==0)
+		{
+			qt_count=x;
+			break;
+		}
+	}
+	
+	Z_message("Initializing sound driver... ");
+	
+	if(used_switch(argc,argv,"-s"))
+	{
+		Z_message("skipped\n");
+	}
+	else
+	{
+		if(install_sound(DIGI_AUTODETECT,DIGI_AUTODETECT,NULL))
+		{
+		
 
 		FFCore.ZScriptConsole
 		(
@@ -31353,16 +31341,16 @@ int32_t main(int32_t argc,char **argv)
 			"Sound driver not available.  Sound disabled.!\n"
 		);
 
-            Z_message("Sound driver not available.  Sound disabled.\n");
-        }
-        else
-        {
-            Z_message("OK\n");
-        }
-    }
-    
-    if(used_switch(argc,argv,"-q"))
-    {
+			Z_message("Sound driver not available.  Sound disabled.\n");
+		}
+		else
+		{
+			Z_message("OK\n");
+		}
+	}
+	
+	if(used_switch(argc,argv,"-q"))
+	{
 
 	FFCore.ZScriptConsole
 	(
@@ -31370,198 +31358,198 @@ int32_t main(int32_t argc,char **argv)
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"-q switch used, quitting program.\n"
 	);
 
-        Z_message("-q switch used, quitting program.\n");
-        quit_game();
-        exit(0);
-    }
-    
-    zcmusic_init();
-    zcmusic_init();
-    
-    switch(zqColorDepth) //defaults to 8bit
-    {
-    case 0:
-        set_color_depth(desktop_color_depth());
-        break;
-        
-    case 8:
-        set_color_depth(8);
-        break;
-        
-    case 15:
-        set_color_depth(15);
-        break;
-        
-    case 16:
-        set_color_depth(16);
-        break;
-        
-    case 24:
-        set_color_depth(24);
-        break;
-        
-    case 32:
-        set_color_depth(32);
-        break;
-        
-    default:
-        zqColorDepth = 8;
-        set_color_depth(8);
-        break;
-    }
-    
-    set_close_button_callback((void (*)()) hit_close_button);
-    
+		Z_message("-q switch used, quitting program.\n");
+		quit_game();
+		exit(0);
+	}
+	
+	zcmusic_init();
+	zcmusic_init();
+	
+	switch(zqColorDepth) //defaults to 8bit
+	{
+	case 0:
+		set_color_depth(desktop_color_depth());
+		break;
+		
+	case 8:
+		set_color_depth(8);
+		break;
+		
+	case 15:
+		set_color_depth(15);
+		break;
+		
+	case 16:
+		set_color_depth(16);
+		break;
+		
+	case 24:
+		set_color_depth(24);
+		break;
+		
+	case 32:
+		set_color_depth(32);
+		break;
+		
+	default:
+		zqColorDepth = 8;
+		set_color_depth(8);
+		break;
+	}
+	
+	set_close_button_callback((void (*)()) hit_close_button);
+	
 #ifndef ALLEGRO_DOS
-    zq_scale_small = get_config_int("zquest","scale",1);
-    zq_scale_large = get_config_int("zquest","scale_large",1);
-    zq_scale = is_large ? zq_scale_large : zq_scale_small;
-    scale_arg = used_switch(argc,argv,"-scale");
-    
-    if(scale_arg && (argc>(scale_arg+1)))
-    {
-        scale_arg = atoi(argv[scale_arg+1]);
-        
-        if(scale_arg == 0)
-        {
-            scale_arg = 1;
-        }
-        
-        zq_scale=scale_arg;
-    }
-    else
-    {
-        scale_arg = zq_scale;
-    }
-    
-    zqwin_set_scale(scale_arg);
-    
+	zq_scale_small = get_config_int("zquest","scale",1);
+	zq_scale_large = get_config_int("zquest","scale_large",1);
+	zq_scale = is_large ? zq_scale_large : zq_scale_small;
+	scale_arg = used_switch(argc,argv,"-scale");
+	
+	if(scale_arg && (argc>(scale_arg+1)))
+	{
+		scale_arg = atoi(argv[scale_arg+1]);
+		
+		if(scale_arg == 0)
+		{
+			scale_arg = 1;
+		}
+		
+		zq_scale=scale_arg;
+	}
+	else
+	{
+		scale_arg = zq_scale;
+	}
+	
+	zqwin_set_scale(scale_arg);
+	
 #endif
-    
-    if(used_switch(argc,argv,"-fullscreen"))
-    {
-        tempmode = GFX_AUTODETECT_FULLSCREEN;
-        zqwin_set_scale(1);
-    }
-    else if(used_switch(argc,argv,"-windowed"))
-    {
-        tempmode=GFX_AUTODETECT_WINDOWED;
-        zqwin_set_scale(scale_arg);
-    }
-    
-    /*if (tempmode==GFX_AUTODETECT_FULLSCREEN)
-    {
-    #ifdef ALLEGRO_MACOSX
-    
-      if(used_switch(argc,argv,"-small") || UseSmall == 1)
-        scale_arg=2;
-      else
-        scale_arg=1;
-    #else
-      if (scale_arg>2)
-      {
-        scale_arg=1;
-      }
-    #endif
-      zqwin_set_scale(scale_arg);
-    }*/
-    
-    int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0));
-    
-    if(videofail!=0)
-    {
-	    allegro_init();
-	    three_finger_flag=false;
-	    register_bitmap_file_type("GIF",  load_gif, save_gif);
-	    jpgalleg_init();
-	    loadpng_init();
-	    
-	    //set_config_file("ag.cfg");
-	    set_config_file("zquest.cfg");
-	    if(install_timer() < 0)
-	    {
+	
+	if(used_switch(argc,argv,"-fullscreen"))
+	{
+		tempmode = GFX_AUTODETECT_FULLSCREEN;
+		zqwin_set_scale(1);
+	}
+	else if(used_switch(argc,argv,"-windowed"))
+	{
+		tempmode=GFX_AUTODETECT_WINDOWED;
+		zqwin_set_scale(scale_arg);
+	}
+	
+	/*if (tempmode==GFX_AUTODETECT_FULLSCREEN)
+	{
+	#ifdef ALLEGRO_MACOSX
+	
+	  if(used_switch(argc,argv,"-small") || UseSmall == 1)
+		scale_arg=2;
+	  else
+		scale_arg=1;
+	#else
+	  if (scale_arg>2)
+	  {
+		scale_arg=1;
+	  }
+	#endif
+	  zqwin_set_scale(scale_arg);
+	}*/
+	
+	int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0));
+	
+	if(videofail!=0)
+	{
+		allegro_init();
+		three_finger_flag=false;
+		register_bitmap_file_type("GIF",  load_gif, save_gif);
+		jpgalleg_init();
+		loadpng_init();
+		
+		//set_config_file("ag.cfg");
+		set_config_file("zquest.cfg");
+		if(install_timer() < 0)
+		{
 
-		    /*
+			/*
 		FFCore.ZScriptConsole
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-		    "Failed to init allegro timers!"
+			"Failed to init allegro timers!"
 		);
-		    */
+			*/
 
 		Z_error(allegro_error);
 		quit_game();
-	    }
-	    
-	    if(install_keyboard() < 0)
-	    {
+		}
+		
+		if(install_keyboard() < 0)
+		{
 
-		    /*
+			/*
 		FFCore.ZScriptConsole
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-		    "Failed to install keyboard!"
+			"Failed to install keyboard!"
 		);
-		    */
+			*/
 
 		Z_error(allegro_error);
 		quit_game();
-	    }
-	    
-	    if(install_mouse() < 0)
-	    {
+		}
+		
+		if(install_mouse() < 0)
+		{
 
 		/*FFCore.ZScriptConsole
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-		    "Failed to install mouse!"
+			"Failed to install mouse!"
 		);
-		    */
+			*/
 
 		Z_error(allegro_error);
 		quit_game();
-	    }
-	    
-	    enable_hardware_cursor();
-	    
-	    LOCK_VARIABLE(lastfps);
-	    
-	    LOCK_VARIABLE(framecnt);
-	    LOCK_FUNCTION(fps_callback);
-	    
-	    if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
-	    {
+		}
+		
+		enable_hardware_cursor();
+		
+		LOCK_VARIABLE(lastfps);
+		
+		LOCK_VARIABLE(framecnt);
+		LOCK_FUNCTION(fps_callback);
+		
+		if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
+		{
 
 		/*
-		    FFCore.ZScriptConsole
+			FFCore.ZScriptConsole
 		(
 			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-		    "Failed to allocate timer fps callback!"
+			"Failed to allocate timer fps callback!"
 		);
-		    */
+			*/
 
 		Z_error("couldn't allocate timer");
 		quit_game();
-	    }
-	    
-	    
-	    LOCK_VARIABLE(dclick_status);
-	    LOCK_VARIABLE(dclick_time);
-	    lock_dclick_function();
-	    install_int(dclick_check, 20);
-    
+		}
+		
+		
+		LOCK_VARIABLE(dclick_status);
+		LOCK_VARIABLE(dclick_time);
+		lock_dclick_function();
+		install_int(dclick_check, 20);
+	
 		//while(!quit && (--exittimer > 0))
 		//{
 			
 			
 		//}
 		//Z_error("Vid");
-	    
-	        //The console requires the allegro process to exist, vefore it can lwaunch. 
+		
+			//The console requires the allegro process to exist, vefore it can lwaunch. 
 		//Let's hope that this doesn't create a magical memory leak, or thread issues.
 		CConsoleLoggerEx zq_scale_console;
 		zq_scale_console.Create("ZQuest Creator Logging Console", 600, 200);
@@ -31577,56 +31565,56 @@ int32_t main(int32_t argc,char **argv)
 		Z_error(allegro_error);
 	//quit_game here crashes if we call console code
 	//I think that there is no process by the time that the console tries to attach itself?
-    }
-    //extra block here is intentional
-    if(videofail!=0)
-    {
-	    quit_game();
-	    allegro_exit();
-    }
-    else
-    {
-        Z_message("gfx mode set at -%d %dbpp %d x %d \n",
-                  tempmode, get_color_depth(), zq_screen_w*zqwin_scale, zq_screen_h*zqwin_scale);
-        //Z_message("OK\n");
-    }
-    //check and log RTC date and time
+	}
+	//extra block here is intentional
+	if(videofail!=0)
+	{
+		quit_game();
+		allegro_exit();
+	}
+	else
+	{
+		Z_message("gfx mode set at -%d %dbpp %d x %d \n",
+				  tempmode, get_color_depth(), zq_screen_w*zqwin_scale, zq_screen_h*zqwin_scale);
+		//Z_message("OK\n");
+	}
+	//check and log RTC date and time
 
-        for (int32_t q = 0; q < curTimeLAST; q++) 
-        {
-            int32_t t_time_v = FFCore.getTime(q);
-        }
-    scrtmp = screen;
-    hw_screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
-    screen = hw_screen;
-    hw_screen = scrtmp;
-    scrtmp = screen;
-    
-    
-    position_mouse(zq_screen_w/2,zq_screen_h/2);
-    
-    center_zq_class_dialogs();
-    center_zq_custom_dialogs();
-    center_zq_files_dialogs();
-    center_zq_subscreen_dialogs();
-    center_zq_tiles_dialogs();
-    center_zquest_dialogs();
-    
-    screen2 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
-    tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
-    menu1 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
-    clear_bitmap(menu1);
-    menu3 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
-    mapscreenbmp = create_bitmap_ex(8,16*(showedges?18:16),16*(showedges?13:11));
-    dmapbmp_small = create_bitmap_ex(8,65,33);
-    dmapbmp_large = create_bitmap_ex(8,(is_large?177:113),(is_large?81:57));
-    brushbmp = create_bitmap_ex(8,256*mapscreensize, 176*mapscreensize);
-    brushscreen = create_bitmap_ex(8,(256+(showedges?16:0))*mapscreensize, (176+(showedges?16:0))*mapscreensize);
-    tooltipbmp = create_bitmap_ex(8,zq_screen_w,zq_screen_h); // Decrease size at your own risk.
-    clear_bitmap(tooltipbmp);
-    
-    if(!screen2 || !tmp_scr || !menu1 || !menu3 || !dmapbmp_large || !dmapbmp_large || !brushbmp || !brushscreen)// || !brushshadowbmp )
-    {
+		for (int32_t q = 0; q < curTimeLAST; q++) 
+		{
+			int32_t t_time_v = FFCore.getTime(q);
+		}
+	scrtmp = screen;
+	hw_screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
+	screen = hw_screen;
+	hw_screen = scrtmp;
+	scrtmp = screen;
+	
+	
+	position_mouse(zq_screen_w/2,zq_screen_h/2);
+	
+	center_zq_class_dialogs();
+	center_zq_custom_dialogs();
+	center_zq_files_dialogs();
+	center_zq_subscreen_dialogs();
+	center_zq_tiles_dialogs();
+	center_zquest_dialogs();
+	
+	screen2 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
+	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
+	menu1 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
+	clear_bitmap(menu1);
+	menu3 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
+	mapscreenbmp = create_bitmap_ex(8,16*(showedges?18:16),16*(showedges?13:11));
+	dmapbmp_small = create_bitmap_ex(8,65,33);
+	dmapbmp_large = create_bitmap_ex(8,(is_large?177:113),(is_large?81:57));
+	brushbmp = create_bitmap_ex(8,256*mapscreensize, 176*mapscreensize);
+	brushscreen = create_bitmap_ex(8,(256+(showedges?16:0))*mapscreensize, (176+(showedges?16:0))*mapscreensize);
+	tooltipbmp = create_bitmap_ex(8,zq_screen_w,zq_screen_h); // Decrease size at your own risk.
+	clear_bitmap(tooltipbmp);
+	
+	if(!screen2 || !tmp_scr || !menu1 || !menu3 || !dmapbmp_large || !dmapbmp_large || !brushbmp || !brushscreen)// || !brushshadowbmp )
+	{
 
 	FFCore.ZScriptConsole
 	(
@@ -31637,282 +31625,282 @@ int32_t main(int32_t argc,char **argv)
 
 	Z_message("Failed to create system bitmaps.\n");
 
-        Z_message("Error creating bitmaps\n");
-        allegro_exit();
-        quit_game();
-        return 1;
-    }
-    
-    set_palette((RGB*)zcdata[PAL_ZQUEST].dat);
-    get_palette(RAMpal);
-    
-    switch(gui_colorset)
-    {
-        /*
-          enum
-          {
-          jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
-          jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
-          jcMAX
-          };
-          */
-    case 1:  //Windows 98
-    {
-        RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-        RAMpal[dvc(2)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-        RAMpal[dvc(3)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-        RAMpal[dvc(4)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-        RAMpal[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-        RAMpal[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-        RAMpal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-        RAMpal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
-        
-        byte palrstart=  0*63/255, palrend=166*63/255,
-             palgstart=  0*63/255, palgend=202*63/255,
-             palbstart=128*63/255, palbend=240*63/255,
-             paldivs=7;
-             
-        for(int32_t i=0; i<paldivs; i++)
-        {
-            RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-        }
-        
-        jwin_pal[jcBOX]    =dvc(3);
-        jwin_pal[jcLIGHT]  =dvc(5);
-        jwin_pal[jcMEDLT]  =dvc(4);
-        jwin_pal[jcMEDDARK]=dvc(2);
-        jwin_pal[jcDARK]   =dvc(1);
-        jwin_pal[jcBOXFG]  =dvc(1);
-        jwin_pal[jcTITLEL] =dvc(9);
-        jwin_pal[jcTITLER] =dvc(15);
-        jwin_pal[jcTITLEFG]=dvc(7);
-        jwin_pal[jcTEXTBG] =dvc(5);
-        jwin_pal[jcTEXTFG] =dvc(1);
-        jwin_pal[jcSELBG]  =dvc(8);
-        jwin_pal[jcSELFG]  =dvc(6);
+		Z_message("Error creating bitmaps\n");
+		allegro_exit();
+		quit_game();
+		return 1;
+	}
+	
+	set_palette((RGB*)zcdata[PAL_ZQUEST].dat);
+	get_palette(RAMpal);
+	
+	switch(gui_colorset)
+	{
+		/*
+		  enum
+		  {
+		  jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
+		  jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
+		  jcMAX
+		  };
+		  */
+	case 1:  //Windows 98
+	{
+		RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
+		RAMpal[dvc(2)] = _RGB(128*63/255, 128*63/255, 128*63/255);
+		RAMpal[dvc(3)] = _RGB(192*63/255, 192*63/255, 192*63/255);
+		RAMpal[dvc(4)] = _RGB(223*63/255, 223*63/255, 223*63/255);
+		RAMpal[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
+		RAMpal[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
+		RAMpal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
+		RAMpal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
+		
+		byte palrstart=  0*63/255, palrend=166*63/255,
+			 palgstart=  0*63/255, palgend=202*63/255,
+			 palbstart=128*63/255, palbend=240*63/255,
+			 paldivs=7;
+			 
+		for(int32_t i=0; i<paldivs; i++)
+		{
+			RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+		}
+		
+		jwin_pal[jcBOX]	=dvc(3);
+		jwin_pal[jcLIGHT]  =dvc(5);
+		jwin_pal[jcMEDLT]  =dvc(4);
+		jwin_pal[jcMEDDARK]=dvc(2);
+		jwin_pal[jcDARK]   =dvc(1);
+		jwin_pal[jcBOXFG]  =dvc(1);
+		jwin_pal[jcTITLEL] =dvc(9);
+		jwin_pal[jcTITLER] =dvc(15);
+		jwin_pal[jcTITLEFG]=dvc(7);
+		jwin_pal[jcTEXTBG] =dvc(5);
+		jwin_pal[jcTEXTFG] =dvc(1);
+		jwin_pal[jcSELBG]  =dvc(8);
+		jwin_pal[jcSELFG]  =dvc(6);
 		jwin_pal[jcCURSORMISC] = dvc(1);
 		jwin_pal[jcCURSOROUTLINE] = dvc(2);
 		jwin_pal[jcCURSORLIGHT] = dvc(3);
 		jwin_pal[jcCURSORDARK] = dvc(5);
-    }
-    break;
-    
-    case 2:  //Windows 99
-    {
-        RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-        RAMpal[dvc(2)] = _RGB(64*63/255,  64*63/255,  64*63/255);
-        RAMpal[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-        RAMpal[dvc(4)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-        RAMpal[dvc(5)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-        RAMpal[dvc(6)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-        RAMpal[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-        RAMpal[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-        RAMpal[dvc(9)] = _RGB(0*63/255,   0*63/255,  80*63/255);
-        
-        byte palrstart=  0*63/255, palrend=166*63/255,
-             palgstart=  0*63/255, palgend=202*63/255,
-             palbstart=128*63/255, palbend=240*63/255,
-             paldivs=6;
-             
-        for(int32_t i=0; i<paldivs; i++)
-        {
-            RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-        }
-        
-        jwin_pal[jcBOX]    =dvc(4);
-        jwin_pal[jcLIGHT]  =dvc(6);
-        jwin_pal[jcMEDLT]  =dvc(5);
-        jwin_pal[jcMEDDARK]=dvc(3);
-        jwin_pal[jcDARK]   =dvc(2);
-        jwin_pal[jcBOXFG]  =dvc(1);
-        jwin_pal[jcTITLEL] =dvc(10);
-        jwin_pal[jcTITLER] =dvc(15);
-        jwin_pal[jcTITLEFG]=dvc(8);
-        jwin_pal[jcTEXTBG] =dvc(6);
-        jwin_pal[jcTEXTFG] =dvc(1);
-        jwin_pal[jcSELBG]  =dvc(9);
-        jwin_pal[jcSELFG]  =dvc(7);
+	}
+	break;
+	
+	case 2:  //Windows 99
+	{
+		RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
+		RAMpal[dvc(2)] = _RGB(64*63/255,  64*63/255,  64*63/255);
+		RAMpal[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
+		RAMpal[dvc(4)] = _RGB(192*63/255, 192*63/255, 192*63/255);
+		RAMpal[dvc(5)] = _RGB(223*63/255, 223*63/255, 223*63/255);
+		RAMpal[dvc(6)] = _RGB(255*63/255, 255*63/255, 255*63/255);
+		RAMpal[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
+		RAMpal[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
+		RAMpal[dvc(9)] = _RGB(0*63/255,   0*63/255,  80*63/255);
+		
+		byte palrstart=  0*63/255, palrend=166*63/255,
+			 palgstart=  0*63/255, palgend=202*63/255,
+			 palbstart=128*63/255, palbend=240*63/255,
+			 paldivs=6;
+			 
+		for(int32_t i=0; i<paldivs; i++)
+		{
+			RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+		}
+		
+		jwin_pal[jcBOX]	=dvc(4);
+		jwin_pal[jcLIGHT]  =dvc(6);
+		jwin_pal[jcMEDLT]  =dvc(5);
+		jwin_pal[jcMEDDARK]=dvc(3);
+		jwin_pal[jcDARK]   =dvc(2);
+		jwin_pal[jcBOXFG]  =dvc(1);
+		jwin_pal[jcTITLEL] =dvc(10);
+		jwin_pal[jcTITLER] =dvc(15);
+		jwin_pal[jcTITLEFG]=dvc(8);
+		jwin_pal[jcTEXTBG] =dvc(6);
+		jwin_pal[jcTEXTFG] =dvc(1);
+		jwin_pal[jcSELBG]  =dvc(9);
+		jwin_pal[jcSELFG]  =dvc(7);
 		jwin_pal[jcCURSORMISC] = dvc(1);
 		jwin_pal[jcCURSOROUTLINE] = dvc(2);
 		jwin_pal[jcCURSORLIGHT] = dvc(3);
 		jwin_pal[jcCURSORDARK] = dvc(5);
-    }
-    break;
-    
-    case 3:  //Windows 2000 Blue
-    {
-        RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-        RAMpal[dvc(2)] = _RGB(16*63/255,  15*63/255, 116*63/255);
-        RAMpal[dvc(3)] = _RGB(82*63/255,  80*63/255, 182*63/255);
-        RAMpal[dvc(4)] = _RGB(162*63/255, 158*63/255, 250*63/255);
-        RAMpal[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-        RAMpal[dvc(6)] = _RGB(255*63/255, 255*63/255, 127*63/255);
-        RAMpal[dvc(7)] = _RGB(255*63/255, 225*63/255,  63*63/255);
-        RAMpal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
-        
-        byte palrstart=  0*63/255, palrend=162*63/255,
-             palgstart=  0*63/255, palgend=158*63/255,
-             palbstart= 80*63/255, palbend=250*63/255,
-             paldivs=7;
-             
-        for(int32_t i=0; i<paldivs; i++)
-        {
-            RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-        }
-        
-        jwin_pal[jcBOX]    =dvc(4);
-        jwin_pal[jcLIGHT]  =dvc(5);
-        jwin_pal[jcMEDLT]  =dvc(4);
-        jwin_pal[jcMEDDARK]=dvc(3);
-        jwin_pal[jcDARK]   =dvc(2);
-        jwin_pal[jcBOXFG]  =dvc(1);
-        jwin_pal[jcTITLEL] =dvc(9);
-        jwin_pal[jcTITLER] =dvc(15);
-        jwin_pal[jcTITLEFG]=dvc(7);
-        jwin_pal[jcTEXTBG] =dvc(5);
-        jwin_pal[jcTEXTFG] =dvc(1);
-        jwin_pal[jcSELBG]  =dvc(8);
-        jwin_pal[jcSELFG]  =dvc(6);
+	}
+	break;
+	
+	case 3:  //Windows 2000 Blue
+	{
+		RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
+		RAMpal[dvc(2)] = _RGB(16*63/255,  15*63/255, 116*63/255);
+		RAMpal[dvc(3)] = _RGB(82*63/255,  80*63/255, 182*63/255);
+		RAMpal[dvc(4)] = _RGB(162*63/255, 158*63/255, 250*63/255);
+		RAMpal[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
+		RAMpal[dvc(6)] = _RGB(255*63/255, 255*63/255, 127*63/255);
+		RAMpal[dvc(7)] = _RGB(255*63/255, 225*63/255,  63*63/255);
+		RAMpal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
+		
+		byte palrstart=  0*63/255, palrend=162*63/255,
+			 palgstart=  0*63/255, palgend=158*63/255,
+			 palbstart= 80*63/255, palbend=250*63/255,
+			 paldivs=7;
+			 
+		for(int32_t i=0; i<paldivs; i++)
+		{
+			RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+		}
+		
+		jwin_pal[jcBOX]	=dvc(4);
+		jwin_pal[jcLIGHT]  =dvc(5);
+		jwin_pal[jcMEDLT]  =dvc(4);
+		jwin_pal[jcMEDDARK]=dvc(3);
+		jwin_pal[jcDARK]   =dvc(2);
+		jwin_pal[jcBOXFG]  =dvc(1);
+		jwin_pal[jcTITLEL] =dvc(9);
+		jwin_pal[jcTITLER] =dvc(15);
+		jwin_pal[jcTITLEFG]=dvc(7);
+		jwin_pal[jcTEXTBG] =dvc(5);
+		jwin_pal[jcTEXTFG] =dvc(1);
+		jwin_pal[jcSELBG]  =dvc(8);
+		jwin_pal[jcSELFG]  =dvc(6);
 		jwin_pal[jcCURSORMISC] = dvc(1);
 		jwin_pal[jcCURSOROUTLINE] = dvc(2);
 		jwin_pal[jcCURSORLIGHT] = dvc(3);
 		jwin_pal[jcCURSORDARK] = dvc(5);
-    }
-    break;
-    
-    case 687:  //Windows 2000 Gold (6-87 was the North American release date of LoZ)
-    {
-        RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-        RAMpal[dvc(2)] = _RGB(64*63/255,  64*63/255,  43*63/255);
-        RAMpal[dvc(3)] = _RGB(170*63/255, 154*63/255,  96*63/255);
-        RAMpal[dvc(4)] = _RGB(223*63/255, 200*63/255, 128*63/255); // Old Gold
-        RAMpal[dvc(5)] = _RGB(240*63/255, 223*63/255, 136*63/255);
-        RAMpal[dvc(6)] = _RGB(255*63/255, 223*63/255, 128*63/255);
-        RAMpal[dvc(7)] = _RGB(255*63/255, 223*63/255, 128*63/255);
-        RAMpal[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-        RAMpal[dvc(9)] = _RGB(80*63/255,  80*63/255,   0*63/255);
-        
-        byte palrstart=128*63/255, palrend=240*63/255,
-             palgstart=128*63/255, palgend=202*63/255,
-             palbstart=  0*63/255, palbend=166*63/255,
-             paldivs=6;
-             
-        for(int32_t i=0; i<paldivs; i++)
-        {
-            RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-        }
-        
-        jwin_pal[jcBOX]    =dvc(4);
-        jwin_pal[jcLIGHT]  =dvc(6);
-        jwin_pal[jcMEDLT]  =dvc(5);
-        jwin_pal[jcMEDDARK]=dvc(3);
-        jwin_pal[jcDARK]   =dvc(2);
-        jwin_pal[jcBOXFG]  =dvc(1);
-        jwin_pal[jcTITLEL] =dvc(10);
-        jwin_pal[jcTITLER] =dvc(15);
-        jwin_pal[jcTITLEFG]=dvc(8);
-        jwin_pal[jcTEXTBG] =dvc(6);
-        jwin_pal[jcTEXTFG] =dvc(1);
-        jwin_pal[jcSELBG]  =dvc(9);
-        jwin_pal[jcSELFG]  =dvc(7);
+	}
+	break;
+	
+	case 687:  //Windows 2000 Gold (6-87 was the North American release date of LoZ)
+	{
+		RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
+		RAMpal[dvc(2)] = _RGB(64*63/255,  64*63/255,  43*63/255);
+		RAMpal[dvc(3)] = _RGB(170*63/255, 154*63/255,  96*63/255);
+		RAMpal[dvc(4)] = _RGB(223*63/255, 200*63/255, 128*63/255); // Old Gold
+		RAMpal[dvc(5)] = _RGB(240*63/255, 223*63/255, 136*63/255);
+		RAMpal[dvc(6)] = _RGB(255*63/255, 223*63/255, 128*63/255);
+		RAMpal[dvc(7)] = _RGB(255*63/255, 223*63/255, 128*63/255);
+		RAMpal[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
+		RAMpal[dvc(9)] = _RGB(80*63/255,  80*63/255,   0*63/255);
+		
+		byte palrstart=128*63/255, palrend=240*63/255,
+			 palgstart=128*63/255, palgend=202*63/255,
+			 palbstart=  0*63/255, palbend=166*63/255,
+			 paldivs=6;
+			 
+		for(int32_t i=0; i<paldivs; i++)
+		{
+			RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+		}
+		
+		jwin_pal[jcBOX]	=dvc(4);
+		jwin_pal[jcLIGHT]  =dvc(6);
+		jwin_pal[jcMEDLT]  =dvc(5);
+		jwin_pal[jcMEDDARK]=dvc(3);
+		jwin_pal[jcDARK]   =dvc(2);
+		jwin_pal[jcBOXFG]  =dvc(1);
+		jwin_pal[jcTITLEL] =dvc(10);
+		jwin_pal[jcTITLER] =dvc(15);
+		jwin_pal[jcTITLEFG]=dvc(8);
+		jwin_pal[jcTEXTBG] =dvc(6);
+		jwin_pal[jcTEXTFG] =dvc(1);
+		jwin_pal[jcSELBG]  =dvc(9);
+		jwin_pal[jcSELFG]  =dvc(7);
 		jwin_pal[jcCURSORMISC] = dvc(1);
 		jwin_pal[jcCURSOROUTLINE] = dvc(2);
 		jwin_pal[jcCURSORLIGHT] = dvc(3);
 		jwin_pal[jcCURSORDARK] = dvc(5);
-    }
-    break;
-    
-    case 4104:  //Windows 2000 Easter (4-1-04 is April Fools Day, the date of this release)
-    {
-        RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-        RAMpal[dvc(2)] = _RGB(64*63/255,  64*63/255,  64*63/255);
-        RAMpal[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-        RAMpal[dvc(4)] = _RGB(252*63/255, 186*63/255, 188*63/255);
-        RAMpal[dvc(5)] = _RGB(254*63/255, 238*63/255, 238*63/255);
-        RAMpal[dvc(6)] = _RGB(244*63/255, 243*63/255, 161*63/255);
-        RAMpal[dvc(7)] = _RGB(120*63/255, 173*63/255, 189*63/255);
-        RAMpal[dvc(8)] = _RGB(220*63/255, 183*63/255, 227*63/255);
-        
-        byte palrstart=244*63/255, palrend=220*63/255,
-             palgstart=243*63/255, palgend=183*63/255,
-             palbstart=161*63/255, palbend=227*63/255,
-             paldivs=7;
-             
-        for(int32_t i=0; i < paldivs; i++)
-        {
-            RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-        }
-        
-        jwin_pal[jcBOX]    =dvc(4);
-        jwin_pal[jcLIGHT]  =dvc(5);
-        jwin_pal[jcMEDLT]  =dvc(4);
-        jwin_pal[jcMEDDARK]=dvc(3);
-        jwin_pal[jcDARK]   =dvc(2);
-        jwin_pal[jcBOXFG]  =dvc(7);
-        jwin_pal[jcTITLEL] =dvc(9);
-        jwin_pal[jcTITLER] =dvc(15);
-        jwin_pal[jcTITLEFG]=dvc(7);
-        jwin_pal[jcTEXTBG] =dvc(5);
-        jwin_pal[jcTEXTFG] =dvc(7);
-        jwin_pal[jcSELBG]  =dvc(8);
-        jwin_pal[jcSELFG]  =dvc(6);
+	}
+	break;
+	
+	case 4104:  //Windows 2000 Easter (4-1-04 is April Fools Day, the date of this release)
+	{
+		RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
+		RAMpal[dvc(2)] = _RGB(64*63/255,  64*63/255,  64*63/255);
+		RAMpal[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
+		RAMpal[dvc(4)] = _RGB(252*63/255, 186*63/255, 188*63/255);
+		RAMpal[dvc(5)] = _RGB(254*63/255, 238*63/255, 238*63/255);
+		RAMpal[dvc(6)] = _RGB(244*63/255, 243*63/255, 161*63/255);
+		RAMpal[dvc(7)] = _RGB(120*63/255, 173*63/255, 189*63/255);
+		RAMpal[dvc(8)] = _RGB(220*63/255, 183*63/255, 227*63/255);
+		
+		byte palrstart=244*63/255, palrend=220*63/255,
+			 palgstart=243*63/255, palgend=183*63/255,
+			 palbstart=161*63/255, palbend=227*63/255,
+			 paldivs=7;
+			 
+		for(int32_t i=0; i < paldivs; i++)
+		{
+			RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+		}
+		
+		jwin_pal[jcBOX]	=dvc(4);
+		jwin_pal[jcLIGHT]  =dvc(5);
+		jwin_pal[jcMEDLT]  =dvc(4);
+		jwin_pal[jcMEDDARK]=dvc(3);
+		jwin_pal[jcDARK]   =dvc(2);
+		jwin_pal[jcBOXFG]  =dvc(7);
+		jwin_pal[jcTITLEL] =dvc(9);
+		jwin_pal[jcTITLER] =dvc(15);
+		jwin_pal[jcTITLEFG]=dvc(7);
+		jwin_pal[jcTEXTBG] =dvc(5);
+		jwin_pal[jcTEXTFG] =dvc(7);
+		jwin_pal[jcSELBG]  =dvc(8);
+		jwin_pal[jcSELFG]  =dvc(6);
 		jwin_pal[jcCURSORMISC] = dvc(1);
 		jwin_pal[jcCURSOROUTLINE] = dvc(2);
 		jwin_pal[jcCURSORLIGHT] = dvc(3);
 		jwin_pal[jcCURSORDARK] = dvc(5);
-    }
-    break;
-    
-    
-    case 2019:  //2.55 DARK Theme
-    {
+	}
+	break;
+	
+	
+	case 2019:  //2.55 DARK Theme
+	{
 	   
-        RAMpal[dvc(1)] = _RGB(4,38,46); //box fg is text
-        RAMpal[dvc(2)] = _RGB(16*63/255, 10*63/255, 0*63/255);
-        RAMpal[dvc(3)] = _RGB(17,20,20); //slate
-        RAMpal[dvc(4)] = _RGB(13,14,14); //menu background
-        RAMpal[dvc(5)] = _RGB(0,0,0);//menu text bg
-        RAMpal[dvc(6)] = _RGB(13,14,14);//menu selected text
-        RAMpal[dvc(7)] = _RGB(42,60,48);
-        RAMpal[dvc(8)] = _RGB(6,49,35);//highlight on selected menu text
-        
-        byte palrstart= 10*63/255, palrend=166*63/255,
-             palgstart= 36*63/255, palgend=202*63/255,
-             palbstart=106*63/255, palbend=240*63/255,
-             paldivs=7;
-       
-        jwin_pal[jcBOX]    =dvc(4);
-        jwin_pal[jcLIGHT]  =dvc(5);
-        jwin_pal[jcMEDLT]  =dvc(4);
-        jwin_pal[jcMEDDARK]=dvc(3);
-        jwin_pal[jcDARK]   =dvc(2);
-        jwin_pal[jcBOXFG]  =dvc(1);
-        jwin_pal[jcTITLEL] =dvc(3);
-        jwin_pal[jcTITLER] =dvc(5);
-        jwin_pal[jcTITLEFG]=dvc(7);
-        jwin_pal[jcTEXTBG] =dvc(5);
-        jwin_pal[jcTEXTFG] =dvc(1);
-        jwin_pal[jcSELBG]  =dvc(8);
-        jwin_pal[jcSELFG]  =dvc(6);
+		RAMpal[dvc(1)] = _RGB(4,38,46); //box fg is text
+		RAMpal[dvc(2)] = _RGB(16*63/255, 10*63/255, 0*63/255);
+		RAMpal[dvc(3)] = _RGB(17,20,20); //slate
+		RAMpal[dvc(4)] = _RGB(13,14,14); //menu background
+		RAMpal[dvc(5)] = _RGB(0,0,0);//menu text bg
+		RAMpal[dvc(6)] = _RGB(13,14,14);//menu selected text
+		RAMpal[dvc(7)] = _RGB(42,60,48);
+		RAMpal[dvc(8)] = _RGB(6,49,35);//highlight on selected menu text
+		
+		byte palrstart= 10*63/255, palrend=166*63/255,
+			 palgstart= 36*63/255, palgend=202*63/255,
+			 palbstart=106*63/255, palbend=240*63/255,
+			 paldivs=7;
+	   
+		jwin_pal[jcBOX]	=dvc(4);
+		jwin_pal[jcLIGHT]  =dvc(5);
+		jwin_pal[jcMEDLT]  =dvc(4);
+		jwin_pal[jcMEDDARK]=dvc(3);
+		jwin_pal[jcDARK]   =dvc(2);
+		jwin_pal[jcBOXFG]  =dvc(1);
+		jwin_pal[jcTITLEL] =dvc(3);
+		jwin_pal[jcTITLER] =dvc(5);
+		jwin_pal[jcTITLEFG]=dvc(7);
+		jwin_pal[jcTEXTBG] =dvc(5);
+		jwin_pal[jcTEXTFG] =dvc(1);
+		jwin_pal[jcSELBG]  =dvc(8);
+		jwin_pal[jcSELFG]  =dvc(6);
 		jwin_pal[jcCURSORMISC] = dvc(1);
 		jwin_pal[jcCURSOROUTLINE] = dvc(2);
 		jwin_pal[jcCURSORLIGHT] = dvc(3);
 		jwin_pal[jcCURSORDARK] = dvc(5);
-    }
-    break;
-    
-    case 99:  //User Defined
-    {
+	}
+	break;
+	
+	case 99:  //User Defined
+	{
 	char themefile[2048] = {0};
 	strcpy(themefile,get_config_string("Theme","theme_filename",""));
 	
@@ -31928,11 +31916,11 @@ int32_t main(int32_t argc,char **argv)
 		RAMpal[dvc(8)] = _RGB(get_config_int("Theme","dvc8_r",6),get_config_int("Theme","dvc8_g",49),get_config_int("Theme","dvc8_b",35));//highlight on selected menu text
 		
 		byte palrstart= 10*63/255, palrend=166*63/255,
-		     palgstart= 36*63/255, palgend=202*63/255,
-		     palbstart=106*63/255, palbend=240*63/255,
-		     paldivs=7;
-	       
-		jwin_pal[jcBOX]    =dvc(get_config_int("Theme","jcbox",4));
+			 palgstart= 36*63/255, palgend=202*63/255,
+			 palbstart=106*63/255, palbend=240*63/255,
+			 paldivs=7;
+		   
+		jwin_pal[jcBOX]	=dvc(get_config_int("Theme","jcbox",4));
 		jwin_pal[jcLIGHT]  =dvc(get_config_int("Theme","jclight",5));
 		jwin_pal[jcMEDLT]  =dvc(get_config_int("Theme","jcmedlt",4));
 		jwin_pal[jcMEDDARK]=dvc(get_config_int("Theme","jcmeddark",3));
@@ -31964,11 +31952,11 @@ int32_t main(int32_t argc,char **argv)
 		RAMpal[dvc(8)] = _RGB(get_config_int("Theme","dvc8_r",6),get_config_int("Theme","dvc8_g",49),get_config_int("Theme","dvc8_b",35));//highlight on selected menu text
 		
 		byte palrstart= 10*63/255, palrend=166*63/255,
-		     palgstart= 36*63/255, palgend=202*63/255,
-		     palbstart=106*63/255, palbend=240*63/255,
-		     paldivs=7;
-	       
-		jwin_pal[jcBOX]    =dvc(get_config_int("Theme","jcbox",4));
+			 palgstart= 36*63/255, palgend=202*63/255,
+			 palbstart=106*63/255, palbend=240*63/255,
+			 paldivs=7;
+		   
+		jwin_pal[jcBOX]	=dvc(get_config_int("Theme","jcbox",4));
 		jwin_pal[jcLIGHT]  =dvc(get_config_int("Theme","jclight",5));
 		jwin_pal[jcMEDLT]  =dvc(get_config_int("Theme","jcmedlt",4));
 		jwin_pal[jcMEDDARK]=dvc(get_config_int("Theme","jcmeddark",3));
@@ -31987,200 +31975,215 @@ int32_t main(int32_t argc,char **argv)
 		jwin_pal[jcCURSORDARK] = dvc(get_config_int("Theme","jccursordark",5));
 		set_config_file("zquest.cfg"); //shift back when done
 	}
-    }
-    break;
-    
-    
-    case 201018:  //20-oct-2018, PureZC Expo
-    {
-	    //16,10,0; dark chocolate
-	    //39,19,0 chocolate
-	    //63,23,0 orange
-	    //46,32,4 tan
-        RAMpal[dvc(1)] = _RGB(63,23,0); //box fg is text
-        RAMpal[dvc(2)] = _RGB(16*63/255, 10*63/255, 0*63/255);
-        RAMpal[dvc(3)] = _RGB(39,19,0);
-       // pal[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
-        RAMpal[dvc(4)] = _RGB(16,10,0); //menu background
-        RAMpal[dvc(5)] = _RGB(0,0,0);
-        //pal[dvc(5)] = _RGB(63*63/255, 23*63/255, 0*63/255);
-        //pal[dvc(5)] = _
-        RAMpal[dvc(6)] = _RGB(0,0,0);
-        RAMpal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-        RAMpal[dvc(8)] = _RGB(63,49,0);
-        
-        byte palrstart= 10*63/255, palrend=166*63/255,
-             palgstart= 36*63/255, palgend=202*63/255,
-             palbstart=106*63/255, palbend=240*63/255,
-             paldivs=7;
-        /*     
-        for(int32_t i=0; i<paldivs; i++)
-        {
-            pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-            pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-            pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-        }
-        */
-        jwin_pal[jcBOX]    =dvc(4);
-        jwin_pal[jcLIGHT]  =dvc(5);
-        jwin_pal[jcMEDLT]  =dvc(4);
-        jwin_pal[jcMEDDARK]=dvc(3);
-        jwin_pal[jcDARK]   =dvc(2);
-        jwin_pal[jcBOXFG]  =dvc(1);
-        jwin_pal[jcTITLEL] =dvc(3);
-        jwin_pal[jcTITLER] =dvc(3);
-        jwin_pal[jcTITLEFG]=dvc(7);
-        jwin_pal[jcTEXTBG] =dvc(5);
-        jwin_pal[jcTEXTFG] =dvc(1);
-        jwin_pal[jcSELBG]  =dvc(8);
-        jwin_pal[jcSELFG]  =dvc(6);
+	}
+	break;
+	
+	
+	case 201018:  //20-oct-2018, PureZC Expo
+	{
+		//16,10,0; dark chocolate
+		//39,19,0 chocolate
+		//63,23,0 orange
+		//46,32,4 tan
+		RAMpal[dvc(1)] = _RGB(63,23,0); //box fg is text
+		RAMpal[dvc(2)] = _RGB(16*63/255, 10*63/255, 0*63/255);
+		RAMpal[dvc(3)] = _RGB(39,19,0);
+	   // pal[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
+		RAMpal[dvc(4)] = _RGB(16,10,0); //menu background
+		RAMpal[dvc(5)] = _RGB(0,0,0);
+		//pal[dvc(5)] = _RGB(63*63/255, 23*63/255, 0*63/255);
+		//pal[dvc(5)] = _
+		RAMpal[dvc(6)] = _RGB(0,0,0);
+		RAMpal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
+		RAMpal[dvc(8)] = _RGB(63,49,0);
+		
+		byte palrstart= 10*63/255, palrend=166*63/255,
+			 palgstart= 36*63/255, palgend=202*63/255,
+			 palbstart=106*63/255, palbend=240*63/255,
+			 paldivs=7;
+		/*	 
+		for(int32_t i=0; i<paldivs; i++)
+		{
+			pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+			pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+			pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+		}
+		*/
+		jwin_pal[jcBOX]	=dvc(4);
+		jwin_pal[jcLIGHT]  =dvc(5);
+		jwin_pal[jcMEDLT]  =dvc(4);
+		jwin_pal[jcMEDDARK]=dvc(3);
+		jwin_pal[jcDARK]   =dvc(2);
+		jwin_pal[jcBOXFG]  =dvc(1);
+		jwin_pal[jcTITLEL] =dvc(3);
+		jwin_pal[jcTITLER] =dvc(3);
+		jwin_pal[jcTITLEFG]=dvc(7);
+		jwin_pal[jcTEXTBG] =dvc(5);
+		jwin_pal[jcTEXTFG] =dvc(1);
+		jwin_pal[jcSELBG]  =dvc(8);
+		jwin_pal[jcSELFG]  =dvc(6);
 		jwin_pal[jcCURSORMISC] = dvc(1);
 		jwin_pal[jcCURSOROUTLINE] = dvc(2);
 		jwin_pal[jcCURSORLIGHT] = dvc(3);
 		jwin_pal[jcCURSORDARK] = dvc(5);
-    }
-    break;
-    
-    default:  //Windows 2000
-    {
-        RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-        RAMpal[dvc(2)] = _RGB(66*63/255,  65*63/255,  66*63/255);
-        RAMpal[dvc(3)] = _RGB(132*63/255, 130*63/255, 132*63/255);
-        RAMpal[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
-        RAMpal[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-        RAMpal[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-        RAMpal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-        RAMpal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
-        
-        byte palrstart= 10*63/255, palrend=166*63/255,
-             palgstart= 36*63/255, palgend=202*63/255,
-             palbstart=106*63/255, palbend=240*63/255,
-             paldivs=7;
-             
-        for(int32_t i=0; i<paldivs; i++)
-        {
-            RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-            RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-        }
-        
-        jwin_pal[jcBOX]    =dvc(4);
-        jwin_pal[jcLIGHT]  =dvc(5);
-        jwin_pal[jcMEDLT]  =dvc(4);
-        jwin_pal[jcMEDDARK]=dvc(3);
-        jwin_pal[jcDARK]   =dvc(2);
-        jwin_pal[jcBOXFG]  =dvc(1);
-        jwin_pal[jcTITLEL] =dvc(9);
-        jwin_pal[jcTITLER] =dvc(15);
-        jwin_pal[jcTITLEFG]=dvc(7);
-        jwin_pal[jcTEXTBG] =dvc(5);
-        jwin_pal[jcTEXTFG] =dvc(1);
-        jwin_pal[jcSELBG]  =dvc(8);
-        jwin_pal[jcSELFG]  =dvc(6);
+	}
+	break;
+	
+	default:  //Windows 2000
+	{
+		RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
+		RAMpal[dvc(2)] = _RGB(66*63/255,  65*63/255,  66*63/255);
+		RAMpal[dvc(3)] = _RGB(132*63/255, 130*63/255, 132*63/255);
+		RAMpal[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
+		RAMpal[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
+		RAMpal[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
+		RAMpal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
+		RAMpal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
+		
+		byte palrstart= 10*63/255, palrend=166*63/255,
+			 palgstart= 36*63/255, palgend=202*63/255,
+			 palbstart=106*63/255, palbend=240*63/255,
+			 paldivs=7;
+			 
+		for(int32_t i=0; i<paldivs; i++)
+		{
+			RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+			RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+		}
+		
+		jwin_pal[jcBOX]	=dvc(4);
+		jwin_pal[jcLIGHT]  =dvc(5);
+		jwin_pal[jcMEDLT]  =dvc(4);
+		jwin_pal[jcMEDDARK]=dvc(3);
+		jwin_pal[jcDARK]   =dvc(2);
+		jwin_pal[jcBOXFG]  =dvc(1);
+		jwin_pal[jcTITLEL] =dvc(9);
+		jwin_pal[jcTITLER] =dvc(15);
+		jwin_pal[jcTITLEFG]=dvc(7);
+		jwin_pal[jcTEXTBG] =dvc(5);
+		jwin_pal[jcTEXTFG] =dvc(1);
+		jwin_pal[jcSELBG]  =dvc(8);
+		jwin_pal[jcSELFG]  =dvc(6);
 		jwin_pal[jcCURSORMISC] = dvc(1);
 		jwin_pal[jcCURSOROUTLINE] = dvc(2);
 		jwin_pal[jcCURSORLIGHT] = dvc(3);
 		jwin_pal[jcCURSORDARK] = dvc(5);
-    }
-    break;
-    }
-    
-    gui_bg_color=jwin_pal[jcBOX];
-    gui_fg_color=jwin_pal[jcBOXFG];
-    gui_mg_color=jwin_pal[jcMEDDARK];
-    
-    jwin_set_colors(jwin_pal);
-    set_palette(RAMpal);
-    clear_to_color(screen,vc(0));
-    
-    //clear the midis (to keep loadquest from crashing by trying to destroy a garbage midi)
-    for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; ++i)
-    {
-        customtunes[i].data=NULL;
-    }
-    
-    for(int32_t i=0; i<WAV_COUNT; i++)
-    {
-        customsfxdata[i].data=NULL;
-        sfx_string[i] = new char[36];
-        memset(sfx_string[i], 0, 36);
-    }
-    
-    for(int32_t i=0; i<WPNCNT; i++)
-    {
-        weapon_string[i] = new char[64];
-        memset(weapon_string[i], 0, 64);
-    }
-    
-    for(int32_t i=0; i<ITEMCNT; i++)
-    {
-        item_string[i] = new char[64];
-        memset(item_string[i], 0, 64);
-    }
-    
-    for(int32_t i=0; i<eMAXGUYS; i++)
-    {
-        guy_string[i] = new char[64];
-        memset(guy_string[i], 0, 64);
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTFFC; i++)
-    {
-        ffscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTITEM; i++)
-    {
-        itemscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
-    {
-        guyscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        lwpnscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        ewpnscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
-    {
-        screenscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
-    {
-        globalscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTLINK; i++)
-    {
-        linkscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
-    {
-        dmapscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
-    {
-        itemspritescripts[i] = new script_data();
-    }
-    for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
-    {
-        comboscripts[i] = new script_data();
-    }
-    
-    zScript = std::string();
-    strcpy(zScriptBytes, "0 Bytes in Buffer");
-    for(int32_t i=0; i<MOUSE_BMP_MAX; i++)
+	}
+	break;
+	}
+	
+	gui_bg_color=jwin_pal[jcBOX];
+	gui_fg_color=jwin_pal[jcBOXFG];
+	gui_mg_color=jwin_pal[jcMEDDARK];
+	
+	jwin_set_colors(jwin_pal);
+	set_palette(RAMpal);
+	clear_to_color(screen,vc(0));
+	
+	//clear the midis (to keep loadquest from crashing by trying to destroy a garbage midi)
+	for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; ++i)
+	{
+		customtunes[i].data=NULL;
+	}
+	
+	for(int32_t i=0; i<WAV_COUNT; i++)
+	{
+		if(sfx_string[i]!=NULL) delete sfx_string[i];
+		customsfxdata[i].data=NULL;
+		sfx_string[i] = new char[36];
+		memset(sfx_string[i], 0, 36);
+	}
+	
+	for(int32_t i=0; i<WPNCNT; i++)
+	{
+		if(weapon_string[i]!=NULL) delete weapon_string[i];
+		weapon_string[i] = new char[64];
+		memset(weapon_string[i], 0, 64);
+	}
+	
+	for(int32_t i=0; i<ITEMCNT; i++)
+	{
+		if(item_string[i]!=NULL) delete item_string[i];
+		item_string[i] = new char[64];
+		memset(item_string[i], 0, 64);
+	}
+	
+	for(int32_t i=0; i<eMAXGUYS; i++)
+	{
+		if(guy_string[i]!=NULL) delete guy_string[i];
+		guy_string[i] = new char[64];
+		memset(guy_string[i], 0, 64);
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
+	{
+		if(ffscripts[i]!=NULL) delete ffscripts[i];
+		ffscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
+	{
+		if(itemscripts[i]!=NULL) delete itemscripts[i];
+		itemscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
+	{
+		if(guyscripts[i]!=NULL) delete guyscripts[i];
+		guyscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
+		lwpnscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
+		ewpnscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
+	{
+		if(screenscripts[i]!=NULL) delete screenscripts[i];
+		screenscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
+	{
+		if(globalscripts[i]!=NULL) delete globalscripts[i];
+		globalscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTLINK; i++)
+	{
+		if(linkscripts[i]!=NULL) delete linkscripts[i];
+		linkscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
+	{
+		if(dmapscripts[i]!=NULL) delete dmapscripts[i];
+		dmapscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+	{
+		if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
+		itemspritescripts[i] = new script_data();
+	}
+	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
+	{
+		if(comboscripts[i]!=NULL) delete comboscripts[i];
+		comboscripts[i] = new script_data();
+	}
+	
+	zScript = std::string();
+	strcpy(zScriptBytes, "0 Bytes in Buffer");
+	for(int32_t i=0; i<MOUSE_BMP_MAX; i++)
 	{
 		for(int32_t j=0; j<4; j++)
 		{
@@ -32188,182 +32191,182 @@ int32_t main(int32_t argc,char **argv)
 			mouse_bmp_1x[i][j] = NULL;
 		}
 	}
-    load_mice();
-    gui_mouse_focus=0;
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-    show_mouse(screen);
-    //Display annoying beta warning message
+	load_mice();
+	gui_mouse_focus=0;
+	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	show_mouse(screen);
+	//Display annoying beta warning message
 #if V_ZC_ALPHA
-    char *curcontrol = getBetaControlString();
-    const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
-    
-    if(strcmp(curcontrol, oldcontrol))
-    {
-        jwin_alert("       !!WARNING - This is ALPHA!!", "This version of ZQuest might corrupt your quest or crash.", "Features might change or disappear with no warning.", "Build quests at your OWN RISK!", "OK", NULL, 0, 0, lfont);
-    }
-
-//    FFCore.ZScriptConsole(true);
-
-    
-    delete[] curcontrol;
-#elif V_ZC_BETA
-    char *curcontrol = getBetaControlString();
-    const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
-    
-    if(strcmp(curcontrol, oldcontrol))
-    {
-        jwin_alert("       !!WARNING - This is BETA!!", "This version of ZQuest might corrupt your quest or crash.", "Features might change or disappear with no warning.", "Build quests at your OWN RISK!", "OK", NULL, 0, 0, lfont);
-    }
-
-//    FFCore.ZScriptConsole(true);
-
-    
-    delete[] curcontrol;
-#endif
-    
-    // A bit of festivity
-    {
-        time_t rawtime;
-        time(&rawtime);
-        
-        if(strncmp(ctime(&rawtime)+4,"Jan  1",6)==0)
-        {
-            jwin_alert("Hooray!", "Happy New Year!", NULL, NULL, "OK", NULL, 0, 0, lfont);
-        }
-    }
-    
-    load_icons();
+	char *curcontrol = getBetaControlString();
+	const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
 	
-    bool load_last_timed_save=false;
-    
-    if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
-    {
-        if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',lfont)==1)
-        {
-            int32_t ret = load_quest(last_timed_save,true,true);
-            
-            if(ret == qe_OK)
-            {
-                replace_extension(filepath,last_timed_save,"qst",2047);
-                load_last_timed_save=true;
-                saved=false;
-            }
-            else
-            {
-                jwin_alert("Error","Unable to reload the last timed save.",NULL,NULL,"OK",NULL,13,27,lfont);
-            }
-        }
-    }
-    
-    if(!load_last_timed_save)
-    {
-        strcpy(filepath,get_config_string("zquest",last_quest_name,""));
-        
-        if(argc>1 && argv[1][0]!='-')
-        {
-            replace_extension(temppath,argv[1],"qst",2047);
-            int32_t ret = load_quest(temppath,true,true);
-            
-            if(ret == qe_OK)
-            {
-                first_save=true;
-                strcpy(filepath,temppath);
-                refresh(rALL);
-            }
-        }
-        else if(OpenLastQuest&&filepath[0]&&exists(filepath)&&!used_switch(argc,argv,"-new"))
-        {
-            int32_t ret = load_quest(filepath,true,true);
-            
-            if(ret == qe_OK)
-            {
-                first_save=true;
-                refresh(rALL);
-            }
-            else
-            {
-                filepath[0]=temppath[0]=0;
-                first_save=false;
-#ifdef ALLEGRO_MACOSX
-                sprintf(filepath, "../../../");
-                sprintf(temppath, "../");
+	if(strcmp(curcontrol, oldcontrol))
+	{
+		jwin_alert("	   !!WARNING - This is ALPHA!!", "This version of ZQuest might corrupt your quest or crash.", "Features might change or disappear with no warning.", "Build quests at your OWN RISK!", "OK", NULL, 0, 0, lfont);
+	}
+
+//	FFCore.ZScriptConsole(true);
+
+	
+	delete[] curcontrol;
+#elif V_ZC_BETA
+	char *curcontrol = getBetaControlString();
+	const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
+	
+	if(strcmp(curcontrol, oldcontrol))
+	{
+		jwin_alert("	   !!WARNING - This is BETA!!", "This version of ZQuest might corrupt your quest or crash.", "Features might change or disappear with no warning.", "Build quests at your OWN RISK!", "OK", NULL, 0, 0, lfont);
+	}
+
+//	FFCore.ZScriptConsole(true);
+
+	
+	delete[] curcontrol;
 #endif
-            }
-        }
-        else
-        {
-            init_quest(NULL);
-            
-            if(RulesetDialog)
-                PickRuleset();
-                
-            //otherwise the blank quest gets the name of the last loaded quest... not good! -DD
-            filepath[0]=temppath[0]=0;
-            first_save=false;
+	
+	// A bit of festivity
+	{
+		time_t rawtime;
+		time(&rawtime);
+		
+		if(strncmp(ctime(&rawtime)+4,"Jan  1",6)==0)
+		{
+			jwin_alert("Hooray!", "Happy New Year!", NULL, NULL, "OK", NULL, 0, 0, lfont);
+		}
+	}
+	
+	load_icons();
+	
+	bool load_last_timed_save=false;
+	
+	if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
+	{
+		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',lfont)==1)
+		{
+			int32_t ret = load_quest(last_timed_save,true,true);
+			
+			if(ret == qe_OK)
+			{
+				replace_extension(filepath,last_timed_save,"qst",2047);
+				load_last_timed_save=true;
+				saved=false;
+			}
+			else
+			{
+				jwin_alert("Error","Unable to reload the last timed save.",NULL,NULL,"OK",NULL,13,27,lfont);
+			}
+		}
+	}
+	
+	if(!load_last_timed_save)
+	{
+		strcpy(filepath,get_config_string("zquest",last_quest_name,""));
+		
+		if(argc>1 && argv[1][0]!='-')
+		{
+			replace_extension(temppath,argv[1],"qst",2047);
+			int32_t ret = load_quest(temppath,true,true);
+			
+			if(ret == qe_OK)
+			{
+				first_save=true;
+				strcpy(filepath,temppath);
+				refresh(rALL);
+			}
+		}
+		else if(OpenLastQuest&&filepath[0]&&exists(filepath)&&!used_switch(argc,argv,"-new"))
+		{
+			int32_t ret = load_quest(filepath,true,true);
+			
+			if(ret == qe_OK)
+			{
+				first_save=true;
+				refresh(rALL);
+			}
+			else
+			{
+				filepath[0]=temppath[0]=0;
+				first_save=false;
 #ifdef ALLEGRO_MACOSX
-            sprintf(filepath, "../../../");
-            sprintf(temppath, "../");
+				sprintf(filepath, "../../../");
+				sprintf(temppath, "../");
 #endif
-        }
-    }
-    
-    for(int32_t x=0; x<MAXITEMS; x++)
-    {
-        lens_hint_item[x][0]=0;
-        lens_hint_item[x][1]=0;
-    }
-    
-    for(int32_t x=0; x<MAXWPNS; x++)
-    {
-        lens_hint_weapon[x][0]=0;
-        lens_hint_weapon[x][1]=0;
-    }
-    
-    load_selections();
-    load_arrows();
-    clear_to_color(menu1,vc(0));
-    refresh(rALL);
-    DIALOG_PLAYER *player2=init_dialog(dialogs,-1);
-    
-    get_palette(RAMpal);
-    
-    rgb_map = &zq_rgb_table;
-    
-    Map.setCurrMap(zinit.last_map);
-    Map.setCurrScr(zinit.last_screen);
-    //  setup_combo_animations();
-    refresh(rALL);
-    brush_width_menu[0].flags=D_SELECTED;
-    brush_height_menu[0].flags=D_SELECTED;
-    fill_menu[1].flags=D_SELECTED;
-    
-    rebuild_trans_table();
-    
-    set_display_switch_mode(SWITCH_BACKGROUND);
-    set_display_switch_callback(SWITCH_OUT, switch_out);
-    set_display_switch_callback(SWITCH_IN, switch_in);
-    
-    quit=!update_dialog(player2);
-    //clear_keybuf();
-    etc_menu[10].flags=commands[cmdChangeTrack].flags=D_DISABLED;
-    
-    fix_drawing_mode_menu();
-    
-    
+			}
+		}
+		else
+		{
+			init_quest(NULL);
+			
+			if(RulesetDialog)
+				PickRuleset();
+				
+			//otherwise the blank quest gets the name of the last loaded quest... not good! -DD
+			filepath[0]=temppath[0]=0;
+			first_save=false;
+#ifdef ALLEGRO_MACOSX
+			sprintf(filepath, "../../../");
+			sprintf(temppath, "../");
+#endif
+		}
+	}
+	
+	for(int32_t x=0; x<MAXITEMS; x++)
+	{
+		lens_hint_item[x][0]=0;
+		lens_hint_item[x][1]=0;
+	}
+	
+	for(int32_t x=0; x<MAXWPNS; x++)
+	{
+		lens_hint_weapon[x][0]=0;
+		lens_hint_weapon[x][1]=0;
+	}
+	
+	load_selections();
+	load_arrows();
+	clear_to_color(menu1,vc(0));
+	refresh(rALL);
+	DIALOG_PLAYER *player2=init_dialog(dialogs,-1);
+	
+	get_palette(RAMpal);
+	
+	rgb_map = &zq_rgb_table;
+	
+	Map.setCurrMap(zinit.last_map);
+	Map.setCurrScr(zinit.last_screen);
+	//  setup_combo_animations();
+	refresh(rALL);
+	brush_width_menu[0].flags=D_SELECTED;
+	brush_height_menu[0].flags=D_SELECTED;
+	fill_menu[1].flags=D_SELECTED;
+	
+	rebuild_trans_table();
+	
+	set_display_switch_mode(SWITCH_BACKGROUND);
+	set_display_switch_callback(SWITCH_OUT, switch_out);
+	set_display_switch_callback(SWITCH_IN, switch_in);
+	
+	quit=!update_dialog(player2);
+	//clear_keybuf();
+	etc_menu[10].flags=commands[cmdChangeTrack].flags=D_DISABLED;
+	
+	fix_drawing_mode_menu();
+	
+	
 #ifdef _WIN32
-    
-    if(zqUseWin32Proc != FALSE)
-    {
-        al_trace("Config file warning: \"zq_win_proc_fix\" enabled switch found. This can cause crashes on some computers.\n");
-        win32data.zqSetDefaultThreadPriority(0);
-        win32data.zqSetCustomCallbackProc(win_get_window());
-    }
-    
+	
+	if(zqUseWin32Proc != FALSE)
+	{
+		al_trace("Config file warning: \"zq_win_proc_fix\" enabled switch found. This can cause crashes on some computers.\n");
+		win32data.zqSetDefaultThreadPriority(0);
+		win32data.zqSetCustomCallbackProc(win_get_window());
+	}
+	
 #endif
-    
-    time(&auto_save_time_start);
-    
-    FFCore.init();
+	
+	time(&auto_save_time_start);
+	
+	FFCore.init();
 	ZQincludePaths = FFCore.includePaths;
 	
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
@@ -32375,44 +32378,44 @@ int32_t main(int32_t argc,char **argv)
 		dialogs[0].dp = (void *) the_menu;
 	}
 	else dialogs[0].dp = (void *) the_menu_large;
-        */
+		*/
 	
 	
 	call_foo_dlg();
-    while(!quit)
-    {
-    
+	while(!quit)
+	{
+	
 #ifdef _WIN32
-    
-        try   // I *think* it might throw here.
-        {
-            if(zqUseWin32Proc != FALSE)
-                win32data.Update(Frameskip); //experimental win32 fixes
-        }
-        catch(...)
-        {
-            set_gfx_mode(GFX_TEXT,0,0,0,0);
-            allegro_message("ZQ-Windows Fatal Error: Set \"zq_win_proc_fix = 0\" in config file.");
-            exit(1);
-        }
-        
+	
+		try   // I *think* it might throw here.
+		{
+			if(zqUseWin32Proc != FALSE)
+				win32data.Update(Frameskip); //experimental win32 fixes
+		}
+		catch(...)
+		{
+			set_gfx_mode(GFX_TEXT,0,0,0,0);
+			allegro_message("ZQ-Windows Fatal Error: Set \"zq_win_proc_fix = 0\" in config file.");
+			exit(1);
+		}
+		
 #endif
-        
-        check_autosave();
-        /*
+		
+		check_autosave();
+		/*
 	if (!is_large) 
 	{
 		dialogs[0].dp = (void *) the_menu;
 	}
 	else
 		dialogs[0].dp = (void *) the_menu_large;
-        */
-        ++alignment_arrow_timer;
-        
-        if(alignment_arrow_timer>63)
-        {
-            alignment_arrow_timer=0;
-        }
+		*/
+		++alignment_arrow_timer;
+		
+		if(alignment_arrow_timer>63)
+		{
+			alignment_arrow_timer=0;
+		}
 
 	/* Notice: Adjust and Update these values if you hae modified any of the following, where
 		your modifications hae inserted or removed ANY entries. 
@@ -32426,110 +32429,110 @@ int32_t main(int32_t argc,char **argv)
 		maps_menu[]
 	*/
 	
-        file_menu[2].flags =
-            file_menu[4].flags =
-                dialogs[16].flags =
-                    commands[cmdSave].flags =
-                        commands[cmdRevert].flags = (saved | disable_saving|OverwriteProtection) ? D_DISABLED : 0;
-                        
-        file_menu[3].flags =
-            commands[cmdSaveAs].flags = disable_saving ? D_DISABLED : 0;
-            
-        edit_menu[0].flags =
-            commands[cmdUndo].flags = Map.CanUndo() ? 0 : D_DISABLED;
-            
-        edit_menu[2].flags =
-            edit_menu[3].flags =
-                edit_menu[4].flags =
-                    edit_menu[5].flags =
-                        paste_menu[0].flags =
-                            paste_menu[1].flags =
-                                paste_item_menu[0].flags =
-                                    paste_item_menu[1].flags =
-                                        paste_item_menu[2].flags =
-                                            paste_item_menu[3].flags =
-                                                paste_item_menu[4].flags =
-                                                        paste_item_menu[5].flags =
-                                                                paste_item_menu[6].flags =
-                                                                        paste_item_menu[7].flags =
-                                                                                paste_item_menu[8].flags =
-                                                                                        paste_item_menu[9].flags =
-                                                                                                paste_item_menu[10].flags =
-                                                                                                        commands[cmdPaste].flags =
-                                                                                                                commands[cmdPasteAll].flags =
-                                                                                                                        commands[cmdPasteToAll].flags =
-                                                                                                                                commands[cmdPasteAllToAll].flags =
-                                                                                                                                        commands[cmdPasteUnderCombo].flags =
-                                                                                                                                                commands[cmdPasteSecretCombos].flags =
-                                                                                                                                                        commands[cmdPasteFFCombos].flags =
-                                                                                                                                                                commands[cmdPasteScreenData].flags =
-                                                                                                                                                                        commands[cmdPasteWarps].flags =
-                                                                                                                                                                                commands[cmdPasteWarpLocations].flags =
-                                                                                                                                                                                        commands[cmdPasteEnemies].flags =
-                                                                                                                                                                                                commands[cmdPasteRoom].flags =
-                                                                                                                                                                                                        commands[cmdPasteGuy].flags =
-                                                                                                                                                                                                                commands[cmdPasteDoors].flags =
-                                                                                                                                                                                                                        commands[cmdPasteLayers].flags = Map.CanPaste() ? 0 : D_DISABLED;
-                                                                                                                                                                                                                        
-        edit_menu[1].flags =
-            edit_menu[6].flags =
-                commands[cmdCopy].flags =
-                    commands[cmdDelete].flags = (Map.CurrScr()->valid&mVALID) ? 0 : D_DISABLED;
-                    
-        tool_menu[0].flags =
-            //data_menu[7].flags = //Allow setting doors on template screens > 0x82. -Z ( 24th March, 2019 )
-                commands[cmdTemplate].flags = (Map.getCurrScr()<TEMPLATE) ? 0 : D_DISABLED;
-                    
+		file_menu[2].flags =
+			file_menu[4].flags =
+				dialogs[16].flags =
+					commands[cmdSave].flags =
+						commands[cmdRevert].flags = (saved | disable_saving|OverwriteProtection) ? D_DISABLED : 0;
+						
+		file_menu[3].flags =
+			commands[cmdSaveAs].flags = disable_saving ? D_DISABLED : 0;
+			
+		edit_menu[0].flags =
+			commands[cmdUndo].flags = Map.CanUndo() ? 0 : D_DISABLED;
+			
+		edit_menu[2].flags =
+		    edit_menu[3].flags =
+			edit_menu[4].flags =
+			    edit_menu[5].flags =
+				paste_menu[0].flags =
+				    paste_menu[1].flags =
+					paste_item_menu[0].flags =
+					    paste_item_menu[1].flags =
+						paste_item_menu[2].flags =
+						    paste_item_menu[3].flags =
+							paste_item_menu[4].flags =
+							    paste_item_menu[5].flags =
+								    paste_item_menu[6].flags =
+									paste_item_menu[7].flags =
+									    paste_item_menu[8].flags =
+										paste_item_menu[9].flags =
+										    paste_item_menu[10].flags =
+											commands[cmdPaste].flags =
+											    commands[cmdPasteAll].flags =
+												commands[cmdPasteToAll].flags =
+												    commands[cmdPasteAllToAll].flags =
+													commands[cmdPasteUnderCombo].flags =
+													    commands[cmdPasteSecretCombos].flags =
+														commands[cmdPasteFFCombos].flags =
+														    commands[cmdPasteScreenData].flags =
+															commands[cmdPasteWarps].flags =
+															    commands[cmdPasteWarpLocations].flags =
+																commands[cmdPasteEnemies].flags =
+																    commands[cmdPasteRoom].flags =
+																	commands[cmdPasteGuy].flags =
+																	    commands[cmdPasteDoors].flags =
+																		commands[cmdPasteLayers].flags = Map.CanPaste() ? 0 : D_DISABLED;
+                                                                                																																		
+		edit_menu[1].flags =
+			edit_menu[6].flags =
+				commands[cmdCopy].flags =
+					commands[cmdDelete].flags = (Map.CurrScr()->valid&mVALID) ? 0 : D_DISABLED;
+					
+		tool_menu[0].flags =
+			//data_menu[7].flags = //Allow setting doors on template screens > 0x82. -Z ( 24th March, 2019 )
+				commands[cmdTemplate].flags = (Map.getCurrScr()<TEMPLATE) ? 0 : D_DISABLED;
+					
 	data_menu[7].flags = //Allow setting doors on template screens > 0x82. -Z ( 1st July, 2019 )
 		commands[cmdDoors].flags = (Map.getCurrScr()<0x88) ? 0 : D_DISABLED;
 		
-        defs_menu[1].flags =
-            commands[cmdDefault_Tiles].flags = 0;
-            
-        // Are some things selected?
-        view_menu[3].flags=(Flags&cWALK)?D_SELECTED:0; // Show Walkability
-        view_menu[4].flags=(Flags&cFLAGS)?D_SELECTED:0; // Show Flags
-        view_menu[5].flags=(Flags&cCSET)?D_SELECTED:0; // Show CSet
-        view_menu[6].flags=(Flags&cCTYPE)?D_SELECTED:0; // Show Type
-        view_menu[11].flags=(ShowGrid)?D_SELECTED:0; // Show Grid
-        view_menu[12].flags=(ViewLayer3BG)?D_SELECTED:0; // Show Grid
-        view_menu[13].flags=(ViewLayer2BG)?D_SELECTED:0; // Show Grid
-        view_menu[10].flags=(ShowFFScripts)?D_SELECTED:0; // Show Script Names
-        view_menu[9].flags=(ShowSquares)?D_SELECTED:0; // Show Squares
-        view_menu[8].flags=(!is_large)?D_DISABLED:(ShowInfo)?D_SELECTED:0; // Show Info
-        
-        maps_menu[1].flags=(Map.getCurrMap()<map_count && map_count>0) ? 0 : D_DISABLED;
-        maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
-        
-        etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
-        
-        quit = !update_dialog(player2);
-        
-        //clear_keybuf();
-        if(close_button_quit)
-        {
-            close_button_quit=false;
-            
-            if(onExit()==D_CLOSE)
-            {
-                quit=true;
-            }
-        }
-    }
-    
+		defs_menu[1].flags =
+			commands[cmdDefault_Tiles].flags = 0;
+			
+		// Are some things selected?
+		view_menu[3].flags=(Flags&cWALK)?D_SELECTED:0; // Show Walkability
+		view_menu[4].flags=(Flags&cFLAGS)?D_SELECTED:0; // Show Flags
+		view_menu[5].flags=(Flags&cCSET)?D_SELECTED:0; // Show CSet
+		view_menu[6].flags=(Flags&cCTYPE)?D_SELECTED:0; // Show Type
+		view_menu[11].flags=(ShowGrid)?D_SELECTED:0; // Show Grid
+		view_menu[12].flags=(ViewLayer3BG)?D_SELECTED:0; // Show Grid
+		view_menu[13].flags=(ViewLayer2BG)?D_SELECTED:0; // Show Grid
+		view_menu[10].flags=(ShowFFScripts)?D_SELECTED:0; // Show Script Names
+		view_menu[9].flags=(ShowSquares)?D_SELECTED:0; // Show Squares
+		view_menu[8].flags=(!is_large)?D_DISABLED:(ShowInfo)?D_SELECTED:0; // Show Info
+		
+		maps_menu[1].flags=(Map.getCurrMap()<map_count && map_count>0) ? 0 : D_DISABLED;
+		maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
+		
+		etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
+		
+		quit = !update_dialog(player2);
+		
+		//clear_keybuf();
+		if(close_button_quit)
+		{
+			close_button_quit=false;
+			
+			if(onExit()==D_CLOSE)
+			{
+				quit=true;
+			}
+		}
+	}
+	
 #ifndef ALLEGRO_DOS
-    zqwin_set_scale(1);
+	zqwin_set_scale(1);
 #endif
-    
-    
-    quit_game();
-    
-    if(ForceExit) //last resort fix to the allegro process hanging bug.
-        exit(0);
-        
-    allegro_exit();
-    
-    return 0;
+	
+	
+	quit_game();
+	
+	if(ForceExit) //last resort fix to the allegro process hanging bug.
+		exit(0);
+		
+	allegro_exit();
+	
+	return 0;
 // memset(qtpathtitle,0,10);//UNREACHABLE
 }
 

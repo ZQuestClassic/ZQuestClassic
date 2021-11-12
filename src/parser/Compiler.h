@@ -93,7 +93,7 @@ namespace ZScript
 	struct disassembled_script_data
 	{
 		zasm_meta first;
-		std::vector<ZScript::Opcode*> second;
+		std::vector<std::shared_ptr<ZScript::Opcode>> second;
 		byte format;
 		std::string formatName(std::string name)
 		{
@@ -155,8 +155,8 @@ namespace ZScript
 		static int32_t const recursionLimit = 30;
 	private:
 		static std::string prepareFilename(std::string const& filename);
-		static std::vector<Opcode *> assembleOne(
-				Program& program, std::vector<Opcode*> script,
+		static std::vector<std::shared_ptr<Opcode>> assembleOne(
+				Program& program, std::vector<std::shared_ptr<Opcode>> script,
 				int32_t numparams);
 		static int32_t vid;
 		static int32_t fid;

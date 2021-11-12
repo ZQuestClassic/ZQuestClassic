@@ -13,6 +13,7 @@ using std::pair;
 using std::string;
 using std::vector;
 using std::list;
+using std::shared_ptr;
 
 /////////////////////////////////////////////////////////////////////////////////
 // BuildOpcodes
@@ -23,6 +24,12 @@ BuildOpcodes::BuildOpcodes(Scope* curScope)
 {
 	opcodeTargets.push_back(&result);
 	scope = curScope;
+}
+
+void addOpcode2(vector<shared_ptr<Opcode>>& v, Opcode* code)
+{
+	shared_ptr<Opcode> op(code);
+	v.push_back(op);
 }
 
 void BuildOpcodes::visit(AST& node, void* param)
@@ -65,13 +72,19 @@ void BuildOpcodes::caseDefault(AST&, void*)
 
 void BuildOpcodes::addOpcode(Opcode* code)
 {
+	std::shared_ptr<Opcode> op(code);
+	opcodeTargets.back()->push_back(op);
+}
+
+void BuildOpcodes::addOpcode(std::shared_ptr<Opcode> &code)
+{
 	opcodeTargets.back()->push_back(code);
 }
 
 template <class Container>
-void BuildOpcodes::addOpcodes(Container const& container)
+void BuildOpcodes::addOpcodes(Container &container)
 {
-	for (typename Container::const_iterator it = container.begin();
+	for (auto it = container.begin();
 		 it != container.end(); ++it)
 		addOpcode(*it);
 }
@@ -368,14 +381,15 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	{
 		visit(cases.back()->block.get(), param);
 		// Add ending label, for 'break;'
-		Opcode *next = new ONoOp();
+		std::shared_ptr<Opcode> next = std::make_shared<ONoOp>();
 		next->setLabel(end_label);
 		result.push_back(next);
 		return;
 	}
 	
 	//Continue
-	result.push_back(new OSetRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+	
+	addOpcode2(result, new OSetRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
 
 	// Add the tests and jumps.
 	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
@@ -394,15 +408,15 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			// Test this individual case.
 			if(optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 			{
-				result.push_back(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
+				addOpcode2(result, new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
 			}
 			else //Shouldn't ever happen?
 			{
 				visit(*it, param);
-				result.push_back(new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+				addOpcode2(result, new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
 			}
 			// If the test succeeds, jump to its label.
-			result.push_back(new OGotoTrueImmediate(new LabelArgument(label)));
+			addOpcode2(result, new OGotoTrueImmediate(new LabelArgument(label)));
 		}
 		for (vector<ASTRange*>::iterator it = cases->ranges.begin();
 			it != cases->ranges.end();
@@ -413,32 +427,32 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			//Test each full range
 			if(optional<int32_t> val = (*range.start).getCompileTimeValue(this, scope))  //Compare key to lower bound
 			{
-				result.push_back(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
+				addOpcode2(result, new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
 			}
 			else //Shouldn't ever happen?
 			{
 				visit(*range.start, param);
-				result.push_back(new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+				addOpcode2(result, new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
 			}
-			result.push_back(new OSetMore(new VarArgument(EXP1))); //Set if key is IN the bound
-			result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
-			result.push_back(new OGotoTrueImmediate(new LabelArgument(skipLabel))); //Skip if key is OUT of the bound
+			addOpcode2(result, new OSetMore(new VarArgument(EXP1))); //Set if key is IN the bound
+			addOpcode2(result, new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
+			addOpcode2(result, new OGotoTrueImmediate(new LabelArgument(skipLabel))); //Skip if key is OUT of the bound
 			
 			if(optional<int32_t> val = (*range.end).getCompileTimeValue(this, scope))  //Compare key to upper bound
 			{
-				result.push_back(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
+				addOpcode2(result, new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
 			}
 			else //Shouldn't ever happen?
 			{
 				visit(*range.end, param);
-				result.push_back(new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+				addOpcode2(result, new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
 			}
-			result.push_back(new OSetLess(new VarArgument(EXP1)	)); //Set if key is IN the bound
-			result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
-			result.push_back(new OGotoFalseImmediate(new LabelArgument(label))); //If key is in bounds, jump to its label
+			addOpcode2(result, new OSetLess(new VarArgument(EXP1)	)); //Set if key is IN the bound
+			addOpcode2(result, new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
+			addOpcode2(result, new OGotoFalseImmediate(new LabelArgument(label))); //If key is in bounds, jump to its label
 			Opcode *end = new ONoOp(); //Just here so the skip label can be placed
 			end->setLabel(skipLabel);
-			result.push_back(end); //add the skip label
+			addOpcode2(result, end); //add the skip label
 		}
 
 		// If this set includes the default case, mark it.
@@ -447,7 +461,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	}
 
 	// Add direct jump to default case (or end if there isn't one.).
-	result.push_back(new OGotoImmediate(new LabelArgument(default_label)));
+	addOpcode2(result, new OGotoImmediate(new LabelArgument(default_label)));
 
 	// Add the actual code branches.
 	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
@@ -457,7 +471,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 		// Mark start of the block we're adding.
 		int32_t block_start_index = result.size();
 		// Make a nop for starting the block.
-		result.push_back(new ONoOp());
+		addOpcode2(result, new ONoOp());
 		result[block_start_index]->setLabel(labels[cases]);
 		// Add block.
 		visit(cases->block.get(), param);
@@ -466,7 +480,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	// Add ending label.
     Opcode *next = new ONoOp();
     next->setLabel(end_label);
-	result.push_back(next);
+	addOpcode2(result, next);
 
 	// Restore break label.
 	breaklabelid = old_break_label;
@@ -501,12 +515,12 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 		// Add ending label, for 'break;'
 		Opcode *next = new ONoOp();
 		next->setLabel(end_label);
-		result.push_back(next);
+		addOpcode2(result, next);
 		return;
 	}
 	
 	//Continue
-	result.push_back(new OSetRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+	addOpcode2(result, new OSetRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
 
 	// Add the tests and jumps.
 	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
@@ -529,9 +543,9 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 			
 			// Compare the strings
 			if(*lookupOption(*scope, CompileOption::OPT_STRING_SWITCH_CASE_INSENSITIVE))
-				result.push_back(new OInternalInsensitiveStringCompare(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+				addOpcode2(result, new OInternalInsensitiveStringCompare(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
 			else
-				result.push_back(new OInternalStringCompare(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
+				addOpcode2(result, new OInternalStringCompare(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
 			
 			//Deallocate string literal
 			deallocateRefsUntilCount(litRefCount);
@@ -539,7 +553,7 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 				arrayRefs.pop_back();
 			
 			//
-			result.push_back(new OGotoTrueImmediate(new LabelArgument(label)));
+			addOpcode2(result, new OGotoTrueImmediate(new LabelArgument(label)));
 		}
 
 		// If this set includes the default case, mark it.
@@ -548,7 +562,7 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 	}
 
 	// Add direct jump to default case (or end if there isn't one.).
-	result.push_back(new OGotoImmediate(new LabelArgument(default_label)));
+	addOpcode2(result, new OGotoImmediate(new LabelArgument(default_label)));
 
 	// Add the actual code branches.
 	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
@@ -558,7 +572,7 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 		// Mark start of the block we're adding.
 		int32_t block_start_index = result.size();
 		// Make a nop for starting the block.
-		result.push_back(new ONoOp());
+		addOpcode2(result, new ONoOp());
 		result[block_start_index]->setLabel(labels[cases]);
 		// Add block.
 		visit(cases->block.get(), param);
@@ -567,7 +581,7 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 	// Add ending label.
     Opcode *next = new ONoOp();
     next->setLabel(end_label);
-	result.push_back(next);
+	addOpcode2(result, next);
 
 	// Restore break label.
 	breaklabelid = old_break_label;
@@ -985,8 +999,8 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
 		
-		vector<Opcode*> const& funcCode = host.readFunction->getCode();
-		for(vector<Opcode*>::const_iterator it = funcCode.begin();
+		std::vector<std::shared_ptr<Opcode>> const& funcCode = host.readFunction->getCode();
+		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
 		{
 			addOpcode((*it)->makeClone());
@@ -1108,8 +1122,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 			
-			vector<Opcode*> const& funcCode = host.binding->getCode();
-			for(vector<Opcode*>::const_iterator it = funcCode.begin();
+			std::vector<std::shared_ptr<Opcode>> const& funcCode = host.binding->getCode();
+			for(auto it = funcCode.begin();
 				it != funcCode.end(); ++it)
 			{
 				addOpcode((*it)->makeClone());
@@ -2119,33 +2133,33 @@ void BuildOpcodes::stringLiteralFree(
 	string data = host.value;
 	int32_t size = data.size() + 1;
 	int32_t offset = *getStackOffset(manager) * 10000L;
-	vector<Opcode*>& init = context.initCode;
+	vector<shared_ptr<Opcode>>& init = context.initCode;
 
 	////////////////////////////////////////////////////////////////
 	// Initialization Code.
 
 	// Allocate.
-	init.push_back(new OAllocateMemImmediate(
+	addOpcode2(init, new OAllocateMemImmediate(
 			               new VarArgument(EXP1),
 			               new LiteralArgument(size * 10000L)));
-	init.push_back(new OSetRegister(new VarArgument(SFTEMP),
+	addOpcode2(init, new OSetRegister(new VarArgument(SFTEMP),
 	                                new VarArgument(SFRAME)));
-	init.push_back(new OAddImmediate(new VarArgument(SFTEMP),
+	addOpcode2(init, new OAddImmediate(new VarArgument(SFTEMP),
 	                                 new LiteralArgument(offset)));
-	init.push_back(new OStoreIndirect(new VarArgument(EXP1),
+	addOpcode2(init, new OStoreIndirect(new VarArgument(EXP1),
 	                                  new VarArgument(SFTEMP)));
 
 	// Initialize.
-	init.push_back(new OSetRegister(new VarArgument(INDEX),
+	addOpcode2(init, new OSetRegister(new VarArgument(INDEX),
 	                                new VarArgument(EXP1)));
 	for (int32_t i = 0; i < (int32_t)data.size(); ++i)
 	{
-		init.push_back(new OWritePODArrayII(
+		addOpcode2(init, new OWritePODArrayII(
 				               new LiteralArgument(i * 10000L),
 				               new LiteralArgument(data[i] * 10000L)));
 	}
 	//Add nullchar
-	init.push_back(new OWritePODArrayII(
+	addOpcode2(init, new OWritePODArrayII(
 			               new LiteralArgument(data.size() * 10000L),
 			               new LiteralArgument(0)));
 
@@ -2308,21 +2322,22 @@ void BuildOpcodes::arrayLiteralFree(
 	// Initialization Code.
 
 	// Allocate.
-	context.initCode.push_back(
+
+	addOpcode2(context.initCode,
 			new OAllocateMemImmediate(new VarArgument(EXP1),
 			                          new LiteralArgument(size * 10000L)));
-	context.initCode.push_back(
+	addOpcode2(context.initCode,
 			new OSetRegister(new VarArgument(SFTEMP),
 			                 new VarArgument(SFRAME)));
-	context.initCode.push_back(
+	addOpcode2(context.initCode,
 			new OAddImmediate(new VarArgument(SFTEMP),
 			                  new LiteralArgument(offset)));
-	context.initCode.push_back(
+	addOpcode2(context.initCode,
 			new OStoreIndirect(new VarArgument(EXP1),
 			                   new VarArgument(SFTEMP)));
 
 	// Initialize.
-	context.initCode.push_back(new OSetRegister(new VarArgument(INDEX),
+	addOpcode2(context.initCode, new OSetRegister(new VarArgument(INDEX),
 	                                            new VarArgument(EXP1)));
 	int32_t i = 0;
 	for (vector<ASTExpr*>::iterator it = host.elements.begin();
@@ -2330,17 +2345,17 @@ void BuildOpcodes::arrayLiteralFree(
 	{
 		if (optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 		{
-			context.initCode.push_back(new OWritePODArrayII(new LiteralArgument(i),
+			addOpcode2(context.initCode, new OWritePODArrayII(new LiteralArgument(i),
 			                                                new LiteralArgument(*val)));
 		}
 		else
 		{
-			context.initCode.push_back(new OPushRegister(new VarArgument(INDEX)));
+			addOpcode2(context.initCode, new OPushRegister(new VarArgument(INDEX)));
 			opcodeTargets.push_back(&context.initCode);
 			visit(*it, &context);
 			opcodeTargets.pop_back();
-			context.initCode.push_back(new OPopRegister(new VarArgument(INDEX)));
-			context.initCode.push_back(new OWritePODArrayIR(new LiteralArgument(i),
+			addOpcode2(context.initCode, new OPopRegister(new VarArgument(INDEX)));
+			addOpcode2(context.initCode, new OWritePODArrayIR(new LiteralArgument(i),
 			                                                new VarArgument(EXP1)));
 		}
 	}
@@ -2390,13 +2405,18 @@ void LValBOHelper::caseDefault(void *)
 
 void LValBOHelper::addOpcode(Opcode* code)
 {
+	addOpcode2(result, code);
+}
+
+void LValBOHelper::addOpcode(std::shared_ptr<Opcode> &code)
+{
 	result.push_back(code);
 }
 
 template <class Container>
-void LValBOHelper::addOpcodes(Container const& container)
+void LValBOHelper::addOpcodes(Container &container)
 {
-	for (typename Container::const_iterator it = container.begin();
+	for (auto it = container.begin();
 		 it != container.end(); ++it)
 		addOpcode(*it);
 }
@@ -2475,8 +2495,8 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
 		
-		vector<Opcode*> const& funcCode = host.writeFunction->getCode();
-		for(vector<Opcode*>::const_iterator it = funcCode.begin();
+		std::vector<std::shared_ptr<Opcode>> const& funcCode = host.writeFunction->getCode();
+		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
 		{
 			addOpcode((*it)->makeClone());
@@ -2543,7 +2563,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 		return;
 	}
 
-	vector<Opcode*> opcodes;
+	vector<shared_ptr<Opcode>> opcodes;
 	BuildOpcodes bo(scope);
 	optional<int32_t> arrVal = host.array->getCompileTimeValue(&bo, scope);
 	optional<int32_t> indxVal = host.index->getCompileTimeValue(&bo, scope);
@@ -2559,7 +2579,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 		BuildOpcodes buildOpcodes1(scope);
 		buildOpcodes1.visit(host.array.get(), param);
 		opcodes = buildOpcodes1.getResult();
-		for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
+		for (auto it = opcodes.begin(); it != opcodes.end(); ++it)
 			addOpcode(*it);
 		if(!indxVal)
 		{
@@ -2573,7 +2593,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 		BuildOpcodes buildOpcodes2(scope);
 		buildOpcodes2.visit(host.index.get(), param);
 		opcodes = buildOpcodes2.getResult();
-		for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
+		for (auto it = opcodes.begin(); it != opcodes.end(); ++it)
 			addOpcode(*it);
 		addOpcode(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1))); //can't be helped, unforunately -V
 	}

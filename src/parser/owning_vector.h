@@ -97,7 +97,8 @@ public:
 	inline void swap(owning_vector& x) {vector_.swap(x.vector_);}
 	inline void clear() {
 		deleteData();
-		vector_.clear();}
+		vector_.clear();
+		vector_.swap(std::vector<Element* >(vector_));}
 	
 private:
 	base_type cloneData() const

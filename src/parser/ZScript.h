@@ -7,6 +7,8 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 
+#include "mem_debug.h"
+
 #define BITS_SP	10
 #define MAX_SCRIPT_REGISTERS	(1<<BITS_SP)
 
@@ -98,7 +100,7 @@ namespace ZScript
 		
 		bool isPrototypeRun() const;
 		
-		std::vector<Opcode*> code;
+		std::vector<std::shared_ptr<Opcode>> code;
 
 	protected:
 		Script(Program& program);
@@ -369,12 +371,12 @@ namespace ZScript
 		Datum* thisVar;
 
 		// Get the opcodes.
-		std::vector<Opcode*> const& getCode() const {return ownedCode;}
+		std::vector<std::shared_ptr<Opcode>> const& getCode() const {return ownedCode;}
 		// Get and remove the code for this function.
-		std::vector<Opcode*> takeCode();
+		std::vector<std::shared_ptr<Opcode>> takeCode();
 		// Add code for this function, transferring ownership.
 		// Clears the input vector.
-		void giveCode(std::vector<Opcode*>& code);
+		void giveCode(std::vector<std::shared_ptr<Opcode>>& code);
 		
 		FunctionSignature getSignature() const {
 			return FunctionSignature(*this);}
@@ -404,7 +406,7 @@ namespace ZScript
 		int32_t flags;
 
 		// Code implementing this function.
-		std::vector<Opcode*> ownedCode;
+		std::vector<std::shared_ptr<Opcode>> ownedCode;
 		friend class ASTFuncDecl;
 	};
 

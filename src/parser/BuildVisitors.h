@@ -9,6 +9,8 @@
 #include <vector>
 #include <set>
 
+void addOpcode2(std::vector<std::shared_ptr<ZScript::Opcode>>& v, ZScript::Opcode* code);
+
 namespace ZScript
 {
 	class BuildOpcodes : public RecursiveVisitor
@@ -88,21 +90,22 @@ namespace ZScript
 		// Types
 		void caseDataType(ASTDataType& host, void* param) {}
 
-		std::vector<Opcode *> getResult() const {return result;}
+		std::vector<std::shared_ptr<Opcode>> getResult() const {return result;}
 		int32_t getReturnLabelID() const {return returnlabelid;}
 		std::list<int32_t> *getArrayRefs() {return &arrayRefs;}
 		std::list<int32_t> const *getArrayRefs() const {return &arrayRefs;}
 
 	private:
 		void addOpcode(Opcode* code);
+		void addOpcode(std::shared_ptr<Opcode> &code);
 
 		template <class Container>
-		void addOpcodes(Container const& container);
+		void addOpcodes(Container &container);
 	
 		void deallocateArrayRef(int32_t arrayRef);
 		void deallocateRefsUntilCount(int32_t count);
 		
-		std::vector<Opcode *> result;
+		std::vector<std::shared_ptr<Opcode>> result;
 		int32_t returnlabelid;
 		int32_t returnRefCount;
 		int32_t continuelabelid;
@@ -111,7 +114,7 @@ namespace ZScript
 		int32_t breakRefCount;
 		std::list<int32_t> arrayRefs;
 		// Stack of opcode targets. Only the latest is used.
-		std::vector<std::vector<Opcode*>*> opcodeTargets;
+		std::vector<std::vector<std::shared_ptr<Opcode>>*> opcodeTargets;
 
 		// Helper Functions.
 
@@ -142,14 +145,15 @@ namespace ZScript
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
 		virtual void caseExprArrow(ASTExprArrow &host, void *param);
 		virtual void caseExprIndex(ASTExprIndex &host, void *param);
-		std::vector<Opcode *> getResult() {return result;}
+		std::vector<std::shared_ptr<Opcode>> getResult() {return result;}
 	private:
 		void addOpcode(Opcode* code);
+		void addOpcode(std::shared_ptr<Opcode>& code);
 
 		template <class Container>
-		void addOpcodes(Container const& container);
+		void addOpcodes(Container &container);
 	
-		std::vector<Opcode *> result;
+		std::vector<std::shared_ptr<Opcode>> result;
 	};
 
 

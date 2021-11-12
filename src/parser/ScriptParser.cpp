@@ -19,8 +19,10 @@
 #include "SemanticAnalyzer.h"
 #include "BuildVisitors.h"
 #include "RegistrationVisitor.h"
+#include "mem_debug.h"
 #include "ZScript.h"
 using std::unique_ptr;
+using std::shared_ptr;
 using namespace ZScript;
 
 extern std::vector<string> ZQincludePaths;
@@ -48,8 +50,9 @@ void ScriptParser::initialize()
 
 unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 {
-    ScriptParser::initialize();
-
+	
+	ScriptParser::initialize();
+	
 	box_out("Pass 1: Parsing");
 	box_eol();
 
@@ -97,7 +100,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
 	if (!id.get())
 		return nullptr;
-
+	
 	box_out("Pass 6: Assembling");
 	box_eol();
 
@@ -281,15 +284,15 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		}
 		scope = function.internalScope;
 
-		vector<Opcode *> funccode;
+		vector<std::shared_ptr<Opcode>> funccode;
 
 		int32_t stackSize = getStackSize(function);
 
 		// Start of the function.
-		unique_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
+		std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
 		                                  new LiteralArgument(0)));
 		first->setLabel(function.getLabel());
-		funccode.push_back(first.release());
+		funccode.push_back(std::move(first));
 
 		// Push on the this, if a script
 		if (isRun)
@@ -298,7 +301,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 
 			if (type == ScriptType::ffc )
 			{
-				funccode.push_back(
+				addOpcode2(funccode, 
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(REFFFC)));
 
@@ -306,53 +309,53 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			}
 			else if (type == ScriptType::item )
 			{
-				funccode.push_back(
+				addOpcode2(funccode,
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(REFITEMCLASS)));
 
 			}
 			else if (type == ScriptType::npc )
 			{
-				funccode.push_back(
+				addOpcode2(funccode,
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(REFNPC)));
 
 			}
 			else if (type == ScriptType::lweapon )
 			{
-				funccode.push_back(
+				addOpcode2(funccode,
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(REFLWPN)));
 			}
 			else if (type == ScriptType::eweapon )
 			{
-				funccode.push_back(
+				addOpcode2(funccode,
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(REFEWPN)));
 
 			}
 			else if (type == ScriptType::dmapdata )
 			{
-				funccode.push_back(
+				addOpcode2(funccode,
 					new OSetRegister(new VarArgument(EXP2),
 							 new VarArgument(REFDMAPDATA)));
 
 			}
 			else if (type == ScriptType::itemsprite)
 			{
-				funccode.push_back(
+				addOpcode2(funccode,
 					new OSetRegister(new VarArgument(EXP2),
 							new VarArgument(REFITEM)));
 			}
 			else if (type == ScriptType::subscreendata)
 			{
-				funccode.push_back(
+				addOpcode2(funccode,
 					new OSetRegister(new VarArgument(EXP2),
 							new VarArgument(REFSUBSCREEN)));
 			}
 			else if (type == ScriptType::combodata)
 			{
-				funccode.push_back(
+				addOpcode2(funccode,
 					new OSetRegister(new VarArgument(EXP2),
 							new VarArgument(REFCOMBODATA)));
 			}
@@ -384,15 +387,15 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 						new OSetRegister(new VarArgument(EXP2),
 						                 new VarArgument(REFITEMCLASS)));
 			*/
-			funccode.push_back(new OPushRegister(new VarArgument(EXP2)));
+			addOpcode2(funccode, new OPushRegister(new VarArgument(EXP2)));
 		}
 
 		// Push 0s for the local variables.
 		for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
-			funccode.push_back(new OPushRegister(new VarArgument(EXP1)));
+			addOpcode2(funccode, new OPushRegister(new VarArgument(EXP1)));
 
 		// Set up the stack frame register
-		funccode.push_back(new OSetRegister(new VarArgument(SFRAME),
+		addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
 		                                    new VarArgument(SP)));
 		OpcodeContext oc(typeStore);
 		BuildOpcodes bo(scope);
@@ -403,15 +406,15 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		appendElements(funccode, bo.getResult());
 
 		// Add appendix code.
-		unique_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
+		std::shared_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
 												  new LiteralArgument(0)));
 		next->setLabel(bo.getReturnLabelID());
-		funccode.push_back(next.release());
+		funccode.push_back(std::move(next));
 
 		// Pop off everything.
 		for (int32_t i = 0; i < stackSize; ++i)
 		{
-			funccode.push_back(new OPopRegister(new VarArgument(EXP2)));
+			addOpcode2(funccode, new OPopRegister(new VarArgument(EXP2)));
 		}
 
 		//if it's a main script, quit.
@@ -420,7 +423,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			// Note: the stack still contains the "this" pointer
 			// But since the script is about to terminate, we don't
 			// care about popping it off.
-			funccode.push_back(new OQuit());
+			addOpcode2(funccode, new OQuit());
 		}
 		else
 		{
@@ -429,7 +432,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			// return address (pushed on by the caller).
 			//pop off the return address
 			//and return
-			funccode.push_back(new OReturn());
+			addOpcode2(funccode, new OReturn());
 		}
 
 		function.giveCode(funccode);
@@ -445,10 +448,10 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	return unique_ptr<IntermediateData>(rval.release());
 }
 
-static vector<Opcode*> blankScript()
+static vector<shared_ptr<Opcode>> blankScript()
 {
-	vector<Opcode*> rval;
-	rval.push_back(new OQuit());
+	vector<shared_ptr<Opcode>> rval;
+	addOpcode2(rval, new OQuit());
 	return rval;
 }
 
@@ -456,8 +459,8 @@ void ScriptParser::assemble(IntermediateData *id)
 {
 	Program& program = id->program;
 
-	map<Script*, vector<Opcode*> > scriptCode;
-	vector<Opcode*> ginit = id->globalsInit;
+	map<Script*, vector<shared_ptr<Opcode>> > scriptCode;
+	vector<shared_ptr<Opcode>> ginit = id->globalsInit;
 
 	// Do the global inits
 
@@ -467,7 +470,7 @@ void ScriptParser::assemble(IntermediateData *id)
 		&& !userInit->isPrototypeRun()) //Prototype run function can be ignored, as it is empty.
 	{
 		int32_t label = *getLabel(*userInit);
-		ginit.push_back(new OGotoImmediate(new LabelArgument(label)));
+		addOpcode2(ginit, new OGotoImmediate(new LabelArgument(label)));
 	}
 
 	Script* init = program.getScript("~Init");
@@ -492,17 +495,17 @@ void ScriptParser::assemble(IntermediateData *id)
 	}
 }
 
-vector<Opcode*> ScriptParser::assembleOne(
-		Program& program, vector<Opcode*> runCode, int32_t numparams)
+vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
+		Program& program, vector<shared_ptr<Opcode>> runCode, int32_t numparams)
 {
-	vector<Opcode *> rval;
+	std::vector<std::shared_ptr<Opcode>> rval;
 
 	// Push on the params to the run.
 	int32_t i;
 	for (i = 0; i < numparams && i < 9; ++i)
-		rval.push_back(new OPushRegister(new VarArgument(i)));
+		addOpcode2(rval, new OPushRegister(new VarArgument(i)));
 	for (; i < numparams; ++i)
-		rval.push_back(new OPushRegister(new VarArgument(EXP1)));
+		addOpcode2(rval, new OPushRegister(new VarArgument(EXP1)));
 
 	// Generate a map of labels to functions.
 	vector<Function*> allFunctions = getFunctions(program);
@@ -516,7 +519,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 
 	// Grab all labels directly jumped to.
 	std::set<int32_t> usedLabels;
-	for (vector<Opcode*>::iterator it = runCode.begin();
+	for (vector<shared_ptr<Opcode>>::iterator it = runCode.begin();
 	     it != runCode.end(); ++it)
 	{
 		GetLabels temp(usedLabels);
@@ -532,8 +535,8 @@ vector<Opcode*> ScriptParser::assembleOne(
 			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
 		if (function)
 		{
-			vector<Opcode*> const& functionCode = function->getCode();
-			for (vector<Opcode*>::const_iterator it = functionCode.begin();
+			vector<shared_ptr<Opcode>> const& functionCode = function->getCode();
+			for (vector<shared_ptr<Opcode>>::const_iterator it = functionCode.begin();
 			     it != functionCode.end(); ++it)
 			{
 				GetLabels temp(usedLabels);
@@ -546,9 +549,9 @@ vector<Opcode*> ScriptParser::assembleOne(
 	}
 
 	// Make the rval
-	for (vector<Opcode*>::iterator it = runCode.begin();
+	for (vector<shared_ptr<Opcode>>::iterator it = runCode.begin();
 	     it != runCode.end(); ++it)
-		rval.push_back((*it)->makeClone());
+		addOpcode2(rval, (*it)->makeClone());
 
 	for (std::set<int32_t>::iterator it = usedLabels.begin();
 	     it != usedLabels.end(); ++it)
@@ -558,17 +561,17 @@ vector<Opcode*> ScriptParser::assembleOne(
 			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
 		if (!function) continue;
 
-		vector<Opcode*> functionCode = function->getCode();
-		for (vector<Opcode*>::iterator it = functionCode.begin();
+		vector<shared_ptr<Opcode>> functionCode = function->getCode();
+		for (vector<shared_ptr<Opcode>>::iterator it = functionCode.begin();
 		     it != functionCode.end(); ++it)
-			rval.push_back((*it)->makeClone());
+			addOpcode2(rval, (*it)->makeClone());
 	}
 
 	// Set the label line numbers.
 	map<int32_t, int32_t> linenos;
 	int32_t lineno = 1;
 
-	for (vector<Opcode*>::iterator it = rval.begin();
+	for (vector<shared_ptr<Opcode>>::iterator it = rval.begin();
 	     it != rval.end(); ++it)
 	{
 		if ((*it)->getLabel() != -1)
@@ -577,7 +580,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 	}
 
 	// Now fill in those labels
-	for (vector<Opcode*>::iterator it = rval.begin();
+	for (vector<shared_ptr<Opcode>>::iterator it = rval.begin();
 	     it != rval.end(); ++it)
 	{
 		SetLabels temp;
@@ -702,7 +705,7 @@ ScriptsData::ScriptsData(Program& program)
 			}
 		}
 
-		script.code = vector<Opcode*>();
+		script.code = vector<shared_ptr<Opcode>>();
 		scriptTypes[name] = script.getType();
 	}
 }

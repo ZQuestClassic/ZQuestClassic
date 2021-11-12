@@ -15,6 +15,7 @@ using namespace ZScript;
 using std::vector;
 using std::string;
 using std::ostringstream;
+using std::shared_ptr;
 
 ////////////////////////////////////////////////////////////////
 // ZScript::Program
@@ -130,7 +131,7 @@ Script::Script(Program& program)
 
 Script::~Script()
 {
-	deleteElements(code);
+	//deleteElements(code);
 }
 
 bool Script::isPrototypeRun() const
@@ -447,18 +448,18 @@ Function::Function(DataType const* returnType, string const& name,
 
 Function::~Function()
 {
-	deleteElements(ownedCode);
+	//deleteElements(ownedCode);
 	deleteElements(paramNames);
 }
 
-vector<Opcode*> Function::takeCode()
+std::vector<std::shared_ptr<Opcode>> Function::takeCode()
 {
-	vector<Opcode*> code = ownedCode;
+	std::vector<std::shared_ptr<Opcode>> code = ownedCode;
 	ownedCode.clear();
 	return code;
 }
 
-void Function::giveCode(vector<Opcode*>& code)
+void Function::giveCode(vector<shared_ptr<Opcode>>& code)
 {
 	appendElements(ownedCode, code);
 	code.clear();
