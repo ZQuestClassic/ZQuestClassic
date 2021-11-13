@@ -30054,7 +30054,7 @@ int32_t main(int32_t argc,char **argv)
 	//turn on MSVC memory checks
 	//this should be interesting...
 	
-	InitCrtDebug();
+	//InitCrtDebug();
 	
 	
 	// Before anything else, let's register our custom trace handler:
