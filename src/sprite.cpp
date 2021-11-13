@@ -1069,6 +1069,8 @@ void doSpriteDraw(int32_t drawstyle, BITMAP* dest, BITMAP* src, int32_t x, int32
 		draw_trans_sprite(dest, src, x, y);
 		color_map = &trans_table;
 	}
+	else if(drawstyle==2)
+		draw_cloaked_sprite(dest, src, x, y);
 	else draw_sprite(dest, src, x, y);
 }
 
@@ -1089,11 +1091,6 @@ void sprite::draw(BITMAP* dest)
 	{
 		drawzcboss(dest);
 		return; //don't run the rest, use the old code
-	}
-	if(drawstyle == 2) //Cloaked is broken with new sprite draws
-	{
-		drawzcboss(dest);
-		return; //Temporary patch -Em
 	}
 	int32_t sx = real_x(x+xofs);
 	int32_t sy = real_y(y+yofs)-real_z(z+zofs);

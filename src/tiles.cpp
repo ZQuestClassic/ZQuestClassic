@@ -1456,6 +1456,74 @@ void overtilecloaked16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t fli
     }
 }
 
+void draw_cloaked_sprite(BITMAP* dest,BITMAP* src,int32_t x,int32_t y)
+{
+	int32_t w = src->w, h = src->h;
+    if(x+w<0 || y+h<0)
+        return;
+        
+    if(y > dest->h)
+        return;
+        
+    if(y == dest->h && x > dest->w)
+        return;
+    
+	int32_t sx = 0, sy = 0;
+    byte *di;
+    
+	if(y<0)
+		sy+=(0-y);
+		
+	for(int32_t dy=(y<0 ? 0-y : 0); (dy<h)&&(dy+y<dest->h); ++dy)
+	{
+		di = &(dest->line[y+dy][x<0 ? 0 : x]);
+		
+		if(x+w-1<dest->w)
+		{
+			if(x<0)
+				sx+=0-x;
+				
+			for(int32_t dx=(x<0 ? 0-x : 0); dx<w; ++dx)
+			{
+				if(src->line[sy][sx])
+				{
+					*di=dest->line[((y+dy)^1)][((x+dx)^1)];
+				}
+				
+				++di;
+				++sx;
+				if(sx >= w)
+				{
+					++sy;
+					sx = 0;
+				}
+			}
+		}
+		else
+		{
+			for(int32_t i=0; i<16; ++i)
+			{
+				if(x+i<dest->w)
+				{
+					if(src->line[sy][sx])
+					{
+						*di=dest->line[((y+dy)^1)][(x^1)];
+					}
+					
+					++di;
+				}
+				
+				++sx;
+				if(sx >= w)
+				{
+					++sy;
+					sx = 0;
+				}
+			}
+		}
+	}
+}
+
 void putblocktranslucent8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask,int32_t opacity)
 {
     int32_t t[4];
