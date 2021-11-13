@@ -1060,11 +1060,18 @@ bool sprite::runKnockback()
 {
 	return false; //Virtual; must be overridden for each class, for proper collision checking.
 }
-//Drawing with scripttile and scriptflip
- //sprite::draw() before adding scripttile and scriptflip
 
- //sprite::draw() before adding scripttile and scriptflip
-//To quote Jeff Goldblum, 'That is one big pile opf shit!'. -Z (5th April, 2019)
+void doSpriteDraw(int32_t drawstyle, BITMAP* dest, BITMAP* src, int32_t x, int32_t y)
+{
+	if(drawstyle==1)
+	{
+		color_map = &trans_table2;
+		draw_trans_sprite(dest, src, x, y);
+		color_map = &trans_table;
+	}
+	else draw_sprite(dest, src, x, y);
+}
+
 void sprite::draw(BITMAP* dest)
 {
 	//Handle glowing sprites
@@ -1083,6 +1090,11 @@ void sprite::draw(BITMAP* dest)
 		drawzcboss(dest);
 		return; //don't run the rest, use the old code
 	}
+	if(drawstyle == 2) //Cloaked is broken with new sprite draws
+	{
+		drawzcboss(dest);
+		return; //Temporary patch -Em
+	}
 	int32_t sx = real_x(x+xofs);
 	int32_t sy = real_y(y+yofs)-real_z(z+zofs);
 	
@@ -1090,7 +1102,7 @@ void sprite::draw(BITMAP* dest)
 	if(id<0)
 	{
 		return;
-        }
+	}
 	BITMAP* sprBMP2 = create_bitmap_ex(8,256,256); //run after above failsafe, so that we always destroy it
 	int32_t e = extend>=3 ? 3 : extend;
 	int32_t flip_type = ((scriptflip > -1) ? scriptflip : flip);
@@ -1100,32 +1112,17 @@ void sprite::draw(BITMAP* dest)
 	{
 		switch(e)
 		{
-			BITMAP *temp;
-            
 			case 1:
-				temp = create_bitmap_ex(8,16,32);
+			{
+				BITMAP *temp = create_bitmap_ex(8,16,32);
 				blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
 				//clear_bitmap(temp);
 				if ( sprBMP2 ) clear_bitmap(sprBMP2);
             
 				//Draw sprite tiles to the temp (scratch) bitmap.
-				if(drawstyle==0 || drawstyle==3)
-				{
-					overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
-					overtile16(temp,TILEBOUND((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
-				}
-            
-				if(drawstyle==1)
-				{
-					overtiletranslucent16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),0,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
-					overtiletranslucent16(temp,TILEBOUND((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
-				}
-            
-				if(drawstyle==2)
-				{
-					overtilecloaked16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),0,0,((scriptflip > -1) ? scriptflip : flip));
-					overtilecloaked16(temp,TILEBOUND((scripttile > -1) ? scripttile : tile),0,16,((scriptflip > -1) ? scriptflip : flip));
-				}
+				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp,TILEBOUND((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
+				
 				//Blit to the screen...
 				if ( rotation )
 				{	
@@ -1136,7 +1133,7 @@ void sprite::draw(BITMAP* dest)
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 					}
 					else rotate_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation));
-					draw_sprite(dest, sprBMP2, sx, sy);
+					doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 				}
 				else
 				{
@@ -1144,60 +1141,37 @@ void sprite::draw(BITMAP* dest)
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-						draw_sprite(dest, sprBMP2, sx, sy);
+						doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 					}
-					else masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+					else doSpriteDraw(drawstyle, dest, temp, sx, sy-16);
 				}
 				//clean-up
 				destroy_bitmap(temp);
 				break;
-            
+            }
 			case 2:
-				temp = create_bitmap_ex(8,48,32);
+			{
+				BITMAP *temp = create_bitmap_ex(8,48,32);
 				blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
 				//clear_bitmap(temp);
 				clear_bitmap(sprBMP2);
             
-				if(drawstyle==0 || drawstyle==3)
-				{
-					overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,cs,((scriptflip > -1) ? scriptflip : flip));
-					overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
-					overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,0,cs,((scriptflip > -1) ? scriptflip : flip));
-					overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)),16,16,cs,((scriptflip > -1) ? scriptflip : flip));
-					overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
-					overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,16,cs,((scriptflip > -1) ? scriptflip : flip));
-				}
-            
-				if(drawstyle==1)
-				{
-					overtiletranslucent16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
-					overtiletranslucent16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
-					overtiletranslucent16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
-					overtiletranslucent16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)),16,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
-					overtiletranslucent16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
-					overtiletranslucent16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
-				}
-				    
-				if(drawstyle==2)
-				{
-					overtilecloaked16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,((scriptflip > -1) ? scriptflip : flip));
-					overtilecloaked16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,0,((scriptflip > -1) ? scriptflip : flip));
-					overtilecloaked16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,0,((scriptflip > -1) ? scriptflip : flip));
-					overtilecloaked16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)),16,16,((scriptflip > -1) ? scriptflip : flip));
-					overtilecloaked16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,16,((scriptflip > -1) ? scriptflip : flip));
-					overtilecloaked16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,16,((scriptflip > -1) ? scriptflip : flip));
-				}
+				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,0,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)),16,16,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,16,cs,((scriptflip > -1) ? scriptflip : flip));
+				
 				if ( rotation )
 				{
-			
 					if ( scale ) 
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 					}
 					else rotate_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation));
-					draw_sprite(dest, sprBMP2, sx, sy);
-					
+					doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 				}
 				else
 				{
@@ -1205,15 +1179,15 @@ void sprite::draw(BITMAP* dest)
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-						draw_sprite(dest, sprBMP2, sx, sy);
+						doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 					}
-					else masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
+					else doSpriteDraw(drawstyle, dest, temp, sx-8, sy-16);
 				}
 					
 				
 				destroy_bitmap(temp);
 				break;
-            
+            }
 			case 3:
 			{
 				int32_t tileToDraw;
@@ -1235,9 +1209,11 @@ void sprite::draw(BITMAP* dest)
 								if(tileToDraw%TILES_PER_ROW<j) // Wrapped around
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
 							    
+								//Yes, all of these are the same. No, you can't remove them.
+								//Removing these suddenly breaks everything. IDEFK why. -Em
 								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==1) overtiletranslucent16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,((scriptflip > -1) ? scriptflip : flip),128);
-								else if(drawstyle==2) overtilecloaked16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==1) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==2) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						if ( rotation )
@@ -1248,7 +1224,7 @@ void sprite::draw(BITMAP* dest)
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 							}
 							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
-							draw_sprite(dest, sprBMP2, sx, sy);
+							doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 							
 						}
 						else
@@ -1257,9 +1233,9 @@ void sprite::draw(BITMAP* dest)
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-								draw_sprite(dest, sprBMP2, sx, sy);
+								doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 							}
-							else draw_sprite(dest, sprBMP, sx, sy);
+							else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
 						}
 							
 						destroy_bitmap(sprBMP);
@@ -1281,22 +1257,22 @@ void sprite::draw(BITMAP* dest)
 								if(tileToDraw%TILES_PER_ROW<j)
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
 							    
+								//Yes, all of these are the same. No, you can't remove them.
+								//Removing these suddenly breaks everything. IDEFK why. -Em
 								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==1) overtiletranslucent16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip),128);
-								else if(drawstyle==2) overtilecloaked16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==1) overtile16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==2) overtile16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						if ( rotation )
 						{
-							
 							if ( scale ) 
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 							}
 							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
-							draw_sprite(dest, sprBMP2, sx, sy);
-							
+							doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 						}
 						else
 						{
@@ -1304,9 +1280,9 @@ void sprite::draw(BITMAP* dest)
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-								draw_sprite(dest, sprBMP2, sx, sy);
+								doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 							}
-							else draw_sprite(dest, sprBMP, sx, sy);
+							else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
 						}
 							
 						destroy_bitmap(sprBMP);
@@ -1328,11 +1304,12 @@ void sprite::draw(BITMAP* dest)
 								if(tileToDraw%TILES_PER_ROW<j)
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
 							    
+								//Yes, all of these are the same. No, you can't remove them.
+								//Removing these suddenly breaks everything. IDEFK why. -Em
 								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==1) overtiletranslucent16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip),128);
-								else if(drawstyle==2) overtilecloaked16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==1) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==2) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
-							    
 						}
 						if ( rotation )
 						{
@@ -1342,8 +1319,7 @@ void sprite::draw(BITMAP* dest)
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 							}
 							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
-							draw_sprite(dest, sprBMP2, sx, sy);
-							
+							doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 						}
 						else
 						{
@@ -1351,9 +1327,9 @@ void sprite::draw(BITMAP* dest)
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-								draw_sprite(dest, sprBMP2, sx, sy);
+								doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 							}
-							else draw_sprite(dest, sprBMP, sx, sy);
+							else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
 						}
 							
 						destroy_bitmap(sprBMP);
@@ -1366,8 +1342,6 @@ void sprite::draw(BITMAP* dest)
 						//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
 						clear_bitmap(sprBMP);
 						clear_bitmap(sprBMP2);
-					
-						
 						
 						for(int32_t i=0; i<tysz; i++)
 						{
@@ -1378,23 +1352,23 @@ void sprite::draw(BITMAP* dest)
 								if(tileToDraw%TILES_PER_ROW<j)
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
 
+								//Yes, all of these are the same. No, you can't remove them.
+								//Removing these suddenly breaks everything. IDEFK why. -Em
 								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,0+j*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==1) overtiletranslucent16(sprBMP,tileToDraw,0+j*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip),128);
-								else if(drawstyle==2) overtilecloaked16(sprBMP,tileToDraw,0+j*16,0+i*16,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==1) overtile16(sprBMP,tileToDraw,0+j*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==2) overtile16(sprBMP,tileToDraw,0+j*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						//rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, 0,ftofix(new_scale));
 						if ( rotation )
 						{
-							
 							if ( scale ) 
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 							}
 							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
-							draw_sprite(dest, sprBMP2, sx, sy);
-							
+							doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 						}
 						else
 						{
@@ -1402,9 +1376,9 @@ void sprite::draw(BITMAP* dest)
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-								draw_sprite(dest, sprBMP2, sx, sy);
+								doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 							}
-							else draw_sprite(dest, sprBMP, sx, sy);
+							else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
 						}
 						
 						destroy_bitmap(sprBMP);
@@ -1412,52 +1386,39 @@ void sprite::draw(BITMAP* dest)
 						break;
 					} //end extend == 0 && flip == 3
 				}
+				break;
+			}
+			case 0:
+			{
+				BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
+				//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+				clear_bitmap(sprBMP);
+				clear_bitmap(sprBMP2);
+				overtile16(sprBMP,TILEBOUND(scripttile > -1 ? scripttile : tile),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
 				
-				//This was designed to fall-through in some cases. I tried to fix this, and it made a whopping mess.
-				//so, I left it alone anc worked with what he have. -Z ( 5th April, 2019 )
-				case 0:  //extend == 0
-				default:
+				if ( rotation )
 				{
-					if(e) break; //Don't draw if the sprite is extended. We already drew it. 
-					//Not doing this causes the UL corner of a larger sprite to draw, on top of an existing sprite. 
-					//IDK why that was done, but it's not going to happen, now. -Z ( 5th April, 2019 )
-					BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
-					//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
-					clear_bitmap(sprBMP);
-					if ( sprBMP2 ) clear_bitmap(sprBMP2);
-					if(drawstyle==0 || drawstyle==3)
-						overtile16(sprBMP,TILEBOUND(scripttile > -1 ? scripttile : tile),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
-					else if(drawstyle==1)
-						overtiletranslucent16(sprBMP,TILEBOUND(scripttile > -1 ? scripttile : tile),0,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
-					else if(drawstyle==2)
-						overtilecloaked16(sprBMP,TILEBOUND(scripttile > -1 ? scripttile : tile),0,0,((scriptflip > -1) ? scriptflip : flip));
-					
-					if ( rotation )
+					if ( scale ) 
 					{
-						
-						if ( scale ) 
-						{
-							double new_scale = scale / 100.0;
-							rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
-						}
-						else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
-						draw_sprite(dest, sprBMP2, sx, sy);
-						
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 					}
-					else
-					{
-						if ( scale ) 
-						{
-							double new_scale = scale / 100.0;
-							rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-							draw_sprite(dest, sprBMP2, sx, sy);
-						}
-						else draw_sprite(dest, sprBMP, sx, sy);
-					}
-					if ( sprBMP ) destroy_bitmap(sprBMP);
-					break;
+					else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+					doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 				}
-			} //end extend == 3, and also extend == 0. Why? Because someone was more mental, than me. -Z (5th April, 2019)
+				else
+				{
+					if ( scale ) 
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
+						doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+					}
+					else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
+				}
+				if ( sprBMP ) destroy_bitmap(sprBMP);
+				break;
+			}
 			break; //Aye, we break switch(e) here.
 		}
 	} //end if(clk>=0)
