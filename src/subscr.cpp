@@ -4973,10 +4973,16 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
         
         for(int32_t y2=y+8; y2<y+72; y2+=8)
         {
+			while(((unsigned)((si&0xF)-DMaps[get_currdmap()].xoff))>7)
+				++si;
+			int32_t xoffs = DMaps[get_currdmap()].xoff;
             for(int32_t x2=x+(large?32:16)+(maptile?8:0); x2<x+(large?96:80)+(maptile?8:0); x2+=8)
             {
-		while(/*DMaps[get_currdmap()].type!=dmOVERW &&*/ ((unsigned)((si&0xF)-DMaps[get_currdmap()].xoff))>7)
-			++si;
+				if(xoffs < 0)
+				{
+					x2 += (8*-xoffs);
+					xoffs = 0;
+				}
                 if(get_bmaps(si))
                 {
                     rectfill(dest,x2+1,y2+1,x2+6,y2+6,roomcolor);
@@ -4992,7 +4998,11 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
                 
                 ++si;
             }
-        }
+			if(DMaps[get_currdmap()].xoff < 0)
+			{
+				si -= DMaps[get_currdmap()].xoff;
+			}
+		}
     }
     
     if(showlink)
