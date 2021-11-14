@@ -981,22 +981,27 @@ void do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t
     
     int32_t* pos = &v[0];
     int32_t sz = v.size();
+	int32_t numpoints = (sdci[2]/10000);
+	if(sz & 1) --sz; //even amount only
+	if(numpoints > sz/2) //cap to array
+		numpoints = sz/2;
+	if(numpoints < 1)
+		return; //Don't draw 0 or negative point count
     
     //Fix the draw Y offset. -Z 20th June, 2019
     for ( int32_t q = 1; q < sz; q+=2 )
     {
-	pos[q] += yoffset;    
-	    
+		pos[q] += yoffset;
     }
-	    if(op <= 127) //translucent
-	    {
+	if(op <= 127) //translucent
+	{
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-	    }
-	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-	    
-	    polygon(bmp, (sdci[2]/10000), (int32_t*)pos, col);
-	    //polygon(bmp, (sdci[2]/10000), &v, col);
-	    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+	}
+	else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+	
+	polygon(bmp, numpoints, (int32_t*)pos, col);
+	//polygon(bmp, (sdci[2]/10000), &v, col);
+	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
 void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
@@ -1016,7 +1021,7 @@ void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
 		return;
 	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
-		if ( refbmp == NULL ) return;
+	if ( refbmp == NULL ) return;
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
@@ -1036,22 +1041,27 @@ void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
     
     int32_t* pos = &v[0];
     int32_t sz = v.size();
+	int32_t numpoints = (sdci[2]/10000);
+	if(sz & 1) --sz; //even amount only
+	if(numpoints > sz/2) //cap to array
+		numpoints = sz/2;
+	if(numpoints < 1)
+		return; //Don't draw 0 or negative point count
     
     //Fix the draw Y offset. -Z 20th June, 2019
     for ( int32_t q = 1; q < sz; q+=2 )
     {
-	pos[q] += yoffset;    
-	    
+		pos[q] += yoffset;    
     }
-	    if(op <= 127) //translucent
-	    {
+	if(op <= 127) //translucent
+	{
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-	    }
-	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-	    
-	    polygon(refbmp, (sdci[2]/10000), (int32_t*)pos, col);
-	    //polygon(refbmp, (sdci[2]/10000), &v, col);
-	    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+	}
+	else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+	
+	polygon(refbmp, numpoints, (int32_t*)pos, col);
+	//polygon(refbmp, (sdci[2]/10000), &v, col);
+	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
 void do_spliner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
