@@ -358,7 +358,7 @@ void RegistrationVisitor::caseDataDeclList(ASTDataDeclList& host, void* param)
 	// Resolve the base type.
 	DataType const& baseType = host.baseType->resolve(*scope, this);
     if (breakRecursion(*host.baseType.get())) return;
-	if (!&baseType || !baseType.isResolved()) return;
+	if (!host.baseType->wasResolved()) return;
 
 	// Don't allow void type.
 	if (baseType == DataType::ZVOID)

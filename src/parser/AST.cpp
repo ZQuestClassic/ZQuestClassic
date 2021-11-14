@@ -2276,11 +2276,11 @@ ScriptType ZScript::resolveScriptType(ASTScriptType const& node,
 // ASTDataType
 
 ASTDataType::ASTDataType(DataType* type, LocationData const& location)
-	: AST(location), type(type->clone()), constant_(0), wasResolved(false)
+	: AST(location), type(type->clone()), constant_(0), wasResolved_(false)
 {}
 
 ASTDataType::ASTDataType(DataType const& type, LocationData const& location)
-	: AST(location), type(type.clone()), constant_(0), wasResolved(false)
+	: AST(location), type(type.clone()), constant_(0), wasResolved_(false)
 {}
 
 void ASTDataType::execute(ASTVisitor& visitor, void* param)
@@ -2292,7 +2292,7 @@ DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler*
 {
 	
 	DataType* resolved = type->resolve(scope, errorHandler);
-	if(resolved && constant_ && !wasResolved)
+	if(resolved && constant_ && !wasResolved_)
 	{
 		string name = resolved->getName();
 		DataType* constType = resolved->getConstType() ? resolved->getConstType()->clone() : NULL;
@@ -2306,7 +2306,7 @@ DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler*
 	}
 	else if (resolved && type != resolved)
 		type.reset(resolved);
-	wasResolved = true;
+	wasResolved_ = true;
 	return *type;
 }
 

@@ -2005,13 +2005,13 @@ namespace ZScript
 		ASTDataType* clone() const {return new ASTDataType(*this);}
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
-
 		DataType const& resolve(Scope& scope, CompileErrorHandler* errorHandler);
+		inline bool wasResolved() const { return wasResolved_; }
 
 		owning_ptr<DataType> type;
 		int32_t constant_;
 	private:
-		bool wasResolved;
+		bool wasResolved_;
 	};
 }
 
