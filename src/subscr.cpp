@@ -2167,9 +2167,9 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
       80 81 84 85
       82 83 86 87
       */
-    if(tile==0)
+    if(tile==0&&misc)
     {
-	tile= FFCore.getQuestHeaderInfo(vZelda) >= 0x250 ? misc->colors.blueframe_tile : misc->colors.blueframe_tile;
+		tile = misc->colors.blueframe_tile;
     }
     
     int32_t t8 = tile<<2;
@@ -2634,50 +2634,50 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap,
     }
 }
 
-
-
-void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t tile,bool bs_style)
+void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t cs,bool bs_style)
 {
-    if(!show_subscreen_life)
-    {
-        return;
-    }
-    
-    if(!bs_style)
-    {
-        y+=24;
-    }
-    const int32_t basetile = FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? (wpnsbuf[iwQuarterHearts].newtile) : (wpnsbuf[iwQuarterHearts].tile);
-    const int32_t max_iter = (game != NULL ? zc_min(game->get_maxlife(),game->get_hp_per_heart()*24) : 1);
+	if(!show_subscreen_life)
+	{
+		return;
+	}
+	
+	if(!bs_style)
+	{
+		y+=24;
+	}
+	int32_t tile = 0;
+	const int32_t basetile = FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? (wpnsbuf[iwQuarterHearts].newtile) : (wpnsbuf[iwQuarterHearts].tile);
+	const int32_t max_iter = (game != NULL ? zc_min(game->get_maxlife(),game->get_hp_per_heart()*24) : 1);
 	const int32_t inc = (game != NULL ? game->get_hp_per_heart() : 16);
+	
 	for(int32_t i=0; i<max_iter; i+=inc)
-    {
-        if(game != NULL)
-        {
-            if(get_bit(quest_rules,qr_QUARTERHEART))
-            {
-                if(i+((game->get_hp_per_heart()/4)*3)>=game->get_life()) tile= (basetile*4)+2;
-                
-                if(i+(game->get_hp_per_heart()/2)>=game->get_life()) tile=1;
-                
-                if(i+((game->get_hp_per_heart()/4)*1)>=game->get_life()) tile= (basetile*4)+3;
-            }
-            else if(i+(game->get_hp_per_heart()/2)>=game->get_life()) tile=1;
-            
-            if(i>=game->get_life()) tile=4;
-        }
-        else
-            tile=4;
-            
-        overtile8(dest,tile,x,y,1,0);
-        x+=8;
-        
-        if(((i>>4)&7)==7)
-        {
-            x-=64;
-            y+=bs_style?8:-8;
-        }
-    }
+	{
+		if(game != NULL)
+		{
+			if(get_bit(quest_rules,qr_QUARTERHEART))
+			{
+				if(i+((game->get_hp_per_heart()/4)*3)>=game->get_life()) tile= (basetile*4)+2;
+				
+				if(i+(game->get_hp_per_heart()/2)>=game->get_life()) tile=1;
+				
+				if(i+((game->get_hp_per_heart()/4)*1)>=game->get_life()) tile= (basetile*4)+3;
+			}
+			else if(i+(game->get_hp_per_heart()/2)>=game->get_life()) tile=1;
+			
+			if(i>=game->get_life()) tile=4;
+		}
+		else
+			tile=4;
+		
+		overtile8(dest,tile,x,y,cs,0);
+		x+=8;
+		
+		if(((i>>4)&7)==7)
+		{
+			x-=64;
+			y+=bs_style?8:-8;
+		}
+	}
 }
 
 void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
@@ -3741,7 +3741,8 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
             
             case ssoLIFEMETER:
             {
-                lifemeter(dest, x, y, css->objects[i].d1, css->objects[i].d2 != 0);
+                //lifemeter(dest, x, y, css->objects[i].d1, css->objects[i].d2 != 0);
+                lifemeter(dest, x, y, 1, css->objects[i].d2 != 0);
             }
             break;
             

@@ -2716,46 +2716,57 @@ static void delete_mode()
 	textout_ex(scrollbuf,zfont,"DELETE FILE",48,184,CSET(2)+3,0);
 }
 
+static void framerect(BITMAP* dest, int32_t x, int32_t y, int32_t w, int32_t h, int32_t c)
+{
+	BITMAP* temp = create_bitmap_ex(8, dest->w, dest->h);
+	clear_bitmap(temp);
+	rect(temp, x, y, x+w-1, y+h-1,c);
+	rect(temp, x+1, y+1, x+w-2, y+h-2,c);
+	temp->line[y][x] = 0;
+	temp->line[y][x+w-1] = 0;
+	temp->line[y+h-1][x] = 0;
+	temp->line[y+h-1][x+w-1] = 0;
+	masked_blit(temp, dest, x, y, x, y, w, h);
+	destroy_bitmap(temp);
+}
+
 static void selectscreen()
 {
 	FFCore.kb_typing_mode = false;
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
-	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-	midi_volume = FFCore.usr_midi_volume;
-//	master_volume(-1,FFCore.usr_midi_volume);
+		Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+		midi_volume = FFCore.usr_midi_volume;
+		//master_volume(-1,FFCore.usr_midi_volume);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
-	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
+		digi_volume = FFCore.usr_digi_volume;
+			//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (int32_t)FFCore.usr_music_volume;
+		emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (int32_t)FFCore.usr_panstyle;
+		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	FFCore.skip_ending_credits = 0;
 	//  text_mode(0);
 	init_NES_mode();
-	//  loadfullpal();
+	loadfullpal();
 	loadlvlpal(1);
 	Bwpn = 0, Awpn = 0; //the subsreen values
 	clear_bitmap(scrollbuf);
-	//QMisc.colors.blueframe_tile = 237; //hardcoded frame tile -- move to module
-	QMisc.colors.blueframe_tile = moduledata.select_screen_tiles[sels_tile_frame]; //hardcoded frame tile -- move to module
-	//QMisc.colors.blueframe_cset = 0; //hardcoded frame cset -- move to module
-	QMisc.colors.blueframe_cset = moduledata.select_screen_tile_csets[sels_tile_frame_cset]; //hardcoded frame cset -- move to module
-//  blueframe(scrollbuf,&QMisc,24,48,26,20);
-	frame2x2(scrollbuf,&QMisc,24,48,QMisc.colors.blueframe_tile,QMisc.colors.blueframe_cset,26,20,0,1,0);
+	
+	framerect(scrollbuf, 27, 51, 26*8-6, 20*8-6,0x03);
+	
 	textout_ex(scrollbuf,zfont,"- S E L E C T -",64,24,1,0); //could be in module at some point
 	textout_ex(scrollbuf,zfont," NAME ",80,48,1,0);
 	textout_ex(scrollbuf,zfont," LIFE ",152,48,1,0);
@@ -2781,13 +2792,13 @@ static void list_save(int32_t save_num, int32_t ypos)
 		game->set_life(saves[save_num].get_maxlife());
 		game->set_hp_per_heart(saves[save_num].get_hp_per_heart());
 		
-		wpnsbuf[iwQuarterHearts].newtile = moduledata.select_screen_tiles[sels_heart_tile];
+		//wpnsbuf[iwQuarterHearts].newtile = moduledata.select_screen_tiles[sels_heart_tile];
 		//Setting the cset does nothing, because it lifemeter() uses overtile8()
 		//Modules should set the cset manually. 
-		wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];
+		//wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];
 		
 		//boogie!
-		lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(saves[save_num].get_hp_per_heart()))?8:0),0,0);
+		lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(saves[save_num].get_hp_per_heart()))?8:0),8,0);
 		textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
 		
 		if(saves[save_num].get_quest())
@@ -2796,104 +2807,104 @@ static void list_save(int32_t save_num, int32_t ypos)
 		if ( moduledata.select_screen_tiles[draw_link_first]) 
 			overtile16(framebuf,moduledata.select_screen_tiles[sels_linktile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_link_cset] : (save_num%3)+10,0); 
 
-			if(saves[save_num].get_quest()==1)
-			{
-				//hardcoded quest icons -- move to module
-				//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_1A] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1A],moduledata.select_screen_tiles[sels_tile_questicon_1A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1A_cset],0);   
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_1B] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1B],moduledata.select_screen_tiles[sels_tile_questicon_1B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1B_cset],0);   
-			}
-			if(saves[save_num].get_quest()==2)
-			{
-			   //hardcoded quest icons -- move to module
-				//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_2A] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2A],moduledata.select_screen_tiles[sels_tile_questicon_2A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2A_cset],0);   
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_2B] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2B],moduledata.select_screen_tiles[sels_tile_questicon_2B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2B_cset],0);   
-			}
-				
-				
-			if(saves[save_num].get_quest()==3)
-			{
-				//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
-				//overtile16(framebuf,41,41,ypos+14,9,0);             //put sword on third quests
+		if(saves[save_num].get_quest()==1)
+		{
+			//hardcoded quest icons -- move to module
+			//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_1A] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1A],moduledata.select_screen_tiles[sels_tile_questicon_1A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1A_cset],0);   
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_1B] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1B],moduledata.select_screen_tiles[sels_tile_questicon_1B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1B_cset],0);   
+		}
+		if(saves[save_num].get_quest()==2)
+		{
+		   //hardcoded quest icons -- move to module
+			//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_2A] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2A],moduledata.select_screen_tiles[sels_tile_questicon_2A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2A_cset],0);   
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_2B] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2B],moduledata.select_screen_tiles[sels_tile_questicon_2B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2B_cset],0);   
+		}
 			
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_3A] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3A],moduledata.select_screen_tiles[sels_tile_questicon_3A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3A_cset],0);   
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_3B] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3B],moduledata.select_screen_tiles[sels_tile_questicon_3B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3B_cset],0);   
-			}
 			
-			if(saves[save_num].get_quest()==4)
-			{
-				//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-				//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_4A] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4A],moduledata.select_screen_tiles[sels_tile_questicon_4A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4A_cset],0);   
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_4B] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4B],moduledata.select_screen_tiles[sels_tile_questicon_4B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4B_cset],0);   
-			}
+		if(saves[save_num].get_quest()==3)
+		{
+			//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+			//overtile16(framebuf,41,41,ypos+14,9,0);             //put sword on third quests
+		
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_3A] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3A],moduledata.select_screen_tiles[sels_tile_questicon_3A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3A_cset],0);   
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_3B] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3B],moduledata.select_screen_tiles[sels_tile_questicon_3B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3B_cset],0);   
+		}
+		
+		if(saves[save_num].get_quest()==4)
+		{
+			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_4A] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4A],moduledata.select_screen_tiles[sels_tile_questicon_4A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4A_cset],0);   
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_4B] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4B],moduledata.select_screen_tiles[sels_tile_questicon_4B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4B_cset],0);   
+		}
 
-			if(saves[save_num].get_quest()==5)
-			{
-				//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-				//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_5A] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5A],moduledata.select_screen_tiles[sels_tile_questicon_5A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5A_cset],0);   
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_5B] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5B],moduledata.select_screen_tiles[sels_tile_questicon_5B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5B_cset],0);   
-			}
-			
-			if(saves[save_num].get_quest()==6)
-			{
-				//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-				//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_6A] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6A],moduledata.select_screen_tiles[sels_tile_questicon_6A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6A_cset],0);   
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_6B] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6B],moduledata.select_screen_tiles[sels_tile_questicon_6B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6B_cset],0);   
-			}
+		if(saves[save_num].get_quest()==5)
+		{
+			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_5A] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5A],moduledata.select_screen_tiles[sels_tile_questicon_5A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5A_cset],0);   
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_5B] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5B],moduledata.select_screen_tiles[sels_tile_questicon_5B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5B_cset],0);   
+		}
+		
+		if(saves[save_num].get_quest()==6)
+		{
+			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_6A] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6A],moduledata.select_screen_tiles[sels_tile_questicon_6A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6A_cset],0);   
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_6B] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6B],moduledata.select_screen_tiles[sels_tile_questicon_6B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6B_cset],0);   
+		}
 
-			if(saves[save_num].get_quest()==7)
-			{
-				//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-				//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_7A] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7A],moduledata.select_screen_tiles[sels_tile_questicon_7A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7A_cset],0);   
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_7B] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7B],moduledata.select_screen_tiles[sels_tile_questicon_7B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7B_cset],0);   
-			}
-			if(saves[save_num].get_quest()==8)
-			{
-				//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-				//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_8A] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8A],moduledata.select_screen_tiles[sels_tile_questicon_8A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8A_cset],0);   
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_8B] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8B],moduledata.select_screen_tiles[sels_tile_questicon_8B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8B_cset],0);   
-			}
-			
-			if(saves[save_num].get_quest()==9)
-			{
-				//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-				//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_9A] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9A],moduledata.select_screen_tiles[sels_tile_questicon_9A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9A_cset],0);   
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_9B] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9B],moduledata.select_screen_tiles[sels_tile_questicon_9B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9B_cset],0);   
-			}
-			if(saves[save_num].get_quest()==10)
-			{
-				//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-				//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_10A] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10A],moduledata.select_screen_tiles[sels_tile_questicon_10A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10A_cset],0);   
-				if ( moduledata.select_screen_tiles[sels_tile_questicon_10B] > 0 )
-				overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10B],moduledata.select_screen_tiles[sels_tile_questicon_10B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10B_cset],0);   
-			}
+		if(saves[save_num].get_quest()==7)
+		{
+			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_7A] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7A],moduledata.select_screen_tiles[sels_tile_questicon_7A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7A_cset],0);   
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_7B] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7B],moduledata.select_screen_tiles[sels_tile_questicon_7B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7B_cset],0);   
+		}
+		if(saves[save_num].get_quest()==8)
+		{
+			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_8A] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8A],moduledata.select_screen_tiles[sels_tile_questicon_8A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8A_cset],0);   
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_8B] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8B],moduledata.select_screen_tiles[sels_tile_questicon_8B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8B_cset],0);   
+		}
+		
+		if(saves[save_num].get_quest()==9)
+		{
+			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_9A] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9A],moduledata.select_screen_tiles[sels_tile_questicon_9A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9A_cset],0);   
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_9B] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9B],moduledata.select_screen_tiles[sels_tile_questicon_9B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9B_cset],0);   
+		}
+		if(saves[save_num].get_quest()==10)
+		{
+			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_10A] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10A],moduledata.select_screen_tiles[sels_tile_questicon_10A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10A_cset],0);   
+			if ( moduledata.select_screen_tiles[sels_tile_questicon_10B] > 0 )
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10B],moduledata.select_screen_tiles[sels_tile_questicon_10B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10B_cset],0);   
+		}
 
 		textprintf_ex(framebuf,zfont,72,ypos+16,1,0,"%s",saves[save_num].get_name());
 	}
@@ -3037,14 +3048,15 @@ static bool register_name()
 		while(pos && i>=70);
 		
 		clear_bitmap(framebuf);
-		frame2x2(framebuf,&QMisc,24,48,QMisc.colors.blueframe_tile,QMisc.colors.blueframe_cset,26,8,0,1,0);
+		framerect(framebuf, 27, 51, 26*8-6, 8*8-6,0x03);
 		textout_ex(framebuf,zfont," NAME ",80,48,1,0);
 		textout_ex(framebuf,zfont," LIFE ",152,48,1,0);
 		
 		blit(info,framebuf,0,0,40,70,168,32);
 		destroy_bitmap(info);
 		
-		frame2x2(framebuf,&QMisc,letter_grid_x-letter_grid_offset,letter_grid_y-letter_grid_offset,QMisc.colors.blueframe_tile,QMisc.colors.blueframe_cset,(NameEntryMode2==2)?26:23,(NameEntryMode2==2)?11:9,0,1,0);
+		framerect(framebuf, letter_grid_x-letter_grid_offset+3, letter_grid_y-letter_grid_offset+3,
+			((NameEntryMode2==2)?26:23)*8-6, ((NameEntryMode2==2)?11:9)*8-6,0x03);
 		
 		if(NameEntryMode2==1)
 		{
@@ -3370,7 +3382,7 @@ static bool register_name()
 		*/
 		saves[s].set_quest(quest);
 		
-//	setPackfilePassword(datapwd);
+		//	setPackfilePassword(datapwd);
 		//0 is success
 		int32_t ret = load_quest(saves+s);
 		
@@ -4673,7 +4685,7 @@ static void list_saves2()
 	  game->set_maxlife( saves[listpos+i].get_maxlife());
 	  game->set_life( saves[listpos+i].get_maxlife());
 	  //boogie!
-	  lifemeter(framebuf,144,i*24+56+((game->get_maxlife()>16*(zinit.hp_per_heart))?8:0),0,0);
+	  lifemeter(framebuf,144,i*24+56+((game->get_maxlife()>16*(zinit.hp_per_heart))?8:0),1,0);
 	  textout_ex(framebuf,zfont,saves[listpos+i].get_name(),72,i*24+72,1,0);
 
 	  if(saves[listpos+i].get_quest())

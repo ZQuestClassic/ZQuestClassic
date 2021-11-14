@@ -29908,8 +29908,7 @@ bool ZModule::init(bool d) //bool default
 	//al_trace("Module name set to %s\n",moduledata.module_name);
 	//We load the current module name from zc.cfg or zquest.cfg!
 	//Otherwise, we don't know what file to access to load the module vars! 
-	
-	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","modules/default.zmod"));
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","modules/classic.zmod"));
 	al_trace("The Current ZQuest Player Module is: %s\n",moduledata.module_name); 
 	if(!fileexists((char*)moduledata.module_name))
 	{

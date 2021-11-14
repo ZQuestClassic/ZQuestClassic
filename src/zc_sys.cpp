@@ -779,8 +779,20 @@ bool game_vid_mode(int32_t mode,int32_t wait)
     return true;
 }
 
+void null_quest()
+{
+	char qstdat_string[2048];
+	sprintf(qstdat_string,moduledata.datafiles[qst_dat]);
+	strcat(qstdat_string,"#NESQST_NEW_QST");
+	
+    byte skip_flags[4] = { 0 };
+	
+	loadquest(qstdat_string,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags);
+}
+
 void init_NES_mode()
 {
+	/*
     // qst.dat may not load correctly without this...
     QHeader.templatepath[0]='\0';
     
@@ -791,6 +803,8 @@ void init_NES_mode()
     
     loadfullpal();
     init_tiles(false, &QHeader);
+	*/
+	null_quest();
 }
 
 //----------------------------------------------------------------

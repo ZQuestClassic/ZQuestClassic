@@ -139,10 +139,7 @@ sels_cursor_tile = 0
 //	[0][1] [4][5]
 //	[2][3] [6][7]
 
-sels_heart_tile = 4
 sels_linktile = 0
-
-sels_heart_tilettile_cset = 9
 
 draw_link_first = 0
 
